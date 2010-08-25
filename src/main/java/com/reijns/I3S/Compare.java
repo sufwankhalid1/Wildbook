@@ -266,9 +266,9 @@ public class Compare {
         return -1;
       } else {
         return ((f1.getScore() < f2.getScore()) ? -1 :
-					(f1.getScore() == f2.getScore()) ? 0 : 1);
-			}		
-		}
-	};	
-	
+          (f1.getScore() == f2.getScore()) ? 0 : 1);
+      }
+    }
+  };
+
 }

@@ -70,8 +70,8 @@ public class Spot implements java.io.Serializable {
   public Spot getClone() {
 
     return (new Spot(area, centroidX, centroidY));
-		
-	}
+
+  }
 
 
 }

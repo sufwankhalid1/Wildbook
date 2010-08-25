@@ -418,7 +418,7 @@ public class Encounter implements java.io.Serializable {
   /**
    * Returns the e-mail address of the person who took the primaryImage this encounter.
    *
-   * @return  @return the e-mail address of the photographer who took the primary image for this encounter
+   * @return @return the e-mail address of the photographer who took the primary image for this encounter
    */
   public String getPhotographerEmail() {
     return photographerEmail;
@@ -495,7 +495,7 @@ public class Encounter implements java.io.Serializable {
    * Adds another image to the collection of images for this encounter.
    * These images should be the additional or non-side shots.
    *
-   * @param  imageFile  an additional image, converted to type Blob, to add to this encounter
+   * @param imageFile an additional image, converted to type Blob, to add to this encounter
    * @see com.poet.jdo.Blob, shepherd#makeBlobFromImageFile(File imageFile)
    */
   public void addAdditionalImageName(String fileName) {
@@ -516,7 +516,7 @@ public class Encounter implements java.io.Serializable {
   /**
    * Removes the specified additional image from this encounter.
    *
-   * @param  imageFile  the image to be removed from the additional images stored for this encounter
+   * @param imageFile the image to be removed from the additional images stored for this encounter
    */
   public void removeAdditionalImageName(String imageFile) {
     for (int i = 0; i < additionalImageNames.size(); i++) {
@@ -1293,15 +1293,17 @@ public class Encounter implements java.io.Serializable {
         //now let's recreate the dynamicProperties String
         String newProps = tm.toString();
         int stringSize = newProps.length();
-        dynamicProperties = newProps.substring(1,(stringSize-1)).replaceAll(", ", ";")+";";
-        }
+        dynamicProperties = newProps.substring(1, (stringSize - 1)).replaceAll(", ", ";") + ";";
       }
     }
-    
-    
-    public String getIdentificationRemarks(){return identificationRemarks;}
-    
-    
+  }
+
+
+  public String getIdentificationRemarks() {
+    return identificationRemarks;
+  }
+
+
 }
 	
 	

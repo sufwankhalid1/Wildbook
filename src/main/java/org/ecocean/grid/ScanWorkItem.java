@@ -310,6 +310,7 @@ public class ScanWorkItem implements java.io.Serializable {
   }
 
   public void setNewEncounter(EncounterLite el) {
-    this.newEncounter=el;}
+    this.newEncounter = el;
+  }
 }
 	

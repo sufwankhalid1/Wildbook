@@ -68,7 +68,7 @@ public class Point2D implements java.io.Serializable {
 
   void setY(double y) {
     this.y = y;
-	}
-		
+  }
+
 } 
 

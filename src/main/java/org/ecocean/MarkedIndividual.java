@@ -74,9 +74,9 @@ public class MarkedIndividual {
   /**
    * Adds a new encounter to this MarkedIndividual.
    *
-   * @param  newEncounter  the new <code>encounter</code> to add
+   * @param newEncounter the new <code>encounter</code> to add
    * @return true for successful addition, false for unsuccessful - Note: this change must still be committed for it to be stored in the database
-   * @see  Shepherd#commitDBTransaction()
+   * @see Shepherd#commitDBTransaction()
    */
 
   public boolean addEncounter(Encounter newEncounter) {
@@ -98,9 +98,9 @@ public class MarkedIndividual {
   /**
    * Removes an encounter from this MarkedIndividual.
    *
-   * @param  getRidOfMe  the <code>encounter</code> to remove from this MarkedIndividual
+   * @param getRidOfMe the <code>encounter</code> to remove from this MarkedIndividual
    * @return true for successful removal, false for unsuccessful - Note: this change must still be committed for it to be stored in the database
-   * @see  Shepherd#commitDBTransaction()
+   * @see Shepherd#commitDBTransaction()
    */
   public boolean removeEncounter(Encounter getRidOfMe) {
     if (getRidOfMe.wasRejected()) {
@@ -486,8 +486,8 @@ public class MarkedIndividual {
    * Returns the specified encounter, where the encounter numbers range from 0 to n-1, where n is the total number of encounters stored
    * for this MarkedIndividual.
    *
+   * @param i the specified encounter number, where i=0...(n-1)
    * @return the encounter at position i in the stored Vector of encounters
-   * @param  i  the specified encounter number, where i=0...(n-1)
    */
   public Encounter getEncounter(int i) {
     return (Encounter) encounters.get(i);
@@ -681,7 +681,7 @@ public class MarkedIndividual {
   /**
    * Adds a satellite tag data file for this MarkedIndividual.
    *
-   * @param  dataFile  the satellite tag data file to be added
+   * @param dataFile the satellite tag data file to be added
    */
   public void addDataFile(String dataFile) {
     dataFiles.add(dataFile);
@@ -690,7 +690,7 @@ public class MarkedIndividual {
   /**
    * Removes a satellite tag data file for this MarkedIndividual.
    *
-   * @param  dataFile  The satellite data file, as a String, to be removed.
+   * @param dataFile The satellite data file, as a String, to be removed.
    */
   public void removeDataFile(String dataFile) {
     dataFiles.remove(dataFile);
@@ -833,9 +833,11 @@ public class MarkedIndividual {
     this.alternateid = newID;
   }
 
-  public String getAlternateID(){
-		if(alternateid==null){return "None";}
-		return alternateid;
-	}
-	
+  public String getAlternateID() {
+    if (alternateid == null) {
+      return "None";
+    }
+    return alternateid;
+  }
+
 }

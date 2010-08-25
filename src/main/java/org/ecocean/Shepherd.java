@@ -1239,8 +1239,8 @@ public class Shepherd {
   /**
    * Returns the <i>i</i>th numbered encounter for a shark
    *
-   * @param  tempShark  the shark to retrieve an encounter from
-   * i			the number of the shark to get, numbered from 0...<i>n</i>
+   * @param tempShark the shark to retrieve an encounter from
+   *                  i			the number of the shark to get, numbered from 0...<i>n</i>
    * @return the <i>i</i>th encounter of the specified shark
    * @see MarkedIndividual
    */
@@ -1800,10 +1800,10 @@ public class Shepherd {
     Query q = pm.newQuery(Encounter.class);
     q.setResult("distinct verbatimEventDate");
     q.setOrdering("verbatimEventDate ascending");
-    Collection results = (Collection)q.execute ();
-     return (new ArrayList(results));
-   }
-   
-   
+    Collection results = (Collection) q.execute();
+    return (new ArrayList(results));
+  }
+
+
 } //end Shepherd class
 

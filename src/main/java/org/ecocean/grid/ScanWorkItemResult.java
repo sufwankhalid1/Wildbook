@@ -60,6 +60,6 @@ public class ScanWorkItemResult implements java.io.Serializable {
   public String getUniqueNumberTask() {
     return uniqueNumTask;
   }
-	
-	
+
+
 }

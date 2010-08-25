@@ -349,7 +349,8 @@ public class ScanTask implements Serializable {
   }
 
   public void setStarted(boolean value) {
-    started=value;}
-	
+    started = value;
+  }
+
 
 }

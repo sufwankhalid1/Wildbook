@@ -185,6 +185,6 @@ public class FgpFileOpen {
       }
     } catch (IOException e) {
       System.err.println("Caught IOException closing file: " + e.getMessage());
-		}
-	}
+    }
+  }
 }

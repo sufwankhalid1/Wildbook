@@ -9,7 +9,7 @@ import org.ecocean.Spot;
 public class SpotTriangle implements java.io.Serializable {
 
   static final long serialVersionUID = -5400879461028598731L;
-//3 spots of the triangle
+  //3 spots of the triangle
   //public spot s1, s2, s3;
   public double Dij, Dik, Djk, D12, D13, D23;
   public double Dxl, Dyl, Dxs, Dys;

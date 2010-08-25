@@ -328,8 +328,8 @@ public class FingerPrint {
     if (i < 0 || i >= cnt) {
       Point2D newPointInstance = new Point2D();
       return newPointInstance;
-	   }
-	   return fpp[i];
-	}
-		
+    }
+    return fpp[i];
+  }
+
 }

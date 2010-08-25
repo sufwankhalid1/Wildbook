@@ -7,8 +7,8 @@ package org.ecocean;
  * <code>superSpot</code> stores the data for a single spot.
  *
  * @author Jason Holmberg (me!)
- * Another comment
- * another comment
+ *         Another comment
+ *         another comment
  */
 public class SuperSpot implements java.io.Serializable {
 
@@ -64,6 +64,7 @@ public class SuperSpot implements java.io.Serializable {
   }
 
   public void setCentroidY(double y) {
-    this.centroidY=y;}
-	
+    this.centroidY = y;
+  }
+
 }
