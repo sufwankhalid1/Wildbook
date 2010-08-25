@@ -127,7 +127,7 @@
         <version>2.1.0-release</version>
         <configuration>
           <mappingIncludes>**/*.jdo, **/*.class</mappingIncludes>
-          <log4jConfiguration>${basedir}/log4j.properties</log4jConfiguration>
+          <log4jConfiguration>${basedir}/src/main/resources/log4j.properties</log4jConfiguration>
           <verbose>true</verbose>
           <enhancerName>ASM</enhancerName>
           <props>${basedir}/datanucleus.properties</props>
