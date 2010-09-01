@@ -901,7 +901,7 @@ public class Shepherd {
 	public Iterator getAllMarkedIndividuals(Query sharks) {
 		Collection c=(Collection)(sharks.execute());
 		ArrayList list=new ArrayList(c);
-		Collections.reverse(list);
+		//Collections.reverse(list);
 		Iterator it=list.iterator();
 		return it;
 	}
@@ -914,7 +914,7 @@ public class Shepherd {
 		sharkies.setOrdering(order);
 		Collection c=(Collection)(sharkies.execute());	
 		ArrayList list=new ArrayList(c);
-		Collections.reverse(list);
+		//Collections.reverse(list);
 		Iterator it=list.iterator();
 		return it;
 	}

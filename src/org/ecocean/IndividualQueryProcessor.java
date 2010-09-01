@@ -37,7 +37,7 @@ public class IndividualQueryProcessor {
         else{allSharks=myShepherd.getAllMarkedIndividuals(query);}
       }
       else{
-        allSharks=myShepherd.getAllMarkedIndividuals(query);
+        allSharks=myShepherd.getAllMarkedIndividuals(query, "name ascending");
       }
       //process over to Vector
       while (allSharks.hasNext()) {
@@ -357,6 +357,10 @@ public class IndividualQueryProcessor {
                 }
       } //end for
       //--------------------------------------------------
+      
+      
+      
+      
       
       return (new MarkedIndividualQueryResult(rIndividuals,filter,prettyPrint.toString()));
     

@@ -408,59 +408,17 @@ Southwest corner latitude: <input type="text" id="sw_lat" name="sw_lat"></input>
 				<td>
 				<div id="observation" style="display:none; ">
 				<p>Use the fields below to filter your search based on observed attributes.</p>
-				<p><table align="left">
-					<tr>
-						<td><strong><%=encprops.getProperty("sex")%>: </strong>
-						<label> <input name="male"
-							type="checkbox" id="male" value="male" checked> <%=encprops.getProperty("male")%></label>
+							<input name="alive" type="hidden" id="alive" value="alive" /> 
+							<input name="dead" type="hidden" id="dead" value="dead" /> 
+							<input name="male" type="hidden" id="male" value="male" />
+							<input name="female" type="hidden" id="female" value="female" />
+						 	<input name="unknown" type="hidden" id="unknown" value="unknown" />
+							<input type="hidden" name="approved" value="acceptedEncounters"></input>
+							<input name="unapproved" type="hidden" value="allEncounters"></input>
+							<input name="unidentifiable" type="hidden" value="allEncounters"></input>
+				<p>
+				<table align="left">
 
-						<label> <input name="female"
-							type="checkbox" id="female" value="female" checked>
-						<%=encprops.getProperty("female")%></label>
-						<label> <input name="unknown"
-							type="checkbox" id="unknown" value="unknown" checked>
-						<%=encprops.getProperty("unknown")%></label></td>
-					</tr>
-				
-			
-					<tr>
-						<td><strong><%=encprops.getProperty("status")%>: </strong><label> 
-						<input name="alive" type="checkbox" id="alive" value="alive" checked> <%=encprops.getProperty("alive")%></label><label> 
-							<input name="dead" type="checkbox" id="dead" value="dead" checked> <%=encprops.getProperty("dead")%></label>
-							</td>
-					</tr>
-				<tr>
-				<td><strong><%=encprops.getProperty("lengthIs")%>: </strong> <select name="selectLength"
-					size="1">
-					<option value="gt">&gt;</option>
-					<option value="lt">&lt;</option>
-					<option value="eq">=</option>
-				</select> <select name="lengthField" id="lengthField">
-					<option value="skip" selected><%=encprops.getProperty("none")%></option>
-					<option value="1.0">1</option>
-					<option value="2.0">2</option>
-					<option value="3.0">3</option>
-					<option value="4.0">4</option>
-					<option value="5.0">5</option>
-					<option value="6.0">6</option>
-					<option value="7.0">7</option>
-					<option value="8.0">8</option>
-					<option value="9.0">9</option>
-					<option value="10.0">10</option>
-					<option value="11.0">11</option>
-					<option value="12.0">12</option>
-					<option value="13.0">13</option>
-					<option value="14.0">14</option>
-					<option value="15.0">15</option>
-					<option value="16.0">16</option>
-					<option value="17.0">17</option>
-					<option value="18.0">18</option>
-					<option value="19.0">19</option>
-					<option value="20.0">20</option>
-				</select> <%=encprops.getProperty("meters")%>
-				</td>
-				</tr>
-				
 				
 				<tr>
 					<td valign="top"><strong><%=encprops.getProperty("behavior")%>:</strong>
@@ -506,42 +464,7 @@ Southwest corner latitude: <input type="text" id="sw_lat" name="sw_lat"></input>
 					</p>
 					</td>
 				</tr>
-<%
-int totalKeywords=myShepherd.getNumKeywords();
-%>
-			<tr><td valign="top"><%=encprops.getProperty("hasKeywordPhotos")%><br />
-				<%
-				
-				if(totalKeywords>0){
-				%>
-				
-				<select multiple size="<%=(totalKeywords+1) %>" name="keyword" id="keyword">
-					<option value="None"></option>
-					<% 
-				
 
-			  	Iterator keys=myShepherd.getAllKeywords(kwQuery);
-			  	for(int n=0;n<totalKeywords;n++) {
-					Keyword word=(Keyword)keys.next();
-				%>
-					<option value="<%=word.getIndexname()%>"><%=word.getReadableName()%></option>
-					<%}
-				
-				%>
-
-				</select>
-				<%
-				}
-				else{
-					%>
-					
-					<p><em><%=encprops.getProperty("noKeywords")%></em>
-					
-					<%
-					
-				}
-				%>
-				</td></tr>
 				<tr><td><strong><%=encprops.getProperty("submitterName")%>:</strong> 
 				<input name="nameField" type="text" size="60"> <br> <em><%=encprops.getProperty("namesBlank")%></em>
 				</td></tr>
@@ -589,41 +512,7 @@ int totalKeywords=myShepherd.getNumKeywords();
 				</div>
 				</td>
 			</tr>
-			<tr>
-				<td>
-					
-					<h4 class="intro" style="background-color: #cccccc; padding:3px; border: 1px solid #000066; "><a href="javascript:animatedcollapse.toggle('metadata')" style="text-decoration:none"><img src="../images/Black_Arrow_down.png" width="14" height="14" border="0" align="absmiddle" /> <font color="#000000">Metadata filters</font></a></h4>
-				</td>
-			</tr>
-			
-			<tr>
-				<td>
-				<div id="metadata" style="display:none; ">
-				<p>Use the fields below to limit your search by catalog metadata fields.</p>
-				<table width="720px" align="left">
-					<tr>
-						<td width="154"><strong><%=encprops.getProperty("types2search")%></strong>:</td>
-						<td width="208"><label> 
-							<input type="checkbox" name="approved" value="acceptedEncounters" checked><%=encprops.getProperty("approved")%></input></label>
-						</td>
 
-						
-						<td width="188"><label> 
-							<input name="unapproved" type="checkbox" value="allEncounters" checked><%=encprops.getProperty("unapproved")%></input></label>
-						</td>
-						
-						<td width="145"><label> 
-							<input name="unidentifiable" type="checkbox" value="allEncounters" checked><%=encprops.getProperty("unidentifiable")%></input></label>
-						</td>
-
-
-					</tr>
-				</table>
-				</div>
-				</td>
-			</tr>
-
-			
 						<%
 myShepherd.rollbackDBTransaction();
 myShepherd.closeDBTransaction();
