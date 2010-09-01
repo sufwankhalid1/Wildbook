@@ -725,8 +725,10 @@ if((startNum-10)>1) {
 	<p class="caption"><strong><%=encprops.getProperty("prettyPrintResults") %></strong><br /> 
 	<%=queryResult.getQueryPrettyPrint().replaceAll("locationField",encprops.getProperty("location")).replaceAll("locationCodeField",encprops.getProperty("locationID")).replaceAll("verbatimEventDateField",encprops.getProperty("verbatimEventDate")).replaceAll("alternateIDField",encprops.getProperty("alternateID")).replaceAll("behaviorField",encprops.getProperty("behavior")).replaceAll("Sex",encprops.getProperty("sex")).replaceAll("nameField",encprops.getProperty("nameField")).replaceAll("selectLength",encprops.getProperty("selectLength")).replaceAll("numResights",encprops.getProperty("numResights")).replaceAll("vesselField",encprops.getProperty("vesselField"))%></p>
 	
+	<!--  
 	<p class="caption"><strong><%=encprops.getProperty("jdoql")%></strong><br /> 
 	<%=queryResult.getJDOQLRepresentation()%></p>
+	-->
 
 </td></tr></table>
 

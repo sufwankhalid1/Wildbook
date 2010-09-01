@@ -760,6 +760,7 @@ public class MarkedIndividual{
 	      Encounter temp=(Encounter)encounters.get(c);
 	      if(!temp.getAlternateID().equals("None")) {allIDs+=","+temp.getAlternateID();}
 	    }
+	    if(allIDs.startsWith(",")){allIDs=allIDs.substring(1);}
 	    return allIDs;
 	  }
 	

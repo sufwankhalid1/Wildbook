@@ -191,9 +191,8 @@ try{
 <h1><strong><span class="para"><img src="images/tag_big.gif" width="50px" height="*" align="absmiddle" /></span>
 <%=markedIndividualTypeCaps %></strong>: <%=sharky.getName()%></h1>
  <a name="alternateid"></a>
-<p><img align="absmiddle" src="images/alternateid.gif"> <%=alternateID %>:
-<%=sharky.getAlternateID()%> <%if(hasAuthority&&CommonConfiguration.isCatalogEditable()) {%>[<a
-	href="individuals.jsp?number=<%=name%>&edit=alternateid#alternateid"><%=edit%></a>]<%}%>
+<p><img align="absmiddle" src="images/alternateid.gif"> <%=alternateID %>: <%=sharky.getAlllternateIDs()%> 
+	<%if(hasAuthority&&CommonConfiguration.isCatalogEditable()) {%>[<a href="individuals.jsp?number=<%=name%>&edit=alternateid#alternateid"><%=edit%></a>]<%}%>
 </p>
 <%
 if(hasAuthority&&(request.getParameter("edit")!=null)&&(request.getParameter("edit").equals("alternateid"))){%>

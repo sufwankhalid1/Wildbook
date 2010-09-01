@@ -286,7 +286,7 @@ if(enc.getEventID()!=null){
 <%
 	} else {
 %>
-<p class="para"><img align="absmiddle" src="../images/tag_big.gif" width="50px" height="*">
+<p class="para"><img align="absmiddle" src="../images/tag_big.gif" width="25px" height="*">
 <%=encprops.getProperty("identified_as") %>: <a
 	href="../individuals.jsp?langCode=<%=langCode%>&number=<%=enc.isAssignedToMarkedIndividual()%><%if(request.getParameter("noscript")!=null){%>&noscript=true<%}%>"><%=enc.isAssignedToMarkedIndividual()%></a></font>
 <%
@@ -306,17 +306,8 @@ if(enc.getEventID()!=null){
 %>
 </p>
 <%
-	} //end else
-
+} //end else
 %>
-<p class="para"><img align="absmiddle" src="../images/life_icon.gif">
-<%=encprops.getProperty("status")%>: <%=enc.getLivingStatus()%> <%
- 	if(isOwner&&CommonConfiguration.isCatalogEditable()) {
- %>[<a
-	href="encounter.jsp?number=<%=num%>&edit=livingStatus#livingStatus">edit</a>]<%
- 	}
- %>
-</p>
 
 
 <p class="para"><img align="absmiddle"
@@ -965,9 +956,9 @@ if((loggedIn.equals("true"))&&(enc.getSubmitterID()!=null)) {
 				<em><%=encprops.getProperty("day")%></em> <select name="day" id="day">
 					<option value="0">?</option>
 					<%
-									for(int pday=1;pday<32;pday++) {
-								%>
-					<option value="<%=pday%>"><%=pday%></option>
+					for(int pday=1;pday<32;pday++) {
+					%>
+						<option value="<%=pday%>"><%=pday%></option>
 					<%
       								}
       							%>
@@ -1533,25 +1524,7 @@ if((loggedIn.equals("true"))&&(enc.getSubmitterID()!=null)) {
 				
 				</p>
 				
-				<!-- Display size so long as show_size is not false in commonCnfiguration.properties-->
-				<%
-				if(CommonConfiguration.showProperty("size")){
-				%>
-					<p class="para"><strong><%=encprops.getProperty("size") %></strong><br /> <%
-      				if(enc.getSize()>0) {%>
-						<%=enc.getSize()%> <%=enc.getMeasureUnits()%>
-					<%
- 					} else {
- 					%><%=encprops.getProperty("unknown") %><%
- 					}
-					 %> <br /> (<em><%=encprops.getProperty("method") %>: <%=enc.getSizeGuess()%></em>) <%
- 					if(isOwner&&CommonConfiguration.isCatalogEditable()) {%>
-						<font size="-1">[<a href="encounter.jsp?number=<%=num%>&edit=size">edit</a>]</font>
-					<%
- 					}
-				}
- %>
-		
+
 		<!-- Display maximumDepthInMeters so long as show_maximumDepthInMeters is not false in commonCOnfiguration.properties-->
 		<%
 		if(CommonConfiguration.showProperty("maximumDepthInMeters")){
@@ -1574,35 +1547,7 @@ if((loggedIn.equals("true"))&&(enc.getSubmitterID()!=null)) {
 		%>	
 		<!-- End Display maximumDepthInMeters -->
 		
-		<!-- Display maximumElevationInMeters so long as show_maximumElevationInMeters is not false in commonCOnfiguration.properties-->
-		<%
-		if(CommonConfiguration.showProperty("maximumElevationInMeters")){
-		%>
-		<p class="para"><strong><%=encprops.getProperty("elevation") %></strong><br /> 
-		
-			<%=enc.getMaximumElevationInMeters()%> meters
-		<%
- 	 
-
-		if(isOwner&&CommonConfiguration.isCatalogEditable()) {
- 	  		%><font size="-1">[<a href="encounter.jsp?number=<%=num%>&edit=elevation#elevation">edit</a>]</font>
-				<%
- 	  	}
- 	  		%>
-		</p>
-		<%
-		}
-		%>	
-		<!-- End Display maximumElevationInMeters -->
-			
-				<p class="para"><strong><%=encprops.getProperty("sex") %></strong><br /> <%=enc.getSex()%> <%
- 	if(isOwner&&CommonConfiguration.isCatalogEditable()) {
- %><font size="-1">[<a
-					href="encounter.jsp?number=<%=num%>&edit=sex#sex">edit</a>]</font>
-				<%
- 	}
- %>
-				<p class="para"><strong><%=encprops.getProperty("scarring") %></strong><br /> <%=enc.getDistinguishingScar()%>
+		<p class="para"><strong><%=encprops.getProperty("scarring") %></strong><br /> <%=enc.getDistinguishingScar()%>
 	<%
  	if(isOwner&&CommonConfiguration.isCatalogEditable()) {
  	%>
@@ -1641,7 +1586,7 @@ if(enc.getDynamicProperties()!=null){
 		  String nm=token.substring(0,(equalPlace));
 		  String vl=token.substring(equalPlace+1);
 		  %>
-		  <p class="para"><img align="absmiddle" src="../images/lightning_dynamic_props.gif"> <strong><%=nm%></strong><br />  <%=vl%>
+		  <p class="para"><strong><%=nm%> </strong><br />  <%=vl%>
 		  <%
 		  if(isOwner&&CommonConfiguration.isCatalogEditable()) {
  		  %>
