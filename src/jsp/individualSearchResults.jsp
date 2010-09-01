@@ -175,10 +175,10 @@ if(rIndividuals.size()<listNum) {listNum=rIndividuals.size();}
 	<tr>
 		<td bgcolor="#99CCFF"></td>
 		<td align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("markedIndividual")%></strong></td>
-		<td align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("numEncounters")%></strong></td>
-		<td align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("maxYearsBetweenResights")%></strong></td>
-		<td align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("sex")%></strong></td>
+		<td align="left" valign="top" bgcolor="#99CCFF"><strong>No. Seasons Sighted</strong></td>
 		<td align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("numLocationsSighted")%></strong></td>
+		<td align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("sex")%></strong></td>
+
 
 	</tr>
 
