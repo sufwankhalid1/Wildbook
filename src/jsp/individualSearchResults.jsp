@@ -226,13 +226,13 @@ for(int f=0;f<rIndividuals.size();f++) {
 		  <br><font size="-1"><%=props.getProperty("firstIdentified")%>: <%=temp.getMonth() %>/<%=temp.getYear() %></font>
 		
 		</td>
-		<td><%=indie.totalEncounters()%></td>
+		<td><%=indie.particpatesInTheseVerbatimEventDates().size()%></td>
+		<td><%=indie.particpatesInTheseLocationIDs().size()%></td>
 		
-		<td><%=indie.getMaxNumYearsBetweenSightings()%></td>
 		
 		<td><%=indie.getSex()%></td>
 		
-		<td><%=indie.particpatesInTheseVerbatimEventDates().size()%></td>
+		
 	</tr>
 	<%
 } //end if to control number displayed

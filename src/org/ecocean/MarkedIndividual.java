@@ -538,6 +538,17 @@ public class MarkedIndividual{
 	    }
 	    return vbed;
 	 }
+	 
+   public ArrayList<String> particpatesInTheseLocationIDs(){
+     ArrayList<String> vbed = new ArrayList<String>();
+     for(int c=0;c<encounters.size();c++) {
+       Encounter temp=(Encounter)encounters.get(c);
+       if((temp.getLocationID()!=null)&&(!vbed.contains(temp.getLocationID()))) {
+         vbed.add(temp.getLocationID());
+       }
+     }
+     return vbed;
+  }
 	
   public boolean wasSightedInVerbatimEventDate(String ved){
     for(int c=0;c<encounters.size();c++) {
