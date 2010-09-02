@@ -199,15 +199,46 @@ public class EncounterQueryProcessor {
     //filter by alive/dead status--------------------------------------------------------------------------------------
 
     //submitter or photographer name filter------------------------------------------
-    if((request.getParameter("nameField")!=null)&&(!request.getParameter("nameField").equals(""))) {
+    /*if((request.getParameter("nameField")!=null)&&(!request.getParameter("nameField").equals(""))) {
       String nameString=request.getParameter("nameField").replaceAll("%20"," ").toLowerCase().trim();
       String filterString="((this.recordedBy.toLowerCase().indexOf('"+nameString+"') != -1)||(this.submitterEmail.toLowerCase().indexOf('"+nameString+"') != -1)||(this.photographerName.toLowerCase().indexOf('"+nameString+"') != -1)||(this.photographerEmail.toLowerCase().indexOf('"+nameString+"') != -1))";
       if(filter.equals("")){filter=filterString;}
       else{filter+=(" && "+filterString);}
       prettyPrint.append("nameField contains: \""+nameString+"\"<br />");
-    }
+    }*/
     //end name and email filter--------------------------------------------------------------------------------------
 
+    //------------------------------------------------------------------
+    //name and email filters-------------------------------------------------
+    String[] researchGroups=request.getParameterValues("nameField");
+    if((researchGroups!=null)&&(!researchGroups[0].equals("None"))){
+          prettyPrint.append("nameField is one of the following: ");
+          int kwLength=researchGroups.length;
+            String locIDFilter="(";
+            for(int kwIter=0;kwIter<kwLength;kwIter++) {
+              
+              String kwParam=researchGroups[kwIter].replaceAll("%20", " ").trim();
+              if(!kwParam.equals("")){
+                if(locIDFilter.equals("(")){
+                  locIDFilter+=" this.recordedBy == \""+kwParam+"\"";
+                }
+                else{
+                  locIDFilter+=" || this.recordedBy == \""+kwParam+"\"";
+                }
+                prettyPrint.append(kwParam+" ");
+              }
+            }
+            locIDFilter+=" )";
+            if(filter.equals("")){filter=locIDFilter;}
+            else{filter+=(" && "+locIDFilter);}
+            prettyPrint.append("<br />");
+    }
+    //end name and email filters-----------------------------------------------  
+    
+    
+    
+    
+    
     //filter for length------------------------------------------
     if((request.getParameter("selectLength")!=null)&&(request.getParameter("lengthField")!=null)&&(!request.getParameter("lengthField").equals("skip"))&&(!request.getParameter("selectLength").equals(""))) {
 

@@ -1744,6 +1744,14 @@ public class Shepherd {
      return (new ArrayList(results));
    }
    
+   public ArrayList<String> getAllRecordedBy(){
+     Query q = pm.newQuery (Encounter.class);
+     q.setResult ("distinct recordedBy");
+     q.setOrdering("recordedBy ascending");
+     Collection results = (Collection)q.execute (); 
+     return (new ArrayList(results));
+   }
+   
    public ArrayList<String> getAllBehaviors(){
      
      Query q = pm.newQuery (Encounter.class);

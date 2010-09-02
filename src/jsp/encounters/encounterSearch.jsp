@@ -465,11 +465,52 @@ Southwest corner latitude: <input type="text" id="sw_lat" name="sw_lat"></input>
 					</td>
 				</tr>
 
+				
 				<tr>
-					<td>
-						<strong><%=encprops.getProperty("submitterName")%>:</strong> <input name="nameField" type="text" size="60"> <br> <em><%=encprops.getProperty("namesBlank")%></em>
+					<td valign="top"><strong><%=encprops.getProperty("submitterName")%>:</strong>
+						<em> <span class="para">
+								<a href="<%=CommonConfiguration.getWikiLocation()%>recordedBy" target="_blank">
+									<img src="../images/information_icon_svg.gif" alt="Help" border="0" align="absmiddle" />
+								</a>
+							</span> 
+						</em><br />
+				<%
+				ArrayList<String> records = myShepherd.getAllRecordedBy();
+				int totalRecords=records.size();
+
+				
+				if(totalRecords>0){
+				%>
+				
+				<select multiple name="nameField" id="nameField">
+					<option value="None"></option>
+					<%
+					for(int f=0;f<totalRecords;f++) {
+						String word=records.get(f);
+						if(word!=null){
+							%>
+							<option value="<%=word%>"><%=word%></option>
+						<%	
+							
+						}
+
+					}
+					%>
+					</select>
+					<%
+
+				}
+				else{
+					%>
+					<p><em><%=encprops.getProperty("noRecordedBy")%></em></p>
+					<%
+				}
+				%>
+							
+					</p>
 					</td>
 				</tr>
+				
 				<tr>
 				<td>
 				<input name="hasTissueSample" type="checkbox" value="true" /> <strong>Include only those sightings that include a tissue sample.</strong>
