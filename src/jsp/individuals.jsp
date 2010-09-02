@@ -190,33 +190,6 @@ try{
 
 <h1><strong><span class="para"><img src="images/tag_big.gif" width="50px" height="*" align="absmiddle" /></span>
 <%=markedIndividualTypeCaps %></strong>: <%=sharky.getName()%></h1>
- <a name="alternateid"></a>
-<p><img align="absmiddle" src="images/alternateid.gif"> <%=alternateID %>: <%=sharky.getAlllternateIDs()%> 
-	<%if(hasAuthority&&CommonConfiguration.isCatalogEditable()) {%>[<a href="individuals.jsp?number=<%=name%>&edit=alternateid#alternateid"><%=edit%></a>]<%}%>
-</p>
-<%
-if(hasAuthority&&(request.getParameter("edit")!=null)&&(request.getParameter("edit").equals("alternateid"))){%>
-<br>
-<table border="1" cellpadding="1" cellspacing="0" bordercolor="#000000"
-	bgcolor="#99CCFF">
-	<tr>
-		<td align="left" valign="top"><span class="style1"><%=setAlternateID %>:</span></td>
-	</tr>
-	<tr>
-		<td align="left" valign="top">
-		<form name="set_alternateid" method="post"
-			action="IndividualSetAlternateID"><input name="individual"
-			type="hidden" value="<%=request.getParameter("number")%>"> <%=alternateID %>:
-		<input name="alternateid" type="text" id="alternateid" size="15"
-			maxlength="150"><br> <input name="Name" type="submit"
-			id="Name" value="<%=update %>"></form>
-		</td>
-	</tr>
-</table>
-</a><br> <%}%>
-</p>
-
-
 <p>
 <%
 if(CommonConfiguration.allowNicknames()){

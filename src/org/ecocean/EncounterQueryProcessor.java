@@ -232,6 +232,18 @@ public class EncounterQueryProcessor {
         prettyPrint.append("selectLength is = "+size+".<br />");
       }
     }
+    
+    //filter for tissue sample------------------------------------------
+    if(request.getParameter("hasTissueSample")!=null) {
+      if(filter.equals("")){
+        filter="(this.dynamicProperties.indexOf('Tissue Sample') != -1)";
+      }
+      else{filter+=" && (this.dynamicProperties.indexOf('Tissue Sample') != -1)";}
+      prettyPrint.append("A tissue sample was taken.<br />");
+    }
+    //end tissue sample filter--------------------------------------------------------------------------------------
+    
+    
     if(!filter.equals("")){filter="("+filter+")";}
     System.out.println("Final filter: "+filter);
     query.setFilter(filter);

@@ -465,11 +465,21 @@ Southwest corner latitude: <input type="text" id="sw_lat" name="sw_lat"></input>
 					</td>
 				</tr>
 
-				<tr><td><strong><%=encprops.getProperty("submitterName")%>:</strong> 
-				<input name="nameField" type="text" size="60"> <br> <em><%=encprops.getProperty("namesBlank")%></em>
-				</td></tr>
-				</table></p>
-					</div>
+				<tr>
+					<td>
+						<strong><%=encprops.getProperty("submitterName")%>:</strong> <input name="nameField" type="text" size="60"> <br> <em><%=encprops.getProperty("namesBlank")%></em>
+					</td>
+				</tr>
+				<tr>
+				<td>
+				<input name="hasTissueSample" type="checkbox" value="true" /> <strong>Include only those sightings that include a tissue sample.</strong>
+				</td>
+				</tr>
+				
+				
+			</table>
+			</p>
+			</div>
 				</td>
 			</tr>
 			
@@ -483,7 +493,7 @@ Southwest corner latitude: <input type="text" id="sw_lat" name="sw_lat"></input>
 				<div id="identity" style="display:none; ">
 				<p>Use the fields below to limit your search to marked individuals with the following properties.</p>
 				<input name="resightOnly" type="checkbox" id="resightOnly"
-					value="true"> <%=encprops.getProperty("include")%> <select
+					value="true"> <strong><%=encprops.getProperty("include")%></strong> <select
 					name="numResights" id="numResights">
 					<option value="1" selected>1</option>
 					<option value="2">2</option>
@@ -500,7 +510,7 @@ Southwest corner latitude: <input type="text" id="sw_lat" name="sw_lat"></input>
 					<option value="13">13</option>
 					<option value="14">14</option>
 					<option value="15">15</option>
-				</select> <%=encprops.getProperty("times")%> 
+				</select> <strong><%=encprops.getProperty("times")%></strong>
 				
 				<p><strong><%=encprops.getProperty("alternateID")%>:</strong> <em> <input
 					name="alternateIDField" type="text" id="alternateIDField" size="10"
