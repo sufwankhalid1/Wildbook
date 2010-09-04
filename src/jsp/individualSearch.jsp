@@ -195,8 +195,33 @@ Southwest corner latitude: <input type="text" id="sw_lat" name="sw_lat"></input>
 			  	for(int n=0;n<totalLocIDs;n++) {
 					String word=locIDs.get(n);
 					if(!word.equals("")){
+						
+					String expandedWord=word;
+						
+						//let's insert the correct name options
+						if(word.equals("Asia-OG")){expandedWord=word+" (Asia-Ogasawara)";}
+						else if(word.equals("Asia-OK")){expandedWord=word+" (Asia-Okinawa)";}
+						else if(word.equals("Asia-PHI")){expandedWord=word+" (Asia-Philippines)";}
+						else if(word.equals("Bering")){expandedWord=word+" (Bering Sea)";}
+						else if(word.equals("CA-OR")){expandedWord=word+" (California-Oregon)";}
+						else if(word.equals("Cent Am")){expandedWord=word+"(Central America)";}
+						else if(word.equals("Hawaii")){expandedWord=word+" (Hawaiian Islands)";}
+						else if(word.equals("E Aleut.")){expandedWord=word+" (Eastern Aleutian Islands, Pacific Side)";}
+						else if(word.equals("MX-AR")){expandedWord=word+" (Mexico- Archipielago Revillagigedo)";}
+						else if(word.equals("MX-BC")){expandedWord=word+" (Mexico- Baja Calfiornia)";}
+						else if(word.equals("MX-ML")){expandedWord=word+" (Mexico- Mainland)";}
+						else if(word.equals("NBC")){expandedWord=word+" (Northern British Columbia)";}
+						else if(word.equals("NGOA")){expandedWord=word+" (Northern Gulf of Alaska)";}
+						else if(word.equals("NWA-SBC")){expandedWord=word+" (Northern Washington- Southern British Columbia)";}
+						else if(word.equals("Russia-CI")){expandedWord=word+" (Russia- Commander Islands)";}
+						else if(word.equals("Russia-GA")){expandedWord=word+" (Russia- Gulf of Anadyr)";}
+						else if(word.equals("Russia-K")){expandedWord=word+" (Russia- Kamchatka Peninsula)";}
+						else if(word.equals("SEAK")){expandedWord=word+" (Southeast Alaska)";}
+						else if(word.equals("W Aleut.")){expandedWord=word+" (Western Aleutian Islands, Pacific Side)";}
+						else if(word.equals("WGOA")){expandedWord=word+" (Western Gulf of Alaska, Kodiak Island)";}
+						
 				%>
-					<option value="<%=word%>"><%=word%></option>
+					<option value="<%=word%>"><%=expandedWord%></option>
 				<%}
 					}
 				%>

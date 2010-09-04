@@ -1491,9 +1491,18 @@ if((loggedIn.equals("true"))&&(enc.getSubmitterID()!=null)) {
  	}
  %>
  <br /> 
-
+			<%
+			if(enc.getDynamicPropertyValue("Region Name")!=null){
+			%>
+			<em><%=encprops.getProperty("locationID") %></em>: <%=enc.getLocationCode()%> (<%=enc.getDynamicPropertyValue("Region Name") %>)
+			
+			<%	
+			}
+			else{
+			%>
              <em><%=encprops.getProperty("locationID") %></em>: <%=enc.getLocationCode()%>
-				<%
+			<%
+			}
  				if(isOwner&&CommonConfiguration.isCatalogEditable()) {%>
  					<font size="-1">[<a href="encounter.jsp?number=<%=num%>&edit=loccode#loccode">edit</a>]</font>
 					<a href="<%=CommonConfiguration.getWikiLocation()%>location_codes" target="_blank"><img src="../images/information_icon_svg.gif" alt="Help" border="0" align="absmiddle"></a> <%
@@ -1585,6 +1594,9 @@ if(enc.getDynamicProperties()!=null){
           int equalPlace=token.indexOf("=");
 		  String nm=token.substring(0,(equalPlace));
 		  String vl=token.substring(equalPlace+1);
+		  
+		  if(!nm.equals("Region Name")){
+		  
 		  %>
 		  <p class="para"><strong><%=nm%> </strong><br />  <%=vl%>
 		  <%
@@ -1595,10 +1607,9 @@ if(enc.getDynamicProperties()!=null){
  	      }
  		  %>
 		  </p>
-		  
-		  
-		  
+
 		  <%
+		  }
         }
 
 %>
