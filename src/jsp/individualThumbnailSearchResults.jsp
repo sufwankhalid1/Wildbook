@@ -170,7 +170,7 @@ if(request.getParameter("noQuery")==null){
 
 	<li><a href="individualSearchResults.jsp?<%=queryString.replaceAll("startNum","uselessNum").replaceAll("endNum","uselessNum") %>"><%=encprops.getProperty("table")%></a></li>
 	<li><a class="active"><%=encprops.getProperty("matchingImages")%></a></li>
-
+	<li><a href="individualExportSearchResults.jsp?<%=queryString.replaceAll("startNum","uselessNum").replaceAll("endNum","uselessNum") %>"><%=encprops.getProperty("exportTable")%></a></li>
 </ul>
 <%
 }
