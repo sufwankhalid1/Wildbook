@@ -1,155 +1,59 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<%@ page contentType="text/html; charset=utf-8" language="java" import="org.apache.poi.hssf.usermodel.*,org.apache.poi.ss.usermodel.*,org.apache.poi.ss.*,java.util.ArrayList,org.ecocean.*, javax.jdo.*, java.lang.StringBuffer, java.lang.Integer, java.lang.NumberFormatException, java.io.*, java.util.Vector, java.util.Iterator, java.util.StringTokenizer, java.util.Properties"%>
+package org.ecocean;
 
-<%!
-public void finalize(Workbook workbook, File fileExport) {
-    try {
-      FileOutputStream out=new FileOutputStream(fileExport);
-      workbook.write(out); 
-      out.close();
-    } 
-    catch (Exception e) {
-      System.out.println("Unknown error writing output Excel file...");
-      e.printStackTrace();
+
+import java.util.ArrayList;
+//import jxl.*;
+//import jxl.write.*;
+import org.apache.poi.hssf.usermodel.*;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.*;
+import org.ecocean.*;
+//import javax.jdo.*;
+//import java.lang.StringBuffer;
+import java.lang.Integer;
+//import java.lang.NumberFormatException;
+import java.io.*;
+import java.util.Vector;
+//import java.util.Iterator;
+//import java.util.StringTokenizer;
+import java.util.Properties;
+import javax.servlet.http.HttpServletRequest;
+
+
+public class SpreadSheetWriter implements Runnable{
+  
+  Properties props;
+  public Thread spreadSheetWritingObject;
+  //Shepherd myShepherd;
+  File fileExport;
+  //Vector<MarkedIndividual> rIndividuals;
+  Integer numComplete=new Integer(0);
+  Integer numTotal=new Integer(0);
+  HttpServletRequest request;
+  String queryPrettyPrint="";
+
+  /**Constructor to create a new shepherd thread object*/
+  public SpreadSheetWriter(File fileExport, HttpServletRequest request, Properties props) {
+    this.fileExport=fileExport;
+    this.request=request;
+    spreadSheetWritingObject=new Thread(this, "SpreadSheetExporter");
+    this.props=props;
+    spreadSheetWritingObject.start();
+  }
+    
+
+    
+  /**main method of the shepherd thread*/
+  public void run() {
+      writeIt();
     }
-}
-
-%>
-
-
-<html>
-<head>
-
-
-
-<%
-
-//let's load out properties
-Properties props=new Properties();
-String langCode="en";
-if(session.getAttribute("langCode")!=null){langCode=(String)session.getAttribute("langCode");}
-props.load(getClass().getResourceAsStream("/bundles/"+langCode+"/individualExportSearchResults.properties"));
-
-
-Shepherd myShepherd=new Shepherd();
-
-int numResults=0;
-			
-
-
-Integer numComplete = new Integer(0);
-
-%>
-<title><%=CommonConfiguration.getHTMLTitle() %></title>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="Description"
-	content="<%=CommonConfiguration.getHTMLDescription() %>" />
-<meta name="Keywords"
-	content="<%=CommonConfiguration.getHTMLKeywords() %>" />
-<meta name="Author" content="<%=CommonConfiguration.getHTMLAuthor() %>" />
-<link href="<%=CommonConfiguration.getCSSURLLocation() %>"
-	rel="stylesheet" type="text/css" />
-<link rel="shortcut icon"
-	href="<%=CommonConfiguration.getHTMLShortcutIcon() %>" />
-
-</head>
-<style type="text/css">
-#tabmenu {
-	color: #000;
-	border-bottom: 2px solid black;
-	margin: 12px 0px 0px 0px;
-	padding: 0px;
-	z-index: 1;
-	padding-left: 10px
-}
-
-#tabmenu li {
-	display: inline;
-	overflow: hidden;
-	list-style-type: none;
-}
-
-#tabmenu a,a.active {
-	color: #DEDECF;
-	background: #000;
-	font: bold 1em "Trebuchet MS", Arial, sans-serif;
-	border: 2px solid black;
-	padding: 2px 5px 0px 5px;
-	margin: 0;
-	text-decoration: none;
-	border-bottom: 0px solid #FFFFFF;
-}
-
-#tabmenu a.active {
-	background: #FFFFFF;
-	color: #000000;
-	border-bottom: 2px solid #FFFFFF;
-}
-
-#tabmenu a:hover {
-	color: #ffffff;
-	background: #7484ad;
-}
-
-#tabmenu a:visited {
-	color: #E8E9BE;
-}
-
-#tabmenu a.active:hover {
-	background: #7484ad;
-	color: #DEDECF;
-	border-bottom: 2px solid #000000;
-}
-</style>
-<body>
-<div id="wrapper">
-<div id="page"><jsp:include page="header.jsp" flush="true">
-	<jsp:param name="isResearcher"
-		value="<%=request.isUserInRole("researcher")%>" />
-	<jsp:param name="isManager"
-		value="<%=request.isUserInRole("manager")%>" />
-	<jsp:param name="isReviewer"
-		value="<%=request.isUserInRole("reviewer")%>" />
-	<jsp:param name="isAdmin" value="<%=request.isUserInRole("admin")%>" />
-</jsp:include>
-<div id="main">
-<ul id="tabmenu">
-
-
-	
-	<li><a href="individualSearchResults.jsp?<%=request.getQueryString().replaceAll("startNum","uselessNum").replaceAll("endNum","uselessNum") %>"><%=props.getProperty("table")%></a></li>
-	<li><a href="individualThumbnailSearchResults.jsp?<%=request.getQueryString().replaceAll("startNum","uselessNum").replaceAll("endNum","uselessNum") %>"><%=props.getProperty("matchingImages")%></a></li>
-	<li><a class="active" ><%=props.getProperty("exportTable")%></a></li>
-</ul>
-<table width="810" border="0" cellspacing="0" cellpadding="0">
-	<tr>
-		<td>
-		<br />
-		<h1 class="intro"><span class="para"><img src="images/tag_big.gif" width="35" align="absmiddle" />
-		<%=props.getProperty("title")%></h1>
-		<p><%=props.getProperty("instructions")%></p>
-		</td>
-	</tr>
-</table>
-
-<%
-
-response.flushBuffer();
-
-//Excel setup
-String filenameExport="searchResults_"+request.getRemoteUser()+".xls";
-File fileExport=new File(getServletContext().getRealPath(("/"+filenameExport)));
-
-
-
-//kick off the thread here
-//SpreadSheetWriter writer=SpreadSheetWriterFactory.getSpreadSheetWriter(fileExport, request, props);
-
-//set up the statistics counters  
+    
+    
+  public void writeIt() {
+  //set up the statistics counters  
     int count=0;
-    //Shepherd myShepherd=new Shepherd();
-   
+    Shepherd myShepherd=new Shepherd();
+    try{
 
     myShepherd.beginDBTransaction();
     //WritableWorkbook workbookOBIS = Workbook.createWorkbook(fileExport);
@@ -308,19 +212,13 @@ File fileExport=new File(getServletContext().getRealPath(("/"+filenameExport)));
 
     MarkedIndividualQueryResult result = IndividualQueryProcessor.processQuery(myShepherd, request, order);
     Vector<MarkedIndividual> rIndividuals = result.getResult();
-    
+    queryPrettyPrint=result.getQueryPrettyPrint();
+    numTotal=new Integer(rIndividuals.size());
 
-    
-      ArrayList<String> seasons= myShepherd.getAllVerbatimEventDates();
-      int totalVBDS=seasons.size();
-      
-      ArrayList<String> locIDs = myShepherd.getAllLocationIDs();
-      int totalLocIDs=locIDs.size();
-    
-    try{
+    //now let's iterate our results and create the Excel table
+    //Vector histories=new Vector();
     for(int f=1;f<rIndividuals.size();f++) {
-      try{
-    	MarkedIndividual indie=(MarkedIndividual)rIndividuals.get(f);
+      MarkedIndividual indie=(MarkedIndividual)rIndividuals.get(f);
       count++;
       
       /*
@@ -385,6 +283,8 @@ File fileExport=new File(getServletContext().getRealPath(("/"+filenameExport)));
       
       int continueNum=9;
       //print the number of days in each locationID
+      ArrayList<String> locIDs = myShepherd.getAllLocationIDs();
+      int totalLocIDs=locIDs.size();
       for(int n=0;n<totalLocIDs;n++) {
         
         String id=locIDs.get(n);
@@ -396,7 +296,7 @@ File fileExport=new File(getServletContext().getRealPath(("/"+filenameExport)));
         int numSightingsInThisLocID=0;
         for(int h=0;h<numEncs;h++){
           Encounter enc=(Encounter)encounters.get(h);
-          if((enc.getLocationID()!=null)&&(enc.getLocationID().equals(id))){
+          if(enc.getLocationID().equals(id)){
             numSightingsInThisLocID++;
           }
         }
@@ -418,18 +318,19 @@ File fileExport=new File(getServletContext().getRealPath(("/"+filenameExport)));
       continueNum=31;
       
       //list out num days in season
-
+      ArrayList<String> seasons= myShepherd.getAllVerbatimEventDates();
+      int totalVBDS=seasons.size();
       for(int n=0;n<totalVBDS;n++) {
         
         String id=seasons.get(n);
-        //System.out.println("The id is: "+id);
+        System.out.println("The id is: "+id);
         if(id!=null){
         Vector encounters=indie.getEncounters();
         int numEncs=encounters.size();
         int numSightingsInThisSeason=0;
         for(int h=0;h<numEncs;h++){
           Encounter enc=(Encounter)encounters.get(h);
-          if((enc.getVerbatimEventDate()!=null)&&(enc.getVerbatimEventDate().equals(id))){
+          if(enc.getVerbatimEventDate().equals(id)){
             numSightingsInThisSeason++;
           }
         }
@@ -440,74 +341,33 @@ File fileExport=new File(getServletContext().getRealPath(("/"+filenameExport)));
       
       numComplete=f;
       
-      
-    }
-    catch(Exception w){
-    	w.printStackTrace();
-    }
-    }
-    finalize(workbookOBIS, fileExport);
+      }
+    finalize(workbookOBIS);
   }
   catch(Exception e){
     e.printStackTrace();
   }
   finally{
     myShepherd.rollbackDBTransaction();
-
+    myShepherd.closeDBTransaction();
   }
-
-
-%>
-
-
-<p><%=props.getProperty("exportedExcel")%>: 
-<a href="http://<%=CommonConfiguration.getURLLocation()%>/<%=filenameExport%>"><%=filenameExport%></a><br>
-<em><%=props.getProperty("rightClickLink")%></em>
-</p>
-
-
-
-<p>
-<table width="810" border="0" cellspacing="0" cellpadding="0">
-	<tr>
-		<td align="left">
-	
-		<p><strong><%=props.getProperty("matchingMarkedIndividuals")%></strong>: <%=rIndividuals.size()%><br />
-		
-		<%myShepherd.beginDBTransaction();%>
-		<p><strong><%=props.getProperty("totalMarkedIndividuals")%></strong>: <%=(myShepherd.getNumMarkedIndividuals())%></p>
-		</td>
-		<%
-	  myShepherd.rollbackDBTransaction();
-	  myShepherd.closeDBTransaction();
-	  
-	  %>
-	</tr>
-</table>
-<%
-if((result!=null)&&(request.getParameter("noQuery")==null)){
-%>
-<table><tr><td align="left">
-
-<p><strong><%=props.getProperty("queryDetails")%></strong></p>
-
-	<p class="caption"><strong><%=props.getProperty("prettyPrintResults") %></strong><br /> 
-	<%=result.getQueryPrettyPrint().replaceAll("locationField",props.getProperty("location")).replaceAll("locationCodeField",props.getProperty("locationID")).replaceAll("verbatimEventDateField",props.getProperty("verbatimEventDate")).replaceAll("Sex",props.getProperty("sex")).replaceAll("Keywords",props.getProperty("keywords")).replaceAll("alternateIDField",(props.getProperty("alternateID"))).replaceAll("alternateIDField",(props.getProperty("size")))%></p>
-	
-
-</td></tr></table>
-<%
+  }
+  
+  public void finalize(Workbook workbook) {
+    try {
+      FileOutputStream out=new FileOutputStream(fileExport);
+      workbook.write(out); 
+      out.close();
+    } 
+    catch (Exception e) {
+      System.out.println("Unknown error writing output Excel file...");
+      e.printStackTrace();
+    }
 }
-%>
-</p>
-<br>
-<p></p>
-<jsp:include page="footer.jsp" flush="true" />
-</div>
-</div>
-<!-- end page --></div>
-<!--end wrapper -->
-</body>
-</html>
+  
+  public Integer getNumTotal(){return numTotal;}
+  public Integer getNumComplete(){return numComplete;}
+  public String getQueryPrettyPrint(){return queryPrettyPrint;}
+    
 
-
+}

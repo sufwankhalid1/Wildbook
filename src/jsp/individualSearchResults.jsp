@@ -156,7 +156,7 @@ if(rIndividuals.size()<listNum) {listNum=rIndividuals.size();}
 
 	<li><a class="active" ><%=props.getProperty("table")%></a></li>
 	<li><a href="individualThumbnailSearchResults.jsp?<%=request.getQueryString().replaceAll("startNum","uselessNum").replaceAll("endNum","uselessNum") %>"><%=props.getProperty("matchingImages")%></a></li>
-	<li><a href="individualExportSearchResults.jsp?<%=request.getQueryString().replaceAll("startNum","uselessNum").replaceAll("endNum","uselessNum") %>"><%=encprops.getProperty("exportTable")%></a></li>
+	<li><a href="individualExportSearchResults.jsp?<%=request.getQueryString().replaceAll("startNum","uselessNum").replaceAll("endNum","uselessNum") %>"><%=props.getProperty("exportTable")%></a></li>
 </ul>
 <table width="810" border="0" cellspacing="0" cellpadding="0">
 	<tr>
