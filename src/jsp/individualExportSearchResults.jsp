@@ -316,11 +316,15 @@ File fileExport=new File(getServletContext().getRealPath(("/"+filenameExport)));
       
       ArrayList<String> locIDs = myShepherd.getAllLocationIDs();
       int totalLocIDs=locIDs.size();
+      
+      ArrayList<Keyword> allKeywords=myShepherd.getAllKeywordsInArrayList();
     
     try{
     for(int f=1;f<rIndividuals.size();f++) {
       try{
     	MarkedIndividual indie=(MarkedIndividual)rIndividuals.get(f);
+    	Vector encounters=indie.getEncounters();
+    	int numEncs=encounters.size();
       count++;
       
       /*
@@ -364,7 +368,7 @@ File fileExport=new File(getServletContext().getRealPath(("/"+filenameExport)));
       }
       
       //set the color keyword
-      ArrayList<Keyword> listKeywords=indie.getAllAppliedKeywordNames(myShepherd);
+      ArrayList<Keyword> listKeywords=indie.getAllAppliedKeywordNames(myShepherd, allKeywords);
       int listSize=listKeywords.size();
       String appliedKeywords="";
       for(int g=0;g<listSize;g++){appliedKeywords+=listKeywords.get(g).getReadableName()+" ";}
@@ -391,8 +395,8 @@ File fileExport=new File(getServletContext().getRealPath(("/"+filenameExport)));
         if(!id.equals("")){
 
         
-        Vector encounters=indie.getEncounters();
-        int numEncs=encounters.size();
+        
+        //int numEncs=encounters.size();
         int numSightingsInThisLocID=0;
         for(int h=0;h<numEncs;h++){
           Encounter enc=(Encounter)encounters.get(h);
@@ -424,8 +428,8 @@ File fileExport=new File(getServletContext().getRealPath(("/"+filenameExport)));
         String id=seasons.get(n);
         //System.out.println("The id is: "+id);
         if(id!=null){
-        Vector encounters=indie.getEncounters();
-        int numEncs=encounters.size();
+        //Vector encounters=indie.getEncounters();
+        
         int numSightingsInThisSeason=0;
         for(int h=0;h<numEncs;h++){
           Encounter enc=(Encounter)encounters.get(h);

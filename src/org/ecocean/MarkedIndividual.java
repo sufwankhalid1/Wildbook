@@ -853,6 +853,21 @@ public class MarkedIndividual{
       }
       return al;
     }
+    
+    public ArrayList<Keyword> getAllAppliedKeywordNames(Shepherd myShepherd, ArrayList<Keyword> words){
+      ArrayList<Keyword> al=new ArrayList<Keyword>();
+      int numEncounters = encounters.size();
+      for(int i=0;i<numEncounters;i++){
+        Encounter enc=(Encounter)encounters.get(i);
+        //Iterator it=myShepherd.getAllKeywords();
+        int numKeywords=words.size();
+        for(int k=0;k<numKeywords;k++){
+          Keyword word=words.get(k);
+          if((word.isMemberOf(enc))&&(!al.contains(word))){al.add(word);}
+        }
+      }
+      return al;
+    }
 	
     public ArrayList<String> getAllValuesForDynamicProperty(String propertyName){
         ArrayList<String> listPropertyValues = new ArrayList<String>();

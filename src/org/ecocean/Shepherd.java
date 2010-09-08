@@ -1339,6 +1339,24 @@ public class Shepherd {
 		return it;
 	}
 	
+	 public ArrayList<Keyword> getAllKeywordsInArrayList() {
+	    Extent allKeywords = null;
+	    ArrayList<Keyword> al=new ArrayList<Keyword>();
+	    try{
+	      allKeywords=pm.getExtent(Keyword.class,true);   
+	      Query acceptedKeywords=pm.newQuery(allKeywords);
+	      acceptedKeywords.setOrdering("readableName descending");
+	      Collection c=(Collection)(acceptedKeywords.execute());
+	      al=new ArrayList<Keyword>(c); 
+	      //it=c.iterator();
+	    }
+	    catch(javax.jdo.JDOException x ) {
+	      x.printStackTrace();
+	      return null;
+	    }
+	    return al;
+	  }
+	
 	public Iterator getAllKeywords(Query acceptedKeywords) {
 		Extent allKeywords = null;
 		Iterator it=null;
