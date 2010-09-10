@@ -124,7 +124,9 @@
 		 <%=records%>: <%=lowCount%> - <%=highCount%><%=displaySort%></td>
 	</tr>
 	<tr class="lineitem">
+		
 		<td width="101" bgcolor="#99CCFF" class="lineitem"><strong><%=image%></strong></td>
+		
 		<td width="133" align="left" valign="top" bgcolor="#99CCFF"
 			class="lineitem"><strong><%=name%></strong><br />
 		<%if(request.getRemoteUser()!=null){%><a
@@ -134,6 +136,10 @@
 			src="arrow_down.gif" width="11" height="6" border="0"></a>
 		<%}%>
 		</td>
+		
+		<td width="133" align="left" valign="top" bgcolor="#99CCFF" class="lineitem"><strong>No. Seasons Sighted</strong></td>
+		
+		
 		<td width="146" align="left" valign="top" bgcolor="#99CCFF"
 			class="lineitem"><strong><%=encounter%></strong><br />
 		<%if(request.getRemoteUser()!=null){%><a
@@ -195,6 +201,9 @@
 			src="<%=imgName%>" alt="<%=sharky.getName()%>" border="0" /></a></td>
 		<td class="lineitems"><a
 			href="individuals.jsp?number=<%=sharky.getName()%>"><%=sharky.getName()%></a></td>
+		
+		<td class="lineitems"><%=sharky.particpatesInTheseVerbatimEventDates().size()%></td>
+		
 		<td class="lineitems"><%=sharky.totalEncounters()%></td>
 		<td class="lineitems"><%=sharky.getSex()%></td>
 

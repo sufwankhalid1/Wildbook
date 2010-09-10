@@ -171,13 +171,13 @@ if(rIndividuals.size()<listNum) {listNum=rIndividuals.size();}
 
 
 
-<table width="810" border="1">
-	<tr>
-		<td bgcolor="#99CCFF"></td>
-		<td align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("markedIndividual")%></strong></td>
-		<td align="left" valign="top" bgcolor="#99CCFF"><strong>No. Seasons Sighted</strong></td>
-		<td align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("numLocationsSighted")%></strong></td>
-		<td align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("sex")%></strong></td>
+<table id="results" border="0" width="810px">
+	<tr class="lineitem">
+		<td bgcolor="#99CCFF" class="lineitem"></td>
+		<td bgcolor="#99CCFF" class="lineitem"><strong><%=props.getProperty("markedIndividual")%></strong></td>
+		<td bgcolor="#99CCFF" class="lineitem"><strong>No. Seasons Sighted</strong></td>
+		<td bgcolor="#99CCFF" class="lineitem"><strong><%=props.getProperty("numLocationsSighted")%></strong></td>
+		<td bgcolor="#99CCFF" class="lineitem"><strong><%=props.getProperty("sex")%></strong></td>
 
 
 	</tr>
@@ -213,10 +213,10 @@ for(int f=0;f<rIndividuals.size();f++) {
 	if((count>=startNum)&&(count<=endNum)) {			
 		Encounter tempEnc=indie.getEncounter(0);		
 %>
-	<tr>
-		<td width="102" bgcolor="#000000"><img
+	<tr class="lineitem">
+		<td width="102" bgcolor="#000000" class="lineitem"><img
 			src="<%=("encounters/"+tempEnc.getEncounterNumber()+"/thumb.jpg")%>"></td>
-		<td><a
+		<td class="lineitem"><a
 			href="http://<%=CommonConfiguration.getURLLocation()%>/individuals.jsp?number=<%=indie.getName()%>"><%=indie.getName()%></a>
 		<%
 		  if((indie.getAlternateID()!=null)&&(!indie.getAlternateID().equals("None"))){
@@ -226,11 +226,11 @@ for(int f=0;f<rIndividuals.size();f++) {
 		  <br><font size="-1"><%=props.getProperty("firstIdentified")%>: <%=temp.getMonth() %>/<%=temp.getYear() %></font>
 		
 		</td>
-		<td><%=indie.particpatesInTheseVerbatimEventDates().size()%></td>
-		<td><%=indie.particpatesInTheseLocationIDs().size()%></td>
+		<td class="lineitem"><%=indie.particpatesInTheseVerbatimEventDates().size()%></td>
+		<td class="lineitem"><%=indie.particpatesInTheseLocationIDs().size()%></td>
 		
 		
-		<td><%=indie.getSex()%></td>
+		<td class="lineitem"><%=indie.getSex()%></td>
 		
 		
 	</tr>

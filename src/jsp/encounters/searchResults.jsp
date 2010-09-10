@@ -429,12 +429,13 @@ if(generateEmails){
 		<td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=encprops.getProperty("markedIndividual")%></strong></td>
 		<td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=encprops.getProperty("number")%></strong></td>
 		<td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=encprops.getProperty("alternateID")%></strong></td>
-		<td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=encprops.getProperty("submitterName")%></strong></td>
+		
 		<td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=encprops.getProperty("date")%></strong></td>
-		<td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=encprops.getProperty("vessel")%></strong></td>
+		<td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong>Season</strong></td>
 		<td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=encprops.getProperty("eventID")%></strong></td>
 		<td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=encprops.getProperty("location")%></strong></td>
 		<td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=encprops.getProperty("locationID")%></strong></td>
+		<td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong>Best Fluke</strong></td>
 	</tr>
 
 	<%
@@ -483,12 +484,22 @@ if(generateEmails){
 		 %>
 	</td>	
 
-		<td class="lineitem"><%=enc.getSubmitterName()%></td>
+		<%
+		String bestFluke="";
+		if(enc.getDynamicPropertyValue("Best Fluke")!=null){bestFluke=enc.getDynamicPropertyValue("Best Fluke");}
+		
+		String vDate="";
+		if(enc.getVerbatimEventDate()!=null){vDate=enc.getVerbatimEventDate();}
+		
+		
+		%>
+		
 		<td class="lineitem"><%=enc.getDate()%></td>
-		<td class="lineitem"><%=enc.getDynamicPropertyValue("Vessel")%></td>
+		<td class="lineitem"><%=vDate%></td>
 		<td class="lineitem"><%=enc.getEventID()%></td>
 		<td class="lineitem"><%=enc.getLocation()%></td>
 		<td class="lineitem"><%=enc.getLocationCode()%></td>
+		<td class="lineitem"><%=bestFluke%></td>
 	</tr>
 	<%
   	} //end if to control number displayed
