@@ -594,8 +594,11 @@ myShepherd.rollbackDBTransaction();
 myShepherd.closeDBTransaction();
 %>
 
+
 			<tr>
 				<td>
+				
+				<!-- 
 				<h4 class="intro" style="background-color: #cccccc; padding:3px; border: 1px solid #000066; "><a href="javascript:animatedcollapse.toggle('export')" style="text-decoration:none"><img src="../images/Black_Arrow_down.png" width="14" height="14" border="0" align="absmiddle" /> <font color="#000000">Export options</font></a></h4>
 				<div id="export" style="display:none; ">
 				<p>Use the fields below to specify data export options.</p>
@@ -612,11 +615,15 @@ myShepherd.closeDBTransaction();
 					id="generateEmails" value="true"> <strong><%=encprops.getProperty("generateEmailList")%></strong></p>
 				</p>
 				</div>
+				 -->
 				<p><em> <input name="submitSearch" type="submit"
 					id="submitSearch" value="<%=encprops.getProperty("goSearch")%>"></em>
 					
 				</td>
 			</tr>
+			
+			
+			
 		</table>
 		</form>
 		</td>

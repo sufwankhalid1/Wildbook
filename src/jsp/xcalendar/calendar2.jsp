@@ -201,7 +201,9 @@ calprops.load(getClass().getResourceAsStream("/bundles/"+langCode+"/calendar.pro
 	<li><a href="../encounters/searchResults.jsp?<%=request.getQueryString() %>"><%=calprops.getProperty("table")%></a></li>
 	<li><a href="../encounters/thumbnailSearchResults.jsp?<%=request.getQueryString() %>"><%=calprops.getProperty("matchingImages")%></a></li>
 	<li><a href="../encounters/mappedSearchResults.jsp?<%=request.getQueryString() %>"> <%=calprops.getProperty("mappedResults")%></a></li>
+	
 	<li><a class="active"><%=calprops.getProperty("resultsCalendar")%></a></li>
+	<li><a href="../encounters/searchResultsExport.jsp?<%=request.getQueryString().replaceAll("startNum","uselessNum").replaceAll("endNum","uselessNum") %>">Exported Results</a></li>
 	
 </ul>
 

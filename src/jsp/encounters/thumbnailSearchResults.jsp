@@ -184,6 +184,7 @@ if(request.getParameter("noQuery")==null){
 	<li><a class="active"><%=encprops.getProperty("matchingImages")%></a></li>
 	<li><a href="mappedSearchResults.jsp?<%=rq.replaceAll("startNum","uselessNum").replaceAll("endNum","uselessNum") %>"><%=encprops.getProperty("mappedResults")%></a></li>
 	<li><a href="../xcalendar/calendar2.jsp?<%=rq.replaceAll("startNum","uselessNum").replaceAll("endNum","uselessNum") %>"><%=encprops.getProperty("resultsCalendar")%></a></li>
+	<li><a href="searchResultsExport.jsp?<%=request.getQueryString().replaceAll("startNum","uselessNum").replaceAll("endNum","uselessNum") %>">Exported Results</a></li>
 	
 </ul>
 <%

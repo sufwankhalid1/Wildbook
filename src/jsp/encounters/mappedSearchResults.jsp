@@ -174,6 +174,7 @@ function getQueryParameter( name ){
 	<li><a href="thumbnailSearchResults.jsp?<%=request.getQueryString() %>"><%=encprops.getProperty("matchingImages")%></a></li>
 	<li><a class="active"><%=encprops.getProperty("mappedResults")%></a></li>
 	<li><a href="../xcalendar/calendar2.jsp?<%=request.getQueryString() %>"><%=encprops.getProperty("resultsCalendar")%></a></li>
+	<li><a href="searchResultsExport.jsp?<%=request.getQueryString().replaceAll("startNum","uselessNum").replaceAll("endNum","uselessNum") %>">Exported Results</a></li>
 	
 </ul>
 <table width="810px" border="0" cellspacing="0" cellpadding="0">
