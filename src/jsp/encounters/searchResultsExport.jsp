@@ -101,7 +101,7 @@ File emailFile=new File(getServletContext().getRealPath(("/encounters/"+emailFil
 
 
 //let's set up our Excel spreasheeting operations
-String filenameOBIS="searchResults_OBIS_"+request.getRemoteUser()+".xls";
+String filenameOBIS="searchResults_SCID_"+request.getRemoteUser()+".xls";
 String filenameExport="searchResults_"+request.getRemoteUser()+".xls";
 String kmlFilename="KMLExport_"+request.getRemoteUser()+".kml";
 File fileOBIS=new File(getServletContext().getRealPath(("/encounters/"+filenameOBIS)));
@@ -113,67 +113,53 @@ WritableCellFormat integerFormat = new WritableCellFormat (NumberFormats.INTEGER
 
 //let's write out headers for the OBIS export file
 WritableWorkbook workbookOBIS = Workbook.createWorkbook(fileOBIS); 
-WritableSheet sheet = workbookOBIS.createSheet("Search Results", 0);
-Label label0 = new Label(0, 0, "Date Last Modified"); 
+WritableSheet sheet = workbookOBIS.createSheet("SPLASH Catalog Individual Sightings Search Results", 0);
+Label label0 = new Label(0, 0, "SPLASH ID"); 
 sheet.addCell(label0);
-Label label1 = new Label(1, 0, "Institution Code"); 
+Label label1 = new Label(1, 0, "Working ID"); 
 sheet.addCell(label1);
-Label label2 = new Label(2, 0, "Collection Code"); 
+Label label2 = new Label(2, 0, "Research Group"); 
 sheet.addCell(label2);
-Label label2a = new Label(3, 0, "Catalog Number"); 
+Label label2a = new Label(3, 0, "Season"); 
 sheet.addCell(label2a);
-Label label3 = new Label(4, 0, "Record URL"); 
+Label label3 = new Label(4, 0, "Region"); 
 sheet.addCell(label3);
-Label label5 = new Label(5, 0, "Scientific Name"); 
+Label label5 = new Label(5, 0, "Sub-area"); 
 sheet.addCell(label5);
-Label label6 = new Label(6, 0, "Basis of record"); 
+Label label6 = new Label(6, 0, "Locality"); 
 sheet.addCell(label6);
-Label label7 = new Label(7, 0, "Citation"); 
+Label label7 = new Label(7, 0, "Date"); 
 sheet.addCell(label7);
-Label label8 = new Label(8, 0, "Kingdom"); 
+Label label8 = new Label(8, 0, "Start Dec Lat"); 
 sheet.addCell(label8);
-Label label9 = new Label(9, 0, "Phylum"); 
+Label label9 = new Label(9, 0, "Start Dec Long"); 
 sheet.addCell(label9);
-Label label10 = new Label(10, 0, "Class"); 
+Label label10 = new Label(10, 0, "Pos Type"); 
 sheet.addCell(label10);
-Label label11 = new Label(11, 0, "Order"); 
+Label label11 = new Label(11, 0, "Start Time"); 
 sheet.addCell(label11);
-Label label12 = new Label(12, 0, "Family"); 
+Label label12 = new Label(12, 0, "Vessel"); 
 sheet.addCell(label12);
-Label label13 = new Label(13, 0, "Genus"); 
+Label label13 = new Label(13, 0, "Sighting"); 
 sheet.addCell(label13);
-Label label14 = new Label(14, 0, "species"); 
+Label label14 = new Label(14, 0, "Est Size B"); 
 sheet.addCell(label14);
-Label label15 = new Label(15, 0, "Year Identified"); 
+Label label15 = new Label(15, 0, "Num Calves"); 
 sheet.addCell(label15);
-Label label16 = new Label(16, 0, "Month Identified"); 
+Label label16 = new Label(16, 0, "Group Type"); 
 sheet.addCell(label16);
-Label label17 = new Label(17, 0, "Day Identified"); 
+Label label17 = new Label(17, 0, "Field ID"); 
 sheet.addCell(label17);
-Label label18 = new Label(18, 0, "Year Collected"); 
+Label label18 = new Label(18, 0, "Beh Role"); 
 sheet.addCell(label18);
-Label label19 = new Label(19, 0, "Month Collected"); 
+Label label19 = new Label(19, 0, "Best Fluke"); 
 sheet.addCell(label19);
-Label label20 = new Label(20, 0, "Day Collected"); 
+Label label20 = new Label(20, 0, "Sample Num"); 
 sheet.addCell(label20);
-Label label21 = new Label(21, 0, "Time of Day"); 
+Label label21 = new Label(21, 0, "Sighting Comments"); 
 sheet.addCell(label21);
-Label label22 = new Label(22, 0, "Locality"); 
+Label label22 = new Label(22, 0, "ID Comments"); 
 sheet.addCell(label22);
-Label label23 = new Label(23, 0, "Longitude"); 
-sheet.addCell(label23);
-Label label24 = new Label(24, 0, "Latitude"); 
-sheet.addCell(label24);
-Label label25 = new Label(25, 0, "Sex"); 
-sheet.addCell(label25);
-Label label26 = new Label(26, 0, "Notes"); 
-sheet.addCell(label26);
-Label label27 = new Label(27, 0, "Length (m)"); 
-sheet.addCell(label27);
-Label label28 = new Label(28, 0, "Marked Individual"); 
-sheet.addCell(label28);
-Label label29 = new Label(29, 0, "Location code"); 
-sheet.addCell(label29);
 
 //let's write out headers for the normal export file
 WritableWorkbook workbookExport = Workbook.createWorkbook(fileExport); 
@@ -386,19 +372,19 @@ if(generateEmails){
 	<tr>
 		<td>
 		<p>
-		<h1 class="intro"><%=encprops.getProperty("title")%></h1>
-		</p>		<p><%=encprops.getProperty("belowMatches")%></p>
+		<h1 class="intro">Individual Sightings Exported Search Results</h1>
+		</p>		<p>Below are various file format exports of the individual sightings that matched your search criteria.</p>
 		</td>
 	</tr>
 </table>
 
 
-<p><%=encprops.getProperty("exportedExcel")%>: 
+<p>Simple Format <%=encprops.getProperty("exportedExcel")%>: 
 <a href="http://<%=CommonConfiguration.getURLLocation()%>/encounters/<%=filenameExport%>"><%=filenameExport%></a><br>
 <em><%=encprops.getProperty("rightClickLink")%></em>
 </p>
-<p><%=encprops.getProperty("exportedOBIS")%>: 
-<a href="http://<%=CommonConfiguration.getURLLocation()%>/encounters/<%=filenameOBIS%>"><%=filenameOBIS%></a><br>
+<p>SC ID Data Summary Format <%=encprops.getProperty("exportedExcel")%>: 
+<a href="http://<%=CommonConfiguration.getURLLocation()%>/encounters/<%=filenameOBIS%>"><%=filenameOBIS%></a><br> 
 <em><%=encprops.getProperty("rightClickLink")%></em>
 </p>
 
@@ -435,105 +421,98 @@ if(generateEmails){
 
   // Excel export =========================================================
 
-   if ((request.getParameter("export")!=null)&&(ServletUtilities.isUserAuthorizedForEncounter(enc,request))) {
+
   	try{
   		
-  		//OBIS formt export
-  		Label lNumber = new Label(0, count, enc.getDWCDateLastModified());
-  		sheet.addCell(lNumber);
-  		Label lNumberx1 = new Label(1, count, CommonConfiguration.getProperty("institutionCode"));
-  		sheet.addCell(lNumberx1);
-  		Label lNumberx2 = new Label(2, count, CommonConfiguration.getProperty("catalogCode"));
-  		sheet.addCell(lNumberx2);
-  		Label lNumberx3 = new Label(3, count, enc.getEncounterNumber());
-  		sheet.addCell(lNumberx3);
-  		Label lNumberx4 = new Label(4, count, ("http://"+CommonConfiguration.getURLLocation()+"/encounters/encounter.jsp?number="+enc.getEncounterNumber()));
-  		sheet.addCell(lNumberx4);
-  		Label lNumberx5 = new Label(5, count, (CommonConfiguration.getProperty("genus")+" "+CommonConfiguration.getProperty("species")));
-  		sheet.addCell(lNumberx5);
-  		Label lNumberx6 = new Label(6, count, "P");
-  		sheet.addCell(lNumberx6);
-  		Calendar toDay = Calendar.getInstance();
-  		int year = toDay.get(Calendar.YEAR);
-  		Label lNumberx7 = new Label(7, count, CommonConfiguration.getProperty("citation"));
-  		sheet.addCell(lNumberx7);
-  		Label lNumberx8 = new Label(8, count, CommonConfiguration.getProperty("kingdom"));
-  		sheet.addCell(lNumberx8);
-  		Label lNumberx9 = new Label(9, count, CommonConfiguration.getProperty("phylum"));
-  		sheet.addCell(lNumberx9);
-  		Label lNumberx10 = new Label(10, count, CommonConfiguration.getProperty("class"));
-  		sheet.addCell(lNumberx10);
-  		Label lNumberx11 = new Label(11, count, CommonConfiguration.getProperty("order"));
-  		sheet.addCell(lNumberx11);
-  		Label lNumberx13 = new Label(12, count, CommonConfiguration.getProperty("family"));
-  		sheet.addCell(lNumberx13);
-  		Label lNumberx14 = new Label(13, count, CommonConfiguration.getProperty("genus"));
-  		sheet.addCell(lNumberx14);
-  		Label lNumberx15 = new Label(14, count, CommonConfiguration.getProperty("species"));
-  		sheet.addCell(lNumberx15);
-  		if(enc.getYear()>0){
-  			Label lNumberx16 = new Label(15, count, Integer.toString(enc.getYear()));
-  			sheet.addCell(lNumberx16);
-  			Label lNumberx19 = new Label(18, count, Integer.toString(enc.getYear()));
-  			sheet.addCell(lNumberx19);
-  		}
-  		if(enc.getMonth()>0){
-  			Label lNumberx17 = new Label(16, count, Integer.toString(enc.getMonth()));
-  			sheet.addCell(lNumberx17);
-  			Label lNumberx20 = new Label(19, count, Integer.toString(enc.getMonth()));
-  			sheet.addCell(lNumberx20);
-  		}
-  		if(enc.getDay()>0){
-  			Label lNumberx18 = new Label(17, count, Integer.toString(enc.getDay()));
-  			sheet.addCell(lNumberx18);
-  			Label lNumberx21 = new Label(20, count, Integer.toString(enc.getDay()));
-  			sheet.addCell(lNumberx21);
-  		}
-  		Label lNumberx22 = new Label(21, count, (enc.getDay()+":"+enc.getMinutes()));
-  		sheet.addCell(lNumberx22);
-  		Label lNumberx23 = new Label(22, count, enc.getLocation());
-  		sheet.addCell(lNumberx23);
-  		if((enc.getDWCDecimalLatitude()!=null)&&(enc.getDWCDecimalLongitude()!=null)){
-  			Label lNumberx24 = new Label(23, count, enc.getDWCDecimalLongitude());
-  			sheet.addCell(lNumberx24);
-  			Label lNumberx25 = new Label(24, count, enc.getDWCDecimalLatitude());
-  			sheet.addCell(lNumberx25);
-  		}
-  		//check for available locale coordinates
-  		//this functionality is primarily used for data export to iobis.org
-  		else if((enc.getLocationCode()!=null)&&(!enc.getLocationCode().equals(""))){
-  			try{
-  				String lc = enc.getLocationCode();
-  				if(props.getProperty(lc)!=null){
-  						String gps=props.getProperty(lc);
-  						StringTokenizer st=new StringTokenizer(gps,",");
-  						Label lNumberx25 = new Label(24, count, st.nextToken());
-  						sheet.addCell(lNumberx25);
-  						Label lNumberx24 = new Label(23, count, st.nextToken());
-  						sheet.addCell(lNumberx24);
-  				}
-  			}
-  			catch(Exception e){e.printStackTrace();System.out.println("     I hit an error getting locales in searchResults.jsp.");}
-  		}
-  		if(!enc.getSex().equals("unknown")) {
-  			Label lSex = new Label(25, count, enc.getSex());
-  			sheet.addCell(lSex);
-  		}
-  		Label lNumberx26 = new Label(26, count, enc.getComments().replaceAll("<br>",". ").replaceAll("\n","").replaceAll("\r",""));
-  		sheet.addCell(lNumberx26);
   		
-  		if(enc.getSize()>0){
-  			Label lNumberx27 = new Label(27, count, Double.toString(enc.getSize()));
-  			sheet.addCell(lNumberx27);
+  		
+  		//SPLASH formt export
+  		Label lNumber = new Label(0, count, enc.getIndividualID());
+  		sheet.addCell(lNumber);
+  		if(enc.getAlternateID()!=null){
+  			Label lNumberx1 = new Label(1, count, enc.getAlternateID());
+  			sheet.addCell(lNumberx1);
   		}
-  		if(!enc.isAssignedToMarkedIndividual().equals("Unassigned")){
-  			Label lNumberx28 = new Label(28, count, enc.isAssignedToMarkedIndividual());
-  			sheet.addCell(lNumberx28);
+  		Label lNumberx2 = new Label(2, count, enc.getRecordedBy());
+  		sheet.addCell(lNumberx2);
+  		if(enc.getVerbatimEventDate()!=null){
+  			Label lNumberx3 = new Label(3, count, enc.getVerbatimEventDate());
+  	  		sheet.addCell(lNumberx3);
   		}
-  		if(enc.getLocationCode()!=null){
-  			Label lNumberx29 = new Label(29, count, enc.getLocationCode());
-  			sheet.addCell(lNumberx29);
+  		if(enc.getLocationID()!=null){
+  			Label lNumberx4 = new Label(4, count, enc.getLocationID());
+  	  		sheet.addCell(lNumberx4);
   		}
+  		if(enc.getLocation()!=null){
+  			Label lNumberx5 = new Label(5, count, enc.getLocation());
+  	  		sheet.addCell(lNumberx5);
+  		}
+  		if(enc.getDynamicPropertyValue("Locality")!=null){
+  			Label lNumberx6 = new Label(6, count, enc.getDynamicPropertyValue("Locality"));
+  	  		sheet.addCell(lNumberx6);
+  		}
+			Label lNumberx7 = new Label(7, count, enc.getDate());
+  	  		sheet.addCell(lNumberx7);
+  	  	Label lNumberx8 = new Label(8, count, enc.getDecimalLatitude());
+	  		sheet.addCell(lNumberx8);
+	  	  	Label lNumberx9 = new Label(9, count, enc.getDecimalLongitude());
+	  		sheet.addCell(lNumberx9);
+	  	if(enc.getDynamicPropertyValue("Pos Type")!=null){
+	  			Label lNumberx10 = new Label(10, count, enc.getDynamicPropertyValue("Pos Type"));
+	  	  		sheet.addCell(lNumberx10);
+	  	}
+	  	Label lNumberx11 = new Label(11, count, (enc.getHour()+":"+enc.getMinutes()));
+  		sheet.addCell(lNumberx11);
+	  	if(enc.getDynamicPropertyValue("Vessel")!=null){
+  			Label lNumberx12 = new Label(12, count, enc.getDynamicPropertyValue("Vessel"));
+  	  		sheet.addCell(lNumberx12);
+  		}
+	  	if(enc.getDynamicPropertyValue("Sighting")!=null){
+  			Label lNumberx13 = new Label(13, count, enc.getDynamicPropertyValue("Sighting"));
+  	  		sheet.addCell(lNumberx13);
+  		}
+	  	if(enc.getDynamicPropertyValue("Est Size Best")!=null){
+  			Label lNumberx14 = new Label(14, count, enc.getDynamicPropertyValue("Est Size Best"));
+  	  		sheet.addCell(lNumberx14);
+  		}
+	  	if(enc.getDynamicPropertyValue("Number Calves")!=null){
+  			Label lNumberx15 = new Label(15, count, enc.getDynamicPropertyValue("Number Calves"));
+  	  		sheet.addCell(lNumberx15);
+  		}
+	  	if(enc.getDynamicPropertyValue("Group Type")!=null){
+  			Label lNumberx16 = new Label(16, count, enc.getDynamicPropertyValue("Group Type"));
+  	  		sheet.addCell(lNumberx16);
+  		}
+	  	if(enc.getDynamicPropertyValue("Field ID")!=null){
+  			Label lNumberx17 = new Label(17, count, enc.getDynamicPropertyValue("Field ID"));
+  	  		sheet.addCell(lNumberx17);
+  		}
+	  	if(enc.getDynamicPropertyValue("Beh Role")!=null){
+  			Label lNumberx18 = new Label(18, count, enc.getDynamicPropertyValue("Beh Role"));
+  	  		sheet.addCell(lNumberx18);
+  		}
+	  	if(enc.getDynamicPropertyValue("Best Fluke")!=null){
+  			Label lNumberx19 = new Label(19, count, enc.getDynamicPropertyValue("Best Fluke"));
+  	  		sheet.addCell(lNumberx19);
+  		}
+	  	if(enc.getDynamicPropertyValue("Tissue Sample")!=null){
+  			Label lNumberx20 = new Label(20, count, enc.getDynamicPropertyValue("Tissue Sample"));
+  	  		sheet.addCell(lNumberx20);
+  		}
+	  	if(enc.getDynamicPropertyValue("Sighting Comments")!=null){
+  			Label lNumberx21 = new Label(21, count, enc.getDynamicPropertyValue("Sighting Comments"));
+  	  		sheet.addCell(lNumberx21);
+  		}
+	  		Label lNumberx22 = new Label(22, count, enc.getOccurrenceRemarks().replaceAll("<br>"," "));
+  	  		sheet.addCell(lNumberx22);
+  	
+	  	
+	  	
+	  	
+	  	
+	  	
+  
+  		
   		
   	
   		//whew - now let's generate the simple export format
@@ -572,7 +551,7 @@ if(generateEmails){
   	} 
   	catch(Exception we) {System.out.println("jExcel error processing search results...");
   	we.printStackTrace();}
-    	}
+    	
     
 
     } //end while
@@ -584,10 +563,9 @@ if(generateEmails){
 
 
 <%
- if ((request.getParameter("export")!=null)&&(request.getParameter("startNum")==null)) {
- 		finalize(workbookOBIS);
+finalize(workbookOBIS);
  		finalize(workbookExport);
- }
+
  workbookOBIS.close();
  workbookExport.close();
 
