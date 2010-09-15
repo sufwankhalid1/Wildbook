@@ -116,49 +116,51 @@ WritableWorkbook workbookOBIS = Workbook.createWorkbook(fileOBIS);
 WritableSheet sheet = workbookOBIS.createSheet("SPLASH Catalog Individual Sightings Search Results", 0);
 Label label0 = new Label(0, 0, "SPLASH ID"); 
 sheet.addCell(label0);
-Label label1 = new Label(1, 0, "Working ID"); 
+Label label0a = new Label(1, 0, "ID Key"); 
+sheet.addCell(label0a);
+Label label1 = new Label(2, 0, "Working ID"); 
 sheet.addCell(label1);
-Label label2 = new Label(2, 0, "Research Group"); 
+Label label2 = new Label(3, 0, "Research Group"); 
 sheet.addCell(label2);
-Label label2a = new Label(3, 0, "Season"); 
+Label label2a = new Label(4, 0, "Season"); 
 sheet.addCell(label2a);
-Label label3 = new Label(4, 0, "Region"); 
+Label label3 = new Label(5, 0, "Region"); 
 sheet.addCell(label3);
-Label label5 = new Label(5, 0, "Sub-area"); 
+Label label5 = new Label(6, 0, "Sub-area"); 
 sheet.addCell(label5);
-Label label6 = new Label(6, 0, "Locality"); 
+Label label6 = new Label(7, 0, "Locality"); 
 sheet.addCell(label6);
-Label label7 = new Label(7, 0, "Date"); 
+Label label7 = new Label(8, 0, "Date"); 
 sheet.addCell(label7);
-Label label8 = new Label(8, 0, "Start Dec Lat"); 
+Label label8 = new Label(9, 0, "Start Dec Lat"); 
 sheet.addCell(label8);
-Label label9 = new Label(9, 0, "Start Dec Long"); 
+Label label9 = new Label(10, 0, "Start Dec Long"); 
 sheet.addCell(label9);
-Label label10 = new Label(10, 0, "Pos Type"); 
+Label label10 = new Label(11, 0, "Pos Type"); 
 sheet.addCell(label10);
-Label label11 = new Label(11, 0, "Start Time"); 
+Label label11 = new Label(12, 0, "Start Time"); 
 sheet.addCell(label11);
-Label label12 = new Label(12, 0, "Vessel"); 
+Label label12 = new Label(13, 0, "Vessel"); 
 sheet.addCell(label12);
-Label label13 = new Label(13, 0, "Sighting"); 
+Label label13 = new Label(14, 0, "Sighting"); 
 sheet.addCell(label13);
-Label label14 = new Label(14, 0, "Est Size B"); 
+Label label14 = new Label(15, 0, "Est Size B"); 
 sheet.addCell(label14);
-Label label15 = new Label(15, 0, "Num Calves"); 
+Label label15 = new Label(16, 0, "Num Calves"); 
 sheet.addCell(label15);
-Label label16 = new Label(16, 0, "Group Type"); 
+Label label16 = new Label(17, 0, "Group Type"); 
 sheet.addCell(label16);
-Label label17 = new Label(17, 0, "Field ID"); 
+Label label17 = new Label(18, 0, "Field ID"); 
 sheet.addCell(label17);
-Label label18 = new Label(18, 0, "Beh Role"); 
+Label label18 = new Label(19, 0, "Beh Role"); 
 sheet.addCell(label18);
-Label label19 = new Label(19, 0, "Best Fluke"); 
+Label label19 = new Label(20, 0, "Best Fluke"); 
 sheet.addCell(label19);
-Label label20 = new Label(20, 0, "Sample Num"); 
+Label label20 = new Label(21, 0, "Sample Num"); 
 sheet.addCell(label20);
-Label label21 = new Label(21, 0, "Sighting Comments"); 
+Label label21 = new Label(22, 0, "Sighting Comments"); 
 sheet.addCell(label21);
-Label label22 = new Label(22, 0, "ID Comments"); 
+Label label22 = new Label(23, 0, "ID Comments"); 
 sheet.addCell(label22);
 
 //let's write out headers for the normal export file
@@ -429,81 +431,85 @@ if(generateEmails){
   		//SPLASH formt export
   		Label lNumber = new Label(0, count, enc.getIndividualID());
   		sheet.addCell(lNumber);
+  		
+  		Label lNumbera = new Label(1, count, enc.getEncounterNumber());
+  		sheet.addCell(lNumbera);
+  		
   		if(enc.getAlternateID()!=null){
-  			Label lNumberx1 = new Label(1, count, enc.getAlternateID());
+  			Label lNumberx1 = new Label(2, count, enc.getAlternateID());
   			sheet.addCell(lNumberx1);
   		}
-  		Label lNumberx2 = new Label(2, count, enc.getRecordedBy());
+  		Label lNumberx2 = new Label(3, count, enc.getRecordedBy());
   		sheet.addCell(lNumberx2);
   		if(enc.getVerbatimEventDate()!=null){
-  			Label lNumberx3 = new Label(3, count, enc.getVerbatimEventDate());
+  			Label lNumberx3 = new Label(4, count, enc.getVerbatimEventDate());
   	  		sheet.addCell(lNumberx3);
   		}
   		if(enc.getLocationID()!=null){
-  			Label lNumberx4 = new Label(4, count, enc.getLocationID());
+  			Label lNumberx4 = new Label(5, count, enc.getLocationID());
   	  		sheet.addCell(lNumberx4);
   		}
   		if(enc.getLocation()!=null){
-  			Label lNumberx5 = new Label(5, count, enc.getLocation());
+  			Label lNumberx5 = new Label(6, count, enc.getLocation());
   	  		sheet.addCell(lNumberx5);
   		}
   		if(enc.getDynamicPropertyValue("Locality")!=null){
-  			Label lNumberx6 = new Label(6, count, enc.getDynamicPropertyValue("Locality"));
+  			Label lNumberx6 = new Label(7, count, enc.getDynamicPropertyValue("Locality"));
   	  		sheet.addCell(lNumberx6);
   		}
-			Label lNumberx7 = new Label(7, count, enc.getDate());
+			Label lNumberx7 = new Label(8, count, enc.getDate());
   	  		sheet.addCell(lNumberx7);
-  	  	Label lNumberx8 = new Label(8, count, enc.getDecimalLatitude());
+  	  	Label lNumberx8 = new Label(9, count, enc.getDecimalLatitude());
 	  		sheet.addCell(lNumberx8);
-	  	  	Label lNumberx9 = new Label(9, count, enc.getDecimalLongitude());
+	  	  	Label lNumberx9 = new Label(10, count, enc.getDecimalLongitude());
 	  		sheet.addCell(lNumberx9);
 	  	if(enc.getDynamicPropertyValue("Pos Type")!=null){
-	  			Label lNumberx10 = new Label(10, count, enc.getDynamicPropertyValue("Pos Type"));
+	  			Label lNumberx10 = new Label(11, count, enc.getDynamicPropertyValue("Pos Type"));
 	  	  		sheet.addCell(lNumberx10);
 	  	}
-	  	Label lNumberx11 = new Label(11, count, (enc.getHour()+":"+enc.getMinutes()));
+	  	Label lNumberx11 = new Label(12, count, (enc.getHour()+":"+enc.getMinutes()));
   		sheet.addCell(lNumberx11);
 	  	if(enc.getDynamicPropertyValue("Vessel")!=null){
-  			Label lNumberx12 = new Label(12, count, enc.getDynamicPropertyValue("Vessel"));
+  			Label lNumberx12 = new Label(13, count, enc.getDynamicPropertyValue("Vessel"));
   	  		sheet.addCell(lNumberx12);
   		}
 	  	if(enc.getDynamicPropertyValue("Sighting")!=null){
-  			Label lNumberx13 = new Label(13, count, enc.getDynamicPropertyValue("Sighting"));
+  			Label lNumberx13 = new Label(14, count, enc.getDynamicPropertyValue("Sighting"));
   	  		sheet.addCell(lNumberx13);
   		}
 	  	if(enc.getDynamicPropertyValue("Est Size Best")!=null){
-  			Label lNumberx14 = new Label(14, count, enc.getDynamicPropertyValue("Est Size Best"));
+  			Label lNumberx14 = new Label(15, count, enc.getDynamicPropertyValue("Est Size Best"));
   	  		sheet.addCell(lNumberx14);
   		}
 	  	if(enc.getDynamicPropertyValue("Number Calves")!=null){
-  			Label lNumberx15 = new Label(15, count, enc.getDynamicPropertyValue("Number Calves"));
+  			Label lNumberx15 = new Label(16, count, enc.getDynamicPropertyValue("Number Calves"));
   	  		sheet.addCell(lNumberx15);
   		}
 	  	if(enc.getDynamicPropertyValue("Group Type")!=null){
-  			Label lNumberx16 = new Label(16, count, enc.getDynamicPropertyValue("Group Type"));
+  			Label lNumberx16 = new Label(17, count, enc.getDynamicPropertyValue("Group Type"));
   	  		sheet.addCell(lNumberx16);
   		}
 	  	if(enc.getDynamicPropertyValue("Field ID")!=null){
-  			Label lNumberx17 = new Label(17, count, enc.getDynamicPropertyValue("Field ID"));
+  			Label lNumberx17 = new Label(18, count, enc.getDynamicPropertyValue("Field ID"));
   	  		sheet.addCell(lNumberx17);
   		}
 	  	if(enc.getDynamicPropertyValue("Beh Role")!=null){
-  			Label lNumberx18 = new Label(18, count, enc.getDynamicPropertyValue("Beh Role"));
+  			Label lNumberx18 = new Label(19, count, enc.getDynamicPropertyValue("Beh Role"));
   	  		sheet.addCell(lNumberx18);
   		}
 	  	if(enc.getDynamicPropertyValue("Best Fluke")!=null){
-  			Label lNumberx19 = new Label(19, count, enc.getDynamicPropertyValue("Best Fluke"));
+  			Label lNumberx19 = new Label(20, count, enc.getDynamicPropertyValue("Best Fluke"));
   	  		sheet.addCell(lNumberx19);
   		}
 	  	if(enc.getDynamicPropertyValue("Tissue Sample")!=null){
-  			Label lNumberx20 = new Label(20, count, enc.getDynamicPropertyValue("Tissue Sample"));
+  			Label lNumberx20 = new Label(21, count, enc.getDynamicPropertyValue("Tissue Sample"));
   	  		sheet.addCell(lNumberx20);
   		}
 	  	if(enc.getDynamicPropertyValue("Sighting Comments")!=null){
-  			Label lNumberx21 = new Label(21, count, enc.getDynamicPropertyValue("Sighting Comments"));
+  			Label lNumberx21 = new Label(22, count, enc.getDynamicPropertyValue("Sighting Comments"));
   	  		sheet.addCell(lNumberx21);
   		}
-	  		Label lNumberx22 = new Label(22, count, enc.getOccurrenceRemarks().replaceAll("<br>"," "));
+	  		Label lNumberx22 = new Label(23, count, enc.getOccurrenceRemarks().replaceAll("<br>"," "));
   	  		sheet.addCell(lNumberx22);
   	
 	  	

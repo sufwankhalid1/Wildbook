@@ -1492,6 +1492,12 @@ if((loggedIn.equals("true"))&&(enc.getSubmitterID()!=null)) {
  %>
  <br /> 
 			<%
+			if(enc.getDynamicPropertyValue("Locality")!=null){
+				%>
+				<em>Locality</em>: <%=enc.getDynamicPropertyValue("Locality") %><br />
+				
+				<%	
+			}
 			if(enc.getDynamicPropertyValue("Region Name")!=null){
 			%>
 			<em><%=encprops.getProperty("locationID") %></em>: <%=enc.getLocationCode()%> (<%=enc.getDynamicPropertyValue("Region Name") %>)
@@ -1595,7 +1601,7 @@ if(enc.getDynamicProperties()!=null){
 		  String nm=token.substring(0,(equalPlace));
 		  String vl=token.substring(equalPlace+1);
 		  
-		  if(!nm.equals("Region Name")){
+		  if((!nm.equals("Region Name"))&&(!nm.equals("Locality"))){
 		  
 		  %>
 		  <p class="para"><strong><%=nm%> </strong><br />  <%=vl%>
