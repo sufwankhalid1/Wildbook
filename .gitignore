@@ -3,3 +3,5 @@ bin
 *.iml
 *.ipr
 *.iws
+.project
+.settings*
