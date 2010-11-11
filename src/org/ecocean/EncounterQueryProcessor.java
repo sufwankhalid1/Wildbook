@@ -275,11 +275,19 @@ public class EncounterQueryProcessor {
     //end tissue sample filter--------------------------------------------------------------------------------------
     
     
-    if(!filter.equals("")){filter="("+filter+")";}
+    if(!filter.trim().equals("")){
+        filter="("+filter+")";      
+        query.setFilter(filter);
+        allEncounters=myShepherd.getAllEncounters(query);
+    }
+    else{
+      allEncounters=myShepherd.getAllEncountersNoFilter();
+    }
+    
+
     System.out.println("Final filter: "+filter);
-    query.setFilter(filter);
     //allEncounters=myShepherd.getAllEncountersNoQuery();
-    allEncounters=myShepherd.getAllEncounters(query);
+    
     while (allEncounters.hasNext()) {
       Encounter temp_enc=(Encounter)allEncounters.next();
       rEncounters.add(temp_enc);

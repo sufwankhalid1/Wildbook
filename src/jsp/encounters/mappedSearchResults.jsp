@@ -237,7 +237,7 @@ function getQueryParameter( name ){
   							descHTML+= "<p> <strong>Size:</strong> "+enc.getSize()+" meters</p>";
   						}
   						descHTML+= "<p> <strong>Sex:</strong> "+enc.getSex()+"</p>";
-  						if(!enc.getComments().equals("")){
+  						if((enc.getComments()!=null)&&(!enc.getComments().equals(""))){
   							descHTML+= "<p> <strong>Comments:</strong> "+enc.getComments()+"</p>";
   						}
   						
