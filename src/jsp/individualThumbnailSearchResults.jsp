@@ -256,7 +256,7 @@ if((startNum)>1) {%>
 
 				//now let's order these alphabetical by the highest keyword
 				//Cascadia Research only! TBD--remove on release of Shepherd Project
-				Collections.sort(thumbLocs, (new ThumbnailKeywordComparator()));
+				//Collections.sort(thumbLocs, (new ThumbnailKeywordComparator()));
 				
 				
 				

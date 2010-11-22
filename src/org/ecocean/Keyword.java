@@ -77,6 +77,29 @@ public class Keyword{
 		return false;
 	}
 	
+	 public boolean isMemberOf(MarkedIndividual indie){
+	    
+	   Vector encounters = indie.getEncounters();
+	   int numEncs= encounters.size();
+	   for(int i=0;i<numEncs;i++){
+	     Encounter enc = (Encounter)encounters.get(i);
+	    Vector photos=enc.getAdditionalImageNames();
+	    int photoSize=photos.size();
+	    for(int j=0;j<photoSize;j++){
+	      String thisName=enc.getEncounterNumber()+"/"+(String)photos.get(j);
+	      if(isMemberOf(thisName)){
+	        return true;
+	        }
+	      }
+	    
+	    
+	 }
+	   return false;   
+	    
+	  }
+	
+	
+	
 	public Vector getMembers() {
 		return photos;
 	}		

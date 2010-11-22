@@ -132,6 +132,7 @@ public class Encounter implements java.io.Serializable{
 	//private superSpot[] rightReferenceSpots;
 	private ArrayList<SuperSpot> rightReferenceSpots;
 	
+	private String colorCode;
 	
 
 
@@ -1013,6 +1014,9 @@ public class Encounter implements java.io.Serializable{
     
     public String getIdentificationRemarks(){return identificationRemarks;}
     
+    public String getColorCode(){return colorCode;}
+    
+    public void setColorCode(String newCode){this.colorCode=newCode;}
     
 }
 	

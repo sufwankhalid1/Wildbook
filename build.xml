@@ -23,7 +23,9 @@
   <target name="compile">
     <mkdir dir="${target.dir}/classes"/>
     <javac srcdir="src" destdir="${target.dir}/classes" classpathref="classpath" debug="true">
+    	<!--
     	<compilerarg value="-proc:none" />
+    	-->
     </javac>
   </target>
   

@@ -6,7 +6,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.jdo.Extent;
 import javax.jdo.Query;
 import java.util.Iterator;
-import java.util.StringTokenizer;
+//import java.util.StringTokenizer;
+import java.util.Collections;
 
 
 public class IndividualQueryProcessor {
@@ -34,16 +35,23 @@ public class IndividualQueryProcessor {
         if(request.getParameter("sort").equals("sex")){allSharks=myShepherd.getAllMarkedIndividuals(query, "sex ascending");}
         else if(request.getParameter("sort").equals("name")) {allSharks=myShepherd.getAllMarkedIndividuals(query, "name ascending");}
         else if(request.getParameter("sort").equals("numberEncounters")) {allSharks=myShepherd.getAllMarkedIndividuals(query, "numberEncounters descending");}
-        else{allSharks=myShepherd.getAllMarkedIndividuals(query);}
+        else{
+          allSharks=myShepherd.getAllMarkedIndividuals(query, "colorCode ascending, name ascending");
+        }
       }
       else{
-        allSharks=myShepherd.getAllMarkedIndividuals(query, "name ascending");
+        allSharks=myShepherd.getAllMarkedIndividuals(query, "colorCode ascending, name ascending");
+        //keyword and then name ascending 
       }
       //process over to Vector
       while (allSharks.hasNext()) {
         MarkedIndividual temp_shark=(MarkedIndividual)allSharks.next();
         rIndividuals.add(temp_shark);
       }
+      
+
+      
+      
       
       //------------------------------------------------------------------
       //GPS filters-------------------------------------------------
@@ -359,8 +367,11 @@ public class IndividualQueryProcessor {
       //--------------------------------------------------
       
       
+      //Collections.sort(thumbLocs, (new ThumbnailKeywordComparator()));
       
-      
+      if((request.getParameter("sort")==null)||(request.getParameter("sort").equals(""))) {
+        //Collections.sort(rIndividuals, (new IndividualKeywordComparator(myShepherd, (myShepherd.getAllKeywords()))));
+      }
       
       return (new MarkedIndividualQueryResult(rIndividuals,filter,prettyPrint.toString()));
     

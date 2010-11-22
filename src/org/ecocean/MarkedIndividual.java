@@ -59,6 +59,8 @@ public class MarkedIndividual{
 	
 	private String dynamicProperties;
 	
+	private String colorCode;
+	
 	public MarkedIndividual(String name, Encounter enc) {
 		
 		this.name=name;
@@ -883,4 +885,8 @@ public class MarkedIndividual{
         }
         return listPropertyValues;
     }
+    
+    public String getColorCode(){return colorCode;}
+    
+    public void setColorCode(String newCode){this.colorCode=newCode;}
 }
