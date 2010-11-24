@@ -53,6 +53,13 @@ public class SubmitForm extends ActionForm {
     	protected FormFile theFile2;
     	protected FormFile theFile3;
     	protected FormFile theFile4;
+      protected FormFile theFile5;
+      protected FormFile theFile6;
+      protected FormFile theFile7;
+      protected FormFile theFile8;
+      protected FormFile theFile9;
+      protected FormFile theFile10;
+      
 
     	/**
      	* The file path to write to
@@ -61,8 +68,12 @@ public class SubmitForm extends ActionForm {
     	protected String filePath2;
     	protected String filePath3;
     	protected String filePath4;
-    	
-    
+      protected String filePath5;
+      protected String filePath6;
+      protected String filePath7;
+      protected String filePath8;
+      protected String filePath9;
+      protected String filePath10;
     
     	//reset all variables
     	public void reset() {
@@ -388,6 +399,34 @@ public class SubmitForm extends ActionForm {
     	if(theFile4!=null){System.out.println("File 4 is good.");}
         return theFile4;
     }
+    
+    public FormFile getTheFile5() {
+      if(theFile5!=null){System.out.println("File 5 is good.");}
+        return theFile5;
+    }
+    public FormFile getTheFile6() {
+      if(theFile6!=null){System.out.println("File 6 is good.");}
+        return theFile6;
+    }
+    public FormFile getTheFile7() {
+      if(theFile7!=null){System.out.println("File 7 is good.");}
+        return theFile7;
+    }
+    public FormFile getTheFile8() {
+      if(theFile8!=null){System.out.println("File 8 is good.");}
+        return theFile8;
+    }
+    
+    public FormFile getTheFile9() {
+      if(theFile9!=null){System.out.println("File 9 is good.");}
+        return theFile9;
+    }
+    public FormFile getTheFile10() {
+      if(theFile10!=null){System.out.println("File 10 is good.");}
+        return theFile10;
+    }
+    
+    
 
     /**
      * Set a representation of the file the user has uploaded
@@ -404,6 +443,28 @@ public class SubmitForm extends ActionForm {
     public void setTheFile4(FormFile theFile4) {
         this.theFile4 = theFile4;
     }
+    public void setTheFile5(FormFile theFile5) {
+      this.theFile5 = theFile5;
+  }
+  public void setTheFile6(FormFile theFile6) {
+      this.theFile6 = theFile6;
+  }
+  public void setTheFile7(FormFile theFile7) {
+      this.theFile7 = theFile7;
+  }
+  public void setTheFile8(FormFile theFile8) {
+      this.theFile8 = theFile8;
+  }
+  public void setTheFile9(FormFile theFile9) {
+    this.theFile9 = theFile9;
+}
+  
+  public void setTheFile10(FormFile theFile10) {
+    this.theFile10 = theFile10;
+}
+  
+  
+  
     /**
      * Set whether or not to write to a file
      */
@@ -434,6 +495,28 @@ public class SubmitForm extends ActionForm {
         this.filePath4 = filePath4;
     }
 
+    
+    public void setFilePath5(String filePath5) {
+      this.filePath5 = filePath5;
+  }
+  public void setFilePath6(String filePath6) {
+      this.filePath6 = filePath6;
+  }
+  public void setFilePath7(String filePath7) {
+      this.filePath7 = filePath7;
+  }
+  public void setFilePath8(String filePath8) {
+      this.filePath8 = filePath8;
+  }
+  
+  public void setFilePath9(String filePath9) {
+    this.filePath9 = filePath9;
+}
+public void setFilePath10(String filePath10) {
+    this.filePath10 = filePath10;
+}
+    
+    
     /**
      * Get the path to write a file to
      */

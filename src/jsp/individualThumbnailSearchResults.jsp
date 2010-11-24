@@ -308,8 +308,10 @@ if((startNum)>1) {%>
 										<tr><td><span class="caption"><%=encprops.getProperty("location") %>: <%=thisEnc.getLocation() %></span></td></tr>
 										<tr><td><span class="caption"><%=encprops.getProperty("locationID") %>: <%=thisEnc.getLocationID() %></span></td></tr>
 										<tr><td><span class="caption"><%=encprops.getProperty("date") %>: <%=thisEnc.getDate() %></span></td></tr>
-										<tr><td><span class="caption"><%=encprops.getProperty("individualID") %>: <a href="individuals.jsp?number=<%=thisEnc.getCatalogNumber() %>"><%=thisEnc.getIndividualID() %></a></span></td></tr>
+										<tr><td><span class="caption"><%=encprops.getProperty("individualID") %>: <a href="individuals.jsp?number=<%=thisEnc.getIndividualID() %>"><%=thisEnc.getIndividualID() %></a></span></td></tr>
 										<tr><td><span class="caption"><%=encprops.getProperty("catalogNumber") %>: <a href="encounters/encounter.jsp?number=<%=thisEnc.getCatalogNumber() %>"><%=thisEnc.getCatalogNumber() %></a></span></td></tr>
+										<tr><td><span class="caption">Research Group: <%=thisEnc.getSubmitterName() %></span></td></tr>
+										
 										<%
 										if(thisEnc.getVerbatimEventDate()!=null){
 										%>
@@ -403,6 +405,8 @@ if((startNum)>1) {%>
 										<tr><td><span class="caption"><%=encprops.getProperty("date") %>: <%=thisEnc.getDate() %></span></td></tr>
 										<tr><td><span class="caption"><%=encprops.getProperty("individualID") %>: <a href="individuals.jsp?number=<%=thisEnc.getIndividualID() %>"><%=thisEnc.getIndividualID() %></a></span></td></tr>
 										<tr><td><span class="caption"><%=encprops.getProperty("catalogNumber") %>: <a href="encounters/encounter.jsp?number=<%=thisEnc.getCatalogNumber() %>"><%=thisEnc.getCatalogNumber() %></a></span></td></tr>
+										<tr><td><span class="caption">Research Group: <%=thisEnc.getSubmitterName() %></span></td></tr>
+										
 										<tr>
 										<td><span class="caption">
 											<%=encprops.getProperty("matchingKeywords") %>

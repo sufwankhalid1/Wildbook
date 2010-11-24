@@ -186,6 +186,32 @@ z-index:99;
 
 		</ul>
 	<!--[if lte IE 6]></td></tr></table></a><![endif]--></li>
+
+
+	<li class="drop"><a
+		href="http://<%=CommonConfiguration.getURLLocation() %>/welcome.jsp?reflect=http://<%=CommonConfiguration.getURLLocation() %>/encounters/encounterSearch.jsp"
+		style="margin: 0px 0 0px 0px; position: relative; width: 86px; height: 25px; z-index: 100;"><strong>Search</strong>
+
+	<!--[if IE 7]><!--></a><!--<![endif]--> <!--[if lte IE 6]><table><tr><td><![endif]-->
+	<ul>
+		<li><a href="http://<%=CommonConfiguration.getURLLocation() %>/individualSearch.jsp"
+			class="enclose"
+			style="margin: 0px 0 0px 0px; position: relative; width: 230px; height: 25px;">SPLASH ID
+		Search</a></li>
+
+		<li><a href="http://<%=CommonConfiguration.getURLLocation() %>/encounters/encounterSearch.jsp"
+			class="enclose"
+			style="margin: 0px 0 0px 0px; position: relative; width: 230px; height: 25px;">Individual Sightings
+		Search</a></li>
+
+		<li><a href="http://<%=CommonConfiguration.getURLLocation() %>/googleSearch.jsp"
+			class="enclose"
+			style="margin: 0px 0 0px 0px; position: relative; width: 230px; height: 25px;">Google
+		Search</a></li>
+
+	</ul>
+	<!--[if lte IE 6]></td></tr></table></a><![endif]--></li>
+
 	
 <li class="drop"><a href="http://<%=CommonConfiguration.getURLLocation() %>/allIndividuals.jsp"
 		style="margin: 0px 0 0px 0px; position: relative; width: 133px; height: 25px; z-index: 100;">
@@ -223,29 +249,7 @@ z-index:99;
 
 	</ul>
 	<!--[if lte IE 6]></td></tr></table></a><![endif]--></li>
-	<li class="drop"><a
-		href="http://<%=CommonConfiguration.getURLLocation() %>/welcome.jsp?reflect=http://<%=CommonConfiguration.getURLLocation() %>/encounters/encounterSearch.jsp"
-		style="margin: 0px 0 0px 0px; position: relative; width: 86px; height: 25px; z-index: 100;"><strong>Search</strong>
 
-	<!--[if IE 7]><!--></a><!--<![endif]--> <!--[if lte IE 6]><table><tr><td><![endif]-->
-	<ul>
-		<li><a href="http://<%=CommonConfiguration.getURLLocation() %>/individualSearch.jsp"
-			class="enclose"
-			style="margin: 0px 0 0px 0px; position: relative; width: 230px; height: 25px;">SPLASH ID
-		Search</a></li>
-
-		<li><a href="http://<%=CommonConfiguration.getURLLocation() %>/encounters/encounterSearch.jsp"
-			class="enclose"
-			style="margin: 0px 0 0px 0px; position: relative; width: 230px; height: 25px;">Individual Sightings
-		Search</a></li>
-
-		<li><a href="http://<%=CommonConfiguration.getURLLocation() %>/googleSearch.jsp"
-			class="enclose"
-			style="margin: 0px 0 0px 0px; position: relative; width: 230px; height: 25px;">Google
-		Search</a></li>
-
-	</ul>
-	<!--[if lte IE 6]></td></tr></table></a><![endif]--></li>
 
 
 

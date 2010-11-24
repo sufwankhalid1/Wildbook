@@ -1547,7 +1547,7 @@ if((loggedIn.equals("true"))&&(enc.getSubmitterID()!=null)) {
 		<p class="para"><strong><%=encprops.getProperty("depth") %></strong><br /> 
 		<%
             	if(enc.getDepth()>=0) {
-            %> <%=enc.getDepth()%> <%=enc.getMeasureUnits()%> <%
+            %> <%=enc.getDepth()%> <%=encprops.getProperty("meters")%> <%
  	  			} else {
  	  		%> <%=encprops.getProperty("unknown") %><%
  	  			} 
@@ -1998,10 +1998,7 @@ if(enc.getDynamicProperties()!=null){
 									output="<%=thumbLocation%>" expAfter="0" threading="limited"
 									fillPaint="#FFFFFF" align="left" valign="left">
 								<di:image width="<%=Integer.toString(thumbnailWidth) %>" height="<%=Integer.toString(thumbnailHeight) %>" composite="70" srcurl="<%=addText%>" />
-								<di:rectangle x="0" y="<%=copyrightTextPosition %>" width="<%=thumbnailWidth %>" composite="30" height="13" fillPaint="#99CCFF"></di:rectangle>
-								
-								<di:text x="4" y="<%=copyrightTextPosition %>" align="left" font="Arial-bold-11" fillPaint="#000000"><%=encprops.getProperty("nocopying") %></di:text>
-						 </di:img> 
+						</di:img> 
 						 <img width="<%=thumbnailWidth %>" alt="photo <%=enc.getLocation()%>" src="<%=(num+"/"+imageCount+".jpg")%>" border="0" align="left" valign="left"> <%
 				if (isOwner) {
 			%>

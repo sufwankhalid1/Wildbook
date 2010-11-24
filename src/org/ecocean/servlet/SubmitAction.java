@@ -72,10 +72,8 @@ public class SubmitAction extends Action{
         myShepherd=new Shepherd();
 
         if (form instanceof SubmitForm) {
-			System.out.println("Starting data submission...");
-            //this line is here for when the input page is upload-utf8.jsp,
-            //it sets the correct character encoding for the response
-            String encoding = request.getCharacterEncoding();
+
+          String encoding = request.getCharacterEncoding();
             if ((encoding != null) && (encoding.equalsIgnoreCase("utf-8")))
             {
                 response.setContentType("text/html; charset=utf-8");
@@ -173,18 +171,36 @@ public class SubmitAction extends Action{
 			gpsLongitudeSeconds=ServletUtilities.preventCrossSiteScriptingAttacks(theForm.getGpsLongitudeSeconds());
 			gpsLatitudeMinutes=ServletUtilities.preventCrossSiteScriptingAttacks(theForm.getGpsLatitudeMinutes()); 
 			gpsLatitudeSeconds=ServletUtilities.preventCrossSiteScriptingAttacks(theForm.getGpsLatitudeSeconds());
-            //retrieve the text data
-            String text = theForm.getTheText();
-            //retrieve the query string value
-            String queryValue = theForm.getQueryParam();
-            //retrieve the file representation
-            FormFile[] file=new FormFile[4];
+      //retrieve the text data
+      String text = theForm.getTheText();
+      //retrieve the query string value
+      String queryValue = theForm.getQueryParam();
+      //retrieve the file representation
+            
+      //how many photos should we allow?
+      //int numberPhotosToAllow = (new Integer(CommonConfiguration.getProperty("numberPhotosToAllow"))).intValue();
+      
+            
+            FormFile[] file=new FormFile[10];
+            
+            
+            
             file[0] = theForm.getTheFile1();
             file[1] = theForm.getTheFile2();
             file[2] = theForm.getTheFile3();
             file[3] = theForm.getTheFile4();
+            
+            file[4] = theForm.getTheFile5();
+            file[5] = theForm.getTheFile6();
+            file[6] = theForm.getTheFile7();
+            file[7] = theForm.getTheFile8();
+            
+            file[8] = theForm.getTheFile9();
+            file[9] = theForm.getTheFile10();
+            
+            
             //retrieve the file name
-            String[] fileName= new String[4];
+            String[] fileName= new String[10];
             try{
             	fileName[0]= ServletUtilities.preventCrossSiteScriptingAttacks(file[0].getFileName());
             }catch(NullPointerException npe){fileName[0]=null;}
@@ -197,8 +213,31 @@ public class SubmitAction extends Action{
         	try{
         		fileName[3]= ServletUtilities.preventCrossSiteScriptingAttacks(file[3].getFileName());
     		}catch(NullPointerException npe){fileName[3]=null;}
-            //retrieve the content type
-            String[] contentType = new String[4];
+       
+        try{
+          fileName[4]= ServletUtilities.preventCrossSiteScriptingAttacks(file[4].getFileName());
+        }catch(NullPointerException npe){fileName[4]=null;}
+        try{
+          fileName[5]= ServletUtilities.preventCrossSiteScriptingAttacks(file[5].getFileName());
+        }catch(NullPointerException npe){fileName[5]=null;}
+        try{
+          fileName[6]= ServletUtilities.preventCrossSiteScriptingAttacks(file[6].getFileName());
+      }catch(NullPointerException npe){fileName[6]=null;}
+      try{
+        fileName[7]= ServletUtilities.preventCrossSiteScriptingAttacks(file[7].getFileName());
+    }catch(NullPointerException npe){fileName[7]=null;}
+    
+    try{
+      fileName[8]= ServletUtilities.preventCrossSiteScriptingAttacks(file[8].getFileName());
+  }catch(NullPointerException npe){fileName[8]=null;}
+  try{
+    fileName[9]= ServletUtilities.preventCrossSiteScriptingAttacks(file[9].getFileName());
+}catch(NullPointerException npe){fileName[9]=null;}
+        
+    		
+    		
+    		//retrieve the content type
+            String[] contentType = new String[10];
             try{
             	contentType[0] = file[0].getContentType();
             }catch(NullPointerException npe){contentType[0]=null;}
@@ -211,9 +250,35 @@ public class SubmitAction extends Action{
             try{
             	contentType[3] = file[3].getContentType();
             }catch(NullPointerException npe){contentType[3]=null;}
+            
+            try{
+              contentType[4] = file[4].getContentType();
+            }catch(NullPointerException npe){contentType[4]=null;}
+            try{
+              contentType[5] = file[5].getContentType();
+            }catch(NullPointerException npe){contentType[5]=null;}
+            try{
+              contentType[6] = file[6].getContentType();
+            }catch(NullPointerException npe){contentType[6]=null;}
+            try{
+              contentType[7] = file[7].getContentType();
+            }catch(NullPointerException npe){contentType[7]=null;}
+            
+            try{
+              contentType[8] = file[8].getContentType();
+            }catch(NullPointerException npe){contentType[8]=null;}
+            try{
+              contentType[9] = file[9].getContentType();
+            }catch(NullPointerException npe){contentType[9]=null;}
+            
+            
+            
+            
+            
+            
             boolean writeFile = theForm.getWriteFile();
             //retrieve the file size
-            String[] fileSize=new String[4];
+            String[] fileSize=new String[10];
             try{
             	fileSize[0] = (file[0].getFileSize() + " bytes");
             }catch(NullPointerException npe){fileSize[0]=null;}
@@ -226,6 +291,29 @@ public class SubmitAction extends Action{
             try{
             	fileSize[3] = (file[3].getFileSize() + " bytes");
             }catch(NullPointerException npe){fileSize[3]=null;}
+   
+            
+            try{
+              fileSize[4] = (file[4].getFileSize() + " bytes");
+            }catch(NullPointerException npe){fileSize[4]=null;}
+            try{
+              fileSize[5] = (file[5].getFileSize() + " bytes");
+            }catch(NullPointerException npe){fileSize[5]=null;}
+            try{
+              fileSize[6] = (file[6].getFileSize() + " bytes");
+            }catch(NullPointerException npe){fileSize[6]=null;}
+            try{
+              fileSize[7] = (file[7].getFileSize() + " bytes");
+            }catch(NullPointerException npe){fileSize[7]=null;}
+            
+            try{
+              fileSize[8] = (file[8].getFileSize() + " bytes");
+            }catch(NullPointerException npe){fileSize[8]=null;}
+            try{
+              fileSize[9] = (file[9].getFileSize() + " bytes");
+            }catch(NullPointerException npe){fileSize[9]=null;}
+            
+            
             String data = null;
 
 			File encountersDir=new File(getServlet().getServletContext().getRealPath("/encounters"));
@@ -237,7 +325,7 @@ public class SubmitAction extends Action{
 			} 
 			catch(SecurityException sec) {System.out.println("Security exception thrown while trying to created the directory for a new encounter!");}
 			//System.out.println("Created?: "+created);
-			for(int iter=0;iter<4;iter++) {
+			for(int iter=0;iter<10;iter++) {
 			if((!spamBot)&&(fileName[iter]!=null)) {
             try {
 

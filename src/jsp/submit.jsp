@@ -7,12 +7,7 @@ int nowYear=cal.get(1);
 	Properties props=new Properties();
 	String langCode="en";
 	
-	//check what language is requested
-	if(request.getParameter("langCode")!=null){
-		if(request.getParameter("langCode").equals("fr")) {langCode="fr";}
-		if(request.getParameter("langCode").equals("de")) {langCode="de";}
-		if(request.getParameter("langCode").equals("es")) {langCode="es";}
-	}
+
 	
 	//set up the file input stream
 	props.load(getClass().getResourceAsStream("/bundles/"+langCode+"/submit.properties"));
@@ -1009,6 +1004,18 @@ fields, using commas as separators</em>.</p>
 3: <input name="theFile3" type="file" size="30" /> </strong></p>
 <p align="center"><strong><%=props.getProperty("submit_image")%>
 4: <input name="theFile4" type="file" size="30" /> </strong></p>
+<p align="center"><strong><%=props.getProperty("submit_image")%>
+5: <input name="theFile5" type="file" size="30" /> </strong></p>
+<p align="center"><strong><%=props.getProperty("submit_image")%>
+6: <input name="theFile6" type="file" size="30" /> </strong></p>
+<p align="center"><strong><%=props.getProperty("submit_image")%>
+7: <input name="theFile7" type="file" size="30" /> </strong></p>
+<p align="center"><strong><%=props.getProperty("submit_image")%>
+8: <input name="theFile8" type="file" size="30" /> </strong></p>
+<p align="center"><strong><%=props.getProperty("submit_image")%>
+9: <input name="theFile9" type="file" size="30" /> </strong></p>
+<p align="center"><strong><%=props.getProperty("submit_image")%>
+10: <input name="theFile10" type="file" size="30" /> </strong></p>
 <p>&nbsp;</p>
 <%if(request.getRemoteUser()!=null){%> <input name="submitterID"
 	type="hidden" value="<%=request.getRemoteUser()%>" /> <%} else {%> <input
