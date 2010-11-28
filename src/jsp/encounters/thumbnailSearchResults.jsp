@@ -1,6 +1,6 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<%@ page contentType="text/html; charset=utf-8" language="java" import="java.util.Collections,java.io.File,com.drew.imaging.jpeg.*, com.drew.metadata.*,java.util.StringTokenizer,org.ecocean.*, java.lang.Integer, java.lang.NumberFormatException, java.util.Vector, java.util.Iterator, java.util.GregorianCalendar, java.util.Properties, javax.jdo.*"%>
+<%@ page contentType="text/html; charset=utf-8" language="java" import="org.apache.sanselan.*,java.awt.Dimension,java.util.Collections,java.io.File,com.drew.imaging.jpeg.*, com.drew.metadata.*,java.util.StringTokenizer,org.ecocean.*, java.lang.Integer, java.lang.NumberFormatException, java.util.Vector, java.util.Iterator, java.util.GregorianCalendar, java.util.Properties, javax.jdo.*"%>
 
 <html>
 <head>
@@ -93,7 +93,13 @@ hs.align = 'center';
 hs.transitions = ['expand', 'crossfade'];
 hs.outlineType = 'rounded-white';
 hs.fadeInOut = true;
-//hs.dimmingOpacity = 0.75;
+
+// define the restraining box
+hs.useBox = true;
+hs.width = 810;
+hs.height=500;
+
+
 
 // Add the controlbar
 hs.addSlideshow({
@@ -104,8 +110,9 @@ hs.addSlideshow({
 	fixedControls: 'fit',
 	overlayOptions: {
 		opacity: 0.75,
-		position: 'bottom center',
+		position: 'top center',
 		hideOnMouseOut: true
+		
 	}
 });
 
@@ -277,11 +284,38 @@ if((startNum)>1) {%>
 										<table>
 										<tr>
 											<td valign="top">
+												
 												<a href="<%=link%>" class="highslide" onclick="return hs.expand(this)"><img src="<%=thumbLink%>" alt="photo" border="1" title="Click to enlarge" /></a>
+						
 										
-										<div class="highslide-caption">
+										
+										<div class="highslide-caption" id="localImage<%=(countMe+startNum) %>">
 										
 										<h3><%=(countMe+startNum) %>/<%=numThumbnails %></h3>
+																									<%
+										if(request.getParameter("referenceImageName")!=null){
+										%>
+											<h4>Reference Image</h4>
+											<table id="table<%=(countMe+startNum) %>">
+											<tr>
+											<td>
+											
+						
+											
+											<img width="790px" class="highslide-image" id="refImage<%=(countMe+startNum) %>" src="<%=request.getParameter("referenceImageName") %>" />
+											
+											<SCRIPT LANGUAGE="JAVASCRIPT" TYPE="TEXT/JAVASCRIPT">
+											<!--
+											//document.images["refImage<%=(countMe+startNum) %>"].style.width = document.getElementById('highslider').clientWidth;
+											//-->
+											</SCRIPT>
+											
+											</td>
+											</tr>	
+											</table>									
+										<%
+										}
+										%>
 										<h4><%=encprops.getProperty("imageMetadata") %></h4>
 										
 										<table>
@@ -294,6 +328,7 @@ if((startNum)>1) {%>
 										int kwLength=keywords.length;
 										Encounter thisEnc = myShepherd.getEncounter(encNum);
 										%>
+								
 										<tr><td><span class="caption"><em><%=(countMe+startNum) %>/<%=numThumbnails %></em></span></td></tr>
 										<tr><td><span class="caption"><%=encprops.getProperty("location") %>: <%=thisEnc.getLocation() %></span></td></tr>
 										<tr><td><span class="caption"><%=encprops.getProperty("locationID") %>: <%=thisEnc.getLocationID() %></span></td></tr>
@@ -345,6 +380,7 @@ if((startNum)>1) {%>
 											%>
 										</span></td>
 										</tr>
+
 										</table>
 										</td>
 										
@@ -386,6 +422,7 @@ if((startNum)>1) {%>
 										}
 									%>
 											</tr>
+								
 										</table>
 </div>
 												</div>

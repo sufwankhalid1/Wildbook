@@ -364,14 +364,14 @@ if (highCount<totalCount) {%> <a
 				else if (request.getParameter("sort").equals("assigneddown")) {
 					allEncounters=myShepherd.getAllUnidentifiableEncounters(query, "individualID descending");
 					}
-				else {allEncounters=myShepherd.getAllUnidentifiableEncounters(query);}
+				else {allEncounters=myShepherd.getAllUnidentifiableEncounters(query,"year descending, month descending, day descending, hour descending, minutes descending");}
 					}
 			else if((session.getAttribute("logged")!=null)&&(request.getParameter("rejects")!=null)) {
 
 
 				query=ServletUtilities.setRange(query,iterTotal,highCount,lowCount);
 					
-				allEncounters=myShepherd.getAllUnidentifiableEncounters(query);
+				allEncounters=myShepherd.getAllUnidentifiableEncounters(query,"year descending, month descending, day descending, hour descending, minutes descending");
 			}
 			
 			
@@ -497,7 +497,7 @@ if (highCount<totalCount) {%> <a
 					}
 				else {
 					query.setFilter("!this.unidentifiable && this.approved == true");
-					allEncounters=myShepherd.getAllEncounters(query, "dwcDateAdded descending");
+					allEncounters=myShepherd.getAllEncounters(query, "year descending, month descending, day descending, hour descending, minutes descending");
 					}
 				}
 			else{
@@ -509,7 +509,7 @@ if (highCount<totalCount) {%> <a
 				query=ServletUtilities.setRange(query,iterTotal,highCount,lowCount);
 
 				query.setFilter("!this.unidentifiable && this.approved == true");
-				allEncounters=myShepherd.getAllEncounters(query, "dwcDateAdded descending");
+				allEncounters=myShepherd.getAllEncounters(query, "year descending, month descending, day descending, hour descending, minutes descending");
 			}
 			
 

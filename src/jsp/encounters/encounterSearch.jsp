@@ -113,7 +113,20 @@ encprops.load(getClass().getResourceAsStream("/bundles/"+langCode+"/encounterSea
 		</h1>
 		</p>
 		<p><em><%=encprops.getProperty("instructions")%></em></p>
+		
+		
 		<form action="thumbnailSearchResults.jsp" method="get" name="search" id="search">
+		<%
+		if(request.getParameter("referenceImageName")!=null){
+		%>
+			<p><strong>Reference Image</strong></p>
+			<p>You have selected this image as a reference for comparison with the results of this search</p>
+			<input name="referenceImageName" type="hidden" value="<%=request.getParameter("referenceImageName") %>" />
+			<p><img width="810px" src="<%=request.getParameter("referenceImageName") %>" /></p>
+		
+		<%}%>
+		
+		
 		<table>
 			
 <tr><td width="810px">

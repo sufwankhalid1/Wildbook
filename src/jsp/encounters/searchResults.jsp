@@ -257,6 +257,7 @@ for(int q=0;q<rEncounters.size();q++) {
 		<td class="lineitem"><%=enc.getLocation()%></td>
 		<td class="lineitem"><%=enc.getLocationCode()%></td>
 		<td class="lineitem"><%=bestFluke%></td>
+		
 	</tr>
 	<%
   	} //end if to control number displayed

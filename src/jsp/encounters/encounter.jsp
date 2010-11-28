@@ -1793,7 +1793,7 @@ if(enc.getDynamicProperties()!=null){
 								<td class="para"><img align="absmiddle"
 									src="../images/Crystal_Clear_action_find.gif"> <strong><%=encprops.getProperty("image_commands") %></strong>:<br /> <font size="-1">
 								 [<a
-									href="../kwSearch.jsp?primaryImageName=<%=(num+"/"+(addTextFile.replaceAll(" ","%20")))%>"><%=encprops.getProperty("look4photos") %></a>] </font></td>
+									href="encounterSearch.jsp?referenceImageName=<%=(num+"/"+(addTextFile.replaceAll(" ","%20")))%>"><%=encprops.getProperty("look4photos") %></a>] </font></td>
 							</tr>
 
 							<%

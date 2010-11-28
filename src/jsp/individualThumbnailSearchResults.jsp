@@ -82,7 +82,12 @@ hs.align = 'center';
 hs.transitions = ['expand', 'crossfade'];
 hs.outlineType = 'rounded-white';
 hs.fadeInOut = true;
-//hs.dimmingOpacity = 0.75;
+
+//define the restraining box
+hs.useBox = true;
+hs.width = 810;
+hs.height=500;
+
 
 // Add the controlbar
 hs.addSlideshow({
@@ -93,7 +98,7 @@ hs.addSlideshow({
 	fixedControls: 'fit',
 	overlayOptions: {
 		opacity: 0.75,
-		position: 'bottom center',
+		position: 'top center',
 		hideOnMouseOut: true
 	}
 });

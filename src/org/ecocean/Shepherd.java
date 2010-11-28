@@ -719,7 +719,7 @@ public class Shepherd {
 		acceptedEncounters.setOrdering(order);
 		Collection c=(Collection)(acceptedEncounters.execute());
 		ArrayList list=new ArrayList(c);
-		Collections.reverse(list);
+		//Collections.reverse(list);
 		Iterator it=list.iterator();
 		return it;
 		
