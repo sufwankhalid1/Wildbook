@@ -83,6 +83,9 @@ hs.transitions = ['expand', 'crossfade'];
 hs.outlineType = 'rounded-white';
 hs.fadeInOut = true;
 
+//block user copying
+hs.blockRightClick=true;
+
 //define the restraining box
 hs.useBox = true;
 hs.width = 810;

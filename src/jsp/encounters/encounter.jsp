@@ -178,6 +178,14 @@ hs.outlineType = 'rounded-white';
 hs.fadeInOut = true;
 //hs.dimmingOpacity = 0.75;
 
+//block user copying
+hs.blockRightClick=true;
+
+//define the restraining box
+hs.useBox = true;
+hs.width = 810;
+hs.height=500;
+
 // Add the controlbar
 hs.addSlideshow({
 	//slideshowGroup: 'group1',

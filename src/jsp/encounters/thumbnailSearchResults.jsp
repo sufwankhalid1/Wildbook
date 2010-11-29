@@ -99,6 +99,8 @@ hs.useBox = true;
 hs.width = 810;
 hs.height=500;
 
+//block user copying
+hs.blockRightClick=true;
 
 
 // Add the controlbar
