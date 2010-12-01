@@ -836,8 +836,8 @@ if (isOwner) {
 
 
 
-<p><%=matchingRecord %>: <strong><%=name%></strong>
-<%=tryAgain %>.</p>
+<p><%=matchingRecord %>: <strong><%=name%></strong><br />
+<%=tryAgain %></p>
 <p>
 <form action="individuals.jsp" method="get" name="sharks"><strong><%=record %>:</strong>
 <input name="number" type="text" id="number" value=<%=name%>> <input
