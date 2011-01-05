@@ -1606,9 +1606,16 @@ if(enc.getDynamicProperties()!=null){
         while(st.hasMoreTokens()){
           String token = st.nextToken();
           int equalPlace=token.indexOf("=");
-		  String nm=token.substring(0,(equalPlace));
-		  String vl=token.substring(equalPlace+1);
-		  
+		  String nm="";
+		  String vl="";
+		  try{
+		  	nm=token.substring(0,(equalPlace));
+		  }
+		  catch(Exception e){}
+		  try{
+		  	vl=token.substring(equalPlace+1);
+		  }
+		  catch(Exception e){}
 		  if((!nm.equals("Region Name"))&&(!nm.equals("Locality"))){
 		  
 		  %>

@@ -1361,7 +1361,7 @@ public class Shepherd {
 		Extent allKeywords = null;
 		Iterator it=null;
 		try{
-			acceptedKeywords.setOrdering("readableName descending");
+			acceptedKeywords.setOrdering("readableName ascending");
 			Collection c=(Collection)(acceptedKeywords.execute());
 			it=c.iterator();
 		}

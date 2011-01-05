@@ -423,7 +423,7 @@ Southwest corner latitude: <input type="text" id="sw_lat" name="sw_lat"></input>
 
 			<tr>
 				<td>
-					<h4 class="intro" style="background-color: #cccccc; padding:3px; border: 1px solid #000066; "><a href="javascript:animatedcollapse.toggle('observation')" style="text-decoration:none"><img src="images/Black_Arrow_down.png" width="14" height="14" border="0" align="absmiddle" /> <font color="#000000">Observation attribute filters</font></a></h4>
+					<h4 class="intro" style="background-color: #cccccc; padding:3px; border: 1px solid #000066; "><a href="javascript:animatedcollapse.toggle('observation')" style="text-decoration:none"><img src="images/Black_Arrow_down.png" width="14" height="14" border="0" align="absmiddle" /> <font color="#000000">Identity filters</font></a></h4>
 				</td>
 			</tr>
 
@@ -431,7 +431,7 @@ Southwest corner latitude: <input type="text" id="sw_lat" name="sw_lat"></input>
 
 			<tr>
 				<td><div id="observation" style="display:none; ">
-				<p>Use the fields below to filter your search based on observed attributes.</p>
+				<p>Use the fields below to filter your search based on identity and observed attributes.</p>
 				<table align="left">
 					<tr><td><table><tr>
 						<td width="62"><strong><%=props.getProperty("sex")%>: </strong></td>
@@ -489,22 +489,7 @@ int totalKeywords=myShepherd.getNumKeywords();
 				</td>
 			</tr>
 
-				</table>
-
-				</div>
-				</td>
-			</tr>
-			
-			<tr>
-				<td>
-					<h4 class="intro" style="background-color: #cccccc; padding:3px; border: 1px solid #000066; "><a href="javascript:animatedcollapse.toggle('identity')" style="text-decoration:none"><img src="images/Black_Arrow_down.png" width="14" height="14" border="0" align="absmiddle" /> <font color="#000000">Identity filters</font></a></h4>
-				</td>
-			</tr>
-			
-			<tr>
-				<td>
-				<div id="identity" style="display:none; ">
-				<table><tr><td>
+				<tr><td>
 				<%=props.getProperty("maxYearsBetweenResights")%>: <select
 					name="numResightsOperator" id="numResightsOperator">
 					<option value="greater" selected="selected">&#8250;=</option>

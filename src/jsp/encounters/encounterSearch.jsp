@@ -267,7 +267,7 @@ Southwest corner latitude: <input type="text" id="sw_lat" name="sw_lat"></input>
 				<td>
 				<div id="date" style="display:none;">
 				<p>Use the fields below to limit the timeframe of your search.</p>
-				<strong><%=encprops.getProperty("sightingDates")%>:</strong>< br/>
+				<strong><%=encprops.getProperty("sightingDates")%>:</strong><br/>
 				<table width="720">
 					<tr>
 						<td width="670"><label><em>
@@ -438,14 +438,14 @@ Southwest corner latitude: <input type="text" id="sw_lat" name="sw_lat"></input>
 			
 			<tr>
 				<td>
-					<h4 class="intro" style="background-color: #cccccc; padding:3px; border: 1px solid #000066; "><a href="javascript:animatedcollapse.toggle('observation')" style="text-decoration:none"><img src="../images/Black_Arrow_down.png" width="14" height="14" border="0" align="absmiddle" /> <font color="#000000">Observation attribute filters</font></a></h4>
+					<h4 class="intro" style="background-color: #cccccc; padding:3px; border: 1px solid #000066; "><a href="javascript:animatedcollapse.toggle('observation')" style="text-decoration:none"><img src="../images/Black_Arrow_down.png" width="14" height="14" border="0" align="absmiddle" /> <font color="#000000">Identity filters</font></a></h4>
 				</td>
 			</tr>
 			
 			<tr>
 				<td>
 				<div id="observation" style="display:none; ">
-				<p>Use the fields below to filter your search based on observed attributes.</p>
+				<p>Use the fields below to filter your search based on identity and observed attributes.</p>
 							<input name="alive" type="hidden" id="alive" value="alive" /> 
 							<input name="dead" type="hidden" id="dead" value="dead" /> 
 							<input name="male" type="hidden" id="male" value="male" />
@@ -505,7 +505,7 @@ Southwest corner latitude: <input type="text" id="sw_lat" name="sw_lat"></input>
 
 				
 				<tr>
-					<td valign="top"><strong><%=encprops.getProperty("submitterName")%>:</strong>
+					<td valign="top"><br /><strong><%=encprops.getProperty("submitterName")%>:</strong>
 						<em> <span class="para">
 								<a href="<%=CommonConfiguration.getWikiLocation()%>recordedBy" target="_blank">
 									<img src="../images/information_icon_svg.gif" alt="Help" border="0" align="absmiddle" />
@@ -551,27 +551,14 @@ Southwest corner latitude: <input type="text" id="sw_lat" name="sw_lat"></input>
 				
 				<tr>
 				<td>
-				<input name="hasTissueSample" type="checkbox" value="true" /> <strong>Include only those sightings that include a tissue sample.</strong>
+				<br /><input name="hasTissueSample" type="checkbox" value="true" /> <strong>Include only those sightings that include a tissue sample.</strong>
 				</td>
 				</tr>
 				
 				
-			</table>
-			</p>
-			</div>
-				</td>
-			</tr>
 			
-			<tr>
-				<td>
-					<h4 class="intro" style="background-color: #cccccc; padding:3px; border: 1px solid #000066; "><a href="javascript:animatedcollapse.toggle('identity')" style="text-decoration:none"><img src="../images/Black_Arrow_down.png" width="14" height="14" border="0" align="absmiddle" /> <font color="#000000">Identity filters</font></a></h4>
-				</td>
-			</tr>
-			<tr>
-				<td>
-				<div id="identity" style="display:none; ">
-				<p>Use the fields below to limit your search to marked individuals with the following properties.</p>
-				<input name="resightOnly" type="checkbox" id="resightOnly"
+			
+				<tr><td><br /><input name="resightOnly" type="checkbox" id="resightOnly"
 					value="true"> <strong><%=encprops.getProperty("include")%></strong> <select
 					name="numResights" id="numResights">
 					<option value="1" selected>1</option>
@@ -589,15 +576,18 @@ Southwest corner latitude: <input type="text" id="sw_lat" name="sw_lat"></input>
 					<option value="13">13</option>
 					<option value="14">14</option>
 					<option value="15">15</option>
-				</select> <strong><%=encprops.getProperty("times")%></strong>
+				</select> <strong><%=encprops.getProperty("times")%></strong></input></td></tr>
 				
-				<p><strong><%=encprops.getProperty("alternateID")%>:</strong> <em> <input
+				<tr><td><br /><strong><%=encprops.getProperty("alternateID")%>:</strong> <em> <input
 					name="alternateIDField" type="text" id="alternateIDField" size="10"
 					maxlength="35"> <span class="para"><a
 					href="<%=CommonConfiguration.getWikiLocation()%>alternateID"
 					target="_blank"><img src="../images/information_icon_svg.gif"
 					alt="Help" width="15" height="15" border="0" align="absmiddle" /></a></span>
-				<br></em></p>
+				<br></em>
+				</td></tr>
+				</table>
+			</p>
 				</div>
 				</td>
 			</tr>

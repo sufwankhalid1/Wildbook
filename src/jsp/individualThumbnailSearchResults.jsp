@@ -313,22 +313,31 @@ if((startNum)>1) {%>
 										Encounter thisEnc = myShepherd.getEncounter(encNum);
 										%>
 										<tr><td><span class="caption"><em><%=(countMe+startNum) %>/<%=numThumbnails %></em></span></td></tr>
-										<tr><td><span class="caption"><%=encprops.getProperty("location") %>: <%=thisEnc.getLocation() %></span></td></tr>
-										<tr><td><span class="caption"><%=encprops.getProperty("locationID") %>: <%=thisEnc.getLocationID() %></span></td></tr>
-										<tr><td><span class="caption"><%=encprops.getProperty("date") %>: <%=thisEnc.getDate() %></span></td></tr>
-										<tr><td><span class="caption"><%=encprops.getProperty("individualID") %>: <a href="individuals.jsp?number=<%=thisEnc.getIndividualID() %>"><%=thisEnc.getIndividualID() %></a></span></td></tr>
-										<tr><td><span class="caption"><%=encprops.getProperty("catalogNumber") %>: <a href="encounters/encounter.jsp?number=<%=thisEnc.getCatalogNumber() %>"><%=thisEnc.getCatalogNumber() %></a></span></td></tr>
-										<tr><td><span class="caption">Research Group: <%=thisEnc.getSubmitterName() %></span></td></tr>
 										
 										<%
-										if(thisEnc.getVerbatimEventDate()!=null){
+										MarkedIndividual indie = myShepherd.getMarkedIndividual(thisEnc.getIndividualID()); 
+										Encounter[] dateSortedEncs=indie.getDateSortedEncounters(true);
+										int sortedLength=dateSortedEncs.length-1;
+										Encounter temp=dateSortedEncs[sortedLength];
 										%>
-											<tr>
-											
-											<td><span class="caption"><%=encprops.getProperty("verbatimEventDate") %>: <%=thisEnc.getVerbatimEventDate() %></span></td></tr>
-										<%
-										}
-										%>
+										<tr><td><span class="caption"><%=encprops.getProperty("individualID") %>: <a href="individuals.jsp?number=<%=thisEnc.getIndividualID() %>"><%=thisEnc.getIndividualID() %></a></span></td></tr>
+									
+									<%
+		  							if((indie.getAlternateID()!=null)&&(!indie.getAlternateID().equals("None"))){
+		  							%> 
+		  								<tr><td><span class="caption"><%=encprops.getProperty("alternateID")%>: <%=indie.getAlternateID()%></span></td></tr> <%
+		  							}
+									%>
+		  							<tr><td><span class="caption"><%=encprops.getProperty("firstIdentified")%>: <%=temp.getMonth() %>/<%=temp.getYear() %></span></td></tr>
+		
+									
+									
+											<tr><td><span class="caption">No. Seasons Sighted: <%=indie.particpatesInTheseVerbatimEventDates().size()%></span></td></tr>
+											<tr><td><span class="caption"><%=encprops.getProperty("numLocationsSighted") %>: <%=indie.particpatesInTheseLocationIDs().size()%></span></td></tr>
+											<tr><td><span class="caption"><%=encprops.getProperty("sex") %>: <%=indie.getSex()%></span></td></tr>
+											<tr><td><span class="caption">Research Group: <%=thisEnc.getSubmitterName() %></span></td></tr>
+										
+									
 										<tr>
 										<td><span class="caption">
 											<%=encprops.getProperty("matchingKeywords") %>
@@ -407,13 +416,23 @@ if((startNum)>1) {%>
 											</td>
 										</tr>
 							
-										
-										<tr><td><span class="caption"><%=encprops.getProperty("location") %>: <%=thisEnc.getLocation() %></span></td></tr>
-										<tr><td><span class="caption"><%=encprops.getProperty("locationID") %>: <%=thisEnc.getLocationID() %></span></td></tr>
-										<tr><td><span class="caption"><%=encprops.getProperty("date") %>: <%=thisEnc.getDate() %></span></td></tr>
+									
 										<tr><td><span class="caption"><%=encprops.getProperty("individualID") %>: <a href="individuals.jsp?number=<%=thisEnc.getIndividualID() %>"><%=thisEnc.getIndividualID() %></a></span></td></tr>
-										<tr><td><span class="caption"><%=encprops.getProperty("catalogNumber") %>: <a href="encounters/encounter.jsp?number=<%=thisEnc.getCatalogNumber() %>"><%=thisEnc.getCatalogNumber() %></a></span></td></tr>
-										<tr><td><span class="caption">Research Group: <%=thisEnc.getSubmitterName() %></span></td></tr>
+									
+									<%
+		  							if((indie.getAlternateID()!=null)&&(!indie.getAlternateID().equals("None"))){
+		  							%> 
+		  								<tr><td><span class="caption"><%=encprops.getProperty("alternateID")%>: <%=indie.getAlternateID()%></span></td></tr> <%
+		  							}
+									%>
+		  							<tr><td><span class="caption"><%=encprops.getProperty("firstIdentified")%>: <%=temp.getMonth() %>/<%=temp.getYear() %></span></td></tr>
+									
+									
+									
+											<tr><td><span class="caption">No. Seasons Sighted: <%=indie.particpatesInTheseVerbatimEventDates().size()%></span></td></tr>
+											<tr><td><span class="caption"><%=encprops.getProperty("numLocationsSighted") %>: <%=indie.particpatesInTheseLocationIDs().size()%></span></td></tr>
+											<tr><td><span class="caption"><%=encprops.getProperty("sex") %>: <%=indie.getSex()%></span></td></tr>
+											<tr><td><span class="caption">Research Group: <%=thisEnc.getSubmitterName() %></span></td></tr>
 										
 										<tr>
 										<td><span class="caption">

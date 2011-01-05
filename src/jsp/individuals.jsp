@@ -319,8 +319,9 @@ if (isOwner) {
 				
 				
 				<td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=date %></strong></td>
-				<td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=location %></strong></td>
-				<td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=sex %></strong></td>
+				<td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("locationID") %></strong></td>
+				<td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong>Beh. Role</strong></td>
+				<td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong>Tissue Sample</strong></td>
 				<%
 	 if(isOwner && CommonConfiguration.useSpotPatternRecognition()) {
 	 %>
@@ -367,8 +368,56 @@ if (isOwner) {
 				
 				
 				<td class="lineitem"><%=enc.getDate()%></td>
-				<td class="lineitem"><%=enc.getLocation()%></td>
-				<td class="lineitem"><%=enc.getSex()%></td>
+				<td class="lineitem">
+					<%
+					if(enc.getDynamicPropertyValue("Region Name")!=null){
+					%>
+						<%=enc.getLocationCode()%> (<%=enc.getDynamicPropertyValue("Region Name") %>)
+			
+					<%	
+					}
+					else{
+					%>
+             			<%=enc.getLocationCode()%>
+					<%
+					}
+					%>	
+				
+				
+				</td>
+				
+				<!-- behavior -->
+				<td class="lineitem">
+				<%
+				if(enc.getDynamicPropertyValue("Beh Role")!=null){
+				%>
+				<%=enc.getDynamicPropertyValue("Beh Role") %>
+				<%
+				}
+				else {
+				%>
+				&nbsp
+				<%
+				}
+				%>
+				</td>
+				
+				<!-- tissue sample -->
+						<td class="lineitem">
+				<%
+				if(enc.getDynamicPropertyValue("Tissue Sample")!=null){
+				%>
+				<%=enc.getDynamicPropertyValue("Tissue Sample") %>
+				<%
+				}
+				else {
+				%>
+				&nbsp
+				<%
+				}
+				%>
+				</td>
+				
 				
 				<%
 				if(CommonConfiguration.useSpotPatternRecognition()){

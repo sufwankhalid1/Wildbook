@@ -210,6 +210,9 @@ for(int q=0;q<rEncounters.size();q++) {
 
 
   				if((numResults>=startNum)&&(numResults<=endNum)) {
+  				
+  				try{
+  					
   				%>
 	<tr>
 	<td width="100" class="lineitem" ><img src="<%=(enc.getEncounterNumber()+"/thumb.jpg")%>"></td>
@@ -221,8 +224,7 @@ for(int q=0;q<rEncounters.size();q++) {
 		<%
 	} else {
 %>
-		<td class="lineitem"><a
-			href="../individuals.jsp?number=<%=enc.isAssignedToMarkedIndividual()%>"><%=enc.isAssignedToMarkedIndividual()%></a></td>
+		<td class="lineitem"><a href="../individuals.jsp?number=<%=enc.isAssignedToMarkedIndividual()%>"><%=enc.isAssignedToMarkedIndividual()%></a></td>
 		<%
 	}
 %>
@@ -260,6 +262,8 @@ for(int q=0;q<rEncounters.size();q++) {
 		
 	</tr>
 	<%
+  	}
+  	catch(Exception e){}
   	} //end if to control number displayed
 
   

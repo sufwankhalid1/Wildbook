@@ -981,7 +981,10 @@ public class Encounter implements java.io.Serializable{
         while(st.hasMoreTokens()){
           String token = st.nextToken();
           int equalPlace=token.indexOf("=");
-          tm.put(token.substring(0,equalPlace), token.substring(equalPlace+1));
+          try{
+            tm.put(token.substring(0,equalPlace), token.substring(equalPlace+1));
+          }
+          catch(IndexOutOfBoundsException ioob){}
         }
         if(tm.containsKey(name)){return tm.get(name);}
       }
