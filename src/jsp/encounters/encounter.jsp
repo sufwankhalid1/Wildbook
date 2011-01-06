@@ -528,10 +528,9 @@ if((loggedIn.equals("true"))&&(enc.getSubmitterID()!=null)) {
 				<td align="left" valign="top">
 				<form name="setMBT" action="../EncounterSetMatchedBy" method="post">
 				<select name="matchedBy" id="matchedBy">
-					<option value="Unmatched first encounter"><%=encprops.getProperty("unmatchedFirstEncounter")%></option>
-					<option value="Visual inspection"><%=encprops.getProperty("visualInspection")%></option>
-					<option value="Pattern match" selected><%=encprops.getProperty("patternMatch")%></option>
-				</select> <input name="number" type="hidden" value=<%=num%>> 
+					<option value="SPLASH">SPLASH</option>
+					<option value="Contributor">Contributor</option>
+					</select> <input name="number" type="hidden" value=<%=num%>> 
 				<input name="setMB" type="submit" id="setMB" value="<%=encprops.getProperty("set")%>"></form>
 				</td>
 			</tr>
