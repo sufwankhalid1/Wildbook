@@ -62,6 +62,11 @@ props.load(getClass().getResourceAsStream("/bundles/"+langCode+"/individualSearc
 </script>
 <!-- /STEP2 Place inside the head section -->	
 	
+<script>
+function openPopup(url) {
+ window.open(url, "popup_id", "scrollbars,resizable,width=810,height=400");
+}
+</script>
 
 
 </head>
@@ -464,7 +469,7 @@ Southwest corner latitude: <input type="text" id="sw_lat" name="sw_lat"></input>
 int totalKeywords=myShepherd.getNumKeywords();
 %>
 			<tr>
-				<td><p><%=props.getProperty("hasKeywordPhotos")%></p>
+				<td><p><%=props.getProperty("hasKeywordPhotos")%></a></p>
 				<%
 				
 				if(totalKeywords>0){
