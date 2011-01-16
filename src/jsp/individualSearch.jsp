@@ -468,8 +468,11 @@ Southwest corner latitude: <input type="text" id="sw_lat" name="sw_lat"></input>
 					<%
 int totalKeywords=myShepherd.getNumKeywords();
 %>
+
 			<tr>
-				<td><p><%=props.getProperty("hasKeywordPhotos")%></a></p>
+				<td>
+				
+				<p><%=props.getProperty("hasKeywordPhotos")%> <a href="colorCodes.jsp" target="_blank"> Click here for a visual display and description of color codes.</a></p>
 				<%
 				
 				if(totalKeywords>0){
@@ -501,10 +504,13 @@ int totalKeywords=myShepherd.getNumKeywords();
 					
 				}
 				%>
+				
 				</td>
+				
 			</tr>
-
+				<tr><td>&nbsp;</td></tr>
 				<tr><td>
+				
 				<%=props.getProperty("maxYearsBetweenResights")%>: <select
 					name="numResightsOperator" id="numResightsOperator">
 					<option value="greater" selected="selected">&#8250;=</option>
