@@ -272,15 +272,8 @@ z-index:99;
 			href="http://<%=CommonConfiguration.getURLLocation() %>/appadmin/admin.jsp"
 			class="enclose"
 			style="margin: 0px 0 0px 0px; position: relative; width: 190px; height: 25px;">General</a></li>
-		<li><a
-			href="http://<%=CommonConfiguration.getURLLocation() %>/tapirlink/admin/configurator.php?resource=RhincodonTypus"
-			class="enclose"
-			style="margin: 0px 0 0px 0px; position: relative; width: 190px; height: 25px;">TapirLink</a></li>
-		<li><a
-			href="http://<%=CommonConfiguration.getURLLocation() %>/appadmin/kwAdmin.jsp"
-			class="enclose"
-			style="margin: 0px 0 0px 0px; position: relative; width: 190px; height: 25px;">Photo
-		Keywords</a></li>
+		
+
 	
 <%
 		if(CommonConfiguration.allowAdoptions()){
