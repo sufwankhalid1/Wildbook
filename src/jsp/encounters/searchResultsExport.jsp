@@ -408,10 +408,11 @@ if(generateEmails){
 
 
 	<%
-  					Vector haveGPSData=new Vector();
-  					int count=0;
+  				Vector haveGPSData=new Vector();
+  				int count=0;
+  					
 
-  						for(int f=0;f<rEncounters.size();f++) {
+  				for(int f=0;f<rEncounters.size();f++) {
   						
   					Encounter enc=(Encounter)rEncounters.get(f);
   					count++;
@@ -509,9 +510,11 @@ if(generateEmails){
   			Label lNumberx21 = new Label(22, count, enc.getDynamicPropertyValue("Sighting Comments"));
   	  		sheet.addCell(lNumberx21);
   		}
+	  		
+	  	if(enc.getOccurrenceRemarks()!=null){
 	  		Label lNumberx22 = new Label(23, count, enc.getOccurrenceRemarks().replaceAll("<br>"," "));
   	  		sheet.addCell(lNumberx22);
-  	
+	  	}
 	  	
 	  	
 	  	
@@ -526,8 +529,12 @@ if(generateEmails){
   			Label lNumberx28e = new Label(0, count, enc.isAssignedToMarkedIndividual());
   			sheetExport.addCell(lNumberx28e);
   		}
-		Label lNumberx29e = new Label(1, count, enc.getEncounterNumber());
-		sheetExport.addCell(lNumberx29e);
+		
+  		if(enc.getEncounterNumber()!=null){
+  			Label lNumberx29e = new Label(1, count, enc.getEncounterNumber());
+			sheetExport.addCell(lNumberx29e);
+  		}
+  		
   		if(enc.getAlternateID()!=null){
 			Label lNumberx30e = new Label(2, count, enc.getAlternateID());
 			sheetExport.addCell(lNumberx30e);
@@ -536,8 +543,12 @@ if(generateEmails){
 			Label lNumberx31e = new Label(3, count, enc.getSubmitterName());
 			sheetExport.addCell(lNumberx31e);
 		}
-		Label lNumberx32e = new Label(4, count, enc.getDate());
-		sheetExport.addCell(lNumberx32e);
+		
+  		if(enc.getDate()!=null){
+  			Label lNumberx32e = new Label(4, count, enc.getDate());
+			sheetExport.addCell(lNumberx32e);
+  		}
+		
   		if(enc.getDynamicPropertyValue("Vessel")!=null){
 			Label lNumberx33e = new Label(5, count, enc.getDynamicPropertyValue("Vessel"));
 			sheetExport.addCell(lNumberx33e);

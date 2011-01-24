@@ -761,14 +761,19 @@ public class MarkedIndividual{
 	 * Returns a comma delimited string of all of the alternateIDs registered for this marked individual, including those only assigned at the Encounter level
 	 */
 	 public String getAllAlternateIDs(){
-	   String allIDs="";
-	    if(alternateid!=null){allIDs+=alternateid;}
-	    for(int c=0;c<encounters.size();c++) {
+	   ArrayList<String> allIDs = new ArrayList<String>();
+	   
+	    //add any alt IDs for the individual itself 
+	    if(alternateid!=null){allIDs.add(alternateid);}
+	    
+	    //add an alt IDs for the individual's encounters
+	    int numEncs=encounters.size();
+	    for(int c=0;c<numEncs;c++) {
 	      Encounter temp=(Encounter)encounters.get(c);
-	      if(!temp.getAlternateID().equals("None")) {allIDs+=","+temp.getAlternateID();}
+	      if((temp.getAlternateID()!=null)&&(!temp.getAlternateID().equals("None"))&&(!allIDs.contains(temp.getAlternateID()))) {allIDs.add(temp.getAlternateID());}
 	    }
-	    if(allIDs.startsWith(",")){allIDs=allIDs.substring(1);}
-	    return allIDs;
+	    
+	    return allIDs.toString();
 	  }
 	 
 	  public String getDynamicProperties(){

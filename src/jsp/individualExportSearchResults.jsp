@@ -187,7 +187,7 @@ File fileExport=new File(getServletContext().getRealPath(("/"+filenameExport)));
     //Label label5 = new Label(5, 0, ""); 
 
     Cell label6 = title.createCell(6);
-    label6.setCellValue("Lab IDs");
+    label6.setCellValue("Field Sample Number");
    // Label label6 = new Label(6, 0, ""); 
 
     Cell label8 = title.createCell(8);
@@ -311,8 +311,8 @@ File fileExport=new File(getServletContext().getRealPath(("/"+filenameExport)));
     
 
     
-      ArrayList<String> seasons= myShepherd.getAllVerbatimEventDates();
-      int totalVBDS=seasons.size();
+      //ArrayList<String> seasons= myShepherd.getAllVerbatimEventDates();
+      //int totalVBDS=seasons.size();
       
       ArrayList<String> locIDs = myShepherd.getAllLocationIDs();
       int totalLocIDs=locIDs.size();
@@ -423,11 +423,13 @@ File fileExport=new File(getServletContext().getRealPath(("/"+filenameExport)));
       
       //list out num days in season
 
-      for(int n=0;n<totalVBDS;n++) {
+      String[] seasons = {"Summer 2004", "Summer 2005", "Winter 2004", "Winter 2005", "Winter 2006"};
+      
+      for(int n=0;n<seasons.length;n++) {
         
-        String id=seasons.get(n);
+        String id=seasons[n];
         //System.out.println("The id is: "+id);
-        if(id!=null){
+        //if(id!=null){
         //Vector encounters=indie.getEncounters();
         
         int numSightingsInThisSeason=0;
@@ -439,7 +441,7 @@ File fileExport=new File(getServletContext().getRealPath(("/"+filenameExport)));
         }
         //Label label_temp = new Label(, f, ); 
         row.createCell((continueNum+n)).setCellValue(Integer.toString(numSightingsInThisSeason)); 
-      }
+      //}
       }
       
       numComplete=f;
