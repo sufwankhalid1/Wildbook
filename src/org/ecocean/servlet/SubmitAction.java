@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.NullPointerException;
-//import java.io.FileInputStream;
 import java.util.Properties;
 import java.io.File;
 import java.lang.Exception;
@@ -22,8 +21,6 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.upload.FormFile;
 import java.util.Calendar;
 import java.util.Vector;
-//import java.text.CharacterIterator;
-//import java.text.StringCharacterIterator;
 import java.util.Random;
 
 import org.joda.time.DateTime;
