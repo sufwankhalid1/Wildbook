@@ -179,7 +179,7 @@ File fileExport=new File(getServletContext().getRealPath(("/"+filenameExport)));
     //Label label2a = new Label(3, 0, ""); 
     
     Cell label4 = title.createCell(4);
-    label4.setCellValue("BestSexConf");
+    label4.setCellValue("Best Sex Confidence");
     //Label label4 = new Label(4, 0, ""); 
 
     Cell label5 = title.createCell(5);
@@ -350,7 +350,7 @@ File fileExport=new File(getServletContext().getRealPath(("/"+filenameExport)));
       row.createCell(1).setCellValue(indie.getAllAlternateIDs()); 
       
       //set GenSex
-      if(indie.getDynamicPropertyValue("GenSex")!=null){
+      if(indie.getSex()!=null){
         //Label label_2 = new Label(2, f, ); 
         row.createCell(2).setCellValue(indie.getDynamicPropertyValue("GenSex")); 
       }
@@ -362,9 +362,9 @@ File fileExport=new File(getServletContext().getRealPath(("/"+filenameExport)));
       }
       
       //set BestSexConf
-      if(indie.getDynamicPropertyValue("BestSexConf")!=null){
+      if(indie.getDynamicPropertyValue("Best Sex Confidence")!=null){
         //Label label_4 = new Label(4, f, ); 
-        row.createCell(4).setCellValue(indie.getDynamicPropertyValue("BestSexConf")); 
+        row.createCell(4).setCellValue(indie.getDynamicPropertyValue("Best Sex Confidence")); 
       }
       
       //set the color keyword

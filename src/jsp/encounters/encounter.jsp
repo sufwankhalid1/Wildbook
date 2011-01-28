@@ -555,9 +555,8 @@ if((loggedIn.equals("true"))&&(enc.getSubmitterID()!=null)) {
 				<form name="add2shark" action="../IndividualAddEncounter"
 					method="post"><%=encprops.getProperty("individual")%>: <input name="individual" type="text" size="10" maxlength="50"><br> <%=encprops.getProperty("matchedBy")%>:<br>
 				<select name="matchType" id="matchType">
-					<option value="Unmatched first encounter"><%=encprops.getProperty("unmatchedFirstEncounter")%></option>
-					<option value="Visual inspection"><%=encprops.getProperty("visualInspection")%></option>
-					<option value="Pattern match" selected><%=encprops.getProperty("patternMatch")%></option>
+					<option value="SPLASH">SPLASH</option>
+					<option value="Contributor">Contributor</option>
 				</select> <br> <input name="noemail" type="checkbox" value="noemail">
 				<%=encprops.getProperty("suppressEmail")%><br> <input name="number" type="hidden"
 					value=<%=num%>> <input name="action" type="hidden"
@@ -1637,9 +1636,16 @@ if(enc.getDynamicProperties()!=null){
 
 <%
 }
+
+String theseComments="None";
+if(enc.getComments()!=null){
+	
+	theseComments=enc.getComments();
+}
+
 %>
 
-		<p class="para"><strong><%=encprops.getProperty("comments") %></strong><br /> <%=enc.getComments()%><br />
+		<p class="para"><strong><%=encprops.getProperty("comments") %></strong><br /> <%=theseComments%><br />
 				<%
       	if(isOwner&&CommonConfiguration.isCatalogEditable()) {
       %><font size="-1">[<a href="encounter.jsp?number=<%=num%>&edit=comments#comments">edit</a>]</font>

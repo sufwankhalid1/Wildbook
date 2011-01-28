@@ -162,6 +162,8 @@ Label label21 = new Label(22, 0, "Sighting Comments");
 sheet.addCell(label21);
 Label label22 = new Label(23, 0, "ID Comments"); 
 sheet.addCell(label22);
+Label label23 = new Label(24, 0, "Sighting Origin"); 
+sheet.addCell(label23);
 
 //let's write out headers for the normal export file
 WritableWorkbook workbookExport = Workbook.createWorkbook(fileExport); 
@@ -515,7 +517,10 @@ if(generateEmails){
 	  		Label lNumberx22 = new Label(23, count, enc.getOccurrenceRemarks().replaceAll("<br>"," "));
   	  		sheet.addCell(lNumberx22);
 	  	}
-	  	
+	  	if(enc.getMatchedBy()!=null){
+	  		Label lNumberx23 = new Label(24, count, enc.getMatchedBy());
+  	  		sheet.addCell(lNumberx23);
+	  	}
 	  	
 	  	
 	  	

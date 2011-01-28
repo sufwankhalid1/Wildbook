@@ -1,8 +1,7 @@
-package com.jholmberg;
 /**
- *
+ * 
  */
-
+package com.jholmberg;
 
 //import the Shepherd Project Framework
 import org.ecocean.*;
@@ -18,7 +17,7 @@ import org.joda.time.DateTime;
 import org.joda.time.format.*;
 
 //import jackcess
-//import com.healthmarketscience.*;
+import com.healthmarketscience.*;
 import com.healthmarketscience.jackcess.*;
 import com.healthmarketscience.jackcess.query.*;
 import com.healthmarketscience.jackcess.scsu.*;
@@ -36,46 +35,46 @@ public class SplashMigratorApp {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-
-
+		
+		
 		//initial environment config
 		String pathToAccessFile="C:\\splash\\SPLASH All Seasons.mdb";
-
+		
 		String pathToUpdateFile="C:\\splash\\CRC SPLASHID additional sightings.mdb";
-
+		
 		String encountersDirPath="C:\\tomcat6\\webapps\\shepherd-alpha2\\encounters";
 		String splashImagesDirPath="C:\\splash\\SPLASH Images";
 		String urlToThumbnailJSPPage="http://localhost:8080/shepherd-alpha1/resetThumbnail.jsp";
-
+		
 		//an arraylist for later thumbnail generation
 		ArrayList<String> thumbnailThese=new ArrayList<String>();
 		ArrayList<String> thumbnailTheseImages=new ArrayList<String>();
-
+		
 		//let's get our Shepherd Project structures built
 		Shepherd myShepherd = new Shepherd();
-
+		
 		//let's load our Access database
 		File accessDB=new File(pathToAccessFile);
 		File updateDB=new File(pathToUpdateFile);
-
+		
 		try{
-
+			
 			//lets' get to work!!!!!!!
 			Database db=Database.open(accessDB);
 			Database uDB=Database.open(updateDB);
 			File copyImagesFromDir=new File(splashImagesDirPath);
 			File encountersRootDir=new File(encountersDirPath);
-
+			
 			//update changes
 			//Table tDailyEffort=db.getTable("tDailyEffort");
 			//Table tSightings=db.getTable("tSightings");
 			//Table tIdentifications=db.getTable("tIdentifications");
-
+			
 			Table tDailyEffort=uDB.getTable("tDailyEffort");
 			Table tSightings=uDB.getTable("tSightings");
 			Table tIdentifications=uDB.getTable("tIdentifications");
-
-
+			
+			
 			Table tSPLASHIDFilenames=db.getTable("tSPLASHIDFilenames");
 			Table tSPLASHIDSexes=db.getTable("tSPLASHIDSexes");
 			Table tFlukeQualCodes=db.getTable("tFlukeQualCodes");
@@ -83,11 +82,11 @@ public class SplashMigratorApp {
 			Table tRegion=db.getTable("ltRegion");
 			Table ltResearchGroup=db.getTable("ltResearch Group");
 			Table tSampleLabData=db.getTable("tSampleLabData");
-
-
+			
+			
 			//first, let's get the behaviorindex and populate an ArrayList
-
-
+			
+			
 			Iterator<Map<String,Object>> tBehaviorCodesIterator = tBehaviorIndex.iterator();
 			TreeMap<String,String> behMap = new TreeMap<String,String>();
 			while(tBehaviorCodesIterator.hasNext()){
@@ -96,14 +95,14 @@ public class SplashMigratorApp {
 				String name=(String)thisIndexRow.get("Individual Role");
 				if(!behMap.containsKey(index)){
 					behMap.put(index, name);
-
+					
 				}
 			}
-
-
-
+			
+			
+			
 			//first, let's get the region index and populate an ArrayList
-
+			
 			Iterator<Map<String,Object>> tRegionCodesIterator = tRegion.iterator();
 			TreeMap<String,String> regionMap = new TreeMap<String,String>();
 			while(tRegionCodesIterator.hasNext()){
@@ -114,9 +113,9 @@ public class SplashMigratorApp {
 					regionMap.put(index, name);
 					System.out.println("Adding region: "+index+", "+name);
 				}
-
+				
 			}
-
+			
 			//first, let's get the research group index and populate an ArrayList
 			Iterator<Map<String,Object>> tRGIterator = ltResearchGroup.iterator();
 			TreeMap<String,String> rgMap = new TreeMap<String,String>();
@@ -129,8 +128,8 @@ public class SplashMigratorApp {
 					System.out.println("Adding research group: "+index+", "+name);
 				}
 			}
-
-
+			
+			
 			//1. We start with tIdentifications and we only use rows that have a SPlashID. There may be more than one entry.
 			Iterator<Map<String,Object>> tIdentificationsIterator = tIdentifications.iterator();
 			int numMatchingIdentifications=0;
@@ -141,35 +140,35 @@ public class SplashMigratorApp {
 					numMatchingIdentifications++;
 
 					//if(numMatchingIdentifications<10){
-
+					
 					//update changes
 					processThisRow(thisRow, myShepherd, splashImagesDirPath, encountersDirPath, tSPLASHIDFilenames, urlToThumbnailJSPPage, tSPLASHIDSexes, tSightings, thumbnailThese, thumbnailTheseImages, tDailyEffort, tFlukeQualCodes, tBehaviorIndex, behMap, regionMap, rgMap, tSampleLabData);
-
-
-
+					
+					
+					
 					//}
 				}
 
-
-
-
+				
+				
+				
 			}
-
-
+			
+			
 			//2. Then we link over to table tSightings to build encounters for each markedindividual loaded from tIdentifications.
-
-
-
-
-
-
-
+			
+			
+			
+			
+			  
+			
+			
 		}
 		catch(Exception e){
 			e.printStackTrace();
 		}
 		myShepherd.closeDBTransaction();
-
+		
 		//pause to let the user fire up the Tomcat web server
 		System.out.println("Please start Tomcat and then press ENTER to continue...");
 		char c='0';
@@ -182,43 +181,43 @@ public class SplashMigratorApp {
 			}
 		}
 		System.out.println("\n\nStarting thumbnail work!");
-
+		
 		int numThumbnailsToGenerate=thumbnailThese.size();
 		String IDKey="";
 		for(int q=0;q<numThumbnailsToGenerate;q++){
 			IDKey=thumbnailThese.get(q);
 			//ping a URL to thumbnail generator - Tomcat must be up and running
-		    try
+		    try 
 		    {
-
+		        
 		    	System.out.println("Trying to render a thumbnail for: "+IDKey+ "as "+thumbnailTheseImages.get(q));
 		    	String urlString=urlToThumbnailJSPPage+"?number="+IDKey+"&imageNum=1&imageName="+thumbnailTheseImages.get(q);
 		    	System.out.println("     "+urlString);
 		    	URL url = new URL(urlString);
-
+		    
 		        BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
 		        in.close();
-		    }
+		    } 
 		    catch (MalformedURLException e) {
-
+		    	
 		    	System.out.println("Error trying to render the thumbnail for "+IDKey+".");
 		    	e.printStackTrace();
-
+		    	
 		    }
 		    catch (IOException ioe) {
-
+		    	
 		    	System.out.println("Error trying to render the thumbnail for "+IDKey+".");
 		    	ioe.printStackTrace();
-
-		    }
-
-
-
+		    	
+		    } 
+		    
+			
+			
 		}
-
+		
 
 	}
-
+	
 	public static String getExactFileName(File f) {
 		String returnVal;
 		try {
@@ -231,15 +230,15 @@ public class SplashMigratorApp {
 		}
 		return returnVal;
 	}
-
+	
 	private static void processThisRow(
-									   Map<String,Object> thisRow,
-									   Shepherd myShepherd,
-									   String splashImagesDirPath,
-									   String encountersRootDirPath,
-									   Table tSPLASHIDFilenames,
+									   Map<String,Object> thisRow, 
+									   Shepherd myShepherd, 
+									   String splashImagesDirPath, 
+									   String encountersRootDirPath, 
+									   Table tSPLASHIDFilenames, 
 									   String urlToThumbnailJSPPage,
-									   Table tSPLASHIDSexes,
+									   Table tSPLASHIDSexes, 
 									   Table tSightings,
 									   ArrayList<String> thumbnailThese,
 									   ArrayList<String> thumbnailTheseImages,
@@ -251,7 +250,7 @@ public class SplashMigratorApp {
 									   TreeMap rgMap,
 									   Table tSampleLabData
 									   ){
-
+		
 		//create the encounter
 		String markedIndividualName=((Integer)thisRow.get("SPLASH ID")).toString().trim();
 		Encounter enc=new Encounter();
@@ -260,96 +259,96 @@ public class SplashMigratorApp {
 		enc.setMatchedBy("Visual inspection");
 		enc.setDWCDateAdded(ServletUtilities.getDate());
 		enc.setDWCDateLastModified(ServletUtilities.getDate());
-
+		
 		enc.setLocation("Northern Pacific Ocean");
 		enc.setLocationCode("");
 		enc.approve();
 		enc.setLivingStatus("alive");
-
+		
 		//set eventID
 		if((String)thisRow.get("Sighting")!=null){
 			enc.setEventID((String)thisRow.get("Sighting"));
 			System.out.println("     eventID: "+enc.getEventID());
 		}
-
-
+		
+		
 		if((String)thisRow.get("Field ID")!=null){
 			enc.setDynamicProperty("Field ID",(String)thisRow.get("Field ID"));
 		}
-
+		
 		if((String)thisRow.get("Beh Role")!=null){
 			enc.setDynamicProperty("Beh Role",(String)thisRow.get("Beh Role"));
 		}
-
+		
 		if((String)thisRow.get("Best Fluke")!=null){
 			enc.setDynamicProperty("Best Fluke",(String)thisRow.get("Best Fluke"));
 		}
-
-
+		
+		
 		//set behavior role
 		if((String)thisRow.get("BRSPLASH")!=null){
-
+			
 			String rowValue=(String)thisRow.get("BRSPLASH");
 			if(behMap.containsKey(rowValue)){rowValue=(String)behMap.get(rowValue);}
 			System.out.println("     Setting bhevaior: "+rowValue);
 			enc.setBehavior(rowValue);
-
+			
 		}
-
+		
 		//set encounter number
 		String IDKey=((Integer)thisRow.get("IDKey")).toString();
 		enc.setCatalogNumber(IDKey);
 		thumbnailThese.add(IDKey);
 		System.out.println("Processing: "+IDKey);
-
+		
 		//expose with TapirLink
 		enc.setOKExposeViaTapirLink(true);
-
+		
 		//submitter
-
+		
 		enc.setSubmitterEmail("");
 		enc.setSubmitterPhone("");
 		enc.setSubmitterAddress("");
-
+		
 		//other data to set blank for now
 		if((String)thisRow.get("Working ID")!=null){
 			enc.setAlternateID((String)thisRow.get("Working ID"));
 		}
-
+		
 		if(((String)thisRow.get("Sample Num")!=null)&&(!((String)thisRow.get("Sample Num")).trim().equals(""))){
-
+			
 			String sampleString=((String)thisRow.get("Sample Num"));
-
+			
 			//let's check tSampleLabData for a matching LABID
 			Iterator<Map<String,Object>> tLabIterator = tSampleLabData.iterator();
 			while(tLabIterator.hasNext()){
 				Map<String,Object> thisLabRow=tLabIterator.next();
 				if((thisLabRow.get("Sample #")!=null)&&(((String)thisLabRow.get("Sample #"))).equals(sampleString)){
 					sampleString+=" ( Lab ID: "+(String)thisRow.get("LABID")+")";
-
+					
 				}
-
+					
 			}
-
+			
 			enc.setDynamicProperty("Tissue Sample", sampleString);
-
-
+			
+			
 		}
-
+		
 		enc.setInformOthers("");
 		enc.setSizeGuess("");
-
-
+		
+		
 		//populate its attribute values
 		if((String)thisRow.get("Scarring")!=null){enc.setDistinguishingScar((String)thisRow.get("Scarring"));}
-
+		
 		if((String)thisRow.get("Comments")!=null){enc.setOccurrenceRemarks((String)thisRow.get("Comments"));}
 		else{enc.setOccurrenceRemarks((String)thisRow.get(""));}
-
+		
 		if((Object)thisRow.get("Date")!=null){
 			String originalDate=((Object)thisRow.get("Date")).toString().replaceAll(" EDT", "").replaceAll(" EST", "");
 			System.out.println("     "+originalDate);
-
+			
 			DateTimeFormatter splashFMT = new DateTimeFormatterBuilder()
             	.appendDayOfWeekShortText()
             	.appendLiteral(' ')
@@ -369,11 +368,11 @@ public class SplashMigratorApp {
 			enc.setDay(dt.getDayOfMonth());
 			enc.setMonth(dt.getMonthOfYear());
 			enc.setYear(dt.getYear());
-
-
+			
+			
 
 		}
-
+		
 		//let's get what we can from tSightings
 		Iterator<Map<String,Object>> tSightingsIterator = tSightings.iterator();
 		//int numMatchingIdentifications=0;
@@ -383,9 +382,9 @@ public class SplashMigratorApp {
 				if((thisSightRow.get("Date")!=null)&&(thisRow.get("Date")!=null)&&(((Object)thisSightRow.get("Date")).toString().trim().equals(((Object)thisRow.get("Date")).toString().trim()))){
 					if((thisSightRow.get("Vessel")!=null)&&(thisRow.get("Vessel")!=null)&&(((Object)thisSightRow.get("Vessel")).toString().trim().equals(((Object)thisRow.get("Vessel")).toString().trim()))){
 						if((thisSightRow.get("Sighting")!=null)&&(thisRow.get("Sighting")!=null)&&(((Object)thisSightRow.get("Sighting")).toString().trim().equals(((Object)thisRow.get("Sighting")).toString().trim()))){
-
+						
 							System.out.println("     I have found a matching tSighting!");
-
+							
 							//let's get the matching tDailyEffort row
 							Iterator<Map<String,Object>> tEffortIterator = tDailyEffort.iterator();
 
@@ -394,44 +393,44 @@ public class SplashMigratorApp {
 								if((thisEffortRow.get("Research Group")!=null)&&(thisSightRow.get("Research Group")!=null)&&(((Object)thisEffortRow.get("Research Group")).toString().trim().equals(((Object)thisSightRow.get("Research Group")).toString().trim()))){
 									if((thisSightRow.get("Date")!=null)&&(thisEffortRow.get("Date")!=null)&&(((Object)thisSightRow.get("Date")).toString().trim().equals(((Object)thisEffortRow.get("Date")).toString().trim()))){
 										if((thisSightRow.get("Vessel")!=null)&&(thisEffortRow.get("Vessel")!=null)&&(((Object)thisSightRow.get("Vessel")).toString().trim().equals(((Object)thisEffortRow.get("Vessel")).toString().trim()))){
-
+											
 											//we have an effort match!
 											//System.out.println("     We have an effort match!");
-
+											
 											if(((String)thisEffortRow.get("Sub-area")!=null)){
 												enc.setVerbatimLocality(((String)thisEffortRow.get("Sub-area")));
 												//System.out.println("     Sub-area: "+(String)thisEffortRow.get("Sub-area"));
 											}
-
+											
 											if(((String)thisEffortRow.get("Locality")!=null)){
 												enc.setDynamicProperty("Locality",((String)thisEffortRow.get("Locality")));
 												//System.out.println("     Sub-area: "+(String)thisEffortRow.get("Sub-area"));
 											}
-
-
-
+											
+											
+											
 											if(((String)thisEffortRow.get("Region")!=null)){
 												String val=(String)thisEffortRow.get("Region");
 												enc.setLocationID(val);
 												System.out.println("     Region is: "+val);
-
-
+												
+												
 												//Iterator rIter=regionMap.values().iterator();
 												//while(rIter.hasNext()){
 												//	System.out.println((String)rIter.next());
 												//}
-
-
+												
+												
 												if(regionMap.containsKey(val)){
 													enc.setDynamicProperty("Region Name", (String)regionMap.get(val));
 													//System.out.println("      I mapped the region ID to: "+(String)regionMap.get(val));
 												}
 												//System.out.println("     Region: "+(String)thisEffortRow.get("Region"));
 											}
-
-
-
-
+											
+											
+											
+											
 											if(((String)thisEffortRow.get("Season")!=null)){
 												enc.setVerbatimEventDate(((String)thisEffortRow.get("Season")));
 												System.out.println("     Season: "+(String)thisEffortRow.get("Season"));
@@ -440,10 +439,10 @@ public class SplashMigratorApp {
 									}
 								}
 							}
-
-
+							
+							
 							//OK, we have a matching row
-
+							
 							//GPS
 							enc.setDWCDecimalLatitude(-9999.0);
 							enc.setDWCDecimalLongitude(-9999.0);
@@ -459,44 +458,44 @@ public class SplashMigratorApp {
 								enc.setDWCDecimalLongitude(longie);
 								System.out.println("     I set long as: "+longie);
 							}
-
+							
 							if(thisSightRow.get("Sighting")!=null){
 								String value=((String)thisSightRow.get("Sighting")).toString().trim();
 								enc.setDynamicProperty("Sighting", value);
 							}
-
+							
 							if(thisSightRow.get("Pos Type")!=null){
 								String value=((String)thisSightRow.get("Pos Type")).toString().trim();
 								enc.setDynamicProperty("Pos Type", value);
 							}
-
+							
 							if(thisSightRow.get("Comments")!=null){
 								String value=((String)thisSightRow.get("Comments")).toString().trim();
 								if(!value.trim().equals("")){
 									enc.setDynamicProperty("Sighting Comments", value);
 								}
-							}
-
+							}	
+							
 							if(thisSightRow.get("Est Size Best")!=null){
 								String value=((Integer)thisSightRow.get("Est Size Best")).toString().trim();
 								enc.setDynamicProperty("Est Size Best", value);
 							}
-
+							
 							//set Submitter
 							if(((String)thisSightRow.get("Research Group")!=null)){
 								String group = (String)thisSightRow.get("Research Group");
 							if(rgMap.containsKey(group)){
 								enc.setSubmitterName((String)rgMap.get(group));
-
+								
 							}
 							else{
 								enc.setSubmitterName(((String)thisSightRow.get("Research Group")));
-							}
-
-
+							}	
+								
+								
 								//enc.setPhotographerName(((String)thisSightRow.get("Research Group")));
 							}
-
+							
 							//depth
 							enc.setDepth(-1);
 							if(thisSightRow.get("Depth (m)")!=null){
@@ -511,26 +510,28 @@ public class SplashMigratorApp {
 									System.out.println("     SightingKey is: "+((Object)thisSightRow.get("SightingKey")).toString());
 								}
 							}
-
+							
 							//size
 							enc.setSize(0);
 
-
+							
 							//time
 							enc.setHour(-1);
 							enc.setMinutes("00");
 							if(thisSightRow.get("Start Time")!=null){
 								String startTime=((Object)thisSightRow.get("Start Time")).toString().trim();
 								StringTokenizer st=new StringTokenizer(startTime, ":");
-								if(st.countTokens()==2){
-									int thisHour=(new Integer(st.nextToken())).intValue();
+								System.out.println(startTime);
+								if(st.countTokens()>0){
+									String myString=st.nextToken();
+									int thisHour=new Integer(myString.substring(myString.length()-2)).intValue();
 									enc.setHour(thisHour);
 									String thisMinutes=st.nextToken();
 									enc.setMinutes(thisMinutes);
 									System.out.println("     Setting time: "+thisHour+":"+thisMinutes);
 								}
 							}
-
+							
 							//photographer
 							String photogs="";
 							if(thisSightRow.get("Photographer 1")!=null){
@@ -553,8 +554,8 @@ public class SplashMigratorApp {
 							enc.setPhotographerPhone("");
 							enc.setPhotographerAddress("");
 
-
-
+							
+		
 							if(thisSightRow.get("Vessel")!=null){
 								String comments=((Object)thisSightRow.get("Vessel")).toString();
 								enc.setDynamicProperty("Vessel",comments);
@@ -562,7 +563,7 @@ public class SplashMigratorApp {
 								//System.out.println("Vessel saved: "+enc.getDynamicPropertyValue("vessel"));
 								//System.out.println("All dynamicProperties: "+enc.getDynamicProperties());
 							}
-
+							
 							if(thisSightRow.get("Group Beh")!=null){
 								String comments=((Object)thisSightRow.get("Group Beh")).toString();
 								//String originalValue="";
@@ -570,8 +571,8 @@ public class SplashMigratorApp {
 								//enc.setOccurrenceRemarks(originalValue+"<br>Group Behavior: "+comments);
 								enc.setDynamicProperty("Group Behavior", comments);
 							}
-
-
+							
+							
 							if(thisSightRow.get("Num Calves")!=null){
 								String comments=((Object)thisSightRow.get("Num Calves")).toString();
 								enc.setDynamicProperty("Number Calves", comments);
@@ -580,22 +581,22 @@ public class SplashMigratorApp {
 								String comments=((Object)thisSightRow.get("Group Type")).toString();
 								enc.setDynamicProperty("Group Type", comments);
 							}
-
-
+							
+							
 						}
 					}
 				}
 			}
-
+			
 		}
-
-
-
+		
+		
+		
 		String imageName="";
 		//create its directory
 		File encDir=new File(encountersRootDirPath, IDKey);
 		if(!encDir.exists()){encDir.mkdir();}
-
+		
 
 		//now the setup
 		Iterator<Map<String,Object>> tFlukeQualCodesIterator = tFlukeQualCodes.iterator();
@@ -603,24 +604,24 @@ public class SplashMigratorApp {
 		while(tFlukeQualCodesIterator.hasNext()){
 			Map<String,Object> thisFlukeRow=tFlukeQualCodesIterator.next();
 			if((thisFlukeRow.get("Best Fluke")!=null)&&(thisRow.get("Best Fluke")!=null)&&(((Object)thisFlukeRow.get("Best Fluke")).toString().trim().equals(((Object)thisRow.get("Best Fluke")).toString().trim()))){
-
-
-
-
-
+				
+				
+				
+				
+				
 				imageName=((String)thisFlukeRow.get("Filename")).replaceAll(".tif", "");
 				File thisFile = new File(splashImagesDirPath+"\\"+imageName);
-
-
-
-
-
+				
+				
+				
+				
+				
 				if(!imageName.equals(getExactFileName(thisFile))){
 					if(imageName.indexOf(".JPG")==-1){
 						imageName=imageName.replaceAll(".jpg", ".JPG");
 						thisFile = new File(splashImagesDirPath+"\\"+imageName);
 						System.out.println("     Making a filename extension substition!!!!");
-
+						
 					}
 					else{
 						imageName=imageName.replaceAll(".JPG", ".jpg");
@@ -628,15 +629,15 @@ public class SplashMigratorApp {
 						System.out.println("     Making a filename extension substition!!!!");
 					}
 				}
-
-
+				
+				
 				//check if file exists
 				if(thisFile.exists()){
-
-
+					
+					
 					//copy it
 					File outputFile = new File(encountersRootDirPath+"\\"+IDKey+"\\"+imageName);
-
+					
 					/**
 					if(!outputFile.exists()){
 					try{
@@ -651,8 +652,8 @@ public class SplashMigratorApp {
 					        bis.close();
 						System.out.println("     Completed copy of "+imageName+" "+IDKey);
 
-
-
+						
+						
 
 					}
 					catch(IOException ioe){
@@ -661,13 +662,13 @@ public class SplashMigratorApp {
 					}
 					}
 					*/
-
-
-
+					
+					
+					
 					//now add it to the encounter
 					enc.addAdditionalImageName(imageName);
 					thumbnailTheseImages.add(imageName);
-
+				
 					//we have a match in the tFlukeQualCodes table
 					if(thisFlukeRow.get("Color")!=null){
 						String color=((String)thisFlukeRow.get("Color")).toString().toUpperCase();
@@ -688,27 +689,27 @@ public class SplashMigratorApp {
 							myShepherd.storeNewKeyword(kw, color);
 							//System.out.println("     Adding fluke image to keyword: "+color);
 						}
-
+					
 					}
 				}
+				
 
-
-
+				
 			}
 		}
+		
+		
 
-
-
-
-
-
-
-
-
-
+		
+		
+				
+		
+		
+		
+		
 		//let's persist the encounter
 		myShepherd.storeNewEncounter(enc, IDKey);
-
+		
 		//let's check if the MarkedIndividual exists and create it if not
 		myShepherd.beginDBTransaction();
 		try{
@@ -717,34 +718,34 @@ public class SplashMigratorApp {
 				markie.addEncounter(enc);
 				markie.addComments("<p>Added encounter "+enc.getCatalogNumber()+".</p>");
 				if(!colorCode.equals("")){
-					markie.setColorCode(colorCode);
-					enc.setColorCode(colorCode);
+					//markie.setColorCode(colorCode);
+					//enc.setColorCode(colorCode);
 				}
-
+				
 				myShepherd.commitDBTransaction();
-
+			
 			}
 			else{
-
+			
 				MarkedIndividual newWhale=new MarkedIndividual(markedIndividualName, enc);
 				if(!colorCode.equals("")){
-					newWhale.setColorCode(colorCode);
-					enc.setColorCode(colorCode);
+					//newWhale.setColorCode(colorCode);
+					//enc.setColorCode(colorCode);
 				}
 				enc.setMatchedBy("Unmatched first encounter");
 				newWhale.addComments("<p>Created "+markedIndividualName+" with the SplashMigratorApp.</p>");
 				newWhale.setDateTimeCreated(ServletUtilities.getDate());
-
+				
 				//let's try to determine the sex
 				Iterator<Map<String,Object>> tSPLASHIDSexesIterator = tSPLASHIDSexes.iterator();
 				//System.out.println("     Starting to analyze sex...");
 				while(tSPLASHIDSexesIterator.hasNext()){
-
+					
 					Map<String,Object> thisSexRow=tSPLASHIDSexesIterator.next();
 					//System.out.println("     Iterating sexes...!");
 					if((thisSexRow.get("SPLASH ID")!=null)&&(((Object)thisSexRow.get("SPLASH ID")).toString().trim().equals(newWhale.getName()))){
 						//System.out.println("     I have found a matching tSex Row!");
-
+						
 						//BestSex
 						if(thisSexRow.get("BestSex")!=null){
 							String thisSex=((Object)thisSexRow.get("BestSex")).toString().toLowerCase();
@@ -756,8 +757,8 @@ public class SplashMigratorApp {
 						else{
 							newWhale.setSex("unknown");
 						}
-
-
+						
+						
 						//GenSex
 						if(thisSexRow.get("GenSex")!=null){
 							String thisSex=((Object)thisSexRow.get("GenSex")).toString().toLowerCase();
@@ -766,16 +767,19 @@ public class SplashMigratorApp {
 							else if(thisSex.equals("f")){newWhale.setDynamicProperty("GenSex","female");}
 							else{newWhale.setDynamicProperty("GenSex","unknown");}
 						}
-
+						
 						//BehSex
 						if(thisSexRow.get("BehSex")!=null){
 							String thisSex=((Object)thisSexRow.get("BehSex")).toString().toLowerCase();
-							System.out.println("     I have found a matching GenSex: "+thisSex);
-							if(thisSex.equals("m")){newWhale.setDynamicProperty("BehSex","male");}
-							else if(thisSex.equals("f")){newWhale.setDynamicProperty("BehSex","female");}
-							else{newWhale.setDynamicProperty("GenSex","unknown");}
+							System.out.println("     I have found a matching BehSex: "+thisSex);
+							//if(thisSex.equals("m")){newWhale.setDynamicProperty("BehSex","male");}
+							//else if(thisSex.equals("f")){newWhale.setDynamicProperty("BehSex","female");}
+							//else{newWhale.setDynamicProperty("BehSex","unknown");}
+							
+							newWhale.setDynamicProperty("BehSex",thisSex);
+							
 						}
-
+						
 						//BestSexConf
 						if(thisSexRow.get("BestSexConf")!=null){
 							String thisSex=((Object)thisSexRow.get("BestSexConf")).toString().toLowerCase();
@@ -783,17 +787,17 @@ public class SplashMigratorApp {
 							newWhale.setDynamicProperty("Best Sex Confidence",thisSex);
 
 						}
-
-
-
+						
+						
+						
 					}
-
+					
 				}
-
+				
 				myShepherd.addMarkedIndividual(newWhale);
 				enc.addComments("<p>Added to newly marked individual "+markedIndividualName+" by the SplashMigratorApp.</p>");
 				myShepherd.commitDBTransaction();
-
+			
 
 			}
 		}
@@ -801,18 +805,18 @@ public class SplashMigratorApp {
 			e.printStackTrace();
 			myShepherd.rollbackDBTransaction();
 		}
-
-
+		
+		
 	}
+	
+	
+	
+	
+	
 
+	
 
-
-
-
-
-
-
-
-
+	
+	
 
 }
