@@ -134,10 +134,6 @@ table.adopter td.image {
 </p>
 </div>
 
-<div>
-<h1 class="intro">Data Contributors</h1>
-<p class="caption">A great optional area to discuss who is contributing data to this library...</p>
-</div>
 <div id="maintext">
 <h1 class="intro">Contact us</h1>
 <p class="caption">The SPLASH Catalog is maintained by the <a href="http://www.cascadiaresearch.org">Cascadia Research Collective</a>. </p>
