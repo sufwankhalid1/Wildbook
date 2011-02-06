@@ -264,7 +264,7 @@ z-index:99;
 			style="margin: 0px 0 0px 0px; position: relative; width: 190px; height: 25px;">Access
 		Policy</a></li>
 		<li><a
-			href="http://<%=CommonConfiguration.getWikiLocation() %>"
+			href="http://<%=CommonConfiguration.getWikiLocation() %>start"
 			target="_blank" class="enclose"
 			style="margin: 0px 0 0px 0px; position: relative; width: 190px; height: 25px;">User
 		Wiki</a></li>
