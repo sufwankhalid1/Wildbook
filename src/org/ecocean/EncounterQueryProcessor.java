@@ -155,6 +155,15 @@ public class EncounterQueryProcessor {
       
     }
     
+    //filter for identificationRemarks------------------------------------------
+    if((request.getParameter("identificationRemarksField")!=null)&&(!request.getParameter("identificationRemarksField").equals(""))) {
+      String idRemarks=request.getParameter("identificationRemarksField").trim();
+      if(filter.equals("")){filter="this.identificationRemarks.startsWith('"+idRemarks+"')";}
+      else{filter+=" && this.identificationRemarks.startsWith('"+idRemarks+"')";}
+      prettyPrint.append("identificationRemarks starts with \""+idRemarks+"\".<br />");
+      
+    }
+    
     /**
     //filter for behavior------------------------------------------
     if((request.getParameter("behaviorField")!=null)&&(!request.getParameter("behaviorField").equals(""))) {

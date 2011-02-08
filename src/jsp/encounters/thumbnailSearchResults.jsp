@@ -201,7 +201,12 @@ if(request.getParameter("noQuery")==null){
 		<p>
 		<h1 class="intro"><%=encprops.getProperty("title")%></h1>
 		</p>
-			<p><strong><%=encprops.getProperty("totalMatches")%></strong>: <%=numThumbnails%></p>
+			
+	  <p><strong>Matching sightings</strong>: <%=rEncounters.size()%></p>
+	
+			
+			<p><strong>
+			<%=encprops.getProperty("totalMatches")%></strong>: <%=numThumbnails%></p>
 	
 		<p><%=encprops.getProperty("belowMatches")%> <%=startNum%> - <%=endNum%> <%=encprops.getProperty("thatMatched")%></p>
 		</td>

@@ -110,7 +110,7 @@ encprops.load(getClass().getResourceAsStream("/bundles/"+langCode+"/encounterSea
 		<p><em><%=encprops.getProperty("instructions")%></em></p>
 		
 		
-		<form action="thumbnailSearchResults.jsp" method="get" name="search" id="search">
+		<form action="searchResults.jsp" method="get" name="search" id="search">
 		<%
 		if(request.getParameter("referenceImageName")!=null){
 		%>
@@ -565,8 +565,8 @@ Southwest corner latitude: <input type="text" id="sw_lat" name="sw_lat"></input>
 			
 			
 				<tr><td><br /><input name="resightOnly" type="checkbox" id="resightOnly"
-					value="true"> <strong><%=encprops.getProperty("include")%></strong> <select
-					name="numResights" id="numResights">
+					value="true"> <strong><%=encprops.getProperty("include")%></strong> 
+					<select name="numResights" id="numResights">
 					<option value="1" selected>1</option>
 					<option value="2">2</option>
 					<option value="3">3</option>
@@ -592,6 +592,26 @@ Southwest corner latitude: <input type="text" id="sw_lat" name="sw_lat"></input>
 					alt="Help" width="15" height="15" border="0" align="absmiddle" /></a></span>
 				<br></em>
 				</td></tr>
+				
+				<tr>
+				<td>
+				<br />
+				<strong><%=encprops.getProperty("identificationRemarks")%>:</strong> <em> 
+				<span class="para">
+					<a href="<%=CommonConfiguration.getWikiLocation()%>identificationRemarks"
+					target="_blank"><img src="../images/information_icon_svg.gif"
+					alt="Help" width="15" height="15" border="0" align="absmiddle" /></a></span>
+				</em>&nbsp;
+				<select name="identificationRemarksField" id="identificationRemarksField"> 
+				<option value="" selected></option>
+					<option value="SPLASH">SPLASH</option>
+					<option value="Contributor">Contributor</option>
+				</select>
+				</td>
+				</tr>
+				
+				
+				
 				</table>
 			</p>
 				</div>

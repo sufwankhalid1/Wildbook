@@ -229,11 +229,7 @@ z-index:99;
 		style="margin: 0px 0 0px 0px; position: relative; width: 86px; height: 25px; z-index: 100;"><strong>Sightings</strong><!--[if IE 7]><!--></a><!--<![endif]-->
 	<!--[if lte IE 6]><table><tr><td><![endif]-->
 	<ul>
-		<li><a
-			href="http://<%=CommonConfiguration.getURLLocation() %>/encounters/thumbnailSearchResults.jsp?noQuery=true"
-			class="enclose"
-			style="margin: 0px 0 0px 0px; position: relative; width: 210px; height: 25px;">Image Catalog</a>
-		</li>
+		
 		<li><a
 			href="http://<%=CommonConfiguration.getURLLocation() %>/encounters/allEncounters.jsp?start=1&end=10"
 			class="enclose"
@@ -264,7 +260,7 @@ z-index:99;
 			style="margin: 0px 0 0px 0px; position: relative; width: 190px; height: 25px;">Access
 		Policy</a></li>
 		<li><a
-			href="http://<%=CommonConfiguration.getWikiLocation() %>start"
+			href="<%=CommonConfiguration.getWikiLocation() %>start"
 			target="_blank" class="enclose"
 			style="margin: 0px 0 0px 0px; position: relative; width: 190px; height: 25px;">User
 		Wiki</a></li>

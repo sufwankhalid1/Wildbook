@@ -198,6 +198,10 @@ if(request.getParameter("noQuery")==null){
 		</h1>
 		
 		</p>
+		
+		<p><strong>Matching SPLASH IDs</strong>: <%=rIndividuals.size()%></p>
+	
+		
 			<p><strong><%=encprops.getProperty("totalMatches")%></strong>: <%=numThumbnails%></p>
 	
 		<p><%=encprops.getProperty("belowMatches")%> <%=startNum%> - <%=endNum%>&nbsp;
