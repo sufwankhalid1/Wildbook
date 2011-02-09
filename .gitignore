@@ -2,3 +2,5 @@ target
 bin
 out
 .idea*
+*.log
+shepherd_derby_database
