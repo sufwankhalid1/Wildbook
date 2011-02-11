@@ -90,9 +90,17 @@ EncounterQueryResult queryResult=new EncounterQueryResult(new Vector<Encounter>(
 <script type="text/javascript">
 hs.graphicsDir = '../highslide/highslide/graphics/';
 hs.align = 'center';
+hs.showCredits = false;
+
+//transition behavior
 hs.transitions = ['expand', 'crossfade'];
 hs.outlineType = 'rounded-white';
 hs.fadeInOut = true;
+hs.transitionDuration = 0;
+hs.expandDuration = 0;
+hs.restoreDuration = 0;
+hs.numberOfImagesToPreload = 15;
+hs.dimmingDuration = 0;
 
 // define the restraining box
 hs.useBox = true;

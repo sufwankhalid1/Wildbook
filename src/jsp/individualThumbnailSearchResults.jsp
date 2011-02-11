@@ -1,6 +1,6 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<%@ page contentType="text/html; charset=utf-8" language="java" import="java.util.Collections,java.io.File,com.drew.imaging.jpeg.*, com.drew.metadata.*,java.util.StringTokenizer,org.ecocean.*, java.lang.Integer, java.lang.NumberFormatException, java.util.Vector, java.util.Iterator, java.util.GregorianCalendar, java.util.Properties, javax.jdo.*"%>
+<%@ page contentType="text/html; charset=utf-8" language="java" import="java.util.Collections,java.io.File,com.drew.imaging.jpeg.*, com.drew.metadata.*,java.util.StringTokenizer,org.ecocean.*, java.lang.Integer, java.lang.NumberFormatException, java.util.Vector, java.util.Iterator, java.util.GregorianCalendar, java.util.Properties, javax.jdo.*, java.util.ArrayList"%>
 
 <html>
 <head>
@@ -39,13 +39,15 @@ Shepherd myShepherd=new Shepherd();
 
   			myShepherd.beginDBTransaction();
   			
+  			//load keywords only once for all processing
+  			ArrayList<Keyword> kwords=myShepherd.getAllKeywordsInArrayList();
+  			int numKwords=kwords.size();
+  			
   			MarkedIndividualQueryResult queryResult=IndividualQueryProcessor.processQuery(myShepherd, request, "year descending, month descending, day descending");
   			rIndividuals = queryResult.getResult();
   			
   			String[] keywords=request.getParameterValues("keyword");
   			if(keywords==null){keywords=new String[0];}
-
-  			int numThumbnails = myShepherd.getNumMarkedIndividualThumbnails(rIndividuals.iterator(), keywords);
 
 String queryString="";
 if(request.getQueryString()!=null){queryString=request.getQueryString();}
@@ -79,12 +81,27 @@ if(request.getQueryString()!=null){queryString=request.getQueryString();}
 <script type="text/javascript">
 hs.graphicsDir = 'highslide/highslide/graphics/';
 hs.align = 'center';
+hs.showCredits = false;
+
+//transition behavior
 hs.transitions = ['expand', 'crossfade'];
 hs.outlineType = 'rounded-white';
 hs.fadeInOut = true;
+hs.transitionDuration = 0;
+hs.expandDuration = 0;
+hs.restoreDuration = 0;
+hs.numberOfImagesToPreload = 15;
+hs.dimmingDuration = 0;
 
+<%
+if(!request.isUserInRole("imageProcessor")){
+%>
 //block user copying
 hs.blockRightClick=true;
+<%
+}
+%>
+
 
 //define the restraining box
 hs.useBox = true;
@@ -202,8 +219,7 @@ if(request.getParameter("noQuery")==null){
 		<p><strong>Matching SPLASH IDs</strong>: <%=rIndividuals.size()%></p>
 	
 		
-			<p><strong><%=encprops.getProperty("totalMatches")%></strong>: <%=numThumbnails%></p>
-	
+			
 		<p><%=encprops.getProperty("belowMatches")%> <%=startNum%> - <%=endNum%>&nbsp;
 		<%
 		if(request.getParameter("noQuery")==null){
@@ -298,7 +314,7 @@ if((startNum)>1) {%>
 										
 										<div class="highslide-caption">
 										
-										<h3><%=(countMe+startNum) %>/<%=numThumbnails %></h3>
+										<h3><%=(countMe+startNum) %></h3>
 										<h4><%=encprops.getProperty("imageMetadata") %></h4>
 										
 										<table>
@@ -311,7 +327,7 @@ if((startNum)>1) {%>
 										int kwLength=keywords.length;
 										Encounter thisEnc = myShepherd.getEncounter(encNum);
 										%>
-										<tr><td><span class="caption"><em><%=(countMe+startNum) %>/<%=numThumbnails %></em></span></td></tr>
+										<tr><td><span class="caption"><em><%=(countMe+startNum) %></em></span></td></tr>
 										
 										<%
 										MarkedIndividual indie = myShepherd.getMarkedIndividual(thisEnc.getIndividualID()); 
@@ -327,12 +343,11 @@ if((startNum)>1) {%>
 		  								<tr><td><span class="caption"><%=encprops.getProperty("alternateID")%>: <%=indie.getAlternateID()%></span></td></tr> <%
 		  							}
 									%>
-		  							<tr><td><span class="caption"><%=encprops.getProperty("firstIdentified")%>: <%=temp.getMonth() %>/<%=temp.getYear() %></span></td></tr>
+		  							<tr><td><span class="caption">First identified: <%=temp.getMonth() %>/<%=temp.getYear() %></span></td></tr>
 		
 									
 									
 											<tr><td><span class="caption">No. Seasons Sighted: <%=indie.particpatesInTheseVerbatimEventDates().size()%></span></td></tr>
-											<tr><td><span class="caption"><%=encprops.getProperty("numLocationsSighted") %>: <%=indie.particpatesInTheseLocationIDs().size()%></span></td></tr>
 											<tr><td><span class="caption"><%=encprops.getProperty("sex") %>: <%=indie.getSex()%></span></td></tr>
 											<tr><td><span class="caption">Research Group: <%=thisEnc.getSubmitterName() %></span></td></tr>
 										
@@ -341,11 +356,11 @@ if((startNum)>1) {%>
 										<td><span class="caption">
 											<%=encprops.getProperty("matchingKeywords") %>
 											<%
-											//int numKeywords=myShepherd.getNumKeywords();
-											Iterator allKeywords2=myShepherd.getAllKeywords();
+											//Iterator allKeywords2=myShepherd.getAllKeywords();
 											
-											while(allKeywords2.hasNext()){
-												Keyword word=(Keyword)allKeywords2.next();
+											//while(allKeywords2.hasNext()){
+											for(int r=0;r<numKwords;r++){
+												Keyword word=kwords.get(r);
 									            if(word.isMemberOf(encNum+"/"+fileName)) {
 									            	
 									            	String renderMe=word.getReadableName();
@@ -359,7 +374,7 @@ if((startNum)>1) {%>
 									            	
 
 								                	%>
-													<br /><%= renderMe%>
+													&nbsp;<%= renderMe%>
 													<%
 									              
 									            }
@@ -424,12 +439,11 @@ if((startNum)>1) {%>
 		  								<tr><td><span class="caption"><%=encprops.getProperty("alternateID")%>: <%=indie.getAlternateID()%></span></td></tr> <%
 		  							}
 									%>
-		  							<tr><td><span class="caption"><%=encprops.getProperty("firstIdentified")%>: <%=temp.getMonth() %>/<%=temp.getYear() %></span></td></tr>
+		  							<tr><td><span class="caption">First identified: <%=temp.getMonth() %>/<%=temp.getYear() %></span></td></tr>
 									
 									
 									
 											<tr><td><span class="caption">No. Seasons Sighted: <%=indie.particpatesInTheseVerbatimEventDates().size()%></span></td></tr>
-											<tr><td><span class="caption"><%=encprops.getProperty("numLocationsSighted") %>: <%=indie.particpatesInTheseLocationIDs().size()%></span></td></tr>
 											<tr><td><span class="caption"><%=encprops.getProperty("sex") %>: <%=indie.getSex()%></span></td></tr>
 											<tr><td><span class="caption">Research Group: <%=thisEnc.getSubmitterName() %></span></td></tr>
 										
@@ -438,10 +452,11 @@ if((startNum)>1) {%>
 											<%=encprops.getProperty("matchingKeywords") %>
 											<%
 											//int numKeywords=myShepherd.getNumKeywords();
-											Iterator allKeywords=myShepherd.getAllKeywords();
+											//Iterator allKeywords=myShepherd.getAllKeywords();
 											
-											while(allKeywords.hasNext()){
-												Keyword word=(Keyword)allKeywords.next();
+											//while(allKeywords.hasNext()){
+											for(int h=0;h<numKwords;h++){
+												Keyword word=kwords.get(h);
 									            if(word.isMemberOf(encNum+"/"+fileName)) {
 									            	
 									            	String renderMe=word.getReadableName();
@@ -455,7 +470,7 @@ if((startNum)>1) {%>
 									            	
 
 								                	%>
-													<br /><%= renderMe%>
+													&nbsp;<%= renderMe%>
 													<%
 									              
 									            }

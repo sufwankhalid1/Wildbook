@@ -1490,10 +1490,10 @@ public class Shepherd {
 	    Vector thumbs=new Vector();
 	    boolean stopMe=false;
 	    int count=0;
-	    while(it.hasNext()) {
+	    while((it.hasNext())&&!stopMe) {
 	      MarkedIndividual markie=it.next();
 	      Iterator allEncs=markie.getEncounters().iterator();
-	      while(allEncs.hasNext()){
+	      while((allEncs.hasNext())&&!stopMe){
 	       Encounter indie = (Encounter)allEncs.next();
 	      if((count+indie.getAdditionalImageNames().size())>=startNum) {
 	        for(int i=0;i<indie.getAdditionalImageNames().size();i++) {

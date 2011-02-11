@@ -28,6 +28,14 @@ public class IndividualQueryProcessor {
       try{day2=(new Integer(request.getParameter("day2"))).intValue();} catch(NumberFormatException nfe) {}
       
       
+      /*
+       * START SECTION NEEDING CHANGE
+       * 
+       * Must be much faster
+       * Start with an encounter query spitting out a list of the matching individual IDs
+       * then iterate where absolutely necessary.
+       * 
+       */
       
       Extent indieClass=myShepherd.getPM().getExtent(MarkedIndividual.class, true);
       Query query=myShepherd.getPM().newQuery(indieClass);
@@ -50,6 +58,11 @@ public class IndividualQueryProcessor {
       }
       
 
+     /*
+      * END SECTION NEEDING CHANGE
+      * 
+      */
+      
       
       
       
