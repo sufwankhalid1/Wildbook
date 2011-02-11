@@ -7,7 +7,7 @@ import javax.jdo.Extent;
 import javax.jdo.Query;
 import java.util.Iterator;
 //import java.util.StringTokenizer;
-import java.util.Collections;
+//import java.util.Collections;
 
 
 public class IndividualQueryProcessor {
@@ -39,23 +39,34 @@ public class IndividualQueryProcessor {
       
       Extent indieClass=myShepherd.getPM().getExtent(MarkedIndividual.class, true);
       Query query=myShepherd.getPM().newQuery(indieClass);
-      if(request.getParameter("sort")!=null) {
-        if(request.getParameter("sort").equals("sex")){allSharks=myShepherd.getAllMarkedIndividuals(query, "sex ascending");}
-        else if(request.getParameter("sort").equals("name")) {allSharks=myShepherd.getAllMarkedIndividuals(query, "name ascending");}
-        else if(request.getParameter("sort").equals("numberEncounters")) {allSharks=myShepherd.getAllMarkedIndividuals(query, "numberEncounters descending");}
+      
+      /*
+      if((request.getParameter("noQuery")!=null)&&(request.getParameter("startNum")!=null)&&(request.getParameter("endNum")!=null)){
+        int startNum=Integer.parseInt(request.getParameter("startNum"));
+        int endNum=Integer.parseInt(request.getParameter("endNum"));
+        query.setRange(startNum, endNum);
+      }
+      */
+      
+      
+        if(request.getParameter("sort")!=null) {
+          if(request.getParameter("sort").equals("sex")){allSharks=myShepherd.getAllMarkedIndividuals(query, "sex ascending");}
+          else if(request.getParameter("sort").equals("name")) {allSharks=myShepherd.getAllMarkedIndividuals(query, "name ascending");}
+          else if(request.getParameter("sort").equals("numberEncounters")) {allSharks=myShepherd.getAllMarkedIndividuals(query, "numberEncounters descending");}
+          else{
+            allSharks=myShepherd.getAllMarkedIndividuals(query, "colorCode ascending, name ascending");
+          }
+        }
         else{
           allSharks=myShepherd.getAllMarkedIndividuals(query, "colorCode ascending, name ascending");
+          //keyword and then name ascending 
         }
-      }
-      else{
-        allSharks=myShepherd.getAllMarkedIndividuals(query, "colorCode ascending, name ascending");
-        //keyword and then name ascending 
-      }
-      //process over to Vector
-      while (allSharks.hasNext()) {
-        MarkedIndividual temp_shark=(MarkedIndividual)allSharks.next();
-        rIndividuals.add(temp_shark);
-      }
+      
+        //process over to Vector
+        while (allSharks.hasNext()) {
+          MarkedIndividual temp_shark=(MarkedIndividual)allSharks.next();
+          rIndividuals.add(temp_shark);
+        }
       
 
      /*
@@ -64,7 +75,7 @@ public class IndividualQueryProcessor {
       */
       
       
-      
+      if(request.getParameter("noQuery")==null){
       
       //------------------------------------------------------------------
       //GPS filters-------------------------------------------------
@@ -193,7 +204,7 @@ public class IndividualQueryProcessor {
       
       //verbatimEventDateField filter-------------------------------------------------
       String[] verbatimEventDates=request.getParameterValues("verbatimEventDateField");
-      if((verbatimEventDates!=null)&&(!verbatimEventDates[0].equals("None"))){
+      if((request.getParameterValues("verbatimEventDateField")!=null)&&(!verbatimEventDates[0].equals("None"))){
             prettyPrint.append("verbatimEventDateField is one of the following: ");
             int kwLength=verbatimEventDates.length;
             
@@ -247,7 +258,7 @@ public class IndividualQueryProcessor {
 
       //individuals with a photo keyword assigned to one of their encounters
       String[] keywords=request.getParameterValues("keyword");
-      if((keywords!=null)&&(!keywords[0].equals("None"))){
+      if((request.getParameterValues("keyword")!=null)&&(!keywords[0].equals("None"))){
         
         prettyPrint.append("Keywords: ");
         int kwLength=keywords.length;
@@ -275,7 +286,7 @@ public class IndividualQueryProcessor {
 
 
       //individuals of a particular sex
-      if(request.getParameter("sex")!=null) {
+      if((request.getParameter("sex")!=null)&&(!request.getParameter("sex").equals("all"))) {
         prettyPrint.append("Sex is: "+request.getParameter("sex").replaceAll("mf", "male or female")+"<br />");      
         
               for(int q=0;q<rIndividuals.size();q++) {
@@ -299,34 +310,6 @@ public class IndividualQueryProcessor {
               } //end for
       }//end if of sex
 
-
-
-
-      //individuals of a particular size
-      if((request.getParameter("selectLength")!=null)&&(request.getParameter("lengthField")!=null)&&(!request.getParameter("lengthField").equals(""))) {
-        prettyPrint.append("Size is "+request.getParameter("selectLength")+" than "+request.getParameter("lengthField")+" meters<br />");      
-          
-            try {
-                double size;
-                size=(new Double(request.getParameter("lengthField"))).doubleValue();
-                for(int q=0;q<rIndividuals.size();q++) {
-                MarkedIndividual tShark=(MarkedIndividual)rIndividuals.get(q);
-                if(request.getParameter("selectLength").equals("greater")){
-                  if(tShark.avgLengthInPeriod(year1, month1, year2, month2)<size) {
-                    rIndividuals.remove(q);
-                    q--;
-                  }
-                }
-                else if(request.getParameter("selectLength").equals("less")) {
-                  if(tShark.avgLengthInPeriod(year1, month1, year2, month2)>size) {
-                    rIndividuals.remove(q);
-                    q--;
-                  }
-                }
-
-              } //end for
-            } catch(NumberFormatException nfe) {}
-      }//end if is of size
             
       //min number of resights      
       if((request.getParameter("numResights")!=null)&&(!request.getParameter("numResights").equals(""))&&(request.getParameter("numResightsOperator")!=null)) {
@@ -368,23 +351,24 @@ public class IndividualQueryProcessor {
 
 
       //now filter for date-----------------------------
-      prettyPrint.append("Dates between: "+year1+"-"+month1+"-"+day1+" and "+year2+"-"+month2+"-"+day2+"<br />");
       
-      for(int q=0;q<rIndividuals.size();q++) {
+       prettyPrint.append("Dates between: "+year1+"-"+month1+"-"+day1+" and "+year2+"-"+month2+"-"+day2+"<br />");
+       
+       
+       if((year1==myShepherd.getEarliestSightingYear())&&(year2==myShepherd.getLastSightingYear())&&(month1==1)&&(month2==12)&&(day1==1)&&(day2==31)){}
+       else{
+        for(int q=0;q<rIndividuals.size();q++) {
                 MarkedIndividual tShark=(MarkedIndividual)rIndividuals.get(q);
                 if(!tShark.wasSightedInPeriod(year1, month1, day1, year2, month2, day2)) {
                   rIndividuals.remove(q);
                   q--;
                 }
-      } //end for
+        } 
+      }
+      //end for
       //--------------------------------------------------
       
-      
-      //Collections.sort(thumbLocs, (new ThumbnailKeywordComparator()));
-      
-      if((request.getParameter("sort")==null)||(request.getParameter("sort").equals(""))) {
-        //Collections.sort(rIndividuals, (new IndividualKeywordComparator(myShepherd, (myShepherd.getAllKeywords()))));
-      }
+    }
       
       return (new MarkedIndividualQueryResult(rIndividuals,filter,prettyPrint.toString()));
     
