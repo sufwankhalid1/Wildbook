@@ -58,6 +58,9 @@
 			<field name="comments" persistence-modifier="persistent">
 				<column jdbc-type="LONGVARCHAR" />
 			</field>
+			<field name="maxYearsBetweenResightings" persistence-modifier="persistent">
+							<column jdbc-type="INTEGER" allows-null="true" />
+			</field>
             		<field name="encounters" persistence-modifier="persistent">
                 		<collection element-type="org.ecocean.Encounter"/>
 				<join/>
@@ -108,6 +111,10 @@
 			
 			  <field name="maximumElevationInMeters" persistence-modifier="persistent">
 				<column jdbc-type="DOUBLE" allows-null="true" />
+			</field>
+			
+			<field name="dateInMilliseconds" persistence-modifier="persistent">
+				<column jdbc-type="BIGINT" allows-null="true" />
 			</field>
 			
 			

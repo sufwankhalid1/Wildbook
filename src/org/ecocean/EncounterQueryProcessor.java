@@ -6,6 +6,7 @@ import javax.jdo.Extent;
 import javax.jdo.Query;
 import javax.servlet.http.HttpServletRequest;
 import java.lang.StringBuffer;
+import java.util.GregorianCalendar;
 
 public class EncounterQueryProcessor {
   
@@ -282,7 +283,75 @@ public class EncounterQueryProcessor {
       prettyPrint.append("A tissue sample was taken.<br />");
     }
     //end tissue sample filter--------------------------------------------------------------------------------------
+  
+    if((request.getParameter("day1")!=null)&&(request.getParameter("month1")!=null)&&(request.getParameter("year1")!=null)&&(request.getParameter("day2")!=null)&&(request.getParameter("month2")!=null)&&(request.getParameter("year2")!=null)) {
+      try{
+      
+    //get our date values
+    int day1=(new Integer(request.getParameter("day1"))).intValue();
+    int day2=(new Integer(request.getParameter("day2"))).intValue();
+    int month1=(new Integer(request.getParameter("month1"))).intValue();
+    int month2=(new Integer(request.getParameter("month2"))).intValue();
+    int year1=(new Integer(request.getParameter("year1"))).intValue();
+    int year2=(new Integer(request.getParameter("year2"))).intValue();
     
+    prettyPrint.append("Dates between: "+year1+"-"+month1+"-"+day1+" and "+year2+"-"+month2+"-"+day2+"<br />");
+    
+    //order our values
+    int minYear=year1;
+    int minMonth=month1;
+    int minDay=day1;
+    int maxYear=year2;
+    int maxMonth=month2;
+    int maxDay=day2;
+    if(year1>year2) {
+      minDay=day2;
+      minMonth=month2;
+      minYear=year2;
+      maxDay=day1;
+      maxMonth=month1;
+      maxYear=year1;
+    }
+    else if(year1==year2) {
+      if(month1>month2) {
+        minDay=day2;
+        minMonth=month2;
+        minYear=year2;
+        maxDay=day1;
+        maxMonth=month1;
+        maxYear=year1;
+      }
+      else if(month1==month2) {
+        if(day1>day2) {
+          minDay=day2;
+          minMonth=month2;
+          minYear=year2;
+          maxDay=day1;
+          maxMonth=month1;
+          maxYear=year1;
+        }
+      }
+    }
+    
+    GregorianCalendar gcMin=new GregorianCalendar(minYear, minMonth, minDay);
+    GregorianCalendar gcMax=new GregorianCalendar(maxYear, maxMonth, maxDay);
+    
+    if(filter.equals("")){
+      filter="((this.dateInMilliseconds >= "+gcMin.getTimeInMillis()+") && (this.dateInMilliseconds <= "+gcMax.getTimeInMillis()+"))";
+    }
+    else{filter+="((this.dateInMilliseconds >= "+gcMin.getTimeInMillis()+") && (this.dateInMilliseconds <= "+gcMax.getTimeInMillis()+"))";
+    }
+    
+    
+   
+    
+      } catch(NumberFormatException nfe) {
+    //do nothing, just skip on
+    nfe.printStackTrace();
+      }
+    }
+
+
     
     if(!filter.trim().equals("")){
         filter="("+filter+")";      
@@ -466,7 +535,7 @@ public class EncounterQueryProcessor {
     
     
   //filter for date------------------------------------------
-    if((request.getParameter("day1")!=null)&&(request.getParameter("month1")!=null)&&(request.getParameter("year1")!=null)&&(request.getParameter("day2")!=null)&&(request.getParameter("month2")!=null)&&(request.getParameter("year2")!=null)) {
+   /* if((request.getParameter("day1")!=null)&&(request.getParameter("month1")!=null)&&(request.getParameter("year1")!=null)&&(request.getParameter("day2")!=null)&&(request.getParameter("month2")!=null)&&(request.getParameter("year2")!=null)) {
       try{
       
     //get our date values
@@ -539,8 +608,11 @@ public class EncounterQueryProcessor {
     nfe.printStackTrace();
       }
     }
-
+*/
   //date filter--------------------------------------------------------------------------------------
+    
+    
+    
     return (new EncounterQueryResult(rEncounters,filter,prettyPrint.toString()));
     
   }

@@ -1,6 +1,7 @@
 package org.ecocean;
 
 import java.lang.Math;
+import java.util.GregorianCalendar;
 import java.util.Vector;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
@@ -85,6 +86,9 @@ public class Encounter implements java.io.Serializable{
 	//time metrics of the report
 	private int hour=0;
 	private String minutes="00"; 
+	
+	private long dateInMilliseconds=0;
+	
 	//describes how the shark was measured
 	private String size_guess="none provided"; 
 	//String reported GPS values for lat and long of the encounter
@@ -452,14 +456,17 @@ public class Encounter implements java.io.Serializable{
 		
 	public void setDay(int day) {
 		this.day=day;
+		resetDateInMilliseconds();
 		}
 		
 	public void setHour(int hour) {
 		this.hour=hour;
+		resetDateInMilliseconds();
 		}
 		
 	public void setMinutes(String minutes) {
 		this.minutes=minutes;
+		resetDateInMilliseconds();
 		}
 		
 	public String getMinutes() {
@@ -472,11 +479,12 @@ public class Encounter implements java.io.Serializable{
 		
 	public void setMonth(int month) {
 		this.month=month;
+		resetDateInMilliseconds();
 		}
 	public void setYear(int year) {
 		this.year=year;
+		resetDateInMilliseconds();
 		}
-		
 		
 	public int getDay() {
 		return day;
@@ -1020,6 +1028,21 @@ public class Encounter implements java.io.Serializable{
     public String getColorCode(){return colorCode;}
     
     public void setColorCode(String newCode){this.colorCode=newCode;}
+    
+    public void resetDateInMilliseconds(){
+      if(year>0){
+        int localMonth=1;
+        if(month>0){localMonth=month;}
+        int localDay=1;
+        if(day>0){localDay=day;}
+        int localMinutes = Integer.parseInt(minutes);
+        GregorianCalendar gc=new GregorianCalendar(year, localMonth, localDay, hour, localMinutes);
+        dateInMilliseconds = gc.getTimeInMillis();
+      }
+      else{dateInMilliseconds=0;}
+    }
+    
+    public long getDateInMilliseconds(){return dateInMilliseconds;}
     
 }
 	

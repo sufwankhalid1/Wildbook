@@ -61,6 +61,10 @@ public class MarkedIndividual{
 	
 	private String colorCode;
 	
+
+	private int maxYearsBetweenResightings;
+	
+	
 	public MarkedIndividual(String name, Encounter enc) {
 		
 		this.name=name;
@@ -89,11 +93,13 @@ public class MarkedIndividual{
 		if(unidentifiableEncounters==null) {unidentifiableEncounters=new Vector();}
 		if(newEncounter.wasRejected()) {
 			numUnidentifiableEncounters++; 
+			resetMaxNumYearsBetweenSightings();
 			return unidentifiableEncounters.add(newEncounter);
 			
 			}
 		else {
 			numberEncounters++; 
+			resetMaxNumYearsBetweenSightings();
 			return encounters.add(newEncounter); }
 		}
 	
@@ -114,7 +120,7 @@ public class MarkedIndividual{
 					changed=true;
 					}
 				}
-			
+			resetMaxNumYearsBetweenSightings();
 			return changed;
 			
 			}
@@ -129,6 +135,7 @@ public class MarkedIndividual{
 					changed=true;
 					}
 				}
+			resetMaxNumYearsBetweenSightings();
 			return changed;
 		}
 	}
@@ -573,7 +580,7 @@ public class MarkedIndividual{
 		return false;
 		}
 		
-	public int getMaxNumYearsBetweenSightings(){
+	public void resetMaxNumYearsBetweenSightings(){
 		int maxYears=0;
 		int lowestYear=3000;
 		int highestYear=0;
@@ -583,8 +590,12 @@ public class MarkedIndividual{
 			if(temp.getYear()>highestYear) highestYear=temp.getYear();
 			maxYears=highestYear-lowestYear;
 			}
-		return maxYears;
+		maxYearsBetweenResightings=maxYears;
 		}
+	
+	 public int getMaxNumYearsBetweenSightings(){
+	    return maxYearsBetweenResightings;
+	  }
 		
 	public int getEarliestSightingYear(){
 		int lowestYear=5000;
