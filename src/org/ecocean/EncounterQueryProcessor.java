@@ -10,49 +10,40 @@ import java.util.GregorianCalendar;
 
 public class EncounterQueryProcessor {
   
-  public static EncounterQueryResult processQuery(Shepherd myShepherd, HttpServletRequest request, String order){
+  public static String queryStringBuilder(HttpServletRequest request, StringBuffer prettyPrint){
+    String filter="SELECT FROM org.ecocean.Encounter WHERE ";
     
-    Vector<Encounter> rEncounters=new Vector<Encounter>();  
-    Iterator<Encounter> allEncounters;
-    
-    Extent<Encounter> encClass=myShepherd.getPM().getExtent(Encounter.class, true);
-    Query query=myShepherd.getPM().newQuery(encClass);
-    if(!order.equals("")){query.setOrdering(order);}
-    String filter="";
-    StringBuffer prettyPrint=new StringBuffer("");
-
-
-    //filter for location------------------------------------------
+  //filter for location------------------------------------------
     if((request.getParameter("locationField")!=null)&&(!request.getParameter("locationField").equals(""))) {
       String locString=request.getParameter("locationField").toLowerCase().replaceAll("%20", " ").trim();
       if(filter.equals("")){
-        filter="(this.verbatimLocality.toLowerCase().indexOf('"+locString+"') != -1)";
+        filter="(verbatimLocality.toLowerCase().indexOf('"+locString+"') != -1)";
       }
-      else{filter+=" && (this.verbatimLocality.toLowerCase().indexOf('"+locString+"') != -1)";}
+      else{filter+=" && (verbatimLocality.toLowerCase().indexOf('"+locString+"') != -1)";}
       prettyPrint.append("locationField contains \""+locString+"\".<br />");
     }
     //end location filter--------------------------------------------------------------------------------------
     
     //filter for unidentifiable encounters------------------------------------------
     if(request.getParameter("unidentifiable")==null) {
-      if(filter.equals("")){filter="!this.unidentifiable";}
-      else{filter+=" && !this.unidentifiable";}
+      if(filter.equals("SELECT FROM org.ecocean.Encounter WHERE ")){filter+="!unidentifiable";}
+      else{filter+=" && !unidentifiable";}
       prettyPrint.append("Not identifiable.<br />");
     }
     //-----------------------------------------------------
     
     //---filter out approved
     if(request.getParameter("approved")==null) {
-      if(filter.equals("")){filter="!this.approved";}
-      else{filter+=" && !this.approved";}
+      if(filter.equals("SELECT FROM org.ecocean.Encounter WHERE ")){filter+="!approved";}
+      else{filter+=" && !approved";}
       prettyPrint.append("Not approved.<br />");
     }
     //----------------------------
     
     //---filter out unapproved
     if(request.getParameter("unapproved")==null) {
-      if(filter.equals("")){filter="(!this.approved && !this.unidentifiable)";}
-      else{filter+=" && (!this.approved && !this.unidentifiable)";}
+      if(filter.equals("SELECT FROM org.ecocean.Encounter WHERE ")){filter+="(!approved && !unidentifiable)";}
+      else{filter+=" && (!approved && !unidentifiable)";}
       prettyPrint.append("Not unapproved.<br />");
     }
     //----------------------------
@@ -70,16 +61,16 @@ public class EncounterQueryProcessor {
               String kwParam=locCodes[kwIter].replaceAll("%20", " ").trim();
               if(!kwParam.equals("")){
                 if(locIDFilter.equals("(")){
-                  locIDFilter+=" this.locationID == \""+kwParam+"\"";
+                  locIDFilter+=" locationID == \""+kwParam+"\"";
                 }
                 else{
-                  locIDFilter+=" || this.locationID == \""+kwParam+"\"";
+                  locIDFilter+=" || locationID == \""+kwParam+"\"";
                 }
                 prettyPrint.append(kwParam+" ");
               }
             }
             locIDFilter+=" )";
-            if(filter.equals("")){filter=locIDFilter;}
+            if(filter.equals("SELECT FROM org.ecocean.Encounter WHERE ")){filter+=locIDFilter;}
             else{filter+=(" && "+locIDFilter);}
             prettyPrint.append("<br />");
     }
@@ -96,16 +87,16 @@ public class EncounterQueryProcessor {
               String kwParam=behaviors[kwIter].replaceAll("%20", " ").trim();
               if(!kwParam.equals("")){
                 if(locIDFilter.equals("(")){
-                  locIDFilter+=" this.behavior == \""+kwParam+"\"";
+                  locIDFilter+=" behavior == \""+kwParam+"\"";
                 }
                 else{
-                  locIDFilter+=" || this.behavior == \""+kwParam+"\"";
+                  locIDFilter+=" || behavior == \""+kwParam+"\"";
                 }
                 prettyPrint.append(kwParam+" ");
               }
             }
             locIDFilter+=" )";
-            if(filter.equals("")){filter=locIDFilter;}
+            if(filter.equals("SELECT FROM org.ecocean.Encounter WHERE ")){filter+=locIDFilter;}
             else{filter+=(" && "+locIDFilter);}
             prettyPrint.append("<br />");
     }
@@ -128,16 +119,16 @@ public class EncounterQueryProcessor {
               String kwParam=verbatimEventDates[kwIter].replaceAll("%20", " ").trim();
               if(!kwParam.equals("")){
                 if(locIDFilter.equals("(")){
-                  locIDFilter+=" this.verbatimEventDate == \""+kwParam+"\"";
+                  locIDFilter+=" verbatimEventDate == \""+kwParam+"\"";
                 }
                 else{
-                  locIDFilter+=" || this.verbatimEventDate == \""+kwParam+"\"";
+                  locIDFilter+=" || verbatimEventDate == \""+kwParam+"\"";
                 }
                 prettyPrint.append(kwParam+" ");
               }
             }
             locIDFilter+=" )";
-            if(filter.equals("")){filter=locIDFilter;}
+            if(filter.equals("SELECT FROM org.ecocean.Encounter WHERE ")){filter+=locIDFilter;}
             else{filter+=(" && "+locIDFilter);}
             prettyPrint.append("<br />");
     }
@@ -150,8 +141,8 @@ public class EncounterQueryProcessor {
     //filter for alternate ID------------------------------------------
     if((request.getParameter("alternateIDField")!=null)&&(!request.getParameter("alternateIDField").equals(""))) {
       String altID=request.getParameter("alternateIDField").toLowerCase().replaceAll("%20", " ").trim();
-      if(filter.equals("")){filter="this.otherCatalogNumbers.startsWith('"+altID+"')";}
-      else{filter+=" && this.otherCatalogNumbers.startsWith('"+altID+"')";}
+      if(filter.equals("SELECT FROM org.ecocean.Encounter WHERE ")){filter+="otherCatalogNumbers.startsWith('"+altID+"')";}
+      else{filter+=" && otherCatalogNumbers.startsWith('"+altID+"')";}
       prettyPrint.append("alternateIDField starts with \""+altID+"\".<br />");
       
     }
@@ -159,8 +150,8 @@ public class EncounterQueryProcessor {
     //filter for identificationRemarks------------------------------------------
     if((request.getParameter("identificationRemarksField")!=null)&&(!request.getParameter("identificationRemarksField").equals(""))) {
       String idRemarks=request.getParameter("identificationRemarksField").trim();
-      if(filter.equals("")){filter="this.identificationRemarks.startsWith('"+idRemarks+"')";}
-      else{filter+=" && this.identificationRemarks.startsWith('"+idRemarks+"')";}
+      if(filter.equals("SELECT FROM org.ecocean.Encounter WHERE ")){filter+="identificationRemarks.startsWith('"+idRemarks+"')";}
+      else{filter+=" && identificationRemarks.startsWith('"+idRemarks+"')";}
       prettyPrint.append("identificationRemarks starts with \""+idRemarks+"\".<br />");
       
     }
@@ -169,8 +160,8 @@ public class EncounterQueryProcessor {
     //filter for behavior------------------------------------------
     if((request.getParameter("behaviorField")!=null)&&(!request.getParameter("behaviorField").equals(""))) {
       String behString=request.getParameter("behaviorField").toLowerCase().replaceAll("%20", " ").trim();
-      if(filter.equals("")){filter="this.behavior.toLowerCase().indexOf('"+behString+"') != -1";}
-      else{filter+=" && this.behavior.toLowerCase().indexOf('"+behString+"') != -1";}
+      if(filter.equals("")){filter="behavior.toLowerCase().indexOf('"+behString+"') != -1";}
+      else{filter+=" && behavior.toLowerCase().indexOf('"+behString+"') != -1";}
       prettyPrint.append("behaviorField contains \""+behString+"\".<br />");
     }
     //end behavior filter--------------------------------------------------------------------------------------
@@ -178,32 +169,34 @@ public class EncounterQueryProcessor {
     
     
     //filter for sex------------------------------------------
+    /*
     if(request.getParameter("male")==null) {
-      if(filter.equals("")){filter="!this.sex.startsWith('male')";}
-      else{filter+=" && !this.sex.startsWith('male')";}
+      if(filter.equals("SELECT FROM org.ecocean.Encounter WHERE ")){filter+="!sex.startsWith('male')";}
+      else{filter+=" && !sex.startsWith('male')";}
       prettyPrint.append("Sex is not male.<br />");
     }
     if(request.getParameter("female")==null) {
-      if(filter.equals("")){filter="!this.sex.startsWith('female')";}
-      else{filter+=" && !this.sex.startsWith('female')";}
+      if(filter.equals("SELECT FROM org.ecocean.Encounter WHERE ")){filter+="!sex.startsWith('female')";}
+      else{filter+=" && !sex.startsWith('female')";}
       prettyPrint.append("Sex is not female.<br />");
     }
     if(request.getParameter("unknown")==null) {
-      if(filter.equals("")){filter="!this.sex.startsWith('unknown')";}
-      else{filter+=" && !this.sex.startsWith('unknown')";}
+      if(filter.equals("SELECT FROM org.ecocean.Encounter WHERE ")){filter+="!sex.startsWith('unknown')";}
+      else{filter+=" && !sex.startsWith('unknown')";}
       prettyPrint.append("Sex is unknown.<br />");
     }
+    */
     //filter by sex--------------------------------------------------------------------------------------
 
     //filter by alive/dead status------------------------------------------
     if(request.getParameter("alive")==null) {
-      if(filter.equals("")){filter="!this.livingStatus.startsWith('alive')";}
-      else{filter+=" && !this.livingStatus.startsWith('alive')";}
+      if(filter.equals("SELECT FROM org.ecocean.Encounter WHERE ")){filter+="!livingStatus.startsWith('alive')";}
+      else{filter+=" && !livingStatus.startsWith('alive')";}
       prettyPrint.append("Alive.<br />");
     }
     if(request.getParameter("dead")==null) {
-      if(filter.equals("")){filter="!this.livingStatus.startsWith('dead')";}
-      else{filter+=" && !this.livingStatus.startsWith('dead')";}
+      if(filter.equals("SELECT FROM org.ecocean.Encounter WHERE ")){filter+="!livingStatus.startsWith('dead')";}
+      else{filter+=" && !livingStatus.startsWith('dead')";}
       prettyPrint.append("Dead.<br />");
     }
     //filter by alive/dead status--------------------------------------------------------------------------------------
@@ -211,7 +204,7 @@ public class EncounterQueryProcessor {
     //submitter or photographer name filter------------------------------------------
     /*if((request.getParameter("nameField")!=null)&&(!request.getParameter("nameField").equals(""))) {
       String nameString=request.getParameter("nameField").replaceAll("%20"," ").toLowerCase().trim();
-      String filterString="((this.recordedBy.toLowerCase().indexOf('"+nameString+"') != -1)||(this.submitterEmail.toLowerCase().indexOf('"+nameString+"') != -1)||(this.photographerName.toLowerCase().indexOf('"+nameString+"') != -1)||(this.photographerEmail.toLowerCase().indexOf('"+nameString+"') != -1))";
+      String filterString="((recordedBy.toLowerCase().indexOf('"+nameString+"') != -1)||(submitterEmail.toLowerCase().indexOf('"+nameString+"') != -1)||(photographerName.toLowerCase().indexOf('"+nameString+"') != -1)||(photographerEmail.toLowerCase().indexOf('"+nameString+"') != -1))";
       if(filter.equals("")){filter=filterString;}
       else{filter+=(" && "+filterString);}
       prettyPrint.append("nameField contains: \""+nameString+"\"<br />");
@@ -230,16 +223,16 @@ public class EncounterQueryProcessor {
               String kwParam=researchGroups[kwIter].replaceAll("%20", " ").trim();
               if(!kwParam.equals("")){
                 if(locIDFilter.equals("(")){
-                  locIDFilter+=" this.recordedBy == \""+kwParam+"\"";
+                  locIDFilter+=" recordedBy == \""+kwParam+"\"";
                 }
                 else{
-                  locIDFilter+=" || this.recordedBy == \""+kwParam+"\"";
+                  locIDFilter+=" || recordedBy == \""+kwParam+"\"";
                 }
                 prettyPrint.append(kwParam+" ");
               }
             }
             locIDFilter+=" )";
-            if(filter.equals("")){filter=locIDFilter;}
+            if(filter.equals("SELECT FROM org.ecocean.Encounter WHERE ")){filter+=locIDFilter;}
             else{filter+=(" && "+locIDFilter);}
             prettyPrint.append("<br />");
     }
@@ -255,20 +248,20 @@ public class EncounterQueryProcessor {
       String size=request.getParameter("lengthField").trim();
       
       if(request.getParameter("selectLength").equals("gt")) {
-        String filterString="this.size > "+size;
-        if(filter.equals("")){filter=filterString;}
+        String filterString="size > "+size;
+        if(filter.equals("SELECT FROM org.ecocean.Encounter WHERE ")){filter+=filterString;}
         else{filter+=(" && "+filterString);}
         prettyPrint.append("selectLength is > "+size+".<br />");
       }
       else if(request.getParameter("selectLength").equals("lt")) {
-        String filterString="this.size < "+size;
-        if(filter.equals("")){filter=filterString;}
+        String filterString="size < "+size;
+        if(filter.equals("SELECT FROM org.ecocean.Encounter WHERE ")){filter+=filterString;}
         else{filter+=(" && "+filterString);}
         prettyPrint.append("selectLength is < "+size+".<br />");
       }
       else if(request.getParameter("selectLength").equals("eq")) {
-        String filterString="this.size == "+size;
-        if(filter.equals("")){filter=filterString;}
+        String filterString="size == "+size;
+        if(filter.equals("SELECT FROM org.ecocean.Encounter WHERE ")){filter+=filterString;}
         else{filter+=(" && "+filterString);}
         prettyPrint.append("selectLength is = "+size+".<br />");
       }
@@ -276,14 +269,16 @@ public class EncounterQueryProcessor {
     
     //filter for tissue sample------------------------------------------
     if(request.getParameter("hasTissueSample")!=null) {
-      if(filter.equals("")){
-        filter="(this.dynamicProperties.indexOf('Tissue Sample') != -1)";
+      if(filter.equals("SELECT FROM org.ecocean.Encounter WHERE ")){
+        filter+="(dynamicProperties.indexOf('Tissue Sample') != -1)";
       }
-      else{filter+=" && (this.dynamicProperties.indexOf('Tissue Sample') != -1)";}
+      else{filter+=" && (dynamicProperties.indexOf('Tissue Sample') != -1)";}
       prettyPrint.append("A tissue sample was taken.<br />");
     }
     //end tissue sample filter--------------------------------------------------------------------------------------
   
+    
+    //start date filter----------------------------
     if((request.getParameter("day1")!=null)&&(request.getParameter("month1")!=null)&&(request.getParameter("year1")!=null)&&(request.getParameter("day2")!=null)&&(request.getParameter("month2")!=null)&&(request.getParameter("year2")!=null)) {
       try{
       
@@ -336,10 +331,10 @@ public class EncounterQueryProcessor {
     GregorianCalendar gcMin=new GregorianCalendar(minYear, minMonth, minDay);
     GregorianCalendar gcMax=new GregorianCalendar(maxYear, maxMonth, maxDay);
     
-    if(filter.equals("")){
-      filter="((this.dateInMilliseconds >= "+gcMin.getTimeInMillis()+") && (this.dateInMilliseconds <= "+gcMax.getTimeInMillis()+"))";
+    if(filter.equals("SELECT FROM org.ecocean.Encounter WHERE ")){
+      filter+="((dateInMilliseconds >= "+gcMin.getTimeInMillis()+") && (dateInMilliseconds <= "+gcMax.getTimeInMillis()+"))";
     }
-    else{filter+="((this.dateInMilliseconds >= "+gcMin.getTimeInMillis()+") && (this.dateInMilliseconds <= "+gcMax.getTimeInMillis()+"))";
+    else{filter+="&& ((dateInMilliseconds >= "+gcMin.getTimeInMillis()+") && (dateInMilliseconds <= "+gcMax.getTimeInMillis()+"))";
     }
     
     
@@ -351,24 +346,131 @@ public class EncounterQueryProcessor {
       }
     }
 
+    //end date filter ----------------------------------------
 
+    //------------------------------------------------------------------
+    //GPS filters-------------------------------------------------
+
+    if((request.getParameter("ne_lat")!=null)&&(!request.getParameter("ne_lat").equals(""))) {
+      if((request.getParameter("ne_long")!=null)&&(!request.getParameter("ne_long").equals(""))) {
+        if((request.getParameter("sw_lat")!=null)&&(!request.getParameter("sw_lat").equals(""))) {
+          if((request.getParameter("sw_long")!=null)&&(!request.getParameter("sw_long").equals(""))) {
+            
+            
+            
+                
+                try{
+                  
+                  String thisLocalFilter="(";
+                  
+                  double ne_lat=(new Double(request.getParameter("ne_lat"))).doubleValue();
+                  double ne_long = (new Double(request.getParameter("ne_long"))).doubleValue();
+                  double sw_lat = (new Double(request.getParameter("sw_lat"))).doubleValue();
+                  double sw_long=(new Double(request.getParameter("sw_long"))).doubleValue();
+                  
+                  if((sw_long>0)&&(ne_long<0)){
+                    //if(!((encLat<=ne_lat)&&(encLat>=sw_lat)&&((encLong<=ne_long)||(encLong>=sw_long)))){
+                      
+                      //process lats
+                      thisLocalFilter+="(decimalLatitude <= "+request.getParameter("ne_lat")+") && (decimalLatitude >= "+request.getParameter("sw_lat")+")";
+                       
+                      //process longs
+                      thisLocalFilter+=" && ((decimalLongitude <= "+request.getParameter("ne_long")+") || (decimalLongitude >= "+request.getParameter("sw_long")+"))";
+                       
+                      
+                      
+                    //}
+                  }
+                  else{
+                    //if(!((encLat<=ne_lat)&&(encLat>=sw_lat)&&(encLong<=ne_long)&&(encLong>=sw_long))){
+                     
+                    //process lats
+                    thisLocalFilter+="(decimalLatitude <= "+request.getParameter("ne_lat")+") && (decimalLatitude >= "+request.getParameter("sw_lat")+")";
+                     
+                    //process longs
+                    thisLocalFilter+=" && (decimalLongitude <= "+request.getParameter("ne_long")+") && (decimalLongitude >= "+request.getParameter("sw_long")+")";
+                     
+                    
+                      
+                    //}
+                  }
+                  
+                  thisLocalFilter+=" )";
+                  if(filter.equals("")){filter=thisLocalFilter;}
+                  else{filter+=" && "+thisLocalFilter;}
+                  
+                  prettyPrint.append("GPS Boundary NE: \""+request.getParameter("ne_lat")+", "+request.getParameter("ne_long")+"\".<br />");
+                  prettyPrint.append("GPS Boundary SW: \""+request.getParameter("sw_lat")+", "+request.getParameter("sw_long")+"\".<br />");
+                 
+                  
+                  
+                }
+             
+                catch(Exception ee){
+                  
+                  System.out.println("Exception when trying to process lat and long data in EncounterQueryProcessor!");
+                  ee.printStackTrace();
+                  
+                }
+            
+
+            
+           
+            
+            
+        
+      
+          }
+        }
+      }
+    }
+  
+    
+    //end GPS filters-----------------------------------------------  
+    
+    
+    
+    return filter;
+    
+  }
+  
+  public static EncounterQueryResult processQuery(Shepherd myShepherd, HttpServletRequest request, String order){
+    
+    Vector<Encounter> rEncounters=new Vector<Encounter>();  
+    Iterator<Encounter> allEncounters;
+    
+    
+    //Extent<Encounter> encClass=myShepherd.getPM().getExtent(Encounter.class, true);
+    //Query query=myShepherd.getPM().newQuery(encClass);
+    //if(!order.equals("")){query.setOrdering(order);}
+    
+    
+    String filter="";
+    StringBuffer prettyPrint=new StringBuffer("");
+
+    filter=queryStringBuilder(request, prettyPrint);
+    
+    Query query=myShepherd.getPM().newQuery(filter);
     
     if(!filter.trim().equals("")){
-        filter="("+filter+")";      
-        query.setFilter(filter);
+        //filter="("+filter+")";      
+        //query.setFilter(filter);
         allEncounters=myShepherd.getAllEncounters(query);
     }
     else{
       allEncounters=myShepherd.getAllEncountersNoFilter();
     }
     
+    
 
     System.out.println("Final filter: "+filter);
     //allEncounters=myShepherd.getAllEncountersNoQuery();
     
-    while (allEncounters.hasNext()) {
-      Encounter temp_enc=(Encounter)allEncounters.next();
-      rEncounters.add(temp_enc);
+    if(allEncounters!=null){
+      while (allEncounters.hasNext()) {
+        Encounter temp_enc=(Encounter)allEncounters.next();
+        rEncounters.add(temp_enc);
+      }
     }
     
 
@@ -421,6 +523,8 @@ public class EncounterQueryProcessor {
 
     //------------------------------------------------------------------
     //GPS filters-------------------------------------------------
+   /*
+    
     if((request.getParameter("ne_lat")!=null)&&(!request.getParameter("ne_lat").equals(""))) {
       if((request.getParameter("ne_long")!=null)&&(!request.getParameter("ne_long").equals(""))) {
         if((request.getParameter("sw_lat")!=null)&&(!request.getParameter("sw_lat").equals(""))) {
@@ -471,30 +575,20 @@ public class EncounterQueryProcessor {
 
             
             
-           /** correct way to do this with JDOQL in the future
-            String thisLocalFilter="(";
-            
-            //process lats
-            thisLocalFilter+="(this.decimalLatitude <= "+request.getParameter("ne_lat")+") && (this.decimalLatitude >= "+request.getParameter("sw_lat")+")";
-            
-            //process longs
-            thisLocalFilter+=" && (this.decimalLongitude <= "+request.getParameter("ne_long")+") && (this.decimalLongitude >= "+request.getParameter("sw_long")+")";
-            
-            thisLocalFilter+=" )";
-            
-            if(filter.equals("")){filter=thisLocalFilter;}
-            else{filter+=" && "+thisLocalFilter;}
-            */
-            
-            prettyPrint.append("GPS Boundary NE: \""+request.getParameter("ne_lat")+", "+request.getParameter("ne_long")+"\".<br />");
-            prettyPrint.append("GPS Boundary SW: \""+request.getParameter("sw_lat")+", "+request.getParameter("sw_long")+"\".<br />");
-            
+        
+          //  prettyPrint.append("GPS Boundary NE: \""+request.getParameter("ne_lat")+", "+request.getParameter("ne_long")+"\".<br />");
+           // prettyPrint.append("GPS Boundary SW: \""+request.getParameter("sw_lat")+", "+request.getParameter("sw_long")+"\".<br />");
+          
       
           }
         }
       }
     }
+    
+    */
     //end GPS filters-----------------------------------------------  
+    
+    
 
   //keyword filters-------------------------------------------------
   String[] keywords=request.getParameterValues("keyword");

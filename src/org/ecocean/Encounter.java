@@ -35,8 +35,11 @@ public class Encounter implements java.io.Serializable{
 	private int day=0;
 	private int month=0;
 	private int year=0;
-	private String decimalLatitude;
-	private String decimalLongitude;
+	
+	private double decimalLatitude;
+	private double decimalLongitude;
+
+	
 	private String verbatimLocality; 
 	private String occurrenceRemarks="";
 	private String modified;
@@ -855,23 +858,17 @@ public class Encounter implements java.io.Serializable{
 		//public long getDateAdded(){return dateAdded;}
 		
 		public void setDWCDecimalLatitude(double lat){
-			if(lat==-9999.0){
-				decimalLatitude=null;
-			}
-			else{
-				decimalLatitude=(new Double(lat)).toString();
+			if((lat<=90)&&(lat>=-90)){
+				this.decimalLatitude=lat;
 			}
 		}
-		public String getDWCDecimalLatitude(){return decimalLatitude;}
+		public String getDWCDecimalLatitude(){return Double.toString(decimalLatitude);}
 		public void setDWCDecimalLongitude(double longit){
-			if(longit==-9999.0){
-				decimalLongitude=null;
-			}
-			else{
-				decimalLongitude=(new Double(longit)).toString();
+			if((longit>=-180)&&(longit<=180)){
+				this.decimalLongitude=longit;
 			}
 		}
-		public String getDWCDecimalLongitude(){return decimalLongitude;}
+		public String getDWCDecimalLongitude(){return Double.toString(decimalLongitude);}
 		
 		public boolean getOKExposeViaTapirLink(){return okExposeViaTapirLink;}
 		
@@ -914,11 +911,19 @@ public class Encounter implements java.io.Serializable{
 		public String getIndividualID(){return individualID;}
 		public void setIndividualID(String indy){this.individualID=indy;}
 		
-		public String getDecimalLatitude(){return decimalLatitude;}
-		public void setDecimalLatitude(String lat){this.decimalLatitude=lat;}
+		public String getDecimalLatitude(){return Double.toString(decimalLatitude);}
+		public void setDecimalLatitude(String lat){this.decimalLatitude=Double.parseDouble(lat);}
 		
-		public String getDecimalLongitude(){return decimalLongitude;}
-		public void setDecimalLongitude(String longy){this.decimalLongitude=longy;}
+		public String getDecimalLongitude(){return Double.toString(decimalLongitude);}
+		public void setDecimalLongitude(String longy){this.decimalLongitude=Double.parseDouble(longy);}
+		
+    public double getDecimalLatitudeAsDouble(){return decimalLatitude;}
+    public void setDecimalLatitude(double lat){this.decimalLatitude=lat;}
+    
+    public double getDecimalLongitudeAsDouble(){return decimalLongitude;}
+    public void setDecimalLongitude(double longy){this.decimalLongitude=longy;}
+    
+		
 		
 		public String getOccurrenceRemarks(){return occurrenceRemarks;}
 		public void setOccurrenceRemarks(String remarks){this.occurrenceRemarks=remarks;}
@@ -1043,6 +1048,8 @@ public class Encounter implements java.io.Serializable{
     }
     
     public long getDateInMilliseconds(){return dateInMilliseconds;}
+    
+  
     
 }
 	

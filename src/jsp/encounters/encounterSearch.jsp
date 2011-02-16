@@ -469,6 +469,7 @@ Southwest corner latitude: <input type="text" id="sw_lat" name="sw_lat"></input>
 							<input type="hidden" name="approved" value="acceptedEncounters"></input>
 							<input name="unapproved" type="hidden" value="allEncounters"></input>
 							<input name="unidentifiable" type="hidden" value="allEncounters"></input>
+				
 				<p>
 				<table align="left">
 

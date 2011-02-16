@@ -16,7 +16,7 @@ public class IndividualQueryProcessor {
     
       Vector<MarkedIndividual> rIndividuals=new Vector<MarkedIndividual>();  
       StringBuffer prettyPrint=new StringBuffer();
-      String filter="";
+      String filter="SELECT FROM org.ecocean.MarkedIndividual WHERE ";
       Iterator allSharks;
       
       int day1=1, day2=31, month1=1, month2=12, year1=0, year2=3000;
@@ -37,18 +37,31 @@ public class IndividualQueryProcessor {
        * 
        */
       
-      Extent indieClass=myShepherd.getPM().getExtent(MarkedIndividual.class, true);
-      Query query=myShepherd.getPM().newQuery(indieClass);
+      //Extent indieClass=myShepherd.getPM().getExtent(MarkedIndividual.class, true);
+      //Query query=myShepherd.getPM().newQuery(indieClass);
       
-      /*
-      if((request.getParameter("noQuery")!=null)&&(request.getParameter("startNum")!=null)&&(request.getParameter("endNum")!=null)){
-        int startNum=Integer.parseInt(request.getParameter("startNum"));
-        int endNum=Integer.parseInt(request.getParameter("endNum"));
-        query.setRange(startNum, endNum);
+      //Extent encClass=myShepherd.getPM().getExtent(Encounter.class, true);
+      //Query encQuery=myShepherd.getPM().newQuery(encClass);
+      String encFilter="";
+      
+      if(request.getParameter("noQuery")==null){
+        
+        encFilter=EncounterQueryProcessor.queryStringBuilder(request, prettyPrint).replaceAll("SELECT FROM", "SELECT DISTINCT individualID FROM");
+  
       }
-      */
       
       
+ 
+      if(!encFilter.equals("")){
+        filter+="( "+encFilter+" ).contains(this.name)";      
+      }
+      
+      System.out.println("IndividualQueryProcessor filter: "+filter);
+      
+      //query.setFilter(filter);
+      Query query=myShepherd.getPM().newQuery(filter);
+      
+      try{
         if(request.getParameter("sort")!=null) {
           if(request.getParameter("sort").equals("sex")){allSharks=myShepherd.getAllMarkedIndividuals(query, "sex ascending");}
           else if(request.getParameter("sort").equals("name")) {allSharks=myShepherd.getAllMarkedIndividuals(query, "name ascending");}
@@ -61,12 +74,17 @@ public class IndividualQueryProcessor {
           allSharks=myShepherd.getAllMarkedIndividuals(query, "colorCode ascending, name ascending");
           //keyword and then name ascending 
         }
-      
         //process over to Vector
-        while (allSharks.hasNext()) {
-          MarkedIndividual temp_shark=(MarkedIndividual)allSharks.next();
-          rIndividuals.add(temp_shark);
+        if(allSharks!=null){
+          while (allSharks.hasNext()) {
+            MarkedIndividual temp_shark=(MarkedIndividual)allSharks.next();
+            rIndividuals.add(temp_shark);
+          }
         }
+      }
+      catch(NullPointerException npe){}
+      
+       
       
 
      /*
@@ -79,7 +97,8 @@ public class IndividualQueryProcessor {
       
       //------------------------------------------------------------------
       //GPS filters-------------------------------------------------
-      if((request.getParameter("ne_lat")!=null)&&(!request.getParameter("ne_lat").equals(""))) {
+      /*
+        if((request.getParameter("ne_lat")!=null)&&(!request.getParameter("ne_lat").equals(""))) {
         if((request.getParameter("ne_long")!=null)&&(!request.getParameter("ne_long").equals(""))) {
           if((request.getParameter("sw_lat")!=null)&&(!request.getParameter("sw_lat").equals(""))) {
             if((request.getParameter("sw_long")!=null)&&(!request.getParameter("sw_long").equals(""))) {
@@ -137,7 +156,7 @@ public class IndividualQueryProcessor {
             }
           }
         }
-      }
+      }*/
       //end GPS filters----------------------------------------------- 
       
       
@@ -145,7 +164,8 @@ public class IndividualQueryProcessor {
       
       
       //individuals with a particular location
-      if((request.getParameter("locationField")!=null)&&(!request.getParameter("locationField").equals(""))) {
+      /*
+        if((request.getParameter("locationField")!=null)&&(!request.getParameter("locationField").equals(""))) {
         prettyPrint.append("locationField is: "+request.getParameter("locationField")+"<br />");      
         String loc=request.getParameter("locationField").toLowerCase().trim();
         for(int q=0;q<rIndividuals.size();q++) {
@@ -164,9 +184,13 @@ public class IndividualQueryProcessor {
                 
               }     //end for
       }//end if with location
+      
+      */
+      
 
       //locationID filter-------------------------------------------------
-      String[] locCodes=request.getParameterValues("locationCodeField");
+      /*
+       String[] locCodes=request.getParameterValues("locationCodeField");
       if((locCodes!=null)&&(!locCodes[0].equals("None"))){
         prettyPrint.append("locationCodeField is one of the following: ");
             int kwLength=locCodes.length;
@@ -200,9 +224,11 @@ public class IndividualQueryProcessor {
 
               prettyPrint.append("<br />");
       }
+      */
       //end locationID filter-----------------------------------------------  
       
       //verbatimEventDateField filter-------------------------------------------------
+      /*
       String[] verbatimEventDates=request.getParameterValues("verbatimEventDateField");
       if((request.getParameterValues("verbatimEventDateField")!=null)&&(!verbatimEventDates[0].equals("None"))){
             prettyPrint.append("verbatimEventDateField is one of the following: ");
@@ -237,6 +263,7 @@ public class IndividualQueryProcessor {
             }     //end for  
             prettyPrint.append("<br />");
       }
+      */
       //end verbatimEventDateField filter-----------------------------------------------   
       
       

@@ -42,15 +42,16 @@ allSharks=myShepherd.getAllMarkedIndividuals(query);
 while(allSharks.hasNext()){
 
 	MarkedIndividual sharky=(MarkedIndividual)allSharks.next();
-	sharky.resetMaxNumYearsBetweenSightings();
+	//sharky.resetMaxNumYearsBetweenSightings();
 	//int totalPhotos=0;
-	//Vector allEncounters=sharky.getEncounters();
-	//int size=allEncounters.size();
-	//for(int i=0;i<size;i++){
-		//Encounter enc=sharky.getEncounter(i);
+	Vector allEncounters=sharky.getEncounters();
+	int size=allEncounters.size();
+	for(int i=0;i<size;i++){
+		Encounter enc=sharky.getEncounter(i);
+		enc.setDoubleGPSValues();
 		//totalPhotos+=enc.getAdditionalImageNames().size();
 		//enc.resetDateInMilliseconds();
-	//}
+	}
 	//if(totalPhotos==0){out.println(sharky.getName()+"<br />");}
 }
 

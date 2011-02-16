@@ -442,6 +442,14 @@ Southwest corner latitude: <input type="text" id="sw_lat" name="sw_lat"></input>
 			<tr>
 				<td><div id="observation" style="display:none; ">
 				<p>Use the fields below to filter your search based on identity and observed attributes.</p>
+				
+				<input name="alive" type="hidden" id="alive" value="alive" /> 
+							<input name="dead" type="hidden" id="dead" value="dead" /> 
+							<input type="hidden" name="approved" value="acceptedEncounters"></input>
+							<input name="unapproved" type="hidden" value="allEncounters"></input>
+							<input name="unidentifiable" type="hidden" value="allEncounters"></input>
+				
+				
 				<table align="left">
 					<tr><td><table><tr>
 						<td width="62"><strong><%=props.getProperty("sex")%>: </strong></td>
