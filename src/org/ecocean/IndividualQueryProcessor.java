@@ -56,8 +56,7 @@ public class IndividualQueryProcessor {
       
       //--filter by years between resights---------------------------      
       if((request.getParameter("resightGap")!=null)&&(!request.getParameter("resightGap").equals(""))&&(request.getParameter("resightGapOperator")!=null)) {
-        prettyPrint.append("Number of years between resights is "+request.getParameter("resightGapOperator")+" than "+request.getParameter("resightGap")+"<br />");      
-              
+             
               int numResights=0;
               String operator = "greater";
               try{
@@ -69,18 +68,58 @@ public class IndividualQueryProcessor {
                 
                 if(operator.equals("greater")){
                     operator=">=";
+                    prettyPrint.append("Number of years between resights is >= "+request.getParameter("resightGap")+"<br />");      
+                    
                 }
                 else if(operator.equals("less")){
                   operator="<=";
+                  prettyPrint.append("Number of years between resights is <= "+request.getParameter("resightGap")+"<br />");      
+                  
                 }
                 else if(operator.equals("equals")){
                   operator="==";
+                  prettyPrint.append("Number of years between resights is = "+request.getParameter("resightGap")+"<br />");      
+                  
                 }
                 
        filter+=" && ( maxYearsBetweenResightings "+operator+" "+numResights+" )";
              
       }
       //---end if resightOnly---------------------------------------
+      
+      
+      //------------------------------------------------------------------
+      //colorCode filters-------------------------------------------------
+      String[] colorCodes=request.getParameterValues("keyword");
+      if((colorCodes!=null)&&(!colorCodes[0].equals("None"))){
+            prettyPrint.append("Color code is one of the following: ");
+            int kwLength=colorCodes.length;
+              String colorCodeFilter="(";
+              for(int kwIter=0;kwIter<kwLength;kwIter++) {
+                
+                String kwParam=colorCodes[kwIter].replaceAll("%20", " ").trim();
+                if(!kwParam.equals("")){
+                  if(colorCodeFilter.equals("(")){
+                    colorCodeFilter+=" colorCode == \""+kwParam+"\"";
+                  }
+                  else{
+                    
+                    colorCodeFilter+=" || colorCode == \""+kwParam+"\"";
+                  }
+                  prettyPrint.append(kwParam+" ");
+                }
+              }
+              colorCodeFilter+=" )";
+              
+              filter+=(" && "+colorCodeFilter);
+              
+              
+              prettyPrint.append("<br />");
+      }
+      //end verbatimEventDate filters-----------------------------------------------  
+     
+      
+      
       
       } //end if not noQuery
       
@@ -310,8 +349,8 @@ public class IndividualQueryProcessor {
       
       
 
-
-      //individuals with a photo keyword assigned to one of their encounters
+/**
+      //individuals with a photo keyword assigned to one of their encounters - really this is just colorCode for Cascadia
       String[] keywords=request.getParameterValues("keyword");
       if((request.getParameterValues("keyword")!=null)&&(!keywords[0].equals("None"))){
         
@@ -337,7 +376,7 @@ public class IndividualQueryProcessor {
           } //end if isKeyword
       }
       }
-
+*/
 
 
       //individuals of a particular sex
