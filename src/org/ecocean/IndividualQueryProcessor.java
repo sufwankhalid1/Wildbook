@@ -47,14 +47,42 @@ public class IndividualQueryProcessor {
       if(request.getParameter("noQuery")==null){
         
         encFilter=EncounterQueryProcessor.queryStringBuilder(request, prettyPrint).replaceAll("SELECT FROM", "SELECT DISTINCT individualID FROM");
-  
-      }
+        filter+="( "+encFilter+" ).contains(this.name)";   
       
       
- 
-      if(!encFilter.equals("")){
-        filter+="( "+encFilter+" ).contains(this.name)";      
+
+      
+      //build the rest of the MarkedIndividual query filter string
+      
+      //--filter by years between resights---------------------------      
+      if((request.getParameter("resightGap")!=null)&&(!request.getParameter("resightGap").equals(""))&&(request.getParameter("resightGapOperator")!=null)) {
+        prettyPrint.append("Number of years between resights is "+request.getParameter("resightGapOperator")+" than "+request.getParameter("resightGap")+"<br />");      
+              
+              int numResights=0;
+              String operator = "greater";
+              try{
+                numResights=(new Integer(request.getParameter("resightGap"))).intValue();
+                operator = request.getParameter("resightGapOperator");
+              }
+              catch(NumberFormatException nfe) {}
+              
+                
+                if(operator.equals("greater")){
+                    operator=">=";
+                }
+                else if(operator.equals("less")){
+                  operator="<=";
+                }
+                else if(operator.equals("equals")){
+                  operator="==";
+                }
+                
+       filter+=" && ( maxYearsBetweenResightings "+operator+" "+numResights+" )";
+             
       }
+      //---end if resightOnly---------------------------------------
+      
+      } //end if not noQuery
       
       System.out.println("IndividualQueryProcessor filter: "+filter);
       
@@ -287,7 +315,7 @@ public class IndividualQueryProcessor {
       String[] keywords=request.getParameterValues("keyword");
       if((request.getParameterValues("keyword")!=null)&&(!keywords[0].equals("None"))){
         
-        prettyPrint.append("Keywords: ");
+        prettyPrint.append("Color codes: ");
         int kwLength=keywords.length;
         
         for(int kwIter=0;kwIter<kwLength;kwIter++) {
@@ -338,15 +366,16 @@ public class IndividualQueryProcessor {
       }//end if of sex
 
             
-      //min number of resights      
-      if((request.getParameter("numResights")!=null)&&(!request.getParameter("numResights").equals(""))&&(request.getParameter("numResightsOperator")!=null)) {
-        prettyPrint.append("Number of resights is "+request.getParameter("numResightsOperator")+" than "+request.getParameter("numResights")+"<br />");      
+      //filter by years between resights      
+      /*
+      if((request.getParameter("resightGap")!=null)&&(!request.getParameter("resightGap").equals(""))&&(request.getParameter("resightGapOperator")!=null)) {
+        prettyPrint.append("Number of years between resights is "+request.getParameter("resightGapOperator")+" than "+request.getParameter("resightGap")+"<br />");      
               
-        int numResights=1;
+              int numResights=0;
               String operator = "greater";
               try{
-                numResights=(new Integer(request.getParameter("numResights"))).intValue();
-                operator = request.getParameter("numResightsOperator");
+                numResights=(new Integer(request.getParameter("resightGap"))).intValue();
+                operator = request.getParameter("resightGapOperator");
               }
               catch(NumberFormatException nfe) {}
               for(int q=0;q<rIndividuals.size();q++) {
@@ -374,11 +403,13 @@ public class IndividualQueryProcessor {
                 
                 
               } //end for
-      }//end if resightOnly
+      }
+      */
+      //end if resightOnly
 
 
       //now filter for date-----------------------------
-      
+      /*
        prettyPrint.append("Dates between: "+year1+"-"+month1+"-"+day1+" and "+year2+"-"+month2+"-"+day2+"<br />");
        
        
@@ -392,6 +423,7 @@ public class IndividualQueryProcessor {
                 }
         } 
       }
+       */
       //end for
       //--------------------------------------------------
       
