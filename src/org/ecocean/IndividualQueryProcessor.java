@@ -118,6 +118,37 @@ public class IndividualQueryProcessor {
       }
       //end verbatimEventDate filters-----------------------------------------------  
      
+      //filter for sex------------------------------------------
+      
+      if(request.getParameter("male")==null) {
+        filter+=" && !sex.startsWith('male')";
+        prettyPrint.append("Sex is not male.<br />");
+      }
+      if(request.getParameter("female")==null) {
+        filter+=" && !sex.startsWith('female')";
+        prettyPrint.append("Sex is not female.<br />");
+      }
+      if(request.getParameter("unknown")==null) {
+        filter+=" && !sex.startsWith('unknown')";
+        prettyPrint.append("Sex is unknown.<br />");
+      }
+      
+      //filter by sex--------------------------------------------------------------------------------------
+
+      //individuals with a particular alternateID
+      if((request.getParameter("alternateIDField")!=null)&&(!request.getParameter("alternateIDField").equals(""))) {
+        prettyPrint.append("alternateIDField: "+request.getParameter("alternateIDField")+"<br />");      
+       
+        filter+=" && ( alternateid.startsWith('"+request.getParameter("alternateIDField")+"')";
+        
+        //filter+=" || (";
+        //String thisEncFilter="SELECT COUNT(catalogNumber) FROM org.ecocean.Encounter ";
+        //thisEncFilter+="WHERE individualID == this.name && otherCatalogNumbers.startsWith('"+request.getParameter("alternateIDField")+"') != -1";
+        //filter+=thisEncFilter+" )>=0 ";
+        
+        filter+=")";
+        
+      }//end if with alternateID
       
       
       
@@ -335,7 +366,8 @@ public class IndividualQueryProcessor {
       
       
       //individuals with a particular alternateID
-      if((request.getParameter("alternateIDField")!=null)&&(!request.getParameter("alternateIDField").equals(""))) {
+      /*
+        if((request.getParameter("alternateIDField")!=null)&&(!request.getParameter("alternateIDField").equals(""))) {
         prettyPrint.append("alternateIDField: "+request.getParameter("alternateIDField")+"<br />");      
         for(int q=0;q<rIndividuals.size();q++) {
                 MarkedIndividual tShark=(MarkedIndividual)rIndividuals.get(q);
@@ -346,7 +378,7 @@ public class IndividualQueryProcessor {
                 
               }     //end for
       }//end if with alternateID
-      
+      */
       
 
 /**
@@ -380,6 +412,7 @@ public class IndividualQueryProcessor {
 
 
       //individuals of a particular sex
+      /*
       if((request.getParameter("sex")!=null)&&(!request.getParameter("sex").equals("all"))) {
         prettyPrint.append("Sex is: "+request.getParameter("sex").replaceAll("mf", "male or female")+"<br />");      
         
@@ -402,7 +435,9 @@ public class IndividualQueryProcessor {
                   q--;
                 }
               } //end for
+              */
       }//end if of sex
+      
 
             
       //filter by years between resights      
@@ -462,12 +497,12 @@ public class IndividualQueryProcessor {
                 }
         } 
       }
-       */
+       
       //end for
       //--------------------------------------------------
       
     }
-      
+      */
       return (new MarkedIndividualQueryResult(rIndividuals,filter,prettyPrint.toString()));
     
   }

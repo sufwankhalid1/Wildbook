@@ -167,27 +167,6 @@ public class EncounterQueryProcessor {
     //end behavior filter--------------------------------------------------------------------------------------
      */
     
-    
-    //filter for sex------------------------------------------
-    /*
-    if(request.getParameter("male")==null) {
-      if(filter.equals("SELECT FROM org.ecocean.Encounter WHERE ")){filter+="!sex.startsWith('male')";}
-      else{filter+=" && !sex.startsWith('male')";}
-      prettyPrint.append("Sex is not male.<br />");
-    }
-    if(request.getParameter("female")==null) {
-      if(filter.equals("SELECT FROM org.ecocean.Encounter WHERE ")){filter+="!sex.startsWith('female')";}
-      else{filter+=" && !sex.startsWith('female')";}
-      prettyPrint.append("Sex is not female.<br />");
-    }
-    if(request.getParameter("unknown")==null) {
-      if(filter.equals("SELECT FROM org.ecocean.Encounter WHERE ")){filter+="!sex.startsWith('unknown')";}
-      else{filter+=" && !sex.startsWith('unknown')";}
-      prettyPrint.append("Sex is unknown.<br />");
-    }
-    */
-    //filter by sex--------------------------------------------------------------------------------------
-
     //filter by alive/dead status------------------------------------------
     if(request.getParameter("alive")==null) {
       if(filter.equals("SELECT FROM org.ecocean.Encounter WHERE ")){filter+="!livingStatus.startsWith('alive')";}
