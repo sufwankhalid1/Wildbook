@@ -141,6 +141,11 @@ calprops.load(getClass().getResourceAsStream("/bundles/"+langCode+"/calendar.pro
 		if(request.getParameter("scDate")!=null){
 			dateString=request.getParameter("scDate");
 		}
+		else if(request.getParameter("year1")!=null){
+			
+			dateString=(new Integer(request.getParameter("month1"))).toString()+"/1/"+(new Integer(request.getParameter("year1"))).toString();
+			
+		}
 		else{
 			
 			Calendar cal=Calendar.getInstance();
