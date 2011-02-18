@@ -16,7 +16,7 @@ public class IndividualQueryProcessor {
     
       Vector<MarkedIndividual> rIndividuals=new Vector<MarkedIndividual>();  
       StringBuffer prettyPrint=new StringBuffer();
-      String filter="SELECT FROM org.ecocean.MarkedIndividual WHERE ";
+      String filter="SELECT FROM org.ecocean.MarkedIndividual";
       Iterator allSharks;
       
       int day1=1, day2=31, month1=1, month2=12, year1=0, year2=3000;
@@ -45,6 +45,8 @@ public class IndividualQueryProcessor {
       String encFilter="";
       
       if(request.getParameter("noQuery")==null){
+        
+        filter+=" WHERE ";
         
         encFilter=EncounterQueryProcessor.queryStringBuilder(request, prettyPrint).replaceAll("SELECT FROM", "SELECT DISTINCT individualID FROM");
         filter+="( "+encFilter+" ).contains(this.name)";   
