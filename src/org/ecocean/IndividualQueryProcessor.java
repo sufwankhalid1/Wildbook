@@ -137,21 +137,17 @@ public class IndividualQueryProcessor {
       
       //filter by sex--------------------------------------------------------------------------------------
 
+      /*
       //individuals with a particular alternateID
       if((request.getParameter("alternateIDField")!=null)&&(!request.getParameter("alternateIDField").equals(""))) {
         prettyPrint.append("alternateIDField: "+request.getParameter("alternateIDField")+"<br />");      
        
-        filter+=" && ( alternateid.startsWith('"+request.getParameter("alternateIDField")+"')";
-        
-        //filter+=" || (";
-        //String thisEncFilter="SELECT COUNT(catalogNumber) FROM org.ecocean.Encounter ";
-        //thisEncFilter+="WHERE individualID == this.name && otherCatalogNumbers.startsWith('"+request.getParameter("alternateIDField")+"') != -1";
-        //filter+=thisEncFilter+" )>=0 ";
-        
+        filter+=" && ( (alternateid == \""+request.getParameter("alternateIDField")+"\")";
+
         filter+=")";
         
       }//end if with alternateID
-      
+      */
       
       
       } //end if not noQuery

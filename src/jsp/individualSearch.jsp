@@ -543,17 +543,7 @@ int totalKeywords=myShepherd.getNumKeywords();
 				</td>
 				
 				</tr>
-				<tr>
-				<td>
-				<p><strong><%=props.getProperty("alternateID")%>:</strong> <em> <input
-					name="alternateIDField" type="text" id="alternateIDField" size="25"
-					maxlength="100"> <span class="para"><a
-					href="<%=CommonConfiguration.getWikiLocation()%>alternateID"
-					target="_blank"><img src="images/information_icon_svg.gif"
-					alt="Help" width="15" height="15" border="0" align="absmiddle" /></a></span>
-				<br></em></p>
-				</td>
-			</tr>
+			
 				
 				</table>
 				</td>

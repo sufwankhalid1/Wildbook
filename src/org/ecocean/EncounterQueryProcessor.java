@@ -140,7 +140,7 @@ public class EncounterQueryProcessor {
 
     //filter for alternate ID------------------------------------------
     if((request.getParameter("alternateIDField")!=null)&&(!request.getParameter("alternateIDField").equals(""))) {
-      String altID=request.getParameter("alternateIDField").toLowerCase().replaceAll("%20", " ").trim();
+      String altID=request.getParameter("alternateIDField").replaceAll("%20", " ").trim();
       if(filter.equals("SELECT FROM org.ecocean.Encounter WHERE ")){filter+="otherCatalogNumbers.startsWith('"+altID+"')";}
       else{filter+=" && otherCatalogNumbers.startsWith('"+altID+"')";}
       prettyPrint.append("alternateIDField starts with \""+altID+"\".<br />");
