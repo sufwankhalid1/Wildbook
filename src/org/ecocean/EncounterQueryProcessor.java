@@ -257,6 +257,31 @@ public class EncounterQueryProcessor {
     //end tissue sample filter--------------------------------------------------------------------------------------
   
     
+    //filter for origin------------------------------------------
+    
+    if(request.getParameter("SPLASH")==null) {
+      if(filter.equals("SELECT FROM org.ecocean.Encounter WHERE ")){
+        filter+="(!identificationRemarks.matches('SPLASH'))";
+      }
+      else{filter+=" && (!identificationRemarks.matches('SPLASH'))";}
+      prettyPrint.append("Data origin is not SPLASH.<br />");
+    }
+    if(request.getParameter("Contributor")==null) {
+      if(filter.equals("SELECT FROM org.ecocean.Encounter WHERE ")){
+        filter+="(!identificationRemarks.matches('Contributor'))";
+      }
+      else{filter+=" && (!identificationRemarks.matches('Contributor'))";}
+      prettyPrint.append("Data origin is not from an external contributor.<br />");
+    }
+
+    
+    //filter for origin--------------------------------------------------------------------------------------
+
+    
+    
+    
+    
+    
     //start date filter----------------------------
     if((request.getParameter("day1")!=null)&&(request.getParameter("month1")!=null)&&(request.getParameter("year1")!=null)&&(request.getParameter("day2")!=null)&&(request.getParameter("month2")!=null)&&(request.getParameter("year2")!=null)) {
       try{

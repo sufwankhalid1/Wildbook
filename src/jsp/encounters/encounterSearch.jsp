@@ -565,11 +565,32 @@ Southwest corner latitude: <input type="text" id="sw_lat" name="sw_lat"></input>
 					</td>
 				</tr>
 				
+				
+					<tr>
+													   <td>
+													   	<br />
+													      <table align="left">
+														<tr>
+															<td width="125"><strong>Data origin is: </strong></td>
+															<td width="100"><label> <input name="SPLASH" type="checkbox" id="SPLASH" value="SPLASH" checked> SPLASH</label></td>
+								
+															<td width="150"><label> <input name="Contributor" type="checkbox" id="Contributor" value="Contributor" checked> Contributor</label></td>
+														</tr>
+													     </table>
+													     </td>
+									</tr>
+									
+									
+				
 				<tr>
 				<td>
 				<br /><input name="hasTissueSample" type="checkbox" value="true" /> <strong>Include only those sightings that include a tissue sample.</strong>
 				</td>
 				</tr>
+				
+				
+				
+								
 				
 				
 			
