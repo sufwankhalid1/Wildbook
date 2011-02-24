@@ -544,6 +544,20 @@ int totalKeywords=myShepherd.getNumKeywords();
 				
 				</tr>
 			
+					<tr>
+													   <td>
+													   	<br />
+													      <table align="left">
+														<tr>
+															<td width="125"><strong>Data origin is: </strong></td>
+															<td width="100"><label> <input name="SPLASH" type="checkbox" id="SPLASH" value="SPLASH" checked> SPLASH</label></td>
+								
+															<td width="150"><label> <input name="Contributor" type="checkbox" id="Contributor" value="Contributor" checked> Contributor</label></td>
+														</tr>
+													     </table>
+													     </td>
+									</tr>
+									
 				
 				</table>
 				</td>

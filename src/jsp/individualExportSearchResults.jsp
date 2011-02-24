@@ -173,15 +173,18 @@ File fileExport=new File(getServletContext().getRealPath(("/"+filenameExport)));
     label2a.setCellValue("BehSex");
     //Label label2a = new Label(3, 0, ""); 
     
-    Cell label4 = title.createCell(4);
+    Cell label2ab = title.createCell(4);
+    label2ab.setCellValue("BestSex");
+   
+    Cell label4 = title.createCell(5);
     label4.setCellValue("Best Sex Confidence");
     //Label label4 = new Label(4, 0, ""); 
 
-    Cell label5 = title.createCell(5);
+    Cell label5 = title.createCell(6);
     label5.setCellValue("Color");
     //Label label5 = new Label(5, 0, ""); 
 
-    Cell label6 = title.createCell(6);
+    Cell label6 = title.createCell(7);
     label6.setCellValue("Field Sample Number");
    // Label label6 = new Label(6, 0, ""); 
 
@@ -356,10 +359,16 @@ File fileExport=new File(getServletContext().getRealPath(("/"+filenameExport)));
         row.createCell(3).setCellValue(indie.getDynamicPropertyValue("BehSex")); 
       }
       
+      //set BestSex
+      if(indie.getSex()!=null){
+        //Label label_3 = new Label(3, f, ); 
+        row.createCell(4).setCellValue(indie.getSex()); 
+      }
+      
       //set BestSexConf
       if(indie.getDynamicPropertyValue("Best Sex Confidence")!=null){
         //Label label_4 = new Label(4, f, ); 
-        row.createCell(4).setCellValue(indie.getDynamicPropertyValue("Best Sex Confidence")); 
+        row.createCell(5).setCellValue(indie.getDynamicPropertyValue("Best Sex Confidence")); 
       }
       
       //set the color keyword
@@ -368,14 +377,14 @@ File fileExport=new File(getServletContext().getRealPath(("/"+filenameExport)));
       String appliedKeywords="";
       for(int g=0;g<listSize;g++){appliedKeywords+=listKeywords.get(g).getReadableName()+" ";}
       //Label label_5 = new Label(5, f, ); 
-      row.createCell(5).setCellValue(appliedKeywords); 
+      row.createCell(6).setCellValue(appliedKeywords); 
       
       //set the sample numbers
       ArrayList<String> sampleNums=indie.getAllValuesForDynamicProperty("Tissue Sample");
       String samples="";
       for(int g=0;g<sampleNums.size();g++){samples+=sampleNums.get(g)+" ";}
       //Label label_6 = new Label(6, f, samples); 
-      row.createCell(6).setCellValue(samples); 
+      row.createCell(7).setCellValue(samples); 
       
       //set no. regions sighted in
       int numLocIDs=indie.particpatesInTheseLocationIDs().size();
