@@ -1,2 +1,7 @@
 target
 bin
+/derby.log
+/mvnCleanInstallOutput
+/output.txt
+/outputPackage.txt
+/.gitignore
