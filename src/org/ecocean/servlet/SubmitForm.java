@@ -31,6 +31,9 @@ public class SubmitForm extends ActionForm {
 		private int day=1, month=1, year=2003, hour=12;
 		private String lat="", longitude="", latDirection="", longDirection="", scars="None";
 		private String minutes="00", gpsLongitudeMinutes="", gpsLongitudeSeconds="", gpsLatitudeMinutes="", gpsLatitudeSeconds="", submitterID="N/A", informothers="";
+		private String groupSize="";
+		private String behRole="";
+		
 		/**
      	* The value of the text the user has sent as form data
      	*/
@@ -261,6 +264,14 @@ public class SubmitForm extends ActionForm {
     public void setEncounterNumber(int encounterNumber) {
         this.encounterNumber=encounterNumber;
     }
+    
+    public void setGroupSize(String groupSize){this.groupSize=groupSize;}
+    public String getGroupSize(){return this.groupSize;}
+    
+    public void setBehRole(String behRole){this.behRole=behRole;}
+    public String getBehRole(){return this.behRole;}
+    
+    
     public int getDay() {
         return this.day;
     }

@@ -59,6 +59,8 @@ public class SubmitAction extends Action{
 	String minutes="00", gpsLongitudeMinutes="", gpsLongitudeSeconds="", gpsLatitudeMinutes="", gpsLatitudeSeconds="", submitterID="N/A";
 	String locCode="", informothers="";
 	String livingStatus="";
+  private String groupSize="";
+  private String behRole="";
 	Shepherd myShepherd;
 	
     public ActionForward execute(ActionMapping mapping,
@@ -99,6 +101,12 @@ public class SubmitAction extends Action{
 			photographerEmail=ServletUtilities.preventCrossSiteScriptingAttacks(theForm.getPhotographerEmail().replaceAll(";", ",").replaceAll(" ",""));
 			photographerPhone=ServletUtilities.preventCrossSiteScriptingAttacks(theForm.getPhotographerPhone());
 			photographerAddress=ServletUtilities.preventCrossSiteScriptingAttacks(theForm.getPhotographerAddress());
+			
+			behRole=ServletUtilities.preventCrossSiteScriptingAttacks(theForm.getBehRole());
+			groupSize=ServletUtilities.preventCrossSiteScriptingAttacks(theForm.getGroupSize());
+      
+			
+			
 			additionalImageNames=theForm.getAdditionalImageNames();
 			encounterNumber=theForm.getEncounterNumber();
 			livingStatus=theForm.getLivingStatus();
@@ -464,14 +472,18 @@ public class SubmitAction extends Action{
 				}
 			}
 			
+			
+			if(!behRole.equals("")){enc.setDynamicProperty("Beh Role", behRole);}
+			if(!groupSize.equals("")){enc.setDynamicProperty("Est Size Best", groupSize);}
+			
 			//if one is not set, set all to null
 			if((longitude.equals(""))||(lat.equals(""))){
-				enc.setGPSLongitude("");
-				enc.setGPSLongitude("");
-				enc.setDecimalLatitude("");
-				enc.setDecimalLongitude("");
-				enc.setDWCDecimalLatitude(-9999.0);
-				enc.setDWCDecimalLongitude(-9999.0);
+				//enc.setGPSLongitude("");
+				//enc.setGPSLongitude("");
+				//enc.setDecimalLatitude("");
+				//enc.setDecimalLongitude("");
+				//enc.setDWCDecimalLatitude(-9999.0);
+				//enc.setDWCDecimalLongitude(-9999.0);
 			}
 		//finish the GPS
 			

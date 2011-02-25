@@ -119,6 +119,54 @@ encprops.load(getClass().getResourceAsStream("/bundles/"+langCode+"/encounterSea
 			<p>You have selected this image as a reference for comparison with the results of this search</p>
 			<input name="referenceImageName" type="hidden" value="<%=request.getParameter("referenceImageName") %>" />
 			<p><img width="810px" src="<%=request.getParameter("referenceImageName") %>" /></p>
+			<table>
+											<tr>
+												<td align="left" valign="top">
+										
+												<table>
+										<%
+										int slashPosition=request.getParameter("referenceImageName").indexOf("/");
+										String encNum=request.getParameter("referenceImageName").substring(0,slashPosition);
+										Encounter thisEnc = myShepherd.getEncounter(encNum);
+										%>
+								
+										<tr><td><span class="caption">Sub-area: <%=thisEnc.getLocation() %></span></td></tr>
+										<tr><td><span class="caption">Region: <%=thisEnc.getLocationID() %></span></td></tr>
+										<tr><td><span class="caption">Date: <%=thisEnc.getDate() %></span></td></tr>
+										<%
+										if(thisEnc.getIndividualID()!=null){
+										%>
+											<tr><td><span class="caption">SPLASH ID: <a href="../individuals.jsp?number=<%=thisEnc.getIndividualID() %>" target="_blank"><%=thisEnc.getIndividualID() %></a></span></td></tr>
+										<%
+										}
+										%>
+										<tr><td><span class="caption">IDKey: <a href="encounter.jsp?number=<%=thisEnc.getCatalogNumber() %>" target="_blank"><%=thisEnc.getCatalogNumber() %></a></span></td></tr>
+										
+
+										
+										
+<%
+										if(thisEnc.getVerbatimEventDate()!=null){
+										%>
+											<tr>
+											
+											<td><span class="caption"><%=encprops.getProperty("verbatimEventDate") %>: <%=thisEnc.getVerbatimEventDate() %></span></td></tr>
+										<%
+										}
+										%>
+										<tr>
+										<td><span class="caption">
+											Color code: 
+											<%
+											
+											MarkedIndividual marky=myShepherd.getMarkedIndividual(thisEnc.getIndividualID());
+											%>
+											<%=marky.getColorCode()%>
+											
+										</span></td>
+										</tr>
+
+										</table>
 		
 		<%
 		}
@@ -181,6 +229,37 @@ encprops.load(getClass().getResourceAsStream("/bundles/"+langCode+"/encounterSea
 						
         				//map.addControl(new GMapTypeControl());
 						
+        				<%
+        				if(request.getParameter("referenceImageName")!=null){
+        				
+        					int slashPosition=request.getParameter("referenceImageName").indexOf("/");
+							String encNum=request.getParameter("referenceImageName").substring(0,slashPosition);
+							Encounter mapEnc = myShepherd.getEncounter(encNum);
+							
+							if((mapEnc.getDWCDecimalLatitude()!=null)&&(mapEnc.getDWCDecimalLongitude()!=null)){
+							
+							double myLat=(new Double(mapEnc.getDWCDecimalLatitude())).doubleValue();
+							double myLong=(new Double(mapEnc.getDWCDecimalLongitude())).doubleValue();
+						%>
+						          var point = new GLatLng(<%=myLat%>,<%=myLong%>, false);
+						          //bounds.extend(point);
+						          
+								  var marker = new GMarker(point);
+								  GEvent.addListener(marker, "click", function(){
+								  	window.location="http://<%=CommonConfiguration.getURLLocation()%>/encounters/encounter.jsp?number=<%=mapEnc.getEncounterNumber()%>";
+								  });
+								  GEvent.addListener(marker, "mouseover", function(){
+								  	marker.openInfoWindowHtml("<p>Your reference image was taken here.</p>");
+								  });
+
+								  
+								  map.addOverlay(marker);
+					
+
+        				<%
+							}
+        				}
+        				%>
         				
         			
               

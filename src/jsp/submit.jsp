@@ -789,8 +789,8 @@ else return true;
 			<%} for(int y7=175;y7<2025;y7=y7+25) {%>
 			<option value="<%=y7%>"><%=y7%></option>
 			<%}%>
-		</select><br />
-		<em>&nbsp;<%=props.getProperty("submit_usesameunits")%></em></td>
+		</select> meters
+		</td>
 	</tr>
 
 	<tr class="form_row">
@@ -808,6 +808,23 @@ else return true;
 		<td colspan="2">
 		<input name="scars" type="text" id="scars" size="75" /></td>
 	</tr>
+	
+	<tr class="form_row">
+		<td class="form_label"><strong>Estimated number of whales in group:</strong></td>
+		<td colspan="2">
+		<input name="groupSize" type="text" id="groupSize" size="3" /></td>
+	</tr>
+	
+	<tr class="form_row">
+		<td class="form_label"><strong>Behavioral role:</strong></td>
+		<td colspan="2">
+		<select name="behRole" id="behRole">
+			<option value=""></option>
+			<option value="MO">Mother with calf of year</option>
+			<option value="CA">Calf of year</option>
+		</select></td>
+	</tr>
+	
 	<tr class="form_row">
 		<td class="form_label"><strong><%=props.getProperty("submit_comments")%>:</strong></td>
 		<td colspan="2"><textarea name="comments" cols="40" id="comments"

@@ -1612,14 +1612,17 @@ if(enc.getDynamicProperties()!=null){
 		  if((!nm.equals("Region Name"))&&(!nm.equals("Locality"))){
 		  
 		  %>
-		  <p class="para"><strong><%=nm%> </strong><br />  <%=vl%>
-		  <%
+		  <p class="para"><strong><%=nm%></strong> 
+		   <%
 		  if(isOwner&&CommonConfiguration.isCatalogEditable()) {
  		  %>
  		       <font size="-1">[<a href="encounter.jsp?number=<%=num%>&edit=dynamicproperty&name=<%=nm%>#dynamicproperty">edit</a>]</font>
 		  <%
  	      }
  		  %>
+ 		  &nbsp;<a href="<%=CommonConfiguration.getWikiLocation()%><%=nm%>" target="_blank"><img src="../images/information_icon_svg.gif" alt="Help" border="0" align="absmiddle" /></a>
+		  <br />  <%=vl%>
+		 
 		  </p>
 
 		  <%
