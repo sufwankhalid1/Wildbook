@@ -116,7 +116,7 @@ encprops.load(getClass().getResourceAsStream("/bundles/"+langCode+"/encounterSea
 			<form action="thumbnailSearchResults.jsp" method="get" name="search" id="search">
 		
 			<p><strong>Reference Image</strong></p>
-			<p>You have selected this image as a reference for comparison with the results of this search</p>
+			<p>You have selected this image as a reference for comparison with the results of this search.</p>
 			<input name="referenceImageName" type="hidden" value="<%=request.getParameter("referenceImageName") %>" />
 			<p><img width="810px" src="<%=request.getParameter("referenceImageName") %>" /></p>
 			<table>
@@ -552,6 +552,50 @@ Southwest corner latitude: <input type="text" id="sw_lat" name="sw_lat"></input>
 				<p>
 				<table align="left">
 
+				<%
+				int totalKeywords=myShepherd.getNumKeywords();
+				%>
+
+			<tr>
+				<td>
+				
+				<p><%=encprops.getProperty("hasKeywordPhotos")%> <a href="colorCodes.jsp" target="_blank"> Click here for a visual display and description of color codes.</a></p>
+				<%
+				
+				if(totalKeywords>0){
+				%>
+				
+				<select multiple size="<%=(totalKeywords+1) %>" name="keyword" id="keyword">
+					<option value="None"></option>
+					<% 
+				
+
+			  	Iterator keys=myShepherd.getAllKeywords(kwQuery);
+			  	for(int n=0;n<totalKeywords;n++) {
+					Keyword word=(Keyword)keys.next();
+				%>
+					<option value="<%=word.getIndexname()%>"><%=word.getReadableName()%></option>
+					<%}
+				
+				%>
+
+				</select>
+				<%
+				}
+				else{
+					%>
+					
+					<p><em><%=encprops.getProperty("noKeywords")%></em></p>
+					
+					<%
+					
+				}
+				%>
+				
+				</td>
+				
+			</tr>
+				<tr><td>&nbsp;</td></tr>
 				
 				<tr>
 					<td valign="top"><strong><%=encprops.getProperty("behavior")%>:</strong>

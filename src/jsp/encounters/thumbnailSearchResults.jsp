@@ -210,18 +210,35 @@ if(request.getParameter("noQuery")==null){
 		<h1 class="intro"><%=encprops.getProperty("title")%></h1>
 		</p>
 			
-	  <p><strong>Matching sightings</strong>: <%=rEncounters.size()%></p>
+
+		<%
+		if(request.getParameter("referenceImageName")!=null){
+		%>
+			
+			<p><strong>Reference Image</strong></p>
+			<p>You have selected this image as a reference for comparison with the results of this search.</p>
+			<p><img width="810px" src="<%=request.getParameter("referenceImageName") %>" /></p>
+			
+		<%
+		}
+		%>
+			  <p><strong>Matching sightings</strong>: <%=rEncounters.size()%></p>
 	
 			
 			<p><strong>
 			<%=encprops.getProperty("totalMatches")%></strong>: <%=numThumbnails%></p>
+	
 	
 		<p><%=encprops.getProperty("belowMatches")%> <%=startNum%> - <%=endNum%> <%=encprops.getProperty("thatMatched")%></p>
 		</td>
 	</tr>
 </table>
 
+	
+
 <%
+		
+
 String qString=rq;
 int startNumIndex=qString.indexOf("&startNum");
 if(startNumIndex>-1) {
@@ -381,7 +398,7 @@ if((startNum)>1) {%>
 									            	
 
 								                	%>
-													<br /><%= renderMe%>
+												<br /><%= renderMe%>
 													<%
 									              
 									            }
@@ -468,7 +485,7 @@ if((startNum)>1) {%>
 									            	
 
 								                	%>
-													<br /><%= renderMe%>
+													<%= renderMe%>
 													<%
 									              
 									            }
