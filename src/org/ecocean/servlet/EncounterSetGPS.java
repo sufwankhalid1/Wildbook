@@ -61,49 +61,34 @@ public class EncounterSetGPS extends HttpServlet {
 		//reset GPS coordinates
 
 				//System.out.println("Trying to resetGPS...");
-				if ((request.getParameter("number")!=null)&&(request.getParameter("lat")!=null)&&(request.getParameter("longitude")!=null)&&(request.getParameter("gpsLongitudeMinutes")!=null)&&(request.getParameter("gpsLatitudeMinutes")!=null)&&(request.getParameter("longDirection")!=null)&&(request.getParameter("latDirection")!=null)&&(request.getParameter("gpsLongitudeSeconds")!=null)&&(request.getParameter("gpsLatitudeSeconds")!=null)) {
+				if ((request.getParameter("number")!=null)&&(request.getParameter("lat")!=null)&&(request.getParameter("longitude")!=null)) {
 					myShepherd.beginDBTransaction();
 					Encounter changeMe=myShepherd.getEncounter(request.getParameter("number"));
 					setDateLastModified(changeMe);
 					String longitude=request.getParameter("longitude");
 					String lat=request.getParameter("lat");
-					String gpsLongitudeMinutes=request.getParameter("gpsLongitudeMinutes");
-					String gpsLatitudeMinutes=request.getParameter("gpsLatitudeMinutes");
-					String gpsLongitudeSeconds=request.getParameter("gpsLongitudeSeconds");
-					String gpsLatitudeSeconds=request.getParameter("gpsLatitudeSeconds");
-					String latDirection=request.getParameter("latDirection");
-					String longDirection=request.getParameter("longDirection");
 					
-					String oldGPS=changeMe.getGPSLatitude()+" "+changeMe.getGPSLongitude();
-					if(oldGPS.equals(" ")){
-						oldGPS="NO VALUE";
+					String oldGPS="";
+					
+					if((changeMe.getDecimalLatitude()==null)||(changeMe.getDecimalLongitude()==null)){
+					  oldGPS="NO VALUE";
 					}
-					String newGPS=lat+"&deg; "+gpsLatitudeMinutes+"\' "+gpsLatitudeSeconds+"\" "+latDirection+" "+longitude+"&deg; "+gpsLongitudeMinutes+"\' "+gpsLongitudeSeconds+"\" "+longDirection;
+					else{
+					  oldGPS="("+changeMe.getDecimalLatitude()+" latitude, "+changeMe.getDecimalLongitude()+" longitude)";
+	          
+					}
+					String newGPS="("+lat+" latitude, "+longitude+" longitude)";
 					
 					try{
 					
 						if (!(lat.equals(""))) {
-							changeMe.setGPSLatitude(lat+"&deg; "+gpsLatitudeMinutes+"\' "+gpsLatitudeSeconds+"\" "+latDirection);
+							//changeMe.setGPSLatitude(lat+"&deg; "+gpsLatitudeMinutes+"\' "+gpsLatitudeSeconds+"\" "+latDirection);
 						
 							
 								try {
 									double degrees=(new Double(lat)).doubleValue();
-										double minutes=0;
-										try{
-											minutes=((new Double(gpsLatitudeMinutes)).doubleValue())/60;
-										}
-										catch(NumberFormatException nfe){}
-											
-										double seconds = 0;
-										try{
-											seconds=((new Double(gpsLatitudeSeconds)).doubleValue())/3600;
-										}
-										catch(NumberFormatException nfe){}
-										double position=degrees+minutes+seconds;
-										if(latDirection.toLowerCase().equals("south")) {
-											position=position*-1;
-										}
-										changeMe.setDWCDecimalLatitude(position);
+									
+										changeMe.setDWCDecimalLatitude(degrees);
 
 									
 								}
@@ -115,25 +100,12 @@ public class EncounterSetGPS extends HttpServlet {
 							
 						}
 						if (!(longitude.equals(""))) {
-							changeMe.setGPSLongitude(longitude+"&deg; "+gpsLongitudeMinutes+"\' "+gpsLongitudeSeconds+"\" "+longDirection);
+							//changeMe.setGPSLongitude(longitude+"&deg; "+gpsLongitudeMinutes+"\' "+gpsLongitudeSeconds+"\" "+longDirection);
 						
 							try {
 								double degrees=(new Double(longitude)).doubleValue();
-									double minutes=0;
-									try{
-										minutes=((new Double(gpsLongitudeMinutes)).doubleValue())/60;
-									}
-									catch(NumberFormatException nfe){}
-									double seconds=0;
-									try{
-										seconds = ((new Double(gpsLongitudeSeconds)).doubleValue())/3600;
-									}
-									catch(NumberFormatException nfe){}
-										double position=degrees+minutes+seconds;
-									if(longDirection.toLowerCase().equals("west")) {
-										position=position*-1;
-									}
-									changeMe.setDWCDecimalLongitude(position);
+									
+									changeMe.setDWCDecimalLongitude(degrees);
 
 								
 							}
@@ -145,17 +117,16 @@ public class EncounterSetGPS extends HttpServlet {
 						
 						//if one is not set, set all to null
 						if((longitude.equals(""))||(lat.equals(""))){
-							changeMe.setGPSLongitude("");
-							changeMe.setGPSLatitude("");
-							changeMe.setDecimalLatitude("");
-							changeMe.setDecimalLongitude("");
 
-							changeMe.setDWCDecimalLatitude(-9999.0);
-							changeMe.setDWCDecimalLongitude(-9999.0);
+							changeMe.setDecimalLatitude(null);
+							changeMe.setDecimalLongitude(null);
+
+							//changeMe.setDWCDecimalLatitude(-9999.0);
+							//changeMe.setDWCDecimalLongitude(-9999.0);
 							newGPS="NO VALUE";
 							
 						}
-						changeMe.addComments("<p><em>"+request.getRemoteUser()+" on "+(new java.util.Date()).toString()+"</em><br>Changed encounter GPS coordinates from "+oldGPS+" to "+lat+"&deg; "+gpsLatitudeMinutes+"\' "+gpsLatitudeSeconds+"\" "+latDirection+" "+longitude+"&deg; "+gpsLongitudeMinutes+"\' "+gpsLongitudeSeconds+"\" "+longDirection+".</p>");
+						changeMe.addComments("<p><em>"+request.getRemoteUser()+" on "+(new java.util.Date()).toString()+"</em><br>Changed encounter GPS coordinates from "+oldGPS+" to "+newGPS+".</p>");
 					
 					
 					

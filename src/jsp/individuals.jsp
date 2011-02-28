@@ -530,39 +530,14 @@ if (isOwner) {
 										%>
 											<tr>
 											
-											<td><span class="caption"><%=props.getProperty("verbatimEventDate") %>: <%=thisEnc.getVerbatimEventDate() %></span></td></tr>
+											<td><span class="caption">Season: <%=thisEnc.getVerbatimEventDate() %></span></td></tr>
 										<%
 										}
 										%>
 										<tr>
 										<td><span class="caption">
-											<%=props.getProperty("matchingKeywords") %>
-											<%
-											//int numKeywords=myShepherd.getNumKeywords();
-											Iterator allKeywords2=myShepherd.getAllKeywords();
+											<%=props.getProperty("matchingKeywords") %>: <%= thisEnc.getColorCode()%>
 											
-											while(allKeywords2.hasNext()){
-												Keyword word=(Keyword)allKeywords2.next();
-									            if(word.isMemberOf(encNum+"/"+fileName)) {
-									            	
-									            	String renderMe=word.getReadableName();
-									                	
-										          	for(int kwIter=0;kwIter<kwLength;kwIter++) {
-											              String kwParam=keywords[kwIter];
-											              if(kwParam.equals(word.getIndexname())) {
-											            	  renderMe="<strong>"+renderMe+"</strong>";
-											              }
-											       }	
-									            	
-
-								                	%>
-													<br /><%= renderMe%>
-													<%
-									              
-									            }
-									         }
-											
-											%>
 										</span></td>
 										</tr>
 										</table>
@@ -619,33 +594,8 @@ if (isOwner) {
 										<tr><td><span class="caption"><%=props.getProperty("catalogNumber") %>: <a href="<%=CommonConfiguration.getImageDirectory() %>/encounter.jsp?number=<%=thisEnc.getCatalogNumber() %>"><%=thisEnc.getCatalogNumber() %></a></span></td></tr>
 										<tr>
 										<td><span class="caption">
-											<%=props.getProperty("matchingKeywords") %>
-											<%
-											//int numKeywords=myShepherd.getNumKeywords();
-											Iterator allKeywords=myShepherd.getAllKeywords();
+											<%=props.getProperty("matchingKeywords") %>: <%=thisEnc.getColorCode() %>
 											
-											while(allKeywords.hasNext()){
-												Keyword word=(Keyword)allKeywords.next();
-									            if(word.isMemberOf(encNum+"/"+fileName)) {
-									            	
-									            	String renderMe=word.getReadableName();
-									                	
-										          	for(int kwIter=0;kwIter<kwLength;kwIter++) {
-											              String kwParam=keywords[kwIter];
-											              if(kwParam.equals(word.getIndexname())) {
-											            	  renderMe="<strong>"+renderMe+"</strong>";
-											              }
-											       }	
-									            	
-
-								                	%>
-													<br /><%= renderMe%>
-													<%
-									              
-									            }
-									         }
-											
-											%>
 										</span></td>
 										</tr>
 										
@@ -681,6 +631,7 @@ if (isOwner) {
 		<%
 	  Vector haveGPSData=new Vector();
 	  haveGPSData=sharky.returnEncountersWithGPSData();
+
 	  if(haveGPSData.size()>0) {
 	
 	
@@ -719,8 +670,8 @@ if (isOwner) {
 
 				Encounter mapEnc=(Encounter)haveGPSData.get(t);
 		
-				double myLat=(new Double(mapEnc.getDWCDecimalLatitude())).doubleValue();
-				double myLong=(new Double(mapEnc.getDWCDecimalLongitude())).doubleValue();
+				double myLat=mapEnc.getDecimalLatitudeAsDouble();
+				double myLong=mapEnc.getDecimalLongitudeAsDouble();
 
 	
 		%>

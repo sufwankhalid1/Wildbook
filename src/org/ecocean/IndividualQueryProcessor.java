@@ -92,6 +92,7 @@ public class IndividualQueryProcessor {
       
       //------------------------------------------------------------------
       //colorCode filters-------------------------------------------------
+      /*
       String[] colorCodes=request.getParameterValues("keyword");
       if((colorCodes!=null)&&(!colorCodes[0].equals("None"))){
             prettyPrint.append("Color code is one of the following: ");
@@ -118,7 +119,8 @@ public class IndividualQueryProcessor {
               
               prettyPrint.append("<br />");
       }
-      //end verbatimEventDate filters-----------------------------------------------  
+      */
+      //end colorCode filters-----------------------------------------------  
      
       //filter for sex------------------------------------------
       

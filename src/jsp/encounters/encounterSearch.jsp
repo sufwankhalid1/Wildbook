@@ -552,9 +552,10 @@ Southwest corner latitude: <input type="text" id="sw_lat" name="sw_lat"></input>
 				<p>
 				<table align="left">
 
-				<%
-				int totalKeywords=myShepherd.getNumKeywords();
-				%>
+<%
+ArrayList<String> colorCodes = myShepherd.getAllColorCodes();					
+int totalColorCodes=colorCodes.size();
+%>
 
 			<tr>
 				<td>
@@ -562,21 +563,22 @@ Southwest corner latitude: <input type="text" id="sw_lat" name="sw_lat"></input>
 				<p><%=encprops.getProperty("hasKeywordPhotos")%> <a href="colorCodes.jsp" target="_blank"> Click here for a visual display and description of color codes.</a></p>
 				<%
 				
-				if(totalKeywords>0){
+				if(totalColorCodes>0){
 				%>
 				
-				<select multiple size="<%=(totalKeywords+1) %>" name="keyword" id="keyword">
+				<select multiple size="<%=(totalColorCodes+1) %>" name="colorCode" id="colorCode">
 					<option value="None"></option>
 					<% 
 				
 
-			  	Iterator keys=myShepherd.getAllKeywords(kwQuery);
-			  	for(int n=0;n<totalKeywords;n++) {
-					Keyword word=(Keyword)keys.next();
+			  	//Iterator keys=myShepherd.getAllKeywords(kwQuery);
+			  	for(int n=0;n<totalColorCodes;n++) {
+					if(colorCodes.get(n)!=null){
 				%>
-					<option value="<%=word.getIndexname()%>"><%=word.getReadableName()%></option>
-					<%}
-				
+					<option value="<%=colorCodes.get(n)%>"><%=colorCodes.get(n)%></option>
+					
+				<%}
+			  	}
 				%>
 
 				</select>

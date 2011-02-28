@@ -76,6 +76,37 @@ public class EncounterQueryProcessor {
     }
     //end locationID filters-----------------------------------------------  
     
+  //------------------------------------------------------------------
+    //colorCode filters-------------------------------------------------
+    String[] colorCodes=request.getParameterValues("colorCode");
+    if((colorCodes!=null)&&(!colorCodes[0].equals("None"))){
+          prettyPrint.append("Color code is one of the following: ");
+          int kwLength=colorCodes.length;
+            String colorCodeFilter="(";
+            for(int kwIter=0;kwIter<kwLength;kwIter++) {
+              
+              String kwParam=colorCodes[kwIter].replaceAll("%20", " ").trim();
+              if(!kwParam.equals("")){
+                if(colorCodeFilter.equals("(")){
+                  colorCodeFilter+=" colorCode == \""+kwParam+"\"";
+                }
+                else{
+                  
+                  colorCodeFilter+=" || colorCode == \""+kwParam+"\"";
+                }
+                prettyPrint.append(kwParam+" ");
+              }
+            }
+            colorCodeFilter+=" )";
+            
+            
+            if(filter.equals("SELECT FROM org.ecocean.Encounter WHERE ")){filter+=colorCodeFilter;}
+            else{filter+=(" && "+colorCodeFilter);}
+            
+            prettyPrint.append("<br />");
+    }
+    //end colorCode filters-----------------------------------------------
+    
     //------------------------------------------------------------------
     //behavior filters-------------------------------------------------
     String[] behaviors=request.getParameterValues("behaviorField");

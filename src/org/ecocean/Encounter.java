@@ -36,8 +36,8 @@ public class Encounter implements java.io.Serializable{
 	private int month=0;
 	private int year=0;
 	
-	private double decimalLatitude;
-	private double decimalLongitude;
+	private Double decimalLatitude;
+	private Double decimalLongitude;
 
 	
 	private String verbatimLocality; 
@@ -120,6 +120,9 @@ public class Encounter implements java.io.Serializable{
 
 	private int numSpotsLeft=0;
 	private int numSpotsRight=0;
+	
+	//Cascadia humpback fluke colorCode for ID purposes
+
 	
 	
 	//SPOTS
@@ -857,18 +860,27 @@ public class Encounter implements java.io.Serializable{
 		//public void setDateAdded(long date){dateAdded=date;}
 		//public long getDateAdded(){return dateAdded;}
 		
-		public void setDWCDecimalLatitude(double lat){
-			if((lat<=90)&&(lat>=-90)){
+		public void setDWCDecimalLatitude(Double lat){
+			if((lat!=null)&&(lat<=90)&&(lat>=-90)){
 				this.decimalLatitude=lat;
 			}
+			else{this.decimalLatitude=null;}
 		}
-		public String getDWCDecimalLatitude(){return Double.toString(decimalLatitude);}
+		public String getDWCDecimalLatitude(){
+		 if(decimalLatitude!=null){return Double.toString(decimalLatitude);} 
+		 return null;
+		 }
 		public void setDWCDecimalLongitude(double longit){
 			if((longit>=-180)&&(longit<=180)){
 				this.decimalLongitude=longit;
 			}
 		}
-		public String getDWCDecimalLongitude(){return Double.toString(decimalLongitude);}
+		public String getDWCDecimalLongitude(){
+		  if(decimalLongitude!=null){
+		    return Double.toString(decimalLongitude);
+		  }
+		  return null;
+		}
 		
 		public boolean getOKExposeViaTapirLink(){return okExposeViaTapirLink;}
 		
@@ -911,17 +923,27 @@ public class Encounter implements java.io.Serializable{
 		public String getIndividualID(){return individualID;}
 		public void setIndividualID(String indy){this.individualID=indy;}
 		
-		public String getDecimalLatitude(){return Double.toString(decimalLatitude);}
-		public void setDecimalLatitude(String lat){this.decimalLatitude=Double.parseDouble(lat);}
+		public String getDecimalLatitude(){
+		  if(decimalLatitude!=null){return Double.toString(decimalLatitude);}
+		  return null;
+		}
+		//public void setDecimalLatitude(String lat){this.decimalLatitude=Double.parseDouble(lat);}
 		
-		public String getDecimalLongitude(){return Double.toString(decimalLongitude);}
-		public void setDecimalLongitude(String longy){this.decimalLongitude=Double.parseDouble(longy);}
+		public String getDecimalLongitude(){
+		  if(decimalLatitude!=null){return Double.toString(decimalLongitude);}
+		  return null;
+		}
+		//public void setDecimalLongitude(String longy){this.decimalLongitude=Double.parseDouble(longy);}
 		
     public double getDecimalLatitudeAsDouble(){return decimalLatitude;}
-    public void setDecimalLatitude(double lat){this.decimalLatitude=lat;}
+    public void setDecimalLatitude(Double lat){this.decimalLatitude=lat;}
     
     public double getDecimalLongitudeAsDouble(){return decimalLongitude;}
-    public void setDecimalLongitude(double longy){this.decimalLongitude=longy;}
+    public void setDecimalLongitude(Double longy){
+      
+      
+      this.decimalLongitude=longy;
+    }
     
 		
 		

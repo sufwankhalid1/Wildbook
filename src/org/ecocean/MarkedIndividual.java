@@ -902,7 +902,16 @@ public class MarkedIndividual{
         return listPropertyValues;
     }
     
-    public String getColorCode(){return colorCode;}
+    public String getColorCode(){
+      
+      int numEncs=encounters.size();
+      for(int i=0;i<numEncs;i++){
+        Encounter enc=(Encounter)encounters.get(i);
+        if(enc.getColorCode()!=null){return enc.getColorCode();}
+      }
+      return null;
+    }
     
     public void setColorCode(String newCode){this.colorCode=newCode;}
+    
 }

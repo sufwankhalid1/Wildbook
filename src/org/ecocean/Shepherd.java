@@ -1762,6 +1762,14 @@ public class Shepherd {
      return (new ArrayList(results));
    }
    
+   public ArrayList<String> getAllColorCodes(){
+     Query q = pm.newQuery (Encounter.class);
+     q.setResult ("distinct colorCode");
+     q.setOrdering("colorCode ascending");
+     Collection results = (Collection)q.execute (); 
+     return (new ArrayList(results));
+   }
+   
    public ArrayList<String> getAllRecordedBy(){
      Query q = pm.newQuery (Encounter.class);
      q.setResult ("distinct recordedBy");
