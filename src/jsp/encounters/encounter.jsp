@@ -352,7 +352,69 @@ if((loggedIn.equals("true"))&&(enc.getSubmitterID()!=null)) {
 		<p class="para"><a href="../welcome.jsp?reflect=<%=request.getRequestURI()%>?number=<%=num%>"><%=encprops.getProperty("login")%></a></p>
 
 		<%
-			} 
+		
+		
+			//set color code
+			if(((isOwner)&&(request.getParameter("edit")!=null)&&(request.getParameter("edit").equals("colorCode")))||((!enc.isApproved())&&(request.getParameter("edit")!=null)&&(request.getParameter("edit").equals("colorCode")))){
+				%> <a name="colorCode"><br>
+			<table width="150" border="1" cellpadding="1" cellspacing="0" bordercolor="#000000" bgcolor="#CCCCCC">
+				<tr>
+					<td align="left" valign="top" class="para">
+					<table>
+						<tr><td><img align="absmiddle" src="../images/fluke.gif" width="37px" height="*" /></td><td><strong><font color="#990000"> Set fluke color code</font></strong></td></tr>
+						<tr><td colspan="2><p class="para"><font color="#990000"><strong>
+						<font color="#990000">
+						<font color="#990000"><a
+							href="../colorCodes.jsp"
+							target="_blank"><img src="../images/information_icon_svg.gif"
+							alt="Help" border="0" align="absmiddle" /></a> </font></font></strong></font><span class="style4"><%=encprops.getProperty("moreInfo")%> </span></p></td></tr>	
+					</table>
+					</td>
+				</tr>
+				<tr>
+					<td align="left" valign="top">
+					<form name="setColorCode" action="../EncounterSetColorCode"
+						method="post">
+					
+					<%
+						ArrayList<String> records = myShepherd.getAllColorCodes();
+						int totalRecords=records.size();
+		
+						
+						
+						%>
+						
+						<select name="colorCode" id="colorCode">
+							<option value="None"></option>
+							<%
+							for(int f=0;f<totalRecords;f++) {
+								String word=records.get(f);
+								if(word!=null){
+									%>
+									<option value="<%=word%>"><%=word%></option>
+								<%	
+									
+								}
+		
+							}
+							%>
+							</select>
+							<br />
+						
+						<input name="encounter" type="hidden" value=<%=num%>> 
+						<input name="action" type="hidden"
+						value="setColorCode"> <input name="Set Color Code"
+						type="submit" id="Set Color Code" value="Set Code"></form>
+					</td>
+				</tr>
+			</table>
+			</a><br> <%
+				}	
+					
+			
+} 
+
+
 		//if logged in, limit commands displayed			
 		else {
 		%>
@@ -391,6 +453,9 @@ if((loggedIn.equals("true"))&&(enc.getSubmitterID()!=null)) {
 		</table>
 		<br> <%
 				}
+			
+			
+			
 				//set location code
 				if((isOwner)&&(request.getParameter("edit")!=null)&&(request.getParameter("edit").equals("loccode"))){
 			%> <a name="loccode"><br>
@@ -1612,9 +1677,26 @@ if(enc.getComments()!=null){
 				
 	
 				<td width="250" align="left" valign="top">
-				<p class="para"><img align="absmiddle" src="../images/Crystal_Clear_device_camera.gif" width="37px" height="*"><strong>&nbsp;<%=encprops.getProperty("images")%></strong><br /> <%
-	  				if (session.getAttribute("logged")!=null) {
-	  			%> <em><%=encprops.getProperty("click2view")%></em>
+				
+				
+				<p class="para"><img align="absmiddle" src="../images/Crystal_Clear_device_camera.gif" width="37px" height="*" /><strong>&nbsp;<%=encprops.getProperty("images")%></strong></img></p>
+				<%
+				String colorCode="";
+				if(enc.getColorCode()!=null){colorCode=enc.getColorCode();}
+				%>
+				<p class="para"><img align="absmiddle" src="../images/fluke.gif" width="37px" height="*" /> <em>Color Code:</em> <%=colorCode %> 
+				<%
+				if((isOwner&&CommonConfiguration.isCatalogEditable())||(!enc.isApproved())) {
+ 				%>
+ 					<font size="-1">[<a href="encounter.jsp?number=<%=num%>&edit=colorCode#colorCode">edit</a>]</font> <%
+        		}
+        		%>
+        		</p>
+				<%
+				
+	  			if (session.getAttribute("logged")!=null) {
+	  			%> 
+	  			<p><em><%=encprops.getProperty("click2view")%></em>
 				</p>
 				<%
 			}

@@ -235,6 +235,11 @@
   </servlet>
   
       <servlet>
+           <servlet-name>EncounterSetColorCode</servlet-name>
+    	<servlet-class>org.ecocean.servlet.EncounterSetColorCode</servlet-class>
+  </servlet>
+  
+      <servlet>
            <servlet-name>EncounterSetIdentifiable</servlet-name>
     	<servlet-class>org.ecocean.servlet.EncounterSetIdentifiable</servlet-class>
   </servlet>
@@ -441,6 +446,11 @@
            <servlet-name>CalendarXMLServer</servlet-name>
     	<servlet-class>org.ecocean.servlet.CalendarXMLServer</servlet-class>
   </servlet>
+  
+
+  
+  
+  
 <servlet>
        <servlet-name>MatchAnalysis</servlet-name>
 	<servlet-class>org.ecocean.servlet.MatchAnalysis</servlet-class>
@@ -546,6 +556,12 @@
     <servlet-mapping>
            <servlet-name>EncounterSetAsUnidentifiable</servlet-name>
            <url-pattern>/EncounterSetAsUnidentifiable</url-pattern>
+  </servlet-mapping>
+  
+  
+      <servlet-mapping>
+             <servlet-name>EncounterSetColorCode</servlet-name>
+             <url-pattern>/EncounterSetColorCode</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>
