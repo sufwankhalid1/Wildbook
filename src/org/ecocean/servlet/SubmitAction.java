@@ -434,7 +434,7 @@ public class SubmitAction extends Action{
 							if(latDirection.toLowerCase().equals("south")) {
 								position=position*-1;
 							}
-							enc.setDWCDecimalLatitude(position);
+							enc.setDWCDecimalLatitude(new Double(position));
 
 						
 					}
@@ -462,7 +462,7 @@ public class SubmitAction extends Action{
 						if(longDirection.toLowerCase().equals("west")) {
 							position=position*-1;
 						}
-						enc.setDWCDecimalLongitude(position);
+						enc.setDWCDecimalLongitude(new Double(position));
 
 					
 				}

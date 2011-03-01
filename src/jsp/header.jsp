@@ -235,6 +235,11 @@ z-index:99;
 			class="enclose"
 			style="margin: 0px 0 0px 0px; position: relative; width: 210px; height: 25px;z-index: 100;">Table View</a>
 		</li>
+		
+		<li><a href="http://<%=CommonConfiguration.getURLLocation() %>/encounters/allEncountersUnapproved.jsp?start=1&end=10"
+					class="enclose"
+					style="margin: 0px 0 0px 0px; position: relative; width: 210px; height: 25px;z-index: 100;">Unapproved Sightings</a>
+		</li>
 
 		<li><a
 			href="http://<%=CommonConfiguration.getURLLocation() %>/xcalendar/calendar.jsp"

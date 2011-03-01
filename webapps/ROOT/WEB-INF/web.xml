@@ -943,6 +943,7 @@
  <url-pattern>/individualSearchResults.jsp</url-pattern>
   <url-pattern>/individualThumbnailSearchResults.jsp</url-pattern>
  <url-pattern>/encounters/thumbnailSearch.jsp</url-pattern>
+ <url-pattern>/encounters/allEncountersUnapproved.jsp</url-pattern>
     <url-pattern>/encounters/searchResults.jsp</url-pattern>
  <url-pattern>/googleSearch.jsp</url-pattern>
 <url-pattern>/googleSearchResults.jsp</url-pattern>

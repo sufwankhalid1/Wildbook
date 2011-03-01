@@ -259,8 +259,25 @@ if (enc.wasRejected()) {%>
 		<td bgcolor="#CC6600" colspan="3">
 		<p><font color="#FFFFFF" size="4"><%=encprops.getProperty("unapproved_title") %>: <%=num%><%=livingStatus %></font>
 		</td>
+		</tr>
+		</table>
+		<table style="border-width: 1px; border-spacing: 0px; border-style: solid; border-color: red; border-collapse: separate;">
+		<tr>
+		<td>
+		<h2>Can you help us?</h2>
+			<p>If you uploaded a picture of a humpback whale fluke, then from this page you can help us by searching through the catalog for potential fluke matches and suggesting them to us.</p>
+			<p>On this page you can: 
+				<ol>
+					<li><img align="absmiddle" src="../images/fluke.gif" width="37px" height="*" /> Set a color code for the fluke to help narrow your search.</li>
+					<li><img align="absmiddle" src="../images/Crystal_Clear_action_find.gif" width="30px" height="*" /> Look for similar images to a fluke, allowing you to perform a search across the catalog for matching images.</li>
+					<li><img align="absmiddle" src="../images/tag_big.gif" width="30px" height="*" /> Assign a SPLASH ID if you find a match.</li>
+				</ol>
+			</p>
+			<p>We will review your work and hopefully benefit from it!</p>
+		</td>
 	</tr>
 </table>
+<br />
 <%} else {
 %>
 
@@ -279,7 +296,7 @@ if(enc.getEventID()!=null){
 %>
 <p class="para"><img align="absmiddle" src="../images/tag_big.gif" width="50px" height="*">
 <%=encprops.getProperty("identified_as") %>: <%=enc.isAssignedToMarkedIndividual()%> <%
- 	if(isOwner&&CommonConfiguration.isCatalogEditable()) {
+ 	if((isOwner||!enc.isApproved())&&CommonConfiguration.isCatalogEditable()) {
  %><font size="-1">[<a
 	href="encounter.jsp?number=<%=num%>&edit=manageShark">edit</a>]</font>
 <%
@@ -293,7 +310,7 @@ if(enc.getEventID()!=null){
 <%=encprops.getProperty("identified_as") %>: <a
 	href="../individuals.jsp?langCode=<%=langCode%>&number=<%=enc.isAssignedToMarkedIndividual()%><%if(request.getParameter("noscript")!=null){%>&noscript=true<%}%>"><%=enc.isAssignedToMarkedIndividual()%></a></font>
 <%
- 	if(isOwner&&CommonConfiguration.isCatalogEditable()) {
+ 	if((isOwner||!enc.isApproved())&&CommonConfiguration.isCatalogEditable()) {
  %>[<a href="encounter.jsp?number=<%=num%>&edit=manageShark">edit</a>]<%
  	}
  	if (isOwner) {
@@ -352,6 +369,52 @@ if((loggedIn.equals("true"))&&(enc.getSubmitterID()!=null)) {
 		<p class="para"><a href="../welcome.jsp?reflect=<%=request.getRequestURI()%>?number=<%=num%>"><%=encprops.getProperty("login")%></a></p>
 
 		<%
+ }
+		
+		//add this encounter to a MarkedIndividual object
+		  if ((isOwner||!enc.isApproved())&&(request.getParameter("edit")!=null)&&(request.getParameter("edit").equals("manageShark"))) {
+	%> <a name="manageShark">
+	<table width="150" border="1" cellpadding="1" cellspacing="0"
+		bordercolor="#000000" bgcolor="#CCCCCC">
+		<tr>
+			<td align="left" valign="top" class="para"><font
+				color="#990000">
+				<img align="absmiddle" src="../images/tag_small.gif" /><br></br>
+			<strong><%=encprops.getProperty("add2MarkedIndividual")%>:</strong></font></td>
+		</tr>
+		<tr>
+			<td align="left" valign="top">
+			<form name="add2shark" action="../IndividualAddEncounter"
+				method="post">SPLASH ID: <input name="individual" type="text" size="10" maxlength="50"><br> <%=encprops.getProperty("matchedBy")%>:<br>
+			<select name="matchType" id="matchType">
+				<option value="SPLASH">SPLASH</option>
+				<option value="Contributor">Contributor</option>
+			</select> <br /> 
+			<%
+			if(isOwner){
+			%>
+			<input name="noemail" type="checkbox" value="noemail" />
+			<%=encprops.getProperty("suppressEmail")%>
+			<%
+			}
+			else{
+			%>
+			<input name="noemail" type="hidden" value="noemail" />
+			
+			<%
+			}
+			%>
+			<br /> 
+			
+			<input name="number" type="hidden"
+				value=<%=num%>> <input name="action" type="hidden"
+				value="add"> <input name="Add" type="submit" id="Add"
+				value="<%=encprops.getProperty("add")%>"></form>
+			</td>
+		</tr>
+	</table>
+	</a><br /> <%
+	  	}
 		
 		
 			//set color code
@@ -412,11 +475,11 @@ if((loggedIn.equals("true"))&&(enc.getSubmitterID()!=null)) {
 				}	
 					
 			
-} 
+ 
 
-
+	 if(session.getAttribute("logged")!=null) {
 		//if logged in, limit commands displayed			
-		else {
+		
 		%>
 		<p align="center" class="para"><font color="#000000" size="+1"><strong>
 		<%=encprops.getProperty("action") %> <font color="#000000" size="+1"><strong><img src="../images/Crystal_Clear_app_advancedsettings.gif" width="29" height="29" align="absmiddle" /></strong></font> <%=encprops.getProperty("uppercaseEdit") %> </strong></font><br> <br> <em><font
@@ -599,34 +662,7 @@ if((loggedIn.equals("true"))&&(enc.getSubmitterID()!=null)) {
 			}
 				
 				
-			  //add this encounter to a MarkedIndividual object
-			  if ((isOwner)&&(request.getParameter("edit")!=null)&&(request.getParameter("edit").equals("manageShark"))) {
-		%> <a name="manageShark">
-		<table width="150" border="1" cellpadding="1" cellspacing="0"
-			bordercolor="#000000" bgcolor="#CCCCCC">
-			<tr>
-				<td align="left" valign="top" class="para"><font
-					color="#990000">
-					<img align="absmiddle" src="../images/tag_small.gif" /><br></br>
-				<strong><%=encprops.getProperty("add2MarkedIndividual")%>:</strong></font></td>
-			</tr>
-			<tr>
-				<td align="left" valign="top">
-				<form name="add2shark" action="../IndividualAddEncounter"
-					method="post"><%=encprops.getProperty("individual")%>: <input name="individual" type="text" size="10" maxlength="50"><br> <%=encprops.getProperty("matchedBy")%>:<br>
-				<select name="matchType" id="matchType">
-					<option value="SPLASH">SPLASH</option>
-					<option value="Contributor">Contributor</option>
-				</select> <br> <input name="noemail" type="checkbox" value="noemail">
-				<%=encprops.getProperty("suppressEmail")%><br> <input name="number" type="hidden"
-					value=<%=num%>> <input name="action" type="hidden"
-					value="add"> <input name="Add" type="submit" id="Add"
-					value="<%=encprops.getProperty("add")%>"></form>
-				</td>
-			</tr>
-		</table>
-		</a><br> <%
-		  	}
+			  
 		  	  //Remove from MarkedIndividual if not unassigned
 		  	  if((!enc.isAssignedToMarkedIndividual().equals("Unassigned"))&&CommonConfiguration.isCatalogEditable()&&isOwner&&(request.getParameter("edit")!=null)&&(request.getParameter("edit").equals("manageShark"))) {
 		  %>
@@ -1688,9 +1724,13 @@ if(enc.getComments()!=null){
 				<%
 				if((isOwner&&CommonConfiguration.isCatalogEditable())||(!enc.isApproved())) {
  				%>
- 					<font size="-1">[<a href="encounter.jsp?number=<%=num%>&edit=colorCode#colorCode">edit</a>]</font> <%
+ 					<font size="-1">[<a href="encounter.jsp?number=<%=num%>&edit=colorCode#colorCode">edit</a>]</font> 
+ 					
+ 					<%
         		}
         		%>
+        		<a href="../colorCodes.jsp" alt="Help" border="0" align="absmiddle" target="_blank" /><img src="../images/information_icon_svg.gif"
+							alt="Help" border="0" align="absmiddle" /></a>
         		</p>
 				<%
 				

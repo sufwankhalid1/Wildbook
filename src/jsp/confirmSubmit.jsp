@@ -175,15 +175,17 @@ Shepherd myShepherd=new Shepherd();
 	</di:img>
 
 <h1 class="intro">Success</h1>
-<p><strong>Thank you for submitting your encounter! </strong></p>
-<p>For future reference, this encounter has been assigned the number
+<p><strong>Thank you for submitting your humpback whale sighting! </strong></p>
+<p>For future reference, this sighting has been assigned the number
 <strong><%=number%></strong>.</p>
 <p>If you have any questions, please reference this number when <a
 	href="mailto:<%=CommonConfiguration.getAutoEmailAddress() %>">contacting
 us.</a></p>
 
+<p>Did you know that you can also help us identify this whale by looking for a match to its fluke in our Catalog? Click <strong>View sighting</strong> below to learn more.</p>
+
 <p><a href="http://<%=CommonConfiguration.getURLLocation()%>/encounters/encounter.jsp?number=<%=number%>&langCode=<%=langCode%>">View
-encounter #<%=number%></a>. <em>This may initially take a minute or more to fully load as we dynamically copy-protect your new image(s).</em></p>
+sighting #<%=number%></a>. <em>This may initially take a minute or more to fully load as we dynamically copy-protect your new image(s).</em></p>
 <%
 		
 		Vector e_images=new Vector();
