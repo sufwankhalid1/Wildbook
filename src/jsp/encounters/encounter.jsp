@@ -1719,7 +1719,7 @@ if(enc.getComments()!=null){
 								<td class="para"><em><%=encprops.getProperty("image") %> <%=imageCount%></em></td>
 							</tr>
 							<%
-					if (isOwner) {
+					if (isOwner||!enc.isApproved()) {
 				%>
 							<tr>
 								<td class="para"><img align="absmiddle"

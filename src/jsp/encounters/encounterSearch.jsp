@@ -156,12 +156,13 @@ encprops.load(getClass().getResourceAsStream("/bundles/"+langCode+"/encounterSea
 										%>
 										<tr>
 										<td><span class="caption">
-											Color code: 
-											<%
+										<%
+										String colorCode = "";
+										if(thisEnc.getColorCode()!=null){colorCode =thisEnc.getColorCode();}
+										
+										%>
+											Color code: <%=colorCode%>
 											
-											MarkedIndividual marky=myShepherd.getMarkedIndividual(thisEnc.getIndividualID());
-											%>
-											<%=marky.getColorCode()%>
 											
 										</span></td>
 										</tr>
