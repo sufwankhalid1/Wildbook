@@ -88,7 +88,7 @@ public class SubmitAction extends Action{
 			depth=theForm.getDepth();
 			measureUnits=ServletUtilities.preventCrossSiteScriptingAttacks(theForm.getMeasureUnits()); 
 			location=ServletUtilities.preventCrossSiteScriptingAttacks(theForm.getLocation()); 
-			System.out.println("SubmitAction location: "+location);
+			//System.out.println("SubmitAction location: "+location);
 			sex=ServletUtilities.preventCrossSiteScriptingAttacks(theForm.getSex());
 			comments=ServletUtilities.preventCrossSiteScriptingAttacks(theForm.getComments());
 			primaryImageName=ServletUtilities.preventCrossSiteScriptingAttacks(theForm.getPrimaryImageName());
@@ -157,8 +157,8 @@ public class SubmitAction extends Action{
 			submitterID=theForm.getSubmitterID();
 			lat=ServletUtilities.preventCrossSiteScriptingAttacks(theForm.getLat());
 			longitude=ServletUtilities.preventCrossSiteScriptingAttacks(theForm.getLongitude()); 
-			latDirection=ServletUtilities.preventCrossSiteScriptingAttacks(theForm.getLatDirection()); 
-			longDirection=ServletUtilities.preventCrossSiteScriptingAttacks(theForm.getLongDirection());
+			//latDirection=ServletUtilities.preventCrossSiteScriptingAttacks(theForm.getLatDirection()); 
+			//longDirection=ServletUtilities.preventCrossSiteScriptingAttacks(theForm.getLongDirection());
 			scars=ServletUtilities.preventCrossSiteScriptingAttacks(theForm.getScars());
 			if(scars.equals("1")) {scars="Tail (caudal) fin";}
 			else if(scars.equals("0")){scars="None";}
@@ -172,10 +172,10 @@ public class SubmitAction extends Action{
 			
 			minutes=ServletUtilities.preventCrossSiteScriptingAttacks(theForm.getMinutes());
 			//hour=theForm.getHour();
-			gpsLongitudeMinutes=ServletUtilities.preventCrossSiteScriptingAttacks(theForm.getGpsLongitudeMinutes()); 
-			gpsLongitudeSeconds=ServletUtilities.preventCrossSiteScriptingAttacks(theForm.getGpsLongitudeSeconds());
-			gpsLatitudeMinutes=ServletUtilities.preventCrossSiteScriptingAttacks(theForm.getGpsLatitudeMinutes()); 
-			gpsLatitudeSeconds=ServletUtilities.preventCrossSiteScriptingAttacks(theForm.getGpsLatitudeSeconds());
+			//gpsLongitudeMinutes=ServletUtilities.preventCrossSiteScriptingAttacks(theForm.getGpsLongitudeMinutes()); 
+			//gpsLongitudeSeconds=ServletUtilities.preventCrossSiteScriptingAttacks(theForm.getGpsLongitudeSeconds());
+			//gpsLatitudeMinutes=ServletUtilities.preventCrossSiteScriptingAttacks(theForm.getGpsLatitudeMinutes()); 
+			//gpsLatitudeSeconds=ServletUtilities.preventCrossSiteScriptingAttacks(theForm.getGpsLatitudeSeconds());
       //retrieve the text data
       String text = theForm.getTheText();
       //retrieve the query string value
@@ -417,26 +417,11 @@ public class SubmitAction extends Action{
 
 		//let's handle the GPS
 			if (!(lat.equals(""))) {
-				enc.setGPSLatitude(lat+"&deg; "+gpsLatitudeMinutes+"\' "+gpsLatitudeSeconds+"\" "+latDirection);
+				//enc.setGPSLatitude(lat+"&deg; "+gpsLatitudeMinutes+"\' "+gpsLatitudeSeconds+"\" "+latDirection);
 			
 				
 					try {
-						double degrees=(new Double(lat)).doubleValue();
-						double position=degrees;
-							if(!gpsLatitudeMinutes.equals("")){
-								double minutes=((new Double(gpsLatitudeMinutes)).doubleValue())/60;
-								position+=minutes;
-							}
-							if(!gpsLatitudeSeconds.equals("")){
-								double seconds = ((new Double(gpsLatitudeSeconds)).doubleValue())/3600;
-								position+=seconds;
-							}
-							if(latDirection.toLowerCase().equals("south")) {
-								position=position*-1;
-							}
-							enc.setDWCDecimalLatitude(new Double(position));
-
-						
+							enc.setDWCDecimalLatitude(new Double(lat));
 					}
 					catch(Exception e) {
 						System.out.println("EncounterSetGPS: problem setting decimal latitude!");
@@ -446,25 +431,10 @@ public class SubmitAction extends Action{
 				
 			}
 			if (!(longitude.equals(""))) {
-				enc.setGPSLongitude(longitude+"&deg; "+gpsLongitudeMinutes+"\' "+gpsLongitudeSeconds+"\" "+longDirection);
+				//enc.setGPSLongitude(longitude+"&deg; "+gpsLongitudeMinutes+"\' "+gpsLongitudeSeconds+"\" "+longDirection);
 			
 				try {
-					double degrees=(new Double(longitude)).doubleValue();
-					double position=degrees;
-					if(!gpsLongitudeMinutes.equals("")){
-						double minutes=((new Double(gpsLongitudeMinutes)).doubleValue())/60;
-						position+=minutes;
-					}
-					if(!gpsLongitudeSeconds.equals("")){
-						double seconds = ((new Double(gpsLongitudeSeconds)).doubleValue())/3600;
-						position+=seconds;
-					}
-						if(longDirection.toLowerCase().equals("west")) {
-							position=position*-1;
-						}
-						enc.setDWCDecimalLongitude(new Double(position));
-
-					
+					enc.setDWCDecimalLongitude(new Double(longitude));					
 				}
 				catch(Exception e) {
 					System.out.println("EncounterSetGPS: problem setting decimal longitude!");

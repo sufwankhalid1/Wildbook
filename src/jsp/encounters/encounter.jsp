@@ -253,7 +253,8 @@ if (enc.wasRejected()) {%>
 </p>
 <%
 
-} else if(!enc.approved){%>
+} 
+else if(!enc.isApproved()){%>
 <table width="810">
 	<tr>
 		<td bgcolor="#CC6600" colspan="3">
@@ -261,10 +262,13 @@ if (enc.wasRejected()) {%>
 		</td>
 		</tr>
 		</table>
+		<%
+		if(loggedIn.equals("false")){
+		%>
 		<table style="border-width: 1px; border-spacing: 0px; border-style: solid; border-color: red; border-collapse: separate;">
-		<tr>
-		<td>
-		<h2>Can you help us?</h2>
+			<tr>
+				<td>
+					<h3>Can you help us?</h3>
 			<p>If you uploaded a picture of a humpback whale fluke, then from this page you can help us by searching through the catalog for potential fluke matches and suggesting them to us.</p>
 			<p>On this page you can: 
 				<ol>
@@ -278,7 +282,13 @@ if (enc.wasRejected()) {%>
 	</tr>
 </table>
 <br />
-<%} else {
+
+
+<%
+}
+} 
+
+else {
 %>
 
 <p><font size="4"><strong><%=encprops.getProperty("title") %></strong>: <%=num%><%=livingStatus %></font></p>
@@ -370,6 +380,16 @@ if((loggedIn.equals("true"))&&(enc.getSubmitterID()!=null)) {
 
 		<%
  }
+  if(session.getAttribute("logged")!=null) {
+ 		
+ 		%>
+ 		<p align="center" class="para"><font color="#000000" size="+1"><strong>
+ 		<%=encprops.getProperty("action") %> <font color="#000000" size="+1"><strong><img src="../images/Crystal_Clear_app_advancedsettings.gif" width="29" height="29" align="absmiddle" /></strong></font> <%=encprops.getProperty("uppercaseEdit") %> </strong></font><br> <br> <em><font
+ 			size="-1"><%=encprops.getProperty("editarea")%></font></em>
+		</p>
+<%
+}
+
 		
 		//add this encounter to a MarkedIndividual object
 		  if ((isOwner||!enc.isApproved())&&(request.getParameter("edit")!=null)&&(request.getParameter("edit").equals("manageShark"))) {
@@ -387,8 +407,9 @@ if((loggedIn.equals("true"))&&(enc.getSubmitterID()!=null)) {
 			<form name="add2shark" action="../IndividualAddEncounter"
 				method="post">SPLASH ID: <input name="individual" type="text" size="10" maxlength="50"><br> <%=encprops.getProperty("matchedBy")%>:<br>
 			<select name="matchType" id="matchType">
+			<option value="Contributor">Contributor</option>
 				<option value="SPLASH">SPLASH</option>
-				<option value="Contributor">Contributor</option>
+				
 			</select> <br /> 
 			<%
 			if(isOwner){
@@ -480,12 +501,6 @@ if((loggedIn.equals("true"))&&(enc.getSubmitterID()!=null)) {
 	 if(session.getAttribute("logged")!=null) {
 		//if logged in, limit commands displayed			
 		
-		%>
-		<p align="center" class="para"><font color="#000000" size="+1"><strong>
-		<%=encprops.getProperty("action") %> <font color="#000000" size="+1"><strong><img src="../images/Crystal_Clear_app_advancedsettings.gif" width="29" height="29" align="absmiddle" /></strong></font> <%=encprops.getProperty("uppercaseEdit") %> </strong></font><br> <br> <em><font
-			size="-1"><%=encprops.getProperty("editarea")%></font></em>
-		</p>
-		<%
 			//manager-level commands
 				if(isOwner) {
 				
@@ -651,8 +666,9 @@ if((loggedIn.equals("true"))&&(enc.getSubmitterID()!=null)) {
 				<td align="left" valign="top">
 				<form name="setMBT" action="../EncounterSetMatchedBy" method="post">
 				<select name="matchedBy" id="matchedBy">
+				<option value="Contributor">Contributor</option>
+					
 					<option value="SPLASH">SPLASH</option>
-					<option value="Contributor">Contributor</option>
 					</select> <input name="number" type="hidden" value=<%=num%>> 
 				<input name="setMB" type="submit" id="setMB" value="<%=encprops.getProperty("set")%>"></form>
 				</td>

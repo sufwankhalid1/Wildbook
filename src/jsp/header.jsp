@@ -177,7 +177,7 @@ z-index:99;
 	<ul>
 
 		<li>
-		<a href="http://<%=CommonConfiguration.getURLLocation() %>/submit.jsp" class="enclose" style="margin: 0px 0 0px 0px; position: relative; width: 160px; height: 25px; z-index: 100;">Report an encounter</a>
+		<a href="http://<%=CommonConfiguration.getURLLocation() %>/submit.jsp" class="enclose" style="margin: 0px 0 0px 0px; position: relative; width: 160px; height: 25px; z-index: 100;">Report a sighting</a>
 		</li>
 
 		<li>
