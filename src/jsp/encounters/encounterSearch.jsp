@@ -136,7 +136,23 @@ encprops.load(getClass().getResourceAsStream("/bundles/"+langCode+"/encounterSea
 										<%
 										if(thisEnc.getIndividualID()!=null){
 										%>
-											<tr><td><span class="caption">SPLASH ID: <a href="../individuals.jsp?number=<%=thisEnc.getIndividualID() %>" target="_blank"><%=thisEnc.getIndividualID() %></a></span></td></tr>
+											<tr><td><span class="caption">SPLASH ID: 
+											<%
+											if(!thisEnc.getIndividualID().equals("Unassigned")){
+											%>
+												<a href="../individuals.jsp?number=<%=thisEnc.getIndividualID() %>" target="_blank">
+											<%
+											}
+											%>
+											<%=thisEnc.getIndividualID() %>
+											<%
+											if(!thisEnc.getIndividualID().equals("Unassigned")){
+											%>
+												</a>
+											<%
+											}
+											%>
+											</span></td></tr>
 										<%
 										}
 										%>
