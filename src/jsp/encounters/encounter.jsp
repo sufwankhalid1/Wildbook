@@ -340,8 +340,7 @@ if(enc.getEventID()!=null){
 %>
 
 
-<p class="para"><img align="absmiddle"
-	src="../images/alternateid.gif"> <%=encprops.getProperty("alternate_id")%>: <%=enc.getAlternateID()%>
+<p class="para"><img align="absmiddle" src="../images/alternateid.gif"> <%=encprops.getProperty("alternate_id")%>: <%=enc.getAlternateID()%>
 <%
  	if(isOwner&&CommonConfiguration.isCatalogEditable()) {
  %>[<a href="encounter.jsp?number=<%=num%>&edit=alternateid#alternateid">edit</a>]<%
@@ -374,7 +373,7 @@ if((loggedIn.equals("true"))&&(enc.getSubmitterID()!=null)) {
  	//start deciding menu bar contents
 
  //if not logged in
- if(session.getAttribute("logged")==null) {
+if(loggedIn.equals("false")){
  %>
 		<p class="para"><a href="../welcome.jsp?reflect=<%=request.getRequestURI()%>?number=<%=num%>"><%=encprops.getProperty("login")%></a></p>
 
