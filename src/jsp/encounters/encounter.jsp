@@ -391,8 +391,8 @@ if((loggedIn.equals("true"))&&(enc.getSubmitterID()!=null)) {
 }
 
 		
-		//add this encounter to a MarkedIndividual object
-		  if ((isOwner||!enc.isApproved())&&(request.getParameter("edit")!=null)&&(request.getParameter("edit").equals("manageShark"))) {
+	//add this encounter to a MarkedIndividual object
+	if ((isOwner||!enc.isApproved())&&(request.getParameter("edit")!=null)&&(request.getParameter("edit").equals("manageShark"))) {
 	%> <a name="manageShark">
 	<table width="150" border="1" cellpadding="1" cellspacing="0"
 		bordercolor="#000000" bgcolor="#CCCCCC">
@@ -436,6 +436,38 @@ if((loggedIn.equals("true"))&&(enc.getSubmitterID()!=null)) {
 	</table>
 	</a><br /> <%
 	  	}
+		
+		
+			  
+	//Remove from MarkedIndividual if not unassigned
+	if((!enc.isAssignedToMarkedIndividual().equals("Unassigned"))&&CommonConfiguration.isCatalogEditable()&&(isOwner||!enc.isApproved())&&(request.getParameter("edit")!=null)&&(request.getParameter("edit").equals("manageShark"))) {
+				  %>
+				<table width="150" border="1" cellpadding="1" cellspacing="0"
+					bordercolor="#000000" bgcolor="#CCCCCC">
+					<tr>
+						<td align="left" valign="top" class="para"><font
+							color="#990000">
+						<table>
+							<tr>
+								<td><font color="#990000"><img align="absmiddle"
+									src="../images/cancel.gif" /></font></td>
+								<td><strong> <%=encprops.getProperty("removeFromMarkedIndividual")%></strong></td>
+							</tr>
+						</table>
+						</font></td>
+					</tr>
+					<tr>
+						<td align="left" valign="top">
+						<form action="../IndividualRemoveEncounter" method="post"
+							name="removeShark"><input name="number" type="hidden"
+							value=<%=num%>> <input name="action" type="hidden"
+							value="remove"> <input type="submit" name="Submit"
+							value="<%=encprops.getProperty("remove")%>"></form>
+						</td>
+					</tr>
+				</table>
+				<br> <%
+      	}
 		
 		
 			//set color code
@@ -678,36 +710,7 @@ if((loggedIn.equals("true"))&&(enc.getSubmitterID()!=null)) {
 			}
 				
 				
-			  
-		  	  //Remove from MarkedIndividual if not unassigned
-		  	  if((!enc.isAssignedToMarkedIndividual().equals("Unassigned"))&&CommonConfiguration.isCatalogEditable()&&isOwner&&(request.getParameter("edit")!=null)&&(request.getParameter("edit").equals("manageShark"))) {
-		  %>
-		<table width="150" border="1" cellpadding="1" cellspacing="0"
-			bordercolor="#000000" bgcolor="#CCCCCC">
-			<tr>
-				<td align="left" valign="top" class="para"><font
-					color="#990000">
-				<table>
-					<tr>
-						<td><font color="#990000"><img align="absmiddle"
-							src="../images/cancel.gif" /></font></td>
-						<td><strong> <%=encprops.getProperty("removeFromMarkedIndividual")%></strong></td>
-					</tr>
-				</table>
-				</font></td>
-			</tr>
-			<tr>
-				<td align="left" valign="top">
-				<form action="../IndividualRemoveEncounter" method="post"
-					name="removeShark"><input name="number" type="hidden"
-					value=<%=num%>> <input name="action" type="hidden"
-					value="remove"> <input type="submit" name="Submit"
-					value="<%=encprops.getProperty("remove")%>"></form>
-				</td>
-			</tr>
-		</table>
-		<br> <%
-      	}
+		
       	  //create new MarkedIndividual with name
       	  if(isOwner&&(request.getParameter("edit")!=null)&&(request.getParameter("edit").equals("manageShark"))){
       %>
@@ -735,7 +738,7 @@ if((loggedIn.equals("true"))&&(enc.getSubmitterID()!=null)) {
 				</td>
 			</tr>
 		</table>
-		<br> <%
+		<br /> <%
 			}
 				if((request.getParameter("edit")!=null)&&(request.getParameter("edit").equals("gps"))){
 		%> <a name="gps">

@@ -31,29 +31,7 @@ public class EncounterApprove extends HttpServlet {
 		PrintWriter out = response.getWriter();
 		boolean locked=false;
 
-		boolean isOwner=true;
-		
-		/**
-		if(request.getParameter("number")!=null){
-			myShepherd.beginDBTransaction();
-			if(myShepherd.isEncounter(request.getParameter("number"))) {
-				Encounter verifyMyOwner=myShepherd.getEncounter(request.getParameter("number"));
-				String locCode=verifyMyOwner.getLocationCode();
-				
-				//check if the encounter is assigned
-				if((verifyMyOwner.getSubmitterID()!=null)&&(request.getRemoteUser()!=null)&&(verifyMyOwner.getSubmitterID().equals(request.getRemoteUser()))){
-					isOwner=true;
-				}
-				
-				//if the encounter is assigned to this user, they have permissions for it...or if they're a manager
-				else if((request.isUserInRole("admin"))){
-					isOwner=true;
-				}
-				//if they have general location code permissions for the encounter's location code
-				else if(request.isUserInRole(locCode)){isOwner=true;}
-			}
-			myShepherd.rollbackDBTransaction();	
-		}*/
+		//boolean isOwner=true;
 
 
 			if (!(request.getParameter("number")==null)) {
@@ -67,6 +45,20 @@ public class EncounterApprove extends HttpServlet {
 					
 						newenc.approve();
 						newenc.addComments("<p><em>"+request.getRemoteUser()+" on "+(new java.util.Date()).toString()+"</em><br>"+"Approved this encounter for public display.");
+					
+						if(!newenc.getIndividualID().equals("Unassigned")){
+						  MarkedIndividual addToMe=myShepherd.getMarkedIndividual(newenc.getIndividualID());
+						  if(!addToMe.getEncounters().contains(newenc)) {
+						    addToMe.addEncounter(newenc);
+						    addToMe.addComments("<p><em>"+request.getRemoteUser()+" on "+(new java.util.Date()).toString()+"</em><br>"+"Added encounter "+request.getParameter("number")+".</p>");
+						    newenc.addComments("<p><em>"+request.getRemoteUser()+" on "+(new java.util.Date()).toString()+"</em><br>"+"Added to "+request.getParameter("individual")+".</p>");
+            
+						  }
+						  newenc.setIndividualID(addToMe.getName());
+						  newenc.setMatchedBy("Contributor");
+						}
+					
+					
 					}catch(Exception le){
 						locked=true;
 						le.printStackTrace();

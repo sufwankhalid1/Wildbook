@@ -39,28 +39,7 @@ public class IndividualAddEncounter extends HttpServlet {
 		boolean locked=false, isOwner=true;
 		boolean isAssigned=false;
 
-		/**
-		if(request.getParameter("number")!=null){
-			myShepherd.beginDBTransaction();
-			if(myShepherd.isEncounter(request.getParameter("number"))) {
-				Encounter verifyMyOwner=myShepherd.getEncounter(request.getParameter("number"));
-				String locCode=verifyMyOwner.getLocationCode();
-				
-				//check if the encounter is assigned
-				if((verifyMyOwner.getSubmitterID()!=null)&&(request.getRemoteUser()!=null)&&(verifyMyOwner.getSubmitterID().equals(request.getRemoteUser()))){
-					isAssigned=true;
-				}
-				
-				//if the encounter is assigned to this user, they have permissions for it...or if they're a manager
-				if((request.isUserInRole("admin"))||(isAssigned)){
-					isOwner=true;
-				}
-				//if they have general location code permissions for the encounter's location code
-				else if(request.isUserInRole(locCode)){isOwner=true;}
-			}
-			myShepherd.rollbackDBTransaction();	
-		}
-		*/
+
 		String action=request.getParameter("action");
 
 		//add encounter to a MarkedIndividual
@@ -82,18 +61,30 @@ public class IndividualAddEncounter extends HttpServlet {
 						MarkedIndividual addToMe=myShepherd.getMarkedIndividual(request.getParameter("individual"));
 						if((addToMe.getAlternateID()!=null)&&(!addToMe.getAlternateID().equals(""))){altID=" (Alternate ID: "+addToMe.getAlternateID()+")";}
 						try{
-							if(!addToMe.getEncounters().contains(enc2add)) {
+						  
+						  String loggedIn="false";
+						  if (request.getSession().getAttribute("logged")!=null) {
+						      Object OBJloggedIn=request.getSession().getAttribute("logged");
+						      loggedIn="true";
+						  }
+						  
+							if(loggedIn.equals("true")&&(!addToMe.getEncounters().contains(enc2add))) {
 								addToMe.addEncounter(enc2add);
+								addToMe.addComments("<p><em>"+request.getRemoteUser()+" on "+(new java.util.Date()).toString()+"</em><br>"+"Added encounter "+request.getParameter("number")+".</p>");
+							   if (!(addToMe.getSex().equals(enc2add.getSex()))) {
+		                if (addToMe.getSex().equals("Unknown")) {addToMe.setSex(enc2add.getSex());}
+		                else if(((addToMe.getSex().equals("Male"))&(enc2add.getSex().equals("Female")))||((addToMe.getSex().equals("Female"))&(enc2add.getSex().equals("Male")))) {
+		                  sexMismatch=true;
+		                }
+		              }
+							   enc2add.addComments("<p><em>"+request.getRemoteUser()+" on "+(new java.util.Date()).toString()+"</em><br>"+"Added to "+request.getParameter("individual")+".</p>");
+		          
 							}
+							enc2add.setIndividualID(addToMe.getName());
 							enc2add.setMatchedBy(request.getParameter("matchType"));
-							enc2add.addComments("<p><em>"+request.getRemoteUser()+" on "+(new java.util.Date()).toString()+"</em><br>"+"Added to "+request.getParameter("individual")+".</p>");
-							addToMe.addComments("<p><em>"+request.getRemoteUser()+" on "+(new java.util.Date()).toString()+"</em><br>"+"Added encounter "+request.getParameter("number")+".</p>");
-							if (!(addToMe.getSex().equals(enc2add.getSex()))) {
-								if (addToMe.getSex().equals("Unknown")) {addToMe.setSex(enc2add.getSex());}
-								else if(((addToMe.getSex().equals("Male"))&(enc2add.getSex().equals("Female")))||((addToMe.getSex().equals("Female"))&(enc2add.getSex().equals("Male")))) {
-									sexMismatch=true;
-									}
-								}
+              
+							
+							
 						} catch(Exception le){
 							System.out.println("Hit locked exception on action: "+action);
 							le.printStackTrace();

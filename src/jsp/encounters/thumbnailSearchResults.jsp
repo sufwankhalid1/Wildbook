@@ -186,6 +186,9 @@ hs.addSlideshow({
 
 <%
 String rq="";
+
+String refEncNum="";
+
 if(request.getQueryString()!=null){rq=request.getQueryString();}
 if(request.getParameter("noQuery")==null){
 %>
@@ -225,8 +228,8 @@ if(request.getParameter("noQuery")==null){
 															<table>
 													<%
 													int slashPosition=request.getParameter("referenceImageName").indexOf("/");
-													String encNum=request.getParameter("referenceImageName").substring(0,slashPosition);
-													Encounter thisEnc = myShepherd.getEncounter(encNum);
+													refEncNum=request.getParameter("referenceImageName").substring(0,slashPosition);
+													Encounter thisEnc = myShepherd.getEncounter(refEncNum);
 													%>
 											
 													<tr><td><span class="caption">Sub-area: <%=thisEnc.getLocation() %></span></td></tr>
@@ -384,7 +387,8 @@ if((startNum)>1) {%>
 										<div class="highslide-caption" id="localImage<%=(countMe+startNum) %>">
 										
 										<h3><%=(countMe+startNum) %>/<%=numThumbnails %></h3>
-																									<%
+										
+										<%
 										if(request.getParameter("referenceImageName")!=null){
 										%>
 											<h4>Reference Image</h4>
@@ -432,7 +436,7 @@ if((startNum)>1) {%>
 
 										
 										
-<%
+										<%
 										if(thisEnc.getVerbatimEventDate()!=null){
 										%>
 											<tr>
@@ -472,9 +476,32 @@ if((startNum)>1) {%>
 											%>
 										</span></td>
 										</tr>
+										
+										
+										<%
+										//add this encounter to a MarkedIndividual object
+										
+										if((request.getParameter("referenceImageName")!=null)&&(!thisEnc.getIndividualID().equals("Unassigned"))){
+										%> 
+										<tr>
+											<td><span class="caption">
+												
+												<form name="add2shark" action="../IndividualAddEncounter" method="get">
+													<input name="individual" type="hidden" id="individual" value="<%=thisEnc.getIndividualID()%>"/>
+													<input name="matchType" type="hidden" id="matchType" value="Contributor"/>
+													<input name="noemail" type="hidden" value="noemail" />
+													<input name="number" type="hidden" value=<%=refEncNum%>> 
+													<input name="action" type="hidden" value="add"> 
+													<input name="Add" type="image" id="Add" border="0" alt="Add to this SPLASH ID" align="absmiddle" src="../images/tag_big.gif" width="20px" height="*"> Add reference image to this SPLASH ID</input>
+												</form>
 
-										</table>
-										</td>
+											</td>
+										</tr>	
+										<%
+										}
+										%>
+									</table>
+								</td>
 										
 										<%
 										if(CommonConfiguration.showEXIFData()){
@@ -559,6 +586,28 @@ if((startNum)>1) {%>
 											%>
 										</span></td>
 										</tr>
+																<%
+																				//add this encounter to a MarkedIndividual object
+																				
+																				if((request.getParameter("referenceImageName")!=null)&&(!thisEnc.getIndividualID().equals("Unassigned"))){
+																				%> 
+																				<tr>
+																					<td><span class="caption">
+																						
+																						<form name="add2shark" action="../IndividualAddEncounter" method="get">
+																							<input name="individual" type="hidden" id="individual" value="<%=thisEnc.getIndividualID()%>"/>
+																							<input name="matchType" type="hidden" id="matchType" value="Contributor"/>
+																							<input name="noemail" type="hidden" value="noemail" />
+																							<input name="number" type="hidden" value=<%=refEncNum%>> 
+																							<input name="action" type="hidden" value="add"> 
+																							<input name="Add" type="image" id="Add" border="0" alt="Add to this SPLASH ID" align="absmiddle" src="../images/tag_big.gif" width="20px" height="*"> Add reference image to this SPLASH ID</input>
+																						</form>
+										
+																					</td>
+																				</tr>	
+																				<%
+																				}
+										%>
 										
 										</table>
 									</td>
