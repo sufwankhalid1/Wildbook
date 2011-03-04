@@ -501,6 +501,7 @@ if (isOwner) {
   </strong><br/>
 
     <%
+    String[] keywords=keywords=new String[0];
 		int numThumbnails = myShepherd.getNumThumbnails(sharky.getEncounters().iterator(), keywords);
 		if(numThumbnails>0){	
 		%>
@@ -511,8 +512,8 @@ if (isOwner) {
 			
 			int countMe=0;
 			Vector thumbLocs=new Vector();
-			String[] keywords=keywords=new String[0];
-			int numThumbnails = myShepherd.getNumThumbnails(sharky.getEncounters().iterator(), keywords);
+			
+			//int numThumbnails = myShepherd.getNumThumbnails(sharky.getEncounters().iterator(), keywords);
 			
 			try {
 				thumbLocs=myShepherd.getThumbnails(request, sharky.getEncounters().iterator(), 1, 99999, keywords);
@@ -878,7 +879,7 @@ if (isOwner) {
 
   <tr>
     <td><img src="disk.gif"> <a
-      href="sharks/<%=sharky.getName()%>/<%=file_name%>"><%=file_name%>
+      href="individuals/<%=sharky.getName()%>/<%=file_name%>"><%=file_name%>
     </a></td>
     <td>&nbsp;&nbsp;&nbsp;[<a
       href="IndividualRemoveDataFile?individual=<%=name%>&filename=<%=file_name%>"><%=delete %>
