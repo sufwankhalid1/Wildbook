@@ -19,6 +19,10 @@
       <id>shepherd-local-repo</id>
       <url>file://${basedir}/local-repo</url>
     </repository>
+    <repository>
+      <id>repo2</id>
+      <url>http://repo2.maven.org/maven2</url>
+    </repository>
   </repositories>
 
   <dependencies>
@@ -152,19 +156,14 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>rhino</groupId>
-      <artifactId>js</artifactId>
-      <version>1.7R2</version>
-    </dependency>
-    <dependency>
-      <groupId>httpunit</groupId>
-      <artifactId>httpunit</artifactId>
-      <version>1.7</version>
+      <groupId>net.sourceforge.jwebunit</groupId>
+      <artifactId>jwebunit-htmlunit-plugin</artifactId>
+      <version>2.5</version>
       <scope>test</scope>
     </dependency>
     <!-- shepherd local jars, not in public maven repos -->
     <dependency>
-      <groupId>dilib</groupId>
+    <groupId>dilib</groupId>
       <artifactId>dilib</artifactId>
       <version>1.0</version>
     </dependency>
@@ -184,6 +183,14 @@
               <config>src/test/resources/jetty/shepherd.properties</config>
             </userRealm>
           </userRealms>
+          <connectors>
+            <connector implementation="org.mortbay.jetty.nio.SelectChannelConnector">
+              <port>8080</port>
+              <maxIdleTime>60000</maxIdleTime>
+            </connector>
+          </connectors>
+          <stopKey>Foo-Shepherd</stopKey>
+          <stopPort>8082</stopPort>
         </configuration>
         <executions>
           <execution>
@@ -193,7 +200,15 @@
               <goal>run</goal>
             </goals>
             <configuration>
+              <connectors>
+                <connector implementation="org.mortbay.jetty.nio.SelectChannelConnector">
+                  <port>9090</port>
+                  <maxIdleTime>60000</maxIdleTime>
+                </connector>
+              </connectors>
               <daemon>true</daemon>
+              <stopKey>Foo-Shepherd</stopKey>
+              <stopPort>9092</stopPort>
             </configuration>
           </execution>
           <execution>
@@ -202,6 +217,17 @@
             <goals>
               <goal>stop</goal>
             </goals>
+            <configuration>
+              <connectors>
+                <connector implementation="org.mortbay.jetty.nio.SelectChannelConnector">
+                  <port>9090</port>
+                  <maxIdleTime>60000</maxIdleTime>
+                </connector>
+              </connectors>
+              <daemon>true</daemon>
+              <stopKey>Foo-Shepherd</stopKey>
+              <stopPort>9092</stopPort>
+            </configuration>
           </execution>
         </executions>
       </plugin>

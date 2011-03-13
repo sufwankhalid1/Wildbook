@@ -46,7 +46,7 @@
 
 %>
 
-<html>
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
   <title><%=CommonConfiguration.getHTMLTitle()%>
   </title>
@@ -101,6 +101,7 @@
 
     -->
   </style>
+
 </head>
 
 <body>
@@ -160,7 +161,7 @@
             library...</p>
         </div>
 
-        <div id="maintext">
+        <div id="context">
           <h1 class="intro">Contact us</h1>
 
           <p class="caption">A great place to talk about who is running this mark-recapture
