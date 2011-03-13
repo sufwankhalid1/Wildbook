@@ -200,8 +200,7 @@
   us.</a></p>
 
 <p><a
-  href="http://<%=CommonConfiguration.getURLLocation(request)%>/encounters/encounter
-  .jsp?number=<%=number%>&langCode=<%=langCode%>">View
+  href="http://<%=CommonConfiguration.getURLLocation(request)%>/encounters/encounter.jsp?number=<%=number%>&langCode=<%=langCode%>">View
   encounter #<%=number%>
 </a>. <em>This may initially take a minute or more to fully load as we dynamically copy-protect your
   new image(s).</em></p>
