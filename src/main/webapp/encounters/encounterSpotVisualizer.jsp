@@ -21,7 +21,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <%@ page contentType="text/html; charset=iso-8859-1" language="java"
          import="commonSense.math.linear.Matrix, org.ecocean.*,java.awt.*,java.io.IOException, java.io.InputStream, java.net.URL, java.net.URLConnection, java.util.ArrayList" %>
-<%@ taglib uri="/WEB-INF/lib/dilib-1.0.jar" prefix="di" %>
+<%@ taglib uri="http://www.sunwesttek.com/di" prefix="di" %>
 
 
 <%!

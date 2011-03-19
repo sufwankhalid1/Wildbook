@@ -20,7 +20,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <%@ page contentType="text/html; charset=utf-8" language="java"
          import="org.ecocean.Adoption, org.ecocean.CommonConfiguration,org.ecocean.Shepherd,java.awt.*, java.io.File" %>
-<%@ taglib uri="/WEB-INF/lib/dilib-1.0.jar" prefix="di" %>
+<%@ taglib uri="http://www.sunwesttek.com/di" prefix="di" %>
 <%
   String number = request.getParameter("id");
   Shepherd myShepherd = new Shepherd();

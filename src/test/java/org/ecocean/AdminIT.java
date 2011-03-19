@@ -39,6 +39,26 @@ public class AdminIT extends WebTestCase {
     gotoPage("/appadmin/kwAdmin.jsp");
     assertResponseCode(200);
     assertTextPresent("You have requested a higher level");
+  }
 
+  public void testGeneralAdmin() {
+    login();
+    gotoPage("/appadmin/admin.jsp");
+    assertResponseCode(200);
+  }
+
+  public void testKeywordAdmin() {
+    login();
+    gotoPage("appadmin/kwAdmin.jsp");
+    assertResponseCode(200);
+  }
+
+  protected void login() {
+    beginAt("/index.jsp");
+    clickLinkWithExactText("Login");
+    setTextField("j_username", "admin");
+    setTextField("j_password", "password");
+    submit();
+    assertTextPresent("Login success!");
   }
 }

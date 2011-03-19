@@ -27,8 +27,27 @@ import net.sourceforge.jwebunit.junit.WebTestCase;
 public class SubmitIT extends WebTestCase {
   public void setUp() throws Exception {
     super.setUp();
+    setBaseUrl("http://localhost:9090/shepherd");
   }
-  public void testDummy() {
-
+  public void testSubmit() {
+    beginAt("/index.jsp");
+    clickLinkWithExactText("Participate");
+    // necessary fields
+    // encounter date (day, month, year, hour, minutes)
+    // sighting location
+    // submitterName
+    // submitterEmail
+    // theFile1 - theFile4 (at least 1)
+    selectOption("day", "1");
+    selectOption("month", "1");
+    selectOption("year", "2011");
+    selectOption("hour", "12 am");
+    selectOption("minutes", ":00");
+    setTextField("location", "the world");
+    setTextField("submitterName", "mark");
+    setTextField("submitterEmail", "mark.mcbride@gmail.com");
+    setTextField("theFile1", "src/main/webapp/images/logbook.gif");
+    submit("Submit");
+    assertResponseCode(200);
   }
 }

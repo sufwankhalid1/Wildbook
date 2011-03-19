@@ -20,7 +20,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <%@ page contentType="text/html; charset=utf-8" language="java"
          import="com.drew.imaging.jpeg.JpegMetadataReader, com.drew.metadata.Directory, com.drew.metadata.Metadata, com.drew.metadata.Tag, org.ecocean.CommonConfiguration,org.ecocean.Encounter,org.ecocean.Keyword,org.ecocean.Shepherd,org.ecocean.servlet.ServletUtilities,javax.jdo.Extent, javax.jdo.Query, java.awt.*, java.io.File, java.text.DecimalFormat, java.util.*" %>
-<%@ taglib uri="/WEB-INF/lib/dilib-1.0.jar" prefix="di" %>
+<%@ taglib uri="http://www.sunwesttek.com/di" prefix="di" %>
 
 <%!
 
