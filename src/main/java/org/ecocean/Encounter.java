@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.Vector;
+import java.util.GregorianCalendar;
 
 
 /**
@@ -54,8 +55,8 @@ public class Encounter implements java.io.Serializable {
   private int day = 0;
   private int month = 0;
   private int year = 0;
-  private String decimalLatitude;
-  private String decimalLongitude;
+  private Double decimalLatitude;
+  private Double decimalLongitude;
   private String verbatimLocality;
   private String occurrenceRemarks = "";
   private String modified;
@@ -110,6 +111,8 @@ public class Encounter implements java.io.Serializable {
   //time metrics of the report
   private int hour = 0;
   private String minutes = "00";
+  
+  private long dateInMilliseconds=0;
   //describes how the shark was measured
   private String size_guess = "none provided";
   //String reported GPS values for lat and long of the encounter
@@ -157,6 +160,10 @@ public class Encounter implements java.io.Serializable {
   //private superSpot[] rightReferenceSpots;
   private ArrayList<SuperSpot> rightReferenceSpots;
 
+  //an open ended string that allows a type of patterning to be identified.
+  //as an example, see the use of color codes at splashcatalog.org, allowing pre-defined fluke patterning types
+  //to be used to help narrow the search for a marked individual
+  private String patterningCode;
 
   //start constructors
 
@@ -194,6 +201,8 @@ public class Encounter implements java.io.Serializable {
     this.minutes = minutes;
     this.size_guess = size_guess;
     this.individualID = "Unassigned";
+    
+    resetDateInMilliseconds();
   }
 
 
@@ -632,15 +641,18 @@ public class Encounter implements java.io.Serializable {
   }
 
   public void setDay(int day) {
-    this.day = day;
+    this.day=day;
+    resetDateInMilliseconds();
   }
-
+    
   public void setHour(int hour) {
-    this.hour = hour;
+    this.hour=hour;
+    resetDateInMilliseconds();
   }
-
+    
   public void setMinutes(String minutes) {
-    this.minutes = minutes;
+    this.minutes=minutes;
+    resetDateInMilliseconds();
   }
 
   public String getMinutes() {
@@ -652,11 +664,12 @@ public class Encounter implements java.io.Serializable {
   }
 
   public void setMonth(int month) {
-    this.month = month;
+    this.month=month;
+    resetDateInMilliseconds();
   }
-
   public void setYear(int year) {
-    this.year = year;
+    this.year=year;
+    resetDateInMilliseconds();
   }
 
 
@@ -785,23 +798,6 @@ public class Encounter implements java.io.Serializable {
     gpsLatitude = newLat;
   }
 
-  /*public void setLatInteger(int newLat) {
-     lat=newLat;
-   }
-
-   public void setLongInteger(int newLong) {
-     longitude=newLong;
-   }
-
-
-   public int getLatInteger() {
-       return lat;
-   }
-
-   public int getLongInteger() {
-     return longitude;
-   }
-   */
 
   public Encounter getClone() {
     Encounter tempEnc = new Encounter();
@@ -1082,24 +1078,33 @@ public class Encounter implements java.io.Serializable {
     if (lat == -9999.0) {
       decimalLatitude = null;
     } else {
-      decimalLatitude = (new Double(lat)).toString();
+      decimalLatitude = (new Double(lat));
     }
   }
 
-  public String getDWCDecimalLatitude() {
-    return decimalLatitude;
-  }
 
-  public void setDWCDecimalLongitude(double longit) {
-    if (longit == -9999.0) {
-      decimalLongitude = null;
-    } else {
-      decimalLongitude = (new Double(longit)).toString();
+
+  public void setDWCDecimalLatitude(Double lat){
+    if((lat!=null)&&(lat<=90)&&(lat>=-90)){
+      this.decimalLatitude=lat;
+    }
+    else{this.decimalLatitude=null;}
+  }
+  public String getDWCDecimalLatitude(){
+   if(decimalLatitude!=null){return Double.toString(decimalLatitude);}
+     return null;
+   }
+  public void setDWCDecimalLongitude(double longit){
+    if((longit>=-180)&&(longit<=180)){
+      this.decimalLongitude=longit;
     }
   }
 
-  public String getDWCDecimalLongitude() {
-    return decimalLongitude;
+  public String getDWCDecimalLongitude(){
+    if(decimalLongitude!=null){
+      return Double.toString(decimalLongitude);
+    }
+    return null;
   }
 
   public boolean getOKExposeViaTapirLink() {
@@ -1182,21 +1187,12 @@ public class Encounter implements java.io.Serializable {
     this.individualID = indy;
   }
 
-  public String getDecimalLatitude() {
-    return decimalLatitude;
-  }
+  public double getDecimalLatitudeAsDouble(){return decimalLatitude.doubleValue();}
+  public void setDecimalLatitude(Double lat){this.decimalLatitude=lat;}
 
-  public void setDecimalLatitude(String lat) {
-    this.decimalLatitude = lat;
-  }
+  public double getDecimalLongitudeAsDouble(){return decimalLongitude.doubleValue();}
+  public void setDecimalLongitude(Double longy){this.decimalLongitude=longy;}
 
-  public String getDecimalLongitude() {
-    return decimalLongitude;
-  }
-
-  public void setDecimalLongitude(String longy) {
-    this.decimalLongitude = longy;
-  }
 
   public String getOccurrenceRemarks() {
     return occurrenceRemarks;
@@ -1259,32 +1255,37 @@ public class Encounter implements java.io.Serializable {
     return dynamicProperties;
   }
 
-  public void setDynamicProperty(String name, String value) {
-    name = name.replaceAll(";", "_").trim().replaceAll("%20", " ");
-    value = value.replaceAll(";", "_").trim();
+  public void setDynamicProperty(String name, String value){
+    name=name.replaceAll(";", "_").trim().replaceAll("%20", " ");
+    value=value.replaceAll(";", "_").trim();
 
-    if (dynamicProperties == null) {
-      dynamicProperties = name + "=" + value + ";";
-    } else {
+    if(dynamicProperties==null){dynamicProperties=name+"="+value+";";}
+    else{
 
       //let's create a TreeMap of the properties
-      TreeMap<String, String> tm = new TreeMap<String, String>();
-      StringTokenizer st = new StringTokenizer(dynamicProperties, ";");
-      while (st.hasMoreTokens()) {
+      TreeMap<String,String> tm=new TreeMap<String,String>();
+      StringTokenizer st=new StringTokenizer(dynamicProperties, ";");
+      while(st.hasMoreTokens()){
         String token = st.nextToken();
-        int equalPlace = token.indexOf("=");
-        tm.put(token.substring(0, equalPlace), token.substring(equalPlace + 1));
+        int equalPlace=token.indexOf("=");
+        try{
+          tm.put(token.substring(0,equalPlace), token.substring(equalPlace+1));
+       }
+       catch(java.lang.StringIndexOutOfBoundsException soe){
+       //this is a badly formatted pair that should be ignored
+     }
       }
-      if (tm.containsKey(name)) {
+      if(tm.containsKey(name)){
         tm.remove(name);
         tm.put(name, value);
 
         //now let's recreate the dynamicProperties String
-        String newProps = tm.toString();
-        int stringSize = newProps.length();
-        dynamicProperties = newProps.substring(1, (stringSize - 1)).replaceAll(", ", ";") + ";";
-      } else {
-        dynamicProperties = dynamicProperties + name + "=" + value + ";";
+        String newProps=tm.toString();
+        int stringSize=newProps.length();
+        dynamicProperties=newProps.substring(1,(stringSize-1)).replaceAll(", ", ";")+";";
+      }
+      else{
+        dynamicProperties=dynamicProperties+name+"="+value+";";
       }
     }
   }
@@ -1379,7 +1380,35 @@ public class Encounter implements java.io.Serializable {
   public void setSpecificEpithet(String newEpithet) {
     this.specificEpithet = newEpithet;
   }
+  
+  public String getPatterningCode(){ return patterningCode;}
+  public void setPatterningCode(String newCode){this.patterningCode=newCode;}
 
+  public void resetDateInMilliseconds(){
+    if(year>0){
+      int localMonth=1;
+      if(month>0){localMonth=month;}
+      int localDay=1;
+      if(day>0){localDay=day;}
+      int localMinutes = Integer.parseInt(minutes);
+      GregorianCalendar gc=new GregorianCalendar(year, localMonth, localDay, hour, localMinutes);
+      dateInMilliseconds = gc.getTimeInMillis();
+    }
+    else{dateInMilliseconds=0;}
+  }
+  
+  public long getDateInMilliseconds(){return dateInMilliseconds;}
+  
+  public String getDecimalLatitude(){
+    if(decimalLatitude!=null){return Double.toString(decimalLatitude);}
+    return null;
+  }
+  //public void setDecimalLatitude(String lat){this.decimalLatitude=Double.parseDouble(lat);}
+
+  public String getDecimalLongitude(){
+    if(decimalLatitude!=null){return Double.toString(decimalLongitude);}
+    return null;
+  }
 }
 	
 	

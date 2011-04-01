@@ -110,17 +110,24 @@
   -->
 
   <script type="text/javascript">
-    hs.graphicsDir = '../highslide/highslide/graphics/';
-    hs.align = 'center';
-    hs.transitions = ['expand', 'crossfade'];
-    hs.outlineType = 'rounded-white';
-    hs.fadeInOut = true;
-    //hs.dimmingOpacity = 0.75;
+  hs.graphicsDir = '../highslide/highslide/graphics/';
+  hs.align = 'center';
+  hs.showCredits = false;
 
-    //define the restraining box
-    hs.useBox = true;
-    hs.width = 810;
-    hs.height = 500;
+  //transition behavior
+  hs.transitions = ['expand', 'crossfade'];
+  hs.outlineType = 'rounded-white';
+  hs.fadeInOut = true;
+  hs.transitionDuration = 0;
+  hs.expandDuration = 0;
+  hs.restoreDuration = 0;
+  hs.numberOfImagesToPreload = 15;
+  hs.dimmingDuration = 0;
+
+  // define the restraining box
+  hs.useBox = true;
+  hs.width = 810;
+  hs.height=500;
 
     //block right-click user copying if no permissions available
     <%
@@ -207,13 +214,7 @@
 <div id="wrapper">
 <div id="page">
 <jsp:include page="../header.jsp" flush="true">
-  <jsp:param name="isResearcher"
-             value="<%=request.isUserInRole("researcher")%>"/>
-  <jsp:param name="isManager"
-             value="<%=request.isUserInRole("manager")%>"/>
-  <jsp:param name="isReviewer"
-             value="<%=request.isUserInRole("reviewer")%>"/>
-  <jsp:param name="isAdmin" value="<%=request.isUserInRole("admin")%>"/>
+  <jsp:param name="isAdmin" value="<%=request.isUserInRole(\"admin\")%>" />
 </jsp:include>
 <div id="main">
 
