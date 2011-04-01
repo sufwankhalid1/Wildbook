@@ -1,0 +1,56 @@
+<!--
+  ~ The Shepherd Project - A Mark-Recapture Framework
+  ~ Copyright (C) 2011 Jason Holmberg
+  ~
+  ~ This program is free software; you can redistribute it and/or
+  ~ modify it under the terms of the GNU General Public License
+  ~ as published by the Free Software Foundation; either version 2
+  ~ of the License, or (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program; if not, write to the Free Software
+  ~ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+  -->
+
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd">
+<head>
+  <title>Report an Encounter</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <meta name="Description" wicket:message="content:htmlDescription"/>
+  <meta name="Keywords" wicket:message="content:htmlKeywords"/>
+  <meta name="Author" wicket:message="content:htmlAuthor"/>
+  <link wicket:message="href:cssURLLocation" rel="stylesheet" type="text/css"/>
+  <link wicket:message="href:htmlShortcutIcon" rel="shortcut icon"/>
+</head>
+<body>
+<div id="wrapper">
+  <div id="page">
+    <div id="main">
+      <div id="maincol-wide-solo">
+        <div id="maintext">
+          <h1 class="intro"><span wicket:id="submit_report">Submit Report</span></h1>
+        </div>
+        <form wicket:id="encounterForm" class="encounterForm">
+          <p wicket:id="encounterSubmitOverview"></p>
+
+          <p wicket:id="encounterSubmitNote"></p>
+          <table id="encounter_report">
+            <tr class="form_row">
+              <td class="form_label"><span wicket:id="encounterDate"></span></td>
+              <td colspan="2">
+                <em wicket:id="day"></em>
+              </td>
+            </tr>
+          </table>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
