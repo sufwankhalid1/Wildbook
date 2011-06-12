@@ -217,8 +217,22 @@
 </jsp:include>
 <div id="main">
 
+<%
+  if (CommonConfiguration.allowAdoptions()) {
+	  ArrayList adoptions = myShepherd.getAllAdoptionsForMarkedIndividual(name);
+	  int numAdoptions = adoptions.size();
+	  if(numAdoptions>0){
+%>
+<div id="maincol-wide">
+<%
+}
+  }
+  else {
+%>
 <div id="maincol-wide-solo">
-
+<%
+}
+%>
 <div id="maintext">
 <%
   myShepherd.beginDBTransaction();
@@ -493,7 +507,7 @@ if (isOwner) {
 
 <p>
   <strong><%=props.getProperty("imageGallery") %>
-  </strong><br/>
+  </strong></p>
 
     <%
     String[] keywords=keywords=new String[0];
@@ -507,29 +521,36 @@ if (isOwner) {
 			
 			int countMe=0;
 			Vector thumbLocs=new Vector();
-			
-			//int numThumbnails = myShepherd.getNumThumbnails(sharky.getEncounters().iterator(), keywords);
-			
+			int  numColumns=3;
+			int numThumbs=0;
+			  if (CommonConfiguration.allowAdoptions()) {
+				  ArrayList adoptions = myShepherd.getAllAdoptionsForMarkedIndividual(name);
+				  int numAdoptions = adoptions.size();
+				  if(numAdoptions>0){
+					  numColumns=2;
+				  }
+			  }
+
 			try {
 				thumbLocs=myShepherd.getThumbnails(request, sharky.getEncounters().iterator(), 1, 99999, keywords);
-
-			
-			
-					//for(int rows=0;rows<15;rows++) {		
-					
-					%>
+				numThumbs=thumbLocs.size();
+			%>
 
   <tr valign="top">
+ <td>
+ <!-- HTML Codes by Quackit.com -->
+<div style="text-align:left;border:1px solid black;width:100%;height:400px;overflow-y:scroll;overflow-x:scroll;">
 
       <%
-							for(int columns=0;columns<3;columns++){
-								if(countMe<thumbLocs.size()) {
+      						while(countMe<numThumbs){
+							//for(int columns=0;columns<numColumns;columns++){
+								if(countMe<numThumbs) {
 									String combined=(String)thumbLocs.get(countMe);
 									StringTokenizer stzr=new StringTokenizer(combined,"BREAK");
 									String thumbLink=stzr.nextToken();
 									String encNum=stzr.nextToken();
 									int fileNamePos=combined.lastIndexOf("BREAK")+5;
-									String fileName=combined.substring(fileNamePos);
+									String fileName=combined.substring(fileNamePos).replaceAll("%20"," ");
 									boolean video=true;
 									if(!thumbLink.endsWith("video.jpg")){
 										thumbLink="http://"+CommonConfiguration.getURLLocation(request)+"/encounters/"+thumbLink;
@@ -539,28 +560,46 @@ if (isOwner) {
 						
 							%>
 
-    <td>
-      <table>
+   
+    
+      <table align="left" width="<%=100/numColumns %>%">
         <tr>
           <td valign="top">
 
               <%
-												if(isOwner){
+			if(isOwner){
 												%>
-            <a href="<%=link%>" class="highslide" onclick="return hs.expand(this)">
-              <%
-                }
-              %>
+            <a href="<%=link%>" 
+            <%
+            if(!thumbLink.endsWith("video.jpg")){
+            %>
+            	class="highslide" onclick="return hs.expand(this)"
+            <%
+            }
+            %>
+            >
+            <%
+            }
+             %>
               <img src="<%=thumbLink%>" alt="photo" border="1" title="Click to enlarge"/>
               <%
                 if (isOwner) {
               %>
             </a>
               <%
-												}
-												%>
+			}
+            
+			%>
 
-            <div class="highslide-caption">
+            <div 
+            <%
+            if(!thumbLink.endsWith("video.jpg")){
+            %>
+            class="highslide-caption"
+            <%
+            }
+            %>
+            >
 
               <table>
                 <tr>
@@ -572,10 +611,9 @@ if (isOwner) {
                         int kwLength = keywords.length;
                         Encounter thisEnc = myShepherd.getEncounter(encNum);
                       %>
-                      <tr>
-                        <td><span class="caption"><em><%=(countMe + 1) %>/<%=numThumbnails %>
-                        </em></span></td>
-                      </tr>
+                      
+                      
+
                       <tr>
                         <td><span
                           class="caption"><%=props.getProperty("location") %>: <%=thisEnc.getLocation() %></span>
@@ -612,8 +650,7 @@ if (isOwner) {
                         <td><span class="caption">
 											<%=props.getProperty("matchingKeywords") %>
 											<%
-                        //int numKeywords=myShepherd.getNumKeywords();
-                        Iterator allKeywords2 = myShepherd.getAllKeywords();
+                       Iterator allKeywords2 = myShepherd.getAllKeywords();
 
                         while (allKeywords2.hasNext()) {
                           Keyword word = (Keyword) allKeywords2.next();
@@ -644,10 +681,10 @@ if (isOwner) {
 
                     <%
                       if (CommonConfiguration.showEXIFData()) {
-                    %>
-										
-												
-												<span class="caption">
+                   
+            	if(!thumbLink.endsWith("video.jpg")){
+           		 %>							
+					<span class="caption">
 						<div class="scroll">	
 						<span class="caption">
 					<%
@@ -676,6 +713,9 @@ if (isOwner) {
    								</span>
             </div>
    								</span>
+   			<%
+            	}
+   			%>
 
 
                   </td>
@@ -685,11 +725,14 @@ if (isOwner) {
                 </tr>
               </table>
             </div>
-</div>
+            
+
 </td>
 </tr>
 
-
+ <%
+            if(!thumbLink.endsWith("video.jpg")){
+ %>
 <tr>
   <td><span class="caption"><%=props.getProperty("location") %>: <%=thisEnc.getLocation() %></span>
   </td>
@@ -737,19 +780,25 @@ if (isOwner) {
                           %>
 										</span></td>
 </tr>
+<%
 
+            }
+%>
 </table>
-</td>
+
 <%
 
       countMe++;
     } //end if
   } //endFor
 %>
+</div>
+
+</td>
 </tr>
 <%
 
-  //} //endFor
+
 
 } catch (Exception e) {
   e.printStackTrace();
@@ -757,7 +806,7 @@ if (isOwner) {
 <tr>
   <td>
     <p><%=props.getProperty("error")%>
-    </p>.</p>
+    </p>.
   </td>
 </tr>
 <%
@@ -765,18 +814,18 @@ if (isOwner) {
 %>
 
 </table>
+</div>
 <%
 } else {
 %>
 
-<p><%=props.getProperty("noImages")%>
-</p>
+<p><%=props.getProperty("noImages")%></p>
 
 <%
   }
 %>
 
-
+</table>
 <!-- end thumbnail gallery -->
 
 <p><strong><img src="images/2globe_128.gif" width="64" height="64" align="absmiddle"/><%=mapping %>
@@ -1017,10 +1066,11 @@ if (isOwner) {
 
 
 %>
-
-</div>
-<!-- end maintext --></div>
-<!-- end main-wide -->
+</td>
+</tr>
+</table>
+</div><!-- end maintext -->
+</div><!-- end main-wide -->
 
 <%
   if (CommonConfiguration.allowAdoptions()) {
@@ -1037,9 +1087,8 @@ if (isOwner) {
     </div>
 
 
-  </div>
-  <!-- end menu --></div>
-<!-- end rightcol -->
+  </div><!-- end menu -->
+ </div><!-- end rightcol -->
 <%
   }
 %>

@@ -51,28 +51,35 @@ import java.util.*;
 
 public class SubmitAction extends Action {
 
-  String mailList = "no";
-  Calendar date = Calendar.getInstance();
-  Random ran = new Random();
-  String uniqueID = (new Integer(date.get(Calendar.DAY_OF_MONTH))).toString() + (new Integer(date.get(Calendar.MONTH) + 1)).toString() + (new Integer(date.get(Calendar.YEAR))).toString() + (new Integer(date.get(Calendar.HOUR_OF_DAY))).toString() + (new Integer(date.get(Calendar.MINUTE))).toString() + (new Integer(date.get(Calendar.SECOND))).toString() + (new Integer(ran.nextInt(99))).toString();
-  double size = 0, depth = -1000;
-  String measureUnits = "", location = "", sex = "unknown", comments = "", primaryImageName = "", guess = "no estimate provided";
-  String submitterName = "", submitterEmail = "", submitterPhone = "", submitterAddress = "";
-  String photographerName = "", photographerEmail = "", photographerPhone = "", photographerAddress = "";
-  Vector additionalImageNames = new Vector();
-  int encounterNumber = 0;
-  int day = 1, month = 1, year = 2003, hour = 12;
-  String lat = "", longitude = "", latDirection = "", longDirection = "", scars = "None";
-  String minutes = "00", gpsLongitudeMinutes = "", gpsLongitudeSeconds = "", gpsLatitudeMinutes = "", gpsLatitudeSeconds = "", submitterID = "N/A";
-  String locCode = "", informothers = "";
-  String livingStatus = "";
-  Shepherd myShepherd;
+
 
   public ActionForward execute(ActionMapping mapping,
                                ActionForm form,
                                HttpServletRequest request,
                                HttpServletResponse response)
     throws Exception {
+
+		  String mailList = "no";
+		  Calendar date = Calendar.getInstance();
+		  Random ran = new Random();
+		  String uniqueID = (new Integer(date.get(Calendar.DAY_OF_MONTH))).toString() + (new Integer(date.get(Calendar.MONTH) + 1)).toString() + (new Integer(date.get(Calendar.YEAR))).toString() + (new Integer(date.get(Calendar.HOUR_OF_DAY))).toString() + (new Integer(date.get(Calendar.MINUTE))).toString() + (new Integer(date.get(Calendar.SECOND))).toString() + (new Integer(ran.nextInt(99))).toString();
+		  String size = "";
+		  String elevation = "";
+		  String depth = "";
+		  String measureUnits = "", location = "", sex = "unknown", comments = "", primaryImageName = "", guess = "no estimate provided";
+		  String submitterName = "", submitterEmail = "", submitterPhone = "", submitterAddress = "";
+		  String photographerName = "", photographerEmail = "", photographerPhone = "", photographerAddress = "";
+		  Vector additionalImageNames = new Vector();
+		  int encounterNumber = 0;
+		  int day = 1, month = 1, year = 2003, hour = 12;
+		  String lat = "", longitude = "", latDirection = "", longDirection = "", scars = "None";
+		  String minutes = "00", gpsLongitudeMinutes = "", gpsLongitudeSeconds = "", gpsLatitudeMinutes = "", gpsLatitudeSeconds = "", submitterID = "N/A";
+		  String locCode = "", informothers = "";
+		  String livingStatus = "";
+  		  Shepherd myShepherd;
+
+
+
     myShepherd = new Shepherd();
 
     if (form instanceof SubmitForm) {
@@ -90,8 +97,19 @@ public class SubmitAction extends Action {
       mailList = ServletUtilities.preventCrossSiteScriptingAttacks(theForm.getMailList());
       date = theForm.getDate();
       uniqueID = theForm.getUniqueID();
-      size = theForm.getSize();
-      depth = theForm.getDepth();
+
+      if((theForm.getSize()!=null)&&(!theForm.getSize().equals(""))){size = theForm.getSize();}
+
+
+      if((theForm.getDepth()!=null)&&(!theForm.getDepth().equals(""))){
+      	depth = theForm.getDepth();
+  	  }
+
+      if((theForm.getElevation()!=null)&&(!theForm.getElevation().equals(""))){
+
+      	elevation = theForm.getElevation();
+  	  }
+
       measureUnits = ServletUtilities.preventCrossSiteScriptingAttacks(theForm.getMeasureUnits());
       location = ServletUtilities.preventCrossSiteScriptingAttacks(theForm.getLocation());
       System.out.println("SubmitAction location: " + location);
@@ -357,24 +375,63 @@ public class SubmitAction extends Action {
       enc.setSex(sex);
       enc.setLivingStatus(livingStatus);
       enc.setDistinguishingScar(scars);
-      if (measureUnits.equals("Feet")) {
-        String truncSize = (new Double(size / 3.3)).toString();
-        int sizePeriod = truncSize.indexOf(".");
-        truncSize = truncSize.substring(0, sizePeriod + 2);
-        size = (new Double(truncSize)).doubleValue();
-        String truncDepth = (new Double(depth / 3.3)).toString();
-        sizePeriod = truncDepth.indexOf(".");
-        truncDepth = truncDepth.substring(0, sizePeriod + 2);
-        depth = (new Double(truncDepth)).doubleValue();
+      int sizePeriod=0;
+      if ((measureUnits.equals("Feet"))) {
+
+        if(!depth.equals("")){
+			try{
+				double tempDouble=(new Double(depth)).doubleValue()/3.3;
+        		String truncDepth = (new Double(tempDouble)).toString();
+        		sizePeriod = truncDepth.indexOf(".");
+        		truncDepth = truncDepth.substring(0, sizePeriod + 2);
+        		depth = (new Double(truncDepth)).toString();
+			}
+			catch(NullPointerException npe){}
+		}
+
+		if(!elevation.equals("")){
+			try{
+				double tempDouble=(new Double(elevation)).doubleValue()/3.3;
+        		String truncElev = (new Double(tempDouble)).toString();
+				//String truncElev = ((new Double(elevation)) / 3.3).toString();
+		    	sizePeriod = truncElev.indexOf(".");
+				truncElev = truncElev.substring(0, sizePeriod + 2);
+        		elevation = (new Double(truncElev)).toString();
+			}
+			catch(NullPointerException npe){}
+		}
+		if(!size.equals("")){
+			try{
+						double tempDouble=(new Double(size)).doubleValue()/3.3;
+        		String truncSize = (new Double(tempDouble)).toString();
+					//String truncSize = ((new Double(size)) / 3.3).toString();
+				    sizePeriod = truncSize.indexOf(".");
+					truncSize = truncSize.substring(0, sizePeriod + 2);
+		        	size = (new Double(truncSize)).toString();
+			}
+			catch(NullPointerException npe){}
+		}
       }
-      if (size != 0) {
-        enc.setSize(size);
+
+      if (!size.equals("")) {
+        enc.setSize(new Double(size));
       }
-      ;
-      if (depth != -1000) {
-        enc.setDepth(depth);
+
+		//System.out.println("Depth in SubmitForm is:"+depth);
+      if (!depth.equals("")) {
+		try{
+        	enc.setDepth(new Double(depth));
+		}
+		catch(NullPointerException npe){}
       }
-      ;
+
+      if (!elevation.equals("")) {
+		try{
+	    	enc.setMaximumElevationInMeters(new Double(elevation));
+	    }
+	    catch(NullPointerException npe){}
+      }
+
 
       //let's handle the GPS
       if (!(lat.equals(""))) {
@@ -385,12 +442,12 @@ public class SubmitAction extends Action {
           double degrees = (new Double(lat)).doubleValue();
           double position = degrees;
           if (!gpsLatitudeMinutes.equals("")) {
-            double minutes = ((new Double(gpsLatitudeMinutes)).doubleValue()) / 60;
-            position += minutes;
+            double minutes2 = ((new Double(gpsLatitudeMinutes)).doubleValue()) / 60;
+            position += minutes2;
           }
           if (!gpsLatitudeSeconds.equals("")) {
-            double seconds = ((new Double(gpsLatitudeSeconds)).doubleValue()) / 3600;
-            position += seconds;
+            double seconds2 = ((new Double(gpsLatitudeSeconds)).doubleValue()) / 3600;
+            position += seconds2;
           }
           if (latDirection.toLowerCase().equals("south")) {
             position = position * -1;
@@ -412,8 +469,8 @@ public class SubmitAction extends Action {
           double degrees = (new Double(longitude)).doubleValue();
           double position = degrees;
           if (!gpsLongitudeMinutes.equals("")) {
-            double minutes = ((new Double(gpsLongitudeMinutes)).doubleValue()) / 60;
-            position += minutes;
+            double minutes2 = ((new Double(gpsLongitudeMinutes)).doubleValue()) / 60;
+            position += minutes2;
           }
           if (!gpsLongitudeSeconds.equals("")) {
             double seconds = ((new Double(gpsLongitudeSeconds)).doubleValue()) / 3600;
@@ -437,8 +494,8 @@ public class SubmitAction extends Action {
         enc.setGPSLongitude("");
       //let's handle the GPS
         if (!(lat.equals(""))) {
-          
-          
+
+
             try {
                 enc.setDWCDecimalLatitude(new Double(lat));
             }
@@ -446,13 +503,13 @@ public class SubmitAction extends Action {
               System.out.println("EncounterSetGPS: problem setting decimal latitude!");
               e.printStackTrace();
             }
-          
-          
+
+
         }
         if (!(longitude.equals(""))) {
-          
+
           try {
-            enc.setDWCDecimalLongitude(new Double(longitude));          
+            enc.setDWCDecimalLongitude(new Double(longitude));
           }
           catch(Exception e) {
             System.out.println("EncounterSetGPS: problem setting decimal longitude!");

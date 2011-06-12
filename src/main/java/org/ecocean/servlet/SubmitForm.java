@@ -42,7 +42,8 @@ public class SubmitForm extends ActionForm {
   private String mailList = "no";
   private Calendar date = Calendar.getInstance();
   private String uniqueID = (new Integer(date.get(Calendar.DAY_OF_MONTH))).toString() + (new Integer(date.get(Calendar.MONTH) + 1)).toString() + (new Integer(date.get(Calendar.YEAR))).toString() + (new Integer(date.get(Calendar.HOUR_OF_DAY))).toString() + (new Integer(date.get(Calendar.MINUTE))).toString() + (new Integer(date.get(Calendar.SECOND))).toString();
-  private double size = 0, depth = -1000;
+  private String size="", depth="";
+  private String elevation="";
   private String measureUnits = "", location = "", sex = "unknown", comments = "", primaryImageName = "", guess = "no estimate provided";
   private String submitterName = "", submitterEmail = "", submitterPhone = "", submitterAddress = "";
   private String photographerName = "", photographerEmail = "", photographerPhone = "", photographerAddress = "";
@@ -90,8 +91,9 @@ public class SubmitForm extends ActionForm {
     mailList = "no";
     date = Calendar.getInstance();
     uniqueID = (new Integer(date.get(Calendar.DAY_OF_MONTH))).toString() + (new Integer(date.get(Calendar.MONTH) + 1)).toString() + (new Integer(date.get(Calendar.YEAR))).toString() + (new Integer(date.get(Calendar.HOUR_OF_DAY))).toString() + (new Integer(date.get(Calendar.MINUTE))).toString() + (new Integer(date.get(Calendar.SECOND))).toString();
-    size = 0;
-    depth = -1000;
+    size = "";
+    depth = "";
+    elevation = "";
     measureUnits = "";
     location = "";
     sex = "unknown";
@@ -160,20 +162,31 @@ public class SubmitForm extends ActionForm {
     this.submitterID = submitterID;
   }
 
-  public double getSize() {
+  public String getSize() {
+	  System.out.println("Size in SubmitForm is:"+this.size);
     return this.size;
   }
 
-  public void setSize(double size) {
+  public void setSize(String size) {
     this.size = size;
   }
 
-  public double getDepth() {
+  public String getDepth() {
+	System.out.println("Depth in SubmitForm is:"+this.depth);
     return this.depth;
   }
 
-  public void setDepth(double depth) {
+  public void setDepth(String depth) {
     this.depth = depth;
+  }
+
+  public String getElevation() {
+	  System.out.println("Elevation in SubmitForm is:"+this.elevation);
+    return this.elevation;
+  }
+
+  public void setElevation(String elevation) {
+    this.elevation = elevation;
   }
 
   public String getMeasureUnits() {

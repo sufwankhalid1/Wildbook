@@ -323,7 +323,7 @@
 									String thumbLink=stzr.nextToken();
 									String encNum=stzr.nextToken();
 									int fileNamePos=combined.lastIndexOf("BREAK")+5;
-									String fileName=combined.substring(fileNamePos);
+									String fileName=combined.substring(fileNamePos).replaceAll("%20"," ");
 									boolean video=true;
 									if(!thumbLink.endsWith("video.jpg")){
 										thumbLink="http://"+CommonConfiguration.getURLLocation(request)+"/encounters/"+thumbLink;
@@ -337,13 +337,35 @@
       <table>
         <tr>
           <td valign="top">
-            <a href="<%=link%>" class="highslide" onclick="return hs.expand(this)"><img
-              src="<%=thumbLink%>" alt="photo" border="1" title="Click to enlarge"/></a>
+            <a href="<%=link%>" 
+            
+            <%
+            if(!thumbLink.endsWith("video.jpg")){
+            %>
+            class="highslide" onclick="return hs.expand(this)"
+            <%
+            }
+            %>
+            
+            >
+            <img src="<%=thumbLink%>" alt="photo" border="1" title="Click to enlarge"/></a>
 
-            <div class="highslide-caption">
-
-              <h3><%=(countMe + startNum) %>/<%=numThumbnails %>
-              </h3>
+            <div 
+            <%
+            if(!thumbLink.endsWith("video.jpg")){
+            %>
+            class="highslide-caption"
+            <%
+            }
+            %>
+            >
+			<%
+            if(!thumbLink.endsWith("video.jpg")){
+            	%>
+              <h3><%=(countMe + startNum) %>/<%=numThumbnails %></h3>
+            <%
+            }
+            %>
               <%
                 if (request.getParameter("referenceImageName") != null) {
               %>
@@ -352,7 +374,17 @@
                 <tr>
                   <td>
 
-                    <img width="790px" class="highslide-image" id="refImage<%=(countMe+startNum) %>"
+                    <img width="790px" 
+                    
+                    <%
+            		if(!thumbLink.endsWith("video.jpg")){
+            		%>
+                    class="highslide-image"
+                    <%
+            		}
+                    %>
+                    
+                    id="refImage<%=(countMe+startNum) %>"
                          src="<%=request.getParameter("referenceImageName") %>"/>
 
                   </td>
@@ -361,12 +393,22 @@
               <%
                 }
               %>
+              
+              <%
+            	if(!thumbLink.endsWith("video.jpg")){
+            	%>
               <h4><%=encprops.getProperty("imageMetadata") %>
               </h4>
+              <%
+            	}
+              %>
 
+ 				
               <table>
                 <tr>
                   <td align="left" valign="top">
+
+
 
                     <table>
                       <%
@@ -374,6 +416,10 @@
                         int kwLength = keywords.length;
                         Encounter thisEnc = myShepherd.getEncounter(encNum);
                       %>
+                      
+                      	<%
+            	if(!thumbLink.endsWith("video.jpg")){
+            	%>
                       <tr>
                         <td><span class="caption"><em><%=(countMe + startNum) %>/<%=numThumbnails %>
                         </em></span></td>
@@ -394,9 +440,24 @@
                         </td>
                       </tr>
                       <tr>
-                        <td><span class="caption"><%=encprops.getProperty("individualID") %>: <a
-                          href="../individuals.jsp?number=<%=thisEnc.getIndividualID() %>"><%=thisEnc.getIndividualID() %>
-                        </a></span></td>
+                        <td><span class="caption"><%=encprops.getProperty("individualID") %>: 
+                        	<%
+                        	if(!thisEnc.getIndividualID().equals("Unassigned")){
+                        	%>
+                        	<a href="../individuals.jsp?number=<%=thisEnc.getIndividualID() %>">
+                        	<%
+            				}
+                        	%>
+                        	<%=thisEnc.getIndividualID() %>
+                        	<%
+                        	if(!thisEnc.getIndividualID().equals("Unassigned")){
+                        	%>
+                        	</a>
+                        	<%
+            				}
+                        	%>
+                        	
+                        </span></td>
                       </tr>
                       <tr>
                         <td><span class="caption"><%=encprops.getProperty("catalogNumber") %>: <a
@@ -413,6 +474,7 @@
                         </td>
                       </tr>
                       <%
+                        
                         }
 
                         if (request.getParameter("keyword") != null) {
@@ -443,6 +505,7 @@
 													<%
 
                               }
+                        }
                             }
 
                           %>
@@ -453,14 +516,22 @@
                       %>
 
                     </table>
+                    
+                    	<%
+            	if(!thumbLink.endsWith("video.jpg")){
+            	%>
                     <br/>
+                    <%
+            	}
+                    %>
 
                     <%
-                      if (CommonConfiguration.showEXIFData()) {
+                      if (CommonConfiguration.showEXIFData()&&!thumbLink.endsWith("video.jpg")) {
                     %>
+                    
                     <p><strong>EXIF Data</strong></p>
 												
-												<span class="caption">
+				   <span class="caption">
 						<div class="scroll">
 						<span class="caption">
 					<%
@@ -514,9 +585,23 @@
   <td><span class="caption"><%=encprops.getProperty("date") %>: <%=thisEnc.getDate() %></span></td>
 </tr>
 <tr>
-  <td><span class="caption"><%=encprops.getProperty("individualID") %>: <a
-    href="../individuals.jsp?number=<%=thisEnc.getIndividualID() %>"><%=thisEnc.getIndividualID() %>
-  </a></span></td>
+  <td><span class="caption"><%=encprops.getProperty("individualID") %>: 
+      						<%
+                        	if(!thisEnc.getIndividualID().equals("Unassigned")){
+                        	%>
+                        	<a href="../individuals.jsp?number=<%=thisEnc.getIndividualID() %>">
+                        	<%
+            				}
+                        	%>
+                        	<%=thisEnc.getIndividualID() %>
+                        	<%
+                        	if(!thisEnc.getIndividualID().equals("Unassigned")){
+                        	%>
+                        	</a>
+                        	<%
+            				}
+                        	%>
+  </span></td>
 </tr>
 <tr>
   <td><span class="caption"><%=encprops.getProperty("catalogNumber") %>: <a

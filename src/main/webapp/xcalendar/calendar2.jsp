@@ -163,27 +163,13 @@
      if(request.getParameter("scDate")!=null){
        dateString=request.getParameter("scDate");
      }
+     else if((request.getParameter("year1")!=null)&&(request.getParameter("month1")!=null)){
+    	 dateString=request.getParameter("month1")+"/1/"+request.getParameter("year1");
+       }
      else{
-
        Calendar cal=Calendar.getInstance();
        int nowYear = cal.get(Calendar.YEAR);
        int nowMonth = cal.get(Calendar.MONTH)+1;
-       Shepherd myShepherd = new Shepherd();
-       myShepherd.beginDBTransaction();
-       try{
-
-         nowYear = myShepherd.getLastSightingYear();
-         nowMonth = myShepherd.getLastMonthOfSightingYear(nowYear)+1;
-
-       }
-       catch(Exception e){
-         e.printStackTrace();
-       }
-       finally{
-         myShepherd.rollbackDBTransaction();
-         myShepherd.closeDBTransaction();
-       }
-
        dateString=(new Integer(nowMonth)).toString()+"/1/"+(new Integer(nowYear)).toString();
      }
 

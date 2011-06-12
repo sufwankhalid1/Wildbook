@@ -16,8 +16,8 @@ public class EncounterQueryProcessor {
   //filter for location------------------------------------------
     if((request.getParameter("locationField")!=null)&&(!request.getParameter("locationField").equals(""))) {
       String locString=request.getParameter("locationField").toLowerCase().replaceAll("%20", " ").trim();
-      if(filter.equals("")){
-        filter="(verbatimLocality.toLowerCase().indexOf('"+locString+"') != -1)";
+      if(filter.equals("SELECT FROM org.ecocean.Encounter WHERE ")){
+        filter+="(verbatimLocality.toLowerCase().indexOf('"+locString+"') != -1)";
       }
       else{filter+=" && (verbatimLocality.toLowerCase().indexOf('"+locString+"') != -1)";}
       prettyPrint.append("locationField contains \""+locString+"\".<br />");
@@ -348,8 +348,8 @@ public class EncounterQueryProcessor {
       }
     }
     
-    GregorianCalendar gcMin=new GregorianCalendar(minYear, minMonth, minDay);
-    GregorianCalendar gcMax=new GregorianCalendar(maxYear, maxMonth, maxDay);
+    GregorianCalendar gcMin=new GregorianCalendar(minYear, (minMonth-1), minDay, 0, 0);
+    GregorianCalendar gcMax=new GregorianCalendar(maxYear, (maxMonth-1), maxDay, 23, 59);
     
     if(filter.equals("SELECT FROM org.ecocean.Encounter WHERE ")){
       filter+="((dateInMilliseconds >= "+gcMin.getTimeInMillis()+") && (dateInMilliseconds <= "+gcMax.getTimeInMillis()+"))";

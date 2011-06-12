@@ -56,29 +56,7 @@ public class EncounterSetSize extends HttpServlet {
     PrintWriter out = response.getWriter();
     boolean locked = false, isOwner = true;
     boolean isAssigned = false;
-
-    /**
-     if(request.getParameter("number")!=null){
-     myShepherd.beginDBTransaction();
-     if(myShepherd.isEncounter(request.getParameter("number"))) {
-     Encounter verifyMyOwner=myShepherd.getEncounter(request.getParameter("number"));
-     String locCode=verifyMyOwner.getLocationCode();
-
-     //check if the encounter is assigned
-     if((verifyMyOwner.getSubmitterID()!=null)&&(request.getRemoteUser()!=null)&&(verifyMyOwner.getSubmitterID().equals(request.getRemoteUser()))){
-     isAssigned=true;
-     }
-
-     //if the encounter is assigned to this user, they have permissions for it...or if they're a manager
-     if((request.isUserInRole("admin"))||(isAssigned)){
-     isOwner=true;
-     }
-     //if they have general location code permissions for the encounter's location code
-     else if(request.isUserInRole(locCode)){isOwner=true;}
-     }
-     myShepherd.rollbackDBTransaction();
-     }
-     */
+    String newValue="null";
 
     String action = request.getParameter("action");
     System.out.println("Action is: " + action);
@@ -86,30 +64,39 @@ public class EncounterSetSize extends HttpServlet {
 
 
       if (action.equals("setEncounterSize")) {
-        if ((request.getParameter("number") != null) && (request.getParameter("lengthField") != null) && (request.getParameter("lengthUnits") != null) && (request.getParameter("guessList") != null)) {
+        if ((request.getParameter("number") != null) && (request.getParameter("lengthUnits") != null) && (request.getParameter("guessList") != null)) {
           myShepherd.beginDBTransaction();
           Encounter changeMe = myShepherd.getEncounter(request.getParameter("number"));
           setDateLastModified(changeMe);
 
-          double oldSize = 0;
+          String oldSize = "null";
           String oldUnits = "";
           String oldGuess = "";
           boolean okNumberFormat = true;
           try {
-
-            oldSize = changeMe.getSize();
+            if(changeMe.getSizeAsDouble()!=null){
+            	  oldSize = changeMe.getSizeAsDouble().toString();
+             }
             oldUnits = changeMe.getMeasureUnits();
             oldGuess = changeMe.getSizeGuess();
             changeMe.setMeasureUnits(request.getParameter("lengthUnits"));
             changeMe.setSizeGuess(request.getParameter("guessList"));
 
-            //check for appropriate number format for reported size
-
-            Double inputSize = new Double(request.getParameter("lengthField"));
-            changeMe.setSize(inputSize.doubleValue());
-
-            changeMe.addComments("<p><em>" + request.getRemoteUser() + " on " + (new java.util.Date()).toString() + "</em><br>Changed encounter size from " + oldSize + " " + oldUnits + "(" + oldGuess + ")" + " to " + request.getParameter("lengthField") + " " + request.getParameter("lengthUnits") + "(" + request.getParameter("guessList") + ").</p>");
-          } catch (NumberFormatException nfe) {
+            
+            if((request.getParameter("lengthField")!=null)&&(!request.getParameter("lengthField").equals(""))){
+              Double inputSize = new Double(request.getParameter("lengthField"));
+              changeMe.setSize(inputSize);
+              newValue=request.getParameter("lengthField") + " " + request.getParameter("lengthUnits") + " (" + request.getParameter("guessList") + ")";
+            }
+            else{
+              changeMe.setSize(null);
+            }
+              
+              
+              
+              changeMe.addComments("<p><em>" + request.getRemoteUser() + " on " + (new java.util.Date()).toString() + "</em><br>Changed encounter size from " + oldSize + " " + oldUnits + " (" + oldGuess + ")" + " to " + newValue+".</p>");
+          }
+          catch (NumberFormatException nfe) {
             System.out.println("User tried to enter improper number format when editing encounter length.");
             okNumberFormat = false;
             nfe.printStackTrace();
@@ -125,7 +112,7 @@ public class EncounterSetSize extends HttpServlet {
           if (!locked && okNumberFormat) {
             myShepherd.commitDBTransaction(action);
             out.println(ServletUtilities.getHeader(request));
-            out.println("<strong>Success:</strong> Encounter size has been updated from " + oldSize + " " + oldUnits + "(" + oldGuess + ")" + " to " + request.getParameter("lengthField") + " " + request.getParameter("lengthUnits") + "(" + request.getParameter("guessList") + ").");
+            out.println("<strong>Success:</strong> Encounter size has been updated from " + oldSize + " " + oldUnits + " (" + oldGuess + ")" + " to "+newValue+".");
             out.println("<p><a href=\"http://" + CommonConfiguration.getURLLocation(request) + "/encounters/encounter.jsp?number=" + request.getParameter("number") + "\">Return to encounter #" + request.getParameter("number") + "</a></p>\n");
             out.println("<p><a href=\"encounters/allEncounters.jsp\">View all encounters</a></font></p>");
             out.println("<p><a href=\"allIndividuals.jsp\">View all sharks</a></font></p>");

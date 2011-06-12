@@ -20,6 +20,7 @@
 package org.ecocean;
 
 import java.util.*;
+import java.util.GregorianCalendar;
 
 /**
  * A <code>MarkedIndividual</code> object stores the complete <code>encounter</code> data for a single marked individual in a mark-recapture study.
@@ -75,9 +76,9 @@ public class MarkedIndividual {
   private String dynamicProperties;
 
   private String patterningCode;
-  
+
   private int maxYearsBetweenResightings;
-  
+
   public MarkedIndividual(String name, Encounter enc) {
 
     this.name = name;
@@ -100,23 +101,23 @@ public class MarkedIndividual {
    *@return true for successful addition, false for unsuccessful - Note: this change must still be committed for it to be stored in the database
    *@see  Shepherd#commitDBTransaction()
    */
-  
+
   public boolean addEncounter(Encounter newEncounter) {
-    
-    newEncounter.assignToMarkedIndividual(name); 
+
+    newEncounter.assignToMarkedIndividual(name);
     if(unidentifiableEncounters==null) {unidentifiableEncounters=new Vector();}
     if(newEncounter.wasRejected()) {
-      numUnidentifiableEncounters++; 
+      numUnidentifiableEncounters++;
       resetMaxNumYearsBetweenSightings();
       return unidentifiableEncounters.add(newEncounter);
-      
+
       }
     else {
-      numberEncounters++; 
+      numberEncounters++;
       resetMaxNumYearsBetweenSightings();
       return encounters.add(newEncounter); }
     }
-  
+
    /**Removes an encounter from this MarkedIndividual.
    *@param  getRidOfMe  the <code>encounter</code> to remove from this MarkedIndividual
    *@return true for successful removal, false for unsuccessful - Note: this change must still be committed for it to be stored in the database
@@ -124,7 +125,7 @@ public class MarkedIndividual {
    */
   public boolean removeEncounter(Encounter getRidOfMe){
     if(getRidOfMe.wasRejected()) {
-      numUnidentifiableEncounters--; 
+      numUnidentifiableEncounters--;
       boolean changed=false;
       for(int i=0;i<unidentifiableEncounters.size();i++) {
         Encounter tempEnc=(Encounter)unidentifiableEncounters.get(i);
@@ -136,10 +137,10 @@ public class MarkedIndividual {
         }
       resetMaxNumYearsBetweenSightings();
       return changed;
-      
+
       }
     else {
-      numberEncounters--; 
+      numberEncounters--;
       boolean changed=false;
       for(int i=0;i<encounters.size();i++) {
         Encounter tempEnc=(Encounter)encounters.get(i);
@@ -178,18 +179,18 @@ public class MarkedIndividual {
       if((temp.getDWCDecimalLatitude()!=null)&&(temp.getDWCDecimalLongitude()!=null)) {
         haveData.add(temp);
         }
-      
-      } 
+
+      }
     for(int d=0;d<numUnidentifiableEncounters;d++) {
       Encounter temp=(Encounter)unidentifiableEncounters.get(d);
       if((temp.getDWCDecimalLatitude()!=null)&&(temp.getDWCDecimalLongitude()!=null)) {
-        
+
         haveData.add(temp);
         }
-      
-      } 
+
+      }
     return haveData;
-    
+
   }
 
   public boolean isDeceased() {
@@ -320,52 +321,22 @@ public class MarkedIndividual {
   public boolean wasSightedInPeriod(int m_startYear, int m_startMonth, int m_endYear, int m_endMonth) {
     int endYear = m_endYear;
     int endMonth = m_endMonth;
-    //int endDay=m_endDay;
+
     int startYear = m_startYear;
     int startMonth = m_startMonth;
-    //int startDay=m_startDay;
 
-    //test that start and end dates are not reversed
-    if (endYear < startYear) {
-      endYear = m_startYear;
-      endMonth = m_startMonth;
-      //endDay=m_startDay;
-      startYear = m_endYear;
-      startMonth = m_endMonth;
-      //startDay=m_endDay;
-    } else if ((endYear == startYear) && (endMonth < startMonth)) {
-      endYear = m_startYear;
-      endMonth = m_startMonth;
-      //endDay=m_startDay;
-      startYear = m_endYear;
-      startMonth = m_endMonth;
-      //startDay=m_endDay;
-    }
-    /*else if((endYear==startYear)&&(endMonth==startMonth)&&(endDay>startDay)) {
-        endYear=m_startYear;
-        endMonth=m_startMonth;
-        endDay=m_startDay;
-        startYear=m_endYear;
-        startMonth=m_endMonth;
-        startDay=m_endDay;
-      }*/
+    
+    GregorianCalendar gcMin=new GregorianCalendar(startYear, startMonth, 1);
+    GregorianCalendar gcMax=new GregorianCalendar(endYear, endMonth, 31);
+    
+
 
     for (int c = 0; c < encounters.size(); c++) {
       Encounter temp = (Encounter) encounters.get(c);
-      if ((temp.getYear() > startYear) && (temp.getYear() < endYear)) {
-        return true;
-      } else if ((temp.getYear() == startYear) && (temp.getYear() < endYear) && (temp.getMonth() >= startMonth)) {
-        return true;
-      }
-      //else if((temp.getYear()==startYear)&&(temp.getYear()<endYear)&&(temp.getMonth()==startMonth)){return true;}
 
-      else if ((temp.getYear() > startYear) && (temp.getYear() == endYear) && (temp.getMonth() <= endMonth)) {
-        return true;
-      } else if ((temp.getYear() >= startYear) && (temp.getYear() <= endYear) && (temp.getMonth() >= startMonth) && (temp.getMonth() <= endMonth)) {
-        return true;
-      }
-
-
+        if((temp.getDateInMilliseconds()>=gcMin.getTimeInMillis())&&(temp.getDateInMilliseconds()<=gcMax.getTimeInMillis())){
+          return true;
+        }
     }
     return false;
   }
@@ -378,22 +349,20 @@ public class MarkedIndividual {
     int startMonth = m_startMonth;
     int startDay = m_startDay;
 
+    GregorianCalendar gcMin=new GregorianCalendar(startYear, startMonth, startDay);
+    GregorianCalendar gcMax=new GregorianCalendar(endYear, endMonth, endDay);
+
+
 
     for (int c = 0; c < encounters.size(); c++) {
       Encounter temp = (Encounter) encounters.get(c);
 
       if (temp.getLocationCode().startsWith(locCode)) {
-        if ((temp.getYear() >= startYear) && (temp.getYear() <= endYear)) {
-          if ((temp.getMonth() >= startMonth) && (temp.getMonth() <= endMonth)) {
-            if ((temp.getDay() >= startDay) & (temp.getDay() <= endDay)) {
-              return true;
-            }
-          }
+
+        if((temp.getDateInMilliseconds()>=gcMin.getTimeInMillis())&&(temp.getDateInMilliseconds()<=gcMax.getTimeInMillis())){
+          return true;
         }
-
-
       }
-
     }
     return false;
   }
@@ -405,20 +374,13 @@ public class MarkedIndividual {
     int startYear = m_startYear;
     int startMonth = m_startMonth;
     int startDay = m_startDay;
-
-
+    GregorianCalendar gcMin=new GregorianCalendar(startYear, startMonth, startDay);
+    GregorianCalendar gcMax=new GregorianCalendar(endYear, endMonth, endDay);
     for (int c = 0; c < encounters.size(); c++) {
       Encounter temp = (Encounter) encounters.get(c);
-
-      if ((temp.getYear() >= startYear) && (temp.getYear() <= endYear)) {
-        if ((temp.getMonth() >= startMonth) && (temp.getMonth() <= endMonth)) {
-          if ((temp.getDay() >= startDay) & (temp.getDay() <= endDay)) {
-            return true;
-          }
-        }
+      if((temp.getDateInMilliseconds()>=gcMin.getTimeInMillis())&&(temp.getDateInMilliseconds()<=gcMax.getTimeInMillis())){
+          return true;
       }
-
-
     }
     return false;
   }
@@ -426,32 +388,21 @@ public class MarkedIndividual {
   public boolean wasSightedInPeriodLeftOnly(int m_startYear, int m_startMonth, int m_endYear, int m_endMonth) {
     int endYear = m_endYear;
     int endMonth = m_endMonth;
+
     int startYear = m_startYear;
     int startMonth = m_startMonth;
+    
+    GregorianCalendar gcMin=new GregorianCalendar(startYear, startMonth, 1);
+    GregorianCalendar gcMax=new GregorianCalendar(endYear, endMonth, 31);
+    
 
-    //test that start and end dates are not reversed
-    if (endYear < startYear) {
-      endYear = m_startYear;
-      endMonth = m_startMonth;
-      startYear = m_endYear;
-      startMonth = m_endMonth;
-    } else if ((endYear == startYear) && (endMonth < startMonth)) {
-      endYear = m_startYear;
-      endMonth = m_startMonth;
-      startYear = m_endYear;
-      startMonth = m_endMonth;
-    }
+
     for (int c = 0; c < encounters.size(); c++) {
       Encounter temp = (Encounter) encounters.get(c);
-      if ((temp.getYear() > startYear) && (temp.getYear() < endYear) && (temp.getNumSpots() > 0)) {
-        return true;
-      } else if ((temp.getYear() == startYear) && (temp.getYear() < endYear) && (temp.getMonth() >= startMonth) && (temp.getNumSpots() > 0)) {
-        return true;
-      } else if ((temp.getYear() > startYear) && (temp.getYear() == endYear) && (temp.getMonth() <= endMonth) && (temp.getNumSpots() > 0)) {
-        return true;
-      } else if ((temp.getYear() >= startYear) && (temp.getYear() <= endYear) && (temp.getMonth() >= startMonth) && (temp.getMonth() <= endMonth) && (temp.getNumSpots() > 0)) {
-        return true;
-      }
+
+        if((temp.getDateInMilliseconds()>=gcMin.getTimeInMillis())&&(temp.getDateInMilliseconds()<=gcMax.getTimeInMillis())&&(temp.getNumSpots()>0)){
+          return true;
+        }
     }
     return false;
   }
@@ -870,17 +821,17 @@ public class MarkedIndividual {
    */
    public String getAllAlternateIDs(){
      ArrayList<String> allIDs = new ArrayList<String>();
-     
-      //add any alt IDs for the individual itself 
+
+      //add any alt IDs for the individual itself
       if(alternateid!=null){allIDs.add(alternateid);}
-      
+
       //add an alt IDs for the individual's encounters
       int numEncs=encounters.size();
       for(int c=0;c<numEncs;c++) {
         Encounter temp=(Encounter)encounters.get(c);
         if((temp.getAlternateID()!=null)&&(!temp.getAlternateID().equals("None"))&&(!allIDs.contains(temp.getAlternateID()))) {allIDs.add(temp.getAlternateID());}
       }
-      
+
       return allIDs.toString();
     }
 
@@ -996,7 +947,7 @@ public class MarkedIndividual {
   }
 
   public String getPatterningCode(){
-    
+
     int numEncs=encounters.size();
     for(int i=0;i<numEncs;i++){
       Encounter enc=(Encounter)encounters.get(i);
@@ -1004,9 +955,9 @@ public class MarkedIndividual {
     }
     return null;
   }
-  
+
   public void setPatterningCode(String newCode){this.patterningCode=newCode;}
-  
+
   public void resetMaxNumYearsBetweenSightings(){
     int maxYears=0;
     int lowestYear=3000;
@@ -1019,5 +970,5 @@ public class MarkedIndividual {
       }
     maxYearsBetweenResightings=maxYears;
     }
-  
+
 }

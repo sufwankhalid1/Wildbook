@@ -322,7 +322,7 @@
       <%=encprops.getProperty("identified_as") %>: <%=enc.isAssignedToMarkedIndividual()%> <%
         if (isOwner && CommonConfiguration.isCatalogEditable()) {
       %><font size="-1">[<a
-        href="encounter.jsp?number=<%=num%>&edit=manageShark">edit</a>]</font>
+        href="encounter.jsp?number=<%=num%>&edit=manageIdentity">edit</a>]</font>
       <%
         }
       %>
@@ -336,7 +336,7 @@
       </a></font>
       <%
         if (isOwner && CommonConfiguration.isCatalogEditable()) {
-      %>[<a href="encounter.jsp?number=<%=num%>&edit=manageShark">edit</a>]<%
+      %>[<a href="encounter.jsp?number=<%=num%>&edit=manageIdentity">edit</a>]<%
         }
         if (isOwner) {
       %><br> <img align="absmiddle"
@@ -365,8 +365,8 @@
     </p>
 
 
-    <p class="para"><img align="absmiddle"
-                         src="../images/alternateid.gif"> <%=encprops.getProperty("alternate_id")%>
+    <p class="para">
+    	<img align="absmiddle" src="../images/alternateid.gif"> <%=encprops.getProperty("alternate_id")%>
       : <%=enc.getAlternateID()%>
       <%
         if (isOwner && CommonConfiguration.isCatalogEditable()) {
@@ -639,8 +639,8 @@ if(loggedIn.equals("false")){
 				
 				
 			  //add this encounter to a MarkedIndividual object
-			  if ((isOwner)&&(request.getParameter("edit")!=null)&&(request.getParameter("edit").equals("manageShark"))) {
-		%> <a name="manageShark">
+			  if ((isOwner)&&(request.getParameter("edit")!=null)&&(request.getParameter("edit").equals("manageIdentity"))) {
+		%> <a name="manageIdentity">
   <table width="150" border="1" cellpadding="1" cellspacing="0"
          bordercolor="#000000" bgcolor="#CCCCCC">
     <tr>
@@ -674,10 +674,10 @@ if(loggedIn.equals("false")){
       </td>
     </tr>
   </table>
-</a><br> <%
+<br> <%
 		  	}
 		  	  //Remove from MarkedIndividual if not unassigned
-		  	  if((!enc.isAssignedToMarkedIndividual().equals("Unassigned"))&&CommonConfiguration.isCatalogEditable()&&isOwner&&(request.getParameter("edit")!=null)&&(request.getParameter("edit").equals("manageShark"))) {
+		  	  if((!enc.isAssignedToMarkedIndividual().equals("Unassigned"))&&CommonConfiguration.isCatalogEditable()&&isOwner&&(request.getParameter("edit")!=null)&&(request.getParameter("edit").equals("manageIdentity"))) {
 		  %>
 <table width="150" border="1" cellpadding="1" cellspacing="0"
        bordercolor="#000000" bgcolor="#CCCCCC">
@@ -709,7 +709,7 @@ if(loggedIn.equals("false")){
 <br> <%
       	}
       	  //create new MarkedIndividual with name
-      	  if(isOwner&&(request.getParameter("edit")!=null)&&(request.getParameter("edit").equals("manageShark"))){
+      	  if(isOwner&&(request.getParameter("edit")!=null)&&(request.getParameter("edit").equals("manageIdentity"))){
       %>
 <table width="150" border="1" cellpadding="1" cellspacing="0"
        bordercolor="#000000" bgcolor="#CCCCCC">
@@ -736,7 +736,7 @@ if(loggedIn.equals("false")){
       </form>
     </td>
   </tr>
-</table>
+</table></a>
 <br> <%
 			}
       	if((request.getParameter("edit")!=null)&&(request.getParameter("edit").equals("gps"))){
@@ -1492,25 +1492,7 @@ if(loggedIn.equals("false")){
     href="encounter.jsp?number=<%=num%>&edit=date#date">edit</a>]</font> <%
         		}
         		%>
-  <br/>
 
-    <%=encprops.getProperty("verbatimEventDate")%>:
-    <%
-				if(enc.getVerbatimEventDate()!=null){
-				%>
-    <%=enc.getVerbatimEventDate()%>
-    <%
-				}
-				else {
-				%>
-    <%=encprops.getProperty("none") %>
-    <%
-				}
-				if(isOwner&&CommonConfiguration.isCatalogEditable()) {
- 					%> <font size="-1">[<a
-    href="encounter.jsp?number=<%=num%>&edit=verbatimdate#verbatimdate">edit</a>]</font> <%
-        		}
-        		%>
 
 <p class="para"><strong><%=encprops.getProperty("location") %>
 </strong><br/> <%=enc.getLocation()%>
@@ -1527,7 +1509,7 @@ if(loggedIn.equals("false")){
   <%
     if (isOwner && CommonConfiguration.isCatalogEditable()) {%>
   <font size="-1">[<a href="encounter.jsp?number=<%=num%>&edit=loccode#loccode">edit</a>]</font>
-  <a href="<%=CommonConfiguration.getWikiLocation()%>location_codes" target="_blank"><img
+  <a href="<%=CommonConfiguration.getWikiLocation()%>locationID" target="_blank"><img
     src="../images/information_icon_svg.gif" alt="Help" border="0" align="absmiddle"></a> <%
     }
   %><br/>
@@ -1565,16 +1547,16 @@ if(loggedIn.equals("false")){
 %>
 <p class="para"><strong><%=encprops.getProperty("size") %>
 </strong><br/> <%
-      				if(enc.getSize()>0) {%>
-    <%=enc.getSize()%> <%=enc.getMeasureUnits()%>
+      				if(enc.getSizeAsDouble()!=null) {%>
+    <%=enc.getSize()%> <%=encprops.getProperty("meters")%>
+    <br/> <em><%=encprops.getProperty("method") %>: <%=enc.getSizeGuess()%></em>
     <%
  					} else {
  					%>
     <%=encprops.getProperty("unknown") %>
     <%
  					}
-					 %> <br/> (<em><%=encprops.getProperty("method") %>: <%=enc.getSizeGuess()%>
-  </em>) <%
+				
  					if(isOwner&&CommonConfiguration.isCatalogEditable()) {%>
   <font size="-1">[<a href="encounter.jsp?number=<%=num%>&edit=size">edit</a>]</font>
     <%
@@ -1590,8 +1572,9 @@ if(loggedIn.equals("false")){
 <p class="para"><strong><%=encprops.getProperty("depth") %>
 </strong><br/>
   <%
-    if (enc.getDepth() >= 0) {
-  %> <%=enc.getDepth()%> <%=enc.getMeasureUnits()%> <%
+    if (enc.getMaximumDepthInMeters()!=null) {
+  %> 
+  <%=enc.getDepth()%> <%=encprops.getProperty("meters")%> <%
   } else {
   %> <%=encprops.getProperty("unknown") %><%
     }
@@ -1613,9 +1596,16 @@ if(loggedIn.equals("false")){
 <p class="para"><strong><%=encprops.getProperty("elevation") %>
 </strong><br/>
 
-  <%=enc.getMaximumElevationInMeters()%> meters
-  <%
+<%
+if(enc.getMaximumElevationInMeters()!=null){
+%>
 
+  <%=enc.getMaximumElevationInMeters().doubleValue()%> <%=encprops.getProperty("meters")%>
+  <%
+}
+else {
+	  %> <%=encprops.getProperty("unknown") %><%
+	    }
 
     if (isOwner && CommonConfiguration.isCatalogEditable()) {
   %><font size="-1">[<a
@@ -1813,22 +1803,29 @@ if(loggedIn.equals("false")){
     right spots</a>]</font> <%
 	  	}
 
-	  	if(((new File((new File(".")).getCanonicalPath()+File.separator+"webapps"+File.separator+"ROOT"+File.separator+"encounters"+File.separator+num+File.separator+"lastFullScan.xml")).exists())&&(enc.getNumSpots()>0)) {
+    	File leftScanResults = new File(getServletContext().getRealPath(("/" + CommonConfiguration.getImageDirectory() + "/" + num + "/lastFullScan.xml")));
+    	File rightScanResults = new File(getServletContext().getRealPath(("/" + CommonConfiguration.getImageDirectory() + "/" + num + "/lastFullRightScan.xml")));
+    	File I3SScanResults = new File(getServletContext().getRealPath(("/" + CommonConfiguration.getImageDirectory() + "/" + num + "/lastFullI3SScan.xml")));
+
+    	File rightI3SScanResults = new File(getServletContext().getRealPath(("/" + CommonConfiguration.getImageDirectory() + "/" + num + "/lastFullRightI3SScan.xml")));
+
+    	
+	  	if((leftScanResults.exists())&&(enc.getNumSpots()>0)) {
 	  		%> <br/><br/><a
     href="scanEndApplet.jsp?writeThis=true&number=<%=num%>">Groth:
     Left-side scan results</a> <%
 	  			}
-	  			if(((new File((new File(".")).getCanonicalPath()+File.separator+"webapps"+File.separator+"ROOT"+File.separator+"encounters"+File.separator+num+File.separator+"lastFullRightScan.xml")).exists())&&(enc.getNumRightSpots()>0)) {
-	  		%> <br/><br/><a
-    href="scanEndApplet.jsp?writeThis=true&number=<%=num%>&rightSide=true">Groth:
+	  	if((rightScanResults.exists())&&(enc.getNumRightSpots()>0)) {
+	  		%> <br/><br/>
+	  		<a href="scanEndApplet.jsp?writeThis=true&number=<%=num%>&rightSide=true">Groth:
     Right-side scan results</a> <%
 	  			}
-	  			if(((new File((new File(".")).getCanonicalPath()+File.separator+"webapps"+File.separator+"ROOT"+File.separator+"encounters"+File.separator+num+File.separator+"lastFullI3SScan.xml")).exists())&&(enc.getNumSpots()>0)) {
+	  	if((I3SScanResults.exists())&&(enc.getNumSpots()>0)) {
 	  		%> <br/><br/><a
     href="i3sScanEndApplet.jsp?writeThis=true&number=<%=num%>&I3S=true">I3S:
     Left-side scan results</a> <%
 	  			}
-	  			if(((new File((new File(".")).getCanonicalPath()+File.separator+"webapps"+File.separator+"ROOT"+File.separator+"encounters"+File.separator+num+File.separator+"lastFullRightI3SScan.xml")).exists())&&(enc.getNumRightSpots()>0)) {
+	  	if((rightI3SScanResults.exists())&&(enc.getNumRightSpots()>0)) {
 	  		%> <br/><br/><a
     href="i3sScanEndApplet.jsp?writeThis=true&number=<%=num%>&rightSide=true&I3S=true">I3S:
     Right-side scan results</a> <%
@@ -1859,7 +1856,7 @@ if(loggedIn.equals("false")){
   int imageCount = 0;
   while (images.hasMoreElements()) {
     imageCount++;
-    String addTextFile = (String) images.nextElement();
+    String addTextFile = ((String) images.nextElement()).replaceAll("%20"," ");
     try {
       if ((myShepherd.isAcceptableImageFile(addTextFile)) || (myShepherd.isAcceptableVideoFile(addTextFile))) {
         String addText = num + "/" + addTextFile;
@@ -2034,8 +2031,19 @@ if(loggedIn.equals("false")){
       <%
       } else if (isOwner) {
       %>
-      <a href="<%=addText%>" class="highslide" onclick="return hs.expand(this)"
-         title="Click to enlarge"><%
+      <a href="<%=addText%>" 
+        <%
+        if(!isVideo){
+        %>
+      class="highslide" onclick="return hs.expand(this)"
+		<%
+            }
+		%>
+          
+         title="Click to enlarge">
+         
+         
+         <%
         }
 
         String thumbLocation = "file-" + num + "/" + imageCount + ".jpg";
@@ -2047,15 +2055,16 @@ if(loggedIn.equals("false")){
         int thumbnailHeight = 200;
         int thumbnailWidth = 250;
 
-        File file2process = new File(getServletContext().getRealPath(("/" + CommonConfiguration.getImageDirectory() + "/" + addText)));
-        Dimension imageDimensions = org.apache.sanselan.Sanselan.getImageSize(file2process);
 
-        String width = Double.toString(imageDimensions.getWidth());
-        String height = Double.toString(imageDimensions.getHeight());
-
-        intHeight = ((new Double(height)).intValue());
-        intWidth = ((new Double(width)).intValue());
-
+        if(!isVideo){
+        	File file2process = new File(getServletContext().getRealPath(("/" + CommonConfiguration.getImageDirectory() + "/" + addText)));
+        	Dimension imageDimensions = org.apache.sanselan.Sanselan.getImageSize(file2process);
+        	String width = Double.toString(imageDimensions.getWidth());
+        	String height = Double.toString(imageDimensions.getHeight());
+        	intHeight = ((new Double(height)).intValue());
+        	intWidth = ((new Double(width)).intValue());
+        }
+        
         if (intWidth > thumbnailWidth) {
           double scalingFactor = intWidth / thumbnailWidth;
           intWidth = (int) (intWidth / scalingFactor);
@@ -2113,8 +2122,9 @@ if(loggedIn.equals("false")){
   %> <img width="250" height="200" alt="photo <%=enc.getLocation()%>"
           src="../images/processed.gif" border="0" align="left" valign="left">
       <%
-					if (session.getAttribute("logged")!=null) {
-				%></a>
+		if (session.getAttribute("logged")!=null) {
+		%>
+		</a>
     <%
       }
     %> <%
@@ -2122,9 +2132,17 @@ if(loggedIn.equals("false")){
   %> <img id="img<%=imageCount%> " width="<%=thumbnailWidth %>" alt="photo <%=enc.getLocation()%>"
           src="<%=(num+"/"+imageCount+".jpg")%>" border="0" align="left"
           valign="left"> <%
-					if (session.getAttribute("logged")!=null) {
+	if (session.getAttribute("logged")!=null) {
 				%></a>
-    <div class="highslide-caption">
+                <div 
+            <%
+            if(!isVideo){
+            %>
+            class="highslide-caption"
+            <%
+            }
+            %>
+            >
       <h3><%=encprops.getProperty("imageMetadata") %>
       </h3>
       <table>
@@ -2199,7 +2217,7 @@ if(loggedIn.equals("false")){
 
 
             <%
-              if (CommonConfiguration.showEXIFData()) {
+              if (CommonConfiguration.showEXIFData()&&!isVideo) {
             %>
 
 
@@ -2261,8 +2279,8 @@ if(loggedIn.equals("false")){
     <p><img src="../alert.gif"> <strong><%=encprops.getProperty("badfile") %>
       :</strong> <%=addTextFile%> <%
       if (isOwner && CommonConfiguration.isCatalogEditable()) {
-    %> <br/><a
-      href="/encounterRemoveImage?number=<%=(num)%>&filename=<%=(addTextFile.replaceAll(" ","%20"))%>&position=<%=imageCount%>"><%=encprops.getProperty("clickremove") %>
+    %> <br/>
+    <a href="/encounterRemoveImage?number=<%=(num)%>&filename=<%=(addTextFile.replaceAll(" ","%20"))%>&position=<%=imageCount%>"><%=encprops.getProperty("clickremove") %>
     </a></p>
     <%
       }
@@ -2275,11 +2293,16 @@ if(loggedIn.equals("false")){
 catch (Exception e) {
   e.printStackTrace();
 %>
-<p>I hit an error trying to display a file: <%=addTextFile%>
-</p>
-
-<p><%=e.getMessage()%>
-</p>
+<table width="250px">
+<tr>
+<td>
+<img width="250px" height="200px" src="../images/Crystal_Clear_filesystem_file_broken.png" />
+</td></tr>
+<tr>
+<td class="para">
+<p>Error message:<br /> <%=e.getMessage()%></p>
+</td></tr>
+</table>
 <%
     }
   } //close while
@@ -2381,7 +2404,7 @@ catch (Exception e) {
 		 			
 					
 		 			
-		 			if((uploadedFile.exists())&&(uploadedFile.length()>0)&&(enc.getNumSpots()>0)) {
+		 			if((uploadedFile.exists())&&(uploadedFile.isFile())&&(uploadedFile.length()>0)&&(enc.getNumSpots()>0)) {
 
 		 				Dimension imageDimensions = org.apache.sanselan.Sanselan.getImageSize(uploadedFile);
 		 				
@@ -2411,7 +2434,7 @@ catch (Exception e) {
 										}
 									//set the right file
 									
-						if((uploadedRightFile.exists())&&(uploadedRightFile.length()>0)&&(enc.getNumRightSpots()>0)) {
+						if((uploadedRightFile.exists())&&uploadedRightFile.isFile()&&(uploadedRightFile.length()>0)&&(enc.getNumRightSpots()>0)) {
 									
 									//iInfo=new ImageInfo();
 									Dimension imageDimensions = org.apache.sanselan.Sanselan.getImageSize(uploadedRightFile);
@@ -2448,7 +2471,7 @@ catch (Exception e) {
   matching</strong><br/> <font size="-1">[<a
   href="encounter.jsp?number=<%=num%>&edit=spotImage#spotImage">reset
   left or right spot data image</a>]</font><br/> <br/> <%
-  if ((enc.getNumSpots() > 0)) {
+  if ((enc.getNumSpots() > 0)&&(uploadedFile.exists())&&(uploadedFile.isFile())) {
 %> Left-side<em>.</em><em> Click the image to view the full size
   original. <a href="encounterSpotVisualizer.jsp?number=<%=num%>">Click
     here to see the left-side spots mapped to the left-side image.</a> </em><br/>
@@ -2457,13 +2480,16 @@ catch (Exception e) {
     }
   %> <br/><br/> <%
     //--
-    if ((enc.getNumRightSpots() > 0)) {
+    if ((enc.getNumRightSpots() > 0)&&(uploadedRightFile.exists())&&(uploadedRightFile.isFile())) {
   %> Right-side<em>.</em><em> Click the image to view the full
     size original. <a
       href="encounterSpotVisualizer.jsp?number=<%=num%>&rightSide=true">Click
       here to see the right-side spots mapped to the right-side image.</a> </em><br/>
-  <a href="<%=filelocR%>"><img src="<%=filelocR%>" alt="image"
-                               width="250"></a> <%
+  
+  		<a href="<%=filelocR%>"><img src="<%=filelocR%>" alt="image"
+                               width="250"></a> 
+                               
+      <%
       }
       //--
 
@@ -2484,7 +2510,8 @@ catch (Exception e) {
 </div>
 <%
   }
-%></td>
+%>
+</td>
 </tr>
 </table>
 <p>
@@ -2532,7 +2559,7 @@ catch (Exception e) {
         window.location = "http://<%=CommonConfiguration.getURLLocation(request)%>/encounters/encounter.jsp?number=<%=enc.getEncounterNumber()%>";
       });
       GEvent.addListener(marker1, "mouseover", function() {
-        marker1.openInfoWindowHtml("<strong><a target=\"_blank\" href=\"http://<%=CommonConfiguration.getURLLocation(request)%>/individuals.jsp?number=<%=enc.isAssignedToMarkedIndividual()%>\"><%=enc.isAssignedToMarkedIndividual()%></a></strong><br /><table><tr><td><img align=\"top\" border=\"1\" src=\"http://<%=CommonConfiguration.getURLLocation(request)%>/encounters/<%=enc.getEncounterNumber()%>/thumb.jpg\"></td><td>Date: <%=enc.getDate()%><br />Sex: <%=enc.getSex()%><br />Size: <%=enc.getSize()%> m<br /><br /><a target=\"_blank\" href=\"http://<%=CommonConfiguration.getURLLocation(request)%>/encounters/encounter.jsp?number=<%=enc.getEncounterNumber()%>\" >Go to encounter</a></td></tr></table>");
+        marker1.openInfoWindowHtml("<strong><a target=\"_blank\" href=\"http://<%=CommonConfiguration.getURLLocation(request)%>/individuals.jsp?number=<%=enc.isAssignedToMarkedIndividual()%>\"><%=enc.isAssignedToMarkedIndividual()%></a></strong><br /><table><tr><td><img align=\"top\" border=\"1\" src=\"http://<%=CommonConfiguration.getURLLocation(request)%>/encounters/<%=enc.getEncounterNumber()%>/thumb.jpg\"></td><td>Date: <%=enc.getDate()%><br />Sex: <%=enc.getSex()%><br /><br /><a target=\"_blank\" href=\"http://<%=CommonConfiguration.getURLLocation(request)%>/encounters/encounter.jsp?number=<%=enc.getEncounterNumber()%>\" >Go to encounter</a></td></tr></table>");
       });
       map.addOverlay(marker1);
 
@@ -2550,9 +2577,9 @@ catch (Exception e) {
   }
 
 
-  if (session.getAttribute("logged") != null) {
-%>
 
+if(!loggedIn.equals("false")){
+%>
 
 <br/>
 <hr>
@@ -2629,7 +2656,7 @@ myShepherd=null;
 catch(Exception e){
 	e.printStackTrace();
 %>
-<p>Hit an error. <%=e.toString()%>
+<p>Hit an error.<br /> <%=e.toString()%>
 </p>
 </body>
 </html>
@@ -2654,20 +2681,21 @@ catch(Exception e){
 
 <p></p>
 <%}%>
-<jsp:include page="../footer.jsp" flush="true"/>
 
 
 </div>
+<jsp:include page="../footer.jsp" flush="true"/>
 </div>
 <!-- end page -->
+
 </div>
+
 <!--end wrapper -->
 
+
 <%
-  if (request.getParameter("noscript") == null) {
+if (request.getParameter("noscript") == null) {
 %>
-
-
 <script type="text/javascript">
 
   function submitForm(oForm) {
@@ -2682,7 +2710,7 @@ catch(Exception e){
 
 </script>
 <%
-  }
+}
 %>
 
 
