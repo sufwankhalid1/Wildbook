@@ -35,18 +35,56 @@
         <div id="maintext">
           <h1 class="intro"><span wicket:id="submit_report">Submit Report</span></h1>
         </div>
+        <span wicket:id="feedback">Thar be feedback</span>
         <form wicket:id="encounterForm" class="encounterForm">
-          <p wicket:id="encounterSubmitOverview"></p>
+          <span wicket:id="overview">Overview</span>
+          <span wicket:id="dayLabel">Day</span>
+          <select wicket:id="day">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+          </select>
+          <span wicket:id="monthLabel">Month</span>
+          <select wicket:id="month">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+          </select>
+          <span wicket:id="yearLabel">Year</span>
+          <select wicket:id="year">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+          </select>
+          <span wicket:id="hourLabel">Hour</span>
+          <select wicket:id="hour">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+          </select>
+          <span wicket:id="minuteLabel">Minute</span>
+          <select wicket:id="minutes">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+          </select>
+          <span wicket:id="lengthLabel">Length</span>
+          <input type="text" wicket:id="length"/>
+          <span wicket:id="unitsLabel">Length</span>
+          <span wicket:id="units">
+            <input type="radio"/>
+            <input type="radio"/>
+          </span>
+          <span wicket:id="guessLabel">Guess</span>
+          <input type="text" wicket:id="guess"/>
+          <span wicket:id="locationLabel">Location</span>
+          <input type="text" wicket:id="location"/>
+          <span wicket:id="submitterNameLabel">Submitter Name</span>
+          <input type="text" wicket:id="submitterName"/>
+          <span wicket:id="submitterEmailLabel">Submitter Email</span>
+          <input type="text" wicket:id="submitterEmail"/>
 
-          <p wicket:id="encounterSubmitNote"></p>
-          <table id="encounter_report">
-            <tr class="form_row">
-              <td class="form_label"><span wicket:id="encounterDate"></span></td>
-              <td colspan="2">
-                <em wicket:id="day"></em>
-              </td>
-            </tr>
-          </table>
+          <input wicket:id="submit" type="submit" value="submit" />
         </form>
       </div>
     </div>

@@ -22,6 +22,7 @@ package org.ecocean;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.Vector;
@@ -105,9 +106,9 @@ public class Encounter implements java.io.Serializable {
   //name, email, phone, address of the encounter photographer
   private String photographerName, photographerEmail, photographerPhone, photographerAddress;
   //a Vector of Strings defining the relative path to each photo. The path is relative to the servlet base directory
-  private Vector additionalImageNames = new Vector();
+  private List<String> additionalImageNames = new ArrayList<String>();
   //a Vector of Strings of email addresses to notify when this encounter is modified
-  private Vector interestedResearchers = new Vector();
+  private List<String> interestedResearchers = new ArrayList<String>();
   //time metrics of the report
   private int hour = 0;
   private String minutes = "00";
@@ -531,7 +532,7 @@ public class Encounter implements java.io.Serializable {
    *
    * @return a vector of image name Strings
    */
-  public Vector getAdditionalImageNames() {
+  public List<String> getAdditionalImageNames() {
     return additionalImageNames;
   }
 
@@ -844,7 +845,7 @@ public class Encounter implements java.io.Serializable {
     return submitterID;
   }
 
-  public Vector getInterestedResearchers() {
+  public List<String> getInterestedResearchers() {
     return interestedResearchers;
   }
 

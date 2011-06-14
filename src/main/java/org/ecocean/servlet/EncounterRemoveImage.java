@@ -29,6 +29,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import java.util.List;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -79,7 +81,7 @@ public class EncounterRemoveImage extends HttpServlet {
         try {
 
 
-          Vector additionalImageNames = enc.getAdditionalImageNames();
+          List<String> additionalImageNames = enc.getAdditionalImageNames();
           fileName = (String) additionalImageNames.get(positionInList);
           int initNumberImages = additionalImageNames.size();
           //remove copyrighted images to allow them to be reset

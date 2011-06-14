@@ -285,7 +285,7 @@ public class MarkedIndividual {
   public boolean isDescribedByPhotoKeyword(Keyword word) {
     for (int c = 0; c < encounters.size(); c++) {
       Encounter temp = (Encounter) encounters.get(c);
-      Vector images = temp.getAdditionalImageNames();
+      List<String> images = temp.getAdditionalImageNames();
       int size = images.size();
       for (int i = 0; i < size; i++) {
         String imageName = temp.getEncounterNumber() + "/" + ((String) images.get(i));

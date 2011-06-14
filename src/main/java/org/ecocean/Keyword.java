@@ -19,6 +19,7 @@
 
 package org.ecocean;
 
+import java.util.List;
 import java.util.Vector;
 
 public class Keyword {
@@ -88,7 +89,7 @@ public class Keyword {
 
   public boolean isMemberOf(Encounter enc) {
     //boolean truth=false;
-    Vector photos = enc.getAdditionalImageNames();
+    List<String> photos = enc.getAdditionalImageNames();
     int photoSize = photos.size();
     for (int i = 0; i < photoSize; i++) {
       String thisName = enc.getEncounterNumber() + "/" + (String) photos.get(i);

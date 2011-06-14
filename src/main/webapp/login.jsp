@@ -104,7 +104,7 @@
 
               <p>
 
-              <form method="POST"
+              <form method="post"
                     action='<%= response.encodeURL("j_security_check") %>' name="loginForm">
                 <table border="0" align="center" cellpadding="5" cellspacing="2">
                   <tr align="left" valign="top">

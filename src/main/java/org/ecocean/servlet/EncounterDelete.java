@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Vector;
 
 
@@ -90,7 +91,7 @@ public class EncounterDelete extends HttpServlet {
 
       //first unregister the images from the index
 
-      Vector additionalImageNames = enc2trash.getAdditionalImageNames();
+      List<String> additionalImageNames = enc2trash.getAdditionalImageNames();
       int initNumberImages = additionalImageNames.size();
       for (int i = 0; i < initNumberImages; i++) {
         Iterator keywords = myShepherd.getAllKeywords();

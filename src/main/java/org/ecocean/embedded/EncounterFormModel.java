@@ -20,6 +20,7 @@
 package org.ecocean.embedded;
 
 import org.apache.wicket.IClusterable;
+import java.util.Vector;
 
 /**
  * Created by IntelliJ IDEA.
@@ -28,6 +29,114 @@ import org.apache.wicket.IClusterable;
  * Time: 10:34 PM
  * To change this template use File | Settings | File Templates.
  */
+@SuppressWarnings("serial")
 public class EncounterFormModel implements IClusterable {
+  private int day;
+  private int month;
+  private int year;
+  private int hour;
+  private int minutes;
+  private int length;
+  private String units;
+  private String guess;
+  private String location;
+  private String submitterName;
+  private String submitterEmail;
+  private Vector<String> additionalImageNames;
+  
+  public int getDay() {
+    return day;
+  }
 
+  public void setDay(int day) {
+    this.day = day;
+  }
+
+  public int getMonth() {
+    return month;
+  }
+
+  public void setMonth(int month) {
+    this.month = month;
+  }
+
+  public int getYear() {
+    return year;
+  }
+
+  public void setYear(int year) {
+    this.year = year;
+  }
+
+  public int getHour() {
+    return hour;
+  }
+
+  public void setHour(int hour) {
+    this.hour = hour;
+  }
+
+  public int getMinutes() {
+    return minutes;
+  }
+
+  public void setMinutes(int minutes) {
+    this.minutes = minutes;
+  }
+
+  public int getLength() {
+    return length;
+  }
+
+  public void setLength(int length) {
+    this.length = length;
+  }
+
+  public String getUnits() {
+    return units;
+  }
+
+  public void setUnits(String units) {
+    this.units = units;
+  }
+
+  public String getGuess() {
+    return guess;
+  }
+
+  public void setGuess(String guess) {
+    this.guess = guess;
+  }
+
+  public String getLocation() {
+    return location;
+  }
+
+  public void setLocation(String location) {
+    this.location = location;
+  }
+
+  public String getSubmitterName() {
+    return submitterName;
+  }
+
+  public void setSubmitterName(String submitterName) {
+    this.submitterName = submitterName;
+  }
+
+  public String getSubmitterEmail() {
+    return submitterEmail;
+  }
+
+  public void setSubmitterEmail(String submitterEmail) {
+    this.submitterEmail = submitterEmail;
+  }
+
+  public Vector<String> getAdditionalImageNames() {
+    return additionalImageNames;
+  }
+
+  public void setAdditionalImageNames(Vector<String> additionalImageNames) {
+    this.additionalImageNames = additionalImageNames;
+  }
 }

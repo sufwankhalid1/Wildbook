@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
 import java.util.Vector;
 
 //import javax.jdo.*;
@@ -67,7 +68,7 @@ public class TrackIt extends HttpServlet {
       //int positionInList=0;
       try {
 
-        Vector interested = enc.getInterestedResearchers();
+        List<String> interested = enc.getInterestedResearchers();
         interested.add(email);
 
       } catch (Exception le) {

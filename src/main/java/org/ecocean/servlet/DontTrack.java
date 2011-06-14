@@ -26,6 +26,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import java.util.List;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Vector;
@@ -65,7 +67,7 @@ public class DontTrack extends HttpServlet {
       try {
 
 
-        Vector interested = enc.getInterestedResearchers();
+        List<String> interested = enc.getInterestedResearchers();
         //int initNumberImages=interested.size();
         //remove copyrighted images to allow them to be reset
 

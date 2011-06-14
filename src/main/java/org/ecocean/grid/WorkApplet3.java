@@ -229,7 +229,7 @@ public class WorkApplet3 extends JApplet {
 
 
   //private appletSwingWorker thread
-  private class gridSwingWorker extends AppletSwingWorker {
+  private class gridSwingWorker extends AppletSwingWorker<String> {
 
     protected String construct() throws InterruptedException {
       return "Success";

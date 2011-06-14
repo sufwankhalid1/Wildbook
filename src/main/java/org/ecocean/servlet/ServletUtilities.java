@@ -110,7 +110,7 @@ public class ServletUtilities {
     Shepherd myShepherd = new Shepherd();
     myShepherd.beginDBTransaction();
     Encounter enc = myShepherd.getEncounter(number);
-    Vector notifyMe = enc.getInterestedResearchers();
+    List<String> notifyMe = enc.getInterestedResearchers();
     int size = notifyMe.size();
     String[] interested = new String[size];
     for (int i = 0; i < size; i++) {

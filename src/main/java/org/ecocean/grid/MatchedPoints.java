@@ -27,7 +27,8 @@ import org.ecocean.Spot;
 
 import java.util.ArrayList;
 
-public class MatchedPoints extends ArrayList {
+@SuppressWarnings("serial")
+public class MatchedPoints extends ArrayList<VertexPointMatch> {
 
   public MatchedPoints() {
     super();
