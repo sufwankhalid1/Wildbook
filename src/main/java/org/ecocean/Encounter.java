@@ -143,6 +143,7 @@ public class Encounter implements java.io.Serializable {
   private int numSpotsLeft = 0;
   private int numSpotsRight = 0;
 
+  private String image1 = null;
 
   //SPOTS
   //an array of the extracted left-side superSpots
@@ -285,14 +286,10 @@ public class Encounter implements java.io.Serializable {
    *
    * @return the length of the shark
    */
-  public double getSize() {
-    return size.doubleValue();
-  }
-  
-  public Double getSizeAsDouble() {
+  public Double getSize() {
     return size;
   }
-
+  
   /**
    * Sets the units of the recorded size and depth of the shark for this encounter.
    * Acceptable entries are either "Feet" or "Meters"
@@ -1413,6 +1410,14 @@ public class Encounter implements java.io.Serializable {
   public String getDecimalLongitude(){
     if(decimalLatitude!=null){return Double.toString(decimalLongitude);}
     return null;
+  }
+
+  public String getImage1() {
+    return image1;
+  }
+
+  public void setImage1(String image1) {
+    this.image1 = image1;
   }
 }
 

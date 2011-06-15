@@ -1547,7 +1547,7 @@ if(loggedIn.equals("false")){
 %>
 <p class="para"><strong><%=encprops.getProperty("size") %>
 </strong><br/> <%
-      				if(enc.getSizeAsDouble()!=null) {%>
+      				if(enc.getSize()!=null) {%>
     <%=enc.getSize()%> <%=encprops.getProperty("meters")%>
     <br/> <em><%=encprops.getProperty("method") %>: <%=enc.getSizeGuess()%></em>
     <%
@@ -1852,11 +1852,11 @@ else {
 %>
 <table>
 <%
-  Enumeration images = enc.getAdditionalImageNames().elements();
+  Iterator<String> images = enc.getAdditionalImageNames().iterator();
   int imageCount = 0;
-  while (images.hasMoreElements()) {
+  while (images.hasNext()) {
     imageCount++;
-    String addTextFile = ((String) images.nextElement()).replaceAll("%20"," ");
+    String addTextFile = images.next().replaceAll("%20"," ");
     try {
       if ((myShepherd.isAcceptableImageFile(addTextFile)) || (myShepherd.isAcceptableVideoFile(addTextFile))) {
         String addText = num + "/" + addTextFile;
@@ -2630,7 +2630,7 @@ if(!loggedIn.equals("false")){
   <tr>
     <td>
       <%
-        Vector trackers = enc.getInterestedResearchers();
+        java.util.List<String> trackers = enc.getInterestedResearchers();
         if ((isOwner) && (trackers.size() > 0)) {%>
 
       <p><font size="-1"><%=encprops.getProperty("trackingEmails")%>: <%

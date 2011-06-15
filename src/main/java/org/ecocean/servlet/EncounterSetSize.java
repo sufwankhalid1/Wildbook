@@ -74,8 +74,8 @@ public class EncounterSetSize extends HttpServlet {
           String oldGuess = "";
           boolean okNumberFormat = true;
           try {
-            if(changeMe.getSizeAsDouble()!=null){
-            	  oldSize = changeMe.getSizeAsDouble().toString();
+            if(changeMe.getSize()!=null){
+            	  oldSize = changeMe.getSize().toString();
              }
             oldUnits = changeMe.getMeasureUnits();
             oldGuess = changeMe.getSizeGuess();

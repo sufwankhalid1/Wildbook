@@ -436,7 +436,7 @@ if (isOwner) {
     for (int i = 0; i < total; i++) {
       Encounter enc = dateSortedEncs[i];
       if ((enc.isApproved()) || (isOwner)) {
-        Vector encImages = enc.getAdditionalImageNames();
+        List<String> encImages = enc.getAdditionalImageNames();
         String imgName = "";
         if (enc.isApproved()) {
           imgName = "encounters/" + enc.getEncounterNumber() + "/thumb.jpg";

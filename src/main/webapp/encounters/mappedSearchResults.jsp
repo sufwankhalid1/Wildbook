@@ -253,7 +253,7 @@
       String descHTML = "<p><a href=\"http://" + CommonConfiguration.getURLLocation(request) + "/encounters/encounter.jsp?noscript=true&number=" + enc.getEncounterNumber() + "\">Direct Link</a></p>";
       descHTML += "<p> <strong>Date:</strong> " + enc.getDate() + "</p>";
       descHTML += "<p> <strong>Location:</strong><br>" + enc.getLocation() + "</p>";
-      if (enc.getSizeAsDouble() != null) {
+      if (enc.getSize() != null) {
         descHTML += "<p> <strong>Size:</strong> " + enc.getSize() + " meters</p>";
       }
       descHTML += "<p> <strong>Sex:</strong> " + enc.getSex() + "</p>";
@@ -262,7 +262,7 @@
       }
 
       descHTML += "<strong>Images</strong><br>";
-      Vector imgs = enc.getAdditionalImageNames();
+      List<String> imgs = enc.getAdditionalImageNames();
       int imgsNum = enc.getAdditionalImageNames().size();
       for (int imgNum = 0; imgNum < imgsNum; imgNum++) {
         descHTML += ("<br>" + "<a href=\"http://" + CommonConfiguration.getURLLocation(request) + "/encounters/encounter.jsp?noscript=true&number=" + enc.getEncounterNumber() + "\"><img src=\"http://" + CommonConfiguration.getURLLocation(request) + "/encounters/" + enc.getEncounterNumber() + "/" + (imgNum + 1) + ".jpg\"></a>");
