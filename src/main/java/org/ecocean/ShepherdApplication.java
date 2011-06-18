@@ -33,7 +33,7 @@ public class ShepherdApplication extends WebApplication {
 
   }
 
-  public Class<Submit> getHomePage() {
-    return Submit.class;
+  public Class<Index> getHomePage() {
+    return Index.class;
   }
 }

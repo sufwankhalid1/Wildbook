@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<wicket:extend
+	xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd">
+	<div id="main">
+		<div id="leftcol">
+			<div id="menu">
+				<div class="module">
+					<h3>Latest News</h3>
+					<span class="caption">Add your news items here... </span><span
+						class="caption"><br /> </span> <br />
+				</div>
+
+				<div class="module">
+					<h3>Data Sharing</h3>
+					<span class="caption">If you are sharing data, this is a
+						great place to let others know about it... </span> <br />
+				</div>
+
+			</div>
+			<!-- end menu -->
+		</div>
+		<!-- end leftcol -->
+		<div id="maincol">
+
+			<div id="maintext">
+				<h1 class="intro">Overview</h1>
+
+				<p class="caption">This is a great place to present an overview
+					description of this mark-recapture project and library...</p>
+				<br />
+			</div>
+
+			<div>
+				<h1 class="intro">Data Contributors</h1>
+
+				<p class="caption">A great optional area to discuss who is
+					contributing data to this library...</p>
+			</div>
+
+			<div id="context">
+				<h1 class="intro">Contact us</h1>
+
+				<p class="caption">A great place to talk about who is running
+					this mark-recapture library...</p>
+
+				<p class="caption">
+					<a href="contactus.jsp">Please contact us with you questions.</a>
+				</p>
+			</div>
+
+
+		</div>
+		<!-- end maincol -->
+		<div id="rightcol">
+
+
+			<div class="module">
+				<h3>Find Record</h3>
+
+				<form name="form2" method="get" action="individuals.jsp">
+					<em>Enter a marked animal number, encounter number, animal
+						nickname, or alternate ID.</em><br /> <input name="number" type="text"
+						id="shark" size="25" /> <input type="hidden" name="langCode"
+						value="<%=langCode%>" /><br /> <input name="Go" type="submit"
+						id="Go2" value="Go" />
+				</form>
+
+			</div>
+
+
+			<div class="module">
+				<h3>RSS/Atom Feeds</h3>
+
+				<p align="left">
+					<a href="rss.xml"><img src="images/rssfeed.gif" width="80"
+						height="15" border="0" alt="RSS News Feed" />
+					</a>
+				</p>
+
+				<p align="left">
+					<a href="atom.xml"><img src="images/atom-feed-icon.gif"
+						border="0" alt="ATOM News Feed" />
+					</a>
+				</p>
+			</div>
+
+
+		</div>
+		<!-- end rightcol -->
+	</div>
+	<!-- end main -->
+</wicket:extend>

@@ -1,0 +1,191 @@
+<wicket:panel
+	xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd">
+	<div id="header">
+	  <!--  todo: parameterize masthead.jpg -->
+		<img name="masthead" src="shepherd/images/masthead.jpg" width="810"
+			height="150" border="0" usemap="#m_masthead" alt="" />
+	</div>
+	<div>
+		<ul id="pmenu">
+			<li style="background: #000066;"><a href="index.jsp"
+				style="margin: 0px 0 0px 0px; position: relative; width: 95px; height: 25px; z-index: 100;"><strong>
+						<span wicket:id="home">Home</span> </strong> </a>
+			</li>
+			<li class="drop"><a href="index.jsp"
+				style="margin: 0px 0 0px 0px; position: relative; width: 75px; height: 25px; z-index: 100;"><strong>
+						<span wicket:id="learn">learn</span> </strong> </a> <!--[if lte IE 6]>
+      <table>
+        <tr>
+          <td><![endif]-->
+				<ul>
+					<li><a href="index.jsp" class="enclose"
+						style="margin: 0px 0 0px 0px; position: relative; width: 160px; height: 25px; z-index: 100;"><strong>
+								<span wicket:id="intro">intro</span> </strong> </a></li>
+
+				</ul> <!--[if lte IE 6]></td></tr></table><![endif]-->
+			</li>
+			<li class="drop"><a href="submit.jsp"
+				style="margin: 0px 0 0px 0px; position: relative; width: 90px; height: 25px; z-index: 100;"><strong>
+						<span wicket:id="participate">participate</span> </strong> </a> <!--[if lte IE 6]>
+      <table>
+        <tr>
+          <td><![endif]-->
+				<ul>
+
+					<li><a href="submit.jsp" class="enclose"
+						style="margin: 0px 0 0px 0px; position: relative; width: 160px; height: 25px; z-index: 100;">
+							<span wicket:id="report">report</span> </a>
+					</li>
+
+				</ul> <!--[if lte IE 6]></td></tr></table><![endif]-->
+			</li>
+			<li class="drop"><a href="allIndividuals.jsp"
+				style="margin: 0px 0 0px 0px; position: relative; width: 100px; height: 25px; z-index: 100;">
+					<strong> <span wicket:id="individuals">individuals</span>
+				</strong> </a> <!--[if lte IE 6]>
+      <table>
+        <tr>
+          <td><![endif]-->
+				<ul>
+					<li><a href="allIndividuals.jsp" class="enclose"
+						style="margin: 0px 0 0px 0px; position: relative; width: 130px; height: 25px;">
+							<span wicket:id="viewAll">view all</span> </a>
+					</li>
+
+				</ul> <!--[if lte IE 6]></td></tr></table><![endif]-->
+			</li>
+			<li class="drop"><a
+				href="encounters/allEncounters.jsp?start=1&amp;end=10"
+				style="margin: 0px 0 0px 0px; position: relative; width: 100px; height: 25px; z-index: 100;"><strong>
+						<span wicket:id="encounters">encounters</span> </strong> <!--[if IE 7]><!-->
+			</a> <!--<![endif]--> <!--[if lte IE 6]>
+      <table>
+        <tr>
+          <td><![endif]-->
+				<ul>
+					<li><a href="encounters/allEncounters.jsp?start=1&amp;end=10"
+						class="enclose"
+						style="margin: 0px 0 0px 0px; position: relative; width: 210px; height: 25px; z-index: 100;">
+							<span wicket:id="viewEncounters">view encounters</span> </a>
+					</li>
+
+					<li><a
+						href="encounters/thumbnailSearchResults.jsp?noQuery=true"
+						class="enclose"
+						style="margin: 0px 0 0px 0px; position: relative; width: 210px; height: 25px;">
+							<span wicket:id="viewImages">view images</span> </a>
+					</li>
+
+					<li><a href="xcalendar/calendar.jsp" class="enclose"
+						style="margin: 0px 0 0px 0px; position: relative; width: 210px; height: 25px;">
+							<span wicket:id="encounterCalendar">encounter calendar</span> </a>
+					</li>
+
+
+          <div wicket:id="adminEncountersFragment">
+					<li><a
+						href="encounters/allEncountersUnapproved.jsp?start=1&amp;end=10&amp;sort=nosort"
+						class="enclose"
+						style="margin: 0px 0 0px 0px; position: relative; width: 210px; height: 25px;">
+							<span wicket:id="viewUnapproved">view unapproved</span> </a>
+					</li>
+						<!--  todo: get user in here -->
+						<li><a
+							href="encounters/allEncounters.jsp?start=1&amp;end=10&amp;sort=nosort&amp;"
+							class="enclose"
+							style="margin: 0px 0 0px 0px; position: relative; width: 210px; height: 25px;">
+								<span wicket:id="viewMySubmissions">view my submissions</span> </a>
+						</li>
+
+						<li><a
+							href="encounters/allEncounters.jsp?start=1&amp;end=10&amp;sort=nosort&amp;rejects=true"
+							class="enclose"
+							style="margin: 0px 0 0px 0px; position: relative; width: 210px; height: 25px;">
+								<span wicket:id="viewUnidentifiable">view unidentifiable</span>
+						</a>
+						</li>
+					</div>
+
+
+				</ul> <!--[if lte IE 6]></td></tr></table><![endif]-->
+			</li>
+			<li class="drop"><a href="encounters/encounterSearch.jsp"
+				style="margin: 0px 0 0px 0px; position: relative; width: 85px; height: 25px; z-index: 100;">
+					<strong><span wicket:id="search">search</span> </strong> </a> <!--[if lte IE 6]>
+      <table>
+        <tr>
+          <td><![endif]-->
+				<ul>
+
+
+					<li><a href="encounters/encounterSearch.jsp" class="enclose"
+						style="margin: 0px 0 0px 0px; position: relative; width: 130px; height: 25px;">
+							<span wicket:id="encounterSearch">encounter search</span> </a>
+					</li>
+					<li><a href="individualSearch.jsp" class="enclose"
+						style="margin: 0px 0 0px 0px; position: relative; width: 130px; height: 25px;">
+							<span wicket:id="individualSearch">individual search</span> </a>
+					</li>
+					<li><a href="googleSearch.jsp" class="enclose"
+						style="margin: 0px 0 0px 0px; position: relative; width: 130px; height: 25px;">
+							<span wicket:id="googleSearch">google search</span> </a>
+					</li>
+
+				</ul> <!--[if lte IE 6]></td></tr></table><![endif]-->
+			</li>
+
+
+			<!--  todo: reflect stuff? -->
+			<li class="drop"><a id="general_admin" href="appadmin/admin.jsp"
+				style="margin: 0px 0 0px 0px; position: relative; width: 90px; height: 25px; z-index: 100;">
+					<strong><span wicket:id="administer">administer</span> </strong> </a> <!--[if lte IE 6]>
+      <table>
+        <tr>
+          <td><![endif]-->
+				<ul>
+					<div wicket:id="wikiLinksFragment">
+						<li><a href="library_access_policy" target="_blank"
+							class="enclose"
+							style="margin: 0px 0 0px 0px; position: relative; width: 190px; height: 25px;">
+								<span wicket:id="accessPolicy">access policy</span> </a>
+						</li>
+						<li><a href="wiki" target="_blank" class="enclose"
+							style="margin: 0px 0 0px 0px; position: relative; width: 190px; height: 25px;">
+								<span wicket:id="userWiki">user wiki</span> </a>
+						</li>
+					</div>
+					<div wicket:id="appAdminFragment">
+						<li><a href="appadmin/admin.jsp" class="enclose"
+							style="margin: 0px 0 0px 0px; position: relative; width: 190px; height: 25px;">
+								<span wicket:id="general">general</span> </a>
+						</li>
+					</div>
+					<div wicket:id="scanTaskAdminFragment">
+						<li><a href="appadmin/scanTaskAdmin.jsp" class="enclose"
+							style="margin: 0px 0 0px 0px; position: relative; width: 190px; height: 25px; z-index: 99;">
+								<span wicket:id="gridAdmin">grid admin</span> </a>
+						</li>
+					</div>
+				</ul> <!--[if lte IE 6]></td></tr></table><![endif]-->
+			</li>
+
+
+			<li><a href="contactus.jsp"
+				style="margin: 0px 0 0px 0px; position: relative; width: 90px; height: 25px; z-index: 100;"><strong>
+						<span wicket:id="contactUs">contact us</span> </strong> </a></li>
+			<div wicket:id="welcomeFragment">
+				<li><a href="welcome.jsp"
+					style="margin: 0px 0 0px 0px; position: relative; width: 76px; height: 25px; z-index: 100;"><strong>
+							<span wicket:id="login">login</span> </strong> </a>
+				</li>
+			</div>
+			<div wicket:id="logoutFragment">
+				<li><a href="logout.jsp"
+					style="margin: 0px 0 0px 0px; position: relative; width: 76px; height: 25px; z-index: 100;"><strong>
+							<span wicket:id="logout">logout</span> </strong> </a>
+				</li>
+			</div>
+
+		</ul>
+	</div>
+</wicket:panel>
