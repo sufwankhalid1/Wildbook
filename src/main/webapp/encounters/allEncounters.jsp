@@ -561,7 +561,7 @@ if (highCount<totalCount) {%> <a
 	
 		<td class="lineitems"><%=enc.getLocationCode()%></td>
 		<%
-	if(enc.getSizeAsDouble()!=null) {
+	if(enc.getSize()!=null) {
 	%>
 		<td class="lineitems"><%=enc.getSize()%></td>
 		<%} else {%>

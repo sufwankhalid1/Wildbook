@@ -143,8 +143,6 @@ public class Encounter implements java.io.Serializable {
   private int numSpotsLeft = 0;
   private int numSpotsRight = 0;
 
-  private String image1 = null;
-
   //SPOTS
   //an array of the extracted left-side superSpots
   //private superSpot[] spots;
@@ -1410,14 +1408,6 @@ public class Encounter implements java.io.Serializable {
   public String getDecimalLongitude(){
     if(decimalLatitude!=null){return Double.toString(decimalLongitude);}
     return null;
-  }
-
-  public String getImage1() {
-    return image1;
-  }
-
-  public void setImage1(String image1) {
-    this.image1 = image1;
   }
 }
 
