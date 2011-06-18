@@ -20,6 +20,9 @@
 package org.ecocean;
 
 import javax.servlet.http.HttpServletRequest;
+
+import org.ecocean.model.Encounter;
+
 import java.io.IOException;
 import java.util.Properties;
 

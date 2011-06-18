@@ -24,9 +24,9 @@ import com.oreilly.servlet.multipart.MultipartParser;
 import com.oreilly.servlet.multipart.ParamPart;
 import com.oreilly.servlet.multipart.Part;
 import org.ecocean.CommonConfiguration;
-import org.ecocean.MarkedIndividual;
 import org.ecocean.Shepherd;
-import org.ecocean.SuperSpot;
+import org.ecocean.model.MarkedIndividual;
+import org.ecocean.model.SuperSpot;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;

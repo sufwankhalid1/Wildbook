@@ -25,10 +25,10 @@ import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.ecocean.CommonConfiguration;
-import org.ecocean.Encounter;
 import org.ecocean.Shepherd;
-import org.ecocean.SuperSpot;
 import org.ecocean.grid.*;
+import org.ecocean.model.Encounter;
+import org.ecocean.model.SuperSpot;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;

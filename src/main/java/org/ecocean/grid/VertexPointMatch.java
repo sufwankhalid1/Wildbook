@@ -19,7 +19,7 @@
 
 package org.ecocean.grid;
 
-import org.ecocean.Spot;
+import org.ecocean.model.Spot;
 
 public class VertexPointMatch implements java.io.Serializable {
 

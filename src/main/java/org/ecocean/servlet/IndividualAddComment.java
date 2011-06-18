@@ -20,8 +20,8 @@
 package org.ecocean.servlet;
 
 import org.ecocean.CommonConfiguration;
-import org.ecocean.MarkedIndividual;
 import org.ecocean.Shepherd;
+import org.ecocean.model.MarkedIndividual;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;

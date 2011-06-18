@@ -17,11 +17,13 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.ecocean;
+package org.ecocean.model;
 
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.StringTokenizer;
+
+import org.ecocean.Shepherd;
 
 public class ThumbnailKeywordComparator implements Comparator {
 

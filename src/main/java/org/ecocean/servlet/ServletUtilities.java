@@ -30,6 +30,8 @@ import org.dom4j.io.OutputFormat;
 import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
 import org.ecocean.*;
+import org.ecocean.model.Encounter;
+import org.ecocean.model.MarkedIndividual;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;

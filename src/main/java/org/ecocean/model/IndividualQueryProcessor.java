@@ -1,10 +1,13 @@
-package org.ecocean;
+package org.ecocean.model;
 
 import java.util.Vector;
 import java.lang.StringBuffer;
 import javax.servlet.http.HttpServletRequest;
 import javax.jdo.Extent;
 import javax.jdo.Query;
+
+import org.ecocean.Shepherd;
+
 import java.util.Iterator;
 //import java.util.StringTokenizer;
 //import java.util.Collections;

@@ -19,9 +19,9 @@
 
 package org.ecocean.servlet;
 
-import org.ecocean.Adoption;
 import org.ecocean.CommonConfiguration;
 import org.ecocean.Shepherd;
+import org.ecocean.model.Adoption;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;

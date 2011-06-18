@@ -1,10 +1,13 @@
-package org.ecocean;
+package org.ecocean.model;
 
 import java.util.Vector;
 import java.util.Iterator;
 import javax.jdo.Extent;
 import javax.jdo.Query;
 import javax.servlet.http.HttpServletRequest;
+
+import org.ecocean.Shepherd;
+
 import java.lang.StringBuffer;
 import java.util.GregorianCalendar;
 

@@ -31,6 +31,10 @@ import java.io.PrintWriter;
 import java.util.Vector;
 import java.util.Iterator;
 import org.ecocean.*;
+import org.ecocean.model.Encounter;
+import org.ecocean.model.EncounterQueryProcessor;
+import org.ecocean.model.EncounterQueryResult;
+import org.ecocean.model.MarkedIndividual;
 
 
 /**

@@ -20,6 +20,8 @@
 package org.ecocean.servlet;
 
 import org.ecocean.*;
+import org.ecocean.model.Encounter;
+import org.ecocean.model.Keyword;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;

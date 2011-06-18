@@ -19,13 +19,13 @@
 
 package org.ecocean.servlet;
 
-import org.ecocean.Encounter;
-import org.ecocean.MarkedIndividual;
 import org.ecocean.Shepherd;
 import org.ecocean.grid.GridManager;
 import org.ecocean.grid.GridManagerFactory;
 import org.ecocean.grid.GridNode;
 import org.ecocean.grid.ScanWorkItem;
+import org.ecocean.model.Encounter;
+import org.ecocean.model.MarkedIndividual;
 
 import javax.jdo.Extent;
 import javax.jdo.Query;

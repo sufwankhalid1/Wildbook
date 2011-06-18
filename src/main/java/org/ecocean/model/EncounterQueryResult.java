@@ -17,23 +17,32 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.ecocean.embedded;
+package org.ecocean.model;
 
-import org.apache.wicket.protocol.http.WebApplication;
+import java.util.Vector;
 
-/**
- * Created by IntelliJ IDEA.
- * User: mmcbride
- * Date: 3/19/11
- * Time: 5:03 PM
- * To change this template use File | Settings | File Templates.
- */
-public class ShepherdEmbeddedApplication extends WebApplication {
-  public ShepherdEmbeddedApplication() {
+public class EncounterQueryResult {
 
+  private Vector<Encounter> result;
+  private String jdoqlRepresentation;
+  private String queryPrettyPrint;
+
+  public EncounterQueryResult(Vector<Encounter> result, String jdoqlRepresentation, String queryPrettyPrint) {
+    this.result = result;
+    this.jdoqlRepresentation = jdoqlRepresentation;
+    this.queryPrettyPrint = queryPrettyPrint;
   }
 
-  public Class<Submit> getHomePage() {
-    return Submit.class;
+  public Vector<Encounter> getResult() {
+    return result;
   }
+
+  public String getJDOQLRepresentation() {
+    return jdoqlRepresentation;
+  }
+
+  public String getQueryPrettyPrint() {
+    return queryPrettyPrint;
+  }
+
 }

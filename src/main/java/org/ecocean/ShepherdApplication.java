@@ -19,30 +19,21 @@
 
 package org.ecocean;
 
-import java.util.Vector;
+import org.apache.wicket.protocol.http.WebApplication;
 
-public class MarkedIndividualQueryResult {
+/**
+ * Created by IntelliJ IDEA.
+ * User: mmcbride
+ * Date: 3/19/11
+ * Time: 5:03 PM
+ * To change this template use File | Settings | File Templates.
+ */
+public class ShepherdApplication extends WebApplication {
+  public ShepherdApplication() {
 
-  private Vector<MarkedIndividual> result;
-  private String jdoqlRepresentation;
-  private String queryPrettyPrint;
-
-  public MarkedIndividualQueryResult(Vector<MarkedIndividual> result, String jdoqlRepresentation, String queryPrettyPrint) {
-    this.result = result;
-    this.jdoqlRepresentation = jdoqlRepresentation;
-    this.queryPrettyPrint = queryPrettyPrint;
   }
 
-  public Vector<MarkedIndividual> getResult() {
-    return result;
+  public Class<Submit> getHomePage() {
+    return Submit.class;
   }
-
-  public String getJDOQLRepresentation() {
-    return jdoqlRepresentation;
-  }
-
-  public String getQueryPrettyPrint() {
-    return queryPrettyPrint;
-  }
-
 }

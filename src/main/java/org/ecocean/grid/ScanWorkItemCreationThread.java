@@ -19,8 +19,8 @@
 
 package org.ecocean.grid;
 
-import org.ecocean.Encounter;
 import org.ecocean.Shepherd;
+import org.ecocean.model.Encounter;
 
 import java.util.Iterator;
 import java.util.Vector;

@@ -25,9 +25,10 @@ package org.ecocean.grid;
 
 
 import com.reijns.I3S.Pair;
-import org.ecocean.Encounter;
-import org.ecocean.Spot;
-import org.ecocean.SuperSpot;
+
+import org.ecocean.model.Encounter;
+import org.ecocean.model.Spot;
+import org.ecocean.model.SuperSpot;
 
 import java.util.*;
 

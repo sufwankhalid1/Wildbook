@@ -24,9 +24,9 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.upload.FormFile;
-import org.ecocean.Adoption;
 import org.ecocean.CommonConfiguration;
 import org.ecocean.Shepherd;
+import org.ecocean.model.Adoption;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

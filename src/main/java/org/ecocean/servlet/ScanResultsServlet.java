@@ -22,11 +22,11 @@ package org.ecocean.servlet;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
-import org.ecocean.Encounter;
 import org.ecocean.Shepherd;
 import org.ecocean.grid.MatchComparator;
 import org.ecocean.grid.MatchObject;
 import org.ecocean.grid.VertexPointMatch;
+import org.ecocean.model.Encounter;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;

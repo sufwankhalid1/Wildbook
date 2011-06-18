@@ -24,8 +24,8 @@ import com.oreilly.servlet.multipart.MultipartParser;
 import com.oreilly.servlet.multipart.ParamPart;
 import com.oreilly.servlet.multipart.Part;
 import org.ecocean.CommonConfiguration;
-import org.ecocean.Encounter;
 import org.ecocean.Shepherd;
+import org.ecocean.model.Encounter;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;

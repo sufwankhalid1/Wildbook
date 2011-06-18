@@ -20,9 +20,9 @@
 package org.ecocean.servlet;
 
 import org.ecocean.CommonConfiguration;
-import org.ecocean.Encounter;
 import org.ecocean.Shepherd;
-import org.ecocean.SuperSpot;
+import org.ecocean.model.Encounter;
+import org.ecocean.model.SuperSpot;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;

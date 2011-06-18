@@ -20,10 +20,10 @@
 package org.ecocean.servlet;
 
 import org.ecocean.CommonConfiguration;
-import org.ecocean.Encounter;
-import org.ecocean.MarkedIndividual;
 import org.ecocean.Shepherd;
 import org.ecocean.grid.*;
+import org.ecocean.model.Encounter;
+import org.ecocean.model.MarkedIndividual;
 
 import javax.jdo.FetchPlan;
 import javax.servlet.ServletConfig;

@@ -17,7 +17,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.ecocean.embedded;
+package org.ecocean;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -48,8 +48,8 @@ import org.apache.wicket.util.convert.IConverter;
 import org.apache.wicket.validation.validator.EmailAddressValidator;
 import org.apache.wicket.validation.validator.MinimumValidator;
 import org.apache.wicket.validation.validator.RangeValidator;
-import org.ecocean.Encounter;
-import org.ecocean.Shepherd;
+import org.ecocean.embedded.SubmitSuccess;
+import org.ecocean.model.Encounter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

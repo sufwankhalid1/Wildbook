@@ -17,10 +17,11 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.ecocean;
+package org.ecocean.model;
 
 import java.util.*;
-import java.util.GregorianCalendar;
+
+import org.ecocean.Shepherd;
 
 /**
  * A <code>MarkedIndividual</code> object stores the complete <code>encounter</code> data for a single marked individual in a mark-recapture study.

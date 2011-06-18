@@ -24,6 +24,7 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 import java.io.*;
 import org.ecocean.*;
+import org.ecocean.model.Encounter;
 
 
 //Set alternateID for this encounter/sighting

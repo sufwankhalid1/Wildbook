@@ -27,9 +27,10 @@ import com.reijns.I3S.Affine;
 import com.reijns.I3S.Compare;
 import com.reijns.I3S.FingerPrint;
 import com.reijns.I3S.Point2D;
-import org.ecocean.Encounter;
-import org.ecocean.Spot;
-import org.ecocean.SuperSpot;
+
+import org.ecocean.model.Encounter;
+import org.ecocean.model.Spot;
+import org.ecocean.model.SuperSpot;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1609,7 +1610,7 @@ public class EncounterLite implements java.io.Serializable {
   }
 
 
-  public void processLeftSpots(ArrayList<org.ecocean.SuperSpot> initSpots) {
+  public void processLeftSpots(ArrayList<org.ecocean.model.SuperSpot> initSpots) {
     int length = initSpots.size();
     spotsX = new double[length];
     spotsY = new double[length];
@@ -1619,7 +1620,7 @@ public class EncounterLite implements java.io.Serializable {
     }
   }
 
-  public void processLeftReferenceSpots(ArrayList<org.ecocean.SuperSpot> initSpots) {
+  public void processLeftReferenceSpots(ArrayList<org.ecocean.model.SuperSpot> initSpots) {
     int length = initSpots.size();
     leftReferenceSpotsX = new double[length];
     leftReferenceSpotsY = new double[length];
@@ -1629,7 +1630,7 @@ public class EncounterLite implements java.io.Serializable {
     }
   }
 
-  public void processRightSpots(ArrayList<org.ecocean.SuperSpot> initSpots) {
+  public void processRightSpots(ArrayList<org.ecocean.model.SuperSpot> initSpots) {
     int length = initSpots.size();
     rightSpotsX = new double[length];
     rightSpotsY = new double[length];
@@ -1639,7 +1640,7 @@ public class EncounterLite implements java.io.Serializable {
     }
   }
 
-  public void processRightReferenceSpots(ArrayList<org.ecocean.SuperSpot> initSpots) {
+  public void processRightReferenceSpots(ArrayList<org.ecocean.model.SuperSpot> initSpots) {
     int length = initSpots.size();
     rightReferenceSpotsX = new double[length];
     rightReferenceSpotsY = new double[length];

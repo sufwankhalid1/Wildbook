@@ -21,6 +21,11 @@ package org.ecocean;
 
 import org.ecocean.grid.ScanTask;
 import org.ecocean.grid.ScanWorkItem;
+import org.ecocean.model.Adoption;
+import org.ecocean.model.Encounter;
+import org.ecocean.model.Keyword;
+import org.ecocean.model.MarkedIndividual;
+import org.ecocean.model.SuperSpot;
 
 import javax.jdo.*;
 import javax.servlet.http.HttpServletRequest;
@@ -306,7 +311,7 @@ public class Shepherd {
 
   public boolean isEncounter(String num) {
     try {
-      Encounter tempEnc = ((org.ecocean.Encounter) (pm.getObjectById(pm.newObjectIdInstance(Encounter.class, num.trim()), true)));
+      Encounter tempEnc = ((org.ecocean.model.Encounter) (pm.getObjectById(pm.newObjectIdInstance(Encounter.class, num.trim()), true)));
     } catch (Exception nsoe) {
       nsoe.printStackTrace();
       return false;
@@ -316,7 +321,7 @@ public class Shepherd {
 
   public boolean isAdoption(String num) {
     try {
-      Adoption tempEnc = ((org.ecocean.Adoption) (pm.getObjectById(pm.newObjectIdInstance(Adoption.class, num.trim()), true)));
+      Adoption tempEnc = ((org.ecocean.model.Adoption) (pm.getObjectById(pm.newObjectIdInstance(Adoption.class, num.trim()), true)));
     } catch (Exception nsoe) {
       return false;
     }
@@ -325,7 +330,7 @@ public class Shepherd {
 
   public boolean isKeyword(String indexname) {
     try {
-      Keyword tempEnc = ((org.ecocean.Keyword) (pm.getObjectById(pm.newObjectIdInstance(Keyword.class, indexname.trim()), true)));
+      Keyword tempEnc = ((org.ecocean.model.Keyword) (pm.getObjectById(pm.newObjectIdInstance(Keyword.class, indexname.trim()), true)));
     } catch (Exception nsoe) {
       return false;
     }
@@ -344,7 +349,7 @@ public class Shepherd {
 
   public boolean isMarkedIndividual(String name) {
     try {
-      MarkedIndividual tempShark = ((org.ecocean.MarkedIndividual) (pm.getObjectById(pm.newObjectIdInstance(MarkedIndividual.class, name.trim()), true)));
+      MarkedIndividual tempShark = ((org.ecocean.model.MarkedIndividual) (pm.getObjectById(pm.newObjectIdInstance(MarkedIndividual.class, name.trim()), true)));
     } catch (Exception nsoe) {
       return false;
     }
@@ -817,7 +822,7 @@ public class Shepherd {
   public MarkedIndividual getMarkedIndividual(String name) {
     MarkedIndividual tempShark = null;
     try {
-      tempShark = ((org.ecocean.MarkedIndividual) (pm.getObjectById(pm.newObjectIdInstance(MarkedIndividual.class, name.trim()), true)));
+      tempShark = ((org.ecocean.model.MarkedIndividual) (pm.getObjectById(pm.newObjectIdInstance(MarkedIndividual.class, name.trim()), true)));
     } catch (Exception nsoe) {
       nsoe.printStackTrace();
       return null;

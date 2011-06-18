@@ -30,6 +30,9 @@ import java.io.PrintWriter;
 import java.util.Vector;
 import java.util.Iterator;
 import org.ecocean.*;
+import org.ecocean.model.Encounter;
+import org.ecocean.model.MarkedIndividual;
+
 import javax.jdo.Query;
 import javax.jdo.Extent;
 import java.lang.NumberFormatException;

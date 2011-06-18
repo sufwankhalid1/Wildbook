@@ -17,23 +17,23 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.ecocean;
+package org.ecocean.model;
 
 import java.util.Vector;
 
-public class EncounterQueryResult {
+public class MarkedIndividualQueryResult {
 
-  private Vector<Encounter> result;
+  private Vector<MarkedIndividual> result;
   private String jdoqlRepresentation;
   private String queryPrettyPrint;
 
-  public EncounterQueryResult(Vector<Encounter> result, String jdoqlRepresentation, String queryPrettyPrint) {
+  public MarkedIndividualQueryResult(Vector<MarkedIndividual> result, String jdoqlRepresentation, String queryPrettyPrint) {
     this.result = result;
     this.jdoqlRepresentation = jdoqlRepresentation;
     this.queryPrettyPrint = queryPrettyPrint;
   }
 
-  public Vector<Encounter> getResult() {
+  public Vector<MarkedIndividual> getResult() {
     return result;
   }
 
