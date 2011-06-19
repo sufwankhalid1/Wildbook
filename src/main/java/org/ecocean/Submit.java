@@ -29,7 +29,6 @@ import java.util.Random;
 
 import org.apache.wicket.Localizer;
 import org.apache.wicket.PageParameters;
-import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.DropDownChoice;
@@ -60,11 +59,12 @@ import org.slf4j.LoggerFactory;
  * Time: 5:29 PM
  * To change this template use File | Settings | File Templates.
  */
-public class Submit extends WebPage {
+public class Submit extends Template {
   private Shepherd myShepherd = new Shepherd();
   private Logger log = LoggerFactory.getLogger(Submit.class);
 
   public Submit(final PageParameters parameters) {
+    super();
     add(new Label("submit_report", new ResourceModel("submit_report")));
     add(new FeedbackPanel("feedback"));
     add(new EncounterForm("encounterForm"));

@@ -17,126 +17,83 @@
   ~ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
   -->
 
-<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd">
-<head>
-  <title><wicket:message key="title">Report an Encounter</wicket:message></title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-  <meta name="Description" wicket:message="content:htmlDescription"/>
-  <meta name="Keywords" wicket:message="content:htmlKeywords"/>
-  <meta name="Author" wicket:message="content:htmlAuthor"/>
-  <link wicket:message="href:cssURLLocation" rel="stylesheet" type="text/css"/>
-  <link wicket:message="href:htmlShortcutIcon" rel="shortcut icon"/>
-</head>
-<body>
-<div id="wrapper">
-  <div id="page">
-    <div id="main">
-      <div id="maincol-wide-solo">
-        <div id="maintext">
-          <h1 class="intro"><span wicket:id="submit_report">Submit Report</span></h1>
-        </div>
-        <span wicket:id="feedback">Thar be feedback</span>
-        <form wicket:id="encounterForm" class="encounterForm">
-          <span wicket:id="overview">Overview</span>
-          <span wicket:id="dayLabel">Day</span>
-          <select wicket:id="day">
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-          </select>
-          <span wicket:id="monthLabel">Month</span>
-          <select wicket:id="month">
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-          </select>
-          <span wicket:id="yearLabel">Year</span>
-          <select wicket:id="year">
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-          </select>
-          <span wicket:id="hourLabel">Hour</span>
-          <select wicket:id="hour">
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-          </select>
-          <span wicket:id="minuteLabel">Minute</span>
-          <select wicket:id="minutes">
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-          </select>
-          <span wicket:id="lengthLabel">Length</span>
-          <input type="text" wicket:id="size"/>
-          <span wicket:id="unitsLabel">Length</span>
-          <span wicket:id="measureUnits">
-            <input type="radio"/>
-            <input type="radio"/>
-          </span>
-          <span wicket:id="measurementMethodLabel">Measurement Method</span>
-          <span wicket:id="sizeGuess">
-            <input type="radio"/>
-            <input type="radio"/>
-            <input type="radio"/>
-          </span>
-          <span wicket:id="sexLabel">Sex</span>
-          <span wicket:id="sex">
-            <input type="radio"/>
-            <input type="radio"/>
-            <input type="radio"/>
-          </span>
-          <span wicket:id="locationLabel">Location</span>
-          <input type="text" wicket:id="location"/>
-          <span wicket:id="gpsLatitudeLabel">Latitude</span>
-          <input type="text" wicket:id="gpsLatitude"/>
-          <span wicket:id="gpsLongitudeLabel">Longitude</span>
-          <input type="text" wicket:id="gpsLongitude"/>
-          <span wicket:id="seaFloorDepthLabel">Sea Floor Depth</span>
-          <input type="text" wicket:id="maximumDepthInMeters"/>
-          <span wicket:id="statusLabel">Status</span>
-          <span wicket:id="livingStatus">
-            <input type="radio"/>
-            <input type="radio"/>
-          </span>
-          <span wicket:id="scarringLabel">Scarring</span>
-          <input type="text" wicket:id="distinguishingScar"/>
-          <span wicket:id="commentsLabel">Comments</span>
-          <textarea wicket:id="comments"></textarea>
+<wicket:extend
+	xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd">
+	<div id="main">
+		<div id="maincol-wide-solo">
+			<div id="maintext">
+				<h1 class="intro">
+					<span wicket:id="submit_report">Submit Report</span>
+				</h1>
+			</div>
+			<span wicket:id="feedback">Thar be feedback</span>
+			<form wicket:id="encounterForm" class="encounterForm">
+				<span wicket:id="overview">Overview</span> <span
+					wicket:id="dayLabel">Day</span> <select wicket:id="day">
+					<option value="1">1</option>
+					<option value="2">2</option>
+					<option value="3">3</option>
+				</select> <span wicket:id="monthLabel">Month</span> <select wicket:id="month">
+					<option value="1">1</option>
+					<option value="2">2</option>
+					<option value="3">3</option>
+				</select> <span wicket:id="yearLabel">Year</span> <select wicket:id="year">
+					<option value="1">1</option>
+					<option value="2">2</option>
+					<option value="3">3</option>
+				</select> <span wicket:id="hourLabel">Hour</span> <select wicket:id="hour">
+					<option value="1">1</option>
+					<option value="2">2</option>
+					<option value="3">3</option>
+				</select> <span wicket:id="minuteLabel">Minute</span> <select
+					wicket:id="minutes">
+					<option value="1">1</option>
+					<option value="2">2</option>
+					<option value="3">3</option>
+				</select> <span wicket:id="lengthLabel">Length</span> <input type="text"
+					wicket:id="size" /> <span wicket:id="unitsLabel">Length</span> <span
+					wicket:id="measureUnits"> <input type="radio" /> <input
+					type="radio" /> </span> <span wicket:id="measurementMethodLabel">Measurement
+					Method</span> <span wicket:id="sizeGuess"> <input type="radio" /> <input
+					type="radio" /> <input type="radio" /> </span> <span wicket:id="sexLabel">Sex</span>
+				<span wicket:id="sex"> <input type="radio" /> <input
+					type="radio" /> <input type="radio" /> </span> <span
+					wicket:id="locationLabel">Location</span> <input type="text"
+					wicket:id="location" /> <span wicket:id="gpsLatitudeLabel">Latitude</span>
+				<input type="text" wicket:id="gpsLatitude" /> <span
+					wicket:id="gpsLongitudeLabel">Longitude</span> <input type="text"
+					wicket:id="gpsLongitude" /> <span wicket:id="seaFloorDepthLabel">Sea
+					Floor Depth</span> <input type="text" wicket:id="maximumDepthInMeters" />
+				<span wicket:id="statusLabel">Status</span> <span
+					wicket:id="livingStatus"> <input type="radio" /> <input
+					type="radio" /> </span> <span wicket:id="scarringLabel">Scarring</span> <input
+					type="text" wicket:id="distinguishingScar" /> <span
+					wicket:id="commentsLabel">Comments</span>
+				<textarea wicket:id="comments"></textarea>
 
-          <span wicket:id="submitterNameLabel">Submitter Name</span>
-          <input type="text" wicket:id="submitterName"/>
-          <span wicket:id="submitterEmailLabel">Submitter Email</span>
-          <input type="text" wicket:id="submitterEmail"/>
-          <span wicket:id="submitterAddressLabel">Submitter Address</span>
-          <input type="text" wicket:id="submitterAddress"/>
-          <span wicket:id="submitterTelephoneLabel">Submitter Telephone</span>
-          <input type="text" wicket:id="submitterPhone"/>
-
-          <span wicket:id="photographerNameLabel">Photographer Name</span>
-          <input type="text" wicket:id="photographerName"/>
-          <span wicket:id="photographerEmailLabel">Photographer Email</span>
-          <input type="text" wicket:id="photographerEmail"/>
-          <span wicket:id="photographerAddressLabel">Photographer Address</span>
-          <input type="text" wicket:id="photographerAddress"/>
-          <span wicket:id="photographerTelephoneLabel">Photographer Telephone</span>
-          <input type="text" wicket:id="photographerPhone"/>
-
-
-          <span wicket:id="otherEmailAddressesLabel">Other Email Addresses</span>
-          
-          <input type="text" wicket:id="interestedResearchers"/>
-
-          <input wicket:id="image1" type="file" />
-          <input wicket:id="image2" type="file" />
-          <input wicket:id="image3" type="file" />
-          <input wicket:id="image4" type="file" />
-          <input wicket:id="submit" type="submit" value="submit" />
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
-</body>
-</html>
+				<span wicket:id="submitterNameLabel">Submitter Name</span> <input
+					type="text" wicket:id="submitterName" /> <span
+					wicket:id="submitterEmailLabel">Submitter Email</span> <input
+					type="text" wicket:id="submitterEmail" /> <span
+					wicket:id="submitterAddressLabel">Submitter Address</span> <input
+					type="text" wicket:id="submitterAddress" /> <span
+					wicket:id="submitterTelephoneLabel">Submitter Telephone</span> <input
+					type="text" wicket:id="submitterPhone" /> <span
+					wicket:id="photographerNameLabel">Photographer Name</span> <input
+					type="text" wicket:id="photographerName" /> <span
+					wicket:id="photographerEmailLabel">Photographer Email</span> <input
+					type="text" wicket:id="photographerEmail" /> <span
+					wicket:id="photographerAddressLabel">Photographer Address</span> <input
+					type="text" wicket:id="photographerAddress" /> <span
+					wicket:id="photographerTelephoneLabel">Photographer
+					Telephone</span> <input type="text" wicket:id="photographerPhone" /> <span
+					wicket:id="otherEmailAddressesLabel">Other Email Addresses</span> <input
+					type="text" wicket:id="interestedResearchers" /> <input
+					wicket:id="image1" type="file" /> <input wicket:id="image2"
+					type="file" /> <input wicket:id="image3" type="file" /> <input
+					wicket:id="image4" type="file" /> <input wicket:id="submit"
+					type="submit" value="submit" />
+			</form>
+		</div>
+	</div>
+</wicket:extend>
