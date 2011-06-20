@@ -172,7 +172,6 @@ public class Header extends Panel {
     } else {
       logoutFragment.setVisible(false);
       adminEncountersFragment.setVisible(false);
-      gridAdminFragment.setVisible(false);
     }
 
     if (isWikiConfigured()) {

@@ -28,71 +28,198 @@
 			</div>
 			<span wicket:id="feedback">Thar be feedback</span>
 			<form wicket:id="encounterForm" class="encounterForm">
-				<span wicket:id="overview">Overview</span> <span
-					wicket:id="dayLabel">Day</span> <select wicket:id="day">
-					<option value="1">1</option>
-					<option value="2">2</option>
-					<option value="3">3</option>
-				</select> <span wicket:id="monthLabel">Month</span> <select wicket:id="month">
-					<option value="1">1</option>
-					<option value="2">2</option>
-					<option value="3">3</option>
-				</select> <span wicket:id="yearLabel">Year</span> <select wicket:id="year">
-					<option value="1">1</option>
-					<option value="2">2</option>
-					<option value="3">3</option>
-				</select> <span wicket:id="hourLabel">Hour</span> <select wicket:id="hour">
-					<option value="1">1</option>
-					<option value="2">2</option>
-					<option value="3">3</option>
-				</select> <span wicket:id="minuteLabel">Minute</span> <select
-					wicket:id="minutes">
-					<option value="1">1</option>
-					<option value="2">2</option>
-					<option value="3">3</option>
-				</select> <span wicket:id="lengthLabel">Length</span> <input type="text"
-					wicket:id="size" /> <span wicket:id="unitsLabel">Length</span> <span
-					wicket:id="measureUnits"> <input type="radio" /> <input
-					type="radio" /> </span> <span wicket:id="measurementMethodLabel">Measurement
-					Method</span> <span wicket:id="sizeGuess"> <input type="radio" /> <input
-					type="radio" /> <input type="radio" /> </span> <span wicket:id="sexLabel">Sex</span>
-				<span wicket:id="sex"> <input type="radio" /> <input
-					type="radio" /> <input type="radio" /> </span> <span
-					wicket:id="locationLabel">Location</span> <input type="text"
-					wicket:id="location" /> <span wicket:id="gpsLatitudeLabel">Latitude</span>
-				<input type="text" wicket:id="gpsLatitude" /> <span
-					wicket:id="gpsLongitudeLabel">Longitude</span> <input type="text"
-					wicket:id="gpsLongitude" /> <span wicket:id="seaFloorDepthLabel">Sea
-					Floor Depth</span> <input type="text" wicket:id="maximumDepthInMeters" />
-				<span wicket:id="statusLabel">Status</span> <span
-					wicket:id="livingStatus"> <input type="radio" /> <input
-					type="radio" /> </span> <span wicket:id="scarringLabel">Scarring</span> <input
-					type="text" wicket:id="distinguishingScar" /> <span
-					wicket:id="commentsLabel">Comments</span>
-				<textarea wicket:id="comments"></textarea>
+				<span wicket:id="overview">Overview</span>
+				<table id="encounter_report" border="0" width="100%">
+					<tr class="form_row">
+						<td class="form_label"><span wicket:id="dateLabel">Date</span>
+						</td>
 
-				<span wicket:id="submitterNameLabel">Submitter Name</span> <input
-					type="text" wicket:id="submitterName" /> <span
-					wicket:id="submitterEmailLabel">Submitter Email</span> <input
-					type="text" wicket:id="submitterEmail" /> <span
-					wicket:id="submitterAddressLabel">Submitter Address</span> <input
-					type="text" wicket:id="submitterAddress" /> <span
-					wicket:id="submitterTelephoneLabel">Submitter Telephone</span> <input
-					type="text" wicket:id="submitterPhone" /> <span
-					wicket:id="photographerNameLabel">Photographer Name</span> <input
-					type="text" wicket:id="photographerName" /> <span
-					wicket:id="photographerEmailLabel">Photographer Email</span> <input
-					type="text" wicket:id="photographerEmail" /> <span
-					wicket:id="photographerAddressLabel">Photographer Address</span> <input
-					type="text" wicket:id="photographerAddress" /> <span
-					wicket:id="photographerTelephoneLabel">Photographer
-					Telephone</span> <input type="text" wicket:id="photographerPhone" /> <span
-					wicket:id="otherEmailAddressesLabel">Other Email Addresses</span> <input
-					type="text" wicket:id="interestedResearchers" /> <input
-					wicket:id="image1" type="file" /> <input wicket:id="image2"
-					type="file" /> <input wicket:id="image3" type="file" /> <input
-					wicket:id="image4" type="file" /> <input wicket:id="submit"
-					type="submit" value="submit" />
+						<td colspan="2"><span wicket:id="dayLabel">Day</span> <select
+							wicket:id="day">
+								<option value="1">1</option>
+								<option value="2">2</option>
+								<option value="3">3</option>
+						</select> <span wicket:id="monthLabel">Month</span> <select
+							wicket:id="month">
+								<option value="1">1</option>
+								<option value="2">2</option>
+								<option value="3">3</option>
+						</select> <span wicket:id="yearLabel">Year</span> <select wicket:id="year">
+								<option value="1">1</option>
+								<option value="2">2</option>
+								<option value="3">3</option>
+						</select></td>
+					</tr>
+					<tr class="form_row">
+						<td class="form_label">Submit Time</td>
+						<td colspan="2"><span wicket:id="hourLabel">Hour</span> <select
+							wicket:id="hour">
+								<option value="1">1</option>
+								<option value="2">2</option>
+								<option value="3">3</option>
+						</select> <span wicket:id="minuteLabel">Minute</span> <select
+							wicket:id="minutes">
+								<option value="1">1</option>
+								<option value="2">2</option>
+								<option value="3">3</option>
+						</select></td>
+					</tr>
+					<tr class="form_row">
+						<td class="form_label" rowspan="2"><span
+							wicket:id="lengthLabel">Length</span></td>
+						<td colspan="2"><input type="text" wicket:id="size" /> <span
+							wicket:id="unitsLabel">Length</span> <span
+							wicket:id="measureUnits"> <input type="radio" /> <input
+								type="radio" /> </span></td>
+					</tr>
+					<tr id="measure_method">
+						<td colspan="2"><span wicket:id="measurementMethodLabel">Measurement
+								Method</span> <span wicket:id="sizeGuess"> <input type="radio" />
+								<input type="radio" /> <input type="radio" /> </span>
+						</td>
+					</tr>
+					<tr class="form_row">
+						<td class="form_label"><span wicket:id="sexLabel">Sex</span>
+						</td>
+						<td colspan="2"><span wicket:id="sex"> <input
+								type="radio" /> <input type="radio" /> <input type="radio" />
+						</span></td>
+					</tr>
+					<tr class="form_row">
+						<td class="form_label" rowspan="3"><span
+							wicket:id="locationLabel">Location</span>
+						</td>
+						<td colspan="2"><input type="text" wicket:id="location" />
+						</td>
+					</tr>
+					<tr class="form_row">
+						<td class="form_label1"><span wicket:id="gpsLatitudeLabel">Latitude</span>
+						</td>
+						<td><input type="text" wicket:id="gpsLatitude" />&deg;</td>
+					</tr>
+					<tr class="form_row">
+						<td class="form_label1"><span wicket:id="gpsLongitudeLabel">Longitude</span>
+						</td>
+						<td><input type="text" wicket:id="gpsLongitude" />&deg;<br />
+							<br /> <span wicket:id="gpsConversionLabel">GPS
+								conversion notes</span> <a
+							href="http://www.csgnetwork.com/gpscoordconv.html"
+							target="_blank"><span wicket:id="gpsClickTextLabel">Find
+									one here</span> </a>
+						</td>
+					</tr>
+					<!--  todo: conditionalize sea floor depth -->
+					<tr class="form_row">
+						<td class="form_label"><span wicket:id="seaFloorDepthLabel">Sea
+								Floor Depth</span>
+						</td>
+						<td colspan="2"><input type="text"
+							wicket:id="maximumDepthInMeters" /> <em><span
+								wicket:id="useSameUnitsLabel">Use the same units (meters
+									or feet) that you selected above</span> </em></td>
+					</tr>
+					<!--  todo: insert elevation stuff -->
+					<tr class="form_row">
+						<td class="form_label"><span wicket:id="statusLabel">Status</span>
+						</td>
+						<td colspan="2"><span wicket:id="livingStatus"> <input
+								type="radio" /> <input type="radio" /> </span></td>
+					</tr>
+					<tr class="form_row">
+						<td class="form_label"><span wicket:id="scarringLabel">Scarring</span>
+						</td>
+						<td colspan="2"><input type="text"
+							wicket:id="distinguishingScar" /></td>
+					</tr>
+					<tr class="form_row">
+						<td class="form_label"><span wicket:id="commentsLabel">Comments</span>
+						</td>
+						<td colspan="2"><textarea wicket:id="comments"></textarea></td>
+					</tr>
+					<tr>
+						<td></td>
+						<td></td>
+						<td></td>
+					</tr>
+				</table>
+				<table id="encounter_contact">
+					<tr>
+						<td class="you" colspan="2"><strong><span
+								wicket:id="yourContactLabel">Submitter</span>
+						</strong></td>
+						<td class="photo" colspan="2"><strong><span
+								wicket:id="photoContactLabel">Photographer</span>
+						</strong> <br /> <span wicket:id="photoContactSubnoteLabel">if you
+								didn't take these</span></td>
+					</tr>
+					<tr>
+						<td><span wicket:id="submitterNameLabel">Submitter
+								Name</span></td>
+						<td><input type="text" wicket:id="submitterName" />
+						</td>
+						<td><span wicket:id="photographerNameLabel">Photographer
+								Name</span></td>
+						<td><input type="text" wicket:id="photographerName" /></td>
+					</tr>
+					<tr>
+						<td><span wicket:id="submitterEmailLabel">Submitter
+								Email</span></td>
+						<td><input type="text" wicket:id="submitterEmail" /></td>
+						<td><span wicket:id="photographerEmailLabel">Photographer
+								Email</span>
+						</td>
+						<td><input type="text" wicket:id="photographerEmail" /></td>
+					</tr>
+					<tr>
+						<td><span wicket:id="submitterAddressLabel">Submitter
+								Address</span></td>
+						<td><input type="text" wicket:id="submitterAddress" /></td>
+						<td><span wicket:id="photographerAddressLabel">Photographer
+								Address</span>
+						</td>
+						<td><input type="text" wicket:id="photographerAddress" /></td>
+					</tr>
+					<tr>
+						<td><span wicket:id="submitterTelephoneLabel">Submitter
+								Telephone</span></td>
+						<td><input type="text" wicket:id="submitterPhone" /></td>
+						<td><span wicket:id="photographerTelephoneLabel">Photographer
+								Telephone</span></td>
+						<td><input type="text" wicket:id="photographerPhone" /></td>
+					</tr>
+					<tr>
+						<td colspan="4"><br/><strong><span
+								wicket:id="otherEmailAddressesLabel">Other Email
+									Addresses</span>
+						</strong><br /> <input type="text" wicket:id="interestedResearchers" />
+							<p>
+								<em><span wicket:id="emailSeparatorNoteLabel">comma
+										separated</span>
+								</em>
+						</td>
+					</tr>
+				</table>
+				<hr />
+				<p align="center">
+					<strong><span wicket:id="image1Label">Image 1</span>
+					</strong> <input wicket:id="image1" type="file" />
+				</p>
+				<p align="center">
+					<strong><span wicket:id="image2Label">Image 2</span>
+					</strong> <input wicket:id="image2" type="file" />
+				</p>
+				<p align="center">
+					<strong><span wicket:id="image3Label">Image 3</span>
+					</strong> <input wicket:id="image3" type="file" />
+				</p>
+				<p align="center"">
+					<strong><span wicket:id="image4Label">Image 4</span>
+					</strong> <input wicket:id="image4" type="file" />
+				</p>
+				<p align="center">
+					<input wicket:id="submit" type="submit"
+						value="Submit Ecounter Report" />
+				</p>
 			</form>
 		</div>
 	</div>
