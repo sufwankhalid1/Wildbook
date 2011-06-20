@@ -59,7 +59,7 @@ import org.slf4j.LoggerFactory;
  * Time: 5:29 PM
  * To change this template use File | Settings | File Templates.
  */
-public class Submit extends Template {
+public class Submit extends ShepherdBasePage {
   private Shepherd myShepherd = new Shepherd();
   private Logger log = LoggerFactory.getLogger(Submit.class);
 

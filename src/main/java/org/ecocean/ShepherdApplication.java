@@ -19,21 +19,35 @@
 
 package org.ecocean;
 
-import org.apache.wicket.protocol.http.WebApplication;
+import org.apache.wicket.authentication.AuthenticatedWebApplication;
 
 /**
- * Created by IntelliJ IDEA.
- * User: mmcbride
- * Date: 3/19/11
- * Time: 5:03 PM
- * To change this template use File | Settings | File Templates.
+ * Created by IntelliJ IDEA. User: mmcbride Date: 3/19/11 Time: 5:03 PM To
+ * change this template use File | Settings | File Templates.
  */
-public class ShepherdApplication extends WebApplication {
+public class ShepherdApplication extends AuthenticatedWebApplication {
   public ShepherdApplication() {
 
   }
 
+  @Override
+  protected Class<ShepherdSession> getWebSessionClass() {
+    return ShepherdSession.class;
+  }
+
+  @Override
+  protected Class<Login> getSignInPageClass() {
+    return Login.class;
+  }
+
+  @Override
   public Class<Index> getHomePage() {
     return Index.class;
+  }
+
+  @Override
+  protected void init() {
+    super.init();
+    getDebugSettings().setDevelopmentUtilitiesEnabled(true);
   }
 }
