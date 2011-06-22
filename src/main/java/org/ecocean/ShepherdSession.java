@@ -25,9 +25,8 @@ public class ShepherdSession extends AuthenticatedWebSession {
   @Override
   public boolean authenticate(final String username, final String password) {
     // Check username and password
-    System.out.println(String.format("authenticating: username/password = %s/%s", username, password));
+    //TODO: make this for reals
     boolean matched = username.equals("wicket") && password.equals("wicket");
-    System.out.println("matched?" + matched);
     return matched;
   }
 

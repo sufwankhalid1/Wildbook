@@ -12,7 +12,6 @@ public class Header extends Panel {
   public Header(String id) {
     super(id);
     ShepherdSession session = (ShepherdSession) getSession();
-    System.out.println("is signed in (header)? " + session.isSignedIn());
     // TODO: parameterize masthead image
     BookmarkablePageLink<Index> indexLink = new BookmarkablePageLink<Index>(
         "linkToIndex", Index.class);

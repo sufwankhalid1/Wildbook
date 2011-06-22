@@ -26,9 +26,10 @@ import org.apache.wicket.authentication.AuthenticatedWebApplication;
  * change this template use File | Settings | File Templates.
  */
 public class ShepherdApplication extends AuthenticatedWebApplication {
-  public ShepherdApplication() {
+  private String encounterStorageDir;
 
-  }
+  public ShepherdApplication() {
+ }
 
   @Override
   protected Class<ShepherdSession> getWebSessionClass() {
@@ -48,6 +49,21 @@ public class ShepherdApplication extends AuthenticatedWebApplication {
   @Override
   protected void init() {
     super.init();
+    Object contextStorageDir = getServletContext().getAttribute("encounterStorageDir");
+    if (contextStorageDir != null) {
+      setEncounterStorageDir(contextStorageDir.toString());
+    } else {
+      setEncounterStorageDir(System.getProperty("java.io.tmpdir"));
+    }
     getDebugSettings().setDevelopmentUtilitiesEnabled(true);
   }
+
+  public String getEncounterStorageDir() {
+    return encounterStorageDir;
+  }
+
+  public void setEncounterStorageDir(String encounterStorageDir) {
+    this.encounterStorageDir = encounterStorageDir;
+  }
+
 }

@@ -47,7 +47,6 @@ import org.apache.wicket.util.convert.IConverter;
 import org.apache.wicket.validation.validator.EmailAddressValidator;
 import org.apache.wicket.validation.validator.MinimumValidator;
 import org.apache.wicket.validation.validator.RangeValidator;
-import org.ecocean.embedded.SubmitSuccess;
 import org.ecocean.model.Encounter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -286,7 +285,8 @@ public class Submit extends ShepherdBasePage {
           Calendar date = Calendar.getInstance();
           Random ran = new Random();
           String uniqueID = (new Integer(date.get(Calendar.DAY_OF_MONTH))).toString() + (new Integer(date.get(Calendar.MONTH) + 1)).toString() + (new Integer(date.get(Calendar.YEAR))).toString() + (new Integer(date.get(Calendar.HOUR_OF_DAY))).toString() + (new Integer(date.get(Calendar.MINUTE))).toString() + (new Integer(date.get(Calendar.SECOND))).toString() + (new Integer(ran.nextInt(99))).toString();
-          File encountersDir = new File(((WebApplication)getApplication()).getServletContext().getRealPath("/encounters"));
+          String encountersDirName = ((ShepherdApplication)getApplication()).getEncounterStorageDir();
+          File encountersDir = new File(encountersDirName);
           File thisEncounterDir = new File(encountersDir, uniqueID);
           List<FileUploadField> uploadFields = Arrays.asList(new FileUploadField[]{image1Field, image2Field, image3Field, image4Field});
           for (FileUploadField uploadField : uploadFields) {
@@ -296,7 +296,6 @@ public class Submit extends ShepherdBasePage {
             }
             if (upload != null) {
               File targetFile = new File(thisEncounterDir, upload.getClientFileName());
-              System.out.println("writing file to " + targetFile.getCanonicalPath());
               model.addAdditionalImageName(targetFile.getCanonicalPath());
               upload.writeTo(targetFile);
             }
