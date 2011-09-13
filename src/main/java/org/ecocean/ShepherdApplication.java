@@ -29,7 +29,7 @@ public class ShepherdApplication extends AuthenticatedWebApplication {
   private String encounterStorageDir;
 
   public ShepherdApplication() {
- }
+  }
 
   @Override
   protected Class<ShepherdSession> getWebSessionClass() {
@@ -49,7 +49,8 @@ public class ShepherdApplication extends AuthenticatedWebApplication {
   @Override
   protected void init() {
     super.init();
-    Object contextStorageDir = getServletContext().getAttribute("encounterStorageDir");
+    Object contextStorageDir = getServletContext().getAttribute(
+        "encounterStorageDir");
     if (contextStorageDir != null) {
       setEncounterStorageDir(contextStorageDir.toString());
     } else {
