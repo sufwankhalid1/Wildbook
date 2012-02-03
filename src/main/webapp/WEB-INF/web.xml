@@ -579,19 +579,7 @@
     <servlet-class>org.ecocean.servlet.MassExposeGBIF</servlet-class>
   </servlet>
 
-  <servlet>
-    <servlet-name>DataNucleus</servlet-name>
-    <servlet-class>org.datanucleus.rest.RestServlet</servlet-class>
-    <init-param>
-      <param-name>persistence-context</param-name>
-      <param-value>ShepherdProject</param-value>
-    </init-param>
-  </servlet>
 
-  <servlet-mapping>
-    <servlet-name>DataNucleus</servlet-name>
-    <url-pattern>/dn/*</url-pattern>
-  </servlet-mapping>
 
 
   <servlet-mapping>
@@ -1104,6 +1092,7 @@
        <url-pattern>/EncounterSetVerbatimEventDate</url-pattern>
        <url-pattern>/EncounterSetLifeStage</url-pattern>
         <url-pattern>/EncounterSetTissueSample</url-pattern>
+         <url-pattern>/EncounterAddSpotFile</url-pattern>
         <url-pattern>/TissueSampleSetHaplotype</url-pattern>
         <url-pattern>/TissueSampleRemoveHaplotype</url-pattern>
         
