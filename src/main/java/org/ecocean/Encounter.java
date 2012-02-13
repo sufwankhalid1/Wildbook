@@ -28,10 +28,14 @@ import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.Vector;
 import java.util.GregorianCalendar;
+
 import org.ecocean.genetics.*;
 import org.ecocean.tag.AcousticTag;
 import org.ecocean.tag.MetalTag;
 import org.ecocean.tag.SatelliteTag;
+
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 
 /**
@@ -43,6 +47,7 @@ import org.ecocean.tag.SatelliteTag;
  * @author Jason Holmberg
  * @version 2.0
  */
+@XmlRootElement
 public class Encounter implements java.io.Serializable {
   static final long serialVersionUID = -146404246317385604L;
 
@@ -94,7 +99,7 @@ public class Encounter implements java.io.Serializable {
 
   //Date the encounter was added to the library.
   private String dwcDateAdded;
-  
+
   // If Encounter spanned more than one day, date of release
   private Date releaseDate;
 
@@ -121,10 +126,10 @@ public class Encounter implements java.io.Serializable {
   //time metrics of the report
   private int hour = 0;
   private String minutes = "00";
-  
-  private String state="";
 
-  private long dateInMilliseconds=0;
+  private String state = "";
+
+  private long dateInMilliseconds = 0;
   //describes how the shark was measured
   private String size_guess = "none provided";
   //String reported GPS values for lat and long of the encounter
@@ -189,7 +194,7 @@ public class Encounter implements java.io.Serializable {
   private List<MetalTag> metalTags;
   private AcousticTag acousticTag;
   private SatelliteTag satelliteTag;
-  
+
   //start constructors
 
   /**
@@ -201,7 +206,6 @@ public class Encounter implements java.io.Serializable {
   /**
    * Use this constructor to add the minimum level of information for a new encounter
    * The Vector <code>additionalImages</code> must be a Vector of Blob objects
-   *
    */
   public Encounter(int day, int month, int year, int hour, String minutes, String size_guess, String location, String submitterName, String submitterEmail, List<SinglePhotoVideo> images) {
     this.verbatimLocality = location;
@@ -274,11 +278,19 @@ public class Encounter implements java.io.Serializable {
    * @return the number of superSpots that make up the digital fingerprint for this encounter
    */
   public int getNumSpots() {
-    return spots.size();
+    if (spots != null) {
+      return spots.size();
+    } else {
+      return 0;
+    }
   }
 
   public int getNumRightSpots() {
-    return rightSpots.size();
+    if (rightSpots != null) {
+      return rightSpots.size();
+    } else {
+      return 0;
+    }
   }
 
   public boolean hasLeftSpotImage() {
@@ -294,8 +306,11 @@ public class Encounter implements java.io.Serializable {
    * Sets the recorded length of the shark for this encounter.
    */
   public void setSize(Double mysize) {
-	  if(mysize!=null){size = mysize;}
-	  else{size=null;}
+    if (mysize != null) {
+      size = mysize;
+    } else {
+      size = null;
+    }
 
   }
 
@@ -305,7 +320,11 @@ public class Encounter implements java.io.Serializable {
    * @return the length of the shark
    */
   public double getSize() {
-    return size.doubleValue();
+    if (size != null) {
+      return size.doubleValue();
+    } else {
+      return Double.NaN;
+    }
   }
 
   public Double getSizeAsDouble() {
@@ -481,7 +500,7 @@ public class Encounter implements java.io.Serializable {
   /**
    * Returns the e-mail address of the person who took the primaryImage this encounter.
    *
-   * @return  @return the e-mail address of the photographer who took the primary image for this encounter
+   * @return @return the e-mail address of the photographer who took the primary image for this encounter
    */
   public String getPhotographerEmail() {
     return photographerEmail;
@@ -531,8 +550,11 @@ public class Encounter implements java.io.Serializable {
    * Sets the recorded depth of this encounter.
    */
   public void setDepth(Double myDepth) {
-	  if(myDepth!=null){maximumDepthInMeters = myDepth;}
-	  else{maximumDepthInMeters = null;}
+    if (myDepth != null) {
+      maximumDepthInMeters = myDepth;
+    } else {
+      maximumDepthInMeters = null;
+    }
   }
 
   /**
@@ -541,11 +563,15 @@ public class Encounter implements java.io.Serializable {
    * @return the recorded depth for this encounter
    */
   public double getDepth() {
-    return maximumDepthInMeters.doubleValue();
+    if (maximumDepthInMeters != null) {
+      return maximumDepthInMeters.doubleValue();
+    } else {
+      return Double.NaN;
+    }
   }
 
-  public Double getDepthAsDouble(){
-	  return maximumDepthInMeters;
+  public Double getDepthAsDouble() {
+    return maximumDepthInMeters;
   }
 
 
@@ -557,13 +583,13 @@ public class Encounter implements java.io.Serializable {
    * @return a vector of image name Strings
    */
   public Vector getAdditionalImageNames() {
-    Vector imageNamesOnly=new Vector();
-    
+    Vector imageNamesOnly = new Vector();
+
     //List<SinglePhotoVideo> images=getCollectedDataOfClass(SinglePhotoVideo.class);
-    if((images!=null)&&(images.size()>0)){
-      int imagesSize=images.size();
-      for(int i=0;i<imagesSize;i++){
-        SinglePhotoVideo dce=(SinglePhotoVideo)images.get(i);
+    if ((images != null) && (images.size() > 0)) {
+      int imagesSize = images.size();
+      for (int i = 0; i < imagesSize; i++) {
+        SinglePhotoVideo dce = (SinglePhotoVideo) images.get(i);
         imageNamesOnly.add(dce.getFilename());
       }
     }
@@ -575,11 +601,11 @@ public class Encounter implements java.io.Serializable {
    * These images should be the additional or non-side shots.
    *
 
-  public void addAdditionalImageName(SinglePhotoVideo file) {
-    images.add(file);
+   public void addAdditionalImageName(SinglePhotoVideo file) {
+   images.add(file);
 
-  }
-*/
+   }
+   */
 /*
   public void approve() {
     approved = true;
@@ -587,13 +613,13 @@ public class Encounter implements java.io.Serializable {
   }
 */
   /**
-  public void resetAdditionalImageName(int position, String fileName) {
-    additionalImageNames.set(position, fileName);
-    //additionalImageNames.add(fileName);
-  }
-*/
-  
-  
+   public void resetAdditionalImageName(int position, String fileName) {
+   additionalImageNames.set(position, fileName);
+   //additionalImageNames.add(fileName);
+   }
+   */
+
+
   /**
    * Removes the specified additional image from this encounter.
    *
@@ -616,12 +642,13 @@ public class Encounter implements java.io.Serializable {
 
   }
   */
-  
+
   /*
-  public void removeDataCollectionEvent(DataCollectionEvent dce) {
-   collectedData.remove(dce);
-  }
-*/
+    public void removeDataCollectionEvent(DataCollectionEvent dce) {
+     collectedData.remove(dce);
+    }
+  */
+
   /**
    * Returns the unique encounter identifier number for this encounter.
    *
@@ -691,17 +718,17 @@ public class Encounter implements java.io.Serializable {
   }
 
   public void setDay(int day) {
-    this.day=day;
+    this.day = day;
     resetDateInMilliseconds();
   }
 
   public void setHour(int hour) {
-    this.hour=hour;
+    this.hour = hour;
     resetDateInMilliseconds();
   }
 
   public void setMinutes(String minutes) {
-    this.minutes=minutes;
+    this.minutes = minutes;
     resetDateInMilliseconds();
   }
 
@@ -714,11 +741,12 @@ public class Encounter implements java.io.Serializable {
   }
 
   public void setMonth(int month) {
-    this.month=month;
+    this.month = month;
     resetDateInMilliseconds();
   }
+
   public void setYear(int year) {
-    this.year=year;
+    this.year = year;
     resetDateInMilliseconds();
   }
 
@@ -849,7 +877,7 @@ public class Encounter implements java.io.Serializable {
     gpsLatitude = newLat;
   }
 
-
+  @XmlTransient
   public Encounter getClone() {
     Encounter tempEnc = new Encounter();
     try {
@@ -891,6 +919,7 @@ public class Encounter implements java.io.Serializable {
     return submitterID;
   }
 
+  @XmlTransient
   public Vector getInterestedResearchers() {
     return interestedResearchers;
   }
@@ -899,7 +928,7 @@ public class Encounter implements java.io.Serializable {
     interestedResearchers.add(email);
   }
 
-  
+
   public boolean isApproved() {
     return approved;
   }
@@ -954,6 +983,7 @@ public class Encounter implements java.io.Serializable {
     return lowest;
   }
 
+  @XmlTransient
   public com.reijns.I3S.Point2D[] getThreeLeftFiducialPoints() {
     com.reijns.I3S.Point2D[] Rray = new com.reijns.I3S.Point2D[3];
     if (getLeftReferenceSpots() != null) {
@@ -977,6 +1007,7 @@ public class Encounter implements java.io.Serializable {
     return Rray;
   }
 
+  @XmlTransient
   public com.reijns.I3S.Point2D[] getThreeRightFiducialPoints() {
     com.reijns.I3S.Point2D[] Rray = new com.reijns.I3S.Point2D[3];
     if (getRightReferenceSpots() != null) {
@@ -1122,7 +1153,7 @@ public class Encounter implements java.io.Serializable {
   public void setDWCDateAdded(String m_dateAdded) {
     dwcDateAdded = m_dateAdded;
   }
-  
+
   //public void setDateAdded(long date){dateAdded=date;}
   //public long getDateAdded(){return dateAdded;}
 
@@ -1143,25 +1174,29 @@ public class Encounter implements java.io.Serializable {
   }
 
 
-
-  public void setDWCDecimalLatitude(Double lat){
-    if((lat!=null)&&(lat<=90)&&(lat>=-90)){
-      this.decimalLatitude=lat;
-    }
-    else{this.decimalLatitude=null;}
-  }
-  public String getDWCDecimalLatitude(){
-   if(decimalLatitude!=null){return Double.toString(decimalLatitude);}
-     return null;
-   }
-  public void setDWCDecimalLongitude(double longit){
-    if((longit>=-180)&&(longit<=180)){
-      this.decimalLongitude=longit;
+  public void setDWCDecimalLatitude(Double lat) {
+    if ((lat != null) && (lat <= 90) && (lat >= -90)) {
+      this.decimalLatitude = lat;
+    } else {
+      this.decimalLatitude = null;
     }
   }
 
-  public String getDWCDecimalLongitude(){
-    if(decimalLongitude!=null){
+  public String getDWCDecimalLatitude() {
+    if (decimalLatitude != null) {
+      return Double.toString(decimalLatitude);
+    }
+    return null;
+  }
+
+  public void setDWCDecimalLongitude(double longit) {
+    if ((longit >= -180) && (longit <= 180)) {
+      this.decimalLongitude = longit;
+    }
+  }
+
+  public String getDWCDecimalLongitude() {
+    if (decimalLongitude != null) {
       return Double.toString(decimalLongitude);
     }
     return null;
@@ -1203,8 +1238,11 @@ public class Encounter implements java.io.Serializable {
   }
 
   public void setLocationID(String newLocationID) {
-    if(newLocationID!=null){locationID = newLocationID;}
-    else{locationID = null;}
+    if (newLocationID != null) {
+      locationID = newLocationID;
+    } else {
+      locationID = null;
+    }
   }
 
   public Double getMaximumDepthInMeters() {
@@ -1248,11 +1286,29 @@ public class Encounter implements java.io.Serializable {
     this.individualID = indy;
   }
 
-  public double getDecimalLatitudeAsDouble(){return decimalLatitude.doubleValue();}
-  public void setDecimalLatitude(Double lat){this.decimalLatitude=lat;}
+  public double getDecimalLatitudeAsDouble() {
+    if (decimalLatitude != null) {
+      return decimalLatitude.doubleValue();
+    } else {
+      return Double.NaN;
+    }
+  }
 
-  public double getDecimalLongitudeAsDouble(){return decimalLongitude.doubleValue();}
-  public void setDecimalLongitude(Double longy){this.decimalLongitude=longy;}
+  public void setDecimalLatitude(Double lat) {
+    this.decimalLatitude = lat;
+  }
+
+  public double getDecimalLongitudeAsDouble() {
+    if (decimalLongitude != null) {
+      return decimalLongitude.doubleValue();
+    } else {
+      return Double.NaN;
+    }
+  }
+
+  public void setDecimalLongitude(Double longy) {
+    this.decimalLongitude = longy;
+  }
 
 
   public String getOccurrenceRemarks() {
@@ -1293,8 +1349,11 @@ public class Encounter implements java.io.Serializable {
   }
 
   public void setBehavior(String beh) {
-    if(beh!=null){behavior = beh;}
-    else{behavior = null;}
+    if (beh != null) {
+      behavior = beh;
+    } else {
+      behavior = null;
+    }
   }
 
   public String getEventID() {
@@ -1311,45 +1370,47 @@ public class Encounter implements java.io.Serializable {
 
 
   public void setVerbatimEventDate(String vet) {
-      if(vet!=null){this.verbatimEventDate = vet;}
-  	  else{this.verbatimEventDate=null;}
+    if (vet != null) {
+      this.verbatimEventDate = vet;
+    } else {
+      this.verbatimEventDate = null;
+    }
   }
 
   public String getDynamicProperties() {
     return dynamicProperties;
   }
 
-  public void setDynamicProperty(String name, String value){
-    name=name.replaceAll(";", "_").trim().replaceAll("%20", " ");
-    value=value.replaceAll(";", "_").trim();
+  public void setDynamicProperty(String name, String value) {
+    name = name.replaceAll(";", "_").trim().replaceAll("%20", " ");
+    value = value.replaceAll(";", "_").trim();
 
-    if(dynamicProperties==null){dynamicProperties=name+"="+value+";";}
-    else{
+    if (dynamicProperties == null) {
+      dynamicProperties = name + "=" + value + ";";
+    } else {
 
       //let's create a TreeMap of the properties
-      TreeMap<String,String> tm=new TreeMap<String,String>();
-      StringTokenizer st=new StringTokenizer(dynamicProperties, ";");
-      while(st.hasMoreTokens()){
+      TreeMap<String, String> tm = new TreeMap<String, String>();
+      StringTokenizer st = new StringTokenizer(dynamicProperties, ";");
+      while (st.hasMoreTokens()) {
         String token = st.nextToken();
-        int equalPlace=token.indexOf("=");
-        try{
-          tm.put(token.substring(0,equalPlace), token.substring(equalPlace+1));
-       }
-       catch(java.lang.StringIndexOutOfBoundsException soe){
-       //this is a badly formatted pair that should be ignored
-     }
+        int equalPlace = token.indexOf("=");
+        try {
+          tm.put(token.substring(0, equalPlace), token.substring(equalPlace + 1));
+        } catch (java.lang.StringIndexOutOfBoundsException soe) {
+          //this is a badly formatted pair that should be ignored
+        }
       }
-      if(tm.containsKey(name)){
+      if (tm.containsKey(name)) {
         tm.remove(name);
         tm.put(name, value);
 
         //now let's recreate the dynamicProperties String
-        String newProps=tm.toString();
-        int stringSize=newProps.length();
-        dynamicProperties=newProps.substring(1,(stringSize-1)).replaceAll(", ", ";")+";";
-      }
-      else{
-        dynamicProperties=dynamicProperties+name+"="+value+";";
+        String newProps = tm.toString();
+        int stringSize = newProps.length();
+        dynamicProperties = newProps.substring(1, (stringSize - 1)).replaceAll(", ", ";") + ";";
+      } else {
+        dynamicProperties = dynamicProperties + name + "=" + value + ";";
       }
     }
   }
@@ -1434,8 +1495,11 @@ public class Encounter implements java.io.Serializable {
   }
 
   public void setGenus(String newGenus) {
-    if(newGenus!=null){genus = newGenus;}
-	else{genus=null;}
+    if (newGenus != null) {
+      genus = newGenus;
+    } else {
+      genus = null;
+    }
   }
 
   public String getSpecificEpithet() {
@@ -1443,237 +1507,321 @@ public class Encounter implements java.io.Serializable {
   }
 
   public void setSpecificEpithet(String newEpithet) {
-    if(newEpithet!=null){specificEpithet = newEpithet;}
-	else{specificEpithet=null;}
-  }
-
-  public String getPatterningCode(){ return patterningCode;}
-  public void setPatterningCode(String newCode){this.patterningCode=newCode;}
-
-  public void resetDateInMilliseconds(){
-    if(year>0){
-      int localMonth=0;
-      if(month>0){localMonth=month-1;}
-      int localDay=1;
-      if(day>0){localDay=day;}
-      //int localMinutes = Integer.parseInt(minutes);
-      GregorianCalendar gc=new GregorianCalendar(year, localMonth, localDay);
-      dateInMilliseconds = gc.getTimeInMillis();
+    if (newEpithet != null) {
+      specificEpithet = newEpithet;
+    } else {
+      specificEpithet = null;
     }
-    else{dateInMilliseconds=0;}
   }
 
-  public long getDateInMilliseconds(){return dateInMilliseconds;}
+  public String getPatterningCode() {
+    return patterningCode;
+  }
 
-  public String getDecimalLatitude(){
-    if(decimalLatitude!=null){return Double.toString(decimalLatitude);}
+  public void setPatterningCode(String newCode) {
+    this.patterningCode = newCode;
+  }
+
+  public void resetDateInMilliseconds() {
+    if (year > 0) {
+      int localMonth = 0;
+      if (month > 0) {
+        localMonth = month - 1;
+      }
+      int localDay = 1;
+      if (day > 0) {
+        localDay = day;
+      }
+      //int localMinutes = Integer.parseInt(minutes);
+      GregorianCalendar gc = new GregorianCalendar(year, localMonth, localDay);
+      dateInMilliseconds = gc.getTimeInMillis();
+    } else {
+      dateInMilliseconds = 0;
+    }
+  }
+
+  public long getDateInMilliseconds() {
+    return dateInMilliseconds;
+  }
+
+  public String getDecimalLatitude() {
+    if (decimalLatitude != null) {
+      return Double.toString(decimalLatitude);
+    }
     return null;
   }
   //public void setDecimalLatitude(String lat){this.decimalLatitude=Double.parseDouble(lat);}
 
-  public String getDecimalLongitude(){
-    if(decimalLatitude!=null){return Double.toString(decimalLongitude);}
+  public String getDecimalLongitude() {
+    if (decimalLatitude != null) {
+      return Double.toString(decimalLongitude);
+    }
     return null;
   }
 
 
-
   public String getSubmitterProject() {
-      return submitterProject;
+    return submitterProject;
   }
+
   public void setSubmitterProject(String newProject) {
-      if(newProject!=null){submitterProject = newProject;}
-  	else{submitterProject=null;}
+    if (newProject != null) {
+      submitterProject = newProject;
+    } else {
+      submitterProject = null;
+    }
   }
 
-    public String getSubmitterOrganization() {
-        return submitterOrganization;
-    }
-    public void setSubmitterOrganization(String newOrg) {
-        if(newOrg!=null){submitterOrganization = newOrg;}
-    	else{submitterOrganization=null;}
-    }
+  public String getSubmitterOrganization() {
+    return submitterOrganization;
+  }
 
-   // public List<DataCollectionEvent> getCollectedData(){return collectedData;}
+  public void setSubmitterOrganization(String newOrg) {
+    if (newOrg != null) {
+      submitterOrganization = newOrg;
+    } else {
+      submitterOrganization = null;
+    }
+  }
 
-    /*
-    public ArrayList<DataCollectionEvent> getCollectedDataOfType(String type){
-      ArrayList<DataCollectionEvent> filteredList=new ArrayList<DataCollectionEvent>();
-      int cdSize=collectedData.size();
-      System.out.println("cdSize="+cdSize);
-      for(int i=0;i<cdSize;i++){
-        System.out.println("i="+i);
-        DataCollectionEvent tempDCE=collectedData.get(i);
-        if(tempDCE.getType().equals(type)){filteredList.add(tempDCE);}
+  // public List<DataCollectionEvent> getCollectedData(){return collectedData;}
+
+  /*
+  public ArrayList<DataCollectionEvent> getCollectedDataOfType(String type){
+    ArrayList<DataCollectionEvent> filteredList=new ArrayList<DataCollectionEvent>();
+    int cdSize=collectedData.size();
+    System.out.println("cdSize="+cdSize);
+    for(int i=0;i<cdSize;i++){
+      System.out.println("i="+i);
+      DataCollectionEvent tempDCE=collectedData.get(i);
+      if(tempDCE.getType().equals(type)){filteredList.add(tempDCE);}
+    }
+    return filteredList;
+  }
+  */
+  /*
+  public <T extends DataCollectionEvent> List<T> getCollectedDataOfClass(Class<T> clazz) {
+    List<DataCollectionEvent> collectedData = getCollectedData();
+    List<T> result = new ArrayList<T>();
+    for (DataCollectionEvent dataCollectionEvent : collectedData) {
+      if (dataCollectionEvent.getClass().isAssignableFrom(clazz)) {
+        result.add((T) dataCollectionEvent);
       }
-      return filteredList;
     }
-    */
-    /*
-    public <T extends DataCollectionEvent> List<T> getCollectedDataOfClass(Class<T> clazz) {
-      List<DataCollectionEvent> collectedData = getCollectedData();
-      List<T> result = new ArrayList<T>();
-      for (DataCollectionEvent dataCollectionEvent : collectedData) {
-        if (dataCollectionEvent.getClass().isAssignableFrom(clazz)) {
-          result.add((T) dataCollectionEvent);
+    return result;
+  }
+
+  public <T extends DataCollectionEvent> List<T> getCollectedDataOfClassAndType(Class<T> clazz, String type) {
+    List<T> collectedDataOfClass = getCollectedDataOfClass(clazz);
+    List<T> result = new ArrayList<T>();
+    for (T t : collectedDataOfClass) {
+      if (type.equals(t.getType())) {
+        result.add(t);
+      }
+    }
+    return result;
+  }
+
+  public void addCollectedDataPoint(DataCollectionEvent dce){
+    if(collectedData==null){collectedData=new ArrayList<DataCollectionEvent>();}
+    if(!collectedData.contains(dce)){collectedData.add(dce);}
+  }
+  public void removeCollectedDataPoint(int num){collectedData.remove(num);}
+  */
+
+  public void addTissueSample(TissueSample dce) {
+    if (tissueSamples == null) {
+      tissueSamples = new ArrayList<TissueSample>();
+    }
+    if (!tissueSamples.contains(dce)) {
+      tissueSamples.add(dce);
+    }
+  }
+
+  public void removeTissueSample(int num) {
+    tissueSamples.remove(num);
+  }
+
+  public List<TissueSample> getTissueSamples() {
+    return tissueSamples;
+  }
+
+  public void removeTissueSample(TissueSample num) {
+    tissueSamples.remove(num);
+  }
+
+  public void addSinglePhotoVideo(SinglePhotoVideo dce) {
+    if (images == null) {
+      images = new ArrayList<SinglePhotoVideo>();
+    }
+    if (!images.contains(dce)) {
+      images.add(dce);
+    }
+  }
+
+  public void removeSinglePhotoVideo(int num) {
+    images.remove(num);
+  }
+
+  public List<SinglePhotoVideo> getSinglePhotoVideo() {
+    return images;
+  }
+
+  public void removeSinglePhotoVideo(SinglePhotoVideo num) {
+    images.remove(num);
+  }
+
+
+  public void addMeasurement(Measurement measurement) {
+    if (measurements == null) {
+      measurements = new ArrayList<Measurement>();
+    }
+    if (!measurements.contains(measurement)) {
+      measurements.add(measurement);
+    }
+  }
+
+  public void removeMeasurement(int num) {
+    measurements.remove(num);
+  }
+
+  public List<Measurement> getMeasurements() {
+    return measurements;
+  }
+
+  public void removeMeasurement(Measurement num) {
+    measurements.remove(num);
+  }
+
+  public Measurement findMeasurementOfType(String type) {
+    List<Measurement> measurements = getMeasurements();
+    if (measurements != null) {
+      for (Measurement measurement : measurements) {
+        if (type.equals(measurement.getType())) {
+          return measurement;
         }
       }
-      return result;
     }
-    
-    public <T extends DataCollectionEvent> List<T> getCollectedDataOfClassAndType(Class<T> clazz, String type) {
-      List<T> collectedDataOfClass = getCollectedDataOfClass(clazz);
-      List<T> result = new ArrayList<T>();
-      for (T t : collectedDataOfClass) {
-        if (type.equals(t.getType())) {
-          result.add(t);
+    return null;
+  }
+
+  public void addMetalTag(MetalTag metalTag) {
+    if (metalTags == null) {
+      metalTags = new ArrayList<MetalTag>();
+    }
+    metalTags.add(metalTag);
+  }
+
+  public void removeMetalTag(MetalTag metalTag) {
+    metalTags.remove(metalTag);
+  }
+
+  public List<MetalTag> getMetalTags() {
+    return metalTags;
+  }
+
+  public MetalTag findMetalTagForLocation(String location) {
+    List<MetalTag> metalTags = getMetalTags();
+    if (metalTags != null) {
+      for (MetalTag metalTag : metalTags) {
+        if (location.equals(metalTag.getLocation())) {
+          return metalTag;
         }
       }
-      return result;
     }
-    
-    public void addCollectedDataPoint(DataCollectionEvent dce){
-      if(collectedData==null){collectedData=new ArrayList<DataCollectionEvent>();}
-      if(!collectedData.contains(dce)){collectedData.add(dce);}
-    }
-    public void removeCollectedDataPoint(int num){collectedData.remove(num);}
-    */
-    
-    public void addTissueSample(TissueSample dce){
-      if(tissueSamples==null){tissueSamples=new ArrayList<TissueSample>();}
-      if(!tissueSamples.contains(dce)){tissueSamples.add(dce);}
-    }
-    public void removeTissueSample(int num){tissueSamples.remove(num);}
-    public List<TissueSample> getTissueSamples(){return tissueSamples;}
-    public void removeTissueSample(TissueSample num){tissueSamples.remove(num);}
+    return null;
+  }
 
-    public void addSinglePhotoVideo(SinglePhotoVideo dce){
-      if(images==null){images=new ArrayList<SinglePhotoVideo>();}
-      if(!images.contains(dce)){images.add(dce);}
-    }
-    public void removeSinglePhotoVideo(int num){images.remove(num);}
-    public List<SinglePhotoVideo> getSinglePhotoVideo(){return images;}
-    public void removeSinglePhotoVideo(SinglePhotoVideo num){images.remove(num);}
-    
-    
-    
-    public void addMeasurement(Measurement measurement){
-      if(measurements==null){measurements=new ArrayList<Measurement>();}
-      if(!measurements.contains(measurement)){measurements.add(measurement);}
-    }
-    public void removeMeasurement(int num){measurements.remove(num);}
-    public List<Measurement> getMeasurements(){return measurements;}
-    public void removeMeasurement(Measurement num){measurements.remove(num);}
-    public Measurement findMeasurementOfType(String type) {
-      List<Measurement> measurements = getMeasurements();
-      if (measurements != null) {
-        for (Measurement measurement : measurements) {
-          if (type.equals(measurement.getType())) {
-            return measurement;
-          }
-        }
-      }
-      return null;
-    }
-    
-    public void addMetalTag(MetalTag metalTag) {
-      if (metalTags == null) {
-        metalTags = new ArrayList<MetalTag>();
-      }
-      metalTags.add(metalTag);
-    }
-    
-    public void removeMetalTag(MetalTag metalTag) {
-      metalTags.remove(metalTag);
-    }
-    
-    public List<MetalTag> getMetalTags() {
-      return metalTags;
-    }
-    
-    public MetalTag findMetalTagForLocation(String location) {
-      List<MetalTag> metalTags = getMetalTags();
-      if (metalTags != null) {
-        for (MetalTag metalTag : metalTags) {
-          if (location.equals(metalTag.getLocation())) {
-            return metalTag;
-          }
-        }
-      }
-      return null;
-    }
-    
-    public AcousticTag getAcousticTag() {
-      return acousticTag;
-    }
+  public AcousticTag getAcousticTag() {
+    return acousticTag;
+  }
 
-    public void setAcousticTag(AcousticTag acousticTag) {
-      this.acousticTag = acousticTag;
-    }
+  public void setAcousticTag(AcousticTag acousticTag) {
+    this.acousticTag = acousticTag;
+  }
 
-    public SatelliteTag getSatelliteTag() {
-      return satelliteTag;
-    }
+  public SatelliteTag getSatelliteTag() {
+    return satelliteTag;
+  }
 
-    public void setSatelliteTag(SatelliteTag satelliteTag) {
-      this.satelliteTag = satelliteTag;
-    }
+  public void setSatelliteTag(SatelliteTag satelliteTag) {
+    this.satelliteTag = satelliteTag;
+  }
 
-    public String getLifeStage(){return lifeStage;}
-    public void setLifeStage(String newStage) {
-      if(newStage!=null){lifeStage = newStage;}
-      else{lifeStage=null;}
+  public String getLifeStage() {
+    return lifeStage;
+  }
+
+  public void setLifeStage(String newStage) {
+    if (newStage != null) {
+      lifeStage = newStage;
+    } else {
+      lifeStage = null;
     }
-    
-    
-    /**
-     * A convenience method that returns the first haplotype found in the TissueSamples for this Encounter. 
-     * 
-     *@return a String if found or null if no haplotype is found
-     */
-    public String getHaplotype(){
-      //List<TissueSample> tissueSamples=getCollectedDataOfClass(TissueSample.class);
-      int numTissueSamples=tissueSamples.size();
-      if(numTissueSamples>0){
-        for(int j=0;j<numTissueSamples;j++){
-          TissueSample thisSample=tissueSamples.get(j);
-          int numAnalyses=thisSample.getNumAnalyses();
-          if(numAnalyses>0){
-            List<GeneticAnalysis> gAnalyses = thisSample.getGeneticAnalyses();
-            for(int g=0;g<numAnalyses;g++){
-              GeneticAnalysis ga = gAnalyses.get(g);
-              if(ga.getAnalysisType().equals("MitochondrialDNA")){
-                MitochondrialDNAAnalysis mito=(MitochondrialDNAAnalysis)ga;
-                if(mito.getHaplotype()!=null){return mito.getHaplotype();}
+  }
+
+
+  /**
+   * A convenience method that returns the first haplotype found in the TissueSamples for this Encounter.
+   *
+   * @return a String if found or null if no haplotype is found
+   */
+  public String getHaplotype() {
+    //List<TissueSample> tissueSamples=getCollectedDataOfClass(TissueSample.class);
+    int numTissueSamples = tissueSamples.size();
+    if (numTissueSamples > 0) {
+      for (int j = 0; j < numTissueSamples; j++) {
+        TissueSample thisSample = tissueSamples.get(j);
+        int numAnalyses = thisSample.getNumAnalyses();
+        if (numAnalyses > 0) {
+          List<GeneticAnalysis> gAnalyses = thisSample.getGeneticAnalyses();
+          for (int g = 0; g < numAnalyses; g++) {
+            GeneticAnalysis ga = gAnalyses.get(g);
+            if (ga.getAnalysisType().equals("MitochondrialDNA")) {
+              MitochondrialDNAAnalysis mito = (MitochondrialDNAAnalysis) ga;
+              if (mito.getHaplotype() != null) {
+                return mito.getHaplotype();
               }
             }
           }
         }
       }
-      return null;
     }
-    
-    public List<SinglePhotoVideo> getImages(){return images;}
-    
-    public boolean hasKeyword(Keyword word){
-     int imagesSize=images.size();
-     for(int i=0;i<imagesSize;i++){
-       SinglePhotoVideo image=images.get(i);
-       if(image.getKeywords().contains(word)){return true;}
-     }
-     return false; 
+    return null;
+  }
+
+  public List<SinglePhotoVideo> getImages() {
+    return images;
+  }
+
+  public boolean hasKeyword(Keyword word) {
+    int imagesSize = images.size();
+    for (int i = 0; i < imagesSize; i++) {
+      SinglePhotoVideo image = images.get(i);
+      if (image.getKeywords().contains(word)) {
+        return true;
+      }
     }
-    
-    public String getState(){return state;}
-    
-    public void setState(String newState){this.state=newState;}
-    
-    //DO NOT USE - LEGACY MIGRATION ONLY
-    public boolean getApproved(){return approved;}
-    public boolean getUnidentifiable(){return unidentifiable;}
-    
-    public Vector getOldAdditionalImageNames(){return additionalImageNames;}
-    
-    
+    return false;
+  }
+
+  public String getState() {
+    return state;
+  }
+
+  public void setState(String newState) {
+    this.state = newState;
+  }
+
+  public boolean getUnidentifiable() {
+    return unidentifiable;
+  }
+
+  @XmlTransient
+  public Vector getOldAdditionalImageNames() {
+    return additionalImageNames;
+  }
+
+
 }
 
