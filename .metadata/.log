@@ -1,0 +1,138 @@
+!SESSION 2012-02-28 17:57:12.686 -----------------------------------------------
+eclipse.buildId=
+java.version=1.6.0_26
+java.vendor=Sun Microsystems Inc.
+BootLoader constants: OS=win32, ARCH=x86, WS=win32, NL=en_US
+Framework arguments:  -product org.eclipse.epp.package.jee.product
+Command-line arguments:  -os win32 -ws win32 -arch x86 -product org.eclipse.epp.package.jee.product
+
+!ENTRY org.eclipse.jface 2 0 2012-02-28 18:00:58.748
+!MESSAGE Keybinding conflicts occurred.  They may interfere with normal accelerator operation.
+!SUBENTRY 1 org.eclipse.jface 2 0 2012-02-28 18:00:58.748
+!MESSAGE A conflict occurred for ALT+CTRL+G:
+Binding(ALT+CTRL+G,
+	ParameterizedCommand(Command(org.eclipse.search.ui.performTextSearchWorkspace,Find Text in Workspace,
+		Searches the files in the workspace for specific text.,
+		Category(org.eclipse.search.ui.category.search,Search,Search command category,true),
+		,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.ui.contexts.window,,,system)
+Binding(ALT+CTRL+G,
+	ParameterizedCommand(Command(refactorit.action.GoToAction,Go To ...,
+		RefactorIT Go To ...,
+		Category(refactorit.category,RefactorIT,RefactorIT Commands,true),
+		ActionDelegateHandlerProxy(null,net.sf.refactorit.eclipse.RitActionDelegate),
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.ui.contexts.window,,,system)
+!SUBENTRY 1 org.eclipse.jface 2 0 2012-02-28 18:00:58.748
+!MESSAGE A conflict occurred for ALT+X:
+Binding(ALT+X,
+	ParameterizedCommand(Command(org.eclipse.datatools.enablement.sybase.asa.schemaobjecteditor.examples.tableschemaeditor.cutcolumn,Cut,
+		,
+		Category(org.eclipse.datatools.enablement.sybase.asa.schemaobjecteditor.examples.tableschemaedtor.10x,ASA 9.x table schema editor,null,true),
+		,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.ui.contexts.window,,,system)
+Binding(ALT+X,
+	ParameterizedCommand(Command(refactorit.action.WhereAction,Where Used,
+		RefactorIT Where Used,
+		Category(refactorit.category,RefactorIT,RefactorIT Commands,true),
+		ActionDelegateHandlerProxy(null,net.sf.refactorit.eclipse.RitActionDelegate),
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.ui.contexts.window,,,system)
+!SESSION 2012-03-11 16:23:33.187 -----------------------------------------------
+eclipse.buildId=
+java.version=1.6.0_26
+java.vendor=Sun Microsystems Inc.
+BootLoader constants: OS=win32, ARCH=x86, WS=win32, NL=en_US
+Framework arguments:  -product org.eclipse.epp.package.jee.product -product org.eclipse.epp.package.jee.product
+Command-line arguments:  -os win32 -ws win32 -arch x86 -product org.eclipse.epp.package.jee.product -data C:\github-shepherd -product org.eclipse.epp.package.jee.product
+
+!ENTRY org.eclipse.jface 2 0 2012-03-11 16:25:19.750
+!MESSAGE Keybinding conflicts occurred.  They may interfere with normal accelerator operation.
+!SUBENTRY 1 org.eclipse.jface 2 0 2012-03-11 16:25:19.750
+!MESSAGE A conflict occurred for ALT+CTRL+G:
+Binding(ALT+CTRL+G,
+	ParameterizedCommand(Command(org.eclipse.search.ui.performTextSearchWorkspace,Find Text in Workspace,
+		Searches the files in the workspace for specific text.,
+		Category(org.eclipse.search.ui.category.search,Search,Search command category,true),
+		,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.ui.contexts.window,,,system)
+Binding(ALT+CTRL+G,
+	ParameterizedCommand(Command(refactorit.action.GoToAction,Go To ...,
+		RefactorIT Go To ...,
+		Category(refactorit.category,RefactorIT,RefactorIT Commands,true),
+		ActionDelegateHandlerProxy(null,net.sf.refactorit.eclipse.RitActionDelegate),
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.ui.contexts.window,,,system)
+!SUBENTRY 1 org.eclipse.jface 2 0 2012-03-11 16:25:19.750
+!MESSAGE A conflict occurred for ALT+X:
+Binding(ALT+X,
+	ParameterizedCommand(Command(org.eclipse.datatools.enablement.sybase.asa.schemaobjecteditor.examples.tableschemaeditor.cutcolumn,Cut,
+		,
+		Category(org.eclipse.datatools.enablement.sybase.asa.schemaobjecteditor.examples.tableschemaedtor.10x,ASA 9.x table schema editor,null,true),
+		,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.ui.contexts.window,,,system)
+Binding(ALT+X,
+	ParameterizedCommand(Command(refactorit.action.WhereAction,Where Used,
+		RefactorIT Where Used,
+		Category(refactorit.category,RefactorIT,RefactorIT Commands,true),
+		ActionDelegateHandlerProxy(null,net.sf.refactorit.eclipse.RitActionDelegate),
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.ui.contexts.window,,,system)
+!SESSION 2012-05-03 23:42:05.312 -----------------------------------------------
+eclipse.buildId=
+java.version=1.6.0_26
+java.vendor=Sun Microsystems Inc.
+BootLoader constants: OS=win32, ARCH=x86, WS=win32, NL=en_US
+Framework arguments:  -product org.eclipse.epp.package.jee.product -product org.eclipse.epp.package.jee.product -product org.eclipse.epp.package.jee.product
+Command-line arguments:  -os win32 -ws win32 -arch x86 -product org.eclipse.epp.package.jee.product -product org.eclipse.epp.package.jee.product -data C:\github-shepherd -product org.eclipse.epp.package.jee.product
+
+!ENTRY org.eclipse.jface 2 0 2012-05-03 23:42:10.578
+!MESSAGE Keybinding conflicts occurred.  They may interfere with normal accelerator operation.
+!SUBENTRY 1 org.eclipse.jface 2 0 2012-05-03 23:42:10.578
+!MESSAGE A conflict occurred for ALT+CTRL+G:
+Binding(ALT+CTRL+G,
+	ParameterizedCommand(Command(org.eclipse.search.ui.performTextSearchWorkspace,Find Text in Workspace,
+		Searches the files in the workspace for specific text.,
+		Category(org.eclipse.search.ui.category.search,Search,Search command category,true),
+		,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.ui.contexts.window,,,system)
+Binding(ALT+CTRL+G,
+	ParameterizedCommand(Command(refactorit.action.GoToAction,Go To ...,
+		RefactorIT Go To ...,
+		Category(refactorit.category,RefactorIT,RefactorIT Commands,true),
+		ActionDelegateHandlerProxy(null,net.sf.refactorit.eclipse.RitActionDelegate),
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.ui.contexts.window,,,system)
+!SUBENTRY 1 org.eclipse.jface 2 0 2012-05-03 23:42:10.578
+!MESSAGE A conflict occurred for ALT+X:
+Binding(ALT+X,
+	ParameterizedCommand(Command(org.eclipse.datatools.enablement.sybase.asa.schemaobjecteditor.examples.tableschemaeditor.cutcolumn,Cut,
+		,
+		Category(org.eclipse.datatools.enablement.sybase.asa.schemaobjecteditor.examples.tableschemaedtor.10x,ASA 9.x table schema editor,null,true),
+		,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.ui.contexts.window,,,system)
+Binding(ALT+X,
+	ParameterizedCommand(Command(refactorit.action.WhereAction,Where Used,
+		RefactorIT Where Used,
+		Category(refactorit.category,RefactorIT,RefactorIT Commands,true),
+		ActionDelegateHandlerProxy(null,net.sf.refactorit.eclipse.RitActionDelegate),
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.ui.contexts.window,,,system)
