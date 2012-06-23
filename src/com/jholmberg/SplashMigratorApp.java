@@ -4,8 +4,13 @@
 package com.jholmberg;
 
 //import the Shepherd Project Framework
-import org.ecocean.*;
+import org.ecocean.Encounter;
+import org.ecocean.MarkedIndividual;
+import org.ecocean.Shepherd;
+import org.ecocean.SinglePhotoVideo;
+import org.ecocean.Keyword;
 import org.ecocean.servlet.ServletUtilities;
+import org.ecocean.genetics.*;
 
 //import basic IO
 import java.io.*;
@@ -17,10 +22,10 @@ import org.joda.time.DateTime;
 import org.joda.time.format.*;
 
 //import jackcess
-import com.healthmarketscience.*;
+//import com.healthmarketscience.*;
 import com.healthmarketscience.jackcess.*;
-import com.healthmarketscience.jackcess.query.*;
-import com.healthmarketscience.jackcess.scsu.*;
+//import com.healthmarketscience.jackcess.query.*;
+//import com.healthmarketscience.jackcess.scsu.*;
 
 import java.util.TreeMap;
 
@@ -34,17 +39,21 @@ public class SplashMigratorApp {
 	/**
 	 * @param args
 	 */
+	
+	
 	public static void main(String[] args) {
 		
+		//a necessary primary key iterator for genetic analyses
+		Integer myKey=new Integer(0);
 		
 		//initial environment config
-		String pathToAccessFile="C:\\splash\\SPLASH All Seasons.mdb";
+		String pathToAccessFile="/home/webadmin/SPLASH All Seasons.mdb";
 		
-		String pathToUpdateFile="C:\\splash\\CRC SPLASHID additional sightings.mdb";
+		//String pathToUpdateFile="C:\\splash\\CRC SPLASHID additional sightings.mdb";
 		
-		String encountersDirPath="C:\\tomcat6\\webapps\\shepherd-alpha2\\encounters";
-		String splashImagesDirPath="C:\\splash\\SPLASH Images";
-		String urlToThumbnailJSPPage="http://localhost:8080/shepherd-alpha1/resetThumbnail.jsp";
+		String encountersDirPath="/opt/tomcat6/webapps/shepherd_data_dir/encounters";
+		String splashImagesDirPath="/home/webadmin/splash_source_images";
+		String urlToThumbnailJSPPage="http://localhost:8080/shepherd-2.2.0-RELEASE/resetThumbnail.jsp";
 		
 		//an arraylist for later thumbnail generation
 		ArrayList<String> thumbnailThese=new ArrayList<String>();
@@ -55,24 +64,24 @@ public class SplashMigratorApp {
 		
 		//let's load our Access database
 		File accessDB=new File(pathToAccessFile);
-		File updateDB=new File(pathToUpdateFile);
+		//File updateDB=new File(pathToUpdateFile);
 		
 		try{
 			
 			//lets' get to work!!!!!!!
 			Database db=Database.open(accessDB);
-			Database uDB=Database.open(updateDB);
+			//Database uDB=Database.open(updateDB);
 			File copyImagesFromDir=new File(splashImagesDirPath);
 			File encountersRootDir=new File(encountersDirPath);
 			
 			//update changes
-			//Table tDailyEffort=db.getTable("tDailyEffort");
-			//Table tSightings=db.getTable("tSightings");
-			//Table tIdentifications=db.getTable("tIdentifications");
+			Table tDailyEffort=db.getTable("tDailyEffort");
+			Table tSightings=db.getTable("tSightings");
+			Table tIdentifications=db.getTable("tIdentifications");
 			
-			Table tDailyEffort=uDB.getTable("tDailyEffort");
-			Table tSightings=uDB.getTable("tSightings");
-			Table tIdentifications=uDB.getTable("tIdentifications");
+			//Table tDailyEffort=uDB.getTable("tDailyEffort");
+			//Table tSightings=uDB.getTable("tSightings");
+			//Table tIdentifications=uDB.getTable("tIdentifications");
 			
 			
 			Table tSPLASHIDFilenames=db.getTable("tSPLASHIDFilenames");
@@ -82,7 +91,25 @@ public class SplashMigratorApp {
 			Table tRegion=db.getTable("ltRegion");
 			Table ltResearchGroup=db.getTable("ltResearch Group");
 			Table tSampleLabData=db.getTable("tSampleLabData");
+			Table haplotypes=db.getTable("OSU Sex-Hap Nov 2011");
+			Table tSampleMicrosatData=db.getTable("tSampleMicrosatData");
 			
+			System.out.println("Loading Filename-SPLASHID...");
+			Table tBestFilenames=db.getTable("Filename-SPLASHID");
+			Iterator<Map<String,Object>> tBestFilenamesIterator = tBestFilenames.iterator();
+			TreeMap<String,String> bestFilenamesMap = new TreeMap<String,String>();
+			while(tBestFilenamesIterator.hasNext()){
+				Map<String,Object> thisIndexRow=tBestFilenamesIterator.next();
+				String index=(new Integer(((Double)thisIndexRow.get("SPLASHID")).intValue())).toString();
+				String name=(String)thisIndexRow.get("Filename");
+				if(!bestFilenamesMap.containsKey(index)){
+					bestFilenamesMap.put(index, name);
+					System.out.println("     Placing "+name+" for "+index+"...");
+				}
+			}
+			
+			
+			//tSampleMicrosatData
 			
 			//first, let's get the behaviorindex and populate an ArrayList
 			
@@ -111,7 +138,7 @@ public class SplashMigratorApp {
 				String name=(String)thisIndexRow.get("RegionName");
 				if(!regionMap.containsKey(index)){
 					regionMap.put(index, name);
-					System.out.println("Adding region: "+index+", "+name);
+					//System.out.println("Adding region: "+index+", "+name);
 				}
 				
 			}
@@ -125,7 +152,7 @@ public class SplashMigratorApp {
 				String name=(String)thisIndexRow.get("Research Group");
 				if(!rgMap.containsKey(index)){
 					rgMap.put(index, name);
-					System.out.println("Adding research group: "+index+", "+name);
+					//System.out.println("Adding research group: "+index+", "+name);
 				}
 			}
 			
@@ -142,7 +169,7 @@ public class SplashMigratorApp {
 					//if(numMatchingIdentifications<10){
 					
 					//update changes
-					processThisRow(thisRow, myShepherd, splashImagesDirPath, encountersDirPath, tSPLASHIDFilenames, urlToThumbnailJSPPage, tSPLASHIDSexes, tSightings, thumbnailThese, thumbnailTheseImages, tDailyEffort, tFlukeQualCodes, tBehaviorIndex, behMap, regionMap, rgMap, tSampleLabData);
+					processThisRow(thisRow, myShepherd, splashImagesDirPath, encountersDirPath, tSPLASHIDFilenames, urlToThumbnailJSPPage, tSPLASHIDSexes, tSightings, thumbnailThese, thumbnailTheseImages, tDailyEffort, tFlukeQualCodes, tBehaviorIndex, behMap, regionMap, rgMap, tSampleLabData, haplotypes, myKey, tSampleMicrosatData, bestFilenamesMap );
 					
 					
 					
@@ -248,8 +275,15 @@ public class SplashMigratorApp {
 									   TreeMap behMap,
 									   TreeMap regionMap,
 									   TreeMap rgMap,
-									   Table tSampleLabData
+									   Table tSampleLabData,
+									   Table haplotypes, 
+									   Integer myKey, 
+									   Table tSampleMicrosatData,
+									   TreeMap<String,String> bestFilenamesMap 
 									   ){
+		
+		//Itertaor for primary keys
+		
 		
 		//create the encounter
 		String markedIndividualName=((Integer)thisRow.get("SPLASH ID")).toString().trim();
@@ -262,13 +296,13 @@ public class SplashMigratorApp {
 		
 		enc.setLocation("Northern Pacific Ocean");
 		enc.setLocationCode("");
-		enc.approve();
+		//enc.approve();
 		enc.setLivingStatus("alive");
 		
 		//set eventID
 		if((String)thisRow.get("Sighting")!=null){
 			enc.setEventID((String)thisRow.get("Sighting"));
-			System.out.println("     eventID: "+enc.getEventID());
+			//System.out.println("     eventID: "+enc.getEventID());
 		}
 		
 		
@@ -290,7 +324,7 @@ public class SplashMigratorApp {
 			
 			String rowValue=(String)thisRow.get("BRSPLASH");
 			if(behMap.containsKey(rowValue)){rowValue=(String)behMap.get(rowValue);}
-			System.out.println("     Setting bhevaior: "+rowValue);
+			//System.out.println("     Setting bhevaior: "+rowValue);
 			enc.setBehavior(rowValue);
 			
 		}
@@ -304,8 +338,10 @@ public class SplashMigratorApp {
 		//expose with TapirLink
 		enc.setOKExposeViaTapirLink(true);
 		
-		//submitter
+		//state
+		enc.setState("approved");
 		
+		//submitter
 		enc.setSubmitterEmail("");
 		enc.setSubmitterPhone("");
 		enc.setSubmitterAddress("");
@@ -315,29 +351,195 @@ public class SplashMigratorApp {
 			enc.setAlternateID((String)thisRow.get("Working ID"));
 		}
 		
+		TissueSample tiss=new TissueSample();
 		if(((String)thisRow.get("Sample Num")!=null)&&(!((String)thisRow.get("Sample Num")).trim().equals(""))){
 			
 			String sampleString=((String)thisRow.get("Sample Num"));
+			String otherSampleID="";
+			String labLoc="";
 			
 			//let's check tSampleLabData for a matching LABID
 			Iterator<Map<String,Object>> tLabIterator = tSampleLabData.iterator();
 			while(tLabIterator.hasNext()){
 				Map<String,Object> thisLabRow=tLabIterator.next();
 				if((thisLabRow.get("Sample #")!=null)&&(((String)thisLabRow.get("Sample #"))).equals(sampleString)){
-					sampleString+=" ( Lab ID: "+(String)thisRow.get("LABID")+")";
 					
+					tiss=new TissueSample(enc.getCatalogNumber(), sampleString);
+					
+					if(thisLabRow.get("LABID")!=null){otherSampleID=(new Integer(((Double)thisLabRow.get("LABID")).intValue())).toString();}
+					if(thisLabRow.get("Lab Loc")!=null){labLoc=(String)thisLabRow.get("Lab Loc");}
+					if(!otherSampleID.equals("")){tiss.setAlternateSampleID(otherSampleID);}
+					if(!labLoc.equals("")){tiss.setStorageLabID(labLoc);}
+					
+					
+
+					String myHaplo="";
+					if(thisLabRow.get("DLpHap")!=null){myHaplo=(String)thisLabRow.get("DLpHap");}
+					
+					String myGenSex="";
+					String swfid="";
+					if(thisLabRow.get("Lab Sex")!=null){myGenSex=(String)thisLabRow.get("Lab Sex");}
+					if(thisLabRow.get("LABID")!=null){
+						swfid=((Double)thisLabRow.get("LABID")).toString();
+					}
+					
+					if(!myGenSex.equals("")&&(!myShepherd.isGeneticAnalysis(tiss.getSampleID(), enc.getCatalogNumber(), (enc.getCatalogNumber()+":"+tiss.getSampleID()+":sex"), "SexAnalysis"))){
+						SexAnalysis sa=new SexAnalysis((enc.getCatalogNumber()+":"+tiss.getSampleID()+":sex"), "X", enc.getCatalogNumber(), tiss.getSampleID());
+						if(myGenSex.equals("M")){sa.setSex("M");}
+						else if(myGenSex.equals("F")){sa.setSex("F");}
+						sa.setProcessingLabTaskID(swfid);
+						tiss.addGeneticAnalysis(sa);
+						myKey++;
+					}
+					
+					if((!myHaplo.equals(""))&&(!myShepherd.isGeneticAnalysis(tiss.getSampleID(), enc.getCatalogNumber(), (enc.getCatalogNumber()+":"+tiss.getSampleID()+":sex"), "MitochondrialDNA"))){
+						MitochondrialDNAAnalysis hapResult=new MitochondrialDNAAnalysis((enc.getCatalogNumber()+":"+tiss.getSampleID()+":haplotype"), myHaplo, enc.getCatalogNumber(), tiss.getSampleID());
+						hapResult.setProcessingLabTaskID(swfid);
+						myKey++;
+						tiss.addGeneticAnalysis(hapResult);
+						
+						//System.out.println("     Setting haplotype as: "+myHaplo);
+						
+					}
+					
+					//let's check for ms markers
+					Iterator<Map<String,Object>> tMSMarker = tSampleMicrosatData.iterator();
+					while(tMSMarker.hasNext()){
+						Map<String,Object> thisMarkerRow=tMSMarker.next();
+						if((thisMarkerRow.get("LABID")!=null)&&(thisLabRow.get("LABID")!=null)){
+							
+							String thisMarkerRowLabID = ((Double)thisMarkerRow.get("LABID")).toString();
+							String thisLabRowLabID = ((Double)thisLabRow.get("LABID")).toString();
+							
+							if(thisLabRowLabID.equals(thisMarkerRowLabID)){
+								
+								//System.out.println("    *******I have found an msMarker ROW!!!");
+								
+								//create the new ms marker analysis object
+								ArrayList<Locus> loci= new ArrayList<Locus>();
+								
+								//GATA417
+								loci.add(getLocus("GATA417", thisMarkerRow));
+								
+								//Ev37
+								loci.add(getLocus("Ev37", thisMarkerRow));
+								
+								
+								//Ev96
+								loci.add(getLocus("Ev96", thisMarkerRow));
+								
+								
+								//rw4-10
+								loci.add(getLocus("rw4-10", thisMarkerRow));
+								
+								
+								//GT211
+								loci.add(getLocus("GT211", thisMarkerRow));
+								
+								
+								//Ev14
+								loci.add(getLocus("Ev14", thisMarkerRow));
+								
+								
+								//rw48
+								loci.add(getLocus("rw48", thisMarkerRow));
+								
+								
+								//GATA28
+								loci.add(getLocus("GATA28", thisMarkerRow));
+								
+								
+								//GT23
+								loci.add(getLocus("GT23", thisMarkerRow));
+								
+								
+								//GT575
+								loci.add(getLocus("GT575", thisMarkerRow));
+								
+								
+								//Ev1
+								loci.add(getLocus("Ev1", thisMarkerRow));
+								
+								
+								//Ev104
+								loci.add(getLocus("Ev104", thisMarkerRow));
+								
+								
+								//Ev21
+								loci.add(getLocus("Ev21", thisMarkerRow));
+								
+								
+								//Ev94
+								loci.add(getLocus("Ev94", thisMarkerRow));
+								
+								//let's clean up the loci and remove zero values
+								int numLoci=loci.size();
+								for(int h=0;h<loci.size();h++){
+									Locus l=loci.get(h);
+									boolean hasNonZeroAlleleValue=false;
+									if(l.getAllele0()>0){hasNonZeroAlleleValue=true;}
+									if(l.getAllele1()>0){hasNonZeroAlleleValue=true;}
+									if(!hasNonZeroAlleleValue){
+										loci.remove(h);
+										h--;
+									}
+									
+								}
+								
+								
+								if(loci.size()>0){
+									MicrosatelliteMarkersAnalysis msAnalysis = new MicrosatelliteMarkersAnalysis((enc.getCatalogNumber()+":"+tiss.getSampleID()), tiss.getSampleID(), enc.getCatalogNumber(),loci);
+									tiss.addGeneticAnalysis(msAnalysis);
+								}
+								
+								
+								//System.out.println("     Setting an msMarker analysis: "+msAnalysis.getAllelesHTMLString());
+								
+								
+							}
+							
+							
+							
+						}	
+					}
+					
+				
+					enc.addTissueSample(tiss);
 				}
 					
 			}
 			
-			enc.setDynamicProperty("Tissue Sample", sampleString);
+
+			//set other tissue sample properties
+			
+			
+			
+
+			
+			
+			//let's check for a haplotype
+			//Iterator<Map<String,Object>> tHaplotypesIterator = haplotypes.iterator();
+			//TreeMap<String,String> haploMap = new TreeMap<String,String>();
+			//while(tHaplotypesIterator.hasNext()){
+				//Map<String,Object> thisHaploRow=tHaplotypesIterator.next();
+				//if(thisHaploRow.get("Sample #")!=null){
+				//String sampleNum=(String)thisHaploRow.get("Sample #");
+				
+				//if(sampleNum.toLowerCase().trim().equals(tiss.getSampleID().trim().toLowerCase())){
+				
+					
+					
+				//}	
+			//}
+			//}
+				
 			
 			
 		}
 		
 		enc.setInformOthers("");
-		enc.setSizeGuess("");
-		
+		//enc.setSizeGuess("");
+		enc.setComments("");
 		
 		//populate its attribute values
 		if((String)thisRow.get("Scarring")!=null){enc.setDistinguishingScar((String)thisRow.get("Scarring"));}
@@ -347,7 +549,7 @@ public class SplashMigratorApp {
 		
 		if((Object)thisRow.get("Date")!=null){
 			String originalDate=((Object)thisRow.get("Date")).toString().replaceAll(" EDT", "").replaceAll(" EST", "");
-			System.out.println("     "+originalDate);
+			//System.out.println("     "+originalDate);
 			
 			DateTimeFormatter splashFMT = new DateTimeFormatterBuilder()
             	.appendDayOfWeekShortText()
@@ -383,7 +585,7 @@ public class SplashMigratorApp {
 					if((thisSightRow.get("Vessel")!=null)&&(thisRow.get("Vessel")!=null)&&(((Object)thisSightRow.get("Vessel")).toString().trim().equals(((Object)thisRow.get("Vessel")).toString().trim()))){
 						if((thisSightRow.get("Sighting")!=null)&&(thisRow.get("Sighting")!=null)&&(((Object)thisSightRow.get("Sighting")).toString().trim().equals(((Object)thisRow.get("Sighting")).toString().trim()))){
 						
-							System.out.println("     I have found a matching tSighting!");
+							//System.out.println("     I have found a matching tSighting!");
 							
 							//let's get the matching tDailyEffort row
 							Iterator<Map<String,Object>> tEffortIterator = tDailyEffort.iterator();
@@ -412,7 +614,7 @@ public class SplashMigratorApp {
 											if(((String)thisEffortRow.get("Region")!=null)){
 												String val=(String)thisEffortRow.get("Region");
 												enc.setLocationID(val);
-												System.out.println("     Region is: "+val);
+												//System.out.println("     Region is: "+val);
 												
 												
 												//Iterator rIter=regionMap.values().iterator();
@@ -433,7 +635,7 @@ public class SplashMigratorApp {
 											
 											if(((String)thisEffortRow.get("Season")!=null)){
 												enc.setVerbatimEventDate(((String)thisEffortRow.get("Season")));
-												System.out.println("     Season: "+(String)thisEffortRow.get("Season"));
+												//System.out.println("     Season: "+(String)thisEffortRow.get("Season"));
 											}
 										}
 									}
@@ -451,12 +653,12 @@ public class SplashMigratorApp {
 							if(thisSightRow.get("Start Dec Lat")!=null){
 								double lat=(new Double(((Object)thisSightRow.get("Start Dec Lat")).toString().trim())).doubleValue();
 								enc.setDWCDecimalLatitude(lat);
-								System.out.println("     I set lat as: "+lat);
+								//System.out.println("     I set lat as: "+lat);
 							}
 							if(thisSightRow.get("Start Dec Long")!=null){
 								double longie=(new Double(((Object)thisSightRow.get("Start Dec Long")).toString().trim())).doubleValue();
 								enc.setDWCDecimalLongitude(longie);
-								System.out.println("     I set long as: "+longie);
+								//System.out.println("     I set long as: "+longie);
 							}
 							
 							if(thisSightRow.get("Sighting")!=null){
@@ -497,22 +699,22 @@ public class SplashMigratorApp {
 							}
 							
 							//depth
-							enc.setDepth(-1);
+							//enc.setDepth(-1);
 							if(thisSightRow.get("Depth (m)")!=null){
 								try{
 									double depth=(new Double(((Object)thisSightRow.get("Depth (m)")).toString().trim())).doubleValue();
 									if(depth>0){enc.setDepth(depth);}
-									System.out.println("     I set depth as: "+depth);
+									//System.out.println("     I set depth as: "+depth);
 								}
 								catch(NumberFormatException nfe){
-									System.out.println("     Caught a numberFormatException on this depth.");
-									System.out.println("     Depth is listed as: "+((Object)thisSightRow.get("Depth (m)")).toString());
-									System.out.println("     SightingKey is: "+((Object)thisSightRow.get("SightingKey")).toString());
+									//System.out.println("     Caught a numberFormatException on this depth.");
+									//System.out.println("     Depth is listed as: "+((Object)thisSightRow.get("Depth (m)")).toString());
+									//System.out.println("     SightingKey is: "+((Object)thisSightRow.get("SightingKey")).toString());
 								}
 							}
 							
 							//size
-							enc.setSize(0);
+							//enc.setSize(0);
 
 							
 							//time
@@ -521,14 +723,14 @@ public class SplashMigratorApp {
 							if(thisSightRow.get("Start Time")!=null){
 								String startTime=((Object)thisSightRow.get("Start Time")).toString().trim();
 								StringTokenizer st=new StringTokenizer(startTime, ":");
-								System.out.println(startTime);
+								//System.out.println(startTime);
 								if(st.countTokens()>0){
 									String myString=st.nextToken();
 									int thisHour=new Integer(myString.substring(myString.length()-2)).intValue();
 									enc.setHour(thisHour);
 									String thisMinutes=st.nextToken();
 									enc.setMinutes(thisMinutes);
-									System.out.println("     Setting time: "+thisHour+":"+thisMinutes);
+									//System.out.println("     Setting time: "+thisHour+":"+thisMinutes);
 								}
 							}
 							
@@ -599,18 +801,24 @@ public class SplashMigratorApp {
 		
 
 		//now the setup
-		Iterator<Map<String,Object>> tFlukeQualCodesIterator = tFlukeQualCodes.iterator();
 		String colorCode="";
-		while(tFlukeQualCodesIterator.hasNext()){
-			Map<String,Object> thisFlukeRow=tFlukeQualCodesIterator.next();
-			if((thisFlukeRow.get("Best Fluke")!=null)&&(thisRow.get("Best Fluke")!=null)&&(((Object)thisFlukeRow.get("Best Fluke")).toString().trim().equals(((Object)thisRow.get("Best Fluke")).toString().trim()))){
+		
+		
+		if(bestFilenamesMap.containsKey(enc.getIndividualID())){
+			//Iterator<Map<String,Object>> tFlukeQualCodesIterator = tFlukeQualCodes.iterator();
+			
+			//while(tFlukeQualCodesIterator.hasNext()){	
+			//Map<String,Object> thisFlukeRow=tFlukeQualCodesIterator.next();
+			//if((thisFlukeRow.get("Best Fluke")!=null)&&(thisRow.get("Best Fluke")!=null)&&(((Object)thisFlukeRow.get("Best Fluke")).toString().trim().equals(((Object)thisRow.get("Best Fluke")).toString().trim()))){
 				
 				
 				
 				
 				
-				imageName=((String)thisFlukeRow.get("Filename")).replaceAll(".tif", "");
-				File thisFile = new File(splashImagesDirPath+"\\"+imageName);
+				//imageName=((String)thisFlukeRow.get("Filename")).replaceAll(".tif", "");
+				imageName=bestFilenamesMap.get(enc.getIndividualID()); 	
+			
+			File thisFile = new File(splashImagesDirPath+"\\"+imageName);
 				
 				
 				
@@ -620,13 +828,13 @@ public class SplashMigratorApp {
 					if(imageName.indexOf(".JPG")==-1){
 						imageName=imageName.replaceAll(".jpg", ".JPG");
 						thisFile = new File(splashImagesDirPath+"\\"+imageName);
-						System.out.println("     Making a filename extension substition!!!!");
+						//System.out.println("     Making a filename extension substition!!!!");
 						
 					}
 					else{
 						imageName=imageName.replaceAll(".JPG", ".jpg");
 						thisFile = new File(splashImagesDirPath+"\\"+imageName);
-						System.out.println("     Making a filename extension substition!!!!");
+						//System.out.println("     Making a filename extension substition!!!!");
 					}
 				}
 				
@@ -638,7 +846,7 @@ public class SplashMigratorApp {
 					//copy it
 					File outputFile = new File(encountersRootDirPath+"\\"+IDKey+"\\"+imageName);
 					
-					/**
+					
 					if(!outputFile.exists()){
 					try{
 
@@ -661,41 +869,61 @@ public class SplashMigratorApp {
 						ioe.printStackTrace();
 					}
 					}
-					*/
 					
 					
+				}	
 					
 					//now add it to the encounter
-					enc.addAdditionalImageName(imageName);
+					SinglePhotoVideo vid=new SinglePhotoVideo(enc.getCatalogNumber(),imageName, ("/opt/tomcat6/webapps/shepherd_data_dir/encounters/"+enc.getCatalogNumber()+"/"+imageName));
+					enc.addSinglePhotoVideo(vid);
 					thumbnailTheseImages.add(imageName);
 				
 					//we have a match in the tFlukeQualCodes table
+					//start color code iterations
+					Iterator<Map<String,Object>> tFlukeQualCodesIterator = tFlukeQualCodes.iterator();
+					
+					while(tFlukeQualCodesIterator.hasNext()){	
+					Map<String,Object> thisFlukeRow=tFlukeQualCodesIterator.next();
+					if((thisFlukeRow.get("Best Fluke")!=null)&&(thisRow.get("Best Fluke")!=null)&&(((Object)thisFlukeRow.get("Best Fluke")).toString().trim().equals(((Object)thisRow.get("Best Fluke")).toString().trim()))){
+						
+						
 					if(thisFlukeRow.get("Color")!=null){
 						String color=((String)thisFlukeRow.get("Color")).toString().toUpperCase();
+						
+						boolean newKeyword=false;
+						
+						
+						
+						if(!myShepherd.isKeyword(color)){
+							
+							//myShepherd.rollbackDBTransaction();
+							//newKeyword=true;
+							Keyword kw=new Keyword(color);
+							myShepherd.storeNewKeyword(kw);
+							//System.out.println("     Creating new keyword: "+color);
+							
+							//myShepherd.beginDBTransaction();
+							
+						}
+						
 						myShepherd.beginDBTransaction();
-						if(myShepherd.isKeyword(color)){
-							Keyword kw=myShepherd.getKeyword(color);
-							kw.addImageName(IDKey+"/"+imageName);
-							colorCode=kw.getIndexname();
+						Keyword kw=myShepherd.getKeyword(color);
+							vid.addKeyword(kw);
+							//colorCode=kw.getIndexname();
 							myShepherd.commitDBTransaction();
 							//System.out.println("     Adding fluke image to keyword: "+color);
-						}
-						else{
-							myShepherd.rollbackDBTransaction();
-
-							Keyword kw=new Keyword(color,color);
-							kw.addImageName(IDKey+"/"+imageName);
-							colorCode=kw.getIndexname();
-							myShepherd.storeNewKeyword(kw, color);
-							//System.out.println("     Adding fluke image to keyword: "+color);
-						}
+						
+				
 					
 					}
-				}
+					}
+					}
+					//end color code iterations
+				//}
 				
 
 				
-			}
+			//}
 		}
 		
 		
@@ -715,23 +943,52 @@ public class SplashMigratorApp {
 		try{
 			if(myShepherd.isMarkedIndividual(markedIndividualName)){
 				MarkedIndividual markie=myShepherd.getMarkedIndividual(markedIndividualName);
-				markie.addEncounter(enc);
+				enc.setSex(markie.getSex());
 				markie.addComments("<p>Added encounter "+enc.getCatalogNumber()+".</p>");
 				if(!colorCode.equals("")){
-					//markie.setColorCode(colorCode);
-					//enc.setColorCode(colorCode);
+					markie.setPatterningCode(colorCode);
+					enc.setPatterningCode(colorCode);
 				}
 				
+				//let's check enc so that it doesn't have a duplicate SinglePhotoVideo as another encounter in MarkedIndividual
+				if((enc.getSinglePhotoVideo()!=null) && (enc.getSinglePhotoVideo().size()>0)){
+					int locSize=enc.getSinglePhotoVideo().size();
+					for(int h=0;h<locSize;h++){
+						SinglePhotoVideo s=enc.getSinglePhotoVideo().get(h);
+						
+						//now we have to check it against the other photos the MarkedIndividual to see if it's a duplicate
+						Vector vec=markie.getEncounters();
+						int vecSize=vec.size();
+						for(int p=0;p<vecSize;p++){
+							Encounter otherEnc=(Encounter)vec.get(p);
+							int locSize2=otherEnc.getSinglePhotoVideo().size();
+							for(int l=0;l<locSize2;l++){
+								SinglePhotoVideo s2=otherEnc.getSinglePhotoVideo().get(l);
+								if(s.getFilename().equals(s2.getFilename())){
+									enc.removeSinglePhotoVideo(s);
+									l=100;
+									p=100;
+									h--;
+									vecSize--;
+									locSize=enc.getSinglePhotoVideo().size();
+								}
+							}	
+						}
+					}
+					
+				}
+				markie.addEncounter(enc);
 				myShepherd.commitDBTransaction();
 			
 			}
 			else{
 			
 				MarkedIndividual newWhale=new MarkedIndividual(markedIndividualName, enc);
-				if(!colorCode.equals("")){
-					//newWhale.setColorCode(colorCode);
-					//enc.setColorCode(colorCode);
+			/*	if(!colorCode.equals("")){
+					newWhale.setPatterningCode(colorCode);
+					enc.setPatterningCode(colorCode);
 				}
+			*/
 				enc.setMatchedBy("Unmatched first encounter");
 				newWhale.addComments("<p>Created "+markedIndividualName+" with the SplashMigratorApp.</p>");
 				newWhale.setDateTimeCreated(ServletUtilities.getDate());
@@ -749,10 +1006,11 @@ public class SplashMigratorApp {
 						//BestSex
 						if(thisSexRow.get("BestSex")!=null){
 							String thisSex=((Object)thisSexRow.get("BestSex")).toString().toLowerCase();
-							System.out.println("     I have found a matching tSex: "+thisSex);
+							//System.out.println("     I have found a matching tSex: "+thisSex);
 							if(thisSex.equals("m")){newWhale.setSex("male");}
 							else if(thisSex.equals("f")){newWhale.setSex("female");}
 							else{newWhale.setSex("unknown");}
+							enc.setSex(newWhale.getSex());
 						}
 						else{
 							newWhale.setSex("unknown");
@@ -762,16 +1020,14 @@ public class SplashMigratorApp {
 						//GenSex
 						if(thisSexRow.get("GenSex")!=null){
 							String thisSex=((Object)thisSexRow.get("GenSex")).toString().toLowerCase();
-							System.out.println("     I have found a matching GenSex: "+thisSex);
-							if(thisSex.equals("m")){newWhale.setDynamicProperty("GenSex","male");}
-							else if(thisSex.equals("f")){newWhale.setDynamicProperty("GenSex","female");}
-							else{newWhale.setDynamicProperty("GenSex","unknown");}
+							//System.out.println("     I have found a matching GenSex: "+thisSex);
+
 						}
 						
 						//BehSex
 						if(thisSexRow.get("BehSex")!=null){
 							String thisSex=((Object)thisSexRow.get("BehSex")).toString().toLowerCase();
-							System.out.println("     I have found a matching BehSex: "+thisSex);
+							//System.out.println("     I have found a matching BehSex: "+thisSex);
 							//if(thisSex.equals("m")){newWhale.setDynamicProperty("BehSex","male");}
 							//else if(thisSex.equals("f")){newWhale.setDynamicProperty("BehSex","female");}
 							//else{newWhale.setDynamicProperty("BehSex","unknown");}
@@ -783,7 +1039,7 @@ public class SplashMigratorApp {
 						//BestSexConf
 						if(thisSexRow.get("BestSexConf")!=null){
 							String thisSex=((Object)thisSexRow.get("BestSexConf")).toString().toLowerCase();
-							System.out.println("     I have found a matching BestSexConf: "+thisSex);
+							//System.out.println("     I have found a matching BestSexConf: "+thisSex);
 							newWhale.setDynamicProperty("Best Sex Confidence",thisSex);
 
 						}
@@ -794,10 +1050,10 @@ public class SplashMigratorApp {
 					
 				}
 				
-				myShepherd.addMarkedIndividual(newWhale);
+				
 				enc.addComments("<p>Added to newly marked individual "+markedIndividualName+" by the SplashMigratorApp.</p>");
 				myShepherd.commitDBTransaction();
-			
+				myShepherd.addMarkedIndividual(newWhale);
 
 			}
 		}
@@ -812,7 +1068,21 @@ public class SplashMigratorApp {
 	
 	
 	
+private static Locus getLocus(String locusName, Map<String,Object> thisMarkerRow){
+	System.out.println("     ***!!!***lOOKING FOR "+locusName+"-1 and "+locusName+"-2.");
 	
+	Integer position1=0;
+	Integer position2 =0; 	
+	if((thisMarkerRow.get(locusName+"-1")!=null)&&(thisMarkerRow.get(locusName+"-2")!=null)){
+		
+		position1= ((Double)thisMarkerRow.get(locusName+"-1")).intValue();
+		position2= ((Double)thisMarkerRow.get(locusName+"-2")).intValue();	
+	}
+	System.out.println("     ***!!!***position 1 is: "+position1+" and position2 is: "+position2);
+	Locus l=new Locus(locusName,position1,position2);
+	System.out.println("     ***!!!***Locus details: "+l.getHTMLString());
+	return l;
+}
 
 	
 
