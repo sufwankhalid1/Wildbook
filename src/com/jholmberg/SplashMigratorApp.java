@@ -53,7 +53,7 @@ public class SplashMigratorApp {
 		
 		String encountersDirPath="/opt/tomcat6/webapps/shepherd_data_dir/encounters";
 		String splashImagesDirPath="/home/webadmin/splash_source_images";
-		String urlToThumbnailJSPPage="http://localhost:8080/shepherd-2.2.0-RELEASE/resetThumbnail.jsp";
+		String urlToThumbnailJSPPage="http://www.splashcatalog.org/latestgenegis/resetThumbnail.jsp";
 		
 		//an arraylist for later thumbnail generation
 		ArrayList<String> thumbnailThese=new ArrayList<String>();
@@ -817,13 +817,20 @@ public class SplashMigratorApp {
 				
 				//imageName=((String)thisFlukeRow.get("Filename")).replaceAll(".tif", "");
 				imageName=bestFilenamesMap.get(enc.getIndividualID()); 	
+			File parentDir=new File(splashImagesDirPath);
+			File thisFile = new File(parentDir,imageName);	
 			
-			File thisFile = new File(splashImagesDirPath+"\\"+imageName);
+			//let's check for and try to fix the .jpg vs .JPG issue
+			if(!thisFile.exists()){
+				if(thisFile.getName().endsWith("jpg")){
+					thisFile = new File(parentDir,imageName.replaceAll(".jpg", ".JPG"));
+				}
+				else if(thisFile.getName().endsWith("JPG")){
+					thisFile = new File(parentDir,imageName.replaceAll(".JPG", ".jpg"));
+				}
+			}
 				
-				
-				
-				
-				
+				/*
 				if(!imageName.equals(getExactFileName(thisFile))){
 					if(imageName.indexOf(".JPG")==-1){
 						imageName=imageName.replaceAll(".jpg", ".JPG");
@@ -837,6 +844,7 @@ public class SplashMigratorApp {
 						//System.out.println("     Making a filename extension substition!!!!");
 					}
 				}
+				*/
 				
 				
 				//check if file exists
@@ -844,7 +852,8 @@ public class SplashMigratorApp {
 					
 					
 					//copy it
-					File outputFile = new File(encountersRootDirPath+"\\"+IDKey+"\\"+imageName);
+					//File encountersRootDirPathLocalFile=new File(encountersRootDirPath+"/"+IDKey);
+					File outputFile = new File(encDir,imageName);
 					
 					
 					if(!outputFile.exists()){
@@ -858,9 +867,13 @@ public class SplashMigratorApp {
 					           }
 					        bos.close();
 					        bis.close();
-						System.out.println("     Completed copy of "+imageName+" "+IDKey);
+						System.out.println("     !@@!@!#!@Completed copy of "+imageName+" "+IDKey);
+
+						System.out.println("     !@@!@!#!@Completed copy of "+imageName+" "+IDKey);
 
 						
+						System.out.println("     !@@!@!#!@Completed copy of "+imageName+" "+IDKey);
+
 						
 
 					}
@@ -869,10 +882,6 @@ public class SplashMigratorApp {
 						ioe.printStackTrace();
 					}
 					}
-					
-					
-				}	
-					
 					//now add it to the encounter
 					SinglePhotoVideo vid=new SinglePhotoVideo(enc.getCatalogNumber(),imageName, ("/opt/tomcat6/webapps/shepherd_data_dir/encounters/"+enc.getCatalogNumber()+"/"+imageName));
 					enc.addSinglePhotoVideo(vid);
@@ -919,6 +928,10 @@ public class SplashMigratorApp {
 					}
 					}
 					//end color code iterations
+					
+				}	
+					
+					
 				//}
 				
 
