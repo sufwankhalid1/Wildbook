@@ -24,9 +24,10 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.upload.FormFile;
-import org.ecocean.CommonConfiguration;
-import org.ecocean.Encounter;
-import org.ecocean.Shepherd;
+import org.ecocean.*;
+import org.ecocean.tag.AcousticTag;
+import org.ecocean.tag.MetalTag;
+import org.ecocean.tag.SatelliteTag;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
@@ -34,11 +35,11 @@ import org.joda.time.format.ISODateTimeFormat;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
-//import java.io.FileInputStream;
-//import java.text.CharacterIterator;
-//import java.text.StringCharacterIterator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -67,10 +68,13 @@ public class SubmitAction extends Action {
 		  String elevation = "";
 		  String depth = "";
 		  String behavior="";
+		  String lifeStage="";
 		  String measureUnits = "", location = "", sex = "unknown", comments = "", primaryImageName = "", guess = "no estimate provided";
 		  String submitterName = "", submitterEmail = "", submitterPhone = "", submitterAddress = "", submitterOrganization="", submitterProject="";
 		  String photographerName = "", photographerEmail = "", photographerPhone = "", photographerAddress = "";
-		  Vector additionalImageNames = new Vector();
+		  //Vector additionalImageNames = new Vector();
+		  ArrayList<SinglePhotoVideo> images=new ArrayList<SinglePhotoVideo>();
+
 		  int encounterNumber = 0;
 		  int day = 1, month = 1, year = 2003, hour = 12;
 		  String lat = "", longitude = "", latDirection = "", longDirection = "", scars = "None";
@@ -120,6 +124,9 @@ public class SubmitAction extends Action {
       if(theForm.getBehavior()!=null){
       	behavior = ServletUtilities.preventCrossSiteScriptingAttacks(theForm.getBehavior());
   	  }
+      if(theForm.getLifeStage()!=null){
+        lifeStage = ServletUtilities.preventCrossSiteScriptingAttacks(theForm.getLifeStage());
+      }
       primaryImageName = ServletUtilities.preventCrossSiteScriptingAttacks(theForm.getPrimaryImageName());
       guess = ServletUtilities.preventCrossSiteScriptingAttacks(theForm.getGuess());
       submitterName = ServletUtilities.preventCrossSiteScriptingAttacks(theForm.getSubmitterName());
@@ -133,7 +140,7 @@ public class SubmitAction extends Action {
       photographerEmail = ServletUtilities.preventCrossSiteScriptingAttacks(theForm.getPhotographerEmail().replaceAll(";", ",").replaceAll(" ", ""));
       photographerPhone = ServletUtilities.preventCrossSiteScriptingAttacks(theForm.getPhotographerPhone());
       photographerAddress = ServletUtilities.preventCrossSiteScriptingAttacks(theForm.getPhotographerAddress());
-      additionalImageNames = theForm.getAdditionalImageNames();
+      //additionalImageNames = theForm.getAdditionalImageNames();
       encounterNumber = theForm.getEncounterNumber();
       livingStatus = ServletUtilities.preventCrossSiteScriptingAttacks(theForm.getLivingStatus());
       genusSpecies = ServletUtilities.preventCrossSiteScriptingAttacks(theForm.getGenusSpecies());
@@ -302,7 +309,15 @@ public class SubmitAction extends Action {
       }
       String data = null;
 
-      File encountersDir = new File(getServlet().getServletContext().getRealPath("/encounters"));
+      //File encountersDir = new File(getServlet().getServletContext().getRealPath("/encounters"));
+     
+      String rootWebappPath = getServlet().getServletContext().getRealPath("/");
+      File webappsDir = new File(rootWebappPath).getParentFile();
+      File shepherdDataDir = new File(webappsDir, CommonConfiguration.getDataDirectoryName());
+      if(!shepherdDataDir.exists()){shepherdDataDir.mkdir();}
+      
+      File encountersDir=new File(shepherdDataDir.getAbsolutePath()+"/encounters");
+      if(!encountersDir.exists()){encountersDir.mkdir();}
       File thisEncounterDir = new File(encountersDir, uniqueID);
 
       boolean created = false;
@@ -350,8 +365,10 @@ public class SubmitAction extends Action {
                 writeName = writeName.replaceFirst("\\.", "_");
               }
               //System.out.println(writeName);
-              additionalImageNames.add(writeName);
-              OutputStream bos = new FileOutputStream(new File(thisEncounterDir, writeName));
+              //additionalImageNames.add(writeName);
+              File writeMe=new File(thisEncounterDir, writeName);
+              images.add(new SinglePhotoVideo(uniqueID,writeMe));
+              OutputStream bos = new FileOutputStream(writeMe);
               int bytesRead = 0;
               byte[] buffer = new byte[8192];
               while ((bytesRead = stream.read(buffer, 0, 8192)) != -1) {
@@ -378,11 +395,48 @@ public class SubmitAction extends Action {
 
 
       //now let's add our encounter to the database
-      Encounter enc = new Encounter(day, month, year, hour, minutes, guess, location, submitterName, submitterEmail, additionalImageNames);
+      Encounter enc = new Encounter(day, month, year, hour, minutes, guess, location, submitterName, submitterEmail, images);
       enc.setComments(comments.replaceAll("\n", "<br>"));
+      if (theForm.getReleaseDate() != null && theForm.getReleaseDate().length() > 0) {
+        String dateStr = ServletUtilities.preventCrossSiteScriptingAttacks(theForm.getReleaseDate());
+        String dateFormatPattern = CommonConfiguration.getProperty("releaseDateFormat");
+        try {
+          SimpleDateFormat simpleDateFormat = new SimpleDateFormat(dateFormatPattern);
+          enc.setReleaseDate(simpleDateFormat.parse(dateStr));
+        } catch (Exception e) {
+          enc.addComments("<p>Reported release date was problematic: " + dateStr + "</p>");
+        }
+      }
       if(theForm.getBehavior()!=null){
   			enc.setBehavior(behavior);
   		}
+      if(theForm.getLifeStage()!=null){
+        enc.setLifeStage(lifeStage);
+      }
+      Map<String, Object> measurements = theForm.getMeasurements();
+      for (String key : measurements.keySet()) {
+        if (!key.endsWith("units") && !key.endsWith("samplingProtocol")) {
+          String value = ((String) measurements.get(key)).trim();
+          if (value.length() > 0) {
+            try {
+              Double doubleVal = Double.valueOf(value);
+              String units = (String) measurements.get(key + "units");
+              String samplingProtocol = (String) measurements.get(key + "samplingProtocol");
+              Measurement measurement = new Measurement(enc.getEncounterNumber(), key, doubleVal, units, samplingProtocol);
+              enc.addMeasurement(measurement);
+            }
+            catch(Exception ex) {
+              enc.addComments("<p>Reported measurement " + key + " was problematic: " + value + "</p>");
+            }
+          }
+        }
+      }
+      List<MetalTag> metalTags = getMetalTags(theForm);
+      for (MetalTag metalTag : metalTags) {
+        enc.addMetalTag(metalTag);
+      }
+      enc.setAcousticTag(getAcousticTag(theForm));
+      enc.setSatelliteTag(getSatelliteTag(theForm));
       enc.setSex(sex);
       enc.setLivingStatus(livingStatus);
 
@@ -513,13 +567,14 @@ public class SubmitAction extends Action {
 
 
       //let's handle the GPS
-      if (!(lat.equals(""))) {
-        enc.setGPSLatitude(lat + "&deg; " + gpsLatitudeMinutes + "\' " + gpsLatitudeSeconds + "\" " + latDirection);
+      if (!lat.equals("") && !longitude.equals("")) {
+        //enc.setGPSLatitude(lat + "&deg; " + gpsLatitudeMinutes + "\' " + gpsLatitudeSeconds + "\" " + latDirection);
 
 
         try {
           double degrees = (new Double(lat)).doubleValue();
           double position = degrees;
+          /*
           if (!gpsLatitudeMinutes.equals("")) {
             double minutes2 = ((new Double(gpsLatitudeMinutes)).doubleValue()) / 60;
             position += minutes2;
@@ -530,23 +585,28 @@ public class SubmitAction extends Action {
           }
           if (latDirection.toLowerCase().equals("south")) {
             position = position * -1;
-          }
+          }*/
           enc.setDWCDecimalLatitude(position);
+          
+          double degrees2 = (new Double(longitude)).doubleValue();
+          double position2 = degrees2;
+          enc.setDWCDecimalLongitude(position2);
 
 
         } catch (Exception e) {
-          System.out.println("EncounterSetGPS: problem setting decimal latitude!");
+          System.out.println("EncounterSetGPS: problem!");
           e.printStackTrace();
         }
 
 
       }
-      if (!(longitude.equals(""))) {
-        enc.setGPSLongitude(longitude + "&deg; " + gpsLongitudeMinutes + "\' " + gpsLongitudeSeconds + "\" " + longDirection);
+      //if (!(longitude.equals(""))) {
+        //enc.setGPSLongitude(longitude + "&deg; " + gpsLongitudeMinutes + "\' " + gpsLongitudeSeconds + "\" " + longDirection);
 
-        try {
-          double degrees = (new Double(longitude)).doubleValue();
-          double position = degrees;
+        //try {
+          
+          
+          /*
           if (!gpsLongitudeMinutes.equals("")) {
             double minutes2 = ((new Double(gpsLongitudeMinutes)).doubleValue()) / 60;
             position += minutes2;
@@ -558,16 +618,18 @@ public class SubmitAction extends Action {
           if (longDirection.toLowerCase().equals("west")) {
             position = position * -1;
           }
-          enc.setDWCDecimalLongitude(position);
+          */
+          
 
 
-        } catch (Exception e) {
-          System.out.println("EncounterSetGPS: problem setting decimal longitude!");
-          e.printStackTrace();
-        }
-      }
+        //} catch (Exception e) {
+        //  System.out.println("EncounterSetGPS: problem setting decimal longitude!");
+         // e.printStackTrace();
+        //}
+      //}
 
       //if one is not set, set all to null
+      /*
       if ((longitude.equals("")) || (lat.equals(""))) {
         enc.setGPSLongitude("");
         enc.setGPSLongitude("");
@@ -598,10 +660,11 @@ public class SubmitAction extends Action {
         enc.setDWCDecimalLatitude(-9999.0);
         enc.setDWCDecimalLongitude(-9999.0);
       }
+      */
       //finish the GPS
 
 
-      enc.setMeasureUnits("Meters");
+      //enc.setMeasureUnits("Meters");
       enc.setSubmitterPhone(submitterPhone);
       enc.setSubmitterAddress(submitterAddress);
       enc.setSubmitterOrganization(submitterOrganization);
@@ -612,7 +675,10 @@ public class SubmitAction extends Action {
       enc.setPhotographerName(photographerName);
       enc.setPhotographerEmail(photographerEmail);
       enc.addComments("<p>Submitted on " + (new java.util.Date()).toString() + " from address: " + request.getRemoteHost() + "</p>");
-      enc.approved = false;
+      //enc.approved = false;
+      if(CommonConfiguration.getProperty("encounterState0")!=null){
+        enc.setState(CommonConfiguration.getProperty("encounterState0"));
+      }
       if (request.getRemoteUser() != null) {
         enc.setSubmitterID(request.getRemoteUser());
       } else if (submitterID != null) {
@@ -642,6 +708,11 @@ public class SubmitAction extends Action {
       String newnum = "";
       if (!spamBot) {
         newnum = myShepherd.storeNewEncounter(enc, uniqueID);
+
+        Logger log = LoggerFactory.getLogger(SubmitAction.class);
+	    log.info("New encounter submission: <a href=\"http://" + CommonConfiguration.getURLLocation(request) + "/encounters/encounter.jsp?number=" + uniqueID+"\">"+uniqueID+"</a>");
+
+
       }
 
       if (newnum.equals("fail")) {
@@ -671,9 +742,7 @@ public class SubmitAction extends Action {
 
       //return a forward to display.jsp
       System.out.println("Ending data submission.");
-      if ((!spamBot) && (submitterID != null) && (submitterID.equals("deepblue"))) {
-        response.sendRedirect("http://" + CommonConfiguration.getURLLocation(request) + "/participate/deepblue/confirmSubmit.jsp?number=" + uniqueID);
-      } else if (!spamBot) {
+      if (!spamBot) {
         response.sendRedirect("http://" + CommonConfiguration.getURLLocation(request) + "/confirmSubmit.jsp?number=" + uniqueID);
       } else {
         response.sendRedirect("http://" + CommonConfiguration.getURLLocation(request) + "/spambot.jsp");
@@ -682,6 +751,40 @@ public class SubmitAction extends Action {
 
     myShepherd.closeDBTransaction();
     return null;
+  }
+
+  private SatelliteTag getSatelliteTag(SubmitForm theForm) {
+    String argosPttNumber =  ServletUtilities.preventCrossSiteScriptingAttacks(theForm.getSatelliteTagArgosPttNumber()).trim();
+    String satelliteTagName = ServletUtilities.preventCrossSiteScriptingAttacks(theForm.getSatelliteTagName()).trim();
+    String tagSerial = ServletUtilities.preventCrossSiteScriptingAttacks(theForm.getSatelliteTagSerial()).trim();
+    if (argosPttNumber.length() > 0 || tagSerial.length() > 0) {
+      return new SatelliteTag(satelliteTagName, tagSerial, argosPttNumber);
+    }
+    return null;
+  }
+
+  private AcousticTag getAcousticTag(SubmitForm theForm) {
+    String acousticTagId = ServletUtilities.preventCrossSiteScriptingAttacks(theForm.getAcousticTagId()).trim();
+    String acousticTagSerial = ServletUtilities.preventCrossSiteScriptingAttacks(theForm.getAcousticTagSerial()).trim();
+    if (acousticTagId.length() > 0 || acousticTagSerial.length() > 0) {
+      return new AcousticTag(acousticTagSerial, acousticTagId);
+    }
+    return null;
+  }
+
+  private List<MetalTag> getMetalTags(SubmitForm theForm) {
+    List<MetalTag> list = new ArrayList<MetalTag>();
+    for (String key : theForm.getMetalTags().keySet()) {
+      // The keys are the location
+      String value = (String) theForm.getMetalTag(key);
+      if (value != null) {
+        value = ServletUtilities.preventCrossSiteScriptingAttacks(value).trim();
+        if (value.length() > 0) {
+          list.add(new MetalTag(value, key));
+        }
+      }
+    }
+    return list;
   }
 
 

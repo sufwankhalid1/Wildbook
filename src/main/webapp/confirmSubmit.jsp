@@ -45,6 +45,15 @@
 
   //link path to submit page with appropriate language
   String submitPath = "submit.jsp";
+  
+  //let's set up references to our file system components
+  String rootWebappPath = getServletContext().getRealPath("/");
+  File webappsDir = new File(rootWebappPath).getParentFile();
+  File shepherdDataDir = new File(webappsDir, CommonConfiguration.getDataDirectoryName());
+  if(!shepherdDataDir.exists()){shepherdDataDir.mkdir();}
+  File encountersDir=new File(shepherdDataDir.getAbsolutePath()+"/encounters");
+  if(!encountersDir.exists()){encountersDir.mkdir();}
+  File thisEncounterDir = new File(encountersDir, number);
 
 
 %>
@@ -81,7 +90,7 @@
 <div id="maintext">
 <%
   StringBuffer new_message = new StringBuffer();
-  new_message.append("The library has received a new whale shark encounter submission. You can " +
+  new_message.append("The "+CommonConfiguration.getProperty("htmlTitle")+" library has received a new encounter submission. You can " +
     "view it at:\nhttp://" + CommonConfiguration.getURLLocation(request) +
     "/encounters/encounter" +
     ".jsp?number="+ number);
@@ -100,7 +109,7 @@
     try {
       Encounter enc = myShepherd.getEncounter(number);
       if ((enc.getAdditionalImageNames() != null) && (enc.getAdditionalImageNames().size() > 0)) {
-        addText = (String) enc.getAdditionalImageNames().get(0);
+        addText = (String)enc.getAdditionalImageNames().get(0);
       }
       if ((enc.getLocationCode() != null) && (!enc.getLocationCode().equals("None"))) {
         informMe = email_props.getProperty(enc.getLocationCode());
@@ -131,18 +140,25 @@
     }
     myShepherd.rollbackDBTransaction();
     myShepherd.closeDBTransaction();
+    
   }
 
-  String thumbLocation = "file-encounters/" + number + "/thumb.jpg";
+  String thumbLocation = "file-"+thisEncounterDir.getAbsolutePath() + "/thumb.jpg";
   if (myShepherd.isAcceptableVideoFile(addText)) {
-    addText = "images/video_thumb.jpg";
-  } else {
-    addText = "encounters/" + number + "/" + addText;
+    addText = rootWebappPath+"/images/video_thumb.jpg";
+  } 
+  else if(myShepherd.isAcceptableImageFile(addText)){
+    addText = thisEncounterDir.getAbsolutePath() + "/" + addText;
+  }
+  else if(addText.equals("")){
+	  addText = rootWebappPath+"/images/no_images.jpg";
   }
 
 
-  File file2process = new File(getServletContext().getRealPath(("/" + addText)));
+  //File file2process = new File(getServletContext().getRealPath(("/" + addText)));
 
+  File file2process = new File(addText);
+  
   if(myShepherd.isAcceptableImageFile(file2process.getName())){
   	int intWidth = 100;
   	int intHeight = 75;
@@ -204,7 +220,13 @@
   new image(s).</em></p>
 <%
 
+
+if(CommonConfiguration.sendEmailNotifications()){
+
   Vector e_images = new Vector();
+
+
+
 
   //get the email thread handler
   ThreadPoolExecutor es = MailThreadExecutorService.getExecutorService();
@@ -256,7 +278,8 @@
       }
     }
 
-  } else {
+  } 
+  else {
     String personalizedThanksMessage = CommonConfiguration.appendEmailRemoveHashString
       (request, thanksmessage, submitter);
 
@@ -305,7 +328,10 @@
       es.execute(new NotificationMailer(CommonConfiguration.getMailHost(), CommonConfiguration.getAutoEmailAddress(), informOthers, ("New encounter submission: " + number), personalizedThanksMessage, e_images));
     }
   }
+  es.shutdown();
+}
 
+myShepherd=null;
 
 %>
 </div>

@@ -88,12 +88,12 @@
   </tr>
 
   <%
-    if ((ad.getAdopterImage() != null) && (!ad.getAdopterImage().equals(""))) {
+    if ((ad.getAdopterImage() != null) && (!ad.getAdopterImage().trim().equals(""))) {
   %>
   <tr>
     <td class="image" style="padding-top: 0px;">
-      <center><img width="188px" height="188px"
-                   src="adoptions/<%=ad.getID()%>/thumb.jpg"/></center>
+      <center><img width="188px"
+                   src="/<%=CommonConfiguration.getDataDirectoryName() %>/adoptions/<%=ad.getID()%>/thumb.jpg"/></center>
     </td>
   </tr>
   <%
@@ -111,7 +111,7 @@
     <td>&nbsp;</td>
   </tr>
   <%
-    if ((ad.getAdopterQuote() != null) && (!ad.getAdopterQuote().equals(""))) {
+    if ((ad.getAdopterQuote() != null) && (!ad.getAdopterQuote().trim().equals(""))) {
   %>
 
   <tr>
@@ -146,7 +146,7 @@
   </tr>
   <tr>
     <td align="left"><a
-      href="http://<%=CommonConfiguration.getURLLocation(request)%>/<%=CommonConfiguration.getAdoptionDirectory() %>/adoption.jsp?number=<%=ad.getID()%>#create">[edit
+      href="http://<%=CommonConfiguration.getURLLocation(request)%>/adoptions/adoption.jsp?number=<%=ad.getID()%>#create">[edit
       this adoption]</a></td>
   </tr>
   <tr>

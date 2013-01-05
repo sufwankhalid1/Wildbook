@@ -20,7 +20,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <%@ page contentType="text/html; charset=utf-8" language="java"
-         import="org.ecocean.*, java.util.Properties, java.util.Vector" %>
+         import="org.ecocean.*, java.util.Properties, java.util.Vector,java.util.ArrayList" %>
 <%@ taglib uri="http://www.sunwesttek.com/di" prefix="di" %>
 
 
@@ -77,26 +77,7 @@
 
     Shepherd myShepherd = new Shepherd();
 
-/*
-String sexParam="";
-if(request.getParameter("sex")!=null) {sexParam="&sex="+request.getParameter("sex");}
-String keywordParam="";
-if(request.getParameter("keyword")!=null) {keywordParam="&keyword="+request.getParameter("keyword");}
-String numResightsParam="";
-if(request.getParameter("numResights")!=null) {numResightsParam="&numResights="+request.getParameter("numResights");}
-String lengthParams="";
-if((request.getParameter("selectLength")!=null)&&(request.getParameter("lengthField")!=null)) {
-	lengthParams="&selectLength="+request.getParameter("selectLength")+"&lengthField="+request.getParameter("lengthField");
-}
-String locCodeParam="";
-if(request.getParameter("locationCodeField")!=null) {locCodeParam="&locationCodeField="+request.getParameter("locationCodeField");}
-String dateParams="day1="+day1+"&day2="+day2+"&month1="+month1+"&month2="+month2+"&year1="+year1+"&year2="+year2;
-String exportParam="";
-if(request.getParameter("export")!=null) {exportParam="&export=true";}
-String numberSpots="";
-if(request.getParameter("numspots")!=null) {numberSpots="&numspots="+request.getParameter("numspots");}
-String qString=dateParams+sexParam+numResightsParam+locCodeParam+lengthParams+exportParam+keywordParam+numberSpots;
-*/
+
 
     int numResults = 0;
 
@@ -188,8 +169,13 @@ String qString=dateParams+sexParam+numResightsParam+locCodeParam+lengthParams+ex
 
   <li><a class="active"><%=props.getProperty("table")%>
   </a></li>
-  <li><a
-    href="individualThumbnailSearchResults.jsp?<%=request.getQueryString().replaceAll("startNum","uselessNum").replaceAll("endNum","uselessNum") %>"><%=props.getProperty("matchingImages")%>
+  <li><a href="individualThumbnailSearchResults.jsp?<%=request.getQueryString().replaceAll("startNum","uselessNum").replaceAll("endNum","uselessNum") %>"><%=props.getProperty("matchingImages")%>
+  </a></li>
+   <li><a href="individualMappedSearchResults.jsp?<%=request.getQueryString().replaceAll("startNum","uselessNum").replaceAll("endNum","uselessNum") %>"><%=props.getProperty("mappedResults")%>
+  </a></li>
+  <li><a href="individualSearchResultsAnalysis.jsp?<%=request.getQueryString().replaceAll("startNum","uselessNum").replaceAll("endNum","uselessNum") %>"><%=props.getProperty("analysis")%>
+  </a></li>
+    <li><a href="individualSearchResultsExport.jsp?<%=request.getQueryString().replaceAll("startNum","uselessNum").replaceAll("endNum","uselessNum") %>"><%=props.getProperty("export")%>
   </a></li>
 
 </ul>
@@ -243,7 +229,7 @@ String qString=dateParams+sexParam+numResightsParam+locCodeParam+lengthParams+ex
       count++;
 
       //check if this individual was newly marked in this period
-      Encounter[] dateSortedEncs = indie.getDateSortedEncounters(true);
+      Encounter[] dateSortedEncs = indie.getDateSortedEncounters();
       int sortedLength = dateSortedEncs.length - 1;
       Encounter temp = dateSortedEncs[sortedLength];
 
@@ -258,11 +244,27 @@ String qString=dateParams+sexParam+numResightsParam+locCodeParam+lengthParams+ex
 
 
       if ((count >= startNum) && (count <= endNum)) {
-        Encounter tempEnc = indie.getEncounter(0);
+        ArrayList<SinglePhotoVideo> photos=indie.getAllSinglePhotoVideo();
   %>
   <tr class="lineitem">
-    <td class="lineitem" width="102" bgcolor="#000000"><img
-      src="<%=("encounters/"+tempEnc.getEncounterNumber()+"/thumb.jpg")%>"></td>
+    <td class="lineitem" width="102" bgcolor="#FFFFFF" >
+    
+       							<%
+   								if(photos.size()>0){ 
+   									SinglePhotoVideo myPhoto=photos.get(0);
+   									String imgName = "/"+CommonConfiguration.getDataDirectoryName()+"/encounters/" + myPhoto.getCorrespondingEncounterNumber() + "/thumb.jpg";
+   			                       
+   								%>                         
+                            		<a href="individuals.jsp?number=<%=indie.getName()%>"><img src="<%=imgName%>" alt="<%=indie.getName()%>" border="0"/></a>
+                            	<%
+   								}
+   								else{
+   								%>
+   									&nbsp;	
+                            	<%
+   								}
+                            	%>
+      </td>
     <td class="lineitem"><a
       href="http://<%=CommonConfiguration.getURLLocation(request)%>/individuals.jsp?number=<%=indie.getName()%>"><%=indie.getName()%>
     </a>
@@ -463,7 +465,8 @@ String qString=dateParams+sexParam+numResightsParam+locCodeParam+lengthParams+ex
   }
 %>
 </p>
-<br>
+
+
 
 <p></p>
 <jsp:include page="footer.jsp" flush="true"/>

@@ -27,6 +27,15 @@
 
 
   <%
+  
+  //setup data dir
+  String rootWebappPath = getServletContext().getRealPath("/");
+  File webappsDir = new File(rootWebappPath).getParentFile();
+  File shepherdDataDir = new File(webappsDir, CommonConfiguration.getDataDirectoryName());
+  //if(!shepherdDataDir.exists()){shepherdDataDir.mkdir();}
+  File encountersDir=new File(shepherdDataDir.getAbsolutePath()+"/encounters");
+  //if(!encountersDir.exists()){encountersDir.mkdir();}
+  
     int startNum = 1;
     int endNum = 45;
 
@@ -69,8 +78,12 @@
       keywords = new String[0];
     }
 
-    int numThumbnails = myShepherd.getNumMarkedIndividualThumbnails(rIndividuals.iterator(), keywords);
-
+    //int numThumbnails = myShepherd.getNumMarkedIndividualThumbnails(rIndividuals.iterator(), keywords);
+	int numThumbnails=0;
+	ArrayList<SinglePhotoVideo> thumbLocs=new ArrayList<SinglePhotoVideo>();
+	thumbLocs=myShepherd.getMarkedIndividualThumbnails(request, rIndividuals.iterator(), startNum, endNum, keywords);
+	
+    
     String queryString = "";
     if (request.getQueryString() != null) {
       queryString = request.getQueryString();
@@ -215,12 +228,16 @@
 <ul id="tabmenu">
 
 
-  <li><a
-    href="individualSearchResults.jsp?<%=queryString.replaceAll("startNum","uselessNum").replaceAll("endNum","uselessNum") %>"><%=encprops.getProperty("table")%>
+  <li><a href="individualSearchResults.jsp?<%=queryString.replaceAll("startNum","uselessNum").replaceAll("endNum","uselessNum") %>"><%=encprops.getProperty("table")%>
   </a></li>
   <li><a class="active"><%=encprops.getProperty("matchingImages")%>
   </a></li>
-
+     <li><a href="individualMappedSearchResults.jsp?<%=request.getQueryString().replaceAll("startNum","uselessNum").replaceAll("endNum","uselessNum") %>"><%=encprops.getProperty("mappedResults")%>
+  </a></li>
+  <li><a href="individualSearchResultsAnalysis.jsp?<%=queryString.replaceAll("startNum","uselessNum").replaceAll("endNum","uselessNum") %>"><%=encprops.getProperty("analysis")%>
+  </a></li>
+    <li><a href="individualSearchResultsExport.jsp?<%=request.getQueryString().replaceAll("startNum","uselessNum").replaceAll("endNum","uselessNum") %>"><%=encprops.getProperty("export")%>
+  </a></li>
 </ul>
 <%
   }
@@ -244,10 +261,7 @@
         %>
       </h1>
 
-      </p>
-      <p><strong><%=encprops.getProperty("totalMatches")%>
-      </strong>: <%=numThumbnails%>
-      </p>
+
 
       <p><%=encprops.getProperty("belowMatches")%> <%=startNum%> - <%=endNum%>&nbsp;
         <%
@@ -308,14 +322,16 @@
 
 			
 			int countMe=0;
-			Vector thumbLocs=new Vector();
+			//Vector thumbLocs=new Vector();
+		
 			
 			try {
-				thumbLocs=myShepherd.getMarkedIndividualThumbnails(request, rIndividuals.iterator(), startNum, endNum, keywords);
-
+				//thumbLocs=myShepherd.getMarkedIndividualThumbnails(request, rIndividuals.iterator(), startNum, endNum, keywords);
+				
+				
 				//now let's order these alphabetical by the highest keyword
 				//Cascadia Research only! TBD--remove on release of Shepherd Project
-				Collections.sort(thumbLocs, (new ThumbnailKeywordComparator()));
+				//Collections.sort(thumbLocs, (new ThumbnailKeywordComparator()));
 				
 				
 				
@@ -327,18 +343,17 @@
       <%
 							for(int columns=0;columns<3;columns++){
 								if(countMe<thumbLocs.size()) {
-									String combined=(String)thumbLocs.get(countMe);
-									StringTokenizer stzr=new StringTokenizer(combined,"BREAK");
-									String thumbLink=stzr.nextToken();
-									String encNum=stzr.nextToken();
-									int fileNamePos=combined.lastIndexOf("BREAK")+5;
-									String fileName=combined.substring(fileNamePos).replaceAll("%20"," ");
+									String thumbLink="";
 									boolean video=true;
-									if(!thumbLink.endsWith("video.jpg")){
-										thumbLink="http://"+CommonConfiguration.getURLLocation(request)+"/encounters/"+thumbLink;
+									if(!myShepherd.isAcceptableVideoFile(thumbLocs.get(countMe).getFilename())){
+										thumbLink="/"+CommonConfiguration.getDataDirectoryName()+"/encounters/"+thumbLocs.get(countMe).getCorrespondingEncounterNumber()+"/"+thumbLocs.get(countMe).getDataCollectionEventID()+".jpg";
 										video=false;
 									}
-									String link="http://"+CommonConfiguration.getURLLocation(request)+"/encounters/"+encNum+"/"+fileName;
+									else{
+										thumbLink="http://"+CommonConfiguration.getURLLocation(request)+"/images/video.jpg";
+										
+									}
+									String link="/"+CommonConfiguration.getDataDirectoryName()+"/encounters/"+thumbLocs.get(countMe).getCorrespondingEncounterNumber()+"/"+thumbLocs.get(countMe).getFilename();
 						
 							%>
 
@@ -370,7 +385,7 @@
 	<%
             	if(!thumbLink.endsWith("video.jpg")){
             	%>
-              <h3><%=(countMe + startNum) %>/<%=numThumbnails %>
+              <h3><%=(countMe + startNum) %>
               </h3>
               <h4><%=encprops.getProperty("imageMetadata") %>
               </h4>
@@ -386,14 +401,14 @@
                       <%
 
                         int kwLength = keywords.length;
-                        Encounter thisEnc = myShepherd.getEncounter(encNum);
+                        Encounter thisEnc = myShepherd.getEncounter(thumbLocs.get(countMe).getCorrespondingEncounterNumber());
                       %>
                       <tr>
                       <% 
                       if(!thumbLink.endsWith("video.jpg")){
                     	  
                       %>
-                        <td><span class="caption"><em><%=(countMe + startNum) %>/<%=numThumbnails %>
+                        <td><span class="caption"><em><%=(countMe + startNum) %>
                         </em></span></td>
                       </tr>
                       <tr>
@@ -455,29 +470,17 @@
                         <td><span class="caption">
 											<%=encprops.getProperty("matchingKeywords") %>
 											<%
-                        //int numKeywords=myShepherd.getNumKeywords();
-                        Iterator allKeywords2 = myShepherd.getAllKeywords();
-
-                        while (allKeywords2.hasNext()) {
-                          Keyword word = (Keyword) allKeywords2.next();
-                          if (word.isMemberOf(encNum + "/" + fileName)) {
-
-                            String renderMe = word.getReadableName();
-
-                            for (int kwIter = 0; kwIter < kwLength; kwIter++) {
-                              String kwParam = keywords[kwIter];
-                              if (kwParam.equals(word.getIndexname())) {
-                                renderMe = "<strong>" + renderMe + "</strong>";
-                              }
-                            }
+                      						List<Keyword> myWords = thumbLocs.get(countMe).getKeywords();
+												int myWordsSize=myWords.size();
+					                            for (int kwIter = 0; kwIter<myWordsSize; kwIter++) {
+					                              %>
+					 								<br/><%= ("<strong>" + myWords.get(kwIter).getReadableName() + "</strong>")%>
+					 								<%
+					                            }
 
 
-                      %>
-													<br/><%= renderMe%>
-													<%
 
-                              }
-                            }
+
 
                           %>
 										</span></td>
@@ -505,9 +508,9 @@
 						<div class="scroll">	
 						<span class="caption">
 					<%
-            if ((fileName.toLowerCase().endsWith("jpg")) || (fileName.toLowerCase().endsWith("jpeg"))) {
+            if ((thumbLocs.get(countMe).getFilename().toLowerCase().endsWith("jpg")) || (thumbLocs.get(countMe).getFilename().toLowerCase().endsWith("jpeg"))) {
               try{
-              File exifImage = new File(getServletContext().getRealPath(("/" + CommonConfiguration.getImageDirectory() + "/" + thisEnc.getCatalogNumber() + "/" + fileName)));
+              File exifImage = new File(encountersDir.getAbsolutePath() + "/" + thisEnc.getCatalogNumber() + "/" + thumbLocs.get(countMe).getFilename());
               Metadata metadata = JpegMetadataReader.readMetadata(exifImage);
               // iterate through metadata directories
               Iterator directories = metadata.getDirectoryIterator();
@@ -528,7 +531,7 @@
 		                	 %>
 		    		            <p>Cannot read metadata for this file.</p>
 		                	<%
-		                	System.out.println("Cannout read metadata for: "+fileName);
+		                	System.out.println("Cannout read metadata for: "+thumbLocs.get(countMe).getFilename());
 		                	e.printStackTrace();
             	}
 
@@ -595,29 +598,17 @@
   <td><span class="caption">
 											<%=encprops.getProperty("matchingKeywords") %>
 											<%
-                        //int numKeywords=myShepherd.getNumKeywords();
-                        Iterator allKeywords = myShepherd.getAllKeywords();
-
-                        while (allKeywords.hasNext()) {
-                          Keyword word = (Keyword) allKeywords.next();
-                          if (word.isMemberOf(encNum + "/" + fileName)) {
-
-                            String renderMe = word.getReadableName();
-
-                            for (int kwIter = 0; kwIter < kwLength; kwIter++) {
-                              String kwParam = keywords[kwIter];
-                              if (kwParam.equals(word.getIndexname())) {
-                                renderMe = "<strong>" + renderMe + "</strong>";
-                              }
-                            }
+												List<Keyword> myWords = thumbLocs.get(countMe).getKeywords();
+												int myWordsSize=myWords.size();
+					                            for (int kwIter = 0; kwIter<myWordsSize; kwIter++) {
+					                          
+					                      		 	%>
+					 								<br/><%= ("<strong>" + myWords.get(kwIter).getReadableName() + "</strong>")%>
+					 								<%
+					                            }
 
 
-                      %>
-													<br/><%= renderMe%>
-													<%
 
-                              }
-                            }
 
                           %>
 										</span></td>

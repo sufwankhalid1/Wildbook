@@ -26,7 +26,7 @@ import com.oreilly.servlet.multipart.Part;
 import org.ecocean.CommonConfiguration;
 import org.ecocean.Encounter;
 import org.ecocean.Shepherd;
-
+import org.ecocean.SinglePhotoVideo;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -54,13 +54,22 @@ public class EncounterAddImage extends HttpServlet {
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
     Shepherd myShepherd = new Shepherd();
 
+    //setup data dir
+    String rootWebappPath = getServletContext().getRealPath("/");
+    File webappsDir = new File(rootWebappPath).getParentFile();
+    File shepherdDataDir = new File(webappsDir, CommonConfiguration.getDataDirectoryName());
+    if(!shepherdDataDir.exists()){shepherdDataDir.mkdir();}
+    File encountersDir=new File(shepherdDataDir.getAbsolutePath()+"/encounters");
+    if(!encountersDir.exists()){encountersDir.mkdir();}
+    
     //set up for response
     response.setContentType("text/html");
     PrintWriter out = response.getWriter();
     boolean locked = false;
 
-    String fileName = "None", encounterNumber = "None";
-
+    String fileName = "None";
+    String encounterNumber = "None";
+    String fullPathFilename="";
 
     try {
       MultipartParser mp = new MultipartParser(request, 10 * 1024 * 1024); // 2MB
@@ -88,15 +97,18 @@ public class EncounterAddImage extends HttpServlet {
           fileName = ServletUtilities.cleanFileName(filePart.getFileName());
           if (fileName != null) {
 
-            File thisSharkDir = new File(getServletContext().getRealPath(("/encounters/" + encounterNumber)));
-
-            long file_size = filePart.writeTo(
-              new File(thisSharkDir, fileName)
-            );
+            File thisSharkDir = new File(encountersDir.getAbsolutePath() +"/"+ encounterNumber);
+            File finalFile=new File(thisSharkDir, fileName);
+            fullPathFilename=finalFile.getCanonicalPath();
+            long file_size = filePart.writeTo(finalFile);
 
           }
         }
       }
+      
+
+      File thisEncounterDir = new File(encountersDir, encounterNumber);
+      
       myShepherd.beginDBTransaction();
       if (myShepherd.isEncounter(encounterNumber)) {
 
@@ -106,7 +118,7 @@ public class EncounterAddImage extends HttpServlet {
         try {
 
 
-          enc.addAdditionalImageName(fileName);
+          enc.addSinglePhotoVideo(new SinglePhotoVideo(encounterNumber,(new File(fullPathFilename))));
           enc.addComments("<p><em>" + request.getRemoteUser() + " on " + (new java.util.Date()).toString() + "</em><br>" + "Submitted new encounter image graphic: " + fileName + ".</p>");
           positionInList = enc.getAdditionalImageNames().size();
         } catch (Exception le) {

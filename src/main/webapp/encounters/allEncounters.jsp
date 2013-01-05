@@ -262,15 +262,9 @@ if (highCount<totalCount) {%> <a
 	<tr class="lineitem">
 		<td bgcolor="#99CCFF" class="lineitem">&nbsp;</td>
 		<td align="left" valign="top" bgcolor="#99CCFF" class="lineitem"><strong><%=number %></strong>
-		 <br />
-		<%if(request.getRemoteUser()!=null){%><a
-			href="http://<%=CommonConfiguration.getURLLocation(request)%>/encounters/allEncounters.jsp?sort=numberup<%=rejectsLink%><%=unapprovedLink%><%=userLink%>&amp;start=<%=(lowCount)%>&amp;end=<%=(highCount)%>"><img
-			src="../images/arrow_up.gif" width="11" height="6" border="0" alt="up" />
-		</a><a
-			href="http://<%=CommonConfiguration.getURLLocation(request)%>/encounters/allEncounters.jsp?sort=numberdown<%=rejectsLink%><%=unapprovedLink%><%=userLink%>&amp;start=<%=(lowCount)%>&amp;end=<%=(highCount)%>"><img
-			src="../images/arrow_down.gif" width="11" height="6" border="0"
-			alt="down" /> </a>
-		<%}%>
+		 <br/>
+    (<%=last %> 4) <br/>
+
 		</td>
 		<td align="left" valign="top" bgcolor="#99CCFF" class="lineitem"><strong><%=date %></strong><br />
 		<%if(request.getRemoteUser()!=null){%><a
@@ -296,17 +290,7 @@ if (highCount<totalCount) {%> <a
 			src="../images/arrow_down.gif" width="11" height="6" border="0"
 			alt="down" /></a></td>
 	
-		<td align="left" valign="top" bgcolor="#99CCFF" class="lineitem"><strong><%=size %>
-		</strong><br />
-		<%if(request.getRemoteUser()!=null){%><a
-			href="http://<%=CommonConfiguration.getURLLocation(request)%>/encounters/allEncounters.jsp?sort=sizeup<%=rejectsLink%><%=unapprovedLink%><%=userLink%>&amp;start=<%=(lowCount)%>&amp;end=<%=(highCount)%>"><img
-			src="../images/arrow_up.gif" width="11" height="6" border="0" alt="up" /></a>
-		<a
-			href="http://<%=CommonConfiguration.getURLLocation(request)%>/encounters/allEncounters.jsp?sort=sizedown<%=rejectsLink%><%=unapprovedLink%><%=userLink%>&amp;start=<%=(lowCount)%>&amp;end=<%=(highCount)%>"><img
-			src="../images/arrow_down.gif" width="11" height="6" border="0"
-			alt="down" /></a>
-		<%}%>
-		</td>
+
 		<td align="left" valign="top" bgcolor="#99CCFF" class="lineitem"><strong><%=sex %></strong><br />
 		<%if(request.getRemoteUser()!=null){%><a
 			href="http://<%=CommonConfiguration.getURLLocation(request)%>/encounters/allEncounters.jsp?sort=sexup<%=rejectsLink%><%=unapprovedLink%><%=userLink%>&amp;start=<%=(lowCount)%>&amp;end=<%=(highCount)%>"><img
@@ -344,18 +328,12 @@ if (highCount<totalCount) {%> <a
 			int total=totalCount;
 			int iterTotal=totalCount;
 			if ((session.getAttribute("logged")!=null)&&(request.getParameter("rejects")!=null)&&(request.getParameter("sort")!=null)) {
-					
+					query.setFilter("this.state == \"unidentifiable\"");
 					iterTotal=totalCount;
 					query=ServletUtilities.setRange(query,iterTotal,highCount,lowCount);
 					
 
-				if (request.getParameter("sort").equals("sizeup")) {
-					allEncounters=myShepherd.getAllUnidentifiableEncounters(query, "size ascending");
-					}
-				else if (request.getParameter("sort").equals("sizedown")) {
-					allEncounters=myShepherd.getAllUnidentifiableEncounters(query, "size descending");
-					}
-				else if (request.getParameter("sort").equals("locationCodeup")) {
+				 if (request.getParameter("sort").equals("locationCodeup")) {
 					allEncounters=myShepherd.getAllUnidentifiableEncounters(query, "locationID ascending");
 					}
 				else if (request.getParameter("sort").equals("locationCodedown")) {
@@ -391,7 +369,7 @@ if (highCount<totalCount) {%> <a
 
 
 				query=ServletUtilities.setRange(query,iterTotal,highCount,lowCount);
-					
+				query.setFilter("this.state == \"unidentifiable\"");
 				allEncounters=myShepherd.getAllUnidentifiableEncounters(query);
 			}
 			
@@ -403,13 +381,7 @@ if (highCount<totalCount) {%> <a
 						
 						ServletUtilities.setRange(query,iterTotal,highCount,lowCount);
 		
-				if (request.getParameter("sort").equals("sizeup")) {
-					allEncounters=myShepherd.getSortedUserEncounters(query, "size ascending");
-					}
-				else if (request.getParameter("sort").equals("sizedown")) {
-					allEncounters=myShepherd.getSortedUserEncounters(query, "size descending");
-					}
-				else if (request.getParameter("sort").equals("locationCodeup")) {
+				 if (request.getParameter("sort").equals("locationCodeup")) {
 					allEncounters=myShepherd.getSortedUserEncounters(query, "locationID ascending");
 					}
 				else if (request.getParameter("sort").equals("locationCodedown")) {
@@ -417,39 +389,30 @@ if (highCount<totalCount) {%> <a
 					allEncounters=myShepherd.getSortedUserEncounters( query, "locationID descending" );
 					}
 				else if (request.getParameter("sort").equals("sexup")) {
-					//query.setFilter("this.approved && this.submitterID == \""+request.getParameter("user")+"\"");
 					allEncounters=myShepherd.getSortedUserEncounters( query, "sex ascending" );
 					}
 				else if (request.getParameter("sort").equals("sexdown")) {
-					//query.setFilter("this.approved && this.submitterID == \""+request.getParameter("user")+"\"");
 					allEncounters=myShepherd.getSortedUserEncounters( query, "sex descending" );
 					}
 				else if (request.getParameter("sort").equals("numberup")) {
-					//query.setFilter("this.approved && this.submitterID == \""+request.getParameter("user")+"\"");
 					allEncounters=myShepherd.getSortedUserEncounters( query, "catalogNumber ascending" );
 					}
 				else if (request.getParameter("sort").equals("numberdown")) {
-					//query.setFilter("this.approved && this.submitterID == \""+request.getParameter("user")+"\"");
 					allEncounters=myShepherd.getSortedUserEncounters( query, "catalogNumber descending" );
 					}
 				else if (request.getParameter("sort").equals("dateup")) {
-					//query.setFilter("this.approved && this.submitterID == \""+request.getParameter("user")+"\"");
 					allEncounters=myShepherd.getSortedUserEncounters( query, "year ascending, month ascending, day ascending, hour ascending, minutes ascending" );
 					}
 				else if (request.getParameter("sort").equals("datedown")) {
-					//query.setFilter("this.approved && this.submitterID == \""+request.getParameter("user")+"\"");
 					allEncounters=myShepherd.getSortedUserEncounters( query, "year descending, month descending, day descending, hour descending, minutes descending" );
 					}
 				else if (request.getParameter("sort").equals("assignedup")) {
-					//query.setFilter("this.approved && this.submitterID == \""+request.getParameter("user")+"\"");
 					allEncounters=myShepherd.getSortedUserEncounters( query, "individualID ascending" );
 					}
 				else if (request.getParameter("sort").equals("assigneddown")) {
-					//query.setFilter("this.approved && this.submitterID == \""+request.getParameter("user")+"\"");
 					allEncounters=myShepherd.getSortedUserEncounters( query, "individualID descending" );
 					}
 				else {
-					//query.setFilter(("this.approved && this.submitterID == \""+user+"\""));
 					allEncounters=myShepherd.getUserEncounters(query, request.getParameter("user"));
 					}
 			}
@@ -457,7 +420,7 @@ if (highCount<totalCount) {%> <a
 			
 		
 			else if(request.getParameter("user")!=null) {
-				query.setFilter(("this.approved && this.submitterID == \""+request.getParameter("user")+"\""));
+				query.setFilter(("this.state == \"approved\" && this.submitterID == \""+request.getParameter("user")+"\""));
 				allEncounters=myShepherd.getUserEncounters(query, request.getParameter("user"));
 				}
 			else if(request.getParameter("sort")!=null) {
@@ -468,56 +431,48 @@ if (highCount<totalCount) {%> <a
 						query=ServletUtilities.setRange(query,iterTotal,highCount,lowCount);
 			
 
-				if (request.getParameter("sort").equals("sizeup")) {
-					query.setFilter("!this.unidentifiable && this.approved == true");
-					allEncounters=myShepherd.getAllEncounters(query, "size ascending");
-					}
-				else if (request.getParameter("sort").equals("sizedown")) {
-					query.setFilter("!this.unidentifiable && this.approved == true");
-					allEncounters=myShepherd.getAllEncounters(query, "size descending");
-					}
-				else if (request.getParameter("sort").equals("sexup")) {
-					query.setFilter("!this.unidentifiable && this.approved == true");
+				if (request.getParameter("sort").equals("sexup")) {
+					query.setFilter("this.state == \"approved\"");
 					allEncounters=myShepherd.getAllEncounters(query, "sex ascending");
 					}
 				else if (request.getParameter("sort").equals("sexdown")) {
-					query.setFilter("!this.unidentifiable && this.approved == true");
+					query.setFilter("this.state == \"approved\"");
 					allEncounters=myShepherd.getAllEncounters(query, "sex descending");
 					}
 				else if (request.getParameter("sort").equals("locationCodeup")) {
-					query.setFilter("!this.unidentifiable && this.approved == true");
+					query.setFilter("this.state == \"approved\"");
 					allEncounters=myShepherd.getAllEncounters(query, "locationID ascending");
 					}
 				else if (request.getParameter("sort").equals("locationCodedown")) {
-					query.setFilter("!this.unidentifiable && this.approved == true");
+					query.setFilter("this.state == \"approved\"");
 					allEncounters=myShepherd.getAllEncounters(query, "locationID descending");
 					}
 				else if (request.getParameter("sort").equals("numberup")) {
-					query.setFilter("!this.unidentifiable && this.approved == true");
+					query.setFilter("this.state == \"approved\"");
 					allEncounters=myShepherd.getAllEncounters(query, "catalogNumber ascending");
 					}
 				else if (request.getParameter("sort").equals("numberdown")) {
-					query.setFilter("!this.unidentifiable && this.approved == true");
+					query.setFilter("this.state == \"approved\"");
 					allEncounters=myShepherd.getAllEncounters(query, "catalogNumber descending");
 					}
 				else if (request.getParameter("sort").equals("dateup")) {
-					query.setFilter("!this.unidentifiable && this.approved == true");
+					query.setFilter("this.state == \"approved\"");
 					allEncounters=myShepherd.getAllEncounters(query, "year ascending, month ascending, day ascending, hour ascending, minutes ascending");
 					}
 				else if (request.getParameter("sort").equals("datedown")) {
-					query.setFilter("!this.unidentifiable && this.approved == true");
+					query.setFilter("this.state == \"approved\"");
 					allEncounters=myShepherd.getAllEncounters(query, "year descending, month descending, day descending, hour descending, minutes descending");
 					}
 				else if (request.getParameter("sort").equals("assignedup")) {
-					query.setFilter("!this.unidentifiable && this.approved == true");
+					query.setFilter("this.state == \"approved\"");
 					allEncounters=myShepherd.getAllEncounters(query, "individualID ascending");
 					}
 				else if (request.getParameter("sort").equals("assigneddown")) {
-					query.setFilter("!this.unidentifiable && this.approved == true");
+					query.setFilter("this.state == \"approved\"");
 					allEncounters=myShepherd.getAllEncounters(query, "individualID descending");
 					}
 				else {
-					query.setFilter("!this.unidentifiable && this.approved == true");
+					query.setFilter("this.state == \"approved\"");
 					allEncounters=myShepherd.getAllEncounters(query, "dwcDateAdded descending");
 					}
 				}
@@ -529,7 +484,7 @@ if (highCount<totalCount) {%> <a
 				//query.setRange((iterTotal-highCount),(totalCount-lowCount+1));
 				query=ServletUtilities.setRange(query,iterTotal,highCount,lowCount);
 
-				query.setFilter("!this.unidentifiable && this.approved == true");
+				query.setFilter("this.state == \"approved\"");
 				allEncounters=myShepherd.getAllEncounters(query, "dwcDateAdded descending");
 			}
 			
@@ -543,12 +498,23 @@ if (highCount<totalCount) {%> <a
 					%>
 	<tr class="lineitems">
 		<td width="102" height="60" class="lineitems"><a
-			href="http://<%=CommonConfiguration.getURLLocation(request) %>/encounters/encounter.jsp?number=<%=enc.getEncounterNumber()%>"><img
-			src="http://<%=CommonConfiguration.getURLLocation(request)%>/encounters/<%=(enc.getEncounterNumber()+"/thumb.jpg")%>"
+			href="http://<%=CommonConfiguration.getURLLocation(request) %>/encounters/encounter.jsp?number=<%=enc.getEncounterNumber()%>">
+			<img src="/<%=CommonConfiguration.getDataDirectoryName() %>/encounters/<%=(enc.getEncounterNumber()+"/thumb.jpg")%>"
 			 alt="encounter photo" border="0" /></a></td>
 
-		<td class="lineitems"><a
-			href="http://<%=CommonConfiguration.getURLLocation(request) %>/encounters/encounter.jsp?number=<%=enc.getEncounterNumber()%>"><%=enc.getEncounterNumber()%></a></td>
+		  <%
+    int encNumLast = enc.getEncounterNumber().length();
+    String encNumShort = enc.getEncounterNumber();
+    if (encNumLast > 4) {
+      encNumShort = enc.getEncounterNumber().substring((encNumLast - 4), encNumLast);
+    }
+
+  %>
+  <td class="lineitems"><a
+    href="http://<%=CommonConfiguration.getURLLocation(request) %>/encounters/encounter.jsp?number=<%=enc.getEncounterNumber()%>"><%=encNumShort%>
+  </a></td>
+		
+		
 		<td class="lineitems">
 		<a
 			href="http://<%=CommonConfiguration.getURLLocation(request)%>/xcalendar/calendar.jsp?scDate=<%=enc.getMonth()%>/1/<%=enc.getYear()%>">
@@ -561,12 +527,7 @@ if (highCount<totalCount) {%> <a
 	
 		<td class="lineitems"><%=enc.getLocationCode()%></td>
 		<%
-	if(enc.getSizeAsDouble()!=null) {
-	%>
-		<td class="lineitems"><%=enc.getSize()%></td>
-		<%} else {%>
-		<td class="lineitems">-</td>
-		<%}
+
 	String theSex=enc.getSex();
 	if(theSex.equals("male")) {theSex="M";}
 	else if (theSex.equals("female")) {theSex="F";}

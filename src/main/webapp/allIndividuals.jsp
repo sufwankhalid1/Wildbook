@@ -210,9 +210,9 @@
                                 } else if (request.getParameter("sort").equals("encountersdown")) {
                                     allSharks = myShepherd.getAllMarkedIndividuals(query, "numberEncounters descending");
                                 } else if (request.getParameter("sort").equals("nameup")) {
-                                    allSharks = myShepherd.getAllMarkedIndividuals(query, "name ascending");
+                                    allSharks = myShepherd.getAllMarkedIndividuals(query, "individualID ascending");
                                 } else if (request.getParameter("sort").equals("namedown")) {
-                                    allSharks = myShepherd.getAllMarkedIndividuals(query, "name descending");
+                                    allSharks = myShepherd.getAllMarkedIndividuals(query, "individualID descending");
                                 } else if (request.getParameter("sort").equals("seriesup")) {
                                     allSharks = myShepherd.getAllMarkedIndividuals(query, "seriesCode ascending");
                                 } else if (request.getParameter("sort").equals("seriesdown")) {
@@ -235,12 +235,22 @@
                                 //if ((countMe>=lowCount)&&(countMe<=highCount)) {
                                 myShepherd.getPM().getFetchPlan().setGroup(FetchPlan.DEFAULT);
                                 Encounter enc = (Encounter) sharky.getEncounter(0);
-                                String imgName = "encounters/" + enc.getEncounterNumber() + "/thumb.jpg";
+                                String imgName = "/"+CommonConfiguration.getDataDirectoryName()+"/encounters/" + enc.getEncounterNumber() + "/thumb.jpg";
                         %>
                         <tr>
-                            <td width="101" height="60" class="lineitem"><a
-                                    href="individuals.jsp?number=<%=sharky.getName()%>"><img
-                                    src="<%=imgName%>" alt="<%=sharky.getName()%>" border="0"/></a>
+                            <td width="101" height="60" class="lineitem">
+   								<%
+   								if(enc.getSinglePhotoVideo().size()>0){ 
+   								%>                         
+                            		<a href="individuals.jsp?number=<%=sharky.getName()%>"><img src="<%=imgName%>" alt="<%=sharky.getName()%>" border="0"/></a>
+                            	<%
+   								}
+   								else{
+   								%>
+   									&nbsp;	
+                            	<%
+   								}
+                            	%>
                             </td>
                             <td class="lineitems"><a
                                     href="individuals.jsp?number=<%=sharky.getName()%>"><%=sharky.getName()%>

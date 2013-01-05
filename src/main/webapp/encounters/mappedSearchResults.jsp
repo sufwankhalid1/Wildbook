@@ -20,37 +20,9 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 <%@ page contentType="text/html; charset=utf-8" language="java"
-         import="java.net.URI,java.sql.Date,java.util.zip.ZipEntry,java.io.IOException,java.io.FileInputStream,java.io.FileOutputStream,java.util.zip.ZipOutputStream,org.dom4j.Document,org.dom4j.DocumentHelper, org.dom4j.Element, org.ecocean.*, java.io.File,java.io.FileWriter, java.util.Properties, java.util.Map, java.util.HashMap, java.io.Serializable, java.util.Vector,org.geotools.data.*,org.geotools.data.shapefile.*,org.geotools.data.simple.*,org.geotools.feature.FeatureCollections,org.geotools.feature.simple.*,org.geotools.geometry.jts.JTSFactoryFinder,org.geotools.referencing.crs.DefaultGeographicCRS,org.opengis.feature.simple.*,com.vividsolutions.jts.geom.*" %>
+         import="java.util.Vector,java.util.Properties,org.ecocean.genetics.*,java.util.*,java.net.URI, org.ecocean.*" %>
 
-<%!
-    /**
-     * Here is how you can use a SimpleFeatureType builder to create the schema for your shapefile
-     * dynamically.
-     * <p>
-     * This method is an improvement on the code used in the main method above (where we used
-     * DataUtilities.createFeatureType) because we can set a Coordinate Reference System for the
-     * FeatureType and a a maximum field length for the 'name' field dddd
-     */
-    private static SimpleFeatureType createFeatureType() {
 
-        SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
-        builder.setName(CommonConfiguration.getHTMLTitle());
-        builder.setCRS(DefaultGeographicCRS.WGS84); // <- Coordinate reference system
-
-        // add attributes in order
-        builder.add("Location", Point.class);
-        builder.add("Date", java.sql.Date.class);
-        builder.add("Encounter", String.class); 
-        builder.add("Individual", String.class); 
-        builder.add("Sex", String.class);
-        builder.add("URL", String.class); 
-
-        // build the type
-        final SimpleFeatureType LOCATION = builder.buildFeatureType();
-
-        return LOCATION;
-    }
-%>
 
 <html>
 <head>
@@ -65,43 +37,17 @@
     if (session.getAttribute("langCode") != null) {
       langCode = (String) session.getAttribute("langCode");
     }
-    Properties encprops = new Properties();
-    encprops.load(getClass().getResourceAsStream("/bundles/" + langCode + "/mappedSearchResults.properties"));
+    Properties map_props = new Properties();
+    map_props.load(getClass().getResourceAsStream("/bundles/" + langCode + "/mappedSearchResults.properties"));
 
+    Properties haploprops = new Properties();
+    haploprops.load(getClass().getResourceAsStream("/bundles/haplotypeColorCodes.properties"));
+
+    
     //get our Shepherd
     Shepherd myShepherd = new Shepherd();
 
 
-
-     /*
-     * We create a FeatureCollection into which we will put each Feature created from a record
-     * in the input csv data file
-     */
-     SimpleFeatureCollection collection = FeatureCollections.newCollection();
-     /*
-     * GeometryFactory will be used to create the geometry attribute of each feature (a Point
-     * object for the location)
-     */
-     GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory(null);
-     //shapefile
-     String shapeFilename = "ShapefileExport_" + request.getRemoteUser() + ".shp";
-
-    //setup the KML output file
-    String kmlFilename = "KMLExport_" + request.getRemoteUser() + ".kml";
-    Document document = DocumentHelper.createDocument();
-    Element root = document.addElement("kml");
-    root.addAttribute("xmlns", "http://www.opengis.net/kml/2.2");
-    root.addAttribute("xmlns:gx", "http://www.google.com/kml/ext/2.2");
-    Element docElement = root.addElement("Document");
-
-    boolean addTimeStamp = false;
-    boolean generateKML = false;
-    if (request.getParameter("generateKML") != null) {
-      generateKML = true;
-    }
-    if (request.getParameter("addTimeStamp") != null) {
-      addTimeStamp = true;
-    }
 
 
 
@@ -132,9 +78,13 @@
 
     //start the query and get the results
     String order = "";
+    request.setAttribute("gpsOnly", "yes");
     EncounterQueryResult queryResult = EncounterQueryProcessor.processQuery(myShepherd, request, order);
     rEncounters = queryResult.getResult();
- 
+    
+
+    		
+    		
   %>
 
   <title><%=CommonConfiguration.getHTMLTitle()%>
@@ -146,22 +96,28 @@
   <link href="<%=CommonConfiguration.getCSSURLLocation(request)%>" rel="stylesheet" type="text/css"/>
   <link rel="shortcut icon" href="<%=CommonConfiguration.getHTMLShortcutIcon()%>"/>
 
-  <script>
-    function getQueryParameter(name) {
-      name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
-      var regexS = "[\\?&]" + name + "=([^&#]*)";
-      var regex = new RegExp(regexS);
-      var results = regex.exec(window.location.href);
-      if (results == null)
-        return "";
-      else
-        return results[1];
-    }
-  </script>
+
+    <style type="text/css">
+
+      body {
+        margin: 0;
+        padding: 10px 20px 20px;
+        font-family: Arial;
+        font-size: 16px;
+      }
 
 
-</head>
-
+.full_screen_map {
+position: absolute !important;
+top: 0px !important;
+left: 0px !important;
+z-index: 1 !imporant;
+width: 100% !important;
+height: 100% !important;
+margin-top: 0px !important;
+margin-bottom: 8px !important;
+}
+</style>
 
 <style type="text/css">
   #tabmenu {
@@ -210,445 +166,324 @@
     color: #DEDECF;
     border-bottom: 2px solid #000000;
   }
+  
+  
 </style>
-
-
-<body onload="initialize()" onunload="GUnload()">
-<div id="wrapper">
-<div id="page">
-<jsp:include page="../header.jsp" flush="true">
-  <jsp:param name="isAdmin" value="<%=request.isUserInRole(\"admin\")%>" />
-</jsp:include>
-<div id="main">
-
-<ul id="tabmenu">
-
-  <li><a href="searchResults.jsp?<%=request.getQueryString() %>"><%=encprops.getProperty("table")%>
-  </a></li>
-  <li><a
-    href="thumbnailSearchResults.jsp?<%=request.getQueryString() %>"><%=encprops.getProperty("matchingImages")%>
-  </a></li>
-  <li><a class="active"><%=encprops.getProperty("mappedResults") %>
-  </a></li>
-  <li><a
-    href="../xcalendar/calendar2.jsp?<%=request.getQueryString() %>"><%=encprops.getProperty("resultsCalendar")%>
-  </a></li>
-
-</ul>
-<table width="810px" border="0" cellspacing="0" cellpadding="0">
-  <tr>
-    <td>
-      <br/>
-
-      <h1 class="intro"><%=encprops.getProperty("title")%>
-      </h1>
-    </td>
-  </tr>
-</table>
-
-
-
-
-<%
-  Vector haveGPSData = new Vector();
-  int count = 0;
-
-  for (int f = 0; f < rEncounters.size(); f++) {
-
-    Encounter enc = (Encounter) rEncounters.get(f);
-    count++;
-    numResults++;
-    if ((enc.getDWCDecimalLatitude() != null) && (enc.getDWCDecimalLongitude() != null)) {
-      haveGPSData.add(enc);
-      
-      //let's also populate the Shapefile
-      Point point = geometryFactory.createPoint(new Coordinate(enc.getDecimalLongitudeAsDouble(), enc.getDecimalLatitudeAsDouble()));
-      SimpleFeatureBuilder featureBuilder = new SimpleFeatureBuilder(createFeatureType());
-      featureBuilder.add(point);
-      featureBuilder.add((new java.sql.Date(enc.getDateInMilliseconds())));
-      featureBuilder.add(enc.getCatalogNumber());
-      featureBuilder.add(enc.isAssignedToMarkedIndividual());
-      featureBuilder.add(enc.getSex());
-      featureBuilder.add(("http://"+CommonConfiguration.getURLLocation(request)+"/encounters/encounter.jsp?number="+enc.getCatalogNumber()));
-      SimpleFeature feature = featureBuilder.buildFeature(null);
-      collection.add(feature);
-      
-    }
-
-    //populate KML file ====================================================
-
-    if ((enc.getDWCDecimalLongitude() != null) && (enc.getDWCDecimalLatitude() != null)) {
-      Element placeMark = docElement.addElement("Placemark");
-      Element name = placeMark.addElement("name");
-      String nameText = "";
-
-      //add the name
-      if (enc.isAssignedToMarkedIndividual().equals("Unassigned")) {
-        nameText = "Encounter " + enc.getEncounterNumber();
-      } else {
-        nameText = enc.isAssignedToMarkedIndividual() + ": Encounter " + enc.getEncounterNumber();
-      }
-      name.setText(nameText);
-
-      //add the visibility element
-      Element viz = placeMark.addElement("visibility");
-      viz.setText("1");
-
-      //add the descriptive HTML
-      Element description = placeMark.addElement("description");
-
-      String descHTML = "<p><a href=\"http://" + CommonConfiguration.getURLLocation(request) + "/encounters/encounter.jsp?noscript=true&number=" + enc.getEncounterNumber() + "\">Direct Link</a></p>";
-      descHTML += "<p> <strong>Date:</strong> " + enc.getDate() + "</p>";
-      descHTML += "<p> <strong>Location:</strong><br>" + enc.getLocation() + "</p>";
-      
-      //trying to find problematic sizes...
-      try{
-      	if (enc.getSizeAsDouble() != null) {
-      	  descHTML += "<p> <strong>Size:</strong> " + enc.getSize() + " meters</p>";
-      	}
-      }
-      catch(Exception npe){npe.printStackTrace();System.out.println("NPE on size for encounter: "+enc.getCatalogNumber());}
-      
-      
-      descHTML += "<p> <strong>Sex:</strong> " + enc.getSex() + "</p>";
-      if (!enc.getComments().equals("")) {
-        descHTML += "<p> <strong>Comments:</strong> " + enc.getComments() + "</p>";
-      }
-
-      descHTML += "<strong>Images</strong><br>";
-      Vector imgs = enc.getAdditionalImageNames();
-      int imgsNum = enc.getAdditionalImageNames().size();
-      for (int imgNum = 0; imgNum < imgsNum; imgNum++) {
-        descHTML += ("<br>" + "<a href=\"http://" + CommonConfiguration.getURLLocation(request) + "/encounters/encounter.jsp?noscript=true&number=" + enc.getEncounterNumber() + "\"><img src=\"http://" + CommonConfiguration.getURLLocation(request) + "/encounters/" + enc.getEncounterNumber() + "/" + (imgNum + 1) + ".jpg\"></a>");
-      }
-
-      description.addCDATA(descHTML);
-
-      if (addTimeStamp) {
-        //add the timestamp
-        String stampString = "";
-        if (enc.getYear() != -1) {
-          stampString += enc.getYear();
-          if (enc.getMonth() != -1) {
-            String tsMonth = Integer.toString(enc.getMonth());
-            if (tsMonth.length() == 1) {
-              tsMonth = "0" + tsMonth;
-            }
-            stampString += ("-" + tsMonth);
-            if (enc.getDay() != -1) {
-              String tsDay = Integer.toString(enc.getDay());
-              if (tsDay.length() == 1) {
-                tsDay = "0" + tsDay;
-              }
-              stampString += ("-" + tsDay);
-            }
-          }
+  
+      <script>
+        function getQueryParameter(name) {
+          name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+          var regexS = "[\\?&]" + name + "=([^&#]*)";
+          var regex = new RegExp(regexS);
+          var results = regex.exec(window.location.href);
+          if (results == null)
+            return "";
+          else
+            return results[1];
         }
-
-        if (!stampString.equals("")) {
-          Element timeStamp = placeMark.addElement("TimeStamp");
-          timeStamp.addNamespace("gx", "http://www.google.com/kml/ext/2.2");
-          Element when = timeStamp.addElement("when");
-          when.setText(stampString);
-        }
-      }
-
-      //add the actual lat-long points
-      Element point = placeMark.addElement("Point");
-      Element coords = point.addElement("coordinates");
-      String coordsString = enc.getDWCDecimalLongitude() + "," + enc.getDWCDecimalLatitude();
-      if (enc.getMaximumElevationInMeters() != null) {
-        coordsString += "," + enc.getMaximumElevationInMeters();
-      }
-      else if (enc.getMaximumDepthInMeters() != null) {
-        coordsString += ",-" + enc.getMaximumDepthInMeters();
-      }
-      else {
-        coordsString += ",0";
-      }
-      coords.setText(coordsString);
-
-
-    }
-  }
-  //end KML ==============================================================
-
-
-  // end KML export =========================================================
-
-
-  myShepherd.rollbackDBTransaction();
-
-  startNum = startNum + 10;
-  endNum = endNum + 10;
-
-  if (endNum > numResults) {
-    endNum = numResults;
-  }
-  String numberResights = "";
-  if (request.getParameter("numResights") != null) {
-    numberResights = "&numResights=" + request.getParameter("numResights");
-  }
-  String qString = request.getQueryString();
-  int startNumIndex = qString.indexOf("&startNum");
-  if (startNumIndex > -1) {
-    qString = qString.substring(0, startNumIndex);
-  }
-
-
-%>
-
-
-<br>
-
-<%
-
-  //write out KML	
-  File kmlFile = new File(getServletContext().getRealPath(("/encounters/" + kmlFilename)));
-  FileWriter kmlWriter = new FileWriter(kmlFile);
-  org.dom4j.io.OutputFormat format = org.dom4j.io.OutputFormat.createPrettyPrint();
-  format.setLineSeparator(System.getProperty("line.separator"));
-  org.dom4j.io.XMLWriter writer = new org.dom4j.io.XMLWriter(kmlWriter, format);
-  writer.write(document);
-  writer.close();
+        
+        //test comment
+  </script>
   
   
-  //write out the shapefile
-  File shapeFile = new File(getServletContext().getRealPath(("/encounters/" + shapeFilename)));
-  ShapefileDataStoreFactory dataStoreFactory = new ShapefileDataStoreFactory();
-  Map<String, Serializable> params = new HashMap<String, Serializable>();
-  params.put("url", shapeFile.toURI().toURL());
-  params.put("create spatial index", Boolean.TRUE);
-  ShapefileDataStore newDataStore = (ShapefileDataStore) dataStoreFactory.createNewDataStore(params);
-  newDataStore.createSchema(createFeatureType());
-  /*
-   * You can comment out this line if you are using the createFeatureType
-   * method (at end of class file) rather than DataUtilities.createType
-   */
-   newDataStore.forceSchemaCRS(DefaultGeographicCRS.WGS84);
-   Transaction transaction = new DefaultTransaction("create");
-   String typeName = newDataStore.getTypeNames()[0];
-   SimpleFeatureSource featureSource = newDataStore.getFeatureSource(typeName);
-   
-   
-   if (featureSource instanceof SimpleFeatureStore) {
+
+<script src="http://maps.google.com/maps/api/js?sensor=false"></script>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js"></script>
   
-           	SimpleFeatureStore featureStore = (SimpleFeatureStore) featureSource;
-   
-               featureStore.setTransaction(transaction);
-               
-                
-               try {
-                   featureStore.addFeatures(collection);
-                   transaction.commit();
-   
-               } catch (Exception problem) {
-                   problem.printStackTrace();
-                   transaction.rollback();
-   
-               } 
-               finally {
-                   transaction.close();
-               }
-               
-               //zip the results
-               // These are the files to include in the ZIP file
-	       String[] filenames = new String[]{
-	       	shapeFile.getAbsolutePath(),
-	        shapeFile.getAbsolutePath().replaceAll(".shp",".shx"),
-	        shapeFile.getAbsolutePath().replaceAll(".shp",".dbf"),
-	        shapeFile.getAbsolutePath().replaceAll(".shp",".fix"),
-	        shapeFile.getAbsolutePath().replaceAll(".shp",".prj"),
-	        shapeFile.getAbsolutePath().replaceAll(".shp",".qix")
-	       };
-	       
-	       // Create a buffer for reading the files
-	       byte[] buf = new byte[1024];
-	       
-	       try {
-	           // Create the ZIP file
-	           String outFilename = shapeFile.getParentFile().getAbsolutePath()+File.separator+shapeFile.getName().replaceAll(".shp",".zip");
-	           //System.out.println(outFilename);
-	           ZipOutputStream zipout = new ZipOutputStream(new FileOutputStream(outFilename));
-	       
-	           // Compress the files
-	           for (int i=0; i<filenames.length; i++) {
-	               FileInputStream in = new FileInputStream(filenames[i]);
-	       		System.out.println(filenames[i]);
-	               // Add ZIP entry to output stream.
-	               File file2add=new File(filenames[i]);
-	               zipout.putNextEntry(new ZipEntry(file2add.getName()));
-	       
-	               // Transfer bytes from the file to the ZIP file
-	               int len;
-	               while ((len = in.read(buf)) > 0) {
-	                   zipout.write(buf, 0, len);
-	               }
-	       
-	               // Complete the entry
-	               zipout.closeEntry();
-	               in.close();
-	           }
-	       
-	           // Complete the ZIP file
-	           zipout.close();
-	       } 
-	       catch (IOException e) {
-	       	e.printStackTrace();
-	       }
-               
+<script type="text/javascript" src="StyledMarker.js"></script>
+
+
+    <script type="text/javascript">
+      function initialize() {
+        var center = new google.maps.LatLng(0,0);
+        var mapZoom = 1;
+    	if($("#map_canvas").hasClass("full_screen_map")){mapZoom=3;}
+    	var bounds = new google.maps.LatLngBounds();
+
+        var map = new google.maps.Map(document.getElementById('map_canvas'), {
+          zoom: mapZoom,
+          center: center,
+          mapTypeId: google.maps.MapTypeId.HYBRID
+        });
+        
+  	  //adding the fullscreen control to exit fullscreen
+  	  var fsControlDiv = document.createElement('DIV');
+  	  var fsControl = new FSControl(fsControlDiv, map);
+  	  fsControlDiv.index = 1;
+  	  map.controls[google.maps.ControlPosition.TOP_RIGHT].push(fsControlDiv);
+
+        var markers = [];
+ 
+ 
+        
+        <%
+int rEncountersSize=rEncounters.size();
+        int count = 0;
+
+      
+        
+      
+if(rEncounters.size()>0){
+	int havegpsSize=rEncounters.size();
+ for(int y=0;y<havegpsSize;y++){
+	 Encounter thisEnc=(Encounter)rEncounters.get(y);
+	 
+
+ %>
           
+          var latLng = new google.maps.LatLng(<%=thisEnc.getDecimalLatitude()%>, <%=thisEnc.getDecimalLongitude()%>);
+          bounds.extend(latLng);
+           <%
            
-    } //end if
-    else {
-                   System.out.println(typeName + " does not support read/write access");
-                   
+           
+           //currently unused programatically
+           String markerText="";
+           
+           String haploColor="CC0000";
+           if((map_props.getProperty("defaultMarkerColor")!=null)&&(!map_props.getProperty("defaultMarkerColor").trim().equals(""))){
+        	   haploColor=map_props.getProperty("defaultMarkerColor");
            }
 
-%>
+           
+           %>
+           var marker = new StyledMarker({styleIcon:new StyledIcon(StyledIconTypes.MARKER,{color:"<%=haploColor%>",text:"<%=markerText%>"}),position:latLng,map:map});
+	    
+
+            google.maps.event.addListener(marker,'click', function() {
+                 (new google.maps.InfoWindow({content: '<strong><a target=\"_blank\" href=\"http://<%=CommonConfiguration.getURLLocation(request)%>/individuals.jsp?number=<%=thisEnc.isAssignedToMarkedIndividual()%>\"><%=thisEnc.isAssignedToMarkedIndividual()%></a></strong><br /><table><tr><td><img align=\"top\" border=\"1\" src=\"/<%=CommonConfiguration.getDataDirectoryName()%>/encounters/<%=thisEnc.getEncounterNumber()%>/thumb.jpg\"></td><td>Date: <%=thisEnc.getDate()%><br />Sex: <%=thisEnc.getSex()%><%if(thisEnc.getSizeAsDouble()!=null){%><br />Size: <%=thisEnc.getSize()%> m<%}%><br /><br /><a target=\"_blank\" href=\"http://<%=CommonConfiguration.getURLLocation(request)%>/encounters/encounter.jsp?number=<%=thisEnc.getEncounterNumber()%>\" >Go to encounter</a></td></tr></table>'})).open(map, this);
+             });
+ 
+	
+          markers.push(marker);
+ 		  map.fitBounds(bounds);       
+ 
+ <%
+ 
+	 }
+} 
+
+myShepherd.rollbackDBTransaction();
+ %>
+ 
+ //markerClusterer = new MarkerClusterer(map, markers, {gridSize: 10});
+
+      }
+      
+      
+      function fullScreen(){
+    		$("#map_canvas").addClass('full_screen_map');
+    		$('html, body').animate({scrollTop:0}, 'slow');
+    		initialize();
+    		
+    		//hide header
+    		$("#header_menu").hide();
+    		
+    		if(overlaysSet){overlaysSet=false;setOverlays();}
+    		//alert("Trying to execute fullscreen!");
+    	}
 
 
-<p><strong>
-	<img src="../images/2globe_128.gif" width="64" height="64" align="absmiddle"/> <%=encprops.getProperty("mappedResults")%>
-</strong>
-<%
+    	function exitFullScreen() {
+    		$("#header_menu").show();
+    		$("#map_canvas").removeClass('full_screen_map');
 
-//read from the encprops property file the value determining how many entries to map. Thousands can cause map delay or failure from Google.
-int numberResultsToMap = -1;
-try{numberResultsToMap=Integer.parseInt(encprops.getProperty("numberResultsToMap"));}
-catch(Exception e){}
+    		initialize();
+    		if(overlaysSet){overlaysSet=false;setOverlays();}
+    		//alert("Trying to execute exitFullScreen!");
+    	}
 
-if(numberResultsToMap>-1){
-%>
-<%=encprops.getProperty("mappedMatchResults").replaceAll("%numberResultsToMap%",encprops.getProperty("numberResultsToMap"))%>
-<%
-}
-%>
-</p>
-<%
-  if (haveGPSData.size() > 0) {
-    myShepherd.beginDBTransaction();
-    try {
-%>
 
-<p><%=encprops.getProperty("mapNote")%></p>
-<script src="http://maps.google.com/maps?file=api&amp;v=3.2&amp;key=<%=CommonConfiguration.getGoogleMapsKey() %>" type="text/javascript"></script> <script type="text/javascript">
-    function initialize() {
-      if (GBrowserIsCompatible()) {
-          
+    	//making the exit fullscreen button
+    	function FSControl(controlDiv, map) {
 
-        var map = new GMap2(document.getElementById("map_canvas"));
-        var bounds = new GLatLngBounds();
-		
-        
-  		var ne_lat = parseFloat(getQueryParameter("ne_lat"));
-		var ne_long = parseFloat(getQueryParameter('ne_long'));
-		var sw_lat = parseFloat(getQueryParameter('sw_lat'));
-		var sw_long = parseFloat(getQueryParameter('sw_long'));
-        
+    	  // Set CSS styles for the DIV containing the control
+    	  // Setting padding to 5 px will offset the control
+    	  // from the edge of the map
+    	  controlDiv.style.padding = '5px';
+
+    	  // Set CSS for the control border
+    	  var controlUI = document.createElement('DIV');
+    	  controlUI.style.backgroundColor = '#f8f8f8';
+    	  controlUI.style.borderStyle = 'solid';
+    	  controlUI.style.borderWidth = '1px';
+    	  controlUI.style.borderColor = '#a9bbdf';;
+    	  controlUI.style.boxShadow = '0 1px 3px rgba(0,0,0,0.5)';
+    	  controlUI.style.cursor = 'pointer';
+    	  controlUI.style.textAlign = 'center';
+    	  controlUI.title = 'Toggle the fullscreen mode';
+    	  controlDiv.appendChild(controlUI);
+
+    	  // Set CSS for the control interior
+    	  var controlText = document.createElement('DIV');
+    	  controlText.style.fontSize = '12px';
+    	  controlText.style.fontWeight = 'bold';
+    	  controlText.style.color = '#000000';
+    	  controlText.style.paddingLeft = '4px';
+    	  controlText.style.paddingRight = '4px';
+    	  controlText.style.paddingTop = '3px';
+    	  controlText.style.paddingBottom = '2px';
+    	  controlUI.appendChild(controlText);
+    	  //toggle the text of the button
+    	   if($("#map_canvas").hasClass("full_screen_map")){
+    	      controlText.innerHTML = 'Exit Fullscreen';
+    	    } else {
+    	      controlText.innerHTML = 'Fullscreen';
+    	    }
+
+    	  // Setup the click event listeners: toggle the full screen
+
+    	  google.maps.event.addDomListener(controlUI, 'click', function() {
+
+    	   if($("#map_canvas").hasClass("full_screen_map")){
+    	    exitFullScreen();
+    	    } else {
+    	    fullScreen();
+    	    }
+    	  });
+
+    	}
+
+      
+      
+      google.maps.event.addDomListener(window, 'load', initialize);
+    </script>
+    
+
+
+    
+  </head>
+ <body onunload="GUnload()">
+ <div id="wrapper">
+ <div id="page">
+<jsp:include page="../header.jsp" flush="true">
+
+  <jsp:param name="isAdmin" value="<%=request.isUserInRole(\"admin\")%>" />
+</jsp:include>
+ <div id="main">
+ 
+ <ul id="tabmenu">
+ 
+   <li><a href="searchResults.jsp?<%=request.getQueryString() %>"><%=map_props.getProperty("table")%>
+   </a></li>
+   <li><a
+     href="thumbnailSearchResults.jsp?<%=request.getQueryString() %>"><%=map_props.getProperty("matchingImages")%>
+   </a></li>
+   <li><a class="active"><%=map_props.getProperty("mappedResults") %>
+   </a></li>
+   <li><a
+     href="../xcalendar/calendar2.jsp?<%=request.getQueryString() %>"><%=map_props.getProperty("resultsCalendar")%>
+   </a></li>
+      <li><a
+     href="searchResultsAnalysis.jsp?<%=request.getQueryString() %>"><%=map_props.getProperty("analysis")%>
+   </a></li>
+         <li><a
+     href="exportSearchResults.jsp?<%=request.getQueryString() %>"><%=map_props.getProperty("export")%>
+   </a></li>
+ 
+ </ul>
+ <table width="810px" border="0" cellspacing="0" cellpadding="0">
+   <tr>
+     <td>
+       <br/>
+ 
+       <h1 class="intro"><%=map_props.getProperty("title")%>
+       </h1>
+     </td>
+   </tr>
+</table>
+ 
+ 
+ 
+ 
+ <br />
+ 
+ 
+ 
+ 
+ <p><strong>
+ 	<img src="../images/2globe_128.gif" width="64" height="64" align="absmiddle"/> <%=map_props.getProperty("mappedResults")%>
+ </strong>
+ 
+ 
+ 
+ <%
+ 
+ //read from the map_props property file the value determining how many entries to map. Thousands can cause map delay or failure from Google.
+ int numberResultsToMap = -1;
+
+ %>
+ </p>
+ 
+  <p><%=map_props.getProperty("aspects") %>:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <%
+  boolean hasMoreProps=true;
+  int propsNum=0;
+  while(hasMoreProps){
+	if((map_props.getProperty("displayAspectName"+propsNum)!=null)&&(map_props.getProperty("displayAspectFile"+propsNum)!=null)){
+		%>
+		<a href="<%=map_props.getProperty("displayAspectFile"+propsNum)%>?<%=request.getQueryString()%>"><%=map_props.getProperty("displayAspectName"+propsNum) %></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 		
 		<%
-			double centroidX=0;
-			int countPoints=0;
-			double centroidY=0;
-			for(int c=0;c<haveGPSData.size();c++) {
-				Encounter mapEnc=(Encounter)haveGPSData.get(c);
-				countPoints++;
-				centroidX=centroidX+Double.parseDouble(mapEnc.getDWCDecimalLatitude());
-				centroidY=centroidY+Double.parseDouble(mapEnc.getDWCDecimalLongitude());
-			}
-			centroidX=centroidX/countPoints;
-			centroidY=centroidY/countPoints;
-		%>
-			
-			//map.setCenter(new GLatLng(<%=centroidX%>, <%=centroidY%>), 1);
-			map.addControl(new GSmallMapControl());
-        	map.addControl(new GMapTypeControl());
-			map.setMapType(G_HYBRID_MAP);
-			<%
-			
-			
-			
-			for(int t=0;t<haveGPSData.size();t++) {
-				if((numberResultsToMap==-1) || (t<numberResultsToMap)){
-					Encounter mapEnc=(Encounter)haveGPSData.get(t);
-					double myLat=(new Double(mapEnc.getDWCDecimalLatitude())).doubleValue();
-					double myLong=(new Double(mapEnc.getDWCDecimalLongitude())).doubleValue();
-					%>
-				          var point<%=t%> = new GLatLng(<%=myLat%>,<%=myLong%>, false);
-				          bounds.extend(point<%=t%>);
-				          
-						  var marker<%=t%> = new GMarker(point<%=t%>);
-						  GEvent.addListener(marker<%=t%>, "click", function(){
-						  	window.location="http://<%=CommonConfiguration.getURLLocation(request)%>/encounters/encounter.jsp?number=<%=mapEnc.getEncounterNumber()%>";
-						  });
-						  GEvent.addListener(marker<%=t%>, "mouseover", function(){
-						  	marker<%=t%>.openInfoWindowHtml("<%=encprops.getProperty("markedIndividual")%>: <strong><a target=\"_blank\" href=\"http://<%=CommonConfiguration.getURLLocation(request)%>/individuals.jsp?number=<%=mapEnc.isAssignedToMarkedIndividual()%>\"><%=mapEnc.isAssignedToMarkedIndividual()%></a></strong><br><table><tr><td><img align=\"top\" border=\"1\" src=\"http://<%=CommonConfiguration.getURLLocation(request)%>/encounters/<%=mapEnc.getEncounterNumber()%>/thumb.jpg\"></td><td><%=encprops.getProperty("date")%>: <%=mapEnc.getDate()%><br><%=encprops.getProperty("sex")%>: <%=mapEnc.getSex()%><br><br><a target=\"_blank\" href=\"http://<%=CommonConfiguration.getURLLocation(request)%>/encounters/encounter.jsp?number=<%=mapEnc.getEncounterNumber()%>\" ><%=encprops.getProperty("go2encounter")%></a></td></tr></table>");
-						  });
-
-						  
-						  map.addOverlay(marker<%=t%>);
-			
-		<%	
-			}	
-		}
-		%>		
-		if(!bounds.isEmpty()){	
-			//map.setZoom();
-			map.setCenter(bounds.getCenter(), map.getBoundsZoomLevel(bounds));
-		}
-		else{
-			map.setCenter(new GLatLng(<%=centroidX%>, <%=centroidY%>), 1);
-		}
-      }
-    }
-    </script>
-
-
-
-<div id="map_canvas" style="width: 510px; height: 340px"></div>
-
-<p><%=encprops.getProperty("exportedKML")%>: <a
-  href="http://<%=CommonConfiguration.getURLLocation(request)%>/encounters/<%=kmlFilename%>"><%=kmlFilename%>
-</a><br>
-  <em><%=encprops.getProperty("rightClickLink")%>
-  </em>
-</p>
-
-<p><%=encprops.getProperty("exportedShapefile")%>: <a
-  href="http://<%=CommonConfiguration.getURLLocation(request)%>/encounters/<%=shapeFilename.replaceAll(".shp",".zip")%>"><%=shapeFilename.replaceAll(".shp",".zip")%>
-</a><br>
-  <em><%=encprops.getProperty("rightClickLink")%>
-  </em>
-</p>
-
-<%
-
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-
+		propsNum++;
+	}
+	else{hasMoreProps=false;}
   }
-else {
-%>
-<p><%=encprops.getProperty("noGPS")%></p>
-<%
-}  
-%>
+  %>
+</p>
+ 
+ <%
+   if (rEncounters.size() > 0) {
+     myShepherd.beginDBTransaction();
+     try {
+ %>
+ 
+<p><%=map_props.getProperty("mapNote")%></p>
+ 
+ <div id="map-container">
+ 
+ 
+<div id="map_canvas" style="width: 770px; height: 510px; ">
+ 
 
-<table>
+ </div>
+ 
+
+ 
+ <%
+ 
+     } 
+     catch (Exception e) {
+       e.printStackTrace();
+     }
+ 
+   }
+ else {
+ %>
+ <p><%=map_props.getProperty("noGPS")%></p>
+ <%
+ }  
+
+ 
+ 
+   myShepherd.rollbackDBTransaction();
+   myShepherd.closeDBTransaction();
+   rEncounters = null;
+   //haveGPSData = null;
+ 
+%>
+ <table>
   <tr>
     <td align="left">
 
-      <p><strong><%=encprops.getProperty("queryDetails")%>
+      <p><strong><%=map_props.getProperty("queryDetails")%>
       </strong></p>
 
-      <p class="caption"><strong><%=encprops.getProperty("prettyPrintResults") %>
+      <p class="caption"><strong><%=map_props.getProperty("prettyPrintResults") %>
       </strong><br/>
-        <%=queryResult.getQueryPrettyPrint().replaceAll("locationField", encprops.getProperty("location")).replaceAll("locationCodeField", encprops.getProperty("locationID")).replaceAll("verbatimEventDateField", encprops.getProperty("verbatimEventDate")).replaceAll("alternateIDField", encprops.getProperty("alternateID")).replaceAll("behaviorField", encprops.getProperty("behavior")).replaceAll("Sex", encprops.getProperty("sex")).replaceAll("nameField", encprops.getProperty("nameField")).replaceAll("selectLength", encprops.getProperty("selectLength")).replaceAll("numResights", encprops.getProperty("numResights")).replaceAll("vesselField", encprops.getProperty("vesselField"))%>
+        <%=queryResult.getQueryPrettyPrint().replaceAll("locationField", map_props.getProperty("location")).replaceAll("locationCodeField", map_props.getProperty("locationID")).replaceAll("verbatimEventDateField", map_props.getProperty("verbatimEventDate")).replaceAll("alternateIDField", map_props.getProperty("alternateID")).replaceAll("behaviorField", map_props.getProperty("behavior")).replaceAll("Sex", map_props.getProperty("sex")).replaceAll("nameField", map_props.getProperty("nameField")).replaceAll("selectLength", map_props.getProperty("selectLength")).replaceAll("numResights", map_props.getProperty("numResights")).replaceAll("vesselField", map_props.getProperty("vesselField"))%>
       </p>
 
-      <p class="caption"><strong><%=encprops.getProperty("jdoql")%>
+      <p class="caption"><strong><%=map_props.getProperty("jdoql")%>
       </strong><br/>
         <%=queryResult.getJDOQLRepresentation()%>
       </p>
@@ -656,17 +491,8 @@ else {
     </td>
   </tr>
 </table>
-
-<%
-
-
-  myShepherd.rollbackDBTransaction();
-  myShepherd.closeDBTransaction();
-  rEncounters = null;
-  haveGPSData = null;
-
-%>
-<jsp:include page="../footer.jsp" flush="true"/>
+ 
+ <jsp:include page="../footer.jsp" flush="true"/>
 </div>
 </div>
 <!-- end page --></div>
@@ -674,7 +500,3 @@ else {
 
 </body>
 </html>
-
-
-
-

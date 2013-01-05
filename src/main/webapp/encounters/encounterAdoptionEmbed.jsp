@@ -22,13 +22,67 @@
 
 <%
   Shepherd adoptShepherd = new Shepherd();
-  String num = request.getParameter("num");
+  String num = request.getParameter("encounterNumber");
 
   try {
 
 
 %>
+  <style type="text/css">
+<!--
 
+.style2 {
+  color: #000000;
+  font-size: small;
+}
+
+.style3 {
+  font-weight: bold
+}
+
+.style4 {
+  color: #000000
+}
+
+table.adopter {
+  border-width: 1px 1px 1px 1px;
+  border-spacing: 0px;
+  border-style: solid solid solid solid;
+  border-color: black black black black;
+  border-collapse: separate;
+  background-color: white;
+}
+
+table.adopter td {
+  border-width: 1px 1px 1px 1px;
+  padding: 3px 3px 3px 3px;
+  border-style: none none none none;
+  border-color: gray gray gray gray;
+  background-color: white;
+  -moz-border-radius: 0px 0px 0px 0px;
+  font-size: 12px;
+  color: #330099;
+}
+
+table.adopter td.name {
+  font-size: 12px;
+  text-align: center;
+}
+
+table.adopter td.image {
+  padding: 0px 0px 0px 0px;
+}
+
+div.scroll {
+  height: 200px;
+  overflow: auto;
+  border: 1px solid #666;
+  background-color: #ccc;
+  padding: 8px;
+}
+
+-->
+</style>
 
 <h3 style="width: 250px">Adopters</h3>
 
@@ -40,10 +94,16 @@
     Adoption ad = (Adoption) adoptions.get(ia);
 %>
 <table class="adopter" width="250px">
+  <%
+    if ((ad.getAdopterImage() != null) && (!ad.getAdopterImage().trim().equals(""))) {
+  %>
   <tr>
     <td class="image"><img
-      src="../adoptions/<%=ad.getID()%>/thumb.jpg" width="250px"></td>
+      src="/<%=CommonConfiguration.getDataDirectoryName() %>/adoptions/<%=ad.getID()%>/thumb.jpg" width="250px"></td>
   </tr>
+  <%
+    }
+  %>
 
   <tr>
     <td class="name">
@@ -56,7 +116,7 @@
     </td>
   </tr>
   <%
-    if ((ad.getAdopterQuote() != null) && (!ad.getAdopterQuote().equals(""))) {
+    if ((ad.getAdopterQuote() != null) && (!ad.getAdopterQuote().trim().equals(""))) {
   %>
 
   <tr>
@@ -93,7 +153,7 @@
   </tr>
   <tr>
     <td align="left"><a
-      href="http://<%=CommonConfiguration.getURLLocation(request)%>/<%=CommonConfiguration.getAdoptionDirectory() %>/adoption.jsp?number=<%=ad.getID()%>#create">[edit
+      href="http://<%=CommonConfiguration.getURLLocation(request)%>/adoptions/adoption.jsp?number=<%=ad.getID()%>#create">[edit
       this adoption]</a></td>
   </tr>
   <tr>
@@ -111,7 +171,7 @@
   if (request.isUserInRole("admin")) {
 %>
 <p><a
-  href="http://<%=CommonConfiguration.getURLLocation(request) %>/<%=CommonConfiguration.getAdoptionDirectory() %>/adoption.jsp?encounter=<%=num%>#create">[+]
+  href="/<%=CommonConfiguration.getDataDirectoryName() %>/adoptions/adoption.jsp?encounter=<%=num%>#create">[+]
   Add adoption</a></p>
 <%
   }

@@ -23,12 +23,19 @@
 <%@ taglib uri="http://www.sunwesttek.com/di" prefix="di" %>
 
 <%
-  String number = request.getParameter("number");
+  String number = request.getParameter("number").trim();
   int imageNum = 1;
   try {
     imageNum = (new Integer(request.getParameter("imageNum"))).intValue();
   } catch (Exception cce) {
   }
+  
+  //setup data dir
+  String rootWebappPath = getServletContext().getRealPath("/");
+  File webappsDir = new File(rootWebappPath).getParentFile();
+  File shepherdDataDir = new File(webappsDir, CommonConfiguration.getDataDirectoryName());
+  File encountersDir=new File(shepherdDataDir.getAbsolutePath()+"/encounters");
+  File thisEncounterDir = new File(encountersDir, number);
 
 
 %>
@@ -67,17 +74,18 @@
             String addText = "";
             if (request.getParameter("imageName") != null) {
               addText = request.getParameter("imageName");
-              addText = "encounters/" + request.getParameter("number") + "/" + addText;
+              addText = encountersDir.getAbsolutePath()+"/" + request.getParameter("number") + "/" + addText;
 
-            } else {
+            } 
+            else {
               Shepherd myShepherd = new Shepherd();
               myShepherd.beginDBTransaction();
               Encounter enc = myShepherd.getEncounter(number);
               addText = (String) enc.getAdditionalImageNames().get((imageNum - 1));
               if (myShepherd.isAcceptableVideoFile(addText)) {
-                addText = "images/video_thumb.jpg";
+                addText = getServletContext().getRealPath("/")+"/images/video_thumb.jpg";
               } else {
-                addText = "encounters/" + request.getParameter("number") + "/" + addText;
+                addText = encountersDir.getAbsolutePath()+"/"+ request.getParameter("number") + "/" + addText;
               }
               myShepherd.rollbackDBTransaction();
               myShepherd.closeDBTransaction();
@@ -89,7 +97,7 @@
             int thumbnailWidth = 100;
 
 
-            File file2process = new File(getServletContext().getRealPath(("/" + addText)));
+            File file2process = new File(addText);
 
             try {
 
@@ -136,7 +144,7 @@
             }
 
 
-            String thumbLocation = "file-encounters/" + number + "/thumb.jpg";
+            String thumbLocation = "file-"+encountersDir.getAbsolutePath()+"/" + number + "/thumb.jpg";
 
             //generate the thumbnail image
           %>
@@ -152,9 +160,7 @@
           <p>I have successfully reset the thumbnail image for encounter number <strong><%=number%></strong>.</p>
 
           <p><a
-            href="http://<%=CommonConfiguration.getURLLocation(request)%>/encounters/encounter.jsp?number=<%=number%>">View
-            encounter #<%=number%>
-          </a>.</p>
+            href="http://<%=CommonConfiguration.getURLLocation(request)%>/encounters/encounter.jsp?number=<%=number%>">View encounter <%=number%>.</a></p>
 
 
         </div>

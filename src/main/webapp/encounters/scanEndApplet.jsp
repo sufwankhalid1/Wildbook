@@ -23,6 +23,15 @@
          import="org.dom4j.Document, org.dom4j.Element,org.dom4j.io.SAXReader, org.ecocean.CommonConfiguration, org.ecocean.Shepherd, org.ecocean.grid.MatchComparator, org.ecocean.grid.MatchObject, java.io.File, java.util.Arrays, java.util.Iterator, java.util.List, java.util.Vector" %>
 <html>
 <%
+
+//let's set up references to our file system components
+String rootWebappPath = getServletContext().getRealPath("/");
+File webappsDir = new File(rootWebappPath).getParentFile();
+File shepherdDataDir = new File(webappsDir, CommonConfiguration.getDataDirectoryName());
+File encountersDir=new File(shepherdDataDir.getAbsolutePath()+"/encounters");
+
+
+
   session.setMaxInactiveInterval(6000);
   String num = request.getParameter("number");
   Shepherd myShepherd = new Shepherd();
@@ -130,14 +139,14 @@
     File finalXMLFile;
     if ((request.getParameter("rightSide") != null) && (request.getParameter("rightSide").equals("true"))) {
       //finalXMLFile=new File((new File(".")).getCanonicalPath()+File.separator+"webapps"+File.separator+"ROOT"+File.separator+"encounters"+File.separator+num+File.separator+"lastFullRightI3SScan.xml");
-      finalXMLFile = new File(getServletContext().getRealPath(("/encounters/" + num + "/lastFullRightI3SScan.xml")));
+      finalXMLFile = new File(encountersDir.getAbsolutePath()+"/"+ num + "/lastFullRightI3SScan.xml");
 
 
       side2 = "right";
       fileSider = "&rightSide=true";
     } else {
       //finalXMLFile=new File((new File(".")).getCanonicalPath()+File.separator+"webapps"+File.separator+"ROOT"+File.separator+"encounters"+File.separator+num+File.separator+"lastFullI3SScan.xml");
-      finalXMLFile = new File(getServletContext().getRealPath(("/encounters/" + num + "/lastFullI3SScan.xml")));
+      finalXMLFile = new File(encountersDir.getAbsolutePath()+"/" + num + "/lastFullI3SScan.xml");
     }
     if (finalXMLFile.exists()) {
   %>
@@ -170,13 +179,13 @@
     try {
       if ((request.getParameter("rightSide") != null) && (request.getParameter("rightSide").equals("true"))) {
         //file=new File((new File(".")).getCanonicalPath()+File.separator+"webapps"+File.separator+"ROOT"+File.separator+"encounters"+File.separator+num+File.separator+"lastFullRightScan.xml");
-        file = new File(getServletContext().getRealPath(("/encounters/" + num + "/lastFullRightScan.xml")));
+        file = new File(encountersDir.getAbsolutePath()+"/" + num + "/lastFullRightScan.xml");
 
 
         side = "right";
       } else {
         //file=new File((new File(".")).getCanonicalPath()+File.separator+"webapps"+File.separator+"ROOT"+File.separator+"encounters"+File.separator+num+File.separator+"lastFullScan.xml");
-        file = new File(getServletContext().getRealPath(("/encounters/" + num + "/lastFullScan.xml")));
+        file = new File(encountersDir.getAbsolutePath()+"/" + num + "/lastFullScan.xml");
 
       }
       doc = xmlReader.read(file);
@@ -227,7 +236,7 @@
 
 <%
   if (xmlOK) {%>
-<p><img src="../alert.gif" hspace="2" vspace="2" align="absmiddle"><strong>Saved
+<p><img src="../images/Crystal_Clear_action_flag.png" width="28px" height="28px" hspace="2" vspace="2" align="absmiddle">&nbsp;<strong>Saved
   scan data may be old and invalid. Check the date below and run a fresh
   scan for the latest results.</strong></p>
 
@@ -257,7 +266,7 @@
     <td width="355" align="left" valign="top">
       <table width="100%" border="1" align="left" cellpadding="3">
         <tr align="left" valign="top">
-          <td><strong>Shark</strong></td>
+          <td><strong>Individual ID</strong></td>
           <td><strong> Encounter</strong></td>
           <td><strong>Fraction Matched Triangles </strong></td>
           <td><strong>Match Score </strong></td>
@@ -443,7 +452,7 @@
 <p>
   <%
     String feedURL = "http://" + CommonConfiguration.getURLLocation(request) + "/TrackerFeed?number=" + num;
-    String baseURL = "http://" + CommonConfiguration.getURLLocation(request) + "/encounters/";
+    String baseURL = "/"+CommonConfiguration.getDataDirectoryName()+"/encounters/";
 
 
 //myShepherd.rollbackDBTransaction();

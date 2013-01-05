@@ -19,36 +19,102 @@
 
 package org.ecocean;
 
-import javax.servlet.http.HttpServletRequest;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
-public class CommonConfiguration {
+import javax.servlet.http.HttpServletRequest;
 
+public class CommonConfiguration {
+  
+  private static final String COMMON_CONFIGURATION_PROPERTIES = "commonConfiguration.properties";
+  
   //class setup
   private static Properties props = new Properties();
+  
+  private static volatile int propsSize = 0;
 
 
   private static void initialize() {
     //set up the file input stream
-    if (props.size() == 0) {
-      try {
-        props.load(CommonConfiguration.class.getResourceAsStream("/bundles/commonConfiguration.properties"));
-      } catch (IOException ioe) {
-        ioe.printStackTrace();
-      }
+    if (propsSize == 0) {
+      loadProps();
     }
   }
 
-  public static boolean refresh() {
-    try {
-      props = null;
-      props.load(CommonConfiguration.class.getResourceAsStream("/bundles/commonConfiguration.properties"));
-    } catch (IOException ioe) {
-      ioe.printStackTrace();
-      return false;
+  public static synchronized boolean refresh() {
+      props.clear();
+      propsSize = 0;
+      return loadProps();
+  }
+  
+  private static synchronized boolean loadProps() {
+    if (propsSize == 0) {
+      InputStream resourceAsStream = null;
+      try {
+        resourceAsStream = CommonConfiguration.class.getResourceAsStream("/bundles/" + COMMON_CONFIGURATION_PROPERTIES);
+        props.load(resourceAsStream);
+      } catch (IOException ioe) {
+        ioe.printStackTrace();
+        return false;
+      }
+      finally {
+        if (resourceAsStream != null) {
+          try {
+            resourceAsStream.close();
+          } catch (Exception e) {
+            e.printStackTrace();
+          }
+        }
+      }
+      String shepherdDataDir="shepherd_data_dir";
+      if((props.getProperty("dataDirectoryName")!=null)&&(!props.getProperty("dataDirectoryName").trim().equals(""))){shepherdDataDir=props.getProperty("dataDirectoryName");}
+      loadOverrideProps(shepherdDataDir);
+      propsSize = props.size();
     }
     return true;
+  }
+  
+  private static void loadOverrideProps(String shepherdDataDir) {
+    File configDir = new File("webapps/"+shepherdDataDir+"/WEB-INF/classes/bundles");
+    
+    //sometimes this ends up being the "bin" directory of the J2EE container
+    //we need to fix that
+    if(configDir.getAbsolutePath().contains("/bin/")){
+      String fixedPath=configDir.getAbsolutePath().replaceAll("/bin", "");
+      configDir=new File(fixedPath);
+      System.out.println("Fixng the bin issue in CommonCOnfiguration. ");
+      System.out.println("The fix abs path is: "+configDir.getAbsolutePath());
+    }
+    
+    if(!configDir.exists()){configDir.mkdirs();}
+    File configFile = new File(configDir, COMMON_CONFIGURATION_PROPERTIES);
+    if (configFile.exists()) {
+      System.out.println("Overriding default properties with " + configFile.getAbsolutePath());
+      FileInputStream fileInputStream = null;
+      try {
+        fileInputStream = new FileInputStream(configFile);
+        props.load(fileInputStream);
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+      finally {
+        if (fileInputStream != null) {
+          try {
+            fileInputStream.close();
+          } catch (Exception e2) {
+            e2.printStackTrace();
+          }
+        }
+      }
+    }
+    else {
+      System.out.println("No properties override file found at " + configFile.getAbsolutePath());
+    }
   }
 
   //start getter methods
@@ -61,21 +127,24 @@ public class CommonConfiguration {
     return props.getProperty("mailHost").trim();
   }
 
+/**
   public static String getImageDirectory() {
     initialize();
     return props.getProperty("imageLocation").trim();
   }
-
+*/
+  /**
   public static String getMarkedIndividualDirectory() {
     initialize();
     return props.getProperty("markedIndividualDirectoryLocation").trim();
   }
-
+  */
+/*
   public static String getAdoptionDirectory() {
     initialize();
     return props.getProperty("adoptionLocation").trim();
   }
-
+*/
   public static String getWikiLocation() {
     initialize();
     if(props.getProperty("wikiLocation")!=null){return props.getProperty("wikiLocation").trim();}
@@ -200,6 +269,19 @@ public class CommonConfiguration {
     initialize();
     return props.getProperty(name);
   }
+  
+  public static ArrayList<String> getSequentialPropertyValues(String propertyPrefix){
+    initialize();
+    ArrayList<String> returnThese=new ArrayList<String>();
+    int iter=0;
+    while(props.getProperty(propertyPrefix+iter)!=null){
+      returnThese.add(props.getProperty(propertyPrefix+iter));
+      iter++;
+    }
+    
+    return returnThese;
+  }
+  
 
   /*
    * This method is used to determined the show/hide condition of an element of the UI.
@@ -307,6 +389,26 @@ public class CommonConfiguration {
     }
     return useTapirLink;
   }
+  
+  public static boolean showMeasurements() {
+    return showCategory("showMeasurements");
+  }
+  
+  public static boolean showMetalTags() {
+    return showCategory("showMetalTags");
+  }
+  
+  public static boolean showAcousticTag() {
+    return showCategory("showAcousticTag");
+  }
+  
+  public static boolean showSatelliteTag() {
+    return showCategory("showSatelliteTag");
+  }
+  
+  public static boolean showReleaseDate() {
+    return showCategory("showReleaseDate");
+  }
 
   public static String appendEmailRemoveHashString(HttpServletRequest request, String
                                                    originalString, String emailAddress) {
@@ -316,5 +418,59 @@ public class CommonConfiguration {
     }
     return originalString;
   }
-
+  
+  public static List<String> getIndexedValues(String baseKey) {
+    List<String> list = new ArrayList<String>();
+    boolean hasMore = true;
+    int index = 0;
+    while (hasMore) {
+      String key = baseKey + index++;
+      String value = CommonConfiguration.getProperty(key);
+      if (value != null) {
+        value = value.trim();
+        if (value.length() > 0) {
+          list.add(value.trim());
+        }
+      }
+      else {
+        hasMore = false;
+      }
+    }
+    return list;
+  }
+  
+  public static Integer getIndexNumberForValue(String baseKey, String checkValue){
+    System.out.println("getIndexNumberForValue started for baseKey "+baseKey+" and checkValue "+checkValue);
+    boolean hasMore = true;
+    int index = 0;
+    while (hasMore) {
+      String key = baseKey + index;
+      String value = CommonConfiguration.getProperty(key);
+      System.out.println("     key "+key+" and value "+value);
+      if (value != null) {
+        value = value.trim();
+        System.out.println("CommonConfiguration: "+value);
+        if(value.equals(checkValue)){return (new Integer(index));}
+      }
+      else {
+        hasMore = false;
+      }
+      index++;
+    }
+    return null;
+  }
+  
+  
+  private static boolean showCategory(final String category) {
+    String showMeasurements = getProperty(category);
+    return !Boolean.FALSE.toString().equals(showMeasurements);
+  }
+  
+  public static String getDataDirectoryName() {
+    initialize();
+    String dataDirectoryName="shepherd_data_dir";
+    if(props.getProperty("dataDirectoryName")!=null){return props.getProperty("dataDirectoryName").trim();}
+    return dataDirectoryName;
+  }
+  
 }

@@ -19,7 +19,8 @@
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <%@ page contentType="text/html; charset=utf-8" language="java"
-         import="com.drew.imaging.jpeg.JpegMetadataReader,com.drew.metadata.Directory, com.drew.metadata.Metadata,com.drew.metadata.Tag,org.ecocean.*,org.ecocean.servlet.ServletUtilities,java.io.File, java.util.*" %>
+         import="com.drew.imaging.jpeg.JpegMetadataReader,com.drew.metadata.Directory, 	   
+		 com.drew.metadata.Metadata,com.drew.metadata.Tag,org.ecocean.*,org.ecocean.servlet.ServletUtilities,java.io.File, java.util.*, org.ecocean.genetics.*" %>
 
 <%
 
@@ -29,6 +30,14 @@
   response.setDateHeader("Expires", 0); //Causes the proxy cache to see the page as "stale"
   response.setHeader("Pragma", "no-cache"); //HTTP 1.0 backward compatibility
 
+  //setup data dir
+  String rootWebappPath = getServletContext().getRealPath("/");
+  File webappsDir = new File(rootWebappPath).getParentFile();
+  File shepherdDataDir = new File(webappsDir, CommonConfiguration.getDataDirectoryName());
+  //if(!shepherdDataDir.exists()){shepherdDataDir.mkdir();}
+  File encountersDir=new File(shepherdDataDir.getAbsolutePath()+"/encounters");
+  //if(!encountersDir.exists()){encountersDir.mkdir();}
+  //File thisEncounterDir = new File(encountersDir, number);
 
 //setup our Properties object to hold all properties
   Properties props = new Properties();
@@ -51,6 +60,7 @@
   String setsex = props.getProperty("setsex");
   String numencounters = props.getProperty("numencounters");
   String encnumber = props.getProperty("number");
+  String dataTypes = props.getProperty("dataTypes");
   String date = props.getProperty("date");
   String size = props.getProperty("size");
   String spots = props.getProperty("spots");
@@ -81,6 +91,7 @@
   Shepherd myShepherd = new Shepherd();
 
 
+
   boolean isOwner = false;
   if (request.isUserInRole("admin")) {
     isOwner = true;
@@ -103,7 +114,11 @@
         rel="stylesheet" type="text/css"/>
   <link rel="shortcut icon"
         href="<%=CommonConfiguration.getHTMLShortcutIcon() %>"/>
+        
 
+
+ 
+  
   <style type="text/css">
     <!--
     .style1 {
@@ -150,6 +165,29 @@
       padding: 8px;
     }
 
+table.tissueSample {
+    border-width: 1px;
+    border-spacing: 2px;
+    border-color: gray;
+    border-collapse: collapse;
+    background-color: white;
+}
+table.tissueSample th {
+    border-width: 1px;
+    padding: 1px;
+    border-style: solid;
+    border-color: gray;
+    background-color: #99CCFF;
+    -moz-border-radius: ;
+}
+table.tissueSample td {
+    border-width: 1px;
+    padding: 2px;
+    border-style: solid;
+    border-color: gray;
+    background-color: white;
+    -moz-border-radius: ;
+}
     -->
   </style>
 
@@ -205,6 +243,28 @@
 
   </script>
 
+<!--  FACEBOOK LIKE BUTTON -->
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+<!-- GOOGLE PLUS-ONE BUTTON -->
+<script type="text/javascript">
+  (function() {
+    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+    po.src = 'https://apis.google.com/js/plusone.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+  })();
+</script>
+
+
+
+
 </head>
 
 <body <%if (request.getParameter("noscript") == null) {%>
@@ -245,17 +305,38 @@
 
 %>
 
-<h1><strong><span class="para"><img src="images/tag_big.gif" width="50px" height="*"
-                                    align="absmiddle"/></span>
-  <%=markedIndividualTypeCaps %>
-</strong>: <%=sharky.getName()%>
-</h1>
+<table><tr>
+<td>
+<span class="para"><img src="images/tag_big.gif" width="75px" height="*" align="absmiddle"/></span>
+</td>
+<td valign="middle">
+ <h1><strong> <%=markedIndividualTypeCaps %>
+</strong>: <%=sharky.getIndividualID()%></h1>
+<p class="caption"><em><%=props.getProperty("description") %></em></p>
+ </td></tr></table>
+ <p> <table><tr valign="middle">  
+  <td>
+    <!-- Google PLUS-ONE button -->
+<g:plusone size="small" annotation="none"></g:plusone>
+</td>
+<td>
+<!--  Twitter TWEET THIS button -->
+<a href="https://twitter.com/share" class="twitter-share-button" data-count="none">Tweet</a>
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+</td>
+<td>
+<!-- Facebook LIKE button -->
+<div class="fb-like" data-send="false" data-layout="button_count" data-width="100" data-show-faces="false"></div>
+</td>
+</tr></table></p>
 <a name="alternateid"></a>
 
 <p><img align="absmiddle" src="images/alternateid.gif"> <%=alternateID %>:
   <%=sharky.getAlternateID()%> <%if (hasAuthority && CommonConfiguration.isCatalogEditable()) {%>[<a
     href="individuals.jsp?number=<%=name%>&edit=alternateid#alternateid"><%=edit%>
   </a>]<%}%>
+
+  
 </p>
 <%
   if (hasAuthority && (request.getParameter("edit") != null) && (request.getParameter("edit").equals("alternateid"))) {%>
@@ -409,60 +490,82 @@
 <tr>
 
 <td align="left" valign="top">
-  <%
-boolean showLogEncs=false;
-if (isOwner) {
-	showLogEncs=true;
-}%>
-<p><strong><%=(sharky.totalEncounters() + sharky.totalLogEncounters())%>
+
+<p><strong><%=sharky.totalEncounters()%>
 </strong>
   <%=numencounters %>
 </p>
 
 <table id="results" width="100%">
   <tr class="lineitem">
-    <td class="lineitem" bgcolor="#99CCFF"></td>
-    <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=encnumber %>
-    </strong></td>
-    <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=alternateID %>
-    </strong></td>
+      <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=date %></strong></td>
+    <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=location %></strong></td>
+    <td class="lineitem" bgcolor="#99CCFF"><strong><%=dataTypes %></strong></td>
+    <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=encnumber %></strong></td>
+    <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=alternateID %></strong></td>
 
 
-    <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=date %>
-    </strong></td>
-    <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=location %>
-    </strong></td>
-    <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=sex %>
-    </strong></td>
+
+    <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=sex %></strong></td>
     <%
       if (isOwner && CommonConfiguration.useSpotPatternRecognition()) {
     %>
 
-    <td align="left" valign="top" bgcolor="#99CCFF"><strong><%=spots %>
-    </strong></td>
-    <%}%>
+    	<td align="left" valign="top" bgcolor="#99CCFF">
+    		<strong><%=spots %></strong>
+    	</td>
+    <%
+    }
+    %>
+    <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("sightedWith") %></td>
+    <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("behavior") %></td>
+ 
   </tr>
   <%
-    Encounter[] dateSortedEncs = sharky.getDateSortedEncounters(showLogEncs);
+    Encounter[] dateSortedEncs = sharky.getDateSortedEncounters();
 
     int total = dateSortedEncs.length;
     for (int i = 0; i < total; i++) {
       Encounter enc = dateSortedEncs[i];
-      if ((enc.isApproved()) || (isOwner)) {
+      
         Vector encImages = enc.getAdditionalImageNames();
         String imgName = "";
-        if (enc.isApproved()) {
-          imgName = "encounters/" + enc.getEncounterNumber() + "/thumb.jpg";
-        } else {
-          imgName = "images/logbook.gif";
-        }
-
-
+        
+          imgName = "/"+CommonConfiguration.getDataDirectoryName()+"/encounters/" + enc.getEncounterNumber() + "/thumb.jpg";
+        
   %>
   <tr>
-    <td width="100" class="lineitem"><a
-      href="http://<%=CommonConfiguration.getURLLocation(request)%>/encounters/encounter.jsp?number=<%=enc.getEncounterNumber()%>"><img
-      src="<%=imgName%>" alt="encounter" border="0"/></a></td>
+      <td class="lineitem"><%=enc.getDate()%>
+    </td>
+    <td class="lineitem"><%=enc.getLocation()%>
+    </td>
+    <td width="100" height="32px" class="lineitem">
+    	<a href="http://<%=CommonConfiguration.getURLLocation(request)%>/encounters/encounter.jsp?number=<%=enc.getEncounterNumber()%>">
+    		
+    		<%
+    		//if the encounter has photos, show photo folder icon
+    		if((enc.getImages()!=null) && (enc.getImages().size()>0)){
+    		%>
+    			<img src="images/Crystal_Clear_filesystem_folder_image.png" height="32px" width="*" />
+    		<%
+    		}
+    		
+    		//if the encounter has a tissue sample, show an icon
+    		if((enc.getTissueSamples()!=null) && (enc.getTissueSamples().size()>0)){
+    		%>
+    			<img src="images/microscope.gif" height="32px" width="*" />
+    		<%
+    		}
+    		//if the encounter has a measurement, show the measurement icon
+    		if(enc.hasMeasurements()){
+    		%>	
+    			<img src="images/ruler.png" height="32px" width="*" />
+        	<%	
+    		}
+    		%>
+    		
+    	</a>
+    </td>
     <td class="lineitem"><a
       href="http://<%=CommonConfiguration.getURLLocation(request)%>/encounters/encounter.jsp?number=<%=enc.getEncounterNumber()%><%if(request.getParameter("noscript")!=null){%>&noscript=null<%}%>"><%=enc.getEncounterNumber()%>
     </a></td>
@@ -482,10 +585,7 @@ if (isOwner) {
     %>
 
 
-    <td class="lineitem"><%=enc.getDate()%>
-    </td>
-    <td class="lineitem"><%=enc.getLocation()%>
-    </td>
+
     <td class="lineitem"><%=enc.getSex()%>
     </td>
 
@@ -504,9 +604,67 @@ if (isOwner) {
         }
       }
     %>
+    
+    <td class="lineitem">
+    <%
+    if(myShepherd.getOccurrenceForEncounter(enc.getCatalogNumber())!=null){
+    	Occurrence thisOccur=myShepherd.getOccurrenceForEncounter(enc.getCatalogNumber());
+    	ArrayList<String> otherOccurs=thisOccur.getMarkedIndividualNamesForThisOccurrence();
+    	if(otherOccurs!=null){
+    		int numOtherOccurs=otherOccurs.size();
+    		for(int j=0;j<numOtherOccurs;j++){
+    			String thisName=otherOccurs.get(j);
+    			if(!thisName.equals(sharky.getIndividualID())){
+    				if(j<20){
+    			
+    				%>
+    					<a href="individuals.jsp?number=<%=thisName%>"><%=thisName %></a>&nbsp;
+    				<%	
+    				}
+
+    			}
+    		}
+    		if(numOtherOccurs>=20){
+			%>
+			    &nbsp;<em><%=props.getProperty("andMore") %></em>
+			<%
+    		}
+    		if(numOtherOccurs>1){
+    		%>
+    		<br /><br /><em><a href="occurrence.jsp?number=<%=thisOccur.getOccurrenceID()%>"><%=props.getProperty("moreOccurrences") %></a></em>
+    		<%
+    		}
+    	}
+    }
+    //new comment
+    else{
+    %>	
+    	&nbsp;
+    <%
+    }
+    %>
+    
+    </td>
+    <td class="lineitem">
+    <%
+    if(enc.getBehavior()!=null){
+    %>
+    <%=enc.getBehavior() %>
+    <%	
+    }
+    if(myShepherd.getOccurrenceForEncounter(enc.getCatalogNumber())!=null){
+    	Occurrence thisOccur=myShepherd.getOccurrenceForEncounter(enc.getCatalogNumber());
+    	if((thisOccur!=null)&&(thisOccur.getGroupBehavior()!=null)){
+   		 %>
+    	<br /><br /><em><%=props.getProperty("groupBehavior") %></em><br /><%=thisOccur.getGroupBehavior() %>
+    	<%	
+    	}
+    }
+    %>
+    </td>
   </tr>
   <%
-      }
+      
     } //end for
 
   %>
@@ -517,7 +675,7 @@ if (isOwner) {
 
 <!-- Start thumbnail gallery -->
 
-
+<br />
 <p>
   <strong><%=props.getProperty("imageGallery") %>
   </strong></p>
@@ -533,7 +691,9 @@ if (isOwner) {
 
 			
 			int countMe=0;
-			Vector thumbLocs=new Vector();
+			//Vector thumbLocs=new Vector();
+			ArrayList<SinglePhotoVideo> thumbLocs=new ArrayList<SinglePhotoVideo>();
+			
 			int  numColumns=3;
 			int numThumbs=0;
 			  if (CommonConfiguration.allowAdoptions()) {
@@ -558,18 +718,31 @@ if (isOwner) {
       						while(countMe<numThumbs){
 							//for(int columns=0;columns<numColumns;columns++){
 								if(countMe<numThumbs) {
-									String combined=(String)thumbLocs.get(countMe);
-									StringTokenizer stzr=new StringTokenizer(combined,"BREAK");
-									String thumbLink=stzr.nextToken();
-									String encNum=stzr.nextToken();
-									int fileNamePos=combined.lastIndexOf("BREAK")+5;
-									String fileName=combined.substring(fileNamePos).replaceAll("%20"," ");
+									//String combined ="";
+									//if(myShepherd.isAcceptableVideoFile(thumbLocs.get(countMe).getFilename())){
+									//	combined = "http://" + CommonConfiguration.getURLLocation(request) + "/images/video.jpg" + "BREAK" + thumbLocs.get(countMe).getCorrespondingEncounterNumber() + "BREAK" + thumbLocs.get(countMe).getFilename();
+									//}
+									//else{
+									//	combined= thumbLocs.get(countMe).getCorrespondingEncounterNumber() + "/" + thumbLocs.get(countMe).getDataCollectionEventID() + ".jpg" + "BREAK" + thumbLocs.get(countMe).getCorrespondingEncounterNumber() + "BREAK" + thumbLocs.get(countMe).getFilename();
+							              
+									//}
+
+									//StringTokenizer stzr=new StringTokenizer(combined,"BREAK");
+									//String thumbLink=stzr.nextToken();
+									//String encNum=stzr.nextToken();
+									//int fileNamePos=combined.lastIndexOf("BREAK")+5;
+									//String fileName=combined.substring(fileNamePos).replaceAll("%20"," ");
+									String thumbLink="";
 									boolean video=true;
-									if(!thumbLink.endsWith("video.jpg")){
-										thumbLink="http://"+CommonConfiguration.getURLLocation(request)+"/encounters/"+thumbLink;
+									if(!myShepherd.isAcceptableVideoFile(thumbLocs.get(countMe).getFilename())){
+										thumbLink="/"+CommonConfiguration.getDataDirectoryName()+"/encounters/"+thumbLocs.get(countMe).getCorrespondingEncounterNumber()+"/"+thumbLocs.get(countMe).getDataCollectionEventID()+".jpg";
 										video=false;
 									}
-									String link="http://"+CommonConfiguration.getURLLocation(request)+"/encounters/"+encNum+"/"+fileName;
+									else{
+										thumbLink="http://"+CommonConfiguration.getURLLocation(request)+"/images/video.jpg";
+										
+									}
+									String link="/"+CommonConfiguration.getDataDirectoryName()+"/encounters/"+thumbLocs.get(countMe).getCorrespondingEncounterNumber()+"/"+thumbLocs.get(countMe).getFilename();
 						
 							%>
 
@@ -578,13 +751,13 @@ if (isOwner) {
       <table align="left" width="<%=100/numColumns %>%">
         <tr>
           <td valign="top">
-
+			
               <%
 			if(isOwner){
 												%>
             <a href="<%=link%>" 
             <%
-            if(!thumbLink.endsWith("video.jpg")){
+            if(thumbLink.indexOf("video.jpg")==-1){
             %>
             	class="highslide" onclick="return hs.expand(this)"
             <%
@@ -622,7 +795,7 @@ if (isOwner) {
                       <%
 
                         int kwLength = keywords.length;
-                        Encounter thisEnc = myShepherd.getEncounter(encNum);
+                        Encounter thisEnc = myShepherd.getEncounter(thumbLocs.get(countMe).getCorrespondingEncounterNumber());
                       %>
                       
                       
@@ -644,7 +817,7 @@ if (isOwner) {
                       </tr>
                       <tr>
                         <td><span class="caption"><%=props.getProperty("catalogNumber") %>: <a
-                          href="<%= CommonConfiguration.getImageDirectory()%>/encounter.jsp?number=<%=thisEnc.getCatalogNumber() %>"><%=thisEnc.getCatalogNumber() %>
+                          href="encounters/encounter.jsp?number=<%=thisEnc.getCatalogNumber() %>"><%=thisEnc.getCatalogNumber() %>
                         </a></span></td>
                       </tr>
                       <%
@@ -663,28 +836,31 @@ if (isOwner) {
                         <td><span class="caption">
 											<%=props.getProperty("matchingKeywords") %>
 											<%
-                       Iterator allKeywords2 = myShepherd.getAllKeywords();
+											 //while (allKeywords2.hasNext()) {
+					                          //Keyword word = (Keyword) allKeywords2.next();
+					                          
+					                          
+					                          //if (word.isMemberOf(encNum + "/" + fileName)) {
+											  //if(thumbLocs.get(countMe).getKeywords().contains(word)){
+					                        	  
+					                            //String renderMe = word.getReadableName();
+												List<Keyword> myWords = thumbLocs.get(countMe).getKeywords();
+												int myWordsSize=myWords.size();
+					                            for (int kwIter = 0; kwIter<myWordsSize; kwIter++) {
+					                              //String kwParam = keywords[kwIter];
+					                              //if (kwParam.equals(word.getIndexname())) {
+					                              //  renderMe = "<strong>" + renderMe + "</strong>";
+					                              //}
+					                      		 	%>
+					 								<br/><%= ("<strong>" + myWords.get(kwIter).getReadableName() + "</strong>")%>
+					 								<%
+					                            }
 
-                        while (allKeywords2.hasNext()) {
-                          Keyword word = (Keyword) allKeywords2.next();
-                          if (word.isMemberOf(encNum + "/" + fileName)) {
-
-                            String renderMe = word.getReadableName();
-
-                            for (int kwIter = 0; kwIter < kwLength; kwIter++) {
-                              String kwParam = keywords[kwIter];
-                              if (kwParam.equals(word.getIndexname())) {
-                                renderMe = "<strong>" + renderMe + "</strong>";
-                              }
-                            }
 
 
-                      %>
-													<br/><%= renderMe%>
-													<%
 
-                              }
-                            }
+					                          //    }
+					                       // } 
 
                           %>
 										</span></td>
@@ -701,9 +877,9 @@ if (isOwner) {
 						<div class="scroll">	
 						<span class="caption">
 					<%
-            if ((fileName.toLowerCase().endsWith("jpg")) || (fileName.toLowerCase().endsWith("jpeg"))) {
+            if ((thumbLocs.get(countMe).getFilename().toLowerCase().endsWith("jpg")) || (thumbLocs.get(countMe).getFilename().toLowerCase().endsWith("jpeg"))) {
               try{
-              File exifImage = new File(getServletContext().getRealPath(("/" + CommonConfiguration.getImageDirectory() + "/" + thisEnc.getCatalogNumber() + "/" + fileName)));
+              File exifImage = new File(encountersDir.getAbsolutePath() + "/" + thisEnc.getCatalogNumber() + "/" + thumbLocs.get(countMe).getFilename());
               Metadata metadata = JpegMetadataReader.readMetadata(exifImage);
               // iterate through metadata directories
               Iterator directories = metadata.getDirectoryIterator();
@@ -724,7 +900,7 @@ if (isOwner) {
             	 %>
 		            <p>Cannot read metadata for this file.</p>
             	<%
-            	System.out.println("Cannout read metadata for: "+fileName);
+            	System.out.println("Cannout read metadata for: "+thumbLocs.get(countMe).getFilename());
             	e.printStackTrace();
             }
 
@@ -768,7 +944,7 @@ if (isOwner) {
 </tr>
 <tr>
   <td><span class="caption"><%=props.getProperty("catalogNumber") %>: <a
-    href="<%=CommonConfiguration.getImageDirectory() %>/encounter.jsp?number=<%=thisEnc.getCatalogNumber() %>"><%=thisEnc.getCatalogNumber() %>
+    href="encounters/encounter.jsp?number=<%=thisEnc.getCatalogNumber() %>"><%=thisEnc.getCatalogNumber() %>
   </a></span></td>
 </tr>
 <tr>
@@ -776,28 +952,31 @@ if (isOwner) {
 											<%=props.getProperty("matchingKeywords") %>
 											<%
                         //int numKeywords=myShepherd.getNumKeywords();
-                        Iterator allKeywords = myShepherd.getAllKeywords();
+											 //while (allKeywords2.hasNext()) {
+					                          //Keyword word = (Keyword) allKeywords2.next();
+					                          
+					                          
+					                          //if (word.isMemberOf(encNum + "/" + fileName)) {
+											  //if(thumbLocs.get(countMe).getKeywords().contains(word)){
+					                        	  
+					                            //String renderMe = word.getReadableName();
+												//List<Keyword> myWords = thumbLocs.get(countMe).getKeywords();
+												//int myWordsSize=myWords.size();
+					                            for (int kwIter = 0; kwIter<myWordsSize; kwIter++) {
+					                              //String kwParam = keywords[kwIter];
+					                              //if (kwParam.equals(word.getIndexname())) {
+					                              //  renderMe = "<strong>" + renderMe + "</strong>";
+					                              //}
+					                      		 	%>
+					 								<br/><%= ("<strong>" + myWords.get(kwIter).getReadableName() + "</strong>")%>
+					 								<%
+					                            }
 
-                        while (allKeywords.hasNext()) {
-                          Keyword word = (Keyword) allKeywords.next();
-                          if (word.isMemberOf(encNum + "/" + fileName)) {
-
-                            String renderMe = word.getReadableName();
-
-                            for (int kwIter = 0; kwIter < kwLength; kwIter++) {
-                              String kwParam = keywords[kwIter];
-                              if (kwParam.equals(word.getIndexname())) {
-                                renderMe = "<strong>" + renderMe + "</strong>";
-                              }
-                            }
 
 
-                      %>
-													<br/><%= renderMe%>
-													<%
 
-                              }
-                            }
+					                          //    }
+					                       // } 
 
                           %>
 										</span></td>
@@ -850,91 +1029,164 @@ if (isOwner) {
 </table>
 <!-- end thumbnail gallery -->
 
-<p><strong><img src="images/2globe_128.gif" width="64" height="64" align="absmiddle"/><%=mapping %>
-</strong></p>
+<!-- Start genetics -->
+<br />
+<a name="tissueSamples"></a>
+<p><img align="absmiddle" src="images/microscope.gif" /><strong><%=props.getProperty("tissueSamples") %></strong></p>
+<p>
 <%
-  Vector haveGPSData = new Vector();
-  haveGPSData = sharky.returnEncountersWithGPSData();
-  if (haveGPSData.size() > 0) {
+List<TissueSample> tissueSamples=sharky.getAllTissueSamples();
 
+int numTissueSamples=tissueSamples.size();
+if(numTissueSamples>0){
+%>
+<table width="100%" class="tissueSample">
+<tr>
+	<th><strong><%=props.getProperty("sampleID") %></strong></th>
+	<th><strong><%=props.getProperty("correspondingEncounterNumber") %></strong></th>
+	<th><strong><%=props.getProperty("values") %></strong></th>
+	<th><strong><%=props.getProperty("analyses") %></strong></th></tr>
+<%
+for(int j=0;j<numTissueSamples;j++){
+	TissueSample thisSample=tissueSamples.get(j);
+	%>
+	<tr>
+		<td><span class="caption"><a href="encounters/encounter.jsp?number=<%=thisSample.getCorrespondingEncounterNumber() %>#tissueSamples"><%=thisSample.getSampleID()%></a></span></td>
+		<td><span class="caption"><a href="encounters/encounter.jsp?number=<%=thisSample.getCorrespondingEncounterNumber() %>#tissueSamples"><%=thisSample.getCorrespondingEncounterNumber()%></a></span></td>
+		<td><span class="caption"><%=thisSample.getHTMLString() %></span>
+		</td>
+	
+	<td><table>
+		<%
+		int numAnalyses=thisSample.getNumAnalyses();
+		List<GeneticAnalysis> gAnalyses = thisSample.getGeneticAnalyses();
+		for(int g=0;g<numAnalyses;g++){
+			GeneticAnalysis ga = gAnalyses.get(g);
+			if(ga.getAnalysisType().equals("MitochondrialDNA")){
+				MitochondrialDNAAnalysis mito=(MitochondrialDNAAnalysis)ga;
+				%>
+				<tr><td style="border-style: none;"><strong><span class="caption"><%=props.getProperty("haplotype") %></strong></span></strong>: <span class="caption"><%=mito.getHaplotype() %></span></td></tr></li>
+			<%
+			}
+			else if(ga.getAnalysisType().equals("SexAnalysis")){
+				SexAnalysis mito=(SexAnalysis)ga;
+				%>
+				<tr><td style="border-style: none;"><strong><span class="caption"><%=props.getProperty("geneticSex") %></strong></span></strong>: <span class="caption"><%=mito.getSex() %></span></td></tr></li>
+			<%
+			}
+			else if(ga.getAnalysisType().equals("MicrosatelliteMarkers")){
+				MicrosatelliteMarkersAnalysis mito=(MicrosatelliteMarkersAnalysis)ga;
+				
+			%>
+			<tr>
+				<td style="border-style: none;">
+					<p><span class="caption"><strong><%=props.getProperty("msMarkers") %></strong></span></p>
+					<span class="caption"><%=mito.getAllelesHTMLString() %></span>
+				</td>
+				</tr></li>
+			
+			<% 
+			}
+			else if(ga.getAnalysisType().equals("BiologicalMeasurement")){
+				BiologicalMeasurement mito=(BiologicalMeasurement)ga;
+				%>
+				<tr><td style="border-style: none;"><strong><span class="caption"><%=mito.getMeasurementType()%> <%=props.getProperty("measurement") %></span></strong><br /> <span class="caption"><%=mito.getValue().toString() %> <%=mito.getUnits() %> (<%=mito.getSamplingProtocol() %>)
+				<%
+				if(!mito.getSuperHTMLString().equals("")){
+				%>
+				<em>
+				<br /><%=props.getProperty("analysisID")%>: <%=mito.getAnalysisID()%>
+				<br /><%=mito.getSuperHTMLString()%>
+				</em>
+				<%
+				}
+				%>
+				</span></td></tr></li>
+			<%
+			}
+		}
+		%>
+		</table>
+
+	</td>
+	
+	
+	</tr>
+	<%
+}
+%>
+</table>
+</p>
+<%
+}
+else {
+%>
+	<p class="para"><%=props.getProperty("noTissueSamples") %></p>
+	<!-- End genetics -->
+<%
+}
+%>
+
+
+<br/>
+<a name="socialRelationships"></a>
+<p><strong><%=props.getProperty("social")%></strong></p>
+
+<%
+ArrayList<Map.Entry> otherIndies=myShepherd.getAllOtherIndividualsOccurringWithMarkedIndividual(sharky.getIndividualID());
+
+if(otherIndies.size()>0){
+	
+//ok, let's iterate the social relationships
+%>
+
+
+<table width="100%" class="tissueSample">
+<th><strong><%=props.get("sightedWith") %></strong></th><th><strong><%=props.getProperty("numSightingsTogether") %></strong></th></tr>
+<%
+
+Iterator<Map.Entry> othersIterator=otherIndies.iterator();
+while(othersIterator.hasNext()){
+	Map.Entry indy=othersIterator.next();
+	MarkedIndividual occurIndy=myShepherd.getMarkedIndividual((String)indy.getKey());
+	%>
+	<tr><td>
+	<a target="_blank" href="individuals.jsp?number=<%=occurIndy.getIndividualID()%>"><%=occurIndy.getIndividualID() %></a>
+		<%
+		if(occurIndy.getSex()!=null){
+		%>
+			<br /><span class="caption"><%=props.getProperty("sex") %>: <%=occurIndy.getSex() %></span>
+		<%
+		}
+		
+		if(occurIndy.getHaplotype()!=null){
+		%>
+			<br /><span class="caption"><%=props.getProperty("haplotype") %>: <%=occurIndy.getHaplotype() %></span>
+		<%
+		}
+		%>
+	</td>
+	<td><%=((Integer)indy.getValue()).toString() %></td></tr>
+	<%
+}
+}
+else {
+%>
+	<p class="para"><%=props.getProperty("noSocial") %></p><br />
+<%
+}
+//
 
 %>
-<p><%=mappingnote %>
-</p>
-
-
-<script
-  src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=<%=CommonConfiguration.getGoogleMapsKey() %>"
-  type="text/javascript"></script>
-<script type="text/javascript">
-  function initialize() {
-    if (GBrowserIsCompatible()) {
-      var map = new GMap2(document.getElementById("map_canvas"));
-
-
-    <%
-        double centroidX=0;
-        int countPoints=0;
-        double centroidY=0;
-        for(int c=0;c<haveGPSData.size();c++) {
-          Encounter mapEnc=(Encounter)haveGPSData.get(c);
-          countPoints++;
-          centroidX+=mapEnc.getDecimalLatitudeAsDouble();
-          centroidY+=mapEnc.getDecimalLongitudeAsDouble();
-        }
-        centroidX=centroidX/countPoints;
-        centroidY=centroidY/countPoints;
-
-        %>
-      map.setCenter(new GLatLng(<%=centroidX%>, <%=centroidY%>), 1);
-      map.addControl(new GSmallMapControl());
-      map.addControl(new GMapTypeControl());
-      map.setMapType(G_HYBRID_MAP);
-    <%
-        for(int t=0;t<haveGPSData.size();t++) {
-
-          Encounter mapEnc=(Encounter)haveGPSData.get(t);
-
-          double myLat=mapEnc.getDecimalLatitudeAsDouble();
-          double myLong=mapEnc.getDecimalLongitudeAsDouble();
-
-
-      %>
-      var point<%=t%> = new GLatLng(<%=myLat%>, <%=myLong%>, false);
-      var marker<%=t%> = new GMarker(point<%=t%>);
-      GEvent.addListener(marker<%=t%>, "click", function() {
-        window.location = "http://<%=CommonConfiguration.getURLLocation(request)%>/encounters/encounter.jsp?number=<%=mapEnc.getEncounterNumber()%>";
-      });
-      GEvent.addListener(marker<%=t%>, "mouseover", function() {
-        marker<%=t%>.openInfoWindowHtml("<%=markedIndividualTypeCaps%>: <strong><a target=\"_blank\" href=\"http://<%=CommonConfiguration.getURLLocation(request)%>/individuals.jsp?number=<%=mapEnc.isAssignedToMarkedIndividual()%>\"><%=mapEnc.isAssignedToMarkedIndividual()%></a></strong><br><table><tr><td><img align=\"top\" border=\"1\" src=\"http://<%=CommonConfiguration.getURLLocation(request)%>/encounters/<%=mapEnc.getEncounterNumber()%>/thumb.jpg\"></td><td>Date: <%=mapEnc.getDate()%><br>Sex: <%=mapEnc.getSex()%><br><br><a target=\"_blank\" href=\"http://<%=CommonConfiguration.getURLLocation(request)%>/encounters/encounter.jsp?number=<%=mapEnc.getEncounterNumber()%>\" >Go to encounter</a></td></tr></table>");
-      });
-
-
-      map.addOverlay(marker<%=t%>);
-
-    <%
-        }
-      %>
-
-
-    }
-  }
-</script>
-<div id="map_canvas" style="width: 510px; height: 350px"></div>
-
-<%} else {%>
-<p><%=noGPS %>
-</p>
-<br>
+</table>
 <%
-  }
-
 
   if (isOwner) {
 %>
-
-<p><strong><%=additionalDataFiles %>
-</strong>: <%if (sharky.getDataFiles().size() > 0) {%>
+<br />
+<p>
+<strong><img align="absmiddle" src="images/48px-Crystal_Clear_mimetype_binary.png" /> <%=additionalDataFiles %></strong>: 
+<%if (sharky.getDataFiles().size() > 0) {%>
 </p>
 <table>
   <%
@@ -944,8 +1196,7 @@ if (isOwner) {
   %>
 
   <tr>
-    <td><img src="disk.gif"> <a
-      href="individuals/<%=sharky.getName()%>/<%=file_name%>"><%=file_name%>
+    <td><a href="/<%=CommonConfiguration.getDataDirectoryName() %>/individuals/<%=sharky.getName()%>/<%=file_name%>"><%=file_name%>
     </a></td>
     <td>&nbsp;&nbsp;&nbsp;[<a
       href="IndividualRemoveDataFile?individual=<%=name%>&filename=<%=file_name%>"><%=delete %>
@@ -975,46 +1226,91 @@ if (isOwner) {
             value="<%=sendFile %>"></p></form>
 <%
   }
-%>
 
 
-<p><strong><%=researcherComments %>
-</strong>: </p>
-
-<p><%=sharky.getComments().replaceAll("\n", "<br>")%>
-</p>
-<%
-  if (CommonConfiguration.isCatalogEditable()) {
-%>
-<p>
-
-<form action="IndividualAddComment" method="post" name="addComments">
-  <input name="user" type="hidden" value="<%=request.getRemoteUser()%>" id="user">
-  <input name="individual" type="hidden" value="<%=sharky.getName()%>" id="individual">
-  <input name="action" type="hidden" value="comments" id="action">
-
-  <p><textarea name="comments" cols="60" id="comments"></textarea> <br>
-    <input name="Submit" type="submit" value="<%=addComments %>">
-</form>
-</p>
-<%
-    } //if isEditable
 
 
   }
 %>
 
 
-</p>
 
 
+</td>
+</tr>
+
+
+</table>
+
+</td>
+</tr>
+</table>
+</div><!-- end maintext -->
+</div><!-- end main-wide -->
+<%
+  if (CommonConfiguration.allowAdoptions()) {
+%>
+
+<div id="rightcol" style="vertical-align: top;">
+  <div id="menu" style="vertical-align: top;">
+
+
+    <div class="module">
+      <jsp:include page="individualAdoptionEmbed.jsp" flush="true">
+        <jsp:param name="name" value="<%=name%>"/>
+      </jsp:include>
+    </div>
+
+
+  </div><!-- end menu -->
+  </div><!-- end rightcol -->
+
+  <%
+   }
+%>
+
+<br /><br />
+<table>
+<tr>
+<td>
+
+      <jsp:include page="individualMapEmbed.jsp" flush="true">
+        <jsp:param name="name" value="<%=name%>"/>
+      </jsp:include>
 </td>
 </tr>
 </table>
 
 <%
+if(isOwner){
+%>
+<p><img align="absmiddle" src="images/Crystal_Clear_app_kaddressbook.gif"> <strong><%=researcherComments %></strong>: </p>
 
-} else {
+<div style="text-align:left;border:1px solid black;width:100%;height:400px;overflow-y:scroll;overflow-x:scroll;">
+	<p><%=sharky.getComments().replaceAll("\n", "<br>")%></p>
+</div>
+<%
+  if (CommonConfiguration.isCatalogEditable() && isOwner) {
+%>
+<p>
+	<form action="IndividualAddComment" method="post" name="addComments">
+  		<input name="user" type="hidden" value="<%=request.getRemoteUser()%>" id="user">
+  		<input name="individual" type="hidden" value="<%=sharky.getName()%>" id="individual">
+  		<input name="action" type="hidden" value="comments" id="action">
+
+  		<p><textarea name="comments" cols="60" id="comments"></textarea> <br />
+    			<input name="Submit" type="submit" value="<%=addComments %>">
+	</form>
+</p>
+<%
+    } //if isEditable
+
+}
+
+} 
+
+//could not find the specified individual!
+else {
 
   //let's check if the entered name is actually an alternate ID
   ArrayList al = myShepherd.getMarkedIndividualsByAlternateID(name);
@@ -1057,7 +1353,15 @@ if (isOwner) {
       content="0;url=http://<%=CommonConfiguration.getURLLocation(request)%>/encounters/encounter.jsp?number=<%=name%>">
 </HEAD>
 <%
-} else {
+} 
+else if(myShepherd.isOccurrence(name)) {
+%>
+<meta http-equiv="REFRESH"
+      content="0;url=http://<%=CommonConfiguration.getURLLocation(request)%>/occurrence.jsp?number=<%=name%>">
+</HEAD>
+<%	
+}
+else {
 %>
 
 
@@ -1080,6 +1384,14 @@ if (isOwner) {
 </a></font></p>
 <%
       }
+	  %>
+      </td>
+</tr>
+</table>
+</div><!-- end maintext -->
+</div><!-- end main-wide -->
+      
+      <%
     }
   } catch (Exception eSharks_jsp) {
     System.out.println("Caught and handled an exception in individuals.jsp!");
@@ -1087,41 +1399,16 @@ if (isOwner) {
   }
 
 
-%>
-</td>
-</tr>
-</table>
-</div><!-- end maintext -->
-</div><!-- end main-wide -->
 
-<%
-  if (CommonConfiguration.allowAdoptions()) {
-%>
-
-<div id="rightcol">
-  <div id="menu">
-
-
-    <div class="module">
-      <jsp:include page="individualAdoptionEmbed.jsp" flush="true">
-        <jsp:param name="name" value="<%=name%>"/>
-      </jsp:include>
-    </div>
-
-
-  </div><!-- end menu -->
- </div><!-- end rightcol -->
-<%
-  }
-%>
-
-<%
   myShepherd.rollbackDBTransaction();
   myShepherd.closeDBTransaction();
 
 %>
 <jsp:include page="footer.jsp" flush="true"/>
 </div>
+
+
+
 <!-- end page --></div>
 <!--end wrapper -->
 </body>

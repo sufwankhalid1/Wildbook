@@ -70,10 +70,11 @@ public class ServletUtilities {
 
       int end_header = templateFile.indexOf("INSERT_HERE");
       return (templateFile.substring(0, end_header));
-    } catch (IOException e) {
+    } 
+    catch (Exception e) {
       //out.println("I couldn't find the template file to read from.");
       e.printStackTrace();
-      String error = "An error occurred while attempting to read from the template file servletResponseTemplate.htm. This probably will not affect the success of the operation you were trying to perform.";
+      String error = "<html><body><p>An error occurred while attempting to read from the template file servletResponseTemplate.htm. This probably will not affect the success of the operation you were trying to perform.";
       return error;
     }
 
@@ -95,10 +96,10 @@ public class ServletUtilities {
 
       int end_header = templateFile.indexOf("INSERT_HERE");
       return (templateFile.substring(end_header + 11));
-    } catch (IOException e) {
+    } catch (Exception e) {
       //out.println("I couldn't find the template file to read from.");
       e.printStackTrace();
-      String error = "An error occurred while attempting to read from an HTML template file. This probably will not affect the success of the operation you were trying to perform.";
+      String error = "An error occurred while attempting to read from an HTML template file. This probably will not affect the success of the operation you were trying to perform.</p></body></html>";
       return error;
     }
 
@@ -334,11 +335,11 @@ public class ServletUtilities {
     boolean isOwner = false;
     if (request.isUserInRole("admin")) {
       isOwner = true;
-    } else if (request.isUserInRole("admin")) {
+    } 
+    else if (request.isUserInRole(enc.getLocationCode())) {
       isOwner = true;
-    } else if ((request.isUserInRole(enc.getLocationCode())) && (request.isUserInRole("admin"))) {
-      isOwner = true;
-    } else if ((((enc.getSubmitterID() != null) && (request.getRemoteUser() != null) && (enc.getSubmitterID().equals(request.getRemoteUser())) && (request.isUserInRole("admin"))))) {
+    } 
+    else if ((((enc.getSubmitterID() != null) && (request.getRemoteUser() != null) && (enc.getSubmitterID().equals(request.getRemoteUser()))))) {
       isOwner = true;
     }
     return isOwner;
@@ -359,6 +360,24 @@ public class ServletUtilities {
     }
     return false;
   }
+  
+  //occurrence
+  public static boolean isUserAuthorizedForOccurrence(Occurrence sharky, HttpServletRequest request) {
+    if (request.isUserInRole("admin")) {
+      return true;
+    }
+
+    ArrayList<Encounter> encounters = sharky.getEncounters();
+    int numEncs = encounters.size();
+    for (int y = 0; y < numEncs; y++) {
+      Encounter enc = (Encounter) encounters.get(y);
+      if (request.isUserInRole(enc.getLocationCode())) {
+        return true;
+      }
+    }
+    return false;
+  }
+  //occurrence
 
   public static Query setRange(Query query, int iterTotal, int highCount, int lowCount) {
 

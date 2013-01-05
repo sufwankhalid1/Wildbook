@@ -20,13 +20,23 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <%@ page contentType="text/html; charset=utf-8" language="java"
-         import="com.drew.imaging.jpeg.JpegMetadataReader,com.drew.metadata.Directory,com.drew.metadata.Metadata, com.drew.metadata.Tag,org.ecocean.*,java.io.File, java.util.*" %>
+         import="javax.jdo.Query,com.drew.imaging.jpeg.JpegMetadataReader,com.drew.metadata.Directory,com.drew.metadata.Metadata, com.drew.metadata.Tag,org.ecocean.*,java.io.File, java.util.*" %>
 
 <html>
 <head>
 
 
   <%
+  
+  //setup data dir
+  String rootWebappPath = getServletContext().getRealPath("/");
+  File webappsDir = new File(rootWebappPath).getParentFile();
+  File shepherdDataDir = new File(webappsDir, CommonConfiguration.getDataDirectoryName());
+  //if(!shepherdDataDir.exists()){shepherdDataDir.mkdir();}
+  File encountersDir=new File(shepherdDataDir.getAbsolutePath()+"/encounters");
+  //if(!encountersDir.exists()){encountersDir.mkdir();}
+
+  
     int startNum = 1;
     int endNum = 45;
 
@@ -56,29 +66,40 @@
 
     Shepherd myShepherd = new Shepherd();
 
-    Vector rEncounters = new Vector();
+    ArrayList<SinglePhotoVideo> rEncounters = new ArrayList<SinglePhotoVideo>();
 
     myShepherd.beginDBTransaction();
     EncounterQueryResult queryResult = new EncounterQueryResult(new Vector<Encounter>(), "", "");
+	
+  	StringBuffer prettyPrint=new StringBuffer("");
+  	Map<String,Object> paramMap = new HashMap<String, Object>();
 
-
+  	/**
+  	String filter="";
     if (request.getParameter("noQuery") == null) {
-      queryResult = EncounterQueryProcessor.processQuery(myShepherd, request, "year descending, month descending, day descending");
-      rEncounters = queryResult.getResult();
-    } else {
-      Iterator allEncounters = myShepherd.getAllEncounters();
-      while (allEncounters.hasNext()) {
-        Encounter enc = (Encounter) allEncounters.next();
-        rEncounters.add(enc);
-      }
-    }
+    	filter="SELECT from org.ecocean.SinglePhotoVideo WHERE ("+EncounterQueryProcessor.queryStringBuilder(request, prettyPrint, paramMap).replaceAll("SELECT FROM", "SELECT DISTINCT catalogNumber FROM")+").contains(this.correspondingEncounterNumber)";
+    } 
+    else {
 
+		filter="SELECT from org.ecocean.SinglePhotoVideo";
+    	
+    }
+    */
+    
     String[] keywords = request.getParameterValues("keyword");
     if (keywords == null) {
       keywords = new String[0];
     }
 
-    int numThumbnails = myShepherd.getNumThumbnails(rEncounters.iterator(), keywords);
+    if (request.getParameter("noQuery") == null) {
+	  queryResult = EncounterQueryProcessor.processQuery(myShepherd, request, "year descending, month descending, day descending");
+	
+    rEncounters=myShepherd.getThumbnails(request, queryResult.getResult().iterator(), startNum, endNum, keywords);
+    }
+    else{
+    	Query allQuery=myShepherd.getPM().newQuery("SELECT from org.ecocean.SinglePhotoVideo");
+    	rEncounters=new ArrayList<SinglePhotoVideo>((Collection<SinglePhotoVideo>)allQuery.execute());
+   }
 
 
   %>
@@ -239,7 +260,12 @@
   <li><a
     href="../xcalendar/calendar2.jsp?<%=rq.replaceAll("startNum","uselessNum").replaceAll("endNum","uselessNum") %>"><%=encprops.getProperty("resultsCalendar")%>
   </a></li>
-
+        <li><a
+     href="searchResultsAnalysis.jsp?<%=request.getQueryString() %>"><%=encprops.getProperty("analysis")%>
+   </a></li>
+ <li><a
+     href="exportSearchResults.jsp?<%=request.getQueryString() %>"><%=encprops.getProperty("export")%>
+   </a></li>
 </ul>
 <%
   }
@@ -253,9 +279,7 @@
       <h1 class="intro"><%=encprops.getProperty("title")%>
       </h1>
       </p>
-      <p><strong><%=encprops.getProperty("totalMatches")%>
-      </strong>: <%=numThumbnails%>
-      </p>
+
 
       <p><%=encprops.getProperty("belowMatches")%> <%=startNum%>
         - <%=endNum%> <%=encprops.getProperty("thatMatched")%>
@@ -306,11 +330,12 @@
 
 			
 			int countMe=0;
-			Vector thumbLocs=new Vector();
+			ArrayList<SinglePhotoVideo> thumbLocs=new ArrayList<SinglePhotoVideo>();
 			
 			try {
-				thumbLocs=myShepherd.getThumbnails(request, rEncounters.iterator(), startNum, endNum, keywords);
-
+				//thumbLocs=myShepherd.getThumbnails(request, rEncounters.iterator(), startNum, endNum, keywords);
+				thumbLocs=rEncounters;	
+				//System.out.println("thumLocs.size="+thumbLocs.size());
 					for(int rows=0;rows<15;rows++) {		%>
 
   <tr valign="top">
@@ -318,18 +343,17 @@
       <%
 							for(int columns=0;columns<3;columns++){
 								if(countMe<thumbLocs.size()) {
-									String combined=(String)thumbLocs.get(countMe);
-									StringTokenizer stzr=new StringTokenizer(combined,"BREAK");
-									String thumbLink=stzr.nextToken();
-									String encNum=stzr.nextToken();
-									int fileNamePos=combined.lastIndexOf("BREAK")+5;
-									String fileName=combined.substring(fileNamePos).replaceAll("%20"," ");
+									String thumbLink="";
 									boolean video=true;
-									if(!thumbLink.endsWith("video.jpg")){
-										thumbLink="http://"+CommonConfiguration.getURLLocation(request)+"/encounters/"+thumbLink;
+									if(!myShepherd.isAcceptableVideoFile(thumbLocs.get(countMe).getFilename())){
+										thumbLink="/"+CommonConfiguration.getDataDirectoryName()+"/encounters/"+thumbLocs.get(countMe).getCorrespondingEncounterNumber()+"/"+thumbLocs.get(countMe).getDataCollectionEventID()+".jpg";
 										video=false;
 									}
-									String link="http://"+CommonConfiguration.getURLLocation(request)+"/encounters/"+encNum+"/"+fileName;
+									else{
+										thumbLink="http://"+CommonConfiguration.getURLLocation(request)+"/images/video.jpg";
+										
+									}
+									String link="/"+CommonConfiguration.getDataDirectoryName()+"/encounters/"+thumbLocs.get(countMe).getCorrespondingEncounterNumber()+"/"+thumbLocs.get(countMe).getFilename();
 						
 							%>
 
@@ -362,12 +386,12 @@
 			<%
             if(!thumbLink.endsWith("video.jpg")){
             	%>
-              <h3><%=(countMe + startNum) %>/<%=numThumbnails %></h3>
+              <h3><%=(countMe + startNum) %></h3>
             <%
             }
             %>
               <%
-                if (request.getParameter("referenceImageName") != null) {
+                if ((request.getParameter("referenceImageName") != null)&&(!thumbLink.endsWith("video.jpg"))) {
               %>
               <h4>Reference Image</h4>
               <table id="table<%=(countMe+startNum) %>">
@@ -385,7 +409,7 @@
                     %>
                     
                     id="refImage<%=(countMe+startNum) %>"
-                         src="<%=request.getParameter("referenceImageName") %>"/>
+                         src="/<%=CommonConfiguration.getDataDirectoryName() %>/encounters/<%=request.getParameter("referenceImageName") %>"/>
 
                   </td>
                 </tr>
@@ -414,14 +438,14 @@
                       <%
 
                         int kwLength = keywords.length;
-                        Encounter thisEnc = myShepherd.getEncounter(encNum);
+                        Encounter thisEnc = myShepherd.getEncounter(thumbLocs.get(countMe).getCorrespondingEncounterNumber());
                       %>
                       
                       	<%
             	if(!thumbLink.endsWith("video.jpg")){
             	%>
                       <tr>
-                        <td><span class="caption"><em><%=(countMe + startNum) %>/<%=numThumbnails %>
+                        <td><span class="caption"><em><%=(countMe + startNum) %>
                         </em></span></td>
                       </tr>
                       <tr>
@@ -500,27 +524,32 @@
                         <td><span class="caption">
 											<%=encprops.getProperty("matchingKeywords") %>
 											<%
-                        Iterator allKeywords2 = myShepherd.getAllKeywords();
-                        while (allKeywords2.hasNext()) {
-                          Keyword word = (Keyword) allKeywords2.next();
-                          if (word.isMemberOf(encNum + "/" + fileName)) {
-
-                            String renderMe = word.getReadableName();
-
-                            for (int kwIter = 0; kwIter < kwLength; kwIter++) {
-                              String kwParam = keywords[kwIter];
-                              if (kwParam.equals(word.getIndexname())) {
-                                renderMe = "<strong>" + renderMe + "</strong>";
-                              }
+                        //Iterator allKeywords2 = myShepherd.getAllKeywords();
+                        //while (allKeywords2.hasNext()) {
+                          //Keyword word = (Keyword) allKeywords2.next();
+                          
+                          
+                          //if (word.isMemberOf(encNum + "/" + fileName)) {
+						  //if(thumbLocs.get(countMe).getKeywords().contains(word)){
+                        	  
+                            //String renderMe = word.getReadableName();
+							List<Keyword> myWords = thumbLocs.get(countMe).getKeywords();
+							int myWordsSize=myWords.size();
+                            for (int kwIter = 0; kwIter<myWordsSize; kwIter++) {
+                              //String kwParam = keywords[kwIter];
+                              //if (kwParam.equals(word.getIndexname())) {
+                              //  renderMe = "<strong>" + renderMe + "</strong>";
+                              //}
+                      		 	%>
+ 								<br/><%=myWords.get(kwIter).getReadableName()%>
+ 								<%
                             }
 
 
-                      %>
-													<br/><%= renderMe%>
-													<%
 
-                              }
-                        }
+
+                          //    }
+                       // } 
                             }
 
                           %>
@@ -550,9 +579,9 @@
 						<div class="scroll">
 						<span class="caption">
 					<%
-            if ((fileName.toLowerCase().endsWith("jpg")) || (fileName.toLowerCase().endsWith("jpeg"))) {
+            if ((thumbLocs.get(countMe).getFilename().toLowerCase().endsWith("jpg")) || (thumbLocs.get(countMe).getFilename().toLowerCase().endsWith("jpeg"))) {
               try{
-              	File exifImage = new File(getServletContext().getRealPath(("/" + CommonConfiguration.getImageDirectory() + "/" + thisEnc.getCatalogNumber() + "/" + fileName)));
+              	File exifImage = new File(encountersDir.getAbsolutePath() + "/" + thisEnc.getCatalogNumber() + "/" + thumbLocs.get(countMe).getFilename());
               	Metadata metadata = JpegMetadataReader.readMetadata(exifImage);
               	// iterate through metadata directories
               	Iterator directories = metadata.getDirectoryIterator();
@@ -650,28 +679,32 @@
 											<%=encprops.getProperty("matchingKeywords") %>
 											<%
                         //int numKeywords=myShepherd.getNumKeywords();
-                        Iterator allKeywords = myShepherd.getAllKeywords();
+									          //Iterator allKeywords2 = myShepherd.getAllKeywords();
+					                        //while (allKeywords2.hasNext()) {
+					                          //Keyword word = (Keyword) allKeywords2.next();
+					                          
+					                          
+					                          //if (word.isMemberOf(encNum + "/" + fileName)) {
+											  //if(thumbLocs.get(countMe).getKeywords().contains(word)){
+					                        	  
+					                            //String renderMe = word.getReadableName();
+												List<Keyword> myWords = thumbLocs.get(countMe).getKeywords();
+												int myWordsSize=myWords.size();
+					                            for (int kwIter = 0; kwIter<myWordsSize; kwIter++) {
+					                              //String kwParam = keywords[kwIter];
+					                              //if (kwParam.equals(word.getIndexname())) {
+					                              //  renderMe = "<strong>" + renderMe + "</strong>";
+					                              //}
+					                      		 	%>
+					 								<br/><%=myWords.get(kwIter).getReadableName() %>
+					 								<%
+					                            }
 
-                        while (allKeywords.hasNext()) {
-                          Keyword word = (Keyword) allKeywords.next();
-                          if (word.isMemberOf(encNum + "/" + fileName)) {
-
-                            String renderMe = word.getReadableName();
-
-                            for (int kwIter = 0; kwIter < kwLength; kwIter++) {
-                              String kwParam = keywords[kwIter];
-                              if (kwParam.equals(word.getIndexname())) {
-                                renderMe = "<strong>" + renderMe + "</strong>";
-                              }
-                            }
 
 
-                      %>
-													<br/><%= renderMe%>
-													<%
 
-                              }
-                            }
+					                          //    }
+					                       // } 
 
                           %>
 										</span></td>
@@ -749,6 +782,8 @@
   <tr>
     <td align="left">
 
+
+
       <p><strong><%=encprops.getProperty("queryDetails")%>
       </strong></p>
 
@@ -756,11 +791,8 @@
       </strong><br/>
         <%=queryResult.getQueryPrettyPrint().replaceAll("locationField", encprops.getProperty("location")).replaceAll("locationCodeField", encprops.getProperty("locationID")).replaceAll("verbatimEventDateField", encprops.getProperty("verbatimEventDate")).replaceAll("alternateIDField", encprops.getProperty("alternateID")).replaceAll("behaviorField", encprops.getProperty("behavior")).replaceAll("Sex", encprops.getProperty("sex")).replaceAll("nameField", encprops.getProperty("nameField")).replaceAll("selectLength", encprops.getProperty("selectLength")).replaceAll("numResights", encprops.getProperty("numResights")).replaceAll("vesselField", encprops.getProperty("vesselField"))%>
       </p>
+      
 
-      <p class="caption"><strong><%=encprops.getProperty("jdoql")%>
-      </strong><br/>
-        <%=queryResult.getJDOQLRepresentation()%>
-      </p>
 
     </td>
   </tr>
