@@ -74,6 +74,7 @@ public class CommonConfiguration {
       String shepherdDataDir="shepherd_data_dir";
       if((props.getProperty("dataDirectoryName")!=null)&&(!props.getProperty("dataDirectoryName").trim().equals(""))){shepherdDataDir=props.getProperty("dataDirectoryName");}
       loadOverrideProps(shepherdDataDir);
+      loadOverridePropsFromBinDirectory();
       propsSize = props.size();
     }
     return true;
@@ -93,6 +94,23 @@ public class CommonConfiguration {
     
     if(!configDir.exists()){configDir.mkdirs();}
     File configFile = new File(configDir, COMMON_CONFIGURATION_PROPERTIES);
+    loadOverrideProps(configFile);
+  }
+  
+  /**
+   * Load override props from &lt;tomcat_home&gt;/bin/config/commonConfiguration.properties, if present.
+   * This enables overrides without producing new builds.
+   * 
+   * <p>I don't know if this logic works for Jetty. Assumes the working directory is
+   * &lt;tomcat_home&gt;/bin in order to work.
+   */
+  private static void loadOverridePropsFromBinDirectory() {
+    File configDir = new File("config");
+    File configFile = new File(configDir, COMMON_CONFIGURATION_PROPERTIES);
+    loadOverrideProps(configFile);
+  }
+
+  private static void loadOverrideProps(File configFile) {
     if (configFile.exists()) {
       System.out.println("Overriding default properties with " + configFile.getAbsolutePath());
       FileInputStream fileInputStream = null;
@@ -116,6 +134,8 @@ public class CommonConfiguration {
       System.out.println("No properties override file found at " + configFile.getAbsolutePath());
     }
   }
+  
+
 
   //start getter methods
   public static String getURLLocation(HttpServletRequest request) {
@@ -409,6 +429,10 @@ public class CommonConfiguration {
   public static boolean showReleaseDate() {
     return showCategory("showReleaseDate");
   }
+  
+  public static boolean showElevation() {
+    return showCategory("maximumElevationInMeters");
+  }
 
   public static String appendEmailRemoveHashString(HttpServletRequest request, String
                                                    originalString, String emailAddress) {
@@ -462,8 +486,8 @@ public class CommonConfiguration {
   
   
   private static boolean showCategory(final String category) {
-    String showMeasurements = getProperty(category);
-    return !Boolean.FALSE.toString().equals(showMeasurements);
+    String value = getProperty(category);
+    return !Boolean.FALSE.toString().equals(value);
   }
   
   public static String getDataDirectoryName() {

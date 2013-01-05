@@ -378,7 +378,7 @@ if(CommonConfiguration.showProperty("maximumDepthInMeters")){
 %>
 
 <%
-if(CommonConfiguration.showProperty("maximumElevationInMeters")){
+if(CommonConfiguration.showElevation()){
 %>
 <tr class="form_row">
   <td class="form_label"><strong><%=props.getProperty("submit_elevation")%>:</strong></td>

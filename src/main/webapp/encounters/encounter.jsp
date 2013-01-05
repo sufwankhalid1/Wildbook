@@ -652,7 +652,7 @@ margin-bottom: 8px !important;
 
 <!-- Display maximumElevationInMeters so long as show_maximumElevationInMeters is not false in commonCOnfiguration.properties-->
 <%
-  if (CommonConfiguration.showProperty("maximumElevationInMeters")) {
+  if (CommonConfiguration.showElevation()) {
 %>
 <p class="para"><strong><%=encprops.getProperty("elevation") %>
 </strong><br/>
