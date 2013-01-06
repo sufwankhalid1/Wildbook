@@ -111,69 +111,52 @@
       <jsp:param name="isAdmin" value="<%=request.isUserInRole(\"admin\")%>" />
     </jsp:include>
     <div id="main">
-      <div id="leftcol">
-        <div id="menu">
-          <%
-            //check what language is requested
-            if (request.getParameter("langCode") != null) {
-              if (request.getParameter("langCode").equals("fr")) {
-                langCode = "fr";
-              }
-              if (request.getParameter("langCode").equals("de")) {
-                langCode = "de";
-              }
-              if (request.getParameter("langCode").equals("es")) {
-                langCode = "es";
-              }
-            }
-          %>
+<div id="leftcol">
+<div id="menu">
 
 
-          <div class="module">
-            <h3>Latest News</h3>
-            <span class="caption">Add your news items here... </span><span class="caption"><br/>
-</span> <br/>
-          </div>
 
-          <div class="module">
-            <h3>Data Sharing</h3>
-            <span class="caption">If you are sharing data, this is a great place to let others know about it... </span>
-            <br/>
-          </div>
+	    <div class="module">
+		 <h3>Photographing</h3>
+			 <table align="left" cellpadding="2">
+			   <tr>
+			   	<td align="left" valign="top">
+			   		<img src="images/whisker_left.gif" align="top"/>
+			   	</td>
+		   		
+			   </tr>	   
+			   <tr>
+			   	<td><span class="caption style1"><strong>Anchor points for a whisker spot pattern</strong></span>
+		   		</td>
+			   </tr>
+			   		    <tr>
+			 			   	<td align="left" valign="top">
+			 			   		<img src="images/whiskerspots.gif" align="top"/>
+			 			   	</td>
+			 		   		
+			   </tr>
+			   	   <tr>
+			   			   	<td><strong><span class="caption style1">Extracted whisker spots can be compared using a computer algorithm</span>
+			   		   		</strong></td>
+			   </tr>
+			 </table>
+			
 
-        </div>
-        <!-- end menu --></div>
-      <!-- end leftcol -->
-      <div id="maincol">
-
-        <div id="maintext">
-          <h1 class="intro">Overview</h1>
-
-          <p class="caption">This is a great place to present an overview description of this
-            mark-recapture project and library...</p>
-          <br/>
-        </div>
-
-        <div>
-          <h1 class="intro">Data Contributors</h1>
-
-          <p class="caption">A great optional area to discuss who is contributing data to this
-            library...</p>
-        </div>
-
-        <div id="context">
-          <h1 class="intro">Contact us</h1>
-
-          <p class="caption">A great place to talk about who is running this mark-recapture
-            library...</p>
-
-          <p class="caption"><a href="contactus.jsp">Please contact us
-            with your questions.</a></p>
         </div>
 
 
-      </div>
-      <!-- end maincol -->
+</div>
+<!-- end menu --></div>
+<!-- end leftcol -->
+<div id="maincol">
+<div id="maintext">
+<h1 class="intro">Polar Bear Photo-identification Library</h1>
+<p>The Polar Bear Photo-identification Library is a visual database of polar bear (<em>Ursus maritimus</em>) encounters and of individually catalogued polar bears. The library is maintained and used by biologists to collect and analyze polar bear encounter data to learn more about the behavior and movements of this threatened species. The Library uses photographs of the polar bear's facial profile (left or right side) to distinguish among individuals based on whisker spot patterns and scars. Customized image pattern recognition software developed using computer vision techniques allow rapid identification of individual polar bears. </p>
+<p>You can assist with polar bear research by submitting photos and sighting information. The information you submit will be used in studies on polar bear populations to help understand and conserve this species.<br/>
+</p>
+</div>
+</div>
+<!-- end maincol -->
       <div id="rightcol">
 
 

@@ -111,9 +111,10 @@
           <h1 class="intro">Contact us </h1>
         </div>
 
-        <p>We welcome your comments and questions.</p>
-
-        <p>Provide more info here about how to contact your organization... </p>
+        <p>University of Manitoba Polar Bear Whiskerprint Project<br />
+Dept. of Biological Sciences<br />
+University of Manitoba<br />
+whiskerprint@gmail.com</p>
       </div>
       <!-- end maintext -->
 
