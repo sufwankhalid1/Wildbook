@@ -785,12 +785,14 @@ public class Encounter implements java.io.Serializable {
   }
 
   public void setMatchedBy(String matchType) {
-    identificationRemarks = matchType;
+    setIdentificationRemarks(matchType);
   }
   
   public void setIdentificationRemarks(String matchType) {
-    identificationRemarks = matchType;
+    if(matchType!=null){identificationRemarks = matchType;}
+    else{identificationRemarks=null;}
   }
+  
 
 
   /**
@@ -1209,8 +1211,11 @@ public class Encounter implements java.io.Serializable {
   }
 
   public void setLocationID(String newLocationID) {
-    this.locationID = newLocationID.trim();
+    if(newLocationID!=null){this.locationID = newLocationID.trim();}
+    else{locationID=null;}
   }
+  
+  
 
   public Double getMaximumDepthInMeters() {
     return maximumDepthInMeters;
