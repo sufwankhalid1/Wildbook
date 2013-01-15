@@ -49,7 +49,7 @@ public class IndividualQueryProcessor {
         filter+="(enc.verbatimLocality.toLowerCase().indexOf('"+locString+"') != -1)";
       }
       else{filter+=" && (enc.verbatimLocality.toLowerCase().indexOf('"+locString+"') != -1)";}
-      prettyPrint.append("enc.locationField contains \""+locString+"\".<br />");
+      prettyPrint.append("Location contains \""+locString+"\".<br />");
     }
     //end location filter--------------------------------------------------------------------------------------
 
@@ -59,7 +59,7 @@ public class IndividualQueryProcessor {
     //locationID filters-------------------------------------------------
     String[] locCodes=request.getParameterValues("locationCodeField");
     if((locCodes!=null)&&(!locCodes[0].equals("None"))){
-          prettyPrint.append("locationCodeField is one of the following: ");
+          prettyPrint.append("Sighted in at least one of the following locationsIDs: ");
           int kwLength=locCodes.length;
             String locIDFilter="(";
             for(int kwIter=0;kwIter<kwLength;kwIter++) {
@@ -163,6 +163,9 @@ public class IndividualQueryProcessor {
             else{filter+=(" && "+stageFilter);}
             prettyPrint.append("<br />");
     }
+    
+    
+    
     // Measurement filters-----------------------------------------------
     List<MeasurementDesc> measurementDescs = Util.findMeasurementDescs("us");
     String measurementPrefix = "measurement";
@@ -200,7 +203,7 @@ public class IndividualQueryProcessor {
               measurementFilter.append("&&");
             }
             String measurementVar = "measurement" + measurementsInQuery++;
-            measurementFilter.append("(enc.measurements.contains(" + measurementVar + ") && ");
+            measurementFilter.append("(encounters.contains(enc)) && (enc.measurements.contains(" + measurementVar + ") && ");
             measurementFilter.append( measurementVar + ".value " + operator + " " + value);
             measurementFilter.append(" && " + measurementVar + ".type == ");
             measurementFilter.append("\"" + measurementDesc.getType() + "\")");
@@ -228,8 +231,82 @@ public class IndividualQueryProcessor {
       }
     }
     // end measurement filters
-    //end behavior filters-----------------------------------------------
 
+
+    // BiologicalMeasurement filters-----------------------------------------------
+    List<MeasurementDesc> bioMeasurementDescs = Util.findBiologicalMeasurementDescs("us");
+    String bioMeasurementPrefix = "biomeasurement";
+    StringBuilder bioMeasurementFilter = new StringBuilder();
+    bioMeasurementFilter.append("encounters.contains(enc) && enc.tissueSamples.contains(dce322) ");
+    boolean bioAtLeastOneMeasurement = false;
+    int bioMeasurementsInQuery = 0;
+    
+    
+    for (MeasurementDesc measurementDesc : bioMeasurementDescs) {
+      String valueParamName= bioMeasurementPrefix + measurementDesc.getType() + "(value)";
+      String value = request.getParameter(valueParamName);
+      if (value != null) {
+        value = value.trim();
+        if ( value.length() > 0) {
+          String operatorParamName = bioMeasurementPrefix + measurementDesc.getType() + "(operator)";
+          String operatorParamValue = request.getParameter(operatorParamName);
+          if (operatorParamValue == null) {
+            operatorParamValue = "";
+          }
+          String operator = null;
+          if ("gt".equals(operatorParamValue)) {
+            operator = ">";
+          }
+          else if ( "lt".equals(operatorParamValue)) {
+            operator = "<";
+          }
+          else if ("eq".equals(operatorParamValue)) {
+            operator = "==";
+          }
+          if (operator != null) {
+            prettyPrint.append("Biological/chemical measurement "+measurementDesc.getType());
+            prettyPrint.append(" is ");
+            prettyPrint.append(operator);
+            prettyPrint.append(value);
+            prettyPrint.append("<br/>");
+            if (bioAtLeastOneMeasurement) {
+              //bioMeasurementFilter.append("&&");
+            }
+            String measurementVar = "biomeasurement" + bioMeasurementsInQuery++;
+            bioMeasurementFilter.append(" && dce322.analyses.contains(" + measurementVar + ")");
+            bioMeasurementFilter.append( " && ( "+measurementVar + ".value " + operator + " " + value+" )");
+            bioMeasurementFilter.append(" && ( " + measurementVar + ".measurementType == ");
+            bioMeasurementFilter.append("\"" + measurementDesc.getType() + "\" )");
+            bioAtLeastOneMeasurement = true;
+          }
+        }
+      }
+    }
+    
+    
+    if (bioAtLeastOneMeasurement) {
+      if(jdoqlVariableDeclaration.length() > 0){
+        jdoqlVariableDeclaration += ";org.ecocean.genetics.TissueSample dce322;";
+      }
+      else {
+        jdoqlVariableDeclaration=" VARIABLES org.ecocean.genetics.TissueSample dce322;";
+      }
+      
+
+      for (int i = 0; i < bioMeasurementsInQuery; i++) {
+        if (i > 0) {
+          jdoqlVariableDeclaration += "; ";
+        }
+        jdoqlVariableDeclaration += "org.ecocean.genetics.BiologicalMeasurement biomeasurement" + i;
+      }
+      if(filter.equals(SELECT_FROM_ORG_ECOCEAN_INDIVIDUAL_WHERE)){
+        filter+= bioMeasurementFilter.toString();
+      }
+      else{
+        filter+=(" && "+ bioMeasurementFilter.toString());
+      }
+    }
+    // end BiologicalMeasurement filters
 
 
 
@@ -442,7 +519,7 @@ public class IndividualQueryProcessor {
             if(request.getParameter(marker)!=null){
               hasMarkers=true;
               String locIDFilter="(";
-              locIDFilter+=" "+marker+".name == \""+marker+"\" ";
+              locIDFilter+=" "+marker.replaceAll("-", "")+".name == \""+marker+"\" ";
               locIDFilter+=" )";
 
               
@@ -456,7 +533,7 @@ public class IndividualQueryProcessor {
                     Integer relaxValue=new Integer(request.getParameter("alleleRelaxValue"));
                     Integer upperValue=thisInt+relaxValue;
                     Integer lowerValue=thisInt-relaxValue;
-                    locIDFilter+=(" && ("+marker+".allele"+alleleNum+" >= "+lowerValue+")"+" && ("+marker+".allele"+alleleNum+" <= "+upperValue+")");
+                    locIDFilter+=(" && ("+marker.replaceAll("-", "")+".allele"+alleleNum+" >= "+lowerValue+")"+" && ("+marker.replaceAll("-", "")+".allele"+alleleNum+" <= "+upperValue+")");
                     
                   }
                   catch(Exception e){
@@ -473,20 +550,20 @@ public class IndividualQueryProcessor {
               theseMarkers+=(marker+" ");
             
         
-              if(filter.equals(SELECT_FROM_ORG_ECOCEAN_INDIVIDUAL_WHERE)){filter+="encounters.contains(enc2) && enc2.tissueSamples.contains(dce2) && dce2.analyses.contains(msanalysis) && msanalysis.loci.contains("+marker+") && "+locIDFilter;}
+              if(filter.equals(SELECT_FROM_ORG_ECOCEAN_INDIVIDUAL_WHERE)){filter+="encounters.contains(enc2) && enc2.tissueSamples.contains(dce2) && dce2.analyses.contains(msanalysis) && msanalysis.loci.contains("+marker.replaceAll("-", "")+") && "+locIDFilter;}
               else{
                 if(filter.indexOf("encounters.contains(enc2)")==-1){filter+=" && encounters.contains(enc2)";}
                 
                 if(filter.indexOf("enc2.tissueSamples.contains(dce2)")==-1){filter+=" && enc2.tissueSamples.contains(dce2)";}
                 if(filter.indexOf("dce2.analyses.contains(analysis)")==-1){filter+=" && dce2.analyses.contains(msanalysis)";}
-                if(filter.indexOf("msanalysis.loci.contains("+marker+")")==-1){filter+=" && msanalysis.loci.contains("+marker+")";}
+                if(filter.indexOf("msanalysis.loci.contains("+marker.replaceAll("-", "")+")")==-1){filter+=" && msanalysis.loci.contains("+marker.replaceAll("-", "")+")";}
               
                 filter+=(" && "+locIDFilter);
               }
               if(!jdoqlVariableDeclaration.contains("org.ecocean.Encounter enc2")){jdoqlVariableDeclaration+=";org.ecocean.Encounter enc2";}
                 if(!jdoqlVariableDeclaration.contains("org.ecocean.genetics.TissueSample dce2")){jdoqlVariableDeclaration+=";org.ecocean.genetics.TissueSample dce2";}
-                if(!jdoqlVariableDeclaration.contains("org.ecocean.genetics.MitochondrialDNAAnalysis analysis")){jdoqlVariableDeclaration+=";org.ecocean.genetics.MicrosatelliteMarkersAnalysis msanalysis";}
-                if(!jdoqlVariableDeclaration.contains("org.ecocean.genetics.Locus "+marker)){jdoqlVariableDeclaration+=";org.ecocean.genetics.Locus "+marker;}
+                if(!jdoqlVariableDeclaration.contains("org.ecocean.genetics.MicrosatelliteMarkersAnalysis msanalysis")){jdoqlVariableDeclaration+=";org.ecocean.genetics.MicrosatelliteMarkersAnalysis msanalysis";}
+                if(!jdoqlVariableDeclaration.contains("org.ecocean.genetics.Locus "+marker.replaceAll("-", ""))){jdoqlVariableDeclaration+=";org.ecocean.genetics.Locus "+marker.replaceAll("-", "");}
               
               
             }
@@ -501,6 +578,29 @@ public class IndividualQueryProcessor {
     //end ms markers filters-----------------------------------------------
 
     
+        //------------------------------------------------------------------
+        //has msmarkers filter-------------------------------------------------
+        if(request.getParameter("hasMSMarkers")!=null){
+                  if(filter.equals(SELECT_FROM_ORG_ECOCEAN_INDIVIDUAL_WHERE)){filter+="encounters.contains(enc2) && enc2.tissueSamples.contains(dce2) && dce2.analyses.contains(msanalysis)";}
+                  else{
+                    if(filter.indexOf("encounters.contains(enc2)")==-1){filter+=" && encounters.contains(enc2)";}
+                    
+                    if(filter.indexOf("enc2.tissueSamples.contains(dce2)")==-1){filter+=" && enc2.tissueSamples.contains(dce2)";}
+                    if(filter.indexOf("dce2.analyses.contains(analysis)")==-1){filter+=" && dce2.analyses.contains(msanalysis)";}
+                   }
+                  if(!jdoqlVariableDeclaration.contains("org.ecocean.Encounter enc2")){jdoqlVariableDeclaration+=";org.ecocean.Encounter enc2";}
+                    if(!jdoqlVariableDeclaration.contains("org.ecocean.genetics.TissueSample dce2")){jdoqlVariableDeclaration+=";org.ecocean.genetics.TissueSample dce2";}
+                    if(!jdoqlVariableDeclaration.contains("org.ecocean.genetics.MicrosatelliteMarkersAnalysis msanalysis")){jdoqlVariableDeclaration+=";org.ecocean.genetics.MicrosatelliteMarkersAnalysis msanalysis";}
+                  
+            
+              prettyPrint.append("Has microsatellite markers.");
+              theseMarkers+="<br />";
+              prettyPrint.append(theseMarkers);
+            }
+        //end ms markers filters-----------------------------------------------
+
+        
+        
 
     //filter for alternate ID------------------------------------------
     if((request.getParameter("alternateIDField")!=null)&&(!request.getParameter("alternateIDField").equals(""))) {
@@ -552,6 +652,31 @@ public class IndividualQueryProcessor {
       }
   
     //end haplotype filters-----------------------------------------------
+    
+    //------------------------------------------------------------------
+    //hasHaplotype filters-------------------------------------------------
+     if(request.getParameter("hasHaplotype")!=null){
+          prettyPrint.append("Has a haplotype assigned. ");
+    
+            if(filter.equals(SELECT_FROM_ORG_ECOCEAN_INDIVIDUAL_WHERE)){filter+="encounters.contains(enc7) && enc7.tissueSamples.contains(dce1) && dce1.analyses.contains(analysis)";}
+            else{
+              if(filter.indexOf("enc7.tissueSamples.contains(dce1)")==-1){filter+=" && enc7.tissueSamples.contains(dce1)";}
+              if(filter.indexOf("encounters.contains(enc7)")==-1){filter+=" && encounters.contains(enc7)";}
+              
+              if(filter.indexOf("dce1.analyses.contains(analysis)")==-1){filter+=" && dce1.analyses.contains(analysis)";}
+              
+            }
+
+            prettyPrint.append("<br />");
+            if(!jdoqlVariableDeclaration.contains("org.ecocean.Encounter enc7")){jdoqlVariableDeclaration+=";org.ecocean.Encounter enc7";}
+            
+              if(!jdoqlVariableDeclaration.contains("org.ecocean.genetics.TissueSample dce1")){jdoqlVariableDeclaration+=";org.ecocean.genetics.TissueSample dce1";}
+              if(!jdoqlVariableDeclaration.contains("org.ecocean.genetics.MitochondrialDNAAnalysis analysis")){jdoqlVariableDeclaration+=";org.ecocean.genetics.MitochondrialDNAAnalysis analysis";}
+            
+         
+      }
+  
+    //end hasHaplotype filters-----------------------------------------------
 
     
     //------------------------------------------------------------------
@@ -952,6 +1077,9 @@ public class IndividualQueryProcessor {
     //check whether locationIDs are AND'd rather than OR'd
     if(request.getParameter("andLocationIDs") != null){
 		 //String[] locCodes=request.getParameterValues("locationCodeField");
+      
+      prettyPrint=new StringBuffer(prettyPrint.toString().replaceAll("Sighted in at least one of the following locationsIDs", "Sighted at least once in each of the following location IDs"));
+      
 		    if((locCodes!=null)&&(!locCodes[0].equals("None"))){
 		       for (int q = 0; q < rIndividuals.size(); q++) {
         			MarkedIndividual tShark = (MarkedIndividual) rIndividuals.get(q);

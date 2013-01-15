@@ -746,10 +746,12 @@ public class Encounter implements java.io.Serializable {
   }
 
   /**
-   * Sets the String holding specific location data used for searching
+   * A legacy method replaced by setLocationID(...).
+   * 
+   * 
    */
   public void setLocationCode(String newLoc) {
-    locationID = newLoc;
+    setLocationID(newLoc);
   }
 
   /**
@@ -783,6 +785,10 @@ public class Encounter implements java.io.Serializable {
   }
 
   public void setMatchedBy(String matchType) {
+    identificationRemarks = matchType;
+  }
+  
+  public void setIdentificationRemarks(String matchType) {
     identificationRemarks = matchType;
   }
 
@@ -1203,7 +1209,7 @@ public class Encounter implements java.io.Serializable {
   }
 
   public void setLocationID(String newLocationID) {
-    this.locationID = newLocationID;
+    this.locationID = newLocationID.trim();
   }
 
   public Double getMaximumDepthInMeters() {
@@ -1470,7 +1476,7 @@ public class Encounter implements java.io.Serializable {
   //public void setDecimalLatitude(String lat){this.decimalLatitude=Double.parseDouble(lat);}
 
   public String getDecimalLongitude(){
-    if(decimalLatitude!=null){return Double.toString(decimalLongitude);}
+    if(decimalLongitude!=null){return Double.toString(decimalLongitude);}
     return null;
   }
 
@@ -1674,6 +1680,82 @@ public class Encounter implements java.io.Serializable {
     
     public Double getLatitudeAsDouble(){return decimalLatitude;}
     public Double getLongitudeAsDouble(){return decimalLongitude;}
+    
+    public boolean hasMeasurements(){
+      if((measurements!=null)&&(measurements.size()>0)){
+        int numMeasurements=measurements.size();
+        for(int i=0;i<numMeasurements;i++){
+          Measurement m=measurements.get(i);
+          if(m.getValue()!=null){return true;}
+        }
+      }
+      return false;
+    }
+    
+    public boolean hasMeasurement(String type){
+      if((measurements!=null)&&(measurements.size()>0)){
+        int numMeasurements=measurements.size();
+        for(int i=0;i<numMeasurements;i++){
+          Measurement m=measurements.get(i);
+          if((m.getValue()!=null)&&(m.getType().equals(type))){return true;}
+        }
+      }
+      return false;
+    }
+    
+    public boolean hasBiologicalMeasurement(String type){
+      if((tissueSamples!=null)&&(tissueSamples.size()>0)){  
+        int numTissueSamples=tissueSamples.size();
+        for(int i=0;i<numTissueSamples;i++){
+          TissueSample ts=tissueSamples.get(i);
+          if(ts.getBiologicalMeasurement(type)!=null){
+            BiologicalMeasurement bm=ts.getBiologicalMeasurement(type);
+            if(bm.getValue()!=null){return true;}
+          }
+        }
+      }
+      return false;
+    }
+    
+    
+    
+    /**
+     * Returns the first measurement of the specified type
+     * @param type
+     * @return
+     */
+    public Measurement getMeasurement(String type){
+      if((measurements!=null)&&(measurements.size()>0)){
+        int numMeasurements=measurements.size();
+        for(int i=0;i<numMeasurements;i++){
+          Measurement m=measurements.get(i);
+          if((m.getValue()!=null)&&(m.getType().equals(type))){return m;}
+        }
+      }
+      return null;
+    }
+    
+    public BiologicalMeasurement getBiologicalMeasurement(String type){
+      
+      if(tissueSamples!=null){int numTissueSamples=tissueSamples.size();
+      for(int y=0;y<numTissueSamples;y++){
+        TissueSample ts=tissueSamples.get(y);
+        if((ts.getGeneticAnalyses()!=null)&&(ts.getGeneticAnalyses().size()>0)){
+          int numMeasurements=ts.getGeneticAnalyses().size();
+          for(int i=0;i<numMeasurements;i++){
+            GeneticAnalysis m=ts.getGeneticAnalyses().get(i);
+            if(m.getAnalysisType().equals("BiologicalMeasurement")){
+              BiologicalMeasurement f=(BiologicalMeasurement)m;
+              if((f.getMeasurementType().equals(type))&&(f.getValue()!=null)){return f;}
+            }
+          }
+        }
+      }
+      }
+
+      return null;
+    }
+    
     
 }
 

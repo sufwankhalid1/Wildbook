@@ -721,7 +721,33 @@ if(CommonConfiguration.showProperty("showLifestage")){
 </tr>
 <%
 }
+
+  pageContext.setAttribute("showMeasurement", CommonConfiguration.showMeasurements());
 %>
+<c:if test="${showMeasurement}">
+<%
+    pageContext.setAttribute("items", Util.findMeasurementDescs(langCode));
+%>
+<tr><td><strong><%=props.getProperty("measurements") %></strong></td></tr>
+<c:forEach items="${items}" var="item">
+<tr valign="top">
+<td>${item.label}
+<select name="measurement${item.type}(operator)">
+  <option value="gt">&gt;</option>
+  <option value="lt">&lt;</option>
+  <option value="eq">=</option>
+</select>
+<input name="measurement${item.type}(value)"/>(<c:out value="${item.unitsLabel})"/>
+</td>
+</tr>
+</c:forEach>
+</c:if>
+
+
+
+
+
+
                 <%
 	        if(CommonConfiguration.showProperty("showTaxonomy")){
 	        %>
@@ -881,20 +907,33 @@ if(CommonConfiguration.showProperty("showLifestage")){
     <h4 class="intro" style="background-color: #cccccc; padding:3px; border: 1px solid #000066; "><a
       href="javascript:animatedcollapse.toggle('genetics')" style="text-decoration:none"><img
       src="images/Black_Arrow_down.png" width="14" height="14" border="0" align="absmiddle"/> <font
-      color="#000000">Genetics filters</font></a></h4>
+      color="#000000">Biological samples and analyses filters</font></a></h4>
   </td>
 </tr>
 
 <tr>
   <td>
     <div id="genetics" style="display:none; ">
-      <p>Use the fields below to limit your search to encounters with available genetic data.</p>
+      <p>Use the fields below to limit your search to marked individuals with available biological samples and resulting analyses.</p>
       
+  <br /><p><em><%=props.getProperty("fastOptions") %></em></p>
       <p><strong><%=props.getProperty("hasTissueSample")%>: </strong>
             <label> 
             	<input name="hasTissueSample" type="checkbox" id="hasTissueSample" value="hasTissueSample" />
             </label>
       </p>
+            <p><strong><%=props.getProperty("hasHaplotype")%>: </strong>
+            <label> 
+            	<input name="hasHaplotype" type="checkbox" id="hasHaplotype" value="hasHaplotype" />
+            </label>
+      </p>
+            </p>
+            <p><strong><%=props.getProperty("hasMSMarkers")%>: </strong>
+            <label> 
+            	<input name="hasMSMarkers" type="checkbox" id="hasMSMarkers" value="hasMSMarkers" />
+            </label>
+      </p>
+<br /><p><em><%=props.getProperty("slowOptions") %></em></p>
       
 
       <p><strong><%=props.getProperty("haplotype")%>:</strong> <span class="para"><a
@@ -935,6 +974,7 @@ if(CommonConfiguration.showProperty("showLifestage")){
         }
       %>
 
+
   <p><strong><%=props.getProperty("geneticSex")%>:</strong> <span class="para">
       <a href="<%=CommonConfiguration.getWikiLocation()%>geneticSex"
         target="_blank"><img src="images/information_icon_svg.gif"
@@ -972,7 +1012,25 @@ if(CommonConfiguration.showProperty("showLifestage")){
         }
       %>
       
-
+<%
+    pageContext.setAttribute("items", Util.findBiologicalMeasurementDescs(langCode));
+%>
+<table><tr><td></td></tr>
+<tr><td><strong><%=props.getProperty("biomeasurements") %></strong></td></tr>
+<c:forEach items="${items}" var="item">
+<tr valign="top">
+<td>${item.label}
+<select name="biomeasurement${item.type}(operator)">
+  <option value="gt">&gt;</option>
+  <option value="lt">&lt;</option>
+  <option value="eq">=</option>
+</select>
+<input name="biomeasurement${item.type}(value)"/>(<c:out value="${item.unitsLabel})"/>
+</td>
+</tr>
+</c:forEach>
+<tr><td></td></tr>
+</table>
    
       <p><strong><%=props.getProperty("msmarker")%>:</strong> 
       <span class="para">

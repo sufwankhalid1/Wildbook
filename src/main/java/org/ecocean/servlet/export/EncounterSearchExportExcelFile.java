@@ -13,7 +13,6 @@ import jxl.write.*;
 import jxl.Workbook;
 
 
-//adds spots to a new encounter
 public class EncounterSearchExportExcelFile extends HttpServlet{
   
   private static final int BYTES_DOWNLOAD = 1024;
@@ -50,9 +49,9 @@ public class EncounterSearchExportExcelFile extends HttpServlet{
     String rootWebappPath = getServletContext().getRealPath("/");
     File webappsDir = new File(rootWebappPath).getParentFile();
     File shepherdDataDir = new File(webappsDir, CommonConfiguration.getDataDirectoryName());
-    //if(!shepherdDataDir.exists()){shepherdDataDir.mkdir();}
+    if(!shepherdDataDir.exists()){shepherdDataDir.mkdir();}
     File encountersDir=new File(shepherdDataDir.getAbsolutePath()+"/encounters");
-    //if(!encountersDir.exists()){encountersDir.mkdir();}
+    if(!encountersDir.exists()){encountersDir.mkdir();}
     
     File excelFile = new File(encountersDir.getAbsolutePath()+"/"+ filename);
 

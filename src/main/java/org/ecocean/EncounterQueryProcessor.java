@@ -140,7 +140,7 @@ public class EncounterQueryProcessor {
             else{filter+=(" && "+locIDFilter);}
             prettyPrint.append("<br />");
     }
-    //end locationID filters-----------------------------------------------
+    //end state filters-----------------------------------------------
 
     
     
@@ -272,6 +272,8 @@ public class EncounterQueryProcessor {
             else{filter+=(" && "+stageFilter);}
             prettyPrint.append("<br />");
     }
+    
+    
     // Measurement filters-----------------------------------------------
     List<MeasurementDesc> measurementDescs = Util.findMeasurementDescs("us");
     String measurementPrefix = "measurement";
@@ -310,8 +312,8 @@ public class EncounterQueryProcessor {
             }
             String measurementVar = "measurement" + measurementsInQuery++;
             measurementFilter.append("(measurements.contains(" + measurementVar + ") && ");
-            measurementFilter.append( measurementVar + ".value " + operator + " " + value);
-            measurementFilter.append(" && " + measurementVar + ".type == ");
+            measurementFilter.append( "("+measurementVar + ".value " + operator + " " + value+")");
+            measurementFilter.append(" && (" + measurementVar + ".type == ");
             measurementFilter.append("\"" + measurementDesc.getType() + "\")");
             atLeastOneMeasurement = true;
           }
@@ -339,8 +341,82 @@ public class EncounterQueryProcessor {
       }
     }
     // end measurement filters
-    //end behavior filters-----------------------------------------------
 
+
+    // BiologicalMeasurement filters-----------------------------------------------
+    List<MeasurementDesc> bioMeasurementDescs = Util.findBiologicalMeasurementDescs("us");
+    String bioMeasurementPrefix = "biomeasurement";
+    StringBuilder bioMeasurementFilter = new StringBuilder();
+    bioMeasurementFilter.append("tissueSamples.contains(dce322) ");
+    boolean bioAtLeastOneMeasurement = false;
+    int bioMeasurementsInQuery = 0;
+    
+    
+    for (MeasurementDesc measurementDesc : bioMeasurementDescs) {
+      String valueParamName= bioMeasurementPrefix + measurementDesc.getType() + "(value)";
+      String value = request.getParameter(valueParamName);
+      if (value != null) {
+        value = value.trim();
+        if ( value.length() > 0) {
+          String operatorParamName = bioMeasurementPrefix + measurementDesc.getType() + "(operator)";
+          String operatorParamValue = request.getParameter(operatorParamName);
+          if (operatorParamValue == null) {
+            operatorParamValue = "";
+          }
+          String operator = null;
+          if ("gt".equals(operatorParamValue)) {
+            operator = ">";
+          }
+          else if ( "lt".equals(operatorParamValue)) {
+            operator = "<";
+          }
+          else if ("eq".equals(operatorParamValue)) {
+            operator = "==";
+          }
+          if (operator != null) {
+            prettyPrint.append("Biological/chemical measurement "+measurementDesc.getType());
+            prettyPrint.append(" is ");
+            prettyPrint.append(operator);
+            prettyPrint.append(value);
+            prettyPrint.append("<br/>");
+            if (bioAtLeastOneMeasurement) {
+              bioMeasurementFilter.append("&&");
+            }
+            String measurementVar = "biomeasurement" + bioMeasurementsInQuery++;
+            bioMeasurementFilter.append(" & dce322.analyses.contains(" + measurementVar + ")  ");
+            bioMeasurementFilter.append( " && ( "+measurementVar + ".value " + operator + " " + value+" )");
+            bioMeasurementFilter.append(" && ( " + measurementVar + ".measurementType == ");
+            bioMeasurementFilter.append("\"" + measurementDesc.getType() + "\" )");
+            bioAtLeastOneMeasurement = true;
+          }
+        }
+      }
+    }
+    
+    
+    if (bioAtLeastOneMeasurement) {
+      if(jdoqlVariableDeclaration.length() > 0){
+        jdoqlVariableDeclaration += ";org.ecocean.genetics.TissueSample dce322;";
+      }
+      else {
+        jdoqlVariableDeclaration=" VARIABLES org.ecocean.genetics.TissueSample dce322;";
+      }
+      
+
+      for (int i = 0; i < bioMeasurementsInQuery; i++) {
+        if (i > 0) {
+          jdoqlVariableDeclaration += "; ";
+        }
+        jdoqlVariableDeclaration += "org.ecocean.genetics.BiologicalMeasurement biomeasurement" + i;
+      }
+      if(filter.equals(SELECT_FROM_ORG_ECOCEAN_ENCOUNTER_WHERE)){
+        filter+= bioMeasurementFilter.toString();
+      }
+      else{
+        filter+=(" && "+ bioMeasurementFilter.toString());
+      }
+    }
+    // end BiologicalMeasurement filters
 
 
 
@@ -464,7 +540,7 @@ public class EncounterQueryProcessor {
             if(request.getParameter(marker)!=null){
               hasMarkers=true;
               String locIDFilter="(";
-              locIDFilter+=" "+marker+".name == \""+marker+"\" ";
+              locIDFilter+=" "+marker.replaceAll("-", "")+".name == \""+marker+"\" ";
               locIDFilter+=" )";
 
               
@@ -478,7 +554,7 @@ public class EncounterQueryProcessor {
                     Integer relaxValue=new Integer(request.getParameter("alleleRelaxValue"));
                     Integer upperValue=thisInt+relaxValue;
                     Integer lowerValue=thisInt-relaxValue;
-                    locIDFilter+=(" && ("+marker+".allele"+alleleNum+" >= "+lowerValue+")"+" && ("+marker+".allele"+alleleNum+" <= "+upperValue+")");
+                    locIDFilter+=(" && ("+marker.replaceAll("-", "")+".allele"+alleleNum+" >= "+lowerValue+")"+" && ("+marker.replaceAll("-", "")+".allele"+alleleNum+" <= "+upperValue+")");
                     
                   }
                   catch(Exception e){
@@ -495,21 +571,21 @@ public class EncounterQueryProcessor {
               theseMarkers+=(marker+" ");
             
         
-              if(filter.equals(SELECT_FROM_ORG_ECOCEAN_ENCOUNTER_WHERE)){filter+="tissueSamples.contains(dce) && dce.analyses.contains(msanalysis) && msanalysis.loci.contains("+marker+") && "+locIDFilter;}
+              if(filter.equals(SELECT_FROM_ORG_ECOCEAN_ENCOUNTER_WHERE)){filter+="tissueSamples.contains(dce) && dce.analyses.contains(msanalysis) && msanalysis.loci.contains("+marker.replaceAll("-", "")+") && "+locIDFilter;}
               else{
                 if(filter.indexOf("tissueSamples.contains(dce)")==-1){filter+=" && tissueSamples.contains(dce)";}
                 if(filter.indexOf("dce.analyses.contains(msanalysis)")==-1){filter+=" && dce.analyses.contains(msanalysis)";}
-                if(filter.indexOf("msanalysis.loci.contains("+marker+")")==-1){filter+=" && msanalysis.loci.contains("+marker+")";}
+                if(filter.indexOf("msanalysis.loci.contains("+marker.replaceAll("-", "")+")")==-1){filter+=" && msanalysis.loci.contains("+marker.replaceAll("-", "")+")";}
               
                 filter+=(" && "+locIDFilter);
               }
 
             
-              if(jdoqlVariableDeclaration.equals("")){jdoqlVariableDeclaration=" VARIABLES org.ecocean.genetics.TissueSample dce;org.ecocean.genetics.MicrosatelliteMarkersAnalysis msanalysis;org.ecocean.genetics.Locus "+marker;}
+              if(jdoqlVariableDeclaration.equals("")){jdoqlVariableDeclaration=" VARIABLES org.ecocean.genetics.TissueSample dce;org.ecocean.genetics.MicrosatelliteMarkersAnalysis msanalysis;org.ecocean.genetics.Locus "+marker.replaceAll("-", "");}
               else{ 
                 if(!jdoqlVariableDeclaration.contains("org.ecocean.genetics.TissueSample dce")){jdoqlVariableDeclaration+=";org.ecocean.genetics.TissueSample dce";}
                 if(!jdoqlVariableDeclaration.contains("org.ecocean.genetics.MicrosatelliteMarkersAnalysis msanalysis")){jdoqlVariableDeclaration+=";org.ecocean.genetics.MicrosatelliteMarkersAnalysis msanalysis";}
-                if(!jdoqlVariableDeclaration.contains("org.ecocean.genetics.Locus "+marker)){jdoqlVariableDeclaration+=";org.ecocean.genetics.Locus "+marker;}
+                if(!jdoqlVariableDeclaration.contains("org.ecocean.genetics.Locus "+marker.replaceAll("-", ""))){jdoqlVariableDeclaration+=";org.ecocean.genetics.Locus "+marker.replaceAll("-", "");}
               
               }
             }
@@ -974,7 +1050,7 @@ This code is no longer necessary with Charles Overbeck's new multi-measurement f
 
 
 
-    System.out.println("Final filter: "+filter);
+    //System.out.println("Final filter: "+filter);
     //allEncounters=myShepherd.getAllEncountersNoQuery();
 
     if(allEncounters!=null){

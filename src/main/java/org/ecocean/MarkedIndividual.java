@@ -19,8 +19,9 @@
 
 package org.ecocean;
 
+import java.io.IOException;
 import java.util.*;
-import java.util.GregorianCalendar;
+
 import org.ecocean.genetics.*;
 
 /**
@@ -33,7 +34,7 @@ import org.ecocean.genetics.*;
  * @version 2.0
  * @see Encounter, Shepherd
  */
-public class MarkedIndividual {
+public class MarkedIndividual implements java.io.Serializable {
 
   //unique name of the MarkedIndividual, such as 'A-109'
   private String individualID = "";
@@ -153,14 +154,32 @@ public class MarkedIndividual {
     return unidentifiableEncounters.size();
   }
 
-  public Vector returnEncountersWithGPSData() {
-    if(unidentifiableEncounters==null) {unidentifiableEncounters=new Vector();}
+  public Vector returnEncountersWithGPSData(){
+    return returnEncountersWithGPSData(false,false);
+  }
+  public Vector returnEncountersWithGPSData(boolean useLocales, boolean reverseOrder) {
+    //if(unidentifiableEncounters==null) {unidentifiableEncounters=new Vector();}
     Vector haveData=new Vector();
-    for(int c=0;c<encounters.size();c++) {
-      Encounter temp=(Encounter)encounters.get(c);
+    Encounter[] myEncs=getDateSortedEncounters(reverseOrder);
+    
+    Properties localesProps = new Properties();
+    if(useLocales){
+      try {
+        localesProps.load(ShepherdPMF.class.getResourceAsStream("/bundles/locales.properties"));
+      } 
+      catch (Exception ioe) {
+        ioe.printStackTrace();
+      }
+    }
+    
+    for(int c=0;c<myEncs.length;c++) {
+      Encounter temp=myEncs[c];
       if((temp.getDWCDecimalLatitude()!=null)&&(temp.getDWCDecimalLongitude()!=null)) {
         haveData.add(temp);
-        }
+      }
+      else if(useLocales && (temp.getLocationID()!=null) && (localesProps.getProperty(temp.getLocationID())!=null)){
+        haveData.add(temp); 
+      }
 
       }
 
@@ -217,6 +236,11 @@ public class MarkedIndividual {
     return false;
   }
 
+  /**
+   * 
+   * 
+   * @deprecated
+   */
   public double averageLengthInYear(int year) {
     int numLengths = 0;
     double total = 0;
@@ -233,7 +257,13 @@ public class MarkedIndividual {
     }
     return avg;
   }
-
+  
+  
+  /**
+   * 
+   * 
+   * @deprecated
+   */
   public double averageMeasuredLengthInYear(int year, boolean allowGuideGuess) {
     int numLengths = 0;
     double total = 0;
@@ -452,36 +482,33 @@ public class MarkedIndividual {
     return encounters;
   }
 
-  //sorted with the most recent first
-  public Encounter[] getDateSortedEncounters(boolean includeLogEncounters) {
-    //System.out.println("Starting getDateSortedEncounters");
+    //you can choose the order of the EncounterDateComparator
+    public Encounter[] getDateSortedEncounters(boolean reverse) {
     Vector final_encs = new Vector();
     for (int c = 0; c < encounters.size(); c++) {
       Encounter temp = (Encounter) encounters.get(c);
       final_encs.add(temp);
     }
-    //System.out.println(".....added encounters...");
-    if (includeLogEncounters) {
-      int numLogs = unidentifiableEncounters.size();
-      for (int c = 0; c < numLogs; c++) {
-        Encounter temp = (Encounter) unidentifiableEncounters.get(c);
-        final_encs.add(temp);
-      }
-      //System.out.println(".....added log encounters...");
-    }
+
     int finalNum = final_encs.size();
     Encounter[] encs2 = new Encounter[finalNum];
-    //System.out.println(".....allocated array");
     for (int q = 0; q < finalNum; q++) {
       encs2[q] = (Encounter) final_encs.get(q);
     }
-    //System.out.println(".....assigned values to array...");
-
-    EncounterDateComparator dc = new EncounterDateComparator();
+    EncounterDateComparator dc = new EncounterDateComparator(reverse);
     Arrays.sort(encs2, dc);
-    //System.out.println(".....done sort...");
     return encs2;
   }
+  
+  //sorted with the most recent first
+  public Encounter[] getDateSortedEncounters() {return getDateSortedEncounters(false);}
+  
+  
+  //preserved for legacy purposes
+ /** public Encounter[] getDateSortedEncounters(boolean includeLogEncounters) {
+    return getDateSortedEncounters();
+  }
+  */
 
   public Vector getUnidentifiableEncounters() {
     if (unidentifiableEncounters == null) {
@@ -615,7 +642,9 @@ public class MarkedIndividual {
     int lowestYear = 5000;
     for (int c = 0; c < encounters.size(); c++) {
       Encounter temp = (Encounter) encounters.get(c);
-      if (temp.getYear() < lowestYear) lowestYear = temp.getYear();
+      if ((temp.getYear() < lowestYear)&&(temp.getYear()>-1)){ 
+        lowestYear = temp.getYear();
+      }
     }
     return lowestYear;
   }
@@ -737,6 +766,11 @@ public class MarkedIndividual {
 
 
   //months 1-12, days, 1-31
+  /**
+   * 
+   * 
+   * @deprecated
+   */
   public double avgLengthInPeriod(int m_startYear, int m_startMonth, int m_endYear, int m_endMonth) {
 
     double avgLength = 0;
@@ -790,6 +824,134 @@ public class MarkedIndividual {
       return (avgLength / numMeasurements);
     } else {
       return 0.0;
+    }
+  }
+  
+  public Double getAverageMeasurementInPeriod(int m_startYear, int m_startMonth, int m_endYear, int m_endMonth, String measurementType) {
+
+    double avgMeasurement = 0;
+    int numMeasurements = 0;
+    int endYear = m_endYear;
+    int endMonth = m_endMonth;
+    int startYear = m_startYear;
+    int startMonth = m_startMonth;
+
+    //test that start and end dates are not reversed
+    if (endYear < startYear) {
+      endYear = m_startYear;
+      endMonth = m_startMonth;
+      startYear = m_endYear;
+      startMonth = m_endMonth;
+    } else if ((endYear == startYear) && (endMonth < startMonth)) {
+      endYear = m_startYear;
+      endMonth = m_startMonth;
+      startYear = m_endYear;
+      startMonth = m_endMonth;
+    }
+
+    for (int c = 0; c < encounters.size(); c++) {
+      Encounter temp = (Encounter) encounters.get(c);
+      if(temp.hasMeasurement(measurementType)){
+        List<Measurement> measures=temp.getMeasurements();
+        if ((temp.getYear() > startYear) && (temp.getYear() < endYear)) {
+          if (temp.getMeasurement(measurementType)!=null) {
+            avgMeasurement += temp.getMeasurement(measurementType).getValue();
+            numMeasurements++;
+          }
+        } 
+        else if ((temp.getYear() == startYear) && (temp.getYear() < endYear) && (temp.getMonth() >= startMonth)) {
+          if (temp.getMeasurement(measurementType)!=null){
+            avgMeasurement += temp.getMeasurement(measurementType).getValue();
+            numMeasurements++;
+          }
+        } 
+        else if ((temp.getYear() > startYear) && (temp.getYear() == endYear) && (temp.getMonth() <= endMonth)) {
+          if (temp.getMeasurement(measurementType)!=null) {
+            avgMeasurement += temp.getMeasurement(measurementType).getValue();
+            numMeasurements++;
+          }
+        } 
+        else if ((temp.getYear() >= startYear) && (temp.getYear() <= endYear) && (temp.getMonth() >= startMonth) && (temp.getMonth() <= endMonth)) {
+          if (temp.getMeasurement(measurementType)!=null) {
+            avgMeasurement += temp.getMeasurement(measurementType).getValue();
+            numMeasurements++;
+          }
+        } 
+      }
+    }
+    if (numMeasurements > 0) {
+      return (new Double(avgMeasurement / numMeasurements));
+    } 
+    else {
+      return null;
+    }
+  }
+  
+  public Double getAverageBiologicalMeasurementInPeriod(int m_startYear, int m_startMonth, int m_endYear, int m_endMonth, String measurementType) {
+
+    double avgMeasurement = 0;
+    int numMeasurements = 0;
+    int endYear = m_endYear;
+    int endMonth = m_endMonth;
+    int startYear = m_startYear;
+    int startMonth = m_startMonth;
+
+    //test that start and end dates are not reversed
+    if (endYear < startYear) {
+      endYear = m_startYear;
+      endMonth = m_startMonth;
+      startYear = m_endYear;
+      startMonth = m_endMonth;
+    } else if ((endYear == startYear) && (endMonth < startMonth)) {
+      endYear = m_startYear;
+      endMonth = m_startMonth;
+      startYear = m_endYear;
+      startMonth = m_endMonth;
+    }
+
+    for (int c = 0; c < encounters.size(); c++) {
+      Encounter enc = (Encounter) encounters.get(c);
+      if((enc.getTissueSamples()!=null)&&(enc.getTissueSamples().size()>0)){
+        List<TissueSample> samples=enc.getTissueSamples();
+        int numTissueSamples=samples.size();
+        for(int h=0;h<numTissueSamples;h++){
+          TissueSample temp=samples.get(h);
+
+          if(temp.hasMeasurement(measurementType)){
+            List<BiologicalMeasurement> measures=temp.getBiologicalMeasurements();
+            if ((enc.getYear() > startYear) && (enc.getYear() < endYear)) {
+              if (temp.getBiologicalMeasurement(measurementType)!=null) {
+                avgMeasurement += temp.getBiologicalMeasurement(measurementType).getValue();
+                numMeasurements++;
+              }
+            } 
+            else if ((enc.getYear() == startYear) && (enc.getYear() < endYear) && (enc.getMonth() >= startMonth)) {
+              if (temp.getBiologicalMeasurement(measurementType)!=null){
+                avgMeasurement += temp.getBiologicalMeasurement(measurementType).getValue();
+                numMeasurements++;
+              }
+            } 
+            else if ((enc.getYear() > startYear) && (enc.getYear() == endYear) && (enc.getMonth() <= endMonth)) {
+              if (temp.getBiologicalMeasurement(measurementType)!=null) {
+                avgMeasurement += temp.getBiologicalMeasurement(measurementType).getValue();
+                numMeasurements++;
+              }
+            } 
+            else if ((enc.getYear() >= startYear) && (enc.getYear() <= endYear) && (enc.getMonth() >= startMonth) && (enc.getMonth() <= endMonth)) {
+              if (temp.getBiologicalMeasurement(measurementType)!=null) {
+                avgMeasurement += temp.getBiologicalMeasurement(measurementType).getValue();
+                numMeasurements++;
+              }
+            } 
+          }
+        }
+      }
+    }
+    if (numMeasurements > 0) {
+      return (new Double(avgMeasurement / numMeasurements));
+    } 
+    else {
+      return null;
     }
   }
 
@@ -931,9 +1093,26 @@ public class MarkedIndividual {
     int numEncounters = encounters.size();
     for (int i = 0; i < numEncounters; i++) {
       Encounter enc = (Encounter) encounters.get(i);
-      List<TissueSample> list = enc.getTissueSamples();
-      if((list!=null)&&(list.size()>0)){
-        al.addAll(list);
+      if(enc.getTissueSamples()!=null){
+        List<TissueSample> list = enc.getTissueSamples();
+        if(list.size()>0){
+          al.addAll(list);
+        }
+      }
+    }
+    return al;
+  }
+  
+  public ArrayList<SinglePhotoVideo> getAllSinglePhotoVideo() {
+    ArrayList<SinglePhotoVideo> al = new ArrayList<SinglePhotoVideo>();
+    int numEncounters = encounters.size();
+    for (int i = 0; i < numEncounters; i++) {
+      Encounter enc = (Encounter) encounters.get(i);
+      if(enc.getSinglePhotoVideo()!=null){
+        List<SinglePhotoVideo> list = enc.getSinglePhotoVideo();
+        if(list.size()>0){
+          al.addAll(list);
+        }
       }
     }
     return al;
@@ -984,7 +1163,7 @@ public class MarkedIndividual {
     int highestYear=0;
     for(int c=0;c<encounters.size();c++) {
       Encounter temp=(Encounter)encounters.get(c);
-      if(temp.getYear()<lowestYear) lowestYear=temp.getYear();
+      if((temp.getYear()<lowestYear)&&(temp.getYear()>-1)) lowestYear=temp.getYear();
       if(temp.getYear()>highestYear) highestYear=temp.getYear();
       maxYears=highestYear-lowestYear;
       }
@@ -1050,6 +1229,121 @@ public String getHaplotype(){
     return null;
 
 }
+
+public boolean hasLocusAndAllele(String locus, Integer alleleValue){
+  ArrayList<TissueSample> samples=getAllTissueSamples();
+  int numSamples=samples.size();
+  for(int i=0;i<numSamples;i++){
+      TissueSample sample=samples.get(i);
+      if(sample.getGeneticAnalyses()!=null){
+        List<GeneticAnalysis> analyses=sample.getGeneticAnalyses();
+        int numAnalyses=analyses.size();
+        for(int e=0;e<numAnalyses;e++){
+          GeneticAnalysis ga=analyses.get(e);
+          if(ga.getAnalysisType().equals("MicrosatelliteMarkers")){
+            MicrosatelliteMarkersAnalysis msa=(MicrosatelliteMarkersAnalysis)ga;
+            if(msa.getLocus(locus)!=null){
+               Locus l=msa.getLocus(locus);
+               if(l.hasAllele(alleleValue)){return true;}
+            }
+          }
+        }
+      }
+  }
+  return false;
+}
+
+public ArrayList<Integer> getAlleleValuesForLocus(String locus){
+  ArrayList<Integer> matchingValues=new ArrayList<Integer>();
+  ArrayList<TissueSample> samples=getAllTissueSamples();
+  int numSamples=samples.size();
+  for(int i=0;i<numSamples;i++){
+      TissueSample sample=samples.get(i);
+      if(sample.getGeneticAnalyses()!=null){
+        List<GeneticAnalysis> analyses=sample.getGeneticAnalyses();
+        int numAnalyses=analyses.size();
+        for(int e=0;e<numAnalyses;e++){
+          GeneticAnalysis ga=analyses.get(e);
+          if(ga.getAnalysisType().equals("MicrosatelliteMarkers")){
+            MicrosatelliteMarkersAnalysis msa=(MicrosatelliteMarkersAnalysis)ga;
+            if(msa.getLocus(locus)!=null){
+               Locus l=msa.getLocus(locus);
+               if((l.getAllele0()!=null)&&(!matchingValues.contains(l.getAllele0()))){matchingValues.add(l.getAllele0());}
+               if((l.getAllele1()!=null)&&(!matchingValues.contains(l.getAllele1()))){matchingValues.add(l.getAllele1());}
+               if((l.getAllele2()!=null)&&(!matchingValues.contains(l.getAllele2()))){matchingValues.add(l.getAllele2());}
+               if((l.getAllele3()!=null)&&(!matchingValues.contains(l.getAllele3()))){matchingValues.add(l.getAllele3());}
+            }
+          }
+        }
+      }
+  }
+  return matchingValues;
+}
+
+public boolean hasLocus(String locus){
+  ArrayList<TissueSample> samples=getAllTissueSamples();
+  int numSamples=samples.size();
+  for(int i=0;i<numSamples;i++){
+      TissueSample sample=samples.get(i);
+      if(sample.getGeneticAnalyses()!=null){
+        List<GeneticAnalysis> analyses=sample.getGeneticAnalyses();
+        int numAnalyses=analyses.size();
+        for(int e=0;e<numAnalyses;e++){
+          GeneticAnalysis ga=analyses.get(e);
+          if(ga.getAnalysisType().equals("MicrosatelliteMarkers")){
+            MicrosatelliteMarkersAnalysis msa=(MicrosatelliteMarkersAnalysis)ga;
+            if(msa.getLocus(locus)!=null){
+               return true;
+            }
+          }
+        }
+      }
+  }
+  return false;
+}
+
+
+
+
+
+public boolean hasMsMarkers(){
+  ArrayList<TissueSample> samples=getAllTissueSamples();
+  int numSamples=samples.size();
+  for(int i=0;i<numSamples;i++){
+      TissueSample sample=samples.get(i);
+      if(sample.getGeneticAnalyses()!=null){
+        List<GeneticAnalysis> analyses=sample.getGeneticAnalyses();
+        int numAnalyses=analyses.size();
+        for(int e=0;e<numAnalyses;e++){
+          GeneticAnalysis ga=analyses.get(e);
+          if(ga.getAnalysisType().equals("MicrosatelliteMarkers")){
+            return true;
+          }
+        }
+      }
+  }
+  return false;
+}
+
+public boolean hasGeneticSex(){
+  ArrayList<TissueSample> samples=getAllTissueSamples();
+  int numSamples=samples.size();
+  for(int i=0;i<numSamples;i++){
+      TissueSample sample=samples.get(i);
+      if(sample.getGeneticAnalyses()!=null){
+        List<GeneticAnalysis> analyses=sample.getGeneticAnalyses();
+        int numAnalyses=analyses.size();
+        for(int e=0;e<numAnalyses;e++){
+          GeneticAnalysis ga=analyses.get(e);
+          if(ga.getAnalysisType().equals("SexAnalysis")){
+            return true;
+          }
+        }
+      }
+  }
+  return false;
+}
+
 
 /**
 *Obtains the email addresses of all submitters, photographs, and others to notify.
@@ -1170,8 +1464,11 @@ public Float getMaxDistanceBetweenTwoSightings(){
     for(int z=(y+1);z<numEncs;z++){
       Encounter nextEnc=(Encounter)encounters.get(z);
       if((nextEnc.getLatitudeAsDouble()!=null)&&(thisEnc.getLongitudeAsDouble()!=null)){
-        Float tempMaxDistance=distFrom(new Float(thisEnc.getLatitudeAsDouble()), new Float(thisEnc.getLongitudeAsDouble()), new Float(nextEnc.getLatitudeAsDouble()), new Float(nextEnc.getLongitudeAsDouble()));
-        if(tempMaxDistance>maxDistance){maxDistance=tempMaxDistance;}
+        try{
+          Float tempMaxDistance=distFrom(new Float(thisEnc.getLatitudeAsDouble()), new Float(thisEnc.getLongitudeAsDouble()), new Float(nextEnc.getLatitudeAsDouble()), new Float(nextEnc.getLongitudeAsDouble()));
+          if(tempMaxDistance>maxDistance){maxDistance=tempMaxDistance;}
+        }
+        catch(Exception e){e.printStackTrace();System.out.println("Hit an NPE when calculating distance between: "+thisEnc.getCatalogNumber()+" and "+nextEnc.getCatalogNumber());}
       }
     }
   }
