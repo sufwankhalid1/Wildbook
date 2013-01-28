@@ -117,17 +117,17 @@
 
         <div id="maintext">
           <h1 class="intro">Overview</h1>
-		<p class="caption"><em>Strandings of Oceania</em> is a web site for documenting strandings of whales and dolphins in nations and territories of the Secretariat of the Pacific Regional Environment Programme (SPREP).</p>
+		<p class="caption"><em>Strandings of Oceania</em> is a web site for documenting strandings of whales and dolphins in nations and territories of the <a href="http://www.sprep.org/">Secretariat of the Pacific Regional Environment Programme (SPREP)</a>.</p>
 
           <p class="caption">Stranded whales and dolphins are a valuable source of information on species identity and diversity, particularly for many of the remote and inaccessible regions of the South Pacific. While most strandings are likely the result of natural causes, an apparent increase over the last few decades has been attributed to human activity, such as acoustic disturbance from naval sonar and oil exploration, or environmental change, including increasing pollutant loads or susceptibility to diseases.</p>
         </div>
 
-<p class="caption">Here we provide a website to improve the documentation of whale and dolphin strandings among nations and territories of the Secretariat of the Pacific Regional Environment Programme (SPREP). The website will provide for a user-submitted form for a stranding event by anyone with access to the Internet, including members of the public, government agents and representatives of non-governmental organization. The intent is to augment the recording of stranding in nations that have established databases, such as Independent Samoa, and to provide a standardized reporting system for many nations that do not. Each stranding submission will be reviewed by members of the South Pacific Whale Research Consortium and an annual summary of the stranding records will be provided to SPREP through an existing Memorandum of Understanding. We expect that the availability of a public, searchable website will encourage greater awareness of cetacean strandings in Pacific Island nations, as well as contributing to an improved understanding of biodiversity.</p>
+<p class="caption">Here we provide a website to improve the documentation of whale and dolphin strandings among nations and territories of the <a href="http://www.sprep.org/">Secretariat of the Pacific Regional Environment Programme (SPREP)</a>. The website will provide for a user-submitted form for a stranding event by anyone with access to the Internet, including members of the public, government agents and representatives of non-governmental organization. The intent is to augment the recording of stranding in nations that have established databases, such as Independent Samoa, and to provide a standardized reporting system for many nations that do not. Each stranding submission will be reviewed by members of the <a href="http://www.whaleresearch.org/projects/spwrc.php">South Pacific Whale Research Consortium</a> and an annual summary of the stranding records will be provided to <a href="http://www.sprep.org/">SPREP</a> through an existing Memorandum of Understanding. We expect that the availability of a public, searchable website will encourage greater awareness of cetacean strandings in Pacific Island nations, as well as contributing to an improved understanding of biodiversity.</p>
 
         <div id="context">
           <h1 class="intro">Data Review and Species Identification</h1>
 
-          <p class="caption">The <em>Strandings of Oceania</em> website will reviewed and species identification will be confirmed (if possible) by members of the South Pacific Whale Research Consortium in consultation with members of the Society for Marine Mammalogy, Committee for Taxonomy.</p>
+          <p class="caption">The <em>Strandings of Oceania</em> website will reviewed and species identification will be confirmed (if possible) by members of the <a href="http://www.whaleresearch.org/projects/spwrc.php">South Pacific Whale Research Consortium</a> in consultation with members of the Society for Marine Mammalogy, Committee for Taxonomy.</p>
 
 <p class="caption">[Claire Garrigue, Marc Oremus, Nan Hauser, Michael Poole, Juney Ward, Scott Baker, Anton van Helden, Rochelle Constantine, Phil Clapham, Mike Noad, Dave Paton]</p>
 </div>
@@ -159,8 +159,8 @@
 	          
 	          <table border="0">
 	          <tr>
-	          <td><img src="images/sprep_logo.png"/></td>
-	          <td><img src="images/spwrc_logo.png" width="200px" height="*" /></td>
+	          <td><a border="0" href="http://www.sprep.org/"><img src="images/sprep_logo.png"/></a></td>
+	          <td><a href="http://www.whaleresearch.org/projects/spwrc.php"><img src="images/spwrc_logo.png" width="200px" height="*" /></a></td>
 	          </tr>
 	          <tr>
 	          <td colspan="2"><img src="images/pew_fellows_marine_logo.png" />
