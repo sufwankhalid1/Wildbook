@@ -111,69 +111,72 @@
       <jsp:param name="isAdmin" value="<%=request.isUserInRole(\"admin\")%>" />
     </jsp:include>
     <div id="main">
-      <div id="leftcol">
-        <div id="menu">
-          <%
-            //check what language is requested
-            if (request.getParameter("langCode") != null) {
-              if (request.getParameter("langCode").equals("fr")) {
-                langCode = "fr";
-              }
-              if (request.getParameter("langCode").equals("de")) {
-                langCode = "de";
-              }
-              if (request.getParameter("langCode").equals("es")) {
-                langCode = "es";
-              }
-            }
-          %>
+      
+      <div id="maincol" style="width: 600px">
 
-
-          <div class="module">
-            <h3>Latest News</h3>
-            <span class="caption">Add your news items here... </span><span class="caption"><br/>
-</span> <br/>
-          </div>
-
-          <div class="module">
-            <h3>Data Sharing</h3>
-            <span class="caption">If you are sharing data, this is a great place to let others know about it... </span>
-            <br/>
-          </div>
-
-        </div>
-        <!-- end menu --></div>
-      <!-- end leftcol -->
-      <div id="maincol">
 
         <div id="maintext">
           <h1 class="intro">Overview</h1>
+		<p class="caption"><em>Strandings of Oceania</em> is a web site for documenting strandings of whales and dolphins in nations and territories of the Secretariat of the Pacific Regional Environment Programme (SPREP).</p>
 
-          <p class="caption">This is a great place to present an overview description of this
-            mark-recapture project and library...</p>
-          <br/>
+          <p class="caption">Stranded whales and dolphins are a valuable source of information on species identity and diversity, particularly for many of the remote and inaccessible regions of the South Pacific. While most strandings are likely the result of natural causes, an apparent increase over the last few decades has been attributed to human activity, such as acoustic disturbance from naval sonar and oil exploration, or environmental change, including increasing pollutant loads or susceptibility to diseases.</p>
         </div>
 
-        <div>
-          <h1 class="intro">Data Contributors</h1>
-
-          <p class="caption">A great optional area to discuss who is contributing data to this
-            library...</p>
-        </div>
+<p class="caption">Here we provide a website to improve the documentation of whale and dolphin strandings among nations and territories of the Secretariat of the Pacific Regional Environment Programme (SPREP). The website will provide for a user-submitted form for a stranding event by anyone with access to the Internet, including members of the public, government agents and representatives of non-governmental organization. The intent is to augment the recording of stranding in nations that have established databases, such as Independent Samoa, and to provide a standardized reporting system for many nations that do not. Each stranding submission will be reviewed by members of the South Pacific Whale Research Consortium and an annual summary of the stranding records will be provided to SPREP through an existing Memorandum of Understanding. We expect that the availability of a public, searchable website will encourage greater awareness of cetacean strandings in Pacific Island nations, as well as contributing to an improved understanding of biodiversity.</p>
 
         <div id="context">
-          <h1 class="intro">Contact us</h1>
+          <h1 class="intro">Data Review and Species Identification</h1>
 
-          <p class="caption">A great place to talk about who is running this mark-recapture
-            library...</p>
+          <p class="caption">The <em>Strandings of Oceania</em> website will reviewed and species identification will be confirmed (if possible) by members of the South Pacific Whale Research Consortium in consultation with members of the Society for Marine Mammalogy, Committee for Taxonomy.</p>
 
-          <p class="caption"><a href="contactus.jsp">Please contact us
-            with your questions.</a></p>
+<p class="caption">[Claire Garrigue, Marc Oremus, Nan Hauser, Michael Poole, Juney Ward, Scott Baker, Anton van Helden, Rochelle Constantine, Phil Clapham, Mike Noad, Dave Paton]</p>
+</div>
+
+<div>
+          <h1 class="intro">Molecular Taxonomy of Cetaceans</h1>
+          
+
+          <p class="caption">Further developments are planned to provide information on the collection and storage of tissue samples for genetic identification of stranded whales and dolphins using the web-based program, DNA-surveillance:
+<br /><br /><a href="http://www.dna-surveillance.auckland.ac.nz">http://www.dna-surveillance.auckland.ac.nz</a></p>
+</div>
+
+<div>
+
+<h1 class="intro">Contact Us</h1>
+
+          <p class="caption">For more information, please contact: <a href="mailto:scott.baker@oregonstate.edu">scott.baker@oregonstate.edu</a></p>
+
+
+
+
+        </div>
+        
+        <div>
+	
+	<h1 class="intro">Supporters</h1>
+	
+	          <p class="caption">
+	          
+	          <table border="0">
+	          <tr>
+	          <td><img src="images/sprep_logo.png"/></td>
+	          <td><img src="images/spwrc_logo.png" width="200px" height="*" /></td>
+	          </tr>
+	          <tr>
+	          <td colspan="2"><img src="images/pew_fellows_marine_logo.png" />
+	          </td>
+	          <tr>
+	          </table>
+	          
+	          
+	          </p>
+	
+	
+	
         </div>
 
 
-      </div>
-      <!-- end maincol -->
+      </div><!-- end maincol -->
       <div id="rightcol">
 
 
