@@ -505,6 +505,45 @@ function FSControl(controlDiv, map) {
       <%
         }
       %>
+      
+      
+      <%
+
+if(CommonConfiguration.showProperty("showCountry")){
+
+%>
+<p><strong><%=encprops.getProperty("country")%>:</strong>
+  
+  <select name="country" id="country">
+  	<option value="None" selected="selected"></option>
+  <%
+  			       boolean hasMoreCountries=true;
+  			       int stageNum=0;
+  			       
+  			       while(hasMoreCountries){
+  			       	  String currentCountry = "country"+stageNum;
+  			       	  if(CommonConfiguration.getProperty(currentCountry)!=null){
+  			       	  	%>
+  			       	  	 
+  			       	  	  <option value="<%=CommonConfiguration.getProperty(currentCountry)%>"><%=CommonConfiguration.getProperty(currentCountry)%></option>
+  			       	  	<%
+  			       		stageNum++;
+  			          }
+  			          else{
+  			        	hasMoreCountries=false;
+  			          }
+  			          
+			       }
+			       if(stageNum==0){%>
+			    	   <p><em><%=encprops.getProperty("noCountries")%></em></p>
+			       <% }
+			       
+ %>
+  </select></p>
+<%
+}
+%>
+      
     </div>
   </td>
 
@@ -809,12 +848,12 @@ function FSControl(controlDiv, map) {
 				if(totalBehavs>1){
 				%>
 
-            <select multiple name="behaviorField" id="behaviorField">
+            <select multiple name="behaviorField" id="behaviorField" style="width: 500px">
               <option value="None"></option>
               <%
                 for (int f = 0; f < totalBehavs; f++) {
                   String word = behavs.get(f);
-                  if (word != null) {
+                  if ((word != null)&&(!word.trim().equals(""))) {
               %>
               <option value="<%=word%>"><%=word%>
               </option>
@@ -981,9 +1020,9 @@ if(CommonConfiguration.showProperty("showLifestage")){
     <div id="identity" style="display:none; ">
       <p>Use the fields below to limit your search to marked individuals with the following
         properties.</p>
-      <input name="resightOnly" type="checkbox" id="resightOnly"
-             value="true"> <%=encprops.getProperty("include")%> <select
-      name="numResights" id="numResights">
+      <input name="resightOnly" type="checkbox" id="resightOnly" value="true" /> <%=encprops.getProperty("include")%> 
+   
+   <select name="numResights" id="numResights">
       <option value="1" selected>1</option>
       <option value="2">2</option>
       <option value="3">3</option>
@@ -1000,6 +1039,8 @@ if(CommonConfiguration.showProperty("showLifestage")){
       <option value="14">14</option>
       <option value="15">15</option>
     </select> <%=encprops.getProperty("times")%>
+
+<br /><input name="unassigned" type="checkbox" id="unassigned" value="true" /> <%=encprops.getProperty("unassignedEncounter")%>
 
       <p><strong><%=encprops.getProperty("alternateID")%>:</strong> <em> <input
         name="alternateIDField" type="text" id="alternateIDField" size="10"
@@ -1092,7 +1133,9 @@ if(CommonConfiguration.showProperty("showLifestage")){
             	<input name="hasTissueSample" type="checkbox" id="hasTissueSample" value="hasTissueSample" />
             </label>
       </p>
-
+      <p><strong><%=encprops.getProperty("tissueSampleID")%>:</strong>
+        <input name="tissueSampleID" type="text" size="50">    
+      </p>
       <p><strong><%=encprops.getProperty("haplotype")%>:</strong> <span class="para">
       <a href="<%=CommonConfiguration.getWikiLocation()%>haplotype"
         target="_blank"><img src="../images/information_icon_svg.gif"
@@ -1252,6 +1295,8 @@ else {
       %>
    
 </p>
+
+
 
     </div>
   </td>
