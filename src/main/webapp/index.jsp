@@ -130,16 +130,14 @@
 
 
           <div class="module">
-            <h3>Latest News</h3>
-            <span class="caption">Add your news items here... </span><span class="caption"><br/>
+            <h3>Supporters</h3>
+            <image width="190px" height="*" src="images/ONR_Logo_lg.jpeg" /><br />
+	    	              <image width="190px" height="*" src="images/PL-Foundation-Logo-300x205.jpg" /><br />
+	              <image width="190px" height="*" src="images/SPLASH-logo2.jpg" /><br />
 </span> <br/>
           </div>
 
-          <div class="module">
-            <h3>Data Sharing</h3>
-            <span class="caption">If you are sharing data, this is a great place to let others know about it... </span>
-            <br/>
-          </div>
+
 
         </div>
         <!-- end menu --></div>
@@ -147,28 +145,39 @@
       <div id="maincol">
 
         <div id="maintext">
+        
+        <h1 class="intro">SPLASH/geneSPLASH</h1>
+	<p class="caption"><em>A computational environment for individual identification records and associated DNA profiles.</em></p>
+
+        
           <h1 class="intro">Overview</h1>
 
-          <p class="caption">This is a great place to present an overview description of this
-            mark-recapture project and library...</p>
+          <p class="caption">The SPLASH/geneSPLASH database represents an integration of photo-identification records and DNA profiles from humpback whales in the North Pacific. There are currently 8,489 individuals in the database, recognized by fluke photographs, by DNA profiles or by both sources of identification.</p>
           <br/>
         </div>
 
         <div>
           <h1 class="intro">Data Contributors</h1>
 
-          <p class="caption">A great optional area to discuss who is contributing data to this
-            library...</p>
+          <p class="caption">The SPLASH photo-identification catalog is maintained by Cascadia Research Collective, Olympia, Washington. The geneSPLASH database is maintained by the Cetacean Conservation and Genomics Laboratory at the Marine Mammal Institute, Oregon State University</p>
         </div>
 
         <div id="context">
           <h1 class="intro">Contact us</h1>
 
-          <p class="caption">A great place to talk about who is running this mark-recapture
-            library...</p>
+          <p class="caption">Curator of photo-identification: Erin Falcone<br />
+		Curator of DNA profiles: Debbie Steel
+
+</p>
 
           <p class="caption"><a href="contactus.jsp">Please contact us
             with your questions.</a></p>
+            
+            
+                    <div>
+	 
+        </div>
+            
         </div>
 
 
@@ -191,16 +200,7 @@
         </div>
 
 
-        <div class="module">
-          <h3>RSS/Atom Feeds</h3>
 
-          <p align="left"><a href="rss.xml"><img src="images/rssfeed.gif"
-                                                 width="80" height="15" border="0"
-                                                 alt="RSS News Feed"/></a></p>
-
-          <p align="left"><a href="atom.xml"><img
-            src="images/atom-feed-icon.gif" border="0" alt="ATOM News Feed"/></a></p>
-        </div>
 
 
       </div>
