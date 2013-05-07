@@ -150,30 +150,7 @@ File encounterDir = new File(encountersDir, num);
 
     -->
 
-table.tissueSample {
-    border-width: 1px;
-    border-spacing: 2px;
-    border-style: hidden;
-    border-color: gray;
-    border-collapse: collapse;
-    background-color: white;
-}
-table.tissueSample th {
-    border-width: 1px;
-    padding: 1px;
-    border-style: solid;
-    border-color: gray;
-    background-color: #99CCFF;
-    -moz-border-radius: ;
-}
-table.tissueSample td {
-    border-width: 1px;
-    padding: 2px;
-    border-style: solid;
-    border-color: gray;
-    background-color: white;
-    -moz-border-radius: ;
-}
+
 
 
 th.measurement{
@@ -464,7 +441,13 @@ margin-bottom: 8px !important;
 %>
     
     <p class="para"><img align="absmiddle" src="../images/life_icon.gif">
-      <%=encprops.getProperty("status")%>: <%=enc.getLivingStatus()%> <%
+      <%=encprops.getProperty("status")%>: 
+      <%
+      if(enc.getLivingStatus()!=null){
+      %>
+      <%=enc.getLivingStatus()%>
+       <%
+    }
         if (isOwner && CommonConfiguration.isCatalogEditable()) {
       %>[<a
         href="encounter.jsp?number=<%=num%>&edit=livingStatus#livingStatus">edit</a>]<%
@@ -578,7 +561,15 @@ margin-bottom: 8px !important;
 </c:if>
 
 <p class="para"><strong><%=encprops.getProperty("location") %>
-</strong><br/> <%=enc.getLocation()%>
+</strong><br/> 
+<%
+if(enc.getLocation()!=null){
+%>
+<%=enc.getLocation()%>
+<%
+}
+%>
+
   <%
     if (isOwner && CommonConfiguration.isCatalogEditable()) {
   %><font size="-1">[<a href="encounter.jsp?number=<%=num%>&edit=location#location">edit</a>]</font>
@@ -597,8 +588,15 @@ margin-bottom: 8px !important;
   %>
   
   <br/>
-  <em><%=encprops.getProperty("country") %></em>: <%=enc.getCountry()%>
+
+  <em><%=encprops.getProperty("country") %></em>: 
   <%
+  if(enc.getCountry()!=null){
+  %>
+  <%=enc.getCountry()%>
+  <%
+  }
+
     if (isOwner && CommonConfiguration.isCatalogEditable()) {%>
   <font size="-1">[<a href="encounter.jsp?number=<%=num%>&edit=country#country">edit</a>]</font>
   <a href="<%=CommonConfiguration.getWikiLocation()%>country" target="_blank"><img
@@ -1476,7 +1474,7 @@ while(encprops.getProperty(("jspImport"+currentImportNum))!=null){
           <input name="action" type="hidden" value="enc_comments" id="action">
 
         <p>
-          <textarea name="comments" cols="50" id="comments"></textarea> <br/>
+          <textarea name="autocomments" cols="50" id="autocomments"></textarea> <br/>
           <input name="Submit" type="submit" value="<%=encprops.getProperty("add_comment")%>">
         </p>
       </form>

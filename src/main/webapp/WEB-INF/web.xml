@@ -63,6 +63,121 @@
   </jsp-config-->
 
 
+  
+  <filter>
+        <filter-name>ShiroFilter</filter-name>
+        <filter-class>org.apache.shiro.web.servlet.IniShiroFilter</filter-class>
+        <init-param>
+            <param-name>config</param-name>
+            <param-value>
+                #See Shiro API http://shiro.apache.org/static/current/apidocs/org/apache/shiro/web/servlet/IniShiroFilter.html
+                
+                #create an object of the RoleSecurityJdbcRealm
+                #IniShiroFilter will inject that object into the SecurityManager
+                [main]
+                realmA = org.ecocean.security.ShepherdRealm
+                
+                #this application will use all the default
+                #filters (see link above)
+                #for example the default login page is /login.jsp
+                #users who try to access a page protected by Shiro
+                #will be sent to /login.jsp
+                [filters]
+
+
+                #only let authenticated users
+                #with the appropriate role
+                #view the web pages in the secure
+                #and admin areas
+                [urls]
+                
+                /appadmin/** = authc, roles[admin]
+                /logs/** = authc, roles[admin]
+                /xcalendar/** = authc, roles[admin]
+                /encounters/allEncountersUnapproved.jsp = authc, roles[admin]
+                /InterconnectSubmitSpots = authc, roles[admin]
+		/interconnectSubmitSpots= authc, roles[admin]
+		/GenePopExport = authc, roles[admin]
+		/individualSearch.jsp = authc, roles[admin]
+		/individualSearchResults.jsp = authc, roles[admin]
+		/individualSearchResultsExport.jsp = authc, roles[admin]
+		/individualSearchResultsAnalysis.jsp = authc, roles[admin]
+		/individualMappedSearchResults.jsp = authc, roles[admin]
+		/individualThumbnailSearchResults.jsp = authc, roles[admin]
+		/encounters/thumbnailSearch.jsp = authc, roles[admin]
+		 /encounters/thumbnailSearchResults.jsp = authc, roles[admin]
+		 /encounters/encounterSearch.jsp = authc, roles[admin]
+		 /encounters/searchResults.jsp = authc, roles[admin]
+		 /encounters/searchResultsAnalysis.jsp = authc, roles[admin]
+		 /encounters/mappedSearchResults.jsp = authc, roles[admin]
+		 /encounters/mappedSearchResultsSex.jsp = authc, roles[admin]
+		 /encounters/mappedSearchResultsHaplotype.jsp = authc, roles[admin]
+		 /encounters/exportSearchResults.jsp = authc, roles[admin]
+		 /googleSearch.jsp = authc, roles[admin]
+		 /googleSearchResults.jsp = authc, roles[admin]
+		 /encounters/imageViewer.jsp = authc, roles[admin]
+		 /encounters/searchComparison.jsp = authc, roles[admin]
+      		/encounters/searchComparisonResults.jsp = authc, roles[admin]
+                /encounters/encounterSpotVisualizer.jsp = authc, roles[admin]
+		/IndividualSetAlternateID = authc, roles[admin]
+		 /EncounterSetAlternateID = authc, roles[admin]
+		 /EncounterSetState = authc, roles[admin]
+		 /EncounterSetScarring = authc, roles[admin]
+		  /EncounterSetVerbatimEventDate = authc, roles[admin]
+		  /EncounterSetLifeStage = authc, roles[admin]
+		  /EncounterSetCountry = authc, roles[admin]
+		  /EncounterSetTissueSample = authc, roles[admin]
+		   /TissueSampleSetHaplotype = authc, roles[admin]
+		   /TissueSampleSetMeasurement = authc, roles[admin]
+		  /TissueSampleRemoveHaplotype = authc, roles[admin]
+		   /TissueSampleRemoveBiologicalMeasurement = authc, roles[admin]
+		   /ImportSRGD = authc, roles[admin]
+		        /IndividualCreate = authc, roles[admin]
+		        /OccurrenceCreate = authc, roles[admin]
+		        /OccurrenceRemoveEncounter = authc, roles[admin]
+		        /IndividualRemoveEncounter = authc, roles[admin]
+		        /OccurrenceAddEncounter = authc, roles[admin]
+		        /IndividualAddEncounter = authc, roles[admin]
+		         /TissueSampleSetSexAnalysis = authc, roles[admin]
+		        /TissueSampleRemoveSexAnalysis = authc, roles[admin]
+		         /EncounterRemoveTissueSample = authc, roles[admin]
+		         /EncounterRemoveImage = authc, roles[admin]
+		         /SinglePhotoVideoRemoveKeyword = authc, roles[admin]
+		         /SinglePhotoVideoAddKeyword = authc, roles[admin]
+		         /EncounterSearchExportGeneGISFormat = authc, roles[admin]
+		         /EncounterSearchExportKML = authc, roles[admin]
+		         /UserCreate = authc, roles[admin]
+		         /UserDelete = authc, roles[admin]
+		         /EncounterSearchExportExcelFile = authc, roles[admin]
+		         /EncounterSearchExportShapefile = authc, roles[admin]
+		         /EncounterSearchExportEmailAddresses = authc, roles[admin]
+		         /EncounterAddComment = authc, roles[admin]
+		         /OccurrenceAddComment = authc, roles[admin]
+		          /OccurrenceSetIndividualCount = authc, roles[admin]
+		         /IndividualAddComment = authc, roles[admin]
+		         /SimpleCMROutput = authc, roles[admin]
+		             /GenalexExportCodominantMSDataBySize = authc, roles[admin]
+		             /SOCPROGExport = authc, roles[admin]
+		             /OccurrenceSetGroupBehavior = authc, roles[admin]
+		             /EncounterSetBehavior = authc, roles[admin]
+		      /CJS = authc, roles[admin]
+		      /software.jsp = authc, roles[admin]
+		      /interconnect/mac/Interconnect.jar = authc, roles[admin]
+      			/DeleteAllDataPermanently = authc, roles[destroyer]
+      			/encounters/searchExport = authc, roles[admin]
+      			/welcome.jsp = authc
+               
+
+            </param-value>
+        </init-param>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>ShiroFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+
   <filter>
     <filter-name>UTF8Filter</filter-name>
     <filter-class>org.ecocean.servlet.StrutsUTF8Filter</filter-class>
@@ -90,6 +205,10 @@
     <filter-name>ImgFilter</filter-name>
     <url-pattern>/di/ImgFilter/*</url-pattern>
   </filter-mapping>
+
+
+ 
+
 
 
   <servlet>
@@ -234,6 +353,12 @@
     <servlet-name>KeywordHandler</servlet-name>
     <servlet-class>org.ecocean.servlet.KeywordHandler</servlet-class>
   </servlet>
+  
+  
+    <servlet>
+      <servlet-name>ImportSRGD</servlet-name>
+      <servlet-class>org.ecocean.servlet.importer.ImportSRGD</servlet-class>
+  </servlet>
 
   <servlet>
     <servlet-name>IndividualAddFile</servlet-name>
@@ -290,6 +415,17 @@
     <servlet-name>EncounterAddSpotFile</servlet-name>
     <servlet-class>org.ecocean.servlet.EncounterAddSpotFile</servlet-class>
   </servlet>
+  
+  
+    <servlet>
+      <servlet-name>UserCreate</servlet-name>
+      <servlet-class>org.ecocean.servlet.UserCreate</servlet-class>
+  </servlet>
+  
+      <servlet>
+        <servlet-name>UserDelete</servlet-name>
+        <servlet-class>org.ecocean.servlet.UserDelete</servlet-class>
+  </servlet>
 
   <servlet>
     <servlet-name>EncounterResetDate</servlet-name>
@@ -316,6 +452,34 @@
         <servlet-name>TissueSampleRemoveBiologicalMeasurement</servlet-name>
         <servlet-class>org.ecocean.servlet.TissueSampleRemoveBiologicalMeasurement</servlet-class>
     </servlet>
+    
+  <!--  Start Shiro filters -->  
+  
+  
+
+    
+    <servlet>
+      	<description>
+      	Log in user using username and password provided</description>
+      	<display-name>
+      	LoginUser</display-name>
+      	<servlet-name>LoginUser</servlet-name>
+      	<servlet-class>
+      	org.ecocean.servlet.LoginUser</servlet-class>
+   </servlet>
+      
+   <servlet>
+      	<description>
+      	Logs user out</description>
+      	<display-name>
+      	LogoutUser</display-name>
+      	<servlet-name>LogoutUser</servlet-name>
+      	<servlet-class>
+      	org.ecocean.servlet.LogoutUser</servlet-class>
+  </servlet>
+  
+  
+  <!-- end Shiro filters -->
   
   
       <servlet>
@@ -370,6 +534,11 @@
       <servlet>
         <servlet-name>EncounterSearchExportKML</servlet-name>
         <servlet-class>org.ecocean.servlet.export.EncounterSearchExportKML</servlet-class>
+  </servlet>
+  
+        <servlet>
+          <servlet-name>SimpleCMROutput</servlet-name>
+          <servlet-class>org.ecocean.servlet.export.SimpleCMROutput</servlet-class>
   </servlet>
   
   
@@ -475,6 +644,11 @@
     <servlet>
       <servlet-name>OccurrenceSetIndividualCount</servlet-name>
       <servlet-class>org.ecocean.servlet.OccurrenceSetIndividualCount</servlet-class>
+  </servlet>
+  
+      <servlet>
+        <servlet-name>DeleteAllDataPermanently</servlet-name>
+        <servlet-class>org.ecocean.servlet.DeleteAllDataPermanently</servlet-class>
   </servlet>
 
   <servlet>
@@ -707,6 +881,11 @@
   </servlet-mapping>
   
       <servlet-mapping>
+        <servlet-name>DeleteAllDataPermanently</servlet-name>
+        <url-pattern>/DeleteAllDataPermanently</url-pattern>
+  </servlet-mapping>
+  
+      <servlet-mapping>
         <servlet-name>TissueSampleSetSexAnalysis</servlet-name>
         <url-pattern>/TissueSampleSetSexAnalysis</url-pattern>
   </servlet-mapping>
@@ -717,10 +896,25 @@
         <url-pattern>/TissueSampleSetMicrosatelliteMarkers</url-pattern>
   </servlet-mapping>
   
+  <servlet-mapping>
+          <servlet-name>SimpleCMROutput</servlet-name>
+          <url-pattern>/SimpleCMROutput</url-pattern>
+  </servlet-mapping>
+  
   
       <servlet-mapping>
         <servlet-name>TissueSampleRemoveHaplotype</servlet-name>
         <url-pattern>/TissueSampleRemoveHaplotype</url-pattern>
+  </servlet-mapping>
+  
+      <servlet-mapping>
+          <servlet-name>UserCreate</servlet-name>
+          <url-pattern>/UserCreate</url-pattern>
+  </servlet-mapping>
+  
+     <servlet-mapping>
+            <servlet-name>UserDelete</servlet-name>
+            <url-pattern>/UserDelete</url-pattern>
   </servlet-mapping>
   
         <servlet-mapping>
@@ -787,6 +981,12 @@
       <servlet-mapping>
           <servlet-name>GenalexExportCodominantMSDataBySize</servlet-name>
           <url-pattern>/GenalexExportCodominantMSDataBySize</url-pattern>
+  </servlet-mapping>
+  
+  
+        <servlet-mapping>
+            <servlet-name>ImportSRGD</servlet-name>
+            <url-pattern>/ImportSRGD</url-pattern>
   </servlet-mapping>
     
   
@@ -968,6 +1168,17 @@
     <servlet-name>EncounterSetSex</servlet-name>
     <url-pattern>/EncounterSetSex</url-pattern>
   </servlet-mapping>
+  
+  
+    <servlet-mapping>
+    	<servlet-name>LoginUser</servlet-name>
+    	<url-pattern>/LoginUser</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+    	<servlet-name>LogoutUser</servlet-name>
+    	<url-pattern>/LogoutUser</url-pattern>
+  </servlet-mapping>
+  
 
   <servlet-mapping>
     <servlet-name>EncounterSetGPS</servlet-name>
@@ -1205,10 +1416,6 @@
     <url-pattern>/IndividualRemoveDataFile</url-pattern>
   </servlet-mapping>
   
-      <servlet-mapping>
-        <servlet-name>EncounterSetVerbatimEventDate</servlet-name>
-        <url-pattern>/EncounterSetVerbatimEventDate</url-pattern>
-  </servlet-mapping>
 
   <!-- Action Servlet Mapping -->
   <servlet-mapping>
@@ -1227,8 +1434,9 @@
       <web-resource-name>Protected Area</web-resource-name>
       <!-- Define the context-relative URL(s) to be protected -->
 
+<!--
       <url-pattern>/welcome.jsp</url-pattern>
-
+-->
 
     </web-resource-collection>
     <auth-constraint>
@@ -1255,6 +1463,25 @@
 
     </auth-constraint>
   </security-constraint>
+  
+    <security-constraint>
+      <display-name>Manager Security Constraint</display-name>
+      <web-resource-collection>
+        <web-resource-name>Protected Area</web-resource-name>
+        <!-- Define the context-relative URL(s) to be protected -->
+  
+  <!--
+        <url-pattern>/DeleteAllDataPermanently</url-pattern>
+  -->
+  
+  
+      </web-resource-collection>
+      <auth-constraint>
+        <!-- Anyone with one of the listed roles may access this area -->
+        <role-name>destroyer</role-name>
+  
+      </auth-constraint>
+  </security-constraint>
 
 
   <security-constraint>
@@ -1263,7 +1490,10 @@
       <web-resource-name>Protected Area</web-resource-name>
       <!-- Define the context-relative URL(s) to be protected -->
 
+<!--
       <url-pattern>/appadmin/scanTaskAdmin.jsp</url-pattern>
+-->      
+     <!-- 
       <url-pattern>/encounters/encounterSpotVisualizer.jsp</url-pattern>
       <url-pattern>/IndividualSetAlternateID</url-pattern>
       <url-pattern>/EncounterSetAlternateID</url-pattern>
@@ -1277,6 +1507,9 @@
          <url-pattern>/TissueSampleSetMeasurement</url-pattern>
         <url-pattern>/TissueSampleRemoveHaplotype</url-pattern>
         <url-pattern>/TissueSampleRemoveBiologicalMeasurement</url-pattern>
+        
+        
+        <url-pattern>/ImportSRGD</url-pattern>
         
         <url-pattern>/IndividualCreate</url-pattern>
         <url-pattern>/OccurrenceCreate</url-pattern>
@@ -1302,6 +1535,7 @@
          <url-pattern>/OccurrenceAddComment</url-pattern>
           <url-pattern>/OccurrenceSetIndividualCount</url-pattern>
          <url-pattern>/IndividualAddComment</url-pattern>
+         <url-pattern>/SimpleCMROutput</url-pattern>
         
              <url-pattern>/GenalexExportCodominantMSDataBySize</url-pattern>
              <url-pattern>/SOCPROGExport</url-pattern>
@@ -1312,14 +1546,18 @@
       <url-pattern>/CJS</url-pattern>
       <url-pattern>/software.jsp</url-pattern>
       <url-pattern>/interconnect/mac/Interconnect.jar</url-pattern>
+      -->
+      
+      
+      <!--
       <url-pattern>/xcalendar/*</url-pattern>
+      -->
 
+
+<!--
       <url-pattern>/InterconnectSubmitSpots</url-pattern>
       <url-pattern>/interconnectSubmitSpots</url-pattern>
       <url-pattern>/GenePopExport</url-pattern>
-
-      <url-pattern>/appadmin/kwSearch.jsp</url-pattern>
-      <url-pattern>/appadmin/kwResults.jsp</url-pattern>
       <url-pattern>/individualSearch.jsp</url-pattern>
       <url-pattern>/individualSearchResults.jsp</url-pattern>
       <url-pattern>/individualSearchResultsExport.jsp</url-pattern>
@@ -1338,14 +1576,22 @@
       <url-pattern>/googleSearch.jsp</url-pattern>
       <url-pattern>/googleSearchResults.jsp</url-pattern>
       <url-pattern>/encounters/imageViewer.jsp</url-pattern>
-      
       <url-pattern>/encounters/searchComparison.jsp</url-pattern>
       <url-pattern>/encounters/searchComparisonResults.jsp</url-pattern>
+      -->
       
       
+      <!--
       <url-pattern>/encounters/allEncountersUnapproved.jsp</url-pattern>
+      -->
+      
+      <!--
       <url-pattern>/appadmin/*</url-pattern>
+      -->
+      
+      <!--
       <url-pattern>/logs/*</url-pattern>
+      -->
 
     </web-resource-collection>
     <auth-constraint>
@@ -1355,15 +1601,16 @@
   </security-constraint>
 
 
-  <!-- Login configuration uses form-based authentication -->
+  <!-- Login configuration uses form-based authentication
   <login-config>
     <auth-method>FORM</auth-method>
-    <realm-name>Shepherd Realm</realm-name>
+    <realm-name>realmA</realm-name>
     <form-login-config>
       <form-login-page>/login.jsp</form-login-page>
       <form-error-page>/error.jsp</form-error-page>
     </form-login-config>
   </login-config>
+-->
 
   <!-- Security roles referenced by this web application -->
 

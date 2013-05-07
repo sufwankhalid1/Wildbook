@@ -69,10 +69,9 @@
           <td><![endif]-->
       <ul>
         <li><a
-          href="http://<%=CommonConfiguration.getURLLocation(request) %>/index.jsp"
-          class="enclose"
-          style="margin: 0px 0 0px 0px; position: relative; width: 160px; height: 25px; z-index:
-          100;"><strong><%=props.getProperty("intro")%></strong></a>
+          href="http://www.ecoceanusa.org/shepherd" class="enclose" target="_blank"
+          style="margin: 0px 0 0px 0px; position: relative; width: 280px; height: 25px; z-index:
+          100;"><strong><%=props.getProperty("learnAboutShepherd")%></strong></a>
         </li>
 
       </ul>
@@ -249,7 +248,15 @@
         	<li><a href="http://<%=CommonConfiguration.getURLLocation(request) %>/appadmin/scanTaskAdmin.jsp?langCode=<%=langCode%>" class="enclose" style="margin:0px 0 0px 0px; position:relative; width:190px; height:25px;z-index:99;">Grid Administration</a></li>
 		<%
           }
-		%>			
+		%>
+		
+	<li><a
+	          href="http://<%=CommonConfiguration.getURLLocation(request) %>/appadmin/users.jsp"
+	          class="enclose"
+	          style="margin: 0px 0 0px 0px; position: relative; width: 190px; height: 25px;"><%=props.getProperty("userManagement")%>
+        </a></li>	
+		
+		
         
         <%
           if (CommonConfiguration.getTapirLinkURL() != null) {
@@ -273,16 +280,14 @@
         <% } %>
         
         
-        <%
-          if (CommonConfiguration.useTapirLinkURL()) {
-        %>
+    
         <li><a href="http://<%=CommonConfiguration.getURLLocation(request) %>/appadmin/kwAdmin.jsp"
                class="enclose"
                style="margin: 0px 0 0px 0px; position: relative; width: 190px; height: 25px;"><%=props.getProperty("photoKeywords")%>
         </a>
         </li>
         <%
-          }
+          
 
           if (CommonConfiguration.allowAdoptions()) {
         %>
@@ -317,9 +322,20 @@
           }
         %>
 
+	        <li><a
+          href="http://www.ecoceanusa.org/shepherd" class="enclose" target="_blank"
+          style="margin: 0px 0 0px 0px; position: relative; width: 190px; height: 25px; z-index:
+          100;"><strong><%=props.getProperty("shepherdDoc")%></strong></a>
+        </li>
+        
 <li><a href="http://<%=CommonConfiguration.getURLLocation(request) %>/javadoc/index.html" class="enclose" style="margin:0px 0 0px 0px; position:relative; width:190px; height:25px;z-index:99;">Javadoc</a></li>
-						
-						
+<%
+if(CommonConfiguration.isCatalogEditable()){
+%>						
+<li><a href="http://<%=CommonConfiguration.getURLLocation(request) %>/appadmin/import.jsp" class="enclose" style="margin:0px 0 0px 0px; position:relative; width:190px; height:25px;z-index:99;">Data Import</a></li>
+<%
+}
+%>					
 
         <!--[if lte IE 6]></td></tr></table></a><![endif]-->
 
@@ -338,13 +354,15 @@
     
     <%if (request.getRemoteUser() == null) {%>
     <li><a
-      href="http://<%=CommonConfiguration.getURLLocation(request) %>/welcome.jsp"
-      style="margin: 0px 0 0px 0px; position: relative; width: 86px; height: 25px; z-index: 100;"><strong><%=props.getProperty("login")%>
+
+      href="http://<%=CommonConfiguration.getURLLocation(request) %>/login.jsp"
+      style="margin: 0px 0 0px 0px; position: relative; width: 76px; height: 25px; z-index: 100;"><strong><%=props.getProperty("login")%>
     </strong></a></li>
     <%} else {%>
     <li><a
-      href="http://<%=CommonConfiguration.getURLLocation(request) %>/logout.jsp"
-      style="margin: 0px 0 0px 0px; position: relative; width: 86px; height: 25px; z-index: 100;"><strong><%=props.getProperty("logout")%>
+      href="http://<%=CommonConfiguration.getURLLocation(request) %>/LogoutUser"
+      style="margin: 0px 0 0px 0px; position: relative; width: 76px; height: 25px; z-index: 100;"><strong><%=props.getProperty("logout")%>
+
     </strong></a></li>
     <%}%>
 
