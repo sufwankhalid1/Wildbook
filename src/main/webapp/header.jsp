@@ -346,7 +346,7 @@ if(CommonConfiguration.isCatalogEditable()){
 
 
     <li><a href="http://<%=CommonConfiguration.getURLLocation(request) %>/contactus.jsp"
-           style="margin:0px 0 0px 0px; position:relative; width:100px; height:25px; z-index:100;"><strong><%=props.getProperty("contactUs")%>
+           style="margin:0px 0 0px 0px; position:relative; width:110px; height:25px; z-index:100;"><strong><%=props.getProperty("contactUs")%>
     </strong></a></li>
     
     
