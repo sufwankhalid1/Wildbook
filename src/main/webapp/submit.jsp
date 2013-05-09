@@ -209,11 +209,20 @@ function placeMarker(location) {
 	var mapZoom = 3;
 	if($("#map_canvas").hasClass("full_screen_map")){mapZoom=3;}
 
-	  map = new google.maps.Map(document.getElementById('map_canvas'), {
+
+	if(marker!=null){
+		center = new google.maps.LatLng(10.8, 160.8);
+	}
+	
+	map = new google.maps.Map(document.getElementById('map_canvas'), {
 		  zoom: mapZoom,
 		  center: center,
 		  mapTypeId: google.maps.MapTypeId.HYBRID
 		});
+	
+	if(marker!=null){
+		marker.setMap(map);    
+	}
 
 	  //adding the fullscreen control to exit fullscreen
 	  var fsControlDiv = document.createElement('DIV');
