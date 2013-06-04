@@ -276,41 +276,18 @@ if (highCount<totalCount) {%> <a
 			alt="down" /></a>
 		<%}%>
 		</td>
+		
+		<td align="left" valign="top" bgcolor="#99CCFF" class="lineitem"><strong><%=props.getProperty("species") %></strong></td>
+		
 		<td width="90" align="left" valign="top" bgcolor="#99CCFF"
 			class="lineitem"><strong><%=location %></strong>
 
 		</td>
 		
-		<td width="40" align="left" valign="top" bgcolor="#99CCFF"
-			class="lineitem"><strong><%=locationID %></strong> <a
-			href="http://<%=CommonConfiguration.getURLLocation(request)%>/encounters/allEncounters.jsp?sort=locationCodeup<%=rejectsLink%><%=unapprovedLink%><%=userLink%>&amp;start=<%=(lowCount)%>&amp;end=<%=(highCount)%>"><img
-			src="../images/arrow_up.gif" width="11" height="6" border="0" alt="up" /></a>
-		<a
-			href="http://<%=CommonConfiguration.getURLLocation(request)%>/encounters/allEncounters.jsp?sort=locationCodedown<%=rejectsLink%><%=unapprovedLink%><%=userLink%>&amp;start=<%=(lowCount)%>&amp;end=<%=(highCount)%>"><img
-			src="../images/arrow_down.gif" width="11" height="6" border="0"
-			alt="down" /></a></td>
-	
+	<td align="left" valign="top" bgcolor="#99CCFF" class="lineitem"><strong><%=props.getProperty("status") %></strong></td>
 
-		<td align="left" valign="top" bgcolor="#99CCFF" class="lineitem"><strong><%=sex %></strong><br />
-		<%if(request.getRemoteUser()!=null){%><a
-			href="http://<%=CommonConfiguration.getURLLocation(request)%>/encounters/allEncounters.jsp?sort=sexup<%=rejectsLink%><%=unapprovedLink%><%=userLink%>&amp;start=<%=(lowCount)%>&amp;end=<%=(highCount)%>"><img
-			src="../images/arrow_up.gif" width="11" height="6" border="0" alt="up" /></a>
-		<a
-			href="http://<%=CommonConfiguration.getURLLocation(request)%>/encounters/allEncounters.jsp?sort=sexdown<%=rejectsLink%><%=unapprovedLink%><%=userLink%>&amp;start=<%=(lowCount)%>&amp;end=<%=(highCount)%>"><img
-			src="../images/arrow_down.gif" width="11" height="6" border="0"
-			alt="down" /></a>
-		<%}%>
-		</td>
-		<td width="60" align="left" valign="top" bgcolor="#99CCFF"
-			class="lineitem"><strong><%=individual%></strong> <%if(request.getRemoteUser()!=null){%><a
-			href="http://<%=CommonConfiguration.getURLLocation(request)%>/encounters/allEncounters.jsp?sort=assignedup<%=rejectsLink%><%=unapprovedLink%><%=userLink%>&amp;start=<%=(lowCount)%>&amp;end=<%=(highCount)%>"><img
-			src="../images/arrow_up.gif" width="11" height="6" border="0" alt="up" /></a>
-		<a
-			href="http://<%=CommonConfiguration.getURLLocation(request)%>/encounters/allEncounters.jsp?sort=assigneddown<%=rejectsLink%><%=unapprovedLink%><%=userLink%>&amp;start=<%=(lowCount)%>&amp;end=<%=(highCount)%>"><img
-			src="../images/arrow_down.gif" width="11" height="6" border="0"
-			alt="down" /></a>
-		<%}%>
-		</td>
+		
+		
 
 		<%
 		if(CommonConfiguration.useSpotPatternRecognition()){
@@ -330,7 +307,7 @@ if (highCount<totalCount) {%> <a
 			if ((session.getAttribute("logged")!=null)&&(request.getParameter("rejects")!=null)&&(request.getParameter("sort")!=null)) {
 					query.setFilter("this.state == \"unidentifiable\"");
 					iterTotal=totalCount;
-					query=ServletUtilities.setRange(query,iterTotal,highCount,lowCount);
+					query=org.ecocean.servlet.ServletUtilities.setRange(query,iterTotal,highCount,lowCount);
 					
 
 				 if (request.getParameter("sort").equals("locationCodeup")) {
@@ -368,7 +345,7 @@ if (highCount<totalCount) {%> <a
 			else if((session.getAttribute("logged")!=null)&&(request.getParameter("rejects")!=null)) {
 
 
-				query=ServletUtilities.setRange(query,iterTotal,highCount,lowCount);
+				query=org.ecocean.servlet.ServletUtilities.setRange(query,iterTotal,highCount,lowCount);
 				query.setFilter("this.state == \"unidentifiable\"");
 				allEncounters=myShepherd.getAllUnidentifiableEncounters(query);
 			}
@@ -379,7 +356,7 @@ if (highCount<totalCount) {%> <a
 				query.setFilter("this.submitterID == \""+request.getParameter("user")+"\"");
 
 						
-						ServletUtilities.setRange(query,iterTotal,highCount,lowCount);
+						org.ecocean.servlet.ServletUtilities.setRange(query,iterTotal,highCount,lowCount);
 		
 				 if (request.getParameter("sort").equals("locationCodeup")) {
 					allEncounters=myShepherd.getSortedUserEncounters(query, "locationID ascending");
@@ -428,7 +405,7 @@ if (highCount<totalCount) {%> <a
 						iterTotal=myShepherd.getNumApprovedEncounters();
 
 						
-						query=ServletUtilities.setRange(query,iterTotal,highCount,lowCount);
+						query=org.ecocean.servlet.ServletUtilities.setRange(query,iterTotal,highCount,lowCount);
 			
 
 				if (request.getParameter("sort").equals("sexup")) {
@@ -482,7 +459,7 @@ if (highCount<totalCount) {%> <a
 			
 				
 				//query.setRange((iterTotal-highCount),(totalCount-lowCount+1));
-				query=ServletUtilities.setRange(query,iterTotal,highCount,lowCount);
+				query=org.ecocean.servlet.ServletUtilities.setRange(query,iterTotal,highCount,lowCount);
 
 				query.setFilter("this.state == \"approved\"");
 				allEncounters=myShepherd.getAllEncounters(query, "dwcDateAdded descending");
@@ -531,10 +508,25 @@ if (highCount<totalCount) {%> <a
 		</a>
 	
 		</td>
+		
+		<td align="left" valign="top" class="lineitem">
 		<%
-		if(enc.getLocation()!=null){
+		
+		  String genusSpeciesFound=props.getProperty("notAvailable");
+    		if((enc.getGenus()!=null)&&(enc.getSpecificEpithet()!=null)){genusSpeciesFound=enc.getGenus()+" "+enc.getSpecificEpithet();}
+		
 		%>
-			<td width="90" class="lineitems"><%=enc.getLocation()%></td>
+		<%=genusSpeciesFound%>
+		</td>
+		
+		
+	
+		
+		
+		<%
+		if(enc.getCountry()!=null){
+		%>
+			<td width="90" class="lineitems"><%=enc.getCountry()%></td>
 		<%
 		}
 		else {
@@ -542,26 +534,25 @@ if (highCount<totalCount) {%> <a
 		<td width="90" class="lineitems">&nbsp;</td>
 		<%
 		}
-		%>
-		<td class="lineitems"><%=enc.getLocationCode()%></td>
-		<%
+		
 
 	String theSex=enc.getSex();
 	if(theSex.equals("male")) {theSex="M";}
 	else if (theSex.equals("female")) {theSex="F";}
 	else {theSex="&nbsp;";}
+	
 	%>
-		<td class="lineitems"><%=theSex%></td>
-		<%
-	if ((enc.getIndividualID()==null)||(enc.isAssignedToMarkedIndividual().trim().toLowerCase().equals("unassigned"))) {
-%>
-		<td class="lineitems">&nbsp;</td>
-		<%
-	} else {
-%>
-		<td class="lineitems"><a href="http://<%=CommonConfiguration.getURLLocation(request) %>/individuals.jsp?number=<%=enc.isAssignedToMarkedIndividual()%>"><%=enc.isAssignedToMarkedIndividual()%></a></td>
-		<%
-	}
+	
+		<td align="left" valign="top" class="lineitem">
+					<%
+					  String status=props.getProperty("status");
+			    		  if(enc.getLivingStatus()!=null){status=enc.getLivingStatus();}
+					%>
+					<%=status%>
+		</td>
+	<%
+	
+	
 	
 	//spot patterning data
 	if(CommonConfiguration.useSpotPatternRecognition()){
