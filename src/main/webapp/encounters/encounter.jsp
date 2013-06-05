@@ -930,13 +930,17 @@ if(enc.getComments()!=null){recordedComments=enc.getComments();}
 			//break up the string
 			StringTokenizer stzr=new StringTokenizer(enc.getSubmitterEmail(),",");
 		
-		while(stzr.hasMoreTokens()) {
-	%> <br/><%=stzr.nextToken()%> <%
-				}
+			while(stzr.hasMoreTokens()) {
+				String nextie=stzr.nextToken();
+			
+			%> <br/><a href="mailto:<%=nextie%>?subject=Information%20Request%20for%20Stranding%20<%=enc.getCatalogNumber()%>:<%=CommonConfiguration.getProperty("htmlTitle")%>"><%=nextie%></a> <%
+			}
 				
 		}
 		else if((enc.getSubmitterEmail()!=null)&&(!enc.getSubmitterEmail().equals(""))) {
-			%> <br/><%=enc.getSubmitterEmail()%> <%
+			%> <br/>
+			<a href="mailto:<%=enc.getSubmitterEmail()%>?subject=Information%20Request%20for%20Stranding%20<%=enc.getCatalogNumber()%>:<%=CommonConfiguration.getProperty("htmlTitle")%>"><%=enc.getSubmitterEmail()%></a> 
+			<%
 		}
 		if((enc.getSubmitterPhone()!=null)&&(!enc.getSubmitterPhone().equals(""))){
 		%> 
@@ -978,7 +982,7 @@ if (isOwner) {
 
 if((enc.getPhotographerEmail()!=null)&&(!enc.getPhotographerEmail().equals(""))){
 %>
-	<br/><%=enc.getPhotographerEmail()%> 
+	<br/><a href="mailto:<%=enc.getPhotographerEmail()%>?subject=Information%20Request%20for%20Stranding%20<%=enc.getCatalogNumber()%>:<%=CommonConfiguration.getProperty("htmlTitle")%>"><%=enc.getPhotographerEmail()%></a> 
 <%
 }
 if((enc.getPhotographerPhone()!=null)&&(!enc.getPhotographerPhone().equals(""))){
