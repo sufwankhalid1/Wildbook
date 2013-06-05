@@ -277,6 +277,7 @@ if (highCount<totalCount) {%> <a
 		<%}%>
 		</td>
 		
+		<td align="left" valign="top" bgcolor="#99CCFF" class="lineitem"><strong><%=props.getProperty("name") %></strong></td>
 		<td align="left" valign="top" bgcolor="#99CCFF" class="lineitem"><strong><%=props.getProperty("species") %></strong></td>
 		
 		<td width="90" align="left" valign="top" bgcolor="#99CCFF"
@@ -501,24 +502,64 @@ if (highCount<totalCount) {%> <a
 		
 		
 		<td class="lineitems">
-		<a
-			href="http://<%=CommonConfiguration.getURLLocation(request)%>/xcalendar/calendar.jsp?scDate=<%=enc.getMonth()%>/1/<%=enc.getYear()%>">
-		<%=enc.getShortDate()%>
-		
-		</a>
-	
+			<a href="http://<%=CommonConfiguration.getURLLocation(request)%>/xcalendar/calendar.jsp?scDate=<%=enc.getMonth()%>/1/<%=enc.getYear()%>">
+				<%=enc.getShortDate()%>
+			</a>
 		</td>
+		
+		<td align="left" valign="top" class="lineitem">
+				<%
+				
+				
+				
+				String commonName=props.getProperty("notAvailable");
+		    		if((enc.getGenus()!=null)&&(enc.getSpecificEpithet()!=null)){commonName=enc.getGenus()+" "+enc.getSpecificEpithet();}
+		    		boolean hasMoreTax=true;
+				  			       int taxNum=0;
+				  			       if(CommonConfiguration.showProperty("showTaxonomy")){
+				  			       while(hasMoreTax){
+				  			       	  String currentGenuSpecies = "genusSpecies"+taxNum;
+				  			       	  if(CommonConfiguration.getProperty(currentGenuSpecies)!=null){
+				  			       	  	
+				  			       	  	 
+				  			       	  	  String currentValue = CommonConfiguration.getProperty(currentGenuSpecies);
+				  			       	  	if((currentValue.startsWith(commonName))&&(currentValue.indexOf(",")!=-1)){
+				  			       	  	
+				  			       	  		int startPoint=currentValue.indexOf(",");
+				  			       	  		commonName=currentValue.substring((startPoint+1));
+				  			       	  	
+				  			       	  	}
+				  			       		taxNum++;
+				  			          }
+				  			          else{
+				  			             hasMoreTax=false;
+				  			          }
+				  			          
+							       }
+					       }
+		    		
+		    		
+		    		
+		    		%>
+		    		<%=commonName%>
+    		</td>
 		
 		<td align="left" valign="top" class="lineitem">
 		<%
 		
 		  String genusSpeciesFound=props.getProperty("notAvailable");
-    		if((enc.getGenus()!=null)&&(enc.getSpecificEpithet()!=null)){genusSpeciesFound=enc.getGenus()+" "+enc.getSpecificEpithet();}
-		
+    		  if((enc.getGenus()!=null)&&(enc.getSpecificEpithet()!=null)){genusSpeciesFound=enc.getGenus()+" "+enc.getSpecificEpithet();}
+    		
+    		  //let's get the common name if it exists
+    		
+
 		%>
-		<%=genusSpeciesFound%>
+		<em><%=genusSpeciesFound%></em>
 		</td>
 		
+		
+    		
+    		
 		
 	
 		
