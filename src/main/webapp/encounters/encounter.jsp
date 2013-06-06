@@ -1468,6 +1468,7 @@ else {
  
  <!-- adding ne submit GPS-->
  <%
+ if(loggedIn){
  String longy="";
        		String laty="";
        		if(enc.getLatitudeAsDouble()!=null){laty=enc.getLatitudeAsDouble().toString();}
@@ -1505,7 +1506,7 @@ else {
  <!--end adding submit GPS-->
 
 <%
-
+}
 
 if(loggedIn){
 
