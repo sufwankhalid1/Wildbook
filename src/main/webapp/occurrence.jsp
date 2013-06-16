@@ -58,7 +58,7 @@
 
 
   boolean isOwner = false;
-  if (request.isUserInRole("admin")) {
+  if (request.getUserPrincipal()!=null {
     isOwner = true;
   }
 
@@ -134,7 +134,7 @@
 
     //block right-click user copying if no permissions available
     <%
-    if(!request.isUserInRole("imageProcessor")){
+    if(request.getUserPrincipal()==null){
     %>
     hs.blockRightClick = true;
     <%
@@ -399,9 +399,27 @@ if(sharky.getLocationID()!=null){
   <tr>
       <td class="lineitem"><%=enc.getDate()%>
     </td>
-    <td class="lineitem"><a href="individuals.jsp?number=<%=enc.getIndividualID()%>"><%=enc.getIndividualID()%></a>
+    <td class="lineitem">
+    	<%
+    	if((enc.getIndividualID()!=null)&&(!enc.getIndividualID().toLowerCase().equals("unassigned"))){
+    	%>
+    	<a href="individuals.jsp?number=<%=enc.getIndividualID()%>"><%=enc.getIndividualID()%></a>
+    	<%
+    	}
+    	else{
+    	%>
+    	&nbsp;
+    	<%
+    	}
+    	%>
     </td>
-    <td class="lineitem"><%=enc.getLocation()%>
+    <%
+    String location="&nbsp;";
+    if(enc.getLocation()!=null){
+    	location=enc.getLocation();
+    }
+    %>
+    <td class="lineitem"><%=location%>
     </td>
     <td width="100" height="32px" class="lineitem">
     	<a href="http://<%=CommonConfiguration.getURLLocation(request)%>/encounters/encounter.jsp?number=<%=enc.getEncounterNumber()%>">

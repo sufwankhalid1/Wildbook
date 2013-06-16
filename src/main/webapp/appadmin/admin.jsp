@@ -191,13 +191,44 @@
               <p>Inform others email addresses to assign: <input
                 name="informEmail" type="text" id="informEmail" size="50"
                 maxlength="999"> <br/>
-                <br> <input name="Update" type="submit" id="Update"
+                <br /> <input name="Update" type="submit" id="Update"
                             value="Update"></p>
             </form>
           </td>
         </tr>
       </table>
 
+      <p>&nbsp;</p>
+      <table width="600" border="1">
+        <tr>
+          <td>
+            <p><img src="../images/Warning_icon.png" width="25px" height="*" align="absmiddle" />  <font size="+1">Delete All Data PERMANENTLY</font>
+            <br /><br /><em>Warning! This will delete ALL of your data. Your user account must have the 'destroyer' user role for this function to work, and this option is not available for any account by default. This option is only meant for
+            Shepherd Project instances that have transient data (i.e., the Shepherd Project is not the primary data store).</em>
+            </p>
+
+            <form name="deleteAll" method="post" action="../DeleteAllDataPermanently">
+
+              <input name="deleteAllData" type="submit" id="deleteAllData" value="Delete All Data PERMANENTLY">
+              </p></form>
+          </td>
+        </tr>
+      </table>
+      
+        <p>&nbsp;</p>
+      <table width="600" border="1">
+        <tr>
+          <td>
+            <p><font size="+1">Reset Common Configuration Properties</font></p>
+            <p></p>Reset the values in the commonConfiguration.properties file.</p>
+
+            <form name="ResetCommonConfigurationForm" method="post" action="../ResetCommonConfiguration">
+
+              <input name="ResetCommonConfiguration" type="submit" id="ResetCommonConfiguration" value="Reset">
+              </p></form>
+          </td>
+        </tr>
+      </table>
 
       <jsp:include page="../footer.jsp" flush="true"/>
     </div>

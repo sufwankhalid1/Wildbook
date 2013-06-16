@@ -45,6 +45,17 @@ import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.ThreadPoolExecutor;
 
+import java.sql.*;
+
+
+import org.apache.shiro.crypto.hash.*;
+import org.apache.shiro.util.*; 
+import org.apache.shiro.crypto.*;
+
+
+
+import java.util.Properties;
+
 //ATOM feed
 
 public class ServletUtilities {
@@ -342,51 +353,27 @@ public class ServletUtilities {
 
   public static boolean isUserAuthorizedForEncounter(Encounter enc, HttpServletRequest request) {
     boolean isOwner = false;
-    if (request.isUserInRole("admin")) {
+    if (request.getUserPrincipal()!=null) {
       isOwner = true;
     } 
-    else if (request.isUserInRole(enc.getLocationCode())) {
-      isOwner = true;
-    } 
-    else if ((((enc.getSubmitterID() != null) && (request.getRemoteUser() != null) && (enc.getSubmitterID().equals(request.getRemoteUser()))))) {
-      isOwner = true;
-    }
     return isOwner;
   }
 
   public static boolean isUserAuthorizedForIndividual(MarkedIndividual sharky, HttpServletRequest request) {
-    if (request.isUserInRole("admin")) {
+    if (request.getUserPrincipal()!=null) {
       return true;
-    }
-
-    Vector encounters = sharky.getEncounters();
-    int numEncs = encounters.size();
-    for (int y = 0; y < numEncs; y++) {
-      Encounter enc = (Encounter) encounters.get(y);
-      if (request.isUserInRole(enc.getLocationCode())) {
-        return true;
-      }
-    }
+    } 
     return false;
   }
   
   //occurrence
   public static boolean isUserAuthorizedForOccurrence(Occurrence sharky, HttpServletRequest request) {
-    if (request.isUserInRole("admin")) {
+    if (request.getUserPrincipal()!=null) {
       return true;
-    }
-
-    ArrayList<Encounter> encounters = sharky.getEncounters();
-    int numEncs = encounters.size();
-    for (int y = 0; y < numEncs; y++) {
-      Encounter enc = (Encounter) encounters.get(y);
-      if (request.isUserInRole(enc.getLocationCode())) {
-        return true;
-      }
-    }
+    } 
     return false;
   }
-  //occurrence
+
 
   public static Query setRange(Query query, int iterTotal, int highCount, int lowCount) {
 
@@ -456,5 +443,30 @@ public class ServletUtilities {
     DateTimeFormatter fmt = ISODateTimeFormat.date();
     return (fmt.print(dt));
   }
+  
+  public static Connection getConnection() throws SQLException {
+
+    Connection conn = null;
+    Properties connectionProps = new Properties();
+    connectionProps.put("user", CommonConfiguration.getProperty("datanucleus.ConnectionUserName"));
+    connectionProps.put("password", CommonConfiguration.getProperty("datanucleus.ConnectionPassword"));
+
+    
+    conn = DriverManager.getConnection(
+           CommonConfiguration.getProperty("datanucleus.ConnectionURL"),
+           connectionProps);
+    
+    System.out.println("Connected to database for authentication.");
+    return conn;
+}
+
+public static String hashAndSaltPassword(String clearTextPassword, String salt) {
+    return new Sha512Hash(clearTextPassword, salt, 200000).toHex();
+}
+
+public static ByteSource getSalt() {
+    return new SecureRandomNumberGenerator().nextBytes();
+}
+
 
 }

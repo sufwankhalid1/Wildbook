@@ -150,30 +150,7 @@ File encounterDir = new File(encountersDir, num);
 
     -->
 
-table.tissueSample {
-    border-width: 1px;
-    border-spacing: 2px;
-    border-style: hidden;
-    border-color: gray;
-    border-collapse: collapse;
-    background-color: white;
-}
-table.tissueSample th {
-    border-width: 1px;
-    padding: 1px;
-    border-style: solid;
-    border-color: gray;
-    background-color: #99CCFF;
-    -moz-border-radius: ;
-}
-table.tissueSample td {
-    border-width: 1px;
-    padding: 2px;
-    border-style: solid;
-    border-color: gray;
-    background-color: white;
-    -moz-border-radius: ;
-}
+
 
 
 th.measurement{
@@ -203,7 +180,37 @@ td.measurement{
     of the highslide.js file. The parameter hs.graphicsDir is important!
   -->
 
+
+<script type="text/javascript">
+
+  var map;
+  var marker;
+
+          function placeMarker(location) {
+          
+          //alert("entering placeMarker!");
+          
+          	if(marker!=null){marker.setMap(null);}  
+          	marker = new google.maps.Marker({
+          	      position: location,
+          	      map: map
+          	  });
+          
+          	  map.setCenter(location);
+          	  
+          	    var ne_lat_element = document.getElementById('lat');
+          	    var ne_long_element = document.getElementById('longitude');
+          
+          
+          	    ne_lat_element.value = location.lat();
+          	    ne_long_element.value = location.lng();
+	}
+	</script>
+
   <script type="text/javascript">
+  
+
+  
       hs.graphicsDir = '../highslide/highslide/graphics/';
       hs.align = 'center';
       hs.transitions = ['expand', 'crossfade'];
@@ -213,7 +220,7 @@ td.measurement{
 
     //block right-click user copying if no permissions available
     <%
-    if((request.isUserInRole("admin"))||(request.isUserInRole("imageProcessor"))){
+    if(request.getUserPrincipal()!=null){
     %>
     hs.blockRightClick = false;
     <%
@@ -237,7 +244,47 @@ td.measurement{
         hideOnMouseOut: true
       }
     });
+    
+    //test comment
+    
 
+
+  </script>
+  
+  <script>
+            function initialize() {
+            //alert("Initializing map!");
+              var mapZoom = 2;
+          	if($("#map_canvas").hasClass("full_screen_map")){mapZoom=3;}
+      
+              
+              var center = new google.maps.LatLng(10.8, 160.8);
+              
+              map = new google.maps.Map(document.getElementById('map_canvas'), {
+                zoom: mapZoom,
+                center: center,
+                mapTypeId: google.maps.MapTypeId.HYBRID
+        });
+        
+        	if(marker!=null){
+			marker.setMap(map);    
+	}
+ 
+        google.maps.event.addListener(map, 'click', function(event) {
+					//alert("Clicked map!");
+				    placeMarker(event.latLng);
+			  });
+			  
+			  
+	//adding the fullscreen control to exit fullscreen
+    	  var fsControlDiv = document.createElement('DIV');
+    	  var fsControl = new FSControl(fsControlDiv, map);
+    	  fsControlDiv.index = 1;
+    	  map.controls[google.maps.ControlPosition.TOP_RIGHT].push(fsControlDiv);
+
+		  
+        
+        }
   </script>
 
 <style type="text/css">
@@ -254,6 +301,11 @@ margin-bottom: 8px !important;
 
 <script src="http://maps.google.com/maps/api/js?sensor=false"></script>
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js"></script>
+
+<!--added below for improved map selection -->
+ <script type="text/javascript" src="http://geoxml3.googlecode.com/svn/branches/polys/geoxml3.js"></script>
+
+
   <script type="text/javascript" src="StyledMarker.js"></script>
 
 <!--  FACEBOOK LIKE BUTTON -->
@@ -277,7 +329,7 @@ margin-bottom: 8px !important;
 </head>
 
 <body <%if (request.getParameter("noscript") == null) {%>
-  onload="initialize()" onunload="GUnload()" <%}%>>
+  onload="initialize()" <%}%>>
 <div id="wrapper">
 <div id="page">
 <jsp:include page="../header.jsp" flush="true">
@@ -464,7 +516,13 @@ margin-bottom: 8px !important;
 %>
     
     <p class="para"><img align="absmiddle" src="../images/life_icon.gif">
-      <%=encprops.getProperty("status")%>: <%=enc.getLivingStatus()%> <%
+      <%=encprops.getProperty("status")%>: 
+      <%
+      if(enc.getLivingStatus()!=null){
+      %>
+      <%=enc.getLivingStatus()%>
+       <%
+    }
         if (isOwner && CommonConfiguration.isCatalogEditable()) {
       %>[<a
         href="encounter.jsp?number=<%=num%>&edit=livingStatus#livingStatus">edit</a>]<%
@@ -578,26 +636,50 @@ margin-bottom: 8px !important;
 </c:if>
 
 <p class="para"><strong><%=encprops.getProperty("location") %>
-</strong><br/> <%=enc.getLocation()%>
+</strong><br/> 
+<%
+if(enc.getLocation()!=null){
+%>
+<%=enc.getLocation()%>
+<%
+}
+%>
+
   <%
     if (isOwner && CommonConfiguration.isCatalogEditable()) {
   %><font size="-1">[<a href="encounter.jsp?number=<%=num%>&edit=location#location">edit</a>]</font>
   <%
     }
   %>
+  
   <br/>
-
-  <em><%=encprops.getProperty("locationID") %>
-  </em>: <%=enc.getLocationCode()%>
+  <em><%=encprops.getProperty("locationID") %></em>: <%=enc.getLocationCode()%>
   <%
     if (isOwner && CommonConfiguration.isCatalogEditable()) {%>
   <font size="-1">[<a href="encounter.jsp?number=<%=num%>&edit=loccode#loccode">edit</a>]</font>
   <a href="<%=CommonConfiguration.getWikiLocation()%>locationID" target="_blank"><img
     src="../images/information_icon_svg.gif" alt="Help" border="0" align="absmiddle"></a> <%
     }
-  %><br/>
-  <em><%=encprops.getProperty("latitude") %>
-  </em>:
+  %>
+  
+  <br/>
+  <em><%=encprops.getProperty("country") %></em>: 
+  <%
+  if(enc.getCountry()!=null){
+  %>
+  <%=enc.getCountry()%>
+  <%
+  }
+    if (isOwner && CommonConfiguration.isCatalogEditable()) {%>
+  <font size="-1">[<a href="encounter.jsp?number=<%=num%>&edit=country#country">edit</a>]</font>
+  <a href="<%=CommonConfiguration.getWikiLocation()%>country" target="_blank"><img
+    src="../images/information_icon_svg.gif" alt="Help" border="0" align="absmiddle"></a> <%
+    }
+  %>
+  
+  
+  <br/>
+  <em><%=encprops.getProperty("latitude") %></em>:
   <%
     if ((enc.getDWCDecimalLatitude() != null) && (!enc.getDWCDecimalLatitude().equals("-9999.0"))) {
   %>
@@ -605,8 +687,7 @@ margin-bottom: 8px !important;
   <%
     }
   %>
-  <br/> <em><%=encprops.getProperty("longitude") %>
-  </em>:
+  <br/> <em><%=encprops.getProperty("longitude") %></em>:
   <%
     if ((enc.getDWCDecimalLongitude() != null) && (!enc.getDWCDecimalLongitude().equals("-9999.0"))) {
   %>
@@ -616,7 +697,7 @@ margin-bottom: 8px !important;
   %>
   <br/> <%
     if (isOwner && CommonConfiguration.isCatalogEditable()) {
-  %><font size="-1">[<a href="encounter.jsp?number=<%=num%>&edit=gps#gps">edit</a>]</font>
+  %><font size="-1">[<a href="encounter.jsp?number=<%=num%>&edit=gps#map">edit</a>]</font>
   <%
     }
   %><br/> <a href="#map"><%=encprops.getProperty("view_map") %>
@@ -922,13 +1003,17 @@ if(enc.getComments()!=null){recordedComments=enc.getComments();}
 			//break up the string
 			StringTokenizer stzr=new StringTokenizer(enc.getSubmitterEmail(),",");
 		
-		while(stzr.hasMoreTokens()) {
-	%> <br/><%=stzr.nextToken()%> <%
-				}
+			while(stzr.hasMoreTokens()) {
+				String nextie=stzr.nextToken();
+			
+			%> <br/><a href="mailto:<%=nextie%>?subject=Information%20Request%20for%20Stranding%20<%=enc.getCatalogNumber()%>:<%=CommonConfiguration.getProperty("htmlTitle")%>"><%=nextie%></a> <%
+			}
 				
 		}
 		else if((enc.getSubmitterEmail()!=null)&&(!enc.getSubmitterEmail().equals(""))) {
-			%> <br/><%=enc.getSubmitterEmail()%> <%
+			%> <br/>
+			<a href="mailto:<%=enc.getSubmitterEmail()%>?subject=Information%20Request%20for%20Stranding%20<%=enc.getCatalogNumber()%>:<%=CommonConfiguration.getProperty("htmlTitle")%>"><%=enc.getSubmitterEmail()%></a> 
+			<%
 		}
 		if((enc.getSubmitterPhone()!=null)&&(!enc.getSubmitterPhone().equals(""))){
 		%> 
@@ -970,7 +1055,7 @@ if (isOwner) {
 
 if((enc.getPhotographerEmail()!=null)&&(!enc.getPhotographerEmail().equals(""))){
 %>
-	<br/><%=enc.getPhotographerEmail()%> 
+	<br/><a href="mailto:<%=enc.getPhotographerEmail()%>?subject=Information%20Request%20for%20Stranding%20<%=enc.getCatalogNumber()%>:<%=CommonConfiguration.getProperty("htmlTitle")%>"><%=enc.getPhotographerEmail()%></a> 
 <%
 }
 if((enc.getPhotographerPhone()!=null)&&(!enc.getPhotographerPhone().equals(""))){
@@ -1258,33 +1343,17 @@ else {
 <p><a name="map"><strong><img
   src="../images/2globe_128.gif" width="56" height="56"
   align="absmiddle"/></a><%=encprops.getProperty("mapping") %></strong></p>
-<%
-  if ((enc.getDWCDecimalLatitude() != null) && (enc.getDWCDecimalLongitude() != null)) {
-%>
+
 <p><%=encprops.getProperty("map_note") %>
 </p>
 
 
+
     <script type="text/javascript">
-      function initialize() {
-        var center = new google.maps.LatLng(<%=enc.getDecimalLatitude()%>, <%=enc.getDecimalLongitude()%>);
-        var mapZoom = 2;
-    	if($("#map_canvas").hasClass("full_screen_map")){mapZoom=3;}
 
-        
-        var map = new google.maps.Map(document.getElementById('map_canvas'), {
-          zoom: mapZoom,
-          center: center,
-          mapTypeId: google.maps.MapTypeId.HYBRID
-        });
+       
 
-    	  //adding the fullscreen control to exit fullscreen
-    	  var fsControlDiv = document.createElement('DIV');
-    	  var fsControl = new FSControl(fsControlDiv, map);
-    	  fsControlDiv.index = 1;
-    	  map.controls[google.maps.ControlPosition.TOP_RIGHT].push(fsControlDiv);
-
-        
+    	  
         var markers = [];
  
  
@@ -1305,24 +1374,15 @@ else {
 		   
            
            %>
-           var marker = new StyledMarker({styleIcon:new StyledIcon(StyledIconTypes.MARKER,{color:"<%=haploColor%>",text:"<%=markerText%>"}),position:latLng,map:map});
+           marker = new StyledMarker({styleIcon:new StyledIcon(StyledIconTypes.MARKER,{color:"<%=haploColor%>",text:"<%=markerText%>"}),position:latLng,map:map});
 	    
 
-            google.maps.event.addListener(marker,'click', function() {
-                 (new google.maps.InfoWindow({content: '<strong><a target=\"_blank\" href=\"http://<%=CommonConfiguration.getURLLocation(request)%>/individuals.jsp?number=<%=enc.isAssignedToMarkedIndividual()%>\"><%=enc.isAssignedToMarkedIndividual()%></a></strong><br /><table><tr><td><img align=\"top\" border=\"1\" src=\"/<%=CommonConfiguration.getDataDirectoryName()%>/encounters/<%=enc.getEncounterNumber()%>/thumb.jpg\"></td><td>Date: <%=enc.getDate()%><br />Sex: <%=enc.getSex()%><%if(enc.getSizeAsDouble()!=null){%><br />Size: <%=enc.getSize()%> m<%}%><br /><br /><a target=\"_blank\" href=\"http://<%=CommonConfiguration.getURLLocation(request)%>/encounters/encounter.jsp?number=<%=enc.getEncounterNumber()%>\" >Go to encounter</a></td></tr></table>'})).open(map, this);
-             });
  
 	
           markers.push(marker);
           //map.fitBounds(bounds); 
- 
 
- 
-
-      }
       
-      
-
       function fullScreen(){
     		$("#map_canvas").addClass('full_screen_map');
     		$('html, body').animate({scrollTop:0}, 'slow');
@@ -1402,17 +1462,49 @@ else {
       google.maps.event.addDomListener(window, 'load', initialize);
     </script>
  <div id="map_canvas" style="width: 510px; height: 350px; "></div>
+ 
+ 
+ <!-- adding ne submit GPS-->
+ <%
+ if(loggedIn){
+ String longy="";
+       		String laty="";
+       		if(enc.getLatitudeAsDouble()!=null){laty=enc.getLatitudeAsDouble().toString();}
+       		if(enc.getLongitudeAsDouble()!=null){longy=enc.getLongitudeAsDouble().toString();}
+       		
+     		%> <a name="gps"></a>
+     		
+     		
+     		<table>
+     		<tr>
+				<td>
+				<form name="resetGPSform" method="post" action="../EncounterSetGPS">
+				    <input name="action" type="hidden" value="resetGPS" />
+    				
+				<strong><%=encprops.getProperty("latitude")%>:</strong>
+		
+					<input name="lat" type="text" id="lat" size="10" value="<%=laty%>" /> &deg;
+					<strong><%=encprops.getProperty("longitude")%>:</strong>
+				<input name="longitude" type="text" id="longitude" size="10" value="<%=longy%>" />
+				&deg;
+				<br />
+				<input name="setGPSbutton" type="submit" id="setGPSbutton" value="<%=encprops.getProperty("setGPS")%>" />
+    				
+				<br/>
+				<br/> GPS coordinates are in the decimal degrees
+				format. Do you have GPS coordinates in a different format? <a
+					href="http://www.csgnetwork.com/gpscoordconv.html" target="_blank">Click
+				here to find a converter.</a>
+				<input name="number" type="hidden" value=<%=num%> /> 
+				    				
+					</form></td>
+	</tr>
+     		</table>
+     		
+ <!--end adding submit GPS-->
 
 <%
-} 
-  else {
-  //test comment
-  %>
-<p><%=encprops.getProperty("nomap") %>
-</p>
-<br/> <%
-
-  }
+}
 
 if(loggedIn){
 
@@ -1466,7 +1558,7 @@ while(encprops.getProperty(("jspImport"+currentImportNum))!=null){
           <input name="action" type="hidden" value="enc_comments" id="action">
 
         <p>
-          <textarea name="comments" cols="50" id="comments"></textarea> <br/>
+          <textarea name="autocomments" cols="50" id="autocomments"></textarea> <br/>
           <input name="Submit" type="submit" value="<%=encprops.getProperty("add_comment")%>">
         </p>
       </form>
