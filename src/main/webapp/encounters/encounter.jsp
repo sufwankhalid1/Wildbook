@@ -31,6 +31,17 @@
 //get encounter number
 String num = request.getParameter("number").replaceAll("\\+", "").trim();
 
+//check permissions
+boolean isOwner=false;
+Shepherd myShepherd = new Shepherd();
+myShepherd.beginDBTransaction();
+if(myShepherd.isEncounter(num)){
+	Encounter enc2=myShepherd.getEncounter(num);
+	isOwner = ServletUtilities.isUserAuthorizedForEncounter(enc2, request);
+}
+myShepherd.rollbackDBTransaction();
+
+
 //let's set up references to our file system components
 String rootWebappPath = getServletContext().getRealPath("/");
 File webappsDir = new File(rootWebappPath).getParentFile();
@@ -71,7 +82,7 @@ File encounterDir = new File(encountersDir, num);
   pageContext.setAttribute("num", num);
 
 
-  Shepherd myShepherd = new Shepherd();
+
   Extent allKeywords = myShepherd.getPM().getExtent(Keyword.class, true);
   Query kwQuery = myShepherd.getPM().newQuery(allKeywords);
   boolean proceed = true;
@@ -270,11 +281,17 @@ td.measurement{
 			marker.setMap(map);    
 	}
  
+ 	<%
+ 	if(isOwner){
+ 	%>
         google.maps.event.addListener(map, 'click', function(event) {
 					//alert("Clicked map!");
 				    placeMarker(event.latLng);
 			  });
-			  
+	<%
+	}
+	%>
+	
 			  
 	//adding the fullscreen control to exit fullscreen
     	  var fsControlDiv = document.createElement('DIV');
@@ -356,7 +373,7 @@ margin-bottom: 8px !important;
 	int numImages=myShepherd.getAllSinglePhotoVideosForEncounter(enc.getCatalogNumber()).size();
       
 //let's see if this user has ownership and can make edits
-      boolean isOwner = ServletUtilities.isUserAuthorizedForEncounter(enc, request);
+      
       pageContext.setAttribute("editable", isOwner && CommonConfiguration.isCatalogEditable());
       boolean loggedIn = false;
       try{
