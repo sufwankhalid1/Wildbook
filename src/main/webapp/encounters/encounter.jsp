@@ -207,7 +207,7 @@ td.measurement{
           	      map: map
           	  });
           
-          	  map.setCenter(location);
+          	  //map.setCenter(location);
           	  
           	    var ne_lat_element = document.getElementById('lat');
           	    var ne_long_element = document.getElementById('longitude');
