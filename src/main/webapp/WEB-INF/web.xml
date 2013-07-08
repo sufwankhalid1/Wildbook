@@ -76,7 +76,9 @@
                 #IniShiroFilter will inject that object into the SecurityManager
                 [main]
                 realmA = org.ecocean.security.ShepherdRealm
-                roles.unauthorizedUrl = /accessDenied.jsp 
+                roles.unauthorizedUrl = /accessDenied.jsp
+                
+                authc.loginUrl = /login.jsp
                 
                 #this application will use all the default
                 #filters (see link above)
