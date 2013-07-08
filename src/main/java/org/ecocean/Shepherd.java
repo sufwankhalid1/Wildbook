@@ -2302,6 +2302,16 @@ public class Shepherd {
     Query q = pm.newQuery("SELECT max(year) FROM org.ecocean.Encounter");
     return ((Integer) q.execute()).intValue();
   }
+  
+  public String getNextEncounterNumber(){
+    int i=1;
+    String rep=Integer.toString(i);
+    while(getEncounter(rep)!=null){
+      i++;
+      rep=Integer.toString(i);
+    }
+    return rep;
+  }
 
   public int getLastMonthOfSightingYear(int yearHere) {
     Query q = pm.newQuery("SELECT max(month) FROM org.ecocean.Encounter WHERE this.year == " + yearHere);

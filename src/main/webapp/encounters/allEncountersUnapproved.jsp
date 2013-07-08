@@ -210,7 +210,6 @@
   <td bgcolor="#99CCFF" class="lineitem">&nbsp;</td>
   <td align="left" valign="top" bgcolor="#99CCFF" class="lineitem"><strong><%=number %>
   </strong><br/>
-    (<%=last %> 4) <br/>
  
   </td>
   <td align="left" valign="top" bgcolor="#99CCFF" class="lineitem"><strong><%=date %>
