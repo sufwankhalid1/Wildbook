@@ -53,14 +53,14 @@
   
   
     <li style="background: #000066;"><a
-      href="http://<%=CommonConfiguration.getURLLocation(request) %>"
+      href="http://www.apodstrandings.org"
       style="margin: 0px 0 0px 0px; position: relative; width: 105px; height: 25px; z-index: 100;"><strong><%=props.getProperty("home")%>
     </strong></a></li>
     
     
     
     <li class="drop"><a
-      href="http://<%=CommonConfiguration.getURLLocation(request) %>/index.jsp"
+      href="http://www.apodstrandings.org/index.jsp"
       style="margin: 0px 0 0px 0px; position: relative; width: 85px; height: 25px; z-index: 100;"><strong><%=props.getProperty("learn")%>
     </strong></a>
       <!--[if lte IE 6]>
@@ -80,7 +80,7 @@
       
       
     <li class="drop"><a
-      href="http://<%=CommonConfiguration.getURLLocation(request) %>/submit.jsp"
+      href="http://www.apodstrandings.org/submit.jsp"
       style="margin: 0px 0 0px 0px; position: relative; width: 100px; height: 25px; z-index: 100;"><strong><%=props.getProperty("participate")%>
     </strong></a>
       <!--[if lte IE 6]>
@@ -90,7 +90,7 @@
       <ul>
 
         <li><a
-          href="http://<%=CommonConfiguration.getURLLocation(request) %>/submit.jsp"
+          href="http://www.apodstrandings.org/submit.jsp"
           class="enclose"
           style="margin: 0px 0 0px 0px; position: relative; width: 160px; height: 25px; z-index: 100;"><%=props.getProperty("report")%>
         </a></li>
@@ -103,7 +103,7 @@
       
 
     <li class="drop"><a
-      href="http://<%=CommonConfiguration.getURLLocation(request) %>/encounters/allEncounters.jsp?start=1&amp;end=10"
+      href="http://www.apodstrandings.org/encounters/allEncounters.jsp?start=1&amp;end=10"
       style="margin: 0px 0 0px 0px; position: relative; width: 115px; height: 25px; z-index: 100;"><strong><%=props.getProperty("encounters")%>
     </strong><!--[if IE 7]><!--></a><!--<![endif]-->
       <!--[if lte IE 6]>
@@ -112,19 +112,26 @@
           <td><![endif]-->
       <ul>
         <li><a
-          href="http://<%=CommonConfiguration.getURLLocation(request) %>/encounters/allEncounters.jsp?start=1&amp;end=10"
+          href="http://www.apodstrandings.org/encounters/allEncounters.jsp?start=1&amp;end=10"
           class="enclose"
           style="margin: 0px 0 0px 0px; position: relative; width: 210px; height: 25px;z-index: 100;"><%=props.getProperty("viewEncounters")%>
         </a></li>
+        
+        <li><a
+	          href="http://www.apodstrandings.org/encounters/allMappedEncounters.jsp?start=1&amp;end=10"
+	          class="enclose"
+	          style="margin: 0px 0 0px 0px; position: relative; width: 210px; height: 25px;z-index: 100;">Strandings Map
+	        </a></li>
+
 
         <li><a
-          href="http://<%=CommonConfiguration.getURLLocation(request) %>/encounters/thumbnailSearchResults.jsp?noQuery=true"
+          href="http://www.apodstrandings.org/encounters/thumbnailSearchResults.jsp?noQuery=true"
           class="enclose"
           style="margin: 0px 0 0px 0px; position: relative; width: 210px; height: 25px;"><%=props.getProperty("viewImages")%>
         </a></li>
 
         <li><a
-          href="http://<%=CommonConfiguration.getURLLocation(request) %>/xcalendar/calendar.jsp"
+          href="http://www.apodstrandings.org/xcalendar/calendar.jsp"
           class="enclose"
           style="margin: 0px 0 0px 0px; position: relative; width: 210px; height: 25px;"><%=props.getProperty("encounterCalendar")%>
         </a></li>
@@ -141,7 +148,7 @@
           if ((request.getParameter("isAdmin") != null) && (request.getParameter("isAdmin").equals("true"))) {
         %>
         <li><a
-          href="http://<%=CommonConfiguration.getURLLocation(request) %>/encounters/allEncounters.jsp?start=1&amp;end=10&amp;sort=nosort&amp;user=<%=request.getRemoteUser()%>"
+          href="http://www.apodstrandings.org/encounters/allEncounters.jsp?start=1&amp;end=10&amp;sort=nosort&amp;user=<%=request.getRemoteUser()%>"
           class="enclose"
           style="margin: 0px 0 0px 0px; position: relative; width: 210px; height: 25px;"><%=props.getProperty("viewMySubmissions")%>
         </a>
@@ -166,7 +173,7 @@
       
       
     <li class="drop">
-      <a href="http://<%=CommonConfiguration.getURLLocation(request) %>/welcome.jsp?reflect=http://<%=CommonConfiguration.getURLLocation(request) %>/encounters/encounterSearch.jsp"
+      <a href="http://www.apodstrandings.org/welcome.jsp?reflect=http://www.apodstrandings.org/encounters/encounterSearch.jsp"
         style="margin: 0px 0 0px 0px; position: relative; width: 100px; height: 25px; z-index: 100;"><strong><%=props.getProperty("search")%>
       </strong></a>
 
@@ -178,7 +185,7 @@
 
 
         <li>
-          <a href="http://<%=CommonConfiguration.getURLLocation(request) %>/encounters/encounterSearch.jsp"
+          <a href="http://www.apodstrandings.org/encounters/encounterSearch.jsp"
              class="enclose"
              style="margin: 0px 0 0px 0px; position: relative; width: 150px; height: 25px;">
             <%=props.getProperty("encounterSearch")%>
@@ -188,7 +195,7 @@
 
         
         <li><a
-          href="http://<%=CommonConfiguration.getURLLocation(request) %>/googleSearch.jsp"
+          href="http://www.apodstrandings.org/googleSearch.jsp"
           class="enclose"
           style="margin: 0px 0 0px 0px; position: relative; width: 150px; height: 25px;"><%=props.getProperty("googleSearch")%>
         </a></li>
@@ -201,7 +208,7 @@
 
 
     <li class="drop"><a id="general_admin"
-      href="http://<%=CommonConfiguration.getURLLocation(request) %>/welcome.jsp?reflect=http://<%=CommonConfiguration.getURLLocation(request) %>/appadmin/admin.jsp"
+      href="http://www.apodstrandings.org/welcome.jsp?reflect=http://www.apodstrandings.org/appadmin/admin.jsp"
       style="margin: 0px 0 0px 0px; position: relative; width: 110px; height: 25px; z-index: 100;"><strong><%=props.getProperty("administer")%>
     </strong></a>
       <!--[if lte IE 6]>
@@ -225,13 +232,13 @@
         <% } %>
 
         <li><a
-          href="http://<%=CommonConfiguration.getURLLocation(request) %>/appadmin/admin.jsp"
+          href="http://www.apodstrandings.org/appadmin/admin.jsp"
           class="enclose"
           style="margin: 0px 0 0px 0px; position: relative; width: 190px; height: 25px;"><%=props.getProperty("general")%>
         </a></li>
         
         <li><a
-	          href="http://<%=CommonConfiguration.getURLLocation(request) %>/appadmin/logs.jsp"
+	          href="http://www.apodstrandings.org/appadmin/logs.jsp"
 	          class="enclose"
 	          style="margin: 0px 0 0px 0px; position: relative; width: 190px; height: 25px;"><%=props.getProperty("logs")%>
         </a></li>
@@ -240,18 +247,18 @@
         if(CommonConfiguration.useSpotPatternRecognition()){
         %>
          <li><a
-	          href="http://<%=CommonConfiguration.getURLLocation(request) %>/software/software.jsp"
+	          href="http://www.apodstrandings.org/software/software.jsp"
 	          class="enclose"
 	          style="margin: 0px 0 0px 0px; position: relative; width: 190px; height: 25px;"><%=props.getProperty("gridSoftware")%>
         </a></li>
 
-        	<li><a href="http://<%=CommonConfiguration.getURLLocation(request) %>/appadmin/scanTaskAdmin.jsp?langCode=<%=langCode%>" class="enclose" style="margin:0px 0 0px 0px; position:relative; width:190px; height:25px;z-index:99;">Grid Administration</a></li>
+        	<li><a href="http://www.apodstrandings.org/appadmin/scanTaskAdmin.jsp?langCode=<%=langCode%>" class="enclose" style="margin:0px 0 0px 0px; position:relative; width:190px; height:25px;z-index:99;">Grid Administration</a></li>
 		<%
           }
 		%>
 		
 	<li><a
-	          href="http://<%=CommonConfiguration.getURLLocation(request) %>/appadmin/users.jsp"
+	          href="http://www.apodstrandings.org/appadmin/users.jsp"
 	          class="enclose"
 	          style="margin: 0px 0 0px 0px; position: relative; width: 190px; height: 25px;"><%=props.getProperty("userManagement")%>
         </a></li>	
@@ -281,7 +288,7 @@
         
         
     
-        <li><a href="http://<%=CommonConfiguration.getURLLocation(request) %>/appadmin/kwAdmin.jsp"
+        <li><a href="http://www.apodstrandings.org/appadmin/kwAdmin.jsp"
                class="enclose"
                style="margin: 0px 0 0px 0px; position: relative; width: 190px; height: 25px;"><%=props.getProperty("photoKeywords")%>
         </a>
@@ -292,11 +299,11 @@
           if (CommonConfiguration.allowAdoptions()) {
         %>
         <li class="drop"><a
-          href="http://<%=CommonConfiguration.getURLLocation(request) %>/adoptions/adoption.jsp"
+          href="http://www.apodstrandings.org/adoptions/adoption.jsp"
           style="margin: 0px 0 0px 0px; position: relative; width: 190px; height: 25px; z-index: 100;"><strong><%=props.getProperty("adoptions")%>
         </strong>
           <img
-            src="http://<%=CommonConfiguration.getURLLocation(request) %>/images/white_triangle.gif"
+            src="http://www.apodstrandings.org/images/white_triangle.gif"
             border="0" align="absmiddle"></a>
           <!--[if lte IE 6]>
           <table>
@@ -304,13 +311,13 @@
               <td><![endif]-->
           <ul>
             <li><a
-              href="http://<%=CommonConfiguration.getURLLocation(request) %>/adoptions/adoption.jsp"
+              href="http://www.apodstrandings.org/adoptions/adoption.jsp"
               class="enclose"
               style="margin: 0px 0 0px 80px; position: relative; width: 190px; height: 25px;"><%=props.getProperty("createEditAdoption")%>
             </a></li>
             <li
               style="margin: 0px 0 0px 80px; position: relative; width: 191px; height: 26px;"><a
-              href="http://<%=CommonConfiguration.getURLLocation(request) %>/adoptions/allAdoptions.jsp"
+              href="http://www.apodstrandings.org/adoptions/allAdoptions.jsp"
               class="enclose"
               style="margin: 0px 0 0px 0px; position: relative; width: 190px; height: 25px;"><%=props.getProperty("viewAllAdoptions")%>
             </a></li>
@@ -328,11 +335,11 @@
           100;"><strong><%=props.getProperty("shepherdDoc")%></strong></a>
         </li>
         
-<li><a href="http://<%=CommonConfiguration.getURLLocation(request) %>/javadoc/index.html" class="enclose" style="margin:0px 0 0px 0px; position:relative; width:190px; height:25px;z-index:99;">Javadoc</a></li>
+<li><a href="http://www.apodstrandings.org/javadoc/index.html" class="enclose" style="margin:0px 0 0px 0px; position:relative; width:190px; height:25px;z-index:99;">Javadoc</a></li>
 <%
 if(CommonConfiguration.isCatalogEditable()){
 %>						
-<li><a href="http://<%=CommonConfiguration.getURLLocation(request) %>/appadmin/import.jsp" class="enclose" style="margin:0px 0 0px 0px; position:relative; width:190px; height:25px;z-index:99;">Data Import</a></li>
+<li><a href="http://www.apodstrandings.org/appadmin/import.jsp" class="enclose" style="margin:0px 0 0px 0px; position:relative; width:190px; height:25px;z-index:99;">Data Import</a></li>
 <%
 }
 %>					
@@ -345,7 +352,7 @@ if(CommonConfiguration.isCatalogEditable()){
 
 
 
-    <li><a href="http://<%=CommonConfiguration.getURLLocation(request) %>/contactus.jsp"
+    <li><a href="http://www.apodstrandings.org/contactus.jsp"
            style="margin:0px 0 0px 0px; position:relative; width:110px; height:25px; z-index:100;"><strong><%=props.getProperty("contactUs")%>
     </strong></a></li>
     
@@ -355,12 +362,12 @@ if(CommonConfiguration.isCatalogEditable()){
     <%if (request.getRemoteUser() == null) {%>
     <li><a
 
-      href="http://<%=CommonConfiguration.getURLLocation(request) %>/login.jsp"
+      href="http://www.apodstrandings.org/login.jsp"
       style="margin: 0px 0 0px 0px; position: relative; width: 76px; height: 25px; z-index: 100;"><strong><%=props.getProperty("login")%>
     </strong></a></li>
     <%} else {%>
     <li><a
-      href="http://<%=CommonConfiguration.getURLLocation(request) %>/LogoutUser"
+      href="http://www.apodstrandings.org/LogoutUser"
       style="margin: 0px 0 0px 0px; position: relative; width: 76px; height: 25px; z-index: 100;"><strong><%=props.getProperty("logout")%>
 
     </strong></a></li>
