@@ -2304,13 +2304,14 @@ public class Shepherd {
   }
   
   public String getNextEncounterNumber(){
-    int i=1;
-    String rep=Integer.toString(i);
-    while(getEncounter(rep)!=null){
-      i++;
-      rep=Integer.toString(i);
+    String nextNum="1";
+    Query q = pm.newQuery("SELECT max(catalogNumber) FROM org.ecocean.Encounter");
+    try{
+      String highestNum = (String)q.execute();
+      if(highestNum!=null)nextNum=highestNum;
     }
-    return rep;
+    catch(Exception e){}
+    return nextNum;
   }
 
   public int getLastMonthOfSightingYear(int yearHere) {
