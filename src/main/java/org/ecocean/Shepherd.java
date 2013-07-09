@@ -2304,14 +2304,18 @@ public class Shepherd {
   }
   
   public String getNextEncounterNumber(){
-    String nextNum="1";
-    Query q = pm.newQuery("SELECT max(catalogNumber) FROM org.ecocean.Encounter");
-    try{
-      String highestNum = (String)q.execute();
-      if(highestNum!=null)nextNum=highestNum;
-    }
-    catch(Exception e){}
-    return nextNum;
+    int nextNum=1;
+    
+      Iterator it=getAllEncounters();
+      while(it.hasNext()){
+        Encounter enc=(Encounter)it.next();
+        String catNum=enc.getCatalogNumber();
+        int intCatNum=(new Integer(catNum)).intValue();
+        if(intCatNum>=nextNum){nextNum=intCatNum;}
+      }
+      
+    
+    return (new Integer(nextNum+1)).toString();
   }
 
   public int getLastMonthOfSightingYear(int yearHere) {
