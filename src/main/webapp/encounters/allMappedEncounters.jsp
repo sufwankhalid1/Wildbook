@@ -250,9 +250,40 @@ if(rEncounters.size()>0){
            %>
            var marker = new StyledMarker({styleIcon:new StyledIcon(StyledIconTypes.MARKER,{color:"<%=haploColor%>",text:"<%=markerText%>"}),position:latLng,map:map});
 	    
+           <%
+           String commonName=map_props.getProperty("notAvailable");
+   			if((thisEnc.getGenus()!=null)&&(thisEnc.getSpecificEpithet()!=null)){commonName=thisEnc.getGenus()+" "+thisEnc.getSpecificEpithet();}
+   			boolean hasMoreTax=true;
+		  			       int taxNum=0;
+		  			       if(CommonConfiguration.showProperty("showTaxonomy")){
+		  			       while(hasMoreTax){
+		  			       	  String currentGenuSpecies = "genusSpecies"+taxNum;
+		  			       	  if(CommonConfiguration.getProperty(currentGenuSpecies)!=null){
+		  			       	  	
+		  			       	  	 
+		  			       	  	  String currentValue = CommonConfiguration.getProperty(currentGenuSpecies);
+		  			       	  	if((currentValue.startsWith(commonName))&&(currentValue.indexOf(",")!=-1)){
+		  			       	  	
+		  			       	  		int startPoint=currentValue.indexOf(",");
+		  			       	  		commonName=currentValue.substring((startPoint+1));
+		  			       	  	
+		  			       	  	}
+		  			       		taxNum++;
+		  			          }
+		  			          else{
+		  			             hasMoreTax=false;
+		  			          }
+		  			          
+					       }
+			       }
+   		
+   		
+   		
+   		%>
+       
 
             google.maps.event.addListener(marker,'click', function() {
-                 (new google.maps.InfoWindow({content: '<table><tr><td><img align=\"top\" border=\"1\" src=\"/<%=CommonConfiguration.getDataDirectoryName()%>/encounters/<%=thisEnc.getEncounterNumber()%>/thumb.jpg\"></td><td>Date: <%=thisEnc.getDate()%><br />Sex: <%=thisEnc.getSex()%><%if(thisEnc.getSizeAsDouble()!=null){%><br />Size: <%=thisEnc.getSize()%> m<%}%><br /><br /><a target=\"_blank\" href=\"http://<%=CommonConfiguration.getURLLocation(request)%>/encounters/encounter.jsp?number=<%=thisEnc.getEncounterNumber()%>\" >Go to encounter</a></td></tr></table>'})).open(map, this);
+                 (new google.maps.InfoWindow({content: '<table><tr><td><img align=\"top\" border=\"1\" src=\"/<%=CommonConfiguration.getDataDirectoryName()%>/encounters/<%=thisEnc.getEncounterNumber()%>/thumb.jpg\"></td><td>Stranding: <%=thisEnc.getCatalogNumber()%><br /><em><%=thisEnc.getGenus()%> <%=thisEnc.getSpecificEpithet()%></em> <br />Date: <%=thisEnc.getDate()%><br />Sex: <%=thisEnc.getSex()%><%if(thisEnc.getSizeAsDouble()!=null){%><br />Size: <%=thisEnc.getSize()%> m<%}%><br /><br /><a target=\"_blank\" href=\"http://<%=CommonConfiguration.getURLLocation(request)%>/encounters/encounter.jsp?number=<%=thisEnc.getEncounterNumber()%>\" >Go to stranding</a></td></tr></table>'})).open(map, this);
              });
  
 	
