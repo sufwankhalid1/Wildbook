@@ -87,6 +87,7 @@
       		<th><strong>Roles</strong></th>
       		<th width="40px"><strong>Edit?</strong></th>
       		<th><strong>Delete?</strong></th>
+      		<th><strong>Last Login</strong></th>
       	</tr>
       
       <%
@@ -137,6 +138,15 @@
       			<%
       			}
       			%>
+      		</td>
+      		<td>
+      		<% 
+      		if(user.getLastLoginAsDateString()!=null){
+      		%>
+      			<em><%=user.getLastLoginAsDateString().substring(0,user.getLastLoginAsDateString().indexOf("T")) %></em>
+      		<%
+      		}
+      		%>
       		</td>
       	</tr>
       	<%
@@ -292,7 +302,7 @@
                      <tr><td colspan="4">Research Project: <input name="userProject" type="text" size="15" maxlength="90" value="<%=userProject %>"></input></td></tr>
                           
                     <tr><td colspan="4">Project URL: <input name="userURL" type="text" size="15" maxlength="90" value="<%=userURL %>"></input></td></tr>
-		     <tr><td colspan="4" valign="top">User Statement: <textarea name="userStatement" size="100"><%=userStatement%></textarea></td></tr>                  
+		     <tr><td colspan="4" valign="top">User Statement (255 char. max): <textarea name="userStatement" size="100" maxlength="255"><%=userStatement%></textarea></td></tr>                  
                     
                     <tr><td colspan="4"><input name="Create" type="submit" id="Create" value="Create" /></td></tr>
             </table>
