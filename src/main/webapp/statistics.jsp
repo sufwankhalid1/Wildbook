@@ -42,7 +42,7 @@
 
 
   
-//let's prep the HashTable for the sspecies pie chart
+//let's prep the HashTable for the species pie chart
   ArrayList<String> allSpecies2=CommonConfiguration.getSequentialPropertyValues("genusSpecies"); 
   int numSpecies2 = allSpecies2.size();
   Hashtable<String,Integer> speciesHashtable = new Hashtable<String,Integer>();
@@ -60,6 +60,16 @@
 		
 		speciesHashtable.put(thisSpecies, new Integer(0));
 	}
+	
+	
+	//let's prep the HashTable for the country pie chart
+	  ArrayList<String> allCountries=myShepherd.getAllCountries(); 
+	  int numCountries= allCountries.size();
+	  Hashtable<String,Integer> countriesHashtable = new Hashtable<String,Integer>();
+		for(int gg=0;gg<numCountries;gg++){
+			String thisCountry=allCountries.get(gg);
+			countriesHashtable.put(thisCountry, new Integer(0));
+		}
   
 	
 	  //kick off the transaction
@@ -73,6 +83,8 @@
 		for(int y=0;y<resultSize;y++){
 			 
 			 Encounter thisEnc=(Encounter)rEncounters.get(y);
+			 
+			 //check the encounter species
 			 if((thisEnc.getGenus()!=null)&&(thisEnc.getSpecificEpithet()!=null)){
 				 String encGenusSpecies=thisEnc.getGenus()+" "+thisEnc.getSpecificEpithet();
 				 if(speciesHashtable.containsKey(encGenusSpecies)){
@@ -81,6 +93,15 @@
 		      	   }
 				 
 			 }
+			 
+			 
+			 if(thisEnc.getCountry()!=null){
+				 if(countriesHashtable.containsKey(thisEnc.getCountry())){
+		      		   Integer thisInt = countriesHashtable.get(thisEnc.getCountry())+1;
+		      		   countriesHashtable.put(thisEnc.getCountry(), thisInt);
+		      	   }
+			 }
+			 
 		 }
 
 %>
@@ -118,6 +139,7 @@
 
 <script type="text/javascript">
       google.load("visualization", "1", {packages:["corechart"]});
+      
       google.setOnLoadCallback(drawSpeciesChart);
       function drawSpeciesChart() {
         var speciesData = new google.visualization.DataTable();
@@ -144,15 +166,50 @@
 		 %>
           
         ]);
-
-        var speciesOptions = {
+     var speciesOptions = {
           width: 810, height: 450,
           title: 'Species Distribution of Reported Strandings',
           //colors: ['#0000FF','#FF00FF']
         };
-
-        var speciesChart = new google.visualization.PieChart(document.getElementById('specieschart_div'));
+      var speciesChart = new google.visualization.PieChart(document.getElementById('specieschart_div'));
         speciesChart.draw(speciesData, speciesOptions);
+      }
+      
+      
+      //countries chart
+       google.setOnLoadCallback(drawCountriesChart);
+      function drawCountriesChart() {
+        var countriesData = new google.visualization.DataTable();
+        countriesData.addColumn('string', 'Country');
+        countriesData.addColumn('number', 'No. Recorded');
+        countriesData.addRows([
+          <%
+          //ArrayList<String> allCountries=myShepherd.getAllCountries(); 
+          //int numSpecies = speciesHashtable.size();
+          Enumeration<String> countriesKeys=countriesHashtable.keys();
+
+          while(countriesKeys.hasMoreElements()){
+        	  String keyName=countriesKeys.nextElement();
+        	  //System.out.println(keyName);
+          %>
+          ['<%=keyName%>',    <%=countriesHashtable.get(keyName) %>]
+		  <%
+		  if(countriesKeys.hasMoreElements()){
+		  %>
+		  ,
+		  <%
+		  }
+         }
+		 %>
+          
+        ]);
+     var countriesOptions = {
+          width: 810, height: 450,
+          title: 'Distribution by Country of Reported Strandings',
+          //colors: ['#0000FF','#FF00FF']
+        };
+      var countriesChart = new google.visualization.PieChart(document.getElementById('countrieschart_div'));
+        countriesChart.draw(countriesData, countriesOptions);
       }
       
       
@@ -180,7 +237,7 @@
 
 		<div id="specieschart_div"></div>
 
-		Under development...
+		<div id="countrieschart_div"></div>
 
  <jsp:include page="footer.jsp" flush="true"/>
       </div>
