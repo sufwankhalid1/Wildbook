@@ -122,6 +122,12 @@
 	          class="enclose"
 	          style="margin: 0px 0 0px 0px; position: relative; width: 210px; height: 25px;z-index: 100;">Strandings Map
 	        </a></li>
+	        
+	        <li><a
+	          href="http://68.169.52.117/statistics.jsp"
+	          class="enclose"
+	          style="margin: 0px 0 0px 0px; position: relative; width: 210px; height: 25px;z-index: 100;">Statistics
+	        </a></li>
 
 
         <li><a
