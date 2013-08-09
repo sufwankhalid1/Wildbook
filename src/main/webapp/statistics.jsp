@@ -68,7 +68,10 @@
 	  Hashtable<String,Integer> countriesHashtable = new Hashtable<String,Integer>();
 		for(int gg=0;gg<numCountries;gg++){
 			String thisCountry=allCountries.get(gg);
-			countriesHashtable.put(thisCountry, new Integer(0));
+			if(thisCountry!=null){
+				countriesHashtable.put(thisCountry, new Integer(0));
+			}
+			
 		}
   
 	
@@ -78,6 +81,9 @@
 	  //start the query and get the results
 	  rEncounters = myShepherd.getAllEncountersNoFilterAsVector();
 
+	  //prep n= tallies
+		int numSpeciesEntries=0;
+		int numCountryEntries=0;
 	  
 	  int resultSize=rEncounters.size();
 		for(int y=0;y<resultSize;y++){
@@ -85,21 +91,26 @@
 			 Encounter thisEnc=(Encounter)rEncounters.get(y);
 			 
 			 //check the encounter species
+			 
 			 if((thisEnc.getGenus()!=null)&&(thisEnc.getSpecificEpithet()!=null)){
 				 String encGenusSpecies=thisEnc.getGenus()+" "+thisEnc.getSpecificEpithet();
 				 if(speciesHashtable.containsKey(encGenusSpecies)){
 		      		   Integer thisInt = speciesHashtable.get(encGenusSpecies)+1;
 		      		   speciesHashtable.put(encGenusSpecies, thisInt);
+		      		   numSpeciesEntries++;
 		      	   }
 				 
 			 }
 			 
 			 
+			 //check the Encounter country
+			 
 			 if(thisEnc.getCountry()!=null){
 				 if(countriesHashtable.containsKey(thisEnc.getCountry())){
 		      		   Integer thisInt = countriesHashtable.get(thisEnc.getCountry())+1;
 		      		   countriesHashtable.put(thisEnc.getCountry(), thisInt);
-		      	   }
+		      	 		numCountryEntries++;  
+				 }
 			 }
 			 
 		 }
@@ -153,7 +164,7 @@
 
           while(speciesKeys.hasMoreElements()){
         	  String keyName=speciesKeys.nextElement();
-        	  System.out.println(keyName);
+        	  //System.out.println(keyName);
           %>
           ['<%=keyName%>',    <%=speciesHashtable.get(keyName) %>]
 		  <%
@@ -168,7 +179,7 @@
         ]);
      var speciesOptions = {
           width: 810, height: 450,
-          title: 'Species Distribution of Reported Strandings',
+          title: 'Species Distribution of Reported Strandings (n=<%=numSpeciesEntries%>)',
           //colors: ['#0000FF','#FF00FF']
         };
       var speciesChart = new google.visualization.PieChart(document.getElementById('specieschart_div'));
@@ -205,7 +216,7 @@
         ]);
      var countriesOptions = {
           width: 810, height: 450,
-          title: 'Distribution by Country of Reported Strandings',
+          title: 'Distribution by Country of Reported Strandings (n=<%=numCountryEntries%>)',
           //colors: ['#0000FF','#FF00FF']
         };
       var countriesChart = new google.visualization.PieChart(document.getElementById('countrieschart_div'));
@@ -232,7 +243,7 @@
       <div id="maincol-wide-solo">
 
         <div id="maintext">
-          <h1 class="intro">Graphs and Statistics</h1>
+          <h1 class="intro">Graphs and Summaries</h1>
         </div>
 
 		<div id="specieschart_div"></div>
