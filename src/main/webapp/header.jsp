@@ -126,7 +126,7 @@
 	        <li><a
 	          href="http://68.169.52.117/statistics.jsp"
 	          class="enclose"
-	          style="margin: 0px 0 0px 0px; position: relative; width: 210px; height: 25px;z-index: 100;">Summaries
+	          style="margin: 0px 0 0px 0px; position: relative; width: 210px; height: 25px;z-index: 100;">Stranding Summaries
 	        </a></li>
 
 
