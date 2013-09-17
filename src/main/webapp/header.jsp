@@ -60,7 +60,7 @@
     
     
     <li class="drop"><a
-      href="http://68.169.52.117/index.jsp"
+      href="http://68.169.52.117/learn.jsp"
       style="margin: 0px 0 0px 0px; position: relative; width: 85px; height: 25px; z-index: 100;"><strong><%=props.getProperty("learn")%>
     </strong></a>
       <!--[if lte IE 6]>
@@ -69,7 +69,7 @@
           <td><![endif]-->
       <ul>
         <li><a
-          href="http://www.ecoceanusa.org/shepherd" class="enclose" target="_blank"
+          href="http://68.169.52.117/learn.jsp" class="enclose" target="_blank"
           style="margin: 0px 0 0px 0px; position: relative; width: 280px; height: 25px; z-index:
           100;"><strong><%=props.getProperty("learnAboutShepherd")%></strong></a>
         </li>

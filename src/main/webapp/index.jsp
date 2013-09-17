@@ -155,21 +155,7 @@
 
 <p class="caption">Here we provide a website to improve the documentation of whale and dolphin strandings among nations and territories of the <a href="http://www.sprep.org/">Secretariat of the Pacific Regional Environment Programme (SPREP)</a>. The website will provide for a user-submitted form for a stranding event by anyone with access to the Internet, including members of the public, government agents and representatives of non-governmental organization. The intent is to augment the recording of stranding in nations that have established databases, such as Independent Samoa, and to provide a standardized reporting system for many nations that do not. Each stranding submission will be reviewed by members of the <a href="http://www.whaleresearch.org/projects/spwrc.php">South Pacific Whale Research Consortium</a> and an annual summary of the stranding records will be provided to <a href="http://www.sprep.org/">SPREP</a> through an existing Memorandum of Understanding. We expect that the availability of a public, searchable website will encourage greater awareness of cetacean strandings in Pacific Island nations, as well as contributing to an improved understanding of biodiversity.</p>
 
-        <div id="context">
-          <h1 class="intro">Data Review and Species Identification</h1>
 
-          <p class="caption">The <em>Strandings of Oceania</em> website will reviewed and species identification will be confirmed (if possible) by members of the <a href="http://www.whaleresearch.org/projects/spwrc.php">South Pacific Whale Research Consortium</a> in consultation with members of the Society for Marine Mammalogy, Committee for Taxonomy.</p>
-
-<p class="caption">[Claire Garrigue, Marc Oremus, Nan Hauser, Michael Poole, Juney Ward, Scott Baker, Anton van Helden, Rochelle Constantine, Phil Clapham, Mike Noad, Dave Paton]</p>
-</div>
-
-<div>
-          <h1 class="intro">Molecular Taxonomy of Cetaceans</h1>
-          
-
-          <p class="caption">Further developments are planned to provide information on the collection and storage of tissue samples for genetic identification of stranded whales and dolphins using the web-based program, DNA-surveillance:
-<br /><br /><a href="http://www.dna-surveillance.auckland.ac.nz">http://www.dna-surveillance.auckland.ac.nz</a></p>
-</div>
 
 <div>
 
