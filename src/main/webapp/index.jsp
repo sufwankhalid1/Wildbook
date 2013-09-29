@@ -160,11 +160,6 @@
           %>
 
 
-          <div class="module">
-            <h3>Latest News</h3>
-            <span class="caption">Add your news items here... </span><span class="caption"><br/>
-</span> <br/>
-          </div>
 
           <div class="module">
             <h3>Data Sharing</h3>
