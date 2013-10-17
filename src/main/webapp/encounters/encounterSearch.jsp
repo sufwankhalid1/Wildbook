@@ -148,7 +148,7 @@ margin-bottom: 8px !important;
 <td>
 <p>
 
-<h1 class="intro"><%=encprops.getProperty("title")%>
+<h1 class="intro"><img src="../images/Crystal_Clear_action_find.png" width="50px" height="50px" align="absmiddle"> <%=encprops.getProperty("title")%>
   <a href="<%=CommonConfiguration.getWikiLocation()%>searching#encounter_search" target="_blank">
     <img src="../images/information_icon_svg.gif" alt="Help" border="0" align="absmiddle"/>
   </a>
@@ -512,9 +512,14 @@ function FSControl(controlDiv, map) {
 if(CommonConfiguration.showProperty("showCountry")){
 
 %>
-<p><strong><%=encprops.getProperty("country")%>:</strong>
+<table><tr><td valign="top">
+<strong><%=encprops.getProperty("country")%>:</strong><br />
+<em><%=encprops.getProperty("leaveBlank")%>
+        </em>
+
+</td></tr><tr><td>
   
-  <select name="country" id="country">
+  <select name="country" id="country" multiple="multiple" size="5">
   	<option value="None" selected="selected"></option>
   <%
   			       boolean hasMoreCountries=true;
@@ -535,11 +540,14 @@ if(CommonConfiguration.showProperty("showCountry")){
   			          
 			       }
 			       if(stageNum==0){%>
-			    	   <p><em><%=encprops.getProperty("noCountries")%></em></p>
-			       <% }
+			    	   <em><%=encprops.getProperty("noCountries")%></em>
+			       <% 
+			       }
+			       %>
 			       
- %>
-  </select></p>
+
+  </select>
+  </td></tr></table>
 <%
 }
 %>
@@ -915,9 +923,44 @@ if(CommonConfiguration.showProperty("showLifestage")){
 </tr>
 <%
 }
-%>
 
+
+if(CommonConfiguration.showProperty("showPatterningCode")){
+
+%>
+<tr valign="top">
+  <td><strong><%=encprops.getProperty("patterningCode")%></strong>
+  
+  <select name="patterningCodeField" id="patterningCodeField">
+  	<option value="None" selected="selected"></option>
+  <%
+  			       boolean hasMorePatterningCodes=true;
+  			       int stageNum=0;
+  			       
+  			       while(hasMorePatterningCodes){
+  			       	  String currentLifeStage = "patterningCode"+stageNum;
+  			       	  if(CommonConfiguration.getProperty(currentLifeStage)!=null){
+  			       	  	%>
+  			       	  	 
+  			       	  	  <option value="<%=CommonConfiguration.getProperty(currentLifeStage)%>"><%=CommonConfiguration.getProperty(currentLifeStage)%></option>
+  			       	  	<%
+  			       		stageNum++;
+  			          }
+  			          else{
+  			        	hasMorePatterningCodes=false;
+  			          }
+  			          
+			       }
+			       if(stageNum==0){%>
+			    	   <p><em><%=encprops.getProperty("noPatterningCodes")%></em></p>
+			       <% }
+			       
+ %>
+  </select></td>
+</tr>
 <%
+}
+
   pageContext.setAttribute("showMeasurement", CommonConfiguration.showMeasurements());
 %>
 <c:if test="${showMeasurement}">
@@ -930,6 +973,8 @@ if(CommonConfiguration.showProperty("showLifestage")){
 <tr valign="top">
 <td>${item.label}
 <select name="measurement${item.type}(operator)">
+<option value="gteq">&gt;=</option>
+<option value="lteq">&lt;=</option>
   <option value="gt">&gt;</option>
   <option value="lt">&lt;</option>
   <option value="eq">=</option>
@@ -974,19 +1019,28 @@ if(CommonConfiguration.showProperty("showLifestage")){
       %>
 
     </select>
+    </td>
+    </tr>
+           <tr><td>
+      <p>
+            <label> 
+            	<input name="photoKeywordOperator" type="checkbox" id="photoKeywordOperator" value="_OR_" />
+            </label> <%=encprops.getProperty("orPhotoKeywords")%> 
+      </p>
+      </td></tr>
     <%
     } else {
     %>
 
     <p><em><%=encprops.getProperty("noKeywords")%>
     </em>
-
+</td>
+</tr>
         <%
 					
 				}
 				%>
-  </td>
-</tr>
+  
 <tr>
   <td><strong><%=encprops.getProperty("submitterName")%>:</strong>
     <input name="nameField" type="text" size="60"> <br> <em><%=encprops.getProperty("namesBlank")%>
@@ -1223,6 +1277,8 @@ if(CommonConfiguration.showProperty("showLifestage")){
 <tr valign="top">
 <td>${item.label}
 <select name="biomeasurement${item.type}(operator)">
+<option value="gteq">&gt;=</option>
+<option value="lteq">&lt;=</option>
   <option value="gt">&gt;</option>
   <option value="lt">&lt;</option>
   <option value="eq">=</option>

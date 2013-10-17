@@ -39,6 +39,18 @@ public class EncounterQueryProcessor {
     }
     //end location filter--------------------------------------------------------------------------------------
 
+    //filter for username------------------------------------------
+    if((request.getParameter("username")!=null)&&(!request.getParameter("username").equals(""))) {
+      String locString=request.getParameter("username").toLowerCase().replaceAll("%20", " ").trim();
+      if(filter.equals(SELECT_FROM_ORG_ECOCEAN_ENCOUNTER_WHERE)){
+        filter+="(submitterID == \""+locString+"\")";
+      }
+      else{filter+=" && (submitterID == \""+locString+"\")";}
+      prettyPrint.append("Username contains \""+locString+"\".<br />");
+    }
+    //end username filter--------------------------------------------------------------------------------------
+
+    
     
     //filter for resighted encounter------------------------------------------
     if(request.getParameter("resightOnly")!=null) {
@@ -157,9 +169,9 @@ public class EncounterQueryProcessor {
     
   //------------------------------------------------------------------
     //patterningCode filters-------------------------------------------------
-    String[] patterningCodes=request.getParameterValues("patterningCode");
+    String[] patterningCodes=request.getParameterValues("patterningCodeField");
     if((patterningCodes!=null)&&(!patterningCodes[0].equals("None"))){
-          prettyPrint.append("Color code is one of the following: ");
+          prettyPrint.append("Patterning code is one of the following: ");
           int kwLength=patterningCodes.length;
             String patterningCodeFilter="(";
             for(int kwIter=0;kwIter<kwLength;kwIter++) {
@@ -338,6 +350,12 @@ public class EncounterQueryProcessor {
           else if ("eq".equals(operatorParamValue)) {
             operator = "==";
           }
+          else if ("gteq".equals(operatorParamValue)) {
+            operator = ">=";
+          }
+          else if ("lteq".equals(operatorParamValue)) {
+            operator = "<=";
+          }
           if (operator != null) {
             prettyPrint.append(measurementDesc.getUnitsLabel());
             prettyPrint.append(" is ");
@@ -348,7 +366,7 @@ public class EncounterQueryProcessor {
               measurementFilter.append("&&");
             }
             String measurementVar = "measurement" + measurementsInQuery++;
-            measurementFilter.append("(measurements.contains(" + measurementVar + ") && ");
+            measurementFilter.append("measurements.contains(" + measurementVar + ") && ");
             measurementFilter.append( "("+measurementVar + ".value " + operator + " " + value+")");
             measurementFilter.append(" && (" + measurementVar + ".type == ");
             measurementFilter.append("\"" + measurementDesc.getType() + "\")");
@@ -409,6 +427,12 @@ public class EncounterQueryProcessor {
           }
           else if ("eq".equals(operatorParamValue)) {
             operator = "==";
+          }
+          else if ("gteq".equals(operatorParamValue)) {
+            operator = ">=";
+          }
+          else if ("lteq".equals(operatorParamValue)) {
+            operator = "<=";
           }
           if (operator != null) {
             prettyPrint.append("Biological/chemical measurement "+measurementDesc.getType());
@@ -536,40 +560,60 @@ public class EncounterQueryProcessor {
     //keyword filters-------------------------------------------------
     myShepherd.beginDBTransaction();
     String[] keywords=request.getParameterValues("keyword");
-    if((keywords!=null)&&(!keywords[0].equals("None"))){
-          prettyPrint.append("Photo/video keyword is one of the following: ");
-          int kwLength=keywords.length;
-            String locIDFilter="(";
-            for(int kwIter=0;kwIter<kwLength;kwIter++) {
+    String photoKeywordOperator = "&&";
+    if((request.getParameter("photoKeywordOperator")!=null)&&(request.getParameter("photoKeywordOperator").equals("_OR_"))){photoKeywordOperator = "||";}
 
+    if((keywords!=null)&&(!keywords[0].equals("None"))){
+      
+      if(filter.equals(SELECT_FROM_ORG_ECOCEAN_ENCOUNTER_WHERE)){filter+="(";}
+      else{filter+=" && (";}
+      
+      if((request.getParameter("photoKeywordOperator")!=null)&&(request.getParameter("photoKeywordOperator").equals("_OR_"))){
+          prettyPrint.append("Photo/video keyword is any one of the following: ");
+      }
+      else{
+        prettyPrint.append("All of these photo/video keywords are applied: ");
+      }
+          int kwLength=keywords.length;
+            
+            for(int kwIter=0;kwIter<kwLength;kwIter++) {
+              String locIDFilter="(";
               String kwParam=keywords[kwIter].replaceAll("%20", " ").trim();
               if(!kwParam.equals("")){
                 if(locIDFilter.equals("(")){
-                  locIDFilter+=" word.indexname == \""+kwParam+"\" ";
+                  locIDFilter+=" word"+kwIter+".indexname == \""+kwParam+"\" ";
                 }
                 else{
-                  locIDFilter+=" || word.indexname == \""+kwParam+"\" ";
+                  locIDFilter+=" "+photoKeywordOperator+" word"+kwIter+".indexname == \""+kwParam+"\" ";
                 }
                 Keyword kw=myShepherd.getKeyword(kwParam.trim());
-                prettyPrint.append(kw.getReadableName()+" ");
+                prettyPrint.append("\""+kw.getReadableName()+"\" ");
               }
-            }
-            locIDFilter+=" )";
-            if(filter.equals(SELECT_FROM_ORG_ECOCEAN_ENCOUNTER_WHERE)){filter+="images.contains(photo) && photo.keywords.contains(word) && "+locIDFilter;}
-            else{
-              if(filter.indexOf("images.contains(photo)")==-1){filter+=" && images.contains(photo)";}
-             
-              if(filter.indexOf("photo.keywords.contains(word)")==-1){filter+=" && photo.keywords.contains(word)";}
-              filter+=(" && "+locIDFilter);
-            }
+              locIDFilter+=" )";
+            
 
-            prettyPrint.append("<br />");
-            if(jdoqlVariableDeclaration.equals("")){jdoqlVariableDeclaration=" VARIABLES org.ecocean.SinglePhotoVideo photo;org.ecocean.Keyword word";}
-            else{ 
-              if(!jdoqlVariableDeclaration.contains("org.ecocean.SinglePhotoVideo photo")){jdoqlVariableDeclaration+=";org.ecocean.SinglePhotoVideo photo";}
-              if(!jdoqlVariableDeclaration.contains("org.ecocean.Keyword word")){jdoqlVariableDeclaration+=";org.ecocean.Keyword word";}
+              
+                if(filter.indexOf("images.contains(photo"+kwIter+")")==-1){
+                  if(kwIter>0){filter+=" "+photoKeywordOperator+" ";}
+                  filter+=" ( images.contains(photo"+kwIter+")";
+                }
+             
+                if(filter.indexOf("photo"+kwIter+".keywords.contains(word"+kwIter+")")==-1){filter+=" && photo"+kwIter+".keywords.contains(word"+kwIter+")";}
+                filter+=(" && "+locIDFilter+")");
+             // }
+            
+
+              
+                if((kwIter==0)&&(jdoqlVariableDeclaration.equals(""))){jdoqlVariableDeclaration=" VARIABLES ";}
+                if(kwIter>0){jdoqlVariableDeclaration+=";";}
+              if(!jdoqlVariableDeclaration.contains("org.ecocean.SinglePhotoVideo photo"+kwIter)){jdoqlVariableDeclaration+="org.ecocean.SinglePhotoVideo photo"+kwIter;}
+              if(!jdoqlVariableDeclaration.contains("org.ecocean.Keyword word"+kwIter)){jdoqlVariableDeclaration+=";org.ecocean.Keyword word"+kwIter;}
+           
+            
             }
-         
+            filter+=" ) ";
+            
+            prettyPrint.append("<br />");
       }
     myShepherd.rollbackDBTransaction();
     myShepherd.closeDBTransaction();
@@ -806,15 +850,17 @@ public class EncounterQueryProcessor {
      */
 
     //filter by alive/dead status------------------------------------------
-    if(request.getParameter("alive")==null) {
-      if(filter.equals(SELECT_FROM_ORG_ECOCEAN_ENCOUNTER_WHERE)){filter+="!livingStatus.startsWith('alive')";}
-      else{filter+=" && !livingStatus.startsWith('alive')";}
-      prettyPrint.append("Not alive.<br />");
-    }
-    if(request.getParameter("dead")==null) {
-      if(filter.equals(SELECT_FROM_ORG_ECOCEAN_ENCOUNTER_WHERE)){filter+="!livingStatus.startsWith('dead')";}
-      else{filter+=" && !livingStatus.startsWith('dead')";}
-      prettyPrint.append("Not dead.<br />");
+    if((request.getParameter("alive")!=null)||(request.getParameter("dead")!=null)){  
+      if(request.getParameter("alive")==null) {
+        if(filter.equals(SELECT_FROM_ORG_ECOCEAN_ENCOUNTER_WHERE)){filter+="!livingStatus.startsWith('alive')";}
+        else{filter+=" && !livingStatus.startsWith('alive')";}
+        prettyPrint.append("Not alive.<br />");
+      }
+      if(request.getParameter("dead")==null) {
+        if(filter.equals(SELECT_FROM_ORG_ECOCEAN_ENCOUNTER_WHERE)){filter+="!livingStatus.startsWith('dead')";}
+        else{filter+=" && !livingStatus.startsWith('dead')";}
+        prettyPrint.append("Not dead.<br />");
+      }
     }
     //filter by alive/dead status--------------------------------------------------------------------------------------
 
@@ -1065,7 +1111,7 @@ This code is no longer necessary with Charles Overbeck's new multi-measurement f
     filter+=jdoqlVariableDeclaration;
     
     filter += parameterDeclaration;
-
+    
     return filter;
 
   }
@@ -1089,6 +1135,7 @@ This code is no longer necessary with Charles Overbeck's new multi-measurement f
     filter=queryStringBuilder(request, prettyPrint, paramMap);
 
     Query query=myShepherd.getPM().newQuery(filter);
+    if(!order.equals("")){query.setOrdering(order);}
 
     if(!filter.trim().equals("")){
         //filter="("+filter+")";
@@ -1222,7 +1269,7 @@ This code is no longer necessary with Charles Overbeck's new multi-measurement f
 
 	//end photo filename filtering
 
-
+  	query.closeAll();
     return (new EncounterQueryResult(rEncounters,filter,prettyPrint.toString()));
 
   }
