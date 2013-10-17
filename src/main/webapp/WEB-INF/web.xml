@@ -172,7 +172,7 @@
       			/DeleteAllDataPermanently = authc, roles[destroyer]
       			/encounters/searchExport = authc, roles[admin]
       			/welcome.jsp = authc
-      			
+      			/submit.jsp = authc
       			/EncounterSetSubmitterID = authc, roles[admin]
                
 
