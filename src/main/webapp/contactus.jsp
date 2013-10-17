@@ -111,9 +111,11 @@
           <h1 class="intro">Contact us </h1>
         </div>
 
-        <p>We welcome your comments and questions.</p>
-
-        <p>Provide more info here about how to contact your organization... </p>
+        <p>We welcome your comments and questions.For more information please contact <a href="mailto:scott.baker@oregonstate.edu">Scott Baker</a> or <a href="mailto:debbie.steel@oregonstate.edu">Debbie Steel</a>.
+        
+        
+        
+        </p>
       </div>
       <!-- end maintext -->
 
