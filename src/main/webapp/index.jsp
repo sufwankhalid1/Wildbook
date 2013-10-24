@@ -177,10 +177,14 @@
 	          <table border="0">
 	          <tr>
 	          <td><a border="0" href="http://www.sprep.org/"><img src="images/sprep_logo.png"/></a></td>
-	          <td><a href="http://www.whaleresearch.org/projects/spwrc.php"><img src="images/spwrc_logo.png" width="200px" height="*" /></a></td>
+	          <td><img src="images/logo_aPOD_v6.jpeg" width="200px" height="*" /></td>
+	          
+	          <td><a href="http://www.whaleresearch.org/projects/spwrc.php"><img src="images/spwrc_logo.png" width="200px" height="123px" /></a></td>
 	          </tr>
 	          <tr>
-	          <td colspan="2"><img src="images/pew_fellows_marine_logo.png" />
+	          <td colspan="2"><a href="http://www.pewmarinefellows.org"><img src="images/pew_fellows_marine_logo.png" /></a>
+	          </td>
+	          <td align="center"><a href="http://www.wildme.org"><img src="images/wildme_logo.png" /></a>
 	          </td>
 	          <tr>
 	          </table>

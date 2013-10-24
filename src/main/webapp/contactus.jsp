@@ -105,15 +105,20 @@
     </jsp:include>
     <div id="main">
 
-      <div id="maincol-wide">
+      <div id="maincol-wide-solo">
 
         <div id="maintext">
           <h1 class="intro">Contact us </h1>
-        </div>
+       
 
-        <p>We welcome your comments and questions.</p>
+        
+        <p>This is an initiative of the South Pacific Whale Research Consortium, in collaboration with the Secretariat of the Pacific Regional Environment Programme. For further information on the database contact:
 
-        <p>Provide more info here about how to contact your organization... </p>
+<ul>
+<li><a href="mailto:scott.baker@oregonstate.edu">Baker, Scott</a></li>
+<li><a href="mailto:debbie.steel@oregonstate.edu">Steel Debbie</a></li>
+</ul>
+</p>
       </div>
       <!-- end maintext -->
 
