@@ -148,7 +148,7 @@ margin-bottom: 8px !important;
 <td>
 <p>
 
-<h1 class="intro"><%=encprops.getProperty("title")%>
+<h1 class="intro"><img src="../images/Crystal_Clear_action_find.png" width="50px" height="50px" align="absmiddle"> <%=encprops.getProperty("title")%>
   <a href="<%=CommonConfiguration.getWikiLocation()%>searching#encounter_search" target="_blank">
     <img src="../images/information_icon_svg.gif" alt="Help" border="0" align="absmiddle"/>
   </a>
@@ -923,9 +923,44 @@ if(CommonConfiguration.showProperty("showLifestage")){
 </tr>
 <%
 }
-%>
 
+
+if(CommonConfiguration.showProperty("showPatterningCode")){
+
+%>
+<tr valign="top">
+  <td><strong><%=encprops.getProperty("patterningCode")%></strong>
+  
+  <select name="patterningCodeField" id="patterningCodeField">
+  	<option value="None" selected="selected"></option>
+  <%
+  			       boolean hasMorePatterningCodes=true;
+  			       int stageNum=0;
+  			       
+  			       while(hasMorePatterningCodes){
+  			       	  String currentLifeStage = "patterningCode"+stageNum;
+  			       	  if(CommonConfiguration.getProperty(currentLifeStage)!=null){
+  			       	  	%>
+  			       	  	 
+  			       	  	  <option value="<%=CommonConfiguration.getProperty(currentLifeStage)%>"><%=CommonConfiguration.getProperty(currentLifeStage)%></option>
+  			       	  	<%
+  			       		stageNum++;
+  			          }
+  			          else{
+  			        	hasMorePatterningCodes=false;
+  			          }
+  			          
+			       }
+			       if(stageNum==0){%>
+			    	   <p><em><%=encprops.getProperty("noPatterningCodes")%></em></p>
+			       <% }
+			       
+ %>
+  </select></td>
+</tr>
 <%
+}
+
   pageContext.setAttribute("showMeasurement", CommonConfiguration.showMeasurements());
 %>
 <c:if test="${showMeasurement}">

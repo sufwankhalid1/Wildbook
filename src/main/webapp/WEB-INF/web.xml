@@ -97,13 +97,12 @@
                 /appadmin/** = authc, roles[admin]
                 /logs/** = authc, roles[admin]
                 /xcalendar/** = authc, roles[admin]
-                /encounters/allEncountersUnapproved.jsp = authc, roles[admin]
                 /InterconnectSubmitSpots = authc, roles[admin]
 		/interconnectSubmitSpots= authc, roles[admin]
 		/GenePopExport = authc, roles[admin]
 		/ResetCommonConfiguration = authc, roles[admin]
 		/individualSearch.jsp = authc, roles[admin]
-		/individualSearchResults.jsp = authc, roles[admin]
+		/individualSearchResults.jsp = anon
 		/individualSearchResultsExport.jsp = authc, roles[admin]
 		/individualSearchResultsAnalysis.jsp = authc, roles[admin]
 		/individualMappedSearchResults.jsp = authc, roles[admin]
@@ -111,7 +110,7 @@
 		/encounters/thumbnailSearch.jsp = authc, roles[admin]
 		 /encounters/thumbnailSearchResults.jsp = authc, roles[admin]
 		 /encounters/encounterSearch.jsp = authc, roles[admin]
-		 /encounters/searchResults.jsp = authc, roles[admin]
+		 /encounters/searchResults.jsp = anon
 		 /encounters/searchResultsAnalysis.jsp = authc, roles[admin]
 		 /encounters/mappedSearchResults.jsp = authc, roles[admin]
 		 /encounters/mappedSearchResultsSex.jsp = authc, roles[admin]
@@ -136,6 +135,8 @@
 		   /TissueSampleSetMeasurement = authc, roles[admin]
 		  /TissueSampleRemoveHaplotype = authc, roles[admin]
 		   /TissueSampleRemoveBiologicalMeasurement = authc, roles[admin]
+		   /TissueSampleSetMicrosatelliteMarkers  = authc, roles[admin]
+		   /TissueSampleRemoveMicrosatelliteMarkers  = authc, roles[admin]
 		   /ImportSRGD = authc, roles[admin]
 		        /IndividualCreate = authc, roles[admin]
 		        /OccurrenceCreate = authc, roles[admin]
@@ -153,6 +154,8 @@
 		         /EncounterSearchExportKML = authc, roles[admin]
 		         /UserCreate = authc, roles[admin]
 		         /UserDelete = authc, roles[admin]
+		         /UserAddProfileImage = authc, roles[admin]
+		         /UserRemoveProfileImage = authc, roles[admin]
 		         /EncounterSearchExportExcelFile = authc, roles[admin]
 		         /EncounterSearchExportShapefile = authc, roles[admin]
 		         /EncounterSearchExportEmailAddresses = authc, roles[admin]
@@ -171,6 +174,8 @@
       			/DeleteAllDataPermanently = authc, roles[destroyer]
       			/encounters/searchExport = authc, roles[admin]
       			/welcome.jsp = authc
+      			
+      			/EncounterSetSubmitterID = authc, roles[admin]
                
 
             </param-value>
@@ -319,6 +324,11 @@
   <servlet>
     <servlet-name>EncounterSetInformOthers</servlet-name>
     <servlet-class>org.ecocean.servlet.EncounterSetInformOthers</servlet-class>
+  </servlet>
+  
+    <servlet>
+      <servlet-name>UserAddProfileImage</servlet-name>
+      <servlet-class>org.ecocean.servlet.UserAddProfileImage</servlet-class>
   </servlet>
 
 
@@ -629,6 +639,11 @@
   <servlet>
     <servlet-name>MassSetLocationCodeFromLocationString</servlet-name>
     <servlet-class>org.ecocean.servlet.MassSetLocationCodeFromLocationString</servlet-class>
+  </servlet>
+
+      <servlet>
+        <servlet-name>UserRemoveProfileImage</servlet-name>
+        <servlet-class>org.ecocean.servlet.UserRemoveProfileImage</servlet-class>
   </servlet>
 
   <servlet>
@@ -952,6 +967,12 @@
       <url-pattern>/EncounterSetTissueSample</url-pattern>
   </servlet-mapping>
   
+    
+      <servlet-mapping>
+        <servlet-name>UserAddProfileImage</servlet-name>
+        <url-pattern>/UserAddProfileImage</url-pattern>
+  </servlet-mapping>
+  
       <servlet-mapping>
         <servlet-name>EncounterRemoveTissueSample</servlet-name>
         <url-pattern>/EncounterRemoveTissueSample</url-pattern>
@@ -1127,6 +1148,11 @@
   <servlet-mapping>
     <servlet-name>EncounterRemoveSpots</servlet-name>
     <url-pattern>/EncounterRemoveSpots</url-pattern>
+  </servlet-mapping>
+  
+    <servlet-mapping>
+      <servlet-name>UserRemoveProfileImage</servlet-name>
+      <url-pattern>/UserRemoveProfileImage</url-pattern>
   </servlet-mapping>
 
 
