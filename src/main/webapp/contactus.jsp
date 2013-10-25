@@ -108,15 +108,15 @@
       <div id="maincol-wide-solo">
 
         <div id="maintext">
-          <h1 class="intro">Contact us </h1>
+          <h1 class="intro">Contact Us</h1>
        
 
         
         <p>This is an initiative of the South Pacific Whale Research Consortium, in collaboration with the Secretariat of the Pacific Regional Environment Programme. For further information on the database contact:
 
 <ul>
-<li><a href="mailto:scott.baker@oregonstate.edu">Baker, Scott</a></li>
-<li><a href="mailto:debbie.steel@oregonstate.edu">Steel Debbie</a></li>
+<li><a href="mailto:scott.baker@oregonstate.edu">Scott Baker</a></li>
+<li><a href="mailto:debbie.steel@oregonstate.edu">Debbie Steel</a></li>
 </ul>
 </p>
       </div>
