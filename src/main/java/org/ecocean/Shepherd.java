@@ -1615,7 +1615,7 @@ public class Shepherd {
     q.closeAll();
     return num;
   }
-  
+
   public int getNumUsers() {
     int num = 0;
     Query q = pm.newQuery(User.class); // no filter, so all instances match
@@ -2459,10 +2459,10 @@ public class Shepherd {
     q.closeAll();
     return value;
   }
-  
+
   public String getNextEncounterNumber(){
     int nextNum=1;
-    
+
       Iterator it=getAllEncounters();
       while(it.hasNext()){
         Encounter enc=(Encounter)it.next();
@@ -2470,8 +2470,8 @@ public class Shepherd {
         int intCatNum=(new Integer(catNum)).intValue();
         if(intCatNum>=nextNum){nextNum=intCatNum;}
       }
-      
-    
+
+
     return (new Integer(nextNum+1)).toString();
   }
 
@@ -2501,14 +2501,8 @@ public class Shepherd {
 	    q.closeAll();
     return al;
   }
-  
-  public ArrayList<String> getAllCountries() {
-    Query q = pm.newQuery(Encounter.class);
-    q.setResult("distinct country");
-    q.setOrdering("country ascending");
-    Collection results = (Collection) q.execute();
-    return (new ArrayList(results));
-  }
+
+
 
   public ArrayList<String> getAllHaplotypes() {
     Query q = pm.newQuery(MitochondrialDNAAnalysis.class);
