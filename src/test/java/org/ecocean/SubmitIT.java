@@ -30,8 +30,8 @@ public class SubmitIT extends WebTestCase {
     setBaseUrl("http://localhost:9090/wildbook");
   }
   public void testSubmit() {
-    beginAt("/index.jsp");
-    clickLinkWithExactText("Participate");
+    beginAt("/submit.jsp");
+    //clickLinkWithExactText("Participate");
     // necessary fields
     // encounter date (day, month, year, hour, minutes)
     // sighting location
@@ -44,8 +44,8 @@ public class SubmitIT extends WebTestCase {
     selectOption("hour", "12 am");
     selectOption("minutes", ":00");
     setTextField("location", "the world");
-    setTextField("submitterName", "mark");
-    setTextField("submitterEmail", "mark.mcbride@gmail.com");
+    setTextField("submitterName", "Test User");
+    setTextField("submitterEmail", "mnoreply@donotreply.com");
     setTextField("theFile1", "src/main/webapp/images/logbook.gif");
     submit("Submit");
     assertResponseCode(200);
