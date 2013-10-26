@@ -71,7 +71,12 @@
         <li><a
           href="http://68.169.52.117/learn.jsp" class="enclose" target="_blank"
           style="margin: 0px 0 0px 0px; position: relative; width: 280px; height: 25px; z-index:
-          100;"><strong><%=props.getProperty("learnAboutShepherd")%></strong></a>
+          100;"><strong><%=props.getProperty("learnAboutStrandings")%></strong></a>
+        </li>
+        <li><a
+	          href="http://www.wildme.org/wildbook" class="enclose" target="_blank"
+	          style="margin: 0px 0 0px 0px; position: relative; width: 280px; height: 25px; z-index:
+	          100;"><strong><%=props.getProperty("learnAboutShepherd")%></strong></a>
         </li>
 
       </ul>
@@ -103,7 +108,7 @@
       
 
     <li class="drop"><a
-      href="http://68.169.52.117/encounters/allEncounters.jsp?start=1&amp;end=10"
+      href="http://68.169.52.117/encounters/searchResults.jsp?state=approved"
       style="margin: 0px 0 0px 0px; position: relative; width: 115px; height: 25px; z-index: 100;"><strong><%=props.getProperty("encounters")%>
     </strong><!--[if IE 7]><!--></a><!--<![endif]-->
       <!--[if lte IE 6]>
@@ -112,7 +117,7 @@
           <td><![endif]-->
       <ul>
         <li><a
-          href="http://68.169.52.117/encounters/allEncounters.jsp?start=1&amp;end=10"
+          href="http://68.169.52.117/encounters/searchResults.jsp?state=approved"
           class="enclose"
           style="margin: 0px 0 0px 0px; position: relative; width: 210px; height: 25px;z-index: 100;"><%=props.getProperty("viewEncounters")%>
         </a></li>
@@ -144,7 +149,7 @@
 
 
         <li><a
-          href="http://68.169.52.117/encounters/allEncountersUnapproved.jsp?start=1&amp;end=10&amp;sort=nosort"
+          href="http://68.169.52.117/encounters/searchResults.jsp?state=unapproved"
           class="enclose"
           style="margin: 0px 0 0px 0px; position: relative; width: 210px; height: 25px;"><%=props.getProperty("viewUnapproved")%>
         </a></li>
@@ -153,7 +158,7 @@
           if ((request.getParameter("isAdmin") != null) && (request.getParameter("isAdmin").equals("true"))) {
         %>
         <li><a
-          href="http://68.169.52.117/encounters/allEncounters.jsp?start=1&amp;end=10&amp;sort=nosort&amp;user=<%=request.getRemoteUser()%>"
+          href="http://68.169.52.117/encounters/searchResults.jsp?username=<%=request.getRemoteUser()%>"
           class="enclose"
           style="margin: 0px 0 0px 0px; position: relative; width: 210px; height: 25px;"><%=props.getProperty("viewMySubmissions")%>
         </a>
@@ -164,7 +169,7 @@
 
         <li>
           <a
-            href="http://68.169.52.117/encounters/allEncounters.jsp?start=1&amp;end=10&amp;sort=nosort&amp;rejects=true"
+            href="http://68.169.52.117/encounters/searchResults.jsp?state=unidentifiable"
             class="enclose"
             style="margin: 0px 0 0px 0px; position: relative; width: 210px; height: 25px;"><%=props.getProperty("viewUnidentifiable")%>
           </a></li>
@@ -334,7 +339,7 @@
         %>
 
 	        <li><a
-          href="http://www.ecoceanusa.org/shepherd" class="enclose" target="_blank"
+          href="http://www.wildme.org/wildbook" class="enclose" target="_blank"
           style="margin: 0px 0 0px 0px; position: relative; width: 190px; height: 25px; z-index:
           100;"><strong><%=props.getProperty("shepherdDoc")%></strong></a>
         </li>
