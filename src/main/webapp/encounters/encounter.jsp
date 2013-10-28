@@ -3087,74 +3087,74 @@ $("a#measure").click(function() {
 
 </c:if>
 
+
+
 <table>
-<tr>
-<td width="560px" style="vertical-align:top; background-color: #E8E8E8">
+  <tr>
+    <td width="560px" style="vertical-align:top; background-color: #E8E8E8">
+      <c:if test="${showMetalTags}">
 
+        <p>
+          <img align="absmiddle" src="../images/Crystal_Clear_app_starthere.png" width="40px" height="40px" /> <strong><%=encprops.getProperty("tracking") %></strong>
+        </p>
+        <%
+        pageContext.setAttribute("metalTagTitle", encprops.getProperty("metalTags"));
+        pageContext.setAttribute("metalTags", Util.findMetalTagDescs(langCode));
+        %>
+       <p class="para">
+         <em><c:out value="${metalTagTitle}"></c:out></em>
+         <%
+         if (isOwner && CommonConfiguration.isCatalogEditable()) {
+         %>
+           &nbsp;<a id="metal" class="launchPopup"><img align="absmiddle" width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" /></a>
+         <%
+         }
+         %>
+        <table>
+          <c:forEach var="item" items="${metalTags}">
+            <% 
+            MetalTagDesc metalTagDesc = (MetalTagDesc) pageContext.getAttribute("item");
+            MetalTag metalTag =  enc.findMetalTagForLocation(metalTagDesc.getLocation());
+            pageContext.setAttribute("number", metalTag == null ? null : metalTag.getTagNumber());
+            pageContext.setAttribute("locationLabel", metalTagDesc.getLocationLabel());
+            %>
+           <tr>
+             <td><c:out value="${locationLabel}:"/></td><td><c:out value="${number}"/></td>
+           </tr>
+         </c:forEach>
+       </table>
+     </p>
+     <%
+     if (isOwner && CommonConfiguration.isCatalogEditable()) {
+     %>
+       <!-- start metal tag popup -->  
+         <div id="dialogMetal" title="<%=encprops.getProperty("resetMetalTags")%>" style="display:none">  
 
-
-<c:if test="${showMetalTags}">
-
-<p><img align="absmiddle" src="../images/Crystal_Clear_app_starthere.png" width="40px" height="40px" /> <strong><%=encprops.getProperty("tracking") %></strong></p>
-<%
-  pageContext.setAttribute("metalTagTitle", encprops.getProperty("metalTags"));
-  pageContext.setAttribute("metalTags", Util.findMetalTagDescs(langCode));
-%>
-<p class="para"><em><c:out value="${metalTagTitle}"></c:out></em>
-<%
-if (isOwner && CommonConfiguration.isCatalogEditable()) {
-%>
-&nbsp;<a id="metal" class="launchPopup"><img align="absmiddle" width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" /></a>
-<%
-}
-%>
-<table>
-<c:forEach var="item" items="${metalTags}">
- <% 
-    MetalTagDesc metalTagDesc = (MetalTagDesc) pageContext.getAttribute("item");
-    MetalTag metalTag =  enc.findMetalTagForLocation(metalTagDesc.getLocation());
-    pageContext.setAttribute("number", metalTag == null ? null : metalTag.getTagNumber());
-    pageContext.setAttribute("locationLabel", metalTagDesc.getLocationLabel());
- %>
-<tr>
-    <td><c:out value="${locationLabel}:"/></td><td><c:out value="${number}"/></td>
-</tr>
-</c:forEach>
-</table>
-</p>
-
-
-<%
-if (isOwner && CommonConfiguration.isCatalogEditable()) {
-%>
-<!-- start metal tag popup -->  
-<div id="dialogMetal" title="<%=encprops.getProperty("resetMetalTags")%>" style="display:none">  
-
-        <% pageContext.setAttribute("metalTagDescs", Util.findMetalTagDescs(langCode)); %>
+           <% pageContext.setAttribute("metalTagDescs", Util.findMetalTagDescs(langCode)); %>
  
- <form name="setMetalTags" method="post" action="../EncounterSetTags">
- <input type="hidden" name="tagType" value="metalTags"/>
- <input type="hidden" name="encounter" value="${num}"/>
- <table cellpadding="1" cellspacing="0" bordercolor="#FFFFFF">
+           <form name="setMetalTags" method="post" action="../EncounterSetTags">
+             <input type="hidden" name="tagType" value="metalTags"/>
+             <input type="hidden" name="encounter" value="${num}"/>
+               <table cellpadding="1" cellspacing="0" bordercolor="#FFFFFF">
      
- <c:forEach items="${metalTagDescs}" var="metalTagDesc">
-    <%
-      MetalTagDesc metalTagDesc = (MetalTagDesc) pageContext.getAttribute("metalTagDesc");
-      MetalTag metalTag = Util.findMetalTag(metalTagDesc, enc);
-      if (metalTag == null) {
-          metalTag = new MetalTag();
-      }
-      pageContext.setAttribute("metalTag", metalTag);
-    %>
-    <tr><td class="formLabel"><c:out value="${metalTagDesc.locationLabel}"/></td></tr>
-    <tr><td><input name="metalTag(${metalTagDesc.location})" value="${metalTag.tagNumber}"/></td></tr>
- </c:forEach>
- <tr><td><input name="${set}" type="submit" value="${set}"/></td></tr>
- </table>
- </form>
-       
-	
-</div>
+                 <c:forEach items="${metalTagDescs}" var="metalTagDesc">
+                   <%
+                   MetalTagDesc metalTagDesc = (MetalTagDesc) pageContext.getAttribute("metalTagDesc");
+                   MetalTag metalTag = Util.findMetalTag(metalTagDesc, enc);
+                   if (metalTag == null) {
+                     metalTag = new MetalTag();
+      		   }
+      		   pageContext.setAttribute("metalTag", metalTag);
+     		   %>
+    		   <tr>
+    		     <td class="formLabel"><c:out value="${metalTagDesc.locationLabel}"/></td>
+    		   </tr>
+    		   <tr><td><input name="metalTag(${metalTagDesc.location})" value="${metalTag.tagNumber}"/></td></tr>
+ 		 </c:forEach>
+ 		<tr><td><input name="${set}" type="submit" value="${set}"/></td></tr>
+ 	      </table>
+ 	  </form>	
+	</div>
                          		<!-- popup dialog script -->
 <script>
 var dlgMetal = $("#dialogMetal").dialog({
@@ -3168,6 +3168,8 @@ $("a#metal").click(function() {
   dlgMetal.dialog("open");
 });
 </script>   
+
+
 <!-- end metal tags popup --> 
 <%
 }
@@ -3351,7 +3353,11 @@ $("a#sat").click(function() {
 
 
 </c:if>
+</td></tr>
+</table>
+
 <br />
+
 <p><img align="absmiddle" src="../images/lightning_dynamic_props.gif" /> <strong><%=encprops.getProperty("dynamicProperties") %></strong>
 <%
 if(isOwner){
@@ -3449,7 +3455,7 @@ else{
 
 if (isOwner && CommonConfiguration.isCatalogEditable()) {
 %>
-<!-- start depth popup -->  
+<!-- start popup -->  
 <div id="dialogDPAdd" title="<%=encprops.getProperty("addDynamicProperty")%>" style="display:none">  
 
  <table cellpadding="1" cellspacing="0" bordercolor="#FFFFFF">
@@ -3488,30 +3494,24 @@ $("a#dynamicPropertyAdd").click(function() {
 
 </td>
 
-  <td style="vertical-align: top">
-    <jsp:include page="encounterImagesEmbed.jsp" flush="true">
-    	<jsp:param name="encounterNumber" value="<%=num%>" />
-    	<jsp:param name="isOwner" value="<%=isOwner %>" />
-    	<jsp:param name="loggedIn" value="<%=loggedIn %>" />
-  	</jsp:include>
-  </td>
-</tr>
-</table>
+
 
 
 
 
 <td width="250px" align="left" valign="top">
 <%
-//String isLoggedInValue="true";
-//String isOwnerValue="true";
 
 if(!loggedIn){isLoggedInValue="false";}
 if(!isOwner){isOwnerValue="false";}
 %>
 
 
-
+ <jsp:include page="encounterImagesEmbed.jsp" flush="true">
+    	<jsp:param name="encounterNumber" value="<%=num%>" />
+    	<jsp:param name="isOwner" value="<%=isOwner %>" />
+    	<jsp:param name="loggedIn" value="<%=loggedIn %>" />
+  	</jsp:include>
 
 
 
