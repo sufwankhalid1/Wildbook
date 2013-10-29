@@ -123,7 +123,7 @@
         </a></li>
         
         <li><a
-	          href="http://68.169.52.117/encounters/allMappedEncounters.jsp?start=1&amp;end=10"
+	          href="http://68.169.52.117/encounters/mappedSearchResults.jsp?state=approved"
 	          class="enclose"
 	          style="margin: 0px 0 0px 0px; position: relative; width: 210px; height: 25px;z-index: 100;">Strandings Map
 	        </a></li>
