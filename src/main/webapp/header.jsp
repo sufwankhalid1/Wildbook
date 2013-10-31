@@ -148,13 +148,17 @@
         </a></li>
 
 
+	<%
+	if(request.getRemoteUser()!=null){
+	%>
         <li><a
           href="http://68.169.52.117/encounters/searchResults.jsp?state=unapproved"
           class="enclose"
           style="margin: 0px 0 0px 0px; position: relative; width: 210px; height: 25px;"><%=props.getProperty("viewUnapproved")%>
         </a></li>
-
         <%
+	}
+        
           if ((request.getParameter("isAdmin") != null) && (request.getParameter("isAdmin").equals("true"))) {
         %>
         <li><a
@@ -167,12 +171,7 @@
           }
         %>
 
-        <li>
-          <a
-            href="http://68.169.52.117/encounters/searchResults.jsp?state=unidentifiable"
-            class="enclose"
-            style="margin: 0px 0 0px 0px; position: relative; width: 210px; height: 25px;"><%=props.getProperty("viewUnidentifiable")%>
-          </a></li>
+
 
 
       </ul>
