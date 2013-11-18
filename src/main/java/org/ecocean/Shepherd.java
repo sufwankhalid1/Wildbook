@@ -1615,6 +1615,22 @@ public class Shepherd {
     q.closeAll();
     return num;
   }
+  
+  public int getNumUsers() {
+    int num = 0;
+    Query q = pm.newQuery(User.class); // no filter, so all instances match
+
+    try {
+      Collection results = (Collection) q.execute();
+      num = results.size();
+
+    } catch (javax.jdo.JDOException x) {
+      x.printStackTrace();
+      return num;
+    }
+    q.closeAll();
+    return num;
+  }
 
 
   public int getNumScanTasks() {
@@ -1995,19 +2011,32 @@ public class Shepherd {
   }
 
   public ArrayList<User> getAllUsers() {
-    Extent allKeywords = null;
-    ArrayList<User> it = new ArrayList<User>();
+    Collection c;
+    Extent userClass = pm.getExtent(User.class, true);
+    Query users = pm.newQuery(userClass);
     try {
-      allKeywords = pm.getExtent(User.class, true);
-      Query acceptedKeywords = pm.newQuery(allKeywords);
-      acceptedKeywords.setOrdering("username descending");
-      Collection c = (Collection) (acceptedKeywords.execute());
-      it=new ArrayList<User>(c);
-    } catch (javax.jdo.JDOException x) {
-      x.printStackTrace();
-      return it;
+      c = (Collection) (users.execute());
+      ArrayList<User> list = new ArrayList<User>(c);
+      users.closeAll();
+      return list;
+    } catch (Exception npe) {
+      System.out.println("Error encountered when trying to execute Shepherd.getAllUsers. Returning a null collection because I didn't have a transaction to use.");
+      npe.printStackTrace();
+      return null;
     }
-    return it;
+  }
+  
+  public String getAllUserEmailAddressesForLocationID(String locationID){
+    String addresses="";
+    ArrayList<User> users = getAllUsers();
+    int numUsers=users.size();
+    for(int i=0;i<numUsers;i++){
+      User user=users.get(i);
+      if(doesUserHaveRole(user.getUsername(), locationID.trim())){
+        if((user.getReceiveEmails())&&(user.getEmailAddress()!=null)){addresses+=(user.getEmailAddress()+",");}
+      }
+    }
+    return addresses;
   }
 
   public Iterator getAllOccurrences() {
