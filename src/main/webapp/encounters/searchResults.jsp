@@ -45,6 +45,13 @@
 
   int startNum = 1;
   int endNum = 10;
+  
+  String baseQueryString="";
+  if(request.getQueryString()!=null){baseQueryString=request.getQueryString();}
+  if(baseQueryString.indexOf("sortOrder")>-1){
+	  int stopPoint=baseQueryString.indexOf("sortOrder");
+	  baseQueryString=baseQueryString.substring(0, (stopPoint));
+  }
 
 
   try {
@@ -68,7 +75,28 @@
 
   myShepherd.beginDBTransaction();
 
-  EncounterQueryResult queryResult = EncounterQueryProcessor.processQuery(myShepherd, request, "year descending, month descending, day descending");
+  String sortOrder="year descending, month descending, day descending";
+  if(request.getParameter("sortOrder")!=null){
+  	if((request.getParameter("sortOrder").equals("tax_up"))){sortOrder="genus ascending, specificEpithet ascending, "+sortOrder;}
+  	else if((request.getParameter("sortOrder").equals("tax_down"))){sortOrder="genus descending, specificEpithet descending, "+sortOrder;}
+  	else if((request.getParameter("sortOrder").equals("submitterName_up"))){sortOrder="submitterID ascending, "+sortOrder;}
+  	else if((request.getParameter("sortOrder").equals("submitterName_down"))){sortOrder="submitterID descending, "+sortOrder;}
+  	else if((request.getParameter("sortOrder").equals("date_up"))){sortOrder="dateInMilliseconds ascending, "+sortOrder;}
+  	else if((request.getParameter("sortOrder").equals("date_down"))){sortOrder="dateInMilliseconds descending, "+sortOrder;}
+  	else if((request.getParameter("sortOrder").equals("location_up"))){sortOrder="verbatimLocality ascending, "+sortOrder;}
+  	else if((request.getParameter("sortOrder").equals("location_down"))){sortOrder="verbatimLocality descending, "+sortOrder;}
+  	else if((request.getParameter("sortOrder").equals("country_up"))){sortOrder="country ascending, "+sortOrder;}
+  	else if((request.getParameter("sortOrder").equals("country_down"))){sortOrder="country descending, "+sortOrder;}
+  	else if((request.getParameter("sortOrder").equals("catalogNumber_up"))){sortOrder="catalogNumber ascending, "+sortOrder;}
+  	else if((request.getParameter("sortOrder").equals("catalogNumber_down"))){sortOrder="catalogNumber descending, "+sortOrder;}
+    
+  	//test comment
+  	
+  }
+  
+  
+  
+  EncounterQueryResult queryResult = EncounterQueryProcessor.processQuery(myShepherd, request, sortOrder);
   rEncounters = queryResult.getResult();
 
 
@@ -215,14 +243,17 @@
 
   <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF">
     <strong><%=encprops.getProperty("number")%>
-    </strong></td>
+    </strong> </td>
   
   <%
   if (CommonConfiguration.showProperty("showTaxonomy")) {
   %>
   <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF">
     <strong><%=encprops.getProperty("taxonomy")%>
-    </strong>
+    </strong><br /><br />
+    <a href="searchResults.jsp?<%=baseQueryString%>&sortOrder=tax_up"><img width="10px" height="10px" src="../images/Black_Arrow_up.png" /></a>
+    <a href="searchResults.jsp?<%=baseQueryString%>&sortOrder=tax_down"><img width="10px" height="10px" src="../images/Black_Arrow_down.png" /></a>
+  
   </td>
   <%
   }
@@ -230,18 +261,30 @@
   
   <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF">
     <strong><%=encprops.getProperty("submitterName")%>
-    </strong></td>
+    </strong><br /><br />
+    <a href="searchResults.jsp?<%=baseQueryString%>&sortOrder=submitterName_up"><img width="10px" height="10px" src="../images/Black_Arrow_up.png" /></a>
+    <a href="searchResults.jsp?<%=baseQueryString%>&sortOrder=submitterName_down"><img width="10px" height="10px" src="../images/Black_Arrow_down.png" /></a>
+  </td>
   <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF">
     <strong><%=encprops.getProperty("date")%>
-    </strong></td>
+    </strong><br /><br />
+    <a href="searchResults.jsp?<%=baseQueryString%>&sortOrder=date_up"><img width="10px" height="10px" src="../images/Black_Arrow_up.png" /></a>
+    <a href="searchResults.jsp?<%=baseQueryString%>&sortOrder=date_down"><img width="10px" height="10px" src="../images/Black_Arrow_down.png" /></a>
+  </td>
 
   <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF">
     <strong><%=encprops.getProperty("location")%>
-    </strong></td>
+    </strong><br /><br />
+    <a href="searchResults.jsp?<%=baseQueryString%>&sortOrder=location_up"><img width="10px" height="10px" src="../images/Black_Arrow_up.png" /></a>
+    <a href="searchResults.jsp?<%=baseQueryString%>&sortOrder=location_down"><img width="10px" height="10px" src="../images/Black_Arrow_down.png" /></a>
+  </td>
 
       <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF">
         <strong><%=encprops.getProperty("country")%>
-    </strong></td>
+    </strong><br /><br />
+    <a href="searchResults.jsp?<%=baseQueryString%>&sortOrder=country_up"><img width="10px" height="10px" src="../images/Black_Arrow_up.png" /></a>
+    <a href="searchResults.jsp?<%=baseQueryString%>&sortOrder=country_down"><img width="10px" height="10px" src="../images/Black_Arrow_down.png" /></a>
+ </td>
  
 </tr>
 
