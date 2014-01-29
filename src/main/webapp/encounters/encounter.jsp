@@ -145,6 +145,33 @@ File encounterDir = new File(encountersDir, num);
   <meta name="Keywords"
         content="<%=CommonConfiguration.getHTMLKeywords() %>"/>
   <meta name="Author" content="<%=CommonConfiguration.getHTMLAuthor() %>"/>
+  
+  
+<!-- social meta start -->
+<meta property="og:site_name" content="<%=CommonConfiguration.getHTMLTitle() %>" />
+<meta itemprop="name" content="<%=encprops.getProperty("encounter")%> <%=request.getParameter("number")%>" />
+<meta itemprop="description" content="<%=CommonConfiguration.getHTMLDescription()%>" />
+<%
+if (request.getParameter("number")!=null) {
+	
+		if(myShepherd.isEncounter(num)){
+			Encounter metaEnc = myShepherd.getEncounter(num);
+			if((metaEnc.getImages()!=null)&&(metaEnc.getImages().size()>0)){
+				SinglePhotoVideo metaSPV=metaEnc.getImages().get(0);
+%>
+<meta property="og:image" content="http://<%=CommonConfiguration.getURLLocation(request) %>/<%=CommonConfiguration.getDataDirectoryName() %>/encounters/<%=(request.getParameter("number")+"/"+metaSPV.getDataCollectionEventID()+".jpg")%>" />
+<%
+			}
+		}
+}
+%>
+
+<meta property="og:title" content="<%=CommonConfiguration.getHTMLTitle() %>" />
+<meta property="og:description" content="<%=CommonConfiguration.getHTMLDescription()%>" />
+<meta property="og:type" content="article" />
+<!-- social meta end -->
+
+  
   <link href="<%=CommonConfiguration.getCSSURLLocation(request) %>"
         rel="stylesheet" type="text/css"/>
   <link rel="shortcut icon"
@@ -500,7 +527,7 @@ margin-bottom: 8px !important;
 
 <!-- START IDENTITY ATTRIBUTE -->								
 
-  <p><img align="absmiddle" src="../images/tag_big.gif" width="40px" height="40px" /> <strong>Identity</strong></p>
+  <p><img align="absmiddle" src="../images/wild-me-logo-only-100-100.png" width="40px" height="40px" /> <strong>Identity</strong></p>
       
       
 								
@@ -3344,13 +3371,12 @@ $("a#sat").click(function() {
 <!-- end sat tag popup --> 
 <%
 }
-%>
+%></c:if>
 </td>
 </tr>
 </table>
 
 
-</c:if>
 <br />
 <p><img align="absmiddle" src="../images/lightning_dynamic_props.gif" /> <strong><%=encprops.getProperty("dynamicProperties") %></strong>
 <%

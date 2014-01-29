@@ -3,7 +3,7 @@
   ~ Copyright (C) 2011 Jason Holmberg
   ~
   ~ This program is free software; you can redistribute it and/or
-  ~ modify it under the terms of the GNU General Public License
+  ~ modify it under the terms of the GNU General Public Licensef
   ~ as published by the Free Software Foundation; either version 2
   ~ of the License, or (at your option) any later version.
   ~
@@ -62,8 +62,13 @@
         rel="stylesheet" type="text/css"/>
   <link rel="shortcut icon"
         href="<%=CommonConfiguration.getHTMLShortcutIcon() %>"/>
-  <!-- Sliding div content: STEP1 Place inside the head section -->
-  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js"></script>
+
+ <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css" />
+  <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+  <script src="http://code.jquery.com/ui/1.10.2/jquery-ui.js"></script>
+  
+  
+    <!-- Sliding div content: STEP1 Place inside the head section -->
   <script type="text/javascript" src="javascript/animatedcollapse.js"></script>
  
   <script type="text/javascript">
@@ -76,6 +81,7 @@
     animatedcollapse.addDiv('metadata', 'fade=1')
     animatedcollapse.addDiv('export', 'fade=1')
     animatedcollapse.addDiv('genetics', 'fade=1')
+	animatedcollapse.addDiv('social', 'fade=1')
 
     animatedcollapse.ontoggle = function($, divobj, state) { //fires each time a DIV is expanded/contracted
       //$: Access to jQuery
@@ -92,7 +98,8 @@
 <script type="text/javascript" src="http://geoxml3.googlecode.com/svn/trunk/ProjectedOverlay.js"></script>
 
   <!-- /STEP2 Place inside the head section -->
-
+  
+  
 
 </head>
 
@@ -142,15 +149,29 @@ margin-bottom: 8px !important;
 <p>
 
 <h1 class="intro"><strong><span class="para">
-		<img src="images/tag_big.gif" width="50" align="absmiddle"/></span></strong>
+		<img src="images/wild-me-logo-only-100-100.png" width="50" align="absmiddle"/></span></strong>
   <%=props.getProperty("title")%>
 </h1>
 </p>
 <p><em><%=props.getProperty("instructions")%>
 </em></p>
+<%
+String formAction="individualSearchResults.jsp";
+if(request.getParameter("individualDistanceSearch")!=null){
+	formAction="individualDistanceSearchResults.jsp";
+}
 
-<form action="individualSearchResults.jsp" method="get" name="search"
-      id="search">
+%>
+
+
+<form action="<%=formAction %>" method="get" name="search" id="search">
+    <%  
+	if(request.getParameter("individualDistanceSearch")!=null){
+	%>
+		<input type="hidden" name="individualDistanceSearch" value="<%=(request.getParameter("individualDistanceSearch") %>" />
+	<%
+	}
+    %>  
 <table width="810px">
 
 <tr>
@@ -641,8 +662,40 @@ function FSControl(controlDiv, map) {
       %>
       <c:if test="${showReleaseDate}">
         <p><strong><%= props.getProperty("releaseDate") %></strong></p>
-        <p>From: <input name="releaseDateFrom"/> to <input name="releaseDateTo"/> <%=props.getProperty("releaseDateFormat") %></p>
+        <p>From: <input id="releaseDateFrom" name="releaseDateFrom"/> to <input id="releaseDateTo" name="releaseDateTo"/></p>
       </c:if>
+
+<!--  date of birth and death -->      
+      <p><strong><%=props.getProperty("timeOfBirth")%>:</strong> <span class="para"><a
+        href="<%=CommonConfiguration.getWikiLocation()%>timeOfBirth"
+        target="_blank"><img src="images/information_icon_svg.gif"
+                             alt="Help" border="0" align="absmiddle"/></a></span></p>
+<table>
+
+	<tr>
+		<td>Start: <input type="text" id="DOBstart" name="DOBstart" /></td>
+		<td>End: <input type="text" id="DOBend" name="DOBend" /></td>
+	</tr>
+</table>
+	      <p><strong><%=props.getProperty("timeOfDeath")%>:</strong> <span class="para"><a
+        href="<%=CommonConfiguration.getWikiLocation()%>timeOfDeath"
+        target="_blank"><img src="images/information_icon_svg.gif"
+                             alt="Help" border="0" align="absmiddle"/></a></span></p>
+	<table>
+	<tr>
+		<td>Start: <input type="text" id="DODstart" name="DODstart" /></td>
+		<td>End: <input type="text" id="DODend" name="DODend" /></td>
+	</tr>
+</table>
+      <script>
+	$( "#DOBstart" ).datepicker().datepicker('option', 'dateFormat', 'yy-mm-dd');
+    $( "#DOBend" ).datepicker().datepicker('option', 'dateFormat', 'yy-mm-dd');
+    $( "#DODstart" ).datepicker().datepicker('option', 'dateFormat', 'yy-mm-dd');
+    $( "#DODend" ).datepicker().datepicker('option', 'dateFormat', 'yy-mm-dd');
+    $( "#releaseDateFrom" ).datepicker().datepicker('option', 'dateFormat', 'dd/mm/yy');
+    $( "#releaseDateTo" ).datepicker().datepicker('option', 'dateFormat', 'dd/mm/yy');
+</script>
+      
     </div>
   </td>
 </tr>
@@ -956,11 +1009,15 @@ if(CommonConfiguration.showProperty("showLifestage")){
   </td>
 </tr>
 
+
+
 <%
   pageContext.setAttribute("showMetalTags", CommonConfiguration.showMetalTags());
   pageContext.setAttribute("showAcousticTag", CommonConfiguration.showAcousticTag());
   pageContext.setAttribute("showSatelliteTag", CommonConfiguration.showSatelliteTag());
 %>
+
+
 <c:if test="${showMetalTags or showAcousticTag or showSatelliteTag}">
 
   <tr>
@@ -976,6 +1033,8 @@ if(CommonConfiguration.showProperty("showLifestage")){
     <td>
         <div id="tags" style="display:none;">
             <p>Use the fields below to limit your search to encounters with the specified tag(s)</p>
+            
+            
             <c:if test="${showMetalTags}">
                 <% 
                   pageContext.setAttribute("metalTagDescs", Util.findMetalTagDescs(langCode)); 
@@ -989,6 +1048,10 @@ if(CommonConfiguration.showProperty("showLifestage")){
             </c:forEach>
             </table>
             </c:if>
+            
+            
+            
+            
             <c:if test="${showAcousticTag}">
               <h5>Acoustic Tag</h5>
               <table>
@@ -996,6 +1059,8 @@ if(CommonConfiguration.showProperty("showLifestage")){
               <tr><td>ID:</td><td><input name="acousticTagId"/></td></tr>
               </table>
             </c:if>
+            
+            
             <c:if test="${showSatelliteTag}">
               <%
                 pageContext.setAttribute("satelliteTagNames", Util.findSatelliteTagNames());
@@ -1010,22 +1075,27 @@ if(CommonConfiguration.showProperty("showLifestage")){
                     </c:forEach>
                 </select>
               </td></tr>
-              <tr><td>Serial Number:</td><td><input name="satelliteTagSerial"/></td></tr>
+                   <tr><td>Serial Number:</td><td><input name="satelliteTagSerial"/></td></tr>
               <tr><td>Argos PTT Number</td><td><input name="satelliteTagArgosPttNumber"/></td></tr>
               </table>
-            </c:if>
-        </div>
-    </td>
-  </tr>
-
+            
+              </table>
+           </c:if>
+           
+           
+           
+           </div>
+           </td>
+           </tr>   
 </c:if>
-
 <tr>
   <td>
-    <h4 class="intro" style="background-color: #cccccc; padding:3px; border: 1px solid #000066; "><a
-      href="javascript:animatedcollapse.toggle('genetics')" style="text-decoration:none"><img
-      src="images/Black_Arrow_down.png" width="14" height="14" border="0" align="absmiddle"/> <font
-      color="#000000">Biological samples and analyses filters</font></a></h4>
+    <h4 class="intro" style="background-color: #cccccc; padding:3px; border: 1px solid #000066; ">
+    	<a href="javascript:animatedcollapse.toggle('genetics')" style="text-decoration:none">
+    		<img src="images/Black_Arrow_down.png" width="14" height="14" border="0" align="absmiddle"/> 
+    		<font color="#000000">Biological samples and analyses filters</font>
+    	</a>
+    </h4>
   </td>
 </tr>
 
@@ -1034,6 +1104,11 @@ if(CommonConfiguration.showProperty("showLifestage")){
     <div id="genetics" style="display:none; ">
       <p>Use the fields below to limit your search to marked individuals with available biological samples and resulting analyses.</p>
       
+         
+  
+
+
+
   <br /><p><em><%=props.getProperty("fastOptions") %></em></p>
       <p><strong><%=props.getProperty("hasTissueSample")%>: </strong>
             <label> 
@@ -1218,6 +1293,8 @@ else {
   </td>
 </tr>
 
+
+
 <tr>
   <td>
     <h4 class="intro" style="background-color: #cccccc; padding:3px; border: 1px solid #000066; "><a
@@ -1279,6 +1356,9 @@ else {
           <td>
             <p><strong><%=props.getProperty("firstSightedInYear")%>:</strong> 
             <em> 
+            <%
+            if(firstYear>-1){ 
+            %>
             	<select name="firstYearField" id="firstYearField">
             		<option value="" selected="selected"></option>
             		<% for (int q = firstYear; q <= nowYear; q++) { %>
@@ -1288,17 +1368,71 @@ else {
 
             		<% } %>
           		</select>
+          	<%
+            }
+          	%>	
               </em>
             </p>
           </td>
         </tr>
 
       </table>
+      </div>
   </td>
 
 </tr>
 
+<tr>
+  <td>
+    <h4 class="intro" style="background-color: #cccccc; padding:3px; border: 1px solid #000066; "><a
+      href="javascript:animatedcollapse.toggle('social')" style="text-decoration:none"><img
+      src="images/Black_Arrow_down.png" width="14" height="14" border="0" align="absmiddle"/> <font
+      color="#000000">Social filters</font></a></h4>
+  </td>
+</tr>
+<tr>
+  <td>
+    <div id="social" style="display:none;">
+    
+    <table><tr><td style="vertical-align: top">
+    	<%=props.getProperty("belongsToCommunity")%>
+    	</td><td> 
+			<%
+        ArrayList<String> communities = myShepherd.getAllCommunityNames();
+        
+		//System.out.println(haplos.toString());
 
+        if ((communities!=null)&&(communities.size()>0)) {
+        	int totalNames = communities.size();
+        
+      %>
+
+      <select multiple size="10" name="community" id="community">
+        <option value="None"></option>
+        <%
+          for (int n = 0; n < totalNames; n++) {
+            String word = communities.get(n);
+            if ((word!=null)&&(!word.equals(""))) {
+        	%>
+        		<option value="<%=word%>"><%=word%></option>
+        	<%
+            }
+          }
+        %>
+      </select></td>
+      </tr>
+      </table>
+      <%
+      } else {
+      %>
+      <p><em><%=props.getProperty("noCommunities")%>
+      </em></p>
+      <%
+        }
+      %>
+    </div>
+  </td>
+</tr>
 <%
   myShepherd.rollbackDBTransaction();
 %>

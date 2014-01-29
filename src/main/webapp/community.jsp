@@ -34,45 +34,8 @@
     if (session.getAttribute("langCode") != null) {
       langCode = (String) session.getAttribute("langCode");
     }
-    props.load(getClass().getResourceAsStream("/bundles/" + langCode + "/individualSearchResults.properties"));
+    props.load(getClass().getResourceAsStream("/bundles/" + langCode + "/community.properties"));
 
-
-    int startNum = 1;
-    int endNum = 10;
-
-
-    try {
-
-      if (request.getParameter("startNum") != null) {
-        startNum = (new Integer(request.getParameter("startNum"))).intValue();
-      }
-      if (request.getParameter("endNum") != null) {
-        endNum = (new Integer(request.getParameter("endNum"))).intValue();
-      }
-
-    } catch (NumberFormatException nfe) {
-      startNum = 1;
-      endNum = 10;
-    }
-    int listNum = endNum;
-
-    int day1 = 1, day2 = 31, month1 = 1, month2 = 12, year1 = 0, year2 = 3000;
-    try {
-      month1 = (new Integer(request.getParameter("month1"))).intValue();
-    } catch (Exception nfe) {
-    }
-    try {
-      month2 = (new Integer(request.getParameter("month2"))).intValue();
-    } catch (Exception nfe) {
-    }
-    try {
-      year1 = (new Integer(request.getParameter("year1"))).intValue();
-    } catch (Exception nfe) {
-    }
-    try {
-      year2 = (new Integer(request.getParameter("year2"))).intValue();
-    } catch (Exception nfe) {
-    }
 
 
     Shepherd myShepherd = new Shepherd();
@@ -82,17 +45,14 @@
     int numResults = 0;
 
 
-    Vector<MarkedIndividual> rIndividuals = new Vector<MarkedIndividual>();
+    ArrayList<MarkedIndividual> rIndividuals = new ArrayList<MarkedIndividual>();
     myShepherd.beginDBTransaction();
     String order ="";
 
-    MarkedIndividualQueryResult result = IndividualQueryProcessor.processQuery(myShepherd, request, order);
-    rIndividuals = result.getResult();
+    //MarkedIndividualQueryResult result = IndividualQueryProcessor.processQuery(myShepherd, request, order);
+    rIndividuals = myShepherd.getAllMarkedIndividualsInCommunity(request.getParameter("name"));
 
 
-    if (rIndividuals.size() < listNum) {
-      listNum = rIndividuals.size();
-    }
   %>
   <title><%=CommonConfiguration.getHTMLTitle() %>
   </title>
@@ -164,37 +124,14 @@
   <jsp:param name="isAdmin" value="<%=request.isUserInRole(\"admin\")%>" />
 </jsp:include>
 <div id="main">
-<ul id="tabmenu">
 
-
-  <li><a class="active"><%=props.getProperty("table")%>
-  </a></li>
-  <%
-  String queryString="";
-  if(request.getQueryString()!=null){queryString=("?"+request.getQueryString());}
-  %>
-  <li><a href="individualThumbnailSearchResults.jsp<%=queryString.replaceAll("startNum","uselessNum").replaceAll("endNum","uselessNum") %>"><%=props.getProperty("matchingImages")%>
-  </a></li>
-   <li><a href="individualMappedSearchResults.jsp<%=queryString.replaceAll("startNum","uselessNum").replaceAll("endNum","uselessNum") %>"><%=props.getProperty("mappedResults")%>
-  </a></li>
-  <li><a href="individualSearchResultsAnalysis.jsp<%=queryString.replaceAll("startNum","uselessNum").replaceAll("endNum","uselessNum") %>"><%=props.getProperty("analysis")%>
-  </a></li>
-    <li><a href="individualSearchResultsExport.jsp<%=queryString.replaceAll("startNum","uselessNum").replaceAll("endNum","uselessNum") %>"><%=props.getProperty("export")%>
-  </a></li>
-
-</ul>
 <table width="810" border="0" cellspacing="0" cellpadding="0">
   <tr>
     <td>
-      <br/>
 
-      <h1 class="intro"><span class="para"><img src="images/wild-me-logo-only-100-100.png" width="35"
-                                                align="absmiddle"/>
-        <%=props.getProperty("title")%>
-      </h1>
+       <h1><strong><img align="absmiddle" src="images/occurrence.png" />&nbsp;<%=props.getProperty("community") %></strong>: <%=request.getParameter("name")%></h1>
+<p class="caption"><em><%=props.getProperty("description") %></em></p>
 
-      <p><%=props.getProperty("instructions")%>
-      </p>
     </td>
   </tr>
 </table>
@@ -236,25 +173,7 @@
      
       count++;
 
-      /*
-      //check if this individual was newly marked in this period
-      Encounter[] dateSortedEncs = indie.getDateSortedEncounters();
-      int sortedLength = dateSortedEncs.length - 1;
-      Encounter temp = dateSortedEncs[sortedLength];
 
-
-      if ((temp.getYear() == year1) && (temp.getYear() < year2) && (temp.getMonth() >= month1)) {
-        numNewlyMarked++;
-      } else if ((temp.getYear() > year1) && (temp.getYear() == year2) && (temp.getMonth() <= month2)) {
-        numNewlyMarked++;
-      } else if ((temp.getYear() >= year1) && (temp.getYear() <= year2) && (temp.getMonth() >= month1) && (temp.getMonth() <= month2)) {
-        numNewlyMarked++;
-      }
-      */
-
-
-      if ((count >= startNum) && (count <= endNum)) {
-        
         MarkedIndividual indie = (MarkedIndividual) rIndividuals.get(f);
         //check if this individual was newly marked in this period
         Encounter[] dateSortedEncs = indie.getDateSortedEncounters();
@@ -320,9 +239,7 @@
     </td>
   </tr>
   <%
-      } //end if to control number displayed
-
-
+  
     } //end for
     boolean includeZeroYears = true;
 
@@ -337,97 +254,10 @@
 
 <%
   myShepherd.rollbackDBTransaction();
-  startNum += 10;
-  endNum += 10;
-  if (endNum > numResults) {
-    endNum = numResults;
-  }
-
 
 %>
-<table width="810px">
-  <tr>
-    <%
-      if ((startNum - 10) > 1) {%>
-    <td align="left">
-      <p>
-        <a
-          href="individualSearchResults.jsp?<%=queryString.replaceAll("startNum","uselessNum").replaceAll("endNum","uselessNum") %>&startNum=<%=(startNum-20)%>&endNum=<%=(startNum-11)%>"><img
-          src="images/Black_Arrow_left.png" width="28" height="28" border="0" align="absmiddle"
-          title="<%=props.getProperty("seePreviousResults")%>"/></a> <a
-        href="individualSearchResults.jsp?<%=queryString.replaceAll("startNum","uselessNum").replaceAll("endNum","uselessNum") %>&startNum=<%=(startNum-20)%>&endNum=<%=(startNum-11)%>"><%=(startNum - 20)%>
-        - <%=(startNum - 11)%>
-      </a>
-      </p>
-    </td>
-    <%
-      }
 
-      if (startNum < numResults) {
-    %>
-    <td align="right">
-      <p>
-        <a
-          href="individualSearchResults.jsp?<%=queryString.replaceAll("startNum","uselessNum").replaceAll("endNum","uselessNum") %>&startNum=<%=startNum%>&endNum=<%=endNum%>"><%=startNum%>
-          - <%=endNum%>
-        </a> <a
-        href="individualSearchResults.jsp?<%=queryString.replaceAll("startNum","uselessNum").replaceAll("endNum","uselessNum") %>&startNum=<%=startNum%>&endNum=<%=endNum%>"><img
-        src="images/Black_Arrow_right.png" width="28" height="28" border="0" align="absmiddle"
-        title="<%=props.getProperty("seeNextResults")%>"/></a>
-      </p>
-    </td>
-    <%
-      }
-    %>
-  </tr>
-</table>
 
-<p>
-<table width="810" border="0" cellspacing="0" cellpadding="0">
-  <tr>
-    <td align="left">
-      <p><strong><%=props.getProperty("matchingMarkedIndividuals")%>
-      </strong>: <%=count%>
-      </p>
-      <%myShepherd.beginDBTransaction();%>
-      <p><strong><%=props.getProperty("totalMarkedIndividuals")%>
-      </strong>: <%=(myShepherd.getNumMarkedIndividuals())%>
-      </p>
-    </td>
-    <%
-      myShepherd.rollbackDBTransaction();
-      myShepherd.closeDBTransaction();
-
-    %>
-  </tr>
-</table>
-<%
-  if (request.getParameter("noQuery") == null) {
-%>
-<table>
-  <tr>
-    <td align="left">
-
-      <p><strong><%=props.getProperty("queryDetails")%>
-      </strong></p>
-
-      <p class="caption"><strong><%=props.getProperty("prettyPrintResults") %>
-      </strong><br/>
-        <%=result.getQueryPrettyPrint().replaceAll("locationField", props.getProperty("location")).replaceAll("locationCodeField", props.getProperty("locationID")).replaceAll("verbatimEventDateField", props.getProperty("verbatimEventDate")).replaceAll("Sex", props.getProperty("sex")).replaceAll("Keywords", props.getProperty("keywords")).replaceAll("alternateIDField", (props.getProperty("alternateID"))).replaceAll("alternateIDField", (props.getProperty("size")))%>
-      </p>
-
-      <p class="caption"><strong><%=props.getProperty("jdoql")%>
-      </strong><br/>
-        <%=result.getJDOQLRepresentation()%>
-      </p>
-
-    </td>
-  </tr>
-</table>
-<%
-  }
-%>
-</p>
 
 
 

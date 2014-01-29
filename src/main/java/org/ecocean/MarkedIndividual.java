@@ -1,6 +1,6 @@
 /*
- * The Shepherd Project - A Mark-Recapture Framework
- * Copyright (C) 2011 Jason Holmberg
+ * Wildbook - A Mark-Recapture Framework
+ * Copyright (C) 2011-2013 Jason Holmberg
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.*;
 
 import org.ecocean.genetics.*;
+import org.ecocean.social.Relationship;
 
 /**
  * A <code>MarkedIndividual</code> object stores the complete <code>encounter</code> data for a single marked individual in a mark-recapture study.
@@ -74,12 +75,19 @@ public class MarkedIndividual implements java.io.Serializable {
   private Vector interestedResearchers = new Vector();
 
   private String dateTimeCreated;
+  
+  //FOR FAST QUERY PURPOSES ONLY - DO NOT MANUALLY SET
+  private String localHaplotypeReflection;
 
   private String dynamicProperties;
 
   private String patterningCode;
 
   private int maxYearsBetweenResightings;
+  
+  private long timeOfBirth=0;
+  
+  private long timeOfDeath=0;
 
   public MarkedIndividual(String individualID, Encounter enc) {
 
@@ -107,8 +115,11 @@ public class MarkedIndividual implements java.io.Serializable {
 
   public boolean addEncounter(Encounter newEncounter) {
 
-    newEncounter.assignToMarkedIndividual(individualID);
-    
+      newEncounter.assignToMarkedIndividual(individualID);
+   
+      //get and therefore set the haplotype if necessary
+      getHaplotype();
+      
       boolean ok=encounters.add(newEncounter);
       numberEncounters++;
       resetMaxNumYearsBetweenSightings();
@@ -124,6 +135,9 @@ public class MarkedIndividual implements java.io.Serializable {
   public boolean removeEncounter(Encounter getRidOfMe){
 
       numberEncounters--;
+      
+      
+      
       boolean changed=false;
       for(int i=0;i<encounters.size();i++) {
         Encounter tempEnc=(Encounter)encounters.get(i);
@@ -134,6 +148,11 @@ public class MarkedIndividual implements java.io.Serializable {
           }
         }
       resetMaxNumYearsBetweenSightings();
+      
+      //reset haplotype
+      localHaplotypeReflection=null;
+      getHaplotype();
+      
       return changed;
   }
   
@@ -1234,13 +1253,12 @@ Returns the first haplotype found in the Encounter objects for this MarkedIndivi
 @return a String if found or null if no haplotype is found
 */
 public String getHaplotype(){
-      for (int c = 0; c < encounters.size(); c++) {
-        Encounter temp = (Encounter) encounters.get(c);
-        if(temp.getHaplotype()!=null){return temp.getHaplotype();}
-      }
-    return null;
-
+      
+    return localHaplotypeReflection;
+    
 }
+
+
 
 public String getGeneticSex(){
   for (int c = 0; c < encounters.size(); c++) {
@@ -1528,5 +1546,27 @@ public ArrayList<String> getAllAssignedUsers(){
 
    return allIDs;
  }
+
+/**
+ * DO NOT SET DIRECTLY!!
+ * 
+ * @param myDepth
+ */
+public void doNotSetLocalHaplotypeReflection(String myHaplo) {
+  if(myHaplo!=null){localHaplotypeReflection = myHaplo;}
+  else{localHaplotypeReflection = null;}
+}
+
+public long getTimeOfBirth(){return timeOfBirth;}
+public long getTimeofDeath(){return timeOfDeath;}
+
+public void setTimeOfBirth(long newTime){timeOfBirth=newTime;}
+public void setTimeOfDeath(long newTime){timeOfDeath=newTime;}
+
+public ArrayList<Relationship> getAllRelationships(Shepherd myShepherd){
+  return myShepherd.getAllRelationshipsForMarkedIndividual(individualID);
+}
+
+
 
 }
