@@ -231,10 +231,14 @@
     
     int count = 0;
     int numNewlyMarked = 0;
+    int numTotalEncounters=0;
     
     for (int f = 0; f < rIndividualsSize; f++) {
      
       count++;
+      MarkedIndividual indie = (MarkedIndividual) rIndividuals.get(f);
+      
+      numTotalEncounters+=indie.getEncounters().size();
 
       /*
       //check if this individual was newly marked in this period
@@ -255,7 +259,6 @@
 
       if ((count >= startNum) && (count <= endNum)) {
         
-        MarkedIndividual indie = (MarkedIndividual) rIndividuals.get(f);
         //check if this individual was newly marked in this period
         Encounter[] dateSortedEncs = indie.getDateSortedEncounters();
         int sortedLength = dateSortedEncs.length - 1;
@@ -368,10 +371,10 @@
     <td align="right">
       <p>
         <a
-          href="individualSearchResults.jsp?<%=queryString.replaceAll("startNum","uselessNum").replaceAll("endNum","uselessNum") %>&startNum=<%=startNum%>&endNum=<%=endNum%>"><%=startNum%>
+          href="individualSearchResults.jsp<%=queryString.replaceAll("startNum","uselessNum").replaceAll("endNum","uselessNum") %>&startNum=<%=startNum%>&endNum=<%=endNum%>"><%=startNum%>
           - <%=endNum%>
         </a> <a
-        href="individualSearchResults.jsp?<%=queryString.replaceAll("startNum","uselessNum").replaceAll("endNum","uselessNum") %>&startNum=<%=startNum%>&endNum=<%=endNum%>"><img
+        href="individualSearchResults.jsp<%=queryString.replaceAll("startNum","uselessNum").replaceAll("endNum","uselessNum") %>&startNum=<%=startNum%>&endNum=<%=endNum%>"><img
         src="images/Black_Arrow_right.png" width="28" height="28" border="0" align="absmiddle"
         title="<%=props.getProperty("seeNextResults")%>"/></a>
       </p>
@@ -387,7 +390,7 @@
   <tr>
     <td align="left">
       <p><strong><%=props.getProperty("matchingMarkedIndividuals")%>
-      </strong>: <%=count%>
+      </strong>: <%=count%> identified from <%=numTotalEncounters %> encounters
       </p>
       <%myShepherd.beginDBTransaction();%>
       <p><strong><%=props.getProperty("totalMarkedIndividuals")%>
