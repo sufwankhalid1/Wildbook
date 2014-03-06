@@ -1216,10 +1216,12 @@ This code is no longer necessary with Charles Overbeck's new multi-measurement f
           //q--;
         //}
         //else{
-          MarkedIndividual s=myShepherd.getMarkedIndividual(rEnc.isAssignedToMarkedIndividual());
-          if(s.totalEncounters()<numResights) {
-            rEncounters.remove(q);
-            q--;
+          if((rEnc.getIndividualID()!=null)&&(!rEnc.getIndividualID().toLowerCase().equals("Unassigned"))){
+            MarkedIndividual s=myShepherd.getMarkedIndividual(rEnc.isAssignedToMarkedIndividual());
+            if(s.totalEncounters()<numResights) {
+              rEncounters.remove(q);
+              q--;
+            }
           }
         //}
       }
