@@ -58,28 +58,113 @@ allSharks=myShepherd.getAllMarkedIndividuals(sharkQuery);
 
 int numLogEncounters=0;
 
+while(allEncs.hasNext()){
+	
+	Encounter myEnc=(Encounter)allEncs.next();
+	if((myEnc.getIndividualID()!=null)&&(!myShepherd.isMarkedIndividual(myEnc.getIndividualID()))){
+		%>
+		<p>Orphaned encounter: <a href="encounters/encounter.jsp?number=<%=myEnc.getCatalogNumber() %>"><%=myEnc.getCatalogNumber() %></a></p>
+		<%
+	}
+	
+}
+
 
 
 while(allSharks.hasNext()){
 
 	MarkedIndividual sharky=(MarkedIndividual)allSharks.next();
+	String individualID=sharky.getIndividualID();
+	System.out.println("Working on shark: "+sharky.getIndividualID());
+	%>
 	
-	//populate max years between resightings
-	Vector encs= sharky.getEncounters();
+	<p>Processing <%=sharky.getIndividualID() %></p>
+	
+	<%
+	Vector encs=sharky.getEncounters();
 	int numEncs=encs.size();
-	int i=0;
-	while(i<numEncs){
-		Encounter samp=(Encounter)encs.get(i);
-		if(samp.getHaplotype()!=null){
-			sharky.doNotSetLocalHaplotypeReflection(samp.getHaplotype());
-			%>
-			<p>Setting haplotype of <%=samp.getHaplotype() %> for indie <%=sharky.getIndividualID() %>.</p>
-			<%
+	System.out.println("Iterating encounters...");
+	for(int i=0;i<sharky.getEncounters().size();i++){
+		
+		Encounter enc=(Encounter)sharky.getEncounters().get(i);
+		String encNum=enc.getCatalogNumber();
+		if((enc.getLocationID()==null)||((!enc.getLocationID().equals("CA-OR"))&&(!enc.getLocationID().equals("Cent Am")))){
+			
+			
+			if(myShepherd.getOccurrenceForEncounter(enc.getCatalogNumber())!=null){
+				Occurrence occur=myShepherd.getOccurrenceForEncounter(enc.getCatalogNumber());
+				while(occur.getEncounters().contains(enc)){occur.removeEncounter(enc);}
+				myShepherd.commitDBTransaction();
+				myShepherd.beginDBTransaction();
+				if(occur.getNumberEncounters()<1){
+					myShepherd.getPM().deletePersistent(occur);
+					myShepherd.commitDBTransaction();
+					myShepherd.beginDBTransaction();
+				}
+				//myShepherd.commitDBTransaction();
+				//myShepherd.beginDBTransaction();
+			}
+			
+			if((enc.getTissueSamples()!=null)&&(enc.getTissueSamples().size()>0)){
+				int numTissueSamples=enc.getTissueSamples().size();
+				for(int y=0;y<enc.getTissueSamples().size();y++){
+					TissueSample ts=enc.getTissueSamples().get(y);
+					enc.removeTissueSample(y);
+					//myShepherd.commitDBTransaction();
+					//myShepherd.beginDBTransaction();
+					myShepherd.getPM().deletePersistent(ts);
+					myShepherd.commitDBTransaction();
+					myShepherd.beginDBTransaction();
+					y--;
+				}
+			}
+			
+			sharky=myShepherd.getMarkedIndividual(individualID);
+			sharky.removeEncounter(enc);
 			myShepherd.commitDBTransaction();
 			myShepherd.beginDBTransaction();
-			break;
+			
+			//System.out.println("     Deleting encounter: "+encNum);
+			
+			enc=myShepherd.getEncounter(encNum);
+			myShepherd.getPM().deletePersistent(enc);
+			myShepherd.commitDBTransaction();
+			myShepherd.beginDBTransaction();
+			i--;
+			
+			
 		}
-		i++;
+		else{
+			
+			if((sharky.getHaplotype()==null)&&(enc.getHaplotype()!=null)){
+				sharky.doNotSetLocalHaplotypeReflection(enc.getHaplotype());
+				myShepherd.commitDBTransaction();
+				myShepherd.beginDBTransaction();
+				%>
+				<p>set a haplotype!</p>
+				<%
+				
+			}
+			
+			if((enc.getGenus()==null)||(enc.getGenus().equals(""))){
+				
+				enc.setGenus("Megaptera");
+				enc.setSpecificEpithet("novaeangliae");
+				myShepherd.commitDBTransaction();
+				myShepherd.beginDBTransaction();
+				
+			}
+			
+		}
+		
+		
+	}
+
+	
+	if((!sharky.wasSightedInLocationCode("CA-OR"))&&(!sharky.wasSightedInLocationCode("Cent Am"))){
+		myShepherd.throwAwayMarkedIndividual(sharky);
+		myShepherd.commitDBTransaction();
+		myShepherd.beginDBTransaction();
 	}
 		
 	

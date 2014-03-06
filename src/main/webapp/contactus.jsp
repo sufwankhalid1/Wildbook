@@ -111,11 +111,12 @@
           <h1 class="intro">Contact us </h1>
         </div>
 
-        <p>We welcome your comments and questions.For more information please contact <a href="mailto:scott.baker@oregonstate.edu">Scott Baker</a> or <a href="mailto:debbie.steel@oregonstate.edu">Debbie Steel</a>.
-        
-        
-        
+        <p>We welcome your comments and questions.</p>
+		<p>
+		For more information about genetics and the geneGIS project, please contact <a href="mailto:scott.baker@oregonstate.edu">Scott Baker</a> or <a href="mailto:debbie.steel@oregonstate.edu">Debbie Steel</a>.
         </p>
+		
+		<p>For more information about the <a href="http://www.wildme.org/wildbook">Wildbook software</a> demonstrated here, please contact <a href="mailto:jason@whaleshark.org">Jason Holmberg</a>.</p>
       </div>
       <!-- end maintext -->
 

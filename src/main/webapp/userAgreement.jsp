@@ -132,7 +132,7 @@
           
           
 
-          <p class="caption">This is our user agreement. Do you agree?</p>
+          <p class="caption">This site is for demonstration purposes only.</p>
           
           <%
           if((request.getParameter("username")!=null)&&(request.getParameter("password")!=null)){
