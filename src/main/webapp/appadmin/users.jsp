@@ -24,9 +24,9 @@
 
 
 <%
-  	//get our Shepherd for data retrieval and persistence
-  	Shepherd myShepherd = new Shepherd();
-  
+  	
+  	
+  Shepherd myShepherd = new Shepherd();
   	//get the available user roles
   	ArrayList<String> roles=CommonConfiguration.getSequentialPropertyValues("role");
 	ArrayList<String> roleDefinitions=CommonConfiguration.getSequentialPropertyValues("roleDefinition");
@@ -198,6 +198,7 @@
     		    String userProject="";
     		    String userStatement="";
     		    String userURL="";
+    		    String receiveEmails="checked=\"checked\"";
     		    boolean hasProfilePhoto=false;
     		    
     		    if((request.getParameter("isEdit")!=null)&&(myShepherd.getUser(request.getParameter("username").trim())!=null)){
@@ -209,6 +210,7 @@
     		    	if(thisUser.getEmailAddress()!=null){
     		    		localEmail=thisUser.getEmailAddress();
     		    	}
+    		    	if(!thisUser.getReceiveEmails()){receiveEmails="";}
     		    	if(thisUser.getFullName()!=null){
     		    		localFullName=thisUser.getFullName();
     		    	}
@@ -302,7 +304,7 @@
                         </td>	
             		</tr>
                     <tr><td colspan="4">Full name: <input name="fullName" type="text" size="15" maxlength="90" value="<%=localFullName %>"></input></td></tr>
-                    <tr><td colspan="4">Email address: <input name="emailAddress" type="text" size="15" maxlength="90" value="<%=localEmail %>"></input></td></tr>
+                    <tr><td colspan="3">Email address: <input name="emailAddress" type="text" size="15" maxlength="90" value="<%=localEmail %>"></input></td><td colspan="1">Receive automated emails? <input type="checkbox" name="receiveEmails" value="receiveEmails" <%=receiveEmails %>/></td></tr>
                     <tr><td colspan="4">Affiliation: <input name="affiliation" type="text" size="15" maxlength="90" value="<%=localAffiliation %>"></input></td></tr>
                      <tr><td colspan="4">Research Project: <input name="userProject" type="text" size="15" maxlength="90" value="<%=userProject %>"></input></td></tr>
                           
@@ -316,7 +318,26 @@
             </table>
     	
     </p>
-	
+    <%
+    if((CommonConfiguration.getProperty("showUserAgreement")!=null)&&(CommonConfiguration.getProperty("showUserAgreement").equals("true"))){
+    %>
+            <p>&nbsp;</p>
+      <table class="tissueSample" style="border: 1px solid black;" width="100%" border="1">
+        <tr>
+          <td>
+            <p><font size="+1">Reset User Agreement Acceptance for All Users</font></p>
+            <p>This command resets all User accounts such that each user must reaccept the User Agreement upon the next login.</p>
+
+            <form name="UserResetAcceptedUserAgreement" method="post" action="../UserResetAcceptedUserAgreement">
+
+              <input name="UserResetAcceptedUserAgreementButton" type="submit" id="UserResetAcceptedUserAgreementButton" value="Reset">
+              </p></form>
+          </td>
+        </tr>
+      </table>
+	<%
+	}
+	%>
       <jsp:include page="../footer.jsp" flush="true"/>
     </div>
   </div>

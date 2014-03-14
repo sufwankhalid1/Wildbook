@@ -43,21 +43,21 @@ public class LoginIT extends WebTestCase {
     setBaseUrl("http://localhost:9090/wildbook");
   }
   public void testLogin() {
-    beginAt("/login.jsp");
-    //clickLinkWithExactText("Log in");
+    beginAt("/index.jsp");
+    clickLinkWithExactText("Log in");
     setTextField("username", "tomcat");
     setTextField("password", "tomcat123");
     submit();
-    assertTextPresent("Login success!");
-    //clickLinkWithExactText("Home");
-    //assertLinkPresentWithExactText("Log out");
-    //clickLinkWithExactText("Log out");
-    //assertTextPresent("Overview");
+    assertTextPresent("User Agreement");
+    submit("acceptUserAgreement");
+    assertLinkPresentWithExactText("Log out");
+    clickLinkWithExactText("Log out");
+    assertTextPresent("Home");
   }
 
   public void testUnsuccessfulLogin() {
-    beginAt("/login.jsp");
-    //clickLinkWithExactText("Log in");
+    beginAt("/index.jsp");
+    clickLinkWithExactText("Log in");
     setTextField("username", "foo");
     setTextField("password", "bar");
     submit();
