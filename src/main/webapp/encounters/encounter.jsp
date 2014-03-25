@@ -3387,7 +3387,7 @@ $("a#sat").click(function() {
 <!-- end sat tag popup --> 
 <%
 }
-%></c:if>
+%>
 </td>
 </tr>
 </table>
