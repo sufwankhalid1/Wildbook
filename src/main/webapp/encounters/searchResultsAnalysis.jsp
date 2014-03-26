@@ -1,6 +1,9 @@
 <%--
   ~ The Shepherd Project - A Mark-Recapture Framework
-  ~ Copyright (C) 2011 Jason Holmberg
+  ~ Copyright (C) 2013 \
+  
+  
+  Jason Holmberg
   ~
   ~ This program is free software; you can redistribute it and/or
   ~ modify it under the terms of the GNU General Public License
@@ -106,21 +109,92 @@
  	sexHashtable.put("female", new Integer(0));
  	sexHashtable.put("unknown", new Integer(0));
  	
+ 	//let's prep the HashTable for the species pie chart
+ 	  ArrayList<String> allSpecies2=CommonConfiguration.getSequentialPropertyValues("genusSpecies"); 
+ 	  int numSpecies2 = allSpecies2.size();
+ 	  Hashtable<String,Integer> speciesHashtable = new Hashtable<String,Integer>();
+ 		for(int gg=0;gg<numSpecies2;gg++){
+ 			String thisSpecies=allSpecies2.get(gg);
+ 			
+ 			StringTokenizer tokenizer=new StringTokenizer(thisSpecies," ");
+ 	  		if(tokenizer.countTokens()>=2){
+
+ 	  			thisSpecies=tokenizer.nextToken()+" "+tokenizer.nextToken().replaceAll(",","").replaceAll("_"," ");
+ 	          	//enc.setGenus(tokenizer.nextToken());
+ 	          	//enc.setSpecificEpithet();
+
+ 	  	    }
+ 			
+ 			speciesHashtable.put(thisSpecies, new Integer(0));
+ 		}
+ 		
+ 		
+ 		//let's prep the HashTable for the country pie chart
+ 		  ArrayList<String> allCountries=myShepherd.getAllCountries(); 
+ 		  int numCountries= allCountries.size();
+ 		  Hashtable<String,Integer> countriesHashtable = new Hashtable<String,Integer>();
+ 			for(int gg=0;gg<numCountries;gg++){
+ 				String thisCountry=allCountries.get(gg);
+ 				if(thisCountry!=null){
+ 					countriesHashtable.put(thisCountry, new Integer(0));
+ 				}
+ 				
+ 			}
  	
+ 			
+ 			//let's prep the data structures for the discovery curve
+ 			Hashtable<Integer,Integer> discoveryCurveInflectionPoints= new Hashtable<Integer,Integer>();
+ 			ArrayList<String> dailyDuplicates=new ArrayList<String>();
+ 					
+ 			//let's prep the data structures for weekly frequency
+ 			Hashtable<Integer,Integer> frequencyWeeks = new Hashtable<Integer,Integer>();
+ 			ArrayList<String> dailyDuplicates2=new ArrayList<String>();
+ 			for(int p=1;p<=53;p++){
+ 				frequencyWeeks.put(p, 0);
+ 			}	
+ 					
+ 					
  	int resultSize=rEncounters.size();
  	ArrayList<String> markedIndividuals=new ArrayList<String>();
+ 	int numUniqueEncounters=0;
  	 for(int y=0;y<resultSize;y++){
  		 
  		 
  		 Encounter thisEnc=(Encounter)rEncounters.get(y);
- 		 if((thisEnc.getIndividualID()!=null)&&(!thisEnc.getIndividualID().equals("Unassigned"))&&(!markedIndividuals.contains(thisEnc.getIndividualID().trim()))){markedIndividuals.add(thisEnc.getIndividualID().trim());}
+ 		numUniqueEncounters++;
+ 		 //markedIndividual tabulation
+ 		 if((thisEnc.getIndividualID()!=null)&&(!thisEnc.getIndividualID().equals("Unassigned"))&&(!markedIndividuals.contains(thisEnc.getIndividualID().trim()))){
+ 			 
+ 			 //add this individual to the list
+ 			 markedIndividuals.add(thisEnc.getIndividualID().trim());
+ 			
+ 			 //check for a daily duplicate
+ 			 String dailyDuplicateUniqueID=thisEnc.getIndividualID()+":"+thisEnc.getYear()+":"+thisEnc.getMonth()+":"+thisEnc.getDay();
+ 			 if(!dailyDuplicates.contains(dailyDuplicateUniqueID)){
+ 				dailyDuplicates.add(dailyDuplicateUniqueID);
+ 				 //set a discovery curve inflection point
+ 				discoveryCurveInflectionPoints.put(numUniqueEncounters, markedIndividuals.size());
+ 			 }
+ 			 else{numUniqueEncounters--;}
+
+ 		 }
+ 		 
+ 		 //weekly frequency tabulation
+ 		 if((thisEnc.getYear()>0)&&(thisEnc.getMonth()>0)&&(thisEnc.getDay()>0)){
+ 			 GregorianCalendar cal=new GregorianCalendar(thisEnc.getYear(),thisEnc.getMonth(), thisEnc.getDay());
+ 			 int weekOfYear=cal.get(Calendar.WEEK_OF_YEAR);
+ 			 Integer valueForWeek=frequencyWeeks.get(weekOfYear)+1;
+ 			 frequencyWeeks.put(weekOfYear, valueForWeek);
+ 		 }
+ 		 	
+ 		 
  		 //haplotype ie chart prep
- 		 if(thisEnc.getHaplotype()!=null){
-      	   if(pieHashtable.containsKey(thisEnc.getHaplotype().trim())){
-      		   Integer thisInt = pieHashtable.get(thisEnc.getHaplotype().trim())+1;
-      		   pieHashtable.put(thisEnc.getHaplotype().trim(), thisInt);
-      	   }
- 	 	}
+ 		 	if(thisEnc.getHaplotype()!=null){
+      	   		if(pieHashtable.containsKey(thisEnc.getHaplotype().trim())){
+      		   		Integer thisInt = pieHashtable.get(thisEnc.getHaplotype().trim())+1;
+      		   		pieHashtable.put(thisEnc.getHaplotype().trim(), thisInt);
+      	   		}
+ 	 		}
  		 
  	    //sex pie chart 	 
  		if(thisEnc.getSex().equals("male")){
@@ -135,6 +209,29 @@
  	    	Integer thisInt = sexHashtable.get("unknown")+1;
    		    sexHashtable.put("unknown", thisInt);
  	    }
+ 	    
+ 		//check the encounter species
+		 
+		 if((thisEnc.getGenus()!=null)&&(thisEnc.getSpecificEpithet()!=null)){
+			 String encGenusSpecies=thisEnc.getGenus()+" "+thisEnc.getSpecificEpithet();
+			 if(speciesHashtable.containsKey(encGenusSpecies)){
+	      		   Integer thisInt = speciesHashtable.get(encGenusSpecies)+1;
+	      		   speciesHashtable.put(encGenusSpecies, thisInt);
+	      		   //numSpeciesEntries++;
+	      	   }
+			 
+		 }
+		 
+		 
+		 //check the Encounter country
+		 
+		 if(thisEnc.getCountry()!=null){
+			 if(countriesHashtable.containsKey(thisEnc.getCountry())){
+	      		   Integer thisInt = countriesHashtable.get(thisEnc.getCountry())+1;
+	      		   countriesHashtable.put(thisEnc.getCountry(), thisInt);
+	      	 		//numCountryEntries++;  
+			 }
+		 }
  	    
  		//measurement
 		for(int b=0;b<numMeasurementTypes;b++){
@@ -368,6 +465,150 @@
         chart.draw(data, options);
       }
       
+      google.setOnLoadCallback(drawSpeciesChart);
+      function drawSpeciesChart() {
+        var speciesData = new google.visualization.DataTable();
+        speciesData.addColumn('string', 'Species');
+        speciesData.addColumn('number', 'No. Recorded');
+        speciesData.addRows([
+          <%
+          ArrayList<String> allSpecies=CommonConfiguration.getSequentialPropertyValues("genusSpecies"); 
+          int numSpecies = speciesHashtable.size();
+          Enumeration<String> speciesKeys=speciesHashtable.keys();
+
+          while(speciesKeys.hasMoreElements()){
+        	  String keyName=speciesKeys.nextElement();
+        	  //System.out.println(keyName);
+          %>
+          ['<%=keyName%>',    <%=speciesHashtable.get(keyName) %>]
+		  <%
+		  if(speciesKeys.hasMoreElements()){
+		  %>
+		  ,
+		  <%
+		  }
+         }
+		 %>
+          
+        ]);
+     var speciesOptions = {
+          width: 450, height: 300,
+          title: 'Species Distribution of Reported Strandings',
+          //colors: ['#0000FF','#FF00FF']
+        };
+      var speciesChart = new google.visualization.PieChart(document.getElementById('specieschart_div'));
+        speciesChart.draw(speciesData, speciesOptions);
+      }
+      
+      
+      //countries chart
+       google.setOnLoadCallback(drawCountriesChart);
+      function drawCountriesChart() {
+        var countriesData = new google.visualization.DataTable();
+        countriesData.addColumn('string', 'Country');
+        countriesData.addColumn('number', 'No. Recorded');
+        countriesData.addRows([
+          <%
+          //ArrayList<String> allCountries=myShepherd.getAllCountries(); 
+          //int numSpecies = speciesHashtable.size();
+          Enumeration<String> countriesKeys=countriesHashtable.keys();
+
+          while(countriesKeys.hasMoreElements()){
+        	  String keyName=countriesKeys.nextElement();
+        	  //System.out.println(keyName);
+          %>
+          ['<%=keyName%>',    <%=countriesHashtable.get(keyName) %>]
+		  <%
+		  if(countriesKeys.hasMoreElements()){
+		  %>
+		  ,
+		  <%
+		  }
+         }
+		 %>
+          
+        ]);
+     var countriesOptions = {
+          width: 450, height: 300,
+          title: 'Distribution by Country of Reported Encounters',
+          //colors: ['#0000FF','#FF00FF']
+        };
+      var countriesChart = new google.visualization.PieChart(document.getElementById('countrieschart_div'));
+        countriesChart.draw(countriesData, countriesOptions);
+      }
+      
+      
+      //discovery curve
+      google.setOnLoadCallback(drawDiscoveryCurve);
+     function drawDiscoveryCurve() {
+       var discoveryCurveData = new google.visualization.DataTable();
+       discoveryCurveData.addColumn('number', 'No. Encounters');
+       discoveryCurveData.addColumn('number', 'No. Marked Individuals');
+       discoveryCurveData.addRows([
+         <%
+         Enumeration<Integer> discoveryKeys=discoveryCurveInflectionPoints.keys();
+
+         while(discoveryKeys.hasMoreElements()){
+       	  Integer keyName=discoveryKeys.nextElement();
+       	  //System.out.println(keyName);
+         %>
+         [<%=keyName.toString()%>,<%=discoveryCurveInflectionPoints.get(keyName).toString() %>]
+		  <%
+		  if(discoveryKeys.hasMoreElements()){
+		  %>
+		  ,
+		  <%
+		  }
+        }
+		 %>
+         
+       ]);
+    var discoveryCurveOptions = {
+         width: 450, height: 300,
+         title: 'Discovery Curve of Marked Individuals (n=<%=markedIndividuals.size()%>)',
+         hAxis: {title: 'No. Encounters (daily duplicates removed)'},
+         vAxis: {title: 'No. Marked Individuals'},
+         pointSize: 3,
+       };
+     var discoveryCurveChart = new google.visualization.ScatterChart(document.getElementById('discoveryCurve_div'));
+     discoveryCurveChart.draw(discoveryCurveData, discoveryCurveOptions);
+     }
+     
+   //frequency chart
+     google.setOnLoadCallback(drawFrequencyChart);
+    function drawFrequencyChart() {
+      var frequencyData = new google.visualization.DataTable();
+      frequencyData.addColumn('number', 'Week No.');
+      frequencyData.addColumn('number', 'No. Encounters');
+      frequencyData.addRows([
+        <%
+        //Enumeration<Integer> discoveryKeys=discoveryCurveInflectionPoints.keys();
+
+        for(int q=1;q<=53;q++){
+      	  //Integer keyName=discoveryKeys.nextElement();
+      	  //System.out.println(keyName);
+        %>
+        [<%=q%>,<%=frequencyWeeks.get(new Integer(q)).toString() %>]
+		  <%
+		  if(q<53){
+		  %>
+		  ,
+		  <%
+		  }
+       }
+		 %>
+        
+      ]);
+   var frequencyChartOptions = {
+        width: 450, height: 300,
+        title: 'Weekly Frequency of Encounters (Seasonality)',
+        hAxis: {title: 'Annual Week No.'},
+        vAxis: {title: 'No. Encounters'},
+      };
+    var frequencyChart = new google.visualization.ColumnChart(document.getElementById('frequency_div'));
+    frequencyChart.draw(frequencyData, frequencyChartOptions);
+    }
+      
       
 </script>
 
@@ -500,7 +741,22 @@
  <div id="chart_div"></div>
 
 <div id="sexchart_div"></div>
- 
+
+ <%
+        if(CommonConfiguration.showProperty("showTaxonomy")){
+        %>
+		<div id="specieschart_div"></div>
+		<%
+        }
+		
+        if(CommonConfiguration.showProperty("showCountry")){
+        %>
+		<div id="countrieschart_div"></div>
+		<%
+        }
+		%>
+ 	<div id="discoveryCurve_div"></div>
+ 	<div id="frequency_div"></div>
  <%
  
      } 

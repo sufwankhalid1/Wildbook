@@ -23,7 +23,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
 
@@ -294,6 +296,11 @@ public class CommonConfiguration {
     return props.getProperty(name);
   }
   
+  public static Enumeration<?> getPropertyNames() {
+    initialize();
+    return props.propertyNames();
+  }
+
   public static ArrayList<String> getSequentialPropertyValues(String propertyPrefix){
     initialize();
     ArrayList<String> returnThese=new ArrayList<String>();
@@ -438,7 +445,7 @@ public class CommonConfiguration {
                                                    originalString, String emailAddress) {
     initialize();
     if (props.getProperty("removeEmailString") != null) {
-      originalString += "\n\n" + props.getProperty("removeEmailString") + "\nhttp://" + getURLLocation(request) + "/RemoveEmailAddress?hashedEmail=" + Encounter.getHashOfEmailString(emailAddress);
+      originalString += "\n\n" + props.getProperty("removeEmailString") + "\nhttp://" + getURLLocation(request) + "/removeEmailAddress.jsp?hashedEmail=" + Encounter.getHashOfEmailString(emailAddress);
     }
     return originalString;
   }
@@ -510,5 +517,17 @@ public class CommonConfiguration {
     }
     return showUsersToPublic;
   }
+  
+  
+  public static boolean isIntegratedWithWildMe(){
+    
+    initialize();
+    boolean integrated = true;
+    if ((props.getProperty("isIntegratedWithWildMe") != null) && (props.getProperty("isIntegratedWithWildMe").equals("false"))) {
+      integrated = false;
+    }
+    return integrated;
+  }
+  
   
 }

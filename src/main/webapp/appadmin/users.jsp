@@ -24,9 +24,9 @@
 
 
 <%
-  	//get our Shepherd for data retrieval and persistence
-  	Shepherd myShepherd = new Shepherd();
-  
+  	
+  	
+  Shepherd myShepherd = new Shepherd();
   	//get the available user roles
   	ArrayList<String> roles=CommonConfiguration.getSequentialPropertyValues("role");
 	ArrayList<String> roleDefinitions=CommonConfiguration.getSequentialPropertyValues("roleDefinition");
@@ -74,9 +74,16 @@
     </jsp:include>
     <div id="main">
      
+     <%
+     
+     myShepherd.beginDBTransaction();
+     ArrayList<User> allUsers=myShepherd.getAllUsers();
+     int numUsers=allUsers.size();
+     
+     %>
 
       <h1 class="intro">User Management</h1>
-      <h4 class="intro">Existing Users</h4>
+      <h4 class="intro">Existing Users (<%=numUsers %>)</h4>
       <table width="810px" class="tissueSample">
       	<tr>
       		<th>&nbsp;</th>
@@ -91,9 +98,7 @@
       	</tr>
       
       <%
-      myShepherd.beginDBTransaction();
-      ArrayList<User> allUsers=myShepherd.getAllUsers();
-      int numUsers=allUsers.size();
+      
       for(int i=0;i<numUsers;i++){
       	User user=allUsers.get(i);
       	String affiliation="&nbsp;";
@@ -121,7 +126,7 @@
       		</td>
       		<td><%=user.getUsername()%></td>
       		<td><%=fullName%></td>
-      		<td><%=emailAddress%></td>
+      		<td><a href="mailto:<%=emailAddress%>"><img height="20px" width="20px" src="../images/Crystal_Clear_app_email.png" /></a></td>
       		<td><%=affiliation%></td>
       		<td><em><%=myShepherd.getAllRolesForUserAsString(user.getUsername()) %></em></td>
       		<td><a href="users.jsp?username=<%=user.getUsername()%>&isEdit=true#editUser"><img width="20px" height="20px" src="../images/Crystal_Clear_action_edit.png" /></a></td>   	
@@ -129,7 +134,7 @@
       			<%
       			if(!user.getUsername().equals(request.getUserPrincipal().getName())){
       			%>
-      			<a href="../UserDelete?username=<%=user.getUsername()%>"><img  width="20px" height="20px" src="../images/cancel.gif" /></a>
+      			<form onsubmit="return confirm('Are you sure you want to delete this user?');" action="../UserDelete?username=<%=user.getUsername()%>" method="post"><input type="image"  width="20px" height="20px" src="../images/cancel.gif" /></form>
       			<%
       			}
       			else {
@@ -193,6 +198,7 @@
     		    String userProject="";
     		    String userStatement="";
     		    String userURL="";
+    		    String receiveEmails="checked=\"checked\"";
     		    boolean hasProfilePhoto=false;
     		    
     		    if((request.getParameter("isEdit")!=null)&&(myShepherd.getUser(request.getParameter("username").trim())!=null)){
@@ -204,6 +210,7 @@
     		    	if(thisUser.getEmailAddress()!=null){
     		    		localEmail=thisUser.getEmailAddress();
     		    	}
+    		    	if(!thisUser.getReceiveEmails()){receiveEmails="";}
     		    	if(thisUser.getFullName()!=null){
     		    		localFullName=thisUser.getFullName();
     		    	}
@@ -297,7 +304,7 @@
                         </td>	
             		</tr>
                     <tr><td colspan="4">Full name: <input name="fullName" type="text" size="15" maxlength="90" value="<%=localFullName %>"></input></td></tr>
-                    <tr><td colspan="4">Email address: <input name="emailAddress" type="text" size="15" maxlength="90" value="<%=localEmail %>"></input></td></tr>
+                    <tr><td colspan="3">Email address: <input name="emailAddress" type="text" size="15" maxlength="90" value="<%=localEmail %>"></input></td><td colspan="1">Receive automated emails? <input type="checkbox" name="receiveEmails" value="receiveEmails" <%=receiveEmails %>/></td></tr>
                     <tr><td colspan="4">Affiliation: <input name="affiliation" type="text" size="15" maxlength="90" value="<%=localAffiliation %>"></input></td></tr>
                      <tr><td colspan="4">Research Project: <input name="userProject" type="text" size="15" maxlength="90" value="<%=userProject %>"></input></td></tr>
                           
@@ -311,7 +318,26 @@
             </table>
     	
     </p>
-	
+    <%
+    if((CommonConfiguration.getProperty("showUserAgreement")!=null)&&(CommonConfiguration.getProperty("showUserAgreement").equals("true"))){
+    %>
+            <p>&nbsp;</p>
+      <table class="tissueSample" style="border: 1px solid black;" width="100%" border="1">
+        <tr>
+          <td>
+            <p><font size="+1">Reset User Agreement Acceptance for All Users</font></p>
+            <p>This command resets all User accounts such that each user must reaccept the User Agreement upon the next login.</p>
+
+            <form name="UserResetAcceptedUserAgreement" method="post" action="../UserResetAcceptedUserAgreement">
+
+              <input name="UserResetAcceptedUserAgreementButton" type="submit" id="UserResetAcceptedUserAgreementButton" value="Reset">
+              </p></form>
+          </td>
+        </tr>
+      </table>
+	<%
+	}
+	%>
       <jsp:include page="../footer.jsp" flush="true"/>
     </div>
   </div>
