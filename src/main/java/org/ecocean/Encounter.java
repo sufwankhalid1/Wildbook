@@ -646,7 +646,7 @@ public class Encounter implements java.io.Serializable {
   public String getDate() {
     String date = "";
     String time = "";
-    if (year == -1) {
+    if (year <= 0) {
       return "Unknown";
     } else if (month == -1) {
       return (new Integer(year)).toString();
@@ -670,7 +670,7 @@ public class Encounter implements java.io.Serializable {
 
   public String getShortDate() {
     String date = "";
-    if (year == -1) {
+    if (year <= 0) {
       return "Unknown";
     } else if (month == -1) {
       return (new Integer(year)).toString();
@@ -1202,7 +1202,7 @@ public class Encounter implements java.io.Serializable {
 
   public String getAlternateID() {
     if (otherCatalogNumbers == null) {
-      return "None";
+      return null;
     }
     return otherCatalogNumbers;
   }
@@ -1678,6 +1678,7 @@ public class Encounter implements java.io.Serializable {
      *@return a String if found or null if no genetic sex is found
      */
     public String getGeneticSex(){
+      if(tissueSamples!=null){
       int numTissueSamples=tissueSamples.size();
       if(numTissueSamples>0){
         for(int j=0;j<numTissueSamples;j++){
@@ -1694,6 +1695,7 @@ public class Encounter implements java.io.Serializable {
             }
           }
         }
+      }
       }
       return null;
     }
@@ -1810,6 +1812,16 @@ public class Encounter implements java.io.Serializable {
   }
     
     public String getOccurrenceID(){return occurrenceID;}
+    
+    public boolean hasSinglePhotoVideoByFileName(String filename){
+        int numImages=images.size();
+        for(int i=0;i<numImages;i++){
+          SinglePhotoVideo single=images.get(i);
+          if(single.getFilename().trim().toLowerCase().equals(filename.trim().toLowerCase())){return true;}
+        }
+        return false;
+    }
+    
     
 }
 

@@ -1,4 +1,4 @@
-<%@ page contentType="text/html; charset=utf-8" language="java" import="org.ecocean.*,java.util.ArrayList,java.util.*" %>
+<%@ page contentType="text/html; charset=utf-8" language="java" import="org.ecocean.servlet.ServletUtilities,org.ecocean.*,java.util.ArrayList,java.util.*" %>
 
 <%--
   ~ The Shepherd Project - A Mark-Recapture Framework
@@ -21,6 +21,9 @@
 
 <%
 
+String context="context0";
+context=ServletUtilities.getContext(request);
+
 //setup our Properties object to hold all properties
   Properties props = new Properties();
   String langCode = "en";
@@ -32,11 +35,15 @@
 
   //load our variables for the submit page
 
-  props.load(getClass().getResourceAsStream("/bundles/" + langCode + "/individuals.properties"));
+  //props.load(getClass().getResourceAsStream("/bundles/" + langCode + "/individuals.properties"));
+  props = ShepherdProperties.getProperties("individuals.properties", langCode);
 
-  Properties localesProps = new Properties();
-  localesProps.load(getClass().getResourceAsStream("/bundles/locales.properties"));
+
 		  
+  Properties localesProps = new Properties();
+  //localesProps.load(getClass().getResourceAsStream("/bundles/locales.properties"));
+  localesProps = ShepherdProperties.getProperties("locales.properties", "");
+	  
 		  
 		  
   String markedIndividualTypeCaps = props.getProperty("markedIndividualTypeCaps");
@@ -74,7 +81,7 @@
   String allEncounters = props.getProperty("allEncounters");
   String allIndividuals = props.getProperty("allIndividuals");
 
-  Shepherd myShepherd = new Shepherd();
+  Shepherd myShepherd = new Shepherd(context);
   
   
  

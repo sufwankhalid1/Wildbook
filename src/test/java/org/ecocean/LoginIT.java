@@ -40,7 +40,7 @@ public class LoginIT extends WebTestCase {
 
   public void setUp() throws Exception {
     super.setUp();
-    setBaseUrl("http://localhost:9090/shepherd");
+    setBaseUrl("http://localhost:9090/wildbook");
   }
   public void testLogin() {
     beginAt("/index.jsp");
@@ -48,11 +48,11 @@ public class LoginIT extends WebTestCase {
     setTextField("username", "tomcat");
     setTextField("password", "tomcat123");
     submit();
-    assertTextPresent("Login success!");
-    clickLinkWithExactText("Home");
+    assertTextPresent("User Agreement");
+    submit("acceptUserAgreement");
     assertLinkPresentWithExactText("Log out");
     clickLinkWithExactText("Log out");
-    assertTextPresent("Overview");
+    assertTextPresent("Home");
   }
 
   public void testUnsuccessfulLogin() {

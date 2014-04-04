@@ -20,7 +20,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <%@ page contentType="text/html; charset=utf-8" language="java"
-         import="org.ecocean.*, java.util.Properties, java.util.Vector,java.util.ArrayList" %>
+         import="org.ecocean.servlet.ServletUtilities,org.ecocean.*, java.util.Properties, java.util.Vector,java.util.ArrayList" %>
 <%@ taglib uri="http://www.sunwesttek.com/di" prefix="di" %>
 
 
@@ -28,13 +28,17 @@
 <head>
   <%
 
+  String context="context0";
+  context=ServletUtilities.getContext(request);
+  
     //let's load out properties
     Properties props = new Properties();
     String langCode = "en";
     if (session.getAttribute("langCode") != null) {
       langCode = (String) session.getAttribute("langCode");
     }
-    props.load(getClass().getResourceAsStream("/bundles/" + langCode + "/individualSearchResults.properties"));
+    //props.load(getClass().getResourceAsStream("/bundles/" + langCode + "/individualSearchResults.properties"));
+    props = ShepherdProperties.getProperties("individualSearchResults.properties", langCode);
 
 
     int startNum = 1;
@@ -75,7 +79,7 @@
     }
 
 
-    Shepherd myShepherd = new Shepherd();
+    Shepherd myShepherd = new Shepherd(context);
 
 
 
@@ -84,7 +88,7 @@
 
     Vector<MarkedIndividual> rIndividuals = new Vector<MarkedIndividual>();
     myShepherd.beginDBTransaction();
-    String order = "";
+    String order ="";
 
     MarkedIndividualQueryResult result = IndividualQueryProcessor.processQuery(myShepherd, request, order);
     rIndividuals = result.getResult();
@@ -94,18 +98,18 @@
       listNum = rIndividuals.size();
     }
   %>
-  <title><%=CommonConfiguration.getHTMLTitle() %>
+  <title><%=CommonConfiguration.getHTMLTitle(context) %>
   </title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
   <meta name="Description"
-        content="<%=CommonConfiguration.getHTMLDescription() %>"/>
+        content="<%=CommonConfiguration.getHTMLDescription(context) %>"/>
   <meta name="Keywords"
-        content="<%=CommonConfiguration.getHTMLKeywords() %>"/>
-  <meta name="Author" content="<%=CommonConfiguration.getHTMLAuthor() %>"/>
-  <link href="<%=CommonConfiguration.getCSSURLLocation(request) %>"
+        content="<%=CommonConfiguration.getHTMLKeywords(context) %>"/>
+  <meta name="Author" content="<%=CommonConfiguration.getHTMLAuthor(context) %>"/>
+  <link href="<%=CommonConfiguration.getCSSURLLocation(request,context) %>"
         rel="stylesheet" type="text/css"/>
   <link rel="shortcut icon"
-        href="<%=CommonConfiguration.getHTMLShortcutIcon() %>"/>
+        href="<%=CommonConfiguration.getHTMLShortcutIcon(context) %>"/>
 
 </head>
 <style type="text/css">
@@ -188,7 +192,7 @@
     <td>
       <br/>
 
-      <h1 class="intro"><span class="para"><img src="images/tag_big.gif" width="35"
+      <h1 class="intro"><span class="para"><img src="images/wild-me-logo-only-100-100.png" width="35"
                                                 align="absmiddle"/>
         <%=props.getProperty("title")%>
       </h1>
@@ -224,14 +228,19 @@
   <%
 
     //set up the statistics counters
-    int count = 0;
-    int numNewlyMarked = 0;
+    
 
     Vector histories = new Vector();
-    for (int f = 0; f < rIndividuals.size(); f++) {
-      MarkedIndividual indie = (MarkedIndividual) rIndividuals.get(f);
+    int rIndividualsSize=rIndividuals.size();
+    
+    int count = 0;
+    int numNewlyMarked = 0;
+    
+    for (int f = 0; f < rIndividualsSize; f++) {
+     
       count++;
 
+      /*
       //check if this individual was newly marked in this period
       Encounter[] dateSortedEncs = indie.getDateSortedEncounters();
       int sortedLength = dateSortedEncs.length - 1;
@@ -245,10 +254,18 @@
       } else if ((temp.getYear() >= year1) && (temp.getYear() <= year2) && (temp.getMonth() >= month1) && (temp.getMonth() <= month2)) {
         numNewlyMarked++;
       }
+      */
 
 
       if ((count >= startNum) && (count <= endNum)) {
+        
+        MarkedIndividual indie = (MarkedIndividual) rIndividuals.get(f);
+        //check if this individual was newly marked in this period
+        Encounter[] dateSortedEncs = indie.getDateSortedEncounters();
+        int sortedLength = dateSortedEncs.length - 1;
+        Encounter temp = dateSortedEncs[sortedLength];
         ArrayList<SinglePhotoVideo> photos=indie.getAllSinglePhotoVideo();
+        
   %>
   <tr class="lineitem">
     <td class="lineitem" width="102" bgcolor="#FFFFFF" >
@@ -256,7 +273,7 @@
        							<%
    								if(photos.size()>0){ 
    									SinglePhotoVideo myPhoto=photos.get(0);
-   									String imgName = "/"+CommonConfiguration.getDataDirectoryName()+"/encounters/" + myPhoto.getCorrespondingEncounterNumber() + "/thumb.jpg";
+   									String imgName = "/"+CommonConfiguration.getDataDirectoryName(context)+"/encounters/" + myPhoto.getCorrespondingEncounterNumber() + "/thumb.jpg";
    			                       
    								%>                         
                             		<a href="individuals.jsp?number=<%=indie.getName()%>"><img src="<%=imgName%>" alt="<%=indie.getName()%>" border="0"/></a>
@@ -273,16 +290,18 @@
       href="http://<%=CommonConfiguration.getURLLocation(request)%>/individuals.jsp?number=<%=indie.getName()%>"><%=indie.getName()%>
     </a>
       <%
-        if ((indie.getAlternateID() != null) && (!indie.getAlternateID().equals("None"))) {
+        if ((indie.getAlternateID() != null) && (!indie.getAlternateID().equals("None")) && (!indie.getAlternateID().equals(""))) {
       %> <br /><font size="-1"><%=props.getProperty("alternateID")%>: <%=indie.getAlternateID()%>
       </font> <%
         }
+      if(temp.getYear()>0){
       %>
       <br /><font size="-1"><%=props.getProperty("firstIdentified")%>: <%=temp.getMonth() %>
         /<%=temp.getYear() %>
       </font>
       <%
-      if(CommonConfiguration.showProperty("showTaxonomy")){
+      }
+      if(CommonConfiguration.showProperty("showTaxonomy",context)){
       	if(indie.getGenusSpecies()!=null){
       %>
       	<br /><em><font size="-1"><%=indie.getGenusSpecies()%></font></em>
@@ -306,62 +325,7 @@
   </tr>
   <%
       } //end if to control number displayed
-      if (((request.getParameter("export") != null) || (request.getParameter("capture") != null)) && (request.getParameter("startNum") == null)) {
-        //let's generate a programMarkEntry for this shark or check for an existing one
-        //first generate a history
-        int startYear = 3000;
-        int endYear = 3000;
-        int startMonth = 3000;
-        int endMonth = 3000;
-        String history = "";
-        if (year1 > year2) {
-          startYear = year2;
-          endYear = year1;
-          startMonth = month2;
-          endMonth = year1;
-        } else {
-          startYear = year1;
-          endYear = year2;
-          startMonth = month1;
-          endMonth = month2;
-        }
-        int NumHistoryYears = (endYear - startYear) + 1;
 
-        //there will be yearDiffs histories
-        while (startYear <= endYear) {
-          if (request.getParameter("subsampleMonths") != null) {
-            int monthIter = startMonth;
-            while (monthIter <= endMonth) {
-              if (indie.wasSightedInMonth(startYear, monthIter)) {
-                history = history + "1";
-              } else {
-                history = history + "0";
-              }
-              monthIter++;
-            } //end while
-          } else {
-            if (indie.wasSightedInYear(startYear)) {
-              history = history + "1";
-            } else {
-              history = history + "0";
-            }
-          }
-          startYear++;
-        }
-
-        boolean foundIdenticalHistory = false;
-        for (int h = 0; h < histories.size(); h++) {
-
-        }
-        if (!foundIdenticalHistory) {
-
-          if (history.indexOf("1") != -1) {
-
-          }
-        }
-
-
-      } //end if export
 
     } //end for
     boolean includeZeroYears = true;
@@ -427,8 +391,7 @@
   <tr>
     <td align="left">
       <p><strong><%=props.getProperty("matchingMarkedIndividuals")%>
-      </strong>: <%=count%><br/>
-        <%=props.getProperty("numFirstSighted")%>: <%=numNewlyMarked %>
+      </strong>: <%=count%>
       </p>
       <%myShepherd.beginDBTransaction();%>
       <p><strong><%=props.getProperty("totalMarkedIndividuals")%>

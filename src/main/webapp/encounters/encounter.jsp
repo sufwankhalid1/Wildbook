@@ -20,7 +20,7 @@
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <%@ page contentType="text/html; charset=utf-8" language="java"
-         import="com.drew.imaging.jpeg.JpegMetadataReader, com.drew.metadata.Directory, com.drew.metadata.Metadata, com.drew.metadata.Tag, org.ecocean.*,org.ecocean.servlet.ServletUtilities,org.ecocean.Util,org.ecocean.Measurement, org.ecocean.Util.*, org.ecocean.genetics.*, org.ecocean.tag.*, java.awt.Dimension, javax.jdo.Extent, javax.jdo.Query, java.io.File, java.text.DecimalFormat, java.util.*" %>
+         import="org.ecocean.servlet.ServletUtilities,com.drew.imaging.jpeg.JpegMetadataReader, com.drew.metadata.Directory, com.drew.metadata.Metadata, com.drew.metadata.Tag, org.ecocean.*,org.ecocean.servlet.ServletUtilities,org.ecocean.Util,org.ecocean.Measurement, org.ecocean.Util.*, org.ecocean.genetics.*, org.ecocean.tag.*, java.awt.Dimension, javax.jdo.Extent, javax.jdo.Query, java.io.File, java.text.DecimalFormat, java.util.*" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>         
 
@@ -36,7 +36,8 @@
         //let's see if we can find a string in the mapping properties file
         Properties props = new Properties();
         //set up the file input stream
-        props.load(getClass().getResourceAsStream("/bundles/newIndividualNumbers.properties"));
+        //props.load(getClass().getResourceAsStream("/bundles/newIndividualNumbers.properties"));
+        props=ShepherdProperties.getProperties("newIndividualNumbers.properties", "");
 
 
         //let's see if the property is defined
@@ -82,13 +83,16 @@
 
 <%
 
+
+String context="context0";
+context=ServletUtilities.getContext(request);
 //get encounter number
 String num = request.getParameter("number").replaceAll("\\+", "").trim();
 
 //let's set up references to our file system components
 String rootWebappPath = getServletContext().getRealPath("/");
 File webappsDir = new File(rootWebappPath).getParentFile();
-File shepherdDataDir = new File(webappsDir, CommonConfiguration.getDataDirectoryName());
+File shepherdDataDir = new File(webappsDir, CommonConfiguration.getDataDirectoryName(context));
 File encountersDir=new File(shepherdDataDir.getAbsolutePath()+"/encounters");
 File encounterDir = new File(encountersDir, num);
 
@@ -125,7 +129,7 @@ File encounterDir = new File(encountersDir, num);
   pageContext.setAttribute("num", num);
 
 
-  Shepherd myShepherd = new Shepherd();
+  Shepherd myShepherd = new Shepherd(context);
   Extent allKeywords = myShepherd.getPM().getExtent(Keyword.class, true);
   Query kwQuery = myShepherd.getPM().newQuery(allKeywords);
   boolean proceed = true;
@@ -136,19 +140,58 @@ File encounterDir = new File(encountersDir, num);
 
 <html>
 
-<head>
-  <title><%=encprops.getProperty("encounter") %> <%=num%>
+<head prefix="og:http://ogp.me/ns#">
+  <title><%=CommonConfiguration.getHTMLTitle(context) %> - <%=encprops.getProperty("encounter") %> <%=num%>
   </title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
   <meta name="Description"
-        content="<%=CommonConfiguration.getHTMLDescription() %>"/>
+        content="<%=CommonConfiguration.getHTMLDescription(context) %>"/>
   <meta name="Keywords"
-        content="<%=CommonConfiguration.getHTMLKeywords() %>"/>
-  <meta name="Author" content="<%=CommonConfiguration.getHTMLAuthor() %>"/>
-  <link href="<%=CommonConfiguration.getCSSURLLocation(request) %>"
+        content="<%=CommonConfiguration.getHTMLKeywords(context) %>"/>
+  <meta name="Author" content="<%=CommonConfiguration.getHTMLAuthor(context) %>"/>
+  
+  
+<!-- social meta start -->
+<meta property="og:site_name" content="<%=CommonConfiguration.getHTMLTitle(context) %> - <%=encprops.getProperty("encounter") %> <%=request.getParameter("number") %>" />
+
+<link rel="canonical" href="http://<%=CommonConfiguration.getURLLocation(request) %>/encounters/encounter.jsp?number=<%=request.getParameter("number") %>" />
+
+<meta itemprop="name" content="<%=encprops.getProperty("encounter")%> <%=request.getParameter("number")%>" />
+<meta itemprop="description" content="<%=CommonConfiguration.getHTMLDescription(context)%>" />
+<%
+if (request.getParameter("number")!=null) {
+	
+		if(myShepherd.isEncounter(num)){
+			Encounter metaEnc = myShepherd.getEncounter(num);
+			int numImgs=metaEnc.getImages().size();
+			if((metaEnc.getImages()!=null)&&(numImgs>0)){
+				for(int b=0;b<numImgs;b++){
+				SinglePhotoVideo metaSPV=metaEnc.getImages().get(b);
+%>
+<meta property="og:image" content="http://<%=CommonConfiguration.getURLLocation(request) %>/<%=CommonConfiguration.getDataDirectoryName(context) %>/encounters/<%=(request.getParameter("number")+"/"+metaSPV.getFilename())%>" />
+<link rel="image_src" href="http://<%=CommonConfiguration.getURLLocation(request) %>/<%=CommonConfiguration.getDataDirectoryName(context) %>/encounters/<%=(request.getParameter("number")+"/"+metaSPV.getFilename())%>" / >
+<%
+			}
+		}
+		}
+}
+%>
+
+<meta property="og:title" content="<%=CommonConfiguration.getHTMLTitle(context) %> - <%=encprops.getProperty("encounter") %> <%=request.getParameter("number") %>" />
+<meta property="og:description" content="<%=CommonConfiguration.getHTMLDescription(context)%>" />
+
+<meta property="og:url" content="http://<%=CommonConfiguration.getURLLocation(request) %>/encounters/encounter.jsp?number=<%=request.getParameter("number") %>" />
+
+
+<meta property="og:type" content="website" />
+
+<!-- social meta end -->
+
+  
+  <link href="<%=CommonConfiguration.getCSSURLLocation(request,context) %>"
         rel="stylesheet" type="text/css"/>
   <link rel="shortcut icon"
-        href="<%=CommonConfiguration.getHTMLShortcutIcon() %>"/>
+        href="<%=CommonConfiguration.getHTMLShortcutIcon(context) %>"/>
   <style type="text/css">
     <!--
 
@@ -374,8 +417,6 @@ margin-bottom: 8px !important;
 
 
 
-  <script type="text/javascript" src="StyledMarker.js"></script>
-
 <!--  FACEBOOK LIKE BUTTON -->
 <div id="fb-root"></div>
 <script>(function(d, s, id) {
@@ -384,8 +425,7 @@ margin-bottom: 8px !important;
   js = d.createElement(s); js.id = id;
   js.src = "//connect.facebook.net/en_US/all.js#xfbml=1";
   fjs.parentNode.insertBefore(js, fjs);
-}(document, 'script', 'facebook-jssdk'));
-</script>
+}(document, 'script', 'facebook-jssdk'));</script>
 
 <!-- GOOGLE PLUS-ONE BUTTON -->
 <script type="text/javascript">
@@ -423,7 +463,7 @@ margin-bottom: 8px !important;
       
 				//let's see if this user has ownership and can make edits
       			boolean isOwner = ServletUtilities.isUserAuthorizedForEncounter(enc, request);
-      			pageContext.setAttribute("editable", isOwner && CommonConfiguration.isCatalogEditable());
+      			pageContext.setAttribute("editable", isOwner && CommonConfiguration.isCatalogEditable(context));
       			boolean loggedIn = false;
       			try{
       				if(request.getUserPrincipal()!=null){loggedIn=true;}
@@ -444,13 +484,13 @@ margin-bottom: 8px !important;
 							int cNum=0;
 							while(moreStates){
 	  								String currentLifeState = "encounterState"+cNum;
-	  								if(CommonConfiguration.getProperty(currentLifeState)!=null){
+	  								if(CommonConfiguration.getProperty(currentLifeState,context)!=null){
 	  									
-										if(CommonConfiguration.getProperty(currentLifeState).equals(enc.getState())){
+										if(CommonConfiguration.getProperty(currentLifeState,context).equals(enc.getState())){
 											//stateInt=taxNum;
 											moreStates=false;
-											if(CommonConfiguration.getProperty(("encounterStateCSSClass"+cNum))!=null){
-												classColor=CommonConfiguration.getProperty(("encounterStateCSSClass"+cNum));
+											if(CommonConfiguration.getProperty(("encounterStateCSSClass"+cNum),context)!=null){
+												classColor=CommonConfiguration.getProperty(("encounterStateCSSClass"+cNum),context);
 											}
 										}
 										cNum++;
@@ -487,27 +527,29 @@ margin-bottom: 8px !important;
 								<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
 							</td>
 							<td>
-								<!-- Facebook LIKE button -->
-								<div class="fb-like" data-send="false" data-layout="button_count" data-width="100" data-show-faces="false"></div>
-							</td>
+								<!-- Facebook SHARE button -->
+								<div class="fb-share-button" data-href="http://<%=CommonConfiguration.getURLLocation(request) %>/encounters/encounter.jsp?number=<%=request.getParameter("number") %>" data-type="button_count"></div></td>
 						</tr>
 					</table> 
 					<table>
 						<tr>
 							<td width="560px" style="vertical-align:top">
-								
-								
+
+
+
+<!-- START IDENTITY ATTRIBUTE -->								
+
+  <p><img align="absmiddle" src="../images/wild-me-logo-only-100-100.png" width="40px" height="40px" /> <strong>Identity</strong></p>
       
-      <p><img align="absmiddle" src="../images/tag_big.gif" width="40px" height="40px" /> <strong>Identity</strong></p>
       
-								<!-- START INDIVIDUALID ATTRIBUTE -->
+								
     							<%
     							if (enc.isAssignedToMarkedIndividual().equals("Unassigned")) {
   								%>
     							<p class="para">
     								 <%=encprops.getProperty("identified_as") %> <%=enc.isAssignedToMarkedIndividual()%> 
       								<%
-        							if (isOwner && CommonConfiguration.isCatalogEditable()) {
+        							if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
      								%>
       									<a id="identity" class="launchPopup"><img align="absmiddle" width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" /></a>
       								<%
@@ -522,7 +564,7 @@ margin-bottom: 8px !important;
     								
       								<%=encprops.getProperty("identified_as") %> <a href="../individuals.jsp?langCode=<%=langCode%>&number=<%=enc.isAssignedToMarkedIndividual()%><%if(request.getParameter("noscript")!=null){%>&noscript=true<%}%>"><%=enc.isAssignedToMarkedIndividual()%></a>
       								<%
-        							if (isOwner && CommonConfiguration.isCatalogEditable()) {
+        							if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
       								%>
       									<a id="identity" class="launchPopup"><img align="absmiddle" width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" /></a>
       								<%
@@ -532,7 +574,7 @@ margin-bottom: 8px !important;
       								<br /> 
       								<img align="absmiddle" src="../images/Crystal_Clear_app_matchedBy.gif"> <%=encprops.getProperty("matched_by") %>: <%=enc.getMatchedBy()%>
       								<%
-        							if (isOwner && CommonConfiguration.isCatalogEditable()) {
+        							if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
       								%>
      								 <a id="matchedBy" class="launchPopup"><img align="absmiddle" width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" /></a> 
         							<div id="dialogMatchedBy" title="<%=encprops.getProperty("matchedBy")%>" style="display:none">  
@@ -571,7 +613,7 @@ margin-bottom: 8px !important;
     							<%
       							} //end else
 								
-      							if (isOwner && CommonConfiguration.isCatalogEditable()) {
+      							if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
       							%>
      							<div id="dialogIdentity" title="<%=encprops.getProperty("manageIdentity")%>" style="display:none">  
   									<p><em><%=encprops.getProperty("identityMessage") %></em></p>	
@@ -615,7 +657,7 @@ margin-bottom: 8px !important;
 									<%
   									}
   		 	  	  					//Remove from MarkedIndividual if not unassigned
-		  	  						if((!enc.isAssignedToMarkedIndividual().equals("Unassigned")) && CommonConfiguration.isCatalogEditable()) {
+		  	  						if((!enc.isAssignedToMarkedIndividual().equals("Unassigned")) && CommonConfiguration.isCatalogEditable(context)) {
 		  							%>
 									<table cellpadding="1" cellspacing="0" bordercolor="#FFFFFF">
  										<tr>
@@ -695,13 +737,20 @@ margin-bottom: 8px !important;
   						<%
   						}
 						%>    	  
-						<!-- END INDIVIDUALID ATTRIBUTE --> 
+
+<!-- END INDIVIDUALID ATTRIBUTE --> 
 						
 						<!-- START ALTERNATEID ATTRIBUTE -->  
     <p class="para">
-    	<img align="absmiddle" src="../images/alternateid.gif"> <%=encprops.getProperty("alternate_id")%>: <%=enc.getAlternateID()%>
+    <%
+    String alternateID="";
+    if(enc.getAlternateID()!=null){
+    	alternateID=enc.getAlternateID();
+    }
+    %>
+    	<img align="absmiddle" src="../images/alternateid.gif"> <%=encprops.getProperty("alternate_id")%>: <%=alternateID%>
       <%
-      if (isOwner && CommonConfiguration.isCatalogEditable()) {
+      if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
       %>
       <a id="alternateID" class="launchPopup"><img align="absmiddle" width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" /></a>
       <%
@@ -709,7 +758,7 @@ margin-bottom: 8px !important;
       %>
     </p>
     <%
-    if (isOwner && CommonConfiguration.isCatalogEditable()) {
+    if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
     %>
     <!-- start set alternate ID popup -->  
 <div id="dialogAlternateID" title="<%=encprops.getProperty("setAlternateID")%>" style="display:none">  
@@ -772,7 +821,7 @@ $("a#alternateID").click(function() {
 							<%
 							}
 
-        					if (isOwner && CommonConfiguration.isCatalogEditable()) {
+        					if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
       						%>
       							<a id="occurrence" class="launchPopup"><img align="absmiddle" width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" /></a>
       						<%
@@ -781,7 +830,7 @@ $("a#alternateID").click(function() {
   						</p>
   
   						<%
-						if (isOwner && CommonConfiguration.isCatalogEditable()) {
+						if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
 						%>
 						
 <div id="dialogOccurrence" title="<%=encprops.getProperty("assignOccurrence")%>" style="display:none">  
@@ -894,6 +943,11 @@ $("a#occurrence").click(function() {
   
 <br />
 
+<!-- start DATE section -->
+<table>
+<tr>
+<td width="560px" style="vertical-align:top; background-color: #E8E8E8">
+
 <p><img align="absmiddle" src="../images/calendar.png" width="40px" height="40px" /> <strong><%=encprops.getProperty("date") %>
 </strong><br/><br/>
   <a
@@ -901,7 +955,7 @@ $("a#occurrence").click(function() {
     <%=enc.getDate()%>
   </a>
     <%
-				if(isOwner&&CommonConfiguration.isCatalogEditable()) {
+				if(isOwner&&CommonConfiguration.isCatalogEditable(context)) {
  					%><font size="-1"><a id="date" class="launchPopup"><img align="absmiddle" width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" /></a></font> <%
         		}
         		%>
@@ -920,7 +974,7 @@ $("a#occurrence").click(function() {
     <%=encprops.getProperty("none") %>
     <%
 				}
-				if(isOwner&&CommonConfiguration.isCatalogEditable()) {
+				if(isOwner&&CommonConfiguration.isCatalogEditable(context)) {
  					%> <font size="-1"><a id="VBDate" class="launchPopup"><img align="absmiddle" width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" /></a></font> <%
         		}
         		%>
@@ -931,7 +985,7 @@ $("a#occurrence").click(function() {
         		
         		
 <%
-  pageContext.setAttribute("showReleaseDate", CommonConfiguration.showReleaseDate());
+  pageContext.setAttribute("showReleaseDate", CommonConfiguration.showReleaseDate(context));
 %>
 <c:if test="${showReleaseDate}">
   <br /><em><%=encprops.getProperty("releaseDate") %></em>:
@@ -1102,6 +1156,13 @@ $("a#date").click(function() {
 });
 </script>   
 <!-- end date dialog -->  
+
+</td>
+</tr>
+</table>
+
+
+
   
       <%
 
@@ -1128,16 +1189,16 @@ if(enc.getLocation()!=null){
 %>
 
   <%
-    if (isOwner && CommonConfiguration.isCatalogEditable()) {
+    if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
   %><a id="location" class="launchPopup"><img align="absmiddle" width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" /></a>
   <%
     }
   %>
 <br /><em><%=encprops.getProperty("locationID") %></em>: <%=enc.getLocationCode()%>
   <%
-    if (isOwner && CommonConfiguration.isCatalogEditable()) {%>
+    if (isOwner && CommonConfiguration.isCatalogEditable(context)) {%>
   <font size="-1"><a id="locationID" class="launchPopup"><img align="absmiddle" width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" /></a></font>
-  <a href="<%=CommonConfiguration.getWikiLocation()%>locationID" target="_blank"><img
+  <a href="<%=CommonConfiguration.getWikiLocation(context)%>locationID" target="_blank"><img
     src="../images/information_icon_svg.gif" alt="Help" border="0" align="absmiddle"></a> <%
     }
   %>
@@ -1151,9 +1212,9 @@ if(enc.getLocation()!=null){
   <%=enc.getCountry()%>
   <%
   }
-    if (isOwner && CommonConfiguration.isCatalogEditable()) {%>
+    if (isOwner && CommonConfiguration.isCatalogEditable(context)) {%>
   <font size="-1"><a id="country" class="launchPopup"><img align="absmiddle" width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" /></a></font>
-  <a href="<%=CommonConfiguration.getWikiLocation()%>country" target="_blank"><img
+  <a href="<%=CommonConfiguration.getWikiLocation(context)%>country" target="_blank"><img
     src="../images/information_icon_svg.gif" alt="Help" border="0" align="absmiddle"></a> <%
     }
   %>
@@ -1161,7 +1222,7 @@ if(enc.getLocation()!=null){
   
   <!-- Display maximumDepthInMeters so long as show_maximumDepthInMeters is not false in commonCOnfiguration.properties-->
     <%
-		if(CommonConfiguration.showProperty("maximumDepthInMeters")){
+		if(CommonConfiguration.showProperty("maximumDepthInMeters",context)){
 		%>
 <br />
 <em><%=encprops.getProperty("depth") %>
@@ -1175,7 +1236,7 @@ if(enc.getLocation()!=null){
   <%
     }
  
-if (isOwner && CommonConfiguration.isCatalogEditable()) {
+if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
   %>
 &nbsp;<a id="depth" class="launchPopup"><img align="absmiddle" width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" /></a>
 <%
@@ -1188,7 +1249,7 @@ if (isOwner && CommonConfiguration.isCatalogEditable()) {
 <!-- End Display maximumDepthInMeters -->
 
 <%
-if (isOwner && CommonConfiguration.isCatalogEditable()) {
+if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
 %>
 <!-- start depth popup -->  
 <div id="dialogDepth" title="<%=encprops.getProperty("setDepth")%>" style="display:none">  
@@ -1231,7 +1292,7 @@ $("a#depth").click(function() {
 
 <!-- Display maximumElevationInMeters so long as show_maximumElevationInMeters is not false in commonCOnfiguration.properties-->
 <%
-  if (CommonConfiguration.showProperty("maximumElevationInMeters")) {
+  if (CommonConfiguration.showProperty("maximumElevationInMeters",context)) {
 %>
 <br />
 <em><%=encprops.getProperty("elevation") %></em>
@@ -1246,7 +1307,7 @@ $("a#depth").click(function() {
   <%
     }
 
- if (isOwner && CommonConfiguration.isCatalogEditable()) {
+ if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
   %>
 <a id="elev" class="launchPopup"><img align="absmiddle" width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" /></a>
   <%
@@ -1255,7 +1316,7 @@ $("a#depth").click(function() {
 
 
 <%
-if (isOwner && CommonConfiguration.isCatalogEditable()) {
+if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
 %>
 <!-- start elevation popup -->  
 <div id="dialogElev" title="<%=encprops.getProperty("setElevation")%>" style="display:none">  
@@ -1317,7 +1378,13 @@ $("a#elev").click(function() {
 		   
            
            	%>
-       marker = new StyledMarker({styleIcon:new StyledIcon(StyledIconTypes.MARKER,{color:"<%=haploColor%>",text:"<%=markerText%>"}),position:latLng,map:map});
+ 
+       marker = new google.maps.Marker({
+    	   icon: 'https://chart.googleapis.com/chart?chst=d_map_pin_letter&chld=<%=markerText%>|<%=haploColor%>',
+    	   position:latLng,
+    	   map:map
+    	});
+	   		
 	   		<%
 	   		if((enc.getDecimalLatitude()==null)&&(enc.getDecimalLongitude()==null)){
 	   		%>
@@ -1464,7 +1531,7 @@ $("a#elev").click(function() {
 
 
 <%
-if (isOwner && CommonConfiguration.isCatalogEditable()) {
+if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
 %>
 <!-- start locationID popup-->  
 <div id="dialogLocationID" title="<%=encprops.getProperty("setLocationID")%>" style="display:none">  
@@ -1475,7 +1542,7 @@ if (isOwner && CommonConfiguration.isCatalogEditable()) {
         <form name="addLocCode" action="../EncounterSetLocationID" method="post">
               
               <%
-              if(CommonConfiguration.getProperty("locationID0")==null){
+              if(CommonConfiguration.getProperty("locationID0",context)==null){
               %>
               <input name="code" type="text" size="10" maxlength="50" /> 
               <%
@@ -1491,10 +1558,10 @@ if (isOwner && CommonConfiguration.isCatalogEditable()) {
 						       int taxNum=0;
 						       while(hasMoreLocs){
 						       	  String currentLoc = "locationID"+taxNum;
-						       	  if(CommonConfiguration.getProperty(currentLoc)!=null){
+						       	  if(CommonConfiguration.getProperty(currentLoc,context)!=null){
 						       	  	%>
 						       	  	 
-						       	  	  <option value="<%=CommonConfiguration.getProperty(currentLoc)%>"><%=CommonConfiguration.getProperty(currentLoc)%></option>
+						       	  	  <option value="<%=CommonConfiguration.getProperty(currentLoc,context)%>"><%=CommonConfiguration.getProperty(currentLoc,context)%></option>
 						       	  	<%
 						       		taxNum++;
 						          }
@@ -1544,7 +1611,13 @@ $("a#locationID").click(function() {
     <tr>
       <td align="left" valign="top">
         <form name="setLocation" action="../EncounterSetLocation" method="post">
-        <textarea name="location" size="15"><%=enc.getLocation().trim()%></textarea>
+        <%
+        String thisLocation="";
+        if(enc.getLocation()!=null){
+        	thisLocation=enc.getLocation().trim();
+        }
+        %>
+        <textarea name="location" size="15"><%=thisLocation%></textarea>
           <input name="number" type="hidden" value="<%=num%>" /> 
           <input name="action" type="hidden" value="setLocation" /> 
           <input name="Add" type="submit" id="Add" value="<%=encprops.getProperty("setLocation")%>" />
@@ -1589,10 +1662,10 @@ $("a#location").click(function() {
 						       int taxNum=0;
 						       while(hasMoreStages){
 						       	  String currentLifeStage = "country"+taxNum;
-						       	  if(CommonConfiguration.getProperty(currentLifeStage)!=null){
+						       	  if(CommonConfiguration.getProperty(currentLifeStage,context)!=null){
 						       	  	%>
 						       	  	 
-						       	  	  <option value="<%=CommonConfiguration.getProperty(currentLifeStage)%>"><%=CommonConfiguration.getProperty(currentLifeStage)%></option>
+						       	  	  <option value="<%=CommonConfiguration.getProperty(currentLifeStage,context)%>"><%=CommonConfiguration.getProperty(currentLifeStage,context)%></option>
 						       	  	<%
 						       		taxNum++;
 						          }
@@ -1632,6 +1705,11 @@ $("a#country").click(function() {
 %>
 
 <br />
+
+<table>
+<tr>
+<td width="560px" style="vertical-align:top; background-color: #E8E8E8">
+
 <p><img align="absmiddle" src="../images/Crystal_Clear_kuser2.png" width="40px" height="42px" /> <strong><%=encprops.getProperty("contactInformation") %></strong></p>
 
 <table>
@@ -1639,7 +1717,7 @@ $("a#country").click(function() {
 		<td valign="top">
 			<p class="para"><em><%=encprops.getProperty("submitter") %></em> 
 				<%
- 				if(isOwner&&CommonConfiguration.isCatalogEditable()) {
+ 				if(isOwner&&CommonConfiguration.isCatalogEditable(context)) {
  				%>
  					<a id="submitter" class="launchPopup"><img align="absmiddle" width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" /></a>
     			<%
@@ -1659,14 +1737,14 @@ $("a#country").click(function() {
 						while(stzr.hasMoreTokens()) {
 							String nextie=stzr.nextToken();			
 							%> 
-							<br/><a href="mailto:<%=nextie%>?subject=<%=encprops.getProperty("contactEmailMessageHeading") %><%=enc.getCatalogNumber()%>:<%=CommonConfiguration.getProperty("htmlTitle")%>"><%=nextie%></a> 
+							<br/><a href="mailto:<%=nextie%>?subject=<%=encprops.getProperty("contactEmailMessageHeading") %><%=enc.getCatalogNumber()%>:<%=CommonConfiguration.getProperty("htmlTitle",context)%>"><%=nextie%></a> 
 							<%
 						}
 				
 					}
 					else if((enc.getSubmitterEmail()!=null)&&(!enc.getSubmitterEmail().equals(""))) {
 					%> <br/>
-						<a href="mailto:<%=enc.getSubmitterEmail()%>?subject=<%=encprops.getProperty("contactEmailMessageHeading") %><%=enc.getCatalogNumber()%>:<%=CommonConfiguration.getProperty("htmlTitle")%>"><%=enc.getSubmitterEmail()%></a> 
+						<a href="mailto:<%=enc.getSubmitterEmail()%>?subject=<%=encprops.getProperty("contactEmailMessageHeading") %><%=enc.getCatalogNumber()%>:<%=CommonConfiguration.getProperty("htmlTitle",context)%>"><%=enc.getSubmitterEmail()%></a> 
 					<%
 					}
 					
@@ -1692,7 +1770,7 @@ $("a#country").click(function() {
 					
 				}
 				
-				if (isOwner && CommonConfiguration.isCatalogEditable()) {
+				if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
 				%>
 				</p>
 				<!-- start submitter popup -->  
@@ -1780,7 +1858,7 @@ $("a#country").click(function() {
 			<p class="para">
 				<em><%=encprops.getProperty("photographer") %></em> 
 				<%
- 				if(isOwner&&CommonConfiguration.isCatalogEditable()) {
+ 				if(isOwner&&CommonConfiguration.isCatalogEditable(context)) {
 		 		%>
 		 			<a id="photographer" class="launchPopup"><img align="absmiddle" width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" /></a>
     			<%
@@ -1795,7 +1873,7 @@ $("a#country").click(function() {
 
 					if((enc.getPhotographerEmail()!=null)&&(!enc.getPhotographerEmail().equals(""))){
 					%>
-						<br/><a href="mailto:<%=enc.getPhotographerEmail()%>?subject=<%=encprops.getProperty("contactEmailMessageHeading") %><%=enc.getCatalogNumber()%>:<%=CommonConfiguration.getProperty("htmlTitle")%>"><%=enc.getPhotographerEmail()%></a> 
+						<br/><a href="mailto:<%=enc.getPhotographerEmail()%>?subject=<%=encprops.getProperty("contactEmailMessageHeading") %><%=enc.getCatalogNumber()%>:<%=CommonConfiguration.getProperty("htmlTitle",context)%>"><%=enc.getPhotographerEmail()%></a> 
 					<%
 					}
 					if((enc.getPhotographerPhone()!=null)&&(!enc.getPhotographerPhone().equals(""))){
@@ -1809,7 +1887,7 @@ $("a#country").click(function() {
 					<%
 					}
 					
-					if (isOwner && CommonConfiguration.isCatalogEditable()) {
+					if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
 					%>
 						<!-- start submitter popup -->  
 						<div id="dialogPhotographer" title="<%=encprops.getProperty("editContactInfo")%> (<%=encprops.getProperty("photographer")%>)" style="display:none">  
@@ -1890,7 +1968,7 @@ $("a#country").click(function() {
 							<%=encprops.getProperty("inform_others") %>
 						</em> 
 						<%
- 						if(isOwner&&CommonConfiguration.isCatalogEditable()) {
+ 						if(isOwner&&CommonConfiguration.isCatalogEditable(context)) {
  						%>
  							<a id="inform" class="launchPopup">
  								<img align="absmiddle" width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" />
@@ -1926,7 +2004,7 @@ $("a#country").click(function() {
  						%>
  					</p>
  					<%
-					if (isOwner && CommonConfiguration.isCatalogEditable()) {
+					if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
 					%>
  
 						<div id="dialogInform" title="<%=encprops.getProperty("setOthersToInform")%>" style="display:none">  
@@ -1970,13 +2048,15 @@ $("a#country").click(function() {
  		</table>
  		
 
-  
+  </td>
+  </tr>
+  </table>
   
   <br />
   <p><img align="absmiddle" src="../images/Note-Book-icon.png" width="40px" height="40px" /> <strong>Observation Attributes</strong></p>
 <!-- START TAXONOMY ATTRIBUTE -->    
 <%
-    if(CommonConfiguration.showProperty("showTaxonomy")){
+    if(CommonConfiguration.showProperty("showTaxonomy",context)){
     
     String genusSpeciesFound=encprops.getProperty("notAvailable");
     if((enc.getGenus()!=null)&&(enc.getSpecificEpithet()!=null)){genusSpeciesFound=enc.getGenus()+" "+enc.getSpecificEpithet();}
@@ -1984,14 +2064,14 @@ $("a#country").click(function() {
     
         <p class="para"><img align="absmiddle" src="../images/taxontree.gif">
           <%=encprops.getProperty("taxonomy")%>: <em><%=genusSpeciesFound%></em>&nbsp;<%
-            if (isOwner && CommonConfiguration.isCatalogEditable()) {
+            if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
           %><a id="taxon" class="launchPopup"><img align="absmiddle" width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" /></a><%
             }
           %>
        </p>
 
   <%
-    if (isOwner && CommonConfiguration.isCatalogEditable()) {
+    if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
     %>
     <!-- start set taxonomy ID popup -->  
 <div id="dialogTaxon" title="<%=encprops.getProperty("resetTaxonomy")%>" style="display:none">  
@@ -2008,10 +2088,10 @@ $("a#country").click(function() {
 			       int taxNum=0;
 			       while(hasMoreTax){
 			       	  String currentGenuSpecies = "genusSpecies"+taxNum;
-			       	  if(CommonConfiguration.getProperty(currentGenuSpecies)!=null){
+			       	  if(CommonConfiguration.getProperty(currentGenuSpecies,context)!=null){
 			       	  	%>
 			       	  	 
-			       	  	  <option value="<%=CommonConfiguration.getProperty(currentGenuSpecies)%>"><%=CommonConfiguration.getProperty(currentGenuSpecies).replaceAll("_"," ")%></option>
+			       	  	  <option value="<%=CommonConfiguration.getProperty(currentGenuSpecies,context)%>"><%=CommonConfiguration.getProperty(currentGenuSpecies,context).replaceAll("_"," ")%></option>
 			       	  	<%
 			       		taxNum++;
 			          }
@@ -2053,7 +2133,7 @@ $("a#taxon").click(function() {
 
 
 <!-- START ALIVE-DEAD ATTRIBUTE -->      
-<p class="para"><img align="absmiddle" src="../images/life_icon.gif">
+<p class="para">
       <%=encprops.getProperty("status")%>: 
       <%
       if(enc.getLivingStatus()!=null){
@@ -2061,13 +2141,13 @@ $("a#taxon").click(function() {
       <%=enc.getLivingStatus()%>
        <%
     }
-        if (isOwner && CommonConfiguration.isCatalogEditable()) {
+        if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
       %><a id="livingStatus" class="launchPopup"><img align="absmiddle" width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" /></a><%
         }
       %>
     </p>
     <%
-    if (isOwner && CommonConfiguration.isCatalogEditable()) {
+    if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
     %>
         <!-- start set living status popup -->  
 <div id="dialogLivingStatus" title="<%=encprops.getProperty("resetStatus")%>" style="display:none">  
@@ -2107,7 +2187,7 @@ $("a#livingStatus").click(function() {
 <!--  START SEX SECTION --> 
 <p class="para"><%=encprops.getProperty("sex") %>&nbsp;<%=enc.getSex()%> 
 <%
-if(isOwner&&CommonConfiguration.isCatalogEditable()) {	
+if(isOwner&&CommonConfiguration.isCatalogEditable(context)) {	
  %>
  <a id="sex" class="launchPopup"><img align="absmiddle" width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" /></a>
 <%
@@ -2115,7 +2195,7 @@ if(isOwner&&CommonConfiguration.isCatalogEditable()) {
 %>
 </p>
 <%
-if(isOwner&&CommonConfiguration.isCatalogEditable()) {
+if(isOwner&&CommonConfiguration.isCatalogEditable(context)) {
 %>    
 <!-- start elevation popup -->  
 <div id="dialogSex" title="<%=encprops.getProperty("resetSex")%>" style="display:none">  
@@ -2171,7 +2251,7 @@ if(enc.getDistinguishingScar()!=null){recordedScarring=enc.getDistinguishingScar
 %>
 <%=recordedScarring%>
 <%
-if(isOwner&&CommonConfiguration.isCatalogEditable()) {
+if(isOwner&&CommonConfiguration.isCatalogEditable(context)) {
  %>
 <a id="scar" class="launchPopup"><img align="absmiddle" width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" /></a>
 <%
@@ -2179,7 +2259,7 @@ if(isOwner&&CommonConfiguration.isCatalogEditable()) {
 %>
 </p>
 <%
-if(isOwner&&CommonConfiguration.isCatalogEditable()) {
+if(isOwner&&CommonConfiguration.isCatalogEditable(context)) {
  %>    
 <div id="dialogScar" title="<%=encprops.getProperty("editScarring")%>" style="display:none">  
 
@@ -2235,7 +2315,7 @@ $("a#scar").click(function() {
   <%
     }
   
-if (isOwner && CommonConfiguration.isCatalogEditable()) {
+if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
 	  %>
 <a id="behavior" class="launchPopup"><img align="absmiddle" width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" /></a>
 	  <%
@@ -2245,7 +2325,7 @@ if (isOwner && CommonConfiguration.isCatalogEditable()) {
 
 
   <%
-    if (isOwner && CommonConfiguration.isCatalogEditable()) {
+    if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
     %>
     <!-- start set behavior popup -->  
 <div id="dialogBehavior" title="<%=encprops.getProperty("editBehaviorComments")%>" style="display:none">  
@@ -2295,9 +2375,115 @@ $("a#behavior").click(function() {
 <!--  END BEHAVIOR SECTION --> 
 
 
+<!--  START PATTERNING CODE SECTION -->
+<%
+  if (CommonConfiguration.showProperty("showPatterningCode",context)) {
+%>
+<p class="para"><%=encprops.getProperty("patterningCode") %>&nbsp;
+
+  <%
+    if (enc.getPatterningCode() != null) {
+  %>
+  <%=enc.getPatterningCode()%>
+  <%
+  } else {
+  %>
+  <%=encprops.getProperty("none")%>
+  <%
+    }
+  
+if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
+	  %>
+<a id="patterningCode" class="launchPopup"><img align="absmiddle" width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" /></a>
+	  <%
+	    }
+%>
+</p>
+
+
+  <%
+    if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
+    %>
+    <!-- start set patterning code popup -->  
+<div id="dialogPatterningCode" title="<%=encprops.getProperty("editPatterningCode")%>" style="display:none">  
+			  <table cellpadding="1" cellspacing="0" bordercolor="#FFFFFF">
+    <tr>
+      <td align="left" valign="top" class="para">
+      	<p><em><font size="-1"><%=encprops.getProperty("leaveBlank")%></font></em></p>
+      </td>
+    </tr>
+    <tr>
+      <td align="left" valign="top">
+        <form name="setPatterningCode" action="../EncounterSetPatterningCode" method="post">
+         <%
+              if(CommonConfiguration.getProperty("patterningCode0",context)==null){
+              %>
+              <input name="patterningCode" type="text" size="10" maxlength="50" /> 
+              <%
+              }
+              else{
+            	  //iterate and find the locationID options
+            	  %>
+            	  <select name="patterningCode" id="colorCode">
+						            	<option value=""></option>
+						       
+						       <%
+						       boolean hasMoreLocs=true;
+						       int taxNum=0;
+						       while(hasMoreLocs){
+						       	  String currentLoc = "patterningCode"+taxNum;
+						       	  if(CommonConfiguration.getProperty(currentLoc,context)!=null){
+						       	  	%>
+						       	  	 
+						       	  	  <option value="<%=CommonConfiguration.getProperty(currentLoc,context)%>"><%=CommonConfiguration.getProperty(currentLoc,context)%></option>
+						       	  	<%
+						       		taxNum++;
+						          }
+						          else{
+						             hasMoreLocs=false;
+						          }
+						          
+						       }
+						       %>
+						       
+						       
+						      </select>  
+            	  
+            	  
+            <% 	  
+              }
+              %>
+          <input name="number" type="hidden" value="<%=num%>" /> 
+          <input name="EditPC" type="submit" id="EditPC" value="<%=encprops.getProperty("submitEdit")%>" />
+        </form>
+      </td>
+    </tr>
+  </table>
+</div>
+
+<!-- popup dialog script -->
+<script>
+var dlgPatterningCode = $("#dialogPatterningCode").dialog({
+  autoOpen: false,
+  draggable: false,
+  resizable: false,
+  width: 600
+});
+
+$("a#patterningCode").click(function() {
+	dlgPatterningCode.dialog("open");
+});
+</script> 
+<%
+}
+  }  
+%>
+<!--  END PATTERNING CODE SECTION --> 
+
+
 <!--  START LIFESTAGE SECTION --> 
 <%
-  if (CommonConfiguration.showProperty("showLifestage")) {
+  if (CommonConfiguration.showProperty("showLifestage",context)) {
 %>
 <p class="para"><%=encprops.getProperty("lifeStage")%>&nbsp;   
 
@@ -2309,7 +2495,7 @@ $("a#behavior").click(function() {
   } 
  %>
  <%
-if (isOwner && CommonConfiguration.isCatalogEditable()) {
+if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
   %>
   <a id="LifeStage" class="launchPopup"><img align="absmiddle" width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" /></a>
   <%
@@ -2318,7 +2504,7 @@ if (isOwner && CommonConfiguration.isCatalogEditable()) {
 </p>
 
  <%
-    if (isOwner && CommonConfiguration.isCatalogEditable()) {
+    if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
     %>
     <!-- start set life stage popup -->  
 <div id="dialogLifeStage" title="<%=encprops.getProperty("resetLifeStage")%>" style="display:none">  
@@ -2335,10 +2521,10 @@ if (isOwner && CommonConfiguration.isCatalogEditable()) {
 						       int taxNum=0;
 						       while(hasMoreStages){
 						       	  String currentLifeStage = "lifeStage"+taxNum;
-						       	  if(CommonConfiguration.getProperty(currentLifeStage)!=null){
+						       	  if(CommonConfiguration.getProperty(currentLifeStage,context)!=null){
 						       	  	%>
 						       	  	 
-						       	  	  <option value="<%=CommonConfiguration.getProperty(currentLifeStage)%>"><%=CommonConfiguration.getProperty(currentLifeStage)%></option>
+						       	  	  <option value="<%=CommonConfiguration.getProperty(currentLifeStage,context)%>"><%=CommonConfiguration.getProperty(currentLifeStage,context)%></option>
 						       	  	<%
 						       		taxNum++;
 						          }
@@ -2381,7 +2567,7 @@ $("a#LifeStage").click(function() {
 <!-- START ADDITIONAL COMMENTS -->
 <p class="para"><%=encprops.getProperty("comments") %>
   <%
-    if (isOwner && CommonConfiguration.isCatalogEditable()) {
+    if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
   %>&nbsp;<a id="comments" class="launchPopup"><img align="absmiddle" width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" /></a>
   <%
     }
@@ -2396,7 +2582,7 @@ if(enc.getComments()!=null){recordedComments=enc.getComments();}
 </p>
 <br/>
 <%
-if (isOwner && CommonConfiguration.isCatalogEditable()) {
+if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
 %>
 
 <div id="dialogComments" title="<%=encprops.getProperty("editSubmittedComments")%>" style="display:none">  
@@ -2434,6 +2620,10 @@ $("a#comments").click(function() {
 <!-- END ADDITIONAL COMMENTS -->
 
 <br />
+<table>
+<tr>
+<td width="560px" style="vertical-align:top; background-color: #E8E8E8">
+
 <p><img align="absmiddle" width="40px" height="40px" style="border-style: none;" src="../images/workflow_icon.gif" /> <strong>Metadata</strong></p>
 								
 								<!-- START WORKFLOW ATTRIBUTE -->
@@ -2446,7 +2636,7 @@ $("a#comments").click(function() {
 										 <%=encprops.getProperty("workflowState") %> <%=state %> 
 										
 										<%
-										if (isOwner && CommonConfiguration.isCatalogEditable()) {
+										if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
 										%>
 										<a id="state" class="launchPopup"><img align="absmiddle" width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" /></a>
 										<%
@@ -2455,7 +2645,7 @@ $("a#comments").click(function() {
 									
 									</p>
 									<%
-										if (isOwner && CommonConfiguration.isCatalogEditable()) {
+										if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
 									%>
    									<div id="dialogState" title="<%=encprops.getProperty("setWorkflowState")%>" style="display:none">  
   										<table class="popupForm">
@@ -2468,9 +2658,9 @@ $("a#comments").click(function() {
 						       								int taxNum=0;
 						       								while(hasMoreStates){
 						       	  								String currentLifeState = "encounterState"+taxNum;
-						       	  								if(CommonConfiguration.getProperty(currentLifeState)!=null){
+						       	  								if(CommonConfiguration.getProperty(currentLifeState,context)!=null){
 						       	  									%>
-						       	  	  								<option value="<%=CommonConfiguration.getProperty(currentLifeState)%>"><%=CommonConfiguration.getProperty(currentLifeState)%></option>
+						       	  	  								<option value="<%=CommonConfiguration.getProperty(currentLifeState,context)%>"><%=CommonConfiguration.getProperty(currentLifeState,context)%></option>
 						       	  									<%
 						       										taxNum++;
 						          								}
@@ -2508,7 +2698,7 @@ $("a#comments").click(function() {
 								
 								<!-- START USER ATTRIBUTE -->   
 								<%    
- 								if((CommonConfiguration.showUsersToPublic())||(request.getUserPrincipal()!=null)){
+ 								if((CommonConfiguration.showUsersToPublic(context))||(request.getUserPrincipal()!=null)){
  								%>
     							
     							<table>
@@ -2517,7 +2707,7 @@ $("a#comments").click(function() {
      										<img align="absmiddle" src="../images/Crystal_Clear_app_Login_Manager.gif" /> <%=encprops.getProperty("assigned_user")%>&nbsp;
      									</td>
         								<%               
-        								if (isOwner && CommonConfiguration.isCatalogEditable()) {
+        								if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
       									%>
       									<td>									
       										<a id="user" class="launchPopup"><img align="absmiddle" width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" /></a>
@@ -2541,7 +2731,7 @@ $("a#comments").click(function() {
                                 			String profilePhotoURL="../images/empty_profile.jpg";
                     		    
                          					if(thisUser.getUserImage()!=null){
-                         						profilePhotoURL="/"+CommonConfiguration.getDataDirectoryName()+"/users/"+thisUser.getUsername()+"/"+thisUser.getUserImage().getFilename();
+                         						profilePhotoURL="/"+CommonConfiguration.getDataDirectoryName(context)+"/users/"+thisUser.getUsername()+"/"+thisUser.getUserImage().getFilename();
                          					}
                          					%>
                      						<tr>
@@ -2643,7 +2833,7 @@ $("a#username").click(function() {
                       	<%	
                       	}
                       	} //end if show users to general public
-                         	if (isOwner && CommonConfiguration.isCatalogEditable()) {
+                         	if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
 %>
 
 
@@ -2733,7 +2923,7 @@ if (isOwner) {
               String tapirCheckIcon="cancel.gif";
               if(enc.getOKExposeViaTapirLink()){tapirCheckIcon="check_green.png";}
               %>
-              TapirLink:&nbsp;<input align="absmiddle" name="approve" type="image" src="../images/<%=tapirCheckIcon %>" id="approve" value="<%=encprops.getProperty("change")%>" />&nbsp;<a href="<%=CommonConfiguration.getWikiLocation()%>tapirlink" target="_blank"><img src="../images/information_icon_svg.gif" alt="Help" border="0" align="absmiddle"/></a>
+              TapirLink:&nbsp;<input align="absmiddle" name="approve" type="image" src="../images/<%=tapirCheckIcon %>" id="approve" value="<%=encprops.getProperty("change")%>" />&nbsp;<a href="<%=CommonConfiguration.getWikiLocation(context)%>tapirlink" target="_blank"><img src="../images/information_icon_svg.gif" alt="Help" border="0" align="absmiddle"/></a>
         </form>
       </td>
     </tr>
@@ -2785,7 +2975,7 @@ if (isOwner) {
       </div>
       
       <%
-      if(isOwner && CommonConfiguration.isCatalogEditable()){
+      if(isOwner && CommonConfiguration.isCatalogEditable(context)){
       %>
       <form action="../EncounterAddComment" method="post" name="addComments">
         <p class="para">
@@ -2824,17 +3014,20 @@ $("a#autocomments").click(function() {
 <!-- END AUTOCOMMENTS --> 
   
 <%
-  pageContext.setAttribute("showMeasurements", CommonConfiguration.showMeasurements());
-  pageContext.setAttribute("showMetalTags", CommonConfiguration.showMeasurements());
-  pageContext.setAttribute("showAcousticTag", CommonConfiguration.showAcousticTag());
-  pageContext.setAttribute("showSatelliteTag", CommonConfiguration.showSatelliteTag());
+  pageContext.setAttribute("showMeasurements", CommonConfiguration.showMeasurements(context));
+  pageContext.setAttribute("showMetalTags", CommonConfiguration.showMeasurements(context));
+  pageContext.setAttribute("showAcousticTag", CommonConfiguration.showAcousticTag(context));
+  pageContext.setAttribute("showSatelliteTag", CommonConfiguration.showSatelliteTag(context));
 %>
+</td>
+</tr>
+</table>
 
 <c:if test="${showMeasurements}">
 <br />
 <%
   pageContext.setAttribute("measurementTitle", encprops.getProperty("measurements"));
-  pageContext.setAttribute("measurements", Util.findMeasurementDescs(langCode));
+  pageContext.setAttribute("measurements", Util.findMeasurementDescs(langCode,context));
 %>
 <p><img align="absmiddle" width="40px" height="40px" style="border-style: none;" src="../images/ruler.png" /> <strong><c:out value="${measurementTitle}"></c:out></strong>
 <c:if test="${editable and !empty measurements}">
@@ -2850,7 +3043,7 @@ $("a#autocomments").click(function() {
     Measurement event =  enc.findMeasurementOfType(measurementDesc.getType());
     if (event != null) {
         pageContext.setAttribute("measurementValue", event.getValue());
-        pageContext.setAttribute("samplingProtocol", Util.getLocalizedSamplingProtocol(event.getSamplingProtocol(), langCode));
+        pageContext.setAttribute("samplingProtocol", Util.getLocalizedSamplingProtocol(event.getSamplingProtocol(), langCode,context));
     }
     else {
         pageContext.setAttribute("measurementValue", null);
@@ -2865,12 +3058,12 @@ $("a#autocomments").click(function() {
 </p>
 
 <%
-if (isOwner && CommonConfiguration.isCatalogEditable()) {
+if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
 %>
 
 <div id="dialogMeasure" title="<%=encprops.getProperty("setMeasurements")%>" style="display:none">  
  <% 
-   pageContext.setAttribute("items", Util.findMeasurementDescs(langCode)); 
+   pageContext.setAttribute("items", Util.findMeasurementDescs(langCode,context)); 
  %>
         
        <table cellpadding="1" cellspacing="0" bordercolor="#FFFFFF">
@@ -2889,7 +3082,7 @@ if (isOwner && CommonConfiguration.isCatalogEditable()) {
               measurement = new Measurement(enc.getEventID(), measurementDesc.getType(), null, measurementDesc.getUnits(), null);
           }
           pageContext.setAttribute("measurementEvent", measurement);
-          pageContext.setAttribute("optionDescs", Util.findSamplingProtocols(langCode));
+          pageContext.setAttribute("optionDescs", Util.findSamplingProtocols(langCode,context));
         %>
             <tr>
               <td class="form_label"><c:out value="${item.label}"/><input type="hidden" name="measurement${index}(id)" value="${measurementEvent.dataCollectionEventID}"/></td>
@@ -2939,16 +3132,22 @@ $("a#measure").click(function() {
 
 </c:if>
 
+<table>
+<tr>
+<td width="560px" style="vertical-align:top; background-color: #E8E8E8">
+
+
+
 <c:if test="${showMetalTags}">
-<br />
+
 <p><img align="absmiddle" src="../images/Crystal_Clear_app_starthere.png" width="40px" height="40px" /> <strong><%=encprops.getProperty("tracking") %></strong></p>
 <%
   pageContext.setAttribute("metalTagTitle", encprops.getProperty("metalTags"));
-  pageContext.setAttribute("metalTags", Util.findMetalTagDescs(langCode));
+  pageContext.setAttribute("metalTags", Util.findMetalTagDescs(langCode,context));
 %>
 <p class="para"><em><c:out value="${metalTagTitle}"></c:out></em>
 <%
-if (isOwner && CommonConfiguration.isCatalogEditable()) {
+if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
 %>
 &nbsp;<a id="metal" class="launchPopup"><img align="absmiddle" width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" /></a>
 <%
@@ -2971,12 +3170,12 @@ if (isOwner && CommonConfiguration.isCatalogEditable()) {
 
 
 <%
-if (isOwner && CommonConfiguration.isCatalogEditable()) {
+if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
 %>
 <!-- start metal tag popup -->  
 <div id="dialogMetal" title="<%=encprops.getProperty("resetMetalTags")%>" style="display:none">  
 
-        <% pageContext.setAttribute("metalTagDescs", Util.findMetalTagDescs(langCode)); %>
+        <% pageContext.setAttribute("metalTagDescs", Util.findMetalTagDescs(langCode,context)); %>
  
  <form name="setMetalTags" method="post" action="../EncounterSetTags">
  <input type="hidden" name="tagType" value="metalTags"/>
@@ -3029,7 +3228,7 @@ $("a#metal").click(function() {
 <c:if test="${editable}">
 &nbsp;
 <%
-if (isOwner && CommonConfiguration.isCatalogEditable()) {
+if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
 %>
 <a id="acoustic" class="launchPopup"><img align="absmiddle" width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" /></a>
 <%
@@ -3048,7 +3247,7 @@ if (isOwner && CommonConfiguration.isCatalogEditable()) {
 
 
 <%
-if (isOwner && CommonConfiguration.isCatalogEditable()) {
+if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
 %>
 <!-- start acoustic tag popup -->  
 <div id="dialogAcoustic" title="<%=encprops.getProperty("resetAcousticTag")%>" style="display:none">  
@@ -3101,6 +3300,7 @@ $("a#acoustic").click(function() {
 
 </c:if>
 
+
 <c:if test="${showSatelliteTag}">
 <%
   pageContext.setAttribute("satelliteTagTitle", encprops.getProperty("satelliteTag"));
@@ -3108,7 +3308,7 @@ $("a#acoustic").click(function() {
 %>
 <p class="para"><em><c:out value="${satelliteTagTitle}"></c:out></em>
 <%
-if (isOwner && CommonConfiguration.isCatalogEditable()) {
+if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
 %>
 &nbsp;<a id="sat" class="launchPopup"><img align="absmiddle" width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" /></a>
 <%
@@ -3128,7 +3328,7 @@ if (isOwner && CommonConfiguration.isCatalogEditable()) {
 </p>
 
 <%
-if (isOwner && CommonConfiguration.isCatalogEditable()) {
+if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
 %>
 <!-- start sat tag metadata popup -->  
 <div id="dialogSat" title="<%=encprops.getProperty("resetSatelliteTag")%>" style="display:none">  
@@ -3140,7 +3340,7 @@ if (isOwner && CommonConfiguration.isCatalogEditable()) {
  %>
  </c:if>
  <%
-    pageContext.setAttribute("satelliteTagNames", Util.findSatelliteTagNames());
+    pageContext.setAttribute("satelliteTagNames", Util.findSatelliteTagNames(context));
  %>
  <form name="setSatelliteTag" method="post" action="../EncounterSetTags">
  <input type="hidden" name="tagType" value="satelliteTag"/>
@@ -3189,9 +3389,12 @@ $("a#sat").click(function() {
 <!-- end sat tag popup --> 
 <%
 }
-%>
+%></c:if>
+</td>
+</tr>
+</table>
 
-</c:if>
+
 <br />
 <p><img align="absmiddle" src="../images/lightning_dynamic_props.gif" /> <strong><%=encprops.getProperty("dynamicProperties") %></strong>
 <%
@@ -3221,7 +3424,7 @@ if(isOwner){
 %>
 <p class="para"> <em><%=nm%></em>: <%=vl%>
   <%
-    if (isOwner && CommonConfiguration.isCatalogEditable()) {
+    if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
   %>
   <a id="dynamicProperty<%=nm%>" class="launchPopup"><img align="absmiddle" width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" /></a>
  
@@ -3230,7 +3433,7 @@ if(isOwner){
   %>
   
   <%
-if (isOwner && CommonConfiguration.isCatalogEditable()) {
+if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
 %>
 <!-- start depth popup -->  
 <div id="dialogDP<%=nm %>" title="<%=encprops.getProperty("set")%> <%=nm %>" style="display:none">  
@@ -3288,7 +3491,7 @@ else{
 	  <%  
 	    }
 
-if (isOwner && CommonConfiguration.isCatalogEditable()) {
+if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
 %>
 <!-- start depth popup -->  
 <div id="dialogDPAdd" title="<%=encprops.getProperty("addDynamicProperty")%>" style="display:none">  
@@ -3357,7 +3560,7 @@ if(!isOwner){isOwnerValue="false";}
 
 
 <%
-  if (CommonConfiguration.allowAdoptions()) {
+  if (CommonConfiguration.allowAdoptions(context)) {
 %>
 <div class="module">
   <jsp:include page="encounterAdoptionEmbed.jsp" flush="true">
@@ -3383,7 +3586,7 @@ if(loggedIn){
     </p>
 
 <%
-if (isOwner && CommonConfiguration.isCatalogEditable()) {
+if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
 %>
 <div id="dialogSample" title="<%=encprops.getProperty("setTissueSample")%>" style="display:none">  
 
@@ -3427,7 +3630,7 @@ if (isOwner && CommonConfiguration.isCatalogEditable()) {
        </td>
        <td>
               <%
-              if(CommonConfiguration.getProperty("tissueType0")==null){
+              if(CommonConfiguration.getProperty("tissueType0",context)==null){
               %>
               <input name="tissueType" type="text" size="20" maxlength="50" /> 
               <%
@@ -3443,13 +3646,13 @@ if (isOwner && CommonConfiguration.isCatalogEditable()) {
 						       int taxNum=0;
 						       while(hasMoreLocs){
 						       	  String currentLoc = "tissueType"+taxNum;
-						       	  if(CommonConfiguration.getProperty(currentLoc)!=null){
+						       	  if(CommonConfiguration.getProperty(currentLoc,context)!=null){
 						       		  
 						       		  String selected="";
-						       		  if(tissueType.equals(CommonConfiguration.getProperty(currentLoc))){selected="selected=\"selected\"";}
+						       		  if(tissueType.equals(CommonConfiguration.getProperty(currentLoc,context))){selected="selected=\"selected\"";}
 						       	  	%>
 						       	  	 
-						       	  	  <option value="<%=CommonConfiguration.getProperty(currentLoc)%>" <%=selected %>><%=CommonConfiguration.getProperty(currentLoc)%></option>
+						       	  	  <option value="<%=CommonConfiguration.getProperty(currentLoc,context)%>" <%=selected %>><%=CommonConfiguration.getProperty(currentLoc,context)%></option>
 						       	  	<%
 						       		taxNum++;
 						          }
@@ -3653,7 +3856,7 @@ for(int j=0;j<numTissueSamples;j++){
 					<a id="haplo<%=mito.getAnalysisID() %>" class="launchPopup"><img width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" /></a>
 				
 							<%
-if (isOwner && CommonConfiguration.isCatalogEditable()) {
+if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
 %>
 <!-- start haplotype popup -->  
 <div id="dialogHaplotype<%=mito.getAnalysisID() %>" title="<%=encprops.getProperty("setHaplotype")%>" style="display:none">  
@@ -3749,7 +3952,7 @@ $("a#haplo<%=mito.getAnalysisID() %>").click(function() {
 }
 %>
 				
-				</td><td style="border-style: none;"><a href="../TissueSampleRemoveHaplotype?encounter=<%=enc.getCatalogNumber()%>&sampleID=<%=thisSample.getSampleID()%>&analysisID=<%=mito.getAnalysisID() %>"><img width="20px" height="20px" style="border-style: none;" src="../images/cancel.gif" /></a></td></tr></li>
+				</td><td style="border-style: none;"><a onclick="return confirm('Are you sure you want to delete this haplotype analysis?');" href="../TissueSampleRemoveHaplotype?encounter=<%=enc.getCatalogNumber()%>&sampleID=<%=thisSample.getSampleID()%>&analysisID=<%=mito.getAnalysisID() %>"><img width="20px" height="20px" style="border-style: none;" src="../images/cancel.gif" /></a></td></tr></li>
 			<%
 			}
 			else if(ga.getAnalysisType().equals("SexAnalysis")){
@@ -3766,13 +3969,13 @@ $("a#haplo<%=mito.getAnalysisID() %>").click(function() {
 				<%
 				}
 				%>
-				</span></td><td style="border-style: none;"><a id="setSex<%=thisSample.getSampleID() %>" class="launchPopup" id="msmarkersSet<%=thisSample.getSampleID()%>"><img width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" /></a>
+				</span></td><td style="border-style: none;"><a id="setSex<%=thisSample.getSampleID() %>" class="launchPopup"><img width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" /></a>
 				
 				<%
-if (isOwner && CommonConfiguration.isCatalogEditable()) {
+if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
 %>
 <!-- start genetic sex popup -->  
-<div id="dialogSexSet<%=thisSample.getSampleID() %>" title="<%=encprops.getProperty("setSexAnalysis")%>" style="display:none">  
+<div id="dialogSexSet<%=thisSample.getSampleID().replaceAll("[-+.^:,]","") %>" title="<%=encprops.getProperty("setSexAnalysis")%>" style="display:none">  
 
 <form name="setSexAnalysis" action="../TissueSampleSetSexAnalysis" method="post">
 
@@ -3849,7 +4052,7 @@ if (isOwner && CommonConfiguration.isCatalogEditable()) {
 </div>
                          	
 <script>
-var dlgSexSet<%=thisSample.getSampleID() %> = $("#dialogSexSet<%=thisSample.getSampleID() %>").dialog({
+var dlgSexSet<%=thisSample.getSampleID().replaceAll("[-+.^:,]","") %> = $("#dialogSexSet<%=thisSample.getSampleID().replaceAll("[-+.^:,]","") %>").dialog({
   autoOpen: false,
   draggable: false,
   resizable: false,
@@ -3857,7 +4060,7 @@ var dlgSexSet<%=thisSample.getSampleID() %> = $("#dialogSexSet<%=thisSample.getS
 });
 
 $("a#setSex<%=thisSample.getSampleID() %>").click(function() {
-  dlgSexSet<%=thisSample.getSampleID() %>.dialog("open");
+  dlgSexSet<%=thisSample.getSampleID().replaceAll("[-+.^:,]","") %>.dialog("open");
   
 });
 </script>   
@@ -3867,7 +4070,7 @@ $("a#setSex<%=thisSample.getSampleID() %>").click(function() {
 %>
 				
 				</td>
-				<td style="border-style: none;"><a href="../TissueSampleRemoveSexAnalysis?encounter=<%=enc.getCatalogNumber()%>&sampleID=<%=thisSample.getSampleID()%>&analysisID=<%=mito.getAnalysisID() %>"><img width="20px" height="20px" style="border-style: none;" src="../images/cancel.gif" /></a></td></tr>
+				<td style="border-style: none;"><a onclick="return confirm('Are you sure you want to delete this genetic sex analysis?');" href="../TissueSampleRemoveSexAnalysis?encounter=<%=enc.getCatalogNumber()%>&sampleID=<%=thisSample.getSampleID()%>&analysisID=<%=mito.getAnalysisID() %>"><img width="20px" height="20px" style="border-style: none;" src="../images/cancel.gif" /></a></td></tr>
 			<%
 			}
 			else if(ga.getAnalysisType().equals("MicrosatelliteMarkers")){
@@ -3876,7 +4079,15 @@ $("a#setSex<%=thisSample.getSampleID() %>").click(function() {
 			%>
 			<tr>
 				<td style="border-style: none;">
-					<p><span class="caption"><strong><%=encprops.getProperty("msMarkers") %></strong></span></p>
+					<p><span class="caption"><strong><%=encprops.getProperty("msMarkers") %></strong></span>
+					<%
+					if((enc.getIndividualID()!=null)&&(!enc.getIndividualID().toLowerCase().equals("unassigned"))&&(request.getUserPrincipal()!=null)){
+					%>
+					<a href="../individualSearch.jsp?individualDistanceSearch=<%=enc.getIndividualID()%>"><img height="20px" width="20px" align="absmiddle" alt="Individual-to-Individual Genetic Distance Search" src="../images/Crystal_Clear_app_xmag.png"></img></a>
+					<%
+					}
+					%>
+					</p>
 					<span class="caption"><%=mito.getAllelesHTMLString() %>
 						<%
 									if(!mito.getSuperHTMLString().equals("")){
@@ -3894,13 +4105,13 @@ $("a#setSex<%=thisSample.getSampleID() %>").click(function() {
 
 					
 				</td>
-				<td style="border-style: none;"><a class="launchPopup" id="msmarkersSet<%=thisSample.getSampleID()%>"><img width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" /></a></td><td style="border-style: none;"><a href="../TissueSampleRemoveMicrosatelliteMarkers?encounter=<%=enc.getCatalogNumber()%>&sampleID=<%=thisSample.getSampleID()%>&analysisID=<%=mito.getAnalysisID() %>"><img width="20px" height="20px" style="border-style: none;" src="../images/cancel.gif" /></a>
+				<td style="border-style: none;"><a class="launchPopup" id="msmarkersSet<%=thisSample.getSampleID()%>"><img width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" /></a></td><td style="border-style: none;"><a onclick="return confirm('Are you sure you want to delete this microsatellite markers analysis?');" href="../TissueSampleRemoveMicrosatelliteMarkers?encounter=<%=enc.getCatalogNumber()%>&sampleID=<%=thisSample.getSampleID()%>&analysisID=<%=mito.getAnalysisID() %>"><img width="20px" height="20px" style="border-style: none;" src="../images/cancel.gif" /></a>
 				
 															<%
-if (isOwner && CommonConfiguration.isCatalogEditable()) {
+if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
 %>
 <!-- start ms marker popup -->  
-<div id="dialogMSMarkersSet<%=thisSample.getSampleID()%>" title="<%=encprops.getProperty("setMsMarkers")%>" style="display:none">  
+<div id="dialogMSMarkersSet<%=thisSample.getSampleID().replaceAll("[-+.^:,]","")%>" title="<%=encprops.getProperty("setMsMarkers")%>" style="display:none">  
 
 <form id="setMsMarkers" action="../TissueSampleSetMicrosatelliteMarkers" method="post">
 
@@ -3956,13 +4167,13 @@ if (isOwner && CommonConfiguration.isCatalogEditable()) {
  		//begin setting up the loci and alleles
  	      int numPloids=2; //most covered species will be diploids
  	      try{
- 	        numPloids=(new Integer(CommonConfiguration.getProperty("numPloids"))).intValue();
+ 	        numPloids=(new Integer(CommonConfiguration.getProperty("numPloids",context))).intValue();
  	      }
  	      catch(Exception e){System.out.println("numPloids configuration value did not resolve to an integer.");e.printStackTrace();}
  	      
  	      int numLoci=10;
  	      try{
- 	 	  	numLoci=(new Integer(CommonConfiguration.getProperty("numLoci"))).intValue();
+ 	 	  	numLoci=(new Integer(CommonConfiguration.getProperty("numLoci",context))).intValue();
  	 	  }
  	 	  catch(Exception e){System.out.println("numLoci configuration value did not resolve to an integer.");e.printStackTrace();}
  	 	   
@@ -3985,7 +4196,7 @@ if (isOwner && CommonConfiguration.isCatalogEditable()) {
  				%>
  			
 		  <%
- 		  }  //end for loci loop
+ 		  }  //end for loci looping
 		  %> 
 		  
 		  <tr><td colspan="2">
@@ -4001,7 +4212,7 @@ if (isOwner && CommonConfiguration.isCatalogEditable()) {
 </div>
    
 <script>
-var dlgMSMarkersSet<%=thisSample.getSampleID()%> = $("#dialogMSMarkersSet<%=thisSample.getSampleID()%>").dialog({
+var dlgMSMarkersSet<%=thisSample.getSampleID().replaceAll("[-+.^:,]","")%> = $("#dialogMSMarkersSet<%=thisSample.getSampleID().replaceAll("[-+.^:,]","")%>").dialog({
   autoOpen: false,
   draggable: false,
   resizable: false,
@@ -4009,12 +4220,13 @@ var dlgMSMarkersSet<%=thisSample.getSampleID()%> = $("#dialogMSMarkersSet<%=this
 });
 
 $("a#msmarkersSet<%=thisSample.getSampleID()%>").click(function() {
-  dlgMSMarkersSet<%=thisSample.getSampleID()%>.dialog("open");
+  dlgMSMarkersSet<%=thisSample.getSampleID().replaceAll("[-+.^:,]","")%>.dialog("open");
 });
 </script>   
 <!-- end ms markers popup --> 
 <%
 }
+
 %>
 				
 				</td></tr>
@@ -4040,10 +4252,10 @@ $("a#msmarkersSet<%=thisSample.getSampleID()%>").click(function() {
 				</span></td><td style="border-style: none;"><a class="launchPopup" id="setBioMeasure<%=thisSample.getSampleID() %>"><img width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" /></a>
 				
 						<%
-if (isOwner && CommonConfiguration.isCatalogEditable()) {
+if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
 %>
 <!-- start biomeasure popup -->  
-<div id="dialogSetBiomeasure4<%=thisSample.getSampleID() %>" title="<%=encprops.getProperty("setBiologicalMeasurement")%>" style="display:none">  
+<div id="dialogSetBiomeasure4<%=thisSample.getSampleID().replaceAll("[-+.^:,]","") %>" title="<%=encprops.getProperty("setBiologicalMeasurement")%>" style="display:none">  
   <form action="../TissueSampleSetMeasurement" method="post">
 
 <table cellpadding="1" cellspacing="0" bordercolor="#FFFFFF">
@@ -4071,9 +4283,9 @@ if (isOwner && CommonConfiguration.isCatalogEditable()) {
 
 
      		<%
-     		ArrayList<String> values=CommonConfiguration.getSequentialPropertyValues("biologicalMeasurementType");
+     		ArrayList<String> values=CommonConfiguration.getSequentialPropertyValues("biologicalMeasurementType",context);
  			int numProps=values.size();
- 			ArrayList<String> measurementUnits=CommonConfiguration.getSequentialPropertyValues("biologicalMeasurementUnits");
+ 			ArrayList<String> measurementUnits=CommonConfiguration.getSequentialPropertyValues("biologicalMeasurementUnits",context);
  			int numUnitsProps=measurementUnits.size();
      		
      		if(numProps>0){
@@ -4124,7 +4336,7 @@ if (isOwner && CommonConfiguration.isCatalogEditable()) {
     </td><td>
     
      		<%
-     		ArrayList<String> protovalues=CommonConfiguration.getSequentialPropertyValues("biologicalMeasurementSamplingProtocols");
+     		ArrayList<String> protovalues=CommonConfiguration.getSequentialPropertyValues("biologicalMeasurementSamplingProtocols",context);
  			int protonumProps=protovalues.size();
      		
      		if(protonumProps>0){
@@ -4205,7 +4417,7 @@ if (isOwner && CommonConfiguration.isCatalogEditable()) {
 </div>
                          	
 <script>
-var dlgSetBiomeasure<%=thisSample.getSampleID() %> = $("#dialogSetBiomeasure4<%=thisSample.getSampleID() %>").dialog({
+var dlgSetBiomeasure<%=thisSample.getSampleID().replaceAll("[-+.^:,]","") %> = $("#dialogSetBiomeasure4<%=thisSample.getSampleID().replaceAll("[-+.^:,]","") %>").dialog({
   autoOpen: false,
   draggable: false,
   resizable: false,
@@ -4213,7 +4425,7 @@ var dlgSetBiomeasure<%=thisSample.getSampleID() %> = $("#dialogSetBiomeasure4<%=
 });
 
 $("a#setBioMeasure<%=thisSample.getSampleID() %>").click(function() {
-  dlgSetBiomeasure<%=thisSample.getSampleID() %>.dialog("open");
+  dlgSetBiomeasure<%=thisSample.getSampleID().replaceAll("[-+.^:,]","") %>.dialog("open");
   
 });
 </script>   
@@ -4223,7 +4435,7 @@ $("a#setBioMeasure<%=thisSample.getSampleID() %>").click(function() {
 %>
 				
 				</td>
-				<td style="border-style: none;"><a href="../TissueSampleRemoveBiologicalMeasurement?encounter=<%=enc.getCatalogNumber()%>&sampleID=<%=thisSample.getSampleID()%>&analysisID=<%=mito.getAnalysisID() %>"><img width="20px" height="20px" style="border-style: none;" src="../images/cancel.gif" /></a></td>
+				<td style="border-style: none;"><a onclick="return confirm('Are you sure you want to delete this biological measurement?');" href="../TissueSampleRemoveBiologicalMeasurement?encounter=<%=enc.getCatalogNumber()%>&sampleID=<%=thisSample.getSampleID()%>&analysisID=<%=mito.getAnalysisID() %>"><img width="20px" height="20px" style="border-style: none;" src="../images/cancel.gif" /></a></td>
 			</tr>
 			<%
 			}
@@ -4232,10 +4444,10 @@ $("a#setBioMeasure<%=thisSample.getSampleID() %>").click(function() {
 		</table>
 		<p><span class="caption"><a id="addHaplotype<%=thisSample.getSampleID() %>" class="launchPopup"><img align="absmiddle" width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit_add.png" /></a> <a id="addHaplotype<%=thisSample.getSampleID() %>" class="launchPopup"><%=encprops.getProperty("addHaplotype") %></a></span></p>
 		<%
-if (isOwner && CommonConfiguration.isCatalogEditable()) {
+if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
 %>
 <!-- start haplotype popup -->  
-<div id="dialogHaplotype4<%=thisSample.getSampleID() %>" title="<%=encprops.getProperty("setHaplotype")%>" style="display:none">  
+<div id="dialogHaplotype4<%=thisSample.getSampleID().replaceAll("[-+.^:,]","") %>" title="<%=encprops.getProperty("setHaplotype")%>" style="display:none">  
 <form id="setHaplotype" action="../TissueSampleSetHaplotype" method="post">
 <table cellpadding="1" cellspacing="0" bordercolor="#FFFFFF">
  
@@ -4315,7 +4527,7 @@ if (isOwner && CommonConfiguration.isCatalogEditable()) {
 </div>
                          	
 <script>
-var dlgHaplotypeAdd<%=thisSample.getSampleID() %> = $("#dialogHaplotype4<%=thisSample.getSampleID() %>").dialog({
+var dlgHaplotypeAdd<%=thisSample.getSampleID().replaceAll("[-+.^:,]","") %> = $("#dialogHaplotype4<%=thisSample.getSampleID().replaceAll("[-+.^:,]","") %>").dialog({
   autoOpen: false,
   draggable: false,
   resizable: false,
@@ -4323,7 +4535,7 @@ var dlgHaplotypeAdd<%=thisSample.getSampleID() %> = $("#dialogHaplotype4<%=thisS
 });
 
 $("a#addHaplotype<%=thisSample.getSampleID() %>").click(function() {
-  dlgHaplotypeAdd<%=thisSample.getSampleID() %>.dialog("open");
+  dlgHaplotypeAdd<%=thisSample.getSampleID().replaceAll("[-+.^:,]","") %>.dialog("open");
   //$("#setHaplotype").find("input[type=text], textarea").val("");
   
 });
@@ -4336,10 +4548,10 @@ $("a#addHaplotype<%=thisSample.getSampleID() %>").click(function() {
 		
 		<p><span class="caption"><a id="msmarkersAdd<%=thisSample.getSampleID()%>" class="launchPopup"><img align="absmiddle" width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit_add.png" /></a> <a id="msmarkersAdd<%=thisSample.getSampleID()%>" class="launchPopup"><%=encprops.getProperty("addMsMarkers") %></a></span></p>
 <%
-if (isOwner && CommonConfiguration.isCatalogEditable()) {
+if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
 %>
 <!-- start sat tag metadata popup -->  
-<div id="dialogMSMarkersAdd<%=thisSample.getSampleID()%>" title="<%=encprops.getProperty("setMsMarkers")%>" style="display:none">  
+<div id="dialogMSMarkersAdd<%=thisSample.getSampleID().replaceAll("[-+.^:,]","")%>" title="<%=encprops.getProperty("setMsMarkers")%>" style="display:none">  
 
 <form id="setMsMarkers" action="../TissueSampleSetMicrosatelliteMarkers" method="post">
 
@@ -4394,13 +4606,13 @@ if (isOwner && CommonConfiguration.isCatalogEditable()) {
  		//begin setting up the loci and alleles
  	      int numPloids=2; //most covered species will be diploids
  	      try{
- 	        numPloids=(new Integer(CommonConfiguration.getProperty("numPloids"))).intValue();
+ 	        numPloids=(new Integer(CommonConfiguration.getProperty("numPloids",context))).intValue();
  	      }
  	      catch(Exception e){System.out.println("numPloids configuration value did not resolve to an integer.");e.printStackTrace();}
  	      
  	      int numLoci=10;
  	      try{
- 	 	  	numLoci=(new Integer(CommonConfiguration.getProperty("numLoci"))).intValue();
+ 	 	  	numLoci=(new Integer(CommonConfiguration.getProperty("numLoci",context))).intValue();
  	 	  }
  	 	  catch(Exception e){System.out.println("numLoci configuration value did not resolve to an integer.");e.printStackTrace();}
  	 	   
@@ -4439,7 +4651,7 @@ if (isOwner && CommonConfiguration.isCatalogEditable()) {
 </div>
    
 <script>
-var dlgMSMarkersAdd<%=thisSample.getSampleID()%> = $("#dialogMSMarkersAdd<%=thisSample.getSampleID()%>").dialog({
+var dlgMSMarkersAdd<%=thisSample.getSampleID().replaceAll("[-+.^:,]","")%> = $("#dialogMSMarkersAdd<%=thisSample.getSampleID().replaceAll("[-+.^:,]","")%>").dialog({
   autoOpen: false,
   draggable: false,
   resizable: false,
@@ -4447,7 +4659,7 @@ var dlgMSMarkersAdd<%=thisSample.getSampleID()%> = $("#dialogMSMarkersAdd<%=this
 });
 
 $("a#msmarkersAdd<%=thisSample.getSampleID()%>").click(function() {
-  dlgMSMarkersAdd<%=thisSample.getSampleID()%>.dialog("open");
+  dlgMSMarkersAdd<%=thisSample.getSampleID().replaceAll("[-+.^:,]","")%>.dialog("open");
   //$("#setMsMarkers").find("input[type=text], textarea").val("");
 });
 </script>   
@@ -4461,10 +4673,10 @@ $("a#msmarkersAdd<%=thisSample.getSampleID()%>").click(function() {
 <p><span class="caption"><a id="addSex<%=thisSample.getSampleID() %>" class="launchPopup"><img align="absmiddle" width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit_add.png" /></a> <a id="addSex<%=thisSample.getSampleID() %>" class="launchPopup"><%=encprops.getProperty("addGeneticSex") %></a></span></p>
 		
 <%
-if (isOwner && CommonConfiguration.isCatalogEditable()) {
+if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
 %>
 <!-- start genetic sex popup -->  
-<div id="dialogSex4<%=thisSample.getSampleID() %>" title="<%=encprops.getProperty("setSexAnalysis")%>" style="display:none">  
+<div id="dialogSex4<%=thisSample.getSampleID().replaceAll("[-+.^:,]","") %>" title="<%=encprops.getProperty("setSexAnalysis")%>" style="display:none">  
 
 <form name="setSexAnalysis" action="../TissueSampleSetSexAnalysis" method="post">
 
@@ -4541,7 +4753,7 @@ if (isOwner && CommonConfiguration.isCatalogEditable()) {
 </div>
                          	
 <script>
-var dlgSexAdd<%=thisSample.getSampleID() %> = $("#dialogSex4<%=thisSample.getSampleID() %>").dialog({
+var dlgSexAdd<%=thisSample.getSampleID().replaceAll("[-+.^:,]","") %> = $("#dialogSex4<%=thisSample.getSampleID().replaceAll("[-+.^:,]","") %>").dialog({
   autoOpen: false,
   draggable: false,
   resizable: false,
@@ -4549,7 +4761,7 @@ var dlgSexAdd<%=thisSample.getSampleID() %> = $("#dialogSex4<%=thisSample.getSam
 });
 
 $("a#addSex<%=thisSample.getSampleID() %>").click(function() {
-  dlgSexAdd<%=thisSample.getSampleID() %>.dialog("open");
+  dlgSexAdd<%=thisSample.getSampleID().replaceAll("[-+.^:,]","") %>.dialog("open");
   
 });
 </script>   
@@ -4562,10 +4774,10 @@ $("a#addSex<%=thisSample.getSampleID() %>").click(function() {
 		<p><span class="caption"><a class="launchPopup" id="addBioMeasure<%=thisSample.getSampleID() %>"><img align="absmiddle" width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit_add.png" /></a> <a class="launchPopup" id="addBioMeasure<%=thisSample.getSampleID() %>"><%=encprops.getProperty("addBiologicalMeasurement") %></a></span></p>
 		
 		<%
-if (isOwner && CommonConfiguration.isCatalogEditable()) {
+if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
 %>
 <!-- start genetic sex popup -->  
-<div id="dialogBiomeasure4<%=thisSample.getSampleID() %>" title="<%=encprops.getProperty("setBiologicalMeasurement")%>" style="display:none">  
+<div id="dialogBiomeasure4<%=thisSample.getSampleID().replaceAll("[-+.^:,]","") %>" title="<%=encprops.getProperty("setBiologicalMeasurement")%>" style="display:none">  
   <form name="setBiologicalMeasurement" action="../TissueSampleSetMeasurement" method="post">
 
 <table cellpadding="1" cellspacing="0" bordercolor="#FFFFFF">
@@ -4593,9 +4805,9 @@ if (isOwner && CommonConfiguration.isCatalogEditable()) {
 
 
      		<%
-     		ArrayList<String> values=CommonConfiguration.getSequentialPropertyValues("biologicalMeasurementType");
+     		ArrayList<String> values=CommonConfiguration.getSequentialPropertyValues("biologicalMeasurementType",context);
  			int numProps=values.size();
- 			ArrayList<String> measurementUnits=CommonConfiguration.getSequentialPropertyValues("biologicalMeasurementUnits");
+ 			ArrayList<String> measurementUnits=CommonConfiguration.getSequentialPropertyValues("biologicalMeasurementUnits",context);
  			int numUnitsProps=measurementUnits.size();
      		
      		if(numProps>0){
@@ -4646,7 +4858,7 @@ if (isOwner && CommonConfiguration.isCatalogEditable()) {
     </td><td>
     
      		<%
-     		ArrayList<String> protovalues=CommonConfiguration.getSequentialPropertyValues("biologicalMeasurementSamplingProtocols");
+     		ArrayList<String> protovalues=CommonConfiguration.getSequentialPropertyValues("biologicalMeasurementSamplingProtocols",context);
  			int protonumProps=protovalues.size();
      		
      		if(protonumProps>0){
@@ -4727,7 +4939,7 @@ if (isOwner && CommonConfiguration.isCatalogEditable()) {
 </div>
                          	
 <script>
-var dlgAddBiomeasure<%=thisSample.getSampleID() %> = $("#dialogBiomeasure4<%=thisSample.getSampleID() %>").dialog({
+var dlgAddBiomeasure<%=thisSample.getSampleID().replaceAll("[-+.^:,]","") %> = $("#dialogBiomeasure4<%=thisSample.getSampleID().replaceAll("[-+.^:,]","") %>").dialog({
   autoOpen: false,
   draggable: false,
   resizable: false,
@@ -4735,7 +4947,7 @@ var dlgAddBiomeasure<%=thisSample.getSampleID() %> = $("#dialogBiomeasure4<%=thi
 });
 
 $("a#addBioMeasure<%=thisSample.getSampleID() %>").click(function() {
-  dlgAddBiomeasure<%=thisSample.getSampleID() %>.dialog("open");
+  dlgAddBiomeasure<%=thisSample.getSampleID().replaceAll("[-+.^:,]","") %>.dialog("open");
   
 });
 </script>   
@@ -4747,7 +4959,7 @@ $("a#addBioMeasure<%=thisSample.getSampleID() %>").click(function() {
 	</td>
 	
 	
-	<td><a id="sample" href="encounter.jsp?number=<%=enc.getCatalogNumber() %>&sampleID=<%=thisSample.getSampleID()%>&edit=tissueSample&function=1"><img width="24px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" /></a></td><td><a href="../EncounterRemoveTissueSample?encounter=<%=enc.getCatalogNumber()%>&sampleID=<%=thisSample.getSampleID()%>"><img style="border-style: none;" src="../images/cancel.gif" /></a></td></tr>
+	<td><a id="sample" href="encounter.jsp?number=<%=enc.getCatalogNumber() %>&sampleID=<%=thisSample.getSampleID()%>&edit=tissueSample&function=1"><img width="24px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" /></a></td><td><a onclick="return confirm('Are you sure you want to delete this tissue sample and all related analyses?');" href="../EncounterRemoveTissueSample?encounter=<%=enc.getCatalogNumber()%>&sampleID=<%=thisSample.getSampleID()%>"><img style="border-style: none;" src="../images/cancel.gif" /></a></td></tr>
 	<%
 }
 %>

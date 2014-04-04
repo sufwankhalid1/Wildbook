@@ -34,6 +34,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
@@ -55,7 +56,9 @@ public class ScanAppletSupport extends HttpServlet {
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
     //public synchronized void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
-    Shepherd myShepherd = new Shepherd();
+    String context="context0";
+    context=ServletUtilities.getContext(request);
+    Shepherd myShepherd = new Shepherd(context);
     response.setContentType("application/octet-stream");
     GridManager gm = GridManagerFactory.getGridManager();
     String supportedAppletVersion = gm.getSupportedAppletVersion();
@@ -161,6 +164,8 @@ public class ScanAppletSupport extends HttpServlet {
     if ((request.getParameter("newEncounterNumber") != null) && (!request.getParameter("newEncounterNumber").equals(""))) {
 
       //System.out.println("newEncounterNumber has been specified");
+      Extent encClass = myShepherd.getPM().getExtent(ScanWorkItem.class, true);
+        Query query = myShepherd.getPM().newQuery(encClass);
       try {
         myShepherd.beginDBTransaction();
 
@@ -178,8 +183,7 @@ public class ScanAppletSupport extends HttpServlet {
         }
 
         //new way
-        Extent encClass = myShepherd.getPM().getExtent(ScanWorkItem.class, true);
-        Query query = myShepherd.getPM().newQuery(encClass);
+
         Vector holdSWIs = new Vector();
 
         //get the items to transmit
@@ -199,6 +203,7 @@ public class ScanAppletSupport extends HttpServlet {
         myShepherd.rollbackDBTransaction();
         myShepherd.closeDBTransaction();
       }
+      query.closeAll();
 
 
     } //end if targeted
@@ -301,10 +306,10 @@ public class ScanAppletSupport extends HttpServlet {
     }
     query.closeAll();
     if (hasWork) {
-      query.closeAll();
+      //query.closeAll();
       myShepherd.commitDBTransaction();
     } else {
-      query.closeAll();
+      //query.closeAll();
       if ((totalWorkItems != totalWorkItemsComplete) || (totalWorkItems == 0)) {
 
         //return a blank workItem telling the applet to wait for a result to be written

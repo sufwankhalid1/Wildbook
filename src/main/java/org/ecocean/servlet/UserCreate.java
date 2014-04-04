@@ -37,6 +37,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
+import java.util.Properties;
+
 
 public class UserCreate extends HttpServlet {
 
@@ -52,11 +54,14 @@ public class UserCreate extends HttpServlet {
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
     
+    String context="context0";
+    context=ServletUtilities.getContext(request);
+    
     //set up the user directory
     //setup data dir
     String rootWebappPath = getServletContext().getRealPath("/");
     File webappsDir = new File(rootWebappPath).getParentFile();
-    File shepherdDataDir = new File(webappsDir, CommonConfiguration.getDataDirectoryName());
+    File shepherdDataDir = new File(webappsDir, CommonConfiguration.getDataDirectoryName(context));
     if(!shepherdDataDir.exists()){shepherdDataDir.mkdir();}
     File usersDir=new File(shepherdDataDir.getAbsolutePath()+"/users");
     if(!usersDir.exists()){usersDir.mkdir();}
@@ -75,7 +80,7 @@ public class UserCreate extends HttpServlet {
 
     //create a new Role from an encounter
 
-    if ((request.getParameterValues("rolename") != null) && (request.getParameter("username") != null) &&  (!request.getParameter("username").trim().equals("")) && (((request.getParameter("password") != null) &&  (!request.getParameter("password").trim().equals("")) && (request.getParameter("password2") != null) &&  (!request.getParameter("password2").trim().equals(""))) || (request.getParameter("isEdit")!=null))) {
+    if ((request.getParameter("username") != null) &&  (!request.getParameter("username").trim().equals("")) && (((request.getParameter("password") != null) &&  (!request.getParameter("password").trim().equals("")) && (request.getParameter("password2") != null) &&  (!request.getParameter("password2").trim().equals(""))) || (request.getParameter("isEdit")!=null))) {
       
       String username=request.getParameter("username").trim();
       
@@ -86,7 +91,7 @@ public class UserCreate extends HttpServlet {
       
       if((password.equals(password2))||(isEdit)){
         
-        Shepherd myShepherd = new Shepherd();
+        Shepherd myShepherd = new Shepherd(context);
         
         User newUser=new User();
       
@@ -112,6 +117,10 @@ public class UserCreate extends HttpServlet {
         }
         else if(isEdit&&(request.getParameter("fullName")!=null)&&(request.getParameter("fullName").trim().equals(""))){newUser.setFullName(null);}
         
+        if(request.getParameter("receiveEmails")!=null){
+          newUser.setReceiveEmails(true);
+        }
+        else{newUser.setReceiveEmails(false);}
         
         if((request.getParameter("emailAddress")!=null)&&(!request.getParameter("emailAddress").trim().equals(""))){
           newUser.setEmailAddress(request.getParameter("emailAddress").trim());
@@ -153,26 +162,40 @@ public class UserCreate extends HttpServlet {
         }
         
         
-        String[] roles=request.getParameterValues("rolename");
-        int numRoles=roles.length;
-        for(int i=0;i<numRoles;i++){
+        //start role processing
+        
+        ArrayList<String> contexts=ContextConfiguration.getContextNames();
+        int numContexts=contexts.size();
+        //System.out.println("numContexts is: "+numContexts);
+        for(int d=0;d<numContexts;d++){
+        
+          String[] roles=request.getParameterValues("context"+d+"rolename");
+          int numRoles=roles.length;
+          //System.out.println("numRoles in context"+d+" is: "+numRoles);
+          for(int i=0;i<numRoles;i++){
 
-          String thisRole=roles[i].trim();
+            String thisRole=roles[i].trim();
 
-          Role role=new Role();
-          if(myShepherd.getRole(thisRole,username)==null){
+            Role role=new Role();
+            if(myShepherd.getRole(thisRole,username,("context"+d))==null){
             
-            role.setRolename(thisRole);
-            role.setUsername(username);
-            myShepherd.getPM().makePersistent(role);
-            addedRoles+=(roles[i]+" ");
-            //System.out.println(addedRoles);
-            myShepherd.commitDBTransaction();
-            myShepherd.beginDBTransaction();
-          }
+              role.setRolename(thisRole);
+              role.setUsername(username);
+              role.setContext("context"+d);
+              myShepherd.getPM().makePersistent(role);
+              addedRoles+=(roles[i]+" ");
+              //System.out.println(addedRoles);
+              myShepherd.commitDBTransaction();
+              myShepherd.beginDBTransaction();
+              //System.out.println("Creating role: context"+d+thisRole);
+            }
         
           
+          }
         }
+        //end role processing
+        
+        
 
         myShepherd.commitDBTransaction();    
         myShepherd.closeDBTransaction();
@@ -189,7 +212,7 @@ public class UserCreate extends HttpServlet {
               
             }
             out.println("<p><a href=\"http://" + CommonConfiguration.getURLLocation(request) + "/appadmin/users.jsp" + "\">Return to User Administration" + "</a></p>\n");
-            out.println(ServletUtilities.getFooter());
+            out.println(ServletUtilities.getFooter(context));
             
     }
     else{
@@ -197,7 +220,7 @@ public class UserCreate extends HttpServlet {
         out.println(ServletUtilities.getHeader(request));
         out.println("<strong>Failure:</strong> User was NOT successfully created. Your passwords did not match.");
         out.println("<p><a href=\"http://" + CommonConfiguration.getURLLocation(request) + "/appadmin/users.jsp" + "\">Return to User Administration" + "</a></p>\n");
-        out.println(ServletUtilities.getFooter());
+        out.println(ServletUtilities.getFooter(context));
         
       }
       
@@ -208,7 +231,7 @@ else{
   out.println(ServletUtilities.getHeader(request));
   out.println("<strong>Failure:</strong> User was NOT successfully created. I did not have all of the username and password information I needed.");
   out.println("<p><a href=\"http://" + CommonConfiguration.getURLLocation(request) + "/appadmin/users.jsp" + "\">Return to User Administration" + "</a></p>\n");
-  out.println(ServletUtilities.getFooter());
+  out.println(ServletUtilities.getFooter(context));
   
 }
 

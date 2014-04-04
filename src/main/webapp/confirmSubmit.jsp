@@ -23,13 +23,15 @@
 <%@ taglib uri="http://www.sunwesttek.com/di" prefix="di" %>
 
 <%
+String context="context0";
+context=ServletUtilities.getContext(request);
   String number = request.getParameter("number").trim();
-  Shepherd myShepherd = new Shepherd();
+  Shepherd myShepherd = new Shepherd(context);
 
 //setup our Properties object to hold all properties
   Properties props = new Properties();
   String langCode = "en";
-  Properties email_props = new Properties();
+  //Properties email_props = new Properties();
 
   //check what language is requested
   if (session.getAttribute("langCode") != null) {
@@ -37,10 +39,12 @@
   }
 
   //set up the file input stream
-  props.load(getClass().getResourceAsStream("/bundles/" + langCode + "/submit.properties"));
+  //props.load(getClass().getResourceAsStream("/bundles/" + langCode + "/submit.properties"));
+  props = ShepherdProperties.getProperties("submit.properties", langCode);
 
 
-  email_props.load(getClass().getResourceAsStream("/bundles/confirmSubmitEmails.properties"));
+
+  //email_props.load(getClass().getResourceAsStream("/bundles/confirmSubmitEmails.properties"));
 
 
   //link path to submit page with appropriate language
@@ -49,7 +53,7 @@
   //let's set up references to our file system components
   String rootWebappPath = getServletContext().getRealPath("/");
   File webappsDir = new File(rootWebappPath).getParentFile();
-  File shepherdDataDir = new File(webappsDir, CommonConfiguration.getDataDirectoryName());
+  File shepherdDataDir = new File(webappsDir, CommonConfiguration.getDataDirectoryName(context));
   if(!shepherdDataDir.exists()){shepherdDataDir.mkdir();}
   File encountersDir=new File(shepherdDataDir.getAbsolutePath()+"/encounters");
   if(!encountersDir.exists()){encountersDir.mkdir();}
@@ -60,18 +64,18 @@
 
 <html>
 <head>
-  <title><%=CommonConfiguration.getHTMLTitle() %>
+  <title><%=CommonConfiguration.getHTMLTitle(context) %>
   </title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
   <meta name="Description"
-        content="<%=CommonConfiguration.getHTMLDescription() %>"/>
+        content="<%=CommonConfiguration.getHTMLDescription(context) %>"/>
   <meta name="Keywords"
-        content="<%=CommonConfiguration.getHTMLKeywords() %>"/>
-  <meta name="Author" content="<%=CommonConfiguration.getHTMLAuthor() %>"/>
-  <link href="<%=CommonConfiguration.getCSSURLLocation(request) %>"
+        content="<%=CommonConfiguration.getHTMLKeywords(context) %>"/>
+  <meta name="Author" content="<%=CommonConfiguration.getHTMLAuthor(context) %>"/>
+  <link href="<%=CommonConfiguration.getCSSURLLocation(request,context) %>"
         rel="stylesheet" type="text/css"/>
   <link rel="shortcut icon"
-        href="<%=CommonConfiguration.getHTMLShortcutIcon() %>"/>
+        href="<%=CommonConfiguration.getHTMLShortcutIcon(context) %>"/>
 
 </head>
 
@@ -90,7 +94,7 @@
 <div id="maintext">
 <%
   StringBuffer new_message = new StringBuffer();
-  new_message.append("The "+CommonConfiguration.getProperty("htmlTitle")+" library has received a new encounter submission. You can " +
+  new_message.append("The "+CommonConfiguration.getProperty("htmlTitle",context)+" library has received a new encounter submission. You can " +
     "view it at:\nhttp://" + CommonConfiguration.getURLLocation(request) +
     "/encounters/encounter" +
     ".jsp?number="+ number);
@@ -112,7 +116,15 @@
         addText = (String)enc.getAdditionalImageNames().get(0);
       }
       if ((enc.getLocationCode() != null) && (!enc.getLocationCode().equals("None"))) {
-        informMe = email_props.getProperty(enc.getLocationCode());
+        
+    	  
+    	  //the old way was to load a list of email addresses from a properties files using the locationID as the property key
+    	  //informMe = email_props.getProperty(enc.getLocationCode());
+        
+        //the new way loads email addresses based on User object roles matching location ID
+        informMe=myShepherd.getAllUserEmailAddressesForLocationID(enc.getLocationID(),context);
+        
+        
       } else {
         hasImages = false;
       }
@@ -159,7 +171,7 @@
 
   File file2process = new File(addText);
   
-  if(myShepherd.isAcceptableImageFile(file2process.getName())){
+  if((file2process.exists())&&(myShepherd.isAcceptableImageFile(file2process.getName()))){
   	int intWidth = 100;
   	int intHeight = 75;
   	int thumbnailHeight = 75;
@@ -211,7 +223,7 @@
   <strong><%=number%></strong>.</p>
 
 <p>If you have any questions, please reference this number when <a
-  href="mailto:<%=CommonConfiguration.getAutoEmailAddress() %>">contacting
+  href="mailto:<%=CommonConfiguration.getAutoEmailAddress(context) %>">contacting
   us.</a></p>
 
 <p><a
@@ -221,7 +233,7 @@
 <%
 
 
-if(CommonConfiguration.sendEmailNotifications()){
+if(CommonConfiguration.sendEmailNotifications(context)){
 
   Vector e_images = new Vector();
 
@@ -233,7 +245,7 @@ if(CommonConfiguration.sendEmailNotifications()){
 
 
   //email the new submission address defined in commonConfiguration.properties
-  es.execute(new NotificationMailer(CommonConfiguration.getMailHost(), CommonConfiguration.getAutoEmailAddress(), CommonConfiguration.getNewSubmissionEmail(), ("New encounter submission: " + number), new_message.toString(), e_images));
+  es.execute(new NotificationMailer(CommonConfiguration.getMailHost(context), CommonConfiguration.getAutoEmailAddress(context), CommonConfiguration.getNewSubmissionEmail(context), ("New encounter submission: " + number), new_message.toString(), e_images,context));
 
   //now email those assigned this location code
   if (informMe != null) {
@@ -244,13 +256,13 @@ if(CommonConfiguration.sendEmailNotifications()){
       while (str.hasMoreTokens()) {
         String token = str.nextToken().trim();
         if (!token.equals("")) {
-          es.execute(new NotificationMailer(CommonConfiguration.getMailHost(), CommonConfiguration.getAutoEmailAddress(), token, ("New encounter submission: " + number), new_message.toString(), e_images));
+          es.execute(new NotificationMailer(CommonConfiguration.getMailHost(context), CommonConfiguration.getAutoEmailAddress(context), token, ("New encounter submission: " + number), new_message.toString(), e_images,context));
 
         }
       }
 
     } else {
-      es.execute(new NotificationMailer(CommonConfiguration.getMailHost(), CommonConfiguration.getAutoEmailAddress(), informMe, ("New encounter submission: " + number), new_message.toString(), e_images));
+      es.execute(new NotificationMailer(CommonConfiguration.getMailHost(context), CommonConfiguration.getAutoEmailAddress(context), informMe, ("New encounter submission: " + number), new_message.toString(), e_images,context));
     }
   }
 
@@ -269,11 +281,10 @@ if(CommonConfiguration.sendEmailNotifications()){
     while (str.hasMoreTokens()) {
       String token = str.nextToken().trim();
       if (!token.equals("")) {
-        String personalizedThanksMessage = CommonConfiguration.appendEmailRemoveHashString
-          (request, thanksmessage, token);
+        String personalizedThanksMessage = CommonConfiguration.appendEmailRemoveHashString(request, thanksmessage, token,context);
         //System.out.println(personalizedThanksMessage);
 
-        es.execute(new NotificationMailer(CommonConfiguration.getMailHost(), CommonConfiguration.getAutoEmailAddress(), token, ("New encounter submission: " + number), personalizedThanksMessage, e_images));
+        es.execute(new NotificationMailer(CommonConfiguration.getMailHost(context), CommonConfiguration.getAutoEmailAddress(context), token, ("New encounter submission: " + number), personalizedThanksMessage, e_images,context));
 
       }
     }
@@ -281,11 +292,11 @@ if(CommonConfiguration.sendEmailNotifications()){
   } 
   else {
     String personalizedThanksMessage = CommonConfiguration.appendEmailRemoveHashString
-      (request, thanksmessage, submitter);
+      (request, thanksmessage, submitter,context);
 
     //System.out.println(personalizedThanksMessage);
 
-    es.execute(new NotificationMailer(CommonConfiguration.getMailHost(), CommonConfiguration.getAutoEmailAddress(), submitter, ("New encounter submission: " + number), personalizedThanksMessage, e_images));
+    es.execute(new NotificationMailer(CommonConfiguration.getMailHost(context), CommonConfiguration.getAutoEmailAddress(context), submitter, ("New encounter submission: " + number), personalizedThanksMessage, e_images,context));
   }
 
 
@@ -296,16 +307,15 @@ if(CommonConfiguration.sendEmailNotifications()){
         String token = str.nextToken().trim();
         if (!token.equals("")) {
           String personalizedThanksMessage = CommonConfiguration.appendEmailRemoveHashString
-            (request, thanksmessage, token);
+            (request, thanksmessage, token,context);
 
-          es.execute(new NotificationMailer(CommonConfiguration.getMailHost(), CommonConfiguration.getAutoEmailAddress(), token, ("New encounter submission: " + number), personalizedThanksMessage, e_images));
+          es.execute(new NotificationMailer(CommonConfiguration.getMailHost(context), CommonConfiguration.getAutoEmailAddress(context), token, ("New encounter submission: " + number), personalizedThanksMessage, e_images,context));
         }
       }
     } else {
-      String personalizedThanksMessage = CommonConfiguration.appendEmailRemoveHashString
-        (request, thanksmessage, photographer);
+      String personalizedThanksMessage = CommonConfiguration.appendEmailRemoveHashString(request, thanksmessage, photographer,context);
 
-      es.execute(new NotificationMailer(CommonConfiguration.getMailHost(), CommonConfiguration.getAutoEmailAddress(), photographer, ("New encounter submission: " + number), personalizedThanksMessage, e_images));
+      es.execute(new NotificationMailer(CommonConfiguration.getMailHost(context), CommonConfiguration.getAutoEmailAddress(context), photographer, ("New encounter submission: " + number), personalizedThanksMessage, e_images,context));
     }
   }
 
@@ -315,17 +325,15 @@ if(CommonConfiguration.sendEmailNotifications()){
       while (str.hasMoreTokens()) {
         String token = str.nextToken().trim();
         if (!token.equals("")) {
-          String personalizedThanksMessage = CommonConfiguration.appendEmailRemoveHashString
-            (request, thanksmessage, token);
+          String personalizedThanksMessage = CommonConfiguration.appendEmailRemoveHashString(request, thanksmessage, token,context);
 
-          es.execute(new NotificationMailer(CommonConfiguration.getMailHost(), CommonConfiguration.getAutoEmailAddress(), token, ("New encounter submission: " + number), personalizedThanksMessage, e_images));
+          es.execute(new NotificationMailer(CommonConfiguration.getMailHost(context), CommonConfiguration.getAutoEmailAddress(context), token, ("New encounter submission: " + number), personalizedThanksMessage, e_images,context));
         }
       }
     } else {
-      String personalizedThanksMessage = CommonConfiguration.appendEmailRemoveHashString
-        (request, thanksmessage, informOthers);
+      String personalizedThanksMessage = CommonConfiguration.appendEmailRemoveHashString(request, thanksmessage, informOthers,context);
 
-      es.execute(new NotificationMailer(CommonConfiguration.getMailHost(), CommonConfiguration.getAutoEmailAddress(), informOthers, ("New encounter submission: " + number), personalizedThanksMessage, e_images));
+      es.execute(new NotificationMailer(CommonConfiguration.getMailHost(context), CommonConfiguration.getAutoEmailAddress(context), informOthers, ("New encounter submission: " + number), personalizedThanksMessage, e_images,context));
     }
   }
   es.shutdown();

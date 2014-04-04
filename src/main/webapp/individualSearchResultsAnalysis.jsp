@@ -20,7 +20,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 <%@ page contentType="text/html; charset=utf-8" language="java"
-         import="java.text.DecimalFormat,javax.jdo.*,org.ecocean.genetics.*,java.util.*,java.net.URI, org.ecocean.*,org.ecocean.Util.MeasurementDesc,org.apache.commons.math.stat.descriptive.SummaryStatistics" %>
+         import="org.ecocean.servlet.ServletUtilities,java.text.DecimalFormat,javax.jdo.*,org.ecocean.genetics.*,java.util.*,java.net.URI, org.ecocean.*,org.ecocean.Util.MeasurementDesc,org.apache.commons.math.stat.descriptive.SynchronizedSummaryStatistics" %>
 
 
 
@@ -38,14 +38,18 @@
       langCode = (String) session.getAttribute("langCode");
     }
     Properties encprops = new Properties();
-    encprops.load(getClass().getResourceAsStream("/bundles/" + langCode + "/individualSearchResultsAnalysis.properties"));
+    //encprops.load(getClass().getResourceAsStream("/bundles/" + langCode + "/individualSearchResultsAnalysis.properties"));
+    encprops = ShepherdProperties.getProperties("individualSearchResultsAnalysis.properties", langCode);
 
+    
     Properties haploprops = new Properties();
     //haploprops.load(getClass().getResourceAsStream("/bundles/haplotypeColorCodes.properties"));
 	haploprops=ShepherdProperties.getProperties("haplotypeColorCodes.properties", "");
     
     //get our Shepherd
-    Shepherd myShepherd = new Shepherd();
+    String context="context0";
+    context=ServletUtilities.getContext(request);
+    Shepherd myShepherd = new Shepherd(context);
     
     DecimalFormat df = new DecimalFormat("#.##");
 
@@ -56,42 +60,42 @@
     int numResultsWithHaplotype=0;
     
 	//prep for measurements summary
-	List<MeasurementDesc> measurementTypes=Util.findMeasurementDescs("en");
+	List<MeasurementDesc> measurementTypes=Util.findMeasurementDescs("en",context);
 	int numMeasurementTypes=measurementTypes.size();
-	SummaryStatistics[] measurementValues=new SummaryStatistics[numMeasurementTypes];
-	SummaryStatistics[] measurementValuesMales=new SummaryStatistics[numMeasurementTypes];
-	SummaryStatistics[] measurementValuesFemales=new SummaryStatistics[numMeasurementTypes];
-	SummaryStatistics[] measurementValuesNew=new SummaryStatistics[numMeasurementTypes];
-	SummaryStatistics[] measurementValuesResights=new SummaryStatistics[numMeasurementTypes];
+	SynchronizedSummaryStatistics[] measurementValues=new SynchronizedSummaryStatistics[numMeasurementTypes];
+	SynchronizedSummaryStatistics[] measurementValuesMales=new SynchronizedSummaryStatistics[numMeasurementTypes];
+	SynchronizedSummaryStatistics[] measurementValuesFemales=new SynchronizedSummaryStatistics[numMeasurementTypes];
+	SynchronizedSummaryStatistics[] measurementValuesNew=new SynchronizedSummaryStatistics[numMeasurementTypes];
+	SynchronizedSummaryStatistics[] measurementValuesResights=new SynchronizedSummaryStatistics[numMeasurementTypes];
 	String[] smallestIndies=new String[numMeasurementTypes];
 	String[] largestIndies=new String[numMeasurementTypes];
 	for(int b=0;b<measurementValues.length;b++){
-		measurementValues[b]=new SummaryStatistics();
-		measurementValuesMales[b]=new SummaryStatistics();
-		measurementValuesFemales[b]=new SummaryStatistics();
-		measurementValuesNew[b]=new SummaryStatistics();
-		measurementValuesResights[b]=new SummaryStatistics();
+		measurementValues[b]=new SynchronizedSummaryStatistics();
+		measurementValuesMales[b]=new SynchronizedSummaryStatistics();
+		measurementValuesFemales[b]=new SynchronizedSummaryStatistics();
+		measurementValuesNew[b]=new SynchronizedSummaryStatistics();
+		measurementValuesResights[b]=new SynchronizedSummaryStatistics();
 		smallestIndies[b]="";
 		largestIndies[b]="";
 	}
 
 	
 	//prep for biomeasurements summary
-	List<MeasurementDesc> bioMeasurementTypes=Util.findBiologicalMeasurementDescs("en");
+	List<MeasurementDesc> bioMeasurementTypes=Util.findBiologicalMeasurementDescs("en",context);
 	int numBioMeasurementTypes=bioMeasurementTypes.size();
-	SummaryStatistics[] bioMeasurementValues=new SummaryStatistics[numBioMeasurementTypes];
-	SummaryStatistics[] bioMeasurementValuesMales=new SummaryStatistics[numBioMeasurementTypes];
-	SummaryStatistics[] bioMeasurementValuesFemales=new SummaryStatistics[numBioMeasurementTypes];
-	SummaryStatistics[] bioMeasurementValuesNew=new SummaryStatistics[numBioMeasurementTypes];
-	SummaryStatistics[] bioMeasurementValuesResights=new SummaryStatistics[numBioMeasurementTypes];
+	SynchronizedSummaryStatistics[] bioMeasurementValues=new SynchronizedSummaryStatistics[numBioMeasurementTypes];
+	SynchronizedSummaryStatistics[] bioMeasurementValuesMales=new SynchronizedSummaryStatistics[numBioMeasurementTypes];
+	SynchronizedSummaryStatistics[] bioMeasurementValuesFemales=new SynchronizedSummaryStatistics[numBioMeasurementTypes];
+	SynchronizedSummaryStatistics[] bioMeasurementValuesNew=new SynchronizedSummaryStatistics[numBioMeasurementTypes];
+	SynchronizedSummaryStatistics[] bioMeasurementValuesResights=new SynchronizedSummaryStatistics[numBioMeasurementTypes];
 	String[] bioSmallestIndies=new String[numBioMeasurementTypes];
 	String[] bioLargestIndies=new String[numBioMeasurementTypes];
 	for(int b=0;b<bioMeasurementValues.length;b++){
-		bioMeasurementValues[b]=new SummaryStatistics();
-		bioMeasurementValuesMales[b]=new SummaryStatistics();
-		bioMeasurementValuesFemales[b]=new SummaryStatistics();
-		bioMeasurementValuesNew[b]=new SummaryStatistics();
-		bioMeasurementValuesResights[b]=new SummaryStatistics();
+		bioMeasurementValues[b]=new SynchronizedSummaryStatistics();
+		bioMeasurementValuesMales[b]=new SynchronizedSummaryStatistics();
+		bioMeasurementValuesFemales[b]=new SynchronizedSummaryStatistics();
+		bioMeasurementValuesNew[b]=new SynchronizedSummaryStatistics();
+		bioMeasurementValuesResights[b]=new SynchronizedSummaryStatistics();
 		bioSmallestIndies[b]="";
 		bioLargestIndies[b]="";
 	}
@@ -226,32 +230,34 @@
 		for(int b=0;b<numBioMeasurementTypes;b++){
 			if(thisEnc.getAverageBiologicalMeasurementInPeriod(year1, month1, year2, month2, bioMeasurementTypes.get(b).getType())!=null){
 				
-					bioMeasurementValues[b].addValue(thisEnc.getAverageBiologicalMeasurementInPeriod(year1, month1, year2, month2, bioMeasurementTypes.get(b).getType()).doubleValue());
-					
+					double val=thisEnc.getAverageBiologicalMeasurementInPeriod(year1, month1, year2, month2, bioMeasurementTypes.get(b).getType()).doubleValue();
+				
+					bioMeasurementValues[b].addValue(val);
+					//System.out.println(bioMeasurementTypes.get(b).getType()+":"+val);
 					//smallest vs largest analysis
-					if(thisEnc.getAverageBiologicalMeasurementInPeriod(year1, month1, year2, month2, bioMeasurementTypes.get(b).getType()).doubleValue()<=bioMeasurementValues[b].getMin()){
+					if(val<=bioMeasurementValues[b].getMin()){
 						bioSmallestIndies[b]=thisEnc.getIndividualID();
 					}
-					else if(thisEnc.getAverageBiologicalMeasurementInPeriod(year1, month1, year2, month2, bioMeasurementTypes.get(b).getType()).doubleValue()>=bioMeasurementValues[b].getMax()){
+					else if(val>=bioMeasurementValues[b].getMax()){
 						bioLargestIndies[b]=thisEnc.getIndividualID();
 					}
 					
 					//males versus females analysis
 					if((thisEnc.getSex()!=null)&&(thisEnc.getSex().equals("male"))){
-						bioMeasurementValuesMales[b].addValue(thisEnc.getAverageBiologicalMeasurementInPeriod(year1, month1, year2, month2, bioMeasurementTypes.get(b).getType()).doubleValue());
+						bioMeasurementValuesMales[b].addValue(val);
 					}
 					else if((thisEnc.getSex()!=null)&&(thisEnc.getSex().equals("female"))){
-						bioMeasurementValuesFemales[b].addValue(thisEnc.getAverageBiologicalMeasurementInPeriod(year1, month1, year2, month2, bioMeasurementTypes.get(b).getType()).doubleValue());
+						bioMeasurementValuesFemales[b].addValue(val);
 					}
 					
 					//first sights vs resights analysis
 					 if(thisEnc.getEarliestSightingTime()<(new GregorianCalendar(year1,month1,day1)).getTimeInMillis()){
-						 bioMeasurementValuesResights[b].addValue(thisEnc.getAverageBiologicalMeasurementInPeriod(year1, month1, year2, month2, bioMeasurementTypes.get(b).getType()).doubleValue());
+						 bioMeasurementValuesResights[b].addValue(val);
 							
 				 		   
 					 }
 					 else{
-						 bioMeasurementValuesNew[b].addValue(thisEnc.getAverageBiologicalMeasurementInPeriod(year1, month1, year2, month2, bioMeasurementTypes.get(b).getType()).doubleValue());
+						 bioMeasurementValuesNew[b].addValue(val);
 							
 					 }
 					
@@ -310,14 +316,14 @@
  	 
   %>
 
-  <title><%=CommonConfiguration.getHTMLTitle()%>
+  <title><%=CommonConfiguration.getHTMLTitle(context)%>
   </title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-  <meta name="Description" content="<%=CommonConfiguration.getHTMLDescription()%>"/>
-  <meta name="Keywords" content="<%=CommonConfiguration.getHTMLKeywords()%>"/>
-  <meta name="Author" content="<%=CommonConfiguration.getHTMLAuthor()%>"/>
-  <link href="<%=CommonConfiguration.getCSSURLLocation(request)%>" rel="stylesheet" type="text/css"/>
-  <link rel="shortcut icon" href="<%=CommonConfiguration.getHTMLShortcutIcon()%>"/>
+  <meta name="Description" content="<%=CommonConfiguration.getHTMLDescription(context)%>"/>
+  <meta name="Keywords" content="<%=CommonConfiguration.getHTMLKeywords(context)%>"/>
+  <meta name="Author" content="<%=CommonConfiguration.getHTMLAuthor(context)%>"/>
+  <link href="<%=CommonConfiguration.getCSSURLLocation(request,context)%>" rel="stylesheet" type="text/css"/>
+  <link rel="shortcut icon" href="<%=CommonConfiguration.getHTMLShortcutIcon(context)%>"/>
 
 
     <style type="text/css">
@@ -488,7 +494,7 @@
         %>
         var options = {
           width: 450, height: 300,
-          title: 'Sex Distribution in Matched Encounters',
+          title: 'Sex Distribution in Matched Individuals',
           colors: ['#0000FF','#FF00FF','<%=haploColor%>']
         };
 

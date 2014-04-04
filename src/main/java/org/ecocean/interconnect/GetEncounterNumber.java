@@ -22,7 +22,6 @@ package org.ecocean.interconnect;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.Properties;
 
 class GetEncounterNumber extends JPanel implements ActionListener {
   JFrame frame = null;
@@ -94,7 +93,7 @@ class GetEncounterNumber extends JPanel implements ActionListener {
 
     add(centerPanel);
 
-    frame = new JFrame("Send a " + side + "-side pattern to the ECOCEAN Library");
+    frame = new JFrame("Send a " + side + "-side pattern to the Wildbook library");
     ImageIcon imageIcon = new ImageIcon(this.getClass().getResource("/images/icon.gif"));
     frame.setIconImage(imageIcon.getImage());
     frame.setContentPane(this);
@@ -124,18 +123,9 @@ class GetEncounterNumber extends JPanel implements ActionListener {
 
       String enc_number = tfDir.getText();
 
-      Properties props = new Properties();
       //String transmitToURL="unknown";
       System.out.println("Transmitting the pattern to: " + transmitToURL);
 
-      /**
-       try{
-       props.load(GetEncounterNumber.class.getResourceAsStream("/bundles/en/interconnect.properties"));
-       transmitToURL=props.getProperty("transmitToURL").trim();
-       System.out.println("I will be transmitting this spot pattern to: "+transmitToURL);
-       }
-       catch(IOException ioe){ioe.printStackTrace();}
-       */
 
       String libraryURL = transmitToURL + "?number=" + enc_number + sideURLAddition;
 
@@ -150,7 +140,7 @@ class GetEncounterNumber extends JPanel implements ActionListener {
           spotURL.append(spotString);
         }
       }
-      //add spotURL to ecoceanURL
+      //add spotURL to libraryURL
       libraryURL = libraryURL + spotURL.toString();
 
       //add the three reference points
@@ -168,7 +158,7 @@ class GetEncounterNumber extends JPanel implements ActionListener {
       //String ref3y="&ref3y="+((int)(sp.getPelvic().y));
       libraryURL = libraryURL + ref1x + ref2x + ref3x + ref1y + ref2y + ref3y;
 
-      //System.out.println(ecoceanURL);
+      //System.out.println(libraryURL);
 
       BareBonesBrowserLaunch.openURL(libraryURL);
 

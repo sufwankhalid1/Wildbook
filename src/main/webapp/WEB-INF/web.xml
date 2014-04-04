@@ -91,17 +91,96 @@
                 #view the web pages in the secure
                 #and admin areas
                 [urls]
-                /LoginUser = anon
-               	/login.jsp = anon
-               	/header.jsp = anon
-               	/footer.jsp = anon
-               	/images/** = anon
-               	/css/** = anon
-               	/accessDenied.jsp = anon
-      		/DeleteAllDataPermanently = authc, roles[destroyer]
-      		/welcome.jsp = authc
-      		/** = authc, roles[admin]
-               
+                
+                /appadmin/** = authc, roles[admin]
+                /logs/** = authc, roles[admin]
+                /xcalendar/** = authc, roles[admin]
+                /InterconnectSubmitSpots = authc, roles[admin]
+		/interconnectSubmitSpots= authc, roles[admin]
+		/GenePopExport = authc, roles[admin]
+		/individualSearch.jsp = authc, roles[admin]
+		/individualSearchResults.jsp = anon
+		/individualSearchResultsExport.jsp = authc, roles[admin]
+		/individualSearchResultsAnalysis.jsp = authc, roles[admin]
+		/individualMappedSearchResults.jsp = authc, roles[admin]
+		/individualThumbnailSearchResults.jsp = authc, roles[admin]
+		/encounters/thumbnailSearch.jsp = authc, roles[admin]
+		 /encounters/thumbnailSearchResults.jsp = authc, roles[admin]
+		 /encounters/encounterSearch.jsp = authc, roles[admin]
+		 /encounters/searchResults.jsp = anon
+		 /encounters/searchResultsAnalysis.jsp = authc, roles[admin]
+		 /encounters/mappedSearchResults.jsp = authc, roles[admin]
+		 /encounters/mappedSearchResultsSex.jsp = authc, roles[admin]
+		 /encounters/mappedSearchResultsHaplotype.jsp = authc, roles[admin]
+		 /encounters/exportSearchResults.jsp = authc, roles[admin]
+		 /googleSearch.jsp = authc, roles[admin]
+		 /googleSearchResults.jsp = authc, roles[admin]
+		 /encounters/imageViewer.jsp = authc, roles[admin]
+		 /encounters/searchComparison.jsp = authc, roles[admin]
+      		/encounters/searchComparisonResults.jsp = authc, roles[admin]
+                /encounters/encounterSpotVisualizer.jsp = authc, roles[admin]
+		/IndividualSetAlternateID = authc, roles[admin]
+		 /EncounterSetAlternateID = authc, roles[admin]
+		 /EncounterSetState = authc, roles[admin]
+		 /EncounterSetScarring = authc, roles[admin]
+		 /EncounterSetGPS = authc, roles[admin]
+		  /EncounterSetVerbatimEventDate = authc, roles[admin]
+		  /EncounterSetLifeStage = authc, roles[admin]
+		  /EncounterSetCountry = authc, roles[admin]
+		  /EncounterSetTissueSample = authc, roles[admin]
+		   /TissueSampleSetHaplotype = authc, roles[admin]
+		   /TissueSampleSetMeasurement = authc, roles[admin]
+		  /TissueSampleRemoveHaplotype = authc, roles[admin]
+		   /TissueSampleRemoveBiologicalMeasurement = authc, roles[admin]
+		   /TissueSampleSetMicrosatelliteMarkers  = authc, roles[admin]
+		   /TissueSampleRemoveMicrosatelliteMarkers  = authc, roles[admin]
+		   
+		   /RelationshipCreate  = authc, roles[admin]
+		   /RelationshipDelete  = authc, roles[admin]
+		   
+		   /ImportSRGD = authc, roles[admin]
+		        /IndividualCreate = authc, roles[admin]
+		        /OccurrenceCreate = authc, roles[admin]
+		        /OccurrenceRemoveEncounter = authc, roles[admin]
+		        /IndividualRemoveEncounter = authc, roles[admin]
+		        /OccurrenceAddEncounter = authc, roles[admin]
+		        /IndividualAddEncounter = authc, roles[admin]
+		         /TissueSampleSetSexAnalysis = authc, roles[admin]
+		        /TissueSampleRemoveSexAnalysis = authc, roles[admin]
+		         /EncounterRemoveTissueSample = authc, roles[admin]
+		         /EncounterRemoveImage = authc, roles[admin]
+		         /SinglePhotoVideoRemoveKeyword = authc, roles[admin]
+		         /SinglePhotoVideoAddKeyword = authc, roles[admin]
+		         /EncounterSearchExportGeneGISFormat = authc, roles[admin]
+		         /EncounterSearchExportKML = authc, roles[admin]
+		         /UserCreate = authc, roles[admin]
+		         /UserDelete = authc, roles[admin]
+		         /UserAddProfileImage = authc, roles[admin]
+		         /UserRemoveProfileImage = authc, roles[admin]
+		         /EncounterSearchExportExcelFile = authc, roles[admin]
+		         /EncounterSearchExportShapefile = authc, roles[admin]
+		         /EncounterSearchExportEmailAddresses = authc, roles[admin]
+		         /EncounterAddComment = authc, roles[admin]
+		         /OccurrenceAddComment = authc, roles[admin]
+		          /OccurrenceSetIndividualCount = authc, roles[admin]
+		         /IndividualAddComment = authc, roles[admin]
+		         /SimpleCMROutput = authc, roles[admin]
+		             /GenalexExportCodominantMSDataBySize = authc, roles[admin]
+		             /SOCPROGExport = authc, roles[admin]
+		             /OccurrenceSetGroupBehavior = authc, roles[admin]
+		             /EncounterSetBehavior = authc, roles[admin]
+		      /CJS = authc, roles[admin]
+		      /software.jsp = authc, roles[admin]
+		      /interconnect/mac/Interconnect.jar = authc, roles[admin]
+      			/DeleteAllDataPermanently = authc, roles[destroyer]
+      			/encounters/searchExport = authc, roles[admin]
+      			/welcome.jsp = authc
+      			/EncounterSetSubmitterID = authc, roles[admin]
+               		/UserResetAcceptedUserAgreement = authc, roles[admin]
+               		/IndividualSetYearOfBirth = authc, roles[admin]
+               		/IndividualSetYearOfDeath = authc, roles[admin]
+					
+					/KinalyzerExport = authc, roles[admin]
 
             </param-value>
         </init-param>
@@ -250,6 +329,11 @@
     <servlet-name>EncounterSetInformOthers</servlet-name>
     <servlet-class>org.ecocean.servlet.EncounterSetInformOthers</servlet-class>
   </servlet>
+  
+    <servlet>
+      <servlet-name>UserAddProfileImage</servlet-name>
+      <servlet-class>org.ecocean.servlet.UserAddProfileImage</servlet-class>
+  </servlet>
 
 
   
@@ -275,6 +359,12 @@
   <servlet>
     <servlet-name>EncounterSetSubmitterPhotographerContactInfo</servlet-name>
     <servlet-class>org.ecocean.servlet.EncounterSetSubmitterPhotographerContactInfo</servlet-class>
+  </servlet>
+  
+  
+    <servlet>
+      <servlet-name>UserResetAcceptedUserAgreement</servlet-name>
+      <servlet-class>org.ecocean.servlet.UserResetAcceptedUserAgreement</servlet-class>
   </servlet>
 
 
@@ -330,10 +420,7 @@
     <servlet-class>org.ecocean.servlet.DontTrack</servlet-class>
   </servlet>
   
-    <servlet>
-      <servlet-name>ResetCommonConfiguration</servlet-name>
-      <servlet-class>org.ecocean.servlet.ResetCommonConfiguration</servlet-class>
-  </servlet>
+ 
 
   <servlet>
     <servlet-name>UpdateEmailAddress</servlet-name>
@@ -445,6 +532,11 @@
   </servlet>
   
       <servlet>
+      <servlet-name>KinalyzerExport</servlet-name>
+      <servlet-class>org.ecocean.servlet.export.KinalyzerExport</servlet-class>
+  </servlet>
+  
+      <servlet>
         <servlet-name>SOCPROGExport</servlet-name>
         <servlet-class>org.ecocean.servlet.export.SOCPROGExport</servlet-class>
   </servlet>
@@ -533,6 +625,16 @@
     <servlet-name>IndividualAddEncounter</servlet-name>
     <servlet-class>org.ecocean.servlet.IndividualAddEncounter</servlet-class>
   </servlet>
+  
+    <servlet>
+    <servlet-name>RelationshipCreate</servlet-name>
+    <servlet-class>org.ecocean.servlet.RelationshipCreate</servlet-class>
+  </servlet>
+  
+      <servlet>
+    <servlet-name>RelationshipDelete</servlet-name>
+    <servlet-class>org.ecocean.servlet.RelationshipDelete</servlet-class>
+  </servlet>
 
   <servlet>
     <servlet-name>OccurrenceAddEncounter</servlet-name>
@@ -559,6 +661,11 @@
   <servlet>
     <servlet-name>MassSetLocationCodeFromLocationString</servlet-name>
     <servlet-class>org.ecocean.servlet.MassSetLocationCodeFromLocationString</servlet-class>
+  </servlet>
+
+      <servlet>
+        <servlet-name>UserRemoveProfileImage</servlet-name>
+        <servlet-class>org.ecocean.servlet.UserRemoveProfileImage</servlet-class>
   </servlet>
 
   <servlet>
@@ -683,6 +790,12 @@
     <servlet-name>EncounterSetMeasurements</servlet-name>
     <servlet-class>org.ecocean.servlet.EncounterSetMeasurements</servlet-class>
   </servlet>
+  
+  
+    <servlet>
+      <servlet-name>GetIndividualSearchGoogleMapsPoints</servlet-name>
+      <servlet-class>org.ecocean.servlet.export.GetIndividualSearchGoogleMapsPoints</servlet-class>
+  </servlet>
 
   <servlet>
     <servlet-name>EncounterSetTags</servlet-name>
@@ -733,6 +846,19 @@
     <servlet-name>EncounterSetSubmitterID</servlet-name>
     <servlet-class>org.ecocean.servlet.EncounterSetSubmitterID</servlet-class>
   </servlet>
+  
+  
+    <servlet>
+      <servlet-name>IndividualSetYearOfDeath</servlet-name>
+      <servlet-class>org.ecocean.servlet.IndividualSetYearOfDeath</servlet-class>
+  </servlet>
+  
+      <servlet>
+        <servlet-name>IndividualSetYearOfBirth</servlet-name>
+        <servlet-class>org.ecocean.servlet.IndividualSetYearOfBirth</servlet-class>
+  </servlet>
+  
+  
   <servlet>
     <servlet-name>EncounterSetMatchedBy</servlet-name>
     <servlet-class>org.ecocean.servlet.EncounterSetMatchedBy</servlet-class>
@@ -819,11 +945,7 @@
       <servlet-name>TissueSampleSetHaplotype</servlet-name>
       <url-pattern>/TissueSampleSetHaplotype</url-pattern>
   </servlet-mapping>
-  
-      <servlet-mapping>
-        <servlet-name>ResetCommonConfiguration</servlet-name>
-        <url-pattern>/ResetCommonConfiguration</url-pattern>
-  </servlet-mapping>
+
   
       <servlet-mapping>
         <servlet-name>DeleteAllDataPermanently</servlet-name>
@@ -882,6 +1004,12 @@
       <url-pattern>/EncounterSetTissueSample</url-pattern>
   </servlet-mapping>
   
+    
+      <servlet-mapping>
+        <servlet-name>UserAddProfileImage</servlet-name>
+        <url-pattern>/UserAddProfileImage</url-pattern>
+  </servlet-mapping>
+  
       <servlet-mapping>
         <servlet-name>EncounterRemoveTissueSample</servlet-name>
         <url-pattern>/EncounterRemoveTissueSample</url-pattern>
@@ -926,6 +1054,11 @@
       <servlet-mapping>
           <servlet-name>GenalexExportCodominantMSDataBySize</servlet-name>
           <url-pattern>/GenalexExportCodominantMSDataBySize</url-pattern>
+  </servlet-mapping>
+  
+        <servlet-mapping>
+          <servlet-name>KinalyzerExport</servlet-name>
+          <url-pattern>/KinalyzerExport</url-pattern>
   </servlet-mapping>
   
   
@@ -976,6 +1109,11 @@
   </servlet-mapping>
   
     <servlet-mapping>
+      <servlet-name>UserResetAcceptedUserAgreement</servlet-name>
+      <url-pattern>/UserResetAcceptedUserAgreement</url-pattern>
+  </servlet-mapping>
+  
+    <servlet-mapping>
       <servlet-name>OccurrenceAddComment</servlet-name>
       <url-pattern>/OccurrenceAddComment</url-pattern>
   </servlet-mapping>
@@ -1011,6 +1149,12 @@
       <servlet-mapping>
         <servlet-name>EncounterSearchExportShapefile</servlet-name>
         <url-pattern>/EncounterSearchExportShapefile</url-pattern>
+  </servlet-mapping>
+  
+  
+        <servlet-mapping>
+          <servlet-name>GetIndividualSearchGoogleMapsPoints</servlet-name>
+          <url-pattern>/GetIndividualSearchGoogleMapsPoints</url-pattern>
   </servlet-mapping>
   
       <servlet-mapping>
@@ -1058,6 +1202,21 @@
     <servlet-name>EncounterRemoveSpots</servlet-name>
     <url-pattern>/EncounterRemoveSpots</url-pattern>
   </servlet-mapping>
+  
+    <servlet-mapping>
+    <servlet-name>RelationshipCreate</servlet-name>
+    <url-pattern>/RelationshipCreate</url-pattern>
+  </servlet-mapping>
+  
+      <servlet-mapping>
+    <servlet-name>RelationshipDelete</servlet-name>
+    <url-pattern>/RelationshipDelete</url-pattern>
+  </servlet-mapping>
+  
+    <servlet-mapping>
+      <servlet-name>UserRemoveProfileImage</servlet-name>
+      <url-pattern>/UserRemoveProfileImage</url-pattern>
+  </servlet-mapping>
 
 
   <servlet-mapping>
@@ -1068,6 +1227,16 @@
   <servlet-mapping>
     <servlet-name>ResurrectDeletedEncounter</servlet-name>
     <url-pattern>/ResurrectDeletedEncounter</url-pattern>
+  </servlet-mapping>
+  
+    <servlet-mapping>
+      <servlet-name>IndividualSetYearOfDeath</servlet-name>
+      <url-pattern>/IndividualSetYearOfDeath</url-pattern>
+  </servlet-mapping>
+  
+      <servlet-mapping>
+        <servlet-name>IndividualSetYearOfBirth</servlet-name>
+        <url-pattern>/IndividualSetYearOfBirth</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>

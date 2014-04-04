@@ -20,16 +20,19 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <%@ page contentType="text/html; charset=iso-8859-1" language="java" import="java.util.ArrayList" %>
-<%@ page import="org.ecocean.*" %>
+<%@ page import="org.ecocean.*,org.ecocean.servlet.ServletUtilities,java.util.Properties" %>
 
 
 <%
-  	//get our Shepherd for data retrieval and persistence
-  	Shepherd myShepherd = new Shepherd();
-  
+
+String context="context0";
+//context=ServletUtilities.getContext(request);
+  	
+  	
+  Shepherd myShepherd = new Shepherd(context);
   	//get the available user roles
-  	ArrayList<String> roles=CommonConfiguration.getSequentialPropertyValues("role");
-	ArrayList<String> roleDefinitions=CommonConfiguration.getSequentialPropertyValues("roleDefinition");
+  	ArrayList<String> roles=CommonConfiguration.getSequentialPropertyValues("role",context);
+	ArrayList<String> roleDefinitions=CommonConfiguration.getSequentialPropertyValues("roleDefinition",context);
 	int numRoles=roles.size();
   	int numRoleDefinitions=roleDefinitions.size();
 
@@ -42,18 +45,18 @@
 
 <html>
 <head>
-  <title><%=CommonConfiguration.getHTMLTitle() %>
+  <title><%=CommonConfiguration.getHTMLTitle(context) %>
   </title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
   <meta name="Description"
-        content="<%=CommonConfiguration.getHTMLDescription() %>"/>
+        content="<%=CommonConfiguration.getHTMLDescription(context) %>"/>
   <meta name="Keywords"
-        content="<%=CommonConfiguration.getHTMLKeywords() %>"/>
-  <meta name="Author" content="<%=CommonConfiguration.getHTMLAuthor() %>"/>
-  <link href="<%=CommonConfiguration.getCSSURLLocation(request) %>"
+        content="<%=CommonConfiguration.getHTMLKeywords(context) %>"/>
+  <meta name="Author" content="<%=CommonConfiguration.getHTMLAuthor(context) %>"/>
+  <link href="<%=CommonConfiguration.getCSSURLLocation(request,context) %>"
         rel="stylesheet" type="text/css"/>
   <link rel="shortcut icon"
-        href="<%=CommonConfiguration.getHTMLShortcutIcon() %>"/>
+        href="<%=CommonConfiguration.getHTMLShortcutIcon(context) %>"/>
 
   <style type="text/css">
     <!--
@@ -74,9 +77,16 @@
     </jsp:include>
     <div id="main">
      
+     <%
+     
+     myShepherd.beginDBTransaction();
+     ArrayList<User> allUsers=myShepherd.getAllUsers();
+     int numUsers=allUsers.size();
+     
+     %>
 
       <h1 class="intro">User Management</h1>
-      <h4 class="intro">Existing Users</h4>
+      <h4 class="intro">Existing Users (<%=numUsers %>)</h4>
       <table width="810px" class="tissueSample">
       	<tr>
       		<th>&nbsp;</th>
@@ -91,9 +101,7 @@
       	</tr>
       
       <%
-      myShepherd.beginDBTransaction();
-      ArrayList<User> allUsers=myShepherd.getAllUsers();
-      int numUsers=allUsers.size();
+      
       for(int i=0;i<numUsers;i++){
       	User user=allUsers.get(i);
       	String affiliation="&nbsp;";
@@ -107,7 +115,7 @@
       		<td>
       		<%
       		if(user.getUserImage()!=null){
-      			String profilePhotoURL="/"+CommonConfiguration.getDataDirectoryName()+"/users/"+user.getUsername()+"/"+user.getUserImage().getFilename();
+      			String profilePhotoURL="/"+CommonConfiguration.getDataDirectoryName(context)+"/users/"+user.getUsername()+"/"+user.getUserImage().getFilename();
       		%>
       		<img src="<%=profilePhotoURL %>" width="75px" height="*"/>
       		<%
@@ -193,6 +201,7 @@
     		    String userProject="";
     		    String userStatement="";
     		    String userURL="";
+    		    String receiveEmails="checked=\"checked\"";
     		    boolean hasProfilePhoto=false;
     		    
     		    if((request.getParameter("isEdit")!=null)&&(myShepherd.getUser(request.getParameter("username").trim())!=null)){
@@ -204,6 +213,7 @@
     		    	if(thisUser.getEmailAddress()!=null){
     		    		localEmail=thisUser.getEmailAddress();
     		    	}
+    		    	if(!thisUser.getReceiveEmails()){receiveEmails="";}
     		    	if(thisUser.getFullName()!=null){
     		    		localFullName=thisUser.getFullName();
     		    	}
@@ -217,7 +227,7 @@
 				userURL=thisUser.getUserURL();
     		    	}
     		    	if(thisUser.getUserImage()!=null){
-    		    		profilePhotoURL="/"+CommonConfiguration.getDataDirectoryName()+"/users/"+thisUser.getUsername()+"/"+thisUser.getUserImage().getFilename();
+    		    		profilePhotoURL="/"+CommonConfiguration.getDataDirectoryName(context)+"/users/"+thisUser.getUsername()+"/"+thisUser.getUserImage().getFilename();
     		    	}
     		    	if(thisUser.getUserImage()!=null){hasProfilePhoto=true;}
     		    }
@@ -258,7 +268,7 @@
 		        		    	</td>
 		        	<form action="../UserCreate<%=isEditAddition %>" method="post" id="newUser">	    
     		    	<td><table width="100%" class="tissueSample">
-      				<tr><td colspan="4"><em>This function allows you to create a new user account and assign appropriate roles. Available roles are independently configured, listed in commonConfiguration.properties, and matched to the URL-based functions of the Shepherd Project in the Apache Shiro filter in web.xml.</em></td></tr>
+      				<tr><td colspan="3"><em>This function allows you to create a new user account and assign appropriate roles. Available roles are independently configured, listed in commonConfiguration.properties, and matched to the URL-based functions of the Shepherd Project in the Apache Shiro filter in web.xml.</em></td></tr>
       				<tr>
             			
                         <%
@@ -275,13 +285,38 @@
                         <td>Confirm Password: <input name="password2" type="password" size="15" maxlength="90" <%=disabled %>></input></td>
                         
                         
-                        <td> Roles (multi-select): 
-                        	<select multiple="multiple" name="rolename" id="rolename" size="5" required="required">
+
+            		</tr>
+                    <tr><td colspan="3">Full name: <input name="fullName" type="text" size="15" maxlength="90" value="<%=localFullName %>"></input></td></tr>
+                    <tr><td colspan="2">Email address: <input name="emailAddress" type="text" size="15" maxlength="90" value="<%=localEmail %>"></input></td><td colspan="1">Receive automated emails? <input type="checkbox" name="receiveEmails" value="receiveEmails" <%=receiveEmails %>/></td></tr>
+                    <tr><td colspan="3">Affiliation: <input name="affiliation" type="text" size="15" maxlength="90" value="<%=localAffiliation %>"></input></td></tr>
+                     <tr><td colspan="3">Research Project: <input name="userProject" type="text" size="15" maxlength="90" value="<%=userProject %>"></input></td></tr>
+                          
+                    <tr><td colspan="3">Project URL: <input name="userURL" type="text" size="15" maxlength="90" value="<%=userURL %>"></input></td></tr>
+		     <tr><td colspan="3" valign="top">User Statement (255 char. max): <textarea name="userStatement" size="100" maxlength="255"><%=userStatement%></textarea></td></tr>                  
+                    
+                    <tr><td colspan="3"><input name="Create" type="submit" id="Create" value="Create" /></td></tr>
+            </table>
+            </td>
+            <td>
+            <table>
+           
+            <%
+            ArrayList<String> contexts=ContextConfiguration.getContextNames();
+            int numContexts=contexts.size();
+            for(int d=0;d<numContexts;d++){
+            	%>
+            	 <tr>
+            <td>
+            
+            
+            Roles for <%=ContextConfiguration.getNameForContext(("context"+d)) %>(multi-select): 
+                        	<select multiple="multiple" name="context<%=d %>rolename" id="rolename" size="5" required="required">
 								<%
 								for(int q=0;q<numRoles;q++){
 									String selected="";
 									if((request.getParameter("isEdit")!=null)&&(myShepherd.getUser(request.getParameter("username").trim())!=null)){
-										if(myShepherd.doesUserHaveRole(request.getParameter("username").trim(),roles.get(q))){
+										if(myShepherd.doesUserHaveRole(request.getParameter("username").trim(),roles.get(q),("context"+d))){
 											selected="selected=\"true\"";
 										}
 									}
@@ -294,24 +329,44 @@
 								%>
                                 
             				</select>
-                        </td>	
-            		</tr>
-                    <tr><td colspan="4">Full name: <input name="fullName" type="text" size="15" maxlength="90" value="<%=localFullName %>"></input></td></tr>
-                    <tr><td colspan="4">Email address: <input name="emailAddress" type="text" size="15" maxlength="90" value="<%=localEmail %>"></input></td></tr>
-                    <tr><td colspan="4">Affiliation: <input name="affiliation" type="text" size="15" maxlength="90" value="<%=localAffiliation %>"></input></td></tr>
-                     <tr><td colspan="4">Research Project: <input name="userProject" type="text" size="15" maxlength="90" value="<%=userProject %>"></input></td></tr>
-                          
-                    <tr><td colspan="4">Project URL: <input name="userURL" type="text" size="15" maxlength="90" value="<%=userURL %>"></input></td></tr>
-		     <tr><td colspan="4" valign="top">User Statement (255 char. max): <textarea name="userStatement" size="100" maxlength="255"><%=userStatement%></textarea></td></tr>                  
-                    
-                    <tr><td colspan="4"><input name="Create" type="submit" id="Create" value="Create" /></td></tr>
+            
+            
+            </td>
+            </tr>
+            <%	
+            }
+            %>
+            
             </table>
-            </td></form>
+				
+            </td>	
+            
+            
+            </form>
             </tr>
             </table>
     	
     </p>
-	
+    <%
+    if((CommonConfiguration.getProperty("showUserAgreement",context)!=null)&&(CommonConfiguration.getProperty("showUserAgreement",context).equals("true"))){
+    %>
+            <p>&nbsp;</p>
+      <table class="tissueSample" style="border: 1px solid black;" width="100%" border="1">
+        <tr>
+          <td>
+            <p><font size="+1">Reset User Agreement Acceptance for All Users</font></p>
+            <p>This command resets all User accounts such that each user must reaccept the User Agreement upon the next login.</p>
+
+            <form name="UserResetAcceptedUserAgreement" method="post" action="../UserResetAcceptedUserAgreement">
+
+              <input name="UserResetAcceptedUserAgreementButton" type="submit" id="UserResetAcceptedUserAgreementButton" value="Reset">
+              </p></form>
+          </td>
+        </tr>
+      </table>
+	<%
+	}
+	%>
       <jsp:include page="../footer.jsp" flush="true"/>
     </div>
   </div>
