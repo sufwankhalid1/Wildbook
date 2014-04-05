@@ -25,7 +25,7 @@ public class ReadExcelSpermWhales {
   public void read() throws IOException  {
     File inputWorkbook = new File(inputFile);
     Workbook w;
-    Shepherd myShepherd=new Shepherd();
+    Shepherd myShepherd=new Shepherd("context0");
     myShepherd.beginDBTransaction();
     try {
       w = Workbook.getWorkbook(inputWorkbook);

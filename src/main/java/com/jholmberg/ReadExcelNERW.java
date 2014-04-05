@@ -24,7 +24,7 @@ public class ReadExcelNERW {
   public void read() throws IOException  {
     File inputWorkbook = new File(inputFile);
     Workbook w;
-    Shepherd myShepherd=new Shepherd();
+    Shepherd myShepherd=new Shepherd("context0");
     Random ran=new Random();
     
     myShepherd.beginDBTransaction();
