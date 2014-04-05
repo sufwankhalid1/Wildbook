@@ -144,45 +144,26 @@ context=ServletUtilities.getContext(request);
       <jsp:param name="isAdmin" value="<%=request.isUserInRole(\"admin\")%>" />
     </jsp:include>
     <div id="main">
-      
-      <div id="maincol-wide0solo">
 
-        <div id="maintext">
-          <h1 class="intro">Overview</h1>
+	<%
+	if(context.equals("context0")){
+	%>
+	    <jsp:include page="indexHectors.jsp" flush="true"></jsp:include>
+	<%
+	}
+	else if(context.equals("context1")){
+	%>
+	<jsp:include page="indexNARW.jsp" flush="true"></jsp:include>
+	<%
+	}
+	else if(context.equals("context2")){
+	%>
+	<jsp:include page="indexGeneGIS.jsp" flush="true"></jsp:include>
+	<%
+	}
+	%>
 
-          <p class="caption">Welcome to Wildbook! This is the main landing page of this project. You can customize this page (index.jsp) to present details about your project and species.</p>
-          <br/>
-        </div>
-
-        <div>
-          <h1 class="intro">Data Contributors</h1>
-
-          <p class="caption">A great optional area to discuss who is contributing data to this
-            library...</p>
-        </div>
-
-        <div id="context">
-          <h1 class="intro">Contact us</h1>
-
-          <p class="caption">A great place to talk about who is running this mark-recapture
-            library...</p>
-
-          <p class="caption"><a href="contactus.jsp">Please contact us
-            with your questions.</a></p>
-        </div>
-
-
-      </div>
-      <!-- end maincol -->
-      <div id="rightcol">
-
-
-
-
-
-
-      </div>
-      <!-- end rightcol --></div>
+	</div>
     <!-- end main -->
     <jsp:include page="footer.jsp" flush="true"/>
   </div>
