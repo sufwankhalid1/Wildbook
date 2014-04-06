@@ -161,6 +161,11 @@ context=ServletUtilities.getContext(request);
 	<jsp:include page="indexGeneGIS.jsp" flush="true"></jsp:include>
 	<%
 	}
+	else if(context.equals("context3")){
+	%>
+	<jsp:include page="indexDemo.jsp" flush="true"></jsp:include>
+	<%
+	}
 	%>
 
 	</div>
