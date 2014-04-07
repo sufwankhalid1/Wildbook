@@ -909,17 +909,59 @@
   </servlet>
 
   <servlet>
-    <servlet-name>DataNucleus</servlet-name>
+    <servlet-name>DemoREST</servlet-name>
     <servlet-class>org.datanucleus.api.rest.RestServlet</servlet-class>
     <init-param>
       <param-name>persistence-context</param-name>
-      <param-value>ShepherdPMF</param-value>
+      <param-value>DemoPMF</param-value>
+    </init-param>
+  </servlet>
+  
+    <servlet>
+    <servlet-name>NARWREST</servlet-name>
+    <servlet-class>org.datanucleus.api.rest.RestServlet</servlet-class>
+    <init-param>
+      <param-name>persistence-context</param-name>
+      <param-value>NARWPMF</param-value>
+    </init-param>
+  </servlet>
+  
+      <servlet>
+    <servlet-name>hectorsREST</servlet-name>
+    <servlet-class>org.datanucleus.api.rest.RestServlet</servlet-class>
+    <init-param>
+      <param-name>persistence-context</param-name>
+      <param-value>HectorsPMF</param-value>
+    </init-param>
+  </servlet>
+  
+        <servlet>
+    <servlet-name>genegisREST</servlet-name>
+    <servlet-class>org.datanucleus.api.rest.RestServlet</servlet-class>
+    <init-param>
+      <param-name>persistence-context</param-name>
+      <param-value>GeneGISPMF</param-value>
     </init-param>
   </servlet>
 
+    <servlet-mapping>
+    <servlet-name>genegisREST</servlet-name>
+    <url-pattern>/rest/latestgenegis/*</url-pattern>
+  </servlet-mapping>
+  
+    <servlet-mapping>
+    <servlet-name>hectorsREST</servlet-name>
+    <url-pattern>/rest/hectors/*</url-pattern>
+  </servlet-mapping>
+  
   <servlet-mapping>
-    <servlet-name>DataNucleus</servlet-name>
-    <url-pattern>/rest/*</url-pattern>
+    <servlet-name>DemoREST</servlet-name>
+    <url-pattern>/rest/demo/*</url-pattern>
+  </servlet-mapping>
+  
+    <servlet-mapping>
+    <servlet-name>NARWREST</servlet-name>
+    <url-pattern>/rest/narw/*</url-pattern>
   </servlet-mapping>
 
 
