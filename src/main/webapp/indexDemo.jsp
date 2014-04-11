@@ -11,9 +11,9 @@
 
           <div class="module">
             <h3>Supporters</h3>
-            <image width="190px" height="*" src="http://www.wildbookdna.org/images/ONR_Logo_lg.jpeg" /><br />
-	    	              <image width="190px" height="*" src="http://www.wildbookdna.org/images/PL-Foundation-Logo-300x205.jpg" /><br />
-	              <image width="190px" height="*" src="http://www.wildbookdna.org/images/SPLASH-logo2.jpg" /><br />
+            <image width="190px" height="86px" src="http://www.wildbookdna.org/images/ONR_Logo_lg.jpeg" /><br />
+	    	              <image width="190px" height="130px" src="http://www.wildbookdna.org/images/PL-Foundation-Logo-300x205.jpg" /><br />
+	              <image width="190px" height="211px" src="http://www.wildbookdna.org/images/SPLASH-logo2.jpg" /><br />
 </span> <br/>
           </div>
 
