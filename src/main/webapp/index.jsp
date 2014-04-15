@@ -171,6 +171,11 @@ context=ServletUtilities.getContext(request);
 	<jsp:include page="indexSpermWhales.jsp" flush="true"></jsp:include>
 	<%
 	}
+	else if(context.equals("context5")){
+	%>
+	<jsp:include page="indexTonga.jsp" flush="true"></jsp:include>
+	<%
+	}
 	%>
 
 
