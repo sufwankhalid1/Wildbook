@@ -19,9 +19,13 @@
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <%@ page contentType="text/html; charset=utf-8" pageEncoding="UTF-8" language="java"
-         import="java.util.ArrayList,org.ecocean.*, org.ecocean.Util, java.util.GregorianCalendar, java.util.Properties, java.util.List" %>
+         import="org.ecocean.servlet.ServletUtilities,java.util.ArrayList,org.ecocean.*, org.ecocean.Util, java.util.GregorianCalendar, java.util.Properties, java.util.List" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>         
 <%
+
+String context="context0";
+context=ServletUtilities.getContext(request);
+
   GregorianCalendar cal = new GregorianCalendar();
   int nowYear = cal.get(1);
 //setup our Properties object to hold all properties
@@ -42,7 +46,9 @@
   }
 
   //set up the file input stream
-  props.load(getClass().getResourceAsStream("/bundles/" + langCode + "/submit.properties"));
+  //props.load(getClass().getResourceAsStream("/bundles/" + langCode + "/submit.properties"));
+  props = ShepherdProperties.getProperties("submit.properties", langCode);
+
 
 
   //load our variables for the submit page
@@ -80,23 +86,18 @@
 
 <html>
 <head>
-  <title><%=CommonConfiguration.getHTMLTitle() %>
+  <title><%=CommonConfiguration.getHTMLTitle(context) %>
   </title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
   <meta name="Description"
-        content="<%=CommonConfiguration.getHTMLDescription() %>"/>
+        content="<%=CommonConfiguration.getHTMLDescription(context) %>"/>
   <meta name="Keywords"
-        content="<%=CommonConfiguration.getHTMLKeywords() %>"/>
-  <meta name="Author" content="<%=CommonConfiguration.getHTMLAuthor() %>"/>
-  <link href="<%=CommonConfiguration.getCSSURLLocation(request) %>"
+        content="<%=CommonConfiguration.getHTMLKeywords(context) %>"/>
+  <meta name="Author" content="<%=CommonConfiguration.getHTMLAuthor(context) %>"/>
+  <link href="<%=CommonConfiguration.getCSSURLLocation(request,context) %>"
         rel="stylesheet" type="text/css"/>
   <link rel="shortcut icon"
-        href="<%=CommonConfiguration.getHTMLShortcutIcon() %>"/>
-        
-        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js"></script>
- <script type="text/javascript" src="http://geoxml3.googlecode.com/svn/branches/polys/geoxml3.js"></script>
- <script src="http://maps.google.com/maps/api/js?sensor=false"></script>
- 
+        href="<%=CommonConfiguration.getHTMLShortcutIcon(context) %>"/>
 
   <script language="javascript" type="text/javascript">
     <!--
@@ -138,32 +139,7 @@
 
 </head>
 
-<style type="text/css">
-.full_screen_map {
-position: absolute !important;
-top: 0px !important;
-left: 0px !important;
-z-index: 1 !imporant;
-width: 100% !important;
-height: 100% !important;
-margin-top: 0px !important;
-margin-bottom: 8px !important;
-</style>
-
-<script>
-  function resetMap() {
-    var ne_lat_element = document.getElementById('lat');
-    var ne_long_element = document.getElementById('longitude');
-
-
-    ne_lat_element.value = "";
-    ne_long_element.value = "";
-
-  }
-
-</script>
-
-<body onload="resetMap()" onunload="resetMap()">
+<body>
 <div id="wrapper">
 <div id="page">
 <jsp:include page="header.jsp" flush="true">
@@ -173,153 +149,6 @@ margin-bottom: 8px !important;
 <div id="main">
 
 <div id="maincol-wide-solo">
-
-
-
-<script type="text/javascript">
-//alert("Prepping map functions.");
-var center = new google.maps.LatLng(10.8, 160.8);
-
-var map;
-
-
-
-var marker;
-
-function placeMarker(location) {
-	if(marker!=null){marker.setMap(null);}  
-	marker = new google.maps.Marker({
-	      position: location,
-	      map: map
-	  });
-
-	  //map.setCenter(location);
-	  
-	    var ne_lat_element = document.getElementById('lat');
-	    var ne_long_element = document.getElementById('longitude');
-
-
-	    ne_lat_element.value = location.lat();
-	    ne_long_element.value = location.lng();
-	}
-
-  function initialize() {
-	//alert("initializing map!");
-	
-	var mapZoom = 3;
-	if($("#map_canvas").hasClass("full_screen_map")){mapZoom=3;}
-
-
-	if(marker!=null){
-		center = new google.maps.LatLng(10.8, 160.8);
-	}
-	
-	map = new google.maps.Map(document.getElementById('map_canvas'), {
-		  zoom: mapZoom,
-		  center: center,
-		  mapTypeId: google.maps.MapTypeId.HYBRID
-		});
-	
-	if(marker!=null){
-		marker.setMap(map);    
-	}
-
-	  //adding the fullscreen control to exit fullscreen
-	  var fsControlDiv = document.createElement('DIV');
-	  var fsControl = new FSControl(fsControlDiv, map);
-	  fsControlDiv.index = 1;
-	  map.controls[google.maps.ControlPosition.TOP_RIGHT].push(fsControlDiv);
-
-	  google.maps.event.addListener(map, 'click', function(event) {
-		    placeMarker(event.latLng);
-		  });
- }
-  
- 
-
- 
-
-
-function fullScreen(){
-	$("#map_canvas").addClass('full_screen_map');
-	$('html, body').animate({scrollTop:0}, 'slow');
-	initialize();
-	
-	//hide header
-	$("#header_menu").hide();
-	
-	//if(overlaysSet){overlaysSet=false;setOverlays();}
-	//alert("Trying to execute fullscreen!");
-}
-
-
-function exitFullScreen() {
-	$("#header_menu").show();
-	$("#map_canvas").removeClass('full_screen_map');
-
-	initialize();
-	//if(overlaysSet){overlaysSet=false;setOverlays();}
-	//alert("Trying to execute exitFullScreen!");
-}
-
-
-//making the exit fullscreen button
-function FSControl(controlDiv, map) {
-
-  // Set CSS styles for the DIV containing the control
-  // Setting padding to 5 px will offset the control
-  // from the edge of the map
-  controlDiv.style.padding = '5px';
-
-  // Set CSS for the control border
-  var controlUI = document.createElement('DIV');
-  controlUI.style.backgroundColor = '#f8f8f8';
-  controlUI.style.borderStyle = 'solid';
-  controlUI.style.borderWidth = '1px';
-  controlUI.style.borderColor = '#a9bbdf';;
-  controlUI.style.boxShadow = '0 1px 3px rgba(0,0,0,0.5)';
-  controlUI.style.cursor = 'pointer';
-  controlUI.style.textAlign = 'center';
-  controlUI.title = 'Toggle the fullscreen mode';
-  controlDiv.appendChild(controlUI);
-
-  // Set CSS for the control interior
-  var controlText = document.createElement('DIV');
-  controlText.style.fontSize = '12px';
-  controlText.style.fontWeight = 'bold';
-  controlText.style.color = '#000000';
-  controlText.style.paddingLeft = '4px';
-  controlText.style.paddingRight = '4px';
-  controlText.style.paddingTop = '3px';
-  controlText.style.paddingBottom = '2px';
-  controlUI.appendChild(controlText);
-  //toggle the text of the button
-   if($("#map_canvas").hasClass("full_screen_map")){
-      controlText.innerHTML = 'Exit Fullscreen';
-    } else {
-      controlText.innerHTML = 'Fullscreen';
-    }
-
-  // Setup the click event listeners: toggle the full screen
-
-  google.maps.event.addDomListener(controlUI, 'click', function() {
-
-   if($("#map_canvas").hasClass("full_screen_map")){
-    exitFullScreen();
-    } else {
-    fullScreen();
-    }
-  });
-
-}
-
-
-  google.maps.event.addDomListener(window, 'load', initialize);
-  
-  
-    </script>
-
-
 
 <div id="maintext">
   <h1 class="intro"><%=props.getProperty("submit_report")%>
@@ -408,7 +237,7 @@ function FSControl(controlDiv, map) {
 </tr>
 
 <%
-  pageContext.setAttribute("showReleaseDate", CommonConfiguration.showReleaseDate());
+  pageContext.setAttribute("showReleaseDate", CommonConfiguration.showReleaseDate(context));
 %>
 <c:if test="${showReleaseDate}">
     <tr class="form_row">
@@ -479,24 +308,24 @@ function FSControl(controlDiv, map) {
 </tr>
 <%
 
-if(CommonConfiguration.showProperty("showTaxonomy")){
+if(CommonConfiguration.showProperty("showTaxonomy",context)){
 
 %>
 <tr class="form_row">
   <td class="form_label"><strong><%=props.getProperty("species")%>:</strong></td>
   <td colspan="2">
   <select name="genusSpecies" id="genusSpecies">
-  	
+  	<option value="" selected="selected"><%=props.getProperty("submit_unsure")%></option>
   <%
   			       boolean hasMoreTax=true;
   			       int taxNum=0;
-  			       if(CommonConfiguration.showProperty("showTaxonomy")){
+  			       if(CommonConfiguration.showProperty("showTaxonomy",context)){
   			       while(hasMoreTax){
   			       	  String currentGenuSpecies = "genusSpecies"+taxNum;
-  			       	  if(CommonConfiguration.getProperty(currentGenuSpecies)!=null){
+  			       	  if(CommonConfiguration.getProperty(currentGenuSpecies,context)!=null){
   			       	  	%>
   			       	  	 
-  			       	  	  <option value="<%=CommonConfiguration.getProperty(currentGenuSpecies)%>"><%=CommonConfiguration.getProperty(currentGenuSpecies).replaceAll("_"," ")%></option>
+  			       	  	  <option value="<%=CommonConfiguration.getProperty(currentGenuSpecies,context)%>"><%=CommonConfiguration.getProperty(currentGenuSpecies,context).replaceAll("_"," ")%></option>
   			       	  	<%
   			       		taxNum++;
   			          }
@@ -517,7 +346,7 @@ if(CommonConfiguration.showProperty("showTaxonomy")){
 <tr class="form_row">
   <td class="form_label" rowspan="5"><strong><font
     color="#CC0000"><%=props.getProperty("submit_location")%>:</font></strong></td>
-  <td colspan="2"><strong>Description:</strong> <input name="location" type="text" id="location" size="40"/></td>
+  <td colspan="2"><input name="location" type="text" id="location" size="40"/></td>
 </tr>
 <%
 //add locationID to fields selectable
@@ -534,10 +363,10 @@ if(CommonConfiguration.showProperty("showTaxonomy")){
 	  			       
 	  			       while(hasMoreLocationsIDs){
 	  			       	  String currentLocationID = "locationID"+locNum;
-	  			       	  if(CommonConfiguration.getProperty(currentLocationID)!=null){
+	  			       	  if(CommonConfiguration.getProperty(currentLocationID,context)!=null){
 	  			       	  	%>
 	  			       	  	 
-	  			       	  	  <option value="<%=CommonConfiguration.getProperty(currentLocationID)%>"><%=CommonConfiguration.getProperty(currentLocationID)%></option>
+	  			       	  	  <option value="<%=CommonConfiguration.getProperty(currentLocationID,context)%>"><%=CommonConfiguration.getProperty(currentLocationID,context)%></option>
 	  			       	  	<%
 	  			       		locNum++;
 	  			          }
@@ -555,7 +384,7 @@ if(CommonConfiguration.showProperty("showTaxonomy")){
 <%
 
 
-if(CommonConfiguration.showProperty("showCountry")){
+if(CommonConfiguration.showProperty("showCountry",context)){
 
 %>
 
@@ -570,10 +399,10 @@ if(CommonConfiguration.showProperty("showCountry")){
 	  			       
 	  			       while(hasMoreCountries){
 	  			       	  String currentCountry = "country"+taxNum;
-	  			       	  if(CommonConfiguration.getProperty(currentCountry)!=null){
+	  			       	  if(CommonConfiguration.getProperty(currentCountry,context)!=null){
 	  			       	  	%>
 	  			       	  	 
-	  			       	  	  <option value="<%=CommonConfiguration.getProperty(currentCountry)%>"><%=CommonConfiguration.getProperty(currentCountry)%></option>
+	  			       	  	  <option value="<%=CommonConfiguration.getProperty(currentCountry,context)%>"><%=CommonConfiguration.getProperty(currentCountry,context)%></option>
 	  			       	  	<%
 	  			       		taxNum++;
 	  			          }
@@ -596,42 +425,34 @@ if(CommonConfiguration.showProperty("showCountry")){
 }  //end if showCountry
 
 %>
-
-<tr class="form_row"><td colspan="2">
-    <p id="map">
-      <p>Use the arrow and +/- keys to navigate to a portion of the globe,, then click
-        a point to set the sighting location. You can also use the text boxes below the map to specify exact
-        latitude and longitude.</p>
-
-      	<p id="map_canvas" style="width: 578px; height: 383px; "></p>
-      		<p id="map_overlay_buttons"></p>
-    </p>
-</td>
-</tr>
+<tr class="form_row">
+		<td class="form_label1"><strong><%=props.getProperty("submit_gpslatitude")%>:</strong></td>
+		<td>
+		<input name="lat" type="text" id="lat" size="10" />
+		&deg;
+		</td>
+	</tr>
+	
 	<tr class="form_row">
-		<td class="form_label1" colspan="2">
-		<strong><%=props.getProperty("submit_gpslatitude")%>:</strong>
-		
-			<input name="lat" type="text" id="lat" size="10" /> &deg;
-			<strong><%=props.getProperty("submit_gpslongitude")%>:</strong>
-		<input name="longitude" type="text" id="longitude" size="10" />
+		<td class="form_label1"><strong><%=props.getProperty("submit_gpslongitude")%>:</strong></td>
+		<td>
+			<input name="longitude" type="text" id="longitude" size="10" />
+	
 		&deg;
 		<br/>
 		<br/> GPS coordinates are in the decimal degrees
 		format. Do you have GPS coordinates in a different format? <a
 			href="http://www.csgnetwork.com/gpscoordconv.html" target="_blank">Click
 		here to find a converter.</a>
-			</td>
+		</td>
 	</tr>
-	
-
 	
 	
 	      <%
 
 
 
-if(CommonConfiguration.showProperty("maximumDepthInMeters")){
+if(CommonConfiguration.showProperty("maximumDepthInMeters",context)){
 %>
 <tr class="form_row">
   <td class="form_label"><strong><%=props.getProperty("submit_depth")%>:</strong></td>
@@ -645,7 +466,7 @@ if(CommonConfiguration.showProperty("maximumDepthInMeters")){
 %>
 
 <%
-if(CommonConfiguration.showProperty("maximumElevationInMeters")){
+if(CommonConfiguration.showProperty("maximumElevationInMeters",context)){
 %>
 <tr class="form_row">
   <td class="form_label"><strong><%=props.getProperty("submit_elevation")%>:</strong></td>
@@ -673,7 +494,7 @@ if(CommonConfiguration.showProperty("maximumElevationInMeters")){
 </tr>
 <%
 
-if(CommonConfiguration.showProperty("showLifestage")){
+if(CommonConfiguration.showProperty("showLifestage",context)){
 
 %>
 <tr class="form_row">
@@ -687,10 +508,10 @@ if(CommonConfiguration.showProperty("showLifestage")){
   			       
   			       while(hasMoreStages){
   			       	  String currentLifeStage = "lifeStage"+stageNum;
-  			       	  if(CommonConfiguration.getProperty(currentLifeStage)!=null){
+  			       	  if(CommonConfiguration.getProperty(currentLifeStage,context)!=null){
   			       	  	%>
   			       	  	 
-  			       	  	  <option value="<%=CommonConfiguration.getProperty(currentLifeStage)%>"><%=CommonConfiguration.getProperty(currentLifeStage)%></option>
+  			       	  	  <option value="<%=CommonConfiguration.getProperty(currentLifeStage,context)%>"><%=CommonConfiguration.getProperty(currentLifeStage,context)%></option>
   			       	  	<%
   			       		stageNum++;
   			          }
@@ -707,12 +528,12 @@ if(CommonConfiguration.showProperty("showLifestage")){
 }
 %>
 <%
-    pageContext.setAttribute("showMeasurements", CommonConfiguration.showMeasurements());
+    pageContext.setAttribute("showMeasurements", CommonConfiguration.showMeasurements(context));
 %>
 <c:if test="${showMeasurements}">
 <%
-    pageContext.setAttribute("items", Util.findMeasurementDescs(langCode));
-    pageContext.setAttribute("samplingProtocols", Util.findSamplingProtocols(langCode));
+    pageContext.setAttribute("items", Util.findMeasurementDescs(langCode,context));
+    pageContext.setAttribute("samplingProtocols", Util.findSamplingProtocols(langCode,context));
 %>
 <tr class="form_row">
   <td class="form_label"><strong><%=props.getProperty("measurements")%>:</strong></td>
@@ -742,10 +563,10 @@ if(CommonConfiguration.showProperty("showLifestage")){
 </tr>
 </c:if>
 <%
-  pageContext.setAttribute("showMetalTags", CommonConfiguration.showMetalTags());
-  pageContext.setAttribute("showAcousticTag", CommonConfiguration.showAcousticTag());
-  pageContext.setAttribute("showSatelliteTag", CommonConfiguration.showSatelliteTag());
-  pageContext.setAttribute("metalTags", Util.findMetalTagDescs(langCode));
+  pageContext.setAttribute("showMetalTags", CommonConfiguration.showMetalTags(context));
+  pageContext.setAttribute("showAcousticTag", CommonConfiguration.showAcousticTag(context));
+  pageContext.setAttribute("showSatelliteTag", CommonConfiguration.showSatelliteTag(context));
+  pageContext.setAttribute("metalTags", Util.findMetalTagDescs(langCode,context));
 %>
 
 <c:if test="${showMetalTags and !empty metalTags}">
@@ -787,7 +608,7 @@ if(CommonConfiguration.showProperty("showLifestage")){
 
 <c:if test="${showSatelliteTag}">
 <%
-  pageContext.setAttribute("satelliteTagNames", Util.findSatelliteTagNames());
+  pageContext.setAttribute("satelliteTagNames", Util.findSatelliteTagNames(context));
 %>
 <tr class="form_row">
     <td class="form_label"><strong>Satellite Tag:</strong></td>
@@ -847,7 +668,7 @@ if(CommonConfiguration.showProperty("showLifestage")){
     String project="";
     if(request.getRemoteUser()!=null){
     	submitterName=request.getRemoteUser();
-    	Shepherd myShepherd=new Shepherd();
+    	Shepherd myShepherd=new Shepherd(context);
     	if(myShepherd.getUser(submitterName)!=null){
     		User user=myShepherd.getUser(submitterName);
     		if(user.getFullName()!=null){submitterName=user.getFullName();}
@@ -931,7 +752,6 @@ if(CommonConfiguration.showProperty("showLifestage")){
   name="submitterID" type="hidden" value="N/A"/> <%}%>
 <p align="center"><input type="submit" name="Submit" value="<%=props.getProperty("submit_send")%>"/>
 </p>
-
 
 <p>&nbsp;</p>
 </form>
