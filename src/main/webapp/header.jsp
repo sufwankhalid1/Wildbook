@@ -120,6 +120,10 @@ context=ServletUtilities.getContext(request);
 							while(moreStates){
 	  								String currentLifeState = "encounterState"+cNum;
 	  								if(CommonConfiguration.getProperty(currentLifeState,context)!=null){
+									
+										boolean ok2show = true;
+										if(CommonConfiguration.getProperty(currentLifeState,context).equals("unapproved")&&(request.getUserPrincipal()==null)){ok2show=false;}
+											if(ok2show){
 	  									%>
 										<li>
         									<a href="http://<%=CommonConfiguration.getURLLocation(request) %>/encounters/searchResults.jsp?state=<%=CommonConfiguration.getProperty(currentLifeState,context) %>" class="enclose" style="margin: 0px 0 0px 0px; position: relative; width: 210px; height: 25px;z-index: 100;">
@@ -127,7 +131,9 @@ context=ServletUtilities.getContext(request);
         									</a>
         								</li>
 										<%
+										}
 										cNum++;
+										
   									}
   									else{
      									moreStates=false;
