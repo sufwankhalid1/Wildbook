@@ -170,7 +170,7 @@ public class IndividualQueryProcessor {
 
 
             if(filter.equals(SELECT_FROM_ORG_ECOCEAN_INDIVIDUAL_WHERE)){filter+=("encounters.contains(enc97) &&"+ patterningCodeFilter);}
-            else{filter+=(" && "+patterningCodeFilter+" &&  encounters.contains(enc97) &&");}
+            else{filter+=(" && "+patterningCodeFilter+" &&  encounters.contains(enc97)");}
             if(!jdoqlVariableDeclaration.contains("org.ecocean.Encounter enc97")){jdoqlVariableDeclaration+=";org.ecocean.Encounter enc97";}
 
             prettyPrint.append("<br />");
@@ -231,7 +231,7 @@ public class IndividualQueryProcessor {
 
 
 	            if(filter.equals(SELECT_FROM_ORG_ECOCEAN_INDIVIDUAL_WHERE)){filter+=("encounters.contains(enc1515) &&"+ patterningCodeFilter);}
-	            else{filter+=(" && "+patterningCodeFilter+" &&  encounters.contains(enc1515) &&");}
+	            else{filter+=(" && "+patterningCodeFilter+" &&  encounters.contains(enc1515)");}
 	            if(!jdoqlVariableDeclaration.contains("org.ecocean.Encounter enc1515")){jdoqlVariableDeclaration+=";org.ecocean.Encounter enc1515";}
 
 	            prettyPrint.append("<br />");
@@ -292,7 +292,7 @@ public class IndividualQueryProcessor {
 
 
     // Measurement filters-----------------------------------------------
-    List<MeasurementDesc> measurementDescs = Util.findMeasurementDescs("us",context);
+    List<MeasurementDesc> measurementDescs = Util.findMeasurementDescs("en",context);
     String measurementPrefix = "measurement";
     StringBuilder measurementFilter = new StringBuilder(); //"( collectedData.contains(measurement) && (");
     boolean atLeastOneMeasurement = false;
@@ -365,7 +365,7 @@ public class IndividualQueryProcessor {
 
 
     // BiologicalMeasurement filters-----------------------------------------------
-    List<MeasurementDesc> bioMeasurementDescs = Util.findBiologicalMeasurementDescs("us",context);
+    List<MeasurementDesc> bioMeasurementDescs = Util.findBiologicalMeasurementDescs("en",context);
     String bioMeasurementPrefix = "biomeasurement";
     StringBuilder bioMeasurementFilter = new StringBuilder();
     bioMeasurementFilter.append("encounters.contains(enc) && enc.tissueSamples.contains(dce322) ");

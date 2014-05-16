@@ -30,10 +30,9 @@ String context="context0";
 context=ServletUtilities.getContext(request);
 
   //setup our Properties object to hold all properties
-  String langCode = "en";
-  if (session.getAttribute("langCode") != null) {
-    langCode = (String) session.getAttribute("langCode");
-  }
+  //String langCode = "en";
+  String langCode=ServletUtilities.getLanguageCode(request);
+  
 
 
 //set up the file input stream
@@ -84,7 +83,7 @@ context=ServletUtilities.getContext(request);
 
   <!-- Standard Content -->
   <!-- Body -->
-  <body bgcolor="#FFFFFF" link="#990000">
+  <body link="#990000">
   <center><!-- Login -->
 
     <div id="wrapper">
@@ -138,20 +137,20 @@ context=ServletUtilities.getContext(request);
               <form action="LoginUser" method="post">
     <table align="left" border="0" cellspacing="0" cellpadding="3">
         <tr>
-            <td>Username:</td>
+            <td><%=props.getProperty("username") %></td>
             <td><input type="text" name="username" maxlength="50" /></td>
         </tr>
         <tr>
-            <td>Password:</td>
+            <td><%=props.getProperty("password") %></td>
             <td><input type="password" name="password" maxlength="50" /></td>
         </tr>
         <tr>
         <td colspan="2" align="left">
-        <input type="checkbox" name="rememberMe" value="true"/> Remember Me? 
+        <input type="checkbox" name="rememberMe" value="true"/> <%=props.getProperty("rememberMe") %> 
         </td>
         </tr>
         <tr>
-            <td colspan="2" align="right"><input type="submit" name="submit" value="Login" /></td>
+            <td colspan="2" align="right"><input type="submit" name="submit" value="<%=props.getProperty("login") %>" /></td>
         </tr>
     </table>
 </form>

@@ -34,10 +34,9 @@
   context=ServletUtilities.getContext(request);
 
     //let's load encounterSearch.properties
-    String langCode = "en";
-    if (session.getAttribute("langCode") != null) {
-      langCode = (String) session.getAttribute("langCode");
-    }
+    //String langCode = "en";
+    String langCode=ServletUtilities.getLanguageCode(request);
+    
     Properties encprops = new Properties();
     //encprops.load(getClass().getResourceAsStream("/bundles/" + langCode + "/mappedSearchResults.properties"));
     encprops=ShepherdProperties.getProperties("mappedSearchResults.properties", langCode);
@@ -183,7 +182,6 @@ margin-bottom: 8px !important;
   
 
     <script src="http://maps.google.com/maps/api/js?sensor=false"></script>
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js"></script>
 
 
     <script type="text/javascript">

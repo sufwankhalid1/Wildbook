@@ -55,10 +55,9 @@ context=ServletUtilities.getContext(request);
 
 
   //setup our Properties object to hold all properties
-  String langCode = "en";
-  if (session.getAttribute("langCode") != null) {
-    langCode = (String) session.getAttribute("langCode");
-  }
+  //String langCode = "en";
+  String langCode=ServletUtilities.getLanguageCode(request);
+  
 
 
   //set up the file input stream
@@ -75,7 +74,7 @@ context=ServletUtilities.getContext(request);
   ;
 %>
 
-<body bgcolor="#FFFFFF">
+<body>
 <div id="wrapper">
   <div id="page">
     <jsp:include page="header.jsp" flush="true">
@@ -103,7 +102,7 @@ context=ServletUtilities.getContext(request);
 			Shepherd myShepherd=new Shepherd("context0");
 			myShepherd.beginDBTransaction();
 			%>
-             <strong><%=myShepherd.getAllRolesForUserAsString(request.getRemoteUser()).replaceAll("\r","<br />")%></strong></p>
+             <em><%=myShepherd.getAllRolesForUserAsString(request.getRemoteUser()).replaceAll("\r","<br />")%></em></p>
             
             <%
             

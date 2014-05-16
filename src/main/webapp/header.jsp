@@ -2,8 +2,8 @@
          import="java.util.ArrayList,org.ecocean.servlet.ServletUtilities,org.apache.commons.lang.WordUtils,org.ecocean.*, java.util.Properties" %>
 
 <%--
-  ~ The Shepherd Project - A Mark-Recapture Framework
-  ~ Copyright (C) 2011-2013 Jason Holmberg
+  ~ Wildbook - A Mark-Recapture Framework
+  ~ Copyright (C) 2011-2014 Jason Holmberg
   ~
   ~ This program is free software; you can redistribute it and/or
   ~ modify it under the terms of the GNU General Public License
@@ -39,11 +39,9 @@ context=ServletUtilities.getContext(request);
 
 //setup our Properties object to hold all properties
   Properties props = new Properties();
-  String langCode = "en";
-
-  if (session.getAttribute("langCode") != null) {
-    langCode = (String) session.getAttribute("langCode");
-  }
+  //String langCode = "en";
+  String langCode=ServletUtilities.getLanguageCode(request);
+  
 
   //set up the file input stream
   //props.load(getClass().getResourceAsStream("/bundles/" + langCode + "/header.properties"));
@@ -168,10 +166,10 @@ context=ServletUtilities.getContext(request);
         		<%=props.getProperty("viewMySubmissions")%>
         	</a>
         </li>
-        <%
-        }
-        %>
+     <%
      
+     }
+     %>
 
 
       </ul>
@@ -191,26 +189,26 @@ context=ServletUtilities.getContext(request);
         <li>
           <a href="http://<%=CommonConfiguration.getURLLocation(request) %>/encounters/encounterSearch.jsp"
              class="enclose"
-             style="margin: 0px 0 0px 0px; position: relative; width: 150px; height: 25px;">
+             style="margin: 0px 0 0px 0px; position: relative; width: 250px; height: 25px;">
             <%=props.getProperty("encounterSearch")%>
           </a></li>
         <li><a
           href="http://<%=CommonConfiguration.getURLLocation(request) %>/individualSearch.jsp"
           class="enclose"
-          style="margin: 0px 0 0px 0px; position: relative; width: 150px; height: 25px;"><%=props.getProperty("individualSearch")%>
+          style="margin: 0px 0 0px 0px; position: relative; width: 250px; height: 25px;"><%=props.getProperty("individualSearch")%>
         </a></li>
         
         <li>
 	          <a href="http://<%=CommonConfiguration.getURLLocation(request) %>/encounters/searchComparison.jsp"
 	             class="enclose"
-	             style="margin: 0px 0 0px 0px; position: relative; width: 150px; height: 25px;">
+	             style="margin: 0px 0 0px 0px; position: relative; width: 250px; height: 25px;">
 	            <%=props.getProperty("locationSearch")%>
         </a></li>
         
         <li><a
           href="http://<%=CommonConfiguration.getURLLocation(request) %>/googleSearch.jsp"
           class="enclose"
-          style="margin: 0px 0 0px 0px; position: relative; width: 150px; height: 25px;"><%=props.getProperty("googleSearch")%>
+          style="margin: 0px 0 0px 0px; position: relative; width: 250px; height: 25px;"><%=props.getProperty("googleSearch")%>
         </a></li>
 
       </ul>
@@ -240,6 +238,19 @@ context=ServletUtilities.getContext(request);
           style="margin: 0px 0 0px 0px; position: relative; width: 190px; height: 25px;"><%=props.getProperty("userWiki")%>
         </a></li>
         <% } %>
+
+	<%
+      if(request.getUserPrincipal()!=null){
+      %>
+        <li>
+        	<a href="http://<%=CommonConfiguration.getURLLocation(request) %>/myAccount.jsp" class="enclose" style="margin: 0px 0 0px 0px; position: relative; width: 190px; height: 25px;">
+        		<%=props.getProperty("myAccount")%>
+        	</a>
+        </li>
+     <%
+     
+     }
+     %>
 
         <li><a
           href="http://<%=CommonConfiguration.getURLLocation(request) %>/appadmin/admin.jsp"
@@ -376,28 +387,95 @@ if(CommonConfiguration.isCatalogEditable(context)){
 
   </ul>
 </div>
-<div id="header_menu" style="background-color: #D7E0ED">
+
+<!-- define our JavaScript -->
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+	<script type="text/javascript" src="http://<%=CommonConfiguration.getURLLocation(request) %>/javascript/jquery.cookie.js"></script>
+	<script type="text/javascript">
+  $(function() {
+    $( "[id^=flag_]" ).tooltip();
+  });
+</script>
+<div id="header_menu" style="background-color: #D7E0ED;clear: left">
 <table width="810px">
 	<tr>
 		<td class="caption" class="caption" style="text-align: left;" align="left">
-		<table><tr><td>Find record:</td><td><form name="form2" method="get" action="http://<%=CommonConfiguration.getURLLocation(request) %>/individuals.jsp">
+		<table><tr><td><%=props.getProperty("findRecord") %></td><td><form name="form2" method="get" action="http://<%=CommonConfiguration.getURLLocation(request) %>/individuals.jsp">
             <input name="number" type="text" id="shark" size="25"/>
             <input type="hidden" name="langCode" value="<%=langCode%>"/>
-            <input name="Go" type="submit" id="Go2" value="Go"/>
+            <input name="Go" type="submit" id="Go2" value="<%=props.getProperty("search")%>"/>
           </form></td></table>
 		 
 		          
 		</td>
+		
 		<%
+		ArrayList<String> supportedLanguages=CommonConfiguration.getSequentialPropertyValues("language", context);
+		int numSupportedLanguages=supportedLanguages.size();
+		
+		if(numSupportedLanguages>1){
+		%>
+			<td class="caption" class="caption" style="text-align: left;" align="left">
+				<table align="left">
+				<tr>
+					<td><%=props.getProperty("selectLanguage") %></td>
+					<td>
+					
+					<%
+					for(int h=0;h<numSupportedLanguages;h++){
+						String selected="";
+						if(ServletUtilities.getLanguageCode(request).equals(supportedLanguages.get(h))){selected="selected=\"selected\"";}
+						String myLang=supportedLanguages.get(h);
+					%>
+						<img style="cursor: pointer" id="flag_<%=myLang %>" title="<%=CommonConfiguration.getProperty(myLang, context) %>" src="http://<%=CommonConfiguration.getURLLocation(request) %>/images/flag_<%=myLang %>.gif" />
+						<script type="text/javascript">
+	
+							$( "#flag_<%=myLang%>" ).click(function() {
+		
+								//alert( "Handler for .change() called with new value: "+$( "#langCode option:selected" ).text() +" with value "+ $( "#langCode option:selected").val());
+								$.cookie("wildbookLangCode", "<%=myLang%>", {
+			   						path    : '/',          //The value of the path attribute of the cookie 
+			                           //(default: path of page that created the cookie).
+		   
+			   						secure  : false          //If set to true the secure attribute of the cookie
+			                           //will be set and the cookie transmission will
+			                           //require a secure protocol (defaults to false).
+								});
+			
+								//alert("I have set the wildbookContext cookie to value: "+$.cookie("wildbookContext"));
+								location.reload(true);
+			
+							});
+	
+						</script>
+					<%
+					}
+					%>
+				
+			
+					</td>
+				</tr>
+			</table>
+			
+			<td>
+		
+		<%
+		}
+		
+		
+		
 		ArrayList<String> contextNames=ContextConfiguration.getContextNames();
 		int numContexts=contextNames.size();
 		if(numContexts>1){
 		%>
 		
 		<td  class="caption" style="text-align: right;" align="right">
-		<table align="right"><tr><td>Switch context:</td>
-		<td><form>
-				<select id="context" name="context">
+			<table align="right">
+				<tr>
+					<td><%=props.getProperty("switchContext") %></td>
+					<td>
+						<form>
+							<select id="context" name="context">
 					<%
 					for(int h=0;h<numContexts;h++){
 						String selected="";
@@ -408,16 +486,21 @@ if(CommonConfiguration.isCatalogEditable(context)){
 					<%
 					}
 					%>
-				</select>
-			</form>
+							</select>
+						</form>
 			
-			</td></tr></table>
+					</td>
+				</tr>
+			</table>
 		 
 		</td>
-		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-	<script type="text/javascript" src="http://<%=CommonConfiguration.getURLLocation(request) %>/javascript/jquery.cookie.js"></script>
+			<%
+		}
+		%>
+		
 	<script type="text/javascript">
-		$( "#context" ).change(function() {
+		
+	$( "#context" ).change(function() {
 			
   			//alert( "Handler for .change() called with new value: "+$( "#context option:selected" ).text() +" with value "+ $( "#context option:selected").val());
   			$.cookie("wildbookContext", $( "#context option:selected").val(), {
@@ -433,11 +516,11 @@ if(CommonConfiguration.isCatalogEditable(context)){
   			location.reload(true);
   			
 		});
+	
 	</script>
 
-		<%
-		}
-		%>
+
+	
 	</tr>
 </table>
 

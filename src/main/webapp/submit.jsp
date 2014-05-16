@@ -1,6 +1,6 @@
 <%--
-  ~ The Shepherd Project - A Mark-Recapture Framework
-  ~ Copyright (C) 2011 Jason Holmberg
+  ~ Wildbook - A Mark-Recapture Framework
+  ~ Copyright (C) 2008-2014 Jason Holmberg
   ~
   ~ This program is free software; you can redistribute it and/or
   ~ modify it under the terms of the GNU General Public License
@@ -30,20 +30,9 @@ context=ServletUtilities.getContext(request);
   int nowYear = cal.get(1);
 //setup our Properties object to hold all properties
   Properties props = new Properties();
-  String langCode = "en";
-
-  //check what language is requested
-  if (request.getParameter("langCode") != null) {
-    if (request.getParameter("langCode").equals("fr")) {
-      langCode = "fr";
-    }
-    if (request.getParameter("langCode").equals("de")) {
-      langCode = "de";
-    }
-    if (request.getParameter("langCode").equals("es")) {
-      langCode = "es";
-    }
-  }
+  //String langCode = "en";
+  String langCode=ServletUtilities.getLanguageCode(request);
+  
 
   //set up the file input stream
   //props.load(getClass().getResourceAsStream("/bundles/" + langCode + "/submit.properties"));
@@ -51,36 +40,7 @@ context=ServletUtilities.getContext(request);
 
 
 
-  //load our variables for the submit page
-  String title = props.getProperty("submit_title");
-  String submit_maintext = props.getProperty("submit_maintext");
-  String submit_reportit = props.getProperty("reportit");
-  String submit_language = props.getProperty("language");
-  String what_do = props.getProperty("what_do");
-  String read_overview = props.getProperty("read_overview");
-  String see_all_encounters = props.getProperty("see_all_encounters");
-  String see_all_sharks = props.getProperty("see_all_sharks");
-  String report_encounter = props.getProperty("report_encounter");
-  String log_in = props.getProperty("log_in");
-  String contact_us = props.getProperty("contact_us");
-  String search = props.getProperty("search");
-  String encounter = props.getProperty("encounter");
-  String shark = props.getProperty("shark");
-  String join_the_dots = props.getProperty("join_the_dots");
-  String menu = props.getProperty("menu");
-  String last_sightings = props.getProperty("last_sightings");
-  String more = props.getProperty("more");
-  String ws_info = props.getProperty("ws_info");
-  String about = props.getProperty("about");
-  String contributors = props.getProperty("contributors");
-  String forum = props.getProperty("forum");
-  String blog = props.getProperty("blog");
-  String area = props.getProperty("area");
-  String match = props.getProperty("match");
-  String click2learn = props.getProperty("click2learn");
-
-  //link path to submit page with appropriate language
-  String submitPath = "submit.jsp?langCode=" + langCode;
+  
 
 %>
 
@@ -110,7 +70,7 @@ context=ServletUtilities.getContext(request);
          * the value.length returns the length of the information entered
          * in the Submitter's Name field.
          */
-        requiredfields += "\n   *  Your name";
+        requiredfields += "\n   *  <%=props.getProperty("submit_name") %>";
       }
 
         /*         
@@ -126,7 +86,7 @@ context=ServletUtilities.getContext(request);
         */
 
       if (requiredfields != "") {
-        requiredfields = "Please correctly enter the following fields:\n" + requiredfields;
+        requiredfields = "<%=props.getProperty("pleaseFillIn") %>\n" + requiredfields;
         alert(requiredfields);
 // the alert function will popup the alert window
         return false;
@@ -139,13 +99,189 @@ context=ServletUtilities.getContext(request);
 
 </head>
 
-<body>
+
+<style type="text/css">
+.full_screen_map {
+position: absolute !important;
+top: 0px !important;
+left: 0px !important;
+z-index: 1 !imporant;
+width: 100% !important;
+height: 100% !important;
+margin-top: 0px !important;
+margin-bottom: 8px !important;
+</style>
+
+<script>
+  function resetMap() {
+    var ne_lat_element = document.getElementById('lat');
+    var ne_long_element = document.getElementById('longitude');
+
+
+    ne_lat_element.value = "";
+    ne_long_element.value = "";
+
+  }
+
+</script>
+
+<body onload="resetMap()" onunload="resetMap()">
 <div id="wrapper">
 <div id="page">
 <jsp:include page="header.jsp" flush="true">
 
   <jsp:param name="isAdmin" value="<%=request.isUserInRole(\"admin\")%>" />
 </jsp:include>
+
+ <script type="text/javascript" src="http://geoxml3.googlecode.com/svn/branches/polys/geoxml3.js"></script>
+ <script src="http://maps.google.com/maps/api/js?sensor=false&language=<%=langCode%>"></script>
+ 
+ 
+ 
+<script type="text/javascript">
+//alert("Prepping map functions.");
+var center = new google.maps.LatLng(10.8, 160.8);
+
+var map;
+
+
+
+var marker;
+
+function placeMarker(location) {
+	if(marker!=null){marker.setMap(null);}  
+	marker = new google.maps.Marker({
+	      position: location,
+	      map: map
+	  });
+
+	  //map.setCenter(location);
+	  
+	    var ne_lat_element = document.getElementById('lat');
+	    var ne_long_element = document.getElementById('longitude');
+
+
+	    ne_lat_element.value = location.lat();
+	    ne_long_element.value = location.lng();
+	}
+
+  function initialize() {
+	//alert("initializing map!");
+	
+	var mapZoom = 3;
+	if($("#map_canvas").hasClass("full_screen_map")){mapZoom=3;}
+
+
+	if(marker!=null){
+		center = new google.maps.LatLng(10.8, 160.8);
+	}
+	
+	map = new google.maps.Map(document.getElementById('map_canvas'), {
+		  zoom: mapZoom,
+		  center: center,
+		  mapTypeId: google.maps.MapTypeId.HYBRID
+		});
+	
+	if(marker!=null){
+		marker.setMap(map);    
+	}
+
+	  //adding the fullscreen control to exit fullscreen
+	  var fsControlDiv = document.createElement('DIV');
+	  var fsControl = new FSControl(fsControlDiv, map);
+	  fsControlDiv.index = 1;
+	  map.controls[google.maps.ControlPosition.TOP_RIGHT].push(fsControlDiv);
+
+	  google.maps.event.addListener(map, 'click', function(event) {
+		    placeMarker(event.latLng);
+		  });
+ }
+  
+ 
+
+ 
+
+
+function fullScreen(){
+	$("#map_canvas").addClass('full_screen_map');
+	$('html, body').animate({scrollTop:0}, 'slow');
+	initialize();
+	
+	//hide header
+	$("#header_menu").hide();
+	
+	//if(overlaysSet){overlaysSet=false;setOverlays();}
+	//alert("Trying to execute fullscreen!");
+}
+
+
+function exitFullScreen() {
+	$("#header_menu").show();
+	$("#map_canvas").removeClass('full_screen_map');
+
+	initialize();
+	//if(overlaysSet){overlaysSet=false;setOverlays();}
+	//alert("Trying to execute exitFullScreen!");
+}
+
+
+//making the exit fullscreen button
+function FSControl(controlDiv, map) {
+
+  // Set CSS styles for the DIV containing the control
+  // Setting padding to 5 px will offset the control
+  // from the edge of the map
+  controlDiv.style.padding = '5px';
+
+  // Set CSS for the control border
+  var controlUI = document.createElement('DIV');
+  controlUI.style.backgroundColor = '#f8f8f8';
+  controlUI.style.borderStyle = 'solid';
+  controlUI.style.borderWidth = '1px';
+  controlUI.style.borderColor = '#a9bbdf';;
+  controlUI.style.boxShadow = '0 1px 3px rgba(0,0,0,0.5)';
+  controlUI.style.cursor = 'pointer';
+  controlUI.style.textAlign = 'center';
+  controlUI.title = 'Toggle the fullscreen mode';
+  controlDiv.appendChild(controlUI);
+
+  // Set CSS for the control interior
+  var controlText = document.createElement('DIV');
+  controlText.style.fontSize = '12px';
+  controlText.style.fontWeight = 'bold';
+  controlText.style.color = '#000000';
+  controlText.style.paddingLeft = '4px';
+  controlText.style.paddingRight = '4px';
+  controlText.style.paddingTop = '3px';
+  controlText.style.paddingBottom = '2px';
+  controlUI.appendChild(controlText);
+  //toggle the text of the button
+   if($("#map_canvas").hasClass("full_screen_map")){
+      controlText.innerHTML = '<%=props.getProperty("exitFullscreen")%>';
+    } else {
+      controlText.innerHTML = '<%=props.getProperty("fullscreen")%>';
+    }
+
+  // Setup the click event listeners: toggle the full screen
+
+  google.maps.event.addDomListener(controlUI, 'click', function() {
+
+   if($("#map_canvas").hasClass("full_screen_map")){
+    exitFullScreen();
+    } else {
+    fullScreen();
+    }
+  });
+
+}
+
+
+  google.maps.event.addDomListener(window, 'load', initialize);
+  
+  
+    </script>
+ 
+ 
 <div id="main">
 
 <div id="maincol-wide-solo">
@@ -350,8 +486,10 @@ if(CommonConfiguration.showProperty("showTaxonomy",context)){
 </tr>
 <%
 //add locationID to fields selectable
-%>
 
+
+if(CommonConfiguration.getSequentialPropertyValues("locationID", context).size()>0){
+%>
 <tr class="form_row">
 			<td class="form_label1"><strong><%=props.getProperty("locationID")%>:</strong></td>
 		<td>
@@ -382,7 +520,7 @@ if(CommonConfiguration.showProperty("showTaxonomy",context)){
 </td>
 	</tr>
 <%
-
+}
 
 if(CommonConfiguration.showProperty("showCountry",context)){
 
@@ -425,6 +563,22 @@ if(CommonConfiguration.showProperty("showCountry",context)){
 }  //end if showCountry
 
 %>
+
+<tr class="form_row"><td colspan="2">
+    <p id="map">
+    
+    <!--  
+      <p>Use the arrow and +/- keys to navigate to a portion of the globe,, then click
+        a point to set the sighting location. You can also use the text boxes below the map to specify exact
+        latitude and longitude.</p>
+    -->
+
+      	<p id="map_canvas" style="width: 578px; height: 383px; "></p>
+      		<p id="map_overlay_buttons"></p>
+    </p>
+</td>
+</tr>
+
 <tr class="form_row">
 		<td class="form_label1"><strong><%=props.getProperty("submit_gpslatitude")%>:</strong></td>
 		<td>
@@ -440,10 +594,7 @@ if(CommonConfiguration.showProperty("showCountry",context)){
 	
 		&deg;
 		<br/>
-		<br/> GPS coordinates are in the decimal degrees
-		format. Do you have GPS coordinates in a different format? <a
-			href="http://www.csgnetwork.com/gpscoordconv.html" target="_blank">Click
-		here to find a converter.</a>
+		<br/> <%=props.getProperty("gpsConverter") %>
 		</td>
 	</tr>
 	
@@ -480,7 +631,7 @@ if(CommonConfiguration.showProperty("maximumElevationInMeters",context)){
 %>
 
 <tr class="form_row">
-  <td class="form_label"><strong>Status:</strong></td>
+  <td class="form_label"><strong><%=props.getProperty("status") %></strong></td>
   <td colspan="2"><select name="livingStatus" id="livingStatus">
     <option value="alive" selected="selected">Alive</option>
     <option value="dead">Dead</option>
@@ -488,7 +639,7 @@ if(CommonConfiguration.showProperty("maximumElevationInMeters",context)){
 </tr>
 
 <tr class="form_row">
-  <td class="form_label"><strong><%=props.getProperty("submit_behavior")%>:</strong></td>
+  <td class="form_label"><strong><%=props.getProperty("submit_behavior")%></strong></td>
   <td colspan="2">
     <input name="behavior" type="text" id="scars" size="75"/></td>
 </tr>
@@ -498,7 +649,7 @@ if(CommonConfiguration.showProperty("showLifestage",context)){
 
 %>
 <tr class="form_row">
-  <td class="form_label"><strong><%=props.getProperty("lifeStage")%>:</strong></td>
+  <td class="form_label"><strong><%=props.getProperty("lifeStage")%></strong></td>
   <td colspan="2">
   <select name="lifeStage" id="lifeStage">
   	<option value="" selected="selected"></option>
@@ -540,7 +691,7 @@ if(CommonConfiguration.showProperty("showLifestage",context)){
   <td colspan="2">
   <table class="measurements">
   <tr>
-  <th>Type</th><th>Size</th><th>Units</th><c:if test="${!empty samplingProtocols}"><th>Sampling Protocol</th></c:if>
+  <th><%=props.getProperty("type") %></th><th><%=props.getProperty("size") %></th><th><%=props.getProperty("units") %></th><c:if test="${!empty samplingProtocols}"><th><%=props.getProperty("samplingProtocol") %></th></c:if>
   </tr>
   <c:forEach items="${items}" var="item">
     <tr>

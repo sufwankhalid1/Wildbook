@@ -26,9 +26,11 @@ String context="context0";
 context=ServletUtilities.getContext(request);
   //setup our Properties object to hold all properties
   Properties props = new Properties();
-  String langCode = "en";
+  //String langCode = "en";
+  String langCode=ServletUtilities.getLanguageCode(request);
+  
   //props.load(getClass().getResourceAsStream("/bundles/" + langCode + "/submit.properties"));
-  props = ShepherdProperties.getProperties("submit.properties", langCode);
+  props = ShepherdProperties.getProperties("googleSearch.properties", langCode);
 
 
 %>
@@ -63,10 +65,9 @@ context=ServletUtilities.getContext(request);
       <div id="maincol-wide">
 
         <div id="maintext">
-          <h1 class="intro">Google Search</h1>
+          <h1 class="intro"><%=props.getProperty("title") %></h1>
         </div>
-        <p>Use the box below to search the public contents of this library
-          using Google:</p>
+        <p><%=props.getProperty("instructions") %></p>
 
         <!-- Google CSE Search Box Begins  -->
         <form
@@ -76,7 +77,7 @@ context=ServletUtilities.getContext(request);
           value="<%=CommonConfiguration.getGoogleSearchKey(context) %>"/> <input
           type="hidden" name="cof" value="FORID:11"/> <input type="text"
                                                              name="q" size="25"/> <input
-          type="submit" name="sa" value="Search"/>
+          type="submit" name="sa" value="<%=props.getProperty("search")"/>
         </form>
         <script type="text/javascript"
                 src="http://www.google.com/coop/cse/brand?form=searchbox_<%=CommonConfiguration.getGoogleSearchKey(context) %>"></script>

@@ -7,14 +7,18 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.MissingResourceException;
+import java.util.Properties;
 import java.util.ResourceBundle;
+
 
 //import javax.jdo.JDOException;
 //import javax.jdo.JDOHelper;
 import javax.jdo.Query;
 //import javax.jdo.PersistenceManagerFactory;
 
+
 import org.ecocean.tag.MetalTag;
+
 
 //use Point2D to represent cached GPS coordinates
 import com.reijns.I3S.Point2D;
@@ -40,8 +44,8 @@ public class Util {
       for (int i = 0; i < types.size() && i < units.size(); i++) {
         String type = types.get(i);
         String unit = units.get(i);
-        String typeLabel = findLabel(type, langCode);
-        String unitsLabel = findLabel(unit, langCode);
+        String typeLabel = findLabel(type, langCode,context);
+        String unitsLabel = findLabel(unit, langCode,context);
         list.add(new MeasurementDesc(type, typeLabel, unit, unitsLabel));
       }
     }
@@ -56,8 +60,8 @@ public class Util {
       for (int i = 0; i < types.size() && i < units.size(); i++) {
         String type = types.get(i);
         String unit = units.get(i);
-        String typeLabel = findLabel(type, langCode);
-        String unitsLabel = findLabel(unit, langCode);
+        String typeLabel = findLabel(type, langCode, context);
+        String unitsLabel = findLabel(unit, langCode, context);
         list.add(new MeasurementDesc(type, typeLabel, unit, unitsLabel));
       }
     }
@@ -73,9 +77,19 @@ public class Util {
   public static List<OptionDesc> findSamplingProtocols(String langCode,String context) {
     List<String> values = CommonConfiguration.getIndexedValues("samplingProtocol",context);
     List<OptionDesc> list = new ArrayList<OptionDesc>();
+    
+    /*
     for (String key : values) {
-      String label = findLabel(key, langCode);
+      String label = findLabel(key, langCode,context);
       list.add(new OptionDesc(key, label));
+    }
+    */
+    int valuesSize=values.size();
+    for(int i=0;i<valuesSize;i++){
+      String key="samplingProtocol"+i;
+      String label = findLabel(key, langCode,context);
+      list.add(new OptionDesc(key, label));
+      
     }
     return list;
   }
@@ -96,7 +110,7 @@ public class Util {
     List<String> metalTagLocations = CommonConfiguration.getIndexedValues(METAL_TAG_LOCATION,context);
     List<MetalTagDesc> list = new ArrayList<MetalTagDesc>();
     for (String location : metalTagLocations) {
-      String locationLabel = findLabel(location, langCode);
+      String locationLabel = findLabel(location, langCode,context);
       list.add(new MetalTagDesc(location, locationLabel));
     }
     return list;
@@ -125,7 +139,11 @@ public class Util {
     return CommonConfiguration.getIndexedValues(SATELLITE_TAG_NAME,context);
   }
   
-  private static String findLabel(String key, String langCode) {
+  private static String findLabel(String key, String langCode, String context) {
+    
+    //System.out.println("Trying to find key: "+key+" with langCode "+langCode);
+    
+    /*
     Locale locale = Locale.US;
     if (langCode != null) {
       locale = new Locale(langCode);
@@ -137,7 +155,12 @@ public class Util {
     catch (MissingResourceException ex) {
       System.out.println("Error finding bundle or key for key: " + key);
     }
-    return key;
+    return key;*/
+    
+    Properties myProps = ShepherdProperties.getProperties("commonConfigurationLabels.properties", langCode, context);
+    return myProps.getProperty(key+".label");
+    
+    
   }
   
   public static String quote(String arg) {
