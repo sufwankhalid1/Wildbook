@@ -1,7 +1,7 @@
 
 <%--
-  ~ The Shepherd Project - A Mark-Recapture Framework
-  ~ Copyright (C) 2011 Jason Holmberg
+  ~ Wildbook - A Mark-Recapture Framework
+  ~ Copyright (C) 2008-2014 Jason Holmberg
   ~
   ~ This program is free software; you can redistribute it and/or
   ~ modify it under the terms of the GNU General Public License
@@ -27,7 +27,7 @@
 <%!
 
   //shepherd must have an open trasnaction when passed in
-  public String getNextIndividualNumber(Encounter enc, Shepherd myShepherd) {
+  public String getNextIndividualNumber(Encounter enc, Shepherd myShepherd, String context) {
     String returnString = "";
     try {
       String lcode = enc.getLocationCode();
@@ -37,7 +37,7 @@
         Properties props = new Properties();
         //set up the file input stream
         //props.load(getClass().getResourceAsStream("/bundles/newIndividualNumbers.properties"));
-        props=ShepherdProperties.getProperties("newIndividualNumbers.properties", "");
+        props=ShepherdProperties.getProperties("newIndividualNumbers.properties", "",context);
 
 
         //let's see if the property is defined
@@ -121,7 +121,7 @@ String langCode=ServletUtilities.getLanguageCode(request);
   //Properties encprops = new Properties();
   //encprops.load(getClass().getResourceAsStream("/bundles/" + langCode + "/encounter.properties"));
 
-  Properties encprops = ShepherdProperties.getProperties("encounter.properties", langCode);
+  Properties encprops = ShepherdProperties.getProperties("encounter.properties", langCode, context);
 
 
   pageContext.setAttribute("num", num);
@@ -442,7 +442,7 @@ margin-bottom: 8px !important;
 			</jsp:include>
 			
 			
-			<script src="http://maps.google.com/maps/api/js?sensor=false"></script>
+			<script src="http://maps.google.com/maps/api/js?sensor=false&language=<%=langCode%>"></script>
 
 <script src="http://code.jquery.com/ui/1.10.2/jquery-ui.js"></script>
 
@@ -544,7 +544,7 @@ margin-bottom: 8px !important;
 
 <!-- START IDENTITY ATTRIBUTE -->								
 
-  <p><img align="absmiddle" src="../images/wild-me-logo-only-100-100.png" width="40px" height="40px" /> <strong>Identity</strong></p>
+  <p><img align="absmiddle" src="../images/wild-me-logo-only-100-100.png" width="40px" height="40px" /> <strong><%=encprops.getProperty("identity") %></strong></p>
       
       
 								
@@ -713,7 +713,7 @@ margin-bottom: 8px !important;
       											<form name="createShark" method="post" action="../IndividualCreate">
         											<input name="number" type="hidden" value="<%=num%>" /> 
         											<input name="action" type="hidden" value="create" /> 
-        											<input name="individual" type="text" id="individual" size="10" maxlength="50" value="<%=getNextIndividualNumber(enc, myShepherd)%>" /><br />
+        											<input name="individual" type="text" id="individual" size="10" maxlength="50" value="<%=getNextIndividualNumber(enc, myShepherd,context)%>" /><br />
 													<input name="noemail" type="checkbox" value="noemail" />
         											<%=encprops.getProperty("suppressEmail")%><br /> 
         
@@ -773,7 +773,7 @@ margin-bottom: 8px !important;
         <form name="setAltID" action="../EncounterSetAlternateID" method="post">
               <input name="alternateid" type="text" size="10" maxlength="50" /> 
                                    <input name="encounter" type="hidden" value="<%=num%>" />
-          <input name="Set" type="submit" id="<%=encprops.getProperty("set")%>" value="Set" />
+          <input name="Set" type="submit" id="<%=encprops.getProperty("set")%>" value="<%=encprops.getProperty("set")%>" />
           </form>
       </td>
     </tr>
@@ -1054,7 +1054,7 @@ $("a#releaseDate").click(function() {
 		        <form name="setVerbatimEventDate" action="../EncounterSetVerbatimEventDate"
 		              method="post"><input name="verbatimEventDate" type="text" size="10" maxlength="50"> 
 		              <input name="encounter" type="hidden" value=<%=num%>>
-		          <input name="Set" type="submit" id="<%=encprops.getProperty("set")%>" value="Set"></form>
+		          <input name="Set" type="submit" id="<%=encprops.getProperty("set")%>" value="<%=encprops.getProperty("set")%>"></form>
 		      </td>
 		    </tr>
 		  </table>
@@ -1264,13 +1264,11 @@ if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
     <tr>
       <td align="left" valign="top">
         <form name="setencdepth" action="../EncounterSetMaximumDepth" method="post">
-          <input name="depth" type="text" id="depth" size="10"> <%=encprops.getProperty("meters")%>
-          <input name="lengthUnits" type="hidden"
-                 id="lengthUnits" value="Meters"> <input name="number"
-                                                         type="hidden" value="<%=num%>" id="number">
-          <input
-            name="action" type="hidden" value="setEncounterDepth"> <input
-          name="AddDepth" type="submit" id="AddDepth" value="<%=encprops.getProperty("setDepth")%>">
+          <input name="depth" type="text" id="depth" size="10" /> <%=encprops.getProperty("meters")%>
+          <input name="lengthUnits" type="hidden" id="lengthUnits" value="Meters" /> 
+          <input name="number" type="hidden" value="<%=num%>" id="number" />
+          <input name="action" type="hidden" value="setEncounterDepth" /> 
+          <input name="AddDepth" type="submit" id="AddDepth" value="<%=encprops.getProperty("setDepth")%>" />
         </form>
       </td>
     </tr>
@@ -1454,9 +1452,9 @@ $("a#elev").click(function() {
     	  controlUI.appendChild(controlText);
     	  //toggle the text of the button
     	   if($("#map_canvas").hasClass("full_screen_map")){
-    	      controlText.innerHTML = 'Exit Fullscreen';
+    	      controlText.innerHTML = '<%=encprops.getProperty("exitFullscreen")%>';
     	    } else {
-    	      controlText.innerHTML = 'Fullscreen';
+    	      controlText.innerHTML = '<%=encprops.getProperty("fullscreen")%>';
     	    }
 
     	  // Setup the click event listeners: toggle the full screen
@@ -1519,8 +1517,7 @@ $("a#elev").click(function() {
     				
 						<br/>
 						<br/>
-						GPS coordinates are in the decimal degrees format. Do you have GPS coordinates in a different format? 
-						<a href="http://www.csgnetwork.com/gpscoordconv.html" target="_blank">Click here to find a converter.</a>
+						<%=encprops.getProperty("gpsConverter")%> <a href="http://www.csgnetwork.com/gpscoordconv.html" target="_blank">Click here to find a converter.</a>
 						<input name="number" type="hidden" value=<%=num%> /> 
 				    				
 					</form>
@@ -1782,13 +1779,30 @@ $("a#country").click(function() {
 				<div id="dialogSubmitter" title="<%=encprops.getProperty("editContactInfo")%> (<%=encprops.getProperty("submitter")%>)" style="display:none">  
 					<form name="setPersonalDetails" action="../EncounterSetSubmitterPhotographerContactInfo" method="post">
   						<table cellpadding="1" cellspacing="0" bordercolor="#FFFFFF">
+    						<%
+    						
+    						String sName="";
+    						if(enc.getSubmitterName()!=null){sName=enc.getSubmitterName();}
+    						String sEmail="";
+    						if(enc.getSubmitterEmail()!=null){sEmail=enc.getSubmitterEmail();}
+    						String sPhone="";
+    						if(enc.getSubmitterPhone()!=null){sPhone=enc.getSubmitterPhone();}
+    						String sAddress="";
+    						if(enc.getSubmitterAddress()!=null){sAddress=enc.getSubmitterAddress();}
+    						String sOrg="";
+    						if(enc.getSubmitterOrganization()!=null){sOrg=enc.getSubmitterOrganization();}
+    						String sProject="";
+    						if(enc.getSubmitterProject()!=null){sProject=enc.getSubmitterProject();}
+    						
+    						%>
+    						
     						<tr>
       							<td>
        								<input type="hidden" name="contact" value="submitter" />
 									<%=encprops.getProperty("name")%><br />
           						</td>
           						<td>
-          							<input name="name" type="text" size="20" maxlength="100" /> 
+          							<input name="name" type="text" size="20" value="<%=sName %>" maxlength="100"></input> 
           						</td>
           					</tr>          
           					<tr>
@@ -1796,7 +1810,7 @@ $("a#country").click(function() {
           							<%=encprops.getProperty("email")%><br />
           						</td>
           						<td>
-          							<input name="email" type="text" size="20" /> 
+          							<input name="email" type="text" value="<%=sEmail %>" size="20"></input> 
           						</td>
           					</tr>
           					<tr>
@@ -1804,7 +1818,7 @@ $("a#country").click(function() {
           							<%=encprops.getProperty("phone")%>
           						</td>
           						<td>
-          							<input name="phone" type="text" size="20" maxlength="100" /> 
+          							<input name="phone" type="text" size="20" value="<%=sPhone %>" maxlength="100"></input>
           						</td>
           					</tr>
           					<tr>
@@ -1812,7 +1826,7 @@ $("a#country").click(function() {
           							<%=encprops.getProperty("address")%>
           						</td>
           						<td>
-          							<input name="address" type="text" size="20" maxlength="100" /> 
+          							<input name="address" type="text" size="20" value="<%=sAddress %>" maxlength="100"></input> 
           						</td>
           					</tr>
           					<tr>
@@ -1820,7 +1834,7 @@ $("a#country").click(function() {
            							<%=encprops.getProperty("submitterOrganization")%>
           						</td>
           						<td>
-          							<input name="submitterOrganization" type="text" size="20" maxlength="100" /> 
+          							<input name="submitterOrganization" type="text" size="20" value="<%=sOrg %>" maxlength="100"></input>
           						</td>
           					</tr>
           					<tr>
@@ -1828,7 +1842,7 @@ $("a#country").click(function() {
           							<%=encprops.getProperty("submitterProject")%>
 	   							</td>
 	   							<td>
-	   								<input name="submitterProject" type="text" size="20" maxlength="100" /> 
+	   								<input name="submitterProject" type="text" size="20" value="<%=sProject %>" maxlength="100"></input> 
 	            				</td>
 	            			</tr>
           					<tr>
@@ -1898,6 +1912,19 @@ $("a#country").click(function() {
 						<div id="dialogPhotographer" title="<%=encprops.getProperty("editContactInfo")%> (<%=encprops.getProperty("photographer")%>)" style="display:none">  
 							<form action="../EncounterSetSubmitterPhotographerContactInfo" method="post">
   								<table cellpadding="1" cellspacing="0" bordercolor="#FFFFFF">
+    									<%
+    						
+    						String pName="";
+    						if(enc.getPhotographerName()!=null){pName=enc.getPhotographerName();}
+    						String pEmail="";
+    						if(enc.getPhotographerEmail()!=null){pEmail=enc.getPhotographerEmail();}
+    						String pPhone="";
+    						if(enc.getPhotographerPhone()!=null){pPhone=enc.getPhotographerPhone();}
+    						String pAddress="";
+    						if(enc.getPhotographerAddress()!=null){pAddress=enc.getPhotographerAddress();}
+    						
+    						%>
+    								
     								<tr>
       									<td>
        										<input type="hidden" name="contact" value="photographer" />
@@ -1905,7 +1932,7 @@ $("a#country").click(function() {
           									<%=encprops.getProperty("name")%><br />
           								</td>
           								<td>
-          									<input name="name" type="text" size="20" maxlength="100" /> 
+          									<input name="name" type="text" size="20" value="<%=pName %>" maxlength="100"></input> 
           								</td>
           							</tr>
           							<tr>
@@ -1913,7 +1940,7 @@ $("a#country").click(function() {
           									<%=encprops.getProperty("email")%><br />
           								</td>
           								<td>
-          									<input name="email" type="text" size="20" /> 
+          									<input name="email" type="text" value="<%=pEmail %>" size="20"></input> 
           								</td>
           							</tr>
           							<tr>
@@ -1921,7 +1948,7 @@ $("a#country").click(function() {
           									<%=encprops.getProperty("phone")%>
           								</td>
           								<td>
-          									<input name="phone" type="text" size="20" maxlength="100" /> 
+          									<input name="phone" type="text" size="20" value="<%=pPhone %>" maxlength="100"></input>
           								</td>
           							</tr>
           							<tr>
@@ -1929,7 +1956,7 @@ $("a#country").click(function() {
           									<%=encprops.getProperty("address")%>
           								</td>
           								<td>
-          									<input name="address" type="text" size="20" maxlength="100" /> 
+          									<input name="address" type="text" size="20" value="<%=pAddress %>" maxlength="100"></input> 
           								</td>
           							</tr>
           							<tr>
@@ -2058,7 +2085,7 @@ $("a#country").click(function() {
   </table>
   
   <br />
-  <p><img align="absmiddle" src="../images/Note-Book-icon.png" width="40px" height="40px" /> <strong>Observation Attributes</strong></p>
+  <p><img align="absmiddle" src="../images/Note-Book-icon.png" width="40px" height="40px" /> <strong><%=encprops.getProperty("observationAttributes") %></strong></p>
 <!-- START TAXONOMY ATTRIBUTE -->    
 <%
     if(CommonConfiguration.showProperty("showTaxonomy",context)){
@@ -2190,7 +2217,11 @@ $("a#livingStatus").click(function() {
 <!-- END ALIVE-DEAD ATTRIBUTE -->  
 
 <!--  START SEX SECTION --> 
-<p class="para"><%=encprops.getProperty("sex") %>&nbsp;<%=enc.getSex()%> 
+<%
+String sex="";
+if(enc.getSex()!=null){sex=enc.getSex();}
+%>
+<p class="para"><%=encprops.getProperty("sex") %>&nbsp;<%=sex %> 
 <%
 if(isOwner&&CommonConfiguration.isCatalogEditable(context)) {	
  %>
@@ -2629,7 +2660,7 @@ $("a#comments").click(function() {
 <tr>
 <td width="560px" style="vertical-align:top; background-color: #E8E8E8">
 
-<p><img align="absmiddle" width="40px" height="40px" style="border-style: none;" src="../images/workflow_icon.gif" /> <strong>Metadata</strong></p>
+<p><img align="absmiddle" width="40px" height="40px" style="border-style: none;" src="../images/workflow_icon.gif" /> <strong><%=encprops.getProperty("metadata") %></strong></p>
 								
 								<!-- START WORKFLOW ATTRIBUTE -->
  								<%
@@ -2945,12 +2976,12 @@ if (isOwner) {
 <table width="100%" border="0" cellpadding="1">
     <tr>
       <td height="30" class="para">   
-        <form onsubmit="return confirm('Are you sure you want to delete this encounter?');" name="deleteEncounter" method="post" action="../EncounterDelete">
+        <form onsubmit="return confirm('<%=encprops.getProperty("sureDelete") %>');" name="deleteEncounter" method="post" action="../EncounterDelete">
               <input name="number" type="hidden" value="<%=num%>" /> 
               <% 
               String deleteIcon="cancel.gif";
               %>
-              <img src="../images/Warning_icon_small.png" align="absmiddle" />&nbsp;Delete Encounter? <input align="absmiddle" name="approve" type="image" src="../images/<%=deleteIcon %>" id="deleteButton" />
+              <img src="../images/Warning_icon_small.png" align="absmiddle" />&nbsp;<%=encprops.getProperty("deleteEncounter") %> <input align="absmiddle" name="approve" type="image" src="../images/<%=deleteIcon %>" id="deleteButton" />
         </form>
       </td>
     </tr>
@@ -2961,7 +2992,7 @@ if (isOwner) {
 %>
 
 <!-- START AUTOCOMMENTS --> 
-<p><%=encprops.getProperty("auto_comments")%> <a id="autocomments" class="launchPopup"><img height="40px" width="40px" align="middle" src="../images/Crystal_Clear_app_kaddressbook.gif" /></a></p>
+<p class="para"><%=encprops.getProperty("auto_comments")%> <a id="autocomments" class="launchPopup"><img height="40px" width="40px" align="middle" src="../images/Crystal_Clear_app_kaddressbook.gif" /></a></p>
 
 <!-- start autocomments popup -->  
 <div id="dialogAutoComments" title="<%=encprops.getProperty("auto_comments")%>" style="display:none">  
@@ -3040,7 +3071,7 @@ $("a#autocomments").click(function() {
 </c:if>
 <table>
 <tr>
-<th class="measurement">Type</th><th class="measurement">Size</th><th class="measurement">Units</th><c:if test="${!empty samplingProtocols}"><th class="measurement">Sampling Protocol</th></c:if>
+<th class="measurement"><%=encprops.getProperty("type") %></th><th class="measurement"><%=encprops.getProperty("size") %></th><th class="measurement"><%=encprops.getProperty("units") %></th><c:if test="${!empty samplingProtocols}"><th class="measurement"><%=encprops.getProperty("samplingProtocol") %></th></c:if>
 </tr>
 <c:forEach var="item" items="${measurements}">
  <% 
@@ -3242,7 +3273,7 @@ if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
 </c:if>
 <table>
 <tr>
-    <td>Serial Number:</td><td><c:out value="${empty acousticTag ? '' : acousticTag.serialNumber}"/></td>
+    <td><%=encprops.getProperty("serialNumber") %></td><td><c:out value="${empty acousticTag ? '' : acousticTag.serialNumber}"/></td>
 </tr>
 <tr>
     <td>ID:</td><td><c:out value="${empty acousticTag ? '' : acousticTag.idNumber}"/></td>
@@ -3272,7 +3303,7 @@ if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
         <input type="hidden" name="tagType" value="acousticTag"/>
         <input type="hidden" name="id" value="${acousticTag.id}"/>
         <table>
-          <tr><td class="formLabel">Serial number:</td></tr>
+          <tr><td class="formLabel"><%=encprops.getProperty("serialNumber") %></td></tr>
           <tr><td><input name="acousticTagSerial" value="${acousticTag.serialNumber}"/></td></tr>
           <tr><td class="formLabel">ID:</td></tr>
           <tr><td><input name="acousticTagId" value="${acousticTag.idNumber}"/></td></tr>
@@ -3321,13 +3352,13 @@ if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
 %>
 <table>
 <tr>
-    <td>Name:</td><td><c:out value="${satelliteTag.name}"/></td>
+    <td><%=encprops.getProperty("name") %></td><td><c:out value="${satelliteTag.name}"/></td>
 </tr>
 <tr>
-    <td>Serial Number:</td><td><c:out value="${empty satelliteTag ? '' : satelliteTag.serialNumber}"/></td>
+    <td><%=encprops.getProperty("serialNumber") %></td><td><c:out value="${empty satelliteTag ? '' : satelliteTag.serialNumber}"/></td>
 </tr>
 <tr>
-    <td>Argos PTT Number:</td><td><c:out value="${empty satelliteTag ? '' : satelliteTag.argosPttNumber}"/></td>
+    <td>Argos PTT:</td><td><c:out value="${empty satelliteTag ? '' : satelliteTag.argosPttNumber}"/></td>
 </tr>
 </table>
 </p>
@@ -3353,7 +3384,7 @@ if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
  <input type="hidden" name="id" value="${satelliteTag.id}"/>
  <table cellpadding="1" cellspacing="0" bordercolor="#FFFFFF">
 
-    <tr><td class="formLabel">Name:</td></tr>
+    <tr><td class="formLabel"><%=encprops.getProperty("name") %></td></tr>
     <tr><td>
       <select name="satelliteTagName">
       <c:forEach items="${satelliteTagNames}" var="satelliteTagName">
@@ -3368,9 +3399,9 @@ if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
       </c:forEach>
       </select>
     </td></tr>
-    <tr><td class="formLabel">Serial number:</td></tr>
+    <tr><td class="formLabel"><%=encprops.getProperty("serialNumber") %></td></tr>
     <tr><td><input name="satelliteTagSerial" value="${satelliteTag.serialNumber}"/></td></tr>
-    <tr><td class="formLabel">Argos PTT Number:</td></tr>
+    <tr><td class="formLabel">Argos PTT:</td></tr>
     <tr><td><input name="satelliteTagArgosPttNumber" value="${satelliteTag.argosPttNumber}"/></td></tr>
     <tr><td><input name="${set}" type="submit" value="${set}"/></td></tr>
  </table>
@@ -3780,7 +3811,7 @@ if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
             <tr><td colspan="2">
             	<input name="encounter" type="hidden" value="<%=num%>" /> 
             	<input name="action" type="hidden" value="setTissueSample" /> 
-            	<input name="EditTissueSample" type="submit" id="EditTissueSample" value="Set" />
+            	<input name="EditTissueSample" type="submit" id="EditTissueSample" value="<%=encprops.getProperty("set")%>" />
    			</td></tr>
       </td>
     </tr>
@@ -3930,7 +3961,7 @@ if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
  		  <input name="sampleID" type="hidden" value="<%=thisSample.getSampleID() %>" /> 
           <input name="number" type="hidden" value="<%=num%>" /> 
           <input name="action" type="hidden" value="setHaplotype" /> 
-          <input name="EditTissueSample" type="submit" id="EditTissueSample" value="Set" />
+          <input name="EditTissueSample" type="submit" id="EditTissueSample" value="<%=encprops.getProperty("set")%>" />
       
     </td>
   </tr>
@@ -3957,7 +3988,7 @@ $("a#haplo<%=mito.getAnalysisID() %>").click(function() {
 }
 %>
 				
-				</td><td style="border-style: none;"><a onclick="return confirm('Are you sure you want to delete this haplotype analysis?');" href="../TissueSampleRemoveHaplotype?encounter=<%=enc.getCatalogNumber()%>&sampleID=<%=thisSample.getSampleID()%>&analysisID=<%=mito.getAnalysisID() %>"><img width="20px" height="20px" style="border-style: none;" src="../images/cancel.gif" /></a></td></tr></li>
+				</td><td style="border-style: none;"><a onclick="return confirm('<%=encprops.getProperty("deleteHaplotype") %>');" href="../TissueSampleRemoveHaplotype?encounter=<%=enc.getCatalogNumber()%>&sampleID=<%=thisSample.getSampleID()%>&analysisID=<%=mito.getAnalysisID() %>"><img width="20px" height="20px" style="border-style: none;" src="../images/cancel.gif" /></a></td></tr></li>
 			<%
 			}
 			else if(ga.getAnalysisType().equals("SexAnalysis")){
@@ -4047,7 +4078,7 @@ if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
 		  <input name="sampleID" type="hidden" value="<%=thisSample.getSampleID()%>" /> 
         <input name="number" type="hidden" value="<%=num%>" /> 
         <input name="action" type="hidden" value="setSexAnalysis" /> 
-        <input name="EditTissueSampleSexAnalysis" type="submit" id="EditTissueSampleSexAnalysis" value="Set" />
+        <input name="EditTissueSampleSexAnalysis" type="submit" id="EditTissueSampleSexAnalysis" value="<%=encprops.getProperty("set")%>" />
   
   </td>
 </tr>
@@ -4075,7 +4106,7 @@ $("a#setSex<%=thisSample.getSampleID() %>").click(function() {
 %>
 				
 				</td>
-				<td style="border-style: none;"><a onclick="return confirm('Are you sure you want to delete this genetic sex analysis?');" href="../TissueSampleRemoveSexAnalysis?encounter=<%=enc.getCatalogNumber()%>&sampleID=<%=thisSample.getSampleID()%>&analysisID=<%=mito.getAnalysisID() %>"><img width="20px" height="20px" style="border-style: none;" src="../images/cancel.gif" /></a></td></tr>
+				<td style="border-style: none;"><a onclick="return confirm('<%=encprops.getProperty("deleteGenetic") %>');" href="../TissueSampleRemoveSexAnalysis?encounter=<%=enc.getCatalogNumber()%>&sampleID=<%=thisSample.getSampleID()%>&analysisID=<%=mito.getAnalysisID() %>"><img width="20px" height="20px" style="border-style: none;" src="../images/cancel.gif" /></a></td></tr>
 			<%
 			}
 			else if(ga.getAnalysisType().equals("MicrosatelliteMarkers")){
@@ -4110,7 +4141,7 @@ $("a#setSex<%=thisSample.getSampleID() %>").click(function() {
 
 					
 				</td>
-				<td style="border-style: none;"><a class="launchPopup" id="msmarkersSet<%=thisSample.getSampleID()%>"><img width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" /></a></td><td style="border-style: none;"><a onclick="return confirm('Are you sure you want to delete this microsatellite markers analysis?');" href="../TissueSampleRemoveMicrosatelliteMarkers?encounter=<%=enc.getCatalogNumber()%>&sampleID=<%=thisSample.getSampleID()%>&analysisID=<%=mito.getAnalysisID() %>"><img width="20px" height="20px" style="border-style: none;" src="../images/cancel.gif" /></a>
+				<td style="border-style: none;"><a class="launchPopup" id="msmarkersSet<%=thisSample.getSampleID()%>"><img width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" /></a></td><td style="border-style: none;"><a onclick="return confirm('<%=encprops.getProperty("deleteMSMarkers") %>');" href="../TissueSampleRemoveMicrosatelliteMarkers?encounter=<%=enc.getCatalogNumber()%>&sampleID=<%=thisSample.getSampleID()%>&analysisID=<%=mito.getAnalysisID() %>"><img width="20px" height="20px" style="border-style: none;" src="../images/cancel.gif" /></a>
 				
 															<%
 if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
@@ -4208,7 +4239,7 @@ if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
  		  <input name="sampleID" type="hidden" value="<%=thisSample.getSampleID()%>" /> 
           <input name="number" type="hidden" value="<%=num%>" /> 
           
-          <input name="EditTissueSample" type="submit" id="EditTissueSample" value="Set" />
+          <input name="EditTissueSample" type="submit" id="EditTissueSample" value="<%=encprops.getProperty("set")%>" />
     </td></tr>
     </td>
   </tr>
@@ -4413,7 +4444,7 @@ if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
 		  <input name="sampleID" type="hidden" value="<%=thisSample.getSampleID()%>" /> 
       <input name="encounter" type="hidden" value="<%=num%>" /> 
       <input name="action" type="hidden" value="setBiologicalMeasurement" /> 
-      <input name="EditTissueSampleBiomeasurementAnalysis" type="submit" id="EditTissueSampleBioMeasurementAnalysis" value="Set" />
+      <input name="EditTissueSampleBiomeasurementAnalysis" type="submit" id="EditTissueSampleBioMeasurementAnalysis" value="<%=encprops.getProperty("set")%>" />
  
 </td>
 </tr>
@@ -4440,7 +4471,7 @@ $("a#setBioMeasure<%=thisSample.getSampleID() %>").click(function() {
 %>
 				
 				</td>
-				<td style="border-style: none;"><a onclick="return confirm('Are you sure you want to delete this biological measurement?');" href="../TissueSampleRemoveBiologicalMeasurement?encounter=<%=enc.getCatalogNumber()%>&sampleID=<%=thisSample.getSampleID()%>&analysisID=<%=mito.getAnalysisID() %>"><img width="20px" height="20px" style="border-style: none;" src="../images/cancel.gif" /></a></td>
+				<td style="border-style: none;"><a onclick="return confirm('<%=encprops.getProperty("deleteBio") %>');" href="../TissueSampleRemoveBiologicalMeasurement?encounter=<%=enc.getCatalogNumber()%>&sampleID=<%=thisSample.getSampleID()%>&analysisID=<%=mito.getAnalysisID() %>"><img width="20px" height="20px" style="border-style: none;" src="../images/cancel.gif" /></a></td>
 			</tr>
 			<%
 			}
@@ -4522,7 +4553,7 @@ if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
  		  <input name="sampleID" type="hidden" value="<%=thisSample.getSampleID()%>" /> 
           <input name="number" type="hidden" value="<%=num%>" /> 
           <input name="action" type="hidden" value="setHaplotype" /> 
-          <input name="EditTissueSample" type="submit" id="EditTissueSample" value="Set" />
+          <input name="EditTissueSample" type="submit" id="EditTissueSample" value="<%=encprops.getProperty("set")%>" />
       
     </td>
   </tr>
@@ -4647,7 +4678,7 @@ if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
  		  <input name="sampleID" type="hidden" value="<%=thisSample.getSampleID()%>" /> 
           <input name="number" type="hidden" value="<%=num%>" /> 
           
-          <input name="EditTissueSample" type="submit" id="EditTissueSample" value="Set" />
+          <input name="EditTissueSample" type="submit" id="EditTissueSample" value="<%=encprops.getProperty("set")%>" />
     </td></tr>
     </td>
   </tr>
@@ -4748,7 +4779,7 @@ if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
 		  <input name="sampleID" type="hidden" value="<%=thisSample.getSampleID()%>" /> 
         <input name="number" type="hidden" value="<%=num%>" /> 
         <input name="action" type="hidden" value="setSexAnalysis" /> 
-        <input name="EditTissueSampleSexAnalysis" type="submit" id="EditTissueSampleSexAnalysis" value="Set" />
+        <input name="EditTissueSampleSexAnalysis" type="submit" id="EditTissueSampleSexAnalysis" value="<%=encprops.getProperty("set")%>" />
   
   </td>
 </tr>
@@ -4935,7 +4966,7 @@ if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
 		  <input name="sampleID" type="hidden" value="<%=thisSample.getSampleID()%>" /> 
       <input name="encounter" type="hidden" value="<%=num%>" /> 
       <input name="action" type="hidden" value="setBiologicalMeasurement" /> 
-      <input name="EditTissueSampleBiomeasurementAnalysis" type="submit" id="EditTissueSampleBioMeasurementAnalysis" value="Set" />
+      <input name="EditTissueSampleBiomeasurementAnalysis" type="submit" id="EditTissueSampleBioMeasurementAnalysis" value="<%=encprops.getProperty("set")%>" />
  
 </td>
 </tr>
@@ -4964,7 +4995,7 @@ $("a#addBioMeasure<%=thisSample.getSampleID() %>").click(function() {
 	</td>
 	
 	
-	<td><a id="sample" href="encounter.jsp?number=<%=enc.getCatalogNumber() %>&sampleID=<%=thisSample.getSampleID()%>&edit=tissueSample&function=1"><img width="24px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" /></a></td><td><a onclick="return confirm('Are you sure you want to delete this tissue sample and all related analyses?');" href="../EncounterRemoveTissueSample?encounter=<%=enc.getCatalogNumber()%>&sampleID=<%=thisSample.getSampleID()%>"><img style="border-style: none;" src="../images/cancel.gif" /></a></td></tr>
+	<td><a id="sample" href="encounter.jsp?number=<%=enc.getCatalogNumber() %>&sampleID=<%=thisSample.getSampleID()%>&edit=tissueSample&function=1"><img width="24px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" /></a></td><td><a onclick="return confirm('<%=encprops.getProperty("deleteTissue") %>');" href="../EncounterRemoveTissueSample?encounter=<%=enc.getCatalogNumber()%>&sampleID=<%=thisSample.getSampleID()%>"><img style="border-style: none;" src="../images/cancel.gif" /></a></td></tr>
 	<%
 }
 %>

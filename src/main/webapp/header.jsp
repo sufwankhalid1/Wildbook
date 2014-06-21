@@ -45,7 +45,7 @@ context=ServletUtilities.getContext(request);
 
   //set up the file input stream
   //props.load(getClass().getResourceAsStream("/bundles/" + langCode + "/header.properties"));
-  props = ShepherdProperties.getProperties("header.properties", langCode);
+  props = ShepherdProperties.getProperties("header.properties", langCode, context);
 
 
 %>
@@ -165,10 +165,10 @@ context=ServletUtilities.getContext(request);
         		<%=props.getProperty("viewMySubmissions")%>
         	</a>
         </li>
-        <%
-        }
-        %>
+     <%
      
+     }
+     %>
 
 
       </ul>
@@ -237,6 +237,19 @@ context=ServletUtilities.getContext(request);
           style="margin: 0px 0 0px 0px; position: relative; width: 190px; height: 25px;"><%=props.getProperty("userWiki")%>
         </a></li>
         <% } %>
+
+	<%
+      if(request.getUserPrincipal()!=null){
+      %>
+        <li>
+        	<a href="http://<%=CommonConfiguration.getURLLocation(request) %>/myAccount.jsp" class="enclose" style="margin: 0px 0 0px 0px; position: relative; width: 190px; height: 25px;">
+        		<%=props.getProperty("myAccount")%>
+        	</a>
+        </li>
+     <%
+     
+     }
+     %>
 
         <li><a
           href="http://<%=CommonConfiguration.getURLLocation(request) %>/appadmin/admin.jsp"
@@ -377,7 +390,11 @@ if(CommonConfiguration.isCatalogEditable(context)){
 <!-- define our JavaScript -->
 	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 	<script type="text/javascript" src="http://<%=CommonConfiguration.getURLLocation(request) %>/javascript/jquery.cookie.js"></script>
-	
+	<script type="text/javascript">
+  $(function() {
+    $( "[id^=flag_]" ).tooltip();
+  });
+</script>
 <div id="header_menu" style="background-color: #D7E0ED;clear: left">
 <table width="810px">
 	<tr>
@@ -409,7 +426,7 @@ if(CommonConfiguration.isCatalogEditable(context)){
 						if(ServletUtilities.getLanguageCode(request).equals(supportedLanguages.get(h))){selected="selected=\"selected\"";}
 						String myLang=supportedLanguages.get(h);
 					%>
-						<img style="cursor: pointer" id="flag_<%=myLang %>" src="http://<%=CommonConfiguration.getURLLocation(request) %>/images/flag_<%=myLang %>.gif" />
+						<img style="cursor: pointer" id="flag_<%=myLang %>" title="<%=CommonConfiguration.getProperty(myLang, context) %>" src="http://<%=CommonConfiguration.getURLLocation(request) %>/images/flag_<%=myLang %>.gif" />
 						<script type="text/javascript">
 	
 							$( "#flag_<%=myLang%>" ).click(function() {

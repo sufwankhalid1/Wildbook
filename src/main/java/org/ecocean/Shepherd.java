@@ -428,6 +428,17 @@ public class Shepherd {
     if(size>0){return true;}
     return false;
   }
+  
+  public boolean doesUserHaveAnyRoleInContext(String username, String context) {
+    String filter = "this.username == '" + username + "' && this.context == '"+context+"'";
+    Extent encClass = pm.getExtent(Role.class, true);
+    Query acceptedEncounters = pm.newQuery(encClass, filter);
+    Collection c = (Collection) (acceptedEncounters.execute());
+    int size=c.size();
+    acceptedEncounters.closeAll();
+    if(size>0){return true;}
+    return false;
+  }
 
   public String getAllRolesForUserAsString(String username) {
     String filter = "this.username == '" + username + "'";
@@ -2599,6 +2610,22 @@ public class Shepherd {
     ArrayList al = new ArrayList(c);
     acceptedEncounters.closeAll();
     return al;
+  }
+  
+  /**
+   * Provides a case-insensitive way to retrieve a MarkedIndividual. It returns the first instance of such it finds.
+   * @param myID The individual ID to return in any case.
+   * @return
+   */
+  public MarkedIndividual getMarkedIndividualCaseInsensitive(String myID) {
+    String filter = "this.individualID.toLowerCase() == \""+myID.toLowerCase()+"\"";
+    Extent encClass = pm.getExtent(MarkedIndividual.class, true);
+    Query acceptedEncounters = pm.newQuery(encClass, filter);
+    Collection c = (Collection) (acceptedEncounters.execute());
+    ArrayList al = new ArrayList(c);
+    acceptedEncounters.closeAll();
+    if((al!=null)&&(al.size()>0)){return (MarkedIndividual)al.get(1);}
+    return null;
   }
 
   public ArrayList getEncountersByAlternateID(String altID) {

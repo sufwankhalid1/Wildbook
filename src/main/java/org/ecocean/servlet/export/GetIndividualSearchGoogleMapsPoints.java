@@ -52,7 +52,7 @@ public class GetIndividualSearchGoogleMapsPoints extends HttpServlet {
   haploprops=ShepherdProperties.getProperties("haplotypeColorCodes.properties", "",context);
 
     Properties localeprops = new Properties();
-   localeprops=ShepherdProperties.getProperties("locationIDGPS.properties", "");
+   localeprops=ShepherdProperties.getProperties("locationIDGPS.properties", "", context);
 
    List<String> allSpecies=CommonConfiguration.getIndexedValues("genusSpecies",context);
    int numSpecies=allSpecies.size();
@@ -111,7 +111,7 @@ public class GetIndividualSearchGoogleMapsPoints extends HttpServlet {
       for(int i=0;i<numIndividuals;i++) {
         MarkedIndividual indie=(MarkedIndividual)rIndividuals.get(i);
         
-        Vector rEncounters=indie.returnEncountersWithGPSData(useLocales,true); 
+        Vector rEncounters=indie.returnEncountersWithGPSData(useLocales,true,context); 
         int numEncs=rEncounters.size();
         
         //set up move path
@@ -124,12 +124,14 @@ public class GetIndividualSearchGoogleMapsPoints extends HttpServlet {
         String speciesColor="C0C0C0";
         
         //now check if we should show by sex
-        if(indie.getSex().equals("male")){
+        if(indie.getSex()!=null){
+          if(indie.getSex().equals("male")){
             sexColor="0000FF";
           }
           else if(indie.getSex().equals("female")){
             sexColor="FF00FF";
           }
+        }
           
         //set the haplotype color
         if((indie.getHaplotype()!=null)&&(haploprops.getProperty(indie.getHaplotype())!=null)){
@@ -179,6 +181,7 @@ public class GetIndividualSearchGoogleMapsPoints extends HttpServlet {
              movePathCoords[yh]=coord;
              point.put("coordinates", coord);
              point.put("catalogNumber",enc.getCatalogNumber());
+             point.put("encSubdir",enc.subdir());
              point.put("rootURL",CommonConfiguration.getURLLocation(request));
              point.put("individualID",enc.getIndividualID());
              point.put("dataDirectoryName",CommonConfiguration.getDataDirectoryName(context));

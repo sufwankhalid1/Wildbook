@@ -83,7 +83,7 @@ public class EncounterSearchExportExcelFile extends HttpServlet{
         //load the optional locales
         Properties props = new Properties();
         try {
-          props=ShepherdProperties.getProperties("locationIDGPS.properties", "");
+          props=ShepherdProperties.getProperties("locationIDGPS.properties", "",context);
         
         } catch (Exception e) {
           System.out.println("     Could not load locales.properties EncounterSearchExportExcelFile.");
@@ -147,16 +147,17 @@ public class EncounterSearchExportExcelFile extends HttpServlet{
         sheet.addCell(label23);
         Label label24 = new Label(24, 0, "Latitude");
         sheet.addCell(label24);
-        Label label24a = new Label(25, 0, "Country");
-        sheet.addCell(label24a);
-        Label label25 = new Label(26, 0, "Sex");
+        Label label25 = new Label(25, 0, "Sex");
         sheet.addCell(label25);
-        Label label26 = new Label(27, 0, "Notes");
+        Label label26 = new Label(26, 0, "Notes");
         sheet.addCell(label26);
-        Label label27 = new Label(28, 0, "Length (m)");
+        Label label27 = new Label(27, 0, "Length (m)");
         sheet.addCell(label27);
-       
-        Label label30 = new Label(29, 0, "Submitter Email Address");
+        Label label28 = new Label(28, 0, "Marked Individual");
+        sheet.addCell(label28);
+        Label label29 = new Label(29, 0, "Location ID");
+        sheet.addCell(label29);
+        Label label30 = new Label(30, 0, "Submitter Email Address");
         sheet.addCell(label30);
         
         // Excel export =========================================================
@@ -273,26 +274,28 @@ public class EncounterSearchExportExcelFile extends HttpServlet{
                 System.out.println("     I hit an error getting locales in searchResults.jsp.");
               }
             }
-            if (enc.getCountry()!=null) {
-              Label lCountry = new Label(25, count, enc.getCountry());
-              sheet.addCell(lCountry);
-            }
-            if (!enc.getSex().equals("unknown")) {
-              Label lSex = new Label(26, count, enc.getSex());
+            if ((enc.getSex()!=null)&&(!enc.getSex().equals("unknown"))) {
+              Label lSex = new Label(25, count, enc.getSex());
               sheet.addCell(lSex);
             }
             if(enc.getComments()!=null){
-              Label lNumberx26 = new Label(27, count, enc.getComments().replaceAll("<br>", ". ").replaceAll("\n", "").replaceAll("\r", ""));
+              Label lNumberx26 = new Label(26, count, enc.getComments().replaceAll("<br>", ". ").replaceAll("\n", "").replaceAll("\r", ""));
               sheet.addCell(lNumberx26);
             }
             if(enc.getSizeAsDouble()!=null){
-              Label lNumberx27 = new Label(28, count, enc.getSizeAsDouble().toString());
+              Label lNumberx27 = new Label(27, count, enc.getSizeAsDouble().toString());
               sheet.addCell(lNumberx27);
             }
-           
-
+            if (!enc.isAssignedToMarkedIndividual().equals("Unassigned")) {
+              Label lNumberx28 = new Label(28, count, enc.isAssignedToMarkedIndividual());
+              sheet.addCell(lNumberx28);
+            }
+            if (enc.getLocationCode() != null) {
+              Label lNumberx29 = new Label(29, count, enc.getLocationCode());
+              sheet.addCell(lNumberx29);
+            }
             if (enc.getSubmitterEmail() != null) {
-                Label lNumberx30 = new Label(29, count, enc.getSubmitterEmail());
+                Label lNumberx30 = new Label(30, count, enc.getSubmitterEmail());
                 sheet.addCell(lNumberx30);
             }
 

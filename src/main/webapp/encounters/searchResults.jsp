@@ -38,7 +38,7 @@ context=ServletUtilities.getContext(request);
 
   Properties encprops = new Properties();
   //encprops.load(getClass().getResourceAsStream("/bundles/" + langCode + "/searchResults.properties"));
-  encprops=ShepherdProperties.getProperties("searchResults.properties", langCode);
+  encprops=ShepherdProperties.getProperties("searchResults.properties", langCode, context);
   
 
   Shepherd myShepherd = new Shepherd(context);
@@ -297,6 +297,8 @@ context=ServletUtilities.getContext(request);
   for (int f = 0; f < rEncounters.size(); f++) {
 
     Encounter enc = (Encounter) rEncounters.get(f);
+		String encUrlDir = "/" + CommonConfiguration.getDataDirectoryName(context) + enc.dir("");
+
     count++;
     numResults++;
     //if ((enc.getDWCDecimalLatitude() != null) && (enc.getDWCDecimalLongitude() != null)) {
@@ -311,7 +313,7 @@ context=ServletUtilities.getContext(request);
   <%
    if((enc.getSinglePhotoVideo()!=null)&&(enc.getSinglePhotoVideo().size()>0)){ 
    %>
-  	<img src="/<%=CommonConfiguration.getDataDirectoryName(context) %>/encounters/<%=(enc.getEncounterNumber()+"/thumb.jpg")%>" />
+  	<img src="<%= encUrlDir %>/thumb.jpg" />
   <%
    }
   %>

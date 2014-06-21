@@ -113,7 +113,9 @@ public class EncounterSearchExportShapefile extends HttpServlet{
             featureBuilder.add((new java.sql.Date(enc.getDateInMilliseconds())));
             featureBuilder.add(enc.getCatalogNumber());
             featureBuilder.add(enc.isAssignedToMarkedIndividual());
-            featureBuilder.add(enc.getSex());
+            if(enc.getSex()!=null){
+              featureBuilder.add(enc.getSex());
+            }
             String haploString="";
             if(enc.getTissueSamples().size()>0){
               List<TissueSample> samples=enc.getTissueSamples();
@@ -140,7 +142,15 @@ public class EncounterSearchExportShapefile extends HttpServlet{
             featureBuilder.add(enc.getDecimalLatitudeAsDouble());
             featureBuilder.add(enc.getDecimalLongitudeAsDouble());
             
+            String genusSpeciesString="";
+            if((enc.getGenus()!=null)&&(enc.getSpecificEpithet()!=null)){
+              genusSpeciesString = enc.getGenus()+" "+enc.getSpecificEpithet();
+            }
+            featureBuilder.add(genusSpeciesString);
+            
             SimpleFeature feature = featureBuilder.buildFeature(null);
+            
+            
             collection.add(feature);
           }
         }
@@ -308,6 +318,7 @@ public class EncounterSearchExportShapefile extends HttpServlet{
       builder.add("URL", String.class);
       builder.add("Latitude", Double.class);
       builder.add("Longitude", Double.class);
+      builder.add("GenusSpecies", String.class); 
 
       // build the type
       final SimpleFeatureType LOCATION = builder.buildFeatureType();

@@ -1,6 +1,6 @@
 <%--
-  ~ The Shepherd Project - A Mark-Recapture Framework
-  ~ Copyright (C) 2011 Jason Holmberg
+  ~ Wildbook - A Mark-Recapture Framework
+  ~ Copyright (C) 2008-2014 Jason Holmberg
   ~
   ~ This program is free software; you can redistribute it and/or
   ~ modify it under the terms of the GNU General Public License
@@ -23,6 +23,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>         
 <%
 
+boolean isIE = request.getHeader("user-agent").contains("MSIE ");
 String context="context0";
 context=ServletUtilities.getContext(request);
 
@@ -36,40 +37,13 @@ context=ServletUtilities.getContext(request);
 
   //set up the file input stream
   //props.load(getClass().getResourceAsStream("/bundles/" + langCode + "/submit.properties"));
-  props = ShepherdProperties.getProperties("submit.properties", langCode);
+  props = ShepherdProperties.getProperties("submit.properties", langCode,context);
 
 
+	long maxSizeMB = CommonConfiguration.getMaxMediaSizeInMegabytes(context);
+	long maxSizeBytes = maxSizeMB * 1048576;
 
-  //load our variables for the submit page
-  String title = props.getProperty("submit_title");
-  String submit_maintext = props.getProperty("submit_maintext");
-  String submit_reportit = props.getProperty("reportit");
-  String submit_language = props.getProperty("language");
-  String what_do = props.getProperty("what_do");
-  String read_overview = props.getProperty("read_overview");
-  String see_all_encounters = props.getProperty("see_all_encounters");
-  String see_all_sharks = props.getProperty("see_all_sharks");
-  String report_encounter = props.getProperty("report_encounter");
-  String log_in = props.getProperty("log_in");
-  String contact_us = props.getProperty("contact_us");
-  String search = props.getProperty("search");
-  String encounter = props.getProperty("encounter");
-  String shark = props.getProperty("shark");
-  String join_the_dots = props.getProperty("join_the_dots");
-  String menu = props.getProperty("menu");
-  String last_sightings = props.getProperty("last_sightings");
-  String more = props.getProperty("more");
-  String ws_info = props.getProperty("ws_info");
-  String about = props.getProperty("about");
-  String contributors = props.getProperty("contributors");
-  String forum = props.getProperty("forum");
-  String blog = props.getProperty("blog");
-  String area = props.getProperty("area");
-  String match = props.getProperty("match");
-  String click2learn = props.getProperty("click2learn");
-
-  //link path to submit page with appropriate language
-  String submitPath = "submit.jsp?langCode=" + langCode;
+  
 
 %>
 
@@ -88,6 +62,7 @@ context=ServletUtilities.getContext(request);
   <link rel="shortcut icon"
         href="<%=CommonConfiguration.getHTMLShortcutIcon(context) %>"/>
 
+        
   <script language="javascript" type="text/javascript">
     <!--
 
@@ -99,7 +74,7 @@ context=ServletUtilities.getContext(request);
          * the value.length returns the length of the information entered
          * in the Submitter's Name field.
          */
-        requiredfields += "\n   *  Your name";
+        requiredfields += "\n   *  <%=props.getProperty("submit_name") %>";
       }
 
         /*         
@@ -115,7 +90,7 @@ context=ServletUtilities.getContext(request);
         */
 
       if (requiredfields != "") {
-        requiredfields = "Please correctly enter the following fields:\n" + requiredfields;
+        requiredfields = "<%=props.getProperty("pleaseFillIn") %>\n" + requiredfields;
         alert(requiredfields);
 // the alert function will popup the alert window
         return false;
@@ -319,9 +294,10 @@ function FSControl(controlDiv, map) {
   <h1 class="intro"><%=props.getProperty("submit_report")%>
   </h1>
 </div>
-<form action="submitForm.jh" method="post" enctype="multipart/form-data"
+<form xclass="dropzone" id="encounterForm" action="EncounterForm" method="post" enctype="multipart/form-data"
       name="encounter_submission" target="_self" dir="ltr" lang="en"
       onsubmit="return validate();">
+<div class="dz-message"></div>
 
 <p><%=props.getProperty("submit_overview")%>
 </p>
@@ -912,17 +888,45 @@ if(CommonConfiguration.showProperty("showLifestage",context)){
 
 <p>&nbsp;</p>
 
-<p align="center"><strong><%=props.getProperty("submit_image")%>
-  1:</strong> <input name="theFile1" type="file" size="30"/></p>
+<p align="center"><strong><%=props.getProperty("submit_image")%></strong>
 
-<p align="center"><strong><%=props.getProperty("submit_image")%>
-  2: <input name="theFile2" type="file" size="30"/> </strong></p>
+<div id="xdropzone-previews" class="dropzone-previews" style="display: none;">
+	<div style="text-align: center;" ><b>drop</b> image/video files here, or <b>click</b> for file dialog</div>
+</div>
 
-<p align="center"><strong><%=props.getProperty("submit_image")%>
-  3: <input name="theFile3" type="file" size="30"/> </strong></p>
+<script>
+function updateList(inp) {
+	var f = '';
+	if (inp.files && inp.files.length) {
+		var all = [];
+		for (var i = 0 ; i < inp.files.length ; i++) {
+			if (inp.files[i].size > <%=maxSizeBytes%>) {
+				all.push('<span class="error">' + inp.files[i].name + ' (' + Math.round(inp.files[i].size / (1024*1024)) + 'MB is too big, <%=maxSizeMB%>MB max)</span>');
+			} else {
+				all.push(inp.files[i].name + ' (' + Math.round(inp.files[i].size / 1024) + 'k)');
+			}
+		}
+		f = '<b>' + inp.files.length + ' file' + ((inp.files.length == 1) ? '' : 's') + ':</b> ' + all.join(', ');
+	} else {
+		f = inp.value;
+	}
+	document.getElementById('input-file-list').innerHTML = f;
+}
+</script>
 
-<p align="center"><strong><%=props.getProperty("submit_image")%>
-  4: <input name="theFile4" type="file" size="30"/> </strong></p>
+	<div class="input-file-drop" xonClick="return fileClick();">
+<% if (isIE) { %>
+		<div><%=props.getProperty("dragInstructionsIE")%></div>
+		<input class="ie" name="theFiles" type="file" accept=".jpg, .jpeg, .png, .bmp, .gif, .mov, .wmv, .avi, .mp4, .mpg" multiple size="30" onChange="updateList(this);" />
+<% } else { %>
+		<input class="nonIE" name="theFiles" type="file" accept=".jpg, .jpeg, .png, .bmp, .gif, .mov, .wmv, .avi, .mp4, .mpg" multiple size="30" onChange="updateList(this);" />
+		<div><%=props.getProperty("dragInstructions")%></div>
+<% } %>
+		<div id="input-file-list"></div>
+	</div>
+
+</p>
+
 
 <p>&nbsp;</p>
 <%if (request.getRemoteUser() != null) {%> <input name="submitterID"

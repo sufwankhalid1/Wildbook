@@ -97,7 +97,9 @@ public class MarkedIndividual implements java.io.Serializable {
     encounters.add(enc);
     //dataFiles = new Vector();
     numberEncounters = 1;
-    this.sex = enc.getSex();
+    if(enc.getSex()!=null){
+      this.sex = enc.getSex();
+    }
     numUnidentifiableEncounters = 0;
     maxYearsBetweenResightings=0;
   }
@@ -185,9 +187,9 @@ public class MarkedIndividual implements java.io.Serializable {
   }
 
   public Vector returnEncountersWithGPSData(){
-    return returnEncountersWithGPSData(false,false);
+    return returnEncountersWithGPSData(false,false,"context0");
   }
-  public Vector returnEncountersWithGPSData(boolean useLocales, boolean reverseOrder) {
+  public Vector returnEncountersWithGPSData(boolean useLocales, boolean reverseOrder,String context) {
     //if(unidentifiableEncounters==null) {unidentifiableEncounters=new Vector();}
     Vector haveData=new Vector();
     Encounter[] myEncs=getDateSortedEncounters(reverseOrder);
@@ -195,7 +197,7 @@ public class MarkedIndividual implements java.io.Serializable {
     Properties localesProps = new Properties();
     if(useLocales){
       try {
-        localesProps=ShepherdProperties.getProperties("locationIDGPS.properties", "");
+        localesProps=ShepherdProperties.getProperties("locationIDGPS.properties", "",context);
       } 
       catch (Exception ioe) {
         ioe.printStackTrace();
@@ -597,7 +599,9 @@ public class MarkedIndividual implements java.io.Serializable {
    * Sets the sex of this MarkedIndividual.
    */
   public void setSex(String newSex) {
-    sex = newSex;
+    if(newSex!=null){sex = newSex;}
+    else{sex=null;}
+    
   }
 
 
@@ -1136,6 +1140,7 @@ public class MarkedIndividual implements java.io.Serializable {
   
   public ArrayList<TissueSample> getAllTissueSamples() {
     ArrayList<TissueSample> al = new ArrayList<TissueSample>();
+    if(encounters!=null){
     int numEncounters = encounters.size();
     for (int i = 0; i < numEncounters; i++) {
       Encounter enc = (Encounter) encounters.get(i);
@@ -1147,6 +1152,8 @@ public class MarkedIndividual implements java.io.Serializable {
       }
     }
     return al;
+    }
+    return null;
   }
   
   public ArrayList<SinglePhotoVideo> getAllSinglePhotoVideo() {
@@ -1366,6 +1373,7 @@ public boolean hasLocus(String locus){
 
 public boolean hasMsMarkers(){
   ArrayList<TissueSample> samples=getAllTissueSamples();
+  if(samples!=null){
   int numSamples=samples.size();
   for(int i=0;i<numSamples;i++){
       TissueSample sample=samples.get(i);
@@ -1379,6 +1387,7 @@ public boolean hasMsMarkers(){
           }
         }
       }
+  }
   }
   return false;
 }

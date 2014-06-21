@@ -63,7 +63,7 @@ context=ServletUtilities.getContext(request);
   //set up the file input stream
   Properties props = new Properties();
   //props.load(getClass().getResourceAsStream("/bundles/" + langCode + "/welcome.properties"));
-  props = ShepherdProperties.getProperties("welcome.properties", langCode);
+  props = ShepherdProperties.getProperties("welcome.properties", langCode,context);
 
 
   session = request.getSession(true);
@@ -74,7 +74,7 @@ context=ServletUtilities.getContext(request);
   ;
 %>
 
-<body bgcolor="#FFFFFF">
+<body>
 <div id="wrapper">
   <div id="page">
     <jsp:include page="header.jsp" flush="true">
@@ -102,7 +102,7 @@ context=ServletUtilities.getContext(request);
 			Shepherd myShepherd=new Shepherd("context0");
 			myShepherd.beginDBTransaction();
 			%>
-             <strong><%=myShepherd.getAllRolesForUserAsString(request.getRemoteUser()).replaceAll("\r","<br />")%></strong></p>
+             <em><%=myShepherd.getAllRolesForUserAsString(request.getRemoteUser()).replaceAll("\r","<br />")%></em></p>
             
             <%
             
