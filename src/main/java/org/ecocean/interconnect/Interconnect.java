@@ -87,11 +87,11 @@ public class Interconnect extends JPanel {
     static String previous = null;
 
     final String Item1 = "File";
-    final String Item1_1 = "Open left-side shark image";
-    final String Item1_7 = "Open right-side shark image";
+    final String Item1_1 = "Open left-side image";
+    final String Item1_7 = "Open right-side image";
     final String Item1_2 = "Open previous image";
     final String Item1_3 = "Save fingerprint";
-    final String Item1_4 = "Close shark image";
+    final String Item1_4 = "Close image";
     final String Item1_5 = "Spot selection";
     final String Item1_6 = "Exit";
     final String Item2 = "Search";
@@ -261,7 +261,7 @@ public class Interconnect extends JPanel {
       }
       if (source.getText() == Item1_4) {
         saveResultsPrompt();
-        frame.setTitle("Wild Me Interconnect (v1.2)");
+        frame.setTitle("Wild Me Interconnect (v1.3)");
         sp.close();
       }
       if (source.getText() == Item1_6) {
@@ -338,7 +338,7 @@ public class Interconnect extends JPanel {
 
     Splash splash = new Splash();
 
-    frame = new JFrame("Wild Me Interconnect (v1.2)");
+    frame = new JFrame("Wild Me Interconnect (v1.3)");
     SharkMenu sharkmenu = new SharkMenu();
     final Interconnect controller = new Interconnect();
 

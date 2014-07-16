@@ -61,7 +61,7 @@ class GetEncounterNumber extends JPanel implements ActionListener {
 
     wrapper = new JPanel();
     wrapper.setLayout(new BoxLayout(wrapper, BoxLayout.X_AXIS));
-    JLabel label = new JLabel("Whale Shark Photo-identification Library encounter number: ");
+    JLabel label = new JLabel("Encounter Number: ");
     label.setFont(new Font("Times New Roman", Font.BOLD, 12));
     wrapper.add(label, BorderLayout.LINE_START);
     wrapper.add(Box.createRigidArea(new Dimension(1, 10)));

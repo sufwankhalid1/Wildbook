@@ -671,25 +671,25 @@ class SharkPanel extends JPanel {
     graphics2D.setFont(new Font("Arial", Font.PLAIN, 12));
 
     if (dorsal1.empty() == false) {
-      graphics2D.drawString("5th gill top", (int) (dorsal1.x * factor) + 10 + xOffset, (int) (dorsal1.y * factor) - 20);
+      graphics2D.drawString("Corner of eye (posterior)", (int) (dorsal1.x * factor) + 10 + xOffset, (int) (dorsal1.y * factor) - 20);
       graphics2D.drawOval((int) (dorsal1.x * factor) - 10 + xOffset, (int) (dorsal1.y * factor) - 10, 20, 20);
       graphics2D.fill(new Ellipse2D.Double((dorsal1.x * factor) - 1 + xOffset, (dorsal1.y * factor) - 1, 3, 3));
     } else if (dotSelection) {
-      graphics2D.drawString("Click the top of the 5th gill.", 100 + xOffset, 100);
+      graphics2D.drawString("Click the corner of eye (posterior).", 100 + xOffset, 100);
     }
     if (dorsal2.empty() == false) {
-      graphics2D.drawString(("posterior pectoral " + side), (int) (dorsal2.x * factor) + 10 + xOffset, (int) (dorsal2.y * factor) - 20);
+      graphics2D.drawString(("1st gill (upper) " + side), (int) (dorsal2.x * factor) + 10 + xOffset, (int) (dorsal2.y * factor) - 20);
       graphics2D.drawOval((int) (dorsal2.x * factor) - 10 + xOffset, (int) (dorsal2.y * factor) - 10, 20, 20);
       graphics2D.fill(new Ellipse2D.Double(dorsal2.x * factor - 1 + xOffset, dorsal2.y * factor - 1, 3, 3));
     } else if (!dorsal1.empty() && dotSelection) {
-      graphics2D.drawString("Click the posterior point where the pectoral fin meets the body.", 100 + xOffset, 100);
+      graphics2D.drawString("Click the top of the the 1st gill.", 100 + xOffset, 100);
     }
     if (pelvic.empty() == false) {
-      graphics2D.drawString("5th gill bottom", (int) (pelvic.x * factor) + 10 + xOffset, (int) (pelvic.y * factor) + 20);
+      graphics2D.drawString("Mouth (lower corner)", (int) (pelvic.x * factor) + 10 + xOffset, (int) (pelvic.y * factor) + 20);
       graphics2D.drawOval((int) (pelvic.x * factor) - 10 + xOffset, (int) (pelvic.y * factor) - 10, 20, 20);
       graphics2D.fill(new Ellipse2D.Double(pelvic.x * factor - 1 + xOffset, pelvic.y * factor - 1, 3, 3));
     } else if (!dorsal1.empty() && !dorsal2.empty() && dotSelection) {
-      graphics2D.drawString("Click the bottom of the 5th gill.", 100 + xOffset, 100);
+      graphics2D.drawString("Click the lower corner of the mouth.", 100 + xOffset, 100);
     }
 
     if (spotcnt > 0)
