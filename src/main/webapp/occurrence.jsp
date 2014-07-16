@@ -418,7 +418,7 @@ if(sharky.getLocationID()!=null){
       
         Vector encImages = enc.getAdditionalImageNames();
         String imgName = "";
-				String encSubdir = thisEnc.subdir();
+				String encSubdir = enc.subdir();
         
           imgName = "/"+CommonConfiguration.getDataDirectoryName(context)+"/encounters/" + encSubdir + "/thumb.jpg";
         
@@ -619,14 +619,14 @@ if(enc.getSex()!=null){sexValue=enc.getSex();}
 									String thumbLink="";
 									boolean video=true;
 									if(!myShepherd.isAcceptableVideoFile(thumbLocs.get(countMe).getFilename())){
-										thumbLink="/"+CommonConfiguration.getDataDirectoryName(context)+"/encounters/"+thumbLocs.get(countMe).getCorrespondingEncounterNumber()+"/"+thumbLocs.get(countMe).getDataCollectionEventID()+".jpg";
+										thumbLink="/"+CommonConfiguration.getDataDirectoryName(context)+"/encounters/"+Encounter.subdir(thumbLocs.get(countMe).getCorrespondingEncounterNumber())+"/"+thumbLocs.get(countMe).getDataCollectionEventID()+".jpg";
 										video=false;
 									}
 									else{
 										thumbLink="http://"+CommonConfiguration.getURLLocation(request)+"/images/video.jpg";
 										
 									}
-									String link="/"+CommonConfiguration.getDataDirectoryName(context)+"/encounters/"+thumbLocs.get(countMe).getCorrespondingEncounterNumber()+"/"+thumbLocs.get(countMe).getFilename();
+									String link="/"+CommonConfiguration.getDataDirectoryName(context)+"/encounters/"+Encounter.subdir(thumbLocs.get(countMe).getCorrespondingEncounterNumber())+"/"+thumbLocs.get(countMe).getFilename();
 						
 							%>
 
@@ -705,9 +705,17 @@ if(enc.getSex()!=null){sexValue=enc.getSex();}
                         </a></span></td>
                       </tr>
                         <tr>
-                        <td><span class="caption"><%=props.getProperty("individualID") %>: <a
-                          href="individuals.jsp?number=<%=thisEnc.getIndividualID() %>"><%=thisEnc.getIndividualID() %>
-                        </a></span></td>
+                        <td><span class="caption"><%=props.getProperty("individualID") %>: 
+                        
+                        <%
+                        		if((thisEnc.getIndividualID()!=null)&&(!thisEnc.getIndividualID().toLowerCase().equals("unassigned"))){
+                        		%>
+                        			<a href="individuals.jsp?number=<%=thisEnc.getIndividualID() %>"><%=thisEnc.getIndividualID() %></a>
+                        		<%
+                        		}
+                        		%>
+                        
+                        </span></td>
                       </tr>
                       <%
                         if (thisEnc.getVerbatimEventDate() != null) {
@@ -768,7 +776,7 @@ if(enc.getSex()!=null){sexValue=enc.getSex();}
 					<%
             if ((thumbLocs.get(countMe).getFilename().toLowerCase().endsWith("jpg")) || (thumbLocs.get(countMe).getFilename().toLowerCase().endsWith("jpeg"))) {
               try{
-              	File exifImage = new File(encountersDir.getAbsolutePath() + "/" + thisEnc.getCatalogNumber() + "/" + thumbLocs.get(countMe).getFilename());
+              	File exifImage = new File(encountersDir.getAbsolutePath() + "/" + Encounter.subdir(thisEnc.getCatalogNumber()) + "/" + thumbLocs.get(countMe).getFilename());
               	if(exifImage.exists()){
               	Metadata metadata = JpegMetadataReader.readMetadata(exifImage);
               	// iterate through metadata directories
@@ -845,9 +853,17 @@ if(enc.getSex()!=null){sexValue=enc.getSex();}
   </a></span></td>
 </tr>
                         <tr>
-                        <td><span class="caption"><%=props.getProperty("individualID") %>: <a
-                          href="individuals.jsp?number=<%=thisEnc.getIndividualID() %>"><%=thisEnc.getIndividualID() %>
-                        </a></span></td>
+                        	<td>
+                        		<span class="caption"><%=props.getProperty("individualID") %>: 
+                        		<%
+                        		if((thisEnc.getIndividualID()!=null)&&(!thisEnc.getIndividualID().toLowerCase().equals("unassigned"))){
+                        		%>
+                        			<a href="individuals.jsp?number=<%=thisEnc.getIndividualID() %>"><%=thisEnc.getIndividualID() %></a>
+                        		<%
+                        		}
+                        		%>
+                        		</span>
+                        	</td>
                       </tr>
 <tr>
   <td><span class="caption">
@@ -1027,6 +1043,7 @@ else {
       </td>
 </tr>
 </table>
+
 </div><!-- end maintext -->
 <jsp:include page="footer.jsp" flush="true"/>
 </div><!-- end main-wide -->
@@ -1034,7 +1051,7 @@ else {
       <%
     
   } catch (Exception eSharks_jsp) {
-    System.out.println("Caught and handled an exception in individuals.jsp!");
+    System.out.println("Caught and handled an exception in occurrence.jsp!");
     eSharks_jsp.printStackTrace();
   }
 
