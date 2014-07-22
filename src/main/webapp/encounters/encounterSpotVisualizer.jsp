@@ -249,30 +249,30 @@ if (myShepherd.isEncounter(num)) {
              fillPaint="#FF9900"></di:circle>
   <%if (side.equals("Right")) {%>
   <di:text font="Arial-bold-12" fillPaint="#FF9900" x="<%=(theX1-45)%>"
-           y="<%=(theY1+15)%>">5th top</di:text>
+           y="<%=(theY1+15)%>">Corner of eye (posterior)</di:text>
   <%} else {%>
   <di:text font="Arial-bold-12" fillPaint="#FF9900" x="<%=(theX1)%>"
-           y="<%=(theY1+15)%>">5th top</di:text>
+           y="<%=(theY1+15)%>">Corner of eye (posterior)</di:text>
   <%}%>
 
   <di:circle x="<%=theX2%>" y="<%=theY2%>" radius="4"
              fillPaint="#FF9900"></di:circle>
   <%if (side.equals("Right")) {%>
   <di:text font="Arial-bold-12" fillPaint="#FF9900" x="<%=(theX2+10)%>"
-           y="<%=(theY2+15)%>">posterior pectoral</di:text>
+           y="<%=(theY2+15)%>">1st gill (upper)</di:text>
   <%} else {%>
   <di:text font="Arial-bold-12" fillPaint="#FF9900"
-           x="<%=(theX2-120)%>" y="<%=(theY2+15)%>">posterior pectoral</di:text>
+           x="<%=(theX2-120)%>" y="<%=(theY2+15)%>">1st gill (upper)</di:text>
   <%}%>
 
   <di:circle x="<%=theX3%>" y="<%=theY3%>" radius="4"
              fillPaint="#FF9900"></di:circle>
   <%if (side.equals("Right")) {%>
   <di:text font="Arial-bold-12" fillPaint="#FF9900" x="<%=(theX3-60)%>"
-           y="<%=(theY3+15)%>">5th bottom</di:text>
+           y="<%=(theY3+15)%>">Mouth (lower corner)</di:text>
   <%} else {%>
   <di:text font="Arial-bold-12" fillPaint="#FF9900" x="<%=(theX3)%>"
-           y="<%=(theY3+15)%>">5th bottom</di:text>
+           y="<%=(theY3+15)%>">Mouth (lower corner)</di:text>
   <%}%>
   <%
       }
