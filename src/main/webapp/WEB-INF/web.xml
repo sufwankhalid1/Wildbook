@@ -190,6 +190,8 @@
 					/myAccount.jsp = authc
 					/UserSelfUpdate = authc
 					
+					/RecaptchaLogin = anon
+					
 				    /MyAccountAddProfileImage = authc
 				    /MyAccountRemoveProfileImage = authc
 
@@ -884,6 +886,11 @@
     <servlet-name>EncounterSetMatchedBy</servlet-name>
     <servlet-class>org.ecocean.servlet.EncounterSetMatchedBy</servlet-class>
   </servlet>
+  
+    <servlet>
+    <servlet-name>RecaptchaLogin</servlet-name>
+    <servlet-class>org.ecocean.servlet.RecaptchaLogin</servlet-class>
+  </servlet>
 
   <servlet>
     <servlet-name>EncounterSetLivingStatus</servlet-name>
@@ -1029,6 +1036,11 @@
   <servlet-mapping>
           <servlet-name>SimpleCMROutput</servlet-name>
           <url-pattern>/SimpleCMROutput</url-pattern>
+  </servlet-mapping>
+  
+     <servlet-mapping>
+    <servlet-name>RecaptchaLogin</servlet-name>
+    <url-pattern>/RecaptchaLogin</url-pattern>
   </servlet-mapping>
   
   

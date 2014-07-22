@@ -118,28 +118,15 @@ if(context.equals("context3")){
 <form action="RecaptchaLogin" method="post">
     <table align="left" border="0" cellspacing="0" cellpadding="3">
         <tr>
-            <td><i>1. Required</i>: please enter your email address:</td>
+            <td>1. Please enter your email address:</td>
             <td><input type="text" name="email" maxlength="50" /></td>
         </tr>
         <tr>
-            <td>2. What are the species to use Wildbook for?</td>
+            <td>2. Please tell us the species you might use Wildbook for:</td>
             <td><input type="text" name="species" maxlength="50" /></td>
         </tr>
-              <tr>
-        	<td>3. Evaluating Wildbook for: </td>
-        	<td>
-        	
-        	<input type="radio" name="usage" value="Occurrence only">Species Occurrence only</input><br />
-        	<input type="radio" name="usage" value="CMR Photo ID"> Photo-identification</input><br />
-        	<input type="radio" name="usage" value="CMR Genetic ID"> Genetic-identification</input><br />
-        	<input type="radio" name="usage" value="CMR Mixed Photo and Genetic ID"> Mixed Photo- and Genetic-identification</input><br />
-        	<input type="radio" name="usage" value="Unknown"> Unknown</input><br />
-        	
-        	
-        	</td>
-        </tr>
         <tr>
-        <td>4. <i>Required</i>: please let us know that you're human.</td>
+        <td>3. Please let us know that you're human.</td>
             <td>
             	<%
 					ReCaptcha c = ReCaptchaFactory.newReCaptcha("6LczL_cSAAAAAMhdEozUpEWyt9QzmU_yk7XBlljw", "6LczL_cSAAAAAIW8b4PWN5jv0TdjcqEEC61E6-ro", false);
@@ -150,7 +137,6 @@ if(context.equals("context3")){
         <tr>
             <td colspan="2" align="left"><input type="submit" name="submit" value="<%=props.getProperty("login") %>" /></td>
         </tr>
-        
     </table>
 </form>
 
@@ -181,7 +167,6 @@ else{
         <tr>
             <td colspan="2" align="right"><input type="submit" name="submit" value="<%=props.getProperty("login") %>" /></td>
         </tr>
-  
     </table>
 </form>
 
