@@ -418,7 +418,7 @@ if(sharky.getLocationID()!=null){
       
         Vector encImages = enc.getAdditionalImageNames();
         String imgName = "";
-				String encSubdir = thisEnc.subdir();
+				String encSubdir = enc.subdir();
         
           imgName = "/"+CommonConfiguration.getDataDirectoryName(context)+"/encounters/" + encSubdir + "/thumb.jpg";
         

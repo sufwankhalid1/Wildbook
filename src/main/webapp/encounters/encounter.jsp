@@ -816,9 +816,19 @@ $("a#alternateID").click(function() {
 							<img width="24px" height="24px" align="absmiddle" src="../images/occurrence.png" />&nbsp;<%=encprops.getProperty("occurrenceID") %>:
 							<%
 							if(myShepherd.getOccurrenceForEncounter(enc.getCatalogNumber())!=null){
+								
+								Occurrence occur=myShepherd.getOccurrenceForEncounter(enc.getCatalogNumber());
 							%>
-								<a href="../occurrence.jsp?number=<%=myShepherd.getOccurrenceForEncounter(enc.getCatalogNumber()).getOccurrenceID() %>"><%=myShepherd.getOccurrenceForEncounter(enc.getCatalogNumber()).getOccurrenceID() %></a>	
+								<a href="../occurrence.jsp?number=<%=occur.getOccurrenceID() %>"><%=myShepherd.getOccurrenceForEncounter(enc.getCatalogNumber()).getOccurrenceID() %></a>.
+								<%
+								if(occur.getIndividualCount()!=null){
+								%>	
+								&nbsp;<em><%=occur.getIndividualCount() %>&nbsp;<%=encprops.getProperty("sightedTogether") %></em>
+								<%
+								}
+								%>
 							<% 	
+							
 							}
 							else{
 							%>

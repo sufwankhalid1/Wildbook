@@ -636,6 +636,12 @@ if(CommonConfiguration.showProperty("maximumElevationInMeters",context)){
 %>
 
 <tr class="form_row">
+  <td class="form_label"><strong><%=props.getProperty("numAnimalsSighted")%></strong></td>
+  <td colspan="2">
+    <input name="numAnimalsSighted" type="number" id="numAnimalsSighted" size="5"/></td>
+</tr>
+
+<tr class="form_row">
   <td class="form_label"><strong><%=props.getProperty("status") %></strong></td>
   <td colspan="2"><select name="livingStatus" id="livingStatus">
     <option value="alive" selected="selected">Alive</option>

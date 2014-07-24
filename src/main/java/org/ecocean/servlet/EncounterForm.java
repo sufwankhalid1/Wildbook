@@ -715,6 +715,39 @@ System.out.println("depth --> " + fv.get("depth").toString());
 			String newnum = "";
 			if (!spamBot) {
 				newnum = myShepherd.storeNewEncounter(enc, encID);
+				
+	      
+	      //create an occurrence if occurrence is set
+				if ((fv.get("numAnimalsSighted") != null) && !fv.get("numAnimalsSighted").toString().equals("")) {
+				  try{
+				    
+				    Integer numIndividualsEstimated=new Integer(fv.get("numAnimalsSighted").toString());
+				    if(numIndividualsEstimated>1){
+				      myShepherd.beginDBTransaction();
+				    
+				      String occurrenceID="";
+				      Encounter occurEnc=myShepherd.getEncounter(encID);
+				      if(occurEnc.getYear()>0){occurrenceID+=occurEnc.getYear();}
+				      if(occurEnc.getMonth()>0){occurrenceID+=("-"+occurEnc.getMonth());}
+				      if(occurEnc.getDay()>0){occurrenceID+=("-"+occurEnc.getDay());}
+				      int dailyNumber=0;
+				      while(myShepherd.isOccurrence((occurrenceID+"-"+dailyNumber))){dailyNumber++;}
+				      occurrenceID=occurrenceID+"-"+dailyNumber;
+				      Occurrence newOccur=new Occurrence(occurrenceID,occurEnc);
+				      enc.setOccurrenceID(occurrenceID);
+				      newOccur.setIndividualCount(numIndividualsEstimated);
+				      myShepherd.getPM().makePersistent(newOccur);
+				      myShepherd.commitDBTransaction();
+				  }
+				    
+				  }
+				  catch(NumberFormatException nfe){
+				    System.out.println("     Encounter submission for "+encID+" contained an occurrence size estimate that did not validate to a numeric format.");
+				    myShepherd.rollbackDBTransaction();
+				  }
+				  
+				}
+				
 
 				Logger log = LoggerFactory.getLogger(SubmitAction.class);
 				log.info("New encounter submission: <a href=\"http://" + CommonConfiguration.getURLLocation(request) + "/encounters/encounter.jsp?number=" + encID+"\">"+encID+"</a>");
