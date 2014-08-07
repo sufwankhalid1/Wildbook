@@ -33,9 +33,9 @@
   String rootWebappPath = getServletContext().getRealPath("/");
   File webappsDir = new File(rootWebappPath).getParentFile();
   File shepherdDataDir = new File(webappsDir, CommonConfiguration.getDataDirectoryName(context));
-  //if(!shepherdDataDir.exists()){shepherdDataDir.mkdir();}
+  //if(!shepherdDataDir.exists()){shepherdDataDir.mkdirs();}
   File encountersDir=new File(shepherdDataDir.getAbsolutePath()+"/encounters");
-  //if(!encountersDir.exists()){encountersDir.mkdir();}
+  //if(!encountersDir.exists()){encountersDir.mkdirs();}
   
     int startNum = 1;
     int endNum = 45;
@@ -374,7 +374,7 @@
             }
             %>
             ><img
-              src="<%=thumbLink%>" alt="photo" border="1" title="Click to enlarge"/></a>
+              src="<%=thumbLink%>" alt="photo" border="1" title="<%=encprops.getProperty("clickEnlarge")%>"/></a>
 
             <div 
             	<%
@@ -507,14 +507,19 @@
                       if (CommonConfiguration.showEXIFData(context)&&!thumbLink.endsWith("video.jpg")) {
                     %>
 
-                    <p><strong>EXIF Data</strong></p>
+                    <p><strong>EXIF</strong></p>
 												<span class="caption">
 						<div class="scroll">	
 						<span class="caption">
 					<%
             if ((thumbLocs.get(countMe).getFilename().toLowerCase().endsWith("jpg")) || (thumbLocs.get(countMe).getFilename().toLowerCase().endsWith("jpeg"))) {
               try{
-              File exifImage = new File(encountersDir.getAbsolutePath() + "/" + thisEnc.getCatalogNumber() + "/" + thumbLocs.get(countMe).getFilename());
+              
+            	  
+            	  //File exifImage = new File(encountersDir.getAbsolutePath() + "/" + thisEnc.getCatalogNumber() + "/" + thumbLocs.get(countMe).getFilename());
+            	  File exifImage = new File(Encounter.dir(shepherdDataDir, thisEnc.getCatalogNumber()) + "/" + thumbLocs.get(countMe).getFilename());
+                  
+              
               if(exifImage.exists()){
               	Metadata metadata = JpegMetadataReader.readMetadata(exifImage);
               	// iterate through metadata directories
