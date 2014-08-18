@@ -60,6 +60,8 @@ import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 
 import java.text.SimpleDateFormat;
 import org.slf4j.Logger;
@@ -158,34 +160,41 @@ public class ImportCSV extends HttpServlet {
 				if ((img != null) && img.exists()) {
 					String encID = f[0];
 					String indivID = f[1];
-					if (!myShepherd.isEncounter(encID)) {
-						myShepherd.beginDBTransaction();
-						Encounter enc = new Encounter(1,1,2017,0,"00","","","test","",null);
-
-						File targetDir = enc.dir(baseDir);
-						if (!targetDir.exists()) targetDir.mkdirs();
-						File targetFile = new File(targetDir, f[2]);
-						//Files.createSymbolicLink()
-						Files.copy(img.toPath(), targetFile.toPath());
-						SinglePhotoVideo spv = new SinglePhotoVideo(encID, targetFile);
-						enc.addSinglePhotoVideo(spv);
-
-						//now handle individual
-						MarkedIndividual indiv = myShepherd.getMarkedIndividual(indivID);
-						if (indiv == null) {
-							indiv = new MarkedIndividual(indivID, enc);
-						} else {
-							indiv.addEncounter(enc);
-						}
-						myShepherd.storeNewEncounter(enc, encID);
-						myShepherd.storeNewMarkedIndividual(indiv);
-						myShepherd.commitDBTransaction();
-    				myShepherd.closeDBTransaction();
+System.out.println("enc(" + encID + "), indiv(" + indivID + ")");
+					myShepherd.beginDBTransaction();
+					Encounter enc = myShepherd.getEncounter(encID);
+					if (enc == null) {
+						enc = new Encounter(1,1,2017,0,"00","","","test","test@test.test",null);
+						enc.setEncounterNumber(encID);
+						enc.setState("unapproved");
 					}
+
+					File targetDir = new File(enc.dir(baseDir));
+					if (!targetDir.exists()) targetDir.mkdirs();
+					File targetFile = new File(targetDir, f[2]);
+					//Files.createSymbolicLink(targetFile.toPath(), img.toPath())
+					Files.copy(img.toPath(), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+					SinglePhotoVideo spv = new SinglePhotoVideo(encID, targetFile);
+					enc.addSinglePhotoVideo(spv);
+
+///TODO also add batch # to comments etc????
+
+					//now handle individual
+					MarkedIndividual indiv = myShepherd.getMarkedIndividual(indivID);
+					if (indiv == null) {
+						indiv = new MarkedIndividual(indivID, enc);
+					} else {
+						indiv.addEncounter(enc);
+					}
+					myShepherd.storeNewEncounter(enc, encID);
+					myShepherd.storeNewMarkedIndividual(indiv);
+System.out.println(encID + " -> " + f[2]);
 				}
 				System.out.println("---");
 			}
 		}
+					myShepherd.commitDBTransaction();
+    			//myShepherd.closeDBTransaction();
 
 		out.println(ServletUtilities.getHeader(request));
 		out.println("OK?");
