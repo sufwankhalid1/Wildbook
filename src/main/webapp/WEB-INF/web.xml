@@ -416,6 +416,11 @@
       <servlet-class>org.ecocean.servlet.importer.ImportSRGD</servlet-class>
   </servlet>
 
+    <servlet>
+      <servlet-name>ImportCSV</servlet-name>
+      <servlet-class>org.ecocean.servlet.importer.ImportCSV</servlet-class>
+		</servlet>
+
   <servlet>
     <servlet-name>IndividualAddFile</servlet-name>
     <servlet-class>org.ecocean.servlet.IndividualAddFile</servlet-class>
@@ -1164,6 +1169,10 @@
             <url-pattern>/ImportSRGD</url-pattern>
   </servlet-mapping>
     
+        <servlet-mapping>
+            <servlet-name>ImportCSV</servlet-name>
+            <url-pattern>/ImportCSV</url-pattern>
+  </servlet-mapping>
   
     <servlet-mapping>
       <servlet-name>EncounterSetPatterningCode</servlet-name>
