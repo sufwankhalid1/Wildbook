@@ -102,6 +102,8 @@ public class ImportCSV extends HttpServlet {
 		FileItem csvFileItem = null;
 		String imageSourceDir = "/tmp/cascadianImages";
 
+		boolean emptyFirst = true;
+
   	//Calendar date = Calendar.getInstance();
 
 		if (ServletFileUpload.isMultipartContent(request)) {
@@ -146,6 +148,26 @@ public class ImportCSV extends HttpServlet {
 				out.println(ServletUtilities.getFooter(context));
 				return;
 			}
+
+			if (emptyFirst) {
+				myShepherd.beginDBTransaction();
+				myShepherd.getPM().newQuery(MarkedIndividual.class).deletePersistentAll();
+				myShepherd.commitDBTransaction();
+
+				myShepherd.beginDBTransaction();
+				myShepherd.getPM().newQuery(Occurrence.class).deletePersistentAll();
+				myShepherd.commitDBTransaction();
+
+				//not sure why encounters are handled differently, but am just copying from DeleteAllDataPermanently
+				Iterator allEncounters = myShepherd.getAllEncountersNoFilter();
+				while (allEncounters.hasNext()) {
+					Encounter enc = (Encounter)allEncounters.next();
+					myShepherd.beginDBTransaction();
+					myShepherd.throwAwayEncounter(enc);
+					myShepherd.commitDBTransaction();
+        }
+			}
+
 			CSVReader reader = new CSVReader(new FileReader(tmpFile));
 			List<String[]> allLines = reader.readAll();
 			for (String[] f : allLines) {
@@ -162,9 +184,11 @@ public class ImportCSV extends HttpServlet {
 					String indivID = f[1];
 System.out.println("enc(" + encID + "), indiv(" + indivID + ")");
 					myShepherd.beginDBTransaction();
-					Encounter enc = myShepherd.getEncounter(encID);
+					Encounter enc = null;
+					if ((encID != null) && !encID.equals("")) enc = myShepherd.getEncounter(encID);
 					if (enc == null) {
 						enc = new Encounter(1,1,2017,0,"00","","","test","test@test.test",null);
+						if ((encID == null) || encID.equals("")) encID = enc.generateEncounterNumber();
 						enc.setEncounterNumber(encID);
 						enc.setState("unapproved");
 					}
@@ -175,6 +199,7 @@ System.out.println("enc(" + encID + "), indiv(" + indivID + ")");
 					//Files.createSymbolicLink(targetFile.toPath(), img.toPath())
 					Files.copy(img.toPath(), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 					SinglePhotoVideo spv = new SinglePhotoVideo(encID, targetFile);
+System.out.println(img.toString() + " being set on enc=" + encID);
 					enc.addSinglePhotoVideo(spv);
 
 ///TODO also add batch # to comments etc????
@@ -183,9 +208,9 @@ System.out.println("enc(" + encID + "), indiv(" + indivID + ")");
 					MarkedIndividual indiv = myShepherd.getMarkedIndividual(indivID);
 					if (indiv == null) {
 						indiv = new MarkedIndividual(indivID, enc);
-					} else {
-						indiv.addEncounter(enc);
 					}
+					indiv.addEncounter(enc);
+					//enc.assignToMarkedIndividual(indivID);
 					myShepherd.storeNewEncounter(enc, encID);
 					myShepherd.storeNewMarkedIndividual(indiv);
 System.out.println(encID + " -> " + f[2]);
