@@ -170,18 +170,21 @@ public class ImportCSV extends HttpServlet {
 
 			CSVReader reader = new CSVReader(new FileReader(tmpFile));
 			List<String[]> allLines = reader.readAll();
+			int rowNum = 0;
 			for (String[] f : allLines) {
 /*
 				for (int i = 0 ; i < f.length ; i++) {
 					System.out.println(f[i]);
 				}
 */
+				String filename = f[7];
 				File img = null;
-				if ((f[2] != null) && !f[2].equals("")) img = new File(imageSourceDir, f[2]);
+				if ((filename != null) && !filename.equals("")) img = new File(imageSourceDir, filename);
 				//if the (source) image file doesnt exist, we just skip it... fail!
 				if ((img != null) && img.exists()) {
-					String encID = f[0];
-					String indivID = f[1];
+					String encID = null;  //currently does not exist at all in data
+					String indivID = f[15];
+// date = 1, 
 System.out.println("enc(" + encID + "), indiv(" + indivID + ")");
 					myShepherd.beginDBTransaction();
 					Encounter enc = null;
@@ -195,14 +198,14 @@ System.out.println("enc(" + encID + "), indiv(" + indivID + ")");
 
 					File targetDir = new File(enc.dir(baseDir));
 					if (!targetDir.exists()) targetDir.mkdirs();
-					File targetFile = new File(targetDir, f[2]);
+					File targetFile = new File(targetDir, filename);
 					//Files.createSymbolicLink(targetFile.toPath(), img.toPath())
 					Files.copy(img.toPath(), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 					SinglePhotoVideo spv = new SinglePhotoVideo(encID, targetFile);
 System.out.println(img.toString() + " being set on enc=" + encID);
 					enc.addSinglePhotoVideo(spv);
 
-///TODO also add batch # to comments etc????
+					enc.setAlternateID(batchID + "." + Integer.toString(rowNum));
 
 					//now handle individual
 					MarkedIndividual indiv = myShepherd.getMarkedIndividual(indivID);
@@ -213,8 +216,9 @@ System.out.println(img.toString() + " being set on enc=" + encID);
 					//enc.assignToMarkedIndividual(indivID);
 					myShepherd.storeNewEncounter(enc, encID);
 					myShepherd.storeNewMarkedIndividual(indiv);
-System.out.println(encID + " -> " + f[2]);
+System.out.println(encID + " -> " + filename);
 				}
+				rowNum++;
 				System.out.println("---");
 			}
 		}

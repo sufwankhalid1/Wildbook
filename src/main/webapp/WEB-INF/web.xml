@@ -421,6 +421,11 @@
       <servlet-class>org.ecocean.servlet.importer.ImportCSV</servlet-class>
 		</servlet>
 
+    <servlet>
+      <servlet-name>BatchCompare</servlet-name>
+      <servlet-class>org.ecocean.servlet.BatchCompare</servlet-class>
+		</servlet>
+
   <servlet>
     <servlet-name>IndividualAddFile</servlet-name>
     <servlet-class>org.ecocean.servlet.IndividualAddFile</servlet-class>
@@ -1172,6 +1177,11 @@
         <servlet-mapping>
             <servlet-name>ImportCSV</servlet-name>
             <url-pattern>/ImportCSV</url-pattern>
+  </servlet-mapping>
+
+        <servlet-mapping>
+            <servlet-name>BatchCompare</servlet-name>
+            <url-pattern>/BatchCompare</url-pattern>
   </servlet-mapping>
   
     <servlet-mapping>
