@@ -178,7 +178,9 @@ public class ImportCSV extends HttpServlet {
 				}
 */
 				String filename = f[7];
+				String datestring = f[1];
 				File img = null;
+
 				if ((filename != null) && !filename.equals("")) img = new File(imageSourceDir, filename);
 				//if the (source) image file doesnt exist, we just skip it... fail!
 				if ((img != null) && img.exists()) {
@@ -190,7 +192,16 @@ System.out.println("enc(" + encID + "), indiv(" + indivID + ")");
 					Encounter enc = null;
 					if ((encID != null) && !encID.equals("")) enc = myShepherd.getEncounter(encID);
 					if (enc == null) {
-						enc = new Encounter(1,1,2017,0,"00","","","test","test@test.test",null);
+						Calendar cal = Calendar.getInstance();
+						Date d = null;
+						SimpleDateFormat simpleDateFormat = new SimpleDateFormat("M/d/y H:m:s");
+						try {
+							d = simpleDateFormat.parse(datestring);
+						} catch (Exception ex) {
+							System.out.println("failed to parse datestring=" + datestring);
+						}
+						if (d != null) cal.setTime(d);
+						enc = new Encounter(cal.get(Calendar.DAY_OF_MONTH), cal.get(Calendar.MONTH), cal.get(Calendar.YEAR), 0,"00","","","test","test@test.test",null);
 						if ((encID == null) || encID.equals("")) encID = enc.generateEncounterNumber();
 						enc.setEncounterNumber(encID);
 						enc.setState("unapproved");

@@ -40,6 +40,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+
 /*
 import java.text.SimpleDateFormat;
 import org.slf4j.Logger;
@@ -69,6 +70,12 @@ public class BatchCompare extends HttpServlet {
     //set up for response
     response.setContentType("text/html");
     PrintWriter out = response.getWriter();
+
+System.out.println("yes? starting proc");
+BatchCompareProcessor proc = new BatchCompareProcessor();
+Thread t = new Thread(proc);
+t.start();
+System.out.println("yes. out.");
 
 		List<FileItem> formFiles = new ArrayList<FileItem>();
 
