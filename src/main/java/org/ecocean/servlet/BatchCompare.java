@@ -71,11 +71,6 @@ public class BatchCompare extends HttpServlet {
     response.setContentType("text/html");
     PrintWriter out = response.getWriter();
 
-System.out.println("yes? starting proc");
-BatchCompareProcessor proc = new BatchCompareProcessor();
-Thread t = new Thread(proc);
-t.start();
-System.out.println("yes. out.");
 
 		List<FileItem> formFiles = new ArrayList<FileItem>();
 
@@ -107,6 +102,7 @@ System.out.println("yes. out.");
 		}
 
 		String msg = "";
+		List<String> okFiles = new ArrayList<String>();
 		if (formFiles.size() > 0) {
 			//String baseDir = ServletUtilities.dataDir(context, rootDir);
 String baseDir = "/tmp/updir";
@@ -118,14 +114,23 @@ String baseDir = "/tmp/updir";
 				File file = new File(baseDir, filename);
     		//String fullPath = file.getAbsolutePath();
 System.out.println(filename + " -> " + file.toString());
+				boolean ok = true;
 				try {
 					item.write(file);  //TODO catch errors and return them, duh
 				} catch (Exception ex) {
 					System.out.println("could not write file: " + ex.toString());
+					ok = false;
 				}
+				if (ok) okFiles.add(file.getAbsolutePath());
 msg += filename + " ";
 			}
     }
+
+System.out.println("yes? starting proc");
+BatchCompareProcessor proc = new BatchCompareProcessor(getServletContext(), context, "npmCompare", okFiles);
+Thread t = new Thread(proc);
+t.start();
+System.out.println("yes. out.");
 
 		out.println(ServletUtilities.getHeader(request));
 		out.println("<p>" + msg + "</p>");

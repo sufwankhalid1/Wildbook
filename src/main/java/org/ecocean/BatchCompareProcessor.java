@@ -22,6 +22,8 @@ package org.ecocean;
 import java.io.*;
 import java.util.*;
 
+import org.ecocean.servlet.ServletUtilities;
+
 import javax.servlet.ServletContext;
 
 /**
@@ -46,41 +48,57 @@ public final class BatchCompareProcessor implements Runnable {
   private Phase phase = Phase.NONE;
   /** Throwable instance produced by the batch processor (if any). */
   private Throwable thrown;
-  
+
+	private String method = null;
+	private List<String> args = null;
   private String context="context0";
 
-  public BatchCompareProcessor() {
+  public BatchCompareProcessor(ServletContext servletContext, String context, String method, List<String> args) {
+		this.servletContext = servletContext;
+		this.context = context;
+		this.args = args;
+		this.method = method;
 System.out.println("in BatchCompareProcessor()");
 
 	}
 
 
 	public void npmProcess() {
+		String rootDir = servletContext.getRealPath("/");
+		String baseDir = ServletUtilities.dataDir(context, rootDir);
 System.out.println("start npmProcess()");
+
+		for (String eid : this.args) {
+			String epath = Encounter.dir(baseDir, eid);
+System.out.println(epath);
 //~jon/npm_process -contr_thr 0.02 -sigma 1.2 /opt/tomcat7/webapps/cascadia_data_dir/encounterxs 0 0 4 1 2
-		String[] command = new String[]{"sh", "/tmp/test_script.sh"};
+			String[] command = new String[]{"/usr/bin/npm_process", "-contr_thr", "0.02", "-sigma", "1.2", epath, "0", "0", "4", "1", "2"};
+//home/jon/npm_process -contr_thr 0.02 -sigma 1.2 cascadia_data_dir/ 0 0 4 1 2
+			//String[] command = new String[]{"sh", "/opt/tomcat7/bin/run_npm_process.sh", epath};
 
-		ProcessBuilder pb = new ProcessBuilder();
-		pb.command(command);
-		Map<String, String> env = pb.environment();
-		env.put("LD_LIBRARY_PATH", "/home/jon/opencv2.4.7");
-System.out.println("before!");
+			ProcessBuilder pb = new ProcessBuilder();
+			Map<String, String> env = pb.environment();
+			env.put("LD_LIBRARY_PATH", "/usr/local/lib/opencv2.4.7");
+			pb.command(command);
+System.out.println("====================== npm_process on " + eid);
 
-		try {
-			Process proc = pb.start();
-			BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
-			BufferedReader stdError = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
-			String line;
-			while ((line = stdInput.readLine()) != null) {
-				System.out.println(">>>> " + line);
+			try {
+				Process proc = pb.start();
+				BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+				BufferedReader stdError = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
+				String line;
+				while ((line = stdInput.readLine()) != null) {
+					System.out.println(eid + ">>>> " + line);
+				}
+				proc.waitFor();
+System.out.println(eid + " DONE?????");
+				////int returnCode = p.exitValue();
+
+			} catch (Exception ioe) {
+				System.out.println("oops: " + ioe.toString());
 			}
-			proc.waitFor();
-System.out.println("DONE?????");
-			////int returnCode = p.exitValue();
-
-		} catch (Exception ioe) {
-			System.out.println("oops: " + ioe.toString());
 		}
+
 System.out.println("RETURN");
 	}
 
@@ -89,7 +107,11 @@ System.out.println("RETURN");
 
   public void run() {
 System.out.println("running. huh.");
-npmProcess();
+		if (this.method.equals("npmProcess")) {
+			npmProcess();
+		} else {
+			npmCompare();
+		}
 
     status = Status.INIT;
 

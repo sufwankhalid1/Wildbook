@@ -246,8 +246,18 @@ System.out.println(encID + " -> " + filename);
 		}
 					myShepherd.commitDBTransaction();
     			//myShepherd.closeDBTransaction();
+		String h = "";
+		if (rowSuccesses.size() < 1) {
+			h += "<p><b>No successful imports.</b></p>";
+		} else {
+			h += "<p>Imported <b>" + rowSuccesses.size() + " records successfully</b>.</p>";
+System.out.println("yes? starting proc");
+			BatchCompareProcessor proc = new BatchCompareProcessor(getServletContext(), context, "npmProcess", rowSuccesses);
+			Thread t = new Thread(proc);
+			t.start();
+System.out.println("yes. out. of. thread.");
+		}
 
-		String h = "<p>Imported <b>" + rowSuccesses.size() + " records successfully</b>.</p>";
 		if (rowErrors.size() < 1) {
 			h += "<p>No errors</p>";
 		} else {
@@ -257,7 +267,7 @@ System.out.println(encID + " -> " + filename);
 			}
 			h += "</ul></p>";
 		}
-		h += "<p><a href=\"encounters/searchResults.jsp?state=unapproved\">List all encounters</a></p><p><a href=\"xxxx\">Continue to upload of images to match</a></p>";
+		h += "<p><a href=\"encounters/searchResults.jsp?state=unapproved\">List all encounters</a></p><p><a href=\"batchCompare.jsp\">Continue to upload of images to match</a></p>";
 
 		out.println(ServletUtilities.getHeader(request));
 		out.println(h);
