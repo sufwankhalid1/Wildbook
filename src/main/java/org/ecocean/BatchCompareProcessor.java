@@ -32,20 +32,20 @@ import javax.servlet.ServletContext;
  * @author Jon Van Oast
  */
 public final class BatchCompareProcessor implements Runnable {
+  public static final String SESSION_KEY = "ImportCSVProcess";
   //private static Logger log = LoggerFactory.getLogger(BatchProcessor.class);
 
   /** ServletContext for web application, to allow access to resources. */
   private ServletContext servletContext;
   /** Username of person doing batch upload (for logging in comments). */
 
+	private int countTotal = 0;
+	private int countComplete = 0;
+
   /** Enumeration representing possible status values for the batch processor. */
   public enum Status { WAITING, INIT, RUNNING, FINISHED, ERROR };
-  /** Enumeration representing possible processing phases. */
-  public enum Phase { NONE, MEDIA_DOWNLOAD, PERSISTENCE, THUMBNAILS, PLUGIN, DONE };
   /** Current status of the batch processor. */
   private Status status = Status.WAITING;
-  /** Current phase of the batch processor. */
-  private Phase phase = Phase.NONE;
   /** Throwable instance produced by the batch processor (if any). */
   private Throwable thrown;
 
@@ -59,7 +59,13 @@ public final class BatchCompareProcessor implements Runnable {
 		this.args = args;
 		this.method = method;
 System.out.println("in BatchCompareProcessor()");
+	}
 
+	public int getCountTotal() {
+		return this.countTotal;
+	}
+	public int getCountComplete() {
+		return this.countComplete;
 	}
 
 
@@ -67,6 +73,8 @@ System.out.println("in BatchCompareProcessor()");
 		String rootDir = servletContext.getRealPath("/");
 		String baseDir = ServletUtilities.dataDir(context, rootDir);
 System.out.println("start npmProcess()");
+
+		this.countTotal = this.args.size();
 
 		for (String eid : this.args) {
 			String epath = Encounter.dir(baseDir, eid);
@@ -97,6 +105,7 @@ System.out.println(eid + " DONE?????");
 			} catch (Exception ioe) {
 				System.out.println("oops: " + ioe.toString());
 			}
+			this.countComplete++;
 		}
 
 System.out.println("RETURN");

@@ -85,7 +85,7 @@ public class ImportCSV extends HttpServlet {
 
 		HashMap fv = new HashMap();
 
-		//HttpSession session = request.getSession(false);
+		HttpSession session = request.getSession(true);
     String context="context0";
     context=ServletUtilities.getContext(request);
     Shepherd myShepherd = new Shepherd(context);
@@ -103,6 +103,8 @@ public class ImportCSV extends HttpServlet {
 		String imageSourceDir = null;
 
 		boolean emptyFirst = true;
+		String batchID = "1234";
+
 
   	//Calendar date = Calendar.getInstance();
 
@@ -133,7 +135,6 @@ public class ImportCSV extends HttpServlet {
 			doneMessage = "Sorry this Servlet only handles file upload request";
 		}
 
-
 		if ((imageSourceDir == null) || imageSourceDir.equals("")) {
 			out.println(ServletUtilities.getHeader(request));
 			out.println("<p>You must select an image source directory.</p>");
@@ -145,7 +146,6 @@ public class ImportCSV extends HttpServlet {
 			out.println(ServletUtilities.getFooter(context));
 
 		} else {
-			String batchID = "1234";
 			File tmpFile = new File("/tmp/import-" + batchID);  //TODO context etc!
 			
 			try {
@@ -251,11 +251,12 @@ System.out.println(encID + " -> " + filename);
 			h += "<p><b>No successful imports.</b></p>";
 		} else {
 			h += "<p>Imported <b>" + rowSuccesses.size() + " records successfully</b>.</p>";
-System.out.println("yes? starting proc");
+System.out.println("starting batch " + batchID);
 			BatchCompareProcessor proc = new BatchCompareProcessor(getServletContext(), context, "npmProcess", rowSuccesses);
+			session.setAttribute(BatchCompareProcessor.SESSION_KEY, proc);
 			Thread t = new Thread(proc);
 			t.start();
-System.out.println("yes. out. of. thread.");
+System.out.println("thread forked");
 		}
 
 		if (rowErrors.size() < 1) {

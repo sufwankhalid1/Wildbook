@@ -19,7 +19,7 @@
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <%@ page contentType="text/html; charset=utf-8" pageEncoding="UTF-8" language="java"
-         import="org.ecocean.servlet.ServletUtilities,java.util.ArrayList,org.ecocean.*, org.ecocean.Util, java.util.GregorianCalendar, java.util.Properties, java.util.List" %>
+         import="org.ecocean.servlet.ServletUtilities,java.util.ArrayList,org.ecocean.*, org.ecocean.Util, java.util.GregorianCalendar, java.util.Properties, java.util.List, org.ecocean.BatchCompareProcessor, javax.servlet.http.HttpSession" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>         
 <%
 
@@ -34,6 +34,7 @@ context=ServletUtilities.getContext(request);
   //String langCode = "en";
   String langCode=ServletUtilities.getLanguageCode(request);
   
+	BatchCompareProcessor proc = (BatchCompareProcessor)session.getAttribute(BatchCompareProcessor.SESSION_KEY);
 
   //set up the file input stream
   //props.load(getClass().getResourceAsStream("/bundles/" + langCode + "/submit.properties"));
@@ -94,7 +95,7 @@ margin-bottom: 8px !important;
 <div id="maincol-wide-solo">
 
 <div id="maintext">
-  <h1 class="intro"><%=props.getProperty("submit_report")%>
+  <h1 class="intro">Images to Match
   </h1>
 </div>
 <form id="encounterForm" action="BatchCompare" method="post" enctype="multipart/form-data" >
@@ -115,6 +116,14 @@ function updateList(inp) {
 }
 </script>
 
+<%
+String hidden = "";
+if ((proc != null) && (proc.getCountComplete() < proc.getCountTotal())) {
+	hidden = "style=\"display: none;\"";
+	out.println("<div id=\"batch-waiting\">Initial uploaded encounters are still being processed.  There are <b id=\"batch-complete\">" + proc.getCountComplete() + "</b> complete out of <b id=\"batch-total\">" + proc.getCountTotal() + "</b> total.  Please check back shortly.</div>");
+
+} %>
+<div <%=hidden%>>
 <div class="input-file-drop">
 <% if (isIE) { %>
 		<div><%=props.getProperty("dragInstructionsIE")%></div>
@@ -127,6 +136,7 @@ function updateList(inp) {
 </div>
 
 <p><input type="submit" value="submit" /></p>
+</div>
 
 <p>&nbsp;</p>
 </form>
