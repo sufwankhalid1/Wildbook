@@ -30,11 +30,11 @@ import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.output.*;
 
-import au.com.bytecode.opencsv.CSVReader;
+import au.com.bytecode.opencsv.*;
 /////
 
-/*
 import org.ecocean.CommonConfiguration;
+/*
 import org.ecocean.Encounter;
 import org.ecocean.Shepherd;
 import org.ecocean.SinglePhotoVideo;
@@ -100,11 +100,14 @@ public class ImportCSV extends HttpServlet {
 
 		String doneMessage = "";
 		FileItem csvFileItem = null;
-		String imageSourceDir = "/tmp/cascadianImages";
+		String imageSourceDir = null;
 
 		boolean emptyFirst = true;
 
   	//Calendar date = Calendar.getInstance();
+
+		List<String> rowErrors = new ArrayList<String>();
+		List<String> rowSuccesses = new ArrayList<String>();
 
 		if (ServletFileUpload.isMultipartContent(request)) {
 			try {
@@ -115,7 +118,7 @@ public class ImportCSV extends HttpServlet {
 
 				for(FileItem item : multiparts){
 					if (item.isFormField()) {  //plain field
-						//fv.put(item.getFieldName(), ServletUtilities.preventCrossSiteScriptingAttacks(item.getString("UTF-8").trim()));  //TODO do we want trim() here??? -jon
+						if (item.getFieldName().equals("imageDir")) imageSourceDir = CommonConfiguration.getProperty("importCSVImageDirectory", context) + "/" + item.getString("UTF-8").trim();
 
 					} else {  //file
 						csvFileItem = item;
@@ -131,7 +134,12 @@ public class ImportCSV extends HttpServlet {
 		}
 
 
-		if (csvFileItem == null) {
+		if ((imageSourceDir == null) || imageSourceDir.equals("")) {
+			out.println(ServletUtilities.getHeader(request));
+			out.println("<p>You must select an image source directory.</p>");
+			out.println(ServletUtilities.getFooter(context));
+
+		} else if (csvFileItem == null) {
 			out.println(ServletUtilities.getHeader(request));
 			out.println("<p>Import file failed. " + doneMessage + "</p>");
 			out.println(ServletUtilities.getFooter(context));
@@ -168,15 +176,10 @@ public class ImportCSV extends HttpServlet {
         }
 			}
 
-			CSVReader reader = new CSVReader(new FileReader(tmpFile));
+			CSVReader reader = new CSVReader(new FileReader(tmpFile), ',', CSVWriter.NO_QUOTE_CHARACTER);
 			List<String[]> allLines = reader.readAll();
 			int rowNum = 0;
 			for (String[] f : allLines) {
-/*
-				for (int i = 0 ; i < f.length ; i++) {
-					System.out.println(f[i]);
-				}
-*/
 				String filename = f[7];
 				String datestring = f[1];
 				File img = null;
@@ -219,16 +222,24 @@ System.out.println(img.toString() + " being set on enc=" + encID);
 					enc.setAlternateID(batchID + "." + Integer.toString(rowNum));
 
 					//now handle individual
-					MarkedIndividual indiv = myShepherd.getMarkedIndividual(indivID);
-					if (indiv == null) {
-						indiv = new MarkedIndividual(indivID, enc);
+					MarkedIndividual indiv = null;
+					if ((indivID != null) && !indivID.equals("")) {
+						indiv = myShepherd.getMarkedIndividual(indivID);
+						if (indiv == null) {
+							indiv = new MarkedIndividual(indivID, enc);
+						}
+						indiv.addEncounter(enc);
+						//enc.assignToMarkedIndividual(indivID);
 					}
-					indiv.addEncounter(enc);
-					//enc.assignToMarkedIndividual(indivID);
 					myShepherd.storeNewEncounter(enc, encID);
-					myShepherd.storeNewMarkedIndividual(indiv);
+					if (indiv != null) myShepherd.storeNewMarkedIndividual(indiv);
 System.out.println(encID + " -> " + filename);
+					rowSuccesses.add(encID);
+
+				} else {
+					rowErrors.add(filename);
 				}
+
 				rowNum++;
 				System.out.println("---");
 			}
@@ -236,8 +247,20 @@ System.out.println(encID + " -> " + filename);
 					myShepherd.commitDBTransaction();
     			//myShepherd.closeDBTransaction();
 
+		String h = "<p>Imported <b>" + rowSuccesses.size() + " records successfully</b>.</p>";
+		if (rowErrors.size() < 1) {
+			h += "<p>No errors</p>";
+		} else {
+			h += "<p>Found <b>" + rowErrors.size() + " rows with error</b> (usually invalid or missing image files):<ul>";
+			for (String fname : rowErrors) {
+				h += "<li>" + fname + "</li>";
+			}
+			h += "</ul></p>";
+		}
+		h += "<p><a href=\"encounters/searchResults.jsp?state=unapproved\">List all encounters</a></p><p><a href=\"xxxx\">Continue to upload of images to match</a></p>";
+
 		out.println(ServletUtilities.getHeader(request));
-		out.println("OK?");
+		out.println(h);
 		out.println(ServletUtilities.getFooter(context));
 /*
       //if (request.getRemoteUser() != null) {
