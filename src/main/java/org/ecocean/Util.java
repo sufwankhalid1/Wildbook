@@ -5,11 +5,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 //import java.util.Enumeration;
 import java.util.List;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.UUID;
+import java.io.File;
 
 
 //import javax.jdo.JDOException;
@@ -33,6 +35,8 @@ public class Util {
   private static final String BIOLOGICALMEASUREMENTUNITS = BIOLOGICALMEASUREMENT.replaceAll("Type", "Units");
   private static final String METAL_TAG_LOCATION = "metalTagLocation";
   private static final String SATELLITE_TAG_NAME = "satelliteTagName";
+
+	private static HashMap<File,ArrayList<File>> DIRECTORY_SEARCH_CACHE = new HashMap<File,ArrayList<File>>();
   
   //GPS coordinate caching for Encounter Search and Individual Search
   private static ArrayList<Point2D> coords;
@@ -283,5 +287,56 @@ public class Util {
       return new ArrayList<Point2D>();
     }
   }
+
+	//note: this (importantly) recurses subdirectories [subnote: depth-first, fwiw]
+	// also! this is case-INsensitive (for now? by default?)
+	public static File findFileInDirectory(String filename, File dir) {
+		if (!dir.isDirectory()) return null;
+		filename = filename.toLowerCase();
+		for (File tmp : dir.listFiles()) {
+			if (tmp.isDirectory()) {
+				File look = findFileInDirectory(filename, tmp);
+				if (look != null) return look;  //got it in this subdir
+			} else if (tmp.getName().toLowerCase().equals(filename)) {
+				return tmp;  //got it right here
+			}
+		}
+		return null;
+	}
+
+
+	//like above, but traverses once and caches it.  particularly useful for, say, importing 3000 records and not having to recurse 3000 times
+	public static File findFileInDirectoryWithCache(String filename, File dir) {
+		if (!dir.isDirectory()) return null;
+		filename = filename.toLowerCase();
+		ArrayList<File> all = DIRECTORY_SEARCH_CACHE.get(dir);
+		if (all == null) {
+			all = allFilesInDirectory(dir);
+			DIRECTORY_SEARCH_CACHE.put(dir, all);
+		}
+
+//System.out.println("findFileInDirectoryWithCache: looking at " + all.size() + " items in " + dir.getAbsoluteFile().toString());
+		for (File tmp : all) {
+			if (tmp.getName().toLowerCase().equals(filename)) return tmp;
+		}
+		return null;
+	}
+
+
+	//TODO any sanity checks?  canRead() or recursion madness (symlinks) etc???
+	public static ArrayList<File> allFilesInDirectory(File dir) {
+//System.out.println("################## getting all files for dir " + dir.getAbsoluteFile().toString());
+		ArrayList<File> a = new ArrayList<File>();
+		if (!dir.isDirectory()) return a;
+		for (File tmp : dir.listFiles()) {
+			if (tmp.isDirectory()) {
+				ArrayList<File> sub = allFilesInDirectory(tmp);
+				if (!sub.isEmpty()) a.addAll(sub);
+			} else {
+				a.add(tmp);
+			}
+		}
+		return a;
+	}
 
 }
