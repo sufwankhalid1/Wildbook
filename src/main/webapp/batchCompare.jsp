@@ -119,9 +119,9 @@ function updateList(inp) {
 <%
 String hidden = "";
 if ((proc != null) && (proc.getCountComplete() < proc.getCountTotal())) {
+	out.println("<script>window.setTimeout(function() { window.location.reload(); }, 8000);</script>");
+	out.println("<div id=\"batch-waiting\">" + props.getProperty("batchCompareImportNotFinished").replaceFirst("%countTotal", proc.getCountTotal()).replaceFirst("%countComplete", proc.getCountComplete()) + "</div>");
 	hidden = "style=\"display: none;\"";
-	out.println("<div id=\"batch-waiting\">Initial uploaded encounters are still being processed.  There are <b id=\"batch-complete\">" + proc.getCountComplete() + "</b> complete out of <b id=\"batch-total\">" + proc.getCountTotal() + "</b> total.  Please check back shortly.</div>");
-
 } %>
 <div <%=hidden%>>
 <div class="input-file-drop">
