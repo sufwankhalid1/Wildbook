@@ -120,7 +120,7 @@ function updateList(inp) {
 String hidden = "";
 if ((proc != null) && (proc.getCountComplete() < proc.getCountTotal())) {
 	out.println("<script>window.setTimeout(function() { window.location.reload(); }, 8000);</script>");
-	out.println("<div id=\"batch-waiting\">" + props.getProperty("batchCompareImportNotFinished").replaceFirst("%countTotal", proc.getCountTotal()).replaceFirst("%countComplete", proc.getCountComplete()) + "</div>");
+	out.println("<div id=\"batch-waiting\">" + props.getProperty("batchCompareImportNotFinished").replaceFirst("%countTotal", Integer.toString(proc.getCountTotal())).replaceFirst("%countComplete", Integer.toString(proc.getCountComplete())) + "</div>");
 	hidden = "style=\"display: none;\"";
 } %>
 <div <%=hidden%>>
