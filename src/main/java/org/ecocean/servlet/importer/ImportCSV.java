@@ -180,13 +180,15 @@ public class ImportCSV extends HttpServlet {
 			List<String[]> allLines = reader.readAll();
 			int rowNum = 0;
 			for (String[] f : allLines) {
-				String filename = f[7];
 				String datestring = f[1];
-				File img = null;
 
-				if ((filename != null) && !filename.equals("")) img = new File(imageSourceDir, filename);
+				String filename = f[7];
+				File img = null;
+				if ((filename != null) && !filename.equals("")) img = Util.findFileInDirectoryWithCache(filename, new File(imageSourceDir));
+
 				//if the (source) image file doesnt exist, we just skip it... fail!
-				if ((img != null) && img.exists()) {
+				if (img != null) {
+//System.out.println("!!! found filename " + filename + " at: " + img.getAbsoluteFile().toString());
 					String encID = null;  //currently does not exist at all in data
 					String indivID = f[15];
 // date = 1, 
