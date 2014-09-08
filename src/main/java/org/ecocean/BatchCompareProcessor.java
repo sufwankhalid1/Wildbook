@@ -112,8 +112,20 @@ System.out.println(eid + " DONE?????");
 			} catch (Exception ioe) {
 				System.out.println("oops: " + ioe.toString());
 			}
+
 			this.countComplete++;
+
+			try {
+				PrintWriter statusOut = new PrintWriter(baseDir + "/encounters/importcsv.lock");
+				statusOut.println(Integer.toString(this.countComplete) + " " + Integer.toString(this.countTotal));
+				statusOut.close();
+			} catch (Exception ex) {
+				System.out.println("could not write " + baseDir + "/encounters/importcsv.lock: " + ex.toString());
+			}
 		}
+
+		File ilock = new File(baseDir + "/encounters/importcsv.lock");
+		if (ilock.exists()) ilock.delete();
 
 System.out.println("RETURN");
 	}

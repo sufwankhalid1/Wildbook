@@ -125,7 +125,7 @@ console.log(d);
 			$('#count-total').html(d.countTotal);
 
 			if (d.results) {
-				showResults(d.results);
+				showResults(d);
 
 			} else if (d.done || (d.countComplete && (d.countComplete >= d.countTotal))) {
 				if (checkCount > 0) {
@@ -147,6 +147,21 @@ console.log(d);
 	});
 }
 
+
+function showResults(data) {
+	var h = '';
+	for (var imgId in data.results) {
+		h += '<div class="result"><div class="target"><img src="' + data.baseDir + '/match_images/' + batchID + '/' + imgId + '" /><span class="info">' + imgId + '</span></div>';
+		h += '<div class="match"><img src="' + data.baseDir + '/' + encDir(data.results[imgId].eid) + '/' + data.results[imgId].bestImg + '.jpg" /><span class="info"><a target="_new" href="encounters/encounter.jsp?number=' + data.results[imgId].eid + '">' + data.results[imgId].eid + '</a> [' + data.results[imgId].score + ']</span></div><div style="clear: both;"></div>';
+	}
+	$('#match-results').html(h);
+}
+
+
+function encDir(eid) {
+	if (eid.length == 36) return 'encounters/' + eid.substr(0,1) + '/' + eid.substr(1,1) + '/' + eid;
+	return 'encounters/' + eid;
+}
 
 function updateList(inp) {
 	var f = '';
@@ -210,6 +225,7 @@ System.out.println("matched?????? " + lm.group(1) + ":" + lm.group(3));
 
 		HashMap rtn = new HashMap();
 		rtn.put("done", true);
+		rtn.put("baseDir", "/" + CommonConfiguration.getDataDirectoryName(context));
 		rtn.put("results", res);
 		BatchCompareProcessor.writeStatusFile(getServletContext(), context, batchID, new Gson().toJson(rtn));
 

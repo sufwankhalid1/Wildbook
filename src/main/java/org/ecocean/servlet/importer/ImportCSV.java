@@ -255,7 +255,18 @@ System.out.println(encID + " -> " + filename);
 			h += "<p>Imported <b>" + rowSuccesses.size() + " records successfully</b>.</p>";
 System.out.println("starting batch " + batchID);
 			BatchCompareProcessor proc = new BatchCompareProcessor(getServletContext(), context, "npmProcess", rowSuccesses, batchID);
+
+			//note, we actually use a lock file now to denote this tree is in-process; but keep this around for historic reasons (only?)
 			session.setAttribute(BatchCompareProcessor.SESSION_KEY_PROCESS, proc);
+
+			try {
+				PrintWriter statusOut = new PrintWriter(baseDir + "/encounters/importcsv.lock");
+				statusOut.println("0 " + Integer.toString(rowSuccesses.size()));
+				statusOut.close();
+			} catch (Exception ex) {
+				System.out.println("could not write " + baseDir + "/encounters/importcsv.lock: " + ex.toString());
+			}
+
 			Thread t = new Thread(proc);
 			t.start();
 System.out.println("thread forked");

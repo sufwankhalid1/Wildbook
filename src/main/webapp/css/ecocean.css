@@ -1476,3 +1476,32 @@ table.tissueSample td {
 }
 
 
+#match-results .target, #match-results .match {
+	position: relative;
+}
+#match-results .target {
+	float: left;
+}
+#match-results .match {
+	float: right;
+}
+
+#match-results img {
+	height: 110px;
+}
+
+.target .info, .match .info {
+	background-color: rgba(255,255,255,0.7);
+	padding: 3px;
+	font-size: 0.9em;
+	position: absolute;
+	bottom: 0px;
+}
+.target .info {
+	left: 0px;
+}
+.match .info {
+	right: 0px;
+}
+
+

@@ -19,13 +19,16 @@
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <%@ page contentType="text/html; charset=utf-8" pageEncoding="UTF-8" language="java"
-         import="org.ecocean.servlet.ServletUtilities,java.util.ArrayList,org.ecocean.*, org.ecocean.Util, java.util.GregorianCalendar, java.util.Properties, java.util.List, org.ecocean.BatchCompareProcessor, javax.servlet.http.HttpSession" %>
+         import="org.ecocean.servlet.ServletUtilities,java.util.ArrayList,org.ecocean.*, org.ecocean.Util, java.util.GregorianCalendar, java.util.Properties, java.util.List, org.ecocean.BatchCompareProcessor, javax.servlet.http.HttpSession, java.io.File, java.nio.file.Files, java.nio.file.Paths" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>         
 <%
 
 boolean isIE = request.getHeader("user-agent").contains("MSIE ");
 String context="context0";
 context=ServletUtilities.getContext(request);
+
+	String rootDir = getServletContext().getRealPath("/");
+	String baseDir = ServletUtilities.dataDir(context, rootDir);
 
   GregorianCalendar cal = new GregorianCalendar();
   int nowYear = cal.get(1);
@@ -34,7 +37,8 @@ context=ServletUtilities.getContext(request);
   //String langCode = "en";
   String langCode=ServletUtilities.getLanguageCode(request);
   
-	BatchCompareProcessor proc = (BatchCompareProcessor)session.getAttribute(BatchCompareProcessor.SESSION_KEY_PROCESS);
+	//no longer used: lock file (see below) used instead
+	//////BatchCompareProcessor proc = (BatchCompareProcessor)session.getAttribute(BatchCompareProcessor.SESSION_KEY_PROCESS);
 
   //set up the file input stream
   //props.load(getClass().getResourceAsStream("/bundles/" + langCode + "/submit.properties"));
@@ -118,9 +122,12 @@ function updateList(inp) {
 
 <%
 String hidden = "";
-if ((proc != null) && (proc.getCountComplete() < proc.getCountTotal())) {
+	File ilock = new File(baseDir + "/encounters/importcsv.lock");
+
+if (ilock.exists()) {
+	String[] counts = new String(Files.readAllBytes(Paths.get(baseDir + "/encounters/importcsv.lock"))).split(" ");
 	out.println("<script>window.setTimeout(function() { window.location.reload(); }, 8000);</script>");
-	out.println("<div id=\"batch-waiting\">" + props.getProperty("batchCompareImportNotFinished").replaceFirst("%countTotal", Integer.toString(proc.getCountTotal())).replaceFirst("%countComplete", Integer.toString(proc.getCountComplete())) + "</div>");
+	out.println("<div id=\"batch-waiting\">" + props.getProperty("batchCompareImportNotFinished").replaceFirst("%countTotal", counts[1]).replaceFirst("%countComplete", counts[0]) + "</div>");
 	hidden = "style=\"display: none;\"";
 } %>
 <div <%=hidden%>>
