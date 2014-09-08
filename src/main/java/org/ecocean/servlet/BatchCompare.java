@@ -67,9 +67,13 @@ public class BatchCompare extends HttpServlet {
     Shepherd myShepherd = new Shepherd(context);
 		String rootDir = getServletContext().getRealPath("/");
 
+		String langCode=ServletUtilities.getLanguageCode(request);
+		Properties props = new Properties();
+		props = ShepherdProperties.getProperties("submit.properties", langCode,context);
+
     //set up for response
     response.setContentType("text/html");
-    PrintWriter out = response.getWriter();
+    //PrintWriter out = response.getWriter();
 
 
 		List<FileItem> formFiles = new ArrayList<FileItem>();
@@ -101,14 +105,15 @@ public class BatchCompare extends HttpServlet {
 			//doneMessage = "Sorry this Servlet only handles file upload request";
 		}
 
+		String batchID = Util.generateUUID();
 		String msg = "";
 		List<String> okFiles = new ArrayList<String>();
 		if (formFiles.size() > 0) {
-			//String baseDir = ServletUtilities.dataDir(context, rootDir);
-String baseDir = "/tmp/updir";
-			for (FileItem item : formFiles) {
-				File dir = new File(baseDir);
+			String baseDir = ServletUtilities.dataDir(context, rootDir) + "/match_images/" + batchID;
+			File bd = new File(baseDir);
+			if (!bd.exists()) bd.mkdirs(); //fwiw, should never exist
 
+			for (FileItem item : formFiles) {
 				//String origFilename = new File(item.getName()).getName();
 				String filename = ServletUtilities.cleanFileName(new File(item.getName()).getName());
 				File file = new File(baseDir, filename);
@@ -122,20 +127,29 @@ System.out.println(filename + " -> " + file.toString());
 					ok = false;
 				}
 				if (ok) okFiles.add(file.getAbsolutePath());
-msg += filename + " ";
 			}
+			msg = "<p>" + props.getProperty("batchCompareImagesReceived").replaceFirst("%d", Integer.toString(okFiles.size())) + "</p>";
+			msg += "<p>" + props.getProperty("batchCompareNotFinished").replaceFirst("%countTotal", Integer.toString(okFiles.size())).replaceFirst("%countComplete", "0") + "</p>";
+			msg += "<script>window.setTimeout(function() { window.location.href = 'batchCompareDone.jsp'; }, 8000);</script>";
+
+			BatchCompareProcessor.writeStatusFile(getServletContext(), context, batchID, "{ \"countComplete\": 0, \"countTotal\": " + Integer.toString(okFiles.size()) + " }");
+
     }
 
 System.out.println("yes? starting proc");
-BatchCompareProcessor proc = new BatchCompareProcessor(getServletContext(), context, "npmCompare", okFiles);
-Thread t = new Thread(proc);
-t.start();
+		BatchCompareProcessor proc = new BatchCompareProcessor(getServletContext(), context, "npmCompare", okFiles, batchID);
+		Thread t = new Thread(proc);
+		t.start();
+		session.setAttribute(BatchCompareProcessor.SESSION_KEY_COMPARE, proc);
 System.out.println("yes. out.");
 
+		response.sendRedirect("http://" + CommonConfiguration.getURLLocation(request) + "/batchCompareDone.jsp?batchID=" + batchID);
+/*  nah, lets just redirect and not bother with msg here
 		out.println(ServletUtilities.getHeader(request));
-		out.println("<p>" + msg + "</p>");
+		out.println(msg);
 		out.println(ServletUtilities.getFooter(context));
 		out.close();
+*/
   }
 
 

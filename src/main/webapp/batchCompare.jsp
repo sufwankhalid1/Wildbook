@@ -34,7 +34,7 @@ context=ServletUtilities.getContext(request);
   //String langCode = "en";
   String langCode=ServletUtilities.getLanguageCode(request);
   
-	BatchCompareProcessor proc = (BatchCompareProcessor)session.getAttribute(BatchCompareProcessor.SESSION_KEY);
+	BatchCompareProcessor proc = (BatchCompareProcessor)session.getAttribute(BatchCompareProcessor.SESSION_KEY_PROCESS);
 
   //set up the file input stream
   //props.load(getClass().getResourceAsStream("/bundles/" + langCode + "/submit.properties"));
@@ -81,7 +81,7 @@ margin-bottom: 8px !important;
 
 
 </head>
-<body onload="resetMap()" onunload="resetMap()">
+<body>
 <div id="wrapper">
 <div id="page">
 <jsp:include page="header.jsp" flush="true">
@@ -135,7 +135,7 @@ if ((proc != null) && (proc.getCountComplete() < proc.getCountTotal())) {
 		<div id="input-file-list"></div>
 </div>
 
-<p><input type="submit" value="submit" /></p>
+<p><input type="submit" value="submit" onClick="$(this).hide(); $('#upmsg').show();" /><div style="display:none;" id="upmsg">uploading images...</div></p>
 </div>
 
 <p>&nbsp;</p>

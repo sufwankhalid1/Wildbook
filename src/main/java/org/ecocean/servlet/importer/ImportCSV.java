@@ -254,8 +254,8 @@ System.out.println(encID + " -> " + filename);
 		} else {
 			h += "<p>Imported <b>" + rowSuccesses.size() + " records successfully</b>.</p>";
 System.out.println("starting batch " + batchID);
-			BatchCompareProcessor proc = new BatchCompareProcessor(getServletContext(), context, "npmProcess", rowSuccesses);
-			session.setAttribute(BatchCompareProcessor.SESSION_KEY, proc);
+			BatchCompareProcessor proc = new BatchCompareProcessor(getServletContext(), context, "npmProcess", rowSuccesses, batchID);
+			session.setAttribute(BatchCompareProcessor.SESSION_KEY_PROCESS, proc);
 			Thread t = new Thread(proc);
 			t.start();
 System.out.println("thread forked");

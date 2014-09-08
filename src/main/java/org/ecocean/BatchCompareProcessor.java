@@ -32,7 +32,8 @@ import javax.servlet.ServletContext;
  * @author Jon Van Oast
  */
 public final class BatchCompareProcessor implements Runnable {
-  public static final String SESSION_KEY = "ImportCSVProcess";
+  public static final String SESSION_KEY_PROCESS = "ImportCSVProcess";
+  public static final String SESSION_KEY_COMPARE = "ImportCSVCompare";
   //private static Logger log = LoggerFactory.getLogger(BatchProcessor.class);
 
   /** ServletContext for web application, to allow access to resources. */
@@ -51,13 +52,15 @@ public final class BatchCompareProcessor implements Runnable {
 
 	private String method = null;
 	private List<String> args = null;
-  private String context="context0";
+  private String context = "context0";
+	private String batchID = null;
 
-  public BatchCompareProcessor(ServletContext servletContext, String context, String method, List<String> args) {
+  public BatchCompareProcessor(ServletContext servletContext, String context, String method, List<String> args, String batchID) {
 		this.servletContext = servletContext;
 		this.context = context;
 		this.args = args;
 		this.method = method;
+		this.batchID = batchID;
 System.out.println("in BatchCompareProcessor()");
 	}
 
@@ -120,6 +123,7 @@ System.out.println("RETURN");
 	public void npmCompare() {
 		String rootDir = servletContext.getRealPath("/");
 		String baseDir = ServletUtilities.dataDir(context, rootDir);
+		//String batchDir = baseDir + "/match_images/" + this.batchID;
 System.out.println("start npmCompare()");
 
 		this.countTotal = this.args.size();  //size of images uploaded
@@ -156,6 +160,11 @@ System.out.println(imgpath + " DONE?????");
 				System.out.println("oops: " + ioe.toString());
 			}
 			this.countComplete++;
+
+			String c = "{ \"countComplete\": " + Integer.toString(this.countComplete) + ", \"countTotal\": " + Integer.toString(this.countTotal);
+			if (this.countComplete >= this.countTotal) c += ", \"done\": true ";
+			c += " }";
+			writeStatusFile(this.servletContext, this.context, this.batchID, c);
 		}
 
 System.out.println("RETURN");
@@ -173,6 +182,24 @@ System.out.println("running, method=" + this.method);
     status = Status.INIT;
 
   }
+
+
+	public static boolean writeStatusFile(ServletContext servletContext, String context, String batchID, String contents) {
+		String rootDir = servletContext.getRealPath("/");
+		String baseDir = ServletUtilities.dataDir(context, rootDir);
+		String batchDir = baseDir + "/match_images/" + batchID;
+
+		try {
+			PrintWriter statusOut = new PrintWriter(batchDir + "/status.json");
+			statusOut.println(contents);
+			statusOut.close();
+		} catch (Exception ex) {
+			System.out.println("could not write " + baseDir + "/status.json: " + ex.toString());
+			return false;
+		}
+
+		return true;
+	}
 
 
 }
