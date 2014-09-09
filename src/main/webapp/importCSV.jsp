@@ -56,6 +56,15 @@ context=ServletUtilities.getContext(request);
     }
     // -->
 
+	function checkValues() {
+		var err = '';
+		if ($('#input-file').val() == '') err += 'Please choose a file. ';
+		if ($('#input-imageDir').val() == '') err += 'Please pick an image directory.';
+		if (err == '') return true;
+		alert(err);
+		return false;
+	}
+
   </script>
 
   <head>
@@ -96,18 +105,27 @@ context=ServletUtilities.getContext(request);
 
             <div id="maintext">
 
-<form method="post" action="ImportCSV" enctype="multipart/form-data">
+<form onSubmit="return checkValues();" method="post" action="ImportCSV" enctype="multipart/form-data">
 
 <p>
 <label>CSV file to import</label>
-<input type="file" name="csv_file" />
+<input id="input-file" type="file" name="csv_file" />
 </p>
+
+<div style="margin-left: 20px; font-size: 0.9em; padding: 10px;">
+CSV column mappings currently are:
+<ul style="margin-top: 5px;">
+<li>Column 8 (H): <b>image file name</b> <i>- required</i></li>
+<li>Column 2 (B): <b>date</b> ("M/D/Y hh:mm", optional)</li>
+<li>Column 16 (P): <b>individual ID</b> (optional)</li>
+</ul>
+</div>
 
 <p>
 <label>Directory containing corresponding images</b> (located in
 <i><%= imageDir %></i>)</label>
 
-<select name="imageDir"><option value="">SELECT ONE</option>
+<select id="input-imageDir" name="imageDir"><option value="">SELECT ONE</option>
 <%
 	File[] files = new File(imageDir).listFiles();
 	for (File f : files) {

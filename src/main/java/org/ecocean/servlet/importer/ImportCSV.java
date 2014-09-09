@@ -180,11 +180,15 @@ public class ImportCSV extends HttpServlet {
 			List<String[]> allLines = reader.readAll();
 			int rowNum = 0;
 			for (String[] f : allLines) {
-				String datestring = f[1];
-
-				String filename = f[7];
 				File img = null;
-				if ((filename != null) && !filename.equals("")) img = Util.findFileInDirectoryWithCache(filename, new File(imageSourceDir));
+				String datestring = "";
+				String filename = "row number " + Integer.toString(rowNum + 1) + " has too few fields";
+
+				if (f.length >= 16) {
+					datestring = f[1];
+					filename = f[7];
+					if ((filename != null) && !filename.equals("")) img = Util.findFileInDirectoryWithCache(filename, new File(imageSourceDir));
+				}
 
 				//if the (source) image file doesnt exist, we just skip it... fail!
 				if (img != null) {
@@ -238,7 +242,7 @@ System.out.println(img.toString() + " being set on enc=" + encID);
 System.out.println(encID + " -> " + filename);
 					rowSuccesses.add(encID);
 
-				} else {
+				} else if (rowNum > 1) {  //skip some header(s?)
 					rowErrors.add(filename);
 				}
 

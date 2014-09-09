@@ -125,9 +125,14 @@ String hidden = "";
 	File ilock = new File(baseDir + "/encounters/importcsv.lock");
 
 if (ilock.exists()) {
-	String[] counts = new String(Files.readAllBytes(Paths.get(baseDir + "/encounters/importcsv.lock"))).split(" ");
+	String[] counts = new String(Files.readAllBytes(Paths.get(baseDir + "/encounters/importcsv.lock"))).split("\\s+");
 	out.println("<script>window.setTimeout(function() { window.location.reload(); }, 8000);</script>");
 	out.println("<div id=\"batch-waiting\">" + props.getProperty("batchCompareImportNotFinished").replaceFirst("%countTotal", counts[1]).replaceFirst("%countComplete", counts[0]) + "</div>");
+	int percent = 0;
+	int total = Integer.parseInt(counts[1]);
+	if (total > 0) percent = 100 * Integer.parseInt(counts[0]) / total;
+	out.println("<div class=\"progress-bar-wrapper\" style=\"width: 85%; height: 20px; margin: 20px; position: relative;\"><div class=\"progress-bar\" style=\"width: " + Integer.toString(100 - percent) + "%; height: 20px; position: absolute; right: 0; background-color: #EEE;\">&nbsp;</div></div>");
+
 	hidden = "style=\"display: none;\"";
 } %>
 <div <%=hidden%>>

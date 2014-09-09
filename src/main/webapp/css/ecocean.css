@@ -1505,3 +1505,9 @@ table.tissueSample td {
 }
 
 
+.progress-bar-wrapper {
+	background: url(../images/waitbar.gif) no-repeat;
+	background-size: 100% 100%;
+}
+
+
