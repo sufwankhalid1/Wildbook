@@ -426,6 +426,11 @@
       <servlet-class>org.ecocean.servlet.BatchCompare</servlet-class>
 		</servlet>
 
+    <servlet>
+      <servlet-name>BatchCompareExport</servlet-name>
+      <servlet-class>org.ecocean.servlet.BatchCompareExport</servlet-class>
+		</servlet>
+
   <servlet>
     <servlet-name>IndividualAddFile</servlet-name>
     <servlet-class>org.ecocean.servlet.IndividualAddFile</servlet-class>
@@ -1182,6 +1187,11 @@
         <servlet-mapping>
             <servlet-name>BatchCompare</servlet-name>
             <url-pattern>/BatchCompare</url-pattern>
+  </servlet-mapping>
+
+        <servlet-mapping>
+            <servlet-name>BatchCompareExport</servlet-name>
+            <url-pattern>/BatchCompareExport</url-pattern>
   </servlet-mapping>
   
     <servlet-mapping>

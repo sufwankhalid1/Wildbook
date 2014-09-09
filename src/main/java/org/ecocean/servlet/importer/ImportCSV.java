@@ -158,6 +158,13 @@ public class ImportCSV extends HttpServlet {
 			}
 
 			if (emptyFirst) {
+				File oldEncDir = new File(baseDir + "/encounters");
+				if (oldEncDir.exists()) {
+					File archiveDir = new File(baseDir + "/_encounters_" + Util.generateUUID());
+					boolean ok = oldEncDir.renameTo(archiveDir);
+					System.out.println("encounters dir renamed to " + archiveDir.toString() + ": " + ok);
+				}
+
 				myShepherd.beginDBTransaction();
 				myShepherd.getPM().newQuery(MarkedIndividual.class).deletePersistentAll();
 				myShepherd.commitDBTransaction();
@@ -176,7 +183,8 @@ public class ImportCSV extends HttpServlet {
         }
 			}
 
-			CSVReader reader = new CSVReader(new FileReader(tmpFile), ',', CSVWriter.NO_QUOTE_CHARACTER);
+			//CSVReader reader = new CSVReader(new FileReader(tmpFile), ',', CSVWriter.NO_QUOTE_CHARACTER);
+			CSVReader reader = new CSVReader(new FileReader(tmpFile), ',');
 			List<String[]> allLines = reader.readAll();
 			int rowNum = 0;
 			for (String[] f : allLines) {
@@ -187,6 +195,7 @@ public class ImportCSV extends HttpServlet {
 				if (f.length >= 16) {
 					datestring = f[1];
 					filename = f[7];
+System.out.println("filename -> " + filename);
 					if ((filename != null) && !filename.equals("")) img = Util.findFileInDirectoryWithCache(filename, new File(imageSourceDir));
 				}
 

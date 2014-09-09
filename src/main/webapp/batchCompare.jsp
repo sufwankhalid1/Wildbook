@@ -131,7 +131,7 @@ if (ilock.exists()) {
 	int percent = 0;
 	int total = Integer.parseInt(counts[1]);
 	if (total > 0) percent = 100 * Integer.parseInt(counts[0]) / total;
-	out.println("<div class=\"progress-bar-wrapper\" style=\"width: 85%; height: 20px; margin: 20px; position: relative;\"><div class=\"progress-bar\" style=\"width: " + Integer.toString(100 - percent) + "%; height: 20px; position: absolute; right: 0; background-color: #EEE;\">&nbsp;</div></div>");
+	out.println("<div class=\"progress-bar-wrapper\" style=\"border: solid 1px #AAA; width: 85%; height: 20px; margin: 20px; position: relative;\"><div class=\"progress-bar\" style=\"width: " + Integer.toString(100 - percent) + "%; height: 20px; position: absolute; right: 0; background-color: #EEE;\">&nbsp;</div></div>");
 
 	hidden = "style=\"display: none;\"";
 } %>

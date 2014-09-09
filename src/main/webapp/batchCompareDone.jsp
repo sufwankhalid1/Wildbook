@@ -27,6 +27,8 @@ boolean isIE = request.getHeader("user-agent").contains("MSIE ");
 String context="context0";
 context=ServletUtilities.getContext(request);
 
+	Shepherd myShepherd = new Shepherd(context);
+
   GregorianCalendar cal = new GregorianCalendar();
   int nowYear = cal.get(1);
 //setup our Properties object to hold all properties
@@ -124,6 +126,10 @@ console.log(d);
 			$('#count-complete').html(d.countComplete);
 			$('#count-total').html(d.countTotal);
 
+			var percent = 0;
+			if (d.countTotal > 0) percent = 100 * d.countComplete / d.countTotal;
+			$('#progress-bar').css('width', (100 - percent) + '%');
+
 			if (d.results) {
 				showResults(d);
 
@@ -148,13 +154,40 @@ console.log(d);
 }
 
 
+function toggleAccept(el) {
+	var id = el.parentNode.parentNode.id;
+console.log('id %s %s', id, el.checked);
+	if (!batchData || !batchData.results || !batchData.results[id]) return;
+	batchData.results[id].acceptable = el.checked;
+	return true;
+}
+
+function saveBatchData() {
+	$.ajax({
+		url: 'BatchCompareExport?batchID=' + batchID,
+		data: { data: JSON.stringify(batchData) },
+		dataType: 'text',
+		success: function(d) { console.log('success %o', d); },
+		error: function(a,b,c) { console.log('error %o %o %o', a,b,c); },
+		type: 'POST'
+	});
+}
+
+
+var batchData = false;
 function showResults(data) {
+	batchData = data;
 	var h = '';
 	for (var imgId in data.results) {
-		h += '<div class="result"><div class="target"><img src="' + data.baseDir + '/match_images/' + batchID + '/' + imgId + '" /><span class="info">' + imgId + '</span></div>';
-		h += '<div class="match"><img src="' + data.baseDir + '/' + encDir(data.results[imgId].eid) + '/' + data.results[imgId].bestImg + '.jpg" /><span class="info"><a target="_new" href="encounters/encounter.jsp?number=' + data.results[imgId].eid + '">' + data.results[imgId].eid + '</a> [' + data.results[imgId].score + ']</span></div><div style="clear: both;"></div>';
+		//if (data.results[imgId].encDate) encDate = data.results
+		var encDate = data.results[imgId].encDate || '';
+		h += '<div class="result" id="' + imgId + '"><div class="target"><img src="' + data.baseDir + '/match_images/' + batchID + '/' + imgId + '" /><span class="info">' + imgId + '</span></div>';
+		h += '<div class="controls">accept match? <input type="checkbox" ' + (data.results[imgId].acceptable ? 'checked' : '') + ' /></div>';
+		h += '<div class="match"><img src="' + data.baseDir + '/' + encDir(data.results[imgId].eid) + '/' + data.results[imgId].bestImg + '.jpg" /><span class="info"><a target="_new" href="encounters/encounter.jsp?number=' + data.results[imgId].eid + '">' + data.results[imgId].eid + '</a> [' + data.results[imgId].score + '] ' + encDate + '</span></div></div><div style="clear: both;"></div>';
 	}
+	h += '<div><input value="save" onClick="saveBatchData()" type="button" /></div>';
 	$('#match-results').html(h);
+	$('.controls input').click(function() { toggleAccept(this); });
 }
 
 
@@ -192,11 +225,11 @@ if ((statusFile == null) || !statusFile.exists()) {
 System.out.println(json);
 
 	if (json.indexOf("results") != -1) {
-		out.println("<div id=\"match-results\"></div>");
+		out.println("<div id=\"match-results\">please wait...</div>");
 
 	} else if (json.indexOf("done") != -1) {
 		System.out.println("generating result data for " + batchDir + "/status.json");
-		out.println("<div id=\"match-results\"></div>");
+		out.println("<div id=\"match-results\">please wait...</div>");
 
 		HashMap res = new HashMap();
 		Pattern lp = Pattern.compile("^1\\) +\\{([^\\}]+)\\} +\\[(\\S+)\\].+match: +'([^']+)',");
@@ -216,6 +249,10 @@ System.out.println("matched?????? " + lm.group(1) + ":" + lm.group(3));
 						i.put("eid", lm.group(1));
 						i.put("score", lm.group(2));
 						i.put("bestImg", lm.group(3));
+						Encounter enc = myShepherd.getEncounter(lm.group(1));
+						if (enc != null) {
+							i.put("encDate", enc.getDate());
+						}
 						res.put(imgname, i);
 						break;
 					}
@@ -237,7 +274,8 @@ System.out.println("matched?????? " + lm.group(1) + ":" + lm.group(3));
 */
 
 	} else {  //javascript will read json to get values!
-		out.println("<div id=\"batch-waiting\">" + props.getProperty("batchCompareNotFinished") + "</div><img style=\"width: 30px; height: 30px;\" src=\"images/wait.gif\" />");
+		out.println("<div id=\"batch-waiting\">" + props.getProperty("batchCompareNotFinished") + "</div>");
+		out.println("<div class=\"progress-bar-wrapper\" style=\"border: solid 1px #AAA; width: 85%; height: 20px; margin: 20px; position: relative;\"><div id=\"progress-bar\" class=\"progress-bar\" style=\"width: 0; height: 20px; position: absolute; right: 0; background-color: #EEE;\">&nbsp;</div></div>");
 	}
 }
 %>
