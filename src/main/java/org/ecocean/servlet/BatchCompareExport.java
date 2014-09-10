@@ -80,26 +80,33 @@ public class BatchCompareExport extends HttpServlet {
 		if ((batchID != null) && (batchID.indexOf(".") < 0)) batchDir = ServletUtilities.dataDir(context, rootDir) + "/match_images/" + batchID;
 
 		if (batchDir == null) {
-    	response.setContentType("text/html");
-			out.println("bad batchID");
+    	response.setContentType("text/json");
+			out.println("{ \"error\": \"bad batchID\" }");
 
 		} else if (data != null) {
 System.out.println("data="+data);
 			boolean ok = BatchCompareProcessor.writeStatusFile(getServletContext(), context, batchID, data);
     	response.setContentType("text/json");
 			out.println("{ \"saved\": " + ok + "}");
-		}
-/*
-			try {
-				PrintWriter statusOut = new PrintWriter(batchDir + "/status.json");
-				statusOut.println(contents);
-				statusOut.close();
-			} catch (Exception ex) {
-				System.out.println("could not write " + baseDir + "/status.json: " + ex.toString());
-				return false;
-			}
-*/
 
+		} else if (request.getParameter("export") != null) {
+			try {
+				PrintWriter statusOut = new PrintWriter(batchDir + "/export.txt");
+				statusOut.println("pretend this is real content!");
+				statusOut.close();
+				String url = "http://" + request.getServerName();
+				if (request.getServerPort() != 80) url += ":" + request.getServerPort();
+				url += "/" + CommonConfiguration.getDataDirectoryName(context) + "/match_images/" + batchID + "/export.txt";
+				response.sendRedirect(url);
+			} catch (Exception ex) {
+    		response.setContentType("text/plain");
+				out.println("could not write " + batchDir + "/export.txt: " + ex.toString());
+			}
+
+		} else {
+    	response.setContentType("text/json");
+			out.println("{ \"error\": \"no data?\" }");
+		}
 /*
 		out.println(ServletUtilities.getHeader(request));
 		out.println(msg);

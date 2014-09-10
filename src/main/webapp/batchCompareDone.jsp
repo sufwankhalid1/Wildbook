@@ -159,19 +159,45 @@ function toggleAccept(el) {
 console.log('id %s %s', id, el.checked);
 	if (!batchData || !batchData.results || !batchData.results[id]) return;
 	batchData.results[id].acceptable = el.checked;
+	saveBatchData();  //"auto-save"
 	return true;
 }
 
+var saveInProgress = false;
+var saveAgain = false;
 function saveBatchData() {
+	if (saveInProgress) {
+		saveAgain = true;
+		return;
+	}
+	saveInProgress = true;
+	saveAgain = false;
+	//still a chance for a race condition here i guess, but at worst would just save an extra time or 2 (?)
+
 	$.ajax({
 		url: 'BatchCompareExport?batchID=' + batchID,
 		data: { data: JSON.stringify(batchData) },
 		dataType: 'text',
-		success: function(d) { console.log('success %o', d); },
-		error: function(a,b,c) { console.log('error %o %o %o', a,b,c); },
+		success: function(d) {
+			console.log('save success %o', d);
+			saveInProgress = false;
+			if (saveAgain) {
+				console.log('saving again');
+				saveBatchData();
+			}
+		},
+		error: function(a,b,c) {
+			console.log('save error %o %o %o', a,b,c);
+			saveInProgress = false;
+			if (saveAgain) {
+				console.log('saving again');
+				saveBatchData();
+			}
+		},
 		type: 'POST'
 	});
 }
+
 
 
 var batchData = false;
@@ -185,8 +211,8 @@ function showResults(data) {
 		h += '<div class="controls">accept match? <input type="checkbox" ' + (data.results[imgId].acceptable ? 'checked' : '') + ' /></div>';
 		h += '<div class="match"><img src="' + data.baseDir + '/' + encDir(data.results[imgId].eid) + '/' + data.results[imgId].bestImg + '.jpg" /><span class="info"><a target="_new" href="encounters/encounter.jsp?number=' + data.results[imgId].eid + '">' + data.results[imgId].eid + '</a> [' + data.results[imgId].score + '] ' + encDate + '</span></div></div><div style="clear: both;"></div>';
 	}
-	h += '<div><input value="save" onClick="saveBatchData()" type="button" /></div>';
 	$('#match-results').html(h);
+	$('#results-div').after('<div><a style="margin: 15px; padding: 5px; border-radius: 3px; background-color: #BBB; display: inline-block;" href="BatchCompareExport?export=1&batchID=' + batchID + '" target="_new">Download CSV file for matches</a></div>');
 	$('.controls input').click(function() { toggleAccept(this); });
 }
 
