@@ -39,6 +39,10 @@ import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Paths;
+import java.nio.file.Files;
+
+import com.google.gson.Gson;
 
 
 /*
@@ -90,13 +94,42 @@ System.out.println("data="+data);
 			out.println("{ \"saved\": " + ok + "}");
 
 		} else if (request.getParameter("export") != null) {
+			String jsonText = new String(Files.readAllBytes(Paths.get(batchDir + "/status.json")));
+System.out.println("json="+jsonText);
+			Gson gson = new Gson();
+			//HashMap d = gson.fromJson(jsonText, HashMap.class);
+			Map<String,Object> d = new HashMap<String,Object>();
+			d = (Map<String,Object>) gson.fromJson(jsonText, d.getClass());
+System.out.println(d);
+			Map<String,Object> res = (Map<String,Object>)d.get("results");
+System.out.println(res);
+			String exp = "fluke image\tmatched encounter\tid\tbest image match\tscore\tapproved\n";
+//20120627_D70s_1929.JPG={acceptable=true, bestImg=BC-2009 08 11 074, encDate=2009-07-11 00:00, score=0.152071, eid=8c4d8e83-ec61-44af-9cad-be57ba3995b7
+			String[] fields = new String[] {"eid", "individualID", "bestImg", "score", "acceptable"};
+			for (String imgName : res.keySet()) {
+				Map<String,Object> row = (Map<String,Object>)res.get(imgName);
+System.out.println(row);
+//{bestImg=BC-2009 08 11 074, individualID=15432, encDate=2009-07-11 00:00, score=0.152071, eid=8c4d8e83-ec61-44af-9cad-be57ba3995b7}
+				//exp += imgName + "\t" + row.get("eid") + "\t" + row.get("individualID") + "\t" + row.get("bestImg") + "\t" + row.get("score") + "\t" + (row.get("acceptable").equals("true") ? "yes" : "no") + "\n";
+				exp += imgName;
+				for (String f : fields) {
+					Object val = row.get(f);
+					//if (f.equals("acceptable")
+					if (val == null) val = "";
+					exp += "\t" + val.toString();
+				}
+				exp += "\n";
+			}
+
 			try {
-				PrintWriter statusOut = new PrintWriter(batchDir + "/export.txt");
-				statusOut.println("pretend this is real content!");
-				statusOut.close();
+				PrintWriter exportOut = new PrintWriter(batchDir + "/export.txt");
+				exportOut.println(exp);
+				exportOut.close();
 				String url = "http://" + request.getServerName();
 				if (request.getServerPort() != 80) url += ":" + request.getServerPort();
 				url += "/" + CommonConfiguration.getDataDirectoryName(context) + "/match_images/" + batchID + "/export.txt";
+    		//response.setContentType("text/csv");
+				//response.setHeader("Content-Disposition", "attachment; filename=" + batchID + ".csv");
 				response.sendRedirect(url);
 			} catch (Exception ex) {
     		response.setContentType("text/plain");

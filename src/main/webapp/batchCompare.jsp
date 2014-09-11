@@ -99,8 +99,7 @@ margin-bottom: 8px !important;
 <div id="maincol-wide-solo">
 
 <div id="maintext">
-  <h1 class="intro">Images to Match
-  </h1>
+  <h1 class="intro">Images Import</h1>
 </div>
 <form id="encounterForm" action="BatchCompare" method="post" enctype="multipart/form-data" >
 
@@ -142,7 +141,7 @@ if (ilock.exists()) {
 		<input class="ie" name="theFiles" type="file" accept=".jpg, .jpeg, .png, .bmp, .gif" multiple size="30" onChange="updateList(this);" />
 <% } else { %>
 		<input class="nonIE" name="theFiles" type="file" accept=".jpg, .jpeg, .png, .bmp, .gif" multiple size="30" onChange="updateList(this);" />
-		<div><%=props.getProperty("dragInstructions")%></div>
+		<div><%=props.getProperty("batchCompareImagesInstructions")%></div>
 <% } %>
 		<div id="input-file-list"></div>
 </div>

@@ -74,12 +74,6 @@ context=ServletUtilities.getContext(request);
           style="margin: 0px 0 0px 0px; position: relative; width: 200px; height: 25px; z-index:
           100;"><strong>Overview</strong></a>
         </li>
-                <li><a
-	          href="http://<%=CommonConfiguration.getURLLocation(request) %>/photographing.jsp"
-	          class="enclose"
-	          style="margin: 0px 0 0px 0px; position: relative; width: 200px; height: 25px; z-index:
-	          100;"><strong>How to Photograph</strong></a>
-	        </li>
 	<li><a href="http://www.wildme.org/wildbook" class="enclose" style="margin:0px 0 0px 0px; position:relative; width:200px; height:25px;z-index:100;">Learn about Wildbook</a></li>
 	
 
@@ -101,11 +95,6 @@ context=ServletUtilities.getContext(request);
           style="margin: 0px 0 0px 0px; position: relative; width: 160px; height: 25px; z-index: 100;"><%=props.getProperty("report")%>
         </a></li>
         
-                <li><a
-	          href="http://<%=CommonConfiguration.getURLLocation(request) %>/adoptamanta.jsp"
-	          class="enclose"
-	          style="margin: 0px 0 0px 0px; position: relative; width: 160px; height: 25px; z-index: 100;">Adopt a Manta
-        </a></li>
 
       </ul>
       <!--[if lte IE 6]></td></tr></table></a><![endif]--></li>
@@ -289,7 +278,7 @@ context=ServletUtilities.getContext(request);
         
 
 	        <%
-	        if(CommonConfiguration.allowBatchUpload(context)){
+	        if(false && CommonConfiguration.allowBatchUpload(context)){
 	        %>
 	        <li><a
 	          href="http://<%=CommonConfiguration.getURLLocation(request) %>/BatchUpload/start"
@@ -417,7 +406,12 @@ context=ServletUtilities.getContext(request);
 			<%
 			if(CommonConfiguration.isCatalogEditable(context)){
 			%>						
+<!--
 			<li><a href="http://<%=CommonConfiguration.getURLLocation(request) %>/appadmin/import.jsp" class="enclose" style="margin:0px 0 0px 0px; position:relative; width:190px; height:25px;z-index:99;">Data Import</a></li>
+-->
+
+			<li><a href="http://<%=CommonConfiguration.getURLLocation(request) %>/importCSV.jsp" class="enclose" style="margin:0px 0 0px 0px; position:relative; width:190px; height:25px;z-index:99;">Encounter CSV Import</a></li>
+			<li><a href="http://<%=CommonConfiguration.getURLLocation(request) %>/batchCompare.jsp" class="enclose" style="margin:0px 0 0px 0px; position:relative; width:190px; height:25px;z-index:99;">Image Import for Matching</a></li>
 			<%
 
 			}

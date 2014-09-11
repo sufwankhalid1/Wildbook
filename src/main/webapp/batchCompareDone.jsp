@@ -209,10 +209,10 @@ function showResults(data) {
 		var encDate = data.results[imgId].encDate || '';
 		h += '<div class="result" id="' + imgId + '"><div class="target"><img src="' + data.baseDir + '/match_images/' + batchID + '/' + imgId + '" /><span class="info">' + imgId + '</span></div>';
 		h += '<div class="controls">accept match? <input type="checkbox" ' + (data.results[imgId].acceptable ? 'checked' : '') + ' /></div>';
-		h += '<div class="match"><img src="' + data.baseDir + '/' + encDir(data.results[imgId].eid) + '/' + data.results[imgId].bestImg + '.jpg" /><span class="info"><a target="_new" href="encounters/encounter.jsp?number=' + data.results[imgId].eid + '">' + data.results[imgId].eid + '</a> [' + data.results[imgId].score + '] ' + encDate + '</span></div></div><div style="clear: both;"></div>';
+		h += '<div class="match"><img src="' + data.baseDir + '/' + encDir(data.results[imgId].eid) + '/' + data.results[imgId].bestImg + '" /><span class="info"><b>' + data.results[imgId].individualID + '</b> <a target="_new" href="encounters/encounter.jsp?number=' + data.results[imgId].eid + '">' + data.results[imgId].eid + '</a> [' + data.results[imgId].score + '] ' + encDate + '</span></div></div><div style="clear: both;"></div>';
 	}
 	$('#match-results').html(h);
-	$('#results-div').after('<div><a style="margin: 15px; padding: 5px; border-radius: 3px; background-color: #BBB; display: inline-block;" href="BatchCompareExport?export=1&batchID=' + batchID + '" target="_new">Download CSV file for matches</a></div>');
+	$('#results-div').after('<div><a download="matches-' + batchID +'.tsv" style="margin: 15px; padding: 5px; border-radius: 3px; background-color: #BBB; display: inline-block;" href="BatchCompareExport?export=1&batchID=' + batchID + '" target="_new">Download CSV file for matches</a></div>');
 	$('.controls input').click(function() { toggleAccept(this); });
 }
 
@@ -258,7 +258,7 @@ System.out.println(json);
 		out.println("<div id=\"match-results\">please wait...</div>");
 
 		HashMap res = new HashMap();
-		Pattern lp = Pattern.compile("^1\\) +\\{([^\\}]+)\\} +\\[(\\S+)\\].+match: +'([^']+)',");
+		Pattern lp = Pattern.compile("^1\\) +\\{([^\\}]+)\\} +\\[(\\S+)\\].+match: +'([^']+)',.+_CR\\.(\\S+)'\\)");
 		Pattern fp = Pattern.compile("(.+).txt$");
 		File dir = new File(batchDir);
 		for (File tmp : dir.listFiles()) {
@@ -274,10 +274,11 @@ System.out.println("img? " + imgname);
 System.out.println("matched?????? " + lm.group(1) + ":" + lm.group(3));
 						i.put("eid", lm.group(1));
 						i.put("score", lm.group(2));
-						i.put("bestImg", lm.group(3));
+						i.put("bestImg", lm.group(3) + "." + lm.group(4));
 						Encounter enc = myShepherd.getEncounter(lm.group(1));
 						if (enc != null) {
 							i.put("encDate", enc.getDate());
+							i.put("individualID", enc.getIndividualID());
 						}
 						res.put(imgname, i);
 						break;
@@ -293,6 +294,7 @@ System.out.println("matched?????? " + lm.group(1) + ":" + lm.group(3));
 		BatchCompareProcessor.writeStatusFile(getServletContext(), context, batchID, new Gson().toJson(rtn));
 
 /*
+path='/opt/tomcat7/webapps/cascadia_data_dir/encounters/7/8/78157de5-59dc-40fb-84a3-fcadf570efa0/WS_2012-10-25_BSound-0014_CR.JPG'
 1) {69bddfe4-7473-42c6-86c4-c2f819e7e5a5} [0.118258]  (best match: 'BC-2009 08 11 074', path='/opt/tomcat7/webapps/cascadia_data_dir/encounters/6/9/69bddfe4-7473-42c6-86c4-c2f819e7e5a5/BC-2009 08 11 074_CR.jpg')
 2) {ac27314b-6405-45f4-990b-480cfd350733} [0.0974899]  (best match: 'BC-2009 08 12 054', path='/opt/tomcat7/webapps/cascadia_data_dir/encounters/a/c/ac27314b-6405-45f4-990b-480cfd350733/BC-2009 08 12 054_CR.jpg')
 } else if (resultsFile.exists()) {
