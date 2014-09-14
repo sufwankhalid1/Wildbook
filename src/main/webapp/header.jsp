@@ -68,12 +68,7 @@ context=ServletUtilities.getContext(request);
         <tr>
           <td><![endif]-->
       <ul>
-        <li><a
-          href="http://<%=CommonConfiguration.getURLLocation(request) %>/overview.jsp"
-          class="enclose"
-          style="margin: 0px 0 0px 0px; position: relative; width: 200px; height: 25px; z-index:
-          100;"><strong>Overview</strong></a>
-        </li>
+
 	<li><a href="http://www.wildme.org/wildbook" class="enclose" style="margin:0px 0 0px 0px; position:relative; width:200px; height:25px;z-index:100;">Learn about Wildbook</a></li>
 	
 

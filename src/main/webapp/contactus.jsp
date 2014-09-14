@@ -114,9 +114,9 @@
           <h1 class="intro">Contact us </h1>
         </div>
 
-        <p>The team at Manta Matcher welcome your comments and questions.</p>
+        <p><a href="mailto:teo@cheesemans.com">Please contact Ted Cheeseman with any questions about this environment.</a></p>
 
-<p>Please email us at info at mantamatcher dot org, and one of us will respond as quickly as possible.</p>
+
       </div>
       <!-- end maintext -->
 
