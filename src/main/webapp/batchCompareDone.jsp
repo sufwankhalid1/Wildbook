@@ -19,7 +19,7 @@
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <%@ page contentType="text/html; charset=utf-8" pageEncoding="UTF-8" language="java"
-         import="org.ecocean.servlet.ServletUtilities,java.util.ArrayList,org.ecocean.*, org.ecocean.Util, java.util.GregorianCalendar, java.util.Properties, java.util.List, org.ecocean.BatchCompareProcessor, javax.servlet.http.HttpSession, java.io.File, java.nio.file.Files, java.nio.file.Paths, java.nio.charset.Charset, java.util.regex.*, com.google.gson.Gson, java.util.HashMap  " %>
+         import="org.ecocean.servlet.ServletUtilities,java.util.ArrayList,org.ecocean.*, org.ecocean.Util, java.util.GregorianCalendar, java.util.Properties, java.util.List, org.ecocean.BatchCompareProcessor, javax.servlet.http.HttpSession, java.io.File, java.nio.file.Files, java.nio.file.Paths, java.nio.charset.Charset, java.util.regex.*, com.google.gson.Gson, java.util.HashMap, java.util.Vector  " %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>         
 <%
 
@@ -201,19 +201,71 @@ function saveBatchData() {
 
 
 var batchData = false;
+var hoverImg = false;
 function showResults(data) {
 	batchData = data;
 	var h = '';
 	for (var imgId in data.results) {
 		//if (data.results[imgId].encDate) encDate = data.results
 		var encDate = data.results[imgId].encDate || '';
-		h += '<div class="result" id="' + imgId + '"><div class="target"><img src="' + data.baseDir + '/match_images/' + batchID + '/' + imgId + '" /><span class="info">' + imgId + '</span></div>';
-		h += '<div class="controls">accept match? <input type="checkbox" ' + (data.results[imgId].acceptable ? 'checked' : '') + ' /></div>';
-		h += '<div class="match"><img src="' + data.baseDir + '/' + encDir(data.results[imgId].eid) + '/' + data.results[imgId].bestImg + '" /><span class="info"><b>' + data.results[imgId].individualID + '</b> <a target="_new" href="encounters/encounter.jsp?number=' + data.results[imgId].eid + '">' + data.results[imgId].eid + '</a> [' + data.results[imgId].score + '] ' + encDate + '</span></div></div><div style="clear: both;"></div>';
+		h += '<div class="result" id="' + imgId + '"><div class="target"><img class="fitted" src="' + data.baseDir + '/match_images/' + batchID + '/' + imgId + '" /><span class="info">' + imgId + '</span></div>';
+
+		h += '<div class="controls">accept match? <input type="checkbox" ' + (data.results[imgId].acceptable ? 'checked' : '') + ' />';
+		h += '<div><a target="_new" href="' + data.baseDir + '/match_images/' + batchID + '/' + imgId + '.xhtml">xhtml output</a></div>';
+		if (data.results[imgId].other) {
+			h += '<div class="other-thumbs"><b style="color: #666;">Other Encounters</b><br />';
+			for (var oeid in data.results[imgId].other) {
+				for (var oi = 0 ; oi < data.results[imgId].other[oeid].length ; oi++) {
+					h += '<img title="' +oeid + '" src="' + data.baseDir + '/' + encDir(oeid) + '/' + data.results[imgId].other[oeid][oi] + '" />';
+				}
+			}
+			h += '</div>';
+		}
+		h += '</div>';
+
+		h += '<div class="match"><img class="fitted" src="' + data.baseDir + '/' + encDir(data.results[imgId].eid) + '/' + data.results[imgId].bestImg + '" /><span class="info"><b>' + data.results[imgId].individualID + '</b>: ' + encDate.substr(0,10);
+		h += ' [score ' + data.results[imgId].score.substr(0,6) + '] ';
+		//h += '<a target="_new" href="encounters/encounter.jsp?number=' + data.results[imgId].eid + '">' + data.results[imgId].eid + '</a>';
+		h += '<a title="' + data.results[imgId].eid + '" target="_new" href="encounters/encounter.jsp?number=' + data.results[imgId].eid + '">enc.</a>';
+		h += '</span></div></div><div style="clear: both;"></div>';
 	}
 	$('#match-results').html(h);
 	$('#results-div').after('<div><a download="matches-' + batchID +'.tsv" style="margin: 15px; padding: 5px; border-radius: 3px; background-color: #BBB; display: inline-block;" href="BatchCompareExport?export=1&batchID=' + batchID + '" target="_new">Download CSV file for matches</a></div>');
 	$('.controls input').click(function() { toggleAccept(this); });
+
+/*
+	$('.target img, .match img').hover(
+		function() {
+			$(this).removeClass('fitted').addClass('zoomed');
+			$(this).width = $(this).widthNatural;
+			$(this).height = $(this).heightNatural;
+		},
+		function() {
+			$(this).removeClass('zoomed').addClass('fitted').css({top: 0, left: '100%'});
+			$(this).width = 300;	
+			$(this).height = 200;
+		}
+	);
+
+	$('.target img, .match img').mousemove(function(ev) {
+		var x = ev.offsetX / 300 * this.naturalWidth - 100;
+		var y = ev.offsetY / 200 * this.naturalHeight;
+		$(this).css({ left: -x, top: -y });
+	});
+*/
+
+	$('.other-thumbs img').hover(
+		function() {
+			hoverImg = document.createElement('img');
+			hoverImg.src = this.src;
+			hoverImg.className = 'fitted';
+			$(this).parents('.result').find('.match').append(hoverImg);
+		},
+		function() {
+			$(hoverImg).remove();
+			hoverImg = false;
+		}
+	);
 }
 
 
@@ -279,6 +331,23 @@ System.out.println("matched?????? " + lm.group(1) + ":" + lm.group(3));
 						if (enc != null) {
 							i.put("encDate", enc.getDate());
 							i.put("individualID", enc.getIndividualID());
+							HashMap otherEnc = new HashMap();
+							MarkedIndividual ind = myShepherd.getMarkedIndividual(enc.getIndividualID());
+							if (ind != null) {
+								ArrayList<String> imgs = new ArrayList<String>();
+								Vector<Encounter> indEncs = ind.getEncounters();
+								for (Encounter ienc : indEncs) {
+									if (!ienc.getEncounterNumber().equals(enc.getEncounterNumber())) {
+										List<SinglePhotoVideo> spvs = ienc.getImages();
+										for (SinglePhotoVideo spv : spvs) {
+											//imgs.add(enc.dir("/" + CommonConfiguration.getDataDirectoryName(context)) + spv.getFilename());
+											imgs.add(spv.getFilename());
+										}
+										otherEnc.put(ienc.getEncounterNumber(), imgs);
+									}
+								}
+								i.put("other", otherEnc);
+							}
 						}
 						res.put(imgname, i);
 						break;
