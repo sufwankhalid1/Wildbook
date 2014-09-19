@@ -146,6 +146,12 @@ a.launchPopup {
   min-height: 500px;
 }
 
+#main.wide {
+	position: absolute;
+	width: 100%;
+	left: 0;
+}
+
 #leftcol {
   width: 200px;
   float: left;
@@ -171,6 +177,11 @@ a.launchPopup {
   overflow: hidden;
 }
 
+#main.wide #maincol-wide-solo {
+	width: 96%;
+	margin-left: 2%;
+}
+
 #rightcol {
   width: 200px;
   float: right;
@@ -182,6 +193,11 @@ a.launchPopup {
   clear: both;
   padding-top: 1em;
   padding-bottom: 1em;
+}
+
+#main.wide #footer {
+	width: 810px;
+	margin-left: 250px;
 }
 
 #sponsors {
@@ -1483,12 +1499,20 @@ table.tissueSample td {
 
 .result {
 	position: relative;
+	margin-bottom: 12px;
+	padding: 12px 5px 12px 5px;
+}
+
+.result:hover {
+	background-color: #EE9;
 }
 
 .result .controls {
 	position: absolute;
-	top: 5px;
-	xleft: 10px;
+	width: 140px;
+	max-height: 200;
+	overflow-y: auto;
+	top: 15px;
 	right: 10px; z-index: 4;
 	padding: 5px;
 	font-size: 0.85em;
@@ -1497,19 +1521,51 @@ table.tissueSample td {
 	border-radius: 7px;
 }
 
+.other-thumbs img {
+	margin: 2px;
+	max-width: 110px;
+	maxh-height: 90px;
+}
+
+.other-thumbs img:hover {
+	outline: solid 1px #FF4;
+}
+
+.other-thumbs {
+	margin-top: 7px;
+}
+
 #match-results .target, #match-results .match {
 	position: relative;
+	/*width: 300px;*/
+	width: 40%;
+	height: 250px;
+	overflow: hidden;
+	text-align: center;
+	display: inline-block;
+	margin-right: 8px;
 }
+/*
 #match-results .target {
 	float: left;
 }
 #match-results .match {
 	float: right;
 }
+*/
 
-#match-results img {
-	height: 110px;
+/*#match-results .target img, #match-results .match img { */
+#match-results img.fitted {
+	height: 300px;
+	position: relative;
+	left: 100%;
+	margin-left: -200%;
 }
+
+#match-results img.zoomed {
+	position: absolute;
+}
+
 
 .target .info, .match .info {
 	background-color: rgba(255,255,255,0.7);

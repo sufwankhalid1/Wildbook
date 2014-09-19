@@ -102,7 +102,7 @@ public class ImportCSV extends HttpServlet {
 		FileItem csvFileItem = null;
 		String imageSourceDir = null;
 
-		boolean emptyFirst = true;
+		boolean emptyFirst = false;
 		String batchID = "1234";
 
 
@@ -183,10 +183,12 @@ public class ImportCSV extends HttpServlet {
         }
 			}
 
+			File encDir = new File(baseDir + "/encounters");
 			//CSVReader reader = new CSVReader(new FileReader(tmpFile), ',', CSVWriter.NO_QUOTE_CHARACTER);
 			CSVReader reader = new CSVReader(new FileReader(tmpFile), ',');
 			List<String[]> allLines = reader.readAll();
 			int rowNum = 0;
+
 			for (String[] f : allLines) {
 				File img = null;
 				String datestring = "";
@@ -199,8 +201,17 @@ System.out.println("filename -> " + filename);
 					if ((filename != null) && !filename.equals("")) img = Util.findFileInDirectoryWithCache(filename, new File(imageSourceDir));
 				}
 
+				File fileInEncounters = null;
+				if (!emptyFirst && (filename != null) && !filename.equals("")) {
+					fileInEncounters = Util.findFileInDirectoryWithCache(filename, encDir);
+				}
+
+
+				if (fileInEncounters != null) {
+					rowErrors.add(fileInEncounters.getAbsolutePath() + " already has an encounter");
+
 				//if the (source) image file doesnt exist, we just skip it... fail!
-				if (img != null) {
+				} else if (img != null) {
 //System.out.println("!!! found filename " + filename + " at: " + img.getAbsoluteFile().toString());
 					String encID = null;  //currently does not exist at all in data
 					String indivID = f[15];
@@ -294,31 +305,17 @@ System.out.println("thread forked");
 			}
 			h += "</ul></p>";
 		}
+
+/* we no longer show an intermediate page, but rather jump right to the compare page (with progress bar)
 		h += "<p><a href=\"encounters/searchResults.jsp?state=unapproved\">List all encounters</a></p><p><a href=\"batchCompare.jsp\">Continue to upload of images to match</a></p>";
 
 		out.println(ServletUtilities.getHeader(request));
 		out.println(h);
 		out.println(ServletUtilities.getFooter(context));
-/*
-      //if (request.getRemoteUser() != null) {
-
-
-
-
-      //return a forward to display.jsp
-      System.out.println("Ending data submission.");
-      if (!spamBot) {
-        response.sendRedirect("http://" + CommonConfiguration.getURLLocation(request) + "/confirmSubmit.jsp?number=" + encID);
-      } else {
-        response.sendRedirect("http://" + CommonConfiguration.getURLLocation(request) + "/spambot.jsp");
-      }
-
-
-    }  //end "if (fileSuccess)
-
-    myShepherd.closeDBTransaction();
-    //return null;
 */
+
+		session.setAttribute("importResultsMessage", h);
+		response.sendRedirect("http://" + CommonConfiguration.getURLLocation(request) + "/batchCompare.jsp");
   }
 
 

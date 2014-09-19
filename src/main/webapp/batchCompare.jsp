@@ -99,6 +99,16 @@ margin-bottom: 8px !important;
 <div id="maincol-wide-solo">
 
 <div id="maintext">
+
+<%
+String irm = (String)session.getAttribute("importResultsMessage");
+if (irm != null) {
+%>
+	<div style="margin: 0 80px 15px 40px; padding: 0 8px 0 8px; border: solid 1px #CCC; font-size: 0.85em;"><p><i><b>CSV Data Import Results:</b></i></p>
+<%=irm%>
+	</div>
+<% } %>
+
   <h1 class="intro">Images Import</h1>
 </div>
 <form id="encounterForm" action="BatchCompare" method="post" enctype="multipart/form-data" >
@@ -120,6 +130,7 @@ function updateList(inp) {
 </script>
 
 <%
+
 String hidden = "";
 	File ilock = new File(baseDir + "/encounters/importcsv.lock");
 
