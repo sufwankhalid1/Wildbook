@@ -270,6 +270,8 @@ function showResults(data) {
 			hoverImg = false;
 		}
 	);
+
+	makeZoomy();
 }
 
 
