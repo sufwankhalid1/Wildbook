@@ -61,6 +61,7 @@ File encounterDir = new File(encountersDir, num);
 
 		String scriptFile = "/tmp/redo.sh";
 
+System.out.println("writing redo.sh");
 		String script = "stamp=`/bin/date +%s`\necho datestamp=$stamp\n\n";
 //note: we currently do not know the source of the thumb.jpg, so we punt and pick 0th image.  :(
 		if ((cmdWatermark != null) && (cmdResize != null) && !cmdWatermark.equals("") && !cmdResize.equals("")) {
@@ -70,11 +71,13 @@ File encounterDir = new File(encountersDir, num);
 				Encounter enc = (Encounter) it.next();
 				List<SinglePhotoVideo> spvs = enc.getImages();
 				total++;
+//if (total > 30) break;
+if (total % 10 == 0) System.out.println(total);
 				script += "\n\n#################### encounter " + enc.getEncounterNumber() + "\necho " + total + ". " + enc.getEncounterNumber() + "\n";
 				String epath = enc.dir(baseDir);
 				int count = 0;
 				for (SinglePhotoVideo spv : spvs) {
-					String imageSource = epath + File.separator + spv.getFilename();
+					String imageSource = "\"" + epath + File.separator + spv.getFilename() + "\"";
 					script += "\n## image " + count + "\n";
 					if (count == 0) {
 						script += "cp " + epath + File.separator + "thumb.jpg " + epath + File.separator + "thumb-$stamp.jpg\n";
