@@ -162,12 +162,21 @@ public final class MantaMatcher extends DispatchServlet {
       getServletContext().setAttribute("templateConfig", conf);
     }
 
+    // Derive data folder info.
+    String rootDir = getServletContext().getRealPath("/");
+    File dataDir = new File(ServletUtilities.dataDir(context, rootDir));
+
     // URL prefix of the encounters folder (for image links).
     String dir = "/" + CommonConfiguration.getDataDirectoryName(context) + "/encounters";
-    String encUrlPrefix = String.format("%s/", CommonConfiguration.getServerURL(req, dir));
+    String dataDirUrlPrefix = CommonConfiguration.getServerURL(req, dir);
     // Format string for encounter page URL (with placeholder).
     String pageFormat = "//" + CommonConfiguration.getURLLocation(req) + "/encounters/encounter.jsp?number=%s";
     // Parse MantaMatcher results files ready for display.
-    return MantaMatcherUtilities.getResultsHtml(conf, mmaResults, spv, encUrlPrefix, pageFormat);
+    Shepherd shepherd = new Shepherd(context);
+    try {
+      return MantaMatcherUtilities.getResultsHtml(shepherd, conf, mmaResults, spv, dataDir, dataDirUrlPrefix, pageFormat);
+    } finally {
+      shepherd.closeDBTransaction();
+    }
   }
 }

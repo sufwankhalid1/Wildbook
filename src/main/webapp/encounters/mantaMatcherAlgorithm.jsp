@@ -49,6 +49,8 @@ try {
     List<SinglePhotoVideo> photos = enc.getSinglePhotoVideo();
     for (int t = 0; t < photos.size(); t++){
       SinglePhotoVideo spv = photos.get(t);
+      if (!MediaUtilities.isAcceptableImageFile(spv.getFile()))
+        continue;
       Map<String, File> mmFiles = MantaMatcherUtilities.getMatcherFilesMap(spv);
       DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
       File matchOutputRegional = mmFiles.get("TXT-REGIONAL");
@@ -57,7 +59,7 @@ try {
       if (MantaMatcherUtilities.checkMatcherFilesExist(spv.getFile())) {
 %>
   <p style="background-color:#f0f0f0;"><em>Extracted Feature Image for Image <%=(t+1) %>.</em></p>
-  <p><img width="300px" height="*" src="/<%=shepherdDataDir.getName() %>/encounters/<%=encNum %>/<%=mmFT.getName()%>"/></p>
+  <p><img width="300px" height="*" src="/<%=shepherdDataDir.getName() %>/encounters/<%=Encounter.subdir(enc.getCatalogNumber()) %>/<%=mmFT.getName()%>"/></p>
   <p><em>Remove the processed, cropped manta patterning image.</em></p>
   <p>
     <form action="../EncounterAddMantaPattern" method="post" name="EncounterRemoveMantaPattern">

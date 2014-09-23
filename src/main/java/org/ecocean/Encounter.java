@@ -29,11 +29,15 @@ import java.util.TreeMap;
 import java.util.Vector;
 import java.util.GregorianCalendar;
 import java.io.*;
+
 import org.ecocean.genetics.*;
 import org.ecocean.tag.AcousticTag;
 import org.ecocean.tag.MetalTag;
 import org.ecocean.tag.SatelliteTag;
 import org.ecocean.Util;
+import org.ecocean.servlet.ServletUtilities;
+
+import javax.servlet.http.HttpServletRequest;
 
 
 /**
@@ -704,7 +708,9 @@ public class Encounter implements java.io.Serializable {
     }
 
     if (hour != -1) {
-      time = String.format("%02d:%s", hour, minutes);
+      String localMinutes=minutes;
+      if(localMinutes.length()==1){localMinutes="0"+localMinutes;}
+      time = String.format("%02d:%s", hour, localMinutes);
     }
 
     if (day > 0) {
@@ -1203,6 +1209,8 @@ public class Encounter implements java.io.Serializable {
     }
     return null;
   }
+   
+   public Long getReleaseDateLong(){return releaseDateLong;}
 
   public void setReleaseDate(Long releaseDate) {
     this.releaseDateLong = releaseDate;
@@ -1528,8 +1536,10 @@ public class Encounter implements java.io.Serializable {
       if(month>0){localMonth=month-1;}
       int localDay=1;
       if(day>0){localDay=day;}
-      //int localMinutes = Integer.parseInt(minutes);
-      GregorianCalendar gc=new GregorianCalendar(year, localMonth, localDay);
+      int myMinutes=0;
+      try{myMinutes = Integer.parseInt(minutes);}catch(Exception e){}
+      GregorianCalendar gc=new GregorianCalendar(year, localMonth, localDay,hour,myMinutes);
+
       dateInMilliseconds = gc.getTimeInMillis();
     }
     else{dateInMilliseconds=0;}
@@ -1874,7 +1884,47 @@ public class Encounter implements java.io.Serializable {
         }
         return false;
     }
-    
-    
+
+
+/*
+in short, this rebuilds (or builds for the first time) ALL *derived* images (etc?) for this encounter.
+it is a baby step into the future of MediaAssets that hopefully will provide a smooth(er) transition to that.
+right now its primary purpose is to create derived formats upon encounter creation; but that is obviously subject to change.
+it should be considered an asyncronous action that happens in the background magickally
+*/
+/////other possiblity: only pass basedir??? do we need context if we do that?
+
+/*
+NOTE on "thumb.jpg" ... we only get one of these per encounter; and we do not have stored (i dont think?) which SPV it came from!
+this is a problem, as we cant make a thumb in refreshAssetFormats(req, spv) since we dont know if that is the "right" spv.
+thus, we have to treat it as a special case.
+*/
+		public boolean refreshAssetFormats(String context, String baseDir) {
+			boolean ok = true;
+			//List<SinglePhotoVideo> allSPV = this.getImages();
+			boolean thumb = true;
+			for (SinglePhotoVideo spv : this.getImages()) {
+				ok &= this.refreshAssetFormats(context, baseDir, spv, thumb);
+				thumb = false;
+			}
+			return ok;
+		}
+
+		//as above, but for specific SinglePhotoVideo
+		public boolean refreshAssetFormats(String context, String baseDir, SinglePhotoVideo spv, boolean doThumb) {
+			if (spv == null) return false;
+			String encDir = this.dir(baseDir);
+
+			boolean ok = true;
+			if (doThumb) ok &= spv.scaleTo(context, 100, 75, encDir + File.separator + "thumb.jpg");
+			//TODO some day this will be a structure/definition that lives in a config file or on MediaAsset, etc.  for now, ya get hard-coded
+
+			//this will first try watermark version, then regular
+			ok &= (spv.scaleToWatermark(context, 250, 200, encDir + File.separator + spv.getDataCollectionEventID() + ".jpg", "") || spv.scaleTo(context, 250, 200, encDir + File.separator + spv.getDataCollectionEventID() + ".jpg"));
+
+			ok &= spv.scaleTo(context, 1024, 768, encDir + File.separator + spv.getDataCollectionEventID() + "-mid.jpg");  //for use in VM tool etc. (bandwidth friendly?)
+			return ok;
+		}
+
 }
 

@@ -19,17 +19,11 @@
 
 package org.ecocean.mmutil;
 
-import freemarker.template.Configuration;
-import freemarker.template.DefaultObjectWrapper;
-import freemarker.template.TemplateException;
-import freemarker.template.TemplateExceptionHandler;
-import freemarker.template.Version;
+import freemarker.template.*;
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import javax.jdo.Extent;
 import javax.jdo.Query;
 import org.ecocean.Encounter;
@@ -107,7 +101,7 @@ public final class MantaMatcherUtilities {
     String name = f.getName();
     String regFormat = MediaUtilities.REGEX_SUFFIX_FOR_WEB_IMAGES;
     if (!name.matches("^.+\\." + regFormat))
-      throw new IllegalArgumentException("Invalid file type specified");
+      throw new IllegalArgumentException("Invalid file type specified: " + f.getName());
     String regex = "\\." + regFormat;
     File pf = f.getParentFile();
     File cr = new File(pf, name.replaceFirst(regex, "_CR.$1"));
@@ -162,7 +156,8 @@ public final class MantaMatcherUtilities {
    * @param conf FreeMarker configuration
    * @param mmaResultsFile MantaMatcher algorithm results text file
    * @param spv {@code SinglePhotoVideo} instance for base reference image
-   * @param urlPrefixImage URL prefix for encounter folder (for image links)
+   * @param dataDir folder containing all webapp data (for deriving reference folders)
+   * @param dataDirUrlPrefix URL prefix for data folder (for image links)
    * @param pageUrlFormat Format string for encounter page URL (with <em>%s</em> placeholder)
    * @return A map containing parsed results ready for use with a FreeMarker template
    * @throws IOException
@@ -170,11 +165,11 @@ public final class MantaMatcherUtilities {
    * @throws TemplateException
    */
   @SuppressWarnings("unchecked")
-  public static String getResultsHtml(Configuration conf, File mmaResultsFile, SinglePhotoVideo spv, String urlPrefixImage, String pageUrlFormat) throws IOException, ParseException, TemplateException {
+  public static String getResultsHtml(Shepherd shepherd, Configuration conf, File mmaResultsFile, SinglePhotoVideo spv, File dataDir, String dataDirUrlPrefix, String pageUrlFormat) throws IOException, ParseException, TemplateException {
     // Load results file.
     String text = new String(FileUtilities.loadFile(mmaResultsFile));
     // Convert to HTML results page.
-    return MMAResultsProcessor.convertResultsToHtml(conf, text, spv, urlPrefixImage, pageUrlFormat);
+    return MMAResultsProcessor.convertResultsToHtml(shepherd, conf, text, spv, dataDir, dataDirUrlPrefix, pageUrlFormat);
   }
 
   /**
@@ -200,21 +195,21 @@ public final class MantaMatcherUtilities {
     // Build query filter based on encounter.
     StringBuilder sbf = new StringBuilder();
     if (enc.getSpecificEpithet()!= null) {
-      sbf.append("(this.specificEpithet == 'NULL'");
+      sbf.append("(this.specificEpithet == null");
       sbf.append(" || this.specificEpithet == '").append(enc.getSpecificEpithet()).append("'");
       sbf.append(")");
     }
     if (enc.getPatterningCode() != null) {
       if (sbf.length() > 0)
         sbf.append(" && ");
-      sbf.append("(this.patterningCode == 'NULL'");
+      sbf.append("(this.patterningCode == null");
       sbf.append(" || this.patterningCode == '").append(enc.getPatterningCode()).append("'");
       sbf.append(")");
     }
     if (enc.getSex() != null) {
       if (sbf.length() > 0)
         sbf.append(" && ");
-      sbf.append("(this.sex == 'NULL'");
+      sbf.append("(this.sex == null");
       sbf.append(" || this.sex == 'unknown'");
       sbf.append(" || this.sex == '").append(enc.getSex()).append("'");
       sbf.append(")");
@@ -269,21 +264,21 @@ public final class MantaMatcherUtilities {
     if (enc.getSpecificEpithet()!= null) {
       if (sbf.length() > 0)
         sbf.append(" && ");
-      sbf.append("(this.specificEpithet == 'NULL'");
+      sbf.append("(this.specificEpithet == null");
       sbf.append(" || this.specificEpithet == '").append(enc.getSpecificEpithet()).append("'");
       sbf.append(")");
     }
     if (enc.getPatterningCode() != null) {
       if (sbf.length() > 0)
         sbf.append(" && ");
-      sbf.append("(this.patterningCode == 'NULL'");
+      sbf.append("(this.patterningCode == null");
       sbf.append(" || this.patterningCode == '").append(enc.getPatterningCode()).append("'");
       sbf.append(")");
     }
     if (enc.getSex() != null) {
       if (sbf.length() > 0)
         sbf.append(" && ");
-      sbf.append("(this.sex == 'NULL'");
+      sbf.append("(this.sex == null");
       sbf.append(" || this.sex == 'unknown'");
       sbf.append(" || this.sex == '").append(enc.getSex()).append("'");
       sbf.append(")");
@@ -310,5 +305,22 @@ public final class MantaMatcherUtilities {
     ext.closeAll();
 
     return sb.toString();
+  }
+
+  /**
+   * Removes any previously generated algorithm match results for the
+   * specified encounter.
+   * It's recommended this method be called whenever any match critical data
+   * fields are changed (e.g. species/patterningCode/locationID).
+   * @param enc encounter for which to remove algorithm match results
+   */
+  public static void removeAlgorithmMatchResults(Encounter enc) {
+    for (SinglePhotoVideo spv : enc.getSinglePhotoVideo()) {
+      Map<String, File> mmFiles = MantaMatcherUtilities.getMatcherFilesMap(spv);
+      mmFiles.get("TXT").delete();
+      mmFiles.get("CSV").delete();
+      mmFiles.get("TXT-REGIONAL").delete();
+      mmFiles.get("CSV-REGIONAL").delete();
+    }
   }
 }
