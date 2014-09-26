@@ -379,9 +379,9 @@ System.out.println("matched?????? " + lm.group(1) + ":" + lm.group(2));
 							HashMap otherEnc = new HashMap();
 							MarkedIndividual ind = myShepherd.getMarkedIndividual(enc.getIndividualID());
 							if (ind != null) {
-								ArrayList<String> imgs = new ArrayList<String>();
 								Vector<Encounter> indEncs = ind.getEncounters();
 								for (Encounter ienc : indEncs) {
+									ArrayList<String> imgs = new ArrayList<String>();
 									if (!ienc.getEncounterNumber().equals(enc.getEncounterNumber())) {
 										List<SinglePhotoVideo> spvs = ienc.getImages();
 										for (SinglePhotoVideo spv : spvs) {
