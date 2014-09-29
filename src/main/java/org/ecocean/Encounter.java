@@ -691,20 +691,19 @@ public class Encounter implements java.io.Serializable {
     if (year <= 0) {
       return "Unknown";
     } else if (month == -1) {
-      return (new Integer(year)).toString();
+      return Integer.toString(year);
     }
 
     if (hour != -1) {
-      time = (new Integer(hour)).toString() + ":" + minutes;
+      String localMinutes=minutes;
+      if(localMinutes.length()==1){localMinutes="0"+localMinutes;}
+      time = String.format("%02d:%s", hour, localMinutes);
     }
 
     if (day > 0) {
-
-      date = (new Integer(year)).toString() + "-" + (new Integer(month)).toString() + "-" + (new Integer(day)).toString() + " " + time;
-
+      date = String.format("%04d-%02d-%02d %s", year, month, day, time);
     } else {
-
-      date = (new Integer(year)).toString() + "-" + (new Integer(month)).toString() + " " + time;
+      date = String.format("%04d-%02d %s", year, month, time);
     }
 
     return date;
@@ -715,15 +714,12 @@ public class Encounter implements java.io.Serializable {
     if (year <= 0) {
       return "Unknown";
     } else if (month == -1) {
-      return (new Integer(year)).toString();
+      return Integer.toString(year);
     }
     if (day > 0) {
-
-      date = (new Integer(day)).toString() + "/" + (new Integer(month)).toString() + "/" + (new Integer(year)).toString();
-
+      date = String.format("%02d/%02d/%04d", day, month, year);
     } else {
-
-      date = (new Integer(month)).toString() + "/" + (new Integer(year)).toString();
+      date = String.format("%02d/%04d", month, year);
     }
 
     return date;
@@ -1200,6 +1196,8 @@ public class Encounter implements java.io.Serializable {
     }
     return null;
   }
+   
+   public Long getReleaseDateLong(){return releaseDateLong;}
 
   public void setReleaseDate(Long releaseDate) {
     this.releaseDateLong = releaseDate;
@@ -1525,8 +1523,10 @@ public class Encounter implements java.io.Serializable {
       if(month>0){localMonth=month-1;}
       int localDay=1;
       if(day>0){localDay=day;}
-      //int localMinutes = Integer.parseInt(minutes);
-      GregorianCalendar gc=new GregorianCalendar(year, localMonth, localDay);
+      int myMinutes=0;
+      try{myMinutes = Integer.parseInt(minutes);}catch(Exception e){}
+      GregorianCalendar gc=new GregorianCalendar(year, localMonth, localDay,hour,myMinutes);
+
       dateInMilliseconds = gc.getTimeInMillis();
     }
     else{dateInMilliseconds=0;}

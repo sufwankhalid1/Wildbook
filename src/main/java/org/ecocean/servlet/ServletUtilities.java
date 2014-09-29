@@ -427,7 +427,12 @@ public class ServletUtilities {
 
   }
 
-  public static String cleanFileName(String aTagFragment) {
+  
+  public static String cleanFileName(String myString){
+    return myString.replaceAll("[^a-zA-Z0-9\\.\\-]", "_");
+  }
+  
+  /*public static String cleanFileName(String aTagFragment) {
     final StringBuffer result = new StringBuffer();
 
     final StringCharacterIterator iterator = new StringCharacterIterator(aTagFragment);
@@ -458,6 +463,7 @@ public class ServletUtilities {
     }
     return result.toString();
   }
+  */
 
   public static String preventCrossSiteScriptingAttacks(String description) {
     description = description.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
@@ -587,7 +593,7 @@ public static String getLanguageCode(HttpServletRequest request){
 	public static String dataDir(String context, String rootWebappPath) {
 		File webappsDir = new File(rootWebappPath).getParentFile();
 		File shepherdDataDir = new File(webappsDir, CommonConfiguration.getDataDirectoryName(context));
-    if(!shepherdDataDir.exists()){shepherdDataDir.mkdir();}
+    if(!shepherdDataDir.exists()){shepherdDataDir.mkdirs();}
 		return shepherdDataDir.getAbsolutePath();
 	}
 

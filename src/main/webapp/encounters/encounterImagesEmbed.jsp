@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8" language="java"
-         import="org.ecocean.servlet.ServletUtilities,com.drew.imaging.jpeg.JpegMetadataReader, com.drew.metadata.Directory, com.drew.metadata.Metadata, com.drew.metadata.Tag, org.ecocean.*,org.ecocean.servlet.ServletUtilities,org.ecocean.Util,org.ecocean.Measurement, org.ecocean.Util.*, org.ecocean.genetics.*, org.ecocean.tag.*, java.awt.Dimension, javax.jdo.Extent, javax.jdo.Query, java.io.File, java.text.DecimalFormat, java.util.*" %>
+         import="org.ecocean.servlet.ServletUtilities, org.ecocean.*,org.ecocean.servlet.ServletUtilities,org.ecocean.Util,org.ecocean.Measurement, org.ecocean.Util.*, org.ecocean.genetics.*, org.ecocean.tag.*, java.awt.Dimension, javax.jdo.Extent, javax.jdo.Query, java.io.File, java.text.DecimalFormat, java.util.*" %>
 <%@ taglib uri="http://www.sunwesttek.com/di" prefix="di" %>
 <%--
   ~ The Shepherd Project - A Mark-Recapture Framework
@@ -253,7 +253,7 @@ int imageCount = 0;
       if (request.getParameter("isOwner").equals("true") && (!isBMP) && (!isVideo)) {
     %>
     <a href="<%= images.get(myImage).asUrl(imageEnc, CommonConfiguration.getDataDirectoryName(context)) %>" class="highslide" onclick="return hs.expand(this)"
-       title="Click to enlarge">
+       title="<%=encprops.getProperty("clickEnlarge")%>">
       <%
       } else if (request.getParameter("isOwner").equals("true")||(request.getParameter("loggedIn").equals("true"))) {
       %>
@@ -266,7 +266,7 @@ int imageCount = 0;
             }
 		%>
           
-         title="Click to enlarge">
+         title="<%=encprops.getProperty("clickEnlarge")%>">
          
          
          <%
@@ -451,47 +451,23 @@ int imageCount = 0;
 
             <%
               if (CommonConfiguration.showEXIFData(context)&&!isVideo) {
+            	  
+            	  File exifImage = new File(Encounter.dir(shepherdDataDir, imageEnc.getCatalogNumber()) + "/" + addTextFile);
+              	
             %>
 
 
-            <p><strong>EXIF Data</strong></p>
-					<span class="caption">
-					<div class="scroll"><span class="caption">	
+            <p><strong>EXIF</strong></p>
+            <span class="caption">
+					<div class="scroll">
+						<span class="caption">	
 					<%
             if ((addTextFile.toLowerCase().endsWith("jpg")) || (addTextFile.toLowerCase().endsWith("jpeg"))) {
-              try{
-              	File exifImage = new File(thisEncounterDir.getAbsolutePath() + "/"+addTextFile);
-              	if(exifImage.exists()){              
-                  	
-              		Metadata metadata = JpegMetadataReader.readMetadata(exifImage);
-              		// iterate through metadata directories
-              		Iterator directories = metadata.getDirectoryIterator();
-              		while (directories.hasNext()) {
-              	  		Directory directory = (Directory) directories.next();
-              	  		// iterate through tags and print to System.out
-              	  		Iterator tags = directory.getTagIterator();
-              	  		while (tags.hasNext()) {
-              	    		Tag tag = (Tag) tags.next();
-
-          					%>
-								<%=tag.toString() %><br/>
-								<%
-              	  } //end while
-             	} //end while
-              } //end if
-              else{
-            	  %>
-		            <p>File not found on file system. No EXIF data available.</p>
-          		<%  
-              }
-           } //end try
-            catch(Exception e){
-            %>
-            <p>Cannot read metadata for this file.</p>
-            <%
-            System.out.println("Cannot read metadata for: "+addTextFile);
-            e.printStackTrace();
-            }
+            	//File exifImage = new File(Encounter.dir(shepherdDataDir, thisEnc.getCatalogNumber()) + "/" + thumbLocs.get(countMe).getFilename());
+            	%>
+            	<%=Util.getEXIFDataFromJPEGAsHTML(exifImage) %>
+            	<%
+            	
               } //end if
  
                 %>
