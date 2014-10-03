@@ -103,6 +103,9 @@ public class ImportCSV extends HttpServlet {
 		String imageSourceDir = null;
 
 		boolean emptyFirst = false;
+		String efparam = request.getParameter("emptyFirst");
+		if ((efparam != null) && (efparam.equals("1") || efparam.equals("true"))) emptyFirst = true;
+
 		String batchID = "1234";
 
 
@@ -110,6 +113,7 @@ public class ImportCSV extends HttpServlet {
 
 		List<String> rowErrors = new ArrayList<String>();
 		List<String> rowSuccesses = new ArrayList<String>();
+		List<String> indivDirs = new ArrayList<String>();
 
 		if (ServletFileUpload.isMultipartContent(request)) {
 			try {
@@ -158,11 +162,19 @@ public class ImportCSV extends HttpServlet {
 			}
 
 			if (emptyFirst) {
+				System.out.println("* EMPTY encounters first");
+				String bak = "_" + Util.generateUUID();
 				File oldEncDir = new File(baseDir + "/encounters");
 				if (oldEncDir.exists()) {
-					File archiveDir = new File(baseDir + "/_encounters_" + Util.generateUUID());
+					File archiveDir = new File(baseDir + "/_encounters" + bak);
 					boolean ok = oldEncDir.renameTo(archiveDir);
 					System.out.println("encounters dir renamed to " + archiveDir.toString() + ": " + ok);
+				}
+				File oldIndivDir = new File(baseDir + "/individuals");
+				if (oldIndivDir.exists()) {
+					File archiveDir = new File(baseDir + "/_individuals" + bak);
+					boolean ok = oldIndivDir.renameTo(archiveDir);
+					System.out.println("invididuals dir renamed to " + archiveDir.toString() + ": " + ok);
 				}
 
 				myShepherd.beginDBTransaction();
@@ -183,7 +195,8 @@ public class ImportCSV extends HttpServlet {
         }
 			}
 
-			File encDir = new File(baseDir + "/encounters");
+			File encDir = new File(baseDir, "encounters");
+			File indivDir = new File(baseDir, "individuals");
 			//CSVReader reader = new CSVReader(new FileReader(tmpFile), ',', CSVWriter.NO_QUOTE_CHARACTER);
 			CSVReader reader = new CSVReader(new FileReader(tmpFile), ',');
 			List<String[]> allLines = reader.readAll();
@@ -241,6 +254,18 @@ System.out.println("enc(" + encID + "), indiv(" + indivID + ")");
 					File targetFile = new File(targetDir, filename);
 					//Files.createSymbolicLink(targetFile.toPath(), img.toPath())
 					Files.copy(img.toPath(), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+
+					//duplicate copy, but for individual (used only for matching); note filename difference
+					String indivSubdir = indivID;
+					String indivPrefix = encID + "__";
+					if ((indivID == null) || indivID.equals("")) indivSubdir = "UNKNOWN_" + encID; //if no indiv, gets own dir
+System.out.println("cp invid: " + indivPrefix + " into " + indivSubdir);
+					File itargetDir = new File(indivDir, indivSubdir);
+					if (!itargetDir.exists()) itargetDir.mkdirs();
+					File itargetFile = new File(itargetDir, indivPrefix + filename);
+					Files.copy(img.toPath(), itargetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+					if (!indivDirs.contains(indivSubdir)) indivDirs.add(indivSubdir);
+
 					SinglePhotoVideo spv = new SinglePhotoVideo(encID, targetFile);
 System.out.println(img.toString() + " being set on enc=" + encID);
 					enc.addSinglePhotoVideo(spv);
@@ -278,7 +303,7 @@ System.out.println(encID + " -> " + filename);
 		} else {
 			h += "<p>Imported <b>" + rowSuccesses.size() + " records successfully</b>.</p>";
 System.out.println("starting batch " + batchID);
-			BatchCompareProcessor proc = new BatchCompareProcessor(getServletContext(), context, "npmProcess", rowSuccesses, batchID);
+			BatchCompareProcessor proc = new BatchCompareProcessor(getServletContext(), context, "npmProcess", indivDirs, batchID);
 
 			//note, we actually use a lock file now to denote this tree is in-process; but keep this around for historic reasons (only?)
 			session.setAttribute(BatchCompareProcessor.SESSION_KEY_PROCESS, proc);

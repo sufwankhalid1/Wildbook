@@ -227,7 +227,11 @@ function showResults(data) {
 		}
 		h += '</div>';
 
-		h += '<div class="match"><img class="fitted" src="' + data.baseDir + '/' + encDir(data.results[imgId].eid) + '/' + data.results[imgId].bestImg + '" /><span class="info"><b>' + data.results[imgId].individualID + '</b>: ' + encDate.substr(0,10);
+		var imgName = data.results[imgId].bestImg;
+		var ind = imgName.indexOf('__');
+		if (ind > -1) imgName = imgName.substring(ind + 2, imgName.length);
+
+		h += '<div class="match"><img class="fitted" src="' + data.baseDir + '/' + encDir(data.results[imgId].eid) + '/' + imgName + '" /><span class="info"><b>' + data.results[imgId].individualID + '</b>: ' + encDate.substr(0,10);
 		h += ' [score ' + data.results[imgId].score.substr(0,6) + '] ';
 		//h += '<a target="_new" href="encounters/encounter.jsp?number=' + data.results[imgId].eid + '">' + data.results[imgId].eid + '</a>';
 		h += '<a title="' + data.results[imgId].eid + '" target="_new" href="encounters/encounter.jsp?number=' + data.results[imgId].eid + '">enc.</a>';
@@ -333,10 +337,12 @@ System.out.println(json);
 			boolean found = false;
 			boolean skipHeader = true;
 			String eid = null;
+			String iid = null;
 			String bestImg = null;
+			String origFilename = null;
 
 			Matcher fm = fp.matcher(tmp.getName());
-			if (fm.find() && (fm.group().indexOf("-stdout") < 0)) {
+			if (fm.find() && (fm.group().indexOf("-stdout") < 0) && (fm.group().indexOf("-rel") < 0)) {
 				String imgname = fm.group(1);
 System.out.println("img? " + imgname);
 				HashMap i = new HashMap();
@@ -351,16 +357,23 @@ System.out.println("img? " + imgname);
 					if (ocm.find()) {
 						i.put("overallConfidence", ocm.group(1));
 					} else if (lm.find()) {
-System.out.println("matched?????? " + lm.group(1) + ":" + lm.group(2));
+System.out.println(") matched?????? " + lm.group(1) + ":" + lm.group(2));
 						if (lm.group(1).equals("6") && lm.group(2).equals("1")) skipHeader = false;
 						if (skipHeader) continue;
 						if (lm.group(1).equals("8")) {
 							i.put("score", lm.group(2));
 						} else if (lm.group(1).equals("10")) {
-							eid = lm.group(2);
-							i.put("eid", eid);
+							iid = lm.group(2);
+							i.put("iid", iid);
 						} else if (lm.group(1).equals("12")) {
 							bestImg = lm.group(2);
+							int loc = bestImg.indexOf("__");
+							if (loc > -1) {
+								eid = bestImg.substring(0, loc);
+								i.put("eid", eid);
+								origFilename = bestImg.substring(loc + 2, bestImg.length());
+								i.put("origFilename", origFilename);
+							}
 						} else if (lm.group(1).equals("32") && (bestImg != null)) {
 							int loc = lm.group(2).indexOf(bestImg + "_CR");
 							if (loc > -1) {

@@ -82,8 +82,9 @@ System.out.println("start npmProcess()");
 
 		this.countTotal = this.args.size();
 
+		//note: now actually not encounter ids, but rather paths to individual dirs
 		for (String eid : this.args) {
-			String epath = Encounter.dir(baseDir, eid);
+			String epath = baseDir + "/individuals/" + eid;
 System.out.println(epath);
 //~jon/npm_process -contr_thr 0.02 -sigma 1.2 /opt/tomcat7/webapps/cascadia_data_dir/encounterxs 0 0 4 1 2
 			//String[] command = new String[]{"/usr/bin/npm_process", "-contr_thr", "0.02", "-sigma", "1.2", epath, "0", "0", "4", "1", "2"};
@@ -145,7 +146,7 @@ System.out.println("start npmCompare()");
 System.out.println(imgpath);
 //~jon/npm_process -contr_thr 0.02 -sigma 1.2 /opt/tomcat7/webapps/cascadia_data_dir/encounterxs 0 0 4 1 2
 //whalematch.exe -sscale 1.1 15.16 "C:\flukefolder" "C:\flukefolder\whale1\whale1fluke1.jpg"  0 0 2 0 -o whaleID_whale1fluke1.xhtml -c whaleID_whale1fluke1.csv
-			String[] command = new String[]{"/usr/local/bin/npm_both_wrapper.sh", imgpath, baseDir + "/encounters"};
+			String[] command = new String[]{"/usr/local/bin/npm_both_wrapper.sh", imgpath, baseDir + "/individuals"};
 			//String[] command = new String[]{"/usr/bin/npm_match", "-sscale", "1.1", "15.16", baseDir + "/encounters", imgpath, "0", "0", "2", "0", "-o", "/tmp/out.txt", "-c", "/tmp/out.csv"};
 //home/jon/npm_process -contr_thr 0.02 -sigma 1.2 cascadia_data_dir/ 0 0 4 1 2
 			//String[] command = new String[]{"sh", "/opt/tomcat7/bin/run_npm_process.sh", epath};
