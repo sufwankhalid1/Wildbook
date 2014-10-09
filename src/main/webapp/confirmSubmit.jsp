@@ -57,9 +57,9 @@ context=ServletUtilities.getContext(request);
   String rootWebappPath = getServletContext().getRealPath("/");
   File webappsDir = new File(rootWebappPath).getParentFile();
   File shepherdDataDir = new File(webappsDir, CommonConfiguration.getDataDirectoryName(context));
-  if(!shepherdDataDir.exists()){shepherdDataDir.mkdir();}
+  if(!shepherdDataDir.exists()){shepherdDataDir.mkdirs();}
   File encountersDir=new File(shepherdDataDir.getAbsolutePath()+"/encounters");
-  if(!encountersDir.exists()){encountersDir.mkdir();}
+  if(!encountersDir.exists()){encountersDir.mkdirs();}
   File thisEncounterDir = null;// = new File();  //gets set after we have encounter
 
 
@@ -244,7 +244,7 @@ context=ServletUtilities.getContext(request);
 
 <p><%=props.getProperty("futureReference") %> <strong><%=number%></strong>.</p>
 
-<p><%=props.getProperty("futureReference") %><%=props.getProperty("futureReference") %> <a href="mailto:<%=CommonConfiguration.getAutoEmailAddress(context) %>"><%=CommonConfiguration.getAutoEmailAddress(context) %></a></p>
+<%=props.getProperty("questions") %> <a href="mailto:<%=CommonConfiguration.getAutoEmailAddress(context) %>"><%=CommonConfiguration.getAutoEmailAddress(context) %></a></p>
 
 <p>
 	<a href="http://<%=CommonConfiguration.getURLLocation(request)%>/encounters/encounter.jsp?number=<%=number%>"><%=props.getProperty("viewEncounter") %> <%=number%></a>.

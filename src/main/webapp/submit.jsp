@@ -105,6 +105,7 @@ context=ServletUtilities.getContext(request);
 
 
 <style type="text/css">
+
 .full_screen_map {
 position: absolute !important;
 top: 0px !important;
@@ -114,6 +115,27 @@ width: 100% !important;
 height: 100% !important;
 margin-top: 0px !important;
 margin-bottom: 8px !important;
+
+
+/* css for timepicker */
+.ui-timepicker-div .ui-widget-header { margin-bottom: 8px; }
+.ui-timepicker-div dl { text-align: left; padding: 0 5px 0 0;}
+.ui-timepicker-div dl dt { float: left; clear:left; padding: 0 0 0 5px; }
+.ui-timepicker-div dl dd { margin: 0 10px 10px 45%; }
+.ui-timepicker-div td { font-size: 90%; }
+.ui-tpicker-grid-label { background: none; border: none; margin: 0; padding: 0; }
+
+.ui-timepicker-rtl{ direction: rtl; }
+.ui-timepicker-rtl dl { text-align: right; padding: 0 5px 0 0; }
+.ui-timepicker-rtl dl dt{ float: right; clear: right; }
+.ui-timepicker-rtl dl dd { margin: 0 45% 10px 10px; }
+
+/*customizations*/
+.ui_tpicker_hour_label {margin-bottom:5px !important;}
+.ui_tpicker_minute_label {margin-bottom:5px !important;}
+
+
+
 </style>
 
 <script>
@@ -129,6 +151,7 @@ margin-bottom: 8px !important;
 
 </script>
 
+
 <body onload="resetMap()" onunload="resetMap()">
 <div id="wrapper">
 <div id="page">
@@ -139,7 +162,54 @@ margin-bottom: 8px !important;
 
  <script type="text/javascript" src="http://geoxml3.googlecode.com/svn/branches/polys/geoxml3.js"></script>
  <script src="http://maps.google.com/maps/api/js?sensor=false&language=<%=langCode%>"></script>
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.11.1/themes/smoothness/jquery-ui.css">
+ <script src="//code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
  
+  <script src="javascript/timepicker/jquery-ui-timepicker-addon.js"></script>
+ 
+ <%
+ if(!langCode.equals("en")){
+ %>
+ <script src="javascript/timepicker/datepicker-<%=langCode %>.js"></script>
+  <script src="javascript/timepicker/jquery-ui-timepicker-<%=langCode %>.js"></script>
+ 
+  
+  
+  
+ <%
+ }
+ %>
+ 
+  <script type="text/javascript">
+  $(function() {
+    $( "#datepicker" ).datetimepicker({
+      changeMonth: true,
+      changeYear: true,
+      dateFormat: 'yy-mm-dd',
+      maxDate: '+1d',
+      controlType: 'select',
+      alwaysSetTime: false
+      
+    });
+    $( "#datepicker" ).datetimepicker( $.timepicker.regional[ "<%=langCode %>" ] );
+
+
+    
+  });
+  </script>
+  
+   <script type="text/javascript">
+  $(function() {
+    $( "#releasedatepicker" ).datepicker({
+      changeMonth: true,
+      changeYear: true,
+      dateFormat: 'yy-mm-dd'
+      
+    });
+    $( "#releasedatepicker" ).datepicker( $.datepicker.regional[ "<%=langCode %>" ] );
+    $( "#releasedatepicker" ).datepicker( "option", "maxDate", "+1d" );
+  });
+  </script>
  
  
 <script type="text/javascript">
@@ -306,73 +376,11 @@ function FSControl(controlDiv, map) {
 </p>
 <table id="encounter_report" border="0" width="100%">
 <tr class="form_row">
-  <td class="form_label"><strong><font color="#CC0000"><%=props.getProperty("submit_date")%>:</font></strong>
+  <td class="form_label"><strong><font color="#CC0000"><%=props.getProperty("submit_date")%></font></strong>
   </td>
   <td colspan="2">
   
-      <em>&nbsp;<%=props.getProperty("submit_year")%></em> 
-    <select name="year" id="year">
-      <option selected="selected"><%=nowYear%>
-      </option>
-      <% for (int p = 1; p < 40; p++) { %>
-      <option value="<%=(nowYear-p)%>"><%=(nowYear - p)%>
-      </option>
-
-      <% } %>
-    </select>
-  
-   <em>&nbsp;<%=props.getProperty("submit_month")%></em> 
-    <select name="month" id="month">
-      <option value="1" selected="selected">1</option>
-      <option value="2">2</option>
-      <option value="3">3</option>
-      <option value="4">4</option>
-      <option value="5">5</option>
-      <option value="6">6</option>
-      <option value="7">7</option>
-      <option value="8">8</option>
-      <option value="9">9</option>
-      <option value="10">10</option>
-      <option value="11">11</option>
-      <option value="12">12</option>
-    </select> 
-  
-  <em>&nbsp;<%=props.getProperty("submit_day")%></em>
-    <select name="day" id="day">
-      <option value="0" selected="selected">?</option>
-      <option value="1">1</option>
-      <option value="2">2</option>
-      <option value="3">3</option>
-      <option value="4">4</option>
-      <option value="5">5</option>
-      <option value="6">6</option>
-      <option value="7">7</option>
-      <option value="8">8</option>
-      <option value="9">9</option>
-      <option value="10">10</option>
-      <option value="11">11</option>
-      <option value="12">12</option>
-      <option value="13">13</option>
-      <option value="14">14</option>
-      <option value="15">15</option>
-      <option value="16">16</option>
-      <option value="17">17</option>
-      <option value="18">18</option>
-      <option value="19">19</option>
-      <option value="20">20</option>
-      <option value="21">21</option>
-      <option value="22">22</option>
-      <option value="23">23</option>
-      <option value="24">24</option>
-      <option value="25">25</option>
-      <option value="26">26</option>
-      <option value="27">27</option>
-      <option value="28">28</option>
-      <option value="29">29</option>
-      <option value="30">30</option>
-      <option value="31">31</option>
-    </select> 
-   
+     <input type="text" style="position: relative; z-index: 101;" id="datepicker" name="datepicker" size="20" /> yyyy-MM-dd HH:mm
 
     </td>
 </tr>
@@ -383,55 +391,13 @@ function FSControl(controlDiv, map) {
 <c:if test="${showReleaseDate}">
     <tr class="form_row">
     <td class="form_label"><strong><%=props.getProperty("submit_releasedate") %>:</strong></td>
-    <td colspan="2"><input name="releaseDate"/> <%= props.getProperty("submit_releasedate_format") %></td>
+    <td colspan="2">  
+    	<input type="text" style="position: relative; z-index: 101;" id="releasedatepicker" name="releaseDate" size="20" />
+	</td>
     </tr>
 </c:if>
 
-<tr class="form_row">
-  <td class="form_label"><strong><%=props.getProperty("submit_time")%>:</strong>
-  </td>
-  <td colspan="2"><select name="hour" id="hour">
-    <option value="-1" selected="selected">?</option>
-    <option value="0">12 am</option>
-    <option value="1">1 am</option>
-    <option value="2">2 am</option>
-    <option value="3">3 am</option>
-    <option value="4">4 am</option>
-    <option value="5">5 am</option>
-    <option value="6">6 am</option>
-    <option value="7">7 am</option>
-    <option value="8">8 am</option>
-    <option value="9">9 am</option>
-    <option value="10">10 am</option>
-    <option value="11">11 am</option>
-    <option value="12">12 pm</option>
-    <option value="13">1 pm</option>
-    <option value="14">2 pm</option>
-    <option value="15">3 pm</option>
-    <option value="16">4 pm</option>
-    <option value="17">5 pm</option>
-    <option value="18">6 pm</option>
-    <option value="19">7 pm</option>
-    <option value="20">8 pm</option>
-    <option value="21">9 pm</option>
-    <option value="22">10 pm</option>
-    <option value="23">11 pm</option>
-  </select>
-    <select name="minutes" id="minutes">
-      <option value="00" selected="selected">:00</option>
-      <option value="05">:05</option>
-      <option value="10">:10</option>
-      <option value="15">:15</option>
-      <option value="20">:20</option>
-      <option value="25">:25</option>
-      <option value="30">:30</option>
-      <option value="35">:35</option>
-      <option value="40">:40</option>
-      <option value="45">:45</option>
-      <option value="50">:50</option>
-      <option value="55">:55</option>
-    </select></td>
-</tr>
+
 
 
 
@@ -727,11 +693,11 @@ if(CommonConfiguration.showProperty("showLifestage",context)){
 
 <c:if test="${showMetalTags and !empty metalTags}">
 <tr class="form_row">
-  <td class="form_label"><strong>Metal Tags:</strong></td>
+  <td class="form_label"><strong><%=props.getProperty("physicalTags") %></strong></td>
   <td colspan="2">
     <table class="metalTags">
     <tr>
-      <th>Location</th><th>Tag Number</th>
+      <th><%=props.getProperty("location") %></th><th><%=props.getProperty("tagNumber") %></th>
     </tr>
     <c:forEach items="${metalTags}" var="metalTagDesc">
       <tr>
@@ -746,15 +712,15 @@ if(CommonConfiguration.showProperty("showLifestage",context)){
 
 <c:if test="${showAcousticTag}">
 <tr class="form_row">
-    <td class="form_label"><strong>Acoustic Tag:</strong></td>
+    <td class="form_label"><strong><%=props.getProperty("acousticTag") %></strong></td>
     <td colspan="2">
       <table class="acousticTag">
       <tr>
-      <td>Serial number:</td>
+      <td><%=props.getProperty("serialNumber") %></td>
       <td><input name="acousticTagSerial"/></td>
       </tr>
       <tr>
-        <td>ID:</td>
+        <td><%=props.getProperty("id") %></td>
         <td><input name="acousticTagId"/></td>
       </tr>
       </table>
@@ -767,11 +733,11 @@ if(CommonConfiguration.showProperty("showLifestage",context)){
   pageContext.setAttribute("satelliteTagNames", Util.findSatelliteTagNames(context));
 %>
 <tr class="form_row">
-    <td class="form_label"><strong>Satellite Tag:</strong></td>
+    <td class="form_label"><strong><%=props.getProperty("satelliteTag") %></strong></td>
     <td colspan="2">
       <table class="satelliteTag">
       <tr>
-        <td>Name:</td>
+        <td><%=props.getProperty("name") %></td>
         <td>
             <select name="satelliteTagName">
               <c:forEach items="${satelliteTagNames}" var="satelliteTagName">
@@ -781,11 +747,11 @@ if(CommonConfiguration.showProperty("showLifestage",context)){
         </td>
       </tr>
       <tr>
-        <td>Serial number:</td>
+        <td><%=props.getProperty("serialNumber") %></td>
         <td><input name="satelliteTagSerial"/></td>
       </tr>
       <tr>
-        <td>Argos PTT Number:</td>
+        <td><%=props.getProperty("argosNumber") %></td>
         <td><input name="satelliteTagArgosPttNumber"/></td>
       </tr>
       </table>

@@ -122,10 +122,13 @@ private final String UPLOAD_DIRECTORY = "/tmp";
   }
 
 
-  private List<Measurement> getMeasurements(HashMap fv, String encID) {
+  private List<Measurement> getMeasurements(HashMap fv, String encID, String context) {
     List<Measurement> list = new ArrayList<Measurement>();
-		List<String> keys = Arrays.asList("weight", "length", "height");  //TODO programatically build from form
+		//List<String> keys = Arrays.asList("weight", "length", "height");  //TODO programatically build from form
 
+    //dynamically adapt to project-specific measurements
+		List<String> keys=CommonConfiguration.getSequentialPropertyValues("measurement", context);
+		
     for (String key : keys) {
       String value = getVal(fv, "measurement(" + key + ")");
       String units = getVal(fv, "measurement(" + key + "units)");
@@ -179,12 +182,13 @@ got regular field (measurement(heightsamplingProtocol))=(samplingProtocol0)
   public static final String ERROR_PROPERTY_MAX_LENGTH_EXCEEDED = "The maximum upload length has been exceeded by the client.";
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		request.setCharacterEncoding("UTF-8");
 
 		HashMap fv = new HashMap();
 
-		HttpSession session = request.getSession(false);
+		HttpSession session = request.getSession(true);
     String context="context0";
-    //context=ServletUtilities.getContext(request);
+    context=ServletUtilities.getContext(request);
     Shepherd myShepherd = new Shepherd(context);
 System.out.println("in context " + context);
 		//request.getSession()getServlet().getServletContext().getRealPath("/"));
@@ -227,12 +231,15 @@ System.out.println("rootDir=" + rootDir);
 
 		if (ServletFileUpload.isMultipartContent(request)) {
 			try {
-				List<FileItem> multiparts = new ServletFileUpload(new DiskFileItemFactory()).parseRequest(request);
+				ServletFileUpload upload = new ServletFileUpload(new DiskFileItemFactory());
+				upload.setHeaderEncoding("UTF-8");
+				List<FileItem> multiparts = upload.parseRequest(request);
+				//List<FileItem> multiparts = new ServletFileUpload(new DiskFileItemFactory()).parseRequest(request);
 
 				for(FileItem item : multiparts){
 					if (item.isFormField()) {  //plain field
-						fv.put(item.getFieldName(), ServletUtilities.preventCrossSiteScriptingAttacks(item.getString().trim()));  //TODO do we want trim() here??? -jon
-//System.out.println("got regular field (" + item.getFieldName() + ")=(" + item.getString() + ")");
+						fv.put(item.getFieldName(), ServletUtilities.preventCrossSiteScriptingAttacks(item.getString("UTF-8").trim()));  //TODO do we want trim() here??? -jon
+//System.out.println("got regular field (" + item.getFieldName() + ")=(" + item.getString("UTF-8") + ")");
 
 					} else {  //file
 //System.out.println("content type???? " + item.getContentType());   TODO note, the helpers only check extension
@@ -298,8 +305,10 @@ System.out.println(" **** here is what i think locationID is: " + fv.get("locati
 			if ((fv.get("locationID") != null) && !fv.get("locationID").toString().equals("")) {
 				locCode = fv.get("locationID").toString();
 
-			} else {  //see if the location code can be determined and set based on the location String reported
-      	String locTemp = getVal(fv, "location");
+			} 
+		//see if the location code can be determined and set based on the location String reported
+			else if (fv.get("location") != null) {  
+      	String locTemp = getVal(fv, "location").toLowerCase();
       	Properties props = new Properties();
 
       	try {
@@ -341,10 +350,44 @@ System.out.println("about to do int stuff");
 
 			//need some ints for day/month/year/hour (other stuff seems to be strings)
 			int day = 0, month = 0, year = 0, hour = 0;
-			try { day = Integer.parseInt(getVal(fv, "day")); } catch (NumberFormatException e) { day = 0; }
-			try { month = Integer.parseInt(getVal(fv, "month")); } catch (NumberFormatException e) { month = 0; }
-			try { year = Integer.parseInt(getVal(fv, "year")); } catch (NumberFormatException e) { year = 0; }
-			try { hour = Integer.parseInt(getVal(fv, "hour")); } catch (NumberFormatException e) { hour = 0; }
+			String minutes="";
+			//try { day = Integer.parseInt(getVal(fv, "day")); } catch (NumberFormatException e) { day = 0; }
+			//try { month = Integer.parseInt(getVal(fv, "month")); } catch (NumberFormatException e) { month = 0; }
+			//try { year = Integer.parseInt(getVal(fv, "year")); } catch (NumberFormatException e) { year = 0; }
+			
+			//switch to datepicker
+			if(getVal(fv, "datepicker")!=null){
+			  //System.out.println("Trying to read date: "+getVal(fv, "datepicker").replaceAll(" ", "T"));
+        
+			  DateTimeFormatter parser1 = ISODateTimeFormat.dateOptionalTimeParser();
+			  DateTime reportedDateTime=parser1.parseDateTime(getVal(fv, "datepicker").replaceAll(" ", "T"));
+			  //System.out.println("Day of month is: "+reportedDateTime.getDayOfMonth()); 
+			  try { month = new Integer(reportedDateTime.getMonthOfYear()); } catch (Exception e) { month = 0; }
+		      
+			  //see if we can get a day, because we do want to support only yyy-MM too
+			  StringTokenizer str=new StringTokenizer(getVal(fv, "datepicker"),"-");			  
+			  if(str.countTokens()>2){
+			    try { day = new Integer(reportedDateTime.getDayOfMonth()); } catch (Exception e) { day = 0; }
+			  }  
+		    try { year = new Integer(reportedDateTime.getYear()); } catch (Exception e) { e.printStackTrace();year = 0; }
+		    if(year>(Calendar.getInstance().get(Calendar.YEAR)+1)){System.out.println("Year "+year+" was in the future and > "+Calendar.getInstance().get(Calendar.YEAR)+1+"! Setting to 0.");year=0;}
+		      
+        //see if we can get a time and hour, because we do want to support only yyy-MM too
+        StringTokenizer strTime=new StringTokenizer(getVal(fv, "datepicker").replaceAll(" ", "T"),"T");        
+        if(strTime.countTokens()>1){
+          try { hour = new Integer(reportedDateTime.getHourOfDay()); } catch (Exception e) { hour =-1; }
+          try {minutes=(new Integer(reportedDateTime.getMinuteOfHour())).toString(); } catch (Exception e) {}
+        } 
+        else{hour=-1;}
+        
+        
+        //System.out.println("At the end of time processing I see: "+year+"-"+month+"-"+day+" "+hour+":"+minutes);
+        
+        
+		 }
+			
+			
+			
 			String guess = "no estimate provided";
 			if ((fv.get("guess") != null) && !fv.get("guess").toString().equals("")) {
 				guess = fv.get("guess").toString();
@@ -352,8 +395,9 @@ System.out.println("about to do int stuff");
 
 System.out.println("about to do enc()");
 
-			Encounter enc = new Encounter(day, month, year, hour, getVal(fv, "minutes"), guess, getVal(fv, "location"), getVal(fv, "submitterName"), getVal(fv, "submitterEmail"), null);
+			Encounter enc = new Encounter(day, month, year, hour, minutes, guess, getVal(fv, "location"), getVal(fv, "submitterName"), getVal(fv, "submitterEmail"), null);
 			//Encounter enc = new Encounter();
+			//System.out.println("Submission detected date: "+enc.getDate());
 			String encID = enc.generateEncounterNumber();
 			enc.setEncounterNumber(encID);
 System.out.println("hey, i think i may have made an encounter, encID=" + encID);
@@ -429,7 +473,7 @@ got regular field (measurement(heightsamplingProtocol))=(samplingProtocol0)
         enc.addMetalTag(metalTag);
       }
 
-      List<Measurement> measurements = getMeasurements(fv, encID);
+      List<Measurement> measurements = getMeasurements(fv, encID, context);
       for (Measurement measurement : measurements) {
         enc.addMeasurement(measurement);
       }
@@ -684,8 +728,6 @@ System.out.println("depth --> " + fv.get("depth").toString());
       }
       if (request.getRemoteUser() != null) {
         enc.setSubmitterID(request.getRemoteUser());
-      } else if (!getVal(fv, "submitterID").equals("")) {
-        enc.setSubmitterID(getVal(fv, "submitterID"));
       } else {
         enc.setSubmitterID("N/A");
       }
@@ -715,6 +757,7 @@ System.out.println("depth --> " + fv.get("depth").toString());
 			String newnum = "";
 			if (!spamBot) {
 				newnum = myShepherd.storeNewEncounter(enc, encID);
+				enc.refreshAssetFormats(context, ServletUtilities.dataDir(context, rootDir));
 
 				Logger log = LoggerFactory.getLogger(SubmitAction.class);
 				log.info("New encounter submission: <a href=\"http://" + CommonConfiguration.getURLLocation(request) + "/encounters/encounter.jsp?number=" + encID+"\">"+encID+"</a>");
