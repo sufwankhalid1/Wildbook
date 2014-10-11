@@ -76,6 +76,14 @@ context=ServletUtilities.getContext(request);
          */
         requiredfields += "\n   *  <%=props.getProperty("submit_name") %>";
       }
+	  
+	 if (document.encounter_submission.datepicker.value.length == 0) {
+        /*
+         * the value.length returns the length of the information entered
+         * in the Date field.
+         */
+        requiredfields += "\n   *  <%=props.getProperty("submit_date") %>";
+      }
 
         /*         
         if ((document.encounter_submission.submitterEmail.value.length == 0) ||
