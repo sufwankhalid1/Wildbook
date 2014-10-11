@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8" language="java"
-         import="org.ecocean.servlet.ServletUtilities,com.drew.imaging.jpeg.JpegMetadataReader, com.drew.metadata.Directory, com.drew.metadata.Metadata, com.drew.metadata.Tag, org.ecocean.*,org.ecocean.servlet.ServletUtilities,org.ecocean.Util,org.ecocean.Measurement, org.ecocean.Util.*, org.ecocean.genetics.*, org.ecocean.tag.*, java.awt.Dimension, javax.jdo.Extent, javax.jdo.Query, java.io.File, java.text.DecimalFormat, java.util.*" %>
+         import="org.ecocean.servlet.ServletUtilities, org.ecocean.*,org.ecocean.servlet.ServletUtilities,org.ecocean.Util,org.ecocean.Measurement, org.ecocean.Util.*, org.ecocean.genetics.*, org.ecocean.tag.*, java.awt.Dimension, javax.jdo.Extent, javax.jdo.Query, java.io.File, java.text.DecimalFormat, java.util.*" %>
 <%@ taglib uri="http://www.sunwesttek.com/di" prefix="di" %>
 <%--
   ~ The Shepherd Project - A Mark-Recapture Framework
@@ -253,7 +253,7 @@ int imageCount = 0;
       if (request.getParameter("isOwner").equals("true") && (!isBMP) && (!isVideo)) {
     %>
     <a href="<%= images.get(myImage).asUrl(imageEnc, CommonConfiguration.getDataDirectoryName(context)) %>" class="highslide" onclick="return hs.expand(this)"
-       title="Click to enlarge">
+       title="<%=encprops.getProperty("clickEnlarge")%>">
       <%
       } else if (request.getParameter("isOwner").equals("true")||(request.getParameter("loggedIn").equals("true"))) {
       %>
@@ -266,7 +266,7 @@ int imageCount = 0;
             }
 		%>
           
-         title="Click to enlarge">
+         title="<%=encprops.getProperty("clickEnlarge")%>">
          
          
          <%
@@ -275,11 +275,7 @@ int imageCount = 0;
         String thumbPath = thisEncounterDir.getAbsolutePath() + "/" + images.get(myImage).getDataCollectionEventID() + ".jpg";
         String thumbLocation = "file-" + thumbPath;
         String srcurl = images.get(myImage).getFullFileSystemPath();
-        //String thumbLocation = "file-" + images.get(myImage).getFullFileSystemPath();// + File.separator + images.get(myImage).getFilename();
-//System.out.println(">>>>>>>>>>>>>>>>>>>>>> thumbLocation = " + thumbLocation);
-        //File processedImage = new File(thisEncounterDir.getAbsolutePath() + "/" + images.get(myImage).getDataCollectionEventID() + ".jpg");
         File processedImage = new File(thumbPath);
-//System.out.println(">>>>>>>>____________>> processedImage = " + processedImage.getAbsolutePath());
 
 
         int intWidth = 250;
@@ -324,7 +320,16 @@ int imageCount = 0;
 
 
       } else if ((!processedImage.exists()) && (!haveRendered)) {
-        haveRendered = true;
+
+				//thanks to magic of short-circuiting boolean, this will try watermark first then regular if not available
+				if (images.get(myImage).scaleToWatermark(context, thumbnailWidth, thumbnailHeight, thumbPath, "") ||
+						images.get(myImage).scaleTo(context, thumbnailWidth, thumbnailHeight, thumbPath)) {
+					//work forks off in background, so we use this placeholder for now:
+System.out.println("trying to fork/create " + thumbPath);
+      %> <img width="250" height="200" alt="in progress" src="../images/processed.gif" align="left" /> <%
+
+				} else {  //fallback to old dynamic ways:
+        	haveRendered = true;
         //System.out.println("Using DynamicImage to render thumbnail: "+imageEncNum);
         //System.gc();
 //System.out.println("srcurl="+srcurl + " --> thumbLocation=" + thumbLocation);
@@ -345,6 +350,8 @@ int imageCount = 0;
       </di:img>
       <img width="<%=thumbnailWidth %>" alt="photo <%=imageEnc.getLocation()%>"
            src="<%=encUrlDir%>/<%=(images.get(myImage).getDataCollectionEventID()+".jpg")%>" border="0" align="left" valign="left"> <%
+				}
+
       if (request.getParameter("isOwner").equals("true")) {
     %>
     </a>
@@ -362,9 +369,13 @@ int imageCount = 0;
       }
     %> <%
   } else {
-  %> <img id="img<%=images.get(myImage).getDataCollectionEventID()%> " width="<%=thumbnailWidth %>" alt="photo <%=imageEnc.getLocation()%>"
+			String wmDiv = "";
+			String wmText = encprops.getProperty("imgWatermark");
+			if ((wmText != null) && !wmText.equals("")) wmDiv = "<div class=\"img-watermark\">" + wmText + "</div>";
+  %> <div style="position: relative"><img id="img<%=images.get(myImage).getDataCollectionEventID()%> " width="<%=thumbnailWidth %>" alt="photo <%=imageEnc.getLocation()%>"
           src="<%=encUrlDir%>/<%=(images.get(myImage).getDataCollectionEventID()+".jpg")%>" border="0" align="left"
-          valign="left"> <%
+          valign="left"><%=wmDiv%> <%
+
 	if (session.getAttribute("logged")!=null) {
 				%></a>
                 <div 
@@ -451,47 +462,23 @@ int imageCount = 0;
 
             <%
               if (CommonConfiguration.showEXIFData(context)&&!isVideo) {
+            	  
+            	  File exifImage = new File(Encounter.dir(shepherdDataDir, imageEnc.getCatalogNumber()) + "/" + addTextFile);
+              	
             %>
 
 
-            <p><strong>EXIF Data</strong></p>
-					<span class="caption">
-					<div class="scroll"><span class="caption">	
+            <p><strong>EXIF</strong></p>
+            <span class="caption">
+					<div class="scroll">
+						<span class="caption">	
 					<%
             if ((addTextFile.toLowerCase().endsWith("jpg")) || (addTextFile.toLowerCase().endsWith("jpeg"))) {
-              try{
-              	File exifImage = new File(thisEncounterDir.getAbsolutePath() + "/"+addTextFile);
-              	if(exifImage.exists()){              
-                  	
-              		Metadata metadata = JpegMetadataReader.readMetadata(exifImage);
-              		// iterate through metadata directories
-              		Iterator directories = metadata.getDirectoryIterator();
-              		while (directories.hasNext()) {
-              	  		Directory directory = (Directory) directories.next();
-              	  		// iterate through tags and print to System.out
-              	  		Iterator tags = directory.getTagIterator();
-              	  		while (tags.hasNext()) {
-              	    		Tag tag = (Tag) tags.next();
-
-          					%>
-								<%=tag.toString() %><br/>
-								<%
-              	  } //end while
-             	} //end while
-              } //end if
-              else{
-            	  %>
-		            <p>File not found on file system. No EXIF data available.</p>
-          		<%  
-              }
-           } //end try
-            catch(Exception e){
-            %>
-            <p>Cannot read metadata for this file.</p>
-            <%
-            System.out.println("Cannot read metadata for: "+addTextFile);
-            e.printStackTrace();
-            }
+            	//File exifImage = new File(Encounter.dir(shepherdDataDir, thisEnc.getCatalogNumber()) + "/" + thumbLocs.get(countMe).getFilename());
+            	%>
+            	<%=Util.getEXIFDataFromJPEGAsHTML(exifImage) %>
+            	<%
+            	
               } //end if
  
                 %>

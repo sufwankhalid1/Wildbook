@@ -159,6 +159,7 @@
 		         /EncounterSearchExportKML = authc, roles[admin]
 		         /UserCreate = authc, roles[admin]
 		         /UserDelete = authc, roles[admin]
+		         /UserInfo = authc
 		         /UserAddProfileImage = authc, roles[admin]
 		         /UserRemoveProfileImage = authc, roles[admin]
 				 
@@ -472,6 +473,11 @@
         <servlet-class>org.ecocean.servlet.UserDelete</servlet-class>
   </servlet>
 
+      <servlet>
+        <servlet-name>UserInfo</servlet-name>
+        <servlet-class>org.ecocean.servlet.UserInfo</servlet-class>
+  </servlet>
+
   <servlet>
     <servlet-name>EncounterResetDate</servlet-name>
     <servlet-class>org.ecocean.servlet.EncounterResetDate</servlet-class>
@@ -636,6 +642,16 @@
   <servlet>
     <servlet-name>EncounterForm</servlet-name>
     <servlet-class>org.ecocean.servlet.EncounterForm</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>Collaborate</servlet-name>
+    <servlet-class>org.ecocean.servlet.Collaborate</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>JavascriptGlobals</servlet-name>
+    <servlet-class>org.ecocean.servlet.JavascriptGlobals</servlet-class>
   </servlet>
   
     <servlet>
@@ -1011,6 +1027,11 @@
             <servlet-name>UserDelete</servlet-name>
             <url-pattern>/UserDelete</url-pattern>
   </servlet-mapping>
+
+     <servlet-mapping>
+            <servlet-name>UserInfo</servlet-name>
+            <url-pattern>/UserInfo</url-pattern>
+  </servlet-mapping>
   
         <servlet-mapping>
           <servlet-name>TissueSampleRemoveBiologicalMeasurement</servlet-name>
@@ -1061,6 +1082,16 @@
   <servlet-mapping>
     <servlet-name>EncounterForm</servlet-name>
     <url-pattern>/EncounterForm</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>Collaborate</servlet-name>
+    <url-pattern>/Collaborate</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>JavascriptGlobals</servlet-name>
+    <url-pattern>/JavascriptGlobals.js</url-pattern>
   </servlet-mapping>
   
   
