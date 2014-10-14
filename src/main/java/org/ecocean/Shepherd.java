@@ -298,7 +298,7 @@ public class Shepherd {
   public Encounter getEncounter(String num) {
     Encounter tempEnc = null;
     try {
-      tempEnc = ((Encounter) (pm.getObjectById(pm.newObjectIdInstance(Encounter.class, num.trim()), true)));
+      tempEnc = ((Encounter) (pm.getObjectById(pm.newObjectIdInstance(Encounter.class, Integer.parseInt(num.trim())), true)));
     } catch (Exception nsoe) {
       return null;
     }
@@ -679,7 +679,7 @@ public class Shepherd {
 
   public boolean isEncounter(String num) {
     try {
-      Encounter tempEnc = ((org.ecocean.Encounter) (pm.getObjectById(pm.newObjectIdInstance(Encounter.class, num.trim()), true)));
+      Encounter tempEnc = ((org.ecocean.Encounter) (pm.getObjectById(pm.newObjectIdInstance(Encounter.class, Integer.parseInt(num.trim())), true)));
     } catch (Exception nsoe) {
       //nsoe.printStackTrace();
       return false;
@@ -1474,7 +1474,7 @@ public class Shepherd {
   }
 
   public Occurrence getOccurrenceForEncounter(String encounterID){
-    String filter="SELECT FROM org.ecocean.Occurrence WHERE encounters.contains(enc) && enc.catalogNumber == \""+encounterID+"\"  VARIABLES org.ecocean.Encounter enc";
+    String filter="SELECT FROM org.ecocean.Occurrence WHERE encounters.contains(enc) && enc.catalogNumber == "+encounterID+"  VARIABLES org.ecocean.Encounter enc";
     Query query=getPM().newQuery(filter);
     Collection c = (Collection) (query.execute());
     Iterator it = c.iterator();
@@ -2686,6 +2686,18 @@ public class Shepherd {
       return value;
     }
     catch(Exception e){return -1;}
+  }
+  
+  public String getNextEncounterCatalogNumber() {
+    int value=0;
+    try{
+      Query q = pm.newQuery("SELECT max(catalogNumber) FROM org.ecocean.Encounter");
+      value=((Integer) q.execute()).intValue();
+      q.closeAll();
+      //return (new Integer(value+1)).toString();
+    }
+    catch(Exception e){System.out.println("Error in Shepherd.getNextEncounterCatalogNumber");e.printStackTrace();}
+    return (new Integer(value+1)).toString();
   }
 
   public String getNextEncounterNumber(){

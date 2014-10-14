@@ -398,7 +398,12 @@ System.out.println("about to do enc()");
 			Encounter enc = new Encounter(day, month, year, hour, minutes, guess, getVal(fv, "location"), getVal(fv, "submitterName"), getVal(fv, "submitterEmail"), null);
 			//Encounter enc = new Encounter();
 			//System.out.println("Submission detected date: "+enc.getDate());
-			String encID = enc.generateEncounterNumber();
+			
+			
+			//String encID = enc.generateEncounterNumber();
+			String encID=myShepherd.getNextEncounterCatalogNumber();
+			
+			
 			enc.setEncounterNumber(encID);
 System.out.println("hey, i think i may have made an encounter, encID=" + encID);
 System.out.println("enc ?= " + enc.toString());

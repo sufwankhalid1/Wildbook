@@ -128,7 +128,9 @@
 
         <class name="Encounter" identity-type="application" table="ENCOUNTER" >
             <field name="catalogNumber" primary-key="true" >
-                <column length="100" />
+                <!--
+				<column length="100" />
+				-->
             </field>
             <field name="otherCatalogNumbers"
                 persistence-modifier="persistent" default-fetch-group="false">

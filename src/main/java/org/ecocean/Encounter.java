@@ -63,7 +63,10 @@ public class Encounter implements java.io.Serializable {
   private String locationID = "None";
   private Double maximumDepthInMeters;
   private Double maximumElevationInMeters;
-  private String catalogNumber = "";
+  //private String catalogNumber = "";
+  
+  private int catalogNumber=-1;
+  
   private String individualID;
   private int day = 0;
   private int month = 0;
@@ -644,7 +647,7 @@ public class Encounter implements java.io.Serializable {
    * @return a unique integer String used to identify this encounter in the database
    */
   public String getEncounterNumber() {
-    return catalogNumber;
+    return getCatalogNumber();
   }
 
 
@@ -850,7 +853,7 @@ public class Encounter implements java.io.Serializable {
    * @param num the unique integer to be used to uniquely identify this encoun ter in the database
    */
   public void setEncounterNumber(String num) {
-    catalogNumber = num;
+    setCatalogNumber(num);
   }
 
   public String isAssignedToMarkedIndividual() {
@@ -1298,11 +1301,11 @@ public class Encounter implements java.io.Serializable {
 
 
   public String getCatalogNumber() {
-    return catalogNumber;
+    return (new Integer(catalogNumber)).toString();
   }
 
   public void setCatalogNumber(String newNumber) {
-    this.catalogNumber = newNumber;
+    this.catalogNumber = Integer.parseInt(newNumber);
   }
 
   public String getVerbatimLocality() {
