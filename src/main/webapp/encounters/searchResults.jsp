@@ -79,7 +79,7 @@ context=ServletUtilities.getContext(request);
 
   myShepherd.beginDBTransaction();
 
-  String sortOrder="year descending, month descending, day descending";
+  String sortOrder="catalogNumber descending";
   if(request.getParameter("sortOrder")!=null){
   	if((request.getParameter("sortOrder").equals("tax_up"))){sortOrder="genus ascending, specificEpithet ascending, "+sortOrder;}
   	else if((request.getParameter("sortOrder").equals("tax_down"))){sortOrder="genus descending, specificEpithet descending, "+sortOrder;}
