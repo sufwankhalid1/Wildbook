@@ -202,6 +202,10 @@ function saveBatchData() {
 
 
 
+function cleanFilename(f) {
+	return encodeURIComponent(f);
+}
+
 var batchData = false;
 var hoverImg = false;
 function showResults(data) {
@@ -210,7 +214,7 @@ function showResults(data) {
 	for (var imgId in data.results) {
 		//if (data.results[imgId].encDate) encDate = data.results
 		var encDate = data.results[imgId].encDate || '';
-		h += '<div class="result" id="' + imgId + '"><div class="target"><img class="fitted" src="' + data.baseDir + '/match_images/' + batchID + '/' + imgId + '" /><span class="info">' + imgId + '</span></div>';
+		h += '<div class="result" id="' + imgId + '"><div class="target"><img class="fitted" src="' + data.baseDir + '/match_images/' + batchID + '/' + cleanFilename(imgId) + '" /><span class="info">' + imgId + '</span></div>';
 
 		h += '<div class="controls">accept match? <input type="checkbox" ' + (data.results[imgId].acceptable ? 'checked' : '') + ' />';
 		h += '<div><a target="_new" href="' + data.baseDir + '/match_images/' + batchID + '/' + imgId + '-rel.xhtml">xhtml output</a></div>';
@@ -220,7 +224,7 @@ function showResults(data) {
 			h += '<div class="other-thumbs"><b style="color: #666;">Other Encounters</b><br />';
 			for (var oeid in data.results[imgId].other) {
 				for (var oi = 0 ; oi < data.results[imgId].other[oeid].length ; oi++) {
-					h += '<img title="' +oeid + '" src="' + data.baseDir + '/' + encDir(oeid) + '/' + data.results[imgId].other[oeid][oi] + '" />';
+					h += '<img title="' +oeid + '" src="' + data.baseDir + '/' + encDir(oeid) + '/' + cleanFilename(data.results[imgId].other[oeid][oi]) + '" />';
 				}
 			}
 			h += '</div>';
@@ -231,7 +235,7 @@ function showResults(data) {
 		var ind = imgName.indexOf('__');
 		if (ind > -1) imgName = imgName.substring(ind + 2, imgName.length);
 
-		h += '<div class="match"><img class="fitted" src="' + data.baseDir + '/' + encDir(data.results[imgId].eid) + '/' + imgName + '" /><span class="info"><b>' + data.results[imgId].individualID + '</b>: ' + encDate.substr(0,10);
+		h += '<div class="match"><img class="fitted" src="' + data.baseDir + '/' + encDir(data.results[imgId].eid) + '/' + cleanFilename(imgName) + '" /><span class="info"><b>' + data.results[imgId].individualID + '</b>: ' + encDate.substr(0,10);
 		h += ' [score ' + data.results[imgId].score.substr(0,6) + '] ';
 		//h += '<a target="_new" href="encounters/encounter.jsp?number=' + data.results[imgId].eid + '">' + data.results[imgId].eid + '</a>';
 		h += '<a title="' + data.results[imgId].eid + '" target="_new" href="encounters/encounter.jsp?number=' + data.results[imgId].eid + '">enc.</a>';
