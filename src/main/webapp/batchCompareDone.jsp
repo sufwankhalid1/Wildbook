@@ -353,7 +353,7 @@ System.out.println("img? " + imgname);
 				List<String> lines = Files.readAllLines(Paths.get(batchDir + "/" + fm.group()), Charset.defaultCharset());
 				String cleaned = "";
 				for (String l : lines) {
-					cleaned += l.replaceAll(dataDirString, "") + "\n";
+					cleaned += l.replaceAll(dataDirString, "").replaceAll("#", "%23") + "\n";
 					if (found) continue;
 
 					Matcher lm = lp.matcher(l);
