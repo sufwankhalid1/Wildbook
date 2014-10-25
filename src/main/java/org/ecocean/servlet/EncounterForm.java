@@ -356,7 +356,7 @@ System.out.println("about to do int stuff");
 			//try { year = Integer.parseInt(getVal(fv, "year")); } catch (NumberFormatException e) { year = 0; }
 			
 			//switch to datepicker
-			if(getVal(fv, "datepicker")!=null){
+			if((getVal(fv, "datepicker")!=null)&&(!getVal(fv, "datepicker").trim().equals(""))){
 			  //System.out.println("Trying to read date: "+getVal(fv, "datepicker").replaceAll(" ", "T"));
         
 			  DateTimeFormatter parser1 = ISODateTimeFormat.dateOptionalTimeParser();
@@ -764,7 +764,7 @@ System.out.println("depth --> " + fv.get("depth").toString());
 				newnum = myShepherd.storeNewEncounter(enc, encID);
 				enc.refreshAssetFormats(context, ServletUtilities.dataDir(context, rootDir));
 
-				Logger log = LoggerFactory.getLogger(SubmitAction.class);
+				Logger log = LoggerFactory.getLogger(EncounterForm.class);
 				log.info("New encounter submission: <a href=\"http://" + CommonConfiguration.getURLLocation(request) + "/encounters/encounter.jsp?number=" + encID+"\">"+encID+"</a>");
 System.out.println("ENCOUNTER SAVED???? newnum=" + newnum);
 			}
