@@ -25,9 +25,6 @@
 <%@ page import="net.tanesha.recaptcha.ReCaptcha" %>
 <%@ page import="net.tanesha.recaptcha.ReCaptchaFactory" %>
 
-<%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
-<%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
-<%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic" %>
 
 <%
 
@@ -47,7 +44,7 @@ String context=ServletUtilities.getContext(request);
 
 %>
 
-<html:html locale="true">
+<html locale="true">
 
   <!-- Make sure window is not in a frame -->
 
@@ -208,4 +205,4 @@ else{
   </body>
 
 
-</html:html>
+</html>
