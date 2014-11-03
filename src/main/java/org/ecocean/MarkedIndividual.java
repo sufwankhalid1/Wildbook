@@ -24,6 +24,9 @@ import java.util.*;
 
 import org.ecocean.genetics.*;
 import org.ecocean.social.Relationship;
+import org.ecocean.security.Collaboration;
+import org.ecocean.servlet.ServletUtilities;
+import javax.servlet.http.HttpServletRequest;
 
 import java.text.DecimalFormat;
 
@@ -97,7 +100,9 @@ public class MarkedIndividual implements java.io.Serializable {
     encounters.add(enc);
     //dataFiles = new Vector();
     numberEncounters = 1;
-    this.sex = enc.getSex();
+    if(enc.getSex()!=null){
+      this.sex = enc.getSex();
+    }
     numUnidentifiableEncounters = 0;
     maxYearsBetweenResightings=0;
   }
@@ -122,10 +127,21 @@ public class MarkedIndividual implements java.io.Serializable {
       //get and therefore set the haplotype if necessary
       getHaplotype();
       
-      boolean ok=encounters.add(newEncounter);
-      numberEncounters++;
-      resetMaxNumYearsBetweenSightings();
-      return ok; 
+      boolean isNew=true;
+      for(int i=0;i<encounters.size();i++) {
+        Encounter tempEnc=(Encounter)encounters.get(i);
+        if(tempEnc.getEncounterNumber().equals(newEncounter.getEncounterNumber())) {
+          isNew=false;
+        }
+      }
+      
+      //prevent duplicate addition of encounters
+      if(isNew){
+        encounters.add(newEncounter);
+        numberEncounters++;
+        resetMaxNumYearsBetweenSightings();
+      }
+      return isNew; 
      
  }
 
@@ -137,9 +153,7 @@ public class MarkedIndividual implements java.io.Serializable {
   public boolean removeEncounter(Encounter getRidOfMe){
 
       numberEncounters--;
-      
-      
-      
+
       boolean changed=false;
       for(int i=0;i<encounters.size();i++) {
         Encounter tempEnc=(Encounter)encounters.get(i);
@@ -148,7 +162,7 @@ public class MarkedIndividual implements java.io.Serializable {
           i--;
           changed=true;
           }
-        }
+      }
       resetMaxNumYearsBetweenSightings();
       
       //reset haplotype
@@ -176,9 +190,9 @@ public class MarkedIndividual implements java.io.Serializable {
   }
 
   public Vector returnEncountersWithGPSData(){
-    return returnEncountersWithGPSData(false,false);
+    return returnEncountersWithGPSData(false,false,"context0");
   }
-  public Vector returnEncountersWithGPSData(boolean useLocales, boolean reverseOrder) {
+  public Vector returnEncountersWithGPSData(boolean useLocales, boolean reverseOrder,String context) {
     //if(unidentifiableEncounters==null) {unidentifiableEncounters=new Vector();}
     Vector haveData=new Vector();
     Encounter[] myEncs=getDateSortedEncounters(reverseOrder);
@@ -186,7 +200,7 @@ public class MarkedIndividual implements java.io.Serializable {
     Properties localesProps = new Properties();
     if(useLocales){
       try {
-        localesProps.load(ShepherdPMF.class.getResourceAsStream("/bundles/locales.properties"));
+        localesProps=ShepherdProperties.getProperties("locationIDGPS.properties", "",context);
       } 
       catch (Exception ioe) {
         ioe.printStackTrace();
@@ -588,7 +602,9 @@ public class MarkedIndividual implements java.io.Serializable {
    * Sets the sex of this MarkedIndividual.
    */
   public void setSex(String newSex) {
-    sex = newSex;
+    if(newSex!=null){sex = newSex;}
+    else{sex=null;}
+    
   }
 
 
@@ -1127,6 +1143,7 @@ public class MarkedIndividual implements java.io.Serializable {
   
   public ArrayList<TissueSample> getAllTissueSamples() {
     ArrayList<TissueSample> al = new ArrayList<TissueSample>();
+    if(encounters!=null){
     int numEncounters = encounters.size();
     for (int i = 0; i < numEncounters; i++) {
       Encounter enc = (Encounter) encounters.get(i);
@@ -1138,6 +1155,8 @@ public class MarkedIndividual implements java.io.Serializable {
       }
     }
     return al;
+    }
+    return null;
   }
   
   public ArrayList<SinglePhotoVideo> getAllSinglePhotoVideo() {
@@ -1357,6 +1376,7 @@ public boolean hasLocus(String locus){
 
 public boolean hasMsMarkers(){
   ArrayList<TissueSample> samples=getAllTissueSamples();
+  if(samples!=null){
   int numSamples=samples.size();
   for(int i=0;i<numSamples;i++){
       TissueSample sample=samples.get(i);
@@ -1370,6 +1390,7 @@ public boolean hasMsMarkers(){
           }
         }
       }
+  }
   }
   return false;
 }
@@ -1619,5 +1640,40 @@ public Float getMinDistanceBetweenTwoMarkedIndividuals(MarkedIndividual otherInd
   if(minDistance>999999)minDistance=new Float(-1);
   return minDistance;
 }
+
+
+	//convenience function to Collaboration permissions
+	public boolean canUserAccess(HttpServletRequest request) {
+		return Collaboration.canUserAccessMarkedIndividual(this, request);
+	}
+
+
+	public String collaborationLockHtml(HttpServletRequest request) {
+		String context = "context0";
+		context = ServletUtilities.getContext(request);
+		Shepherd myShepherd = new Shepherd(context);
+
+		ArrayList<Collaboration> collabs = Collaboration.collaborationsForCurrentUser(request);
+  	ArrayList<String> uids = this.getAllAssignedUsers();
+  	ArrayList<String> open = new ArrayList<String>();
+		String collabClass = "pending";
+		String data = "";
+
+		for (String u : uids) {
+			Collaboration c = Collaboration.findCollaborationWithUser(u, collabs);
+			if ((c == null) || (c.getState() == null)) {
+				User user = myShepherd.getUser(u);
+				String fullName = u;
+				if (user.getFullName()!=null) fullName = user.getFullName();
+				open.add(u);
+				data += "," + u + ":" + fullName.replace(",", " ").replace(":", " ").replace("\"", " ");
+			}
+		}
+		if (open.size() > 0) {
+			collabClass = "new";
+			data = data.substring(1);
+		}
+		return "<div class=\"row-lock " + collabClass + " collaboration-button\" data-multiuser=\"" + data + "\">&nbsp;</div>";
+	}
 
 }

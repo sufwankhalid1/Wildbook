@@ -1,6 +1,6 @@
 <%--
-  ~ The Shepherd Project - A Mark-Recapture Framework
-  ~ Copyright (C) 2011 Jason Holmberg
+  ~ Wildbook - A Mark-Recapture Framework
+  ~ Copyright (C) 2008-2014 Jason Holmberg
   ~
   ~ This program is free software; you can redistribute it and/or
   ~ modify it under the terms of the GNU General Public License
@@ -19,80 +19,50 @@
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <%@ page contentType="text/html; charset=utf-8" pageEncoding="UTF-8" language="java"
-         import="java.util.ArrayList,org.ecocean.*, org.ecocean.Util, java.util.GregorianCalendar, java.util.Properties, java.util.List" %>
+         import="org.ecocean.servlet.ServletUtilities,java.util.ArrayList,org.ecocean.*, org.ecocean.Util, java.util.GregorianCalendar, java.util.Properties, java.util.List" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>         
 <%
+
+boolean isIE = request.getHeader("user-agent").contains("MSIE ");
+String context="context0";
+context=ServletUtilities.getContext(request);
+
   GregorianCalendar cal = new GregorianCalendar();
   int nowYear = cal.get(1);
 //setup our Properties object to hold all properties
   Properties props = new Properties();
-  String langCode = "en";
-
-  //check what language is requested
-  if (request.getParameter("langCode") != null) {
-    if (request.getParameter("langCode").equals("fr")) {
-      langCode = "fr";
-    }
-    if (request.getParameter("langCode").equals("de")) {
-      langCode = "de";
-    }
-    if (request.getParameter("langCode").equals("es")) {
-      langCode = "es";
-    }
-  }
+  //String langCode = "en";
+  String langCode=ServletUtilities.getLanguageCode(request);
+  
 
   //set up the file input stream
-  props.load(getClass().getResourceAsStream("/bundles/" + langCode + "/submit.properties"));
+  //props.load(getClass().getResourceAsStream("/bundles/" + langCode + "/submit.properties"));
+  props = ShepherdProperties.getProperties("submit.properties", langCode,context);
 
 
-  //load our variables for the submit page
-  String title = props.getProperty("submit_title");
-  String submit_maintext = props.getProperty("submit_maintext");
-  String submit_reportit = props.getProperty("reportit");
-  String submit_language = props.getProperty("language");
-  String what_do = props.getProperty("what_do");
-  String read_overview = props.getProperty("read_overview");
-  String see_all_encounters = props.getProperty("see_all_encounters");
-  String see_all_sharks = props.getProperty("see_all_sharks");
-  String report_encounter = props.getProperty("report_encounter");
-  String log_in = props.getProperty("log_in");
-  String contact_us = props.getProperty("contact_us");
-  String search = props.getProperty("search");
-  String encounter = props.getProperty("encounter");
-  String shark = props.getProperty("shark");
-  String join_the_dots = props.getProperty("join_the_dots");
-  String menu = props.getProperty("menu");
-  String last_sightings = props.getProperty("last_sightings");
-  String more = props.getProperty("more");
-  String ws_info = props.getProperty("ws_info");
-  String about = props.getProperty("about");
-  String contributors = props.getProperty("contributors");
-  String forum = props.getProperty("forum");
-  String blog = props.getProperty("blog");
-  String area = props.getProperty("area");
-  String match = props.getProperty("match");
-  String click2learn = props.getProperty("click2learn");
+	long maxSizeMB = CommonConfiguration.getMaxMediaSizeInMegabytes(context);
+	long maxSizeBytes = maxSizeMB * 1048576;
 
-  //link path to submit page with appropriate language
-  String submitPath = "submit.jsp?langCode=" + langCode;
+  
 
 %>
 
 <html>
 <head>
-  <title><%=CommonConfiguration.getHTMLTitle() %>
+  <title><%=CommonConfiguration.getHTMLTitle(context) %>
   </title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
   <meta name="Description"
-        content="<%=CommonConfiguration.getHTMLDescription() %>"/>
+        content="<%=CommonConfiguration.getHTMLDescription(context) %>"/>
   <meta name="Keywords"
-        content="<%=CommonConfiguration.getHTMLKeywords() %>"/>
-  <meta name="Author" content="<%=CommonConfiguration.getHTMLAuthor() %>"/>
-  <link href="<%=CommonConfiguration.getCSSURLLocation(request) %>"
+        content="<%=CommonConfiguration.getHTMLKeywords(context) %>"/>
+  <meta name="Author" content="<%=CommonConfiguration.getHTMLAuthor(context) %>"/>
+  <link href="<%=CommonConfiguration.getCSSURLLocation(request,context) %>"
         rel="stylesheet" type="text/css"/>
   <link rel="shortcut icon"
-        href="<%=CommonConfiguration.getHTMLShortcutIcon() %>"/>
+        href="<%=CommonConfiguration.getHTMLShortcutIcon(context) %>"/>
 
+        
   <script language="javascript" type="text/javascript">
     <!--
 
@@ -104,7 +74,7 @@
          * the value.length returns the length of the information entered
          * in the Submitter's Name field.
          */
-        requiredfields += "\n   *  Your name";
+        requiredfields += "\n   *  <%=props.getProperty("submit_name") %>";
       }
 
         /*         
@@ -120,7 +90,7 @@
         */
 
       if (requiredfields != "") {
-        requiredfields = "Please correctly enter the following fields:\n" + requiredfields;
+        requiredfields = "<%=props.getProperty("pleaseFillIn") %>\n" + requiredfields;
         alert(requiredfields);
 // the alert function will popup the alert window
         return false;
@@ -133,13 +103,259 @@
 
 </head>
 
-<body>
+
+<style type="text/css">
+
+.full_screen_map {
+position: absolute !important;
+top: 0px !important;
+left: 0px !important;
+z-index: 1 !imporant;
+width: 100% !important;
+height: 100% !important;
+margin-top: 0px !important;
+margin-bottom: 8px !important;
+
+
+/* css for timepicker */
+.ui-timepicker-div .ui-widget-header { margin-bottom: 8px; }
+.ui-timepicker-div dl { text-align: left; padding: 0 5px 0 0;}
+.ui-timepicker-div dl dt { float: left; clear:left; padding: 0 0 0 5px; }
+.ui-timepicker-div dl dd { margin: 0 10px 10px 45%; }
+.ui-timepicker-div td { font-size: 90%; }
+.ui-tpicker-grid-label { background: none; border: none; margin: 0; padding: 0; }
+
+.ui-timepicker-rtl{ direction: rtl; }
+.ui-timepicker-rtl dl { text-align: right; padding: 0 5px 0 0; }
+.ui-timepicker-rtl dl dt{ float: right; clear: right; }
+.ui-timepicker-rtl dl dd { margin: 0 45% 10px 10px; }
+
+/*customizations*/
+.ui_tpicker_hour_label {margin-bottom:5px !important;}
+.ui_tpicker_minute_label {margin-bottom:5px !important;}
+
+
+
+</style>
+
+<script>
+  function resetMap() {
+    var ne_lat_element = document.getElementById('lat');
+    var ne_long_element = document.getElementById('longitude');
+
+
+    ne_lat_element.value = "";
+    ne_long_element.value = "";
+
+  }
+
+</script>
+
+
+<body onload="resetMap()" onunload="resetMap()">
 <div id="wrapper">
 <div id="page">
 <jsp:include page="header.jsp" flush="true">
 
   <jsp:param name="isAdmin" value="<%=request.isUserInRole(\"admin\")%>" />
 </jsp:include>
+
+ <script type="text/javascript" src="http://geoxml3.googlecode.com/svn/branches/polys/geoxml3.js"></script>
+ <script src="http://maps.google.com/maps/api/js?sensor=false&language=<%=langCode%>"></script>
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.11.1/themes/smoothness/jquery-ui.css">
+ <script src="//code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
+ 
+  <script src="javascript/timepicker/jquery-ui-timepicker-addon.js"></script>
+ 
+ <%
+ if(!langCode.equals("en")){
+ %>
+ <script src="javascript/timepicker/datepicker-<%=langCode %>.js"></script>
+  <script src="javascript/timepicker/jquery-ui-timepicker-<%=langCode %>.js"></script>
+ 
+  
+  
+  
+ <%
+ }
+ %>
+ 
+  <script type="text/javascript">
+  $(function() {
+    $( "#datepicker" ).datetimepicker({
+      changeMonth: true,
+      changeYear: true,
+      dateFormat: 'yy-mm-dd',
+      maxDate: '+1d',
+      controlType: 'select',
+      alwaysSetTime: false
+      
+    });
+    $( "#datepicker" ).datetimepicker( $.timepicker.regional[ "<%=langCode %>" ] );
+
+
+    
+  });
+  </script>
+  
+   <script type="text/javascript">
+  $(function() {
+    $( "#releasedatepicker" ).datepicker({
+      changeMonth: true,
+      changeYear: true,
+      dateFormat: 'yy-mm-dd'
+      
+    });
+    $( "#releasedatepicker" ).datepicker( $.datepicker.regional[ "<%=langCode %>" ] );
+    $( "#releasedatepicker" ).datepicker( "option", "maxDate", "+1d" );
+  });
+  </script>
+ 
+ 
+<script type="text/javascript">
+//alert("Prepping map functions.");
+var center = new google.maps.LatLng(10.8, 160.8);
+
+var map;
+
+
+
+var marker;
+
+function placeMarker(location) {
+	if(marker!=null){marker.setMap(null);}  
+	marker = new google.maps.Marker({
+	      position: location,
+	      map: map
+	  });
+
+	  //map.setCenter(location);
+	  
+	    var ne_lat_element = document.getElementById('lat');
+	    var ne_long_element = document.getElementById('longitude');
+
+
+	    ne_lat_element.value = location.lat();
+	    ne_long_element.value = location.lng();
+	}
+
+  function initialize() {
+	//alert("initializing map!");
+	
+	var mapZoom = 3;
+	if($("#map_canvas").hasClass("full_screen_map")){mapZoom=3;}
+
+
+	if(marker!=null){
+		center = new google.maps.LatLng(10.8, 160.8);
+	}
+	
+	map = new google.maps.Map(document.getElementById('map_canvas'), {
+		  zoom: mapZoom,
+		  center: center,
+		  mapTypeId: google.maps.MapTypeId.HYBRID
+		});
+	
+	if(marker!=null){
+		marker.setMap(map);    
+	}
+
+	  //adding the fullscreen control to exit fullscreen
+	  var fsControlDiv = document.createElement('DIV');
+	  var fsControl = new FSControl(fsControlDiv, map);
+	  fsControlDiv.index = 1;
+	  map.controls[google.maps.ControlPosition.TOP_RIGHT].push(fsControlDiv);
+
+	  google.maps.event.addListener(map, 'click', function(event) {
+		    placeMarker(event.latLng);
+		  });
+ }
+  
+ 
+
+ 
+
+
+function fullScreen(){
+	$("#map_canvas").addClass('full_screen_map');
+	$('html, body').animate({scrollTop:0}, 'slow');
+	initialize();
+	
+	//hide header
+	$("#header_menu").hide();
+	
+	//if(overlaysSet){overlaysSet=false;setOverlays();}
+	//alert("Trying to execute fullscreen!");
+}
+
+
+function exitFullScreen() {
+	$("#header_menu").show();
+	$("#map_canvas").removeClass('full_screen_map');
+
+	initialize();
+	//if(overlaysSet){overlaysSet=false;setOverlays();}
+	//alert("Trying to execute exitFullScreen!");
+}
+
+
+//making the exit fullscreen button
+function FSControl(controlDiv, map) {
+
+  // Set CSS styles for the DIV containing the control
+  // Setting padding to 5 px will offset the control
+  // from the edge of the map
+  controlDiv.style.padding = '5px';
+
+  // Set CSS for the control border
+  var controlUI = document.createElement('DIV');
+  controlUI.style.backgroundColor = '#f8f8f8';
+  controlUI.style.borderStyle = 'solid';
+  controlUI.style.borderWidth = '1px';
+  controlUI.style.borderColor = '#a9bbdf';;
+  controlUI.style.boxShadow = '0 1px 3px rgba(0,0,0,0.5)';
+  controlUI.style.cursor = 'pointer';
+  controlUI.style.textAlign = 'center';
+  controlUI.title = 'Toggle the fullscreen mode';
+  controlDiv.appendChild(controlUI);
+
+  // Set CSS for the control interior
+  var controlText = document.createElement('DIV');
+  controlText.style.fontSize = '12px';
+  controlText.style.fontWeight = 'bold';
+  controlText.style.color = '#000000';
+  controlText.style.paddingLeft = '4px';
+  controlText.style.paddingRight = '4px';
+  controlText.style.paddingTop = '3px';
+  controlText.style.paddingBottom = '2px';
+  controlUI.appendChild(controlText);
+  //toggle the text of the button
+   if($("#map_canvas").hasClass("full_screen_map")){
+      controlText.innerHTML = '<%=props.getProperty("exitFullscreen")%>';
+    } else {
+      controlText.innerHTML = '<%=props.getProperty("fullscreen")%>';
+    }
+
+  // Setup the click event listeners: toggle the full screen
+
+  google.maps.event.addDomListener(controlUI, 'click', function() {
+
+   if($("#map_canvas").hasClass("full_screen_map")){
+    exitFullScreen();
+    } else {
+    fullScreen();
+    }
+  });
+
+}
+
+
+  google.maps.event.addDomListener(window, 'load', initialize);
+  
+  
+    </script>
+ 
+ 
 <div id="main">
 
 <div id="maincol-wide-solo">
@@ -148,9 +364,10 @@
   <h1 class="intro"><%=props.getProperty("submit_report")%>
   </h1>
 </div>
-<form action="submitForm.jh" method="post" enctype="multipart/form-data"
+<form xclass="dropzone" id="encounterForm" action="EncounterForm" method="post" enctype="multipart/form-data"
       name="encounter_submission" target="_self" dir="ltr" lang="en"
       onsubmit="return validate();">
+<div class="dz-message"></div>
 
 <p><%=props.getProperty("submit_overview")%>
 </p>
@@ -159,132 +376,28 @@
 </p>
 <table id="encounter_report" border="0" width="100%">
 <tr class="form_row">
-  <td class="form_label"><strong><font color="#CC0000"><%=props.getProperty("submit_date")%>:</font></strong>
+  <td class="form_label"><strong><font color="#CC0000"><%=props.getProperty("submit_date")%></font></strong>
   </td>
   <td colspan="2">
   
-      <em>&nbsp;<%=props.getProperty("submit_year")%></em> 
-    <select name="year" id="year">
-      <option selected="selected"><%=nowYear%>
-      </option>
-      <% for (int p = 1; p < 40; p++) { %>
-      <option value="<%=(nowYear-p)%>"><%=(nowYear - p)%>
-      </option>
-
-      <% } %>
-    </select>
-  
-   <em>&nbsp;<%=props.getProperty("submit_month")%></em> 
-    <select name="month" id="month">
-      <option value="1" selected="selected">1</option>
-      <option value="2">2</option>
-      <option value="3">3</option>
-      <option value="4">4</option>
-      <option value="5">5</option>
-      <option value="6">6</option>
-      <option value="7">7</option>
-      <option value="8">8</option>
-      <option value="9">9</option>
-      <option value="10">10</option>
-      <option value="11">11</option>
-      <option value="12">12</option>
-    </select> 
-  
-  <em>&nbsp;<%=props.getProperty("submit_day")%></em>
-    <select name="day" id="day">
-      <option value="0" selected="selected">?</option>
-      <option value="1">1</option>
-      <option value="2">2</option>
-      <option value="3">3</option>
-      <option value="4">4</option>
-      <option value="5">5</option>
-      <option value="6">6</option>
-      <option value="7">7</option>
-      <option value="8">8</option>
-      <option value="9">9</option>
-      <option value="10">10</option>
-      <option value="11">11</option>
-      <option value="12">12</option>
-      <option value="13">13</option>
-      <option value="14">14</option>
-      <option value="15">15</option>
-      <option value="16">16</option>
-      <option value="17">17</option>
-      <option value="18">18</option>
-      <option value="19">19</option>
-      <option value="20">20</option>
-      <option value="21">21</option>
-      <option value="22">22</option>
-      <option value="23">23</option>
-      <option value="24">24</option>
-      <option value="25">25</option>
-      <option value="26">26</option>
-      <option value="27">27</option>
-      <option value="28">28</option>
-      <option value="29">29</option>
-      <option value="30">30</option>
-      <option value="31">31</option>
-    </select> 
-   
+     <input type="text" style="position: relative; z-index: 101;" id="datepicker" name="datepicker" size="20" /> yyyy-MM-dd HH:mm
 
     </td>
 </tr>
 
 <%
-  pageContext.setAttribute("showReleaseDate", CommonConfiguration.showReleaseDate());
+  pageContext.setAttribute("showReleaseDate", CommonConfiguration.showReleaseDate(context));
 %>
 <c:if test="${showReleaseDate}">
     <tr class="form_row">
     <td class="form_label"><strong><%=props.getProperty("submit_releasedate") %>:</strong></td>
-    <td colspan="2"><input name="releaseDate"/> <%= props.getProperty("submit_releasedate_format") %></td>
+    <td colspan="2">  
+    	<input type="text" style="position: relative; z-index: 101;" id="releasedatepicker" name="releaseDate" size="20" />
+	</td>
     </tr>
 </c:if>
 
-<tr class="form_row">
-  <td class="form_label"><strong><%=props.getProperty("submit_time")%>:</strong>
-  </td>
-  <td colspan="2"><select name="hour" id="hour">
-    <option value="-1" selected="selected">?</option>
-    <option value="0">12 am</option>
-    <option value="1">1 am</option>
-    <option value="2">2 am</option>
-    <option value="3">3 am</option>
-    <option value="4">4 am</option>
-    <option value="5">5 am</option>
-    <option value="6">6 am</option>
-    <option value="7">7 am</option>
-    <option value="8">8 am</option>
-    <option value="9">9 am</option>
-    <option value="10">10 am</option>
-    <option value="11">11 am</option>
-    <option value="12">12 pm</option>
-    <option value="13">1 pm</option>
-    <option value="14">2 pm</option>
-    <option value="15">3 pm</option>
-    <option value="16">4 pm</option>
-    <option value="17">5 pm</option>
-    <option value="18">6 pm</option>
-    <option value="19">7 pm</option>
-    <option value="20">8 pm</option>
-    <option value="21">9 pm</option>
-    <option value="22">10 pm</option>
-    <option value="23">11 pm</option>
-  </select>
-    <select name="minutes" id="minutes">
-      <option value="00" selected="selected">:00</option>
-      <option value="05">:05</option>
-      <option value="10">:10</option>
-      <option value="15">:15</option>
-      <option value="20">:20</option>
-      <option value="25">:25</option>
-      <option value="30">:30</option>
-      <option value="35">:35</option>
-      <option value="40">:40</option>
-      <option value="45">:45</option>
-      <option value="50">:50</option>
-      <option value="55">:55</option>
-    </select></td>
-</tr>
+
 
 
 
@@ -302,7 +415,7 @@
 </tr>
 <%
 
-if(CommonConfiguration.showProperty("showTaxonomy")){
+if(CommonConfiguration.showProperty("showTaxonomy",context)){
 
 %>
 <tr class="form_row">
@@ -313,13 +426,13 @@ if(CommonConfiguration.showProperty("showTaxonomy")){
   <%
   			       boolean hasMoreTax=true;
   			       int taxNum=0;
-  			       if(CommonConfiguration.showProperty("showTaxonomy")){
+  			       if(CommonConfiguration.showProperty("showTaxonomy",context)){
   			       while(hasMoreTax){
   			       	  String currentGenuSpecies = "genusSpecies"+taxNum;
-  			       	  if(CommonConfiguration.getProperty(currentGenuSpecies)!=null){
+  			       	  if(CommonConfiguration.getProperty(currentGenuSpecies,context)!=null){
   			       	  	%>
   			       	  	 
-  			       	  	  <option value="<%=CommonConfiguration.getProperty(currentGenuSpecies)%>"><%=CommonConfiguration.getProperty(currentGenuSpecies).replaceAll("_"," ")%></option>
+  			       	  	  <option value="<%=CommonConfiguration.getProperty(currentGenuSpecies,context)%>"><%=CommonConfiguration.getProperty(currentGenuSpecies,context).replaceAll("_"," ")%></option>
   			       	  	<%
   			       		taxNum++;
   			          }
@@ -344,8 +457,10 @@ if(CommonConfiguration.showProperty("showTaxonomy")){
 </tr>
 <%
 //add locationID to fields selectable
-%>
 
+
+if(CommonConfiguration.getSequentialPropertyValues("locationID", context).size()>0){
+%>
 <tr class="form_row">
 			<td class="form_label1"><strong><%=props.getProperty("locationID")%>:</strong></td>
 		<td>
@@ -357,10 +472,10 @@ if(CommonConfiguration.showProperty("showTaxonomy")){
 	  			       
 	  			       while(hasMoreLocationsIDs){
 	  			       	  String currentLocationID = "locationID"+locNum;
-	  			       	  if(CommonConfiguration.getProperty(currentLocationID)!=null){
+	  			       	  if(CommonConfiguration.getProperty(currentLocationID,context)!=null){
 	  			       	  	%>
 	  			       	  	 
-	  			       	  	  <option value="<%=CommonConfiguration.getProperty(currentLocationID)%>"><%=CommonConfiguration.getProperty(currentLocationID)%></option>
+	  			       	  	  <option value="<%=CommonConfiguration.getProperty(currentLocationID,context)%>"><%=CommonConfiguration.getProperty(currentLocationID,context)%></option>
 	  			       	  	<%
 	  			       		locNum++;
 	  			          }
@@ -376,9 +491,9 @@ if(CommonConfiguration.showProperty("showTaxonomy")){
 </td>
 	</tr>
 <%
+}
 
-
-if(CommonConfiguration.showProperty("showCountry")){
+if(CommonConfiguration.showProperty("showCountry",context)){
 
 %>
 
@@ -393,10 +508,10 @@ if(CommonConfiguration.showProperty("showCountry")){
 	  			       
 	  			       while(hasMoreCountries){
 	  			       	  String currentCountry = "country"+taxNum;
-	  			       	  if(CommonConfiguration.getProperty(currentCountry)!=null){
+	  			       	  if(CommonConfiguration.getProperty(currentCountry,context)!=null){
 	  			       	  	%>
 	  			       	  	 
-	  			       	  	  <option value="<%=CommonConfiguration.getProperty(currentCountry)%>"><%=CommonConfiguration.getProperty(currentCountry)%></option>
+	  			       	  	  <option value="<%=CommonConfiguration.getProperty(currentCountry,context)%>"><%=CommonConfiguration.getProperty(currentCountry,context)%></option>
 	  			       	  	<%
 	  			       		taxNum++;
 	  			          }
@@ -419,6 +534,22 @@ if(CommonConfiguration.showProperty("showCountry")){
 }  //end if showCountry
 
 %>
+
+<tr class="form_row"><td colspan="2">
+    <p id="map">
+    
+    <!--  
+      <p>Use the arrow and +/- keys to navigate to a portion of the globe,, then click
+        a point to set the sighting location. You can also use the text boxes below the map to specify exact
+        latitude and longitude.</p>
+    -->
+
+      	<p id="map_canvas" style="width: 578px; height: 383px; "></p>
+      		<p id="map_overlay_buttons"></p>
+    </p>
+</td>
+</tr>
+
 <tr class="form_row">
 		<td class="form_label1"><strong><%=props.getProperty("submit_gpslatitude")%>:</strong></td>
 		<td>
@@ -434,10 +565,7 @@ if(CommonConfiguration.showProperty("showCountry")){
 	
 		&deg;
 		<br/>
-		<br/> GPS coordinates are in the decimal degrees
-		format. Do you have GPS coordinates in a different format? <a
-			href="http://www.csgnetwork.com/gpscoordconv.html" target="_blank">Click
-		here to find a converter.</a>
+		<br/> <%=props.getProperty("gpsConverter") %>
 		</td>
 	</tr>
 	
@@ -446,7 +574,7 @@ if(CommonConfiguration.showProperty("showCountry")){
 
 
 
-if(CommonConfiguration.showProperty("maximumDepthInMeters")){
+if(CommonConfiguration.showProperty("maximumDepthInMeters",context)){
 %>
 <tr class="form_row">
   <td class="form_label"><strong><%=props.getProperty("submit_depth")%>:</strong></td>
@@ -460,7 +588,7 @@ if(CommonConfiguration.showProperty("maximumDepthInMeters")){
 %>
 
 <%
-if(CommonConfiguration.showProperty("maximumElevationInMeters")){
+if(CommonConfiguration.showProperty("maximumElevationInMeters",context)){
 %>
 <tr class="form_row">
   <td class="form_label"><strong><%=props.getProperty("submit_elevation")%>:</strong></td>
@@ -474,7 +602,7 @@ if(CommonConfiguration.showProperty("maximumElevationInMeters")){
 %>
 
 <tr class="form_row">
-  <td class="form_label"><strong>Status:</strong></td>
+  <td class="form_label"><strong><%=props.getProperty("status") %></strong></td>
   <td colspan="2"><select name="livingStatus" id="livingStatus">
     <option value="alive" selected="selected">Alive</option>
     <option value="dead">Dead</option>
@@ -482,17 +610,17 @@ if(CommonConfiguration.showProperty("maximumElevationInMeters")){
 </tr>
 
 <tr class="form_row">
-  <td class="form_label"><strong><%=props.getProperty("submit_behavior")%>:</strong></td>
+  <td class="form_label"><strong><%=props.getProperty("submit_behavior")%></strong></td>
   <td colspan="2">
     <input name="behavior" type="text" id="scars" size="75"/></td>
 </tr>
 <%
 
-if(CommonConfiguration.showProperty("showLifestage")){
+if(CommonConfiguration.showProperty("showLifestage",context)){
 
 %>
 <tr class="form_row">
-  <td class="form_label"><strong><%=props.getProperty("lifeStage")%>:</strong></td>
+  <td class="form_label"><strong><%=props.getProperty("lifeStage")%></strong></td>
   <td colspan="2">
   <select name="lifeStage" id="lifeStage">
   	<option value="" selected="selected"></option>
@@ -502,10 +630,10 @@ if(CommonConfiguration.showProperty("showLifestage")){
   			       
   			       while(hasMoreStages){
   			       	  String currentLifeStage = "lifeStage"+stageNum;
-  			       	  if(CommonConfiguration.getProperty(currentLifeStage)!=null){
+  			       	  if(CommonConfiguration.getProperty(currentLifeStage,context)!=null){
   			       	  	%>
   			       	  	 
-  			       	  	  <option value="<%=CommonConfiguration.getProperty(currentLifeStage)%>"><%=CommonConfiguration.getProperty(currentLifeStage)%></option>
+  			       	  	  <option value="<%=CommonConfiguration.getProperty(currentLifeStage,context)%>"><%=CommonConfiguration.getProperty(currentLifeStage,context)%></option>
   			       	  	<%
   			       		stageNum++;
   			          }
@@ -522,19 +650,19 @@ if(CommonConfiguration.showProperty("showLifestage")){
 }
 %>
 <%
-    pageContext.setAttribute("showMeasurements", CommonConfiguration.showMeasurements());
+    pageContext.setAttribute("showMeasurements", CommonConfiguration.showMeasurements(context));
 %>
 <c:if test="${showMeasurements}">
 <%
-    pageContext.setAttribute("items", Util.findMeasurementDescs(langCode));
-    pageContext.setAttribute("samplingProtocols", Util.findSamplingProtocols(langCode));
+    pageContext.setAttribute("items", Util.findMeasurementDescs(langCode,context));
+    pageContext.setAttribute("samplingProtocols", Util.findSamplingProtocols(langCode,context));
 %>
 <tr class="form_row">
   <td class="form_label"><strong><%=props.getProperty("measurements")%>:</strong></td>
   <td colspan="2">
   <table class="measurements">
   <tr>
-  <th>Type</th><th>Size</th><th>Units</th><c:if test="${!empty samplingProtocols}"><th>Sampling Protocol</th></c:if>
+  <th><%=props.getProperty("type") %></th><th><%=props.getProperty("size") %></th><th><%=props.getProperty("units") %></th><c:if test="${!empty samplingProtocols}"><th><%=props.getProperty("samplingProtocol") %></th></c:if>
   </tr>
   <c:forEach items="${items}" var="item">
     <tr>
@@ -557,19 +685,19 @@ if(CommonConfiguration.showProperty("showLifestage")){
 </tr>
 </c:if>
 <%
-  pageContext.setAttribute("showMetalTags", CommonConfiguration.showMetalTags());
-  pageContext.setAttribute("showAcousticTag", CommonConfiguration.showAcousticTag());
-  pageContext.setAttribute("showSatelliteTag", CommonConfiguration.showSatelliteTag());
-  pageContext.setAttribute("metalTags", Util.findMetalTagDescs(langCode));
+  pageContext.setAttribute("showMetalTags", CommonConfiguration.showMetalTags(context));
+  pageContext.setAttribute("showAcousticTag", CommonConfiguration.showAcousticTag(context));
+  pageContext.setAttribute("showSatelliteTag", CommonConfiguration.showSatelliteTag(context));
+  pageContext.setAttribute("metalTags", Util.findMetalTagDescs(langCode,context));
 %>
 
 <c:if test="${showMetalTags and !empty metalTags}">
 <tr class="form_row">
-  <td class="form_label"><strong>Metal Tags:</strong></td>
+  <td class="form_label"><strong><%=props.getProperty("physicalTags") %></strong></td>
   <td colspan="2">
     <table class="metalTags">
     <tr>
-      <th>Location</th><th>Tag Number</th>
+      <th><%=props.getProperty("location") %></th><th><%=props.getProperty("tagNumber") %></th>
     </tr>
     <c:forEach items="${metalTags}" var="metalTagDesc">
       <tr>
@@ -584,15 +712,15 @@ if(CommonConfiguration.showProperty("showLifestage")){
 
 <c:if test="${showAcousticTag}">
 <tr class="form_row">
-    <td class="form_label"><strong>Acoustic Tag:</strong></td>
+    <td class="form_label"><strong><%=props.getProperty("acousticTag") %></strong></td>
     <td colspan="2">
       <table class="acousticTag">
       <tr>
-      <td>Serial number:</td>
+      <td><%=props.getProperty("serialNumber") %></td>
       <td><input name="acousticTagSerial"/></td>
       </tr>
       <tr>
-        <td>ID:</td>
+        <td><%=props.getProperty("id") %></td>
         <td><input name="acousticTagId"/></td>
       </tr>
       </table>
@@ -602,14 +730,14 @@ if(CommonConfiguration.showProperty("showLifestage")){
 
 <c:if test="${showSatelliteTag}">
 <%
-  pageContext.setAttribute("satelliteTagNames", Util.findSatelliteTagNames());
+  pageContext.setAttribute("satelliteTagNames", Util.findSatelliteTagNames(context));
 %>
 <tr class="form_row">
-    <td class="form_label"><strong>Satellite Tag:</strong></td>
+    <td class="form_label"><strong><%=props.getProperty("satelliteTag") %></strong></td>
     <td colspan="2">
       <table class="satelliteTag">
       <tr>
-        <td>Name:</td>
+        <td><%=props.getProperty("name") %></td>
         <td>
             <select name="satelliteTagName">
               <c:forEach items="${satelliteTagNames}" var="satelliteTagName">
@@ -619,11 +747,11 @@ if(CommonConfiguration.showProperty("showLifestage")){
         </td>
       </tr>
       <tr>
-        <td>Serial number:</td>
+        <td><%=props.getProperty("serialNumber") %></td>
         <td><input name="satelliteTagSerial"/></td>
       </tr>
       <tr>
-        <td>Argos PTT Number:</td>
+        <td><%=props.getProperty("argosNumber") %></td>
         <td><input name="satelliteTagArgosPttNumber"/></td>
       </tr>
       </table>
@@ -662,7 +790,7 @@ if(CommonConfiguration.showProperty("showLifestage")){
     String project="";
     if(request.getRemoteUser()!=null){
     	submitterName=request.getRemoteUser();
-    	Shepherd myShepherd=new Shepherd();
+    	Shepherd myShepherd=new Shepherd(context);
     	if(myShepherd.getUser(submitterName)!=null){
     		User user=myShepherd.getUser(submitterName);
     		if(user.getFullName()!=null){submitterName=user.getFullName();}
@@ -726,17 +854,45 @@ if(CommonConfiguration.showProperty("showLifestage")){
 
 <p>&nbsp;</p>
 
-<p align="center"><strong><%=props.getProperty("submit_image")%>
-  1:</strong> <input name="theFile1" type="file" size="30"/></p>
+<p align="center"><strong><%=props.getProperty("submit_image")%></strong>
 
-<p align="center"><strong><%=props.getProperty("submit_image")%>
-  2: <input name="theFile2" type="file" size="30"/> </strong></p>
+<div id="xdropzone-previews" class="dropzone-previews" style="display: none;">
+	<div style="text-align: center;" ><b>drop</b> image/video files here, or <b>click</b> for file dialog</div>
+</div>
 
-<p align="center"><strong><%=props.getProperty("submit_image")%>
-  3: <input name="theFile3" type="file" size="30"/> </strong></p>
+<script>
+function updateList(inp) {
+	var f = '';
+	if (inp.files && inp.files.length) {
+		var all = [];
+		for (var i = 0 ; i < inp.files.length ; i++) {
+			if (inp.files[i].size > <%=maxSizeBytes%>) {
+				all.push('<span class="error">' + inp.files[i].name + ' (' + Math.round(inp.files[i].size / (1024*1024)) + 'MB is too big, <%=maxSizeMB%>MB max)</span>');
+			} else {
+				all.push(inp.files[i].name + ' (' + Math.round(inp.files[i].size / 1024) + 'k)');
+			}
+		}
+		f = '<b>' + inp.files.length + ' file' + ((inp.files.length == 1) ? '' : 's') + ':</b> ' + all.join(', ');
+	} else {
+		f = inp.value;
+	}
+	document.getElementById('input-file-list').innerHTML = f;
+}
+</script>
 
-<p align="center"><strong><%=props.getProperty("submit_image")%>
-  4: <input name="theFile4" type="file" size="30"/> </strong></p>
+	<div class="input-file-drop" xonClick="return fileClick();">
+<% if (isIE) { %>
+		<div><%=props.getProperty("dragInstructionsIE")%></div>
+		<input class="ie" name="theFiles" type="file" accept=".jpg, .jpeg, .png, .bmp, .gif, .mov, .wmv, .avi, .mp4, .mpg" multiple size="30" onChange="updateList(this);" />
+<% } else { %>
+		<input class="nonIE" name="theFiles" type="file" accept=".jpg, .jpeg, .png, .bmp, .gif, .mov, .wmv, .avi, .mp4, .mpg" multiple size="30" onChange="updateList(this);" />
+		<div><%=props.getProperty("dragInstructions")%></div>
+<% } %>
+		<div id="input-file-list"></div>
+	</div>
+
+</p>
+
 
 <p>&nbsp;</p>
 <%if (request.getRemoteUser() != null) {%> <input name="submitterID"

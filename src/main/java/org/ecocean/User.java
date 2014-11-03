@@ -43,6 +43,9 @@ public class User implements java.io.Serializable {
   	private String password ;
   	private String salt;
   	
+  	//String currentContext;
+  	
+  	
   	private boolean acceptedUserAgreement=false;
   
   private boolean receiveEmails=true; 
@@ -65,6 +68,7 @@ public class User implements java.io.Serializable {
   	  setUsername(username);
   	  setPassword(password);
   	  setSalt(salt);
+			setReceiveEmails(true);
   	  RefreshDate();
   	  this.lastLogin=-1;
   	}
@@ -224,5 +228,14 @@ public class User implements java.io.Serializable {
     public boolean getAcceptedUserAgreement(){return acceptedUserAgreement;}
     
     public void setAcceptedUserAgreement(boolean accept){this.acceptedUserAgreement=accept;}
+
+
+		//TODO this needs to be dealt with better.  see: rant about saving usernames from forms
+		public static boolean isUsernameAnonymous(String uname) {
+			return ((uname == null) || uname.equals("") || uname.equals("N/A"));
+		}
+
+    //public String getCurrentContext(){return currentContext;}
+    //public void setCurrentContext(String newContext){currentContext=newContext;}
 
 }

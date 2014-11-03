@@ -12,11 +12,20 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
+import java.io.*;
+
 import javax.jdo.Query;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.ecocean.Util.MeasurementDesc;
 import org.ecocean.servlet.ServletUtilities;
+import org.ecocean.security.Collaboration;
 
 public class EncounterQueryProcessor {
 
@@ -26,7 +35,12 @@ public class EncounterQueryProcessor {
     String filter= SELECT_FROM_ORG_ECOCEAN_ENCOUNTER_WHERE;
     String jdoqlVariableDeclaration = "";
     String parameterDeclaration = "";
-    Shepherd myShepherd=new Shepherd();
+    
+    
+    String context="context0";
+    context=ServletUtilities.getContext(request);
+    
+    Shepherd myShepherd=new Shepherd(context);
 
   //filter for location------------------------------------------
     if((request.getParameter("locationField")!=null)&&(!request.getParameter("locationField").equals(""))) {
@@ -39,16 +53,31 @@ public class EncounterQueryProcessor {
     }
     //end location filter--------------------------------------------------------------------------------------
 
-    //filter for username------------------------------------------
-    if((request.getParameter("username")!=null)&&(!request.getParameter("username").equals(""))) {
-      String locString=request.getParameter("username").replaceAll("%20", " ").trim();
-      if(filter.equals(SELECT_FROM_ORG_ECOCEAN_ENCOUNTER_WHERE)){
-        filter+="(submitterID == \""+locString+"\")";
-      }
-      else{filter+=" && (submitterID == \""+locString+"\")";}
-      prettyPrint.append("Username is \""+locString+"\".<br />");
+    //------------------------------------------------------------------
+    //username filters-------------------------------------------------
+    String[] usernames=request.getParameterValues("username");
+    if((usernames!=null)&&(!usernames[0].equals("None"))){
+          prettyPrint.append("Assigned to one of the following usernames: ");
+          int kwLength=usernames.length;
+            String locIDFilter="(";
+            for(int kwIter=0;kwIter<kwLength;kwIter++) {
+              String kwParam=usernames[kwIter].replaceAll("%20", " ").trim();
+              if(!kwParam.equals("")){
+                if(locIDFilter.equals("(")){
+                  locIDFilter+=" submitterID == \""+kwParam+"\"";
+                }
+                else{
+                  locIDFilter+=" || submitterID == \""+kwParam+"\"";
+                }
+                prettyPrint.append(kwParam+" ");
+              }
+            }
+            locIDFilter+=" )";
+            if(filter.equals(SELECT_FROM_ORG_ECOCEAN_ENCOUNTER_WHERE)){filter+=locIDFilter;}
+            else{filter+=(" && "+locIDFilter);}
+            prettyPrint.append("<br />");
     }
-    //end username filter--------------------------------------------------------------------------------------
+    //end username filters-----------------------------------------------
 
 
 
@@ -362,7 +391,7 @@ public class EncounterQueryProcessor {
 
 
     // Measurement filters-----------------------------------------------
-    List<MeasurementDesc> measurementDescs = Util.findMeasurementDescs("us");
+    List<MeasurementDesc> measurementDescs = Util.findMeasurementDescs("en",context);
     String measurementPrefix = "measurement";
     StringBuilder measurementFilter = new StringBuilder(); //"( collectedData.contains(measurement) && (");
     boolean atLeastOneMeasurement = false;
@@ -437,7 +466,7 @@ public class EncounterQueryProcessor {
 
 
     // BiologicalMeasurement filters-----------------------------------------------
-    List<MeasurementDesc> bioMeasurementDescs = Util.findBiologicalMeasurementDescs("us");
+    List<MeasurementDesc> bioMeasurementDescs = Util.findBiologicalMeasurementDescs("en",context);
     String bioMeasurementPrefix = "biomeasurement";
     StringBuilder bioMeasurementFilter = new StringBuilder();
     bioMeasurementFilter.append("tissueSamples.contains(dce322) ");
@@ -1030,7 +1059,7 @@ This code is no longer necessary with Charles Overbeck's new multi-measurement f
 
     String releaseDateFromStr = request.getParameter("releaseDateFrom");
     String releaseDateToStr = request.getParameter("releaseDateTo");
-    String pattern = CommonConfiguration.getProperty("releaseDateFormat");
+    String pattern = CommonConfiguration.getProperty("releaseDateFormat",context);
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
     if (releaseDateFromStr != null && releaseDateFromStr.trim().length() > 0) {
       try {
@@ -1159,6 +1188,9 @@ This code is no longer necessary with Charles Overbeck's new multi-measurement f
     Vector<Encounter> rEncounters=new Vector<Encounter>();
     Iterator<Encounter> allEncounters;
 
+
+		String currentUser = null;
+		if (request.getUserPrincipal() != null) currentUser = request.getUserPrincipal().getName();
 
     //Extent<Encounter> encClass=myShepherd.getPM().getExtent(Encounter.class, true);
     //Query query=myShepherd.getPM().newQuery(encClass);
@@ -1308,6 +1340,41 @@ This code is no longer necessary with Charles Overbeck's new multi-measurement f
 	//end photo filename filtering
 
   	query.closeAll();
+
+
+		//silo security logging
+		ArrayList collabs = Collaboration.collaborationsForCurrentUser(request);
+		String url = request.getRequestURL().toString() + "?" + request.getQueryString();
+		Date now = new Date();
+
+		String context="context0";
+		context = ServletUtilities.getContext(request);
+		String rootWebappPath = request.getSession().getServletContext().getRealPath("/");
+		File webappsDir = new File(rootWebappPath).getParentFile();
+		File shepherdDataDir = new File(webappsDir, CommonConfiguration.getDataDirectoryName(context));
+
+		for (int i = 0 ; i < rEncounters.size() ; i++) {
+			Encounter rEnc = (Encounter)rEncounters.get(i);
+			String owner = rEnc.getAssignedUsername();
+			if ((currentUser != null) && !currentUser.equals("") && (owner != null) && !owner.equals(currentUser)) {
+				Collaboration c = Collaboration.findCollaborationWithUser(owner, collabs);
+				if ((c != null) && c.getState().equals(Collaboration.STATE_APPROVED)) {  //log it
+
+					File userDir=new File(shepherdDataDir.getAbsolutePath() + "/users/" + owner);
+    			if(!userDir.exists()){userDir.mkdir();}
+					Writer logw = null;
+					try {
+						logw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(userDir, "collaboration.log"), true)));
+						logw.write(now.getTime() + "\t" + currentUser + "\t" + rEnc.getCatalogNumber() + "\t" + url + "\t" + prettyPrint.toString() + "\n");
+					} catch (IOException ex) {
+						System.out.println(ex);
+					} finally {
+						try { logw.close(); } catch (Exception ex) {}
+					}
+				}
+			}
+		}
+
     return (new EncounterQueryResult(rEncounters,filter,prettyPrint.toString()));
 
   }

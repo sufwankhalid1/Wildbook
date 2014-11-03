@@ -19,27 +19,31 @@
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <%@ page contentType="text/html; charset=utf-8" language="java"
-         import="org.ecocean.*, org.ecocean.servlet.ServletUtilities, java.io.File, java.io.FileOutputStream, java.io.OutputStreamWriter, java.util.*" %>
+         import="org.ecocean.servlet.ServletUtilities,org.ecocean.*, org.ecocean.security.Collaboration, org.ecocean.servlet.ServletUtilities, java.io.File, java.io.FileOutputStream, java.io.OutputStreamWriter, java.util.*" %>
 
 
 <html>
 <head>
 
-
 <%
 
+String context="context0";
+context=ServletUtilities.getContext(request);
 
   //let's load encounterSearch.properties
-  String langCode = "en";
-  if (session.getAttribute("langCode") != null) {
-    langCode = (String) session.getAttribute("langCode");
-  }
+  //String langCode = "en";
+  String langCode=ServletUtilities.getLanguageCode(request);
+  
 
   Properties encprops = new Properties();
-  encprops.load(getClass().getResourceAsStream("/bundles/" + langCode + "/searchResults.properties"));
+  //encprops.load(getClass().getResourceAsStream("/bundles/" + langCode + "/searchResults.properties"));
+  encprops=ShepherdProperties.getProperties("searchResults.properties", langCode, context);
 
+  Properties collabProps = new Properties();
+  collabProps=ShepherdProperties.getProperties("collaboration.properties", langCode, context);
+  
 
-  Shepherd myShepherd = new Shepherd();
+  Shepherd myShepherd = new Shepherd(context);
 
 
 
@@ -97,18 +101,19 @@
 //--end unique counting------------------------------------------
 
 %>
-<title><%=CommonConfiguration.getHTMLTitle()%>
+<title><%=CommonConfiguration.getHTMLTitle(context)%>
 </title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <meta name="Description"
-      content="<%=CommonConfiguration.getHTMLDescription()%>"/>
+      content="<%=CommonConfiguration.getHTMLDescription(context)%>"/>
 <meta name="Keywords"
-      content="<%=CommonConfiguration.getHTMLKeywords()%>"/>
-<meta name="Author" content="<%=CommonConfiguration.getHTMLAuthor()%>"/>
-<link href="<%=CommonConfiguration.getCSSURLLocation(request)%>"
+      content="<%=CommonConfiguration.getHTMLKeywords(context)%>"/>
+<meta name="Author" content="<%=CommonConfiguration.getHTMLAuthor(context)%>"/>
+<link href="<%=CommonConfiguration.getCSSURLLocation(request,context)%>"
       rel="stylesheet" type="text/css"/>
 <link rel="shortcut icon"
-      href="<%=CommonConfiguration.getHTMLShortcutIcon()%>"/>
+      href="<%=CommonConfiguration.getHTMLShortcutIcon(context)%>"/>
+
 </head>
 
 <style type="text/css">
@@ -166,8 +171,13 @@
 <div id="page">
 <jsp:include page="../header.jsp" flush="true">
 
+
   <jsp:param name="isAdmin" value="<%=request.isUserInRole(\"admin\")%>" />
 </jsp:include>
+
+<script src="http://code.jquery.com/ui/1.10.2/jquery-ui.js"></script>
+<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.4/themes/base/jquery-ui.css" rel="stylesheet" type="text/css" />
+
 <div id="main">
 
 <ul id="tabmenu">
@@ -209,7 +219,7 @@
 
 
 
-<table width="810px">
+<table class="collab-table">
 <tr>
   <td class="lineitem" bgcolor="#99CCFF"></td>
   <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF">
@@ -220,7 +230,7 @@
     </strong></td>
   
   <%
-  if (CommonConfiguration.showProperty("showTaxonomy")) {
+  if (CommonConfiguration.showProperty("showTaxonomy",context)) {
   %>
   <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF">
     <strong><%=encprops.getProperty("taxonomy")%>
@@ -252,9 +262,13 @@
   //Vector haveGPSData = new Vector();
   int count = 0;
 
-  for (int f = 0; f < rEncounters.size(); f++) {
+	ArrayList collabs = Collaboration.collaborationsForCurrentUser(request);
 
+  for (int f = 0; f < rEncounters.size(); f++) {
     Encounter enc = (Encounter) rEncounters.get(f);
+		boolean visible = enc.canUserAccess(request);
+		String encUrlDir = "/" + CommonConfiguration.getDataDirectoryName(context) + enc.dir("");
+
     count++;
     numResults++;
     //if ((enc.getDWCDecimalLatitude() != null) && (enc.getDWCDecimalLongitude() != null)) {
@@ -264,12 +278,17 @@
 
     if ((numResults >= startNum) && (numResults <= endNum)) {
 %>
-<tr class="lineitem">
+<tr class="lineitem<%= (visible ? "" : " no-access") %>">
   <td width="100" class="lineitem">
+
+<%
+	if (!visible) out.println(enc.collaborationLockHtml(collabs));
+%>
+
   <%
    if((enc.getSinglePhotoVideo()!=null)&&(enc.getSinglePhotoVideo().size()>0)){ 
    %>
-  	<img src="/<%=CommonConfiguration.getDataDirectoryName() %>/encounters/<%=(enc.getEncounterNumber()+"/thumb.jpg")%>" />
+  	<img src="<%= encUrlDir %>/thumb.jpg" />
   <%
    }
   %>
@@ -295,7 +314,7 @@
   </td>
   
   <%
-  if (CommonConfiguration.showProperty("showTaxonomy")) {
+  if (CommonConfiguration.showProperty("showTaxonomy",context)) {
   
     String genusSpeciesFound=encprops.getProperty("notAvailable");
     if((enc.getGenus()!=null)&&(enc.getSpecificEpithet()!=null)){genusSpeciesFound=enc.getGenus()+" "+enc.getSpecificEpithet();}

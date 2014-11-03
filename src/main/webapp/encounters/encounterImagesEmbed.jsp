@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8" language="java"
-         import="com.drew.imaging.jpeg.JpegMetadataReader, com.drew.metadata.Directory, com.drew.metadata.Metadata, com.drew.metadata.Tag, org.ecocean.*,org.ecocean.servlet.ServletUtilities,org.ecocean.Util,org.ecocean.Measurement, org.ecocean.Util.*, org.ecocean.genetics.*, org.ecocean.tag.*, java.awt.Dimension, javax.jdo.Extent, javax.jdo.Query, java.io.File, java.text.DecimalFormat, java.util.*" %>
+         import="org.ecocean.servlet.ServletUtilities, org.ecocean.*,org.ecocean.servlet.ServletUtilities,org.ecocean.Util,org.ecocean.Measurement, org.ecocean.Util.*, org.ecocean.genetics.*, org.ecocean.tag.*, java.awt.Dimension, javax.jdo.Extent, javax.jdo.Query, java.io.File, java.text.DecimalFormat, java.util.*" %>
 <%@ taglib uri="http://www.sunwesttek.com/di" prefix="di" %>
 <%--
   ~ The Shepherd Project - A Mark-Recapture Framework
@@ -21,14 +21,15 @@
   --%>
 
 <%
-
+String context="context0";
+context=ServletUtilities.getContext(request);
 try {
 
 //get the encounter number
 String imageEncNum = request.getParameter("encounterNumber");
 	
 //set up the JDO pieces and Shepherd
-Shepherd imageShepherd = new Shepherd();
+Shepherd imageShepherd = new Shepherd(context);
 Extent allKeywords = imageShepherd.getPM().getExtent(Keyword.class, true);
 Query kwImagesQuery = imageShepherd.getPM().newQuery(allKeywords);
 boolean haveRendered = false;
@@ -36,24 +37,25 @@ boolean haveRendered = false;
 //let's set up references to our file system components
 String rootWebappPath = getServletContext().getRealPath("/");
 File webappsDir = new File(rootWebappPath).getParentFile();
-File shepherdDataDir = new File(webappsDir, CommonConfiguration.getDataDirectoryName());
+File shepherdDataDir = new File(webappsDir, CommonConfiguration.getDataDirectoryName(context));
 File encountersDir=new File(shepherdDataDir.getAbsolutePath()+"/encounters");
-File thisEncounterDir = new File(encountersDir, imageEncNum);
 
 
 //handle translation
-String langCode = "en";
+//String langCode = "en";
+String langCode=ServletUtilities.getLanguageCode(request);
 
-//check what language is requested
-if (session.getAttribute("langCode") != null) {
-  langCode = (String) session.getAttribute("langCode");
-}
 
 //let's load encounters.properties
 Properties encprops = new Properties();
-encprops.load(getClass().getResourceAsStream("/bundles/" + langCode + "/encounter.properties"));
+//encprops.load(getClass().getResourceAsStream("/bundles/" + langCode + "/encounter.properties"));
+encprops=ShepherdProperties.getProperties("encounter.properties", langCode,context);
 
+
+String baseDir = ServletUtilities.dataDir(context, rootWebappPath);
 Encounter imageEnc=imageShepherd.getEncounter(imageEncNum);
+File thisEncounterDir = new File(imageEnc.dir(baseDir));
+String encUrlDir = "/" + CommonConfiguration.getDataDirectoryName(context) + imageEnc.dir("");
 
 
 
@@ -138,7 +140,7 @@ int imageCount = 0;
 %>
 <p>
 <%
-            if (CommonConfiguration.isCatalogEditable()) {
+            if (CommonConfiguration.isCatalogEditable(context)) {
     %>
     <a href="../SinglePhotoVideoRemoveKeyword?number=<%=imageEncNum%>&photoName=<%=images.get(myImage).getDataCollectionEventID()%>&keyword=<%=word.getReadableName()%>">
          <%
@@ -146,7 +148,7 @@ int imageCount = 0;
       %>
 <img src="../images/cancel.gif" width="16px" height="16px" align="left" />
  <%
-  if (CommonConfiguration.isCatalogEditable()) {
+  if (CommonConfiguration.isCatalogEditable(context)) {
     %> 
     </a>
           <%
@@ -174,7 +176,7 @@ int imageCount = 0;
   </td>
 </tr>
 <%
-  if (CommonConfiguration.isCatalogEditable()) {
+  if (CommonConfiguration.isCatalogEditable(context)) {
 %>
 <tr>
   <td>
@@ -183,7 +185,7 @@ int imageCount = 0;
       <tr>
         <td class="para">
           <em><%=encprops.getProperty("add_keyword") %> 
-          	<a href="<%=CommonConfiguration.getWikiLocation()%>photo_keywords" target="_blank">
+          	<a href="<%=CommonConfiguration.getWikiLocation(context)%>photo_keywords" target="_blank">
             	<img src="../images/information_icon_svg.gif" alt="Help" border="0" align="absmiddle"/></a>
             </em>
         </td>
@@ -250,12 +252,12 @@ int imageCount = 0;
       }
       if (request.getParameter("isOwner").equals("true") && (!isBMP) && (!isVideo)) {
     %>
-    <a href="/<%=CommonConfiguration.getDataDirectoryName() %>/encounters/<%=imageEncNum%>/<%=addTextFile%>" class="highslide" onclick="return hs.expand(this)"
-       title="Click to enlarge">
+    <a href="<%= images.get(myImage).asUrl(imageEnc, CommonConfiguration.getDataDirectoryName(context)) %>" class="highslide" onclick="return hs.expand(this)"
+       title="<%=encprops.getProperty("clickEnlarge")%>">
       <%
       } else if (request.getParameter("isOwner").equals("true")||(request.getParameter("loggedIn").equals("true"))) {
       %>
-      <a href="/<%=CommonConfiguration.getDataDirectoryName() %>/encounters/<%=addText%>" 
+      <a href="<%= images.get(myImage).asUrl(imageEnc, CommonConfiguration.getDataDirectoryName(context)) %>"
         <%
         if(!isVideo){
         %>
@@ -264,14 +266,16 @@ int imageCount = 0;
             }
 		%>
           
-         title="Click to enlarge">
+         title="<%=encprops.getProperty("clickEnlarge")%>">
          
          
          <%
         }
 
-        String thumbLocation = "file-" + thisEncounterDir.getAbsolutePath() + "/" + images.get(myImage).getDataCollectionEventID() + ".jpg";
-        File processedImage = new File(thisEncounterDir.getAbsolutePath() + "/" + images.get(myImage).getDataCollectionEventID() + ".jpg");
+        String thumbPath = thisEncounterDir.getAbsolutePath() + "/" + images.get(myImage).getDataCollectionEventID() + ".jpg";
+        String thumbLocation = "file-" + thumbPath;
+        String srcurl = images.get(myImage).getFullFileSystemPath();
+        File processedImage = new File(thumbPath);
 
 
         int intWidth = 250;
@@ -316,11 +320,19 @@ int imageCount = 0;
 
 
       } else if ((!processedImage.exists()) && (!haveRendered)) {
-        haveRendered = true;
+
+				//thanks to magic of short-circuiting boolean, this will try watermark first then regular if not available
+				if (images.get(myImage).scaleToWatermark(context, thumbnailWidth, thumbnailHeight, thumbPath, "") ||
+						images.get(myImage).scaleTo(context, thumbnailWidth, thumbnailHeight, thumbPath)) {
+					//work forks off in background, so we use this placeholder for now:
+System.out.println("trying to fork/create " + thumbPath);
+      %> <img width="250" height="200" alt="in progress" src="../images/processed.gif" align="left" /> <%
+
+				} else {  //fallback to old dynamic ways:
+        	haveRendered = true;
         //System.out.println("Using DynamicImage to render thumbnail: "+imageEncNum);
         //System.gc();
-String srcurl=encountersDir.getAbsolutePath()+"/"+addText;
-//System.out.println("srcurl="+srcurl);
+//System.out.println("srcurl="+srcurl + " --> thumbLocation=" + thumbLocation);
       %>
       <di:img width="<%=thumbnailWidth %>" height="<%=thumbnailHeight %>"
               imgParams="rendering=speed,quality=low" border="0"
@@ -337,7 +349,9 @@ String srcurl=encountersDir.getAbsolutePath()+"/"+addText;
         </di:text>
       </di:img>
       <img width="<%=thumbnailWidth %>" alt="photo <%=imageEnc.getLocation()%>"
-           src="/<%=CommonConfiguration.getDataDirectoryName() %>/encounters/<%=(imageEncNum+"/"+images.get(myImage).getDataCollectionEventID()+".jpg")%>" border="0" align="left" valign="left"> <%
+           src="<%=encUrlDir%>/<%=(images.get(myImage).getDataCollectionEventID()+".jpg")%>" border="0" align="left" valign="left"> <%
+				}
+
       if (request.getParameter("isOwner").equals("true")) {
     %>
     </a>
@@ -355,9 +369,13 @@ String srcurl=encountersDir.getAbsolutePath()+"/"+addText;
       }
     %> <%
   } else {
-  %> <img id="img<%=images.get(myImage).getDataCollectionEventID()%> " width="<%=thumbnailWidth %>" alt="photo <%=imageEnc.getLocation()%>"
-          src="/<%=CommonConfiguration.getDataDirectoryName() %>/encounters/<%=(imageEncNum+"/"+images.get(myImage).getDataCollectionEventID()+".jpg")%>" border="0" align="left"
-          valign="left"> <%
+			String wmDiv = "";
+			String wmText = encprops.getProperty("imgWatermark");
+			if ((wmText != null) && !wmText.equals("")) wmDiv = "<div class=\"img-watermark\">" + wmText + "</div>";
+  %> <div style="position: relative"><img id="img<%=images.get(myImage).getDataCollectionEventID()%> " width="<%=thumbnailWidth %>" alt="photo <%=imageEnc.getLocation()%>"
+          src="<%=encUrlDir%>/<%=(images.get(myImage).getDataCollectionEventID()+".jpg")%>" border="0" align="left"
+          valign="left"><%=wmDiv%> <%
+
 	if (session.getAttribute("logged")!=null) {
 				%></a>
                 <div 
@@ -443,48 +461,24 @@ String srcurl=encountersDir.getAbsolutePath()+"/"+addText;
 
 
             <%
-              if (CommonConfiguration.showEXIFData()&&!isVideo) {
+              if (CommonConfiguration.showEXIFData(context)&&!isVideo) {
+            	  
+            	  File exifImage = new File(Encounter.dir(shepherdDataDir, imageEnc.getCatalogNumber()) + "/" + addTextFile);
+              	
             %>
 
 
-            <p><strong>EXIF Data</strong></p>
-					<span class="caption">
-					<div class="scroll"><span class="caption">	
+            <p><strong>EXIF</strong></p>
+            <span class="caption">
+					<div class="scroll">
+						<span class="caption">	
 					<%
             if ((addTextFile.toLowerCase().endsWith("jpg")) || (addTextFile.toLowerCase().endsWith("jpeg"))) {
-              try{
-              	File exifImage = new File(thisEncounterDir.getAbsolutePath() + "/"+addTextFile);
-              	if(exifImage.exists()){              
-                  	
-              		Metadata metadata = JpegMetadataReader.readMetadata(exifImage);
-              		// iterate through metadata directories
-              		Iterator directories = metadata.getDirectoryIterator();
-              		while (directories.hasNext()) {
-              	  		Directory directory = (Directory) directories.next();
-              	  		// iterate through tags and print to System.out
-              	  		Iterator tags = directory.getTagIterator();
-              	  		while (tags.hasNext()) {
-              	    		Tag tag = (Tag) tags.next();
-
-          					%>
-								<%=tag.toString() %><br/>
-								<%
-              	  } //end while
-             	} //end while
-              } //end if
-              else{
-            	  %>
-		            <p>File not found on file system. No EXIF data available.</p>
-          		<%  
-              }
-           } //end try
-            catch(Exception e){
-            %>
-            <p>Cannot read metadata for this file.</p>
-            <%
-            System.out.println("Cannot read metadata for: "+addTextFile);
-            e.printStackTrace();
-            }
+            	//File exifImage = new File(Encounter.dir(shepherdDataDir, thisEnc.getCatalogNumber()) + "/" + thumbLocs.get(countMe).getFilename());
+            	%>
+            	<%=Util.getEXIFDataFromJPEGAsHTML(exifImage) %>
+            	<%
+            	
               } //end if
  
                 %>
@@ -521,7 +515,7 @@ String srcurl=encountersDir.getAbsolutePath()+"/"+addText;
   <td>
     <p><img src="../images/alert.gif"> <strong><%=encprops.getProperty("badfile") %>
       :</strong> <%=addTextFile%> <%
-      if (request.getParameter("isOwner").equals("true") && CommonConfiguration.isCatalogEditable()) {
+      if (request.getParameter("isOwner").equals("true") && CommonConfiguration.isCatalogEditable(context)) {
     %> <br/>
     <a href="../EncounterRemoveImage?number=<%=imageEncNum%>&filename=<%=(addTextFile.replaceAll(" ","%20"))%>&dcID=<%=images.get(myImage).getDataCollectionEventID()%>"><%=encprops.getProperty("clickremove") %>
     </a></p>
@@ -555,7 +549,7 @@ catch (Exception e) {
 
 <p class="para">
     <%
-		 			if (request.getParameter("isOwner").equals("true")&&CommonConfiguration.isCatalogEditable()) {
+		 			if (request.getParameter("isOwner").equals("true")&&CommonConfiguration.isCatalogEditable(context)) {
 		 		%>
 <table width="250" bgcolor="#99CCFF">
   <tr>
@@ -566,7 +560,7 @@ catch (Exception e) {
         <input name="number" type="hidden" value="<%=imageEncNum%>" id="shark">
         <strong><img align="absmiddle"
                      src="../images/upload_small.gif"/> <%=encprops.getProperty("addfile") %>:</strong><br/>
-        <input name="file2add" type="file" size="20">
+        <input name="file2add" accept=".jpg, .jpeg, .png, .bmp, .gif, .mov, .wmv, .avi, .mp4, .mpg" type="file" size="20">
 
         <p><input name="addtlFile" type="submit" id="addtlFile"
                   value="Upload"></p></form>

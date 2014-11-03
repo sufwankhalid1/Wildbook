@@ -28,10 +28,17 @@ import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.Vector;
 import java.util.GregorianCalendar;
+import java.io.*;
+
 import org.ecocean.genetics.*;
 import org.ecocean.tag.AcousticTag;
 import org.ecocean.tag.MetalTag;
 import org.ecocean.tag.SatelliteTag;
+import org.ecocean.Util;
+
+import org.ecocean.security.Collaboration;
+import org.ecocean.servlet.ServletUtilities;
+import javax.servlet.http.HttpServletRequest;
 
 
 /**
@@ -98,6 +105,8 @@ public class Encounter implements java.io.Serializable {
   
   // If Encounter spanned more than one day, date of release
   private Date releaseDate;
+  
+  private Long releaseDateLong;
 
   //Size of the individual in meters
   private Double size;
@@ -357,7 +366,8 @@ public class Encounter implements java.io.Serializable {
    * Acceptable values are "Male" or "Female"
    */
   public void setSex(String thesex) {
-    sex = thesex;
+    if(thesex!=null){sex = thesex;}
+    else{sex=null;}
   }
 
   /**
@@ -637,6 +647,43 @@ public class Encounter implements java.io.Serializable {
     return catalogNumber;
   }
 
+
+	public String generateEncounterNumber() {
+		return Util.generateUUID();
+	}
+
+
+	public String dir(String baseDir) {
+		return baseDir + File.separator + "encounters" + File.separator + this.subdir();
+	}
+
+
+	//like above, but class method so you pass the encID
+	public static String dir(String baseDir, String id) {
+		return baseDir + File.separator + "encounters" + File.separator + subdir(id);
+	}
+
+
+	//like above, but can pass a File in for base
+	public static String dir(File baseDir, String id) {
+		return baseDir.getAbsolutePath() + File.separator + "encounters" + File.separator + subdir(id);
+	}
+
+
+	//subdir() is kind of a utility function, which can be called as enc.subdir() or Encounter.subdir(IDSTRING) as needed
+	public String subdir() {
+		return subdir(this.getEncounterNumber());
+	}
+
+	public static String subdir(String id) {
+		String d = id;  //old-world
+		if (Util.isUUID(id)) {  //new-world
+			d = id.charAt(0) + File.separator + id.charAt(1) + File.separator + id;
+		}
+		return d;
+	}
+
+
   /**
    * Returns the date of this encounter.
    *
@@ -649,20 +696,19 @@ public class Encounter implements java.io.Serializable {
     if (year <= 0) {
       return "Unknown";
     } else if (month == -1) {
-      return (new Integer(year)).toString();
+      return Integer.toString(year);
     }
 
     if (hour != -1) {
-      time = (new Integer(hour)).toString() + ":" + minutes;
+      String localMinutes=minutes;
+      if(localMinutes.length()==1){localMinutes="0"+localMinutes;}
+      time = String.format("%02d:%s", hour, localMinutes);
     }
 
     if (day > 0) {
-
-      date = (new Integer(year)).toString() + "-" + (new Integer(month)).toString() + "-" + (new Integer(day)).toString() + " " + time;
-
+      date = String.format("%04d-%02d-%02d %s", year, month, day, time);
     } else {
-
-      date = (new Integer(year)).toString() + "-" + (new Integer(month)).toString() + " " + time;
+      date = String.format("%04d-%02d %s", year, month, time);
     }
 
     return date;
@@ -673,15 +719,12 @@ public class Encounter implements java.io.Serializable {
     if (year <= 0) {
       return "Unknown";
     } else if (month == -1) {
-      return (new Integer(year)).toString();
+      return Integer.toString(year);
     }
     if (day > 0) {
-
-      date = (new Integer(day)).toString() + "/" + (new Integer(month)).toString() + "/" + (new Integer(year)).toString();
-
+      date = String.format("%02d/%02d/%04d", day, month, year);
     } else {
-
-      date = (new Integer(month)).toString() + "/" + (new Integer(year)).toString();
+      date = String.format("%02d/%04d", month, year);
     }
 
     return date;
@@ -1149,12 +1192,22 @@ public class Encounter implements java.io.Serializable {
   //public void setDateAdded(long date){dateAdded=date;}
   //public long getDateAdded(){return dateAdded;}
 
-  public Date getReleaseDate() {
+  public Date getReleaseDateDONOTUSE() {
     return releaseDate;
   }
+  
+   public Date getReleaseDate() {
+    if((releaseDateLong!=null)&&(releaseDateLong>0)){
+      Date mDate=new Date(releaseDateLong);
+      return mDate;
+    }
+    return null;
+  }
+   
+   public Long getReleaseDateLong(){return releaseDateLong;}
 
-  public void setReleaseDate(Date releaseDate) {
-    this.releaseDate = releaseDate;
+  public void setReleaseDate(Long releaseDate) {
+    this.releaseDateLong = releaseDate;
   }
 
   public void setDWCDecimalLatitude(double lat) {
@@ -1480,8 +1533,10 @@ public class Encounter implements java.io.Serializable {
       if(month>0){localMonth=month-1;}
       int localDay=1;
       if(day>0){localDay=day;}
-      //int localMinutes = Integer.parseInt(minutes);
-      GregorianCalendar gc=new GregorianCalendar(year, localMonth, localDay);
+      int myMinutes=0;
+      try{myMinutes = Integer.parseInt(minutes);}catch(Exception e){}
+      GregorianCalendar gc=new GregorianCalendar(year, localMonth, localDay,hour,myMinutes);
+
       dateInMilliseconds = gc.getTimeInMillis();
     }
     else{dateInMilliseconds=0;}
@@ -1715,7 +1770,7 @@ public class Encounter implements java.io.Serializable {
      }
      return false; 
     }
-    
+
     public String getState(){return state;}
     
     public void setState(String newState){this.state=newState;}
@@ -1826,7 +1881,76 @@ public class Encounter implements java.io.Serializable {
         }
         return false;
     }
-    
-    
+
+
+	//convenience function to Collaboration permissions
+	public boolean canUserAccess(HttpServletRequest request) {
+		return Collaboration.canUserAccessEncounter(this, request);
+	}
+
+
+	//this simple version makes some assumptions: you already have list of collabs, and it is not visible
+	public String collaborationLockHtml(ArrayList<Collaboration> collabs) {
+		Collaboration c = Collaboration.findCollaborationWithUser(this.getAssignedUsername(), collabs);
+		String collabClass = "pending";
+		if ((c == null) || (c.getState() == null)) {
+			collabClass = "new";
+		} else if (c.getState().equals(Collaboration.STATE_REJECTED)) {
+			collabClass = "blocked";
+		}
+		return "<div class=\"row-lock " + collabClass + " collaboration-button\" data-collabowner=\"" + this.getAssignedUsername() + "\" data-collabownername=\"" + this.getSubmitterName() + "\">&nbsp;</div>";
+	}
+
+
+	//pass in a Vector of Encounters, get out a list that the user can NOT see
+	public static Vector blocked(Vector encs, HttpServletRequest request) {
+		Vector blk = new Vector();
+		for (int i = 0; i < encs.size() ; i++) {
+			Encounter e = (Encounter) encs.get(i);
+			if (!e.canUserAccess(request)) blk.add(e);
+		}
+		return blk;
+	}
+
+
+/*
+in short, this rebuilds (or builds for the first time) ALL *derived* images (etc?) for this encounter.
+it is a baby step into the future of MediaAssets that hopefully will provide a smooth(er) transition to that.
+right now its primary purpose is to create derived formats upon encounter creation; but that is obviously subject to change.
+it should be considered an asyncronous action that happens in the background magickally
+*/
+/////other possiblity: only pass basedir??? do we need context if we do that?
+
+/*
+NOTE on "thumb.jpg" ... we only get one of these per encounter; and we do not have stored (i dont think?) which SPV it came from!
+this is a problem, as we cant make a thumb in refreshAssetFormats(req, spv) since we dont know if that is the "right" spv.
+thus, we have to treat it as a special case.
+*/
+		public boolean refreshAssetFormats(String context, String baseDir) {
+			boolean ok = true;
+			//List<SinglePhotoVideo> allSPV = this.getImages();
+			boolean thumb = true;
+			for (SinglePhotoVideo spv : this.getImages()) {
+				ok &= this.refreshAssetFormats(context, baseDir, spv, thumb);
+				thumb = false;
+			}
+			return ok;
+		}
+
+		//as above, but for specific SinglePhotoVideo
+		public boolean refreshAssetFormats(String context, String baseDir, SinglePhotoVideo spv, boolean doThumb) {
+			if (spv == null) return false;
+			String encDir = this.dir(baseDir);
+
+			boolean ok = true;
+			if (doThumb) ok &= spv.scaleTo(context, 100, 75, encDir + File.separator + "thumb.jpg");
+			//TODO some day this will be a structure/definition that lives in a config file or on MediaAsset, etc.  for now, ya get hard-coded
+
+			//this will first try watermark version, then regular
+			ok &= (spv.scaleToWatermark(context, 250, 200, encDir + File.separator + spv.getDataCollectionEventID() + ".jpg", "") || spv.scaleTo(context, 250, 200, encDir + File.separator + spv.getDataCollectionEventID() + ".jpg"));
+
+			ok &= spv.scaleTo(context, 1024, 768, encDir + File.separator + spv.getDataCollectionEventID() + "-mid.jpg");  //for use in VM tool etc. (bandwidth friendly?)
+			return ok;
+		}
 }
 

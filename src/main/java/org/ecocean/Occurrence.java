@@ -5,6 +5,8 @@ import java.util.Arrays;
 import java.util.Properties;
 import java.util.Vector;
 import java.util.Arrays;
+import org.ecocean.security.Collaboration;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * Whereas an Encounter is meant to represent one MarkedIndividual at one point in time and space, an Occurrence
@@ -53,12 +55,22 @@ public class Occurrence implements java.io.Serializable{
     
   }
   
-  public void addEncounter(Encounter enc){
+  public boolean addEncounter(Encounter enc){
     if(encounters==null){encounters=new ArrayList<Encounter>();}
-    encounters.add(enc);
+    
+    //prevent duplicate addition
+    boolean isNew=true;
+    for(int i=0;i<encounters.size();i++) {
+      Encounter tempEnc=(Encounter)encounters.get(i);
+      if(tempEnc.getEncounterNumber().equals(enc.getEncounterNumber())) {
+        isNew=false;
+      }
+    }
+    
+    if(isNew){encounters.add(enc);}
     
     //if((locationID!=null) && (enc.getLocationID()!=null)&&(!enc.getLocationID().equals("None"))){this.locationID=enc.getLocationID();}
-    
+    return isNew;
     
   }
   
@@ -169,7 +181,7 @@ public class Occurrence implements java.io.Serializable{
     }
   }
   
-  public Vector returnEncountersWithGPSData(boolean useLocales, boolean reverseOrder) {
+  public Vector returnEncountersWithGPSData(boolean useLocales, boolean reverseOrder,String context) {
     //if(unidentifiableEncounters==null) {unidentifiableEncounters=new Vector();}
     Vector haveData=new Vector();
     Encounter[] myEncs=getDateSortedEncounters(reverseOrder);
@@ -177,7 +189,7 @@ public class Occurrence implements java.io.Serializable{
     Properties localesProps = new Properties();
     if(useLocales){
       try {
-        localesProps.load(ShepherdPMF.class.getResourceAsStream("/bundles/locales.properties"));
+        localesProps=ShepherdProperties.getProperties("locationIDGPS.properties", "",context);
       } 
       catch (Exception ioe) {
         ioe.printStackTrace();
@@ -277,4 +289,8 @@ public class Occurrence implements java.io.Serializable{
      return allIDs;
    }
   
+	//convenience function to Collaboration permissions
+	public boolean canUserAccess(HttpServletRequest request) {
+		return Collaboration.canUserAccessOccurrence(this, request);
+	}
 }

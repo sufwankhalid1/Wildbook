@@ -20,7 +20,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 <%@ page contentType="text/html; charset=utf-8" language="java"
-         import="java.util.Vector,java.util.Properties,org.ecocean.genetics.*,java.util.*,java.net.URI, org.ecocean.*" %>
+         import="org.ecocean.servlet.ServletUtilities,java.util.Vector,java.util.Properties,org.ecocean.genetics.*,java.util.*,java.net.URI, org.ecocean.*" %>
 
 
 
@@ -30,19 +30,22 @@
 
 
   <%
-
+  String context="context0";
+  context=ServletUtilities.getContext(request);
 
     //let's load encounterSearch.properties
-    String langCode = "en";
-    if (session.getAttribute("langCode") != null) {
-      langCode = (String) session.getAttribute("langCode");
-    }
+    //String langCode = "en";
+    String langCode=ServletUtilities.getLanguageCode(request);
+    
     Properties map_props = new Properties();
-    map_props.load(getClass().getResourceAsStream("/bundles/" + langCode + "/exportSearchResults.properties"));
+    //map_props.load(getClass().getResourceAsStream("/bundles/" + langCode + "/exportSearchResults.properties"));
+    map_props=ShepherdProperties.getProperties("exportSearchResults.properties", langCode, context);
 
+		Properties collabProps = new Properties();
+ 		collabProps=ShepherdProperties.getProperties("collaboration.properties", langCode, context);
     
     //get our Shepherd
-    Shepherd myShepherd = new Shepherd();
+    Shepherd myShepherd = new Shepherd(context);
 
     //set up the vector for matching encounters
     Vector rEncounters = new Vector();
@@ -52,23 +55,22 @@
 
     //start the query and get the results
     String order = "";
-    request.setAttribute("gpsOnly", "yes");
+    //request.setAttribute("gpsOnly", "yes");
     EncounterQueryResult queryResult = EncounterQueryProcessor.processQuery(myShepherd, request, order);
     rEncounters = queryResult.getResult();
     
-
-    		
+		Vector blocked = Encounter.blocked(rEncounters, request);
     		
   %>
 
-  <title><%=CommonConfiguration.getHTMLTitle()%>
+  <title><%=CommonConfiguration.getHTMLTitle(context)%>
   </title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-  <meta name="Description" content="<%=CommonConfiguration.getHTMLDescription()%>"/>
-  <meta name="Keywords" content="<%=CommonConfiguration.getHTMLKeywords()%>"/>
-  <meta name="Author" content="<%=CommonConfiguration.getHTMLAuthor()%>"/>
-  <link href="<%=CommonConfiguration.getCSSURLLocation(request)%>" rel="stylesheet" type="text/css"/>
-  <link rel="shortcut icon" href="<%=CommonConfiguration.getHTMLShortcutIcon()%>"/>
+  <meta name="Description" content="<%=CommonConfiguration.getHTMLDescription(context)%>"/>
+  <meta name="Keywords" content="<%=CommonConfiguration.getHTMLKeywords(context)%>"/>
+  <meta name="Author" content="<%=CommonConfiguration.getHTMLAuthor(context)%>"/>
+  <link href="<%=CommonConfiguration.getCSSURLLocation(request,context)%>" rel="stylesheet" type="text/css"/>
+  <link rel="shortcut icon" href="<%=CommonConfiguration.getHTMLShortcutIcon(context)%>"/>
 
 
     <style type="text/css">
@@ -174,6 +176,7 @@
  
  </ul>
  
+<% if (blocked.size() < 1) { %>
  
  <p><strong><%=map_props.getProperty("exportOptions")%></strong></p>
 <p><%=map_props.getProperty("exportedOBIS")%>: <a href="http://<%=CommonConfiguration.getURLLocation(request)%>/EncounterSearchExportExcelFile?<%=request.getQueryString()%>"><%=map_props.getProperty("clickHere")%></a><br />
@@ -200,6 +203,13 @@
 <p><%=map_props.getProperty("exportedShapefile")%>: <a
   href="http://<%=CommonConfiguration.getURLLocation(request)%>/EncounterSearchExportShapefile?<%=request.getQueryString() %>"><%=map_props.getProperty("clickHere")%></a>
 </p>
+
+<% } else { // dont have access to ALL records, so:  %>
+
+<p><%=collabProps.getProperty("functionalityBlockedMessage")%></p>
+
+<% } %>
+
  <table>
   <tr>
     <td align="left">

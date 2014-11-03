@@ -20,7 +20,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <%@ page contentType="text/html; charset=utf-8" language="java"
-         import="javax.jdo.Query,com.drew.imaging.jpeg.JpegMetadataReader,com.drew.metadata.Directory,com.drew.metadata.Metadata, com.drew.metadata.Tag,org.ecocean.*,java.io.File, java.util.*" %>
+         import="java.io.InputStream,java.io.FileInputStream,org.ecocean.servlet.ServletUtilities,javax.jdo.Query,org.ecocean.*,java.io.File, java.util.*, org.ecocean.security.Collaboration " %>
 
 <html>
 <head>
@@ -28,16 +28,19 @@
 
   <%
   
+  String context="context0";
+  context=ServletUtilities.getContext(request);
+  
   //setup data dir
   String rootWebappPath = getServletContext().getRealPath("/");
   File webappsDir = new File(rootWebappPath).getParentFile();
-  File shepherdDataDir = new File(webappsDir, CommonConfiguration.getDataDirectoryName());
-  //if(!shepherdDataDir.exists()){shepherdDataDir.mkdir();}
+  File shepherdDataDir = new File(webappsDir, CommonConfiguration.getDataDirectoryName(context));
+  //if(!shepherdDataDir.exists()){shepherdDataDir.mkdirs();}
   File encountersDir=new File(shepherdDataDir.getAbsolutePath()+"/encounters");
-  //if(!encountersDir.exists()){encountersDir.mkdir();}
+  //if(!encountersDir.exists()){encountersDir.mkdirs();}
 
   
-    int startNum = 1;
+    int startNum = 0;
     int endNum = 45;
 
     try {
@@ -50,21 +53,21 @@
       }
 
     } catch (NumberFormatException nfe) {
-      startNum = 1;
+      startNum = 0;
       endNum = 45;
     }
 
+
 //let's load thumbnailSearch.properties
-    String langCode = "en";
-    if (session.getAttribute("langCode") != null) {
-      langCode = (String) session.getAttribute("langCode");
-    }
+    //String langCode = "en";
+    String langCode=ServletUtilities.getLanguageCode(request);
+    
 
     Properties encprops = new Properties();
-    encprops.load(getClass().getResourceAsStream("/bundles/" + langCode + "/thumbnailSearchResults.properties"));
+    //encprops.load(getClass().getResourceAsStream("/bundles/" + langCode + "/thumbnailSearchResults.properties"));
+    encprops = ShepherdProperties.getProperties("thumbnailSearchResults.properties", langCode, context);
 
-
-    Shepherd myShepherd = new Shepherd();
+    Shepherd myShepherd = new Shepherd(context);
 
     ArrayList<SinglePhotoVideo> rEncounters = new ArrayList<SinglePhotoVideo>();
 
@@ -91,6 +94,9 @@
       keywords = new String[0];
     }
 
+		ArrayList collabs = Collaboration.collaborationsForCurrentUser(request);
+
+
     if (request.getParameter("noQuery") == null) {
 	  queryResult = EncounterQueryProcessor.processQuery(myShepherd, request, "year descending, month descending, day descending");
 	
@@ -98,22 +104,23 @@
     }
     else{
     	Query allQuery=myShepherd.getPM().newQuery("SELECT from org.ecocean.SinglePhotoVideo WHERE correspondingEncounterNumber != null");    	
+    	allQuery.setRange(startNum, endNum);
     	rEncounters=new ArrayList<SinglePhotoVideo>((Collection<SinglePhotoVideo>)allQuery.execute());
    }
 
   %>
-  <title><%=CommonConfiguration.getHTMLTitle() %>
+  <title><%=CommonConfiguration.getHTMLTitle(context) %>
   </title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
   <meta name="Description"
-        content="<%=CommonConfiguration.getHTMLDescription() %>"/>
+        content="<%=CommonConfiguration.getHTMLDescription(context) %>"/>
   <meta name="Keywords"
-        content="<%=CommonConfiguration.getHTMLKeywords() %>"/>
-  <meta name="Author" content="<%=CommonConfiguration.getHTMLAuthor() %>"/>
-  <link href="<%=CommonConfiguration.getCSSURLLocation(request) %>"
+        content="<%=CommonConfiguration.getHTMLKeywords(context) %>"/>
+  <meta name="Author" content="<%=CommonConfiguration.getHTMLAuthor(context) %>"/>
+  <link href="<%=CommonConfiguration.getCSSURLLocation(request,context) %>"
         rel="stylesheet" type="text/css"/>
   <link rel="shortcut icon"
-        href="<%=CommonConfiguration.getHTMLShortcutIcon() %>"/>
+        href="<%=CommonConfiguration.getHTMLShortcutIcon(context) %>"/>
 
 
   <!--
@@ -342,24 +349,30 @@
       <%
 							for(int columns=0;columns<3;columns++){
 								if(countMe<thumbLocs.size()) {
+									Encounter thisEnc = myShepherd.getEncounter(thumbLocs.get(countMe).getCorrespondingEncounterNumber());
+									boolean visible = thisEnc.canUserAccess(request);
+									//String encUrlDir = "/" + CommonConfiguration.getDataDirectoryName(context) + "/" + enc.dir("encounters");
+									String encSubdir = thisEnc.subdir();
+
 									String thumbLink="";
 									boolean video=true;
 									if(!myShepherd.isAcceptableVideoFile(thumbLocs.get(countMe).getFilename())){
-										thumbLink="/"+CommonConfiguration.getDataDirectoryName()+"/encounters/"+thumbLocs.get(countMe).getCorrespondingEncounterNumber()+"/"+thumbLocs.get(countMe).getDataCollectionEventID()+".jpg";
+										thumbLink="/"+CommonConfiguration.getDataDirectoryName(context)+"/encounters/"+ encSubdir +"/"+thumbLocs.get(countMe).getDataCollectionEventID()+".jpg";
 										video=false;
 									}
 									else{
 										thumbLink="http://"+CommonConfiguration.getURLLocation(request)+"/images/video.jpg";
 										
 									}
-									String link="/"+CommonConfiguration.getDataDirectoryName()+"/encounters/"+thumbLocs.get(countMe).getCorrespondingEncounterNumber()+"/"+thumbLocs.get(countMe).getFilename();
+									String link="/"+CommonConfiguration.getDataDirectoryName(context)+"/encounters/"+ encSubdir +"/"+thumbLocs.get(countMe).getFilename();
 						
 							%>
 
     <td>
-      <table>
+      <table class="<%= (visible ? "" : " no-access") %>">
         <tr>
           <td valign="top">
+<% if (visible) { %>
             <a href="<%=link%>" 
             
             <%
@@ -371,7 +384,8 @@
             %>
             
             >
-            <img src="<%=thumbLink%>" alt="photo" border="1" title="Click to enlarge"/></a>
+<% } else { %><a><% } %>
+            <img src="<%=thumbLink%>" alt="photo" border="1" title="<%= (visible ? encprops.getProperty("clickEnlarge") : "") %>" /></a>
 
             <div 
             <%
@@ -408,7 +422,7 @@
                     %>
                     
                     id="refImage<%=(countMe+startNum) %>"
-                         src="/<%=CommonConfiguration.getDataDirectoryName() %>/encounters/<%=request.getParameter("referenceImageName") %>"/>
+                         src="/<%=CommonConfiguration.getDataDirectoryName(context) %>/encounters/<%=request.getParameter("referenceImageName") %>"/>
 
                   </td>
                 </tr>
@@ -437,7 +451,7 @@
                       <%
 
                         int kwLength = keywords.length;
-                        Encounter thisEnc = myShepherd.getEncounter(thumbLocs.get(countMe).getCorrespondingEncounterNumber());
+                        //Encounter thisEnc = myShepherd.getEncounter(thumbLocs.get(countMe).getCorrespondingEncounterNumber());
                       %>
                       
                       	<%
@@ -515,7 +529,7 @@
                         </span></td>
                       </tr>
                         <%
-		            			if(CommonConfiguration.showProperty("showTaxonomy")){
+		            			if(CommonConfiguration.showProperty("showTaxonomy",context)){
 		            				%>
 		                            <tr>
 		                            <td>
@@ -626,47 +640,20 @@
                     %>
 
                     <%
-                      if (CommonConfiguration.showEXIFData()&&!thumbLink.endsWith("video.jpg")) {
+                      if (CommonConfiguration.showEXIFData(context)&&!thumbLink.endsWith("video.jpg")) {
                     %>
                     
-                    <p><strong>EXIF Data</strong></p>
+                    <p><strong>EXIF</strong></p>
 												
 				   <span class="caption">
 						<div class="scroll">
 						<span class="caption">
 					<%
             if ((thumbLocs.get(countMe).getFilename().toLowerCase().endsWith("jpg")) || (thumbLocs.get(countMe).getFilename().toLowerCase().endsWith("jpeg"))) {
-              try{
-              	File exifImage = new File(encountersDir.getAbsolutePath() + "/" + thisEnc.getCatalogNumber() + "/" + thumbLocs.get(countMe).getFilename());
-              	if(exifImage.exists()){
-              		Metadata metadata = JpegMetadataReader.readMetadata(exifImage);
-              		// iterate through metadata directories
-              		Iterator directories = metadata.getDirectoryIterator();
-              		while (directories.hasNext()) {
-              	  		Directory directory = (Directory) directories.next();
-              	  		// iterate through tags and print to System.out
-              	  		Iterator tags = directory.getTagIterator();
-              	  		while (tags.hasNext()) {
-              	    		Tag tag = (Tag) tags.next();
-
-          					%>
-							<%=tag.toString() %><br/>
-							<%
-                  		}
-                	}
-              	} //end if
-              	else{
-            	 %>
-		            <p>File not found on file system. No EXIF data available.</p>
-          		<%  
-              	}
-              } //end try
-              catch(Exception e){
-              %>
-              <p>Cannot read metadata for this file.</p>
-              <%
-              	e.printStackTrace();
-              }
+            	File exifImage = new File(Encounter.dir(shepherdDataDir, thisEnc.getCatalogNumber()) + "/" + thumbLocs.get(countMe).getFilename());
+            	%>
+            	<%=Util.getEXIFDataFromJPEGAsHTML(exifImage) %>
+            	<%
              }
                 %>
    									</span>
@@ -689,6 +676,9 @@
 <tr>
   <td>
   		<span class="caption">
+<%
+	if (!visible) out.println("<div class=\"lock-right\">" + thisEnc.collaborationLockHtml(collabs) + "</div>");
+%>
   			<%=encprops.getProperty("location") %>: 
   			<%
   			try{
@@ -754,7 +744,7 @@
   </span></td>
 </tr>
  <%
-		            			if(CommonConfiguration.showProperty("showTaxonomy")){
+		            			if(CommonConfiguration.showProperty("showTaxonomy",context)){
 		            				try{
 		            				if((thisEnc.getGenus()!=null)&&(thisEnc.getSpecificEpithet()!=null)){
 		            		      %>

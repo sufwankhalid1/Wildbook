@@ -7,15 +7,30 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.MissingResourceException;
-//import java.util.Properties;
+import java.util.Properties;
 import java.util.ResourceBundle;
+import java.util.UUID;
+
+//EXIF-related imports
+import java.io.File;
+import java.io.InputStream;
+import java.io.FileInputStream;
+import com.drew.imaging.jpeg.JpegMetadataReader;
+import com.drew.metadata.Directory;
+import com.drew.metadata.Metadata;
+import com.drew.metadata.Tag;
+import java.util.Iterator;
+import org.apache.commons.io.IOUtils;
 
 //import javax.jdo.JDOException;
 //import javax.jdo.JDOHelper;
 import javax.jdo.Query;
 //import javax.jdo.PersistenceManagerFactory;
 
+
 import org.ecocean.tag.MetalTag;
+import org.ecocean.*;
+
 
 //use Point2D to represent cached GPS coordinates
 import com.reijns.I3S.Point2D;
@@ -33,57 +48,82 @@ public class Util {
   //GPS coordinate caching for Encounter Search and Individual Search
   private static ArrayList<Point2D> coords;
   
-  public static List<MeasurementDesc> findMeasurementDescs(String langCode) {
+  public static List<MeasurementDesc> findMeasurementDescs(String langCode,String context) {
     List<MeasurementDesc> list = new ArrayList<MeasurementDesc>();
-    List<String> types = CommonConfiguration.getIndexedValues(MEASUREMENT);
+    List<String> types = CommonConfiguration.getIndexedValues(MEASUREMENT,context);
     if (types.size() > 0) {
-      List<String> units = CommonConfiguration.getIndexedValues(UNITS);
+      List<String> units = CommonConfiguration.getIndexedValues(UNITS,context);
       for (int i = 0; i < types.size() && i < units.size(); i++) {
         String type = types.get(i);
         String unit = units.get(i);
-        String typeLabel = findLabel(type, langCode);
-        String unitsLabel = findLabel(unit, langCode);
+        String typeLabel = findLabel(type, langCode,context);
+        String unitsLabel = findLabel(unit, langCode,context);
         list.add(new MeasurementDesc(type, typeLabel, unit, unitsLabel));
       }
     }
     return list;
   }
   
-  public static List<MeasurementDesc> findBiologicalMeasurementDescs(String langCode) {
+  public static List<MeasurementDesc> findBiologicalMeasurementDescs(String langCode, String context) {
     List<MeasurementDesc> list = new ArrayList<MeasurementDesc>();
-    List<String> types = CommonConfiguration.getIndexedValues(BIOLOGICALMEASUREMENT);
+    List<String> types = CommonConfiguration.getIndexedValues(BIOLOGICALMEASUREMENT,context);
     if (types.size() > 0) {
-      List<String> units = CommonConfiguration.getIndexedValues(BIOLOGICALMEASUREMENTUNITS);
+      List<String> units = CommonConfiguration.getIndexedValues(BIOLOGICALMEASUREMENTUNITS,context);
       for (int i = 0; i < types.size() && i < units.size(); i++) {
         String type = types.get(i);
         String unit = units.get(i);
-        String typeLabel = findLabel(type, langCode);
-        String unitsLabel = findLabel(unit, langCode);
+        String typeLabel = findLabel(type, langCode, context);
+        String unitsLabel = findLabel(unit, langCode, context);
         list.add(new MeasurementDesc(type, typeLabel, unit, unitsLabel));
       }
     }
     return list;
   }
   
+	//a hook to UUID generator
+	public static String generateUUID() {
+		return UUID.randomUUID().toString();
+	}
+
+	public static boolean isUUID(String s) {
+		boolean ok = true;
+		try {
+			UUID u = UUID.fromString(s);
+		} catch (java.lang.IllegalArgumentException e) {
+			ok = false;
+		}
+		return ok;
+	}
+
   /**
    * Returns a map of sampling protocols, where the key is the name of protocol, and the
    * value is the user-friendly, localized label.
    * @param langCode
    * @return
    */
-  public static List<OptionDesc> findSamplingProtocols(String langCode) {
-    List<String> values = CommonConfiguration.getIndexedValues("samplingProtocol");
+  public static List<OptionDesc> findSamplingProtocols(String langCode,String context) {
+    List<String> values = CommonConfiguration.getIndexedValues("samplingProtocol",context);
     List<OptionDesc> list = new ArrayList<OptionDesc>();
+    
+    /*
     for (String key : values) {
-      String label = findLabel(key, langCode);
+      String label = findLabel(key, langCode,context);
       list.add(new OptionDesc(key, label));
+    }
+    */
+    int valuesSize=values.size();
+    for(int i=0;i<valuesSize;i++){
+      String key="samplingProtocol"+i;
+      String label = findLabel(key, langCode,context);
+      list.add(new OptionDesc(key, label));
+      
     }
     return list;
   }
   
-  public static String getLocalizedSamplingProtocol(String samplingProtocol, String langCode) {
+  public static String getLocalizedSamplingProtocol(String samplingProtocol, String langCode, String context) {
     if (samplingProtocol != null) {
-      List<OptionDesc> samplingProtocols = findSamplingProtocols(langCode);
+      List<OptionDesc> samplingProtocols = findSamplingProtocols(langCode,context);
       for (OptionDesc optionDesc : samplingProtocols) {
         if (optionDesc.name.equals(samplingProtocol)) {
           return optionDesc.display;
@@ -93,11 +133,11 @@ public class Util {
     return null;
   }
   
-  public static List<MetalTagDesc> findMetalTagDescs(String langCode) {
-    List<String> metalTagLocations = CommonConfiguration.getIndexedValues(METAL_TAG_LOCATION);
+  public static List<MetalTagDesc> findMetalTagDescs(String langCode,String context) {
+    List<String> metalTagLocations = CommonConfiguration.getIndexedValues(METAL_TAG_LOCATION,context);
     List<MetalTagDesc> list = new ArrayList<MetalTagDesc>();
     for (String location : metalTagLocations) {
-      String locationLabel = findLabel(location, langCode);
+      String locationLabel = findLabel(location, langCode,context);
       list.add(new MetalTagDesc(location, locationLabel));
     }
     return list;
@@ -122,11 +162,15 @@ public class Util {
     return null;
   }
   
-  public static List<String> findSatelliteTagNames() {
-    return CommonConfiguration.getIndexedValues(SATELLITE_TAG_NAME);
+  public static List<String> findSatelliteTagNames(String context) {
+    return CommonConfiguration.getIndexedValues(SATELLITE_TAG_NAME,context);
   }
   
-  private static String findLabel(String key, String langCode) {
+  private static String findLabel(String key, String langCode, String context) {
+    
+    //System.out.println("Trying to find key: "+key+" with langCode "+langCode);
+    
+    /*
     Locale locale = Locale.US;
     if (langCode != null) {
       locale = new Locale(langCode);
@@ -138,7 +182,12 @@ public class Util {
     catch (MissingResourceException ex) {
       System.out.println("Error finding bundle or key for key: " + key);
     }
-    return key;
+    return key;*/
+    
+    Properties myProps = ShepherdProperties.getProperties("commonConfigurationLabels.properties", langCode, context);
+    return myProps.getProperty(key+".label");
+    
+    
   }
   
   public static String quote(String arg) {
@@ -208,15 +257,15 @@ public class Util {
     public String getLocationLabel() {
       return locationLabel;
     }
-    
+
   }
   
-  public synchronized static ArrayList<Point2D> getCachedGPSCoordinates(boolean refresh) {
+  public synchronized static ArrayList<Point2D> getCachedGPSCoordinates(boolean refresh,String context) {
     try {
       if ((coords == null)||(refresh)) {
 
         //execute the JDOQL
-        Shepherd myShepherd=new Shepherd();
+        Shepherd myShepherd=new Shepherd(context);
         Query query=myShepherd.getPM().newQuery("SELECT FROM org.ecocean.Encounter WHERE decimalLatitude != null && decimalLongitude != null");
         Collection<Encounter> c = (Collection<Encounter>) (query.execute());
         ArrayList<Encounter> encs=new ArrayList<Encounter>(c);
@@ -244,6 +293,42 @@ public class Util {
       System.out.println("I hit an error trying to populate the cached GPS coordinates in Util.java.");
       return new ArrayList<Point2D>();
     }
+  }
+  
+  public static String getEXIFDataFromJPEGAsHTML(File exifImage){
+    StringBuffer results=new StringBuffer("<p>File not found on file system. No EXIF data available.</p><p>Looking in: "+exifImage.getAbsolutePath()+"</p>");
+    if(exifImage.exists()){
+      results=new StringBuffer();
+      InputStream inp=null;
+    
+      try{
+          inp = new FileInputStream(exifImage);
+          Metadata metadata = JpegMetadataReader.readMetadata(exifImage);
+          // iterate through metadata directories
+          Iterator directories = metadata.getDirectories().iterator();
+          while (directories.hasNext()) {
+              Directory directory = (Directory) directories.next();
+              // iterate through tags and print to System.out
+              Iterator tags = directory.getTags().iterator();
+              while (tags.hasNext()) {
+                Tag tag = (Tag) tags.next();
+                results.append(tag.toString()+"<br/>");
+              }
+          }
+          inp.close();
+        } //end try
+        catch(Exception e){
+          results=null;
+          results=new StringBuffer("<p>Cannot read metadata for this file.</p>");
+        }
+      finally {
+        IOUtils.closeQuietly(inp);
+      }
+
+        
+    } //end if
+    return results.toString();
+    
   }
 
 }

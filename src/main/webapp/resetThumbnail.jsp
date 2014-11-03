@@ -19,41 +19,29 @@
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <%@ page contentType="text/html; charset=utf-8" language="java"
-         import="org.ecocean.CommonConfiguration, org.ecocean.Encounter, org.ecocean.Shepherd, java.awt.*, java.io.File" %>
+         import="org.ecocean.servlet.ServletUtilities,org.ecocean.CommonConfiguration, org.ecocean.Encounter, org.ecocean.Shepherd, java.awt.*, java.io.File, org.ecocean.SinglePhotoVideo" %>
 <%@ taglib uri="http://www.sunwesttek.com/di" prefix="di" %>
 
 <%
-  String number = request.getParameter("number").trim();
-  int imageNum = 1;
-  try {
-    imageNum = (new Integer(request.getParameter("imageNum"))).intValue();
-  } catch (Exception cce) {
-  }
-  
-  //setup data dir
-  String rootWebappPath = getServletContext().getRealPath("/");
-  File webappsDir = new File(rootWebappPath).getParentFile();
-  File shepherdDataDir = new File(webappsDir, CommonConfiguration.getDataDirectoryName());
-  File encountersDir=new File(shepherdDataDir.getAbsolutePath()+"/encounters");
-  File thisEncounterDir = new File(encountersDir, number);
-
-
+String context="context0";
+context=ServletUtilities.getContext(request);
+ 
 %>
 
 <html>
 <head>
-  <title><%=CommonConfiguration.getHTMLTitle() %>
+  <title><%=CommonConfiguration.getHTMLTitle(context) %>
   </title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
   <meta name="Description"
-        content="<%=CommonConfiguration.getHTMLDescription() %>"/>
+        content="<%=CommonConfiguration.getHTMLDescription(context) %>"/>
   <meta name="Keywords"
-        content="<%=CommonConfiguration.getHTMLKeywords() %>"/>
-  <meta name="Author" content="<%=CommonConfiguration.getHTMLAuthor() %>"/>
-  <link href="<%=CommonConfiguration.getCSSURLLocation(request) %>"
+        content="<%=CommonConfiguration.getHTMLKeywords(context) %>"/>
+  <meta name="Author" content="<%=CommonConfiguration.getHTMLAuthor(context) %>"/>
+  <link href="<%=CommonConfiguration.getCSSURLLocation(request,context) %>"
         rel="stylesheet" type="text/css"/>
   <link rel="shortcut icon"
-        href="<%=CommonConfiguration.getHTMLShortcutIcon() %>"/>
+        href="<%=CommonConfiguration.getHTMLShortcutIcon(context) %>"/>
 
 </head>
 
@@ -70,26 +58,46 @@
 
         <div id="maintext">
           <%
-          Shepherd myShepherd = new Shepherd();
+          Shepherd myShepherd = new Shepherd(context);
+					
           try {
+        	  
+        	  String number = request.getParameter("number").trim();
+			  
+			  Encounter enc = myShepherd.getEncounter(number);
+			  
+        	  int imageNum = 1;
+        	  try {
+        	    imageNum = (new Integer(request.getParameter("imageNum"))).intValue();
+        	  } catch (Exception cce) {
+        	  }
+        	  
+        	  //setup data dir
+        	  String rootWebappPath = getServletContext().getRealPath("/");
+        	  File webappsDir = new File(rootWebappPath).getParentFile();
+        	  File shepherdDataDir = new File(webappsDir, CommonConfiguration.getDataDirectoryName(context));
+        	  File encountersDir=new File(shepherdDataDir.getAbsolutePath()+"/encounters");
+        	  File thisEncounterDir = new File(encountersDir, Encounter.subdir(number));
+
+
+        	  
             String addText = "";
             if (request.getParameter("imageName") != null) {
               addText = request.getParameter("imageName");
-              addText = encountersDir.getAbsolutePath()+"/" + request.getParameter("number") + "/" + addText;
+              addText = encountersDir.getAbsolutePath()+"/" + Encounter.subdir(request.getParameter("number")) + "/" + addText;
 
             } 
             else {
               
               myShepherd.beginDBTransaction();
-              Encounter enc = myShepherd.getEncounter(number);
               addText = (String) enc.getAdditionalImageNames().get((imageNum - 1));
               if (myShepherd.isAcceptableVideoFile(addText)) {
                 addText = getServletContext().getRealPath("/")+"/images/video_thumb.jpg";
               } else {
-                addText = encountersDir.getAbsolutePath()+"/"+ request.getParameter("number") + "/" + addText;
+                addText = encountersDir.getAbsolutePath()+"/"+ Encounter.subdir(request.getParameter("number")) + "/" + addText;
               }
               myShepherd.rollbackDBTransaction();
-              myShepherd.closeDBTransaction();
+              //myShepherd.closeDBTransaction();
             }
 
             int intWidth = 100;
@@ -99,12 +107,20 @@
 
 
             File file2process = new File(addText);
+            String thumbPath = encountersDir.getAbsolutePath()+"/" + Encounter.subdir(number) + "/thumb.jpg";
+            String thumbLocation = "file-" + thumbPath;
 
-            
+						//first try the new (optional) background method
+						SinglePhotoVideo spv = null;
+						if ((imageNum > 0) && (enc.getImages() != null)) spv = enc.getImages().get(imageNum - 1);
+						if ((spv != null) && spv.scaleTo(context, thumbnailWidth, thumbnailHeight, thumbPath)) {
+							System.out.println("attempting to create " + thumbPath + " in background.");
 
+
+						///// if that fails (not configured, etc) then use existing method:
 
               //ImageInfo iInfo=new ImageInfo();
-              if ((file2process.exists()) && (file2process.length() > 0)) {
+             } else if ((file2process.exists()) && (file2process.length() > 0)) {
                 //iInfo.setInput(new FileInputStream(file2process));
                 String height = "";
                 String width = "";
@@ -138,8 +154,6 @@
             
 
 
-            String thumbLocation = "file-"+encountersDir.getAbsolutePath()+"/" + number + "/thumb.jpg";
-
             //generate the thumbnail image
           %>
           <di:img width="<%=thumbnailWidth %>" height="<%=thumbnailHeight %>" border="0"
@@ -168,9 +182,12 @@
 	
           <%
             }
-          myShepherd.rollbackDBTransaction();
-                  myShepherd.closeDBTransaction();
-        		  myShepherd=null;
+          if(!myShepherd.getPM().isClosed()){
+        	  myShepherd.rollbackDBTransaction();
+              myShepherd.closeDBTransaction();
+          }
+          
+         myShepherd=null;
           %>
         <!-- end maintext --></div>
       <!-- end maincol -->
