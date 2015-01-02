@@ -295,6 +295,9 @@ UUID u = new UUID(a,b);
 ///UUID u = UUID.fromString("d8903434-942f-e0f5-d6c2-0dcbe3137bf7");
 System.out.println(u.toString());
 System.out.println("?? d8903434-942f-e0f5-d6c2-0dcbe3137bf7");
+
+b037fed5-66c1-4853-8a63-eefb63ce7c42 - ibeis
+d5fe37b0-c166-5348-8a63-eefb63ce7c42 - java
 */
 
 
@@ -311,10 +314,7 @@ System.out.println("?? d8903434-942f-e0f5-d6c2-0dcbe3137bf7");
 			st = c.createStatement();
 			ResultSet rs = st.executeQuery("SELECT * FROM encounters");
 			while (rs.next()) {
-				byte[] uuidRaw = rs.getBytes("encounter_uuid");
-				Long a = bytesToLong(Arrays.copyOfRange(uuidRaw,0,8));
-				Long b = bytesToLong(Arrays.copyOfRange(uuidRaw,8,16));
-				UUID uuid = new UUID(a,b);
+				UUID uuid = bytesToUUID(rs.getBytes("encounter_uuid"));
 				System.out.println("[" + uuid.toString() + "] " + rs.getString("encounter_text"));
 				if (uuid.toString().equals(eid)) found = rs.getInt("encounter_rowid");
 //TODO drop out once found
@@ -358,11 +358,7 @@ System.out.println(" .... aid=" + rs.getInt("annot_rowid"));
 						int aid = rs.getInt("annot_rowid");
 						ann.put("id", aid);
 
-				//TODO make this own method, duh
-				byte[] uuidRaw = rs.getBytes("annot_uuid");
-				Long a = bytesToLong(Arrays.copyOfRange(uuidRaw,0,8));
-				Long b = bytesToLong(Arrays.copyOfRange(uuidRaw,8,16));
-				UUID uuid = new UUID(a,b);
+				UUID uuid = bytesToUUID(rs.getBytes("annot_uuid"));
 				ann.put("annot_uuid", uuid.toString());
 
 						ann.put("image_id", iid);
@@ -408,13 +404,33 @@ System.out.println("============================================================
     return rtn;
 	}
 
+	//used by bytesToUUID below
 	public long bytesToLong(byte[] bytes) {
-    ByteBuffer buffer = ByteBuffer.allocate(64);
-    buffer.put(bytes);
-    buffer.flip();//need flip 
-    return buffer.getLong();
+		ByteBuffer buffer = ByteBuffer.allocate(64);
+		buffer.put(bytes);
+		buffer.flip();//need flip 
+		return buffer.getLong();
 	}
 
+	//takes in input 16-byte array and returns a UUID.  it breaks the 16-byte array into two longs to do this (due to constructor of UUID)
+	public UUID bytesToUUID(byte[] bytesIn) {
+		//not sure why only the *first* long is all flipped around, but it is. second is not.  otherwise the below single line would work. :/
+		//Long a = bytesToLong(Arrays.copyOfRange(bytesIn, 0, 8));
+		byte[] byteA1 = new byte[8];
+		byte[] byteA2 = Arrays.copyOfRange(bytesIn, 0 ,8);
+		byteA1[0] = byteA2[3];
+		byteA1[1] = byteA2[2];
+		byteA1[2] = byteA2[1];
+		byteA1[3] = byteA2[0];
+		byteA1[4] = byteA2[5];
+		byteA1[5] = byteA2[4];
+		byteA1[6] = byteA2[7];
+		byteA1[7] = byteA2[6];
+		Long a = bytesToLong(byteA1);
+
+		Long b = bytesToLong(Arrays.copyOfRange(bytesIn, 8, 16));
+		return new UUID(a,b);
+	}
 
 }
 
