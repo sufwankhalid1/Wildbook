@@ -19,11 +19,21 @@
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <%@ page contentType="text/html; charset=utf-8" language="java"
-         import="org.ecocean.*,org.ecocean.servlet.ServletUtilities,java.io.File, java.util.*, org.ecocean.genetics.*, org.ecocean.security.Collaboration, com.google.gson.Gson" %>
+         import="com.drew.imaging.jpeg.JpegMetadataReader,com.drew.metadata.Directory, 	   
+java.lang.reflect.*,
+org.ecocean.social.Relationship,
+		 com.drew.metadata.Metadata,com.drew.metadata.Tag,org.ecocean.*,org.ecocean.servlet.ServletUtilities,java.io.File, java.util.*, org.ecocean.genetics.*" %>
+
+
+<%!
+	public String cleanString(Object obj) {
+		if (obj == null) return "";
+		return obj.toString();
+	}
+%>
 
 <%
 
-String blocker = "";
 String context="context0";
 context=ServletUtilities.getContext(request);
 
@@ -37,9 +47,9 @@ context=ServletUtilities.getContext(request);
   String rootWebappPath = getServletContext().getRealPath("/");
   File webappsDir = new File(rootWebappPath).getParentFile();
   File shepherdDataDir = new File(webappsDir, CommonConfiguration.getDataDirectoryName(context));
-  //if(!shepherdDataDir.exists()){shepherdDataDir.mkdirs();}
+  //if(!shepherdDataDir.exists()){shepherdDataDir.mkdir();}
   File encountersDir=new File(shepherdDataDir.getAbsolutePath()+"/encounters");
-  //if(!encountersDir.exists()){encountersDir.mkdirs();}
+  //if(!encountersDir.exists()){encountersDir.mkdir();}
   //File thisEncounterDir = new File(encountersDir, number);
 
 //setup our Properties object to hold all properties
@@ -53,9 +63,6 @@ context=ServletUtilities.getContext(request);
 
   //props.load(getClass().getResourceAsStream("/bundles/" + langCode + "/occurrence.properties"));
   props = ShepherdProperties.getProperties("occurrence.properties", langCode,context);
-
-	Properties collabProps = new Properties();
- 	collabProps=ShepherdProperties.getProperties("collaboration.properties", langCode, context);
 
   String name = request.getParameter("number").trim();
   Shepherd myShepherd = new Shepherd(context);
@@ -261,6 +268,7 @@ tr.enc-row:hover {
 
 <div id="maincol-wide-solo">
 
+
 <div id="maintext">
 <%
   myShepherd.beginDBTransaction();
@@ -272,36 +280,78 @@ tr.enc-row:hover {
       boolean hasAuthority = ServletUtilities.isUserAuthorizedForOccurrence(sharky, request);
 
 
-			ArrayList collabs = Collaboration.collaborationsForCurrentUser(request);
-			boolean visible = sharky.canUserAccess(request);
+    	Encounter[] dateSortedEncs = sharky.getDateSortedEncounters(false);
+	int total = dateSortedEncs.length;
 
-			if (!visible) {
-  			ArrayList<String> uids = sharky.getAllAssignedUsers();
-				ArrayList<String> possible = new ArrayList<String>();
-				for (String u : uids) {
-					Collaboration c = null;
-					if (collabs != null) c = Collaboration.findCollaborationWithUser(u, collabs);
-					if ((c == null) || (c.getState() == null)) {
-						User user = myShepherd.getUser(u);
-						String fullName = u;
-						if (user.getFullName()!=null) fullName = user.getFullName();
-						possible.add(u + ":" + fullName.replace(",", " ").replace(":", " ").replace("\"", " "));
+	HashMap<String,Encounter> encById = new HashMap<String,Encounter>();
+	for (int i = 0; i < total; i++) {
+		Encounter enc = dateSortedEncs[i];
+		encById.put(enc.getCatalogNumber(), enc);
+	}
+
+
+	String saving = request.getParameter("save");
+	String saveMessage = "";
+
+	if (saving != null) {
+		ArrayList<Encounter> changedEncs = new ArrayList<Encounter>();
+		//myShepherd.beginDBTransaction();
+		Enumeration en = request.getParameterNames();
+		while (en.hasMoreElements()) {
+			String pname = (String)en.nextElement();
+			if (pname.indexOf("occ:") == 0) {
+				String methodName = "set" + pname.substring(4,5).toUpperCase() + pname.substring(5);
+				String value = request.getParameter(pname);
+				//saveMessage += "<p>occ - " + methodName + "</P>";
+				java.lang.reflect.Method method;
+				if (pname.indexOf("decimalL") > -1) {  //must call with Double value
+					Double dbl = null;
+					try {
+						dbl = Double.parseDouble(value);
+					} catch (Exception ex) {
+						System.out.println("could not parse double from " + value + ", using null");
+					}
+					try {
+						method = sharky.getClass().getMethod(methodName, Double.class);
+						method.invoke(sharky, dbl);
+					} catch (Exception ex) {
+						System.out.println(methodName + " -> " + ex.toString());
+					}
+				} else {
+					try {
+						method = sharky.getClass().getMethod(methodName, String.class);
+						method.invoke(sharky, value);
+					} catch (Exception ex) {
+						System.out.println(methodName + " -> " + ex.toString());
 					}
 				}
-				String cmsg = "<p>" + collabProps.getProperty("deniedMessage") + "</p>";
-				cmsg = cmsg.replace("'", "\\'");
 
-				if (possible.size() > 0) {
-    			String arr = new Gson().toJson(possible);
-					blocker = "<script>$(document).ready(function() { $.blockUI({ message: '" + cmsg + "' + _collaborateMultiHtml(" + arr + ") }) });</script>";
-				} else {
-					cmsg += "<p><input type=\"button\" onClick=\"window.history.back()\" value=\"BACK\" /></p>";
-					blocker = "<script>$(document).ready(function() { $.blockUI({ message: '" + cmsg + "' }) });</script>";
+			} else if (pname.indexOf(":") > -1) {
+				int i = pname.indexOf(":");
+				String id = pname.substring(0, i);
+				String methodName = "set" + pname.substring(i+1, i+2).toUpperCase() + pname.substring(i+2);
+				String value = request.getParameter(pname);
+				Encounter enc = encById.get(id);
+				if (enc != null) {
+					java.lang.reflect.Method method;
+					try {
+						method = enc.getClass().getMethod(methodName, String.class);
+						method.invoke(enc, value);
+						if (!changedEncs.contains(enc)) changedEncs.add(enc);
+					} catch (Exception ex) {
+						System.out.println(methodName + " -> " + ex.toString());
+					}
 				}
 			}
-			out.println(blocker);
+		}
+		myShepherd.commitDBTransaction();
+	}
 
 %>
+
+<div id="save-message">
+<%=saveMessage%>
+</div>
 
 <table><tr>
 
@@ -324,146 +374,233 @@ tr.enc-row:hover {
 </td>
 </tr></table> </td></tr></table>
 
-<p><%=props.getProperty("groupBehavior") %>: 
+<form method="post" action="occurrenceIBEIS.jsp" id="occform">
+<input name="number" type="hidden" value="<%=sharky.getOccurrenceID()%>" />
+
+<p>
+<strong>Sun</strong>
+<select name="occ:sun">
 <%
-if(sharky.getGroupBehavior()!=null){
-%>
-	<%=sharky.getGroupBehavior() %>
-<%
+String o = "";
+String opt[] = new String[] {"Unknown", "Overcast", "Partial Sun", "Full Sun"};
+for (int i = 0 ; i < 4 ; i++) {
+	o += "<option";
+	if (opt[i].equals(sharky.getSun())) o += " selected";
+	o += ">" + opt[i] + "</option>";
 }
+out.println(o);
 %>
-&nbsp; <%if (hasAuthority && CommonConfiguration.isCatalogEditable(context)) {%><a id="groupB" style="color:blue;cursor: pointer;"><img align="absmiddle" width="20px" height="20px" style="border-style: none;" src="images/Crystal_Clear_action_edit.png" /></a><%}%>
+</select>
+</p>
+
+<p>
+<strong>Wind</strong>
+<select name="occ:wind">
+<%
+o = "";
+String opt2[] = new String[] {"Unknown", "Light wind", "Strong wind"};
+for (int i = 0 ; i < 3 ; i++) {
+	o += "<option";
+	if (opt2[i].equals(sharky.getWind())) o += " selected";
+	o += ">" + opt2[i] + "</option>";
+}
+out.println(o);
+%>
+</select>
+</p>
+
+<p>
+<strong>Rain</strong>
+<select name="occ:rain">
+<%
+o = "";
+String opt3[] = new String[] {"Unknown", "Light rain", "Heavy rain"};
+for (int i = 0 ; i < 3 ; i++) {
+	o += "<option";
+	if (opt3[i].equals(sharky.getRain())) o += " selected";
+	o += ">" + opt3[i] + "</option>";
+}
+out.println(o);
+%>
+</select>
+</p>
+
+<p>
+<strong>Cloud Cover</strong>
+<select name="occ:cloudCover">
+<%
+o = "";
+String opt4[] = new String[] {"Unknown", "Clear", "Light clouds", "Overcast"};
+for (int i = 0 ; i < 4 ; i++) {
+	o += "<option";
+	if (opt4[i].equals(sharky.getCloudCover())) o += " selected";
+	o += ">" + opt4[i] + "</option>";
+}
+out.println(o);
+%>
+</select>
+</p>
+
+<p>
+<strong>Distance (meters)</strong>
+<input name="occ:distance" value="<%=cleanString(sharky.getDistance())%>" />
+</p>
+
+<p>
+<strong>Direction</strong>
+<input name="occ:direction" value="<%=cleanString(sharky.getDirection())%>" />
+</p>
+
+<p>
+<strong>Grass Length</strong>
+<select name="occ:grassLength">
+<%
+o = "";
+String opt5[] = new String[] {"Unknown", "Hoof", "Hock", "Belly"};
+for (int i = 0 ; i < 4 ; i++) {
+	o += "<option";
+	if (opt5[i].equals(sharky.getGrassLength())) o += " selected";
+	o += ">" + opt5[i] + "</option>";
+}
+out.println(o);
+%>
+</select>
+</p>
+
+<p>
+<strong>Grass Colour</strong>
+<select name="occ:grassColor">
+<%
+o = "";
+String opt6[] = new String[] {"Unknown", "Brown", "Brown-green", "Green-brown", "Green"};
+for (int i = 0 ; i < 5 ; i++) {
+	o += "<option";
+	if (opt6[i].equals(sharky.getGrassColor())) o += " selected";
+	o += ">" + opt6[i] + "</option>";
+}
+out.println(o);
+%>
+</select>
+</p>
+
+<p>
+<strong>Grass species</strong>
+<input name="occ:grassSpecies" value="<%=cleanString(sharky.getGrassSpecies())%>" />
+</p>
+
+<p>
+<strong>Bush Type</strong>
+<input name="occ:bushType" value="<%=cleanString(sharky.getBushType())%>" />
+</p>
+
+<p>
+<strong>Other species</strong>
+<input name="occ:otherSpecies" value="<%=cleanString(sharky.getOtherSpecies())%>" />
 </p>
 
 
-<div id="dialogGroupB" title="<%=props.getProperty("setGroupBehavior") %>" style="display:none">
-                         			
-<table border="1" cellpadding="1" cellspacing="0" bordercolor="#FFFFFF">
+<div style="position: relative; height: 40px;">
 
-  <tr>
-    <td align="left" valign="top">
-      <form name="set_groupBhevaior" method="post" action="OccurrenceSetGroupBehavior">
-            <input name="number" type="hidden" value="<%=request.getParameter("number")%>" /> 
-            <%=props.getProperty("groupBehavior") %>:
-        
-        <%
-        if(CommonConfiguration.getProperty("occurrenceGroupBehavior0",context)==null){
-        %>
-        <textarea name="behaviorComment" type="text" id="behaviorComment" maxlength="500"></textarea> 
-        <%
-        }
-        else{   
-        %>
-        	
-        	<select name="behaviorComment" id="behaviorComment">
-        		<option value=""></option>
-   
-   				<%
-   				boolean hasMoreStages=true;
-   				int taxNum=0;
-   				while(hasMoreStages){
-   	  				String currentLifeStage = "occurrenceGroupBehavior"+taxNum;
-   	  				if(CommonConfiguration.getProperty(currentLifeStage,context)!=null){
-   	  				%>
-   	  	 
-   	  	  			<option value="<%=CommonConfiguration.getProperty(currentLifeStage,context)%>"><%=CommonConfiguration.getProperty(currentLifeStage,context)%></option>
-   	  				<%
-   					taxNum++;
-      				}
-      				else{
-         				hasMoreStages=false;
-      				}
-      
-   				}
-   			%>
-  			</select>
-        
-        
-        <%
-        }
-        %>
-        <input name="groupBehaviorName" type="submit" id="Name" value="<%=props.getProperty("set") %>">
-        </form>
-    </td>
-  </tr>
-</table>
+<div style="position: absolute; top: 0; left: 0;">
+<strong>Decimal Latitude</strong>
+<input name="occ:decimalLatitude" value="<%=cleanString(sharky.getDecimalLatitude())%>" />
+</div>
 
-                         		</div>
-                         		<!-- popup dialog script -->
-<script>
-var dlgGroupB = $("#dialogGroupB").dialog({
-  autoOpen: false,
-  draggable: false,
-  resizable: false,
-  width: 600
+<div style="position: absolute; top: 0; right: 0;">
+<strong>Decimal Longitude</strong>
+<input name="occ:decimalLongitude" value="<%=cleanString(sharky.getDecimalLongitude())%>" />
+</div>
+
+</div>
+
+
+
+<div class="submit">
+<input type="submit" name="save" value="Save" />
+<div class="note"></div>
+</div>
+
+</form>
+
+
+<script type="text/javascript">
+$(document).ready(function() {
+	$('#occform input,#occform select').change(function() {
+		$('.submit').addClass('changes-made');
+		$('.submit .note').html('changes made. please save.');
+	});
+	$('span.relationship').hover(function(ev) {
+//$('tr[data-indiv="07_091"]').hide();
+console.log(ev);
+		var jel = $(ev.target);
+		if (ev.type == 'mouseenter') {
+			var p = jel.data('partner');
+			$('tr[data-indiv="' + p + '"]').addClass('rel-partner');
+		} else {
+			$('.rel-partner').removeClass('rel-partner');
+		}
+	});
+	$('.enc-row').each(function(i, el) {
+		var eid = el.getAttribute('data-id');
+		el.setAttribute('title', 'click for: ' + eid);
+	});
+	$('.enc-row').click(function(el) {
+		var eid = el.currentTarget.getAttribute('data-id');
+		var w = window.open('encounters/encounter.jsp?number=' + eid, '_blank');
+		w.focus();
+		return false;
+	});
+	$('.col-sex').each(function(i, el) {
+		var p = $('<select><option value="">select sex</option><option>unknown</option><option>male</option><option>female</option></select>');
+		p.click( function(ev) { ev.stopPropagation(); } );
+		p.change(function() {
+			columnChange(this);
+		});
+		p.val($(el).html());
+		$(el).html(p);
+		//console.log('%o: %o', i, el);
+	});
 });
 
-$("a#groupB").click(function() {
-  dlgGroupB.dialog("open");
-});
+
+function columnChange(el) {
+	var jel = $(el);
+	var prop = jel.parent().data('prop');
+	var eid = jel.parent().parent().data('id');
+	$('[name="' + eid + ':' + prop + '"]').remove();  //clear exisiting
+	$('<input>').attr({
+		name: eid + ':' + prop,
+		type: 'hidden',
+		value: jel.val(),
+	}).appendTo($('#occform'));
+
+	$('.submit').addClass('changes-made');
+	$('.submit .note').html('changes made. please save.');
+	
+}
+
+
+function relAdd(ev) {
+console.log(ev);
+	ev.stopPropagation();
+	$('#relationships-form input[type="text"]').val(undefined);
+	$('#relationships-form select').val(undefined);
+	$('#relationships-form').appendTo(ev.target).show();
+}
+
+function relSave(ev) {
+	ev.stopPropagation();
+	$('#relationships-form').hide();
+}
+
+function relCancel(ev) {
+	ev.stopPropagation();
+	$('#relationships-form').hide();
+}
+
 </script>
 
 
-<p><%=props.getProperty("numMarkedIndividuals") %>: <%=sharky.getMarkedIndividualNamesForThisOccurrence().size() %></p>
-
-<p><%=props.getProperty("estimatedNumMarkedIndividuals") %>: 
-<%
-if(sharky.getIndividualCount()!=null){
-%>
-	<%=sharky.getIndividualCount() %>
-<%
-}
-%>
-&nbsp; <%if (hasAuthority && CommonConfiguration.isCatalogEditable(context)) {%><a id="indies" style="color:blue;cursor: pointer;"><img align="absmiddle" width="20px" height="20px" style="border-style: none;" src="images/Crystal_Clear_action_edit.png" /></a><%}%>
-</p>
-
-
-
-
-<div id="dialogIndies" title="<%=props.getProperty("setIndividualCount") %>" style="display:none">
-            
-<table border="1" cellpadding="1" cellspacing="0" bordercolor="#FFFFFF" >
-
-  <tr>
-    <td align="left" valign="top">
-      <form name="set_individualCount" method="post" action="OccurrenceSetIndividualCount">
-            <input name="number" type="hidden" value="<%=request.getParameter("number")%>" /> 
-            <%=props.getProperty("newIndividualCount") %>:
-
-        <input name="count" type="text" id="count" size="5" maxlength="7"></input> 
-        <input name="individualCountButton" type="submit" id="individualCountName" value="<%=props.getProperty("set") %>">
-        </form>
-    </td>
-  </tr>
-</table>
-
-                         		</div>
-                         		<!-- popup dialog script -->
-<script>
-var dlgIndies = $("#dialogIndies").dialog({
-  autoOpen: false,
-  draggable: false,
-  resizable: false,
-  width: 600
-});
-
-$("a#indies").click(function() {
-  dlgIndies.dialog("open");
-});
-</script>
-
-
-
-
-<p><%=props.getProperty("locationID") %>: 
-<%
-if(sharky.getLocationID()!=null){
-%>
-	<%=sharky.getLocationID() %>
-<%
-}
-%>
-</p>
 <table id="encounter_report" width="100%">
 <tr>
 
@@ -474,14 +611,15 @@ if(sharky.getLocationID()!=null){
   <%=props.getProperty("numencounters") %>
 </p> 
 
-<table id="results" width="100%">
+
+<table style="border-spacing: 0;" id="results" width="100%">
   <tr class="lineitem">
       <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("date") %></strong></td>
     <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("individualID") %></strong></td>
     
     <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("location") %></strong></td>
-    <td class="lineitem" bgcolor="#99CCFF"><strong><%=props.getProperty("dataTypes") %></strong></td>
-    <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("encnum") %></strong></td>
+    <!-- <td class="lineitem" bgcolor="#99CCFF"><strong><%=props.getProperty("dataTypes") %></strong></td> 
+    <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("encnum") %></strong></td> -->
     <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("alternateID") %></strong></td>
 
     <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("sex") %></strong></td>
@@ -495,14 +633,13 @@ if(sharky.getLocationID()!=null){
     <%
     }
     %>
-   <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("behavior") %></td>
- <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("haplotype") %></td>
+   <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("behavior") %></strong></td>
+
+ <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong>Relationships</strong></td>
  
   </tr>
   <%
-    Encounter[] dateSortedEncs = sharky.getDateSortedEncounters(false);
 
-    int total = dateSortedEncs.length;
     for (int i = 0; i < total; i++) {
       Encounter enc = dateSortedEncs[i];
       
@@ -513,14 +650,14 @@ if(sharky.getLocationID()!=null){
           imgName = "/"+CommonConfiguration.getDataDirectoryName(context)+"/encounters/" + encSubdir + "/thumb.jpg";
         
   %>
-  <tr>
+  <tr class="enc-row" data-id="<%=enc.getEncounterNumber()%>" data-indiv="<%=enc.getIndividualID()%>">
       <td class="lineitem"><%=enc.getDate()%>
     </td>
     <td class="lineitem">
     	<%
     	if((enc.getIndividualID()!=null)&&(!enc.getIndividualID().toLowerCase().equals("unassigned"))){
     	%>
-    	<a href="individuals.jsp?number=<%=enc.getIndividualID()%>"><%=enc.getIndividualID()%></a>
+    	<a target="_new" onClick="event.stopPropagation(); return true;" href="individuals.jsp?number=<%=enc.getIndividualID()%>"><%=enc.getIndividualID()%></a>
     	<%
     	}
     	else{
@@ -538,6 +675,7 @@ if(sharky.getLocationID()!=null){
     %>
     <td class="lineitem"><%=location%>
     </td>
+<!--
     <td width="100" height="32px" class="lineitem">
     	<a href="http://<%=CommonConfiguration.getURLLocation(request)%>/encounters/encounter.jsp?number=<%=enc.getEncounterNumber()%>">
     		
@@ -568,6 +706,7 @@ if(sharky.getLocationID()!=null){
     <td class="lineitem"><a
       href="http://<%=CommonConfiguration.getURLLocation(request)%>/encounters/encounter.jsp?number=<%=enc.getEncounterNumber()%><%if(request.getParameter("noscript")!=null){%>&noscript=null<%}%>"><%=enc.getEncounterNumber()%>
     </a></td>
+-->
 
     <%
       if (enc.getAlternateID() != null) {
@@ -588,7 +727,7 @@ if(sharky.getLocationID()!=null){
 String sexValue="&nbsp;";
 if(enc.getSex()!=null){sexValue=enc.getSex();}
 %>
-    <td class="lineitem"><%=sexValue %></td>
+    <td data-prop="sex" class="col-sex lineitem"><%=sexValue %></td>
 
     <%
       if (CommonConfiguration.useSpotPatternRecognition(context)) {
@@ -624,16 +763,26 @@ if(enc.getSex()!=null){sexValue=enc.getSex();}
     
   <td class="lineitem">
     <%
-    if(enc.getHaplotype()!=null){
-    %>
-    <%=enc.getHaplotype() %>
-    <%	
-    }
-    else{
-    %>
-    &nbsp;
-    <%	
-    }
+	String iid = enc.getIndividualID();
+	if ((iid != null) && !iid.equals("")) {
+		ArrayList<Relationship> rels = myShepherd.getAllRelationshipsForMarkedIndividual(iid);
+		if ((rels == null) || (rels.size() < 1)) {
+			%><span class="relationship-none" title="add a relationship" onClick="return relAdd(event);">add</span> <%
+		} else {
+			for (Relationship r : rels) {
+				String partner = r.getMarkedIndividualName1();
+				String role = r.getMarkedIndividualRole2();
+				String type = r.getType();
+				if (partner.equals(iid)) {
+					partner = r.getMarkedIndividualName2();
+					role = r.getMarkedIndividualRole1();
+				}
+			%><span data-partner="<%=partner%>" class="relationship relType-<%=type%> relRole-<%=role%>"><%=role%> to <%=partner%></span> <%
+  			}
+		}
+  //private String markedIndividualName2;
+  //private String markedIndividualRole2;
+	}
     %>
     </td>
   </tr>
@@ -1065,6 +1214,50 @@ if(enc.getSex()!=null){sexValue=enc.getSex();}
 </table>
 </div><!-- end maintext -->
 </div><!-- end main-wide -->
+
+
+
+<div id="relationships-form" onClick="event.stopPropagation(); return false;">
+
+<div class="rel-sub">
+<label for="rel-type">type</label>
+<select id="rel-type">
+<option>familial</option>
+<option>social grouping</option>
+</select>
+</div>
+
+<div class="rel-sub">
+<label>this individual's role:</label>
+<select id="rel-this-role">
+<option>member</option>
+<option>mother</option>
+<option>calf</option>
+</select>
+</div>
+
+<div class="rel-sub">
+<label>other individual:</label>
+<input type="text" id="rel-other-id" />
+<label>role:</label>
+<select id="rel-other-role">
+<option>member</option>
+<option>mother</option>
+<option>calf</option>
+</select>
+</div>
+
+<div class="rel-sub">
+<label>social unit name:</label>
+<input type="text" id="rel-social-unit-name" />
+</div>
+
+<input type="button" value="save" onClick="return relSave(event)" />
+<input type="button" value="cancel" onClick="return relCancel(event)" />
+
+</div>
+
+
 
 
 <br />
