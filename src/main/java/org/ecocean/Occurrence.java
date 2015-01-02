@@ -35,6 +35,22 @@ public class Occurrence implements java.io.Serializable{
   //private String locationID;
   private String dateTimeCreated;
   
+	/* Rosemary meta-data for IBEIS */
+	private String sun = "";
+	private String wind = "";
+	private String rain = "";
+	private String cloudCover = "";
+	private Double decimalLatitude;
+	private Double decimalLongitude;
+	private Double distance;
+	private String direction;
+	private String localName;
+	private String grassLength;
+	private String grassColor;
+	private String grassSpecies;
+	private String bushType;
+	private String bit;
+	private String otherSpecies;
   
   //empty constructor used by the JDO enhancer
   public Occurrence(){}
@@ -180,7 +196,117 @@ public class Occurrence implements java.io.Serializable{
       comments = newComments;
     }
   }
-  
+
+	public void setWind(String w) {
+		this.wind = w;
+	}
+
+	public String getWind() {
+		return this.wind;
+	}
+
+	public void setSun(String s) {
+		this.sun = s;
+	}
+
+	public String getSun() {
+		return this.sun;
+	}
+
+	public void setDecimalLatitude(Double d) {
+		this.decimalLatitude = d;
+	}
+
+	public Double getDecimalLatitude() {
+		return this.decimalLatitude;
+	}
+
+	public void setDecimalLongitude(Double d) {
+		this.decimalLongitude = d;
+	}
+
+	public Double getDecimalLongitude() {
+		return this.decimalLongitude;
+	}
+
+	public String getRain() {
+		return this.rain;
+	}
+	public void setRain(String r) {
+		this.rain = r;
+	}
+
+	public String getCloudCover() {
+		return this.cloudCover;
+	}
+	public void setCloudCover(String c) {
+		this.cloudCover = c;
+	}
+
+	public String getDirection() {
+		return this.direction;
+	}
+	public void setDirection(String d) {
+		this.direction = d;
+	}
+
+	public String getLocalName() {
+		return this.localName;
+	}
+	public void setLocalName(String n) {
+		this.localName = n;
+	}
+
+	public String getGrassLength() {
+		return this.grassLength;
+	}
+	public void setGrassLength(String l) {
+		this.grassLength = l;
+	}
+
+	public String getGrassColor() {
+		return this.grassColor;
+	}
+	public void setGrassColor(String c) {
+		this.grassColor = c;
+	}
+
+	public String getGrassSpecies() {
+		return this.grassSpecies;
+	}
+	public void setGrassSpecies(String g) {
+		this.grassSpecies = g;
+	}
+
+	public String getBushType() {
+		return this.bushType;
+	}
+	public void setBushType(String t) {
+		this.bushType = t;
+	}
+
+	public String getBit() {
+		return this.bit;
+	}
+	public void setBit(String b) {
+		this.bit = b;
+	}
+
+	public String getOtherSpecies() {
+		return this.otherSpecies;
+	}
+	public void setOtherSpecies(String s) {
+		this.otherSpecies = s;
+	}
+
+	public Double getDistance() {
+		return this.distance;
+	}
+	public void setDistance(Double d) {
+		this.distance = d;
+	}
+
+
   public Vector returnEncountersWithGPSData(boolean useLocales, boolean reverseOrder,String context) {
     //if(unidentifiableEncounters==null) {unidentifiableEncounters=new Vector();}
     Vector haveData=new Vector();
