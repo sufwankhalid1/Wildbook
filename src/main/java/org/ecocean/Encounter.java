@@ -28,6 +28,7 @@ import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.Vector;
 import java.util.GregorianCalendar;
+import java.util.Calendar;
 import java.io.*;
 
 import org.ecocean.genetics.*;
@@ -738,6 +739,18 @@ public class Encounter implements java.io.Serializable {
   public String getSizeGuess() {
     return size_guess;
   }
+
+	public void setDateInMilliseconds(long ms) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTimeInMillis(ms);
+		this.year = cal.get(Calendar.YEAR);
+		this.month = cal.get(Calendar.MONTH) + 1;
+		this.day = cal.get(Calendar.DAY_OF_MONTH);
+		this.hour = cal.get(Calendar.HOUR);
+		this.minutes = Integer.toString(cal.get(Calendar.MINUTE));
+		if (this.minutes.length() == 1) this.minutes = "0" + this.minutes;
+		this.dateInMilliseconds = ms;
+	}
 
   public void setDay(int day) {
     this.day=day;
