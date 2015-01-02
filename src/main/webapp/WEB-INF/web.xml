@@ -143,6 +143,9 @@
 		   /ImportSRGD = authc, roles[admin]
 		        /IndividualCreate = authc, roles[admin]
 		        /OccurrenceCreate = authc, roles[admin]
+<!--
+		        /OccurrenceCreateIBEIS = authc, roles[admin]
+-->
 		        /OccurrenceRemoveEncounter = authc, roles[admin]
 		        /IndividualRemoveEncounter = authc, roles[admin]
 		        /OccurrenceAddEncounter = authc, roles[admin]
@@ -608,6 +611,10 @@
       <servlet-name>OccurrenceCreate</servlet-name>
       <servlet-class>org.ecocean.servlet.OccurrenceCreate</servlet-class>
   </servlet>
+    <servlet>
+      <servlet-name>OccurrenceCreateIBEIS</servlet-name>
+      <servlet-class>org.ecocean.servlet.OccurrenceCreateIBEIS</servlet-class>
+  </servlet>
 
 
   <servlet>
@@ -1048,6 +1055,11 @@
     <servlet-mapping>
       <servlet-name>OccurrenceCreate</servlet-name>
       <url-pattern>/OccurrenceCreate</url-pattern>
+  </servlet-mapping>
+
+    <servlet-mapping>
+      <servlet-name>OccurrenceCreateIBEIS</servlet-name>
+      <url-pattern>/OccurrenceCreateIBEIS</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>
