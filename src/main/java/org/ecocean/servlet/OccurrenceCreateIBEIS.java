@@ -100,6 +100,14 @@ System.out.println(ienc);
 
 	//HashMap<String, HashMap> annots = <HashMap>ienc.get("anns");
 
+	if (ienc.get("anns") == null) {
+		//out.println(ServletUtilities.getHeader(request));
+		out.println("<p><strong>error!</strong> cannot find annotations for ID <b>" + myOccurrenceID + "</b></p>");
+		//out.println(ServletUtilities.getFooter(context));
+		out.close();
+		return;
+	}
+
 	for (HashMap annot : ienc.get("anns").values()) {
 System.out.println(" - - - - - - ");
 System.out.println(annot);
@@ -124,7 +132,9 @@ File from = new File(IBEIS_image_path, idata.get("image_uri").toString());
 System.out.println("FROM " + from.toString());
 System.out.println(ifile.toString() + "<<<?????????????");
 			if (from.exists()) {
-				Files.copy(from.toPath(), ifile.toPath());
+				if (!ifile.exists()) {
+					Files.copy(from.toPath(), ifile.toPath());
+				}
 				SinglePhotoVideo spv = new SinglePhotoVideo(enc.getCatalogNumber(), ifile);
 //System.out.println(ifile);
 				enc.addSinglePhotoVideo(spv);
@@ -144,7 +154,6 @@ System.out.println(ifile.toString() + "<<<?????????????");
 		myShepherd.storeNewOccurrence(occ);
 
 
-		//TODO
 		String indivID = null;
 		if (annot.get("label_9") != null) indivID = annot.get("label_9").toString();
 		if ((indivID == null) || indivID.equals("")) {
