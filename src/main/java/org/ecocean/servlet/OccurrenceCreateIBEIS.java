@@ -145,7 +145,8 @@ System.out.println(ifile.toString() + "<<<?????????????");
 
 
 		//TODO
-		String indivID = annot.get("label_9").toString();
+		String indivID = null;
+		if (annot.get("label_9") != null) indivID = annot.get("label_9").toString();
 		if ((indivID == null) || indivID.equals("")) {
     			enc.setIndividualID("Unassigned");
 		} else {
