@@ -115,6 +115,7 @@ System.out.println(annot);
 //  public Encounter(int day, int month, int year, int hour, String minutes, String size_guess, String location, String submitterName, String submitterEmail, List<SinglePhotoVideo> images) {
 		Encounter enc = new Encounter(1, 1, 2014, 22, "30", "Unknown", "", "IBEIS submitter", "submit@ibeis.org", null);
 		enc.setEncounterNumber(annot.get("annot_uuid").toString());
+		enc.setState("unapproved");
 
 		Long etime = null;
 		//TODO is there always only one?  i think so
@@ -180,6 +181,7 @@ System.out.println("existing indiv = " + indivID);
 
 		myShepherd.storeNewEncounter(enc, enc.getCatalogNumber());
 System.out.println(">>>>>>>>>>>>>>>>> stored encounter: " + enc.getCatalogNumber());
+		enc.refreshAssetFormats(context, baseDir);
 	}
 
 
