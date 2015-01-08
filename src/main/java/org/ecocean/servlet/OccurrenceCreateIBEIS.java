@@ -71,7 +71,7 @@ public class OccurrenceCreateIBEIS extends HttpServlet {
     context=ServletUtilities.getContext(request);
     Shepherd myShepherd = new Shepherd(context);
     //set up for response
-    response.setContentType("text/html");
+    response.setContentType("application/json");
     PrintWriter out = response.getWriter();
     boolean locked = false;
 
@@ -101,8 +101,9 @@ System.out.println(ienc);
 	//HashMap<String, HashMap> annots = <HashMap>ienc.get("anns");
 
 	if (ienc.get("anns") == null) {
+		response.setStatus(404);
 		//out.println(ServletUtilities.getHeader(request));
-		out.println("<p><strong>error!</strong> cannot find annotations for ID <b>" + myOccurrenceID + "</b></p>");
+		out.println("{ \"error\": \"cannot find annotations for ID " + myOccurrenceID + "\" }");
 		//out.println(ServletUtilities.getFooter(context));
 		out.close();
 		return;
@@ -278,15 +279,10 @@ System.out.println(">>>>>>>>>>>>>>>>> stored encounter: " + enc.getCatalogNumber
     }
 */
 
-	response.sendRedirect("http://" + CommonConfiguration.getURLLocation(request) + "/occurrenceIBEIS.jsp?number=" + myOccurrenceID);
-/*
-      out.println(ServletUtilities.getHeader(request));
-      out.println("<p><strong>success!</strong> check out <a href=\"occurrenceIBEIS.jsp?number=" + myOccurrenceID + "\">the Occurrence [ID " + myOccurrenceID + "]</a></p>");
-      out.println(ServletUtilities.getFooter(context));
+	//response.sendRedirect("http://" + CommonConfiguration.getURLLocation(request) + "/occurrenceIBEIS.jsp?number=" + myOccurrenceID);
+	out.println("{ \"success\": true, \"id\": \"" + myOccurrenceID + "\" }");
+	out.close();
 
-    out.close();
-*/
-    
   }
 
 	public HashMap getIBEISEncounterStructure(String eid, String context) {
