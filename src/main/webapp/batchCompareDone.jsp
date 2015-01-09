@@ -384,6 +384,13 @@ System.out.println(") matched?????? " + lm.group(1) + ":" + lm.group(2));
 								int sloc = loc + bestImg.length() + 4;
 								i.put("bestImg", bestImg + "." + lm.group(2).substring(sloc, sloc + 3));
 								found = true;
+							} else {
+								loc = lm.group(2).indexOf(bestImg);
+								if (loc > -1) {
+									int sloc = loc + bestImg.length() + 1;
+									i.put("bestImg", bestImg + "." + lm.group(2).substring(sloc, sloc + 3));
+									found = true;
+								}
 							}
 						}
 
