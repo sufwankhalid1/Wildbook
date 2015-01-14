@@ -304,7 +304,7 @@ tr.enc-row:hover {
 				String value = request.getParameter(pname);
 				//saveMessage += "<p>occ - " + methodName + "</P>";
 				java.lang.reflect.Method method;
-				if (pname.indexOf("decimalL") > -1) {  //must call with Double value
+				if ((pname.indexOf("decimalL") > -1) || pname.equals("occ:distance") || pname.equals("occ:bearing")) {  //must call with Double value
 					Double dbl = null;
 					try {
 						dbl = Double.parseDouble(value);
@@ -314,6 +314,19 @@ tr.enc-row:hover {
 					try {
 						method = sharky.getClass().getMethod(methodName, Double.class);
 						method.invoke(sharky, dbl);
+					} catch (Exception ex) {
+						System.out.println(methodName + " -> " + ex.toString());
+					}
+				} else if ((pname.indexOf("num") == 4) || pname.equals("occ:groupSize")) {  //int 
+					Integer i = null;
+					try {
+						i = Integer.parseInt(value);
+					} catch (Exception ex) {
+						System.out.println("could not parse integer from " + value + ", using null");
+					}
+					try {
+						method = sharky.getClass().getMethod(methodName, Integer.class);
+						method.invoke(sharky, i);
 					} catch (Exception ex) {
 						System.out.println(methodName + " -> " + ex.toString());
 					}
@@ -379,22 +392,6 @@ tr.enc-row:hover {
 
 
 
-	private Double distance;
-	private Double decimalLatitude;
-	private Double decimalLongitude;
-
-/////Lewa-specifics
-
-	private String habitat;
-	private Integer groupSize;
-	private Integer numTerMales;
-	private Integer numBachMales;
-	private Integer numNonLactFemales;
-	private Integer numLactFemales;
-	private Double bearing;
-
-  
-
 <p>
 <strong>Habitat</strong>
 <input name="occ:habitat" value="<%=cleanString(sharky.getHabitat())%>" />
@@ -407,22 +404,22 @@ tr.enc-row:hover {
 
 <p>
 <strong>Number Territorial Males</strong>
-<input name="occ:numTerMales" value="<%=cleanString(sharky.numTerMales())%>" />
+<input name="occ:numTerMales" value="<%=cleanString(sharky.getNumTerMales())%>" />
 </p>
 
 <p>
 <strong>Number Bachelor Males</strong>
-<input name="occ:numBachMales" value="<%=cleanString(sharky.numBachMales())%>" />
+<input name="occ:numBachMales" value="<%=cleanString(sharky.getNumBachMales())%>" />
 </p>
 
 <p>
 <strong>Number Lactating Females</strong>
-<input name="occ:numLactFemales" value="<%=cleanString(sharky.numLactFemales())%>" />
+<input name="occ:numLactFemales" value="<%=cleanString(sharky.getNumLactFemales())%>" />
 </p>
 
 <p>
 <strong>Number Non-lactating Females</strong>
-<input name="occ:numNonLactFemales" value="<%=cleanString(sharky.numNonLactFemales())%>" />
+<input name="occ:numNonLactFemales" value="<%=cleanString(sharky.getNumNonLactFemales())%>" />
 </p>
 
 
