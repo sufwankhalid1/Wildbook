@@ -36,13 +36,11 @@ public class Occurrence implements java.io.Serializable{
   private String dateTimeCreated;
   
 	/* Rosemary meta-data for IBEIS */
+/*
 	private String sun = "";
 	private String wind = "";
 	private String rain = "";
 	private String cloudCover = "";
-	private Double decimalLatitude;
-	private Double decimalLongitude;
-	private Double distance;
 	private String direction;
 	private String localName;
 	private String grassLength;
@@ -51,6 +49,21 @@ public class Occurrence implements java.io.Serializable{
 	private String bushType;
 	private String bit;
 	private String otherSpecies;
+*/
+	private Double distance;
+	private Double decimalLatitude;
+	private Double decimalLongitude;
+
+/////Lewa-specifics
+
+	private String habitat;
+	private Integer groupSize;
+	private Integer numTerMales;
+	private Integer numBachMales;
+	private Integer numNonLactFemales;
+	private Integer numLactFemales;
+	private Double bearing;
+
   
   //empty constructor used by the JDO enhancer
   public Occurrence(){}
@@ -197,21 +210,6 @@ public class Occurrence implements java.io.Serializable{
     }
   }
 
-	public void setWind(String w) {
-		this.wind = w;
-	}
-
-	public String getWind() {
-		return this.wind;
-	}
-
-	public void setSun(String s) {
-		this.sun = s;
-	}
-
-	public String getSun() {
-		return this.sun;
-	}
 
 	public void setDecimalLatitude(Double d) {
 		this.decimalLatitude = d;
@@ -229,6 +227,22 @@ public class Occurrence implements java.io.Serializable{
 		return this.decimalLongitude;
 	}
 
+/*
+	public void setWind(String w) {
+		this.wind = w;
+	}
+
+	public String getWind() {
+		return this.wind;
+	}
+
+	public void setSun(String s) {
+		this.sun = s;
+	}
+
+	public String getSun() {
+		return this.sun;
+	}
 	public String getRain() {
 		return this.rain;
 	}
@@ -298,6 +312,7 @@ public class Occurrence implements java.io.Serializable{
 	public void setOtherSpecies(String s) {
 		this.otherSpecies = s;
 	}
+*/
 
 	public Double getDistance() {
 		return this.distance;
@@ -306,6 +321,55 @@ public class Occurrence implements java.io.Serializable{
 		this.distance = d;
 	}
 
+	public String getHabitat() {
+		return this.habitat;
+	}
+	public void setHabitat(String h) {
+		this.habitat = h;
+	}
+
+	public Integer getGroupSize() {
+		return this.groupSize;
+	}
+	public void setGroupSize(Integer s) {
+		this.groupSize = s;
+	}
+
+	public Integer getNumTerMales() {
+		return this.numTerMales;
+	}
+	public void setNumTerMales(Integer s) {
+		this.numTerMales = s;
+	}
+
+	public Integer getNumBachMales() {
+		return this.numBachMales;
+	}
+	public void setNumBachMales(Integer s) {
+		this.numBachMales = s;
+	}
+
+	public Integer getNumNonLactFemales() {
+		return this.numNonLactFemales;
+	}
+	public void setNumNonLactFemales(Integer s) {
+		this.numNonLactFemales = s;
+	}
+
+	public Integer getNumLactFemales() {
+		return this.numLactFemales;
+	}
+	public void setNumLactFemales(Integer s) {
+		this.numLactFemales = s;
+	}
+
+	public Double getBearing() {
+		return this.bearing;
+	}
+	public void setBearing(Double b) {
+		this.bearing = b;
+	}
+  
 
   public Vector returnEncountersWithGPSData(boolean useLocales, boolean reverseOrder,String context) {
     //if(unidentifiableEncounters==null) {unidentifiableEncounters=new Vector();}

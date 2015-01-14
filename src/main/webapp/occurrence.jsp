@@ -377,125 +377,52 @@ tr.enc-row:hover {
 <form method="post" action="occurrence.jsp" id="occform">
 <input name="number" type="hidden" value="<%=sharky.getOccurrenceID()%>" />
 
+
+
+	private Double distance;
+	private Double decimalLatitude;
+	private Double decimalLongitude;
+
+/////Lewa-specifics
+
+	private String habitat;
+	private Integer groupSize;
+	private Integer numTerMales;
+	private Integer numBachMales;
+	private Integer numNonLactFemales;
+	private Integer numLactFemales;
+	private Double bearing;
+
+  
+
 <p>
-<strong>Sun</strong>
-<select name="occ:sun">
-<%
-String o = "";
-String opt[] = new String[] {"Unknown", "Overcast", "Partial Sun", "Full Sun"};
-for (int i = 0 ; i < 4 ; i++) {
-	o += "<option";
-	if (opt[i].equals(sharky.getSun())) o += " selected";
-	o += ">" + opt[i] + "</option>";
-}
-out.println(o);
-%>
-</select>
+<strong>Habitat</strong>
+<input name="occ:habitat" value="<%=cleanString(sharky.getHabitat())%>" />
 </p>
 
 <p>
-<strong>Wind</strong>
-<select name="occ:wind">
-<%
-o = "";
-String opt2[] = new String[] {"Unknown", "Light wind", "Strong wind"};
-for (int i = 0 ; i < 3 ; i++) {
-	o += "<option";
-	if (opt2[i].equals(sharky.getWind())) o += " selected";
-	o += ">" + opt2[i] + "</option>";
-}
-out.println(o);
-%>
-</select>
+<strong>Group Size</strong>
+<input name="occ:groupSize" value="<%=cleanString(sharky.getGroupSize())%>" />
 </p>
 
 <p>
-<strong>Rain</strong>
-<select name="occ:rain">
-<%
-o = "";
-String opt3[] = new String[] {"Unknown", "Light rain", "Heavy rain"};
-for (int i = 0 ; i < 3 ; i++) {
-	o += "<option";
-	if (opt3[i].equals(sharky.getRain())) o += " selected";
-	o += ">" + opt3[i] + "</option>";
-}
-out.println(o);
-%>
-</select>
+<strong>Number Territorial Males</strong>
+<input name="occ:numTerMales" value="<%=cleanString(sharky.numTerMales())%>" />
 </p>
 
 <p>
-<strong>Cloud Cover</strong>
-<select name="occ:cloudCover">
-<%
-o = "";
-String opt4[] = new String[] {"Unknown", "Clear", "Light clouds", "Overcast"};
-for (int i = 0 ; i < 4 ; i++) {
-	o += "<option";
-	if (opt4[i].equals(sharky.getCloudCover())) o += " selected";
-	o += ">" + opt4[i] + "</option>";
-}
-out.println(o);
-%>
-</select>
+<strong>Number Bachelor Males</strong>
+<input name="occ:numBachMales" value="<%=cleanString(sharky.numBachMales())%>" />
 </p>
 
 <p>
-<strong>Distance (meters)</strong>
-<input name="occ:distance" value="<%=cleanString(sharky.getDistance())%>" />
+<strong>Number Lactating Females</strong>
+<input name="occ:numLactFemales" value="<%=cleanString(sharky.numLactFemales())%>" />
 </p>
 
 <p>
-<strong>Direction</strong>
-<input name="occ:direction" value="<%=cleanString(sharky.getDirection())%>" />
-</p>
-
-<p>
-<strong>Grass Length</strong>
-<select name="occ:grassLength">
-<%
-o = "";
-String opt5[] = new String[] {"Unknown", "Hoof", "Hock", "Belly"};
-for (int i = 0 ; i < 4 ; i++) {
-	o += "<option";
-	if (opt5[i].equals(sharky.getGrassLength())) o += " selected";
-	o += ">" + opt5[i] + "</option>";
-}
-out.println(o);
-%>
-</select>
-</p>
-
-<p>
-<strong>Grass Colour</strong>
-<select name="occ:grassColor">
-<%
-o = "";
-String opt6[] = new String[] {"Unknown", "Brown", "Brown-green", "Green-brown", "Green"};
-for (int i = 0 ; i < 5 ; i++) {
-	o += "<option";
-	if (opt6[i].equals(sharky.getGrassColor())) o += " selected";
-	o += ">" + opt6[i] + "</option>";
-}
-out.println(o);
-%>
-</select>
-</p>
-
-<p>
-<strong>Grass species</strong>
-<input name="occ:grassSpecies" value="<%=cleanString(sharky.getGrassSpecies())%>" />
-</p>
-
-<p>
-<strong>Bush Type</strong>
-<input name="occ:bushType" value="<%=cleanString(sharky.getBushType())%>" />
-</p>
-
-<p>
-<strong>Other species</strong>
-<input name="occ:otherSpecies" value="<%=cleanString(sharky.getOtherSpecies())%>" />
+<strong>Number Non-lactating Females</strong>
+<input name="occ:numNonLactFemales" value="<%=cleanString(sharky.numNonLactFemales())%>" />
 </p>
 
 
@@ -512,6 +439,18 @@ out.println(o);
 </div>
 
 </div>
+
+<p>
+<strong>Distance (meters)</strong>
+<input name="occ:distance" value="<%=cleanString(sharky.getDistance())%>" />
+</p>
+
+<p>
+<strong>Bearing (degrees from north)</strong>
+<input name="occ:bearing" value="<%=cleanString(sharky.getBearing())%>" />
+</p>
+
+
 
 
 
