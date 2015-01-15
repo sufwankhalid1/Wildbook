@@ -176,7 +176,7 @@ System.out.println(ifile.toString() + "<<<?????????????");
 
 
 		String indivID = null;
-		if (annot.get("label_9") != null) indivID = annot.get("label_9").toString();
+		if (annot.get("indivID") != null) indivID = annot.get("indivID").toString();
 		if ((indivID == null) || indivID.equals("")) {
     			enc.setIndividualID("Unassigned");
 		} else {
@@ -497,12 +497,13 @@ System.out.println("found="+found);
 				for (int iid : imgs.keySet()) {
 System.out.println("IMG ID >>"+iid);
 					st = c.createStatement();
-					rs = st.executeQuery("SELECT * FROM annotations WHERE image_rowid=" + iid);
+					rs = st.executeQuery("SELECT *, names.name_text AS indivID FROM annotations LEFT JOIN names USING (name_rowid) WHERE image_rowid=" + iid);
 					while (rs.next()) {
 System.out.println(" .... aid=" + rs.getInt("annot_rowid"));
 						HashMap ann = new HashMap();
 						int aid = rs.getInt("annot_rowid");
 						ann.put("id", aid);
+						ann.put("indivID", rs.getString("indivID"));
 
 				UUID uuid = bytesToUUID(rs.getBytes("annot_uuid"));
 				ann.put("annot_uuid", uuid.toString());
