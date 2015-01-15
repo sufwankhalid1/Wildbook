@@ -47,6 +47,8 @@ import java.sql.*;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import org.xml.sax.InputSource;
+import java.io.StringReader;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -87,7 +89,6 @@ public class OccurrenceCreateIBEIS extends HttpServlet {
 
 		Occurrence occ = null;
     String myOccurrenceID="";
-	String waypointId = request.getParameter("waypoint_id");
 
     if(request.getParameter("ibeis_encounter_id") != null){
       myOccurrenceID=request.getParameter("ibeis_encounter_id");
@@ -96,7 +97,12 @@ public class OccurrenceCreateIBEIS extends HttpServlet {
 			occ = myShepherd.getOccurrence(myOccurrenceID);
     }
 
-	HashMap metaFromXml = parseMetaXml(waypointId);
+	String waypointId = request.getParameter("smart_waypoint_id");
+	String xmlIn = request.getParameter("smart_xml_content");
+//System.out.println("xmlIn(\n" + xmlIn + "\n)END");
+	HashMap metaFromXml = parseMetaXml(waypointId, xmlIn);
+//System.out.println("xml done");
+//if (!waypointId.equals("XXXX")) throw new IOException("nope!");
 
 
 	String IBEIS_image_path = CommonConfiguration.getProperty("IBEIS_image_path", context);
@@ -166,67 +172,6 @@ System.out.println(ifile.toString() + "<<<?????????????");
 		enc.setOccurrenceID(myOccurrenceID);
 		occ.addEncounter(enc);
 
-		if (metaFromXml != null) {
-			if (metaFromXml.get("habitat") != null) occ.setHabitat(metaFromXml.get("habitat").toString());
-			Integer gsize = 0;
-			Integer tm = 0;
-			Integer bm = 0;
-			Integer lf = 0;
-			Integer nlf = 0;
-			Double distance = new Double(0);
-			Double dlat = new Double(-1);
-			Double dlong = new Double(-1);
-			Double bearing = new Double(-1);
-
-			double d;
-
-			if (metaFromXml.get("groupsize") != null) {
-				try {
-					d = Double.parseDouble(metaFromXml.get("groupsize").toString());
-					gsize = new Integer((int)d);
-				} catch (Exception ex) { }
-			}
-System.out.println("groupsize -> " + gsize);
-			occ.setGroupSize(gsize);
-
-			if (metaFromXml.get("nooftm") != null) {
-				try {
-					d = Double.parseDouble(metaFromXml.get("nooftm").toString());
-					tm = new Integer((int)d);
-				} catch (Exception ex) { }
-			}
-System.out.println("tm -> " + tm);
-			occ.setNumTerMales(tm);
-
-/////////////// THE DOUBLES
-//
-			if (metaFromXml.get("distancem") != null) {
-				try {
-					d = Double.parseDouble(metaFromXml.get("distancem").toString());
-					distance = d;
-				} catch (Exception ex) { }
-			}
-System.out.println("distance -> " + distance);
-			occ.setDistance(distance);
-
-/*
-	private Double distance;
-	private Double decimalLatitude;
-	private Double decimalLongitude;
-
-/////Lewa-specifics
-
-	private String habitat;
-	private Integer groupSize;
-	private Integer numTerMales;
-	private Integer numBachMales;
-	private Integer numNonLactFemales;
-	private Integer numLactFemales;
-	private Double bearing;
-*/
-throw new IOException("oops");
-		}
-
 		myShepherd.storeNewOccurrence(occ);
 
 
@@ -259,6 +204,125 @@ System.out.println(">>>>>>>>>>>>>>>>> stored encounter: " + enc.getCatalogNumber
 		enc.refreshAssetFormats(context, baseDir);
 	}
 
+
+	//now we set the metadata on the occurrence if we can
+	if (metaFromXml != null) {
+System.out.println("#### we have metadata xml (now setting on occurrence):");
+System.out.println(metaFromXml);
+			if (metaFromXml.get("habitat") != null) occ.setHabitat(metaFromXml.get("habitat").toString());
+			Integer gsize = 0;
+			Integer tm = 0;
+			Integer bm = 0;
+			Integer lf = 0;
+			Integer nlf = 0;
+			Double distance = new Double(0);
+			Double dlat = new Double(-1);
+			Double dlong = new Double(-1);
+			Double bearing = new Double(-1);
+
+			double d;
+
+			if (metaFromXml.get("groupsize") != null) {
+				try {
+					d = Double.parseDouble(metaFromXml.get("groupsize").toString());
+					gsize = new Integer((int)d);
+				} catch (Exception ex) { }
+			}
+System.out.println("groupsize -> " + gsize);
+			occ.setGroupSize(gsize);
+
+			if (metaFromXml.get("noofbm") != null) {
+				try {
+					d = Double.parseDouble(metaFromXml.get("noofbm").toString());
+					bm = new Integer((int)d);
+				} catch (Exception ex) { }
+			}
+System.out.println("bm -> " + bm);
+			occ.setNumBachMales(bm);
+
+			if (metaFromXml.get("nooftm") != null) {
+				try {
+					d = Double.parseDouble(metaFromXml.get("nooftm").toString());
+					tm = new Integer((int)d);
+				} catch (Exception ex) { }
+			}
+System.out.println("tm -> " + tm);
+			occ.setNumTerMales(tm);
+
+			if (metaFromXml.get("nooflf") != null) {
+				try {
+					d = Double.parseDouble(metaFromXml.get("nooflf").toString());
+					lf = new Integer((int)d);
+				} catch (Exception ex) { }
+			}
+System.out.println("lf -> " + lf);
+			occ.setNumLactFemales(lf);
+
+			if (metaFromXml.get("noofnlf") != null) {
+				try {
+					d = Double.parseDouble(metaFromXml.get("noofnlf").toString());
+					nlf = new Integer((int)d);
+				} catch (Exception ex) { }
+			}
+System.out.println("nlf -> " + nlf);
+			occ.setNumNonLactFemales(nlf);
+
+			if (metaFromXml.get("distancem") != null) {
+				try {
+					d = Double.parseDouble(metaFromXml.get("distancem").toString());
+					distance = d;
+				} catch (Exception ex) { }
+			}
+System.out.println("distance -> " + distance);
+			occ.setDistance(distance);
+
+			if (metaFromXml.get("decimalLatitude") != null) {
+				try {
+					d = Double.parseDouble(metaFromXml.get("decimalLatitude").toString());
+					dlat = d;
+				} catch (Exception ex) { }
+			}
+System.out.println("dlat -> " + dlat);
+			occ.setDecimalLatitude(dlat);
+
+			if (metaFromXml.get("decimalLongitude") != null) {
+				try {
+					d = Double.parseDouble(metaFromXml.get("decimalLongitude").toString());
+					dlong = d;
+				} catch (Exception ex) { }
+			}
+System.out.println("dlong -> " + dlong);
+			occ.setDecimalLongitude(dlong);
+
+			if (metaFromXml.get("bearing") != null) {
+				try {
+					d = Double.parseDouble(metaFromXml.get("bearing").toString());
+					bearing = d;
+				} catch (Exception ex) { }
+			}
+System.out.println("bearing -> " + bearing);
+			occ.setBearing(bearing);
+
+
+/*
+	private Double distance;
+	private Double decimalLatitude;
+	private Double decimalLongitude;
+
+/////Lewa-specifics
+
+	private String habitat;
+	private Integer groupSize;
+	private Integer numTerMales;
+	private Integer numBachMales;
+	private Integer numNonLactFemales;
+	private Integer numLactFemales;
+	private Double bearing;
+*/
+//throw new IOException("oops");
+System.out.println("saving Occurrence with set metadata ******");
+			myShepherd.storeNewOccurrence(occ);
+	}
 
 	//myShepherd.commitDBTransaction();
 	myShepherd.closeDBTransaction();
@@ -514,17 +578,21 @@ System.out.println("============================================================
 		return new UUID(a,b);
 	}
 
-	private HashMap parseMetaXml(String waypointId) {
+	private HashMap parseMetaXml(String waypointId, String xmlIn) {
+		if ((waypointId == null) || (xmlIn == null)) return null;
 		Document xdoc = null;
 		HashMap val = new HashMap();
-		File xfile = new File("/tmp/test.xml");
+		////File xfile = new File("/tmp/test.xml");  //debug only
 		try {
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-			xdoc = dBuilder.parse(xfile);
+			//xdoc = dBuilder.parse(xfile);  //debug only
+			InputSource is = new InputSource(new StringReader(xmlIn));
+			xdoc = dBuilder.parse(is);
 			xdoc.getDocumentElement().normalize();
 		} catch (Exception ex) {
-			System.out.println("could not read " + xfile.toString() + ": " + ex.toString());
+			//System.out.println("could not read " + xfile.toString() + ": " + ex.toString());
+			System.out.println("could not parse xmlIn: " + ex.toString() + "; raw xml ->\n" + xmlIn);
 			return null;
 		}
 
@@ -536,8 +604,9 @@ System.out.println("============================================================
 			Element el = (Element) n;
 System.out.println("- waypoint id=" + el.getAttribute("id"));
 			if (!el.getAttribute("id").equals(waypointId)) continue;  //nope
-			val.put("digitalLongitude", el.getAttribute("x"));
-			val.put("digitalLatitude", el.getAttribute("y"));
+System.out.println("+ found our target waypoint " + waypointId);
+			val.put("decimalLongitude", el.getAttribute("x"));
+			val.put("decimalLatitude", el.getAttribute("y"));
 			val.put("time", el.getAttribute("time"));
 			NodeList anlist = el.getElementsByTagName("attributes");
 			for (int j = 0 ; j < anlist.getLength() ; j++) {
