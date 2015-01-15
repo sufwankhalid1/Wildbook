@@ -43,7 +43,6 @@ import org.ecocean.tag.AcousticTag;
 import org.ecocean.tag.MetalTag;
 import org.ecocean.tag.SatelliteTag;
 
-import org.joda.time.DateTime;
 import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
@@ -768,10 +767,12 @@ System.out.println("depth --> " + fv.get("depth").toString());
       enc.setDWCImageURL(("http://" + CommonConfiguration.getURLLocation(request) + "/encounters/encounter.jsp?number=" + encID));
 
       //populate DarwinCore dates
-      DateTime dt = new DateTime();
+      LocalDateTime dt = new LocalDateTime();
       DateTimeFormatter fmt = ISODateTimeFormat.date();
       String strOutputDateTime = fmt.print(dt);
       enc.setDWCDateAdded(strOutputDateTime);
+      enc.setDWCDateAdded(new Long(dt.toDateTime().getMillis()));
+      System.out.println("I set the date as a LONG to: "+enc.getDWCDateAddedLong());
       enc.setDWCDateLastModified(strOutputDateTime);
 
 
