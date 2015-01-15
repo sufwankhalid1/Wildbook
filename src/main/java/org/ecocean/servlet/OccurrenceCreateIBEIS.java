@@ -45,6 +45,13 @@ import java.nio.file.Path;
 import java.nio.file.Files;
 import java.sql.*;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 
 public class OccurrenceCreateIBEIS extends HttpServlet {
 
@@ -80,12 +87,17 @@ public class OccurrenceCreateIBEIS extends HttpServlet {
 
 		Occurrence occ = null;
     String myOccurrenceID="";
+	String waypointId = request.getParameter("waypoint_id");
+
     if(request.getParameter("ibeis_encounter_id") != null){
       myOccurrenceID=request.getParameter("ibeis_encounter_id");
       //remove special characters
       //myOccurrenceID=ServletUtilities.cleanFileName(myOccurrenceID);
 			occ = myShepherd.getOccurrence(myOccurrenceID);
     }
+
+	HashMap metaFromXml = parseMetaXml(waypointId);
+
 
 	String IBEIS_image_path = CommonConfiguration.getProperty("IBEIS_image_path", context);
 	if (IBEIS_image_path == null) {
@@ -153,6 +165,68 @@ System.out.println(ifile.toString() + "<<<?????????????");
 		}
 		enc.setOccurrenceID(myOccurrenceID);
 		occ.addEncounter(enc);
+
+		if (metaFromXml != null) {
+			if (metaFromXml.get("habitat") != null) occ.setHabitat(metaFromXml.get("habitat").toString());
+			Integer gsize = 0;
+			Integer tm = 0;
+			Integer bm = 0;
+			Integer lf = 0;
+			Integer nlf = 0;
+			Double distance = new Double(0);
+			Double dlat = new Double(-1);
+			Double dlong = new Double(-1);
+			Double bearing = new Double(-1);
+
+			double d;
+
+			if (metaFromXml.get("groupsize") != null) {
+				try {
+					d = Double.parseDouble(metaFromXml.get("groupsize").toString());
+					gsize = new Integer((int)d);
+				} catch (Exception ex) { }
+			}
+System.out.println("groupsize -> " + gsize);
+			occ.setGroupSize(gsize);
+
+			if (metaFromXml.get("nooftm") != null) {
+				try {
+					d = Double.parseDouble(metaFromXml.get("nooftm").toString());
+					tm = new Integer((int)d);
+				} catch (Exception ex) { }
+			}
+System.out.println("tm -> " + tm);
+			occ.setNumTerMales(tm);
+
+/////////////// THE DOUBLES
+//
+			if (metaFromXml.get("distancem") != null) {
+				try {
+					d = Double.parseDouble(metaFromXml.get("distancem").toString());
+					distance = d;
+				} catch (Exception ex) { }
+			}
+System.out.println("distance -> " + distance);
+			occ.setDistance(distance);
+
+/*
+	private Double distance;
+	private Double decimalLatitude;
+	private Double decimalLongitude;
+
+/////Lewa-specifics
+
+	private String habitat;
+	private Integer groupSize;
+	private Integer numTerMales;
+	private Integer numBachMales;
+	private Integer numNonLactFemales;
+	private Integer numLactFemales;
+	private Double bearing;
+*/
+throw new IOException("oops");
+		}
+
 		myShepherd.storeNewOccurrence(occ);
 
 
@@ -439,6 +513,49 @@ System.out.println("============================================================
 		Long b = bytesToLong(Arrays.copyOfRange(bytesIn, 8, 16));
 		return new UUID(a,b);
 	}
+
+	private HashMap parseMetaXml(String waypointId) {
+		Document xdoc = null;
+		HashMap val = new HashMap();
+		File xfile = new File("/tmp/test.xml");
+		try {
+			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+			xdoc = dBuilder.parse(xfile);
+			xdoc.getDocumentElement().normalize();
+		} catch (Exception ex) {
+			System.out.println("could not read " + xfile.toString() + ": " + ex.toString());
+			return null;
+		}
+
+		NodeList nlist = xdoc.getDocumentElement().getElementsByTagName("waypoints");
+		if (nlist.getLength() < 1) return null;
+		for (int i = 0 ; i < nlist.getLength() ; i++) {
+			Node n = nlist.item(i);
+			if (n.getNodeType() != Node.ELEMENT_NODE) continue;
+			Element el = (Element) n;
+System.out.println("- waypoint id=" + el.getAttribute("id"));
+			if (!el.getAttribute("id").equals(waypointId)) continue;  //nope
+			val.put("digitalLongitude", el.getAttribute("x"));
+			val.put("digitalLatitude", el.getAttribute("y"));
+			val.put("time", el.getAttribute("time"));
+			NodeList anlist = el.getElementsByTagName("attributes");
+			for (int j = 0 ; j < anlist.getLength() ; j++) {
+				Node an = anlist.item(j);
+				if (an.getNodeType() != Node.ELEMENT_NODE) continue;
+				Element ael = (Element) an;
+				String aval = "";
+				NodeList vl = ael.getElementsByTagName("dValue");  //numeric
+				if (vl.getLength() < 1) vl = ael.getElementsByTagName("itemKey");  //string
+				if (vl.getLength() > 0) aval = vl.item(0).getTextContent();
+System.out.println(ael.getAttribute("attributeKey") + " -> " + aval);
+				val.put(ael.getAttribute("attributeKey"), aval);
+			}
+		}
+		
+		return val;
+	}
+
 
 }
 
