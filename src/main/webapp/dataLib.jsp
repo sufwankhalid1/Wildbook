@@ -1,6 +1,6 @@
 
+<%@ page import="java.io.IOException, com.google.gson.Gson, java.io.OutputStream, java.util.zip.GZIPOutputStream" %>
 <%!
-
 public void sendAsJson(HttpServletResponse response, HttpServletRequest request, Object obj) throws IOException {
     	String json = new Gson().toJson(obj);
 
