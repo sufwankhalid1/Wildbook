@@ -87,6 +87,7 @@ public class Encounter implements java.io.Serializable {
   public String specificEpithet;
   public String lifeStage;
   public String country;
+	public String zebraClass ="";  //via lewa: lactating female, territorial male, etc etc
 
 
   /*
@@ -1712,6 +1713,13 @@ public class Encounter implements java.io.Serializable {
       else{lifeStage=null;}
     }
     
+
+		public String getZebraClass() {
+			return zebraClass;
+		}
+		public void setZebraClass(String c) {
+			zebraClass = c;
+		}
     
     /**
      * A convenience method that returns the first haplotype found in the TissueSamples for this Encounter. 

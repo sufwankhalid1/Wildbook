@@ -57,6 +57,9 @@ public class MarkedIndividual implements java.io.Serializable {
   //unused String that allows groups of MarkedIndividuals by optional parameters
   private String seriesCode = "None";
 
+	//requested from lewa
+	private Double ageAtFirstSighting = null;
+
   //nickname for the MarkedIndividual...not used for any scientific purpose
   //also the nicknamer for credit
   private String nickName = "", nickNamer = "";
@@ -455,6 +458,14 @@ public class MarkedIndividual implements java.io.Serializable {
   public String getIndividualID() {
       return individualID;
   }
+
+
+	public Double getAgeAtFirstSighting() {
+		return ageAtFirstSighting;
+	}
+	public void setAgeAtFirstSighting(Double a) {
+		ageAtFirstSighting = a;
+	}
 
   public String getNickName() {
     if (nickName != null) {

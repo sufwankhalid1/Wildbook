@@ -103,6 +103,10 @@ context=ServletUtilities.getContext(request);
       font-weight: bold;
     }
 
+.col-relationships {
+	width: 170px;
+}
+
 
 .relationship-none {
 	position: relative;
@@ -128,11 +132,11 @@ context=ServletUtilities.getContext(request);
 }
 
 #relationships-form {
-	width: 250px;
+	width: 200px;
 	z-index: 300;
 	background-color: #FFC;
 	position: absolute;
-	left: -100px;
+	left: -200px;
 	top: 3px;
 	display: none;
 	padding: 3px;
@@ -347,12 +351,38 @@ tr.enc-row:hover {
 				Encounter enc = encById.get(id);
 				if (enc != null) {
 					java.lang.reflect.Method method;
-					try {
-						method = enc.getClass().getMethod(methodName, String.class);
-						method.invoke(enc, value);
-						if (!changedEncs.contains(enc)) changedEncs.add(enc);
-					} catch (Exception ex) {
-						System.out.println(methodName + " -> " + ex.toString());
+					if (methodName.equals("set_relMother")) {  //special case - make relationship
+						if ((value != null) && !value.equals("") && (enc.getIndividualID() != null)) {
+							MarkedIndividual partnerIndiv = myShepherd.getMarkedIndividual(value);
+							if (partnerIndiv != null) {
+								Relationship rel = new Relationship("familial", enc.getIndividualID(), value, "mother", "calf");  //TODO generalize, i guess
+								myShepherd.getPM().makePersistent(rel);          
+							}
+						}
+
+
+					} else if (methodName.equals("setAgeAtFirstSighting")) {  //need a Double, sets on individual
+						Double dbl = null;
+						try {
+							dbl = Double.parseDouble(value);
+						} catch (Exception ex) {
+							System.out.println("could not parse double from " + value + ", using null");
+						}
+						if ((dbl != null) && (enc.getIndividualID() != null)) {
+							MarkedIndividual ind = myShepherd.getMarkedIndividual(enc.getIndividualID());
+							if (ind != null) {
+								ind.setAgeAtFirstSighting(dbl);
+							}
+						}
+
+					} else {  //string
+						try {
+							method = enc.getClass().getMethod(methodName, String.class);
+							method.invoke(enc, value);
+							if (!changedEncs.contains(enc)) changedEncs.add(enc);
+						} catch (Exception ex) {
+							System.out.println(methodName + " -> " + ex.toString());
+						}
 					}
 				}
 			}
@@ -486,6 +516,7 @@ console.log(ev);
 		w.focus();
 		return false;
 	});
+
 	$('.col-sex').each(function(i, el) {
 		var p = $('<select><option value="">select sex</option><option>unknown</option><option>male</option><option>female</option></select>');
 		p.click( function(ev) { ev.stopPropagation(); } );
@@ -496,6 +527,29 @@ console.log(ev);
 		$(el).html(p);
 		//console.log('%o: %o', i, el);
 	});
+
+	$('.col-ageAtFirstSighting').each(function(i, el) {
+		if (!$(el).parent().data('indiv')) return;
+		var p = $('<input style="width: 30px;" placeholder="yrs" />');
+		p.click( function(ev) { ev.stopPropagation(); } );
+		p.change(function() {
+			columnChange(this);
+		});
+		p.val($(el).html());
+		$(el).html(p);
+	});
+
+	$('.col-zebraClass').each(function(i, el) {
+		var p = $('<select><option value="">unknown</option><option>LF</option><option>NLF</option><option>TM</option><option>BM</option><option>JUV</option><option>FOAL</option></select>');
+		p.click( function(ev) { ev.stopPropagation(); } );
+		p.change(function() {
+			columnChange(this);
+		});
+		p.val($(el).html());
+		$(el).html(p);
+	});
+
+
 });
 
 
@@ -516,8 +570,12 @@ function columnChange(el) {
 }
 
 
+var relEid = false;
 function relAdd(ev) {
 console.log(ev);
+	var jel = $(ev.target);
+	var eid = jel.parent().parent().data('id');
+	relEid = eid;
 	ev.stopPropagation();
 	$('#relationships-form input[type="text"]').val(undefined);
 	$('#relationships-form select').val(undefined);
@@ -526,11 +584,28 @@ console.log(ev);
 
 function relSave(ev) {
 	ev.stopPropagation();
+	if (!relEid) return;
+
+	var partner = $('#rel-child-id').val();
+
+	$('<input>').attr({
+		name: relEid + ':_relMother',
+		type: 'hidden',
+		value: partner,
+	}).appendTo($('#occform'));
+	//$('#rel-child-id').val('');
+
+	$('#row-enc-' + relEid + ' .col-relationships').prepend('<span data-partner="' + partner + '" class="relationship relType-familial relRole-mother">' + partner + '</span>');
+
+	relEid = false;
 	$('#relationships-form').hide();
+	$('.submit').addClass('changes-made');
+	$('.submit .note').html('changes made. please save.');
 }
 
 function relCancel(ev) {
 	ev.stopPropagation();
+	relEid = false;
 	$('#relationships-form').hide();
 }
 
@@ -553,25 +628,12 @@ function relCancel(ev) {
       <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("date") %></strong></td>
     <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("individualID") %></strong></td>
     
-    <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("location") %></strong></td>
-    <!-- <td class="lineitem" bgcolor="#99CCFF"><strong><%=props.getProperty("dataTypes") %></strong></td> 
-    <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("encnum") %></strong></td> -->
-    <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("alternateID") %></strong></td>
 
     <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("sex") %></strong></td>
-    <%
-      if (isOwner && CommonConfiguration.useSpotPatternRecognition(context)) {
-    %>
+    <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong>Age first sighted</strong></td>
+    <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong>Class</strong></td>
 
-    	<td align="left" valign="top" bgcolor="#99CCFF">
-    		<strong><%=props.getProperty("spots") %></strong>
-    	</td>
-    <%
-    }
-    %>
-   <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("behavior") %></strong></td>
-
- <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong>Relationships</strong></td>
+ <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong>Mother of</strong></td>
  
   </tr>
   <%
@@ -582,16 +644,21 @@ function relCancel(ev) {
         Vector encImages = enc.getAdditionalImageNames();
         String imgName = "";
 				String encSubdir = enc.subdir();
+
+				MarkedIndividual indiv = null;
+    		if((enc.getIndividualID()!=null)&&(!enc.getIndividualID().toLowerCase().equals("unassigned"))){
+					indiv = myShepherd.getMarkedIndividual(enc.getIndividualID());
+				}
         
           imgName = "/"+CommonConfiguration.getDataDirectoryName(context)+"/encounters/" + encSubdir + "/thumb.jpg";
         
   %>
-  <tr class="enc-row" data-id="<%=enc.getEncounterNumber()%>" data-indiv="<%=enc.getIndividualID()%>">
+  <tr id="row-enc-<%=enc.getEncounterNumber()%>" class="enc-row" data-id="<%=enc.getEncounterNumber()%>" data-indiv="<%=((indiv == null) ? "" : enc.getIndividualID())%>">
       <td class="lineitem"><%=enc.getDate()%>
     </td>
     <td class="lineitem">
     	<%
-    	if((enc.getIndividualID()!=null)&&(!enc.getIndividualID().toLowerCase().equals("unassigned"))){
+    	if (indiv != null) {
     	%>
     	<a target="_new" onClick="event.stopPropagation(); return true;" href="individuals.jsp?number=<%=enc.getIndividualID()%>"><%=enc.getIndividualID()%></a>
     	<%
@@ -602,14 +669,6 @@ function relCancel(ev) {
     	<%
     	}
     	%>
-    </td>
-    <%
-    String location="&nbsp;";
-    if(enc.getLocation()!=null){
-    	location=enc.getLocation();
-    }
-    %>
-    <td class="lineitem"><%=location%>
     </td>
 <!--
     <td width="100" height="32px" class="lineitem">
@@ -644,67 +703,29 @@ function relCancel(ev) {
     </a></td>
 -->
 
-    <%
-      if (enc.getAlternateID() != null) {
-    %>
-    <td class="lineitem"><%=enc.getAlternateID()%>
-    </td>
-    <%
-    } else {
-    %>
-    <td class="lineitem"><%=props.getProperty("none")%>
-    </td>
-    <%
-      }
-    %>
-
-
 <%
 String sexValue="&nbsp;";
 if(enc.getSex()!=null){sexValue=enc.getSex();}
 %>
     <td data-prop="sex" class="col-sex lineitem"><%=sexValue %></td>
 
-    <%
-      if (CommonConfiguration.useSpotPatternRecognition(context)) {
-    %>
-    <%if (((enc.getSpots().size() == 0) && (enc.getRightSpots().size() == 0)) && (isOwner)) {%>
-    <td class="lineitem">&nbsp;</td>
-    <% } else if (isOwner && (enc.getSpots().size() > 0) && (enc.getRightSpots().size() > 0)) {%>
-    <td class="lineitem">LR</td>
-    <%} else if (isOwner && (enc.getSpots().size() > 0)) {%>
-    <td class="lineitem">L</td>
-    <%} else if (isOwner && (enc.getRightSpots().size() > 0)) {%>
-    <td class="lineitem">R</td>
-    <%
-        }
-      }
-    %>
-    
-  
-    <td class="lineitem">
-    <%
-    if(enc.getBehavior()!=null){
-    %>
-    <%=enc.getBehavior() %>
-    <%	
-    }
-    else{
-    %>
-    &nbsp;
-    <%	
-    }
-    %>
-    </td>
-    
-  <td class="lineitem">
+
+<%
+	String ageAFS = "";
+	if (indiv != null) {
+		ageAFS = cleanString(indiv.getAgeAtFirstSighting());
+	}
+%>
+<td class="col-ageAtFirstSighting lineitem" data-prop="ageAtFirstSighting"><%=ageAFS%></td>
+
+<td class="col-zebraClass lineitem" data-prop="zebraClass"><%=cleanString(enc.getZebraClass())%></td>
+
+  <td class="col-relationships lineitem">
     <%
 	String iid = enc.getIndividualID();
 	if ((iid != null) && !iid.equals("")) {
 		ArrayList<Relationship> rels = myShepherd.getAllRelationshipsForMarkedIndividual(iid);
-		if ((rels == null) || (rels.size() < 1)) {
-			%><span class="relationship-none" title="add a relationship" onClick="return relAdd(event);">add</span> <%
-		} else {
+		if ((rels != null) && (rels.size() > 0)) {
 			for (Relationship r : rels) {
 				String partner = r.getMarkedIndividualName1();
 				String role = r.getMarkedIndividualRole2();
@@ -713,13 +734,15 @@ if(enc.getSex()!=null){sexValue=enc.getSex();}
 					partner = r.getMarkedIndividualName2();
 					role = r.getMarkedIndividualRole1();
 				}
-			%><span data-partner="<%=partner%>" class="relationship relType-<%=type%> relRole-<%=role%>"><%=role%> to <%=partner%></span> <%
+				if (!role.equals("mother")) continue;  //for lewa, only showing offspring of mother
+			%><span data-partner="<%=partner%>" class="relationship relType-<%=type%> relRole-<%=role%>"><%=partner%></span> <%
   			}
 		}
   //private String markedIndividualName2;
   //private String markedIndividualRole2;
 	}
     %>
+			<span class="relationship-none" title="add a relationship" onClick="return relAdd(event);">add</span>
     </td>
   </tr>
   <%
@@ -1154,7 +1177,17 @@ if(enc.getSex()!=null){sexValue=enc.getSex();}
 
 
 <div id="relationships-form" onClick="event.stopPropagation(); return false;">
+	<div class="rel-sub">
+	<b>Mother</b> of individual ID:<br />
+	<input type="text" id="rel-child-id" />
+	</div>
 
+	<input type="button" value="save" onClick="return relSave(event)" />
+
+	<input type="button" value="cancel" onClick="return relCancel(event)" />
+</div>
+
+<-- old complete one for prosperity
 <div class="rel-sub">
 <label for="rel-type">type</label>
 <select id="rel-type">
@@ -1192,6 +1225,7 @@ if(enc.getSex()!=null){sexValue=enc.getSex();}
 <input type="button" value="cancel" onClick="return relCancel(event)" />
 
 </div>
+-->
 
 
 
