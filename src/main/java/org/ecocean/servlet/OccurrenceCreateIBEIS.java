@@ -106,12 +106,13 @@ public class OccurrenceCreateIBEIS extends HttpServlet {
 
 
 	String IBEIS_image_path = CommonConfiguration.getProperty("IBEIS_image_path", context);
+	if (request.getParameter("IBEIS_image_path") != null) IBEIS_image_path = request.getParameter("IBEIS_image_path");  //passed parameter wins
 	if (IBEIS_image_path == null) {
 		System.out.println("Please set IBEIS_image_path in CommonConfiguration");
 		IBEIS_image_path = "/tmp/broken/imagepath";
 	}
 
-	HashMap<String, HashMap<Integer, HashMap>> ienc = getIBEISEncounterStructure(myOccurrenceID, context);
+	HashMap<String, HashMap<Integer, HashMap>> ienc = getIBEISEncounterStructure(myOccurrenceID, request);
 
 System.out.println("------");
 System.out.println(ienc);
@@ -134,7 +135,7 @@ System.out.println(annot);
 //  public Encounter(int day, int month, int year, int hour, String minutes, String size_guess, String location, String submitterName, String submitterEmail, List<SinglePhotoVideo> images) {
 		Encounter enc = new Encounter(1, 1, 2014, 22, "30", "Unknown", "", "IBEIS submitter", "submit@ibeis.org", null);
 		enc.setEncounterNumber(annot.get("annot_uuid").toString());
-		enc.setState("unapproved");
+		enc.setState("approved");
 
 		Long etime = null;
 		//TODO is there always only one?  i think so
@@ -423,7 +424,11 @@ System.out.println("saving Occurrence with set metadata ******");
 
   }
 
-	public HashMap getIBEISEncounterStructure(String eid, String context) {
+	public HashMap getIBEISEncounterStructure(String eid, HttpServletRequest request) {
+    String context = "context0";
+    context = ServletUtilities.getContext(request);
+
+
 		Connection c = null;
 		Statement st = null;
 		HashMap<String, HashMap<Integer, HashMap>> rtn = new HashMap<String, HashMap<Integer, HashMap>>();
@@ -448,6 +453,7 @@ d5fe37b0-c166-5348-8a63-eefb63ce7c42 - java
 
 
 		String IBEIS_DB_path = CommonConfiguration.getProperty("IBEIS_DB_path", context);
+		if (request.getParameter("IBEIS_DB_path") != null) IBEIS_DB_path = request.getParameter("IBEIS_DB_path");  //passed parameter wins
 		if (IBEIS_DB_path == null) {
 			System.out.println("Please set IBEIS_DB_path in CommonConfiguration");
 			IBEIS_DB_path = "/tmp/broken/path";
