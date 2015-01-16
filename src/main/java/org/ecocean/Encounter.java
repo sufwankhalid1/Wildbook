@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.Vector;
-import java.util.HashMap;
 import java.util.GregorianCalendar;
 import java.io.*;
 
@@ -38,20 +37,9 @@ import org.ecocean.tag.AcousticTag;
 import org.ecocean.tag.MetalTag;
 import org.ecocean.tag.SatelliteTag;
 import org.ecocean.Util;
-import org.ecocean.servlet.ServletUtilities;
 
-import javax.servlet.http.HttpServletRequest;
-
-
-
-import org.joda.time.LocalDateTime;
-import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.ISODateTimeFormat;
 import org.json.JSONObject;
 import org.ecocean.security.Collaboration;
-import org.ecocean.servlet.ServletUtilities;
-
-import javax.servlet.http.HttpServletRequest;
 
 
 
@@ -142,9 +130,9 @@ public class Encounter implements java.io.Serializable {
   //name, email, phone, address of the encounter photographer
   private String photographerName, photographerEmail, photographerPhone, photographerAddress;
   //a Vector of Strings defining the relative path to each photo. The path is relative to the servlet base directory
-  public Vector additionalImageNames = new Vector();
+  public Vector<String> additionalImageNames = new Vector<String>();
   //a Vector of Strings of email addresses to notify when this encounter is modified
-  private Vector interestedResearchers = new Vector();
+  private Vector<String> interestedResearchers = new Vector<String>();
   //time metrics of the report
   private int hour = 0;
   private String minutes = "00";
@@ -596,8 +584,8 @@ public class Encounter implements java.io.Serializable {
    *
    * @return a vector of image name Strings
    */
-  public Vector getAdditionalImageNames() {
-    Vector imageNamesOnly=new Vector();
+  public Vector<String> getAdditionalImageNames() {
+    Vector<String> imageNamesOnly=new Vector<String>();
     
     //List<SinglePhotoVideo> images=getCollectedDataOfClass(SinglePhotoVideo.class);
     if((images!=null)&&(images.size()>0)){
@@ -978,7 +966,7 @@ public class Encounter implements java.io.Serializable {
     return submitterID;
   }
 
-  public Vector getInterestedResearchers() {
+  public Vector<String> getInterestedResearchers() {
     return interestedResearchers;
   }
 
@@ -1177,12 +1165,11 @@ public class Encounter implements java.io.Serializable {
   public void setNumLeftSpots(int numspots) {
     numSpotsLeft = numspots;
   }
-
+  
   public void setNumRightSpots(int numspots) {
     numSpotsRight = numspots;
   }
 
-  
   public void setDWCGlobalUniqueIdentifier(String guid) {
     this.guid = guid;
   }

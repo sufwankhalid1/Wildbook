@@ -33,6 +33,7 @@ import org.opengis.feature.simple.*;
 import com.vividsolutions.jts.geom.*;
 //import java.sql.Date;
 //import java.net.URI;
+import com.vividsolutions.jts.geom.Point;
 
 //adds spots to a new encounter
 public class EncounterSearchExportShapefile extends HttpServlet{

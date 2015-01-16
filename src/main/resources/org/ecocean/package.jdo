@@ -593,11 +593,19 @@
 					
 			</class>		
 		
-
-
-
-        
-		
-		
+         <class name="Point" identity-type="datastore">
+            <field name="latitude">
+                <column jdbc-type="double" />
+            </field>
+            <field name="longitude">
+                <column jdbc-type="double" />
+            </field>
+            <field name="elevation">
+                <column jdbc-type="double" />
+            </field>
+            <field name="timestamp">
+                <column jdbc-type="bigint" />
+            </field>
+        </class>
     </package>
 </jdo>
