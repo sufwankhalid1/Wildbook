@@ -723,7 +723,7 @@ if(enc.getSex()!=null){sexValue=enc.getSex();}
   <td class="col-relationships lineitem">
     <%
 	String iid = enc.getIndividualID();
-	if ((iid != null) && !iid.equals("")) {
+	if ((iid != null) && !iid.equals("") && !iid.equals("Unassigned")) {
 		ArrayList<Relationship> rels = myShepherd.getAllRelationshipsForMarkedIndividual(iid);
 		if ((rels != null) && (rels.size() > 0)) {
 			for (Relationship r : rels) {
@@ -740,9 +740,9 @@ if(enc.getSex()!=null){sexValue=enc.getSex();}
 		}
   //private String markedIndividualName2;
   //private String markedIndividualRole2;
+			%><span class="relationship-none" title="add a relationship" onClick="return relAdd(event);">add</span><%
 	}
     %>
-			<span class="relationship-none" title="add a relationship" onClick="return relAdd(event);">add</span>
     </td>
   </tr>
   <%
