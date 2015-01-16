@@ -7,6 +7,8 @@ public class Survey {
   private long id;
   private Double effort;
   private String organization;
+  private String comments;
+  private String name;
   private Long startTime;
   private Long endTime;
   private String type;
@@ -67,5 +69,21 @@ public class Survey {
 
   public void setTracks(List<SurveyTrack> tracks) {
     this.tracks = tracks;
+  }
+
+  public String getComments() {
+    return comments;
+  }
+
+  public void setComments(String comments) {
+    this.comments = comments;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
   }
 }
