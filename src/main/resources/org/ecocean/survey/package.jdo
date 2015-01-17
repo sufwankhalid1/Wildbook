@@ -4,28 +4,27 @@
 
 <jdo>
     <package name="org.ecocean.survey">
-        <sequence name="surveyseq" datastore-sequence="seqsurvey" strategy="noncontiguous"/>
         <class name="Survey" identity-type="application">
-            <field name="id" primary-key="true" value-strategy="sequence" sequence="surveyseq"/>
+            <field name="id" primary-key="true" value-strategy="native"/>
             <field name="effort">
                 <column jdbc-type="double" />
             </field>
             <field name="organization">
                 <column length="100" />
             </field>
+            <field name="comments"/>
+            <field name="name">
+                <column length="100" />
+            </field>
             <field name="startTime">
                 <column jdbc-type="bigint" />
             </field>
-            <field name="stopTime">
+            <field name="endTime">
                 <column jdbc-type="bigint" />
             </field>
             <field name="type">
                 <column length="100" />
             </field>
-            <field name="name">
-                <column length="100" />
-            </field>
-            <field name="comments"/>
             <field name="tracks">
                 <collection element-type="org.ecocean.survey.SurveyTrack"/>
             </field>
@@ -35,14 +34,14 @@
             <field name="name">
                 <column length="100" />
             </field>
+            <field name="points">
+                <collection element-type="org.ecocean.Point"/>
+            </field>
             <field name="vesselId">
                 <column length="100" />
             </field>
             <field name="type">
                 <column length="100" />
-            </field>
-            <field name="points">
-                <collection element-type="org.ecocean.Point"/>
             </field>
         </class>
     </package>
