@@ -492,7 +492,8 @@
             <argument>target/classes/org/ecocean/genetics/package.jdo</argument>
             <argument>target/classes/org/ecocean/grid/package.jdo</argument>
             <argument>target/classes/org/ecocean/tag/package.jdo</argument>
-			<argument>target/classes/org/ecocean/social/package.jdo</argument>
+            <argument>target/classes/org/ecocean/social/package.jdo</argument>
+            <argument>target/classes/org/ecocean/survey/package.jdo</argument>
           </arguments>
         </configuration>
         <executions>
@@ -521,52 +522,52 @@
       </plugin>
     </plugins>
     <pluginManagement>
-    	<plugins>
-    		<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
-    		<plugin>
-    			<groupId>org.eclipse.m2e</groupId>
-    			<artifactId>lifecycle-mapping</artifactId>
-    			<version>1.0.0</version>
-    			<configuration>
-    				<lifecycleMappingMetadata>
-    					<pluginExecutions>
-    						<pluginExecution>
-    							<pluginExecutionFilter>
-    								<groupId>org.codehaus.mojo</groupId>
-    								<artifactId>
-    									exec-maven-plugin
-    								</artifactId>
-    								<versionRange>[1.1,)</versionRange>
-    								<goals>
-    									<goal>exec</goal>
-    								</goals>
-    							</pluginExecutionFilter>
-    							<action>
-    								<ignore></ignore>
-    							</action>
-    						</pluginExecution>
-    						<pluginExecution>
-    							<pluginExecutionFilter>
-    								<groupId>
-    									org.apache.maven.plugins
-    								</groupId>
-    								<artifactId>
-    									maven-javadoc-plugin
-    								</artifactId>
-    								<versionRange>[2.8,)</versionRange>
-    								<goals>
-    									<goal>javadoc</goal>
-    								</goals>
-    							</pluginExecutionFilter>
-    							<action>
-    								<ignore></ignore>
-    							</action>
-    						</pluginExecution>
-    					</pluginExecutions>
-    				</lifecycleMappingMetadata>
-    			</configuration>
-    		</plugin>
-    	</plugins>
+       <plugins>
+               <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+               <plugin>
+                       <groupId>org.eclipse.m2e</groupId>
+                       <artifactId>lifecycle-mapping</artifactId>
+                       <version>1.0.0</version>
+                       <configuration>
+                               <lifecycleMappingMetadata>
+                                       <pluginExecutions>
+                                               <pluginExecution>
+                                                       <pluginExecutionFilter>
+                                                               <groupId>org.codehaus.mojo</groupId>
+                                                               <artifactId>
+                                                                       exec-maven-plugin
+                                                               </artifactId>
+                                                               <versionRange>[1.1,)</versionRange>
+                                                               <goals>
+                                                                       <goal>exec</goal>
+                                                               </goals>
+                                                       </pluginExecutionFilter>
+                                                       <action>
+                                                               <ignore></ignore>
+                                                       </action>
+                                               </pluginExecution>
+                                               <pluginExecution>
+                                                       <pluginExecutionFilter>
+                                                               <groupId>
+                                                                       org.apache.maven.plugins
+                                                               </groupId>
+                                                               <artifactId>
+                                                                       maven-javadoc-plugin
+                                                               </artifactId>
+                                                               <versionRange>[2.8,)</versionRange>
+                                                               <goals>
+                                                                       <goal>javadoc</goal>
+                                                               </goals>
+                                                       </pluginExecutionFilter>
+                                                       <action>
+                                                               <ignore></ignore>
+                                                       </action>
+                                               </pluginExecution>
+                                       </pluginExecutions>
+                               </lifecycleMappingMetadata>
+                       </configuration>
+               </plugin>
+       </plugins>
     </pluginManagement>
   </build>
 </project>
