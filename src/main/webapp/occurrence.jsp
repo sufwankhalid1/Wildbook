@@ -580,6 +580,7 @@ console.log(ev);
 	$('#relationships-form input[type="text"]').val(undefined);
 	$('#relationships-form select').val(undefined);
 	$('#relationships-form').appendTo(ev.target).show();
+	$('#relationships-form input[type="text"]').focus();
 }
 
 function relSave(ev) {
@@ -1182,12 +1183,12 @@ if(enc.getSex()!=null){sexValue=enc.getSex();}
 	<input type="text" id="rel-child-id" />
 	</div>
 
-	<input type="button" value="save" onClick="return relSave(event)" />
+	<input type="button" value="OK" onClick="return relSave(event)" />
 
 	<input type="button" value="cancel" onClick="return relCancel(event)" />
 </div>
 
-<-- old complete one for prosperity
+<!-- old complete one for prosperity
 <div class="rel-sub">
 <label for="rel-type">type</label>
 <select id="rel-type">
