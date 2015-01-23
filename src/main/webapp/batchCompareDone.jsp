@@ -351,10 +351,8 @@ System.out.println(json);
 System.out.println("img? " + imgname);
 				HashMap i = new HashMap();
 				List<String> lines = Files.readAllLines(Paths.get(batchDir + "/" + fm.group()), Charset.defaultCharset());
-				String cleaned = "";
 				for (String l : lines) {
-					cleaned += l.replaceAll(dataDirString, "").replaceAll("#", "%23") + "\n";
-					if (found) continue;
+					if (found) break;
 
 					Matcher lm = lp.matcher(l);
 					Matcher ocm = ocp.matcher(l);
@@ -424,6 +422,11 @@ System.out.println(") matched?????? " + lm.group(1) + ":" + lm.group(2));
 					}
 				}
 
+					String[] cmd = {"/bin/sh", "-c", "/bin/sed 's#/opt/tomcat7/webapps##g' < " + batchDir + "/" + imgname + ".xhtml | /bin/sed 's/#/%23/g' > " + batchDir + "/" + imgname + "-rel.xhtml"};
+					Process p;
+					p = Runtime.getRuntime().exec(cmd);
+					p.waitFor();
+/*
 				try {
 					PrintWriter statusOut = new PrintWriter(batchDir + "/" + imgname + "-rel.xhtml");
 					statusOut.println(cleaned);
@@ -431,6 +434,7 @@ System.out.println(") matched?????? " + lm.group(1) + ":" + lm.group(2));
 				} catch (Exception ex) {
 					System.out.println("could not write " + batchDir + "/" + imgname + "-rel.xhtml" + ex.toString());
 				}
+*/
 
 			}
 		}
