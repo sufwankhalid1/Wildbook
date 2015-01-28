@@ -3,6 +3,7 @@ wildbook.Model.MarkedIndividual = wildbook.Model.BaseClass.extend({
 
 	idAttribute: 'individualID',
 
+/*
 	getEncounters: function(callback) {
 		var iid = this.get('individualID');
 		if (this.encounters || !iid || (iid == '') || (iid == 'Unassigned')) {
@@ -25,6 +26,7 @@ wildbook.Model.MarkedIndividual = wildbook.Model.BaseClass.extend({
 			},
 		});
 	},
+*/
 
 });
 

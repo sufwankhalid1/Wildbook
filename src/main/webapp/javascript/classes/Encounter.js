@@ -20,6 +20,7 @@ wildbook.Model.Encounter = wildbook.Model.BaseClass.extend({
 	},
 
 
+/*
 	getIndividual: function(callback) {
 		var iid = this.get('individualID');
 		if (this.individual || !iid || (iid == '') || (iid == 'Unassigned')) {
@@ -41,6 +42,8 @@ wildbook.Model.Encounter = wildbook.Model.BaseClass.extend({
 			},
 		});
 	},
+
+*/
 
 
 	//this is built off encounter sub-date parts (year, month etc) returns true js Date object (see also dateAsString() below)
