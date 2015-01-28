@@ -5,6 +5,9 @@ var wildbook = {
 		'MarkedIndividual',
 		'SinglePhotoVideo',
 		'Measurement',
+		'Survey',
+		'SurveyTrack',
+		'Point',
 	],
 
 	Model: {},
