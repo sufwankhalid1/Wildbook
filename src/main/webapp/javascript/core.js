@@ -93,6 +93,42 @@ console.log('is %o', ajax);
 	},
 
 
+	//TODO should arrays of models be turned into collections?
+	//TODO catch recursion, duh?
+	toModel: function(obj) {
+		if (obj.cid) {  //hacktacular(TODO) but to find out if we are already a model
+			return obj;
+
+		} else if ($.isArray(obj) && obj[0] && wildbook.isModelObject(obj[0])) {
+			var arr = [];
+			var cls;
+			for (var i = 0 ; i < obj.length ; i++) {
+				arr[i] = wildbook.toModel(obj[i]);
+			}
+			return arr;
+
+		} else if (cls = wildbook.isModelObject(obj)) {
+console.log('cls = ' + cls);
+			if (!wildbook.Model[cls]) {
+				console.warn('looks like we dont have a Model for org.ecocean.' + cls + '; returning as plain js object');
+				return obj;
+			}
+			var n = new wildbook.Model[cls](obj);
+			n.modelifyProperties();
+			return n;
+
+		} else {
+			return obj;
+		}
+	},
+
+	//this returns false if not, short class name if it is
+	isModelObject: function(obj) {
+		if (!$.isPlainObject(obj)) return false;
+		if (!obj.class || (obj.class.indexOf('org.ecocean.') != 0)) return false;
+		return obj.class.substr(12);
+	},
+
 	init: function(callback) {
 		classInit('Base', function() { wildbook.loadAllClasses(callback); });  //define base class first - rest can happen any order
 	}

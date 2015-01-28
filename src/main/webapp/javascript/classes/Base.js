@@ -40,6 +40,20 @@ wildbook.Model.BaseClass = Backbone.Model.extend({
 		return rtn;
 	},
 
+	//walks through attributes and turns stuff into Models when it can
+	modelifyProperties: function() {
+		for (var prop in this.attributes) {
+			this.attributes[prop] = wildbook.toModel(this.attributes[prop]);
+		}
+	},
+
+	parse: function(response, options) {
+		var rtn = {};
+		for (var prop in response) {
+			rtn[prop] = wildbook.toModel(response[prop]);
+		}
+		return rtn;
+	},
 
 	//pass name (of field) and Collection class
 	fetchSub: function(name, opts) {
