@@ -56,7 +56,7 @@
 			<field name="comments" persistence-modifier="persistent" default-fetch-group="false">
 				<column jdbc-type="LONGVARCHAR" />
 			</field>
-            		<field name="encounters" persistence-modifier="persistent">
+            		<field name="encounters" persistence-modifier="persistent" recursion-depth="5" default-fetch-group="true" >
                 		<collection element-type="org.ecocean.Encounter"/>
 				<join/>
             		</field>
@@ -88,7 +88,7 @@
               		<field name="timeOfBirth" persistence-modifier="persistent">
 	                    <column jdbc-type="BIGINT" allows-null="true" />
             		</field>
-		            	
+
 		            	        		<fetch-group name="allSharks_min">
 				            		<field name="encounters"/>
 				        		</fetch-group>
@@ -275,26 +275,26 @@
             </field>
 
 
-            <field name="tissueSamples" persistence-modifier="persistent">
+            <field name="tissueSamples" persistence-modifier="persistent" default-fetch-group="true">
                 <collection element-type="org.ecocean.genetics.TissueSample"
                     dependent-element="true" />
                 <join />
             </field>
 
-            <field name="images" persistence-modifier="persistent">
+            <field name="images" persistence-modifier="persistent" default-fetch-group="true">
                 <collection element-type="org.ecocean.SinglePhotoVideo"
                     dependent-element="true" />
                 <join />
             </field>
 
 
-            <field name="measurements" persistence-modifier="persistent">
+            <field name="measurements" persistence-modifier="persistent" default-fetch-group="true">
                 <collection element-type="org.ecocean.Measurement"
                     dependent-element="true" />
                 <join />
             </field>
             
-            <field name="metalTags" persistence-modifier="persistent">
+            <field name="metalTags" persistence-modifier="persistent" default-fetch-group="true">
                 <collection element-type="org.ecocean.tag.MetalTag" dependent-element="true"/>
                 <join/>
             </field>
@@ -405,7 +405,7 @@
                 <column name="COPYRIGHTSTATEMENT" />
             </field>
 
-            <field name="keywords" persistence-modifier="persistent">
+            <field name="keywords" persistence-modifier="persistent" default-fetch-group="true">
                 <collection element-type="org.ecocean.Keyword" />
                 <join />
             </field>
@@ -607,5 +607,7 @@
                 <column jdbc-type="bigint" />
             </field>
         </class>
+
+
     </package>
 </jdo>
