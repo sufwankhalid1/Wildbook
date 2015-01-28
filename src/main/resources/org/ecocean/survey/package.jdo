@@ -25,10 +25,10 @@
             <field name="type">
                 <column length="100" />
             </field>
-            <field name="tracks">
+            <field name="tracks" default-fetch-group="true">
                 <collection element-type="org.ecocean.survey.SurveyTrack"/>
             </field>
-            <field name="media">
+            <field name="media" default-fetch-group="true">
                 <collection element-type="org.ecocean.media.MediaSubmission"/>
                 <join/>
             </field>
@@ -38,7 +38,7 @@
             <field name="name">
                 <column length="100" />
             </field>
-            <field name="points">
+            <field name="points" default-fetch-group="true">
                 <collection element-type="org.ecocean.Point"/>
             </field>
             <field name="vesselId">
