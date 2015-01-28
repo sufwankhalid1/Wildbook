@@ -28,6 +28,10 @@
             <field name="tracks">
                 <collection element-type="org.ecocean.survey.SurveyTrack"/>
             </field>
+            <field name="media">
+                <collection element-type="org.ecocean.media.MediaSubmission"/>
+                <join/>
+            </field>
         </class>
         
         <class name="SurveyTrack" identity-type="datastore">
