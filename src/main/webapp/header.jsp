@@ -1,5 +1,8 @@
 <%@ page contentType="text/html; charset=utf-8" language="java"
-         import="java.util.ArrayList,org.ecocean.servlet.ServletUtilities, org.ecocean.security.Collaboration, org.apache.commons.lang.WordUtils,org.ecocean.*, java.util.Properties" %>
+         import="java.util.*,
+                 org.ecocean.servlet.ServletUtilities,
+                 org.ecocean.security.Collaboration,
+                 org.apache.commons.lang.WordUtils,org.ecocean.*" %>
 
 <%--
   ~ Wildbook - A Mark-Recapture Framework
@@ -26,10 +29,22 @@
     z-index:1000000 !important; /* The default is 100. !important overrides the default. */
 }
 </style>
+<%!
+  public String getHref(String requestURL, String pageParam, String page) {
+    //
+    // If our pageParam is null then we must have come in via a different place
+    // so we have to load the pager.js instead of just switching pages.
+    //
+    if (pageParam == null) {
+        return "href=" + requestURL + "/pager.jsp?page=" + page;
+    }
+    
+    return "href=# onclick=\"pager.show('" + page + "'); return false;\"";
+  }
+%>
 <%
 
-String context="context0";
-context=ServletUtilities.getContext(request);
+String context = ServletUtilities.getContext(request);
 
   //handle some cache-related security
   response.setHeader("Cache-Control", "no-cache"); //Forces caches to obtain a new copy of the page from the origin server
@@ -48,10 +63,16 @@ context=ServletUtilities.getContext(request);
   props = ShepherdProperties.getProperties("header.properties", langCode, context);
 
   String requestURL = "http://" + CommonConfiguration.getURLLocation(request);
+  
+  String pageParam = request.getParameter("page");
+  
+  List<String> pages = new ArrayList<String>();
+  pages.add("submitMedia");
+  //pages.add("samplePage");
 %>
 
 <div id="header"><img name="masthead"
-                      src="<%=CommonConfiguration.getURLToMastheadGraphic(context) %>" width="810"
+                      src="<%=CommonConfiguration.getURLToMastheadGraphic(context)%>" width="810"
                       height="150" border="0" usemap="#m_masthead" alt=""/></div>
 <div id="header_menu">
   <ul id="pmenu">
@@ -84,8 +105,16 @@ context=ServletUtilities.getContext(request);
                class="enclose"
                style="margin: 0px 0 0px 0px; position: relative; width: 160px; height: 25px; z-index: 100;">
                <%=props.getProperty("report")%></a>
-         </li>
-      </ul>
+        </li>
+        <li>
+            <a <%=getHref(requestURL, pageParam, "submitMedia")%> class="enclose" style="width: 160px;">
+               <%=props.getProperty("submitMedia")%></a>
+        </li>
+        <!-- <li>
+            <a <%=getHref(requestURL, pageParam, "samplePage")%> class="enclose" style="width: 160px;">
+               Sample Page</a>
+        </li> -->
+       </ul>
     </li>
     
     <li class="drop">
@@ -373,6 +402,23 @@ context=ServletUtilities.getContext(request);
     //$( "[id^=flag_]" ).tooltip();
   });
 </script>
+
+        
+<script type="text/javascript">
+    $( "#context" ).change(function() {
+        //alert( "Handler for .change() called with new value: "+$( "#context option:selected" ).text() +" with value "+ $( "#context option:selected").val());
+        $.cookie("wildbookContext", $( "#context option:selected").val(), {
+            path    : '/',          //The value of the path attribute of the cookie 
+                                    //(default: path of page that created the cookie).
+            secure  : false          //If set to true the secure attribute of the cookie
+                                     //will be set and the cookie transmission will
+                                     //require a secure protocol (defaults to false).
+        });
+            //alert("I have set the wildbookContext cookie to value: "+$.cookie("wildbookContext"));
+        location.reload(true);
+    });
+</script>
+
 <script type="text/javascript"  src="<%=requestURL %>/JavascriptGlobals.js"></script>
 <script type="text/javascript"  src="<%=requestURL %>/javascript/collaboration.js"></script>
 <div id="header_menu" style="background-color: #D7E0ED;clear: left; position: relative;">
@@ -457,8 +503,6 @@ context=ServletUtilities.getContext(request);
 		<%
 		}
 		
-		
-		
 		ArrayList<String> contextNames=ContextConfiguration.getContextNames();
 		int numContexts=contextNames.size();
 		if(numContexts>1){
@@ -492,31 +536,21 @@ context=ServletUtilities.getContext(request);
 			<%
 		}
 		%>
-		
-	<script type="text/javascript">
-		
-	$( "#context" ).change(function() {
-			
-  			//alert( "Handler for .change() called with new value: "+$( "#context option:selected" ).text() +" with value "+ $( "#context option:selected").val());
-  			$.cookie("wildbookContext", $( "#context option:selected").val(), {
-  			   path    : '/',          //The value of the path attribute of the cookie 
-  			                           //(default: path of page that created the cookie).
-			   
-  			   secure  : false          //If set to true the secure attribute of the cookie
-  			                           //will be set and the cookie transmission will
-  			                           //require a secure protocol (defaults to false).
-  			});
-  			
-  			//alert("I have set the wildbookContext cookie to value: "+$.cookie("wildbookContext"));
-  			location.reload(true);
-  			
-		});
-	
-	</script>
- 
-
-	
 	</tr>
-
 	</table>
+</div>
+
+<!-- Load this here because each of the pages can have a register call if they
+     want to perform onShow() and onHide() functions -->
+<script src="javascript/pager.js"></script>
+
+<div id="pages">
+	<% for ( String pagename : pages ) {
+	    String file = "/html/pages/" + pagename + ".html";%>
+<!-- PageStart <%=pagename%> -->
+	<div id="page_<%=pagename%>" style="display: none;">
+	    <jsp:include page="<%=file%>" flush="true" />
+	</div>
+<!-- PageEnd <%=pagename%> -->
+	<%}%>
 </div>

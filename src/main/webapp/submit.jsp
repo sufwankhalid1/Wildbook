@@ -37,7 +37,7 @@ context=ServletUtilities.getContext(request);
 
   //set up the file input stream
   //props.load(getClass().getResourceAsStream("/bundles/" + langCode + "/submit.properties"));
-  props = ShepherdProperties.getProperties("submit.properties", langCode,context);
+  props = ShepherdProperties.getProperties("submit.properties", langCode, context);
 
 
 	long maxSizeMB = CommonConfiguration.getMaxMediaSizeInMegabytes(context);

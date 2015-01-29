@@ -910,7 +910,6 @@
     <servlet-name>DataNucleus</servlet-name>
     <url-pattern>/rest/*</url-pattern>
   </servlet-mapping>
-  
 	<servlet>
 		<servlet-name>WildbookApi</servlet-name>
 		<servlet-class>org.ecocean.servlet.RestServlet</servlet-class>

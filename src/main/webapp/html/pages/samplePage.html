@@ -1,0 +1,33 @@
+<script type="text/javascript"
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDz5Pgz2NCjFkss9AJwxqFjejPhxJrOj-M">
+</script>
+
+<script type="text/javascript">
+
+var map;
+
+pager.register(
+    "samplePage",
+    function() {
+        var mapOptions = {
+          center: { lat: 0 , lng: 0},
+          zoom: 8
+        };
+        map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+            
+        //google.maps.event.addDomListener(window, 'load', map);
+
+        var pointPdx;
+        pointPdx = new wildbook.Model.Point({latitude: 45.5200, longitude: -122.6819});
+        pointPdx.centerGoogleMap(map);
+        pointPdx.placeGoogleMarker(map, "TEST");
+    },
+    function() {
+        //google.maps.event.removeListener(window, 'load', map);            
+    });
+
+</script>
+
+<div id="maincol-wide">
+    <div style="width:800px; height:600px; outline: solid 2px #000;" id="map-canvas"></div>
+</div>
