@@ -540,7 +540,7 @@ console.log(ev);
 	});
 
 	$('.col-zebraClass').each(function(i, el) {
-		var p = $('<select><option value="">unknown</option><option>LF</option><option>NLF</option><option>TM</option><option>BM</option><option>JUV</option><option>FOAL</option></select>');
+		var p = $('<select><option value="Unknown">Unknown</option><option>LF</option><option>NLF</option><option>TM</option><option>BM</option><option>JUV</option><option>FOAL</option></select>');
 		p.click( function(ev) { ev.stopPropagation(); } );
 		p.change(function() {
 			columnChange(this);
@@ -652,7 +652,7 @@ function relCancel(ev) {
 				}
         
           imgName = "/"+CommonConfiguration.getDataDirectoryName(context)+"/encounters/" + encSubdir + "/thumb.jpg";
-        
+
   %>
   <tr id="row-enc-<%=enc.getEncounterNumber()%>" class="enc-row" data-id="<%=enc.getEncounterNumber()%>" data-indiv="<%=((indiv == null) ? "" : enc.getIndividualID())%>">
       <td class="lineitem"><%=enc.getDate()%>
