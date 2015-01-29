@@ -47,7 +47,7 @@ context=ServletUtilities.getContext(request);
   //props.load(getClass().getResourceAsStream("/bundles/" + langCode + "/header.properties"));
   props = ShepherdProperties.getProperties("header.properties", langCode, context);
 
-
+  String requestURL = "http://" + CommonConfiguration.getURLLocation(request);
 %>
 
 <div id="header"><img name="masthead"
@@ -56,11 +56,11 @@ context=ServletUtilities.getContext(request);
 <div id="header_menu">
   <ul id="pmenu">
     <li style="background: #000066;"><a
-      href="http://<%=CommonConfiguration.getURLLocation(request) %>"
+      href="<%=requestURL %>"
       style="margin: 0px 0 0px 0px; position: relative; width: 95px; height: 25px; z-index: 100;"><strong><%=props.getProperty("home")%>
     </strong></a></li>
     <li class="drop"><a
-      href="http://<%=CommonConfiguration.getURLLocation(request) %>/index.jsp"
+      href="<%=requestURL %>/index.jsp"
       style="margin: 0px 0 0px 0px; position: relative; width: 75px; height: 25px; z-index: 100;"><strong><%=props.getProperty("learn")%>
     </strong></a>
       <!--[if lte IE 6]>
@@ -77,7 +77,7 @@ context=ServletUtilities.getContext(request);
       </ul>
       <!--[if lte IE 6]></td></tr></table></a><![endif]--></li>
     <li class="drop"><a
-      href="http://<%=CommonConfiguration.getURLLocation(request) %>/submit.jsp"
+      href="<%=requestURL %>/submit.jsp"
       style="margin: 0px 0 0px 0px; position: relative; width: 90px; height: 25px; z-index: 100;"><strong><%=props.getProperty("participate")%>
     </strong></a>
       <!--[if lte IE 6]>
@@ -87,7 +87,7 @@ context=ServletUtilities.getContext(request);
       <ul>
 
         <li><a
-          href="http://<%=CommonConfiguration.getURLLocation(request) %>/submit.jsp"
+          href="<%=requestURL %>/submit.jsp"
           class="enclose"
           style="margin: 0px 0 0px 0px; position: relative; width: 160px; height: 25px; z-index: 100;"><%=props.getProperty("report")%>
         </a></li>
@@ -95,7 +95,7 @@ context=ServletUtilities.getContext(request);
       </ul>
       <!--[if lte IE 6]></td></tr></table></a><![endif]--></li>
     <li class="drop">
-      <a href="http://<%=CommonConfiguration.getURLLocation(request) %>/individualSearchResults.jsp"
+      <a href="<%=requestURL %>/individualSearchResults.jsp"
          style="margin: 0px 0 0px 0px; position: relative; width: 100px; height: 25px; z-index: 100;">
         <strong><%=props.getProperty("individuals")%>
         </strong></a><!--[if lte IE 6]>
@@ -103,7 +103,7 @@ context=ServletUtilities.getContext(request);
         <tr>
           <td><![endif]-->
       <ul>
-        <li><a href="http://<%=CommonConfiguration.getURLLocation(request) %>/individualSearchResults.jsp"
+        <li><a href="<%=requestURL %>/individualSearchResults.jsp"
                class="enclose"
                style="margin: 0px 0 0px 0px; position: relative; width: 130px; height: 25px;"><%=props.getProperty("viewAll")%>
         </a></li>
@@ -129,7 +129,7 @@ context=ServletUtilities.getContext(request);
 	  								if(CommonConfiguration.getProperty(currentLifeState,context)!=null){
 	  									%>
 										<li>
-        									<a href="http://<%=CommonConfiguration.getURLLocation(request) %>/encounters/searchResults.jsp?state=<%=CommonConfiguration.getProperty(currentLifeState,context) %>" class="enclose" style="margin: 0px 0 0px 0px; position: relative; width: 210px; height: 25px;z-index: 100;">
+        									<a href="<%=requestURL %>/encounters/searchResults.jsp?state=<%=CommonConfiguration.getProperty(currentLifeState,context) %>" class="enclose" style="margin: 0px 0 0px 0px; position: relative; width: 210px; height: 25px;z-index: 100;">
         										<%=props.getProperty("viewEncounters").trim().replaceAll(" ",(" "+WordUtils.capitalize(CommonConfiguration.getProperty(currentLifeState,context))+" "))%>
         									</a>
         								</li>
@@ -145,13 +145,13 @@ context=ServletUtilities.getContext(request);
         
 
         <li><a
-          href="http://<%=CommonConfiguration.getURLLocation(request) %>/encounters/thumbnailSearchResults.jsp?noQuery=true"
+          href="<%=requestURL %>/encounters/thumbnailSearchResults.jsp?noQuery=true"
           class="enclose"
           style="margin: 0px 0 0px 0px; position: relative; width: 210px; height: 25px;"><%=props.getProperty("viewImages")%>
         </a></li>
 
         <li><a
-          href="http://<%=CommonConfiguration.getURLLocation(request) %>/xcalendar/calendar.jsp"
+          href="<%=requestURL %>/xcalendar/calendar.jsp"
           class="enclose"
           style="margin: 0px 0 0px 0px; position: relative; width: 210px; height: 25px;"><%=props.getProperty("encounterCalendar")%>
         </a></li>
@@ -162,7 +162,7 @@ context=ServletUtilities.getContext(request);
       if(request.getUserPrincipal()!=null){
       %>
         <li>
-        	<a href="http://<%=CommonConfiguration.getURLLocation(request) %>/encounters/searchResults.jsp?username=<%=request.getRemoteUser()%>" class="enclose" style="margin: 0px 0 0px 0px; position: relative; width: 210px; height: 25px;">
+        	<a href="<%=requestURL %>/encounters/searchResults.jsp?username=<%=request.getRemoteUser()%>" class="enclose" style="margin: 0px 0 0px 0px; position: relative; width: 210px; height: 25px;">
         		<%=props.getProperty("viewMySubmissions")%>
         	</a>
         </li>
@@ -175,7 +175,7 @@ context=ServletUtilities.getContext(request);
       </ul>
       <!--[if lte IE 6]></td></tr></table></a><![endif]--></li>
     <li class="drop">
-      <a href="http://<%=CommonConfiguration.getURLLocation(request) %>/welcome.jsp?reflect=http://<%=CommonConfiguration.getURLLocation(request) %>/encounters/encounterSearch.jsp"
+      <a href="<%=requestURL %>/welcome.jsp?reflect=<%=requestURL %>/encounters/encounterSearch.jsp"
         style="margin: 0px 0 0px 0px; position: relative; width: 85px; height: 25px; z-index: 100;"><strong><%=props.getProperty("search")%>
       </strong></a>
 
@@ -187,26 +187,26 @@ context=ServletUtilities.getContext(request);
 
 
         <li>
-          <a href="http://<%=CommonConfiguration.getURLLocation(request) %>/encounters/encounterSearch.jsp"
+          <a href="<%=requestURL %>/encounters/encounterSearch.jsp"
              class="enclose"
              style="margin: 0px 0 0px 0px; position: relative; width: 250px; height: 25px;">
             <%=props.getProperty("encounterSearch")%>
           </a></li>
         <li><a
-          href="http://<%=CommonConfiguration.getURLLocation(request) %>/individualSearch.jsp"
+          href="<%=requestURL %>/individualSearch.jsp"
           class="enclose"
           style="margin: 0px 0 0px 0px; position: relative; width: 250px; height: 25px;"><%=props.getProperty("individualSearch")%>
         </a></li>
         
         <li>
-	          <a href="http://<%=CommonConfiguration.getURLLocation(request) %>/encounters/searchComparison.jsp"
+	          <a href="<%=requestURL %>/encounters/searchComparison.jsp"
 	             class="enclose"
 	             style="margin: 0px 0 0px 0px; position: relative; width: 250px; height: 25px;">
 	            <%=props.getProperty("locationSearch")%>
         </a></li>
         
         <li><a
-          href="http://<%=CommonConfiguration.getURLLocation(request) %>/googleSearch.jsp"
+          href="<%=requestURL %>/googleSearch.jsp"
           class="enclose"
           style="margin: 0px 0 0px 0px; position: relative; width: 250px; height: 25px;"><%=props.getProperty("googleSearch")%>
         </a></li>
@@ -216,7 +216,7 @@ context=ServletUtilities.getContext(request);
 
 
     <li class="drop"><a id="general_admin"
-      href="http://<%=CommonConfiguration.getURLLocation(request) %>/welcome.jsp?reflect=http://<%=CommonConfiguration.getURLLocation(request) %>/appadmin/admin.jsp"
+      href="<%=requestURL %>/welcome.jsp?reflect=<%=requestURL %>/appadmin/admin.jsp"
       style="margin: 0px 0 0px 0px; position: relative; width: 90px; height: 25px; z-index: 100;"><strong><%=props.getProperty("administer")%>
     </strong></a>
       <!--[if lte IE 6]>
@@ -243,7 +243,7 @@ context=ServletUtilities.getContext(request);
       if(request.getUserPrincipal()!=null){
       %>
         <li>
-        	<a href="http://<%=CommonConfiguration.getURLLocation(request) %>/myAccount.jsp" class="enclose" style="margin: 0px 0 0px 0px; position: relative; width: 190px; height: 25px;">
+        	<a href="<%=requestURL %>/myAccount.jsp" class="enclose" style="margin: 0px 0 0px 0px; position: relative; width: 190px; height: 25px;">
         		<%=props.getProperty("myAccount")%>
         	</a>
         </li>
@@ -253,13 +253,13 @@ context=ServletUtilities.getContext(request);
      %>
 
         <li><a
-          href="http://<%=CommonConfiguration.getURLLocation(request) %>/appadmin/admin.jsp"
+          href="<%=requestURL %>/appadmin/admin.jsp"
           class="enclose"
           style="margin: 0px 0 0px 0px; position: relative; width: 190px; height: 25px;"><%=props.getProperty("general")%>
         </a></li>
         
         <li><a
-	          href="http://<%=CommonConfiguration.getURLLocation(request) %>/appadmin/logs.jsp"
+	          href="<%=requestURL %>/appadmin/logs.jsp"
 	          class="enclose"
 	          style="margin: 0px 0 0px 0px; position: relative; width: 190px; height: 25px;"><%=props.getProperty("logs")%>
         </a></li>
@@ -268,18 +268,18 @@ context=ServletUtilities.getContext(request);
         if(CommonConfiguration.useSpotPatternRecognition(context)){
         %>
          <li><a
-	          href="http://<%=CommonConfiguration.getURLLocation(request) %>/software/software.jsp"
+	          href="<%=requestURL %>/software/software.jsp"
 	          class="enclose"
 	          style="margin: 0px 0 0px 0px; position: relative; width: 190px; height: 25px;"><%=props.getProperty("gridSoftware")%>
         </a></li>
 
-        	<li><a href="http://<%=CommonConfiguration.getURLLocation(request) %>/appadmin/scanTaskAdmin.jsp?langCode=<%=langCode%>" class="enclose" style="margin:0px 0 0px 0px; position:relative; width:190px; height:25px;z-index:99;">Grid Administration</a></li>
+        	<li><a href="<%=requestURL %>/appadmin/scanTaskAdmin.jsp?langCode=<%=langCode%>" class="enclose" style="margin:0px 0 0px 0px; position:relative; width:190px; height:25px;z-index:99;">Grid Administration</a></li>
 		<%
           }
 		%>
 		
 	<li><a
-	          href="http://<%=CommonConfiguration.getURLLocation(request) %>/appadmin/users.jsp?context=context0"
+	          href="<%=requestURL %>/appadmin/users.jsp?context=context0"
 	          class="enclose"
 	          style="margin: 0px 0 0px 0px; position: relative; width: 190px; height: 25px;"><%=props.getProperty("userManagement")%>
         </a></li>	
@@ -309,7 +309,7 @@ context=ServletUtilities.getContext(request);
         
         
     
-        <li><a href="http://<%=CommonConfiguration.getURLLocation(request) %>/appadmin/kwAdmin.jsp"
+        <li><a href="<%=requestURL %>/appadmin/kwAdmin.jsp"
                class="enclose"
                style="margin: 0px 0 0px 0px; position: relative; width: 190px; height: 25px;"><%=props.getProperty("photoKeywords")%>
         </a>
@@ -320,11 +320,11 @@ context=ServletUtilities.getContext(request);
           if (CommonConfiguration.allowAdoptions(context)) {
         %>
         <li class="drop"><a
-          href="http://<%=CommonConfiguration.getURLLocation(request) %>/adoptions/adoption.jsp"
+          href="<%=requestURL %>/adoptions/adoption.jsp"
           style="margin: 0px 0 0px 0px; position: relative; width: 190px; height: 25px; z-index: 100;"><strong><%=props.getProperty("adoptions")%>
         </strong>
           <img
-            src="http://<%=CommonConfiguration.getURLLocation(request) %>/images/white_triangle.gif"
+            src="<%=requestURL %>/images/white_triangle.gif"
             border="0" align="absmiddle"></a>
           <!--[if lte IE 6]>
           <table>
@@ -332,13 +332,13 @@ context=ServletUtilities.getContext(request);
               <td><![endif]-->
           <ul>
             <li><a
-              href="http://<%=CommonConfiguration.getURLLocation(request) %>/adoptions/adoption.jsp"
+              href="<%=requestURL %>/adoptions/adoption.jsp"
               class="enclose"
               style="margin: 0px 0 0px 80px; position: relative; width: 190px; height: 25px;"><%=props.getProperty("createEditAdoption")%>
             </a></li>
             <li
               style="margin: 0px 0 0px 80px; position: relative; width: 191px; height: 26px;"><a
-              href="http://<%=CommonConfiguration.getURLLocation(request) %>/adoptions/allAdoptions.jsp"
+              href="<%=requestURL %>/adoptions/allAdoptions.jsp"
               class="enclose"
               style="margin: 0px 0 0px 0px; position: relative; width: 190px; height: 25px;"><%=props.getProperty("viewAllAdoptions")%>
             </a></li>
@@ -356,11 +356,11 @@ context=ServletUtilities.getContext(request);
           100;"><strong><%=props.getProperty("shepherdDoc")%></strong></a>
         </li>
         
-<li><a href="http://<%=CommonConfiguration.getURLLocation(request) %>/javadoc/index.html" class="enclose" style="margin:0px 0 0px 0px; position:relative; width:190px; height:25px;z-index:99;">Javadoc</a></li>
+<li><a href="<%=requestURL %>/javadoc/index.html" class="enclose" style="margin:0px 0 0px 0px; position:relative; width:190px; height:25px;z-index:99;">Javadoc</a></li>
 <%
 if(CommonConfiguration.isCatalogEditable(context)){
 %>						
-<li><a href="http://<%=CommonConfiguration.getURLLocation(request) %>/appadmin/import.jsp" class="enclose" style="margin:0px 0 0px 0px; position:relative; width:190px; height:25px;z-index:99;">Data Import</a></li>
+<li><a href="<%=requestURL %>/appadmin/import.jsp" class="enclose" style="margin:0px 0 0px 0px; position:relative; width:190px; height:25px;z-index:99;">Data Import</a></li>
 <%
 }
 %>					
@@ -370,17 +370,17 @@ if(CommonConfiguration.isCatalogEditable(context)){
       </ul>
       <!--[if lte IE 6]></td></tr></table></a><![endif]--></li>
 
-    <li><a href="http://<%=CommonConfiguration.getURLLocation(request) %>/contactus.jsp"
+    <li><a href="<%=requestURL %>/contactus.jsp"
            style="margin:0px 0 0px 0px; position:relative; width:90px; height:25px; z-index:100;"><strong><%=props.getProperty("contactUs")%>
     </strong></a></li>
     <%if (request.getRemoteUser() == null) {%>
     <li><a
-      href="http://<%=CommonConfiguration.getURLLocation(request) %>/login.jsp"
+      href="<%=requestURL %>/login.jsp"
       style="margin: 0px 0 0px 0px; position: relative; width: 76px; height: 25px; z-index: 100;"><strong><%=props.getProperty("login")%>
     </strong></a></li>
     <%} else {%>
     <li><a
-      href="http://<%=CommonConfiguration.getURLLocation(request) %>/LogoutUser"
+      href="<%=requestURL %>/LogoutUser"
       style="margin: 0px 0 0px 0px; position: relative; width: 76px; height: 25px; z-index: 100;"><strong><%=props.getProperty("logout")%>
     </strong></a></li>
     <%}%>
@@ -390,8 +390,8 @@ if(CommonConfiguration.isCatalogEditable(context)){
 
 <!-- define our JavaScript -->
 	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-	<script type="text/javascript" src="http://<%=CommonConfiguration.getURLLocation(request) %>/javascript/jquery.blockUI.js"></script>
-	<script type="text/javascript" src="http://<%=CommonConfiguration.getURLLocation(request) %>/javascript/jquery.cookie.js"></script>
+	<script type="text/javascript" src="<%=requestURL %>/javascript/jquery.blockUI.js"></script>
+	<script type="text/javascript" src="<%=requestURL %>/javascript/jquery.cookie.js"></script>
 	<script type="text/javascript">
   $(function() {
     var toTip = $( "[id^=flag_]" );
@@ -399,8 +399,8 @@ if(CommonConfiguration.isCatalogEditable(context)){
     //$( "[id^=flag_]" ).tooltip();
   });
 </script>
-<script type="text/javascript"  src="http://<%=CommonConfiguration.getURLLocation(request) %>/JavascriptGlobals.js"></script>
-<script type="text/javascript"  src="http://<%=CommonConfiguration.getURLLocation(request) %>/javascript/collaboration.js"></script>
+<script type="text/javascript"  src="<%=requestURL %>/JavascriptGlobals.js"></script>
+<script type="text/javascript"  src="<%=requestURL %>/javascript/collaboration.js"></script>
 <div id="header_menu" style="background-color: #D7E0ED;clear: left; position: relative;">
 	<div id="notifications"><%= Collaboration.getNotificationsWidgetHtml(request) %></div>
 <table width="810px">
@@ -417,7 +417,7 @@ if(CommonConfiguration.isCatalogEditable(context)){
 	</tr>	
 	<tr>
 		<td class="caption" class="caption" style="text-align: left;" align="left">
-		<table><tr><td><%=props.getProperty("findRecord") %></td><td><form name="form2" method="get" action="http://<%=CommonConfiguration.getURLLocation(request) %>/individuals.jsp">
+		<table><tr><td><%=props.getProperty("findRecord") %></td><td><form name="form2" method="get" action="<%=requestURL %>/individuals.jsp">
             <input name="number" type="text" id="shark" size="25"/>
             <input type="hidden" name="langCode" value="<%=langCode%>"/>
             <input name="Go" type="submit" id="Go2" value="<%=props.getProperty("search")%>"/>
@@ -444,7 +444,7 @@ if(CommonConfiguration.isCatalogEditable(context)){
 						if(ServletUtilities.getLanguageCode(request).equals(supportedLanguages.get(h))){selected="selected=\"selected\"";}
 						String myLang=supportedLanguages.get(h);
 					%>
-						<img style="cursor: pointer" id="flag_<%=myLang %>" title="<%=CommonConfiguration.getProperty(myLang, context) %>" src="http://<%=CommonConfiguration.getURLLocation(request) %>/images/flag_<%=myLang %>.gif" />
+						<img style="cursor: pointer" id="flag_<%=myLang %>" title="<%=CommonConfiguration.getProperty(myLang, context) %>" src="<%=requestURL %>/images/flag_<%=myLang %>.gif" />
 						<script type="text/javascript">
 	
 							$( "#flag_<%=myLang%>" ).click(function() {
