@@ -44,7 +44,7 @@
 %>
 <%
 
-String context = ServletUtilities.getContext(request);
+  String context = ServletUtilities.getContext(request);
 
   //handle some cache-related security
   response.setHeader("Cache-Control", "no-cache"); //Forces caches to obtain a new copy of the page from the origin server
@@ -52,22 +52,30 @@ String context = ServletUtilities.getContext(request);
   response.setDateHeader("Expires", 0); //Causes the proxy cache to see the page as "stale"
   response.setHeader("Pragma", "no-cache"); //HTTP 1.0 backward compatibility
 
-//setup our Properties object to hold all properties
-  Properties props = new Properties();
-  //String langCode = "en";
+  //setup our Properties object to hold all properties
   String langCode=ServletUtilities.getLanguageCode(request);
-  
 
   //set up the file input stream
   //props.load(getClass().getResourceAsStream("/bundles/" + langCode + "/header.properties"));
-  props = ShepherdProperties.getProperties("header.properties", langCode, context);
+  Properties props = ShepherdProperties.getProperties("header.properties", langCode, context);
 
   String requestURL = "http://" + CommonConfiguration.getURLLocation(request);
   
   String pageParam = request.getParameter("page");
   
   List<String> pages = new ArrayList<String>();
-  pages.add("submitMedia");
+  //
+  // Start of idea for configuring header. Something like this anyway. Needs to be two levels deep.
+  //
+/*   String pagesStr = CommonConfiguration.getProperty("wildbook.header.menu.items", context);
+  if (pagesStr != null) {
+      String[] pageStrs = pagesStr.split(",");
+      for (int ii=0; ii<=pageStrs.length - 1; ii++) {
+          pages.add(pageStrs[ii]);
+      }
+  }
+ */
+    pages.add("submitMedia");
   //pages.add("samplePage");
 %>
 

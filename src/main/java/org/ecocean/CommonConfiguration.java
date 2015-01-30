@@ -19,14 +19,11 @@
 
 package org.ecocean;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
@@ -35,77 +32,30 @@ public class CommonConfiguration {
   
   private static final String COMMON_CONFIGURATION_PROPERTIES = "commonConfiguration.properties";
   
-  //class setup
-  //private static Properties props = new Properties();
-  
-  //private static volatile int propsSize = 0;
-  
-  //private static String currentContext;
+  private static Map<String, Properties> propMap = new HashMap<String, Properties>();
 
-
-  private static Properties initialize(String context) {
-    //set up the file input stream
-    //if ((currentContext==null)||(!currentContext.equals(context))||(propsSize == 0)) {
-      return loadProps(context);
-    //}
+  
+  private static Properties get(String context) {
+    Properties props = propMap.get(context);
+    if (props == null) {
+      props = loadProps(context);
+      propMap.put(context, props);
+    }
+    
+    return props;
   }
 
 
   
-  public static synchronized Properties loadProps(String context) {
-      InputStream resourceAsStream = null;
+  private static synchronized Properties loadProps(String context) {
       Properties props=new Properties();
       try {
-        //resourceAsStream = CommonConfiguration.class.getResourceAsStream("/bundles/" + COMMON_CONFIGURATION_PROPERTIES);
-        //props.load(resourceAsStream);
         props=ShepherdProperties.getProperties(COMMON_CONFIGURATION_PROPERTIES, "",context);
 
       } catch (Exception ioe) {
         ioe.printStackTrace();
-        //return null;
       }
 
-    return props;
-  }
-  
-  
-
-  private static Properties loadOverrideProps(String shepherdDataDir) {
-    File configDir = new File("webapps/"+shepherdDataDir+"/WEB-INF/classes/bundles");
-    Properties props=new Properties();
-    //sometimes this ends up being the "bin" directory of the J2EE container
-    //we need to fix that
-    if((configDir.getAbsolutePath().contains("/bin/"))||(configDir.getAbsolutePath().contains("\\bin\\"))){
-      String fixedPath=configDir.getAbsolutePath().replaceAll("/bin", "").replaceAll("\\\\bin", "");
-      configDir=new File(fixedPath);
-      //System.out.println("Fixing the bin issue in CommonConfiguration.");
-      //System.out.println("The fix absolute path is: "+configDir.getAbsolutePath());
-    }
-    
-    if(!configDir.exists()){configDir.mkdirs();}
-    File configFile = new File(configDir, COMMON_CONFIGURATION_PROPERTIES);
-    if (configFile.exists()) {
-      //System.out.println("Overriding default properties with " + configFile.getAbsolutePath());
-      FileInputStream fileInputStream = null;
-      try {
-        fileInputStream = new FileInputStream(configFile);
-        props.load(fileInputStream);
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
-      finally {
-        if (fileInputStream != null) {
-          try {
-            fileInputStream.close();
-          } catch (Exception e2) {
-            e2.printStackTrace();
-          }
-        }
-      }
-    }
-    else {
-      //System.out.println("No properties override file found at " + configFile.getAbsolutePath());
-    }
     return props;
   }
 
@@ -120,7 +70,7 @@ public class CommonConfiguration {
 
 
   public static String getWikiLocation(String context) {
-    Properties props=initialize(context);
+    Properties props=get(context);
     if(props.getProperty("wikiLocation")!=null){return props.getProperty("wikiLocation").trim();}
     return null;
   }
@@ -230,15 +180,15 @@ public class CommonConfiguration {
   }
 
   public static String getProperty(String name, String context) {
-    return initialize(context).getProperty(name);
+    return get(context).getProperty(name);
   }
   
   public static Enumeration<?> getPropertyNames(String context) {
-    return initialize(context).propertyNames();
+    return get(context).propertyNames();
   }
 
   public static ArrayList<String> getSequentialPropertyValues(String propertyPrefix, String context){
-    Properties myProps=initialize(context);
+    Properties myProps=get(context);
     //System.out.println(myProps.toString());
     ArrayList<String> returnThese=new ArrayList<String>();
     
@@ -275,7 +225,7 @@ public class CommonConfiguration {
    * @return true if adoption functionality should be displayed. False if adoptions are not supported in this catalog.
    */
   public static boolean allowAdoptions(String context) {
-    initialize(context);
+    get(context);
     boolean canAdopt = true;
     if ((getProperty("allowAdoptions",context) != null) && (getProperty("allowAdoptions", context).equals("false"))) {
       canAdopt = false;
@@ -284,7 +234,7 @@ public class CommonConfiguration {
   }
 
   public static boolean sendEmailNotifications(String context) {
-    initialize(context);
+    get(context);
     boolean sendNotifications = true;
     if ((getProperty("sendEmailNotifications",context) != null) && (getProperty("sendEmailNotifications", context).equals("false"))) {
       sendNotifications = false;
@@ -298,7 +248,7 @@ public class CommonConfiguration {
    * @return true if nicknames are displayed for MarkedIndividual entries. False otherwise.
    */
   public static boolean allowNicknames(String context) {
-    initialize(context);
+    get(context);
     boolean canNickname = true;
     if ((getProperty("allowNicknames",context) != null) && (getProperty("allowNicknames",context).equals("false"))) {
       canNickname = false;
@@ -312,7 +262,7 @@ public class CommonConfiguration {
    * @return true if this catalog is for a species for which the spot pattern recognition software component can be used. False otherwise.
    */
   public static boolean useSpotPatternRecognition(String context) {
-    initialize(context);
+    get(context);
     boolean useSpotPatternRecognition = true;
     if ((getProperty("useSpotPatternRecognition",context) != null) && (getProperty("useSpotPatternRecognition",context).equals("false"))) {
       useSpotPatternRecognition = false;
@@ -326,7 +276,7 @@ public class CommonConfiguration {
    * @return true if edits are allows. False otherwise.
    */
   public static boolean isCatalogEditable(String context) {
-    initialize(context);
+    get(context);
     boolean isCatalogEditable = true;
     if ((getProperty("isCatalogEditable", context) != null) && (getProperty("isCatalogEditable", context).equals("false"))) {
       isCatalogEditable = false;
@@ -340,7 +290,7 @@ public class CommonConfiguration {
    * @return true if EXIF data should be shown. False otherwise.
    */
   public static boolean showEXIFData(String context) {
-    initialize(context);
+    get(context);
     boolean showEXIF = true;
     if ((getProperty("showEXIF",context) != null) && (getProperty("showEXIF", context).equals("false"))) {
       showEXIF = false;
@@ -354,7 +304,7 @@ public class CommonConfiguration {
    * @return true if a TapirLink provider is used with the framework. False otherwise.
    */
   public static boolean useTapirLinkURL(String context) {
-    initialize(context);
+    get(context);
     boolean useTapirLink = true;
     if ((getProperty("tapirLinkURL",context) != null) && (getProperty("tapirLinkURL",context).equals("false"))) {
       useTapirLink = false;
@@ -384,7 +334,7 @@ public class CommonConfiguration {
 
   public static String appendEmailRemoveHashString(HttpServletRequest request, String
                                                    originalString, String emailAddress, String context) {
-    initialize(context);
+    get(context);
     if (getProperty("removeEmailString",context) != null) {
       originalString += "\n\n" + getProperty("removeEmailString",context) + "\nhttp://" + getURLLocation(request) + "/removeEmailAddress.jsp?hashedEmail=" + Encounter.getHashOfEmailString(emailAddress);
     }
@@ -441,7 +391,7 @@ public class CommonConfiguration {
   
   
   public static String getDataDirectoryName(String context) {
-    initialize(context);
+    get(context);
     String dataDirectoryName="shepherd_data_dir";
     
     //new context code here
@@ -459,7 +409,7 @@ public class CommonConfiguration {
    * @return true if edits are allows. False otherwise.
    */
   public static boolean showUsersToPublic(String context) {
-    initialize(context);
+    get(context);
     boolean showUsersToPublic = true;
     if ((getProperty("showUsersToPublic",context) != null) && (getProperty("showUsersToPublic",context).equals("false"))) {
       showUsersToPublic = false;
@@ -470,7 +420,7 @@ public class CommonConfiguration {
   
   public static boolean isIntegratedWithWildMe(String context){
     
-    initialize(context);
+    get(context);
     boolean integrated = true;
     if ((getProperty("isIntegratedWithWildMe",context) != null) && (getProperty("isIntegratedWithWildMe",context).equals("false"))) {
       integrated = false;
