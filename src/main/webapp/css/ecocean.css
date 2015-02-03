@@ -1556,7 +1556,8 @@ table.tissueSample td {
 
 /*#match-results .target img, #match-results .match img { */
 #match-results img.fitted {
-	height: 300px;
+	max-height: 300px;
+	max-width: 450px;
 	position: relative;
 	left: 100%;
 	margin-left: -200%;
