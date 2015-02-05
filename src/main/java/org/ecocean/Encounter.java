@@ -38,7 +38,10 @@ import org.ecocean.tag.MetalTag;
 import org.ecocean.tag.SatelliteTag;
 import org.ecocean.Util;
 
-import org.json.JSONObject;
+//import org.datanucleus.api.rest.orgjson.JSONArray;
+//import org.datanucleus.api.rest.orgjson.JSONException;
+import org.datanucleus.api.rest.orgjson.JSONObject;
+
 import org.ecocean.security.Collaboration;
 
 

@@ -52,7 +52,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import org.json.JSONObject;
+import org.datanucleus.api.rest.orgjson.JSONObject;
+
 
 public class ApiAccess {
   private int day = 0;
@@ -87,15 +88,23 @@ System.out.println("reading file??? " + afile.toString());
 	//this does the real work.  returns null if ok, or string with error message if request is disallowed on object
 	public String checkRequest(Object obj, HttpServletRequest request, JSONObject jsonobj) {
 		String err = null;
-		if (!request.getMethod().equals("POST") && !request.getMethod().equals("PUT")) return null;  //we only care about PUT/POST for now
 		HashMap<String, String> perm = permissions(obj, request);
+System.out.println("PERMS:");
+System.out.println(perm);
+
+		if ((perm.get("_objectRead") != null) && perm.get("_objectRead").equals("deny")) return "objectRead denied by permissions";
+
+		//for now (TODO) we only care about post/put
+		if (!request.getMethod().equals("POST") && !request.getMethod().equals("PUT")) return null;
+
+		if ((perm.get("_objectUpdate") != null) && perm.get("_objectUpdate").equals("deny")) return "objectUpdate denied by permissions";
 
 		Iterator<?> keys = jsonobj.keys();
 		while (keys.hasNext()) {
 			String key = (String) keys.next();
 System.out.println(key);
 			//we dont care what the value is, just if it is being set at all and shouldnt be
-			if (perm.containsKey(key) && (perm.get(key) == null)) {
+			if (perm.containsKey(key) && perm.get(key).equals("deny")) {
 				err = "altering value for " + key + " disallowed by permissions: " + perm.toString();
 				break;
 			}
@@ -134,10 +143,17 @@ System.out.println("[class " + cname + "] roles for user '" + username + "': " +
 			Node n = nlist.item(i);
 			if (n.getNodeType() == Node.ELEMENT_NODE) {
 				Element el = (Element) n;
-				if (el.getAttribute("name").equals(cname)) {
-					Node p = el.getElementsByTagName("properties").item(0);
+
+				if (el.getAttribute("name").equals(cname)) {  //we got our class
+					Node p = el.getElementsByTagName("object").item(0);
+					if (!canUser(p, "create", false, roles)) perm.put("_objectCreate", "deny");
+					if (!canUser(p, "read", true, roles)) perm.put("_objectRead", "deny");
+					if (!canUser(p, "update", false, roles)) perm.put("_objectUpdate", "deny");
+					if (!canUser(p, "delete", false, roles)) perm.put("_objectDelete", "deny");
+
+					////////// now properties ///////////
+					p = el.getElementsByTagName("properties").item(0);
 					if (p == null) return perm;
-//System.out.println("ok in " + cname);
 					Element propsEl = (Element) p;
 					NodeList props = propsEl.getElementsByTagName("property");
 					for (int j = 0 ; j < props.getLength() ; j++) {
@@ -145,17 +161,23 @@ System.out.println("[class " + cname + "] roles for user '" + username + "': " +
 							Element pel = (Element) props.item(j);
 							String propName = pel.getAttribute("name");
 							if (propName != null) {
-///////////// TODO for now we assume we ONLY have a sub element for <write> perm here so we skip a step
+								if (!canUser(props.item(j), "update", false, roles)) perm.put(propName, "deny");
+								if (!canUser(props.item(j), "read", true, roles)) perm.put(propName, "deny");
+							}
+/*
+							if (propName != null) {
+///////////// TODO for now we assume we ONLY have a sub element for <update> perm here so we skip a step
 								NodeList proles = pel.getElementsByTagName("role");
 								boolean allowed = false;
 								for (int k = 0 ; k < proles.getLength() ; k++) {
-									if (roles.contains(proles.item(k).getTextContent())) {
+									if (roles.contains(proles.item(k).getTextContent()) || proles.item(k).getTextContent().equals("*")) {
 										allowed = true;
 										k = proles.getLength() + 1;
 									}
 								}
 								if (!allowed) perm.put(propName, "deny");
 							}
+*/
 						}
 					}
 				}
@@ -165,6 +187,25 @@ System.out.println("[class " + cname + "] roles for user '" + username + "': " +
 System.out.println(perm);
 		return perm;
 	}
+
+
+	public boolean canUser(Node n, String action, boolean byDefault, List<String> roles) {
+		if (n == null) return byDefault;
+		Element el = (Element) n;
+		NodeList o = el.getElementsByTagName(action);
+		if ((o == null) || (o.getLength() < 1)) return byDefault;
+		boolean allowed = false;  //if we get this far, we have to prove it cuz we are not non-existent, which is when byDefault applies
+		Element oel = (Element) o.item(0);
+		NodeList proles = oel.getElementsByTagName("role");
+		for (int k = 0 ; k < proles.getLength() ; k++) {
+			if (roles.contains(proles.item(k).getTextContent()) || proles.item(k).getTextContent().equals("*")) {
+				allowed = true;
+				k = proles.getLength() + 1;
+			}
+		}
+		return allowed;
+	}
+
 
 }
 

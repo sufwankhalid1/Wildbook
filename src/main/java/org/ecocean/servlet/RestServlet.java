@@ -504,14 +504,15 @@ public class RestServlet extends HttpServlet
             }
 
             Object pc = RESTUtils.getObjectFromJSONObject(jsonobj, className, ec);
-						///////boolean restAccessOk = restAccessCheck(pc, req, jsonobj);
-						boolean restAccessOk = false;  //TEMPORARILY disable ALL access to POST/PUT until we really test things  TODO
-/*
+						boolean restAccessOk = restAccessCheck(pc, req, jsonobj);
+						//boolean restAccessOk = false;  //TEMPORARILY disable ALL access to POST/PUT until we really test things  TODO
+
 System.out.println(jsonobj);
 System.out.println("+++++");
 
+/*
 						Method restAccess = null;
-						boolean restAccessOk = true;
+						//boolean restAccessOk = true;
 						try {
 							restAccess = pc.getClass().getMethod("restAccess", new Class[] { HttpServletRequest.class });
 						} catch (NoSuchMethodException nsm) {
@@ -527,6 +528,7 @@ System.out.println("+++++");
 System.out.println("got Exception trying to invoke restAccess: " + ex.toString());
 							}
 						}
+
 */
 
 						if (restAccessOk) {
