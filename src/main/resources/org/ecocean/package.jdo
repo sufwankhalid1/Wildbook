@@ -127,7 +127,7 @@
 		
 
         <class name="Encounter" identity-type="application" table="ENCOUNTER">
-            <field name="catalogNumber" primary-key="true">
+            <field name="catalogNumber" primary-key="true" value-strategy="uuid" >
                 <column length="100" />
             </field>
             <field name="otherCatalogNumbers"
