@@ -207,7 +207,6 @@ function cleanFilename(f) {
 }
 
 var batchData = false;
-var hoverImg = false;
 function showResults(data) {
 	batchData = data;
 	var h = '';
@@ -266,16 +265,15 @@ function showResults(data) {
 	});
 */
 
+	var origSrc = false;
 	$('.other-thumbs img').hover(
 		function() {
-			hoverImg = document.createElement('img');
-			hoverImg.src = this.src;
-			hoverImg.className = 'fitted';
-			$(this).parents('.result').find('.match').append(hoverImg);
+			origSrc = $(this).parents('.result').find('.match img').attr('src');
+			$(this).parents('.result').find('.match img').attr('src', this.src);
 		},
 		function() {
-			$(hoverImg).remove();
-			hoverImg = false;
+			$(this).parents('.result').find('.match img').attr('src', origSrc);
+			origSrc = false;
 		}
 	);
 
@@ -422,7 +420,7 @@ System.out.println(") matched?????? " + lm.group(1) + ":" + lm.group(2));
 					}
 				}
 
-					String[] cmd = {"/bin/sh", "-c", "/bin/sed 's#/opt/tomcat7/webapps##g' < " + batchDir + "/" + imgname + ".xhtml | /bin/sed 's/#/%23/g' > " + batchDir + "/" + imgname + "-rel.xhtml"};
+					String[] cmd = {"/bin/sh", "-c", "/bin/sed 's#/var/lib/tomcat7/webapps##g' < " + batchDir + "/" + imgname + ".xhtml | /bin/sed 's/#/%23/g' > " + batchDir + "/" + imgname + "-rel.xhtml"};
 					Process p;
 					p = Runtime.getRuntime().exec(cmd);
 					p.waitFor();
