@@ -21,7 +21,7 @@ var wildbook = {
 			me._loadAllClassesCount--;
 //console.log('huh??? %o', me._loadAllClassesCount);
 			if (me._loadAllClassesCount <= 0) {
-				console.info('wildbook.loadAllClasses(): DONE loading all classes');
+				//console.info('wildbook.loadAllClasses(): DONE loading all classes');
 				if (callback) callback();
 			}
 		});
@@ -139,9 +139,9 @@ console.log('cls = ' + cls);
 
 
 function classInit(cname, callback) {
-	console.info('attempting to load class %s', cname);
+	//console.info('attempting to load class %s', cname);
 	$.getScript(wildbookGlobals.baseUrl + '/javascript/classes/' + cname + '.js', function() {
-		console.info('successfully loaded class %s', cname);
+		//console.info('successfully loaded class %s', cname);
 
 		//just a way to get actual name... hacky, but cant figure out the elegant way??
 		if (wildbook.Model[cname] && wildbook.Model[cname].prototype) {
