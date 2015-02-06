@@ -99,10 +99,33 @@ public class OccurrenceCreateIBEIS extends HttpServlet {
 
 	String waypointId = request.getParameter("smart_waypoint_id");
 	String xmlIn = request.getParameter("smart_xml_content");
-//System.out.println("xmlIn(\n" + xmlIn + "\n)END");
+System.out.println("xmlIn(\n" + xmlIn + "\n)END");
 	HashMap metaFromXml = parseMetaXml(waypointId, xmlIn);
 //System.out.println("xml done");
 //if (!waypointId.equals("XXXX")) throw new IOException("nope!");
+
+
+	//we need lat/lon for encounters as well!
+	Double metaLatitude = null;
+	Double metaLongitude = null;
+	if (metaFromXml != null) {
+		Double d = null;
+		if (metaFromXml.get("decimalLatitude") != null) {
+			try {
+				d = Double.parseDouble(metaFromXml.get("decimalLatitude").toString());
+				metaLatitude = d;
+			} catch (Exception ex) { }
+		}
+System.out.println("metaLatitude -> " + metaLatitude);
+
+		if (metaFromXml.get("decimalLongitude") != null) {
+			try {
+				d = Double.parseDouble(metaFromXml.get("decimalLongitude").toString());
+				metaLongitude = d;
+			} catch (Exception ex) { }
+		}
+System.out.println("metaLongitude -> " + metaLongitude);
+	}
 
 
 	String IBEIS_image_path = CommonConfiguration.getProperty("IBEIS_image_path", context);
@@ -136,6 +159,20 @@ System.out.println(annot);
 		Encounter enc = new Encounter(1, 1, 2014, 22, "30", "Unknown", "", "IBEIS submitter", "submit@ibeis.org", null);
 		enc.setEncounterNumber(annot.get("annot_uuid").toString());
 		enc.setState("approved");
+
+		//TODO make this not hard-coded.  passed from ibeis-image?
+		enc.setLocationID("Lewa");
+		enc.setCountry("Kenya");
+		enc.setIdentificationRemarks("IBEIS-IA");
+
+		if (metaLatitude != null) {
+			enc.setDecimalLatitude(metaLatitude);
+			enc.setGPSLatitude(metaLatitude.toString());
+		}
+		if (metaLongitude != null) {
+			enc.setDecimalLongitude(metaLongitude);
+			enc.setGPSLongitude(metaLongitude.toString());
+		}
 
 		Long etime = null;
 		//TODO is there always only one?  i think so
@@ -193,7 +230,7 @@ System.out.println("created new indiv = " + indivID);
 				}
 			} else {
 System.out.println("existing indiv = " + indivID);
-				ind.addEncounter(enc);
+				ind.addEncounter(enc, context);
 				enc.setSex(ind.getSex());  //inherits the individual's sex if we have one
             			myShepherd.commitDBTransaction();
 			}
@@ -217,8 +254,6 @@ System.out.println(metaFromXml);
 			Integer lf = 0;
 			Integer nlf = 0;
 			Double distance = new Double(0);
-			Double dlat = new Double(-1);
-			Double dlong = new Double(-1);
 			Double bearing = new Double(-1);
 
 			double d;
@@ -277,23 +312,10 @@ System.out.println("nlf -> " + nlf);
 System.out.println("distance -> " + distance);
 			occ.setDistance(distance);
 
-			if (metaFromXml.get("decimalLatitude") != null) {
-				try {
-					d = Double.parseDouble(metaFromXml.get("decimalLatitude").toString());
-					dlat = d;
-				} catch (Exception ex) { }
-			}
-System.out.println("dlat -> " + dlat);
-			occ.setDecimalLatitude(dlat);
+			//we already parsed these
+			occ.setDecimalLatitude(metaLatitude);
+			occ.setDecimalLongitude(metaLongitude);
 
-			if (metaFromXml.get("decimalLongitude") != null) {
-				try {
-					d = Double.parseDouble(metaFromXml.get("decimalLongitude").toString());
-					dlong = d;
-				} catch (Exception ex) { }
-			}
-System.out.println("dlong -> " + dlong);
-			occ.setDecimalLongitude(dlong);
 
 			if (metaFromXml.get("bearing") != null) {
 				try {
