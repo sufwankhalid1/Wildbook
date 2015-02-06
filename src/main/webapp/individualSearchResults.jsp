@@ -240,64 +240,14 @@
     
     int count = 0;
     int numNewlyMarked = 0;
-	String extra = "var extra = {";
-
-    for (int f = 0; f < rIndividualsSize; f++) {
-     
-      count++;
-
-      /*
-      //check if this individual was newly marked in this period
-      Encounter[] dateSortedEncs = indie.getDateSortedEncounters();
-      int sortedLength = dateSortedEncs.length - 1;
-      Encounter temp = dateSortedEncs[sortedLength];
 
 
-      if ((temp.getYear() == year1) && (temp.getYear() < year2) && (temp.getMonth() >= month1)) {
-        numNewlyMarked++;
-      } else if ((temp.getYear() > year1) && (temp.getYear() == year2) && (temp.getMonth() <= month2)) {
-        numNewlyMarked++;
-      } else if ((temp.getYear() >= year1) && (temp.getYear() <= year2) && (temp.getMonth() >= month1) && (temp.getMonth() <= month2)) {
-        numNewlyMarked++;
-      }
-      */
-
-
-
-      if (true) {
-        
-        MarkedIndividual indie = (MarkedIndividual) rIndividuals.get(f);
-        //check if this individual was newly marked in this period
-	String thumbUrl = "";
-	Encounter[] dateSortedEncs = indie.getDateSortedEncounters();
-	int sortedLength = dateSortedEncs.length - 1;
-	Encounter temp = dateSortedEncs[sortedLength];
-	ArrayList<SinglePhotoVideo> photos=indie.getAllSinglePhotoVideo();
-	if (photos.size() > 0) {
-		SinglePhotoVideo t = photos.get(0);
-		thumbUrl = "/"+CommonConfiguration.getDataDirectoryName(context)+"/encounters/" + temp.subdir() + "/thumb.jpg";
-	}
-
-	String firstIdent = "";
-	if (temp.getYear() > 0) firstIdent = temp.getMonth() + "/" + temp.getYear();
-
-	extra += "'" + indie.getIndividualID() + "': { locations: " + indie.participatesInTheseLocationIDs().size() + ", genusSpecies: '" + indie.getGenusSpecies() + "', thumbUrl: '" + thumbUrl + "', numberEncounters: " + indie.totalEncounters() + ", firstIdent: '" + firstIdent + "' },\n";
-
-      } //end if to control number displayed
-
-
-
-    } //end for
-
-
-/////START
 
 
 	JDOPersistenceManager jdopm = (JDOPersistenceManager)myShepherd.getPM();
 	JSONArray jsonobj = RESTUtils.getJSONArrayFromCollection((Collection)rIndividuals, jdopm.getExecutionContext());
 	String indsJson = jsonobj.toString();
 
-	extra += "};";
 %>
 
 <style>
@@ -312,7 +262,6 @@
 <script type="text/javascript">
 
 var searchResults = <%=indsJson%>;
-<%=extra%>
 
 /*
 var testColumns = {
@@ -332,9 +281,11 @@ var resultsTable;
 
 
 $(document).keydown(function(k) {
-	if ((k.which == 38) || (k.which == 40)) k.preventDefault();
+	if ((k.which == 38) || (k.which == 40) || (k.which == 33) || (k.which == 34)) k.preventDefault();
 	if (k.which == 38) return tableDn();
 	if (k.which == 40) return tableUp();
+	if (k.which == 33) return nudge(-howMany);
+	if (k.which == 34) return nudge(howMany);
 });
 
 var colDefn = [
@@ -392,6 +343,13 @@ var sortCol = -1;
 var sortReverse = false;
 
 
+var counts = {
+	total: 0,
+	ided: 0,
+	unid: 0,
+	dailydup: 0,
+};
+
 var sTable = false;
 //var searchResultsObjects = [];
 
@@ -441,6 +399,8 @@ function doTable() {
 	$('#progress').hide();
 	sTable.sliderInit();
 	show();
+	computeCounts();
+	displayCounts();
 
 	$('#results-table').on('mousewheel', function(ev) {  //firefox? DOMMouseScroll
 		if (!sTable.opts.sliderElement) return;
@@ -482,13 +442,12 @@ console.log('sortCol=%d sortReverse=%o', sortCol, sortReverse);
 }
 
 
-function show() {
+function xxxshow() {
 	$('#results-table td').html('');
 	for (var i = 0 ; i < results.length ; i++) {
 		//$('#results-table tbody tr')[i].title = searchResults[results[i]].individualID;
 		$('#results-table tbody tr')[i].setAttribute('data-id', searchResults[results[i]].individualID);
 		for (var c = 0 ; c < colDefn.length ; c++) {
-			$('#results-table tbody tr')[i].children[c].innerHTML = sTable.values[results[i]][c];
 			$('#results-table tbody tr')[i].children[c].innerHTML = sTable.values[results[i]][c];
 		}
 	}
@@ -505,15 +464,91 @@ function show() {
 	sTable.sliderSet(100 - (start / (searchResults.length - howMany)) * 100);
 }
 
+
+
+function show() {
+	$('#results-table td').html('');
+	$('#results-table tbody tr').show();
+	for (var i = 0 ; i < results.length ; i++) {
+		//$('#results-table tbody tr')[i].title = 'Encounter ' + searchResults[results[i]].id;
+		$('#results-table tbody tr')[i].setAttribute('data-id', searchResults[results[i]].individualID);
+		for (var c = 0 ; c < colDefn.length ; c++) {
+			$('#results-table tbody tr')[i].children[c].innerHTML = '<div>' + sTable.values[results[i]][c] + '</div>';
+		}
+	}
+	if (results.length < howMany) {
+		$('#results-slider').hide();
+		for (var i = 0 ; i < (howMany - results.length) ; i++) {
+			$('#results-table tbody tr')[i + results.length].style.display = 'none';
+		}
+	} else {
+		$('#results-slider').show();
+	}
+
+	//if (sTable.opts.sliderElement) sTable.opts.sliderElement.slider('option', 'value', 100 - (start / (searchResults.length - howMany)) * 100);
+	sTable.sliderSet(100 - (start / (sTable.matchesFilter.length - howMany)) * 100);
+	displayPagePosition();
+}
+
+
+function computeCounts() {
+	counts.total = sTable.matchesFilter.length;
+	return;  //none of the below applies here! (cruft from encounters for prosperity)
+	counts.unid = 0;
+	counts.ided = 0;
+	counts.dailydup = 0;
+	var uniq = {};
+
+	for (var i = 0 ; i < counts.total ; i++) {
+		console.log('>>>>> what up? %o', searchResults[sTable.matchesFilter[i]]);
+		var iid = searchResults[sTable.matchesFilter[i]].individualID;
+		if (iid == 'Unassigned') {
+			counts.unid++;
+		} else {
+			var k = iid + ':' + searchResults[sTable.matchesFilter[i]].get('year') + ':' + searchResults[sTable.matchesFilter[i]].get('month') + ':' + searchResults[sTable.matchesFilter[i]].get('day');
+			if (!uniq[k]) {
+				uniq[k] = true;
+				counts.ided++;
+			} else {
+				counts.dailydup++;
+			}
+		}
+	}
+/*
+	var k = Object.keys(uniq);
+	counts.ided = k.length;
+*/
+}
+
+
+function displayCounts() {
+	for (var w in counts) {
+		$('#count-' + w).html(counts[w]);
+	}
+}
+
+
+function displayPagePosition() {
+	if (sTable.matchesFilter.length < 1) {
+		$('#table-info').html('<b>no matches found</b>');
+		return;
+	}
+
+	var max = start + howMany;
+	if (sTable.matchesFilter.length < max) max = sTable.matchesFilter.length;
+	$('#table-info').html((start+1) + ' - ' + max + ' of ' + sTable.matchesFilter.length);
+}
 function newSlice(col, reverse) {
 	results = sTable.slice(col, start, start + howMany, reverse);
 }
 
 
+
 function nudge(n) {
 	start += n;
+	if ((start + howMany) > sTable.matchesFilter.length) start = sTable.matchesFilter.length - howMany;
 	if (start < 0) start = 0;
-	if (start > searchResults.length - 1) start = searchResults.length - 1;
+console.log('start -> %d', start);
 	newSlice(sortCol, sortReverse);
 	show();
 }
@@ -529,7 +564,7 @@ function tableDn() {
 function tableUp() {
 	return nudge(1);
 	start++;
-	if (start > searchResults.length - 1) start = searchResults.length - 1;
+	if (start > sTable.matchesFilter.length - 1) start = sTable.matchesFilter.length - 1;
 	newSlice(sortCol, sortReverse);
 	show();
 }
@@ -585,20 +620,16 @@ if (percentage % 3 == 0) console.log(percentage);
 
 
 function _colIndividual(o) {
-	//var i = '<b><a target="_new" href="individuals.jsp?number=' + o.individualID + '">' + o.individualID + '</a></b> ';
-	var i = '<b>' + o.individualID + '</b><br /><%=props.getProperty("firstIdentified") %> ';
-	if (!extra[o.individualID]) return i;
-	i += (extra[o.individualID].firstIdent || '');
-	//i += (extra[o.individualID].genusSpecies || '') + '</i>';
+	var i = '<b>' + o.individualID + '</b>';
+	var fi = o.dateFirstIdentified;
+	if (fi) i += '<br /><%=props.getProperty("firstIdentified") %> ' + fi;
 	return i;
 }
 
 
 function _colNumberEncounters(o) {
-	if (!extra[o.individualID]) return '';
-	var n = extra[o.individualID].numberEncounters;
-	if (n == undefined) return '';
-	return n;
+	if (o.numberEncounters == undefined) return '';
+	return o.numberEncounters;
 }
 
 /*
@@ -608,10 +639,8 @@ function _colYearsBetween(o) {
 */
 
 function _colNumberLocations(o) {
-	if (!extra[o.individualID]) return '';
-	var n = extra[o.individualID].locations;
-	if (n == undefined) return '';
-	return n;
+	if (o.numberLocations == undefined) return '';
+	return o.numberLocations;
 }
 
 
@@ -627,8 +656,7 @@ function _colRowNum(o) {
 
 
 function _colThumb(o) {
-	if (!extra[o.individualID]) return '';
-	var url = extra[o.individualID].thumbUrl;
+	var url = o.thumbnailUrl;
 	if (!url) return '';
 	return '<div style="background-image: url(' + url + ');"><img src="' + url + '" /></div>';
 }
@@ -650,7 +678,25 @@ function _textExtraction(n) {
 	return s;
 }
 
+function applyFilter() {
+	var t = $('#filter-text').val();
+console.log(t);
+	sTable.filter(t);
+	start = 0;
+	newSlice(1);
+	show();
+	computeCounts();
+	displayCounts();
+}
+
 </script>
+
+<p>
+<input placeholder="filter by text" id="filter-text" onChange="return applyFilter()" />
+<input type="button" value="filter" />
+<input type="button" value="clear" onClick="$('#filter-text').val(''); applyFilter(); return true;" />
+<span style="margin-left: 40px; color: #888; font-size: 0.8em;" id="table-info"></span>
+</p>
 
 <div class="pageableTable-wrapper">
 	<div id="progress">loading...</div>
@@ -687,7 +733,7 @@ function _textExtraction(n) {
   <tr>
     <td align="left">
       <p><strong><%=props.getProperty("matchingMarkedIndividuals")%>
-      </strong>: <%=count%>
+      </strong>: <span id="count-total"></span>
       </p>
       <%myShepherd.beginDBTransaction();%>
       <p><strong><%=props.getProperty("totalMarkedIndividuals")%>

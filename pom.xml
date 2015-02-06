@@ -6,7 +6,7 @@
   
   <groupId>org.ecocean</groupId>
   <artifactId>wildbook</artifactId>
-  <version>5.2.0-EXPERIMENTAL</version>
+  <version>5.2.0-RELEASE</version>
   <packaging>war</packaging>
 
   <properties>
@@ -307,6 +307,16 @@
       <artifactId>metadata-extractor</artifactId>
       <version>2.6.2</version>
     </dependency>
+	
+	
+	<!-- starting Amazon support for sharkGrid -->
+<dependency>
+	<groupId>com.amazonaws</groupId>
+	<artifactId>aws-java-sdk-ec2</artifactId>
+	<version>1.9.13</version>
+</dependency>
+	
+	
 <!--
     <dependency>
       <groupId>junit</groupId>

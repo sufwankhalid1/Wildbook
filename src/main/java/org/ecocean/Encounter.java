@@ -68,7 +68,7 @@ public class Encounter implements java.io.Serializable {
   private String catalogNumber = "";
   private String individualID;
   private int day = 0;
-  private int month = 0;
+  private int month = -1;
   private int year = 0;
   private Double decimalLatitude;
   private Double decimalLongitude;
@@ -719,8 +719,12 @@ public class Encounter implements java.io.Serializable {
 
     if (day > 0) {
       date = String.format("%04d-%02d-%02d %s", year, month, day, time);
-    } else {
+    } 
+    else if(month>-1) {
       date = String.format("%04d-%02d %s", year, month, time);
+    }
+    else {
+      date = String.format("%04d %s", year, month, time);
     }
 
     return date;
@@ -1975,6 +1979,13 @@ thus, we have to treat it as a special case.
 		}
 
 
+	//see also: future, MediaAssets
+	public String getThumbnailUrl(String context) {
+		List<SinglePhotoVideo> spvs = this.images;
+		if (spvs.size() < 1) return null;
+		return "/" + CommonConfiguration.getDataDirectoryName(context) + "/encounters/" + this.subdir() + "/thumb.jpg";
+	}
+
 	public boolean restAccess(HttpServletRequest request, JSONObject jsonobj) throws Exception {
 		ApiAccess access = new ApiAccess();
 System.out.println("hello i am in restAccess() on Encounter");
@@ -1993,6 +2004,16 @@ throw new Exception();
 */
 		return true;
 	}
+
+
+/*  not really sure we need this now/yet
+
+	public void refreshDependentProperties() {
+		this.resetDateInMilliseconds();
+//TODO could possibly do integrity check, re: individuals/occurrences linking?
+	}
+
+*/
 
 
 
