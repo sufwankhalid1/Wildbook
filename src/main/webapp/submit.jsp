@@ -156,8 +156,7 @@ margin-bottom: 8px !important;
 <div id="wrapper">
 <div id="page">
 <jsp:include page="header.jsp" flush="true">
-
-  <jsp:param name="isAdmin" value="<%=request.isUserInRole(\"admin\")%>" />
+    <jsp:param name="isAdmin" value="<%=request.isUserInRole(\"admin\")%>" />
 </jsp:include>
 
  <script type="text/javascript" src="http://geoxml3.googlecode.com/svn/branches/polys/geoxml3.js"></script>

@@ -193,7 +193,7 @@
 	
 	<!-- START Rest Service -->
 	<!-- Spring magically passes things through jackson if it sees it on the classpath -->
-    <dependency>
+    <!-- <dependency>
         <groupId>org.codehaus.jackson</groupId>
         <artifactId>jackson-mapper-asl</artifactId>
         <version>1.9.13</version>
@@ -210,7 +210,7 @@
         <artifactId>spring-boot-starter-tomcat</artifactId>
         <version>1.2.1.RELEASE</version>
         <scope>provided</scope>
-    </dependency>
+    </dependency> -->
     <!-- scope = provided, build a war file that is both executable and deployable into an external container -->
     <!-- END Rest Service -->
 

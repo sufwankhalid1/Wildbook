@@ -552,13 +552,17 @@
      want to perform onShow() and onHide() functions -->
 <script src="javascript/pager.js"></script>
 
+<!-- Load this here because each of the pages can have a register call if they
+     want to perform onShow() and onHide() functions -->
+<script src="javascript/pager.js"></script>
+
 <div id="pages">
-	<% for ( String pagename : pages ) {
-	    String file = "/html/pages/" + pagename + ".html";%>
+    <% for ( String pagename : pages ) {
+        String file = "/html/pages/" + pagename + ".html";%>
 <!-- PageStart <%=pagename%> -->
-	<div id="page_<%=pagename%>" style="display: none;">
-	    <jsp:include page="<%=file%>" flush="true" />
-	</div>
+    <div id="page_<%=pagename%>" style="display: none;">
+        <jsp:include page="<%=file%>" flush="true" />
+    </div>
 <!-- PageEnd <%=pagename%> -->
-	<%}%>
+    <%}%>
 </div>
