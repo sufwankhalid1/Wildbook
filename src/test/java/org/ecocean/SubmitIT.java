@@ -53,7 +53,7 @@ public class SubmitIT {
     //selectOption("hour", "12 am");
     //selectOption("minutes", ":00");
 	setTextField("datepicker", "2014-10-10 12:34");
-    setTextField("location", "the world");
+    //setTextField("location", "the world");
     setTextField("submitterName", "john");
     setTextField("submitterEmail", "john.doe@johnnydoe.com");
     //setTextField("theFiles", "src/main/webapp/images/logbook.gif");

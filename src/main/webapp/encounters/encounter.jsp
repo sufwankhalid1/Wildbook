@@ -150,7 +150,7 @@ System.out.println("???? query=" + kwQuery);
         content="<%=CommonConfiguration.getHTMLDescription(context) %>"/>
   <meta name="Keywords"
         content="<%=CommonConfiguration.getHTMLKeywords(context) %>"/>
-  <meta name="Author" content="<%=CommonConfiguration.getHTMLAuthor(context) %>"/>
+  <meta name="author" content="Carcharodon" />
   
   
 <!-- social meta start -->
@@ -354,11 +354,11 @@ td.measurement{
   <script>
             function initialize() {
             //alert("Initializing map!");
-              var mapZoom = 1;
+              var mapZoom = 12;
           	if($("#map_canvas").hasClass("full_screen_map")){mapZoom=3;}
       
               
-              var center = new google.maps.LatLng(10.8, 160.8);
+              var center = new google.maps.LatLng(-34.66, 19.43);
               
               map = new google.maps.Map(document.getElementById('map_canvas'), {
                 zoom: mapZoom,
@@ -3728,6 +3728,11 @@ if(!isOwner){isOwnerValue="false";}
 </td>
 </tr>
 </table>
+
+<%
+if(CommonConfiguration.showProperty("showBiologicalData",context)){
+%>
+
 <%
 if(loggedIn){
 %>
@@ -5154,7 +5159,7 @@ while(encprops.getProperty(("jspImport"+currentImportNum))!=null){
  currentImportNum++;
 } //end while for jspImports
 
-
+}
 %>
 
 </p>

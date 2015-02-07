@@ -111,7 +111,7 @@ context=ServletUtilities.getContext(request);
         content="<%=CommonConfiguration.getHTMLDescription(context) %>"/>
   <meta name="Keywords"
         content="<%=CommonConfiguration.getHTMLKeywords(context) %>"/>
-  <meta name="Author" content="<%=CommonConfiguration.getHTMLAuthor(context) %>"/>
+  <meta name="author" content="Carcharodon" />
   <link href="<%=CommonConfiguration.getCSSURLLocation(request,context) %>"
         rel="stylesheet" type="text/css"/>
   <link rel="shortcut icon"
@@ -1873,8 +1873,10 @@ if(CommonConfiguration.showUsersToPublic(context)){
   
   
   
-  
 
+<%
+	if(CommonConfiguration.showProperty("showBiologicalData",context)){
+%>
 <!-- Start genetics -->
 <br />
 <a name="tissueSamples"></a>
@@ -1979,8 +1981,11 @@ else {
 	<!-- End genetics -->
 <%
 }
+	}
 %>
-
+<%
+if(CommonConfiguration.showProperty("showRelationshipData",context)){
+%>
 <br/>
 <a name="socialRelationships"></a>
 <p><strong><%=props.getProperty("social")%></strong></p>
@@ -2417,7 +2422,7 @@ else {
 <%
 }
 //
-
+}
 %>
 
 

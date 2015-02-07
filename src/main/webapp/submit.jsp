@@ -56,7 +56,7 @@ context=ServletUtilities.getContext(request);
         content="<%=CommonConfiguration.getHTMLDescription(context) %>"/>
   <meta name="Keywords"
         content="<%=CommonConfiguration.getHTMLKeywords(context) %>"/>
-  <meta name="Author" content="<%=CommonConfiguration.getHTMLAuthor(context) %>"/>
+  <meta name="author" content="Carcharodon" />
   <link href="<%=CommonConfiguration.getCSSURLLocation(request,context) %>"
         rel="stylesheet" type="text/css"/>
   <link rel="shortcut icon"
@@ -68,35 +68,75 @@ context=ServletUtilities.getContext(request);
 
     function validate() {
       var requiredfields = "";
-
+      
+		// Autocompletes Lat and Long if left blank
+		      if((document.encounter_submission.lat.value.length==0)&&
+			       (document.encounter_submission.longitude.value.length==0)){
+			
+				if(document.encounter_submission.locationID.value=="Joubertsedam"){
+					(document.encounter_submission.lat.value="-34.647")&&
+					(document.encounter_submission.longitude.value="19.437");
+					}
+		else
+				if(document.encounter_submission.locationID.value=="Die Geldstien"){
+					(document.encounter_submission.lat.value="-34.679")&&
+					(document.encounter_submission.longitude.value="19.416");
+					}
+		else
+				if(document.encounter_submission.locationID.value=="Geyser Rock"){
+					(document.encounter_submission.lat.value="-34.691")&&
+					(document.encounter_submission.longitude.value="19.416");
+					}
+			
+		else
+				if(document.encounter_submission.locationID.value=="Rocky Bay"){
+					(document.encounter_submission.lat.value="-34.687")&&
+					(document.encounter_submission.longitude.value="19.422");
+					}
+					
+		else
+				if(document.encounter_submission.locationID.value=="Shark Alley"){
+					(document.encounter_submission.lat.value="-34.686")
+					(document.encounter_submission.longitude.value="19.418");
+					}
+			}  
+			
+  //Check for missing values
       if (document.encounter_submission.submitterName.value.length == 0) {
         /*
          * the value.length returns the length of the information entered
          * in the Submitter's Name field.
          */
-        requiredfields += "\n   *  <%=props.getProperty("submit_name") %>";
-      }
-
-        /*         
-        if ((document.encounter_submission.submitterEmail.value.length == 0) ||
-          (document.encounter_submission.submitterEmail.value.indexOf('@') == -1) ||
-          (document.encounter_submission.submitterEmail.value.indexOf('.') == -1)) {
-      
-             requiredfields += "\n   *  valid Email address";
+        requiredfields += "\n   *  Your Name";
         }
-        if ((document.encounter_submission.location.value.length == 0)) {
-            requiredfields += "\n   *  valid sighting location";
-        }
-        */
 
-      if (requiredfields != "") {
-        requiredfields = "<%=props.getProperty("pleaseFillIn") %>\n" + requiredfields;
+      if((document.encounter_submission.lat.value.length==0)||
+      		(document.encounter_submission.longitude.value.length==0)){
+      		requiredfields += "\n   *  Latitude AND Longitude Values";
+      		}
+      		     		
+      if((document.encounter_submission.submitterEmail.value.length == 0) ||
+      		(document.encounter_submission.submitterEmail.value.indexOf('@') == -1)||
+      		(document.encounter_submission.submitterEmail.value.indexOf('.') == -1)){
+        requiredfields += "\n   *  Valid Email";
+        }
+        
+        if(document.encounter_submission.datepicker.value.length == 0){
+        requiredfields += "\n   *  Valid Encounter Date";
+        }
+        
+        if(document.encounter_submission.locationID.value==0){
+        requiredfields += "\n   *  Valid Study Location";
+        }
+       
+        if (requiredfields !=""){
+        requiredfields = "Please correctly enter the following fields:\n" + requiredfields;
         alert(requiredfields);
 // the alert function will popup the alert window
         return false;
-      }
-      else return true;
-    }
+        }
+        else return true;
+     }
 
     //-->
   </script>
@@ -214,7 +254,7 @@ margin-bottom: 8px !important;
  
 <script type="text/javascript">
 //alert("Prepping map functions.");
-var center = new google.maps.LatLng(10.8, 160.8);
+var center = new google.maps.LatLng(-34.66, 19.43);
 
 var map;
 
@@ -242,8 +282,8 @@ function placeMarker(location) {
   function initialize() {
 	//alert("initializing map!");
 	
-	var mapZoom = 3;
-	if($("#map_canvas").hasClass("full_screen_map")){mapZoom=3;}
+	var mapZoom = 12;
+	if($("#map_canvas").hasClass("full_screen_map")){mapZoom=12;}
 
 
 	if(marker!=null){
@@ -460,19 +500,26 @@ if(CommonConfiguration.showProperty("showTaxonomy",context)){
 //test comment
 %>
 
+<% 
+if(CommonConfiguration.showProperty("showLocation",context)){
+%>
+
 <tr class="form_row">
+
   <td class="form_label" rowspan="5"><strong><font
     color="#CC0000"><%=props.getProperty("submit_location")%>:</font></strong></td>
   <td colspan="2"><input name="location" type="text" id="location" size="40"/></td>
 </tr>
+
 <%
+}
 //add locationID to fields selectable
 
 
-if(CommonConfiguration.getSequentialPropertyValues("locationID", context).size()>0){
+if((CommonConfiguration.showProperty("showLocation",context))==false && (CommonConfiguration.getSequentialPropertyValues("locationID", context).size()>0)){
 %>
 <tr class="form_row">
-			<td class="form_label1"><strong><%=props.getProperty("locationID")%>:</strong></td>
+			<td class="form_label" rowspan="5"><strong><font color="#CC0000"><%=props.getProperty("locationID")%>:</font></strong></td>
 		<td>
 	  		<select name="locationID" id="locationID">
 	  			<option value="" selected="selected"></option>
@@ -500,12 +547,46 @@ if(CommonConfiguration.getSequentialPropertyValues("locationID", context).size()
 	
 </td>
 	</tr>
+<%	
+} 
+else if ((CommonConfiguration.showProperty("showLocation",context)) && (CommonConfiguration.getSequentialPropertyValues("locationID", context).size()>0)){
+%>
+	<tr class="form_row">
+				<td class="form_label"><strong><font color="#CC0000"><%=props.getProperty("locationID")%>:</font></strong></td>
+			<td>
+		  		<select name="locationID" id="locationID">
+		  			<option value="" selected="selected"></option>
+		  			<%
+		  			       boolean hasMoreLocationsIDs=true;
+		  			       int locNum=0;
+		  			       
+		  			       while(hasMoreLocationsIDs){
+		  			       	  String currentLocationID = "locationID"+locNum;
+		  			       	  if(CommonConfiguration.getProperty(currentLocationID,context)!=null){
+		  			       	  	%>
+		  			       	  	 
+		  			       	  	  <option value="<%=CommonConfiguration.getProperty(currentLocationID,context)%>"><%=CommonConfiguration.getProperty(currentLocationID,context)%></option>
+		  			       	  	<%
+		  			       		locNum++;
+		  			          }
+		  			          else{
+		  			             hasMoreLocationsIDs=false;
+		  			          }
+		  			          
+					       }
+					       
+		 %>
+		  </select>
+		
+	</td>
+		</tr>
 <%
 }
 
 if(CommonConfiguration.showProperty("showCountry",context)){
 
 %>
+
 
 		<tr class="form_row">
 			<td class="form_label1"><strong><%=props.getProperty("country")%>:</strong></td>
