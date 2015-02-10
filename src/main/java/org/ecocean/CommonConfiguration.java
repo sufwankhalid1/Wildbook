@@ -21,6 +21,7 @@ package org.ecocean;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Array;
@@ -28,8 +29,16 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
+import java.net.URI;
+import java.net.URISyntaxException;
+
+import javax.servlet.ServletContext;
+
+
 
 import javax.servlet.http.HttpServletRequest;
+
+import java.util.Locale;
 
 public class CommonConfiguration {
   
@@ -114,6 +123,36 @@ public class CommonConfiguration {
     return request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
   }
 
+
+  /**
+   * Utility method to return a {@code URI} instance for the specified
+   * context path of the server relating to the servlet request.
+   * This method ensures all appropriate encoding is performed for the respective
+   * parts of the URI.
+   * @param req HttpServletRequest for which to return server root URI
+   * @param contextPath context path for the URI (must start with '/')
+   * @return URI for the specified context path
+   * @throws URISyntaxException if thrown when creating URI
+   */
+  public static URI getServerURI(HttpServletRequest req, String contextPath) throws URISyntaxException {
+    return new URI(req.getScheme(), null, req.getServerName(), req.getServerPort(), contextPath, null, null).normalize();
+  }
+
+  /**
+   * Utility method to return a URL string for the specified
+   * context path of the server relating to the servlet request.
+   * This method ensures all appropriate encoding is performed for the respective
+   * parts of the URI.
+   * @param req HttpServletRequest for which to return server root URL
+   * @param contextPath context path for the URI (must start with '/')
+   * @return URI string for the server's root (without context path)
+   * @throws URISyntaxException if thrown when creating URI
+   */
+  public static String getServerURL(HttpServletRequest req, String contextPath) throws URISyntaxException {
+    return getServerURI(req, contextPath).toASCIIString();
+  }
+
+  
   public static String getMailHost(String context) {
     return getProperty("mailHost", context).trim();
   }
@@ -282,6 +321,70 @@ public class CommonConfiguration {
     }
     return canAdopt;
   }
+  
+  
+  /**
+   * This configuration option defines whether batch upload of {@link MarkedIndividual} or {@link Encounter} objects are allowed.
+   *
+   * @return true if batch upload functionality should be displayed. False if batch upload are not supported in this catalog.
+   */
+  public static boolean allowBatchUpload(String context) {
+    return parseBoolean(getProperty("allowBatchUpload",context), false);
+  }
+
+
+  
+  /**
+   * Helper method to parse boolean from string.
+   * @param s string to parse
+   * @param def default value
+   * @return true if s is one of { true, yes, ok, 1 }
+   */
+  private static boolean parseBoolean(String s, boolean def) {
+    if (s == null)
+      return def;
+    String prop = s.trim().toLowerCase(Locale.US);
+    if ("true".equals(prop) || "yes".equals(prop) || "ok".equals(prop) || "1".equals(prop)) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * This configuration option defines the class name of the batch data plugin
+   * to use (must implement {@link org.ecocean.batch.BatchProcessorPlugin}).
+   *
+   * @return Fully-qualified class name of the plugin to use, or null.
+   */
+  public static String getBatchUploadPlugin(String context) {
+    //initialize(context);
+    if (getProperty("batchUploadPlugin", context) != null) {
+      return getProperty("batchUploadPlugin", context).trim();
+    }
+    return null;
+  }
+
+  /**
+   * This configuration option defines whether batch upload of {@link MarkedIndividual} or {@link Encounter} objects are allowed.
+   *
+   * @return true if batch upload functionality should be displayed. False if batch upload are not supported in this catalog.
+   */
+  public static int getBatchUploadProgressRefresh(String context) {
+    initialize(context);
+    int def = 10;
+    String prop = getProperty("batchUploadProgressRefresh", context);
+    if (prop == null || "".equals(prop.trim())) {
+      return def;
+    }
+    try {
+      return Integer.parseInt(prop.trim());
+    } catch (NumberFormatException ex) {
+      return def;
+    }
+  }
+
+
+  
 
   public static boolean sendEmailNotifications(String context) {
     initialize(context);
@@ -465,6 +568,53 @@ public class CommonConfiguration {
       showUsersToPublic = false;
     }
     return showUsersToPublic;
+  }
+  
+  /**
+   * Gets the directory for holding website data ('shepherd_data_dir').
+   * @param sc ServletContext as reference for finding directory
+   * @return The data directory used for web application storage.
+   * @throws FileNotFoundException if folder not found (or unable to create)
+   */
+  public static File getDataDirectory(ServletContext sc, String context) throws FileNotFoundException {
+    String webappRoot = sc.getRealPath("/");
+    File dataDir = new File(webappRoot).getParentFile();
+    File f = new File(dataDir, getDataDirectoryName(context));
+    if (!f.exists() && !f.mkdir())
+      throw new FileNotFoundException("Unable to find/create folder: " + f.getAbsolutePath());
+    return f;
+  }
+
+  /**
+   * Gets the directory for holding user-specific data folders (i.e. parent
+   * folder of each user-specific folder).
+   * @param sc ServletContext as reference for finding directory
+   * @return The user-specific data directory used for web application storage.
+   * @throws FileNotFoundException if folder not found (or unable to create)
+   */
+  public static File getUsersDataDirectory(ServletContext sc, String context) throws FileNotFoundException {
+    File f = new File(getDataDirectory(sc, context), "users");
+    if (!f.exists() && !f.mkdir())
+      throw new FileNotFoundException("Unable to find/create folder: " + f.getAbsolutePath());
+    return f;
+  }
+
+  /**
+   * Gets the directory for holding user-specific data (e.g. profile photo).
+   * @param sc ServletContext as reference for finding directory
+   * @param username username for which to locate directory
+   * @return The user-specific data directory used for web application storage.
+   * @throws FileNotFoundException if folder not found (or unable to create)
+   */
+  public static File getDataDirectoryForUser(ServletContext sc, String username, String context) throws FileNotFoundException {
+    if (username == null)
+      throw new NullPointerException();
+    if ("".equals(username.trim()))
+      throw new IllegalArgumentException();
+    File f = new File(getUsersDataDirectory(sc, context), username);
+    if (!f.exists() && !f.mkdir())
+      throw new FileNotFoundException("Unable to find/create folder: " + f.getAbsolutePath());
+    return f;
   }
   
   
