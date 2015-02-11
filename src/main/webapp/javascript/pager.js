@@ -4,12 +4,32 @@
 // is shown.
 //
 var pager = (function () {
+    // find the name of the war file
+    var warfile = this.location.pathname.split('/').filter(function(el) {return el.length != 0})[0];
+    
     var pages = {};
     var lastPage = null;
     
+    function display(pageElement, pageName) {
+        pageElement.style.display = 'block';
+        var page = pages[pageName];
+        if (page) {
+            if (page.onShow) {
+                try {
+                    page.onShow();
+                } catch (ex) {
+                    alert(ex.stack);
+                }
+            }
+            lastPage = page;
+        } else {
+            lastPage = {'name': pageName};
+        }
+    }
+    
     function show(pageName) {
         if (lastPage) {
-            document.getElementById("page_" + lastPage.name).style.display = "none";
+            document.getElementById('page_' + lastPage.name).style.display = 'none';
             if (lastPage.onHide) {
                 try {
                     lastPage.onHide();
@@ -23,25 +43,22 @@ var pager = (function () {
             lastPage = null;
         }
         
-        var pageElement = document.getElementById("page_" + pageName);
+        var pagekey = 'page_' + pageName;
+        var pageElement = document.getElementById(pagekey);
         if (! pageElement) {
-            return;
+            var newPage = $('<div/>', {'id': pagekey});
+            $('#pages').append(newPage);
+            
+            //
+            // TODO: Have to pass in the name of the webapp!
+            //
+            newPage.load('/' + warfile + '/html/pages/' + pageName + '.html',
+                         function() {
+                display(document.getElementById(pagekey), pageName);
+            });
+        } else {
+            display(pageElement, pageName);
         }
-        
-    	pageElement.style.display = "block";
-    	var page = pages[pageName];
-    	if (page) {
-    	    if (page.onShow) {
-                try {
-                    page.onShow();
-                } catch (ex) {
-                    alert(ex);
-                }
-    	    }
-            lastPage = page;
-    	} else {
-    	    lastPage = {"name": pageName};
-    	}
     }
     
     function register(pageName, onShow, onHide) {
@@ -51,9 +68,9 @@ var pager = (function () {
         }
         
         var page = {
-            "name": pageName,
-            "onShow": onShow,
-            "onHide": onHide
+            'name': pageName,
+            'onShow': onShow,
+            'onHide': onHide
         };
         pages[pageName] = page;
     }

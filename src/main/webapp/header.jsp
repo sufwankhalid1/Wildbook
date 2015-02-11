@@ -63,11 +63,12 @@
   
   String pageParam = request.getParameter("page");
   
-  List<String> pages = new ArrayList<String>();
+  /*
   //
   // Start of idea for configuring header. Something like this anyway. Needs to be two levels deep.
   //
-/*   String pagesStr = CommonConfiguration.getProperty("wildbook.header.menu.items", context);
+  List<String> pages = new ArrayList<String>();
+  String pagesStr = CommonConfiguration.getProperty("wildbook.header.menu.items", context);
   if (pagesStr != null) {
       String[] pageStrs = pagesStr.split(",");
       for (int ii=0; ii<=pageStrs.length - 1; ii++) {
@@ -75,8 +76,6 @@
       }
   }
  */
-    pages.add("submitMedia");
-    //pages.add("samplePage");
 %>
 
 <div id="header"><img name="masthead"
@@ -546,23 +545,4 @@
 		%>
 	</tr>
 	</table>
-</div>
-
-<!-- Load this here because each of the pages can have a register call if they
-     want to perform onShow() and onHide() functions -->
-<script src="javascript/pager.js"></script>
-
-<!-- Load this here because each of the pages can have a register call if they
-     want to perform onShow() and onHide() functions -->
-<script src="javascript/pager.js"></script>
-
-<div id="pages">
-    <% for ( String pagename : pages ) {
-        String file = "/html/pages/" + pagename + ".html";%>
-<!-- PageStart <%=pagename%> -->
-    <div id="page_<%=pagename%>" style="display: none;">
-        <jsp:include page="<%=file%>" flush="true" />
-    </div>
-<!-- PageEnd <%=pagename%> -->
-    <%}%>
 </div>
