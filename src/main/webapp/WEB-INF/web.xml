@@ -924,12 +924,7 @@
     <servlet-name>WildbookApi</servlet-name>
     <url-pattern>/api/*</url-pattern>
   </servlet-mapping>
-
-    <!-- <servlet-mapping>
-        <servlet-name>spring-dispatcher</servlet-name>
-        <url-pattern>/spring/*</url-pattern>
-    </servlet-mapping> -->
-
+  
   <servlet-mapping>
     <servlet-name>ImgSyncServlet0</servlet-name>
     <url-pattern>/ImgSyncServlet0</url-pattern>
