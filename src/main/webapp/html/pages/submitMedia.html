@@ -1,0 +1,23 @@
+<script src="javascript/jquery-ui.min.js"></script>
+<!--<script src="js/jquery.iframe-transport.js"></script>-->
+<script src="javascript/jquery.fileupload.js"></script>
+
+<script>
+pager.register(
+    "submitMedia",
+    function() {
+        $('#fileupload').fileupload({
+            dataType: 'json',
+            done: function (e, data) {
+                $.each(data.result.files, function (index, file) {
+                    $('<p/>').text(file.name).appendTo(document.body);
+                });
+            }
+        });
+    },
+    function() {
+        $('#fileupload').fileupload('destroy');
+    });
+</script>
+
+<input id="fileupload" type="file" name="files[]" data-url="server/php/" multiple>

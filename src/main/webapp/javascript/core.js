@@ -21,7 +21,7 @@ var wildbook = {
 			me._loadAllClassesCount--;
 //console.log('huh??? %o', me._loadAllClassesCount);
 			if (me._loadAllClassesCount <= 0) {
-				console.info('wildbook.loadAllClasses(): DONE loading all classes');
+				//console.info('wildbook.loadAllClasses(): DONE loading all classes');
 				if (callback) callback();
 			}
 		});
@@ -85,11 +85,14 @@ console.log('is %o', ajax);
 	flexibleDate: function(s) {
 		s = s.trim();
 		if (s.length == 4) return s;  //year only
-		if (s.length == 7) return (s.substr(5) - 0) + '/' + s.substr(0,4);  //there is no toLocaleFoo for just year-month.  :(  sorry.
+		if (s.length == 7) return s.substr(0,4) + '-' + s.substr(5);  //there is no toLocaleFoo for just year-month.  :(  sorry.
 		//now we (should?) have at least y-m-d, with possible time
+
 		var d = this.parseDate(s);
 		if (!d) return '';
-		return d.toLocaleDateString(undefined, {timeZone: 'UTC'});  //use UTC timezone, but force to look like user's locale expects
+		return s;
+		//i dont think we need to do this, if we "trust" we are y-m-d already!
+		return d.toISOString().substring(0,10);
 	},
 
 
@@ -139,9 +142,9 @@ console.log('cls = ' + cls);
 
 
 function classInit(cname, callback) {
-	console.info('attempting to load class %s', cname);
+	//console.info('attempting to load class %s', cname);
 	$.getScript(wildbookGlobals.baseUrl + '/javascript/classes/' + cname + '.js', function() {
-		console.info('successfully loaded class %s', cname);
+		//console.info('successfully loaded class %s', cname);
 
 		//just a way to get actual name... hacky, but cant figure out the elegant way??
 		if (wildbook.Model[cname] && wildbook.Model[cname].prototype) {

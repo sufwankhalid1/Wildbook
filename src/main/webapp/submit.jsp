@@ -37,7 +37,7 @@ context=ServletUtilities.getContext(request);
 
   //set up the file input stream
   //props.load(getClass().getResourceAsStream("/bundles/" + langCode + "/submit.properties"));
-  props = ShepherdProperties.getProperties("submit.properties", langCode,context);
+  props = ShepherdProperties.getProperties("submit.properties", langCode, context);
 
 
 	long maxSizeMB = CommonConfiguration.getMaxMediaSizeInMegabytes(context);
@@ -156,8 +156,7 @@ margin-bottom: 8px !important;
 <div id="wrapper">
 <div id="page">
 <jsp:include page="header.jsp" flush="true">
-
-  <jsp:param name="isAdmin" value="<%=request.isUserInRole(\"admin\")%>" />
+    <jsp:param name="isAdmin" value="<%=request.isUserInRole(\"admin\")%>" />
 </jsp:include>
 
  <script type="text/javascript" src="http://geoxml3.googlecode.com/svn/branches/polys/geoxml3.js"></script>
