@@ -19,7 +19,7 @@
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <%@ page contentType="text/html; charset=utf-8" pageEncoding="UTF-8" language="java"
-         import="org.ecocean.servlet.ServletUtilities,java.util.ArrayList,org.ecocean.*, org.ecocean.Util, java.util.GregorianCalendar, java.util.Properties, java.util.List, org.ecocean.BatchCompareProcessor, javax.servlet.http.HttpSession, java.io.File, java.nio.file.Files, java.nio.file.Paths, java.nio.charset.Charset, java.util.regex.*, com.google.gson.Gson, java.util.HashMap, java.util.Vector, java.io.* " %>
+         import="org.ecocean.servlet.ServletUtilities,java.util.ArrayList,org.ecocean.*, org.ecocean.Util, java.util.GregorianCalendar, java.util.Properties, java.util.List, org.ecocean.BatchCompareProcessor, javax.servlet.http.HttpSession, java.io.File, java.nio.file.Files, java.nio.file.Paths, java.nio.charset.Charset, java.util.regex.*, com.google.gson.Gson, java.util.HashMap, java.util.Map, java.util.Vector, java.io.* " %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>         
 <%
 
@@ -466,11 +466,16 @@ System.out.println(") matched?????? " + lm.group(1) + ":" + lm.group(2));
 			}
 		}
 
+		Gson gson = new Gson();
+		Map<String,Object> prevJson = new HashMap<String,Object>();
+		prevJson = (Map<String,Object>) gson.fromJson(json, prevJson.getClass());
+
 		HashMap rtn = new HashMap();
+		rtn.put("filters", prevJson.get("filters"));
 		rtn.put("done", true);
 		rtn.put("baseDir", "/" + CommonConfiguration.getDataDirectoryName(context));
 		rtn.put("results", res);
-		BatchCompareProcessor.writeStatusFile(getServletContext(), context, batchID, new Gson().toJson(rtn));
+		BatchCompareProcessor.writeStatusFile(getServletContext(), context, batchID, gson.toJson(rtn));
 
 /*
 path='/opt/tomcat7/webapps/cascadia_data_dir/encounters/7/8/78157de5-59dc-40fb-84a3-fcadf570efa0/WS_2012-10-25_BSound-0014_CR.JPG'
