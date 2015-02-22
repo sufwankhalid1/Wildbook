@@ -88,6 +88,37 @@ width: 100% !important;
 height: 100% !important;
 margin-top: 0px !important;
 margin-bottom: 8px !important;
+}
+
+.img-filter-div {
+	position: relative;
+	min-height: 150px;
+	margin: 5px;
+	display: inline-block;
+	max-width: 300px;
+	overflow: hidden;
+}
+
+.img-filter-div img {
+	height: 150px;
+	overflow: hidden;
+}
+
+.img-filter-div span {
+	border-radius: 4px;
+	position: absolute;
+	left: 3px;
+	top: 3px;
+	background-color: rgba(255,255,255,0.7);
+	padding: 3px 5px 3px 5px;
+}
+
+.img-filter-div select {
+	position: absolute;
+	bottom: 10px;
+	left: 3px;
+}
+
 </style>
 
 
@@ -106,8 +137,6 @@ margin-bottom: 8px !important;
 <div id="maincol-wide-solo">
 
 <div id="maintext">
-  <h1 class="intro">Comparison Results
-  </h1>
 </div>
 
 <div id="results-div">
@@ -142,7 +171,7 @@ console.log(d);
 					setTimeout(function() { checkStatus(); }, 3500);
 				}
 
-			} else {
+			} else if (d.filters != undefined) {
 				checkCount++;
 				setTimeout(function() { checkStatus(); }, 3500);
 			}
@@ -451,6 +480,21 @@ path='/opt/tomcat7/webapps/cascadia_data_dir/encounters/7/8/78157de5-59dc-40fb-8
   //results!!!
 */
 
+	} else if (json.indexOf("filters") < 0) { %>
+
+<script>
+batchData = <%=json%>;
+console.log('batchData %o', batchData);
+var f = $('<form action="BatchCompare?batchID=' + batchID + '" method="POST">');
+for (var i = 0 ; i < batchData.images.length ; i++) {
+	f.append('<div class="img-filter-div"><img src="' + batchDir + '/' + batchData.images[i] + '" /><span>' + batchData.images[i] + '</span><select name="img-' + i + '-category"><option value="">any category</option><option>2</option><option>3</option><option>4</option></select></div>');
+}
+f.append('<p><input type="submit" value="find matches" /></p></form>');
+$('#results-div').append(f);
+
+</script>
+
+<%
 	} else {  //javascript will read json to get values!
 		out.println("<div id=\"batch-waiting\">" + props.getProperty("batchCompareNotFinished") + "</div>");
 		out.println("<div class=\"progress-bar-wrapper\" style=\"border: solid 1px #AAA; width: 85%; height: 20px; margin: 20px; position: relative;\"><div id=\"progress-bar\" class=\"progress-bar\" style=\"width: 0; height: 20px; position: absolute; right: 0; background-color: #EEE;\">&nbsp;</div></div>");
