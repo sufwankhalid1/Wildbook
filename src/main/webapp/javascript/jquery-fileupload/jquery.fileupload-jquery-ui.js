@@ -1,3 +1,5 @@
+//# sourceURL=jquery.fileupload-jquery-ui.js
+
 /*
  * jQuery File Upload jQuery UI Plugin 8.7.2
  * https://github.com/blueimp/jQuery-File-Upload

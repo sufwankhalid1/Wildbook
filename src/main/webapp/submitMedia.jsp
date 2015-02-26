@@ -1,3 +1,14 @@
+<script src="javascript/underscore-min.js"></script>
+<script src="javascript/backbone-min.js"></script>
+<script src="javascript/core.js"></script>
+<script src="javascript/classes/Base.js"></script>
+<!-- <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDz5Pgz2NCjFkss9AJwxqFjejPhxJrOj-M"></script> -->
+<!-- <script src="javascript/pager.js"></script> -->
+
+<jsp:include page="headerfull.jsp" flush="true"/>
+
+
+
 <link rel="stylesheet" href="css/jquery.fileupload.css">
 <link rel="stylesheet" href="css/jquery.fileupload-ui.css">
 
@@ -12,7 +23,7 @@
 }
 </style>
 
-<!--<script src="javascript/jquery-fileupload/tmpl.min.js"></script>-->
+<script src="javascript/jquery-fileupload/tmpl.min.js"></script>
 <script src="javascript/jquery-fileupload/load-image.all.min.js"></script>
 <!--<script src="javascript/jquery-fileupload/canvas-to-blob.min.js"></script>-->
 <!--<script src="js/jquery.iframe-transport.js"></script>-->
@@ -33,7 +44,8 @@
 
 <!--<input id="fileupload" type="file" name="files[]" data-url="media/test?data=testing" multiple>-->
 
-<form id="fileupload" action="media/test?data=testing" method="POST" enctype="multipart/form-data">
+<!-- <form id="fileupload" action="http://localhost:8888/" method="POST" enctype="multipart/form-data">  -->
+<form id="fileupload" action="mediaupload" method="POST" enctype="multipart/form-data">
 <!--<form id="fileupload" method="POST" enctype="multipart/form-data">-->
     <!-- The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload -->
     <div class="fileupload-buttonbar">
@@ -116,3 +128,9 @@
     </tr>
 {% } %}
 </script>
+
+<script>$(function() {submitMedia.init();});</script>
+
+
+
+<jsp:include page="footerfull.jsp" flush="true"/>
