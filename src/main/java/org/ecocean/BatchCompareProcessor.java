@@ -193,11 +193,11 @@ System.out.println("using FILTERED individuals, see: " + fullpath + "-in.txt");
 				String intxt = fullpath + "\n";
 				String filterString = "";
 				if (pcat.get(0).equals("2")) {
-					filterString = "(pigmentationCategory.startsWith(\"2\") || pigmentationCategory.startsWith(\"3\"))";
+					filterString = "(patterningCode.startsWith(\"2\") || patterningCode.startsWith(\"3\"))";
 				} else if (pcat.get(0).equals("3")) {
-					filterString = "(pigmentationCategory.startsWith(\"2\") || pigmentationCategory.startsWith(\"3\") || pigmentationCategory.startsWith(\"4\"))";
+					filterString = "(patterningCode.startsWith(\"2\") || patterningCode.startsWith(\"3\") || patterningCode.startsWith(\"4\"))";
 				} else if (pcat.get(0).equals("4")) {
-					filterString = "(pigmentationCategory.startsWith(\"3\") || pigmentationCategory.startsWith(\"4\") || pigmentationCategory.startsWith(\"5\"))";
+					filterString = "(patterningCode.startsWith(\"3\") || patterningCode.startsWith(\"4\") || patterningCode.startsWith(\"5\"))";
 				}
 System.out.println("filterString = " + filterString);
 

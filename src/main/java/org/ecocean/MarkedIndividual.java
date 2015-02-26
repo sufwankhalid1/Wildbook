@@ -85,8 +85,6 @@ public class MarkedIndividual implements java.io.Serializable {
 
   private String patterningCode;
 
-	private String pigmentationCategory;
-
   private int maxYearsBetweenResightings;
   
   private long timeOfBirth=0;
@@ -1212,13 +1210,6 @@ public class MarkedIndividual implements java.io.Serializable {
   */
   public void setPatterningCode(String newCode){this.patterningCode=newCode;}
 
-
-	public void setPigmentationCategory(String p) {
-		this.pigmentationCategory = p;
-	}
-	public String getPigmentationCategory() {
-		return this.pigmentationCategory;
-	}
 
   public void resetMaxNumYearsBetweenSightings(){
     int maxYears=0;
