@@ -113,8 +113,12 @@
                style="margin: 0px 0 0px 0px; position: relative; width: 160px; height: 25px; z-index: 100;">
                <%=props.getProperty("report")%></a>
         </li>
-        <li>
+<!--         <li>
             <a <%=getHref(requestURL, pageParam, "submitMedia")%> class="enclose" style="width: 160px;">
+               <%=props.getProperty("submitMedia")%></a>
+        </li> -->
+        <li>
+            <a href="<%=requestURL %>/submitMedia.jsp" class="enclose" style="width: 160px;">
                <%=props.getProperty("submitMedia")%></a>
         </li>
         <!-- <li>
@@ -399,7 +403,7 @@
 </div>
 
 <!-- define our JavaScript -->
-	<script type="text/javascript" src="javascript/jquery-2.1.3.min.js"></script>
+	<script type="text/javascript" src="javascript/jquery-2.1.3.js"></script>
 	<script type="text/javascript" src="<%=requestURL %>/javascript/jquery.blockUI.js"></script>
 	<script type="text/javascript" src="<%=requestURL %>/javascript/jquery.cookie.js"></script>
 	<script type="text/javascript">

@@ -49,9 +49,6 @@ var pager = (function () {
             var newPage = $('<div/>', {'id': pagekey});
             $('#pages').append(newPage);
             
-            //
-            // TODO: Have to pass in the name of the webapp!
-            //
             newPage.load('/' + warfile + '/html/pages/' + pageName + '.html',
                          function() {
                 display(document.getElementById(pagekey), pageName);
