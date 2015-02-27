@@ -86,7 +86,7 @@ public class MarkedIndividual implements java.io.Serializable {
 	private String thumbnailUrl;
 
   //a Vector of Strings of email addresses to notify when this MarkedIndividual is modified
-  private Vector interestedResearchers = new Vector();
+  private Vector<String> interestedResearchers = new Vector<String>();
 
   private String dateTimeCreated;
   
@@ -757,12 +757,12 @@ public class MarkedIndividual implements java.io.Serializable {
     return seriesCode;
   }
 
-  public Vector getInterestedResearchers() {
+  public Vector<String> getInterestedResearchers() {
     return interestedResearchers;
   }
 
   public void addInterestedResearcher(String email) {
-    if(interestedResearchers==null){interestedResearchers=new Vector();}
+    if(interestedResearchers==null){interestedResearchers=new Vector<String>();}
       interestedResearchers.add(email);
     
   }

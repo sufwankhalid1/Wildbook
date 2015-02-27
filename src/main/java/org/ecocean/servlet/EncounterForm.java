@@ -421,7 +421,7 @@ System.out.println("about to do enc()");
 System.out.println("hey, i think i may have made an encounter, encID=" + encID);
 System.out.println("enc ?= " + enc.toString());
 
-			String baseDir = ServletUtilities.dataDir(context, rootDir);
+			String baseDir = ServletUtilities.dataDir(context, rootDir).getAbsolutePath();
 			ArrayList<SinglePhotoVideo> images = new ArrayList<SinglePhotoVideo>();
 			for (FileItem item : formFiles) {
 				/* this will actually write file to filesystem (or [FUTURE] wherever)
@@ -781,7 +781,7 @@ System.out.println("depth --> " + fv.get("depth").toString());
 			String newnum = "";
 			if (!spamBot) {
 				newnum = myShepherd.storeNewEncounter(enc, encID);
-				enc.refreshAssetFormats(context, ServletUtilities.dataDir(context, rootDir));
+				enc.refreshAssetFormats(context, ServletUtilities.dataDir(context, rootDir).getAbsolutePath());
 
 				Logger log = LoggerFactory.getLogger(EncounterForm.class);
 				log.info("New encounter submission: <a href=\"http://" + CommonConfiguration.getURLLocation(request) + "/encounters/encounter.jsp?number=" + encID+"\">"+encID+"</a>");

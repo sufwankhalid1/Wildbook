@@ -112,7 +112,7 @@ context=ServletUtilities.getContext(request);
   String informMe = "";
 
 	String rootDir = getServletContext().getRealPath("/");
-	String baseDir = ServletUtilities.dataDir(context, rootDir);
+	String baseDir = ServletUtilities.dataDir(context, rootDir).getAbsolutePath();
 
   if (!number.equals("fail")) {
 

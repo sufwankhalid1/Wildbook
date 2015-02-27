@@ -33,7 +33,7 @@
   String context="context0";
   context = ServletUtilities.getContext(request);
 	String rootWebappPath = getServletContext().getRealPath("/");
-	String baseDir = ServletUtilities.dataDir(context, rootWebappPath);
+	String baseDir = ServletUtilities.dataDir(context, rootWebappPath).getAbsolutePath();
 /*
 File webappsDir = new File(rootWebappPath).getParentFile();
 File shepherdDataDir = new File(webappsDir, CommonConfiguration.getDataDirectoryName(context));

@@ -27,6 +27,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,37 +79,66 @@ public class FileUtilities {
    * @param dst destination file
    * @throws IOException if there is a problem copying the file
    */
-  public static void copyFile(File src, File dst) throws IOException {
-    if (src == null)
-      throw new NullPointerException("Invalid source file specified: null");
-    if (dst == null)
-      throw new NullPointerException("Invalid destination file specified: null");
-    if (!src.exists())
-      throw new IOException("Invalid source file specified: " + src.getAbsolutePath());
-    if (dst.exists())
-      throw new IOException("Destination file already exists: " + dst.getAbsolutePath());
-    BufferedInputStream in = null;
-    BufferedOutputStream out = null;
-    try {
-      in = new BufferedInputStream(new FileInputStream(src));
-      out = new BufferedOutputStream(new FileOutputStream(dst));
-      byte[] b = new byte[4096];
-      int len = 0;
-      while ((len = in.read(b)) != -1)
-        out.write(b, 0, len);
-      out.flush();
-    } finally {
-      if (out != null) {
-        try { out.close(); }
-        catch (IOException ex) { log.warn(ex.getMessage(), ex); }
-      }
-      if (in != null) {
-        try { in.close(); }
-        catch (IOException ex) { log.warn(ex.getMessage(), ex); }
-      }
+    public static void copyFile(File src, File dst) throws IOException {
+        if (src == null) {
+            throw new NullPointerException("Invalid source file specified: null");
+        }
+    
+        if (dst == null) {
+            throw new NullPointerException("Invalid destination file specified: null");
+        }
+    
+        if (!src.exists()) {
+            throw new IOException("Invalid source file specified: " + src.getAbsolutePath());
+        }
+    
+        if (dst.exists()) {
+            throw new IOException("Destination file already exists: " + dst.getAbsolutePath());
+        }
+    
+        saveStreamToFile(new FileInputStream(src), dst);
     }
-  }
+    
+    
+    public static void saveStreamToFile(final InputStream input, final File file)
+        throws IOException
+    {
+        redirectStream(input, new FileOutputStream(file));
+    }
+    
+    
+    public static void redirectStream(final InputStream input, final OutputStream output)
+        throws IOException
+    {
+        InputStream in = new BufferedInputStream(input);
+        OutputStream out = new BufferedOutputStream(output);
+        
+        try {
+            byte[] b = new byte[8192];
+            int len = 0;
+            while ((len = in.read(b)) != -1) {
+                out.write(b, 0, len);
+            }
+            out.flush();
+        } finally {
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (IOException ex) {
+                    log.warn(ex.getMessage(), ex);
+                }
+            }
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException ex) {
+                    log.warn(ex.getMessage(), ex);
+                }
+            }
+        }
+    }
 
+    
   /**
    * Downloads the byte contents of a URL to a specified file.
    * @param url URL to download

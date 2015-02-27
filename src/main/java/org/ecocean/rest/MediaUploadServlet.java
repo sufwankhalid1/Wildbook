@@ -1,6 +1,7 @@
 package org.ecocean.rest;
 
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -21,6 +22,13 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.ecocean.CommonConfiguration;
+import org.ecocean.ImageProcessor;
+import org.ecocean.Shepherd;
+import org.ecocean.mmutil.FileUtilities;
+import org.ecocean.servlet.ServletUtilities;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,10 +39,11 @@ public class MediaUploadServlet
     extends HttpServlet
 {
     private static final long serialVersionUID = 1L;
+    private static final Logger log = LoggerFactory.getLogger(MediaUploadServlet.class);
  
     //
     // this will store uploaded files
-    // Let's put them in the user's session object?
+    // Let's put them in the user's session object so they don't hang around forever?
     //
     private static Map<String, FileSet> filesMap = new HashMap<String, FileSet>();
     
@@ -56,6 +65,7 @@ public class MediaUploadServlet
       
         if (fileset == null) {
             fileset = upload;
+            filesMap.put(upload.getUUID(), fileset);
         } else {
             fileset.getFiles().addAll(upload.getFiles());
         }
@@ -87,11 +97,13 @@ public class MediaUploadServlet
          }
 
          String uuid = request.getParameter("uuid");
-         
+
+         //
+         // TODO: Add uuid to the "get" url so that we can read it here.
+         //
          if (uuid == null) {
              return;
          }
-         
          
          FileSet fileset = filesMap.get(uuid);
          
@@ -128,7 +140,7 @@ public class MediaUploadServlet
         FileSet fileset = new FileSet();
 
         // 1. Get all parts
-        Collection<Part> parts = request.getParts(); // This compiles command-line!!! wtf?
+        Collection<Part> parts = request.getParts();
 
         fileset.setUUID(request.getParameter("uuid"));
 
@@ -192,6 +204,27 @@ public class MediaUploadServlet
                         // 2.7 Add created FileMeta object to List<FileMeta> files
                         fileset.getFiles().add(temp);
                     }
+                }
+                
+                String context=ServletUtilities.getContext(request);
+                String dataDirName = CommonConfiguration.getDataDirectoryName(context);
+                
+//                File rootDir = ServletUtilities.dataDir(context, request.getServletContext().getRealPath("/"));
+                File rootDir = new File(request.getServletContext().getRealPath("/")).getParentFile();
+
+                File baseDir = new File(new File(dataDirName, "mediasubmission"), fileset.getUUID());
+                
+                for (FileMeta file : fileset.getFiles()) {
+                    
+                    //
+                    // TODO: Save contents of image to a file and create a thumbnail.
+                    // Then add url and thumbnail_url to the FileMeta class. Maybe add
+                    // thumbnail image binary to FileMeta as well so that we can just
+                    // return that in a get? Or should it be statically delivered?
+                    // Both could be statically delivelered if we save them to a proper
+                    // spot and then we can get rid of using the get method?    
+                    //
+                    new Thread(new SaveMedia(context, rootDir, baseDir, file)).start();
                 }
             } catch (FileUploadException ex) {
                 ex.printStackTrace();
@@ -258,6 +291,8 @@ public class MediaUploadServlet
         private String name;
         private String size;
         private String type;
+        private String url;
+        private String thumbnail_url;
 
         private InputStream content;
         
@@ -284,6 +319,22 @@ public class MediaUploadServlet
         public void setType(String type) {
           this.type = type;
         }
+
+        public String getUrl() {
+            return url;
+        }
+
+        public void setUrl(String url) {
+            this.url = url;
+        }
+
+        public String getThumbnail_url() {
+            return thumbnail_url;
+        }
+
+        public void setThumbnail_url(String thumbnail_url) {
+            this.thumbnail_url = thumbnail_url;
+        }
         
         public InputStream getContent()
         {
@@ -293,6 +344,66 @@ public class MediaUploadServlet
         public void setContent(final InputStream content)
         {
           this.content = content;
+        }
+    }
+    
+    
+    private static class SaveMedia
+        implements Runnable
+    {
+        private String context;
+        private File rootDir;
+        private File baseDir;
+        private FileMeta file;
+        
+        public SaveMedia(final String context,
+                         final File rootDir,
+                         final File baseDir,
+                         final FileMeta file)
+        {
+            this.context = context;
+            this.rootDir = rootDir;
+            this.baseDir = baseDir;
+            this.file = file;
+        }
+        
+        public void run() {
+            File fullBaseDir = new File(rootDir, baseDir.getPath());
+            fullBaseDir.mkdirs();
+            
+            File fullPath = new File(fullBaseDir, file.getName());
+            
+            file.setUrl("/" + new File(baseDir.getPath(), file.getName()));
+            
+            CommonConfiguration.getDataDirectoryName(context);
+            try {
+                FileUtilities.saveStreamToFile(file.content, fullPath);
+                                
+                //
+                // Make Thumbnail
+                //
+                if (Shepherd.isAcceptableImageFile(file.getName())) {
+                    File thumbDir = new File(fullBaseDir, "thumb");
+                    thumbDir.mkdirs();
+
+                    file.setThumbnail_url("/" + new File(new File(baseDir.getPath(), "thumb"), file.getName()));
+
+                    File thumbPath = new File(thumbDir, file.getName());
+
+                    ImageProcessor iproc;
+                    iproc = new ImageProcessor(context,
+                                               "resize",
+                                               100,
+                                               75,
+                                               fullPath.getAbsolutePath(),
+                                               thumbPath.getAbsolutePath(),
+                                               null);
+                    iproc.run();
+                }
+                
+            } catch (IOException ex) {
+                log.error("Trouble saving media file [" + fullPath.getAbsolutePath() + "]", ex);
+            }
         }
     }
 }

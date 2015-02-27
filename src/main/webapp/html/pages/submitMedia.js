@@ -8,6 +8,16 @@
 var submitMedia = (function () {
     'use strict';
 
+    function guid() {
+        function s4() {
+          return Math.floor((1 + Math.random()) * 0x10000)
+            .toString(16)
+            .substring(1);
+        }
+        return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+          s4() + '-' + s4() + s4() + s4();
+    }
+      
     function initUpload() {
         // Initialize the jQuery File Upload widget:
 //        $('#fileupload').fileupload({
@@ -17,6 +27,10 @@ var submitMedia = (function () {
 //        });
         $('#fileupload').fileupload();
         
+        //
+        // Create uuid for upload. Will need a way to refresh this with new downloads.
+        //
+        $('#fileupload_uuid').val(guid());
                 
         // Enable iframe cross-domain access via redirect option:
     //    $('#fileupload').fileupload(

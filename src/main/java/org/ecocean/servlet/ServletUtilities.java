@@ -37,13 +37,10 @@ import org.joda.time.format.ISODateTimeFormat;
 import javax.jdo.Query;
 //import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.ServletContext;
 //import javax.servlet.http.HttpSession;
 
 import java.io.*;
 import java.net.URL;
-import java.text.CharacterIterator;
-import java.text.StringCharacterIterator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -132,7 +129,7 @@ public class ServletUtilities {
       
       Encounter enc = myShepherd.getEncounter(number);
       if(enc.getInterestedResearchers()!=null){
-        Vector notifyMe = enc.getInterestedResearchers();
+        Vector<String> notifyMe = enc.getInterestedResearchers();
         int size = notifyMe.size();
         String[] interested = new String[size];
         for (int i = 0; i < size; i++) {
@@ -141,18 +138,36 @@ public class ServletUtilities {
         myShepherd.rollbackDBTransaction();
         myShepherd.closeDBTransaction();
         if (size > 0) {
-          Vector e_images = new Vector();
           String mailMe = interested[0];
-          String email = getText("dataUpdate.txt").replaceAll("INSERTTEXT", ("Encounter " + number + ": " + message + "\n\nLink to encounter: http://" + CommonConfiguration.getURLLocation(request) + "/encounters/encounter.jsp?number=" + number));
-          email += ("\n\nWant to stop tracking this set of encounter data? Use this link.\nhttp://" + CommonConfiguration.getURLLocation(request) + "/dontTrack?number=" + number + "&email=");
+          String email = getText("dataUpdate.txt")
+                         .replaceAll("INSERTTEXT",
+                                     ("Encounter " + number + ": " + message
+                                      + "\n\nLink to encounter: http://"
+                                      + CommonConfiguration.getURLLocation(request)
+                                      + "/encounters/encounter.jsp?number=" + number));
+          email += ("\n\nWant to stop tracking this set of encounter data? Use this link.\nhttp://"
+                    + CommonConfiguration.getURLLocation(request)
+                    + "/dontTrack?number=" + number + "&email=");
           ThreadPoolExecutor es = MailThreadExecutorService.getExecutorService();
-          es.execute(new NotificationMailer(CommonConfiguration.getMailHost(context), CommonConfiguration.getAutoEmailAddress(context), mailMe, ("Encounter data update: " + number), (email + mailMe), e_images, context));
+          es.execute(new NotificationMailer(CommonConfiguration.getMailHost(context),
+                                            CommonConfiguration.getAutoEmailAddress(context),
+                                            mailMe,
+                                            ("Encounter data update: " + number),
+                                            (email + mailMe),
+                                            null,
+                                            context));
 
 
           //NotificationMailer mailer=new NotificationMailer(CommonConfiguration.getMailHost(), CommonConfiguration.getAutoEmailAddress(), mailMe, ("Encounter data update: "+number), (email+mailMe), e_images);
           for (int j = 1; j < size; j++) {
             mailMe = interested[j];
-            es.execute(new NotificationMailer(CommonConfiguration.getMailHost(context), CommonConfiguration.getAutoEmailAddress(context), mailMe, ("Encounter data update: " + number), (email + mailMe), e_images, context));
+            es.execute(new NotificationMailer(CommonConfiguration.getMailHost(context),
+                                              CommonConfiguration.getAutoEmailAddress(context),
+                                              mailMe,
+                                              ("Encounter data update: " + number),
+                                              (email + mailMe),
+                                              null,
+                                              context));
           }
         }
       }
@@ -178,7 +193,7 @@ public class ServletUtilities {
       if(myShepherd.isMarkedIndividual(shark)){
         MarkedIndividual sharkie = myShepherd.getMarkedIndividual(shark);
         if(sharkie.getInterestedResearchers()!=null){
-          Vector notifyMe = sharkie.getInterestedResearchers();
+          Vector<String> notifyMe = sharkie.getInterestedResearchers();
           int size = notifyMe.size();
           String[] interested = new String[size];
           for (int i = 0; i < size; i++) {
@@ -190,15 +205,26 @@ public class ServletUtilities {
 
             ThreadPoolExecutor es = MailThreadExecutorService.getExecutorService();
 
-            Vector e_images = new Vector();
             String mailMe = interested[0];
             String email = getText("dataUpdate.txt").replaceAll("INSERTTEXT", ("Tag " + shark + ": " + message + "\n\nLink to individual: http://" + CommonConfiguration.getURLLocation(request) + "/individuals.jsp?number=" + shark));
             email += ("\n\nWant to stop tracking this set of this individual's data? Use this link.\n\nhttp://" + CommonConfiguration.getURLLocation(request) + "/dontTrack?shark=" + shark + "&email=");
 
-            es.execute(new NotificationMailer(CommonConfiguration.getMailHost(context), CommonConfiguration.getAutoEmailAddress(context), mailMe, ("Marked individual data update: " + shark), (email + mailMe), e_images,context));
+            es.execute(new NotificationMailer(CommonConfiguration.getMailHost(context),
+                                              CommonConfiguration.getAutoEmailAddress(context),
+                                              mailMe,
+                                              ("Marked individual data update: " + shark),
+                                              (email + mailMe),
+                                              null,
+                                              context));
             for (int j = 1; j < size; j++) {
               mailMe = interested[j];
-              es.execute(new NotificationMailer(CommonConfiguration.getMailHost(context), CommonConfiguration.getAutoEmailAddress(context), mailMe, ("Individual data update: " + shark), (email + mailMe), e_images,context));
+              es.execute(new NotificationMailer(CommonConfiguration.getMailHost(context),
+                                                CommonConfiguration.getAutoEmailAddress(context),
+                                                mailMe,
+                                                ("Individual data update: " + shark),
+                                                (email + mailMe),
+                                                null,
+                                                context));
             }
           }
         }
@@ -248,7 +274,7 @@ public class ServletUtilities {
 
         //System.out.println("ATOM file found!");
         /** Namespace URI for content:encoded elements */
-        String CONTENT_NS = "http://www.w3.org/2005/Atom";
+//        String CONTENT_NS = "http://www.w3.org/2005/Atom";
 
         /** Parses RSS or Atom to instantiate a SyndFeed. */
         SyndFeedInput input = new SyndFeedInput();
@@ -262,6 +288,7 @@ public class ServletUtilities {
         // Set the output format of the feed
         feed.setFeedType("atom_1.0");
 
+        @SuppressWarnings("unchecked")
         List<SyndEntry> items = feed.getEntries();
         int numItems = items.size();
         if (numItems > 9) {
@@ -323,6 +350,7 @@ public class ServletUtilities {
         Document document = reader.read(rssFile);
         Element root = document.getRootElement();
         Element channel = root.element("channel");
+        @SuppressWarnings("rawtypes")
         List items = channel.elements("item");
         int numItems = items.size();
         items = null;
@@ -592,16 +620,19 @@ public static String getLanguageCode(HttpServletRequest request){
 }
 
 
-	public static String dataDir(String context, String rootWebappPath) {
+	public static File dataDir(String context, String rootWebappPath)
+	{
 		File webappsDir = new File(rootWebappPath).getParentFile();
 		File shepherdDataDir = new File(webappsDir, CommonConfiguration.getDataDirectoryName(context));
-    if(!shepherdDataDir.exists()){shepherdDataDir.mkdirs();}
-		return shepherdDataDir.getAbsolutePath();
+		if (!shepherdDataDir.exists()) {
+		    shepherdDataDir.mkdirs();
+		}
+		return shepherdDataDir;
 	}
 
 	//like above, but can pass a subdir to append
-	public static String dataDir(String context, String rootWebappPath, String subdir) {
-		return dataDir(context, rootWebappPath) + File.separator + subdir;
+	public static File dataDir(String context, String rootWebappPath, String subdir) {
+		return new File(dataDir(context, rootWebappPath), subdir);
 	}
 
 /*
