@@ -543,7 +543,7 @@ margin-bottom: 8px !important;
       
 if (request.getParameter("refreshImages") != null) {
 	System.out.println("refreshing images!!! ==========");
-	enc.refreshAssetFormats(context, ServletUtilities.dataDir(context, rootWebappPath));
+	enc.refreshAssetFormats(context, ServletUtilities.dataDir(context, rootWebappPath).getAbsolutePath());
 	System.out.println("============ out ==============");
 }
 

@@ -286,7 +286,7 @@ public void doPost(HttpServletRequest request, HttpServletResponse response) thr
           if(!thisAdoptionDir.exists()){thisAdoptionDir.mkdirs();}
           
           
-          String baseDir = ServletUtilities.dataDir(context, rootDir);
+          String baseDir = ServletUtilities.dataDir(context, rootDir).getAbsolutePath();
           ArrayList<SinglePhotoVideo> images = new ArrayList<SinglePhotoVideo>();
           for (FileItem item : formFiles) {
             /* this will actually write file to filesystem (or [FUTURE] wherever)

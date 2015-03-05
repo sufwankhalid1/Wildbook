@@ -48,6 +48,7 @@
 <form id="fileupload" action="mediaupload" method="POST" enctype="multipart/form-data">
 <!--<form id="fileupload" method="POST" enctype="multipart/form-data">-->
     <!-- The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload -->
+    <input id="fileupload_uuid" name="uuid" type="hidden" value=""/>
     <div class="fileupload-buttonbar">
         <div class="fileupload-buttons">
             <!-- The fileinput-button span is used to style the file input field as button -->

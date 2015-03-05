@@ -52,7 +52,7 @@ Properties encprops = new Properties();
 encprops=ShepherdProperties.getProperties("encounter.properties", langCode,context);
 
 
-String baseDir = ServletUtilities.dataDir(context, rootWebappPath);
+String baseDir = ServletUtilities.dataDir(context, rootWebappPath).getAbsolutePath();
 Encounter imageEnc=imageShepherd.getEncounter(imageEncNum);
 File thisEncounterDir = new File(imageEnc.dir(baseDir));
 String encUrlDir = "/" + CommonConfiguration.getDataDirectoryName(context) + imageEnc.dir("");
