@@ -1195,6 +1195,7 @@ public class MarkedIndividual implements java.io.Serializable {
 
   */
   public String getPatterningCode(){
+		if (this.patterningCode != null) return this.patterningCode;
 
     int numEncs=encounters.size();
     for(int i=0;i<numEncs;i++){
