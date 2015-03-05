@@ -105,6 +105,7 @@ public class ImportCSV extends HttpServlet {
 		boolean emptyFirst = false;
 		String efparam = request.getParameter("emptyFirst");
 		if ((efparam != null) && (efparam.equals("1") || efparam.equals("true"))) emptyFirst = true;
+System.out.println("emptyFirst = " + emptyFirst + " )0000000000000000000000000000000000000000000000000000000000000");
 
 		String batchID = "1234";
 
@@ -206,11 +207,13 @@ public class ImportCSV extends HttpServlet {
 				File img = null;
 				String datestring = "";
 				String filename = "row number " + Integer.toString(rowNum + 1) + " has too few fields";
+				String patterningCode = "";
 
-				if (f.length >= 16) {
-					datestring = f[1];
-					filename = f[7];
-System.out.println("filename -> " + filename);
+				if (f.length >= 5) {
+					datestring = f[4];
+					filename = f[2];
+					patterningCode = f[1];
+System.out.println("filename -> " + filename + "; patterningCode -> " + patterningCode);
 					if ((filename != null) && !filename.equals("")) img = Util.findFileInDirectoryWithCache(filename, new File(imageSourceDir));
 				}
 
@@ -227,13 +230,14 @@ System.out.println("filename -> " + filename);
 				} else if (img != null) {
 //System.out.println("!!! found filename " + filename + " at: " + img.getAbsoluteFile().toString());
 					String encID = null;  //currently does not exist at all in data
-					String indivID = f[15];
+					String indivID = f[0];
 // date = 1, 
 System.out.println("enc(" + encID + "), indiv(" + indivID + ")");
 					myShepherd.beginDBTransaction();
 					Encounter enc = null;
 					if ((encID != null) && !encID.equals("")) enc = myShepherd.getEncounter(encID);
 					if (enc == null) {
+/*   we are using year-only so can skip real date stuff....
 						Calendar cal = Calendar.getInstance();
 						Date d = null;
 						SimpleDateFormat simpleDateFormat = new SimpleDateFormat("M/d/y H:m:s");
@@ -244,6 +248,13 @@ System.out.println("enc(" + encID + "), indiv(" + indivID + ")");
 						}
 						if (d != null) cal.setTime(d);
 						enc = new Encounter(cal.get(Calendar.DAY_OF_MONTH), cal.get(Calendar.MONTH), cal.get(Calendar.YEAR), 0,"00","","","test","test@test.test",null);
+*/
+						int year = -1;
+						try {
+							year = Integer.parseInt(datestring);
+						} catch (Exception ex) {
+						}
+						enc = new Encounter(-1, -1, year, 0,"00","","","test","test@test.test",null);
 						if ((encID == null) || encID.equals("")) encID = enc.generateEncounterNumber();
 						enc.setEncounterNumber(encID);
 						enc.setState("unapproved");
@@ -279,15 +290,16 @@ System.out.println(img.toString() + " being set on enc=" + encID);
 						if (indiv == null) {
 							indiv = new MarkedIndividual(indivID, enc);
 						}
+						indiv.setPatterningCode(patterningCode);
 						indiv.addEncounter(enc);
 						//enc.assignToMarkedIndividual(indivID);
 					}
 					myShepherd.storeNewEncounter(enc, encID);
 					if (indiv != null) myShepherd.storeNewMarkedIndividual(indiv);
-System.out.println(encID + " -> " + filename);
+System.out.println("success: " + encID + " (" + indivID + ") -> " + filename);
 					rowSuccesses.add(encID);
 
-				} else if (rowNum > 1) {  //skip some header(s?)
+				} else if (rowNum > 0) {  //skip some header(s?)
 					rowErrors.add(filename);
 				}
 
