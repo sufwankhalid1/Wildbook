@@ -242,7 +242,9 @@ function showResults(data) {
 	for (var imgId in data.results) {
 		//if (data.results[imgId].encDate) encDate = data.results
 		var encDate = data.results[imgId].encDate || '';
-		h += '<div class="result" id="' + imgId + '"><div class="target"><img class="fitted" src="' + data.baseDir + '/match_images/' + batchID + '/' + cleanFilename(imgId) + '" /><span class="info">' + imgId + '</span></div>';
+		h += '<div class="result" id="' + imgId + '"><div class="target"><img class="fitted" src="' + data.baseDir + '/match_images/' + batchID + '/' + cleanFilename(imgId) + '" /><span class="info">' + imgId;
+		if (batchData.filters && batchData.filters[imgId]) h += ' (matched against pattern <b>category ' + batchData.filters[imgId] + '</b> &#177;1)';
+		h += '</span></div>';
 
 		h += '<div class="controls">accept match? <input type="checkbox" ' + (data.results[imgId].acceptable ? 'checked' : '') + ' />';
 		h += '<div><a target="_new" href="' + data.baseDir + '/match_images/' + batchID + '/' + imgId + '-rel.xhtml">xhtml output</a></div>';
@@ -449,7 +451,7 @@ System.out.println(") matched?????? " + lm.group(1) + ":" + lm.group(2));
 					}
 				}
 
-					String[] cmd = {"/bin/sh", "-c", "/bin/sed 's#/var/lib/tomcat7/webapps##g' < " + batchDir + "/" + imgname + ".xhtml | /bin/sed 's/#/%23/g' > " + batchDir + "/" + imgname + "-rel.xhtml"};
+					String[] cmd = {"/bin/sh", "-c", "/bin/sed 's#/opt/tomcat7/webapps##g' < " + batchDir + "/" + imgname + ".xhtml | /bin/sed 's/#/%23/g' > " + batchDir + "/" + imgname + "-rel.xhtml"};
 					Process p;
 					p = Runtime.getRuntime().exec(cmd);
 					p.waitFor();
