@@ -475,14 +475,70 @@ function gotMap() {
         map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
 }
 
+
+function createSurvey() {
+	var pts = parsePoints($('#survey-points').val());
+	if (pts.length < 1) {
+		$('#results').html('no points found');
+		return;
+	}
+	console.info('pts created: %o', pts);
+	var st = new wildbook.Model.SurveyTrack();
+	st.set("name", $('#survey-track-name').val());
+	st.set("points", pts);
+
+	$('#survey-button').hide();
+
+	st.save({}, { success: function() {
+console.log('ok!!!!!!!!!!!!!!!!!!' + st.id);
+	$('#results').html('<b>SurveyTrack id ' + st.id + '</b> created. <a target="_new" href="api/org.ecocean.survey.SurveyTrack/' + st.id + '">[see via REST]</a>');
+} });
+console.info('SurveyTrack saved: %o', st);
+}
+
+
+
+function parsePoints(inString) {
+	var pts = [];
+	var ptext = inString.split(/\s*[\n\r]+\s*/);
+	for (var i = 0 ; i < ptext.length ; i++) {
+		var pt = new wildbook.Model.Point();
+pt.set("class", "org.ecocean.Point");  //TODO this should be automagic via Base.js
+		var d = ptext[i].split(/\s*,\s*/);
+		if (d.length > 0) pt.set("latitude", d[0] - 0);
+		if (d.length > 1) pt.set("longitude", d[1] - 0);
+		if (d.length > 2) pt.set("timestamp", d[2] - 0);
+		if (d.length > 3) pt.set("elevation", d[3] - 0);
+		pts.push(pt);
+	}
+	return pts;
+}
+
 </script>
 
 
     <div id="main">
 
-      <div id="maincol-wide">
+      <div id="maincol-wide" style="height: 700px;">
 
-<div style="width:800px; height:600px; outline: solid 2px #000;" id="map-canvas"></div>
+<div style="width:600px; height:600px; padding: 5px; background-color: #DDD; position: absolute !important; left: 30px;">
+<textarea style="width: 350px; height: 200px;" id="survey-points" placeholder="enter Point Data here like:
+LAT,LON,TIME,ELEV
+LAT,LON,TIME,ELEV
+...">
+</textarea>
+<br />
+<input id="survey-track-name" placeholder="survey TRACK name" />
+
+<div id="results" style="padding: 5px; height: 60px; font-size: 0.8em;" ></div>
+
+<p>
+<input id="survey-button" type="button" value="create survey track" onClick="createSurvey()" />
+</p>
+
+</div>
+
+<div style="width:800px; height:600px; outline: solid 2px #000; position: absolute !important; right: 30px;" id="map-canvas"></div>
 
     </div>
     <!-- end maincol -->
