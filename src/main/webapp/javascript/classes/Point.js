@@ -1,6 +1,8 @@
 
 wildbook.Model.Point = wildbook.Model.BaseClass.extend({
 
+	idAttribute: '_id',  //magic via DataNucleus
+
 	placeGoogleMarker: function(gmap, title) {
 		return new google.maps.Marker({ map: gmap, position: this.toGoogleLatLng(), title: (title||'') });
 	},
