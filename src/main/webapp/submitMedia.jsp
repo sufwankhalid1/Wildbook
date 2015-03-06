@@ -7,14 +7,24 @@
 
 <jsp:include page="headerfull.jsp" flush="true"/>
 
-
-
-<link rel="stylesheet" href="css/jquery.fileupload.css">
-<link rel="stylesheet" href="css/jquery.fileupload-ui.css">
-
+<!-- CAUTION: jquery-ui must go before bootstrap or you get an error -->
 <!--<link rel="stylesheet" href="//code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">-->
 <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/themes/smoothness/jquery-ui.css" id="theme">
 <script src="javascript/jquery-ui.min.js"></script>
+
+<script src="tools/bootstrap/javascript/bootstrap.min.js"></script>
+<script src="tools/angularjs-utilities/javascript/jquery.bootstrap.wizard.js"></script>
+<script src="tools/angularjs/javascript/angular-1.3.14.min.js"></script>
+<script src="tools/angularjs-utilities/javascript/directives/rcSubmit.js"></script>
+<script src="tools/angularjs-utilities/javascript/modules/rcForm.js"></script>
+<script src="tools/angularjs-utilities/javascript/modules/rcDisabled.js"></script>
+<script src="tools/angularjs-utilities/javascript/modules/rcWizard.js"></script>
+<link href="tools/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+<link href="tools/angularjs-utilities/css/rcWizard.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="tools/jquery-fileupload/css/jquery.fileupload.css">
+<link rel="stylesheet" href="tools/jquery-fileupload/css/jquery.fileupload-ui.css">
 
 <!-- Default fonts for jquery-ui are too big -->
 <style>
@@ -23,57 +33,163 @@
 }
 </style>
 
-<script src="javascript/jquery-fileupload/tmpl.min.js"></script>
-<script src="javascript/jquery-fileupload/load-image.all.min.js"></script>
+<script src="tools/jquery-fileupload/javascript/tmpl.min.js"></script>
+<script src="tools/jquery-fileupload/javascript/load-image.all.min.js"></script>
 <!--<script src="javascript/jquery-fileupload/canvas-to-blob.min.js"></script>-->
 <!--<script src="js/jquery.iframe-transport.js"></script>-->
-<script src="javascript/jquery-fileupload/jquery.fileupload.js"></script>
+<script src="tools/jquery-fileupload/javascript/jquery.fileupload.js"></script>
 <!-- The File Upload processing plugin -->
-<script src="javascript/jquery-fileupload/jquery.fileupload-process.js"></script>
+<script src="tools/jquery-fileupload/javascript/jquery.fileupload-process.js"></script>
 <!-- The File Upload image preview & resize plugin -->
-<script src="javascript/jquery-fileupload/jquery.fileupload-image.js"></script>
+<script src="tools/jquery-fileupload/javascript/jquery.fileupload-image.js"></script>
 <!-- The File Upload video preview plugin -->
-<script src="javascript/jquery-fileupload/jquery.fileupload-video.js"></script>
+<script src="tools/jquery-fileupload/javascript/jquery.fileupload-video.js"></script>
 <!-- The File Upload validation plugin -->
-<script src="javascript/jquery-fileupload/jquery.fileupload-validate.js"></script>
+<script src="tools/jquery-fileupload/javascript/jquery.fileupload-validate.js"></script>
 <!-- The File Upload user interface plugin -->
-<script src="javascript/jquery-fileupload/jquery.fileupload-ui.js"></script>
+<script src="tools/jquery-fileupload/javascript/jquery.fileupload-ui.js"></script>
 <!-- The File Upload jQuery UI plugin -->
-<script src="javascript/jquery-fileupload/jquery.fileupload-jquery-ui.js"></script>
+<script src="tools/jquery-fileupload/javascript/jquery.fileupload-jquery-ui.js"></script>
 <script src="html/pages/submitMedia.js"></script>
 
-<!--<input id="fileupload" type="file" name="files[]" data-url="media/test?data=testing" multiple>-->
+<div ng-app="MediaSubmissionWizard">
+    <div class="container" >
+      <div class="row">
+        <div class="col-xs-12 col-sm-6">
+          <div ng-controller="MediaSubmissionController" 
+               rc-wizard="mediaWizard" rc-disabled="rc.firstForm.submitInProgress">
+            <ul class="nav rc-nav-wizard">
+              <li class="active">
+                <a class="active" href="#first" data-toggle="tab">
+                  <span class="badge">1</span>
+                  <span>User Info</span>
+                </a>
+              </li>
+              <li>
+                <a href="#second" data-toggle="tab">
+                  <span class="badge">2</span>
+                  <span>Location</span>
+                </a>
+              </li>
+              <li>
+                <a href="#last" data-toggle="tab">
+                  <span class="badge">3</span>
+                  <span>Images</span>
+                </a>
+              </li>
+            </ul>
+            <div class="tab-content">
+              <form class="tab-pane active" id="first" name="firstForm" 
+                    rc-submit="saveState()" rc-step novalidate>
+                <h2>Enter user info</h2>
+                <div class="form-group"
+                     ng-hide="isLoggedIn()"
+                     ng-class="{'has-error': rc.firstForm.needsAttention(firstForm.name)}">
+                  <label class="control-label">Name</label>
+                  <input name="name" class="form-control" type="text" ng-required="!isLoggedIn()"
+                         ng-model="media.name"/>
+                </div>
+                <div class="form-group"
+                     ng-hide="isLoggedIn()"
+                     ng-class="{'has-error': rc.firstForm.needsAttention(firstForm.email)}">
+                  <label class="control-label">Email</label>
+                  <input name="email" class="form-control" type="text" ng-required="!isLoggedIn()"
+                         ng-model="media.email" />
+                </div>
+                <div class="form-group">
+                  <label class="control-label">Was this part of a survey? If so, please enter survey id here.</label>
+                  <input name="surveyid" class="form-control" type="text"
+                         ng-model="media.surveyid" />
+                </div>
+              </form>
+              <form class="tab-pane" id="second" name="secondForm" rc-submit rc-step>
+                <h2>Enter second step data</h2>
+                <div class="form-group">
+                  <label class="control-label">Street Address</label>
+                  <input name="streetAddress" class="form-control" type="text" 
+                         ng-model="user.streetAddress" />
+                </div>
+                <div class="form-group">
+                  <label class="control-label">City</label>
+                  <input name="city" class="form-control" type="text" 
+                         ng-model="user.city" />
+                </div>
+                <div class="form-group">
+                  <label class="control-label">State</label>
+                  <input name="state" class="form-control" type="text" 
+                         ng-model="user.state" />
+                </div>
+                <div class="form-group">
+                  <label class="control-label">City</label>
+                  <input name="postalCode" class="form-control" type="text" 
+                         ng-model="user.postalCode" />
+                </div>
+              </form>
+              <form class="tab-pane" id="last" name="lastForm" rc-submit="completeWizard()" rc-step rc-show="showFileUpload()">
+                <h2>Finish last step</h2>
+                <div class="form-group">
+                  <label class="control-label">Name:</label>
+                  <p class="form-control-static">{{ user.name }}</p>
+                </div>
+                <div class="form-group">
+                  <label class="control-label">Email:</label>
+                  <p class="form-control-static">{{ user.email }}</p>
+                </div>
+                
+                
+                
+        <!-- <form id="fileupload" action="http://localhost:8888/" method="POST" enctype="multipart/form-data">  -->
+        <form id="fileupload" action="mediaupload" method="POST" enctype="multipart/form-data">
+        <!--<form id="fileupload" method="POST" enctype="multipart/form-data">-->
+            <!-- The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload -->
+            <input id="fileupload_uuid" name="uuid" type="hidden" value=""/>
+            <div class="fileupload-buttonbar">
+                <div class="fileupload-buttons">
+                    <!-- The fileinput-button span is used to style the file input field as button -->
+                    <span class="fileinput-button">
+                        <span>Add files...</span>
+                        <input type="file" name="files[]" multiple>
+                    </span>
+                    <button type="submit" class="start">Start upload</button>
+                    <button type="reset" class="cancel">Cancel upload</button>
+                    <button type="button" class="delete">Delete</button>
+                    <input type="checkbox" class="toggle">
+                    <!-- The global file processing state -->
+                    <span class="fileupload-process"></span>
+                </div>
+                <!-- The global progress state -->
+                <div class="fileupload-progress fade" style="display:none">
+                    <!-- The global progress bar -->
+                    <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100"></div>
+                    <!-- The extended global progress state -->
+                    <div class="progress-extended">&nbsp;</div>
+                </div>
+            </div>
+            <!-- The table listing the files available for upload/download -->
+            <table role="presentation"><tbody class="files"></tbody></table>
+        </form>
 
-<!-- <form id="fileupload" action="http://localhost:8888/" method="POST" enctype="multipart/form-data">  -->
-<form id="fileupload" action="mediaupload" method="POST" enctype="multipart/form-data">
-<!--<form id="fileupload" method="POST" enctype="multipart/form-data">-->
-    <!-- The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload -->
-    <input id="fileupload_uuid" name="uuid" type="hidden" value=""/>
-    <div class="fileupload-buttonbar">
-        <div class="fileupload-buttons">
-            <!-- The fileinput-button span is used to style the file input field as button -->
-            <span class="fileinput-button">
-                <span>Add files...</span>
-                <input type="file" name="files[]" multiple>
-            </span>
-            <button type="submit" class="start">Start upload</button>
-            <button type="reset" class="cancel">Cancel upload</button>
-            <button type="button" class="delete">Delete</button>
-            <input type="checkbox" class="toggle">
-            <!-- The global file processing state -->
-            <span class="fileupload-process"></span>
+
+
+              </form>
+            </div>
+            <div class="form-group">
+              <div class="pull-right">
+                <a class="btn btn-default" ng-click="rc.mediaWizard.backward()"
+                   ng-show="rc.mediaWizard.currentIndex > rc.mediaWizard.firstIndex">Back</a>
+                <a class="btn btn-primary" data-loading-text="Please Wait..." ng-click="rc.mediaWizard.forward()" 
+                   ng-show="rc.mediaWizard.currentIndex < rc.mediaWizard.navigationLength">Continue</a>
+                <a class="btn btn-primary" ng-click="rc.mediaWizard.forward()" 
+                   ng-show="rc.mediaWizard.currentIndex == rc.mediaWizard.navigationLength">Complete</a>
+              </div>
+            </div>
+          </div>
         </div>
-        <!-- The global progress state -->
-        <div class="fileupload-progress fade" style="display:none">
-            <!-- The global progress bar -->
-            <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100"></div>
-            <!-- The extended global progress state -->
-            <div class="progress-extended">&nbsp;</div>
-        </div>
+      </div>
     </div>
-    <!-- The table listing the files available for upload/download -->
-    <table role="presentation"><tbody class="files"></tbody></table>
-</form>
+</div>
+
+
 <!-- The template to display files available for upload -->
 <script id="template-upload" type="text/x-tmpl">
 {% for (var i=0, file; file=o.files[i]; i++) { %}
@@ -130,7 +246,7 @@
 {% } %}
 </script>
 
-<script>$(function() {submitMedia.init();});</script>
+<!-- <script>$(function() {submitMedia.init();});</script> -->
 
 
 

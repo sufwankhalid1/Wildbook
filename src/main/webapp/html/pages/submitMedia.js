@@ -7,6 +7,35 @@
 
 var submitMedia = (function () {
     'use strict';
+    
+    var wizard = angular.module('MediaSubmissionWizard', ['rcWizard', 'rcForm', 'rcDisabledBootstrap']);
+    wizard.controller('MediaSubmissionController',
+            ['$scope', '$q', '$timeout',
+             function ($scope, $q, $timeout) {
+                $scope.media = {"username": wildbookGlobals.username};
+  
+                $scope.isLoggedIn = function() {
+                    return (this.media.username);
+                };
+                
+                $scope.showFileUpload = function() {
+                    initUpload();
+                };
+                
+                $scope.saveState = function() {
+                    var deferred = $q.defer();
+    
+                    $timeout(function() {
+                        deferred.resolve();
+                    }, 1000);
+    
+                    return deferred.promise;
+                };
+  
+                $scope.completeWizard = function() {
+                    alert('Completed!');
+                };
+            }]);
 
     function guid() {
         function s4() {
@@ -25,7 +54,7 @@ var submitMedia = (function () {
 //            //xhrFields: {withCredentials: true},
 //            url: 'placeholder'
 //        });
-        $('#fileupload').fileupload();
+        $("#fileupload").fileupload();
         
         //
         // Create uuid for upload. Will need a way to refresh this with new downloads.
@@ -42,7 +71,7 @@ var submitMedia = (function () {
     //        )
     //    );
     
-        // Load existing files:
+        // Load existing files
         $('#fileupload').addClass('fileupload-processing');
 //        var url = $('#fileupload').fileupload('option', 'url');
 //        var url = "media/test?data=testing";
@@ -52,7 +81,7 @@ var submitMedia = (function () {
             // Uncomment the following to send cross-domain cookies:
             //xhrFields: {withCredentials: true},
             type: "POST",
-            url: url,
+            url: "mediaupload",
             dataType: 'json',
             context: $('#fileupload')[0]
         }).always(function () {
@@ -65,46 +94,6 @@ var submitMedia = (function () {
             console.log(JSON.stringify(jqXHR));
         });
     }
-    
-//    pager.register(
-//        "submitMedia",
-//        function() {
-////            $('#fileupload').fileupload({
-////                dataType: 'json',
-////                done: function (e, data) {
-////                    $.each(data.result.files, function (index, file) {
-////                        console.log(document);
-////                        $('<p/>').text(file.name).appendTo(document.body);
-////                    });
-////                }
-////            });
-//            
-//            
-////            $('#fileupload').fileupload({
-////                'onLoad': function (event, files, index, xhr, handler) {
-////                    handler.removeNode(handler.uploadRow, handler.hideProgressBarAll);
-////                    waitFor(fid,$.parseJSON(xhr.responseText));
-////    /*
-////                    var data = $.parseJSON(xhr.responseText);
-////                    var i;
-////                    for (i = 0 ; i < data.pages ; i++) {
-////                        addHead(i, data);
-////                    }
-////    */
-////                    return true;
-////                }
-////            });
-//
-//            
-//            
-//            
-//            initUpload();
-//        },
-//        function() {
-////            $('#fileupload').fileupload('destroy');
-//        });
-////    alert("onload");
-//    //pager.show("submitMedia");
-    
+        
     return {"init": initUpload};
 })();

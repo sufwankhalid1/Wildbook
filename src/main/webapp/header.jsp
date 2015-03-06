@@ -442,7 +442,7 @@
 					<td>
 						<a target="_blank"
 						   href="http://www.wildme.org/wildbook">Wildbook <%=ContextConfiguration.getVersion() %></a>
-					</td>
+					</td>ˆ
 				</tr>
 			</table>
 		</td>
