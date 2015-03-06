@@ -16,8 +16,9 @@ wildbook.Model.BaseClass = Backbone.Model.extend({
 /* note: some combinations may return more than one encounter, which should be a collection (e.g /individualID==something)
    however, we still should allow that type of arbitrary field matching to get ONE encounter... maybe return only first?   */
 	url: function() {
-		if (!this.id) return false;  //how are you really supposed to handle this??? TODO
-		return wildbookGlobals.baseUrl + '/api/' + this.className() + '/' + this.id;
+		var u = wildbookGlobals.baseUrl + '/api/' + this.className();
+		if (this.id != undefined) u += '/' + this.id;  //if we dont have an id, we may be POSTing a new object (with no id) e.g. .save()
+		return u;
 	},
 
 	classNameShort: function() {
