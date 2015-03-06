@@ -107,6 +107,14 @@ context=ServletUtilities.getContext(request);
 	width: 170px;
 }
 
+.enc-filename div {
+	color: #666;
+	font-size: 0.9em;
+	width: 120px;
+	padding-left: 3px;
+	overflow-x: hidden;
+	white-space: nowrap;
+}
 
 .relationship-none {
 	position: relative;
@@ -627,6 +635,7 @@ function relCancel(ev) {
 <table style="border-spacing: 0;" id="results" width="100%">
   <tr class="lineitem">
       <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("date") %></strong></td>
+      <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("filename") %></strong></td>
     <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("individualID") %></strong></td>
     
 
@@ -655,7 +664,11 @@ function relCancel(ev) {
 
   %>
   <tr id="row-enc-<%=enc.getEncounterNumber()%>" class="enc-row" data-id="<%=enc.getEncounterNumber()%>" data-indiv="<%=((indiv == null) ? "" : enc.getIndividualID())%>">
-      <td class="lineitem"><%=enc.getDate()%>
+      <td class="lineitem enc-date">
+<%=enc.getDate()%>
+			</td>
+			<td class="lineitem enc-filename">
+<div title="<%=enc.getImageOriginalName()%>"><%=((enc.getImageOriginalName() == null) ? "" : enc.getImageOriginalName())%></div>
     </td>
     <td class="lineitem">
     	<%

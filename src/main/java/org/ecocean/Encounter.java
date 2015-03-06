@@ -186,6 +186,8 @@ public class Encounter implements java.io.Serializable {
   private int numSpotsLeft = 0;
   private int numSpotsRight = 0;
 
+	private String imageOriginalName = null;
+
 
   //SPOTS
   //an array of the extracted left-side superSpots
@@ -283,6 +285,14 @@ public class Encounter implements java.io.Serializable {
   public void setRightSpots(ArrayList<SuperSpot> newSpots) {
     rightSpots = newSpots;
   }
+
+	public void setImageOriginalName(String n) {
+		this.imageOriginalName = n;
+	}
+	public String getImageOriginalName() {
+		return this.imageOriginalName;
+	}
+
 
   /**
    * Removes any spot data

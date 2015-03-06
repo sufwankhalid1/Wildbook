@@ -199,6 +199,8 @@ System.out.println(ifile.toString() + "<<<?????????????");
 			} else {
 				System.out.println("WARNING: " + ifile.toString() + " does not exists; skipping.");
 			}
+
+			if (idata.get("image_original_name") != null) enc.setImageOriginalName(idata.get("image_original_name").toString());
 		}
 
 		if ((etime != null) && (etime > 1)) enc.setDateInMilliseconds(etime);
@@ -512,6 +514,7 @@ System.out.println("found="+found);
 					img.put("image_gps_lat", rs.getFloat("image_gps_lat"));
 					img.put("image_gps_lon", rs.getFloat("image_gps_lon"));
 					img.put("image_time_posix", rs.getInt("image_time_posix"));
+					img.put("image_original_name", rs.getString("image_original_name"));
 					imgs.put(iid, img);
 					//imgIDs.add(rs.getInt("image_rowid"));
 				}
