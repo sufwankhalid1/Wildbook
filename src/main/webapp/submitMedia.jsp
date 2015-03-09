@@ -2,6 +2,7 @@
 <script src="javascript/backbone-min.js"></script>
 <script src="javascript/core.js"></script>
 <script src="javascript/classes/Base.js"></script>
+
 <!-- <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDz5Pgz2NCjFkss9AJwxqFjejPhxJrOj-M"></script> -->
 <!-- <script src="javascript/pager.js"></script> -->
 
@@ -11,6 +12,7 @@
 <!--<link rel="stylesheet" href="//code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">-->
 <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/themes/smoothness/jquery-ui.css" id="theme">
 <script src="javascript/jquery-ui.min.js"></script>
+<script src="javascript/timepicker/jquery-ui-timepicker-addon.js"></script>
 
 <script src="tools/bootstrap/javascript/bootstrap.min.js"></script>
 <script src="tools/angularjs-utilities/javascript/jquery.bootstrap.wizard.js"></script>
@@ -19,12 +21,13 @@
 <script src="tools/angularjs-utilities/javascript/modules/rcForm.js"></script>
 <script src="tools/angularjs-utilities/javascript/modules/rcDisabled.js"></script>
 <script src="tools/angularjs-utilities/javascript/modules/rcWizard.js"></script>
+
 <link href="tools/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 <link href="tools/angularjs-utilities/css/rcWizard.css" rel="stylesheet">
 
 
-<link rel="stylesheet" href="tools/jquery-fileupload/css/jquery.fileupload.css">
-<link rel="stylesheet" href="tools/jquery-fileupload/css/jquery.fileupload-ui.css">
+<!-- <link rel="stylesheet" href="tools/jquery-fileupload/css/jquery.fileupload.css">
+<link rel="stylesheet" href="tools/jquery-fileupload/css/jquery.fileupload-ui.css">  -->
 
 <!-- Default fonts for jquery-ui are too big -->
 <style>
@@ -51,6 +54,8 @@
 <!-- The File Upload jQuery UI plugin -->
 <script src="tools/jquery-fileupload/javascript/jquery.fileupload-jquery-ui.js"></script>
 <script src="html/pages/submitMedia.js"></script>
+
+<!-- <div id="media-startdatepicker2" class="form-control"></div>  -->
 
 <div ng-app="MediaSubmissionWizard">
     <div class="container" >
@@ -80,51 +85,60 @@
             </ul>
             <div class="tab-content">
               <form class="tab-pane active" id="first" name="firstForm" 
-                    rc-submit="saveState()" rc-step novalidate>
+                    rc-submit="getSurvey()" rc-step novalidate>
                 <h2>Enter user info</h2>
                 <div class="form-group"
                      ng-hide="isLoggedIn()"
                      ng-class="{'has-error': rc.firstForm.needsAttention(firstForm.name)}">
                   <label class="control-label">Name</label>
-                  <input name="name" class="form-control" type="text" ng-required="!isLoggedIn()"
+                  <input class="form-control" type="text" ng-required="!isLoggedIn()"
                          ng-model="media.name"/>
                 </div>
                 <div class="form-group"
                      ng-hide="isLoggedIn()"
                      ng-class="{'has-error': rc.firstForm.needsAttention(firstForm.email)}">
                   <label class="control-label">Email</label>
-                  <input name="email" class="form-control" type="text" ng-required="!isLoggedIn()"
+                  <input class="form-control" type="text" ng-required="!isLoggedIn()"
                          ng-model="media.email" />
                 </div>
                 <div class="form-group">
                   <label class="control-label">Was this part of a survey? If so, please enter survey id here.</label>
-                  <input name="surveyid" class="form-control" type="text"
+                  <input class="form-control" type="text"
                          ng-model="media.surveyid" />
                 </div>
               </form>
-              <form class="tab-pane" id="second" name="secondForm" rc-submit rc-step>
+              <form class="tab-pane" id="second" name="secondForm" rc-submit rc-step rc-show="showSecond()">
                 <h2>Enter second step data</h2>
                 <div class="form-group">
-                  <label class="control-label">Street Address</label>
-                  <input name="streetAddress" class="form-control" type="text" 
-                         ng-model="user.streetAddress" />
+                  <label class="control-label">Description</label>
+                  <textarea rows="5" name="description" class="form-control"
+                         ng-model="media.description"></textarea>
                 </div>
                 <div class="form-group">
-                  <label class="control-label">City</label>
-                  <input name="city" class="form-control" type="text" 
-                         ng-model="user.city" />
+                  <label class="control-label">Verbatim Location</label>
+                  <textarea rows="5" class="form-control" type="text" 
+                         ng-model="media.verbatimlocation"></textarea>
                 </div>
-                <div class="form-group">
-                  <label class="control-label">State</label>
-                  <input name="state" class="form-control" type="text" 
-                         ng-model="user.state" />
-                </div>
-                <div class="form-group">
-                  <label class="control-label">City</label>
-                  <input name="postalCode" class="form-control" type="text" 
-                         ng-model="user.postalCode" />
-                </div>
-              </form>
+                <!-- <div class="form-group">
+                  <label class="control-label">Location</label>
+                  <input class="form-control" type="text" 
+                         ng-model="user.location" />
+                </div> -->
+              <div class="row">
+                  <div class="col-xs-6">
+                        <div class="form-group">
+                          <label class="control-label">Start Time</label>
+                          <div id="media-startdatepicker" placeholder=".col-xs-4" ng-model="media.starttime"></div>
+                        </div>
+                  </div>
+                  <div class="col-xs-6">
+                        <div class="form-group">
+                          <label class="control-label">End Time</label>
+                          <div id="media-enddatepicker" placeholder=".col-xs-4" ng-model="media.endtime"></div>
+                        </div>
+                      </form>
+                  </div>
+              </div>
               <form class="tab-pane" id="last" name="lastForm" rc-submit="completeWizard()" rc-step rc-show="showFileUpload()">
                 <h2>Finish last step</h2>
                 <div class="form-group">
@@ -246,7 +260,20 @@
 {% } %}
 </script>
 
-<!-- <script>$(function() {submitMedia.init();});</script> -->
+<script>$(function() {
+    $("#media-startdatepicker").datetimepicker({
+        changeMonth: true,
+        changeYear: true,
+        dateFormat: 'yy-mm-dd'});
+    $("#media-startdatepicker").datetimepicker( $.timepicker.regional[wildbookGlobals.langCode] );
+    $("#media-enddatepicker").datetimepicker({
+        changeMonth: true,
+        changeYear: true,
+        dateFormat: 'yy-mm-dd'});
+    $("#media-enddatepicker").datetimepicker( $.timepicker.regional[wildbookGlobals.langCode] );
+    
+    submitMedia.init();
+});</script>
 
 
 

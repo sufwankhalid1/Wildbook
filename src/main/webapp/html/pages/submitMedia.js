@@ -18,18 +18,38 @@ var submitMedia = (function () {
                     return (this.media.username);
                 };
                 
-                $scope.showFileUpload = function() {
-                    initUpload();
+                $scope.showSecond = function() {
+//                    $("#media-startdatepicker").datetimepicker({
+//                        changeMonth: true,
+//                        changeYear: true,
+//                        dateFormat: 'yy-mm-dd',
+//                        defaultDate: '2010-09-13'});
+//                    $("#media-startdatepicker").datetimepicker( $.timepicker.regional[ "en" ] );
                 };
                 
-                $scope.saveState = function() {
-                    var deferred = $q.defer();
-    
-                    $timeout(function() {
-                        deferred.resolve();
-                    }, 1000);
-    
-                    return deferred.promise;
+                $scope.showFileUpload = function() {
+//                    initUpload();
+                };
+                
+                $scope.getSurvey = function() {
+                    console.log(JSON.stringify(this.media));
+                    //
+                    // I guess we don't need to verify the Survey here unless we
+                    // decide to do something with it.
+                    //
+//                    var s = new wildbook.Model.Survey({"id":this.media.surveyid});
+//                    s.fetch();
+                    
+                    //
+                    // Just showing what you can do with deferreds and resolve using angular
+                    //
+//                    var deferred = $q.defer();
+//    
+//                    $timeout(function() {
+//                        deferred.resolve();
+//                    }, 1000);
+//    
+//                    return deferred.promise;
                 };
   
                 $scope.completeWizard = function() {
