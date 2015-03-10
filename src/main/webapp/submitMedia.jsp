@@ -10,8 +10,9 @@
 
 <!-- CAUTION: jquery-ui must go before bootstrap or you get an error -->
 <!--<link rel="stylesheet" href="//code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">-->
-<link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/themes/smoothness/jquery-ui.css" id="theme">
-<script src="javascript/jquery-ui.min.js"></script>
+<!-- <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/themes/smoothness/jquery-ui.css" id="theme"> -->
+<link rel="stylesheet" href="tools/jquery-ui/jquery-ui.css" id="theme">
+<script src="tools/jquery-ui/jquery-ui.js"></script>
 <script src="javascript/timepicker/jquery-ui-timepicker-addon.js"></script>
 
 <script src="tools/bootstrap/javascript/bootstrap.min.js"></script>
@@ -78,7 +79,7 @@
                 </a>
               </li>
               <li>
-                <a href="#last" data-toggle="tab">
+                <a href="#fileupload" data-toggle="tab">
                   <span class="badge">3</span>
                   <span>Images</span>
                 </a>
@@ -87,7 +88,7 @@
             <div class="tab-content">
               <form class="tab-pane active" id="first" name="firstForm" 
                     rc-submit="getSurvey()" rc-step novalidate>
-                <h2>Enter user info</h2>
+                <h3>Enter user info</h3>
                 <div class="form-group"
                      ng-hide="isLoggedIn()"
                      ng-class="{'has-error': rc.firstForm.needsAttention(firstForm.name)}">
@@ -109,7 +110,7 @@
                 </div>
               </form>
               <form class="tab-pane" id="second" name="secondForm" rc-submit rc-step rc-show="showSecond()">
-                <h2>Enter second step data</h2>
+                <h3>Enter second step data</h3>
                 <div class="form-group">
                   <label class="control-label">Description</label>
                   <textarea rows="5" name="description" class="form-control"
@@ -140,22 +141,10 @@
                       </form>
                   </div>
               </div>
-              <form class="tab-pane" id="last" name="lastForm" rc-submit="completeWizard()" rc-step rc-show="showFileUpload()">
-                <h2>Finish last step</h2>
-                <div class="form-group">
-                  <label class="control-label">Name:</label>
-                  <p class="form-control-static">{{ user.name }}</p>
-                </div>
-                <div class="form-group">
-                  <label class="control-label">Email:</label>
-                  <p class="form-control-static">{{ user.email }}</p>
-                </div>
+              <form class="tab-pane" id="fileupload" name="lastForm" rc-submit="completeWizard()" rc-step rc-show="showFileUpload()">
+                <h3>Upload Images</h3>
                 
-                
-                
-        <!-- <form id="fileupload" action="http://localhost:8888/" method="POST" enctype="multipart/form-data">  -->
-        <form id="fileupload" action="mediaupload" method="POST" enctype="multipart/form-data">
-        <!--<form id="fileupload" method="POST" enctype="multipart/form-data">-->
+        <!-- <form id="fileupload" action="mediaupload" method="POST" enctype="multipart/form-data"> -->
             <!-- The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload -->
             <input id="fileupload_uuid" name="uuid" type="hidden" value=""/>
             <div class="fileupload-buttonbar">
@@ -182,7 +171,7 @@
             </div>
             <!-- The table listing the files available for upload/download -->
             <table role="presentation"><tbody class="files"></tbody></table>
-        </form>
+        <!-- </form> -->
 
 
 
@@ -262,17 +251,6 @@
 </script>
 
 <script>$(function() {
-    $("#media-startdatepicker").datetimepicker({
-        changeMonth: true,
-        changeYear: true,
-        dateFormat: 'yy-mm-dd'});
-    $("#media-startdatepicker").datetimepicker( $.timepicker.regional[wildbookGlobals.langCode] );
-    $("#media-enddatepicker").datetimepicker({
-        changeMonth: true,
-        changeYear: true,
-        dateFormat: 'yy-mm-dd'});
-    $("#media-enddatepicker").datetimepicker( $.timepicker.regional[wildbookGlobals.langCode] );
-    
     submitMedia.init();
 });</script>
 
