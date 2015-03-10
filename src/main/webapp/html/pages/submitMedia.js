@@ -8,14 +8,24 @@
 var submitMedia = (function () {
     'use strict';
     
-    var wizard = angular.module('MediaSubmissionWizard', ['rcWizard', 'rcForm', 'rcDisabledBootstrap']);
+    var wizard = angular.module('MediaSubmissionWizard', ['rcWizard', 'rcForm', 'rcDisabledBootstrap', 'ui.date']);
     wizard.controller('MediaSubmissionController',
             ['$scope', '$q', '$timeout',
              function ($scope, $q, $timeout) {
                 $scope.media = {"username": wildbookGlobals.username};
   
+                $scope.dateOptions = {
+                        changeMonth: true,
+                        changeYear: true,
+                        dateFormat: 'yy-mm-dd',
+                        showTime: true};
+                
                 $scope.isLoggedIn = function() {
                     return (this.media.username);
+                };
+                
+                $scope.setStartTime = function() {
+                    
                 };
                 
                 $scope.showSecond = function() {
@@ -28,6 +38,7 @@ var submitMedia = (function () {
                 };
                 
                 $scope.showFileUpload = function() {
+                    console.log("showFileUpload: " + JSON.stringify(this.media));
 //                    initUpload();
                 };
                 

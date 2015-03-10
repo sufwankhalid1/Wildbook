@@ -21,6 +21,7 @@
 <script src="tools/angularjs-utilities/javascript/modules/rcForm.js"></script>
 <script src="tools/angularjs-utilities/javascript/modules/rcDisabled.js"></script>
 <script src="tools/angularjs-utilities/javascript/modules/rcWizard.js"></script>
+<script src="tools/angular-ui/ui-date/date.js"></script>
 
 <link href="tools/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 <link href="tools/angularjs-utilities/css/rcWizard.css" rel="stylesheet">
@@ -128,13 +129,13 @@
                   <div class="col-xs-6">
                         <div class="form-group">
                           <label class="control-label">Start Time</label>
-                          <div id="media-startdatepicker" placeholder=".col-xs-4" ng-model="media.starttime"></div>
+                          <input ui-date="dateOptions" ng-model="media.starttime"/>
                         </div>
                   </div>
                   <div class="col-xs-6">
                         <div class="form-group">
                           <label class="control-label">End Time</label>
-                          <div id="media-enddatepicker" placeholder=".col-xs-4" ng-model="media.endtime"></div>
+                          <input ui-date="dateOptions" ng-model="media.endtime"/>
                         </div>
                       </form>
                   </div>
