@@ -13,13 +13,14 @@ NOTE: "admin" role always can do anything
 			<properties>
 				<property name="location">
 					<write>
+						<role>DEMO:admin</role>
 						<role>admin</role>
-						<role>test</role>
 					</write>
 				</property>
 				<property name="sex">
 					<write>
-						<role>test</role>
+						<role>DEMO:admin</role>
+						<role>admin</role>
 					</write>
 				</property>
 			</properties>
