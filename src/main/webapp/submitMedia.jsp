@@ -78,7 +78,7 @@
 <div ng-app="MediaSubmissionWizard">
     <div class="container" >
       <div class="row">
-        <div class="col-xs-12 col-sm-6">
+        <div class="col-xs-12 col-sm-7">
           <div ng-controller="MediaSubmissionController" 
                rc-wizard="mediaWizard" rc-disabled="rc.firstForm.submitInProgress">
             <ul class="nav rc-nav-wizard">
@@ -167,7 +167,7 @@
         <noscript><input type="hidden" name="redirect" value="https://blueimp.github.io/jQuery-File-Upload/"></noscript>
         <!-- The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload -->
         <div class="row fileupload-buttonbar">
-            <div class="col-lg-7">
+            <div class="col-lg-8">
                 <!-- The fileinput-button span is used to style the file input field as button -->
                 <span class="btn btn-success fileinput-button" ng-class="{disabled: disabled}">
                     <i class="glyphicon glyphicon-plus"></i>
@@ -186,7 +186,7 @@
                 <span class="fileupload-process"></span>
             </div>
             <!-- The global progress state -->
-            <div class="col-lg-5 fade" data-ng-class="{in: active()}">
+            <div class="col-lg-4 fade" data-ng-class="{in: active()}">
                 <!-- The global progress bar -->
                 <div class="progress progress-striped active" data-file-upload-progress="progress()"><div class="progress-bar progress-bar-success" data-ng-style="{width: num + '%'}"></div></div>
                 <!-- The extended global progress state -->
