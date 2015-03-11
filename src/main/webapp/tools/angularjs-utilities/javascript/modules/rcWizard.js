@@ -197,45 +197,7 @@ var rcWizardStepDirective = {
   }
 };
 
-
-var rcWizardShowDirective = {
-        'rcShow': ['$parse', '$q', '$timeout', function ($parse, $q, $timeout) {
-          return {
-            restrict: 'A',
-            require: ['^rcWizard', '?form'],
-            compile: function(cElement, cAttributes, transclude) {
-                return {
-//                  pre: function(scope, formElement, attributes, controllers) {
-//         
-//                    var submitController = controllers[0];
-//                    var formController = (controllers.length > 1) ? controllers[1] : null;
-//         
-//                    submitController.setFormElement(formElement);
-//                    submitController.setFormController(formController);
-//         
-//                    scope.rc = scope.rc || {};
-//                    scope.rc[attributes.name] = submitController;
-//                  },
-                  post: function(scope, element, attributes) {
-                    var fn = $parse(attributes.rcShow);
-         
-                    scope.$watch(function() {
-                        return element.is(':visible');
-                     },
-                     function() {
-                         if (element.is(':visible')) {
-                             fn(scope, { $event: event });
-                         }
-                     });
-                  }
-                };
-             }
-          };
-        }]
-      };
-
 angular.module('rcWizard', ['ng'])
 
 .directive(rcWizardDirective)
-.directive(rcWizardStepDirective)
-.directive(rcWizardShowDirective);
+.directive(rcWizardStepDirective);
