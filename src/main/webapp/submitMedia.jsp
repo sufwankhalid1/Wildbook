@@ -122,8 +122,7 @@
                 </div>
                 <div class="form-group">
                   <label class="control-label">Was this part of a survey? If so, please enter survey id here.</label>
-                  <input class="form-control" type="text"
-                         ng-model="media.surveyid" />
+                  <input class="form-control" type="text" ng-model="media.surveyid" />
                 </div>
               </form>
               
@@ -131,13 +130,11 @@
                 <h3>Enter second step data</h3>
                 <div class="form-group">
                   <label class="control-label">Description</label>
-                  <textarea rows="5" name="description" class="form-control"
-                         ng-model="media.description"></textarea>
+                  <textarea rows="5" class="form-control" ng-model="media.description"></textarea>
                 </div>
                 <div class="form-group">
                   <label class="control-label">Verbatim Location</label>
-                  <textarea rows="5" class="form-control" type="text" 
-                         ng-model="media.verbatimlocation"></textarea>
+                  <textarea rows="5" class="form-control" ng-model="media.verbatimlocation"></textarea>
                 </div>
                 <!-- <div class="form-group">
                   <label class="control-label">Location</label>
@@ -166,6 +163,7 @@
         <!-- Redirect browsers with JavaScript disabled to the origin page -->
         <noscript><input type="hidden" name="redirect" value="https://blueimp.github.io/jQuery-File-Upload/"></noscript>
         <!-- The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload -->
+        <input name="uuid" type="hidden" ng-model="media.uuid"/>
         <div class="row fileupload-buttonbar">
             <div class="col-lg-8">
                 <!-- The fileinput-button span is used to style the file input field as button -->

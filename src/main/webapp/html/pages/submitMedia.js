@@ -8,13 +8,24 @@
 var submitMedia = (function () {
     'use strict';
     
+    function guid() {
+        function s4() {
+          return Math.floor((1 + Math.random()) * 0x10000)
+            .toString(16)
+            .substring(1);
+        }
+        return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+          s4() + '-' + s4() + s4() + s4();
+    }
+    
     var wizard = angular.module('MediaSubmissionWizard',
                                 ['rcWizard', 'rcForm', 'rcDisabledBootstrap', 'ui.date', 'blueimp.fileupload']);
     wizard.controller('MediaSubmissionController',
             ['$scope', '$q', '$timeout',
              function ($scope, $q, $timeout) {
                 $scope.media = {"username": wildbookGlobals.username};
-  
+                $scope.uuid = guid();
+                
                 $scope.dateOptions = {
                         changeMonth: true,
                         changeYear: true,
@@ -141,16 +152,6 @@ var submitMedia = (function () {
                    ]);
 
     
-    function guid() {
-        function s4() {
-          return Math.floor((1 + Math.random()) * 0x10000)
-            .toString(16)
-            .substring(1);
-        }
-        return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-          s4() + '-' + s4() + s4() + s4();
-    }
-      
     function initUpload() {
 //        // Initialize the jQuery File Upload widget:
 ////        $('#fileupload').fileupload({
