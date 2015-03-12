@@ -7,7 +7,7 @@
 
 var submitMedia = (function () {
     'use strict';
-
+    
     function guid() {
         function s4() {
           return Math.floor((1 + Math.random()) * 0x10000)
@@ -17,94 +17,119 @@ var submitMedia = (function () {
         return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
           s4() + '-' + s4() + s4() + s4();
     }
-      
-    function initUpload() {
-        // Initialize the jQuery File Upload widget:
-//        $('#fileupload').fileupload({
-//            // Uncomment the following to send cross-domain cookies:
-//            //xhrFields: {withCredentials: true},
-//            url: 'placeholder'
-//        });
-        $('#fileupload').fileupload();
-        
-        //
-        // Create uuid for upload. Will need a way to refresh this with new downloads.
-        //
-        $('#fileupload_uuid').val(guid());
+    
+    var wizard = angular.module('MediaSubmissionWizard',
+                                ['rcWizard', 'rcForm', 'rcDisabledBootstrap', 'ui.date', 'blueimp.fileupload']);
+    wizard.controller('MediaSubmissionController',
+            ['$scope', '$q', '$timeout',
+             function ($scope, $q, $timeout) {
+                $scope.media = {"username": wildbookGlobals.username};
+                $scope.uuid = guid();
                 
-        // Enable iframe cross-domain access via redirect option:
-    //    $('#fileupload').fileupload(
-    //        'option',
-    //        'redirect',
-    //        window.location.href.replace(
-    //            /\/[^\/]*$/,
-    //            '/cors/result.html?%s'
-    //        )
-    //    );
+                $scope.dateOptions = {
+                        changeMonth: true,
+                        changeYear: true,
+                        dateFormat: 'yy-mm-dd',
+                        showTime: true};
+                
+                $scope.isLoggedIn = function() {
+                    return (this.media.username);
+                };
+                
+                $scope.getSurvey = function() {
+//                    console.log(JSON.stringify(this.media));
+                    //
+                    // I guess we don't need to verify the Survey here unless we
+                    // decide to do something with it.
+                    //
+//                    var s = new wildbook.Model.Survey({"id":this.media.surveyid});
+//                    s.fetch();
+                    
+                    //
+                    // Just showing what you can do with deferreds and resolve using angular
+                    //
+//                    var deferred = $q.defer();
+//    
+//                    $timeout(function() {
+//                        deferred.resolve();
+//                    }, 1000);
+//    
+//                    return deferred.promise;
+                };
+  
+                $scope.completeWizard = function() {
+                    alert('Completed!');
+                };
+            }]);
+
+    var url = "mediaupload";
     
-        // Load existing files:
-        $('#fileupload').addClass('fileupload-processing');
-//        var url = $('#fileupload').fileupload('option', 'url');
-//        var url = "media/test?data=testing";
-//        var url = "http://localhost:8888/";
-        var url = "mediaupload";
-        $.ajax({
-            // Uncomment the following to send cross-domain cookies:
-            //xhrFields: {withCredentials: true},
-            type: "POST",
-            url: url,
-            dataType: 'json',
-            context: $('#fileupload')[0]
-        }).always(function () {
-            $(this).removeClass('fileupload-processing');
-        }).done(function (result) {
-//            alert(JSON.stringify(result));
-            $(this).fileupload('option', 'done')
-                   .call(this, $.Event('done'), {result: result});
-        }).fail(function( jqXHR, textStatus, errorThrown ) {
-            console.log(JSON.stringify(jqXHR));
-        });
-    }
-    
-//    pager.register(
-//        "submitMedia",
-//        function() {
-////            $('#fileupload').fileupload({
-////                dataType: 'json',
-////                done: function (e, data) {
-////                    $.each(data.result.files, function (index, file) {
-////                        console.log(document);
-////                        $('<p/>').text(file.name).appendTo(document.body);
-////                    });
-////                }
-////            });
-//            
-//            
-////            $('#fileupload').fileupload({
-////                'onLoad': function (event, files, index, xhr, handler) {
-////                    handler.removeNode(handler.uploadRow, handler.hideProgressBarAll);
-////                    waitFor(fid,$.parseJSON(xhr.responseText));
-////    /*
-////                    var data = $.parseJSON(xhr.responseText);
-////                    var i;
-////                    for (i = 0 ; i < data.pages ; i++) {
-////                        addHead(i, data);
-////                    }
-////    */
-////                    return true;
-////                }
-////            });
-//
-//            
-//            
-//            
-//            initUpload();
-//        },
-//        function() {
-////            $('#fileupload').fileupload('destroy');
-//        });
-////    alert("onload");
-//    //pager.show("submitMedia");
-    
-    return {"init": initUpload};
+    wizard.config(['$httpProvider',
+                 'fileUploadProvider',
+                 function ($httpProvider, fileUploadProvider) {
+                    delete $httpProvider.defaults.headers.common['X-Requested-With'];
+                    fileUploadProvider.defaults.redirect = window.location.href.replace(
+                            /\/[^\/]*$/,
+                            '/cors/result.html?%s'
+                    );
+                    // Demo settings:
+                    angular.extend(fileUploadProvider.defaults, {
+                        // Enable image resizing, except for Android and Opera,
+                        // which actually support image resizing, but fail to
+                        // send Blob objects via XHR requests:
+                        disableImageResize: /Android(?!.*Chrome)|Opera/
+                            .test(window.navigator.userAgent),
+                            maxFileSize: 5000000,
+                            acceptFileTypes: /(\.|\/)(gif|jpe?g|png)$/i
+                    });
+                 }
+            ])
+        .controller('DemoFileUploadController',
+                ['$scope', '$http', '$filter', '$window',
+                 function ($scope, $http) {
+                    $scope.options = {
+                        url: url
+                    };
+                    $scope.loadingFiles = true;
+                    $http.get(url)
+                    .then(function (response) {
+                            $scope.loadingFiles = false;
+                            $scope.queue = response.data.files || [];
+                        },
+                        function () {
+                            $scope.loadingFiles = false;
+                        }
+                    );
+                }
+                ])
+           .controller('FileDestroyController',
+                   ['$scope', '$http',
+                    function ($scope, $http) {
+                       var file = $scope.file, state;
+                       if (file.url) {
+                           file.$state = function () {
+                               return state;
+                           };
+                           file.$destroy = function () {
+                               state = 'pending';
+                               return $http({
+                                   url: file.deleteUrl,
+                                   method: file.deleteType
+                               }).then(
+                                       function () {
+                                           state = 'resolved';
+                                           $scope.clear(file);
+                                       },
+                                       function () {
+                                           state = 'rejected';
+                                       }
+                               );
+                           };
+                       } else if (!file.$cancel && !file._index) {
+                           file.$cancel = function () {
+                               $scope.clear(file);
+                           };
+                       }
+                   }
+                   ]);
 })();
