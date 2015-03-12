@@ -8,6 +8,7 @@ var wildbook = {
 		'Survey',
 		'SurveyTrack',
 		'Point',
+		'MediaSubmission'
 	],
 
 	Model: {},
@@ -111,7 +112,7 @@ console.log('is %o', ajax);
 			return arr;
 
 		} else if (cls = wildbook.isModelObject(obj)) {
-console.log('cls = ' + cls);
+//console.log('cls = ' + cls);
 			if (!wildbook.Model[cls]) {
 				console.warn('looks like we dont have a Model for org.ecocean.' + cls + '; returning as plain js object');
 				return obj;

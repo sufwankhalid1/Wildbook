@@ -1,3 +1,5 @@
+<jsp:include page="headerfull.jsp" flush="true"/>
+
 <link rel="stylesheet" href="tools/jquery-ui/jquery-ui.css" id="theme">
 
 <link href="tools/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -17,7 +19,7 @@
     display: none;
 }
 </style>
-<
+
 <script src="javascript/underscore-min.js"></script>
 <script src="javascript/backbone-min.js"></script>
 <script src="javascript/core.js"></script>
@@ -25,8 +27,6 @@
 
 <!-- <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDz5Pgz2NCjFkss9AJwxqFjejPhxJrOj-M"></script> -->
 <!-- <script src="javascript/pager.js"></script> -->
-
-<jsp:include page="headerfull.jsp" flush="true"/>
 
 <script src="tools/jquery-ui/jquery-ui.js"></script>
 <script src="javascript/timepicker/jquery-ui-timepicker-addon.js"></script>
@@ -122,11 +122,11 @@
                 </div>
                 <div class="form-group">
                   <label class="control-label">Was this part of a survey? If so, please enter survey id here.</label>
-                  <input class="form-control" type="text" ng-model="media.surveyid" />
+                  <input class="form-control" type="text" ng-model="media.submissionid" />
                 </div>
               </form>
               
-              <form class="tab-pane" id="second" name="secondForm" rc-submit rc-step">
+              <form class="tab-pane" id="second" name="secondForm" rc-submit="addSubmission()" rc-step>
                 <h3>Enter second step data</h3>
                 <div class="form-group">
                   <label class="control-label">Description</label>
@@ -134,7 +134,7 @@
                 </div>
                 <div class="form-group">
                   <label class="control-label">Verbatim Location</label>
-                  <textarea rows="5" class="form-control" ng-model="media.verbatimlocation"></textarea>
+                  <textarea rows="5" class="form-control" ng-model="media.verbatimLocation"></textarea>
                 </div>
                 <!-- <div class="form-group">
                   <label class="control-label">Location</label>
@@ -253,9 +253,11 @@
 
 <script src="html/pages/submitMedia.js"></script>
 
-<!-- script>$(function() {
-    submitMedia.init();
-});</script> -->
+<script>$(function() {
+    wildbook.init(function(){
+        //submitMedia.init();
+    });
+});</script>
 
 
 

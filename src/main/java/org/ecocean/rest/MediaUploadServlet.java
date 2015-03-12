@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.jdo.PersistenceManager;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.HttpServlet;
@@ -23,8 +24,12 @@ import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.ecocean.CommonConfiguration;
+import org.ecocean.Encounter;
 import org.ecocean.ImageProcessor;
 import org.ecocean.Shepherd;
+import org.ecocean.ShepherdPMF;
+import org.ecocean.SinglePhotoVideo;
+import org.ecocean.media.MediaSubmission;
 import org.ecocean.mmutil.FileUtilities;
 import org.ecocean.servlet.ServletUtilities;
 import org.slf4j.Logger;
@@ -78,6 +83,38 @@ public class MediaUploadServlet
  
         // 4. Send resutl to client
         mapper.writeValue(response.getOutputStream(), fileset);
+        
+        
+        
+        
+//        String context="context0";
+//        context=ServletUtilities.getContext(request);
+//        Shepherd myShepherd = new Shepherd(context);
+//        myShepherd.beginDBTransaction();
+//        
+//        MediaSubmission ms = null;
+//        try {
+//            PersistenceManager pm;
+//            pm = ShepherdPMF.getPMF(context).getPersistenceManager();
+//          ms = ((MediaSubmission) (pm.getObjectById(pm.newObjectIdInstance(MediaSubmission.class, mediaid), true)));
+//        } catch (Exception nsoe) {
+//          return null;
+//        }
+//        try {  
+//            //
+//            // Try null for encounter id as this is not attached to an encounter.
+//            // Hopefully we won't need to specify it.
+//            //
+//          SinglePhotoVideo newSPV = new SinglePhotoVideo(null,(new File(fullPathFilename)));
+//          ms.getMedia().add(newSPV);
+////          ms.refreshAssetFormats(context, ServletUtilities.dataDir(context, rootWebappPath).getAbsolutePath(), newSPV, false);
+//          myShepherd.commitDBTransaction();
+//        } catch (Exception le) {
+//          myShepherd.rollbackDBTransaction();
+//          myShepherd.closeDBTransaction();
+//        } finally {
+//            myShepherd.closeDBTransaction();
+//        }
     }
     
     

@@ -24,6 +24,7 @@ var submitMedia = (function () {
             ['$scope', '$q', '$timeout',
              function ($scope, $q, $timeout) {
                 $scope.media = {"username": wildbookGlobals.username};
+                $scope.msModel = null;
                 $scope.uuid = guid();
                 
                 $scope.dateOptions = {
@@ -37,7 +38,7 @@ var submitMedia = (function () {
                 };
                 
                 $scope.getSurvey = function() {
-//                    console.log(JSON.stringify(this.media));
+                    //console.log(JSON.stringify(this.media));
                     //
                     // I guess we don't need to verify the Survey here unless we
                     // decide to do something with it.
@@ -55,6 +56,93 @@ var submitMedia = (function () {
 //                    }, 1000);
 //    
 //                    return deferred.promise;
+                };
+                
+                $scope.addSubmission = function() {
+                    function saveSubmission(media, survey) {
+                        //
+                        // TODO: Make a function on the base class that takes
+                        // an object with attributes and sets all of the values
+                        // check for ownProperty?
+                        //
+                        if (!$scope.msModel) {
+                            $scope.msModel = new wildbook.Model.MediaSubmission();
+                        }
+                        $scope.msModel.set("username", media.username);
+                        $scope.msModel.set("name", media.name);
+                        $scope.msModel.set("email", media.email);
+                        $scope.msModel.set("submissionid", media.submissionid);
+                        $scope.msModel.set("description", media.description);
+                        $scope.msModel.set("verbatimLocation", media.verbatimLocation);
+                        $scope.msModel.set("endtime", media.endtime);
+                        $scope.msModel.set("starttime", media.starttime);
+//                        $scope.msModel.set("latitude", media.latitude);
+//                        $scope.msModel.set("longitude", media.longitude);
+
+                        if (survey) {
+                            var medias = survey.get("media");
+                            
+                            //
+                            //TODO
+                            // This seems only necessary if we are attaching this as
+                            // a many-to-one relationship to survey. Maybe always
+                            // do this? But also make Base.js do this automatically?
+                            //
+                            $scope.msModel.set("class", "org.ecocean.media.MediaSubmission");
+
+                            medias.push($scope.msModel);
+                            //
+                            // Do we need to set again if pushing above?
+                            //
+//                                survey.set("media", ms);
+                            survey.save();
+                        } else {
+//                            ms.set("class", "org.ecocean.media.MediaSubmission");
+                            $scope.msModel.save();
+                        }
+                        
+//                        ms.save({"success": function() {
+//                                    attachMedia();
+//                                 },
+//                                 "error": function(jqXHR, ex) {
+//                                     console.log(ex.status + ": " + ex.statusText);
+//                                 }});
+                    }
+                    
+                    //
+                    // Fetch the survey by "ID". (We probably want to add a user-specified survey name?
+                    // If the survey exists (use a callback method to fetch({success: function(){})) then
+                    // after submitting the MediaSubmission (further use of a callback) add the mediasubmission
+                    // to the survey.
+                    //
+                    var survey = new wildbook.Model.Survey({"id": this.media.submissionid});
+                    var mediasub = this.media;
+                    survey.fetch({"success": function() {
+                                      if (mediasub.submissionid) {
+                                          saveSubmission(mediasub, survey);
+                                      } else {
+                                          //
+                                          // The user did'nt specify a submissionid which results
+                                          // in a successful return from the fetch but with no survey.
+                                          // Sigh. DataNucleus.
+                                          //
+                                          saveSubmission(mediasub);
+                                      }
+                                  },
+                                  "error": function(jqXHR, ex) {
+                                      //console.log(ex.status + ": " + ex.statusText);
+                                      
+                                      //
+                                      // NOTE: Stupidly the DataNucleus rest api throws a
+                                      // 500 error if the requested object does not exist.
+                                      // So that you can't tell what really happened.
+                                      // It will say "No such database row" if you can find the cause
+                                      // of the 500 error and you want to just do the following
+                                      // if you get that specific error. For now, I'm just going to
+                                      // assume all errors mean that it just didn't find it.
+                                      //
+                                      saveSubmission(mediasub);
+                                  }});
                 };
   
                 $scope.completeWizard = function() {

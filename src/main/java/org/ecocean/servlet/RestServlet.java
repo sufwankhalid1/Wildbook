@@ -507,8 +507,8 @@ public class RestServlet extends HttpServlet
 						boolean restAccessOk = restAccessCheck(pc, req, jsonobj);
 						//boolean restAccessOk = false;  //TEMPORARILY disable ALL access to POST/PUT until we really test things  TODO
 
-System.out.println(jsonobj);
-System.out.println("+++++");
+//System.out.println(jsonobj);
+//System.out.println("+++++");
 
 /*
 						Method restAccess = null;
@@ -823,26 +823,26 @@ System.out.println("got Exception trying to invoke restAccess: " + ex.toString()
     }
 
 		boolean restAccessCheck(Object obj, HttpServletRequest req, JSONObject jsonobj) {
-System.out.println(jsonobj.toString());
-System.out.println(obj);
-System.out.println(obj.getClass());
+//System.out.println(jsonobj.toString());
+//System.out.println(obj);
+//System.out.println(obj.getClass());
 			boolean ok = true;
 			Method restAccess = null;
 			try {
 				restAccess = obj.getClass().getMethod("restAccess", new Class[] { HttpServletRequest.class, JSONObject.class });
 			} catch (NoSuchMethodException nsm) {
-System.out.println("no such method??????????");
+//System.out.println("no such method??????????");
 				//nothing to do
 			}
 			if (restAccess == null) return true;  //if method doesnt exist, counts as good
 
-System.out.println("<<<<<<<<<< we have restAccess() on our object.... invoking!\n");
+//System.out.println("<<<<<<<<<< we have restAccess() on our object.... invoking!\n");
 			//when .restAccess() is called, it should throw an exception to signal not allowed
 			try {
 				restAccess.invoke(obj, req, jsonobj);
 			} catch (Exception ex) {
 				ok = false;
-System.out.println("got Exception trying to invoke restAccess: " + ex.toString());
+//System.out.println("got Exception trying to invoke restAccess: " + ex.toString());
 			}
 			return ok;
 		}
