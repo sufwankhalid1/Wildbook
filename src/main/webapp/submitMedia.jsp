@@ -7,12 +7,13 @@
 <link rel="stylesheet" href="//blueimp.github.io/Gallery/css/blueimp-gallery.min.css">
 <link rel="stylesheet" href="tools/jquery-fileupload/css/jquery.fileupload.css">
 <link rel="stylesheet" href="tools/jquery-fileupload/css/jquery.fileupload-ui.css">
-<!-- Default fonts for jquery-ui are too big -->
+<!-- Default fonts for jquery-ui are too big
 <style>
 .ui-widget {
     font-size:90%;
 }
-</style>
+</style> -->
+
 <style>
 /* Hide Angular JS elements before initializing */
 .ng-cloak {

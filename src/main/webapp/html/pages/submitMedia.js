@@ -31,14 +31,16 @@ var submitMedia = (function () {
                         changeMonth: true,
                         changeYear: true,
                         dateFormat: 'yy-mm-dd',
-                        showTime: true};
+//                        dateFormat: '@',
+                        showTime: true,
+                        defaultDate: null};
                 
                 $scope.isLoggedIn = function() {
                     return (this.media.username);
                 };
                 
                 $scope.getSurvey = function() {
-                    //console.log(JSON.stringify(this.media));
+                    console.log(JSON.stringify(this.media));
                     //
                     // I guess we don't need to verify the Survey here unless we
                     // decide to do something with it.
@@ -74,8 +76,16 @@ var submitMedia = (function () {
                         $scope.msModel.set("submissionid", media.submissionid);
                         $scope.msModel.set("description", media.description);
                         $scope.msModel.set("verbatimLocation", media.verbatimLocation);
-                        $scope.msModel.set("endtime", media.endtime);
-                        $scope.msModel.set("starttime", media.starttime);
+                        if (media.endtime) {
+                            $scope.msModel.set("endtime", new Date(media.endtime).getTime());
+                        } else {
+                            $scope.msModel.set("endtime", null);
+                        }
+                        if (media.starttime) {
+                            $scope.msModel.set("starttime", new Date(media.starttime).getTime());
+                        } else {
+                            $scope.msModel.set("starttime", null);
+                        }
 //                        $scope.msModel.set("latitude", media.latitude);
 //                        $scope.msModel.set("longitude", media.longitude);
 
