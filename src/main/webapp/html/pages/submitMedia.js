@@ -7,6 +7,7 @@
 
 var submitMedia = (function () {
     'use strict';
+//    var smms;
     
     function guid() {
         function s4() {
@@ -18,12 +19,31 @@ var submitMedia = (function () {
           s4() + '-' + s4() + s4() + s4();
     }
     
+    //
+    // With the datetimepicker add-on the defaultDate: null option doesn't work
+    // and I can't for the life of me figure it out. What happens is that it instead
+    // defaults to the current date with 00:00 time. So I just check if that is
+    // what the string is I then assume that the user did not enter a date.  If
+    // someone does choose the current date at midnight then this will be a problem.
+    // Let's hope they don't?
+    //
+    function isNullDate(dateString) {
+        var date = new Date();
+        var year = date.getFullYear();
+        var month = (1 + date.getMonth()).toString();
+        month = month.length > 1 ? month : '0' + month;
+        var day = date.getDate().toString();
+        day = day.length > 1 ? day : '0' + day;
+        return (year + '-' + month + '-' + day + ' 00:00' === dateString);
+      }
+    
     var wizard = angular.module('MediaSubmissionWizard',
                                 ['rcWizard', 'rcForm', 'rcDisabledBootstrap', 'ui.date', 'blueimp.fileupload']);
     wizard.controller('MediaSubmissionController',
             ['$scope', '$q', '$timeout',
              function ($scope, $q, $timeout) {
-                $scope.media = {"username": wildbookGlobals.username};
+//                smms = $scope;
+                $scope.media = {"username": wildbookGlobals.username, "endTime": null, "startTime": null};
                 $scope.msModel = null;
                 $scope.uuid = guid();
                 
@@ -76,12 +96,12 @@ var submitMedia = (function () {
                         $scope.msModel.set("submissionid", media.submissionid);
                         $scope.msModel.set("description", media.description);
                         $scope.msModel.set("verbatimLocation", media.verbatimLocation);
-                        if (media.endTime) {
+                        if (media.endTime && ! isNullDate(media.endTime)) {
                             $scope.msModel.set("endTime", new Date(media.endTime).getTime());
                         } else {
                             $scope.msModel.set("endTime", null);
                         }
-                        if (media.startTime) {
+                        if (media.startTime && ! isNullDate(media.startTime)) {
                             $scope.msModel.set("startTime", new Date(media.startTime).getTime());
                         } else {
                             $scope.msModel.set("startTime", null);
@@ -158,6 +178,11 @@ var submitMedia = (function () {
                 $scope.completeWizard = function() {
                     alert('Completed!');
                 };
+                
+//                $scope.$watch("media.startTime", function(newValue, oldValue) {
+//                    console.log("startTime changed from [" + oldValue + "] to [" + newValue + "]");
+//                    console.log(new Error().stack);
+//                });
             }]);
 
     var url = "mediaupload";
@@ -230,4 +255,8 @@ var submitMedia = (function () {
                        }
                    }
                    ]);
+//    
+//    return {"log": function() {
+//        console.log(JSON.stringify(smms.media));
+//    }};
 })();
