@@ -76,15 +76,15 @@ var submitMedia = (function () {
                         $scope.msModel.set("submissionid", media.submissionid);
                         $scope.msModel.set("description", media.description);
                         $scope.msModel.set("verbatimLocation", media.verbatimLocation);
-                        if (media.endtime) {
-                            $scope.msModel.set("endtime", new Date(media.endtime).getTime());
+                        if (media.endTime) {
+                            $scope.msModel.set("endTime", new Date(media.endTime).getTime());
                         } else {
-                            $scope.msModel.set("endtime", null);
+                            $scope.msModel.set("endTime", null);
                         }
-                        if (media.starttime) {
-                            $scope.msModel.set("starttime", new Date(media.starttime).getTime());
+                        if (media.startTime) {
+                            $scope.msModel.set("startTime", new Date(media.startTime).getTime());
                         } else {
-                            $scope.msModel.set("starttime", null);
+                            $scope.msModel.set("startTime", null);
                         }
 //                        $scope.msModel.set("latitude", media.latitude);
 //                        $scope.msModel.set("longitude", media.longitude);

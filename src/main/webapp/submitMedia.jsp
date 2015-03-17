@@ -146,13 +146,13 @@
                   <div class="col-xs-6">
                         <div class="form-group">
                           <label class="control-label">Start Time</label>
-                          <input ui-date="dateOptions" ng-model="media.starttime"/>
+                          <input ui-date="dateOptions" ng-model="media.startTime"/>
                         </div>
                   </div>
                   <div class="col-xs-6">
                         <div class="form-group">
                           <label class="control-label">End Time</label>
-                          <input ui-date="dateOptions" ng-model="media.endtime"/>
+                          <input ui-date="dateOptions" ng-model="media.endTime"/>
                         </div>
                   </div>
                 </div>
