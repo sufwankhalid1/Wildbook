@@ -110,16 +110,20 @@ var submitMedia = (function () {
 //                        $scope.msModel.set("longitude", media.longitude);
 
                         if (survey) {
-                            var medias = survey.get("media");
-                            
                             //
                             //TODO
-                            // This seems only necessary if we are attaching this as
+                            // This seems only necessary (check this) if we are attaching this as
                             // a many-to-one relationship to survey. Maybe always
                             // do this? But also make Base.js do this automatically?
                             //
                             $scope.msModel.set("class", "org.ecocean.media.MediaSubmission");
-
+                            
+                            var medias = survey.get("media");
+                            
+                            if (!medias) {
+                                medias = [];
+                                survey.set("media", medias);
+                            }
                             medias.push($scope.msModel);
                             //
                             // Do we need to set again if pushing above?
