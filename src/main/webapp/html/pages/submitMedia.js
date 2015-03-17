@@ -111,8 +111,7 @@ var submitMedia = (function () {
 
                         if (survey) {
                             //
-                            //TODO
-                            // This seems only necessary (check this) if we are attaching this as
+                            // This is necessary if we are attaching this as
                             // a many-to-one relationship to survey. Maybe always
                             // do this? But also make Base.js do this automatically?
                             //
