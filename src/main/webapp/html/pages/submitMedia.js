@@ -81,101 +81,90 @@ var submitMedia = (function () {
                 };
                 
                 $scope.addSubmission = function() {
-                    function saveSubmission(media, survey) {
-                        //
-                        // TODO: Make a function on the base class that takes
-                        // an object with attributes and sets all of the values
-                        // check for ownProperty?
-                        //
-                        if (!$scope.msModel) {
-                            $scope.msModel = new wildbook.Model.MediaSubmission();
-                        }
-                        $scope.msModel.set("username", media.username);
-                        $scope.msModel.set("name", media.name);
-                        $scope.msModel.set("email", media.email);
-                        $scope.msModel.set("submissionid", media.submissionid);
-                        $scope.msModel.set("description", media.description);
-                        $scope.msModel.set("verbatimLocation", media.verbatimLocation);
-                        if (media.endTime && ! isNullDate(media.endTime)) {
-                            $scope.msModel.set("endTime", new Date(media.endTime).getTime());
-                        } else {
-                            $scope.msModel.set("endTime", null);
-                        }
-                        if (media.startTime && ! isNullDate(media.startTime)) {
-                            $scope.msModel.set("startTime", new Date(media.startTime).getTime());
-                        } else {
-                            $scope.msModel.set("startTime", null);
-                        }
+                    var media = this.media;
+                    var mediasub = this.media;
+
+                    //
+                    // TODO: Make a function on the base class that takes
+                    // an object with attributes and sets all of the values
+                    // check for ownProperty?
+                    //
+                    if (!$scope.msModel) {
+                        $scope.msModel = new wildbook.Model.MediaSubmission();
+                    }
+//                    $scope.msModel.set("username", media.username);
+//                    $scope.msModel.set("name", media.name);
+//                    $scope.msModel.set("email", media.email);
+//                    $scope.msModel.set("submissionid", media.submissionid);
+//                    $scope.msModel.set("description", media.description);
+//                    $scope.msModel.set("verbatimLocation", media.verbatimLocation);
+                    if (media.endTime && ! isNullDate(media.endTime)) {
+//                        $scope.msModel.set("endTime", new Date(media.endTime).getTime());
+                        media.endTime = new Date(media.endTime).getTime();
+                    } else {
+//                        $scope.msModel.set("endTime", null);
+                        media.endTime = null;
+                    }
+                    if (media.startTime && ! isNullDate(media.startTime)) {
+//                        $scope.msModel.set("startTime", new Date(media.startTime).getTime());
+                        media.startTime = new Date(media.startTime).getTime();
+                    } else {
+//                        $scope.msModel.set("startTime", null);
+                        media.startTime = null;
+                    }
 //                        $scope.msModel.set("latitude", media.latitude);
 //                        $scope.msModel.set("longitude", media.longitude);
 
-                        if (survey) {
-                            //
-                            // This is necessary if we are attaching this as
-                            // a many-to-one relationship to survey. Maybe always
-                            // do this? But also make Base.js do this automatically?
-                            //
-                            $scope.msModel.set("class", "org.ecocean.media.MediaSubmission");
-                            
-                            var medias = survey.get("media");
-                            
-                            if (!medias) {
-                                medias = [];
-                                survey.set("media", medias);
-                            }
-                            medias.push($scope.msModel);
-                            //
-                            // Do we need to set again if pushing above?
-                            //
-//                                survey.set("media", ms);
-                            survey.save();
-                        } else {
-//                            ms.set("class", "org.ecocean.media.MediaSubmission");
-                            $scope.msModel.save();
+                    $scope.msModel.save(media, {"success": function(result) {
+                        if (!media.submissionid) {
+                            return;
                         }
                         
-//                        ms.save({"success": function() {
-//                                    attachMedia();
-//                                 },
-//                                 "error": function(jqXHR, ex) {
-//                                     console.log(ex.status + ": " + ex.statusText);
-//                                 }});
-                    }
-                    
-                    //
-                    // Fetch the survey by "ID". (We probably want to add a user-specified survey name?
-                    // If the survey exists (use a callback method to fetch({success: function(){})) then
-                    // after submitting the MediaSubmission (further use of a callback) add the mediasubmission
-                    // to the survey.
-                    //
-                    var survey = new wildbook.Model.Survey({"id": this.media.submissionid});
-                    var mediasub = this.media;
-                    survey.fetch({"success": function() {
-                                      if (mediasub.submissionid) {
-                                          saveSubmission(mediasub, survey);
-                                      } else {
-                                          //
-                                          // The user did'nt specify a submissionid which results
-                                          // in a successful return from the fetch but with no survey.
-                                          // Sigh. DataNucleus.
-                                          //
-                                          saveSubmission(mediasub);
-                                      }
-                                  },
-                                  "error": function(jqXHR, ex) {
-                                      //console.log(ex.status + ": " + ex.statusText);
-                                      
-                                      //
-                                      // NOTE: Stupidly the DataNucleus rest api throws a
-                                      // 500 error if the requested object does not exist.
-                                      // So that you can't tell what really happened.
-                                      // It will say "No such database row" if you can find the cause
-                                      // of the 500 error and you want to just do the following
-                                      // if you get that specific error. For now, I'm just going to
-                                      // assume all errors mean that it just didn't find it.
-                                      //
-                                      saveSubmission(mediasub);
-                                  }});
+                        var ms = result;
+                        var query = new wildbook.Collection.Surveys();
+                        query.fetch({
+                            "fields": {"surveyId": media.submissionid},
+                            "success": function(data) {
+                                var survey;
+                                if (!data.models.length) {
+                                    //
+                                    // No survey found.
+                                    //
+//                                    return;
+                                    survey = new wildbook.Model.Survey({"surveyId": media.submissionid});
+                                } else {
+                                    //
+                                    // Just pick first for now. We should probably have a unique
+                                    // index on surveyId so that you can only get one anyway.
+                                    //
+                                    survey = data.models[0];
+                                }
+                                
+//                                //
+//                                // This is necessary if we are attaching this as
+//                                // a many-to-one relationship to survey. Maybe always
+//                                // do this? But also make Base.js do this automatically?
+//                                //
+//                                $scope.msModel.set("class", "org.ecocean.media.MediaSubmission");
+                                    
+                                var medias = survey.get("media");
+                                    
+                                if (!medias) {
+                                    medias = [];
+                                }
+//                                medias.push($scope.msModel.attributes);
+                                medias.push(ms.attributes);
+                                survey.set("media", medias);
+                                
+                                survey.save();
+                            },
+                            "error": function(jqXHR, ex) {
+                                console.log(ex.status + ": " + ex.statusText);
+                            }});
+                    },
+                    "error": function(jqXHR, ex) {
+                        console.log(ex.status + ": " + ex.statusText);
+                    }});
                 };
   
                 $scope.completeWizard = function() {

@@ -6,29 +6,39 @@ import org.ecocean.media.MediaSubmission;
 
 
 public class Survey {
-  private long id;
-  private Double effort;
-  private String organization;
-  private String comments;
-  private String name;
-  private Long startTime;
-  private Long endTime;
-  private String type;
-  private List<SurveyTrack> tracks;
-  private List<MediaSubmission> media;
+//    private long id;
+    private String surveyId;
+    private Double effort;
+    private String organization;
+    private String comments;
+    private String name;
+    private Long startTime;
+    private Long endTime;
+    private String type;
+    private List<SurveyTrack> tracks;
+    private List<MediaSubmission> media;
 
 
-  public long getId() {
-    return id;
-  }
+//    public long getId() {
+//      return id;
+//    }
+//  
+//    public void setId(long id) {
+//      this.id = id;
+//    }
   
-  public void setId(long id) {
-    this.id = id;
-  }
   
-  public Double getEffort() {
-    return effort;
-  }
+    public String getSurveyId() {
+        return surveyId;
+    }
+    
+    public void setSurveyId(final String surveyId) {
+        this.surveyId = surveyId;
+    }
+    
+    public Double getEffort() {
+        return effort;
+    }
   
   public void setEffort(Double effort) {
     this.effort = effort;
