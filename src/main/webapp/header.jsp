@@ -416,6 +416,7 @@
 
         
 <script type="text/javascript">
+$(document).ready(function() {
     $( "#context" ).change(function() {
         //alert( "Handler for .change() called with new value: "+$( "#context option:selected" ).text() +" with value "+ $( "#context option:selected").val());
         $.cookie("wildbookContext", $( "#context option:selected").val(), {
@@ -428,6 +429,7 @@
             //alert("I have set the wildbookContext cookie to value: "+$.cookie("wildbookContext"));
         location.reload(true);
     });
+});
 </script>
 
 <script type="text/javascript"  src="<%=requestURL %>/JavascriptGlobals.js"></script>
