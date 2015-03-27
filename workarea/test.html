@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>test</title>
+
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script type="text/javascript"  src="../JavascriptGlobals.js"></script>
+
+<script src="../javascript/underscore-min.js"></script>
+<script src="../javascript/backbone-min.js"></script>
+<script src="../javascript/core.js"></script>
+<script src="../javascript/classes/Base.js"></script>
+
+<link rel="stylesheet" href="../javascript/tablesorter/themes/blue/style.css" type="text/css" media="print, projection, screen" />
+
+<link rel="stylesheet" href="../css/pageableTable.css" />
+
+<link rel="stylesheet" href="test.css" />
+
+<script src="../javascript/tsrt.js"></script>
+
+
+
+
+<script src="backbone.dualstorage.js"></script>
+<script src="new.js"></script>
+
+
+<script type="text/javascript">
+
+
+Backbone.DualStorage.offlineStatusCodes = function(xhr) {
+    var codes = [];
+
+console.warn('forcing offline; xhr.status is %o', xhr.status);
+        codes.push(xhr.status);
+
+    return codes;
+}
+
+
+$(document).ready( function() { wildbook.pageInit(thisPageIsReady); });
+
+
+
+function thisPageIsReady() {
+	console.info('page is ready, now we can get on with it.');
+}
+
+
+</script>
+
+</head>
+<body>
+
+<div id="main"></div>
+
+</body>
+</html>
