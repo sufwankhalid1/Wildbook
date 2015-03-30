@@ -114,6 +114,10 @@ String langCode=ServletUtilities.getLanguageCode(request);
 
     -->
   </style>
+  
+  
+
+  
 </head>
 
 <body>
@@ -145,6 +149,16 @@ String showContext="My ";
 if(request.getParameter("showAll")==null){
 %>
 <p class="caption">Your scanTasks are shown below. Click <b>Show All scanTasks</b> to see all of the tasks in the grid for all users.</p>
+
+<p class="caption">Refreshing results in <span id="countdown"></span> seconds.</p>
+  <script type="text/javascript">
+  (function countdown(remaining) {
+	    if(remaining === 0)
+	        location.reload(true);
+	    document.getElementById('countdown').innerHTML = remaining;
+	    setTimeout(function(){ countdown(remaining - 1); }, 1000);
+	})(30);
+  </script>
 
 <p>
 	<a style="cursor:pointer;color: blue" class="caption" href="scanTaskAdmin.jsp?showAll=true">Show All scanTasks</a>
@@ -198,11 +212,12 @@ else{
 
         
         
-   
+   String styleString="";
+   if((request.getParameter("task")!=null)&&(st.getUniqueNumber().equals(request.getParameter("task")))){styleString="background-color: #66CCFF;border-collapse:collapse;";}
         
   %>
-  <tr>
-    <td><%=scanNum%>. <%=st.getUniqueNumber()%>
+  <tr id="<%=st.getUniqueNumber()%>" >
+    <td style="<%=styleString %>"><%=scanNum%>. <%=st.getUniqueNumber()%>
     </td>
     <td><%=st.getSubmitter()%>
     </td>
@@ -307,11 +322,14 @@ else{
         }
 
         scanNum++;
+        
+        String styleString="";
+        if((request.getParameter("task")!=null)&&(st.getUniqueNumber().equals(request.getParameter("task")))){styleString="background-color: #66CCFF;border-collapse:collapse;";}
+             
+       %>
+       <tr id="<%=st.getUniqueNumber()%>" >
 
-  %>
-  <tr>
-
-    <td><%=st.getUniqueNumber()%>
+    <td style="<%=styleString %>"><%=st.getUniqueNumber()%>
     </td>
     <td><%=st.getSubmitter()%>
     </td>
