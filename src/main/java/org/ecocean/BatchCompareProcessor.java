@@ -192,12 +192,16 @@ System.out.println("using ALL individuals");
 System.out.println("using FILTERED individuals, see: " + fullpath + "-in.txt");
 				String intxt = fullpath + "\n";
 				String filterString = "";
-				if (pcat.get(0).equals("2")) {
-					filterString = "(patterningCode.startsWith(\"2\") || patterningCode.startsWith(\"3\"))";
+				if (pcat.get(0).equals("1")) {
+					filterString = "(patterningCode.startsWith(\"1\") || patterningCode.startsWith(\"2\"))";
+				} else if (pcat.get(0).equals("2")) {
+					filterString = "(patterningCode.startsWith(\"1\") || patterningCode.startsWith(\"2\") || patterningCode.startsWith(\"3\"))";
 				} else if (pcat.get(0).equals("3")) {
 					filterString = "(patterningCode.startsWith(\"2\") || patterningCode.startsWith(\"3\") || patterningCode.startsWith(\"4\"))";
 				} else if (pcat.get(0).equals("4")) {
 					filterString = "(patterningCode.startsWith(\"3\") || patterningCode.startsWith(\"4\") || patterningCode.startsWith(\"5\"))";
+				} else if (pcat.get(0).equals("5")) {
+					filterString = "(patterningCode.startsWith(\"4\") || patterningCode.startsWith(\"5\"))";
 				}
 System.out.println("filterString = " + filterString);
 

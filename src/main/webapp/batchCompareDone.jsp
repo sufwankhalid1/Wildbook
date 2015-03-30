@@ -494,7 +494,7 @@ batchData = <%=json%>;
 console.log('batchData %o', batchData);
 var f = $('<form action="BatchCompare?batchID=' + batchID + '" method="POST">');
 for (var i = 0 ; i < batchData.images.length ; i++) {
-	f.append('<div class="img-filter-div"><img src="' + batchDir + '/' + batchData.images[i] + '" /><span>' + batchData.images[i] + '</span><select name="img-' + i + '-category"><option value="">any category</option><option>2</option><option>3</option><option>4</option></select></div>');
+	f.append('<div class="img-filter-div"><img src="' + batchDir + '/' + batchData.images[i] + '" /><span>' + batchData.images[i] + '</span><select name="img-' + i + '-category"><option value="">any category</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>');
 }
 f.append('<p><input type="submit" value="find matches" /></p></form>');
 $('#results-div').append(f);
