@@ -9,15 +9,15 @@ var submitMedia = (function () {
     'use strict';
 //    var smms;
     
-    function guid() {
-        function s4() {
-          return Math.floor((1 + Math.random()) * 0x10000)
-            .toString(16)
-            .substring(1);
-        }
-        return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-          s4() + '-' + s4() + s4() + s4();
-    }
+//    function guid() {
+//        function s4() {
+//          return Math.floor((1 + Math.random()) * 0x10000)
+//            .toString(16)
+//            .substring(1);
+//        }
+//        return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+//          s4() + '-' + s4() + s4() + s4();
+//    }
     
     //
     // With the datetimepicker add-on the defaultDate: null option doesn't work
@@ -44,8 +44,8 @@ var submitMedia = (function () {
              function ($scope, $q, $timeout) {
 //                smms = $scope;
                 $scope.media = {"username": wildbookGlobals.username, "endTime": null, "startTime": null};
-                $scope.msModel = null;
-                $scope.uuid = guid();
+//                $scope.msModel = null;
+//                $scope.uuid = guid();
                 
                 $scope.dateOptions = {
                         changeMonth: true,
@@ -60,7 +60,7 @@ var submitMedia = (function () {
                 };
                 
                 $scope.getSurvey = function() {
-                    console.log(JSON.stringify(this.media));
+//                    console.log(JSON.stringify(this.media));
                     //
                     // I guess we don't need to verify the Survey here unless we
                     // decide to do something with it.
@@ -81,90 +81,75 @@ var submitMedia = (function () {
                 };
                 
                 $scope.addSubmission = function() {
-                    var media = this.media;
-                    var mediasub = this.media;
-
-                    //
-                    // TODO: Make a function on the base class that takes
-                    // an object with attributes and sets all of the values
-                    // check for ownProperty?
-                    //
-                    if (!$scope.msModel) {
-                        $scope.msModel = new wildbook.Model.MediaSubmission();
-                    }
-//                    $scope.msModel.set("username", media.username);
-//                    $scope.msModel.set("name", media.name);
-//                    $scope.msModel.set("email", media.email);
-//                    $scope.msModel.set("submissionid", media.submissionid);
-//                    $scope.msModel.set("description", media.description);
-//                    $scope.msModel.set("verbatimLocation", media.verbatimLocation);
-                    if (media.endTime && ! isNullDate(media.endTime)) {
-//                        $scope.msModel.set("endTime", new Date(media.endTime).getTime());
-                        media.endTime = new Date(media.endTime).getTime();
+//                    //
+//                    // TODO: Make a function on the base class that takes
+//                    // an object with attributes and sets all of the values
+//                    // check for ownProperty?
+//                    //
+//                    if (!$scope.msModel) {
+//                        $scope.msModel = new wildbook.Model.MediaSubmission();
+//                    }
+                    if (this.media.endTime && ! isNullDate(this.media.endTime)) {
+                        this.media.endTime = new Date(this.media.endTime).getTime();
                     } else {
-//                        $scope.msModel.set("endTime", null);
-                        media.endTime = null;
+                        this.media.endTime = null;
                     }
-                    if (media.startTime && ! isNullDate(media.startTime)) {
-//                        $scope.msModel.set("startTime", new Date(media.startTime).getTime());
-                        media.startTime = new Date(media.startTime).getTime();
+                    if (this.media.startTime && ! isNullDate(this.media.startTime)) {
+                        this.media.startTime = new Date(this.media.startTime).getTime();
                     } else {
-//                        $scope.msModel.set("startTime", null);
-                        media.startTime = null;
+                        this.media.startTime = null;
                     }
 //                        $scope.msModel.set("latitude", media.latitude);
 //                        $scope.msModel.set("longitude", media.longitude);
-
-                    $scope.msModel.save(media, {"success": function(result) {
-                        if (!media.submissionid) {
-                            return;
-                        }
-                        
-                        var ms = result;
-                        var query = new wildbook.Collection.Surveys();
-                        query.fetch({
-                            "fields": {"surveyId": media.submissionid},
-                            "success": function(data) {
-                                var survey;
-                                if (!data.models.length) {
-                                    //
-                                    // No survey found.
-                                    //
-//                                    return;
-                                    survey = new wildbook.Model.Survey({"surveyId": media.submissionid});
-                                } else {
-                                    //
-                                    // Just pick first for now. We should probably have a unique
-                                    // index on surveyId so that you can only get one anyway.
-                                    //
-                                    survey = data.models[0];
-                                }
-                                
-//                                //
-//                                // This is necessary if we are attaching this as
-//                                // a many-to-one relationship to survey. Maybe always
-//                                // do this? But also make Base.js do this automatically?
-//                                //
-//                                $scope.msModel.set("class", "org.ecocean.media.MediaSubmission");
-                                    
-                                var medias = survey.get("media");
-                                    
-                                if (!medias) {
-                                    medias = [];
-                                }
-//                                medias.push($scope.msModel.attributes);
-                                medias.push(ms.attributes);
-                                survey.set("media", medias);
-                                
-                                survey.save();
-                            },
-                            "error": function(jqXHR, ex) {
-                                console.log(ex.status + ": " + ex.statusText);
-                            }});
-                    },
-                    "error": function(jqXHR, ex) {
-                        console.log(ex.status + ": " + ex.statusText);
-                    }});
+                    
+                    var media = this.media;
+                    $.post("obj/mediasubmission/save", this.media)
+                        .success(function(data) {
+                            media.id = data;
+                         });
+                    
+                    //
+                    // When I use this to save the media it comes across as
+                    // all nulls even though the network traffic seems to look fine.
+                    // Weird.
+                    //
+//                    $scope.msModel.save(media, {"success": function(result) {
+////                        if (!media.submissionid) {
+////                            return;
+////                        }
+////                        var ms = result;
+////                        var query = new wildbook.Collection.Surveys();
+////                        query.fetch({
+////                            "fields": {"surveyId": media.submissionid},
+////                            "success": function(data) {
+////                                var survey;
+////                                if (!data.models.length) {
+////                                    //
+////                                    // No survey found.
+////                                    //
+////                                    return;
+////                                    // for testing
+////                                    //survey = new wildbook.Model.Survey({"surveyId": media.submissionid});
+////                                } else {
+////                                    //
+////                                    // Just pick first for now. We should probably have a unique
+////                                    // index on surveyId so that you can only get one anyway.
+////                                    //
+////                                    survey = data.models[0];
+////                                }
+////                                
+////                                if (!medias) {
+////                                    medias = [];
+////                                }
+////                                medias.push(ms.attributes);
+////                                survey.set("media", medias);
+////                                
+////                                survey.save();
+//                        alert("ID = " + $scope.msModel.get("id"));
+//                    },
+//                    "error": function(jqXHR, ex) {
+//                        console.log(ex.status + ": " + ex.statusText);
+//                    }});
                 };
   
                 $scope.completeWizard = function() {

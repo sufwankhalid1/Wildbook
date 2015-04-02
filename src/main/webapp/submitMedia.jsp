@@ -74,6 +74,30 @@
 <script src="tools/jquery-fileupload/javascript/jquery.fileupload-angular.js"></script>
 <!-- ******* END FileUpload scripts ******* -->
 
+<%
+/*
+    org.ecocean.survey.Survey survey = new org.ecocean.survey.Survey();
+    survey.setComments("testing");
+    survey.setEndTime(42l);
+*/
+/*     java.util.List<org.ecocean.survey.SurveyTrack> tracks = new java.util.ArrayList<org.ecocean.survey.SurveyTrack>();
+    org.ecocean.survey.SurveyTrack track = new org.ecocean.survey.SurveyTrack();
+    track.setName("bob");
+    tracks.add(track);
+    survey.setTracks(tracks);
+ */
+ /*
+ org.ecocean.Encounter encounter = new org.ecocean.Encounter();
+ encounter.setComments("testing");
+ encounter.setDay(42);
+
+    String context=org.ecocean.servlet.ServletUtilities.getContext(request);
+    org.ecocean.Shepherd myShepherd = new org.ecocean.Shepherd(context);
+
+    myShepherd.getPM().makePersistent(encounter);
+*/
+%>
+
 <!-- <div id="media-startdatepicker2" class="form-control"></div>  -->
 
 <div ng-app="MediaSubmissionWizard">
@@ -164,7 +188,7 @@
                 <!-- Redirect browsers with JavaScript disabled to the origin page -->
                 <noscript><input type="hidden" name="redirect" value="https://blueimp.github.io/jQuery-File-Upload/"></noscript>
                 <!-- The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload -->
-                <input name="uuid" type="hidden" ng-model="media.uuid"/>
+                <input name="id" type="hidden" ng-model="media.id"/>
                 <div class="row fileupload-buttonbar">
                     <div class="col-lg-8">
                         <!-- The fileinput-button span is used to style the file input field as button -->

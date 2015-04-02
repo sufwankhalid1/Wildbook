@@ -23,9 +23,12 @@ import javax.jdo.JDOException;
 import javax.jdo.JDOHelper;
 import javax.jdo.PersistenceManagerFactory;
 
+import com.samsix.database.ConnectionInfo;
+import com.samsix.util.io.ResourceReader;
+import com.samsix.util.io.ResourceReaderImpl;
+
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Properties;
 
@@ -38,6 +41,20 @@ public class ShepherdPMF {
   //private static String currentContext="context0";
   private static TreeMap<String,PersistenceManagerFactory> pmfs=new TreeMap<String,PersistenceManagerFactory>();
 
+  private static ConnectionInfo connectionInfo;
+  
+  public synchronized static ConnectionInfo getConnectionInfo() {
+      if (connectionInfo != null) {
+          return connectionInfo;
+      }
+          
+//          InputStream inputStream=ShepherdPMF.class.getResourceAsStream("/bundles/s6db.config");
+      ResourceReader reader = new ResourceReaderImpl("bundles.s6db");
+      connectionInfo = ConnectionInfo.valueOf(reader, "Primary");
+
+      return connectionInfo;   
+  }
+  
 
   public synchronized static PersistenceManagerFactory getPMF(String context) {
     //public static PersistenceManagerFactory getPMF(String dbLocation) {

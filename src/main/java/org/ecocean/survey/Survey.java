@@ -2,6 +2,7 @@ package org.ecocean.survey;
 
 import java.util.List;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.ecocean.media.MediaSubmission;
 
 
@@ -106,5 +107,11 @@ public class Survey {
 
   public void setMedia(List<MediaSubmission> media) {
     this.media = media;
+  }
+  
+  @Override
+  public String toString()
+  {
+     return ToStringBuilder.reflectionToString(this);
   }
 }

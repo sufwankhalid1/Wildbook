@@ -3,10 +3,11 @@ package org.ecocean.media;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.ecocean.SinglePhotoVideo;
 
 public class MediaSubmission {
-  private long id;
+  private Long id;
 
   //
   // Either username is not null and name/email are null
@@ -33,11 +34,11 @@ public class MediaSubmission {
   private String submissionid;
 
   
-  public long getId() {
+  public Long getId() {
     return id;
   }
 
-  public void setId(long id) {
+  public void setId(Long id) {
     this.id = id;
   }
 
@@ -135,5 +136,11 @@ public class MediaSubmission {
 
   public void setSubmissionid(String submissionid) {
     this.submissionid = submissionid;
+  }
+  
+  @Override
+  public String toString()
+  {
+     return ToStringBuilder.reflectionToString(this);
   }
 }

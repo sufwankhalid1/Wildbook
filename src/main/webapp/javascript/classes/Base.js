@@ -68,7 +68,7 @@ wildbook.Model.BaseClass = Backbone.Model.extend({
 		return true;
 	},
 
-	_defaultValueFor: function() { return '' },
+	_defaultValueFor: function() { return ''; },
 
 });
 
