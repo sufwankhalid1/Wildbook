@@ -12,7 +12,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <datanucleus.version>4.0.3</datanucleus.version>
+    <datanucleus.version>4.1.0-m2</datanucleus.version>
 
     <datanucleus.lib.scope>compile</datanucleus.lib.scope>
 
@@ -200,28 +200,25 @@
 	
 	<!-- START Rest Service -->
 	<!-- Spring magically passes things through jackson if it sees it on the classpath -->
-    <!-- <dependency>
+    <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-databind</artifactId>
         <version>2.4.4</version>
-    </dependency> -->
+    </dependency>
 
-<!--
     <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-web</artifactId>
         <version>1.2.1.RELEASE</version>
     </dependency>
--->
     
-<!--
     <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-tomcat</artifactId>
         <version>1.2.1.RELEASE</version>
         <scope>provided</scope>
     </dependency>
--->
+
 
     <!-- scope = provided, build a war file that is both executable and deployable into an external container -->
     <!-- END Rest Service -->
@@ -260,7 +257,7 @@
 	<dependency>
 		<groupId>org.datanucleus</groupId>
 		<artifactId>datanucleus-jdo-query</artifactId>
-		<version>${datanucleus.version}</version>
+		<version>4.0.4</version> <!-- latest version available when I upgraded to 4.1.0-m2 -->
 	</dependency>
 	
 	<dependency>
@@ -394,6 +391,12 @@
        <groupId>org.slf4j</groupId>
        <artifactId>slf4j-api</artifactId>
        <version>1.6.1</version>
+    </dependency>
+    
+    <dependency>
+       <groupId>com.samsix</groupId>
+       <artifactId>s6-db</artifactId>
+       <version>1.0.2-SNAPSHOT</version>
     </dependency>
     
   </dependencies>

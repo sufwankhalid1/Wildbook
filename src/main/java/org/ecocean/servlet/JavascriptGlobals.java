@@ -20,7 +20,10 @@
 /* this creates a javascript output that contains a bunch of useful data for javascript given this context/language */
 package org.ecocean.servlet;
 
-import org.ecocean.*;
+import org.ecocean.ApiAccess;
+import org.ecocean.CommonConfiguration;
+import org.ecocean.Shepherd;
+import org.ecocean.ShepherdProperties;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -33,11 +36,19 @@ import java.lang.reflect.Field;
 import java.io.*;
 import java.util.*;
 
+import org.springframework.boot.context.embedded.ServletRegistrationBean;
+import org.springframework.context.annotation.Bean;
+//import org.springframework.boot.context.embedded.ServletRegistrationBean;
+//import org.springframework.context.annotation.Bean;
 import org.w3c.dom.Document;
 import com.google.gson.Gson;
 
 public class JavascriptGlobals extends HttpServlet {
-
+//  @Bean
+//  public ServletRegistrationBean servletRegistrationBean(){
+//      System.out.println("globals!!!");
+//      return new ServletRegistrationBean(new JavascriptGlobals(),"/JavascriptGlobals.js");
+//  }
 
   public void init(ServletConfig config) throws ServletException {
     super.init(config);

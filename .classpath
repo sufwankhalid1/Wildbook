@@ -79,12 +79,12 @@
 	<classpathentry kind="var" path="M2_REPO/org/springframework/spring-webmvc/4.1.4.RELEASE/spring-webmvc-4.1.4.RELEASE.jar" sourcepath="M2_REPO/org/springframework/spring-webmvc/4.1.4.RELEASE/spring-webmvc-4.1.4.RELEASE-sources.jar"/>
 	<classpathentry kind="var" path="M2_REPO/com/google/code/gson/gson/2.2.4/gson-2.2.4.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/json/json/20131018/json-20131018.jar"/>
-	<classpathentry kind="var" path="M2_REPO/org/datanucleus/datanucleus-core/4.0.3/datanucleus-core-4.0.3.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/datanucleus/datanucleus-core/4.0.3/datanucleus-core-4.0.3.jar" sourcepath="/$HOME/dev/tools/datanucleus/datanucleus-core/target/datanucleus-core-4.0.3-sources.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/datanucleus/datanucleus-api-jdo/4.0.3/datanucleus-api-jdo-4.0.3.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/datanucleus/datanucleus-jdo-query/4.0.3/datanucleus-jdo-query-4.0.3.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/datanucleus/datanucleus-rdbms/4.0.3/datanucleus-rdbms-4.0.3.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/datanucleus/datanucleus-jodatime/4.0.3/datanucleus-jodatime-4.0.3.jar"/>
-	<classpathentry kind="var" path="M2_REPO/org/datanucleus/datanucleus-api-rest/4.0.3/datanucleus-api-rest-4.0.3.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/datanucleus/datanucleus-api-rest/4.0.3/datanucleus-api-rest-4.0.3.jar" sourcepath="/$HOME/dev/tools/datanucleus/datanucleus-api-rest/target/datanucleus-api-rest-4.0.3-sources.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/datanucleus/datanucleus-geospatial/4.0.3/datanucleus-geospatial-4.0.3.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/datanucleus/datanucleus-api-jpa/4.0.3/datanucleus-api-jpa-4.0.3.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/apache/derby/derby/10.11.1.1/derby-10.11.1.1.jar"/>
@@ -143,5 +143,6 @@
 			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry combineaccessrules="false" kind="src" path="/s6db"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

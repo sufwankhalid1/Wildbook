@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.jdo.PersistenceManager;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.HttpServlet;
@@ -24,19 +23,23 @@ import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.ecocean.CommonConfiguration;
-import org.ecocean.Encounter;
 import org.ecocean.ImageProcessor;
 import org.ecocean.Shepherd;
 import org.ecocean.ShepherdPMF;
 import org.ecocean.SinglePhotoVideo;
-import org.ecocean.media.MediaSubmission;
 import org.ecocean.mmutil.FileUtilities;
+import org.ecocean.servlet.JavascriptGlobals;
 import org.ecocean.servlet.ServletUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.context.embedded.ServletRegistrationBean;
+import org.springframework.context.annotation.Bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.samsix.database.ConnectionInfo;
+import com.samsix.database.Database;
+import com.samsix.database.SqlInsertFormatter;
 
 //this to be used with Java Servlet 3.0 API
 @MultipartConfig
@@ -51,7 +54,7 @@ public class MediaUploadServlet
     // Let's put them in the user's session object so they don't hang around forever?
     //
     private static Map<String, FileSet> filesMap = new HashMap<String, FileSet>();
-    
+
     /***************************************************
      * URL: /mediaupload
      * doPost(): upload the files and other parameters
@@ -66,11 +69,11 @@ public class MediaUploadServlet
         // 1. Upload File Using Apache FileUpload
         FileSet upload = uploadByApacheFileUpload(request);
 
-        FileSet fileset = filesMap.get(upload.getUUID());
+        FileSet fileset = filesMap.get(upload.getID());
       
         if (fileset == null) {
             fileset = upload;
-            filesMap.put(upload.getUUID(), fileset);
+            filesMap.put(upload.getID(), fileset);
         } else {
             fileset.getFiles().addAll(upload.getFiles());
         }
@@ -133,16 +136,16 @@ public class MediaUploadServlet
              return;
          }
 
-         String uuid = request.getParameter("uuid");
+         String id = request.getParameter("id");
 
          //
-         // TODO: Add uuid to the "get" url so that we can read it here.
+         // TODO: Add id to the "get" url so that we can read it here.
          //
-         if (uuid == null) {
+         if (id == null) {
              return;
          }
          
-         FileSet fileset = filesMap.get(uuid);
+         FileSet fileset = filesMap.get(id);
          
          // 2. Get the file of index "f" from the list "files"
          FileMeta getFile = fileset.getFiles().get(Integer.parseInt(value));
@@ -171,39 +174,40 @@ public class MediaUploadServlet
     }
     
     
-    public static FileSet uploadByJavaServletAPI(final HttpServletRequest request)
-        throws IOException, ServletException
-    {
-        FileSet fileset = new FileSet();
-
-        // 1. Get all parts
-        Collection<Part> parts = request.getParts();
-
-        fileset.setUUID(request.getParameter("uuid"));
-
-        // 3. Go over each part
-        FileMeta temp = null;
-        for(Part part:parts){   
-
-            // 3.1 if part is multiparts "file"
-            if (part.getContentType() != null) {
-                // 3.2 Create a new FileMeta object
-                temp = new FileMeta();
-                temp.setName(getFilename(part));
-                temp.setSize(part.getSize()/1024 +" Kb");
-                temp.setType(part.getContentType());
-                temp.setContent(part.getInputStream());
-
-                // 3.3 Add created FileMeta object to List<FileMeta> files
-                fileset.getFiles().add(temp);
-            }
-        }
-        return fileset;
-    }
+//    public static FileSet uploadByJavaServletAPI(final HttpServletRequest request)
+//        throws IOException, ServletException
+//    {
+//        FileSet fileset = new FileSet();
+//
+//        // 1. Get all parts
+//        Collection<Part> parts = request.getParts();
+//
+//        fileset.setID(request.getParameter("id"));
+//
+//        // 3. Go over each part
+//        FileMeta temp = null;
+//        for(Part part:parts){   
+//
+//            // 3.1 if part is multiparts "file"
+//            if (part.getContentType() != null) {
+//                // 3.2 Create a new FileMeta object
+//                temp = new FileMeta();
+//                temp.setName(getFilename(part));
+//                temp.setSize(part.getSize()/1024 +" Kb");
+//                temp.setType(part.getContentType());
+//                temp.setContent(part.getInputStream());
+//
+//                // 3.3 Add created FileMeta object to List<FileMeta> files
+//                fileset.getFiles().add(temp);
+//            }
+//        }
+//        return fileset;
+//    }
 
     private static FileSet uploadByApacheFileUpload(final HttpServletRequest request)
         throws IOException, ServletException
     {
+        System.out.println("calling upload");
         FileSet fileset = new FileSet();
 
         // 1. Check request has multipart content
@@ -222,13 +226,18 @@ public class MediaUploadServlet
                 // 2.3 Get all uploaded FileItem
                 List<FileItem> items = upload.parseRequest(request);
 
+                if (items.isEmpty()) {
+                    System.out.println("Items are empty!");
+                    return fileset;
+                }
+                
                 // 2.4 Go over each FileItem
                 for(FileItem item:items) {
 
                     // 2.5 if FileItem is not of type "file"
                     if (item.isFormField())  {
-                        if (item.getFieldName().equals("uuid")) {
-                            fileset.setUUID(item.getString());
+                        if (item.getFieldName().equals("mediaid")) {
+                            fileset.setID(item.getString());
                         }
                     } else {
                         // 2.7 Create FileMeta object
@@ -249,19 +258,31 @@ public class MediaUploadServlet
 //                File rootDir = ServletUtilities.dataDir(context, request.getServletContext().getRealPath("/"));
                 File rootDir = new File(request.getServletContext().getRealPath("/")).getParentFile();
 
-                File baseDir = new File(new File(dataDirName, "mediasubmission"), fileset.getUUID());
+                File baseDir = new File(new File(dataDirName, "mediasubmission"), fileset.getID());
                 
                 for (FileMeta file : fileset.getFiles()) {
-                    
                     //
                     // TODO: Save contents of image to a file and create a thumbnail.
                     // Then add url and thumbnail_url to the FileMeta class. Maybe add
                     // thumbnail image binary to FileMeta as well so that we can just
                     // return that in a get? Or should it be statically delivered?
-                    // Both could be statically delivelered if we save them to a proper
+                    // Both could be statically delivered if we save them to a proper
                     // spot and then we can get rid of using the get method?    
                     //
-                    new Thread(new SaveMedia(context, rootDir, baseDir, file)).start();
+                    int id;
+                    try {
+                        id = Integer.parseInt(fileset.getID());
+                    } catch(NumberFormatException ex) {
+                        log.error("Can't parse id [" + fileset.getID() + "]", ex);
+                        id = -1;
+                    }
+                    
+                    System.out.println("Saving media with id: " + id);
+                    new Thread(new SaveMedia(context,
+                                             id,
+                                             rootDir,
+                                             baseDir,
+                                             file)).start();
                 }
             } catch (FileUploadException ex) {
                 ex.printStackTrace();
@@ -287,16 +308,16 @@ public class MediaUploadServlet
     public static class FileSet
     {
         private List<FileMeta> files = new ArrayList<FileMeta>();
-        private String uuid;
+        private String id;
     
-        public String getUUID()
+        public String getID()
         {
-            return uuid;
+            return id;
         }
     
-        public void setUUID(final String uuid)
+        public void setID(final String id)
         {
-            this.uuid = uuid;
+            this.id = id;
         }
 
         public List<FileMeta> getFiles() {
@@ -389,22 +410,26 @@ public class MediaUploadServlet
         implements Runnable
     {
         private String context;
+        private int id;
         private File rootDir;
         private File baseDir;
         private FileMeta file;
         
         public SaveMedia(final String context,
+                         final int id,
                          final File rootDir,
                          final File baseDir,
                          final FileMeta file)
         {
             this.context = context;
+            this.id = id;
             this.rootDir = rootDir;
             this.baseDir = baseDir;
             this.file = file;
         }
         
         public void run() {
+            System.out.println("id: " + id);
             File fullBaseDir = new File(rootDir, baseDir.getPath());
             fullBaseDir.mkdirs();
             
@@ -414,6 +439,7 @@ public class MediaUploadServlet
             
             CommonConfiguration.getDataDirectoryName(context);
             try {
+                System.out.println("fullPath: " + fullPath);
                 FileUtilities.saveStreamToFile(file.content, fullPath);
                                 
                 //
@@ -438,7 +464,25 @@ public class MediaUploadServlet
                     iproc.run();
                 }
                 
-            } catch (IOException ex) {
+                System.out.println("About to save SPV...");
+                Shepherd shepherd = new Shepherd(context);
+                SinglePhotoVideo media = new SinglePhotoVideo(null, fullPath);
+                shepherd.getPM().makePersistent(media);
+                System.out.println("Done saving SPV");
+
+                ConnectionInfo ci = ShepherdPMF.getConnectionInfo();                
+                Database db = new Database(ci);
+                
+                SqlInsertFormatter formatter = new SqlInsertFormatter();
+                formatter.append("mediasubmissionid", id);
+                formatter.append("mediaid", media.getDataCollectionEventID());
+                System.out.println("About to save link...");
+                try {
+                    db.getTable("mediasubmission_media").insertRow(formatter);
+                } finally {
+                    db.release();
+                }
+            } catch (Exception ex) {
                 log.error("Trouble saving media file [" + fullPath.getAbsolutePath() + "]", ex);
             }
         }

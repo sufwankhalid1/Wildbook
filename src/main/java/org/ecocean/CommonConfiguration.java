@@ -155,8 +155,13 @@ public class CommonConfiguration {
     return getProperty("GlobalUniqueIdentifierPrefix",context);
   }
 
-  public static String getURLToMastheadGraphic(String context) {
-    return getProperty("urlToMastheadGraphic",context);
+  public static String getURLToMastheadGraphic(HttpServletRequest request, String context) {
+    String prop = getProperty("urlToMastheadGraphic",context);
+    if (prop.startsWith("http:")) {
+        return prop;
+    }
+    
+    return "http://" + CommonConfiguration.getURLLocation(request) + prop;
   }
 
   public static String getTapirLinkURL(String context) {

@@ -1572,6 +1572,7 @@
     <url-pattern>/IndividualRemoveDataFile</url-pattern>
   </servlet-mapping>
   
+  <!-- 
   <servlet>
     <servlet-name>mediaupload</servlet-name>            
     <servlet-class>org.ecocean.rest.MediaUploadServlet</servlet-class>
@@ -1579,7 +1580,7 @@
   <servlet-mapping>
     <servlet-name>mediaupload</servlet-name>
     <url-pattern>/mediaupload</url-pattern>
-  </servlet-mapping>  
+  </servlet-mapping> -->  
 
   <!-- Struts 1 Action Servlet Mapping 
   <servlet-mapping>

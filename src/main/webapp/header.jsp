@@ -79,7 +79,7 @@
 %>
 
 <div id="header"><img name="masthead"
-                      src="<%=CommonConfiguration.getURLToMastheadGraphic(context)%>" width="810"
+                      src="<%=CommonConfiguration.getURLToMastheadGraphic(request, context)%>" width="810"
                       height="150" border="0" usemap="#m_masthead" alt=""/></div>
 <div id="header_menu">
   <ul id="pmenu">
