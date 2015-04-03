@@ -68,7 +68,13 @@ wildbook.Model.BaseClass = Backbone.Model.extend({
 		return true;
 	},
 
-	_defaultValueFor: function() { return '' },
+	_defaultValueFor: function(type) {
+		if (type == 'java.lang.String') return '';
+		if (type == 'boolean') return false;
+		if (type == 'int') return 0;
+		//if ((type == 'int') || (type == 'java.lang.Double') || (type == 'java.lang.Long')) return 0;
+		return null;
+	},
 
 });
 
