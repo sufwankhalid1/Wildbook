@@ -100,6 +100,7 @@ console.log('is %o', ajax);
 	//TODO should arrays of models be turned into collections?
 	//TODO catch recursion, duh?
 	toModel: function(obj) {
+		if (obj == null) return null;
 		if (obj.cid) {  //hacktacular(TODO) but to find out if we are already a model
 			return obj;
 
