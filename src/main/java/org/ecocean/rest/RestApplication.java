@@ -3,9 +3,14 @@ package org.ecocean.rest;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.context.embedded.ServletRegistrationBean;
 import org.springframework.boot.context.web.SpringBootServletInitializer;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+
+import org.ecocean.rest.MediaUploadServlet;
+
 
 @Configuration
 @EnableAutoConfiguration
@@ -22,5 +27,11 @@ public class RestApplication extends SpringBootServletInitializer {
     @Override
     protected final SpringApplicationBuilder configure(final SpringApplicationBuilder application) {
         return application.sources(RestApplication.class);
+    }
+    
+    @Bean
+    public ServletRegistrationBean servletRegistrationBean(){
+        System.out.println("media upload!!!");
+        return new ServletRegistrationBean(new MediaUploadServlet(),"/mediaupload");
     }
 }

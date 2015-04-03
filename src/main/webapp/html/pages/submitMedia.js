@@ -43,7 +43,8 @@ var submitMedia = (function () {
             ['$scope', '$q', '$timeout',
              function ($scope, $q, $timeout) {
 //                smms = $scope;
-                $scope.media = {"username": wildbookGlobals.username, "endTime": null, "startTime": null};
+                
+                $scope.media = {"username": (wildbookGlobals) ? wildbookGlobals.username : null, "endTime": null, "startTime": null};
 //                $scope.msModel = null;
 //                $scope.uuid = guid();
                 
@@ -106,6 +107,12 @@ var submitMedia = (function () {
                     $.post("obj/mediasubmission/save", this.media)
                         .success(function(data) {
                             media.id = data;
+                            
+                            //
+                            // TODO: Why is the controller not working here with angular?!
+                            //       I have to set this manually it seems.
+                            //
+                            $("[name='mediaid']").val(data);
                          });
                     
                     //

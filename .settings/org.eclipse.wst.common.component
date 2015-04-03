@@ -3,9 +3,6 @@
         <dependent-module archiveName="s6-db-1.0.2-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/s6db/s6db">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-        <dependent-module archiveName="s6-util-1.0.1.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/s6-util/s6-util">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
     <property name="context-root" value="wildbook"/>
     <property name="java-output-path" value="/target/classes"/>
     <wb-resource deploy-path="/WEB-INF/classes" source-path="src/main/java"/>
