@@ -20,7 +20,7 @@
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <%@ page contentType="text/html; charset=utf-8" language="java"
-         import="org.joda.time.format.DateTimeFormat,org.joda.time.format.DateTimeFormatter,org.joda.time.DateTime ,org.ecocean.servlet.ServletUtilities,com.drew.imaging.jpeg.JpegMetadataReader, com.drew.metadata.Directory, com.drew.metadata.Metadata, com.drew.metadata.Tag, org.ecocean.*,org.ecocean.servlet.ServletUtilities,org.ecocean.Util,org.ecocean.Measurement, org.ecocean.Util.*, org.ecocean.genetics.*, org.ecocean.tag.*, java.awt.Dimension, javax.jdo.Extent, javax.jdo.Query, java.io.File, java.text.DecimalFormat, java.util.*,org.ecocean.security.Collaboration" %>
+         import="org.joda.time.format.DateTimeFormat,org.joda.time.format.DateTimeFormatter,org.joda.time.LocalDateTime ,org.ecocean.servlet.ServletUtilities,com.drew.imaging.jpeg.JpegMetadataReader, com.drew.metadata.Directory, com.drew.metadata.Metadata, com.drew.metadata.Tag, org.ecocean.*,org.ecocean.servlet.ServletUtilities,org.ecocean.Util,org.ecocean.Measurement, org.ecocean.Util.*, org.ecocean.genetics.*, org.ecocean.tag.*, java.awt.Dimension, javax.jdo.Extent, javax.jdo.Query, java.io.File, java.text.DecimalFormat, java.util.*,org.ecocean.security.Collaboration" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>         
 
@@ -133,7 +133,7 @@ String langCode=ServletUtilities.getLanguageCode(request);
   Shepherd myShepherd = new Shepherd(context);
   Extent allKeywords = myShepherd.getPM().getExtent(Keyword.class, true);
   Query kwQuery = myShepherd.getPM().newQuery(allKeywords);
-System.out.println("???? query=" + kwQuery);
+//System.out.println("???? query=" + kwQuery);
   boolean proceed = true;
   boolean haveRendered = false;
 
@@ -196,6 +196,26 @@ if (request.getParameter("number")!=null) {
         href="<%=CommonConfiguration.getHTMLShortcutIcon(context) %>"/>
   <style type="text/css">
     <!--
+
+	#spot-image-wrapper-left,
+	#spot-image-wrapper-right
+	{
+		position: relative;
+		height: 510px;
+	}
+	#spot-image-left, #spot-image-canvas-left,
+	#spot-image-right, #spot-image-canvas-right
+	{
+		position: absolute;
+		left: 0;
+		top: 0;
+		max-width: 600px;
+		max-height: 500px;
+	}
+
+	.spot-td {
+		display: table;	
+	}
 
     .style2 {
       color: #000000;
@@ -388,6 +408,12 @@ td.measurement{
 		  
         
         }
+
+
+
+
+var encounterNumber = '<%=num%>';
+
   </script>
 
 <style type="text/css">
@@ -467,7 +493,6 @@ margin-bottom: 8px !important;
 .ui_tpicker_minute_label {margin-bottom:5px !important;}
 
 
-
 </style>
 
 
@@ -491,9 +516,12 @@ margin-bottom: 8px !important;
  
   <script src="../javascript/timepicker/jquery-ui-timepicker-addon.js"></script>
  
+<script src="../javascript/imageTools.js"></script>
 
 			
 			<div id="main">
+
+
 			<%
   			myShepherd.beginDBTransaction();
 
@@ -572,13 +600,16 @@ $(function() {
       
       <%
       //set a default date if we cann
-      if(enc.getDateInMilliseconds()>0){
+      if(enc.getDateInMilliseconds()!=null){
     	  
-    	  DateTime jodaTime = new DateTime(enc.getDateInMilliseconds());
-          DateTimeFormatter parser1 = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
-          
+    	  //LocalDateTime jodaTime = new LocalDateTime(enc.getDateInMilliseconds());
+    	  
+    	    
+          //DateTimeFormatter parser1 = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
+          LocalDateTime jodaTime=new LocalDateTime(enc.getDateInMilliseconds());
+			
       %>
-      defaultDate: '<%=parser1.print(jodaTime) %>',
+      defaultDate: '<%=jodaTime.toString("yyyy-MM-dd HH:mm") %>',
       hour: <%=jodaTime.getHourOfDay() %>,
       minute: <%=jodaTime.getMinuteOfHour() %>,
       <%
@@ -612,7 +643,7 @@ $(function() {
       //set a default date if we cann
       if((enc.getReleaseDateLong()!=null)&&(enc.getReleaseDateLong()>0)){
     	  
-    	  DateTime jodaTime = new DateTime(enc.getReleaseDateLong().longValue());
+    	  LocalDateTime jodaTime = new LocalDateTime(enc.getReleaseDateLong().longValue());
           DateTimeFormatter parser1 = DateTimeFormat.forPattern("yyyy-MM-dd");
           
       %>
@@ -1105,11 +1136,20 @@ $("a#occurrence").click(function() {
 
 <p><img align="absmiddle" src="../images/calendar.png" width="40px" height="40px" /> <strong><%=encprops.getProperty("date") %>
 </strong><br/><br/>
+<%if(enc.getDateInMilliseconds()!=null){ %>
   <a
     href="http://<%=CommonConfiguration.getURLLocation(request)%>/xcalendar/calendar.jsp?scDate=<%=enc.getMonth()%>/1/<%=enc.getYear()%>">
     <%=enc.getDate()%>
   </a>
     <%
+}
+else{
+%>	
+<%=encprops.getProperty("unknown") %>
+<%
+}
+    
+    
 				if(isOwner&&CommonConfiguration.isCatalogEditable(context)) {
  					%><font size="-1"><a id="date" class="launchPopup"><img align="absmiddle" width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" /></a></font> <%
         		}
@@ -1583,7 +1623,7 @@ $("a#elev").click(function() {
     </script>
     
  	<%
- 	if((request.getUserPrincipal()!=null) || ((enc.getLatitudeAsDouble()!=null)&&(enc.getLongitudeAsDouble()!=null))){
+ 	if((request.getUserPrincipal()!=null) && ((enc.getLatitudeAsDouble()!=null)&&(enc.getLongitudeAsDouble()!=null))){
  	%>
  		<p><%=encprops.getProperty("map_note") %></p>
  		<div id="map_canvas" style="width: 510px; height: 350px; "></div>
@@ -3183,7 +3223,8 @@ $("a#autocomments").click(function() {
 <c:forEach var="item" items="${measurements}">
  <% 
     MeasurementDesc measurementDesc = (MeasurementDesc) pageContext.getAttribute("item");
-    Measurement event =  enc.findMeasurementOfType(measurementDesc.getType());
+    //Measurement event =  enc.findMeasurementOfType(measurementDesc.getType());
+    Measurement event=myShepherd.getMeasurementOfTypeForEncounter(measurementDesc.getType(), num);
     if (event != null) {
         pageContext.setAttribute("measurementValue", event.getValue());
         pageContext.setAttribute("samplingProtocol", Util.getLocalizedSamplingProtocol(event.getSamplingProtocol(), langCode,context));
@@ -3960,11 +4001,13 @@ dlgSample.dialog("open");
 
 <p>
 <%
-List<TissueSample> tissueSamples=enc.getTissueSamples();
-//List<TissueSample> tissueSamples=myShepherd.getAllTissueSamplesForEncounter(enc.getCatalogNumber());
+//List<TissueSample> tissueSamples=enc.getTissueSamples();
+List<TissueSample> tissueSamples=myShepherd.getAllTissueSamplesForEncounter(enc.getCatalogNumber());
 
-int numTissueSamples=tissueSamples.size();
-if(numTissueSamples>0){
+if((tissueSamples!=null)&&(tissueSamples.size()>0)){
+	
+	int numTissueSamples=tissueSamples.size();
+
 %>
 <table width="100%" class="tissueSample">
 <tr><th><strong><%=encprops.getProperty("sampleID") %></strong></th><th><strong><%=encprops.getProperty("values") %></strong></th><th><strong><%=encprops.getProperty("analyses") %></strong></th><th><strong><%=encprops.getProperty("editTissueSample") %></strong></th><th><strong><%=encprops.getProperty("removeTissueSample") %></strong></th></tr>

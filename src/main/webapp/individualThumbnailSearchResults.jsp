@@ -20,7 +20,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <%@ page contentType="text/html; charset=utf-8" language="java"
-         import="org.ecocean.servlet.ServletUtilities,org.ecocean.*,java.io.File, java.util.*, org.ecocean.security.Collaboration" %>
+         import="org.ecocean.servlet.ServletUtilities,org.ecocean.*,java.io.File,java.io.FileInputStream, java.util.*, org.ecocean.security.Collaboration" %>
 
 <html>
 <head>
@@ -161,7 +161,7 @@
 <style type="text/css">
   #tabmenu {
     color: #000;
-    border-bottom: 2px solid black;
+    border-bottom: 1px solid #CDCDCD;
     margin: 12px 0px 0px 0px;
     padding: 0px;
     z-index: 1;
@@ -175,10 +175,10 @@
   }
 
   #tabmenu a, a.active {
-    color: #DEDECF;
-    background: #000;
-    font: bold 1em "Trebuchet MS", Arial, sans-serif;
-    border: 2px solid black;
+    color: #000;
+    background: #E6EEEE;
+    font: 0.5em "Arial, sans-serif;
+    border: 1px solid #CDCDCD;
     padding: 2px 5px 0px 5px;
     margin: 0;
     text-decoration: none;
@@ -186,25 +186,26 @@
   }
 
   #tabmenu a.active {
-    background: #FFFFFF;
+    background: #8DBDD8;
     color: #000000;
-    border-bottom: 2px solid #FFFFFF;
+    border-bottom: 1px solid #8DBDD8;
   }
 
   #tabmenu a:hover {
-    color: #ffffff;
-    background: #7484ad;
+    color: #000;
+    background: #8DBDD8;
   }
 
   #tabmenu a:visited {
-    color: #E8E9BE;
+    
   }
 
   #tabmenu a.active:hover {
-    background: #7484ad;
-    color: #DEDECF;
-    border-bottom: 2px solid #000000;
+    color: #000;
+    border-bottom: 1px solid #8DBDD8;
   }
+  
+  
 
   div.scroll {
     height: 200px;
@@ -224,6 +225,35 @@
 </jsp:include>
 
 <div id="main">
+
+<table width="810" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td>
+      <p>
+
+      <h1 class="intro">
+        <%
+          if (request.getParameter("noQuery") == null) {
+        %>
+        <%=encprops.getProperty("searchTitle")%>
+        <%
+        } else {
+        %>
+        <%=encprops.getProperty("title")%>
+        <%
+          }
+        %>
+      </h1>
+
+
+
+      <p><%=encprops.getProperty("belowMatches")%> <%=startNum%> - <%=endNum%>&nbsp;
+ 
+    </td>
+  </tr>
+</table>
+
+
 <%
   if (request.getParameter("noQuery") == null) {
 %>
@@ -244,24 +274,10 @@
 <%
   }
 %>
+
 <table width="810" border="0" cellspacing="0" cellpadding="0">
   <tr>
     <td>
-      <p>
-
-      <h1 class="intro">
-        <%
-          if (request.getParameter("noQuery") == null) {
-        %>
-        <%=encprops.getProperty("searchTitle")%>
-        <%
-        } else {
-        %>
-        <%=encprops.getProperty("title")%>
-        <%
-          }
-        %>
-      </h1>
 
 
 
@@ -437,7 +453,7 @@
 
                       <tr>
                         <td><span class="caption"><%=encprops.getProperty("individualID") %>: <a
-                          href="individuals.jsp?number=<%=thisEnc.getIndividualID() %>"><%=thisEnc.getIndividualID() %>
+                          href="individuals.jsp?number=<%=thisEnc.getIndividualID() %>" target="_blank"><%=thisEnc.getIndividualID() %>
                         </a></span></td>
                       </tr>
                       
@@ -458,7 +474,7 @@
                       %>
                       <tr>
                         <td><span class="caption"><%=encprops.getProperty("catalogNumber") %>: <a
-                          href="encounters/encounter.jsp?number=<%=thisEnc.getCatalogNumber() %>"><%=thisEnc.getCatalogNumber() %>
+                          href="encounters/encounter.jsp?number=<%=thisEnc.getCatalogNumber() %>" target="_blank"><%=thisEnc.getCatalogNumber() %>
                         </a></span></td>
                       </tr>
                       <%
@@ -517,17 +533,22 @@
 						<span class="caption">
 					<%
             if ((thumbLocs.get(countMe).getFilename().toLowerCase().endsWith("jpg")) || (thumbLocs.get(countMe).getFilename().toLowerCase().endsWith("jpeg"))) {
-              
-              
+              FileInputStream jin=null;
+              try{
             	  
             	  //File exifImage = new File(encountersDir.getAbsolutePath() + "/" + thisEnc.getCatalogNumber() + "/" + thumbLocs.get(countMe).getFilename());
             	  File exifImage = new File(Encounter.dir(shepherdDataDir, thisEnc.getCatalogNumber()) + "/" + thumbLocs.get(countMe).getFilename());
-
+				  jin=new FileInputStream(exifImage);
             	  %>
               	<%=Util.getEXIFDataFromJPEGAsHTML(exifImage) %>
               	<%
 
                   }
+              catch(Exception e){e.printStackTrace();}
+              finally{
+            	  if(jin!=null){jin.close();}
+              }
+                      }
                 %>
    									</span>
             </div>
@@ -566,7 +587,7 @@
 </tr>
 <tr>
   <td><span class="caption"><%=encprops.getProperty("individualID") %>: <a
-    href="individuals.jsp?number=<%=thisEnc.getIndividualID() %>"><%=thisEnc.getIndividualID() %>
+    href="individuals.jsp?number=<%=thisEnc.getIndividualID() %>" target="_blank"><%=thisEnc.getIndividualID() %>
   </a></span></td>
 </tr>
                       <%
@@ -586,7 +607,7 @@
                       %>
 <tr>
   <td><span class="caption"><%=encprops.getProperty("catalogNumber") %>: <a
-    href="encounters/encounter.jsp?number=<%=thisEnc.getCatalogNumber() %>"><%=thisEnc.getCatalogNumber() %>
+    href="encounters/encounter.jsp?number=<%=thisEnc.getCatalogNumber() %>" target="_blank"><%=thisEnc.getCatalogNumber() %>
   </a></span></td>
 </tr>
 <tr>
