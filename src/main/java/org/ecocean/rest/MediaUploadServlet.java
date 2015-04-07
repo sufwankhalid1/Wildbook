@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +15,6 @@ import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.Part;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
@@ -28,12 +26,9 @@ import org.ecocean.Shepherd;
 import org.ecocean.ShepherdPMF;
 import org.ecocean.SinglePhotoVideo;
 import org.ecocean.mmutil.FileUtilities;
-import org.ecocean.servlet.JavascriptGlobals;
 import org.ecocean.servlet.ServletUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.context.embedded.ServletRegistrationBean;
-import org.springframework.context.annotation.Bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -290,18 +285,18 @@ public class MediaUploadServlet
         return fileset;
     }
 
-    // this method is used to get file name out of request headers
-    // 
-    private static String getFilename(Part part)
-    {
-        for (String cd : part.getHeader("content-disposition").split(";")) {
-            if (cd.trim().startsWith("filename")) {
-                String filename = cd.substring(cd.indexOf('=') + 1).trim().replace("\"", "");
-                return filename.substring(filename.lastIndexOf('/') + 1).substring(filename.lastIndexOf('\\') + 1); // MSIE fix.
-            }
-        }
-        return null;
-    }
+//    // this method is used to get file name out of request headers
+//    // 
+//    private static String getFilename(Part part)
+//    {
+//        for (String cd : part.getHeader("content-disposition").split(";")) {
+//            if (cd.trim().startsWith("filename")) {
+//                String filename = cd.substring(cd.indexOf('=') + 1).trim().replace("\"", "");
+//                return filename.substring(filename.lastIndexOf('/') + 1).substring(filename.lastIndexOf('\\') + 1); // MSIE fix.
+//            }
+//        }
+//        return null;
+//    }
     
     
     public static class FileSet

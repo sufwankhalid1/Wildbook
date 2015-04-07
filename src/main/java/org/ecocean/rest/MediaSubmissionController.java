@@ -5,7 +5,6 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.ecocean.Shepherd;
 import org.ecocean.ShepherdPMF;
 import org.ecocean.SinglePhotoVideo;
 import org.ecocean.media.MediaSubmission;
@@ -138,7 +137,6 @@ public class MediaSubmissionController
                     + " WHERE m.mediasubmissionid = " + mediaid;
             RecordSet rs = db.getRecordSet(sql);
             String context = ServletUtilities.getContext(request);
-            Shepherd shepherd = new Shepherd(context);
             List<SinglePhotoVideo> spvs = new ArrayList<SinglePhotoVideo>();
             while (rs.next()) {
                 SinglePhotoVideo media = new SinglePhotoVideo();
