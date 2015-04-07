@@ -25,6 +25,7 @@ public class MediaSubmission {
   private String description;
   private List<SinglePhotoVideo> media; 
   private Long timeSubmitted = new Date().getTime();
+  private String status;
   
   //
   // To store the intended thing that this was submitted for, like the SurveyId.
@@ -137,6 +138,15 @@ public class MediaSubmission {
   public void setSubmissionid(String submissionid) {
     this.submissionid = submissionid;
   }
+
+  public String getStatus() {
+    return status;
+  }
+
+  public void setStatus(String status) {
+    this.status = status;
+  }
+
   
   @Override
   public String toString()
