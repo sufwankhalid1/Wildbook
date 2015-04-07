@@ -1549,11 +1549,17 @@ public class Shepherd {
   }
 
   public ArrayList<SinglePhotoVideo> getAllSinglePhotoVideosForEncounter(String encNum) {
+/*
     String filter = "correspondingEncounterNumber == \""+encNum+"\"";
     Extent encClass = pm.getExtent(SinglePhotoVideo.class, true);
     Query samples = pm.newQuery(encClass, filter);
     Collection c = (Collection) (samples.execute());
     return (new ArrayList<SinglePhotoVideo>(c));
+*/
+		Encounter enc = getEncounter(encNum);
+		if (enc == null) return null;
+		List<SinglePhotoVideo> imgs = enc.getImages();
+		return (new ArrayList<SinglePhotoVideo>(imgs));
   }
 
   public Iterator getAllEncountersNoFilter(String order, String filter2use) {
