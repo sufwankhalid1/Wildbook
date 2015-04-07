@@ -7,7 +7,7 @@ create table mediasubmission_media
 
 ALTER TABLE mediasubmission_media
   ADD FOREIGN KEY (mediasubmissionid)
-      REFERENCES "MEDIASUBMISSION" ("ID")
+      REFERENCES mediasubmission (id)
       ON DELETE CASCADE;
 ALTER TABLE mediasubmission_media
   ADD FOREIGN KEY (mediaid)
