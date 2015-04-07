@@ -30,11 +30,6 @@ import javax.jdo.*;
 import javax.servlet.http.HttpServletRequest;
 
 import java.util.*;
-import java.io.File;
-
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.ISODateTimeFormat;
 
 /**
  * <code>Shepherd</code>	is the main	information	retrieval, processing, and persistence class to	be used	for	all	shepherd project applications.
@@ -254,12 +249,10 @@ public class Shepherd {
   }
 
   public void throwAwayAdoption(Adoption ad) {
-    String number = ad.getID();
     pm.deletePersistent(ad);
   }
 
   public void throwAwayKeyword(Keyword word) {
-    String indexname = word.getIndexname();
     pm.deletePersistent(word);
   }
 
@@ -289,8 +282,6 @@ public class Shepherd {
   }
 
   public void throwAwayTask(ScanTask sTask) {
-    String name = sTask.getUniqueNumber();
-
     //throw away the task
     pm.deletePersistent(sTask);
     //PersistenceManagerFactory pmf = ShepherdPMF.getPMF(localContext);
@@ -337,7 +328,6 @@ public class Shepherd {
   
   
   public Relationship getRelationship(String type, String indie1,String indie2, String indieRole1, String indieRole2) {
-    Relationship tempRel = null;
     String filter = "this.type == \""+type+"\" && this.markedIndividualName1 == \""+indie1+"\" && this.markedIndividualName2 == \""+indie2+"\" && this.markedIndividualRole1 == \""+indieRole1+"\" && this.markedIndividualRole2 == \""+indieRole2+"\"";
     Extent encClass = pm.getExtent(Relationship.class, true);
       Query acceptedEncounters = pm.newQuery(encClass, filter);
@@ -360,7 +350,6 @@ public class Shepherd {
   }
   
   public Relationship getRelationship(String type, String indie1,String indie2, String indieRole1, String indieRole2, String relatedCommunityName) {
-    Relationship tempRel = null;
     String filter = "this.type == \""+type+"\" && this.markedIndividualName1 == \""+indie1+"\" && this.markedIndividualName2 == \""+indie2+"\" && this.markedIndividualRole1 == \""+indieRole1+"\" && this.markedIndividualRole2 == \""+indieRole2+"\" && this.relatedSocialUnitName == \""+relatedCommunityName+"\"";
     Extent encClass = pm.getExtent(Relationship.class, true);
       Query acceptedEncounters = pm.newQuery(encClass, filter);
@@ -492,7 +481,6 @@ public class Shepherd {
   }
 
   public TissueSample getTissueSample(String sampleID, String encounterNumber) {
-    TissueSample tempEnc = null;
     String filter = "this.sampleID == \""+sampleID+"\" && this.correspondingEncounterNumber == \""+encounterNumber+"\"";
 
     Extent encClass = pm.getExtent(TissueSample.class, true);
@@ -575,7 +563,8 @@ public class Shepherd {
     return tempEnc;
   }
 
-  public <T extends DataCollectionEvent> T findDataCollectionEvent(Class<T> clazz, String num) {
+  @SuppressWarnings("unchecked")
+public <T extends DataCollectionEvent> T findDataCollectionEvent(Class<T> clazz, String num) {
     T dataCollectionEvent = null;
     try {
       dataCollectionEvent = (T) pm.getObjectById((pm.newObjectIdInstance(clazz, num.trim())), true);
@@ -584,7 +573,8 @@ public class Shepherd {
     return dataCollectionEvent;
   }
 
-  public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String num) {
+  @SuppressWarnings("unchecked")
+public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String num) {
     T dataCollectionEvent = null;
     try {
       dataCollectionEvent = (T) pm.getObjectById((pm.newObjectIdInstance(clazz, num.trim())), true);
@@ -684,7 +674,7 @@ public class Shepherd {
 
   public boolean isEncounter(String num) {
     try {
-      Encounter tempEnc = ((org.ecocean.Encounter) (pm.getObjectById(pm.newObjectIdInstance(Encounter.class, num.trim()), true)));
+      pm.getObjectById(pm.newObjectIdInstance(Encounter.class, num.trim()), true);
     } catch (Exception nsoe) {
       //nsoe.printStackTrace();
       return false;
@@ -695,7 +685,7 @@ public class Shepherd {
   
   public boolean isCommunity(String comName) {
     try {
-      SocialUnit tempCom = ((org.ecocean.social.SocialUnit) (pm.getObjectById(pm.newObjectIdInstance(SocialUnit.class, comName.trim()), true)));
+      pm.getObjectById(pm.newObjectIdInstance(SocialUnit.class, comName.trim()), true);
     } 
     catch (Exception nsoe) {
       return false;
@@ -707,7 +697,6 @@ public class Shepherd {
   
 
   public boolean isTissueSample(String sampleID, String encounterNumber) {
-    TissueSample tempEnc = null;
     String filter = "this.sampleID == \""+sampleID+"\" && this.correspondingEncounterNumber == \""+encounterNumber+"\"";
 
     Extent encClass = pm.getExtent(TissueSample.class, true);
@@ -732,7 +721,6 @@ public class Shepherd {
 
   //TBD - need separate for haplotype and ms markers
   public boolean isGeneticAnalysis(String sampleID, String encounterNumber, String analysisID, String type) {
-    TissueSample tempEnc = null;
     String filter = "this.analysisType == \""+type+"\" && this.analysisID == \""+analysisID+"\" && this.sampleID == \""+sampleID+"\" && this.correspondingEncounterNumber == \""+encounterNumber+"\"";
 
     Extent encClass = pm.getExtent(GeneticAnalysis.class, true);
@@ -804,7 +792,7 @@ public class Shepherd {
 
   public boolean isAdoption(String num) {
     try {
-      Adoption tempEnc = ((org.ecocean.Adoption) (pm.getObjectById(pm.newObjectIdInstance(Adoption.class, num.trim()), true)));
+      pm.getObjectById(pm.newObjectIdInstance(Adoption.class, num.trim()), true);
     } catch (Exception nsoe) {
       return false;
     }
@@ -823,7 +811,7 @@ public class Shepherd {
 
   public boolean isSinglePhotoVideo(String indexname) {
     try {
-      SinglePhotoVideo tempEnc = ((org.ecocean.SinglePhotoVideo) (pm.getObjectById(pm.newObjectIdInstance(SinglePhotoVideo.class, indexname.trim()), true)));
+      pm.getObjectById(pm.newObjectIdInstance(SinglePhotoVideo.class, indexname.trim()), true);
     } catch (Exception nsoe) {
       return false;
     }
@@ -832,7 +820,7 @@ public class Shepherd {
 
   public boolean isScanTask(String uniqueID) {
     try {
-      ScanTask tempEnc = ((org.ecocean.grid.ScanTask) (pm.getObjectById(pm.newObjectIdInstance(ScanTask.class, uniqueID.trim()), true)));
+      pm.getObjectById(pm.newObjectIdInstance(ScanTask.class, uniqueID.trim()), true);
     } catch (Exception nsoe) {
       return false;
     }
@@ -842,7 +830,7 @@ public class Shepherd {
 
   public boolean isMarkedIndividual(String name) {
     try {
-      MarkedIndividual tempShark = ((org.ecocean.MarkedIndividual) (pm.getObjectById(pm.newObjectIdInstance(MarkedIndividual.class, name.trim()), true)));
+      pm.getObjectById(pm.newObjectIdInstance(MarkedIndividual.class, name.trim()), true);
     } catch (Exception nsoe) {
       return false;
     }
@@ -851,7 +839,7 @@ public class Shepherd {
 
   public boolean isOccurrence(String name) {
     try {
-      Occurrence tempShark = ((org.ecocean.Occurrence) (pm.getObjectById(pm.newObjectIdInstance(Occurrence.class, name.trim()), true)));
+      pm.getObjectById(pm.newObjectIdInstance(Occurrence.class, name.trim()), true);
     } catch (Exception nsoe) {
       return false;
     }

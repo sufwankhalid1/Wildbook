@@ -5,11 +5,9 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.ecocean.Shepherd;
 import org.ecocean.ShepherdPMF;
 import org.ecocean.SinglePhotoVideo;
 import org.ecocean.media.MediaSubmission;
-import org.ecocean.servlet.ServletUtilities;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -35,19 +33,19 @@ public class MediaSubmissionController
         throws
             DatabaseException
     {
-        Table table = db.getTable("MEDIASUBMISSION");
+        Table table = db.getTable("mediasubmission");
         if (media.getId() == null) {
             SqlInsertFormatter formatter;
             formatter = new SqlInsertFormatter();
             fillFormatter(db, formatter, media);
-            media.setId((long)table.insertSequencedRow(formatter, "ID"));
+            media.setId((long)table.insertSequencedRow(formatter, "id"));
         } else {
             SqlUpdateFormatter formatter;
             formatter = new SqlUpdateFormatter();
-            formatter.append("ID", media.getId());
+            formatter.append("id", media.getId());
             fillFormatter(db, formatter, media);
             SqlWhereFormatter where = new SqlWhereFormatter();
-            where.append(db.formatDbElement("ID"), media.getId());
+            where.append("id", media.getId());
             table.updateRow(formatter.getUpdateClause(), where.getWhereClause());
         }
     }
@@ -57,18 +55,18 @@ public class MediaSubmissionController
                                       final SqlFormatter formatter,
                                       final MediaSubmission media)
     {
-        formatter.append(db.formatDbElement("DESCRIPTION"), media.getDescription());
-        formatter.append(db.formatDbElement("EMAIL"), media.getEmail());
-        formatter.append(db.formatDbElement("ENDTIME"), media.getEndTime());
-        formatter.append(db.formatDbElement("LATITUDE"), media.getLatitude());
-        formatter.append(db.formatDbElement("LONGITUDE"), media.getLongitude());
-        formatter.append(db.formatDbElement("NAME"), media.getName());
-        formatter.append(db.formatDbElement("STARTTIME"), media.getStartTime());
-        formatter.append(db.formatDbElement("SUBMISSIONID"), media.getSubmissionid());
-        formatter.append(db.formatDbElement("TIMESUBMITTED"), media.getTimeSubmitted());
-        formatter.append(db.formatDbElement("USERNAME"), media.getUsername());
-        formatter.append(db.formatDbElement("VERBATIMLOCATION"), media.getVerbatimLocation());
-        formatter.append(db.formatDbElement("STATUS"), media.getStatus());
+        formatter.append("description", media.getDescription());
+        formatter.append("email", media.getEmail());
+        formatter.append("endtime", media.getEndTime());
+        formatter.append("latitude", media.getLatitude());
+        formatter.append("longitude", media.getLongitude());
+        formatter.append("name", media.getName());
+        formatter.append("starttime", media.getStartTime());
+        formatter.append("submissionid", media.getSubmissionid());
+        formatter.append("timesubmitted", media.getTimeSubmitted());
+        formatter.append("username", media.getUsername());
+        formatter.append("verbatimlocation", media.getVerbatimLocation());
+        formatter.append("status", media.getStatus());
     }
     
     
@@ -76,23 +74,23 @@ public class MediaSubmissionController
                                              final SqlWhereFormatter where) throws DatabaseException
     {
         List<MediaSubmission> mss = new ArrayList<MediaSubmission>();
-        Table table = db.getTable("MEDIASUBMISSION");
+        Table table = db.getTable("mediasubmission");
         RecordSet rs = table.getRecordSet(where.getWhereClause());
         while (rs.next()) {
             MediaSubmission ms = new MediaSubmission();
-            ms.setDescription(rs.getString("DESCRIPTION"));
-            ms.setEmail(rs.getString("EMAIL"));
-            ms.setEndTime(rs.getLongObj("ENDTIME"));
-            ms.setId(rs.getLong("ID"));
-            ms.setLatitude(rs.getDoubleObj("LATITUDE"));
-            ms.setLongitude(rs.getDoubleObj("LONGITUDE"));
-            ms.setName(rs.getString("NAME"));
-            ms.setStartTime(rs.getLongObj("STARTTIME"));
-            ms.setSubmissionid(rs.getString("SUBMISSIONID"));
-            ms.setTimeSubmitted(rs.getLong("TIMESUBMITTED"));
-            ms.setUsername(rs.getString("USERNAME"));
-            ms.setVerbatimLocation(rs.getString("VERBATIMLOCATION"));
-            ms.setStatus(rs.getString("STATUS"));
+            ms.setDescription(rs.getString("description"));
+            ms.setEmail(rs.getString("email"));
+            ms.setEndTime(rs.getLongObj("endtime"));
+            ms.setId(rs.getLong("id"));
+            ms.setLatitude(rs.getDoubleObj("latitude"));
+            ms.setLongitude(rs.getDoubleObj("longitude"));
+            ms.setName(rs.getString("name"));
+            ms.setStartTime(rs.getLongObj("starttime"));
+            ms.setSubmissionid(rs.getString("submissionid"));
+            ms.setTimeSubmitted(rs.getLong("timesubmitted"));
+            ms.setUsername(rs.getString("username"));
+            ms.setVerbatimLocation(rs.getString("verbatimlocation"));
+            ms.setStatus(rs.getString("status"));
             
             mss.add(ms);
         }
@@ -121,7 +119,7 @@ public class MediaSubmissionController
         
         try {
             SqlWhereFormatter where = new SqlWhereFormatter();
-            where.append(db.formatDbElement("ID"), mediaid);
+            where.append("id", mediaid);
             List<MediaSubmission> mss = get(db, where);
             
             if (mss.size()==0) {
@@ -137,11 +135,10 @@ public class MediaSubmissionController
                     + " INNER JOIN \"SINGLEPHOTOVIDEO\" spv ON spv.\"DATACOLLECTIONEVENTID\" = m.mediaid"
                     + " WHERE m.mediasubmissionid = " + mediaid;
             RecordSet rs = db.getRecordSet(sql);
-            String context = ServletUtilities.getContext(request);
-            Shepherd shepherd = new Shepherd(context);
             List<SinglePhotoVideo> spvs = new ArrayList<SinglePhotoVideo>();
             while (rs.next()) {
                 SinglePhotoVideo media = new SinglePhotoVideo();
+                media.setDataCollectionEventID(rs.getString("DATACOLLECTIONEVENTID"));
                 media.setCopyrightOwner(rs.getString("COPYRIGHTOWNER"));
                 media.setCopyrightStatement(rs.getString("COPYRIGHTSTATEMENT"));
                 media.setCorrespondingStoryID(rs.getString("CORRESPONDINGSTORYID"));
@@ -179,7 +176,7 @@ public class MediaSubmissionController
         
         try {
             SqlWhereFormatter where = new SqlWhereFormatter();
-            where.append(db.formatDbElement("STATUS"), status);
+            where.append("status", status);
             return get(db, where);
         } finally {
             db.release();
@@ -224,15 +221,15 @@ public class MediaSubmissionController
 //                //
 //                RecordSet rs;
 //                SqlWhereFormatter where = new SqlWhereFormatter();
-//                where.append(db.formatDbElement("SURVEYID"), media.getSubmissionid());
+//                where.append("SURVEYID"), media.getSubmissionid());
 //                
 //                rs = db.getTable("SURVEY").getRecordSet(where.getWhereClause());
 //                if (rs.next()) {
 //                    SqlInsertFormatter formatter;
 //                    formatter = new SqlInsertFormatter();
-//                    formatter.append(db.formatDbElement("SURVEY_ID_OID"), rs.getInteger("SURVEY_ID"));
-//                    formatter.append(db.formatDbElement("ID_EID"), media.getId());
-//                    formatter.append(db.formatDbElement("IDX"), 0);
+//                    formatter.append("SURVEY_ID_OID"), rs.getInteger("SURVEY_ID"));
+//                    formatter.append("ID_EID"), media.getId());
+//                    formatter.append("IDX"), 0);
 //                    db.getTable("SURVEY_MEDIA").insertRow(formatter);                
 //                }
 //            }

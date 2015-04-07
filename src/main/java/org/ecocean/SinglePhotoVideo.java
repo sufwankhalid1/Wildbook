@@ -1,21 +1,13 @@
 package org.ecocean;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.ecocean.Util;
-import org.ecocean.genetics.TissueSample;
 import org.ecocean.Encounter;
 import org.ecocean.servlet.ServletUtilities;
 
 import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileUploadException;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.apache.commons.io.output.*;
-import org.apache.commons.io.FilenameUtils;
 
 
 public class SinglePhotoVideo extends DataCollectionEvent {
