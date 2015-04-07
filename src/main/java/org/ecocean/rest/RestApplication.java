@@ -9,8 +9,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
-import org.ecocean.rest.MediaUploadServlet;
-
 
 @Configuration
 @EnableAutoConfiguration
@@ -31,7 +29,6 @@ public class RestApplication extends SpringBootServletInitializer {
     
     @Bean
     public ServletRegistrationBean servletRegistrationBean(){
-        System.out.println("media upload!!!");
         return new ServletRegistrationBean(new MediaUploadServlet(),"/mediaupload");
     }
 }

@@ -1,9 +1,16 @@
 package org.ecocean.rest;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 
+import org.ecocean.Shepherd;
 import org.ecocean.ShepherdPMF;
+import org.ecocean.SinglePhotoVideo;
 import org.ecocean.media.MediaSubmission;
+import org.ecocean.servlet.ServletUtilities;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -11,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.samsix.database.ConnectionInfo;
 import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
+import com.samsix.database.RecordSet;
 import com.samsix.database.SqlFormatter;
 import com.samsix.database.SqlInsertFormatter;
 import com.samsix.database.SqlUpdateFormatter;
@@ -33,7 +41,6 @@ public class MediaSubmissionController
             formatter = new SqlInsertFormatter();
             fillFormatter(db, formatter, media);
             media.setId((long)table.insertSequencedRow(formatter, "ID"));
-            
         } else {
             SqlUpdateFormatter formatter;
             formatter = new SqlUpdateFormatter();
@@ -61,6 +68,36 @@ public class MediaSubmissionController
         formatter.append(db.formatDbElement("TIMESUBMITTED"), media.getTimeSubmitted());
         formatter.append(db.formatDbElement("USERNAME"), media.getUsername());
         formatter.append(db.formatDbElement("VERBATIMLOCATION"), media.getVerbatimLocation());
+        formatter.append(db.formatDbElement("STATUS"), media.getStatus());
+    }
+    
+    
+    private static List<MediaSubmission> get(final Database db,
+                                             final SqlWhereFormatter where) throws DatabaseException
+    {
+        List<MediaSubmission> mss = new ArrayList<MediaSubmission>();
+        Table table = db.getTable("MEDIASUBMISSION");
+        RecordSet rs = table.getRecordSet(where.getWhereClause());
+        while (rs.next()) {
+            MediaSubmission ms = new MediaSubmission();
+            ms.setDescription(rs.getString("DESCRIPTION"));
+            ms.setEmail(rs.getString("EMAIL"));
+            ms.setEndTime(rs.getLongObj("ENDTIME"));
+            ms.setId(rs.getLong("ID"));
+            ms.setLatitude(rs.getDoubleObj("LATITUDE"));
+            ms.setLongitude(rs.getDoubleObj("LONGITUDE"));
+            ms.setName(rs.getString("NAME"));
+            ms.setStartTime(rs.getLongObj("STARTTIME"));
+            ms.setSubmissionid(rs.getString("SUBMISSIONID"));
+            ms.setTimeSubmitted(rs.getLong("TIMESUBMITTED"));
+            ms.setUsername(rs.getString("USERNAME"));
+            ms.setVerbatimLocation(rs.getString("VERBATIMLOCATION"));
+            ms.setStatus(rs.getString("STATUS"));
+            
+            mss.add(ms);
+        }
+        
+        return mss;
     }
     
     
@@ -71,6 +108,85 @@ public class MediaSubmissionController
 //        this.userService = userService;
 //    }
 
+    
+    @RequestMapping(value = "/get/id/{mediaid}", method = RequestMethod.GET)
+    public MediaSubmission get(final HttpServletRequest request,
+                               @PathVariable("mediaid")
+                               final long mediaid)
+        throws DatabaseException
+    {
+        ConnectionInfo ci = ShepherdPMF.getConnectionInfo();
+        
+        Database db = new Database(ci);
+        
+        try {
+            SqlWhereFormatter where = new SqlWhereFormatter();
+            where.append(db.formatDbElement("ID"), mediaid);
+            List<MediaSubmission> mss = get(db, where);
+            
+            if (mss.size()==0) {
+                return null;
+            }
+            
+            MediaSubmission ms = mss.get(0);
+            
+            //
+            // Now fill the medias.
+            //
+            String sql = "SELECT spv.* FROM mediasubmission_media m"
+                    + " INNER JOIN \"SINGLEPHOTOVIDEO\" spv ON spv.\"DATACOLLECTIONEVENTID\" = m.mediaid"
+                    + " WHERE m.mediasubmissionid = " + mediaid;
+            RecordSet rs = db.getRecordSet(sql);
+            String context = ServletUtilities.getContext(request);
+            Shepherd shepherd = new Shepherd(context);
+            List<SinglePhotoVideo> spvs = new ArrayList<SinglePhotoVideo>();
+            while (rs.next()) {
+                SinglePhotoVideo media = new SinglePhotoVideo();
+                media.setCopyrightOwner(rs.getString("COPYRIGHTOWNER"));
+                media.setCopyrightStatement(rs.getString("COPYRIGHTSTATEMENT"));
+                media.setCorrespondingStoryID(rs.getString("CORRESPONDINGSTORYID"));
+                media.setCorrespondingUsername(rs.getString("CORRESPONDINGUSERNAME"));
+                media.setFilename(rs.getString("FILENAME"));
+                media.setFullFileSystemPath(rs.getString("FULLFILESYSTEMPATH"));
+                spvs.add(media);
+            }
+            ms.setMedia(spvs);
+            
+            return ms;
+        } finally {
+            db.release();
+        }
+    }
+
+    
+    @RequestMapping(value = "/get/status", method = RequestMethod.GET)
+    public List<MediaSubmission> getStatus(final HttpServletRequest request)
+        throws DatabaseException
+    {
+        return getStatus(request, null);
+    }
+    
+    
+    @RequestMapping(value = "/get/status/{status}", method = RequestMethod.GET)
+    public List<MediaSubmission> getStatus(final HttpServletRequest request,
+                                           @PathVariable("status")
+                                           final String status)
+        throws DatabaseException
+    {
+        ConnectionInfo ci = ShepherdPMF.getConnectionInfo();
+        
+        Database db = new Database(ci);
+        
+        try {
+            SqlWhereFormatter where = new SqlWhereFormatter();
+            where.append(db.formatDbElement("STATUS"), status);
+            return get(db, where);
+        } finally {
+            db.release();
+        }
+    }
+    
+    
     @RequestMapping(value = "/save", method = RequestMethod.POST)
     public long save(final HttpServletRequest request,
                      final MediaSubmission media)

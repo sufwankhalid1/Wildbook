@@ -41,7 +41,6 @@ import com.samsix.database.ConnectionInfo;
 import com.samsix.database.Database;
 import com.samsix.database.SqlInsertFormatter;
 
-//this to be used with Java Servlet 3.0 API
 @MultipartConfig
 public class MediaUploadServlet
     extends HttpServlet
@@ -207,7 +206,7 @@ public class MediaUploadServlet
     private static FileSet uploadByApacheFileUpload(final HttpServletRequest request)
         throws IOException, ServletException
     {
-        System.out.println("calling upload");
+        //System.out.println("calling upload");
         FileSet fileset = new FileSet();
 
         // 1. Check request has multipart content
@@ -252,7 +251,7 @@ public class MediaUploadServlet
                     }
                 }
                 
-                String context=ServletUtilities.getContext(request);
+                String context = ServletUtilities.getContext(request);
                 String dataDirName = CommonConfiguration.getDataDirectoryName(context);
                 
 //                File rootDir = ServletUtilities.dataDir(context, request.getServletContext().getRealPath("/"));
@@ -429,7 +428,7 @@ public class MediaUploadServlet
         }
         
         public void run() {
-            System.out.println("id: " + id);
+            //System.out.println("id: " + id);
             File fullBaseDir = new File(rootDir, baseDir.getPath());
             fullBaseDir.mkdirs();
             
@@ -439,7 +438,7 @@ public class MediaUploadServlet
             
             CommonConfiguration.getDataDirectoryName(context);
             try {
-                System.out.println("fullPath: " + fullPath);
+                //System.out.println("fullPath: " + fullPath);
                 FileUtilities.saveStreamToFile(file.content, fullPath);
                                 
                 //
@@ -464,11 +463,11 @@ public class MediaUploadServlet
                     iproc.run();
                 }
                 
-                System.out.println("About to save SPV...");
+                //System.out.println("About to save SPV...");
                 Shepherd shepherd = new Shepherd(context);
                 SinglePhotoVideo media = new SinglePhotoVideo(null, fullPath);
                 shepherd.getPM().makePersistent(media);
-                System.out.println("Done saving SPV");
+                //System.out.println("Done saving SPV");
 
                 ConnectionInfo ci = ShepherdPMF.getConnectionInfo();                
                 Database db = new Database(ci);
@@ -476,7 +475,7 @@ public class MediaUploadServlet
                 SqlInsertFormatter formatter = new SqlInsertFormatter();
                 formatter.append("mediasubmissionid", id);
                 formatter.append("mediaid", media.getDataCollectionEventID());
-                System.out.println("About to save link...");
+                //System.out.println("About to save link...");
                 try {
                     db.getTable("mediasubmission_media").insertRow(formatter);
                 } finally {
