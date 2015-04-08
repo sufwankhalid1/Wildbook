@@ -113,6 +113,9 @@ var submitMedia = (function () {
                             //       I have to set this manually it seems.
                             //
                             $("[name='mediaid']").val(data);
+                         })
+                         .error(function(ex) {
+                             console.log(JSON.stringify(ex));
                          });
                     
                     //
