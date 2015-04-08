@@ -1,7 +1,7 @@
 
 wildbook.Model.MediaSubmission = wildbook.Model.BaseClass.extend({
     classNameShort: function() { return 'media.MediaSubmission'; },
-    url: function() {
+    xurl: function() {
         return "obj/mediasubmission/save";
     }
 });
