@@ -115,7 +115,11 @@ var submitMedia = (function () {
                             $("[name='mediaid']").val(data);
                          })
                          .error(function(ex) {
-                             console.log(JSON.stringify(ex.responseJSON));
+                             //
+                             // TODO: Write code for displaying a message box showing our error.
+                             //
+                             console.log(JSON.stringify(ex.responseJSON.message));
+                             console.log(JSON.stringify(ex.responseJSON.totalStackTrace));
                          });
                     
                     //
