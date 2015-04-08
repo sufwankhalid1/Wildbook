@@ -265,7 +265,7 @@
                    ng-show="rc.mediaWizard.currentIndex > rc.mediaWizard.firstIndex">Back</a>
                 <a class="btn btn-primary" data-loading-text="Please Wait..." ng-click="rc.mediaWizard.forward()" 
                    ng-show="rc.mediaWizard.currentIndex < rc.mediaWizard.navigationLength">Continue</a>
-                <a class="btn btn-primary" ng-click="rc.mediaWizard.forward()" 
+                <a class="btn btn-primary" onClick="$('div.container').html('<h1>Thank you.</h1>');" xng-click="rc.mediaWizard.forward()" 
                    ng-show="rc.mediaWizard.currentIndex == rc.mediaWizard.navigationLength">Complete</a>
               </div>
             </div>
