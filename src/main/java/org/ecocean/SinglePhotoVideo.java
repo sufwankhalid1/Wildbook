@@ -93,6 +93,32 @@ System.out.println("full path??? = " + this.fullFileSystemPath + " WRITTEN!");
 		return "/" + enc.dir(baseDir) + "/" + this.filename;
 	}
 
+/*
+	public String asUrl(String context) {
+		String baseDir = CommonConfiguration.getDataDirectoryName(context);
+		return this.fullDir().toString() + ":::baseDir=("+baseDir+")";
+	}
+*/
+
+	public String urlDir(String context) {
+		File d = this.fullDir();
+		if (d == null) return null;
+		String baseDir = CommonConfiguration.getDataDirectoryName(context);
+		int i = d.toString().indexOf(baseDir);
+		if (i < 0) {
+			System.out.println("weird, SinglePhotoVideo.urlDir() could not find baseDir=" + baseDir + " in fullDir=" + d.toString());
+			return d.toString();
+		}
+		if (i == 0) i = 1;  //"should never happen", but meh
+		return d.toString().substring(i - 1);
+	}
+
+	public File fullDir() {
+		if (this.fullFileSystemPath == null) return null;
+		File f = new File(this.fullFileSystemPath);
+		return f.getParentFile();
+	}
+
   /*
   public File getThumbnailFile(){
     if(thumbnailFullFileSystemPath!=null){
