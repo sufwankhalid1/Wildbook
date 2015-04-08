@@ -80,12 +80,12 @@ public class MediaSubmissionController
             MediaSubmission ms = new MediaSubmission();
             ms.setDescription(rs.getString("description"));
             ms.setEmail(rs.getString("email"));
-            ms.setEndTime(rs.getLongObj("endtime"));
+            ms.setEndTime(rs.getDateTime("endtime"));
             ms.setId(rs.getLong("id"));
             ms.setLatitude(rs.getDoubleObj("latitude"));
             ms.setLongitude(rs.getDoubleObj("longitude"));
             ms.setName(rs.getString("name"));
-            ms.setStartTime(rs.getLongObj("starttime"));
+            ms.setStartTime(rs.getDateTime("starttime"));
             ms.setSubmissionid(rs.getString("submissionid"));
             ms.setTimeSubmitted(rs.getLong("timesubmitted"));
             ms.setUsername(rs.getString("username"));

@@ -188,7 +188,7 @@
                 <!-- Redirect browsers with JavaScript disabled to the origin page -->
                 <noscript><input type="hidden" name="redirect" value="https://blueimp.github.io/jQuery-File-Upload/"></noscript>
                 <!-- The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload -->
-                <input name="mediaid" type="hidden" ng-model="media.id"/>
+                <input name="mediaid" type="hidden" ng-model="mediaid"/>
                 <div class="row fileupload-buttonbar">
                     <div class="col-lg-8">
                         <!-- The fileinput-button span is used to style the file input field as button -->

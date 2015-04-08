@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.ecocean.SinglePhotoVideo;
+import org.joda.time.DateTime;
 
 public class MediaSubmission {
   private Long id;
@@ -20,8 +21,8 @@ public class MediaSubmission {
   private String verbatimLocation; //description of location
   private Double latitude;
   private Double longitude;
-  private Long startTime;
-  private Long endTime;
+  private DateTime startTime;
+  private DateTime endTime;
   private String description;
   private List<SinglePhotoVideo> media; 
   private Long timeSubmitted = new Date().getTime();
@@ -91,19 +92,19 @@ public class MediaSubmission {
     this.longitude = longitude;
   }
 
-  public Long getStartTime() {
+  public DateTime getStartTime() {
     return startTime;
   }
 
-  public void setStartTime(Long startTime) {
+  public void setStartTime(DateTime startTime) {
     this.startTime = startTime;
   }
 
-  public Long getEndTime() {
+  public DateTime getEndTime() {
     return endTime;
   }
 
-  public void setEndTime(Long endTime) {
+  public void setEndTime(DateTime endTime) {
     this.endTime = endTime;
   }
 

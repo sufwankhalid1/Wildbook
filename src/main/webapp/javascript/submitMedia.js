@@ -7,18 +7,6 @@
 
 var submitMedia = (function () {
     'use strict';
-//    var smms;
-    
-//    function guid() {
-//        function s4() {
-//          return Math.floor((1 + Math.random()) * 0x10000)
-//            .toString(16)
-//            .substring(1);
-//        }
-//        return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-//          s4() + '-' + s4() + s4() + s4();
-//    }
-    
     //
     // With the datetimepicker add-on the defaultDate: null option doesn't work
     // and I can't for the life of me figure it out. What happens is that it instead
@@ -42,11 +30,7 @@ var submitMedia = (function () {
     wizard.controller('MediaSubmissionController',
             ['$scope', '$q', '$timeout',
              function ($scope, $q, $timeout) {
-//                smms = $scope;
-                
                 $scope.media = {"username": (wildbookGlobals) ? wildbookGlobals.username : null, "endTime": null, "startTime": null};
-//                $scope.msModel = null;
-//                $scope.uuid = guid();
                 
                 $scope.dateOptions = {
                         changeMonth: true,
@@ -61,52 +45,34 @@ var submitMedia = (function () {
                 };
                 
                 $scope.getSurvey = function() {
-//                    console.log(JSON.stringify(this.media));
                     //
                     // I guess we don't need to verify the Survey here unless we
-                    // decide to do something with it.
+                    // decide to do something with it. Leaving this method here
+                    // because you can find where it is used in the model
+                    // in case you want to do something.
                     //
-//                    var s = new wildbook.Model.Survey({"id":this.media.surveyid});
-//                    s.fetch();
-                    
-                    //
-                    // Just showing what you can do with deferreds and resolve using angular
-                    //
-//                    var deferred = $q.defer();
-//    
-//                    $timeout(function() {
-//                        deferred.resolve();
-//                    }, 1000);
-//    
-//                    return deferred.promise;
                 };
                 
                 $scope.addSubmission = function() {
-//                    //
-//                    // TODO: Make a function on the base class that takes
-//                    // an object with attributes and sets all of the values
-//                    // check for ownProperty?
-//                    //
-//                    if (!$scope.msModel) {
-//                        $scope.msModel = new wildbook.Model.MediaSubmission();
+                    //
+                    // Make a copy of the media *because* if we set the endTime
+                    // and startTime back to
+//                    if (this.media.endTime && ! isNullDate(this.media.endTime)) {
+//                        this.media.endTime = new Date(this.media.endTime).getTime();
+//                    } else {
+//                        this.media.endTime = null;
 //                    }
-                    if (this.media.endTime && ! isNullDate(this.media.endTime)) {
-                        this.media.endTime = new Date(this.media.endTime).getTime();
-                    } else {
-                        this.media.endTime = null;
-                    }
-                    if (this.media.startTime && ! isNullDate(this.media.startTime)) {
-                        this.media.startTime = new Date(this.media.startTime).getTime();
-                    } else {
-                        this.media.startTime = null;
-                    }
-//                        $scope.msModel.set("latitude", media.latitude);
-//                        $scope.msModel.set("longitude", media.longitude);
+//                    if (this.media.startTime && ! isNullDate(this.media.startTime)) {
+//                        this.media.startTime = new Date(this.media.startTime).getTime();
+//                    } else {
+//                        this.media.startTime = null;
+//                    }
                     
                     var media = this.media;
                     $.post("obj/mediasubmission/save", this.media)
                         .success(function(data) {
                             media.id = data;
+                            $scope.mediaid = data;
                             
                             //
                             // TODO: Why is the controller not working here with angular?!
@@ -121,49 +87,6 @@ var submitMedia = (function () {
                              console.log(JSON.stringify(ex.responseJSON.message));
                              console.log(JSON.stringify(ex.responseJSON.totalStackTrace));
                          });
-                    
-                    //
-                    // When I use this to save the media it comes across as
-                    // all nulls even though the network traffic seems to look fine.
-                    // Weird.
-                    //
-//                    $scope.msModel.save(media, {"success": function(result) {
-////                        if (!media.submissionid) {
-////                            return;
-////                        }
-////                        var ms = result;
-////                        var query = new wildbook.Collection.Surveys();
-////                        query.fetch({
-////                            "fields": {"surveyId": media.submissionid},
-////                            "success": function(data) {
-////                                var survey;
-////                                if (!data.models.length) {
-////                                    //
-////                                    // No survey found.
-////                                    //
-////                                    return;
-////                                    // for testing
-////                                    //survey = new wildbook.Model.Survey({"surveyId": media.submissionid});
-////                                } else {
-////                                    //
-////                                    // Just pick first for now. We should probably have a unique
-////                                    // index on surveyId so that you can only get one anyway.
-////                                    //
-////                                    survey = data.models[0];
-////                                }
-////                                
-////                                if (!medias) {
-////                                    medias = [];
-////                                }
-////                                medias.push(ms.attributes);
-////                                survey.set("media", medias);
-////                                
-////                                survey.save();
-//                        alert("ID = " + $scope.msModel.get("id"));
-//                    },
-//                    "error": function(jqXHR, ex) {
-//                        console.log(ex.status + ": " + ex.statusText);
-//                    }});
                 };
   
                 $scope.completeWizard = function() {
