@@ -69,10 +69,12 @@ wildbook.Model.BaseClass = Backbone.Model.extend({
 	},
 
 	_defaultValueFor: function(type) {
-		if (type == 'java.lang.String') return '';
+		//if (type == 'java.lang.String') return '';  //nah, let this be null
 		if (type == 'boolean') return false;
 		if (type == 'int') return 0;
+		if (type == 'long') return 0;
 		//if ((type == 'int') || (type == 'java.lang.Double') || (type == 'java.lang.Long')) return 0;
+//console.info('default for fell thru on %o', type);
 		return null;
 	}
 });
