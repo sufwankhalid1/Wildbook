@@ -308,7 +308,14 @@
 	          style="margin: 0px 0 0px 0px; position: relative; width: 190px; height: 25px;">
 	          <%=props.getProperty("userManagement")%></a>
 	   </li>	
-        
+
+	   <li>
+	       <a href="<%=requestURL %>/mediaToEncounter.jsp"
+	          class="enclose"
+	          style="margin: 0px 0 0px 0px; position: relative; width: 190px; height: 25px;">
+	          <%=props.getProperty("mediaSubmissionManagement")%></a>
+	   </li>	
+
         <%
           if (CommonConfiguration.getTapirLinkURL(context) != null) {
         %>
