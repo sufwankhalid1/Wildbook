@@ -38,6 +38,7 @@ public class ExceptionHandlerController {
     @ResponseBody
     public Exception handleException5(Exception ex, HttpServletResponse response) throws IOException
     {
+        ex.printStackTrace();
         return ex;
     }
 }

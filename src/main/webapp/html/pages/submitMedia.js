@@ -115,7 +115,7 @@ var submitMedia = (function () {
                             $("[name='mediaid']").val(data);
                          })
                          .error(function(ex) {
-                             console.log(JSON.stringify(ex));
+                             console.log(JSON.stringify(ex.responseJSON));
                          });
                     
                     //
