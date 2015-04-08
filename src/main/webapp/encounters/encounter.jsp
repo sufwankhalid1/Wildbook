@@ -3573,6 +3573,7 @@ if(isOwner){
     while (st.hasMoreTokens()) {
       String token = st.nextToken();
       int equalPlace = token.indexOf("=");
+			if (equalPlace < 0) continue;
       String nm = token.substring(0, (equalPlace));
       String vl = token.substring(equalPlace + 1);
       numDynProps++;
