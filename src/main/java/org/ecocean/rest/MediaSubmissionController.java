@@ -177,7 +177,9 @@ public class MediaSubmissionController
         try {
             SqlWhereFormatter where = new SqlWhereFormatter();
             // * will mean get all, so we just have an empty where formatter
-            if (status != "*") {
+            // we want all other values, included null, to pass to the append method
+            System.out.println("[[" + status + "]]");
+            if (! "*".equals(status)) {
                 where.append("status", status);
             }
             return get(db, where);
