@@ -176,7 +176,10 @@ public class MediaSubmissionController
         
         try {
             SqlWhereFormatter where = new SqlWhereFormatter();
-            where.append("status", status);
+            // * will mean get all, so we just have an empty where formatter
+            if (status != "*") {
+                where.append("status", status);
+            }
             return get(db, where);
         } finally {
             db.release();
