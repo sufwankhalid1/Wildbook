@@ -54,8 +54,7 @@ encprops=ShepherdProperties.getProperties("encounter.properties", langCode,conte
 
 String baseDir = ServletUtilities.dataDir(context, rootWebappPath).getAbsolutePath();
 Encounter imageEnc=imageShepherd.getEncounter(imageEncNum);
-File thisEncounterDir = new File(imageEnc.dir(baseDir));
-String encUrlDir = "/" + CommonConfiguration.getDataDirectoryName(context) + imageEnc.dir("");
+//String encUrlDir = "/" + CommonConfiguration.getDataDirectoryName(context) + imageEnc.dir("");
 
 
 
@@ -81,6 +80,9 @@ int imageCount = 0;
     imageCount++;
     //String addTextFile = ((String) images.nextElement()).replaceAll("%20"," ");
     String addTextFile = images.get(myImage).getFilename().replaceAll("%20"," ");
+
+		String encUrlDir = images.get(myImage).urlDir(context);
+System.out.println("urlDir = " + encUrlDir);
     
     try {
       if ((imageShepherd.isAcceptableImageFile(addTextFile)) || (imageShepherd.isAcceptableVideoFile(addTextFile))) {
@@ -272,7 +274,7 @@ int imageCount = 0;
          <%
         }
 
-        String thumbPath = thisEncounterDir.getAbsolutePath() + "/" + images.get(myImage).getDataCollectionEventID() + ".jpg";
+        String thumbPath = images.get(myImage).fullDir().getAbsolutePath() + "/" + images.get(myImage).getDataCollectionEventID() + ".jpg";
         String thumbLocation = "file-" + thumbPath;
         String srcurl = images.get(myImage).getFullFileSystemPath();
         File processedImage = new File(thumbPath);
