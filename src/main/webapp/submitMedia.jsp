@@ -100,7 +100,7 @@
 
 <!-- <div id="media-startdatepicker2" class="form-control"></div>  -->
 
-<div ng-app="MediaSubmissionWizard">
+<div id="MediaSubmissionWizard" ng-app="MediaSubmissionWizard">
     <div class="container" >
       <div class="row">
         <div class="col-xs-12 col-sm-7">
@@ -182,7 +182,7 @@
                 </div>
               </form>
 
-            <form class="tab-pane" id="fileupload" action="mediaupload" method="POST" rc-step
+            <form class="tab-pane" id="fileupload" action="mediaupload" method="POST" rc-submit="completeWizard()" rc-step
                   enctype="multipart/form-data" data-ng-controller="DemoFileUploadController"
                   data-file-upload="options" data-ng-class="{'fileupload-processing': processing() || loadingFiles}">
                 <!-- Redirect browsers with JavaScript disabled to the origin page -->
@@ -274,7 +274,7 @@
       </div>
     </div>
 </div>
-
+<div id="MediaSubmissionThankYou" class="hidden"><h1>Thank You!</h1></div>
 
 <script src="html/pages/submitMedia.js"></script>
 

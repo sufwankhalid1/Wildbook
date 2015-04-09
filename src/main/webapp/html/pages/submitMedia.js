@@ -167,7 +167,8 @@ var submitMedia = (function () {
                 };
   
                 $scope.completeWizard = function() {
-                    alert('Completed!');
+                    $("#MediaSubmissionWizard").addClass("hidden");
+                    $("#MediaSubmissionThankYou").removeClass("hidden");
                 };
                 
 //                $scope.$watch("media.startTime", function(newValue, oldValue) {
