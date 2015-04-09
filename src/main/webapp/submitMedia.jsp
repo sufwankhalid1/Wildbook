@@ -276,7 +276,7 @@
 </div>
 <div id="MediaSubmissionThankYou" class="hidden"><h1>Thank You!</h1></div>
 
-<script src="html/pages/submitMedia.js"></script>
+<script src="javascript/submitMedia.js"></script>
 
 <script>$(function() {
     wildbook.init(function(){
