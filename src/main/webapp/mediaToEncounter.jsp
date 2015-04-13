@@ -190,6 +190,13 @@ body { font-family: arial }
 
 var colDefn = [
 	{
+		key: 'timeSubmitted',
+		label: 'Submitted',
+		value: _colTimeSubmitted,
+		//sortValue: _colDateSort,
+		//sortFunction: function(a,b) { return parseFloat(a) - parseFloat(b); }
+	},
+	{
 		key: 'date',
 		label: 'Date',
 		value: _colDate,
@@ -203,7 +210,7 @@ var colDefn = [
 	},
 	{
 		key: 'submissionid',
-		label: 'ID',
+		label: 'Survey ID',
 		value: cleanValue,
 	},
 	{
@@ -220,6 +227,7 @@ var colDefn = [
 		key: 'status',
 		label: 'Status',
 		value: _colStatus,
+		sortValue: _colStatusSort,
 	},
 /*
 	{
@@ -230,6 +238,14 @@ var colDefn = [
 */
 	
 ];
+
+
+var counts = {
+	total: 0,
+	ided: 0,
+	unid: 0,
+	dailydup: 0,
+};
 
 
 var howMany = 10;
@@ -329,6 +345,30 @@ console.log('sortCol=%d sortReverse=%o', sortCol, sortReverse);
 
 function show() {
 	$('#results-table td').html('');
+	$('#results-table tbody tr').show();
+	for (var i = 0 ; i < results.length ; i++) {
+		//$('#results-table tbody tr')[i].title = 'Encounter ' + searchResults[results[i]].id;
+		$('#results-table tbody tr')[i].setAttribute('data-id', searchResults[results[i]].individualID);
+		for (var c = 0 ; c < colDefn.length ; c++) {
+			$('#results-table tbody tr')[i].children[c].innerHTML = '<div>' + sTable.values[results[i]][c] + '</div>';
+		}
+	}
+	if (results.length < howMany) {
+		$('#results-slider').hide();
+		for (var i = 0 ; i < (howMany - results.length) ; i++) {
+			$('#results-table tbody tr')[i + results.length].style.display = 'none';
+		}
+	} else {
+		$('#results-slider').show();
+	}
+
+	//if (sTable.opts.sliderElement) sTable.opts.sliderElement.slider('option', 'value', 100 - (start / (searchResults.length - howMany)) * 100);
+	sTable.sliderSet(100 - (start / (sTable.matchesFilter.length - howMany)) * 100);
+	displayPagePosition();
+}
+
+function xshow() {
+	$('#results-table td').html('');
 	for (var i = 0 ; i < results.length ; i++) {
 		//$('#results-table tbody tr')[i].title = searchResults[results[i]].individualID;
 		$('#results-table tbody tr')[i].setAttribute('data-id', searchResults[results[i]].get('id'));
@@ -338,7 +378,8 @@ function show() {
 		}
 	}
 
-	sTable.sliderSet(100 - (start / (searchResults.length - howMany)) * 100);
+	//sTable.sliderSet(100 - (start / (searchResults.length - howMany)) * 100);
+	sTable.sliderSet(100 - (start / (sTable.matchesFilter.length - howMany)) * 100);
 }
 
 function newSlice(col, reverse) {
@@ -346,10 +387,72 @@ function newSlice(col, reverse) {
 }
 
 
+function computeCounts() {
+	counts.total = sTable.matchesFilter.length;
+	return;  //none of the below applies here! (cruft from encounters for prosperity)
+	counts.unid = 0;
+	counts.ided = 0;
+	counts.dailydup = 0;
+	var uniq = {};
+
+	for (var i = 0 ; i < counts.total ; i++) {
+		console.log('>>>>> what up? %o', searchResults[sTable.matchesFilter[i]]);
+		var iid = searchResults[sTable.matchesFilter[i]].individualID;
+		if (iid == 'Unassigned') {
+			counts.unid++;
+		} else {
+			var k = iid + ':' + searchResults[sTable.matchesFilter[i]].get('year') + ':' + searchResults[sTable.matchesFilter[i]].get('month') + ':' + searchResults[sTable.matchesFilter[i]].get('day');
+			if (!uniq[k]) {
+				uniq[k] = true;
+				counts.ided++;
+			} else {
+				counts.dailydup++;
+			}
+		}
+	}
+/*
+	var k = Object.keys(uniq);
+	counts.ided = k.length;
+*/
+}
+
+
+function displayCounts() {
+	for (var w in counts) {
+		$('#count-' + w).html(counts[w]);
+	}
+}
+
+
+function displayPagePosition() {
+	if (sTable.matchesFilter.length < 1) {
+		$('#table-info').html('<b>no matches found</b>');
+		return;
+	}
+
+	var max = start + howMany;
+	if (sTable.matchesFilter.length < max) max = sTable.matchesFilter.length;
+	$('#table-info').html((start+1) + ' - ' + max + ' of ' + sTable.matchesFilter.length);
+}
+
+
+function applyFilter() {
+	var t = $('#filter-text').val();
+console.log(t);
+	sTable.filter(t);
+	start = 0;
+	newSlice(1);
+	show();
+	computeCounts();
+	displayCounts();
+}
+
+
 function nudge(n) {
 	start += n;
+	if ((start + howMany) > sTable.matchesFilter.length) start = sTable.matchesFilter.length - howMany;
 	if (start < 0) start = 0;
-	if (start > searchResults.length - 1) start = searchResults.length - 1;
+console.log('start -> %d', start);
 	newSlice(sortCol, sortReverse);
 	show();
 }
@@ -365,7 +468,8 @@ function tableDn() {
 function tableUp() {
 	return nudge(1);
 	start++;
-	if (start > searchResults.length - 1) start = searchResults.length - 1;
+	//if (start > searchResults.length - 1) start = searchResults.length - 1;
+	if (start > sTable.matchesFilter.length - 1) start = sTable.matchesFilter.length - 1;
 	newSlice(sortCol, sortReverse);
 	show();
 }
@@ -380,6 +484,15 @@ function _colStatus(o) {
 	if (!s) return 'new';
 	return s;
 }
+
+function _colStatusSort(o) {
+	var s = o.get('status');
+	if (!s) return 0;
+	if (s == 'active') return 1;
+	return 2;
+}
+
+
 
 
 function _colIndividual(o) {
@@ -466,6 +579,14 @@ function _colDataTypesSort(o) {
 	return dt;
 }
 
+
+function _colTimeSubmitted(o) {
+	var t = o.get('timeSubmitted');
+	if (!t || (t < 1)) return '';
+	var d = new Date();
+	d.setTime(t);
+	return d.toLocaleString();
+}
 
 function _colDate(o) {
 	var t = o.get('startTime');
@@ -787,6 +908,13 @@ function updateMediaSubmissionStatus(s) {
 
 <div id="admin-div">
 <h1>MediaSubmission review</h1>
+
+<p>
+<input placeholder="filter by text" id="filter-text" onChange="return applyFilter()" />
+<input type="button" value="filter" />
+<input type="button" value="clear" onClick="$('#filter-text').val(''); applyFilter(); return true;" />
+<span style="margin-left: 40px; color: #888; font-size: 0.8em;" id="table-info"></span>
+</p>
 
 <div class="pageableTable-wrapper">
 	<div id="progress">Generating encounters table</div>
