@@ -30,8 +30,8 @@ public class RestApplication extends SpringBootServletInitializer {
 
     @Override
     protected final SpringApplicationBuilder configure(final SpringApplicationBuilder application) {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new JodaModule());
+//        ObjectMapper mapper = new ObjectMapper();
+//        mapper.registerModule(new JodaModule());
         
         return application.sources(RestApplication.class);
     }

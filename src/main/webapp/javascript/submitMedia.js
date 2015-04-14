@@ -54,19 +54,16 @@ var submitMedia = (function () {
                 };
                 
                 $scope.addSubmission = function() {
-                    //
-                    // Make a copy of the media *because* if we set the endTime
-                    // and startTime back to
-//                    if (this.media.endTime && ! isNullDate(this.media.endTime)) {
-//                        this.media.endTime = new Date(this.media.endTime).getTime();
-//                    } else {
-//                        this.media.endTime = null;
-//                    }
-//                    if (this.media.startTime && ! isNullDate(this.media.startTime)) {
-//                        this.media.startTime = new Date(this.media.startTime).getTime();
-//                    } else {
-//                        this.media.startTime = null;
-//                    }
+                    if (this.media.endTime && ! isNullDate(this.media.endTime)) {
+                        this.media.endTime = new Date(this.media.endTime).getTime();
+                    } else {
+                        this.media.endTime = null;
+                    }
+                    if (this.media.startTime && ! isNullDate(this.media.startTime)) {
+                        this.media.startTime = new Date(this.media.startTime).getTime();
+                    } else {
+                        this.media.startTime = null;
+                    }
                     
                     var media = this.media;
                     $.post("obj/mediasubmission/save", this.media)

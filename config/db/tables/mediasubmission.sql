@@ -12,7 +12,6 @@ create table mediasubmission
     endtime timestamp with time zone,
     submissionid varchar(255),
     status varchar(100),
-    timesubmitted bigint,
+    timesubmitted timestamp with time zone,
     primary key (id)
 );
-    
