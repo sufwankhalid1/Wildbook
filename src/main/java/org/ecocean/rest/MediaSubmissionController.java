@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.samsix.database.ConnectionInfo;
 import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
@@ -23,11 +25,16 @@ import com.samsix.database.SqlUpdateFormatter;
 import com.samsix.database.SqlWhereFormatter;
 import com.samsix.database.Table;
 
-
 @RestController
 @RequestMapping(value = "/obj/mediasubmission")
 public class MediaSubmissionController
 {
+//    static {
+//        ObjectMapper mapper = new ObjectMapper();
+//        mapper.registerModule(new JodaModule());
+//    }
+    
+    
     public static void save(final Database db,
                             final MediaSubmission media)
         throws

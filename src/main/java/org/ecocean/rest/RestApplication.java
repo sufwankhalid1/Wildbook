@@ -9,6 +9,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
+
 //import com.fasterxml.jackson.databind.ObjectMapper;
 //import com.fasterxml.jackson.datatype.joda.JodaModule;
 
@@ -27,8 +30,8 @@ public class RestApplication extends SpringBootServletInitializer {
 
     @Override
     protected final SpringApplicationBuilder configure(final SpringApplicationBuilder application) {
-//        ObjectMapper mapper = new ObjectMapper();
-//        mapper.registerModule(new JodaModule());
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JodaModule());
         
         return application.sources(RestApplication.class);
     }
