@@ -1,10 +1,13 @@
 package org.ecocean.media;
 
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.ecocean.SinglePhotoVideo;
 import org.joda.time.DateTime;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 public class MediaSubmission {
     private Long id;
@@ -20,11 +23,17 @@ public class MediaSubmission {
     private String verbatimLocation; //description of location
     private Double latitude;
     private Double longitude;
-    private DateTime startTime;
-    private DateTime endTime;
+//    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSSZ")
+//    private DateTime startTime;
+    private Long startTime;
+//    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSSZ")
+//    private DateTime endTime;
+    private Long endTime;
     private String description;
     private List<SinglePhotoVideo> media; 
-    private DateTime timeSubmitted = new DateTime();
+//    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSSZ")
+//    private DateTime timeSubmitted = new DateTime();
+    private Long timeSubmitted = new Date().getTime();
     private String status;
   
     //
@@ -91,19 +100,19 @@ public class MediaSubmission {
         this.longitude = longitude;
     }
 
-    public DateTime getStartTime() {
+    public Long getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(DateTime startTime) {
+    public void setStartTime(Long startTime) {
         this.startTime = startTime;
     }
 
-    public DateTime getEndTime() {
+    public Long getEndTime() {
         return endTime;
     }
 
-    public void setEndTime(DateTime endTime) {
+    public void setEndTime(Long endTime) {
         this.endTime = endTime;
     }
 
@@ -123,11 +132,11 @@ public class MediaSubmission {
         this.media = media;
     }
 
-    public DateTime getTimeSubmitted() {
+    public Long getTimeSubmitted() {
         return timeSubmitted;
     }
 
-    public void setTimeSubmitted(DateTime timeSubmitted) {
+    public void setTimeSubmitted(Long timeSubmitted) {
         this.timeSubmitted = timeSubmitted;
     }
 

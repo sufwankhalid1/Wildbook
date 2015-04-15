@@ -29,12 +29,6 @@ import com.samsix.database.Table;
 @RequestMapping(value = "/obj/mediasubmission")
 public class MediaSubmissionController
 {
-//    static {
-//        ObjectMapper mapper = new ObjectMapper();
-//        mapper.registerModule(new JodaModule());
-//    }
-    
-    
     public static void save(final Database db,
                             final MediaSubmission media)
         throws
@@ -87,14 +81,14 @@ public class MediaSubmissionController
             MediaSubmission ms = new MediaSubmission();
             ms.setDescription(rs.getString("description"));
             ms.setEmail(rs.getString("email"));
-            ms.setEndTime(rs.getDateTime("endtime"));
+            ms.setEndTime(rs.getLongObj("endtime"));
             ms.setId(rs.getLong("id"));
             ms.setLatitude(rs.getDoubleObj("latitude"));
             ms.setLongitude(rs.getDoubleObj("longitude"));
             ms.setName(rs.getString("name"));
-            ms.setStartTime(rs.getDateTime("starttime"));
+            ms.setStartTime(rs.getLongObj("starttime"));
             ms.setSubmissionid(rs.getString("submissionid"));
-            ms.setTimeSubmitted(rs.getDateTime("timesubmitted"));
+            ms.setTimeSubmitted(rs.getLongObj("timesubmitted"));
             ms.setUsername(rs.getString("username"));
             ms.setVerbatimLocation(rs.getString("verbatimlocation"));
             ms.setStatus(rs.getString("status"));
