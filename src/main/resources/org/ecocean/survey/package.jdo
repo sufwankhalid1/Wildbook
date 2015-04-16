@@ -40,8 +40,9 @@
             <field name="name">
                 <column length="100" />
             </field>
-            <field name="points" default-fetch-group="true">
-                <collection element-type="org.ecocean.Point"/>
+            <field name="points" persistence-modifier="persistent" default-fetch-group="true">
+                <collection element-type="org.ecocean.Point" dependent-element="true" />
+<join />
             </field>
             <field name="vesselId">
                 <column length="100" />
