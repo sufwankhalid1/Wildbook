@@ -105,35 +105,36 @@
       <div class="row">
         <div class="col-xs-12 col-sm-7">
           <div ng-controller="MediaSubmissionController" 
-               rc-wizard="mediaWizard" rc-disabled="rc.firstForm.submitInProgress">
+               rc-wizard="mediaWizard" rc-disabled="rc.formUser.submitInProgress">
             <ul class="nav rc-nav-wizard">
               <li class="active">
-                <a class="active" href="#first" data-toggle="tab">
+                <a class="active" href="#userForm" data-toggle="tab">
                   <span class="badge">1</span>
                   <span>User Info</span>
                 </a>
               </li>
               <li>
-                <a href="#second" data-toggle="tab">
+                <a href="#fileupload" data-toggle="tab">
                   <span class="badge">2</span>
-                  <span>Location</span>
+                  <span>Images</span>
                 </a>
               </li>
               <li>
-                <a href="#fileupload" data-toggle="tab">
+                <a href="#metaForm" data-toggle="tab">
                   <span class="badge">3</span>
-                  <span>Images</span>
+                  <span>Location</span>
                 </a>
               </li>
             </ul>
             <div class="tab-content">
-            
-              <form class="tab-pane active" id="first" name="firstForm" 
-                    rc-submit="getSurvey()" rc-step novalidate>
+              <!-- Here we save the submission before getting to the images because we need the id to
+                   record the connection to the images -->
+              <form class="tab-pane active" id="userForm" name="formUser" 
+                    rc-submit="saveSubmission()" rc-step novalidate>
                 <h3>Enter user info</h3>
                 <div class="form-group"
                      ng-hide="isLoggedIn()"
-                     ng-class="{'has-error': rc.firstForm.needsAttention(firstForm.name)}">
+                     ng-class="{'has-error': rc.formUser.needsAttention(formUser.name)}">
                   <label class="control-label">Name</label>
                   <input class="form-control" type="text" ng-required="!isLoggedIn()"
                          ng-model="media.name"/>
@@ -150,39 +151,8 @@
                   <input class="form-control" type="text" ng-model="media.submissionid" />
                 </div>
               </form>
-              
-              <form class="tab-pane" id="second" name="secondForm" rc-submit="addSubmission()" rc-step>
-                <h3>Enter second step data</h3>
-                <div class="form-group">
-                  <label class="control-label">Description</label>
-                  <textarea rows="5" class="form-control" ng-model="media.description"></textarea>
-                </div>
-                <div class="form-group">
-                  <label class="control-label">Verbatim Location</label>
-                  <textarea rows="5" class="form-control" ng-model="media.verbatimLocation"></textarea>
-                </div>
-                <!-- <div class="form-group">
-                  <label class="control-label">Location</label>
-                  <input class="form-control" type="text" 
-                         ng-model="user.location" />
-                </div> -->
-                <div class="row">
-                  <div class="col-xs-6">
-                        <div class="form-group">
-                          <label class="control-label">Start Time</label>
-                          <input ui-date="dateOptions" ng-model="media.startTime"/>
-                        </div>
-                  </div>
-                  <div class="col-xs-6">
-                        <div class="form-group">
-                          <label class="control-label">End Time</label>
-                          <input ui-date="dateOptions" ng-model="media.endTime"/>
-                        </div>
-                  </div>
-                </div>
-              </form>
 
-            <form class="tab-pane" id="fileupload" action="mediaupload" method="POST" rc-submit="completeWizard()" rc-step
+            <form class="tab-pane" id="fileupload" action="mediaupload" method="POST" rc-step
                   enctype="multipart/form-data" data-ng-controller="DemoFileUploadController"
                   data-file-upload="options" data-ng-class="{'fileupload-processing': processing() || loadingFiles}">
                 <!-- Redirect browsers with JavaScript disabled to the origin page -->
@@ -256,7 +226,37 @@
                     </tr>
                 </table>
             </form>
-
+              
+              <form class="tab-pane" id="metaForm" name="formMeta" rc-submit="completeWizard()" rc-step>
+                <h3>Enter second step data</h3>
+                <div class="form-group">
+                  <label class="control-label">Description</label>
+                  <textarea rows="5" class="form-control" ng-model="media.description"></textarea>
+                </div>
+                <div class="form-group">
+                  <label class="control-label">Verbatim Location</label>
+                  <textarea rows="5" class="form-control" ng-model="media.verbatimLocation"></textarea>
+                </div>
+                <!-- <div class="form-group">
+                  <label class="control-label">Location</label>
+                  <input class="form-control" type="text" 
+                         ng-model="user.location" />
+                </div> -->
+                <div class="row">
+                  <div class="col-xs-6">
+                        <div class="form-group">
+                          <label class="control-label">Start Time</label>
+                          <input ui-date="dateOptions" ng-model="media.startTime"/>
+                        </div>
+                  </div>
+                  <div class="col-xs-6">
+                        <div class="form-group">
+                          <label class="control-label">End Time</label>
+                          <input ui-date="dateOptions" ng-model="media.endTime"/>
+                        </div>
+                  </div>
+                </div>
+              </form>
 
             </div>
             <div class="form-group">
@@ -265,7 +265,7 @@
                    ng-show="rc.mediaWizard.currentIndex > rc.mediaWizard.firstIndex">Back</a>
                 <a class="btn btn-primary" data-loading-text="Please Wait..." ng-click="rc.mediaWizard.forward()" 
                    ng-show="rc.mediaWizard.currentIndex < rc.mediaWizard.navigationLength">Continue</a>
-                <a class="btn btn-primary" onClick="$('div.container').html('<h1>Thank you.</h1>');" xng-click="rc.mediaWizard.forward()" 
+                <a class="btn btn-primary" ng-click="rc.mediaWizard.forward()" 
                    ng-show="rc.mediaWizard.currentIndex == rc.mediaWizard.navigationLength">Complete</a>
               </div>
             </div>

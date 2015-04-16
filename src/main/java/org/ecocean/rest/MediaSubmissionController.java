@@ -23,7 +23,6 @@ import com.samsix.database.SqlUpdateFormatter;
 import com.samsix.database.SqlWhereFormatter;
 import com.samsix.database.Table;
 
-
 @RestController
 @RequestMapping(value = "/obj/mediasubmission")
 public class MediaSubmissionController
@@ -87,7 +86,7 @@ public class MediaSubmissionController
             ms.setName(rs.getString("name"));
             ms.setStartTime(rs.getLongObj("starttime"));
             ms.setSubmissionid(rs.getString("submissionid"));
-            ms.setTimeSubmitted(rs.getLong("timesubmitted"));
+            ms.setTimeSubmitted(rs.getLongObj("timesubmitted"));
             ms.setUsername(rs.getString("username"));
             ms.setVerbatimLocation(rs.getString("verbatimlocation"));
             ms.setStatus(rs.getString("status"));

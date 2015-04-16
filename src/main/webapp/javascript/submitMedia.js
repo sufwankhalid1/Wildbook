@@ -7,18 +7,6 @@
 
 var submitMedia = (function () {
     'use strict';
-//    var smms;
-    
-//    function guid() {
-//        function s4() {
-//          return Math.floor((1 + Math.random()) * 0x10000)
-//            .toString(16)
-//            .substring(1);
-//        }
-//        return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-//          s4() + '-' + s4() + s4() + s4();
-//    }
-    
     //
     // With the datetimepicker add-on the defaultDate: null option doesn't work
     // and I can't for the life of me figure it out. What happens is that it instead
@@ -42,12 +30,43 @@ var submitMedia = (function () {
     wizard.controller('MediaSubmissionController',
             ['$scope', '$q', '$timeout',
              function ($scope, $q, $timeout) {
-//                smms = $scope;
+                function savems(media, callback) {
+                    //
+                    // Don't alter the object directly because it causes
+                    // a conflict between the date string of the control and
+                    // the long we use here.
+                    //
+                    var ms = $.extend({}, media);
+                    if (ms.endTime && ! isNullDate(ms.endTime)) {
+                        ms.endTime = new Date(ms.endTime).getTime();
+                    } else {
+                        ms.endTime = null;
+                    }
+                    if (ms.startTime && ! isNullDate(ms.startTime)) {
+                        ms.startTime = new Date(ms.startTime).getTime();
+                    } else {
+                        ms.startTime = null;
+                    }
+                    
+                    $.post("obj/mediasubmission/save", ms)
+                     .success(function(data) {
+                         callback(data);
+                     })
+                     .error(function(ex) {
+                         //
+                         // TODO: Write code for displaying a message box showing our error.
+                         //
+                         console.log(JSON.stringify(ex.responseJSON.message));
+                         console.log(JSON.stringify(ex.responseJSON.totalStackTrace));
+                     });
+                }
                 
                 $scope.media = {"username": (wildbookGlobals) ? wildbookGlobals.username : null, "endTime": null, "startTime": null};
-//                $scope.msModel = null;
-//                $scope.uuid = guid();
                 
+                //
+                // showTime = true is my addition to angular-ui/ui-date
+                // which allows it to use the timepicker. See the mymaster branch.
+                //
                 $scope.dateOptions = {
                         changeMonth: true,
                         changeYear: true,
@@ -60,115 +79,25 @@ var submitMedia = (function () {
                     return (this.media.username);
                 };
                 
-                $scope.getSurvey = function() {
-//                    console.log(JSON.stringify(this.media));
-                    //
-                    // I guess we don't need to verify the Survey here unless we
-                    // decide to do something with it.
-                    //
-//                    var s = new wildbook.Model.Survey({"id":this.media.surveyid});
-//                    s.fetch();
-                    
-                    //
-                    // Just showing what you can do with deferreds and resolve using angular
-                    //
-//                    var deferred = $q.defer();
-//    
-//                    $timeout(function() {
-//                        deferred.resolve();
-//                    }, 1000);
-//    
-//                    return deferred.promise;
-                };
-                
-                $scope.addSubmission = function() {
-//                    //
-//                    // TODO: Make a function on the base class that takes
-//                    // an object with attributes and sets all of the values
-//                    // check for ownProperty?
-//                    //
-//                    if (!$scope.msModel) {
-//                        $scope.msModel = new wildbook.Model.MediaSubmission();
-//                    }
-                    if (this.media.endTime && ! isNullDate(this.media.endTime)) {
-                        this.media.endTime = new Date(this.media.endTime).getTime();
-                    } else {
-                        this.media.endTime = null;
-                    }
-                    if (this.media.startTime && ! isNullDate(this.media.startTime)) {
-                        this.media.startTime = new Date(this.media.startTime).getTime();
-                    } else {
-                        this.media.startTime = null;
-                    }
-//                        $scope.msModel.set("latitude", media.latitude);
-//                        $scope.msModel.set("longitude", media.longitude);
-                    
+                $scope.saveSubmission = function() {
                     var media = this.media;
-                    $.post("obj/mediasubmission/save", this.media)
-                        .success(function(data) {
-                            media.id = data;
-                            
-                            //
-                            // TODO: Why is the controller not working here with angular?!
-                            //       I have to set this manually it seems.
-                            //
-                            $("[name='mediaid']").val(data);
-                         })
-                         .error(function(ex) {
-                             //
-                             // TODO: Write code for displaying a message box showing our error.
-                             //
-                             console.log(JSON.stringify(ex.responseJSON.message));
-                             console.log(JSON.stringify(ex.responseJSON.totalStackTrace));
-                         });
-                    
-                    //
-                    // When I use this to save the media it comes across as
-                    // all nulls even though the network traffic seems to look fine.
-                    // Weird.
-                    //
-//                    $scope.msModel.save(media, {"success": function(result) {
-////                        if (!media.submissionid) {
-////                            return;
-////                        }
-////                        var ms = result;
-////                        var query = new wildbook.Collection.Surveys();
-////                        query.fetch({
-////                            "fields": {"surveyId": media.submissionid},
-////                            "success": function(data) {
-////                                var survey;
-////                                if (!data.models.length) {
-////                                    //
-////                                    // No survey found.
-////                                    //
-////                                    return;
-////                                    // for testing
-////                                    //survey = new wildbook.Model.Survey({"surveyId": media.submissionid});
-////                                } else {
-////                                    //
-////                                    // Just pick first for now. We should probably have a unique
-////                                    // index on surveyId so that you can only get one anyway.
-////                                    //
-////                                    survey = data.models[0];
-////                                }
-////                                
-////                                if (!medias) {
-////                                    medias = [];
-////                                }
-////                                medias.push(ms.attributes);
-////                                survey.set("media", medias);
-////                                
-////                                survey.save();
-//                        alert("ID = " + $scope.msModel.get("id"));
-//                    },
-//                    "error": function(jqXHR, ex) {
-//                        console.log(ex.status + ": " + ex.statusText);
-//                    }});
+                    savems(this.media, function(mediaid) {
+                        media.id = mediaid;
+//                        $scope.mediaid = data;
+                        
+                        //
+                        // TODO: Why is the controller not working here with angular?!
+                        //       I have to set this manually it seems.
+                        //
+                        $("[name='mediaid']").val(mediaid);
+                    });
                 };
   
                 $scope.completeWizard = function() {
-                    $("#MediaSubmissionWizard").addClass("hidden");
-                    $("#MediaSubmissionThankYou").removeClass("hidden");
+                    savems(this.media, function(mediaid) {
+                        $("#MediaSubmissionWizard").addClass("hidden");
+                        $("#MediaSubmissionThankYou").removeClass("hidden");
+                    });
                 };
                 
 //                $scope.$watch("media.startTime", function(newValue, oldValue) {
