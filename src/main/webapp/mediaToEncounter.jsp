@@ -49,6 +49,12 @@
 <style>
 body { font-family: arial }
 
+#encounter-info, #survey-info {
+	margin: 8px;
+	font-size: 0.9em;
+	color: #444;
+}
+
 #admin-div {
 	margin-top: 10px;
 	display: none;
@@ -63,15 +69,15 @@ body { font-family: arial }
 	max-width: 150px;
 	max-height: 120px;
 */
-	width: 150px;
-	height: 100px;
+	width: 100px;
+	height: 75px;
 }
 
 .image {
 	background-color: #EEE;
-	margin: 11px;
+	margin: 9px;
 	position: relative;
-	padding: 10px;
+	padding: 8px;
 	display: inline-flex;
 }
 
@@ -99,6 +105,24 @@ body { font-family: arial }
 	padding: 1px 4px;
 }
 
+#action-info {
+	display: inline-block;
+	text-align: center;
+	width: 100px;
+	font-size: 0.9em;
+	margin: 20px 10px 0 0;
+	float: left;
+	height: 40px;
+}
+
+#action-info b {
+	color: #01F;
+}
+
+#action-menu-div input {
+	margin-top: 10px;
+}
+
 .enc-list {
 	display: none;
 	position: fixed;
@@ -109,6 +133,17 @@ body { font-family: arial }
 	color: #555;
 }
 
+#action-message {
+	height: 80px;
+	overflow-y: auto;
+	font-size: 0.8em;
+	color: #333;
+	padding: 5px;
+	border: 2px solid #DDD;
+	margin-top: 8px;
+}
+
+
 .status-new td, .status- td, .status-null td {
 	background-color: #FFC !important;
 }
@@ -117,17 +152,18 @@ body { font-family: arial }
 	background-color: #DDD !important;
 }
 
-.image:hover {
+.image.ui-selected {
 	background-color: #9F0;
 }
 
 #images-used, #images-unused {
-	min-height: 200px;
+	min-height: 230px;
 }
 
 #images-unused {
+	padding: 12px;
 	max-height: 400px;
-	overflow-y: scroll;
+	overflow-y: auto;
 }
 
 #count-total {
@@ -137,7 +173,8 @@ body { font-family: arial }
 	margin-left: 15px;
 }
 
-#encounter-div {
+.action-div {
+	display: none;
 	padding: 10px;
 	border: solid 2px blue;
 	margin-top: 10px;
@@ -149,12 +186,6 @@ body { font-family: arial }
 	display: inline-block;
 	width: 120px;
 	margin-right: 10px;
-}
-
-#enc-results {
-	height: 11px;
-	margin: 10px 0 0 10px;
-	font-size: 0.8em;
 }
 
 </style>
@@ -348,7 +379,7 @@ function show() {
 	$('#results-table tbody tr').show();
 	for (var i = 0 ; i < results.length ; i++) {
 		//$('#results-table tbody tr')[i].title = 'Encounter ' + searchResults[results[i]].id;
-		$('#results-table tbody tr')[i].setAttribute('data-id', searchResults[results[i]].individualID);
+		$('#results-table tbody tr')[i].setAttribute('data-id', searchResults[results[i]].get('id'));
 		for (var c = 0 ; c < colDefn.length ; c++) {
 			$('#results-table tbody tr')[i].children[c].innerHTML = '<div>' + sTable.values[results[i]][c] + '</div>';
 		}
@@ -743,7 +774,7 @@ function browse(msID) {
 				displayMS();
 			});
 		},
-		error: function(a,b,c) { msError(a,b,c); }
+		error: function(a,b,c) { msError('error: probably bad id?',a,b,c); }
 	});
 }
 
@@ -770,18 +801,26 @@ console.log(m);
 			list += '</div>';
 			note = '<div class="note" onClick="return noteClick(event);">' + encs.length + list + '</div>';
 		}
-		var info = '<div class="image-info">3/11 08:21:04</div>';
-		h += '<div id="' + mObj.id + '" class="image"><img class="thumb" src="' + mObj.url() + '" />' + note + info + '</div>';
+		//var info = '<div class="image-info">3/11 08:21:04</div>';
+		var imgSrc = mObj.url();
+		if (isGeoFile(m[i])) imgSrc = 'images/map-icon.png';
+		h += '<div id="' + mObj.id + '" class="image"><img class="thumb" src="' + imgSrc + '" />' + note + '</div>';
 	}
 	$('#images-unused').html(h);
+/*
 	$('.image').click( function(ev) {
 		$('.note .enc-list').hide();
 		ev.preventDefault();
 		toggleImage(ev.currentTarget.id);
 	});
+*/
+	$('#images-unused').selectable({
+		stop: function(ev, ui) { updateSelectedUI(ev, ui); },
+	});
+	updateSelectedUI();
 
 	$('#work-div').show();
-	updateCounts();
+	//updateCounts();
 
 	$('#enc-submitterID').val(mediaSubmission.get('username'));
 	$('#enc-submitterEmail').val(mediaSubmission.get('email'));
@@ -790,6 +829,19 @@ console.log(m);
 	$('#enc-dateInMilliseconds-human').html(_colDate(mediaSubmission));
 	$('#enc-decimalLatitude').val(mediaSubmission.get('latitude'));
 	$('#enc-decimalLongitude').val(mediaSubmission.get('longitude'));
+}
+
+
+function updateSelectedUI(ev, ui) {
+	console.info('ev %o, ui %o', ev, ui);
+	var nsel = $('div.image.ui-selected').length;
+	if (nsel < 1) {
+		$('#action-info').html('<i>no files<br />selected</i>');
+		$('#action-menu-div input.sel-act').attr('disabled', 'disabled');
+	} else {
+		$('#action-info').html('<b>' + nsel + '</b> file' + ((nsel == 1) ? '' : 's') + '<br />selected');
+		$('#action-menu-div input.sel-act').removeAttr('disabled');
+	}
 }
 
 
@@ -806,15 +858,19 @@ function noteClick(ev) {
 }
 
 
-function msError(a,b,c) {
-	console.error('error %o %o %o', a,b,c);
-	$('#admin-div').html('<h1 class="error">error, probably bad id</h1>');
+function msError(msg, a,b,c) {
+	console.error('error %o %o %o -> %s', a,b,c, msg);
+	if (!msg) msg = 'error :(';
+	//$('#admin-div').html('<h1 class="error">' + msg + '</h1>');
+	alert(msg);
 }
 
+/*
 function updateCounts() {
 	$('#count-total').html('total images: <b>' + mediaSubmission.get('media').length + '</b>');
 	$('#count-used').html('images in encounter: <b>' + $('.used').length + '</b>');
 }
+*/
 
 function toggleImage(iid) {
 	var d = $('#' + iid);
@@ -832,8 +888,8 @@ console.log(iid);
 
 var encounter;
 function createEncounter() {
-	var imgs = $('.used');
-	if (imgs.length < 1) return alert('no images attached to this encounter');
+	var imgs = getSelectedMedia({skipGeo: true});
+	if (imgs.length < 1) return alert('no files to attach to this encounter');
 
 	$('#enc-create-button').hide();
 	var eid = wildbook.uuid();
@@ -853,22 +909,28 @@ function createEncounter() {
 
 	var iarr = [];
 	for (var i = 0 ; i < imgs.length ; i++) {
-		iarr.push({ class: 'org.ecocean.SinglePhotoVideo', dataCollectionEventID: imgs[i].id });
+		iarr.push({ class: 'org.ecocean.SinglePhotoVideo', dataCollectionEventID: imgs[i].dataCollectionEventID });
 	}
 	encounter.set('images', iarr);
 console.log(iarr);
 
 	encounter.save({}, {
 		error: function(a,b,c) { console.error('error saving new encounter: %o %o %o', a,b,c); },
-		success: function(d) {
-			updateMediaSubmissionStatus('active');
-			$('#enc-results').html('created <a target="_new" href="encounters/encounter.jsp?number=' + eid + '">' + eid + '</a>');
-			$('#images-used').html('');
+		success: function(d,res) {
+			var err = res.exception || res.error;
+			if (err) {
+				actionResult('error on creating submission: <b>' + err + '</b>.');
+			} else {
+				updateMediaSubmissionStatus('active');
+				actionResult('created <a target="_new" href="encounters/encounter.jsp?number=' + eid + '">' + eid + '</a>');
+				$('#encounter-div').hide();
+				//$('#images-used').html('');
 
-			updateEncounters(function() {
-				displayMS();
-				$('#enc-create-button').show();
-			});
+				updateEncounters(function() {
+					displayMS();
+					$('#enc-create-button').show();
+				});
+			}
 		}
 	});
 }
@@ -903,6 +965,115 @@ function updateMediaSubmissionStatus(s) {
 }
 
 
+function actionCancel() {
+	window.location.reload();
+}
+
+function actionEncounter() {
+	var m = getSelectedMedia({skipGeo: true});
+	if (m.length < 1) return;
+	$('.action-div').hide();
+	$('#encounter-info').html('selected images/videos: <b>' + m.length + '</b>');
+	$('#encounter-div').show();
+}
+
+
+var surveyGeo = false;
+function actionSurvey() {
+	surveyGeo = false;
+	var m = getSelectedMedia();
+	if (m.length < 1) return;
+
+	var geoMedia = false;
+	for (var i = 0 ; i < m.length ; i++) {
+		if (isGeoFile(m[i])) {
+			geoMedia = m[i];
+			break;
+		}
+	}
+
+	$('#survey-info').html('');
+	if (geoMedia) {
+		var gm = new wildbook.Model.SinglePhotoVideo(geoMedia);
+		$.ajax({
+			url: gm.url() + '.json',
+			type: 'GET',
+			success: function(d) {
+				surveyGeo = d;
+				$('#survey-info').html('geo file has ' + d.length + ' points');
+				$('.action-div').hide();
+				$('#survey-div').show();
+			},
+			error: function(a,b,c) {
+				msError('could not get geo data for this file!  :(', a,b,c);
+			},
+			dataType: 'json'
+		});
+		return;
+	}
+
+	$('.action-div').hide();
+	$('#survey-div').show();
+}
+
+
+
+function actionResult(h) {
+	$('#action-message').prepend('<div>' + h + '</div>');
+}
+
+
+function getSelectedMedia(opt) {
+	if (!opt) opt = {};
+	var m = [];
+	var msMedia = mediaSubmission.get('media');
+	if (!msMedia) return m;
+
+	var selID = {};
+	var sel = $('div.image.ui-selected');
+	for (var i = 0 ; i < sel.length ; i++) {
+		selID[sel[i].id] = sel[i];
+	}
+
+	for (var i = 0 ; i < msMedia.length ; i++) {
+		if (!selID[msMedia[i].dataCollectionEventID]) continue;
+		if (opt.skipGeo && isGeoFile(msMedia[i])) continue;
+		m.push(msMedia[i]);
+	}
+
+//console.info('getSelectedMedia -> %o', m);
+	return m;
+}
+
+function selectSurvey() {
+	var val = $('#survey-id').val();
+	var trackOpts = '<option value="_new">create new</option>';
+
+	if (val == '_new') {
+		$('#survey-new-form').show();
+		$('#survey-track-id').html(trackOpts);
+	} else {
+		$('#survey-new-form').hide();
+///////populate related TRACKS
+		$('#survey-track-id').html(trackOpts);
+	}
+}
+
+
+function selectSurveyTrack() {
+	var val = $('#survey-track-id').val();
+	if (val == '_new') {
+		$('#survey-track-new-form').show();
+	} else {
+		$('#survey-track-new-form').hide();
+	}
+}
+
+
+function isGeoFile(m) {
+	return (m.filename.indexOf('.kmz') > -1);
+}
+
 </script>
 
 
@@ -927,18 +1098,54 @@ function updateMediaSubmissionStatus(s) {
 
 
 <div id="work-div">
-	<p><b>Images submitted by user.</b> (Click to add to Encounter below.)</p>
+	<p><b>Images submitted by user.</b></p>
 	<div id="images-unused"></div>
 
-<div id="encounter-div">
-	<h1>Encounter to create</h1>
+<div id="action-menu-div">
+	<div id="action-info"></div>
+	<input class="sel-act" type="button" value="create encounter" onClick="actionEncounter()" />
+	<input class="sel-act" type="button" value="add to / create survey" onClick="actionSurvey()" />
+	<input class="sel-act" type="button" value="trash" onClick="actionTrash()" />
+	<input class="sel-act" type="button" value="archive" onClick="actionArchive()" />
+	<input class="sel-act" type="button" value="to Cascadia" onClick="actionToCascadia()" />
+	<input class="sel-act" type="button" value="auto-ID" onClick="actionAutoID()" />
+	<input type="button" value="mark MediaSubmission complete" onClick="closeMediaSubmission()" />
+	<input type="button" value="back to listing" onClick="actionCancel()" />
+</div>
 
-	<div id="images-used"></div>
+<div id="action-message">
+</div>
 
-	<div style="padding: 5px;">
-		<span id="count-total"></span>
-		<span id="count-used"></span>
+<div class="action-div" id="survey-div">
+	<h1>Survey and Survey Track</h1>
+	<div id="survey-info"></div>
+	<div>
+		<span><b>Survey</b></span>
+		<select onChange="return selectSurvey()" id="survey-id"><option value="_new">create new</option></select>
+		<div id="survey-new-form">
+			<input id="survey-new-id" placeholder="survey ID" />
+		</div>
 	</div>
+	<div>
+		<span><b>Survey Track</b></span>
+		<select onChange="return selectSurveyTrack()" id="survey-track-id"><option value="_new">create new</option></select>
+		<div id="survey-track-new-form">
+			<input id="survey-track-new-id" placeholder="survey track ID" />
+			<input id="survey-track-new-vessel" placeholder="vessel" />
+			<span> optional (can leave blank)</span>
+		</div>
+	</div>
+
+	<div style="margin: 10px;">
+		<input type="button" id="survey-create-button" value="create survey/track" onClick="createSurvey()" />
+		<input type="button" value="cancel" onClick="$('#survey-create-button').show(); $('#survey-div').hide()" />
+	</div>
+
+</div>
+
+<div class="action-div" id="encounter-div">
+	<h1>Encounter to create</h1>
+	<div id="encounter-info"></div>
 
 	<div id="enc-form">
 		<div><label for="enc-submitterID">Submitter User</label><input id="enc-submitterID" /></div>
@@ -953,11 +1160,8 @@ function updateMediaSubmissionStatus(s) {
 
 <div style="margin: 10px;">
 	<input type="button" id="enc-create-button" value="create encounter" onClick="createEncounter()" />
-	<input type="button" value="close this MediaSubmission" onClick="closeMediaSubmission()" />
-	<input type="button" value="cancel" onClick="window.location.reload()" />
+	<input type="button" value="cancel" onClick="$('#enc-create-button').show(); $('#encounter-div').hide()" />
 </div>
-
-	<div id="enc-results"></div>
 
 </div>
 </div>
