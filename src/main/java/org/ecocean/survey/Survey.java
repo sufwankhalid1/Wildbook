@@ -3,7 +3,6 @@ package org.ecocean.survey;
 import java.util.List;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.ecocean.media.MediaSubmission;
 
 
 public class Survey {
@@ -17,7 +16,6 @@ public class Survey {
     private Long endTime;
     private String type;
     private List<SurveyTrack> tracks;
-    private List<MediaSubmission> media;
 
 
 //    public long getId() {
@@ -101,14 +99,6 @@ public class Survey {
     this.name = name;
   }
 
-  public List<MediaSubmission> getMedia() {
-    return media;
-  }
-
-  public void setMedia(List<MediaSubmission> media) {
-    this.media = media;
-  }
-  
   @Override
   public String toString()
   {
