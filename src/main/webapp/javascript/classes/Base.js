@@ -106,7 +106,7 @@ wildbook.Collection.BaseClass = Backbone.Collection.extend({
 		if (this._altUrl) { 
 			u += this._altUrl;
 		} else {
-			u += this.model.prototype.className();
+			u += this.model.prototype.className().replace('_', '.');
 		}
 console.log('url() -> %s', u);
 		return u;

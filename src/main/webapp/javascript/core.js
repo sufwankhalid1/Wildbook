@@ -5,8 +5,8 @@ var wildbook = {
 		'MarkedIndividual',
 		'SinglePhotoVideo',
 		'Measurement',
-		'Survey',
-		'SurveyTrack',
+		'survey_Survey',
+		'survey_SurveyTrack',
 		'Point',
 		'MediaSubmission'
 	],
@@ -131,7 +131,7 @@ console.log('is %o', ajax);
 	isModelObject: function(obj) {
 		if (!$.isPlainObject(obj)) return false;
 		if (!obj.class || (obj.class.indexOf('org.ecocean.') != 0)) return false;
-		return obj.class.substr(12);
+		obj.class.substr(12).replace('.', '_');
 	},
 
 	uuid: function() {   //  h/t http://stackoverflow.com/a/2117523/1525311
