@@ -133,7 +133,7 @@ String langCode=ServletUtilities.getLanguageCode(request);
   Shepherd myShepherd = new Shepherd(context);
   Extent allKeywords = myShepherd.getPM().getExtent(Keyword.class, true);
   Query kwQuery = myShepherd.getPM().newQuery(allKeywords);
-System.out.println("???? query=" + kwQuery);
+//System.out.println("???? query=" + kwQuery);
   boolean proceed = true;
   boolean haveRendered = false;
 
@@ -196,6 +196,26 @@ if (request.getParameter("number")!=null) {
         href="<%=CommonConfiguration.getHTMLShortcutIcon(context) %>"/>
   <style type="text/css">
     <!--
+
+	#spot-image-wrapper-left,
+	#spot-image-wrapper-right
+	{
+		position: relative;
+		height: 510px;
+	}
+	#spot-image-left, #spot-image-canvas-left,
+	#spot-image-right, #spot-image-canvas-right
+	{
+		position: absolute;
+		left: 0;
+		top: 0;
+		max-width: 600px;
+		max-height: 500px;
+	}
+
+	.spot-td {
+		display: table;	
+	}
 
     .style2 {
       color: #000000;
@@ -388,6 +408,12 @@ td.measurement{
 		  
         
         }
+
+
+
+
+var encounterNumber = '<%=num%>';
+
   </script>
 
 <style type="text/css">
@@ -467,7 +493,6 @@ margin-bottom: 8px !important;
 .ui_tpicker_minute_label {margin-bottom:5px !important;}
 
 
-
 </style>
 
 
@@ -491,9 +516,12 @@ margin-bottom: 8px !important;
  
   <script src="../javascript/timepicker/jquery-ui-timepicker-addon.js"></script>
  
+<script src="../javascript/imageTools.js"></script>
 
 			
 			<div id="main">
+
+
 			<%
   			myShepherd.beginDBTransaction();
 
@@ -3195,7 +3223,8 @@ $("a#autocomments").click(function() {
 <c:forEach var="item" items="${measurements}">
  <% 
     MeasurementDesc measurementDesc = (MeasurementDesc) pageContext.getAttribute("item");
-    Measurement event =  enc.findMeasurementOfType(measurementDesc.getType());
+    //Measurement event =  enc.findMeasurementOfType(measurementDesc.getType());
+    Measurement event=myShepherd.getMeasurementOfTypeForEncounter(measurementDesc.getType(), num);
     if (event != null) {
         pageContext.setAttribute("measurementValue", event.getValue());
         pageContext.setAttribute("samplingProtocol", Util.getLocalizedSamplingProtocol(event.getSamplingProtocol(), langCode,context));
@@ -3973,9 +4002,8 @@ dlgSample.dialog("open");
 
 <p>
 <%
-List<TissueSample> tissueSamples=enc.getTissueSamples();
-//List<TissueSample> tissueSamples=myShepherd.getAllTissueSamplesForEncounter(enc.getCatalogNumber());
-
+//List<TissueSample> tissueSamples=enc.getTissueSamples();
+List<TissueSample> tissueSamples=myShepherd.getAllTissueSamplesForEncounter(enc.getCatalogNumber());
 
 if((tissueSamples!=null)&&(tissueSamples.size()>0)){
 	

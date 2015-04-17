@@ -15,6 +15,7 @@ import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
@@ -45,10 +46,22 @@ public class MediaUploadServlet
  
     //
     // this will store uploaded files
-    // Let's put them in the user's session object so they don't hang around forever?
+    // Let's put them in the user's session object so they don't hang around forever.
     //
-    private static Map<String, FileSet> filesMap = new HashMap<String, FileSet>();
-
+    @SuppressWarnings("unchecked")
+    private Map<String, FileSet> getFilesMap(final HttpSession session)
+    {
+        Map<String, FileSet> filesMap;
+        filesMap = (Map<String, FileSet>) session.getAttribute("filesMap");
+        if (filesMap == null) {
+            filesMap = new HashMap<String, FileSet>();
+            session.setAttribute("filesMap", filesMap);
+        }
+        
+        return filesMap;
+    }
+    
+    
     /***************************************************
      * URL: /mediaupload
      * doPost(): upload the files and other parameters
@@ -57,12 +70,15 @@ public class MediaUploadServlet
                           final HttpServletResponse response)
         throws ServletException, IOException
     {
+        
         // 1. Upload File Using Java Servlet API
         //files.addAll(uploadByJavaServletAPI(request));            
       
         // 1. Upload File Using Apache FileUpload
         FileSet upload = uploadByApacheFileUpload(request);
 
+        
+        Map<String, FileSet> filesMap = getFilesMap(request.getSession()); 
         FileSet fileset = filesMap.get(upload.getID());
       
         if (fileset == null) {
@@ -139,6 +155,7 @@ public class MediaUploadServlet
              return;
          }
          
+         Map<String, FileSet> filesMap = getFilesMap(request.getSession()); 
          FileSet fileset = filesMap.get(id);
          
          // 2. Get the file of index "f" from the list "files"
@@ -271,7 +288,6 @@ public class MediaUploadServlet
                         id = -1;
                     }
                     
-                    System.out.println("Saving media with id: " + id);
                     new Thread(new SaveMedia(context,
                                              id,
                                              rootDir,
