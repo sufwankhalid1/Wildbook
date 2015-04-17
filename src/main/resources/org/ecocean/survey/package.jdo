@@ -30,13 +30,12 @@
             <field name="tracks" default-fetch-group="true">
                 <collection element-type="org.ecocean.survey.SurveyTrack"/>
             </field>
-            <field name="media" default-fetch-group="true">
-                <collection element-type="org.ecocean.media.MediaSubmission"/>
-                <join/>
-            </field>
         </class>
         
-        <class name="SurveyTrack" identity-type="datastore">
+        <class name="SurveyTrack" identity-type="application" >
+						<field name="id" primary-key="true" value-strategy="identity">
+						</field>
+
             <field name="name">
                 <column length="100" />
             </field>
@@ -49,6 +48,10 @@
             </field>
             <field name="type">
                 <column length="100" />
+            </field>
+            <field name="media" default-fetch-group="true">
+                <collection element-type="org.ecocean.SinglePhotoVideo" dependent-element="true" />
+                <join/>
             </field>
         </class>
     </package>
