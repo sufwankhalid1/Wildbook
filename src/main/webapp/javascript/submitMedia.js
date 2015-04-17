@@ -53,11 +53,7 @@ var submitMedia = (function () {
                          callback(data);
                      })
                      .error(function(ex) {
-                         //
-                         // TODO: Write code for displaying a message box showing our error.
-                         //
-                         console.log(JSON.stringify(ex.responseJSON.message));
-                         console.log(JSON.stringify(ex.responseJSON.totalStackTrace));
+                         wildbook.showError(ex.responseJSON.message, ex.responseJSON.totalStackTrace);
                      });
                 }
                 
@@ -73,17 +69,39 @@ var submitMedia = (function () {
                         dateFormat: 'yy-mm-dd',
 //                        dateFormat: '@',
                         showTime: true,
-                        defaultDate: null};
+                        defaultDate: null
+                };
                 
                 $scope.isLoggedIn = function() {
                     return (this.media.username);
+                };
+                
+//                $scope.allMediaUploaded = function() {
+//                    alert("allMediaUploaded");
+//                    return false;
+//                };
+                
+                $scope.getXifData = function() {
+                    //
+                    // Make call to get xif data
+                    //
+                    var media = this.media;
+                    $.get('obj/mediasubmission/getexif/' + this.media.id)
+                    .success(function(data) {
+                        media.startTime = data.startTime;
+                        media.endTime = data.endTime;
+                        media.latitude = data.latitude;
+                        media.longitude = data.longitude;
+                    })
+                    .error(function(ex) {
+                        wildbook.showError(ex.responseJSON.message, ex.responseJSON.totalStackTrace);
+                    });
                 };
                 
                 $scope.saveSubmission = function() {
                     var media = this.media;
                     savems(this.media, function(mediaid) {
                         media.id = mediaid;
-//                        $scope.mediaid = data;
                         
                         //
                         // TODO: Why is the controller not working here with angular?!

@@ -244,7 +244,7 @@ public final class MediaUtilities {
     // Search metadata for orientation change to apply.
     try {
       Metadata md = ImageMetadataReader.readMetadata(f);
-      Directory dir = md.getDirectory(ExifIFD0Directory.class);
+      Directory dir = md.getFirstDirectoryOfType(ExifIFD0Directory.class);
       if (dir == null) {
         return img;
       }

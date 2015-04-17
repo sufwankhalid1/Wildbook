@@ -143,8 +143,58 @@ console.log('is %o', ajax);
 
 	init: function(callback) {
 		classInit('Base', function() { wildbook.loadAllClasses(callback); });  //define base class first - rest can happen any order
-	}
+	},
 
+	errorDialog: false,
+	
+	showError: function(message, details) {
+        if (! this.errorDialog) {
+            $('body').append (
+                '<div id="exceptiondialog" style="display: none;">' +
+                '<pre id="exceptionmessage"></pre>' +
+                '<br />' +
+                '<button id="showexceptiondetails">Details &gt;&gt;</button>' +
+                '<div id="exceptiondetailscontainer" style="width: 100%; height: 400px; overflow: auto; display: none;">' +
+                '<pre id="exceptiondetails"></pre>' +
+                '</div>' +
+                '</div>'
+            );
+
+            $("#showexceptiondetails").button();
+            $("#showexceptiondetails").click( function(e) {
+                $("#exceptiondetailscontainer").toggle();
+            } );
+
+            this.errorDialog = true;
+        }
+
+        if ( details ) {
+            $("#showexceptiondetails").show();
+        } else {
+            $("#showexceptiondetails").hide();
+        }
+
+        $("#exceptionmessage").html( message );
+
+        $("#exceptiondetailscontainer").hide();
+        $("#exceptiondetails").html(details);
+
+        //
+        //   Positioning at top so that when the details are clicked we can
+        //   expand the form to show the whole details without it going off
+        //   the screen and the user having to move the form with the mouse.
+        //
+        $("#exceptiondialog").dialog( {
+            autoOpen: true,
+            dialogClass: "errordialog",
+            modal: true,
+            title: "Error",
+            closeOnEscape: true,
+            buttons: { "OK": function() { $(this).dialog("close"); } },
+            width: 600,
+            position: 'top',
+            resizable: false } );
+	}
 };
 
 

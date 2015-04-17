@@ -1,18 +1,32 @@
 package org.ecocean.rest;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.ecocean.CommonConfiguration;
+import org.ecocean.MailThreadExecutorService;
+import org.ecocean.NotificationMailer;
+import org.ecocean.Shepherd;
 import org.ecocean.ShepherdPMF;
 import org.ecocean.SinglePhotoVideo;
+import org.ecocean.User;
 import org.ecocean.media.MediaSubmission;
+import org.ecocean.servlet.ServletUtilities;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.drew.imaging.ImageMetadataReader;
+import com.drew.lang.GeoLocation;
+import com.drew.metadata.Metadata;
+import com.drew.metadata.exif.ExifSubIFDDirectory;
+import com.drew.metadata.exif.GpsDirectory;
 import com.samsix.database.ConnectionInfo;
 import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
@@ -27,8 +41,8 @@ import com.samsix.database.Table;
 @RequestMapping(value = "/obj/mediasubmission")
 public class MediaSubmissionController
 {
-    public static void save(final Database db,
-                            final MediaSubmission media)
+    private void save(final Database db,
+                      final MediaSubmission media)
         throws
             DatabaseException
     {
@@ -50,9 +64,9 @@ public class MediaSubmissionController
     }
     
     
-    private static void fillFormatter(final Database db,
-                                      final SqlFormatter formatter,
-                                      final MediaSubmission media)
+    private void fillFormatter(final Database db,
+                               final SqlFormatter formatter,
+                               final MediaSubmission media)
     {
         formatter.append("description", media.getDescription());
         formatter.append("email", media.getEmail());
@@ -69,48 +83,7 @@ public class MediaSubmissionController
     }
     
     
-    private static List<MediaSubmission> get(final Database db,
-                                             final SqlWhereFormatter where) throws DatabaseException
-    {
-        List<MediaSubmission> mss = new ArrayList<MediaSubmission>();
-        Table table = db.getTable("mediasubmission");
-        RecordSet rs = table.getRecordSet(where.getWhereClause());
-        while (rs.next()) {
-            MediaSubmission ms = new MediaSubmission();
-            ms.setDescription(rs.getString("description"));
-            ms.setEmail(rs.getString("email"));
-            ms.setEndTime(rs.getLongObj("endtime"));
-            ms.setId(rs.getLong("id"));
-            ms.setLatitude(rs.getDoubleObj("latitude"));
-            ms.setLongitude(rs.getDoubleObj("longitude"));
-            ms.setName(rs.getString("name"));
-            ms.setStartTime(rs.getLongObj("starttime"));
-            ms.setSubmissionid(rs.getString("submissionid"));
-            ms.setTimeSubmitted(rs.getLongObj("timesubmitted"));
-            ms.setUsername(rs.getString("username"));
-            ms.setVerbatimLocation(rs.getString("verbatimlocation"));
-            ms.setStatus(rs.getString("status"));
-            
-            mss.add(ms);
-        }
-        
-        return mss;
-    }
-    
-    
-//    private final UserService userService;
-//
-//    @Inject
-//    public UserController(final UserService userService) {
-//        this.userService = userService;
-//    }
-
-    
-    @RequestMapping(value = "/get/id/{mediaid}", method = RequestMethod.GET)
-    public MediaSubmission get(final HttpServletRequest request,
-                               @PathVariable("mediaid")
-                               final long mediaid)
-        throws DatabaseException
+    private MediaSubmission getMediaSubmission(final long mediaid) throws DatabaseException
     {
         ConnectionInfo ci = ShepherdPMF.getConnectionInfo();
         
@@ -153,6 +126,53 @@ public class MediaSubmissionController
             db.release();
         }
     }
+    
+    
+    private List<MediaSubmission> get(final Database db,
+                                      final SqlWhereFormatter where) throws DatabaseException
+    {
+        List<MediaSubmission> mss = new ArrayList<MediaSubmission>();
+        Table table = db.getTable("mediasubmission");
+        RecordSet rs = table.getRecordSet(where.getWhereClause());
+        while (rs.next()) {
+            MediaSubmission ms = new MediaSubmission();
+            ms.setDescription(rs.getString("description"));
+            ms.setEmail(rs.getString("email"));
+            ms.setEndTime(rs.getLongObj("endtime"));
+            ms.setId(rs.getLong("id"));
+            ms.setLatitude(rs.getDoubleObj("latitude"));
+            ms.setLongitude(rs.getDoubleObj("longitude"));
+            ms.setName(rs.getString("name"));
+            ms.setStartTime(rs.getLongObj("starttime"));
+            ms.setSubmissionid(rs.getString("submissionid"));
+            ms.setTimeSubmitted(rs.getLongObj("timesubmitted"));
+            ms.setUsername(rs.getString("username"));
+            ms.setVerbatimLocation(rs.getString("verbatimlocation"));
+            ms.setStatus(rs.getString("status"));
+            
+            mss.add(ms);
+        }
+        
+        return mss;
+    }
+    
+    
+//    private final UserService userService;
+//
+//    @Inject
+//    public UserController(final UserService userService) {
+//        this.userService = userService;
+//    }
+
+    
+    @RequestMapping(value = "/get/id/{mediaid}", method = RequestMethod.GET)
+    public MediaSubmission get(final HttpServletRequest request,
+                               @PathVariable("mediaid")
+                               final long mediaid)
+        throws DatabaseException
+    {
+        return getMediaSubmission(mediaid);
+    }
 
     
     @RequestMapping(value = "/get/status", method = RequestMethod.GET)
@@ -187,15 +207,72 @@ public class MediaSubmissionController
     }
     
     
+    @RequestMapping(value = "/complete", method = RequestMethod.POST)
+    public void complete(final HttpServletRequest request,
+                         final MediaSubmission media)
+        throws DatabaseException
+    {
+        ConnectionInfo ci = ShepherdPMF.getConnectionInfo();
+        
+        Database db = new Database(ci);
+        
+        try {
+            //
+            // Save media submission
+            //
+//            boolean isNew = (media.getId() == null);
+
+            save(db, media);
+        } catch (DatabaseException ex) {
+            throw ex;
+        } finally {
+            db.release();
+        }
+        
+        String context = ServletUtilities.getContext(request);
+        String userstr;
+        String email;
+        if (media.getUsername() != null) {
+            User user = new Shepherd(context).getUser(media.getUsername());
+            if (user != null) {
+                email = user.getEmailAddress();
+                userstr = user.getFullName() + " (" + media.getUsername() + ") <" + email + ">";
+            } else {
+                email = null;
+                userstr = media.getUsername();
+            }
+        } else {
+            email = media.getEmail();
+            userstr = media.getName() + " <" + email + ">";
+        }
+        
+        //get the email thread handler
+        ThreadPoolExecutor es = MailThreadExecutorService.getExecutorService();
+        //email the new submission address defined in commonConfiguration.properties
+        es.execute(new NotificationMailer(CommonConfiguration.getMailHost(context),
+                                          CommonConfiguration.getAutoEmailAddress(context),
+                                          CommonConfiguration.getNewSubmissionEmail(context),
+                                          "New media submission: " + media.getId(),
+                                          userstr + " has sent you a new media submission.",
+                                          null,
+                                          context));        
+        if (email != null) {
+            es.execute(new NotificationMailer(CommonConfiguration.getMailHost(context),
+                                              CommonConfiguration.getAutoEmailAddress(context),
+                                              email,
+                                              "Thank you for your media submission!",
+                                              "Thank you!",
+                                              null,
+                                              context));
+        }
+    }
+    
+    
     @RequestMapping(value = "/save", method = RequestMethod.POST)
     public long save(final HttpServletRequest request,
                      final MediaSubmission media)
         throws DatabaseException
     {
-//        //
-//        // Save using DataNucleus for now?
-//        //
-//        Shepherd myShepherd = new Shepherd(ServletUtilities.getContext(request));
         ConnectionInfo ci = ShepherdPMF.getConnectionInfo();
         
         Database db = new Database(ci);
@@ -275,98 +352,121 @@ public class MediaSubmissionController
 ////        myShepherd.getPM().makePersistent(media);
 ////        myShepherd.commitDBTransaction();
     }
-    
-//    @RequestMapping(value = "/get/{id}", method = RequestMethod.GET)
-//    public MediaSubmission save(final MediaSubmission media,
-//                         @ParamField("id") int id ) {
-//        
-//        System.out.println(media);
-//    }
 
     
-//    //
-//    // Just test stuff
-//    //
-//    @RequestMapping(value = "/upload", method = RequestMethod.POST)
-//    public UploadResult uploadMedia(@RequestBody @Valid final UploadData data) {
-//        return new UploadResult("hello, I am the upload");
-//    }
-//    
-//    @RequestMapping(value = "/test", method = RequestMethod.POST)
-//    public @ResponseBody UploadResult test(@RequestParam(value="data") final String data) {
-//      String value = "hello, test with data [" + data + "]"; 
-//      UploadResult upload = new UploadResult(value);
-//      return upload;
-//    }
-//
-//    @RequestMapping(value = "/test2", method = RequestMethod.POST)
-//    public int test2() {
-//        return 42;
-//    }
-//
-//    @RequestMapping(value = "/test2b", method = RequestMethod.GET)
-//    public UploadResult test2b() {
-//        return new UploadResult("junk");
-//    }
-//
-//    @RequestMapping(value = "/test2b", method = RequestMethod.POST)
-//    public UploadResult test2b(UploadResult stuff) {
-//        return new UploadResult("junk " + stuff.value);
-//    }
-//
-//    @RequestMapping(value = "/test3", method = RequestMethod.POST)
-//    public String test3(@RequestParam(value="data") final String data) {
-//      String value = "hello, test with data [" + data + "]"; 
-//      UploadResult upload = new UploadResult(value);
-//      return upload.value;
-//    }
-//
-//    @RequestMapping(value = "/test4", method = RequestMethod.POST)
-//    public UploadResult test4(@RequestParam(value="data") final String data) {
-//      String value = "hello, I am the test4 with [data=" + data + "]"; 
-//      UploadResult upload = new UploadResult(value);
-//      return upload;
-//    }
-//
-//    @RequestMapping(value = "/test5", method = RequestMethod.POST)
-//    public String test5(HttpServletRequest request,
-//                        @RequestParam(value="data") final String data) {
-//      String context = ServletUtilities.getContext(request);
-//      String value = "hello, test with data ["
-//          + data
-//          + "] and mail host ["
-//          + CommonConfiguration.getMailHost(context)
-//          + "]"; 
-//      UploadResult upload = new UploadResult(value);
-//      return upload.value;
-//    }
+    @RequestMapping(value = "/getexif/{msid}", method = RequestMethod.GET)
+    public ExifData getExif(final HttpServletRequest request,
+                           @PathVariable("msid")
+                           final long msid)
+        throws DatabaseException
+    {
+        MediaSubmission ms = getMediaSubmission(msid);
+        
+        ExifData data = new ExifData();
 
-//    public static class UploadResult {
-//        public String value;
-//      
-//        public UploadResult()
-//        {
-//            //un-marshalling
-//        }
-//      
-//        public UploadResult(final String value)
-//        {
-//            this.value = value;
-//        }
-//      
-//        public String getValue()
-//        {
-//            return value;
-//        }
-//      
-//        public void setValue(final String value)
-//        {
-//            this.value = value;
-//        }
-//    }
-//    
-//    public static class UploadData {
-//        public int id;
-//        public String value;
-//    }
+        if (ms == null) {
+            return data;
+        }
+        
+        double latitude = 0;
+        int latCount = 0;
+        double longitude = 0;
+        int longCount = 0;
+        
+        for (SinglePhotoVideo media : ms.getMedia()) {
+            int index = media.getFilename().lastIndexOf('.');
+            if (index < 0) {
+                continue;
+            }
+            
+            switch (media.getFilename().substring(index+1).toLowerCase()) {
+                case "jpg":
+                case "jpeg":
+                case "png":
+                case "tiff":
+                case "arw":
+                case "nef":
+                case "cr2":
+                case "orf":
+                case "rw2":
+                case "rwl":
+                case "srw":
+                {
+                    if (media.getFile().exists()) {
+                        Metadata metadata;
+                        try {
+                            metadata = ImageMetadataReader.readMetadata(media.getFile());
+                         // obtain the Exif directory
+                            ExifSubIFDDirectory directory;
+                            directory = metadata.getFirstDirectoryOfType(ExifSubIFDDirectory.class);
+                            // query the tag's value
+                            Date date = directory.getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL);
+                            if (date != null) {
+                                if (data.startTime == null) {
+                                    data.startTime = date.getTime();
+                                } else {
+                                    if (date.getTime() < data.startTime) {
+                                        data.startTime = date.getTime();
+                                    }
+                                }
+                                if (data.endTime == null) {
+                                    data.endTime = date.getTime();
+                                } else {
+                                    if (date.getTime() > data.endTime) {
+                                        data.endTime = date.getTime();
+                                    }
+                                }
+                            }
+                            
+                            // See whether it has GPS data
+                            Collection<GpsDirectory> gpsDirectories = metadata.getDirectoriesOfType(GpsDirectory.class);
+                            if (gpsDirectories == null)
+                                continue;
+                            for (GpsDirectory gpsDirectory : gpsDirectories) {
+                                // Try to read out the location, making sure it's non-zero
+                                GeoLocation geoLocation = gpsDirectory.getGeoLocation();
+                                if (geoLocation != null && !geoLocation.isZero()) {
+                                    latitude += geoLocation.getLatitude();
+                                    latCount += 1;
+                                    longitude += geoLocation.getLongitude();
+                                    longCount += 1;
+                                }
+                            }
+                            
+//                            // iterate through metadata directories
+//                            List<Tag> list = new ArrayList<Tag>();
+//                            for (Directory dir : metadata.getDirectories()) {
+//                                if ("exif".equals(dir.getName().toLowerCase()) {
+//                                    dir.
+//                                }
+//                                        
+//                                for (Tag tag : dir.getTags()) {
+//                                    if (!tag.getTagName().toUpperCase(Locale.US).startsWith("GPS"))
+//                                        list.add(tag);
+//                                }
+//                            }
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                }
+            }
+        }
+        
+        if (latCount > 0) {
+            data.latitude = latitude / latCount;
+            data.longitude = longitude / longCount;
+        }
+        
+        return data;
+    }
+    
+    
+    public static class ExifData
+    {
+        public Long startTime;
+        public Long endTime;
+        public Double latitude;
+        public Double longitude;
+    }
 }

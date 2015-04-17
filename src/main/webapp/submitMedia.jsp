@@ -141,7 +141,7 @@
                 </div>
                 <div class="form-group"
                      ng-hide="isLoggedIn()"
-                     ng-class="{'has-error': rc.firstForm.needsAttention(firstForm.email)}">
+                     ng-class="{'has-error': rc.formUser.needsAttention(formUser.email)}">
                   <label class="control-label">Email</label>
                   <input class="form-control" type="text" ng-required="!isLoggedIn()"
                          ng-model="media.email" />
@@ -152,7 +152,8 @@
                 </div>
               </form>
 
-            <form class="tab-pane" id="fileupload" action="mediaupload" method="POST" rc-step
+            <form class="tab-pane" id="fileupload" action="mediaupload" method="POST" name="formMedia"
+                  rc-step rc-submit="getXifData()" novalidate
                   enctype="multipart/form-data" data-ng-controller="DemoFileUploadController"
                   data-file-upload="options" data-ng-class="{'fileupload-processing': processing() || loadingFiles}">
                 <!-- Redirect browsers with JavaScript disabled to the origin page -->
