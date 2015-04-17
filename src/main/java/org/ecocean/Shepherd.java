@@ -1535,6 +1535,25 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
     Collection c = (Collection) (samples.execute());
     return (new ArrayList<TissueSample>(c));
   }
+  
+  public ArrayList<TissueSample> getAllTissueSamplesForMarkedIndividual(MarkedIndividual indy) {
+    ArrayList<TissueSample> al = new ArrayList<TissueSample>();
+    if(indy.getEncounters()!=null){
+      int numEncounters = indy.getEncounters().size();
+      for (int i = 0; i < numEncounters; i++) {
+        Encounter enc = (Encounter) indy.getEncounters().get(i);
+        if(getAllTissueSamplesForEncounter(enc.getCatalogNumber())!=null){
+          List<TissueSample> list = getAllTissueSamplesForEncounter(enc.getCatalogNumber());
+          if(list.size()>0){
+            al.addAll(list);
+          }
+        }
+      }
+    return al;
+    }
+    return null;
+  }
+  
 
   public ArrayList<SinglePhotoVideo> getAllSinglePhotoVideosForEncounter(String encNum) {
 /*
@@ -1549,6 +1568,16 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
 		List<SinglePhotoVideo> imgs = enc.getImages();
 		return (new ArrayList<SinglePhotoVideo>(imgs));
   }
+  
+  public int getNumSinglePhotoVideosForEncounter(String encNum) {
+	    String filter = "correspondingEncounterNumber == \""+encNum+"\"";
+	    Extent encClass = pm.getExtent(SinglePhotoVideo.class, true);
+	    Query samples = pm.newQuery(encClass, filter);
+	    Collection c = (Collection) (samples.execute());
+	    int numResults=c.size();
+	    samples.closeAll();
+	    return numResults;
+	  }
 
   public Iterator getAllEncountersNoFilter(String order, String filter2use) {
     String filter = filter2use;
@@ -2202,6 +2231,7 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
     ArrayList<User> list = new ArrayList<User>();
     Extent userClass = pm.getExtent(User.class, true);
     Query users = pm.newQuery(userClass);
+    users.setOrdering("fullName ascending");
     try {
       c = (Collection) (users.execute());
       if(c!=null){
@@ -2209,7 +2239,8 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
       }
       users.closeAll();
       return list;
-    } catch (Exception npe) {
+    } 
+    catch (Exception npe) {
       //System.out.println("Error encountered when trying to execute Shepherd.getAllUsers. Returning a null collection because I didn't have a transaction to use.");
       npe.printStackTrace();
       return null;
@@ -2293,15 +2324,22 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
   }
 
 
-  public ArrayList<SinglePhotoVideo> getThumbnails(HttpServletRequest request, Iterator it, int startNum, int endNum, String[] keywords) {
+  public ArrayList<SinglePhotoVideo> getThumbnails(Shepherd myShepherd,HttpServletRequest request, ArrayList<String> encList, int startNum, int endNum, String[] keywords) {
     ArrayList<SinglePhotoVideo> thumbs = new ArrayList<SinglePhotoVideo>();
     boolean stopMe = false;
+    int encIter=0;
     int count = 0;
-    while (it.hasNext()) {
-      Encounter enc = (Encounter) it.next();
-      ArrayList<SinglePhotoVideo> images=getAllSinglePhotoVideosForEncounter(enc.getCatalogNumber());
+    int numEncs=encList.size();
+    //while (it.hasNext()) {
+    while((count<=endNum)&&(encIter<numEncs)){
+      
+      String nextCatalogNumber=encList.get(encIter);	
+      int numImages=getNumSinglePhotoVideosForEncounter(nextCatalogNumber);
+      
 
-      if ((count + images.size()) >= startNum) {
+      if ((count + numImages) >= startNum) {
+    	  Encounter enc = myShepherd.getEncounter(nextCatalogNumber);
+    	  ArrayList<SinglePhotoVideo> images=getAllSinglePhotoVideosForEncounter(enc.getCatalogNumber());
         for (int i = 0; i < images.size(); i++) {
           count++;
           if ((count <= endNum) && (count >= startNum)) {
@@ -2360,9 +2398,9 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
         }
       } //end if
       else {
-        count += images.size();
+        count += numImages;
       }
-
+      encIter++;
     }//end while
     return thumbs;
   }
@@ -3027,6 +3065,34 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
     return occurrenceIDs;
   }
   
+
+  
+  public Measurement getMeasurementOfTypeForEncounter(String type, String encNum) {
+    String filter = "type == \""+type+"\" && correspondingEncounterNumber == \""+encNum+"\"";
+    Extent encClass = pm.getExtent(Measurement.class, true);
+    Query samples = pm.newQuery(encClass, filter);
+    Collection c = (Collection) (samples.execute());
+    if((c!=null)&&(c.size()>0)){return (new ArrayList<Measurement>(c)).get(0);}
+    else{return null;}
+  }
+  
+  public ArrayList<Measurement> getMeasurementsForEncounter(String encNum) {
+    String filter = "correspondingEncounterNumber == \""+encNum+"\"";
+    Extent encClass = pm.getExtent(Measurement.class, true);
+    Query samples = pm.newQuery(encClass, filter);
+    Collection c = (Collection) (samples.execute());
+    if((c!=null)&&(c.size()>0)){return (new ArrayList<Measurement>(c));}
+    else{return null;}
+  }
+  
+  public Iterator<ScanTask> getAllScanTasksForUser(String user) {
+    String filter = "submitter == \""+user+"\"";
+    Extent encClass = pm.getExtent(ScanTask.class, true);
+    Query samples = pm.newQuery(encClass, filter);
+    Collection c = (Collection) (samples.execute());
+    if((c!=null)&&(c.size()>0)){return c.iterator();}
+    else{return null;}
+  }
 
   
 

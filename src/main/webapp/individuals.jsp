@@ -20,7 +20,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <%@ page contentType="text/html; charset=utf-8" language="java"
          import="com.drew.imaging.jpeg.JpegMetadataReader,com.drew.metadata.Metadata,com.drew.metadata.Tag,org.ecocean.mmutil.MediaUtilities,
-javax.jdo.datastore.DataStoreCache, org.datanucleus.jdo.*,
+javax.jdo.datastore.DataStoreCache, org.datanucleus.jdo.*,javax.jdo.Query,
 		 org.joda.time.DateTime,org.ecocean.*,org.ecocean.social.*,org.ecocean.servlet.ServletUtilities,java.io.File, java.util.*, org.ecocean.genetics.*,org.ecocean.security.Collaboration, com.google.gson.Gson, org.json.JSONArray, org.json.JSONObject, org.datanucleus.api.rest.RESTUtils, org.datanucleus.api.jdo.JDOPersistenceManager" %>
 
 <%
@@ -730,7 +730,7 @@ $('#progress').html(percentage);
 function _colDataTypes(o) {
 	var dt = '';
 	if (o.get('hasImages')) dt += '<img title="images" src="images/Crystal_Clear_filesystem_folder_image.png" />';
-	if (o.get('hasTissueSamples')) dt += '<img title="tissue samples" src="images/microscope.gif" />';
+	if (o.get('hasTissueSamples')) dt += '<img title="tissue samples" src="images/microscope.gif" style="padding: 0px 1px 0px 1px;" />';
 	if (o.get('hasMeasurements')) dt += '<img title="measurements" src="images/ruler.png" />';
 	return dt;
 }
@@ -879,7 +879,7 @@ function dataTypes(obj, fieldName) {
 if(CommonConfiguration.isIntegratedWithWildMe(context)){
 %>
 <td>
-<a href="http://fb.wildme.org/wildme/public/profile/<%=sharky.getIndividualID()%>" target="_blank"><img src="images/wild-me-link.png" /></a>
+<a href="http://fb.wildme.org/wildme/public/profile/<%=CommonConfiguration.getProperty("wildMeDataSourcePrefix", context) %><%=sharky.getIndividualID()%>" target="_blank"><img src="images/wild-me-link.png" /></a>
 </td>
 <%
 }
@@ -1249,9 +1249,12 @@ $("a#deathdate").click(function() {
 	henc.put("date", enc.getDate());
     	henc.put("location", enc.getLocation());
 	if ((enc.getImages()!=null) && (enc.getImages().size()>0)) henc.put("hasImages", true);
-   	if ((enc.getTissueSamples()!=null) && (enc.getTissueSamples().size()>0)) henc.put("hasTissueSamples", true);
-   	if (enc.hasMeasurements()) henc.put("hasMeasurements", true);
-	henc.put("catalogNumber", enc.getEncounterNumber());
+   	if ((myShepherd.getAllTissueSamplesForEncounter(enc.getCatalogNumber())!=null) && (myShepherd.getAllTissueSamplesForEncounter(enc.getCatalogNumber()).size()>0)) henc.put("hasTissueSamples", true);
+   	
+   	//if (enc.hasMeasurements()) henc.put("hasMeasurements", true);
+   	if ((myShepherd.getMeasurementsForEncounter(enc.getCatalogNumber())!=null) && (myShepherd.getMeasurementsForEncounter(enc.getCatalogNumber()).size()>0)) henc.put("hasMeasurements", true);
+	
+   	henc.put("catalogNumber", enc.getEncounterNumber());
  	henc.put("alternateID", enc.getAlternateID());
 	henc.put("sex", enc.getSex());
 
@@ -1355,7 +1358,16 @@ System.out.println(henc);
 			  }
 
 			try {
-				thumbLocs=myShepherd.getThumbnails(request, sharky.getEncounters().iterator(), 1, 99999, keywords);
+				
+			    Query query = myShepherd.getPM().newQuery("SELECT from org.ecocean.Encounter WHERE individualID == \""+sharky.getIndividualID()+"\"");
+		        //query.setFilter("SELECT "+jdoqlQueryString);
+		        query.setResult("catalogNumber");
+		        Collection c = (Collection) (query.execute());
+		        ArrayList<String> enclist = new ArrayList<String>(c);
+		        query.closeAll();
+				
+			
+				thumbLocs=myShepherd.getThumbnails(myShepherd,request, enclist, 1, 99999, keywords);
 				numThumbs=thumbLocs.size();
 			%>
 
@@ -1881,7 +1893,7 @@ if(CommonConfiguration.showUsersToPublic(context)){
 <p><img align="absmiddle" src="images/microscope.gif" /><strong><%=props.getProperty("tissueSamples") %></strong></p>
 <p>
 <%
-List<TissueSample> tissueSamples=sharky.getAllTissueSamples();
+List<TissueSample> tissueSamples=myShepherd.getAllTissueSamplesForMarkedIndividual(sharky);
 
 int numTissueSamples=tissueSamples.size();
 if(numTissueSamples>0){
