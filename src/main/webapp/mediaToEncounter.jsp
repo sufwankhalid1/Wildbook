@@ -218,6 +218,14 @@ body { font-family: arial }
 <script type="text/javascript">
 
 
+var mediaSubmissionID = <%
+	String mid = request.getParameter("mediaSubmissionID");
+	if (mid == null) {
+		out.println("false");
+	} else {
+		out.println("'" + mid + "'");
+	}
+%>;
 
 var colDefn = [
 	{
@@ -732,7 +740,11 @@ $(document).ready( function() {
 			success: function() {
 				$('#admin-div').show();
 				searchResults = allMS.models;
-				doTable();
+				if (!mediaSubmissionID) {
+					doTable();
+				} else {
+					browse(mediaSubmissionID);
+				}
 			}
 		});
 	});
@@ -950,6 +962,68 @@ function encountersForImage(imgID) {
 }
 
 
+function createSurvey() {
+	var m = getSelectedMedia({skipGeo: true});
+	if (!surveyGeo && (m.length < 1)) return;  //need at least one of these things
+	$('#survey-create-button').attr('disabled', 'disabled');
+
+	var media = false;
+	if (m.length > 0) {
+		media = new Array();
+		for (var i = 0 ; i < m.length ; i++) {
+			media.push({class: 'org.ecocean.SinglePhotoVideo', dataCollectionEventID: m[i].dataCollectionEventID});
+		}
+console.info('media %o', media);
+	}
+
+	var points = false;
+	if (surveyGeo && (surveyGeo.length > 0)) {
+		points = new Array();
+		for (var i = 0 ; i < surveyGeo.length ; i++) {
+			var p = {class: 'org.ecocean.Point'};
+			if (surveyGeo[i][0] != undefined) p.latitude = surveyGeo[i][0];
+			if (surveyGeo[i][1] != undefined) p.longitude = surveyGeo[i][1];
+			if (surveyGeo[i][2] != undefined) p.elevation = surveyGeo[i][2];
+			if (surveyGeo[i][3] != undefined) p.timestamp = surveyGeo[i][3];
+			points.push(p);
+		}
+	}
+console.info('points %o', points);
+
+	var surveyID = $('#survey-id').val();
+	var surveyTrackID = $('#survey-track-id').val();
+
+	//easy case -- we only need to update/save the SurveyTrack
+	if ((surveyID != '_new') && (surveyTrackID != '_new')) {
+		var track = new wildbook.Model.survey_SurveyTrack(allSurveys.models[surveyID].get('tracks')[surveyTrackID]);
+		if (points) track.set('points', points);  //we overwrite this, unlike .media
+		var a = track.get('media');
+		if (!a) a = [];
+		if (media) a = a.concat(media);
+		if (a.length > 0) track.set('media', a);
+console.info('new track! %o', track);
+		track.save({}, {
+			error: function(a,b,c) {
+				msError('unable to save track.');
+			},
+			sucess: function() {
+				actionResult('saved SurveyTrack ' + track.get('_id'));
+				$('#survey-create-button').removeAttr('disabled');
+				updateMediaSubmissionStatus('active');
+				$('#survey-div').hide();
+				updateEncounters(function() {
+					displayMS();
+					//$('#enc-create-button').show();
+				});
+			}
+		});
+		return;
+
+	}
+
+}
+
+
 function closeMediaSubmission() {
 	updateMediaSubmissionStatus('closed');
 	window.location.reload();
@@ -979,8 +1053,25 @@ function actionEncounter() {
 
 
 var surveyGeo = false;
+var allSurveys = false;
+var surveyGetInProgress = false;
+
 function actionSurvey() {
-	surveyGeo = false;
+	if (surveyGetInProgress) return;
+
+	if (!allSurveys) {
+		surveyGetInProgess = true;
+		allSurveys = new wildbook.Collection.survey_Surveys();
+		allSurveys.fetch({
+			success: function() {
+				surveyGetInProgess = false;
+				actionSurvey();
+			},
+			error: function() { console.error('failed to get allSurveys!'); }
+		});
+		return;
+	}
+
 	var m = getSelectedMedia();
 	if (m.length < 1) return;
 
@@ -991,9 +1082,12 @@ function actionSurvey() {
 			break;
 		}
 	}
+	if (!geoMedia) {
+		surveyGeo = false;
+		$('#survey-info').html('');
+	}
 
-	$('#survey-info').html('');
-	if (geoMedia) {
+	if (geoMedia && !surveyGeo) {
 		var gm = new wildbook.Model.SinglePhotoVideo(geoMedia);
 		$.ajax({
 			url: gm.url() + '.json',
@@ -1001,8 +1095,9 @@ function actionSurvey() {
 			success: function(d) {
 				surveyGeo = d;
 				$('#survey-info').html('geo file has ' + d.length + ' points');
-				$('.action-div').hide();
-				$('#survey-div').show();
+				//$('.action-div').hide();
+				//$('#survey-div').show();
+				actionSurvey();
 			},
 			error: function(a,b,c) {
 				msError('could not get geo data for this file!  :(', a,b,c);
@@ -1010,6 +1105,22 @@ function actionSurvey() {
 			dataType: 'json'
 		});
 		return;
+	}
+
+
+//console.log('allSurveys ----> %o', allSurveys);
+	if (allSurveys && allSurveys.models && (allSurveys.models.length > 0)) {
+		for (var i = 0 ; i < allSurveys.models.length ; i++) {
+//console.log('hooooo?  %o', allSurveys.models[i]);
+			var sname = allSurveys.models[i].get('name');
+			if (sname) {
+				sname += ' (ID ' + allSurveys.models[i].get('_id') + ')';
+			} else {
+				sname += 'ID ' + allSurveys.models[i].get('_id');
+			}
+			//$('#survey-id').append('<option value="' + allSurveys.models[i].get('_id') + '">' + sname + '</option>');
+			$('#survey-id').append('<option value="' + i + '">' + sname + '</option>');
+		}
 	}
 
 	$('.action-div').hide();
@@ -1046,15 +1157,31 @@ function getSelectedMedia(opt) {
 }
 
 function selectSurvey() {
-	var val = $('#survey-id').val();
+	var val = $('#survey-id').val();   //note: this is allSurveys offset!
 	var trackOpts = '<option value="_new">create new</option>';
 
 	if (val == '_new') {
 		$('#survey-new-form').show();
+		$('#survey-track-new-form').show();
 		$('#survey-track-id').html(trackOpts);
 	} else {
 		$('#survey-new-form').hide();
-///////populate related TRACKS
+
+		if (allSurveys && allSurveys.models && (allSurveys.models.length > 0)) {
+			var tr = allSurveys.models[0].get('tracks');
+			if (tr && tr.length > 0) {
+				for (var i = 0 ; i < tr.length ; i++) {
+					var tname = tr[i].name;
+					if (tname) {
+						tname += ' (ID ' + tr[i]._id + ')';
+					} else {
+						tname = 'ID ' + tr[i]._id;
+					}
+					trackOpts += '<option value="' + i + '">' + tname + '</option>';
+				}
+			}
+		}
+
 		$('#survey-track-id').html(trackOpts);
 	}
 }
