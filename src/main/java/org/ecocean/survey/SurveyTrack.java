@@ -3,12 +3,15 @@ package org.ecocean.survey;
 import java.util.List;
 
 import org.ecocean.Point;
+import org.ecocean.SinglePhotoVideo;
 
 public class SurveyTrack {
+  private int id;
   private String name;
   private List<Point> points;
   private String vesselId;
   private String type;
+  private List<SinglePhotoVideo> media; 
 
   
   public String getName() {
@@ -41,5 +44,13 @@ public class SurveyTrack {
   
   public void setType(String type) {
     this.type = type;
+  }
+
+  public List<SinglePhotoVideo> getMedia() {
+    return media;
+  }
+
+  public void setMedia(List<SinglePhotoVideo> media) {
+    this.media = media;
   }
 }
