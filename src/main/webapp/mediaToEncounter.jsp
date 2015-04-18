@@ -962,6 +962,7 @@ function encountersForImage(imgID) {
 }
 
 
+var surveyWaitCount = 0;
 function createSurvey() {
 	var m = getSelectedMedia({skipGeo: true});
 	if (!surveyGeo && (m.length < 1)) return;  //need at least one of these things
@@ -990,24 +991,30 @@ console.info('media %o', media);
 	}
 console.info('points %o', points);
 
+	//note: these .val() are array *offset* values
 	var surveyID = $('#survey-id').val();
 	var surveyTrackID = $('#survey-track-id').val();
 
-	//easy case -- we only need to update/save the SurveyTrack
+	//case 1: update an existing track
 	if ((surveyID != '_new') && (surveyTrackID != '_new')) {
-		var track = new wildbook.Model.survey_SurveyTrack(allSurveys.models[surveyID].get('tracks')[surveyTrackID]);
-		if (points) track.set('points', points);  //we overwrite this, unlike .media
-		var a = track.get('media');
-		if (!a) a = [];
-		if (media) a = a.concat(media);
-		if (a.length > 0) track.set('media', a);
-console.info('new track! %o', track);
-		track.save({}, {
+		var survey = allSurveys.models[surveyID];
+		surveyTrackID = survey.get('tracks')[surveyTrackID].id;
+		surveyWaitCount = 1;
+		if (points && media) surveyWaitCount = 2;
+
+		if (points) $.ajax({
+			url: 'obj/surveytrack/appendPoints/' + surveyTrackID,
+			data: JSON.stringify(points),
+			contentType: 'application/json',
+			type: 'POST',
 			error: function(a,b,c) {
-				msError('unable to save track.');
+				msError('unable to append points to track.',a,b,c);
+				surveyWaitCount--;
 			},
-			sucess: function() {
-				actionResult('saved SurveyTrack ' + track.get('_id'));
+			success: function(d) {
+				actionResult('added points to Survey Track');
+				surveyWaitCount--;
+				if (surveyWaitCount > 0) return;
 				$('#survey-create-button').removeAttr('disabled');
 				updateMediaSubmissionStatus('active');
 				$('#survey-div').hide();
@@ -1017,8 +1024,99 @@ console.info('new track! %o', track);
 				});
 			}
 		});
+
+		if (media) $.ajax({
+			url: 'obj/surveytrack/appendMedia/' + surveyTrackID,
+			data: JSON.stringify(media),
+			contentType: 'application/json',
+			type: 'POST',
+			error: function(a,b,c) {
+				msError('unable to append media to track.',a,b,c);
+				surveyWaitCount--;
+			},
+			success: function(d) {
+				actionResult('added media to Survey Track');
+				surveyWaitCount--;
+				if (surveyWaitCount > 0) return;
+				$('#survey-create-button').removeAttr('disabled');
+				$('#survey-new-form input').val('');
+				$('#survey-track-new-form input').val('');
+				updateMediaSubmissionStatus('active');
+				$('#survey-div').hide();
+				updateEncounters(function() {
+					displayMS();
+					//$('#enc-create-button').show();
+				});
+			}
+		});
+
 		return;
 
+	////case 2 and 3: create new track for existing survey -or- create new track and new survey
+	} else {
+		var track = {};
+		if (media) track.media = media;
+		if (points) track.points = points;
+		$('#survey-track-new-form input').each(function(i, el) {
+			if ((el.value != undefined) && (el.value != '')) track[el.id.substr(18)] = el.value;
+		});
+console.info('new track! %o', track);
+
+		//case 2
+		if (surveyID != '_new') {
+			var survey = allSurveys.models[surveyID];
+			$.ajax({
+				url: 'obj/survey/appendTrack/' + survey.id,
+				data: JSON.stringify(track),
+				contentType: 'application/json',
+				type: 'POST',
+				error: function(a,b,c) {
+					msError('unable to append track to survey.',a,b,c);
+				},
+				success: function(d) {
+					actionResult('added track to Survey');
+					$('#survey-new-form input').val('');
+					$('#survey-track-new-form input').val('');
+					$('#survey-create-button').removeAttr('disabled');
+					updateMediaSubmissionStatus('active');
+					$('#survey-div').hide();
+					updateEncounters(function() {
+						displayMS();
+						//$('#enc-create-button').show();
+					});
+				}
+			});
+
+		//case 3
+		} else {
+			//TODO could be done via backbone model??
+			var survey = { tracks: [ track ]};
+			$('#survey-new-form input').each(function(i, el) {
+				if ((el.value != undefined) && (el.value != '')) survey[el.id.substr(12)] = el.value;
+			});
+			$.ajax({
+				url: 'obj/survey/save',
+				data: JSON.stringify(survey),
+				contentType: 'application/json',
+				type: 'POST',
+				error: function(a,b,c) {
+					msError('unable to create new survey.',a,b,c);
+				},
+				success: function(d) {
+					actionResult('created new Survey');
+					$('#survey-create-button').removeAttr('disabled');
+					$('#survey-new-form input').val('');
+					$('#survey-track-new-form input').val('');
+					updateMediaSubmissionStatus('active');
+					$('#survey-div').hide();
+					updateEncounters(function() {
+						displayMS();
+						//$('#enc-create-button').show();
+					});
+				}
+			});
+
+		}
 	}
 
 }
@@ -1063,6 +1161,7 @@ function actionSurvey() {
 		surveyGetInProgess = true;
 		allSurveys = new wildbook.Collection.survey_Surveys();
 		allSurveys.fetch({
+			url: 'obj/survey/get',
 			success: function() {
 				surveyGetInProgess = false;
 				actionSurvey();
@@ -1114,11 +1213,11 @@ function actionSurvey() {
 //console.log('hooooo?  %o', allSurveys.models[i]);
 			var sname = allSurveys.models[i].get('name');
 			if (sname) {
-				sname += ' (ID ' + allSurveys.models[i].get('_id') + ')';
+				sname += ' (ID ' + allSurveys.models[i].id + ')';
 			} else {
-				sname += 'ID ' + allSurveys.models[i].get('_id');
+				sname += 'ID ' + allSurveys.models[i].id;
 			}
-			//$('#survey-id').append('<option value="' + allSurveys.models[i].get('_id') + '">' + sname + '</option>');
+			//$('#survey-id').append('<option value="' + allSurveys.models[i].id + '">' + sname + '</option>');
 			$('#survey-id').append('<option value="' + i + '">' + sname + '</option>');
 		}
 	}
@@ -1168,14 +1267,14 @@ function selectSurvey() {
 		$('#survey-new-form').hide();
 
 		if (allSurveys && allSurveys.models && (allSurveys.models.length > 0)) {
-			var tr = allSurveys.models[0].get('tracks');
+			var tr = allSurveys.models[val].get('tracks');
 			if (tr && tr.length > 0) {
 				for (var i = 0 ; i < tr.length ; i++) {
 					var tname = tr[i].name;
 					if (tname) {
-						tname += ' (ID ' + tr[i]._id + ')';
+						tname += ' (ID ' + tr[i].id + ')';
 					} else {
-						tname = 'ID ' + tr[i]._id;
+						tname = 'ID ' + tr[i].id;
 					}
 					trackOpts += '<option value="' + i + '">' + tname + '</option>';
 				}
@@ -1250,15 +1349,18 @@ function isGeoFile(m) {
 		<span><b>Survey</b></span>
 		<select onChange="return selectSurvey()" id="survey-id"><option value="_new">create new</option></select>
 		<div id="survey-new-form">
-			<input id="survey-new-id" placeholder="survey ID" />
+			<input id="survey-prop-name" placeholder="survey name" />
+			<input id="survey-prop-surveyId" placeholder="survey ID" />
+			<input id="survey-prop-effort" placeholder="effort (number)" />
 		</div>
 	</div>
 	<div>
 		<span><b>Survey Track</b></span>
 		<select onChange="return selectSurveyTrack()" id="survey-track-id"><option value="_new">create new</option></select>
 		<div id="survey-track-new-form">
-			<input id="survey-track-new-id" placeholder="survey track ID" />
-			<input id="survey-track-new-vessel" placeholder="vessel" />
+			<input id="survey-track-prop-name" placeholder="survey name" />
+			<input id="survey-track-prop-type" placeholder="type" />
+			<input id="survey-track-prop-vesselId" placeholder="vessel id" />
 			<span> optional (can leave blank)</span>
 		</div>
 	</div>
