@@ -6,7 +6,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 
 public class Survey {
-//    private long id;
+    private long id;
     private String surveyId;
     private Double effort;
     private String organization;
@@ -18,13 +18,13 @@ public class Survey {
     private List<SurveyTrack> tracks;
 
 
-//    public long getId() {
-//      return id;
-//    }
-//  
-//    public void setId(long id) {
-//      this.id = id;
-//    }
+    public long getId() {
+      return id;
+    }
+  
+    public void setId(long id) {
+      this.id = id;
+    }
   
   
     public String getSurveyId() {

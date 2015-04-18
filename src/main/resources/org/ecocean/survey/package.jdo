@@ -4,7 +4,9 @@
 
 <jdo>
     <package name="org.ecocean.survey">
-        <class name="Survey" identity-type="datastore">
+        <class name="Survey" identity-type="application">
+						<field name="id" primary-key="true" value-strategy="identity">
+						</field>
             <field name="surveyId">
                 <column length="32" />
             </field>
