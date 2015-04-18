@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Collection;
 
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,7 +25,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 
 @RestController
-@RequestMapping(value = "/survey")
+@RequestMapping(value = "/obj/survey")
 public class SurveyController {
 
 //    private final UserService userService;
@@ -41,17 +42,29 @@ public class SurveyController {
 				return myShepherd.getPM();
 		}
 
-    @RequestMapping(value = "/save", method = RequestMethod.POST)
-    public void save(final HttpServletRequest request,
-                     @RequestBody @Valid final Survey survey) {
+    @RequestMapping(value = "/get", method = RequestMethod.GET)
+    public ResponseEntity<List<Survey>> save(final HttpServletRequest request) {
+				PersistenceManager pm = getPM(request);
+				Extent ext = pm.getExtent(Survey.class);
+				Query q = pm.newQuery(ext);
+        ArrayList all = new ArrayList((Collection) q.execute());
 /*
-        String context = "context0";
-        context = ServletUtilities.getContext(request);
-        Shepherd myShepherd = new Shepherd(context);
-				PersistenceManager pm = myShepherd.getPM();
+    Extent encClass = pm.getExtent(Encounter.class, true);
+    Query acceptedEncounters = pm.newQuery(encClass);
+    try {
+      c = (Collection) (acceptedEncounters.execute());
+      //ArrayList list = new ArrayList(c);
+      Iterator it = c.iterator();
+      return it;
 */
-        System.out.println(survey);
+        return new ResponseEntity<List<Survey>>(all, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/save", method = RequestMethod.POST)
+    public ResponseEntity<Survey> save(final HttpServletRequest request,
+                     @RequestBody @Valid final Survey survey) {
 				getPM(request).makePersistent(survey);
+        return new ResponseEntity<Survey>(survey, HttpStatus.OK);
     }
 
 
@@ -67,15 +80,16 @@ public class SurveyController {
         } catch (Exception ex) {
 				}
 
-				if (survey != null) {
+				if (survey == null) {
+        	return new ResponseEntity<Survey>(survey, HttpStatus.NOT_FOUND);
+				} else {
 					List<SurveyTrack> tracks = survey.getTracks();
 					if (tracks == null) tracks = new ArrayList<SurveyTrack>();
 					tracks.add(track);
 					survey.setTracks(tracks);
 					pm.makePersistent(survey);
+        	return new ResponseEntity<Survey>(survey, HttpStatus.OK);
 				}
-        //System.out.println(track);
-        return new ResponseEntity<Survey>(survey, HttpStatus.OK);
     }
 }
 
