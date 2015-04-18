@@ -6,13 +6,21 @@ import org.ecocean.Point;
 import org.ecocean.SinglePhotoVideo;
 
 public class SurveyTrack {
-  private int id;
+  private long id;
   private String name;
   private List<Point> points;
   private String vesselId;
   private String type;
   private List<SinglePhotoVideo> media; 
 
+   public long getId() {
+     return id;
+   }
+  
+   public void setId(long id) {
+     this.id = id;
+   }
+  
   
   public String getName() {
     return name;
