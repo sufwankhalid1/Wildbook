@@ -8,10 +8,13 @@ create table mediasubmission
     latitude double precision,
     longitude double precision,
     verbatimlocation varchar(255),
-    starttime timestamp with time zone,
-    endtime timestamp with time zone,
     submissionid varchar(255),
     status varchar(100),
-    timesubmitted timestamp with time zone,
+    --starttime timestamp with time zone,
+    --endtime timestamp with time zone,
+    --timesubmitted timestamp with time zone,
+    starttime bigint,
+    endtime bigint,
+    timesubmitted bigint,
     primary key (id)
 );
