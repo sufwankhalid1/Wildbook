@@ -7,5 +7,6 @@ wildbook.Model.MediaSubmission = wildbook.Model.BaseClass.extend({
 });
 
 wildbook.Collection.MediaSubmissions = wildbook.Collection.BaseClass.extend({
-    model: wildbook.Model.MediaSubmission
+	model: wildbook.Model.MediaSubmission,
+	url: 'obj/mediasubmission/get/status/*'
 });
