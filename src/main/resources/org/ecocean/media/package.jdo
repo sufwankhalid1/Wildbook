@@ -41,5 +41,12 @@
                 <column jdbc-type="bigint" />
             </field>
         </class>
+        <class name="MediaTag" identity-type="application">
+            <field name="name" primary-key="true" />
+            <field name="media" default-fetch-group="true">
+                <collection element-type="org.ecocean.SinglePhotoVideo" dependent-element="true" />
+                <join/>
+            </field>
+				</class>
     </package>
 </jdo>
