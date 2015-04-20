@@ -97,7 +97,14 @@ public class SurveyTrackController
 				} else {
 					List<SinglePhotoVideo> prevMedia = track.getMedia();
 					if (prevMedia == null) prevMedia = new ArrayList<SinglePhotoVideo>();
-					prevMedia.addAll(media);
+
+					//for some reason, media does not get populated such that when tag is persisted, it creates all new SPVs.. grrr wtf.. explicitely loading them fixes this
+					/////////prevMedia.addAll(media);
+					for (SinglePhotoVideo s : media) {
+      			SinglePhotoVideo obj = ((SinglePhotoVideo) (pm.getObjectById(pm.newObjectIdInstance(SinglePhotoVideo.class, s.getDataCollectionEventID()), true)));
+						if (obj != null) prevMedia.add(obj);
+					}
+
 					track.setMedia(prevMedia);
 					pm.makePersistent(track);
         	return new ResponseEntity<SurveyTrack>(track, HttpStatus.OK);
