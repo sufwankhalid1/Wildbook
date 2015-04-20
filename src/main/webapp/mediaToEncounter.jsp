@@ -105,6 +105,42 @@ body { font-family: arial }
 	padding: 1px 4px;
 }
 
+.tag {
+	position: absolute;
+}
+
+.tag-trash {
+	background: url(images/tag-trash.png) no-repeat;
+	width: 50px;
+	height: 50px;
+	top: -5px;
+	left: -8px;
+}
+
+.tag-archive {
+	background: url(images/tag-archive.png) no-repeat;
+	width: 50px;
+	height: 50px;
+	top: -5px;
+	left: -8px;
+}
+
+.tag-to-cascadia {
+	background: url(images/tag-email.png) no-repeat;
+	width: 50px;
+	height: 50px;
+	bottom: -5px;
+	right: -8px;
+}
+
+.tag-ident {
+	background: url(images/tag-ident.png) no-repeat;
+	width: 50px;
+	height: 50px;
+	bottom: -5px;
+	left: -8px;
+}
+
 #action-info {
 	display: inline-block;
 	text-align: center;
@@ -729,11 +765,21 @@ function dataTypes(obj, fieldName) {
 
 
 
-var allMS;
 var searchResults;
 
 $(document).ready( function() {
 	wildbook.init( function() {
+		updateAllCollections(function() {
+			searchResults = allCollections.MediaSubmissions.models;
+			$('#admin-div').show();
+			if (mediaSubmissionID) {
+				browse(mediaSubmissionID);
+			} else {
+				doTable();
+			}
+		});
+
+/*
 		allMS = new wildbook.Collection.MediaSubmissions();
 		allMS.fetch({
 			url: '/test/obj/mediasubmission/get/status/*',  //override and only fill collection with null-status
@@ -747,6 +793,8 @@ $(document).ready( function() {
 				}
 			}
 		});
+*/
+
 	});
 });
 
@@ -754,22 +802,45 @@ $(document).ready( function() {
 
 var mediaSubmission;
 
-var allEncounters = false;
+var allCollections = {
+	'Encounters': false,
+	'media_MediaTags': false,
+	'MediaSubmissions': false
+};
 
-function updateEncounters(callback) {
 
-	if (!allEncounters) allEncounters = new wildbook.Collection.Encounters();
-	allEncounters.fetch({
-		success: function() { callback(); }
-	});
+function resetAllCollections() {
+	for (var cls in allCollections) {
+		allCollections[cls] = false;
+	}
 }
 
+function updateAllCollections(callback) {
+	var complete = true;
+	for (var cls in allCollections) {
+		if (!allCollections[cls]) {
+console.info('fetching collection %s', cls);
+			complete = false;
+			allCollections[cls] = new wildbook.Collection[cls]();
+			allCollections[cls].fetch({
+				success: function(coll) {
+console.info(' - fetched %o', coll);
+					coll._fetchDone = true;
+					updateAllCollections(callback);
+				}
+			});
+		} else if (!allCollections[cls]._fetchDone) {
+			complete = false;
+		}
+	}
+
+	if (complete) callback();
+}
 
 
 
 function browse(msID) {
 	msID -= 0;
-	console.log(msID);
 /*
 	mediaSubmission = allMS.findWhere({id: msID});
 	if (!mediaSubmission) {
@@ -782,8 +853,9 @@ function browse(msID) {
 	mediaSubmission.fetch({
 		url: '/test/obj/mediasubmission/get/id/' + msID,
 		success: function(d) {
-			updateEncounters( function() {
-				displayMS();
+console.warn('am i here?');
+			allCollections.Encounters.fetch({
+				success: function() { displayMS(); }
 			});
 		},
 		error: function(a,b,c) { msError('error: probably bad id?',a,b,c); }
@@ -814,9 +886,21 @@ console.log(m);
 			note = '<div class="note" onClick="return noteClick(event);">' + encs.length + list + '</div>';
 		}
 		//var info = '<div class="image-info">3/11 08:21:04</div>';
+
 		var imgSrc = mObj.url();
 		if (isGeoFile(m[i])) imgSrc = 'images/map-icon.png';
-		h += '<div id="' + mObj.id + '" class="image"><img class="thumb" src="' + imgSrc + '" />' + note + '</div>';
+
+		var classes = '';
+		var tags = getTags(m[i]);
+console.warn('tags! %o', tags);
+		if (tags && (tags.length > 0)) {
+			for (var j = 0 ; j < tags.length ; j++) {
+				note += '<span class="tag tag-' + tags[j] + '">&nbsp;</span>';
+				classes += ' has-tag-' + tags[j];
+			}
+		}
+
+		h += '<div id="' + mObj.id + '" class="image' + classes + '"><img class="thumb" src="' + imgSrc + '" />' + note + '</div>';
 	}
 	$('#images-unused').html(h);
 /*
@@ -828,7 +912,9 @@ console.log(m);
 */
 	$('#images-unused').selectable({
 		stop: function(ev, ui) { updateSelectedUI(ev, ui); },
+		filter: ':not(.has-tag-trash)',
 	});
+	//$('.has-tag-trash').selectable({disabled: true});  //TODO doesnt seem to work with lasso selector.  ??
 	updateSelectedUI();
 
 	$('#work-div').show();
@@ -938,9 +1024,11 @@ console.log(iarr);
 				$('#encounter-div').hide();
 				//$('#images-used').html('');
 
-				updateEncounters(function() {
-					displayMS();
-					$('#enc-create-button').show();
+				allCollections.Encounters.fetch({
+					success: function() {
+						displayMS();
+						$('#enc-create-button').show();
+					}
 				});
 			}
 		}
@@ -949,12 +1037,12 @@ console.log(iarr);
 
 function encountersForImage(imgID) {
 	var e = [];
-	if (!allEncounters || (allEncounters.models.length < 1)) return false;
-	for (var i in allEncounters.models) {
-		var imgs = allEncounters.models[i].get('images');
+	if (!allCollections.Encounters || (allCollections.Encounters.models.length < 1)) return false;
+	for (var i in allCollections.Encounters.models) {
+		var imgs = allCollections.Encounters.models[i].get('images');
 		if (!imgs || (imgs.length < 1)) continue;
 		for (var j in imgs) {
-			if (imgs[j].id == imgID) e.push(allEncounters.models[i]);
+			if (imgs[j].id == imgID) e.push(allCollections.Encounters.models[i]);
 		}
 	}
 	if (e.length < 1) return false;
@@ -1018,9 +1106,11 @@ console.info('points %o', points);
 				$('#survey-create-button').removeAttr('disabled');
 				updateMediaSubmissionStatus('active');
 				$('#survey-div').hide();
-				updateEncounters(function() {
-					displayMS();
-					//$('#enc-create-button').show();
+				allCollections.Encounters.fetch({
+					success: function() {
+						displayMS();
+						//$('#enc-create-button').show();
+					}
 				});
 			}
 		});
@@ -1043,9 +1133,11 @@ console.info('points %o', points);
 				$('#survey-track-new-form input').val('');
 				updateMediaSubmissionStatus('active');
 				$('#survey-div').hide();
-				updateEncounters(function() {
-					displayMS();
-					//$('#enc-create-button').show();
+				allCollections.Encounters.fetch({
+					success: function() {
+						displayMS();
+						//$('#enc-create-button').show();
+					}
 				});
 			}
 		});
@@ -1080,9 +1172,11 @@ console.info('new track! %o', track);
 					$('#survey-create-button').removeAttr('disabled');
 					updateMediaSubmissionStatus('active');
 					$('#survey-div').hide();
-					updateEncounters(function() {
-						displayMS();
-						//$('#enc-create-button').show();
+					allCollections.Encounters.fetch({
+						success: function() {
+							displayMS();
+							//$('#enc-create-button').show();
+						}
 					});
 				}
 			});
@@ -1109,9 +1203,11 @@ console.info('new track! %o', track);
 					$('#survey-track-new-form input').val('');
 					updateMediaSubmissionStatus('active');
 					$('#survey-div').hide();
-					updateEncounters(function() {
-						displayMS();
-						//$('#enc-create-button').show();
+					allCollections.Encounters.fetch({
+						success: function() {
+							displayMS();
+							//$('#enc-create-button').show();
+						}
 					});
 				}
 			});
@@ -1139,6 +1235,30 @@ function updateMediaSubmissionStatus(s) {
 
 function actionCancel() {
 	window.location.reload();
+}
+
+function actionTag(tagName) {
+	var m = getSelectedMedia({skipGeo: true});
+	if (m.length < 1) return;
+	$('.action-div').hide();
+	var media = new Array();
+	for (var i = 0 ; i < m.length ; i++) {
+		media.push({dataCollectionEventID: m[i].dataCollectionEventID});
+	}
+	$.ajax({
+		url: 'obj/mediatag/appendMedia/' + tagName,
+		data: JSON.stringify(media),
+		type: 'POST',
+		contentType: 'application/json',
+		error: function(a,b,c) {
+			msError('unable to append media to track.',a,b,c);
+		},
+		success: function() {
+			//actionResult('
+			allCollections.media_MediaTags = false;
+			updateAllCollections(function() { displayMS(); });
+		}
+	});
 }
 
 function actionEncounter() {
@@ -1265,6 +1385,7 @@ function selectSurvey() {
 		$('#survey-track-id').html(trackOpts);
 	} else {
 		$('#survey-new-form').hide();
+		$('#survey-track-new-form').show();
 
 		if (allSurveys && allSurveys.models && (allSurveys.models.length > 0)) {
 			var tr = allSurveys.models[val].get('tracks');
@@ -1300,6 +1421,27 @@ function isGeoFile(m) {
 	return (m.filename.indexOf('.kmz') > -1);
 }
 
+
+function getTags(med) {
+	if (!allCollections.media_MediaTags || (allCollections.media_MediaTags.models.length < 1)) return false;
+//console.log(med);
+	var t = [];
+	for (var i = 0 ; i < allCollections.media_MediaTags.models.length ; i++) {
+		var m = allCollections.media_MediaTags.models[i].get('media');
+//console.info('tag %s -> m? %o', allCollections.media_MediaTags.models[i].get('name'), m);
+		if (!m || (m.length < 1)) continue;
+		for (var j = 0 ; j < m.length ; j++) {
+			console.warn('%s ??? %s', m[j].dataCollectionEventID, med.dataCollectionEventID);
+			if (m[j].dataCollectionEventID == med.dataCollectionEventID) {
+				t.push(allCollections.media_MediaTags.models[i].get('name'));
+				break;
+			}
+		}
+	}
+	if (t.length < 1) return false;
+	return t;
+}
+
 </script>
 
 
@@ -1331,10 +1473,10 @@ function isGeoFile(m) {
 	<div id="action-info"></div>
 	<input class="sel-act" type="button" value="create encounter" onClick="actionEncounter()" />
 	<input class="sel-act" type="button" value="add to / create survey" onClick="actionSurvey()" />
-	<input class="sel-act" type="button" value="trash" onClick="actionTrash()" />
-	<input class="sel-act" type="button" value="archive" onClick="actionArchive()" />
-	<input class="sel-act" type="button" value="to Cascadia" onClick="actionToCascadia()" />
-	<input class="sel-act" type="button" value="auto-ID" onClick="actionAutoID()" />
+	<input class="sel-act" type="button" value="trash" onClick="actionTag('trash')" />
+	<input class="sel-act" type="button" value="archive" onClick="actionTag('archive')" />
+	<input class="sel-act" type="button" value="to Cascadia" onClick="actionTag('to-cascadia')" />
+	<input class="sel-act" type="button" value="auto-ID" onClick="actionTag('ident')" />
 	<input type="button" value="mark MediaSubmission complete" onClick="closeMediaSubmission()" />
 	<input type="button" value="back to listing" onClick="actionCancel()" />
 </div>
