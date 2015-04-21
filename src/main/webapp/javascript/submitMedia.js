@@ -30,7 +30,7 @@ var submitMedia = (function () {
     wizard.controller('MediaSubmissionController',
             ['$scope', '$q', '$timeout',
              function ($scope, $q, $timeout) {
-                function savems(media, callback) {
+                function savems(media, method, callback) {
                     //
                     // Don't alter the object directly because it causes
                     // a conflict between the date string of the control and
@@ -48,7 +48,7 @@ var submitMedia = (function () {
                         ms.startTime = null;
                     }
                     
-                    $.post("obj/mediasubmission/save", ms)
+                    $.post("obj/mediasubmission/" + method, ms)
                      .success(function(data) {
                          callback(data);
                      })
@@ -100,7 +100,7 @@ var submitMedia = (function () {
                 
                 $scope.saveSubmission = function() {
                     var media = this.media;
-                    savems(this.media, function(mediaid) {
+                    savems(this.media, "save", function(mediaid) {
                         media.id = mediaid;
                         
                         //
@@ -112,7 +112,7 @@ var submitMedia = (function () {
                 };
   
                 $scope.completeWizard = function() {
-                    savems(this.media, function(mediaid) {
+                    savems(this.media, "complete", function(mediaid) {
                         $("#MediaSubmissionWizard").addClass("hidden");
                         $("#MediaSubmissionThankYou").removeClass("hidden");
                     });

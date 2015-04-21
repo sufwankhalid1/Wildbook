@@ -217,11 +217,6 @@ public class MediaSubmissionController
         Database db = new Database(ci);
         
         try {
-            //
-            // Save media submission
-            //
-//            boolean isNew = (media.getId() == null);
-
             save(db, media);
         } catch (DatabaseException ex) {
             throw ex;
