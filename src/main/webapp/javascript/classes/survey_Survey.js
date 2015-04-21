@@ -8,6 +8,7 @@ wildbook.Model.survey_Survey = wildbook.Model.BaseClass.extend({
 
 
 wildbook.Collection.survey_Surveys = wildbook.Collection.BaseClass.extend({
-	model: wildbook.Model.survey_Survey
+	model: wildbook.Model.survey_Survey,
+	url: 'obj/survey/get'
 });
 
