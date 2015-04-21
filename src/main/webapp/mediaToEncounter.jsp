@@ -83,6 +83,7 @@ body { font-family: arial }
 
 .note {
 	text-align: center;
+	z-index: 3;
 	position: absolute;
 	bottom: -3px;
 	right: -3px;
@@ -115,6 +116,31 @@ body { font-family: arial }
 	height: 50px;
 	top: -5px;
 	left: -8px;
+}
+.has-tag-trash {
+	opacity: 0.6;
+}
+
+.tag-occs {
+	top: -3px;
+	right: -3px;
+	text-align: center;
+	z-index: 3;
+	border-radius: 12px;
+	background-color: #888;
+	color: white;
+	font-weight: bold;
+	padding: 3px 6px;
+}
+
+.tag-survey {
+	background-color: rgba(0,100,200,0.6);
+	padding: 1px 3px;
+	border-radius: 4px;
+	top: 60px;
+	font-size: 0.7em;
+	color: #EEE;
+	right: -10px;
 }
 
 .tag-archive {
@@ -805,11 +831,17 @@ var mediaSubmission;
 var allCollections = {
 	'Encounters': false,
 	'media_MediaTags': false,
-	'MediaSubmissions': false
+	'MediaSubmissions': false,
+	'Occurrences': false,
+	'survey_Surveys': false
 };
 
 
-function resetAllCollections() {
+function resetAllCollections(which) {
+	if (which) {
+		allCollections[which] = false;
+		return;
+	}
 	for (var cls in allCollections) {
 		allCollections[cls] = false;
 	}
@@ -841,6 +873,7 @@ console.info(' - fetched %o', coll);
 
 function browse(msID) {
 	msID -= 0;
+	mediaSubmissionID = msID;
 /*
 	mediaSubmission = allMS.findWhere({id: msID});
 	if (!mediaSubmission) {
@@ -853,7 +886,6 @@ function browse(msID) {
 	mediaSubmission.fetch({
 		url: '/test/obj/mediasubmission/get/id/' + msID,
 		success: function(d) {
-console.warn('am i here?');
 			allCollections.Encounters.fetch({
 				success: function() { displayMS(); }
 			});
@@ -876,6 +908,7 @@ console.log(m);
 	for (var i = 0 ; i < m.length ; i++) {
 		var mObj = new wildbook.Model.SinglePhotoVideo(m[i]);
 		var encs = encountersForImage(mObj.id);
+		var occs = occurrencesForImage(mObj.id);
 		var note = '';
 		if (encs) {
 			var list = '<div class="enc-list">';
@@ -883,21 +916,30 @@ console.log(m);
 				list += '<div><a target="_new" href="encounters/encounter.jsp?number=' + encs[e].id + '">' + encs[e].id + '</a></div>';
 			}
 			list += '</div>';
-			note = '<div class="note" onClick="return noteClick(event);">' + encs.length + list + '</div>';
+			note = '<div title="in ' + encs.length + ' encounter(s)" class="note" onClick="return noteClick(event);">' + encs.length + list + '</div>';
 		}
-		//var info = '<div class="image-info">3/11 08:21:04</div>';
+
+		if (occs) note += '<span class="tag tag-occs" title="in ' + occs.length + ' occurrence(s)">' + occs.length + list + '</span>';
 
 		var imgSrc = mObj.url();
 		if (isGeoFile(m[i])) imgSrc = 'images/map-icon.png';
 
 		var classes = '';
 		var tags = getTags(m[i]);
-console.warn('tags! %o', tags);
+//console.warn('tags! %o', tags);
 		if (tags && (tags.length > 0)) {
 			for (var j = 0 ; j < tags.length ; j++) {
 				note += '<span class="tag tag-' + tags[j] + '">&nbsp;</span>';
 				classes += ' has-tag-' + tags[j];
 			}
+		}
+
+		var st = inSurvey(m[i]);
+		if (st) {
+			classes += ' in-survey in-survey-' + st[0].id;
+			var name = 'ID ' + st[0].id + '.' + st[1].id;
+			if (st[1].name) name = st[1].name + ' (' + st[0].id + '.' + st[1].id + ')';
+			note += '<span class="tag tag-survey" title="in Survey ' + st[0].name + '/' + st[0].id + ', Track ' + st[1].name + '/' + st[1].id + '">' + name + '</span>';
 		}
 
 		h += '<div id="' + mObj.id + '" class="image' + classes + '"><img class="thumb" src="' + imgSrc + '" />' + note + '</div>';
@@ -914,7 +956,7 @@ console.warn('tags! %o', tags);
 		stop: function(ev, ui) { updateSelectedUI(ev, ui); },
 		filter: ':not(.has-tag-trash)',
 	});
-	//$('.has-tag-trash').selectable({disabled: true});  //TODO doesnt seem to work with lasso selector.  ??
+	//$('.has-tag-trash').selectable({disabled: true});  //TODO doesnt seem to work with lasso selector.  ??  but filter above *seems* to exclude anyway!
 	updateSelectedUI();
 
 	$('#work-div').show();
@@ -931,8 +973,10 @@ console.warn('tags! %o', tags);
 
 
 function updateSelectedUI(ev, ui) {
-	console.info('ev %o, ui %o', ev, ui);
+	//console.info('ev %o, ui %o', ev, ui);
 	var nsel = $('div.image.ui-selected').length;
+	var inSurveys = $('div.image.ui-selected.in-survey').length;
+
 	if (nsel < 1) {
 		$('#action-info').html('<i>no files<br />selected</i>');
 		$('#action-menu-div input.sel-act').attr('disabled', 'disabled');
@@ -940,6 +984,8 @@ function updateSelectedUI(ev, ui) {
 		$('#action-info').html('<b>' + nsel + '</b> file' + ((nsel == 1) ? '' : 's') + '<br />selected');
 		$('#action-menu-div input.sel-act').removeAttr('disabled');
 	}
+
+	if (inSurveys > 0) $('#button-survey').attr('disabled', 'disabled');
 }
 
 
@@ -992,7 +1038,7 @@ function createEncounter() {
 	$('#enc-create-button').hide();
 	var eid = wildbook.uuid();
 	encounter = new wildbook.Model.Encounter({catalogNumber: eid});
-	var props = ['submitterID', 'submitterEmail', 'verbatimLocality', 'individualID', 'dateInMilliseconds', 'decimalLatitude', 'decimalLongitude'];
+	var props = ['submitterID', 'submitterEmail', 'verbatimLocality', 'individualID', 'dateInMilliseconds', 'decimalLatitude', 'decimalLongitude', 'genus', 'specificEpithet'];
 	for (var i in props) {
 		var val = $('#enc-' + props[i]).val();
 		if (val == '') val = null;
@@ -1013,11 +1059,11 @@ function createEncounter() {
 console.log(iarr);
 
 	encounter.save({}, {
-		error: function(a,b,c) { console.error('error saving new encounter: %o %o %o', a,b,c); },
+		error: function(a,b,c) { msError('error saving new encounter', a,b,c); },
 		success: function(d,res) {
 			var err = res.exception || res.error;
 			if (err) {
-				actionResult('error on creating submission: <b>' + err + '</b>.');
+				msError('error on creating submission: <b>' + err + '</b>.');
 			} else {
 				updateMediaSubmissionStatus('active');
 				actionResult('created <a target="_new" href="encounters/encounter.jsp?number=' + eid + '">' + eid + '</a>');
@@ -1042,12 +1088,68 @@ function encountersForImage(imgID) {
 		var imgs = allCollections.Encounters.models[i].get('images');
 		if (!imgs || (imgs.length < 1)) continue;
 		for (var j in imgs) {
-			if (imgs[j].id == imgID) e.push(allCollections.Encounters.models[i]);
+			if (imgs[j].dataCollectionEventID == imgID) e.push(allCollections.Encounters.models[i]);
 		}
 	}
 	if (e.length < 1) return false;
 	return e;
 }
+
+
+function createOccurrence() {
+	var imgs = getSelectedMedia({skipGeo: true});
+	if (imgs.length < 1) return alert('no files to attach to this encounter');
+
+	$('#occ-create-button').hide();
+	var occ = new wildbook.Model.Occurrence();
+	var props = ['occurrenceID', 'genus', 'specificEpithet'];
+	for (var i in props) {
+		var val = $('#occ-' + props[i]).val();
+		if (val == '') val = null;
+		occ.set(props[i], val);
+	}
+
+	var iarr = [];
+	for (var i = 0 ; i < imgs.length ; i++) {
+		iarr.push({ class: 'org.ecocean.SinglePhotoVideo', dataCollectionEventID: imgs[i].dataCollectionEventID });
+	}
+	occ.set('media', iarr);
+
+	occ.save({}, {
+		error: function(a,b,c) { msError('error saving new occurrence', a,b,c); },
+		success: function(d,res) {
+			var err = res.exception || res.error;
+			if (err) {
+				msError('error on creating submission: <b>' + err + '</b>.');
+			} else {
+				updateMediaSubmissionStatus('active');
+				actionResult('created new occurrence');
+				$('#occurrence-div').hide();
+				resetAllCollections('Occurrences');
+				updateAllCollections(function() {
+					displayMS();
+					$('#occ-create-button').show();
+				});
+			}
+		}
+	});
+}
+
+
+function occurrencesForImage(imgID) {
+	var o = [];
+	if (!allCollections.Occurrences || (allCollections.Occurrences.models.length < 1)) return false;
+	for (var i in allCollections.Occurrences.models) {
+		var imgs = allCollections.Occurrences.models[i].get('media');
+		if (!imgs || (imgs.length < 1)) continue;
+		for (var j in imgs) {
+			if (imgs[j].dataCollectionEventID == imgID) o.push(allCollections.Occurrences.models[i]);
+		}
+	}
+	if (o.length < 1) return false;
+	return o;
+}
+
 
 
 var surveyWaitCount = 0;
@@ -1085,7 +1187,7 @@ console.info('points %o', points);
 
 	//case 1: update an existing track
 	if ((surveyID != '_new') && (surveyTrackID != '_new')) {
-		var survey = allSurveys.models[surveyID];
+		var survey = allCollections.survey_Surveys.models[surveyID];
 		surveyTrackID = survey.get('tracks')[surveyTrackID].id;
 		surveyWaitCount = 1;
 		if (points && media) surveyWaitCount = 2;
@@ -1106,12 +1208,16 @@ console.info('points %o', points);
 				$('#survey-create-button').removeAttr('disabled');
 				updateMediaSubmissionStatus('active');
 				$('#survey-div').hide();
+				resetAllCollections('survey_Surveys');
+				updateAllCollections(function() { displayMS(); });
+/*
 				allCollections.Encounters.fetch({
 					success: function() {
 						displayMS();
 						//$('#enc-create-button').show();
 					}
 				});
+*/
 			}
 		});
 
@@ -1133,12 +1239,16 @@ console.info('points %o', points);
 				$('#survey-track-new-form input').val('');
 				updateMediaSubmissionStatus('active');
 				$('#survey-div').hide();
+				resetAllCollections('survey_Surveys');
+				updateAllCollections(function() { displayMS(); });
+/*
 				allCollections.Encounters.fetch({
 					success: function() {
 						displayMS();
 						//$('#enc-create-button').show();
 					}
 				});
+*/
 			}
 		});
 
@@ -1156,7 +1266,7 @@ console.info('new track! %o', track);
 
 		//case 2
 		if (surveyID != '_new') {
-			var survey = allSurveys.models[surveyID];
+			var survey = allCollections.survey_Surveys.models[surveyID];
 			$.ajax({
 				url: 'obj/survey/appendTrack/' + survey.id,
 				data: JSON.stringify(track),
@@ -1172,12 +1282,16 @@ console.info('new track! %o', track);
 					$('#survey-create-button').removeAttr('disabled');
 					updateMediaSubmissionStatus('active');
 					$('#survey-div').hide();
+					resetAllCollections('survey_Surveys');
+					updateAllCollections(function() { displayMS(); });
+/*
 					allCollections.Encounters.fetch({
 						success: function() {
 							displayMS();
 							//$('#enc-create-button').show();
 						}
 					});
+*/
 				}
 			});
 
@@ -1203,12 +1317,16 @@ console.info('new track! %o', track);
 					$('#survey-track-new-form input').val('');
 					updateMediaSubmissionStatus('active');
 					$('#survey-div').hide();
+					resetAllCollections('survey_Surveys');
+					updateAllCollections(function() { displayMS(); });
+/*
 					allCollections.Encounters.fetch({
 						success: function() {
 							displayMS();
 							//$('#enc-create-button').show();
 						}
 					});
+*/
 				}
 			});
 
@@ -1255,7 +1373,7 @@ function actionTag(tagName) {
 		},
 		success: function() {
 			//actionResult('
-			allCollections.media_MediaTags = false;
+			resetAllCollections('media_MediaTags');
 			updateAllCollections(function() { displayMS(); });
 		}
 	});
@@ -1269,28 +1387,35 @@ function actionEncounter() {
 	$('#encounter-div').show();
 }
 
+function actionOccurrence() {
+	var m = getSelectedMedia({skipGeo: true});
+	if (m.length < 1) return;
+	$('.action-div').hide();
+	$('#occurrence-info').html('selected images/videos: <b>' + m.length + '</b>');
+	$('#occurrence-div').show();
+}
+
+
 
 var surveyGeo = false;
-var allSurveys = false;
-var surveyGetInProgress = false;
 
 function actionSurvey() {
-	if (surveyGetInProgress) return;
-
-	if (!allSurveys) {
+/*
+	if (!allCollections.survey_Surveys) {
 		surveyGetInProgess = true;
-		allSurveys = new wildbook.Collection.survey_Surveys();
-		allSurveys.fetch({
+		allCollections.survey_Surveys = new wildbook.Collection.survey_Surveys();
+		allCollections.survey_Surveys.fetch({
 			url: 'obj/survey/get',
 			success: function() {
 				surveyGetInProgess = false;
 				actionSurvey();
 			},
-			error: function() { console.error('failed to get allSurveys!'); }
+			error: function() { console.error('failed to get allCollections.survey_Surveys!'); }
 		});
 		return;
 	}
-
+*/
+	if ($('div.image.ui-selected.in-survey').length > 0) return;  //already in some surveys
 	var m = getSelectedMedia();
 	if (m.length < 1) return;
 
@@ -1327,17 +1452,17 @@ function actionSurvey() {
 	}
 
 
-//console.log('allSurveys ----> %o', allSurveys);
-	if (allSurveys && allSurveys.models && (allSurveys.models.length > 0)) {
-		for (var i = 0 ; i < allSurveys.models.length ; i++) {
-//console.log('hooooo?  %o', allSurveys.models[i]);
-			var sname = allSurveys.models[i].get('name');
+//console.log('allCollections.survey_Surveys ----> %o', allCollections.survey_Surveys);
+	if (allCollections.survey_Surveys && allCollections.survey_Surveys.models && (allCollections.survey_Surveys.models.length > 0)) {
+		for (var i = 0 ; i < allCollections.survey_Surveys.models.length ; i++) {
+//console.log('hooooo?  %o', allCollections.survey_Surveys.models[i]);
+			var sname = allCollections.survey_Surveys.models[i].get('name');
 			if (sname) {
-				sname += ' (ID ' + allSurveys.models[i].id + ')';
+				sname += ' (ID ' + allCollections.survey_Surveys.models[i].id + ')';
 			} else {
-				sname += 'ID ' + allSurveys.models[i].id;
+				sname += 'ID ' + allCollections.survey_Surveys.models[i].id;
 			}
-			//$('#survey-id').append('<option value="' + allSurveys.models[i].id + '">' + sname + '</option>');
+			//$('#survey-id').append('<option value="' + allCollections.survey_Surveys.models[i].id + '">' + sname + '</option>');
 			$('#survey-id').append('<option value="' + i + '">' + sname + '</option>');
 		}
 	}
@@ -1376,7 +1501,7 @@ function getSelectedMedia(opt) {
 }
 
 function selectSurvey() {
-	var val = $('#survey-id').val();   //note: this is allSurveys offset!
+	var val = $('#survey-id').val();   //note: this is allCollections.survey_Surveys offset!
 	var trackOpts = '<option value="_new">create new</option>';
 
 	if (val == '_new') {
@@ -1387,8 +1512,8 @@ function selectSurvey() {
 		$('#survey-new-form').hide();
 		$('#survey-track-new-form').show();
 
-		if (allSurveys && allSurveys.models && (allSurveys.models.length > 0)) {
-			var tr = allSurveys.models[val].get('tracks');
+		if (allCollections.survey_Surveys && allCollections.survey_Surveys.models && (allCollections.survey_Surveys.models.length > 0)) {
+			var tr = allCollections.survey_Surveys.models[val].get('tracks');
 			if (tr && tr.length > 0) {
 				for (var i = 0 ; i < tr.length ; i++) {
 					var tname = tr[i].name;
@@ -1422,6 +1547,22 @@ function isGeoFile(m) {
 }
 
 
+function inSurvey(med) {
+	if (!allCollections.survey_Surveys || (allCollections.survey_Surveys.models.length < 1)) return false;
+	for (var i = 0 ; i < allCollections.survey_Surveys.models.length ; i++) {
+		var tracks = allCollections.survey_Surveys.models[i].get('tracks');
+		if (!tracks || (tracks.length < 1)) continue;
+		for (var j = 0 ; j < tracks.length ; j++) {
+			if (!tracks[j].media || (tracks[j].media.length < 1)) continue;
+			for (var k = 0 ; k < tracks[j].media.length ; k++) {
+				if (tracks[j].media[k].dataCollectionEventID == med.dataCollectionEventID) return [allCollections.survey_Surveys.models[i], tracks[j]];
+			}
+		}
+	}
+	return false;
+}
+
+
 function getTags(med) {
 	if (!allCollections.media_MediaTags || (allCollections.media_MediaTags.models.length < 1)) return false;
 //console.log(med);
@@ -1431,7 +1572,7 @@ function getTags(med) {
 //console.info('tag %s -> m? %o', allCollections.media_MediaTags.models[i].get('name'), m);
 		if (!m || (m.length < 1)) continue;
 		for (var j = 0 ; j < m.length ; j++) {
-			console.warn('%s ??? %s', m[j].dataCollectionEventID, med.dataCollectionEventID);
+//console.warn('%s ??? %s', m[j].dataCollectionEventID, med.dataCollectionEventID);
 			if (m[j].dataCollectionEventID == med.dataCollectionEventID) {
 				t.push(allCollections.media_MediaTags.models[i].get('name'));
 				break;
@@ -1472,7 +1613,8 @@ function getTags(med) {
 <div id="action-menu-div">
 	<div id="action-info"></div>
 	<input class="sel-act" type="button" value="create encounter" onClick="actionEncounter()" />
-	<input class="sel-act" type="button" value="add to / create survey" onClick="actionSurvey()" />
+	<input class="sel-act" type="button" value="create occurrence" onClick="actionOccurrence()" />
+	<input class="sel-act" id="button-survey" type="button" value="add to / create survey" onClick="actionSurvey()" />
 	<input class="sel-act" type="button" value="trash" onClick="actionTag('trash')" />
 	<input class="sel-act" type="button" value="archive" onClick="actionTag('archive')" />
 	<input class="sel-act" type="button" value="to Cascadia" onClick="actionTag('to-cascadia')" />
@@ -1508,7 +1650,7 @@ function getTags(med) {
 	</div>
 
 	<div style="margin: 10px;">
-		<input type="button" id="survey-create-button" value="create survey/track" onClick="createSurvey()" />
+		<input type="button" id="survey-create-button" value="save survey/track" onClick="createSurvey()" />
 		<input type="button" value="cancel" onClick="$('#survey-create-button').show(); $('#survey-div').hide()" />
 	</div>
 
@@ -1523,10 +1665,11 @@ function getTags(med) {
 		<div><label for="enc-submitterEmail">Submitter Email</label><input id="enc-submitterEmail" /></div>
 		<div><label for="enc-verbatimLocality">Verbatim Location</label><input id="enc-verbatimLocality" /></div>
 		<div><label for="enc-individualID">Individual ID</label><input id="enc-individualID" /></div>
+		<div><label for="enc-genus">Genus / Specific Epithet</label><input id="enc-genus" /> <input id="enc-specificEpithet" /></div>
 		<div><label for="enc-dateInMilliseconds">(start) date/time</label><input id="enc-dateInMilliseconds" /> <span id="enc-dateInMilliseconds-human"></span></div>
 		<div><label for="enc-decimalLatitude">Latitude</label><input id="enc-decimalLatitude" />
 		&nbsp; <label for="enc-decimalLongitude">Longitude</label><input id="enc-decimalLongitude" /></div>
-		<div><label for="enc-researcherComment">Comment</label><textarea id="enc-dateInMilliseconds">Created from MediaSubmission</textarea></div>
+		<div><label for="enc-researcherComment">Comment</label><textarea id="enc-researcherComment">Created from MediaSubmission</textarea></div>
 	</div>
 
 <div style="margin: 10px;">
@@ -1535,6 +1678,26 @@ function getTags(med) {
 </div>
 
 </div>
+
+
+
+<div class="action-div" id="occurrence-div">
+	<h1>Occurrence to create</h1>
+	<div id="occurrence-info"></div>
+
+	<div id="occ-form">
+		<div><label for="occ-occurrenceID">Name / ID</label><input id="occ-occurrenceID" /></div>
+		<div><label for="occ-genus">Genus / Specific Epithet</label><input id="occ-genus" /> <input id="occ-specificEpithet" /></div>
+		<div><label for="occ-comments">Comment</label><textarea id="enc-comments">Created from MediaSubmission</textarea></div>
+	</div>
+
+<div style="margin: 10px;">
+	<input type="button" id="occ-create-button" value="create occurrence" onClick="createOccurrence()" />
+	<input type="button" value="cancel" onClick="$('#occ-create-button').show(); $('#occurrence-div').hide()" />
+</div>
+
+</div>
+
 </div>
 
 <jsp:include page="footerfull.jsp" flush="true"/>
