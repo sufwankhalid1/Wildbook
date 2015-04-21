@@ -129,6 +129,16 @@
 				            	
 					<fetch-group name="count" />
 		
+            <field name="media" default-fetch-group="true">
+                <collection element-type="org.ecocean.SinglePhotoVideo" dependent-element="true" />
+                <join/>
+            </field>
+            <field name="genus" persistence-modifier="persistent">
+                <column length="128" />
+            </field>
+            <field name="specificEpithet" persistence-modifier="persistent">
+                <column length="128" />
+            </field>
 		</class>
 		
 		

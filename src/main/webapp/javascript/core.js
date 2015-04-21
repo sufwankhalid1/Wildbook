@@ -8,6 +8,7 @@ var wildbook = {
 		'survey_Survey',
 		'survey_SurveyTrack',
 		'Point',
+		'Occurrence',
 		'MediaSubmission',
 		'media_MediaTag'
 	],
