@@ -104,7 +104,7 @@ var submitMedia = (function () {
                         wildbook.showError(ex);
                     });
                     
-                    return jqXHR;
+                    return jqXHR.promise();
                 };
                 
                 $scope.saveSubmission = function() {
