@@ -289,77 +289,141 @@ var mediaSubmissionID = <%
 	}
 %>;
 
-var colDefn = [
-	{
-		key: 'timeSubmitted',
-		label: 'Submitted',
-		value: _colTimeSubmitted,
-		//sortValue: _colDateSort,
-		//sortFunction: function(a,b) { return parseFloat(a) - parseFloat(b); }
-	},
-	{
-		key: 'date',
-		label: 'Date',
-		value: _colDate,
-		sortValue: _colDateSort,
-		sortFunction: function(a,b) { return parseFloat(a) - parseFloat(b); }
-	},
-	{
-		key: 'submitter',
-		label: 'Submitted By',
-		value: _colSubmitter,
-	},
-	{
-		key: 'submissionid',
-		label: 'Survey ID',
-		value: cleanValue,
-	},
-	{
-		key: 'description',
-		label: 'Description',
-		value: cleanValue,
-	},
-	{
-		key: 'verbatimLocation',
-		label: 'Location',
-		value: cleanValue,
-	},
-	{
-		key: 'status',
-		label: 'Status',
-		value: _colStatus,
-		sortValue: _colStatusSort,
-	},
+
+var tableMS = false;
+function initTableMS() {
+	tableMS = new SortTable({
+		pageInfoEl: $('#table-info'),
+		//countClass: 'table-count',
+		howMany: 10,
+		start: 0,
+		data: allCollections.MediaSubmissions.models,
+		perPage: 10,
+		sliderEl: $('#results-slider'),
+		tableEl: $('#results-table'),
+		columns: [
+			{
+				key: 'timeSubmitted',
+				label: 'Submitted',
+				value: _colTimeSubmitted,
+				sortValue: _colTimeSubmittedSort,
+				sortFunction: function(a,b) { return parseFloat(a) - parseFloat(b); }
+			},
+			{
+				key: 'date',
+				label: 'Date',
+				value: _colDate,
+				sortValue: _colDateSort,
+				sortFunction: function(a,b) { return parseFloat(a) - parseFloat(b); }
+			},
+			{
+				key: 'submitter',
+				label: 'Submitted By',
+				value: _colSubmitter,
+			},
+			{
+				key: 'submissionid',
+				label: 'Survey ID',
+				sortValue: lowerCaseValue,
+				value: cleanValue,
+			},
+			{
+				key: 'description',
+				label: 'Description',
+				value: cleanValue,
+			},
+			{
+				key: 'verbatimLocation',
+				label: 'Location',
+				value: cleanValue,
+			},
+			{
+				key: 'status',
+				label: 'Status',
+				value: _colStatus,
+				sortValue: _colStatusSort,
+			},
+		],
+
+
+	});
+
+	tableMS.init();
+
+	$('#progress').hide();
+}
+
+
+function cleanValue(obj, colnum) {
+	var v = obj.get(tableMS.opts.columns[colnum].key);
+//console.log('cleanValue(%o, %o)', obj, colnum);
+	var empty = /^(null|unknown|none|undefined)$/i;
+	if (empty.test(v)) v = '';
+	return v;
+}
+
+function lowerCaseValue(obj, colnum) {
+	var v = obj.get(tableMS.opts.columns[colnum].key);
+	if (typeof v == 'string') return v.toLowerCase();
+	if (!v) return '.';
+	return v;
+}
+
+
+function _colTimeSubmitted(o) {
+	var t = o.get('timeSubmitted');
+	if (!t || (t < 1)) return '';
+	var d = new Date();
+	d.setTime(t);
+	return d.toLocaleString();
+}
+function _colTimeSubmittedSort(o) {
+	var t = o.get('timeSubmitted');
+	if (!t || (t < 1)) return 0;
+	return t - 0;
+}
+
+function _colDate(o) {
+	var t = o.get('startTime');
+	if (!t || (t < 1)) return '';
+	var d = new Date();
+	d.setTime(t);
+	return d.toLocaleString();
+}
+
+function _colDateSort(o) {
+	var t = o.get('startTime');
+	if (!t || (t < 1)) return 0;
+	return t - 0;
+}
+
+function _colSubmitter(o) {
+	var n = o.get('username');
+	if (n) return n;
+	var e = o.get('email');
+	n = o.get('name') || '';
+	if (e) n += ' (' + e + ')';
+	return n;
+}
+
+function _colStatus(o) {
+	var s = o.get('status');
+	if (!s) return 'new';
+	return s;
+}
+
+function _colStatusSort(o) {
+	var s = o.get('status');
+	if (!s) return 0;
+	if (s == 'active') return 1;
+	return 2;
+}
+
+
+
 /*
-	{
-		key: 'numberImages',
-		label: '# images',
-		value: _numImages,
-	}
-*/
-	
-];
-
-
-var counts = {
-	total: 0,
-	ided: 0,
-	unid: 0,
-	dailydup: 0,
-};
-
-
-var howMany = 10;
-var start = 0;
-var results = [];
-
-var sortCol = -1;
-var sortReverse = true;
-
-
-var sTable = false;
-
 function doTable() {
+
 	sTable = new SortTable({
 		data: searchResults,
 		perPage: howMany,
@@ -412,6 +476,8 @@ function doTable() {
 	});
 
 }
+*/
+
 
 function rowClick(el) {
 	console.log(el);
@@ -420,359 +486,6 @@ function rowClick(el) {
 	return false;
 }
 
-function headerClick(ev, c) {
-	start = 0;
-	ev.preventDefault();
-	console.log(c);
-	if (sortCol == c) {
-		sortReverse = !sortReverse;
-	} else {
-		sortReverse = false;
-	}
-	sortCol = c;
-
-	$('#results-table th.headerSortDown').removeClass('headerSortDown');
-	$('#results-table th.headerSortUp').removeClass('headerSortUp');
-	if (sortReverse) {
-		$('#results-table th.ptcol-' + colDefn[c].key).addClass('headerSortUp');
-	} else {
-		$('#results-table th.ptcol-' + colDefn[c].key).addClass('headerSortDown');
-	}
-console.log('sortCol=%d sortReverse=%o', sortCol, sortReverse);
-	newSlice(sortCol, sortReverse);
-	show();
-}
-
-
-function show() {
-	$('#results-table td').html('');
-	$('#results-table tbody tr').show();
-	for (var i = 0 ; i < results.length ; i++) {
-		//$('#results-table tbody tr')[i].title = 'Encounter ' + searchResults[results[i]].id;
-		$('#results-table tbody tr')[i].setAttribute('data-id', searchResults[results[i]].get('id'));
-		for (var c = 0 ; c < colDefn.length ; c++) {
-			$('#results-table tbody tr')[i].children[c].innerHTML = '<div>' + sTable.values[results[i]][c] + '</div>';
-		}
-	}
-	if (results.length < howMany) {
-		$('#results-slider').hide();
-		for (var i = 0 ; i < (howMany - results.length) ; i++) {
-			$('#results-table tbody tr')[i + results.length].style.display = 'none';
-		}
-	} else {
-		$('#results-slider').show();
-	}
-
-	//if (sTable.opts.sliderElement) sTable.opts.sliderElement.slider('option', 'value', 100 - (start / (searchResults.length - howMany)) * 100);
-	sTable.sliderSet(100 - (start / (sTable.matchesFilter.length - howMany)) * 100);
-	displayPagePosition();
-}
-
-function xshow() {
-	$('#results-table td').html('');
-	for (var i = 0 ; i < results.length ; i++) {
-		//$('#results-table tbody tr')[i].title = searchResults[results[i]].individualID;
-		$('#results-table tbody tr')[i].setAttribute('data-id', searchResults[results[i]].get('id'));
-		for (var c = 0 ; c < colDefn.length ; c++) {
-			$('#results-table tbody tr')[i].children[c].innerHTML = sTable.values[results[i]][c];
-			$('#results-table tbody tr')[i].children[c].innerHTML = sTable.values[results[i]][c];
-		}
-	}
-
-	//sTable.sliderSet(100 - (start / (searchResults.length - howMany)) * 100);
-	sTable.sliderSet(100 - (start / (sTable.matchesFilter.length - howMany)) * 100);
-}
-
-function newSlice(col, reverse) {
-	results = sTable.slice(col, start, start + howMany, reverse);
-}
-
-
-function computeCounts() {
-	counts.total = sTable.matchesFilter.length;
-	return;  //none of the below applies here! (cruft from encounters for prosperity)
-	counts.unid = 0;
-	counts.ided = 0;
-	counts.dailydup = 0;
-	var uniq = {};
-
-	for (var i = 0 ; i < counts.total ; i++) {
-		console.log('>>>>> what up? %o', searchResults[sTable.matchesFilter[i]]);
-		var iid = searchResults[sTable.matchesFilter[i]].individualID;
-		if (iid == 'Unassigned') {
-			counts.unid++;
-		} else {
-			var k = iid + ':' + searchResults[sTable.matchesFilter[i]].get('year') + ':' + searchResults[sTable.matchesFilter[i]].get('month') + ':' + searchResults[sTable.matchesFilter[i]].get('day');
-			if (!uniq[k]) {
-				uniq[k] = true;
-				counts.ided++;
-			} else {
-				counts.dailydup++;
-			}
-		}
-	}
-/*
-	var k = Object.keys(uniq);
-	counts.ided = k.length;
-*/
-}
-
-
-function displayCounts() {
-	for (var w in counts) {
-		$('#count-' + w).html(counts[w]);
-	}
-}
-
-
-function displayPagePosition() {
-	if (sTable.matchesFilter.length < 1) {
-		$('#table-info').html('<b>no matches found</b>');
-		return;
-	}
-
-	var max = start + howMany;
-	if (sTable.matchesFilter.length < max) max = sTable.matchesFilter.length;
-	$('#table-info').html((start+1) + ' - ' + max + ' of ' + sTable.matchesFilter.length);
-}
-
-
-function applyFilter() {
-	var t = $('#filter-text').val();
-console.log(t);
-	sTable.filter(t);
-	start = 0;
-	newSlice(1);
-	show();
-	computeCounts();
-	displayCounts();
-}
-
-
-function nudge(n) {
-	start += n;
-	if ((start + howMany) > sTable.matchesFilter.length) start = sTable.matchesFilter.length - howMany;
-	if (start < 0) start = 0;
-console.log('start -> %d', start);
-	newSlice(sortCol, sortReverse);
-	show();
-}
-
-function tableDn() {
-	return nudge(-1);
-	start--;
-	if (start < 0) start = 0;
-	newSlice(sortCol, sortReverse);
-	show();
-}
-
-function tableUp() {
-	return nudge(1);
-	start++;
-	//if (start > searchResults.length - 1) start = searchResults.length - 1;
-	if (start > sTable.matchesFilter.length - 1) start = sTable.matchesFilter.length - 1;
-	newSlice(sortCol, sortReverse);
-	show();
-}
-
-
-
-
-
-
-function _colStatus(o) {
-	var s = o.get('status');
-	if (!s) return 'new';
-	return s;
-}
-
-function _colStatusSort(o) {
-	var s = o.get('status');
-	if (!s) return 0;
-	if (s == 'active') return 1;
-	return 2;
-}
-
-
-
-
-function _colIndividual(o) {
-	//var i = '<b><a target="_new" href="individuals.jsp?number=' + o.individualID + '">' + o.individualID + '</a></b> ';
-	var i = '<b>' + o.individualID + '</b> ';
-	if (!extra[o.individualID]) return i;
-	i += (extra[o.individualID].firstIdent || '') + ' <i>';
-	i += (extra[o.individualID].genusSpecies || '') + '</i>';
-	return i;
-}
-
-
-function _colNumberEncounters(o) {
-	if (!extra[o.individualID]) return '';
-	var n = extra[o.individualID].numberEncounters;
-	if (n == undefined) return '';
-	return n;
-}
-
-/*
-function _colYearsBetween(o) {
-	return o.get('maxYearsBetweenResightings');
-}
-*/
-
-function _colNumberLocations(o) {
-	if (!extra[o.individualID]) return '';
-	var n = extra[o.individualID].locations;
-	if (n == undefined) return '';
-	return n;
-}
-
-
-function _colTaxonomy(o) {
-	if (!o.get('genus') || !o.get('specificEpithet')) return 'n/a';
-console.log('obj %o', o);
-console.log('obj %o', o);
-console.log('obj %o', o);
-console.log('obj %o', o);
-console.log('obj %o', o);
-console.log('obj %o', o);
-	return o.get('genus') + ' ' + o.get('specificEpithet');
-}
-
-
-function _colRowNum(o) {
-	return o._rowNum;
-}
-
-
-function _colThumb(o) {
-	if (!extra[o.individualID]) return '';
-	var url = extra[o.individualID].thumbUrl;
-	if (!url) return '';
-	return '<div style="background-image: url(' + url + ');"><img src="' + url + '" /></div>';
-}
-
-
-
-function _textExtraction(n) {
-	var s = $(n).text();
-	var skip = new RegExp('^(none|unassigned|)$', 'i');
-	if (skip.test(s)) return 'zzzzz';
-	return s;
-}
-
-
-
-
-
-function _colDataTypes(o) {
-	var dt = '';
-	if (o.get('hasImages')) dt += '<img title="images" src="images/Crystal_Clear_filesystem_folder_image.png" />';
-	if (o.get('hasTissueSamples')) dt += '<img title="tissue samples" src="images/microscope.gif" />';
-	if (o.get('hasMeasurements')) dt += '<img title="measurements" src="images/ruler.png" />';
-	return dt;
-}
-
-function _colDataTypesSort(o) {
-	var dt = '';
-	if (o.get('hasImages')) dt += ' images';
-	if (o.get('hasTissueSamples')) dt += ' tissues';
-	if (o.get('hasMeasurements')) dt += ' measurements';
-	return dt;
-}
-
-
-function _colTimeSubmitted(o) {
-	var t = o.get('timeSubmitted');
-	if (!t || (t < 1)) return '';
-	var d = new Date();
-	d.setTime(t);
-	return d.toLocaleString();
-}
-
-function _colDate(o) {
-	var t = o.get('startTime');
-	if (!t || (t < 1)) return '';
-	var d = new Date();
-	d.setTime(t);
-	return d.toLocaleString();
-}
-
-
-function _colDateSort(o) {
-	var t = o.get('startTime');
-	if (!t || (t < 1)) return 0;
-	return t - 0;
-}
-
-function _colSubmitter(o) {
-	var n = o.get('username');
-	if (n) return n;
-	var e = o.get('email');
-	n = o.get('name') || '';
-	if (e) n += ' (' + e + ')';
-	return n;
-}
-
-function _numImages(o) {
-	var m = o.get('media');
-	if (!m) return 0;
-	return m.length;
-}
-
-
-function _colOcc(o) {
-	var occ = o.get('occurrences');
-	if (!occ || (occ.length < 1)) return '';
-	return occ.join(', ');
-}
-
-
-function _colRowNum(o) {
-	return o._rowNum;
-}
-
-
-function _colThumb(o) {
-	var url = o.thumbUrl();
-	if (!url) return '';
-	return '<div style="background-image: url(' + url + ');"><img src="' + url + '" /></div>';
-	return '<div style="background-image: url(' + url + ');"></div>';
-	return '<img src="' + url + '" />';
-}
-
-
-function _colModified(o) {
-	var m = o.get('modified');
-	if (!m) return '';
-	var d = wildbook.parseDate(m);
-	if (!wildbook.isValidDate(d)) return '';
-	return d.toISOString().substring(0,10);
-}
-
-function _colCreationDate(o) {
-	var m = o.get('dwcDateAdded');
-	if (!m) return '';
-	var d = wildbook.parseDate(m);
-	if (!wildbook.isValidDate(d)) return '';
-	return d.toISOString().substring(0,10);
-}
-
-
-
-function _textExtraction(n) {
-	var s = $(n).text();
-	var skip = new RegExp('^(none|unassigned|)$', 'i');
-	if (skip.test(s)) return 'zzzzz';
-	return s;
-}
-
-
-function cleanValue(obj, colnum) {
-	var v = obj.get(colDefn[colnum].key);
-	var empty = /^(null|unknown|none|undefined)$/i;
-	if (empty.test(v)) v = '';
-	return v;
-}
 
 
 function dataTypes(obj, fieldName) {
@@ -783,25 +496,19 @@ function dataTypes(obj, fieldName) {
 	return dt.join(', ');
 }
 
-</script>
 
 
 
-<script type="text/javascript">
-
-
-
-var searchResults;
+//var searchResults;
 
 $(document).ready( function() {
 	wildbook.init( function() {
 		updateAllCollections(function() {
-			searchResults = allCollections.MediaSubmissions.models;
 			$('#admin-div').show();
 			if (mediaSubmissionID) {
 				browse(mediaSubmissionID);
 			} else {
-				doTable();
+				initTableMS();
 			}
 		});
 
@@ -894,8 +601,13 @@ function browse(msID) {
 	});
 }
 
-function displayMS(d) {
-console.log('success %o', d);
+
+
+var displayAsTable = true;
+
+function displayMS() {
+	if (displayAsTable) return displayMSTable();
+
 	var m = mediaSubmission.get('media');
 console.log(m);
 	if (!m || (m.length < 1)) {
@@ -969,6 +681,11 @@ console.log(m);
 	$('#enc-dateInMilliseconds-human').html(_colDate(mediaSubmission));
 	$('#enc-decimalLatitude').val(mediaSubmission.get('latitude'));
 	$('#enc-decimalLongitude').val(mediaSubmission.get('longitude'));
+}
+
+
+
+function displayMSTable() {
 }
 
 
@@ -1583,32 +1300,52 @@ function getTags(med) {
 	return t;
 }
 
+
+
 </script>
 
 
 <div id="admin-div">
-<h1>MediaSubmission review</h1>
-
-<p>
-<input placeholder="filter by text" id="filter-text" onChange="return applyFilter()" />
-<input type="button" value="filter" />
-<input type="button" value="clear" onClick="$('#filter-text').val(''); applyFilter(); return true;" />
-<span style="margin-left: 40px; color: #888; font-size: 0.8em;" id="table-info"></span>
-</p>
-
-<div class="pageableTable-wrapper">
-	<div id="progress">Generating encounters table</div>
-	<table id="results-table"></table>
-	<div id="results-slider"></div>
+	<h1>MediaSubmission review</h1>
 </div>
 
+<div id="table-wrapper">
+	<p>
+		<input placeholder="filter by text" id="filter-text" onChange="return applyFilter()" />
+		<input type="button" value="filter" />
+		<input type="button" value="clear" onClick="$('#filter-text').val(''); applyFilter(); return true;" />
+		<span style="margin-left: 40px; color: #888; font-size: 0.8em;" id="table-info"></span>
+	</p>
+
+	<div class="pageableTable-wrapper">
+		<div id="progress">Generating encounters table</div>
+		<table id="results-table"></table>
+		<div id="results-slider"></div>
+	</div>
 </div>
 
 
 
 <div id="work-div">
 	<p><b>Images submitted by user.</b></p>
+
 	<div id="images-unused"></div>
+
+	<div id="images-table">
+		<p>
+			<input placeholder="filter by text" id="filter-text" onChange="return applyFilter()" />
+			<input type="button" value="filter" />
+			<input type="button" value="clear" onClick="$('#filter-text').val(''); applyFilter(); return true;" />
+			<span style="margin-left: 40px; color: #888; font-size: 0.8em;" id="table-info"></span>
+		</p>
+
+		<div class="pageableTable-wrapper">
+			<div id="progress">loading...</div>
+			<table id="results-table"></table>
+			<div id="results-slider"></div>
+		</div>
+	</div>
+
 
 <div id="action-menu-div">
 	<div id="action-info"></div>

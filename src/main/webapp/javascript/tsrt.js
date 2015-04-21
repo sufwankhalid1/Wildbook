@@ -28,7 +28,7 @@ function SortTable(opts) {
 	this.counts = { total: 0 };
 
 	this.computeCounts = function() {
-		this.counts.total = sTable.matchesFilter.length;
+		this.counts.total = this.matchesFilter.length;
 	};
 
 	this.displayCounts = function() {
@@ -50,6 +50,7 @@ function SortTable(opts) {
 	};
 
 	this.newSlice = function(col, reverse) {
+console.warn('newSlice() col %o | start %o | start + howMany %o | reverse %o', col, this.opts.start, this.opts.start + this.opts.howMany, reverse);
 		this.results = this.slice(col, this.opts.start, this.opts.start + this.opts.howMany, reverse);
 	};
 
@@ -57,7 +58,7 @@ function SortTable(opts) {
 		this.opts.start += n;
 		if ((this.opts.start + this.opts.howMany) > this.matchesFilter.length) this.opts.start = this.matchesFilter.length - this.opts.howMany;
 		if (this.opts.start < 0) this.opts.start = 0;
-console.log('start -> %d', this.opts.start);
+console.log('nudge() start -> %d', this.opts.start);
 		this.newSlice(this.sortCol, this.sortReverse);
 		this.show();
 	};
@@ -284,7 +285,7 @@ console.log(this._sortCache[col]);
 				if (s == me.lastSliderStart) return;
 				me.lastSliderStart = s;
 				console.log(s);
-				me.start = s;
+				me.opts.start = s;
 				me.newSlice(me.sortCol, me.sortReverse);
 				me.show();
 				//me.pageTable(start);
@@ -341,6 +342,8 @@ console.log(this._sortCache[col]);
 		if (this.opts.columns[colnum].value) return this.opts.columns[colnum].value(obj, colnum);
 		return keyValue(obj, this.opts.columns[colnum].key);
 	};
+
+
 
 }
 
