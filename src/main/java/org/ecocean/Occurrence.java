@@ -34,6 +34,9 @@ public class Occurrence implements java.io.Serializable{
   private String modified;
   //private String locationID;
   private String dateTimeCreated;
+  private ArrayList<SinglePhotoVideo> media;
+  public String genus;
+  public String specificEpithet;
   
   
   //empty constructor used by the JDO enhancer
