@@ -49,11 +49,11 @@ var submitMedia = (function () {
                     }
                     
                     $.post("obj/mediasubmission/" + method, ms)
-                     .success(function(data) {
+                     .done(function(data) {
                          callback(data);
                      })
-                     .error(function(ex) {
-                         wildbook.showError(ex.responseJSON.message, ex.responseJSON.totalStackTrace);
+                     .fail(function(ex) {
+                         wildbook.showError(ex);
                      });
                 }
                 
@@ -82,20 +82,29 @@ var submitMedia = (function () {
 //                };
                 
                 $scope.getXifData = function() {
+//                    var deferred = $q.defer();
+//                    
+//                    $timeout(function() {
+//                      deferred.resolve();
+//                    }, 5000);
+//                    
+//                    return deferred.promise;
                     //
                     // Make call to get xif data
                     //
                     var media = this.media;
-                    $.get('obj/mediasubmission/getexif/' + this.media.id)
-                    .success(function(data) {
+                    var jqXHR = $.get('obj/mediasubmission/getexif/' + this.media.id)
+                    .done(function(data) {
                         media.startTime = data.startTime;
                         media.endTime = data.endTime;
                         media.latitude = data.latitude;
                         media.longitude = data.longitude;
                     })
-                    .error(function(ex) {
-                        wildbook.showError(ex.responseJSON.message, ex.responseJSON.totalStackTrace);
+                    .fail(function(ex) {
+                        wildbook.showError(ex);
                     });
+                    
+                    return jqXHR;
                 };
                 
                 $scope.saveSubmission = function() {

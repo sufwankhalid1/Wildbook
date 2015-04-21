@@ -229,7 +229,7 @@
             </form>
               
               <form class="tab-pane" id="metaForm" name="formMeta" rc-submit="completeWizard()" rc-step>
-                <h3>Enter second step data</h3>
+                <h3>Extra Info</h3>
                 <div class="form-group">
                   <label class="control-label">Description</label>
                   <textarea rows="5" class="form-control" ng-model="media.description"></textarea>
