@@ -6,7 +6,7 @@ import org.ecocean.survey.Survey;
 import org.ecocean.survey.SurveyTrack;
 import org.ecocean.Shepherd;
 import org.ecocean.servlet.ServletUtilities;
-//import org.ecocean.SinglePhotoVideo;
+import org.ecocean.SinglePhotoVideo;
 //import org.ecocean.Point;
 
 import javax.jdo.*;
@@ -42,6 +42,16 @@ public class SurveyController {
 				return myShepherd.getPM();
 		}
 
+		public List<SinglePhotoVideo> fixMedia(List<SinglePhotoVideo> mediaIn, PersistenceManager pm) {
+			List<SinglePhotoVideo> mediaOut = new ArrayList<SinglePhotoVideo>();
+			for (SinglePhotoVideo s : mediaIn) {
+     		SinglePhotoVideo obj = ((SinglePhotoVideo) (pm.getObjectById(pm.newObjectIdInstance(SinglePhotoVideo.class, s.getDataCollectionEventID()), true)));
+				if (obj != null) mediaOut.add(obj);
+			}
+			return mediaOut;
+		}
+
+
     @RequestMapping(value = "/get", method = RequestMethod.GET)
     public ResponseEntity<List<Survey>> save(final HttpServletRequest request) {
 				PersistenceManager pm = getPM(request);
@@ -63,7 +73,16 @@ public class SurveyController {
     @RequestMapping(value = "/save", method = RequestMethod.POST)
     public ResponseEntity<Survey> save(final HttpServletRequest request,
                      @RequestBody @Valid final Survey survey) {
-				getPM(request).makePersistent(survey);
+
+        //gotta do hacky fix on SinglePhotoVideo objs. :(
+				PersistenceManager pm = getPM(request);
+				if ((survey.getTracks() != null)) {
+					for (SurveyTrack t : survey.getTracks()) {
+						if (t.getMedia() != null) t.setMedia(fixMedia(t.getMedia(), pm));
+					}
+				}
+
+				pm.makePersistent(survey);
         return new ResponseEntity<Survey>(survey, HttpStatus.OK);
     }
 
@@ -85,6 +104,7 @@ public class SurveyController {
 				} else {
 					List<SurveyTrack> tracks = survey.getTracks();
 					if (tracks == null) tracks = new ArrayList<SurveyTrack>();
+					if (track.getMedia() != null) track.setMedia(fixMedia(track.getMedia(), pm));
 					tracks.add(track);
 					survey.setTracks(tracks);
 					pm.makePersistent(survey);
