@@ -28,6 +28,7 @@ import org.ecocean.ShepherdPMF;
 import org.ecocean.SinglePhotoVideo;
 import org.ecocean.mmutil.FileUtilities;
 import org.ecocean.servlet.ServletUtilities;
+import org.ecocean.util.LogBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +43,7 @@ public class MediaUploadServlet
     extends HttpServlet
 {
     private static final long serialVersionUID = 1L;
-    private static final Logger log = LoggerFactory.getLogger(MediaUploadServlet.class);
+    private static final Logger logger = LoggerFactory.getLogger(MediaUploadServlet.class);
  
     //
     // this will store uploaded files
@@ -70,7 +71,6 @@ public class MediaUploadServlet
                           final HttpServletResponse response)
         throws ServletException, IOException
     {
-        
         // 1. Upload File Using Java Servlet API
         //files.addAll(uploadByJavaServletAPI(request));            
       
@@ -238,7 +238,7 @@ public class MediaUploadServlet
                 List<FileItem> items = upload.parseRequest(request);
 
                 if (items.isEmpty()) {
-                    System.out.println("Items are empty!");
+                    logger.warn("Items are empty!");
                     return fileset;
                 }
                 
@@ -284,7 +284,7 @@ public class MediaUploadServlet
                     try {
                         id = Integer.parseInt(fileset.getID());
                     } catch(NumberFormatException ex) {
-                        log.error("Can't parse id [" + fileset.getID() + "]", ex);
+                        logger.error("Can't parse id [" + fileset.getID() + "]", ex);
                         id = -1;
                     }
                     
@@ -439,7 +439,10 @@ public class MediaUploadServlet
         }
         
         public void run() {
-            //System.out.println("id: " + id);
+            if (logger.isDebugEnabled()) {
+                logger.debug(LogBuilder.quickLog("Saving media", id));
+            }
+            
             File fullBaseDir = new File(rootDir, baseDir.getPath());
             fullBaseDir.mkdirs();
             
@@ -449,7 +452,9 @@ public class MediaUploadServlet
             
             CommonConfiguration.getDataDirectoryName(context);
             try {
-                //System.out.println("fullPath: " + fullPath);
+                if (logger.isDebugEnabled()) {
+                    logger.debug(LogBuilder.quickLog("fullPath", fullPath.toString()));
+                }
                 FileUtilities.saveStreamToFile(file.content, fullPath);
                                 
                 //
@@ -474,11 +479,15 @@ public class MediaUploadServlet
                     iproc.run();
                 }
                 
-                //System.out.println("About to save SPV...");
+                if (logger.isDebugEnabled()) {
+                    logger.debug("About to save SPV...");
+                }
                 Shepherd shepherd = new Shepherd(context);
                 SinglePhotoVideo media = new SinglePhotoVideo(null, fullPath);
                 shepherd.getPM().makePersistent(media);
-                //System.out.println("Done saving SPV");
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Done saving SPV");
+                }
 
                 ConnectionInfo ci = ShepherdPMF.getConnectionInfo();                
                 Database db = new Database(ci);
@@ -486,14 +495,16 @@ public class MediaUploadServlet
                 SqlInsertFormatter formatter = new SqlInsertFormatter();
                 formatter.append("mediasubmissionid", id);
                 formatter.append("mediaid", media.getDataCollectionEventID());
-                //System.out.println("About to save link...");
+                if (logger.isDebugEnabled()) {
+                    logger.debug("About to save link...");
+                }
                 try {
                     db.getTable("mediasubmission_media").insertRow(formatter);
                 } finally {
                     db.release();
                 }
             } catch (Exception ex) {
-                log.error("Trouble saving media file [" + fullPath.getAbsolutePath() + "]", ex);
+                logger.error("Trouble saving media file [" + fullPath.getAbsolutePath() + "]", ex);
             }
         }
     }

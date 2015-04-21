@@ -30,6 +30,14 @@ var submitMedia = (function () {
     wizard.controller('MediaSubmissionController',
             ['$scope', '$q', '$timeout',
              function ($scope, $q, $timeout) {
+                function longToDate(date) {
+                    if (date) {
+                        return new Date(date);
+                    }
+                    
+                    return null;
+                }
+                
                 function savems(media, method, callback) {
                     //
                     // Don't alter the object directly because it causes
@@ -82,23 +90,17 @@ var submitMedia = (function () {
 //                };
                 
                 $scope.getXifData = function() {
-//                    var deferred = $q.defer();
-//                    
-//                    $timeout(function() {
-//                      deferred.resolve();
-//                    }, 5000);
-//                    
-//                    return deferred.promise;
                     //
                     // Make call to get xif data
                     //
-                    var media = this.media;
                     var jqXHR = $.get('obj/mediasubmission/getexif/' + this.media.id)
                     .done(function(data) {
-                        media.startTime = data.startTime;
-                        media.endTime = data.endTime;
-                        media.latitude = data.latitude;
-                        media.longitude = data.longitude;
+                        $scope.$apply(function(){
+                            $scope.media.startTime = longToDate(data.startTime);
+                            $scope.media.endTime = longToDate(data.endTime);
+                            $scope.media.latitude = data.latitude;
+                            $scope.media.longitude = data.longitude;
+                        });
                     })
                     .fail(function(ex) {
                         wildbook.showError(ex);
@@ -108,15 +110,14 @@ var submitMedia = (function () {
                 };
                 
                 $scope.saveSubmission = function() {
-                    var media = this.media;
-                    savems(this.media, "save", function(mediaid) {
-                        media.id = mediaid;
-                        
-                        //
-                        // TODO: Why is the controller not working here with angular?!
-                        //       I have to set this manually it seems.
-                        //
-                        $("[name='mediaid']").val(mediaid);
+                    savems($scope.media, "save", function(mediaid) {
+                        $scope.$apply(function(){
+                            //
+                            // NOTE: This is bound using ng-value instead of ng-model
+                            // because it is a hidden element.
+                            //
+                            $scope.media.id = mediaid;
+                        });
                     });
                 };
   
@@ -127,12 +128,20 @@ var submitMedia = (function () {
                     });
                 };
                 
+//                //
+//                // We need these watch expressions to force the changes to the model
+//                // to be reflected in the view.
+//                //
 //                $scope.$watch("media.startTime", function(newValue, oldValue) {
 //                    console.log("startTime changed from [" + oldValue + "] to [" + newValue + "]");
 //                    console.log(new Error().stack);
 //                });
+//                
+//                $scope.$watch("media.endTime");
+//                $scope.$watch("media.id", function(newValue, oldValue){
+//                    console.log("id changed from [" + oldValue + "] to [" + newValue + "]");
+//                });
             }]);
-
     var url = "mediaupload";
     
     wizard.config(['$httpProvider',
