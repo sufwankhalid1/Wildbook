@@ -2,7 +2,15 @@
 
 function SortTable(opts) {
 	this.opts = opts;
+
+	//some defaults
+	if (!this.opts.start) this.opts.start = 0;
+	if (!this.opts.howMany) this.opts.howMany = 10;
+	if (!this.opts.reverse) this.opts.reverse = false;
+
 	var me = this;
+
+	this.results = [];
 
 	this.sorts = [];
 	this.sortsInd = [];
@@ -13,6 +21,110 @@ function SortTable(opts) {
 
 	this._sortCache = [];
 	this._sortCacheRev = [];
+
+	this.sortCol = -1;
+	this.sortReverse = false;
+
+	this.counts = { total: 0 };
+
+	this.computeCounts = function() {
+		this.counts.total = sTable.matchesFilter.length;
+	};
+
+	this.displayCounts = function() {
+		if (!this.opts.countClass) return;
+		for (var w in this.counts) {
+			$('.' + this.opts.countClass + '.count-' + w).html(this.counts[w]);
+		}
+	};
+
+	this.displayPagePosition = function() {
+		if (!this.opts.pageInfoEl) return;
+		if (this.matchesFilter.length < 1) {
+			this.opts.pageInfoEl.html('<b>no matches found</b>');
+			return;
+		}
+		var max = this.opts.start + this.opts.howMany;
+		if (this.matchesFilter.length < max) max = this.matchesFilter.length;
+		this.opts.pageInfoEl.html((this.opts.start+1) + ' - ' + max + ' of ' + this.matchesFilter.length);
+	};
+
+	this.newSlice = function(col, reverse) {
+		this.results = this.slice(col, this.opts.start, this.opts.start + this.opts.howMany, reverse);
+	};
+
+	this.nudge = function(n) {
+		this.opts.start += n;
+		if ((this.opts.start + this.opts.howMany) > this.matchesFilter.length) this.opts.start = this.matchesFilter.length - this.opts.howMany;
+		if (this.opts.start < 0) this.opts.start = 0;
+console.log('start -> %d', this.opts.start);
+		this.newSlice(this.sortCol, this.sortReverse);
+		this.show();
+	};
+
+	this.tableDn = function() { return nudge(-1); }
+	this.tableUp = function() { return nudge(1); }
+
+
+	this.applyFilter = function(t) {
+		//if (!this.opts.filterEl) return;
+		//var t = filterEl.val();
+console.log(t);
+		this.filter(t);
+		this.opts.start = 0;
+		this.newSlice(1);
+		this.show();
+		this.computeCounts();
+		this.displayCounts();
+	};
+
+	this.init = function() {
+		this.opts.tableEl.addClass('tablesorter').addClass('pageableTable');
+		var th = '<thead><tr>';
+		for (var c = 0 ; c < this.opts.columns.length ; c++) {
+			var cls = 'ptcol-' + this.opts.columns[c].key;
+			if (!this.opts.columns[c].nosort) {
+				if (this.sortCol < 0) { //init
+					this.sortCol = c;
+					cls += ' headerSortUp';
+				}
+				//cls += ' header" onClick="return headerClick(event, ' + c + ');';
+				cls += ' header';
+			}
+			th += '<th class="' + cls + '" data-colnum="' + c + '">' + this.opts.columns[c].label + '</th>';
+		}
+		this.opts.tableEl.append(th + '</tr></thead>');
+		for (var i = 0 ; i < this.opts.howMany ; i++) {
+			var r = '<tr class="pageableTable-visible">';
+			for (var c = 0 ; c < this.opts.columns.length ; c++) {
+				r += '<td class="ptcol-' + this.opts.columns[c].key + '"></td>';
+			}
+			r += '</tr>';
+			this.opts.tableEl.append(r);
+		}
+
+		this.initSort();
+		this.initValues();
+		this.newSlice(this.sortCol);
+
+	//$('#progress').hide();
+		this.sliderInit();
+		this.show();
+		this.computeCounts();
+		this.displayCounts();
+
+		this.opts.tableEl.find('th').click(function(ev) { me.headerClick(ev, this); });
+
+/*
+	$('#results-table').on('mousewheel', function(ev) {  //firefox? DOMMouseScroll
+		if (!sTable.opts.sliderEl) return;
+		ev.preventDefault();
+		var delta = Math.max(-1, Math.min(1, (event.wheelDelta || -event.detail)));
+		if (delta != 0) nudge(-delta);
+	});
+*/
+
+	};
 
 	this.initSort = function() {
 		for (var c = 0 ; c < this.opts.columns.length ; c++) {
@@ -47,12 +159,40 @@ function SortTable(opts) {
 	};
 
 
+	this.headerClick = function(ev, el) {
+		var c = parseInt(el.getAttribute('data-colnum'));
+//console.info('c %o | ev %o | el %o', c, ev, el);
+		if ((c == undefined) || isNaN(c)) return;
+		this.opts.start = 0;
+		ev.preventDefault();
+		//console.log(c);
+		if (this.sortCol == c) {
+			this.sortReverse = !this.sortReverse;
+		} else {
+			this.sortReverse = false;
+		}
+		this.sortCol = c;
+
+		this.opts.tableEl.find('th.headerSortDown').removeClass('headerSortDown');
+		this.opts.tableEl.find('th.headerSortUp').removeClass('headerSortUp');
+		if (this.sortReverse) {
+			this.opts.tableEl.find('th.ptcol-' + this.opts.columns[c].key).addClass('headerSortUp');
+		} else {
+			this.opts.tableEl.find('th.ptcol-' + this.opts.columns[c].key).addClass('headerSortDown');
+		}
+console.log('sortCol=%d sortReverse=%o', this.sortCol, this.sortReverse);
+		this.newSlice(this.sortCol, this.sortReverse);
+		this.show();
+	};
+
+
+
 //TODO cache the full slice until filter changes (per column)
 //TODO when no filter, just return the sorts[col]
 	this.slice = function(col, start, end, reverse) {
 		if ((end == undefined) || (end > this.matchesFilter.length)) end = this.matchesFilter.length;
 		if ((start == undefined) || (start > this.matchesFilter.length)) start = 0;
-console.log('start %o end %o', start, end);
+//console.log('col %o | start %o | end %o | reverse %o', col, start, end, reverse);
 		var at = -1;
 		var s = [];
 /*
@@ -104,12 +244,37 @@ console.log(this._sortCache[col]);
 	};
 
 
+	this.show = function() {
+		this.opts.tableEl.find('td').html('');
+		this.opts.tableEl.find('tbody tr').show();
+		for (var i = 0 ; i < this.results.length ; i++) {
+			//$('#results-table tbody tr')[i].title = 'Encounter ' + searchResults[results[i]].id;
+			this.opts.tableEl.find('tbody tr')[i].setAttribute('data-id', this.opts.data[this.results[i]].individualID);
+			for (var c = 0 ; c < this.opts.columns.length ; c++) {
+				this.opts.tableEl.find('tbody tr')[i].children[c].innerHTML = '<div>' + this.values[this.results[i]][c] + '</div>';
+			}
+		}
+		if (this.results.length < this.opts.howMany) {
+			this.opts.sliderEl.hide();
+			for (var i = 0 ; i < (this.opts.howMany - this.results.length) ; i++) {
+				this.opts.tableEl.find('tbody tr')[i + this.results.length].style.display = 'none';
+			}
+		} else {
+			$('#results-slider').show();
+		}
+
+		//if (sTable.opts.sliderEl) sTable.opts.sliderEl.slider('option', 'value', 100 - (start / (searchResults.length - howMany)) * 100);
+		this.sliderSet(100 - (this.opts.start / (this.matchesFilter.length - this.opts.howMany)) * 100);
+		this.displayPagePosition();
+	}
+
+
 	this.lastSliderStart = -1;
 	this.sliderInit = function() {
-		if (!this.opts.sliderElement) return;
-		this.opts.sliderElement.addClass('pageableTable-slider');
+		if (!this.opts.sliderEl) return;
+		this.opts.sliderEl.addClass('pageableTable-slider');
 		if (this.opts.data.length - this.opts.perPage < 1) return;
-		this.opts.sliderElement.slider({
+		this.opts.sliderEl.slider({
 			orientation: 'vertical',
 			value: 100,
 //TODO generalize this function!
@@ -119,9 +284,9 @@ console.log(this._sortCache[col]);
 				if (s == me.lastSliderStart) return;
 				me.lastSliderStart = s;
 				console.log(s);
-				start = s;
-				newSlice(sortCol, sortReverse);
-				show();
+				me.start = s;
+				me.newSlice(me.sortCol, me.sortReverse);
+				me.show();
 				//me.pageTable(start);
 			}
 		});
@@ -143,9 +308,9 @@ console.log(this._sortCache[col]);
 	};
 
 	this.sliderSet = function(percent) {
-		if (!this.opts.sliderElement) return;
+		if (!this.opts.sliderEl) return;
 		if (this.matchesFilter.length - this.opts.perPage < 1) return;
-		this.opts.sliderElement.slider('option', 'value', percent);
+		this.opts.sliderEl.slider('option', 'value', percent);
 	};
 
 	this.filter = function(s) {

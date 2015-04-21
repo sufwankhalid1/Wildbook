@@ -22,12 +22,7 @@
 
 <script type="text/javascript">
 
-var searchResults = [
-	{ foo: 1, bar: 2 },
-	{ foo: 3, bar: 4 }
-];
 
-var resultsTable;
 
 $(document).keydown(function(k) {
 	if ((k.which == 38) || (k.which == 40) || (k.which == 33) || (k.which == 34)) k.preventDefault();
@@ -37,22 +32,9 @@ $(document).keydown(function(k) {
 	if (k.which == 34) return nudge(howMany);
 });
 
-var colDefn = [
-	{
-		key: 'thumb',
-		label: 'Thumb',
-		//value: _colThumb,
-		nosort: true,
-	},
-	{
-		key: 'foo',
-		label: 'Foo!',
-		//value: _colIndividual,
-		sortValue: function(o) { return o.foo; },
-	}
-];
 
 
+/*
 var howMany = 10;
 var start = 0;
 var results = [];
@@ -67,18 +49,47 @@ var counts = {
 	unid: 0,
 	dailydup: 0,
 };
+*/
 
 var sTable = false;
 
 
 function doTable() {
+
 	sTable = new SortTable({
-		data: searchResults,
-		perPage: howMany,
-		sliderElement: $('#results-slider'),
-		columns: colDefn,
+		pageInfoEl: $('#table-info'),
+		countClass: 'table-count',
+		howMany: 10,
+		start: 0,
+		data: [
+			{ foo: 1, bar: 2 },
+			{ foo: 3, bar: 4 }
+		],
+		perPage: 10,
+		sliderEl: $('#results-slider'),
+		tableEl: $('#results-table'),
+		columns: [
+			{
+				key: 'thumb',
+				label: 'Thumb',
+				//value: _colThumb,
+				nosort: true,
+			},
+			{
+				key: 'foo',
+				label: 'Foo!',
+				//value: _colIndividual,
+				sortValue: function(o) { return o.foo; },
+			}
+		],
 	});
 
+	sTable.init();
+
+	$('#progress').hide();
+}
+
+/*
 	$('#results-table').addClass('tablesorter').addClass('pageableTable');
 	var th = '<thead><tr>';
 		for (var c = 0 ; c < colDefn.length ; c++) {
@@ -115,7 +126,7 @@ function doTable() {
 	displayCounts();
 
 	$('#results-table').on('mousewheel', function(ev) {  //firefox? DOMMouseScroll
-		if (!sTable.opts.sliderElement) return;
+		if (!sTable.opts.sliderEl) return;
 		ev.preventDefault();
 		var delta = Math.max(-1, Math.min(1, (event.wheelDelta || -event.detail)));
 		if (delta != 0) nudge(-delta);
@@ -154,29 +165,7 @@ console.log('sortCol=%d sortReverse=%o', sortCol, sortReverse);
 }
 
 
-/*
-function xxxshow() {
-	$('#results-table td').html('');
-	for (var i = 0 ; i < results.length ; i++) {
-		//$('#results-table tbody tr')[i].title = searchResults[results[i]].individualID;
-		$('#results-table tbody tr')[i].setAttribute('data-id', searchResults[results[i]].individualID);
-		for (var c = 0 ; c < colDefn.length ; c++) {
-			$('#results-table tbody tr')[i].children[c].innerHTML = sTable.values[results[i]][c];
-		}
-	}
 
-	if (results.length < howMany) {
-		$('#results-slider').hide();
-		for (var i = 0 ; i < (howMany - results.length) ; i++) {
-			$('#results-table tbody tr')[i + results.length].style.display = 'none';
-		}
-	} else {
-		$('#results-slider').show();
-	}
-
-	sTable.sliderSet(100 - (start / (searchResults.length - howMany)) * 100);
-}
-*/
 
 
 function show() {
@@ -198,7 +187,7 @@ function show() {
 		$('#results-slider').show();
 	}
 
-	//if (sTable.opts.sliderElement) sTable.opts.sliderElement.slider('option', 'value', 100 - (start / (searchResults.length - howMany)) * 100);
+	//if (sTable.opts.sliderEl) sTable.opts.sliderElement.slider('option', 'value', 100 - (start / (searchResults.length - howMany)) * 100);
 	sTable.sliderSet(100 - (start / (sTable.matchesFilter.length - howMany)) * 100);
 	displayPagePosition();
 }
@@ -290,6 +279,7 @@ console.log(t);
 	displayCounts();
 }
 
+*/
 
 
 ////////
@@ -329,11 +319,13 @@ function _textExtraction(n) {
 <body>
 
 <p>
-<input placeholder="filter by text" id="filter-text" onChange="return applyFilter()" />
+<input placeholder="filter by text" id="filter-text" onChange="return sTable.applyFilter($('#filter-text').val())" />
 <input type="button" value="filter" />
-<input type="button" value="clear" onClick="$('#filter-text').val(''); applyFilter(); return true;" />
+<input type="button" value="clear" onClick="$('#filter-text').val(''); sTable.applyFilter(); return true;" />
 <span style="margin-left: 40px; color: #888; font-size: 0.8em;" id="table-info"></span>
 </p>
+
+<div><span class="table-count count-total"></span></div>
 
 <div class="pageableTable-wrapper">
 	<div id="progress">loading...</div>
