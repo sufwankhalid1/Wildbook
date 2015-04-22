@@ -241,22 +241,41 @@ public class MediaSubmissionController
             userstr = media.getName() + " <" + email + ">";
         }
         
+        
+        
         //get the email thread handler
         ThreadPoolExecutor es = MailThreadExecutorService.getExecutorService();
+        
+        
         //email the new submission address defined in commonConfiguration.properties
+        
+        //build the URL
+        //build the message as HTML
+        //mediaSubmission.jsp?mediaSubmissionID=
+        //thank the submitter and photographer
+        String thanksmessage = ServletUtilities.getText(CommonConfiguration.getDataDirectoryName(context),"thankyou.html",ServletUtilities.getLanguageCode(request));
+        String newMediaMessage=ServletUtilities.getText(CommonConfiguration.getDataDirectoryName(context),"newmedia.html",ServletUtilities.getLanguageCode(request));
+        
+        
+        //add the encounter link
+        thanksmessage=thanksmessage.replaceAll("INSERTTEXT", ("http://" + CommonConfiguration.getURLLocation
+          (request) + "/mediaSubmission.jsp?mediaSubmissionID=" + media.getId()));
+        newMediaMessage=newMediaMessage.replaceAll("INSERTTEXT", ("http://" + CommonConfiguration.getURLLocation
+                (request) + "/mediaSubmission.jsp?mediaSubmissionID=" + media.getId()));
+        
         es.execute(new NotificationMailer(CommonConfiguration.getMailHost(context),
                                           CommonConfiguration.getAutoEmailAddress(context),
                                           CommonConfiguration.getNewSubmissionEmail(context),
-                                          "New media submission: " + media.getId(),
-                                          userstr + " has sent you a new media submission.",
+                                          ("("+CommonConfiguration.getHTMLTitle(context)+") New media submission: " + media.getId()),
+                                          newMediaMessage,
                                           null,
                                           context));        
         if (email != null) {
             es.execute(new NotificationMailer(CommonConfiguration.getMailHost(context),
                                               CommonConfiguration.getAutoEmailAddress(context),
                                               email,
-                                              "Thank you for your media submission!",
-                                              "Thank you!",
+                                              ("("+CommonConfiguration.getHTMLTitle(context)+") Thank you for your report!"),
+                                              thanksmessage,
                                               null,
                                               context));
         }
