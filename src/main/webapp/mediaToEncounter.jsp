@@ -49,6 +49,20 @@
 <style>
 body { font-family: arial }
 
+.ptcol-_thumb { width: 60px; }
+.ptcol-select { width: 50px; }
+
+.ptcol-_survey, .ptcol-_surveyTrack {
+	width: 120px;
+}
+
+.ptcol-_tag_trash,
+.ptcol-_tag_to-cascadia,
+.ptcol-_tag_archive,
+.ptcol-_tag_ident
+{
+	width: 45px;
+}
 #encounter-info, #survey-info {
 	margin: 8px;
 	font-size: 0.9em;
@@ -170,6 +184,11 @@ body { font-family: arial }
 	height: 50px;
 	bottom: -5px;
 	left: -8px;
+}
+
+.row-has-tag {
+	font-size: 2.0em;
+	color: #0C3;
 }
 
 #action-info {
@@ -360,8 +379,14 @@ function initTableMS() {
 
 
 var tableMedia = false;
+var tableMediaSelected = [];
 function initTableMedia(med) {
 	var col = [
+		{ key: 'select',
+			label: '<input class="media-select media-select-head" type="checkbox" onChange="return mediaSelectAll(this)" />',
+			value: _colMediaSelect,
+			nosort: true,
+		},
 		{
 			key: '_thumb',
 			label: 'Thumb',
@@ -384,10 +409,25 @@ function initTableMedia(med) {
 			value: _colOccurrences,
 			sortValue: _colOccurrencesSort,
 		},
+		{
+			key: '_survey',
+			label: 'Survey',
+			value: _colSurvey,
+			sortValue: _colSurveySort,
+		},
+		{
+			key: '_surveyTrack',
+			label: 'Survey Track',
+			value: _colSurvey,
+			sortValue: _colSurveySort,
+		},
 	];
 
 	var tagcols = {
 		trash: 'Trash',
+		archive: 'Saved',
+		'to-cascadia': 'send to Cascadia',
+		ident: 'Auto ID',
 	};
 	for (var t in tagcols) {
 		col.push({
@@ -405,20 +445,48 @@ function initTableMedia(med) {
 		start: 0,
 		data: med,
 		perPage: 10,
+		showCallback: tableMediaShowCallback,
 		sliderEl: $('#media-results-slider'),
 		tableEl: $('#media-results-table'),
 		columns: col,
 	});
 
 	tableMedia.init();
+/*
 	$('#media-results-table tbody tr').click(function(ev) {
 		var i = ev.currentTarget.getAttribute('data-i');
 console.log(i);
 	});
+*/
+
 	$('#media-progress').hide();
 }
 
 
+
+function tableMediaShowCallback(tbl) {
+	$('#media-results-table tbody tr').each(function(i,el) {
+		var i = el.getAttribute('data-i');
+//console.log(tableMedia.opts.data[tableMedia.results[i]]);
+//console.log('i %o, tm.r[i] %o', i, tableMedia.results[i]);
+		if (!tableMedia.results[i]) return;
+		var id = tableMedia.opts.data[tableMedia.results[i]].dataCollectionEventID;
+		el.setAttribute('id', id);
+	});
+	updateCheckboxes();
+}
+
+function tableMediaSelectChange(el) {
+	var id = el.parentElement.parentElement.parentElement.id;
+//console.log('checked??? %o -> %o', id, el.checked);
+	var i = tableMediaSelected.indexOf(id);
+	if (el.checked && (i < 0)) tableMediaSelected.push(id);
+	if (!el.checked && (i >= 0)) tableMediaSelected.splice(i, 1);
+console.log(tableMediaSelected);
+	updateSelectedUI();
+//console.log('click %o', el.parentElement.parentElement.parentElement.id);
+	return true;
+}
 
 
 function cleanValue(obj, colnum) {
@@ -437,19 +505,39 @@ function lowerCaseValue(obj, colnum) {
 }
 
 
+//note, also does SurveyTrack based on i
+function _colSurvey(obj, i) {
+	if (!obj) return '';
+	var st = inSurvey(obj);
+	if (!st) return '';
+	if ((i == 5) && st[0]) return '<span class="row-has-survey">' + namify(st[0].id, st[0].get('name')) + '</span>';
+	if ((i == 6) && st[1]) return '<span class="row-has-surveyTrack">' + namify(st[1].id, st[1].name) + '</span>';
+	return '';
+}
+function _colSurveySort(obj, i) {
+	var s = _colSurvey(obj, i).toLowerCase();
+	if (s == '') return 'ZZZZ';
+	return s;
+}
+
+
+function _colMediaSelect(obj, i) {
+	return '<input class="media-select media-select-item" type="checkbox" onChange="return tableMediaSelectChange(this)" />';
+}
+
 function _colTag(obj, t) {
 	console.log('colTag %o %o', obj, t);
 	if (!obj._tags || (obj._tags.length < 1)) return '';
 	var tagName = tableMedia.opts.columns[t].key.substring(5);
 console.log(tagName);
-	if (obj._tags.indexOf(tagName) > -1) return 'X';
+	if (obj._tags.indexOf(tagName) > -1) return '<span class="row-has-tag row-has-tag-' + tagName + '">&#10004;</span>';
 	return '';
 }
 
 function _colTagSort(obj, t) {
 	var x = _colTag(obj, t);
-	if (x) return 1;
-	return 0;
+	if (x) return 0;
+	return 1;
 }
 
 function _colEncounters(obj) {
@@ -820,6 +908,7 @@ function displayMSTable() {
 //console.warn('med! %o', m); return;
 	initTableMedia(m);
 
+	updateSelectedUI();
 	$('#media-table').show();
 	$('#admin-div').hide();
 	$('#work-div').show();
@@ -830,6 +919,16 @@ function updateSelectedUI(ev, ui) {
 	//console.info('ev %o, ui %o', ev, ui);
 	var nsel = $('div.image.ui-selected').length;
 	var inSurveys = $('div.image.ui-selected.in-survey').length;
+	if (displayAsTable) {
+		nsel = tableMediaSelected.length;
+		//var nsel = $('#media-results-table tbody tr input[type="checkbox"]:checked').length;
+		//var nsel = $('#media-results-table tbody tr span.row-has-tag-....');
+		inSurveys = 0;
+		for (var i = 0 ; i < tableMediaSelected.length ; i++) {
+			var st = inSurvey({dataCollectionEventID: tableMediaSelected[i]});
+			if (st) inSurveys++;
+		}
+	}
 
 	if (nsel < 1) {
 		$('#action-info').html('<i>no files<br />selected</i>');
@@ -1310,12 +1409,7 @@ function actionSurvey() {
 	if (allCollections.survey_Surveys && allCollections.survey_Surveys.models && (allCollections.survey_Surveys.models.length > 0)) {
 		for (var i = 0 ; i < allCollections.survey_Surveys.models.length ; i++) {
 //console.log('hooooo?  %o', allCollections.survey_Surveys.models[i]);
-			var sname = allCollections.survey_Surveys.models[i].get('name');
-			if (sname) {
-				sname += ' (ID ' + allCollections.survey_Surveys.models[i].id + ')';
-			} else {
-				sname += 'ID ' + allCollections.survey_Surveys.models[i].id;
-			}
+			var sname = namify(allCollections.survey_Surveys.models[i].id, allCollections.survey_Surveys.models[i].get('name'));
 			//$('#survey-id').append('<option value="' + allCollections.survey_Surveys.models[i].id + '">' + sname + '</option>');
 			$('#survey-id').append('<option value="' + i + '">' + sname + '</option>');
 		}
@@ -1370,13 +1464,7 @@ function selectSurvey() {
 			var tr = allCollections.survey_Surveys.models[val].get('tracks');
 			if (tr && tr.length > 0) {
 				for (var i = 0 ; i < tr.length ; i++) {
-					var tname = tr[i].name;
-					if (tname) {
-						tname += ' (ID ' + tr[i].id + ')';
-					} else {
-						tname = 'ID ' + tr[i].id;
-					}
-					trackOpts += '<option value="' + i + '">' + tname + '</option>';
+					trackOpts += '<option value="' + i + '">' + namify(tr[i].id, tr[i].name) + '</option>';
 				}
 			}
 		}
@@ -1438,6 +1526,36 @@ function getTags(med) {
 }
 
 
+///this assumes all are unchecked (e.g. after table created by .show()) so we never turn off checkboxes
+function updateCheckboxes() {
+console.warn('update checkboxes');
+	$('#media-results-table tbody tr').each(function(i,el) {
+		if (tableMediaSelected.indexOf(el.id) > -1) {
+			$(el).find('input[type="checkbox"]').prop('checked', true);
+		}
+	});
+}
+
+function mediaSelectAll(el) {
+	if (el.checked) {
+		$('#media-results-table tbody tr input').prop('checked', true);
+		tableMediaSelected = [];
+		for (var i = 0 ; i < tableMedia.matchesFilter.length ; i++) {
+			tableMediaSelected.push(tableMedia.opts.data[tableMedia.matchesFilter[i]].dataCollectionEventID);
+		}
+
+	} else {
+		$('#media-results-table tbody tr input').prop('checked', false);
+		tableMediaSelected = [];
+	}
+	updateSelectedUI();
+}
+
+
+function namify(id, name) {
+	if (!name) return 'ID ' + id;
+	return name + ' (ID ' + id + ')';
+}
 
 </script>
 
@@ -1472,9 +1590,9 @@ function getTags(med) {
 
 	<div id="media-table">
 		<p>
-			<input placeholder="filter by text" id="media-filter-text" onChange="return mediaTable.applyFilter($('#media-filter-text').val())" />
+			<input placeholder="filter by text" id="media-filter-text" onChange="return tableMedia.applyFilter($('#media-filter-text').val())" />
 			<input type="button" value="filter" />
-			<input type="button" value="clear" onClick="$('#media-filter-text').val(''); mediaTable.applyFilter(); return true;" />
+			<input type="button" value="clear" onClick="$('#media-filter-text').val(''); tableMedia.applyFilter(); return true;" />
 			<span style="margin-left: 40px; color: #888; font-size: 0.8em;" id="media-table-info"></span>
 		</p>
 
