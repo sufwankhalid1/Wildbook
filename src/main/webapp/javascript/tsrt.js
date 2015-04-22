@@ -90,7 +90,7 @@ console.log(t);
 					cls += ' headerSortUp';
 				}
 				//cls += ' header" onClick="return headerClick(event, ' + c + ');';
-				cls += ' header';
+				cls += ' header can-sort';
 			}
 			th += '<th class="' + cls + '" data-colnum="' + c + '">' + this.opts.columns[c].label + '</th>';
 		}
@@ -114,7 +114,7 @@ console.log(t);
 		this.computeCounts();
 		this.displayCounts();
 
-		this.opts.tableEl.find('th').click(function(ev) { me.headerClick(ev, this); });
+		this.opts.tableEl.find('th.can-sort').click(function(ev) { me.headerClick(ev, this); });
 
 /*
 	$('#results-table').on('mousewheel', function(ev) {  //firefox? DOMMouseScroll
@@ -250,7 +250,8 @@ console.log(this._sortCache[col]);
 		this.opts.tableEl.find('tbody tr').show();
 		for (var i = 0 ; i < this.results.length ; i++) {
 			//$('#results-table tbody tr')[i].title = 'Encounter ' + searchResults[results[i]].id;
-			this.opts.tableEl.find('tbody tr')[i].setAttribute('data-id', this.opts.data[this.results[i]].individualID);
+			//this.opts.tableEl.find('tbody tr')[i].setAttribute('data-id', this.opts.data[this.results[i]].individualID);
+			this.opts.tableEl.find('tbody tr')[i].setAttribute('data-i', i);
 			for (var c = 0 ; c < this.opts.columns.length ; c++) {
 				this.opts.tableEl.find('tbody tr')[i].children[c].innerHTML = '<div>' + this.values[this.results[i]][c] + '</div>';
 			}

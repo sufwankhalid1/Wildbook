@@ -73,6 +73,11 @@ body { font-family: arial }
 	height: 75px;
 }
 
+.tiny-thumb {
+	width: 50px;
+	height: 29px;
+}
+
 .image {
 	background-color: #EEE;
 	margin: 9px;
@@ -349,9 +354,71 @@ function initTableMS() {
 	});
 
 	tableMS.init();
-
+	$('#results-table tbody tr').click(function(ev) { rowClick(ev.currentTarget); });
 	$('#progress').hide();
 }
+
+
+var tableMedia = false;
+function initTableMedia(med) {
+	var col = [
+		{
+			key: '_thumb',
+			label: 'Thumb',
+			nosort: true
+		},
+		{
+			key: 'filename',
+			label: 'File',
+			//value: cleanValue,
+		},
+		{
+			key: '_encounters',
+			label: 'Encounters',
+			value: _colEncounters,
+			sortValue: _colEncountersSort,
+		},
+		{
+			key: '_occurrences',
+			label: 'Occurrences',
+			value: _colOccurrences,
+			sortValue: _colOccurrencesSort,
+		},
+	];
+
+	var tagcols = {
+		trash: 'Trash',
+	};
+	for (var t in tagcols) {
+		col.push({
+			key: '_tag_' + t,
+			label: tagcols[t],
+			value: _colTag,
+			sortValue: _colTagSort,
+		});
+	}
+
+	tableMedia = new SortTable({
+		pageInfoEl: $('#media-table-info'),
+		//countClass: 'table-count',
+		howMany: 10,
+		start: 0,
+		data: med,
+		perPage: 10,
+		sliderEl: $('#media-results-slider'),
+		tableEl: $('#media-results-table'),
+		columns: col,
+	});
+
+	tableMedia.init();
+	$('#media-results-table tbody tr').click(function(ev) {
+		var i = ev.currentTarget.getAttribute('data-i');
+console.log(i);
+	});
+	$('#media-progress').hide();
+}
+
+
 
 
 function cleanValue(obj, colnum) {
@@ -367,6 +434,44 @@ function lowerCaseValue(obj, colnum) {
 	if (typeof v == 'string') return v.toLowerCase();
 	if (!v) return '.';
 	return v;
+}
+
+
+function _colTag(obj, t) {
+	console.log('colTag %o %o', obj, t);
+	if (!obj._tags || (obj._tags.length < 1)) return '';
+	var tagName = tableMedia.opts.columns[t].key.substring(5);
+console.log(tagName);
+	if (obj._tags.indexOf(tagName) > -1) return 'X';
+	return '';
+}
+
+function _colTagSort(obj, t) {
+	var x = _colTag(obj, t);
+	if (x) return 1;
+	return 0;
+}
+
+function _colEncounters(obj) {
+	var n = obj._encounters;
+	if (!n || (n.length < 1)) return '';
+	return n.length;
+}
+function _colEncountersSort(obj) {
+	var n = obj._encounters;
+	if (!n || (n.length < 1)) return 0;
+	return n.length;
+}
+
+function _colOccurrences(obj) {
+	var n = obj._occurrences;
+	if (!n || (n.length < 1)) return '';
+	return n.length;
+}
+function _colOccurrencesSort(obj) {
+	var n = obj._occurrences;
+	if (!n || (n.length < 1)) return 0;
+	return n.length;
 }
 
 
@@ -481,7 +586,7 @@ function doTable() {
 
 function rowClick(el) {
 	console.log(el);
-	var mid = el.getAttribute('data-id');
+	var mid = el.getAttribute('data-i');
 	browse(mid);
 	return false;
 }
@@ -606,7 +711,11 @@ function browse(msID) {
 var displayAsTable = true;
 
 function displayMS() {
-	if (displayAsTable) return displayMSTable();
+	if (displayAsTable) {
+		$('#images-unused').hide();
+		return displayMSTable();
+	}
+	$('#media-table').hide();
 
 	var m = mediaSubmission.get('media');
 console.log(m);
@@ -686,6 +795,34 @@ console.log(m);
 
 
 function displayMSTable() {
+	var m = mediaSubmission.get('media');
+	if (!m || (m.length < 1)) {
+		alert('no images for this. :(');
+		return false;
+	}
+
+	for (var i = 0 ; i < m.length ; i++) {
+		var mObj = new wildbook.Model.SinglePhotoVideo(m[i]);
+		m[i]._encounters = encountersForImage(mObj.id);
+		m[i]._occurrences = occurrencesForImage(mObj.id);
+
+		var imgSrc = mObj.url();
+		if (isGeoFile(m[i])) imgSrc = 'images/map-icon.png';
+		m[i]._thumb = '<img class="tiny-thumb" src="' + imgSrc + '" />';
+
+		m[i]._tags = getTags(m[i]);
+
+		var st = inSurvey(m[i]);
+		if (st[0]) m[i]._survey = st[0];
+		if (st[1]) m[i]._surveyTrack = st[1];
+	}
+
+//console.warn('med! %o', m); return;
+	initTableMedia(m);
+
+	$('#media-table').show();
+	$('#admin-div').hide();
+	$('#work-div').show();
 }
 
 
@@ -1307,7 +1444,7 @@ function getTags(med) {
 
 <div id="admin-div">
 	<h1>MediaSubmission review</h1>
-</div>
+
 
 <div id="table-wrapper">
 	<p>
@@ -1318,31 +1455,33 @@ function getTags(med) {
 	</p>
 
 	<div class="pageableTable-wrapper">
-		<div id="progress">Generating encounters table</div>
+		<div id="progress">loading media submissions...</div>
 		<table id="results-table"></table>
 		<div id="results-slider"></div>
 	</div>
 </div>
 
+</div>
+
 
 
 <div id="work-div">
-	<p><b>Images submitted by user.</b></p>
+	<p><b>Files submitted by user.</b></p>
 
 	<div id="images-unused"></div>
 
-	<div id="images-table">
+	<div id="media-table">
 		<p>
-			<input placeholder="filter by text" id="filter-text" onChange="return applyFilter()" />
+			<input placeholder="filter by text" id="media-filter-text" onChange="return mediaTable.applyFilter($('#media-filter-text').val())" />
 			<input type="button" value="filter" />
-			<input type="button" value="clear" onClick="$('#filter-text').val(''); applyFilter(); return true;" />
-			<span style="margin-left: 40px; color: #888; font-size: 0.8em;" id="table-info"></span>
+			<input type="button" value="clear" onClick="$('#media-filter-text').val(''); mediaTable.applyFilter(); return true;" />
+			<span style="margin-left: 40px; color: #888; font-size: 0.8em;" id="media-table-info"></span>
 		</p>
 
 		<div class="pageableTable-wrapper">
-			<div id="progress">loading...</div>
-			<table id="results-table"></table>
-			<div id="results-slider"></div>
+			<div id="media-progress">loading...</div>
+			<table id="media-results-table"></table>
+			<div id="media-results-slider"></div>
 		</div>
 	</div>
 
