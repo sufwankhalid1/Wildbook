@@ -159,7 +159,7 @@
                 <!-- Redirect browsers with JavaScript disabled to the origin page -->
                 <noscript><input type="hidden" name="redirect" value="https://blueimp.github.io/jQuery-File-Upload/"></noscript>
                 <!-- The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload -->
-                <input name="mediaid" type="hidden" ng-model="media.id"/>
+                <input name="mediaid" type="hidden" ng-value="media.id"/>
                 <div class="row fileupload-buttonbar">
                     <div class="col-lg-8">
                         <!-- The fileinput-button span is used to style the file input field as button -->
@@ -229,7 +229,7 @@
             </form>
               
               <form class="tab-pane" id="metaForm" name="formMeta" rc-submit="completeWizard()" rc-step>
-                <h3>Enter second step data</h3>
+                <h3>Extra Info</h3>
                 <div class="form-group">
                   <label class="control-label">Description</label>
                   <textarea rows="5" class="form-control" ng-model="media.description"></textarea>
