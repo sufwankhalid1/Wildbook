@@ -438,6 +438,8 @@ function initTableMedia(med) {
 		});
 	}
 
+	$('#media-results-table').html('');
+
 	tableMedia = new SortTable({
 		pageInfoEl: $('#media-table-info'),
 		//countClass: 'table-count',
@@ -468,8 +470,8 @@ function tableMediaShowCallback(tbl) {
 	$('#media-results-table tbody tr').each(function(i,el) {
 		var i = el.getAttribute('data-i');
 //console.log(tableMedia.opts.data[tableMedia.results[i]]);
-//console.log('i %o, tm.r[i] %o', i, tableMedia.results[i]);
-		if (!tableMedia.results[i]) return;
+console.log('i %o, tm.r[i] %o', i, tableMedia.results[i]);
+		if (tableMedia.results[i] == undefined) return;
 		var id = tableMedia.opts.data[tableMedia.results[i]].dataCollectionEventID;
 		el.setAttribute('id', id);
 	});
@@ -673,9 +675,8 @@ function doTable() {
 
 
 function rowClick(el) {
-	console.log(el);
 	var mid = el.getAttribute('data-i');
-	browse(mid);
+	browse(tableMS.opts.data[tableMS.results[mid]].id);
 	return false;
 }
 
@@ -870,8 +871,13 @@ console.log(m);
 
 	$('#work-div').show();
 	//updateCounts();
+	initOther();
+}
 
-	$('#enc-submitterID').val(mediaSubmission.get('username'));
+function initOther() {
+	var useName = mediaSubmission.get('username');
+	if (!useName) useName = mediaSubmission.get('name');
+	$('#enc-submitterID').val(useName);
 	$('#enc-submitterEmail').val(mediaSubmission.get('email'));
 	$('#enc-verbatimLocality').val(mediaSubmission.get('verbatimLocation'));
 	$('#enc-dateInMilliseconds').val(mediaSubmission.get('startTime'));
@@ -905,6 +911,8 @@ function displayMSTable() {
 		if (st[1]) m[i]._surveyTrack = st[1];
 	}
 
+	tableMedia = false;
+	tableMediaSelected = [];
 //console.warn('med! %o', m); return;
 	initTableMedia(m);
 
@@ -912,15 +920,18 @@ function displayMSTable() {
 	$('#media-table').show();
 	$('#admin-div').hide();
 	$('#work-div').show();
+	initOther();
 }
+
 
 
 function updateSelectedUI(ev, ui) {
 	//console.info('ev %o, ui %o', ev, ui);
-	var nsel = $('div.image.ui-selected').length;
+	//var nsel = $('div.image.ui-selected').length;
+	var nsel = getSelectedMedia().length;
 	var inSurveys = $('div.image.ui-selected.in-survey').length;
 	if (displayAsTable) {
-		nsel = tableMediaSelected.length;
+		//nsel = tableMediaSelected.length;
 		//var nsel = $('#media-results-table tbody tr input[type="checkbox"]:checked').length;
 		//var nsel = $('#media-results-table tbody tr span.row-has-tag-....');
 		inSurveys = 0;
@@ -1305,7 +1316,7 @@ function updateMediaSubmissionStatus(s) {
 
 
 function actionCancel() {
-	window.location.reload();
+	window.location.href = window.location.pathname;
 }
 
 function actionTag(tagName) {
@@ -1325,7 +1336,7 @@ function actionTag(tagName) {
 			msError('unable to append media to track.',a,b,c);
 		},
 		success: function() {
-			//actionResult('
+			actionResult('file marked ' + tagName);
 			resetAllCollections('media_MediaTags');
 			updateAllCollections(function() { displayMS(); });
 		}
@@ -1334,7 +1345,7 @@ function actionTag(tagName) {
 
 function actionEncounter() {
 	var m = getSelectedMedia({skipGeo: true});
-	if (m.length < 1) return;
+	if (m.length < 1) return msError('no image/video files selected');
 	$('.action-div').hide();
 	$('#encounter-info').html('selected images/videos: <b>' + m.length + '</b>');
 	$('#encounter-div').show();
@@ -1342,7 +1353,7 @@ function actionEncounter() {
 
 function actionOccurrence() {
 	var m = getSelectedMedia({skipGeo: true});
-	if (m.length < 1) return;
+	if (m.length < 1) return msError('no image/video files selected');
 	$('.action-div').hide();
 	$('#occurrence-info').html('selected images/videos: <b>' + m.length + '</b>');
 	$('#occurrence-div').show();
@@ -1370,7 +1381,7 @@ function actionSurvey() {
 */
 	if ($('div.image.ui-selected.in-survey').length > 0) return;  //already in some surveys
 	var m = getSelectedMedia();
-	if (m.length < 1) return;
+	if (m.length < 1) return msError('no files selected');
 
 	var geoMedia = false;
 	for (var i = 0 ; i < m.length ; i++) {
@@ -1433,9 +1444,16 @@ function getSelectedMedia(opt) {
 	if (!msMedia) return m;
 
 	var selID = {};
-	var sel = $('div.image.ui-selected');
-	for (var i = 0 ; i < sel.length ; i++) {
-		selID[sel[i].id] = sel[i];
+
+	if (displayAsTable) {
+		for (var i = 0 ; i < tableMediaSelected.length ; i++) {
+			selID[tableMediaSelected[i]] = true;
+		}
+	} else {  //based on ui selection (thumb view)
+		var sel = $('div.image.ui-selected');
+		for (var i = 0 ; i < sel.length ; i++) {
+			selID[sel[i].id] = sel[i];
+		}
 	}
 
 	for (var i = 0 ; i < msMedia.length ; i++) {
@@ -1447,6 +1465,7 @@ function getSelectedMedia(opt) {
 //console.info('getSelectedMedia -> %o', m);
 	return m;
 }
+
 
 function selectSurvey() {
 	var val = $('#survey-id').val();   //note: this is allCollections.survey_Surveys offset!
@@ -1551,6 +1570,13 @@ function mediaSelectAll(el) {
 	updateSelectedUI();
 }
 
+//used by things like filtering to unselect everything
+function resetTableMediaSelected() {
+	tableMediaSelected = [];
+	$('input.media-select-head').prop('checked', false);
+	updateSelectedUI();
+}
+
 
 function namify(id, name) {
 	if (!name) return 'ID ' + id;
@@ -1566,9 +1592,9 @@ function namify(id, name) {
 
 <div id="table-wrapper">
 	<p>
-		<input placeholder="filter by text" id="filter-text" onChange="return applyFilter()" />
+		<input placeholder="filter by text" id="filter-text" onChange="return tableMS.applyFilter($('#filter-text').val())" />
 		<input type="button" value="filter" />
-		<input type="button" value="clear" onClick="$('#filter-text').val(''); applyFilter(); return true;" />
+		<input type="button" value="clear" onClick="$('#filter-text').val(''); tableMS.applyFilter(); return true;" />
 		<span style="margin-left: 40px; color: #888; font-size: 0.8em;" id="table-info"></span>
 	</p>
 
@@ -1590,9 +1616,9 @@ function namify(id, name) {
 
 	<div id="media-table">
 		<p>
-			<input placeholder="filter by text" id="media-filter-text" onChange="return tableMedia.applyFilter($('#media-filter-text').val())" />
+			<input placeholder="filter by text" id="media-filter-text" onChange="resetTableMediaSelected(); return tableMedia.applyFilter($('#media-filter-text').val())" />
 			<input type="button" value="filter" />
-			<input type="button" value="clear" onClick="$('#media-filter-text').val(''); tableMedia.applyFilter(); return true;" />
+			<input type="button" value="clear" onClick="$('#media-filter-text').val(''); resetTableMediaSelected(); tableMedia.applyFilter(); return true;" />
 			<span style="margin-left: 40px; color: #888; font-size: 0.8em;" id="media-table-info"></span>
 		</p>
 
