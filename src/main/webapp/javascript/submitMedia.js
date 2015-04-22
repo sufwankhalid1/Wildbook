@@ -30,6 +30,27 @@ var submitMedia = (function () {
     wizard.controller('MediaSubmissionController',
             ['$scope', '$q', '$timeout',
              function ($scope, $q, $timeout) {
+                function urlParam(name) {
+                    var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+                    if (results==null){
+                       return null;
+                    }
+                    else{
+                       return results[1] || 0;
+                    }
+                }
+                
+                //
+                // NOTE: This is within an apply already so no need to wrap it in one.
+                //
+                $scope.media = {"username": (wildbookGlobals) ? wildbookGlobals.username : null,
+                                "submissionid": urlParam('submissionid'),
+                                "email": urlParam('email'),
+                                "name": urlParam('name'),
+                                "endTime": null,
+                                "startTime": null
+                };
+                
                 function longToDate(date) {
                     if (date) {
                         return new Date(date);
@@ -65,8 +86,6 @@ var submitMedia = (function () {
                      });
                 }
                 
-                $scope.media = {"username": (wildbookGlobals) ? wildbookGlobals.username : null, "endTime": null, "startTime": null};
-                
                 //
                 // showTime = true is my addition to angular-ui/ui-date
                 // which allows it to use the timepicker. See the mymaster branch.
@@ -95,7 +114,7 @@ var submitMedia = (function () {
                     //
                     var jqXHR = $.get('obj/mediasubmission/getexif/' + this.media.id)
                     .done(function(data) {
-                        $scope.$apply(function(){
+                        $scope.$apply(function() {
                             $scope.media.startTime = longToDate(data.startTime);
                             $scope.media.endTime = longToDate(data.endTime);
                             $scope.media.latitude = data.latitude;
@@ -136,11 +155,6 @@ var submitMedia = (function () {
 //                    console.log("startTime changed from [" + oldValue + "] to [" + newValue + "]");
 //                    console.log(new Error().stack);
 //                });
-//                
-//                $scope.$watch("media.endTime");
-//                $scope.$watch("media.id", function(newValue, oldValue){
-//                    console.log("id changed from [" + oldValue + "] to [" + newValue + "]");
-//                });
             }]);
     var url = "mediaupload";
     
@@ -160,7 +174,7 @@ var submitMedia = (function () {
                         disableImageResize: /Android(?!.*Chrome)|Opera/
                             .test(window.navigator.userAgent),
                             maxFileSize: 5000000,
-                            acceptFileTypes: /(\.|\/)(gif|jpe?g|png)$/i
+                            acceptFileTypes: /(\.|\/)(gif|jpe?g|png|kmz|kml)$/i
                     });
                  }
             ])
