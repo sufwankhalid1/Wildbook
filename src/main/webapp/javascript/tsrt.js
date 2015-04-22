@@ -50,7 +50,7 @@ function SortTable(opts) {
 	};
 
 	this.newSlice = function(col, reverse) {
-console.warn('newSlice() col %o | start %o | start + howMany %o | reverse %o', col, this.opts.start, this.opts.start + this.opts.howMany, reverse);
+///console.warn('newSlice() col %o | start %o | start + howMany %o | reverse %o', col, this.opts.start, this.opts.start + this.opts.howMany, reverse);
 		this.results = this.slice(col, this.opts.start, this.opts.start + this.opts.howMany, reverse);
 	};
 
@@ -181,7 +181,7 @@ console.log(t);
 		} else {
 			this.opts.tableEl.find('th.ptcol-' + this.opts.columns[c].key).addClass('headerSortDown');
 		}
-console.log('sortCol=%d sortReverse=%o', this.sortCol, this.sortReverse);
+//console.log('sortCol=%d sortReverse=%o', this.sortCol, this.sortReverse);
 		this.newSlice(this.sortCol, this.sortReverse);
 		this.show();
 	};
@@ -268,6 +268,7 @@ console.log(this._sortCache[col]);
 		//if (sTable.opts.sliderEl) sTable.opts.sliderEl.slider('option', 'value', 100 - (start / (searchResults.length - howMany)) * 100);
 		this.sliderSet(100 - (this.opts.start / (this.matchesFilter.length - this.opts.howMany)) * 100);
 		this.displayPagePosition();
+		if (this.opts.showCallback) this.opts.showCallback(this);
 	}
 
 
