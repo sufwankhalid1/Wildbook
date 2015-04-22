@@ -425,8 +425,8 @@ function initTableMedia(med) {
 
 	var tagcols = {
 		trash: 'Trash',
-		archive: 'Saved',
-		'to-cascadia': 'send to Cascadia',
+		archive: 'Archived',
+		'to-cascadia': 'Send to Cascadia',
 		ident: 'Auto ID',
 	};
 	for (var t in tagcols) {
