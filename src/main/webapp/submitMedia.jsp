@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="//blueimp.github.io/Gallery/css/blueimp-gallery.min.css">
 <link rel="stylesheet" href="tools/jquery-fileupload/css/jquery.fileupload.css">
 <link rel="stylesheet" href="tools/jquery-fileupload/css/jquery.fileupload-ui.css">
+<link rel="stylesheet" href="tools/leaflet/leaflet.css">
 <!-- Default fonts for jquery-ui are too big
 <style>
 .ui-widget {
@@ -41,6 +42,7 @@
 <script src="tools/angularjs-utilities/javascript/modules/rcDisabled.js"></script>
 <script src="tools/angularjs-utilities/javascript/modules/rcWizard.js"></script>
 <script src="tools/angular-ui/ui-date/date.js"></script>
+<script src="tools/leaflet/leaflet-src.js"></script>
 
 <!-- ******* START FileUpload scripts ******* -->
 <!-- These were for the jquery-ui version-->
@@ -101,9 +103,9 @@
 <!-- <div id="media-startdatepicker2" class="form-control"></div>  -->
 
 <div id="MediaSubmissionWizard" ng-app="MediaSubmissionWizard">
-    <div class="container" >
+    <div class="container-fluid" >
       <div class="row">
-        <div class="col-xs-12 col-sm-7">
+        <div class="col-md-12">
           <div ng-controller="MediaSubmissionController" 
                rc-wizard="mediaWizard" rc-disabled="rc.formUser.submitInProgress">
             <ul class="nav rc-nav-wizard">
@@ -155,7 +157,8 @@
             <form class="tab-pane" id="fileupload" action="mediaupload" method="POST" name="formMedia"
                   rc-step rc-submit="getXifData()" novalidate
                   enctype="multipart/form-data" data-ng-controller="DemoFileUploadController"
-                  data-file-upload="options" data-ng-class="{'fileupload-processing': processing() || loadingFiles}">
+                  data-file-upload="options" data-ng-class="{'fileupload-processing': processing() || loadingFiles}"
+                  style="overflow-y:auto;">
                 <!-- Redirect browsers with JavaScript disabled to the origin page -->
                 <noscript><input type="hidden" name="redirect" value="https://blueimp.github.io/jQuery-File-Upload/"></noscript>
                 <!-- The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload -->
@@ -229,13 +232,41 @@
             </form>
               
               <form class="tab-pane" id="metaForm" name="formMeta" rc-submit="completeWizard()" rc-step>
-                <h3>Extra Info</h3>
+                <h3>Time and Place</h3>
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label class="control-label">Start Date/Time</label>
+                      <input ui-date="dateOptions" ng-model="media.startTime"/>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label class="control-label">End Date/Time</label>
+                      <input ui-date="dateOptions" ng-model="media.endTime"/>
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label class="control-label">Latitude</label>
+                      <input class="form-control" type="text" ng-model="media.latitude"/>
+                    </div>
+                    <div class="form-group">
+                      <label class="control-label">Longitude</label>
+                      <input class="form-control" type="text" ng-model="media.longitude"/>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                     <div id="mediasubmissionmap" style="height: 300px;"></div>
+                </div>
                 <div class="form-group">
-                  <label class="control-label">Description</label>
+                  <label class="control-label">Give a brief description of your photos/videos (optional)</label>
                   <textarea rows="5" class="form-control" ng-model="media.description"></textarea>
                 </div>
                 <div class="form-group">
-                  <label class="control-label">Verbatim Location</label>
+                  <label class="control-label">Tell us about the place where you took the photos/videos (optional)</label>
                   <textarea rows="5" class="form-control" ng-model="media.verbatimLocation"></textarea>
                 </div>
                 <!-- <div class="form-group">
@@ -243,20 +274,6 @@
                   <input class="form-control" type="text" 
                          ng-model="user.location" />
                 </div> -->
-                <div class="row">
-                  <div class="col-xs-6">
-                        <div class="form-group">
-                          <label class="control-label">Start Time</label>
-                          <input ui-date="dateOptions" ng-model="media.startTime"/>
-                        </div>
-                  </div>
-                  <div class="col-xs-6">
-                        <div class="form-group">
-                          <label class="control-label">End Time</label>
-                          <input ui-date="dateOptions" ng-model="media.endTime"/>
-                        </div>
-                  </div>
-                </div>
               </form>
 
             </div>
