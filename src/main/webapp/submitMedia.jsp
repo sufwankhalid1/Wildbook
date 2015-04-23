@@ -259,11 +259,13 @@
                     </div>
                   </div>
                   <div class="col-md-6">
-                     <div id="mediasubmissionmap" style="height: 300px;"></div>
+                     <div id="mediasubmissionmap" style="height: 300px;">
+                     </div>
+                  </div>
                 </div>
                 <div class="form-group">
                   <label class="control-label">Give a brief description of your photos/videos (optional)</label>
-                  <textarea rows="5" class="form-control" ng-model="media.description"></textarea>
+                  <textarea rows="5" class="form-control" ng-model="media.description" autofocus></textarea>
                 </div>
                 <div class="form-group">
                   <label class="control-label">Tell us about the place where you took the photos/videos (optional)</label>
