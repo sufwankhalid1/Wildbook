@@ -492,6 +492,7 @@ function initTableMedia(med) {
 	tableMedia.init();
 
 	$('#media-results-table tbody tr').click(function(ev) {
+		if (ev.target.type == 'checkbox') return;  //dont trigger when checking checkbox!
 		var i = ev.currentTarget.getAttribute('data-i');
 		var el = $('#media-results-table tbody tr input[type="checkbox"]')[i];
 		el.checked = !el.checked;
@@ -516,7 +517,8 @@ console.log('i %o, tm.r[i] %o', i, tableMedia.results[i]);
 	updateCheckboxes();
 }
 
-function tableMediaSelectChange(el) {
+function tableMediaSelectChange(el, ev) {
+	ev.stopPropagation();
 	var id = el.parentElement.parentElement.parentElement.id;
 //console.log('checked??? %o -> %o', id, el.checked);
 	var i = tableMediaSelected.indexOf(id);
@@ -562,7 +564,7 @@ function _colSurveySort(obj, i) {
 
 
 function _colMediaSelect(obj, i) {
-	return '<input class="media-select media-select-item" type="checkbox" onChange="return tableMediaSelectChange(this)" />';
+	return '<input class="media-select media-select-item" type="checkbox" onChange="return tableMediaSelectChange(this, event)" />';
 }
 
 function _colTag(obj, t) {
