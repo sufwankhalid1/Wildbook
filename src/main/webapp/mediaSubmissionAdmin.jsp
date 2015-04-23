@@ -10,8 +10,15 @@
 }
 </style> -->
 
+<script> var googleApiKey = 'AIzaSyDz5Pgz2NCjFkss9AJwxqFjejPhxJrOj-M'; </script>
+
 <div style="position: relative; width: 100%; text-align: center;">
 	<div id="image-zoom" onClick="$('#image-zoom').hide()"></div>
+
+	<div id="map-canvas-wrapper">
+		<div id="map-canvas"></div>
+	</div>
+
 </div>
 
 
@@ -49,12 +56,37 @@
 <script src="javascript/classes/Base.js"></script>
 
 
+<script type="text/javascript"
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDz5Pgz2NCjFkss9AJwxqFjejPhxJrOj-M">
+    </script>
+
+
+
 <style>
 body { font-family: arial }
 
 .pageableTable-visible:hover td {
 	background-color: #FFA;
 }
+
+#map-canvas-wrapper {
+	z-index: 200;
+	position: fixed;
+	top: 2000px;
+	left: 10px;
+	width: 400px;
+	height: 400px;
+	border: solid 3px black;
+	background-color: #888;
+	padding: 10px;
+	//display: none;
+}
+
+#map-canvas {
+	width: 380px;
+	height: 380px;
+}
+
 
 #image-zoom {
 	z-index: 200;
@@ -338,6 +370,17 @@ body { font-family: arial }
 </style>
 
 <script type="text/javascript">
+
+var map = false;
+google.maps.event.addDomListener(window, 'load', gotMap);
+
+function gotMap() {
+        var mapOptions = {
+          center: { lat: 0 , lng: 0},
+          zoom: 2
+        };
+        map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+}
 
 
 var mediaSubmissionID = <%
@@ -930,6 +973,9 @@ function initOther() {
 
 
 function displayMSTable() {
+	var ok = putOnMap(mediaSubmission.get('latitude'), mediaSubmission.get('longitude'));
+	if (!ok) $('#map-canvas-wrapper').hide();
+
 	var m = mediaSubmission.get('media');
 	if (!m || (m.length < 1)) {
 		alert('no images for this. :(');
@@ -995,6 +1041,15 @@ function updateSelectedUI(ev, ui) {
 	} else {
 		$('#action-info').html('<b>' + nsel + '</b> file' + ((nsel == 1) ? '' : 's') + '<br />selected');
 		$('#action-menu-div input.sel-act').removeAttr('disabled');
+	}
+
+	var canSend = $('#media-results-table tbody tr span.row-has-tag-to-cascadia').length +
+		$('#media-results-table tbody tr span.row-has-tag-ident').length;
+
+	if (canSend > 0) {
+		$('#button-send-files').removeAttr('disabled');
+	} else {
+		$('#button-send-files').attr('disabled', 'disabled');
 	}
 
 	if (inSurveys > 0) $('#button-survey').attr('disabled', 'disabled');
@@ -1708,6 +1763,24 @@ function plural(num, word) {
 	if (num == 1) return word;
 	return word + 's';
 }
+
+
+function putOnMap(lat, lon) {
+	if ((lat == undefined) || (lon == undefined)) return false;
+	var pt = new wildbook.Model.Point();
+	pt.set('latitude', lat - 0);
+	pt.set('longitude', lon - 0);
+	pt.centerGoogleMap(map);
+	pt.placeGoogleMarker(map, "USER");
+	//$('#map-canvas-wrapper').show();
+	$('#map-canvas-wrapper').css('top', '50px');
+	return true;
+}
+
+function sendFiles() {
+console.warn('TODO sendFiles()');
+}
+
 </script>
 
 
@@ -1765,6 +1838,7 @@ function plural(num, word) {
 	<input class="sel-act" type="button" value="to Cascadia" onClick="actionTag('to-cascadia')" />
 	<input class="sel-act" type="button" value="auto-ID" onClick="actionTag('ident')" />
 	<input type="button" value="mark MediaSubmission complete" onClick="closeMediaSubmission()" />
+	<input class="sel-act" type="button" id="button-send-files" value="send files" onClick="sendFiles()" />
 	<input type="button" value="back to listing" onClick="actionCancel()" />
 </div>
 
