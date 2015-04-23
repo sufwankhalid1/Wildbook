@@ -879,7 +879,7 @@ public class Encounter implements java.io.Serializable {
   }
 
   public void assignToMarkedIndividual(String sharky) {
-    individualID = sharky;
+    setIndividualID(sharky);
   }
 
   /*
@@ -1348,8 +1348,23 @@ public class Encounter implements java.io.Serializable {
   }
 
   public void setIndividualID(String indy) {
-    this.individualID = indy;
+      if (indy == null) {
+          individualID=null;
+        } else {
+          individualID=indy;
+        }
   }
+  
+  /*
+   * 
+   *   public String getGPSLatitude() {
+    if (gpsLatitude == null) {
+      return "";
+    } else {
+      return gpsLatitude;
+    }
+  }
+   */
 
   public double getDecimalLatitudeAsDouble(){return decimalLatitude.doubleValue();}
   public void setDecimalLatitude(Double lat){this.decimalLatitude=lat;}
