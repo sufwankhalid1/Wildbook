@@ -378,6 +378,7 @@ public class MediaSubmissionController
         MediaSubmission ms = getMediaSubmission(msid);
         
         ExifData data = new ExifData();
+        ExifAvg avg = data.avg;
 
         if (ms == null) {
             return data;
@@ -410,6 +411,10 @@ public class MediaSubmissionController
                     if (media.getFile().exists()) {
                         Metadata metadata;
                         try {
+                            ExifItem item = new ExifItem();
+                            item.mediaid = media.getDataCollectionEventID();
+                            data.items.add(item);
+                            
                             metadata = ImageMetadataReader.readMetadata(media.getFile());
                          // obtain the Exif directory
                             ExifSubIFDDirectory directory;
@@ -417,30 +422,36 @@ public class MediaSubmissionController
                             // query the tag's value
                             Date date = directory.getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL);
                             if (date != null) {
-                                if (data.startTime == null) {
-                                    data.startTime = date.getTime();
+                                item.time = date.getTime();
+                                
+                                if (avg.minTime == null) {
+                                    avg.minTime = date.getTime();
                                 } else {
-                                    if (date.getTime() < data.startTime) {
-                                        data.startTime = date.getTime();
+                                    if (date.getTime() < avg.minTime) {
+                                        avg.minTime = date.getTime();
                                     }
                                 }
-                                if (data.endTime == null) {
-                                    data.endTime = date.getTime();
+                                if (avg.maxTime == null) {
+                                    avg.maxTime = date.getTime();
                                 } else {
-                                    if (date.getTime() > data.endTime) {
-                                        data.endTime = date.getTime();
+                                    if (date.getTime() > avg.maxTime) {
+                                        avg.maxTime = date.getTime();
                                     }
                                 }
                             }
                             
                             // See whether it has GPS data
                             Collection<GpsDirectory> gpsDirectories = metadata.getDirectoriesOfType(GpsDirectory.class);
-                            if (gpsDirectories == null)
+                            if (gpsDirectories == null) {
                                 continue;
+                            }
                             for (GpsDirectory gpsDirectory : gpsDirectories) {
                                 // Try to read out the location, making sure it's non-zero
                                 GeoLocation geoLocation = gpsDirectory.getGeoLocation();
                                 if (geoLocation != null && !geoLocation.isZero()) {
+                                    item.latitude = geoLocation.getLatitude();
+                                    item.longitude = geoLocation.getLongitude();
+                                    
                                     latitude += geoLocation.getLatitude();
                                     latCount += 1;
                                     longitude += geoLocation.getLongitude();
@@ -469,19 +480,32 @@ public class MediaSubmissionController
         }
         
         if (latCount > 0) {
-            data.latitude = latitude / latCount;
-            data.longitude = longitude / longCount;
+            avg.latitude = latitude / latCount;
+            avg.longitude = longitude / longCount;
         }
         
         return data;
     }
     
+    public static class ExifItem
+    {
+        public Long time;
+        public Double latitude;
+        public Double longitude;
+        public String mediaid;
+    }
+    
+    public static class ExifAvg
+    {
+        public Long minTime;
+        public Long maxTime;
+        public Double latitude;
+        public Double longitude;
+    }
     
     public static class ExifData
     {
-        public Long startTime;
-        public Long endTime;
-        public Double latitude;
-        public Double longitude;
+        public List<ExifItem> items = new ArrayList<ExifItem>();
+        public ExifAvg avg = new ExifAvg();
     }
 }

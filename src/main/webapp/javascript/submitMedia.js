@@ -19,7 +19,7 @@ var submitMedia = (function () {
     function addToMap(latlng) {
         if (latlng) {
             marker = L.marker(latlng).addTo(map);
-            map.setView( latlng, 16 );
+            map.setView( latlng, 10 );
         } else {
             if (! marker) {
                 map.setZoom(0);
@@ -168,15 +168,16 @@ var submitMedia = (function () {
                 //
                 var jqXHR = $.get('obj/mediasubmission/getexif/' + $scope.media.id)
                 .done(function(data) {
+                    var avg = data.avg;
                     $scope.$apply(function() {
-                        $scope.media.startTime = longToDate(data.startTime);
-                        $scope.media.endTime = longToDate(data.endTime);
-                        $scope.media.latitude = data.latitude;
-                        $scope.media.longitude = data.longitude;
+                        $scope.media.startTime = longToDate(avg.minTime);
+                        $scope.media.endTime = longToDate(avg.maxTime);
+                        $scope.media.latitude = avg.latitude;
+                        $scope.media.longitude = avg.longitude;
                     });
                     var point;
-                    if (data.latitude && data.longitude) {
-                        point = L.latLng(data.latitude, data.longitude);
+                    if (avg.latitude && avg.longitude) {
+                        point = L.latLng(avg.latitude, avg.longitude);
                     } else {
                         point = null;
                     }
