@@ -46,18 +46,26 @@ public class MediaUploadServlet
     private static final long serialVersionUID = 1L;
     private static final Logger logger = LoggerFactory.getLogger(MediaUploadServlet.class);
  
+    private static final String FILES_MAP = "filesMap";
+    
     //
     // this will store uploaded files
     // Let's put them in the user's session object so they don't hang around forever.
     //
+    public static void clearFiles(final HttpSession session)
+    {
+        session.removeAttribute(FILES_MAP);
+    }
+    
+    
     @SuppressWarnings("unchecked")
     private Map<String, FileSet> getFilesMap(final HttpSession session)
     {
         Map<String, FileSet> filesMap;
-        filesMap = (Map<String, FileSet>) session.getAttribute("filesMap");
+        filesMap = (Map<String, FileSet>) session.getAttribute(FILES_MAP);
         if (filesMap == null) {
             filesMap = new HashMap<String, FileSet>();
-            session.setAttribute("filesMap", filesMap);
+            session.setAttribute(FILES_MAP, filesMap);
         }
         
         return filesMap;
@@ -72,13 +80,12 @@ public class MediaUploadServlet
                           final HttpServletResponse response)
         throws ServletException, IOException
     {
-        // 1. Upload File Using Java Servlet API
-        //files.addAll(uploadByJavaServletAPI(request));            
-      
-        // 1. Upload File Using Apache FileUpload
+        // Upload File Using Apache FileUpload
         FileSet upload = uploadByApacheFileUpload(request);
 
-        
+        if (logger.isDebugEnabled()) {
+            logger.debug(LogBuilder.quickLog("uploadID", upload.getID()));
+        }
         Map<String, FileSet> filesMap = getFilesMap(request.getSession()); 
         FileSet fileset = filesMap.get(upload.getID());
       
@@ -86,6 +93,9 @@ public class MediaUploadServlet
             fileset = upload;
             filesMap.put(upload.getID(), fileset);
         } else {
+            if (logger.isDebugEnabled()) {
+                logger.debug(LogBuilder.quickLog("Number of new files added", upload.getFiles().size()));
+            }
             fileset.getFiles().addAll(upload.getFiles());
         }
  
@@ -185,37 +195,6 @@ public class MediaUploadServlet
          }
     }
     
-    
-//    public static FileSet uploadByJavaServletAPI(final HttpServletRequest request)
-//        throws IOException, ServletException
-//    {
-//        FileSet fileset = new FileSet();
-//
-//        // 1. Get all parts
-//        Collection<Part> parts = request.getParts();
-//
-//        fileset.setID(request.getParameter("id"));
-//
-//        // 3. Go over each part
-//        FileMeta temp = null;
-//        for(Part part:parts){   
-//
-//            // 3.1 if part is multiparts "file"
-//            if (part.getContentType() != null) {
-//                // 3.2 Create a new FileMeta object
-//                temp = new FileMeta();
-//                temp.setName(getFilename(part));
-//                temp.setSize(part.getSize()/1024 +" Kb");
-//                temp.setType(part.getContentType());
-//                temp.setContent(part.getInputStream());
-//
-//                // 3.3 Add created FileMeta object to List<FileMeta> files
-//                fileset.getFiles().add(temp);
-//            }
-//        }
-//        return fileset;
-//    }
-
     private static FileSet uploadByApacheFileUpload(final HttpServletRequest request)
         throws IOException, ServletException
     {
@@ -481,11 +460,11 @@ public class MediaUploadServlet
                     iproc.run();
                 }
 
-								if (file.getName().indexOf(".kmz") > -1) {
+                if (file.getName().indexOf(".kmz") > -1) {
                     GeoFileProcessor gproc;
                     gproc = new GeoFileProcessor(fullPath.getAbsolutePath());
                     gproc.run();
-								}
+                }
 
                 if (logger.isDebugEnabled()) {
                     logger.debug("About to save SPV...");
@@ -504,7 +483,7 @@ public class MediaUploadServlet
                 formatter.append("mediasubmissionid", id);
                 formatter.append("mediaid", media.getDataCollectionEventID());
                 if (logger.isDebugEnabled()) {
-                    logger.debug("About to save link...");
+                    logger.debug(LogBuilder.quickLog("About to save link to media", media.getDataCollectionEventID()));
                 }
                 try {
                     db.getTable("mediasubmission_media").insertRow(formatter);

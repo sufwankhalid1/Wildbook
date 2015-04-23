@@ -242,11 +242,8 @@ public class MediaSubmissionController
 //            userstr = media.getName() + " <" + email + ">";
         }
         
-        
-        email = "holmbergius@gmail.com";
         //get the email thread handler
         ThreadPoolExecutor es = MailThreadExecutorService.getExecutorService();
-        
         
         //email the new submission address defined in commonConfiguration.properties
         
@@ -280,6 +277,12 @@ public class MediaSubmissionController
                                               null,
                                               context));
         }
+        
+        //
+        // Now finally remove the files from the users session object so that
+        // they can submit again with a fresh set.
+        //
+        MediaUploadServlet.clearFiles(request.getSession());
     }
     
     
