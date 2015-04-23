@@ -730,7 +730,7 @@ $(function() {
       
 								
     							<%
-    							if (enc.isAssignedToMarkedIndividual().equals("Unassigned")) {
+    							if ((enc.isAssignedToMarkedIndividual()!=null)&&(enc.isAssignedToMarkedIndividual().equals("Unassigned"))) {
   								%>
     							<p class="para">
     								 <%=encprops.getProperty("identified_as") %> <%=enc.isAssignedToMarkedIndividual()%> 
