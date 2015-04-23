@@ -1688,6 +1688,7 @@ function updateSummary() {
 			inSurveys++;
 		}
 
+		if (tags && tags.indexOf('trash') > -1) thisOneUsed = false;
 		if (thisOneUsed) totalUsed++;
 	}
 
