@@ -225,25 +225,25 @@ public class MediaSubmissionController
         }
         
         String context = ServletUtilities.getContext(request);
-        String userstr;
-        String email;
+//        String userstr;
         
+        String email;
         if (media.getUsername() != null) {
             User user = new Shepherd(context).getUser(media.getUsername());
             if (user != null) {
                 email = user.getEmailAddress();
-                userstr = user.getFullName() + " (" + media.getUsername() + ") <" + email + ">";
+//                userstr = user.getFullName() + " (" + media.getUsername() + ") <" + email + ">";
             } else {
                 email = null;
-                userstr = media.getUsername();
+//                userstr = media.getUsername();
             }
         } else {
             email = media.getEmail();
-            userstr = media.getName() + " <" + email + ">";
+//            userstr = media.getName() + " <" + email + ">";
         }
         
         
-        email="holmbergius@gmail.com";
+        email = "holmbergius@gmail.com";
         //get the email thread handler
         ThreadPoolExecutor es = MailThreadExecutorService.getExecutorService();
         
