@@ -226,6 +226,7 @@ public class MediaSubmissionController
         
         String context = ServletUtilities.getContext(request);
         String userstr;
+        String email;
         
         if (media.getUsername() != null) {
             User user = new Shepherd(context).getUser(media.getUsername());
@@ -242,7 +243,7 @@ public class MediaSubmissionController
         }
         
         
-        String email="holmbergius@gmail.com";
+        email="holmbergius@gmail.com";
         //get the email thread handler
         ThreadPoolExecutor es = MailThreadExecutorService.getExecutorService();
         
