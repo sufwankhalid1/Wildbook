@@ -751,7 +751,7 @@ $(document).ready( function() {
 /*
 		allMS = new wildbook.Collection.MediaSubmissions();
 		allMS.fetch({
-			url: '/test/obj/mediasubmission/get/status/*',  //override and only fill collection with null-status
+			url: wildbookGlobals.baseUrl + '/obj/mediasubmission/get/status/*',  //override and only fill collection with null-status
 			success: function() {
 				$('#admin-div').show();
 				searchResults = allMS.models;
@@ -827,7 +827,7 @@ function browse(msID) {
 */
 	mediaSubmission = new wildbook.Model.MediaSubmission({id: msID});
 	mediaSubmission.fetch({
-		url: '/test/obj/mediasubmission/get/id/' + msID,
+		url: wildbookGlobals.baseUrl + '/obj/mediasubmission/get/id/' + msID,
 		success: function(d) {
 			allCollections.Encounters.fetch({
 				success: function() { displayMS(); }
