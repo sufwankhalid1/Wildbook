@@ -50,10 +50,7 @@ public final class GeoFileProcessor implements Runnable {
 		}
 */
 
-		//String fullCommand = this.webAppsDir + "/WEB-INF/classes/kml_to_json.pl " + this.geoFilePath + " > " + this.geoFilePath + ".json";
-		String fullCommand = "/usr/local/bin/geoFileProcess.sh " + this.geoFilePath;
-System.out.println("start run(): " + fullCommand);
-		String[] command = fullCommand.split("\\s+");
+		String[] command = new String[] {"/usr/local/bin/geoFileProcess.sh", this.geoFilePath};
 
 //System.out.println("done run()");
 
