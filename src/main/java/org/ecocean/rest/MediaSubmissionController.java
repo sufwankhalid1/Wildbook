@@ -261,7 +261,7 @@ public class MediaSubmissionController
         thanksmessage=thanksmessage.replaceAll("INSERTTEXT", ("http://" + CommonConfiguration.getURLLocation
           (request) + "/mediaSubmission.jsp?mediaSubmissionID=" + media.getId()));
         newMediaMessage=newMediaMessage.replaceAll("INSERTTEXT", ("http://" + CommonConfiguration.getURLLocation
-                (request) + "/mediaSubmission.jsp?mediaSubmissionID=" + media.getId()));
+                (request) + "/mediaSubmissionAdmin.jsp?mediaSubmissionID=" + media.getId()));
         
         es.execute(new NotificationMailer(CommonConfiguration.getMailHost(context),
                                           CommonConfiguration.getAutoEmailAddress(context),
