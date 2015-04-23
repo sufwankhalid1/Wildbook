@@ -924,6 +924,7 @@ function initOther() {
 	$('#enc-dateInMilliseconds-human').html(_colDate(mediaSubmission));
 	$('#enc-decimalLatitude').val(mediaSubmission.get('latitude'));
 	$('#enc-decimalLongitude').val(mediaSubmission.get('longitude'));
+	updateSummary();
 }
 
 
@@ -1637,6 +1638,75 @@ function imageZoom(ev, el) {
 	$('#image-zoom').html('<span id="close-x"></span><img src="' + el.src + '" />').show();
 }
 
+
+function updateSummary() {
+	var m = mediaSubmission.get('media');
+	if (!m || (m.length < 1)) {
+		$('#summary-div').html('no summary');
+		return false;
+	}
+
+	var totalUsed = 0;
+	var encList = '';
+	var numForIdent = 0;
+	var numForCascadia = 0;
+	var inSurveys = 0;
+	var allEncs = [];
+
+	for (var i = 0 ; i < m.length ; i++) {
+		var thisOneUsed = false;
+		var mObj = new wildbook.Model.SinglePhotoVideo(m[i]);
+		var encs = encountersForImage(mObj.id);
+		var occs = occurrencesForImage(mObj.id);
+
+		if (encs) {
+			thisOneUsed = true;
+			for (var e in encs) {
+				if (allEncs.indexOf(encs[e].id) > -1) continue;
+				allEncs.push(encs[e].id);
+				encList += '<li><a target="_new" href="' + window.location.origin + wildbookGlobals.baseUrl + '/encounters/encounter.jsp?number=' + encs[e].id + '">' + encs[e].id + '</a></li>';
+			}
+		}
+
+		if (occs) thisOneUsed = true;
+
+		var tags = getTags(m[i]);
+		if (tags && (tags.length > 0)) {
+			if (tags.indexOf('to-cascadia') > -1) {
+				numForCascadia++;
+				thisOneUsed = true;
+			}
+			if (tags.indexOf('ident') > -1) {
+				numForIdent++;
+				thisOneUsed = true;
+			}
+		}
+
+		var st = inSurvey(m[i]);
+		if (st && st[0]) {
+			thisOneUsed = true;
+			inSurveys++;
+		}
+
+		if (thisOneUsed) totalUsed++;
+	}
+
+	var h = '';
+	if (totalUsed > 0) h += '<b>' + totalUsed + '</b> of your files ' + ((totalUsed == 1) ? 'was' : 'were') + ' used. ';
+	if (numForIdent > 0) h += '<b>' + numForIdent + '</b> ' + ((numForIdent == 1) ? 'was' : 'were') + ' submitted for identification. ';
+	if (numForIdent > 0) h += '<b>' + inSurveys + '</b> ' + ((inSurveys == 1) ? 'was' : 'were') + ' added to surveys. ';
+	if (numForCascadia > 0) h += '<b>' + numForCascadia + '</b> ' + ((numForCascadia == 1) ? 'was' : 'were') + ' marked for follow-up. ';
+
+	if (encList != '') h += '<p>The following encounters were created from your files:<ul style="font-size: 0.9em;">' + encList + '</ul>';
+
+	if (h == '') h = 'no summary';
+	$('#summary-div').html(h);
+}
+
+function plural(num, word) {
+	if (num == 1) return word;
+	return word + 's';
+}
 </script>
 
 
@@ -1770,6 +1840,11 @@ function imageZoom(ev, el) {
 	<input type="button" value="cancel" onClick="$('#occ-create-button').show(); $('#occurrence-div').hide()" />
 </div>
 
+</div>
+
+<div style="margin-top: 10px;">
+	<h1 style="text-align: center;">Summary</h1>
+	<div id="summary-div"></div>
 </div>
 
 </div>
