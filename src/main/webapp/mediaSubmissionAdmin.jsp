@@ -70,7 +70,7 @@ body { font-family: arial }
 }
 
 #map-canvas-wrapper {
-	z-index: 200;
+	z-index: 180;
 	position: fixed;
 	top: 2000px;
 	left: 10px;
@@ -477,6 +477,24 @@ function initTableMedia(med) {
 			//value: cleanValue,
 		},
 		{
+			key: '_time',
+			label: 'File Time',
+			value: _colFileDate,
+			sortValue: _colFileDateSort,
+		},
+		{
+			key: '_latitude',
+			label: 'Lat',
+			value: _colLatLong,
+			sortValue: _colLatLongSort,
+		},
+		{
+			key: '_longitude',
+			label: 'Long',
+			value: _colLatLong,
+			sortValue: _colLatLongSort,
+		},
+		{
 			key: '_encounters',
 			label: 'Encounters',
 			value: _colEncounters,
@@ -590,6 +608,23 @@ function lowerCaseValue(obj, colnum) {
 }
 
 
+function _colLatLong(obj, i) {
+console.log('obj %o i %o', obj, i);
+	var l = obj._latitude;
+	if (i == 5) l = obj._longitude;
+	if ((l == undefined) || (l == null)) return '';
+	var num = parseInt(l * 100);
+	if (isNaN(num)) return '';
+	return num / 100;
+}
+
+function _colLatLongSort(obj, i) {
+	var l = _colLatLong(obj, i);
+	if (l == '') return 99999;
+	return l;
+}
+
+
 //note, also does SurveyTrack based on i
 function _colSurvey(obj, i) {
 	if (!obj) return '';
@@ -671,6 +706,20 @@ function _colDate(o) {
 
 function _colDateSort(o) {
 	var t = o.get('startTime');
+	if (!t || (t < 1)) return 0;
+	return t - 0;
+}
+
+function _colFileDate(o) {
+	var t = o._time;
+	if (!t || (t < 1)) return '';
+	var d = new Date();
+	d.setTime(t);
+	return d.toLocaleString();
+}
+
+function _colFileDateSort(o) {
+	var t = o._time;
 	if (!t || (t < 1)) return 0;
 	return t - 0;
 }
@@ -871,7 +920,15 @@ function browse(msID) {
 		url: wildbookGlobals.baseUrl + '/obj/mediasubmission/get/id/' + msID,
 		success: function(d) {
 			allCollections.Encounters.fetch({
-				success: function() { displayMS(); }
+				success: function() {
+					$.ajax({
+						url: wildbookGlobals.baseUrl + '/obj/mediasubmission/getexif/' + msID,
+						success: function(exif) {
+							mediaSubmission._exif = exif;
+							displayMS();
+						}
+					});
+				}
 			});
 		},
 		error: function(a,b,c) { msError('error: probably bad id?',a,b,c); }
@@ -1003,6 +1060,13 @@ function displayMSTable() {
 		var st = inSurvey(m[i]);
 		if (st[0]) m[i]._survey = st[0];
 		if (st[1]) m[i]._surveyTrack = st[1];
+
+		var exif = mediaExif(mediaSubmission, mObj.id);
+		if (exif) {
+			m[i]._latitude = exif.latitude;
+			m[i]._longitude = exif.longitude;
+			m[i]._time = exif.time;
+		}
 	}
 
 	tableMedia = false;
@@ -1779,6 +1843,16 @@ function putOnMap(lat, lon) {
 
 function sendFiles() {
 console.warn('TODO sendFiles()');
+}
+
+
+function mediaExif(m, id) {
+console.warn(m);
+	if (!m || !m._exif || !m._exif.items || (m._exif.items.length < 1)) return;
+	for (var i = 0 ; i < m._exif.items.length ; i++) {
+		if (m._exif.items[i].mediaid == id) return m._exif.items[i];
+	}
+	return;
 }
 
 </script>
