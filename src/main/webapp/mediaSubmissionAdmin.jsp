@@ -15,9 +15,6 @@
 <div style="position: relative; width: 100%; text-align: center;">
 	<div id="image-zoom" onClick="$('#image-zoom').hide()"></div>
 
-	<div id="map-canvas-wrapper">
-		<div id="map-canvas"></div>
-	</div>
 
 </div>
 
@@ -71,10 +68,10 @@ body { font-family: arial }
 
 #map-canvas-wrapper {
 	z-index: 180;
-	position: fixed;
-	top: 2000px;
-	left: 10px;
+	position: absolute;
 	width: 400px;
+	right: 200px;
+	top: 820px;
 	height: 400px;
 	border: solid 3px black;
 	background-color: #888;
@@ -1837,7 +1834,7 @@ function putOnMap(lat, lon) {
 	pt.centerGoogleMap(map);
 	pt.placeGoogleMarker(map, "USER");
 	//$('#map-canvas-wrapper').show();
-	$('#map-canvas-wrapper').css('top', '50px');
+	//$('#map-canvas-wrapper').css('top', '50px');
 	return true;
 }
 
@@ -1857,6 +1854,9 @@ console.warn(m);
 
 </script>
 
+	<div id="map-canvas-wrapper">
+		<div id="map-canvas"></div>
+	</div>
 
 <div id="admin-div">
 	<h1>MediaSubmission review</h1>
@@ -1995,6 +1995,7 @@ console.warn(m);
 	<h1 style="text-align: center;">Summary</h1>
 	<div id="summary-div"></div>
 </div>
+
 
 </div>
 
