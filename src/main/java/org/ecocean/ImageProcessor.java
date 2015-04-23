@@ -92,11 +92,17 @@ public final class ImageProcessor implements Runnable {
 		String fullCommand;
 		fullCommand = this.command.replaceAll("%width", Integer.toString(this.width))
 		                          .replaceAll("%height", Integer.toString(this.height))
-		                          .replaceAll("%imagesource", this.imageSourcePath)
-		                          .replaceAll("%imagetarget", this.imageTargetPath)
+		                          //.replaceAll("%imagesource", this.imageSourcePath)
+		                          //.replaceAll("%imagetarget", this.imageTargetPath)
 		                          .replaceAll("%arg", this.arg);
 //System.out.println("start run(): " + fullCommand);
 		String[] command = fullCommand.split("\\s+");
+
+		//we have to do this *after* the split-on-space cuz files may have spaces!
+		for (int i = 0 ; i < command.length ; i++) {
+			if (command[i].equals("%imagesource")) command[i] = this.imageSourcePath;
+			if (command[i].equals("%imagetarget")) command[i] = this.imageTargetPath;
+		}
 
 //System.out.println("done run()");
 
