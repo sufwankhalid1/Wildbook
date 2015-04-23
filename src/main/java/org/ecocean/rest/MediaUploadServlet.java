@@ -23,6 +23,7 @@ import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.ecocean.CommonConfiguration;
 import org.ecocean.ImageProcessor;
+import org.ecocean.GeoFileProcessor;
 import org.ecocean.Shepherd;
 import org.ecocean.ShepherdPMF;
 import org.ecocean.SinglePhotoVideo;
@@ -413,6 +414,7 @@ public class MediaUploadServlet
         {
           this.content = content;
         }
+
     }
     
     
@@ -478,7 +480,13 @@ public class MediaUploadServlet
                                                null);
                     iproc.run();
                 }
-                
+
+								if (file.getName().indexOf(".kmz") > -1) {
+                    GeoFileProcessor gproc;
+                    gproc = new GeoFileProcessor(fullPath.getAbsolutePath());
+                    gproc.run();
+								}
+
                 if (logger.isDebugEnabled()) {
                     logger.debug("About to save SPV...");
                 }
