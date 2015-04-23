@@ -180,7 +180,7 @@
 		      /interconnect/mac/Interconnect.jar = authc, roles[admin]
       			/DeleteAllDataPermanently = authc, roles[destroyer]
       			/encounters/searchExport = authc, roles[admin]
-      			/mediaToEncounter.jsp = authc, roles[admin]
+      			/mediaSubmissionAdmin.jsp = authc, roles[admin]
       			/welcome.jsp = authc
       			/EncounterSetSubmitterID = authc, roles[admin]
                		/UserResetAcceptedUserAgreement = authc, roles[admin]

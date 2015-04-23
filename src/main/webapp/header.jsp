@@ -304,7 +304,7 @@
 	   </li>	
 
 	   <li>
-	       <a href="<%=requestURL %>/mediaToEncounter.jsp"
+	       <a href="<%=requestURL %>/mediaSubmissionAdmin.jsp"
 	          class="enclose"
 	          style="margin: 0px 0 0px 0px; position: relative; width: 190px; height: 25px;">
 	          <%=props.getProperty("mediaSubmissionManagement")%></a>
