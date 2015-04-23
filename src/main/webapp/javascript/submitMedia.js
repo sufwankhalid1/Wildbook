@@ -9,52 +9,26 @@ var submitMedia = (function () {
     'use strict';
         
     var map = L.map('mediasubmissionmap');
+    var marker = null;
     
     L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         maxZoom: 18
     }).addTo(map);
 
-    function addToMap(data) {
-//        var point = [data.latitude, data.longitude];
-        var point = L.latLng(data.latitude, data.longitude);
-        
-//        layer = L.geoJson(point, {
-//            style: function (feature) {
-//                //return {color: feature.properties.color};
-//                return {color: "#AA4040", opacity: 0.2 };
-//            },
-//            onEachFeature: popup,
-//            pointToLayer: function (feature, latlng) {
-//                return L.circleMarker(latlng, {
-//                    radius: 5,
-//                    fillColor: feature.properties.color,
-//                    color: "#000",
-//                    weight: 1,
-//                    opacity: 1,
-//                    fillOpacity: 0.8
-//                });
-//                /*
-//                var icon = L.icon({
-//                    iconUrl: feature.properties.symbolurl,
-//                    iconSize: [22,22]
-//                });
-//                
-//                return L.marker( latlng, {
-//                    icon: icon
-//                });
-//                */
-//            }
-//        });    
-//        layer.addTo(map);
-
-        var marker = L.marker(point).addTo(map);
-        
-        map.setView( point, 16 );
-//        map.fitBounds( data.getBounds() );
+    function addToMap(latlng) {
+        if (latlng) {
+            marker = L.marker(latlng).addTo(map);
+            map.setView( latlng, 16 );
+        } else {
+            if (! marker) {
+                map.setZoom(0);
+            }
+        }
         
         //
-        // Trying to fix problem with bootstrap/map issue.
+        // Fixes problem with bootstrap keeping the map div
+        // from properly auto-sizing.
         //
         setTimeout(function () {
             map.invalidateSize();
@@ -84,11 +58,26 @@ var submitMedia = (function () {
     wizard.controller('MediaSubmissionController',
         ['$scope', '$q', '$timeout',
          function ($scope, $q, $timeout) {
+            function updateLoc(latlng) {
+                $scope.apply(function() {
+                   $scope.media.latitude = latlng.lat;
+                   $scope.media.longitude = latlng.lng;
+                });
+                addToMap(latlng);
+            }
+            
             map.on('click', function(event) {
-                alert(event.latlng.lat + ", " + event.latlng.lng);
-                if (event.originalEvent.altKey) {
-                    alert("using alt key");
-                    //window.prompt("Copy to clipboard: Ctrl+C, Enter", event.latlng.lat + ", " + event.latlng.lng);
+                //
+                // TODO: Make it so that you can reset the location
+                // by say alt-clicking on the map which will override
+                // where the exif data says you were? Will have to remove
+                // the old marker as well.
+                //
+//                if (event.originalEvent.altKey) {
+//                    alert("using alt key");
+//                }
+                if (!marker) {
+                    updateLoc(event.latlng);
                 }
             });
 
@@ -185,7 +174,13 @@ var submitMedia = (function () {
                         $scope.media.latitude = data.latitude;
                         $scope.media.longitude = data.longitude;
                     });
-                    addToMap(data);
+                    var point;
+                    if (data.latitude && data.longitude) {
+                        point = L.latLng(data.latitude, data.longitude);
+                    } else {
+                        point = null;
+                    }
+                    addToMap(point);
                 })
                 .fail(function(ex) {
                     wildbook.showError(ex);
