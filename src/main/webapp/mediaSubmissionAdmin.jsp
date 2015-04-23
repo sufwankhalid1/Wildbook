@@ -70,7 +70,7 @@ body { font-family: arial }
 	z-index: 180;
 	position: absolute;
 	width: 400px;
-	right: 200px;
+	right: 100px;
 	top: 820px;
 	height: 400px;
 	border: solid 3px black;
@@ -831,6 +831,7 @@ $(document).ready( function() {
 			if (mediaSubmissionID) {
 				browse(mediaSubmissionID);
 			} else {
+				$('#map-canvas-wrapper').hide();
 				initTableMS();
 			}
 		});
@@ -1012,10 +1013,14 @@ console.log(m);
 }
 
 function initOther() {
-	var useName = mediaSubmission.get('username');
-	if (!useName) useName = mediaSubmission.get('name');
-	$('#enc-submitterID').val(useName);
-	$('#enc-submitterEmail').val(mediaSubmission.get('email'));
+	if (mediaSubmission.get('username')) {
+		$('#enc-submitterID').val(mediaSubmission.get('username'));
+		$('#enc-submitterName').parent().hide();
+		$('#enc-submitterEmail').parent().hide();
+	} else {
+		$('#enc-submitterName').val(mediaSubmission.get('name'));
+		$('#enc-submitterEmail').val(mediaSubmission.get('email'));
+	}
 	$('#enc-verbatimLocality').val(mediaSubmission.get('verbatimLocation'));
 	$('#enc-dateInMilliseconds').val(mediaSubmission.get('startTime'));
 	$('#enc-dateInMilliseconds-human').html(_colDate(mediaSubmission));
@@ -1028,7 +1033,11 @@ function initOther() {
 
 function displayMSTable() {
 	var ok = putOnMap(mediaSubmission.get('latitude'), mediaSubmission.get('longitude'));
-	if (!ok) $('#map-canvas-wrapper').hide();
+	if (!ok) {
+		$('#map-canvas-wrapper').hide();
+	} else {
+		$('#map-canvas-wrapper').show();
+	}
 
 	var m = mediaSubmission.get('media');
 	if (!m || (m.length < 1)) {
@@ -1166,18 +1175,37 @@ function createEncounter() {
 	$('#enc-create-button').hide();
 	var eid = wildbook.uuid();
 	encounter = new wildbook.Model.Encounter({catalogNumber: eid});
-	var props = ['submitterID', 'submitterEmail', 'verbatimLocality', 'individualID', 'dateInMilliseconds', 'decimalLatitude', 'decimalLongitude', 'genus', 'specificEpithet'];
+	var props = ['submitterID', 'submitterEmail', 'submitterName', 'verbatimLocality', 'individualID', 'dateInMilliseconds', 'decimalLatitude', 'decimalLongitude', 'genus', 'specificEpithet'];
 	for (var i in props) {
 		var val = $('#enc-' + props[i]).val();
 		if (val == '') val = null;
-		if ((i == 3) && (val == null)) val = 0;
-		encounter.set(props[i], val);
+		if ((i == 5) && (val == null)) val = 0;
+		if (val != null) encounter.set(props[i], val);
 	}
 
 	//always do these
 	delete(encounter.attributes.sex);  //temporary hack cuz of my testing environment permissions
 	encounter.set('approved', true);
 	encounter.set('state', 'approved');
+
+	if (!encounter.get('individualID')) encounter.set('individualID', 'Unassigned');
+
+	if (encounter.get('dateInMilliseconds')) {
+		var d = new Date();
+		d.setTime(encounter.get('dateInMilliseconds'));
+console.info('date? %o', d);
+		if (wildbook.isValidDate(d)) {
+			encounter.set('year', d.getFullYear());
+			encounter.set('month', d.getMonth() + 1);
+			encounter.set('day', d.getDate());
+			encounter.set('hour', d.getHours());
+			encounter.set('minutes', d.getMinutes());
+		}
+	}
+
+	for (var prop in encounter.attributes) {
+		if (encounter.attributes[prop] == null) delete(encounter.attributes[prop]);
+	}
 
 	var iarr = [];
 	for (var i = 0 ; i < imgs.length ; i++) {
@@ -1954,7 +1982,8 @@ console.warn(m);
 	<div id="encounter-info"></div>
 
 	<div id="enc-form">
-		<div><label for="enc-submitterID">Submitter User</label><input id="enc-submitterID" /></div>
+		<div><label for="enc-submitterID">Submitter User</label><input placeholder="username/login" id="enc-submitterID" /></div>
+		<div><label for="enc-submitterName">Submitter Name</label><input id="enc-submitterName" /></div>
 		<div><label for="enc-submitterEmail">Submitter Email</label><input id="enc-submitterEmail" /></div>
 		<div><label for="enc-verbatimLocality">Verbatim Location</label><input id="enc-verbatimLocality" /></div>
 		<div><label for="enc-individualID">Individual ID</label><input id="enc-individualID" /></div>

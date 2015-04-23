@@ -843,7 +843,7 @@ $(function() {
 									<%
   									}
   		 	  	  					//Remove from MarkedIndividual if not unassigned
-		  	  						if((!enc.isAssignedToMarkedIndividual().equals("Unassigned")) && CommonConfiguration.isCatalogEditable(context)) {
+		  	  						if((enc.isAssignedToMarkedIndividual() != null) && !enc.isAssignedToMarkedIndividual().equals("Unassigned") && CommonConfiguration.isCatalogEditable(context)) {
 		  							%>
 									<table cellpadding="1" cellspacing="0" bordercolor="#FFFFFF">
  										<tr>
