@@ -10,6 +10,9 @@
 }
 </style> -->
 
+<div style="position: relative; width: 100%; text-align: center;">
+	<div id="image-zoom" onClick="$('#image-zoom').hide()"></div>
+</div>
 
 
 <%
@@ -48,6 +51,35 @@
 
 <style>
 body { font-family: arial }
+
+.pageableTable-visible:hover td {
+	background-color: #FFA;
+}
+
+#image-zoom {
+	z-index: 200;
+	position: fixed;
+	top: 30px;
+	left: 20%;
+	width: 60%;
+	border: solid 3px black;
+	background-color: #888;
+	padding: 10px;
+	display: none;
+}
+#image-zoom img {
+	max-width: 100%;
+}
+
+#close-x {
+	position: absolute;
+	width: 25px;
+	height: 25px;
+	top: 13px;
+	right: 13px;
+	border-radius: 12px;
+	background: rgba(128,128,128,0.5) url(images/x.png) 3px 2px no-repeat;
+}
 
 .ptcol-_thumb { width: 60px; }
 .ptcol-select { width: 50px; }
@@ -90,6 +122,10 @@ body { font-family: arial }
 .tiny-thumb {
 	width: 50px;
 	height: 29px;
+}
+
+.zoom-thumb {
+	cursor: -webkit-zoom-in;
 }
 
 .image {
@@ -454,12 +490,14 @@ function initTableMedia(med) {
 	});
 
 	tableMedia.init();
-/*
+
 	$('#media-results-table tbody tr').click(function(ev) {
 		var i = ev.currentTarget.getAttribute('data-i');
-console.log(i);
+		var el = $('#media-results-table tbody tr input[type="checkbox"]')[i];
+		el.checked = !el.checked;
+		$(el).trigger('change');
 	});
-*/
+
 
 	$('#media-progress').hide();
 }
@@ -901,8 +939,15 @@ function displayMSTable() {
 		m[i]._occurrences = occurrencesForImage(mObj.id);
 
 		var imgSrc = mObj.url();
+		var regex = new RegExp('\.(jpg|png|jpeg|gif)$', 'i');
+		var zoomable = regex.test(imgSrc);
 		if (isGeoFile(m[i])) imgSrc = 'images/map-icon.png';
-		m[i]._thumb = '<img class="tiny-thumb" src="' + imgSrc + '" />';
+
+		if (zoomable) {
+			m[i]._thumb = '<img class="tiny-thumb zoom-thumb" onClick="return imageZoom(event, this);" src="' + imgSrc + '" />';
+		} else {
+			m[i]._thumb = '<img class="tiny-thumb" src="' + imgSrc + '" />';
+		}
 
 		m[i]._tags = getTags(m[i]);
 
@@ -1581,6 +1626,13 @@ function resetTableMediaSelected() {
 function namify(id, name) {
 	if (!name) return 'ID ' + id;
 	return name + ' (ID ' + id + ')';
+}
+
+function imageZoom(ev, el) {
+	ev.stopPropagation();
+	ev.preventDefault();
+	console.log(el);
+	$('#image-zoom').html('<span id="close-x"></span><img src="' + el.src + '" />').show();
 }
 
 </script>
