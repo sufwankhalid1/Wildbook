@@ -10,29 +10,29 @@ var submitMedia = (function () {
         
     var map = L.map('mediasubmissionmap');
     var marker = null;
+    var hasGPS = false;
     
     L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         maxZoom: 18
     }).addTo(map);
 
-    function addToMap(latlng) {
-        if (latlng) {
-            marker = L.marker(latlng).addTo(map);
-            map.setView( latlng, 10 );
-        } else {
-            if (! marker) {
-                map.setZoom(0);
-            }
+    function addToMap(latitude, longitude) {
+        if (marker) {
+            map.removeLayer(marker);
+        }
+        if (latitude && longitude) {
+            marker = L.marker(L.latLng(latitude, longitude)).addTo(map);
+            map.setView(latlng, 2);
         }
         
         //
         // Fixes problem with bootstrap keeping the map div
         // from properly auto-sizing.
         //
-        setTimeout(function () {
-            map.invalidateSize();
-        }, 1000);
+//        setTimeout(function () {
+//            map.invalidateSize();
+//        }, 1000);
     }
     
     //
@@ -58,26 +58,13 @@ var submitMedia = (function () {
     wizard.controller('MediaSubmissionController',
         ['$scope', '$q', '$timeout',
          function ($scope, $q, $timeout) {
-            function updateLoc(latlng) {
-                $scope.apply(function() {
-                   $scope.media.latitude = latlng.lat;
-                   $scope.media.longitude = latlng.lng;
-                });
-                addToMap(latlng);
-            }
-            
             map.on('click', function(event) {
-                //
-                // TODO: Make it so that you can reset the location
-                // by say alt-clicking on the map which will override
-                // where the exif data says you were? Will have to remove
-                // the old marker as well.
-                //
-//                if (event.originalEvent.altKey) {
-//                    alert("using alt key");
-//                }
-                if (!marker) {
-                    updateLoc(event.latlng);
+                if (! hasGPS) {
+                    $scope.$apply(function() {
+                        $scope.media.latitude = latlng.lat;
+                        $scope.media.longitude = latlng.lng;
+                    });
+//                    addToMap(latlng);
                 }
             });
 
@@ -113,7 +100,7 @@ var submitMedia = (function () {
                 return null;
             }
             
-            function savems(media, method, callback) {
+            function savems(media, method) {
                 //
                 // Don't alter the object directly because it causes
                 // a conflict between the date string of the control and
@@ -131,10 +118,7 @@ var submitMedia = (function () {
                     ms.startTime = null;
                 }
                 
-                $.post("obj/mediasubmission/" + method, ms)
-                 .done(function(data) {
-                     callback(data);
-                 })
+                return $.post("obj/mediasubmission/" + method, ms)
                  .fail(function(ex) {
                      wildbook.showError(ex);
                  });
@@ -169,19 +153,46 @@ var submitMedia = (function () {
                 var jqXHR = $.get('obj/mediasubmission/getexif/' + $scope.media.id)
                 .done(function(data) {
                     var avg = data.avg;
+                    //
+                    // If we have lat/long data then we don't want to show
+                    // the lat/long data but rather just the stuff on the map.
+                    //
+                    if (avg.latitude && avg.longitude) {
+                        hasGPS = true;
+                        //
+                        // Hide lat/long boxes if we have exif data.
+                        //
+                        $("#mediasubmissionlatlong").addClass("hidden");
+                        
+                        //
+                        // Add markers to map.
+                        //
+                        $.each(data.items, function() {
+                            if (this.latitude && this.longitude) {
+                                L.marker(L.latLng(this.latitude, this.longitude)).addTo(map);
+                            }
+                        });
+                        
+                        map.setView(L.latLng(avg.latitude, avg.longitude), 2);
+                    } else {
+                        map.setView([0,0], 1);
+                    }
+                    
+                    //
+                    // Fixes problem with bootstrap keeping the map div
+                    // from properly auto-sizing.
+                    //
+                    setTimeout(function () {
+                        map.invalidateSize();
+                    }, 1000);
+
+                    
                     $scope.$apply(function() {
                         $scope.media.startTime = longToDate(avg.minTime);
                         $scope.media.endTime = longToDate(avg.maxTime);
                         $scope.media.latitude = avg.latitude;
                         $scope.media.longitude = avg.longitude;
                     });
-                    var point;
-                    if (avg.latitude && avg.longitude) {
-                        point = L.latLng(avg.latitude, avg.longitude);
-                    } else {
-                        point = null;
-                    }
-                    addToMap(point);
                 })
                 .fail(function(ex) {
                     wildbook.showError(ex);
@@ -191,22 +202,28 @@ var submitMedia = (function () {
             };
             
             $scope.saveSubmission = function() {
-                savems($scope.media, "save", function(mediaid) {
+                var jqXHR = savems($scope.media, "save")
+                .done(function(mediaid) {
                     $scope.$apply(function(){
                         //
                         // NOTE: This is bound using ng-value instead of ng-model
                         // because it is a hidden element.
                         //
-                            $scope.media.id = mediaid;
-                        });
+                        $scope.media.id = mediaid;
                     });
-                };
+                });
+                
+                return jqXHR.promise();
+            };
   
-                $scope.completeWizard = function() {
-                    savems(this.media, "complete", function(mediaid) {
+            $scope.completeWizard = function() {
+                var jqXHR = savems(this.media, "complete")
+                .done(function(mediaid) {
                     $("#MediaSubmissionWizard").addClass("hidden");
                     $("#MediaSubmissionThankYou").removeClass("hidden");
                 });
+                
+                return jqXHR.promise();
             };
             
 //                //
@@ -217,6 +234,16 @@ var submitMedia = (function () {
 //                    console.log("startTime changed from [" + oldValue + "] to [" + newValue + "]");
 //                    console.log(new Error().stack);
 //                });
+            $scope.$watch("media.latitude", function(newVal, oldVal) {
+                if ($scope.media.longitude) {
+                    addToMap(newVal, $scope.media.longitude);
+                } 
+            });
+            $scope.$watch("media.longitude", function(newVal, oldVal) {
+                if ($scope.media.latitude) {
+                    addToMap($scope.media.latitude, newVal);
+                } 
+            });
         }
     ]);
     

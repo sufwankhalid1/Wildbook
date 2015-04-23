@@ -248,28 +248,30 @@
                   </div>
                 </div>
                 <div class="row">
-                  <div class="col-md-6">
-                    <div class="form-group">
-                      <label class="control-label">Latitude</label>
-                      <input class="form-control" type="text" ng-model="media.latitude"/>
-                    </div>
-                    <div class="form-group">
-                      <label class="control-label">Longitude</label>
-                      <input class="form-control" type="text" ng-model="media.longitude"/>
-                    </div>
-                  </div>
-                  <div class="col-md-6">
+                  <div class="col-md-8">
                      <div id="mediasubmissionmap" style="height: 300px;">
                      </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label class="control-label">Tell us about the place where you took the photos/videos (optional)</label>
+                      <textarea rows="5" class="form-control" ng-model="media.verbatimLocation"></textarea>
+                    </div>
+                    <div id="mediasubmissionlatlong">
+                        <div class="form-group">
+                          <label class="control-label">Latitude</label>
+                          <input class="form-control" type="text" ng-model="media.latitude"/>
+                        </div>
+                        <div class="form-group">
+                          <label class="control-label">Longitude</label>
+                          <input class="form-control" type="text" ng-model="media.longitude"/>
+                        </div>
+                    </div>
                   </div>
                 </div>
                 <div class="form-group">
                   <label class="control-label">Give a brief description of your photos/videos (optional)</label>
                   <textarea rows="5" class="form-control" ng-model="media.description" autofocus></textarea>
-                </div>
-                <div class="form-group">
-                  <label class="control-label">Tell us about the place where you took the photos/videos (optional)</label>
-                  <textarea rows="5" class="form-control" ng-model="media.verbatimLocation"></textarea>
                 </div>
                 <!-- <div class="form-group">
                   <label class="control-label">Location</label>
