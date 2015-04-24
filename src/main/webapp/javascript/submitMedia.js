@@ -61,8 +61,8 @@ var submitMedia = (function () {
             map.on('click', function(event) {
                 if (! hasGPS) {
                     $scope.$apply(function() {
-                        $scope.media.latitude = latlng.lat;
-                        $scope.media.longitude = latlng.lng;
+                        $scope.media.latitude = event.latlng.lat;
+                        $scope.media.longitude = event.latlng.lng;
                     });
 //                    addToMap(latlng);
                 }
