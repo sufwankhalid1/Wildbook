@@ -420,10 +420,11 @@ public class MediaSubmissionController
                             
                             metadata = ImageMetadataReader.readMetadata(media.getFile());
                          // obtain the Exif directory
-                            ExifSubIFDDirectory directory;
+                            ExifSubIFDDirectory directory = null;
                             directory = metadata.getFirstDirectoryOfType(ExifSubIFDDirectory.class);
                             // query the tag's value
-                            Date date = directory.getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL);
+                            Date date = null;
+														if (directory != null) directory.getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL);
                             if (date != null) {
                                 item.time = date.getTime();
                                 
