@@ -630,8 +630,8 @@ function _colSurvey(obj, i) {
 	if (!obj) return '';
 	var st = inSurvey(obj);
 	if (!st) return '';
-	if ((i == 5) && st[0]) return '<span class="row-has-survey">' + namify(st[0].id, st[0].get('name')) + '</span>';
-	if ((i == 6) && st[1]) return '<span class="row-has-surveyTrack">' + namify(st[1].id, st[1].name) + '</span>';
+	if ((i == 8) && st[0]) return '<span class="row-has-survey">' + namify(st[0].id, st[0].get('name')) + '</span>';
+	if ((i == 9) && st[1]) return '<span class="row-has-surveyTrack">' + namify(st[1].id, st[1].name) + '</span>';
 	return '';
 }
 function _colSurveySort(obj, i) {
