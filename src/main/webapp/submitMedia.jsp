@@ -20,6 +20,12 @@
 .ng-cloak {
     display: none;
 }
+
+#ui-datepicker-div { 
+	z-index: 100 !important;
+}
+
+
 </style>
 
 <script src="javascript/underscore-min.js"></script>
