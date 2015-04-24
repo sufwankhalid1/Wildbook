@@ -159,8 +159,8 @@ myShepherd.commitDBTransaction();
         
         <!-- Start sample localized HTML -->
           <h1 class="intro"><%=props.getProperty("overview") %></h1>
+		  <p><a href="submitMedia.jsp"><img width="500px" height="*" src="images/haveYouSeen.jpg" /></a></p>
 
-          <p class="caption"><%=props.getProperty("overview_maintext") %></p>
           <br/>
         </div>
 

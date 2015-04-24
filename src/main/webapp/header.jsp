@@ -97,16 +97,11 @@
     </li>
     
     <li class="drop">
-        <a href="<%=requestURL %>/submit.jsp"
+        <a <%=getHref(requestURL, pageParam, "submitMedia")%>
            style="margin: 0px 0 0px 0px; position: relative; width: 90px; height: 25px; z-index: 100;">
            <strong><%=props.getProperty("participate")%></strong></a>
       <ul>
-        <li>
-            <a href="<%=requestURL %>/submit.jsp"
-               class="enclose"
-               style="margin: 0px 0 0px 0px; position: relative; width: 160px; height: 25px; z-index: 100;">
-               <%=props.getProperty("report")%></a>
-        </li>
+        
 <!--         <li>
             <a <%=getHref(requestURL, pageParam, "submitMedia")%> class="enclose" style="width: 160px;">
                <%=props.getProperty("submitMedia")%></a>
