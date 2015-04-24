@@ -21,8 +21,8 @@
     display: none;
 }
 
-.ui-datepicker.ui-widget.ui-widget-content.ui-helper-clearfix .ui-datepicker #ui-datepicker.div{
-	z-index:999;
+#ui-datepicker-div { 
+	z-index: 100 !important;
 }
 
 
