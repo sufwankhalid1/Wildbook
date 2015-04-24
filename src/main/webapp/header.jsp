@@ -97,7 +97,7 @@
     </li>
     
     <li class="drop">
-        <a <%=getHref(requestURL, pageParam, "submitMedia")%>
+        <a href="<%=requestURL %>/submitMedia.jsp"
            style="margin: 0px 0 0px 0px; position: relative; width: 90px; height: 25px; z-index: 100;">
            <strong><%=props.getProperty("participate")%></strong></a>
       <ul>
