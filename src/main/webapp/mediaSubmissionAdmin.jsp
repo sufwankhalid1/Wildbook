@@ -345,6 +345,8 @@ body { font-family: arial }
 <link rel="stylesheet" href="//code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
 
 
+<script src="javascript/timepicker/jquery-ui-timepicker-addon.js"></script>
+
 
 
 
@@ -558,6 +560,7 @@ function initTableMedia(med) {
 	});
 
 
+	$('#progress').hide();
 	$('#media-progress').hide();
 }
 
@@ -1188,7 +1191,12 @@ function createEncounter() {
 	encounter.set('approved', true);
 	encounter.set('state', 'approved');
 
-	if (!encounter.get('individualID')) encounter.set('individualID', 'Unassigned');
+	var indivURL = false;
+	if (encounter.get('individualID')) {
+		indivURL = wildbookGlobals.baseUrl + '/obj/encounter/setMarkedIndividual/' + eid + '/' + encounter.get('individualID');
+	} else {
+		encounter.set('individualID', 'Unassigned');
+	}
 
 	if (encounter.get('dateInMilliseconds')) {
 		var d = new Date();
@@ -1221,6 +1229,8 @@ console.log(iarr);
 			if (err) {
 				msError('error on creating submission: <b>' + err + '</b>.');
 			} else {
+				//we attach enc to indiv now (and create it as bonus, if needed)
+				if (indivURL) $.get(indivURL);
 				updateMediaSubmissionStatus('active');
 				actionResult('created <a target="_new" href="encounters/encounter.jsp?number=' + eid + '">' + eid + '</a>');
 				$('#encounter-div').hide();
@@ -1880,7 +1890,32 @@ console.warn(m);
 	return;
 }
 
+
+$(function() {
+$( "#enc-dateInMilliseconds-human" ).datetimepicker({
+      changeMonth: true,
+      changeYear: true,
+      dateFormat: 'D, d M y',
+      maxDate: '+1d',
+      controlType: 'select',
+      alwaysSetTime: false
+});
+$( "#enc-dateInMilliseconds-human" ).datetimepicker( $.timepicker.regional[ "en" ] );
+
+$('#enc-dateInMilliseconds-human').change(function() {
+	var d = new Date($('#enc-dateInMilliseconds-human').val());
+	if (wildbook.isValidDate(d)) {
+		$('#enc-dateInMilliseconds').val(d.getTime());
+	} else {
+		$('#enc-dateInMilliseconds').val(0);
+	}
+});
+});
+
+
 </script>
+
+		<div id="progress">loading media submissions...</div>
 
 	<div id="map-canvas-wrapper">
 		<div id="map-canvas"></div>
@@ -1899,7 +1934,6 @@ console.warn(m);
 	</p>
 
 	<div class="pageableTable-wrapper">
-		<div id="progress">loading media submissions...</div>
 		<table id="results-table"></table>
 		<div id="results-slider"></div>
 	</div>
@@ -1988,7 +2022,7 @@ console.warn(m);
 		<div><label for="enc-verbatimLocality">Verbatim Location</label><input id="enc-verbatimLocality" /></div>
 		<div><label for="enc-individualID">Individual ID</label><input id="enc-individualID" /></div>
 		<div><label for="enc-genus">Genus / Specific Epithet</label><input id="enc-genus" /> <input id="enc-specificEpithet" /></div>
-		<div><label for="enc-dateInMilliseconds">(start) date/time</label><input id="enc-dateInMilliseconds" /> <span id="enc-dateInMilliseconds-human"></span></div>
+		<div><label for="enc-dateInMilliseconds-human">(start) date/time</label><input id="enc-dateInMilliseconds-human" /> <input id="enc-dateInMilliseconds" disabled="disabled" /></div>
 		<div><label for="enc-decimalLatitude">Latitude</label><input id="enc-decimalLatitude" />
 		&nbsp; <label for="enc-decimalLongitude">Longitude</label><input id="enc-decimalLongitude" /></div>
 		<div><label for="enc-researcherComment">Comment</label><textarea id="enc-researcherComment">Created from MediaSubmission</textarea></div>
