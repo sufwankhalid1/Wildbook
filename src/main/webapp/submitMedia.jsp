@@ -302,7 +302,10 @@
       </div>
     </div>
 </div>
-<div id="MediaSubmissionThankYou" class="hidden"><h1>Thank You!</h1></div>
+<div id="MediaSubmissionThankYou" class="hidden">
+	<h1>Thank You!</h1>
+	<p>We have received your data and will begin analyzing it. We will periodically report back results. Be sure to check you email in a few minutes for a link back to your data where you can check our lastest conclusions.</p>
+</div>
 
 <script src="javascript/submitMedia.js"></script>
 
