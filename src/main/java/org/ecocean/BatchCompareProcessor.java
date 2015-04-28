@@ -25,6 +25,9 @@ import java.util.*;
 import org.ecocean.servlet.ServletUtilities;
 
 import javax.servlet.ServletContext;
+import javax.jdo.Query;
+import com.google.gson.Gson;
+
 
 /**
  * Does actual comparison processing of batch-uploaded images.
@@ -52,6 +55,7 @@ public final class BatchCompareProcessor implements Runnable {
 
 	private String method = null;
 	private List<String> args = null;
+	private Map<String,List<String>> argsMap = null;
   private String context = "context0";
 	private String batchID = null;
 
@@ -59,6 +63,18 @@ public final class BatchCompareProcessor implements Runnable {
 		this.servletContext = servletContext;
 		this.context = context;
 		this.args = args;
+		this.method = method;
+		this.batchID = batchID;
+System.out.println("in BatchCompareProcessor()");
+	}
+
+			//Map<String,List<String>> fileMap = new HashMap<String,List<String>>();
+
+	//variation using a hashmap for image->[ind,list]
+  public BatchCompareProcessor(ServletContext servletContext, String context, String method, Map<String,List<String>> argsMap, String batchID) {
+		this.servletContext = servletContext;
+		this.context = context;
+		this.argsMap = argsMap;
 		this.method = method;
 		this.batchID = batchID;
 System.out.println("in BatchCompareProcessor()");
@@ -77,13 +93,21 @@ System.out.println("in BatchCompareProcessor()");
 //// this.args will contain encounter ids... this (pre)processes the images for those
 	public void npmProcess() {
 		String rootDir = servletContext.getRealPath("/");
-		File baseDir = ServletUtilities.dataDir(context, rootDir);
+		String baseDir = ServletUtilities.dataDir(context, rootDir);
+		List<String> imgs = new ArrayList<String>();
 System.out.println("start npmProcess()");
 
-		this.countTotal = this.args.size();
+		if (this.args != null) {
+			imgs = this.args;
+		} else if (this.argsMap != null) {
+			imgs.addAll(this.argsMap.keySet());
+		}
 
-		for (String eid : this.args) {
-			String epath = Encounter.dir(baseDir.getAbsolutePath(), eid);
+		this.countTotal = imgs.size();
+
+		//note: now actually not encounter ids, but rather paths to individual dirs
+		for (String eid : imgs) {
+			String epath = baseDir + "/individuals/" + eid;
 System.out.println(epath);
 //~jon/npm_process -contr_thr 0.02 -sigma 1.2 /opt/tomcat7/webapps/cascadia_data_dir/encounterxs 0 0 4 1 2
 			//String[] command = new String[]{"/usr/bin/npm_process", "-contr_thr", "0.02", "-sigma", "1.2", epath, "0", "0", "4", "1", "2"};
@@ -134,18 +158,74 @@ System.out.println("RETURN");
 ////// does the comparison/match, given a bunch of file paths as
 	public void npmCompare() {
 		String rootDir = servletContext.getRealPath("/");
-		File baseDir = ServletUtilities.dataDir(context, rootDir);
-		//String batchDir = baseDir + "/match_images/" + this.batchID;
+		String baseDir = ServletUtilities.dataDir(context, rootDir);
+		String batchDir = baseDir + "/match_images/" + this.batchID;
+		List<String> imgs = new ArrayList<String>();
+		Map<String,List<String>> imgsMap = new HashMap<String,List<String>>();
 System.out.println("start npmCompare()");
 
-		this.countTotal = this.args.size();  //size of images uploaded
+		if (this.args != null) {
+			imgs = this.args;  //imgsMap will be empty here, triggering all-individual matching
+		} else if (this.argsMap != null) {
+			imgsMap = this.argsMap;
+			imgs.addAll(this.argsMap.keySet());
+		}
 
-		for (String imgpath : this.args) {
+
+		this.countTotal = imgs.size();  //size of images uploaded
+
+		for (String imgpath : imgs) {
+			String fullpath = imgpath;
+			if (fullpath.indexOf("/") != 0) fullpath = batchDir + "/" + imgpath;
 			//String epath = Encounter.dir(baseDir, eid);
-System.out.println(imgpath);
+System.out.println("fullpath = " + fullpath);
 //~jon/npm_process -contr_thr 0.02 -sigma 1.2 /opt/tomcat7/webapps/cascadia_data_dir/encounterxs 0 0 4 1 2
 //whalematch.exe -sscale 1.1 15.16 "C:\flukefolder" "C:\flukefolder\whale1\whale1fluke1.jpg"  0 0 2 0 -o whaleID_whale1fluke1.xhtml -c whaleID_whale1fluke1.csv
-			String[] command = new String[]{"/usr/local/bin/npm_both_wrapper.sh", imgpath, baseDir.getAbsolutePath() + "/encounters"};
+			List<String> pcat = imgsMap.get(imgpath);  //really i think we should only ever have ONE value
+System.out.println("pcat = " + pcat);
+
+			String[] command;
+			if (pcat == null) {
+System.out.println("using ALL individuals");
+				command = new String[]{"/usr/local/bin/npm_both_wrapper.sh", fullpath, baseDir + "/individuals"};
+			} else {
+System.out.println("using FILTERED individuals, see: " + fullpath + "-in.txt");
+				String intxt = fullpath + "\n";
+				String filterString = "";
+				if (pcat.get(0).equals("1")) {
+					filterString = "(patterningCode.startsWith(\"1\") || patterningCode.startsWith(\"2\"))";
+				} else if (pcat.get(0).equals("2")) {
+					filterString = "(patterningCode.startsWith(\"1\") || patterningCode.startsWith(\"2\") || patterningCode.startsWith(\"3\"))";
+				} else if (pcat.get(0).equals("3")) {
+					filterString = "(patterningCode.startsWith(\"2\") || patterningCode.startsWith(\"3\") || patterningCode.startsWith(\"4\"))";
+				} else if (pcat.get(0).equals("4")) {
+					filterString = "(patterningCode.startsWith(\"3\") || patterningCode.startsWith(\"4\") || patterningCode.startsWith(\"5\"))";
+				} else if (pcat.get(0).equals("5")) {
+					filterString = "(patterningCode.startsWith(\"4\") || patterningCode.startsWith(\"5\"))";
+				}
+System.out.println("filterString = " + filterString);
+
+				Shepherd myShepherd = new Shepherd(this.context);
+				Query query = myShepherd.getPM().newQuery("SELECT FROM org.ecocean.MarkedIndividual WHERE " + filterString);
+				Iterator allInds = myShepherd.getAllMarkedIndividuals(query);
+				if (allInds == null) {
+					System.out.println("NO individuals match query");
+					return;
+				}
+				while (allInds.hasNext()) {
+					MarkedIndividual ind = (MarkedIndividual)allInds.next();
+					intxt += baseDir + "/individuals/" + ind.getIndividualID() + "\n";
+				}
+
+				try {
+					PrintWriter statusOut = new PrintWriter(fullpath + "-in.txt");
+					statusOut.print(intxt);
+					statusOut.close();
+				} catch (Exception ex) {
+					System.out.println("could not write " + fullpath + "-in.txt: " + ex.toString());
+				}
+				command = new String[]{"/usr/local/bin/npm_both_wrapper_filtered.sh", fullpath, fullpath + "-in.txt"};
+			}
 			//String[] command = new String[]{"/usr/bin/npm_match", "-sscale", "1.1", "15.16", baseDir + "/encounters", imgpath, "0", "0", "2", "0", "-o", "/tmp/out.txt", "-c", "/tmp/out.csv"};
 //home/jon/npm_process -contr_thr 0.02 -sigma 1.2 cascadia_data_dir/ 0 0 4 1 2
 			//String[] command = new String[]{"sh", "/opt/tomcat7/bin/run_npm_process.sh", epath};
@@ -173,7 +253,8 @@ System.out.println(imgpath + " DONE?????");
 			}
 			this.countComplete++;
 
-			String c = "{ \"countComplete\": " + Integer.toString(this.countComplete) + ", \"countTotal\": " + Integer.toString(this.countTotal);
+			Gson gson = new Gson();
+			String c = "{ \"filters\": " + gson.toJson(imgsMap) + ", \"countComplete\": " + Integer.toString(this.countComplete) + ", \"countTotal\": " + Integer.toString(this.countTotal);
 			if (this.countComplete >= this.countTotal) c += ", \"done\": true ";
 			c += " }";
 			writeStatusFile(this.servletContext, this.context, this.batchID, c);
@@ -198,15 +279,15 @@ System.out.println("running, method=" + this.method);
 
 	public static boolean writeStatusFile(ServletContext servletContext, String context, String batchID, String contents) {
 		String rootDir = servletContext.getRealPath("/");
-		File baseDir = ServletUtilities.dataDir(context, rootDir);
-		String batchDir = baseDir.getAbsolutePath() + "/match_images/" + batchID;
+		String baseDir = ServletUtilities.dataDir(context, rootDir);
+		String batchDir = baseDir + "/match_images/" + batchID;
 
 		try {
 			PrintWriter statusOut = new PrintWriter(batchDir + "/status.json");
 			statusOut.println(contents);
 			statusOut.close();
 		} catch (Exception ex) {
-			System.out.println("could not write " + baseDir.getAbsolutePath() + "/status.json: " + ex.toString());
+			System.out.println("could not write " + baseDir + "/status.json: " + ex.toString());
 			return false;
 		}
 

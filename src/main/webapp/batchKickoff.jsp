@@ -1,27 +1,18 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<%@ page contentType="text/html; charset=utf-8" language="java"
+<%@ page contentType="application/json; charset=utf-8" language="java"
          import="org.apache.shiro.crypto.*,org.apache.shiro.util.*,org.apache.shiro.crypto.hash.*,org.ecocean.*,org.ecocean.servlet.ServletUtilities,
 java.util.Properties,
 javax.jdo.*,
 java.util.List,
+java.util.HashMap,
+java.nio.file.Files,
+java.nio.file.Paths,
+java.nio.file.CopyOption,
+java.nio.file.StandardCopyOption,
 java.io.File,
+com.google.gson.Gson,
 org.ecocean.media.MediaSubmission,
 java.util.ArrayList" %>
-
-
-<html>
-<head>
-	<title>batch kickoff</title>
-</head>
-
-<body>
-hello.
-
 <%
-
-System.out.println("hello?");
-
 
 /*
 package org.ecocean.servlet;
@@ -74,8 +65,15 @@ public class BatchCompare extends HttpServlet {
 		String rootDir = getServletContext().getRealPath("/");
 System.out.println(rootDir);
 
+CopyOption[] copts = new CopyOption[]{
+      StandardCopyOption.REPLACE_EXISTING,
+      StandardCopyOption.COPY_ATTRIBUTES
+    }; 
+
+		HashMap rtn = new HashMap();
 		String[] files = request.getParameterValues("f");
 		String batchID = Util.generateUUID();
+		rtn.put("batchID", batchID);
 System.out.println(batchID);
 System.out.println(files);
 		if ((files != null) && (files.length > 0)) {
@@ -84,10 +82,29 @@ System.out.println(baseDir);
 			File bd = new File(baseDir);
 			if (!bd.exists()) bd.mkdirs(); //fwiw, should never exist
 
-			BatchCompareProcessor.writeStatusFile(getServletContext(), context, batchID, "{ \"countComplete\": 0, \"countTotal\": " + Integer.toString(files.length) + " }");
+			int okCount = 0;
+			List<String> okFiles = new ArrayList<String>();
+			for (int i = 0 ; i < files.length ; i++) {
+				File f = new File(ServletUtilities.dataDir(context, rootDir) + "/mediasubmission/" + files[i]);
+				if (f.exists()) {
+					okCount++;
+					Files.copy(f.toPath(), Paths.get(baseDir + "/" + f.getName()));
+					okFiles.add(baseDir + "/" + f.getName());
+				} else {
+					System.out.println(f.toString() + " does not exist???");
+				}
+			}
+
+			rtn.put("count", okCount);
+
+			if (okCount > 0) {
+				rtn.put("files", okFiles);
+System.out.println("found some files...");
+System.out.println(okFiles);
+				BatchCompareProcessor.writeStatusFile(getServletContext(), context, batchID, "{ \"countComplete\": 0, \"countTotal\": " + Integer.toString(files.length) + " }");
+			}
 					
 
-			/*
 			System.out.println("yes? starting proc");
 					BatchCompareProcessor proc = new BatchCompareProcessor(getServletContext(), context, "npmCompare", okFiles, batchID);
 					Thread t = new Thread(proc);
@@ -95,8 +112,7 @@ System.out.println(baseDir);
 					session.setAttribute(BatchCompareProcessor.SESSION_KEY_COMPARE, proc);
 			System.out.println("yes. out.");
 
-					response.sendRedirect("http://" + CommonConfiguration.getURLLocation(request) + "/batchCompareDone.jsp?batchID=" + batchID);
-			*/
+					////////response.sendRedirect("http://" + CommonConfiguration.getURLLocation(request) + "/batchCompareDone.jsp?batchID=" + batchID);
 
 		}
 
@@ -131,9 +147,6 @@ System.out.println(filename + " -> " + file.toString());
 			msg += "<script>window.setTimeout(function() { window.location.href = 'batchCompareDone.jsp'; }, 8000);</script>";
 */
 
+    out.println(new Gson().toJson(rtn));
+
 %>
-
-end?
-
-</body></html>
-
