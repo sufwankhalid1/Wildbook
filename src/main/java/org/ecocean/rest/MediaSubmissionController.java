@@ -18,6 +18,7 @@ import org.ecocean.User;
 import org.ecocean.media.MediaSubmission;
 import org.ecocean.servlet.ServletUtilities;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -62,8 +63,8 @@ public class MediaSubmissionController
             table.updateRow(formatter.getUpdateClause(), where.getWhereClause());
         }
     }
-    
-    
+
+
     private void fillFormatter(final Database db,
                                final SqlFormatter formatter,
                                final MediaSubmission media)
@@ -81,25 +82,25 @@ public class MediaSubmissionController
         formatter.append("verbatimlocation", media.getVerbatimLocation());
         formatter.append("status", media.getStatus());
     }
-    
-    
+
+
     private MediaSubmission getMediaSubmission(final long mediaid) throws DatabaseException
     {
         ConnectionInfo ci = ShepherdPMF.getConnectionInfo();
-        
+
         Database db = new Database(ci);
-        
+
         try {
             SqlWhereFormatter where = new SqlWhereFormatter();
             where.append("id", mediaid);
             List<MediaSubmission> mss = get(db, where);
-            
+
             if (mss.size()==0) {
                 return null;
             }
-            
+
             MediaSubmission ms = mss.get(0);
-            
+
             //
             // Now fill the medias.
             //
@@ -120,14 +121,14 @@ public class MediaSubmissionController
                 spvs.add(media);
             }
             ms.setMedia(spvs);
-            
+
             return ms;
         } finally {
             db.release();
         }
     }
-    
-    
+
+
     private List<MediaSubmission> get(final Database db,
                                       final SqlWhereFormatter where) throws DatabaseException
     {
@@ -149,14 +150,14 @@ public class MediaSubmissionController
             ms.setUsername(rs.getString("username"));
             ms.setVerbatimLocation(rs.getString("verbatimlocation"));
             ms.setStatus(rs.getString("status"));
-            
+
             mss.add(ms);
         }
-        
+
         return mss;
     }
-    
-    
+
+
 //    private final UserService userService;
 //
 //    @Inject
@@ -164,7 +165,7 @@ public class MediaSubmissionController
 //        this.userService = userService;
 //    }
 
-    
+
     @RequestMapping(value = "/get/id/{mediaid}", method = RequestMethod.GET)
     public MediaSubmission get(final HttpServletRequest request,
                                @PathVariable("mediaid")
@@ -174,15 +175,15 @@ public class MediaSubmissionController
         return getMediaSubmission(mediaid);
     }
 
-    
+
     @RequestMapping(value = "/get/status", method = RequestMethod.GET)
     public List<MediaSubmission> getStatus(final HttpServletRequest request)
         throws DatabaseException
     {
         return getStatus(request, null);
     }
-    
-    
+
+
     @RequestMapping(value = "/get/status/{status}", method = RequestMethod.GET)
     public List<MediaSubmission> getStatus(final HttpServletRequest request,
                                            @PathVariable("status")
@@ -190,9 +191,9 @@ public class MediaSubmissionController
         throws DatabaseException
     {
         ConnectionInfo ci = ShepherdPMF.getConnectionInfo();
-        
+
         Database db = new Database(ci);
-        
+
         try {
             SqlWhereFormatter where = new SqlWhereFormatter();
             // * will mean get all, so we just have an empty where formatter
@@ -205,17 +206,17 @@ public class MediaSubmissionController
             db.release();
         }
     }
-    
-    
+
+
     @RequestMapping(value = "/complete", method = RequestMethod.POST)
     public void complete(final HttpServletRequest request,
                          final MediaSubmission media)
         throws DatabaseException
     {
         ConnectionInfo ci = ShepherdPMF.getConnectionInfo();
-        
+
         Database db = new Database(ci);
-        
+
         try {
             save(db, media);
         } catch (DatabaseException ex) {
@@ -223,10 +224,10 @@ public class MediaSubmissionController
         } finally {
             db.release();
         }
-        
+
         String context = ServletUtilities.getContext(request);
 //        String userstr;
-        
+
         String email;
         if (media.getUsername() != null) {
             User user = new Shepherd(context).getUser(media.getUsername());
@@ -241,33 +242,33 @@ public class MediaSubmissionController
             email = media.getEmail();
 //            userstr = media.getName() + " <" + email + ">";
         }
-        
+
         //get the email thread handler
         ThreadPoolExecutor es = MailThreadExecutorService.getExecutorService();
-        
+
         //email the new submission address defined in commonConfiguration.properties
-        
+
         //build the URL
         //build the message as HTML
         //mediaSubmission.jsp?mediaSubmissionID=
         //thank the submitter and photographer
         String thanksmessage = ServletUtilities.getText(CommonConfiguration.getDataDirectoryName(context),"thankyou.html",ServletUtilities.getLanguageCode(request));
         String newMediaMessage=ServletUtilities.getText(CommonConfiguration.getDataDirectoryName(context),"newmedia.html",ServletUtilities.getLanguageCode(request));
-        
-        
+
+
         //add the encounter link
         thanksmessage=thanksmessage.replaceAll("INSERTTEXT", ("http://" + CommonConfiguration.getURLLocation
           (request) + "/mediaSubmission.jsp?mediaSubmissionID=" + media.getId()));
         newMediaMessage=newMediaMessage.replaceAll("INSERTTEXT", ("http://" + CommonConfiguration.getURLLocation
                 (request) + "/mediaSubmissionAdmin.jsp?mediaSubmissionID=" + media.getId()));
-        
+
         es.execute(new NotificationMailer(CommonConfiguration.getMailHost(context),
                                           CommonConfiguration.getAutoEmailAddress(context),
                                           CommonConfiguration.getNewSubmissionEmail(context),
                                           ("("+CommonConfiguration.getHTMLTitle(context)+") New media submission: " + media.getId()),
                                           newMediaMessage,
                                           null,
-                                          context));        
+                                          context));
         if (email != null) {
             es.execute(new NotificationMailer(CommonConfiguration.getMailHost(context),
                                               CommonConfiguration.getAutoEmailAddress(context),
@@ -277,24 +278,24 @@ public class MediaSubmissionController
                                               null,
                                               context));
         }
-        
+
         //
         // Now finally remove the files from the users session object so that
         // they can submit again with a fresh set.
         //
-        MediaUploadServlet.clearFiles(request.getSession());
+        MediaUploadServlet.clearFileSet(request.getSession(), media.getSubmissionid());
     }
-    
-    
+
+
     @RequestMapping(value = "/save", method = RequestMethod.POST)
     public long save(final HttpServletRequest request,
                      final MediaSubmission media)
         throws DatabaseException
     {
         ConnectionInfo ci = ShepherdPMF.getConnectionInfo();
-        
+
         Database db = new Database(ci);
-        
+
         try {
             //
             // Save media submission
@@ -320,7 +321,7 @@ public class MediaSubmissionController
 //                RecordSet rs;
 //                SqlWhereFormatter where = new SqlWhereFormatter();
 //                where.append("SURVEYID"), media.getSubmissionid());
-//                
+//
 //                rs = db.getTable("SURVEY").getRecordSet(where.getWhereClause());
 //                if (rs.next()) {
 //                    SqlInsertFormatter formatter;
@@ -328,15 +329,15 @@ public class MediaSubmissionController
 //                    formatter.append("SURVEY_ID_OID"), rs.getInteger("SURVEY_ID"));
 //                    formatter.append("ID_EID"), media.getId());
 //                    formatter.append("IDX"), 0);
-//                    db.getTable("SURVEY_MEDIA").insertRow(formatter);                
+//                    db.getTable("SURVEY_MEDIA").insertRow(formatter);
 //                }
 //            }
-            
+
             return media.getId();
         } finally {
             db.release();
         }
-        
+
 //        PersistenceManager pm = myShepherd.getPM();
 ////        MediaSubmission ms;
 ////        if (media.getId() != null) {
@@ -349,7 +350,7 @@ public class MediaSubmissionController
 ////        } else {
 ////            ms = media;
 ////        }
-//        
+//
 //        if (media.getSubmissionid() != null) {
 ////            survey = ((Survey) (pm.getObjectById(pm.newObjectIdInstance(Survey.class, media.getSubmissionid()), true)));
 //            Query query = pm.newQuery(
@@ -371,7 +372,17 @@ public class MediaSubmissionController
 ////        myShepherd.commitDBTransaction();
     }
 
-    
+
+    @RequestMapping(value = "/delfile/{msid}", method = RequestMethod.POST)
+    public void delFile(final HttpServletRequest request,
+                        @PathVariable("msid")
+                        final long msid,
+                        @RequestBody final String filename)
+    {
+        MediaUploadServlet.deleteFileFromSet(request, msid, filename);
+    }
+
+
     @RequestMapping(value = "/getexif/{msid}", method = RequestMethod.GET)
     public ExifData getExif(final HttpServletRequest request,
                            @PathVariable("msid")
@@ -379,25 +390,25 @@ public class MediaSubmissionController
         throws DatabaseException
     {
         MediaSubmission ms = getMediaSubmission(msid);
-        
+
         ExifData data = new ExifData();
         ExifAvg avg = data.avg;
 
         if (ms == null) {
             return data;
         }
-        
+
         double latitude = 0;
         int latCount = 0;
         double longitude = 0;
         int longCount = 0;
-        
+
         for (SinglePhotoVideo media : ms.getMedia()) {
             int index = media.getFilename().lastIndexOf('.');
             if (index < 0) {
                 continue;
             }
-            
+
             switch (media.getFilename().substring(index+1).toLowerCase()) {
                 case "jpg":
                 case "jpeg":
@@ -417,17 +428,17 @@ public class MediaSubmissionController
                             ExifItem item = new ExifItem();
                             item.mediaid = media.getDataCollectionEventID();
                             data.items.add(item);
-                            
+
                             metadata = ImageMetadataReader.readMetadata(media.getFile());
                          // obtain the Exif directory
                             ExifSubIFDDirectory directory = null;
                             directory = metadata.getFirstDirectoryOfType(ExifSubIFDDirectory.class);
                             // query the tag's value
                             Date date = null;
-														if (directory != null) date = directory.getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL);
+                            if (directory != null) date = directory.getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL);
                             if (date != null) {
                                 item.time = date.getTime();
-                                
+
                                 if (avg.minTime == null) {
                                     avg.minTime = date.getTime();
                                 } else {
@@ -443,7 +454,7 @@ public class MediaSubmissionController
                                     }
                                 }
                             }
-                            
+
                             // See whether it has GPS data
                             Collection<GpsDirectory> gpsDirectories = metadata.getDirectoriesOfType(GpsDirectory.class);
                             if (gpsDirectories == null) {
@@ -455,21 +466,21 @@ public class MediaSubmissionController
                                 if (geoLocation != null && !geoLocation.isZero()) {
                                     item.latitude = geoLocation.getLatitude();
                                     item.longitude = geoLocation.getLongitude();
-                                    
+
                                     latitude += geoLocation.getLatitude();
                                     latCount += 1;
                                     longitude += geoLocation.getLongitude();
                                     longCount += 1;
                                 }
                             }
-                            
+
 //                            // iterate through metadata directories
 //                            List<Tag> list = new ArrayList<Tag>();
 //                            for (Directory dir : metadata.getDirectories()) {
 //                                if ("exif".equals(dir.getName().toLowerCase()) {
 //                                    dir.
 //                                }
-//                                        
+//
 //                                for (Tag tag : dir.getTags()) {
 //                                    if (!tag.getTagName().toUpperCase(Locale.US).startsWith("GPS"))
 //                                        list.add(tag);
@@ -482,15 +493,15 @@ public class MediaSubmissionController
                 }
             }
         }
-        
+
         if (latCount > 0) {
             avg.latitude = latitude / latCount;
             avg.longitude = longitude / longCount;
         }
-        
+
         return data;
     }
-    
+
     public static class ExifItem
     {
         public Long time;
@@ -498,7 +509,7 @@ public class MediaSubmissionController
         public Double longitude;
         public String mediaid;
     }
-    
+
     public static class ExifAvg
     {
         public Long minTime;
@@ -506,7 +517,7 @@ public class MediaSubmissionController
         public Double latitude;
         public Double longitude;
     }
-    
+
     public static class ExifData
     {
         public List<ExifItem> items = new ArrayList<ExifItem>();

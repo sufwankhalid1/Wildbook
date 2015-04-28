@@ -161,8 +161,8 @@
               </form>
 
             <form class="tab-pane" id="fileupload" action="mediaupload" method="POST" name="formMedia"
-                  rc-step rc-submit="getXifData()" novalidate
-                  enctype="multipart/form-data" data-ng-controller="DemoFileUploadController"
+                  rc-step rc-submit="getExifData()" novalidate
+                  enctype="multipart/form-data" data-ng-controller="SubmissionFileUploadController"
                   data-file-upload="options" data-ng-class="{'fileupload-processing': processing() || loadingFiles}"
                   style="overflow-y:auto;">
                 <!-- Redirect browsers with JavaScript disabled to the origin page -->

@@ -146,7 +146,28 @@ var submitMedia = (function () {
 //                    return false;
 //                };
 
-            $scope.getXifData = function() {
+            $scope.getExifData = function() {
+                //
+                // Loop through files and make sure they are all uploaded before
+                // continuing.
+                var allUploaded = true;
+                $.each(this.queue, function() {
+                    //
+                    // If our object in the queue does not have
+                    // thumbnailUrl property set on it then it did not
+                    // come from the server. So this is a janky, but I hope effective,
+                    // way of knowing whether or not all files have been uploaded.
+                    //
+                    if (!this.thumbnailUrl) {
+                        allUploaded = false;
+                    }
+                });
+
+                if (!allUploaded) {
+                    wildbook.showAlert("Please finish uploading (or canceling) all of your images before continuing.");
+                    return $.Deferred().reject();
+                }
+
                 //
                 // Make call to get xif data
                 //
@@ -264,12 +285,20 @@ var submitMedia = (function () {
                 // send Blob objects via XHR requests:
                 disableImageResize: /Android(?!.*Chrome)|Opera/
                     .test(window.navigator.userAgent),
-                    maxFileSize: 5000000,
-                    acceptFileTypes: /(\.|\/)(gif|jpe?g|png|kmz|kml)$/i
+                maxFileSize: 5000000,
+                acceptFileTypes: /(\.|\/)(gif|jpe?g|png|kmz|kml)$/i
+                //
+                // This does work to control the area in which files are allowed
+                // to be dropped to land in the control, but then if you drop it outside
+                // the control Chrome things you want to view the images and opens them
+                // thus taking you away from the wizard. Hitting the back button restarts
+                // the wizard. Probably could figure out how to fix that...
+                //
+//                dropZone: $("#fileupload .dropbox")
             });
          }
     ])
-    .controller('DemoFileUploadController',
+    .controller('SubmissionFileUploadController',
         ['$scope', '$http', '$filter', '$window',
          function ($scope, $http) {
             $scope.options = {
@@ -290,23 +319,18 @@ var submitMedia = (function () {
     .controller('FileDestroyController',
         ['$scope', '$http',
          function ($scope, $http) {
-            var file = $scope.file, state;
+            var file = $scope.file;
             if (file.url) {
-                file.$state = function () {
-                    return state;
-                };
                 file.$destroy = function () {
-                    state = 'pending';
                     return $http({
-                        url: file.deleteUrl,
-                        method: file.deleteType
-                    }).then(
-                            function () {
-                                state = 'resolved';
+                        url: 'obj/mediasubmission/delfile/' + $scope.media.id,
+                        data: this.name,
+                        method: 'POST'
+                    }).then(function () {
                                 $scope.clear(file);
                             },
                             function () {
-                                state = 'rejected';
+                                console.log("failed to delete");
                             }
                     );
                 };
