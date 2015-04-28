@@ -117,16 +117,24 @@ public class BatchCompare extends HttpServlet {
 System.out.println(d);
 			List<String> fnames = (ArrayList<String>)d.get("images");
 System.out.println(fnames);
+
 			Map<String,List<String>> fileMap = new HashMap<String,List<String>>();
-			for (int i = 0 ; i < fnames.size() ; i++) {
-				String f = request.getParameter("img-" + i + "-category");
-				if ((f != null) && !f.equals("")) {
-					List<String> inds = new ArrayList<String>();
-					inds.add(f);
-					fileMap.put(fnames.get(i), inds);
-				} else {
-					fileMap.put(fnames.get(i), null);
+			if (fnames != null) {
+				for (int i = 0 ; i < fnames.size() ; i++) {
+					String f = request.getParameter("img-" + i + "-category");
+					if ((f != null) && !f.equals("")) {
+						List<String> inds = new ArrayList<String>();
+						inds.add(f);
+						fileMap.put(fnames.get(i), inds);
+					} else {
+						fileMap.put(fnames.get(i), null);
+					}
 				}
+
+			} else {
+System.out.println("json .images was empty ... hmm... bailing");
+				response.sendRedirect("http://" + CommonConfiguration.getURLLocation(request) + "/batchCompareDone.jsp?batchID=" + batchID);
+				return;
 			}
 
 System.out.println("NOW DOING FOLLOWUP ON " + batchID);
