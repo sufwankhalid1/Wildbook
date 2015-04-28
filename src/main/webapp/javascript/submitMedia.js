@@ -7,11 +7,11 @@
 
 var submitMedia = (function () {
     'use strict';
-        
+
     var map = L.map('mediasubmissionmap');
     var marker = null;
     var hasGPS = false;
-    
+
     L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         maxZoom: 18
@@ -25,7 +25,7 @@ var submitMedia = (function () {
             marker = L.marker(L.latLng(latitude, longitude)).addTo(map);
             map.setView(latlng, 2);
         }
-        
+
         //
         // Fixes problem with bootstrap keeping the map div
         // from properly auto-sizing.
@@ -34,7 +34,7 @@ var submitMedia = (function () {
 //            map.invalidateSize();
 //        }, 1000);
     }
-    
+
     //
     // With the datetimepicker add-on the defaultDate: null option doesn't work
     // and I can't for the life of me figure it out. What happens is that it instead
@@ -52,7 +52,7 @@ var submitMedia = (function () {
         day = day.length > 1 ? day : '0' + day;
         return (year + '-' + month + '-' + day + ' 00:00' === dateString);
       }
-    
+
     var wizard = angular.module('MediaSubmissionWizard',
                                 ['rcWizard', 'rcForm', 'rcDisabledBootstrap', 'ui.date', 'blueimp.fileupload']);
     wizard.controller('MediaSubmissionController',
@@ -77,7 +77,7 @@ var submitMedia = (function () {
                    return results[1] || 0;
                 }
             }
-            
+
             //
             // NOTE: This is within an apply already so no need to wrap it in one.
             // In fact we CAN'T because it throws an error since it is already
@@ -91,15 +91,15 @@ var submitMedia = (function () {
                 "endTime": null,
                 "startTime": null
             };
-            
+
             function longToDate(date) {
                 if (date) {
                     return new Date(date);
                 }
-                
+
                 return null;
             }
-            
+
             function savems(media, method) {
                 //
                 // Don't alter the object directly because it causes
@@ -117,13 +117,13 @@ var submitMedia = (function () {
                 } else {
                     ms.startTime = null;
                 }
-                
+
                 return $.post("obj/mediasubmission/" + method, ms)
                  .fail(function(ex) {
                      wildbook.showError(ex);
                  });
             }
-            
+
             //
             // showTime = true is my addition to angular-ui/ui-date
             // which allows it to use the timepicker. See the mymaster branch.
@@ -136,16 +136,16 @@ var submitMedia = (function () {
                 showTime: true,
                 defaultDate: null
             };
-            
+
             $scope.isLoggedIn = function() {
                 return (this.media.username);
             };
-            
+
 //                $scope.allMediaUploaded = function() {
 //                    alert("allMediaUploaded");
 //                    return false;
 //                };
-            
+
             $scope.getXifData = function() {
                 //
                 // Make call to get xif data
@@ -163,7 +163,7 @@ var submitMedia = (function () {
                         // Hide lat/long boxes if we have exif data.
                         //
                         $("#mediasubmissionlatlong").addClass("hidden");
-                        
+
                         //
                         // Add markers to map.
                         //
@@ -172,12 +172,12 @@ var submitMedia = (function () {
                                 L.marker(L.latLng(this.latitude, this.longitude)).addTo(map);
                             }
                         });
-                        
+
                         map.setView(L.latLng(avg.latitude, avg.longitude), 2);
                     } else {
                         map.setView([0,0], 1);
                     }
-                    
+
                     //
                     // Fixes problem with bootstrap keeping the map div
                     // from properly auto-sizing.
@@ -186,7 +186,7 @@ var submitMedia = (function () {
                         map.invalidateSize();
                     }, 1000);
 
-                    
+
                     $scope.$apply(function() {
                         $scope.media.startTime = longToDate(avg.minTime);
                         $scope.media.endTime = longToDate(avg.maxTime);
@@ -197,10 +197,10 @@ var submitMedia = (function () {
                 .fail(function(ex) {
                     wildbook.showError(ex);
                 });
-                
+
                 return jqXHR.promise();
             };
-            
+
             $scope.saveSubmission = function() {
                 var jqXHR = savems($scope.media, "save")
                 .done(function(mediaid) {
@@ -212,20 +212,20 @@ var submitMedia = (function () {
                         $scope.media.id = mediaid;
                     });
                 });
-                
+
                 return jqXHR.promise();
             };
-  
+
             $scope.completeWizard = function() {
                 var jqXHR = savems(this.media, "complete")
                 .done(function(mediaid) {
                     $("#MediaSubmissionWizard").addClass("hidden");
                     $("#MediaSubmissionThankYou").removeClass("hidden");
                 });
-                
+
                 return jqXHR.promise();
             };
-            
+
 //                //
 //                // We need these watch expressions to force the changes to the model
 //                // to be reflected in the view.
@@ -237,18 +237,18 @@ var submitMedia = (function () {
             $scope.$watch("media.latitude", function(newVal, oldVal) {
                 if ($scope.media.longitude) {
                     addToMap(newVal, $scope.media.longitude);
-                } 
+                }
             });
             $scope.$watch("media.longitude", function(newVal, oldVal) {
                 if ($scope.media.latitude) {
                     addToMap($scope.media.latitude, newVal);
-                } 
+                }
             });
         }
     ]);
-    
+
     var url = "mediaupload";
-    
+
     wizard.config(['$httpProvider',
          'fileUploadProvider',
          function ($httpProvider, fileUploadProvider) {
@@ -317,8 +317,8 @@ var submitMedia = (function () {
             }
         }
     ]);
-    
-//    
+
+//
 //    return {"log": function() {
 //        console.log(JSON.stringify(smms.media));
 //    }};
