@@ -44,6 +44,12 @@ public class LogBuilder {
         return this;
     }
 
+    public LogBuilder appendVar(final String variable, final Object value)
+    {
+        appendVar(variable, value.toString());
+        return this;
+    }
+
     public LogBuilder appendVar(final String variable,
                                 final String value)
     {

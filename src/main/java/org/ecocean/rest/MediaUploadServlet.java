@@ -22,6 +22,7 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.ecocean.CommonConfiguration;
 import org.ecocean.GeoFileProcessor;
 import org.ecocean.ImageProcessor;
@@ -118,7 +119,7 @@ public class MediaUploadServlet
         FileSet upload = uploadByApacheFileUpload(request);
 
         if (logger.isDebugEnabled()) {
-            logger.debug(LogBuilder.quickLog("uploadID", upload.getID()));
+            logger.debug(LogBuilder.quickLog("upload", upload.toString()));
         }
         Map<String, FileSet> filesMap = getFilesMap(request.getSession());
         FileSet fileset = filesMap.get(upload.getID());
@@ -128,9 +129,14 @@ public class MediaUploadServlet
             filesMap.put(upload.getID(), fileset);
         } else {
             if (logger.isDebugEnabled()) {
+                logger.debug(LogBuilder.quickLog("Found fileset", fileset.toString()));
                 logger.debug(LogBuilder.quickLog("Number of new files added", upload.getFiles().size()));
             }
             fileset.getFiles().addAll(upload.getFiles());
+        }
+
+        if (logger.isDebugEnabled()) {
+            logger.debug(LogBuilder.quickLog("Current fileset", fileset.toString()));
         }
 
         // 2. Set response type to json
@@ -206,6 +212,10 @@ public class MediaUploadServlet
 
          // 2. Get the file of index "f" from the list "files"
          FileMeta getFile = fileset.getFiles().get(Integer.parseInt(value));
+
+         if (logger.isDebugEnabled()) {
+             logger.debug(new LogBuilder("GET").appendVar("id", value).appendVar("file", getFile).toString());
+         }
 
          try {
              // 3. Set the response content type = file content type
@@ -364,6 +374,14 @@ public class MediaUploadServlet
         public List<FileMeta> getFiles() {
             return files;
         }
+
+        @Override
+        public String toString()
+        {
+            ToStringBuilder builder = new ToStringBuilder(this);
+            return builder.append("id", id)
+                          .append("files", files).toString();
+        }
     }
 
 
@@ -426,6 +444,12 @@ public class MediaUploadServlet
         public void setContent(final InputStream content)
         {
           this.content = content;
+        }
+
+        @Override
+        public String toString()
+        {
+            return name;
         }
     }
 
