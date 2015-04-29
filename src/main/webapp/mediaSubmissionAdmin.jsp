@@ -1109,7 +1109,8 @@ function displayMSTable() {
 function updateSelectedUI(ev, ui) {
 	//console.info('ev %o, ui %o', ev, ui);
 	//var nsel = $('div.image.ui-selected').length;
-	var nsel = getSelectedMedia().length;
+	var selMed = getSelectedMedia();
+	var nsel = selMed.length;
 	var inSurveys = $('div.image.ui-selected.in-survey').length;
 	if (displayAsTable) {
 		//nsel = tableMediaSelected.length;
@@ -1130,10 +1131,10 @@ function updateSelectedUI(ev, ui) {
 		$('#action-menu-div input.sel-act').removeAttr('disabled');
 	}
 
-	var canSend = $('#media-results-table tbody tr span.row-has-tag-to-cascadia').length +
-		$('#media-results-table tbody tr span.row-has-tag-ident').length -
-		$('#media-results-table tbody tr span.ident-batch').length -
-		$('#media-results-table tbody tr span.cascadia-sent').length;
+	var canSend = $('#media-results-table tbody tr .row-has-tag-to-cascadia').length +
+		$('#media-results-table tbody tr .row-has-tag-ident').length -
+		$('#media-results-table tbody tr .ident-batch').length -
+		$('#media-results-table tbody tr .cascadia-sent').length;
 
 	if (canSend > 0) {
 		$('#button-send-files').removeAttr('disabled');
@@ -1142,6 +1143,10 @@ function updateSelectedUI(ev, ui) {
 	}
 
 	if (inSurveys > 0) $('#button-survey').attr('disabled', 'disabled');
+
+	for (var i = 0 ; i < selMed.length ; i++) {
+		if (selMed[i]._tags.indexOf('ident') > -1) $('#button-auto-id').attr('disabled', 'disabled');
+	}
 }
 
 
@@ -2037,7 +2042,7 @@ $('#enc-dateInMilliseconds-human').change(function() {
 	<input class="sel-act" type="button" value="trash" onClick="actionTag('trash')" />
 	<input class="sel-act" type="button" value="archive" onClick="actionTag('archive')" />
 	<input class="sel-act" type="button" value="to Cascadia" onClick="actionTag('to-cascadia')" />
-	<input class="sel-act" type="button" value="auto-ID" onClick="actionTag('ident')" />
+	<input class="sel-act" id="button-auto-id" type="button" value="auto-ID" onClick="actionTag('ident')" />
 	<input type="button" value="mark MediaSubmission complete" onClick="closeMediaSubmission()" />
 	<input class="sel-act" type="button" id="button-send-files" value="send files" onClick="sendFiles()" />
 	<input type="button" value="back to listing" onClick="actionCancel()" />
