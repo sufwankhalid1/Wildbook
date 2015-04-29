@@ -339,6 +339,16 @@ body { font-family: arial }
 	margin-right: 10px;
 }
 
+#user-meta {
+	font-size: 0.9em;
+	margin-top: 10px;
+	color: #0D7;
+}
+
+#user-meta b {
+	color: #099;
+}
+
 </style>
 
 <script src="//code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
@@ -955,6 +965,25 @@ function browse(msID) {
 var displayAsTable = true;
 
 function displayMS() {
+	var d = new Date();
+	d.setTime(mediaSubmission.get('timeSubmitted'));
+	var h = 'Files submitted by <b>' + _colSubmitter(mediaSubmission) + '</b> at <b>' + d.toLocaleString() + '</b>';
+	if (mediaSubmission.get('submissionid')) h += ' | ID: <b>' + mediaSubmission.get('submissionid') + '</b>';
+	if (mediaSubmission.get('description')) h += ' | <b>' + mediaSubmission.get('description') + '</b>';
+	if (mediaSubmission.get('verbatimLocation')) h += ' | Loc: <b>' + mediaSubmission.get('verbatimLocation') + '</b>';
+	var when = '';
+	if (mediaSubmission.get('startTime') > 0) {
+		d.setTime(mediaSubmission.get('startTime'));
+		when = d.toLocaleString();
+	}
+	if (mediaSubmission.get('endTime') > 0) {
+		d.setTime(mediaSubmission.get('endTime'));
+		if (when) when += ' - ';
+		when += d.toLocaleString();
+	}
+	if (when) h += ' | When: <b>' + when + '</b>';
+	$('#user-meta').html(h).attr('title', 'ID ' + mediaSubmission.id + ', status: ' + mediaSubmission.get('status'));
+
 	if (displayAsTable) {
 		$('#images-unused').hide();
 		return displayMSTable();
@@ -2014,7 +2043,7 @@ $('#enc-dateInMilliseconds-human').change(function() {
 
 
 <div id="work-div">
-	<p><b>Files submitted by user.</b></p>
+	<div id="user-meta"></div>
 
 	<div id="images-unused"></div>
 
