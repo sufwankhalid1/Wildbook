@@ -41,8 +41,13 @@ import java.nio.file.Paths;
 import java.nio.file.Files;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.FileOutputStream;
 import com.google.gson.Gson;
 
+import java.net.URL;
+import java.net.URLConnection;
 
 /*
 import java.text.SimpleDateFormat;
@@ -65,6 +70,10 @@ public class BatchCompare extends HttpServlet {
 		request.setCharacterEncoding("UTF-8");
 		Gson gson = new Gson();
 
+		boolean fromRemote = false;
+
+		String[] remoteFiles = request.getParameterValues("file");
+
 		HttpSession session = request.getSession(false);
     String context="context0";
     context = ServletUtilities.getContext(request);
@@ -75,17 +84,11 @@ public class BatchCompare extends HttpServlet {
 		Properties props = new Properties();
 		props = ShepherdProperties.getProperties("submit.properties", langCode,context);
 
-    //set up for response
-    response.setContentType("text/html");
-    //PrintWriter out = response.getWriter();
-
 		String batchID = Util.generateUUID();
 
 		if (request.getParameter("batchID") != null) batchID = request.getParameter("batchID");
 
 		List<FileItem> formFiles = new ArrayList<FileItem>();
-
-  	//Calendar date = Calendar.getInstance();
 
 		if (ServletFileUpload.isMultipartContent(request)) {
 			try {
@@ -107,6 +110,37 @@ public class BatchCompare extends HttpServlet {
 			} catch (Exception ex) {
 				//doneMessage = "File Upload Failed due to " + ex;
 			}
+
+		//special case, we grab the files and start processing them
+		} else if ((remoteFiles != null) && (remoteFiles.length > 0)) {
+			List<String> gotFiles = new ArrayList<String>();
+			String batchDir = ServletUtilities.dataDir(context, rootDir) + "/match_images/" + batchID;
+			File bd = new File(batchDir);
+			if (!bd.exists()) bd.mkdirs();
+			Map<String,List<String>> fileMapEmpty = new HashMap<String,List<String>>();
+			for (int i = 0 ; i < remoteFiles.length ; i++) {
+				String got = getFile(batchDir, remoteFiles[i]);
+				if (got != null) {
+					fileMapEmpty.put(got, null);
+					gotFiles.add(got);
+				}
+			}
+			response.addHeader("Access-Control-Allow-Origin", "*");
+    	response.setContentType("application/json");
+    	PrintWriter out = response.getWriter();
+			if (gotFiles.size() > 0) {
+				BatchCompareProcessor.writeStatusFile(getServletContext(), context, batchID, "{ \"images\": " + gson.toJson(gotFiles) + ", \"countComplete\": 0, \"countTotal\": " + Integer.toString(gotFiles.size()) + " }");
+				startCompare(context, fileMapEmpty, batchID);
+				HashMap<String,Object> j = new HashMap<String,Object>();
+				j.put("url", "http://" + CommonConfiguration.getURLLocation(request) + "/batchCompareDone.jsp?batchID=" + batchID);
+				j.put("batchID", batchID);
+				j.put("files", gotFiles);
+				out.println(gson.toJson(j));
+			} else {
+				out.println("{\"error\": \"no files\"}");
+			}
+			out.close();
+			return;
 
 		} else {  //must already have files and this is what to search against
 			String batchDir = null;
@@ -140,12 +174,7 @@ System.out.println("json .images was empty ... hmm... bailing");
 System.out.println("NOW DOING FOLLOWUP ON " + batchID);
 System.out.println(fileMap);
 
-System.out.println("yes? starting proc");
-		BatchCompareProcessor proc = new BatchCompareProcessor(getServletContext(), context, "npmCompare", fileMap, batchID);
-		Thread t = new Thread(proc);
-		t.start();
-		session.setAttribute(BatchCompareProcessor.SESSION_KEY_COMPARE, proc);
-System.out.println("yes. out.");
+			startCompare(context, fileMap, batchID);
 
 			BatchCompareProcessor.writeStatusFile(getServletContext(), context, batchID, "{ \"filters\": true, \"images\": " + gson.toJson(fnames) + ", \"countComplete\": 0, \"countTotal\": " + Integer.toString(fnames.size()) + " }");
 
@@ -155,7 +184,6 @@ return;
 
 		}
 
-		String msg = "";
 		List<String> okFiles = new ArrayList<String>();
 		if (formFiles.size() > 0) {
 			List<String> fnames = new ArrayList<String>();
@@ -163,6 +191,7 @@ return;
 			File bd = new File(baseDir);
 			if (!bd.exists()) bd.mkdirs(); //fwiw, should never exist
 
+			Map<String,List<String>> fileMapEmpty = new HashMap<String,List<String>>();  //we use this when we are fromRemote -- cuz no second step is done
 			for (FileItem item : formFiles) {
 				//String origFilename = new File(item.getName()).getName();
 				String filename = ServletUtilities.cleanFileName(new File(item.getName()).getName());
@@ -177,39 +206,67 @@ System.out.println(filename + " -> " + file.toString());
 					System.out.println("could not write file: " + ex.toString());
 					ok = false;
 				}
-				if (ok) okFiles.add(file.getAbsolutePath());
+				if (ok) {
+					okFiles.add(file.getAbsolutePath());
+					fileMapEmpty.put(filename, null);
+				}
 			}
-			msg = "<p>" + props.getProperty("batchCompareImagesReceived").replaceFirst("%d", Integer.toString(okFiles.size())) + "</p>";
-			msg += "<p>" + props.getProperty("batchCompareNotFinished").replaceFirst("%countTotal", Integer.toString(okFiles.size())).replaceFirst("%countComplete", "0") + "</p>";
-			msg += "<script>window.setTimeout(function() { window.location.href = 'batchCompareDone.jsp'; }, 8000);</script>";
 
 			BatchCompareProcessor.writeStatusFile(getServletContext(), context, batchID, "{ \"images\": " + gson.toJson(fnames) + ", \"countComplete\": 0, \"countTotal\": " + Integer.toString(okFiles.size()) + " }");
 
-			response.sendRedirect("http://" + CommonConfiguration.getURLLocation(request) + "/batchCompareDone.jsp?batchID=" + batchID);
+			//set up for response
+			if (fromRemote) {
+				startCompare(context, fileMapEmpty, batchID);
+    		response.setContentType("application/json");
+    		PrintWriter out = response.getWriter();
+				HashMap<String,Object> j = new HashMap<String,Object>();
+				j.put("url", "http://" + CommonConfiguration.getURLLocation(request) + "/batchCompareDone.jsp?batchID=" + batchID);
+				j.put("batchID", batchID);
+				j.put("files", okFiles);
+				out.println(gson.toJson(j));
+				out.close();
 
-/*
-    } else {
+			} else {
+				response.sendRedirect("http://" + CommonConfiguration.getURLLocation(request) + "/batchCompareDone.jsp?batchID=" + batchID);
+			}
 
-System.out.println("yes? starting proc");
-		BatchCompareProcessor proc = new BatchCompareProcessor(getServletContext(), context, "npmCompare", okFiles, batchID);
-		Thread t = new Thread(proc);
-		t.start();
-		session.setAttribute(BatchCompareProcessor.SESSION_KEY_COMPARE, proc);
-System.out.println("yes. out.");
-
-		response.sendRedirect("http://" + CommonConfiguration.getURLLocation(request) + "/batchCompareDone.jsp?batchID=" + batchID);
-*/
-/*  nah, lets just redirect and not bother with msg here
-		out.println(ServletUtilities.getHeader(request));
-		out.println(msg);
-		out.println(ServletUtilities.getFooter(context));
-		out.close();
-*/
 		}
 
   }
 
 
+	private void startCompare(String context, Map<String,List<String>> fileMap, String batchID) {
+System.out.println("yes? starting proc");
+		BatchCompareProcessor proc = new BatchCompareProcessor(getServletContext(), context, "npmCompare", fileMap, batchID);
+		Thread t = new Thread(proc);
+		t.start();
+		//session.setAttribute(BatchCompareProcessor.SESSION_KEY_COMPARE, proc);
+System.out.println("yes. out.");
+	}
+
+	private String getFile(String targetDir, String u) {
+		String filename = "tmp";
+		int i = u.lastIndexOf("/");
+		if (i > -1) filename = u.substring(i + 1);
+System.out.println("getFile( "+ u + "->" + targetDir + " (" + filename);
+
+		try {
+			URL url = new URL(u);
+			URLConnection conn = url.openConnection();
+			InputStream input = conn.getInputStream();
+			byte[] buffer = new byte[4096];
+			int n = -1;
+			OutputStream output = new FileOutputStream(new File(targetDir, filename));
+			while ((n = input.read(buffer)) != -1) {
+				output.write(buffer, 0, n);
+			}
+			output.close();
+		} catch (Exception ex) {
+			return null;
+		}
+
+		return filename;
+	}
 }
 
 
