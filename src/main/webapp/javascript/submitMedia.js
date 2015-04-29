@@ -148,9 +148,14 @@ var submitMedia = (function () {
 //                };
 
             $scope.getExifData = function() {
+                if (!this.queue.length) {
+                    wildbook.showAlert("Please upload some media files before continuing.");
+                    return $.Deferred().reject();
+                }
                 //
                 // Loop through files and make sure they are all uploaded before
                 // continuing.
+                //
                 var allUploaded = true;
                 $.each(this.queue, function() {
                     //
