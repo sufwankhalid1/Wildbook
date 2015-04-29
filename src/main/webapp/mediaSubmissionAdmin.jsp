@@ -371,8 +371,8 @@ body { font-family: arial }
 <script type="text/javascript">
 
 //TODO set these in commonConfiguration
-var cascIDUrl = 'http://dev.wildme.org/cascadia/BatchCompare';
-var cascBatchUrl = 'http://dev.wildme.org/cascadia/batchCompareDone.jsp';
+var cascIDUrl = 'http://splashcatalog.org/cascadia/BatchCompare?context=context3&';
+var cascBatchUrl = 'http://splashcatalog.org/cascadia/batchCompareDone.jsp?context=context3&';
 
 var map = false;
 google.maps.event.addDomListener(window, 'load', gotMap);
@@ -613,7 +613,7 @@ function lowerCaseValue(obj, colnum) {
 
 
 function _colLatLong(obj, i) {
-console.log('obj %o i %o', obj, i);
+//console.log('obj %o i %o', obj, i);
 	var l = obj._latitude;
 	if (i == 5) l = obj._longitude;
 	if ((l == undefined) || (l == null)) return '';
@@ -650,14 +650,14 @@ function _colMediaSelect(obj, i) {
 }
 
 function _colTag(obj, t) {
-	console.log('colTag %o %o', obj, t);
+	//console.log('colTag %o %o', obj, t);
 	if (!obj._tags || (obj._tags.length < 1)) return '';
 	var tagName = tableMedia.opts.columns[t].key.substring(5);
 
 	//special case to catch "ident:BATCHID" for in-process id stuff
 	if (tagName == 'ident') {
 		for (var i = 0 ; i < obj._tags.length ; i++) {
-			if (obj._tags[i].indexOf('ident:') == 0) return '<a class="starred row-has-tag row-has-tag-ident ident-batch" target="_new" title="ident batch ' +obj._tags[i].substr(6) + '" href="' + cascBatchUrl + '?batchID=' + obj._tags[i].substr(6) + '">&#9733;</a>';
+			if (obj._tags[i].indexOf('ident:') == 0) return '<a class="starred row-has-tag row-has-tag-ident ident-batch" target="_new" title="ident batch ' +obj._tags[i].substr(6) + '" href="' + cascBatchUrl + 'batchID=' + obj._tags[i].substr(6) + '">&#9733;</a>';
 		}
 	}
 
@@ -1053,7 +1053,7 @@ function displayMSTable() {
 	if (!ok) {
 		$('#map-canvas-wrapper').hide();
 	} else {
-		$('#map-canvas-wrapper').show();
+		$('#map-canvas-wrapper').show().draggable();
 	}
 
 	var m = mediaSubmission.get('media');
@@ -1551,7 +1551,7 @@ function actionTag(tagName) {
 		type: 'POST',
 		contentType: 'application/json',
 		error: function(a,b,c) {
-			msError('unable to append media to track.',a,b,c);
+			msError('unable to tag media ' + tagName, a,b,c);
 		},
 		success: function() {
 			actionResult('file marked ' + tagName);
@@ -1903,22 +1903,41 @@ function sendFiles() {
 		$('#media-results-table tbody tr span.cascadia-sent').length;
 */
 	var files = [];
+	var media = [];
 	$('#media-results-table tbody tr span.row-has-tag-ident').not('.ident-batch').each(function(i,el) {
-		var url = $(el).closest('tr').find('.tiny-thumb').prop('src');
-		if (url) files.push(url);
+		var row = $(el).closest('tr');
+		var url = row.find('.tiny-thumb').prop('src');
+		if (url) {
+			files.push(url);
+			media.push({dataCollectionEventID: row.attr('id')});
+		}
 	});
-///TODO hide buttons etc during processing
 
 	if (files.length > 0) {
-			console.info('url: %s', cascIDUrl + '?file=' + files.join('&file='));
+		$('#button-send-files').attr('disabled', 'disabled');
+		console.info('url: %s', cascIDUrl + 'file=' + files.join('&file='));
 		$.ajax({
-			url: cascIDUrl + '?file=' + files.join('&file='),
+			url: cascIDUrl + 'file=' + files.join('&file='),
 			type: 'GET',
 			dataType: 'json',
 			success: function(d) {
 				if (d.error) return msError('could not send for ident: ' + d.error);
 				actionResult('<b>' + d.files.length + ' file(s) sent for processing as <a target="_new" href="' + d.url + '">batch ' + d.batchID + '</a>');
-console.log('worked???????????????? %o', d);
+				// now we have to tag the media as being in process of identification
+				$.ajax({
+					url: 'obj/mediatag/appendMedia/ident:' + d.batchID,
+					data: JSON.stringify(media),
+					type: 'POST',
+					contentType: 'application/json',
+					error: function(a,b,c) {
+						msError('unable to tag media with ident batch' ,a,b,c);
+					},
+					success: function() {
+						console.info('media marked with ident batch ok');
+						resetAllCollections('media_MediaTags');
+						updateAllCollections(function() { displayMS(); });
+					}
+				});
 			},
 			error: function(a,b,c) { msError('could not send for ident', a,b,c); }
 		});
@@ -1929,7 +1948,6 @@ console.log('worked???????????????? %o', d);
 
 
 function mediaExif(m, id) {
-console.warn(m);
 	if (!m || !m._exif || !m._exif.items || (m._exif.items.length < 1)) return;
 	for (var i = 0 ; i < m._exif.items.length ; i++) {
 		if (m._exif.items[i].mediaid == id) return m._exif.items[i];
