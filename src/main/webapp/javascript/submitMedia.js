@@ -159,7 +159,7 @@ var submitMedia = (function () {
                     // come from the server. So this is a janky, but I hope effective,
                     // way of knowing whether or not all files have been uploaded.
                     //
-                    if (!this.thumbnailUrl) {
+                    if (this.thumbnailUrl === undefined) {
                         allUploaded = false;
                     }
                 });
