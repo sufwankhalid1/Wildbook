@@ -19,43 +19,61 @@
 
 package org.ecocean.servlet;
 
-import com.sun.syndication.feed.synd.*;
-import com.sun.syndication.io.SyndFeedInput;
-import com.sun.syndication.io.SyndFeedOutput;
-import com.sun.syndication.io.XmlReader;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+import java.util.Vector;
+import java.util.concurrent.ThreadPoolExecutor;
 
+import javax.jdo.Query;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.shiro.crypto.SecureRandomNumberGenerator;
+import org.apache.shiro.crypto.hash.Sha512Hash;
+import org.apache.shiro.util.ByteSource;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
+import org.ecocean.CommonConfiguration;
+import org.ecocean.ContextConfiguration;
+import org.ecocean.Encounter;
+import org.ecocean.MailThreadExecutorService;
+import org.ecocean.MarkedIndividual;
+import org.ecocean.NotificationMailer;
+import org.ecocean.Occurrence;
+import org.ecocean.Shepherd;
+import org.ecocean.ShepherdProperties;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 
-import javax.jdo.Query;
+import com.sun.syndication.feed.synd.SyndCategory;
+import com.sun.syndication.feed.synd.SyndCategoryImpl;
+import com.sun.syndication.feed.synd.SyndContent;
+import com.sun.syndication.feed.synd.SyndContentImpl;
+import com.sun.syndication.feed.synd.SyndEntry;
+import com.sun.syndication.feed.synd.SyndEntryImpl;
+import com.sun.syndication.feed.synd.SyndFeed;
+import com.sun.syndication.io.SyndFeedInput;
+import com.sun.syndication.io.SyndFeedOutput;
+import com.sun.syndication.io.XmlReader;
 //import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
 //import javax.servlet.http.HttpSession;
-
-
-import java.io.*;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Vector;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.sql.*;
-
-import org.ecocean.*;
-import org.apache.shiro.crypto.hash.*;
-import org.apache.shiro.util.*; 
-import org.apache.shiro.crypto.*;
-
-import java.util.Properties;
-
-import javax.servlet.http.Cookie;
 
 //ATOM feed
 
@@ -73,7 +91,7 @@ public class ServletUtilities {
       fileReader.close();
       buffread.close();
       templateFile = SBreader.toString();
-      
+
       String context=getContext(request);
 
       //process the CSS string
@@ -84,7 +102,7 @@ public class ServletUtilities {
 
       int end_header = templateFile.indexOf("INSERT_HERE");
       return (templateFile.substring(0, end_header));
-    } 
+    }
     catch (Exception e) {
       //out.println("I couldn't find the template file to read from.");
       e.printStackTrace();
@@ -125,16 +143,16 @@ public class ServletUtilities {
     //context=ServletUtilities.getContext(request);
     Shepherd myShepherd = new Shepherd(context);
     myShepherd.beginDBTransaction();
-    
+
     if(myShepherd.isEncounter(number)){
-      
+
       Encounter enc = myShepherd.getEncounter(number);
       if(enc.getInterestedResearchers()!=null){
         Vector<String> notifyMe = enc.getInterestedResearchers();
         int size = notifyMe.size();
         String[] interested = new String[size];
         for (int i = 0; i < size; i++) {
-          interested[i] = (String) notifyMe.get(i);
+          interested[i] = notifyMe.get(i);
         }
         myShepherd.rollbackDBTransaction();
         myShepherd.closeDBTransaction();
@@ -169,14 +187,14 @@ public class ServletUtilities {
         myShepherd.rollbackDBTransaction();
         myShepherd.closeDBTransaction();
       }
-      
-    
+
+
     }
     else{
       myShepherd.rollbackDBTransaction();
       myShepherd.closeDBTransaction();
     }
-    
+
   }
 
   //inform researchers that have logged an interest with the encounter or marked individual
@@ -191,7 +209,7 @@ public class ServletUtilities {
           int size = notifyMe.size();
           String[] interested = new String[size];
           for (int i = 0; i < size; i++) {
-            interested[i] = (String) notifyMe.get(i);
+            interested[i] = notifyMe.get(i);
           }
           myShepherd.rollbackDBTransaction();
           myShepherd.closeDBTransaction();
@@ -232,9 +250,9 @@ public class ServletUtilities {
         myShepherd.closeDBTransaction();
       }
 
-    
-    
-    
+
+
+
   }
 
 
@@ -259,7 +277,7 @@ public class ServletUtilities {
         fileReader.close();
         buffread.close();
         return line;
-        } 
+        }
         catch (Exception e) {
             e.printStackTrace();
             return "";
@@ -310,14 +328,14 @@ public class ServletUtilities {
 
         List<SyndCategory> categories = new ArrayList<SyndCategory>();
         if(CommonConfiguration.getProperty("htmlTitle",context)!=null){
-        	SyndCategory category2 = new SyndCategoryImpl();
-        	category2.setName(CommonConfiguration.getProperty("htmlTitle",context));
-        	categories.add(category2);
-		}
+            SyndCategory category2 = new SyndCategoryImpl();
+            category2.setName(CommonConfiguration.getProperty("htmlTitle",context));
+            categories.add(category2);
+        }
         newItem.setCategories(categories);
         if(CommonConfiguration.getProperty("htmlAuthor",context)!=null){
-        	newItem.setAuthor(CommonConfiguration.getProperty("htmlAuthor",context));
-		}
+            newItem.setAuthor(CommonConfiguration.getProperty("htmlAuthor",context));
+        }
         items.add(newItem);
         feed.setEntries(items);
 
@@ -330,11 +348,11 @@ public class ServletUtilities {
 
       }
     } catch (IOException ioe) {
-      	System.out.println("ERROR: Could not find the ATOM file.");
-      	ioe.printStackTrace();
+          System.out.println("ERROR: Could not find the ATOM file.");
+          ioe.printStackTrace();
     } catch (Exception e) {
-      	System.out.println("Unknown exception trying to add an entry to the ATOM file.");
-      	e.printStackTrace();
+          System.out.println("Unknown exception trying to add an entry to the ATOM file.");
+          e.printStackTrace();
     }
 
   }
@@ -344,7 +362,7 @@ public class ServletUtilities {
     //File rssFile=new File("nofile.xml");
 
     try {
-		System.out.println("Looking for RSS file: "+rssFile.getCanonicalPath());
+        System.out.println("Looking for RSS file: "+rssFile.getCanonicalPath());
       if (rssFile.exists()) {
 
         SAXReader reader = new SAXReader();
@@ -382,15 +400,15 @@ public class ServletUtilities {
       }
     }
     catch (IOException ioe) {
-      	System.out.println("ERROR: Could not find the RSS file.");
-      	ioe.printStackTrace();
+          System.out.println("ERROR: Could not find the RSS file.");
+          ioe.printStackTrace();
     }
     catch (DocumentException de) {
-      	System.out.println("ERROR: Could not read the RSS file.");
-      	de.printStackTrace();
+          System.out.println("ERROR: Could not read the RSS file.");
+          de.printStackTrace();
     } catch (Exception e) {
-      	System.out.println("Unknown exception trying to add an entry to the RSS file.");
-      	e.printStackTrace();
+          System.out.println("Unknown exception trying to add an entry to the RSS file.");
+          e.printStackTrace();
     }
   }
 
@@ -414,22 +432,22 @@ public class ServletUtilities {
     boolean isOwner = false;
     if (request.getUserPrincipal()!=null) {
       isOwner = true;
-    } 
+    }
     return isOwner;
   }
 
   public static boolean isUserAuthorizedForIndividual(MarkedIndividual sharky, HttpServletRequest request) {
     if (request.getUserPrincipal()!=null) {
       return true;
-    } 
+    }
     return false;
   }
-  
+
   //occurrence
   public static boolean isUserAuthorizedForOccurrence(Occurrence sharky, HttpServletRequest request) {
     if (request.getUserPrincipal()!=null) {
       return true;
-    } 
+    }
     return false;
   }
 
@@ -457,11 +475,11 @@ public class ServletUtilities {
 
   }
 
-  
+
   public static String cleanFileName(String myString){
     return myString.replaceAll("[^a-zA-Z0-9\\.\\-]", "_");
   }
-  
+
   /*public static String cleanFileName(String aTagFragment) {
     final StringBuffer result = new StringBuffer();
 
@@ -508,7 +526,7 @@ public class ServletUtilities {
     DateTimeFormatter fmt = ISODateTimeFormat.date();
     return (fmt.print(dt));
   }
-  
+
   public static Connection getConnection() throws SQLException {
 
     Connection conn = null;
@@ -516,11 +534,11 @@ public class ServletUtilities {
     connectionProps.put("user", CommonConfiguration.getProperty("datanucleus.ConnectionUserName","context0"));
     connectionProps.put("password", CommonConfiguration.getProperty("datanucleus.ConnectionPassword","context0"));
 
-    
+
     conn = DriverManager.getConnection(
            CommonConfiguration.getProperty("datanucleus.ConnectionURL","context0"),
            connectionProps);
-    
+
     System.out.println("Connected to database for authentication.");
     return conn;
 }
@@ -538,10 +556,10 @@ public static String getContext(HttpServletRequest request) {
   if (ContextConfiguration.getDefaultContext() !=null ) {
     context=ContextConfiguration.getDefaultContext();
   }
-  
+
   Properties contexts = ShepherdProperties.getContextsProperties();
   int numContexts=contexts.size();
-  
+
   //check the URL for the context attribute
   //this can be used for debugging and takes precedence
   if (request.getParameter("context") != null) {
@@ -552,7 +570,7 @@ public static String getContext(HttpServletRequest request) {
       return request.getParameter("context");
     }
   }
-  
+
 
   //the request cookie is the next thing we check. this should be the primary means of figuring context out
   Cookie[] cookies = request.getCookies();
@@ -563,7 +581,7 @@ public static String getContext(HttpServletRequest request) {
       }
     }
   }
-  
+
   //finally, we will check the URL vs values defined in context.properties to see if we can set the right context
   String currentURL=request.getServerName();
   for (int q=0; q < numContexts; q++) {
@@ -576,33 +594,33 @@ public static String getContext(HttpServletRequest request) {
       }
     }
   }
-  
+
   return context;
 }
 
 
 public static String getLanguageCode(HttpServletRequest request){
   String context=ServletUtilities.getContext(request);
-  
+
   //worst case scenario default to English
   String langCode="en";
-  
+
   //try to detect a default if defined
   if(CommonConfiguration.getProperty("defaultLanguage", context)!=null){
     langCode=CommonConfiguration.getProperty("defaultLanguage", context);
   }
 
-  
+
   ArrayList<String> supportedLanguages=new ArrayList<String>();
   if(CommonConfiguration.getSequentialPropertyValues("language", context)!=null){
     supportedLanguages=CommonConfiguration.getSequentialPropertyValues("language", context);
-  }    
-      
+  }
+
   //if specified directly, always accept the override
   if(request.getParameter("langCode")!=null){
     if(supportedLanguages.contains(request.getParameter("langCode"))){return request.getParameter("langCode");}
   }
-  
+
 
   //the request cookie is the next thing we check. this should be the primary means of figuring langCode out
   Cookie[] cookies = request.getCookies();
@@ -613,43 +631,43 @@ public static String getLanguageCode(HttpServletRequest request){
       }
     }
   }
-  
+
   //finally, we will check the URL vs values defined in context.properties to see if we can set the right context
   //TBD - future - detect browser supported language codes and locale from the HTTPServletRequest object
-  
+
   return langCode;
 }
 
 
-	public static File dataDir(String context, String rootWebappPath)
-	{
-		File webappsDir = new File(rootWebappPath).getParentFile();
-		File shepherdDataDir = new File(webappsDir, CommonConfiguration.getDataDirectoryName(context));
-		if (!shepherdDataDir.exists()) {
-		    shepherdDataDir.mkdirs();
-		}
-		return shepherdDataDir;
-	}
+    public static File dataDir(String context, String rootWebappPath)
+    {
+        File webappsDir = new File(rootWebappPath).getParentFile();
+        File shepherdDataDir = new File(webappsDir, CommonConfiguration.getDataDirectoryName(context));
+        if (!shepherdDataDir.exists()) {
+            shepherdDataDir.mkdirs();
+        }
+        return shepherdDataDir;
+    }
 
-	//like above, but can pass a subdir to append
-	public static File dataDir(String context, String rootWebappPath, String subdir) {
-		return new File(dataDir(context, rootWebappPath), subdir);
-	}
+    //like above, but can pass a subdir to append
+    public static File dataDir(String context, String rootWebappPath, String subdir) {
+        return new File(dataDir(context, rootWebappPath), subdir);
+    }
 
 /*
-	//like above, but only need request passed
-	public static String dataDir(HttpServletRequest request) {
-		String context = "context0";
-		context = ServletUtilities.getContext(request);
-		//String rootWebappPath = request.getServletContext().getRealPath("/");  // only in 3.0??
-		//String rootWebappPath = request.getSession(true).getServlet().getServletContext().getRealPath("/");
-		ServletContext s = request.getServletContext();
+    //like above, but only need request passed
+    public static String dataDir(HttpServletRequest request) {
+        String context = "context0";
+        context = ServletUtilities.getContext(request);
+        //String rootWebappPath = request.getServletContext().getRealPath("/");  // only in 3.0??
+        //String rootWebappPath = request.getSession(true).getServlet().getServletContext().getRealPath("/");
+        ServletContext s = request.getServletContext();
 String rootWebappPath = "xxxxxx";
-		return dataDir(context, rootWebappPath);
-	}
+        return dataDir(context, rootWebappPath);
+    }
 */
 
-	
+
   private static String loadOverrideText(String shepherdDataDir, String fileName, String langCode) {
     //System.out.println("Starting loadOverrideProps");
     StringBuffer myText=new StringBuffer("");
@@ -672,18 +690,18 @@ String rootWebappPath = "xxxxxx";
       FileInputStream fileInputStream = null;
       try {
         fileInputStream = new FileInputStream(configFile);
-        
-        
+
+
         BufferedReader reader = new BufferedReader(new InputStreamReader(fileInputStream));
         StringBuilder out = new StringBuilder();
         String line;
         while ((line = reader.readLine()) != null) {
             myText.append(line);
         }
-        
-        
-        
-        
+
+
+
+
       } catch (Exception e) {
         e.printStackTrace();
       }
