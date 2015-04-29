@@ -370,6 +370,10 @@ body { font-family: arial }
 
 <script type="text/javascript">
 
+//TODO set these in commonConfiguration
+var cascIDUrl = 'http://dev.wildme.org/cascadia/BatchCompare';
+var cascBatchUrl = 'http://dev.wildme.org/cascadia/batchCompareDone.jsp';
+
 var map = false;
 google.maps.event.addDomListener(window, 'load', gotMap);
 
@@ -649,15 +653,25 @@ function _colTag(obj, t) {
 	console.log('colTag %o %o', obj, t);
 	if (!obj._tags || (obj._tags.length < 1)) return '';
 	var tagName = tableMedia.opts.columns[t].key.substring(5);
-console.log(tagName);
+
+	//special case to catch "ident:BATCHID" for in-process id stuff
+	if (tagName == 'ident') {
+		for (var i = 0 ; i < obj._tags.length ; i++) {
+			if (obj._tags[i].indexOf('ident:') == 0) return '<a class="starred row-has-tag row-has-tag-ident ident-batch" target="_new" title="ident batch ' +obj._tags[i].substr(6) + '" href="' + cascBatchUrl + '?batchID=' + obj._tags[i].substr(6) + '">&#9733;</a>';
+		}
+	}
+
+	if ((tagName == 'to-cascadia') && (obj._tags.indexOf('cascadia-sent') > -1)) return '<span title="already sent" class="starred row-has-tag row-has-tag-to-cascadia cascadia-sent">&#9733;</span>';
+
 	if (obj._tags.indexOf(tagName) > -1) return '<span class="row-has-tag row-has-tag-' + tagName + '">&#10004;</span>';
 	return '';
 }
 
 function _colTagSort(obj, t) {
 	var x = _colTag(obj, t);
-	if (x) return 0;
-	return 1;
+	if (x.indexOf('starred') > -1) return 0;
+	if (x) return 1;
+	return 2;
 }
 
 function _colEncounters(obj) {
@@ -1117,7 +1131,9 @@ function updateSelectedUI(ev, ui) {
 	}
 
 	var canSend = $('#media-results-table tbody tr span.row-has-tag-to-cascadia').length +
-		$('#media-results-table tbody tr span.row-has-tag-ident').length;
+		$('#media-results-table tbody tr span.row-has-tag-ident').length -
+		$('#media-results-table tbody tr span.ident-batch').length -
+		$('#media-results-table tbody tr span.cascadia-sent').length;
 
 	if (canSend > 0) {
 		$('#button-send-files').removeAttr('disabled');
@@ -1830,9 +1846,12 @@ function updateSummary() {
 				numForCascadia++;
 				thisOneUsed = true;
 			}
-			if (tags.indexOf('ident') > -1) {
-				numForIdent++;
-				thisOneUsed = true;
+			for (var j = 0 ; j < tags.length ; j++) {
+				if (tags[j].indexOf('ident') == 0) {
+					numForIdent++;
+					thisOneUsed = true;
+					j = tags.length;
+				}
 			}
 		}
 
@@ -1877,7 +1896,35 @@ function putOnMap(lat, lon) {
 }
 
 function sendFiles() {
-console.warn('TODO sendFiles()');
+/*
+	var canSend = $('#media-results-table tbody tr span.row-has-tag-to-cascadia').length +
+		$('#media-results-table tbody tr span.row-has-tag-ident').length -
+		$('#media-results-table tbody tr span.ident-batch').length -
+		$('#media-results-table tbody tr span.cascadia-sent').length;
+*/
+	var files = [];
+	$('#media-results-table tbody tr span.row-has-tag-ident').not('.ident-batch').each(function(i,el) {
+		var url = $(el).closest('tr').find('.tiny-thumb').prop('src');
+		if (url) files.push(url);
+	});
+///TODO hide buttons etc during processing
+
+	if (files.length > 0) {
+			console.info('url: %s', cascIDUrl + '?file=' + files.join('&file='));
+		$.ajax({
+			url: cascIDUrl + '?file=' + files.join('&file='),
+			type: 'GET',
+			dataType: 'json',
+			success: function(d) {
+				if (d.error) return msError('could not send for ident: ' + d.error);
+				actionResult('<b>' + d.files.length + ' file(s) sent for processing as <a target="_new" href="' + d.url + '">batch ' + d.batchID + '</a>');
+console.log('worked???????????????? %o', d);
+			},
+			error: function(a,b,c) { msError('could not send for ident', a,b,c); }
+		});
+	}
+
+
 }
 
 
