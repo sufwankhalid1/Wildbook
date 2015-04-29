@@ -142,11 +142,6 @@ var submitMedia = (function () {
                 return (this.media.username);
             };
 
-//                $scope.allMediaUploaded = function() {
-//                    alert("allMediaUploaded");
-//                    return false;
-//                };
-
             $scope.getExifData = function() {
                 if (!this.queue.length) {
                     wildbook.showAlert("Please upload some media files before continuing.");
