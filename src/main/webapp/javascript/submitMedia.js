@@ -22,7 +22,8 @@ var submitMedia = (function () {
             map.removeLayer(marker);
         }
         if (latitude && longitude) {
-            marker = L.marker(L.latLng(latitude, longitude)).addTo(map);
+            var latlng = L.latLng(latitude, longitude);
+            marker = L.marker(latlng).addTo(map);
             map.setView(latlng, 2);
         }
 
