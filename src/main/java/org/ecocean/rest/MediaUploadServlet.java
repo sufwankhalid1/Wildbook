@@ -146,39 +146,7 @@ public class MediaUploadServlet
         ObjectMapper mapper = new ObjectMapper();
 
         // 4. Send resutl to client
-        mapper.writeValue(response.getOutputStream(), fileset);
-
-
-
-
-//        String context="context0";
-//        context=ServletUtilities.getContext(request);
-//        Shepherd myShepherd = new Shepherd(context);
-//        myShepherd.beginDBTransaction();
-//
-//        MediaSubmission ms = null;
-//        try {
-//            PersistenceManager pm;
-//            pm = ShepherdPMF.getPMF(context).getPersistenceManager();
-//          ms = ((MediaSubmission) (pm.getObjectById(pm.newObjectIdInstance(MediaSubmission.class, mediaid), true)));
-//        } catch (Exception nsoe) {
-//          return null;
-//        }
-//        try {
-//            //
-//            // Try null for encounter id as this is not attached to an encounter.
-//            // Hopefully we won't need to specify it.
-//            //
-//          SinglePhotoVideo newSPV = new SinglePhotoVideo(null,(new File(fullPathFilename)));
-//          ms.getMedia().add(newSPV);
-////          ms.refreshAssetFormats(context, ServletUtilities.dataDir(context, rootWebappPath).getAbsolutePath(), newSPV, false);
-//          myShepherd.commitDBTransaction();
-//        } catch (Exception le) {
-//          myShepherd.rollbackDBTransaction();
-//          myShepherd.closeDBTransaction();
-//        } finally {
-//            myShepherd.closeDBTransaction();
-//        }
+        mapper.writeValue(response.getOutputStream(), upload);
     }
 
 
@@ -247,10 +215,15 @@ public class MediaUploadServlet
         return new File(new File(dataDirName, "mediasubmission"), msid);
     }
 
+    private static File getThumbnailDir(final File baseDir)
+    {
+        return new File(baseDir, "thumb");
+    }
+
     private static File getThumbnailFile(final File baseDir,
                                          final String fileName)
     {
-        return new File(new File(baseDir.getPath(), "thumb"), fileName);
+        return new File(getThumbnailDir(baseDir), fileName);
     }
 
     private static File getRootDir(final HttpServletRequest request)
@@ -312,6 +285,9 @@ public class MediaUploadServlet
                 File rootDir = getRootDir(request);
                 File baseDir = getBaseDir(context, fileset.getID());
 
+                File fullBaseDir = new File(rootDir, baseDir.getPath());
+                fullBaseDir.mkdirs();
+
                 for (FileMeta file : fileset.getFiles()) {
                     //
                     // TODO: Save contents of image to a file and create a thumbnail.
@@ -329,10 +305,25 @@ public class MediaUploadServlet
                         id = -1;
                     }
 
+                    file.setUrl("/" + new File(baseDir, file.getName()));
+
+                    if (Shepherd.isAcceptableImageFile(file.getName())) {
+                        file.setThumbnailUrl("/" + getThumbnailFile(baseDir, file.getName()));
+                    } else if (Shepherd.isAcceptableGpsFile(file.getName())) {
+                        file.setThumbnailUrl("images/map-icon.png");
+                    } else if (Shepherd.isAcceptableVideoFile(file.getName())) {
+                        file.setThumbnailUrl("images/video_thumb.jpg");
+                    }
+
+                    //
+                    // Shell out the other stuff to a thread. The asynchronous nature
+                    // of this may make it so that thumbnails are not actually created
+                    // yet by the time the user gets the results back from this servlet.
+                    // If so, they will get a broken link image.
+                    //
                     new Thread(new SaveMedia(context,
                                              id,
-                                             rootDir,
-                                             baseDir,
+                                             fullBaseDir,
                                              file)).start();
                 }
             } catch (FileUploadException ex) {
@@ -459,19 +450,16 @@ public class MediaUploadServlet
     {
         private final String context;
         private final int id;
-        private final File rootDir;
         private final File baseDir;
         private final FileMeta file;
 
         public SaveMedia(final String context,
                          final int id,
-                         final File rootDir,
                          final File baseDir,
                          final FileMeta file)
         {
             this.context = context;
             this.id = id;
-            this.rootDir = rootDir;
             this.baseDir = baseDir;
             this.file = file;
         }
@@ -482,12 +470,7 @@ public class MediaUploadServlet
                 logger.debug(LogBuilder.quickLog("Saving media", id));
             }
 
-            File fullBaseDir = new File(rootDir, baseDir.getPath());
-            fullBaseDir.mkdirs();
-
-            File fullPath = new File(fullBaseDir, file.getName());
-
-            file.setUrl("/" + new File(baseDir.getPath(), file.getName()));
+            File fullPath = new File(baseDir, file.getName());
 
             CommonConfiguration.getDataDirectoryName(context);
             try {
@@ -500,12 +483,10 @@ public class MediaUploadServlet
                 // Make Thumbnail
                 //
                 if (Shepherd.isAcceptableImageFile(file.getName())) {
-                    File thumbDir = new File(fullBaseDir, "thumb");
+                    File thumbDir = getThumbnailDir(baseDir);
                     thumbDir.mkdirs();
 
-                    file.setThumbnailUrl("/" + getThumbnailFile(baseDir, file.getName()));
-
-                    File thumbPath = new File(thumbDir, file.getName());
+                    File thumbFile = new File(thumbDir, file.getName());
 
                     ImageProcessor iproc;
                     iproc = new ImageProcessor(context,
@@ -513,12 +494,10 @@ public class MediaUploadServlet
                                                100,
                                                75,
                                                fullPath.getAbsolutePath(),
-                                               thumbPath.getAbsolutePath(),
+                                               thumbFile.getAbsolutePath(),
                                                null);
                     iproc.run();
-                }
-
-                if (file.getName().indexOf(".kmz") > -1) {
+                } else if (Shepherd.isAcceptableGpsFile(file.getName())) {
                     GeoFileProcessor gproc;
                     gproc = new GeoFileProcessor(fullPath.getAbsolutePath());
                     gproc.run();

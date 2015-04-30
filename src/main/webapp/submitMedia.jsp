@@ -22,7 +22,7 @@
 }
 
 #ui-datepicker-div { 
-	z-index: 100 !important;
+    z-index: 100 !important;
 }
 
 
@@ -191,7 +191,9 @@
                     <!-- The global progress state -->
                     <div class="col-lg-4 fade" data-ng-class="{in: active()}">
                         <!-- The global progress bar -->
-                        <div class="progress progress-striped active" data-file-upload-progress="progress()"><div class="progress-bar progress-bar-success" data-ng-style="{width: num + '%'}"></div></div>
+                        <div class="progress progress-striped active" data-file-upload-progress="progress()">
+                            <div class="progress-bar progress-bar-success" data-ng-style="{width: num + '%'}"></div>
+                        </div>
                         <!-- The extended global progress state -->
                         <div class="progress-extended">&nbsp;</div>
                     </div>
@@ -203,15 +205,19 @@
                         <tr data-ng-repeat="file in queue" data-ng-class="{'processing': file.$processing()}">
                             <td data-ng-switch data-on="!!file.thumbnailUrl">
                                 <div class="preview" data-ng-switch-when="true">
-                                    <a data-ng-href="{{file.url}}" title="{{file.name}}" download="{{file.name}}" data-gallery><img data-ng-src="{{file.thumbnailUrl}}" alt=""></a>
+                                    <a data-ng-href="{{file.url}}" title="{{file.name}}" download="{{file.name}}" data-gallery>
+                                        <img data-ng-src="{{file.thumbnailUrl}}" alt="" ng-style="{'max-height': '60px'}">
+                                    </a>
                                 </div>
                                 <div class="preview" data-ng-switch-default data-file-upload-preview="file"></div>
                             </td>
                             <td>
                                 <p class="name" data-ng-switch data-on="!!file.url">
                                     <span data-ng-switch-when="true" data-ng-switch data-on="!!file.thumbnailUrl">
-                                        <a data-ng-switch-when="true" data-ng-href="{{file.url}}" title="{{file.name}}" download="{{file.name}}" data-gallery>{{file.name}}</a>
-                                        <a data-ng-switch-default data-ng-href="{{file.url}}" title="{{file.name}}" download="{{file.name}}">{{file.name}}</a>
+                                        <a data-ng-switch-when="true" data-ng-href="{{file.url}}" title="{{file.name}}"
+                                           download="{{file.name}}" data-gallery>{{file.name}}</a>
+                                        <a data-ng-switch-default data-ng-href="{{file.url}}" title="{{file.name}}"
+                                           download="{{file.name}}">{{file.name}}</a>
                                     </span>
                                     <span data-ng-switch-default>{{file.name}}</span>
                                 </p>
@@ -219,18 +225,25 @@
                             </td>
                             <td>
                                 <p class="size">{{file.size | formatFileSize}}</p>
-                                <div class="progress progress-striped active fade" data-ng-class="{pending: 'in'}[file.$state()]" data-file-upload-progress="file.$progress()"><div class="progress-bar progress-bar-success" data-ng-style="{width: num + '%'}"></div></div>
+                                <div class="progress progress-striped active fade" data-ng-class="{pending: 'in'}[file.$state()]"
+                                     data-file-upload-progress="file.$progress()">
+                                    <div class="progress-bar progress-bar-success" data-ng-style="{width: num + '%'}"></div>
+                                </div>
                             </td>
                             <td>
-                                <button type="button" class="btn btn-primary start" data-ng-click="file.$submit()" data-ng-hide="!file.$submit || options.autoUpload" data-ng-disabled="file.$state() == 'pending' || file.$state() == 'rejected'">
+                                <button type="button" class="btn btn-primary start" data-ng-click="file.$submit()"
+                                        data-ng-hide="!file.$submit || options.autoUpload"
+                                        data-ng-disabled="file.$state() == 'pending' || file.$state() == 'rejected'">
                                     <i class="glyphicon glyphicon-upload"></i>
                                     <span>Start</span>
                                 </button>
-                                <button type="button" class="btn btn-warning cancel" data-ng-click="file.$cancel()" data-ng-hide="!file.$cancel">
+                                <button type="button" class="btn btn-warning cancel" data-ng-click="file.$cancel()"
+                                        data-ng-hide="!file.$cancel">
                                     <i class="glyphicon glyphicon-ban-circle"></i>
                                     <span>Cancel</span>
                                 </button>
-                                <button data-ng-controller="FileDestroyController" type="button" class="btn btn-danger destroy" data-ng-click="file.$destroy()" data-ng-hide="!file.$destroy">
+                                <button data-ng-controller="FileDestroyController" type="button" class="btn btn-danger destroy"
+                                        data-ng-click="file.$destroy()" data-ng-hide="!file.$destroy">
                                     <i class="glyphicon glyphicon-trash"></i>
                                     <span>Delete</span>
                                 </button>
@@ -306,8 +319,8 @@
     </div>
 </div>
 <div id="MediaSubmissionThankYou" class="hidden">
-	<h1>Thank You!</h1>
-	<p>We have received your data and will begin analyzing it. We will periodically report back results. Be sure to check you email in a few minutes for a link back to your data where you can check our lastest conclusions.</p>
+    <h1>Thank You!</h1>
+    <p>We have received your data and will begin analyzing it. We will periodically report back results. Be sure to check your email in a few minutes for a link back to your data where you can check our lastest conclusions.</p>
 </div>
 
 <script src="javascript/submitMedia.js"></script>

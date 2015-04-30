@@ -159,7 +159,7 @@ var submitMedia = (function () {
                     // come from the server. So this is a janky, but I hope effective,
                     // way of knowing whether or not all files have been uploaded.
                     //
-                    if (!this.thumbnailUrl) {
+                    if (this.thumbnailUrl === undefined) {
                         allUploaded = false;
                     }
                 });
@@ -269,8 +269,6 @@ var submitMedia = (function () {
         }
     ]);
 
-    var url = "mediaupload";
-
     wizard.config(['$httpProvider',
          'fileUploadProvider',
          function ($httpProvider, fileUploadProvider) {
@@ -287,7 +285,7 @@ var submitMedia = (function () {
                 disableImageResize: /Android(?!.*Chrome)|Opera/
                     .test(window.navigator.userAgent),
                 maxFileSize: 5000000,
-                acceptFileTypes: /(\.|\/)(gif|jpe?g|png|kmz|kml)$/i
+                acceptFileTypes: /(\.|\/)(gif|jpe?g|png|kmz|kml|gpx|avi|mpg|mp4|mov|wmv|flv)$/i
                 //
                 // This does work to control the area in which files are allowed
                 // to be dropped to land in the control, but then if you drop it outside
@@ -303,10 +301,10 @@ var submitMedia = (function () {
         ['$scope', '$http', '$filter', '$window',
          function ($scope, $http) {
             $scope.options = {
-                url: url
+                url: "mediaupload"
             };
             $scope.loadingFiles = true;
-            $http.get(url)
+            $http.get("mediaupload")
             .then(function (response) {
                     $scope.loadingFiles = false;
                     $scope.queue = response.data.files || [];
