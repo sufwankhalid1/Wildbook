@@ -19,17 +19,38 @@
 
 package org.ecocean;
 
-import org.ecocean.grid.ScanTask;
-import org.ecocean.grid.ScanWorkItem;
-import org.ecocean.servlet.ServletUtilities;
-import org.ecocean.genetics.*;
-import org.ecocean.social .*;
-import org.ecocean.security.Collaboration;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.TreeMap;
+import java.util.Vector;
 
-import javax.jdo.*;
+import javax.jdo.Extent;
+import javax.jdo.JDOException;
+import javax.jdo.JDOFatalUserException;
+import javax.jdo.JDOUserException;
+import javax.jdo.PersistenceManager;
+import javax.jdo.Query;
 import javax.servlet.http.HttpServletRequest;
 
-import java.util.*;
+import org.ecocean.genetics.BiologicalMeasurement;
+import org.ecocean.genetics.GeneticAnalysis;
+import org.ecocean.genetics.Locus;
+import org.ecocean.genetics.MicrosatelliteMarkersAnalysis;
+import org.ecocean.genetics.MitochondrialDNAAnalysis;
+import org.ecocean.genetics.SexAnalysis;
+import org.ecocean.genetics.TissueSample;
+import org.ecocean.grid.ScanTask;
+import org.ecocean.grid.ScanWorkItem;
+import org.ecocean.security.Collaboration;
+import org.ecocean.servlet.ServletUtilities;
+import org.ecocean.social.Relationship;
+import org.ecocean.social.SocialUnit;
 
 /**
  * <code>Shepherd</code>	is the main	information	retrieval, processing, and persistence class to	be used	for	all	shepherd project applications.
@@ -73,7 +94,7 @@ public class Shepherd {
       localContext=context;
       try {
         pm = ShepherdPMF.getPMF(localContext).getPersistenceManager();
-      } 
+      }
       catch (JDOUserException e) {
         System.out.println("Hit an excpetion while trying to instantiate a PM. Not fatal I think.");
         e.printStackTrace();
@@ -300,9 +321,9 @@ public class Shepherd {
     }
     return tempEnc;
   }
-  
-  
-  
+
+
+
   public Relationship getRelationship(String type, String indie1,String indie2) {
     Relationship tempRel = null;
     String filter = "this.type == \""+type+"\" && this.markedIndividualName1 == \""+indie1+"\" && this.markedIndividualName2 == \""+indie2+"\"";
@@ -325,8 +346,8 @@ public class Shepherd {
     acceptedEncounters.closeAll();
     return null;
   }
-  
-  
+
+
   public Relationship getRelationship(String type, String indie1,String indie2, String indieRole1, String indieRole2) {
     String filter = "this.type == \""+type+"\" && this.markedIndividualName1 == \""+indie1+"\" && this.markedIndividualName2 == \""+indie2+"\" && this.markedIndividualRole1 == \""+indieRole1+"\" && this.markedIndividualRole2 == \""+indieRole2+"\"";
     Extent encClass = pm.getExtent(Relationship.class, true);
@@ -348,7 +369,7 @@ public class Shepherd {
     acceptedEncounters.closeAll();
     return null;
   }
-  
+
   public Relationship getRelationship(String type, String indie1,String indie2, String indieRole1, String indieRole2, String relatedCommunityName) {
     String filter = "this.type == \""+type+"\" && this.markedIndividualName1 == \""+indie1+"\" && this.markedIndividualName2 == \""+indie2+"\" && this.markedIndividualRole1 == \""+indieRole1+"\" && this.markedIndividualRole2 == \""+indieRole2+"\" && this.relatedSocialUnitName == \""+relatedCommunityName+"\"";
     Extent encClass = pm.getExtent(Relationship.class, true);
@@ -370,13 +391,13 @@ public class Shepherd {
     acceptedEncounters.closeAll();
     return null;
   }
-  
-  
+
+
   public SocialUnit getCommunity(String name) {
     SocialUnit tempCom = null;
     try {
       tempCom = ((SocialUnit) (pm.getObjectById(pm.newObjectIdInstance(SocialUnit.class, name.trim()), true)));
-    } 
+    }
     catch (Exception nsoe) {
       return null;
     }
@@ -398,7 +419,7 @@ public class Shepherd {
     ArrayList<Role> roles = getAllRoles();
     int numRoles=roles.size();
     for(int i=0;i<numRoles;i++) {
-      Role kw = (Role) roles.get(i);
+      Role kw = roles.get(i);
       if((kw.getRolename().equals(rolename))&&(kw.getUsername().equals(username))&&(kw.getContext().equals(context))){
         return kw;
         }
@@ -418,7 +439,7 @@ public class Shepherd {
     acceptedEncounters.closeAll();
     return roles;
   }
-  
+
   public ArrayList<Role> getAllRolesForUser(String username) {
     String filter = "this.username == '" + username + "'";
     Extent encClass = pm.getExtent(Role.class, true);
@@ -439,7 +460,7 @@ public class Shepherd {
     if(size>0){return true;}
     return false;
   }
-  
+
   public boolean doesUserHaveAnyRoleInContext(String username, String context) {
     String filter = "this.username == '" + username + "' && this.context == '"+context+"'";
     Extent encClass = pm.getExtent(Role.class, true);
@@ -589,7 +610,7 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
       Encounter tempEnc = getEncounter(num.trim());
       Encounter transmitEnc = null;
       try {
-        transmitEnc = (Encounter) pm.detachCopy(tempEnc);
+        transmitEnc = pm.detachCopy(tempEnc);
       } catch (Exception e) {
       }
       return transmitEnc;
@@ -603,7 +624,7 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
       Adoption tempEnc = getAdoption(num.trim());
       Adoption transmitEnc = null;
       try {
-        transmitEnc = (Adoption) pm.detachCopy(tempEnc);
+        transmitEnc = pm.detachCopy(tempEnc);
       } catch (Exception e) {
       }
       return transmitEnc;
@@ -615,10 +636,10 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
 
   public Keyword getKeywordDeepCopy(String name) {
     if (isKeyword(name)) {
-      Keyword tempWord = ((Keyword) (getKeyword(name.trim())));
+      Keyword tempWord = ((getKeyword(name.trim())));
       Keyword transmitWord = null;
       try {
-        transmitWord = (Keyword) (pm.detachCopy(tempWord));
+        transmitWord = (pm.detachCopy(tempWord));
       } catch (Exception e) {
       }
       return transmitWord;
@@ -681,20 +702,20 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
     }
     return true;
   }
-  
-  
+
+
   public boolean isCommunity(String comName) {
     try {
       pm.getObjectById(pm.newObjectIdInstance(SocialUnit.class, comName.trim()), true);
-    } 
+    }
     catch (Exception nsoe) {
       return false;
     }
     return true;
   }
-  
-  
-  
+
+
+
 
   public boolean isTissueSample(String sampleID, String encounterNumber) {
     String filter = "this.sampleID == \""+sampleID+"\" && this.correspondingEncounterNumber == \""+encounterNumber+"\"";
@@ -845,10 +866,10 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
     }
     return true;
   }
-  
+
   public boolean isRelationship(String type, String markedIndividualName1, String markedIndividualName2, String markedIndividualRole1, String markedIndividualRole2, boolean checkBidirectional) {
     try {
-    
+
       if(getRelationship(type, markedIndividualName1,markedIndividualName2, markedIndividualRole1, markedIndividualRole2)!=null){
         return true;
       }
@@ -856,20 +877,20 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
       if(checkBidirectional && (getRelationship(type, markedIndividualName2,markedIndividualName1, markedIndividualRole2, markedIndividualRole1)!=null)){
         return true;
       }
-    
-    } 
+
+    }
     catch (Exception nsoe) {
       return false;
     }
     return false;
   }
-  
-  
-  
-  
+
+
+
+
   public boolean isRelationship(String type, String markedIndividualName1, String markedIndividualName2, String markedIndividualRole1, String markedIndividualRole2, String relatedCommunityName, boolean checkBidirectional) {
     try {
-    
+
       if(getRelationship(type, markedIndividualName1,markedIndividualName2, markedIndividualRole1, markedIndividualRole2, relatedCommunityName)!=null){
         return true;
       }
@@ -877,8 +898,8 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
       if(checkBidirectional && (getRelationship(type, markedIndividualName2,markedIndividualName1, markedIndividualRole2, markedIndividualRole1, relatedCommunityName)!=null)){
         return true;
       }
-    
-    } 
+
+    }
     catch (Exception nsoe) {
       return false;
     }
@@ -1522,7 +1543,7 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
         Collections.sort( as , cmp);
         Collections.reverse(as);
       }
-      
+
       query.closeAll();
       return as;
   }
@@ -1535,7 +1556,7 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
     Collection c = (Collection) (samples.execute());
     return (new ArrayList<TissueSample>(c));
   }
-  
+
   public ArrayList<TissueSample> getAllTissueSamplesForMarkedIndividual(MarkedIndividual indy) {
     ArrayList<TissueSample> al = new ArrayList<TissueSample>();
     if(indy.getEncounters()!=null){
@@ -1553,7 +1574,7 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
     }
     return null;
   }
-  
+
 
   public ArrayList<SinglePhotoVideo> getAllSinglePhotoVideosForEncounter(String encNum) {
 /*
@@ -1568,7 +1589,7 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
 		List<SinglePhotoVideo> imgs = enc.getImages();
 		return (new ArrayList<SinglePhotoVideo>(imgs));
   }
-  
+
   public int getNumSinglePhotoVideosForEncounter(String encNum) {
 	    String filter = "correspondingEncounterNumber == \""+encNum+"\"";
 	    Extent encClass = pm.getExtent(SinglePhotoVideo.class, true);
@@ -1826,7 +1847,7 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
     q.closeAll();
     return num;
   }
-  
+
   public int getNumUsers() {
     int num = 0;
     Query q = pm.newQuery(User.class); // no filter, so all instances match
@@ -2113,10 +2134,10 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
         pm.currentTransaction().begin();
       }
 
-    } 
+    }
     catch (JDOUserException jdoe) {
       jdoe.printStackTrace();
-    } 
+    }
     catch (NullPointerException npe) {
       npe.printStackTrace();
     }
@@ -2239,14 +2260,14 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
       }
       users.closeAll();
       return list;
-    } 
+    }
     catch (Exception npe) {
       //System.out.println("Error encountered when trying to execute Shepherd.getAllUsers. Returning a null collection because I didn't have a transaction to use.");
       npe.printStackTrace();
       return null;
     }
   }
-  
+
   public String getAllUserEmailAddressesForLocationID(String locationID, String context){
     String addresses="";
     ArrayList<User> users = getAllUsers();
@@ -2332,10 +2353,10 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
     int numEncs=encList.size();
     //while (it.hasNext()) {
     while((count<=endNum)&&(encIter<numEncs)){
-      
-      String nextCatalogNumber=encList.get(encIter);	
+
+      String nextCatalogNumber=encList.get(encIter);
       int numImages=getNumSinglePhotoVideosForEncounter(nextCatalogNumber);
-      
+
 
       if ((count + numImages) >= startNum) {
     	  Encounter enc = myShepherd.getEncounter(nextCatalogNumber);
@@ -2346,7 +2367,7 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
             String m_thumb = "";
 
             //check for video or image
-            String imageName = (String) images.get(i).getFilename();
+            String imageName = images.get(i).getFilename();
 
             //check if this image has one of the assigned keywords
             boolean hasKeyword = false;
@@ -2424,7 +2445,7 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
               String m_thumb = "";
 
               //check for video or image
-              String imageName = (String) images.get(i).getFilename();
+              String imageName = images.get(i).getFilename();
 
               //check if this image has one of the assigned keywords
               boolean hasKeyword = false;
@@ -2498,7 +2519,7 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
         //String m_thumb="";
 
         //check for video or image
-        String imageName = (String) enc.getAdditionalImageNames().get(i);
+        String imageName = enc.getAdditionalImageNames().get(i);
 
         //check if this image has one of the assigned keywords
         boolean hasKeyword = false;
@@ -2553,7 +2574,7 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
           //String m_thumb="";
 
           //check for video or image
-          String imageName = (String) enc.getAdditionalImageNames().get(i);
+          String imageName = enc.getAdditionalImageNames().get(i);
 
           //check if this image has one of the assigned keywords
           boolean hasKeyword = false;
@@ -2610,7 +2631,7 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
         count++;
 
         //check for video or image
-        String addTextFile = (String) enc.getAdditionalImageNames().get(i);
+        String addTextFile = enc.getAdditionalImageNames().get(i);
         if ((!isAcceptableImageFile(addTextFile)) && (!isAcceptableVideoFile(addTextFile))) {
           count--;
         }
@@ -2619,7 +2640,7 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
     return count;
   }
 
-    static public boolean isAcceptableImageFile(String fileName)
+    public static boolean isAcceptableImageFile(String fileName)
     {
         String lower = fileName.toLowerCase();
         if ((lower.indexOf(".jpg") != -1)
@@ -2633,12 +2654,26 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
         return false;
     }
 
-  public boolean isAcceptableVideoFile(String fileName) {
-    if ((fileName.toLowerCase().indexOf(".mov") != -1) || (fileName.toLowerCase().indexOf(".avi") != -1) || (fileName.toLowerCase().indexOf("mpg") != -1) || (fileName.toLowerCase().indexOf(".wmv") != -1) || (fileName.toLowerCase().indexOf(".mp4") != -1)|| (fileName.toLowerCase().indexOf(".flv") != -1)) {
-      return true;
+    public static boolean isAcceptableVideoFile(String fileName) {
+        if ((fileName.toLowerCase().indexOf(".mov") != -1)
+             || (fileName.toLowerCase().indexOf(".avi") != -1)
+             || (fileName.toLowerCase().indexOf("mpg") != -1)
+             || (fileName.toLowerCase().indexOf(".wmv") != -1)
+             || (fileName.toLowerCase().indexOf(".mp4") != -1)
+             || (fileName.toLowerCase().indexOf(".flv") != -1)) {
+            return true;
+        }
+        return false;
     }
-    return false;
-  }
+
+    public static boolean isAcceptableGpsFile(String fileName) {
+        if ((fileName.toLowerCase().indexOf(".kmz") != -1)
+             || (fileName.toLowerCase().indexOf(".kml") != -1)
+             || (fileName.toLowerCase().indexOf(".gpx") != -1)) {
+            return true;
+        }
+        return false;
+    }
 
 
   public Adoption getRandomAdoption() {
@@ -2673,7 +2708,7 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
     acceptedEncounters.closeAll();
     return al;
   }
-  
+
   /**
    * Provides a case-insensitive way to retrieve a MarkedIndividual. It returns the first instance of such it finds.
    * @param myID The individual ID to return in any case.
@@ -2712,7 +2747,7 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
 
   //get earliest sighting year for setting search parameters
   public int getEarliestSightingYear() {
-    
+
     try{
       Query q = pm.newQuery("SELECT min(year) FROM org.ecocean.Encounter where year > 0");
       int value=((Integer) q.execute()).intValue();
@@ -2721,7 +2756,7 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
     }
     catch(Exception e){return -1;}
   }
-  
+
   public int getFirstSubmissionYear() {
     //System.out.println("Starting getFirstSubmissionYear");
     try{
@@ -2748,7 +2783,7 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
   }
 
   public int getLastMonthOfSightingYear(int yearHere) {
-    try{  
+    try{
       Query q = pm.newQuery("SELECT max(month) FROM org.ecocean.Encounter WHERE this.year == " + yearHere);
       int value=((Integer) q.execute()).intValue();
       q.closeAll();
@@ -2826,17 +2861,17 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
     q.closeAll();
     return al;
   }
-  
+
   public ArrayList<String> getAllSocialUnitNames() {
     ArrayList<String> comNames=new ArrayList<String>();
     Query q = pm.newQuery(Relationship.class);
     try{
-      
+
       q.setResult("distinct relatedSocialUnitName");
       q.setOrdering("relatedSocialUnitName ascending");
       Collection results = (Collection) q.execute();
       comNames=new ArrayList<String>(results);
-      
+
     }
     catch(Exception e){}
     q.closeAll();
@@ -2965,12 +3000,12 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
           if(!indies.contains(indie)){indies.add(indie);}
         }
       }
-      
+
     }
     acceptedEncounters.closeAll();
     return indies;
   }
-  
+
   public ArrayList<Relationship> getAllRelationshipsForMarkedIndividual(String indieName){
     Extent encClass = pm.getExtent(Relationship.class, true);
     String filter2use = "this.markedIndividualName1 == \""+indieName+"\" || this.markedIndividualName2 == \""+indieName+"\"";
@@ -2981,10 +3016,10 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
     query.closeAll();
     return listy;
   }
-  
+
   public ArrayList<String> getAllSocialUnitsForMarkedIndividual(String indieName){
     Extent encClass = pm.getExtent(Relationship.class, true);
-    
+
     String filter2use = "this.markedIndividualName1 == \""+indieName+"\" || this.markedIndividualName2 == \""+indieName+"\"";
     Query query = pm.newQuery(encClass, filter2use);
     query.setResult("distinct relatedSocialUnitName");
@@ -2995,14 +3030,14 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
     query.closeAll();
     return listy;
   }
-  
+
   public ArrayList<String> getAllRoleNamesForMarkedIndividual(String indieName){
     ArrayList<String> roles=new ArrayList<String>();
-    
+
     ArrayList<Relationship> rels=getAllRelationshipsForMarkedIndividual(indieName);
     int numRels=rels.size();
     for(int i=0;i<numRels;i++){
-      
+
       Relationship rel=rels.get(i);
       if((rel.getMarkedIndividualName1().equals(indieName))&&(rel.getMarkedIndividualRole1()!=null)&&(!roles.contains(rel.getMarkedIndividualRole1()))){
         roles.add(rel.getMarkedIndividualRole1());
@@ -3010,12 +3045,12 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
       if((rel.getMarkedIndividualName2().equals(indieName))&&(rel.getMarkedIndividualRole2()!=null)&&(!roles.contains(rel.getMarkedIndividualRole2()))){
         roles.add(rel.getMarkedIndividualRole2());
       }
-      
+
     }
-    
+
     return roles;
   }
-  
+
   public ArrayList<Relationship> getAllRelationshipsForCommunity(String commName){
     //ArrayList<Relationship> relies=new ArrayList<Relationship>();
     Extent encClass = pm.getExtent(Relationship.class, true);
@@ -3026,15 +3061,15 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
     acceptedEncounters.closeAll();
     return listy;
   }
-  
+
   public int getNumCooccurrencesBetweenTwoMarkedIndividual(String individualID1,String individualID2){
     int numCooccur=0;
-    
+
     ArrayList<String> occurenceIDs1=getOccurrenceIDsForMarkedIndividual(individualID1);
     //System.out.println("zzzOccurrences for indie "+individualID1+": "+occurenceIDs1.toString());
     ArrayList<String> occurenceIDs2=getOccurrenceIDsForMarkedIndividual(individualID2);
     //System.out.println("zzzOccurrences for indie "+individualID2+": "+occurenceIDs2.toString());
-    
+
     int numOccurenceIDs1=occurenceIDs1.size();
     if((numOccurenceIDs1>0)&&(occurenceIDs2.size()>0)){
       //System.out.println(numOccurenceIDs1+":"+occurenceIDs2.size());
@@ -3048,14 +3083,14 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
     }
     return numCooccur;
   }
-  
+
   public ArrayList<String> getOccurrenceIDsForMarkedIndividual(String individualID){
     ArrayList<String> occurrenceIDs=new ArrayList<String>();
-    
+
    String filter="SELECT distinct occurrenceID FROM org.ecocean.Occurrence WHERE encounters.contains(enc) && enc.individualID == \""+individualID+"\"  VARIABLES org.ecocean.Encounter enc";
-    
+
     Query q = pm.newQuery (filter);
-    
+
     Collection results = (Collection) q.execute();
     ArrayList al=new ArrayList(results);
     q.closeAll();
@@ -3064,9 +3099,9 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
     //System.out.println("zzzOccurrences for "+individualID+": "+occurrenceIDs.toString());
     return occurrenceIDs;
   }
-  
 
-  
+
+
   public Measurement getMeasurementOfTypeForEncounter(String type, String encNum) {
     String filter = "type == \""+type+"\" && correspondingEncounterNumber == \""+encNum+"\"";
     Extent encClass = pm.getExtent(Measurement.class, true);
@@ -3075,7 +3110,7 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
     if((c!=null)&&(c.size()>0)){return (new ArrayList<Measurement>(c)).get(0);}
     else{return null;}
   }
-  
+
   public ArrayList<Measurement> getMeasurementsForEncounter(String encNum) {
     String filter = "correspondingEncounterNumber == \""+encNum+"\"";
     Extent encClass = pm.getExtent(Measurement.class, true);
@@ -3084,7 +3119,7 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
     if((c!=null)&&(c.size()>0)){return (new ArrayList<Measurement>(c));}
     else{return null;}
   }
-  
+
   public Iterator<ScanTask> getAllScanTasksForUser(String user) {
     String filter = "submitter == \""+user+"\"";
     Extent encClass = pm.getExtent(ScanTask.class, true);
@@ -3094,7 +3129,7 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
     else{return null;}
   }
 
-  
+
 
 } //end Shepherd class
 

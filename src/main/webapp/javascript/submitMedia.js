@@ -285,7 +285,7 @@ var submitMedia = (function () {
                 disableImageResize: /Android(?!.*Chrome)|Opera/
                     .test(window.navigator.userAgent),
                 maxFileSize: 5000000,
-                acceptFileTypes: /(\.|\/)(gif|jpe?g|png|kmz|kml|avi|mpg|mp4|mov)$/i
+                acceptFileTypes: /(\.|\/)(gif|jpe?g|png|kmz|kml|gpx|avi|mpg|mp4|mov|wmv|flv)$/i
                 //
                 // This does work to control the area in which files are allowed
                 // to be dropped to land in the control, but then if you drop it outside

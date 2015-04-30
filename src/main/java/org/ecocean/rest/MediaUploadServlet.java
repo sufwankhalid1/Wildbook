@@ -306,8 +306,13 @@ public class MediaUploadServlet
                     }
 
                     file.setUrl("/" + new File(baseDir, file.getName()));
+
                     if (Shepherd.isAcceptableImageFile(file.getName())) {
                         file.setThumbnailUrl("/" + getThumbnailFile(baseDir, file.getName()));
+                    } else if (Shepherd.isAcceptableGpsFile(file.getName())) {
+                        file.setThumbnailUrl("images/map-icon.png");
+                    } else if (Shepherd.isAcceptableVideoFile(file.getName())) {
+                        file.setThumbnailUrl("images/video_thumb.jpg");
                     }
 
                     //
@@ -492,9 +497,7 @@ public class MediaUploadServlet
                                                thumbFile.getAbsolutePath(),
                                                null);
                     iproc.run();
-                }
-
-                if (file.getName().indexOf(".kmz") > -1) {
+                } else if (Shepherd.isAcceptableGpsFile(file.getName())) {
                     GeoFileProcessor gproc;
                     gproc = new GeoFileProcessor(fullPath.getAbsolutePath());
                     gproc.run();
