@@ -269,8 +269,6 @@ var submitMedia = (function () {
         }
     ]);
 
-    var url = "mediaupload";
-
     wizard.config(['$httpProvider',
          'fileUploadProvider',
          function ($httpProvider, fileUploadProvider) {
@@ -303,10 +301,10 @@ var submitMedia = (function () {
         ['$scope', '$http', '$filter', '$window',
          function ($scope, $http) {
             $scope.options = {
-                url: url
+                url: "mediaupload"
             };
             $scope.loadingFiles = true;
-            $http.get(url)
+            $http.get("mediaupload")
             .then(function (response) {
                     $scope.loadingFiles = false;
                     $scope.queue = response.data.files || [];

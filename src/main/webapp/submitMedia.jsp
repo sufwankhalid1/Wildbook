@@ -22,7 +22,7 @@
 }
 
 #ui-datepicker-div { 
-	z-index: 100 !important;
+    z-index: 100 !important;
 }
 
 
@@ -191,7 +191,9 @@
                     <!-- The global progress state -->
                     <div class="col-lg-4 fade" data-ng-class="{in: active()}">
                         <!-- The global progress bar -->
-                        <div class="progress progress-striped active" data-file-upload-progress="progress()"><div class="progress-bar progress-bar-success" data-ng-style="{width: num + '%'}"></div></div>
+                        <div class="progress progress-striped active" data-file-upload-progress="progress()">
+                            <div class="progress-bar progress-bar-success" data-ng-style="{width: num + '%'}"></div>
+                        </div>
                         <!-- The extended global progress state -->
                         <div class="progress-extended">&nbsp;</div>
                     </div>
@@ -306,8 +308,8 @@
     </div>
 </div>
 <div id="MediaSubmissionThankYou" class="hidden">
-	<h1>Thank You!</h1>
-	<p>We have received your data and will begin analyzing it. We will periodically report back results. Be sure to check you email in a few minutes for a link back to your data where you can check our lastest conclusions.</p>
+    <h1>Thank You!</h1>
+    <p>We have received your data and will begin analyzing it. We will periodically report back results. Be sure to check your email in a few minutes for a link back to your data where you can check our lastest conclusions.</p>
 </div>
 
 <script src="javascript/submitMedia.js"></script>
