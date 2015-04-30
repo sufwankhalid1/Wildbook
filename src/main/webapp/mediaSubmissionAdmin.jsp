@@ -1238,8 +1238,8 @@ function createEncounter() {
 
 	//always do these
 	delete(encounter.attributes.sex);  //temporary hack cuz of my testing environment permissions
-	encounter.set('approved', true);
-	encounter.set('state', 'approved');
+	encounter.set('approved', false);
+	encounter.set('state', 'unapproved');
 
 	var indivURL = false;
 	if (encounter.get('individualID')) {
