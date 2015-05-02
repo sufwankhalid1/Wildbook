@@ -543,6 +543,7 @@ if(CommonConfiguration.showProperty("showCountry",context)){
 <%
 }  //end if showCountry
 
+if(context.equals("context0")){
 %>
 
 <tr class="form_row"><td colspan="2">
@@ -559,6 +560,9 @@ if(CommonConfiguration.showProperty("showCountry",context)){
     </p>
 </td>
 </tr>
+<%
+}
+%>
 
 <tr class="form_row">
 		<td class="form_label1"><strong><%=props.getProperty("submit_gpslatitude")%>:</strong></td>
