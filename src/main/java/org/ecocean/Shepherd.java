@@ -1489,6 +1489,22 @@ public class Shepherd {
       query.closeAll();
       return occur;
     }
+    query.closeAll();
+    return null;
+  }
+  
+  public User getUserByEmailAddress(String email){
+    String filter="SELECT FROM org.ecocean.User WHERE emailAddress == \""+email+"\"";
+    Query query=getPM().newQuery(filter);
+    Collection c = (Collection) (query.execute());
+    Iterator it = c.iterator();
+
+    while(it.hasNext()){
+      User myUser=(User)it.next();
+      query.closeAll();
+      return myUser;
+    }
+    query.closeAll();
     return null;
   }
 
@@ -1576,6 +1592,15 @@ public class Shepherd {
     samples.closeAll();
     return myArray;
   }
+  
+  public ArrayList<SinglePhotoVideo> getAllSinglePhotoVideosWithKeyword(Keyword word) {
+	  String keywordQueryString="SELECT FROM org.ecocean.SinglePhotoVideo WHERE keywords.contains(word0) && ( word0.indexname == \""+word.getIndexname()+"\" ) VARIABLES org.ecocean.Keyword word0";
+      Query samples = pm.newQuery(keywordQueryString);
+	  Collection c = (Collection) (samples.execute());
+	    ArrayList<SinglePhotoVideo> myArray=new ArrayList<SinglePhotoVideo>(c);
+	    samples.closeAll();
+	    return myArray;
+	  }
   
   public int getNumSinglePhotoVideosForEncounter(String encNum) {
 	    String filter = "correspondingEncounterNumber == \""+encNum+"\"";
