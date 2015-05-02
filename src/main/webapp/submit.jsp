@@ -560,9 +560,7 @@ if(context.equals("context0")){
     </p>
 </td>
 </tr>
-<%
-}
-%>
+
 
 <tr class="form_row">
 		<td class="form_label1"><strong><%=props.getProperty("submit_gpslatitude")%>:</strong></td>
@@ -583,8 +581,9 @@ if(context.equals("context0")){
 		</td>
 	</tr>
 	
-	
-	      <%
+	<%
+} //end if context=context0 for sevengill only
+
 
 
 
