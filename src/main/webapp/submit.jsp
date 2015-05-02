@@ -408,62 +408,10 @@ function FSControl(controlDiv, map) {
 </c:if>
 
 
-
-
-
 <tr class="form_row">
-  <td class="form_label"><strong><%=props.getProperty("submit_sex")%>:</strong></td>
-  <td colspan="2" class="form_label"><label> <input type="radio" name="sex"
-                                 value="male"/> <%=props.getProperty("submit_male")%>
-  </label> <label>
-    <input type="radio" name="sex" value="female"/> <%=props.getProperty("submit_female")%>
-  </label>
-
-    <label> <input name="sex" type="radio" value="unknown"
-                   checked="checked"/> <%=props.getProperty("submit_unknown")%>
-    </label></td>
-</tr>
-<%
-
-if(CommonConfiguration.showProperty("showTaxonomy",context)){
-
-%>
-<tr class="form_row">
-  <td class="form_label"><strong><%=props.getProperty("species")%>:</strong></td>
-  <td colspan="2">
-  <select name="genusSpecies" id="genusSpecies">
-  	<option value="" selected="selected"><%=props.getProperty("submit_unsure")%></option>
-  <%
-  			       boolean hasMoreTax=true;
-  			       int taxNum=0;
-  			       if(CommonConfiguration.showProperty("showTaxonomy",context)){
-  			       while(hasMoreTax){
-  			       	  String currentGenuSpecies = "genusSpecies"+taxNum;
-  			       	  if(CommonConfiguration.getProperty(currentGenuSpecies,context)!=null){
-  			       	  	%>
-  			       	  	 
-  			       	  	  <option value="<%=CommonConfiguration.getProperty(currentGenuSpecies,context)%>"><%=CommonConfiguration.getProperty(currentGenuSpecies,context).replaceAll("_"," ")%></option>
-  			       	  	<%
-  			       		taxNum++;
-  			          }
-  			          else{
-  			             hasMoreTax=false;
-  			          }
-  			          
-			       }
-			       }
- %>
-  </select></td>
-</tr>
-<%
-}
-//test comment
-%>
-
-<tr class="form_row">
-  <td class="form_label" rowspan="5"><strong><font
-    color="#CC0000"><%=props.getProperty("submit_location")%>:</font></strong></td>
-  <td colspan="2"><input name="location" type="text" id="location" size="40"/></td>
+  <td class="form_label"><strong><font
+    color="#CC0000"><%=props.getProperty("submit_location")%></font></strong></td>
+  <td ><input name="location" type="text" id="location" size="40"/></td>
 </tr>
 <%
 //add locationID to fields selectable
@@ -546,7 +494,8 @@ if(CommonConfiguration.showProperty("showCountry",context)){
 if(context.equals("context0")){
 %>
 
-<tr class="form_row"><td colspan="2">
+<tr class="form_row">
+<td>
     <p id="map">
     
     <!--  
@@ -613,6 +562,58 @@ if(CommonConfiguration.showProperty("maximumElevationInMeters",context)){
 <%
 }
 %>
+
+
+<tr class="form_row">
+  <td class="form_label"><strong><%=props.getProperty("submit_sex")%>:</strong></td>
+  <td colspan="2" class="form_label"><label> <input type="radio" name="sex"
+                                 value="male"/> <%=props.getProperty("submit_male")%>
+  </label> <label>
+    <input type="radio" name="sex" value="female"/> <%=props.getProperty("submit_female")%>
+  </label>
+
+    <label> <input name="sex" type="radio" value="unknown"
+                   checked="checked"/> <%=props.getProperty("submit_unknown")%>
+    </label></td>
+</tr>
+<%
+
+if(CommonConfiguration.showProperty("showTaxonomy",context)){
+
+%>
+<tr class="form_row">
+  <td class="form_label"><strong><%=props.getProperty("species")%>:</strong></td>
+  <td colspan="2">
+  <select name="genusSpecies" id="genusSpecies">
+  	<option value="" selected="selected"><%=props.getProperty("submit_unsure")%></option>
+  <%
+  			       boolean hasMoreTax=true;
+  			       int taxNum=0;
+  			       if(CommonConfiguration.showProperty("showTaxonomy",context)){
+  			       while(hasMoreTax){
+  			       	  String currentGenuSpecies = "genusSpecies"+taxNum;
+  			       	  if(CommonConfiguration.getProperty(currentGenuSpecies,context)!=null){
+  			       	  	%>
+  			       	  	 
+  			       	  	  <option value="<%=CommonConfiguration.getProperty(currentGenuSpecies,context)%>"><%=CommonConfiguration.getProperty(currentGenuSpecies,context).replaceAll("_"," ")%></option>
+  			       	  	<%
+  			       		taxNum++;
+  			          }
+  			          else{
+  			             hasMoreTax=false;
+  			          }
+  			          
+			       }
+			       }
+ %>
+  </select></td>
+</tr>
+<%
+}
+//test comment
+%>
+
+
 
 <tr class="form_row">
   <td class="form_label"><strong><%=props.getProperty("status") %></strong></td>

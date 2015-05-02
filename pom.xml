@@ -360,6 +360,13 @@
     </dependency>
 
     <!-- END QR code generating dependencies -->
+	
+	<dependency>
+	<groupId>com.amazonaws</groupId>
+	<artifactId>aws-java-sdk-ec2</artifactId>
+	<version>1.9.13</version>
+</dependency>
+	
 
   </dependencies>
 
