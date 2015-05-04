@@ -580,33 +580,75 @@ if(CommonConfiguration.showProperty("showTaxonomy",context)){
 
 %>
 <tr class="form_row">
-  <td class="form_label"><strong><%=props.getProperty("species")%>:</strong></td>
+  <td class="form_label"><strong><%=props.getProperty("species")%></strong></td>
   <td >
   <select name="genusSpecies" id="genusSpecies">
   	<option value="" selected="selected"><%=props.getProperty("submit_unsure")%></option>
   <%
-  			       boolean hasMoreTax=true;
-  			       int taxNum=0;
-  			       if(CommonConfiguration.showProperty("showTaxonomy",context)){
-  			       while(hasMoreTax){
+  			       String currentOptGroup="";
+  				   boolean hasMoreTax=true;
+  			       int taxNum=0;			       
+  			       
+			       while(hasMoreTax){
+  			        	
+  			        	String optGroupString="";
+  				       String endOptGroupString="";
   			       	  String currentGenuSpecies = "genusSpecies"+taxNum;
+  			       	String currentGenuSpeciesOptGroup = "genusSpeciesOptGroup"+taxNum;
   			       	  if(CommonConfiguration.getProperty(currentGenuSpecies,context)!=null){
-  			       	  	%>
-  			       	  	 
-  			       	  	  <option value="<%=CommonConfiguration.getProperty(currentGenuSpecies,context)%>"><%=CommonConfiguration.getProperty(currentGenuSpecies,context).replaceAll("_"," ")%></option>
-  			       	  	<%
+  			       		  
+  			       	  	String commonName=CommonConfiguration.getProperty(currentGenuSpecies,context);
+  			       		String currentGenuSpeciesCommonName = "genusSpeciesCommonName"+taxNum;
+  			       		if(CommonConfiguration.getProperty(currentGenuSpeciesCommonName,context)!=null){
+  			       			commonName=CommonConfiguration.getProperty(currentGenuSpeciesCommonName,context);
+  			       		}
+  			       		
+
+			       		
+  			       		
+  			       		if(CommonConfiguration.getProperty(currentGenuSpeciesOptGroup,context)!=null){
+  			       			
+  			       			if(!currentOptGroup.equals(CommonConfiguration.getProperty(currentGenuSpeciesOptGroup,context))){
+  			       				if(currentOptGroup.equals("")){
+  			       					optGroupString="<optgroup label=\""+CommonConfiguration.getProperty(currentGenuSpeciesOptGroup,context)+"\">";
+  			       					currentOptGroup=CommonConfiguration.getProperty(currentGenuSpeciesOptGroup,context);
+  			       				
+  			       				}
+  			       				else if(!currentOptGroup.equals(CommonConfiguration.getProperty(currentGenuSpeciesOptGroup,context))){
+  			       					System.out.println("    !!!!@@@@Switch optGroup to: "+CommonConfiguration.getProperty(currentGenuSpeciesOptGroup,context));
+  			       					optGroupString="<optgroup label=\""+CommonConfiguration.getProperty(currentGenuSpeciesOptGroup,context)+"\">";
+  			       					endOptGroupString="</optgroup>";
+  			       					currentOptGroup=CommonConfiguration.getProperty(currentGenuSpeciesOptGroup,context);
+  			       				}
+  			       				
+  			       			}
+  			       			
+  			       		}
+  			       	%>
+			       	  	<%=endOptGroupString %>
+			       	  	 <%=optGroupString %>
+			       	  	  <option value="<%=CommonConfiguration.getProperty(currentGenuSpecies,context)%>"><%=commonName.replaceAll("_"," ")%></option>
+			       	  		
+			       	  	<%
+  			       			
+  			       		}
+  			       	  else{hasMoreTax=false;}
+
+  			       	  	
   			       		taxNum++;
   			          }
-  			          else{
-  			             hasMoreTax=false;
-  			          }
-  			          
-			       }
-			       }
+
+  			  if(!currentOptGroup.equals("")){
+  				  %>
+  				  </optgroup>
+  				  <%
+  			  }
+			       
  %>
   </select></td>
 </tr>
 <%
+ 
 }
 //test comment
 %>
