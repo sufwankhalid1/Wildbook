@@ -344,7 +344,7 @@ var spotTypeNames = {
 	ref1: '1st gill (top or upper)',
 	ref2: 'Eye (Top)',
 	ref3: 'Nostril (lower corner)',
-	ref4: 'Mount (lower corner)',
+	ref4: 'Mouth (lower corner)',
 	spot: 'spot',
 };
 var side = false;
