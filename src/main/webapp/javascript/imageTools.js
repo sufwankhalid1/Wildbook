@@ -13,6 +13,8 @@ function ImageTools(opts) {
 	this.spots = [];
 	this.shiftDown = false;
 	this._lastTouch = [0,0];
+	
+	var spotScaleFactor=0.5;
 
 	this.activeSpotType = 'spot';
 
@@ -289,7 +291,7 @@ console.log('wscale = %f', wscale);
 
 console.log('%d -> (%d,%d)', i, xy[0], xy[1]);
 				this.lCtx.beginPath();
-				this.lCtx.arc(xy[0] * wscale, xy[1] * wscale, this.spotTolerance * wscale, 0, 2*Math.PI, false);
+				this.lCtx.arc(xy[0] * wscale, xy[1] * wscale, this.spotTolerance * wscale*spotScaleFactor, 0, 2*Math.PI, false);
 				//this.lCtx.arc(xy[0], xy[1], this.spotTolerance/3, 0, 2*Math.PI, false);
 				if (this.spots[i].type == 'spot') {
 					this.lCtx.fillStyle = this.styles.spotFill;

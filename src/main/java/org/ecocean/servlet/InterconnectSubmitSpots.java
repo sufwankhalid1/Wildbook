@@ -185,6 +185,7 @@ public class InterconnectSubmitSpots extends HttpServlet {
           out.println(ServletUtilities.getFooter(context));
           ok2add = false;
           myShepherd.rollbackDBTransaction();
+          response.sendError(response.SC_METHOD_NOT_ALLOWED);
 
         }
 
