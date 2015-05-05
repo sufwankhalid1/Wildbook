@@ -813,11 +813,20 @@ if(CommonConfiguration.showProperty("showLifestage",context)){
 </tr>
 </c:if>
 
+<%
+if(context.equals("context0")){
+%>
 <tr class="form_row">
   <td class="form_label"><strong><%=props.getProperty("submit_scars")%>:</strong></td>
   <td>
     <input name="scars" type="text" id="scars" size="75"/></td>
 </tr>
+
+<%
+}
+%>
+
+
 <tr class="form_row">
   <td class="form_label"><strong><%=props.getProperty("submit_comments")%>:</strong></td>
   <td><textarea name="comments" cols="40" id="comments"
