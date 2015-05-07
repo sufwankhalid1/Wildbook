@@ -1687,3 +1687,12 @@ div.state-approved span.state {
   text-align: center;
 }
 
+/* Added this because the font on the date picker title was white in all browsers except for Chrome on a Mac!
+   The bootstrap color: inherit, which should have been friendly to preserve the color was, in fact,
+   causing the color to be white */
+.ui-datepicker-month {
+    color: #000;
+}
+.ui-datepicker-year {
+    color: #000;
+}
