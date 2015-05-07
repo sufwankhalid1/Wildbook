@@ -153,8 +153,13 @@ console.log('is %o', ajax);
         var message;
         var details;
         if (ex.status === 500) {
-            message = ex.responseJSON.message;
-            details = ex.responseJSON.totalStackTrace;
+            if (ex.responseJSON) {
+                message = ex.responseJSON.message;
+                details = ex.responseJSON.totalStackTrace;
+            } else {
+                message = ex.message;
+                details = ex.totalStackTrace;
+            }
         } else {
             message = "Error " + ex.status + ": " + ex.statusText;
             details = null;
