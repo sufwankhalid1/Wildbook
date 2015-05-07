@@ -233,6 +233,9 @@ var submitMedia = (function () {
                         //
                         $scope.media.id = mediaid;
                     });
+                })
+                .fail(function(ex) {
+                    wildbook.showError(ex);
                 });
 
                 return jqXHR.promise();
@@ -243,6 +246,9 @@ var submitMedia = (function () {
                 .done(function(mediaid) {
                     $("#MediaSubmissionWizard").addClass("hidden");
                     $("#MediaSubmissionThankYou").removeClass("hidden");
+                })
+                .fail(function(ex) {
+                    wildbook.showError(ex);
                 });
 
                 return jqXHR.promise();
