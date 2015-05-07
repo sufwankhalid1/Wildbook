@@ -51,7 +51,16 @@
     		<img border="0" src="http://<%=CommonConfiguration.getURLLocation(request)%>/images/lib_bottom.gif" alt="Powered by Wildbook"/>
     	</a>
   </p>
+</div>
 
-
+<div id="alertdialog" style="display: none;">
+    <div>
+        <pre id="alertmessage"></pre>
+    </div>
+    <br/>
+    <button id="detailsbutton">Details &gt;&gt;</button>
+    <div id="detailscontainer" style="display: none;">
+        <pre id="detailscontent"></pre>
+    </div>
 </div>
 <!-- end footer -->

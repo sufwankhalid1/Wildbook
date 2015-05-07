@@ -147,8 +147,6 @@ console.log('is %o', ajax);
         classInit('Base', function() { wildbook.loadAllClasses(callback); });  //define base class first - rest can happen any order
     },
 
-    errorDialog: false,
-
     showError: function(ex) {
         var message;
         var details;
@@ -168,30 +166,12 @@ console.log('is %o', ajax);
     },
 
     showAlert: function(message, details) {
-        var dialog;
-        if (! this.errorDialog) {
-            dialog = $('<div id="alertdialog" style="display: none;">')
-            .append (
-                '<div style="overflow-y:auto;">' +
-                '<pre id="alertmessage"></pre></div>' +
-                '<br/>' +
-                '<button id="detailsbutton">Details &gt;&gt;</button>' +
-                '<div id="detailscontainer" style="width: 100%; height: 400px; overflow: auto; display: none;">' +
-                '<pre id="detailscontent"></pre>' +
-                '</div>'
-            );
-
-            this.errorDialog = true;
-        } else {
-            dialog = $("#alertdialog");
-        }
-
         //
         //   Positioning at top so that when the details are clicked we can
         //   expand the form to show the whole details without it going off
         //   the screen and the user having to move the form with the mouse.
         //
-        dialog.dialog( {
+        $("#alertdialog").dialog( {
             autoOpen: true,
             //dialogClass: "alertdialog",
             modal: true,
