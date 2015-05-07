@@ -143,16 +143,21 @@ margin-bottom: 8px !important;
     var ne_lat_element = document.getElementById('lat');
     var ne_long_element = document.getElementById('longitude');
 
-
+<%
+if(context.equals("context1")){
+%>
     ne_lat_element.value = "";
     ne_long_element.value = "";
+<%
+}
+%>
 
   }
 
 </script>
 
 
-<body onload="resetMap()" onunload="resetMap()">
+<body>
 <div id="wrapper">
 <div id="page">
 <jsp:include page="header.jsp" flush="true">
@@ -489,7 +494,7 @@ if(CommonConfiguration.showProperty("showCountry",context)){
 <%
 }  //end if showCountry
 
-if(context.equals("context0")){
+if(!context.equals("context1")){
 %>
 
 <tr class="form_row">
@@ -958,11 +963,26 @@ function updateList(inp) {
 
 
 <p>&nbsp;</p>
-<%if (request.getRemoteUser() != null) {%> <input name="submitterID"
-                                                  type="hidden"
-                                                  value="<%=request.getRemoteUser()%>"/> <%} else {%>
-<input
-  name="submitterID" type="hidden" value="N/A"/> <%}%>
+<%if (request.getRemoteUser() != null) {%> 
+
+	<input name="submitterID" type="hidden" value="<%=request.getRemoteUser()%>" /> 
+	
+<%} 
+else {%>
+	<input name="submitterID" type="hidden" value="N/A" /> 
+<%
+}
+%>
+
+<%
+if(context.equals("context1")){
+%>
+	<input name="lat" id="lat" value="32.78" type="hidden"></input>
+	<input name="longitude" id="longitude" value="-117.285" type="hidden"></input>
+<%
+}
+%>
+	
 <p align="center"><input type="submit" name="Submit" value="<%=props.getProperty("submit_send")%>"/>
 </p>
 
