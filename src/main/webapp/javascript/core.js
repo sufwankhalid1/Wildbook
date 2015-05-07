@@ -159,7 +159,7 @@ console.log('is %o', ajax);
             message = "Error " + ex.status + ": " + ex.statusText;
             details = null;
         }
-        showAlert(message, details);
+        this.showAlert(message, details);
     },
 
     showAlert: function(message, details) {
