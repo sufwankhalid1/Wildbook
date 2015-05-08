@@ -44,15 +44,38 @@ var submitMedia = (function () {
     // someone does choose the current date at midnight then this will be a problem.
     // Let's hope they don't?
     //
-    function isNullDate(dateString) {
+    function toTime(theDate) {
+        if (! theDate) {
+            return null;
+        }
+
+        if (theDate instanceof Date) {
+            return theDate.getTime();
+        }
+
+        //
+        // Otherwise assume string.
+        //
+        // First check to see that this isn't the "null" date defined above.
+        //
         var date = new Date();
         var year = date.getFullYear();
         var month = (1 + date.getMonth()).toString();
         month = month.length > 1 ? month : '0' + month;
         var day = date.getDate().toString();
         day = day.length > 1 ? day : '0' + day;
-        return (year + '-' + month + '-' + day + ' 00:00' === dateString);
-      }
+        if (year + '-' + month + '-' + day + ' 00:00' !== theDate) {
+            return null;
+        }
+
+        //
+        // WARNING: Firefox barfs when creating a date from "2012-10-25 08:57"!
+        //          But, changing dashes to slashes seems to work for both Chrome
+        //          and Firefox. There have been some suggestions of spaces instead
+        //          which I will try if we find some browser not working with slashes.
+        //
+        return new Date(theDate.replace(/-/g, '/')).getTime();
+    }
 
     var wizard = angular.module('MediaSubmissionWizard',
                                 ['rcWizard', 'rcForm', 'rcDisabledBootstrap', 'ui.date', 'blueimp.fileupload']);
@@ -108,16 +131,20 @@ var submitMedia = (function () {
                 // the long we use here.
                 //
                 var ms = $.extend({}, media);
-                if (ms.endTime && ! isNullDate(ms.endTime)) {
-                    ms.endTime = new Date(ms.endTime).getTime();
-                } else {
-                    ms.endTime = null;
+
+                var endTime = toTime(ms.endTime);
+                if (isNaN(endTime)) {
+                    wildbook.showAlert("End Time [" + ms.endTime + "] is not a valid time.");
+                    return $.Deferred().reject();
                 }
-                if (ms.startTime && ! isNullDate(ms.startTime)) {
-                    ms.startTime = new Date(ms.startTime).getTime();
-                } else {
-                    ms.startTime = null;
+                ms.endTime = endTime;
+
+                var startTime = toTime(ms.startTime);
+                if (isNaN(startTime)) {
+                    wildbook.showAlert("Start Time [" + ms.endTime + "] is not a valid time.");
+                    return $.Deferred().reject();
                 }
+                ms.startTime = startTime;
 
                 return $.post("obj/mediasubmission/" + method, ms)
                  .fail(function(ex) {
@@ -233,6 +260,9 @@ var submitMedia = (function () {
                         //
                         $scope.media.id = mediaid;
                     });
+                })
+                .fail(function(ex) {
+                    wildbook.showError(ex);
                 });
 
                 return jqXHR.promise();
@@ -243,6 +273,9 @@ var submitMedia = (function () {
                 .done(function(mediaid) {
                     $("#MediaSubmissionWizard").addClass("hidden");
                     $("#MediaSubmissionThankYou").removeClass("hidden");
+                })
+                .fail(function(ex) {
+                    wildbook.showError(ex);
                 });
 
                 return jqXHR.promise();

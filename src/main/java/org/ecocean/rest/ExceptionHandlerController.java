@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -21,7 +22,7 @@ public class ExceptionHandlerController {
 //        ModelAndView mav = new ModelAndView(DEFAULT_ERROR_VIEW);
 //
 //        ex.printStackTrace();
-//        
+//
 //        mav.addObject("datetime", new Date());
 //        mav.addObject("exception", ex);
 //        mav.addObject("url", request.getRequestURL());
@@ -32,13 +33,23 @@ public class ExceptionHandlerController {
 //    void handleBadRequests(HttpServletResponse response) throws IOException {
 //        response.sendError(HttpStatus.BAD_REQUEST.value());
 //    }
-    
+
     @ExceptionHandler({Exception.class, RuntimeException.class})
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
-    public Exception handleException5(Exception ex, HttpServletResponse response) throws IOException
+    public ErrorInfo handleException5(Exception ex, HttpServletResponse response) throws IOException
     {
         ex.printStackTrace();
-        return ex;
+        ErrorInfo info = new ErrorInfo();
+        info.message = ex.getMessage();
+        info.totalStackTrace = ExceptionUtils.getFullStackTrace(ex);
+        return info;
+    }
+
+
+    static class ErrorInfo
+    {
+        public String message;
+        public String totalStackTrace;
     }
 }
