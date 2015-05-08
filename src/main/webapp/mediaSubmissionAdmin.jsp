@@ -1,4 +1,20 @@
 <jsp:include page="headerfull.jsp" flush="true"/>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<%@ page contentType="text/html; charset=utf-8" language="java"
+         import="
+org.ecocean.CommonConfiguration,
+org.ecocean.servlet.ServletUtilities,
+java.util.ArrayList
+"%>
+
+<%
+
+String context = "context0";
+context = ServletUtilities.getContext(request);
+
+%>
 
 <xlink rel="stylesheet" href="tools/jquery-ui/jquery-ui.css" id="theme">
 
@@ -1174,7 +1190,7 @@ function updateSelectedUI(ev, ui) {
 	if (inSurveys > 0) $('#button-survey').attr('disabled', 'disabled');
 
 	for (var i = 0 ; i < selMed.length ; i++) {
-		if (selMed[i]._tags.indexOf('ident') > -1) $('#button-auto-id').attr('disabled', 'disabled');
+		if (selMed[i]._tags && (selMed[i]._tags.indexOf('ident') > -1)) $('#button-auto-id').attr('disabled', 'disabled');
 	}
 }
 
@@ -1228,13 +1244,25 @@ function createEncounter() {
 	$('#enc-create-button').hide();
 	var eid = wildbook.uuid();
 	encounter = new wildbook.Model.Encounter({catalogNumber: eid});
-	var props = ['submitterID', 'submitterEmail', 'submitterName', 'verbatimLocality', 'individualID', 'dateInMilliseconds', 'decimalLatitude', 'decimalLongitude', 'genus', 'specificEpithet'];
+	var props = ['submitterID', 'submitterEmail', 'submitterName', 'verbatimLocality', 'individualID', 'dateInMilliseconds', 'decimalLatitude', 'decimalLongitude'];
 	for (var i in props) {
 		var val = $('#enc-' + props[i]).val();
 		if (val == '') val = null;
 		if ((i == 5) && (val == null)) val = 0;
 		if (val != null) encounter.set(props[i], val);
 	}
+
+	var gsval = $('#enc-genspec-other').val();
+	if (!gsval) gsval = $('#enc-genspec').val();
+	var genus = gsval;
+	var specificEpithet = '';
+	var sp = gsval.indexOf(' ');
+	if (sp > -1) {
+		genus = gsval.substring(0,sp);
+		specificEpithet = gsval.substring(sp+1);
+	}
+	encounter.set('genus', genus);
+	encounter.set('specificEpithet', specificEpithet);
 
 	//always do these
 	delete(encounter.attributes.sex);  //temporary hack cuz of my testing environment permissions
@@ -1271,6 +1299,7 @@ console.info('date? %o', d);
 	}
 	encounter.set('images', iarr);
 console.log(iarr);
+console.log(encounter);
 
 	encounter.save({}, {
 		error: function(a,b,c) { msError('error saving new encounter', a,b,c); },
@@ -1318,12 +1347,24 @@ function createOccurrence() {
 
 	$('#occ-create-button').hide();
 	var occ = new wildbook.Model.Occurrence();
-	var props = ['occurrenceID', 'genus', 'specificEpithet'];
+	var props = ['occurrenceID'];
 	for (var i in props) {
 		var val = $('#occ-' + props[i]).val();
 		if (val == '') val = null;
 		occ.set(props[i], val);
 	}
+
+	var gsval = $('#occ-genspec-other').val();
+	if (!gsval) gsval = $('#occ-genspec').val();
+	var genus = gsval;
+	var specificEpithet = '';
+	var sp = gsval.indexOf(' ');
+	if (sp > -1) {
+		genus = gsval.substring(0,sp);
+		specificEpithet = gsval.substring(sp+1);
+	}
+	occ.set('genus', genus);
+	occ.set('specificEpithet', specificEpithet);
 
 	var iarr = [];
 	for (var i = 0 ; i < imgs.length ; i++) {
@@ -2114,13 +2155,32 @@ $('#enc-dateInMilliseconds-human').change(function() {
 	<h1>Encounter to create</h1>
 	<div id="encounter-info"></div>
 
+<%
+
+	String genspec = "<input id=\"enc-genspec\" />";
+	ArrayList<String> gs = CommonConfiguration.getSequentialPropertyValues("genusSpecies",context);
+	if (gs.size() > 0) {
+		genspec = "<select id=\"enc-genspec\" /><option value=\"unknown unknown\">choose</option>";
+		for (int i = 0 ; i < gs.size() ; i++) {
+			String gsVal = gs.get(i);
+			String gsShow = gsVal;
+			int cloc = gsVal.indexOf(", ");
+			if (cloc > -1) {
+				gsVal = gsVal.substring(0, cloc);
+			}
+			genspec += "<option value=\"" + gsVal + "\">" + gsShow + "</option>";
+		}
+		genspec += "</select><input id=\"enc-genspec-other\" placeholder=\"other\" />";
+	}
+
+%>
 	<div id="enc-form">
 		<div><label for="enc-submitterID">Submitter User</label><input placeholder="username/login" id="enc-submitterID" /></div>
 		<div><label for="enc-submitterName">Submitter Name</label><input id="enc-submitterName" /></div>
 		<div><label for="enc-submitterEmail">Submitter Email</label><input id="enc-submitterEmail" /></div>
 		<div><label for="enc-verbatimLocality">Verbatim Location</label><input id="enc-verbatimLocality" /></div>
 		<div><label for="enc-individualID">Individual ID</label><input id="enc-individualID" /></div>
-		<div><label for="enc-genus">Genus / Specific Epithet</label><input id="enc-genus" /> <input id="enc-specificEpithet" /></div>
+		<div><label for="enc-genus">Genus / Specific Epithet</label><%=genspec%></div>
 		<div><label for="enc-dateInMilliseconds-human">(start) date/time</label><input id="enc-dateInMilliseconds-human" /> <input id="enc-dateInMilliseconds" disabled="disabled" /></div>
 		<div><label for="enc-decimalLatitude">Latitude</label><input id="enc-decimalLatitude" />
 		&nbsp; <label for="enc-decimalLongitude">Longitude</label><input id="enc-decimalLongitude" /></div>
@@ -2134,6 +2194,22 @@ $('#enc-dateInMilliseconds-human').change(function() {
 
 </div>
 
+<%
+	String genspecOcc = "<input id=\"occ-genspec\" />";
+	if (gs.size() > 0) {
+		genspecOcc = "<select id=\"occ-genspec\" /><option value=\"unknown unknown\">choose</option>";
+		for (int i = 0 ; i < gs.size() ; i++) {
+			String gsVal = gs.get(i);
+			String gsShow = gsVal;
+			int cloc = gsVal.indexOf(", ");
+			if (cloc > -1) {
+				gsVal = gsVal.substring(0, cloc);
+			}
+			genspecOcc += "<option value=\"" + gsVal + "\">" + gsShow + "</option>";
+		}
+		genspecOcc += "</select><input id=\"occ-genspec-other\" placeholder=\"other\" />";
+	}
+%>
 
 
 <div class="action-div" id="occurrence-div">
@@ -2142,7 +2218,7 @@ $('#enc-dateInMilliseconds-human').change(function() {
 
 	<div id="occ-form">
 		<div><label for="occ-occurrenceID">Name / ID</label><input id="occ-occurrenceID" /></div>
-		<div><label for="occ-genus">Genus / Specific Epithet</label><input id="occ-genus" /> <input id="occ-specificEpithet" /></div>
+		<div><label for="occ-genus">Genus / Specific Epithet</label><%=genspecOcc%></div>
 		<div><label for="occ-comments">Comment</label><textarea id="enc-comments">Created from MediaSubmission</textarea></div>
 	</div>
 
