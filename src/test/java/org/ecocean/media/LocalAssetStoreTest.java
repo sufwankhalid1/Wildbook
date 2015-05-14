@@ -1,7 +1,7 @@
 /*
  * This file is a part of Wildbook.
  * Copyright (C) 2015 WildMe
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -26,13 +26,44 @@ import java.net.*;
 import java.util.*;
 import java.nio.file.Path;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+/**
+ * LocalAssetStoreTest tests LocalAssetStore.
+ */
 public class LocalAssetStoreTest {
+    private static Logger log = LoggerFactory.getLogger(LocalAssetStoreTest.class);
+
     /** Subdir of resources dir that contains our test resource files. */
     private final static String TEST_DIR = "media";
     private final static String TEST_FILE = "test.txt";
     private final static String TEST_SUBPATH = TEST_DIR + File.separator + TEST_FILE;
 
+
+    /**
+     * Make sure webPath() works correctly.
+     */
+    @Test
+    public void checkWebPath() {
+        AssetStore las = new LocalAssetStore("test", rootPath(), webRoot(), true);
+
+        MediaAsset ma = las.create(testFilePath());
+        assertNotNull("Null MediaAsset", ma);
+
+        URL url = ma.webPath();
+        assertNotNull("Null URL", url);
+
+        assertEquals("Bad URL", "http://example.com/assets/media/test.txt", url.toString());
+
+        // now with more nulls!
+        las = new LocalAssetStore("test", rootPath(), null, true);
+
+        ma = las.create(testFilePath());
+        assertNotNull("Null MediaAsset", ma);
+        url = ma.webPath();
+        assertNull("Not null URL", url);
+    }
 
     /**
      * Make sure we can't pass a null path to checkPath().
@@ -95,13 +126,16 @@ public class LocalAssetStoreTest {
         }
     }
 
-
-    /** Return the path to the root resource directory. */
+    /**
+     * Return the path to the root resource directory.
+     */
     private Path rootPath() {
         return testFilePath().getParent().getParent();
     }
 
-    /** Return the path to a test file. */
+    /**
+     * Return the path to a test file.
+     */
     private Path testFilePath() {
         try {
             // need initial '/' to load from resource root dir
@@ -116,13 +150,15 @@ public class LocalAssetStoreTest {
         }
     }
 
-    // @Before
-    // public void setUp() {
-
-    // }
-
-    // @After
-    // public void tearDown() {
-
-    // }
+    /**
+     * Return an example web root url for testing.
+     */
+    private URL webRoot() {
+        try {
+            return new URL("http://example.com/assets/");
+        } catch (MalformedURLException e) {
+            log.warn("Can't construct test web root", e);
+            return null;
+        }
+    }
 }

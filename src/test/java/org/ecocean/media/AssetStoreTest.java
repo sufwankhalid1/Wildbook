@@ -31,35 +31,6 @@ import static org.junit.Assert.*;
  */
 public class AssetStoreTest {
 
-	@Test
-    public void testConfigToString() {
-        Map<String, Object> config = null;
-		assertEquals("Null config", "null", AssetStore.configString(config));
-
-        config = new HashMap<>();
-		assertEquals("Empty config", "{}", AssetStore.configString(config));
-        
-        config.put("root", "/tmp");
-		assertEquals("Simple config", "{\"root\":\"/tmp\"}", AssetStore.configString(config));
-    }
-
-	@Test
-    public void testConfigFromString() {
-        String string = null;
-		assertEquals("Null config", null, AssetStore.configObject(string));
-
-        string = "";
-		assertEquals("Null config", null, AssetStore.configObject(string));
-
-        string = "{}";
-        Map<String, Object> test = new HashMap<>();
-		assertEquals("Empty config", test, AssetStore.configObject(string));
-
-        string = "{\"root\":\"/tmp\"}";
-        test.put("root", "/tmp");
-        assertEquals("Simple config", test, AssetStore.configObject(string));
-    }
-
     @Test
     public void testSaveLoadDelete() {
         ConnectionInfo ci = ShepherdPMF.getConnectionInfo("Test");
@@ -78,7 +49,7 @@ public class AssetStoreTest {
             assertNull("Leftover store not deleted", store);
 
             // new from scratch
-            store = new AssetStore(name, AssetStoreType.LOCAL, null, true);
+            store = new LocalAssetStore(name, null, null, true);
             store.save(db);
             long id = store.getID();
             assertTrue("ID not set", id != AssetStore.NOT_SAVED);

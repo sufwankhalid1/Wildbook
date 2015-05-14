@@ -24,54 +24,65 @@ import java.nio.file.*;
 import java.lang.reflect.*;
 
 import com.samsix.database.*;
-import com.google.gson.*;
-import com.google.gson.reflect.*;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.ecocean.ShepherdPMF;
 
 /**
  * AssetStore describes a location and methods for access to a set of
- * MediaAssets.
+ * MediaAssets.  Concrete subtypes fill in the "hows".
+ *
+ * @see LocalAssetStore
  */
-public class AssetStore {
+public abstract class AssetStore {
+    private static Logger log = LoggerFactory.getLogger(AssetStore.class);
     private static final String TABLE_NAME = "assetstore";
     public static final long NOT_SAVED = -1;
     protected long id = NOT_SAVED;
     protected String name;
     protected AssetStoreType type = AssetStoreType.LOCAL;
-    protected Map<String, Object> config = new HashMap<>();
+    protected AssetStoreConfig config;
     protected boolean writable = true;
 
 
     /**
      * Create a new AssetStore.
      */
-    public AssetStore(String name,
-                      AssetStoreType type,
-                      Map<String, Object> config,
-                      boolean writable)
+    protected AssetStore(long id, String name,
+                         AssetStoreType type,
+                         AssetStoreConfig config,
+                         boolean writable)
     {
-        this(NOT_SAVED, name, type, config, writable);
-    }
-
-    /**
-     * Create a new AssetStore.  Used in load().
-     *
-     */
-    private AssetStore(long id,
-                       String name,
-                       AssetStoreType type,
-                       Map<String, Object> config,
-                       boolean writable)
-    {
-        if (name == null)   throw new IllegalArgumentException("null name");
-        if (type == null)   throw new IllegalArgumentException("null type");
+        if (name == null) throw new IllegalArgumentException("null name");
+        if (type == null) throw new IllegalArgumentException("null type");
 
         this.id = id;
         this.name = name;
         this.type = type;
         this.config = config;
         this.writable = writable;
+    }
+
+    /**
+     * Create a new AssetStore.  Used in load().
+     */
+    private static AssetStore buildAssetStore(long id,
+                                              String name,
+                                              AssetStoreType type,
+                                              AssetStoreConfig config,
+                                              boolean writable)
+    {
+        if (name == null) throw new IllegalArgumentException("null name");
+        if (type == null) throw new IllegalArgumentException("null type");
+
+        if (type == AssetStoreType.LOCAL) {
+            return new LocalAssetStore(id, name, config, writable);
+        } else {
+            log.error("Unhandled asset store type: " + type);
+            return null;
+        }
     }
 
     /**
@@ -84,10 +95,9 @@ public class AssetStore {
     // do stuff
     //
 
-    // TODO
-    public URL webPath(MediaAsset asset) { return null; }
+    public abstract URL webPath(MediaAsset asset);
 
-    //MediaAsset create(Path path);
+    public abstract MediaAsset create(Path path);
 
     //
     // store/load
@@ -136,11 +146,11 @@ public class AssetStore {
 
         RecordSet rs = table.getRecordSet(where.getWhereClause(), 1);
         if (rs.next()) {
-            return new AssetStore(rs.getLong("id"),
-                                  rs.getString("name"),
-                                  AssetStoreType.valueOf(rs.getString("type")),
-                                  configObject(rs.getString("config")),
-                                  rs.getBoolean("writable"));
+            return buildAssetStore(rs.getLong("id"),
+                                   rs.getString("name"),
+                                   AssetStoreType.valueOf(rs.getString("type")),
+                                   new AssetStoreConfig(rs.getString("config")),
+                                   rs.getBoolean("writable"));
         } else {
             return null;
         }
@@ -173,7 +183,7 @@ public class AssetStore {
     private void fillFormatter(SqlFormatter formatter) {
         formatter.append("name", name);
         formatter.append("type", type.name());
-        formatter.append("config", configString(config));
+        formatter.append("config", config.configString());
         formatter.append("writable", writable);
     }
 
@@ -186,21 +196,5 @@ public class AssetStore {
         Table table = db.getTable(TABLE_NAME);
 
         table.deleteRows("id = " + id);
-    }
-
-    /**
-     * Serialize our config object to a storable string.
-     */
-    public static String configString(Map<String, Object> config) {
-        return new Gson().toJson(config);
-    }
-
-    /**
-     * Deserialize a string into an object suitable for our config.
-     */
-    public static Map<String, Object> configObject(String configString) {
-        Type type = new TypeToken<Map<String, Object>>() {}.getType();
-
-        return new Gson().fromJson(configString, type);
     }
 }

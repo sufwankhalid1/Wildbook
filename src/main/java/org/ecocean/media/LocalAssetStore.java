@@ -18,30 +18,73 @@
 
 package org.ecocean.media;
 
-import java.net.URL;
+import java.net.*;
+import java.util.*;
 import java.lang.*;
-// import java.util.Set;
 import java.nio.file.Path;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-//import org.ecocean.*;
-
 /**
- * LocalAssetStore keeps MediaAssets on the current host's filesystem.
+ * LocalAssetStore references MediaAssets on the current host's filesystem.
  */
-public class LocalAssetStore implements AssetStore {
+public class LocalAssetStore extends AssetStore {
     private static Logger log = LoggerFactory.getLogger(LocalAssetStore.class);
-    private Path root;
+    private static final String KEY_ROOT = "root";
+    private static final String KEY_WEB_ROOT = "webroot";
 
 
     /**
-     * Create a new store based at the root.
+     * Create a new local filesystem asset store.
+     *
+     * @param name Friendly name for the store.
+     *
+     * @param root Filesystem path to the base of the asset directory.
+     * Must not be null.
+     *
+     * @param webRoot Base web url under which asset paths are
+     * appended.  If null, this store offers no web access to assets.
+     *
+     * @param wriable True if we are allowed to save files under the
+     * root.
      */
-    public LocalAssetStore(Path root) {
-        this.root = root;
+    public LocalAssetStore(String name, Path root,
+                           URL webRoot, boolean writable)
+    {
+        this(NOT_SAVED, name, makeConfig(root, webRoot), writable);
     }
+
+    /**
+     * Create a new local filesystem asset store.  Should only be used
+     * internal to AssetStore.buildAssetStore().
+     *
+     * @param root Filesystem path to the base of the asset directory.
+     * Must not be null.
+     *
+     * @param webRoot Base web url under which asset paths are
+     * appended.  If null, this store offers no web access to assets.
+     */
+    LocalAssetStore(long id, String name,
+                    AssetStoreConfig config, boolean writable)
+    {
+        super(id, name, AssetStoreType.LOCAL, config, writable);
+    }
+
+    /**
+     * Create our config map.
+     */
+    private static AssetStoreConfig makeConfig(Path root, URL webRoot) {
+        AssetStoreConfig config = new AssetStoreConfig();
+
+        if (root != null) config.put(KEY_ROOT, root);
+        if (webRoot != null) config.put(KEY_WEB_ROOT, webRoot);
+
+        return config;
+    }
+
+    private Path root() { return config.getPath(KEY_ROOT); }
+    private URL webRoot() { return config.getURL(KEY_WEB_ROOT); }
 
     /**
      * Create a new MediaAsset that points to an existing file under
@@ -49,10 +92,13 @@ public class LocalAssetStore implements AssetStore {
      *
      * @param path Relative or absolute path to a file.  Must be under
      * the asset store root.
+     *
+     * @return The MediaAsset, or null if the path is invalid (not
+     * under the asset root or nonexistent).
      */
     public MediaAsset create(Path path) {
         try {
-            return new MediaAsset(this, checkPath(root, path));
+            return new MediaAsset(this, checkPath(root(), path));
         } catch (IllegalArgumentException e) {
             log.warn("Bad path", e);
             return null;
@@ -76,5 +122,19 @@ public class LocalAssetStore implements AssetStore {
         return result;
     }
 
-    //MediaAsset importFrom(MediaAsset source);
+    /**
+     * Return a full URL to the given MediaAsset, or null if the asset
+     * is not web-accessible.
+     */
+    public URL webPath(MediaAsset asset) {
+        if (webRoot() == null) return null;
+        if (asset == null) return null;
+
+        try {
+            return new URL(webRoot(), asset.path.toString());
+        } catch (MalformedURLException e) {
+            log.warn("Can't construct web path", e);
+            return null;
+        }
+    }
 }
