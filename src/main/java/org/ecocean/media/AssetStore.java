@@ -1,7 +1,7 @@
 /*
  * This file is a part of Wildbook.
  * Copyright (C) 2015 WildMe
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -18,17 +18,189 @@
 
 package org.ecocean.media;
 
-// import java.net.URL;
-// import java.util.Set;
-// import java.nio.file.Path;
+import java.net.*;
+import java.util.*;
+import java.nio.file.*;
+import java.lang.reflect.*;
 
-//import org.ecocean.*;
+import com.samsix.database.*;
+import com.google.gson.*;
+import com.google.gson.reflect.*;
+
+import org.ecocean.ShepherdPMF;
 
 /**
  * AssetStore describes a location and methods for access to a set of
  * MediaAssets.
  */
-interface AssetStore {
-    
-    //MediaAsset importFrom(MediaAsset source);
+public class AssetStore {
+    private static final String TABLE_NAME = "assetstore";
+    public static final long NOT_SAVED = -1;
+    protected long id = NOT_SAVED;
+    protected String name;
+    protected AssetStoreType type = AssetStoreType.LOCAL;
+    protected Map<String, Object> config = new HashMap<>();
+    protected boolean writable = true;
+
+
+    /**
+     * Create a new AssetStore.
+     */
+    public AssetStore(String name,
+                      AssetStoreType type,
+                      Map<String, Object> config,
+                      boolean writable)
+    {
+        this(NOT_SAVED, name, type, config, writable);
+    }
+
+    /**
+     * Create a new AssetStore.  Used in load().
+     *
+     */
+    private AssetStore(long id,
+                       String name,
+                       AssetStoreType type,
+                       Map<String, Object> config,
+                       boolean writable)
+    {
+        if (name == null)   throw new IllegalArgumentException("null name");
+        if (type == null)   throw new IllegalArgumentException("null type");
+
+        this.id = id;
+        this.name = name;
+        this.type = type;
+        this.config = config;
+        this.writable = writable;
+    }
+
+    /**
+     * Return the store's internal (database) id.  Not really for
+     * public use.
+     */
+    long getID() { return id; }
+
+    //
+    // do stuff
+    //
+
+    // TODO
+    public URL webPath(MediaAsset asset) { return null; }
+
+    //MediaAsset create(Path path);
+
+    //
+    // store/load
+    //
+
+    /**
+     * Fetch a single store from the database by name.
+     */
+    public static AssetStore load(Database db, String name)
+        throws DatabaseException
+    {
+        if (name == null) throw new IllegalArgumentException("null name");
+
+        SqlWhereFormatter where = new SqlWhereFormatter();
+        where.append("name", name);
+
+        return load(db, where);
+    }
+
+    /**
+     * Fetch a single store from the database by id.
+     */
+    public static AssetStore load(Database db, long id)
+        throws DatabaseException
+    {
+        if (id < 1) throw new IllegalArgumentException("bad id");
+
+        SqlWhereFormatter where = new SqlWhereFormatter();
+        where.append("id", id);
+
+        return load(db, where);
+    }
+
+    /**
+     * Fetch a single store from the database.
+     */
+    public static AssetStore load(Database db, SqlWhereFormatter where)
+        throws DatabaseException
+    {
+        if (db == null)
+            throw new IllegalArgumentException("null database");
+        if (where == null)
+            throw new IllegalArgumentException("null where formatter");
+
+        Table table = db.getTable(TABLE_NAME);
+
+        RecordSet rs = table.getRecordSet(where.getWhereClause(), 1);
+        if (rs.next()) {
+            return new AssetStore(rs.getLong("id"),
+                                  rs.getString("name"),
+                                  AssetStoreType.valueOf(rs.getString("type")),
+                                  configObject(rs.getString("config")),
+                                  rs.getBoolean("writable"));
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Store to the given database.
+     */
+    public void save(Database db) throws DatabaseException {
+        Table table = db.getTable(TABLE_NAME);
+
+        if (id == NOT_SAVED) {
+            SqlInsertFormatter formatter = new SqlInsertFormatter();
+            fillFormatter(formatter);
+
+            id = (int)table.insertSequencedRow(formatter, "id");
+        } else {
+            SqlUpdateFormatter formatter = new SqlUpdateFormatter();
+            fillFormatter(formatter);
+
+            SqlWhereFormatter where = new SqlWhereFormatter();
+            where.append("id", id);
+            table.updateRow(formatter.getUpdateClause(), where.getWhereClause());
+        }
+    }
+
+    /**
+     * Fill in formatter values from our properties.
+     */
+    private void fillFormatter(SqlFormatter formatter) {
+        formatter.append("name", name);
+        formatter.append("type", type.name());
+        formatter.append("config", configString(config));
+        formatter.append("writable", writable);
+    }
+
+    /**
+     * Delete this store from the given database.
+     */
+    public void delete(Database db) throws DatabaseException {
+        if (id == NOT_SAVED) return;
+
+        Table table = db.getTable(TABLE_NAME);
+
+        table.deleteRows("id = " + id);
+    }
+
+    /**
+     * Serialize our config object to a storable string.
+     */
+    public static String configString(Map<String, Object> config) {
+        return new Gson().toJson(config);
+    }
+
+    /**
+     * Deserialize a string into an object suitable for our config.
+     */
+    public static Map<String, Object> configObject(String configString) {
+        Type type = new TypeToken<Map<String, Object>>() {}.getType();
+
+        return new Gson().fromJson(configString, type);
+    }
 }
