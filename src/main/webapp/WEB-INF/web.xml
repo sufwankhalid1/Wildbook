@@ -556,6 +556,10 @@
         <servlet-class>org.ecocean.servlet.export.EncounterSearchExportExcelFile</servlet-class>
   </servlet>
   
+	<servlet>
+		<servlet-name>ExportExcelFile</servlet-name>
+		<servlet-class>org.ecocean.servlet.export.ExportExcelFile</servlet-class>
+	</servlet>
   
   <servlet>
     <servlet-name>EncounterSetTapirLinkExposure</servlet-name>
@@ -1211,6 +1215,11 @@
       <servlet-mapping>
         <servlet-name>EncounterSearchExportExcelFile</servlet-name>
         <url-pattern>/EncounterSearchExportExcelFile</url-pattern>
+  </servlet-mapping>
+
+      <servlet-mapping>
+        <servlet-name>ExportExcelFile</servlet-name>
+        <url-pattern>/ExportExcelFile</url-pattern>
   </servlet-mapping>
   
     <servlet-mapping>
