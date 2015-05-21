@@ -561,6 +561,11 @@
 		<servlet-class>org.ecocean.servlet.export.ExportExcelFile</servlet-class>
 	</servlet>
   
+	<servlet>
+		<servlet-name>ExportExcelIndividualReport</servlet-name>
+		<servlet-class>org.ecocean.servlet.export.ExportExcelIndividualReport</servlet-class>
+	</servlet>
+
   <servlet>
     <servlet-name>EncounterSetTapirLinkExposure</servlet-name>
     <servlet-class>org.ecocean.servlet.EncounterSetTapirLinkExposure</servlet-class>
@@ -1220,6 +1225,11 @@
       <servlet-mapping>
         <servlet-name>ExportExcelFile</servlet-name>
         <url-pattern>/ExportExcelFile</url-pattern>
+  </servlet-mapping>
+
+      <servlet-mapping>
+        <servlet-name>ExportExcelIndividualReport</servlet-name>
+        <url-pattern>/ExportExcelIndividualReport</url-pattern>
   </servlet-mapping>
   
     <servlet-mapping>
