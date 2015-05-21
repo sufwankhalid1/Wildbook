@@ -1951,6 +1951,9 @@ public class Encounter implements java.io.Serializable {
         return false;
     }
 
+    public boolean hasMarkedIndividual() {
+        return !((individualID == null) || individualID.equals("None") || individualID.equals("Unassigned") || individualID.equals(""));
+    }
 
 	//convenience function to Collaboration permissions
 	public boolean canUserAccess(HttpServletRequest request) {
