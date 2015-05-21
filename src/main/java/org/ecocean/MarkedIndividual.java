@@ -1738,6 +1738,10 @@ public Float getMinDistanceBetweenTwoMarkedIndividuals(MarkedIndividual otherInd
 	}
 
 
+    public String getSightedForMonth(String m) {
+        return "1";
+    }
+
 
 	public void refreshDependentProperties(String context) {
 		this.refreshNumberEncounters();

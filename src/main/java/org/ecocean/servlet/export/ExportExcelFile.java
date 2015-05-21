@@ -88,16 +88,44 @@ public class ExportExcelFile extends HttpServlet{
         int col = 0;
         for (int i = 0 ; i < columns.length ; i++) {
             Method prop = null;
+            String[] args = null;
+            String mname = columns[i];
+            int a = mname.indexOf(":");
+            if (a > -1) {
+                args = mname.substring(a+1).split(":");
+                mname = mname.substring(0,a);
+            }
+            mname = "get" + mname.substring(0,1).toUpperCase() + mname.substring(1);
+
             try {
-                String mname = "get" + columns[i].substring(0,1).toUpperCase() + columns[i].substring(1);
-                prop = obj.getClass().getMethod(mname, null); //, new Class[] { HttpServletRequest.class, JSONObject.class });
+                if (args == null) {
+                    prop = obj.getClass().getMethod(mname);
+                } else {
+                    Class[] classes = new Class[args.length];
+                    for (int j = 0 ; j < args.length ; j++) {
+                        classes[j] = String.class;
+                    }
+                    prop = obj.getClass().getMethod(mname, classes);
+/*
+                } else {
+                    prop = obj.getClass().getMethod(mname, new Class[] { args.getClass() });
+*/
+                }
             } catch (NoSuchMethodException nsm) {
-System.out.println("no such method for column " + columns[i] + "?");
+System.out.println("no such method for column " + mname + " (" + columns[i] + ") ???");
                 continue;
             }
+System.out.println("using: " + mname);
             Object r = null;
             try {
-                r = prop.invoke(obj);
+                r = prop.invoke(obj, args);
+/*
+                if (args == null) {
+                    r = prop.invoke(obj, args);
+                } else {
+                    r = prop.invoke(obj, new Object[] {args});
+                }
+*/
             } catch (Exception ex) {
                 r = "Exception: " + ex.toString();
             }
