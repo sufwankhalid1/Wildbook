@@ -1752,6 +1752,17 @@ public Float getMinDistanceBetweenTwoMarkedIndividuals(MarkedIndividual otherInd
         return "0";
     }
 
+    public String getSexOrGuess() {
+        if ("male".equals(sex) || "female".equals(sex)) return sex;
+        Vector encs = this.getEncounters();
+        for (int i = 0 ; i < encs.size() ; i++) {
+            Encounter enc = (Encounter) encs.get(i);
+            String s = enc.getSex();
+            if ("male".equals(s) || "female".equals(s)) return s;
+        }
+        return "unknown";
+    }
+
 
 	public void refreshDependentProperties(String context) {
 		this.refreshNumberEncounters();
