@@ -1738,8 +1738,18 @@ public Float getMinDistanceBetweenTwoMarkedIndividuals(MarkedIndividual otherInd
 	}
 
 
-    public String getSightedForMonth(String m) {
-        return "1";
+    public String getSightedForMonth(String y, String m) {
+        int yint = 0;
+        int mint = 0;
+        try {
+            yint = Integer.parseInt(y);
+            mint = Integer.parseInt(m);
+        } catch (NumberFormatException nfe) {
+            System.out.println("could not parse ints from args: (" + y + ", " + m + ")");
+            return "?";
+        }
+        if (this.wasSightedInMonth(yint, mint)) return "1";
+        return "0";
     }
 
 

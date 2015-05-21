@@ -106,26 +106,14 @@ public class ExportExcelFile extends HttpServlet{
                         classes[j] = String.class;
                     }
                     prop = obj.getClass().getMethod(mname, classes);
-/*
-                } else {
-                    prop = obj.getClass().getMethod(mname, new Class[] { args.getClass() });
-*/
                 }
             } catch (NoSuchMethodException nsm) {
 System.out.println("no such method for column " + mname + " (" + columns[i] + ") ???");
                 continue;
             }
-System.out.println("using: " + mname);
             Object r = null;
             try {
                 r = prop.invoke(obj, args);
-/*
-                if (args == null) {
-                    r = prop.invoke(obj, args);
-                } else {
-                    r = prop.invoke(obj, new Object[] {args});
-                }
-*/
             } catch (Exception ex) {
                 r = "Exception: " + ex.toString();
             }
