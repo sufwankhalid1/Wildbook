@@ -18,13 +18,20 @@ context = ServletUtilities.getContext(request);
 
 <xlink rel="stylesheet" href="tools/jquery-ui/jquery-ui.css" id="theme">
 
-<xlink href="tools/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-<!-- Default fonts for jquery-ui are too big
+<link href="tools/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+
 <style>
+
+.pageableTable tr, .pageableTable td, .pageableTable {
+	border: solid 2px #AAA;
+}
+
+/*
 .ui-widget {
     font-size:90%;
+*/
 }
-</style> -->
+</style>
 
 <script> var googleApiKey = 'AIzaSyDz5Pgz2NCjFkss9AJwxqFjejPhxJrOj-M'; </script>
 
@@ -78,6 +85,19 @@ context = ServletUtilities.getContext(request);
 <style>
 body { font-family: arial }
 
+.glyphicon-eye-open {
+	color: #070;
+}
+.glyphicon-eye-close {
+	color: #F88;
+}
+
+.action-visibility {
+	font-size: 0.9em;
+	margin-right: 10px;
+	cursor: pointer;
+}
+
 .pageableTable-visible:hover td {
 	background-color: #FFA;
 }
@@ -86,7 +106,7 @@ body { font-family: arial }
 	z-index: 180;
 	position: absolute;
 	width: 400px;
-	right: 100px;
+	right: -100px;
 	top: 820px;
 	height: 400px;
 	border: solid 3px black;
@@ -273,12 +293,10 @@ body { font-family: arial }
 }
 
 #action-info {
-	display: inline-block;
 	text-align: center;
-	width: 100px;
+	xwidth: 100px;
 	font-size: 0.9em;
 	margin: 20px 10px 0 0;
-	float: left;
 	height: 40px;
 }
 
@@ -288,6 +306,38 @@ body { font-family: arial }
 
 #action-menu-div input {
 	margin-top: 10px;
+}
+
+.action-wrapper {
+	display: inline-block;
+}
+
+.action-checkbox-div {
+	position: relative;
+	display: inline-block;
+	padding: 3px 5px 3px 10px;
+	margin: 5px;
+	border-radius: 5px;
+}
+.action-checkbox-div:hover {
+	background-color: #DDF;
+}
+
+.action-checkbox-div label {
+	font-size: 0.9em;
+}
+
+.action-checkbox-div.disabled {
+	opacity: 0.4;
+}
+
+
+.checkbox-indeterminate {
+	position: absolute;
+	font-size: 1.5em;
+	top: 0.3em;
+	left: 0.8em;
+	pointer-events: none;
 }
 
 .enc-list {
@@ -399,6 +449,30 @@ body { font-family: arial }
 //TODO set these in commonConfiguration
 var cascIDUrl = 'http://splashcatalog.org/cascadia/BatchCompare?context=context3&';
 var cascBatchUrl = 'http://splashcatalog.org/cascadia/batchCompareDone.jsp?context=context3&';
+
+var imageActions = {
+	encounter: {
+		label: 'create encounter' ,
+	},
+	occurrence: {
+		label: 'create occurrence',
+	},
+	survey: {
+		label: 'add to / create survey',
+	},
+	trash: {
+		label: 'trash',
+	},
+	archive: {
+		label: 'archive',
+	},
+	'to-cascadia': {
+		label: 'to Cascadia',
+	},
+	ident: {
+		label: 'auto-ID',
+	}
+};
 
 var map = false;
 google.maps.event.addDomListener(window, 'load', gotMap);
@@ -578,6 +652,33 @@ function initTableMedia(med) {
 		tableEl: $('#media-results-table'),
 		columns: col,
 	});
+
+	tableMedia.opts.filterMethod = function(s) {
+console.warn('override filterMethod %s', s);
+		tableMedia._sortCache = [];
+		tableMedia._sortCacheRev = [];
+		if (s == undefined) s = '.';  //hack to match anything
+
+		var skipTags = [];
+		$('.glyphicon-eye-close').each(function(i,el) {
+			skipTags.push(el.id.substr(18));
+			if (el.id.substr(18) == 'to-cascadia') skipTags.push('cascadia-sent');
+		});
+
+console.warn('skipTags %o', skipTags);
+
+		tableMedia.matchesFilter = [];
+		var regex = new RegExp(s, 'i');
+		eachdata: for (var i = 0 ; i < tableMedia.opts.data.length ; i++) {
+			if ((skipTags.length > 0) && tableMedia.opts.data[i]._tags && (tableMedia.opts.data[i]._tags.length > 0)) {
+				for (var j = 0 ; j < tableMedia.opts.data[i]._tags.length ; j++) {
+					if (skipTags.indexOf(tableMedia.opts.data[i]._tags[j]) > -1) continue eachdata;
+				}
+			}
+			if (regex.test(tableMedia.searchValues[i])) tableMedia.matchesFilter.push(i);
+		}
+console.warn('matchesFilter %o', tableMedia.matchesFilter);
+	};
 
 	tableMedia.init();
 
@@ -980,6 +1081,17 @@ function browse(msID) {
 
 var displayAsTable = true;
 
+function msMode(mode) {
+	if (mode == 'table') {
+		displayAsTable = true;
+	} else {
+		displayAsTable = false;
+		$('#images-unused').show();
+	}
+	displayMS();
+}
+
+
 function displayMS() {
 	var d = new Date();
 	d.setTime(mediaSubmission.get('timeSubmitted'));
@@ -1109,8 +1221,14 @@ function displayMSTable() {
 
 	for (var i = 0 ; i < m.length ; i++) {
 		var mObj = new wildbook.Model.SinglePhotoVideo(m[i]);
+
+		m[i]._tags = getTags(m[i]);
+		if (!m[i]._tags) m[i]._tags = [];  //we may need this for "pseudo"-tags below
+
 		m[i]._encounters = encountersForImage(mObj.id);
+		if (m[i]._encounters) m[i]._tags.push('encounter');
 		m[i]._occurrences = occurrencesForImage(mObj.id);
+		if (m[i]._occurrences) m[i]._tags.push('occurrence');
 
 		var imgSrc = mObj.url();
 		var regex = new RegExp('\.(jpg|png|jpeg|gif)$', 'i');
@@ -1123,11 +1241,10 @@ function displayMSTable() {
 			m[i]._thumb = '<img class="tiny-thumb" src="' + imgSrc + '" />';
 		}
 
-		m[i]._tags = getTags(m[i]);
-
 		var st = inSurvey(m[i]);
 		if (st[0]) m[i]._survey = st[0];
 		if (st[1]) m[i]._surveyTrack = st[1];
+		if (st[0] || st[1]) m[i]._tags.push('survey');
 
 		var exif = mediaExif(mediaSubmission, mObj.id);
 		if (exif) {
@@ -1142,6 +1259,7 @@ function displayMSTable() {
 //console.warn('med! %o', m); return;
 	initTableMedia(m);
 
+	initUI();
 	updateSelectedUI();
 	$('#media-table').show();
 	$('#admin-div').hide();
@@ -1151,7 +1269,51 @@ function displayMSTable() {
 
 
 
+function initUI() {
+	var h = '';
+	for (var act in imageActions) {
+		h += '<div class="action-wrapper"><div class="action-checkbox-div" id="action-checkbox-div-' + act + '"><input type="checkbox" id="checkbox-' + act + '" /> <label for="checkbox-' + act + '">' + imageActions[act].label + '</label></div><i id="action-visibility-' + act + '" class="action-visibility glyphicon glyphicon-eye-open"></i></div>';
+	}
+/*
+	<input class="sel-act" type="button" value="create encounter" onClick="actionEncounter()" />
+	<input class="sel-act" type="button" value="create occurrence" onClick="actionOccurrence()" />
+	<input class="sel-act" id="button-survey" type="button" value="add to / create survey" onClick="actionSurvey()" />
+	<input class="sel-act" type="button" value="trash" onClick="actionTag('trash')" />
+	<input class="sel-act" type="button" value="archive" onClick="actionTag('archive')" />
+	<input class="sel-act" type="button" value="to Cascadia" onClick="actionTag('to-cascadia')" />
+	<input class="sel-act" id="button-auto-id" type="button" value="auto-ID" onClick="actionTag('ident')" />
+*/
+	$('#action-checkboxes').html(h);
+	$('.action-visibility').bind('click', function(ev) { visibilityClick(ev); });
+}
+
+
+function visibilityClick(ev) {
+	ev.stopPropagation();
+	ev.preventDefault();
+	console.info(ev.target.id);
+	var jel = $(ev.target);
+	jel.toggleClass('glyphicon-eye-open');
+	jel.toggleClass('glyphicon-eye-close');
+	tableMedia.applyFilter($('#media-filter-text').val());
+}
+
+
+function idsNotVisible() {
+	var skipIds = [];
+	$('.glyphicon-eye-close').each(function(i,el) {
+		var w = el.id.substr(18);
+//console.log(w);
+		$('.row-has-tag-' + w).each(function(j, rel) {
+			skipIds.push($(rel).closest('tr').attr('id'));
+		});
+	});
+	return skipIds;
+}
+
+
 function updateSelectedUI(ev, ui) {
+	$('.action-checkbox-div .checkbox-indeterminate').remove();
 	//console.info('ev %o, ui %o', ev, ui);
 	//var nsel = $('div.image.ui-selected').length;
 	var selMed = getSelectedMedia();
@@ -1169,11 +1331,14 @@ function updateSelectedUI(ev, ui) {
 	}
 
 	if (nsel < 1) {
-		$('#action-info').html('<i>no files<br />selected</i>');
-		$('#action-menu-div input.sel-act').attr('disabled', 'disabled');
+		$('#action-info').html('<i>no files selected</i>');
+		//$('#action-menu-div input.sel-act').attr('disabled', 'disabled');
+		$('.action-checkbox-div').addClass('disabled');
+		$('.action-checkbox-div input').attr('disabled', 'disabled');
 	} else {
-		$('#action-info').html('<b>' + nsel + '</b> file' + ((nsel == 1) ? '' : 's') + '<br />selected');
-		$('#action-menu-div input.sel-act').removeAttr('disabled');
+		$('#action-info').html('<b>' + nsel + '</b> file' + ((nsel == 1) ? '' : 's') + ' selected');
+		$('.action-checkbox-div').removeClass('disabled');
+		$('.action-checkbox-div input').attr('disabled', 'disabled');
 	}
 
 	var canSend = $('#media-results-table tbody tr .row-has-tag-to-cascadia').length +
@@ -1186,8 +1351,13 @@ function updateSelectedUI(ev, ui) {
 	} else {
 		$('#button-send-files').attr('disabled', 'disabled');
 	}
+console.info('inSurveys: %d', inSurveys);
 
-	if (inSurveys > 0) $('#button-survey').attr('disabled', 'disabled');
+	if (inSurveys > 0) {
+		//$('#button-survey').attr('disabled', 'disabled');
+		$('#action-checkbox-div-survey').addClass('disabled').prepend('<span class="checkbox-indeterminate">-</span>');
+		$('#checkbox-survey').attr('disabled', 'disabled');
+	}
 
 	for (var i = 0 ; i < selMed.length ; i++) {
 		if (selMed[i]._tags && (selMed[i]._tags.indexOf('ident') > -1)) $('#button-auto-id').attr('disabled', 'disabled');
@@ -1860,6 +2030,7 @@ function mediaSelectAll(el) {
 		$('#media-results-table tbody tr input').prop('checked', false);
 		tableMediaSelected = [];
 	}
+	initUI();
 	updateSelectedUI();
 }
 
@@ -2106,6 +2277,8 @@ $('#enc-dateInMilliseconds-human').change(function() {
 
 <div id="action-menu-div">
 	<div id="action-info"></div>
+	<div id="action-checkboxes"></div>
+<!--
 	<input class="sel-act" type="button" value="create encounter" onClick="actionEncounter()" />
 	<input class="sel-act" type="button" value="create occurrence" onClick="actionOccurrence()" />
 	<input class="sel-act" id="button-survey" type="button" value="add to / create survey" onClick="actionSurvey()" />
@@ -2113,6 +2286,7 @@ $('#enc-dateInMilliseconds-human').change(function() {
 	<input class="sel-act" type="button" value="archive" onClick="actionTag('archive')" />
 	<input class="sel-act" type="button" value="to Cascadia" onClick="actionTag('to-cascadia')" />
 	<input class="sel-act" id="button-auto-id" type="button" value="auto-ID" onClick="actionTag('ident')" />
+-->
 	<input type="button" value="mark MediaSubmission complete" onClick="closeMediaSubmission()" />
 	<input class="sel-act" type="button" id="button-send-files" value="send files" onClick="sendFiles()" />
 	<input type="button" value="back to listing" onClick="actionCancel()" />
