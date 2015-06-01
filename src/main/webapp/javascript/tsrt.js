@@ -317,6 +317,7 @@ console.log(this._sortCache[col]);
 	};
 
 	this.filter = function(s) {
+		if (this.opts.filterMethod) return this.opts.filterMethod(s);  //allows for override
 		this._sortCache = [];
 		this._sortCacheRev = [];
 		if (s == undefined) {
