@@ -1,3 +1,5 @@
+-- For org.ecocean.media.AssetStore
+
 create table assetstore
 (
     id serial primary key not null,
