@@ -21,6 +21,10 @@ module.exports = function(app, config) {
     // Main site
     //
     app.get('/', function(req, res) {
+        //
+        // i18n available as req.i18n.t or just req.t
+        // Also res.locals.t
+        //
         res.render('home', config);
     });
 

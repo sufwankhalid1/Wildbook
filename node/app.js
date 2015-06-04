@@ -13,16 +13,19 @@ var config = JSON.parse(fs.readFileSync('server/cust/config.json', 'utf8'));
 
 var i18n = require('i18next');
 
-i18n.init({
+var options = {
     ns: {
-        namespaces: [config.custcode, 'app'],
-        defaultNs: config.custcode
-    }
-//    saveMissing: true,
-//    ignoreRoutes: ['images/', 'public/', 'css/', 'js/']
-//    debug: true
-}, function() {
-//    console.log(i18n.t('admin.login.title'));
+        namespaces: ['cust', 'app'],
+        defaultNs: 'app'
+    },
+    fallbackToDefaultNS: true
+//        saveMissing: true,
+//        ignoreRoutes: ['images/', 'public/', 'css/', 'js/']
+//        debug: true
+};
+
+i18n.init(options, function() {
+    console.log("App Title: " + i18n.t("cust:app.title"));
 });
 
 app.use(session({
