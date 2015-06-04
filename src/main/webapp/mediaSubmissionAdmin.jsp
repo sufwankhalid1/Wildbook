@@ -94,13 +94,14 @@ body { font-family: arial }
 
 .action-visibility {
 	font-size: 0.9em;
-	margin-right: 10px;
 	cursor: pointer;
 }
 
 .pageableTable-visible:hover td {
 	background-color: #FFA;
 }
+
+.pageableTable-wrapper { min-height: 350px; }
 
 #map-canvas-wrapper {
 	z-index: 180;
@@ -314,8 +315,9 @@ body { font-family: arial }
 
 .action-checkbox-div {
 	position: relative;
+	width: 200px;
 	display: inline-block;
-	padding: 3px 5px 3px 10px;
+	padding: 3px 0px 3px 10px;
 	margin: 5px;
 	border-radius: 5px;
 }
@@ -335,8 +337,8 @@ body { font-family: arial }
 .checkbox-indeterminate {
 	position: absolute;
 	font-size: 1.5em;
-	top: 0.3em;
-	left: 0.8em;
+	top: 0.1em;
+	left: 0.6em;
 	pointer-events: none;
 }
 
@@ -453,12 +455,15 @@ var cascBatchUrl = 'http://splashcatalog.org/cascadia/batchCompareDone.jsp?conte
 var imageActions = {
 	encounter: {
 		label: 'create encounter' ,
+		actionMethod: actionEncounter,
 	},
 	occurrence: {
 		label: 'create occurrence',
+		actionMethod: actionOccurrence,
 	},
 	survey: {
 		label: 'add to / create survey',
+		actionMethod: actionSurvey,
 	},
 	trash: {
 		label: 'trash',
@@ -1272,7 +1277,7 @@ function displayMSTable() {
 function initUI() {
 	var h = '';
 	for (var act in imageActions) {
-		h += '<div class="action-wrapper"><div class="action-checkbox-div" id="action-checkbox-div-' + act + '"><input type="checkbox" id="checkbox-' + act + '" /> <label for="checkbox-' + act + '">' + imageActions[act].label + '</label></div><i id="action-visibility-' + act + '" class="action-visibility glyphicon glyphicon-eye-open"></i></div>';
+		h += '<div class="action-wrapper"><i id="action-visibility-' + act + '" class="action-visibility glyphicon glyphicon-eye-open"></i><div onClick="return actionTag(\'' + act + '\');" class="action-checkbox-div" id="action-checkbox-div-' + act + '"><input type="checkbox" id="checkbox-' + act + '" /> <label for="checkbox-' + act + '">' + imageActions[act].label + '</label></div></div>';
 	}
 /*
 	<input class="sel-act" type="button" value="create encounter" onClick="actionEncounter()" />
@@ -1338,7 +1343,7 @@ function updateSelectedUI(ev, ui) {
 	} else {
 		$('#action-info').html('<b>' + nsel + '</b> file' + ((nsel == 1) ? '' : 's') + ' selected');
 		$('.action-checkbox-div').removeClass('disabled');
-		$('.action-checkbox-div input').attr('disabled', 'disabled');
+		$('.action-checkbox-div input').removeAttr('disabled');
 	}
 
 	var canSend = $('#media-results-table tbody tr .row-has-tag-to-cascadia').length +
@@ -1355,13 +1360,34 @@ console.info('inSurveys: %d', inSurveys);
 
 	if (inSurveys > 0) {
 		//$('#button-survey').attr('disabled', 'disabled');
-		$('#action-checkbox-div-survey').addClass('disabled').prepend('<span class="checkbox-indeterminate">-</span>');
+		$('#action-checkbox-div-survey').addClass('disabled'); //.prepend('<span class="checkbox-indeterminate">-</span>');
 		$('#checkbox-survey').attr('disabled', 'disabled');
 	}
 
+	var tagCount = {};
 	for (var i = 0 ; i < selMed.length ; i++) {
 		if (selMed[i]._tags && (selMed[i]._tags.indexOf('ident') > -1)) $('#button-auto-id').attr('disabled', 'disabled');
+		if (selMed[i]._tags && (selMed[i]._tags.length > 0)) {
+			for (var j = 0 ; j < selMed[i]._tags.length ; j++) {
+				if (!tagCount[selMed[i]._tags[j]]) tagCount[selMed[i]._tags[j]] = 0;
+				tagCount[selMed[i]._tags[j]]++;
+			}
+		}
 	}
+console.info(tagCount);
+
+	for (var act in imageActions) {
+		if (tagCount[act] == nsel) {
+			$('#checkbox-' + act).attr('checked', true);
+		} else if (tagCount[act]) {
+			$('#checkbox-' + act).attr('checked', false);
+			$('#action-checkbox-div-' + act).prepend('<span class="checkbox-indeterminate">-</span>');
+		} else {
+			$('#checkbox-' + act).attr('checked', false);
+		}
+	}
+
+
 }
 
 
@@ -1783,6 +1809,8 @@ function actionCancel() {
 }
 
 function actionTag(tagName) {
+	if (imageActions[tagName].actionMethod) return imageActions[tagName].actionMethod();
+
 	var m = getSelectedMedia({skipGeo: true});
 	if (m.length < 1) return;
 	$('.action-div').hide();
@@ -1805,6 +1833,16 @@ function actionTag(tagName) {
 		}
 	});
 }
+/*
+	<input class="sel-act" type="button" value="create encounter" onClick="actionEncounter()" />
+	<input class="sel-act" type="button" value="create occurrence" onClick="actionOccurrence()" />
+	<input class="sel-act" id="button-survey" type="button" value="add to / create survey" onClick="actionSurvey()" />
+	<input class="sel-act" type="button" value="trash" onClick="actionTag('trash')" />
+	<input class="sel-act" type="button" value="archive" onClick="actionTag('archive')" />
+	<input class="sel-act" type="button" value="to Cascadia" onClick="actionTag('to-cascadia')" />
+	<input class="sel-act" id="button-auto-id" type="button" value="auto-ID" onClick="actionTag('ident')" />
+*/
+
 
 function actionEncounter() {
 	var m = getSelectedMedia({skipGeo: true});
