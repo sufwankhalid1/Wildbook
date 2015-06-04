@@ -17,3 +17,9 @@ This last one does require a copy as symlinks don't seem to work with the i18nex
 
     cp cust/happywhale/locales/dev/cust.json locales/dev
 
+##Running
+
+    cd node
+    node app
+    
+Now point your browser to http://localhost:3000
