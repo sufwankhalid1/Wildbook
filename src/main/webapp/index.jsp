@@ -176,7 +176,14 @@ context=ServletUtilities.getContext(request);
 	<jsp:include page="indexTonga.jsp" flush="true"></jsp:include>
 	<%
 	}
+	else if(context.equals("context6")){
 	%>
+	<jsp:include page="indexMaui.jsp" flush="true"></jsp:include>
+	<%
+	}
+	
+	%>
+
 
 
 	</div>
