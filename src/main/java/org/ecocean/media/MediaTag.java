@@ -22,11 +22,18 @@ public class MediaTag {
 	public void setMedia(List<SinglePhotoVideo> m) {
 		media = m;
 	}
-	public void addMedia(List<SinglePhotoVideo> m) {
+	public void addMedia(List<SinglePhotoVideo> m) {  //TODO avoid duplicates!
 		if ((m == null) || (m.size() < 1)) return;
 		List<SinglePhotoVideo> all = getMedia();
 		if (all == null) all = new ArrayList<SinglePhotoVideo>();
 		all.addAll(m);
 		setMedia(all);
+	}
+	public void removeMedia(List<SinglePhotoVideo> m) {
+		if ((m == null) || (m.size() < 1)) return;
+		List<SinglePhotoVideo> all = getMedia();
+		if (all == null) return;
+    all.removeAll(m);
+    setMedia(all);
 	}
 }

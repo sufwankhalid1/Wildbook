@@ -79,5 +79,35 @@ public class MediaTagController {
 				pm.makePersistent(tag);
         return new ResponseEntity<MediaTag>(tag, HttpStatus.OK);
     }
+
+    @RequestMapping(value = "/removeMedia/{tagName}", method = RequestMethod.POST)
+    public ResponseEntity<MediaTag> removeMedia(final HttpServletRequest request,
+                                              @RequestBody @Valid List<SinglePhotoVideo> media,
+                                              @PathVariable("tagName") final String tagName) {
+
+				PersistenceManager pm = getPM(request);
+        MediaTag tag = null;
+        try {
+          tag = (MediaTag) pm.getObjectById(MediaTag.class, tagName);
+        } catch (Exception ex) {
+				}
+
+        //no tag means do nothing
+				if (tag == null) return new ResponseEntity<MediaTag>(tag, HttpStatus.OK);
+
+				//for some reason, media does not get populated such that when tag is persisted, it creates all new SPVs.. grrr wtf.. explicitely loading them fixes this
+				List<SinglePhotoVideo> med = new ArrayList<SinglePhotoVideo>();
+				for (SinglePhotoVideo s : media) {
+      		SinglePhotoVideo obj = ((SinglePhotoVideo) (pm.getObjectById(pm.newObjectIdInstance(SinglePhotoVideo.class, s.getDataCollectionEventID()), true)));
+					if (obj != null) med.add(obj);
+				}
+
+				tag.removeMedia(med);
+				//tag.removeMedia(media);
+				pm.makePersistent(tag);
+        return new ResponseEntity<MediaTag>(tag, HttpStatus.OK);
+    }
+
+
 }
 

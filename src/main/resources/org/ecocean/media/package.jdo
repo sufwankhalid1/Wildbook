@@ -7,7 +7,7 @@
         <class name="MediaTag" identity-type="application">
             <field name="name" primary-key="true" />
             <field name="media" default-fetch-group="true">
-                <collection element-type="org.ecocean.SinglePhotoVideo" dependent-element="true" />
+                <collection element-type="org.ecocean.SinglePhotoVideo" dependent-element="false" />
                 <join/>
             </field>
 				</class>
