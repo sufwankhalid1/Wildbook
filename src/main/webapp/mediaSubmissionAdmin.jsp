@@ -1277,17 +1277,8 @@ function displayMSTable() {
 function initUI() {
 	var h = '';
 	for (var act in imageActions) {
-		h += '<div class="action-wrapper"><i id="action-visibility-' + act + '" class="action-visibility glyphicon glyphicon-eye-open"></i><div onClick="return actionTag(\'' + act + '\');" class="action-checkbox-div" id="action-checkbox-div-' + act + '"><input type="checkbox" id="checkbox-' + act + '" /> <label for="checkbox-' + act + '">' + imageActions[act].label + '</label></div></div>';
+		h += '<div class="action-wrapper"><i id="action-visibility-' + act + '" class="action-visibility glyphicon glyphicon-eye-open"></i><div onClick="event.stopPropagation(); event.preventDefault(); return actionTag(\'' + act + '\');" class="action-checkbox-div" id="action-checkbox-div-' + act + '"><input type="checkbox" id="checkbox-' + act + '" /> <label for="checkbox-' + act + '">' + imageActions[act].label + '</label></div></div>';
 	}
-/*
-	<input class="sel-act" type="button" value="create encounter" onClick="actionEncounter()" />
-	<input class="sel-act" type="button" value="create occurrence" onClick="actionOccurrence()" />
-	<input class="sel-act" id="button-survey" type="button" value="add to / create survey" onClick="actionSurvey()" />
-	<input class="sel-act" type="button" value="trash" onClick="actionTag('trash')" />
-	<input class="sel-act" type="button" value="archive" onClick="actionTag('archive')" />
-	<input class="sel-act" type="button" value="to Cascadia" onClick="actionTag('to-cascadia')" />
-	<input class="sel-act" id="button-auto-id" type="button" value="auto-ID" onClick="actionTag('ident')" />
-*/
 	$('#action-checkboxes').html(h);
 	$('.action-visibility').bind('click', function(ev) { visibilityClick(ev); });
 }
@@ -1808,18 +1799,58 @@ function actionCancel() {
 	window.location.href = window.location.pathname;
 }
 
-function actionTag(tagName) {
+function actionTag(tagName, cmd) {
 	if (imageActions[tagName].actionMethod) return imageActions[tagName].actionMethod();
 
 	var m = getSelectedMedia({skipGeo: true});
 	if (m.length < 1) return;
 	$('.action-div').hide();
 	var media = new Array();
+	var tagged = [];
+	var notTagged = [];
 	for (var i = 0 ; i < m.length ; i++) {
 		media.push({dataCollectionEventID: m[i].dataCollectionEventID});
+		if (m[i]._tags && (m[i]._tags.indexOf(tagName) > -1)) {
+			tagged.push(i);
+		} else {
+			notTagged.push(i);
+		}
 	}
+console.info('tagged with %s: %o; not tagged: %o', tagName, tagged, notTagged);
+
+	if (!cmd && (tagged.length == 0)) {
+		cmd = 'append';
+	} else if (!cmd && (notTagged.length == 0)) {
+		cmd = 'remove';
+	}
+
+console.warn('cmd -> %o', cmd);
+	var userCancelled = true;
+	if (!cmd) {  //ask the user
+		modalPrompt('items tagged <b><i>' + tagName + '</i></b>: <b>' + tagged.length + '</b>, not tagged: <b>' + notTagged.length + '</b>',
+		[
+			{
+				text: 'tag all',
+				click: function() { actionTag(tagName, 'append'); userCancelled = false; $('#alertdialog').dialog('close'); }
+			},
+			{
+				text: 'remove all tags',
+				click: function() { actionTag(tagName, 'remove'); userCancelled = false; $('#alertdialog').dialog('close'); }
+			},
+			{
+				text: 'cancel',
+				click: function() { $('#alertdialog').dialog('close'); }
+			},
+		],
+		function() {
+			if (!userCancelled) return;
+			console.info('closeddddd w/cancel');
+		});
+		return;
+	}
+
 	$.ajax({
-		url: 'obj/mediatag/appendMedia/' + tagName,
+		url: 'obj/mediatag/' + cmd + 'Media/' + tagName,
 		data: JSON.stringify(media),
 		type: 'POST',
 		contentType: 'application/json',
@@ -1827,7 +1858,7 @@ function actionTag(tagName) {
 			msError('unable to tag media ' + tagName, a,b,c);
 		},
 		success: function() {
-			actionResult('file marked ' + tagName);
+			actionResult(cmd + ' tag "' + tagName + '"');
 			resetAllCollections('media_MediaTags');
 			updateAllCollections(function() { displayMS(); });
 		}
@@ -1966,6 +1997,27 @@ function getSelectedMedia(opt) {
 //console.info('getSelectedMedia -> %o', m);
 	return m;
 }
+
+
+function modalPrompt(message, buttons, closeAction) {
+	$('#alertdialog').dialog({
+		autoOpen: true,
+		modal: true,
+		title: '',
+		closeOnEscape: true,
+		buttons: buttons,  // e.g. [{text:'label', click: function() {} }, ...]
+		open: function() {
+			$('#alertmessage').html(message);
+			$('#detailsbutton').hide();
+		},
+		width: 600,
+		appendTo: 'body',
+		resizable: false
+	});
+	$('#alertdialog').off('dialogclose');
+	if (closeAction) $('#alertdialog').on('dialogclose', function(ev,ui) { closeAction(ev,ui); });
+}
+
 
 
 function selectSurvey() {
