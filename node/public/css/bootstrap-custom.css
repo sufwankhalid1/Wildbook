@@ -1,0 +1,64 @@
+@import url(http://fonts.googleapis.com/css?family=Lato:300,400,700,900);
+
+
+h1, h2, h3, h4, h5, h6, p, div {
+	font-family: 'Lato', sans-serif;
+}
+
+body {
+  padding-top: 50px;
+}
+.starter-template {
+  padding: 40px 15px;
+  text-align: center;
+}
+
+
+/* overrides of bootstrap stuff */
+.navbar-inverse {
+	background-color: #107D9F;
+}
+
+
+.navbar-inverse .navbar-nav>li>a  {
+	color: #EFEFEF;
+}
+
+
+.navbar-inverse .navbar-nav>.active>a, .navbar-inverse .navbar-nav>.active>a:focus, .navbar-inverse .navbar-nav>.active>a:hover {
+	background-color: #087A9A;
+}
+
+
+.navbar-search {
+	margin-top: 14px;
+	height: 24px;
+}
+
+
+/* h/t http://jsfiddle.net/KyleMit/cyCFS/ */
+.left-inner-addon {
+    position: relative;
+}
+.left-inner-addon input {
+    padding-left: 30px;    
+}
+.left-inner-addon i {
+    position: absolute;
+    padding: 10px 12px;
+    pointer-events: none;
+}
+
+.right-inner-addon {
+    position: relative;
+}
+.right-inner-addon input {
+    padding-right: 30px;    
+}
+.right-inner-addon i {
+    position: absolute;
+    right: 0px;
+    padding: 10px 12px;
+    pointer-events: none;
+}
+

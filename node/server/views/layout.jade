@@ -1,0 +1,34 @@
+html
+    head
+        title= t("cust:app.title")
+        link(rel='stylesheet', href='/css/wildbook.css')
+        link(rel='stylesheet', href='/vendor/bootstrap/css/bootstrap.min.css')
+        link(rel='stylesheet', href='/css/bootstrap-custom.css')
+    body
+
+    nav.navbar.navbar-inverse.navbar-fixed-top
+        .container
+            #navbar.collapse.navbar-collapse
+                ul.nav.navbar-nav
+                    li.active
+                        a(href="#") Report Sighting
+                    li
+                        a(href="#me") My Whales
+                    li
+                        a(href="#about") About
+                    li
+                        a(href="#news") News
+                    li
+                        .right-inner-addon
+                            i.glyphicon.glyphicon-search(style="top: -5px; color: #AAA;")
+                            input.search-query.form-control.navbar-search(type="text" placeholder="Search site")
+        .logo-svg#navbar-logo-right
+    .container
+        block content
+
+    .footer
+
+    script(src='/vendor/jquery.min.js')
+    script(src='/vendor/bootstrap/js/bootstrap.min.js')
+
+    block scripts

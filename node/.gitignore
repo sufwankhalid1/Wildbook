@@ -1,0 +1,5 @@
+node_modules
+public/cust
+server/cust
+locales/dev/cust.json
+

@@ -1,0 +1,14 @@
+#navbar-logo-right {
+    position: absolute;
+    right: 10px;
+    height: 150px;
+    width: 150px;
+    background-repeat: no-repeat;
+    transform: rotate(-23deg);
+    top: -15px;
+}
+
+
+.logo-svg {
+    background-image: url(../cust/images/logo.svg);
+}
