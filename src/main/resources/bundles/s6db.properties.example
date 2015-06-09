@@ -4,8 +4,12 @@ Database.Primary.Password       = my_pass
 Database.Primary.Url            = jdbc:postgresql://localhost/my_db
 Database.Primary.MaxConnections = 12
 
-Database.Test.Driver            = org.postgresql.Driver
-Database.Test.UserName          = my_test_user
-Database.Test.Password          = my_test_pass
-Database.Test.Url               = jdbc:postgresql://localhost/my_test_db
-Database.Test.MaxConnections    = 12
+# A "Test" db is not required.  If it is not defined
+# no database tests will be run.  It can be set to the same
+# values as Primary, in which case database tests will be
+# run against the primary database.
+#Database.Test.Driver            = org.postgresql.Driver
+#Database.Test.UserName          = my_test_user
+#Database.Test.Password          = my_test_pass
+#Database.Test.Url               = jdbc:postgresql://localhost/my_test_db
+#Database.Test.MaxConnections    = 12
