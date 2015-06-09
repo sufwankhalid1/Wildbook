@@ -23,6 +23,9 @@ import java.util.*;
 import com.samsix.database.*;
 import org.ecocean.ShepherdPMF;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.junit.*;
 import static org.junit.Assert.*;
 
@@ -30,10 +33,13 @@ import static org.junit.Assert.*;
  * Test AssetStore routines.
  */
 public class AssetStoreTest {
+    private static Logger log = LoggerFactory.getLogger(AssetStoreTest.class);
 
     @Test
     public void testSaveLoadDelete() {
         ConnectionInfo ci = ShepherdPMF.getConnectionInfo("Test");
+
+        if (ci == null) return;
 
         try (Database db = new Database(ci)) {
             String name = "test store";
