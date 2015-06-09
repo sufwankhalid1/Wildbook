@@ -13,4 +13,12 @@
     <appender-ref ref="STDOUT" />
   </root>
 
+  <logger name="SqlLog" level="ERROR">
+      <appender-ref ref="STDOUT" />
+  </logger>
+
+  <logger name="com.samsix.database" level="ERROR">
+      <appender-ref ref="STDOUT" />
+  </logger>
+
 </configuration>
