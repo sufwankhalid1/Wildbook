@@ -25,7 +25,15 @@ module.exports = function(app, config) {
         // i18n available as req.i18n.t or just req.t
         // Also res.locals.t
         //
-        res.render('home', config);
+        var variables = {user: null,
+                config: config,
+                spotlight: {
+                    name: "Frosty",
+                    species: "Humpback Whale",
+                    id: "Cascadia #12492",
+                    place: "Monterey Bay, CA"
+                }};
+        res.render('home', variables);
     });
 
     //=================

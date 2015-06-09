@@ -1,9 +1,10 @@
 html
     head
-        title= t("cust:app.title")
+        title= t("app.title")
         link(rel='stylesheet', href='/css/wildbook.css')
         link(rel='stylesheet', href='/vendor/bootstrap/css/bootstrap.min.css')
         link(rel='stylesheet', href='/css/bootstrap-custom.css')
+        block css
     body
 
     nav.navbar.navbar-inverse.navbar-fixed-top
@@ -11,22 +12,37 @@ html
             #navbar.collapse.navbar-collapse
                 ul.nav.navbar-nav
                     li.active
-                        a(href="#") Report Sighting
+                        a(href="#")= t("header.menu.reportSighting")
                     li
-                        a(href="#me") My Whales
+                        a(href="#me")= t("header.menu.me")
                     li
-                        a(href="#about") About
+                        a(href="#about")= t("header.menu.about")
                     li
-                        a(href="#news") News
+                        a(href="#news")= t("header.menu.news")
                     li
                         .right-inner-addon
                             i.glyphicon.glyphicon-search(style="top: -5px; color: #AAA;")
-                            input.search-query.form-control.navbar-search(type="text" placeholder="Search site")
+                            input.search-query.form-control.navbar-search(type="text" placeholder!= t("header.menu.searchSite"))
         .logo-svg#navbar-logo-right
-    .container
-        block content
+    block content
 
-    .footer
+    nav.navbar.navbar-inverse.navbar-fixed-bottom.footer
+        .container
+            #navbar.collapse.navbar-collapse
+                ul.nav.navbar-nav
+                    li
+                        a(href="#about")= t("footer.menu.about")
+                    li
+                        a(href="#news")= t("footer.menu.news")
+                    li
+                        a(href="#contact")= t("footer.menu.contact")
+                    li
+                        a(href="#terms")= t("footer.menu.terms")
+                    li
+                        a(href="#sitemap")= t("footer.menu.sitemap")
+                    li
+                        a(href="#help")= t("footer.menu.help")
+                p.navbar-inverse.copyright &copy; 2015 happywhale, All Rights Reserved
 
     script(src='/vendor/jquery.min.js')
     script(src='/vendor/bootstrap/js/bootstrap.min.js')

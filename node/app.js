@@ -13,19 +13,26 @@ var config = JSON.parse(fs.readFileSync('server/cust/config.json', 'utf8'));
 
 var i18n = require('i18next');
 
+//
+// This does work if you put a cust.json file in your locales
+// directories and then address it as cust:blah.blah. But I'm trying to
+// get this done quick and so I'm not going to use that functionality at the
+// moment as trying to figure out what is Happy Whale vs. generic is something
+// we will have to do later.
+//
 var options = {
     ns: {
         namespaces: ['cust', 'app'],
         defaultNs: 'app'
     },
-    fallbackToDefaultNS: true
+    fallbackToDefaultNS: true,
 //        saveMissing: true,
 //        ignoreRoutes: ['images/', 'public/', 'css/', 'js/']
-//        debug: true
+//    debug: true
 };
 
 i18n.init(options, function() {
-    console.log("App Title: " + i18n.t("cust:app.title"));
+    console.log("App Title: " + i18n.t("app.title"));
 });
 
 app.use(session({
