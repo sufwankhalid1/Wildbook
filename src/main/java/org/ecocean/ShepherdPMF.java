@@ -23,44 +23,47 @@ import javax.jdo.JDOException;
 import javax.jdo.JDOHelper;
 import javax.jdo.PersistenceManagerFactory;
 
+import java.io.*;
+import java.util.*;
+
 import com.samsix.database.ConnectionInfo;
 import com.samsix.util.io.ResourceReader;
 import com.samsix.util.io.ResourceReaderImpl;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.util.Enumeration;
-import java.util.Properties;
 
 import java.util.TreeMap;
 
 
 public class ShepherdPMF {
-
-  //private static PersistenceManagerFactory pmf;
-  //private static String currentContext="context0";
   private static TreeMap<String,PersistenceManagerFactory> pmfs=new TreeMap<String,PersistenceManagerFactory>();
 
-  private static ConnectionInfo connectionInfo;
-  
-  public synchronized static ConnectionInfo getConnectionInfo() {
-      if (connectionInfo != null) {
-          return connectionInfo;
-      }
-          
-//          InputStream inputStream=ShepherdPMF.class.getResourceAsStream("/bundles/s6db.config");
-      ResourceReader reader = new ResourceReaderImpl("bundles.s6db");
-      connectionInfo = ConnectionInfo.valueOf(reader, "Primary");
+  private static Map<String,ConnectionInfo> connectionInfo = new HashMap<>();
 
-      return connectionInfo;   
+
+  /**
+   * Return the default (primary) S6 database connection info.
+   */
+  public synchronized static ConnectionInfo getConnectionInfo() {
+    return getConnectionInfo(ConnectionInfo.DBTYPE_PRIMARY);
   }
-  
+
+  /**
+   * Return the named S6 database connection info, or null if no info
+   * exists for the name.
+   */
+  public synchronized static ConnectionInfo getConnectionInfo(String connectionName) {
+    if (connectionInfo.get(connectionName) == null) {
+      ResourceReader reader = new ResourceReaderImpl("bundles.s6db");
+      connectionInfo.put(connectionName, ConnectionInfo.valueOf(reader, connectionName));
+    }
+
+    return connectionInfo.get(connectionName);
+  }
 
   public synchronized static PersistenceManagerFactory getPMF(String context) {
     //public static PersistenceManagerFactory getPMF(String dbLocation) {
-    
+
     if(pmfs==null){pmfs=new TreeMap<String,PersistenceManagerFactory>();}
-    
+
     try {
       if ((!pmfs.containsKey(context))||(pmfs.get(context).isClosed())) {
 
@@ -71,31 +74,31 @@ public class ShepherdPMF {
 
         Properties props = new Properties();
         String shepherdDataDir="shepherd_data_dir";
-        
+
         //System.out.println("     Let's find the corresponding dataDir for context: "+context);
         if((ContextConfiguration.getDataDirForContext(context)!=null)&&(!ContextConfiguration.getDataDirForContext(context).trim().equals(""))){
           //System.out.println("     Looking up corresponding contextDir...");
           shepherdDataDir=ContextConfiguration.getDataDirForContext(context);
-          
+
         }
         //System.out.println("ShepherdPMF: Data directory for context "+context+" is: "+shepherdDataDir);
         Properties overrideProps=loadOverrideProps(shepherdDataDir);
         //System.out.println(overrideProps);
-        
+
         if(overrideProps.size()>0){props=overrideProps;}
         else {
           //otherwise load the embedded commonConfig
-          
+
           try {
             //props.load(ShepherdPMF.class.getResourceAsStream("/bundles/jdoconfig.properties"));
             props=ShepherdProperties.getProperties("jdoconfig.properties", "");
-          } 
+          }
           catch (Exception ioe) {
             ioe.printStackTrace();
           }
         }
-        
-        
+
+
         Enumeration<Object> propsNames = props.keys();
         while (propsNames.hasMoreElements()) {
           String name = (String) propsNames.nextElement();
@@ -103,7 +106,7 @@ public class ShepherdPMF {
             dnProperties.setProperty(name, props.getProperty(name).trim());
           }
         }
-        
+
         //make sure to close an old PMF if switching
         //if(pmf!=null){pmf.close();}
 
@@ -112,18 +115,18 @@ public class ShepherdPMF {
 
       }
       else{
-        
+
         return pmfs.get(context);
-        
+
       }
-      
+
     } catch (JDOException jdo) {
       jdo.printStackTrace();
       System.out.println("I couldn't instantiate a PMF.");
       return null;
     }
   }
-  
+
   public static Properties loadOverrideProps(String shepherdDataDir) {
     //System.out.println("     Starting loadOverrideProps");
     Properties myProps=new Properties();
