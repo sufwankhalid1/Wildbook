@@ -96,9 +96,9 @@ public class LocalAssetStore extends AssetStore {
      * @return The MediaAsset, or null if the path is invalid (not
      * under the asset root or nonexistent).
      */
-    public MediaAsset create(Path path) {
+    public MediaAsset create(Path path, AssetType type) {
         try {
-            return new MediaAsset(this, checkPath(root(), path));
+            return new MediaAsset(this, checkPath(root(), path), type);
         } catch (IllegalArgumentException e) {
             log.warn("Bad path", e);
             return null;

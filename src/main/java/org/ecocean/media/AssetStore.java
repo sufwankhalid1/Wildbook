@@ -97,7 +97,7 @@ public abstract class AssetStore {
 
     public abstract URL webPath(MediaAsset asset);
 
-    public abstract MediaAsset create(Path path);
+    public abstract MediaAsset create(Path path, AssetType type);
 
     //
     // store/load

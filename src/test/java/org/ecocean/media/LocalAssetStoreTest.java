@@ -48,7 +48,7 @@ public class LocalAssetStoreTest {
     public void checkWebPath() {
         AssetStore las = new LocalAssetStore("test", rootPath(), webRoot(), true);
 
-        MediaAsset ma = las.create(testFilePath());
+        MediaAsset ma = las.create(testFilePath(), AssetType.ORIGINAL);
         assertNotNull("Null MediaAsset", ma);
 
         URL url = ma.webPath();
@@ -59,7 +59,7 @@ public class LocalAssetStoreTest {
         // now with more nulls!
         las = new LocalAssetStore("test", rootPath(), null, true);
 
-        ma = las.create(testFilePath());
+        ma = las.create(testFilePath(), AssetType.ORIGINAL);
         assertNotNull("Null MediaAsset", ma);
         url = ma.webPath();
         assertNull("Not null URL", url);
