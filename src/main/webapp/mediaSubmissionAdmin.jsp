@@ -1084,7 +1084,7 @@ function browse(msID) {
 
 
 
-var displayAsTable = true;
+var displayAsTable = false;
 
 function msMode(mode) {
 	if (mode == 'table') {
@@ -1131,47 +1131,11 @@ console.log(m);
 	}
 
 	$('#admin-div').hide();
-	var h = '';
-	for (var i = 0 ; i < m.length ; i++) {
-		var mObj = new wildbook.Model.SinglePhotoVideo(m[i]);
-		var encs = encountersForImage(mObj.id);
-		var occs = occurrencesForImage(mObj.id);
-		var note = '';
-		if (encs) {
-			var list = '<div class="enc-list">';
-			for (var e in encs) {
-				list += '<div><a target="_new" href="encounters/encounter.jsp?number=' + encs[e].id + '">' + encs[e].id + '</a></div>';
-			}
-			list += '</div>';
-			note = '<div title="in ' + encs.length + ' encounter(s)" class="note" onClick="return noteClick(event);">' + encs.length + list + '</div>';
-		}
 
-		if (occs) note += '<span class="tag tag-occs" title="in ' + occs.length + ' occurrence(s)">' + occs.length + list + '</span>';
-
-		var imgSrc = mObj.url();
-		if (isGeoFile(m[i])) imgSrc = 'images/map-icon.png';
-
-		var classes = '';
-		var tags = getTags(m[i]);
-//console.warn('tags! %o', tags);
-		if (tags && (tags.length > 0)) {
-			for (var j = 0 ; j < tags.length ; j++) {
-				note += '<span class="tag tag-' + tags[j] + '">&nbsp;</span>';
-				classes += ' has-tag-' + tags[j];
-			}
-		}
-
-		var st = inSurvey(m[i]);
-		if (st) {
-			classes += ' in-survey in-survey-' + st[0].id;
-			var name = 'ID ' + st[0].id + '.' + st[1].id;
-			if (st[1].name) name = st[1].name + ' (' + st[0].id + '.' + st[1].id + ')';
-			note += '<span class="tag tag-survey" title="in Survey ' + st[0].name + '/' + st[0].id + ', Track ' + st[1].name + '/' + st[1].id + '">' + name + '</span>';
-		}
-
-		h += '<div id="' + mObj.id + '" class="image' + classes + '"><img class="thumb" src="' + imgSrc + '" />' + note + '</div>';
-	}
+	var h = imageDivContents(mediaSort(mediaSubmission, '-date'));
 	$('#images-unused').html(h);
+
+
 /*
 	$('.image').click( function(ev) {
 		$('.note .enc-list').hide();
@@ -1185,6 +1149,8 @@ console.log(m);
 	});
 	//$('.has-tag-trash').selectable({disabled: true});  //TODO doesnt seem to work with lasso selector.  ??  but filter above *seems* to exclude anyway!
 	updateSelectedUI();
+	initUI();
+	$('#progress').hide();
 
 	$('#work-div').show();
 	//updateCounts();
@@ -1209,6 +1175,86 @@ function initOther() {
 }
 
 
+function imageDivContents(m) {
+	var h = '';
+	for (var i = 0 ; i < m.length ; i++) {
+		var mObj = new wildbook.Model.SinglePhotoVideo(m[i]);
+		var encs = encountersForImage(mObj.id);
+		var occs = occurrencesForImage(mObj.id);
+		var note = '';
+		var classes = '';
+		if (encs) {
+			classes += ' has-tag-encounter';
+			var list = '<div class="enc-list">';
+			for (var e in encs) {
+				list += '<div><a target="_new" href="encounters/encounter.jsp?number=' + encs[e].id + '">' + encs[e].id + '</a></div>';
+			}
+			list += '</div>';
+			note = '<div title="in ' + encs.length + ' encounter(s)" class="note" onClick="return noteClick(event);">' + encs.length + list + '</div>';
+		}
+
+		if (occs) {
+			note += '<span class="tag tag-occs" title="in ' + occs.length + ' occurrence(s)">' + occs.length + list + '</span>';
+			classes += ' has-tag-occurrence';
+		}
+
+		var imgSrc = mObj.url();
+		if (isGeoFile(m[i])) imgSrc = 'images/map-icon.png';
+
+		var tags = getTags(m[i]);
+//console.warn('tags! %o', tags);
+		if (tags && (tags.length > 0)) {
+			for (var j = 0 ; j < tags.length ; j++) {
+				note += '<span class="tag tag-' + tags[j] + '">&nbsp;</span>';
+				classes += ' has-tag-' + tags[j];
+			}
+		}
+
+		var st = inSurvey(m[i]);
+		if (st) {
+			classes += ' has-tag-survey in-survey in-survey-' + st[0].id;
+			var name = 'ID ' + st[0].id + '.' + st[1].id;
+			if (st[1].name) name = st[1].name + ' (' + st[0].id + '.' + st[1].id + ')';
+			note += '<span class="tag tag-survey" title="in Survey ' + st[0].name + '/' + st[0].id + ', Track ' + st[1].name + '/' + st[1].id + '">' + name + '</span>';
+		}
+
+		var title = '';
+		if (m[i]._exif && m[i]._exif.time) {
+			var d = new Date();
+			d.setTime(m[i]._exif.time);
+			title = ' title="' + d.toLocaleString() + '"';
+		}
+		h += '<div id="' + mObj.id + '" class="image' + classes + '"' + title + '><img class="thumb" src="' + imgSrc + '" />' + note + '</div>';
+	}
+
+	return h;
+}
+
+function mediaSort(ms, sortBy) {
+	var m = ms.get('media');
+	for (var i = 0 ; i < m.length ; i++) {
+		m[i]._exif = ms._exif.items[i];
+	}
+console.info(m);
+	if (sortBy == '-date') {
+		m.sort(function(a,b) { return _mediaSortDate(a,b); });
+		m.reverse();
+	} else {
+		m.sort(function(a,b) { return _mediaSortDate(a,b); });
+	}
+	return m;
+}
+
+function _mediaSortDate(a, b) {
+	var atime = 0;
+	var btime = 0;
+	if (a._exif && a._exif.time) atime = a._exif.time;
+	if (b._exif && b._exif.time) btime = b._exif.time;
+//console.log('%o vs %o', atime, btime);
+	if (atime < btime) return -1;
+	if (btime < atime) return 1;
+	return 0;
+}
 
 function displayMSTable() {
 	var ok = putOnMap(mediaSubmission.get('latitude'), mediaSubmission.get('longitude'));
@@ -1287,13 +1333,34 @@ function initUI() {
 function visibilityClick(ev) {
 	ev.stopPropagation();
 	ev.preventDefault();
-	console.info(ev.target.id);
+//console.info(ev.target.id);
 	var jel = $(ev.target);
 	jel.toggleClass('glyphicon-eye-open');
 	jel.toggleClass('glyphicon-eye-close');
-	tableMedia.applyFilter($('#media-filter-text').val());
+	if (displayAsTable) {
+		tableMedia.applyFilter($('#media-filter-text').val());
+	} else {
+		imageFilter(jel);
+	}
 }
 
+
+var hiddenClasses = [];
+function imageFilter(jel) {
+	var act = jel.attr('id').substr(18);
+	if (jel.hasClass('glyphicon-eye-close')) {
+		hiddenClasses.push(act);
+		//$('.has-tag-' + act).hide();
+	} else {
+		var i = hiddenClasses.indexOf(act);
+		if (i > -1) hiddenClasses.splice(i,1);
+		//$('.has-tag-' + act).show();
+	}
+	$('div.image').show();
+	for (var i = 0 ; i < hiddenClasses.length ; i++) {
+		$('.has-tag-' + hiddenClasses[i]).hide();
+	}
+}
 
 function idsNotVisible() {
 	var skipIds = [];
