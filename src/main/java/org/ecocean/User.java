@@ -17,242 +17,207 @@ import com.stormpath.sdk.account.*;
  * @author Ed Stastny
  */
 public class User implements Serializable {
-  
-  
-  private static final long serialVersionUID = -1261710718629763048L;
-  // The user's full name
-  private String fullName;
-  //Primary email address
-  private String emailAddress;
-  // User's snail-mail address/location
-  private String physicalAddress;
-  //Primary phone number
-  private String phoneNumber;
-  //Organization or project affiliation
-  private String affiliation;
-  
-  private String userProject;
-  private String userStatement;
-  private String userURL;
-  private SinglePhotoVideo userImage;
-  
-  //Misc. information about this user
-  private String notes;
-  //Date of last update of this record, in ms
-  private long dateInMilliseconds;
-  private long userID;
 
-  private long lastLogin=-1;
-  
-  	private String username;
-  	private String password ;
-  	private String salt;
-  	
-  	//String currentContext;
-  	
-  	
-  	private boolean acceptedUserAgreement=false;
-  
-  private boolean receiveEmails=true; 
-  	
-  	//JDOQL required empty instantiator
-  	public User(){}
-  	
-  	public User(String fullName, String emailAddress, String physicalAddress, String phoneNumber, String affiliation, String notes) {
-  	  setFullName(fullName);
-  	  setEmailAddress(emailAddress);
-  	  setPhysicalAddress(physicalAddress);
-  	  setPhoneNumber(phoneNumber);
-  	  setAffiliation(affiliation);
-  	  setNotes(notes);
-  	  RefreshDate();
-  	  this.lastLogin=-1;
-  	}
-  	
-  	public User(String username,String password, String salt){
-  	  setUsername(username);
-  	  setPassword(password);
-  	  setSalt(salt);
-			setReceiveEmails(true);
-  	  RefreshDate();
-  	  this.lastLogin=-1;
-  	}
+    private static final long serialVersionUID = -1261710718629763048L;
+    // The user's full name
+    private String fullName;
+    //Primary email address
+    private String emailAddress;
+    // User's snail-mail address/location
+    private String physicalAddress;
+    //Primary phone number
+    private String phoneNumber;
+    //Organization or project affiliation
+    private String affiliation;
 
-    public User(Account acc) {
-        String username = acc.getUsername();
-        if (username == null) username = acc.getEmail();
+    private String userProject;
+    private String userStatement;
+    private String userURL;
+    private SinglePhotoVideo userImage;
+
+    //Misc. information about this user
+    private String notes;
+    //Date of last update of this record, in ms
+    private long dateInMilliseconds;
+    private long userID;
+
+    private long lastLogin=-1;
+
+    private String username;
+    private String password ;
+    private String salt;
+
+    //String currentContext;
+
+
+    private boolean acceptedUserAgreement=false;
+
+    private boolean receiveEmails=true;
+
+    //JDOQL required empty instantiator
+    public User(){}
+
+    public User(String fullName, String emailAddress, String physicalAddress, String phoneNumber, String affiliation, String notes) {
+        setFullName(fullName);
+        setEmailAddress(emailAddress);
+        setPhysicalAddress(physicalAddress);
+        setPhoneNumber(phoneNumber);
+        setAffiliation(affiliation);
+        setNotes(notes);
+        RefreshDate();
+        this.lastLogin=-1;
+    }
+
+    public User(String username,String password, String salt){
         setUsername(username);
-        setFullName(acc.getGivenName() + " " + acc.getSurname());
-        setEmailAddress(acc.getEmail());
-        setPassword(Util.generateUUID());
+        setPassword(password);
+        setSalt(salt);
         setReceiveEmails(true);
         RefreshDate();
         this.lastLogin=-1;
     }
 
-  public void RefreshDate()
-  {
-    this.dateInMilliseconds = new Date().getTime();
-  }
-
-  public String getFullName()
-  {
-    return this.fullName;
-  }
-  public void setFullName (String fullName)
-  {
-    if(fullName!=null){
-      this.fullName = fullName;
+    public void RefreshDate()
+    {
+        this.dateInMilliseconds = new Date().getTime();
     }
-    else{
-      this.fullName=null;
+
+    public String getFullName()
+    {
+        return this.fullName;
     }
-    RefreshDate();
-  }
-
-  public String getEmailAddress ()
-  {
-    return this.emailAddress;
-  }
-  public void setEmailAddress (String emailAddress){
-    if(emailAddress!=null){
-      this.emailAddress = emailAddress;
+    public void setFullName (String fullName)
+    {
+        this.fullName = fullName;
+        RefreshDate();
     }
-    else{this.emailAddress=null;}
-    RefreshDate();
-  }
 
-  public String getPhysicalAddress ()
-  {
-    return this.physicalAddress;
-  }
-  public void setPhysicalAddress (String physicalAddress)
-  {
-    
-    if(physicalAddress!=null){this.physicalAddress = physicalAddress;}
-    else{this.physicalAddress=null;}
-    RefreshDate();
-  }
-
-  public String getPhoneNumber ()
-  {
-    return this.phoneNumber;
-  }
-  public void setPhoneNumber (String phoneNumber)
-  {
-    if(phoneNumber!=null){this.phoneNumber = phoneNumber;}
-    else{this.phoneNumber=null;}
-    RefreshDate();
-  }
-
-  public String getAffiliation ()
-  {
-    return this.affiliation;
-  }
-  public void setAffiliation (String affiliation)
-  {
-    if(affiliation!=null){
-      this.affiliation = affiliation;
+    public String getEmailAddress()
+    {
+        return this.emailAddress;
     }
-    else{this.affiliation=null;}
-    RefreshDate();
-  }
+    public void setEmailAddress (String emailAddress)
+    {
+        this.emailAddress = emailAddress;
+        RefreshDate();
+    }
 
-  public String getNotes ()
-  {
-    return this.notes;
-  }
-  public void setNotes (String notes)
-  {
-    this.notes = notes;
-    RefreshDate();
-  }
+    public String getPhysicalAddress ()
+    {
+        return this.physicalAddress;
+    }
+    public void setPhysicalAddress (String physicalAddress)
+    {
+        this.physicalAddress = physicalAddress;
+        RefreshDate();
+    }
 
-  public long getDateInMilliseconds ()
-  {
-    return this.dateInMilliseconds;
-  }
+    public String getPhoneNumber ()
+    {
+        return this.phoneNumber;
+    }
+    public void setPhoneNumber (String phoneNumber)
+    {
+        this.phoneNumber = phoneNumber;
+        RefreshDate();
+    }
 
+    public String getAffiliation ()
+    {
+        return this.affiliation;
+    }
+    public void setAffiliation (String affiliation)
+    {
+        this.affiliation = affiliation;
+        RefreshDate();
+    }
 
+    public String getNotes ()
+    {
+        return this.notes;
+    }
+    public void setNotes (String notes)
+    {
+        this.notes = notes;
+        RefreshDate();
+    }
 
+    public long getDateInMilliseconds ()
+    {
+        return this.dateInMilliseconds;
+    }
 
-  	public long getUserID() {
-  		return userID;
-  	}
-  	public void setUserID(long userID) {
-  		this.userID = userID;
-  	}
-  	public String getUsername() {
-  		return username;
-  	}
-  	public void setUsername(String username) {
-  		this.username = username;
-  	}
-  	public String getPassword() {
-  		return password;
-  	}
-  	public void setPassword(String password) {
-  		this.password = password;
-  	}
-  	
-  	public void setSalt(String salt){this.salt=salt;}
-  	public String getSalt(){return salt;}
+    public long getUserID() {
+        return userID;
+    }
+    public void setUserID(long userID) {
+        this.userID = userID;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setSalt(String salt){this.salt=salt;}
+    public String getSalt(){return salt;}
+>>>>>>> User.java: whitespace and slight logic cleanup
 
 
     public void setUserProject(String newProj) {
-      if(newProj!=null){userProject = newProj;}
-    else{userProject=null;}
+        userProject = newProj;
     }
     public String getUserProject(){return userProject;}
-    
+
     public void setUserStatement(String newState) {
-      if(newState!=null){userStatement = newState;}
-    else{userStatement=null;}
+        userStatement = newState;
     }
     public String getUserStatement(){return userStatement;}
-    
+
     public SinglePhotoVideo getUserImage(){return userImage;}
-    
+
 
     public void setUserImage(SinglePhotoVideo newImage) {
-      if(newImage!=null){userImage = newImage;}
-    else{userImage=null;}
+        userImage = newImage;
     }
-    
+
     public void setUserURL(String newURL) {
-      if(newURL!=null){userURL = newURL;}
-    else{userURL=null;}
+        userURL = newURL;
     }
     public String getUserURL(){return userURL;}
-  	
+
     public long getLastLogin(){
-      return lastLogin;
+        return lastLogin;
     }
-    
+
     public String getLastLoginAsDateString(){
-      if(lastLogin==-1) return null;
-      return (new DateTime(this.lastLogin)).toString();
+        if(lastLogin==-1) return null;
+        return (new DateTime(this.lastLogin)).toString();
     }
-    
+
     public void setLastLogin(long lastie){this.lastLogin=lastie;}
-    
 
     public boolean getReceiveEmails(){return receiveEmails;}
     public void setReceiveEmails(boolean receive){this.receiveEmails=receive;}
-    
-    
 
     public boolean getAcceptedUserAgreement(){return acceptedUserAgreement;}
-    
+
     public void setAcceptedUserAgreement(boolean accept){this.acceptedUserAgreement=accept;}
 
-
-		//TODO this needs to be dealt with better.  see: rant about saving usernames from forms
-		public static boolean isUsernameAnonymous(String uname) {
-			return ((uname == null) || uname.equals("") || uname.equals("N/A"));
-		}
+    //TODO this needs to be dealt with better.  see: rant about saving usernames from forms
+    public static boolean isUsernameAnonymous(String uname) {
+        return ((uname == null) || uname.equals("") || uname.equals("N/A"));
+    }
 
     //public String getCurrentContext(){return currentContext;}
     //public void setCurrentContext(String newContext){currentContext=newContext;}
-
 }
