@@ -1,5 +1,35 @@
 {
     "app": {
-        "title": "Wildbook"
+        "title": "Happy Whale"
+    },
+    "header": {
+        "menu": {
+            "reportSighting": "REPORT SIGHTING",
+            "me": "MY WHALES",
+            "about": "ABOUT",
+            "news": "NEWS",
+            "searchSite": "Search site",
+            "welcomeBack": "Welcome Back",
+            "signin": "Sign in",
+            "gotomy": "Go to My Whales",
+            "signout": "Sign Out"
+        }
+    },
+    "footer": {
+        "menu": {
+            "about": "About",
+            "news": "News",
+            "contact": "Contact",
+            "terms": "Terms & Conditions",
+            "sitemap": "Sitemap",
+            "help": "Help"
+        }
+    },
+    "home": {
+        "footer": {
+            "connectWithUs": "Connect With Us",
+            "whatGoingOn": "What's Going On",
+            "spotlight": "Profile Spotlight"
+        }
     }
 }

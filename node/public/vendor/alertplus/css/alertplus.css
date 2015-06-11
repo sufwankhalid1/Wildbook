@@ -1,0 +1,10 @@
+.alertplusDialog {
+    overflow-y:auto;
+    z-index: 2000; /* leaflet attribution is at z-index 1000 annoyingly. wtf? */
+}
+
+.alertplusDetails {
+    width: 100%;
+    height: 400px;
+    overflow: auto;
+}

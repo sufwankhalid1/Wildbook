@@ -1,6 +1,7 @@
 target
 bin
 out
+build
 .idea*
 *.ipr
 *.iml
@@ -19,4 +20,5 @@ src/main/webapp/encounters/*20*
 /buildOut.txt
 /src/main/shepherd_data_dir
 /webapps
-
+/src/main/resources/bundles/s6db.properties
+/config/db/flyway.conf

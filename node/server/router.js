@@ -22,10 +22,28 @@ module.exports = function(app, config) {
     //
     app.get('/', function(req, res) {
         //
-        // i18n available as req.i18n.t or just req.t
+        // NOTE: i18n available as req.i18n.t or just req.t
         // Also res.locals.t
         //
-        res.render('home', config);
+
+        //
+        // TODO: Read these from a mongo database that the site admin will be able to edit.
+        //
+        var variables = {user: null,//{name: "ken"},
+                config: config,
+                spotlight: {
+                    name: "Frosty",
+                    species: "Humpback Whale",
+                    id: "Cascadia #12492",
+                    place: "Monterey Bay, CA"
+                },
+                news: [{headline: "News Section Headline",
+                        contents: "Lorem ipsum..."},
+                        {headline: "News Section Headline 2",
+                         contents: "Ut enim..."}]
+                };
+
+        res.render('home', variables);
     });
 
     //=================

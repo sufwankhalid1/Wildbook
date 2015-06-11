@@ -134,21 +134,21 @@ var submitMedia = (function () {
 
                 var endTime = toTime(ms.endTime);
                 if (isNaN(endTime)) {
-                    wildbook.showAlert("End Time [" + ms.endTime + "] is not a valid time.");
+                    alertplus.alert("End Time [" + ms.endTime + "] is not a valid time.");
                     return $.Deferred().reject();
                 }
                 ms.endTime = endTime;
 
                 var startTime = toTime(ms.startTime);
                 if (isNaN(startTime)) {
-                    wildbook.showAlert("Start Time [" + ms.endTime + "] is not a valid time.");
+                    alertplus.alert("Start Time [" + ms.endTime + "] is not a valid time.");
                     return $.Deferred().reject();
                 }
                 ms.startTime = startTime;
 
                 return $.post("obj/mediasubmission/" + method, ms)
                  .fail(function(ex) {
-                     wildbook.showError(ex);
+                     alertplus.error(ex);
                  });
             }
 
@@ -171,7 +171,7 @@ var submitMedia = (function () {
 
             $scope.getExifData = function() {
                 if (!this.queue.length) {
-                    wildbook.showAlert("Please upload some media files before continuing.");
+                    alertplus.alert("Please upload some media files before continuing.");
                     return $.Deferred().reject();
                 }
                 //
@@ -192,7 +192,7 @@ var submitMedia = (function () {
                 });
 
                 if (!allUploaded) {
-                    wildbook.showAlert("Please finish uploading (or canceling) all of your images before continuing.");
+                    alertplus.alert("Please finish uploading (or canceling) all of your images before continuing.");
                     return $.Deferred().reject();
                 }
 
@@ -244,7 +244,7 @@ var submitMedia = (function () {
                     });
                 })
                 .fail(function(ex) {
-                    wildbook.showError(ex);
+                    alertplus.error(ex);
                 });
 
                 return jqXHR.promise();
@@ -262,7 +262,7 @@ var submitMedia = (function () {
                     });
                 })
                 .fail(function(ex) {
-                    wildbook.showError(ex);
+                    alertplus.error(ex);
                 });
 
                 return jqXHR.promise();
@@ -275,7 +275,7 @@ var submitMedia = (function () {
                     $("#MediaSubmissionThankYou").removeClass("hidden");
                 })
                 .fail(function(ex) {
-                    wildbook.showError(ex);
+                    alertplus.error(ex);
                 });
 
                 return jqXHR.promise();

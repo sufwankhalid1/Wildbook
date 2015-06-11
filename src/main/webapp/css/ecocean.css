@@ -1686,17 +1686,6 @@ div.state-approved span.state {
   color: #999;
   text-align: center;
 }
-
-#alertdialog {
-    overflow-y:auto;
-    z-index: 2000; /* leaflet attribution is at z-index 1000 annoyingly. wtf? */
-}
-
-#detailscontainer {
-    width: 100%;
-    height: 400px;
-    overflow: auto;
-}
 /* Added this because the font on the date picker title was white in all browsers except for Chrome on a Mac!
    The bootstrap color: inherit, which should have been friendly to preserve the color was, in fact,
    causing the color to be white */
