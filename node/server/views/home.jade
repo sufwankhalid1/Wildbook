@@ -21,9 +21,6 @@ block content
                 a.zocial.instagram(href="https://instagram.com/happyhumpback" target="_blank")
                 a.zocial.email(href="#")
             .row
-                a(href="https://instagram.com/happyhumpback" target="_blank") @happywhale
-                | &nbsp; on Instagram
-            .row
                 div
                     img.tinyimage(src="/images/home_tiny1.png")
                     img.tinyimage(src="/images/home_tiny2.png")
@@ -31,10 +28,9 @@ block content
                     img.tinyimage(src="/images/home_tiny4.png")
         .col-md-6.homefootercol
             h1= t("home.footer.whatGoingOn")
-            h2 News Section Headline
-            p Lorem ipsum...
-            h2 News Section Headline
-            p Ut enim...
+            for item in news
+                h2= item.headline
+                p= item.contents
         .col-md-3
             h1= t("home.footer.spotlight")
             .spotlight

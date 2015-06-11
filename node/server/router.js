@@ -22,8 +22,12 @@ module.exports = function(app, config) {
     //
     app.get('/', function(req, res) {
         //
-        // i18n available as req.i18n.t or just req.t
+        // NOTE: i18n available as req.i18n.t or just req.t
         // Also res.locals.t
+        //
+
+        //
+        // TODO: Read these from a mongo database that the site admin will be able to edit.
         //
         var variables = {user: null,
                 config: config,
@@ -32,7 +36,13 @@ module.exports = function(app, config) {
                     species: "Humpback Whale",
                     id: "Cascadia #12492",
                     place: "Monterey Bay, CA"
-                }};
+                },
+                news: [{headline: "News Section Headline",
+                        contents: "Lorem ipsum..."},
+                        {headline: "News Section Headline 2",
+                         contents: "Ut enim..."}]
+                };
+
         res.render('home', variables);
     });
 
