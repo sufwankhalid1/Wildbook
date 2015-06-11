@@ -52,15 +52,6 @@
 <script src="tools/leaflet/leaflet-src.js"></script>
 <script src="tools/alertplus/javascript/alertplus.js"></script>
 
-<!-- ******* START FileUpload scripts ******* -->
-<!-- These were for the jquery-ui version-->
-<!-- 
-<script src="tools/jquery-fileupload/javascript/tmpl.min.js"></script>
-<script src="tools/jquery-fileupload/javascript/load-image.all.min.js"></script>
-<script src="tools/jquery-fileupload/javascript/jquery.fileupload-ui.js"></script>
-<script src="tools/jquery-fileupload/javascript/jquery.fileupload-jquery-ui.js"></script>
--->
-
 <!-- The Load Image plugin is included for the preview images and image resizing functionality -->
 <script src="//blueimp.github.io/JavaScript-Load-Image/js/load-image.all.min.js"></script>
 <!-- The Canvas to Blob plugin is included for image resizing functionality -->
@@ -83,6 +74,8 @@
 <!-- The File Upload Angular JS module -->
 <script src="tools/jquery-fileupload/javascript/jquery.fileupload-angular.js"></script>
 <!-- ******* END FileUpload scripts ******* -->
+
+<script src="javascript/submitMedia.js"></script>
 
 <%
 /*
@@ -324,15 +317,5 @@
     <h1>Thank You!</h1>
     <p>We have received your data and will begin analyzing it. We will periodically report back results. Be sure to check your email in a few minutes for a link back to your data where you can check our lastest conclusions.</p>
 </div>
-
-<script src="javascript/submitMedia.js"></script>
-
-<script>$(function() {
-    wildbook.init(function(){
-        //submitMedia.init();
-    });
-});</script>
-
-
 
 <jsp:include page="footerfull.jsp" flush="true"/>

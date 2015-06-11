@@ -8,14 +8,18 @@
 var submitMedia = (function () {
     'use strict';
 
-    var map = L.map('mediasubmissionmap');
     var marker = null;
     var hasGPS = false;
+    var map = null;
 
-    L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-        maxZoom: 18
-    }).addTo(map);
+    $(function() {
+        map = L.map('mediasubmissionmap');
+
+        L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            maxZoom: 18
+        }).addTo(map);
+    });
 
     function addToMap(latitude, longitude) {
         if (marker) {
@@ -82,14 +86,16 @@ var submitMedia = (function () {
     wizard.controller('MediaSubmissionController',
         ['$scope', '$q', '$timeout',
          function ($scope, $q, $timeout) {
-            map.on('click', function(event) {
-                if (! hasGPS) {
-                    $scope.$apply(function() {
-                        $scope.media.latitude = event.latlng.lat;
-                        $scope.media.longitude = event.latlng.lng;
-                    });
-//                    addToMap(latlng);
-                }
+            angular.element(document).ready(function() {
+                map.on('click', function(event) {
+                    if (! hasGPS) {
+                        $scope.$apply(function() {
+                            $scope.media.latitude = event.latlng.lat;
+                            $scope.media.longitude = event.latlng.lng;
+                        });
+//                        addToMap(latlng);
+                    }
+                });
             });
 
             function urlParam(name) {
