@@ -1132,6 +1132,46 @@ console.log(m);
 
 	$('#admin-div').hide();
 
+	//this is duplicated from the table version, but these are nice things to have on our media objects
+	for (var i = 0 ; i < m.length ; i++) {
+		//var mObj = new wildbook.Model.SinglePhotoVideo(m[i]);
+		var mid = m[i].dataCollectionEventID;
+		m[i]._tags = getTags(m[i]);
+		if (!m[i]._tags) m[i]._tags = [];  //we may need this for "pseudo"-tags below
+		m[i]._encounters = encountersForImage(mid);
+		if (m[i]._encounters) m[i]._tags.push('encounter');
+		m[i]._occurrences = occurrencesForImage(mid);
+		if (m[i]._occurrences) m[i]._tags.push('occurrence');
+
+/*   meh we dont really need these tho?
+		var imgSrc = mObj.url();
+		var regex = new RegExp('\.(jpg|png|jpeg|gif)$', 'i');
+		var zoomable = regex.test(imgSrc);
+		if (isGeoFile(m[i])) imgSrc = 'images/map-icon.png';
+
+		if (zoomable) {
+			m[i]._thumb = '<img class="tiny-thumb zoom-thumb" onClick="return imageZoom(event, this);" src="' + imgSrc + '" />';
+		} else {
+			m[i]._thumb = '<img class="tiny-thumb" src="' + imgSrc + '" />';
+		}
+*/
+
+		var st = inSurvey(m[i]);
+		if (st[0]) m[i]._survey = st[0];
+		if (st[1]) m[i]._surveyTrack = st[1];
+		if (st[0] || st[1]) m[i]._tags.push('survey');
+
+/* already done... somewhere? it seems
+		var exif = mediaExif(mediaSubmission, mObj.id);
+		if (exif) {
+			m[i]._latitude = exif.latitude;
+			m[i]._longitude = exif.longitude;
+			m[i]._time = exif.time;
+		}
+*/
+
+	}
+
 	var h = imageDivContents(mediaSort(mediaSubmission, '-date'));
 	$('#images-unused').html(h);
 
@@ -1145,7 +1185,7 @@ console.log(m);
 */
 	$('#images-unused').selectable({
 		stop: function(ev, ui) { updateSelectedUI(ev, ui); },
-		filter: ':not(.has-tag-trash)',
+		//filter: ':not(.has-tag-trash)',
 	});
 	//$('.has-tag-trash').selectable({disabled: true});  //TODO doesnt seem to work with lasso selector.  ??  but filter above *seems* to exclude anyway!
 	updateSelectedUI();
@@ -1377,7 +1417,7 @@ function idsNotVisible() {
 
 function updateSelectedUI(ev, ui) {
 	$('.action-checkbox-div .checkbox-indeterminate').remove();
-	//console.info('ev %o, ui %o', ev, ui);
+	console.info('ev %o, ui %o', ev, ui);
 	//var nsel = $('div.image.ui-selected').length;
 	var selMed = getSelectedMedia();
 	var nsel = selMed.length;
@@ -1432,16 +1472,16 @@ console.info('inSurveys: %d', inSurveys);
 			}
 		}
 	}
-console.info(tagCount);
+console.info('tagCount %o (nsel=%d)', tagCount, nsel);
 
 	for (var act in imageActions) {
 		if (tagCount[act] == nsel) {
-			$('#checkbox-' + act).attr('checked', true);
+			$('#checkbox-' + act).prop('checked', true);
 		} else if (tagCount[act]) {
-			$('#checkbox-' + act).attr('checked', false);
+			$('#checkbox-' + act).prop('checked', false);
 			$('#action-checkbox-div-' + act).prepend('<span class="checkbox-indeterminate">-</span>');
 		} else {
-			$('#checkbox-' + act).attr('checked', false);
+			$('#checkbox-' + act).prop('checked', false);
 		}
 	}
 
@@ -1467,6 +1507,7 @@ function msError(msg, a,b,c) {
 	if (!msg) msg = 'error :(';
 	//$('#admin-div').html('<h1 class="error">' + msg + '</h1>');
 	alert(msg);
+	return false;
 }
 
 /*
@@ -1867,10 +1908,11 @@ function actionCancel() {
 }
 
 function actionTag(tagName, cmd) {
+console.log(tagName);
 	if (imageActions[tagName].actionMethod) return imageActions[tagName].actionMethod();
 
 	var m = getSelectedMedia({skipGeo: true});
-	if (m.length < 1) return;
+	if (m.length < 1) return msError('no image/video files selected');
 	$('.action-div').hide();
 	var media = new Array();
 	var tagged = [];
@@ -2381,6 +2423,30 @@ $('#enc-dateInMilliseconds-human').change(function() {
 });
 
 
+function reSort(el) {
+	var setTo = el.className;
+	var newClass = setTo;
+	var newText = 'sort by date (oldest first)';
+	if (newClass.indexOf('-') == 0) {
+		newClass = 'date';
+	} else {
+		newClass = '-date';
+		newText = 'sort by date (newest first)';
+	}
+console.log('setTo = %s', setTo);
+	el.className = newClass;
+	el.value = newText;
+	$('#images-unused').html(imageDivContents(mediaSort(mediaSubmission, setTo)));
+	return true;
+}
+
+function imageResize(w,h) {
+	$('.thumb').css({
+		width: w + 'px',
+		height: h + 'px'
+	});
+}
+
 </script>
 
 		<div id="progress">loading media submissions...</div>
@@ -2413,6 +2479,13 @@ $('#enc-dateInMilliseconds-human').change(function() {
 
 <div id="work-div">
 	<div id="user-meta"></div>
+
+	<div>
+		<!-- input type="button" class="date" value="sort by date (oldest first)" onClick="return reSort(this);" / -->
+		<input type="button" value="images: small" onClick="return imageResize(100,75);" />
+		<input type="button" value="images: medium" onClick="return imageResize(200,150);" />
+		<input type="button" value="images: large" onClick="return imageResize(500,400);" />
+	</div>
 
 	<div id="images-unused"></div>
 
