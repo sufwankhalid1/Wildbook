@@ -20,6 +20,13 @@ body {
     background-color: #107D9F;
 }
 
+.navbar-inverse .navbar-nav a{
+    color: #EFEFEF;
+}
+
+.navbar-inverse .navbar-nav p{
+    color: #EFEFEF;
+}
 
 .navbar-inverse .navbar-nav>li>a  {
     color: #EFEFEF;

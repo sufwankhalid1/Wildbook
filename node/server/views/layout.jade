@@ -4,6 +4,8 @@ html
         link(rel='stylesheet', href='/css/wildbook.css')
         link(rel='stylesheet', href='/vendor/bootstrap/css/bootstrap.min.css')
         link(rel='stylesheet', href='/css/bootstrap-custom.css')
+        link(rel='stylesheet' href='/vendor/alertplus/css/alertplus.css')
+        
         block css
     body
 
@@ -13,8 +15,9 @@ html
                 ul.nav.navbar-nav
                     li.active
                         a(href="#")= t("header.menu.reportSighting")
-                    li
-                        a(href="#me")= t("header.menu.me")
+                    if user
+                        li
+                            a(href="#me")= t("header.menu.me")
                     li
                         a(href="#about")= t("header.menu.about")
                     li
@@ -23,6 +26,15 @@ html
                         .right-inner-addon
                             i.glyphicon.glyphicon-search(style="top: -5px; color: #AAA;")
                             input.search-query.form-control.navbar-search(type="text" placeholder!= t("header.menu.searchSite"))
+                    li
+                        if user
+                            div
+                                p= t("header.menu.welcomeBack") + ", "
+                                    | #{user.name}!
+                                a(href="#")= t("header.menu.gotomy") + " | "
+                                a(href="#")= t("header.menu.signout")
+                        else
+                            a(href="#")= t("header.menu.signin")
         .logo-svg#navbar-logo-right
     block content
 
@@ -46,5 +58,6 @@ html
 
     script(src='/vendor/jquery.min.js')
     script(src='/vendor/bootstrap/js/bootstrap.min.js')
+    script(src='/vendor/alertplus/javascript/alertplus.js')
 
     block scripts

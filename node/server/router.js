@@ -29,7 +29,7 @@ module.exports = function(app, config) {
         //
         // TODO: Read these from a mongo database that the site admin will be able to edit.
         //
-        var variables = {user: null,
+        var variables = {user: null,//{name: "ken"},
                 config: config,
                 spotlight: {
                     name: "Frosty",

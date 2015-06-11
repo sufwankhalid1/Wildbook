@@ -8,7 +8,11 @@
             "me": "MY WHALES",
             "about": "ABOUT",
             "news": "NEWS",
-            "searchSite": "Search site"
+            "searchSite": "Search site",
+            "welcomeBack": "Welcome Back",
+            "signin": "Sign in",
+            "gotomy": "Go to My Whales",
+            "signout": "Sign Out"
         }
     },
     "footer": {
