@@ -146,59 +146,6 @@ console.log('is %o', ajax);
     init: function(callback) {
         classInit('Base', function() { wildbook.loadAllClasses(callback); });  //define base class first - rest can happen any order
     },
-
-    showError: function(ex) {
-        var message;
-        var details;
-        if (ex.status === 500) {
-            if (ex.responseJSON) {
-                message = ex.responseJSON.message;
-                details = ex.responseJSON.totalStackTrace;
-            } else {
-                message = ex.message;
-                details = ex.totalStackTrace;
-            }
-        } else {
-            message = "Error " + ex.status + ": " + ex.statusText;
-            details = null;
-        }
-        this.showAlert(message, details);
-    },
-
-    showAlert: function(message, details) {
-        //
-        //   Positioning at top so that when the details are clicked we can
-        //   expand the form to show the whole details without it going off
-        //   the screen and the user having to move the form with the mouse.
-        //
-        $("#alertdialog").dialog( {
-            autoOpen: true,
-            //dialogClass: "alertdialog",
-            modal: true,
-            title: "Error",
-            closeOnEscape: true,
-            buttons: { "OK": function() { $(this).dialog("close"); } },
-            open: function() {
-                $("#detailsbutton").button();
-                $("#detailsbutton").click( function(e) {
-                    $("#detailscontainer").toggle();
-                } );
-
-                if (details) {
-                    $("#detailsbutton").show();
-                } else {
-                    $("#detailsbutton").hide();
-                }
-
-                $("#alertmessage").html( message );
-
-                $("#detailscontainer").hide();
-                $("#detailscontent").html(details);
-            },
-            width: 600,
-            appendTo: "body",
-            resizable: false } );
-    }
 };
 
 

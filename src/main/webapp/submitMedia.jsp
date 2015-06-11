@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="tools/jquery-fileupload/css/jquery.fileupload.css">
 <link rel="stylesheet" href="tools/jquery-fileupload/css/jquery.fileupload-ui.css">
 <link rel="stylesheet" href="tools/leaflet/leaflet.css">
+<link rel="stylesheet" href="tools/alertplus/css/alertplus.css">
 <!-- Default fonts for jquery-ui are too big
 <style>
 .ui-widget {
@@ -49,6 +50,7 @@
 <script src="tools/angularjs-utilities/javascript/modules/rcWizard.js"></script>
 <script src="tools/angular-ui/ui-date/date.js"></script>
 <script src="tools/leaflet/leaflet-src.js"></script>
+<script src="tools/alertplus/javascript/alertplus.js"></script>
 
 <!-- ******* START FileUpload scripts ******* -->
 <!-- These were for the jquery-ui version-->
