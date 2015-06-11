@@ -64,12 +64,11 @@ public class ApiAccess {
 	public Document initConfig(HttpServletRequest request) {
 		if (this.configDoc != null) return this.configDoc;
 		HttpSession session = request.getSession(true);
-    String context = "context0";
-    context = ServletUtilities.getContext(request);
-    //Shepherd myShepherd = new Shepherd(context);
+		String context = "context0";
+		context = ServletUtilities.getContext(request);
+
 		ServletContext sc = session.getServletContext();
 		File afile = new File(sc.getRealPath("/") + "/WEB-INF/classes/apiaccess.xml");
-//System.out.println("reading file??? " + afile.toString());
 
 		// h/t http://www.mkyong.com/java/how-to-read-xml-file-in-java-dom-parser/
 		try {
@@ -102,7 +101,7 @@ System.out.println(perm);
 		Iterator<?> keys = jsonobj.keys();
 		while (keys.hasNext()) {
 			String key = (String) keys.next();
-//System.out.println(key);
+
 			//we dont care what the value is, just if it is being set at all and shouldnt be
 			if (perm.containsKey(key) && perm.get(key).equals("deny")) {
 				err = "altering value for " + key + " disallowed by permissions: " + perm.toString();
@@ -126,7 +125,7 @@ System.out.println(perm);
 		this.initConfig(request);
 		String context = "context0";
 		context = ServletUtilities.getContext(request);
-    Shepherd myShepherd = new Shepherd(context);
+		Shepherd myShepherd = new Shepherd(context);
 		String username = "";
 		if (request.getUserPrincipal() != null) username = request.getUserPrincipal().getName();
 		List<Role> roleObjs = myShepherd.getAllRolesForUserInContext(username, context);
@@ -134,7 +133,6 @@ System.out.println(perm);
 		for (Role r : roleObjs) {
 			roles.add(r.getRolename());
 		}
-//System.out.println("[class " + cname + "] roles for user '" + username + "': " + roles);
 
 		NodeList nlist = this.configDoc.getDocumentElement().getElementsByTagName("class");
 		if (nlist.getLength() < 1) return perm;
@@ -184,7 +182,6 @@ System.out.println(perm);
 			}
 		}
 
-//System.out.println(perm);
 		return perm;
 	}
 
