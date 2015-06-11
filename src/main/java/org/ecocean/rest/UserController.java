@@ -38,6 +38,9 @@ public class UserController {
         String username = null;
         if (request.getUserPrincipal() != null) username = request.getUserPrincipal().getName();
         if ((username != null) && !username.equals("")) user = myShepherd.getUser(username);
+        if (user == null) {
+            user = new User();
+        }
         return new ResponseEntity<User>(user, HttpStatus.OK);
     }
 
@@ -55,7 +58,7 @@ public class UserController {
 
 
 /*
-    @RequestMapping(value = "/login", method = RequestMethod.POST)
+    @RequestMapping(value = "/login/{username}/{password}", method = RequestMethod.POST)
     public ResponseEntity<MediaTag> appendMedia(final HttpServletRequest request,
                                               @RequestBody @Valid List<SinglePhotoVideo> media,
                                               @PathVariable("tagName") final String tagName) {
