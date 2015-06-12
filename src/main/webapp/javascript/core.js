@@ -146,6 +146,16 @@ console.log('is %o', ajax);
     init: function(callback) {
         classInit('Base', function() { wildbook.loadAllClasses(callback); });  //define base class first - rest can happen any order
     },
+
+		removeFromArray: function(arr, items) {
+			if (items.constructor != Array) items = [ items ];
+			var n = new Array();
+			for (var i = 0 ; i < arr.length ; i++) {
+				if (items.indexOf(arr[i]) < 0) n.push(arr[i]);
+			}
+			return n;
+		},
+
 };
 
 
@@ -167,6 +177,8 @@ function classInit(cname, callback) {
         callback();
     });
 }
+
+
 
 
 //$.getScript('/mm/javascript/prototype.js', function() { wildbook.init(); });
