@@ -452,6 +452,8 @@ body { font-family: arial }
 var cascIDUrl = 'http://splashcatalog.org/cascadia/BatchCompare?context=context3&';
 var cascBatchUrl = 'http://splashcatalog.org/cascadia/batchCompareDone.jsp?context=context3&';
 
+var visibleState = {trash: false, archive: false};
+
 var imageActions = {
 	encounter: {
 		label: 'create encounter' ,
@@ -1367,16 +1369,27 @@ function initUI() {
 	}
 	$('#action-checkboxes').html(h);
 	$('.action-visibility').bind('click', function(ev) { visibilityClick(ev); });
+
+	for (var act in visibleState) {
+		if (visibleState[act] !== false) continue;
+		var jel = $('#action-visibility-' + act);
+		jel.toggleClass('glyphicon-eye-open').toggleClass('glyphicon-eye-close');
+		if (displayAsTable) {
+			tableMedia.applyFilter($('#media-filter-text').val());
+		} else {
+			imageFilter(jel);
+		}
+	}
 }
 
 
 function visibilityClick(ev) {
 	ev.stopPropagation();
 	ev.preventDefault();
-//console.info(ev.target.id);
 	var jel = $(ev.target);
 	jel.toggleClass('glyphicon-eye-open');
 	jel.toggleClass('glyphicon-eye-close');
+	visibleState[ev.target.id.substr(18)] = jel.hasClass('glyphicon-eye-open');
 	if (displayAsTable) {
 		tableMedia.applyFilter($('#media-filter-text').val());
 	} else {
@@ -1392,8 +1405,9 @@ function imageFilter(jel) {
 		hiddenClasses.push(act);
 		//$('.has-tag-' + act).hide();
 	} else {
-		var i = hiddenClasses.indexOf(act);
-		if (i > -1) hiddenClasses.splice(i,1);
+		hiddenClasses = wildbook.removeFromArray(hiddenClasses, act);
+		//var i = hiddenClasses.indexOf(act);
+		//if (i > -1) hiddenClasses.splice(i,1);
 		//$('.has-tag-' + act).show();
 	}
 	$('div.image').show();
