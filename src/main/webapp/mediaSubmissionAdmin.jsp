@@ -1398,6 +1398,7 @@ function initUI() {
 	for (var act in imageActions) {
 		h += '<div class="action-wrapper"><i id="action-visibility-' + act + '" class="action-visibility glyphicon glyphicon-eye-open"></i><div onClick="event.stopPropagation(); event.preventDefault(); return actionTag(\'' + act + '\');" class="action-checkbox-div" id="action-checkbox-div-' + act + '"><input type="checkbox" id="checkbox-' + act + '" /> <label for="checkbox-' + act + '">' + imageActions[act].label + '</label></div></div>';
 	}
+	h += ' <input type="button" value="show only unaffected files" onClick="return hideAllTagged()" />';
 	$('#action-checkboxes').html(h);
 	$('.action-visibility').bind('click', function(ev) { visibilityClick(ev); });
 
@@ -1429,6 +1430,7 @@ function visibilityClick(ev) {
 }
 
 
+//TODO combine hiddenClasses functionality with visibleState ??
 var hiddenClasses = [];
 function imageFilter(jel) {
 	var act = jel.attr('id').substr(18);
@@ -1446,6 +1448,20 @@ function imageFilter(jel) {
 		$('.has-tag-' + hiddenClasses[i]).hide();
 	}
 }
+
+
+function hideAllTagged() {
+	for (var act in imageActions) {
+		visibleState[act] = false;
+		var jel = $('#action-visibility-' + act);
+		jel.removeClass('glyphicon-eye-open').addClass('glyphicon-eye-close');
+		if (!displayAsTable) {
+			imageFilter(jel);
+		}
+	}
+	if (displayAsTable) tableMedia.applyFilter($('#media-filter-text').val());
+}
+
 
 function idsNotVisible() {
 	var skipIds = [];
