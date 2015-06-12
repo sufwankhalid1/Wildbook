@@ -202,6 +202,21 @@ body { font-family: arial }
 	display: inline-flex;
 }
 
+.image-date-time {
+	width: 100%;
+	text-align: center;
+	z-index: 3;
+	position: absolute;
+	bottom: 1px;
+	left: 0px;
+	xborder-radius: 12px;
+	background-color: rgba(0,0,0,0.3);
+	color: white;
+	font-weight: bold;
+	font-size: 0.7em;
+	padding: 3px 6px;
+}
+
 .note {
 	text-align: center;
 	z-index: 3;
@@ -1099,6 +1114,20 @@ function msMode(mode) {
 }
 
 
+function toggleMode(el) {
+	if (el.className == 'mode-image') {
+		el.className = 'mode-table';
+		el.value = 'show as images';
+		msMode('table');
+	} else {
+		el.className = 'mode-image';
+		el.value = 'show as table';
+		msMode('image');
+	}
+	return true;
+}
+
+
 function displayMS() {
 	var d = new Date();
 	d.setTime(mediaSubmission.get('timeSubmitted'));
@@ -1121,9 +1150,11 @@ function displayMS() {
 
 	if (displayAsTable) {
 		$('#images-unused').hide();
+		$('#image-options').hide();
 		return displayMSTable();
 	}
 	$('#media-table').hide();
+	$('#image-options').show();
 
 	var m = mediaSubmission.get('media');
 console.log(m);
@@ -1260,13 +1291,13 @@ function imageDivContents(m) {
 			note += '<span class="tag tag-survey" title="in Survey ' + st[0].name + '/' + st[0].id + ', Track ' + st[1].name + '/' + st[1].id + '">' + name + '</span>';
 		}
 
-		var title = '';
+		var dtime = '';
 		if (m[i]._exif && m[i]._exif.time) {
 			var d = new Date();
 			d.setTime(m[i]._exif.time);
-			title = ' title="' + d.toLocaleString() + '"';
+			dtime = '<span class="image-date-time">' + d.toLocaleString() + '</span>';
 		}
-		h += '<div id="' + mObj.id + '" class="image' + classes + '"' + title + '><img class="thumb" src="' + imgSrc + '" />' + note + '</div>';
+		h += '<div id="' + mObj.id + '" class="image' + classes + '"><img class="thumb" src="' + imgSrc + '" />' + note + dtime + '</div>';
 	}
 
 	return h;
@@ -2494,11 +2525,14 @@ function imageResize(w,h) {
 <div id="work-div">
 	<div id="user-meta"></div>
 
-	<div>
-		<!-- input type="button" class="date" value="sort by date (oldest first)" onClick="return reSort(this);" / -->
-		<input type="button" value="images: small" onClick="return imageResize(100,75);" />
-		<input type="button" value="images: medium" onClick="return imageResize(200,150);" />
-		<input type="button" value="images: large" onClick="return imageResize(500,400);" />
+	<div id="general-options">
+		<span id="image-options">
+			<!-- input type="button" class="date" value="sort by date (oldest first)" onClick="return reSort(this);" / -->
+			<input type="button" value="images: small" onClick="return imageResize(100,75);" />
+			<input type="button" value="images: medium" onClick="return imageResize(200,150);" />
+			<input type="button" value="images: large" onClick="return imageResize(500,400);" />
+		</span>
+		<input class="mode-image" type="button" value="show as table" onClick="return toggleMode(this);" />
 	</div>
 
 	<div id="images-unused"></div>
@@ -2536,7 +2570,9 @@ function imageResize(w,h) {
 	<input type="button" value="back to listing" onClick="actionCancel()" />
 </div>
 
-<div id="action-message">
+<div style="position: relative">
+	<span style="position: absolute; top: 0; right: 0; background-color: rgba(0,0,0,0.5); color: white; padding: 2px 5px; font-size: 0.9em">activity log</span>
+	<div id="action-message"></div>
 </div>
 
 <div class="action-div" id="survey-div">
