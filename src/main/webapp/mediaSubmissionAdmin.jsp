@@ -1306,7 +1306,7 @@ function imageDivContents(m) {
 function mediaSort(ms, sortBy) {
 	var m = ms.get('media');
 	for (var i = 0 ; i < m.length ; i++) {
-		m[i]._exif = ms._exif.items[i];
+		m[i]._exif = getExifById(ms, m[i].dataCollectionEventID);
 	}
 console.info(m);
 	if (sortBy == '-date') {
@@ -1323,11 +1323,23 @@ function _mediaSortDate(a, b) {
 	var btime = 0;
 	if (a._exif && a._exif.time) atime = a._exif.time;
 	if (b._exif && b._exif.time) btime = b._exif.time;
+	//this hackery is to *consistently* sort two images whose atime/btime match exactly.  they were randomly swapping around otherwise.  this keeps it numeric for sorting.  i hope.
+	atime += '.' + parseInt(a.dataCollectionEventID.substr(-4), 16);
+	btime += '.' + parseInt(b.dataCollectionEventID.substr(-4), 16);
 //console.log('%o vs %o', atime, btime);
 	if (atime < btime) return -1;
 	if (btime < atime) return 1;
 	return 0;
 }
+
+function getExifById(ms, id) {
+	if (!ms._exif || !ms._exif.items) return;
+	for (var i = 0 ; i < ms._exif.items.length ; i++) {
+		if (ms._exif.items[i].mediaid == id) return ms._exif.items[i];
+	}
+	return;
+}
+
 
 function displayMSTable() {
 	var ok = putOnMap(mediaSubmission.get('latitude'), mediaSubmission.get('longitude'));
@@ -2170,6 +2182,11 @@ function getSelectedMedia(opt) {
 
 
 function modalPrompt(message, buttons, closeAction) {
+	var d = $('#alertdialog');
+	if (!d.length) {
+		d = $('<div id="alertdialog"></div>');
+		$('body').append(d);
+	}
 	$('#alertdialog').dialog({
 		autoOpen: true,
 		modal: true,
@@ -2177,7 +2194,7 @@ function modalPrompt(message, buttons, closeAction) {
 		closeOnEscape: true,
 		buttons: buttons,  // e.g. [{text:'label', click: function() {} }, ...]
 		open: function() {
-			$('#alertmessage').html(message);
+			$('#alertdialog').html(message);
 			$('#detailsbutton').hide();
 		},
 		width: 600,
