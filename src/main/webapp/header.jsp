@@ -402,6 +402,7 @@
 	<script type="text/javascript" src="<%=requestURL %>/javascript/jquery-2.1.3.js"></script>
 	<script type="text/javascript" src="<%=requestURL %>/javascript/jquery.blockUI.js"></script>
 	<script type="text/javascript" src="<%=requestURL %>/javascript/jquery.cookie.js"></script>
+	<script type="text/javascript" src="<%=requestURL %>/tools/alertplus/javascript/alertplus.js"></script>
 	<script type="text/javascript">
   $(function() {
     var toTip = $( "[id^=flag_]" );

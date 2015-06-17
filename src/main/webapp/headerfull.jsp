@@ -24,6 +24,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>         
 <%
 String context = ServletUtilities.getContext(request);
+String requestURL = "http://" + CommonConfiguration.getURLLocation(request);
 %>
 
 <html>
@@ -40,6 +41,7 @@ String context = ServletUtilities.getContext(request);
         rel="stylesheet" type="text/css"/>
   <link rel="shortcut icon"
         href="<%=CommonConfiguration.getHTMLShortcutIcon(context) %>"/>
+	<link rel="stylesheet" href="<%=requestURL %>/tools/alertplus/css/alertplus.css">
 </head>
         
 <body>
