@@ -5,7 +5,10 @@
 <%@ page contentType="text/html; charset=utf-8" language="java"
          import="
 org.ecocean.CommonConfiguration,
+org.ecocean.Keyword,
 org.ecocean.servlet.ServletUtilities,
+com.google.gson.Gson,
+java.util.Iterator,
 java.util.ArrayList
 "%>
 
@@ -13,6 +16,7 @@ java.util.ArrayList
 
 String context = "context0";
 context = ServletUtilities.getContext(request);
+org.ecocean.Shepherd myShepherd = new org.ecocean.Shepherd(context);
 
 %>
 
@@ -60,11 +64,21 @@ context = ServletUtilities.getContext(request);
  encounter.setDay(42);
 
     String context=org.ecocean.servlet.ServletUtilities.getContext(request);
-    org.ecocean.Shepherd myShepherd = new org.ecocean.Shepherd(context);
 
     myShepherd.getPM().makePersistent(encounter);
 */
+    ArrayList<Keyword> allK = new ArrayList<Keyword>();
+    Iterator keywords = myShepherd.getAllKeywords();
+    while (keywords.hasNext()) {
+        allK.add((Keyword) keywords.next());
+    }
+    String kjs = new Gson().toJson(allK);
 %>
+<script>
+	var wildbookKeywords = <%= kjs %>;
+wildbookKeywords.push({indexname: 'foo', readableName: 'bar'});
+wildbookKeywords.push({indexname: '000', readableName: 'zeroes'});
+</script>
 
 
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
@@ -95,6 +109,12 @@ body { font-family: arial }
 .action-visibility {
 	font-size: 0.9em;
 	cursor: pointer;
+}
+
+#action-keywords-pulldown {
+	padding: 0 10px;
+	width: 180px;
+	margin-right: 40px;
 }
 
 .pageableTable-visible:hover td {
@@ -1211,7 +1231,8 @@ console.log(m);
 
 	}
 
-	var h = imageDivContents(mediaSort(mediaSubmission, '-date'));
+	//var h = imageDivContents(mediaSort(mediaSubmission, '-date'));
+	var h = imageDivContents(mediaSort(mediaSubmission, 'date'));
 	$('#images-unused').html(h);
 
 
@@ -1319,20 +1340,26 @@ console.info(m);
 		m.sort(function(a,b) { return _mediaSortDate(a,b); });
 		m.reverse();
 	} else {
-		m.sort(function(a,b) { return _mediaSortDate(a,b); });
+		m.sort(function(a,b) { return _mediaSortDate(a,b,true); });
 	}
 	return m;
 }
 
-function _mediaSortDate(a, b) {
+function _mediaSortDate(a, b, unsetToTop) {
 	var atime = 0;
 	var btime = 0;
+	if (unsetToTop) {  //set to "way into the future"
+		atime = 3333333333333;
+		btime = 3333333333333;
+	}
+
 	if (a._exif && a._exif.time) atime = a._exif.time;
 	if (b._exif && b._exif.time) btime = b._exif.time;
 	//this hackery is to *consistently* sort two images whose atime/btime match exactly.  they were randomly swapping around otherwise.  this keeps it numeric for sorting.  i hope.
 	atime += '.' + parseInt(a.dataCollectionEventID.substr(-4), 16);
 	btime += '.' + parseInt(b.dataCollectionEventID.substr(-4), 16);
 //console.log('%o vs %o', atime, btime);
+
 	if (atime < btime) return -1;
 	if (btime < atime) return 1;
 	return 0;
@@ -1416,7 +1443,17 @@ function initUI() {
 	for (var act in imageActions) {
 		h += '<div class="action-wrapper"><i id="action-visibility-' + act + '" class="action-visibility glyphicon glyphicon-eye-open"></i><div onClick="event.stopPropagation(); event.preventDefault(); return actionTag(\'' + act + '\');" class="action-checkbox-div" id="action-checkbox-div-' + act + '"><input type="checkbox" id="checkbox-' + act + '" /> <label for="checkbox-' + act + '">' + imageActions[act].label + '</label></div></div>';
 	}
-	h += ' <input type="button" value="show only unaffected files" onClick="return hideAllTagged()" />';
+
+	if (wildbookKeywords && wildbookKeywords.length) {
+		var kmenu = '<div class="action-wrapper"><select onChange="return actionKeywords();" id="action-keywords-pulldown" multiple size=4>';
+		$.each(wildbookKeywords, function(i, kw) {
+			kmenu += '<option value="' + kw.indexname + '">' + kw.readableName + '</option>';
+		});
+		kmenu += '</select></div>';
+		h += kmenu;
+	}
+
+	h += '<div class="action-wrapper"><input type="button" value="show only unaffected files" onClick="return hideAllTagged()" /></div>';
 	$('#action-checkboxes').html(h);
 	$('.action-visibility').bind('click', function(ev) { visibilityClick(ev); });
 
@@ -2528,6 +2565,51 @@ function imageResize(w,h) {
 	$('.thumb').css({
 		width: w + 'px',
 		height: h + 'px'
+	});
+}
+
+//http://localhost:8080/test/SinglePhotoVideoAddKeyword?photoName=ff8081814c95c7d7014c95ca53400005&keyword=abc&number=null
+
+
+function actionKeywords() {
+	if (!wildbookKeywords || !wildbookKeywords.length) return;
+	var m = getSelectedMedia({skipGeo: true});
+	if (m.length < 1) return msError('no image/video files selected');
+
+	var selKeys = $('#action-keywords-pulldown').val();
+console.log('selKeys = %o', selKeys);
+	for (var k in wildbookKeywords) {
+		var action = 'Remove';
+		if (selKeys.indexOf(wildbookKeywords[k].indexname) > -1) action = 'Add';
+		for (var i = 0 ; i < m.length ; i++) {
+			pendingKeywordActions.push({action: action, keyword: wildbookKeywords[k].indexname, photoName: m[i].dataCollectionEventID});
+		}
+	}
+//console.log('HEY!  here is what i did: %o', pendingKeywordActions);
+	doKeywordActions();
+}
+
+var pendingKeywordActions = [];
+var keywordInProcess = false;
+function doKeywordActions() {
+	if (keywordInProcess) { //busy! try again in a bit
+		console.info('waiting for other keyword process...');
+		setTimeout(function() { doKeywordAction(); }, 400);
+		return;
+	}
+	if (pendingKeywordActions.length < 1) return;
+	keywordInProcess = true;
+	var me = pendingKeywordActions.shift();
+console.info('doing keyword = %o', me);
+	$.ajax({
+		type: 'GET',
+		url: wildbookGlobals.baseUrl + '/SinglePhotoVideo' + me.action + 'Keyword?photoName=' + me.photoName + '&keyword=' + me.keyword + '&number=null',
+		dataType: 'html',
+		complete: function(x,st) {
+			console.info('keyword [%s %s on %s] return status=%s', me.action, me.keyword, me.photoName, st);
+			keywordInProcess = false;
+			doKeywordActions();
+		}
 	});
 }
 
