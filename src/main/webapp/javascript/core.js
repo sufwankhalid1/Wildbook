@@ -156,6 +156,35 @@ console.log('is %o', ajax);
 			return n;
 		},
 
+		_userWatchStatus: {},
+		userWatch: function(callback, millisec) {
+//console.log('trying userWatch()');
+			$.ajax({
+				url: wildbookGlobals.baseUrl + '/obj/user',
+				type: 'GET',
+				dataType: 'json',
+				success: function(d) {
+					var prev = (wildbook._userWatchStatus.user && wildbook._userWatchStatus.user.username) || null;
+					if (d && (prev != d.username)) {
+console.info('user has changed; username changed %o -> %o', prev, d.username);
+						callback(d);
+					}
+//else { console.info('no change. :/'); }
+					wildbook._userWatchStatus.user = d;
+					wildbook._userWatchStatus.timeChecked = new Date();
+				},
+				complete: function(x,st) {
+					if (wildbook._userWatchStatus.cancel) {
+						delete(wildbook._userWatchStatus.cancel);
+						return;
+					}
+					setTimeout(function() { wildbook.userWatch(callback, millisec); }, millisec);
+				}
+			});
+		},
+		userWatchCancel: function() {
+			wildbook._userWatchStatus.cancel = true;
+		},
 };
 
 
