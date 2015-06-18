@@ -143,6 +143,19 @@ body { font-family: arial }
 }
 
 
+#image-size-info {
+	display: inline-block;
+  margin: 0 10px;
+  font-size: 0.75em;
+	line-height: 1.1em;
+  color: #799;
+}
+
+#image-size-slider {
+	width: 60%;
+	display: inline-block;
+}
+
 #image-zoom {
 	z-index: 200;
 	position: fixed;
@@ -1064,6 +1077,19 @@ $(document).ready( function() {
 		});
 */
 
+	});
+
+	$('#image-size-info').html('image size<br /><b>100</b> wide');
+	$('#image-size-slider').slider({
+		value: 100,
+		min: 50,
+		max: 800,
+		step: 25,
+		slide: function(ev, ui) {
+			$('#image-size-info').html('image size<br /><b>' + ui.value + '</b> wide');
+console.log('ev %o ui %o val %o', ev, ui, ui.value);
+			imageResize(ui.value);
+		}
 	});
 });
 
@@ -2582,9 +2608,15 @@ console.log('setTo = %s', setTo);
 }
 
 function imageResize(w,h) {
+	if (!h) {
+		//h = 'auto';
+		h = (w * 0.75) + 'px';
+	} else {
+		h = h + 'px';
+	}
 	$('.thumb').css({
 		width: w + 'px',
-		height: h + 'px'
+		height: h
 	});
 }
 
@@ -2669,9 +2701,8 @@ console.info('doing keyword = %o', me);
 	<div id="general-options">
 		<span id="image-options">
 			<!-- input type="button" class="date" value="sort by date (oldest first)" onClick="return reSort(this);" / -->
-			<input type="button" value="images: small" onClick="return imageResize(100,75);" />
-			<input type="button" value="images: medium" onClick="return imageResize(200,150);" />
-			<input type="button" value="images: large" onClick="return imageResize(500,400);" />
+			<div id="image-size-slider"></div>
+			<div id="image-size-info"></div>
 		</span>
 		<input class="mode-image" type="button" value="show as table" onClick="return toggleMode(this);" />
 	</div>
