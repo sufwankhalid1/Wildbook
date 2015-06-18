@@ -113,6 +113,7 @@ body { font-family: arial }
 
 #action-keywords-pulldown {
 	padding: 0 10px;
+	font-size: 0.85em;
 	width: 180px;
 	margin-right: 40px;
 }
@@ -222,6 +223,26 @@ body { font-family: arial }
 	display: inline-flex;
 }
 
+.image-filename {
+	width: 100%;
+	text-align: center;
+	z-index: 3;
+	position: absolute;
+	top: 1px;
+	left: 0px;
+	background-color: rgba(0,0,0,0.3);
+	color: white;
+	font-weight: bold;
+	font-size: 0.6em;
+	line-height: 1em;
+	padding: 3px 6px;
+	display: none;
+}
+.image:hover .image-filename {
+	display: block;
+}
+
+
 .image-date-time {
 	width: 100%;
 	text-align: center;
@@ -229,7 +250,6 @@ body { font-family: arial }
 	position: absolute;
 	bottom: 1px;
 	left: 0px;
-	xborder-radius: 12px;
 	background-color: rgba(0,0,0,0.3);
 	color: white;
 	font-weight: bold;
@@ -1324,7 +1344,7 @@ function imageDivContents(m) {
 			d.setTime(m[i]._exif.time);
 			dtime = '<span class="image-date-time">' + d.toLocaleString() + '</span>';
 		}
-		h += '<div id="' + mObj.id + '" class="image' + classes + '"><img class="thumb" src="' + imgSrc + '" />' + note + dtime + '</div>';
+		h += '<div id="' + mObj.id + '" class="image' + classes + '"><img class="thumb" src="' + imgSrc + '" />' + note + dtime + '<span class="image-filename">' + m[i].filename + '</span></div>';
 	}
 
 	return h;
