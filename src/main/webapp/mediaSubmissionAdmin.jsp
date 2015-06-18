@@ -494,6 +494,24 @@ body { font-family: arial }
 	color: #099;
 }
 
+
+.grouped {
+	background-color: #08F;
+	margin: 0 !important;
+}
+
+.grouped-start {
+	border-top-left-radius: 15px;
+	border-bottom-left-radius: 15px;
+	margin-left: 6px !important;
+}
+
+.grouped-end {
+	border-top-right-radius: 15px;
+	border-bottom-right-radius: 15px;
+	margin-right: 6px !important;
+}
+
 </style>
 
 <script src="//code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
@@ -1282,6 +1300,7 @@ console.log(m);
 	//var h = imageDivContents(mediaSort(mediaSubmission, '-date'));
 	var h = imageDivContents(mediaSort(mediaSubmission, 'date'));
 	$('#images-unused').html(h);
+	mediaGroup(mediaSubmission, 20000);
 
 
 /*
@@ -1388,6 +1407,50 @@ function imageDivContents(m) {
 	}
 
 	return h;
+}
+
+//this assumes sorted by mediaSort chronologically!
+function mediaGroup(ms, tolerance) {
+	var m = mediaSort(ms);
+	var grouping = [];
+	var prev = 0;
+	for (var i = 0 ; i < m.length ; i++) {
+		m[i]._exif = getExifById(ms, m[i].dataCollectionEventID);
+		if (!m[i]._exif || !m[i]._exif.time) continue;
+		if (grouping.length < 1) {
+			prev = m[i]._exif.time;
+			grouping.push(m[i]);
+console.warn('A) grouping %o', grouping);
+		} else if (Math.abs(m[i]._exif.time - prev) <= tolerance) {
+			prev = m[i]._exif.time;
+			grouping.push(m[i]);
+console.warn('B) grouping %o', grouping);
+		} else {  //we found something for a new group
+console.warn('C) grouping %o', grouping);
+			if (grouping.length > 1) {
+console.info('got a real group!');
+				for (var j = 0 ; j < grouping.length ; j++) {
+					$('#' + grouping[j].dataCollectionEventID).addClass('grouped').addClass('grouped-' + grouping[0]._exif.time + '-' + grouping[grouping.length-1]._exif.time);
+					if (j == 0) $('#' + grouping[j].dataCollectionEventID).addClass('grouped-start');
+					if (j == (grouping.length - 1)) $('#' + grouping[j].dataCollectionEventID).addClass('grouped-end');
+				}
+			}
+			grouping = [];
+			prev = m[i]._exif.time;
+			grouping.push(m[i]);
+console.warn('D) grouping %o', grouping);
+		}
+	}
+
+	//catch any group that might be left dangling
+	if (grouping.length > 1) {
+		for (var j = 0 ; j < grouping.length ; j++) {
+			$('#' + grouping[j].dataCollectionEventID).addClass('grouped').addClass('grouped-' + grouping[0]._exif.time + '-' + grouping[grouping.length-1]._exif.time);
+			if (j == 0) $('#' + grouping[j].dataCollectionEventID).addClass('grouped-start');
+			if (j == (grouping.length - 1)) $('#' + grouping[j].dataCollectionEventID).addClass('grouped-end');
+		}
+	}
+
 }
 
 function mediaSort(ms, sortBy) {
@@ -1784,6 +1847,7 @@ console.log(encounter);
 				updateMediaSubmissionStatus('active');
 				actionResult('created <a target="_new" href="encounters/encounter.jsp?number=' + eid + '">' + eid + '</a>');
 				$('#encounter-div').hide();
+				$('#action-menu-div').show();
 				//$('#images-used').html('');
 
 				allCollections.Encounters.fetch({
@@ -1938,6 +2002,7 @@ console.info('points %o', points);
 				$('#survey-div').hide();
 				resetAllCollections('survey_Surveys');
 				updateAllCollections(function() { displayMS(); });
+				$('#action-menu-div').show();
 /*
 				allCollections.Encounters.fetch({
 					success: function() {
@@ -1969,6 +2034,7 @@ console.info('points %o', points);
 				$('#survey-div').hide();
 				resetAllCollections('survey_Surveys');
 				updateAllCollections(function() { displayMS(); });
+				$('#action-menu-div').show();
 /*
 				allCollections.Encounters.fetch({
 					success: function() {
@@ -2012,6 +2078,7 @@ console.info('new track! %o', track);
 					$('#survey-div').hide();
 					resetAllCollections('survey_Surveys');
 					updateAllCollections(function() { displayMS(); });
+					$('#action-menu-div').show();
 /*
 					allCollections.Encounters.fetch({
 						success: function() {
@@ -2047,6 +2114,7 @@ console.info('new track! %o', track);
 					$('#survey-div').hide();
 					resetAllCollections('survey_Surveys');
 					updateAllCollections(function() { displayMS(); });
+					$('#action-menu-div').show();
 /*
 					allCollections.Encounters.fetch({
 						success: function() {
@@ -2165,6 +2233,7 @@ function actionEncounter() {
 	if (m.length < 1) return msError('no image/video files selected');
 	$('.action-div').hide();
 	$('#encounter-info').html('selected images/videos: <b>' + m.length + '</b>');
+	$('#action-menu-div').hide();
 	$('#encounter-div').show();
 }
 
@@ -2173,6 +2242,7 @@ function actionOccurrence() {
 	if (m.length < 1) return msError('no image/video files selected');
 	$('.action-div').hide();
 	$('#occurrence-info').html('selected images/videos: <b>' + m.length + '</b>');
+	$('#action-menu-div').hide();
 	$('#occurrence-div').show();
 }
 
@@ -2244,6 +2314,7 @@ function actionSurvey() {
 	}
 
 	$('.action-div').hide();
+	$('#action-menu-div').hide();
 	$('#survey-div').show();
 }
 
@@ -2778,7 +2849,7 @@ console.info('doing keyword = %o', me);
 
 <div style="margin: 10px;">
 	<input type="button" id="enc-create-button" value="create encounter" onClick="createEncounter()" />
-	<input type="button" value="cancel" onClick="$('#enc-create-button').show(); $('#encounter-div').hide()" />
+	<input type="button" value="cancel" onClick="$('#enc-create-button').show(); $('#encounter-div').hide(); $('#action-menu-div').show();" />
 </div>
 
 </div>
@@ -2810,7 +2881,7 @@ console.info('doing keyword = %o', me);
 
 	<div style="margin: 10px;">
 		<input type="button" id="survey-create-button" value="save survey/track" onClick="createSurvey()" />
-		<input type="button" value="cancel" onClick="$('#survey-create-button').show(); $('#survey-div').hide()" />
+		<input type="button" value="cancel" onClick="$('#survey-create-button').show(); $('#survey-div').hide(); $('#action-menu-div').show();" />
 	</div>
 
 </div>
@@ -2847,7 +2918,7 @@ console.info('doing keyword = %o', me);
 
 <div style="margin: 10px;">
 	<input type="button" id="occ-create-button" value="create occurrence" onClick="createOccurrence()" />
-	<input type="button" value="cancel" onClick="$('#occ-create-button').show(); $('#occurrence-div').hide()" />
+	<input type="button" value="cancel" onClick="$('#occ-create-button').show(); $('#occurrence-div').hide(); $('#action-menu-div').show();" />
 </div>
 
 </div>
