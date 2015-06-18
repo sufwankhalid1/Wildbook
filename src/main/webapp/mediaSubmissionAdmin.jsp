@@ -390,14 +390,20 @@ body { font-family: arial }
 	background-color: #9F0;
 }
 
-#images-used, #images-unused {
+#images-used, #images-unused-scrollable {
 	min-height: 230px;
 }
 
 #images-unused {
-	padding: 12px;
+	padding: 20px;
+}
+
+#images-unused-scroll {
+	margin: 5px;
+	border: solid 1px #ccc;
 	max-height: 400px;
 	overflow-y: auto;
+	padding: 0;
 }
 
 #count-total {
@@ -2568,7 +2574,9 @@ function imageResize(w,h) {
 		<input class="mode-image" type="button" value="show as table" onClick="return toggleMode(this);" />
 	</div>
 
-	<div id="images-unused"></div>
+	<div id="images-unused-scroll">
+		<div id="images-unused"></div>
+	</div>
 
 	<div id="media-table">
 		<p>
