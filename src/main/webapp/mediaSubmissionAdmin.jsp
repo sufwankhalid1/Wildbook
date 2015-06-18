@@ -171,6 +171,9 @@ body { font-family: arial }
 	max-width: 100%;
 }
 
+#encounter-div {
+}
+
 #close-x {
 	position: absolute;
 	width: 25px;
@@ -1087,7 +1090,6 @@ $(document).ready( function() {
 		step: 25,
 		slide: function(ev, ui) {
 			$('#image-size-info').html('image size<br /><b>' + ui.value + '</b> wide');
-console.log('ev %o ui %o val %o', ev, ui, ui.value);
 			imageResize(ui.value);
 		}
 	});
@@ -1291,6 +1293,18 @@ console.log(m);
 */
 	$('#images-unused').selectable({
 		stop: function(ev, ui) { updateSelectedUI(ev, ui); },
+
+		// h/t https://stackoverflow.com/a/14469388/1525311
+		selecting: function(e, ui) { // on select
+			var curr = $(ui.selecting.tagName, e.target).index(ui.selecting); // get selecting item index
+			if (e.shiftKey && prev > -1) { // if shift key was pressed and there is previous - select them all
+				$(ui.selecting.tagName, e.target).slice(Math.min(prev, curr), 1 + Math.max(prev, curr)).addClass('ui-selected');
+				prev = -1; // and reset prev
+			} else {
+				prev = curr; // othervise just save prev
+			}
+    }
+
 		//filter: ':not(.has-tag-trash)',
 	});
 	//$('.has-tag-trash').selectable({disabled: true});  //TODO doesnt seem to work with lasso selector.  ??  but filter above *seems* to exclude anyway!
@@ -2726,59 +2740,6 @@ console.info('doing keyword = %o', me);
 		</div>
 	</div>
 
-
-<div id="action-menu-div">
-	<div id="action-info"></div>
-	<div id="action-checkboxes"></div>
-<!--
-	<input class="sel-act" type="button" value="create encounter" onClick="actionEncounter()" />
-	<input class="sel-act" type="button" value="create occurrence" onClick="actionOccurrence()" />
-	<input class="sel-act" id="button-survey" type="button" value="add to / create survey" onClick="actionSurvey()" />
-	<input class="sel-act" type="button" value="trash" onClick="actionTag('trash')" />
-	<input class="sel-act" type="button" value="archive" onClick="actionTag('archive')" />
-	<input class="sel-act" type="button" value="to Cascadia" onClick="actionTag('to-cascadia')" />
-	<input class="sel-act" id="button-auto-id" type="button" value="auto-ID" onClick="actionTag('ident')" />
--->
-	<input type="button" value="mark MediaSubmission complete" onClick="closeMediaSubmission()" />
-	<input class="sel-act" type="button" id="button-send-files" value="send files" onClick="sendFiles()" />
-	<input type="button" value="back to listing" onClick="actionCancel()" />
-</div>
-
-<div style="position: relative">
-	<span style="position: absolute; top: 0; right: 0; background-color: rgba(0,0,0,0.5); color: white; padding: 2px 5px; font-size: 0.9em">activity log</span>
-	<div id="action-message"></div>
-</div>
-
-<div class="action-div" id="survey-div">
-	<h1>Survey and Survey Track</h1>
-	<div id="survey-info"></div>
-	<div>
-		<span><b>Survey</b></span>
-		<select onChange="return selectSurvey()" id="survey-id"><option value="_new">create new</option></select>
-		<div id="survey-new-form">
-			<input id="survey-prop-name" placeholder="survey name" />
-			<input id="survey-prop-surveyId" placeholder="survey ID" />
-			<input id="survey-prop-effort" placeholder="effort (number)" />
-		</div>
-	</div>
-	<div>
-		<span><b>Survey Track</b></span>
-		<select onChange="return selectSurveyTrack()" id="survey-track-id"><option value="_new">create new</option></select>
-		<div id="survey-track-new-form">
-			<input id="survey-track-prop-name" placeholder="survey name" />
-			<input id="survey-track-prop-type" placeholder="type" />
-			<input id="survey-track-prop-vesselId" placeholder="vessel id" />
-			<span> optional (can leave blank)</span>
-		</div>
-	</div>
-
-	<div style="margin: 10px;">
-		<input type="button" id="survey-create-button" value="save survey/track" onClick="createSurvey()" />
-		<input type="button" value="cancel" onClick="$('#survey-create-button').show(); $('#survey-div').hide()" />
-	</div>
-
-</div>
-
 <div class="action-div" id="encounter-div">
 	<h1>Encounter to create</h1>
 	<div id="encounter-info"></div>
@@ -2822,6 +2783,40 @@ console.info('doing keyword = %o', me);
 
 </div>
 
+
+
+<div class="action-div" id="survey-div">
+	<h1>Survey and Survey Track</h1>
+	<div id="survey-info"></div>
+	<div>
+		<span><b>Survey</b></span>
+		<select onChange="return selectSurvey()" id="survey-id"><option value="_new">create new</option></select>
+		<div id="survey-new-form">
+			<input id="survey-prop-name" placeholder="survey name" />
+			<input id="survey-prop-surveyId" placeholder="survey ID" />
+			<input id="survey-prop-effort" placeholder="effort (number)" />
+		</div>
+	</div>
+	<div>
+		<span><b>Survey Track</b></span>
+		<select onChange="return selectSurveyTrack()" id="survey-track-id"><option value="_new">create new</option></select>
+		<div id="survey-track-new-form">
+			<input id="survey-track-prop-name" placeholder="survey name" />
+			<input id="survey-track-prop-type" placeholder="type" />
+			<input id="survey-track-prop-vesselId" placeholder="vessel id" />
+			<span> optional (can leave blank)</span>
+		</div>
+	</div>
+
+	<div style="margin: 10px;">
+		<input type="button" id="survey-create-button" value="save survey/track" onClick="createSurvey()" />
+		<input type="button" value="cancel" onClick="$('#survey-create-button').show(); $('#survey-div').hide()" />
+	</div>
+
+</div>
+
+
+
 <%
 	String genspecOcc = "<input id=\"occ-genspec\" />";
 	if (gs.size() > 0) {
@@ -2856,6 +2851,31 @@ console.info('doing keyword = %o', me);
 </div>
 
 </div>
+
+
+<div id="action-menu-div">
+	<div id="action-info"></div>
+	<div id="action-checkboxes"></div>
+<!--
+	<input class="sel-act" type="button" value="create encounter" onClick="actionEncounter()" />
+	<input class="sel-act" type="button" value="create occurrence" onClick="actionOccurrence()" />
+	<input class="sel-act" id="button-survey" type="button" value="add to / create survey" onClick="actionSurvey()" />
+	<input class="sel-act" type="button" value="trash" onClick="actionTag('trash')" />
+	<input class="sel-act" type="button" value="archive" onClick="actionTag('archive')" />
+	<input class="sel-act" type="button" value="to Cascadia" onClick="actionTag('to-cascadia')" />
+	<input class="sel-act" id="button-auto-id" type="button" value="auto-ID" onClick="actionTag('ident')" />
+-->
+	<input type="button" value="mark MediaSubmission complete" onClick="closeMediaSubmission()" />
+	<input class="sel-act" type="button" id="button-send-files" value="send files" onClick="sendFiles()" />
+	<input type="button" value="back to listing" onClick="actionCancel()" />
+</div>
+
+<div style="position: relative">
+	<span style="position: absolute; top: 0; right: 0; background-color: rgba(0,0,0,0.5); color: white; padding: 2px 5px; font-size: 0.9em">activity log</span>
+	<div id="action-message"></div>
+</div>
+
+
 
 <div style="margin-top: 10px;">
 	<h1 style="text-align: center;">Summary</h1>
