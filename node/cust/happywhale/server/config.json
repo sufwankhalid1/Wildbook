@@ -1,3 +1,7 @@
 {
-    "custcode": "happywhale"
+    "custcode": "happywhale",
+    "wildbook": {"url": "http://localhost:8080/wildbook"},
+    "client": {"wildbook": {
+        "url": "http://localhost:8080/wildbook"}
+    }
 }

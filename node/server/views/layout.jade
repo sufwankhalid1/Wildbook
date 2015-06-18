@@ -1,13 +1,14 @@
-html
+html(ng-app="nodeApp")
     head
         title= t("app.title")
         link(rel='stylesheet', href='/css/wildbook.css')
         link(rel='stylesheet', href='/vendor/bootstrap/css/bootstrap.min.css')
         link(rel='stylesheet', href='/css/bootstrap-custom.css')
+        link(rel='stylesheet', href='/vendor/jquery-ui/css/jquery-ui.css')
         link(rel='stylesheet' href='/vendor/alertplus/css/alertplus.css')
         
         block css
-    body
+    body(ng-controller='AppCtrl')
 
     nav.navbar.navbar-inverse.navbar-fixed-top
         .container
@@ -15,9 +16,8 @@ html
                 ul.nav.navbar-nav
                     li.active
                         a(href="#")= t("header.menu.reportSighting")
-                    if user
-                        li
-                            a(href="#me")= t("header.menu.me")
+                    li(ng-visible='false')
+                        a(href="#me")= t("header.menu.me")
                     li
                         a(href="#about")= t("header.menu.about")
                     li
@@ -30,7 +30,7 @@ html
                         if user
                             div
                                 p= t("header.menu.welcomeBack") + ", "
-                                    | #{user.name}!
+                                    | #{user.fullname}!
                                 a(href="#")= t("header.menu.gotomy") + " | "
                                 a(href="#")= t("header.menu.signout")
                         else
@@ -57,7 +57,10 @@ html
                 p.navbar-inverse.copyright &copy; 2015 happywhale, All Rights Reserved
 
     script(src='/vendor/jquery.min.js')
+    script(src='/vendor/jquery-ui/js/jquery-ui.min.js')
     script(src='/vendor/bootstrap/js/bootstrap.min.js')
-    script(src='/vendor/alertplus/javascript/alertplus.js')
+    script(src='/vendor/alertplus/js/alertplus.js')
+    script(src='/vendor/angularjs/angular.min.js')
+    script(src='/javascript/app.js')
 
     block scripts
