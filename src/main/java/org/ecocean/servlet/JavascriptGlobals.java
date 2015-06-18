@@ -23,6 +23,7 @@ package org.ecocean.servlet;
 import org.ecocean.ApiAccess;
 import org.ecocean.CommonConfiguration;
 import org.ecocean.Shepherd;
+import org.ecocean.Keyword;
 import org.ecocean.ShepherdProperties;
 
 import javax.servlet.ServletConfig;
@@ -115,6 +116,13 @@ public class JavascriptGlobals extends HttpServlet {
 			classDefn.put(cls.getName(), defn);
 		}
 		rtn.put("classDefinitions", classDefn);
+
+    ArrayList<Keyword> allK = new ArrayList<Keyword>();
+    Iterator keywords = myShepherd.getAllKeywords();
+    while (keywords.hasNext()) {
+        allK.add((Keyword) keywords.next());
+    }
+    rtn.put("keywords", allK);
 
     response.setContentType("text/javascript");
     response.setCharacterEncoding("UTF-8");
