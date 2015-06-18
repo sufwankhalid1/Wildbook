@@ -1,6 +1,7 @@
 target
 bin
 out
+tmp
 build
 .idea*
 *.ipr
