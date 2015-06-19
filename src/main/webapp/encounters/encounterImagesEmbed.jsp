@@ -267,12 +267,12 @@ if(CommonConfiguration.useSpotPatternRecognition(context)){
       }
       if (request.getParameter("isOwner").equals("true") && (!isBMP) && (!isVideo)) {
     %>
-    <a href="<%= images.get(myImage).asUrl(imageEnc, CommonConfiguration.getDataDirectoryName(context)) %>" class="highslide" onclick="return hs.expand(this)"
+    <a href="<%= images.get(myImage).asUrl(context) %>" class="highslide" onclick="return hs.expand(this)"
        title="<%=encprops.getProperty("clickEnlarge")%>">
       <%
       } else if (request.getParameter("isOwner").equals("true")||(request.getParameter("loggedIn").equals("true"))) {
       %>
-      <a href="<%= images.get(myImage).asUrl(imageEnc, CommonConfiguration.getDataDirectoryName(context)) %>"
+      <a href="<%= images.get(myImage).asUrl(context) %>"
         <%
         if(!isVideo){
         %>
@@ -476,7 +476,7 @@ System.out.println("trying to fork/create " + thumbPath);
 
 
             <%
-              if (CommonConfiguration.showEXIFData(context)&&!isVideo) {
+              if (false && CommonConfiguration.showEXIFData(context)&&!isVideo) {
             	  FileInputStream jin=null;
             	  try{
             	  File exifImage = new File(Encounter.dir(shepherdDataDir, imageEnc.getCatalogNumber()) + "/" + addTextFile);

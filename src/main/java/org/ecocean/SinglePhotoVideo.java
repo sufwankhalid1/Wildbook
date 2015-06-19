@@ -89,9 +89,16 @@ System.out.println("full path??? = " + this.fullFileSystemPath + " WRITTEN!");
   }
   
 
+    public String asUrl(String context) {
+        return this.urlDir(context) + "/" + this.filename;
+    }
+
+    //old way, relied on being encounter-based  USE ABOVE!
 	public String asUrl(Encounter enc, String baseDir) {
+    System.out.println("*** OLD SinglePhotoVideo.asUrl(enc, baseDir) being called! please update to .asUrl(context)");
 		return "/" + enc.dir(baseDir) + "/" + this.filename;
 	}
+
 
 /*
 	public String asUrl(String context) {
