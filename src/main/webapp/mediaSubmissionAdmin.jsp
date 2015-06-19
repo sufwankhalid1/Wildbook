@@ -236,7 +236,7 @@ body { font-family: arial }
 	margin: 9px;
 	position: relative;
 	padding: 8px;
-	display: inline-flex;
+	display: inline-block;
 }
 
 .image-filename {
@@ -544,6 +544,7 @@ body { font-family: arial }
 <script type="text/javascript">
 
 //TODO set these in commonConfiguration
+var imageSize = 100;
 var cascIDUrl = 'http://splashcatalog.org/cascadia/BatchCompare?context=context3&';
 var cascBatchUrl = 'http://splashcatalog.org/cascadia/batchCompareDone.jsp?context=context3&';
 
@@ -1100,14 +1101,15 @@ $(document).ready( function() {
 
 	});
 
-	$('#image-size-info').html('image size<br /><b>100</b> wide');
+	$('#image-size-info').html('image size<br /><b>' + imageSize + '</b> wide');
 	$('#image-size-slider').slider({
-		value: 100,
+		value: imageSize,
 		min: 50,
 		max: 800,
 		step: 25,
 		slide: function(ev, ui) {
 			$('#image-size-info').html('image size<br /><b>' + ui.value + '</b> wide');
+			imageSize = ui.value;
 			imageResize(ui.value);
 		}
 	});
@@ -1300,6 +1302,7 @@ console.log(m);
 	//var h = imageDivContents(mediaSort(mediaSubmission, '-date'));
 	var h = imageDivContents(mediaSort(mediaSubmission, 'date'));
 	$('#images-unused').html(h);
+	imageResize(imageSize);
 	mediaGroup(mediaSubmission, 20000);
 
 
@@ -2689,6 +2692,7 @@ console.log('setTo = %s', setTo);
 	el.className = newClass;
 	el.value = newText;
 	$('#images-unused').html(imageDivContents(mediaSort(mediaSubmission, setTo)));
+	imageResize(imageSize);
 	return true;
 }
 
