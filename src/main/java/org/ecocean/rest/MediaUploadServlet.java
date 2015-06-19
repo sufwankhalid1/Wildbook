@@ -226,6 +226,17 @@ public class MediaUploadServlet
         return new File(getThumbnailDir(baseDir), fileName);
     }
 
+    private static File getMidsizeDir(final File baseDir)
+    {
+        return new File(baseDir, "mid");
+    }
+
+    private static File getMidsizeFile(final File baseDir,
+                                         final String fileName)
+    {
+        return new File(getMidsizeDir(baseDir), fileName);
+    }
+
     private static File getRootDir(final HttpServletRequest request)
     {
 //        return ServletUtilities.dataDir(context, request.getServletContext().getRealPath("/"));
@@ -495,6 +506,19 @@ public class MediaUploadServlet
                                                75,
                                                fullPath.getAbsolutePath(),
                                                thumbFile.getAbsolutePath(),
+                                               null);
+                    iproc.run();
+
+                    File midDir = getMidsizeDir(baseDir);
+                    midDir.mkdirs();
+
+                    File midFile = new File(midDir, file.getName());
+                    iproc = new ImageProcessor(context,
+                                               "resize",
+                                               800,
+                                               600,
+                                               fullPath.getAbsolutePath(),
+                                               midFile.getAbsolutePath(),
                                                null);
                     iproc.run();
                 } else if (Shepherd.isAcceptableGpsFile(file.getName())) {
