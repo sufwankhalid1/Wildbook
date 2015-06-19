@@ -76,8 +76,6 @@ org.ecocean.Shepherd myShepherd = new org.ecocean.Shepherd(context);
 %>
 <script>
 	var wildbookKeywords = <%= kjs %>;
-wildbookKeywords.push({indexname: 'foo', readableName: 'bar'});
-wildbookKeywords.push({indexname: '000', readableName: 'zeroes'});
 </script>
 
 
