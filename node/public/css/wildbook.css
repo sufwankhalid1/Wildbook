@@ -113,3 +113,9 @@
     font-size: 12px;
     white-space: pre;
 }
+
+#MediaSubmissionWizard {
+    width: 800px;
+    height: auto;
+    margin: 0 auto;
+}

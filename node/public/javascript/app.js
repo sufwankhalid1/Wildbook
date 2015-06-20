@@ -16,10 +16,18 @@
 //    $locationProvider.html5Mode(true);
 //});
 
-angular.module('nodeApp', ['nodeApp.controllers']);
+angular.module('nodeApp', ['nodeApp.controllers'])
+.factory('dataService', function() {
+    var _data = {};
+    return {
+        data: _data
+    };
+});
 
 angular.module("nodeApp.controllers", [])
-.controller("AppCtrl", function ($scope, $http) {
+.controller("AppController", function ($scope, $http, dataService) {
+    $scope.data = dataService.data;
+
     var promise = $http({
         method: "GET",
         url: "/config"
@@ -32,15 +40,15 @@ angular.module("nodeApp.controllers", [])
             url: "/wildbook/obj/user"
         }).success(function (user, status, headers, obj) {
             if (user.username) {
-                $scope.user = user;
+                $scope.data.user = user;
             } else {
-                $scope.user = null;
+                $scope.data.user = null;
             }
         }).error(function (data, status, headers, config) {
-            alertplus.alert(status + ": " + data);
+            alertplus.alert(status + ": " + JSON.stringify(data));
         });
     }).error(function (data, status, headers, config) {
-        alertplus.alert(status + ": " + data);
+        alertplus.alert(status + ": " + JSON.stringify(data));
     });
 
     return promise;
