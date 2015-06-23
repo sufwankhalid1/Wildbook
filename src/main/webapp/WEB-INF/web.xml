@@ -629,6 +629,10 @@
           <servlet-class>org.ecocean.servlet.export.SimpleCMROutput</servlet-class>
   </servlet>
   
+        <servlet>
+          <servlet-name>ZooniverseImage</servlet-name>
+          <servlet-class>org.ecocean.servlet.export.ZooniverseImage</servlet-class>
+  </servlet>
   
       <servlet>
         <servlet-name>EncounterSearchExportExcelFile</servlet-name>
@@ -1142,6 +1146,10 @@
           <url-pattern>/SimpleCMROutput</url-pattern>
   </servlet-mapping>
   
+  <servlet-mapping>
+          <servlet-name>ZooniverseImage</servlet-name>
+          <url-pattern>/ZooniverseImage</url-pattern>
+  </servlet-mapping>
   
       <servlet-mapping>
         <servlet-name>TissueSampleRemoveHaplotype</servlet-name>
