@@ -165,8 +165,13 @@ var submitMedia = (function () {
                 }
                 ms.startTime = startTime;
 
+                $(document.body).css({ 'cursor': 'wait' });
                 return $.post("wildbook/obj/mediasubmission/" + method, ms)
+                .done(function(ex) {
+                    $(document.body).css({ 'cursor': 'default' });
+                })
                  .fail(function(ex) {
+                     $(document.body).css({ 'cursor': 'default' });
                      alertplus.error(ex);
                  });
             }
@@ -279,9 +284,6 @@ var submitMedia = (function () {
                         //
                         $scope.media.id = mediaid;
                     });
-                })
-                .fail(function(ex) {
-                    alertplus.error(ex);
                 });
 
                 return jqXHR.promise();
@@ -292,9 +294,6 @@ var submitMedia = (function () {
                 .done(function(mediaid) {
                     $("#MediaSubmissionWizard").addClass("hidden");
                     $("#MediaSubmissionThankYou").removeClass("hidden");
-                })
-                .fail(function(ex) {
-                    alertplus.error(ex);
                 });
 
                 return jqXHR.promise();

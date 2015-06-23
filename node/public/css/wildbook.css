@@ -23,6 +23,13 @@
     font-size: 12px;
 }
 
+.maincontent {
+    position: relative;
+    width: 100%;
+    margin-top: 10px;
+    margin-bottom: 80px;
+}
+
 .homecontainer {
     position: relative;
     width: 100%;

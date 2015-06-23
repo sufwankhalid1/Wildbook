@@ -6,13 +6,13 @@ html(ng-app="nodeApp")
         link(rel='stylesheet', href='/css/bootstrap-custom.css')
         link(rel='stylesheet', href='/vendor/jquery-ui/css/jquery-ui.css')
         link(rel='stylesheet' href='/vendor/alertplus/css/alertplus.css')
-        
+
         block css
     body(ng-controller='AppController')
 
     nav.navbar.navbar-inverse.navbar-fixed-top
         .container
-            #navbar.collapse.navbar-collapse
+            .collapse.navbar-collapse
                 ul.nav.navbar-nav
                     li.active
                         a(href="/submitMedia")= t("header.menu.reportSighting")
@@ -34,11 +34,13 @@ html(ng-app="nodeApp")
                             a(href="#")= t("header.menu.signout")
                         a(href="#" ng-show="!data.user")= t("header.menu.signin")
         .logo-svg#navbar-logo-right
-    block content
 
-    nav.navbar.navbar-inverse.navbar-fixed-bottom.footer
+    .maincontent
+        block content
+
+    .footer.navbar-fixed-bottom.navbar-inverse
         .container
-            #navbar.collapse.navbar-collapse
+            .collapse.navbar-collapse
                 ul.nav.navbar-nav
                     li
                         a(href="#about")= t("footer.menu.about")
