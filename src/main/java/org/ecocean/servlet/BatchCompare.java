@@ -129,10 +129,10 @@ public class BatchCompare extends HttpServlet {
     	response.setContentType("application/json");
     	PrintWriter out = response.getWriter();
 			if (gotFiles.size() > 0) {
-				BatchCompareProcessor.writeStatusFile(getServletContext(), context, batchID, "{ \"images\": " + gson.toJson(gotFiles) + ", \"countComplete\": 0, \"countTotal\": " + Integer.toString(gotFiles.size()) + " }");
+				BatchCompareProcessor.writeStatusFile(getServletContext(), context, batchID, "{ \"filters\": false, \"images\": " + gson.toJson(gotFiles) + ", \"countComplete\": 0, \"countTotal\": " + Integer.toString(gotFiles.size()) + " }");
 				startCompare(context, fileMapEmpty, batchID);
 				HashMap<String,Object> j = new HashMap<String,Object>();
-				j.put("url", "http://" + CommonConfiguration.getURLLocation(request) + "/batchCompareDone.jsp?batchID=" + batchID);
+				j.put("url", "http://" + CommonConfiguration.getURLLocation(request) + "/batchCompareDone.jsp?context=" + context + "&batchID=" + batchID);
 				j.put("batchID", batchID);
 				j.put("files", gotFiles);
 				out.println(gson.toJson(j));
