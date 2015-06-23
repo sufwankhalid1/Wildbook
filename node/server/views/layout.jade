@@ -14,6 +14,8 @@ html(ng-app="nodeApp")
         .container
             .collapse.navbar-collapse
                 ul.nav.navbar-nav
+                    li.home
+                        a(href="/")= t("header.menu.home")
                     li.active
                         a(href="/submitMedia")= t("header.menu.reportSighting")
                     li(ng-show="data.user" ng-cloak)
