@@ -3,13 +3,16 @@ package org.ecocean;
 import java.util.Date;
 import java.io.Serializable;
 import org.ecocean.SinglePhotoVideo;
+import org.ecocean.media.*;
+
+import com.samsix.database.*;
 
 import org.joda.time.DateTime;
 
-//import com.stormpath.sdk.client.Client;
-//import org.ecocean.security.Stormpath;
 import com.stormpath.sdk.account.*;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <code>User</code> stores information about a contact/user.
@@ -17,6 +20,7 @@ import com.stormpath.sdk.account.*;
  * @author Ed Stastny
  */
 public class User implements Serializable {
+    private static Logger log = LoggerFactory.getLogger(User.class);
 
     private static final long serialVersionUID = -1261710718629763048L;
     // The user's full name
@@ -33,7 +37,7 @@ public class User implements Serializable {
     private String userProject;
     private String userStatement;
     private String userURL;
-    private SinglePhotoVideo userImage;
+    private Long userImageID;
 
     //Misc. information about this user
     private String notes;
@@ -44,7 +48,7 @@ public class User implements Serializable {
     private long lastLogin=-1;
 
     private String username;
-    private String password ;
+    private String password;
     private String salt;
 
     //String currentContext;
@@ -183,11 +187,36 @@ public class User implements Serializable {
     }
     public String getUserStatement(){return userStatement;}
 
-    public SinglePhotoVideo getUserImage(){return userImage;}
+    public Long getUserImageID() {return userImageID;}
 
+    public MediaAsset getUserImage(Database db) {
+        if (db == null)
+            throw new IllegalArgumentException("null database");
 
-    public void setUserImage(SinglePhotoVideo newImage) {
-        userImage = newImage;
+        if (userImageID == null ||
+            userImageID == MediaAsset.NOT_SAVED)
+        {
+            return null;
+        }
+
+        // NOTE someday we might want cache this,
+        // but most access is currently one-off
+        try {
+            return MediaAsset.load(db, userImageID);
+        } catch (DatabaseException e) {
+            log.error("Error while loading user image " + userImageID + " from db " + db, e);
+            return null;
+        }
+    }
+
+    public void setUserImage(MediaAsset image) {
+        if (image == null) {
+            userImageID = null;
+        } else if (image.id == MediaAsset.NOT_SAVED) {
+            throw new IllegalArgumentException("Image must be saved prior to set");
+        } else {
+            userImageID = image.id;
+        }
     }
 
     public void setUserURL(String newURL) {

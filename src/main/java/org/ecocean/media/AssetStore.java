@@ -188,7 +188,8 @@ public abstract class AssetStore {
     }
 
     /**
-     * Delete this store from the given database.
+     * Delete this store from the given database.  Does not delete any
+     * asset files.
      */
     public void delete(Database db) throws DatabaseException {
         if (id == NOT_SAVED) return;

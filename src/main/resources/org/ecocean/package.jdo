@@ -553,8 +553,8 @@
                 <column length="256"/>
             </field>
 
-            <field name="userImage"
-                   persistence-modifier="persistent" element-type="org.ecocean.SinglePhotoVideo">
+            <field name="userImageID">
+                <column jdbc-type="INTEGER" allows-null="true" />
             </field>
 
             <field name="lastLogin" persistence-modifier="persistent">
