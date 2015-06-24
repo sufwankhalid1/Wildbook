@@ -6,17 +6,19 @@ html(ng-app="nodeApp")
         link(rel='stylesheet', href='/css/bootstrap-custom.css')
         link(rel='stylesheet', href='/vendor/jquery-ui/css/jquery-ui.css')
         link(rel='stylesheet' href='/vendor/alertplus/css/alertplus.css')
-        
+
         block css
-    body(ng-controller='AppCtrl')
+    body(ng-controller='AppController')
 
     nav.navbar.navbar-inverse.navbar-fixed-top
         .container
-            #navbar.collapse.navbar-collapse
+            .collapse.navbar-collapse
                 ul.nav.navbar-nav
+                    li.home
+                        a(href="/")= t("header.menu.home")
                     li.active
-                        a(href="#")= t("header.menu.reportSighting")
-                    li(ng-show="user")
+                        a(href="/submitMedia")= t("header.menu.reportSighting")
+                    li(ng-show="data.user" ng-cloak)
                         a(href="#me")= t("header.menu.me")
                     li
                         a(href="#about")= t("header.menu.about")
@@ -26,19 +28,21 @@ html(ng-app="nodeApp")
                         .right-inner-addon
                             i.glyphicon.glyphicon-search(style="top: -5px; color: #AAA;")
                             input.search-query.form-control.navbar-search(type="text" placeholder!= t("header.menu.searchSite"))
-                    li
-                        div(ng-show="user")
+                    li(ng-cloak)
+                        div(ng-show="data.user")
                             p= t("header.menu.welcomeBack") + ", "
-                                | {{user.fullname || user.username}}!
+                                | {{data.user.fullname || data.user.username}}!
                             a(href="#")= t("header.menu.gotomy") + " | "
                             a(href="#")= t("header.menu.signout")
-                        a(href="#" ng-show="!user")= t("header.menu.signin")
+                        a(href="#" ng-show="!data.user")= t("header.menu.signin")
         .logo-svg#navbar-logo-right
-    block content
 
-    nav.navbar.navbar-inverse.navbar-fixed-bottom.footer
+    .maincontent
+        block content
+
+    .footer.navbar-fixed-bottom.navbar-inverse
         .container
-            #navbar.collapse.navbar-collapse
+            .collapse.navbar-collapse
                 ul.nav.navbar-nav
                     li
                         a(href="#about")= t("footer.menu.about")

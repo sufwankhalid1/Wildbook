@@ -23,6 +23,12 @@
     font-size: 12px;
 }
 
+.maincontent {
+    position: relative;
+    width: 100%;
+    margin-bottom: 80px;
+}
+
 .homecontainer {
     position: relative;
     width: 100%;
@@ -112,4 +118,10 @@
 .spotlightcontents p {
     font-size: 12px;
     white-space: pre;
+}
+
+#MediaSubmissionWizard {
+    width: 800px;
+    height: auto;
+    margin: 0 auto;
 }

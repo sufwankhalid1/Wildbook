@@ -1,3 +1,10 @@
+//
+// This makes it so that it appears in the chrome debugger as a source so
+// you can set breakpoints and debug. It shows up under the "(no domain)" section.
+// By default, scripts loaded via ajax (in this case the jquery.load() method will
+// not appear in the debugger.
+//
+
 var submitMedia = (function () {
     'use strict';
 
@@ -54,7 +61,7 @@ var submitMedia = (function () {
         // Otherwise assume string.
         //
         // First check to see that this isn't the "null" date defined above.
-        //
+        //no
         var date = new Date();
         var year = date.getFullYear();
         var month = (1 + date.getMonth()).toString();
@@ -74,11 +81,24 @@ var submitMedia = (function () {
         return new Date(theDate.replace(/-/g, '/')).getTime();
     }
 
-    var wizard = angular.module('MediaSubmissionWizard',
-                                ['rcWizard', 'rcForm', 'rcDisabledBootstrap', 'ui.date', 'blueimp.fileupload']);
+    var wizard = angular.module('nodeApp',
+                                ['nodeApp.controllers',
+                                 'rcWizard',
+                                 'rcForm',
+                                 'rcDisabledBootstrap',
+                                 'ui.date',
+                                 'blueimp.fileupload'])
+    .factory('dataService', function() {
+        var _data = {};
+        return {
+            data: _data
+        };
+    });
+
     wizard.controller('MediaSubmissionController',
-        ['$scope', '$q', '$timeout',
-         function ($scope, $q, $timeout) {
+        function ($scope, $q, $timeout, dataService) {
+            $scope.data = dataService.data;
+
             angular.element(document).ready(function() {
                 map.on('click', function(event) {
                     if (! hasGPS) {
@@ -86,7 +106,7 @@ var submitMedia = (function () {
                             $scope.media.latitude = event.latlng.lat;
                             $scope.media.longitude = event.latlng.lng;
                         });
-//                        addToMap(latlng);
+    //                        addToMap(latlng);
                     }
                 });
             });
@@ -107,7 +127,7 @@ var submitMedia = (function () {
             // in an apply. Can't run an apply within an apply.
             //
             $scope.media = {
-                "username": (wildbookGlobals) ? wildbookGlobals.username : null,
+                "username": ($scope.data.user) ? $scope.data.user.username : null,
                 "submissionid": urlParam('submissionid'),
                 "email": urlParam('email'),
                 "name": urlParam('name'),
@@ -145,8 +165,13 @@ var submitMedia = (function () {
                 }
                 ms.startTime = startTime;
 
-                return $.post("obj/mediasubmission/" + method, ms)
+                $(document.body).css({ 'cursor': 'wait' });
+                return $.post("wildbook/obj/mediasubmission/" + method, ms)
+                .done(function(ex) {
+                    $(document.body).css({ 'cursor': 'default' });
+                })
                  .fail(function(ex) {
+                     $(document.body).css({ 'cursor': 'default' });
                      alertplus.error(ex);
                  });
             }
@@ -159,13 +184,13 @@ var submitMedia = (function () {
                 changeMonth: true,
                 changeYear: true,
                 dateFormat: 'yy-mm-dd',
-//                dateFormat: '@',
+    //                dateFormat: '@',
                 showTime: true,
                 defaultDate: null
             };
 
             $scope.isLoggedIn = function() {
-                return (this.media.username);
+                return ($scope.data.user);
             };
 
             $scope.getExifData = function() {
@@ -198,7 +223,7 @@ var submitMedia = (function () {
                 //
                 // Make call to get xif data
                 //
-                var jqXHR = $.get('obj/mediasubmission/getexif/' + $scope.media.id)
+                var jqXHR = $.get('wildbook/obj/mediasubmission/getexif/' + $scope.media.id)
                 .done(function(data) {
                     var avg = data.avg;
                     //
@@ -259,9 +284,6 @@ var submitMedia = (function () {
                         //
                         $scope.media.id = mediaid;
                     });
-                })
-                .fail(function(ex) {
-                    alertplus.error(ex);
                 });
 
                 return jqXHR.promise();
@@ -272,22 +294,19 @@ var submitMedia = (function () {
                 .done(function(mediaid) {
                     $("#MediaSubmissionWizard").addClass("hidden");
                     $("#MediaSubmissionThankYou").removeClass("hidden");
-                })
-                .fail(function(ex) {
-                    alertplus.error(ex);
                 });
 
                 return jqXHR.promise();
             };
 
-//                //
-//                // We need these watch expressions to force the changes to the model
-//                // to be reflected in the view.
-//                //
-//                $scope.$watch("media.startTime", function(newValue, oldValue) {
-//                    console.log("startTime changed from [" + oldValue + "] to [" + newValue + "]");
-//                    console.log(new Error().stack);
-//                });
+    //                //
+    //                // We need these watch expressions to force the changes to the model
+    //                // to be reflected in the view.
+    //                //
+    //                $scope.$watch("media.startTime", function(newValue, oldValue) {
+    //                    console.log("startTime changed from [" + oldValue + "] to [" + newValue + "]");
+    //                    console.log(new Error().stack);
+    //                });
             $scope.$watch("media.latitude", function(newVal, oldVal) {
                 if ($scope.media.longitude) {
                     addToMap(newVal, $scope.media.longitude);
@@ -299,7 +318,7 @@ var submitMedia = (function () {
                 }
             });
         }
-    ]);
+    );
 
     wizard.config(['$httpProvider',
          'fileUploadProvider',
@@ -333,10 +352,10 @@ var submitMedia = (function () {
         ['$scope', '$http', '$filter', '$window',
          function ($scope, $http) {
             $scope.options = {
-                url: "mediaupload"
+                url: "wildbook/mediaupload"
             };
             $scope.loadingFiles = true;
-            $http.get("mediaupload")
+            $http.get("wildbook/mediaupload")
             .then(function (response) {
                     $scope.loadingFiles = false;
                     $scope.queue = response.data.files || [];
@@ -354,7 +373,7 @@ var submitMedia = (function () {
             if (file.url) {
                 file.$destroy = function () {
                     return $http({
-                        url: 'obj/mediasubmission/delfile/' + $scope.media.id,
+                        url: 'wildbook/obj/mediasubmission/delfile/' + $scope.media.id,
                         data: this.name,
                         method: 'POST'
                     }).then(function () {

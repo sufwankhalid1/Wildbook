@@ -4,6 +4,7 @@
     },
     "header": {
         "menu": {
+            "home": "HOME",
             "reportSighting": "REPORT SIGHTING",
             "me": "MY WHALES",
             "about": "ABOUT",
