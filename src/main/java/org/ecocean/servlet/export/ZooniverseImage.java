@@ -14,6 +14,7 @@ import java.io.OutputStreamWriter;
 //import java.util.StringTokenizer;
 import java.util.Vector;
 */
+import java.util.HashMap;
 import java.util.Iterator;
 
 import javax.servlet.ServletConfig;
@@ -45,14 +46,24 @@ public class ZooniverseImage extends HttpServlet{
         //ServletContext ctx = getServletContext();
         //InputStream is = ctx.getResourceAsStream("/encounters/"+emailFilename);
         PrintWriter out = response.getWriter();
-        String context="context0";
-        context=ServletUtilities.getContext(request);
-        Shepherd myShepherd = new Shepherd(context);
 
-        Iterator all_spv = myShepherd.getAllSinglePhotoVideosNoQuery();
-        while (all_spv.hasNext()) {
-            SinglePhotoVideo spv = (SinglePhotoVideo)all_spv.next();
-            out.println(spv.getDataCollectionEventID() + "\t" + spv.getFilename());
+        String[] contexts = request.getParameterValues("context");
+        if ((contexts == null) || (contexts.length < 1)) {
+            out.println("error: no context=XXX passed");
+            return;
+        }
+
+        HashMap<String,String> imgs = new HashMap<String,String>();
+        for (int i = 0 ; i < contexts.length ; i++) {
+            Shepherd myShepherd = new Shepherd(contexts[i]);
+            Iterator all_spv = myShepherd.getAllSinglePhotoVideosNoQuery();
+            while (all_spv.hasNext()) {
+                SinglePhotoVideo spv = (SinglePhotoVideo)all_spv.next();
+                imgs.put(spv.getFilename(), contexts[i] + ":" + spv.getDataCollectionEventID()); //this means the later contexts will trump existing images
+            }
+        }
+        for (String fname : imgs.keySet()) {
+            out.println(imgs.get(fname) + "\t" + fname);
         }
         out.close(); 
 
