@@ -21,7 +21,7 @@ html(ng-app="nodeApp")
                     li(ng-show="data.user" ng-cloak)
                         a(href="#me")= t("header.menu.me")
                     li
-                        a(href="#about")= t("header.menu.about")
+                        a(href="/about")= t("header.menu.about")
                     li
                         a(href="#news")= t("header.menu.news")
                     li
@@ -45,17 +45,13 @@ html(ng-app="nodeApp")
             .collapse.navbar-collapse
                 ul.nav.navbar-nav
                     li
-                        a(href="#about")= t("footer.menu.about")
-                    li
-                        a(href="#news")= t("footer.menu.news")
+                        a(href="/about")= t("footer.menu.about")
                     li
                         a(href="#contact")= t("footer.menu.contact")
                     li
-                        a(href="#terms")= t("footer.menu.terms")
+                        a(href="/terms")= t("footer.menu.terms")
                     li
-                        a(href="#sitemap")= t("footer.menu.sitemap")
-                    li
-                        a(href="#help")= t("footer.menu.help")
+                        a(href="/help")= t("footer.menu.help")
                 p.navbar-inverse.copyright &copy; 2015 happywhale, All Rights Reserved
 
     script(src='/vendor/jquery.min.js')
