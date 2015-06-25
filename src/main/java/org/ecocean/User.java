@@ -6,6 +6,11 @@ import org.ecocean.SinglePhotoVideo;
 
 import org.joda.time.DateTime;
 
+//import com.stormpath.sdk.client.Client;
+//import org.ecocean.security.Stormpath;
+import com.stormpath.sdk.account.*;
+
+
 /**
  * <code>User</code> stores information about a contact/user.
  * Examples: photographer, submitter
@@ -72,6 +77,18 @@ public class User implements Serializable {
   	  RefreshDate();
   	  this.lastLogin=-1;
   	}
+
+    public User(Account acc) {
+        String username = acc.getUsername();
+        if (username == null) username = acc.getEmail();
+        setUsername(username);
+        setFullName(acc.getGivenName() + " " + acc.getSurname());
+        setEmailAddress(acc.getEmail());
+        setPassword(Util.generateUUID());
+        setReceiveEmails(true);
+        RefreshDate();
+        this.lastLogin=-1;
+    }
 
   public void RefreshDate()
   {
