@@ -105,6 +105,20 @@ public class Stormpath {
     }
 
 
+    public static Account createAccount(Client client, User user) throws Exception {
+        String givenName = user.getFullName();
+        if (givenName == null) givenName = user.getUsername();
+        String surname = "N/A";
+        int i = givenName.indexOf(" ");
+        if (i > -1) {
+            surname = givenName.substring(i + 1);
+            givenName = givenName.substring(i - 1);
+        }
+        HashMap<String,String> h = new HashMap<String,String>();
+        h.put("creationNote", "created from Wildbook User");
+        return createAccount(client, givenName, surname, user.getEmailAddress(), "XXX" + Util.generateUUID(), user.getUsername(), h);
+    }
+
     //note: "username" can also be email, apparently
     public static Account loginAccount(Client client, String username, String password) throws ResourceException {
         Application app = getApplication(client);
