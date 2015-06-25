@@ -19,8 +19,13 @@ import org.apache.shiro.subject.Subject;
 
 
 import org.apache.shiro.web.util.WebUtils;
+import org.ecocean.security.Stormpath;
 import org.ecocean.*;
 
+import com.stormpath.sdk.client.Client;
+import org.ecocean.security.Stormpath;
+import com.stormpath.sdk.account.*;
+import com.stormpath.sdk.resource.ResourceException;
 
 
 /**
@@ -95,8 +100,40 @@ import org.ecocean.*;
 		
 		myShepherd.closeDBTransaction();
     String hashedPassword=ServletUtilities.hashAndSaltPassword(password, salt);
-    //System.out.println("Authenticating hashed password: "+hashedPassword+" including salt "+salt);
-		
+
+
+    //we *first* try Stormpath, and see what we get
+    Client client = Stormpath.getClient(request);
+		myShepherd = new Shepherd(context);
+
+    if (client != null) {
+System.out.println("checking Stormpath for login!");
+        Account acc = null;
+        try {
+	          acc = Stormpath.loginAccount(client, username, password);
+        } catch (ResourceException ex) {
+	          System.out.println("failed to authenticate user '" + username + "' via Stormpath; falling back to Wildbook User: " + ex.toString());
+        }
+        if (acc != null) {
+            User u = myShepherd.getUserByEmailAddress(acc.getEmail());
+            if (u == null) {
+                //TODO we should probably have some kinda rules here: like stormpath user is a certain group etc 
+                System.out.println("successful authentication via Stormpath, but no Wildbook user for email " + acc.getEmail() + ". creating one!");
+                try {
+                    u = new User(acc);
+                    myShepherd.getPM().makePersistent(u);
+                } catch (Exception ex) {
+                    System.out.println("trouble creating Wildbook user from Stormpath: " + ex.toString());
+                }
+            }
+            if (u != null) {
+                //hackily log them into wb!
+                username = u.getUsername();
+                hashedPassword = u.getPassword();
+            }
+        }
+    }
+
 	    //create a UsernamePasswordToken using the
 		//username and password provided by the user
 		UsernamePasswordToken token = new UsernamePasswordToken(username, hashedPassword);
