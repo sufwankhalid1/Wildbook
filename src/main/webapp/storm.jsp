@@ -24,6 +24,7 @@
 com.stormpath.sdk.client.Client,
 org.ecocean.security.Stormpath,
 com.stormpath.sdk.account.*,
+com.stormpath.sdk.resource.ResourceException,
 java.util.ArrayList" %>
 
 
@@ -39,7 +40,17 @@ context=ServletUtilities.getContext(request);
 Client client = Stormpath.getClient(request);
 System.out.println("ok!");
 
+Account acc = null;
+try {
+	acc = Stormpath.accountLogin(client, "a", "b");
+} catch (ResourceException ex) {
+	System.out.println(ex.toString());
+}
+System.out.println(acc);
+	
+
     //public static Account createAccount(Client client, String givenName, String surname, String email, String password, String username, HashMap<String,String> custom) throws Exception {
+/*
 Account acc = null;
 try {
 	acc = Stormpath.createAccount(client, "Test", "Testerson", "test@example.com", "test0000.TEST1111", null, null);
@@ -47,6 +58,7 @@ try {
 	System.out.println("FAIL: " + ex.toString());
 }
 System.out.println(acc);
+*/
 
 //setup our Properties object to hold all properties
 

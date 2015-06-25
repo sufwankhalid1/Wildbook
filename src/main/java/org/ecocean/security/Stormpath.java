@@ -23,7 +23,8 @@ import com.stormpath.sdk.account.*;
 import com.stormpath.sdk.application.*;
 import com.stormpath.sdk.directory.*;
 import com.stormpath.sdk.resource.ResourceException;
-
+import com.stormpath.sdk.authc.AuthenticationResult;
+import com.stormpath.sdk.authc.UsernamePasswordRequest;
 
 /************************************************************
       DOCS:  http://docs.stormpath.com/java/quickstart/
@@ -103,6 +104,14 @@ public class Stormpath {
         return account;
     }
 
+
+    //note: "username" can also be email, apparently
+    public static Account accountLogin(Client client, String username, String password) throws ResourceException {
+        Application app = getApplication(client);
+        UsernamePasswordRequest req = new UsernamePasswordRequest(username, password);
+        AuthenticationResult res = app.authenticateAccount(req);
+        return res.getAccount();
+    }
 
     private static boolean isEmpty(String s) {
         return ((s == null) || s.equals(""));
