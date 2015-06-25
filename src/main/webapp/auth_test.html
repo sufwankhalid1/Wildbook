@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>AUTH test</title>
+<meta charset="UTF-8">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="javascript/auth/auth.js"></script>
+<script src="javascript/auth/facebook.js"></script>
+
+<style>
+	#login-popup {
+		position: absolute;
+		left: 20%;
+		top: 10%;
+		border: solid 2px blue;
+		padding: 20px;
+		width: 60%;
+		height: 200px;
+		background-color: #DDD;
+	}
+
+	#login-popup div {padding: 4px;}
+
+</style>
+
+</head>
+<body>
+
+<fb:login-button scope="public_profile,email" onlogin="checkLoginState();">
+</fb:login-button>
+
+<div id="status">
+</div>
+
+</body>
+</html>
