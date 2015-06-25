@@ -106,7 +106,7 @@ public class Stormpath {
 
 
     //note: "username" can also be email, apparently
-    public static Account accountLogin(Client client, String username, String password) throws ResourceException {
+    public static Account loginAccount(Client client, String username, String password) throws ResourceException {
         Application app = getApplication(client);
         UsernamePasswordRequest req = new UsernamePasswordRequest(username, password);
         AuthenticationResult res = app.authenticateAccount(req);

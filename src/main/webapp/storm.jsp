@@ -42,7 +42,7 @@ System.out.println("ok!");
 
 Account acc = null;
 try {
-	acc = Stormpath.accountLogin(client, "a", "b");
+	acc = Stormpath.loginAccount(client, "a", "b");
 } catch (ResourceException ex) {
 	System.out.println(ex.toString());
 }
