@@ -24,11 +24,8 @@ import com.oreilly.servlet.multipart.MultipartParser;
 import com.oreilly.servlet.multipart.ParamPart;
 import com.oreilly.servlet.multipart.Part;
 
-import org.ecocean.CommonConfiguration;
-import org.ecocean.Encounter;
-import org.ecocean.Shepherd;
-import org.ecocean.SinglePhotoVideo;
-import org.ecocean.User;
+import org.ecocean.*;
+import org.ecocean.media.*;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -39,6 +36,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+
+import com.samsix.database.*;
 
 /**
  * Uploads a new image to the file system and associates the image with an Encounter record
@@ -56,7 +55,7 @@ public class UserAddProfileImage extends HttpServlet {
   }
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-    
+
     String context="context0";
     //context=ServletUtilities.getContext(request);
     Shepherd myShepherd = new Shepherd(context);
@@ -68,7 +67,7 @@ public class UserAddProfileImage extends HttpServlet {
     if(!shepherdDataDir.exists()){shepherdDataDir.mkdirs();}
     File encountersDir=new File(shepherdDataDir.getAbsolutePath()+"/users");
     if(!encountersDir.exists()){encountersDir.mkdirs();}
-    
+
     //set up for response
     response.setContentType("text/html");
     PrintWriter out = response.getWriter();
@@ -79,7 +78,7 @@ public class UserAddProfileImage extends HttpServlet {
     String fullPathFilename="";
 
     try {
-      MultipartParser mp = new MultipartParser(request, (CommonConfiguration.getMaxMediaSizeInMegabytes(context) * 1048576)); 
+      MultipartParser mp = new MultipartParser(request, (CommonConfiguration.getMaxMediaSizeInMegabytes(context) * 1048576));
       Part part;
       while ((part = mp.readNextPart()) != null) {
         String name = part.getName();
@@ -100,11 +99,11 @@ public class UserAddProfileImage extends HttpServlet {
 
 
         if (part.isFile()) {
-          
+
           if(request.getRequestURL().indexOf("MyAccount")!=-1){
             username=request.getUserPrincipal().getName();
           }
-          
+
           FilePart filePart = (FilePart) part;
           fileName = ServletUtilities.cleanFileName(filePart.getFileName());
           if (fileName != null) {
@@ -118,45 +117,37 @@ public class UserAddProfileImage extends HttpServlet {
           }
         }
       }
-      
 
       File thisEncounterDir = new File(encountersDir, username);
-      
+
       myShepherd.beginDBTransaction();
-      if (myShepherd.getUser(username)!=null) {
-
-        int positionInList = 10000;
-
-        User enc = myShepherd.getUser(username);
-        try {
-
-          SinglePhotoVideo spv=new SinglePhotoVideo(username,(new File(fullPathFilename)));
-          spv.setCorrespondingUsername(username);
-          spv.setCorrespondingEncounterNumber(null);
-          enc.setUserImage(spv);
-          //enc.addComments("<p><em>" + request.getRemoteUser() + " on " + (new java.util.Date()).toString() + "</em><br>" + "Submitted new encounter image graphic: " + fileName + ".</p>");
-          //positionInList = enc.getAdditionalImageNames().size();
+      User user = myShepherd.getUser(username);
+      if (user != null) {
+        ConnectionInfo ci = ShepherdPMF.getConnectionInfo();
+        try (Database db = new Database(ci)) {
+          AssetStore as = AssetStore.loadDefault(db);
+          MediaAsset ma = as.create(fullPathFilename, AssetType.ORIGINAL);
+          user.setUserImage(ma);
         } catch (Exception le) {
           locked = true;
           myShepherd.rollbackDBTransaction();
           myShepherd.closeDBTransaction();
         }
 
-
         if (!locked) {
           myShepherd.commitDBTransaction();
           myShepherd.closeDBTransaction();
           out.println(ServletUtilities.getHeader(request));
-          
-          
+
+
           out.println("<strong>Success!</strong> I have successfully uploaded the user profile image file.");
 
           if(request.getRequestURL().indexOf("MyAccount")!=-1){
             out.println("<p><a href=\"http://" + CommonConfiguration.getURLLocation(request) + "/myAccount.jsp\">Return to My Account.</a></p>\n");
-            
+
           }
           else{
-          
+
             out.println("<p><a href=\"http://" + CommonConfiguration.getURLLocation(request) + "/appadmin/users.jsp?context=context0&isEdit=true&username=" + username + "#editUser\">Return to User Management.</a></p>\n");
           }
           out.println(ServletUtilities.getFooter(context));
@@ -191,8 +182,4 @@ public class UserAddProfileImage extends HttpServlet {
     }
     out.close();
   }
-
-
 }
-  
-  
