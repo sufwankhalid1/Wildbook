@@ -18,6 +18,7 @@
 
 package org.ecocean.media;
 
+import java.io.*;
 import java.net.*;
 import java.util.*;
 import java.lang.*;
@@ -99,6 +100,26 @@ public class LocalAssetStore extends AssetStore {
     public MediaAsset create(Path path, AssetType type) {
         try {
             return new MediaAsset(this, checkPath(root(), path), type);
+        } catch (IllegalArgumentException e) {
+            log.warn("Bad path", e);
+            return null;
+        }
+    }
+
+    /**
+     * Create a new MediaAsset that points to an existing file under
+     * our root.
+     *
+     * @param path Relative or absolute path to a file.  Must be under
+     * the asset store root.
+     *
+     * @return The MediaAsset, or null if the path is invalid (not
+     * under the asset root or nonexistent).
+     */
+    public MediaAsset create(String path, AssetType type) {
+        try {
+            Path p = new File(path).toPath();
+            return new MediaAsset(this, checkPath(root(), p), type);
         } catch (IllegalArgumentException e) {
             log.warn("Bad path", e);
             return null;

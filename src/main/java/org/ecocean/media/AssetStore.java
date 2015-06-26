@@ -99,6 +99,8 @@ public abstract class AssetStore {
 
     public abstract MediaAsset create(Path path, AssetType type);
 
+    public abstract MediaAsset create(String path, AssetType type);
+
     //
     // store/load
     //
