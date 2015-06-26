@@ -68,6 +68,10 @@ public class AssetStoreTest {
             store = AssetStore.load(db, name);
             assertNotNull("Store not loaded by name", store);
 
+            // load default
+            store = AssetStore.loadDefault(db);
+            assertNotNull("Default store not loaded", store);
+
             // delete
             store.delete(db);
             store = AssetStore.load(db, name);

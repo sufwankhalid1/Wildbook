@@ -104,6 +104,19 @@ public abstract class AssetStore {
     //
 
     /**
+     * Fetch the default store (the one with the highest id) from the
+     * database.
+     */
+    public static AssetStore loadDefault(Database db)
+        throws DatabaseException
+    {
+        // NOTE maybe someday indicate the default store name in
+        // commonConfiguration.properties if we regularly use multiple
+        // stores.
+        return load(db, null, "id desc");
+    }
+
+    /**
      * Fetch a single store from the database by name.
      */
     public static AssetStore load(Database db, String name)
@@ -137,14 +150,29 @@ public abstract class AssetStore {
     public static AssetStore load(Database db, SqlWhereFormatter where)
         throws DatabaseException
     {
-        if (db == null)
-            throw new IllegalArgumentException("null database");
         if (where == null)
             throw new IllegalArgumentException("null where formatter");
 
+        return load(db, where, null);
+    }
+
+    /**
+     * Fetch a single store from the database.
+     */
+    public static AssetStore load(Database db,
+                                  SqlWhereFormatter where,
+                                  String orderBy)
+        throws DatabaseException
+    {
+        // null "where" or orderBy is ok.
+        String whereStr = where != null ? where.getWhereClause() : null;
+
+        if (db == null)
+            throw new IllegalArgumentException("null database");
+
         Table table = db.getTable(TABLE_NAME);
 
-        RecordSet rs = table.getRecordSet(where.getWhereClause(), 1);
+        RecordSet rs = table.getRecordSet(whereStr, orderBy);
         if (rs.next()) {
             return buildAssetStore(rs.getLong("id"),
                                    rs.getString("name"),
