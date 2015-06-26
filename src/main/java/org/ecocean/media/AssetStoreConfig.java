@@ -90,6 +90,13 @@ public class AssetStoreConfig {
     }
 
     /**
+     * Return a config variable of the String type.
+     */
+    public String getString(String key) {
+        return config.get(key);
+    }
+
+    /**
      * Serialize our config object to a storable string.
      */
     public String configString() {

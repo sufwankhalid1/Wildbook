@@ -24,6 +24,7 @@ import java.util.*;
 import java.nio.file.Path;
 
 import org.junit.*;
+
 import static org.junit.Assert.*;
 
 /**
@@ -54,6 +55,23 @@ public class AssetStoreConfigTest {
 
             assertEquals("Path", path, config.getPath("root"));
             assertEquals("URL", url, config.getURL("webRoot"));
+        } catch (MalformedURLException e) {
+            fail("Bad URL format");
+        }
+    }
+
+    @Test
+    public void testGetConfigString() {
+        try {
+            AssetStoreConfig config = new AssetStoreConfig();
+
+            String string = "/tmp";
+            Path path = new File(string).toPath();
+            URL url = new URL("http://example.com/assets");
+
+            config.put("root", path);
+
+            assertEquals("String", string, config.getString("root"));
         } catch (MalformedURLException e) {
             fail("Bad URL format");
         }
