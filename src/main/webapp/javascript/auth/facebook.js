@@ -1,7 +1,9 @@
+wildbook.auth.facebook = {
   // This is called with the results from from FB.getLoginStatus().
-  function statusChangeCallback(response) {
+  statusChangeCallback: function(response) {
     console.log('***** statusChangeCallback');
     console.log(response);
+console.log('accessToken = %o', response.authResponse.accessToken);
 return;
     // The response object is returned with a status field that lets the
     // app know the current login status of the person.
@@ -9,7 +11,7 @@ return;
     // for FB.getLoginStatus().
     if (response.status === 'connected') {
       // Logged into your app and Facebook.
-      testAPI();
+      ///testAPI();
     } else if (response.status === 'not_authorized') {
       // The person is logged into Facebook, but not your app.
       document.getElementById('status').innerHTML = 'Please log ' +
@@ -20,25 +22,42 @@ return;
       document.getElementById('status').innerHTML = 'Please log ' +
         'into Facebook.';
     }
-  }
+  },
 
   // This function is called when someone finishes with the Login
   // Button.  See the onlogin handler attached to it in the sample
   // code below.
-  function checkLoginState() {
+  checkLoginState: function() {
     FB.getLoginStatus(function(response) {
-      statusChangeCallback(response);
+      wildbook.auth.facebook.statusChangeCallback(response);
     });
-  }
+  },
 
-  window.fbAsyncInit = function() {
+
+	authorizeApp: function() {
+		FB.login(function(response) {
+			if (response.authResponse) {
+				console.info('got in!');
+      	wildbook.auth.facebook.statusChangeCallback(response);
+			} else {
+				console.warn('failed to get in');
+			}
+		}, {scope: 'email'});
+	},
+
+};
+
+
+window.fbAsyncInit = function() {
+console.info(1);
   FB.init({
-    appId      : '363791400412043',
+    appId      : wildbook.social.apiKey('facebook'),
     cookie     : true,  // enable cookies to allow the server to access 
                         // the session
     xfbml      : true,  // parse social plugins on this page
     version    : 'v2.2' // use version 2.2
   });
+console.info(2);
 
   // Now that we've initialized the JavaScript SDK, we call 
   // FB.getLoginStatus().  This function gets the state of the
@@ -53,7 +72,7 @@ return;
   // These three cases are handled in the callback function.
 
   FB.getLoginStatus(function(response) {
-    statusChangeCallback(response);
+    wildbook.auth.facebook.statusChangeCallback(response);
   });
 
   };
@@ -67,6 +86,7 @@ return;
     fjs.parentNode.insertBefore(js, fjs);
   }(document, 'script', 'facebook-jssdk'));
 
+/*
   // Here we run a very simple test of the Graph API after login is
   // successful.  See statusChangeCallback() for when this call is made.
   function testAPI() {
@@ -77,6 +97,8 @@ return;
         'Thanks for logging in, ' + response.name + '!';
     });
   }
+*/
+
 
 /*
 <fb:login-button scope="public_profile,email" onlogin="checkLoginState();">

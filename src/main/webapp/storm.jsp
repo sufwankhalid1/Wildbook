@@ -147,8 +147,9 @@ System.out.println(acc);
     </jsp:include>
 
 <script type="text/javascript" src="<%=requestURL %>/tools/jquery-ui/jquery-ui.js"></script -->
+<script src="javascript/core.js"></script>
 <script src="javascript/auth/auth.js"></script>
-<!-- script src="javascript/auth/facebook.js"></script -->
+<script src="javascript/auth/facebook.js"></script>
 	<!-- script type="text/javascript" src="<%=requestURL %>/tools/alertplus/javascript/alertplus.js"></script -->
 
     <div id="main">
