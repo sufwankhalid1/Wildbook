@@ -10,6 +10,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.io.PrintWriter;
 
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.IncorrectCredentialsException;
@@ -26,6 +28,7 @@ import com.stormpath.sdk.client.Client;
 import org.ecocean.security.Stormpath;
 import com.stormpath.sdk.account.*;
 import com.stormpath.sdk.resource.ResourceException;
+import com.google.gson.Gson;
 
 
 /**
@@ -68,6 +71,8 @@ import com.stormpath.sdk.resource.ResourceException;
 		//see /login.jsp for these form fields
 		String username = request.getParameter("username").trim();
 		String password = request.getParameter("password").trim();
+
+    boolean wantJson = (request.getParameter("json") != null);
 		
 		
 		String salt="";
@@ -194,7 +199,7 @@ System.out.println("checking Stormpath for login!");
 		    myShepherd.commitDBTransaction();
         myShepherd.closeDBTransaction();
         
-        if(redirectUser){url=CommonConfiguration.getProperty("userAgreementURL",context);}
+        if(redirectUser && !wantJson){url=CommonConfiguration.getProperty("userAgreementURL",context);}
         
 			
 			
@@ -239,7 +244,7 @@ System.out.println("checking Stormpath for login!");
 		//WebUtils.redirectToSavedRequest(request, response, url);
 
     // forward the request and response to the view
-		if(redirectUser){
+		if(redirectUser && !wantJson){
 		  //RequestDispatcher dispatcher = getServletContext().getRequestDispatcher(url);
 		  //dispatcher.forward(request, response);   
 	
@@ -250,7 +255,25 @@ System.out.println("checking Stormpath for login!");
 		  
 		}
 
-WebUtils.redirectToSavedRequest(request, response, url);
+    if (wantJson) {
+        HashMap rtn = new HashMap();
+        rtn.put("username", username);
+        Object err = request.getAttribute("error");
+        if (err != null) {
+            rtn.put("error", (String)err);
+            rtn.put("success", false);
+        } else {
+            rtn.put("success", true);
+        }
+        if (redirectUser) rtn.put("needsTerms", true);
+        PrintWriter out = response.getWriter();
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        String json = new Gson().toJson(rtn);
+        out.println(json);
+    } else {
+        WebUtils.redirectToSavedRequest(request, response, url);
+    }
 
 		
 		
