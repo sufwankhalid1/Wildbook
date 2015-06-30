@@ -99,7 +99,6 @@ module.exports = function(app, config) {
     //
     // Proxy over to wildbook
     //
-    var wbCount = 0;
     app.get('/wildbook/*', function(req, res) {
         //
         // Extract out the * part of the address and forward it through
@@ -107,17 +106,13 @@ module.exports = function(app, config) {
         //
         var url = config.wildbook.url + req.url.slice(9);
 
-        wbCount++;
-        console.log(wbCount + ": " + url);
+//        console.log("wildbook GET: " + url);
 
         req.pipe(request(url))
         .on('error', function(ex) {
             console.log("Trouble connecting to [" + url + "]");
             console.log(ex);
             res.status(500).send(ex);
-        })
-        .on('end', function() {
-            console.log("finished [" + wbCount + ": " + url + "]");
         })
         .pipe(res)
         .on('error', function(ex) {
@@ -128,7 +123,6 @@ module.exports = function(app, config) {
     //
     // Proxy over to wildbook
     //
-    var wbPostCount = 0;
     app.post('/wildbook/*', function(req, res) {
         //
         // Extract out the * part of the address and forward it through
@@ -136,18 +130,13 @@ module.exports = function(app, config) {
         //
         var url = config.wildbook.url + req.url.slice(9);
 
-        wbPostCount++;
-        console.log(wbPostCount + ": " + url);
-        console.log(req.body);
+//        console.log("wildbook POST: " + url);
 
         req.pipe(request.post({uri: url, json: req.body}))
         .on('error', function(ex) {
             console.log("Trouble connecting to [" + url + "]");
             console.log(ex);
             res.status(500).send(ex);
-        })
-        .on('end', function() {
-            console.log("finished [" + wbPostCount + ": " + url + "]");
         })
         .pipe(res)
         .on('error', function(ex) {
