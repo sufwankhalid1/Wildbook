@@ -142,6 +142,13 @@ public class MediaUploadServlet
         // 2. Set response type to json
         response.setContentType("application/json");
 
+        //
+        // TODO: Add configuration to control which domains you want here so
+        // that we don't have to do *.
+        // UPDATE: This was replaced with a CorsFilter in the web.xml file.
+        //
+//        response.setHeader("Access-Control-Allow-Origin", "*");
+
         // 3. Convert List<FileMeta> into JSON format
         ObjectMapper mapper = new ObjectMapper();
 
