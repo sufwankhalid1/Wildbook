@@ -352,10 +352,10 @@ var submitMedia = (function () {
         ['$scope', '$http', '$filter', '$window',
          function ($scope, $http) {
             $scope.options = {
-                url: "wildbook/mediaupload"
+                url: "http://wildbook.happywhale.com/mediaupload"
             };
             $scope.loadingFiles = true;
-            $http.get("wildbook/mediaupload")
+            $http.get("http://wildbook.happywhale.com/mediaupload")
             .then(function (response) {
                     $scope.loadingFiles = false;
                     $scope.queue = response.data.files || [];
