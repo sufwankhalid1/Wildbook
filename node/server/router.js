@@ -93,7 +93,7 @@ module.exports = function(app, config) {
     });
 
     app.get('/submitMedia', function(req, res) {
-        res.render('mediasubmission');
+        res.render('mediasubmission', {config: config.client});
     });
 
     //
