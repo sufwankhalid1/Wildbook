@@ -138,6 +138,7 @@ module.exports = function(app, config) {
 
         wbPostCount++;
         console.log(wbPostCount + ": " + url);
+        console.log(req.body);
 
         req.pipe(request.post({uri: url, json: req.body}))
         .on('error', function(ex) {
