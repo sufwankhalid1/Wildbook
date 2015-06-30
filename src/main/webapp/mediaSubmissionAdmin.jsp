@@ -1561,6 +1561,11 @@ function displayMSTable() {
 }
 
 
+var featureTags = {
+	feature1: 'Feature 1',
+	feature2: 'Feature 2',
+	feature3: 'Feature 3'
+};
 
 function initUI() {
 	var h = '';
@@ -1575,6 +1580,15 @@ function initUI() {
 		});
 		kmenu += '</select></div>';
 		h += kmenu;
+	}
+
+	if (featureTags && featureTags.length) {
+		var fmenu = '<div class="action-wrapper"><select onChange="return actionFeatures();" id="action-features-pulldown" size=4>';
+		$.each(featureTags, function(i, f) {
+			fmenu += '<option value="' + f + '">' + featureTags[f] + '</option>';
+		});
+		fmenu += '</select></div>';
+		h += fmenu;
 	}
 
 	h += '<div class="action-wrapper"><input type="button" value="show only unaffected files" onClick="return hideAllTagged()" /></div>';
