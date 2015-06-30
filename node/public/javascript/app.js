@@ -51,6 +51,11 @@ angular.module("nodeApp.controllers", [])
         alertplus.alert(status + ": " + JSON.stringify(data));
     });
 
+    $scope.login = function() {
+        alertplus.alert("hello");
+        $scope.data.user = {fullname: "Bobby Fisher"};
+    };
+
     return promise;
 });
 

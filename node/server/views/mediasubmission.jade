@@ -75,14 +75,14 @@ block content
                           tr(data-ng-repeat='file in queue', data-ng-class="{'processing': file.$processing()}")
                             td(data-ng-switch='', data-on='!!file.thumbnailUrl')
                               .preview(data-ng-switch-when='true')
-                                a(data-ng-href='{{file.url}}', title='{{file.name}}', download='{{file.name}}', data-gallery='')
-                                  img(data-ng-src='{{file.thumbnailUrl}}', alt='', ng-style="{'max-height': '60px'}")
+                                a(data-ng-href='#{config.wildbook.url}{{file.url}}', title='{{file.name}}', download='{{file.name}}', data-gallery='')
+                                  img(data-ng-src='#{config.wildbook.url}{{file.thumbnailUrl}}', alt='', ng-style="{'max-height': '60px'}")
                               .preview(data-ng-switch-default='', data-file-upload-preview='file')
                             td
                               p.name(data-ng-switch='', data-on='!!file.url')
                                 span(data-ng-switch-when='true', data-ng-switch='', data-on='!!file.thumbnailUrl')
-                                  a(data-ng-switch-when='true', data-ng-href='{{file.url}}', title='{{file.name}}', download='{{file.name}}', data-gallery='') {{file.name}}
-                                  a(data-ng-switch-default='', data-ng-href='{{file.url}}', title='{{file.name}}', download='{{file.name}}') {{file.name}}
+                                  a(data-ng-switch-when='true', data-ng-href='#{config.wildbook.url}{{file.url}}', title='{{file.name}}', download='{{file.name}}', data-gallery='') {{file.name}}
+                                  a(data-ng-switch-default='', data-ng-href='#{config.wildbook.url}{{file.url}}', title='{{file.name}}', download='{{file.name}}') {{file.name}}
                                 span(data-ng-switch-default='') {{file.name}}
                               strong.error.text-danger(data-ng-show='file.error') {{file.error}}
                             td
@@ -134,7 +134,7 @@ block content
                       a.btn.btn-primary(ng-click='rc.mediaWizard.forward()', ng-show='rc.mediaWizard.currentIndex == rc.mediaWizard.navigationLength') Complete
     #MediaSubmissionThankYou.container.hidden
       h1 Thank You!
-      p We have received your data and will begin analyzing it. We will periodically report back results. Be sure to check your email in a few minutes for a link back to your data where you can check our lastest conclusions.
+      p We have received your data and will begin analyzing it. We will periodically report back results. Be sure to check your email in a few minutes for a link back to your data where you can check our latest conclusions.
 
 block scripts
     script(src="/vendor/angularjs-utilities/javascript/jquery.bootstrap.wizard.js")
