@@ -99,17 +99,25 @@ module.exports = function(app, config) {
     //
     // Proxy over to wildbook
     //
+    var wbCount = 0;
     app.get('/wildbook/*', function(req, res) {
         //
         // Extract out the * part of the address and forward it through
         // a pipe and request like so. Have to handle error on each section of the pipe.
         //
         var url = config.wildbook.url + req.url.slice(9);
+
+        wbCount++;
+        console.log(wbCount + ": " + url);
+
         req.pipe(request(url))
         .on('error', function(ex) {
             console.log("Trouble connecting to [" + url + "]");
             console.log(ex);
             res.status(500).send(ex);
+        })
+        .on('end', function() {
+            console.log("finished [" + wbCount + ": " + url + "]");
         })
         .pipe(res)
         .on('error', function(ex) {
