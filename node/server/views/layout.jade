@@ -34,7 +34,7 @@ html(ng-app="nodeApp")
                                 | {{data.user.fullname || data.user.username}}!
                             a(href="#")= t("header.menu.gotomy") + " | "
                             a(href="#")= t("header.menu.signout")
-                        a(href="#" ng-show="!data.user")= t("header.menu.signin")
+                        a(ng-show="!data.user" ng-click="login()")= t("header.menu.signin")
         .logo-svg#navbar-logo-right
 
     .maincontent
