@@ -24,6 +24,7 @@ import org.ecocean.ApiAccess;
 import org.ecocean.CommonConfiguration;
 import org.ecocean.Shepherd;
 import org.ecocean.Keyword;
+import org.ecocean.security.SocialAuth;
 import org.ecocean.ShepherdProperties;
 
 import javax.servlet.ServletConfig;
@@ -124,6 +125,14 @@ public class JavascriptGlobals extends HttpServlet {
     }
     rtn.put("keywords", allK);
 
+    //TODO we could do this for all sorts of property files too?
+    Properties authprops = SocialAuth.authProps(context);
+    if (authprops != null) {
+        for (String pn : authprops.stringPropertyNames()) {
+            propvalToHashMap(pn, authprops.getProperty(pn), rtn);
+        }
+    }
+
     response.setContentType("text/javascript");
     response.setCharacterEncoding("UTF-8");
     String js = "//JavascriptGlobals\nvar wildbookGlobals = " + new Gson().toJson(rtn) + "\n\n";
@@ -134,6 +143,22 @@ public class JavascriptGlobals extends HttpServlet {
 
 
 //wildbookGlobals.properties.lang.collaboration.invitePromptOne
+
+    public void propvalToHashMap(String name, String val, HashMap h) {
+        if (name.equals("secret")) return;  //TODO **totally** hactacular, but we dont want social secret keys sent out -- maybe pass in optional blacklist???
+        if (h == null) h = new HashMap();
+        int i = name.indexOf(".");
+        if (i < 0) {
+            h.put(name, val);
+            return;
+        }
+        String key = name.substring(0,i);
+        if (h.get(key) == null) h.put(key, new HashMap());
+/* TODO handle case where prop file might have foo.bar = 1 and then foo.bar.baz = 2 */
+        HashMap sub = (HashMap)h.get(key);
+        propvalToHashMap(name.substring(i+1), val, sub);
+    }
+
 
 }
   
