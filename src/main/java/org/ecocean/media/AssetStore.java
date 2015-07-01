@@ -18,10 +18,13 @@
 
 package org.ecocean.media;
 
+import java.io.*;
 import java.net.*;
 import java.util.*;
 import java.nio.file.*;
 import java.lang.reflect.*;
+
+import com.oreilly.servlet.multipart.FilePart;
 
 import com.samsix.database.*;
 
@@ -100,6 +103,21 @@ public abstract class AssetStore {
     public abstract MediaAsset create(Path path, AssetType type);
 
     public abstract MediaAsset create(String path, AssetType type);
+
+    /**
+     * Create a new asset from the given form submission part.  The
+     * file is copied in to the store as part of this process.
+     *
+     * @param part File given in a form submission.
+     *
+     * @param path The (optional) subdirectory and (required) filename
+     * relative to the asset store root in which to store the file.
+     *
+     * @param type Probably AssetType.ORIGINAL.
+     */
+    public abstract MediaAsset copyIn(FilePart part, String path, AssetType type)
+        throws IOException;
+
 
     //
     // store/load

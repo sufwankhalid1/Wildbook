@@ -24,6 +24,8 @@ import java.util.*;
 import java.lang.*;
 import java.nio.file.Path;
 
+import com.oreilly.servlet.multipart.FilePart;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,7 +101,7 @@ public class LocalAssetStore extends AssetStore {
      */
     public MediaAsset create(Path path, AssetType type) {
         try {
-            return new MediaAsset(this, checkPath(root(), path), type);
+            return new MediaAsset(this, ensurePath(root(), path), type);
         } catch (IllegalArgumentException e) {
             log.warn("Bad path", e);
             return null;
@@ -119,11 +121,36 @@ public class LocalAssetStore extends AssetStore {
     public MediaAsset create(String path, AssetType type) {
         try {
             Path p = new File(path).toPath();
-            return new MediaAsset(this, checkPath(root(), p), type);
+            return new MediaAsset(this, ensurePath(root(), p), type);
         } catch (IllegalArgumentException e) {
             log.warn("Bad path", e);
             return null;
         }
+    }
+
+    /**
+     * Create a new asset from the given form submission part.  The
+     * file is copied in to the store as part of this process.
+     *
+     * @param part File given in a form submission.
+     *
+     * @param path The (optional) subdirectory and (required) filename
+     * relative to the asset store root in which to store the file.
+     *
+     * @param type Probably AssetType.ORIGINAL.
+     */
+    public MediaAsset copyIn(FilePart part, String path, AssetType type)
+        throws IOException
+    {
+        Path root = root();
+        Path p = new File(path).toPath();
+        Path fullPath = checkPath(root, p);
+
+        fullPath.getParent().toFile().mkdirs();
+
+        part.writeTo(fullPath.toFile());
+
+        return new MediaAsset(this, fullPath, type);
     }
 
     /**
@@ -135,10 +162,27 @@ public class LocalAssetStore extends AssetStore {
     public static Path checkPath(Path root, Path path) {
         if (path == null) throw new IllegalArgumentException("null path");
 
-        Path result = root.relativize(path);
+        Path result = root.resolve(path);
+        result = root.relativize(result.normalize());
 
         if (result.startsWith(".."))
             throw new IllegalArgumentException("Path not under given root");
+
+        return result;
+    }
+
+    /**
+     * Like checkPath(), but throws an IllegalArgumentException if the
+     * resulting file doesn't exist.
+     *
+     * @return Subpath to the file relative to the root.
+     */
+    public static Path ensurePath(Path root, Path path) {
+        Path result = checkPath(root, path);
+
+        Path full = root.resolve(path);
+        if (!full.toFile().exists())
+            throw new IllegalArgumentException(full + " does not exist");
 
         return result;
     }
