@@ -80,14 +80,12 @@ public class UserInfo extends HttpServlet {
     }
 
     private String getPhotoURL(User user) {
-        ConnectionInfo ci = ShepherdPMF.getConnectionInfo();
-        try (Database db = new Database(ci)) {
-            MediaAsset image = user.getUserImage(db);
-            if (image != null) {
-                return image.webPath().toString();
-            }
+        MediaAsset image = user.getUserImage();
+        if (image != null) {
+            return image.webPath().toString();
         }
 
+        // fallback
         File baseDir = new File(getServletContext().getRealPath("/"));
         return "/" + baseDir.getName() + "/images/empty_profile.jpg";
     }

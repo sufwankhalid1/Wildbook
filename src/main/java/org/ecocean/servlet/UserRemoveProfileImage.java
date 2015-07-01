@@ -59,7 +59,8 @@ public class UserRemoveProfileImage extends HttpServlet {
         response.setContentType("text/html");
         PrintWriter out = response.getWriter();
 
-        String username = request.getParameter("username").trim();
+        String username = request.getParameter("username");
+        if (username != null) username = username.trim();
 
         if (request.getRequestURL().indexOf("MyAccount") != -1) {
             username = request.getUserPrincipal().getName();
@@ -70,13 +71,7 @@ public class UserRemoveProfileImage extends HttpServlet {
         myShepherd.beginDBTransaction();
         User user = myShepherd.getUser(username);
         if (user != null) {
-            ConnectionInfo ci = ShepherdPMF.getConnectionInfo();
-            try (Database db = new Database(ci)) {
-                MediaAsset image = user.getUserImage(db);
-                if (image != null) {
-                    user.setUserImage(null);
-                }
-            }
+            user.setUserImage(null);
         }
         myShepherd.commitDBTransaction();
         myShepherd.closeDBTransaction();
@@ -108,20 +103,5 @@ public class UserRemoveProfileImage extends HttpServlet {
         out.println(ServletUtilities.getFooter(context));
 
         out.close();
-    }
-
-    private String getPhotoURL(User user) {
-        ConnectionInfo ci = ShepherdPMF.getConnectionInfo();
-        try (Database db = new Database(ci)) {
-            MediaAsset image = user.getUserImage(db);
-            if (image != null) {
-                return image.webPath().toString();
-            }
-        // } catch (DatabaseException ex) {
-            // TODO: log somehow?
-        }
-
-        File baseDir = new File(getServletContext().getRealPath("/"));
-        return "/" + baseDir.getName() + "/images/empty_profile.jpg";
     }
 }

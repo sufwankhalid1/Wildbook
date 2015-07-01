@@ -26,6 +26,7 @@ import com.oreilly.servlet.multipart.Part;
 
 import org.ecocean.*;
 import org.ecocean.media.*;
+import org.ecocean.mmutil.*;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -36,8 +37,12 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 
 import com.samsix.database.*;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Uploads a new image to the file system and associates the image with an Encounter record
@@ -45,141 +50,163 @@ import com.samsix.database.*;
  * @author jholmber
  */
 public class UserAddProfileImage extends HttpServlet {
-
-  public void init(ServletConfig config) throws ServletException {
-    super.init(config);
-  }
-
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-    doPost(request, response);
-  }
-
-  public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
-    String context="context0";
-    //context=ServletUtilities.getContext(request);
-    Shepherd myShepherd = new Shepherd(context);
-
-    //setup data dir
-    String rootWebappPath = getServletContext().getRealPath("/");
-    File webappsDir = new File(rootWebappPath).getParentFile();
-    File shepherdDataDir = new File(webappsDir, CommonConfiguration.getDataDirectoryName(context));
-    if(!shepherdDataDir.exists()){shepherdDataDir.mkdirs();}
-    File encountersDir=new File(shepherdDataDir.getAbsolutePath()+"/users");
-    if(!encountersDir.exists()){encountersDir.mkdirs();}
-
-    //set up for response
-    response.setContentType("text/html");
-    PrintWriter out = response.getWriter();
-    boolean locked = false;
-
-    String fileName = "None";
-    String username = "None";
-    String fullPathFilename="";
-
-    try {
-      MultipartParser mp = new MultipartParser(request, (CommonConfiguration.getMaxMediaSizeInMegabytes(context) * 1048576));
-      Part part;
-      while ((part = mp.readNextPart()) != null) {
-        String name = part.getName();
-        if (part.isParam()) {
+    private static Logger log = LoggerFactory.getLogger(UserAddProfileImage.class);
 
 
-          // it's a parameter part
-          ParamPart paramPart = (ParamPart) part;
-          String value = paramPart.getStringValue();
+    public void init(ServletConfig config)
+        throws ServletException
+    {
+        super.init(config);
+    }
 
+    public void doGet(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException
+    {
+        doPost(request, response);
+    }
 
-          //determine which variable to assign the param to
-          if (name.equals("username")) {
-            username = value;
-          }
+    public void doPost(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException
+    {
+        String context="context0";
+        //context=ServletUtilities.getContext(request);
+        Shepherd myShepherd = new Shepherd(context);
 
+        String username = getUsername(request, context);
+        if (StringUtilities.isEmpty(username)) {
+            showResult(request, response, context, username,
+                       "Failure!", "Can't find the username");
+            return;
         }
 
-
-        if (part.isFile()) {
-
-          if(request.getRequestURL().indexOf("MyAccount")!=-1){
-            username=request.getUserPrincipal().getName();
-          }
-
-          FilePart filePart = (FilePart) part;
-          fileName = ServletUtilities.cleanFileName(filePart.getFileName());
-          if (fileName != null) {
-
-            File thisSharkDir = new File(encountersDir.getAbsolutePath() +"/"+ username);
-            if(!thisSharkDir.exists()){thisSharkDir.mkdirs();}
-            File finalFile=new File(thisSharkDir, fileName);
-            fullPathFilename=finalFile.getCanonicalPath();
-            long file_size = filePart.writeTo(finalFile);
-
-          }
-        }
-      }
-
-      File thisEncounterDir = new File(encountersDir, username);
-
-      myShepherd.beginDBTransaction();
-      User user = myShepherd.getUser(username);
-      if (user != null) {
         ConnectionInfo ci = ShepherdPMF.getConnectionInfo();
         try (Database db = new Database(ci)) {
-          AssetStore as = AssetStore.loadDefault(db);
-          MediaAsset ma = as.create(fullPathFilename, AssetType.ORIGINAL);
-          user.setUserImage(ma);
-        } catch (Exception le) {
-          locked = true;
-          myShepherd.rollbackDBTransaction();
-          myShepherd.closeDBTransaction();
+            AssetStore assetStore = AssetStore.loadDefault(db);
+            if (assetStore == null) {
+                throw new IllegalArgumentException("Can't load the default asset store");
+            }
+
+            MediaAsset asset = importImage(request, context, assetStore, username);
+            if (asset == null) {
+                throw new IllegalArgumentException("Couldn't import the image");
+            }
+            asset.save(db);
+
+            myShepherd.beginDBTransaction();
+            User user = myShepherd.getUser(username);
+            if (user == null) {
+                throw new IllegalArgumentException("Couldn't find the user '" + username + "'");
+            }
+
+            user.setUserImage(asset);
+
+            myShepherd.commitDBTransaction();
+            myShepherd.closeDBTransaction();
+
+            showResult(request, response, context, username,
+                       "Success!",
+                       "I have successfully uploaded the user profile image file.");
+        } catch (Exception e) {
+            myShepherd.rollbackDBTransaction();
+            myShepherd.closeDBTransaction();
+            e.printStackTrace();
+            showResult(request, response, context, username, "Failure!", e.getMessage());
         }
-
-        if (!locked) {
-          myShepherd.commitDBTransaction();
-          myShepherd.closeDBTransaction();
-          out.println(ServletUtilities.getHeader(request));
-
-
-          out.println("<strong>Success!</strong> I have successfully uploaded the user profile image file.");
-
-          if(request.getRequestURL().indexOf("MyAccount")!=-1){
-            out.println("<p><a href=\"http://" + CommonConfiguration.getURLLocation(request) + "/myAccount.jsp\">Return to My Account.</a></p>\n");
-
-          }
-          else{
-
-            out.println("<p><a href=\"http://" + CommonConfiguration.getURLLocation(request) + "/appadmin/users.jsp?context=context0&isEdit=true&username=" + username + "#editUser\">Return to User Management.</a></p>\n");
-          }
-          out.println(ServletUtilities.getFooter(context));
-          //String message = "An additional image file has been uploaded for encounter #" + encounterNumber + ".";
-          //ServletUtilities.informInterestedParties(request, encounterNumber, message);
-        } else {
-
-          out.println(ServletUtilities.getHeader(request));
-          out.println("<strong>Failure!</strong> This User account is currently being modified by another user. Please wait a few seconds before trying to add this image again.");
-          out.println("<p><a href=\"http://" + CommonConfiguration.getURLLocation(request) + "/appadmin/users.jsp?context=context0\">Return to User Management</a></p>\n");
-          out.println(ServletUtilities.getFooter(context));
-
-        }
-      } else {
-        myShepherd.rollbackDBTransaction();
-        myShepherd.closeDBTransaction();
-        out.println(ServletUtilities.getHeader(request));
-        out.println("<strong>Error:</strong> I was unable to upload your image file. I cannot find the username that you intended it for in the database.");
-        out.println(ServletUtilities.getFooter(context));
-
-      }
-    } catch (IOException lEx) {
-      lEx.printStackTrace();
-      out.println(ServletUtilities.getHeader(request));
-      out.println("<strong>Error:</strong> I was unable to upload your image file. Please contact the webmaster about this message.");
-      out.println(ServletUtilities.getFooter(context));
-    } catch (NullPointerException npe) {
-      npe.printStackTrace();
-      out.println(ServletUtilities.getHeader(request));
-      out.println("<strong>Error:</strong> I was unable to upload an image as no file was specified.");
-      out.println(ServletUtilities.getFooter(context));
     }
-    out.close();
-  }
+
+    /**
+     * Grab the username from the request url or form request.
+     */
+    private String getUsername(HttpServletRequest request, String context)
+        throws IOException, UnsupportedEncodingException
+    {
+        // our username if we're on a MyAccount (non-admin?) page
+        if (request.getRequestURL().indexOf("MyAccount")!=-1){
+            return request.getUserPrincipal().getName();
+        }
+
+        // from the form
+        int maxSize = CommonConfiguration.getMaxMediaSizeInMegabytes(context) * 1048576;
+        MultipartParser mp = new MultipartParser(request, maxSize);
+
+        Part part;
+        while ((part = mp.readNextPart()) != null) {
+            String name = part.getName();
+            if (part.isParam() && name.equals("username")) {
+                ParamPart paramPart = (ParamPart)part;
+                return paramPart.getStringValue();
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Copy the submitted file into the AssetStore under the user's
+     * subdirectory.
+     */
+    private MediaAsset importImage(HttpServletRequest request, String context,
+                                   AssetStore store, String username)
+        throws IOException, UnsupportedEncodingException
+    {
+        int maxSize = CommonConfiguration.getMaxMediaSizeInMegabytes(context) * 1048576;
+        MultipartParser mp = new MultipartParser(request, maxSize);
+
+        Part part;
+        while ((part = mp.readNextPart()) != null) {
+            if (!part.isFile()) continue;
+
+            FilePart filePart = (FilePart)part;
+
+            String fileName = ServletUtilities.cleanFileName(filePart.getFileName());
+
+            log.debug("Test import user image " + fileName);
+
+            if (MediaUtilities.isAcceptableImageFile(fileName)) {
+                // store in user's dir
+                String dest = username + "/" + fileName;
+
+                log.debug("Storing import user image " + dest);
+
+                return store.copyIn(filePart, dest, AssetType.ORIGINAL);
+            } else {
+                throw new IllegalArgumentException("'" + fileName + "' can not be used as an image.");
+            }
+        }
+
+        return null;
+    }
+
+    private void showResult(HttpServletRequest request,
+                            HttpServletResponse response,
+                            String context,
+                            String username,
+                            String type,
+                            String message)
+    {
+        try (PrintWriter out = response.getWriter()) {
+            response.setContentType("text/html");
+
+            out.println(ServletUtilities.getHeader(request));
+
+            out.println("<strong>" + type + "</strong>");
+            out.println(message);
+
+            if (request.getRequestURL().indexOf("MyAccount") != -1) {
+                out.println("<p><a href=\"http://" + CommonConfiguration.getURLLocation(request) +
+                            "/myAccount.jsp\">Return to My Account.</a></p>\n");
+            }
+            else {
+                out.println("<p><a href=\"http://" + CommonConfiguration.getURLLocation(request) +
+                            "/appadmin/users.jsp?context=context0&isEdit=true&username=" + username +
+                            "#editUser\">Return to User Management.</a></p>\n");
+            }
+
+            out.println(ServletUtilities.getFooter(context));
+
+            //out.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
