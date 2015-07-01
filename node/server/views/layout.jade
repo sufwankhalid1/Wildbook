@@ -37,8 +37,7 @@ html(ng-app="nodeApp")
                         a(ng-show="!data.user" ng-click="login()")= t("header.menu.signin")
         .logo-svg#navbar-logo-right
 
-    .maincontent
-        block content
+    block content
 
     .footer.navbar-fixed-bottom.navbar-inverse
         .container
@@ -47,7 +46,7 @@ html(ng-app="nodeApp")
                     li
                         a(href="/about")= t("footer.menu.about")
                     li
-                        a(href="#contact")= t("footer.menu.contact")
+                        a(href="mailto:info@happywhale.com")= t("footer.menu.contact")
                     li
                         a(href="/terms")= t("footer.menu.terms")
                     li
