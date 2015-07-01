@@ -82,6 +82,14 @@ public class User implements Serializable {
         this.lastLogin=-1;
     }
 
+    public User(Account acc) {
+        String username = acc.getUsername();
+        if (username == null) username = acc.getEmail();
+        setFullName(acc.getGivenName() + " " + acc.getSurname());
+        setEmailAddress(acc.getEmail());
+        setPassword(Util.generateUUID());
+    }
+
     public void RefreshDate()
     {
         this.dateInMilliseconds = new Date().getTime();
@@ -175,8 +183,6 @@ public class User implements Serializable {
 
     public void setSalt(String salt){this.salt=salt;}
     public String getSalt(){return salt;}
->>>>>>> User.java: whitespace and slight logic cleanup
-
 
     public void setUserProject(String newProj) {
         userProject = newProj;
