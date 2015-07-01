@@ -360,6 +360,7 @@ polygon.svg-star {
 	top: 20px;
 	right: -8px;
 	padding-left: 4px;
+	z-index: 5;
 
 	font-size: 0.8em;
 	font-weight: bold;
