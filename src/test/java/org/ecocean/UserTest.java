@@ -74,7 +74,7 @@ public class UserTest {
             // as that would require committing to the db which we
             // don't want to do for the test.
 
-            MediaAsset ma2 = user.getUserImage(db);
+            MediaAsset ma2 = user.getUserImage();
             assertNotNull("Failed to retrieve image", ma2);
             
             // delete user image (not implemented)

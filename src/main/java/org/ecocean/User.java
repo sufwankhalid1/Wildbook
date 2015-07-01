@@ -38,6 +38,7 @@ public class User implements Serializable {
     private String userStatement;
     private String userURL;
     private Long userImageID;
+    private MediaAsset userImage; // not persisted
 
     //Misc. information about this user
     private String notes;
@@ -189,27 +190,24 @@ public class User implements Serializable {
 
     public Long getUserImageID() {return userImageID;}
 
-    public MediaAsset getUserImage(Database db) {
+    public MediaAsset getUserImage() {return userImage;}
+
+    public synchronized void cacheUserImage(Database db) {
         if (db == null)
             throw new IllegalArgumentException("null database");
 
         if (userImageID == null ||
             userImageID == MediaAsset.NOT_SAVED)
-        {
-            return null;
-        }
+            return;
 
-        // NOTE someday we might want cache this,
-        // but most access is currently one-off
         try {
-            return MediaAsset.load(db, userImageID);
+            userImage = MediaAsset.load(db, userImageID);
         } catch (DatabaseException e) {
             log.error("Error while loading user image " + userImageID + " from db " + db, e);
-            return null;
         }
     }
 
-    public void setUserImage(MediaAsset image) {
+    public synchronized void setUserImage(MediaAsset image) {
         if (image == null) {
             userImageID = null;
         } else if (image.id == MediaAsset.NOT_SAVED) {
@@ -217,6 +215,8 @@ public class User implements Serializable {
         } else {
             userImageID = image.id;
         }
+
+        userImage = image;
     }
 
     public void setUserURL(String newURL) {
