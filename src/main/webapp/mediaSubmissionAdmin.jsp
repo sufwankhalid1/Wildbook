@@ -109,7 +109,7 @@ body { font-family: arial }
 	cursor: pointer;
 }
 
-#action-keywords-pulldown {
+.action-pulldown {
 	padding: 0 10px;
 	font-size: 0.85em;
 	width: 180px;
@@ -340,6 +340,39 @@ body { font-family: arial }
 	top: -5px;
 	left: -8px;
 }
+
+
+polygon.svg-star {
+	fill: blue;
+	stroke: yellow;
+}
+
+.tag-feature1,
+.tag-feature2,
+.tag-feature3,
+.tag-feature4,
+.tag-feature5 {
+	background-image: url(images/star.svg);
+	background-repeat: no-repeat;
+	background-size: 25px 25px;
+	width: 25px;
+	height: 25px;
+	top: 20px;
+	right: -8px;
+	padding-left: 4px;
+
+	font-size: 0.8em;
+	font-weight: bold;
+	color: #880;
+	text-align: center;
+	line-height: 2.4em;
+}
+
+.tag-feature1:before { content: "1" }
+.tag-feature2:before { content: "2" }
+.tag-feature3:before { content: "3" }
+.tag-feature4:before { content: "4" }
+.tag-feature5:before { content: "5" }
 
 .tag-to-cascadia {
 	background: url(images/tag-email.png) no-repeat;
@@ -1562,9 +1595,12 @@ function displayMSTable() {
 
 
 var featureTags = {
+	'': 'Not featured',
 	feature1: 'Feature 1',
 	feature2: 'Feature 2',
-	feature3: 'Feature 3'
+	feature3: 'Feature 3',
+	feature4: 'Feature 4',
+	feature5: 'Feature 5'
 };
 
 function initUI() {
@@ -1574,7 +1610,7 @@ function initUI() {
 	}
 
 	if (wildbookKeywords && wildbookKeywords.length) {
-		var kmenu = '<div class="action-wrapper"><select onChange="return actionKeywords();" id="action-keywords-pulldown" multiple size=4>';
+		var kmenu = '<div class="action-wrapper"><select onChange="return actionKeywords();" class="action-pulldown" id="action-keywords-pulldown" multiple size=4>';
 		$.each(wildbookKeywords, function(i, kw) {
 			kmenu += '<option value="' + kw.indexname + '">' + kw.readableName + '</option>';
 		});
@@ -1582,10 +1618,10 @@ function initUI() {
 		h += kmenu;
 	}
 
-	if (featureTags && featureTags.length) {
-		var fmenu = '<div class="action-wrapper"><select onChange="return actionFeatures();" id="action-features-pulldown" size=4>';
-		$.each(featureTags, function(i, f) {
-			fmenu += '<option value="' + f + '">' + featureTags[f] + '</option>';
+	if (featureTags) {
+		var fmenu = '<div class="action-wrapper"><select onChange="return actionFeatures();" class="action-pulldown" id="action-features-pulldown"><option value="">Set featured level</option>';
+		$.each(featureTags, function(k, f) {
+			fmenu += '<option value="' + k + '">' + f + '</option>';
 		});
 		fmenu += '</select></div>';
 		h += fmenu;
@@ -2168,7 +2204,7 @@ function actionCancel() {
 
 function actionTag(tagName, cmd) {
 console.log(tagName);
-	if (imageActions[tagName].actionMethod) return imageActions[tagName].actionMethod();
+	if (imageActions[tagName] && imageActions[tagName].actionMethod) return imageActions[tagName].actionMethod();
 
 	var m = getSelectedMedia({skipGeo: true});
 	if (m.length < 1) return msError('no image/video files selected');
@@ -2723,6 +2759,18 @@ function imageResize(w,h) {
 
 //http://localhost:8080/test/SinglePhotoVideoAddKeyword?photoName=ff8081814c95c7d7014c95ca53400005&keyword=abc&number=null
 
+
+function actionFeatures() {
+	var val = $('#action-features-pulldown').val();
+	$.each(featureTags, function(k, f) {
+		if ((k == '') || (k == val)) return;
+		actionTag(k, 'remove');
+	});
+	if (val != '') {
+		actionTag(val, 'append');
+	}
+	return true;
+}
 
 function actionKeywords() {
 	if (!wildbookKeywords || !wildbookKeywords.length) return;
