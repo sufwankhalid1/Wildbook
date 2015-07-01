@@ -96,6 +96,10 @@ module.exports = function(app, config) {
         res.render('mediasubmission', {config: config.client});
     });
 
+    app.get("/about", function(req, res) {
+        res.render('about', {config: config.client});
+    });
+
     //
     // Proxy over to wildbook
     //
