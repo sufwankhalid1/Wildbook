@@ -80,10 +80,12 @@ import com.google.gson.Gson;
     //context=ServletUtilities.getContext(request);
 		Shepherd myShepherd=new Shepherd(context);
 		myShepherd.beginDBTransaction();
-		
+    User loggedInUser = null;
+
 		try{
 		  if(myShepherd.getUser(username)!=null){
 		    User user=myShepherd.getUser(username);
+        loggedInUser = user;
 		    salt=user.getSalt();  
 		    if(request.getParameter("acceptUserAgreement")!=null){
 		      System.out.println("Trying to set acceptance for UserAgreement!");
@@ -121,12 +123,14 @@ System.out.println("checking Stormpath for login!");
         }
         if (acc != null) {
             User u = myShepherd.getUserByEmailAddress(acc.getEmail());
+            loggedInUser = u;
             if (u == null) {
                 //TODO we should probably have some kinda rules here: like stormpath user is a certain group etc 
                 System.out.println("successful authentication via Stormpath, but no Wildbook user for email " + acc.getEmail() + ". creating one!");
                 try {
                     u = new User(acc);
                     myShepherd.getPM().makePersistent(u);
+                    loggedInUser = u;
                 } catch (Exception ex) {
                     System.out.println("trouble creating Wildbook user from Stormpath: " + ex.toString());
                 }
@@ -263,6 +267,7 @@ System.out.println("checking Stormpath for login!");
             rtn.put("error", (String)err);
             rtn.put("success", false);
         } else {
+            rtn.put("fullName", loggedInUser.getFullName());
             rtn.put("success", true);
         }
         if (redirectUser) rtn.put("needsTerms", true);
