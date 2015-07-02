@@ -99,6 +99,13 @@ var submitMedia = (function () {
         function ($scope, $q, $timeout, dataService) {
             $scope.data = dataService.data;
 
+            $scope.$watch('data.config', function() {
+//                alert("data\n" + JSON.stringify($scope.data.config));
+                if ($scope.data && $scope.data.config) {
+                    wizard.value("config", $scope.data.config);
+                }
+            });
+
             angular.element(document).ready(function() {
                 map.on('click', function(event) {
                     if (! hasGPS) {
@@ -167,6 +174,7 @@ var submitMedia = (function () {
 
                 $(document.body).css({ 'cursor': 'wait' });
                 return $.post("wildbook/obj/mediasubmission/" + method, ms)
+//                return $.post($scope.data.config.wildbook.proxyUrl + "/obj/mediasubmission/" + method, ms)
                 .done(function(ex) {
                     $(document.body).css({ 'cursor': 'default' });
                 })
@@ -223,7 +231,8 @@ var submitMedia = (function () {
                 //
                 // Make call to get xif data
                 //
-                var jqXHR = $.get('wildbook/obj/mediasubmission/getexif/' + $scope.media.id)
+                var jqXHR = $.get("wildbook/obj/mediasubmission/getexif/" + $scope.media.id)
+//                var jqXHR = $.get($scope.data.config.wildbook.proxyUrl + "/obj/mediasubmission/getexif/" + $scope.media.id)
                 .done(function(data) {
                     var avg = data.avg;
                     //
@@ -349,31 +358,38 @@ var submitMedia = (function () {
          }
     ])
     .controller('SubmissionFileUploadController',
-        ['$scope', '$http', '$filter', '$window',
+        ['$scope', '$http',
          function ($scope, $http) {
-            $scope.options = {
-                url: "http://wildbook.happywhale.com/mediaupload"
-            };
-            $scope.loadingFiles = true;
-            $http.get("http://wildbook.happywhale.com/mediaupload")
-            .then(function (response) {
-                    $scope.loadingFiles = false;
-                    $scope.queue = response.data.files || [];
-                },
-                function () {
-                    $scope.loadingFiles = false;
-                }
-            );
+             $scope.options = {
+//                url: config.wildbook.url + "/mediaupload"
+                 url: "http://wildbook.happywhale.com/mediaupload"
+             };
+//            $scope.loadingFiles = true;
+//            $http.get($scope.data.config.wildbook.url + "/mediaupload")
+//            .then(function (response) {
+//                    $scope.loadingFiles = false;
+//                    $scope.queue = response.data.files || [];
+//                },
+//                function () {
+//                    $scope.loadingFiles = false;
+//                }
+//            );
+
+            $scope.loadingFiles = false;
+            $scope.queue = [];
         }
     ])
     .controller('FileDestroyController',
         ['$scope', '$http',
-         function ($scope, $http) {
+         function ($scope, $http, dataService) {
+            $scope.data = dataService.data;
+
             var file = $scope.file;
             if (file.url) {
                 file.$destroy = function () {
                     return $http({
-                        url: 'wildbook/obj/mediasubmission/delfile/' + $scope.media.id,
+                        url: "wildbook/obj/mediasubmission/delfile/" + $scope.media.id,
+//                        url: $scope.data.config.wildbook.proxyUrl + "/obj/mediasubmission/delfile/" + $scope.media.id,
                         data: this.name,
                         method: 'POST'
                     }).then(function () {

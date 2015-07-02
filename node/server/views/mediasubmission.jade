@@ -17,16 +17,19 @@ block content
                       ul.nav.rc-nav-wizard
                         li.active
                           a.active(href='#userForm', data-toggle='tab')
-                            span.badge 1
-                            span User Info
+                            div.wizard-page-header
+                                div.wizard-icon.info
+                                span ENTER INFO
                         li
                           a(href='#fileupload', data-toggle='tab')
-                            span.badge 2
-                            span Images
+                            div.wizard-page-header
+                                div.wizard-icon.upload
+                                span UPLOAD MEDIA
                         li
                           a(href='#metaForm', data-toggle='tab')
-                            span.badge 3
-                            span Location
+                            div.wizard-page-header
+                                div.wizard-icon.map
+                                span MAP ENCOUNTER
                       .tab-content
                         // Here we save the submission before getting to the images because we need the id to
                         // record the connection to the images

@@ -28,11 +28,22 @@ angular.module("nodeApp.controllers", [])
 .controller("AppController", function ($scope, $http, dataService) {
     $scope.data = dataService.data;
 
+    function parseError(status, data) {
+        var message;
+        if (typeof data === "string") {
+            message = data;
+        } else {
+            message = JSON.stringify(data);
+        }
+
+        return {status: status, message: message};
+    }
+
     var promise = $http({
         method: "GET",
         url: "/config"
     }).success(function (config, status, headers, obj) {
-        $scope.config = config;
+        $scope.data.config = config;
 
         $http({
             method: "GET",
@@ -45,10 +56,10 @@ angular.module("nodeApp.controllers", [])
                 $scope.data.user = null;
             }
         }).error(function (data, status, headers, config) {
-            alertplus.alert(status + ": " + JSON.stringify(data));
+            alertplus.error(parseError(status, data));
         });
     }).error(function (data, status, headers, config) {
-        alertplus.alert(status + ": " + JSON.stringify(data));
+        alertplus.error(parseError(status, data));
     });
 
     $scope.login = function() {

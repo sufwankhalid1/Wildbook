@@ -11,6 +11,12 @@ var cookieParser = require('cookie-parser');
 var fs = require('fs');
 var config = JSON.parse(fs.readFileSync('server/cust/config.json', 'utf8'));
 
+if (config.client.wildbook.proxy) {
+    config.client.wildbook.proxyUrl = "wildbook";
+} else {
+    config.client.wildbook.proxyUrl = config.client.wildbook.url;
+}
+
 var i18n = require('i18next');
 
 //

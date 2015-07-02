@@ -110,7 +110,7 @@ module.exports = function(app, config) {
         //
         var url = config.wildbook.url + req.url.slice(9);
 
-//        console.log("wildbook GET: " + url);
+        console.log("wildbook GET: " + url);
 
         req.pipe(request(url))
         .on('error', function(ex) {
@@ -134,7 +134,7 @@ module.exports = function(app, config) {
         //
         var url = config.wildbook.url + req.url.slice(9);
 
-//        console.log("wildbook POST: " + url);
+        console.log("wildbook POST: " + url);
 
         req.pipe(request.post({uri: url, json: req.body}))
         .on('error', function(ex) {

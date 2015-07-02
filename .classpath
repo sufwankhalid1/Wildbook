@@ -142,7 +142,6 @@
 			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry combineaccessrules="false" kind="src" path="/s6db"/>
 	<classpathentry kind="lib" path="/Users/ken/.m2/repository/com/drewnoakes/metadata-extractor/2.8.0/metadata-extractor-2.8.0.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
