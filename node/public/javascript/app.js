@@ -52,8 +52,8 @@ angular.module("nodeApp.controllers", [])
     });
 
     $scope.login = function() {
-        alertplus.alert("hello");
-        $scope.data.user = {fullname: "Bobby Fisher"};
+				wildbook.auth.loginPopup($scope);
+        //$scope.data.user = {fullname: "Bobby Fisher"};
     };
 
     return promise;
