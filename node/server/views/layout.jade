@@ -6,6 +6,7 @@ html(ng-app="nodeApp")
         link(rel='stylesheet', href='/css/bootstrap-custom.css')
         link(rel='stylesheet', href='/vendor/jquery-ui/css/jquery-ui.css')
         link(rel='stylesheet' href='/vendor/alertplus/css/alertplus.css')
+        link(rel='stylesheet', href='/vendor/zocial/zocial.css')
         link(rel='stylesheet' href='/cust/css/cust.css')
 
         block css
@@ -24,7 +25,11 @@ html(ng-app="nodeApp")
                     li
                         a(href="/about")= t("header.menu.about")
                     li
-                        a(href="#news")= t("header.menu.news")
+                        div.socialbox
+                            a.zocial.facebook(href="https://www.facebook.com/happywhales" target="_blank")
+                            a.zocial.twitter(href="https://twitter.com/happyhumpback" target="_blank")
+                            a.zocial.instagram(href="https://instagram.com/happyhumpback" target="_blank")
+                            a.zocial.email(href="mailto:info@happywhale.com")
                     li
                         .right-inner-addon
                             i.glyphicon.glyphicon-search(style="top: -5px; color: #AAA;")

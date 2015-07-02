@@ -1,8 +1,5 @@
 extends layout
 
-block css
-    link(rel='stylesheet', href='/vendor/zocial/zocial.css')
-
 block content
     .homecontainer
         img.homeimage(src="/images/home_image1.png")
@@ -14,13 +11,9 @@ block content
 
     .container-fluid.homefooter
         .col-md-3.homefootercol
-            .row
-                h1= t("home.footer.connectWithUs")
-                a.zocial.facebook(href="https://www.facebook.com/happywhales" target="_blank")
-                a.zocial.twitter(href="https://twitter.com/happyhumpback" target="_blank")
-                //a.zocial.google(href="#")
-                a.zocial.instagram(href="https://instagram.com/happyhumpback" target="_blank")
-                a.zocial.email(href="#")
+            //
+            // TODO: Put instagram feed here.
+            //
             .row
                 div
                     img.tinyimage(src="/images/home_tiny1.png")
