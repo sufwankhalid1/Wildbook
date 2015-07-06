@@ -47,10 +47,10 @@ public class MediaAssetTest {
         }
 
         try (Database db = new Database(ci)) {
-            AssetStore las = new LocalAssetStore("test", Paths.get("/tmp"), null, true);
+            AssetStore las = new LocalAssetStore("test", Paths.get("/etc"), null, true);
             las.save(db);
 
-            MediaAsset ma = las.create(Paths.get("/tmp/test.png"), AssetType.ORIGINAL);
+            MediaAsset ma = las.create(Paths.get("/etc/hosts"), AssetType.ORIGINAL);
             assertNotNull("Null MediaAsset", ma);
 
             ma.save(db);

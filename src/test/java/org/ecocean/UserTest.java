@@ -60,15 +60,20 @@ public class UserTest {
         try (Database db = new Database(ci)) {
             db.beginTransaction();
 
-            // image file doesn't need to exist for this test
-            AssetStore las = new LocalAssetStore("test", Paths.get("/tmp"), null, true);
+            // NOTE: make image file doesn't need to exist for this test
+            AssetStore las = new LocalAssetStore("test", Paths.get("/etc"), null, true);
             las.save(db);
 
-            MediaAsset ma = las.create(Paths.get("/tmp/test.png"), AssetType.ORIGINAL);
-            assertNotNull("Null MediaAsset", ma);
-            ma.save(db);
+            try {
+                MediaAsset ma = las.create(Paths.get("/etc/hosts"), AssetType.ORIGINAL);
+                assertNotNull("Null MediaAsset", ma);
+                ma.save(db);
 
-            user.setUserImage(ma);
+                user.setUserImage(ma);
+            } catch (IllegalArgumentException iaex) {
+                db.rollbackTransaction();
+                fail(iaex.getMessage());
+            }
 
             // NOTE: we're not actually persisting the user with the asset,
             // as that would require committing to the db which we
