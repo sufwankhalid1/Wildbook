@@ -127,8 +127,7 @@ response.setHeader("Pragma", "no-cache"); //HTTP 1.0 backward compatibility
                                 System.out.println("PHOTO IS " + thisUser.getUserImage());
                             } else {
                                 // fallback
-                                File baseDir = new File(getServletContext().getRealPath("/"));
-                                profilePhotoURL = "/" + baseDir.getName() + "/images/empty_profile.jpg";
+                                profilePhotoURL = "images/empty_profile.jpg";
                             }
 
                             %>
