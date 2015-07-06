@@ -89,9 +89,11 @@
     width: 36px;
 }
 
-.tinyimage {
+.instagramimage {
     /*padding: 0px !important;*/
    margin-right: 5px;
+   width: 120px;
+   height: auto;
 }
 
 .homefootercol {

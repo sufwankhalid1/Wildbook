@@ -11,15 +11,11 @@ block content
 
     .container-fluid.homefooter
         .col-md-3.homefootercol
-            //
-            // TODO: Put instagram feed here.
-            //
             .row
                 div
-                    img.tinyimage(src="/images/home_tiny1.png")
-                    img.tinyimage(src="/images/home_tiny2.png")
-                    img.tinyimage(src="/images/home_tiny3.png")
-                    img.tinyimage(src="/images/home_tiny4.png")
+                    for data in home.social.instagram.feed
+                        a(href="#{data.link}" target="_blank")
+                            img.instagramimage(src="#{data.images.low_resolution.url}")
         .col-md-6.homefootercol
             h1= t("home.footer.whatGoingOn")
             for item in home.news

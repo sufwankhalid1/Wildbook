@@ -39,8 +39,11 @@ if (config.client.wildbook.proxy) {
     config.client.wildbook.proxyUrl = config.client.wildbook.url;
 }
 
+var secrets = JSON.parse(fs.readFileSync("secrets.json", "utf8"));
+
 if (args.debug) {
     console.log(config);
+    console.log(secrets);
 }
 
 var i18n = require('i18next');
@@ -107,7 +110,7 @@ app.use(function(err, req, res, next) {
 //app.use(require('stylus').middleware({ src: __dirname + '/app/public' }));
 app.use(express.static(__dirname + '/public'));
 
-require('./server/router')(app, config, args.debug);
+require('./server/router')(app, config, secrets, args.debug);
 
 http.createServer(app).listen(app.get('port'), function(){
     console.log("Express server listening on port " + app.get('port'));

@@ -20,24 +20,78 @@ var request = require('request');
 //var https = require('https');
 var extend = require('extend');
 
-module.exports = function(app, config, debug) {
+//
+// Set up social data grabbing
+//
+var home = {
+    spotlight: {
+        name: "Frosty",
+        species: "Humpback Whale",
+        id: "Cascadia #12492",
+        place: "Monterey Bay, CA"
+    },
+    news: [{headline: "News Section Headline",
+            contents: "Lorem ipsum..."},
+           {headline: "News Section Headline 2",
+            contents: "Ut enim..."}],
+    social: {"instagram": {},
+             "twitter": {}}
+};
+
+// Instagram photos
+function instagramFeed(config, secrets) {
+    var url = "https://api.instagram.com/v1/users/"
+        + config.client.social.instagram.user_id
+        + "/media/recent/?count=4&access_token="
+        + secrets.social.instagram.access_token;
+//    request.get(url)
+//    .on('response', function(response) {
+//        console.log("******onResponse:");
+//        if (typeof response == "string") {
+//            console.log(response.slice(0, 100));
+//        } else {
+//            console.log("RESPONSE NOT STRING");
+//        }
+//    })
+//    .on('data', function(data) {
+//        console.log("******onData:");
+//        console.log(data);
+//        home.social.instagram.feed = data.data;
+//    })
+//    .on('error', function(err) {
+//        console.log("******onError:");
+//        console.log(err);
+//    });
+    console.log(url);
+    request(url, function(error, response, body) {
+        if (error) {
+            console.log(error);
+            home.social.instagram.feed = [];
+            return;
+        }
+
+        if (response.statusCode !== 200) {
+            console.log("url [" + url + "] returned status [" + response.statusCode + "]");
+            home.social.instagram.feed = [];
+            return
+        }
+
+        try {
+            home.social.instagram.feed = JSON.parse(body).data;
+        } catch (err) {
+            console.log(err);
+        }
+    });
+}
+//
+// End social data grabbing.
+//
+
+
+module.exports = function(app, config, secrets, debug) {
     var vars = {config: config.client};
 
-    //
-    // TODO: Read these from a mongo database that the site admin will be able to edit.
-    //
-    var homeVars = {home:{
-        spotlight: {
-            name: "Frosty",
-            species: "Humpback Whale",
-            id: "Cascadia #12492",
-            place: "Monterey Bay, CA"
-        },
-        news: [{headline: "News Section Headline",
-                contents: "Lorem ipsum..."},
-               {headline: "News Section Headline 2",
-                contents: "Ut enim..."}]
-    }};
+    instagramFeed(config, secrets);
 
     //
     // Main site
@@ -47,7 +101,7 @@ module.exports = function(app, config, debug) {
         // NOTE: i18n available as req.i18n.t or just req.t
         // Also res.locals.t
         //
-        res.render('home', extend({}, vars, homeVars));
+        res.render('home', extend({}, vars, {home: home}));
     });
 
     app.get('/config', function(req,res) {
