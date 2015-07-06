@@ -137,16 +137,16 @@ var submitMedia = (function () {
             // In fact we CAN'T because it throws an error since it is already
             // in an apply. Can't run an apply within an apply.
             //
+            $scope.media = {
+                "submissionid": urlParam('submissionid'),
+                "email": urlParam('email'),
+                "name": urlParam('name'),
+                "endTime": null,
+                "startTime": null
+            };
+
             app.configPromise.done(function(){
-                $scope.media = {
-    //                "username": ($scope.data.user) ? $scope.data.user.username : null,
-                    "username": (app.user) ? app.user.username : null,
-                    "submissionid": urlParam('submissionid'),
-                    "email": urlParam('email'),
-                    "name": urlParam('name'),
-                    "endTime": null,
-                    "startTime": null
-                };
+                $scope.media.username = (app.user) ? app.user.username : null;
             });
 
             function longToDate(date) {

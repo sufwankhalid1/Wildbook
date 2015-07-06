@@ -62,14 +62,6 @@ angular.module("nodeApp.controllers", [])
     $scope.login = function() {
         wildbook.auth.loginPopup($scope);
     };
-
-    //
-    // I think this properly delays it such that the rest of the controllers, e.g. on
-    // the submitMedia page will not properly initialize until our promise is done.
-    // It *seems* to work that way anyway.
-    // UPDATE: NO, it doesn't can comment out I think.
-    //
-    return configPromise;
 });
 
 //app.ngApp = ngApp;
