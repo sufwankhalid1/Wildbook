@@ -1,5 +1,5 @@
 var alertplus = (function () {
-    var dialog = $("<div>").css("display", "none")
+    var dialog = $("<div>").css("display", "none");
     var messageArea = $("<pre>");
     dialog.append($("<div>").append(messageArea).addClass("messagearea"));
     dialog.append($("<br>"));
