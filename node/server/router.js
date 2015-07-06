@@ -17,7 +17,7 @@
 //});
 
 var request = require('request');
-var https = require('https');
+//var https = require('https');
 var extend = require('extend');
 
 module.exports = function(app, config, debug) {

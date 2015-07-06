@@ -1,8 +1,17 @@
 {
-    "custcode": "happywhale",
     "wildbook": {"url": "http://localhost:8080/wildbook"},
     "client": {"wildbook": {
         "url": "http://wildbook.happywhale.com",
-        "proxy": true}
+        "proxy": true},
+        "social": {"facebook": {
+            "id": "happywhales"
+        },
+        "twitter": {
+            "id": "happyhumpback"
+        },
+        "instagram": {
+            "id": "happyhumpback"
+        },
+        {"email": "info@happywhale.com"}}
     }
 }
