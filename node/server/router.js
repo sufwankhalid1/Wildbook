@@ -18,42 +18,15 @@
 
 var request = require('request');
 var https = require('https');
+var extend = require('extend');
 
-module.exports = function(app, config) {
-    function login(req, res, callback) {
-        //
-        // DEAD FUNCTION NOW
-        //
-        callback();
-//        if (req.session && req.session.user) { // req.session.loginChecked) {
-//            callback();
-//            return;
-//        }
-//
-//        //
-//        // WARNING: This doesn't work with localhost. I had to use the IP-Address as seen by
-//        // the router for me. Got this through ipconfig by using the en0:inet value. Port 8080
-//        // is fine, it's just the localhost that is the problem. Tried using an alias for localhost
-//        // which also didn't work. Must be the fact that it's the same IP address as the node.js
-//        // server itself.
-//        //
-//        //
-////        request(config.wildbook.url + "/obj/user", function (error, response, user) {
-////            req.session.loginChecked = true;
-////            if (!error && response.statusCode == 200) {
-////                if (user.username) {
-////                    req.session.user = user;
-////                } else {
-////                    req.session.user = null;
-////                }
-////            }
-////            callback();
-////        });
-//
-//        callback();
-    }
+module.exports = function(app, config, debug) {
+    var vars = {config: config.client};
 
-    var homeVars = {
+    //
+    // TODO: Read these from a mongo database that the site admin will be able to edit.
+    //
+    var homeVars = {home:{
         spotlight: {
             name: "Frosty",
             species: "Humpback Whale",
@@ -64,7 +37,7 @@ module.exports = function(app, config) {
                 contents: "Lorem ipsum..."},
                {headline: "News Section Headline 2",
                 contents: "Ut enim..."}]
-    };
+    }};
 
     //
     // Main site
@@ -74,18 +47,7 @@ module.exports = function(app, config) {
         // NOTE: i18n available as req.i18n.t or just req.t
         // Also res.locals.t
         //
-        login(req, res, function() {
-            //
-            // TODO: Read these from a mongo database that the site admin will be able to edit.
-            //
-            var variables = {
-//                user: req.session.user,
-                config: config.client,
-                page: homeVars
-            };
-
-            res.render('home', variables);
-        });
+        res.render('home', extend({}, vars, homeVars));
     });
 
     app.get('/config', function(req,res) {
@@ -93,11 +55,11 @@ module.exports = function(app, config) {
     });
 
     app.get('/submitMedia', function(req, res) {
-        res.render('mediasubmission', {config: config.client});
+        res.render('mediasubmission', vars);
     });
 
     app.get("/about", function(req, res) {
-        res.render('about', {config: config.client});
+        res.render('about', vars);
     });
 
     //
@@ -110,7 +72,9 @@ module.exports = function(app, config) {
         //
         var url = config.wildbook.url + req.url.slice(9);
 
-        console.log("wildbook GET: " + url);
+        if (debug) {
+            console.log("wildbook GET: " + url);
+        }
 
         req.pipe(request(url))
         .on('error', function(ex) {
@@ -153,6 +117,6 @@ module.exports = function(app, config) {
     //=================
 
     app.get('*', function(req, res) {
-        res.render('404', config.client);
+        res.render('404', vars);
     });
 };

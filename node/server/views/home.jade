@@ -22,7 +22,7 @@ block content
                     img.tinyimage(src="/images/home_tiny4.png")
         .col-md-6.homefootercol
             h1= t("home.footer.whatGoingOn")
-            for item in page.news
+            for item in home.news
                 h2= item.headline
                 p= item.contents
         .col-md-3
@@ -31,9 +31,9 @@ block content
                 img(src="/images/spotlight_card.png")
                 img.spotlightphoto(src="/images/spotlight_photo.png")
                 .spotlightcontents
-                    h2 "#{page.spotlight.name}"
-                    p #{page.spotlight.species}
+                    h2 "#{home.spotlight.name}"
+                    p #{home.spotlight.species}
                         br
-                        | #{page.spotlight.id}
+                        | #{home.spotlight.id}
                         br
-                        | #{page.spotlight.place}
+                        | #{home.spotlight.place}

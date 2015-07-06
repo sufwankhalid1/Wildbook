@@ -107,7 +107,7 @@ app.use(function(err, req, res, next) {
 //app.use(require('stylus').middleware({ src: __dirname + '/app/public' }));
 app.use(express.static(__dirname + '/public'));
 
-require('./server/router')(app, config);
+require('./server/router')(app, config, args.debug);
 
 http.createServer(app).listen(app.get('port'), function(){
     console.log("Express server listening on port " + app.get('port'));

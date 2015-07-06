@@ -66,8 +66,8 @@ html(ng-app="nodeApp")
     script(src='/vendor/angularjs/angular.min.js')
     script(src='/javascript/app.js')
 
-    script(src='/wildbook/JavascriptGlobals.js')
-    script(src='/wildbook/javascript/core.js')
-    script(src='/wildbook/javascript/auth/auth.js')
+    script(src='#{config.wildbook.proxyUrl}/JavascriptGlobals.js')
+    script(src='#{config.wildbook.proxyUrl}/javascript/core.js')
+    script(src='#{config.wildbook.proxyUrl}/javascript/auth/auth.js')
 
     block scripts
