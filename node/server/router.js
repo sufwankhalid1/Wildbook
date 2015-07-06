@@ -44,25 +44,7 @@ function instagramFeed(config, secrets) {
         + config.client.social.instagram.user_id
         + "/media/recent/?count=4&access_token="
         + secrets.social.instagram.access_token;
-//    request.get(url)
-//    .on('response', function(response) {
-//        console.log("******onResponse:");
-//        if (typeof response == "string") {
-//            console.log(response.slice(0, 100));
-//        } else {
-//            console.log("RESPONSE NOT STRING");
-//        }
-//    })
-//    .on('data', function(data) {
-//        console.log("******onData:");
-//        console.log(data);
-//        home.social.instagram.feed = data.data;
-//    })
-//    .on('error', function(err) {
-//        console.log("******onError:");
-//        console.log(err);
-//    });
-    console.log(url);
+//    console.log(url);
     request(url, function(error, response, body) {
         if (error) {
             console.log(error);
@@ -92,6 +74,10 @@ module.exports = function(app, config, secrets, debug) {
     var vars = {config: config.client};
 
     instagramFeed(config, secrets);
+
+    setInterval(function() {
+        instagramFeed(config, secrets);
+    }, 15*60*1000);
 
     //
     // Main site
