@@ -4,14 +4,13 @@
 // By default, scripts loaded via ajax (in this case the jquery.load() method will
 // not appear in the debugger.
 //
+'use strict';
 
 //app.configPromise.then(function() {
 //    alert(JSON.stringify(app));
 //});
 
 var submitMedia = (function () {
-    'use strict';
-
     var marker = null;
     var hasGPS = false;
     var map = null;

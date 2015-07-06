@@ -1,0 +1,6 @@
+{
+    "client": {"wildbook": {
+            "url": "http://localhost:8080/wildbook"
+        }
+    }
+}

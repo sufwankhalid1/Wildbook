@@ -2,7 +2,7 @@
     "custcode": "happywhale",
     "wildbook": {"url": "http://localhost:8080/wildbook"},
     "client": {"wildbook": {
-        "url": "http://localhost:8080/wildbook",
-        "url-site": "http://wildbook.happywhale.com"}
+        "url": "http://wildbook.happywhale.com",
+        "proxy": true}
     }
 }

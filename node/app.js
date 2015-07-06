@@ -5,16 +5,42 @@ var app = express();
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 
+var args = require('minimist')(process.argv.slice(2));
+
+if (! args.c) {
+    //
+    // Default to this for ease of early development.
+    //
+    args.c="happywhale";
+}
+
 //
 // Read in any configuration parameters
 //
 var fs = require('fs');
-var config = JSON.parse(fs.readFileSync('server/cust/config.json', 'utf8'));
+var config = JSON.parse(fs.readFileSync("cust/" + args.c + "/server/config.json", "utf8"));
+
+if (args.config) {
+    try {
+        var override = JSON.parse(fs.readFileSync(args.config, "utf8"));
+
+        if (override) {
+            var extend = require('extend');
+            config = extend(true, config, override);
+        }
+    } catch (ex) {
+        console.log(ex);
+    }
+}
 
 if (config.client.wildbook.proxy) {
     config.client.wildbook.proxyUrl = "wildbook";
 } else {
     config.client.wildbook.proxyUrl = config.client.wildbook.url;
+}
+
+if (args.debug) {
+    console.log(config);
 }
 
 var i18n = require('i18next');
