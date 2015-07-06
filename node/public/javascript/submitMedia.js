@@ -5,6 +5,10 @@
 // not appear in the debugger.
 //
 
+//app.configPromise.then(function() {
+//    alert(JSON.stringify(app));
+//});
+
 var submitMedia = (function () {
     'use strict';
 
@@ -87,24 +91,24 @@ var submitMedia = (function () {
                                  'rcForm',
                                  'rcDisabledBootstrap',
                                  'ui.date',
-                                 'blueimp.fileupload'])
-    .factory('dataService', function() {
-        var _data = {};
-        return {
-            data: _data
-        };
-    });
+                                 'blueimp.fileupload']);
+//    .factory('dataService', function() {
+//        var _data = {};
+//        return {
+//            data: _data
+//        };
+//    });
 
     wizard.controller('MediaSubmissionController',
-        function ($scope, $q, $timeout, dataService) {
-            $scope.data = dataService.data;
-
-            $scope.$watch('data.config', function() {
-//                alert("data\n" + JSON.stringify($scope.data.config));
-                if ($scope.data && $scope.data.config) {
-                    wizard.value("config", $scope.data.config);
-                }
-            });
+//        function ($scope, $q, $timeout, dataService) {
+//            $scope.data = dataService.data;
+        function ($scope) {
+//            $scope.$watch('data.config', function() {
+////                alert("data\n" + JSON.stringify($scope.data.config));
+//                if ($scope.data && $scope.data.config) {
+//                    wizard.value("config", $scope.data.config);
+//                }
+//            });
 
             angular.element(document).ready(function() {
                 map.on('click', function(event) {
@@ -133,14 +137,17 @@ var submitMedia = (function () {
             // In fact we CAN'T because it throws an error since it is already
             // in an apply. Can't run an apply within an apply.
             //
-            $scope.media = {
-                "username": ($scope.data.user) ? $scope.data.user.username : null,
-                "submissionid": urlParam('submissionid'),
-                "email": urlParam('email'),
-                "name": urlParam('name'),
-                "endTime": null,
-                "startTime": null
-            };
+            app.configPromise.done(function(){
+                $scope.media = {
+    //                "username": ($scope.data.user) ? $scope.data.user.username : null,
+                    "username": (app.user) ? app.user.username : null,
+                    "submissionid": urlParam('submissionid'),
+                    "email": urlParam('email'),
+                    "name": urlParam('name'),
+                    "endTime": null,
+                    "startTime": null
+                };
+            });
 
             function longToDate(date) {
                 if (date) {
@@ -173,8 +180,9 @@ var submitMedia = (function () {
                 ms.startTime = startTime;
 
                 $(document.body).css({ 'cursor': 'wait' });
-                return $.post("wildbook/obj/mediasubmission/" + method, ms)
+//                return $.post("wildbook/obj/mediasubmission/" + method, ms)
 //                return $.post($scope.data.config.wildbook.proxyUrl + "/obj/mediasubmission/" + method, ms)
+                return $.post(app.config.wildbook.proxyUrl + "/obj/mediasubmission/" + method, ms)
                 .done(function(ex) {
                     $(document.body).css({ 'cursor': 'default' });
                 })
@@ -198,7 +206,8 @@ var submitMedia = (function () {
             };
 
             $scope.isLoggedIn = function() {
-                return ($scope.data.user);
+//                return ($scope.data.user);
+                return (app.user);
             };
 
             $scope.getExifData = function() {
@@ -231,8 +240,9 @@ var submitMedia = (function () {
                 //
                 // Make call to get xif data
                 //
-                var jqXHR = $.get("wildbook/obj/mediasubmission/getexif/" + $scope.media.id)
+//                var jqXHR = $.get("wildbook/obj/mediasubmission/getexif/" + $scope.media.id)
 //                var jqXHR = $.get($scope.data.config.wildbook.proxyUrl + "/obj/mediasubmission/getexif/" + $scope.media.id)
+                var jqXHR = $.get(app.config.wildbook.proxyUrl + "/obj/mediasubmission/getexif/" + $scope.media.id)
                 .done(function(data) {
                     var avg = data.avg;
                     //
@@ -360,12 +370,16 @@ var submitMedia = (function () {
     .controller('SubmissionFileUploadController',
         ['$scope', '$http',
          function ($scope, $http) {
-             $scope.options = {
-//                url: config.wildbook.url + "/mediaupload"
-                 url: "http://wildbook.happywhale.com/mediaupload"
-             };
+            app.configPromise.done(function() {
+                 $scope.options = {
+    //                   url: "http://wildbook.happywhale.com/mediaupload"
+    //                url: config.wildbook.url + "/mediaupload"
+                    url: app.config.wildbook.url + "/mediaupload"
+                 };
+            });
 //            $scope.loadingFiles = true;
-//            $http.get($scope.data.config.wildbook.url + "/mediaupload")
+// //            $http.get($scope.data.config.wildbook.url + "/mediaupload")
+//            $http.get(app.config.wildbook.url + "/mediaupload")
 //            .then(function (response) {
 //                    $scope.loadingFiles = false;
 //                    $scope.queue = response.data.files || [];
@@ -381,23 +395,25 @@ var submitMedia = (function () {
     ])
     .controller('FileDestroyController',
         ['$scope', '$http',
-         function ($scope, $http, dataService) {
-            $scope.data = dataService.data;
-
+//         function ($scope, $http, dataService) {
+//            $scope.data = dataService.data;
+         function ($scope, $http) {
             var file = $scope.file;
             if (file.url) {
                 file.$destroy = function () {
                     return $http({
-                        url: "wildbook/obj/mediasubmission/delfile/" + $scope.media.id,
-//                        url: $scope.data.config.wildbook.proxyUrl + "/obj/mediasubmission/delfile/" + $scope.media.id,
+//                        url: "wildbook/obj/mediasubmission/delfile/" + $scope.media.id,
+//                      url: $scope.data.config.wildbook.proxyUrl + "/obj/mediasubmission/delfile/" + $scope.media.id,
+                        url: app.config.wildbook.proxyUrl + "/obj/mediasubmission/delfile/" + $scope.media.id,
                         data: this.name,
                         method: 'POST'
-                    }).then(function () {
-                                $scope.clear(file);
-                            },
-                            function () {
-                                console.log("failed to delete");
-                            }
+                    })
+                    .then(function () {
+                            $scope.clear(file);
+                        },
+                        function () {
+                            console.log("failed to delete");
+                        }
                     );
                 };
             } else if (!file.$cancel && !file._index) {
