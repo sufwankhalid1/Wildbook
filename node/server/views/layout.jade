@@ -34,6 +34,8 @@ html(ng-app="nodeApp")
                         .right-inner-addon
                             i.glyphicon.glyphicon-search(style="top: -5px; color: #AAA;")
                             input.search-query.form-control.navbar-search(type="text" placeholder!= t("header.menu.searchSite"))
+                  // This acts as block comment for whole section below due to the couple of spaces back.
+                  // Simply remove these lines to comment the signin back in.
                     li(ng-cloak)
                         div(ng-show="data.user" id="div-user-info")
                             p= t("header.menu.welcomeBack") + ", "
