@@ -30,12 +30,8 @@ var home = {
         id: "Cascadia #12492",
         place: "Monterey Bay, CA"
     },
-    news: [{headline: "News Section Headline",
-            contents: "Lorem ipsum..."},
-           {headline: "News Section Headline 2",
-            contents: "Ut enim..."}],
-    social: {"instagram": {},
-             "twitter": {}}
+    social: {"instagram": {"feed": []},
+             "twitter": {"feed": []}}
 };
 
 // Instagram photos
@@ -65,6 +61,24 @@ function instagramFeed(config, secrets) {
         }
     });
 }
+
+var Codebird = require("codebird");
+function twitterFeed(config, secrets) {
+//    https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name=happyhumpback&count=4
+    var cb = new Codebird;
+//    cb.setConsumerKey(config.client.social.twitter.consumer_key, secrets.social.twitter.consumer_secret);
+    cb.setBearerToken(home.social.twitter.token);
+    cb.__call(
+        "statuses_userTimeline",
+        {"screen_name": "happyhumpback",
+            "count": 4
+        },
+        function (reply) {
+            home.social.twitter.feed = reply;
+        },
+        true // this parameter required for AppAuthentication, which is done without the consumer key and secret.
+    );
+}
 //
 // End social data grabbing.
 //
@@ -73,8 +87,22 @@ function instagramFeed(config, secrets) {
 module.exports = function(app, config, secrets, debug) {
     var vars = {config: config.client};
 
-    instagramFeed(config, secrets);
+    var cb = new Codebird;
+    cb.setConsumerKey(config.client.social.twitter.consumer_key, secrets.social.twitter.consumer_secret);
+    cb.__call(
+        "oauth2_token",
+        {},
+        function (reply) {
+            home.social.twitter.token = reply.access_token;
+            twitterFeed();
+        }
+    );
 
+    setInterval(function() {
+        twitterFeed();
+    }, 60*1000);
+
+    instagramFeed(config, secrets);
     setInterval(function() {
         instagramFeed(config, secrets);
     }, 15*60*1000);

@@ -13,14 +13,14 @@ block content
         .col-md-3.homefootercol
             .row
                 div
-                    for data in home.social.instagram.feed
-                        a(href="#{data.link}" target="_blank")
-                            img.instagramimage(src="#{data.images.low_resolution.url}")
+                    for item in home.social.instagram.feed
+                        a(href="#{item.link}" target="_blank")
+                            img.instagramimage(src="#{item.images.low_resolution.url}")
         .col-md-6.homefootercol
             h1= t("home.footer.whatGoingOn")
-            for item in home.news
-                h2= item.headline
-                p= item.contents
+            ul
+                for item in home.social.twitter.feed
+                    li.tweetitem= item.text
         .col-md-3
             h1= t("home.footer.spotlight")
             .spotlight
