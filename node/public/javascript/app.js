@@ -66,3 +66,9 @@ angular.module("nodeApp.controllers", [])
 
 //app.ngApp = ngApp;
 
+$(document).ready(function() {
+    //
+    // Trigger bootstrap tooltips
+    //
+    $('[data-toggle="tooltip"]').tooltip();
+});

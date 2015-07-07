@@ -38,7 +38,9 @@ var home = {
 function instagramFeed(config, secrets) {
     var url = "https://api.instagram.com/v1/users/"
         + config.client.social.instagram.user_id
-        + "/media/recent/?count=4&access_token="
+        + "/media/recent/?count="
+        + (config.client.social.instagram.feed_count ? config.client.social.instagram.feed_count : 4)
+        + "&access_token="
         + secrets.social.instagram.access_token;
 //    console.log(url);
     request(url, function(error, response, body) {
@@ -63,15 +65,16 @@ function instagramFeed(config, secrets) {
 }
 
 var Codebird = require("codebird");
-function twitterFeed(config, secrets) {
+function twitterFeed(config) {
 //    https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name=happyhumpback&count=4
     var cb = new Codebird;
 //    cb.setConsumerKey(config.client.social.twitter.consumer_key, secrets.social.twitter.consumer_secret);
     cb.setBearerToken(home.social.twitter.token);
     cb.__call(
         "statuses_userTimeline",
-        {"screen_name": "happyhumpback",
-            "count": 4
+        {
+            "screen_name": config.client.social.twitter.id,
+            "count": config.client.social.twitter.feed_count || 4
         },
         function (reply) {
             home.social.twitter.feed = reply;
@@ -94,12 +97,12 @@ module.exports = function(app, config, secrets, debug) {
         {},
         function (reply) {
             home.social.twitter.token = reply.access_token;
-            twitterFeed();
+            twitterFeed(config);
         }
     );
 
     setInterval(function() {
-        twitterFeed();
+        twitterFeed(config);
     }, 60*1000);
 
     instagramFeed(config, secrets);

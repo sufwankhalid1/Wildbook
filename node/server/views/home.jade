@@ -15,7 +15,12 @@ block content
                 div
                     for item in home.social.instagram.feed
                         a(href="#{item.link}" target="_blank")
-                            img.instagramimage(src="#{item.images.low_resolution.url}")
+                            - var tooltip
+                            if item.caption
+                                - tooltip=item.caption.text
+                            else
+                                - tooltip = ""
+                            img.instagramimage(src="#{item.images.thumbnail.url}" data-toggle="tooltip" title="#{tooltip}")
         .col-md-6.homefootercol
             h1= t("home.footer.whatGoingOn")
             ul
