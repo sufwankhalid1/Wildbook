@@ -120,6 +120,12 @@
     overflow-y: auto;
 }
 
+.twitterfeed blockquote {
+    padding: 5px 10px;
+    margin: 0 0 8px;
+    font-size: 16px;
+}
+
 .spotlight {
     position: relative;
 }
