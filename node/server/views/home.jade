@@ -11,16 +11,15 @@ block content
 
         .container-fluid.homefooter
             .col-md-3.homefootercol
-                .row
-                    div
-                        for item in home.social.instagram.feed
-                            a(href="#{item.link}" target="_blank")
-                                - var tooltip
-                                if item.caption
-                                    - tooltip=item.caption.text
-                                else
-                                    - tooltip = ""
-                                img.instagramimage(src="#{item.images.thumbnail.url}" data-toggle="tooltip" title="#{tooltip}")
+                div.instagramfeed
+                    for item in home.social.instagram.feed
+                        a(href="#{item.link}" target="_blank")
+                            - var tooltip
+                            if item.caption
+                                - tooltip=item.caption.text
+                            else
+                                - tooltip = ""
+                            img.instagramimage(src="#{item.images.thumbnail.url}" data-toggle="tooltip" title="#{tooltip}")
             .col-md-6.homefootercol
                 h1= t("home.footer.whatGoingOn")
                 .twitterfeed
