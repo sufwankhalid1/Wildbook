@@ -123,6 +123,7 @@
                 /encounters/encounterSpotVisualizer.jsp = authc, roles[admin]
 		/IndividualSetAlternateID = authc, roles[admin]
 		 /EncounterSetAlternateID = authc, roles[admin]
+		 /EncounterSetMarkedIndividual = authc, roles[admin]
 		 /EncounterSetState = authc, roles[admin]
 		 /EncounterSetScarring = authc, roles[admin]
 		 /EncounterSetGPS = authc, roles[admin]
@@ -280,6 +281,11 @@
   <servlet>
     <servlet-name>EncounterSetAlternateID</servlet-name>
     <servlet-class>org.ecocean.servlet.EncounterSetAlternateID</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>EncounterSetMarkedIndividual</servlet-name>
+    <servlet-class>org.ecocean.servlet.EncounterSetMarkedIndividual</servlet-class>
   </servlet>
   
     <servlet>
@@ -1512,6 +1518,11 @@
   <servlet-mapping>
     <servlet-name>EncounterSetAlternateID</servlet-name>
     <url-pattern>/EncounterSetAlternateID</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>EncounterSetMarkedIndividual</servlet-name>
+    <url-pattern>/EncounterSetMarkedIndividual</url-pattern>
   </servlet-mapping>
   
     <servlet-mapping>

@@ -915,6 +915,23 @@ public class Encounter implements java.io.Serializable {
     individualID = sharky;
   }
 
+    public MarkedIndividual reassignMarkedIndividual(String newIndivID, Shepherd myShepherd, String context) {
+        if (this.hasMarkedIndividual()) {  //clean up old one (if any)
+            MarkedIndividual oldIndiv = myShepherd.getMarkedIndividual(this.individualID);
+            if (oldIndiv != null) {  //that would be weird. but suppose it happens.
+                oldIndiv.removeEncounter(this, context);
+            }
+        }
+        MarkedIndividual newIndiv = myShepherd.getMarkedIndividual(newIndivID);
+        if (newIndiv == null) {
+            newIndiv = new MarkedIndividual(newIndivID, this);
+            individualID = newIndivID;  //dont need to do this for existing indiv, as .addEncounter() does it
+        } else {
+            newIndiv.addEncounter(this, context);
+        }
+        return newIndiv;
+    }
+
   /*
   public boolean wasRejected() {
 
