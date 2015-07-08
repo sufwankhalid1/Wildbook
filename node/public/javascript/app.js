@@ -72,23 +72,25 @@ $(document).ready(function() {
     //
     $('[data-toggle="tooltip"]').tooltip();
 
-	$('#search-site').autocomplete({
-		appendTo: $('#navbar-top'),
-		response: function(ev, ui) {
-			if (ui.content.length < 1) {
-				$('#search-help').show();
-			} else {
-				$('#search-help').hide();
-			}
-		},
-		select: function(ev, ui) {
-			alert('selected "' + ui.item.label + '" with fake url: ' + ui.item.value);
-			return false;
-		},
-		source: wildbookGlobals.baseUrl + "/search"
-	});
+    configPromise.done( function() {
+        $('#search-site').autocomplete({
+            appendTo: $('#navbar-top'),
+            response: function(ev, ui) {
+                if (ui.content.length < 1) {
+                    $('#search-help').show();
+                } else {
+                    $('#search-help').hide();
+                }
+            },
+            select: function(ev, ui) {
+                alertplus.alert('selected "' + ui.item.label + '" with fake url: ' + ui.item.value);
+                return false;
+            },
+            source: app.config.wildbook.proxyUrl + "/search"
+        });
+    });
 
-	//this hides the no results message when the user leaves search field
-	$('#search-site').on('blur', function() { $('#search-help').hide(); });
+    //this hides the no results message when the user leaves search field
+    $('#search-site').on('blur', function() { $('#search-help').hide(); });
 });
 
