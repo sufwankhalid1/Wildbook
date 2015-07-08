@@ -64,6 +64,15 @@ body {
 .right-inner-addon input {
     padding-right: 30px;    
 }
+.right-inner-addon #search-help {
+	position: absolute;
+	top: 20px;
+	padding: 1px 3px;
+	border-radius: 2px;
+	left: 0;
+	background-color: rgba(230,230,230,0.9);
+	display: none;
+}
 .right-inner-addon i {
     position: absolute;
     right: 0px;

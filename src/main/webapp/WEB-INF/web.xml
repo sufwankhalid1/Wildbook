@@ -303,6 +303,11 @@
   </servlet>
 
   <servlet>
+    <servlet-name>SiteSearch</servlet-name>
+    <servlet-class>org.ecocean.servlet.SiteSearch</servlet-class>
+  </servlet>
+
+  <servlet>
     <servlet-name>EncounterSetAlternateID</servlet-name>
     <servlet-class>org.ecocean.servlet.EncounterSetAlternateID</servlet-class>
   </servlet>
@@ -1044,6 +1049,10 @@
       <url-pattern>/EncounterSetTissueSample</url-pattern>
   </servlet-mapping>
   
+    <servlet-mapping>
+      <servlet-name>SiteSearch</servlet-name>
+      <url-pattern>/search</url-pattern>
+  </servlet-mapping>
     
       <servlet-mapping>
         <servlet-name>UserAddProfileImage</servlet-name>
