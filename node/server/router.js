@@ -181,6 +181,32 @@ module.exports = function(app, config, secrets, debug) {
         res.render('about', vars);
     });
 
+    app.get("/individual/*", function(req, res) {
+        var id = req.url.slice(12);
+//        http://tomcat:tomcat123@wildbook.happywhale.com/rest/org.ecocean.MarkedIndividual?individualID==%27<search_string>%27
+
+        var url = config.wildbook.authUrl
+            + "/rest/org.ecocean.MarkedIndividual?individualID==%27"
+            + id
+            + "%27";
+        if (debug) {
+            console.log(url);
+        }
+        request(url, function(error, response, body) {
+            var data;
+            if (error) {
+                console.log(error);
+                data = {error: error};
+            } else if (response.statusCode !== 200) {
+                console.log("url [" + url + "] returned status [" + response.statusCode + "]");
+                data = {error: {status: response.statusCode}};
+            } else {
+                data = {"ind": JSON.parse(body)};
+            }
+            res.render("individual", extend({}, vars, {page: data}));
+        });
+    });
+
     //
     // Proxy over to wildbook
     //
