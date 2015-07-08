@@ -1,0 +1,7 @@
+{
+    "client": {"wildbook": {
+            "url": "http://wildbook.happywhale.com",
+            "proxy": false
+        }
+    }
+}
