@@ -38,7 +38,9 @@ var home = {
 function instagramFeed(config, secrets) {
     var url = "https://api.instagram.com/v1/users/"
         + config.client.social.instagram.user_id
-        + "/media/recent/?count=4&access_token="
+        + "/media/recent/?count="
+        + (config.client.social.instagram.feed_count ? config.client.social.instagram.feed_count : 4)
+        + "&access_token="
         + secrets.social.instagram.access_token;
 //    console.log(url);
     request(url, function(error, response, body) {
@@ -63,18 +65,67 @@ function instagramFeed(config, secrets) {
 }
 
 var Codebird = require("codebird");
-function twitterFeed(config, secrets) {
-//    https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name=happyhumpback&count=4
+function twitterFeed(config) {
+    //
+    // This will call the following, but with the required authentication
+    //    https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name=happyhumpback&count=4
+    //
     var cb = new Codebird;
 //    cb.setConsumerKey(config.client.social.twitter.consumer_key, secrets.social.twitter.consumer_secret);
     cb.setBearerToken(home.social.twitter.token);
     cb.__call(
         "statuses_userTimeline",
-        {"screen_name": "happyhumpback",
-            "count": 4
+        {
+            "screen_name": config.client.social.twitter.id,
+            "count": config.client.social.twitter.feed_count || 4
         },
         function (reply) {
-            home.social.twitter.feed = reply;
+            if( Object.prototype.toString.call( reply ) !== '[object Array]' ) {
+                console.log("Twitter feed issue:");
+                console.log(reply);
+                return;
+            }
+            //
+            // Since we are only using the text, just return that. We need the map function anyway
+            // to convert the string to html so that we can convert any links.
+            //
+            home.social.twitter.feed = reply.map(function(value) {
+                var tweet = value.text || "";
+//                console.log(tweet);
+                var value;
+                var startIndex = 0;
+                var index = tweet.indexOf("http");
+                if (index < 0) {
+                    value = tweet;
+                } else {
+                    value = "";
+                    while (index >= 0) {
+                        value += tweet.slice(startIndex, index);
+                        var spaceIndex = tweet.indexOf(" ", index);
+                        var link;
+                        if (spaceIndex <= -1) {
+                            link = tweet.slice(index);
+                            index = -1;
+                        } else {
+                            link = tweet.slice(index, spaceIndex);
+                            index = tweet.indexOf("http", spaceIndex);
+                        }
+                        value += '<a href="' + link + '" target="_blank">' + link + '</a>';
+
+                        //
+                        // If this is the last then we need to make sure we get the rest of it.
+                        //
+                        if (index < 0 && spaceIndex >= 0) {
+                            value += tweet.slice(spaceIndex);
+                        }
+                    };
+                }
+
+                return {text: value};
+            });
+
+//            console.log(home.social.twitter.feed);
+//            console.log(reply);
         },
         true // this parameter required for AppAuthentication, which is done without the consumer key and secret.
     );
@@ -94,12 +145,12 @@ module.exports = function(app, config, secrets, debug) {
         {},
         function (reply) {
             home.social.twitter.token = reply.access_token;
-            twitterFeed();
+            twitterFeed(config);
         }
     );
 
     setInterval(function() {
-        twitterFeed();
+        twitterFeed(config);
     }, 60*1000);
 
     instagramFeed(config, secrets);

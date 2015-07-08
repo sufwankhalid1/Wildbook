@@ -26,15 +26,17 @@ html(ng-app="nodeApp")
                         a(href="/about")= t("header.menu.about")
                     li
                         div.socialbox
-                            a.zocial.facebook(href="https://www.facebook.com/#{config.social.facebook.id}" target="_blank")
-                            a.zocial.twitter(href="https://twitter.com/#{config.social.twitter.id}" target="_blank")
-                            a.zocial.instagram(href="https://instagram.com/#{config.social.instagram.id}" target="_blank")
-                            a.zocial.email(href="mailto:#{config.social.email}")
+                            a.zocial.icon.facebook(href="https://www.facebook.com/#{config.social.facebook.id}" target="_blank")
+                            a.zocial.icon.twitter(href="https://twitter.com/#{config.social.twitter.id}" target="_blank")
+                            a.zocial.icon.instagram(href="https://instagram.com/#{config.social.instagram.id}" target="_blank")
+                            a.zocial.icon.email(href="mailto:#{config.social.email}")
                     li
                         .right-inner-addon
                             i.glyphicon.glyphicon-search(style="top: -5px; color: #AAA;")
                             input.search-query.form-control.navbar-search(type="text" id="search-site" placeholder!= t("header.menu.searchSite"))
                             #search-help= t("header.menu.searchHelpNone")
+                  // This acts as block comment for whole section below due to the couple of spaces back.
+                  // Simply remove these lines to comment the signin back in.
                     li(ng-cloak)
                         div(ng-show="data.user" id="div-user-info")
                             p= t("header.menu.welcomeBack") + ", "

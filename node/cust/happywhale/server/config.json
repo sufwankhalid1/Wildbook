@@ -8,11 +8,13 @@
         },
         "twitter": {
             "id": "happyhumpback",
-            "consumer_key": "UTEfL90bUGqXcsERcFbJRU4Ng"
+            "consumer_key": "UTEfL90bUGqXcsERcFbJRU4Ng",
+            "feed_count": 4
         },
         "instagram": {
             "id": "happyhumpback",
-            "user_id": "1920104499"
+            "user_id": "1920104499",
+            "feed_count": 4
         },
         "email": "info@happywhale.com"}
     }

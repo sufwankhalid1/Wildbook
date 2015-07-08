@@ -5,7 +5,7 @@
     "header": {
         "menu": {
             "home": "HOME",
-            "reportSighting": "REPORT SIGHTING",
+            "reportSighting": "SUBMIT IMAGES",
             "me": "MY WHALES",
             "about": "ABOUT",
             "news": "NEWS",
@@ -27,8 +27,8 @@
         }
     },
     "home": {
+        "banner": {"reportQuestion": "Let’s find your whales"},
         "footer": {
-            "connectWithUs": "Connect With Us",
             "whatGoingOn": "What's Going On",
             "spotlight": "Profile Spotlight"
         }

@@ -5,31 +5,36 @@ block content
         img.homeimage(src="/images/home_image1.png")
         .banner
             .bannerreport
-                p Have you seen a whale?
+                p= t("home.banner.reportQuestion")
                 a(href="/submitMedia")
                     button.btn= t("header.menu.reportSighting")+" >"
 
-    .container-fluid.homefooter
-        .col-md-3.homefootercol
-            .row
-                div
+        .container-fluid.homefooter
+            .col-md-3.homefootercol
+                div.instagramfeed
                     for item in home.social.instagram.feed
                         a(href="#{item.link}" target="_blank")
-                            img.instagramimage(src="#{item.images.low_resolution.url}")
-        .col-md-6.homefootercol
-            h1= t("home.footer.whatGoingOn")
-            ul
-                for item in home.social.twitter.feed
-                    li.tweetitem= item.text
-        .col-md-3
-            h1= t("home.footer.spotlight")
-            .spotlight
-                img(src="/images/spotlight_card.png")
-                img.spotlightphoto(src="/images/spotlight_photo.png")
-                .spotlightcontents
-                    h2 "#{home.spotlight.name}"
-                    p #{home.spotlight.species}
-                        br
-                        | #{home.spotlight.id}
-                        br
-                        | #{home.spotlight.place}
+                            - var tooltip
+                            if item.caption
+                                - tooltip=item.caption.text
+                            else
+                                - tooltip = ""
+                            img.instagramimage(src="#{item.images.thumbnail.url}" data-toggle="tooltip" title="#{tooltip}")
+            .col-md-6.homefootercol
+                h1= t("home.footer.whatGoingOn")
+                .twitterfeed
+                   for item in home.social.twitter.feed
+                        blockquote !{item.text}
+            .col-md-3
+                h1= t("home.footer.spotlight")
+                .spotlight
+                    img(src="/images/spotlight_card.png")
+                    img.spotlightphoto(src="/images/spotlight_photo.png")
+                    .spotlightcontents
+                        h2 "#{home.spotlight.name}"
+                        p #{home.spotlight.species}
+                            br
+                            | #{home.spotlight.id}
+                            br
+                            | #{home.spotlight.place}
+        .push

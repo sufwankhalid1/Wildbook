@@ -66,8 +66,12 @@ angular.module("nodeApp.controllers", [])
 
 //app.ngApp = ngApp;
 
+$(document).ready(function() {
+    //
+    // Trigger bootstrap tooltips
+    //
+    $('[data-toggle="tooltip"]').tooltip();
 
-$('body').ready(function() {
 	$('#search-site').autocomplete({
 		appendTo: $('#navbar-top'),
 		response: function(ev, ui) {
@@ -87,3 +91,4 @@ $('body').ready(function() {
 	//this hides the no results message when the user leaves search field
 	$('#search-site').on('blur', function() { $('#search-help').hide(); });
 });
+
