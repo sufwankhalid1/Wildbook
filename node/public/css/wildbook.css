@@ -159,3 +159,8 @@
     height: auto;
     margin: 0 auto;
 }
+
+#fileupload {
+	overflow-x: hidden;  /* hides that blasted horizontal scrolling bar */
+}
+
