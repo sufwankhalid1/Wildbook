@@ -159,8 +159,13 @@ public class UserAddProfileImage extends HttpServlet {
             if (!part.isFile()) continue;
 
             FilePart filePart = (FilePart)part;
+            String fileName = filePart.getFileName();
 
-            String fileName = ServletUtilities.cleanFileName(filePart.getFileName());
+            if (fileName == null || fileName.equals("")) {
+                throw new IllegalArgumentException("No image submitted.");
+            }
+
+            fileName = ServletUtilities.cleanFileName(filePart.getFileName());
 
             log.debug("Test import user image " + fileName);
 
@@ -175,6 +180,8 @@ public class UserAddProfileImage extends HttpServlet {
                 throw new IllegalArgumentException("'" + fileName + "' can not be used as an image.");
             }
         }
+
+        log.debug("Import user image - none found.");
 
         return null;
     }
