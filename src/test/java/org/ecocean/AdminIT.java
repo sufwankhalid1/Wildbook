@@ -72,7 +72,7 @@ public class AdminIT {
     setTextField("username", "tomcat");
     setTextField("password", "tomcat123");
     submit();
-    assertTextPresent("Login success!");
+    assertTextPresent("User Agreement");
   }
   
   @After

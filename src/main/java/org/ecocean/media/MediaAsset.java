@@ -27,7 +27,6 @@ import com.samsix.database.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.ecocean.*;
 
 /**
@@ -38,7 +37,7 @@ public class MediaAsset {
     private static Logger log = LoggerFactory.getLogger(MediaAsset.class);
     private static final String TABLE_NAME = "mediaasset";
     public static final long NOT_SAVED = -1;
-    protected long id = NOT_SAVED;
+    public long id = NOT_SAVED;
     public AssetStore store;
     public Path path;
     public AssetType type;
@@ -47,9 +46,31 @@ public class MediaAsset {
 
 
     /**
+     * Look for an existing asset with the given store and path.  If
+     * one exists, return it.  If not, create, save, and return one.
+     */
+    protected static MediaAsset findOrCreate (Database db, AssetStore store,
+                                              Path path, AssetType type)
+    {
+        try {
+            MediaAsset ma = load(db, store, path);
+
+            if (ma == null) {
+                ma = new MediaAsset(store, path, type);
+                ma.save(db);
+            }
+
+            return ma;
+        } catch (DatabaseException e) {
+            log.warn("finding or creating", e);
+            return null;
+        }
+    }
+
+    /**
      * To be called by AssetStore factory method.
      */
-    protected MediaAsset(AssetStore store, Path path, AssetType type) 
+    protected MediaAsset(AssetStore store, Path path, AssetType type)
     {
         this(NOT_SAVED, store, path, type);
     }
@@ -145,6 +166,22 @@ public class MediaAsset {
     }
 
     /**
+     * Fetch a single asset from the database by store and path.
+     */
+    public static MediaAsset load(Database db, AssetStore store, Path path)
+        throws DatabaseException
+    {
+        if (store == null) throw new IllegalArgumentException("null store");
+        if (path == null) throw new IllegalArgumentException("null path");
+
+        SqlWhereFormatter where = new SqlWhereFormatter();
+        where.append("store", store.id);
+        where.append("path", path.toString());
+
+        return load(db, where);
+    }
+
+    /**
      * Fetch a single asset from the database.
      */
     public static MediaAsset load(Database db, SqlWhereFormatter where)
@@ -196,20 +233,21 @@ public class MediaAsset {
      * Fill in formatter values from our properties.
      */
     private void fillFormatter(SqlFormatter formatter) {
-        formatter.append("store", store.getID());
+        formatter.append("store", store.id);
         formatter.append("path", path.toString());
         formatter.append("type", type.name());
     }
 
     /**
-     * Delete this store from the given database.
+     * Delete this asset and any child assets from the given database.
+     * Does not delete any asset files.
+     *
+     * @param db Database where the asset lives.
      */
     public void delete(Database db) throws DatabaseException {
         if (id == NOT_SAVED) return;
 
         Table table = db.getTable(TABLE_NAME);
-
         table.deleteRows("id = " + id);
     }
-
 }

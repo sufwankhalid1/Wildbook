@@ -114,10 +114,10 @@ String context="context0";
       	<tr>
       		<td>
       		<%
-      		if(user.getUserImage()!=null){
-      			String profilePhotoURL="/"+CommonConfiguration.getDataDirectoryName(context)+"/users/"+user.getUsername()+"/"+user.getUserImage().getFilename();
+                if(user.getUserImage()!=null){
+                    String profilePhotoURL=user.getUserImage().webPath().toString();
       		%>
-      		<img src="<%=profilePhotoURL %>" width="75px" height="*"/>
+      		    <img src="<%=profilePhotoURL %>" width="75px" height="*"/>
       		<%
       		}
       		else{
@@ -227,9 +227,9 @@ String context="context0";
 				userURL=thisUser.getUserURL();
     		    	}
     		    	if(thisUser.getUserImage()!=null){
-    		    		profilePhotoURL="/"+CommonConfiguration.getDataDirectoryName(context)+"/users/"+thisUser.getUsername()+"/"+thisUser.getUserImage().getFilename();
+                                profilePhotoURL=thisUser.getUserImage().webPath().toString();
+                                hasProfilePhoto=true;
     		    	}
-    		    	if(thisUser.getUserImage()!=null){hasProfilePhoto=true;}
     		    }
     		    
     		    %>

@@ -57,16 +57,20 @@ public class AssetStoreTest {
             // new from scratch
             store = new LocalAssetStore(name, null, null, true);
             store.save(db);
-            long id = store.getID();
+            long id = store.id;
             assertTrue("ID not set", id != AssetStore.NOT_SAVED);
 
             // load by id
-            store = AssetStore.load(db, store.getID());
+            store = AssetStore.load(db, store.id);
             assertNotNull("Store not loaded by id", store);
 
             // load by name
             store = AssetStore.load(db, name);
             assertNotNull("Store not loaded by name", store);
+
+            // load default
+            store = AssetStore.loadDefault(db);
+            assertNotNull("Default store not loaded", store);
 
             // delete
             store.delete(db);

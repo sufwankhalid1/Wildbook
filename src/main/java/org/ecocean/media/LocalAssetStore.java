@@ -18,10 +18,16 @@
 
 package org.ecocean.media;
 
+import java.io.*;
 import java.net.*;
 import java.util.*;
 import java.lang.*;
-import java.nio.file.Path;
+import java.nio.file.*;
+import static java.nio.file.StandardCopyOption.*;
+
+import com.oreilly.servlet.multipart.FilePart;
+
+import com.samsix.database.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -98,11 +104,59 @@ public class LocalAssetStore extends AssetStore {
      */
     public MediaAsset create(Path path, AssetType type) {
         try {
-            return new MediaAsset(this, checkPath(root(), path), type);
+            return new MediaAsset(this, ensurePath(root(), path), type);
         } catch (IllegalArgumentException e) {
             log.warn("Bad path", e);
             return null;
         }
+    }
+
+    /**
+     * Create a new MediaAsset that points to an existing file under
+     * our root.
+     *
+     * @param path Relative or absolute path to a file.  Must be under
+     * the asset store root.
+     *
+     * @return The MediaAsset, or null if the path is invalid (not
+     * under the asset root or nonexistent).
+     */
+    public MediaAsset create(String path, AssetType type) {
+        try {
+            Path p = new File(path).toPath();
+            return new MediaAsset(this, ensurePath(root(), p), type);
+        } catch (IllegalArgumentException e) {
+            log.warn("Bad path", e);
+            return null;
+        }
+    }
+
+    /**
+     * Create a new asset from the given form submission part.  The
+     * file is copied in to the store as part of this process.
+     *
+     * @param file File to copy in.
+     *
+     * @param path The (optional) subdirectory and (required) filename
+     * relative to the asset store root in which to store the file.
+     *
+     * @param type Probably AssetType.ORIGINAL.
+     */
+    public MediaAsset copyIn(Database db, File file,
+                             String path, AssetType type)
+        throws IOException
+    {
+        Path root = root();
+        Path p = new File(path).toPath();
+        Path subpath = checkPath(root, p);
+        Path fullpath = root.resolve(subpath);
+
+        fullpath.getParent().toFile().mkdirs();
+        log.debug("copying from " + file + " to " + fullpath);
+
+        Files.copy(file.toPath(), fullpath, REPLACE_EXISTING);
+
+        return MediaAsset.findOrCreate(db, this, subpath, type);
     }
 
     /**
@@ -114,10 +168,27 @@ public class LocalAssetStore extends AssetStore {
     public static Path checkPath(Path root, Path path) {
         if (path == null) throw new IllegalArgumentException("null path");
 
-        Path result = root.relativize(path);
+        Path result = root.resolve(path);
+        result = root.relativize(result.normalize());
 
         if (result.startsWith(".."))
             throw new IllegalArgumentException("Path not under given root");
+
+        return result;
+    }
+
+    /**
+     * Like checkPath(), but throws an IllegalArgumentException if the
+     * resulting file doesn't exist.
+     *
+     * @return Subpath to the file relative to the root.
+     */
+    public static Path ensurePath(Path root, Path path) {
+        Path result = checkPath(root, path);
+
+        Path full = root.resolve(path);
+        if (!full.toFile().exists())
+            throw new IllegalArgumentException(full + " does not exist");
 
         return result;
     }

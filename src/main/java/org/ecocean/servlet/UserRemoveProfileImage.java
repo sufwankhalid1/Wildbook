@@ -20,6 +20,7 @@
 package org.ecocean.servlet;
 
 import org.ecocean.*;
+import org.ecocean.media.*;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -33,81 +34,74 @@ import java.io.PrintWriter;
 import java.util.Iterator;
 import java.util.Vector;
 
+import com.samsix.database.*;
+
+
 public class UserRemoveProfileImage extends HttpServlet {
 
 
-  public void init(ServletConfig config) throws ServletException {
-    super.init(config);
-  }
-
-
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-    doPost(request, response);
-  }
-
-
-  public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-    
-    String context="context0";
-    //context=ServletUtilities.getContext(request);
-    Shepherd myShepherd = new Shepherd(context);
-    //set up for response
-    response.setContentType("text/html");
-    PrintWriter out = response.getWriter();
-    //boolean assigned=false;
-    String fileName = "None", username = "None";
-    //int positionInList = -1;
-    String dcID="";
-
-    //fileName=request.getParameter("filename").replaceAll("%20"," ");
-    username = request.getParameter("username");
-    
-    if(request.getRequestURL().indexOf("MyAccount")!=-1){
-      username=request.getUserPrincipal().getName();
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
     }
 
-    myShepherd.beginDBTransaction();
-    if (myShepherd.getUser(username)!=null) {
-      User user = myShepherd.getUser(username);
-      if(user.getUserImage()!=null){
-        SinglePhotoVideo sid=user.getUserImage();
-        user.setUserImage(null);
-        myShepherd.getPM().deletePersistent(sid);
-        
-      }
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        doPost(request, response);
     }
-    myShepherd.commitDBTransaction();
-    myShepherd.closeDBTransaction();
-    myShepherd=null;
-    
-     
-      out.println(ServletUtilities.getHeader(request));
-      
-      if(!username.equals("None")){
-        out.println("<strong>Success!</strong> I have successfully removed the profile photo.");
-      }
-      else{
-        out.println("<strong>Failure:</strong> No such user exists in the library.");
-        
-      }
-      
-      if(request.getRequestURL().indexOf("MyAccount")!=-1){
-        out.println("<p><a href=\"http://" + CommonConfiguration.getURLLocation(request) + "/myAccount.jsp\">Return to My Account.</a></p>\n");
-        
-      }
-      else{
-        out.println("<p><a href=\"http://" + CommonConfiguration.getURLLocation(request) + "/appadmin/users.jsp?context=context0&isEdit=true&username=" + username + "#editUser\">Return to User Management</a></p>\n");
-      }
-      
-      out.println(ServletUtilities.getFooter(context));
-      //String message = "An image file named " + fileName + " has been removed from encounter#" + encounterNumber + ".";
-      //ServletUtilities.informInterestedParties(request, encounterNumber, message);
-        
 
-    out.close();
-  }
+    public void doPost(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException
+    {
+        String context="context0";
+        //context=ServletUtilities.getContext(request);
 
+        Shepherd myShepherd = new Shepherd(context);
+        //set up for response
+        response.setContentType("text/html");
+        PrintWriter out = response.getWriter();
 
+        String username = request.getParameter("username");
+        if (username != null) username = username.trim();
+
+        if (request.getRequestURL().indexOf("MyAccount") != -1) {
+            username = request.getUserPrincipal().getName();
+        }
+
+        String deleteMessage = null;
+
+        myShepherd.beginDBTransaction();
+        User user = myShepherd.getUser(username);
+        if (user != null) {
+            user.setUserImage(null);
+        }
+        myShepherd.commitDBTransaction();
+        myShepherd.closeDBTransaction();
+
+        out.println(ServletUtilities.getHeader(request));
+
+        if (!username.equals("None")) {
+            out.println("<strong>Success!</strong> I have successfully removed the profile photo.");
+        }
+        else {
+            out.println("<strong>Failure:</strong> No such user exists in the library.");
+        }
+
+        if (request.getRequestURL().indexOf("MyAccount") != -1) {
+            out.println("<p><a href=\"http://" + CommonConfiguration.getURLLocation(request) +
+                        "/myAccount.jsp\">Return to My Account.</a></p>\n");
+
+        }
+        else {
+            out.println("<p><a href=\"http://" + CommonConfiguration.getURLLocation(request) +
+                        "/appadmin/users.jsp?context=context0&isEdit=true&username=" + username +
+                        "#editUser\">Return to User Management</a></p>\n");
+        }
+
+        if (deleteMessage != null) {
+            out.println("<strong>Error:</strong>" + deleteMessage);
+        }
+
+        out.println(ServletUtilities.getFooter(context));
+
+        out.close();
+    }
 }
-  
-  

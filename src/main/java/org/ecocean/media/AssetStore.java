@@ -18,10 +18,13 @@
 
 package org.ecocean.media;
 
+import java.io.*;
 import java.net.*;
 import java.util.*;
 import java.nio.file.*;
 import java.lang.reflect.*;
+
+import com.oreilly.servlet.multipart.FilePart;
 
 import com.samsix.database.*;
 
@@ -40,11 +43,11 @@ public abstract class AssetStore {
     private static Logger log = LoggerFactory.getLogger(AssetStore.class);
     private static final String TABLE_NAME = "assetstore";
     public static final long NOT_SAVED = -1;
-    protected long id = NOT_SAVED;
-    protected String name;
-    protected AssetStoreType type = AssetStoreType.LOCAL;
-    protected AssetStoreConfig config;
-    protected boolean writable = true;
+    public long id = NOT_SAVED;
+    public String name;
+    public AssetStoreType type = AssetStoreType.LOCAL;
+    public AssetStoreConfig config;
+    public boolean writable = true;
 
 
     /**
@@ -85,12 +88,6 @@ public abstract class AssetStore {
         }
     }
 
-    /**
-     * Return the store's internal (database) id.  Not really for
-     * public use.
-     */
-    long getID() { return id; }
-
     //
     // do stuff
     //
@@ -99,9 +96,42 @@ public abstract class AssetStore {
 
     public abstract MediaAsset create(Path path, AssetType type);
 
+    public abstract MediaAsset create(String path, AssetType type);
+
+    /**
+     * Create a new asset from the given form submission part.  The
+     * file is copied in to the store as part of this process.
+     *
+     * @param db Database to store the new asset in.
+     *
+     * @param file File to copy in.
+     *
+     * @param path The (optional) subdirectory and (required) filename
+     * relative to the asset store root in which to store the file.
+     *
+     * @param type Probably AssetType.ORIGINAL.
+     */
+    public abstract MediaAsset copyIn(Database db, File file,
+                                      String path, AssetType type)
+        throws IOException;
+
+
     //
     // store/load
     //
+
+    /**
+     * Fetch the default store (the one with the highest id) from the
+     * database.
+     */
+    public static AssetStore loadDefault(Database db)
+        throws DatabaseException
+    {
+        // NOTE maybe someday indicate the default store name in
+        // commonConfiguration.properties if we regularly use multiple
+        // stores.
+        return load(db, null, "id desc");
+    }
 
     /**
      * Fetch a single store from the database by name.
@@ -137,14 +167,29 @@ public abstract class AssetStore {
     public static AssetStore load(Database db, SqlWhereFormatter where)
         throws DatabaseException
     {
-        if (db == null)
-            throw new IllegalArgumentException("null database");
         if (where == null)
             throw new IllegalArgumentException("null where formatter");
 
+        return load(db, where, null);
+    }
+
+    /**
+     * Fetch a single store from the database.
+     */
+    public static AssetStore load(Database db,
+                                  SqlWhereFormatter where,
+                                  String orderBy)
+        throws DatabaseException
+    {
+        // null "where" or orderBy is ok.
+        String whereStr = where != null ? where.getWhereClause() : null;
+
+        if (db == null)
+            throw new IllegalArgumentException("null database");
+
         Table table = db.getTable(TABLE_NAME);
 
-        RecordSet rs = table.getRecordSet(where.getWhereClause(), 1);
+        RecordSet rs = table.getRecordSet(whereStr, orderBy);
         if (rs.next()) {
             return buildAssetStore(rs.getLong("id"),
                                    rs.getString("name"),
@@ -188,7 +233,8 @@ public abstract class AssetStore {
     }
 
     /**
-     * Delete this store from the given database.
+     * Delete this store from the given database.  Does not delete any
+     * asset files.
      */
     public void delete(Database db) throws DatabaseException {
         if (id == NOT_SAVED) return;

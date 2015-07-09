@@ -19,38 +19,38 @@
 package org.ecocean.media;
 
 import java.util.*;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.junit.*;
+
 import static org.junit.Assert.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.samsix.database.*;
-import org.ecocean.ShepherdPMF;
+
+import org.ecocean.*;
 
 /**
  * Test MediaAsset routines.
  */
-public class MediaAssetTest {
+public class MediaAssetTest extends DBTestBase {
     private static Logger log = LoggerFactory.getLogger(MediaAssetTest.class);
-
 
     @Test
     public void testSaveLoadDelete() {
-        ConnectionInfo ci = ShepherdPMF.getConnectionInfo("Test");
-
         if (ci == null) {
             log.info("No test db - skipping tests");
             return;
         }
 
         try (Database db = new Database(ci)) {
-            AssetStore las = new LocalAssetStore("test", Paths.get("/tmp"), null, true);
+            AssetStore las = new LocalAssetStore("test", Paths.get("/etc"), null, true);
             las.save(db);
 
-            MediaAsset ma = las.create(Paths.get("/tmp/test.png"), AssetType.ORIGINAL);
+            MediaAsset ma = las.create(Paths.get("/etc/hosts"), AssetType.ORIGINAL);
             assertNotNull("Null MediaAsset", ma);
 
             ma.save(db);
@@ -66,6 +66,45 @@ public class MediaAssetTest {
             ma.delete(db);
 
             ma = MediaAsset.load(db, id);
+            assertNull("New MediaAsset not deleted", ma);
+
+            las.delete(db); // clean up
+
+        } catch (DatabaseException ex) {
+            fail(ex.getMessage());
+        }
+    }
+
+    @Test
+    public void testFindOrCreate() {
+        if (ci == null) {
+            log.info("No test db - skipping tests");
+            return;
+        }
+
+        try (Database db = new Database(ci)) {
+            AssetStore las = new LocalAssetStore("test", Paths.get("/etc"), null, true);
+            las.save(db);
+
+            Path path = Paths.get("/etc/hosts");
+
+            // make sure doesn't exist first
+            MediaAsset ma = MediaAsset.load(db, las, path);
+            assertNull("Asset already exists", ma);
+
+            // call once to create then once to load
+            ma = MediaAsset.findOrCreate(db, las, path, AssetType.ORIGINAL);
+            assertNotNull("Null MediaAsset after first call", ma);
+
+            MediaAsset ma2 = MediaAsset.findOrCreate(db, las, path, AssetType.ORIGINAL);
+            assertNotNull("Null MediaAsset after second call", ma2);
+
+            assertEquals("Assets not the same", ma.id, ma2.id);
+
+            // delete
+            ma.delete(db);
+
+            ma = MediaAsset.load(db, ma.id);
             assertNull("New MediaAsset not deleted", ma);
 
             las.delete(db); // clean up

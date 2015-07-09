@@ -95,7 +95,7 @@ public class LocalAssetStoreTest {
         // make sure we fail if file missing
         path = new File("nonexistent").toPath();
         try {
-            result = LocalAssetStore.checkPath(root, path);
+            result = LocalAssetStore.ensurePath(root, path);
             fail("Didn't throw IllegalArgumentException");
         } catch (IllegalArgumentException e) {
             assertTrue(true); // yay!

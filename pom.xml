@@ -405,34 +405,35 @@
       <version>2.7</version>
     </dependency>
 
+    <dependency>
+      <groupId>com.stormpath.sdk</groupId>
+      <artifactId>stormpath-sdk-api</artifactId>
+      <version>1.0.RC4.3</version>
+    </dependency>
 
-<dependency>
-    <groupId>com.stormpath.sdk</groupId>
-    <artifactId>stormpath-sdk-api</artifactId>
-    <version>1.0.RC4.3</version>
-</dependency>
-<dependency>
-    <groupId>com.stormpath.sdk</groupId>
-    <artifactId>stormpath-sdk-httpclient</artifactId>
-    <version>1.0.RC4.3</version>
-    <scope>runtime</scope>
-</dependency>
-<!-- This next runtime dependency is only necessary if you have
-     a REST API and you want to secure it with OAuth: -->
-<!--
-<dependency>
-    <groupId>com.stormpath.sdk</groupId>
-    <artifactId>stormpath-sdk-oauth</artifactId>
-    <version>1.0.RC4.3</version>
-    <scope>runtime</scope>
-</dependency>
--->
+    <dependency>
+      <groupId>com.stormpath.sdk</groupId>
+      <artifactId>stormpath-sdk-httpclient</artifactId>
+      <version>1.0.RC4.3</version>
+      <scope>runtime</scope>
+    </dependency>
 
-     <dependency>
-         <groupId>org.pac4j</groupId>
-         <artifactId>pac4j-oauth</artifactId>
-         <version>1.7.0</version>
-     </dependency>
+    <!-- This next runtime dependency is only necessary if you have
+         a REST API and you want to secure it with OAuth: -->
+    <!--
+    <dependency>
+      <groupId>com.stormpath.sdk</groupId>
+      <artifactId>stormpath-sdk-oauth</artifactId>
+      <version>1.0.RC4.3</version>
+      <scope>runtime</scope>
+    </dependency>
+    -->
+
+    <dependency>
+      <groupId>org.pac4j</groupId>
+      <artifactId>pac4j-oauth</artifactId>
+      <version>1.7.0</version>
+    </dependency>
 
   </dependencies>
 

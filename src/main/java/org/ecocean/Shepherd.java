@@ -52,6 +52,8 @@ import org.ecocean.servlet.ServletUtilities;
 import org.ecocean.social.Relationship;
 import org.ecocean.social.SocialUnit;
 
+import com.samsix.database.*;
+
 /**
  * <code>Shepherd</code>	is the main	information	retrieval, processing, and persistence class to	be used	for	all	shepherd project applications.
  * The <code>shepherd</code>	class interacts directly with the database and	all	persistent objects stored within it.
@@ -422,7 +424,7 @@ public class Shepherd {
       Role kw = roles.get(i);
       if((kw.getRolename().equals(rolename))&&(kw.getUsername().equals(username))&&(kw.getContext().equals(context))){
         return kw;
-        }
+      }
     }
     return null;
   }
@@ -494,6 +496,12 @@ public class Shepherd {
     User user= null;
     try {
       user = ((User) (pm.getObjectById(pm.newObjectIdInstance(User.class, username.trim()), true)));
+
+      // load non-DataNucleus fields
+      ConnectionInfo ci = ShepherdPMF.getConnectionInfo();
+      try (Database db = new Database(ci)) {
+        user.cacheUserImage(db);
+      }
     }
     catch (Exception nsoe) {
       return null;
