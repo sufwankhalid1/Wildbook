@@ -43,11 +43,11 @@ public abstract class AssetStore {
     private static Logger log = LoggerFactory.getLogger(AssetStore.class);
     private static final String TABLE_NAME = "assetstore";
     public static final long NOT_SAVED = -1;
-    protected long id = NOT_SAVED;
-    protected String name;
-    protected AssetStoreType type = AssetStoreType.LOCAL;
-    protected AssetStoreConfig config;
-    protected boolean writable = true;
+    public long id = NOT_SAVED;
+    public String name;
+    public AssetStoreType type = AssetStoreType.LOCAL;
+    public AssetStoreConfig config;
+    public boolean writable = true;
 
 
     /**
@@ -87,12 +87,6 @@ public abstract class AssetStore {
             return null;
         }
     }
-
-    /**
-     * Return the store's internal (database) id.  Not really for
-     * public use.
-     */
-    long getID() { return id; }
 
     //
     // do stuff

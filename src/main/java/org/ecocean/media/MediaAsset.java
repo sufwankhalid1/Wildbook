@@ -27,7 +27,6 @@ import com.samsix.database.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.ecocean.*;
 
 /**
@@ -234,7 +233,7 @@ public class MediaAsset {
      * Fill in formatter values from our properties.
      */
     private void fillFormatter(SqlFormatter formatter) {
-        formatter.append("store", store.getID());
+        formatter.append("store", store.id);
         formatter.append("path", path.toString());
         formatter.append("type", type.name());
     }
