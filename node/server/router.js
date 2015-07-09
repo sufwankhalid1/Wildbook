@@ -181,9 +181,55 @@ module.exports = function(app, config, secrets, debug) {
         res.render('about', vars);
     });
 
+
     app.get("/voyage/*", function(req, res) {
-				var arr = req.url.slice(8).split('/');
-        res.render('voyage', extend({}, vars, {surveyID: arr[0], mediaID: arr[1], matchID: arr[2]}));
+        var arr = req.url.slice(8).split('/');
+        if (arr[0] < 1) res.render('voyage');
+        var url = config.wildbook.authUrl
+            + "/rest/org.ecocean.survey.SurveyTrack?id==" + arr[0];
+        if (debug) {
+            console.log(url);
+        }
+        request(url, function(error, response, body) {
+            var data;
+            if (error) {
+                console.log(error);
+                data = {error: error};
+            } else if (response.statusCode !== 200) {
+                console.log("url [" + url + "] returned status [" + response.statusCode + "]");
+                data = {error: {status: response.statusCode}};
+            } else {
+                data = {"ind": JSON.parse(body)};
+            }
+            //res.render("individual", extend({}, vars, {page: data}));
+            res.render('voyage', extend({}, vars, {surveyTrackID: arr[0], mediaID: arr[1], matchID: arr[2], surveyTrack: data}));
+        });
+    });
+
+    app.get("/individual/*", function(req, res) {
+        var id = req.url.slice(12);
+//        http://tomcat:tomcat123@wildbook.happywhale.com/rest/org.ecocean.MarkedIndividual?individualID==%27<search_string>%27
+
+        var url = config.wildbook.authUrl
+            + "/rest/org.ecocean.MarkedIndividual?individualID==%27"
+            + id
+            + "%27";
+        if (debug) {
+            console.log(url);
+        }
+        request(url, function(error, response, body) {
+            var data;
+            if (error) {
+                console.log(error);
+                data = {error: error};
+            } else if (response.statusCode !== 200) {
+                console.log("url [" + url + "] returned status [" + response.statusCode + "]");
+                data = {error: {status: response.statusCode}};
+            } else {
+                data = {"ind": JSON.parse(body)};
+            }
+            res.render("individual", extend({}, vars, {page: data}));
+        });
     });
 
     //

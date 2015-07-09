@@ -39,7 +39,21 @@ if (config.client.wildbook.proxy) {
     config.client.wildbook.proxyUrl = config.client.wildbook.url;
 }
 
+config.wildbook.url = config.wildbook.protocol + config.wildbook.server;
+
 var secrets = JSON.parse(fs.readFileSync("secrets.json", "utf8"));
+
+if (secrets.wildbook && secrets.wildbook.admin) {
+    config.wildbook.authUrl = config.wildbook.protocol
+    + secrets.wildbook.admin.user
+    + ":"
+    + secrets.wildbook.admin.pwd
+    + "@"
+    + config.wildbook.server;
+} else {
+    console.log('WARN: wildbook authorized url not set due to missing admin secrets.');
+    config.wildbook.authUrl = config.wildbook.url;
+}
 
 if (args.debug) {
     console.log(config);
