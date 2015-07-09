@@ -34,7 +34,7 @@ if (args.config) {
 }
 
 if (config.client.wildbook.proxy) {
-    config.client.wildbook.proxyUrl = "wildbook";
+    config.client.wildbook.proxyUrl = "/wildbook";
 } else {
     config.client.wildbook.proxyUrl = config.client.wildbook.url;
 }
