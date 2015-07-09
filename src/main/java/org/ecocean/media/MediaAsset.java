@@ -47,6 +47,28 @@ public class MediaAsset {
 
 
     /**
+     * Look for an existing asset with the given store and path.  If
+     * one exists, return it.  If not, create, save, and return one.
+     */
+    protected static MediaAsset findOrCreate (Database db, AssetStore store,
+                                              Path path, AssetType type)
+    {
+        try {
+            MediaAsset ma = load(db, store, path);
+
+            if (ma == null) {
+                ma = new MediaAsset(store, path, type);
+                ma.save(db);
+            }
+
+            return ma;
+        } catch (DatabaseException e) {
+            log.warn("finding or creating", e);
+            return null;
+        }
+    }
+
+    /**
      * To be called by AssetStore factory method.
      */
     protected MediaAsset(AssetStore store, Path path, AssetType type)
@@ -140,6 +162,22 @@ public class MediaAsset {
 
         SqlWhereFormatter where = new SqlWhereFormatter();
         where.append("id", id);
+
+        return load(db, where);
+    }
+
+    /**
+     * Fetch a single asset from the database by store and path.
+     */
+    public static MediaAsset load(Database db, AssetStore store, Path path)
+        throws DatabaseException
+    {
+        if (store == null) throw new IllegalArgumentException("null store");
+        if (path == null) throw new IllegalArgumentException("null path");
+
+        SqlWhereFormatter where = new SqlWhereFormatter();
+        where.append("store", store.id);
+        where.append("path", path.toString());
 
         return load(db, where);
     }

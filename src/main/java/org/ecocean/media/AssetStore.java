@@ -108,6 +108,8 @@ public abstract class AssetStore {
      * Create a new asset from the given form submission part.  The
      * file is copied in to the store as part of this process.
      *
+     * @param db Database to store the new asset in.
+     *
      * @param part File given in a form submission.
      *
      * @param path The (optional) subdirectory and (required) filename
@@ -115,7 +117,8 @@ public abstract class AssetStore {
      *
      * @param type Probably AssetType.ORIGINAL.
      */
-    public abstract MediaAsset copyIn(FilePart part, String path, AssetType type)
+    public abstract MediaAsset copyIn(Database db, FilePart part,
+                                      String path, AssetType type)
         throws IOException;
 
 

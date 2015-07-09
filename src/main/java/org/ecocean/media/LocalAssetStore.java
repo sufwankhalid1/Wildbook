@@ -26,6 +26,8 @@ import java.nio.file.Path;
 
 import com.oreilly.servlet.multipart.FilePart;
 
+import com.samsix.database.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -139,7 +141,8 @@ public class LocalAssetStore extends AssetStore {
      *
      * @param type Probably AssetType.ORIGINAL.
      */
-    public MediaAsset copyIn(FilePart part, String path, AssetType type)
+    public MediaAsset copyIn(Database db, FilePart part,
+                             String path, AssetType type)
         throws IOException
     {
         Path root = root();
@@ -150,7 +153,7 @@ public class LocalAssetStore extends AssetStore {
 
         part.writeTo(fullPath.toFile());
 
-        return new MediaAsset(this, fullPath, type);
+        return MediaAsset.findOrCreate(db, this, fullPath, type);
     }
 
     /**

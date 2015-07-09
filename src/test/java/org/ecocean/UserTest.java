@@ -36,7 +36,7 @@ import static org.junit.Assert.*;
 /**
  * Test some User routines.
  */
-public class UserTest {
+public class UserTest extends DBTestBase {
     private static Logger log = LoggerFactory.getLogger(UserTest.class);
     private static final String USERNAME = "test";
 

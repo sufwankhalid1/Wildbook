@@ -86,11 +86,10 @@ public class UserAddProfileImage extends HttpServlet {
                 throw new IllegalArgumentException("Can't load the default asset store");
             }
 
-            MediaAsset asset = importImage(request, context, assetStore, username);
+            MediaAsset asset = importImage(request, context, db, assetStore, username);
             if (asset == null) {
                 throw new IllegalArgumentException("Couldn't import the image");
             }
-            asset.save(db);
 
             myShepherd.beginDBTransaction();
             User user = myShepherd.getUser(username);
@@ -145,8 +144,11 @@ public class UserAddProfileImage extends HttpServlet {
      * Copy the submitted file into the AssetStore under the user's
      * subdirectory.
      */
-    private MediaAsset importImage(HttpServletRequest request, String context,
-                                   AssetStore store, String username)
+    private MediaAsset importImage(HttpServletRequest request,
+                                   String context,
+                                   Database db,
+                                   AssetStore store,
+                                   String username)
         throws IOException, UnsupportedEncodingException
     {
         int maxSize = CommonConfiguration.getMaxMediaSizeInMegabytes(context) * 1048576;
@@ -168,7 +170,7 @@ public class UserAddProfileImage extends HttpServlet {
 
                 log.debug("Storing import user image " + dest);
 
-                return store.copyIn(filePart, dest, AssetType.ORIGINAL);
+                return store.copyIn(db, filePart, dest, AssetType.ORIGINAL);
             } else {
                 throw new IllegalArgumentException("'" + fileName + "' can not be used as an image.");
             }
