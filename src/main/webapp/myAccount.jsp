@@ -124,7 +124,6 @@ response.setHeader("Pragma", "no-cache"); //HTTP 1.0 backward compatibility
                             if(thisUser.getUserImage()!=null){
                                 profilePhotoURL=thisUser.getUserImage().webPath().toString();
                                 hasProfilePhoto=true;
-                                System.out.println("PHOTO IS " + thisUser.getUserImage());
                             } else {
                                 // fallback
                                 profilePhotoURL = "images/empty_profile.jpg";

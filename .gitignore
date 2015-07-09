@@ -23,4 +23,6 @@ src/main/webapp/encounters/*20*
 /webapps
 /src/main/resources/bundles/s6db.properties
 /config/db/flyway.conf
+/config/db/flyway_test.conf
 /m2_repo/
+/logs/
