@@ -181,6 +181,11 @@ module.exports = function(app, config, secrets, debug) {
         res.render('about', vars);
     });
 
+    app.get("/voyage/*", function(req, res) {
+				var arr = req.url.slice(8).split('/');
+        res.render('voyage', extend({}, vars, {surveyID: arr[0], mediaID: arr[1], matchID: arr[2]}));
+    });
+
     //
     // Proxy over to wildbook
     //
