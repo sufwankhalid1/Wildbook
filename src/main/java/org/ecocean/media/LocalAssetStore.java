@@ -147,13 +147,14 @@ public class LocalAssetStore extends AssetStore {
     {
         Path root = root();
         Path p = new File(path).toPath();
-        Path fullPath = checkPath(root, p);
+        Path subpath = checkPath(root, p);
+        Path fullpath = root.resolve(subpath);
 
-        fullPath.getParent().toFile().mkdirs();
+        fullpath.getParent().toFile().mkdirs();
 
-        part.writeTo(fullPath.toFile());
+        part.writeTo(fullpath.toFile());
 
-        return MediaAsset.findOrCreate(db, this, fullPath, type);
+        return MediaAsset.findOrCreate(db, this, subpath, type);
     }
 
     /**
