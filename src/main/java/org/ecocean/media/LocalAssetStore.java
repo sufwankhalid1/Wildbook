@@ -22,7 +22,8 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 import java.lang.*;
-import java.nio.file.Path;
+import java.nio.file.*;
+import static java.nio.file.StandardCopyOption.*;
 
 import com.oreilly.servlet.multipart.FilePart;
 
@@ -134,14 +135,14 @@ public class LocalAssetStore extends AssetStore {
      * Create a new asset from the given form submission part.  The
      * file is copied in to the store as part of this process.
      *
-     * @param part File given in a form submission.
+     * @param file File to copy in.
      *
      * @param path The (optional) subdirectory and (required) filename
      * relative to the asset store root in which to store the file.
      *
      * @param type Probably AssetType.ORIGINAL.
      */
-    public MediaAsset copyIn(Database db, FilePart part,
+    public MediaAsset copyIn(Database db, File file,
                              String path, AssetType type)
         throws IOException
     {
@@ -151,8 +152,9 @@ public class LocalAssetStore extends AssetStore {
         Path fullpath = root.resolve(subpath);
 
         fullpath.getParent().toFile().mkdirs();
+        log.debug("copying from " + file + " to " + fullpath);
 
-        part.writeTo(fullpath.toFile());
+        Files.copy(file.toPath(), fullpath, REPLACE_EXISTING);
 
         return MediaAsset.findOrCreate(db, this, subpath, type);
     }

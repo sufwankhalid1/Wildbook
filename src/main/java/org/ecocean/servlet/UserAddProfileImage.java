@@ -34,10 +34,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
+import java.util.*;
 
 import com.samsix.database.*;
 
@@ -72,10 +70,36 @@ public class UserAddProfileImage extends HttpServlet {
         //context=ServletUtilities.getContext(request);
         Shepherd myShepherd = new Shepherd(context);
 
-        String username = getUsername(request, context);
+        String username = null;
+        ImageInfo imageInfo = null;
+
+        // reading parts has to be done all in one go
+        try {
+            int maxSize = CommonConfiguration.getMaxMediaSizeInMegabytes(context) * 1048576;
+            MultipartParser mp = new MultipartParser(request, maxSize);
+            Part part;
+            while ((part = mp.readNextPart()) != null) {
+                if (part instanceof ParamPart && StringUtilities.isEmpty(username)) {
+                    username = getUsername(request, context, (ParamPart)part);
+                } else if (part instanceof FilePart) {
+                    imageInfo = getImage((FilePart)part);
+                }
+            }
+        } catch (IllegalArgumentException e) {
+            showResult(request, response, context, username,
+                       "Failure!", e.getMessage());
+            return;
+        }
+
         if (StringUtilities.isEmpty(username)) {
             showResult(request, response, context, username,
-                       "Failure!", "Can't find the username");
+                       "Failure!", "Can't find the username.");
+            return;
+        }
+
+        if (imageInfo == null) {
+            showResult(request, response, context, username,
+                       "Failure!", "No image submitted.");
             return;
         }
 
@@ -86,7 +110,9 @@ public class UserAddProfileImage extends HttpServlet {
                 throw new IllegalArgumentException("Can't load the default asset store");
             }
 
-            MediaAsset asset = importImage(request, context, db, assetStore, username);
+            MediaAsset asset = importImage(db, assetStore,
+                                           imageInfo.image, imageInfo.filename,
+                                           username);
             if (asset == null) {
                 throw new IllegalArgumentException("Couldn't import the image");
             }
@@ -116,7 +142,8 @@ public class UserAddProfileImage extends HttpServlet {
     /**
      * Grab the username from the request url or form request.
      */
-    private String getUsername(HttpServletRequest request, String context)
+    private String getUsername(HttpServletRequest request,
+                               String context, ParamPart part)
         throws IOException, UnsupportedEncodingException
     {
         // our username if we're on a MyAccount (non-admin?) page
@@ -124,66 +151,60 @@ public class UserAddProfileImage extends HttpServlet {
             return request.getUserPrincipal().getName();
         }
 
-        // from the form
-        int maxSize = CommonConfiguration.getMaxMediaSizeInMegabytes(context) * 1048576;
-        MultipartParser mp = new MultipartParser(request, maxSize);
-
-        Part part;
-        while ((part = mp.readNextPart()) != null) {
-            String name = part.getName();
-            if (part.isParam() && name.equals("username")) {
-                ParamPart paramPart = (ParamPart)part;
-                return paramPart.getStringValue();
-            }
+        String name = part.getName();
+        if (name.equals("username")) {
+            return part.getStringValue();
         }
 
         return null;
     }
 
     /**
+     * Grab the submitted file and store in a temp file, returning it.
+     */
+    private ImageInfo getImage(FilePart part)
+        throws IOException
+    {
+        String fileName = part.getFileName();
+
+        if (fileName == null || fileName.equals("")) {
+            throw new IllegalArgumentException("No image submitted.");
+        }
+
+        fileName = ServletUtilities.cleanFileName(part.getFileName());
+
+        log.debug("Import user image: " + fileName);
+
+        if (MediaUtilities.isAcceptableImageFile(fileName)) {
+            File temp = File.createTempFile(fileName, null);
+            temp.deleteOnExit();
+            part.writeTo(temp);
+            return new ImageInfo(temp, fileName);
+        } else {
+            throw new IllegalArgumentException("'" + fileName + "' can not be used as an image.");
+        }
+    }
+
+    /**
      * Copy the submitted file into the AssetStore under the user's
      * subdirectory.
      */
-    private MediaAsset importImage(HttpServletRequest request,
-                                   String context,
-                                   Database db,
+    private MediaAsset importImage(Database db,
                                    AssetStore store,
+                                   File image,
+                                   String filename,
                                    String username)
         throws IOException, UnsupportedEncodingException
     {
-        int maxSize = CommonConfiguration.getMaxMediaSizeInMegabytes(context) * 1048576;
-        MultipartParser mp = new MultipartParser(request, maxSize);
+        String dest = username + "/" + filename;
 
-        Part part;
-        while ((part = mp.readNextPart()) != null) {
-            if (!part.isFile()) continue;
+        log.debug("Storing user image to: " + dest);
 
-            FilePart filePart = (FilePart)part;
-            String fileName = filePart.getFileName();
+        MediaAsset ma = store.copyIn(db, image, dest, AssetType.ORIGINAL);
 
-            if (fileName == null || fileName.equals("")) {
-                throw new IllegalArgumentException("No image submitted.");
-            }
+        image.delete();
 
-            fileName = ServletUtilities.cleanFileName(filePart.getFileName());
-
-            log.debug("Test import user image " + fileName);
-
-            if (MediaUtilities.isAcceptableImageFile(fileName)) {
-                // store in user's dir
-                String dest = username + "/" + fileName;
-
-                log.debug("Storing import user image " + dest);
-
-                return store.copyIn(db, filePart, dest, AssetType.ORIGINAL);
-            } else {
-                throw new IllegalArgumentException("'" + fileName + "' can not be used as an image.");
-            }
-        }
-
-        log.debug("Import user image - none found.");
-
-        return null;
+        return ma;
     }
 
     private void showResult(HttpServletRequest request,
@@ -216,6 +237,17 @@ public class UserAddProfileImage extends HttpServlet {
             //out.close();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    /** Internal utility tuple. */
+    private static class ImageInfo {
+        File image;
+        String filename;
+
+        ImageInfo(File f, String n) {
+            image = f;
+            filename = n;
         }
     }
 }
