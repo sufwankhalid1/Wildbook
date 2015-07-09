@@ -26,6 +26,24 @@
             "help": "Help"
         }
     },
+    "voyage": {
+        "h1Thanks": "Thanks!",
+        "thanksForFeedback": "Thank you for your feedback about: __indLink__",
+        "h1VoyageViewer": "Voyage Viewer",
+        "h2Contributors": "Contributors",
+        "h2RecentSightings": "Recent Sightings",
+        "h2Contributions": "Contributions",
+        "contributionsIntro": "Share your photos, videos, and stories from the voyage. We will attempt to identify whales you've photographed and share with you what we find.",
+        "btnMeetWhale": "Meet this Whale",
+        "btnIDPhotos": "I.D. Your Photos",
+        "btnAddMedia": "Add Media +"
+    },
+    "activity": {
+        "h2RecentActivity": "Recent Activity",
+				"uploadedVoyage": "__userLink__ uploaded __what__ to this voyage",
+        "like": "__userLink__ liked __targetUser__'s __targetLink__",
+        "addedVoyage": "__userLink__ add this voyage to __userPossessivePronoun__ profile"
+    },
     "home": {
         "banner": {"reportQuestion": "Let’s find your whales"},
         "footer": {

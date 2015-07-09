@@ -201,8 +201,18 @@ module.exports = function(app, config, secrets, debug) {
             } else {
                 data = {"ind": JSON.parse(body)};
             }
-            //res.render("individual", extend({}, vars, {page: data}));
-            res.render('voyage', extend({}, vars, {surveyTrackID: arr[0], mediaID: arr[1], matchID: arr[2], surveyTrack: data}));
+var match = {
+	link: '<a href="/xxxx">yyy</a>',
+	testImage: {
+		url: 'http://cdn2.arkive.org/media/D6/D6CDEBE7-5A7B-484A-9EC6-D03D73E795A2/Presentation.Large/Southern-right-whale-fluke.jpg',
+		caption: 'Your photo taken from...',
+	},
+	matchImage: {
+		url: 'http://cdn2.arkive.org/media/D6/D6CDEBE7-5A7B-484A-9EC6-D03D73E795A2/Presentation.Large/Southern-right-whale-fluke.jpg',
+		caption: 'Photo taken by...',
+	},
+};
+            res.render('voyage', extend({}, vars, {surveyTrackID: arr[0], mediaID: arr[1], matchID: arr[2], match: match, surveyTrack: data}));
         });
     });
 
