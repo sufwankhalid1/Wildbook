@@ -50,15 +50,16 @@ public class SimpleFactory {
         int count = 0;
         int index = 0;
         final int MAX_PHOTOS = 8;
-        for (SimpleEncounter encounter : ind.getEncounters()) {
-            int lastCount = Integer.MAX_VALUE;
-            while (count < MAX_PHOTOS && count != lastCount) {
-                lastCount = count;
+        int lastCount = Integer.MAX_VALUE;
+        while (count < MAX_PHOTOS && count != lastCount) {
+            lastCount = count;
+            for (SimpleEncounter encounter : ind.getEncounters()) {
                 if (encounter.getPhotos().size() > index) {
                     ind.addPhoto(encounter.getPhotos().get(index));
                     count++;
                 }
             }
+            index++;
         }
 
         return ind;
