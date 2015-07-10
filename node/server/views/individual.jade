@@ -1,8 +1,29 @@
 extends layout
 
 block content
-    div
+    .maincontent
         if page.error
-            blockquote != JSON.stringify(page.error)
+            != JSON.stringify(page.error)
             - page.ind = []
-        h1.has-icon.icon-happywhale= t("individual.meet", {individualId: page.ind.nickname + "(" + page.ind.id} + ")"})
+        //else
+        //    != JSON.stringify(page.ind)
+
+        h1.has-icon.icon-happywhale= t("individual.meet", {individualId: page.ind.nickname + "(" + page.ind.id + ")"})
+
+        if page.ind.photos
+            //img.individual-main-image(src="#{config.wildbook.staticUrl}#{page.ind.photos[0]}")
+    
+            #individual-carousel.carousel.slide(data-ride="carousel")
+                .carousel-inner
+                    for photo in page.ind.photos
+                        .item.active
+                            img(src="#{config.wildbook.staticUrl}#{photo.url}")
+                            if photo.caption
+                                .carousel-caption
+                                    h3 photo.caption
+
+            <!-- Controls -->
+            a.left.carousel-control(href="individual-carousel" role="button" data-slide="prev")
+                span.glyphicon.glyphicon-chevron-left
+            a.right.carousel-control(href="#individual-carousel" role="button" data-slide="next")
+                span.glyphicon.glyphicon-chevron-right

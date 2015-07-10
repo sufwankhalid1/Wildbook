@@ -190,6 +190,7 @@ module.exports = function(app, config, secrets, debug) {
         if (debug) {
             console.log(url);
         }
+
         request(url, function(error, response, body) {
             var data;
             if (error) {
@@ -201,17 +202,19 @@ module.exports = function(app, config, secrets, debug) {
             } else {
                 data = {"ind": JSON.parse(body)};
             }
-var match = {
-	link: '<a href="/xxxx">yyy</a>',
-	testImage: {
-		url: 'http://cdn2.arkive.org/media/D6/D6CDEBE7-5A7B-484A-9EC6-D03D73E795A2/Presentation.Large/Southern-right-whale-fluke.jpg',
-		caption: 'Your photo taken from...',
-	},
-	matchImage: {
-		url: 'http://cdn2.arkive.org/media/D6/D6CDEBE7-5A7B-484A-9EC6-D03D73E795A2/Presentation.Large/Southern-right-whale-fluke.jpg',
-		caption: 'Photo taken by...',
-	},
-};
+
+            var match = {
+                link: '<a href="/xxxx">yyy</a>',
+                testImage: {
+                    url: 'http://cdn2.arkive.org/media/D6/D6CDEBE7-5A7B-484A-9EC6-D03D73E795A2/Presentation.Large/Southern-right-whale-fluke.jpg',
+                    caption: 'Your photo taken from...',
+                },
+                matchImage: {
+                    url: 'http://cdn2.arkive.org/media/D6/D6CDEBE7-5A7B-484A-9EC6-D03D73E795A2/Presentation.Large/Southern-right-whale-fluke.jpg',
+                    caption: 'Photo taken by...',
+                },
+            };
+
             res.render('voyage', extend({}, vars, {surveyTrackID: arr[0], mediaID: arr[1], matchID: arr[2], match: match, surveyTrack: data}));
         });
     });
@@ -220,10 +223,7 @@ var match = {
         var id = req.url.slice(12);
 //        http://tomcat:tomcat123@wildbook.happywhale.com/rest/org.ecocean.MarkedIndividual?individualID==%27<search_string>%27
 
-        var url = config.wildbook.authUrl
-            + "/rest/org.ecocean.MarkedIndividual?individualID==%27"
-            + id
-            + "%27";
+        var url = config.wildbook.authUrl + "/obj/individual/get/" + id;
         if (debug) {
             console.log(url);
         }
