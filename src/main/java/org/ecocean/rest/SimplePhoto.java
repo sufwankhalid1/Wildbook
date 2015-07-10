@@ -1,6 +1,5 @@
 package org.ecocean.rest;
 
-import org.ecocean.SinglePhotoVideo;
 
 class SimplePhoto
 {
@@ -17,15 +16,6 @@ class SimplePhoto
     {
         this.id = id;
         this.url = url;
-    }
-
-
-    public static SimplePhoto fromSimplePhotoVideo(final SinglePhotoVideo spv,
-                                                   final String context)
-    {
-        SimplePhoto sp = new SimplePhoto(spv.getDataCollectionEventID(),
-                                         spv.asUrl(context));
-        return sp;
     }
 
     public String getId() {

@@ -3,6 +3,6 @@ extends layout
 block content
     div
         if page.error
-            != JSON.stringify(page.error)
-        else
-            != JSON.stringify(page.ind)
+            blockquote != JSON.stringify(page.error)
+            - page.ind = []
+        

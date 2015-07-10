@@ -52,7 +52,8 @@ import org.ecocean.servlet.ServletUtilities;
 import org.ecocean.social.Relationship;
 import org.ecocean.social.SocialUnit;
 
-import com.samsix.database.*;
+import com.samsix.database.ConnectionInfo;
+import com.samsix.database.Database;
 
 /**
  * <code>Shepherd</code>	is the main	information	retrieval, processing, and persistence class to	be used	for	all	shepherd project applications.
@@ -493,20 +494,19 @@ public class Shepherd {
   }
 
   public User getUser(String username) {
-    User user= null;
-    try {
-      user = ((User) (pm.getObjectById(pm.newObjectIdInstance(User.class, username.trim()), true)));
+      try {
+          User user = ((User) (pm.getObjectById(pm.newObjectIdInstance(User.class, username.trim()), true)));
 
-      // load non-DataNucleus fields
-      ConnectionInfo ci = ShepherdPMF.getConnectionInfo();
-      try (Database db = new Database(ci)) {
-        user.cacheUserImage(db);
+          // load non-DataNucleus fields
+          ConnectionInfo ci = ShepherdPMF.getConnectionInfo();
+          try (Database db = new Database(ci)) {
+              user.cacheUserImage(db);
+          }
+
+          return user;
+      } catch (org.datanucleus.exceptions.NucleusObjectNotFoundException ex) {
+          return null;
       }
-    }
-    catch (Exception nsoe) {
-      return null;
-    }
-    return user;
   }
 
   public User getUserByEmailAddress(String email){
@@ -1720,14 +1720,15 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
 
 
   public MarkedIndividual getMarkedIndividual(String individualID) {
-    MarkedIndividual tempShark = null;
     try {
-      tempShark = ((org.ecocean.MarkedIndividual) (pm.getObjectById(pm.newObjectIdInstance(MarkedIndividual.class, individualID.trim()), true)));
-    } catch (Exception nsoe) {
-      nsoe.printStackTrace();
-      return null;
+      return ((org.ecocean.MarkedIndividual) (pm.getObjectById(pm.newObjectIdInstance(MarkedIndividual.class, individualID.trim()), true)));
+    } catch (org.datanucleus.exceptions.NucleusObjectNotFoundException ex) {
+        //
+        // Catch object not found exceptions and just return null.
+        // Other errors will get thrown.
+        //
+        return null;
     }
-    return tempShark;
   }
 
   public Occurrence getOccurrence(String id) {
