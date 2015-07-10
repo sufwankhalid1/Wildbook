@@ -4,6 +4,7 @@ import org.ecocean.Encounter;
 import org.ecocean.MarkedIndividual;
 import org.ecocean.Shepherd;
 import org.ecocean.SinglePhotoVideo;
+import org.ecocean.User;
 
 public class SimpleFactory {
     private SimpleFactory() {
@@ -66,7 +67,8 @@ public class SimpleFactory {
 
     public static SimpleEncounter getEncounter(final String context, final Encounter encounter)
     {
-        SimpleEncounter se = new SimpleEncounter(encounter.getDateInMilliseconds());
+        SimpleEncounter se = new SimpleEncounter(encounter.getDWCGlobalUniqueIdentifier(),
+                                                 encounter.getDateInMilliseconds());
 
         se.setLocationid(encounter.getLocationID());
         se.setVerbatimLocation(encounter.getLocation());
@@ -76,21 +78,40 @@ public class SimpleFactory {
         encounter.getSubmitterName();
         for (SinglePhotoVideo photo : encounter.getSinglePhotoVideo())
         {
-            se.addPhoto(getSimplePhoto(context, photo));
+            se.addPhoto(getPhoto(context, photo));
         }
 
         Shepherd myShepherd = new Shepherd(context);
-        se.setSubmitter(myShepherd.getUser(encounter.getSubmitterID()));
+        User user = myShepherd.getUser(encounter.getSubmitterID());
+
+        if (user != null) {
+            se.setSubmitter(getUser(user));
+        }
 
         return se;
     }
 
 
-    public static SimplePhoto getSimplePhoto(final String context,
-                                             final SinglePhotoVideo spv)
+    public static SimplePhoto getPhoto(final String context,
+                                       final SinglePhotoVideo spv)
     {
         SimplePhoto sp = new SimplePhoto(spv.getDataCollectionEventID(),
                                          spv.asUrl(context));
         return sp;
+    }
+
+
+    public static SimpleUser getUser(final User user)
+    {
+        SimpleUser su = new SimpleUser(user.getUsername());
+
+        //
+        // TODO: Specify user icon form MediaAsset
+        //
+//        su.setAvatar();
+        su.setEmailAddress(user.getEmailAddress());
+        su.setFullName(user.getFullName());
+
+        return su;
     }
 }

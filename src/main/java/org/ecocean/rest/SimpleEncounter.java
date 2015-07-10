@@ -3,26 +3,27 @@ package org.ecocean.rest;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.ecocean.User;
-
 
 class SimpleEncounter
 {
+    private String guid;
     private Long dateInMilliseconds;
     private String locationid;
     private String verbatimLocation;
     private Double latitude;
     private Double longitude;
     private final List<SimplePhoto> photos = new ArrayList<SimplePhoto>();
-    private User submitter;
+    private SimpleUser submitter;
 
     public SimpleEncounter()
     {
         // for deserialization
     }
 
-    public SimpleEncounter(final Long dateInMilliseconds)
+    public SimpleEncounter(final String guid,
+                           final Long dateInMilliseconds)
     {
+        this.guid = guid;
         this.dateInMilliseconds = dateInMilliseconds;
     }
 
@@ -74,11 +75,11 @@ class SimpleEncounter
         return photos;
     }
 
-    public User getSubmitter() {
+    public SimpleUser getSubmitter() {
         return submitter;
     }
 
-    public void setSubmitter(final User submitter) {
+    public void setSubmitter(final SimpleUser submitter) {
         this.submitter = submitter;
     }
 }
