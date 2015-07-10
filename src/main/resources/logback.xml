@@ -14,12 +14,12 @@
     </encoder>
   </appender>
 
-  <root level="debug">
+  <root level="WARN">
     <appender-ref ref="STDOUT" />
     <appender-ref ref="FILE" />
   </root>
 
-  <logger name="SqlLog" level="ERROR" />
+<!--   <logger name="SqlLog" level="ERROR" />
 
   <logger name="DataNucleus" level="ERROR" />
 
@@ -31,5 +31,5 @@
   <logger name="org.apache.commons" level="ERROR" />
   <logger name="org.apache.http" level="ERROR" />
   <logger name="org.apache.shiro" level="ERROR" />
-
+ -->
 </configuration>
