@@ -40,7 +40,7 @@
     },
     "activity": {
         "h2RecentActivity": "Recent Activity",
-				"uploadedVoyage": "__userLink__ uploaded __what__ to this voyage",
+        "uploadedVoyage": "__userLink__ uploaded __what__ to this voyage",
         "like": "__userLink__ liked __targetUser__'s __targetLink__",
         "addedVoyage": "__userLink__ add this voyage to __userPossessivePronoun__ profile"
     },
@@ -50,5 +50,8 @@
             "whatGoingOn": "What's Going On",
             "spotlight": "Profile Spotlight"
         }
+    },
+    "individual": {
+        "meet": "Meet __individualId__"
     }
 }

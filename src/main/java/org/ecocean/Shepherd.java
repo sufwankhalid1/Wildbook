@@ -506,6 +506,8 @@ public class Shepherd {
           return user;
       } catch (org.datanucleus.exceptions.NucleusObjectNotFoundException ex) {
           return null;
+      } catch (javax.jdo.JDOObjectNotFoundException ex) {
+          return null;
       }
   }
 
@@ -1720,15 +1722,17 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
 
 
   public MarkedIndividual getMarkedIndividual(String individualID) {
-    try {
-      return ((org.ecocean.MarkedIndividual) (pm.getObjectById(pm.newObjectIdInstance(MarkedIndividual.class, individualID.trim()), true)));
-    } catch (org.datanucleus.exceptions.NucleusObjectNotFoundException ex) {
-        //
-        // Catch object not found exceptions and just return null.
-        // Other errors will get thrown.
-        //
-        return null;
-    }
+      //
+      // Catch object not found exceptions and just return null.
+      // Other errors will get thrown.
+      //
+      try {
+          return ((org.ecocean.MarkedIndividual) (pm.getObjectById(pm.newObjectIdInstance(MarkedIndividual.class, individualID.trim()), true)));
+      } catch (org.datanucleus.exceptions.NucleusObjectNotFoundException ex) {
+          return null;
+      } catch (javax.jdo.JDOObjectNotFoundException ex) {
+          return null;
+      }
   }
 
   public Occurrence getOccurrence(String id) {

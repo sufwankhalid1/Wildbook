@@ -5,4 +5,4 @@ block content
         if page.error
             blockquote != JSON.stringify(page.error)
             - page.ind = []
-        
+        h1.has-icon.icon-happywhale= t("individual.meet", {individualId: page.ind.nickname + "(" + page.ind.id} + ")"})
