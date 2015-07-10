@@ -925,6 +925,7 @@ public class Encounter implements java.io.Serializable {
         MarkedIndividual newIndiv = myShepherd.getMarkedIndividual(newIndivID);
         if (newIndiv == null) {
             newIndiv = new MarkedIndividual(newIndivID, this);
+            myShepherd.storeNewMarkedIndividual(newIndiv);
             individualID = newIndivID;  //dont need to do this for existing indiv, as .addEncounter() does it
         } else {
             newIndiv.addEncounter(this, context);
