@@ -31,6 +31,8 @@
     position: relative;
     width: 100%;
     margin-bottom: 80px;
+    padding-left: 80px;
+    padding-right: 80px;
 }
 
 .homecontainer {
