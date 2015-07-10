@@ -1271,6 +1271,14 @@ public class Encounter implements java.io.Serializable {
     return null;
   }
 
+  public Double getLatitude() {
+      return decimalLatitude;
+  }
+
+  public Double getLongitude() {
+      return decimalLongitude;
+  }
+
   public boolean getOKExposeViaTapirLink() {
     return okExposeViaTapirLink;
   }

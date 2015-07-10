@@ -1719,10 +1719,10 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
   }
 
 
-  public MarkedIndividual getMarkedIndividual(String name) {
+  public MarkedIndividual getMarkedIndividual(String individualID) {
     MarkedIndividual tempShark = null;
     try {
-      tempShark = ((org.ecocean.MarkedIndividual) (pm.getObjectById(pm.newObjectIdInstance(MarkedIndividual.class, name.trim()), true)));
+      tempShark = ((org.ecocean.MarkedIndividual) (pm.getObjectById(pm.newObjectIdInstance(MarkedIndividual.class, individualID.trim()), true)));
     } catch (Exception nsoe) {
       nsoe.printStackTrace();
       return null;
