@@ -52,6 +52,10 @@
         }
     },
     "individual": {
-        "meet": "Meet __individualId__"
+        "meet": "Meet __individualId__",
+        "contributors": "Contributors",
+        "recentActivity": "Recent Activity",
+        "seenIndividual": "Seen this whale? Share your photos, videos, and stories.",
+        "shareExperience": "SHARE YOUR EXPERIENCE"
     }
 }

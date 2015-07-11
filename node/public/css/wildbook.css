@@ -67,7 +67,7 @@
     color: #EFEFEF;
 }
 
-.banner .btn {
+.btn {
     background-color: #107D9F;
     color: #EFEFEF;
 }
@@ -163,6 +163,16 @@
 }
 
 #fileupload {
-	overflow-x: hidden;  /* hides that blasted horizontal scrolling bar */
+    overflow-x: hidden;  /* hides that blasted horizontal scrolling bar */
 }
 
+/* This should be part of bootstrap I think since I found other sites with this. I need this
+ * for the centering of images in the carousel
+ */
+.carousel-inner > .item > img, .carousel-inner > .item > a > img {
+  margin: auto;
+}
+
+.submitters li {
+    display: inline;
+}
