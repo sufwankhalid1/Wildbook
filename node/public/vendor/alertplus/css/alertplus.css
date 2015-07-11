@@ -4,12 +4,17 @@
 }
 
 .alertplus .messagearea {
-    height: 200px;
+    max-height: 300px;
     overflow-y: auto;
+    margin-bottom: 1em;
 }
 
 .alertplus .detailsarea {
     width: 100%;
-    height: 400px;
+    max-height: 300px;
     overflow: auto;
+}
+
+.alertplus .alert {
+    padding: 8px;
 }

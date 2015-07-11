@@ -1,97 +1,157 @@
+/*!
+ * AlertPlus v0.1.0 (https://github.com/crowmagnumb/alertplus)
+ * Copyright 2015 CrowMagnumb
+ * Licensed under MIT (https://github.com/crowmagnumb/alertplus/blob/master/LICENSE)
+ */
 var alertplus = (function () {
-    var dialog = $("<div>").css("display", "none");
-    var messageArea = $("<pre>");
-    dialog.append($("<div>").append(messageArea).addClass("messagearea"));
-    dialog.append($("<br>"));
-    var detailsButton = $("<button>").css("display", "none").html("Details &gt;&gt;");
-    dialog.append(detailsButton);
+    var dialog = $("<div>").addClass("modal").addClass("fade").addClass("alertplus").attr("data-keyboard","true");
+    dialog.appendTo('body');
+
+    var content = $("<div>").addClass("modal-content");
+    $("<div>").addClass("modal-dialog").append(content).appendTo(dialog);
+
+    var titleDiv = $("<h4>").addClass("modal-title").addClass("alert");
+    $("<div>").addClass("modal-header")
+              .append($("<button>").addClass("close")
+                      .attr("type", "button")
+                      .attr("data-dismiss", "modal")
+                      .attr("aria-hidden", "true")
+                      .html("&times;"))
+              .append(titleDiv)
+              .appendTo(content);
+
+    var messageArea = $("<div>").addClass("messagearea");
+    var detailsButton = $("<button>").addClass("btn").css("display", "none");// &gt;&gt;");
+    var leftChev = $("<span>").addClass("glyphicon").addClass("glyphicon-chevron-left").css("display", "none").appendTo(detailsButton);
+    $("<span>").text("Details").appendTo(detailsButton);
+    var rightChev = $("<span>").addClass("glyphicon").addClass("glyphicon-chevron-right").appendTo(detailsButton);
     var detailsContainer = $("<div>").css("display", "none").addClass("detailsarea");
     var detailsContent = $("<pre>");
     detailsContainer.append(detailsContent);
-    dialog.append(detailsContainer);
 
-    function showAlert(message, details) {
+    $("<div>").addClass("modal-body")
+              .append(messageArea)
+              .append(detailsButton)
+              .append(detailsContainer).appendTo(content);
+    $("<div>").addClass("modal-footer")
+         .append($("<button>").addClass("btn")
+                              .addClass("btn-primary")
+                              .attr("data-dismiss", "modal")
+                              .attr("type", "button")
+                              .text("OK"))
+          .appendTo(content);
+
+
+    detailsButton.button();
+    detailsButton.click( function(evt) {
+        detailsContainer.toggle();
+        leftChev.toggle();
+        rightChev.toggle();
+    } );
+
+    function showAlert(message, details, title, dialogClass) {
         //
-        //   Positioning at top so that when the details are clicked we can
-        //   expand the form to show the whole details without it going off
-        //   the screen and the user having to move the form with the mouse.
+        // Remove all possible other classes that could have been applied.
         //
-        dialog.dialog({
-            autoOpen: true,
-            dialogClass: "alertplus",
-            modal: true,
-            title: "Error",
-            closeOnEscape: true,
-            buttons: { "OK": function() { $(this).dialog("close"); } },
-            open: function() {
-                detailsButton.button();
-                detailsButton.click( function(e) {
-                    detailsContainer.toggle();
-                } );
+        titleDiv.removeClass("alert-danger");
+        titleDiv.removeClass("alert-info");
 
-                if (details) {
-                    detailsButton.show();
-                } else {
-                    detailsButton.hide();
-                }
+        leftChev.hide();
+        rightChev.show();
 
-                messageArea.html( message );
+        //
+        // Now add in the passed class.
+        //
+        if (dialogClass) {
+            titleDiv.addClass("alert-" + dialogClass);
+        } else {
+            titleDiv.addClass("alert-info");
+        }
 
-                detailsContainer.hide();
-                detailsContent.html(details);
-            },
-            width: 600,
-            appendTo: "body",
-            resizable: false
-        });
+        if (details) {
+            detailsButton.show();
+        } else {
+            detailsButton.hide();
+        }
+
+        messageArea.html( message );
+        if (!title) {
+            titleDiv.text("Information");
+        } else {
+            titleDiv.text(title);
+        }
+
+        detailsContainer.hide();
+        detailsContent.html(details);
+
+        dialog.modal('show');
+    }
+
+    function displayError(message, details) {
+        showAlert(message, details, "Error", "danger");
     }
 
     function showError(ex) {
-        var message;
-        var details;
-        if (ex.status === 500) {
-            if (ex.responseJSON) {
-                message = ex.responseJSON.message;
-                details = ex.responseJSON.totalStackTrace;
-            } else {
-                message = ex.message;
-                details = ex.totalStackTrace;
-            }
-        } else {
-            if (ex.message) {
-                if (ex.message.indexOf("<html>") >= 0) {
-                    //
-                    // Extract just <body> from it because otherwise any styles inside
-                    // of the document can mess up your parent document.
-                    //
-                    var start = ex.message.indexOf("<body>");
-                    var end = ex.message.indexOf("</body>");
-                    if (start > 0 && end > 0) {
-                        message = ex.message.slice(start + 6, end);
-                    } else {
-                        message = ex.message;
-                    }
-
-                    if (ex.status) {
-                        message = "<h2>Error " + ex.status + "</h2>" + message;
-                    }
-
-                    details = ex.details;
-                } else {
-                    if (ex.status) {
-                        message = "Error " + ex.status + ": " + ex.message;
-                    } else {
-                        message = ex.message;
-                    }
-                    details = ex.details;
-                }
-            } else {
-                message = "Error " + ex.status + ": " + ex.statusText;
-                details = null;
-            }
+        if (typeof ex == "string") {
+            showAlert(ex);
+            return;
         }
 
-        showAlert(message, details);
+        if  (ex instanceof Error) {
+            displayError(ex.message, ex.stack);
+            return;
+        }
+
+        //
+        // Duck typing looking for a particular type of error message.
+        //
+        if (ex.status === 500) {
+            if (ex.responseJSON) {
+                displayError(ex.responseJSON.message, ex.responseJSON.totalStackTrace);
+            } else {
+                displayError(ex.message, ex.totalStackTrace);
+            }
+            return;
+        }
+
+        if (ex.status && ex.statusText) {
+            displayError(ex.status + ": " + ex.statusText, ex.responseText);
+            return;
+        }
+
+        if (ex.message) {
+            var message;
+            if (ex.message.indexOf("<html>") >= 0) {
+                //
+                // Extract just <body> from it because otherwise any styles inside
+                // of the document can mess up your parent document.
+                //
+                var start = ex.message.indexOf("<body>");
+                var end = ex.message.indexOf("</body>");
+                if (start > 0 && end > 0) {
+                    message = ex.message.slice(start + 6, end);
+                } else {
+                    message = ex.message;
+                }
+
+                if (ex.status) {
+                    message = "<h2>Error " + ex.status + "</h2>" + message;
+                }
+            } else {
+                if (ex.status) {
+                    message = "Error " + ex.status + ": " + ex.message;
+                } else {
+                    message = ex.message;
+                }
+            }
+            displayError(message, ex.details);
+            return;
+        }
+
+        //
+        // You got me. Punt. Just convert to string and display.
+        //
+        displayError(ex.toString());
     }
 
     return {alert: showAlert,
