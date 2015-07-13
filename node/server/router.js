@@ -17,8 +17,9 @@
 //});
 
 var request = require('request');
-//var https = require('https');
 var extend = require('extend');
+var markdown = require("markdown").markdown;
+var fs = require('fs');
 
 //
 // Set up social data grabbing
@@ -136,6 +137,8 @@ function twitterFeed(config) {
 
 
 module.exports = function(app, config, secrets, debug) {
+    var usageAgreement = markdown.toHTML(fs.readFileSync(config.cust.serverDir + "/docs/UsageAgreement.md", "utf8"));
+
     var vars = {config: config.client};
 
     var cb = new Codebird;
@@ -181,6 +184,9 @@ module.exports = function(app, config, secrets, debug) {
         res.render('about', vars);
     });
 
+    app.get("/terms", function(req, res) {
+        res.send(usageAgreement);
+    });
 
     app.get("/voyage/*", function(req, res) {
         var arr = req.url.slice(8).split('/');

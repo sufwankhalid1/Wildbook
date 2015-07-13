@@ -37,7 +37,7 @@
 }
 
 /* specific to h1, i think, so not in generic .has-icon */
-h1.has-icon {
+.maincontent h1.has-icon {
 		height: 70px;
     font-size: 1.7em;
     font-weight: bold;
@@ -45,7 +45,7 @@ h1.has-icon {
 		line-height: 1.7em;
 }
 
-h2 {
+.maincontent h2 {
 	color: #8dcbce;
 	font-size: 1.3em;
 }
@@ -109,7 +109,7 @@ li.active .wizard-icon.map {
 	font-size: 1.1em;
 }
 
-hr {
+.maincontent hr {
     color: #8dcbce;
     background-color: #8dcbce;
     height: 1px;

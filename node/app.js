@@ -18,7 +18,10 @@ if (! args.c) {
 // Read in any configuration parameters
 //
 var fs = require('fs');
-var config = JSON.parse(fs.readFileSync("cust/" + args.c + "/server/config.json", "utf8"));
+var cust = {"code": args.c,
+            "serverDir": "cust/" + args.c + "/server"};
+var config = JSON.parse(fs.readFileSync(cust.serverDir + "/config.json", "utf8"));
+config.cust = cust;
 
 if (args.config) {
     try {

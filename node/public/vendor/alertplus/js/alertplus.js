@@ -1,10 +1,10 @@
 /*!
- * AlertPlus v0.1.1 (https://github.com/crowmagnumb/alertplus)
+ * AlertPlus v0.1.2 (https://github.com/crowmagnumb/alertplus)
  * Copyright 2015 CrowMagnumb
  * Licensed under MIT (https://github.com/crowmagnumb/alertplus/blob/master/LICENSE)
  */
 var alertplus = (function () {
-    var dialog = $("<div>").addClass("modal").addClass("fade").addClass("alertplus").attr("data-keyboard","true");
+    var dialog = $("<div>").addClass("modal").addClass("fade").addClass("alertplus").attr("tabindex","-1");
     dialog.appendTo('body');
 
     var content = $("<div>").addClass("modal-content");
@@ -128,12 +128,12 @@ var alertplus = (function () {
             displayError(ex.responseText);
             return;
         }
-        
+
         if (ex.status && ex.statusText) {
             displayError(ex.status + ": " + ex.statusText, ex.responseText);
             return;
         }
-        
+
         if (ex.message && ex.totalStackTrace) {
             displayError(ex.message, ex.totalStackTrace);
             return;
