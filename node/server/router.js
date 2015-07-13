@@ -135,6 +135,9 @@ function twitterFeed(config) {
 // End social data grabbing.
 //
 
+function makeError(ex) {
+    return {message: ex.message, stack: ex.stack};
+}
 
 function sendError(res, ex, status) {
     //
@@ -155,7 +158,7 @@ function sendError(res, ex, status) {
         res.status(status).send(ex);
     } else {
         console.log(ex.stack);
-        res.status(status).send({message: ex.message, stack: ex.stack});
+        res.status(status).send(makeError(ex));
     }
 }
 
@@ -260,13 +263,17 @@ module.exports = function(app, config, secrets, debug) {
         request(url, function(error, response, body) {
             var data;
             if (error) {
-                console.log(error);
-                data = {error: error};
+                console.log(error.stack);
+                data = {error: makeError(error)};
             } else if (response.statusCode !== 200) {
                 console.log("url [" + url + "] returned status [" + response.statusCode + "]");
-                data = {error: {status: response.statusCode}};
+                data = {error: {message: response.statusCode}};
             } else {
                 data = {"ind": JSON.parse(body)};
+            }
+
+            if (debug) {
+                console.log("Got data: " + JSON.stringify(data));
             }
             res.render("individual", extend({}, vars, {page: data}));
         });
