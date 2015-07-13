@@ -112,3 +112,13 @@ li.active .wizard-icon.map {
     background-color: #8dcbce;
     height: 1px;
 }
+
+.homecontainer .btn {
+    background-color: #107D9F;
+    color: #EFEFEF;
+}
+
+.maincontent .btn {
+    background-color: #107D9F;
+    color: #EFEFEF;
+}

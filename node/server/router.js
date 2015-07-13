@@ -136,6 +136,30 @@ function twitterFeed(config) {
 //
 
 
+function sendError(res, ex, status) {
+    //
+    // Intentionally reject a promise with undefined just so that it stops
+    // but I don't want it to be an exception. So I reject with undefined as
+    // a work around. Makes sense to not report an undefined exception to the
+    // user anyway should this happen by accident.
+    //
+    if (! ex) {
+        return;
+    }
+
+    if (! status) {
+        status = 500;
+    }
+
+    if (typeof ex === "string") {
+        res.status(status).send(ex);
+    } else {
+        console.log(ex.stack);
+        res.status(status).send({message: ex.message, stack: ex.stack});
+    }
+}
+
+
 module.exports = function(app, config, secrets, debug) {
     var usageAgreement = markdown.toHTML(fs.readFileSync(config.cust.serverDir + "/docs/UsageAgreement.md", "utf8"));
 
@@ -264,13 +288,13 @@ module.exports = function(app, config, secrets, debug) {
 
         req.pipe(request(url))
         .on('error', function(ex) {
-            console.log("Trouble connecting to [" + url + "]");
-            console.log(ex);
-            res.status(500).send(ex);
+            console.log("Trouble calling GET on [" + url + "]");
+            sendError(res, ex);
         })
         .pipe(res)
         .on('error', function(ex) {
-            console.log(ex);
+            console.log("Trouble piping GET result on [" + url + "]");
+            sendError(res, ex);
         });
     });
 
@@ -284,17 +308,20 @@ module.exports = function(app, config, secrets, debug) {
         //
         var url = config.wildbook.url + req.url.slice(9);
 
-        console.log("wildbook POST: " + url);
+        if (debug) {
+            console.log("wildbook POST: " + url);
+            console.log("Payload:" + JSON.stringify(req.body));
+        }
 
         req.pipe(request.post({uri: url, json: req.body}))
         .on('error', function(ex) {
-            console.log("Trouble connecting to [" + url + "]");
-            console.log(ex);
-            res.status(500).send(ex);
+            console.log("Trouble calling POST on [" + url + "]");
+            sendError(res, ex);
         })
         .pipe(res)
         .on('error', function(ex) {
-            console.log(ex);
+            console.log("Trouble piping POST result on [" + url + "]");
+            sendError(res, ex);
         });
     });
 
