@@ -1,5 +1,5 @@
 /*!
- * AlertPlus v0.1.0 (https://github.com/crowmagnumb/alertplus)
+ * AlertPlus v0.1.1 (https://github.com/crowmagnumb/alertplus)
  * Copyright 2015 CrowMagnumb
  * Licensed under MIT (https://github.com/crowmagnumb/alertplus/blob/master/LICENSE)
  */
@@ -93,7 +93,7 @@ var alertplus = (function () {
 
     function showError(ex) {
         if (typeof ex == "string") {
-            showAlert(ex);
+            displayError(ex);
             return;
         }
 
@@ -102,20 +102,40 @@ var alertplus = (function () {
             return;
         }
 
+
         //
-        // Duck typing looking for a particular type of error message.
+        // Various duck typings looking for a particular type of error objects.
         //
-        if (ex.status === 500) {
-            if (ex.responseJSON) {
-                displayError(ex.responseJSON.message, ex.responseJSON.totalStackTrace);
+        if (ex.responseJSON) {
+            if (ex.responseJSON.stack) {
+                displayError(ex.responseJSON.message, ex.responseJSON.stack);
             } else {
-                displayError(ex.message, ex.totalStackTrace);
+                displayError(ex.responseJSON.message, ex.responseJSON.totalStackTrace);
             }
             return;
         }
 
+        //
+        // I was going to check for status = 500 and only then just show responsText but
+        // I think it makes sense to ignore all statuses if we have an actual responseText
+        // which hopefully is much more specific. Indeed, my intended usage for this is
+        // to have this be the way to display a simple message that is not a system error but rather
+        // a user error. I can't find a specific html code for that or I would use it. But at least
+        // this way a basic 500 error that is not JSON formatted will be assumed to be an informational
+        // message with the message in responseText.
+        //
+        if (ex.responseText) {
+            displayError(ex.responseText);
+            return;
+        }
+        
         if (ex.status && ex.statusText) {
             displayError(ex.status + ": " + ex.statusText, ex.responseText);
+            return;
+        }
+        
+        if (ex.message && ex.totalStackTrace) {
+            displayError(ex.message, ex.totalStackTrace);
             return;
         }
 
