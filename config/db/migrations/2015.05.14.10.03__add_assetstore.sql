@@ -8,4 +8,5 @@ create table assetstore
     config text,
     writable bool,
     unique (type, config)
-)
+);
+
