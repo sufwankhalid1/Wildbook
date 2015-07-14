@@ -17,6 +17,8 @@ import org.ecocean.SinglePhotoVideo;
 import org.ecocean.User;
 import org.ecocean.media.MediaSubmission;
 import org.ecocean.servlet.ServletUtilities;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -42,6 +44,8 @@ import com.samsix.database.Table;
 @RequestMapping(value = "/obj/mediasubmission")
 public class MediaSubmissionController
 {
+    private static Logger log = LoggerFactory.getLogger(MediaSubmissionController.class);
+
     private void save(final Database db,
                       final MediaSubmission media)
         throws
@@ -286,12 +290,15 @@ public class MediaSubmissionController
         MediaUploadServlet.clearFileSet(request.getSession(), media.getSubmissionid());
     }
 
-
     @RequestMapping(value = "/save", method = RequestMethod.POST)
     public long save(final HttpServletRequest request,
                      final MediaSubmission media)
         throws DatabaseException
     {
+        if (log.isDebugEnabled()) {
+            log.debug("Calling MediaSubmission save for media [" + media + "]");
+        }
+
         ConnectionInfo ci = ShepherdPMF.getConnectionInfo();
 
         Database db = new Database(ci);
@@ -301,7 +308,6 @@ public class MediaSubmissionController
             // Save media submission
             //
 //            boolean isNew = (media.getId() == null);
-
             save(db, media);
 
             //
@@ -332,6 +338,10 @@ public class MediaSubmissionController
 //                    db.getTable("SURVEY_MEDIA").insertRow(formatter);
 //                }
 //            }
+
+            if (log.isDebugEnabled()) {
+                log.debug("Returning media submission id [" + media.getId() + "]");
+            }
 
             return media.getId();
         } finally {
