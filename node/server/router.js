@@ -317,10 +317,9 @@ module.exports = function(app, config, secrets, debug) {
 
         if (debug) {
             console.log("wildbook POST: " + url);
-            console.log("Payload:" + JSON.stringify(req.body));
         }
 
-        req.pipe(request.post({uri: url, json: req.body}))
+        req.pipe(request.post({uri: url}))
         .on('error', function(ex) {
             console.log("Trouble calling POST on [" + url + "]");
             sendError(res, ex);
