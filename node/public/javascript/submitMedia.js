@@ -144,6 +144,11 @@ var submitMedia = (function () {
                 "startTime": null
             };
 
+            //
+            // Default the user to agreeing to the terms.
+            //
+            $scope.data = {agreeTerms: true};
+
             app.configPromise.done(function(){
                 $scope.media.username = (app.user) ? app.user.username : null;
             });
@@ -233,6 +238,11 @@ var submitMedia = (function () {
 
                 if (!allUploaded) {
                     alertplus.alert("Please finish uploading (or canceling) all of your images before continuing.");
+                    return $.Deferred().reject();
+                }
+
+                if (!$scope.data.agreeTerms) {
+                    alertplus.alert("Please agree to the terms and conditions before continuing");
                     return $.Deferred().reject();
                 }
 

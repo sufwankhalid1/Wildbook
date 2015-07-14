@@ -12,133 +12,149 @@ block content
         #MediaSubmissionWizard
             .container-fluid
                 .row
-                  .col-md-12
-                    div(ng-controller='MediaSubmissionController', rc-wizard='mediaWizard', rc-disabled='rc.formUser.submitInProgress')
-                      ul.nav.rc-nav-wizard
-                        li.active
-                          a.active(href='#userForm', data-toggle='tab')
-                            div.wizard-page-header
-                                div.wizard-icon.info
-                                span ENTER INFO
-                        li
-                          a(href='#fileupload', data-toggle='tab')
-                            div.wizard-page-header
-                                div.wizard-icon.upload
-                                span UPLOAD MEDIA
-                        li
-                          a(href='#metaForm', data-toggle='tab')
-                            div.wizard-page-header
-                                div.wizard-icon.map
-                                span MAP ENCOUNTER
-                      .tab-content
-                        // Here we save the submission before getting to the images because we need the id to
-                        // record the connection to the images
-                        form#userForm.tab-pane.active(name='formUser', rc-submit='saveSubmission()', rc-step='', novalidate='')
-                          h3 Enter user info
-                          .form-group(ng-hide='isLoggedIn()', ng-class="{'has-error': rc.formUser.needsAttention(formUser.name)}")
-                            label.control-label Name
-                            input.form-control(type='text', ng-required='!isLoggedIn()', ng-model='media.name')
-                          .form-group(ng-hide='isLoggedIn()', ng-class="{'has-error': rc.formUser.needsAttention(formUser.email)}")
-                            label.control-label Email
-                            input.form-control(type='text', ng-required='!isLoggedIn()', ng-model='media.email')
-                          .form-group
-                            label.control-label Was this part of a survey? If so, please enter survey id here.
-                            input.form-control(type='text', ng-model='media.submissionid')
-                        form#fileupload.tab-pane(action='mediaupload', method='POST', name='formMedia', rc-step='', rc-submit='getExifData()', novalidate='', enctype='multipart/form-data', data-ng-controller='SubmissionFileUploadController', data-file-upload='options', data-ng-class="{'fileupload-processing': processing() || loadingFiles}", style='overflow-y:auto;')
-                          // Redirect browsers with JavaScript disabled to the origin page
-                          noscript
-                            input(type='hidden', name='redirect', value='https://blueimp.github.io/jQuery-File-Upload/')
-                          // The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload
-                          input(name='mediaid', type='hidden', ng-value='media.id')
-                          .row.fileupload-buttonbar
-                            .col-lg-8
-                              // The fileinput-button span is used to style the file input field as button
-                              span.btn.btn-success.fileinput-button(ng-class='{disabled: disabled}')
-                                i.glyphicon.glyphicon-plus
-                                span Add files...
-                                input(type='file', name='files[]', multiple='', ng-disabled='disabled')
-                              button.btn.btn-primary.start(type='button', data-ng-click='submit()')
-                                i.glyphicon.glyphicon-upload
-                                span Start upload
-                              button.btn.btn-warning.cancel(type='button', data-ng-click='cancel()')
-                                i.glyphicon.glyphicon-ban-circle
-                                span Cancel upload
-                              // The global file processing state
-                              span.fileupload-process
-                            // The global progress state
-                            .col-lg-4.fade(data-ng-class='{in: active()}')
-                              // The global progress bar
-                              .progress.progress-striped.active(data-file-upload-progress='progress()')
-                                .progress-bar.progress-bar-success(data-ng-style="{width: num + '%'}")
-                              // The extended global progress state
-                              .progress-extended &nbsp;
-                          .dropbox
-                            p.dropinfo Drag files here or click Add Files...
-                            // The table listing the files available for upload/download
-                            table.table.table-striped.files.ng-cloak
-                              tr(data-ng-repeat='file in queue', data-ng-class="{'processing': file.$processing()}")
-                                td(data-ng-switch='', data-on='!!file.thumbnailUrl')
-                                  .preview(data-ng-switch-when='true')
-                                    a(data-ng-href='#{config.wildbook.url}{{file.url}}', title='{{file.name}}', download='{{file.name}}', data-gallery='')
-                                      img(data-ng-src='#{config.wildbook.url}{{file.thumbnailUrl}}', alt='', ng-style="{'max-height': '60px'}")
-                                  .preview(data-ng-switch-default='', data-file-upload-preview='file')
-                                td
-                                  p.name(data-ng-switch='', data-on='!!file.url')
-                                    span(data-ng-switch-when='true', data-ng-switch='', data-on='!!file.thumbnailUrl')
-                                      a(data-ng-switch-when='true', data-ng-href='#{config.wildbook.url}{{file.url}}', title='{{file.name}}', download='{{file.name}}', data-gallery='') {{file.name}}
-                                      a(data-ng-switch-default='', data-ng-href='#{config.wildbook.url}{{file.url}}', title='{{file.name}}', download='{{file.name}}') {{file.name}}
-                                    span(data-ng-switch-default='') {{file.name}}
-                                  strong.error.text-danger(data-ng-show='file.error') {{file.error}}
-                                td
-                                  p.size {{file.size | formatFileSize}}
-                                  .progress.progress-striped.active.fade(data-ng-class="{pending: 'in'}[file.$state()]", data-file-upload-progress='file.$progress()')
-                                    .progress-bar.progress-bar-success(data-ng-style="{width: num + '%'}")
-                                td
-                                  button.btn.btn-primary.start(type='button', data-ng-click='file.$submit()', data-ng-hide='!file.$submit || options.autoUpload', data-ng-disabled="file.$state() == 'pending' || file.$state() == 'rejected'")
-                                    i.glyphicon.glyphicon-upload
-                                    span Start
-                                  button.btn.btn-warning.cancel(type='button', data-ng-click='file.$cancel()', data-ng-hide='!file.$cancel')
-                                    i.glyphicon.glyphicon-ban-circle
-                                    span Cancel
-                                  button.btn.btn-danger.destroy(data-ng-controller='FileDestroyController', type='button', data-ng-click='file.$destroy()', data-ng-hide='!file.$destroy')
-                                    i.glyphicon.glyphicon-trash
-                                    span Delete
-                        form#metaForm.tab-pane(name='formMeta', rc-submit='completeWizard()', rc-step='')
-                          h3 Time and Place
-                          .row
-                            .col-md-6
-                              .form-group
-                                label.control-label Start Date/Time
-                                input(ui-date='dateOptions', ng-model='media.startTime')
-                            .col-md-6
-                              .form-group
-                                label.control-label End Date/Time
-                                input(ui-date='dateOptions', ng-model='media.endTime')
-                          .row
-                            .col-md-8
-                              #mediasubmissionmap(style='height: 300px;')
-                            .col-md-4
-                              .form-group
-                                label.control-label Tell us about the place where you took the photos/videos (optional)
-                                textarea.form-control(rows='5', ng-model='media.verbatimLocation')
-                              #mediasubmissionlatlong
-                                .form-group
-                                  label.control-label Latitude
-                                  input.form-control(type='text', ng-model='media.latitude')
-                                .form-group
-                                  label.control-label Longitude
-                                  input.form-control(type='text', ng-model='media.longitude')
-                          .form-group
-                            label.control-label Give a brief description of your photos/videos (optional)
-                            textarea.form-control(rows='5', ng-model='media.description', autofocus='')
-                      .form-group
-                        .pull-right
-                          a.btn.btn-default.ng-cloak(ng-click='rc.mediaWizard.backward()', ng-show='rc.mediaWizard.currentIndex > rc.mediaWizard.firstIndex') Back
-                          a.btn.btn-primary.ng-cloak(data-loading-text='Please Wait...', ng-click='rc.mediaWizard.forward()', ng-show='rc.mediaWizard.currentIndex < rc.mediaWizard.navigationLength') Continue
-                          a.btn.btn-primary.ng-cloak(ng-click='rc.mediaWizard.forward()', ng-show='rc.mediaWizard.currentIndex == rc.mediaWizard.navigationLength') Complete
+                    .col-md-12
+                        div(ng-controller='MediaSubmissionController', rc-wizard='mediaWizard', rc-disabled='rc.formUser.submitInProgress')
+                            ul.nav.rc-nav-wizard
+                                li.active
+                                    a.active(href='#userForm', data-toggle='tab')
+                                        div.wizard-page-header
+                                            div.wizard-icon.info
+                                            span ENTER INFO
+                                li
+                                    a(href='#fileupload', data-toggle='tab')
+                                        div.wizard-page-header
+                                            div.wizard-icon.upload
+                                            span UPLOAD MEDIA
+                                li
+                                    a(href='#metaForm', data-toggle='tab')
+                                        div.wizard-page-header
+                                            div.wizard-icon.map
+                                            span MAP ENCOUNTER
+                            .tab-content
+                                // Here we save the submission before getting to the images because we need the id to
+                                // record the connection to the images
+                                form#userForm.tab-pane.active(name='formUser', rc-submit='saveSubmission()', rc-step='', novalidate='')
+                                    h3 Enter user info
+                                    .form-group(ng-hide='isLoggedIn()', ng-class="{'has-error': rc.formUser.needsAttention(formUser.name)}")
+                                        label.control-label Name
+                                        input.form-control(type='text', ng-required='!isLoggedIn()', ng-model='media.name')
+                                    .form-group(ng-hide='isLoggedIn()', ng-class="{'has-error': rc.formUser.needsAttention(formUser.email)}")
+                                        label.control-label Email
+                                        input.form-control(type='text', ng-required='!isLoggedIn()', ng-model='media.email')
+                                    .form-group
+                                        label.control-label Was this part of a survey? If so, please enter survey id here.
+                                        input.form-control(type='text', ng-model='media.submissionid')
+                                        
+                                        
+                                form#fileupload.tab-pane(action='mediaupload', method='POST', name='formMedia', rc-step='', rc-submit='getExifData()', novalidate='', enctype='multipart/form-data', data-ng-controller='SubmissionFileUploadController', data-file-upload='options', data-ng-class="{'fileupload-processing': processing() || loadingFiles}", style='overflow-y:auto;')
+                                    // Redirect browsers with JavaScript disabled to the origin page
+                                    noscript
+                                        input(type='hidden', name='redirect', value='/')
+                                        
+                                    h2 Upload instructions:
+                                    ul
+                                        li Drag and drop files below or click below to select files. Once all file previews have loaded, click ‘Start upload’ above.
+                                        li In the event that an individual file fails to upload please click ‘Cancel’ on that file only so that the other files are received.
+                                        li Once all files are uploaded, acknowledge 'Terms & Conditions’ and click ‘Continue’ at the foot of the page. If this is your first submission, an account will be created for you.
+                                    p Thank you for contributing!
+                                    hr
+                                    // The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload
+                                    input(name='mediaid', type='hidden', ng-value='media.id')
+                                    .row.fileupload-buttonbar
+                                        .col-lg-8
+                                            // The fileinput-button span is used to style the file input field as button
+                                            span.btn.btn-success.fileinput-button(ng-class='{disabled: disabled}')
+                                                i.glyphicon.glyphicon-plus
+                                                span Add files...
+                                                input(type='file', name='files[]', multiple='', ng-disabled='disabled')
+                                            button.btn.btn-primary.start(type='button', data-ng-click='submit()')
+                                                i.glyphicon.glyphicon-upload
+                                                span Start upload
+                                            button.btn.btn-warning.cancel(type='button', data-ng-click='cancel()')
+                                                i.glyphicon.glyphicon-ban-circle
+                                                span Cancel upload
+                                            // The global file processing state
+                                            span.fileupload-process
+                                        // The global progress state
+                                        .col-lg-4.fade(data-ng-class='{in: active()}')
+                                            // The global progress bar
+                                            .progress.progress-striped.active(data-file-upload-progress='progress()')
+                                                .progress-bar.progress-bar-success(data-ng-style="{width: num + '%'}")
+                                            // The extended global progress state
+                                            .progress-extended &nbsp;
+                                    .dropbox
+                                        p.dropinfo Drag files here or click Add Files...
+                                        // The table listing the files available for upload/download
+                                        table.table.table-striped.files.ng-cloak
+                                            tr(data-ng-repeat='file in queue', data-ng-class="{'processing': file.$processing()}")
+                                                td(data-ng-switch='', data-on='!!file.thumbnailUrl')
+                                                    .preview(data-ng-switch-when='true')
+                                                        a(data-ng-href='#{config.wildbook.url}{{file.url}}', title='{{file.name}}', download='{{file.name}}', data-gallery='')
+                                                            img(data-ng-src='#{config.wildbook.url}{{file.thumbnailUrl}}', alt='', ng-style="{'max-height': '60px'}")
+                                                    .preview(data-ng-switch-default='', data-file-upload-preview='file')
+                                                td
+                                                    p.name(data-ng-switch='', data-on='!!file.url')
+                                                        span(data-ng-switch-when='true', data-ng-switch='', data-on='!!file.thumbnailUrl')
+                                                            a(data-ng-switch-when='true', data-ng-href='#{config.wildbook.url}{{file.url}}', title='{{file.name}}', download='{{file.name}}', data-gallery='') {{file.name}}
+                                                            a(data-ng-switch-default='', data-ng-href='#{config.wildbook.url}{{file.url}}', title='{{file.name}}', download='{{file.name}}') {{file.name}}
+                                                        span(data-ng-switch-default='') {{file.name}}
+                                                    strong.error.text-danger(data-ng-show='file.error') {{file.error}}
+                                                td
+                                                    p.size {{file.size | formatFileSize}}
+                                                    .progress.progress-striped.active.fade(data-ng-class="{pending: 'in'}[file.$state()]", data-file-upload-progress='file.$progress()')
+                                                        .progress-bar.progress-bar-success(data-ng-style="{width: num + '%'}")
+                                                td
+                                                    button.btn.btn-primary.start(type='button', data-ng-click='file.$submit()', data-ng-hide='!file.$submit || options.autoUpload', data-ng-disabled="file.$state() == 'pending' || file.$state() == 'rejected'")
+                                                        i.glyphicon.glyphicon-upload
+                                                        span Start
+                                                    button.btn.btn-warning.cancel(type='button', data-ng-click='file.$cancel()', data-ng-hide='!file.$cancel')
+                                                        i.glyphicon.glyphicon-ban-circle
+                                                        span Cancel
+                                                    button.btn.btn-danger.destroy(data-ng-controller='FileDestroyController', type='button', data-ng-click='file.$destroy()', data-ng-hide='!file.$destroy')
+                                                        i.glyphicon.glyphicon-trash
+                                                        span Delete
+                                    .form-group
+                                        .pull-right
+                                            label.control-label By submitting content, I acknowledge the 
+                                                a(href="#" ng-click="terms()") Terms & Conditions
+                                                | of use of Happywhale.com
+                                            input(type="checkbox", ng-model="data.agreeTerms")
+                                form#metaForm.tab-pane(name='formMeta', rc-submit='completeWizard()', rc-step='')
+                                    h3 Time and Place
+                                    .row
+                                        .col-md-6
+                                            .form-group
+                                                label.control-label Start Date/Time
+                                                input(ui-date='dateOptions', ng-model='media.startTime')
+                                        .col-md-6
+                                            .form-group
+                                                label.control-label End Date/Time
+                                                input(ui-date='dateOptions', ng-model='media.endTime')
+                                    .row
+                                        .col-md-8
+                                            #mediasubmissionmap(style='height: 300px;')
+                                        .col-md-4
+                                            .form-group
+                                                label.control-label Tell us about the place where you took the photos/videos (optional)
+                                                textarea.form-control(rows='5', ng-model='media.verbatimLocation')
+                                            #mediasubmissionlatlong
+                                                .form-group
+                                                    label.control-label Latitude
+                                                    input.form-control(type='text', ng-model='media.latitude')
+                                                .form-group
+                                                    label.control-label Longitude
+                                                    input.form-control(type='text', ng-model='media.longitude')
+                                    .form-group
+                                        label.control-label Give a brief description of your photos/videos (optional)
+                                        textarea.form-control(rows='5', ng-model='media.description', autofocus='')
+                            .form-group
+                                .pull-right
+                                    a.btn.btn-default.ng-cloak(ng-click='rc.mediaWizard.backward()', ng-show='rc.mediaWizard.currentIndex > rc.mediaWizard.firstIndex') Back
+                                    a.btn.btn-primary.ng-cloak(data-loading-text='Please Wait...', ng-click='rc.mediaWizard.forward()', ng-show='rc.mediaWizard.currentIndex < rc.mediaWizard.navigationLength') Continue
+                                    a.btn.btn-primary.ng-cloak(ng-click='rc.mediaWizard.forward()', ng-show='rc.mediaWizard.currentIndex == rc.mediaWizard.navigationLength') Complete
         #MediaSubmissionThankYou.container.hidden
-          h1 Thank You!
-          p We have received your data and will begin analyzing it. We will periodically report back results. Be sure to check your email in a few minutes for a link back to your data where you can check our latest conclusions.
+            h1 Thank You!
+            p We have received your data and will begin analyzing it. We will periodically report back results. Be sure to check your email in a few minutes for a link back to your data where you can check our latest conclusions.
 
 block scripts
     script(src="/vendor/angularjs-utilities/javascript/jquery.bootstrap.wizard.js")

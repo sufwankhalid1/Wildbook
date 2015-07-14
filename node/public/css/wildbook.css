@@ -171,3 +171,8 @@
 .submitters li {
     display: inline;
 }
+
+.dropbox {
+    background-color: #E3E3E3;
+    padding-top: 10px;
+}
