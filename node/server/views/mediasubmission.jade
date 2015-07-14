@@ -135,7 +135,7 @@ block content
                         .pull-right
                           a.btn.btn-default.ng-cloak(ng-click='rc.mediaWizard.backward()', ng-show='rc.mediaWizard.currentIndex > rc.mediaWizard.firstIndex') Back
                           a.btn.btn-primary.ng-cloak(data-loading-text='Please Wait...', ng-click='rc.mediaWizard.forward()', ng-show='rc.mediaWizard.currentIndex < rc.mediaWizard.navigationLength') Continue
-                          a.btn.btn-primary(ng-click='rc.mediaWizard.forward()', ng-show='rc.mediaWizard.currentIndex == rc.mediaWizard.navigationLength') Complete
+                          a.btn.btn-primary.ng-cloak(ng-click='rc.mediaWizard.forward()', ng-show='rc.mediaWizard.currentIndex == rc.mediaWizard.navigationLength') Complete
         #MediaSubmissionThankYou.container.hidden
           h1 Thank You!
           p We have received your data and will begin analyzing it. We will periodically report back results. Be sure to check your email in a few minutes for a link back to your data where you can check our latest conclusions.
