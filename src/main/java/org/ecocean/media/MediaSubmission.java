@@ -2,9 +2,21 @@ package org.ecocean.media;
 
 import java.util.Date;
 import java.util.List;
+import java.util.ArrayList;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.ecocean.SinglePhotoVideo;
+import org.ecocean.ShepherdPMF;
+import org.ecocean.Shepherd;
+import com.samsix.database.ConnectionInfo;
+import com.samsix.database.Database;
+import com.samsix.database.DatabaseException;
+import com.samsix.database.RecordSet;
+import com.samsix.database.SqlFormatter;
+import com.samsix.database.SqlInsertFormatter;
+import com.samsix.database.SqlUpdateFormatter;
+import com.samsix.database.SqlWhereFormatter;
+import com.samsix.database.Table;
 
 public class MediaSubmission {
     private Long id;
@@ -39,6 +51,25 @@ public class MediaSubmission {
     // later hook it up to the right survey, or whatever the submission was for.
     //
     private String submissionid;
+
+    public MediaSubmission() {
+    }
+
+    public MediaSubmission(RecordSet rs) throws DatabaseException {
+        this.setDescription(rs.getString("description"));
+        this.setEmail(rs.getString("email"));
+        this.setEndTime(rs.getLongObj("endtime"));
+        this.setId(rs.getLong("id"));
+        this.setLatitude(rs.getDoubleObj("latitude"));
+        this.setLongitude(rs.getDoubleObj("longitude"));
+        this.setName(rs.getString("name"));
+        this.setStartTime(rs.getLongObj("starttime"));
+        this.setSubmissionid(rs.getString("submissionid"));
+        this.setTimeSubmitted(rs.getLongObj("timesubmitted"));
+        this.setUsername(rs.getString("username"));
+        this.setVerbatimLocation(rs.getString("verbatimlocation"));
+        this.setStatus(rs.getString("status"));
+    }
 
 
     public Long getId() {
@@ -160,31 +191,46 @@ public class MediaSubmission {
         return ToStringBuilder.reflectionToString(this);
     } 
 
-    public static List<MediaSubmission> findMediaSources(List<SinglePhotoVideo> media) {
-        List<MediaSubmission> ms = new ArrayList<MediaSubmission>();
+    //note: this does *not* set .media but will grab them all via the mediasubmission_media table
+    public List<SinglePhotoVideo> fetchMedia(String context) throws DatabaseException {
         ConnectionInfo ci = ShepherdPMF.getConnectionInfo();
         Database db = new Database(ci);
+        if ((this.getId() == null) || this.getId().equals("")) return null;
+        String sql = "SELECT * FROM mediasubmission_media WHERE mediasubmissionid=" + this.getId();
+        RecordSet rs = db.getRecordSet(sql);
+        Shepherd myShepherd = new Shepherd(context);
+        List<SinglePhotoVideo> media = new ArrayList<SinglePhotoVideo>();
+        while (rs.next()) {
+            SinglePhotoVideo spv = myShepherd.getSinglePhotoVideo(rs.getString("mediaid"));
+            if (spv != null) media.add(spv);
+        }
+        return media;
+    }
+
+    public static List<MediaSubmission> findMediaSources(List<SinglePhotoVideo> media, String context) {
+        if ((media == null) || (media.size() < 1)) return null;
+        List<MediaSubmission> msList = new ArrayList<MediaSubmission>();
+        ConnectionInfo ci = ShepherdPMF.getConnectionInfo();
+        Database db = new Database(ci);
+        String mids = media.get(0).getDataCollectionEventID();
+        for (int i = 1 ; i < media.size() ; i++) {
+            mids += "', '" + media.get(i).getDataCollectionEventID();
+        }
+        String sql = "SELECT DISTINCT id,description,email,endtime,latitude,longitude,name,starttime,submissionid,timesubmitted,username,verbatimlocation,status FROM mediasubmission INNER JOIN mediasubmission_media ON (mediasubmission_media.mediasubmissionid = mediasubmission.id) WHERE mediasubmission_media.mediaid IN ('" + mids + "') ORDER BY id";
+System.out.println("sql = " + sql);
         try {
-//select * from mediasubmission inner join mediasubmission_media on (mediasubmission_media.mediasubmissionid = mediasubmission.id) where mediasubmission_media.mediaid in ('ff8081814c95c7d7014c95ca533b0004', 'ff8081814c95c7d7014c95ca533b000', 'ff8081814c95c7d7014c961381570009') order by mediasubmission.id;
-            String sql = "SELECT spv.* FROM mediasubmission_media m"
-                    + " INNER JOIN \"SINGLEPHOTOVIDEO\" spv ON spv.\"DATACOLLECTIONEVENTID\" = m.mediaid"
-                    + " WHERE m.mediasubmissionid = " + mediaid;
             RecordSet rs = db.getRecordSet(sql);
-            List<SinglePhotoVideo> spvs = new ArrayList<SinglePhotoVideo>();
             while (rs.next()) {
-                SinglePhotoVideo media = new SinglePhotoVideo();
-/*
-                media.setDataCollectionEventID(rs.getString("DATACOLLECTIONEVENTID"));
-                media.setCopyrightOwner(rs.getString("COPYRIGHTOWNER"));
-                media.setCopyrightStatement(rs.getString("COPYRIGHTSTATEMENT"));
-                media.setCorrespondingStoryID(rs.getString("CORRESPONDINGSTORYID"));
-                media.setCorrespondingUsername(rs.getString("CORRESPONDINGUSERNAME"));
-*/
+                MediaSubmission ms = new MediaSubmission(rs);
+                ms.setMedia(ms.fetchMedia(context));
+                msList.add(ms);
             }
+        } catch (DatabaseException dbe) {
+            System.out.println(dbe.toString());
         } finally {
             db.release();
         }
-        return ms;
+        return msList;
     }
 
 }
