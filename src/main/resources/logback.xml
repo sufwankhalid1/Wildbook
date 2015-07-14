@@ -18,6 +18,13 @@
     <appender-ref ref="FILE" />
   </root>
   
+  <!-- There is an annoying bug with the way Spring does the error handling and
+       it reports errors to the log files even though nothing is really wrong.
+       See https://github.com/spring-projects/spring-boot/issues/2745 -->
+    <logger name="org.springframework.boot.context.web.ErrorPageFilter">
+        <level value="OFF" />
+    </logger>
+
 <!--   <logger name="SqlLog" level="ERROR" />
 
   <logger name="DataNucleus" level="ERROR" />
