@@ -211,6 +211,34 @@ public class MediaSubmissionController
         }
     }
 
+    @RequestMapping(value = "/get/sources/{id}", method = RequestMethod.GET)
+    public List<MediaSubmission> getSources(final HttpServletRequest request,
+                                            @PathVariable("id") final int id) throws DatabaseException {
+        if (id < 1) return null;
+        ConnectionInfo ci = ShepherdPMF.getConnectionInfo();
+        Database db = new Database(ci);
+        String sql = "SELECT \"DATACOLLECTIONEVENTID_EID\" AS mid FROM \"SURVEYTRACK_MEDIA\" WHERE \"ID_OID\"=" + id;
+System.out.println(sql);
+        RecordSet rs = db.getRecordSet(sql);
+        List<SinglePhotoVideo> media = new ArrayList<SinglePhotoVideo>();
+        while (rs.next()) {
+            SinglePhotoVideo spv = new SinglePhotoVideo();
+            spv.setDataCollectionEventID(rs.getString("mid"));
+            media.add(spv);
+        }
+        String context = "context0";
+        context = ServletUtilities.getContext(request);
+        return MediaSubmission.findMediaSources(media, context);
+    }
+
+    @RequestMapping(value = "/get/sources", method = RequestMethod.POST)
+    public List<MediaSubmission> getSources(final HttpServletRequest request,
+                                            @RequestBody List<SinglePhotoVideo> media) throws DatabaseException {
+        String context = "context0";
+        context = ServletUtilities.getContext(request);
+        return MediaSubmission.findMediaSources(media, context);
+    }
+
 
     @RequestMapping(value = "/complete", method = RequestMethod.POST)
     public void complete(final HttpServletRequest request,
