@@ -3,47 +3,30 @@ package org.ecocean.rest;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.ecocean.Encounter;
-import org.ecocean.SinglePhotoVideo;
-
 
 class SimpleEncounter
 {
+    private String guid;
     private Long dateInMilliseconds;
     private String locationid;
     private String verbatimLocation;
     private Double latitude;
     private Double longitude;
     private final List<SimplePhoto> photos = new ArrayList<SimplePhoto>();
+    private SimpleUser submitter;
 
     public SimpleEncounter()
     {
         // for deserialization
     }
 
-    public SimpleEncounter(final Long dateInMilliseconds)
+    public SimpleEncounter(final String guid,
+                           final Long dateInMilliseconds)
     {
+        this.guid = guid;
         this.dateInMilliseconds = dateInMilliseconds;
     }
 
-
-    public static SimpleEncounter fromEncounter(final Encounter encounter, final String context)
-    {
-        SimpleEncounter se = new SimpleEncounter(encounter.getDateInMilliseconds());
-
-        se.locationid = encounter.getLocationID();
-        se.verbatimLocation = encounter.getLocation();
-        se.latitude = encounter.getLatitude();
-        se.longitude = encounter.getLongitude();
-
-        encounter.getSubmitterName();
-        for (SinglePhotoVideo photo : encounter.getSinglePhotoVideo())
-        {
-            se.photos.add(SimplePhoto.fromSimplePhotoVideo(photo, context));
-        }
-
-        return se;
-    }
     public Long getDateInMilliseconds() {
         return dateInMilliseconds;
     }
@@ -84,7 +67,19 @@ class SimpleEncounter
         this.longitude = longitude;
     }
 
+    public void addPhoto(final SimplePhoto photo) {
+        photos.add(photo);
+    }
+
     public List<SimplePhoto> getPhotos() {
         return photos;
+    }
+
+    public SimpleUser getSubmitter() {
+        return submitter;
+    }
+
+    public void setSubmitter(final SimpleUser submitter) {
+        this.submitter = submitter;
     }
 }

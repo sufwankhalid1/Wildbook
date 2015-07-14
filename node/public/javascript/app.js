@@ -58,10 +58,17 @@ app.configPromise = configPromise;
 angular.module("nodeApp.controllers", [])
 //.controller("AppController", function ($scope, $http, dataService) {
 //    $scope.data = dataService.data;
-.controller("AppController", function ($scope) {
+.controller("AppController", function ($scope, $http) {
     $scope.login = function() {
         wildbook.auth.loginPopup($scope);
     };
+
+    $scope.terms = function() {
+        $http.get("/terms")
+        .then(function(terms) {
+            alertplus.alert(terms.data, null, "Usage Agreement");
+        });
+    }
 });
 
 //app.ngApp = ngApp;

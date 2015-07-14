@@ -39,10 +39,12 @@ public class ExceptionHandlerController {
     @ResponseBody
     public ErrorInfo handleException5(Exception ex, HttpServletResponse response) throws IOException
     {
+        System.err.println("****Spring Handled Exception*****");
         ex.printStackTrace();
+
         ErrorInfo info = new ErrorInfo();
         info.message = ex.getMessage();
-        info.totalStackTrace = ExceptionUtils.getFullStackTrace(ex);
+        info.stack = ExceptionUtils.getFullStackTrace(ex);
         return info;
     }
 
@@ -50,6 +52,6 @@ public class ExceptionHandlerController {
     static class ErrorInfo
     {
         public String message;
-        public String totalStackTrace;
+        public String stack;
     }
 }

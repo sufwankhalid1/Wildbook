@@ -1,8 +1,71 @@
 extends layout
 
 block content
-    div
+    .maincontent
         if page.error
             != JSON.stringify(page.error)
-        else
-            != JSON.stringify(page.ind)
+            - page.ind = []
+        //else
+        //    != JSON.stringify(page.ind)
+
+        h1.has-icon.icon-happywhale= t("individual.meet", {individualId: page.ind.nickname + "(" + page.ind.id + ")"})
+
+        if page.ind.photos
+            //img.individual-main-image(src="#{config.wildbook.staticUrl}#{page.ind.photos[0]}")
+    
+            #individual-carousel.carousel.slide(data-ride="carousel" data-interval="5000")
+                ol.carousel-indicators
+                    li.active(data-target="#individual-carousel" data-slide-to="0")
+                    - for (var ii = 1; ii < page.ind.photos.length; ii++)
+                        li(data-target="#individual-carousel" data-slide-to="#{ii}")
+                .carousel-inner
+                    -var first = true
+                    for photo in page.ind.photos
+                        if first
+                            - first = false
+                            .item.active
+                                img(src="#{config.wildbook.staticUrl}#{photo.url}" style="height: 400px; width: auto;")
+                                if photo.caption
+                                    .carousel-caption
+                                        h3 photo.caption
+                        else
+                            .item
+                                img(src="#{config.wildbook.staticUrl}#{photo.url}" style="height: 400px; width: auto;")
+                                if photo.caption
+                                    .carousel-caption
+                                        h3 photo.caption
+
+                <!-- Controls -->
+                a.left.carousel-control(href="#individual-carousel" role="button" data-slide="prev")
+                    span.glyphicon.glyphicon-chevron-left
+                a.right.carousel-control(href="#individual-carousel" role="button" data-slide="next")
+                    span.glyphicon.glyphicon-chevron-right
+        h2= t("individual.contributors")
+        hr
+        for encounter in page.ind.encounters
+            if encounter.submitter
+                ul.submitters
+                    li #{encounter.submitter.fullName}
+        hr
+        h2= t("individual.recentActivity")
+        hr
+        
+        div
+            for encounter in page.ind.encounters
+                ul.submitters
+                    li #{encounter.verbatimLocation}
+        p= t("individual.seenIndividual")
+        a(href="/submitMedia")
+            button.btn.btn-primary= t("individual.shareExperience")
+        
+        
+block scripts
+    script.
+        //
+        // Trigger bootstrap carousels
+        //
+        $(document).ready(function() {
+            $('.carousel').carousel({
+                interval: 3000
+            });
+        });

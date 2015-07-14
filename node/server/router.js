@@ -17,8 +17,9 @@
 //});
 
 var request = require('request');
-//var https = require('https');
 var extend = require('extend');
+var markdown = require("markdown").markdown;
+var fs = require('fs');
 
 //
 // Set up social data grabbing
@@ -134,8 +135,37 @@ function twitterFeed(config) {
 // End social data grabbing.
 //
 
+function makeError(ex) {
+    return {message: ex.message, stack: ex.stack};
+}
+
+function sendError(res, ex, status) {
+    //
+    // Intentionally reject a promise with undefined just so that it stops
+    // but I don't want it to be an exception. So I reject with undefined as
+    // a work around. Makes sense to not report an undefined exception to the
+    // user anyway should this happen by accident.
+    //
+    if (! ex) {
+        return;
+    }
+
+    if (! status) {
+        status = 500;
+    }
+
+    if (typeof ex === "string") {
+        res.status(status).send(ex);
+    } else {
+        console.log(ex.stack);
+        res.status(status).send(makeError(ex));
+    }
+}
+
 
 module.exports = function(app, config, secrets, debug) {
+    var usageAgreement = markdown.toHTML(fs.readFileSync(config.cust.serverDir + "/docs/UsageAgreement.md", "utf8"));
+
     var vars = {config: config.client};
 
     var cb = new Codebird;
@@ -181,6 +211,9 @@ module.exports = function(app, config, secrets, debug) {
         res.render('about', vars);
     });
 
+    app.get("/terms", function(req, res) {
+        res.send(usageAgreement);
+    });
 
     app.get("/voyage/*", function(req, res) {
         var arr = req.url.slice(8).split('/');
@@ -236,6 +269,7 @@ console.log(enc.images);
         if (debug) {
             console.log(url);
         }
+
         request(url, function(error, response, body) {
             var data;
             if (error) {
@@ -270,23 +304,24 @@ var match = {
         var id = req.url.slice(12);
 //        http://tomcat:tomcat123@wildbook.happywhale.com/rest/org.ecocean.MarkedIndividual?individualID==%27<search_string>%27
 
-        var url = config.wildbook.authUrl
-            + "/rest/org.ecocean.MarkedIndividual?individualID==%27"
-            + id
-            + "%27";
+        var url = config.wildbook.authUrl + "/obj/individual/get/" + id;
         if (debug) {
             console.log(url);
         }
         request(url, function(error, response, body) {
             var data;
             if (error) {
-                console.log(error);
-                data = {error: error};
+                console.log(error.stack);
+                data = {error: makeError(error)};
             } else if (response.statusCode !== 200) {
                 console.log("url [" + url + "] returned status [" + response.statusCode + "]");
-                data = {error: {status: response.statusCode}};
+                data = {error: {message: response.statusCode}};
             } else {
                 data = {"ind": JSON.parse(body)};
+            }
+
+            if (debug) {
+                console.log("Got data: " + JSON.stringify(data));
             }
             res.render("individual", extend({}, vars, {page: data}));
         });
@@ -308,13 +343,13 @@ var match = {
 
         req.pipe(request(url))
         .on('error', function(ex) {
-            console.log("Trouble connecting to [" + url + "]");
-            console.log(ex);
-            res.status(500).send(ex);
+            console.log("Trouble calling GET on [" + url + "]");
+            sendError(res, ex);
         })
         .pipe(res)
         .on('error', function(ex) {
-            console.log(ex);
+            console.log("Trouble piping GET result on [" + url + "]");
+            sendError(res, ex);
         });
     });
 
@@ -328,17 +363,19 @@ var match = {
         //
         var url = config.wildbook.url + req.url.slice(9);
 
-        console.log("wildbook POST: " + url);
+        if (debug) {
+            console.log("wildbook POST: " + url);
+        }
 
-        req.pipe(request.post({uri: url, json: req.body}))
+        req.pipe(request.post({uri: url}))
         .on('error', function(ex) {
-            console.log("Trouble connecting to [" + url + "]");
-            console.log(ex);
-            res.status(500).send(ex);
+            console.log("Trouble calling POST on [" + url + "]");
+            sendError(res, ex);
         })
         .pipe(res)
         .on('error', function(ex) {
-            console.log(ex);
+            console.log("Trouble piping POST result on [" + url + "]");
+            sendError(res, ex);
         });
     });
 

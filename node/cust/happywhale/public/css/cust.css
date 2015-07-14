@@ -9,14 +9,14 @@
 .has-icon {
     color: #8dcbce;
     background-size: auto 65px;
-		background-repeat: no-repeat;
-		padding-left: 75px;
+    background-repeat: no-repeat;
+    padding-left: 75px;
 }
 
 .btn-oversize {
-	text-transform: uppercase;
-	margin: 20px 12px;
-	font-size: 1.3em;
+    text-transform: uppercase;
+    margin: 20px 12px;
+    font-size: 1.3em;
 }
 
 .icon-happywhale {
@@ -30,41 +30,40 @@
 }
 
 .hr-light {
-	height: 0;
-	margin: 20px 0 10px 0;
-	padding: 0;
-	border-top: solid 1px #8dcbce;
+    height: 0;
+    margin: 20px 0 10px 0;
+    padding: 0;
+    border-top: solid 1px #8dcbce;
 }
 
 /* specific to h1, i think, so not in generic .has-icon */
-h1.has-icon {
-		height: 70px;
+.maincontent h1.has-icon {
+    height: 70px;
     font-size: 1.7em;
     font-weight: bold;
-		padding-top: 12px;
-		line-height: 1.7em;
+    padding-top: 12px;
+    line-height: 1.7em;
 }
 
-h2 {
-	color: #8dcbce;
-	font-size: 1.3em;
+.maincontent h2 {
+    color: #8dcbce;
+    font-size: 1.3em;
 }
 
 .match-pair {
-	padding: 15px;
-  background-color: #EFF1F1;
+    padding: 15px;
+    background-color: #EFF1F1;
 }
 .match-pair .image {
-	display: inline-block;
-	width: 48%;
+    display: inline-block;
+    width: 48%;
 }
 .match-pair .image-right {
-	margin-left: 25px;
+    margin-left: 25px;
 }
 .match-pair img {
-	width: 100%;
+    width: 100%;
 }
-
 
 .wizard-page-header span {
     color: #94a1a4;
@@ -104,8 +103,22 @@ li.active .wizard-icon.map {
     background-size: auto 48px;
 }
 
-
 .voyage-viewer p {
-	font-size: 1.1em;
+    font-size: 1.1em;
 }
 
+.maincontent hr {
+    color: #8dcbce;
+    background-color: #8dcbce;
+    height: 1px;
+}
+
+.homecontainer .btn .btn-primary {
+    background-color: #107D9F;
+    color: #EFEFEF;
+}
+
+.maincontent .btn .btn-primary {
+    background-color: #107D9F;
+    color: #EFEFEF;
+}

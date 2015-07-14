@@ -57,9 +57,9 @@ html(ng-app="nodeApp")
                     li
                         a(href="mailto:info@happywhale.com")= t("footer.menu.contact")
                     li
-                        a(href="/terms")= t("footer.menu.terms")
+                        a(href="#" ng-click="terms()")= t("footer.menu.terms")
                     li
-                        a(href="/help")= t("footer.menu.help")
+                        a(href="mailto:info@happywhale.com")= t("footer.menu.help")
                 p.navbar-inverse.copyright &copy; 2015 happywhale, All Rights Reserved
 
     script(src='/vendor/jquery.min.js')

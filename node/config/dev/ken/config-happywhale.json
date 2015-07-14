@@ -1,8 +1,10 @@
 {
     "wildbook": {"protocol": "http://",
-                 "server": "wildbook.happywhale.com"},
+                 "server": "wildbook.happywhale.com",
+                 "staticUrl": "http://wildbook.happywhale.com"},
     "client": {"wildbook": {
             "url": "http://wildbook.happywhale.com",
+            "staticUrl": "http://wildbook.happywhale.com",
             "proxy": false
         }
     }

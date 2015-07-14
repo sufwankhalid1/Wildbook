@@ -3,8 +3,6 @@ package org.ecocean.rest;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.ecocean.MarkedIndividual;
-import org.ecocean.Shepherd;
 import org.ecocean.servlet.ServletUtilities;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,18 +21,6 @@ public class IndividualController
                                 final String id)
         throws DatabaseException
     {
-        String context = ServletUtilities.getContext(request);
-        Shepherd myShepherd = new Shepherd(context);
-        MarkedIndividual mi = myShepherd.getMarkedIndividual(id);
-
-        SimpleIndividual ind = SimpleIndividual.fromMarkedIndividual(mi, context);
-
-        //
-        // TODO: Add submitter info using submitterId. Pass in Shepherd? Add submitterId
-        // to SimpleEncounter and THEN look it up here?
-        //
-//        User user = myShepherd.getUser(submitterId);
-
-        return ind;
+        return SimpleFactory.getIndividual(ServletUtilities.getContext(request), id);
     }
 }

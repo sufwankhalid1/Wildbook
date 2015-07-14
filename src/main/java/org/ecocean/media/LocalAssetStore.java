@@ -33,7 +33,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * LocalAssetStore references MediaAssets on the current host's filesystem.
+ * LocalAssetStore references MediaAssets on the current host's
+ * filesystem.
+ *
+ * To create a new store outside of Java, you can directly insert a
+ * row into the assetstore table like so (adjusting paths as needed):
+ *
+ * insert into assetstore (name,type,config,writable) values ('local store', 'LOCAL', '{"root":"/filesystem/path/to/localassetstore","webroot":"http://host/web/path/to/localassetstore"}', true);
+ *
+ * Then ensure your webserver is configured to serve the filesystem
+ * path at the webroot.
+ *
+ * If you have only one asset store defined, it will be considered the
+ * default (see AssetStore.loadDefault()).
  */
 public class LocalAssetStore extends AssetStore {
     private static Logger log = LoggerFactory.getLogger(LocalAssetStore.class);
