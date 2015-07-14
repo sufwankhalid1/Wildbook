@@ -4,7 +4,7 @@ block content
     .maincontent.voyage-viewer
         section.container-fluid
             h1.has-icon.icon-happywhale= t("voyage.h1Thanks")
-            p VOYAGGGGE surveyTrackID=(#{surveyTrackID}) mediaID=(#{mediaID}) matchID=(#{matchID})
+            //p VOYAGGGGE surveyTrackID=(#{surveyTrackID}) mediaID=(#{mediaID}) matchID=(#{matchID})
             //p #{JSON.stringify(surveyTrack)}
             p!= t("voyage.thanksForFeedback", {indLink: match.link, escapeInterpolation: false})
             if match

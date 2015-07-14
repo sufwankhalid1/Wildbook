@@ -162,4 +162,32 @@ public class MediaSubmission {
     {
         return ToStringBuilder.reflectionToString(this);
     } 
+
+    public static List<MediaSubmission> findMediaSources(List<SinglePhotoVideo> media) {
+        List<MediaSubmission> ms = new ArrayList<MediaSubmission>();
+        ConnectionInfo ci = ShepherdPMF.getConnectionInfo();
+        Database db = new Database(ci);
+        try {
+//select * from mediasubmission inner join mediasubmission_media on (mediasubmission_media.mediasubmissionid = mediasubmission.id) where mediasubmission_media.mediaid in ('ff8081814c95c7d7014c95ca533b0004', 'ff8081814c95c7d7014c95ca533b000', 'ff8081814c95c7d7014c961381570009') order by mediasubmission.id;
+            String sql = "SELECT spv.* FROM mediasubmission_media m"
+                    + " INNER JOIN \"SINGLEPHOTOVIDEO\" spv ON spv.\"DATACOLLECTIONEVENTID\" = m.mediaid"
+                    + " WHERE m.mediasubmissionid = " + mediaid;
+            RecordSet rs = db.getRecordSet(sql);
+            List<SinglePhotoVideo> spvs = new ArrayList<SinglePhotoVideo>();
+            while (rs.next()) {
+                SinglePhotoVideo media = new SinglePhotoVideo();
+/*
+                media.setDataCollectionEventID(rs.getString("DATACOLLECTIONEVENTID"));
+                media.setCopyrightOwner(rs.getString("COPYRIGHTOWNER"));
+                media.setCopyrightStatement(rs.getString("COPYRIGHTSTATEMENT"));
+                media.setCorrespondingStoryID(rs.getString("CORRESPONDINGSTORYID"));
+                media.setCorrespondingUsername(rs.getString("CORRESPONDINGUSERNAME"));
+*/
+            }
+        } finally {
+            db.release();
+        }
+        return ms;
+    }
+
 }

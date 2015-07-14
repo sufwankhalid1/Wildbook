@@ -185,6 +185,52 @@ module.exports = function(app, config, secrets, debug) {
     app.get("/voyage/*", function(req, res) {
         var arr = req.url.slice(8).split('/');
         if (arr[0] < 1) res.render('voyage');
+				var urls = [
+        	config.wildbook.authUrl + "/rest/org.ecocean.survey.SurveyTrack?id==" + arr[0],
+        	config.wildbook.authUrl + "/rest/org.ecocean.Encounter?catalogNumber=='" + arr[2] + "'"
+				];
+				var data = {};
+				var requestsCompleted = 0;
+				for (var i = 0 ; i < urls.length ; i++) {
+console.log('%d) url -> %s', i, urls[i]);
+        	request(urls[i], function(error, response, body) {
+						var k = response.request.uri.href;
+            if (error) {
+                console.log(error);
+                data[k] = {error: error};
+            } else if (response.statusCode !== 200) {
+                console.log("url [" + urls[i] + "] returned status [" + response.statusCode + "]");
+                data[k] = {error: {status: response.statusCode}};
+            } else {
+                data[k] = JSON.parse(body);
+            }
+						requestsCompleted++;
+						if (requestsCompleted == urls.length) {
+console.log("done");
+						var enc, track;
+						for (var k in data) {
+							if (k.indexOf('SurveyTrack') > -1) {
+								track = data[k][0];
+							} else {
+								enc = data[k][0];
+							}
+						}
+console.log(enc.images);
+						var match = { link: '<a href="/ind/' + enc.individualID + '">' + enc.individualID + '</a>' };
+	match.testImage = {
+		url: 'http://cdn2.arkive.org/media/D6/D6CDEBE7-5A7B-484A-9EC6-D03D73E795A2/Presentation.Large/Southern-right-whale-fluke.jpg',
+		caption: 'Your photo taken from...',
+	};
+	match.matchImage = {
+		url: 'http://cdn2.arkive.org/media/D6/D6CDEBE7-5A7B-484A-9EC6-D03D73E795A2/Presentation.Large/Southern-right-whale-fluke.jpg',
+		caption: 'Photo taken by...',
+	};
+
+            	res.render('voyage', extend({}, vars, {surveyTrackID: arr[0], mediaID: arr[1], matchEncID: arr[2], matchEncMedia: arr[3], match: match, surveyTrack: data}));
+						}
+					});
+				}
+/*
         var url = config.wildbook.authUrl
             + "/rest/org.ecocean.survey.SurveyTrack?id==" + arr[0];
         if (debug) {
@@ -201,6 +247,9 @@ module.exports = function(app, config, secrets, debug) {
             } else {
                 data = {"ind": JSON.parse(body)};
             }
+*/
+/*
+http://pod.scribble.com:6767/wildbook/obj/individual/get/Charlie
 var match = {
 	link: '<a href="/xxxx">yyy</a>',
 	testImage: {
@@ -212,8 +261,9 @@ var match = {
 		caption: 'Photo taken by...',
 	},
 };
-            res.render('voyage', extend({}, vars, {surveyTrackID: arr[0], mediaID: arr[1], matchID: arr[2], match: match, surveyTrack: data}));
+            res.render('voyage', extend({}, vars, {surveyTrackID: arr[0], mediaID: arr[1], matchEncID: arr[2], matchEncMedia: arr[3], match: match, surveyTrack: data}));
         });
+*/
     });
 
     app.get("/individual/*", function(req, res) {
