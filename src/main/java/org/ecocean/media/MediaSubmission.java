@@ -5,9 +5,6 @@ import java.util.List;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.ecocean.SinglePhotoVideo;
-import org.joda.time.DateTime;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
 
 public class MediaSubmission {
     private Long id;
@@ -30,12 +27,12 @@ public class MediaSubmission {
 //    private DateTime endTime;
     private Long endTime;
     private String description;
-    private List<SinglePhotoVideo> media; 
+    private List<SinglePhotoVideo> media;
 //    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSSZ")
 //    private DateTime timeSubmitted = new DateTime();
     private Long timeSubmitted = new Date().getTime();
     private String status;
-  
+
     //
     // To store the intended thing that this was submitted for, like the SurveyId.
     // If they get it wrong then we at least still have their intention and thus can
@@ -43,7 +40,7 @@ public class MediaSubmission {
     //
     private String submissionid;
 
-  
+
     public Long getId() {
         return id;
     }
@@ -156,10 +153,10 @@ public class MediaSubmission {
         this.status = status;
     }
 
-  
+
     @Override
     public String toString()
     {
         return ToStringBuilder.reflectionToString(this);
-    } 
+    }
 }
