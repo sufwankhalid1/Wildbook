@@ -18,8 +18,6 @@
     <appender-ref ref="FILE" />
   </root>
   
-  <logger name = "org.ecocean.rest.MediaSubmissionController" level="DEBUG"/>
-
 <!--   <logger name="SqlLog" level="ERROR" />
 
   <logger name="DataNucleus" level="ERROR" />
