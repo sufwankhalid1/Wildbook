@@ -262,12 +262,14 @@ System.out.println(sql);
 //        String userstr;
 
         String email;
-        if (media.getUsername() != null) {
-            User user = new Shepherd(context).getUser(media.getUsername());
+        String uname = media.getUsername();
+        if ((uname != null) && !uname.equals("")) {
+            User user = new Shepherd(context).getUser(uname);
             if (user != null) {
                 email = user.getEmailAddress();
 //                userstr = user.getFullName() + " (" + media.getUsername() + ") <" + email + ">";
             } else {
+                if (log.isDebugEnabled()) log.debug("unable to load a User for username=" + uname);
                 email = null;
 //                userstr = media.getUsername();
             }
@@ -275,6 +277,7 @@ System.out.println(sql);
             email = media.getEmail();
 //            userstr = media.getName() + " <" + email + ">";
         }
+        if (log.isDebugEnabled()) log.debug("sending thankyou email to:"+email);
 
         //get the email thread handler
         ThreadPoolExecutor es = MailThreadExecutorService.getExecutorService();
