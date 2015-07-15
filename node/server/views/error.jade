@@ -3,4 +3,4 @@ extends layout
 block content
     .maincontent
         h2!= error.message
-        blockquote!= error.stack
+        pre!= error.stack
