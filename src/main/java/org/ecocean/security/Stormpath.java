@@ -32,8 +32,6 @@ import com.stormpath.sdk.authc.UsernamePasswordRequest;
 
 public class Stormpath {
 
-    private static String apiKeyPath = System.getProperty("user.home") + "/.stormpath/apiKey.properties";
-
     /*  note: docs say "The client instance is intended to be an application singleton. You should reuse this instance throughout your application code.
         You should not create multiple Client instances as it could negatively affect caching." ... so this is what we reuse */
     private static Client myClient = null;
