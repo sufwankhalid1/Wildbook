@@ -165,6 +165,7 @@ function sendError(res, ex, status) {
 
 module.exports = function(app, config, secrets, debug) {
     var usageAgreement = markdown.toHTML(fs.readFileSync(config.cust.serverDir + "/docs/UsageAgreement.md", "utf8"));
+    var helpAndFaq = markdown.toHTML(fs.readFileSync(config.cust.serverDir + "/docs/HelpAndFaq.md", "utf8"));
 
     var vars = {config: config.client};
 
@@ -215,6 +216,10 @@ module.exports = function(app, config, secrets, debug) {
         res.send(usageAgreement);
     });
 
+    app.get("/help", function(req, res) {
+        res.render('help', extend({}, vars, {page: helpAndFaq}));
+    });
+
     app.get("/voyage/*", function(req, res) {
         var arr = req.url.slice(8).split('/');
         if (arr[0] < 1) res.render('voyage');
@@ -228,7 +233,7 @@ module.exports = function(app, config, secrets, debug) {
             var data;
             if (error) {
                 console.log(error);
-                data = {error: error};
+                data = {error: makeError(error)};
             } else if (response.statusCode !== 200) {
                 console.log("url [" + url + "] returned status [" + response.statusCode + "]");
                 data = {error: {status: response.statusCode}};
