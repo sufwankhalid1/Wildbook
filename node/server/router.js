@@ -16,8 +16,9 @@
 //    }
 //});
 
-var request = require('request');
+var request = require('request-promise');
 var extend = require('extend');
+var VError = require('verror');
 
 //
 // Switching to markdowndeep so that we can add target=_blank links in hand-coded html references.
@@ -58,24 +59,13 @@ function instagramFeed(config, secrets) {
         + "&access_token="
         + secrets.social.instagram.access_token;
 //    console.log(url);
-    request(url, function(error, response, body) {
-        if (error) {
-            console.log(error);
-            home.social.instagram.feed = [];
-            return;
-        }
-
-        if (response.statusCode !== 200) {
-            console.log("url [" + url + "] returned status [" + response.statusCode + "]");
-            home.social.instagram.feed = [];
-            return
-        }
-
-        try {
-            home.social.instagram.feed = JSON.parse(body).data;
-        } catch (err) {
-            console.log(err);
-        }
+    request(url)
+    .then(function(response) {
+        home.social.instagram.feed = JSON.parse(response).data;
+    })
+    .catch(function(ex) {
+        console.log(ex);
+        home.social.instagram.feed = [];
     });
 }
 
@@ -150,6 +140,12 @@ function twitterFeed(config) {
 //
 
 function makeError(ex) {
+    if (typeof ex === "string") {
+        console.log(ex);
+        return {message: ex};
+    }
+
+    console.log(ex.stack);
     return {message: ex.message, stack: ex.stack};
 }
 
@@ -168,12 +164,7 @@ function sendError(res, ex, status) {
         status = 500;
     }
 
-    if (typeof ex === "string") {
-        res.status(status).send(ex);
-    } else {
-        console.log(ex.stack);
-        res.status(status).send(makeError(ex));
-    }
+    res.status(status).send(makeError(ex));
 }
 
 
@@ -184,6 +175,14 @@ module.exports = function(app, config, secrets, debug) {
     var helpAndFaq = mdd.Transform(fs.readFileSync(config.cust.serverDir + "/docs/HelpAndFaq.md", "utf8"));
 
     var vars = {config: config.client};
+
+    function makeVars(extraVars) {
+        return extend({}, vars, extraVars);
+    }
+
+    function renderError(res, ex) {
+        res.render('error', makeVars({error: makeError(ex)}));
+    }
 
     var cb = new Codebird;
     cb.setConsumerKey(config.client.social.twitter.consumer_key, secrets.social.twitter.consumer_secret);
@@ -213,7 +212,7 @@ module.exports = function(app, config, secrets, debug) {
         // NOTE: i18n available as req.i18n.t or just req.t
         // Also res.locals.t
         //
-        res.render('home', extend({}, vars, {home: home}));
+        res.render('home', makeVars({home: home}));
     });
 
     app.get('/config', function(req,res) {
@@ -233,29 +232,24 @@ module.exports = function(app, config, secrets, debug) {
     });
 
     app.get("/help", function(req, res) {
-        res.render('help', extend({}, vars, {page: helpAndFaq}));
+        res.render('help', makeVars({page: helpAndFaq}));
     });
 
     app.get("/voyage/*", function(req, res) {
         var arr = req.url.slice(8).split('/');
+
+        var trackId = arr[0];
+
         if (arr[0] < 1) res.render('voyage');
         var url = config.wildbook.authUrl
-            + "/rest/org.ecocean.survey.SurveyTrack?id==" + arr[0];
+            + "/rest/org.ecocean.survey.SurveyTrack?id==" + trackId;
         if (debug) {
             console.log(url);
         }
 
-        request(url, function(error, response, body) {
-            var data;
-            if (error) {
-                console.log(error);
-                data = {error: makeError(error)};
-            } else if (response.statusCode !== 200) {
-                console.log("url [" + url + "] returned status [" + response.statusCode + "]");
-                data = {error: {status: response.statusCode}};
-            } else {
-                data = {"ind": JSON.parse(body)};
-            }
+        request(url)
+        .then(function(response) {
+            var data = {"ind": JSON.parse(response)};
 
             var match = {
                 link: '<a href="/xxxx">yyy</a>',
@@ -269,7 +263,14 @@ module.exports = function(app, config, secrets, debug) {
                 },
             };
 
-            res.render('voyage', extend({}, vars, {surveyTrackID: arr[0], mediaID: arr[1], matchID: arr[2], match: match, surveyTrack: data}));
+            res.render('voyage', makeVars({surveyTrackID: trackId,
+                                           mediaID: arr[1],
+                                           matchID: arr[2],
+                                           match: match,
+                                           surveyTrack: data}));
+        })
+        .catch(function(ex) {
+            renderError(res, new VError(ex, "Trouble getting voyage [" + trackId + "]"));
         });
     });
 
@@ -281,22 +282,18 @@ module.exports = function(app, config, secrets, debug) {
         if (debug) {
             console.log(url);
         }
-        request(url, function(error, response, body) {
-            var data;
-            if (error) {
-                console.log(error.stack);
-                data = {error: makeError(error)};
-            } else if (response.statusCode !== 200) {
-                console.log("url [" + url + "] returned status [" + response.statusCode + "]");
-                data = {error: {message: response.statusCode}};
-            } else {
-                data = {"ind": JSON.parse(body)};
-            }
+
+        request(url)
+        .then(function(response) {
+            var data = {"ind": JSON.parse(response)};
 
             if (debug) {
                 console.log("Got data: " + JSON.stringify(data));
             }
-            res.render("individual", extend({}, vars, {page: data}));
+            res.render("individual", makeVars({data: data}));
+        })
+        .catch(function(ex) {
+            renderError(res, new VError(ex, "Can't get individual [" + id + "]"));
         });
     });
 
@@ -357,6 +354,6 @@ module.exports = function(app, config, secrets, debug) {
     //=================
 
     app.get('*', function(req, res) {
-        res.render('404', vars);
+        renderError(res, "I'm sorry, the page or resource at [" + req.url + "] you are searching for is currently unavailable.");
     });
 };
