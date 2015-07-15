@@ -256,7 +256,7 @@ module.exports = function(app, config, secrets, debug) {
         var id = req.url.slice(12);
 //        http://tomcat:tomcat123@wildbook.happywhale.com/rest/org.ecocean.MarkedIndividual?individualID==%27<search_string>%27
 
-        var url = config.wildbook.authUrl + "/obj/individual/get/" + id;
+        var url = config.wildbook.authUrl + "/data/individual/get/" + id;
         if (debug) {
             console.log(url);
         }

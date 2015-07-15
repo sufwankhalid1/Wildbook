@@ -25,6 +25,19 @@ public class SimpleFactory {
     }
 
 
+    public static SimpleUser getUser(final String context,
+                                     final String username) {
+        Shepherd myShepherd = new Shepherd(context);
+        User user = myShepherd.getUser(username);
+
+        if (user == null) {
+            return null;
+        }
+
+        return getUser(user);
+    }
+
+
     public static SimpleIndividual getIndividual(final String context,
                                                  final MarkedIndividual mi) {
 
@@ -109,8 +122,15 @@ public class SimpleFactory {
         //
         // TODO: Specify user icon form MediaAsset
         //
-//        su.setAvatar();
-        su.setEmailAddress(user.getEmailAddress());
+        if (user.getUserImage() != null) {
+            su.setAvatar(user.getUserImage().webPath().getFile());
+        }
+
+        //
+        // Keep secret?
+        //
+//        su.setEmailAddress(user.getEmailAddress());
+        su.setAffiliation(user.getAffiliation());
         su.setFullName(user.getFullName());
 
         return su;
