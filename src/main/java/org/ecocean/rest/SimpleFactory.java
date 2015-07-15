@@ -119,9 +119,6 @@ public class SimpleFactory {
     {
         SimpleUser su = new SimpleUser(user.getUsername());
 
-        //
-        // TODO: Specify user icon form MediaAsset
-        //
         if (user.getUserImage() != null) {
             su.setAvatar(user.getUserImage().webPath().getFile());
         }
