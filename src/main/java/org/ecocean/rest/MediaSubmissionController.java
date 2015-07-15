@@ -226,6 +226,7 @@ System.out.println(sql);
             spv.setDataCollectionEventID(rs.getString("mid"));
             media.add(spv);
         }
+        db.release();
         String context = "context0";
         context = ServletUtilities.getContext(request);
         return MediaSubmission.findMediaSources(media, context);

@@ -204,6 +204,7 @@ public class MediaSubmission {
             SinglePhotoVideo spv = myShepherd.getSinglePhotoVideo(rs.getString("mediaid"));
             if (spv != null) media.add(spv);
         }
+        db.release();
         return media;
     }
 
