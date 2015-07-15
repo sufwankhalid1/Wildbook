@@ -18,16 +18,21 @@
 
 package org.ecocean.media;
 
-import java.io.*;
+import java.io.File;
 import java.net.URL;
-import java.util.Set;
 import java.nio.file.Path;
-
-import com.samsix.database.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.ecocean.*;
+
+import com.samsix.database.Database;
+import com.samsix.database.DatabaseException;
+import com.samsix.database.RecordSet;
+import com.samsix.database.SqlFormatter;
+import com.samsix.database.SqlInsertFormatter;
+import com.samsix.database.SqlUpdateFormatter;
+import com.samsix.database.SqlWhereFormatter;
+import com.samsix.database.Table;
 
 /**
  * MediaAsset describes a photo or video that can be displayed or used
@@ -218,7 +223,7 @@ public class MediaAsset {
             SqlInsertFormatter formatter = new SqlInsertFormatter();
             fillFormatter(formatter);
 
-            id = (long)table.insertSequencedRow(formatter, "id");
+            id = table.insertSequencedRow(formatter, "id");
         } else {
             SqlUpdateFormatter formatter = new SqlUpdateFormatter();
             fillFormatter(formatter);

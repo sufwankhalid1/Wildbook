@@ -9,18 +9,24 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.samsix.database.DatabaseException;
-
 @RestController
-@RequestMapping(value = "/obj/individual")
+@RequestMapping(value = "/data")
 public class IndividualController
 {
-    @RequestMapping(value = "/get/{id}", method = RequestMethod.GET)
-    public SimpleIndividual get(final HttpServletRequest request,
-                                @PathVariable("id")
-                                final String id)
-        throws DatabaseException
+    @RequestMapping(value = "/individual/get/{id}", method = RequestMethod.GET)
+    public SimpleIndividual getIndividual(final HttpServletRequest request,
+                                          @PathVariable("id")
+                                          final String id)
     {
         return SimpleFactory.getIndividual(ServletUtilities.getContext(request), id);
+    }
+
+
+    @RequestMapping(value = "/user/get/{username}", method = RequestMethod.GET)
+    public SimpleUser getUser(final HttpServletRequest request,
+                              @PathVariable("username")
+                              final String username)
+    {
+        return SimpleFactory.getUser(ServletUtilities.getContext(request), username);
     }
 }
