@@ -28,7 +28,7 @@
         "extend": "3.0.0",
         "codebird": "2.6.0",
         "xhr2": "0.1.2",
-        "markdown": "0.5.0"
+        "markdowndeep": "1.6.8"
     },
     "engines": {
         "node": "0.12.0",

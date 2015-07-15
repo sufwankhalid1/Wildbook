@@ -18,7 +18,21 @@
 
 var request = require('request');
 var extend = require('extend');
-var markdown = require("markdown").markdown;
+
+//
+// Switching to markdowndeep so that we can add target=_blank links in hand-coded html references.
+// But this doesn't work for <a href="#" ng-model="terms()">Usage Agreement</a>. It *still* escapes
+// the < > in that case. ugh.
+//
+//var markdown = require("markdown").markdown;
+var MarkdownDeep = require('markdowndeep');
+var mdd = new MarkdownDeep.Markdown();
+mdd.ExtraMode = true;
+//
+// This will make it so that html code is escaped which we don't want for our Help page.
+//
+//mdd.SafeMode = true;
+
 var fs = require('fs');
 
 //
@@ -164,8 +178,10 @@ function sendError(res, ex, status) {
 
 
 module.exports = function(app, config, secrets, debug) {
-    var usageAgreement = markdown.toHTML(fs.readFileSync(config.cust.serverDir + "/docs/UsageAgreement.md", "utf8"));
-    var helpAndFaq = markdown.toHTML(fs.readFileSync(config.cust.serverDir + "/docs/HelpAndFaq.md", "utf8"));
+//    var usageAgreement = markdown.toHTML(fs.readFileSync(config.cust.serverDir + "/docs/UsageAgreement.md", "utf8"));
+//    var helpAndFaq = markdown.toHTML(fs.readFileSync(config.cust.serverDir + "/docs/HelpAndFaq.md", "utf8"));
+    var usageAgreement = mdd.Transform(fs.readFileSync(config.cust.serverDir + "/docs/UsageAgreement.md", "utf8"));
+    var helpAndFaq = mdd.Transform(fs.readFileSync(config.cust.serverDir + "/docs/HelpAndFaq.md", "utf8"));
 
     var vars = {config: config.client};
 
