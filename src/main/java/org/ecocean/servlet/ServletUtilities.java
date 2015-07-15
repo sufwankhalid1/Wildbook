@@ -267,21 +267,24 @@ public class ServletUtilities {
       try {
         StringBuffer SBreader = new StringBuffer();
         String line;
-        FileReader fileReader = new FileReader(findResourceOnFileSystem(fileName));
+
+        File file = findResourceOnFileSystem(fileName);
+
+        FileReader fileReader = new FileReader(file);
 
         BufferedReader buffread = new BufferedReader(fileReader);
         while ((line = buffread.readLine()) != null) {
           SBreader.append(line + "\n");
         }
+
         line = SBreader.toString();
         fileReader.close();
         buffread.close();
         return line;
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            return "";
-        }
+      } catch (Exception ex) {
+        ex.printStackTrace();
+        return "";
+      }
     }
   }
 

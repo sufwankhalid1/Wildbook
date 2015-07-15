@@ -6,4 +6,5 @@ create table mediaasset
     path text not null,
     parent integer references mediaasset(id),
     unique (store, path)
-)
+);
+
