@@ -36,7 +36,7 @@ block content
                     span.glyphicon.glyphicon-chevron-right
         h2= t("individual.contributors")
         hr
-        for submitter in data.ind.submitters
+        for user in data.ind.submitters
             ul.submitters
                 li
                     include partials/user
