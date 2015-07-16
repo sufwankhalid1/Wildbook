@@ -28,25 +28,27 @@ import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.ecocean.util.StringUtils;
+
 public class CommonConfiguration {
-  
+
   private static final String COMMON_CONFIGURATION_PROPERTIES = "commonConfiguration.properties";
-  
+
   private static Map<String, Properties> propMap = new HashMap<String, Properties>();
 
-  
+
   private static Properties get(String context) {
     Properties props = propMap.get(context);
     if (props == null) {
       props = loadProps(context);
       propMap.put(context, props);
     }
-    
+
     return props;
   }
 
 
-  
+
   private static synchronized Properties loadProps(String context) {
       Properties props=new Properties();
       try {
@@ -110,10 +112,10 @@ public class CommonConfiguration {
   public static String getHTMLDescription(String context) {
     return getProperty("htmlDescription",context).trim();
   }
-  
+
   public static int getMaxMediaSizeInMegabytes(String context){
     int maxSize=10;
-    
+
     try{
       String sMaxSize=getProperty("maxMediaSize", context);
       if(sMaxSize!=null){
@@ -160,7 +162,7 @@ public class CommonConfiguration {
     if (prop.startsWith("http:")) {
         return prop;
     }
-    
+
     return "http://" + CommonConfiguration.getURLLocation(request) + prop;
   }
 
@@ -187,7 +189,7 @@ public class CommonConfiguration {
   public static String getProperty(String name, String context) {
     return get(context).getProperty(name);
   }
-  
+
   public static Enumeration<?> getPropertyNames(String context) {
     return get(context).propertyNames();
   }
@@ -196,19 +198,19 @@ public class CommonConfiguration {
     Properties myProps=get(context);
     //System.out.println(myProps.toString());
     ArrayList<String> returnThese=new ArrayList<String>();
-    
+
     //System.out.println("Looking for: "+propertyPrefix);
-    
+
     int iter=0;
     while(myProps.getProperty(propertyPrefix+iter)!=null){
       //System.out.println("Found: "+propertyPrefix+iter);
       returnThese.add(myProps.getProperty((propertyPrefix+iter)));
       iter++;
     }
-    
+
     return returnThese;
   }
-  
+
 
   /*
    * This method is used to determined the show/hide condition of an element of the UI.
@@ -316,23 +318,23 @@ public class CommonConfiguration {
     }
     return useTapirLink;
   }
-  
+
   public static boolean showMeasurements(String context) {
     return showCategory("showMeasurements",context);
   }
-  
+
   public static boolean showMetalTags(String context) {
     return showCategory("showMetalTags",context);
   }
-  
+
   public static boolean showAcousticTag(String context) {
     return showCategory("showAcousticTag",context);
   }
-  
+
   public static boolean showSatelliteTag(String context) {
     return showCategory("showSatelliteTag",context);
   }
-  
+
   public static boolean showReleaseDate(String context) {
     return showCategory("showReleaseDate",context);
   }
@@ -341,11 +343,15 @@ public class CommonConfiguration {
                                                    originalString, String emailAddress, String context) {
     get(context);
     if (getProperty("removeEmailString",context) != null) {
-      originalString=originalString.replaceAll("REMOVEME",("\n\n" + getProperty("removeEmailString",context) + "\nhttp://" + getURLLocation(request) + "/removeEmailAddress.jsp?hashedEmail=" + Encounter.getHashOfEmailString(emailAddress)));
+      originalString = originalString.replaceAll("REMOVEME",("\n\n" + getProperty("removeEmailString",context)
+              + "\nhttp://"
+              + getURLLocation(request)
+              + "/removeEmailAddress.jsp?hashedEmail="
+              + StringUtils.getHashOfCommaList(emailAddress)));
     }
     return originalString;
   }
-  
+
   public static List<String> getIndexedValues(String baseKey, String context) {
     List<String> list = new ArrayList<String>();
     boolean hasMore = true;
@@ -365,7 +371,7 @@ public class CommonConfiguration {
     }
     return list;
   }
-  
+
   public static Integer getIndexNumberForValue(String baseKey, String checkValue, String context){
     System.out.println("getIndexNumberForValue started for baseKey "+baseKey+" and checkValue "+checkValue);
     boolean hasMore = true;
@@ -386,28 +392,28 @@ public class CommonConfiguration {
     }
     return null;
   }
-  
-  
+
+
   private static boolean showCategory(final String category, String context) {
     String showMeasurements = getProperty(category,context);
     return !Boolean.FALSE.toString().equals(showMeasurements);
   }
 
-  
-  
+
+
   public static String getDataDirectoryName(String context) {
     get(context);
     String dataDirectoryName="shepherd_data_dir";
-    
+
     //new context code here
-    
+
     //if(props.getProperty("dataDirectoryName")!=null){return props.getProperty("dataDirectoryName").trim();}
-    
+
     if((ContextConfiguration.getDataDirForContext(context)!=null)&&(!ContextConfiguration.getDataDirForContext(context).trim().equals(""))){dataDirectoryName=ContextConfiguration.getDataDirForContext(context);}
-    
+
     return dataDirectoryName;
   }
-  
+
   /**
    * This configuration option defines whether information about User objects associated with Encounters and MarkedIndividuals will be displayed to web site viewers.
    *
@@ -421,10 +427,10 @@ public class CommonConfiguration {
     }
     return showUsersToPublic;
   }
-  
-  
+
+
   public static boolean isIntegratedWithWildMe(String context){
-    
+
     get(context);
     boolean integrated = true;
     if ((getProperty("isIntegratedWithWildMe",context) != null) && (getProperty("isIntegratedWithWildMe",context).equals("false"))) {
@@ -432,6 +438,6 @@ public class CommonConfiguration {
     }
     return integrated;
   }
-  
-  
+
+
 }

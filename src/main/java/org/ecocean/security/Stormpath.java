@@ -3,28 +3,25 @@ package org.ecocean.security;
 
 
 
-import org.ecocean.*;
-
-import java.io.File;
 import java.util.HashMap;
-import java.lang.Exception;
 
-import org.ecocean.servlet.ServletUtilities;
+import org.ecocean.User;
+import org.ecocean.Util;
 
-import javax.servlet.http.HttpServletRequest;
-
-import com.stormpath.sdk.client.Clients;
-import com.stormpath.sdk.client.Client;
-import com.stormpath.sdk.api.ApiKeys;
+import com.stormpath.sdk.account.Account;
+import com.stormpath.sdk.account.AccountList;
 import com.stormpath.sdk.api.ApiKey;
-import com.stormpath.sdk.tenant.*;
-import com.stormpath.sdk.application.*;
-import com.stormpath.sdk.account.*;
-import com.stormpath.sdk.application.*;
-import com.stormpath.sdk.directory.*;
-import com.stormpath.sdk.resource.ResourceException;
+import com.stormpath.sdk.api.ApiKeys;
+import com.stormpath.sdk.application.Application;
+import com.stormpath.sdk.application.ApplicationList;
+import com.stormpath.sdk.application.Applications;
 import com.stormpath.sdk.authc.AuthenticationResult;
 import com.stormpath.sdk.authc.UsernamePasswordRequest;
+import com.stormpath.sdk.client.Client;
+import com.stormpath.sdk.client.Clients;
+import com.stormpath.sdk.directory.CustomData;
+import com.stormpath.sdk.resource.ResourceException;
+import com.stormpath.sdk.tenant.Tenant;
 
 /************************************************************
       DOCS:  http://docs.stormpath.com/java/quickstart/
@@ -39,15 +36,10 @@ public class Stormpath {
     // we cache the application too.  is this lame?
     private static Application myApplication = null;
 
-    public static Client getClient(HttpServletRequest request) {
+    public static Client getClient(String config) {
         if (myClient != null) return myClient;
-        String context = "context0";
-        context = ServletUtilities.getContext(request);
 
-        //TODO must be a better way to go from request -> path where .properties files are ???
-        String propPath = request.getSession().getServletContext().getRealPath("/") + "/WEB-INF/classes/bundles/stormpathApiKey.properties";
-//System.out.println("propPath -> " + propPath);
-        ApiKey apiKey = ApiKeys.builder().setFileLocation(propPath).build();
+        ApiKey apiKey = ApiKeys.builder().setFileLocation(config).build();
         myClient = Clients.builder().setApiKey(apiKey).build();
         //If using Google App Engine, you must use Basic authentication:
         //Client client = Clients.builder().setApiKey(apiKey)

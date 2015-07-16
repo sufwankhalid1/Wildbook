@@ -19,30 +19,30 @@
 
 package org.ecocean;
 
-import org.apache.commons.codec.digest.DigestUtils;
-
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.Vector;
-import java.util.GregorianCalendar;
-import java.io.*;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.ecocean.genetics.*;
+import org.datanucleus.api.rest.orgjson.JSONObject;
+import org.ecocean.genetics.BiologicalMeasurement;
+import org.ecocean.genetics.GeneticAnalysis;
+import org.ecocean.genetics.MitochondrialDNAAnalysis;
+import org.ecocean.genetics.SexAnalysis;
+import org.ecocean.genetics.TissueSample;
+import org.ecocean.security.Collaboration;
 import org.ecocean.tag.AcousticTag;
 import org.ecocean.tag.MetalTag;
 import org.ecocean.tag.SatelliteTag;
-import org.ecocean.Util;
-
+import org.ecocean.util.StringUtils;
 //import org.datanucleus.api.rest.orgjson.JSONArray;
 //import org.datanucleus.api.rest.orgjson.JSONException;
-import org.datanucleus.api.rest.orgjson.JSONObject;
-
-import org.ecocean.security.Collaboration;
 
 
 
@@ -108,10 +108,10 @@ public class Encounter implements java.io.Serializable {
   //Date the encounter was added to the library.
   private String dwcDateAdded;
   private Long dwcDateAddedLong;
-  
+
   // If Encounter spanned more than one day, date of release
   private Date releaseDate;
-  
+
   private Long releaseDateLong;
 
   //Size of the individual in meters
@@ -123,7 +123,7 @@ public class Encounter implements java.io.Serializable {
   //username of the logged in researcher assigned to the encounter
   //this STring is matched to an org.ecocean.User object to obtain more information
   private String submitterID;
-  
+
   //name, email, phone, address of the encounter reporter
   private String submitterEmail, submitterPhone, submitterAddress;
   private String hashedSubmitterEmail;
@@ -135,13 +135,13 @@ public class Encounter implements java.io.Serializable {
   //a Vector of Strings defining the relative path to each photo. The path is relative to the servlet base directory
   public Vector<String> additionalImageNames = new Vector<String>();
   //a Vector of Strings of email addresses to notify when this encounter is modified
-  private Vector<String> interestedResearchers = new Vector<String>();
+  public Vector<String> interestedResearchers = new Vector<String>();
   //time metrics of the report
   private int hour = 0;
   private String minutes = "00";
-  
+
   private String state="";
-  
+
   //the globally unique identifier (GUID) for this Encounter
   private String guid;
 
@@ -152,7 +152,7 @@ public class Encounter implements java.io.Serializable {
   private String gpsLongitude = "", gpsLatitude = "";
   //whether this encounter has been rejected and should be hidden from public display
   //unidentifiable encounters generally contain some data worth saving but not enough for accurate photo-identification
-  private boolean unidentifiable = false;
+  private final boolean unidentifiable = false;
   //whether this encounter has a left-side spot image extracted
   public boolean hasSpotImage = false;
   //whether this encounter has a right-side spot image extracted
@@ -160,7 +160,7 @@ public class Encounter implements java.io.Serializable {
   //Indicates whether this record can be exposed via TapirLink
   private boolean okExposeViaTapirLink = false;
   //whether this encounter has been approved for public display
-  private boolean approved = true;
+  private final boolean approved = true;
   //integers of the latitude and longitude degrees
   //private int lat=-1000, longitude=-1000;
   //name of the stored file from which the left-side spots were extracted
@@ -212,7 +212,7 @@ public class Encounter implements java.io.Serializable {
   private SatelliteTag satelliteTag;
 
   private Boolean mmaCompatible = false;
-  
+
   //start constructors
 
   /**
@@ -232,7 +232,7 @@ public class Encounter implements java.io.Serializable {
     this.submitterEmail = submitterEmail;
 
     //now we need to set the hashed form of the email addresses
-    this.hashedSubmitterEmail = Encounter.getHashOfEmailString(submitterEmail);
+    this.hashedSubmitterEmail = StringUtils.getHashOfCommaList(submitterEmail);
 
     this.images = images;
     this.day = day;
@@ -458,7 +458,7 @@ public class Encounter implements java.io.Serializable {
 
   public void setSubmitterEmail(String newemail) {
     submitterEmail = newemail;
-    this.hashedSubmitterEmail = Encounter.getHashOfEmailString(newemail);
+    this.hashedSubmitterEmail = StringUtils.getHashOf(newemail);
   }
 
   /**
@@ -523,7 +523,7 @@ public class Encounter implements java.io.Serializable {
    */
   public void setPhotographerEmail(String email) {
     photographerEmail = email;
-    this.hashedPhotographerEmail = Encounter.getHashOfEmailString(email);
+    this.hashedPhotographerEmail = StringUtils.getHashOf(email);
   }
 
   /**
@@ -589,12 +589,12 @@ public class Encounter implements java.io.Serializable {
    */
   public Vector<String> getAdditionalImageNames() {
     Vector<String> imageNamesOnly=new Vector<String>();
-    
+
     //List<SinglePhotoVideo> images=getCollectedDataOfClass(SinglePhotoVideo.class);
     if((images!=null)&&(images.size()>0)){
       int imagesSize=images.size();
       for(int i=0;i<imagesSize;i++){
-        SinglePhotoVideo dce=(SinglePhotoVideo)images.get(i);
+        SinglePhotoVideo dce=images.get(i);
         imageNamesOnly.add(dce.getFilename());
       }
     }
@@ -623,8 +623,8 @@ public class Encounter implements java.io.Serializable {
     //additionalImageNames.add(fileName);
   }
 */
-  
-  
+
+
   /**
    * Removes the specified additional image from this encounter.
    *
@@ -634,20 +634,20 @@ public class Encounter implements java.io.Serializable {
   public void removeAdditionalImageName(String imageFile) {
 
     for (int i = 0; i < collectedData.size(); i++) {
-   
-        
+
+
       String thisName = images.get(i).getFilename();
       if ((thisName.equals(imageFile)) || (thisName.indexOf("#") != -1)) {
         images.remove(i);
         i--;
       }
-    
+
     }
 
 
   }
   */
-  
+
   /*
   public void removeDataCollectionEvent(DataCollectionEvent dce) {
    collectedData.remove(dce);
@@ -722,7 +722,7 @@ public class Encounter implements java.io.Serializable {
 
     if (day > 0) {
       date = String.format("%04d-%02d-%02d %s", year, month, day, time);
-    } 
+    }
     else if(month>-1) {
       date = String.format("%04d-%02d %s", year, month, time);
     }
@@ -815,8 +815,8 @@ public class Encounter implements java.io.Serializable {
 
   /**
    * A legacy method replaced by setLocationID(...).
-   * 
-   * 
+   *
+   *
    */
   public void setLocationCode(String newLoc) {
     setLocationID(newLoc);
@@ -855,7 +855,7 @@ public class Encounter implements java.io.Serializable {
   public void setMatchedBy(String matchType) {
     identificationRemarks = matchType;
   }
-  
+
   public void setIdentificationRemarks(String matchType) {
     identificationRemarks = matchType;
   }
@@ -961,14 +961,14 @@ public class Encounter implements java.io.Serializable {
     if(username!=null){submitterID = username;}
     else{submitterID=null;}
   }
-  
+
 
 
   //old method. use getAssignedUser() instead
   public String getSubmitterID() {
     return getAssignedUsername();
   }
-  
+
   public String getAssignedUsername() {
     return submitterID;
   }
@@ -981,14 +981,14 @@ public class Encounter implements java.io.Serializable {
     interestedResearchers.add(email);
   }
 
-  
+
   public boolean isApproved() {
     return approved;
   }
 
   public void removeInterestedResearcher(String email) {
     for (int i = 0; i < interestedResearchers.size(); i++) {
-      String rName = (String) interestedResearchers.get(i);
+      String rName = interestedResearchers.get(i);
       if (rName.equals(email)) {
         interestedResearchers.remove(i);
       }
@@ -1172,7 +1172,7 @@ public class Encounter implements java.io.Serializable {
   public void setNumLeftSpots(int numspots) {
     numSpotsLeft = numspots;
   }
-  
+
   public void setNumRightSpots(int numspots) {
     numSpotsRight = numspots;
   }
@@ -1200,7 +1200,7 @@ public class Encounter implements java.io.Serializable {
   public String getDWCDateAdded() {
     return dwcDateAdded;
   }
-  
+
   public Long getDWCDateAddedLong(){
     return dwcDateAddedLong;
   }
@@ -1208,8 +1208,8 @@ public class Encounter implements java.io.Serializable {
   public void setDWCDateAdded(String m_dateAdded) {
     dwcDateAdded = m_dateAdded;
   }
-  
-  
+
+
  public void setDWCDateAdded(Long m_dateAdded) {
     dwcDateAddedLong = m_dateAdded;
     //org.joda.time.DateTime dt=new org.joda.time.DateTime(dwcDateAddedLong.longValue());
@@ -1223,7 +1223,7 @@ public class Encounter implements java.io.Serializable {
   public Date getReleaseDateDONOTUSE() {
     return releaseDate;
   }
-  
+
    public Date getReleaseDate() {
     if((releaseDateLong!=null)&&(releaseDateLong>0)){
       Date mDate=new Date(releaseDateLong);
@@ -1231,7 +1231,7 @@ public class Encounter implements java.io.Serializable {
     }
     return null;
   }
-   
+
    public Long getReleaseDateLong(){return releaseDateLong;}
 
   public void setReleaseDate(Long releaseDate) {
@@ -1307,7 +1307,7 @@ public class Encounter implements java.io.Serializable {
 
   public void setInformOthers(String others) {
     this.informothers = others;
-    this.hashedInformOthers = Encounter.getHashOfEmailString(others);
+    this.hashedInformOthers = StringUtils.getHashOfCommaList(others);
   }
 
   public String getLocationID() {
@@ -1362,9 +1362,9 @@ public class Encounter implements java.io.Serializable {
           individualID=indy;
         }
   }
-  
+
   /*
-   * 
+   *
    *   public String getGPSLatitude() {
     if (gpsLatitude == null) {
       return "";
@@ -1537,23 +1537,6 @@ public class Encounter implements java.io.Serializable {
     return hashedInformOthers;
   }
 
-  public static String getHashOfEmailString(String hashMe) {
-    String returnString = "";
-    StringTokenizer tokenizer = new StringTokenizer(hashMe, ",");
-    while (tokenizer.hasMoreTokens()) {
-      String emailAddress = tokenizer.nextToken().trim().toLowerCase();
-      if (!emailAddress.equals("")) {
-        String md5 = DigestUtils.md5Hex(emailAddress);
-        if (returnString.equals("")) {
-          returnString += md5;
-        } else {
-          returnString += "," + md5;
-        }
-      }
-    }
-    return returnString;
-  }
-
   public String getGenus() {
     return genus;
   }
@@ -1593,7 +1576,7 @@ public class Encounter implements java.io.Serializable {
   }
 
   public java.lang.Long getDateInMilliseconds(){return dateInMilliseconds;}
-  
+
 
   public String getDecimalLatitude(){
     if(decimalLatitude!=null){return Double.toString(decimalLatitude);}
@@ -1650,7 +1633,7 @@ public class Encounter implements java.io.Serializable {
       }
       return result;
     }
-    
+
     public <T extends DataCollectionEvent> List<T> getCollectedDataOfClassAndType(Class<T> clazz, String type) {
       List<T> collectedDataOfClass = getCollectedDataOfClass(clazz);
       List<T> result = new ArrayList<T>();
@@ -1661,14 +1644,14 @@ public class Encounter implements java.io.Serializable {
       }
       return result;
     }
-    
+
     public void addCollectedDataPoint(DataCollectionEvent dce){
       if(collectedData==null){collectedData=new ArrayList<DataCollectionEvent>();}
       if(!collectedData.contains(dce)){collectedData.add(dce);}
     }
     public void removeCollectedDataPoint(int num){collectedData.remove(num);}
     */
-    
+
     public void addTissueSample(TissueSample dce){
       if(tissueSamples==null){tissueSamples=new ArrayList<TissueSample>();}
       if(!tissueSamples.contains(dce)){tissueSamples.add(dce);}
@@ -1684,9 +1667,9 @@ public class Encounter implements java.io.Serializable {
     public void removeSinglePhotoVideo(int num){images.remove(num);}
     public List<SinglePhotoVideo> getSinglePhotoVideo(){return images;}
     public void removeSinglePhotoVideo(SinglePhotoVideo num){images.remove(num);}
-    
-    
-    
+
+
+
     public void addMeasurement(Measurement measurement){
       if(measurements==null){measurements=new ArrayList<Measurement>();}
       if(!measurements.contains(measurement)){measurements.add(measurement);}
@@ -1705,22 +1688,22 @@ public class Encounter implements java.io.Serializable {
       }
       return null;
     }
-    
+
     public void addMetalTag(MetalTag metalTag) {
       if (metalTags == null) {
         metalTags = new ArrayList<MetalTag>();
       }
       metalTags.add(metalTag);
     }
-    
+
     public void removeMetalTag(MetalTag metalTag) {
       metalTags.remove(metalTag);
     }
-    
+
     public List<MetalTag> getMetalTags() {
       return metalTags;
     }
-    
+
     public MetalTag findMetalTagForLocation(String location) {
       List<MetalTag> metalTags = getMetalTags();
       if (metalTags != null) {
@@ -1732,7 +1715,7 @@ public class Encounter implements java.io.Serializable {
       }
       return null;
     }
-    
+
     public AcousticTag getAcousticTag() {
       return acousticTag;
     }
@@ -1754,11 +1737,11 @@ public class Encounter implements java.io.Serializable {
       if(newStage!=null){lifeStage = newStage;}
       else{lifeStage=null;}
     }
-    
-    
+
+
     /**
-     * A convenience method that returns the first haplotype found in the TissueSamples for this Encounter. 
-     * 
+     * A convenience method that returns the first haplotype found in the TissueSamples for this Encounter.
+     *
      *@return a String if found or null if no haplotype is found
      */
     public String getHaplotype(){
@@ -1782,10 +1765,10 @@ public class Encounter implements java.io.Serializable {
       }
       return null;
     }
-    
+
     /**
-     * A convenience method that returns the first genetic sex found in the TissueSamples for this Encounter. 
-     * 
+     * A convenience method that returns the first genetic sex found in the TissueSamples for this Encounter.
+     *
      *@return a String if found or null if no genetic sex is found
      */
     public String getGeneticSex(){
@@ -1810,31 +1793,31 @@ public class Encounter implements java.io.Serializable {
       }
       return null;
     }
-    
+
     public List<SinglePhotoVideo> getImages(){return images;}
-    
+
     public boolean hasKeyword(Keyword word){
      int imagesSize=images.size();
      for(int i=0;i<imagesSize;i++){
        SinglePhotoVideo image=images.get(i);
        if(image.getKeywords().contains(word)){return true;}
      }
-     return false; 
+     return false;
     }
 
     public String getState(){return state;}
-    
+
     public void setState(String newState){this.state=newState;}
-    
+
     //DO NOT USE - LEGACY MIGRATION ONLY
     public boolean getApproved(){return approved;}
     public boolean getUnidentifiable(){return unidentifiable;}
-    
+
     public Vector getOldAdditionalImageNames(){return additionalImageNames;}
-    
+
     public Double getLatitudeAsDouble(){return decimalLatitude;}
     public Double getLongitudeAsDouble(){return decimalLongitude;}
-    
+
     public boolean hasMeasurements(){
       if((measurements!=null)&&(measurements.size()>0)){
         int numMeasurements=measurements.size();
@@ -1845,7 +1828,7 @@ public class Encounter implements java.io.Serializable {
       }
       return false;
     }
-    
+
     public boolean hasMeasurement(String type){
       if((measurements!=null)&&(measurements.size()>0)){
         int numMeasurements=measurements.size();
@@ -1856,9 +1839,9 @@ public class Encounter implements java.io.Serializable {
       }
       return false;
     }
-    
+
     public boolean hasBiologicalMeasurement(String type){
-      if((tissueSamples!=null)&&(tissueSamples.size()>0)){  
+      if((tissueSamples!=null)&&(tissueSamples.size()>0)){
         int numTissueSamples=tissueSamples.size();
         for(int i=0;i<numTissueSamples;i++){
           TissueSample ts=tissueSamples.get(i);
@@ -1870,9 +1853,9 @@ public class Encounter implements java.io.Serializable {
       }
       return false;
     }
-    
-    
-    
+
+
+
     /**
      * Returns the first measurement of the specified type
      * @param type
@@ -1888,9 +1871,9 @@ public class Encounter implements java.io.Serializable {
       }
       return null;
     }
-    
+
     public BiologicalMeasurement getBiologicalMeasurement(String type){
-      
+
       if(tissueSamples!=null){int numTissueSamples=tissueSamples.size();
       for(int y=0;y<numTissueSamples;y++){
         TissueSample ts=tissueSamples.get(y);
@@ -1909,21 +1892,21 @@ public class Encounter implements java.io.Serializable {
 
       return null;
     }
-    
+
     public String getCountry(){return country;}
-    
+
     public void setCountry(String newCountry) {
       if(newCountry!=null){country = newCountry;}
       else{country=null;}
     }
-    
+
     public void setOccurrenceID(String vet) {
       if(vet!=null){this.occurrenceID = vet;}
       else{this.occurrenceID=null;}
   }
-    
+
     public String getOccurrenceID(){return occurrenceID;}
-    
+
     public boolean hasSinglePhotoVideoByFileName(String filename){
         int numImages=images.size();
         for(int i=0;i<numImages;i++){

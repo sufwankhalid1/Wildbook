@@ -1,16 +1,27 @@
 package org.ecocean.rest;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 public class SimpleUser {
-    public String username;
-    public String fullName;
-    public String affiliation;
-    public String avatar;
+    private final String username;
+    private String fullName;
+    private String affiliation;
+    private String avatar;
 
-    public SimpleUser(final String username)
+    //
+    // NOTE: Do not create a getter for email because
+    // we don't want to expose that to the web. Used here for
+    // ID purposes only as that is what stormpath uses.
+    //
+    private final String email;
+
+    public SimpleUser(final String username,
+                      final String email)
     {
         this.username = username;
+        this.email = email;
     }
 
     @Override
@@ -20,15 +31,22 @@ public class SimpleUser {
             return false;
         }
 
-        return (((SimpleUser)obj).username == username);
+        SimpleUser other = (SimpleUser) obj;
+
+        return new EqualsBuilder()
+            .append(username, other.username)
+            .append(email, other.email)
+            .isEquals();
     }
 
     @Override
     public int hashCode()
     {
-        return username.hashCode();
+        return new HashCodeBuilder()
+            .append(username)
+            .append(email)
+            .toHashCode();
     }
-
 
     public String getUsername() {
         return username;
@@ -77,7 +95,23 @@ public class SimpleUser {
     }
 
     public String getAvatar() {
-        return avatar;
+        if (avatar != null) {
+            return avatar;
+        }
+
+        if (email == null) {
+            return null;
+        }
+
+        //
+        // Return 48x48 sized gravatar. They default to 80x80 and can be requested up to 2048x2048.
+        // Though most users will have used a small image.
+        // Feel free to change if you want it bigger as all the code on the browser side should
+        // be sized to fit it's use anyway.
+        //
+        return "http://www.gravatar.com/avatar/"
+            + org.ecocean.util.StringUtils.getHashOf(email.trim().toLowerCase())
+            + "?s=48";
     }
 
     public void setAvatar(String avatar) {

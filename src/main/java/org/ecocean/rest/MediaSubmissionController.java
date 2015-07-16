@@ -3,10 +3,9 @@ package org.ecocean.rest;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.Iterator;
-import java.util.HashMap;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -19,6 +18,7 @@ import org.ecocean.SinglePhotoVideo;
 import org.ecocean.User;
 import org.ecocean.Util;
 import org.ecocean.media.MediaSubmission;
+import org.ecocean.security.Stormpath;
 import org.ecocean.servlet.ServletUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,11 +27,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-
-import org.ecocean.security.Stormpath;
-import com.stormpath.sdk.client.Client;
-import com.stormpath.sdk.account.*;
-import com.stormpath.sdk.resource.ResourceException;
 
 import com.drew.imaging.ImageMetadataReader;
 import com.drew.lang.GeoLocation;
@@ -47,6 +42,9 @@ import com.samsix.database.SqlInsertFormatter;
 import com.samsix.database.SqlUpdateFormatter;
 import com.samsix.database.SqlWhereFormatter;
 import com.samsix.database.Table;
+import com.stormpath.sdk.account.Account;
+import com.stormpath.sdk.account.AccountList;
+import com.stormpath.sdk.client.Client;
 
 @RestController
 @RequestMapping(value = "/obj/mediasubmission")
@@ -284,8 +282,10 @@ System.out.println(sql);
         } else {
             email = media.getEmail();
 
+            String propPath = request.getSession().getServletContext().getRealPath("/") + "/WEB-INF/classes/bundles/stormpathApiKey.properties";
+
             //since this user is not logged into wildbook, we want to at least create a Stormpath user *if* one does not exist
-            Client client = Stormpath.getClient(request);
+            Client client = Stormpath.getClient(propPath);
             if (client != null) {
                 if (log.isDebugEnabled()) log.debug("checking on stormpath for email=" + email);
                 HashMap<String,Object> q = new HashMap<String,Object>();
