@@ -41,9 +41,26 @@ block content
                 li
                     include partials/user
         hr
-        h2= t("individual.recentActivity")
+        h2= t("individual.sightings") + ": " + data.ind.encounters.length
         hr
         
+        .container-fluid
+            .col-md-2
+                img(src="/cust/images/img_binoculars.svg" width="128px")
+            .col-md-4
+                img(src="/cust/images/img_waves.svg")
+                span.sight-date July 4th, 2015
+                span.sight-date-text= t("individual.mostRecent")
+            .col-md-6
+                span.sight-date-text= t("individual.firstKnown")
+                span.sight-date March 27, 1997
+                .container-fluid
+                    .col-md-4
+                        img(src="/cust/images/img_waves.svg")
+                    .col-md-4
+                        img(src="/cust/images/img_whale.svg")
+                    .col-md-4
+                        img(src="/cust/images/img_waves.svg")
         div
             for encounter in data.ind.encounters
                 ul.submitters
