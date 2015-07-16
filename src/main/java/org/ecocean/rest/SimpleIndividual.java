@@ -1,8 +1,9 @@
 package org.ecocean.rest;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-
+import java.util.Set;
 
 class SimpleIndividual
 {
@@ -71,6 +72,20 @@ class SimpleIndividual
 
     public List<SimpleEncounter> getEncounters() {
         return encounters;
+    }
+
+    public List<SimpleUser> getSubmitters() {
+        //
+        // Use a hash set to keep from getting duplicates
+        //
+        Set<SimpleUser> submitters = new HashSet<SimpleUser>();
+        for (SimpleEncounter encounter : encounters) {
+            if (encounter.getSubmitter() != null) {
+                submitters.add(encounter.getSubmitter());
+            }
+        }
+
+        return new ArrayList<SimpleUser>(submitters);
     }
 
 

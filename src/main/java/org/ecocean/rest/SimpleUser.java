@@ -13,6 +13,23 @@ public class SimpleUser {
         this.username = username;
     }
 
+    @Override
+    public boolean equals(final Object obj)
+    {
+        if (!(obj instanceof SimpleUser)) {
+            return false;
+        }
+
+        return (((SimpleUser)obj).username == username);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return username.hashCode();
+    }
+
+
     public String getUsername() {
         return username;
     }
