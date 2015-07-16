@@ -54,8 +54,10 @@
     "individual": {
         "meet": "Meet __individualId__",
         "contributors": "Contributors",
-        "recentActivity": "Recent Activity",
+        "sightings": "Sightings",
         "seenIndividual": "Seen this whale? Share your photos, videos, and stories.",
-        "shareExperience": "SHARE YOUR EXPERIENCE"
+        "shareExperience": "SHARE YOUR EXPERIENCE",
+        "mostRecent": "MOST RECENT",
+        "firstKnown": "FIRST KNOWN"
     }
 }

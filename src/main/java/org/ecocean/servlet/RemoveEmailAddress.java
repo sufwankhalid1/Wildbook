@@ -19,8 +19,10 @@
 
 package org.ecocean.servlet;
 
-import org.ecocean.Encounter;
-import org.ecocean.Shepherd;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.StringTokenizer;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -28,26 +30,28 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.StringTokenizer;
+import org.ecocean.Encounter;
+import org.ecocean.Shepherd;
+import org.ecocean.util.StringUtils;
 
 
 //Set alternateID for this encounter/sighting
 public class RemoveEmailAddress extends HttpServlet {
 
-  public void init(ServletConfig config) throws ServletException {
+  @Override
+public void init(ServletConfig config) throws ServletException {
     super.init(config);
   }
 
 
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+  @Override
+public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
     doPost(request, response);
   }
 
 
-  public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+  @Override
+public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
     String context="context0";
     context=ServletUtilities.getContext(request);
     Shepherd myShepherd = new Shepherd(context);
@@ -76,7 +80,7 @@ public class RemoveEmailAddress extends HttpServlet {
           for (int j = 0; j < numEmails; j++) {
             String address = st.nextToken().trim();
             if (!address.equals("")) {
-              if (request.getParameter("hashedEmail").equals(Encounter.getHashOfEmailString(address))) {
+              if (request.getParameter("hashedEmail").equals(StringUtils.getHashOf(address))) {
                 changeMe.setSubmitterEmail(changeMe.getSubmitterEmail().replaceAll(address, ""));
                 removeMe = address;
                 numInstances++;
@@ -92,7 +96,7 @@ public class RemoveEmailAddress extends HttpServlet {
           for (int j = 0; j < numEmails; j++) {
             String address = st.nextToken().trim();
             if (!address.equals("")) {
-              if (request.getParameter("hashedEmail").equals(Encounter.getHashOfEmailString(address))) {
+              if (request.getParameter("hashedEmail").equals(StringUtils.getHashOf(address))) {
                 changeMe.setPhotographerEmail(changeMe.getPhotographerEmail().replaceAll(address, ""));
                 removeMe = address;
                 numInstances++;
@@ -108,7 +112,7 @@ public class RemoveEmailAddress extends HttpServlet {
           for (int j = 0; j < numEmails; j++) {
             String address = st.nextToken().trim();
             if (!address.equals("")) {
-              if (request.getParameter("hashedEmail").equals(Encounter.getHashOfEmailString(address))) {
+              if (request.getParameter("hashedEmail").equals(StringUtils.getHashOf(address))) {
                 changeMe.setInformOthers(changeMe.getInformOthers().replaceAll(address, ""));
                 removeMe = address;
                 numInstances++;
@@ -153,5 +157,5 @@ public class RemoveEmailAddress extends HttpServlet {
     myShepherd.closeDBTransaction();
   }
 }
-  
-  
+
+

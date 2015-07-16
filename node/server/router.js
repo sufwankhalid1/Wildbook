@@ -274,12 +274,13 @@ module.exports = function(app, config, secrets, debug) {
 
         request(url)
         .then(function(response) {
-            var data = {"ind": JSON.parse(response)};
+            var data = JSON.parse(response);
 
             if (debug) {
-                console.log("Got data: " + JSON.stringify(data));
+                console.log("URL [" + url + "]:\n" + JSON.stringify(data, null, 4));
             }
-            res.render("individual", makeVars({data: data}));
+
+            res.render("individual", makeVars({data: {ind: data}}));
         })
         .catch(function(ex) {
             renderError(res, new VError(ex, "Can't get individual [" + id + "]"));

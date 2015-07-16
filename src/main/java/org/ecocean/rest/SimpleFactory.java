@@ -5,6 +5,12 @@ import org.ecocean.MarkedIndividual;
 import org.ecocean.Shepherd;
 import org.ecocean.SinglePhotoVideo;
 import org.ecocean.User;
+import org.ecocean.security.Stormpath;
+
+import com.stormpath.sdk.account.Account;
+import com.stormpath.sdk.account.AccountList;
+import com.stormpath.sdk.client.Client;
+import com.stormpath.sdk.directory.CustomData;
 
 public class SimpleFactory {
     private SimpleFactory() {
@@ -13,6 +19,7 @@ public class SimpleFactory {
 
 
     public static SimpleIndividual getIndividual(final String context,
+                                                 final Client client,
                                                  final String id) {
         Shepherd myShepherd = new Shepherd(context);
         MarkedIndividual mi = myShepherd.getMarkedIndividual(id);
@@ -21,7 +28,7 @@ public class SimpleFactory {
             return null;
         }
 
-        return getIndividual(context, mi);
+        return getIndividual(context, client, mi);
     }
 
 
@@ -39,6 +46,7 @@ public class SimpleFactory {
 
 
     public static SimpleIndividual getIndividual(final String context,
+                                                 final Client client,
                                                  final MarkedIndividual mi) {
 
         SimpleIndividual ind = new SimpleIndividual(mi.getIndividualID(), mi.getNickName());
@@ -51,7 +59,7 @@ public class SimpleFactory {
         java.util.Iterator<Encounter> it = mi.getEncounters().iterator();
         while (it.hasNext()) {
             Encounter enc = it.next();
-            ind.addEncounter(getEncounter(context, enc));
+            ind.addEncounter(getEncounter(context, client, enc));
         }
 
         //
@@ -79,7 +87,7 @@ public class SimpleFactory {
     }
 
 
-    public static SimpleEncounter getEncounter(final String context, final Encounter encounter)
+    public static SimpleEncounter getEncounter(final String context, final Client client, final Encounter encounter)
     {
         SimpleEncounter se = new SimpleEncounter(encounter.getDWCGlobalUniqueIdentifier(),
                                                  encounter.getDateInMilliseconds());
@@ -95,11 +103,18 @@ public class SimpleFactory {
             se.addPhoto(getPhoto(context, photo));
         }
 
-        Shepherd myShepherd = new Shepherd(context);
-        User user = myShepherd.getUser(encounter.getSubmitterID());
+        AccountList accounts = Stormpath.getAccounts(client, encounter.getSubmitterID());
 
-        if (user != null) {
-            se.setSubmitter(getUser(user));
+        if (accounts.getSize() < 1) {
+            Shepherd myShepherd = new Shepherd(context);
+            User user = myShepherd.getUser(encounter.getSubmitterID());
+
+            if (user != null) {
+                se.setSubmitter(getUser(user));
+            }
+        } else {
+            Account account = accounts.iterator().next();
+            se.setSubmitter(getStormpathUser(account));
         }
 
         return se;
@@ -117,17 +132,28 @@ public class SimpleFactory {
 
     public static SimpleUser getUser(final User user)
     {
-        SimpleUser su = new SimpleUser(user.getUsername());
+        System.out.println(user.getUsername());
+        System.out.println(user.getEmailAddress());
+        SimpleUser su = new SimpleUser(user.getUsername(), user.getEmailAddress());
 
         if (user.getUserImage() != null) {
             su.setAvatar(user.getUserImage().webPath().getFile());
         }
 
-        //
-        // Keep secret?
-        //
-//        su.setEmailAddress(user.getEmailAddress());
         su.setAffiliation(user.getAffiliation());
+        su.setFullName(user.getFullName());
+
+        return su;
+    }
+
+
+    public static SimpleUser getStormpathUser(final Account user)
+    {
+        SimpleUser su = new SimpleUser(user.getUsername(), user.getEmail());
+
+        CustomData data = user.getCustomData();
+
+        su.setAffiliation((String)data.get("affiliation"));
         su.setFullName(user.getFullName());
 
         return su;
