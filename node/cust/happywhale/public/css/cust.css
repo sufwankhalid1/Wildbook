@@ -20,7 +20,7 @@
 }
 
 .icon-happywhale {
-    background-image: url(../images/img_whale.svg);
+    background-image: url(../images/img_whale_circle.svg);
 }
 .icon-voyageviewer {
     background-image: url(../images/img_voyageviewer.svg);
@@ -74,7 +74,7 @@ li.active .wizard-page-header span {
 }
 
 li.active .wizard-icon.info {
-    background: url(../images/img_enterinfo_on.svg) no-repeat;
+    background: url(../images/img_user_on.svg) no-repeat;
     background-size: auto 48px;
 }
 
@@ -89,7 +89,7 @@ li.active .wizard-icon.map {
 }
 
 .wizard-icon.info {
-    background: url(../images/img_enterinfo_off.svg) no-repeat;
+    background: url(../images/img_user_off.svg) no-repeat;
     background-size: auto 48px;
 }
 

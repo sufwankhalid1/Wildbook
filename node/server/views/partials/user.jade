@@ -1,4 +1,6 @@
-//
-// Expand on this using the submitter's avatar and other stuff
-//
-div #{user.displayName}
+div.user-info
+    div.user-avatar(data-toggle="tooltip" title="#{user.displayName}")
+        if user.avatar
+            img(src="#{user.avatar}" )
+        else
+            img(src="/cust/images/img_user_on.svg")

@@ -168,6 +168,13 @@
   margin: auto;
 }
 
+.submitters {
+    /*margin: 0;*/
+    padding: 0;
+    list-style-type: none;
+    display: inline;
+}
+
 .submitters li {
     display: inline;
 }
@@ -176,3 +183,13 @@
     background-color: #E3E3E3;
     padding-top: 10px;
 }
+
+.user-avatar img {
+    width: 48px;
+    height: 48px;
+}
+
+.user-info {
+    display: inline-block;
+}
+
