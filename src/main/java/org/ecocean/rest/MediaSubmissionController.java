@@ -329,8 +329,12 @@ System.out.println(sql);
         //build the message as HTML
         //mediaSubmission.jsp?mediaSubmissionID=
         //thank the submitter and photographer
-        String thanksmessage = ServletUtilities.getText(CommonConfiguration.getDataDirectoryName(context),"thankyou.html",ServletUtilities.getLanguageCode(request));
-        String newMediaMessage=ServletUtilities.getText(CommonConfiguration.getDataDirectoryName(context),"newmedia.html",ServletUtilities.getLanguageCode(request));
+        String thanksmessage = ServletUtilities.getText(CommonConfiguration.getDataDirectoryName(context),
+                                                        "thankyou.html",
+                                                        ServletUtilities.getLanguageCode(request));
+        String newMediaMessage = ServletUtilities.getText(CommonConfiguration.getDataDirectoryName(context),
+                                                          "newmedia.html",
+                                                          ServletUtilities.getLanguageCode(request));
 
 
         //add the encounter link

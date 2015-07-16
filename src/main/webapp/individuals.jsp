@@ -1784,9 +1784,9 @@ if(CommonConfiguration.showUsersToPublic(context)){
                          		
                                 	String profilePhotoURL="images/empty_profile.jpg";
                     		    
-                         		if(thisUser.getUserImage()!=null){
-                         			profilePhotoURL="/"+CommonConfiguration.getDataDirectoryName(context)+"/users/"+thisUser.getUsername()+"/"+thisUser.getUserImage().getFilename();
-
+                         		if(thisUser.getUserImage()!=null) {
+                                    //profilePhotoURL="/"+CommonConfiguration.getDataDirectoryName(context)+"/users/"+thisUser.getUsername()+"/"+thisUser.getUserImage().getFilename();
+                                    profilePhotoURL = thisUser.getUserImage().webPath().getFile();
                          		}
                          		%>
                      			<tr><td><center><div style="height: 50px">

@@ -2,25 +2,19 @@ extends layout
 
 block content
     .maincontent
-        if page.error
-            != JSON.stringify(page.error)
-            - page.ind = []
-        //else
-        //    != JSON.stringify(page.ind)
+        h1.has-icon.icon-happywhale= t("individual.meet", {individualId: data.ind.nickname + "(" + data.ind.id + ")"})
 
-        h1.has-icon.icon-happywhale= t("individual.meet", {individualId: page.ind.nickname + "(" + page.ind.id + ")"})
-
-        if page.ind.photos
-            //img.individual-main-image(src="#{config.wildbook.staticUrl}#{page.ind.photos[0]}")
+        if data.ind.photos
+            //img.individual-main-image(src="#{config.wildbook.staticUrl}#{data.ind.photos[0]}")
     
             #individual-carousel.carousel.slide(data-ride="carousel" data-interval="5000")
                 ol.carousel-indicators
                     li.active(data-target="#individual-carousel" data-slide-to="0")
-                    - for (var ii = 1; ii < page.ind.photos.length; ii++)
+                    - for (var ii = 1; ii < data.ind.photos.length; ii++)
                         li(data-target="#individual-carousel" data-slide-to="#{ii}")
                 .carousel-inner
                     -var first = true
-                    for photo in page.ind.photos
+                    for photo in data.ind.photos
                         if first
                             - first = false
                             .item.active
@@ -42,16 +36,16 @@ block content
                     span.glyphicon.glyphicon-chevron-right
         h2= t("individual.contributors")
         hr
-        for encounter in page.ind.encounters
-            if encounter.submitter
-                ul.submitters
-                    li #{encounter.submitter.fullName}
+        for user in data.ind.submitters
+            ul.submitters
+                li
+                    include partials/user
         hr
         h2= t("individual.recentActivity")
         hr
         
         div
-            for encounter in page.ind.encounters
+            for encounter in data.ind.encounters
                 ul.submitters
                     li #{encounter.verbatimLocation}
         p= t("individual.seenIndividual")

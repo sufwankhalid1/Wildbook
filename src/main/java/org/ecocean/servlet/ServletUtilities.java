@@ -61,6 +61,8 @@ import org.ecocean.ShepherdProperties;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.sun.syndication.feed.synd.SyndCategory;
 import com.sun.syndication.feed.synd.SyndCategoryImpl;
@@ -72,12 +74,9 @@ import com.sun.syndication.feed.synd.SyndFeed;
 import com.sun.syndication.io.SyndFeedInput;
 import com.sun.syndication.io.SyndFeedOutput;
 import com.sun.syndication.io.XmlReader;
-//import javax.servlet.http.HttpServlet;
-//import javax.servlet.http.HttpSession;
-
-//ATOM feed
 
 public class ServletUtilities {
+    private static Logger log = LoggerFactory.getLogger(ServletUtilities.class);
 
   public static String getHeader(HttpServletRequest request) {
     try {
@@ -260,31 +259,27 @@ public class ServletUtilities {
   //This is generally used to load an email template for automated emailing
   public static String getText(String shepherdDataDir, String fileName, String langCode) {
     String overrideText=loadOverrideText(shepherdDataDir, fileName, langCode);
-    if(!overrideText.equals("")){
+    if (overrideText != null) {
       return overrideText;
     }
-    else{
-      try {
-        StringBuffer SBreader = new StringBuffer();
-        String line;
 
+    try {
+        StringBuffer SBreader = new StringBuffer();
         File file = findResourceOnFileSystem(fileName);
 
-        FileReader fileReader = new FileReader(file);
-
-        BufferedReader buffread = new BufferedReader(fileReader);
-        while ((line = buffread.readLine()) != null) {
-          SBreader.append(line + "\n");
+        try (FileReader fileReader = new FileReader(file)) {
+            try (BufferedReader buffread = new BufferedReader(fileReader)) {
+                String line;
+                while ((line = buffread.readLine()) != null) {
+                    SBreader.append(line + "\n");
+                }
+            }
         }
 
-        line = SBreader.toString();
-        fileReader.close();
-        buffread.close();
-        return line;
-      } catch (Exception ex) {
+        return SBreader.toString();
+    } catch (Exception ex) {
         ex.printStackTrace();
         return "";
-      }
     }
   }
 
@@ -416,19 +411,41 @@ public class ServletUtilities {
   }
 
   public static File findResourceOnFileSystem(String resourceName) {
-    File resourceFile = null;
-
-    URL resourceURL = ServletUtilities.class.getClassLoader().getResource(resourceName);
-    if (resourceURL != null) {
-      String resourcePath = resourceURL.getPath();
-      if (resourcePath != null) {
-        File tmp = new File(resourcePath);
-        if (tmp.exists()) {
-          resourceFile = tmp;
-        }
+      if (log.isDebugEnabled()) {
+          log.debug("Looking for resource [" + resourceName + "]");
       }
-    }
-    return resourceFile;
+
+      URL resourceURL = ServletUtilities.class.getClassLoader().getResource(resourceName);
+
+      if (resourceURL == null) {
+          if (log.isDebugEnabled()) {
+              log.debug("Resource is not found");
+          }
+          return null;
+      }
+
+      if (log.isDebugEnabled()) {
+          log.debug("Looking for resourceURL [" + resourceURL + "]");
+      }
+
+      String resourcePath = resourceURL.getPath();
+      if (resourcePath == null) {
+          if (log.isDebugEnabled()) {
+              log.debug("Resource path is null");
+          }
+          return null;
+      }
+
+      File tmp = new File(resourcePath);
+      if (tmp.exists()) {
+          return tmp;
+      }
+
+      if (log.isDebugEnabled()) {
+          log.debug("Resource URL is not found");
+      }
+
+      return null;
   }
 
   public static boolean isUserAuthorizedForEncounter(Encounter enc, HttpServletRequest request) {
@@ -672,52 +689,74 @@ String rootWebappPath = "xxxxxx";
 
 
   private static String loadOverrideText(String shepherdDataDir, String fileName, String langCode) {
-    //System.out.println("Starting loadOverrideProps");
-    StringBuffer myText=new StringBuffer("");
-    //Properties myProps=new Properties();
+      if (log.isDebugEnabled()) {
+          log.debug("Calling getText with shepherdDataDir [" + shepherdDataDir
+                     + "], fileName [" + fileName
+                     + "], langCode [" + langCode + "]");
+      }
+
     File configDir = new File("webapps/"+shepherdDataDir+"/WEB-INF/classes/bundles/"+langCode);
-    //System.out.println(configDir.getAbsolutePath());
+
+    if (log.isDebugEnabled()) {
+        log.debug("configDir [" + configDir.getAbsolutePath() + "]");
+    }
+
+    //
     //sometimes this ends up being the "bin" directory of the J2EE container
     //we need to fix that
-    if((configDir.getAbsolutePath().contains("/bin/")) || (configDir.getAbsolutePath().contains("\\bin\\"))){
+    //
+    if ((configDir.getAbsolutePath().contains("/bin/"))
+         || (configDir.getAbsolutePath().contains("\\bin\\"))) {
       String fixedPath=configDir.getAbsolutePath().replaceAll("/bin", "").replaceAll("\\\\bin", "");
-      configDir=new File(fixedPath);
-      //System.out.println("Fixing the bin issue in Shepherd PMF. ");
-      //System.out.println("The fix abs path is: "+configDir.getAbsolutePath());
+
+      configDir = new File(fixedPath);
+
+      if (log.isDebugEnabled()) {
+          log.debug("Fixed configDir to [" + configDir.getAbsolutePath() + "]");
+      }
     }
-    //System.out.println("ShepherdProps: "+configDir.getAbsolutePath());
-    if(!configDir.exists()){configDir.mkdirs();}
+
+    if (!configDir.exists()) {
+        configDir.mkdirs();
+    }
+
     File configFile = new File(configDir, fileName);
-    if (configFile.exists()) {
-      //System.out.println("ShepherdProps: "+"Overriding default properties with " + configFile.getAbsolutePath());
-      FileInputStream fileInputStream = null;
-      try {
-        fileInputStream = new FileInputStream(configFile);
 
-
-        BufferedReader reader = new BufferedReader(new InputStreamReader(fileInputStream));
-        StringBuilder out = new StringBuilder();
-        String line;
-        while ((line = reader.readLine()) != null) {
-            myText.append(line);
-        }
-
-
-
-
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
-      finally {
-        if (fileInputStream != null) {
-          try {
-            fileInputStream.close();
-          } catch (Exception e2) {
-            e2.printStackTrace();
-          }
-        }
-      }
+    if (log.isDebugEnabled()) {
+        log.debug("Looking for overriding file [" + configFile.getAbsolutePath() + "]");
     }
+
+    if (!configFile.exists()) {
+        if (log.isDebugEnabled()) {
+            log.debug("File does not exist");
+        }
+        return null;
+    }
+
+    StringBuffer myText = new StringBuffer("");
+
+    FileInputStream fileInputStream = null;
+    try {
+        fileInputStream = new FileInputStream(configFile);
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(fileInputStream))){
+            String line;
+            while ((line = reader.readLine()) != null) {
+                myText.append(line);
+            }
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    finally {
+        if (fileInputStream != null) {
+            try {
+                fileInputStream.close();
+            } catch (Exception e2) {
+                e2.printStackTrace();
+            }
+        }
+    }
+
     return myText.toString();
   }
 }

@@ -16,9 +16,24 @@
 //    }
 //});
 
-var request = require('request');
+var request = require('request-promise');
 var extend = require('extend');
-var markdown = require("markdown").markdown;
+var VError = require('verror');
+
+//
+// Switching to markdowndeep so that we can add target=_blank links in hand-coded html references.
+// But this doesn't work for <a href="#" ng-model="terms()">Usage Agreement</a>. It *still* escapes
+// the < > in that case. ugh.
+//
+//var markdown = require("markdown").markdown;
+var MarkdownDeep = require('markdowndeep');
+var mdd = new MarkdownDeep.Markdown();
+mdd.ExtraMode = true;
+//
+// This will make it so that html code is escaped which we don't want for our Help page.
+//
+//mdd.SafeMode = true;
+
 var fs = require('fs');
 
 //
@@ -44,24 +59,13 @@ function instagramFeed(config, secrets) {
         + "&access_token="
         + secrets.social.instagram.access_token;
 //    console.log(url);
-    request(url, function(error, response, body) {
-        if (error) {
-            console.log(error);
-            home.social.instagram.feed = [];
-            return;
-        }
-
-        if (response.statusCode !== 200) {
-            console.log("url [" + url + "] returned status [" + response.statusCode + "]");
-            home.social.instagram.feed = [];
-            return
-        }
-
-        try {
-            home.social.instagram.feed = JSON.parse(body).data;
-        } catch (err) {
-            console.log(err);
-        }
+    request(url)
+    .then(function(response) {
+        home.social.instagram.feed = JSON.parse(response).data;
+    })
+    .catch(function(ex) {
+        console.log(ex);
+        home.social.instagram.feed = [];
     });
 }
 
@@ -136,6 +140,12 @@ function twitterFeed(config) {
 //
 
 function makeError(ex) {
+    if (typeof ex === "string") {
+        console.log(ex);
+        return {message: ex};
+    }
+
+    console.log(ex.stack);
     return {message: ex.message, stack: ex.stack};
 }
 
@@ -154,19 +164,25 @@ function sendError(res, ex, status) {
         status = 500;
     }
 
-    if (typeof ex === "string") {
-        res.status(status).send(ex);
-    } else {
-        console.log(ex.stack);
-        res.status(status).send(makeError(ex));
-    }
+    res.status(status).send(makeError(ex));
 }
 
 
 module.exports = function(app, config, secrets, debug) {
-    var usageAgreement = markdown.toHTML(fs.readFileSync(config.cust.serverDir + "/docs/UsageAgreement.md", "utf8"));
+//    var usageAgreement = markdown.toHTML(fs.readFileSync(config.cust.serverDir + "/docs/UsageAgreement.md", "utf8"));
+//    var helpAndFaq = markdown.toHTML(fs.readFileSync(config.cust.serverDir + "/docs/HelpAndFaq.md", "utf8"));
+    var usageAgreement = mdd.Transform(fs.readFileSync(config.cust.serverDir + "/docs/UsageAgreement.md", "utf8"));
+    var helpAndFaq = mdd.Transform(fs.readFileSync(config.cust.serverDir + "/docs/HelpAndFaq.md", "utf8"));
 
     var vars = {config: config.client};
+
+    function makeVars(extraVars) {
+        return extend({}, vars, extraVars);
+    }
+
+    function renderError(res, ex) {
+        res.render('error', makeVars({error: makeError(ex)}));
+    }
 
     var cb = new Codebird;
     cb.setConsumerKey(config.client.social.twitter.consumer_key, secrets.social.twitter.consumer_secret);
@@ -196,7 +212,7 @@ module.exports = function(app, config, secrets, debug) {
         // NOTE: i18n available as req.i18n.t or just req.t
         // Also res.locals.t
         //
-        res.render('home', extend({}, vars, {home: home}));
+        res.render('home', makeVars({home: home}));
     });
 
     app.get('/config', function(req,res) {
@@ -215,8 +231,15 @@ module.exports = function(app, config, secrets, debug) {
         res.send(usageAgreement);
     });
 
+    app.get("/help", function(req, res) {
+        res.render('help', makeVars({page: helpAndFaq}));
+    });
+
     app.get("/voyage/*", function(req, res) {
         var arr = req.url.slice(8).split('/');
+
+        var trackId = arr[0];
+
         if (arr[0] < 1) res.render('voyage');
 				var urls = [
         	config.wildbook.authUrl + "/rest/org.ecocean.survey.SurveyTrack?id==" + arr[0],
@@ -269,11 +292,12 @@ console.log('sources (list of MediaSubmissions for this SurveyTrack) = '); conso
 				}
 /*
         var url = config.wildbook.authUrl
-            + "/rest/org.ecocean.survey.SurveyTrack?id==" + arr[0];
+            + "/rest/org.ecocean.survey.SurveyTrack?id==" + trackId;
         if (debug) {
             console.log(url);
         }
 
+<<<<<<< HEAD
         request(url, function(error, response, body) {
             var data;
             if (error) {
@@ -300,6 +324,32 @@ var match = {
 	},
 };
             res.render('voyage', extend({}, vars, {surveyTrackID: arr[0], mediaID: arr[1], matchEncID: arr[2], matchEncMedia: arr[3], match: match, surveyTrack: data}));
+=======
+        request(url)
+        .then(function(response) {
+            var data = {"ind": JSON.parse(response)};
+
+            var match = {
+                link: '<a href="/xxxx">yyy</a>',
+                testImage: {
+                    url: 'http://cdn2.arkive.org/media/D6/D6CDEBE7-5A7B-484A-9EC6-D03D73E795A2/Presentation.Large/Southern-right-whale-fluke.jpg',
+                    caption: 'Your photo taken from...',
+                },
+                matchImage: {
+                    url: 'http://cdn2.arkive.org/media/D6/D6CDEBE7-5A7B-484A-9EC6-D03D73E795A2/Presentation.Large/Southern-right-whale-fluke.jpg',
+                    caption: 'Photo taken by...',
+                },
+            };
+
+            res.render('voyage', makeVars({surveyTrackID: trackId,
+                                           mediaID: arr[1],
+                                           matchID: arr[2],
+                                           match: match,
+                                           surveyTrack: data}));
+        })
+        .catch(function(ex) {
+            renderError(res, new VError(ex, "Trouble getting voyage [" + trackId + "]"));
+>>>>>>> ff6a09f1f2dcab6461450987702f96a83c75d0f4
         });
 */
     });
@@ -308,26 +358,22 @@ var match = {
         var id = req.url.slice(12);
 //        http://tomcat:tomcat123@wildbook.happywhale.com/rest/org.ecocean.MarkedIndividual?individualID==%27<search_string>%27
 
-        var url = config.wildbook.authUrl + "/obj/individual/get/" + id;
+        var url = config.wildbook.authUrl + "/data/individual/get/" + id;
         if (debug) {
             console.log(url);
         }
-        request(url, function(error, response, body) {
-            var data;
-            if (error) {
-                console.log(error.stack);
-                data = {error: makeError(error)};
-            } else if (response.statusCode !== 200) {
-                console.log("url [" + url + "] returned status [" + response.statusCode + "]");
-                data = {error: {message: response.statusCode}};
-            } else {
-                data = {"ind": JSON.parse(body)};
-            }
+
+        request(url)
+        .then(function(response) {
+            var data = {"ind": JSON.parse(response)};
 
             if (debug) {
                 console.log("Got data: " + JSON.stringify(data));
             }
-            res.render("individual", extend({}, vars, {page: data}));
+            res.render("individual", makeVars({data: data}));
+        })
+        .catch(function(ex) {
+            renderError(res, new VError(ex, "Can't get individual [" + id + "]"));
         });
     });
 
@@ -388,6 +434,6 @@ var match = {
     //=================
 
     app.get('*', function(req, res) {
-        res.render('404', vars);
+        renderError(res, "I'm sorry, the page or resource at [" + req.url + "] you are searching for is currently unavailable.");
     });
 };
