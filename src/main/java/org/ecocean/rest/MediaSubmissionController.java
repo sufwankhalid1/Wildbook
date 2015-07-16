@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.Iterator;
+import java.util.HashMap;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -15,6 +17,7 @@ import org.ecocean.Shepherd;
 import org.ecocean.ShepherdPMF;
 import org.ecocean.SinglePhotoVideo;
 import org.ecocean.User;
+import org.ecocean.Util;
 import org.ecocean.media.MediaSubmission;
 import org.ecocean.servlet.ServletUtilities;
 import org.slf4j.Logger;
@@ -24,6 +27,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
+import org.ecocean.security.Stormpath;
+import com.stormpath.sdk.client.Client;
+import com.stormpath.sdk.account.*;
+import com.stormpath.sdk.resource.ResourceException;
 
 import com.drew.imaging.ImageMetadataReader;
 import com.drew.lang.GeoLocation;
@@ -263,21 +271,54 @@ System.out.println(sql);
 
         String email;
         String uname = media.getUsername();
-        if ((uname != null) && !uname.equals("")) {
+        if (!Util.isEmpty(uname)) {
             User user = new Shepherd(context).getUser(uname);
             if (user != null) {
                 email = user.getEmailAddress();
 //                userstr = user.getFullName() + " (" + media.getUsername() + ") <" + email + ">";
             } else {
-                if (log.isDebugEnabled()) log.debug("unable to load a User for username=" + uname);
+                if (log.isDebugEnabled()) log.debug("curious: unable to load a User for username=" + uname);
                 email = null;
 //                userstr = media.getUsername();
             }
         } else {
             email = media.getEmail();
+
+            //since this user is not logged into wildbook, we want to at least create a Stormpath user *if* one does not exist
+            Client client = Stormpath.getClient(request);
+            if (client != null) {
+                if (log.isDebugEnabled()) log.debug("checking on stormpath for email=" + email);
+                HashMap<String,Object> q = new HashMap<String,Object>();
+                q.put("email", email);
+                AccountList accs = Stormpath.getAccounts(client, q);
+                //Iterator it = accs.iterator();
+                if (accs.getSize() < 1) {
+                    String givenName = "N/A";
+                    if (!Util.isEmpty(media.getName())) givenName = media.getName();
+                    String surname = "N/A";
+                    int si = givenName.indexOf(" ");
+                    if (si > -1) {
+                        surname = givenName.substring(si+1);
+                        givenName = givenName.substring(0,si);
+                    }
+                    HashMap<String,Object> custom = new HashMap<String,Object>();
+                    custom.put("unverified", true);
+                    custom.put("creatingMediaSubmission", media.getId());
+                    Account newUser = null;
+                    try {
+                        newUser = Stormpath.createAccount(client, givenName, surname, email, Stormpath.randomInitialPassword(), null, custom);
+                        if (log.isDebugEnabled()) log.debug("successfully created Stormpath user for " + email);
+                    } catch (Exception ex) {
+                        if (log.isDebugEnabled()) log.debug("could not create Stormpath user for email=" + email + ": " + ex.toString());
+                    }
+                } else {
+                   if (log.isDebugEnabled()) log.debug("appears to already exist a Stormpath user for email=" + email + "; not creating one.");
+                }
+            }
+
 //            userstr = media.getName() + " <" + email + ">";
         }
-        if (log.isDebugEnabled()) log.debug("sending thankyou email to:"+email);
+        if (log.isDebugEnabled()) log.debug("sending thankyou email to:" + email);
 
         //get the email thread handler
         ThreadPoolExecutor es = MailThreadExecutorService.getExecutorService();

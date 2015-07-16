@@ -21,11 +21,10 @@ import org.apache.shiro.subject.Subject;
 
 
 import org.apache.shiro.web.util.WebUtils;
-import org.ecocean.security.Stormpath;
 import org.ecocean.*;
+import org.ecocean.security.Stormpath;
 
 import com.stormpath.sdk.client.Client;
-import org.ecocean.security.Stormpath;
 import com.stormpath.sdk.account.*;
 import com.stormpath.sdk.resource.ResourceException;
 import com.google.gson.Gson;
@@ -111,7 +110,7 @@ import com.google.gson.Gson;
 
     //we *first* try Stormpath, and see what we get
     Client client = Stormpath.getClient(request);
-		myShepherd = new Shepherd(context);
+    myShepherd = new Shepherd(context);
 
     if (client != null) {
 System.out.println("checking Stormpath for login!");

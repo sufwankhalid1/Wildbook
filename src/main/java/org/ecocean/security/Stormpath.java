@@ -82,7 +82,7 @@ public class Stormpath {
     }
 
     //note: username and custom are optional (username becomes email address if not provided); the rest are required
-    public static Account createAccount(Client client, String givenName, String surname, String email, String password, String username, HashMap<String,String> custom) throws Exception {
+    public static Account createAccount(Client client, String givenName, String surname, String email, String password, String username, HashMap<String,Object> custom) throws Exception {
         if (isEmpty(givenName) || isEmpty(surname) || isEmpty(email) || isEmpty(password)) throw new Exception("missing required fields to create user");
         Account account = client.instantiate(Account.class);
         account.setGivenName(givenName);
@@ -103,6 +103,19 @@ public class Stormpath {
     }
 
 
+    //convenience by-username version of below
+    public static AccountList getAccounts(Client client, String username) {
+        HashMap<String, Object> q = new HashMap<String, Object>();
+        q.put("username", username);
+        return getAccounts(client, q);
+    }
+
+    public static AccountList getAccounts(Client client, HashMap<String, Object> q) {
+        Application app = getApplication(client);
+        return app.getAccounts(q);
+    }
+
+
     public static Account createAccount(Client client, User user) throws Exception {
         String givenName = user.getFullName();
         if (givenName == null) givenName = user.getUsername();
@@ -112,9 +125,14 @@ public class Stormpath {
             surname = givenName.substring(i + 1);
             givenName = givenName.substring(i - 1);
         }
-        HashMap<String,String> h = new HashMap<String,String>();
+        HashMap<String,Object> h = new HashMap<String,Object>();
         h.put("creationNote", "created from Wildbook User");
-        return createAccount(client, givenName, surname, user.getEmailAddress(), "XXX" + Util.generateUUID(), user.getUsername(), h);
+        return createAccount(client, givenName, surname, user.getEmailAddress(), randomInitialPassword(), user.getUsername(), h);
+    }
+
+    //satisfies Stormcloud requirements, and is sufficiently unguessable
+    public static String randomInitialPassword() {
+        return "X" + Util.generateUUID() + "X";
     }
 
     //note: "username" can also be email, apparently
