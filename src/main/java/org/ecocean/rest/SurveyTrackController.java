@@ -2,6 +2,7 @@ package org.ecocean.rest;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashMap;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -11,6 +12,7 @@ import org.ecocean.SinglePhotoVideo;
 import org.ecocean.Point;
 import org.ecocean.servlet.ServletUtilities;
 import org.ecocean.survey.SurveyTrack;
+import org.ecocean.media.MediaSubmission;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -110,5 +112,52 @@ public class SurveyTrackController
         	return new ResponseEntity<SurveyTrack>(track, HttpStatus.OK);
 				}
     }
+
+
+    //a "voyage" is based loosely upon a single SurveyTrack -- just with lots of other junk added.  for the voyage page specifically
+    @RequestMapping(value = "/get/voyage/{id}", method = RequestMethod.GET)
+    public HashMap<String,Object> getSources(final HttpServletRequest request,
+                                            @PathVariable("id") final int id) throws DatabaseException {
+        if (id < 1) return null;
+        String context = "context0";
+        context = ServletUtilities.getContext(request);
+        PersistenceManager pm = getPM(request);
+        SurveyTrack track = null;
+        try {
+          track = (SurveyTrack) pm.getObjectById(SurveyTrack.class, id);
+        } catch (Exception ex) {
+        }
+        HashMap<String,Object> obj = new HashMap<String,Object>();
+        obj.put("surveyTrack", track);
+/*
+        ConnectionInfo ci = ShepherdPMF.getConnectionInfo();
+        Database db = new Database(ci);
+        String sql = "SELECT \"DATACOLLECTIONEVENTID_EID\" AS mid FROM \"SURVEYTRACK_MEDIA\" WHERE \"ID_OID\"=" + id;
+System.out.println(sql);
+        RecordSet rs = db.getRecordSet(sql);
+        List<SinglePhotoVideo> media = new ArrayList<SinglePhotoVideo>();
+        while (rs.next()) {
+            SinglePhotoVideo spv = new SinglePhotoVideo();
+            spv.setDataCollectionEventID(rs.getString("mid"));
+            media.add(spv);
+        }
+        db.release();
+        return MediaSubmission.findMediaSources(media, context);
+*/
+        if (track != null) obj.put("sources", MediaSubmission.findMediaSources(track.getMedia(), context));
+        return obj;
+    }
+
+/*
+    @RequestMapping(value = "/get/sources", method = RequestMethod.POST)
+    public List<MediaSubmission> getSources(final HttpServletRequest request,
+                                            @RequestBody List<SinglePhotoVideo> media) throws DatabaseException {
+        String context = "context0";
+        context = ServletUtilities.getContext(request);
+        return MediaSubmission.findMediaSources(media, context);
+    }
+*/
+
+
 
 }
