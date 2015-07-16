@@ -1440,6 +1440,11 @@
   </servlet-mapping>
 
   <servlet-mapping>
+    <servlet-name>SiteSearch</servlet-name>
+    <url-pattern>/search</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
     <servlet-name>MassSetInformOthers</servlet-name>
     <url-pattern>/MassSetInformOthers</url-pattern>
   </servlet-mapping>
