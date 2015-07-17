@@ -331,8 +331,7 @@ console.log('sources (list of MediaSubmissions for this SurveyTrack) = '); conso
 
         req.pipe(request(url))
         .on('error', function(ex) {
-            console.log("Trouble calling GET on [" + url + "]");
-            sendError(res, ex);
+            sendError(res, new VError(ex, "Trouble calling GET on [" + url + "]"));
         })
         .pipe(res)
         .on('error', function(ex) {
@@ -354,17 +353,31 @@ console.log('sources (list of MediaSubmissions for this SurveyTrack) = '); conso
         if (debug) {
             console.log("wildbook POST: " + url);
         }
+        console.log(req);
 
         req.pipe(request.post({uri: url}))
-        .on('error', function(ex) {
-            console.log("Trouble calling POST on [" + url + "]");
-            sendError(res, ex);
-        })
         .pipe(res)
         .on('error', function(ex) {
-            console.log("Trouble piping POST result on [" + url + "]");
+            console.log("Trouble calling POST result on [" + url + "]");
             sendError(res, ex);
         });
+
+
+        //
+        // TODO: Why does this catching of the error not work? We get funny tomcat error otherwise.
+        // Not that bad but?
+        //
+//        req.pipe(
+//            request.post({uri: url})
+//            .catch(function(ex) {
+//                sendError(res, new VError(ex, "Trouble calling GET on [" + url + "]"));
+//            })
+//         )
+//        .pipe(res)
+//        .on('error', function(ex) {
+//            console.log("Trouble piping POST result on [" + url + "]");
+//            sendError(res, ex);
+//        });
     });
 
     //=================
