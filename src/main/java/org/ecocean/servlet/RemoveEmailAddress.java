@@ -32,7 +32,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.ecocean.Encounter;
 import org.ecocean.Shepherd;
-import org.ecocean.util.StringUtils;
+import org.ecocean.mmutil.StringUtilities;
 
 
 //Set alternateID for this encounter/sighting
@@ -80,7 +80,7 @@ public void doPost(HttpServletRequest request, HttpServletResponse response) thr
           for (int j = 0; j < numEmails; j++) {
             String address = st.nextToken().trim();
             if (!address.equals("")) {
-              if (request.getParameter("hashedEmail").equals(StringUtils.getHashOf(address))) {
+              if (request.getParameter("hashedEmail").equals(StringUtilities.getHashOf(address))) {
                 changeMe.setSubmitterEmail(changeMe.getSubmitterEmail().replaceAll(address, ""));
                 removeMe = address;
                 numInstances++;
@@ -96,7 +96,7 @@ public void doPost(HttpServletRequest request, HttpServletResponse response) thr
           for (int j = 0; j < numEmails; j++) {
             String address = st.nextToken().trim();
             if (!address.equals("")) {
-              if (request.getParameter("hashedEmail").equals(StringUtils.getHashOf(address))) {
+              if (request.getParameter("hashedEmail").equals(StringUtilities.getHashOf(address))) {
                 changeMe.setPhotographerEmail(changeMe.getPhotographerEmail().replaceAll(address, ""));
                 removeMe = address;
                 numInstances++;
@@ -112,7 +112,7 @@ public void doPost(HttpServletRequest request, HttpServletResponse response) thr
           for (int j = 0; j < numEmails; j++) {
             String address = st.nextToken().trim();
             if (!address.equals("")) {
-              if (request.getParameter("hashedEmail").equals(StringUtils.getHashOf(address))) {
+              if (request.getParameter("hashedEmail").equals(StringUtilities.getHashOf(address))) {
                 changeMe.setInformOthers(changeMe.getInformOthers().replaceAll(address, ""));
                 removeMe = address;
                 numInstances++;

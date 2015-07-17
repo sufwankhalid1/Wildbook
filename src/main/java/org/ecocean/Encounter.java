@@ -36,13 +36,11 @@ import org.ecocean.genetics.GeneticAnalysis;
 import org.ecocean.genetics.MitochondrialDNAAnalysis;
 import org.ecocean.genetics.SexAnalysis;
 import org.ecocean.genetics.TissueSample;
+import org.ecocean.mmutil.StringUtilities;
 import org.ecocean.security.Collaboration;
 import org.ecocean.tag.AcousticTag;
 import org.ecocean.tag.MetalTag;
 import org.ecocean.tag.SatelliteTag;
-import org.ecocean.util.StringUtils;
-//import org.datanucleus.api.rest.orgjson.JSONArray;
-//import org.datanucleus.api.rest.orgjson.JSONException;
 
 
 
@@ -232,7 +230,7 @@ public class Encounter implements java.io.Serializable {
     this.submitterEmail = submitterEmail;
 
     //now we need to set the hashed form of the email addresses
-    this.hashedSubmitterEmail = StringUtils.getHashOfCommaList(submitterEmail);
+    this.hashedSubmitterEmail = StringUtilities.getHashOfCommaList(submitterEmail);
 
     this.images = images;
     this.day = day;
@@ -458,7 +456,7 @@ public class Encounter implements java.io.Serializable {
 
   public void setSubmitterEmail(String newemail) {
     submitterEmail = newemail;
-    this.hashedSubmitterEmail = StringUtils.getHashOf(newemail);
+    this.hashedSubmitterEmail = StringUtilities.getHashOf(newemail);
   }
 
   /**
@@ -523,7 +521,7 @@ public class Encounter implements java.io.Serializable {
    */
   public void setPhotographerEmail(String email) {
     photographerEmail = email;
-    this.hashedPhotographerEmail = StringUtils.getHashOf(email);
+    this.hashedPhotographerEmail = StringUtilities.getHashOf(email);
   }
 
   /**
@@ -1307,7 +1305,7 @@ public class Encounter implements java.io.Serializable {
 
   public void setInformOthers(String others) {
     this.informothers = others;
-    this.hashedInformOthers = StringUtils.getHashOfCommaList(others);
+    this.hashedInformOthers = StringUtilities.getHashOfCommaList(others);
   }
 
   public String getLocationID() {

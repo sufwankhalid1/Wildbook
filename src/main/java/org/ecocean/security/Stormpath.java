@@ -36,10 +36,10 @@ public class Stormpath {
     // we cache the application too.  is this lame?
     private static Application myApplication = null;
 
-    public static Client getClient(String config) {
+    public static Client getClient(String configDir) {
         if (myClient != null) return myClient;
 
-        ApiKey apiKey = ApiKeys.builder().setFileLocation(config).build();
+        ApiKey apiKey = ApiKeys.builder().setFileLocation(configDir + "/stormpathApiKey.properties").build();
         myClient = Clients.builder().setApiKey(apiKey).build();
         //If using Google App Engine, you must use Basic authentication:
         //Client client = Clients.builder().setApiKey(apiKey)

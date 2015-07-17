@@ -25,7 +25,9 @@
         <level value="OFF" />
     </logger>
 
-    
+    <logger name="org.ecocean.rest.MediaUploadServlet" level="DEBUG"/>
+    <logger name="org.ecocean.rest.MediaSubmissionController" level="DEBUG"/>
+
 <!--   <logger name="SqlLog" level="ERROR" />
 
   <logger name="DataNucleus" level="ERROR" />

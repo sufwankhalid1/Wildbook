@@ -42,7 +42,6 @@ import com.samsix.database.SqlInsertFormatter;
 import com.samsix.database.SqlUpdateFormatter;
 import com.samsix.database.SqlWhereFormatter;
 import com.samsix.database.Table;
-import com.stormpath.sdk.account.Account;
 import com.stormpath.sdk.account.AccountList;
 import com.stormpath.sdk.client.Client;
 
@@ -282,10 +281,8 @@ System.out.println(sql);
         } else {
             email = media.getEmail();
 
-            String propPath = request.getSession().getServletContext().getRealPath("/") + "/WEB-INF/classes/bundles/stormpathApiKey.properties";
-
             //since this user is not logged into wildbook, we want to at least create a Stormpath user *if* one does not exist
-            Client client = Stormpath.getClient(propPath);
+            Client client = Stormpath.getClient(ServletUtilities.getConfigDir(request));
             if (client != null) {
                 if (log.isDebugEnabled()) log.debug("checking on stormpath for email=" + email);
                 HashMap<String,Object> q = new HashMap<String,Object>();
@@ -304,9 +301,8 @@ System.out.println(sql);
                     HashMap<String,Object> custom = new HashMap<String,Object>();
                     custom.put("unverified", true);
                     custom.put("creatingMediaSubmission", media.getId());
-                    Account newUser = null;
                     try {
-                        newUser = Stormpath.createAccount(client, givenName, surname, email, Stormpath.randomInitialPassword(), null, custom);
+                        Stormpath.createAccount(client, givenName, surname, email, Stormpath.randomInitialPassword(), null, custom);
                         if (log.isDebugEnabled()) log.debug("successfully created Stormpath user for " + email);
                     } catch (Exception ex) {
                         if (log.isDebugEnabled()) log.debug("could not create Stormpath user for email=" + email + ": " + ex.toString());

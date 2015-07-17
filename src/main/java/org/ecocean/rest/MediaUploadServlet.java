@@ -237,12 +237,12 @@ public class MediaUploadServlet
     {
         return new File(baseDir, "mid");
     }
-
-    private static File getMidsizeFile(final File baseDir,
-                                         final String fileName)
-    {
-        return new File(getMidsizeDir(baseDir), fileName);
-    }
+//
+//    private static File getMidsizeFile(final File baseDir,
+//                                         final String fileName)
+//    {
+//        return new File(getMidsizeDir(baseDir), fileName);
+//    }
 
     private static File getRootDir(final HttpServletRequest request)
     {
@@ -490,7 +490,7 @@ public class MediaUploadServlet
 
             File fullPath = new File(baseDir, file.getName());
 
-            CommonConfiguration.getDataDirectoryName(context);
+//            CommonConfiguration.getDataDirectoryName(context);
             try {
                 if (logger.isDebugEnabled()) {
                     logger.debug(LogBuilder.quickLog("fullPath", fullPath.toString()));
@@ -598,7 +598,7 @@ public class MediaUploadServlet
 
             File fullPath = new File(fullBaseDir, file.getName());
 
-            CommonConfiguration.getDataDirectoryName(context);
+//            CommonConfiguration.getDataDirectoryName(context);
             try {
                 if (logger.isDebugEnabled()) {
                     logger.debug(LogBuilder.quickLog("fullPath", fullPath.toString()));

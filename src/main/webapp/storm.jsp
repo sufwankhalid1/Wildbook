@@ -41,8 +41,7 @@ context=ServletUtilities.getContext(request);
   
  
 
-String propPath = request.getSession().getServletContext().getRealPath("/") + "/WEB-INF/classes/bundles/stormpathApiKey.properties";
-Client client = Stormpath.getClient(propPath);
+Client client = Stormpath.getClient(ServletUtilities.getConfigDir(request));
 System.out.println("ok!");
 
 Account acc = null;
