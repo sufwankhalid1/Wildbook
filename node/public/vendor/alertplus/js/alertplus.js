@@ -1,5 +1,5 @@
 /*!
- * AlertPlus v0.1.5 (https://github.com/crowmagnumb/alertplus)
+ * AlertPlus v0.1.6 (https://github.com/crowmagnumb/alertplus)
  * Copyright 2015 CrowMagnumb
  * Licensed under MIT (https://github.com/crowmagnumb/alertplus/blob/master/LICENSE)
  */
@@ -43,11 +43,11 @@ var alertplus = (function () {
 
 
     detailsButton.button();
-    detailsButton.click( function(evt) {
+    detailsButton.click(function(evt) {
         detailsContainer.toggle();
         leftChev.toggle();
         rightChev.toggle();
-    } );
+    });
 
     function showAlert(message, details, title, dialogClass) {
         //
@@ -91,6 +91,41 @@ var alertplus = (function () {
         showAlert(message, details, "Error", "danger");
     }
 
+    function stripHtmlElements(message) {
+        if (message.indexOf("<html>") < 0) {
+            return message;
+        }
+
+        //
+        // Extract just <body> from it because otherwise any styles inside
+        // of the document can mess up your parent document.
+        //
+        var start = message.indexOf("<body>");
+        var end = message.indexOf("</body>");
+        if (start > 0 && end > 0) {
+            message = message.slice(start + 6, end);
+        } else {
+            message = message;
+        }
+
+        //
+        // Now remove any <style> section that might be left in the body that
+        // can mess up your main page.
+        //
+        var notDone = true;
+        while (notDone) {
+            start = message.indexOf("<style");
+            end = message.indexOf("</style>");
+            if (start > 0 && end > 0) {
+                message = message.slice(0, start) + message.slice(end + 7);
+            } else {
+                notDone = false;
+            }
+        }
+
+        return message;
+    }
+
     function showError(ex) {
         if (typeof ex == "string") {
             displayError(ex);
@@ -127,7 +162,7 @@ var alertplus = (function () {
         var rtNotEmpty = (ex.responseText && ex.responseText !== "{}");
 
         if (rtNotEmpty) {
-            displayError(ex.responseText);
+            displayError(stripHtmlElements(ex.responseText));
             return;
         }
 
@@ -142,30 +177,12 @@ var alertplus = (function () {
         }
 
         if (ex.message) {
-            var message;
-            if (ex.message.indexOf("<html>") >= 0) {
-                //
-                // Extract just <body> from it because otherwise any styles inside
-                // of the document can mess up your parent document.
-                //
-                var start = ex.message.indexOf("<body>");
-                var end = ex.message.indexOf("</body>");
-                if (start > 0 && end > 0) {
-                    message = ex.message.slice(start + 6, end);
-                } else {
-                    message = ex.message;
-                }
+            var message = stripHtmlElements(ex.message);
 
-                if (ex.status) {
-                    message = "<h2>Error " + ex.status + "</h2>" + message;
-                }
-            } else {
-                if (ex.status) {
-                    message = "Error " + ex.status + ": " + ex.message;
-                } else {
-                    message = ex.message;
-                }
+            if (ex.status) {
+                message = "<h2>Error " + ex.status + "</h2><br>" + message;
             }
+
             displayError(message, ex.details);
             return;
         }
