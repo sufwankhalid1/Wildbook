@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.jdo.PersistenceManager;
 import javax.servlet.ServletException;
@@ -53,6 +55,7 @@ public class MediaUploadServlet
 
     private static final String FILES_MAP = "filesMap";
 
+    private static ExecutorService executor = Executors.newFixedThreadPool(5);
     //
     // this will store uploaded files
     // Let's put them in the user's session object so they don't hang around forever.
@@ -81,11 +84,11 @@ public class MediaUploadServlet
 
         for (FileMeta file : new ArrayList<FileMeta>(fileSet.files)) {
             if (file.name.equalsIgnoreCase(filename)) {
-                new Thread(new DeleteMedia(context,
-                           msid,
-                           getRootDir(request),
-                           baseDir,
-                           file)).start();
+                executor.execute(new DeleteMedia(context,
+                        msid,
+                        getRootDir(request),
+                        baseDir,
+                        file));
                 fileSet.files.remove(file);
             }
         }
@@ -339,10 +342,10 @@ public class MediaUploadServlet
                     // yet by the time the user gets the results back from this servlet.
                     // If so, they will get a broken link image.
                     //
-                    new Thread(new SaveMedia(context,
-                                             id,
-                                             fullBaseDir,
-                                             file)).start();
+                    executor.execute(new SaveMedia(context,
+                            id,
+                            fullBaseDir,
+                            file));
                 }
             } catch (FileUploadException ex) {
                 ex.printStackTrace();
