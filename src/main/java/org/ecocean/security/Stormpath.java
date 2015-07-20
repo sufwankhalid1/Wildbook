@@ -74,10 +74,6 @@ public class Stormpath {
         return myApplication;
     }
 
-    public static String propertiesPath(HttpServletRequest request) {
-        return request.getSession().getServletContext().getRealPath("/") + "/WEB-INF/classes/bundles/stormpathApiKey.properties";
-    }
-
     //note: username and custom are optional (username becomes email address if not provided); the rest are required
     public static Account createAccount(Client client, String givenName, String surname, String email, String password, String username, HashMap<String,Object> custom) throws Exception {
         if (isEmpty(givenName) || isEmpty(surname) || isEmpty(email) || isEmpty(password)) throw new Exception("missing required fields to create user");
