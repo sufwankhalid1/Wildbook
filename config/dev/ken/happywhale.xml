@@ -1,0 +1,6 @@
+<Context docBase="/opt/wildme/happywhale/wildbook/wildbook" 
+         path="/happywhale" 
+         reloadable="true">
+
+    <Parameter name="config.dir" value="/opt/wildme/happywhale/wildbook/config" override="false"/>
+</Context>
