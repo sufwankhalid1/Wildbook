@@ -61,4 +61,13 @@ public class SurveyTrack {
   public void setMedia(List<SinglePhotoVideo> media) {
     this.media = media;
   }
+
+    public Long startTime() {
+        if ((points == null) || (points.size() < 1)) return null;
+        return points.get(0).getTimestamp();
+    }
+    public Long endTime() {
+        if ((points == null) || (points.size() < 1)) return null;
+        return points.get(points.size() - 1).getTimestamp();
+    }
 }
