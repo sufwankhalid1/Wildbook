@@ -1,5 +1,8 @@
 extends layout
 
+block css
+    link(rel="stylesheet" href="/vendor/leaflet/leaflet.css")
+
 block content
     .maincontent
         h1.has-icon.icon-happywhale= t("individual.meet", {individualId: data.ind.nickname + "(" + data.ind.id + ")"})
@@ -69,16 +72,18 @@ block content
                             img(src="/cust/images/img_waves.svg")
                         .row
                             span.sight-date 7/14/15
-        div
-            for encounter in data.ind.encounters
-                ul.submitters
-                    li #{encounter.verbatimLocation}
+        div#map-sightings
+        
         p= t("individual.seenIndividual")
         a(href="/submitMedia")
             button.btn.btn-primary= t("individual.shareExperience")
         
         
 block scripts
+    script(src="/vendor/leaflet/leaflet-src.js")
+    script(src="/javascript/maptool.js")
+    script(src='/javascript/individual.js')
+    
     script.
         //
         // Trigger bootstrap carousels
@@ -87,4 +92,9 @@ block scripts
             $('.carousel').carousel({
                 interval: 3000
             });
+        });
+        
+        var data = !{JSON.stringify(data)};
+        $(document).ready(function() {
+            individual.init(data);
         });

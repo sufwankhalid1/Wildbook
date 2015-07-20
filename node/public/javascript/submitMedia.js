@@ -1,9 +1,3 @@
-//
-// This makes it so that it appears in the chrome debugger as a source so
-// you can set breakpoints and debug. It shows up under the "(no domain)" section.
-// By default, scripts loaded via ajax (in this case the jquery.load() method will
-// not appear in the debugger.
-//
 'use strict';
 
 //app.configPromise.then(function() {
@@ -16,12 +10,7 @@ var submitMedia = (function () {
     var map = null;
 
     $(function() {
-        map = L.map('mediasubmissionmap');
-
-        L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-            maxZoom: 18
-        }).addTo(map);
+        map = maptool.create('mediasubmissionmap');
     });
 
     function addToMap(latitude, longitude) {
