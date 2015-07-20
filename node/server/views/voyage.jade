@@ -3,11 +3,11 @@ extends layout
 block content
     .maincontent.voyage-viewer
         section.container-fluid
-            h1.has-icon.icon-happywhale= t("voyage.h1Thanks")
             //p VOYAGGGGE surveyTrackID=(#{surveyTrackID}) mediaID=(#{mediaID}) matchID=(#{matchID})
             //xmp !{JSON.stringify(voyage, null, 2)}
-            p!= t("voyage.thanksForFeedback", {indLink: voyage.match.link, escapeInterpolation: false})
             if voyage.match
+                h1.has-icon.icon-happywhale= t("voyage.h1Thanks")
+                p!= t("voyage.thanksForFeedback", {indLink: voyage.match.link, escapeInterpolation: false})
                 .match-pair
                     .image
                         img(src="#{voyage.match.testImage.url}")
@@ -34,7 +34,7 @@ block content
                 h2= t("activity.h2RecentActivity")
                 hr
             h2= t("voyage.h2Contributions")
-            a.btn.btn-primary.btn-oversize(href='#')= t("voyage.btnAddMedia")
+            a.btn.btn-primary.btn-oversize(href='/submitMedia')= t("voyage.btnAddMedia")
             p= t("voyage.contributionsIntro")
             if voyage.contributions
                 p your contribs here...
