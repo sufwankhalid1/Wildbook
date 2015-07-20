@@ -5,32 +5,37 @@ block content
         section.container-fluid
             h1.has-icon.icon-happywhale= t("voyage.h1Thanks")
             //p VOYAGGGGE surveyTrackID=(#{surveyTrackID}) mediaID=(#{mediaID}) matchID=(#{matchID})
-            //p #{JSON.stringify(surveyTrack)}
-            p!= t("voyage.thanksForFeedback", {indLink: match.link, escapeInterpolation: false})
-            if match
+            //xmp !{JSON.stringify(voyage, null, 2)}
+            p!= t("voyage.thanksForFeedback", {indLink: voyage.match.link, escapeInterpolation: false})
+            if voyage.match
                 .match-pair
                     .image
-                        img(src="#{match.testImage.url}")
-                        .caption #{match.testImage.caption}
+                        img(src="#{voyage.match.testImage.url}")
+                        .caption #{voyage.match.testCaption}
                     .image.image-right
-                        img(src="#{match.matchImage.url}")
-                        .caption #{match.matchImage.caption}
-                a.btn.btn-primary.btn-oversize(href='#')= t("voyage.btnMeetWhale")
+                        img(src="#{voyage.match.matchImage.url}")
+                        .caption #{voyage.match.matchCaption}
+                a.btn.btn-primary.btn-oversize(href='/individual/#{voyage.match.individualID}')= t("voyage.btnMeetWhale")
                 a.btn.btn-primary.btn-oversize(href='#')= t("voyage.btnIDPhotos")
-                .hr-light
+                hr
             h1.has-icon.icon-voyageviewer= t("voyage.h1VoyageViewer")
-            if surveyTrack.contributors
+            if voyage.contributors
                 h2= t("voyage.h2Contributors")
-                .hr-light
-            if surveyTrack.recentSightings
+                hr
+                for user in voyage.contributors
+                    ul.submitters
+                        li
+                            include partials/user
+                //xmp !{JSON.stringify(voyage.contributors, null, 2)}
+            if voyage.recentSightings
                 h2= t("voyage.h2RecentSightings")
-                .hr-light
-            if surveyTrack.activity
+                hr
+            if voyage.activity
                 h2= t("activity.h2RecentActivity")
-                .hr-light
+                hr
             h2= t("voyage.h2Contributions")
             a.btn.btn-primary.btn-oversize(href='#')= t("voyage.btnAddMedia")
             p= t("voyage.contributionsIntro")
-            if surveyTrack.contributions
+            if voyage.contributions
                 p your contribs here...
             include sharePage.jade
