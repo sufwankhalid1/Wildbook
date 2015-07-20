@@ -33,6 +33,21 @@ with the contents
 
 and put your configuration files there. You still put the wildbook.war into the webapps dir of $TOMCAT_HOME. But now, because this file is named wildbook.xml, it will pick up this config param.
 
+Here is my **/opt/wildme** directory on my machine as an example...
+
+    cuervomovil:wildme ken$ tree
+    .
+    ├── happywhale
+    │   └── wildbook
+    │       ├── config
+    │       │   └── stormpathApiKey.properties
+    │       └── wildbook.war
+    ├── log
+    │   └── core.html
+    └── logback.xml
+    
+I just update the wildbook.war file in this directory whenever I want to "install" a new war file to happywhale.
+
 ##Logging
 
 Set up the directory to which logs are directed via the system property
