@@ -1,7 +1,11 @@
 {
+    "wildbook": {"protocol": "http://",
+        "server": "localhost:8080/happywhale",
+        "staticUrl": "http://localhost:8080"},
     "client": {"wildbook": {
-            "url": "http://localhost:8080/wildbook",
-            "staticUrl": "http://localhost:8080"
+            "url": "http://localhost:8080/happywhale",
+            "staticUrl": "http://localhost:8080",
+            "proxy": false
         }
     }
 }

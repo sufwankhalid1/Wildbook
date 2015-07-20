@@ -18,6 +18,7 @@ public class IndividualController
                                           @PathVariable("id")
                                           final String id)
     {
+        System.out.println(ServletUtilities.getConfigDir(request));
         return SimpleFactory.getIndividual(ServletUtilities.getContext(request),
                                            ServletUtilities.getConfigDir(request),
                                            id);

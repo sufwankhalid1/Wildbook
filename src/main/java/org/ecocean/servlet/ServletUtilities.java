@@ -255,7 +255,7 @@ public class ServletUtilities {
   }
 
   public static String getConfigDir(final HttpServletRequest request) {
-      return request.getServletContext().getInitParameter("config");
+      return request.getServletContext().getInitParameter("config.dir");
   }
 
 
