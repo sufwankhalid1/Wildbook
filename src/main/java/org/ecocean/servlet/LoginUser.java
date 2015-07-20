@@ -108,8 +108,7 @@ import com.stormpath.sdk.resource.ResourceException;
 
 
     //we *first* try Stormpath, and see what we get
-    String propPath = request.getSession().getServletContext().getRealPath("/") + "/WEB-INF/classes/bundles/stormpathApiKey.properties";
-    Client client = Stormpath.getClient(propPath);
+    Client client = Stormpath.getClient(Stormpath.propertiesPath(request));
     myShepherd = new Shepherd(context);
 
     if (client != null) {

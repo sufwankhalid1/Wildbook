@@ -21,9 +21,7 @@ public class IndividualController
                                           @PathVariable("id")
                                           final String id)
     {
-        String propPath = request.getSession().getServletContext().getRealPath("/") + "/WEB-INF/classes/bundles/stormpathApiKey.properties";
-        Client client = Stormpath.getClient(propPath);
-
+        Client client = Stormpath.getClient(Stormpath.propertiesPath(request));
         return SimpleFactory.getIndividual(ServletUtilities.getContext(request), client, id);
     }
 

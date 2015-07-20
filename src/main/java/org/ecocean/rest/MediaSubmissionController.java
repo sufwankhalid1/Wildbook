@@ -282,10 +282,8 @@ System.out.println(sql);
         } else {
             email = media.getEmail();
 
-            String propPath = request.getSession().getServletContext().getRealPath("/") + "/WEB-INF/classes/bundles/stormpathApiKey.properties";
-
             //since this user is not logged into wildbook, we want to at least create a Stormpath user *if* one does not exist
-            Client client = Stormpath.getClient(propPath);
+            Client client = Stormpath.getClient(Stormpath.propertiesPath(request));
             if (client != null) {
                 if (log.isDebugEnabled()) log.debug("checking on stormpath for email=" + email);
                 HashMap<String,Object> q = new HashMap<String,Object>();

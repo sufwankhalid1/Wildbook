@@ -4,6 +4,7 @@ package org.ecocean.security;
 
 
 import java.util.HashMap;
+import javax.servlet.http.HttpServletRequest;
 
 import org.ecocean.User;
 import org.ecocean.Util;
@@ -71,6 +72,10 @@ public class Stormpath {
         );
         myApplication = applications.iterator().next();
         return myApplication;
+    }
+
+    public static String propertiesPath(HttpServletRequest request) {
+        return request.getSession().getServletContext().getRealPath("/") + "/WEB-INF/classes/bundles/stormpathApiKey.properties";
     }
 
     //note: username and custom are optional (username becomes email address if not provided); the rest are required
