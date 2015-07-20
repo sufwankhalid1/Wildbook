@@ -57,7 +57,8 @@
         "sightings": "Sightings",
         "seenIndividual": "Seen this whale? Share your photos, videos, and stories.",
         "shareExperience": "SHARE YOUR EXPERIENCE",
-        "mostRecent": "MOST RECENT",
-        "firstKnown": "FIRST KNOWN"
+        "firstSighted": "FIRST SIGHTED",
+        "lastSeen": "LAST SEEN",
+        "reportedSightings": "REPORTED<br>SIGHTINGS"
     }
 }

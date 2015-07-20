@@ -53,17 +53,17 @@ block content
                         .row
                             span.sight-number #{data.ind.encounters.length}
                         .row
-                            span.sight-date-text REPORTED<br>SIGHTINGS
+                            span.sight-date-text!= t("individual.reportedSightings")
                     .col-md-3
                         .row
-                            span.sight-date-text.pull-right FIRST SIGHTED
+                            span.sight-date-text.pull-right= t("individual.firstSighted")
                         .row
                             img(src="/cust/images/img_whale.svg" height="80px")
                     .col-md-3
                         .row
                             span.sight-date 3/27/97
                         .row
-                            span.sight-date-text.pull-right LAST SEEN
+                            span.sight-date-text.pull-right= t("individual.lastSeen")
                     .col-md-3
                         .row
                             img(src="/cust/images/img_waves.svg")
