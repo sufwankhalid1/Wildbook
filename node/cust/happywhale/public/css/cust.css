@@ -122,3 +122,24 @@ li.active .wizard-icon.map {
     background-color: #107D9F;
     color: #EFEFEF;
 }
+
+
+.sight-date {
+    color: #8dcbce;
+    font-size: 2.5em;
+}
+
+.sight-date-text {
+    color: #96a1a5;
+    font-size: 1.8em;
+}
+
+.sight-number {
+    color: #8dcbce;
+    font-size: 4.0em;
+    text-align: center;
+}
+
+.sight-stats {
+    line-height: normal;
+}
