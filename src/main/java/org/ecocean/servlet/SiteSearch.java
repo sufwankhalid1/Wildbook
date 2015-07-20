@@ -71,14 +71,16 @@ public class SiteSearch extends HttpServlet {
     while (all.hasNext()) {
         ind = (MarkedIndividual) (all.next());
         HashMap h = null;
+        //TODO smarter matching (e.g. also against researchers, locations, etc etc; i18n of text
+        //   also: should the 'value' be a url? or something akin to CLASS:id ?  pros for url: just go there; con: individual:foo means diff things in wb vs node
         if (Pattern.matches(regex, ind.getIndividualID().toLowerCase())) {
             h = new HashMap();
             h.put("label", "Whale " + ind.getIndividualID());
-            h.put("value", "ind/" + ind.getIndividualID());
+            h.put("value", "/individual/" + ind.getIndividualID());
         } else if (Pattern.matches(regex, ind.getNickName().toLowerCase())) {
             h = new HashMap();
             h.put("label", "Whale " + ind.getIndividualID() + " (nickname " + ind.getNickName() + ")");
-            h.put("value", "ind/" + ind.getIndividualID());
+            h.put("value", "/individual/" + ind.getIndividualID());
         }
         if (h != null) list.add(h);
     }
