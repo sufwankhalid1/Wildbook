@@ -90,7 +90,8 @@ $(document).ready(function() {
                 }
             },
             select: function(ev, ui) {
-                alertplus.alert('selected "' + ui.item.label + '" with fake url: ' + ui.item.value);
+                //alertplus.alert('selected "' + ui.item.label + '" with fake url: ' + ui.item.value);
+                window.location.href = ui.item.value;
                 return false;
             },
             source: app.config.wildbook.proxyUrl + "/search"
