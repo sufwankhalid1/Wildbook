@@ -3,14 +3,11 @@ package org.ecocean.rest;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.ecocean.security.Stormpath;
 import org.ecocean.servlet.ServletUtilities;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.stormpath.sdk.client.Client;
 
 @RestController
 @RequestMapping(value = "/data")
@@ -21,8 +18,9 @@ public class IndividualController
                                           @PathVariable("id")
                                           final String id)
     {
-        Client client = Stormpath.getClient(Stormpath.propertiesPath(request));
-        return SimpleFactory.getIndividual(ServletUtilities.getContext(request), client, id);
+        return SimpleFactory.getIndividual(ServletUtilities.getContext(request),
+                                           ServletUtilities.getConfigDir(request),
+                                           id);
     }
 
 

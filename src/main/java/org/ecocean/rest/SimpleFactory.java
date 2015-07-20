@@ -19,7 +19,7 @@ public class SimpleFactory {
 
 
     public static SimpleIndividual getIndividual(final String context,
-                                                 final Client client,
+                                                 final String configDir,
                                                  final String id) {
         Shepherd myShepherd = new Shepherd(context);
         MarkedIndividual mi = myShepherd.getMarkedIndividual(id);
@@ -28,7 +28,7 @@ public class SimpleFactory {
             return null;
         }
 
-        return getIndividual(context, client, mi);
+        return getIndividual(context, configDir, mi);
     }
 
 
@@ -46,7 +46,7 @@ public class SimpleFactory {
 
 
     public static SimpleIndividual getIndividual(final String context,
-                                                 final Client client,
+                                                 final String configDir,
                                                  final MarkedIndividual mi) {
 
         SimpleIndividual ind = new SimpleIndividual(mi.getIndividualID(), mi.getNickName());
@@ -59,7 +59,7 @@ public class SimpleFactory {
         java.util.Iterator<Encounter> it = mi.getEncounters().iterator();
         while (it.hasNext()) {
             Encounter enc = it.next();
-            ind.addEncounter(getEncounter(context, client, enc));
+            ind.addEncounter(getEncounter(context, configDir, enc));
         }
 
         //
@@ -87,7 +87,7 @@ public class SimpleFactory {
     }
 
 
-    public static SimpleEncounter getEncounter(final String context, final Client client, final Encounter encounter)
+    public static SimpleEncounter getEncounter(final String context, String configDir, final Encounter encounter)
     {
         SimpleEncounter se = new SimpleEncounter(encounter.getDWCGlobalUniqueIdentifier(),
                                                  encounter.getDateInMilliseconds());
@@ -103,6 +103,7 @@ public class SimpleFactory {
             se.addPhoto(getPhoto(context, photo));
         }
 
+        Client client = Stormpath.getClient(configDir);
         AccountList accounts = Stormpath.getAccounts(client, encounter.getSubmitterID());
 
         if (accounts.getSize() < 1) {

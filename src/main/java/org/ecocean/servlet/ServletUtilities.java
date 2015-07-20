@@ -254,6 +254,10 @@ public class ServletUtilities {
 
   }
 
+  public static String getConfigDir(final HttpServletRequest request) {
+      return request.getServletContext().getInitParameter("config");
+  }
+
 
   //Loads a String of text from a specified file.
   //This is generally used to load an email template for automated emailing

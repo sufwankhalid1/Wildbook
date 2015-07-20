@@ -41,6 +41,11 @@
     Photo-identification Library
   </description>
 
+  <context-param>
+    <param-name>config</param-name>
+    <param-value>/opt/wildbook/config</param-value>
+  </context-param>
+
   <!-- Struts Tag Library Descriptors -->
   <!--jsp-config>
     <taglib>

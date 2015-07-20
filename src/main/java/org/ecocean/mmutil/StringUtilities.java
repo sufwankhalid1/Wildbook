@@ -18,8 +18,12 @@
 
 package org.ecocean.mmutil;
 
-import java.text.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
+import java.util.StringTokenizer;
+
+import org.apache.commons.codec.digest.DigestUtils;
 
 /**
  * StringUtilities provides helpful static utility functions dealing
@@ -27,7 +31,6 @@ import java.util.*;
  */
 public class StringUtilities
 {
-
     /**
      * Return true if the given String is null or "".
      */
@@ -161,10 +164,10 @@ public class StringUtilities
      * Split a string on newline markers ("\n"), returning an array
      * of resulting Strings.
      **/
-    public static String[] splitLines (String str)
+    public static String[] splitLines(String str)
     {
         String mark = "\\n";
-        ArrayList result = new ArrayList ();
+        ArrayList<String> result = new ArrayList<String>();
 
         int i = 0;
         while ((i = str.indexOf (mark)) != -1)
@@ -174,6 +177,29 @@ public class StringUtilities
         }
         result.add (str);
 
-        return (String[])result.toArray (new String[result.size ()]);
+        return result.toArray (new String[result.size ()]);
+    }
+
+    public static String getHashOf(final String hashMe) {
+        return DigestUtils.md5Hex(hashMe);
+    }
+
+    public static String getHashOfCommaList(String hashMe) {
+        String returnString = null;
+
+        StringTokenizer tokenizer = new StringTokenizer(hashMe, ",");
+        while (tokenizer.hasMoreTokens()) {
+            String token = tokenizer.nextToken().trim().toLowerCase();
+            if (!token.equals("")) {
+                String md5 = DigestUtils.md5Hex(token);
+                if (returnString == null) {
+                    returnString = md5;
+                } else {
+                    returnString += "," + md5;
+                }
+            }
+        }
+
+        return returnString;
     }
 }

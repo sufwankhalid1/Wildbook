@@ -3,6 +3,7 @@ package org.ecocean.rest;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.ecocean.mmutil.StringUtilities;
 
 public class SimpleUser {
     private final String username;
@@ -110,7 +111,7 @@ public class SimpleUser {
         // be sized to fit it's use anyway.
         //
         return "http://www.gravatar.com/avatar/"
-            + org.ecocean.util.StringUtils.getHashOf(email.trim().toLowerCase())
+            + StringUtilities.getHashOf(email.trim().toLowerCase())
             + "?s=48";
     }
 

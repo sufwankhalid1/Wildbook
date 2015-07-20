@@ -108,7 +108,7 @@ import com.stormpath.sdk.resource.ResourceException;
 
 
     //we *first* try Stormpath, and see what we get
-    Client client = Stormpath.getClient(Stormpath.propertiesPath(request));
+    Client client = Stormpath.getClient(ServletUtilities.getConfigDir(request));
     myShepherd = new Shepherd(context);
 
     if (client != null) {

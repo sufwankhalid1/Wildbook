@@ -5,7 +5,7 @@
     "client": {"wildbook": {
         "url": "http://wildbook.happywhale.com",
         "staticUrl": "http://wildbook.happywhale.com",
-        "proxy": true},
+        "proxy": false},
         "social": {"facebook": {
             "id": "happywhales"
         },

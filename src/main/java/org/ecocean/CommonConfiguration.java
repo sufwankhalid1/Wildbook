@@ -19,6 +19,7 @@
 
 package org.ecocean;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -28,7 +29,8 @@ import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.ecocean.util.StringUtils;
+import org.apache.commons.lang.StringUtils;
+import org.ecocean.mmutil.StringUtilities;
 
 public class CommonConfiguration {
 
@@ -347,7 +349,7 @@ public class CommonConfiguration {
               + "\nhttp://"
               + getURLLocation(request)
               + "/removeEmailAddress.jsp?hashedEmail="
-              + StringUtils.getHashOfCommaList(emailAddress)));
+              + StringUtilities.getHashOfCommaList(emailAddress)));
     }
     return originalString;
   }
@@ -400,18 +402,23 @@ public class CommonConfiguration {
   }
 
 
+  public static String getDataDirectoryName(final String context) {
+      get(context);
 
-  public static String getDataDirectoryName(String context) {
-    get(context);
-    String dataDirectoryName="shepherd_data_dir";
+      String dataDirectoryName = ContextConfiguration.getDataDirForContext(context);
 
-    //new context code here
+      // if(props.getProperty("dataDirectoryName")!=null){return props.getProperty("dataDirectoryName").trim();}
 
-    //if(props.getProperty("dataDirectoryName")!=null){return props.getProperty("dataDirectoryName").trim();}
+      if (StringUtils.isEmpty(dataDirectoryName)) {
+          return "shepherd_data_dir";
+      }
 
-    if((ContextConfiguration.getDataDirForContext(context)!=null)&&(!ContextConfiguration.getDataDirForContext(context).trim().equals(""))){dataDirectoryName=ContextConfiguration.getDataDirForContext(context);}
+      return dataDirectoryName;
+  }
 
-    return dataDirectoryName;
+
+  public static File getDataDirectory(final String context) {
+      return new File(new File("webapps"), getDataDirectoryName(context));
   }
 
   /**
