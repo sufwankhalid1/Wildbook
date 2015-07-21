@@ -64,14 +64,14 @@ block content
                             img(src="/cust/images/img_whale.svg" height="80px")
                     .col-md-3
                         .row
-                            span.sight-date 3/27/97
+                            span.sight-date #{data.firstSeen}
                         .row
                             span.sight-date-text.pull-right= t("individual.lastSeen")
                     .col-md-3
                         .row
                             img(src="/cust/images/img_waves.svg")
                         .row
-                            span.sight-date 7/14/15
+                            span.sight-date #{data.lastSeen}
         #map-sightings
         
         p= t("individual.seenIndividual")
