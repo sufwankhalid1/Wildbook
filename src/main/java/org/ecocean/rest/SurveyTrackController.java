@@ -188,16 +188,10 @@ public class SurveyTrackController
         }
         match.put("matchImage", SimpleFactory.getPhoto(context, spvs.get(offset)));
 
-        String photoUserName = enc.getSubmitterID();
-/////////TODO figure out how to properly attribute a photographer of an Encounter image !!! grrrr
-/*
-        AccountList accounts = Stormpath.getAccounts(client, enc.getSubmitterID());
-        if (accounts.getSize() > 0) {
-            Account account = accounts.iterator().next();
-            photoUserName = account.getFullName();
-        }
-*/
-        String mcaption = "Photo taken by " + photoUserName + " in " + enc.getYear();
+        String encUsername = enc.getSubmitterID();
+        if ("N/A".equals(encUsername)) encUsername = null; //grrrr
+        SimpleUser photoUser = SimpleFactory.getAnyUser(context, ServletUtilities.getConfigDir(request), encUsername, enc.getSubmitterEmail(), true);
+        String mcaption = "Photo taken by " + photoUser.getFullName() + " in " + enc.getYear();
         if (!Util.isEmpty(enc.getLocationCode())) mcaption += " in " + enc.getLocationCode();
         match.put("matchCaption", mcaption + ".");
         if (ind == null) {
@@ -228,21 +222,12 @@ public class SurveyTrackController
         if (track != null) {
             List<MediaSubmission> sources = MediaSubmission.findMediaSources(track.getMedia(), context);
             if (sources.size() > 0) {
-                Client client = Stormpath.getClient(ServletUtilities.getConfigDir(request));
+                //Client client = Stormpath.getClient(ServletUtilities.getConfigDir(request));
                 obj.put("sources", sources);
                 List<SimpleUser> contrib = new ArrayList<SimpleUser>();
                 for (MediaSubmission m : sources) {
-                    //(in theory) there should be a stormpath user for every mediasubmission; so we should get it via username or email
-                    String uname = m.getUsername();
-                    if (Util.isEmpty(uname)) uname = m.getEmail();
-System.out.println("using uname=" + uname);
-                    AccountList accounts = Stormpath.getAccounts(client, uname);
-                    if (accounts.getSize() > 0) {
-                        Account account = accounts.iterator().next();
-                        contrib.add(SimpleFactory.getStormpathUser(account));
-                    } else {
-System.out.println("could not find Stormpath user");
-                    }
+                    //note: (in theory) there should be a stormpath user for every mediasubmission; so we should get it via username or email
+                    contrib.add(SimpleFactory.getAnyUser(context, ServletUtilities.getConfigDir(request), m.getUsername(), m.getEmail(), true));
                 }
                 obj.put("contributors", contrib);
             }
