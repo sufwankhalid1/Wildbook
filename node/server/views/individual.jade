@@ -72,7 +72,7 @@ block content
                             img(src="/cust/images/img_waves.svg")
                         .row
                             span.sight-date 7/14/15
-        div#map-sightings
+        #map-sightings
         
         p= t("individual.seenIndividual")
         a(href="/submitMedia")
@@ -94,7 +94,8 @@ block scripts
             });
         });
         
-        var data = !{JSON.stringify(data)};
-        $(document).ready(function() {
-            individual.init(data);
+        var ind = !{JSON.stringify(data.ind)};
+        
+        app.configPromise.then(function() {
+            individualPage.init(ind);
         });

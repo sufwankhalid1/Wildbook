@@ -5,22 +5,26 @@
 //});
 
 var submitMedia = (function () {
-    var marker = null;
+    var markers = null;
     var hasGPS = false;
     var map = null;
 
     $(function() {
-        map = maptool.create('mediasubmissionmap');
+        map = maptool.createMap('map-mediasubmission');
     });
 
     function addToMap(latitude, longitude) {
-        if (marker) {
-            map.removeLayer(marker);
+        if (markers) {
+            markers.forEach(function(marker) {
+                map.map.removeLayer(marker);
+            });
         }
+
         if (latitude && longitude) {
-            var latlng = L.latLng(latitude, longitude);
-            marker = L.marker(latlng).addTo(map);
-            map.setView(latlng, 2);
+            markers = map.addIndividuals([[latitude, longitude]]);
+//            var latlng = L.latLng(latitude, longitude);
+//            marker = L.marker(latlng).addTo(map.map);
+//            map.map.setView(latlng, 2);
         }
 
         //
@@ -99,14 +103,13 @@ var submitMedia = (function () {
 //            });
 
             angular.element(document).ready(function() {
-                map.on('click', function(event) {
-                    if (! hasGPS) {
-                        $scope.$apply(function() {
+                map.map.on('click', function(event) {
+                    $scope.$apply(function() {
+                        if (! hasGPS) {
                             $scope.media.latitude = event.latlng.lat;
                             $scope.media.longitude = event.latlng.lng;
-                        });
-    //                        addToMap(latlng);
-                    }
+                        }
+                    });
                 });
             });
 
@@ -259,13 +262,13 @@ var submitMedia = (function () {
                         //
                         $.each(data.items, function() {
                             if (this.latitude && this.longitude) {
-                                L.marker(L.latLng(this.latitude, this.longitude)).addTo(map);
+                                L.marker(L.latLng(this.latitude, this.longitude)).addTo(map.map);
                             }
                         });
 
-                        map.setView(L.latLng(avg.latitude, avg.longitude), 2);
+                        map.map.setView(L.latLng(avg.latitude, avg.longitude), 2);
                     } else {
-                        map.setView([0,0], 1);
+                        map.map.setView([0,0], 1);
                     }
 
                     //
@@ -273,7 +276,7 @@ var submitMedia = (function () {
                     // from properly auto-sizing.
                     //
                     setTimeout(function () {
-                        map.invalidateSize();
+                        map.map.invalidateSize();
                     }, 1000);
 
 

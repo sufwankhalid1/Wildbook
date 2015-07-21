@@ -1,24 +1,38 @@
 {
-    "wildbook": {"protocol": "http://",
-                 "server": "localhost:8080/wildbook",
-                 "staticUrl": "http://localhost:8080"},
-    "client": {"wildbook": {
-        "url": "http://wildbook.happywhale.com",
-        "staticUrl": "http://wildbook.happywhale.com",
-        "proxy": false},
-        "social": {"facebook": {
-            "id": "happywhales"
+    "wildbook": {
+        "protocol": "http://",
+        "server": "localhost:8080/wildbook",
+        "staticUrl": "http://localhost:8080"
+    },
+    "client": {
+        "wildbook": {
+            "url": "http://wildbook.happywhale.com",
+            "staticUrl": "http://wildbook.happywhale.com",
+            "proxy": false
         },
-        "twitter": {
-            "id": "happyhumpback",
-            "consumer_key": "UTEfL90bUGqXcsERcFbJRU4Ng",
-            "feed_count": 4
+        "social": {
+            "facebook": {
+                "id": "happywhales"
+            },
+            "twitter": {
+                "id": "happyhumpback",
+                "consumer_key": "UTEfL90bUGqXcsERcFbJRU4Ng",
+                "feed_count": 4
+            },
+            "instagram": {
+                "id": "happyhumpback",
+                "user_id": "1920104499",
+                "feed_count": 4
+            },
+            "email": "info@happywhale.com"
         },
-        "instagram": {
-            "id": "happyhumpback",
-            "user_id": "1920104499",
-            "feed_count": 4
-        },
-        "email": "info@happywhale.com"}
+        "maptool": {
+            "iconIndividual": {
+                "iconUrl": "cust/images/individual-icon.png",
+                "iconSize": [38, 95],
+                "iconAnchor": [22, 94],
+                "popupAnchor": [-3, -76]
+            }
+        }
     }
 }
