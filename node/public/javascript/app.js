@@ -48,6 +48,32 @@ var configPromise = $.get("/config")
 
 app.configPromise = configPromise;
 
+app.userDiv = function(user) {
+    if (!user) {
+        return null;
+    }
+
+    var div = $('<div>').addClass("user-info");
+    var avatar = $('<div>').attr("data-toggle", "tooltip")
+            .attr("title", "")
+            .addClass("user-avatar")
+            .attr("data-original-title", user.displayName).tooltip();
+    div.append(avatar);
+
+    var image;
+    if (user.avatar) {
+        image = $('<img>').attr("src", user.avatar)
+            .attr("onerror", "this.onerror=null;this.src=\'/cust/images/img_user_on.svg\'");
+    } else {
+        image = $('<img>').attr("src", "/cust/images/img_user_on.svg");
+    }
+
+    avatar.append(image);
+
+    return div;
+}
+
+
 //ngApp.factory('dataService', function() {
 //    var _data = {};
 //    return {
@@ -74,6 +100,8 @@ angular.module("nodeApp.controllers", [])
 //app.ngApp = ngApp;
 
 $(document).ready(function() {
+    moment.locale(window.navigator.userLanguage || window.navigator.language);
+
     //
     // Trigger bootstrap tooltips
     //

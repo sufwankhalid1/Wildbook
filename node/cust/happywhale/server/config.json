@@ -28,10 +28,10 @@
         },
         "maptool": {
             "iconIndividual": {
-                "iconUrl": "cust/images/individual-icon.png",
-                "iconSize": [38, 95],
-                "iconAnchor": [22, 94],
-                "popupAnchor": [-3, -76]
+                "iconUrl": "/cust/images/individual-icon.png",
+                "iconSize": [77, 80],
+                "iconAnchor": [16, 79],
+                "popupAnchor": [45, -66]
             }
         }
     }

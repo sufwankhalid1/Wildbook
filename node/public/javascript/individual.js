@@ -9,7 +9,14 @@ var individualPage = (function () {
         var latlngs = [];
         data.encounters.forEach(function(encounter) {
             if (encounter.latitude && encounter.longitude) {
-                latlngs.push([encounter.latitude, encounter.longitude]);
+                var popup = $("<div>");
+                popup.append($("<span>").addClass("sight-date").text(moment(encounter.dateInMilliseconds).format('LL')));
+                popup.append($("<br>"));
+                popup.append($("<span>").addClass("sight-date-text").text(encounter.verbatimLocation));
+                popup.append($("<br>"));
+                popup.append(app.userDiv(encounter.submitter));
+                latlngs.push({latlng: [encounter.latitude, encounter.longitude],
+                              popup: popup[0]});
             }
         });
 
