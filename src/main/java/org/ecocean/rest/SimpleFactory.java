@@ -1,10 +1,13 @@
 package org.ecocean.rest;
 
+import java.util.HashMap;
+
 import org.ecocean.Encounter;
 import org.ecocean.MarkedIndividual;
 import org.ecocean.Shepherd;
 import org.ecocean.SinglePhotoVideo;
 import org.ecocean.User;
+import org.ecocean.Util;
 import org.ecocean.security.Stormpath;
 
 import com.stormpath.sdk.account.Account;
@@ -159,4 +162,57 @@ public class SimpleFactory {
 
         return su;
     }
+
+    /*
+        TODO currently kind of experimental.  the idea is to pass in either ONE or BOTH of a username/email pair and get *some*
+        kind of user out, including (optionally) a sort of place holder "unknown" user (which will just return null if returnUnknownUser is false
+    */
+    //note: this *favors* Stormpath ... is this cool?
+    public static SimpleUser getAnyUser(final String context, final String configDir,
+                                        final String username, final String email, final boolean returnUnknownUser) {
+        SimpleUser user = null;
+        if (returnUnknownUser) {
+            user = new SimpleUser(null, null);
+            user.setAffiliation("Unknown"); //???
+            user.setFullName("Unknown");
+            //user.setAvatar(SOME GENERIC THING HERE);  //TODO
+        }
+        if (Util.isEmpty(username) && Util.isEmpty(email)) return user;
+
+        Client client = Stormpath.getClient(configDir);
+        if (client != null) {
+            HashMap<String, Object> q = new HashMap<String, Object>();
+            if (!Util.isEmpty(username)) {
+                q.put("username", username);
+            } else {
+                q.put("email", email);
+            }
+            AccountList accounts = Stormpath.getAccounts(client, q);
+            if (accounts.getSize() > 0) {
+                Account account = accounts.iterator().next();
+                return getStormpathUser(account);
+            }
+        }
+
+        Shepherd myShepherd = new Shepherd(context);
+        User wu = null;
+        if (!Util.isEmpty(username)) {
+            wu = myShepherd.getUser(username);
+        } else {
+            wu = myShepherd.getUserByEmailAddress(email);
+        }
+        if (wu != null) return getUser(wu);
+
+        //if we fall thru here, we have no user; but may be able to give a *little* info on the UnknownUser
+        if (!returnUnknownUser) return null;
+        String name = username;
+        if (Util.isEmpty(username)) name = email;
+        if (!Util.isEmpty(name)) {
+            //censor any email address (or email-as-username)
+            if ((name.length() > 6) && (name.indexOf("@") > -1)) name = name.substring(0,3) + ".." + name.substring(name.length() - 2);
+            user.setFullName(name);
+        }
+        return user;
+    }
+
 }
