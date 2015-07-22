@@ -109,10 +109,12 @@ public class SimpleUser {
         // Though most users will have used a small image.
         // Feel free to change if you want it bigger as all the code on the browser side should
         // be sized to fit it's use anyway.
+        // NOTE: d=identicon makes default (when not set by user) be those crazy (unique) geometric shapes, rather than the gravatar logo
+        //         - https://en.wikipedia.org/wiki/Identicon
         //
         return "http://www.gravatar.com/avatar/"
             + StringUtilities.getHashOf(email.trim().toLowerCase())
-            + "?s=48";
+            + "?s=48&d=identicon";
     }
 
     public void setAvatar(String avatar) {
