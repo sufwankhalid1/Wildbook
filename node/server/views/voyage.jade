@@ -6,7 +6,11 @@ block content
             //p VOYAGGGGE surveyTrackID=(#{surveyTrackID}) mediaID=(#{mediaID}) matchID=(#{matchID})
             //xmp !{JSON.stringify(voyage, null, 2)}
             if voyage.match
-                h1.has-icon.icon-happywhale= t("voyage.h1Thanks")
+                #voyageviewer-match-banner-header
+                    .banner-main= t("voyage.banner.main")
+                    .banner-info= t("voyage.banner.info")
+                div(style="height: 315px;")
+                h1.has-icon.icon-happywhale
                 p!= t("voyage.thanksForFeedback", {indLink: voyage.match.link, escapeInterpolation: false})
                 .match-pair
                     .image
@@ -16,7 +20,7 @@ block content
                         img(src="#{voyage.match.matchImage.url}")
                         .caption #{voyage.match.matchCaption}
                 a.btn.btn-primary.btn-oversize(href='/individual/#{voyage.match.individualID}')= t("voyage.btnMeetWhale")
-                a.btn.btn-primary.btn-oversize(href='#')= t("voyage.btnIDPhotos")
+                a.btn.btn-primary.btn-oversize(href='/submitMedia')= t("voyage.btnIDPhotos")
                 hr
             h1.has-icon.icon-voyageviewer= t("voyage.h1VoyageViewer")
             if voyage.contributors
