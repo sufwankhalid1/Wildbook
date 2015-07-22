@@ -36,6 +36,9 @@
         "h1VoyageViewer": "Voyage Viewer",
         "h2Contributors": "Contributors",
         "h2RecentSightings": "Sightings",
+        "recentActivity": {
+            "uploaded": "__uname__ uploaded __num__ to this voyage."
+        },
         "h2Contributions": "Contributions",
         "contributionsIntro": "Share your photos, videos, and stories from the voyage. We will attempt to identify whales you've photographed and share with you what we find.",
         "btnMeetWhale": "Meet this Whale",

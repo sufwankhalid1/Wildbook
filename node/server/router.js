@@ -168,6 +168,62 @@ function sendError(res, ex, status) {
 }
 
 
+//does a little logic with voyage data returned for sake of recent sightings/activity
+function voyageParser(data) {
+    //data.media has a bunch of media, we have to chop up by tags etc (while maintaining ordering)
+    if (!data.media) return;
+    data.media.reverse();  //in-place, ouch?
+    var featured = [];
+    var msub = {};
+    var msubOrder = [];
+    for (var i = 0 ; i < data.media.length ; i++) {
+        var f = regexInArray(/^feature/, data.media[i].tags);
+        if (f) {
+            var fnum = parseInt(f.substr(7));
+            if (!featured[fnum]) featured[fnum] = [];
+            featured[fnum].push(data.media[i]);
+        } else {  //TODO could also filter other stuff, like kill trashed stuff etc
+            if (!msub[data.media[i].mediaSubmissionSource]) {
+                msubOrder.push(data.media[i].mediaSubmissionSource);
+                msub[data.media[i].mediaSubmissionSource] = {
+                    user: data.contribMap[data.media[i].mediaSubmissionSource],
+                    media: []
+                };
+            }
+            msub[data.media[i].mediaSubmissionSource].media.push(data.media[i]);
+            //recent.push(data.media[i]);
+        }
+    }
+
+    var f2 = [];  //this will get featured items in featureN order (by N)
+    for (var i = 0 ; i < featured.length ; i++) {
+        if (!featured[i]) continue;
+        for (var j = 0 ; j < featured[i].length ; j++) {
+            f2.push(featured[i][j]);
+        }
+    }
+
+    var recent = [];
+    for (var i = 0 ; i < msubOrder.length ; i++) {
+        recent.push(msub[msubOrder[i]]);
+    }
+
+    data.mediaParsed = {
+        featured: f2,
+        recent: recent
+    };
+}
+
+//note: this will only return *first*
+function regexInArray(r, arr) {
+    if (!arr) return false;
+    for (var i = 0 ; i < arr.length ; i++) {
+        if (r.test(arr[i])) return arr[i];
+    }
+    return false;
+}
+
+
 module.exports = function(app, config, secrets, debug) {
 //    var usageAgreement = markdown.toHTML(fs.readFileSync(config.cust.serverDir + "/docs/UsageAgreement.md", "utf8"));
 //    var helpAndFaq = markdown.toHTML(fs.readFileSync(config.cust.serverDir + "/docs/HelpAndFaq.md", "utf8"));
@@ -242,6 +298,7 @@ module.exports = function(app, config, secrets, debug) {
         request(url)
         .then(function(response) {
             data.voyage = JSON.parse(response);
+            voyageParser(data.voyage);
             res.render('voyage', makeVars(data));
         })
         .catch(function(ex) {

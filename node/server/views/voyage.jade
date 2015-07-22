@@ -31,12 +31,26 @@ block content
                         li
                             include partials/user
                 //xmp !{JSON.stringify(voyage.contributors, null, 2)}
-            if voyage.recentSightings
+            if (voyage.mediaParsed && voyage.mediaParsed.featured)
                 h2= t("voyage.h2RecentSightings")
                 hr
-            if voyage.activity
+                .voyage-sightings
+                    for img in voyage.mediaParsed.featured
+                        .voyage-sighting.center-cropped
+                            img(src="#{img.image.url}")
+            if (voyage.mediaParsed && voyage.mediaParsed.recent)
                 h2= t("activity.h2RecentActivity")
                 hr
+                .voyage-recents
+                    for msub in voyage.mediaParsed.recent
+                        .voyage-recents-msub
+                            .activity
+                                img.user-avatar.activity-icon(src="#{msub.user.avatar}")
+                                .activity-text!= t("voyage.recentActivity.uploaded", {uname: msub.user.displayName, num: ((msub.media.length == 1) ? 'one photo' : msub.media.length + ' photos')})
+                            .media
+                                for img in msub.media
+                                    .voyage-recent.center-cropped
+                                        img(src="#{img.image.url}")
             h2= t("voyage.h2Contributions")
             a.btn.btn-primary.btn-oversize(href='/submitMedia')= t("voyage.btnAddMedia")
             p= t("voyage.contributionsIntro")

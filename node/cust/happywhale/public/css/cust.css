@@ -29,6 +29,18 @@
     background-image: url(../images/img_captain.svg);
 }
 
+/* h/t https://stackoverflow.com/a/26921844/1525311 */
+.center-cropped {
+    overflow: hidden;
+}
+.center-cropped img {
+    height: 100%;
+    min-width: 100%;
+    left: 50%;
+    position: relative;
+    transform: translateX(-50%);
+}
+
 #voyageviewer-match-banner-header {
     height: 308px;
     width: 100%;
@@ -135,6 +147,31 @@ li.active .wizard-icon.map {
     font-size: 1.1em;
 }
 
+
+/* TODO could this be universal? maybe. just kinda playing with avatar images on voyage viewer */
+.voyage-viewer .user-avatar {
+    margin-right: 15px;
+}
+.voyage-viewer .user-avatar img {
+    border-radius: 4px;
+}
+
+
+.voyage-sighting {
+    height: 150px;
+    width: 270px;
+    display: inline-block;
+    margin: 4px;
+}
+
+.voyage-recent {
+    height: 100px;
+    width: 180px;
+    display: inline-block;
+    margin: 4px;
+}
+
+
 .maincontent hr {
     color: #8dcbce;
     background-color: #8dcbce;
@@ -171,3 +208,24 @@ li.active .wizard-icon.map {
 .sight-stats {
     line-height: normal;
 }
+
+
+
+/* related to our generic(?) "recent activity" .. this is our main wrapping div */
+.activity {
+    position: relative;
+    margin-bottom: 10px;
+    height: 50px;
+}
+
+/* generally the icon of the person doing the thing */
+.activity-icon {
+    float: left;
+}
+
+/* so-and-so did this thing */
+.activity-text {
+    display: inline-block;
+    line-height: 47px;
+}
+
