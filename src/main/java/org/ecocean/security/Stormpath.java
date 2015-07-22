@@ -112,7 +112,7 @@ public class Stormpath {
     public static Account createAccount(Client client, User user) throws Exception {
         String givenName = user.getFullName();
         if (givenName == null) givenName = user.getUsername();
-        String surname = "N/A";
+        String surname = "-";
         int i = givenName.indexOf(" ");
         if (i > -1) {
             surname = givenName.substring(i + 1);

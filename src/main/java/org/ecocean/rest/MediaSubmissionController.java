@@ -290,9 +290,9 @@ System.out.println(sql);
                 AccountList accs = Stormpath.getAccounts(client, q);
                 //Iterator it = accs.iterator();
                 if (accs.getSize() < 1) {
-                    String givenName = "N/A";
+                    String givenName = "Unknown";
                     if (!Util.isEmpty(media.getName())) givenName = media.getName();
-                    String surname = "N/A";
+                    String surname = "-";
                     int si = givenName.indexOf(" ");
                     if (si > -1) {
                         surname = givenName.substring(si+1);
