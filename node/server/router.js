@@ -19,6 +19,7 @@
 var request = require('request-promise');
 var extend = require('extend');
 var VError = require('verror');
+var moment = require('moment');
 
 //
 // Switching to markdowndeep so that we can add target=_blank links in hand-coded html references.
@@ -324,7 +325,26 @@ module.exports = function(app, config, secrets, debug) {
                 console.log("URL [" + url + "]:\n" + JSON.stringify(data, null, 4));
             }
 
-            res.render("individual", makeVars({data: {ind: data}}));
+            var first = Number.POSITIVE_INFINITY;
+            var last = 0;
+
+            for (encounter of data.encounters) {
+                if (encounter.dateInMilliseconds === 0) {
+                    continue;
+                }
+                if (encounter.dateInMilliseconds > last) {
+                    last = encounter.dateInMilliseconds;
+                }
+
+                if (encounter.dateInMilliseconds < first) {
+                    first = encounter.dateInMilliseconds;
+                }
+            }
+
+            res.render("individual", makeVars({data: {ind: data,
+                firstSeen: (first === Number.POSITIVE_INFINITY) ? "" : moment(first).format("ll"),
+                lastSeen: (last === 0) ? "" : moment(last).format("ll")
+            }}));
         })
         .catch(function(ex) {
             renderError(res, new VError(ex, "Can't get individual [" + id + "]"));

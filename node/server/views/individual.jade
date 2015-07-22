@@ -2,41 +2,31 @@ extends layout
 
 block css
     link(rel="stylesheet" href="/vendor/leaflet/leaflet.css")
+    link(rel="stylesheet" href="/vendor/photoswipe/photoswipe.css")
+    link(rel="stylesheet" href="/vendor/photoswipe/default-skin/default-skin.css")
 
 block content
     .maincontent
         h1.has-icon.icon-happywhale= t("individual.meet", {individualId: data.ind.nickname + "(" + data.ind.id + ")"})
 
-        if data.ind.photos
-            //img.individual-main-image(src="#{config.wildbook.staticUrl}#{data.ind.photos[0]}")
-    
-            #individual-carousel.carousel.slide(data-ride="carousel" data-interval="5000")
-                ol.carousel-indicators
-                    li.active(data-target="#individual-carousel" data-slide-to="0")
-                    - for (var ii = 1; ii < data.ind.photos.length; ii++)
-                        li(data-target="#individual-carousel" data-slide-to="#{ii}")
-                .carousel-inner
-                    -var first = true
-                    for photo in data.ind.photos
-                        if first
-                            - first = false
-                            .item.active
-                                img(src="#{config.wildbook.staticUrl}#{photo.url}" style="height: 400px; width: auto;")
-                                if photo.caption
-                                    .carousel-caption
-                                        h3 photo.caption
-                        else
-                            .item
-                                img(src="#{config.wildbook.staticUrl}#{photo.url}" style="height: 400px; width: auto;")
-                                if photo.caption
-                                    .carousel-caption
-                                        h3 photo.caption
+        -var photos = data.ind.photos
+        //include partials/carousel
+        
+        .photo-group
+            if photos[0]
+                row
+                    img#main-photo.img-responsive(src="#{config.wildbook.staticUrl}#{photos[0].url}")
+            if photos.length > 4
+                row
+                    .col-md-4
+                        img.img-thumbnail#sub-photo1(src="#{config.wildbook.staticUrl}#{photos[1].url}")
+                    .col-md-4
+                        img.img-thumbnail#sub-photo2(src="#{config.wildbook.staticUrl}#{photos[2].url}")
+                    .col-md-4
+                        img.img-thumbnail#sub-photo3(src="#{config.wildbook.staticUrl}#{photos[3].url}")
+        
+        include partials/photoswipe
 
-                <!-- Controls -->
-                a.left.carousel-control(href="#individual-carousel" role="button" data-slide="prev")
-                    span.glyphicon.glyphicon-chevron-left
-                a.right.carousel-control(href="#individual-carousel" role="button" data-slide="next")
-                    span.glyphicon.glyphicon-chevron-right
         h2= t("individual.contributors")
         hr
         for user in data.ind.submitters
@@ -64,14 +54,14 @@ block content
                             img(src="/cust/images/img_whale.svg" height="80px")
                     .col-md-3
                         .row
-                            span.sight-date 3/27/97
+                            span.sight-date #{data.firstSeen}
                         .row
                             span.sight-date-text.pull-right= t("individual.lastSeen")
                     .col-md-3
                         .row
                             img(src="/cust/images/img_waves.svg")
                         .row
-                            span.sight-date 7/14/15
+                            span.sight-date #{data.lastSeen}
         #map-sightings
         
         p= t("individual.seenIndividual")
@@ -81,6 +71,8 @@ block content
         
 block scripts
     script(src="/vendor/leaflet/leaflet-src.js")
+    script(src="/vendor/photoswipe/photoswipe.min.js")
+    script(src="/vendor/photoswipe/photoswipe-ui-default.min.js")
     script(src="/javascript/maptool.js")
     script(src='/javascript/individual.js')
     

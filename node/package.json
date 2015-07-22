@@ -29,7 +29,8 @@
         "codebird": "2.6.0",
         "xhr2": "0.1.2",
         "markdowndeep": "1.6.8",
-        "verror": "1.6.0"
+        "verror": "1.6.0",
+        "moment": "2.10.3"
     },
     "engines": {
         "node": "0.12.0",
