@@ -227,10 +227,12 @@ public class SurveyTrackController
             if (sources.size() > 0) {
                 //obj.put("sources", sources);  //do we ever need this in rest response???
                 List<SimpleUser> contrib = new ArrayList<SimpleUser>();
+                HashMap<Long,SimpleUser> contribMap = new HashMap<Long,SimpleUser>();
                 for (MediaSubmission m : sources) {
                     //note: (in theory) there should be a stormpath user for every mediasubmission; so we should get it via username or email
-                    //TODO prevent duplicates
-                    contrib.add(SimpleFactory.getAnyUser(context, ServletUtilities.getConfigDir(request), m.getUsername(), m.getEmail(), true));
+                    SimpleUser u = SimpleFactory.getAnyUser(context, ServletUtilities.getConfigDir(request), m.getUsername(), m.getEmail(), true);
+                    if (!contrib.contains(u)) contrib.add(u);
+                    contribMap.put(m.getId(), u);
                     for (SinglePhotoVideo spv : m.getMedia()) {
                         if ((track.getMedia() != null) && track.getMedia().contains(spv)) {
                             HashMap h = new HashMap();
@@ -243,6 +245,7 @@ public class SurveyTrackController
                     }
                 }
                 obj.put("contributors", contrib);
+                obj.put("contribMap", contribMap);
             }
             obj.put("media", media);
         }
