@@ -1,0 +1,34 @@
+if photos
+    //img.individual-main-image(src="#{config.wildbook.staticUrl}#{photos[0]}")
+
+    #photo-carousel.carousel.slide(data-ride="carousel" data-interval="5000")
+        //ol.carousel-indicators
+        //    li.active(data-target="#photo-carousel" data-slide-to="0")
+        //    - for (var ii = 1; ii < photos.length; ii++)
+        //        li(data-target="#photo-carousel" data-slide-to="#{ii}")
+        .carousel-inner
+            -var first = true
+            for photo in photos
+                if first
+                    - first = false
+                    .item.active
+                        .col-md-4
+                            a(href="#")
+                                img.img-responsive.carousel-image(src="#{config.wildbook.staticUrl}#{photo.url}")
+                                if photo.caption
+                                    .carousel-caption
+                                        h3 photo.caption
+                else
+                    .item
+                        .col-md-4
+                            a(href="#")
+                                img.img-responsive.carousel-image(src="#{config.wildbook.staticUrl}#{photo.url}")
+                                if photo.caption
+                                    .carousel-caption
+                                        h3 photo.caption
+
+        <!-- Controls -->
+        a.left.carousel-control(href="#photo-carousel" role="button" data-slide="prev")
+            span.glyphicon.glyphicon-chevron-left
+        a.right.carousel-control(href="#photo-carousel" role="button" data-slide="next")
+            span.glyphicon.glyphicon-chevron-right
