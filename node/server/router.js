@@ -328,7 +328,7 @@ module.exports = function(app, config, secrets, debug) {
             var first = Number.POSITIVE_INFINITY;
             var last = 0;
 
-            for (encounter of data.encounters) {
+            for (encounter in data.encounters) {
                 if (encounter.dateInMilliseconds === 0) {
                     continue;
                 }
