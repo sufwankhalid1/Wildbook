@@ -13,6 +13,16 @@ public class LogBuilder {
         builder = new StringBuilder(initialMsg);
     }
 
+    public static LogBuilder get()
+    {
+        return new LogBuilder();
+    }
+
+    public static LogBuilder get(final String initialMsg)
+    {
+        return new LogBuilder(initialMsg);
+    }
+
     public static String quickLog(final String variable,
                                   final String value)
     {
