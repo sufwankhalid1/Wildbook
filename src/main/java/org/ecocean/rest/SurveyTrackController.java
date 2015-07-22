@@ -17,6 +17,7 @@ import org.ecocean.servlet.ServletUtilities;
 import org.ecocean.survey.SurveyTrack;
 import org.ecocean.security.Stormpath;
 import org.ecocean.media.MediaSubmission;
+import org.ecocean.media.MediaTag;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -220,17 +221,30 @@ public class SurveyTrackController
         HashMap<String,Object> obj = new HashMap<String,Object>();
         obj.put("surveyTrack", track);
         if (track != null) {
+            HashMap<SinglePhotoVideo,List<String>> tags = MediaTag.getTags(track.getMedia());
+            List<HashMap> media = new ArrayList<HashMap>();  //will be sorted based on sources
             List<MediaSubmission> sources = MediaSubmission.findMediaSources(track.getMedia(), context);
             if (sources.size() > 0) {
-                //Client client = Stormpath.getClient(ServletUtilities.getConfigDir(request));
-                obj.put("sources", sources);
+                //obj.put("sources", sources);  //do we ever need this in rest response???
                 List<SimpleUser> contrib = new ArrayList<SimpleUser>();
                 for (MediaSubmission m : sources) {
                     //note: (in theory) there should be a stormpath user for every mediasubmission; so we should get it via username or email
+                    //TODO prevent duplicates
                     contrib.add(SimpleFactory.getAnyUser(context, ServletUtilities.getConfigDir(request), m.getUsername(), m.getEmail(), true));
+                    for (SinglePhotoVideo spv : m.getMedia()) {
+                        if ((track.getMedia() != null) && track.getMedia().contains(spv)) {
+                            HashMap h = new HashMap();
+                            System.out.println(SimpleFactory.getPhoto(context, spv));
+                            h.put("image", SimpleFactory.getPhoto(context, spv));
+                            h.put("mediaSubmissionSource", m.getId());
+                            if (tags.get(spv) != null) h.put("tags", tags.get(spv));
+                            media.add(h);
+                        }
+                    }
                 }
                 obj.put("contributors", contrib);
             }
+            obj.put("media", media);
         }
 
         return obj;
