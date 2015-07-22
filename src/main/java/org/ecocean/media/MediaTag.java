@@ -70,6 +70,8 @@ public class MediaTag {
             }
         } catch (DatabaseException ex) {
             System.out.println("MediaTag.getTags() database exception: " + ex.toString());
+        } finally {
+            db.release();
         }
 
 //System.out.println(map);
