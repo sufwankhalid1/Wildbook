@@ -100,7 +100,7 @@ angular.module("nodeApp.controllers", [])
 //app.ngApp = ngApp;
 
 $(document).ready(function() {
-    moment.locale(window.navigator.userLanguage || window.navigator.language);
+    moment.locale(window.navigator.userLanguage || window.navigator.language || 'en');
 
     //
     // Trigger bootstrap tooltips
