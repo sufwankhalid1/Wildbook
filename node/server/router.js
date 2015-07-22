@@ -275,10 +275,11 @@ module.exports = function(app, config, secrets, debug) {
                 if (encounter.dateInMilliseconds === 0) {
                     continue;
                 }
-
                 if (encounter.dateInMilliseconds > last) {
                     last = encounter.dateInMilliseconds;
-                } else if (encounter.dateInMilliseconds < first) {
+                }
+
+                if (encounter.dateInMilliseconds < first) {
                     first = encounter.dateInMilliseconds;
                 }
             }
