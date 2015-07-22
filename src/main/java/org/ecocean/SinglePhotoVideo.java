@@ -230,4 +230,18 @@ System.out.println("yes. out. ))");
 		return true;
 	}
 
+    public boolean equals(Object that) {
+        if (that == null) return false;
+        if (this == that) return true;
+        if (!(that instanceof SinglePhotoVideo)) return false;
+        SinglePhotoVideo spv = (SinglePhotoVideo)that;
+        if (this.getDataCollectionEventID() == null) return false;
+        return this.getDataCollectionEventID().equals(spv.getDataCollectionEventID());
+    }
+
+    public int hashCode() {
+        if (this.getDataCollectionEventID() == null) return -1;
+        return this.getDataCollectionEventID().hashCode();
+    }
+
 }
