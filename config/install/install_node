@@ -5,6 +5,6 @@ then
     exit
 fi
 
-sudo unzip -qo -d $2 $1
 sudo stop $3
+sudo unzip -qo -d $2 $1
 sudo start $3
