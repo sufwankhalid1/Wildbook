@@ -128,6 +128,11 @@ public class Stormpath {
         return "X" + Util.generateUUID() + "X";
     }
 
+    public static Account sendPasswordResetEmail(Client client, String email) {
+        Application app = getApplication(client);
+        return app.sendPasswordResetEmail(email);
+    }
+
     //note: "username" can also be email, apparently
     public static Account loginAccount(Client client, String username, String password) throws ResourceException {
         Application app = getApplication(client);

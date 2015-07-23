@@ -307,6 +307,31 @@ module.exports = function(app, config, secrets, debug) {
         });
     });
 
+    app.get("/spPasswordReset", function(req, res) {
+        var i = req.url.indexOf("?sptoken=");
+        var tokenInfo = {};
+        if (i < 0) {
+            tokenInfo.error = "no token passed";
+            res.render('spPasswordReset', makeVars({tokenInfo: tokenInfo}));
+        } else {
+            tokenInfo.token = req.url.substr(i+9);
+            var url = config.wildbook.url + "/PasswordReset?verify&token=" + tokenInfo.token;
+            request(url)
+            .then(function(response) {
+                tokenInfo.resp = JSON.parse(response);
+                if (tokenInfo.resp.success) {
+                    res.render('spPasswordReset', makeVars({tokenInfo: tokenInfo}));
+                } else {
+                    console.error("token (" + tokenInfo.token + ") failed to validate: " + tokenInfo.resp.error);
+                    delete(tokenInfo.token);
+                    res.render('spPasswordReset', makeVars({tokenInfo: tokenInfo}));
+                }
+            })
+            .catch(function(ex) {
+                renderError(res, new VError(ex, "Trouble verifying token"));
+            });
+        }
+    });
 
     app.get("/individual/*", function(req, res) {
         var id = req.url.slice(12);

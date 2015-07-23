@@ -492,6 +492,11 @@
 
   <!-- end Shiro filters -->
 
+	<servlet>
+		<servlet-name>PasswordReset</servlet-name>
+		<servlet-class>org.ecocean.rest.PasswordReset</servlet-class>
+	</servlet>
+
   <servlet>
     <servlet-name>TissueSampleSetMeasurement</servlet-name>
     <servlet-class>org.ecocean.servlet.TissueSampleSetMeasurement</servlet-class>
@@ -1297,6 +1302,11 @@
   <servlet-mapping>
     <servlet-name>EncounterSetSex</servlet-name>
     <url-pattern>/EncounterSetSex</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>PasswordReset</servlet-name>
+    <url-pattern>/PasswordReset</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>

@@ -45,6 +45,17 @@
         "btnIDPhotos": "I.D. Your Photos",
         "btnAddMedia": "Add Media +"
     },
+    "passwordReset": {
+        "h1": "Reset your password",
+        "enterEmail": "enter email address of account to reset",
+        "buttonEmail": "Send reset email",
+        "details": "Password must have at least 8 characters, 1 of which is uppercase and 1 of which is a digit.",
+        "emailSent": "Email successfully sent.  Check your inbox and spam folder.",
+        "passwordReset": "Password has been successfully reset.",
+        "enterNew": "enter new password",
+        "verifyNew": "verify new password",
+        "buttonReset": "Reset password"
+    },
     "activity": {
         "h2RecentActivity": "Recent Activity",
         "uploadedVoyage": "__userLink__ uploaded __what__ to this voyage",

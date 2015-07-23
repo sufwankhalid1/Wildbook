@@ -229,3 +229,8 @@ li.active .wizard-icon.map {
     line-height: 47px;
 }
 
+
+#password-success {
+    font-size: 1.7em;
+    display: none;
+}
