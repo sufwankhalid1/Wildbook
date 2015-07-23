@@ -9,13 +9,6 @@
         <format>zip</format>
     </formats>
     <fileSets>
-        <!-- <fileSet>
-            <directory>${project.build.directory}</directory>
-            <outputDirectory>/</outputDirectory>
-            <includes>
-                <include>*.war</include>
-            </includes>
-        </fileSet> -->
         <fileSet>
             <directory>${project.basedir}</directory>
             <outputDirectory>/</outputDirectory>
@@ -34,6 +27,7 @@
             </includes>
         </fileSet>
         <fileSet>
+            <!-- This copies the directory to the right place which is what our symlink above simulates -->
             <directory>${project.basedir}/cust/${cust}/public</directory>
             <outputDirectory>public/cust</outputDirectory>
         </fileSet>
