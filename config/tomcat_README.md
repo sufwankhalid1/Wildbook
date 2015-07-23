@@ -49,7 +49,11 @@ Here is my **/opt/wildme** directory on my machine as an example...
 I just update the wildbook.war file in this directory whenever I want to "install" a new war file to happywhale.
 
 ##Logging
+For centOS I added the following to /etc/tomcat8/tomcat.conf file.
 
+    wrapper.java.additional.4=-Dlogback.configurationFile=/opt/happywhale/logback.xml
+
+Or you can try and use a variable to pass to the logback.xml file, but I found it simpler to just have your own logback.xml file pointing to where you want it.
 Set up the directory to which logs are directed via the system property
 
     -Dwildbook.logdir=/path/to/logdir

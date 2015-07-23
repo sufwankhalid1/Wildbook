@@ -136,8 +136,6 @@ public class SimpleFactory {
 
     public static SimpleUser getUser(final User user)
     {
-        System.out.println(user.getUsername());
-        System.out.println(user.getEmailAddress());
         SimpleUser su = new SimpleUser(user.getUsername(), user.getEmailAddress());
 
         if (user.getUserImage() != null) {
