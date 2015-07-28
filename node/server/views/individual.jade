@@ -8,6 +8,42 @@ block css
 block content
     .maincontent
         h1.has-icon.icon-happywhale= t("individual.meet", {individualId: data.ind.nickname + "(" + data.ind.id + ")"})
+        
+        .container-fluid
+            .col-md-2
+                img(src="#{config.wildbook.staticUrl}#{data.ind.avatar}" height="128px")
+            .col-md-10
+                .container-fluid.sight-stats
+                    .row
+                        .col-md-3
+                            span.sight-date-text.pull-right= t("individual.firstSighted")
+                        .col-md-3
+                            span.sight-date #{data.firstSeen}
+                        .col-md-3
+                            // birds
+                        .col-md-3
+                            // birds
+                    .row
+                        .container-fluid
+                            .col-md-2
+                                img(src="/cust/images/img_binoculars.svg" height="128px")
+                            .col-md-10
+                                .container-fluid.sight-stats
+                                    .col-md-4
+                                        .row
+                                            span.sight-number #{data.ind.encounters.length}
+                                        .row
+                                            span.sight-date-text!= t("individual.reportedSightings")
+                                    .col-md-4
+                                        .row
+                                            img(src="/cust/images/img_whale.svg" height="80px")
+                                        .row
+                                            span.sight-date-text.pull-right= t("individual.lastSeen")
+                                    .col-md-4
+                                        .row
+                                            img(src="/cust/images/img_waves.svg")
+                                        .row
+                                            span.sight-date #{data.lastSeen}
 
         -var photos = data.ind.photos
         //include partials/carousel
@@ -36,32 +72,6 @@ block content
         hr
         h2= t("individual.sightings")
         hr
-        
-        .container-fluid
-            .col-md-2
-                img(src="/cust/images/img_binoculars.svg" height="128px")
-            .col-md-10
-                .container-fluid.sight-stats
-                    .col-md-3
-                        .row
-                            span.sight-number #{data.ind.encounters.length}
-                        .row
-                            span.sight-date-text!= t("individual.reportedSightings")
-                    .col-md-3
-                        .row
-                            span.sight-date-text.pull-right= t("individual.firstSighted")
-                        .row
-                            img(src="/cust/images/img_whale.svg" height="80px")
-                    .col-md-3
-                        .row
-                            span.sight-date #{data.firstSeen}
-                        .row
-                            span.sight-date-text.pull-right= t("individual.lastSeen")
-                    .col-md-3
-                        .row
-                            img(src="/cust/images/img_waves.svg")
-                        .row
-                            span.sight-date #{data.lastSeen}
         #map-sightings
         
         p= t("individual.seenIndividual")

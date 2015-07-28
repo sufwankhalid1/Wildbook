@@ -10,13 +10,10 @@ class SimpleIndividual
     private String id;
     private String nickname;
     private String sex;
+    private String avatar;
     private final List<SimpleEncounter> encounters = new ArrayList<SimpleEncounter>();
     private final List<SimplePhoto> photos = new ArrayList<SimplePhoto>();
 
-    //
-    // TODO: Representative thumbnail needs to be better defined?
-    //
-//    private String thumbnailUrl;
 
     public SimpleIndividual()
     {
@@ -88,9 +85,19 @@ class SimpleIndividual
         return new ArrayList<SimpleUser>(submitters);
     }
 
+    public String getAvatar() {
+        if (avatar != null) {
+            return avatar;
+        }
 
-//    public void setThumbnail(final String thumbnailUrl)
-//    {
-//        this.thumbnailUrl = thumbnailUrl;
-//    }
+        if (photos.size() > 0) {
+            return photos.get(0).getUrl();
+        }
+
+        return null;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+    }
 }
