@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import javax.jdo.PersistenceManager;
 import javax.servlet.ServletException;
@@ -329,11 +331,14 @@ public class MediaUploadServlet
                     file.setUrl("/" + new File(baseDir, file.getName()));
 
                     if (Shepherd.isAcceptableImageFile(file.getName())) {
-                        file.setThumbnailUrl("/" + getThumbnailFile(baseDir, file.getName()));
+//                        file.setThumbnailUrl("/" + getThumbnailFile(baseDir, file.getName()));
+                        file.setThumbnailUrl("images/uplaad-small.png");
                     } else if (Shepherd.isAcceptableGpsFile(file.getName())) {
                         file.setThumbnailUrl("images/map-icon.png");
                     } else if (Shepherd.isAcceptableVideoFile(file.getName())) {
                         file.setThumbnailUrl("images/video_thumb.jpg");
+                    } else {
+                        file.setThumbnailUrl("images/uplaad-small.png");
                     }
 
                     //
@@ -488,26 +493,72 @@ public class MediaUploadServlet
         @Override
         public void run() {
             if (logger.isDebugEnabled()) {
-                logger.debug(LogBuilder.quickLog("Saving media", id));
+                logger.debug(LogBuilder.get("Saving media").appendVar("id", id)
+                                       .appendVar("file.getName()", file.getName()).toString());
             }
 
-            File fullPath = new File(baseDir, file.getName());
+            if (file.getName().toLowerCase().indexOf(".zip") == -1) {
+                processFile(file.getName(), file.getContent(), false);
+                return;
+            }
+
+            //
+            // Run zip file extraction
+            //
+            try {
+                try (ZipInputStream   zis = new ZipInputStream(file.content)) {
+                    ZipEntry zipEntry;
+                    while ( ( zipEntry = zis.getNextEntry() ) != null )
+                    {
+                        if (logger.isDebugEnabled()) {
+                            logger.debug(LogBuilder.get().appendVar("zipEntry.getName()",
+                                                                    zipEntry.getName()).toString());
+                        }
+
+                        if (zipEntry.isDirectory()) {
+                            continue;
+                        }
+
+                        //
+                        // TODO: Make it so that we preserve the zip file contents?
+                        // In case they have the same file name in each subdir?
+                        // But then how are thumbs and mid-size images referenced?
+                        // Aren't the filenames generated from the file name of the full size
+                        // image? If so, would we need a thumb and mid directory in each subdir?
+                        // For now, let's just expand all files into base dir.
+                        //
+                        // By using the File class we will strip out any "/"'s in the name.
+                        //
+                        File zipfile = new File(zipEntry.getName());
+                        processFile(zipfile.getName(), zis, true);
+                        zis.closeEntry();
+                    }
+                }
+            } catch (IOException ex) {
+                logger.error("Trouble saving media file [" + file.getName() + "]", ex);
+            }
+        }
+
+        private void processFile(final String fileName, final InputStream content, final boolean keepOpen)
+        {
+            File fullPath = new File(baseDir, fileName);
+            fullPath.getParentFile().mkdirs();
 
 //            CommonConfiguration.getDataDirectoryName(context);
             try {
                 if (logger.isDebugEnabled()) {
                     logger.debug(LogBuilder.quickLog("fullPath", fullPath.toString()));
                 }
-                FileUtilities.saveStreamToFile(file.content, fullPath);
+                FileUtilities.saveStreamToFile(content, fullPath, keepOpen);
 
                 //
                 // Make Thumbnail
                 //
-                if (Shepherd.isAcceptableImageFile(file.getName())) {
+                if (Shepherd.isAcceptableImageFile(fileName)) {
                     File thumbDir = getThumbnailDir(baseDir);
                     thumbDir.mkdirs();
 
-                    File thumbFile = new File(thumbDir, file.getName());
+                    File thumbFile = new File(thumbDir, fileName);
 
                     ImageProcessor iproc;
                     iproc = new ImageProcessor(context,
@@ -522,7 +573,7 @@ public class MediaUploadServlet
                     File midDir = getMidsizeDir(baseDir);
                     midDir.mkdirs();
 
-                    File midFile = new File(midDir, file.getName());
+                    File midFile = new File(midDir, fileName);
                     iproc = new ImageProcessor(context,
                                                "resize",
                                                800,
@@ -531,7 +582,7 @@ public class MediaUploadServlet
                                                midFile.getAbsolutePath(),
                                                null);
                     iproc.run();
-                } else if (Shepherd.isAcceptableGpsFile(file.getName())) {
+                } else if (Shepherd.isAcceptableGpsFile(fileName)) {
                     GeoFileProcessor gproc;
                     gproc = new GeoFileProcessor(fullPath.getAbsolutePath());
                     gproc.run();
@@ -543,6 +594,7 @@ public class MediaUploadServlet
                 Shepherd shepherd = new Shepherd(context);
                 SinglePhotoVideo media = new SinglePhotoVideo(null, fullPath);
                 shepherd.getPM().makePersistent(media);
+
                 if (logger.isDebugEnabled()) {
                     logger.debug("Done saving SPV");
                 }
@@ -601,11 +653,11 @@ public class MediaUploadServlet
 
             File fullPath = new File(fullBaseDir, file.getName());
 
-//            CommonConfiguration.getDataDirectoryName(context);
             try {
                 if (logger.isDebugEnabled()) {
                     logger.debug(LogBuilder.quickLog("fullPath", fullPath.toString()));
                 }
+
                 fullPath.delete();
 
                 //

@@ -341,6 +341,16 @@
       <version>3.2</version>
       <scope>test</scope>
     </dependency>
+    
+    <!-- This was an attempt to make it so that when the integration-test phase gets run,
+         and I have no idea why that gets triggered when I use the -DskipTests flag, but
+         it does. Anyway, it didn't work, CorsFilter is still not found. -->
+    <!-- <dependency>
+        <groupId>org.apache.tomcat</groupId>
+        <artifactId>tomcat-catalina</artifactId>
+        <version>8.0.24</version>
+        <scope>test</scope>
+    </dependency> -->
 
     <!-- wildbook local jars, not in public maven repos -->
     <dependency>

@@ -105,7 +105,7 @@ public class SimpleUser {
         }
 
         //
-        // Return 48x48 sized gravatar. They default to 80x80 and can be requested up to 2048x2048.
+        // Return 80x80 sized gravatar. They default to 80x80 but can be requested up to 2048x2048.
         // Though most users will have used a small image.
         // Feel free to change if you want it bigger as all the code on the browser side should
         // be sized to fit it's use anyway.
@@ -114,7 +114,7 @@ public class SimpleUser {
         //
         return "http://www.gravatar.com/avatar/"
             + StringUtilities.getHashOf(email.trim().toLowerCase())
-            + "?s=48&d=identicon";
+            + "?s=80&d=identicon";
     }
 
     public void setAvatar(String avatar) {
