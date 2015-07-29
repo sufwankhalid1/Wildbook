@@ -2,6 +2,7 @@ extends layout
 
 block css
     link(rel="stylesheet" href="/vendor/leaflet/leaflet.css")
+    link(rel="stylesheet" href="/vendor/leaflet.markercluster/MarkerCluster.css")
     link(rel="stylesheet" href="/vendor/photoswipe/photoswipe.css")
     link(rel="stylesheet" href="/vendor/photoswipe/default-skin/default-skin.css")
 
@@ -80,7 +81,8 @@ block content
         
         
 block scripts
-    script(src="/vendor/leaflet/leaflet-src.js")
+    script(src="/vendor/leaflet/leaflet.js")
+    script(src="/vendor/leaflet.markercluster/leaflet.markercluster.js")
     script(src="/vendor/photoswipe/photoswipe.min.js")
     script(src="/vendor/photoswipe/photoswipe-ui-default.min.js")
     script(src="/javascript/maptool.js")

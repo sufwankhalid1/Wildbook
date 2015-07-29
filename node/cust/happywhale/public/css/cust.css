@@ -234,3 +234,9 @@ li.active .wizard-icon.map {
     font-size: 1.7em;
     display: none;
 }
+
+.individual-cluster-count {
+    background-color: #107D9F;
+    color: #fff;
+    font-size: 1.6em;
+}

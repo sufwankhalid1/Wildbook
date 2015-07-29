@@ -332,13 +332,13 @@ public class MediaUploadServlet
 
                     if (Shepherd.isAcceptableImageFile(file.getName())) {
 //                        file.setThumbnailUrl("/" + getThumbnailFile(baseDir, file.getName()));
-                        file.setThumbnailUrl("images/uplaad-small.png");
+                        file.setThumbnailUrl("/images/upload-small.png");
                     } else if (Shepherd.isAcceptableGpsFile(file.getName())) {
-                        file.setThumbnailUrl("images/map-icon.png");
+                        file.setThumbnailUrl("/images/map-icon.png");
                     } else if (Shepherd.isAcceptableVideoFile(file.getName())) {
-                        file.setThumbnailUrl("images/video_thumb.jpg");
+                        file.setThumbnailUrl("/images/video_thumb.jpg");
                     } else {
-                        file.setThumbnailUrl("images/uplaad-small.png");
+                        file.setThumbnailUrl("/images/upload-small.png");
                     }
 
                     //
