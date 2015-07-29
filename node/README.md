@@ -44,7 +44,8 @@ Now point your browser to http://localhost:3000
     
 Simply log on to the server and run
 
-    /opt/happywhale/install_all
+    cd /opt/happywhale
+    ./install_all
     
 And this will install both tomcat war and node assuming that the names of the war and zip are the same as those above. If our versions change, simply chang the install_all script.
 
