@@ -296,7 +296,9 @@ var submitMedia = (function () {
 
             $scope.saveSubmission = function() {
                 var jqXHR = savems($scope.media, "save")
-                .done(function(mediaid) {
+                .done(function(data) {
+console.log('data %o', data);
+                    var mediaid = data.id;
                     $scope.$apply(function(){
                         //
                         // NOTE: This is bound using ng-value instead of ng-model

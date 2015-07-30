@@ -43,7 +43,9 @@ import com.samsix.database.SqlUpdateFormatter;
 import com.samsix.database.SqlWhereFormatter;
 import com.samsix.database.Table;
 import com.stormpath.sdk.account.AccountList;
+import com.stormpath.sdk.account.Account;
 import com.stormpath.sdk.client.Client;
+import com.stormpath.sdk.directory.CustomData;
 
 @RestController
 @RequestMapping(value = "/obj/mediasubmission")
@@ -364,7 +366,7 @@ System.out.println(sql);
     }
 
     @RequestMapping(value = "/save", method = RequestMethod.POST)
-    public long save(final HttpServletRequest request,
+    public HashMap save(final HttpServletRequest request,
                      final MediaSubmission media)
         throws DatabaseException
     {
@@ -375,6 +377,20 @@ System.out.println(sql);
         ConnectionInfo ci = ShepherdPMF.getConnectionInfo();
 
         Database db = new Database(ci);
+        HashMap rtn = new HashMap();
+
+        Account knownUser = checkForUser(Stormpath.getClient(ServletUtilities.getConfigDir(request)), media.getEmail());
+        if (knownUser != null) {
+            rtn.put("knownUser", true);
+            CustomData cd = knownUser.getCustomData();
+            if (cd.get("unverified") == null) {
+                rtn.put("userVerified", true);
+            } else {
+                rtn.put("userVerified", false);
+            }
+        } else {
+            rtn.put("knownUser", false);
+        }
 
         try {
             //
@@ -416,7 +432,9 @@ System.out.println(sql);
                 log.debug("Returning media submission id [" + media.getId() + "]");
             }
 
-            return media.getId();
+            rtn.put("id", media.getId());
+            return rtn;
+
         } finally {
             db.release();
         }
@@ -583,6 +601,16 @@ System.out.println(sql);
         }
 
         return data;
+    }
+
+    private Account checkForUser(Client client, String email) {
+System.out.println("checking on email " + email);
+        if (client == null) return null;
+        HashMap<String,Object> q = new HashMap<String,Object>();
+        q.put("email", email);
+        AccountList accs = Stormpath.getAccounts(client, q);
+        if (accs.getSize() < 1) return null;
+        return accs.iterator().next();
     }
 
     public static class ExifItem
