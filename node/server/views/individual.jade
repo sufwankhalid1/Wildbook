@@ -89,17 +89,17 @@ block scripts
     script(src='/javascript/individual.js')
     
     script.
-        //
-        // Trigger bootstrap carousels
-        //
-        //$(document).ready(function() {
-        //    $('.carousel').carousel({
-        //        interval: 3000
-        //    });
-        //});
+        $(document).ready(function() {
+            //
+            // Trigger bootstrap carousels
+            //
+            //    $('.carousel').carousel({
+            //        interval: 3000
+            //    });
         
-        var ind = !{JSON.stringify(data.ind)};
+            var ind = !{JSON.stringify(data.ind)};
         
-        app.configPromise.then(function() {
-            individualPage.init(ind);
+            app.configPromise.then(function() {
+                individualPage.init(ind);
+            });
         });

@@ -2,6 +2,33 @@
 
 var individualPage = (function () {
     function init(data) {
+        function startGallery(startIndex) {
+            var options = {
+                index: startIndex
+            };
+
+            // Initializes and opens PhotoSwipe
+            var gallery = new PhotoSwipe( pswpElement, PhotoSwipeUI_Default, items, options);
+
+            //
+            // HACK:
+            // Found this hack for allowing images not specifying the size. From @gincius
+            // https://github.com/dimsemenov/PhotoSwipe/issues/796
+            //
+            gallery.listen('gettingData', function(index, item) {
+                if (item.w < 1 || item.h < 1) { // unknown size
+                    var img = new Image();
+                    img.onload = function() { // will get size after load
+                        item.w = this.width; // set image width
+                        item.h = this.height; // set image height
+                        gallery.invalidateCurrItems(); // reinit Items
+                        gallery.updateSize(true); // reinit Items
+                    }
+                    img.src = item.src; // let's download image
+                }
+            });
+            gallery.init();
+        }
 
 //        //============================
 //        // Carousel hack to make it show three at a time.
@@ -49,34 +76,6 @@ var individualPage = (function () {
             data.photos.forEach(function(photo){
                 items.push({src: app.config.wildbook.staticUrl + photo.url, w: 0, h:0});
             });
-
-            function startGallery(startIndex) {
-                var options = {
-                    index: startIndex
-                };
-
-                // Initializes and opens PhotoSwipe
-                var gallery = new PhotoSwipe( pswpElement, PhotoSwipeUI_Default, items, options);
-
-                //
-                // HACK:
-                // Found this hack for allowing images not specifying the size. From @gincius
-                // https://github.com/dimsemenov/PhotoSwipe/issues/796
-                //
-                gallery.listen('gettingData', function(index, item) {
-                    if (item.w < 1 || item.h < 1) { // unknown size
-                        var img = new Image();
-                        img.onload = function() { // will get size after load
-                            item.w = this.width; // set image width
-                            item.h = this.height; // set image height
-                            gallery.invalidateCurrItems(); // reinit Items
-                            gallery.updateSize(true); // reinit Items
-                        }
-                        img.src = item.src; // let's download image
-                    }
-                });
-                gallery.init();
-            }
 
             $("#main-photo").click(function() {
                 startGallery(0);
