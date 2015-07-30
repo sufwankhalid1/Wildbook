@@ -27,3 +27,31 @@ This last one does require a copy as symlinks don't seem to work with the i18nex
     node app
     
 Now point your browser to http://localhost:3000
+
+##Deploying
+
+###On Your Development Machine
+
+    cd ${dev-dir}/Wildbook
+    mvn clean install
+    scp target/wildbook-5.3.0-RELEASE.war devhappywhale.com:/var/tmp
+    
+    cd ${dev-dir}/Wildbook/node
+    mvn assembly:single -Dcust=happywhale
+    scp target/animalus-0.1-SNAPSHOT-node.zip devhappywhale.com:/var/tmp
+    
+###Server
+    
+Simply log on to the server and run
+
+    cd /opt/happywhale
+    ./install_all
+    
+And this will install both tomcat war and node assuming that the names of the war and zip are the same as those above. If our versions change, simply chang the install_all script.
+
+For the node side of things this simply does the following...
+
+    cd /opt/happywhale
+    sudo unzip -qo -d /opt/happywhale /var/tmp/animalus-0.1-SNAPSHOT-node.zip
+    sudo stop happywhale_web
+    sudo start happywhale_web

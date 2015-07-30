@@ -20,7 +20,7 @@ html(ng-app="nodeApp")
                         a(href="/")= t("header.menu.home")
                     li.active
                         a(href="/submitMedia")= t("header.menu.reportSighting")
-                    li(ng-show="data.user" ng-cloak)
+                    li.ng-cloak(ng-show="data.user")
                         a(href="#me")= t("header.menu.me")
                     li
                         a(href="/about")= t("header.menu.about")
@@ -37,7 +37,7 @@ html(ng-app="nodeApp")
                             #search-help= t("header.menu.searchHelpNone")
                   // This acts as block comment for whole section below due to the couple of spaces back.
                   // Simply remove these lines to comment the signin back in.
-                    li(ng-cloak)
+                    li.ng-cloak
                         div(ng-show="data.user" id="div-user-info")
                             p= t("header.menu.welcomeBack") + ", "
                                 | {{data.user.fullName || data.user.username}}!

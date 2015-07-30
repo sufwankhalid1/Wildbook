@@ -15,16 +15,11 @@ var submitMedia = (function () {
 
     function addToMap(latitude, longitude) {
         if (markers) {
-            markers.forEach(function(marker) {
-                map.map.removeLayer(marker);
-            });
+            map.map.removeLayer(markers);
         }
 
         if (latitude && longitude) {
-            markers = map.addIndividuals([[latitude, longitude]]);
-//            var latlng = L.latLng(latitude, longitude);
-//            marker = L.marker(latlng).addTo(map.map);
-//            map.map.setView(latlng, 2);
+            markers = map.addIndividuals([[latitude, longitude]], 4);
         }
 
         //
@@ -260,13 +255,14 @@ var submitMedia = (function () {
                         //
                         // Add markers to map.
                         //
-                        $.each(data.items, function() {
-                            if (this.latitude && this.longitude) {
-                                L.marker(L.latLng(this.latitude, this.longitude)).addTo(map.map);
+                        var latlngs = [];
+                        data.items.forEach(function(item) {
+                            if (item.latitude && item.longitude) {
+                                latlngs.push({latlng: [item.latitude, item.longitude]});
                             }
                         });
 
-                        map.map.setView(L.latLng(avg.latitude, avg.longitude), 2);
+                        map.addIndividuals(latlngs);
                     } else {
                         map.map.setView([0,0], 1);
                     }
@@ -330,12 +326,12 @@ console.log('data %o', data);
     //                    console.log(new Error().stack);
     //                });
             $scope.$watch("media.latitude", function(newVal, oldVal) {
-                if ($scope.media.longitude) {
+                if (! hasGPS && $scope.media.longitude) {
                     addToMap(newVal, $scope.media.longitude);
                 }
             });
             $scope.$watch("media.longitude", function(newVal, oldVal) {
-                if ($scope.media.latitude) {
+                if (! hasGPS && $scope.media.latitude) {
                     addToMap($scope.media.latitude, newVal);
                 }
             });
@@ -358,7 +354,7 @@ console.log('data %o', data);
                 disableImageResize: /Android(?!.*Chrome)|Opera/
                     .test(window.navigator.userAgent),
                 maxFileSize: 500000000,
-                acceptFileTypes: /(\.|\/)(gif|jpe?g|png|kmz|kml|gpx|avi|mpg|mp4|mov|wmv|flv)$/i
+                acceptFileTypes: /(\.|\/)(gif|jpe?g|png|kmz|kml|gpx|avi|mpg|mp4|mov|wmv|flv|zip)$/i
                 //
                 // This does work to control the area in which files are allowed
                 // to be dropped to land in the control, but then if you drop it outside

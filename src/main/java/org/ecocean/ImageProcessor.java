@@ -27,6 +27,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.samsix.util.string.StringUtilities;
+
 /**
  * Does actual comparison processing of batch-uploaded images.
  *
@@ -45,92 +47,92 @@ public final class ImageProcessor implements Runnable {
 //  private Phase phase = Phase.NONE;
 //  /** Throwable instance produced by the batch processor (if any). */
 //  private Throwable thrown;
-  
-  private String context = "context0";
-	private String command = null;
-	private String imageSourcePath = null;
-	private String imageTargetPath = null;
-	private String arg = null;
-	private int width = 0;
-	private int height = 0;
+
+    private String command = null;
+    private String imageSourcePath = null;
+    private String imageTargetPath = null;
+    private String arg = null;
+    private int width = 0;
+    private int height = 0;
 
 
-  public ImageProcessor(String context, String action, int width, int height, String imageSourcePath, String imageTargetPath, String arg) {
-		this.context = context;
-		this.width = width;
-		this.height = height;
-		this.imageSourcePath = imageSourcePath;
-		this.imageTargetPath = imageTargetPath;
-		this.arg = arg;
-		if ((action != null) && action.equals("watermark")) {
-			this.command = CommonConfiguration.getProperty("imageWatermarkCommand", this.context);
-		} else {
-			this.command = CommonConfiguration.getProperty("imageResizeCommand", this.context);
-		}
-	}
+  public ImageProcessor(String context,
+                        String action,
+                        int width,
+                        int height,
+                        String imageSourcePath,
+                        String imageTargetPath,
+                        String arg) {
+        this.width = width;
+        this.height = height;
+        this.imageSourcePath = imageSourcePath;
+        this.imageTargetPath = imageTargetPath;
+        this.arg = arg;
+        if ((action != null) && action.equals("watermark")) {
+            this.command = CommonConfiguration.getProperty("imageWatermarkCommand", context);
+        } else {
+            this.command = CommonConfiguration.getProperty("imageResizeCommand", context);
+        }
+    }
 
 
-	public void run()
-	{
-//	    status = Status.INIT;
+    @Override
+    public void run()
+    {
+        if (StringUtils.isBlank(this.command)) {
+            log.warn("Can't run processor due to empty command");
+            return;
+        }
 
-		if (StringUtils.isBlank(this.command)) {
-		    log.warn("Can't run processor due to empty command");
-		    return;
-		}
-        
         if (StringUtils.isBlank(this.imageSourcePath)) {
             log.warn("Can't run processor due to empty source path");
-            return;            
+            return;
         }
-        
+
         if (StringUtils.isBlank(this.imageTargetPath)) {
             log.warn("Can't run processor due to empty target path");
-            return;            
+            return;
         }
 
-		String fullCommand;
-		fullCommand = this.command.replaceAll("%width", Integer.toString(this.width))
-		                          .replaceAll("%height", Integer.toString(this.height))
-		                          //.replaceAll("%imagesource", this.imageSourcePath)
-		                          //.replaceAll("%imagetarget", this.imageTargetPath)
-		                          .replaceAll("%arg", this.arg);
-//System.out.println("start run(): " + fullCommand);
-		String[] command = fullCommand.split("\\s+");
+        String fullCommand;
+        fullCommand = this.command.replaceAll("%width", Integer.toString(this.width))
+                                  .replaceAll("%height", Integer.toString(this.height))
+                                  //.replaceAll("%imagesource", this.imageSourcePath)
+                                  //.replaceAll("%imagetarget", this.imageTargetPath)
+                                  .replaceAll("%arg", this.arg);
+        String[] command = fullCommand.split("\\s+");
 
-		//we have to do this *after* the split-on-space cuz files may have spaces!
-		for (int i = 0 ; i < command.length ; i++) {
-			if (command[i].equals("%imagesource")) command[i] = this.imageSourcePath;
-			if (command[i].equals("%imagetarget")) command[i] = this.imageTargetPath;
-		}
+        //we have to do this *after* the split-on-space cuz files may have spaces!
+        for (int i = 0 ; i < command.length ; i++) {
+            if (command[i].equals("%imagesource")) command[i] = this.imageSourcePath;
+            if (command[i].equals("%imagetarget")) command[i] = this.imageTargetPath;
+        }
 
-//System.out.println("done run()");
+        if (log.isDebugEnabled()) {
+            log.debug(StringUtilities.arrayToString(command, " "));
+        }
 
-		ProcessBuilder pb = new ProcessBuilder();
-		pb.command(command);
+        ProcessBuilder pb = new ProcessBuilder();
+        pb.command(command);
 /*
-		Map<String, String> env = pb.environment();
-		env.put("LD_LIBRARY_PATH", "/home/jon/opencv2.4.7");
+        Map<String, String> env = pb.environment();
+        env.put("LD_LIBRARY_PATH", "/home/jon/opencv2.4.7");
 */
-//System.out.println("before!");
-
-		try {
-			Process proc = pb.start();
-			BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
-			BufferedReader stdError = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
-			String line;
-			while ((line = stdInput.readLine()) != null) {
-				System.out.println(">>>> " + line);
-			}
-			while ((line = stdError.readLine()) != null) {
-				System.out.println("!!!! " + line);
-			}
-			proc.waitFor();
-//System.out.println("DONE?????");
-			////int returnCode = p.exitValue();
-		} catch (Exception ioe) {
-		    log.error("Trouble running processor [" + command + "]", ioe);
-		}
-//System.out.println("RETURN");
-	}
+        try {
+            Process proc = pb.start();
+            BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+            BufferedReader stdError = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
+            String line;
+            while ((line = stdInput.readLine()) != null) {
+                System.out.println(">>>> " + line);
+            }
+            while ((line = stdError.readLine()) != null) {
+                System.out.println("!!!! " + line);
+            }
+            proc.waitFor();
+            ////int returnCode = p.exitValue();
+        } catch (Exception ioe) {
+            log.error("Trouble running processor [" + command + "]", ioe);
+        }
+    }
 }

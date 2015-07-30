@@ -1,9 +1,11 @@
 var maptool = (function () {
+    var iconIndObj = null;
     var iconIndividual = null;
 
     app.configPromise.then(function() {
         var config = app.config.maptool;
         if (config) {
+            iconIndObj = config.iconIndividual;
             if (config.iconIndividual) {
                 iconIndividual = {icon: L.icon(config.iconIndividual)};
             }
@@ -49,8 +51,16 @@ var maptool = (function () {
         //
 //        if (currentPopup != null) currentPopup._source.closePopup();
 
-        function addIndividuals(latlngs) {
-            var markers = [];
+        function addIndividuals(latlngs, maxZoom) {
+            var markers = new L.MarkerClusterGroup({
+                iconCreateFunction: function(cluster) {
+                    return new L.divIcon({className: 'individual-cluster',
+                                          iconSize: iconIndObj.iconSize,
+                                          iconAnchor: iconIndObj.iconAnchor,
+                                          html: '<div class="individual-cluster-count"><span>' + cluster.getChildCount() + '</span></div><img src="' + iconIndObj.iconUrl + '"/>'});
+                }
+            });
+
             var boundPoints = [];
             latlngs.forEach(function(latlng) {
                 var marker;
@@ -59,12 +69,17 @@ var maptool = (function () {
                     marker = L.marker(latlng, iconIndividual);
                 } else {
                     boundPoints.push(latlng.latlng);
-                    marker = L.marker(latlng.latlng, iconIndividual).bindPopup(latlng.popup);
+                    marker = L.marker(latlng.latlng, iconIndividual);
 
-                    marker.on('mouseover', function (e) {
-                        closeCurrentPopup();
-                        this.openPopup();
-                    });
+                    if (latlng.popup) {
+                        marker.bindPopup(latlng.popup);
+
+                        marker.on('mouseover', function (e) {
+                            closeCurrentPopup();
+                            this.openPopup();
+                        });
+                    }
+
                     //
                     // Want to be able to mouse over and click on things in the popup
                     //
@@ -72,10 +87,15 @@ var maptool = (function () {
 //                        this.closePopup();
 //                    });
                 }
-                markers.push(marker.addTo(map));
+//                markers.push(marker.addTo(map));
+                markers.addLayer(marker);
             });
 
-            map.fitBounds(boundPoints, {maxZoom: 8});
+            if (!maxZoom) {
+                maxZoom = 8;
+            }
+            map.addLayer(markers);
+            map.fitBounds(boundPoints, {maxZoom: maxZoom});
 
             return markers;
         }

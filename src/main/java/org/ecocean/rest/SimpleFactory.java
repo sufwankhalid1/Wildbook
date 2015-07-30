@@ -1,6 +1,8 @@
 package org.ecocean.rest;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.ecocean.Encounter;
 import org.ecocean.MarkedIndividual;
@@ -54,36 +56,36 @@ public class SimpleFactory {
 
         SimpleIndividual ind = new SimpleIndividual(mi.getIndividualID(), mi.getNickName());
         ind.setSex(mi.getSex());
-        //
-        // TODO: expose and fix thumbnail path if needed? Or just get from first image?
-        //
-//        ind.setThumbnail(mi.getThumbnail());
+
+        final int MIN_PHOTOS = 4;
+        List<SimplePhoto> minphotos = new ArrayList<SimplePhoto>(MIN_PHOTOS);
 
         java.util.Iterator<Encounter> it = mi.getEncounters().iterator();
         while (it.hasNext()) {
             Encounter enc = it.next();
             ind.addEncounter(getEncounter(context, configDir, enc));
+
+            for (SinglePhotoVideo photo : enc.getSinglePhotoVideo())
+            {
+                if (photo.getKeywords().contains("profile")) {
+                    ind.setAvatar(photo.asUrl(context));
+                } else if (photo.getKeywords().contains("highlight")) {
+                    ind.addPhoto(getPhoto(context, photo));
+                } else {
+                    if (minphotos.size() < MIN_PHOTOS) {
+                        minphotos.add(getPhoto(context, photo));
+                    }
+                }
+            }
         }
 
         //
-        // TODO: Have photos for individual be chosen from the "selected" or "highlighted"
-        // photos via a tag or whatever method we want the users to specify which are the best
-        // images. For now I'm just going to grab 8 or so images from all the encounters, grabbing
-        // the top images from each.
+        // If the individual does not have enough "highlight" photos then
+        // use the other photos you found to round out the minimum number
+        // of photos.
         //
-        int count = 0;
-        int index = 0;
-        final int MAX_PHOTOS = 8;
-        int lastCount = Integer.MAX_VALUE;
-        while (count < MAX_PHOTOS && count != lastCount) {
-            lastCount = count;
-            for (SimpleEncounter encounter : ind.getEncounters()) {
-                if (encounter.getPhotos().size() > index) {
-                    ind.addPhoto(encounter.getPhotos().get(index));
-                    count++;
-                }
-            }
-            index++;
+        for (int ii = 0; ii < MIN_PHOTOS - ind.getPhotos().size(); ii++) {
+            ind.addPhoto(minphotos.get(ii));
         }
 
         return ind;

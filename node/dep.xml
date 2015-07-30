@@ -1,0 +1,35 @@
+<assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.3" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.3 http://maven.apache.org/xsd/assembly-1.1.3.xsd">
+    <id>node</id>
+    
+    <baseDirectory>node</baseDirectory>
+
+    <formats>
+        <format>zip</format>
+    </formats>
+    <fileSets>
+        <fileSet>
+            <directory>${project.basedir}</directory>
+            <outputDirectory>/</outputDirectory>
+            <excludes>
+                <exclude>public/cust/**</exclude> <!-- exclude the symlink we have set -->
+            </excludes>
+            <includes>
+                <include>app.js</include>
+                <include>cust/${cust}/server/**</include>
+                <include>locales/**</include>
+                <include>node_modules/**</include>
+                <include>public/**</include>
+                <include>server/**</include>
+                <!-- Need to pull this from somewhere common to all developers but specific to happywhale -->
+                <include>secrets.json</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <!-- This copies the directory to the right place which is what our symlink above simulates -->
+            <directory>${project.basedir}/cust/${cust}/public</directory>
+            <outputDirectory>public/cust</outputDirectory>
+        </fileSet>
+    </fileSets>
+</assembly>

@@ -1,0 +1,30 @@
+#!/bin/bash
+webapp=$2
+
+if (( $# == 1 ))
+then
+    webapp=wildbook
+fi
+
+if (( $# == 0 ))
+then
+    echo "Just restarting tomcat..."
+fi
+
+if [ -z "$TOMCAT_HOME" ]; then
+    TOMCAT_HOME=/opt/tomcat8
+fi
+
+echo "Using TOMCAT_HOME=$TOMCAT_HOME"
+
+sudo /etc/init.d/tomcat8 stop
+sudo rm -rf $TOMCAT_HOME/work
+sudo mv /var/log/tomcat8/catalina.out /var/log/tomcat8/catalina.out.old
+if (( $# > 0 ))
+then
+    sudo rm -rf $TOMCAT_HOME/webapps/${webapp}
+    sudo rm -f $TOMCAT_HOME/webapps/${webapp}.war
+    sudo cp -v $1 $TOMCAT_HOME/webapps/${webapp}.war
+fi
+
+sudo /etc/init.d/tomcat8 start

@@ -16,96 +16,37 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.ecocean;
 
-import java.util.Vector;
 
 public class Keyword {
+    //the primary key of the keyword
+    private String indexname;
 
-  //the primary key of the keyword
-  private String indexname;
+    //the visible descriptor of the keyword
+    private String readableName;
 
-  //the visible descriptor of the keyword
-  private String readableName;
-
-  //a Vector of String relative paths to the photo file that the keyword applies to
-  public Vector photos;
-
-  /**
-   * empty constructor required by JDO Enhancer
-   */
-  public Keyword() {
-  }
-
-
-  //use this constructor for new keywords
-  public Keyword(String readableName) {
-    this.readableName = readableName;
-    //photos = new Vector();
-  }
-
-  /*
-  public void removeImageName(String imageFile) {
-    for (int i = 0; i < photos.size(); i++) {
-      String thisName = (String) photos.get(i);
-      if (thisName.equals(imageFile)) {
-        photos.remove(i);
-        i--;
-      }
+    /**
+     * empty constructor required by JDO Enhancer
+     */
+    public Keyword() {
     }
-  }
-*/
-  public String getReadableName() {
-    return readableName;
-  }
 
-  public void setReadableName(String name) {
-    this.readableName = name;
-  }
 
-  public String getIndexname() {
-    return indexname;
-  }
-
-  /*
-  public void addImageName(String photoName) {
-    if (!isMemberOf(photoName)) {
-      photos.add(photoName);
+    //use this constructor for new keywords
+    public Keyword(String readableName) {
+        this.readableName = readableName;
     }
-  }
-*/
- 
-  public boolean isMemberOf(String photoName) {
-    //boolean truth=false;
-    for (int i = 0; i < photos.size(); i++) {
-      String thisName = (String) photos.get(i);
-      if (thisName.equals(photoName)) {
-        return true;
-      }
+
+    public String getReadableName() {
+        return readableName;
     }
-    return false;
-  }
 
-
-  /*
-  public boolean isMemberOf(Encounter enc) {
-    //boolean truth=false;
-    Vector photos = enc.getAdditionalImageNames();
-    int photoSize = photos.size();
-    for (int i = 0; i < photoSize; i++) {
-      String thisName = enc.getEncounterNumber() + "/" + (String) photos.get(i);
-      if (isMemberOf(thisName)) {
-        return true;
-      }
+    public void setReadableName(String name) {
+        this.readableName = name;
     }
-    return false;
-  }
-  */
 
-  /*
-  public Vector getMembers() {
-    return photos;
-  }
-*/
+    public String getIndexname() {
+        return indexname;
+    }
 }

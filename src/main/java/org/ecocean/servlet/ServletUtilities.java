@@ -22,6 +22,7 @@ package org.ecocean.servlet;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -64,6 +65,7 @@ import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.samsix.util.OsUtils;
 import com.sun.syndication.feed.synd.SyndCategory;
 import com.sun.syndication.feed.synd.SyndCategoryImpl;
 import com.sun.syndication.feed.synd.SyndContent;
@@ -77,6 +79,8 @@ import com.sun.syndication.io.XmlReader;
 
 public class ServletUtilities {
     private static Logger log = LoggerFactory.getLogger(ServletUtilities.class);
+    private static final String DEFAULT_LANG_CODE = "en";
+
 
   public static String getHeader(HttpServletRequest request) {
     try {
@@ -623,44 +627,45 @@ public static String getContext(HttpServletRequest request) {
 }
 
 
-public static String getLanguageCode(HttpServletRequest request){
-  String context=ServletUtilities.getContext(request);
+    public static String getLanguageCode(HttpServletRequest request) {
+        String context=ServletUtilities.getContext(request);
 
-  //worst case scenario default to English
-  String langCode="en";
+        ArrayList<String> supportedLanguages;
+        if (CommonConfiguration.getSequentialPropertyValues("language", context) != null) {
+            supportedLanguages = CommonConfiguration.getSequentialPropertyValues("language", context);
+        } else {
+            supportedLanguages = new ArrayList<String>();
+        }
 
-  //try to detect a default if defined
-  if(CommonConfiguration.getProperty("defaultLanguage", context)!=null){
-    langCode=CommonConfiguration.getProperty("defaultLanguage", context);
-  }
+        //if specified directly, always accept the override
+        String langCode = request.getParameter("langCode");
+        if (langCode != null && supportedLanguages.contains(langCode)) {
+            return langCode;
+        }
 
+        //the request cookie is the next thing we check. this should be the primary means of figuring langCode out
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies){
+                if ("wildbookLangCode".equals(cookie.getName())) {
+                    if (supportedLanguages.contains(cookie.getValue())) {
+                        return cookie.getValue();
+                    }
+                }
+            }
+        }
 
-  ArrayList<String> supportedLanguages=new ArrayList<String>();
-  if(CommonConfiguration.getSequentialPropertyValues("language", context)!=null){
-    supportedLanguages=CommonConfiguration.getSequentialPropertyValues("language", context);
-  }
+        //
+        // TODO: finally, we will check the URL vs values defined in context.properties to see if we can set the right context
+        // - future - detect browser supported language codes and locale from the HTTPServletRequest object
 
-  //if specified directly, always accept the override
-  if(request.getParameter("langCode")!=null){
-    if(supportedLanguages.contains(request.getParameter("langCode"))){return request.getParameter("langCode");}
-  }
+        //try to detect a default if defined
+        if (CommonConfiguration.getProperty("defaultLanguage", context) != null) {
+            return CommonConfiguration.getProperty("defaultLanguage", context);
+        }
 
-
-  //the request cookie is the next thing we check. this should be the primary means of figuring langCode out
-  Cookie[] cookies = request.getCookies();
-  if(cookies!=null){
-    for(Cookie cookie : cookies){
-      if("wildbookLangCode".equals(cookie.getName())){
-          if(supportedLanguages.contains(cookie.getValue())){return cookie.getValue();}
-      }
+        return DEFAULT_LANG_CODE;
     }
-  }
-
-  //finally, we will check the URL vs values defined in context.properties to see if we can set the right context
-  //TBD - future - detect browser supported language codes and locale from the HTTPServletRequest object
-
-  return langCode;
-}
 
 
     public static File dataDir(String context, String rootWebappPath)
@@ -690,6 +695,25 @@ String rootWebappPath = "xxxxxx";
         return dataDir(context, rootWebappPath);
     }
 */
+
+    public String getText2(final HttpServletRequest request,
+                           final String fileName) throws IOException {
+        String configDir = getConfigDir(request);
+        String langCode = getLanguageCode(request);
+
+        File file = new File(configDir + "/text/" + langCode + "/" + fileName);
+
+        if (file.exists()) {
+            return OsUtils.readFileToString(file);
+        }
+
+        file = new File(configDir + "/text/" + DEFAULT_LANG_CODE + "/" + fileName);
+        if (file.exists()) {
+            return OsUtils.readFileToString(file);
+        }
+
+        throw new FileNotFoundException(file.getAbsolutePath());
+    }
 
 
   private static String loadOverrideText(String shepherdDataDir, String fileName, String langCode) {

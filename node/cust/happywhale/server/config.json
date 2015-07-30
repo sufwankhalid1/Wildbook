@@ -6,7 +6,7 @@
     },
     "client": {
         "wildbook": {
-            "url": "http://wildbook.happywhale.com",
+            "url": "http://happywhale.com:8080/wildbook",
             "staticUrl": "http://wildbook.happywhale.com",
             "proxy": false
         },
