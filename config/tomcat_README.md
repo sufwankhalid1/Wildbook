@@ -20,10 +20,16 @@ Here is my ```/opt/wildbook/``` directory on my machine as an example...
     └── logback.xml
     
 ##Logging
-For centOS I added the following to /etc/tomcat8/tomcat.conf file.
+
+###centOS
+For centOS I added the following to ```/etc/tomcat8/tomcat.conf``` file.
 
     wrapper.java.additional.4=-Dlogging.config=/opt/wildbook/logback.xml
 
+###Ubuntu
+Edit ```JAVA_OPTS``` in ```/etc/default/tomcat8```
+
+###MacOS
 For my dev machine I start tomcat with the included startup.sh script. So I just make sure I have the following environment variable set.
 
     export CATALINA_OPTS="-Xmx512m -Dlogging.config=/opt/wildbook/logback.xml"
