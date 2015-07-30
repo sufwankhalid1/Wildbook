@@ -1,5 +1,5 @@
 /*!
- * AlertPlus v0.1.6 (https://github.com/crowmagnumb/alertplus)
+ * AlertPlus v0.1.7 (https://github.com/crowmagnumb/alertplus)
  * Copyright 2015 CrowMagnumb
  * Licensed under MIT (https://github.com/crowmagnumb/alertplus/blob/master/LICENSE)
  */
@@ -33,14 +33,22 @@ var alertplus = (function () {
               .append(messageArea)
               .append(detailsButton)
               .append(detailsContainer).appendTo(content);
+    var okButton = $("<button>").addClass("btn")
+        .addClass("btn-primary")
+        .attr("data-dismiss", "modal")
+        .attr("type", "button")
+        .text("OK");
+    
+    var cancelButton = $("<button>").addClass("btn")
+        .addClass("cancel")
+        .attr("data-dismiss", "modal")
+        .attr("type", "button")
+        .text("Cancel");
+    
     $("<div>").addClass("modal-footer")
-         .append($("<button>").addClass("btn")
-                              .addClass("btn-primary")
-                              .attr("data-dismiss", "modal")
-                              .attr("type", "button")
-                              .text("OK"))
-          .appendTo(content);
-
+        .append(cancelButton)
+        .append(okButton)
+        .appendTo(content);
 
     detailsButton.button();
     detailsButton.click(function(evt) {
@@ -48,17 +56,55 @@ var alertplus = (function () {
         leftChev.toggle();
         rightChev.toggle();
     });
-
-    function showAlert(message, details, title, dialogClass) {
+    
+    function reset() {
         //
         // Remove all possible other classes that could have been applied.
         //
+        titleDiv.removeClass("alert-warning");
         titleDiv.removeClass("alert-danger");
         titleDiv.removeClass("alert-info");
+        detailsContainer.hide();
+        detailsButton.hide();
+        cancelButton.hide();
+        okButton.removeClass("btn-danger");
+    }
+    
+    function showConfirm(message, title, danger) {
+        reset();
+        
+        if (danger) {
+            titleDiv.addClass("alert-danger");
+            okButton.addClass("btn-danger");
+        } else {
+            titleDiv.addClass("alert-warning");
+        }
+        
+        messageArea.html( message );
+        if (!title) {
+            titleDiv.text("Confirm");
+        } else {
+            titleDiv.text(title);
+        }
 
-        leftChev.hide();
-        rightChev.show();
+        var deferred = $.Deferred();
+        okButton.click(function(evt) {
+            deferred.resolve();
+        });
+        
+        cancelButton.click(function(evt){
+            deferred.reject();
+        });
+        
+        cancelButton.show();
+        dialog.modal('show');
+        
+        return deferred;
+    }
 
+    function showAlert(message, details, title, dialogClass) {
+        reset();
+        
         //
         // Now add in the passed class.
         //
@@ -69,19 +115,18 @@ var alertplus = (function () {
         }
 
         if (details) {
+            leftChev.hide();
+            rightChev.show();
             detailsButton.show();
-        } else {
-            detailsButton.hide();
         }
 
-        messageArea.html( message );
         if (!title) {
             titleDiv.text("Information");
         } else {
             titleDiv.text(title);
         }
 
-        detailsContainer.hide();
+        messageArea.html( message );
         detailsContent.html(details);
 
         dialog.modal('show');
@@ -194,5 +239,6 @@ var alertplus = (function () {
     }
 
     return {alert: showAlert,
-            error: showError};
+            error: showError,
+            confirm: showConfirm};
 }());
