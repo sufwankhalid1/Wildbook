@@ -52,6 +52,11 @@ var maptool = (function () {
 //        if (currentPopup != null) currentPopup._source.closePopup();
 
         function addIndividuals(latlngs, maxZoom) {
+            if (! latlngs || latlngs.length == 0) {
+                map.fitWorld();
+                return;
+            }
+
             var markers = new L.MarkerClusterGroup({
                 iconCreateFunction: function(cluster) {
                     return new L.divIcon({className: 'individual-cluster',
