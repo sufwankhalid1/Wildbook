@@ -80,7 +80,7 @@ public class SimpleUser {
             return display;
         }
 
-        return display + " / " + affiliation;
+        return display + " - " + affiliation;
     }
 
     public void setFullName(String fullName) {
