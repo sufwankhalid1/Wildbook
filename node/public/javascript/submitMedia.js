@@ -295,6 +295,14 @@ var submitMedia = (function () {
                 .done(function(data) {
 console.log('data %o', data);
                     var mediaid = data.id;
+                    if (data.knownUser && data.userVerified) {
+                        $('#submitMedia-login-verifieduser').show();
+                        //we also need to prevent them from continuing and force them to login
+                    } else if (data.knownUser) {
+                        $('#submitMedia-login-unverifieduser').show();
+                    } else {
+                        $('#submitMedia-login-newuser').show();
+                    }
                     $scope.$apply(function(){
                         //
                         // NOTE: This is bound using ng-value instead of ng-model
