@@ -68,7 +68,9 @@ app.userDiv = function(user) {
         image = $('<img>').attr("src", "/cust/images/img_user_on.svg");
     }
 
-    avatar.append(image);
+    var link = $('<a>').attr("href", "/user/" + user.username);
+    link.append(image);
+    avatar.append(link);
 
     return div;
 }
