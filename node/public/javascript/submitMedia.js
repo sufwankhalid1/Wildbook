@@ -137,7 +137,7 @@ var submitMedia = (function () {
             $scope.data = {agreeTerms: true};
 
             app.configPromise.done(function() {
-                app.user = {username:"tomcat"};
+                //app.user = {username:"tomcat"};
                 $scope.media.username = (app.user) ? app.user.username : null;
             });
 
@@ -294,22 +294,13 @@ var submitMedia = (function () {
             $scope.saveSubmission = function() {
                 var jqXHR = savems($scope.media, "save")
                 .done(function(data) {
-console.log('data %o', data);
-                    var mediaid = data.id;
-                    if (data.knownUser && data.userVerified) {
-                        $('#submitMedia-login-verifieduser').show();
-                        //we also need to prevent them from continuing and force them to login
-                    } else if (data.knownUser) {
-                        $('#submitMedia-login-unverifieduser').show();
-                    } else {
-                        $('#submitMedia-login-newuser').show();
-                    }
+console.log('media id returned %o', data);
                     $scope.$apply(function(){
                         //
                         // NOTE: This is bound using ng-value instead of ng-model
                         // because it is a hidden element.
                         //
-                        $scope.media.id = mediaid;
+                        $scope.media.id = data;
                     });
                 });
 
