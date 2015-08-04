@@ -58,7 +58,7 @@ import com.samsix.database.Database;
 /**
  * <code>Shepherd</code>	is the main	information	retrieval, processing, and persistence class to	be used	for	all	shepherd project applications.
  * The <code>shepherd</code>	class interacts directly with the database and	all	persistent objects stored within it.
- * Any application seeking access to	whale shark	data must invoke an	instance of	shepherd first and use it to retrieve any data stored in the
+ * Any application seeking access to	individual	data must invoke an	instance of	shepherd first and use it to retrieve any data stored in the
  * database.
  * <p/>
  * While	a <code>shepherd</code>	object is easily invoked with a	single,	simple constructor,	no data
@@ -78,7 +78,7 @@ import com.samsix.database.Database;
  *
  * @author Jason Holmberg
  * @version alpha-2
- * @see shark, encounter, superSpot,	spot
+ * @see individual, encounter, superSpot,	spot
  */
 public class Shepherd {
 
@@ -300,9 +300,8 @@ public class Shepherd {
    * @param MarkedIndividual to delete from the database
    * @see MarkedIndividual
    */
-  public void throwAwayMarkedIndividual(MarkedIndividual bye_bye_sharky) {
-    //String name=bye_bye_sharky.getName();
-    pm.deletePersistent(bye_bye_sharky);
+  public void throwAwayMarkedIndividual(MarkedIndividual individual) {
+    pm.deletePersistent(individual);
   }
 
   public void throwAwayTask(ScanTask sTask) {
@@ -933,9 +932,9 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
 
 
   /**
-   * Adds a new shark to the database
+   * Adds a new individual to the database
    *
-   * @param newShark the new shark to be added to the database
+   * @param newShark the new individual to be added to the database
    * @see MarkedIndividual
    */
   public boolean addMarkedIndividual(MarkedIndividual newShark) {
@@ -944,9 +943,9 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
 
 
   /**
-   * Retrieves any unassigned encounters that are stored in the database - but not yet analyzed - to see whether they represent new or already persistent sharks
+   * Retrieves any unassigned encounters that are stored in the database - but not yet analyzed - to see whether they represent new or already persistent individuals
    *
-   * @return an Iterator of shark encounters that have yet to be assigned shark status or assigned to an existing shark in the database
+   * @return an Iterator of individual encounters that have yet to be assigned individual status or assigned to an existing individual in the database
    * @see encounter, java.util.Iterator
    */
   public Iterator getUnassignedEncounters() {
@@ -1081,7 +1080,7 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
   /**
    * Retrieves any all approved encounters that are stored in the database
    *
-   * @return an Iterator of all whale shark encounters stored in the database that are approved
+   * @return an Iterator of all individual encounters stored in the database that are approved
    * @see encounter, java.util.Iterator
    */
   public Iterator getAllEncounters() {
@@ -1323,12 +1322,12 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
     }
   }
 
-  public ArrayList getAdopterEmailsForMarkedIndividual(Query query,String shark) {
+  public ArrayList getAdopterEmailsForMarkedIndividual(Query query,String individual) {
     Collection c;
     //Extent encClass = getPM().getExtent(Adoption.class, true);
     //Query query = getPM().newQuery(encClass);
     query.setResult("adopterEmail");
-    String filter = "this.individual == '" + shark + "'";
+    String filter = "this.individual == '" + individual + "'";
     query.setFilter(filter);
     try {
       c = (Collection) (query.execute());
@@ -1365,7 +1364,7 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
   /**
    * Retrieves all encounters that are stored in the database in the order specified by the input String
    *
-   * @return an Iterator of all valid whale shark encounters stored in the visual database, arranged by the input String
+   * @return an Iterator of all valid individual encounters stored in the visual database, arranged by the input String
    * @see encounter, java.util.Iterator
    */
   public Iterator getAllEncounters(String order) {
@@ -1462,8 +1461,8 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
    return relatedUsers;
  }
 
-  public ArrayList getAllAdoptionsForEncounter(String shark) {
-    String filter = "this.encounter == '" + shark + "'";
+  public ArrayList getAllAdoptionsForEncounter(String individual) {
+    String filter = "this.encounter == '" + individual + "'";
     Extent encClass = pm.getExtent(Adoption.class, true);
     Query acceptedEncounters = pm.newQuery(encClass, filter);
     Collection c = (Collection) (acceptedEncounters.execute());
@@ -1485,7 +1484,7 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
   /**
    * Retrieves a filtered list of encounters that are stored in the database in the order specified by the input String
    *
-   * @return a filtered Iterator of whale shark encounters stored in the visual database, arranged by the input String
+   * @return a filtered Iterator of individual encounters stored in the visual database, arranged by the input String
    * @see encounter, java.util.Iterator
    */
   public Iterator getAllEncounters(String order, String filter2use) {
@@ -1653,7 +1652,7 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
   /**
    * Retrieves all encounters that are stored in the database but which have been rejected for the visual database
    *
-   * @return an Iterator of all whale shark encounters stored in the database that are unacceptable for the visual ID library
+   * @return an Iterator of all individual encounters stored in the database that are unacceptable for the visual ID library
    * @see encounter, java.util.Iterator
    */
   public Iterator getAllUnidentifiableEncounters(Query rejectedEncounters) {
@@ -1669,7 +1668,7 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
   /**
    * Retrieves all new encounters that are stored in the database but which have been approved for public viewing in the visual database
    *
-   * @return an Iterator of all whale shark encounters stored in the database that are unacceptable for the visual ID library
+   * @return an Iterator of all individual encounters stored in the database that are unacceptable for the visual ID library
    * @see encounter, java.util.Iterator
    */
   public Iterator getUnapprovedEncounters(Query acceptedEncounters) {
@@ -1707,7 +1706,7 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
   /**
    * Retrieves all encounters that are stored in the database but which have been rejected for the visual database in the order identified by the input String
    *
-   * @return an Iterator of all whale shark encounters stored in the database that are unacceptable for the visual ID library in the String order
+   * @return an Iterator of all individual encounters stored in the database that are unacceptable for the visual ID library in the String order
    * @see encounter, java.util.Iterator
    */
   public Iterator getAllUnidentifiableEncounters(Query unacceptedEncounters, String order) {
@@ -1748,17 +1747,17 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
 
 
   /**
-   * Returns all of the names of the sharks that can be used for training purporses - i.e. have more than one encounter - in a Vector format
+   * Returns all of the names of the individuals that can be used for training purporses - i.e. have more than one encounter - in a Vector format
    *
-   * @return a Vector of shark names that have more than one encounter with spots associated with them
-   * @see encounter, shark, java.util.Vector
+   * @return a Vector of individual names that have more than one encounter with spots associated with them
+   * @see encounter, individual, java.util.Vector
    */
   public Vector getPossibleTrainingIndividuals() {
-    Iterator allSharks = getAllMarkedIndividuals();
+    Iterator allInds = getAllMarkedIndividuals();
     MarkedIndividual tempShark;
     Vector possibleTrainingSharkNames = new Vector();
-    while (allSharks.hasNext()) {
-      tempShark = (MarkedIndividual) (allSharks.next());
+    while (allInds.hasNext()) {
+      tempShark = (MarkedIndividual) (allInds.next());
       if (tempShark.getNumberTrainableEncounters() >= 2) {
         possibleTrainingSharkNames.add(tempShark);
         //System.out.println(tempShark.getName()+" has more than one encounter.");
@@ -1771,11 +1770,11 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
   }
 
   public Vector getRightPossibleTrainingIndividuals() {
-    Iterator allSharks = getAllMarkedIndividuals();
+    Iterator allInds = getAllMarkedIndividuals();
     MarkedIndividual tempShark;
     Vector possibleTrainingSharkNames = new Vector();
-    while (allSharks.hasNext()) {
-      tempShark = (MarkedIndividual) (allSharks.next());
+    while (allInds.hasNext()) {
+      tempShark = (MarkedIndividual) (allInds.next());
       if (tempShark.getNumberRightTrainableEncounters() >= 2) {
         possibleTrainingSharkNames.add(tempShark);
         //System.out.println(tempShark.getName()+" has more than one encounter.");
@@ -1788,36 +1787,36 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
 
 
   /**
-   * Retrieves an Iterator of all the sharks in the database
+   * Retrieves an Iterator of all the individuals in the database
    *
-   * @return an Iterator containing all of the shark objects that have been stored in the database
-   * @see shark, java.util.Iterator
+   * @return an Iterator containing all of the individual objects that have been stored in the database
+   * @see individual, java.util.Iterator
    */
   public Iterator getAllMarkedIndividuals() {
-    Extent allSharks = null;
+    Extent allInds = null;
     try {
-      allSharks = pm.getExtent(MarkedIndividual.class, true);
+      allInds = pm.getExtent(MarkedIndividual.class, true);
     } catch (javax.jdo.JDOException x) {
       x.printStackTrace();
     }
     Extent encClass = pm.getExtent(MarkedIndividual.class, true);
-    Query sharks = pm.newQuery(encClass);
-    Collection c = (Collection) (sharks.execute());
+    Query individuals = pm.newQuery(encClass);
+    Collection c = (Collection) (individuals.execute());
     ArrayList list = new ArrayList(c);
     Iterator it = list.iterator();
     return it;
   }
 
   public ArrayList<MarkedIndividual> getAllMarkedIndividualsFromLocationID(String locCode) {
-    Extent allSharks = null;
+    Extent allInds = null;
     try {
-      allSharks = pm.getExtent(MarkedIndividual.class, true);
+      allInds = pm.getExtent(MarkedIndividual.class, true);
     } catch (javax.jdo.JDOException x) {
       x.printStackTrace();
     }
     Extent encClass = pm.getExtent(MarkedIndividual.class, true);
-    Query sharks = pm.newQuery(encClass);
-    Collection c = (Collection) (sharks.execute());
+    Query individuals = pm.newQuery(encClass);
+    Collection c = (Collection) (individuals.execute());
     ArrayList list = new ArrayList(c);
     ArrayList<MarkedIndividual> newList=new ArrayList<MarkedIndividual>();
     int listSize=list.size();
@@ -1830,8 +1829,8 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
 
 
 
-  public Iterator getAllMarkedIndividuals(Query sharks) {
-    Collection c = (Collection) (sharks.execute());
+  public Iterator getAllMarkedIndividuals(Query individuals) {
+    Collection c = (Collection) (individuals.execute());
     //ArrayList list = new ArrayList(c);
     //Collections.reverse(list);
     Iterator it = c.iterator();
@@ -1839,19 +1838,19 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
   }
 
   /**
-   * Retrieves an Iterator of all the sharks in the database, ordered according to the input String
+   * Retrieves an Iterator of all the individuals in the database, ordered according to the input String
    *
-   * @return an Iterator containing all of the shark objects that have been stored in the database, ordered according to the input String
-   * @see shark, java.util.Iterator
+   * @return an Iterator containing all of the individual objects that have been stored in the database, ordered according to the input String
+   * @see individual, java.util.Iterator
    */
-  public Iterator getAllMarkedIndividuals(Query sharkies, String order) {
+  public Iterator getAllMarkedIndividuals(Query query, String order) {
     Map<String, Object> emptyMap = Collections.emptyMap();
-    return getAllMarkedIndividuals(sharkies, order, emptyMap);
+    return getAllMarkedIndividuals(query, order, emptyMap);
   }
 
-  public Iterator getAllMarkedIndividuals(Query sharkies, String order, Map<String, Object> params) {
-    sharkies.setOrdering(order);
-    Collection c = (Collection) (sharkies.executeWithMap(params));
+  public Iterator getAllMarkedIndividuals(Query query, String order, Map<String, Object> params) {
+    query.setOrdering(order);
+    Collection c = (Collection) (query.executeWithMap(params));
     ArrayList list = new ArrayList(c);
     //Collections.reverse(list);
     Iterator it = list.iterator();
@@ -2134,11 +2133,11 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(Class<T> clazz, String 
   }
 
   /**
-   * Returns the <i>i</i>th numbered encounter for a shark
+   * Returns the <i>i</i>th numbered encounter for a individual
    *
-   * @param  tempShark  the shark to retrieve an encounter from
-   * i			the number of the shark to get, numbered from 0...<i>n</i>
-   * @return the <i>i</i>th encounter of the specified shark
+   * @param  tempShark  the individual to retrieve an encounter from
+   * i			the number of the individual to get, numbered from 0...<i>n</i>
+   * @return the <i>i</i>th encounter of the specified individual
    * @see MarkedIndividual
    */
   public Encounter getEncounter(MarkedIndividual tempShark, int i) {

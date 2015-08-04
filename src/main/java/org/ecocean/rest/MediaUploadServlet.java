@@ -287,8 +287,13 @@ public class MediaUploadServlet
 
                     // 2.5 if FileItem is not of type "file"
                     if (item.isFormField())  {
-                        if (item.getFieldName().equals("mediaid")) {
-                            fileset.setID(item.getString());
+                        switch (item.getFieldName()) {
+                            case "mediaid":
+                                fileset.setID(item.getString());
+                                break;
+                            case "submitter":
+                                fileset.setSubmitter(item.getString());
+                                break;
                         }
                     } else {
                         // 2.7 Create FileMeta object
@@ -311,6 +316,14 @@ public class MediaUploadServlet
                 File fullBaseDir = new File(rootDir, baseDir.getPath());
                 fullBaseDir.mkdirs();
 
+                int id;
+                try {
+                    id = Integer.parseInt(fileset.getID());
+                } catch(NumberFormatException ex) {
+                    logger.error("Can't parse id [" + fileset.getID() + "]", ex);
+                    id = -1;
+                }
+
                 for (FileMeta file : fileset.getFiles()) {
                     //
                     // TODO: Save contents of image to a file and create a thumbnail.
@@ -320,14 +333,6 @@ public class MediaUploadServlet
                     // Both could be statically delivered if we save them to a proper
                     // spot and then we can get rid of using the get method?
                     //
-                    int id;
-                    try {
-                        id = Integer.parseInt(fileset.getID());
-                    } catch(NumberFormatException ex) {
-                        logger.error("Can't parse id [" + fileset.getID() + "]", ex);
-                        id = -1;
-                    }
-
                     file.setUrl("/" + new File(baseDir, file.getName()));
 
                     if (Shepherd.isAcceptableImageFile(file.getName())) {
@@ -348,9 +353,10 @@ public class MediaUploadServlet
                     // If so, they will get a broken link image.
                     //
                     executor.execute(new SaveMedia(context,
-                            id,
-                            fullBaseDir,
-                            file));
+                                                   id,
+                                                   fileset.getSubmitter(),
+                                                   fullBaseDir,
+                                                   file));
                 }
             } catch (FileUploadException ex) {
                 ex.printStackTrace();
@@ -377,6 +383,7 @@ public class MediaUploadServlet
     {
         private final List<FileMeta> files = new ArrayList<FileMeta>();
         private String id;
+        private String submitter;
 
         public String getID()
         {
@@ -398,6 +405,14 @@ public class MediaUploadServlet
             ToStringBuilder builder = new ToStringBuilder(this);
             return builder.append("id", id)
                           .append("files", files).toString();
+        }
+
+        public String getSubmitter() {
+            return submitter;
+        }
+
+        public void setSubmitter(String submitter) {
+            this.submitter = submitter;
         }
     }
 
@@ -475,17 +490,20 @@ public class MediaUploadServlet
         implements Runnable
     {
         private final String context;
-        private final int id;
+        private final int submissionId;
+        private final String submitter;
         private final File baseDir;
         private final FileMeta file;
 
         public SaveMedia(final String context,
-                         final int id,
+                         final int submissionId,
+                         final String submitter,
                          final File baseDir,
                          final FileMeta file)
         {
             this.context = context;
-            this.id = id;
+            this.submissionId = submissionId;
+            this.submitter = submitter;
             this.baseDir = baseDir;
             this.file = file;
         }
@@ -493,7 +511,7 @@ public class MediaUploadServlet
         @Override
         public void run() {
             if (logger.isDebugEnabled()) {
-                logger.debug(LogBuilder.get("Saving media").appendVar("id", id)
+                logger.debug(LogBuilder.get("Saving media").appendVar("id", submissionId)
                                        .appendVar("file.getName()", file.getName()).toString());
             }
 
@@ -593,6 +611,7 @@ public class MediaUploadServlet
                 }
                 Shepherd shepherd = new Shepherd(context);
                 SinglePhotoVideo media = new SinglePhotoVideo(null, fullPath);
+                media.setSubmitter(submitter);
                 shepherd.getPM().makePersistent(media);
 
                 if (logger.isDebugEnabled()) {
@@ -603,7 +622,7 @@ public class MediaUploadServlet
                 Database db = new Database(ci);
 
                 SqlInsertFormatter formatter = new SqlInsertFormatter();
-                formatter.append("mediasubmissionid", id);
+                formatter.append("mediasubmissionid", submissionId);
                 formatter.append("mediaid", media.getDataCollectionEventID());
                 if (logger.isDebugEnabled()) {
                     logger.debug(LogBuilder.quickLog("About to save link to media", media.getDataCollectionEventID()));

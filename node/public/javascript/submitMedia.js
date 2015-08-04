@@ -136,7 +136,8 @@ var submitMedia = (function () {
             //
             $scope.data = {agreeTerms: true};
 
-            app.configPromise.done(function(){
+            app.configPromise.done(function() {
+                app.user = {username:"tomcat"};
                 $scope.media.username = (app.user) ? app.user.username : null;
             });
 
@@ -197,8 +198,8 @@ var submitMedia = (function () {
             };
 
             $scope.isLoggedIn = function() {
-//                return ($scope.data.user);
-                return (app.user);
+//                return (app.user);
+                return ($scope.media.username);
             };
 
             $scope.getExifData = function() {

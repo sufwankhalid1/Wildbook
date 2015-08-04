@@ -1,0 +1,75 @@
+extends layout
+
+block css
+    link(rel="stylesheet" href="/vendor/leaflet/leaflet.css")
+    link(rel="stylesheet" href="/vendor/leaflet.markercluster/MarkerCluster.css")
+    link(rel="stylesheet" href="/vendor/photoswipe/photoswipe.css")
+    link(rel="stylesheet" href="/vendor/photoswipe/default-skin/default-skin.css")
+
+block content
+    .maincontent
+        h1.has-icon.icon-user #{data.userinfo.user.displayName}
+        
+        .container-fluid
+            .col-md-2
+                img(src="#{data.userinfo.user.avatar}" height="128px")
+            .col-md-10
+                .container-fluid.sight-stats
+                    .row
+                        .col-md-8
+                            span.sight-number #{data.individualsIdentified}
+                            span.sight-date-text= t("userpage.individualsIdentified")
+                        .col-md-4
+                            span.sight-number #{data.voyagesCompleted}
+                            span.sight-date-text= t("userpage.voyagesCompleted")
+                    .row
+                        .container-fluid
+                            .col-md-4
+                                img(src="/cust/images/img_binoculars.svg" height="128px")
+                            .col-md-4
+                                .row
+                                    span.sight-number #{data.userinfo.photoCount}
+                                .row
+                                   span.sight-date-text!= t("userpage.imagesSubmitted")
+                            .col-md-4
+                                img(src="/cust/images/img_voyageviewer.svg" height="80px")
+
+
+        -var photos = data.userinfo.photos
+        if photos
+            h1.has-icon.icon-happywhale= t("userpage.topRatedContributions")
+            hr
+            include partials/phototool
+
+        h1.has-icon.icon-happywhale= t("userpage.individualsEncountered")
+        hr
+        #map-sightings
+        
+        h1.has-icon.icon-voyageviewer= t("userpage.voyages")
+        hr
+        
+        
+block scripts
+    script(src="/vendor/leaflet/leaflet.js")
+    script(src="/vendor/leaflet.markercluster/leaflet.markercluster.js")
+    script(src="/vendor/photoswipe/photoswipe.min.js")
+    script(src="/vendor/photoswipe/photoswipe-ui-default.min.js")
+    script(src="/javascript/phototool.js")
+    script(src="/javascript/maptool.js")
+    script(src='/javascript/individual.js')
+    
+    script.
+        $(document).ready(function() {
+            //
+            // Trigger bootstrap carousels
+            //
+            //    $('.carousel').carousel({
+            //        interval: 3000
+            //    });
+        
+            var user = !{JSON.stringify(data.userinfo)};
+        
+            app.configPromise.then(function() {
+                individualPage.init(user);
+            });
+        });

@@ -78,5 +78,13 @@
         "firstSighted": "FIRST SIGHTED",
         "lastSeen": "LAST SEEN",
         "reportedSightings": "REPORTED<br>SIGHTINGS"
+    },
+    "userpage": {
+        "individualsIdentified": "INDIVIDUALS IDENTIFIED",
+        "voyagesCompleted": "VOYAGES COMPLETED",
+        "imagesSubmitted": "IMAGES SUBMITTED",
+        "topRatedContributions": "Top Rated Contributions",
+        "individualsEncountered": "Indivduals Encountered",
+        "voyages": "Voyages"
     }
 }

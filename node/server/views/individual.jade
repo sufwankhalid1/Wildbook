@@ -49,20 +49,7 @@ block content
         -var photos = data.ind.photos
         //include partials/carousel
         
-        .photo-group
-            if photos[0]
-                row
-                    img#main-photo.img-responsive(src="#{config.wildbook.staticUrl}#{photos[0].url}")
-            if photos.length > 4
-                row
-                    .col-md-4
-                        img.img-thumbnail#sub-photo1(src="#{config.wildbook.staticUrl}#{photos[1].url}")
-                    .col-md-4
-                        img.img-thumbnail#sub-photo2(src="#{config.wildbook.staticUrl}#{photos[2].url}")
-                    .col-md-4
-                        img.img-thumbnail#sub-photo3(src="#{config.wildbook.staticUrl}#{photos[3].url}")
-        
-        include partials/photoswipe
+        include partials/phototool
 
         h2= t("individual.contributors")
         hr
@@ -85,21 +72,22 @@ block scripts
     script(src="/vendor/leaflet.markercluster/leaflet.markercluster.js")
     script(src="/vendor/photoswipe/photoswipe.min.js")
     script(src="/vendor/photoswipe/photoswipe-ui-default.min.js")
+    script(src="/javascript/phototool.js")
     script(src="/javascript/maptool.js")
     script(src='/javascript/individual.js')
     
     script.
-        //
-        // Trigger bootstrap carousels
-        //
-        //$(document).ready(function() {
-        //    $('.carousel').carousel({
-        //        interval: 3000
-        //    });
-        //});
+        $(document).ready(function() {
+            //
+            // Trigger bootstrap carousels
+            //
+            //    $('.carousel').carousel({
+            //        interval: 3000
+            //    });
         
-        var ind = !{JSON.stringify(data.ind)};
+            var ind = !{JSON.stringify(data.ind)};
         
-        app.configPromise.then(function() {
-            individualPage.init(ind);
+            app.configPromise.then(function() {
+                individualPage.init(ind);
+            });
         });

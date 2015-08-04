@@ -378,6 +378,20 @@ module.exports = function(app, config, secrets, debug) {
         });
     });
 
+    app.get("/user/*", function(req, res) {
+        var username = req.url.slice(6);
+
+        var url = config.wildbook.authUrl + "/data/userinfo/get/" + username;
+
+        request(url)
+        .then(function(response) {
+            res.render("userpage", makeVars({data: {userinfo: JSON.parse(response)}}));
+        })
+        .catch(function(ex) {
+            renderError(res, new VError(ex, "Can't get individual [" + id + "]"));
+        });
+    });
+
     //
     // Proxy over to wildbook
     //

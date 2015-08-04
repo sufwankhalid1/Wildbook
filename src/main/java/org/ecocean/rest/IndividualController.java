@@ -38,6 +38,15 @@ public class IndividualController
     }
 
 
+    @RequestMapping(value = "/userinfo/get/{username}", method = RequestMethod.GET)
+    public UserInfo getUserInfo(final HttpServletRequest request,
+                                @PathVariable("username")
+                                final String username)
+    {
+        return new UserInfo(SimpleFactory.getUser(ServletUtilities.getContext(request), username));
+    }
+
+
     @RequestMapping(value = "/config/value/{var}", method = RequestMethod.GET)
     public String getConfigValue(final HttpServletRequest request,
             @PathVariable("var")

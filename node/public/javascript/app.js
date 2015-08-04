@@ -118,10 +118,42 @@ $(document).ready(function() {
                 }
             },
             select: function(ev, ui) {
-                window.location.replace("/individual/" + ui.item.value);
+                if (ui.item.type == "individual") {
+                    window.location.replace("/individual/" + ui.item.value);
+                } else if (ui.item.type == "user") {
+                    window.location.replace("/user/" + ui.item.value);
+                } else {
+                    alertplus.alert("Unknown result [" + ui.item.value + "] of type [" + ui.item.type + "]");
+                }
                 return false;
             },
-            source: app.config.wildbook.proxyUrl + "/search"
+            //source: app.config.wildbook.proxyUrl + "/search"
+            source: function( request, response ) {
+                $.ajax({
+                    url: app.config.wildbook.proxyUrl + "/search",
+                    dataType: "json",
+                    data: {
+                        term: request.term
+                    },
+                    success: function( data ) {
+                        var res = $.map(data, function(item) {
+                            var label;
+                            if (item.type == "individual") {
+                                label = "Whale: ";
+                            } else if (item.type == "user") {
+                                label = "User: ";
+                            } else {
+                                label = "";
+                            }
+                            return {label: label + item.label,
+                                    value: item.value,
+                                    type: item.type};
+                            });
+
+                        response(res);
+                    }
+                });
+            }
         });
     });
 

@@ -28,6 +28,9 @@
 .icon-captain {
     background-image: url(../images/img_captain.svg);
 }
+.icon-user {
+    background-image: url(../images/img_user_on.svg);
+}
 
 /* h/t https://stackoverflow.com/a/26921844/1525311 */
 .center-cropped {
