@@ -3,6 +3,7 @@ package org.ecocean.rest;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.ecocean.ShepherdPMF;
 import org.ecocean.servlet.ServletUtilities;
 import org.ecocean.util.LogBuilder;
 import org.slf4j.Logger;
@@ -11,6 +12,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.samsix.database.Database;
+import com.samsix.database.DatabaseException;
 
 @RestController
 @RequestMapping(value = "/data")
@@ -21,7 +25,7 @@ public class IndividualController
     @RequestMapping(value = "/individual/get/{id}", method = RequestMethod.GET)
     public SimpleIndividual getIndividual(final HttpServletRequest request,
                                           @PathVariable("id")
-                                          final String id)
+                                          final String id) throws DatabaseException
     {
         return SimpleFactory.getIndividual(ServletUtilities.getContext(request),
                                            ServletUtilities.getConfigDir(request),
@@ -43,7 +47,26 @@ public class IndividualController
                                 @PathVariable("username")
                                 final String username)
     {
-        return new UserInfo(SimpleFactory.getUser(ServletUtilities.getContext(request), username));
+        UserInfo userinfo;
+        userinfo = new UserInfo(SimpleFactory.getUser(ServletUtilities.getContext(request), username));
+
+        //
+        // Add:
+        // 1) Highlighted photos. (4 random photos if no highlighted one's?)
+        // 2) Total photo submission count
+        // 3) Number of encounters
+        // 4) Indivduals identified (unique Individuals through Encounters
+        // 5) Voyages on
+        //
+        try (Database db = new Database(ShepherdPMF.getConnectionInfo())) {
+//            RecordSet rs = db.getRecordSet(sql);
+//            List<SinglePhotoVideo> spvs = new ArrayList<SinglePhotoVideo>();
+//            while (rs.next()) {
+//
+//            }
+        }
+
+        return userinfo;
     }
 
 

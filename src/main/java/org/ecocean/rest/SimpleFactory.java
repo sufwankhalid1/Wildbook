@@ -1,17 +1,20 @@
 package org.ecocean.rest;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import org.ecocean.Encounter;
 import org.ecocean.MarkedIndividual;
 import org.ecocean.Shepherd;
+import org.ecocean.ShepherdPMF;
 import org.ecocean.SinglePhotoVideo;
 import org.ecocean.User;
 import org.ecocean.Util;
 import org.ecocean.security.Stormpath;
 
+import com.samsix.database.Database;
+import com.samsix.database.DatabaseException;
+import com.samsix.database.RecordSet;
+import com.samsix.util.string.StringUtilities;
 import com.stormpath.sdk.account.Account;
 import com.stormpath.sdk.account.AccountList;
 import com.stormpath.sdk.client.Client;
@@ -25,7 +28,7 @@ public class SimpleFactory {
 
     public static SimpleIndividual getIndividual(final String context,
                                                  final String configDir,
-                                                 final String id) {
+                                                 final String id) throws DatabaseException {
         Shepherd myShepherd = new Shepherd(context);
         MarkedIndividual mi = myShepherd.getMarkedIndividual(id);
 
@@ -52,43 +55,82 @@ public class SimpleFactory {
 
     public static SimpleIndividual getIndividual(final String context,
                                                  final String configDir,
-                                                 final MarkedIndividual mi) {
+                                                 final MarkedIndividual mi) throws DatabaseException {
 
         SimpleIndividual ind = new SimpleIndividual(mi.getIndividualID(), mi.getNickName());
         ind.setSex(mi.getSex());
 
-        final int MIN_PHOTOS = 4;
-        List<SimplePhoto> minphotos = new ArrayList<SimplePhoto>(MIN_PHOTOS);
-
         java.util.Iterator<Encounter> it = mi.getEncounters().iterator();
         while (it.hasNext()) {
-            Encounter enc = it.next();
-            ind.addEncounter(getEncounter(context, configDir, enc));
+            ind.addEncounter(getEncounter(context, configDir, it.next()));
+        }
 
-            for (SinglePhotoVideo photo : enc.getSinglePhotoVideo())
-            {
-                if (photo.getKeywords().contains("profile")) {
-                    ind.setAvatar(photo.asUrl(context));
-                } else if (photo.getKeywords().contains("highlight")) {
-                    ind.addPhoto(getPhoto(context, photo));
-                } else {
-                    if (minphotos.size() < MIN_PHOTOS) {
-                        minphotos.add(getPhoto(context, photo));
-                    }
+        //
+        // Add photos
+        //
+        final int MIN_PHOTOS = 8;
+
+        try (Database db = new Database(ShepherdPMF.getConnectionInfo())) {
+            String sqlRoot = "SELECT spv.* FROM \"SINGLEPHOTOVIDEO\" spv"
+                    + " INNER JOIN \"ENCOUNTER_IMAGES\" ei ON spv.\"DATACOLLECTIONEVENTID\" = ei.\"DATACOLLECTIONEVENTID_EID\""
+                    + " INNER JOIN \"MARKEDINDIVIDUAL_ENCOUNTERS\" mie ON mie.\"CATALOGNUMBER_EID\" = ei.\"CATALOGNUMBER_OID\"";
+            String mtmJoin = " INNER JOIN \"MEDIATAG_MEDIA\" mtm ON spv.\"DATACOLLECTIONEVENTID\" = mtm.\"DATACOLLECTIONEVENTID_EID\"";
+            String whereRoot = " WHERE mie.\"INDIVIDUALID_OID\" = " + StringUtilities.wrapQuotes(ind.getId());
+
+            //
+            // Find the profile image
+            //
+            String sql;
+            sql = sqlRoot + mtmJoin + whereRoot
+                    + " AND mtm.\"NAME_OID\" = 'profile' LIMIT 1";
+
+            RecordSet rs = db.getRecordSet(sql);
+            if (rs.next()) {
+                ind.setAvatar(readPhoto(rs).asUrl(context));
+            }
+
+            //
+            // Find the highlight images for this individual, or if none,
+            // grab some images at random to display.
+            //
+            sql = sqlRoot + mtmJoin + whereRoot
+                    + " AND mtm.\"NAME_OID\" = 'highlight'";
+
+            rs = db.getRecordSet(sql);
+            if (rs.next()) {
+                while (rs.next()) {
+                    ind.addPhoto(getPhoto(context, readPhoto(rs)));
+                }
+            } else {
+                //
+                // Just grab 4 photos at random?
+                //
+                sql = sqlRoot + whereRoot + " LIMIT " + MIN_PHOTOS;
+
+                rs = db.getRecordSet(sql);
+                while (rs.next()) {
+                    ind.addPhoto(getPhoto(context, readPhoto(rs)));
                 }
             }
         }
 
-        //
-        // If the individual does not have enough "highlight" photos then
-        // use the other photos you found to round out the minimum number
-        // of photos.
-        //
-        for (int ii = 0; ii < MIN_PHOTOS - ind.getPhotos().size(); ii++) {
-            ind.addPhoto(minphotos.get(ii));
-        }
-
         return ind;
+    }
+
+
+    private static SinglePhotoVideo readPhoto(final RecordSet rs) throws DatabaseException
+    {
+        //
+        // TODO: Add Keywords
+        //
+        SinglePhotoVideo spv = new SinglePhotoVideo();
+        spv.setCopyrightOwner(rs.getString("COPYRIGHTOWNER"));
+        spv.setCopyrightStatement(rs.getString("COPYRIGHTSTATEMENT"));
+        spv.setFilename(rs.getString("FILENAME"));
+        spv.setFullFileSystemPath(rs.getString("FULLFILESYSTEMPATH"));
+        spv.setSubmitter(rs.getString("SUBMITTER"));
+
+        return spv;
     }
 
 
