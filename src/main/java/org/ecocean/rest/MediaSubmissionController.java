@@ -282,38 +282,6 @@ System.out.println(sql);
             }
         } else {
             email = media.getEmail();
-
-            //since this user is not logged into wildbook, we want to at least create a Stormpath user *if* one does not exist
-            Client client = Stormpath.getClient(ServletUtilities.getConfigDir(request));
-            if (client != null) {
-                if (log.isDebugEnabled()) log.debug("checking on stormpath for email=" + email);
-                HashMap<String,Object> q = new HashMap<String,Object>();
-                q.put("email", email);
-                AccountList accs = Stormpath.getAccounts(client, q);
-                //Iterator it = accs.iterator();
-                if (accs.getSize() < 1) {
-                    String givenName = "Unknown";
-                    if (!Util.isEmpty(media.getName())) givenName = media.getName();
-                    String surname = "-";
-                    int si = givenName.indexOf(" ");
-                    if (si > -1) {
-                        surname = givenName.substring(si+1);
-                        givenName = givenName.substring(0,si);
-                    }
-                    HashMap<String,Object> custom = new HashMap<String,Object>();
-                    custom.put("unverified", true);
-                    custom.put("creatingMediaSubmission", media.getId());
-                    try {
-                        Stormpath.createAccount(client, givenName, surname, email, Stormpath.randomInitialPassword(), null, custom);
-                        if (log.isDebugEnabled()) log.debug("successfully created Stormpath user for " + email);
-                    } catch (Exception ex) {
-                        if (log.isDebugEnabled()) log.debug("could not create Stormpath user for email=" + email + ": " + ex.toString());
-                    }
-                } else {
-                   if (log.isDebugEnabled()) log.debug("appears to already exist a Stormpath user for email=" + email + "; not creating one.");
-                }
-            }
-
 //            userstr = media.getName() + " <" + email + ">";
         }
         if (log.isDebugEnabled()) log.debug("sending thankyou email to:" + email);
