@@ -428,3 +428,27 @@ console.log('media id returned %o', data);
 //        console.log(JSON.stringify(smms.media));
 //    }};
 })();
+
+
+function verifyEmail(email) {
+    return $.ajax({
+        url: '/wildbook/obj/user/verify',
+        contentType: 'text/plain',
+        type: 'POST',
+        data: email,
+        dataType: 'json'
+    });
+}
+
+
+function createUser(email, fullName) {
+    return $.ajax({
+        url: '/wildbook/obj/user/create',
+        contentType: 'application/json',
+        type: 'POST',
+        data: JSON.stringify({email: email, fullName: fullName}),
+        dataType: 'json'
+    });
+}
+
+
