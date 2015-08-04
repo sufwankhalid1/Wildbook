@@ -232,22 +232,16 @@ public class MediaUploadServlet
         return new File(baseDir, "thumb");
     }
 
-    private static File getThumbnailFile(final File baseDir,
-                                         final String fileName)
-    {
-        return new File(getThumbnailDir(baseDir), fileName);
-    }
+//    private static File getThumbnailFile(final File baseDir,
+//                                         final String fileName)
+//    {
+//        return new File(getThumbnailDir(baseDir), fileName);
+//    }
 
     private static File getMidsizeDir(final File baseDir)
     {
         return new File(baseDir, "mid");
     }
-//
-//    private static File getMidsizeFile(final File baseDir,
-//                                         final String fileName)
-//    {
-//        return new File(getMidsizeDir(baseDir), fileName);
-//    }
 
     private static File getRootDir(final HttpServletRequest request)
     {
@@ -619,7 +613,6 @@ public class MediaUploadServlet
                 }
 
                 ConnectionInfo ci = ShepherdPMF.getConnectionInfo();
-                Database db = new Database(ci);
 
                 SqlInsertFormatter formatter = new SqlInsertFormatter();
                 formatter.append("mediasubmissionid", submissionId);
@@ -627,10 +620,8 @@ public class MediaUploadServlet
                 if (logger.isDebugEnabled()) {
                     logger.debug(LogBuilder.quickLog("About to save link to media", media.getDataCollectionEventID()));
                 }
-                try {
+                try (Database db = new Database(ci)) {
                     db.getTable("mediasubmission_media").insertRow(formatter);
-                } finally {
-                    db.release();
                 }
             } catch (Exception ex) {
                 logger.error("Trouble saving media file [" + fullPath.getAbsolutePath() + "]", ex);
@@ -693,9 +684,8 @@ public class MediaUploadServlet
                 }
 
                 ConnectionInfo ci = ShepherdPMF.getConnectionInfo();
-                Database db = new Database(ci);
 
-                try {
+                try (Database db = new Database(ci)){
                     String sql;
                     sql = "SELECT mediaid FROM mediasubmission_media msm"
                           + " INNER JOIN \"SINGLEPHOTOVIDEO\" spv ON spv.\"DATACOLLECTIONEVENTID\" = msm.mediaid"
@@ -729,8 +719,6 @@ public class MediaUploadServlet
                         logger.debug(LogBuilder.quickLog("About to delete link to media", mediaid));
                     }
                     db.getTable("mediasubmission_media").deleteRows(formatter.getWhereClause());
-                } finally {
-                    db.release();
                 }
             } catch (Exception ex) {
                 logger.error("Trouble deleting media file [" + fullPath.getAbsolutePath() + "]", ex);

@@ -99,9 +99,7 @@ public class MediaSubmissionController
     {
         ConnectionInfo ci = ShepherdPMF.getConnectionInfo();
 
-        Database db = new Database(ci);
-
-        try {
+        try (Database db = new Database(ci)) {
             SqlWhereFormatter where = new SqlWhereFormatter();
             where.append("id", mediaid);
             List<MediaSubmission> mss = get(db, where);
@@ -134,8 +132,6 @@ public class MediaSubmissionController
             ms.setMedia(spvs);
 
             return ms;
-        } finally {
-            db.release();
         }
     }
 

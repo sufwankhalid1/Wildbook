@@ -1,6 +1,7 @@
 div.user-info
     div.user-avatar(data-toggle="tooltip" title="#{user.displayName}")
         if user.avatar
-            img(src="#{user.avatar}" onError="this.onerror=null;this.src='/cust/images/img_user_on.svg'")
+            a(href="/user/#{user.username}")
+                img(src="#{user.avatar}" onError="this.onerror=null;this.src='/cust/images/img_user_on.svg'")
         else
             img(src="/cust/images/img_user_on.svg")
