@@ -83,9 +83,11 @@ public class User implements Serializable {
     }
 
     public User(Account acc) {
-        String username = acc.getUsername();
-        if (username == null) username = acc.getEmail();
-        setFullName(acc.getGivenName() + " " + acc.getSurname());
+        //i *think* Stormpath will force these two the same; but not sure... so being careful
+        String uname = acc.getUsername();
+        if (uname == null) uname = acc.getEmail();
+        setUsername(uname);
+        setFullName(acc.getGivenName() + " " + acc.getSurname());  //so non-international of us!
         setEmailAddress(acc.getEmail());
         setPassword(Util.generateUUID());
     }
