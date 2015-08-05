@@ -21,6 +21,8 @@ import com.stormpath.sdk.client.Client;
 import com.stormpath.sdk.directory.CustomData;
 
 public class SimpleFactory {
+    private final static int MIN_PHOTOS = 8;
+
     private SimpleFactory() {
         // prevent instantiation
     }
@@ -68,9 +70,7 @@ public class SimpleFactory {
         //
         // Add photos
         //
-        final int MIN_PHOTOS = 8;
-
-        try (Database db = new Database(ShepherdPMF.getConnectionInfo())) {
+       try (Database db = new Database(ShepherdPMF.getConnectionInfo())) {
             String sqlRoot = "SELECT spv.* FROM \"SINGLEPHOTOVIDEO\" spv"
                     + " INNER JOIN \"ENCOUNTER_IMAGES\" ei ON spv.\"DATACOLLECTIONEVENTID\" = ei.\"DATACOLLECTIONEVENTID_EID\""
                     + " INNER JOIN \"MARKEDINDIVIDUAL_ENCOUNTERS\" mie ON mie.\"CATALOGNUMBER_EID\" = ei.\"CATALOGNUMBER_OID\"";
@@ -90,25 +90,32 @@ public class SimpleFactory {
             }
 
             //
-            // Find the highlight images for this individual, or if none,
-            // grab some images at random to display.
+            // Find the highlight images for this individual.
             //
             sql = sqlRoot + mtmJoin + whereRoot
                     + " AND mtm.\"NAME_OID\" = 'highlight'";
 
             rs = db.getRecordSet(sql);
-            if (rs.next()) {
-                while (rs.next()) {
-                    ind.addPhoto(getPhoto(context, readPhoto(rs)));
-                }
-            } else {
-                //
-                // Just grab 4 photos at random?
-                //
+            while (rs.next()) {
+                ind.addPhoto(getPhoto(context, readPhoto(rs)));
+            }
+
+            //
+            // If we are not at our minimum number of photos go ahead
+            // and grab the rest at random. Grab the minimum number of photos
+            // rather than the minimum minus the number already retrieved so
+            // that we can throw out any duplicates. That code is embedded
+            // in the addPhoto method of the SimpleIndividual
+            //
+            if (ind.getPhotos().size() < MIN_PHOTOS) {
                 sql = sqlRoot + whereRoot + " LIMIT " + MIN_PHOTOS;
 
                 rs = db.getRecordSet(sql);
                 while (rs.next()) {
+                    if (ind.getPhotos().size() >= MIN_PHOTOS) {
+                        break;
+                    }
+
                     ind.addPhoto(getPhoto(context, readPhoto(rs)));
                 }
             }
@@ -118,12 +125,81 @@ public class SimpleFactory {
     }
 
 
+    public static UserInfo getUserInfo(final String context,
+                                       final String username) throws DatabaseException
+    {
+        UserInfo userinfo;
+        userinfo = new UserInfo(SimpleFactory.getUser(context, username));
+
+        //
+        // Add:
+        // 1) Highlighted photos. (4 random photos if no highlighted one's?)
+        // 2) Total photo submission count
+        // 3) Encounters
+        // 4) Indivduals identified (unique Individuals from Encounters
+        // 5) Voyages on
+        //
+        String sqlRoot = "SELECT spv.* FROM \"SINGLEPHOTOVIDEO\" spv";
+        String whereRoot = " WHERE spv.\"SUBMITTER\" = " + StringUtilities.wrapQuotes(username);
+
+        try (Database db = new Database(ShepherdPMF.getConnectionInfo())) {
+            String sql;
+
+            //
+            // 1) Highlighted Photos
+            //
+            sql = sqlRoot
+                    + " INNER JOIN \"MEDIATAG_MEDIA\" mtm ON spv.\"DATACOLLECTIONEVENTID\" = mtm.\"DATACOLLECTIONEVENTID_EID\""
+                    + whereRoot
+                    + " AND mtm.\"NAME_OID\" = 'highlight' OR mtm.\"NAME_OID\" = 'profile'";
+
+            RecordSet rs = db.getRecordSet(sql);
+            while (rs.next()) {
+                userinfo.addPhoto(getPhoto(context, readPhoto(rs)));
+            }
+
+            //
+            // If we are not at our minimum number of photos go ahead
+            // and grab the rest at random. Grab the minimum number of photos
+            // rather than the minimum minus the number already retrieved so
+            // that we can throw out any duplicates. That code is embedded
+            // in the addPhoto method of the SimpleIndividual
+            //
+            if (userinfo.getPhotos().size() < MIN_PHOTOS) {
+                sql = sqlRoot + whereRoot + " LIMIT " + MIN_PHOTOS;
+
+                rs = db.getRecordSet(sql);
+                while (rs.next()) {
+                    if (userinfo.getPhotos().size() >= MIN_PHOTOS) {
+                        break;
+                    }
+
+                    userinfo.addPhoto(getPhoto(context, readPhoto(rs)));
+                }
+            }
+
+            //
+            // 2) Total Number of photos
+            //
+            sql = "SELECT count(*) AS count FROM \"SINGLEPHOTOVIDEO\" spv" + whereRoot;
+            rs = db.getRecordSet(sql);
+            if (rs.next()) {
+                userinfo.setTotalPhotoCount(rs.getInt("count"));
+            }
+
+
+        }
+
+        return userinfo;
+    }
+
     private static SinglePhotoVideo readPhoto(final RecordSet rs) throws DatabaseException
     {
         //
         // TODO: Add Keywords
         //
         SinglePhotoVideo spv = new SinglePhotoVideo();
+        spv.setDataCollectionEventID("DATACOLLECTIONEVENTID");
         spv.setCopyrightOwner(rs.getString("COPYRIGHTOWNER"));
         spv.setCopyrightStatement(rs.getString("COPYRIGHTSTATEMENT"));
         spv.setFilename(rs.getString("FILENAME"));

@@ -3,7 +3,6 @@ package org.ecocean.rest;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.ecocean.ShepherdPMF;
 import org.ecocean.servlet.ServletUtilities;
 import org.ecocean.util.LogBuilder;
 import org.slf4j.Logger;
@@ -13,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
 
 @RestController
@@ -45,28 +43,9 @@ public class IndividualController
     @RequestMapping(value = "/userinfo/get/{username}", method = RequestMethod.GET)
     public UserInfo getUserInfo(final HttpServletRequest request,
                                 @PathVariable("username")
-                                final String username)
+                                final String username) throws DatabaseException
     {
-        UserInfo userinfo;
-        userinfo = new UserInfo(SimpleFactory.getUser(ServletUtilities.getContext(request), username));
-
-        //
-        // Add:
-        // 1) Highlighted photos. (4 random photos if no highlighted one's?)
-        // 2) Total photo submission count
-        // 3) Number of encounters
-        // 4) Indivduals identified (unique Individuals through Encounters
-        // 5) Voyages on
-        //
-        try (Database db = new Database(ShepherdPMF.getConnectionInfo())) {
-//            RecordSet rs = db.getRecordSet(sql);
-//            List<SinglePhotoVideo> spvs = new ArrayList<SinglePhotoVideo>();
-//            while (rs.next()) {
-//
-//            }
-        }
-
-        return userinfo;
+        return SimpleFactory.getUserInfo(ServletUtilities.getContext(request), username);
     }
 
 

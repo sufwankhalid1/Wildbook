@@ -56,6 +56,13 @@ class SimpleIndividual
     }
 
     public void addPhoto(final SimplePhoto photo) {
+        for (SimplePhoto foto : photos) {
+            if (foto.getId().equals(photo.getId())) {
+                // don't add the same photo twice
+                return;
+            }
+        }
+
         photos.add(photo);
     }
 
