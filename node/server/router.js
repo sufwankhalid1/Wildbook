@@ -312,7 +312,8 @@ module.exports = function(app, config, secrets, debug) {
         var tokenInfo = {};
         if (i < 0) {
             tokenInfo.error = "no token passed";
-            res.render('spPasswordReset', makeVars({tokenInfo: tokenInfo}));
+            var j = req.url.indexOf("?email=");
+            res.render('spPasswordReset', makeVars({tokenInfo: tokenInfo, passedEmail: ((j > -1) ? req.url.substr(j+7) : '') }));
         } else {
             tokenInfo.token = req.url.substr(i+9);
             var url = config.wildbook.url + "/PasswordReset?verify&token=" + tokenInfo.token;
