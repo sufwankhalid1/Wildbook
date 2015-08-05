@@ -157,9 +157,6 @@ var submitMedia = (function () {
                 //
                 var ms = $.extend({}, media);
 
-                //userCheck() handles all the madness related to user verify/creation... only when it returns true do we continue 
-                if (!userCheck(media, method)) return $.Deferred().reject();
-
                 var endTime = toTime(ms.endTime);
                 if (isNaN(endTime)) {
                     alertplus.alert("End Time [" + ms.endTime + "] is not a valid time.");
@@ -188,10 +185,10 @@ var submitMedia = (function () {
             }
 
 
-            //a false return value means savems() [above] should fail with defer.reject()
-            //will keep trying to call savems() after async other work (verifyUser, createUser)
-            function userCheck(media, method) {
+            function userCheck() {
 console.warn('userCheck!');
+//console.log('media? %o', $scope.media); return false;
+                if ($scope.media.username) return true; //user is logged in, skip all this!
 console.log('previous check of email??? userVerify = %o', $scope.userVerify);
                 if (!$scope.userVerify) {
                     verifyEmail($scope.media.email).done(function(userData) {
@@ -199,7 +196,7 @@ console.log('verifyEmail(%s) got: %o', $scope.media.email, userData);
                         if (!userData) userData = { success: false, error: "had no userData result from verifyEmail" };
                         userData.passedEmail = $scope.media.email;
                         $scope.userVerify = userData;
-                        savems(media, method);  //we loop back again, but now with userVerify set
+                        $scope.saveSubmission();
                     });
 //console.log('BAILING FROM no userVerify');
                     return false;
@@ -207,13 +204,13 @@ console.log('verifyEmail(%s) got: %o', $scope.media.email, userData);
 
                 console.info('userVerify contains: %o', $scope.userVerify);
 
-                //userVerify.success false means no such user, so we have to asynchronously create one and come back to savems()
+                //userVerify.success false means no such user, so we have to asynchronously create one
                 if (!$scope.userVerify.success) {
 console.log(media);
 console.log($scope.media);
                     createUser($scope.media.email, $scope.media.name).done(function(newUser) {
 console.log('createUser(%s, %s) successfully got: %o', $scope.media.email, $scope.media.name, newUser);
-                        //successful user creation replicates userVerify as if that was successful, then calls savems() which should continue as planned
+                        //successful user creation replicates userVerify as if that was successful, then calls saveSubmission() which should continue as planned
                         $scope.userVerify = {
                             newlyCreatedUser: true,  //special value only sent here, not via verifyUser()
                             passedEmail: $scope.media.email,
@@ -221,7 +218,7 @@ console.log('createUser(%s, %s) successfully got: %o', $scope.media.email, $scop
                             userInfo: { unverified: true },
                             user: newUser  //newUser returned is a SimpleUser so this is consistent with verifyUser(), fauncy!
                         };
-                        savems(media, method);
+                        $scope.saveSubmission();
                     }).fail(function(err) {  //technically "user already exists" would get here too, but verifyUser should not let this case happen
 console.log('createUser(%s, %s) FAILed: %o', $scope.media.email, $scope.media.name, err);
                         var msg = err.responseText;
@@ -234,7 +231,8 @@ console.log('createUser(%s, %s) FAILed: %o', $scope.media.email, $scope.media.na
 
                 //case where user exists and is verified... block them and make them login!
                 if ($scope.userVerify.success && $scope.userVerify.userInfo && !$scope.userVerify.userInfo.unverified) {
-                    alertplus.alert('You must login to continue.', 'There is an account associated with this email address, and you must login to continue with submitting media.', 'Please login');
+                    //alertplus.alert('You must login to continue.', 'There is an account associated with this email address, and you must login to continue with submitting media.', 'Please login');
+                    wildbook.auth.loginPopup(undefined, $scope.media.email, 'Please login to continue', 'There is an account associated with this email address, and you must login to continue with submitting media.');
                     delete($scope.userVerify);
                     return false;
                 }
@@ -373,6 +371,10 @@ console.log('createUser(%s, %s) FAILed: %o', $scope.media.email, $scope.media.na
             };
 
             $scope.saveSubmission = function() {
+                //userCheck() handles all the madness related to user verify/creation... only when it returns true do we continue 
+                if (!userCheck()) return $.Deferred().reject();  //likely an ajax process is happening and will call saveSubmission() when done
+console.log('got thru!');
+
                 var jqXHR = savems($scope.media, "save")
                 .done(function(data) {
 console.log('media id returned %o', data);
@@ -383,6 +385,11 @@ console.log('media id returned %o', data);
                         //
                         $scope.media.id = data;
                     });
+                    if ($scope.userVerify && $scope.userVerify.newlyCreatedUser) {
+                        $('#submitMedia-login-newuser').show();
+                    } else if ($scope.userVerify && $scope.userVerify.userInfo && $scope.userVerify.userInfo.unverified) {
+                        $('#submitMedia-login-unverifieduser').show();
+                    }
                 });
 
                 return jqXHR.promise();
