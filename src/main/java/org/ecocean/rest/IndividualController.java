@@ -1,8 +1,16 @@
 package org.ecocean.rest;
 
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import javax.servlet.http.HttpServletRequest;
 
+import org.ecocean.Encounter;
+import org.ecocean.MarkedIndividual;
+import org.ecocean.Shepherd;
 import org.ecocean.servlet.ServletUtilities;
 import org.ecocean.util.LogBuilder;
 import org.slf4j.Logger;
@@ -21,13 +29,29 @@ public class IndividualController
     private static Logger logger = LoggerFactory.getLogger(IndividualController.class);
 
     @RequestMapping(value = "/individual/get/{id}", method = RequestMethod.GET)
-    public SimpleIndividual getIndividual(final HttpServletRequest request,
+    public IndividualPage getIndividual(final HttpServletRequest request,
                                           @PathVariable("id")
                                           final String id) throws DatabaseException
     {
-        return SimpleFactory.getIndividual(ServletUtilities.getContext(request),
-                                           ServletUtilities.getConfigDir(request),
-                                           id);
+        String context = ServletUtilities.getContext(request);
+        String configDir = ServletUtilities.getConfigDir(request);
+        Shepherd myShepherd = new Shepherd(context);
+        MarkedIndividual mi = myShepherd.getMarkedIndividual(id);
+
+        if (mi == null) {
+            return null;
+        }
+
+        IndividualPage page = new IndividualPage();
+
+        page.individual = SimpleFactory.getIndividual(context, configDir, mi);
+
+        java.util.Iterator<Encounter> it = mi.getEncounters().iterator();
+        while (it.hasNext()) {
+            page.addEncounter(SimpleFactory.getEncounter(context, configDir, it.next()));
+        }
+
+        return page;
     }
 
 
@@ -60,5 +84,29 @@ public class IndividualController
                     .appendVar("value", request.getServletContext().getInitParameter(var)).toString());
         }
         return request.getServletContext().getInitParameter(var);
+    }
+
+    public class IndividualPage
+    {
+        public SimpleIndividual individual;
+        public List<SimpleEncounter> encounters = new ArrayList<SimpleEncounter>();
+
+        public void addEncounter(final SimpleEncounter encounter) {
+            encounters.add(encounter);
+        }
+
+        public List<SimpleUser> getSubmitters() {
+            //
+            // Use a hash set to keep from getting duplicates
+            //
+            Set<SimpleUser> submitters = new HashSet<SimpleUser>();
+            for (SimpleEncounter encounter : encounters) {
+                if (encounter.getSubmitter() != null) {
+                    submitters.add(encounter.getSubmitter());
+                }
+            }
+
+            return new ArrayList<SimpleUser>(submitters);
+        }
     }
 }

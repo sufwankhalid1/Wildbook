@@ -31,20 +31,6 @@ public class SimpleFactory {
     }
 
 
-    public static SimpleIndividual getIndividual(final String context,
-                                                 final String configDir,
-                                                 final String id) throws DatabaseException {
-        Shepherd myShepherd = new Shepherd(context);
-        MarkedIndividual mi = myShepherd.getMarkedIndividual(id);
-
-        if (mi == null) {
-            return null;
-        }
-
-        return getIndividual(context, configDir, mi);
-    }
-
-
     public static SimpleUser getUser(final String context,
                                      final String username) {
         Shepherd myShepherd = new Shepherd(context);
@@ -64,11 +50,6 @@ public class SimpleFactory {
 
         SimpleIndividual ind = new SimpleIndividual(mi.getIndividualID(), mi.getNickName());
         ind.setSex(mi.getSex());
-
-        java.util.Iterator<Encounter> it = mi.getEncounters().iterator();
-        while (it.hasNext()) {
-            ind.addEncounter(getEncounter(context, configDir, it.next()));
-        }
 
         //
         // Add photos
@@ -136,8 +117,6 @@ public class SimpleFactory {
 
         //
         // Add:
-        // 1) Highlighted photos. (4 random photos if no highlighted one's?)
-        // 2) Total photo submission count
         // 3) Encounters
         // 4) Indivduals identified (unique Individuals from Encounters
         // 5) Voyages on
