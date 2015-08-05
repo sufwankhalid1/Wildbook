@@ -10,6 +10,8 @@ import org.ecocean.SinglePhotoVideo;
 import org.ecocean.User;
 import org.ecocean.Util;
 import org.ecocean.security.Stormpath;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
@@ -21,6 +23,7 @@ import com.stormpath.sdk.client.Client;
 import com.stormpath.sdk.directory.CustomData;
 
 public class SimpleFactory {
+    private final static Logger logger = LoggerFactory.getLogger(SimpleFactory.class);
     private final static int MIN_PHOTOS = 8;
 
     private SimpleFactory() {
@@ -153,6 +156,9 @@ public class SimpleFactory {
                     + whereRoot
                     + " AND mtm.\"NAME_OID\" = 'highlight' OR mtm.\"NAME_OID\" = 'profile'";
 
+            if (logger.isDebugEnabled()) {
+                logger.debug(sql);
+            }
             RecordSet rs = db.getRecordSet(sql);
             while (rs.next()) {
                 userinfo.addPhoto(getPhoto(context, readPhoto(rs)));
@@ -168,6 +174,9 @@ public class SimpleFactory {
             if (userinfo.getPhotos().size() < MIN_PHOTOS) {
                 sql = sqlRoot + whereRoot + " LIMIT " + MIN_PHOTOS;
 
+                if (logger.isDebugEnabled()) {
+                    logger.debug(sql);
+                }
                 rs = db.getRecordSet(sql);
                 while (rs.next()) {
                     if (userinfo.getPhotos().size() >= MIN_PHOTOS) {
@@ -199,7 +208,7 @@ public class SimpleFactory {
         // TODO: Add Keywords
         //
         SinglePhotoVideo spv = new SinglePhotoVideo();
-        spv.setDataCollectionEventID("DATACOLLECTIONEVENTID");
+        spv.setDataCollectionEventID(rs.getString("DATACOLLECTIONEVENTID"));
         spv.setCopyrightOwner(rs.getString("COPYRIGHTOWNER"));
         spv.setCopyrightStatement(rs.getString("COPYRIGHTSTATEMENT"));
         spv.setFilename(rs.getString("FILENAME"));

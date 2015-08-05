@@ -28,7 +28,7 @@ block content
                                 img(src="/cust/images/img_binoculars.svg" height="128px")
                             .col-md-4
                                 .row
-                                    span.sight-number #{data.userinfo.photoCount}
+                                    span.sight-number #{data.userinfo.totalPhotoCount}
                                 .row
                                    span.sight-date-text!= t("userpage.imagesSubmitted")
                             .col-md-4
@@ -36,7 +36,7 @@ block content
 
 
         -var photos = data.userinfo.photos
-        if photos.size > 0
+        if photos.length > 0
             h1.has-icon.icon-happywhale= t("userpage.topRatedContributions")
             hr
             include partials/phototool
