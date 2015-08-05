@@ -14,14 +14,21 @@ wildbook.auth = {
 console.log('do login thing');
     },
 
-    loginPopup: function() {
+    loginPopup: function(ngScope, username, title, details, redirectUrl) {
+/*
         var d = $('#login-popup');
         if (!d.length) {
-            d = $('<div id="login-popup">').css("display", "none").addClass("alertplusDialog");
+            d = $('<div id="login-popup">').css("display", "none").addClass("alertplus");
         }
-        var h = '<div><input id="login-username" placeholder="username" /></div><div><input id="login-password" type="password" placeholder="password" /></div>';
-        h += '<div style="border-bottom: 2px solid black; margin-bottom: 10px; padding-bottom: 10px;"><input class="login-button" type="button" value="login" onClick="wildbook.auth.loginPopupTry()" /><span style="margin-left: 10px; color: #900;" id="login-message"></span></div>';
+*/
+        if (!username) username = '';
+        var h = '<div><input id="login-username" value="' + username + '" placeholder="username" /></div><div><input id="login-password" type="password" placeholder="password" /></div>';
+        if (redirectUrl) h += '<input id="login-redirectUrl" type="xhidden" value="' + redirectUrl + '" />';
+        h += '<div style="border-bottom: 2px solid black; margin-bottom: 10px; padding-bottom: 10px;"><input class="login-button" type="button" value="login" onClick="wildbook.auth.loginPopupTry()" /><span style="margin-left: 10px; color: #900;" id="login-message"></span><input class="login-button" type="button" value="forgot password" style="float: right;" onClick="window.location.href=\'/spPasswordReset?email=\' + $(\'#login-username\').val();" /></div>';
         //h += '<div><input class="login-button" type="button" value="login using facebook" /><input class="login-button" type="button" value="login using google" /></div>';
+        if (!title) title = 'Login';
+        alertplus.alert(h, details, title);
+/*
         d.html(h);
         d.dialog({
             modal: true,
@@ -30,6 +37,7 @@ console.log('do login thing');
             appendTo: "body",
             resizable: false
         });
+*/
     },
 
     loginPopupTry: function() {
@@ -37,6 +45,7 @@ console.log('do login thing');
         var username = $('#login-username').val();
         var password = $('#login-password').val();
         if (!username || !password) return;
+        var redirectUrl = $('#login-redirectUrl').val();
         $('#login-popup .login-button').prop('disabled', 'disabled').css('opacity', 0.5);
         var args = {
             complete: function(x, status) {
@@ -50,7 +59,11 @@ console.log('do login thing');
                 console.info(resp);
                 if (resp.success) {
                     $('#login-popup').dialog('close');
-                    wildbook.auth.updateAngularUserDiv(resp);
+                    if (redirectUrl) {
+                        window.location.href = redirectUrl;
+                    } else {
+                        wildbook.auth.updateAngularUserDiv(resp);
+                    }
                 } else {
                     console.error('login failure: ' + resp.error);
                     $('#login-message').html('failed');

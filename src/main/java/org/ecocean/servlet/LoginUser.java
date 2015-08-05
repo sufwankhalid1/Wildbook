@@ -121,7 +121,7 @@ import com.stormpath.sdk.resource.ResourceException;
 
         if (client != null) {
             if (logger.isDebugEnabled()) {
-                logger.debug("checking Stormpath for login...");
+                logger.debug("checking Stormpath for login (username=" + username + ")...");
             }
             Account acc = null;
             try {
