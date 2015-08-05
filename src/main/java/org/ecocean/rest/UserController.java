@@ -26,6 +26,7 @@ import org.ecocean.rest.SimpleFactory;
 import org.ecocean.security.Stormpath;
 import com.stormpath.sdk.account.AccountList;
 import com.stormpath.sdk.account.Account;
+//import com.stormpath.sdk.account.AccountStatus;
 import com.stormpath.sdk.client.Client;
 import com.stormpath.sdk.directory.CustomData;
 
@@ -128,6 +129,7 @@ System.out.println("email -> (" + email + ")");
             errorMsg = ex.toString();
         }
         if (errorMsg == null) {
+            //acc.setStatus(AccountStatus.UNVERIFIED);  //seems to have no effect, but also not sure if this is cool by Stormpath
             return new ResponseEntity<Object>(SimpleFactory.getStormpathUser(acc), HttpStatus.OK);
         } else {
             rtn.put("error", "There was an error creating the new user: " + errorMsg);

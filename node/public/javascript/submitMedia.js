@@ -157,6 +157,9 @@ var submitMedia = (function () {
                 //
                 var ms = $.extend({}, media);
 
+                //userCheck() handles all the madness related to user verify/creation... only when it returns true do we continue 
+                if (!userCheck(media, method)) return $.Deferred().reject();
+
                 var endTime = toTime(ms.endTime);
                 if (isNaN(endTime)) {
                     alertplus.alert("End Time [" + ms.endTime + "] is not a valid time.");
@@ -182,6 +185,84 @@ var submitMedia = (function () {
                      $(document.body).css({ 'cursor': 'default' });
                      alertplus.error(ex);
                  });
+            }
+
+
+            //a false return value means savems() [above] should fail with defer.reject()
+            //will keep trying to call savems() after async other work (verifyUser, createUser)
+            function userCheck(media, method) {
+console.warn('userCheck!');
+console.log('previous check of email??? userVerify = %o', $scope.userVerify);
+                if (!$scope.userVerify) {
+                    verifyEmail($scope.media.email).done(function(userData) {
+console.log('verifyEmail(%s) got: %o', $scope.media.email, userData);
+                        if (!userData) userData = { success: false, error: "had no userData result from verifyEmail" };
+                        userData.passedEmail = $scope.media.email;
+                        $scope.userVerify = userData;
+                        savems(media, method);  //we loop back again, but now with userVerify set
+                    });
+//console.log('BAILING FROM no userVerify');
+                    return false;
+                }
+
+                console.info('userVerify contains: %o', $scope.userVerify);
+
+                //userVerify.success false means no such user, so we have to asynchronously create one and come back to savems()
+                if (!$scope.userVerify.success) {
+console.log(media);
+console.log($scope.media);
+                    createUser($scope.media.email, $scope.media.name).done(function(newUser) {
+console.log('createUser(%s, %s) successfully got: %o', $scope.media.email, $scope.media.name, newUser);
+                        //successful user creation replicates userVerify as if that was successful, then calls savems() which should continue as planned
+                        $scope.userVerify = {
+                            newlyCreatedUser: true,  //special value only sent here, not via verifyUser()
+                            passedEmail: $scope.media.email,
+                            success: true,
+                            userInfo: { unverified: true },
+                            user: newUser  //newUser returned is a SimpleUser so this is consistent with verifyUser(), fauncy!
+                        };
+                        savems(media, method);
+                    }).fail(function(err) {  //technically "user already exists" would get here too, but verifyUser should not let this case happen
+console.log('createUser(%s, %s) FAILed: %o', $scope.media.email, $scope.media.name, err);
+                        var msg = err.responseText;
+                        if (err.responseJSON && err.responseJSON.error) msg = err.responseJSON.error;
+                        alertplus.alert('You must enter a valid email address.', 'Could not create new account: ' + msg, 'Error: invalid email', 'danger');
+                        delete($scope.userVerify);
+                    }); 
+                    return false;
+                }
+
+                //case where user exists and is verified... block them and make them login!
+                if ($scope.userVerify.success && $scope.userVerify.userInfo && !$scope.userVerify.userInfo.unverified) {
+                    alertplus.alert('You must login to continue.', 'There is an account associated with this email address, and you must login to continue with submitting media.', 'Please login');
+                    delete($scope.userVerify);
+                    return false;
+                }
+
+                console.warn('fell thru on userCheck() so returning true!');
+                return true;
+            }
+
+
+            function verifyEmail(email) {
+                return $.ajax({
+                    url: '/wildbook/obj/user/verify',
+                    contentType: 'text/plain',
+                    type: 'POST',
+                    data: email,
+                    dataType: 'json'
+                });
+            }
+
+
+            function createUser(email, fullName) {
+                return $.ajax({
+                    url: '/wildbook/obj/user/create',
+                    contentType: 'application/json',
+                    type: 'POST',
+                    data: JSON.stringify({email: email, fullName: fullName}),
+                    dataType: 'json'
+                });
             }
 
             //
@@ -430,25 +511,5 @@ console.log('media id returned %o', data);
 })();
 
 
-function verifyEmail(email) {
-    return $.ajax({
-        url: '/wildbook/obj/user/verify',
-        contentType: 'text/plain',
-        type: 'POST',
-        data: email,
-        dataType: 'json'
-    });
-}
-
-
-function createUser(email, fullName) {
-    return $.ajax({
-        url: '/wildbook/obj/user/create',
-        contentType: 'application/json',
-        type: 'POST',
-        data: JSON.stringify({email: email, fullName: fullName}),
-        dataType: 'json'
-    });
-}
 
 
