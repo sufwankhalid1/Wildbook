@@ -1,33 +1,30 @@
 package org.ecocean.rest;
 
+import java.util.HashMap;
+
+import javax.jdo.PersistenceManager;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+
 import org.ecocean.Shepherd;
 import org.ecocean.User;
-import org.ecocean.servlet.ServletUtilities;
-
-import javax.validation.Valid;
-import javax.jdo.*;
-import javax.servlet.http.HttpServletRequest;
-
-import java.util.HashMap;
 import org.ecocean.Util;
+import org.ecocean.security.Stormpath;
+import org.ecocean.servlet.ServletUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.HttpStatus;
 
-import org.ecocean.rest.SimpleFactory;
-//import org.ecocean.rest.SimpleUser;
-import org.ecocean.security.Stormpath;
-import com.stormpath.sdk.account.AccountList;
 import com.stormpath.sdk.account.Account;
+import com.stormpath.sdk.account.AccountList;
 import com.stormpath.sdk.client.Client;
-import com.stormpath.sdk.directory.CustomData;
+//import org.ecocean.rest.SimpleUser;
 
 
 ///// TODO should this be returning a SimpleUser now instead?
@@ -136,6 +133,18 @@ System.out.println("email -> (" + email + ")");
         //return new ResponseEntity<Object>(user, HttpStatus.OK);
     }
 
+    //
+    // LEAVE: This is just a test url that allows us to see if we have the correct
+    // setting in our dispatcher-servlet.xml that forces Spring to not make assumptions
+    // about a file type of the return value if there is a dot in the path param.
+    //
+    @RequestMapping(value = "test/{email:.+}", method = RequestMethod.GET)
+    public UserVerifyInfo test(final HttpServletRequest request,
+                               @PathVariable("email") String email) {
+        UserVerifyInfo info = new UserVerifyInfo();
+        info.email = email + " - test";
+        return info;
+    }
 
 /*
     @RequestMapping(value = "/get", method = RequestMethod.GET)
