@@ -23,6 +23,11 @@ public class UserInfo {
         return encounters;
     }
 
+    public void addEncounter(final SimpleEncounter encounter)
+    {
+        encounters.add(encounter);
+    }
+
     public List<SimplePhoto> getPhotos() {
         return photos;
     }

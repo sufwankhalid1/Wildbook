@@ -117,6 +117,9 @@
             <field name="thumbnailUrl" persistence-modifier="persistent">
                 <column allows-null="true" />
             </field>
+            
+            <field name="avatar" persistence-modifier="persistent" element-type="org.ecocean.SinglePhotoVideo">
+            </field>
 
             <fetch-group name="allSharks_min">
                 <field name="encounters"/>

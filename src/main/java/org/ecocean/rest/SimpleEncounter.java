@@ -1,7 +1,5 @@
 package org.ecocean.rest;
 
-import java.util.ArrayList;
-import java.util.List;
 
 
 class SimpleEncounter
@@ -12,8 +10,8 @@ class SimpleEncounter
     private String verbatimLocation;
     private Double latitude;
     private Double longitude;
-    private final List<SimplePhoto> photos = new ArrayList<SimplePhoto>();
     private SimpleUser submitter;
+    private SimpleIndividual individual;
 
     public SimpleEncounter()
     {
@@ -67,19 +65,19 @@ class SimpleEncounter
         this.longitude = longitude;
     }
 
-    public void addPhoto(final SimplePhoto photo) {
-        photos.add(photo);
-    }
-
-    public List<SimplePhoto> getPhotos() {
-        return photos;
-    }
-
     public SimpleUser getSubmitter() {
         return submitter;
     }
 
     public void setSubmitter(final SimpleUser submitter) {
         this.submitter = submitter;
+    }
+
+    public SimpleIndividual getIndividual() {
+        return individual;
+    }
+
+    public void setIndividual(SimpleIndividual individual) {
+        this.individual = individual;
     }
 }

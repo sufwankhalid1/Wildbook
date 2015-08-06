@@ -110,6 +110,7 @@ public class SimpleFactory {
 
 
     public static UserInfo getUserInfo(final String context,
+                                       final String configDir,
                                        final String username) throws DatabaseException
     {
         UserInfo userinfo;
@@ -117,7 +118,6 @@ public class SimpleFactory {
 
         //
         // Add:
-        // 3) Encounters
         // 4) Indivduals identified (unique Individuals from Encounters
         // 5) Voyages on
         //
@@ -175,10 +175,61 @@ public class SimpleFactory {
                 userinfo.setTotalPhotoCount(rs.getInt("count"));
             }
 
+            //
+            // 3) Encounters
+            //
+            sql = "select e.*, mi.* from \"ENCOUNTER\" e"
+                    + " inner join \"ENCOUNTER_IMAGES\" ei on e.CATALOGNUMBER = ei.CATALOGNUMBER_OID"
+                    + " inner join \"SINGLE_PHOTO_VIDEO\" spv on ei.\"DATACOLLECTIONEVENTID_EID\" = spv.\"DATACOLLECTIONEVENTID\""
+                    + " left outer join \"MARKEDINDIVIDUAL\" mi on e.\"INDIVIDUALID\" = mi.\"INDIVIDUALID\""
+                    + whereRoot;
+
+            if (logger.isDebugEnabled()) {
+                logger.debug(sql);
+            }
+            rs = db.getRecordSet(sql);
+            while (rs.next()) {
+                SimpleEncounter encounter = getEncounter(context, configDir, readEncounter(rs));
+                SimpleIndividual individual = getIndividual(context, configDir, readIndividual(rs));
+                encounter.setIndividual(individual);
+                userinfo.addEncounter(encounter);
+            }
 
         }
 
         return userinfo;
+    }
+
+
+    private static MarkedIndividual readIndividual(final RecordSet rs) throws DatabaseException
+    {
+        MarkedIndividual ind = new MarkedIndividual();
+
+//        encounter.setDWCGlobalUniqueIdentifier("GUID");
+//        encounter.setDateInMilliseconds(rs.getLong("DATEINMILLISECONDS"));
+//        encounter.setLocationID(rs.getString("LOCATIONID"));
+//        encounter.setLatitude(rs.getDoubleObj("DECIMALLATITUDE"));
+//        encounter.setLongitude(rs.getDoubleObj("DECIMALLONGITUDE"));
+//        encounter.setSubmitterName(rs.getString("SUBMITTERID"));
+//        encounter.setIndividualID(rs.getString("INDIVIDUALID"));
+
+        return ind;
+    }
+
+
+    private static Encounter readEncounter(final RecordSet rs) throws DatabaseException
+    {
+        Encounter encounter = new Encounter();
+
+        encounter.setDWCGlobalUniqueIdentifier("GUID");
+        encounter.setDateInMilliseconds(rs.getLong("DATEINMILLISECONDS"));
+        encounter.setLocationID(rs.getString("LOCATIONID"));
+        encounter.setLatitude(rs.getDoubleObj("DECIMALLATITUDE"));
+        encounter.setLongitude(rs.getDoubleObj("DECIMALLONGITUDE"));
+        encounter.setSubmitterName(rs.getString("SUBMITTERID"));
+        encounter.setIndividualID(rs.getString("INDIVIDUALID"));
+
+        return encounter;
     }
 
     private static SinglePhotoVideo readPhoto(final RecordSet rs) throws DatabaseException
@@ -207,12 +258,6 @@ public class SimpleFactory {
         se.setVerbatimLocation(encounter.getLocation());
         se.setLatitude(encounter.getLatitude());
         se.setLongitude(encounter.getLongitude());
-
-        encounter.getSubmitterName();
-        for (SinglePhotoVideo photo : encounter.getSinglePhotoVideo())
-        {
-            se.addPhoto(getPhoto(context, photo));
-        }
 
         Client client = Stormpath.getClient(configDir);
         AccountList accounts = Stormpath.getAccounts(client, encounter.getSubmitterID());

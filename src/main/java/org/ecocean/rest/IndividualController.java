@@ -69,7 +69,9 @@ public class IndividualController
                                 @PathVariable("username")
                                 final String username) throws DatabaseException
     {
-        return SimpleFactory.getUserInfo(ServletUtilities.getContext(request), username);
+        return SimpleFactory.getUserInfo(ServletUtilities.getContext(request),
+                                         ServletUtilities.getConfigDir(request),
+                                         username);
     }
 
 
