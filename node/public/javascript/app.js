@@ -28,7 +28,7 @@
 //}
 var ngApp = angular.module('nodeApp', ['nodeApp.controllers']);
 
-function handleError(jqXHR, status) {
+function handleError(jqXHR) {
     alertplus.error(jqXHR);
 }
 

@@ -244,12 +244,3 @@ li.active .wizard-icon.map {
     font-size: 1.6em;
 }
 
-.submitMedia-login-message {
-    display: none;
-    margin: 8px;
-    padding: 15px;
-    border-radius: 10px;
-    background-color: #CCC;
-    color: #333;
-}
-

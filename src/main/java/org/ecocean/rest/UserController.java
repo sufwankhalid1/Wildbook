@@ -58,13 +58,13 @@ public class UserController {
 
     @RequestMapping(value = "verify", method = RequestMethod.POST)
     public HashMap<String,Object> verifyEmail(final HttpServletRequest request,
-                                              @RequestBody @Valid String email) {
+                                              @RequestBody @Valid final String email) {
 System.out.println("email -> (" + email + ")");
         Client client = Stormpath.getClient(ServletUtilities.getConfigDir(request));
         HashMap<String,Object> rtn = new HashMap<String,Object>();
         rtn.put("success", false);  //assuming rtn will only be used on errors -- user is returned upon success
         if (client == null) {
-            rtn.put("error", "Could not initiate Stormpath client");
+            rtn.put("message", "Could not initiate Stormpath client");
             //throw new Exception();
             return rtn;
         }
@@ -72,7 +72,7 @@ System.out.println("email -> (" + email + ")");
         q.put("email", email);
         AccountList accs = Stormpath.getAccounts(client, q);
         if ((accs == null) || (accs.getSize() < 1)) {
-            rtn.put("error", "Unknown user");
+            rtn.put("message", "Unknown user");
             return rtn;
         }
         rtn.put("success", true);
@@ -84,16 +84,16 @@ System.out.println("email -> (" + email + ")");
 
     @RequestMapping(value = "create", method = RequestMethod.POST)
     public ResponseEntity<Object> createUser(final HttpServletRequest request,
-                                             @RequestBody @Valid UserInfo user) {
+                                             @RequestBody @Valid final UserInfo user) {
         Client client = Stormpath.getClient(ServletUtilities.getConfigDir(request));
         HashMap<String,Object> rtn = new HashMap<String,Object>();
         rtn.put("success", false);  //assuming rtn will only be used on errors -- user is returned upon success
         if (client == null) {
-            rtn.put("error", "Could not initiate Stormpath client");
+            rtn.put("message", "Could not initiate Stormpath client");
             return new ResponseEntity<Object>(rtn, HttpStatus.BAD_REQUEST);
         }
         if ((user == null) || Util.isEmpty(user.email)) {
-            rtn.put("error", "Bad/invalid user or email passed");
+            rtn.put("message", "Bad/invalid user or email passed");
             return new ResponseEntity<Object>(rtn, HttpStatus.BAD_REQUEST);
         }
         if (log.isDebugEnabled()) log.debug("checking on stormpath for username=" + user.email);
@@ -101,7 +101,7 @@ System.out.println("email -> (" + email + ")");
         q.put("email", user.email);
         AccountList accs = Stormpath.getAccounts(client, q);
         if (accs.getSize() > 0) {
-            rtn.put("error", "A user with this email already exists.");
+            rtn.put("message", "A user with this email already exists.");
             return new ResponseEntity<Object>(rtn, HttpStatus.BAD_REQUEST);
         }
 
@@ -128,7 +128,7 @@ System.out.println("email -> (" + email + ")");
             //acc.setStatus(AccountStatus.UNVERIFIED);  //seems to have no effect, but also not sure if this is cool by Stormpath
             return new ResponseEntity<Object>(SimpleFactory.getStormpathUser(acc), HttpStatus.OK);
         } else {
-            rtn.put("error", "There was an error creating the new user: " + errorMsg);
+            rtn.put("message", "There was an error creating the new user: " + errorMsg);
             return new ResponseEntity<Object>(rtn, HttpStatus.BAD_REQUEST);
         }
         //return new ResponseEntity<Object>(user, HttpStatus.OK);
@@ -141,7 +141,7 @@ System.out.println("email -> (" + email + ")");
     //
     @RequestMapping(value = "test/{email:.+}", method = RequestMethod.GET)
     public UserVerifyInfo test(final HttpServletRequest request,
-                               @PathVariable("email") String email) {
+                               @PathVariable("email") final String email) {
         UserVerifyInfo info = new UserVerifyInfo();
         info.email = email + " - test";
         return info;

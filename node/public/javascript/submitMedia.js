@@ -89,7 +89,7 @@ var submitMedia = (function () {
     wizard.controller('MediaSubmissionController',
 //        function ($scope, $q, $timeout, dataService) {
 //            $scope.data = dataService.data;
-        function ($scope) {
+        function ($scope, $q) {
 //            $scope.$watch('data.config', function() {
 ////                alert("data\n" + JSON.stringify($scope.data.config));
 //                if ($scope.data && $scope.data.config) {
@@ -107,6 +107,11 @@ var submitMedia = (function () {
                     });
                 });
             });
+
+
+            function handleError(jqXHR) {
+                alertplus.error(jqXHR);
+            }
 
             function urlParam(name) {
                 var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
@@ -182,85 +187,6 @@ var submitMedia = (function () {
                      $(document.body).css({ 'cursor': 'default' });
                      alertplus.error(ex);
                  });
-            }
-
-
-            function userCheck() {
-console.warn('userCheck!');
-//console.log('media? %o', $scope.media); return false;
-                if ($scope.media.username) return true; //user is logged in, skip all this!
-console.log('previous check of email??? userVerify = %o', $scope.userVerify);
-                if (!$scope.userVerify) {
-                    verifyEmail($scope.media.email).done(function(userData) {
-console.log('verifyEmail(%s) got: %o', $scope.media.email, userData);
-                        if (!userData) userData = { success: false, error: "had no userData result from verifyEmail" };
-                        userData.passedEmail = $scope.media.email;
-                        $scope.userVerify = userData;
-                        $scope.saveSubmission();
-                    });
-//console.log('BAILING FROM no userVerify');
-                    return false;
-                }
-
-                console.info('userVerify contains: %o', $scope.userVerify);
-
-                //userVerify.success false means no such user, so we have to asynchronously create one
-                if (!$scope.userVerify.success) {
-console.log(media);
-console.log($scope.media);
-                    createUser($scope.media.email, $scope.media.name).done(function(newUser) {
-console.log('createUser(%s, %s) successfully got: %o', $scope.media.email, $scope.media.name, newUser);
-                        //successful user creation replicates userVerify as if that was successful, then calls saveSubmission() which should continue as planned
-                        $scope.userVerify = {
-                            newlyCreatedUser: true,  //special value only sent here, not via verifyUser()
-                            passedEmail: $scope.media.email,
-                            success: true,
-                            userInfo: { unverified: true },
-                            user: newUser  //newUser returned is a SimpleUser so this is consistent with verifyUser(), fauncy!
-                        };
-                        $scope.saveSubmission();
-                    }).fail(function(err) {  //technically "user already exists" would get here too, but verifyUser should not let this case happen
-console.log('createUser(%s, %s) FAILed: %o', $scope.media.email, $scope.media.name, err);
-                        var msg = err.responseText;
-                        if (err.responseJSON && err.responseJSON.error) msg = err.responseJSON.error;
-                        alertplus.alert('You must enter a valid email address.', 'Could not create new account: ' + msg, 'Error: invalid email', 'danger');
-                        delete($scope.userVerify);
-                    }); 
-                    return false;
-                }
-
-                //case where user exists and is verified... block them and make them login!
-                if ($scope.userVerify.success && $scope.userVerify.userInfo && !$scope.userVerify.userInfo.unverified) {
-                    //alertplus.alert('You must login to continue.', 'There is an account associated with this email address, and you must login to continue with submitting media.', 'Please login');
-                    wildbook.auth.loginPopup(undefined, $scope.media.email, 'Please login to continue', 'There is an account associated with this email address, and you must login to continue with submitting media.');
-                    delete($scope.userVerify);
-                    return false;
-                }
-
-                console.warn('fell thru on userCheck() so returning true!');
-                return true;
-            }
-
-
-            function verifyEmail(email) {
-                return $.ajax({
-                    url: '/wildbook/obj/user/verify',
-                    contentType: 'text/plain',
-                    type: 'POST',
-                    data: email,
-                    dataType: 'json'
-                });
-            }
-
-
-            function createUser(email, fullName) {
-                return $.ajax({
-                    url: '/wildbook/obj/user/create',
-                    contentType: 'application/json',
-                    type: 'POST',
-                    data: JSON.stringify({email: email, fullName: fullName}),
-                    dataType: 'json'
-                });
             }
 
             //
@@ -371,29 +297,68 @@ console.log('createUser(%s, %s) FAILed: %o', $scope.media.email, $scope.media.na
             };
 
             $scope.saveSubmission = function() {
-                //userCheck() handles all the madness related to user verify/creation... only when it returns true do we continue 
-                if (!userCheck()) return $.Deferred().reject();  //likely an ajax process is happening and will call saveSubmission() when done
-console.log('got thru!');
-
-                var jqXHR = savems($scope.media, "save")
-                .done(function(data) {
-console.log('media id returned %o', data);
-                    $scope.$apply(function(){
-                        //
-                        // NOTE: This is bound using ng-value instead of ng-model
-                        // because it is a hidden element.
-                        //
-                        $scope.media.id = data;
+                var saveAndGo = function() {
+                    var jqXHR = savems($scope.media, "save")
+                    .done(function(data) {
+                        $scope.$apply(function(){
+                            //
+                            // NOTE: This is bound using ng-value instead of ng-model
+                            // because it is a hidden element.
+                            //
+                            $scope.media.id = data;
+                        });
                     });
-                    if ($scope.userVerify && $scope.userVerify.newlyCreatedUser) {
-                        $('#submitMedia-login-newuser').show();
-                    } else if ($scope.userVerify && $scope.userVerify.userInfo && $scope.userVerify.userInfo.unverified) {
-                        $('#submitMedia-login-unverifieduser').show();
-                    }
-                });
 
-                return jqXHR.promise();
+                    return jqXHR.promise();
+                }
+
+                if ($scope.media.username) {
+                    // user is logged in, skip all this!
+                    return saveAndGo();
+                }
+
+                return $.ajax({
+                    url: app.config.wildbook.proxyUrl + '/obj/user/verify',
+                    contentType: 'text/plain',
+                    type: 'POST',
+                    data: $scope.media.email,
+                    dataType: 'json'
+                })
+                .then(function(userData) {
+                    if (! userData.success) {
+                        return $.ajax({
+                            url: app.config.wildbook.proxyUrl + '/obj/user/create',
+                            contentType: 'application/json',
+                            type: 'POST',
+                            data: JSON.stringify({email: $scope.media.email, fullName: $scope.media.name}),
+                            dataType: 'json'
+                        })
+                        .then(function(newUser) {
+                            $scope.userVerify = {
+                                newlyCreatedUser: true,  //special value only sent here, not via verifyUser()
+                                success: true,
+                                userInfo: { unverified: true },
+                                user: newUser  //newUser returned is a SimpleUser so this is consistent with verifyUser(), fauncy!
+                            };
+
+                            return saveAndGo();
+                        }, handleError);
+                    }
+
+                    if (userData.userInfo
+                        && ! userData.userInfo.unverified) {
+                        wildbook.auth.loginPopup(undefined,
+                                                 $scope.media.email,
+                                                 'Please login to continue',
+                                                 'There is an account associated with this email address, and you must login to continue with submitting media.');
+                        return $q.reject();
+                    }
+
+                    $scope.userVerify = userData;
+                    return saveAndGo();
+                }, handleError);
             };
+
 
             $scope.completeWizard = function() {
                 var jqXHR = savems(this.media, "complete")
