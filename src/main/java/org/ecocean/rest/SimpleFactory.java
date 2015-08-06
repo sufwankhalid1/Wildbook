@@ -1,6 +1,8 @@
 package org.ecocean.rest;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.ecocean.Encounter;
 import org.ecocean.MarkedIndividual;
@@ -44,13 +46,8 @@ public class SimpleFactory {
     }
 
 
-    public static SimpleIndividual getIndividual(final String context,
-                                                 final String configDir,
-                                                 final MarkedIndividual mi) throws DatabaseException {
-
-        SimpleIndividual ind = new SimpleIndividual(mi.getIndividualID(), mi.getNickName());
-        ind.setSex(mi.getSex());
-
+    public static List<SimplePhoto> getIndividualPhotos(final String context, final String individualId) throws DatabaseException
+    {
         //
         // Add photos
         //
@@ -59,19 +56,11 @@ public class SimpleFactory {
                     + " INNER JOIN \"ENCOUNTER_IMAGES\" ei ON spv.\"DATACOLLECTIONEVENTID\" = ei.\"DATACOLLECTIONEVENTID_EID\""
                     + " INNER JOIN \"MARKEDINDIVIDUAL_ENCOUNTERS\" mie ON mie.\"CATALOGNUMBER_EID\" = ei.\"CATALOGNUMBER_OID\"";
             String mtmJoin = " INNER JOIN \"MEDIATAG_MEDIA\" mtm ON spv.\"DATACOLLECTIONEVENTID\" = mtm.\"DATACOLLECTIONEVENTID_EID\"";
-            String whereRoot = " WHERE mie.\"INDIVIDUALID_OID\" = " + StringUtilities.wrapQuotes(ind.getId());
+            String whereRoot = " WHERE mie.\"INDIVIDUALID_OID\" = " + StringUtilities.wrapQuotes(individualId);
 
-            //
-            // Find the profile image
-            //
             String sql;
-            sql = sqlRoot + mtmJoin + whereRoot
-                    + " AND mtm.\"NAME_OID\" = 'profile' LIMIT 1";
-
-            RecordSet rs = db.getRecordSet(sql);
-            if (rs.next()) {
-                ind.setAvatar(readPhoto(rs).asUrl(context));
-            }
+            RecordSet rs;
+            List<SimplePhoto> photos = new ArrayList<SimplePhoto>();
 
             //
             // Find the highlight images for this individual.
@@ -81,29 +70,52 @@ public class SimpleFactory {
 
             rs = db.getRecordSet(sql);
             while (rs.next()) {
-                ind.addPhoto(getPhoto(context, readPhoto(rs)));
+                photos.add(getPhoto(context, readPhoto(rs)));
             }
 
             //
             // If we are not at our minimum number of photos go ahead
             // and grab the rest at random. Grab the minimum number of photos
             // rather than the minimum minus the number already retrieved so
-            // that we can throw out any duplicates. That code is embedded
-            // in the addPhoto method of the SimpleIndividual
+            // that we can throw out any duplicates.
             //
-            if (ind.getPhotos().size() < MIN_PHOTOS) {
+            if (photos.size() < MIN_PHOTOS) {
                 sql = sqlRoot + whereRoot + " LIMIT " + MIN_PHOTOS;
 
                 rs = db.getRecordSet(sql);
                 while (rs.next()) {
-                    if (ind.getPhotos().size() >= MIN_PHOTOS) {
+                    if (photos.size() >= MIN_PHOTOS) {
                         break;
                     }
 
-                    ind.addPhoto(getPhoto(context, readPhoto(rs)));
+                    SimplePhoto photo = getPhoto(context, readPhoto(rs));
+
+                    boolean addphoto = true;
+                    for (SimplePhoto foto : photos) {
+                        if (foto.getId().equals(photo.getId())) {
+                            // don't add the same photo twice
+                            addphoto = false;
+                            break;
+                        }
+                    }
+
+                    if (addphoto) {
+                        photos.add(photo);
+                    }
                 }
             }
+
+            return photos;
         }
+    }
+
+
+    public static SimpleIndividual getIndividual(final String context,
+                                                 final MarkedIndividual mi) throws DatabaseException {
+
+        SimpleIndividual ind = new SimpleIndividual(mi.getIndividualID(), mi.getNickName());
+        ind.setSex(mi.getSex());
+        ind.setAvatar(mi.getAvatar().asUrl(context));
 
         return ind;
     }
@@ -126,19 +138,38 @@ public class SimpleFactory {
 
         try (Database db = new Database(ShepherdPMF.getConnectionInfo())) {
             String sql;
+            RecordSet rs;
 
             //
-            // 1) Highlighted Photos
+            // 1) Highlighted Photos (including any avatar photos)
+            //
+
+            //
+            // Did the user submit an avatar photo?
+            //
+            sql = sqlRoot
+                    + " INNER JOIN \"MARKEDINDIVIDUAL\" mi ON spv.\"DATACOLLECTIONEVENTID\" = mi.\"AVATAR_DATACOLLECTIONEVENTID_OID\""
+                    + whereRoot;
+            if (logger.isDebugEnabled()) {
+                logger.debug(sql);
+            }
+            rs = db.getRecordSet(sql);
+            while (rs.next()) {
+                userinfo.addPhoto(getPhoto(context, readPhoto(rs)));
+            }
+
+            //
+            // Highlighted photos
             //
             sql = sqlRoot
                     + " INNER JOIN \"MEDIATAG_MEDIA\" mtm ON spv.\"DATACOLLECTIONEVENTID\" = mtm.\"DATACOLLECTIONEVENTID_EID\""
                     + whereRoot
-                    + " AND mtm.\"NAME_OID\" = 'highlight' OR mtm.\"NAME_OID\" = 'profile'";
+                    + " AND mtm.\"NAME_OID\" = 'highlight'";
 
             if (logger.isDebugEnabled()) {
                 logger.debug(sql);
             }
-            RecordSet rs = db.getRecordSet(sql);
+            rs = db.getRecordSet(sql);
             while (rs.next()) {
                 userinfo.addPhoto(getPhoto(context, readPhoto(rs)));
             }
@@ -178,10 +209,11 @@ public class SimpleFactory {
             //
             // 3) Encounters
             //
-            sql = "select e.*, mi.* from \"ENCOUNTER\" e"
+            sql = "select e.*, mi.*, spva.* from \"ENCOUNTER\" e"
                     + " inner join \"ENCOUNTER_IMAGES\" ei on e.CATALOGNUMBER = ei.CATALOGNUMBER_OID"
                     + " inner join \"SINGLE_PHOTO_VIDEO\" spv on ei.\"DATACOLLECTIONEVENTID_EID\" = spv.\"DATACOLLECTIONEVENTID\""
                     + " left outer join \"MARKEDINDIVIDUAL\" mi on e.\"INDIVIDUALID\" = mi.\"INDIVIDUALID\""
+                    + " left outer join \"SINGLE_PHOTO_VIDEO\" spva on mi.\"AVATAR_DATACOLLECTIONEVENTID_OID\" = spva.\"DATACOLLECTIONEVENTID\""
                     + whereRoot;
 
             if (logger.isDebugEnabled()) {
@@ -190,7 +222,8 @@ public class SimpleFactory {
             rs = db.getRecordSet(sql);
             while (rs.next()) {
                 SimpleEncounter encounter = getEncounter(context, configDir, readEncounter(rs));
-                SimpleIndividual individual = getIndividual(context, configDir, readIndividual(rs));
+                SimpleIndividual individual = readSimpleIndividual(context, rs);
+
                 encounter.setIndividual(individual);
                 userinfo.addEncounter(encounter);
             }
@@ -201,17 +234,17 @@ public class SimpleFactory {
     }
 
 
-    private static MarkedIndividual readIndividual(final RecordSet rs) throws DatabaseException
+    private static SimpleIndividual readSimpleIndividual(final String context,
+                                                         final RecordSet rs) throws DatabaseException
     {
-        MarkedIndividual ind = new MarkedIndividual();
+        SimpleIndividual ind = new SimpleIndividual(rs.getString("INDIVIDUALID"),
+                                                    rs.getString("NICKNAME"));
+        ind.setSex(rs.getString("SEX"));
 
-//        encounter.setDWCGlobalUniqueIdentifier("GUID");
-//        encounter.setDateInMilliseconds(rs.getLong("DATEINMILLISECONDS"));
-//        encounter.setLocationID(rs.getString("LOCATIONID"));
-//        encounter.setLatitude(rs.getDoubleObj("DECIMALLATITUDE"));
-//        encounter.setLongitude(rs.getDoubleObj("DECIMALLONGITUDE"));
-//        encounter.setSubmitterName(rs.getString("SUBMITTERID"));
-//        encounter.setIndividualID(rs.getString("INDIVIDUALID"));
+        SinglePhotoVideo spv = readPhoto(rs);
+        if (spv != null) {
+            ind.setAvatar(spv.asUrl(context));
+        }
 
         return ind;
     }
@@ -249,7 +282,7 @@ public class SimpleFactory {
     }
 
 
-    public static SimpleEncounter getEncounter(final String context, String configDir, final Encounter encounter)
+    public static SimpleEncounter getEncounter(final String context, final String configDir, final Encounter encounter)
     {
         SimpleEncounter se = new SimpleEncounter(encounter.getDWCGlobalUniqueIdentifier(),
                                                  encounter.getDateInMilliseconds());

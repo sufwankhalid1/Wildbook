@@ -29,12 +29,13 @@ public class IndividualController
     private static Logger logger = LoggerFactory.getLogger(IndividualController.class);
 
     @RequestMapping(value = "/individual/get/{id}", method = RequestMethod.GET)
-    public IndividualPage getIndividual(final HttpServletRequest request,
-                                          @PathVariable("id")
-                                          final String id) throws DatabaseException
+    public IndividualInfo getIndividual(final HttpServletRequest request,
+                                        @PathVariable("id")
+                                        final String id) throws DatabaseException
     {
         String context = ServletUtilities.getContext(request);
         String configDir = ServletUtilities.getConfigDir(request);
+
         Shepherd myShepherd = new Shepherd(context);
         MarkedIndividual mi = myShepherd.getMarkedIndividual(id);
 
@@ -42,16 +43,17 @@ public class IndividualController
             return null;
         }
 
-        IndividualPage page = new IndividualPage();
+        IndividualInfo indinfo = new IndividualInfo();
 
-        page.individual = SimpleFactory.getIndividual(context, configDir, mi);
+        indinfo.individual = SimpleFactory.getIndividual(context, mi);
+        indinfo.photos = SimpleFactory.getIndividualPhotos(context, indinfo.individual.getId());
 
         java.util.Iterator<Encounter> it = mi.getEncounters().iterator();
         while (it.hasNext()) {
-            page.addEncounter(SimpleFactory.getEncounter(context, configDir, it.next()));
+            indinfo.addEncounter(SimpleFactory.getEncounter(context, configDir, it.next()));
         }
 
-        return page;
+        return indinfo;
     }
 
 
@@ -88,10 +90,11 @@ public class IndividualController
         return request.getServletContext().getInitParameter(var);
     }
 
-    public class IndividualPage
+    public class IndividualInfo
     {
         public SimpleIndividual individual;
         public List<SimpleEncounter> encounters = new ArrayList<SimpleEncounter>();
+        private List<SimplePhoto> photos;
 
         public void addEncounter(final SimpleEncounter encounter) {
             encounters.add(encounter);

@@ -1,7 +1,5 @@
 package org.ecocean.rest;
 
-import java.util.ArrayList;
-import java.util.List;
 
 class SimpleIndividual
 {
@@ -9,7 +7,6 @@ class SimpleIndividual
     private String nickname;
     private String sex;
     private String avatar;
-    private final List<SimplePhoto> photos = new ArrayList<SimplePhoto>();
 
 
     public SimpleIndividual()
@@ -40,7 +37,7 @@ class SimpleIndividual
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(final String id) {
         this.id = id;
     }
 
@@ -48,38 +45,15 @@ class SimpleIndividual
         return nickname;
     }
 
-    public void setNickname(String nickname) {
+    public void setNickname(final String nickname) {
         this.nickname = nickname;
     }
 
-    public void addPhoto(final SimplePhoto photo) {
-        for (SimplePhoto foto : photos) {
-            if (foto.getId().equals(photo.getId())) {
-                // don't add the same photo twice
-                return;
-            }
-        }
-
-        photos.add(photo);
-    }
-
-    public List<SimplePhoto> getPhotos() {
-        return photos;
-    }
-
     public String getAvatar() {
-        if (avatar != null) {
-            return avatar;
-        }
-
-        if (photos.size() > 0) {
-            return photos.get(0).getUrl();
-        }
-
-        return null;
+        return avatar;
     }
 
-    public void setAvatar(String avatar) {
+    public void setAvatar(final String avatar) {
         this.avatar = avatar;
     }
 }
