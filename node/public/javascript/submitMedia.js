@@ -406,7 +406,7 @@ var submitMedia = (function () {
                 // send Blob objects via XHR requests:
                 disableImageResize: /Android(?!.*Chrome)|Opera/
                     .test(window.navigator.userAgent),
-                maxFileSize: 500000000,
+                maxFileSize: 1073741824,
                 acceptFileTypes: /(\.|\/)(gif|jpe?g|png|kmz|kml|gpx|avi|mpg|mp4|mov|wmv|flv|zip)$/i
                 //
                 // This does work to control the area in which files are allowed
