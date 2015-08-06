@@ -126,6 +126,14 @@ System.out.println("email -> (" + email + ")");
         }
         if (errorMsg == null) {
             //acc.setStatus(AccountStatus.UNVERIFIED);  //seems to have no effect, but also not sure if this is cool by Stormpath
+            User wbuser = new User(acc);
+            PersistenceManager pm = getPM(request);
+            try {
+                pm.makePersistent(wbuser);
+            } catch (Exception ex) {
+                //not sure if this is actually a big deal, as i *think* the only way it could happen is if user already exists in wb???
+                log.error("could not create Wildbook User for email=" + user.email + ": " + ex.toString());
+            }
             return new ResponseEntity<Object>(SimpleFactory.getStormpathUser(acc), HttpStatus.OK);
         } else {
             rtn.put("message", "There was an error creating the new user: " + errorMsg);
