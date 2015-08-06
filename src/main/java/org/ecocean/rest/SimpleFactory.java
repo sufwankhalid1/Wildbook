@@ -10,6 +10,8 @@ import org.ecocean.SinglePhotoVideo;
 import org.ecocean.User;
 import org.ecocean.Util;
 import org.ecocean.security.Stormpath;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
@@ -21,24 +23,11 @@ import com.stormpath.sdk.client.Client;
 import com.stormpath.sdk.directory.CustomData;
 
 public class SimpleFactory {
+    private final static Logger logger = LoggerFactory.getLogger(SimpleFactory.class);
     private final static int MIN_PHOTOS = 8;
 
     private SimpleFactory() {
         // prevent instantiation
-    }
-
-
-    public static SimpleIndividual getIndividual(final String context,
-                                                 final String configDir,
-                                                 final String id) throws DatabaseException {
-        Shepherd myShepherd = new Shepherd(context);
-        MarkedIndividual mi = myShepherd.getMarkedIndividual(id);
-
-        if (mi == null) {
-            return null;
-        }
-
-        return getIndividual(context, configDir, mi);
     }
 
 
@@ -61,11 +50,6 @@ public class SimpleFactory {
 
         SimpleIndividual ind = new SimpleIndividual(mi.getIndividualID(), mi.getNickName());
         ind.setSex(mi.getSex());
-
-        java.util.Iterator<Encounter> it = mi.getEncounters().iterator();
-        while (it.hasNext()) {
-            ind.addEncounter(getEncounter(context, configDir, it.next()));
-        }
 
         //
         // Add photos
@@ -126,6 +110,7 @@ public class SimpleFactory {
 
 
     public static UserInfo getUserInfo(final String context,
+                                       final String configDir,
                                        final String username) throws DatabaseException
     {
         UserInfo userinfo;
@@ -133,9 +118,6 @@ public class SimpleFactory {
 
         //
         // Add:
-        // 1) Highlighted photos. (4 random photos if no highlighted one's?)
-        // 2) Total photo submission count
-        // 3) Encounters
         // 4) Indivduals identified (unique Individuals from Encounters
         // 5) Voyages on
         //
@@ -153,6 +135,9 @@ public class SimpleFactory {
                     + whereRoot
                     + " AND mtm.\"NAME_OID\" = 'highlight' OR mtm.\"NAME_OID\" = 'profile'";
 
+            if (logger.isDebugEnabled()) {
+                logger.debug(sql);
+            }
             RecordSet rs = db.getRecordSet(sql);
             while (rs.next()) {
                 userinfo.addPhoto(getPhoto(context, readPhoto(rs)));
@@ -168,6 +153,9 @@ public class SimpleFactory {
             if (userinfo.getPhotos().size() < MIN_PHOTOS) {
                 sql = sqlRoot + whereRoot + " LIMIT " + MIN_PHOTOS;
 
+                if (logger.isDebugEnabled()) {
+                    logger.debug(sql);
+                }
                 rs = db.getRecordSet(sql);
                 while (rs.next()) {
                     if (userinfo.getPhotos().size() >= MIN_PHOTOS) {
@@ -187,10 +175,61 @@ public class SimpleFactory {
                 userinfo.setTotalPhotoCount(rs.getInt("count"));
             }
 
+            //
+            // 3) Encounters
+            //
+            sql = "select e.*, mi.* from \"ENCOUNTER\" e"
+                    + " inner join \"ENCOUNTER_IMAGES\" ei on e.CATALOGNUMBER = ei.CATALOGNUMBER_OID"
+                    + " inner join \"SINGLE_PHOTO_VIDEO\" spv on ei.\"DATACOLLECTIONEVENTID_EID\" = spv.\"DATACOLLECTIONEVENTID\""
+                    + " left outer join \"MARKEDINDIVIDUAL\" mi on e.\"INDIVIDUALID\" = mi.\"INDIVIDUALID\""
+                    + whereRoot;
+
+            if (logger.isDebugEnabled()) {
+                logger.debug(sql);
+            }
+            rs = db.getRecordSet(sql);
+            while (rs.next()) {
+                SimpleEncounter encounter = getEncounter(context, configDir, readEncounter(rs));
+                SimpleIndividual individual = getIndividual(context, configDir, readIndividual(rs));
+                encounter.setIndividual(individual);
+                userinfo.addEncounter(encounter);
+            }
 
         }
 
         return userinfo;
+    }
+
+
+    private static MarkedIndividual readIndividual(final RecordSet rs) throws DatabaseException
+    {
+        MarkedIndividual ind = new MarkedIndividual();
+
+//        encounter.setDWCGlobalUniqueIdentifier("GUID");
+//        encounter.setDateInMilliseconds(rs.getLong("DATEINMILLISECONDS"));
+//        encounter.setLocationID(rs.getString("LOCATIONID"));
+//        encounter.setLatitude(rs.getDoubleObj("DECIMALLATITUDE"));
+//        encounter.setLongitude(rs.getDoubleObj("DECIMALLONGITUDE"));
+//        encounter.setSubmitterName(rs.getString("SUBMITTERID"));
+//        encounter.setIndividualID(rs.getString("INDIVIDUALID"));
+
+        return ind;
+    }
+
+
+    private static Encounter readEncounter(final RecordSet rs) throws DatabaseException
+    {
+        Encounter encounter = new Encounter();
+
+        encounter.setDWCGlobalUniqueIdentifier("GUID");
+        encounter.setDateInMilliseconds(rs.getLong("DATEINMILLISECONDS"));
+        encounter.setLocationID(rs.getString("LOCATIONID"));
+        encounter.setLatitude(rs.getDoubleObj("DECIMALLATITUDE"));
+        encounter.setLongitude(rs.getDoubleObj("DECIMALLONGITUDE"));
+        encounter.setSubmitterName(rs.getString("SUBMITTERID"));
+        encounter.setIndividualID(rs.getString("INDIVIDUALID"));
+
+        return encounter;
     }
 
     private static SinglePhotoVideo readPhoto(final RecordSet rs) throws DatabaseException
@@ -199,7 +238,7 @@ public class SimpleFactory {
         // TODO: Add Keywords
         //
         SinglePhotoVideo spv = new SinglePhotoVideo();
-        spv.setDataCollectionEventID("DATACOLLECTIONEVENTID");
+        spv.setDataCollectionEventID(rs.getString("DATACOLLECTIONEVENTID"));
         spv.setCopyrightOwner(rs.getString("COPYRIGHTOWNER"));
         spv.setCopyrightStatement(rs.getString("COPYRIGHTSTATEMENT"));
         spv.setFilename(rs.getString("FILENAME"));
@@ -219,12 +258,6 @@ public class SimpleFactory {
         se.setVerbatimLocation(encounter.getLocation());
         se.setLatitude(encounter.getLatitude());
         se.setLongitude(encounter.getLongitude());
-
-        encounter.getSubmitterName();
-        for (SinglePhotoVideo photo : encounter.getSinglePhotoVideo())
-        {
-            se.addPhoto(getPhoto(context, photo));
-        }
 
         Client client = Stormpath.getClient(configDir);
         AccountList accounts = Stormpath.getAccounts(client, encounter.getSubmitterID());

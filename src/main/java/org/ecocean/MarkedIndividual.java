@@ -19,16 +19,26 @@
 
 package org.ecocean;
 
-import java.io.IOException;
-import java.util.*;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.GregorianCalendar;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.StringTokenizer;
+import java.util.TreeMap;
+import java.util.Vector;
 
-import org.ecocean.genetics.*;
-import org.ecocean.social.Relationship;
-import org.ecocean.security.Collaboration;
-import org.ecocean.servlet.ServletUtilities;
 import javax.servlet.http.HttpServletRequest;
 
-import java.text.DecimalFormat;
+import org.ecocean.genetics.GeneticAnalysis;
+import org.ecocean.genetics.Locus;
+import org.ecocean.genetics.MicrosatelliteMarkersAnalysis;
+import org.ecocean.genetics.TissueSample;
+import org.ecocean.security.Collaboration;
+import org.ecocean.servlet.ServletUtilities;
+import org.ecocean.social.Relationship;
 
 /**
  * A <code>MarkedIndividual</code> object stores the complete <code>encounter</code> data for a single marked individual in a mark-recapture study.
@@ -89,7 +99,7 @@ public class MarkedIndividual implements java.io.Serializable {
   private Vector<String> interestedResearchers = new Vector<String>();
 
   private String dateTimeCreated;
-  
+
   //FOR FAST QUERY PURPOSES ONLY - DO NOT MANUALLY SET
   private String localHaplotypeReflection;
 
@@ -98,12 +108,15 @@ public class MarkedIndividual implements java.io.Serializable {
   private String patterningCode;
 
   private int maxYearsBetweenResightings;
-  
+
   private long timeOfBirth=0;
-  
+
   private long timeOfDeath=0;
 
-  public MarkedIndividual(String individualID, Encounter enc) {
+  private SinglePhotoVideo avatar;
+
+
+  public MarkedIndividual(final String individualID, final Encounter enc) {
 
     this.individualID = individualID;
     encounters.add(enc);
@@ -129,13 +142,13 @@ public class MarkedIndividual implements java.io.Serializable {
    *@see  Shepherd#commitDBTransaction()
    */
 
-  public boolean addEncounter(Encounter newEncounter, String context) {
+  public boolean addEncounter(final Encounter newEncounter, final String context) {
 
       newEncounter.assignToMarkedIndividual(individualID);
-   
+
       //get and therefore set the haplotype if necessary
       getHaplotype();
-      
+
       boolean isNew=true;
       for(int i=0;i<encounters.size();i++) {
         Encounter tempEnc=(Encounter)encounters.get(i);
@@ -143,15 +156,15 @@ public class MarkedIndividual implements java.io.Serializable {
           isNew=false;
         }
       }
-      
+
       //prevent duplicate addition of encounters
       if(isNew){
         encounters.add(newEncounter);
         numberEncounters++;
         refreshDependentProperties(context);
       }
-      return isNew; 
-     
+      return isNew;
+
  }
 
    /**Removes an encounter from this MarkedIndividual.
@@ -159,7 +172,7 @@ public class MarkedIndividual implements java.io.Serializable {
    *@return true for successful removal, false for unsuccessful - Note: this change must still be committed for it to be stored in the database
    *@see  Shepherd#commitDBTransaction()
    */
-  public boolean removeEncounter(Encounter getRidOfMe, String context){
+  public boolean removeEncounter(final Encounter getRidOfMe, final String context){
 
       numberEncounters--;
 
@@ -173,14 +186,14 @@ public class MarkedIndividual implements java.io.Serializable {
           }
       }
       refreshDependentProperties(context);
-      
+
       //reset haplotype
       localHaplotypeReflection=null;
       getHaplotype();
-      
+
       return changed;
   }
-  
+
 
   /**
    * Returns the total number of submitted encounters for this MarkedIndividual
@@ -202,19 +215,16 @@ public class MarkedIndividual implements java.io.Serializable {
 		return this.dateFirstIdentified;
 	}
 
-	public String refreshDateFirstIdentified() {
+	private void refreshDateFirstIdentified() {
 		Encounter[] sorted = this.getDateSortedEncounters();
-		if (sorted.length < 1) return null;
+		if (sorted.length < 1) return;
 		Encounter first = sorted[sorted.length - 1];
-		if (first.getYear() < 1) return null;
-		String d = new Integer(first.getYear()).toString();
-		if (first.getMonth() > 0) d = new Integer(first.getMonth()).toString() + "/" + d;
-		this.dateFirstIdentified = d;
-		return d;
+
+		this.dateFirstIdentified = first.getShortDate();
 	}
 
-  
-	public String refreshThumbnailUrl(String context) {
+
+	public String refreshThumbnailUrl(final String context) {
 		Encounter[] sorted = this.getDateSortedEncounters();
 		if (sorted.length < 1) return null;
 		this.thumbnailUrl = sorted[0].getThumbnailUrl(context);
@@ -232,28 +242,28 @@ public class MarkedIndividual implements java.io.Serializable {
   public Vector returnEncountersWithGPSData(){
     return returnEncountersWithGPSData(false,false,"context0");
   }
-  public Vector returnEncountersWithGPSData(boolean useLocales, boolean reverseOrder,String context) {
+  public Vector returnEncountersWithGPSData(final boolean useLocales, final boolean reverseOrder,final String context) {
     //if(unidentifiableEncounters==null) {unidentifiableEncounters=new Vector();}
     Vector haveData=new Vector();
     Encounter[] myEncs=getDateSortedEncounters(reverseOrder);
-    
+
     Properties localesProps = new Properties();
     if(useLocales){
       try {
         localesProps=ShepherdProperties.getProperties("locationIDGPS.properties", "",context);
-      } 
+      }
       catch (Exception ioe) {
         ioe.printStackTrace();
       }
     }
-    
+
     for(int c=0;c<myEncs.length;c++) {
       Encounter temp=myEncs[c];
       if((temp.getDWCDecimalLatitude()!=null)&&(temp.getDWCDecimalLongitude()!=null)) {
         haveData.add(temp);
       }
       else if(useLocales && (temp.getLocationID()!=null) && (localesProps.getProperty(temp.getLocationID())!=null)){
-        haveData.add(temp); 
+        haveData.add(temp);
       }
 
       }
@@ -281,88 +291,8 @@ public class MarkedIndividual implements java.io.Serializable {
     return false;
   }
 
-  public boolean wasSightedInYear(int year) {
-    for (int c = 0; c < encounters.size(); c++) {
-      Encounter temp = (Encounter) encounters.get(c);
-      if (temp.getYear() == year) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  public boolean wasSightedInYear(int year, String locCode) {
-    for (int c = 0; c < encounters.size(); c++) {
-      Encounter temp = (Encounter) encounters.get(c);
-      if ((temp.getYear() == year) && (temp.getLocationCode().startsWith(locCode))) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  public boolean wasSightedInYearLeftTagsOnly(int year, String locCode) {
-    for (int c = 0; c < encounters.size(); c++) {
-      Encounter temp = (Encounter) encounters.get(c);
-      if ((temp.getYear() == year) && (temp.getLocationCode().startsWith(locCode)) && (temp.getNumSpots() > 0)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  /**
-   * 
-   * 
-   * @deprecated
-   */
-  public double averageLengthInYear(int year) {
-    int numLengths = 0;
-    double total = 0;
-    double avg = 0;
-    for (int c = 0; c < encounters.size(); c++) {
-      Encounter temp = (Encounter) encounters.get(c);
-      if ((temp.getYear() == year) && ((temp.getSizeAsDouble()!=null)&&(temp.getSize() > 0))) {
-        total += temp.getSize();
-        numLengths++;
-      }
-    }
-    if (numLengths > 0) {
-      avg = total / numLengths;
-    }
-    return avg;
-  }
-  
-  
-  /**
-   * 
-   * 
-   * @deprecated
-   */
-  public double averageMeasuredLengthInYear(int year, boolean allowGuideGuess) {
-    int numLengths = 0;
-    double total = 0;
-    double avg = 0;
-    for (int c = 0; c < encounters.size(); c++) {
-      Encounter temp = (Encounter) encounters.get(c);
-      if (temp.getYear() == year) {
-        if ((temp.getSizeAsDouble()!=null)&&(temp.getSize() > 0)) {
-          if ((temp.getSizeGuess().equals("directly measured")) || ((allowGuideGuess) && (temp.getSizeGuess().equals("guide/researcher's guess")))) {
-
-            total += temp.getSize();
-            numLengths++;
-          }
-        }
-      }
-    }
-    if (numLengths > 0) {
-      avg = total / numLengths;
-    }
-    return avg;
-  }
-
   //use the index identifier, not the full name of the keyword
-  public boolean isDescribedByPhotoKeyword(Keyword word) {
+  public boolean isDescribedByPhotoKeyword(final Keyword word) {
     for (int c = 0; c < encounters.size(); c++) {
       Encounter temp = (Encounter) encounters.get(c);
       if(temp.hasKeyword(word)){return true;}
@@ -370,30 +300,8 @@ public class MarkedIndividual implements java.io.Serializable {
     return false;
   }
 
-  /*
-  public boolean hasApprovedEncounters() {
-    for (int c = 0; c < encounters.size(); c++) {
-      Encounter temp = (Encounter) encounters.get(c);
-      if (temp.getState()!=null) {
-        return true;
-      }
-    }
-    return false;
-  }
-  */
 
-  public boolean wasSightedInMonth(int year, int month) {
-    for (int c = 0; c < encounters.size(); c++) {
-      Encounter temp = (Encounter) encounters.get(c);
-      if ((temp.getYear() == year) && (temp.getMonth() == month)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-
-  public boolean wasSightedInPeriod(int m_startYear, int m_startMonth, int m_endYear, int m_endMonth) {
+  public boolean wasSightedInPeriod(final int m_startYear, final int m_startMonth, final int m_endYear, final int m_endMonth) {
     int endYear = m_endYear;
     int endMonth = m_endMonth;
 
@@ -403,8 +311,6 @@ public class MarkedIndividual implements java.io.Serializable {
 
     GregorianCalendar gcMin=new GregorianCalendar(startYear, startMonth, 1);
     GregorianCalendar gcMax=new GregorianCalendar(endYear, endMonth, 31);
-
-
 
     for (int c = 0; c < encounters.size(); c++) {
       Encounter temp = (Encounter) encounters.get(c);
@@ -416,7 +322,7 @@ public class MarkedIndividual implements java.io.Serializable {
     return false;
   }
 
-  public boolean wasSightedInPeriod(int m_startYear, int m_startMonth, int m_startDay, int m_endYear, int m_endMonth, int m_endDay, String locCode) {
+  public boolean wasSightedInPeriod(final int m_startYear, final int m_startMonth, final int m_startDay, final int m_endYear, final int m_endMonth, final int m_endDay, final String locCode) {
     int endYear = m_endYear;
     int endMonth = m_endMonth;
     int endDay = m_endDay;
@@ -442,7 +348,7 @@ public class MarkedIndividual implements java.io.Serializable {
     return false;
   }
 
-  public boolean wasSightedInPeriod(int m_startYear, int m_startMonth, int m_startDay, int m_endYear, int m_endMonth, int m_endDay) {
+  public boolean wasSightedInPeriod(final int m_startYear, final int m_startMonth, final int m_startDay, final int m_endYear, final int m_endMonth, final int m_endDay) {
     int endYear = m_endYear;
     int endMonth = m_endMonth;
     int endDay = m_endDay;
@@ -460,7 +366,7 @@ public class MarkedIndividual implements java.io.Serializable {
     return false;
   }
 
-  public boolean wasSightedInPeriodLeftOnly(int m_startYear, int m_startMonth, int m_endYear, int m_endMonth) {
+  public boolean wasSightedInPeriodLeftOnly(final int m_startYear, final int m_startMonth, final int m_endYear, final int m_endMonth) {
     int endYear = m_endYear;
     int endMonth = m_endMonth;
 
@@ -515,19 +421,19 @@ public class MarkedIndividual implements java.io.Serializable {
   /**
    * Sets the nickname of the MarkedIndividual.
    */
-  public void setNickName(String newName) {
+  public void setNickName(final String newName) {
     nickName = newName;
   }
 
-  public void setNickNamer(String newNamer) {
+  public void setNickNamer(final String newNamer) {
     nickNamer = newNamer;
   }
 
-  public void setName(String newName) {
+  public void setName(final String newName) {
     individualID = newName;
   }
 
-    public void setIndividualID(String newName) {
+    public void setIndividualID(final String newName) {
       individualID = newName;
     }
 
@@ -539,11 +445,11 @@ public class MarkedIndividual implements java.io.Serializable {
    * @return the encounter at position i in the stored Vector of encounters
    * @param  i  the specified encounter number, where i=0...(n-1)
    */
-  public Encounter getEncounter(int i) {
+  public Encounter getEncounter(final int i) {
     return (Encounter) encounters.get(i);
   }
 
-  public Encounter getLogEncounter(int i) {
+  public Encounter getLogEncounter(final int i) {
     return (Encounter) unidentifiableEncounters.get(i);
   }
 
@@ -558,7 +464,7 @@ public class MarkedIndividual implements java.io.Serializable {
   }
 
     //you can choose the order of the EncounterDateComparator
-    public Encounter[] getDateSortedEncounters(boolean reverse) {
+    public Encounter[] getDateSortedEncounters(final boolean reverse) {
     Vector final_encs = new Vector();
     for (int c = 0; c < encounters.size(); c++) {
       Encounter temp = (Encounter) encounters.get(c);
@@ -574,11 +480,11 @@ public class MarkedIndividual implements java.io.Serializable {
     Arrays.sort(encs2, dc);
     return encs2;
   }
-  
+
   //sorted with the most recent first
   public Encounter[] getDateSortedEncounters() {return getDateSortedEncounters(false);}
-  
-  
+
+
   //preserved for legacy purposes
  /** public Encounter[] getDateSortedEncounters(boolean includeLogEncounters) {
     return getDateSortedEncounters();
@@ -611,7 +517,7 @@ public class MarkedIndividual implements java.io.Serializable {
    *
    * @return a String of comments
    */
-  public void addComments(String newComments) {
+  public void addComments(final String newComments) {
     if ((comments != null) && (!(comments.equals("None")))) {
       comments += newComments;
     } else {
@@ -641,10 +547,10 @@ public class MarkedIndividual implements java.io.Serializable {
   /**
    * Sets the sex of this MarkedIndividual.
    */
-  public void setSex(String newSex) {
+  public void setSex(final String newSex) {
     if(newSex!=null){sex = newSex;}
     else{sex=null;}
-    
+
   }
 
 
@@ -659,22 +565,22 @@ public class MarkedIndividual implements java.io.Serializable {
     return lastSize;
   }
 
-  public boolean wasSightedInLocationCode(String locationCode) {
-   
+  public boolean wasSightedInLocationCode(final String locationCode) {
+
         for (int c = 0; c < encounters.size(); c++) {
           try{
             Encounter temp = (Encounter) encounters.get(c);
-          
+
             if ((temp.getLocationID()!=null)&&(!temp.getLocationID().trim().equals(""))&&(temp.getLocationID().trim().equals(locationCode))) {
               return true;
             }
           }
-          catch(NullPointerException npe){return false;} 
+          catch(NullPointerException npe){return false;}
         }
-         
+
         return false;
     }
-    
+
 
 
   public ArrayList<String> participatesInTheseVerbatimEventDates() {
@@ -709,7 +615,7 @@ public class MarkedIndividual implements java.io.Serializable {
 		return this.numberLocations;
 	}
 
-  public boolean wasSightedInVerbatimEventDate(String ved) {
+  public boolean wasSightedInVerbatimEventDate(final String ved) {
     for (int c = 0; c < encounters.size(); c++) {
       Encounter temp = (Encounter) encounters.get(c);
       if ((temp.getVerbatimEventDate() != null) && (temp.getVerbatimEventDate().equals(ved))) {
@@ -719,7 +625,7 @@ public class MarkedIndividual implements java.io.Serializable {
     return false;
   }
 
-  public boolean wasSightedByUser(String user) {
+  public boolean wasSightedByUser(final String user) {
     for (int c = 0; c < encounters.size(); c++) {
       Encounter temp = (Encounter) encounters.get(c);
       if ((temp.getSubmitterID() != null) && (temp.getSubmitterID().equals(user))) {
@@ -737,21 +643,26 @@ public class MarkedIndividual implements java.io.Serializable {
     int lowestYear = 5000;
     for (int c = 0; c < encounters.size(); c++) {
       Encounter temp = (Encounter) encounters.get(c);
-      if ((temp.getYear() < lowestYear)&&(temp.getYear()>0)){ 
-        lowestYear = temp.getYear();
+      int year = temp.getYear();
+      if (year < lowestYear && year > 0) {
+        lowestYear = year;
       }
     }
     return lowestYear;
   }
-  
-  public long getEarliestSightingTime() {
-    long lowestTime = GregorianCalendar.getInstance().getTimeInMillis();
-    for (int c = 0; c < encounters.size(); c++) {
-      Encounter temp = (Encounter) encounters.get(c);
-      if ((temp.getDateInMilliseconds()!=null)&&(temp.getDateInMilliseconds() < lowestTime)&&(temp.getYear()>0)) lowestTime = temp.getDateInMilliseconds();
+
+    public long getEarliestSightingTime() {
+        long lowestTime = GregorianCalendar.getInstance().getTimeInMillis();
+        for (int c = 0; c < encounters.size(); c++) {
+            Encounter temp = (Encounter) encounters.get(c);
+            if (temp.getDateInMilliseconds() != null
+                  && temp.getDateInMilliseconds() < lowestTime
+                  && temp.getYear() > 0) {
+                lowestTime = temp.getDateInMilliseconds();
+            }
+        }
+        return lowestTime;
     }
-    return lowestTime;
-  }
 
   public String getSeriesCode() {
     return seriesCode;
@@ -761,16 +672,16 @@ public class MarkedIndividual implements java.io.Serializable {
     return interestedResearchers;
   }
 
-  public void addInterestedResearcher(String email) {
+  public void addInterestedResearcher(final String email) {
     if(interestedResearchers==null){interestedResearchers=new Vector<String>();}
       interestedResearchers.add(email);
-    
+
   }
 
-  public void removeInterestedResearcher(String email) {
+  public void removeInterestedResearcher(final String email) {
     if(interestedResearchers!=null){
       for (int i = 0; i < interestedResearchers.size(); i++) {
-        String rName = (String) interestedResearchers.get(i);
+        String rName = interestedResearchers.get(i);
         if (rName.equals(email)) {
           interestedResearchers.remove(i);
         }
@@ -778,7 +689,7 @@ public class MarkedIndividual implements java.io.Serializable {
     }
   }
 
-  public void setSeriesCode(String newCode) {
+  public void setSeriesCode(final String newCode) {
     seriesCode = newCode;
   }
 
@@ -787,7 +698,7 @@ public class MarkedIndividual implements java.io.Serializable {
    *
    * @param  dataFile  the satellite tag data file to be added
    */
-  public void addDataFile(String dataFile) {
+  public void addDataFile(final String dataFile) {
     if(dataFiles==null){dataFiles = new Vector();}
     dataFiles.add(dataFile);
   }
@@ -797,7 +708,7 @@ public class MarkedIndividual implements java.io.Serializable {
    *
    * @param  dataFile  The satellite data file, as a String, to be removed.
    */
-  public void removeDataFile(String dataFile) {
+  public void removeDataFile(final String dataFile) {
     if(dataFiles!=null)
     {
       dataFiles.remove(dataFile);
@@ -851,86 +762,7 @@ public class MarkedIndividual implements java.io.Serializable {
     return results;
   }
 
-  /*public int getFirstTrainingEncounter() {
-     for(int iter=0;iter<encounters.size(); iter++) {
-       encounter enc=(encounter)encounters.get(iter);
-       if (enc.getSpots()!=null) {return iter;}
-       }
-     return 0;
-   }*/
-
-  /*public int getSecondTrainingEncounter() {
-     for(int iter=(getFirstTrainingEncounter()+1);iter<encounters.size(); iter++) {
-       encounter enc=(encounter)encounters.get(iter);
-       if (enc.getSpots()!=null) {return iter;}
-       }
-     return 0;
-   }*/
-
-
-  //months 1-12, days, 1-31
-  /**
-   * 
-   * 
-   * @deprecated
-   */
-  public double avgLengthInPeriod(int m_startYear, int m_startMonth, int m_endYear, int m_endMonth) {
-
-    double avgLength = 0;
-    int numMeasurements = 0;
-
-    int endYear = m_endYear;
-    int endMonth = m_endMonth;
-    int startYear = m_startYear;
-    int startMonth = m_startMonth;
-
-    //test that start and end dates are not reversed
-    if (endYear < startYear) {
-      endYear = m_startYear;
-      endMonth = m_startMonth;
-      startYear = m_endYear;
-      startMonth = m_endMonth;
-    } else if ((endYear == startYear) && (endMonth < startMonth)) {
-      endYear = m_startYear;
-      endMonth = m_startMonth;
-      startYear = m_endYear;
-      startMonth = m_endMonth;
-    }
-
-    for (int c = 0; c < encounters.size(); c++) {
-      Encounter temp = (Encounter) encounters.get(c);
-      if ((temp.getYear() > startYear) && (temp.getYear() < endYear)) {
-        if ((temp.getSizeAsDouble()!=null)&&(temp.getSize() > 0)) {
-          avgLength += temp.getSize();
-          numMeasurements++;
-        }
-      } else if ((temp.getYear() == startYear) && (temp.getYear() < endYear) && (temp.getMonth() >= startMonth)) {
-        if ((temp.getSizeAsDouble()!=null)&&(temp.getSize() > 0)) {
-          avgLength += temp.getSize();
-          numMeasurements++;
-        }
-      } else if ((temp.getYear() > startYear) && (temp.getYear() == endYear) && (temp.getMonth() <= endMonth)) {
-        if ((temp.getSizeAsDouble()!=null)&&(temp.getSize() > 0)) {
-          avgLength += temp.getSize();
-          numMeasurements++;
-        }
-      } else if ((temp.getYear() >= startYear) && (temp.getYear() <= endYear) && (temp.getMonth() >= startMonth) && (temp.getMonth() <= endMonth)) {
-        if ((temp.getSizeAsDouble()!=null)&&(temp.getSize() > 0)) {
-          avgLength += temp.getSize();
-          numMeasurements++;
-        }
-      }
-
-
-    }
-    if (numMeasurements > 0) {
-      return (avgLength / numMeasurements);
-    } else {
-      return 0.0;
-    }
-  }
-  
-  public Double getAverageMeasurementInPeriod(int m_startYear, int m_startMonth, int m_endYear, int m_endMonth, String measurementType) {
+  public Double getAverageMeasurementInPeriod(final int m_startYear, final int m_startMonth, final int m_endYear, final int m_endMonth, final String measurementType) {
 
     double avgMeasurement = 0;
     int numMeasurements = 0;
@@ -954,43 +786,46 @@ public class MarkedIndividual implements java.io.Serializable {
 
     for (int c = 0; c < encounters.size(); c++) {
       Encounter temp = (Encounter) encounters.get(c);
+      int year = temp.getYear();
+      int month = temp.getMonth();
+
       if(temp.hasMeasurement(measurementType)){
         List<Measurement> measures=temp.getMeasurements();
-        if ((temp.getYear() > startYear) && (temp.getYear() < endYear)) {
+        if ((year > startYear) && (year < endYear)) {
           if (temp.getMeasurement(measurementType)!=null) {
             avgMeasurement += temp.getMeasurement(measurementType).getValue();
             numMeasurements++;
           }
-        } 
-        else if ((temp.getYear() == startYear) && (temp.getYear() < endYear) && (temp.getMonth() >= startMonth)) {
+        }
+        else if ((year == startYear) && (year < endYear) && (month >= startMonth)) {
           if (temp.getMeasurement(measurementType)!=null){
             avgMeasurement += temp.getMeasurement(measurementType).getValue();
             numMeasurements++;
           }
-        } 
-        else if ((temp.getYear() > startYear) && (temp.getYear() == endYear) && (temp.getMonth() <= endMonth)) {
+        }
+        else if ((year > startYear) && (year == endYear) && (month <= endMonth)) {
           if (temp.getMeasurement(measurementType)!=null) {
             avgMeasurement += temp.getMeasurement(measurementType).getValue();
             numMeasurements++;
           }
-        } 
-        else if ((temp.getYear() >= startYear) && (temp.getYear() <= endYear) && (temp.getMonth() >= startMonth) && (temp.getMonth() <= endMonth)) {
+        }
+        else if ((year >= startYear) && (year <= endYear) && (month >= startMonth) && (month <= endMonth)) {
           if (temp.getMeasurement(measurementType)!=null) {
             avgMeasurement += temp.getMeasurement(measurementType).getValue();
             numMeasurements++;
           }
-        } 
+        }
       }
     }
     if (numMeasurements > 0) {
       return (new Double(avgMeasurement / numMeasurements));
-    } 
+    }
     else {
       return null;
     }
   }
-  
-  public Double getAverageBiologicalMeasurementInPeriod(int m_startYear, int m_startMonth, int m_endYear, int m_endMonth, String measurementType) {
+
+  public Double getAverageBiologicalMeasurementInPeriod(final int m_startYear, final int m_startMonth, final int m_endYear, final int m_endMonth, final String measurementType) {
 
     double avgMeasurement = 0;
     int numMeasurements = 0;
@@ -1014,6 +849,10 @@ public class MarkedIndividual implements java.io.Serializable {
 
     for (int c = 0; c < encounters.size(); c++) {
       Encounter enc = (Encounter) encounters.get(c);
+
+      int year = enc.getYear();
+      int month = enc.getMonth();
+
       if((enc.getTissueSamples()!=null)&&(enc.getTissueSamples().size()>0)){
         List<TissueSample> samples=enc.getTissueSamples();
         int numTissueSamples=samples.size();
@@ -1021,38 +860,37 @@ public class MarkedIndividual implements java.io.Serializable {
           TissueSample temp=samples.get(h);
 
           if(temp.hasMeasurement(measurementType)){
-            List<BiologicalMeasurement> measures=temp.getBiologicalMeasurements();
-            if ((enc.getYear() > startYear) && (enc.getYear() < endYear)) {
+            if ((year > startYear) && (year < endYear)) {
               if (temp.getBiologicalMeasurement(measurementType)!=null) {
                 avgMeasurement += temp.getBiologicalMeasurement(measurementType).getValue();
                 numMeasurements++;
               }
-            } 
-            else if ((enc.getYear() == startYear) && (enc.getYear() < endYear) && (enc.getMonth() >= startMonth)) {
+            }
+            else if ((year == startYear) && (year < endYear) && (month >= startMonth)) {
               if (temp.getBiologicalMeasurement(measurementType)!=null){
                 avgMeasurement += temp.getBiologicalMeasurement(measurementType).getValue();
                 numMeasurements++;
               }
-            } 
-            else if ((enc.getYear() > startYear) && (enc.getYear() == endYear) && (enc.getMonth() <= endMonth)) {
+            }
+            else if ((year > startYear) && (year == endYear) && (month <= endMonth)) {
               if (temp.getBiologicalMeasurement(measurementType)!=null) {
                 avgMeasurement += temp.getBiologicalMeasurement(measurementType).getValue();
                 numMeasurements++;
               }
-            } 
-            else if ((enc.getYear() >= startYear) && (enc.getYear() <= endYear) && (enc.getMonth() >= startMonth) && (enc.getMonth() <= endMonth)) {
+            }
+            else if ((year >= startYear) && (year <= endYear) && (month >= startMonth) && (month <= endMonth)) {
               if (temp.getBiologicalMeasurement(measurementType)!=null) {
                 avgMeasurement += temp.getBiologicalMeasurement(measurementType).getValue();
                 numMeasurements++;
               }
-            } 
+            }
           }
         }
       }
     }
     if (numMeasurements > 0) {
       return (new Double(avgMeasurement / numMeasurements));
-    } 
+    }
     else {
       return null;
     }
@@ -1065,11 +903,11 @@ public class MarkedIndividual implements java.io.Serializable {
     return "";
   }
 
-  public void setDateTimeCreated(String time) {
+  public void setDateTimeCreated(final String time) {
     dateTimeCreated = time;
   }
 
-  public void setAlternateID(String newID) {
+  public void setAlternateID(final String newID) {
     this.alternateid = newID;
   }
 
@@ -1175,7 +1013,7 @@ public class MarkedIndividual implements java.io.Serializable {
     }
   }
 
-  public ArrayList<Keyword> getAllAppliedKeywordNames(Shepherd myShepherd) {
+  public ArrayList<Keyword> getAllAppliedKeywordNames(final Shepherd myShepherd) {
     ArrayList<Keyword> al = new ArrayList<Keyword>();
     int numEncounters = encounters.size();
     for (int i = 0; i < numEncounters; i++) {
@@ -1190,7 +1028,7 @@ public class MarkedIndividual implements java.io.Serializable {
     }
     return al;
   }
-  
+
   public ArrayList<TissueSample> getAllTissueSamples() {
     ArrayList<TissueSample> al = new ArrayList<TissueSample>();
     if(encounters!=null){
@@ -1208,7 +1046,7 @@ public class MarkedIndividual implements java.io.Serializable {
     }
     return null;
   }
-  
+
   public ArrayList<SinglePhotoVideo> getAllSinglePhotoVideo() {
     ArrayList<SinglePhotoVideo> al = new ArrayList<SinglePhotoVideo>();
     int numEncounters = encounters.size();
@@ -1224,7 +1062,7 @@ public class MarkedIndividual implements java.io.Serializable {
     return al;
   }
 
-  public ArrayList<String> getAllValuesForDynamicProperty(String propertyName) {
+  public ArrayList<String> getAllValuesForDynamicProperty(final String propertyName) {
     ArrayList<String> listPropertyValues = new ArrayList<String>();
 
     //first, check if the individual has the property applied
@@ -1261,23 +1099,30 @@ public class MarkedIndividual implements java.io.Serializable {
   Sets the patterning type evident on this MarkedIndividual instance.
 
   */
-  public void setPatterningCode(String newCode){this.patterningCode=newCode;}
+  public void setPatterningCode(final String newCode){this.patterningCode=newCode;}
 
-  public void resetMaxNumYearsBetweenSightings(){
+  private void resetMaxNumYearsBetweenSightings(){
     int maxYears=0;
     int lowestYear=3000;
     int highestYear=0;
     for(int c=0;c<encounters.size();c++) {
       Encounter temp=(Encounter)encounters.get(c);
-      if((temp.getYear()<lowestYear)&&(temp.getYear()>0)) lowestYear=temp.getYear();
-      if(temp.getYear()>highestYear) highestYear=temp.getYear();
-      maxYears=highestYear-lowestYear;
-      if(maxYears<0){maxYears=0;}
+      int year = temp.getYear();
+      if (year < lowestYear && year > 0) {
+          lowestYear = year;
       }
-    maxYearsBetweenResightings=maxYears;
+      if (year > highestYear) {
+          highestYear = year;
+      }
+      maxYears=highestYear-lowestYear;
+      if (maxYears < 0) {
+          maxYears=0;
+      }
     }
+    maxYearsBetweenResightings=maxYears;
+  }
 
-  public String sidesSightedInPeriod(int m_startYear, int m_startMonth, int m_startDay, int m_endYear, int m_endMonth, int m_endDay, String locCode) {
+  public String sidesSightedInPeriod(final int m_startYear, final int m_startMonth, final int m_startDay, final int m_endYear, final int m_endMonth, final int m_endDay, final String locCode) {
     int endYear = m_endYear;
     int endMonth = m_endMonth;
     int endDay = m_endDay;
@@ -1332,9 +1177,9 @@ Returns the first haplotype found in the Encounter objects for this MarkedIndivi
 @return a String if found or null if no haplotype is found
 */
 public String getHaplotype(){
-      
+
     return localHaplotypeReflection;
-    
+
 }
 
 
@@ -1348,7 +1193,7 @@ return null;
 
 }
 
-public boolean hasLocusAndAllele(String locus, Integer alleleValue){
+public boolean hasLocusAndAllele(final String locus, final Integer alleleValue){
   ArrayList<TissueSample> samples=getAllTissueSamples();
   int numSamples=samples.size();
   for(int i=0;i<numSamples;i++){
@@ -1371,7 +1216,7 @@ public boolean hasLocusAndAllele(String locus, Integer alleleValue){
   return false;
 }
 
-public ArrayList<Integer> getAlleleValuesForLocus(String locus){
+public ArrayList<Integer> getAlleleValuesForLocus(final String locus){
   ArrayList<Integer> matchingValues=new ArrayList<Integer>();
   ArrayList<TissueSample> samples=getAllTissueSamples();
   int numSamples=samples.size();
@@ -1398,7 +1243,7 @@ public ArrayList<Integer> getAlleleValuesForLocus(String locus){
   return matchingValues;
 }
 
-public boolean hasLocus(String locus){
+public boolean hasLocus(final String locus){
   ArrayList<TissueSample> samples=getAllTissueSamples();
   int numSamples=samples.size();
   for(int i=0;i<numSamples;i++){
@@ -1557,9 +1402,9 @@ public ArrayList getAllEmailsToUpdate(){
 
 }
 
-public void removeLogEncounter(Encounter enc){if(unidentifiableEncounters.contains(enc)){unidentifiableEncounters.remove(enc);}}
+public void removeLogEncounter(final Encounter enc){if(unidentifiableEncounters.contains(enc)){unidentifiableEncounters.remove(enc);}}
 
-public float distFrom(float lat1, float lng1, float lat2, float lng2) {
+public float distFrom(final float lat1, final float lng1, final float lat2, final float lng2) {
   double earthRadius = 3958.75;
   double dLat = Math.toRadians(lat2-lat1);
   double dLng = Math.toRadians(lng2-lng1);
@@ -1630,10 +1475,10 @@ public ArrayList<String> getAllAssignedUsers(){
 
 /**
  * DO NOT SET DIRECTLY!!
- * 
+ *
  * @param myDepth
  */
-public void doNotSetLocalHaplotypeReflection(String myHaplo) {
+public void doNotSetLocalHaplotypeReflection(final String myHaplo) {
   if(myHaplo!=null){localHaplotypeReflection = myHaplo;}
   else{localHaplotypeReflection = null;}
 }
@@ -1641,14 +1486,14 @@ public void doNotSetLocalHaplotypeReflection(String myHaplo) {
 public long getTimeOfBirth(){return timeOfBirth;}
 public long getTimeofDeath(){return timeOfDeath;}
 
-public void setTimeOfBirth(long newTime){timeOfBirth=newTime;}
-public void setTimeOfDeath(long newTime){timeOfDeath=newTime;}
+public void setTimeOfBirth(final long newTime){timeOfBirth=newTime;}
+public void setTimeOfDeath(final long newTime){timeOfDeath=newTime;}
 
-public ArrayList<Relationship> getAllRelationships(Shepherd myShepherd){
+public ArrayList<Relationship> getAllRelationships(final Shepherd myShepherd){
   return myShepherd.getAllRelationshipsForMarkedIndividual(individualID);
 }
 
-public String getFomattedMSMarkersString(String[] loci){
+public String getFomattedMSMarkersString(final String[] loci){
   StringBuffer sb=new StringBuffer();
   int numLoci=loci.length;
   for(int i=0;i<numLoci;i++){
@@ -1661,14 +1506,14 @@ public String getFomattedMSMarkersString(String[] loci){
   return sb.toString();
 }
 
-public Float getMinDistanceBetweenTwoMarkedIndividuals(MarkedIndividual otherIndy){
-  
+public Float getMinDistanceBetweenTwoMarkedIndividuals(final MarkedIndividual otherIndy){
+
   DecimalFormat df = new DecimalFormat("#.#");
   Float minDistance=new Float(1000000);
   if((encounters!=null)&&(encounters.size()>0)&&(otherIndy.getEncounters()!=null)&&(otherIndy.getEncounters().size()>0)){
   int numEncs=encounters.size();
   int numOtherEncs=otherIndy.getEncounters().size();
-  
+
   if(numEncs>0){
   for(int y=0;y<numEncs;y++){
     Encounter thisEnc=(Encounter)encounters.get(y);
@@ -1693,12 +1538,12 @@ public Float getMinDistanceBetweenTwoMarkedIndividuals(MarkedIndividual otherInd
 
 
 	//convenience function to Collaboration permissions
-	public boolean canUserAccess(HttpServletRequest request) {
+	public boolean canUserAccess(final HttpServletRequest request) {
 		return Collaboration.canUserAccessMarkedIndividual(this, request);
 	}
 
 
-	public String collaborationLockHtml(HttpServletRequest request) {
+	public String collaborationLockHtml(final HttpServletRequest request) {
 		String context = "context0";
 		context = ServletUtilities.getContext(request);
 		Shepherd myShepherd = new Shepherd(context);
@@ -1728,13 +1573,21 @@ public Float getMinDistanceBetweenTwoMarkedIndividuals(MarkedIndividual otherInd
 
 
 
-	public void refreshDependentProperties(String context) {
+	public void refreshDependentProperties(final String context) {
 		this.refreshNumberEncounters();
 		this.refreshNumberLocations();
 		this.resetMaxNumYearsBetweenSightings();
 		this.refreshDateFirstIdentified();
 		this.refreshThumbnailUrl(context);
 	}
+
+    public SinglePhotoVideo getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(final SinglePhotoVideo avatar) {
+        this.avatar = avatar;
+    }
 
 
 }

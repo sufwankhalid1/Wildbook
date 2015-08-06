@@ -8,11 +8,11 @@ block css
 
 block content
     .maincontent
-        h1.has-icon.icon-happywhale= t("individual.meet", {individualId: data.ind.nickname + "(" + data.ind.id + ")"})
+        h1.has-icon.icon-happywhale= t("individual.meet", {individualId: data.info.individual.nickname + "(" + data.info.individual.id + ")"})
         
         .container-fluid
             .col-md-2
-                img(src="#{config.wildbook.staticUrl}#{data.ind.avatar}" height="128px")
+                img(src="#{config.wildbook.staticUrl}#{data.info.individual.avatar}" height="128px")
             .col-md-10
                 .container-fluid.sight-stats
                     .row
@@ -32,7 +32,7 @@ block content
                                 .container-fluid.sight-stats
                                     .col-md-4
                                         .row
-                                            span.sight-number #{data.ind.encounters.length}
+                                            span.sight-number #{data.info.encounters.length}
                                         .row
                                             span.sight-date-text!= t("individual.reportedSightings")
                                     .col-md-4
@@ -46,14 +46,14 @@ block content
                                         .row
                                             span.sight-date #{data.lastSeen}
 
-        -var photos = data.ind.photos
+        -var photos = data.info.individual.photos
         //include partials/carousel
         
         include partials/phototool
 
         h2= t("individual.contributors")
         hr
-        for user in data.ind.submitters
+        for user in data.info.submitters
             ul.submitters
                 li
                     include partials/user
@@ -85,9 +85,10 @@ block scripts
             //        interval: 3000
             //    });
         
-            var ind = !{JSON.stringify(data.ind)};
+            var photos = !{JSON.stringify(data.info.individual.photos)};
+            var encounters = !{JSON.stringify(data.info.encounters)};
         
             app.configPromise.then(function() {
-                individualPage.init(ind);
+                individualPage.init(photos, encounters);
             });
         });

@@ -363,7 +363,7 @@ module.exports = function(app, config, secrets, debug) {
                 }
             }
 
-            var vars = {data: {ind: data,
+            var vars = {data: {info: data,
                 firstSeen: (first === Number.POSITIVE_INFINITY) ? "" : moment(first).format("ll"),
                         lastSeen: (last === 0) ? "" : moment(last).format("ll")
                     }};

@@ -41,6 +41,7 @@ import org.ecocean.security.Collaboration;
 import org.ecocean.tag.AcousticTag;
 import org.ecocean.tag.MetalTag;
 import org.ecocean.tag.SatelliteTag;
+import org.joda.time.DateTime;
 
 
 
@@ -68,9 +69,6 @@ public class Encounter implements java.io.Serializable {
   private Double maximumElevationInMeters;
   private String catalogNumber = "";
   private String individualID;
-  private int day = 0;
-  private int month = -1;
-  private int year = 0;
   private Double decimalLatitude;
   private Double decimalLongitude;
   private String verbatimLocality;
@@ -134,9 +132,6 @@ public class Encounter implements java.io.Serializable {
   public Vector<String> additionalImageNames = new Vector<String>();
   //a Vector of Strings of email addresses to notify when this encounter is modified
   public Vector<String> interestedResearchers = new Vector<String>();
-  //time metrics of the report
-  private int hour = 0;
-  private String minutes = "00";
 
   private String state="";
 
@@ -224,24 +219,38 @@ public class Encounter implements java.io.Serializable {
    * The Vector <code>additionalImages</code> must be a Vector of Blob objects
    *
    */
-  public Encounter(int day, int month, int year, int hour, String minutes, String size_guess, String location, String submitterName, String submitterEmail, List<SinglePhotoVideo> images) {
-    this.verbatimLocality = location;
-    this.recordedBy = submitterName;
-    this.submitterEmail = submitterEmail;
+  public Encounter(int day, int month, int year, int hour, int minutes, String size_guess, String location, String submitterName, String submitterEmail, List<SinglePhotoVideo> images) {
+      this.verbatimLocality = location;
+      this.recordedBy = submitterName;
+      this.submitterEmail = submitterEmail;
 
-    //now we need to set the hashed form of the email addresses
-    this.hashedSubmitterEmail = StringUtilities.getHashOfCommaList(submitterEmail);
+      //now we need to set the hashed form of the email addresses
+      this.hashedSubmitterEmail = StringUtilities.getHashOfCommaList(submitterEmail);
 
-    this.images = images;
-    this.day = day;
-    this.month = month;
-    this.year = year;
-    this.hour = hour;
-    this.minutes = minutes;
-    this.size_guess = size_guess;
-    this.individualID = "Unassigned";
+      this.images = images;
+      this.size_guess = size_guess;
+      this.individualID = "Unassigned";
 
-    resetDateInMilliseconds();
+      if (year > 0) {
+          int localMonth=0;
+          if (month > 0) {
+              localMonth=month-1;
+          }
+          int localDay = 1;
+          if (day > 0) {
+              localDay=day;
+          }
+          int localHour = 0;
+          if (hour > -1) {
+              localHour=hour;
+          }
+
+          GregorianCalendar gc=new GregorianCalendar(year, localMonth, localDay,localHour,minutes);
+
+          dateInMilliseconds = new Long(gc.getTimeInMillis());
+      } else {
+          dateInMilliseconds=null;
+      }
   }
 
 
@@ -315,8 +324,8 @@ public class Encounter implements java.io.Serializable {
    * Sets the recorded length of the shark for this encounter.
    */
   public void setSize(Double mysize) {
-	  if(mysize!=null){size = mysize;}
-	  else{size=null;}
+      if(mysize!=null){size = mysize;}
+      else{size=null;}
 
   }
 
@@ -391,12 +400,12 @@ public class Encounter implements java.io.Serializable {
    * @return any comments regarding observed scarring on the shark's body
    */
 
-	public boolean getMmaCompatible() {
-		return mmaCompatible;
-	}
-	public void setMmaCompatible(boolean b) {
-		mmaCompatible = b;
-	}
+    public boolean getMmaCompatible() {
+        return mmaCompatible;
+    }
+    public void setMmaCompatible(boolean b) {
+        mmaCompatible = b;
+    }
 
   public String getComments() {
     return occurrenceRemarks;
@@ -560,8 +569,8 @@ public class Encounter implements java.io.Serializable {
    * Sets the recorded depth of this encounter.
    */
   public void setDepth(Double myDepth) {
-	  if(myDepth!=null){maximumDepthInMeters = myDepth;}
-	  else{maximumDepthInMeters = null;}
+      if(myDepth!=null){maximumDepthInMeters = myDepth;}
+      else{maximumDepthInMeters = null;}
   }
 
   /**
@@ -574,7 +583,7 @@ public class Encounter implements java.io.Serializable {
   }
 
   public Double getDepthAsDouble(){
-	  return maximumDepthInMeters;
+      return maximumDepthInMeters;
   }
 
 
@@ -661,40 +670,110 @@ public class Encounter implements java.io.Serializable {
   }
 
 
-	public String generateEncounterNumber() {
-		return Util.generateUUID();
-	}
+    public String generateEncounterNumber() {
+        return Util.generateUUID();
+    }
 
 
-	public String dir(String baseDir) {
-		return baseDir + File.separator + "encounters" + File.separator + this.subdir();
-	}
+    public String dir(String baseDir) {
+        return baseDir + File.separator + "encounters" + File.separator + this.subdir();
+    }
 
 
-	//like above, but class method so you pass the encID
-	public static String dir(String baseDir, String id) {
-		return baseDir + File.separator + "encounters" + File.separator + subdir(id);
-	}
+    //like above, but class method so you pass the encID
+    public static String dir(String baseDir, String id) {
+        return baseDir + File.separator + "encounters" + File.separator + subdir(id);
+    }
 
 
-	//like above, but can pass a File in for base
-	public static String dir(File baseDir, String id) {
-		return baseDir.getAbsolutePath() + File.separator + "encounters" + File.separator + subdir(id);
-	}
+    //like above, but can pass a File in for base
+    public static String dir(File baseDir, String id) {
+        return baseDir.getAbsolutePath() + File.separator + "encounters" + File.separator + subdir(id);
+    }
 
 
-	//subdir() is kind of a utility function, which can be called as enc.subdir() or Encounter.subdir(IDSTRING) as needed
-	public String subdir() {
-		return subdir(this.getEncounterNumber());
-	}
+    //subdir() is kind of a utility function, which can be called as enc.subdir() or Encounter.subdir(IDSTRING) as needed
+    public String subdir() {
+        return subdir(this.getEncounterNumber());
+    }
 
-	public static String subdir(String id) {
-		String d = id;  //old-world
-		if (Util.isUUID(id)) {  //new-world
-			d = id.charAt(0) + File.separator + id.charAt(1) + File.separator + id;
-		}
-		return d;
-	}
+    public static String subdir(String id) {
+        String d = id;  //old-world
+        if (Util.isUUID(id)) {  //new-world
+            d = id.charAt(0) + File.separator + id.charAt(1) + File.separator + id;
+        }
+        return d;
+    }
+
+
+    public int getYear()
+    {
+        if (dateInMilliseconds == null) {
+            //
+            // I think I'm just being backwards compatible here. Not that I subscribe to this behavior.
+            //
+            return 0;
+        }
+
+        DateTime jodaTime = new DateTime(dateInMilliseconds);
+        return jodaTime.getYear();
+    }
+
+
+    public int getMonth()
+    {
+        if (dateInMilliseconds == null) {
+            //
+            // I think I'm just being backwards compatible here. Not that I subscribe to this behavior.
+            //
+            return -1;
+        }
+
+        DateTime jodaTime = new DateTime(dateInMilliseconds);
+        return jodaTime.getMonthOfYear();
+    }
+
+
+    public int getDay()
+    {
+        if (dateInMilliseconds == null) {
+            //
+            // I think I'm just being backwards compatible here. Not that I subscribe to this behavior.
+            //
+            return 0;
+        }
+
+        DateTime jodaTime = new DateTime(dateInMilliseconds);
+        return jodaTime.getDayOfMonth();
+    }
+
+
+    public int getHour()
+    {
+        if (dateInMilliseconds == null) {
+            //
+            // I think I'm just being backwards compatible here. Not that I subscribe to this behavior.
+            //
+            return 0;
+        }
+
+        DateTime jodaTime = new DateTime(dateInMilliseconds);
+        return jodaTime.getHourOfDay();
+    }
+
+
+    public int getMinutes()
+    {
+        if (dateInMilliseconds == null) {
+            //
+            // I think I'm just being backwards compatible here. Not that I subscribe to this behavior.
+            //
+            return 0;
+        }
+
+        DateTime jodaTime = new DateTime(dateInMilliseconds);
+        return jodaTime.getMinuteOfDay();
+    }
 
 
   /**
@@ -704,47 +783,67 @@ public class Encounter implements java.io.Serializable {
    * @see java.util.Date
    */
   public String getDate() {
-    String date = "";
-    String time = "";
-    if (year <= 0) {
-      return "Unknown";
-    } else if (month == -1) {
-      return Integer.toString(year);
-    }
+      if (dateInMilliseconds == null) {
+          return "Unknown";
+      }
 
-    if (hour != -1) {
-      String localMinutes=minutes;
-      if(localMinutes.length()==1){localMinutes="0"+localMinutes;}
-      time = String.format("%02d:%s", hour, localMinutes);
-    }
+      DateTime jodaTime = new DateTime(dateInMilliseconds);
+      int year = jodaTime.getYear();
+      int month = jodaTime.getMonthOfYear();
+      int hour = jodaTime.getHourOfDay();
+      int day = jodaTime.getDayOfMonth();
+      int minutes = jodaTime.getMinuteOfHour();
 
-    if (day > 0) {
-      date = String.format("%04d-%02d-%02d %s", year, month, day, time);
-    }
-    else if(month>-1) {
-      date = String.format("%04d-%02d %s", year, month, time);
-    }
-    else {
-      date = String.format("%04d %s", year, month, time);
-    }
+      String date = "";
+      String time = "";
+      if (year <= 0) {
+          return "Unknown";
+      } else if (month == -1) {
+          return Integer.toString(year);
+      }
 
-    return date;
+      if (hour != -1) {
+          if (minutes < 10) {
+              time = String.format("%02d:0%s", hour, minutes);
+          } else {
+              time = String.format("%02d:%s", hour, minutes);
+          }
+
+          if (day > 0) {
+              date = String.format("%04d-%02d-%02d %s", year, month, day, time);
+          } else if (month>-1) {
+              date = String.format("%04d-%02d %s", year, month, time);
+          } else {
+              date = String.format("%04d %s", year, month, time);
+          }
+      }
+
+      return date;
   }
 
   public String getShortDate() {
-    String date = "";
-    if (year <= 0) {
-      return "Unknown";
-    } else if (month == -1) {
-      return Integer.toString(year);
-    }
-    if (day > 0) {
-      date = String.format("%02d/%02d/%04d", day, month, year);
-    } else {
-      date = String.format("%02d/%04d", month, year);
-    }
+      if (dateInMilliseconds == null) {
+          return "Unknown";
+      }
 
-    return date;
+      DateTime jodaTime = new DateTime(dateInMilliseconds);
+      int year = jodaTime.getYear();
+      int month = jodaTime.getMonthOfYear();
+      int day = jodaTime.getDayOfMonth();
+
+      String date = "";
+      if (year <= 0) {
+          return "Unknown";
+      } else if (month == -1) {
+          return Integer.toString(year);
+      }
+      if (day > 0) {
+          date = String.format("%02d/%02d/%04d", day, month, year);
+      } else {
+          date = String.format("%02d/%04d", month, year);
+      }
+
+      return date;
   }
 
   /**
@@ -754,51 +853,6 @@ public class Encounter implements java.io.Serializable {
    */
   public String getSizeGuess() {
     return size_guess;
-  }
-
-  public void setDay(int day) {
-    this.day=day;
-    resetDateInMilliseconds();
-  }
-
-  public void setHour(int hour) {
-    this.hour=hour;
-    resetDateInMilliseconds();
-  }
-
-  public void setMinutes(String minutes) {
-    this.minutes=minutes;
-    resetDateInMilliseconds();
-  }
-
-  public String getMinutes() {
-    return minutes;
-  }
-
-  public int getHour() {
-    return hour;
-  }
-
-  public void setMonth(int month) {
-    this.month=month;
-    resetDateInMilliseconds();
-  }
-  public void setYear(int year) {
-    this.year=year;
-    resetDateInMilliseconds();
-  }
-
-
-  public int getDay() {
-    return day;
-  }
-
-  public int getMonth() {
-    return month;
-  }
-
-  public int getYear() {
-    return year;
   }
 
 
@@ -1043,7 +1097,7 @@ public class Encounter implements java.io.Serializable {
       Rray[0] = new com.reijns.I3S.Point2D(refsLeft.get(0).getTheSpot().getCentroidX(), refsLeft.get(0).getTheSpot().getCentroidY());
       Rray[1] = new com.reijns.I3S.Point2D(refsLeft.get(1).getTheSpot().getCentroidX(), refsLeft.get(1).getTheSpot().getCentroidY());
       Rray[2] = new com.reijns.I3S.Point2D(refsLeft.get(2).getTheSpot().getCentroidX(), refsLeft.get(2).getTheSpot().getCentroidY());
-      System.out.println("	I found three left reference points!");
+      System.out.println("    I found three left reference points!");
 
     } else {
       com.reijns.I3S.Point2D topLeft = new com.reijns.I3S.Point2D(getLeftmostSpot(), getHighestSpot());
@@ -1273,8 +1327,18 @@ public class Encounter implements java.io.Serializable {
       return decimalLatitude;
   }
 
+  public void setLatitude(final Double latitude)
+  {
+      decimalLatitude = latitude;
+  }
+
   public Double getLongitude() {
       return decimalLongitude;
+  }
+
+  public void setLongitude(final Double longitude)
+  {
+      decimalLongitude = longitude;
   }
 
   public boolean getOKExposeViaTapirLink() {
@@ -1435,7 +1499,7 @@ public class Encounter implements java.io.Serializable {
 
   public void setVerbatimEventDate(String vet) {
       if(vet!=null){this.verbatimEventDate = vet;}
-  	  else{this.verbatimEventDate=null;}
+        else{this.verbatimEventDate=null;}
   }
 
   public String getDynamicProperties() {
@@ -1541,7 +1605,7 @@ public class Encounter implements java.io.Serializable {
 
   public void setGenus(String newGenus) {
     if(newGenus!=null){genus = newGenus;}
-	else{genus=null;}
+    else{genus=null;}
   }
 
   public String getSpecificEpithet() {
@@ -1550,30 +1614,22 @@ public class Encounter implements java.io.Serializable {
 
   public void setSpecificEpithet(String newEpithet) {
     if(newEpithet!=null){specificEpithet = newEpithet;}
-	else{specificEpithet=null;}
+    else{specificEpithet=null;}
   }
 
   public String getPatterningCode(){ return patterningCode;}
   public void setPatterningCode(String newCode){this.patterningCode=newCode;}
 
-  public void resetDateInMilliseconds(){
-    if(year>0){
-      int localMonth=0;
-      if(month>0){localMonth=month-1;}
-      int localDay=1;
-      if(day>0){localDay=day;}
-      int localHour=0;
-      if(hour>-1){localHour=hour;}
-      int myMinutes=0;
-      try{myMinutes = Integer.parseInt(minutes);}catch(Exception e){}
-      GregorianCalendar gc=new GregorianCalendar(year, localMonth, localDay,localHour,myMinutes);
 
-      dateInMilliseconds = new Long(gc.getTimeInMillis());
-    }
-    else{dateInMilliseconds=null;}
+  public Long getDateInMilliseconds() {
+      return dateInMilliseconds;
   }
 
-  public java.lang.Long getDateInMilliseconds(){return dateInMilliseconds;}
+
+  public void setDateInMilliseconds(Long dateInMilliseconds)
+  {
+      this.dateInMilliseconds = dateInMilliseconds;
+  }
 
 
   public String getDecimalLatitude(){
@@ -1594,7 +1650,7 @@ public class Encounter implements java.io.Serializable {
   }
   public void setSubmitterProject(String newProject) {
       if(newProject!=null){submitterProject = newProject;}
-  	else{submitterProject=null;}
+      else{submitterProject=null;}
   }
 
     public String getSubmitterOrganization() {
@@ -1602,7 +1658,7 @@ public class Encounter implements java.io.Serializable {
     }
     public void setSubmitterOrganization(String newOrg) {
         if(newOrg!=null){submitterOrganization = newOrg;}
-    	else{submitterOrganization=null;}
+        else{submitterOrganization=null;}
     }
 
    // public List<DataCollectionEvent> getCollectedData(){return collectedData;}
@@ -1915,34 +1971,34 @@ public class Encounter implements java.io.Serializable {
     }
 
 
-	//convenience function to Collaboration permissions
-	public boolean canUserAccess(HttpServletRequest request) {
-		return Collaboration.canUserAccessEncounter(this, request);
-	}
+    //convenience function to Collaboration permissions
+    public boolean canUserAccess(HttpServletRequest request) {
+        return Collaboration.canUserAccessEncounter(this, request);
+    }
 
 
-	//this simple version makes some assumptions: you already have list of collabs, and it is not visible
-	public String collaborationLockHtml(ArrayList<Collaboration> collabs) {
-		Collaboration c = Collaboration.findCollaborationWithUser(this.getAssignedUsername(), collabs);
-		String collabClass = "pending";
-		if ((c == null) || (c.getState() == null)) {
-			collabClass = "new";
-		} else if (c.getState().equals(Collaboration.STATE_REJECTED)) {
-			collabClass = "blocked";
-		}
-		return "<div class=\"row-lock " + collabClass + " collaboration-button\" data-collabowner=\"" + this.getAssignedUsername() + "\" data-collabownername=\"" + this.getSubmitterName() + "\">&nbsp;</div>";
-	}
+    //this simple version makes some assumptions: you already have list of collabs, and it is not visible
+    public String collaborationLockHtml(ArrayList<Collaboration> collabs) {
+        Collaboration c = Collaboration.findCollaborationWithUser(this.getAssignedUsername(), collabs);
+        String collabClass = "pending";
+        if ((c == null) || (c.getState() == null)) {
+            collabClass = "new";
+        } else if (c.getState().equals(Collaboration.STATE_REJECTED)) {
+            collabClass = "blocked";
+        }
+        return "<div class=\"row-lock " + collabClass + " collaboration-button\" data-collabowner=\"" + this.getAssignedUsername() + "\" data-collabownername=\"" + this.getSubmitterName() + "\">&nbsp;</div>";
+    }
 
 
-	//pass in a Vector of Encounters, get out a list that the user can NOT see
-	public static Vector blocked(Vector encs, HttpServletRequest request) {
-		Vector blk = new Vector();
-		for (int i = 0; i < encs.size() ; i++) {
-			Encounter e = (Encounter) encs.get(i);
-			if (!e.canUserAccess(request)) blk.add(e);
-		}
-		return blk;
-	}
+    //pass in a Vector of Encounters, get out a list that the user can NOT see
+    public static Vector blocked(Vector encs, HttpServletRequest request) {
+        Vector blk = new Vector();
+        for (int i = 0; i < encs.size() ; i++) {
+            Encounter e = (Encounter) encs.get(i);
+            if (!e.canUserAccess(request)) blk.add(e);
+        }
+        return blk;
+    }
 
 
 /*
@@ -1958,71 +2014,47 @@ NOTE on "thumb.jpg" ... we only get one of these per encounter; and we do not ha
 this is a problem, as we cant make a thumb in refreshAssetFormats(req, spv) since we dont know if that is the "right" spv.
 thus, we have to treat it as a special case.
 */
-		public boolean refreshAssetFormats(String context, String baseDir) {
-			boolean ok = true;
-			//List<SinglePhotoVideo> allSPV = this.getImages();
-			boolean thumb = true;
-			for (SinglePhotoVideo spv : this.getImages()) {
-				ok &= this.refreshAssetFormats(context, baseDir, spv, thumb);
-				thumb = false;
-			}
-			return ok;
-		}
+        public boolean refreshAssetFormats(String context, String baseDir) {
+            boolean ok = true;
+            //List<SinglePhotoVideo> allSPV = this.getImages();
+            boolean thumb = true;
+            for (SinglePhotoVideo spv : this.getImages()) {
+                ok &= this.refreshAssetFormats(context, baseDir, spv, thumb);
+                thumb = false;
+            }
+            return ok;
+        }
 
-		//as above, but for specific SinglePhotoVideo
-		public boolean refreshAssetFormats(String context, String baseDir, SinglePhotoVideo spv, boolean doThumb) {
-			if (spv == null) return false;
-			String encDir = this.dir(baseDir);
+        //as above, but for specific SinglePhotoVideo
+        public boolean refreshAssetFormats(String context, String baseDir, SinglePhotoVideo spv, boolean doThumb) {
+            if (spv == null) return false;
+            String encDir = this.dir(baseDir);
 
-			boolean ok = true;
-			if (doThumb) ok &= spv.scaleTo(context, 100, 75, encDir + File.separator + "thumb.jpg");
-			//TODO some day this will be a structure/definition that lives in a config file or on MediaAsset, etc.  for now, ya get hard-coded
+            boolean ok = true;
+            if (doThumb) ok &= spv.scaleTo(context, 100, 75, encDir + File.separator + "thumb.jpg");
+            //TODO some day this will be a structure/definition that lives in a config file or on MediaAsset, etc.  for now, ya get hard-coded
 
-			//this will first try watermark version, then regular
-			ok &= (spv.scaleToWatermark(context, 250, 200, encDir + File.separator + spv.getDataCollectionEventID() + ".jpg", "") || spv.scaleTo(context, 250, 200, encDir + File.separator + spv.getDataCollectionEventID() + ".jpg"));
+            //this will first try watermark version, then regular
+            ok &= (spv.scaleToWatermark(context, 250, 200, encDir + File.separator + spv.getDataCollectionEventID() + ".jpg", "") || spv.scaleTo(context, 250, 200, encDir + File.separator + spv.getDataCollectionEventID() + ".jpg"));
 
-			ok &= spv.scaleTo(context, 1024, 768, encDir + File.separator + spv.getDataCollectionEventID() + "-mid.jpg");  //for use in VM tool etc. (bandwidth friendly?)
-			return ok;
-		}
-
-
-	//see also: future, MediaAssets
-	public String getThumbnailUrl(String context) {
-		List<SinglePhotoVideo> spvs = this.images;
-		if (spvs.size() < 1) return null;
-		return "/" + CommonConfiguration.getDataDirectoryName(context) + "/encounters/" + this.subdir() + "/thumb.jpg";
-	}
-
-	public boolean restAccess(HttpServletRequest request, JSONObject jsonobj) throws Exception {
-		ApiAccess access = new ApiAccess();
-System.out.println("hello i am in restAccess() on Encounter");
-
-		String fail = access.checkRequest(this, request, jsonobj);
-System.out.println("fail -----> " + fail);
-		if (fail != null) throw new Exception(fail);
-
-		//HashMap<String, String> perm = access.permissions(this, request);
-//System.out.println(perm);
-
-/*
-System.out.println("!!!----------------------------------------");
-System.out.println(request.getMethod());
-throw new Exception();
-*/
-		return true;
-	}
+            ok &= spv.scaleTo(context, 1024, 768, encDir + File.separator + spv.getDataCollectionEventID() + "-mid.jpg");  //for use in VM tool etc. (bandwidth friendly?)
+            return ok;
+        }
 
 
-/*  not really sure we need this now/yet
+    //see also: future, MediaAssets
+    public String getThumbnailUrl(String context) {
+        List<SinglePhotoVideo> spvs = this.images;
+        if (spvs.size() < 1) return null;
+        return "/" + CommonConfiguration.getDataDirectoryName(context) + "/encounters/" + this.subdir() + "/thumb.jpg";
+    }
 
-	public void refreshDependentProperties() {
-		this.resetDateInMilliseconds();
-//TODO could possibly do integrity check, re: individuals/occurrences linking?
-	}
+    public boolean restAccess(HttpServletRequest request, JSONObject jsonobj) throws Exception {
+        ApiAccess access = new ApiAccess();
 
-*/
-
-
-
+        String fail = access.checkRequest(this, request, jsonobj);
+        if (fail != null) throw new Exception(fail);
+        return true;
+    }
 }
 

@@ -1,9 +1,7 @@
 package org.ecocean.rest;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 class SimpleIndividual
 {
@@ -11,7 +9,6 @@ class SimpleIndividual
     private String nickname;
     private String sex;
     private String avatar;
-    private final List<SimpleEncounter> encounters = new ArrayList<SimpleEncounter>();
     private final List<SimplePhoto> photos = new ArrayList<SimplePhoto>();
 
 
@@ -68,28 +65,6 @@ class SimpleIndividual
 
     public List<SimplePhoto> getPhotos() {
         return photos;
-    }
-
-    public void addEncounter(final SimpleEncounter encounter) {
-        encounters.add(encounter);
-    }
-
-    public List<SimpleEncounter> getEncounters() {
-        return encounters;
-    }
-
-    public List<SimpleUser> getSubmitters() {
-        //
-        // Use a hash set to keep from getting duplicates
-        //
-        Set<SimpleUser> submitters = new HashSet<SimpleUser>();
-        for (SimpleEncounter encounter : encounters) {
-            if (encounter.getSubmitter() != null) {
-                submitters.add(encounter.getSubmitter());
-            }
-        }
-
-        return new ArrayList<SimpleUser>(submitters);
     }
 
     public String getAvatar() {
