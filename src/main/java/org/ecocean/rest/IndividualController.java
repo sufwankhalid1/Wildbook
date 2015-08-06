@@ -8,9 +8,6 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.ecocean.Encounter;
-import org.ecocean.MarkedIndividual;
-import org.ecocean.Shepherd;
 import org.ecocean.servlet.ServletUtilities;
 import org.ecocean.util.LogBuilder;
 import org.slf4j.Logger;
@@ -34,24 +31,12 @@ public class IndividualController
                                         final String id) throws DatabaseException
     {
         String context = ServletUtilities.getContext(request);
-        String configDir = ServletUtilities.getConfigDir(request);
-
-        Shepherd myShepherd = new Shepherd(context);
-        MarkedIndividual mi = myShepherd.getMarkedIndividual(id);
-
-        if (mi == null) {
-            return null;
-        }
 
         IndividualInfo indinfo = new IndividualInfo();
 
-        indinfo.individual = SimpleFactory.getIndividual(context, mi);
+        indinfo.individual = SimpleFactory.getIndividual(context, id);
         indinfo.photos = SimpleFactory.getIndividualPhotos(context, indinfo.individual.getId());
-
-        java.util.Iterator<Encounter> it = mi.getEncounters().iterator();
-        while (it.hasNext()) {
-            indinfo.addEncounter(SimpleFactory.getEncounter(context, configDir, it.next()));
-        }
+        indinfo.encounters = SimpleFactory.getIndividualEncounters(context, indinfo.individual);
 
         return indinfo;
     }
@@ -60,9 +45,9 @@ public class IndividualController
     @RequestMapping(value = "/user/get/{username}", method = RequestMethod.GET)
     public SimpleUser getUser(final HttpServletRequest request,
                               @PathVariable("username")
-                              final String username)
+                              final String username) throws DatabaseException
     {
-        return SimpleFactory.getUser(ServletUtilities.getContext(request), username);
+        return SimpleFactory.getUser(username);
     }
 
 
@@ -71,9 +56,7 @@ public class IndividualController
                                 @PathVariable("username")
                                 final String username) throws DatabaseException
     {
-        return SimpleFactory.getUserInfo(ServletUtilities.getContext(request),
-                                         ServletUtilities.getConfigDir(request),
-                                         username);
+        return SimpleFactory.getUserInfo(ServletUtilities.getContext(request), username);
     }
 
 
@@ -93,14 +76,14 @@ public class IndividualController
     public class IndividualInfo
     {
         public SimpleIndividual individual;
-        public List<SimpleEncounter> encounters = new ArrayList<SimpleEncounter>();
+        public List<SimpleEncounter> encounters;
         public List<SimplePhoto> photos;
 
-        public void addEncounter(final SimpleEncounter encounter) {
-            encounters.add(encounter);
-        }
-
         public List<SimpleUser> getSubmitters() {
+            if (encounters == null) {
+                return null;
+            }
+
             //
             // Use a hash set to keep from getting duplicates
             //

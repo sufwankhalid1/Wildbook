@@ -54,8 +54,8 @@ public class MediaAsset {
      * Look for an existing asset with the given store and path.  If
      * one exists, return it.  If not, create, save, and return one.
      */
-    protected static MediaAsset findOrCreate (Database db, AssetStore store,
-                                              Path path, AssetType type)
+    protected static MediaAsset findOrCreate (final Database db, final AssetStore store,
+                                              final Path path, final AssetType type)
     {
         try {
             MediaAsset ma = load(db, store, path);
@@ -75,7 +75,7 @@ public class MediaAsset {
     /**
      * To be called by AssetStore factory method.
      */
-    protected MediaAsset(AssetStore store, Path path, AssetType type)
+    protected MediaAsset(final AssetStore store, final Path path, final AssetType type)
     {
         this(NOT_SAVED, store, path, type);
     }
@@ -83,7 +83,7 @@ public class MediaAsset {
     /**
      * To be called by load().
      */
-    private MediaAsset(long id, AssetStore store, Path path, AssetType type)
+    private MediaAsset(final long id, final AssetStore store, final Path path, final AssetType type)
     {
         if (store == null) throw new IllegalArgumentException("Null store");
         if (path == null) throw new IllegalArgumentException("Null path");
@@ -159,7 +159,7 @@ public class MediaAsset {
     /**
      * Fetch a single asset from the database by id.
      */
-    public static MediaAsset load(Database db, long id)
+    public static MediaAsset load(final Database db, final long id)
         throws DatabaseException
     {
         if (id < 1) throw new IllegalArgumentException("bad id");
@@ -173,7 +173,7 @@ public class MediaAsset {
     /**
      * Fetch a single asset from the database by store and path.
      */
-    public static MediaAsset load(Database db, AssetStore store, Path path)
+    public static MediaAsset load(final Database db, final AssetStore store, final Path path)
         throws DatabaseException
     {
         if (store == null) throw new IllegalArgumentException("null store");
@@ -189,7 +189,7 @@ public class MediaAsset {
     /**
      * Fetch a single asset from the database.
      */
-    public static MediaAsset load(Database db, SqlWhereFormatter where)
+    public static MediaAsset load(final Database db, final SqlWhereFormatter where)
         throws DatabaseException
     {
         if (db == null)
@@ -201,22 +201,33 @@ public class MediaAsset {
 
         RecordSet rs = table.getRecordSet(where.getWhereClause(), 1);
         if (rs.next()) {
-            AssetStore store = AssetStore.load(db, rs.getLong("store"));
-            Path path = new File(rs.getString("path")).toPath();
-
-            return new MediaAsset(rs.getLong("id"),
-                                  store,
-                                  path,
-                                  AssetType.valueOf(rs.getString("type")));
+            return valueOf(rs);
         } else {
             return null;
         }
     }
 
+
+    public static MediaAsset valueOf(final RecordSet rs) throws DatabaseException
+    {
+        String pathstr = rs.getString("path");
+        if (pathstr == null) {
+            return null;
+        }
+
+        Path path = new File(pathstr).toPath();
+
+        return new MediaAsset(rs.getLong("id"),
+                              AssetStore.get(rs.getLong("store")),
+                              path,
+                              AssetType.valueOf(rs.getString("type")));
+    }
+
+
     /**
      * Store to the given database.
      */
-    public void save(Database db) throws DatabaseException {
+    public void save(final Database db) throws DatabaseException {
         Table table = db.getTable(TABLE_NAME);
 
         if (id == NOT_SAVED) {
@@ -237,7 +248,7 @@ public class MediaAsset {
     /**
      * Fill in formatter values from our properties.
      */
-    private void fillFormatter(SqlFormatter formatter) {
+    private void fillFormatter(final SqlFormatter formatter) {
         formatter.append("store", store.id);
         formatter.append("path", path.toString());
         formatter.append("type", type.name());
@@ -249,7 +260,7 @@ public class MediaAsset {
      *
      * @param db Database where the asset lives.
      */
-    public void delete(Database db) throws DatabaseException {
+    public void delete(final Database db) throws DatabaseException {
         if (id == NOT_SAVED) return;
 
         Table table = db.getTable(TABLE_NAME);

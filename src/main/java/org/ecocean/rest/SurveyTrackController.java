@@ -1,45 +1,32 @@
 package org.ecocean.rest;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.HashMap;
+import java.util.List;
 
+import javax.jdo.PersistenceManager;
 import javax.servlet.http.HttpServletRequest;
 
-import org.ecocean.ShepherdPMF;
-import org.ecocean.Shepherd;
-import org.ecocean.Util;
-import org.ecocean.SinglePhotoVideo;
-import org.ecocean.Point;
 import org.ecocean.Encounter;
 import org.ecocean.MarkedIndividual;
-import org.ecocean.servlet.ServletUtilities;
-import org.ecocean.survey.SurveyTrack;
-import org.ecocean.security.Stormpath;
+import org.ecocean.Point;
+import org.ecocean.Shepherd;
+import org.ecocean.SinglePhotoVideo;
+import org.ecocean.Util;
 import org.ecocean.media.MediaSubmission;
 import org.ecocean.media.MediaTag;
+import org.ecocean.security.Stormpath;
+import org.ecocean.servlet.ServletUtilities;
+import org.ecocean.survey.SurveyTrack;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.HttpStatus;
 
-import javax.jdo.*;
-
-import com.samsix.database.ConnectionInfo;
-import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
-import com.samsix.database.RecordSet;
-import com.samsix.database.SqlFormatter;
-import com.samsix.database.SqlInsertFormatter;
-import com.samsix.database.SqlUpdateFormatter;
-import com.samsix.database.SqlWhereFormatter;
-import com.samsix.database.Table;
-
-import com.stormpath.sdk.account.Account;
-import com.stormpath.sdk.account.AccountList;
 import com.stormpath.sdk.client.Client;
 
 @RestController
@@ -67,13 +54,13 @@ public class SurveyTrackController
 
     @RequestMapping(value = "/appendPoints/{surveyTrackId}", method = RequestMethod.POST)
     public ResponseEntity<SurveyTrack> appendPoints(final HttpServletRequest request,
-                                                    @RequestBody List<Point> points,
+                                                    @RequestBody final List<Point> points,
                                                     @PathVariable("surveyTrackId") final int surveyTrackId) {
 
         PersistenceManager pm = getPM(request);
         SurveyTrack track = null;
         try {
-          track = (SurveyTrack) pm.getObjectById(SurveyTrack.class, surveyTrackId);
+          track = pm.getObjectById(SurveyTrack.class, surveyTrackId);
         } catch (Exception ex) {
         }
 
@@ -93,13 +80,13 @@ public class SurveyTrackController
 
     @RequestMapping(value = "/appendMedia/{surveyTrackId}", method = RequestMethod.POST)
     public ResponseEntity<SurveyTrack> appendMedia(final HttpServletRequest request,
-                                                    @RequestBody List<SinglePhotoVideo> media,
+                                                    @RequestBody final List<SinglePhotoVideo> media,
                                                     @PathVariable("surveyTrackId") final int surveyTrackId) {
 
         PersistenceManager pm = getPM(request);
         SurveyTrack track = null;
         try {
-          track = (SurveyTrack) pm.getObjectById(SurveyTrack.class, surveyTrackId);
+          track = pm.getObjectById(SurveyTrack.class, surveyTrackId);
         } catch (Exception ex) {
         }
 
@@ -145,7 +132,7 @@ public class SurveyTrackController
 
         SinglePhotoVideo testSpv = null;
         try {
-            testSpv = (SinglePhotoVideo) pm.getObjectById(SinglePhotoVideo.class, matchMediaId);
+            testSpv = pm.getObjectById(SinglePhotoVideo.class, matchMediaId);
         } catch (Exception ex) {
             obj.put("error", "could not find match image with id " + matchMediaId);
             return obj;
@@ -153,7 +140,7 @@ public class SurveyTrackController
 
         Encounter enc = null;
         try {
-            enc = (Encounter) pm.getObjectById(Encounter.class, matchEncounterId);
+            enc = pm.getObjectById(Encounter.class, matchEncounterId);
         } catch (Exception ex) {
             obj.put("error", "could not find match encounter with id " + matchEncounterId);
             return obj;
@@ -169,7 +156,7 @@ public class SurveyTrackController
 
         MarkedIndividual ind = null;
         try {
-            ind = (MarkedIndividual) pm.getObjectById(MarkedIndividual.class, enc.getIndividualID());
+            ind = pm.getObjectById(MarkedIndividual.class, enc.getIndividualID());
         } catch (Exception ex) {
             //we dont care (or do we?) if we dont have an individual -- would we ever even match against an unknown encounter? i guess.
         }
@@ -191,7 +178,7 @@ public class SurveyTrackController
 
         String encUsername = enc.getSubmitterID();
         if ("N/A".equals(encUsername)) encUsername = null; //grrrr
-        SimpleUser photoUser = SimpleFactory.getAnyUser(context, ServletUtilities.getConfigDir(request), encUsername, enc.getSubmitterEmail(), true);
+        SimpleUser photoUser = SimpleFactory.getUser(encUsername);
         String mcaption = "Photo taken by " + photoUser.getFullName() + " in " + enc.getYear();
         if (!Util.isEmpty(enc.getLocationCode())) mcaption += " in " + enc.getLocationCode();
         match.put("matchCaption", mcaption + ".");
@@ -202,20 +189,20 @@ public class SurveyTrackController
             if (!ind.getNickName().equals("Unassigned")) name = ind.getNickName() + " (" + name + ")";
             match.put("link", "<a href=\"/individual/" + ind.getIndividualID() + "\">" + name + "</a>");
         }
-        
+
         obj.put("match", match);
 
         return obj;
     }
 
-    private HashMap<String,Object> getVoyageObj(HttpServletRequest request, int id) {
+    private HashMap<String,Object> getVoyageObj(final HttpServletRequest request, final int id) throws DatabaseException {
         if (id < 1) return null;
         String context = "context0";
         context = ServletUtilities.getContext(request);
         PersistenceManager pm = getPM(request);
         SurveyTrack track = null;
         try {
-            track = (SurveyTrack) pm.getObjectById(SurveyTrack.class, id);
+            track = pm.getObjectById(SurveyTrack.class, id);
         } catch (Exception ex) {
         }
         HashMap<String,Object> obj = new HashMap<String,Object>();
@@ -230,13 +217,12 @@ public class SurveyTrackController
                 HashMap<Long,SimpleUser> contribMap = new HashMap<Long,SimpleUser>();
                 for (MediaSubmission m : sources) {
                     //note: (in theory) there should be a stormpath user for every mediasubmission; so we should get it via username or email
-                    SimpleUser u = SimpleFactory.getAnyUser(context, ServletUtilities.getConfigDir(request), m.getUsername(), m.getEmail(), true);
+                    SimpleUser u = SimpleFactory.getUser(m.getUsername());
                     if (!contrib.contains(u)) contrib.add(u);
                     contribMap.put(m.getId(), u);
                     for (SinglePhotoVideo spv : m.getMedia()) {
                         if ((track.getMedia() != null) && track.getMedia().contains(spv)) {
                             HashMap h = new HashMap();
-                            System.out.println(SimpleFactory.getPhoto(context, spv));
                             h.put("image", SimpleFactory.getPhoto(context, spv));
                             h.put("mediaSubmissionSource", m.getId());
                             if (tags.get(spv) != null) h.put("tags", tags.get(spv));

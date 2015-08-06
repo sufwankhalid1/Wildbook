@@ -1,17 +1,11 @@
 package org.ecocean.rest;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
-import org.ecocean.Encounter;
-import org.ecocean.MarkedIndividual;
-import org.ecocean.Shepherd;
 import org.ecocean.ShepherdPMF;
 import org.ecocean.SinglePhotoVideo;
-import org.ecocean.User;
-import org.ecocean.Util;
-import org.ecocean.security.Stormpath;
+import org.ecocean.media.MediaAsset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,8 +14,6 @@ import com.samsix.database.DatabaseException;
 import com.samsix.database.RecordSet;
 import com.samsix.util.string.StringUtilities;
 import com.stormpath.sdk.account.Account;
-import com.stormpath.sdk.account.AccountList;
-import com.stormpath.sdk.client.Client;
 import com.stormpath.sdk.directory.CustomData;
 
 public class SimpleFactory {
@@ -33,18 +25,35 @@ public class SimpleFactory {
     }
 
 
-    public static SimpleUser getUser(final String context,
-                                     final String username) {
-        Shepherd myShepherd = new Shepherd(context);
-        User user = myShepherd.getUser(username);
+//    public static SimpleUser getUser(final String context,
+//                                     final String username) {
+//        Shepherd myShepherd = new Shepherd(context);
+//        User user = myShepherd.getUser(username);
+//
+//        if (user == null) {
+//            return null;
+//        }
+//
+//        return getUser(user);
+//    }
 
-        if (user == null) {
-            return null;
+
+    public static List<SimpleEncounter> getIndividualEncounters(final String context, final SimpleIndividual individual) throws DatabaseException
+    {
+        try (Database db = new Database(ShepherdPMF.getConnectionInfo())) {
+            String sql = "SELECT * FROM \"ENCOUNTER\" e WHERE \"INDIVIDUALID\" = " + StringUtilities.wrapQuotes(individual.getId());
+
+            List<SimpleEncounter> encounters = new ArrayList<SimpleEncounter>();
+
+            RecordSet rs;
+            rs = db.getRecordSet(sql);
+            while (rs.next()) {
+                encounters.add(readSimpleEncounter(individual, rs));
+            }
+
+            return encounters;
         }
-
-        return getUser(user);
     }
-
 
     public static List<SimplePhoto> getIndividualPhotos(final String context, final String individualId) throws DatabaseException
     {
@@ -70,7 +79,8 @@ public class SimpleFactory {
 
             rs = db.getRecordSet(sql);
             while (rs.next()) {
-                photos.add(getPhoto(context, readPhoto(rs)));
+//                photos.add(getPhoto(context, readPhoto(rs)));
+                photos.add(getPhoto(context, rs));
             }
 
             //
@@ -88,7 +98,7 @@ public class SimpleFactory {
                         break;
                     }
 
-                    SimplePhoto photo = getPhoto(context, readPhoto(rs));
+                    SimplePhoto photo = getPhoto(context, rs);
 
                     boolean addphoto = true;
                     for (SimplePhoto foto : photos) {
@@ -110,25 +120,42 @@ public class SimpleFactory {
     }
 
 
-    public static SimpleIndividual getIndividual(final String context,
-                                                 final MarkedIndividual mi) throws DatabaseException {
+//    public static SimpleIndividual getIndividual(final String context,
+//                                                 final MarkedIndividual mi) throws DatabaseException {
+//
+//        SimpleIndividual ind = new SimpleIndividual(mi.getIndividualID(), mi.getNickName());
+//        ind.setSex(mi.getSex());
+//        if (mi.getAvatar() != null) {
+//            ind.setAvatar(mi.getAvatar().asUrl(context));
+//        }
+//
+//        return ind;
+//    }
 
-        SimpleIndividual ind = new SimpleIndividual(mi.getIndividualID(), mi.getNickName());
-        ind.setSex(mi.getSex());
-        if (mi.getAvatar() != null) {
-            ind.setAvatar(mi.getAvatar().asUrl(context));
+
+    public static SimpleIndividual getIndividual(final String context, final String individualId) throws DatabaseException
+    {
+        try (Database db = new Database(ShepherdPMF.getConnectionInfo())) {
+            String sql;
+            RecordSet rs;
+            sql = "select * from \"MARKEDINDIVIDUAL\" mi"
+                    + " left outer join \"SINGLEPHOTOVIDEO\" spv on mi.\"AVATAR_DATACOLLECTIONEVENTID_OID\" = spv.\"DATACOLLECTIONEVENTID\""
+                    + " where \"INDIVIDUALID\" = " + StringUtilities.wrapQuotes(individualId);
+            rs = db.getRecordSet(sql);
+            if (rs.next()) {
+                return readSimpleIndividual(context, rs);
+            }
+
+            return null;
         }
-
-        return ind;
     }
 
 
     public static UserInfo getUserInfo(final String context,
-                                       final String configDir,
                                        final String username) throws DatabaseException
     {
         UserInfo userinfo;
-        userinfo = new UserInfo(SimpleFactory.getUser(context, username));
+        userinfo = new UserInfo(getUser(username));
 
         //
         // Add:
@@ -157,7 +184,7 @@ public class SimpleFactory {
             }
             rs = db.getRecordSet(sql);
             while (rs.next()) {
-                userinfo.addPhoto(getPhoto(context, readPhoto(rs)));
+                userinfo.addPhoto(getPhoto(context, rs));
             }
 
             //
@@ -173,7 +200,7 @@ public class SimpleFactory {
             }
             rs = db.getRecordSet(sql);
             while (rs.next()) {
-                userinfo.addPhoto(getPhoto(context, readPhoto(rs)));
+                userinfo.addPhoto(getPhoto(context, rs));
             }
 
             //
@@ -195,7 +222,7 @@ public class SimpleFactory {
                         break;
                     }
 
-                    userinfo.addPhoto(getPhoto(context, readPhoto(rs)));
+                    userinfo.addPhoto(getPhoto(context, rs));
                 }
             }
 
@@ -212,10 +239,10 @@ public class SimpleFactory {
             // 3) Encounters
             //
             sql = "select e.*, mi.*, spva.* from \"ENCOUNTER\" e"
-                    + " inner join \"ENCOUNTER_IMAGES\" ei on e.CATALOGNUMBER = ei.CATALOGNUMBER_OID"
-                    + " inner join \"SINGLE_PHOTO_VIDEO\" spv on ei.\"DATACOLLECTIONEVENTID_EID\" = spv.\"DATACOLLECTIONEVENTID\""
+                    + " inner join \"ENCOUNTER_IMAGES\" ei on e.\"CATALOGNUMBER\" = ei.\"CATALOGNUMBER_OID\""
+                    + " inner join \"SINGLEPHOTOVIDEO\" spv on ei.\"DATACOLLECTIONEVENTID_EID\" = spv.\"DATACOLLECTIONEVENTID\""
                     + " left outer join \"MARKEDINDIVIDUAL\" mi on e.\"INDIVIDUALID\" = mi.\"INDIVIDUALID\""
-                    + " left outer join \"SINGLE_PHOTO_VIDEO\" spva on mi.\"AVATAR_DATACOLLECTIONEVENTID_OID\" = spva.\"DATACOLLECTIONEVENTID\""
+                    + " left outer join \"SINGLEPHOTOVIDEO\" spva on mi.\"AVATAR_DATACOLLECTIONEVENTID_OID\" = spva.\"DATACOLLECTIONEVENTID\""
                     + whereRoot;
 
             if (logger.isDebugEnabled()) {
@@ -223,11 +250,7 @@ public class SimpleFactory {
             }
             rs = db.getRecordSet(sql);
             while (rs.next()) {
-                SimpleEncounter encounter = getEncounter(context, configDir, readEncounter(rs));
-                SimpleIndividual individual = readSimpleIndividual(context, rs);
-
-                encounter.setIndividual(individual);
-                userinfo.addEncounter(encounter);
+                userinfo.addEncounter(readSimpleEncounter(context, rs));
             }
 
         }
@@ -239,101 +262,182 @@ public class SimpleFactory {
     private static SimpleIndividual readSimpleIndividual(final String context,
                                                          final RecordSet rs) throws DatabaseException
     {
-        SimpleIndividual ind = new SimpleIndividual(rs.getString("INDIVIDUALID"),
-                                                    rs.getString("NICKNAME"));
+        String id = rs.getString("INDIVIDUALID");
+
+        if (id == null) {
+            return null;
+        }
+
+        SimpleIndividual ind = new SimpleIndividual(id, rs.getString("NICKNAME"));
         ind.setSex(rs.getString("SEX"));
 
-        SinglePhotoVideo spv = readPhoto(rs);
-        if (spv != null) {
-            ind.setAvatar(spv.asUrl(context));
+//        SinglePhotoVideo spv = readPhoto(rs);
+//        if (spv != null) {
+//            ind.setAvatar(spv.asUrl(context));
+//        }
+        SimplePhoto photo = getPhoto(context, rs);
+        if (photo != null) {
+            ind.setAvatar(photo.getUrl());
         }
 
         return ind;
     }
 
 
-    private static Encounter readEncounter(final RecordSet rs) throws DatabaseException
-    {
-        Encounter encounter = new Encounter();
+//    private static Encounter readEncounter(final RecordSet rs) throws DatabaseException
+//    {
+//        Encounter encounter = new Encounter();
+//
+//        encounter.setEncounterNumber(rs.getString("CATALOGNUMBER"));
+//        encounter.setDWCGlobalUniqueIdentifier(rs.getString("GUID"));
+//        encounter.setDateInMilliseconds(rs.getLong("DATEINMILLISECONDS"));
+//        encounter.setLocationID(rs.getString("LOCATIONID"));
+//        encounter.setLatitude(rs.getDoubleObj("DECIMALLATITUDE"));
+//        encounter.setLongitude(rs.getDoubleObj("DECIMALLONGITUDE"));
+//        encounter.setSubmitterName(rs.getString("SUBMITTERID"));
+//        encounter.setIndividualID(rs.getString("INDIVIDUALID"));
+//
+//        return encounter;
+//    }
 
-        encounter.setDWCGlobalUniqueIdentifier("GUID");
-        encounter.setDateInMilliseconds(rs.getLong("DATEINMILLISECONDS"));
-        encounter.setLocationID(rs.getString("LOCATIONID"));
+
+    private static SimpleEncounter readSimpleEncounter(final SimpleIndividual individual,
+                                                       final RecordSet rs) throws DatabaseException
+    {
+        String number = rs.getString("CATALOGNUMBER");
+        if (number == null) {
+            return null;
+        }
+
+        SimpleEncounter encounter = new SimpleEncounter(number, rs.getLong("DATEINMILLISECONDS"));
+
+        encounter.setLocationid(rs.getString("LOCATIONID"));
         encounter.setLatitude(rs.getDoubleObj("DECIMALLATITUDE"));
         encounter.setLongitude(rs.getDoubleObj("DECIMALLONGITUDE"));
-        encounter.setSubmitterName(rs.getString("SUBMITTERID"));
-        encounter.setIndividualID(rs.getString("INDIVIDUALID"));
+        encounter.setSubmitter(getUser(rs.getString("SUBMITTERID")));
+        encounter.setIndividual(individual);
 
         return encounter;
     }
 
-    private static SinglePhotoVideo readPhoto(final RecordSet rs) throws DatabaseException
+    private static SimpleEncounter readSimpleEncounter(final String context,
+                                                       final RecordSet rs) throws DatabaseException
     {
-        //
-        // TODO: Add Keywords
-        //
-        SinglePhotoVideo spv = new SinglePhotoVideo();
-        spv.setDataCollectionEventID(rs.getString("DATACOLLECTIONEVENTID"));
-        spv.setCopyrightOwner(rs.getString("COPYRIGHTOWNER"));
-        spv.setCopyrightStatement(rs.getString("COPYRIGHTSTATEMENT"));
-        spv.setFilename(rs.getString("FILENAME"));
-        spv.setFullFileSystemPath(rs.getString("FULLFILESYSTEMPATH"));
-        spv.setSubmitter(rs.getString("SUBMITTER"));
-
-        return spv;
+        return readSimpleEncounter(readSimpleIndividual(context, rs), rs);
     }
 
 
-    public static SimpleEncounter getEncounter(final String context, final String configDir, final Encounter encounter)
-    {
-        SimpleEncounter se = new SimpleEncounter(encounter.getDWCGlobalUniqueIdentifier(),
-                                                 encounter.getDateInMilliseconds());
+//    private static SinglePhotoVideo readPhoto(final RecordSet rs) throws DatabaseException
+//    {
+//        //
+//        // TODO: Add Keywords
+//        //
+//        SinglePhotoVideo spv = new SinglePhotoVideo();
+//        spv.setDataCollectionEventID(rs.getString("DATACOLLECTIONEVENTID"));
+//        spv.setCopyrightOwner(rs.getString("COPYRIGHTOWNER"));
+//        spv.setCopyrightStatement(rs.getString("COPYRIGHTSTATEMENT"));
+//        spv.setFilename(rs.getString("FILENAME"));
+//        spv.setFullFileSystemPath(rs.getString("FULLFILESYSTEMPATH"));
+//        spv.setSubmitter(rs.getString("SUBMITTER"));
+//
+//        return spv;
+//    }
 
-        se.setLocationid(encounter.getLocationID());
-        se.setVerbatimLocation(encounter.getLocation());
-        se.setLatitude(encounter.getLatitude());
-        se.setLongitude(encounter.getLongitude());
 
-        Client client = Stormpath.getClient(configDir);
-        AccountList accounts = Stormpath.getAccounts(client, encounter.getSubmitterID());
+//    public static SimpleUser getUser(final String context, final String configDir, final String username) throws DatabaseException
+//    {
+//        Client client = Stormpath.getClient(configDir);
+//        AccountList accounts = Stormpath.getAccounts(client, username);
+//
+//        if (accounts.getSize() < 1) {
+//            return getUser(username);
+//        }
+//
+//        return getStormpathUser(accounts.iterator().next());
+//    }
 
-        if (accounts.getSize() < 1) {
-            Shepherd myShepherd = new Shepherd(context);
-            User user = myShepherd.getUser(encounter.getSubmitterID());
 
-            if (user != null) {
-                se.setSubmitter(getUser(user));
-            }
-        } else {
-            Account account = accounts.iterator().next();
-            se.setSubmitter(getStormpathUser(account));
-        }
-
-        return se;
-    }
+//    public static SimpleEncounter getEncounter(final String context, final String configDir, final Encounter encounter) throws DatabaseException
+//    {
+//        SimpleEncounter se = new SimpleEncounter(encounter.getDWCGlobalUniqueIdentifier(),
+//                                                 encounter.getDateInMilliseconds());
+//        se.setLocationid(encounter.getLocationID());
+//        se.setVerbatimLocation(encounter.getLocation());
+//        se.setLatitude(encounter.getLatitude());
+//        se.setLongitude(encounter.getLongitude());
+//
+//        se.setSubmitter(getUser(encounter.getSubmitterID()));
+//
+//        return se;
+//    }
 
 
     public static SimplePhoto getPhoto(final String context,
                                        final SinglePhotoVideo spv)
     {
-        SimplePhoto sp = new SimplePhoto(spv.getDataCollectionEventID(),
-                                         spv.asUrl(context));
-        return sp;
+        return new SimplePhoto(spv.getDataCollectionEventID(), spv.asUrl(context));
     }
 
 
-    public static SimpleUser getUser(final User user)
+    public static SimplePhoto getPhoto(final String context, final RecordSet rs) throws DatabaseException
     {
-        SimpleUser su = new SimpleUser(user.getUsername(), user.getEmailAddress());
-
-        if (user.getUserImage() != null) {
-            su.setAvatar(user.getUserImage().webPath().getFile());
+        String id = rs.getString("DATACOLLECTIONEVENTID");
+        if (id == null) {
+            return null;
         }
 
-        su.setAffiliation(user.getAffiliation());
-        su.setFullName(user.getFullName());
+        String url = SinglePhotoVideo.getUrl(context, rs.getString("FULLFILESYSTEMPATH"), rs.getString("FILENAME"));
+        return new SimplePhoto(id, url);
 
-        return su;
+    }
+
+
+//    public static SimpleUser getUser(final User user)
+//    {
+//        SimpleUser su = new SimpleUser(user.getUsername(), user.getEmailAddress());
+//
+//        if (user.getUserImage() != null) {
+//            su.setAvatar(user.getUserImage().webPath().getFile());
+//        }
+//
+//        su.setAffiliation(user.getAffiliation());
+//        su.setFullName(user.getFullName());
+//
+//        return su;
+//    }
+
+
+    public static SimpleUser getUser(final String username) throws DatabaseException
+    {
+        try (Database db = new Database(ShepherdPMF.getConnectionInfo())) {
+            String sql;
+            sql = "select * from \"USERS\" u"
+                    + " LEFT OUTER JOIN mediaasset ma ON ma.id = u.\"USERIMAGEID\""
+                    + " WHERE u.\"USERNAME\" = " + StringUtilities.wrapQuotes(username);
+
+            if (logger.isDebugEnabled()) {
+                logger.debug(sql);
+            }
+
+            RecordSet rs;
+            rs = db.getRecordSet(sql);
+            if (rs.next()) {
+                SimpleUser su = new SimpleUser(rs.getString("USERNAME"), rs.getString("EMAILADDRESS"));
+
+                MediaAsset ma = MediaAsset.valueOf(rs);
+
+                if (ma != null) {
+                    su.setAvatar(ma.webPath().getFile());
+                }
+
+                su.setAffiliation(rs.getString("AFFILIATION"));
+                su.setFullName(rs.getString("FULLNAME"));
+
+                return su;
+            }
+
+            return null;
+        }
     }
 
 
@@ -348,57 +452,4 @@ public class SimpleFactory {
 
         return su;
     }
-
-    /*
-        TODO currently kind of experimental.  the idea is to pass in either ONE or BOTH of a username/email pair and get *some*
-        kind of user out, including (optionally) a sort of place holder "unknown" user (which will just return null if returnUnknownUser is false
-    */
-    //note: this *favors* Stormpath ... is this cool?
-    public static SimpleUser getAnyUser(final String context, final String configDir,
-                                        final String username, final String email, final boolean returnUnknownUser) {
-        SimpleUser user = null;
-        if (returnUnknownUser) {
-            user = new SimpleUser(null, null);
-            user.setAffiliation("Unknown"); //???
-            user.setFullName("Unknown");
-            //user.setAvatar(SOME GENERIC THING HERE);  //TODO
-        }
-        if (Util.isEmpty(username) && Util.isEmpty(email)) return user;
-
-        Client client = Stormpath.getClient(configDir);
-        if (client != null) {
-            HashMap<String, Object> q = new HashMap<String, Object>();
-            if (!Util.isEmpty(username)) {
-                q.put("username", username);
-            } else {
-                q.put("email", email);
-            }
-            AccountList accounts = Stormpath.getAccounts(client, q);
-            if (accounts.getSize() > 0) {
-                Account account = accounts.iterator().next();
-                return getStormpathUser(account);
-            }
-        }
-
-        Shepherd myShepherd = new Shepherd(context);
-        User wu = null;
-        if (!Util.isEmpty(username)) {
-            wu = myShepherd.getUser(username);
-        } else {
-            wu = myShepherd.getUserByEmailAddress(email);
-        }
-        if (wu != null) return getUser(wu);
-
-        //if we fall thru here, we have no user; but may be able to give a *little* info on the UnknownUser
-        if (!returnUnknownUser) return null;
-        String name = username;
-        if (Util.isEmpty(username)) name = email;
-        if (!Util.isEmpty(name)) {
-            //censor any email address (or email-as-username)
-            if ((name.length() > 6) && (name.indexOf("@") > -1)) name = name.substring(0,3) + ".." + name.substring(name.length() - 2);
-            user.setFullName(name);
-        }
-        return user;
-    }
-
 }

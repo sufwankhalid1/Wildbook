@@ -44,19 +44,19 @@ public class SinglePhotoVideo extends DataCollectionEvent {
   /*
    * Required constructor for instance creation
    */
-  public SinglePhotoVideo(String correspondingEncounterNumber, String filename, String fullFileSystemPath) {
+  public SinglePhotoVideo(final String correspondingEncounterNumber, final String filename, final String fullFileSystemPath) {
     super(correspondingEncounterNumber, type);
     this.filename = filename;
     this.fullFileSystemPath = fullFileSystemPath;
   }
 
-  public SinglePhotoVideo(String correspondingEncounterNumber, File file) {
+  public SinglePhotoVideo(final String correspondingEncounterNumber, final File file) {
     super(correspondingEncounterNumber, type);
     this.filename = file.getName();
     this.fullFileSystemPath = file.getAbsolutePath();
   }
 
-    public SinglePhotoVideo(Encounter enc, FileItem formFile, String context, String dataDir) throws Exception {
+    public SinglePhotoVideo(final Encounter enc, final FileItem formFile, final String context, final String dataDir) throws Exception {
 //TODO FUTURE: should use context to find out METHOD of storage (e.g. remote, amazon, etc) and switch accordingly?
     super(enc.getEncounterNumber(), type);
 
@@ -92,12 +92,12 @@ System.out.println("full path??? = " + this.fullFileSystemPath + " WRITTEN!");
   }
 
 
-    public String asUrl(String context) {
-        return this.urlDir(context) + "/" + this.filename;
+    public String asUrl(final String context) {
+        return getUrl(context, this.fullFileSystemPath, this.filename);
     }
 
     //old way, relied on being encounter-based  USE ABOVE!
-    public String asUrl(Encounter enc, String baseDir) {
+    public String asUrl(final Encounter enc, final String baseDir) {
     System.out.println("*** OLD SinglePhotoVideo.asUrl(enc, baseDir) being called! please update to .asUrl(context)");
         return "/" + enc.dir(baseDir) + "/" + this.filename;
     }
@@ -110,23 +110,41 @@ System.out.println("full path??? = " + this.fullFileSystemPath + " WRITTEN!");
     }
 */
 
-    public String urlDir(String context) {
-        File d = this.fullDir();
-        if (d == null) return null;
-        String baseDir = CommonConfiguration.getDataDirectoryName(context);
-        int i = d.toString().indexOf(baseDir);
-        if (i < 0) {
-            System.out.println("weird, SinglePhotoVideo.urlDir() could not find baseDir=" + baseDir + " in fullDir=" + d.toString());
-            return d.toString();
+    public static String getUrl(final String context, final String fullFileSystemPath, final String filename)
+    {
+        return getUrlDir(context, fullFileSystemPath) + "/" + filename;
+    }
+
+
+    private static String getUrlDir(final String context, final String fullFileSystemPath)
+    {
+        if (fullFileSystemPath == null) {
+            return null;
         }
-        if (i == 0) i = 1;  //"should never happen", but meh
-        return d.toString().substring(i - 1);
+
+        File dir = new File(fullFileSystemPath).getParentFile();
+
+        String baseDir = CommonConfiguration.getDataDirectoryName(context);
+        int index = dir.toString().indexOf(baseDir);
+        if (index < 0) {
+            System.out.println("weird, SinglePhotoVideo.urlDir() could not find baseDir=" + baseDir + " in fullDir=" + dir.toString());
+            return dir.toString();
+        }
+        if (index == 0) {
+            index = 1;  //"should never happen", but meh
+        }
+        return dir.toString().substring(index - 1);
+    }
+
+    public String urlDir(final String context) {
+        return getUrlDir(context, this.fullFileSystemPath);
     }
 
     public File fullDir() {
-        if (this.fullFileSystemPath == null) return null;
-        File f = new File(this.fullFileSystemPath);
-        return f.getParentFile();
+        if (this.fullFileSystemPath == null) {
+            return null;
+        }
+        return new File(this.fullFileSystemPath).getParentFile();
     }
 
   /*
@@ -139,16 +157,16 @@ System.out.println("full path??? = " + this.fullFileSystemPath + " WRITTEN!");
   */
 
   public String getFilename(){return filename;}
-  public void setFilename(String newName){this.filename=newName;}
+  public void setFilename(final String newName){this.filename=newName;}
 
   public String getFullFileSystemPath(){return fullFileSystemPath;}
-  public void setFullFileSystemPath(String newPath){this.fullFileSystemPath=newPath;}
+  public void setFullFileSystemPath(final String newPath){this.fullFileSystemPath=newPath;}
 
   public String getCopyrightOwner(){return copyrightOwner;}
-  public void setCopyrightOwner(String owner){copyrightOwner=owner;}
+  public void setCopyrightOwner(final String owner){copyrightOwner=owner;}
 
   public String getCopyrightStatement(){return copyrightStatement;}
-  public void setCopyrightStatement(String statement){copyrightStatement=statement;}
+  public void setCopyrightStatement(final String statement){copyrightStatement=statement;}
 
    //public String getThumbnailFilename(){return (this.getDataCollectionEventID()+".jpg");}
 
@@ -159,13 +177,13 @@ System.out.println("full path??? = " + this.fullFileSystemPath + " WRITTEN!");
   public void setThumbnailFullFileSystemPath(String newPath){this.thumbnailFullFileSystemPath=newPath;}
   */
 
-  public void addKeyword(Keyword dce){
+  public void addKeyword(final Keyword dce){
     if(keywords==null){keywords=new ArrayList<Keyword>();}
     if(!keywords.contains(dce)){keywords.add(dce);}
   }
-  public void removeKeyword(int num){keywords.remove(num);}
+  public void removeKeyword(final int num){keywords.remove(num);}
   public List<Keyword> getKeywords(){return keywords;}
-  public void removeKeyword(Keyword num){keywords.remove(num);}
+  public void removeKeyword(final Keyword num){keywords.remove(num);}
 
   public PatterningPassport getPatterningPassport() {
     if (patterningPassport == null) {
@@ -196,20 +214,20 @@ System.out.println("full path??? = " + this.fullFileSystemPath + " WRITTEN!");
   /**
    * @param patterningPassport the patterningPassport to set
    */
-  public void setPatterningPassport(PatterningPassport patterningPassport) {
+  public void setPatterningPassport(final PatterningPassport patterningPassport) {
     this.patterningPassport = patterningPassport;
   }
 
   public String getCorrespondingUsername(){return correspondingUsername;}
-  public void setCorrespondingUsername(String username){this.correspondingUsername=username;}
+  public void setCorrespondingUsername(final String username){this.correspondingUsername=username;}
 
   public String getCorrespondingStoryID(){return correspondingStoryID;}
-  public void setCorrespondingStoryID(String userID){this.correspondingStoryID=userID;}
+  public void setCorrespondingStoryID(final String userID){this.correspondingStoryID=userID;}
 
 
     //background scaling of the image to some target path
     // true = doing it (background); false = cannot do it (no external command support; not image)
-    public boolean scaleTo(String context, int width, int height, String targetPath) {
+    public boolean scaleTo(final String context, final int width, final int height, final String targetPath) {
         String cmd = CommonConfiguration.getProperty("imageResizeCommand", context);
 
         if ((cmd == null) || cmd.equals("")) {
@@ -227,7 +245,7 @@ System.out.println("full path??? = " + this.fullFileSystemPath + " WRITTEN!");
         return true;
     }
 
-    public boolean scaleToWatermark(String context, int width, int height, String targetPath, String watermark) {
+    public boolean scaleToWatermark(final String context, final int width, final int height, final String targetPath, final String watermark) {
         String cmd = CommonConfiguration.getProperty("imageWatermarkCommand", context);
         if ((cmd == null) || cmd.equals("")) {
             return false;
@@ -245,7 +263,7 @@ System.out.println("full path??? = " + this.fullFileSystemPath + " WRITTEN!");
     }
 
     @Override
-    public boolean equals(Object that) {
+    public boolean equals(final Object that) {
         if (that == null) return false;
         if (this == that) return true;
         if (!(that instanceof SinglePhotoVideo)) return false;
@@ -264,7 +282,7 @@ System.out.println("full path??? = " + this.fullFileSystemPath + " WRITTEN!");
         return submitter;
     }
 
-    public void setSubmitter(String submitter) {
+    public void setSubmitter(final String submitter) {
         this.submitter = submitter;
     }
 
