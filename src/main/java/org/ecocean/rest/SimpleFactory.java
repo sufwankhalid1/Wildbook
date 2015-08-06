@@ -115,7 +115,9 @@ public class SimpleFactory {
 
         SimpleIndividual ind = new SimpleIndividual(mi.getIndividualID(), mi.getNickName());
         ind.setSex(mi.getSex());
-        ind.setAvatar(mi.getAvatar().asUrl(context));
+        if (mi.getAvatar() != null) {
+            ind.setAvatar(mi.getAvatar().asUrl(context));
+        }
 
         return ind;
     }

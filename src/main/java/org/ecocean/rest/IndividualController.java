@@ -94,7 +94,7 @@ public class IndividualController
     {
         public SimpleIndividual individual;
         public List<SimpleEncounter> encounters = new ArrayList<SimpleEncounter>();
-        private List<SimplePhoto> photos;
+        public List<SimplePhoto> photos;
 
         public void addEncounter(final SimpleEncounter encounter) {
             encounters.add(encounter);
