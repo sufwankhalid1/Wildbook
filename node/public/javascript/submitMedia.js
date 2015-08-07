@@ -141,7 +141,7 @@ var submitMedia = (function () {
             //
             $scope.data = {agreeTerms: true};
 
-            app.configPromise.done(function() {
+            app.configPromise.then(function() {
                 //app.user = {username:"tomcat"};
                 $scope.media.username = (app.user) ? app.user.username : null;
             });
@@ -183,11 +183,10 @@ var submitMedia = (function () {
                 .then(function(mediaid) {
                     $(document.body).css({ 'cursor': 'default' });
                     return mediaid;
-                })
-                .fail(function(ex) {
+                }, function(ex) {
                      $(document.body).css({ 'cursor': 'default' });
                      alertplus.error(ex);
-                 });
+                });
             }
 
             //
@@ -414,7 +413,7 @@ var submitMedia = (function () {
     .controller('SubmissionFileUploadController',
         ['$scope', '$http',
          function ($scope, $http) {
-            app.configPromise.done(function() {
+            app.configPromise.then(function() {
                  $scope.options = {
     //                   url: "http://wildbook.happywhale.com/mediaupload"
     //                url: config.wildbook.url + "/mediaupload"
