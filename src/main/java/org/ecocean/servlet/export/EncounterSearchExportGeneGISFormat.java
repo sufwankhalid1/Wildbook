@@ -39,20 +39,20 @@ public class EncounterSearchExportGeneGISFormat extends HttpServlet{
 
 
   @Override
-public void init(ServletConfig config) throws ServletException {
+public void init(final ServletConfig config) throws ServletException {
       super.init(config);
     }
 
 
   @Override
-public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException,IOException {
+public void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException,IOException {
       doPost(request, response);
   }
 
 
 
   @Override
-public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+public void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException{
 
     //set the response
 
@@ -136,7 +136,7 @@ public void doPost(HttpServletRequest request, HttpServletResponse response) thr
           Encounter enc=(Encounter)rEncounters.get(i);
           String assembledString="";
           assembledString+=enc.getCatalogNumber();
-          if((enc.getIndividualID()!=null)&&(!enc.getIndividualID().equals("Unassigned"))){assembledString+=(","+enc.getIndividualID());}
+          if (enc.getIndividualID()!=null){assembledString+=(","+enc.getIndividualID());}
           //if(enc.getAlternateID()!=null){assembledString+=","+enc.getAlternateID();}
           else{assembledString+=",";}
 

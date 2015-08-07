@@ -4,25 +4,26 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Properties;
 import java.util.Vector;
-import java.util.Arrays;
-import org.ecocean.security.Collaboration;
+
 import javax.servlet.http.HttpServletRequest;
+
+import org.ecocean.security.Collaboration;
 
 /**
  * Whereas an Encounter is meant to represent one MarkedIndividual at one point in time and space, an Occurrence
  * is meant to represent several Encounters that occur in a natural grouping (e.g., a pod of dolphins). Ultimately
- * the goal of the Encounter class is to represent associations among MarkedIndividuals that are commonly 
+ * the goal of the Encounter class is to represent associations among MarkedIndividuals that are commonly
  * sighted together.
- * 
+ *
  * @author Jason Holmberg
  *
  */
 public class Occurrence implements java.io.Serializable{
-  
-  
-  
+
+
+
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = -7545783883959073726L;
   private ArrayList<Encounter> encounters;
@@ -37,88 +38,90 @@ public class Occurrence implements java.io.Serializable{
   private ArrayList<SinglePhotoVideo> media;
   public String genus;
   public String specificEpithet;
-  
-  
+
+
   //empty constructor used by the JDO enhancer
   public Occurrence(){}
-  
+
   /**
    * Class constructor.
-   * 
-   * 
+   *
+   *
    * @param occurrenceID A unique identifier for this occurrence that will become its primary key in the database.
-   * @param enc The first encounter to add to this occurrence. 
+   * @param enc The first encounter to add to this occurrence.
    */
-  public Occurrence(String occurrenceID, Encounter enc){
+  public Occurrence(final String occurrenceID, final Encounter enc){
     this.occurrenceID=occurrenceID;
     encounters=new ArrayList<Encounter>();
     encounters.add(enc);
-    
+
     //if((enc.getLocationID()!=null)&&(!enc.getLocationID().equals("None"))){this.locationID=enc.getLocationID();}
-    
+
   }
-  
-  public boolean addEncounter(Encounter enc){
+
+  public boolean addEncounter(final Encounter enc){
     if(encounters==null){encounters=new ArrayList<Encounter>();}
-    
+
     //prevent duplicate addition
     boolean isNew=true;
     for(int i=0;i<encounters.size();i++) {
-      Encounter tempEnc=(Encounter)encounters.get(i);
+      Encounter tempEnc=encounters.get(i);
       if(tempEnc.getEncounterNumber().equals(enc.getEncounterNumber())) {
         isNew=false;
       }
     }
-    
+
     if(isNew){encounters.add(enc);}
-    
+
     //if((locationID!=null) && (enc.getLocationID()!=null)&&(!enc.getLocationID().equals("None"))){this.locationID=enc.getLocationID();}
     return isNew;
-    
+
   }
-  
+
   public ArrayList<Encounter> getEncounters(){
     return encounters;
   }
-  
-  public void removeEncounter(Encounter enc){
+
+  public void removeEncounter(final Encounter enc){
     if(encounters!=null){
       encounters.remove(enc);
     }
   }
-  
+
   public int getNumberEncounters(){
     if(encounters==null) {return 0;}
     else{return encounters.size();}
   }
-  
-  public void setEncounters(ArrayList<Encounter> encounters){this.encounters=encounters;}
-  
+
+  public void setEncounters(final ArrayList<Encounter> encounters){this.encounters=encounters;}
+
   public ArrayList<String> getMarkedIndividualNamesForThisOccurrence(){
     ArrayList<String> names=new ArrayList<String>();
     try{
       int size=getNumberEncounters();
-    
+
       for(int i=0;i<size;i++){
         Encounter enc=encounters.get(i);
-        if((enc.getIndividualID()!=null)&&(!enc.getIndividualID().equals("Unassigned"))&&(!names.contains(enc.getIndividualID()))){names.add(enc.getIndividualID());}
+        if (enc.getIndividualID() != null && ! names.contains(enc.getIndividualID())) {
+            names.add(enc.getIndividualID());
+        }
       }
     }
     catch(Exception e){e.printStackTrace();}
     return names;
   }
-  
+
   public String getOccurrenceID(){return occurrenceID;}
-  
+
 
   public Integer getIndividualCount(){return individualCount;}
-  public void setIndividualCount(Integer count){
+  public void setIndividualCount(final Integer count){
       if(count!=null){individualCount = count;}
       else{individualCount = null;}
    }
-  
+
   public String getGroupBehavior(){return groupBehavior;}
-  public void setGroupBehavior(String behavior){
+  public void setGroupBehavior(final String behavior){
     if((behavior!=null)&&(!behavior.trim().equals(""))){
       this.groupBehavior=behavior;
     }
@@ -138,12 +141,12 @@ public class Occurrence implements java.io.Serializable{
     }
     return returnList;
   }
-  
+
   //you can choose the order of the EncounterDateComparator
-  public Encounter[] getDateSortedEncounters(boolean reverse) {
+  public Encounter[] getDateSortedEncounters(final boolean reverse) {
   Vector final_encs = new Vector();
   for (int c = 0; c < encounters.size(); c++) {
-    Encounter temp = (Encounter) encounters.get(c);
+    Encounter temp = encounters.get(c);
     final_encs.add(temp);
   }
 
@@ -156,7 +159,7 @@ public class Occurrence implements java.io.Serializable{
   Arrays.sort(encs2, dc);
   return encs2;
 }
-  
+
   /**
    * Returns any additional, general comments recorded for this Occurrence as a whole.
    *
@@ -170,42 +173,42 @@ public class Occurrence implements java.io.Serializable{
       return "None";
     }
   }
-  
+
   /**
    * Adds any general comments recorded for this Occurrence as a whole.
    *
    * @return a String of comments
    */
-  public void addComments(String newComments) {
+  public void addComments(final String newComments) {
     if ((comments != null) && (!(comments.equals("None")))) {
       comments += newComments;
     } else {
       comments = newComments;
     }
   }
-  
-  public Vector returnEncountersWithGPSData(boolean useLocales, boolean reverseOrder,String context) {
+
+  public Vector returnEncountersWithGPSData(final boolean useLocales, final boolean reverseOrder,final String context) {
     //if(unidentifiableEncounters==null) {unidentifiableEncounters=new Vector();}
     Vector haveData=new Vector();
     Encounter[] myEncs=getDateSortedEncounters(reverseOrder);
-    
+
     Properties localesProps = new Properties();
     if(useLocales){
       try {
         localesProps=ShepherdProperties.getProperties("locationIDGPS.properties", "",context);
-      } 
+      }
       catch (Exception ioe) {
         ioe.printStackTrace();
       }
     }
-    
+
     for(int c=0;c<myEncs.length;c++) {
       Encounter temp=myEncs[c];
       if((temp.getDWCDecimalLatitude()!=null)&&(temp.getDWCDecimalLongitude()!=null)) {
         haveData.add(temp);
       }
       else if(useLocales && (temp.getLocationID()!=null) && (localesProps.getProperty(temp.getLocationID())!=null)){
-        haveData.add(temp); 
+        haveData.add(temp);
       }
 
       }
@@ -213,19 +216,19 @@ public class Occurrence implements java.io.Serializable{
     return haveData;
 
   }
-  
-  
+
+
   public String getDWCDateLastModified() {
     return modified;
   }
 
-  public void setDWCDateLastModified(String lastModified) {
+  public void setDWCDateLastModified(final String lastModified) {
     modified = lastModified;
   }
-  
+
   /**
    * This method simply iterates through the encounters for the occurrence and returns the first Encounter.locationID that it finds or returns null.
-   * 
+   *
    * @return
    */
   public String getLocationID(){
@@ -236,9 +239,9 @@ public class Occurrence implements java.io.Serializable{
     }
     return null;
   }
-  
+
   //public void setLocationID(String newLocID){this.locationID=newLocID;}
-  
+
   public String getDateTimeCreated() {
     if (dateTimeCreated != null) {
       return dateTimeCreated;
@@ -246,13 +249,13 @@ public class Occurrence implements java.io.Serializable{
     return "";
   }
 
-  public void setDateTimeCreated(String time) {
+  public void setDateTimeCreated(final String time) {
     dateTimeCreated = time;
   }
-  
-  public ArrayList<String> getCorrespondingHaplotypePairsForMarkedIndividuals(Shepherd myShepherd){
+
+  public ArrayList<String> getCorrespondingHaplotypePairsForMarkedIndividuals(final Shepherd myShepherd){
     ArrayList<String> pairs = new ArrayList<String>();
-    
+
     ArrayList<String> names=getMarkedIndividualNamesForThisOccurrence();
     int numNames=names.size();
     for(int i=0;i<(numNames-1);i++){
@@ -262,38 +265,38 @@ public class Occurrence implements java.io.Serializable{
         String name2=names.get(i);
         MarkedIndividual indie2=myShepherd.getMarkedIndividual(name2);
         if((indie1.getHaplotype()!=null)&&(indie2.getHaplotype()!=null)){
-          
+
           //we have a haplotype pair,
           String haplo1=indie1.getHaplotype();
           String haplo2=indie2.getHaplotype();
-          
+
           if(haplo1.compareTo(haplo2)>0){pairs.add((haplo1+":"+haplo2));}
           else{pairs.add((haplo2+":"+haplo1));}
         }
-        
-         
+
+
       }
     }
-    
+
     return pairs;
   }
-  
-  
+
+
   public ArrayList<String> getAllAssignedUsers(){
     ArrayList<String> allIDs = new ArrayList<String>();
 
      //add an alt IDs for the individual's encounters
      int numEncs=encounters.size();
      for(int c=0;c<numEncs;c++) {
-       Encounter temp=(Encounter)encounters.get(c);
+       Encounter temp=encounters.get(c);
        if((temp.getAssignedUsername()!=null)&&(!allIDs.contains(temp.getAssignedUsername()))) {allIDs.add(temp.getAssignedUsername());}
      }
 
      return allIDs;
    }
-  
+
 	//convenience function to Collaboration permissions
-	public boolean canUserAccess(HttpServletRequest request) {
+	public boolean canUserAccess(final HttpServletRequest request) {
 		return Collaboration.canUserAccessOccurrence(this, request);
 	}
 }

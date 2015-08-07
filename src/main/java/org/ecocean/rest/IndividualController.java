@@ -43,7 +43,7 @@ public class IndividualController
 
 
     @RequestMapping(value = "/user/get/{username}", method = RequestMethod.GET)
-    public SimpleUser getUser(final HttpServletRequest request,
+    public SimpleBeing getUser(final HttpServletRequest request,
                               @PathVariable("username")
                               final String username) throws DatabaseException
     {

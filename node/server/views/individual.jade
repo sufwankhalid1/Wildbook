@@ -8,11 +8,14 @@ block css
 
 block content
     .maincontent
-        h1.has-icon.icon-happywhale= t("individual.meet", {individualId: data.info.individual.nickname + "(" + data.info.individual.id + ")"})
+        h1.has-icon.icon-happywhale= t("individual.meet", {individualId: data.info.individual.displayName})
         
         .container-fluid
             .col-md-2
-                img(src="#{config.wildbook.staticUrl}#{data.info.individual.avatar}" height="128px")
+                if data.info.individual.avatar
+                    img(src="#{config.wildbook.staticUrl}#{data.info.individual.avatar}" height="128px")
+                else
+                    img(src="/cust/images/img_whale.svg" height="128px")
             .col-md-10
                 .container-fluid.sight-stats
                     .row
@@ -53,10 +56,10 @@ block content
 
         h2= t("individual.contributors")
         hr
-        for user in data.info.submitters
+        for being in data.info.submitters
             ul.submitters
                 li
-                    include partials/user
+                    include partials/avatar
         hr
         h2= t("individual.sightings")
         hr

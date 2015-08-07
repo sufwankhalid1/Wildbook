@@ -19,15 +19,14 @@
 
 package org.ecocean.servlet;
 
-import org.dom4j.Document;
-import org.dom4j.DocumentHelper;
-import org.dom4j.Element;
-import org.ecocean.Encounter;
-import org.ecocean.Shepherd;
-import org.ecocean.CommonConfiguration;
-import org.ecocean.grid.MatchComparator;
-import org.ecocean.grid.MatchObject;
-import org.ecocean.grid.VertexPointMatch;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.Vector;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -36,24 +35,31 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import java.io.*;
-import java.util.Arrays;
-import java.util.Vector;
+import org.dom4j.Document;
+import org.dom4j.DocumentHelper;
+import org.dom4j.Element;
+import org.ecocean.CommonConfiguration;
+import org.ecocean.Encounter;
+import org.ecocean.Shepherd;
+import org.ecocean.grid.MatchComparator;
+import org.ecocean.grid.MatchObject;
+import org.ecocean.grid.VertexPointMatch;
 
 
 public class ScanResultsServlet extends HttpServlet {
 
 
-  public void init(ServletConfig config) throws ServletException {
+  @Override
+public void init(final ServletConfig config) throws ServletException {
     super.init(config);
   }
 
 
-  private static Object receiveObject(ObjectInputStream con) throws Exception {
+  private static Object receiveObject(final ObjectInputStream con) throws Exception {
     System.out.println("scanresultsServlet: I am about to read in the byte array!");
     Object obj = new Vector();
     try {
-      obj = (Object) con.readObject();
+      obj = con.readObject();
     } catch (java.lang.NullPointerException npe) {
       System.out.println("scanResultsServlet received an empty results set...no matches whatsoever.");
       return obj;
@@ -64,11 +70,12 @@ public class ScanResultsServlet extends HttpServlet {
   }
 
 
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+  @Override
+public void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
     doPost(request, response);
   }
 
-  public boolean writeXML(HttpServletRequest request, Vector results, String num, String newEncDate, String newEncShark, String newEncSize) {
+  public boolean writeXML(final HttpServletRequest request, final Vector results, final String num, final String newEncDate, final String newEncShark, final String newEncSize) {
     String context="context0";
     context=ServletUtilities.getContext(request);
     try {
@@ -138,7 +145,7 @@ public class ScanResultsServlet extends HttpServlet {
       }
 
       //prep for writing out the XML
-      
+
       //setup data dir
       String rootWebappPath = getServletContext().getRealPath("/");
       File webappsDir = new File(rootWebappPath).getParentFile();
@@ -172,7 +179,8 @@ public class ScanResultsServlet extends HttpServlet {
     }
   }
 
-  public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+  @Override
+public void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
 
     String context="context0";
     context=ServletUtilities.getContext(request);
@@ -192,7 +200,7 @@ public class ScanResultsServlet extends HttpServlet {
       num = request.getParameter("number");
       Encounter newEnc = myShepherd.getEncounter(num);
       newEncDate = newEnc.getDate();
-      newEncShark = newEnc.isAssignedToMarkedIndividual();
+      newEncShark = newEnc.getIndividualID();
       newEncSize = newEnc.getSize() + " meters";
 
     } catch (Exception jdoe) {
@@ -202,7 +210,7 @@ public class ScanResultsServlet extends HttpServlet {
     myShepherd.rollbackDBTransaction();
     ObjectInputStream inputFromApplet = null;
     try {
-      
+
       PrintWriter out = null;
       BufferedReader inTest = null;
 

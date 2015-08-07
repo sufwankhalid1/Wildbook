@@ -144,7 +144,7 @@ public class MarkedIndividual implements java.io.Serializable {
 
   public boolean addEncounter(final Encounter newEncounter, final String context) {
 
-      newEncounter.assignToMarkedIndividual(individualID);
+      newEncounter.setIndividualID(individualID);
 
       //get and therefore set the haplotype if necessary
       getHaplotype();
@@ -403,19 +403,11 @@ public class MarkedIndividual implements java.io.Serializable {
   }
 
   public String getNickName() {
-    if (nickName != null) {
       return nickName;
-    } else {
-      return "Unassigned";
-    }
   }
 
   public String getNickNamer() {
-    if (nickNamer != null) {
       return nickNamer;
-    } else {
-      return "Unknown";
-    }
   }
 
   /**

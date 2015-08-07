@@ -4,17 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserInfo {
-    private final SimpleUser user;
+    private final SimpleBeing user;
     private int totalPhotoCount = 0;
     private final List<SimpleEncounter> encounters = new ArrayList<SimpleEncounter>();
     private final List<SimplePhoto> photos = new ArrayList<SimplePhoto>();
 
-    public UserInfo(final SimpleUser user)
+    public UserInfo(final SimpleBeing user)
     {
         this.user = user;
     }
 
-    public SimpleUser getUser()
+    public SimpleBeing getUser()
     {
         return user;
     }

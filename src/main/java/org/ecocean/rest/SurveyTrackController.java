@@ -186,7 +186,7 @@ public class SurveyTrackController
             match.put("link", "unknown individual");
         } else {
             String name = ind.getIndividualID();
-            if (!ind.getNickName().equals("Unassigned")) name = ind.getNickName() + " (" + name + ")";
+            if (ind.getNickName() != null) name = ind.getNickName() + " (" + name + ")";
             match.put("link", "<a href=\"/individual/" + ind.getIndividualID() + "\">" + name + "</a>");
         }
 

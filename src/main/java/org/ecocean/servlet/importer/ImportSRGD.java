@@ -63,17 +63,17 @@ import com.oreilly.servlet.multipart.Part;
 public class ImportSRGD extends HttpServlet {
 
   @Override
-public void init(ServletConfig config) throws ServletException {
+public void init(final ServletConfig config) throws ServletException {
     super.init(config);
   }
 
   @Override
-public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+public void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
     doPost(request, response);
   }
 
   @Override
-public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+public void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
     String context="context0";
     context=ServletUtilities.getContext(request);
     Shepherd myShepherd = new Shepherd(context);
@@ -207,7 +207,7 @@ public void doPost(HttpServletRequest request, HttpServletResponse response) thr
 
               }
               else{
-                enc.setIndividualID("Unassigned");
+                enc.setIndividualID(null);
               }
 
               //line[2] is the latitude

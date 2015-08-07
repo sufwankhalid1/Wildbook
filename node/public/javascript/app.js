@@ -48,27 +48,35 @@ var configPromise = $.get("/config")
 
 app.configPromise = configPromise;
 
-app.userDiv = function(user) {
-    if (!user) {
+app.beingDiv = function(being) {
+    if (!being) {
         return null;
     }
 
-    var div = $('<div>').addClass("user-info");
+    var div = $('<div>').addClass("being-info");
     var avatar = $('<div>').attr("data-toggle", "tooltip")
             .attr("title", "")
-            .addClass("user-avatar")
-            .attr("data-original-title", user.displayName).tooltip();
+            .addClass("being-avatar")
+            .attr("data-original-title", being.displayName).tooltip();
     div.append(avatar);
 
+    var defaultImage = "/images/species/" + being.species + ".svg";
     var image;
-    if (user.avatar) {
-        image = $('<img>').attr("src", user.avatar)
-            .attr("onerror", "this.onerror=null;this.src=\'/cust/images/img_user_on.svg\'");
+    if (being.avatar) {
+        image = $('<img>').attr("src", being.avatar)
+            .attr("onerror", 'this.onerror=null;this.src="' + defaultImage + '"');
     } else {
-        image = $('<img>').attr("src", "/cust/images/img_user_on.svg");
+        image = $('<img>').attr("src", defaultImage);
     }
 
-    var link = $('<a>').attr("href", "/user/" + user.username);
+    var href;
+    if (being.species == "human") {
+        href = "/user/" + being.username;
+    } else {
+        href = "/individual/" + being.id;
+    }
+
+    var link = $('<a>').attr("href", href);
     link.append(image);
     avatar.append(link);
 

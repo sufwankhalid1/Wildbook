@@ -19,8 +19,8 @@
 
 package org.ecocean.servlet;
 
-import org.ecocean.*;
-import org.ecocean.genetics.*;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -28,23 +28,30 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import java.io.IOException;
-import java.io.PrintWriter;
+import org.ecocean.CommonConfiguration;
+import org.ecocean.Encounter;
+import org.ecocean.MarkedIndividual;
+import org.ecocean.Shepherd;
+import org.ecocean.genetics.MitochondrialDNAAnalysis;
+import org.ecocean.genetics.TissueSample;
 
 
 //Set alternateID for this encounter/sighting
 public class TissueSampleRemoveHaplotype extends HttpServlet {
 
-  public void init(ServletConfig config) throws ServletException {
+  @Override
+public void init(final ServletConfig config) throws ServletException {
     super.init(config);
   }
 
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+  @Override
+public void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
     doPost(request, response);
   }
 
-  public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-    
+  @Override
+public void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
+
     String context="context0";
     context=ServletUtilities.getContext(request);
     Shepherd myShepherd = new Shepherd(context);
@@ -57,24 +64,24 @@ public class TissueSampleRemoveHaplotype extends HttpServlet {
     myShepherd.beginDBTransaction();
     if ((request.getParameter("analysisID")!=null)&&(request.getParameter("encounter")!=null)&&(request.getParameter("sampleID")!=null)&& (!request.getParameter("sampleID").equals("")) && (myShepherd.isTissueSample(request.getParameter("sampleID"), request.getParameter("encounter")))&&(myShepherd.isEncounter(request.getParameter("encounter")))) {
       try {
-        
+
         Encounter enc = myShepherd.getEncounter(request.getParameter("encounter"));
         TissueSample genSample=myShepherd.getTissueSample(request.getParameter("sampleID"), request.getParameter("encounter"));
         MitochondrialDNAAnalysis mtDNA=myShepherd.getMitochondrialDNAAnalysis(request.getParameter("sampleID"), request.getParameter("encounter"), request.getParameter("analysisID"));
         genSample.removeGeneticAnalysis(mtDNA);
         enc.addComments("<p><em>" + request.getRemoteUser() + " on " + (new java.util.Date()).toString() + "</em><br />" + "Removed haplotype analysis ID "+request.getParameter("analysisID")+".<br />");
 
-        
-        myShepherd.throwAwayGeneticAnalysis(mtDNA);  
-        
+
+        myShepherd.throwAwayGeneticAnalysis(mtDNA);
+
       //check if this affects the MarkedIndividual.localHaplotypeReflection
-        if((enc.getIndividualID()!=null)&&(!enc.getIndividualID().equals("Unassigned"))){
+        if(enc.getIndividualID()!=null){
             MarkedIndividual indie=myShepherd.getMarkedIndividual(enc.getIndividualID());
             indie.doNotSetLocalHaplotypeReflection(null);
             indie.getHaplotype();
         }
-        
-      } 
+
+      }
       catch (Exception le) {
         locked = true;
         le.printStackTrace();
@@ -90,7 +97,7 @@ public class TissueSampleRemoveHaplotype extends HttpServlet {
 
         out.println("<p><a href=\"http://" + CommonConfiguration.getURLLocation(request) + "/encounters/encounter.jsp?number=" + request.getParameter("encounter") + "\">Return to encounter " + request.getParameter("encounter") + "</a></p>\n");
         out.println(ServletUtilities.getFooter(context));
-        } 
+        }
       else {
 
         out.println(ServletUtilities.getHeader(request));
@@ -113,5 +120,5 @@ public class TissueSampleRemoveHaplotype extends HttpServlet {
 
 
 }
-  
-  
+
+

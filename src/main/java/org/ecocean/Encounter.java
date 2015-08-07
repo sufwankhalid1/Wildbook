@@ -219,7 +219,7 @@ public class Encounter implements java.io.Serializable {
    * The Vector <code>additionalImages</code> must be a Vector of Blob objects
    *
    */
-  public Encounter(int day, int month, int year, int hour, int minutes, String size_guess, String location, String submitterName, String submitterEmail, List<SinglePhotoVideo> images) {
+  public Encounter(final int day, final int month, final int year, final int hour, final int minutes, final String size_guess, final String location, final String submitterName, final String submitterEmail, final List<SinglePhotoVideo> images) {
       this.verbatimLocality = location;
       this.recordedBy = submitterName;
       this.submitterEmail = submitterEmail;
@@ -229,7 +229,6 @@ public class Encounter implements java.io.Serializable {
 
       this.images = images;
       this.size_guess = size_guess;
-      this.individualID = "Unassigned";
 
       if (year > 0) {
           int localMonth=0;
@@ -272,11 +271,11 @@ public class Encounter implements java.io.Serializable {
    *
    * @return the array of superSpots, taken from the croppedImage, that make up the digital fingerprint for this encounter
    */
-  public void setSpots(ArrayList<SuperSpot> newSpots) {
+  public void setSpots(final ArrayList<SuperSpot> newSpots) {
     spots = newSpots;
   }
 
-  public void setRightSpots(ArrayList<SuperSpot> newSpots) {
+  public void setRightSpots(final ArrayList<SuperSpot> newSpots) {
     rightSpots = newSpots;
   }
 
@@ -323,7 +322,7 @@ public class Encounter implements java.io.Serializable {
   /**
    * Sets the recorded length of the shark for this encounter.
    */
-  public void setSize(Double mysize) {
+  public void setSize(final Double mysize) {
       if(mysize!=null){size = mysize;}
       else{size=null;}
 
@@ -346,7 +345,7 @@ public class Encounter implements java.io.Serializable {
    * Sets the units of the recorded size and depth of the shark for this encounter.
    * Acceptable entries are either "Feet" or "Meters"
    */
-  public void setMeasureUnits(String measure) {
+  public void setMeasureUnits(final String measure) {
     measurementUnit = measure;
   }
 
@@ -372,7 +371,7 @@ public class Encounter implements java.io.Serializable {
     return verbatimLocality;
   }
 
-  public void setLocation(String location) {
+  public void setLocation(final String location) {
     this.verbatimLocality = location;
   }
 
@@ -380,7 +379,7 @@ public class Encounter implements java.io.Serializable {
    * Sets the recorded sex of the shark in this encounter.
    * Acceptable values are "Male" or "Female"
    */
-  public void setSex(String thesex) {
+  public void setSex(final String thesex) {
     if(thesex!=null){sex = thesex;}
     else{sex=null;}
   }
@@ -403,7 +402,7 @@ public class Encounter implements java.io.Serializable {
     public boolean getMmaCompatible() {
         return mmaCompatible;
     }
-    public void setMmaCompatible(boolean b) {
+    public void setMmaCompatible(final boolean b) {
         mmaCompatible = b;
     }
 
@@ -414,7 +413,7 @@ public class Encounter implements java.io.Serializable {
   /**
    * Sets the initially submitted comments about markings and additional details on the shark.
    */
-  public void setComments(String newComments) {
+  public void setComments(final String newComments) {
     occurrenceRemarks = newComments;
   }
 
@@ -433,7 +432,7 @@ public class Encounter implements java.io.Serializable {
    *
    * @param newComments any additional comments to be added to the encounter
    */
-  public void addComments(String newComments) {
+  public void addComments(final String newComments) {
     if ((researcherComments != null) && (!(researcherComments.equals("None")))) {
       researcherComments += newComments;
     } else {
@@ -450,7 +449,7 @@ public class Encounter implements java.io.Serializable {
     return recordedBy;
   }
 
-  public void setSubmitterName(String newname) {
+  public void setSubmitterName(final String newname) {
     recordedBy = newname;
   }
 
@@ -463,7 +462,7 @@ public class Encounter implements java.io.Serializable {
     return submitterEmail;
   }
 
-  public void setSubmitterEmail(String newemail) {
+  public void setSubmitterEmail(final String newemail) {
     submitterEmail = newemail;
     this.hashedSubmitterEmail = StringUtilities.getHashOf(newemail);
   }
@@ -480,7 +479,7 @@ public class Encounter implements java.io.Serializable {
   /**
    * Sets the phone number of the person who submitted this encounter data.
    */
-  public void setSubmitterPhone(String newphone) {
+  public void setSubmitterPhone(final String newphone) {
     submitterPhone = newphone;
   }
 
@@ -496,7 +495,7 @@ public class Encounter implements java.io.Serializable {
   /**
    * Sets the mailing address of the person who submitted this encounter data.
    */
-  public void setSubmitterAddress(String address) {
+  public void setSubmitterAddress(final String address) {
     submitterAddress = address;
   }
 
@@ -512,7 +511,7 @@ public class Encounter implements java.io.Serializable {
   /**
    * Sets the name of the person who took the primaryImage this encounter.
    */
-  public void setPhotographerName(String name) {
+  public void setPhotographerName(final String name) {
     photographerName = name;
   }
 
@@ -528,7 +527,7 @@ public class Encounter implements java.io.Serializable {
   /**
    * Sets the e-mail address of the person who took the primaryImage this encounter.
    */
-  public void setPhotographerEmail(String email) {
+  public void setPhotographerEmail(final String email) {
     photographerEmail = email;
     this.hashedPhotographerEmail = StringUtilities.getHashOf(email);
   }
@@ -545,7 +544,7 @@ public class Encounter implements java.io.Serializable {
   /**
    * Sets the phone number of the person who took the primaryImage this encounter.
    */
-  public void setPhotographerPhone(String phone) {
+  public void setPhotographerPhone(final String phone) {
     photographerPhone = phone;
   }
 
@@ -561,14 +560,14 @@ public class Encounter implements java.io.Serializable {
   /**
    * Sets the mailing address of the person who took the primaryImage this encounter.
    */
-  public void setPhotographerAddress(String address) {
+  public void setPhotographerAddress(final String address) {
     photographerAddress = address;
   }
 
   /**
    * Sets the recorded depth of this encounter.
    */
-  public void setDepth(Double myDepth) {
+  public void setDepth(final Double myDepth) {
       if(myDepth!=null){maximumDepthInMeters = myDepth;}
       else{maximumDepthInMeters = null;}
   }
@@ -675,19 +674,19 @@ public class Encounter implements java.io.Serializable {
     }
 
 
-    public String dir(String baseDir) {
+    public String dir(final String baseDir) {
         return baseDir + File.separator + "encounters" + File.separator + this.subdir();
     }
 
 
     //like above, but class method so you pass the encID
-    public static String dir(String baseDir, String id) {
+    public static String dir(final String baseDir, final String id) {
         return baseDir + File.separator + "encounters" + File.separator + subdir(id);
     }
 
 
     //like above, but can pass a File in for base
-    public static String dir(File baseDir, String id) {
+    public static String dir(final File baseDir, final String id) {
         return baseDir.getAbsolutePath() + File.separator + "encounters" + File.separator + subdir(id);
     }
 
@@ -697,7 +696,7 @@ public class Encounter implements java.io.Serializable {
         return subdir(this.getEncounterNumber());
     }
 
-    public static String subdir(String id) {
+    public static String subdir(final String id) {
         String d = id;  //old-world
         if (Util.isUUID(id)) {  //new-world
             d = id.charAt(0) + File.separator + id.charAt(1) + File.separator + id;
@@ -870,7 +869,7 @@ public class Encounter implements java.io.Serializable {
    *
    *
    */
-  public void setLocationCode(String newLoc) {
+  public void setLocationCode(final String newLoc) {
     setLocationID(newLoc);
   }
 
@@ -886,14 +885,14 @@ public class Encounter implements java.io.Serializable {
   /**
    * Sets the String holding scarring information for the encounter
    */
-  public void setDistinguishingScar(String scar) {
+  public void setDistinguishingScar(final String scar) {
     distinguishingScar = scar;
   }
 
   /**
    * Sets the String documenting how the size of this animal was approximated.
    */
-  public void setSizeGuess(String newGuess) {
+  public void setSizeGuess(final String newGuess) {
     size_guess = newGuess;
   }
 
@@ -904,11 +903,11 @@ public class Encounter implements java.io.Serializable {
     return identificationRemarks;
   }
 
-  public void setMatchedBy(String matchType) {
+  public void setMatchedBy(final String matchType) {
     identificationRemarks = matchType;
   }
 
-  public void setIdentificationRemarks(String matchType) {
+  public void setIdentificationRemarks(final String matchType) {
     identificationRemarks = matchType;
   }
 
@@ -920,18 +919,8 @@ public class Encounter implements java.io.Serializable {
    *
    * @param num the unique integer to be used to uniquely identify this encoun ter in the database
    */
-  public void setEncounterNumber(String num) {
+  public void setEncounterNumber(final String num) {
     catalogNumber = num;
-  }
-
-  public String isAssignedToMarkedIndividual() {
-
-    return individualID;
-
-  }
-
-  public void assignToMarkedIndividual(String sharky) {
-    setIndividualID(sharky);
   }
 
   /*
@@ -958,7 +947,7 @@ public class Encounter implements java.io.Serializable {
     }
   }
 
-  public void setGPSLongitude(String newLong) {
+  public void setGPSLongitude(final String newLong) {
 
     gpsLongitude = newLong;
   }
@@ -971,7 +960,7 @@ public class Encounter implements java.io.Serializable {
     }
   }
 
-  public void setGPSLatitude(String newLat) {
+  public void setGPSLatitude(final String newLat) {
     gpsLatitude = newLat;
   }
 
@@ -991,7 +980,7 @@ public class Encounter implements java.io.Serializable {
     return spotImageFileName;
   }
 
-  public void setSpotImageFileName(String name) {
+  public void setSpotImageFileName(final String name) {
     spotImageFileName = name;
   }
 
@@ -1002,14 +991,14 @@ public class Encounter implements java.io.Serializable {
     return rightSpotImageFileName;
   }
 
-  public void setRightSpotImageFileName(String name) {
+  public void setRightSpotImageFileName(final String name) {
     rightSpotImageFileName = name;
   }
 
   //----------------
 
 
-  public void setSubmitterID(String username) {
+  public void setSubmitterID(final String username) {
     if(username!=null){submitterID = username;}
     else{submitterID=null;}
   }
@@ -1029,7 +1018,7 @@ public class Encounter implements java.io.Serializable {
     return interestedResearchers;
   }
 
-  public void addInterestedResearcher(String email) {
+  public void addInterestedResearcher(final String email) {
     interestedResearchers.add(email);
   }
 
@@ -1038,7 +1027,7 @@ public class Encounter implements java.io.Serializable {
     return approved;
   }
 
-  public void removeInterestedResearcher(String email) {
+  public void removeInterestedResearcher(final String email) {
     for (int i = 0; i < interestedResearchers.size(); i++) {
       String rName = interestedResearchers.get(i);
       if (rName.equals(email)) {
@@ -1182,11 +1171,11 @@ public class Encounter implements java.io.Serializable {
     return rightReferenceSpots;
   }
 
-  public void setLeftReferenceSpots(ArrayList<SuperSpot> leftReferenceSpots) {
+  public void setLeftReferenceSpots(final ArrayList<SuperSpot> leftReferenceSpots) {
     this.leftReferenceSpots = leftReferenceSpots;
   }
 
-  public void setRightReferenceSpots(ArrayList<SuperSpot> rightReferenceSpots) {
+  public void setRightReferenceSpots(final ArrayList<SuperSpot> rightReferenceSpots) {
     this.rightReferenceSpots = rightReferenceSpots;
   }
 
@@ -1195,7 +1184,7 @@ public class Encounter implements java.io.Serializable {
    * @param population array values to get the variance for
    * @return the variance
    */
-  public double variance(double[] population) {
+  public double variance(final double[] population) {
     long n = 0;
     double mean = 0;
     double s = 0.0;
@@ -1216,20 +1205,20 @@ public class Encounter implements java.io.Serializable {
    * @param population array values to get the standard deviation for
    * @return the standard deviation
    */
-  public double standard_deviation(double[] population) {
+  public double standard_deviation(final double[] population) {
     return Math.sqrt(variance(population));
   }
 
 
-  public void setNumLeftSpots(int numspots) {
+  public void setNumLeftSpots(final int numspots) {
     numSpotsLeft = numspots;
   }
 
-  public void setNumRightSpots(int numspots) {
+  public void setNumRightSpots(final int numspots) {
     numSpotsRight = numspots;
   }
 
-  public void setDWCGlobalUniqueIdentifier(String guid) {
+  public void setDWCGlobalUniqueIdentifier(final String guid) {
     this.guid = guid;
   }
 
@@ -1237,7 +1226,7 @@ public class Encounter implements java.io.Serializable {
     return guid;
   }
 
-  public void setDWCImageURL(String link) {
+  public void setDWCImageURL(final String link) {
     dwcImageURL = link;
   }
 
@@ -1245,7 +1234,7 @@ public class Encounter implements java.io.Serializable {
     return modified;
   }
 
-  public void setDWCDateLastModified(String lastModified) {
+  public void setDWCDateLastModified(final String lastModified) {
     modified = lastModified;
   }
 
@@ -1257,12 +1246,12 @@ public class Encounter implements java.io.Serializable {
     return dwcDateAddedLong;
   }
 
-  public void setDWCDateAdded(String m_dateAdded) {
+  public void setDWCDateAdded(final String m_dateAdded) {
     dwcDateAdded = m_dateAdded;
   }
 
 
- public void setDWCDateAdded(Long m_dateAdded) {
+ public void setDWCDateAdded(final Long m_dateAdded) {
     dwcDateAddedLong = m_dateAdded;
     //org.joda.time.DateTime dt=new org.joda.time.DateTime(dwcDateAddedLong.longValue());
     //DateTimeFormatter parser1 = ISODateTimeFormat.dateOptionalTimeParser();
@@ -1286,11 +1275,11 @@ public class Encounter implements java.io.Serializable {
 
    public Long getReleaseDateLong(){return releaseDateLong;}
 
-  public void setReleaseDate(Long releaseDate) {
+  public void setReleaseDate(final Long releaseDate) {
     this.releaseDateLong = releaseDate;
   }
 
-  public void setDWCDecimalLatitude(double lat) {
+  public void setDWCDecimalLatitude(final double lat) {
     if (lat == -9999.0) {
       decimalLatitude = null;
     } else {
@@ -1300,7 +1289,7 @@ public class Encounter implements java.io.Serializable {
 
 
 
-  public void setDWCDecimalLatitude(Double lat){
+  public void setDWCDecimalLatitude(final Double lat){
     if((lat!=null)&&(lat<=90)&&(lat>=-90)){
       this.decimalLatitude=lat;
     }
@@ -1310,7 +1299,7 @@ public class Encounter implements java.io.Serializable {
    if(decimalLatitude!=null){return Double.toString(decimalLatitude);}
      return null;
    }
-  public void setDWCDecimalLongitude(double longit){
+  public void setDWCDecimalLongitude(final double longit){
     if((longit>=-180)&&(longit<=180)){
       this.decimalLongitude=longit;
     }
@@ -1345,11 +1334,11 @@ public class Encounter implements java.io.Serializable {
     return okExposeViaTapirLink;
   }
 
-  public void setOKExposeViaTapirLink(boolean ok) {
+  public void setOKExposeViaTapirLink(final boolean ok) {
     okExposeViaTapirLink = ok;
   }
 
-  public void setAlternateID(String newID) {
+  public void setAlternateID(final String newID) {
     this.otherCatalogNumbers = newID;
   }
 
@@ -1367,7 +1356,7 @@ public class Encounter implements java.io.Serializable {
     return informothers;
   }
 
-  public void setInformOthers(String others) {
+  public void setInformOthers(final String others) {
     this.informothers = others;
     this.hashedInformOthers = StringUtilities.getHashOfCommaList(others);
   }
@@ -1376,7 +1365,7 @@ public class Encounter implements java.io.Serializable {
     return locationID;
   }
 
-  public void setLocationID(String newLocationID) {
+  public void setLocationID(final String newLocationID) {
     this.locationID = newLocationID.trim();
   }
 
@@ -1384,7 +1373,7 @@ public class Encounter implements java.io.Serializable {
     return maximumDepthInMeters;
   }
 
-  public void setMaximumDepthInMeters(Double newDepth) {
+  public void setMaximumDepthInMeters(final Double newDepth) {
     this.maximumDepthInMeters = newDepth;
   }
 
@@ -1392,7 +1381,7 @@ public class Encounter implements java.io.Serializable {
     return maximumElevationInMeters;
   }
 
-  public void setMaximumElevationInMeters(Double newElev) {
+  public void setMaximumElevationInMeters(final Double newElev) {
     this.maximumElevationInMeters = newElev;
   }
 
@@ -1401,7 +1390,7 @@ public class Encounter implements java.io.Serializable {
     return catalogNumber;
   }
 
-  public void setCatalogNumber(String newNumber) {
+  public void setCatalogNumber(final String newNumber) {
     this.catalogNumber = newNumber;
   }
 
@@ -1409,7 +1398,7 @@ public class Encounter implements java.io.Serializable {
     return verbatimLocality;
   }
 
-  public void setVerbatimLocality(String vlcl) {
+  public void setVerbatimLocality(final String vlcl) {
     this.verbatimLocality = vlcl;
   }
 
@@ -1417,12 +1406,8 @@ public class Encounter implements java.io.Serializable {
     return individualID;
   }
 
-  public void setIndividualID(String indy) {
-      if (indy == null) {
-          individualID=null;
-        } else {
-          individualID=indy;
-        }
+  public void setIndividualID(final String indy) {
+      individualID = indy;
   }
 
   /*
@@ -1437,17 +1422,17 @@ public class Encounter implements java.io.Serializable {
    */
 
   public double getDecimalLatitudeAsDouble(){return decimalLatitude.doubleValue();}
-  public void setDecimalLatitude(Double lat){this.decimalLatitude=lat;}
+  public void setDecimalLatitude(final Double lat){this.decimalLatitude=lat;}
 
   public double getDecimalLongitudeAsDouble(){return decimalLongitude.doubleValue();}
-  public void setDecimalLongitude(Double longy){this.decimalLongitude=longy;}
+  public void setDecimalLongitude(final Double longy){this.decimalLongitude=longy;}
 
 
   public String getOccurrenceRemarks() {
     return occurrenceRemarks;
   }
 
-  public void setOccurrenceRemarks(String remarks) {
+  public void setOccurrenceRemarks(final String remarks) {
     this.occurrenceRemarks = remarks;
   }
 
@@ -1455,7 +1440,7 @@ public class Encounter implements java.io.Serializable {
     return recordedBy;
   }
 
-  public void setRecordedBy(String submitterName) {
+  public void setRecordedBy(final String submitterName) {
     this.recordedBy = submitterName;
   }
 
@@ -1463,7 +1448,7 @@ public class Encounter implements java.io.Serializable {
     return otherCatalogNumbers;
   }
 
-  public void setOtherCatalogNumbers(String otherNums) {
+  public void setOtherCatalogNumbers(final String otherNums) {
     this.otherCatalogNumbers = otherNums;
   }
 
@@ -1471,7 +1456,7 @@ public class Encounter implements java.io.Serializable {
     return livingStatus;
   }
 
-  public void setLivingStatus(String status) {
+  public void setLivingStatus(final String status) {
     this.livingStatus = status;
   }
 
@@ -1480,7 +1465,7 @@ public class Encounter implements java.io.Serializable {
     return behavior;
   }
 
-  public void setBehavior(String beh) {
+  public void setBehavior(final String beh) {
     this.behavior = beh;
   }
 
@@ -1488,7 +1473,7 @@ public class Encounter implements java.io.Serializable {
     return eventID;
   }
 
-  public void setEventID(String id) {
+  public void setEventID(final String id) {
     this.eventID = id;
   }
 
@@ -1497,7 +1482,7 @@ public class Encounter implements java.io.Serializable {
   }
 
 
-  public void setVerbatimEventDate(String vet) {
+  public void setVerbatimEventDate(final String vet) {
       if(vet!=null){this.verbatimEventDate = vet;}
         else{this.verbatimEventDate=null;}
   }
@@ -1603,7 +1588,7 @@ public class Encounter implements java.io.Serializable {
     return genus;
   }
 
-  public void setGenus(String newGenus) {
+  public void setGenus(final String newGenus) {
     if(newGenus!=null){genus = newGenus;}
     else{genus=null;}
   }
@@ -1612,13 +1597,13 @@ public class Encounter implements java.io.Serializable {
     return specificEpithet;
   }
 
-  public void setSpecificEpithet(String newEpithet) {
+  public void setSpecificEpithet(final String newEpithet) {
     if(newEpithet!=null){specificEpithet = newEpithet;}
     else{specificEpithet=null;}
   }
 
   public String getPatterningCode(){ return patterningCode;}
-  public void setPatterningCode(String newCode){this.patterningCode=newCode;}
+  public void setPatterningCode(final String newCode){this.patterningCode=newCode;}
 
 
   public Long getDateInMilliseconds() {
@@ -1626,7 +1611,7 @@ public class Encounter implements java.io.Serializable {
   }
 
 
-  public void setDateInMilliseconds(Long dateInMilliseconds)
+  public void setDateInMilliseconds(final Long dateInMilliseconds)
   {
       this.dateInMilliseconds = dateInMilliseconds;
   }
@@ -1648,7 +1633,7 @@ public class Encounter implements java.io.Serializable {
   public String getSubmitterProject() {
       return submitterProject;
   }
-  public void setSubmitterProject(String newProject) {
+  public void setSubmitterProject(final String newProject) {
       if(newProject!=null){submitterProject = newProject;}
       else{submitterProject=null;}
   }
@@ -1656,7 +1641,7 @@ public class Encounter implements java.io.Serializable {
     public String getSubmitterOrganization() {
         return submitterOrganization;
     }
-    public void setSubmitterOrganization(String newOrg) {
+    public void setSubmitterOrganization(final String newOrg) {
         if(newOrg!=null){submitterOrganization = newOrg;}
         else{submitterOrganization=null;}
     }
@@ -1706,32 +1691,32 @@ public class Encounter implements java.io.Serializable {
     public void removeCollectedDataPoint(int num){collectedData.remove(num);}
     */
 
-    public void addTissueSample(TissueSample dce){
+    public void addTissueSample(final TissueSample dce){
       if(tissueSamples==null){tissueSamples=new ArrayList<TissueSample>();}
       if(!tissueSamples.contains(dce)){tissueSamples.add(dce);}
     }
-    public void removeTissueSample(int num){tissueSamples.remove(num);}
+    public void removeTissueSample(final int num){tissueSamples.remove(num);}
     public List<TissueSample> getTissueSamples(){return tissueSamples;}
-    public void removeTissueSample(TissueSample num){tissueSamples.remove(num);}
+    public void removeTissueSample(final TissueSample num){tissueSamples.remove(num);}
 
-    public void addSinglePhotoVideo(SinglePhotoVideo dce){
+    public void addSinglePhotoVideo(final SinglePhotoVideo dce){
       if(images==null){images=new ArrayList<SinglePhotoVideo>();}
       if(!images.contains(dce)){images.add(dce);}
     }
-    public void removeSinglePhotoVideo(int num){images.remove(num);}
+    public void removeSinglePhotoVideo(final int num){images.remove(num);}
     public List<SinglePhotoVideo> getSinglePhotoVideo(){return images;}
-    public void removeSinglePhotoVideo(SinglePhotoVideo num){images.remove(num);}
+    public void removeSinglePhotoVideo(final SinglePhotoVideo num){images.remove(num);}
 
 
 
-    public void addMeasurement(Measurement measurement){
+    public void addMeasurement(final Measurement measurement){
       if(measurements==null){measurements=new ArrayList<Measurement>();}
       if(!measurements.contains(measurement)){measurements.add(measurement);}
     }
-    public void removeMeasurement(int num){measurements.remove(num);}
+    public void removeMeasurement(final int num){measurements.remove(num);}
     public List<Measurement> getMeasurements(){return measurements;}
-    public void removeMeasurement(Measurement num){measurements.remove(num);}
-    public Measurement findMeasurementOfType(String type) {
+    public void removeMeasurement(final Measurement num){measurements.remove(num);}
+    public Measurement findMeasurementOfType(final String type) {
       List<Measurement> measurements = getMeasurements();
       if (measurements != null) {
         for (Measurement measurement : measurements) {
@@ -1743,14 +1728,14 @@ public class Encounter implements java.io.Serializable {
       return null;
     }
 
-    public void addMetalTag(MetalTag metalTag) {
+    public void addMetalTag(final MetalTag metalTag) {
       if (metalTags == null) {
         metalTags = new ArrayList<MetalTag>();
       }
       metalTags.add(metalTag);
     }
 
-    public void removeMetalTag(MetalTag metalTag) {
+    public void removeMetalTag(final MetalTag metalTag) {
       metalTags.remove(metalTag);
     }
 
@@ -1758,7 +1743,7 @@ public class Encounter implements java.io.Serializable {
       return metalTags;
     }
 
-    public MetalTag findMetalTagForLocation(String location) {
+    public MetalTag findMetalTagForLocation(final String location) {
       List<MetalTag> metalTags = getMetalTags();
       if (metalTags != null) {
         for (MetalTag metalTag : metalTags) {
@@ -1774,7 +1759,7 @@ public class Encounter implements java.io.Serializable {
       return acousticTag;
     }
 
-    public void setAcousticTag(AcousticTag acousticTag) {
+    public void setAcousticTag(final AcousticTag acousticTag) {
       this.acousticTag = acousticTag;
     }
 
@@ -1782,12 +1767,12 @@ public class Encounter implements java.io.Serializable {
       return satelliteTag;
     }
 
-    public void setSatelliteTag(SatelliteTag satelliteTag) {
+    public void setSatelliteTag(final SatelliteTag satelliteTag) {
       this.satelliteTag = satelliteTag;
     }
 
     public String getLifeStage(){return lifeStage;}
-    public void setLifeStage(String newStage) {
+    public void setLifeStage(final String newStage) {
       if(newStage!=null){lifeStage = newStage;}
       else{lifeStage=null;}
     }
@@ -1850,7 +1835,7 @@ public class Encounter implements java.io.Serializable {
 
     public List<SinglePhotoVideo> getImages(){return images;}
 
-    public boolean hasKeyword(Keyword word){
+    public boolean hasKeyword(final Keyword word){
      int imagesSize=images.size();
      for(int i=0;i<imagesSize;i++){
        SinglePhotoVideo image=images.get(i);
@@ -1861,7 +1846,7 @@ public class Encounter implements java.io.Serializable {
 
     public String getState(){return state;}
 
-    public void setState(String newState){this.state=newState;}
+    public void setState(final String newState){this.state=newState;}
 
     //DO NOT USE - LEGACY MIGRATION ONLY
     public boolean getApproved(){return approved;}
@@ -1883,7 +1868,7 @@ public class Encounter implements java.io.Serializable {
       return false;
     }
 
-    public boolean hasMeasurement(String type){
+    public boolean hasMeasurement(final String type){
       if((measurements!=null)&&(measurements.size()>0)){
         int numMeasurements=measurements.size();
         for(int i=0;i<numMeasurements;i++){
@@ -1894,7 +1879,7 @@ public class Encounter implements java.io.Serializable {
       return false;
     }
 
-    public boolean hasBiologicalMeasurement(String type){
+    public boolean hasBiologicalMeasurement(final String type){
       if((tissueSamples!=null)&&(tissueSamples.size()>0)){
         int numTissueSamples=tissueSamples.size();
         for(int i=0;i<numTissueSamples;i++){
@@ -1915,7 +1900,7 @@ public class Encounter implements java.io.Serializable {
      * @param type
      * @return
      */
-    public Measurement getMeasurement(String type){
+    public Measurement getMeasurement(final String type){
       if((measurements!=null)&&(measurements.size()>0)){
         int numMeasurements=measurements.size();
         for(int i=0;i<numMeasurements;i++){
@@ -1926,7 +1911,7 @@ public class Encounter implements java.io.Serializable {
       return null;
     }
 
-    public BiologicalMeasurement getBiologicalMeasurement(String type){
+    public BiologicalMeasurement getBiologicalMeasurement(final String type){
 
       if(tissueSamples!=null){int numTissueSamples=tissueSamples.size();
       for(int y=0;y<numTissueSamples;y++){
@@ -1949,19 +1934,19 @@ public class Encounter implements java.io.Serializable {
 
     public String getCountry(){return country;}
 
-    public void setCountry(String newCountry) {
+    public void setCountry(final String newCountry) {
       if(newCountry!=null){country = newCountry;}
       else{country=null;}
     }
 
-    public void setOccurrenceID(String vet) {
+    public void setOccurrenceID(final String vet) {
       if(vet!=null){this.occurrenceID = vet;}
       else{this.occurrenceID=null;}
   }
 
     public String getOccurrenceID(){return occurrenceID;}
 
-    public boolean hasSinglePhotoVideoByFileName(String filename){
+    public boolean hasSinglePhotoVideoByFileName(final String filename){
         int numImages=images.size();
         for(int i=0;i<numImages;i++){
           SinglePhotoVideo single=images.get(i);
@@ -1972,13 +1957,13 @@ public class Encounter implements java.io.Serializable {
 
 
     //convenience function to Collaboration permissions
-    public boolean canUserAccess(HttpServletRequest request) {
+    public boolean canUserAccess(final HttpServletRequest request) {
         return Collaboration.canUserAccessEncounter(this, request);
     }
 
 
     //this simple version makes some assumptions: you already have list of collabs, and it is not visible
-    public String collaborationLockHtml(ArrayList<Collaboration> collabs) {
+    public String collaborationLockHtml(final ArrayList<Collaboration> collabs) {
         Collaboration c = Collaboration.findCollaborationWithUser(this.getAssignedUsername(), collabs);
         String collabClass = "pending";
         if ((c == null) || (c.getState() == null)) {
@@ -1991,7 +1976,7 @@ public class Encounter implements java.io.Serializable {
 
 
     //pass in a Vector of Encounters, get out a list that the user can NOT see
-    public static Vector blocked(Vector encs, HttpServletRequest request) {
+    public static Vector blocked(final Vector encs, final HttpServletRequest request) {
         Vector blk = new Vector();
         for (int i = 0; i < encs.size() ; i++) {
             Encounter e = (Encounter) encs.get(i);
@@ -2014,7 +1999,7 @@ NOTE on "thumb.jpg" ... we only get one of these per encounter; and we do not ha
 this is a problem, as we cant make a thumb in refreshAssetFormats(req, spv) since we dont know if that is the "right" spv.
 thus, we have to treat it as a special case.
 */
-        public boolean refreshAssetFormats(String context, String baseDir) {
+        public boolean refreshAssetFormats(final String context, final String baseDir) {
             boolean ok = true;
             //List<SinglePhotoVideo> allSPV = this.getImages();
             boolean thumb = true;
@@ -2026,7 +2011,7 @@ thus, we have to treat it as a special case.
         }
 
         //as above, but for specific SinglePhotoVideo
-        public boolean refreshAssetFormats(String context, String baseDir, SinglePhotoVideo spv, boolean doThumb) {
+        public boolean refreshAssetFormats(final String context, final String baseDir, final SinglePhotoVideo spv, final boolean doThumb) {
             if (spv == null) return false;
             String encDir = this.dir(baseDir);
 
@@ -2043,13 +2028,13 @@ thus, we have to treat it as a special case.
 
 
     //see also: future, MediaAssets
-    public String getThumbnailUrl(String context) {
+    public String getThumbnailUrl(final String context) {
         List<SinglePhotoVideo> spvs = this.images;
         if (spvs.size() < 1) return null;
         return "/" + CommonConfiguration.getDataDirectoryName(context) + "/encounters/" + this.subdir() + "/thumb.jpg";
     }
 
-    public boolean restAccess(HttpServletRequest request, JSONObject jsonobj) throws Exception {
+    public boolean restAccess(final HttpServletRequest request, final JSONObject jsonobj) throws Exception {
         ApiAccess access = new ApiAccess();
 
         String fail = access.checkRequest(this, request, jsonobj);

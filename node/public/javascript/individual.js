@@ -22,11 +22,22 @@ var individualPage = (function () {
             encounters.forEach(function(encounter) {
                 if (encounter.latitude && encounter.longitude) {
                     var popup = $("<div>");
+
+                    if (encounter.individual) {
+                        popup.append(app.beingDiv(encounter.individual));
+                        popup.append($("<span>").addClass("sight-date-text").text(encounter.individual.displayName));
+                    } else {
+                        popup.append($("<span>").addClass("sight-date-text").text("<Unknown>"));
+                    }
+
+                    popup.append($("<br>"));
+                    popup.append("Sighted: ")
                     popup.append($("<span>").addClass("sight-date").text(moment(encounter.dateInMilliseconds).format('LL')));
                     popup.append($("<br>"));
                     popup.append($("<span>").addClass("sight-date-text").text(encounter.verbatimLocation));
                     popup.append($("<br>"));
-                    popup.append(app.userDiv(encounter.submitter));
+                    popup.append("by: ");
+                    popup.append(app.beingDiv(encounter.submitter));
                     latlngs.push({latlng: [encounter.latitude, encounter.longitude],
                                   popup: popup[0]});
                 }

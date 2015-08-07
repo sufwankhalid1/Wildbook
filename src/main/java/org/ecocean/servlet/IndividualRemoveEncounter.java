@@ -19,10 +19,8 @@
 
 package org.ecocean.servlet;
 
-import org.ecocean.CommonConfiguration;
-import org.ecocean.Encounter;
-import org.ecocean.MarkedIndividual;
-import org.ecocean.Shepherd;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -30,28 +28,33 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import java.io.IOException;
-import java.io.PrintWriter;
+import org.ecocean.CommonConfiguration;
+import org.ecocean.Encounter;
+import org.ecocean.MarkedIndividual;
+import org.ecocean.Shepherd;
 
 
 public class IndividualRemoveEncounter extends HttpServlet {
 
 
-  public void init(ServletConfig config) throws ServletException {
+  @Override
+public void init(final ServletConfig config) throws ServletException {
     super.init(config);
   }
 
-  private void setDateLastModified(Encounter enc) {
+  private void setDateLastModified(final Encounter enc) {
 
     String strOutputDateTime = ServletUtilities.getDate();
     enc.setDWCDateLastModified(strOutputDateTime);
   }
 
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+  @Override
+public void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
     doPost(request, response);
   }
 
-  public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+  @Override
+public void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
     String context="context0";
     context=ServletUtilities.getContext(request);
     Shepherd myShepherd = new Shepherd(context);
@@ -90,12 +93,12 @@ public class IndividualRemoveEncounter extends HttpServlet {
       myShepherd.beginDBTransaction();
       Encounter enc2remove = myShepherd.getEncounter(request.getParameter("number"));
       setDateLastModified(enc2remove);
-      if (!enc2remove.isAssignedToMarkedIndividual().equals("Unassigned")) {
-        String old_name = enc2remove.isAssignedToMarkedIndividual();
+      if (enc2remove.getIndividualID() != null) {
+        String old_name = enc2remove.getIndividualID();
         boolean wasRemoved = false;
         String name_s = "";
         try {
-          
+
           if(myShepherd.isMarkedIndividual(old_name)){
               MarkedIndividual removeFromMe = myShepherd.getMarkedIndividual(old_name);
               name_s = removeFromMe.getName();
@@ -116,7 +119,7 @@ public class IndividualRemoveEncounter extends HttpServlet {
           }
           enc2remove.setIndividualID(null);
           enc2remove.addComments("<p><em>" + request.getRemoteUser() + " on " + (new java.util.Date()).toString() + "</em><br>" + "Removed from " + old_name + ".</p>");
-          
+
 
         } catch (java.lang.NullPointerException npe) {
           npe.printStackTrace();

@@ -39,25 +39,25 @@ import org.joda.time.format.ISODateTimeFormat;
 public class EncounterResetDate extends HttpServlet {
 
   @Override
-public void init(ServletConfig config) throws ServletException {
+public void init(final ServletConfig config) throws ServletException {
     super.init(config);
   }
 
 
   @Override
-public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+public void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
     doPost(request, response);
   }
 
 
-  private void setDateLastModified(Encounter enc) {
+  private void setDateLastModified(final Encounter enc) {
     String strOutputDateTime = ServletUtilities.getDate();
     enc.setDWCDateLastModified(strOutputDateTime);
   }
 
 
   @Override
-public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+public void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
     String context="context0";
     context=ServletUtilities.getContext(request);
     Shepherd myShepherd = new Shepherd(context);
@@ -87,7 +87,7 @@ public void doPost(HttpServletRequest request, HttpServletResponse response) thr
             newDate = fixMe.getDate();
             fixMe.addComments("<p><em>" + request.getRemoteUser() + " on " + (new java.util.Date()).toString() + "</em><br>Changed encounter date from " + oldDate + " to " + newDate + ".</p>");
 
-            if (fixMe.getIndividualID() != null && !fixMe.getIndividualID().equals("Unassigned")) {
+            if (fixMe.getIndividualID() != null) {
                 String indieName=fixMe.getIndividualID();
                 if (myShepherd.isMarkedIndividual(indieName)) {
                     MarkedIndividual indie=myShepherd.getMarkedIndividual(indieName);
