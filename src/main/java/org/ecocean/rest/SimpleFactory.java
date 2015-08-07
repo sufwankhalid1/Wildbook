@@ -41,7 +41,10 @@ public class SimpleFactory {
     public static List<SimpleEncounter> getIndividualEncounters(final String context, final SimpleIndividual individual) throws DatabaseException
     {
         try (Database db = new Database(ShepherdPMF.getConnectionInfo())) {
-            String sql = "SELECT * FROM \"ENCOUNTER\" e WHERE \"INDIVIDUALID\" = " + StringUtilities.wrapQuotes(individual.getId());
+            String sql = "SELECT * FROM \"ENCOUNTER\" e"
+                    + " LEFT OUTER JOIN \"USERS\" u ON u.\"USERNAME\" = e.\"SUBMITTERID\""
+                    + " LEFT OUTER JOIN mediaasset ma ON ma.id = u.\"USERIMAGEID\""
+                    + " WHERE \"INDIVIDUALID\" = " + StringUtilities.wrapQuotes(individual.getId());
 
             List<SimpleEncounter> encounters = new ArrayList<SimpleEncounter>();
 
@@ -238,11 +241,13 @@ public class SimpleFactory {
             //
             // 3) Encounters
             //
-            sql = "select e.*, mi.*, spva.* from \"ENCOUNTER\" e"
+            sql = "select e.*, mi.*, spva.*, u.*, ma.* from \"ENCOUNTER\" e"
                     + " inner join \"ENCOUNTER_IMAGES\" ei on e.\"CATALOGNUMBER\" = ei.\"CATALOGNUMBER_OID\""
                     + " inner join \"SINGLEPHOTOVIDEO\" spv on ei.\"DATACOLLECTIONEVENTID_EID\" = spv.\"DATACOLLECTIONEVENTID\""
                     + " left outer join \"MARKEDINDIVIDUAL\" mi on e.\"INDIVIDUALID\" = mi.\"INDIVIDUALID\""
                     + " left outer join \"SINGLEPHOTOVIDEO\" spva on mi.\"AVATAR_DATACOLLECTIONEVENTID_OID\" = spva.\"DATACOLLECTIONEVENTID\""
+                    + " LEFT OUTER JOIN \"USERS\" u ON u.\"USERNAME\" = e.\"SUBMITTERID\""
+                    + " LEFT OUTER JOIN mediaasset ma ON ma.id = u.\"USERIMAGEID\""
                     + whereRoot;
 
             if (logger.isDebugEnabled()) {
@@ -314,7 +319,7 @@ public class SimpleFactory {
         encounter.setLocationid(rs.getString("LOCATIONID"));
         encounter.setLatitude(rs.getDoubleObj("DECIMALLATITUDE"));
         encounter.setLongitude(rs.getDoubleObj("DECIMALLONGITUDE"));
-        encounter.setSubmitter(getUser(rs.getString("SUBMITTERID")));
+        encounter.setSubmitter(getUser(rs));
         encounter.setIndividual(individual);
 
         return encounter;
@@ -422,22 +427,33 @@ public class SimpleFactory {
             RecordSet rs;
             rs = db.getRecordSet(sql);
             if (rs.next()) {
-                SimpleUser su = new SimpleUser(rs.getString("USERNAME"), rs.getString("EMAILADDRESS"));
-
-                MediaAsset ma = MediaAsset.valueOf(rs);
-
-                if (ma != null) {
-                    su.setAvatar(ma.webPath().getFile());
-                }
-
-                su.setAffiliation(rs.getString("AFFILIATION"));
-                su.setFullName(rs.getString("FULLNAME"));
-
-                return su;
+                return getUser(rs);
             }
 
             return null;
         }
+    }
+
+
+    private static SimpleUser getUser(final RecordSet rs) throws DatabaseException
+    {
+        String username = rs.getString("USERNAME");
+        if (username == null) {
+            return null;
+        }
+
+        SimpleUser su = new SimpleUser(rs.getString("USERNAME"), rs.getString("EMAILADDRESS"));
+
+        MediaAsset ma = MediaAsset.valueOf(rs);
+
+        if (ma != null) {
+            su.setAvatar(ma.webPath().getFile());
+        }
+
+        su.setAffiliation(rs.getString("AFFILIATION"));
+        su.setFullName(rs.getString("FULLNAME"));
+
+        return su;
     }
 
 
