@@ -67,9 +67,10 @@ block scripts
             //        interval: 3000
             //    });
         
-            var user = !{JSON.stringify(data.userinfo)};
+            var photos = !{JSON.stringify(data.userinfo.photos)};
+            var encounters = !{JSON.stringify(data.userinfo.encounters)};
         
             app.configPromise.then(function() {
-                individualPage.init(user);
+                individualPage.init(photos, encounters);
             });
         });

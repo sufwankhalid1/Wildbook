@@ -319,6 +319,8 @@ public class SimpleFactory {
         encounter.setLocationid(rs.getString("LOCATIONID"));
         encounter.setLatitude(rs.getDoubleObj("DECIMALLATITUDE"));
         encounter.setLongitude(rs.getDoubleObj("DECIMALLONGITUDE"));
+        encounter.setVerbatimLocation(rs.getString("VERBATIMLOCALITY"));
+
         encounter.setSubmitter(getUser(rs));
         encounter.setIndividual(individual);
 
