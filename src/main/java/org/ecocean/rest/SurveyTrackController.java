@@ -15,7 +15,6 @@ import org.ecocean.SinglePhotoVideo;
 import org.ecocean.Util;
 import org.ecocean.media.MediaSubmission;
 import org.ecocean.media.MediaTag;
-import org.ecocean.security.Stormpath;
 import org.ecocean.servlet.ServletUtilities;
 import org.ecocean.survey.SurveyTrack;
 import org.springframework.http.HttpStatus;
@@ -27,7 +26,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.samsix.database.DatabaseException;
-import com.stormpath.sdk.client.Client;
 
 @RestController
 @RequestMapping(value = "/obj/surveytrack")
@@ -165,7 +163,7 @@ public class SurveyTrackController
 ////TODO i18n
         SurveyTrack track = (SurveyTrack)obj.get("surveyTrack");
         Long trackTime = track.startTime();
-        Client client = Stormpath.getClient(ServletUtilities.getConfigDir(request));
+
         HashMap<String,Object> match = new HashMap<String,Object>();
         if (ind != null) match.put("individualID", ind.getIndividualID());
         match.put("testImage", SimpleFactory.getPhoto(context, testSpv));
@@ -209,7 +207,7 @@ public class SurveyTrackController
         obj.put("surveyTrack", track);
         if (track != null) {
             HashMap<SinglePhotoVideo,List<String>> tags = MediaTag.getTags(track.getMedia());
-            List<HashMap> media = new ArrayList<HashMap>();  //will be sorted based on sources
+            List<HashMap<String, Object>> media = new ArrayList<HashMap<String, Object>>();  //will be sorted based on sources
             List<MediaSubmission> sources = MediaSubmission.findMediaSources(track.getMedia(), context);
             if (sources.size() > 0) {
                 //obj.put("sources", sources);  //do we ever need this in rest response???
@@ -222,7 +220,7 @@ public class SurveyTrackController
                     contribMap.put(m.getId(), u);
                     for (SinglePhotoVideo spv : m.getMedia()) {
                         if ((track.getMedia() != null) && track.getMedia().contains(spv)) {
-                            HashMap h = new HashMap();
+                            HashMap<String, Object> h = new HashMap<String, Object>();
                             h.put("image", SimpleFactory.getPhoto(context, spv));
                             h.put("mediaSubmissionSource", m.getId());
                             if (tags.get(spv) != null) h.put("tags", tags.get(spv));
