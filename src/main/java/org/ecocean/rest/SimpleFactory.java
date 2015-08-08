@@ -182,9 +182,6 @@ public class SimpleFactory {
             sql = sqlRoot
                     + " INNER JOIN \"MARKEDINDIVIDUAL\" mi ON spv.\"DATACOLLECTIONEVENTID\" = mi.\"AVATAR_DATACOLLECTIONEVENTID_OID\""
                     + whereRoot;
-            if (logger.isDebugEnabled()) {
-                logger.debug(sql);
-            }
             rs = db.getRecordSet(sql);
             while (rs.next()) {
                 userinfo.addPhoto(getPhoto(context, rs));
@@ -198,9 +195,6 @@ public class SimpleFactory {
                     + whereRoot
                     + " AND mtm.\"NAME_OID\" = 'highlight'";
 
-            if (logger.isDebugEnabled()) {
-                logger.debug(sql);
-            }
             rs = db.getRecordSet(sql);
             while (rs.next()) {
                 userinfo.addPhoto(getPhoto(context, rs));
@@ -216,9 +210,6 @@ public class SimpleFactory {
             if (userinfo.getPhotos().size() < MIN_PHOTOS) {
                 sql = sqlRoot + whereRoot + " LIMIT " + MIN_PHOTOS;
 
-                if (logger.isDebugEnabled()) {
-                    logger.debug(sql);
-                }
                 rs = db.getRecordSet(sql);
                 while (rs.next()) {
                     if (userinfo.getPhotos().size() >= MIN_PHOTOS) {
@@ -250,9 +241,6 @@ public class SimpleFactory {
                     + " LEFT OUTER JOIN mediaasset ma ON ma.id = u.\"USERIMAGEID\""
                     + whereRoot;
 
-            if (logger.isDebugEnabled()) {
-                logger.debug(sql);
-            }
             rs = db.getRecordSet(sql);
             while (rs.next()) {
                 userinfo.addEncounter(readSimpleEncounter(context, rs));
@@ -421,10 +409,6 @@ public class SimpleFactory {
             sql = "select * from \"USERS\" u"
                     + " LEFT OUTER JOIN mediaasset ma ON ma.id = u.\"USERIMAGEID\""
                     + " WHERE u.\"USERNAME\" = " + StringUtilities.wrapQuotes(username);
-
-            if (logger.isDebugEnabled()) {
-                logger.debug(sql);
-            }
 
             RecordSet rs;
             rs = db.getRecordSet(sql);

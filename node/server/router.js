@@ -169,6 +169,15 @@ function sendError(res, ex, status) {
 }
 
 
+//note: this will only return *first*
+function regexInArray(r, arr) {
+  if (!arr) return false;
+  for (var i = 0 ; i < arr.length ; i++) {
+      if (r.test(arr[i])) return arr[i];
+  }
+  return false;
+}
+
 //does a little logic with voyage data returned for sake of recent sightings/activity
 function voyageParser(data) {
     //data.media has a bunch of media, we have to chop up by tags etc (while maintaining ordering)
@@ -213,15 +222,6 @@ function voyageParser(data) {
         featured: f2,
         recent: recent
     };
-}
-
-//note: this will only return *first*
-function regexInArray(r, arr) {
-    if (!arr) return false;
-    for (var i = 0 ; i < arr.length ; i++) {
-        if (r.test(arr[i])) return arr[i];
-    }
-    return false;
 }
 
 
