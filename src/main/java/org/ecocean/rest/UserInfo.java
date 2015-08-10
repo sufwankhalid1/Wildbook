@@ -8,6 +8,8 @@ public class UserInfo {
     private int totalPhotoCount = 0;
     private final List<SimpleEncounter> encounters = new ArrayList<SimpleEncounter>();
     private final List<SimplePhoto> photos = new ArrayList<SimplePhoto>();
+    private List<SimpleIndividual> individuals;
+
 
     public UserInfo(final SimpleBeing user)
     {
@@ -51,7 +53,15 @@ public class UserInfo {
         return totalPhotoCount;
     }
 
-    public void setTotalPhotoCount(int totalPhotoCount) {
+    public void setTotalPhotoCount(final int totalPhotoCount) {
         this.totalPhotoCount = totalPhotoCount;
+    }
+
+    public List<SimpleIndividual> getIndividuals() {
+        return individuals;
+    }
+
+    public void setIndividuals(final List<SimpleIndividual> individuals) {
+        this.individuals = individuals;
     }
 }

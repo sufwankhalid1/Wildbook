@@ -1,7 +1,9 @@
 package org.ecocean.rest;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.ecocean.ShepherdPMF;
 import org.ecocean.SinglePhotoVideo;
@@ -230,7 +232,10 @@ public class SimpleFactory {
             }
 
             //
-            // 3) Encounters
+            // 3) Encounters/Individuals
+            // NOTE: Doing the individual stuff here on the server even though the information
+            // is duplicated because javascript does not have hashmaps which makes the code to try and
+            // get all the unique values of individualID into an array much messier.
             //
             sql = "select e.*, mi.*, spva.*, u.*, ma.* from \"ENCOUNTER\" e"
                     + " inner join \"ENCOUNTER_IMAGES\" ei on e.\"CATALOGNUMBER\" = ei.\"CATALOGNUMBER_OID\""
@@ -240,12 +245,17 @@ public class SimpleFactory {
                     + " LEFT OUTER JOIN \"USERS\" u ON u.\"USERNAME\" = e.\"SUBMITTERID\""
                     + " LEFT OUTER JOIN mediaasset ma ON ma.id = u.\"USERIMAGEID\""
                     + whereRoot;
-
+            Map<String, SimpleIndividual> inds = new HashMap<String, SimpleIndividual>();
             rs = db.getRecordSet(sql);
             while (rs.next()) {
-                userinfo.addEncounter(readSimpleEncounter(context, rs));
+                SimpleEncounter encounter = readSimpleEncounter(context, rs);
+                SimpleIndividual ind = encounter.getIndividual();
+                if (ind != null) {
+                    inds.put(ind.getId(), ind);
+                }
+                userinfo.addEncounter(encounter);
             }
-
+            userinfo.setIndividuals(new ArrayList<SimpleIndividual>(inds.values()));
         }
 
         return userinfo;

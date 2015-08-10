@@ -21,9 +21,9 @@ import com.samsix.database.DatabaseException;
 
 @RestController
 @RequestMapping(value = "/data")
-public class IndividualController
+public class MainController
 {
-    private static Logger logger = LoggerFactory.getLogger(IndividualController.class);
+    private static Logger logger = LoggerFactory.getLogger(MainController.class);
 
     @RequestMapping(value = "/individual/get/{id}", method = RequestMethod.GET)
     public IndividualInfo getIndividual(final HttpServletRequest request,

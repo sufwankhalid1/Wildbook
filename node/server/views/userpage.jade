@@ -45,6 +45,11 @@ block content
         hr
         #map-sightings
         
+        for being in data.userinfo.individuals
+            ul.submitters
+                li
+                    include partials/avatar
+        
         h1.has-icon.icon-voyageviewer= t("userpage.voyages")
         hr
         
