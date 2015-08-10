@@ -55,6 +55,13 @@ Actually, instead of the above, I do the following because the tests don't work 
     mvn assembly:single -Dcust=happywhale
     scp target/animalus-0.1-SNAPSHOT-node.zip devhappywhale.com:/var/tmp
     
+### For the live site, just copy the releases from the dev site.
+
+It is assumed that they are tested there first afterall. :) To do this I have a simple script in ```/var/tmp``` called ```getFilesFromDev``` on the live server.
+
+    cd /var/tmp
+    ./getFilesFromDev
+    
 ###Server
     
 Simply log on to the server and run
