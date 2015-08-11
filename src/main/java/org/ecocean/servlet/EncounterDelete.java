@@ -19,7 +19,14 @@
 
 package org.ecocean.servlet;
 
-import org.ecocean.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Vector;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -27,35 +34,37 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Vector;
-import java.util.concurrent.ThreadPoolExecutor;
-
+import org.ecocean.CommonConfiguration;
+import org.ecocean.Encounter;
+import org.ecocean.MailThreadExecutorService;
+import org.ecocean.NotificationMailer;
+import org.ecocean.Shepherd;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 public class EncounterDelete extends HttpServlet {
 
-  public void init(ServletConfig config) throws ServletException {
+  @Override
+public void init(final ServletConfig config) throws ServletException {
     super.init(config);
   }
 
 
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+  @Override
+public void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
     doPost(request, response);
   }
 
 
-  private void setDateLastModified(Encounter enc) {
+  private void setDateLastModified(final Encounter enc) {
     String strOutputDateTime = ServletUtilities.getDate();
     enc.setDWCDateLastModified(strOutputDateTime);
   }
 
 
-  public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+  @Override
+public void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
     String context="context0";
     context=ServletUtilities.getContext(request);
     Shepherd myShepherd = new Shepherd(context);
@@ -71,7 +80,7 @@ public class EncounterDelete extends HttpServlet {
     if(!shepherdDataDir.exists()){shepherdDataDir.mkdirs();}
     File encountersDir=new File(shepherdDataDir.getAbsolutePath()+"/encounters");
     if(!encountersDir.exists()){encountersDir.mkdirs();}
-    
+
     boolean isOwner = true;
 
 
@@ -87,10 +96,10 @@ public class EncounterDelete extends HttpServlet {
         out.println(ServletUtilities.getHeader(request));
         out.println("Encounter " + request.getParameter("number") + " is assigned to an Occurrence and cannot be deleted until it has been removed from that occurrence.");
         out.println("<p><a href=\"http://" + CommonConfiguration.getURLLocation(request) + "/encounters/encounter.jsp?number=" + request.getParameter("number") + "\">Return to encounter " + request.getParameter("number") + "</a>.</p>\n");
-        
+
         out.println(ServletUtilities.getFooter(context));
       }
-      else if ((enc2trash.getIndividualID()==null)||(enc2trash.isAssignedToMarkedIndividual().equals("Unassigned"))) {
+      else if (enc2trash.getIndividualID()==null) {
 
         try {
 
@@ -101,7 +110,7 @@ public class EncounterDelete extends HttpServlet {
           if(!thisEncounterDir.exists()){
             thisEncounterDir.mkdirs();
             System.out.println("Trying to create the folder to store a dat file in EncounterDelete2: "+thisEncounterDir.getAbsolutePath());
-          
+
           }
 
           File serializedBackup = new File(thisEncounterDir, savedFilename);
@@ -142,10 +151,10 @@ public class EncounterDelete extends HttpServlet {
           if(allStatesSize>0){
             for(int i=0;i<allStatesSize;i++){
               String stateName=allStates.get(i);
-              out.println("<p><a href=\"encounters/searchResults.jsp?state="+stateName+"\">View all "+stateName+" encounters</a></font></p>");   
+              out.println("<p><a href=\"encounters/searchResults.jsp?state="+stateName+"\">View all "+stateName+" encounters</a></font></p>");
             }
           }
-          
+
           out.println(ServletUtilities.getFooter(context));
           Vector e_images = new Vector();
           NotificationMailer mailer = new NotificationMailer(CommonConfiguration.getMailHost(context), CommonConfiguration.getAutoEmailAddress(context), CommonConfiguration.getNewSubmissionEmail(context), ("Removed encounter " + request.getParameter("number")), "Encounter " + request.getParameter("number") + " has been removed from the database by user " + request.getRemoteUser() + ".", e_images,context);
@@ -156,18 +165,18 @@ public class EncounterDelete extends HttpServlet {
 		  es.shutdown();
 
 
-        } 
+        }
         else {
           out.println(ServletUtilities.getHeader(request));
           out.println("<strong>Failure:</strong> I have NOT removed encounter " + request.getParameter("number") + " from the database. An exception occurred in the deletion process.");
           out.println("<p><a href=\"http://" + CommonConfiguration.getURLLocation(request) + "/encounters/encounter.jsp?number=" + request.getParameter("number") + "\">Return to encounter " + request.getParameter("number") + "</a>.</p>\n");
-          
+
           ArrayList<String> allStates=CommonConfiguration.getSequentialPropertyValues("encounterState",context);
           int allStatesSize=allStates.size();
           if(allStatesSize>0){
             for(int i=0;i<allStatesSize;i++){
               String stateName=allStates.get(i);
-              out.println("<p><a href=\"encounters/searchResults.jsp?state="+stateName+"\">View all "+stateName+" encounters</a></font></p>");   
+              out.println("<p><a href=\"encounters/searchResults.jsp?state="+stateName+"\">View all "+stateName+" encounters</a></font></p>");
             }
           }
           out.println(ServletUtilities.getFooter(context));
@@ -179,7 +188,7 @@ public class EncounterDelete extends HttpServlet {
         out.println(ServletUtilities.getHeader(request));
         out.println("Encounter " + request.getParameter("number") + " is assigned to a Marked Individual and cannot be deleted until it has been removed from that individual.");
         out.println("<p><a href=\"http://" + CommonConfiguration.getURLLocation(request) + "/encounters/encounter.jsp?number=" + request.getParameter("number") + "\">Return to encounter " + request.getParameter("number") + "</a>.</p>\n");
-        
+
         out.println(ServletUtilities.getFooter(context));
       }
     } else {

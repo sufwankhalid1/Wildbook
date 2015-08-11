@@ -19,10 +19,11 @@
 
 package org.ecocean.grid;
 
+import java.util.Iterator;
+import java.util.Objects;
+
 import org.ecocean.Encounter;
 import org.ecocean.Shepherd;
-
-import java.util.Iterator;
 
 
 public class FalseMatchCreationThread implements Runnable, ISharkGridThread {
@@ -35,13 +36,13 @@ public class FalseMatchCreationThread implements Runnable, ISharkGridThread {
   boolean finished = false;
   GridManager gm;
   int numFalseComparisons = 0;
-  
+
   String context="context0";
 
   /**
    * Constructor to create a new thread object
    */
-  public FalseMatchCreationThread(int numFalseComparisons, String taskID,String context) {
+  public FalseMatchCreationThread(final int numFalseComparisons, final String taskID,final String context) {
     this.taskID = taskID;
     //this.writeThis=writeThis;
     this.numFalseComparisons = numFalseComparisons;
@@ -54,11 +55,13 @@ public class FalseMatchCreationThread implements Runnable, ISharkGridThread {
   /**
    * main method of the shepherd thread
    */
-  public void run() {
+  @Override
+public void run() {
     createThem();
   }
 
-  public boolean isFinished() {
+  @Override
+public boolean isFinished() {
     return finished;
   }
 
@@ -109,7 +112,7 @@ public class FalseMatchCreationThread implements Runnable, ISharkGridThread {
           while ((encs2.hasNext()) && (count < numFalseComparisons)) {
             Encounter enc2 = (Encounter) encs2.next();
             if (enc2.getNumSpots() > 0) {
-              if (!enc2.isAssignedToMarkedIndividual().equals(enc.isAssignedToMarkedIndividual())) {
+              if (! Objects.equals(enc2.getIndividualID(), enc.getIndividualID())) {
                 //need to check that this item hasn't already been compared
                 String option1 = "*" + enc.getEncounterNumber() + "v" + enc2.getEncounterNumber() + "*";
                 String option2 = "*" + enc2.getEncounterNumber() + "v" + enc.getEncounterNumber() + "*";
@@ -149,7 +152,7 @@ public class FalseMatchCreationThread implements Runnable, ISharkGridThread {
           while ((encs2.hasNext()) && (count < (2 * numFalseComparisons))) {
             Encounter enc2 = (Encounter) encs2.next();
             if (enc2.getNumRightSpots() > 0) {
-              if (!enc2.isAssignedToMarkedIndividual().equals(enc.isAssignedToMarkedIndividual())) {
+              if (! Objects.equals(enc2.getIndividualID(), enc.getIndividualID())) {
                 //need to check that this item hasn't already been compared
                 String option1 = "*" + enc.getEncounterNumber() + "v" + enc2.getEncounterNumber() + "*";
                 String option2 = "*" + enc2.getEncounterNumber() + "v" + enc.getEncounterNumber() + "*";

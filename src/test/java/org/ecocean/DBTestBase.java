@@ -18,20 +18,15 @@
 
 package org.ecocean;
 
-import java.util.*;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
-import org.junit.*;
-
-import static org.junit.Assert.*;
-
+import org.ecocean.media.AssetStore;
+import org.junit.After;
+import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.samsix.database.*;
-
-import org.ecocean.media.*;
+import com.samsix.database.ConnectionInfo;
+import com.samsix.database.Database;
+import com.samsix.database.DatabaseException;
 
 /**
  * DBTestBase is a base class for tests that use the s6 test db.  It
@@ -53,9 +48,9 @@ public class DBTestBase {
         try (Database db = new Database(ci)) {
             // delete any existing asset stores left over from other
             // runs.  this will delete any referenced mediaassets too.
-            for (AssetStore as = AssetStore.loadDefault(db); 
-                 as != null; 
-                 as = AssetStore.loadDefault(db))
+            for (AssetStore as = AssetStore.getDefault();
+                 as != null;
+                 as = AssetStore.getDefault())
             {
                 as.delete(db);
             }

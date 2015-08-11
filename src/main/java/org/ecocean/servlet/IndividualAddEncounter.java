@@ -19,43 +19,51 @@
 
 package org.ecocean.servlet;
 
-import org.ecocean.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Vector;
+import java.util.concurrent.ThreadPoolExecutor;
 
+import javax.jdo.Extent;
+import javax.jdo.Query;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.StringTokenizer;
-import java.util.Vector;
-import java.util.concurrent.ThreadPoolExecutor;
-
-import javax.jdo.*;
+import org.ecocean.Adoption;
+import org.ecocean.CommonConfiguration;
+import org.ecocean.Encounter;
+import org.ecocean.MailThreadExecutorService;
+import org.ecocean.MarkedIndividual;
+import org.ecocean.NotificationMailer;
+import org.ecocean.Shepherd;
 
 
 public class IndividualAddEncounter extends HttpServlet {
 
 
-  public void init(ServletConfig config) throws ServletException {
+  @Override
+public void init(final ServletConfig config) throws ServletException {
     super.init(config);
   }
 
-  private void setDateLastModified(Encounter enc) {
+  private void setDateLastModified(final Encounter enc) {
 
     String strOutputDateTime = ServletUtilities.getDate();
     enc.setDWCDateLastModified(strOutputDateTime);
   }
 
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+  @Override
+public void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
     doPost(request, response);
   }
 
-  public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+  @Override
+public void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
     String context="context0";
     context=ServletUtilities.getContext(request);
     Shepherd myShepherd = new Shepherd(context);
@@ -75,8 +83,8 @@ public class IndividualAddEncounter extends HttpServlet {
       myShepherd.beginDBTransaction();
       Encounter enc2add = myShepherd.getEncounter(request.getParameter("number"));
       setDateLastModified(enc2add);
-      String tempName = enc2add.isAssignedToMarkedIndividual();
-      if ((tempName.equals("Unassigned")) && (myShepherd.isMarkedIndividual(request.getParameter("individual")))) {
+      String tempName = enc2add.getIndividualID();
+      if (tempName == null && myShepherd.isMarkedIndividual(request.getParameter("individual"))) {
         try {
 
 
@@ -94,9 +102,9 @@ public class IndividualAddEncounter extends HttpServlet {
             enc2add.setMatchedBy(request.getParameter("matchType"));
             enc2add.addComments("<p><em>" + request.getRemoteUser() + " on " + (new java.util.Date()).toString() + "</em><br>" + "Added to " + request.getParameter("individual") + ".</p>");
             addToMe.addComments("<p><em>" + request.getRemoteUser() + " on " + (new java.util.Date()).toString() + "</em><br>" + "Added encounter " + request.getParameter("number") + ".</p>");
-            
-            
-            
+
+
+
             if ((addToMe.getSex()!=null)&&(enc2add.getSex()!=null)&&(!addToMe.getSex().equals(enc2add.getSex()))) {
                //if (((addToMe.getSex().equals("Male")) & (enc2add.getSex().equals("Female"))) || ((addToMe.getSex().equals("Female")) & (enc2add.getSex().equals("Male")))) {
                 sexMismatch = true;
@@ -105,9 +113,9 @@ public class IndividualAddEncounter extends HttpServlet {
             else if ( ((addToMe.getSex()==null)||(addToMe.getSex().equals("unknown"))) &&(enc2add.getSex()!=null)) {
               addToMe.setSex(enc2add.getSex());
             }
-            
-            
-            
+
+
+
           } catch (Exception le) {
             System.out.println("Hit locked exception on action: " + action);
             le.printStackTrace();
@@ -123,13 +131,13 @@ public class IndividualAddEncounter extends HttpServlet {
             Vector e_images = new Vector();
 
             String updateMessage = ServletUtilities.getText(CommonConfiguration.getDataDirectoryName(context),"markedIndividualUpdate.html",ServletUtilities.getLanguageCode(request));
-			
+
             String thanksmessage = ServletUtilities.getText(CommonConfiguration.getDataDirectoryName(context),"add2MarkedIndividual.html",ServletUtilities.getLanguageCode(request));
 
             String add2update=ServletUtilities.getText(CommonConfiguration.getDataDirectoryName(context),"add2MarkedIndividual.html",ServletUtilities.getLanguageCode(request));
-            
+
             String adopterUpdate=ServletUtilities.getText(CommonConfiguration.getDataDirectoryName(context),"adopterUpdate.html",ServletUtilities.getLanguageCode(request));
-            
+
             //let's get ready for emailing
             ThreadPoolExecutor es = MailThreadExecutorService.getExecutorService();
 
@@ -144,9 +152,9 @@ public class IndividualAddEncounter extends HttpServlet {
             updateMessage=updateMessage.replaceAll("INSERTTEXT",  emailUpdate);
             add2update=add2update.replaceAll("INSERTTEXT",  emailUpdate);
             adopterUpdate=add2update.replaceAll("INSERTTEXT",  emailUpdate);
-            
-            
-            
+
+
+
             //updateMessage += emailUpdate;
 
 			ArrayList allAssociatedEmails=addToMe.getAllEmailsToUpdate();
@@ -176,7 +184,7 @@ public class IndividualAddEncounter extends HttpServlet {
 				else{
 					  	String personalizedThanksMessage = CommonConfiguration.appendEmailRemoveHashString(request, updateMessage, submitter,context);
 					  	personalizedThanksMessage=personalizedThanksMessage.replaceAll("INSERTTEXT",  emailUpdate);
-	            
+
 					  	es.execute(new NotificationMailer(CommonConfiguration.getMailHost(context), CommonConfiguration.getAutoEmailAddress(context), submitter, ("Encounter update: " + request.getParameter("number")), personalizedThanksMessage, e_images,context));
 
 				}
@@ -293,7 +301,7 @@ public class IndividualAddEncounter extends HttpServlet {
               //File atomFile = new File(getServletContext().getRealPath(("/"+context+"/atom.xml")));
               File atomFile = new File(shepherdDataDir,"atom.xml");
 
-              
+
               ServletUtilities.addATOMEntry(rssTitle, rssLink, rssDescription, atomFile,context);
             }
 

@@ -19,8 +19,25 @@
 
 package org.ecocean.servlet;
 
-import com.reijns.I3S.Pair;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.Writer;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Vector;
+import java.util.concurrent.ThreadPoolExecutor;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import jxl.write.WritableWorkbook;
+
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
@@ -28,39 +45,42 @@ import org.ecocean.CommonConfiguration;
 import org.ecocean.Encounter;
 import org.ecocean.Shepherd;
 import org.ecocean.SuperSpot;
-import org.ecocean.grid.*;
+import org.ecocean.grid.GridManager;
+import org.ecocean.grid.GridManagerFactory;
+import org.ecocean.grid.MatchComparator;
+import org.ecocean.grid.MatchObject;
+import org.ecocean.grid.NewI3SMatchComparator;
+import org.ecocean.grid.ScanTask;
+import org.ecocean.grid.ScanTaskCleanupThread;
+import org.ecocean.grid.ScanWorkItem;
+import org.ecocean.grid.ScanWorkItemResult;
+import org.ecocean.grid.SharkGridThreadExecutorService;
+import org.ecocean.grid.VertexPointMatch;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Properties;
-import java.util.Vector;
-import java.util.concurrent.ThreadPoolExecutor;
+import com.reijns.I3S.Pair;
 
 
 public class WriteOutScanTask extends HttpServlet {
 
 
-  public void init(ServletConfig config) throws ServletException {
+  @Override
+public void init(final ServletConfig config) throws ServletException {
     super.init(config);
   }
 
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+  @Override
+public void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
     doPost(request, response);
   }
 
-  public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+  @Override
+public void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
 
     //set up a shepherd for DB transactions
-    
+
     String context="context0";
     context=ServletUtilities.getContext(request);
-    
+
     Shepherd myShepherd = new Shepherd(context);
     PrintWriter out = null;
     GridManager gm = GridManagerFactory.getGridManager();
@@ -97,7 +117,7 @@ public class WriteOutScanTask extends HttpServlet {
 
         Encounter newEnc = myShepherd.getEncounter(encNumber);
         newEncDate = newEnc.getDate();
-        newEncShark = newEnc.isAssignedToMarkedIndividual();
+        newEncShark = newEnc.getIndividualID();
         if(newEnc.getSizeAsDouble()!=null){newEncSize = newEnc.getSize() + " meters";}
 
         MatchObject[] res = new MatchObject[0];
@@ -300,7 +320,7 @@ public class WriteOutScanTask extends HttpServlet {
           if ((encA.getSex()!=null)&&(encB.getSex()!=null)&&(encA.getSex().equals(encB.getSex()))) {
             boostString += (encA.getSex() + ",");
             predictInput[0] = encA.getSex();
-          } 
+          }
           else {
             boostString += "unknown,";
             predictInput[0] = "unknwon";
@@ -571,7 +591,7 @@ public class WriteOutScanTask extends HttpServlet {
 
   }
 
-  public boolean writeResult(MatchObject[] swirs, String num, String R, String epsilon, String Sizelim, String maxTriangleRotation, String C, String newEncDate, String newEncShark, String newEncSize, boolean rightSide, double cutoff, Shepherd myShepherd, String context) {
+  public boolean writeResult(final MatchObject[] swirs, final String num, final String R, final String epsilon, final String Sizelim, final String maxTriangleRotation, final String C, final String newEncDate, final String newEncShark, final String newEncSize, final boolean rightSide, final double cutoff, final Shepherd myShepherd, final String context) {
 
 
     try {
@@ -617,11 +637,11 @@ public class WriteOutScanTask extends HttpServlet {
           Element enc = match.addElement("encounter");
           enc.addAttribute("number", firstEnc.getEncounterNumber());
           enc.addAttribute("date", firstEnc.getDate());
-          
+
           if(firstEnc.getSex()!=null){ enc.addAttribute("sex", firstEnc.getSex());}
           else{ enc.addAttribute("sex", "unknown");}
-         
-          
+
+
           enc.addAttribute("assignedToShark", firstEnc.getIndividualID());
           if(firstEnc.getSizeAsDouble()!=null){enc.addAttribute("size", (firstEnc.getSize() + " meters"));}
           enc.addAttribute("location", firstEnc.getLocation());
@@ -639,13 +659,13 @@ public class WriteOutScanTask extends HttpServlet {
           Encounter secondEnc = myShepherd.getEncounter(num);
           enc2.addAttribute("number", num);
           enc2.addAttribute("date", secondEnc.getDate());
-          
-          
+
+
           //enc2.addAttribute("sex", secondEnc.getSex());
           if(secondEnc.getSex()!=null){ enc2.addAttribute("sex", secondEnc.getSex());}
           else{ enc2.addAttribute("sex", "unknown");}
-         
-          
+
+
           enc2.addAttribute("assignedToShark", secondEnc.getIndividualID());
           if(secondEnc.getSizeAsDouble()!=null){enc2.addAttribute("size", (secondEnc.getSize() + " meters"));}
           else{enc2.addAttribute("size", "unknown");}
@@ -682,7 +702,7 @@ public class WriteOutScanTask extends HttpServlet {
       if (rightSide) {
         fileAddition = "Right";
       }
-      
+
       //setup data dir
       String rootWebappPath = getServletContext().getRealPath("/");
       File webappsDir = new File(rootWebappPath).getParentFile();
@@ -690,12 +710,12 @@ public class WriteOutScanTask extends HttpServlet {
       //if(!shepherdDataDir.exists()){shepherdDataDir.mkdirs();}
       File encountersDir=new File(shepherdDataDir.getAbsolutePath()+"/encounters");
       //if(!encountersDir.exists()){encountersDir.mkdirs();}
-      
+
       //File file=new File((new File(".")).getCanonicalPath()+File.separator+"webapps"+File.separator+"ROOT"+File.separator+"encounters"+File.separator+num+File.separator+"lastFull"+fileAddition+"Scan.xml");
       File file = new File(Encounter.dir(shepherdDataDir, num) + "/lastFull" + fileAddition + "Scan.xml");
 
-      
-      
+
+
       FileWriter mywriter = new FileWriter(file);
       org.dom4j.io.OutputFormat format = org.dom4j.io.OutputFormat.createPrettyPrint();
       format.setLineSeparator(System.getProperty("line.separator"));
@@ -710,7 +730,7 @@ public class WriteOutScanTask extends HttpServlet {
     }
   } //end writeResult method
 
-  public boolean i3sWriteThis(Shepherd myShepherd, MatchObject[] matches, String num, String newEncDate, String newEncShark, String newEncSize, boolean rightSide, double cutoff, String context) {
+  public boolean i3sWriteThis(final Shepherd myShepherd, final MatchObject[] matches, final String num, final String newEncDate, final String newEncShark, final String newEncSize, final boolean rightSide, final double cutoff, final String context) {
     try {
 
       System.out.println("scanWorkItemResultsHandler: Prepping to write I3S XML file for encounter " + num);
@@ -741,12 +761,12 @@ public class WriteOutScanTask extends HttpServlet {
             Element enc = match.addElement("encounter");
             enc.addAttribute("number", mo.getEncounterNumber());
             enc.addAttribute("date", mo.getDate());
-            
+
             if(mo.getSex()!=null){enc.addAttribute("sex", mo.getSex());}
             else{enc.addAttribute("sex", "unknown");}
-            
-            
-            
+
+
+
             enc.addAttribute("assignedToShark", mo.getIndividualName());
             enc.addAttribute("size", (new Double(mo.getSize())).toString());
 
@@ -807,7 +827,7 @@ public class WriteOutScanTask extends HttpServlet {
       if (rightSide) {
         fileAddition = "Right";
       }
-      
+
       //setup data dir
       String rootWebappPath = getServletContext().getRealPath("/");
       File webappsDir = new File(rootWebappPath).getParentFile();
@@ -815,7 +835,7 @@ public class WriteOutScanTask extends HttpServlet {
       //if(!shepherdDataDir.exists()){shepherdDataDir.mkdirs();}
       File encountersDir=new File(shepherdDataDir.getAbsolutePath()+"/encounters");
       //if(!encountersDir.exists()){encountersDir.mkdirs();}
-      
+
       //File file=new File((new File(".")).getCanonicalPath()+File.separator+"webapps"+File.separator+"ROOT"+File.separator+"encounters"+File.separator+num+File.separator+"lastFull"+fileAddition+"I3SScan.xml");
       File file = new File(Encounter.dir(shepherdDataDir, num) + "/lastFull" + fileAddition + "I3SScan.xml");
 
@@ -836,7 +856,7 @@ public class WriteOutScanTask extends HttpServlet {
 
   }
 
-  public void finalize(WritableWorkbook workbook) {
+  public void finalize(final WritableWorkbook workbook) {
     try {
       workbook.write();
     } catch (Exception e) {
@@ -845,7 +865,7 @@ public class WriteOutScanTask extends HttpServlet {
     }
   }
 
-  public ScanWorkItem getWI4MO(ScanWorkItemResult swir, ArrayList<ScanWorkItem> list) {
+  public ScanWorkItem getWI4MO(final ScanWorkItemResult swir, final ArrayList<ScanWorkItem> list) {
 
     //System.out.println("I'm looking for: "+swir.getUniqueNumberWorkItem());
 
@@ -859,7 +879,7 @@ public class WriteOutScanTask extends HttpServlet {
 
   }
 
-  public void writeBoostFiles(StringBuffer train, StringBuffer test, String number) {
+  public void writeBoostFiles(final StringBuffer train, final StringBuffer test, final String number) {
 
     try {
 
@@ -940,11 +960,11 @@ public class WriteOutScanTask extends HttpServlet {
             Element enc = match.addElement("encounter");
             enc.addAttribute("number", mo.getEncounterNumber());
             enc.addAttribute("date", mo.getDate());
-            
-            
+
+
             if(mo.getSex()!=null){enc.addAttribute("sex", mo.getSex());}
             else{enc.addAttribute("sex", "unknown");}
-            
+
             enc.addAttribute("assignedToShark", mo.getIndividualName());
             enc.addAttribute("size", ((new Double(mo.getSize())).toString() + " meters"));
             //	vertexPointMatch[] firstScores=mo.getScores();

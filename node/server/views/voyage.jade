@@ -26,10 +26,10 @@ block content
             if voyage.contributors
                 h2= t("voyage.h2Contributors")
                 hr
-                for user in voyage.contributors
+                for being in voyage.contributors
                     ul.submitters
                         li
-                            include partials/user
+                            include partials/avatar
                 //xmp !{JSON.stringify(voyage.contributors, null, 2)}
             if (voyage.mediaParsed && voyage.mediaParsed.featured)
                 h2= t("voyage.h2RecentSightings")
@@ -45,7 +45,7 @@ block content
                     for msub in voyage.mediaParsed.recent
                         .voyage-recents-msub
                             .activity
-                                img.user-avatar.activity-icon(src="#{msub.user.avatar}")
+                                img.being-avatar.activity-icon(src="#{msub.user.avatar}")
                                 .activity-text!= t("voyage.recentActivity.uploaded", {uname: msub.user.displayName, num: ((msub.media.length == 1) ? 'one photo' : msub.media.length + ' photos')})
                             .media
                                 for img in msub.media

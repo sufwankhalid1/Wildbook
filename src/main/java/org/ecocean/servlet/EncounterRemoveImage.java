@@ -19,7 +19,8 @@
 
 package org.ecocean.servlet;
 
-import org.ecocean.*;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -27,11 +28,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Iterator;
-import java.util.Vector;
+import org.ecocean.CommonConfiguration;
+import org.ecocean.Encounter;
+import org.ecocean.Shepherd;
+import org.ecocean.SinglePhotoVideo;
 
 //import com.poet.jdo.*;
 
@@ -39,17 +39,20 @@ import java.util.Vector;
 public class EncounterRemoveImage extends HttpServlet {
 
 
-  public void init(ServletConfig config) throws ServletException {
+  @Override
+public void init(final ServletConfig config) throws ServletException {
     super.init(config);
   }
 
 
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+  @Override
+public void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
     doPost(request, response);
   }
 
 
-  public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+  @Override
+public void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
     String context="context0";
     context=ServletUtilities.getContext(request);
     Shepherd myShepherd = new Shepherd(context);
@@ -75,7 +78,7 @@ public class EncounterRemoveImage extends HttpServlet {
     if ((myShepherd.isEncounter(encounterNumber)) && (myShepherd.isSinglePhotoVideo(dcID))) {
       Encounter enc = myShepherd.getEncounter(encounterNumber);
       SinglePhotoVideo sid=myShepherd.getSinglePhotoVideo(dcID);
-      if (enc.isAssignedToMarkedIndividual().equals("Unassigned")) {
+      if (enc.getIndividualID() == null) {
 
         //positionInList=0;
         try {
@@ -91,7 +94,7 @@ public class EncounterRemoveImage extends HttpServlet {
           //	if((thisImageName.equals(fileName))&&(positionInList==0)){positionInList=i;}
           //}
           //positionInList++;
-          
+
           /*
           for (int j = positionInList; j < (initNumberImages + 1); j++) {
             //remove copyrighted images
@@ -119,7 +122,7 @@ public class EncounterRemoveImage extends HttpServlet {
           enc.removeSinglePhotoVideo(sid);
           enc.addComments("<p><em>" + request.getRemoteUser() + " on " + (new java.util.Date()).toString() + "</em><br>" + "Removed encounter image graphic: " + fileName + ".</p>");
           myShepherd.getPM().deletePersistent(sid);
-          
+
           /*
           Iterator keywords = myShepherd.getAllKeywords();
           String toRemove = encounterNumber + "/" + fileName;
@@ -132,7 +135,7 @@ public class EncounterRemoveImage extends HttpServlet {
             }
           }
           */
-          
+
 
         } catch (Exception le) {
           locked = true;
@@ -179,5 +182,5 @@ public class EncounterRemoveImage extends HttpServlet {
 
 
 }
-	
-	
+
+

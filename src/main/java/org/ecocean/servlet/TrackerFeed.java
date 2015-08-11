@@ -19,11 +19,10 @@
 
 package org.ecocean.servlet;
 
-import org.ecocean.Encounter;
-import org.ecocean.Shepherd;
-import org.ecocean.grid.MatchComparator;
-import org.ecocean.grid.MatchObject;
-import org.ecocean.grid.VertexPointMatch;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.Vector;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -31,10 +30,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Arrays;
-import java.util.Vector;
+import org.ecocean.Encounter;
+import org.ecocean.Shepherd;
+import org.ecocean.grid.MatchComparator;
+import org.ecocean.grid.MatchObject;
+import org.ecocean.grid.VertexPointMatch;
 
 //import servletbible.utils.*;
 //import javax.jdo.*;
@@ -45,20 +45,23 @@ import java.util.Vector;
 
 public class TrackerFeed extends HttpServlet {
 
-  public void init(ServletConfig config) throws ServletException {
+  @Override
+public void init(final ServletConfig config) throws ServletException {
     super.init(config);
     System.out.println("Initiating trackerFeed servlet to display results...");
   }
 
 
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+  @Override
+public void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
     doPost(request, response);
   }
 
 
-  public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+  @Override
+public void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
 
-    
+
     String context="context0";
     context=ServletUtilities.getContext(request);
     //set up the needed shepherds
@@ -79,7 +82,7 @@ public class TrackerFeed extends HttpServlet {
 
 
     String newEncDate = newEnc.getDate();
-    String newEncShark = newEnc.isAssignedToMarkedIndividual();
+    String newEncShark = newEnc.getIndividualID();
     String newEncSize = (new Double(newEnc.getSize())).toString() + " meters";
     String newEncLocation = newEnc.getVerbatimLocality();
     newEncShepherd.rollbackDBTransaction();
@@ -119,11 +122,11 @@ public class TrackerFeed extends HttpServlet {
           myShepherd.beginDBTransaction();
           Encounter enc = myShepherd.getEncounter(mo.encounterNumber);
           moDate = enc.getDate();
-          
-          
+
+
           if(enc.getSex()!=null){moSex = enc.getSex();}
           else{moSex="unknown";}
-          
+
           moLocation = enc.getVerbatimLocality();
           moIndividualName = enc.getIndividualID();
           if (mo.getSize() > 0) {
@@ -165,5 +168,5 @@ public class TrackerFeed extends HttpServlet {
 
   }
 }
-	
-	
+
+

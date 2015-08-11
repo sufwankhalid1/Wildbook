@@ -109,8 +109,8 @@ var submitMedia = (function () {
             });
 
 
-            function handleError(jqXHR) {
-                alertplus.error(jqXHR);
+            function handleError(error) {
+                alertplus.error(error);
             }
 
             function urlParam(name) {
@@ -141,7 +141,7 @@ var submitMedia = (function () {
             //
             $scope.data = {agreeTerms: true};
 
-            app.configPromise.done(function() {
+            app.configPromise.then(function() {
                 //app.user = {username:"tomcat"};
                 $scope.media.username = (app.user) ? app.user.username : null;
             });
@@ -180,13 +180,13 @@ var submitMedia = (function () {
 //                return $.post("wildbook/obj/mediasubmission/" + method, ms)
 //                return $.post($scope.data.config.wildbook.proxyUrl + "/obj/mediasubmission/" + method, ms)
                 return $.post(app.config.wildbook.proxyUrl + "/obj/mediasubmission/" + method, ms)
-                .done(function(ex) {
+                .then(function(mediaid) {
                     $(document.body).css({ 'cursor': 'default' });
-                })
-                 .fail(function(ex) {
+                    return mediaid;
+                }, function(ex) {
                      $(document.body).css({ 'cursor': 'default' });
                      alertplus.error(ex);
-                 });
+                });
             }
 
             //
@@ -242,10 +242,10 @@ var submitMedia = (function () {
                 //
                 // Make call to get xif data
                 //
-//                var jqXHR = $.get("wildbook/obj/mediasubmission/getexif/" + $scope.media.id)
-//                var jqXHR = $.get($scope.data.config.wildbook.proxyUrl + "/obj/mediasubmission/getexif/" + $scope.media.id)
-                var jqXHR = $.get(app.config.wildbook.proxyUrl + "/obj/mediasubmission/getexif/" + $scope.media.id)
-                .done(function(data) {
+//                return $.get("wildbook/obj/mediasubmission/getexif/" + $scope.media.id)
+//                return $.get($scope.data.config.wildbook.proxyUrl + "/obj/mediasubmission/getexif/" + $scope.media.id)
+                return $.get(app.config.wildbook.proxyUrl + "/obj/mediasubmission/getexif/" + $scope.media.id)
+                .then(function(data) {
                     var avg = data.avg;
                     //
                     // If we have lat/long data then we don't want to show
@@ -288,18 +288,13 @@ var submitMedia = (function () {
                         $scope.media.latitude = avg.latitude;
                         $scope.media.longitude = avg.longitude;
                     });
-                })
-                .fail(function(ex) {
-                    alertplus.error(ex);
-                });
-
-                return jqXHR.promise();
+                }, handleError);
             };
 
             $scope.saveSubmission = function() {
                 var saveAndGo = function() {
-                    var jqXHR = savems($scope.media, "save")
-                    .done(function(data) {
+                    return savems($scope.media, "save")
+                    .then(function(data) {
                         $scope.$apply(function(){
                             //
                             // NOTE: This is bound using ng-value instead of ng-model
@@ -308,8 +303,6 @@ var submitMedia = (function () {
                             $scope.media.id = data;
                         });
                     });
-
-                    return jqXHR.promise();
                 }
 
                 if ($scope.media.username) {
@@ -361,13 +354,11 @@ var submitMedia = (function () {
 
 
             $scope.completeWizard = function() {
-                var jqXHR = savems(this.media, "complete")
-                .done(function(mediaid) {
+                return savems(this.media, "complete")
+                .then(function(mediaid) {
                     $("#MediaSubmissionWizard").addClass("hidden");
                     $("#MediaSubmissionThankYou").removeClass("hidden");
                 });
-
-                return jqXHR.promise();
             };
 
     //                //
@@ -422,7 +413,7 @@ var submitMedia = (function () {
     .controller('SubmissionFileUploadController',
         ['$scope', '$http',
          function ($scope, $http) {
-            app.configPromise.done(function() {
+            app.configPromise.then(function() {
                  $scope.options = {
     //                   url: "http://wildbook.happywhale.com/mediaupload"
     //                url: config.wildbook.url + "/mediaupload"

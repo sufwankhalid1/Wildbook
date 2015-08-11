@@ -1,7 +1,7 @@
 /*
  * This file is a part of Wildbook.
  * Copyright (C) 2015 WildMe
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -18,16 +18,19 @@
 
 package org.ecocean.media;
 
-import java.util.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
-import com.samsix.database.*;
 import org.ecocean.ShepherdPMF;
-
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.junit.*;
-import static org.junit.Assert.*;
+import com.samsix.database.ConnectionInfo;
+import com.samsix.database.Database;
+import com.samsix.database.DatabaseException;
 
 /**
  * Test AssetStore routines.
@@ -43,15 +46,16 @@ public class AssetStoreTest {
 
         try (Database db = new Database(ci)) {
             String name = "test store";
+            AssetStore store;
 
             // clean up possible leftovers from a previous run
-            AssetStore store = AssetStore.load(db, name);
+            store = AssetStore.get(name);
             if (store != null) {
                 store.delete(db);
             }
 
             // should be gone now
-            store = AssetStore.load(db, name);
+            store = AssetStore.get(name);
             assertNull("Leftover store not deleted", store);
 
             // new from scratch
@@ -61,20 +65,20 @@ public class AssetStoreTest {
             assertTrue("ID not set", id != AssetStore.NOT_SAVED);
 
             // load by id
-            store = AssetStore.load(db, store.id);
+            store = AssetStore.get(store.id);
             assertNotNull("Store not loaded by id", store);
 
             // load by name
-            store = AssetStore.load(db, name);
+            store = AssetStore.get(name);
             assertNotNull("Store not loaded by name", store);
 
             // load default
-            store = AssetStore.loadDefault(db);
+            store = AssetStore.getDefault();
             assertNotNull("Default store not loaded", store);
 
             // delete
             store.delete(db);
-            store = AssetStore.load(db, name);
+            store = AssetStore.get(name);
             assertNull("New store not deleted", store);
 
         } catch (DatabaseException ex) {

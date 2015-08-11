@@ -19,10 +19,10 @@
 
 package org.ecocean.servlet;
 
-import org.ecocean.CommonConfiguration;
-import org.ecocean.Encounter;
-import org.ecocean.Shepherd;
-import org.ecocean.SuperSpot;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -30,10 +30,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
+import org.ecocean.CommonConfiguration;
+import org.ecocean.Encounter;
+import org.ecocean.Shepherd;
+import org.ecocean.SuperSpot;
 
 //import java.util.Vector;
 
@@ -42,7 +42,7 @@ import java.util.ArrayList;
 public class InterconnectSubmitSpots extends HttpServlet {
 
 
-  private void deleteOldScans(String side, String num) {
+  private void deleteOldScans(final String side, final String num) {
     try {
       //File file=new File((new File(".")).getCanonicalPath()+File.separator+"webapps"+File.separator+"ROOT"+File.separator+"encounters"+File.separator+num+File.separator+"lastFull"+side+"Scan.xml");
       File file = new File(getServletContext().getRealPath(("/encounters/" + num + "/lastFull" + side + "Scan.xml")));
@@ -66,17 +66,20 @@ public class InterconnectSubmitSpots extends HttpServlet {
   }
 
 
-  public void init(ServletConfig config) throws ServletException {
+  @Override
+public void init(final ServletConfig config) throws ServletException {
     super.init(config);
   }
 
 
-  public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+  @Override
+public void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
     doGet(request, response);
   }
 
 
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+  @Override
+public void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
     String context="context0";
     context=ServletUtilities.getContext(request);
     Shepherd myShepherd = new Shepherd(context);
@@ -99,7 +102,7 @@ public class InterconnectSubmitSpots extends HttpServlet {
       Encounter enc = myShepherd.getEncounter(num);
       try {
 
-        if (enc.isAssignedToMarkedIndividual().equals("Unassigned")) {
+        if (enc.getIndividualID() == null) {
           //System.out.println("Yes, shark is unassigned!");
           ok2add = true;
           for (int i = 0; i < 200; i++) {

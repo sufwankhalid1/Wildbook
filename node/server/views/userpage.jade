@@ -45,6 +45,11 @@ block content
         hr
         #map-sightings
         
+        for being in data.userinfo.individuals
+            ul.submitters
+                li
+                    include partials/avatar
+        
         h1.has-icon.icon-voyageviewer= t("userpage.voyages")
         hr
         
@@ -67,9 +72,11 @@ block scripts
             //        interval: 3000
             //    });
         
-            var user = !{JSON.stringify(data.userinfo)};
+            var photos = !{JSON.stringify(data.userinfo.photos)};
+            var encounters = !{JSON.stringify(data.userinfo.encounters)};
+            var voyages = !{JSON.stringify(data.userinfo.voyages)};
         
             app.configPromise.then(function() {
-                individualPage.init(user);
+                individualPage.init(photos, encounters, voyages);
             });
         });

@@ -19,14 +19,10 @@
 
 package org.ecocean.servlet;
 
-import com.oreilly.servlet.multipart.FilePart;
-import com.oreilly.servlet.multipart.MultipartParser;
-import com.oreilly.servlet.multipart.ParamPart;
-import com.oreilly.servlet.multipart.Part;
-
-import org.ecocean.*;
-import org.ecocean.media.*;
-import org.ecocean.mmutil.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -34,13 +30,24 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import java.io.*;
-import java.util.*;
-
-import com.samsix.database.*;
-
+import org.ecocean.CommonConfiguration;
+import org.ecocean.Shepherd;
+import org.ecocean.ShepherdPMF;
+import org.ecocean.User;
+import org.ecocean.media.AssetStore;
+import org.ecocean.media.AssetType;
+import org.ecocean.media.MediaAsset;
+import org.ecocean.mmutil.MediaUtilities;
+import org.ecocean.mmutil.StringUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.oreilly.servlet.multipart.FilePart;
+import com.oreilly.servlet.multipart.MultipartParser;
+import com.oreilly.servlet.multipart.ParamPart;
+import com.oreilly.servlet.multipart.Part;
+import com.samsix.database.ConnectionInfo;
+import com.samsix.database.Database;
 
 /**
  * Uploads a new image to the file system and associates the image with an Encounter record
@@ -51,19 +58,22 @@ public class UserAddProfileImage extends HttpServlet {
     private static Logger log = LoggerFactory.getLogger(UserAddProfileImage.class);
 
 
-    public void init(ServletConfig config)
+    @Override
+    public void init(final ServletConfig config)
         throws ServletException
     {
         super.init(config);
     }
 
-    public void doGet(HttpServletRequest request, HttpServletResponse response)
+    @Override
+    public void doGet(final HttpServletRequest request, final HttpServletResponse response)
         throws ServletException, IOException
     {
         doPost(request, response);
     }
 
-    public void doPost(HttpServletRequest request, HttpServletResponse response)
+    @Override
+    public void doPost(final HttpServletRequest request, final HttpServletResponse response)
         throws ServletException, IOException
     {
         String context="context0";
@@ -105,7 +115,7 @@ public class UserAddProfileImage extends HttpServlet {
 
         ConnectionInfo ci = ShepherdPMF.getConnectionInfo();
         try (Database db = new Database(ci)) {
-            AssetStore assetStore = AssetStore.loadDefault(db);
+            AssetStore assetStore = AssetStore.getDefault();
             if (assetStore == null) {
                 throw new IllegalArgumentException("Can't load the default asset store");
             }
@@ -142,8 +152,8 @@ public class UserAddProfileImage extends HttpServlet {
     /**
      * Grab the username from the request url or form request.
      */
-    private String getUsername(HttpServletRequest request,
-                               String context, ParamPart part)
+    private String getUsername(final HttpServletRequest request,
+                               final String context, final ParamPart part)
         throws IOException, UnsupportedEncodingException
     {
         // our username if we're on a MyAccount (non-admin?) page
@@ -162,7 +172,7 @@ public class UserAddProfileImage extends HttpServlet {
     /**
      * Grab the submitted file and store in a temp file, returning it.
      */
-    private ImageInfo getImage(FilePart part)
+    private ImageInfo getImage(final FilePart part)
         throws IOException
     {
         String fileName = part.getFileName();
@@ -189,11 +199,11 @@ public class UserAddProfileImage extends HttpServlet {
      * Copy the submitted file into the AssetStore under the user's
      * subdirectory.
      */
-    private MediaAsset importImage(Database db,
-                                   AssetStore store,
-                                   File image,
-                                   String filename,
-                                   String username)
+    private MediaAsset importImage(final Database db,
+                                   final AssetStore store,
+                                   final File image,
+                                   final String filename,
+                                   final String username)
         throws IOException, UnsupportedEncodingException
     {
         String dest = username + "/" + filename;
@@ -207,12 +217,12 @@ public class UserAddProfileImage extends HttpServlet {
         return ma;
     }
 
-    private void showResult(HttpServletRequest request,
-                            HttpServletResponse response,
-                            String context,
-                            String username,
-                            String type,
-                            String message)
+    private void showResult(final HttpServletRequest request,
+                            final HttpServletResponse response,
+                            final String context,
+                            final String username,
+                            final String type,
+                            final String message)
     {
         try (PrintWriter out = response.getWriter()) {
             response.setContentType("text/html");
@@ -245,7 +255,7 @@ public class UserAddProfileImage extends HttpServlet {
         File image;
         String filename;
 
-        ImageInfo(File f, String n) {
+        ImageInfo(final File f, final String n) {
             image = f;
             filename = n;
         }

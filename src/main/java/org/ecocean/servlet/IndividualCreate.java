@@ -19,16 +19,6 @@
 
 package org.ecocean.servlet;
 
-import org.ecocean.*;
-
-import org.ecocean.CommonConfiguration;
-
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -36,27 +26,43 @@ import java.util.StringTokenizer;
 import java.util.Vector;
 import java.util.concurrent.ThreadPoolExecutor;
 
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.ecocean.CommonConfiguration;
+import org.ecocean.Encounter;
+import org.ecocean.MailThreadExecutorService;
+import org.ecocean.MarkedIndividual;
+import org.ecocean.NotificationMailer;
+import org.ecocean.Shepherd;
+
 
 public class IndividualCreate extends HttpServlet {
 
-  public void init(ServletConfig config) throws ServletException {
+  @Override
+public void init(final ServletConfig config) throws ServletException {
     super.init(config);
   }
 
 
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+  @Override
+public void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
     doPost(request, response);
   }
 
 
-  private void setDateLastModified(Encounter enc) {
+  private void setDateLastModified(final Encounter enc) {
     String strOutputDateTime = ServletUtilities.getDate();
     System.out.println("ServletUtilities.getDate output: "+strOutputDateTime);
     enc.setDWCDateLastModified(strOutputDateTime);
   }
 
 
-  public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+  @Override
+public void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
     String context="context0";
     context=ServletUtilities.getContext(request);
     Shepherd myShepherd = new Shepherd(context);
@@ -66,7 +72,7 @@ public class IndividualCreate extends HttpServlet {
     boolean locked = false;
 
     boolean isOwner = true;
-    
+
     //setup data dir
     String rootWebappPath = getServletContext().getRealPath("/");
     File webappsDir = new File(rootWebappPath).getParentFile();
@@ -78,10 +84,10 @@ public class IndividualCreate extends HttpServlet {
     String newIndividualID="";
     if(request.getParameter("individual")!=null){
       newIndividualID=request.getParameter("individual");
-      
+
       //strip out problematic characters
       newIndividualID=ServletUtilities.cleanFileName(newIndividualID);
-      
+
     }
 
 
@@ -92,28 +98,28 @@ public class IndividualCreate extends HttpServlet {
       Encounter enc2make = myShepherd.getEncounter(request.getParameter("number").trim());
       setDateLastModified(enc2make);
 
-      String belongsTo = enc2make.isAssignedToMarkedIndividual();
+      String belongsTo = enc2make.getIndividualID();
       String submitter = enc2make.getSubmitterEmail();
       String photographer = enc2make.getPhotographerEmail();
       String informers = enc2make.getInformOthers();
-      
+
       boolean ok2add=true;
 
       if (!(myShepherd.isMarkedIndividual(newIndividualID))) {
 
 
-        if ((belongsTo.equals("Unassigned")) && (newIndividualID != null)) {
+        if (belongsTo == null && newIndividualID != null) {
           try {
             MarkedIndividual newShark = new MarkedIndividual(newIndividualID, enc2make);
-            enc2make.assignToMarkedIndividual(newIndividualID);
+            enc2make.setIndividualID(newIndividualID);
             enc2make.setMatchedBy("Unmatched first encounter");
             newShark.addComments("<p><em>" + request.getRemoteUser() + " on " + (new java.util.Date()).toString() + "</em><br>" + "Created " + newIndividualID + ".</p>");
             newShark.setDateTimeCreated(ServletUtilities.getDate());
-            
+
             ok2add=myShepherd.addMarkedIndividual(newShark);
-            
+
             enc2make.addComments("<p><em>" + request.getRemoteUser() + " on " + (new java.util.Date()).toString() + "</em><br>" + "Added to newly marked individual " + newIndividualID + ".</p>");
-          } 
+          }
           catch (Exception le) {
             locked = true;
             le.printStackTrace();
@@ -129,7 +135,7 @@ public class IndividualCreate extends HttpServlet {
               Vector e_images = new Vector();
               String thanksmessage = ServletUtilities.getText(CommonConfiguration.getDataDirectoryName(context),"createdMarkedIndividual.html",ServletUtilities.getLanguageCode(request));
               thanksmessage = thanksmessage.replaceAll("INSERTTEXT",("<a href=\"http://" + CommonConfiguration.getURLLocation(request) + "/individuals.jsp?number=" + newIndividualID+"\">Click here to learn more about "+newIndividualID+ " in Wildbook!</a>"));
-              
+
               ThreadPoolExecutor es = MailThreadExecutorService.getExecutorService();
 
               //notify the admins
@@ -198,20 +204,20 @@ public class IndividualCreate extends HttpServlet {
               String rssDescription = newIndividualID + " has been added.";
               //File rssFile = new File(getServletContext().getRealPath(("/"+context+"/rss.xml")));
 
-              
+
               File rssFile = new File(shepherdDataDir,"rss.xml");
 
-              
+
               ServletUtilities.addRSSEntry(rssTitle, rssLink, rssDescription, rssFile);
               //File atomFile = new File(getServletContext().getRealPath(("/"+context+"/atom.xml")));
               File atomFile = new File(shepherdDataDir,"atom.xml");
 
-              
+
               ServletUtilities.addATOMEntry(rssTitle, rssLink, rssDescription, atomFile,context);
-              
+
               //shutdown the mailing threadpool
               es.shutdown();
-              
+
             }
             //set up the directory for this individual
             File thisSharkDir = new File(individualsDir, newIndividualID);
@@ -267,7 +273,7 @@ public class IndividualCreate extends HttpServlet {
       }
 
 
-    } 
+    }
     else {
       out.println(ServletUtilities.getHeader(request));
       out.println("<strong>Error:</strong> I didn't receive enough data to create a marked individual from this encounter.");
@@ -276,7 +282,7 @@ public class IndividualCreate extends HttpServlet {
 
 
     out.close();
-    
+
   }
 }
 

@@ -32,13 +32,35 @@ Now point your browser to http://localhost:3000
 
 ###On Your Development Machine
 
+Make sure you have the config directory of secrets (we need to make this a private repo) for the customer. Currently, due to the dep.xml file configuration this needs to be in ```<parent_dir_of_Wildbook>/cust/happywhale/wildbook/config``` and so far just contains the stormpath api keys (more to be added later). For example...
+
+    cuervomovil:Wildbook ken$ tree ../cust/happywhale
+    ../cust/happywhale
+    └── wildbook
+        └── config
+            └── stormpathApiKey.properties
+
+This should have to be very rarely updated so it should just be there once you create it. Then move on to building...
+
     cd ${dev-dir}/Wildbook
-    mvn clean install
-    scp target/wildbook-5.3.0-RELEASE.war devhappywhale.com:/var/tmp
+    mvn clean install -Dcust=happywhale
+    
+Actually, instead of the above, I do the following because the tests don't work for me anyway and I don't want to waste time building javadocs that are unused. Skipping tests and javadocs over and over again saves me a lot of time.
+
+    mvn clean compile package -DskipTests -Dmaven.javadoc.skip=true -Dcust=happywhale
+    
+    scp target/wildbook-5.3.0-RELEASE.war target/wildbook-5.3.0-RELEASE-config.war devhappywhale.com:/var/tmp
     
     cd ${dev-dir}/Wildbook/node
     mvn assembly:single -Dcust=happywhale
     scp target/animalus-0.1-SNAPSHOT-node.zip devhappywhale.com:/var/tmp
+    
+### For the live site, just copy the releases from the dev site.
+
+It is assumed that they are tested there first afterall. :) To do this I have a simple script in ```/var/tmp``` called ```getFilesFromDev``` on the live server.
+
+    cd /var/tmp
+    ./getFilesFromDev
     
 ###Server
     

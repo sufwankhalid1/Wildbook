@@ -1,45 +1,58 @@
 package org.ecocean.servlet.export;
-import javax.servlet.*;
-import javax.servlet.http.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.util.Collection;
+import java.util.List;
+import java.util.Vector;
 
-import java.io.*;
-import java.util.*;
-
-import org.ecocean.*;
-import org.ecocean.genetics.*;
-import org.ecocean.servlet.ServletUtilities;
-
-import javax.jdo.*;
-
-import java.lang.StringBuffer;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.dom4j.Document;
-import org.dom4j.DocumentHelper; 
+import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
+import org.ecocean.CommonConfiguration;
+import org.ecocean.Encounter;
+import org.ecocean.EncounterQueryProcessor;
+import org.ecocean.EncounterQueryResult;
+import org.ecocean.Shepherd;
+import org.ecocean.SinglePhotoVideo;
+import org.ecocean.servlet.ServletUtilities;
 
 
 //adds spots to a new encounter
 public class EncounterSearchExportKML extends HttpServlet{
-  
+
   private static final int BYTES_DOWNLOAD = 1024;
 
-  
-  public void init(ServletConfig config) throws ServletException {
+
+  @Override
+public void init(final ServletConfig config) throws ServletException {
       super.init(config);
     }
 
-  
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException,IOException {
+
+  @Override
+public void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException,IOException {
       doPost(request, response);
   }
-    
 
 
-  public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+
+  @Override
+public void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException{
 
     String context="context0";
     context=ServletUtilities.getContext(request);
-    
+
     //setup data dir
     String rootWebappPath = getServletContext().getRealPath("/");
     File webappsDir = new File(rootWebappPath).getParentFile();
@@ -47,14 +60,14 @@ public class EncounterSearchExportKML extends HttpServlet{
     if(!shepherdDataDir.exists()){shepherdDataDir.mkdirs();}
     File encountersDir=new File(shepherdDataDir.getAbsolutePath()+"/encounters");
     if(!encountersDir.exists()){encountersDir.mkdirs();}
-    
+
     //determine if placemarks should be decorated
     boolean bareBonesPlacemarks=false;
     if(request.getParameter("barebones")!=null){bareBonesPlacemarks=true;}
-    
+
     Shepherd myShepherd = new Shepherd(context);
     Vector rEncounters = new Vector();
-    
+
     //set up the files
     String gisFilename = "exportKML_" + request.getRemoteUser() + ".kml";
     File gisFile = new File(encountersDir.getAbsolutePath()+"/" + gisFilename);
@@ -71,12 +84,12 @@ public class EncounterSearchExportKML extends HttpServlet{
     if (request.getParameter("addTimeStamp") != null) {
       addTimeStamp = true;
     }
-    
-    
+
+
     myShepherd.beginDBTransaction();
-      
+
       try{
-      
+
       if(request.getParameter("encounterSearchUse")!=null){
         Collection c=(Collection)myShepherd.getPM().newQuery("SELECT FROM org.ecocean.Encounter WHERE decimalLatitude != null && decimalLongitude != null").execute();
         rEncounters=new Vector(c);
@@ -90,18 +103,18 @@ public class EncounterSearchExportKML extends HttpServlet{
 			if (blocked.size() > 0) {
 				response.setContentType("text/html");
 				PrintWriter out = response.getWriter();
-				out.println(ServletUtilities.getHeader(request));  
+				out.println(ServletUtilities.getHeader(request));
 				out.println("<html><body><p><strong>Access denied.</strong></p>");
 				out.println(ServletUtilities.getFooter(context));
 				out.close();
 				return;
 			}
-      
+
         int numMatchingEncounters=rEncounters.size();
-      
+
 
         for(int i=0;i<numMatchingEncounters;i++){
-        
+
           Encounter enc=(Encounter)rEncounters.get(i);
         //populate KML file ====================================================
 
@@ -112,10 +125,10 @@ public class EncounterSearchExportKML extends HttpServlet{
             String nameText = "";
 
             //add the name
-            if (enc.isAssignedToMarkedIndividual().equals("Unassigned")) {
+            if (enc.getIndividualID() == null) {
               nameText = "Encounter " + enc.getEncounterNumber();
             } else {
-              nameText = enc.isAssignedToMarkedIndividual() + ": Encounter " + enc.getEncounterNumber();
+              nameText = enc.getIndividualID() + ": Encounter " + enc.getEncounterNumber();
             }
             name.setText(nameText);
 
@@ -139,7 +152,7 @@ public class EncounterSearchExportKML extends HttpServlet{
                 }
               }
               catch(Exception npe){npe.printStackTrace();System.out.println("NPE on size for encounter: "+enc.getCatalogNumber());}
-            
+
               if(enc.getSex()!=null){
                 descHTML += "<p> <strong>Sex:</strong> " + enc.getSex() + "</p>";
               }
@@ -207,7 +220,7 @@ public class EncounterSearchExportKML extends HttpServlet{
         //end KML ==============================================================
 
 
-        //write out KML 
+        //write out KML
         //File kmlFile = new File(getServletContext().getRealPath(("/encounters/" + kmlFilename)));
         FileWriter kmlWriter = new FileWriter(gisFile);
         org.dom4j.io.OutputFormat format = org.dom4j.io.OutputFormat.createPrettyPrint();
@@ -215,26 +228,26 @@ public class EncounterSearchExportKML extends HttpServlet{
         org.dom4j.io.XMLWriter writer = new org.dom4j.io.XMLWriter(kmlWriter, format);
         writer.write(document);
         writer.close();
-        
+
         //now write out the file
         response.setContentType("application/vnd.google-earth.kml+xml");
         response.setHeader("Content-Disposition","attachment;filename="+gisFilename);
         //ServletContext ctx = getServletContext();
         //InputStream is = ctx.getResourceAsStream("/encounters/"+gisFilename);
        InputStream is=new FileInputStream(gisFile);
-        
-        
+
+
         int read=0;
         byte[] bytes = new byte[BYTES_DOWNLOAD];
         OutputStream os = response.getOutputStream();
-       
+
         while((read = is.read(bytes))!= -1){
           os.write(bytes, 0, read);
         }
         os.flush();
-        os.close(); 
+        os.close();
 
-        
+
       }
       catch(Exception ioe){
         ioe.printStackTrace();
@@ -245,18 +258,18 @@ public class EncounterSearchExportKML extends HttpServlet{
         out.println("<p>Please let the webmaster know you encountered an error at: EncounterSearchExportKML servlet</p></body></html>");
         out.println(ServletUtilities.getFooter(context));
       }
-      
+
 
 
     myShepherd.rollbackDBTransaction();
     myShepherd.closeDBTransaction();
 
 
-  
-      
-      
-      
+
+
+
+
     }
-  
-  
+
+
   }

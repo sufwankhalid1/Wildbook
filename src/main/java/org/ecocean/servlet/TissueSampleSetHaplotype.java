@@ -19,8 +19,8 @@
 
 package org.ecocean.servlet;
 
-import org.ecocean.*;
-import org.ecocean.genetics.*;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -28,23 +28,30 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import java.io.IOException;
-import java.io.PrintWriter;
+import org.ecocean.CommonConfiguration;
+import org.ecocean.Encounter;
+import org.ecocean.MarkedIndividual;
+import org.ecocean.Shepherd;
+import org.ecocean.genetics.MitochondrialDNAAnalysis;
+import org.ecocean.genetics.TissueSample;
 
 
 //Set alternateID for this encounter/sighting
 public class TissueSampleSetHaplotype extends HttpServlet {
 
-  public void init(ServletConfig config) throws ServletException {
+  @Override
+public void init(final ServletConfig config) throws ServletException {
     super.init(config);
   }
 
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+  @Override
+public void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
     doPost(request, response);
   }
 
-  public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-    
+  @Override
+public void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
+
     String context="context0";
     context=ServletUtilities.getContext(request);
     Shepherd myShepherd = new Shepherd(context);
@@ -60,28 +67,28 @@ public class TissueSampleSetHaplotype extends HttpServlet {
       String encounterNumber=request.getParameter("number");
       String haplotype=request.getParameter("haplotype");
       String analysisID=request.getParameter("analysisID");
-      
+
       MitochondrialDNAAnalysis mtDNA = new MitochondrialDNAAnalysis();
 
 
-      
+
       try {
         Encounter enc=myShepherd.getEncounter(encounterNumber);
         TissueSample sample = myShepherd.getTissueSample(sampleID, encounterNumber);
-        
+
         if(myShepherd.isGeneticAnalysis(sampleID, encounterNumber, analysisID, "MitochondrialDNA")){
           mtDNA=myShepherd.getMitochondrialDNAAnalysis(sampleID, encounterNumber, analysisID);
-          
+
           //now set the new values
           mtDNA.setHaplotype(request.getParameter("haplotype"));
-          
+
         }
         else{
-          
+
           mtDNA=new MitochondrialDNAAnalysis(analysisID, haplotype, encounterNumber, sampleID);
-          
+
         }
-        
+
         if(request.getParameter("processingLabTaskID")!=null){mtDNA.setProcessingLabTaskID(request.getParameter("processingLabTaskID"));}
         if(request.getParameter("processingLabName")!=null){mtDNA.setProcessingLabName(request.getParameter("processingLabName"));}
         if(request.getParameter("processingLabContactName")!=null){mtDNA.setProcessingLabContactName(request.getParameter("processingLabContactName"));}
@@ -90,14 +97,14 @@ public class TissueSampleSetHaplotype extends HttpServlet {
         sample.addGeneticAnalysis(mtDNA);
 
         enc.addComments("<p><em>" + request.getRemoteUser() + " on " + (new java.util.Date()).toString() + "</em><br />" + "Added or updated mitochondrial DNA analysis (haplotype) "+request.getParameter("analysisID")+" for tissue sample "+request.getParameter("sampleID")+".<br />"+mtDNA.getHTMLString());
-        
+
         //check if this affects the MarkedIndividual.localHaplotypeReflection
-        if((enc.getIndividualID()!=null)&&(!enc.getIndividualID().equals("Unassigned"))){
+        if(enc.getIndividualID()!=null){
             MarkedIndividual indie=myShepherd.getMarkedIndividual(enc.getIndividualID());
             indie.doNotSetLocalHaplotypeReflection(mtDNA.getHaplotype());
         }
 
-      } 
+      }
       catch (Exception le) {
         locked = true;
         myShepherd.rollbackDBTransaction();
@@ -112,7 +119,7 @@ public class TissueSampleSetHaplotype extends HttpServlet {
 
         out.println("<p><a href=\"http://" + CommonConfiguration.getURLLocation(request) + "/encounters/encounter.jsp?number=" + encounterNumber + "\">Return to encounter " + encounterNumber + "</a></p>\n");
         out.println(ServletUtilities.getFooter(context));
-        } 
+        }
       else {
 
         out.println(ServletUtilities.getHeader(request));
@@ -135,5 +142,5 @@ public class TissueSampleSetHaplotype extends HttpServlet {
 
 
 }
-  
-  
+
+

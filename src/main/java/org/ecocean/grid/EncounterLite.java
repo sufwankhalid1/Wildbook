@@ -23,17 +23,18 @@ package org.ecocean.grid;
 
 //another unenhanced comment
 
-import com.reijns.I3S.Affine;
-import com.reijns.I3S.Compare;
-import com.reijns.I3S.FingerPrint;
-import com.reijns.I3S.Point2D;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.TreeMap;
+
 import org.ecocean.Encounter;
 import org.ecocean.Spot;
 import org.ecocean.SuperSpot;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.TreeMap;
+import com.reijns.I3S.Affine;
+import com.reijns.I3S.Compare;
+import com.reijns.I3S.FingerPrint;
+import com.reijns.I3S.Point2D;
 
 //a class...
 //more description..
@@ -63,10 +64,10 @@ public class EncounterLite implements java.io.Serializable {
   public EncounterLite() {
   }
 
-  public EncounterLite(Encounter enc) {
+  public EncounterLite(final Encounter enc) {
     this.date = enc.getDate();
     this.encounterNumber = enc.getEncounterNumber();
-    this.belongsToMarkedIndividual = enc.isAssignedToMarkedIndividual();
+    this.belongsToMarkedIndividual = enc.getIndividualID();
     if(enc.getSex()!=null){
       this.sex = enc.getSex();
     }
@@ -192,7 +193,7 @@ public class EncounterLite implements java.io.Serializable {
     return encounterNumber;
   }
 
-  public MatchObject getPointsForBestMatch(SuperSpot[] newspotsTemp, double epsilon, double R, double Sizelim, double maxTriangleRotation, double C, boolean secondRun, boolean rightScan) {
+  public MatchObject getPointsForBestMatch(final SuperSpot[] newspotsTemp, final double epsilon, final double R, final double Sizelim, final double maxTriangleRotation, final double C, final boolean secondRun, final boolean rightScan) {
     System.out.println("\nNow comparing against encounter " + encounterNumber + " of " + belongsToMarkedIndividual + "...");
     try {
 
@@ -889,7 +890,7 @@ public class EncounterLite implements java.io.Serializable {
     }
   }
 
-  private VertexPointMatch[] secondGrothPass(SuperSpot[] secondNewSpots, SuperSpot[] secondBaseSpots, double epsilon, double R, double Sizelim, double maxTriangleRotation, double C) {
+  private VertexPointMatch[] secondGrothPass(final SuperSpot[] secondNewSpots, final SuperSpot[] secondBaseSpots, final double epsilon, final double R, final double Sizelim, final double maxTriangleRotation, final double C) {
     VertexPointMatch[] scores = new VertexPointMatch[0];
     try {
       SuperSpot[] newspots = secondNewSpots;
@@ -1361,7 +1362,7 @@ public class EncounterLite implements java.io.Serializable {
   /**
    * This method allows us to use the I3S match algorithm as well.
    */
-  public I3SMatchObject i3sScan(EncounterLite newEnc, boolean scanRight) {
+  public I3SMatchObject i3sScan(final EncounterLite newEnc, final boolean scanRight) {
 
     //superSpot objects are my equivalent in my DB of Point2D
     //these spots are for the unknown encounter
@@ -1455,7 +1456,7 @@ public class EncounterLite implements java.io.Serializable {
     return (new I3SMatchObject(belongsToMarkedIndividual, fpBest[0].getScore(), encounterNumber, sex, getDate(), size, hm, 0));
   }
 
-  private void doAffine(FingerPrint fp) {
+  private void doAffine(final FingerPrint fp) {
     double[] matrix = new double[6];
     Affine.calcAffine(fp.control[0].getX(), fp.control[0].getY(), fp.control[1].getX(), fp.control[1].getY(), fp.control[2].getX(), fp.control[2].getY(), 100, 100, 900, 100, 500, 700, matrix);
 
@@ -1611,7 +1612,7 @@ public class EncounterLite implements java.io.Serializable {
   }
 
 
-  public void processLeftSpots(ArrayList<org.ecocean.SuperSpot> initSpots) {
+  public void processLeftSpots(final ArrayList<org.ecocean.SuperSpot> initSpots) {
     int length = initSpots.size();
     spotsX = new double[length];
     spotsY = new double[length];
@@ -1621,7 +1622,7 @@ public class EncounterLite implements java.io.Serializable {
     }
   }
 
-  public void processLeftReferenceSpots(ArrayList<org.ecocean.SuperSpot> initSpots) {
+  public void processLeftReferenceSpots(final ArrayList<org.ecocean.SuperSpot> initSpots) {
     int length = initSpots.size();
     leftReferenceSpotsX = new double[length];
     leftReferenceSpotsY = new double[length];
@@ -1631,7 +1632,7 @@ public class EncounterLite implements java.io.Serializable {
     }
   }
 
-  public void processRightSpots(ArrayList<org.ecocean.SuperSpot> initSpots) {
+  public void processRightSpots(final ArrayList<org.ecocean.SuperSpot> initSpots) {
     int length = initSpots.size();
     rightSpotsX = new double[length];
     rightSpotsY = new double[length];
@@ -1641,7 +1642,7 @@ public class EncounterLite implements java.io.Serializable {
     }
   }
 
-  public void processRightReferenceSpots(ArrayList<org.ecocean.SuperSpot> initSpots) {
+  public void processRightReferenceSpots(final ArrayList<org.ecocean.SuperSpot> initSpots) {
     int length = initSpots.size();
     rightReferenceSpotsX = new double[length];
     rightReferenceSpotsY = new double[length];

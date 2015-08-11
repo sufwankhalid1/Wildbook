@@ -18,20 +18,25 @@
 
 package org.ecocean.media;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import java.nio.file.*;
-import java.lang.reflect.*;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 
-import com.oreilly.servlet.multipart.FilePart;
-
-import com.samsix.database.*;
-
+import org.ecocean.ShepherdPMF;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.ecocean.ShepherdPMF;
+import com.samsix.database.Database;
+import com.samsix.database.DatabaseException;
+import com.samsix.database.RecordSet;
+import com.samsix.database.SqlFormatter;
+import com.samsix.database.SqlInsertFormatter;
+import com.samsix.database.SqlUpdateFormatter;
+import com.samsix.database.SqlWhereFormatter;
+import com.samsix.database.Table;
 
 /**
  * AssetStore describes a location and methods for access to a set of
@@ -42,6 +47,8 @@ import org.ecocean.ShepherdPMF;
 public abstract class AssetStore {
     private static Logger log = LoggerFactory.getLogger(AssetStore.class);
     private static final String TABLE_NAME = "assetstore";
+    private static Map<Long, AssetStore> stores;
+
     public static final long NOT_SAVED = -1;
     public long id = NOT_SAVED;
     public String name;
@@ -53,10 +60,10 @@ public abstract class AssetStore {
     /**
      * Create a new AssetStore.
      */
-    protected AssetStore(long id, String name,
-                         AssetStoreType type,
-                         AssetStoreConfig config,
-                         boolean writable)
+    protected AssetStore(final long id, final String name,
+                         final AssetStoreType type,
+                         final AssetStoreConfig config,
+                         final boolean writable)
     {
         if (name == null) throw new IllegalArgumentException("null name");
         if (type == null) throw new IllegalArgumentException("null type");
@@ -68,14 +75,58 @@ public abstract class AssetStore {
         this.writable = writable;
     }
 
+
+    private static Map<Long, AssetStore> getMap() throws DatabaseException
+    {
+        if (stores != null) {
+            return stores;
+        }
+
+        stores = new HashMap<Long, AssetStore>();
+
+        try (Database db = new Database(ShepherdPMF.getConnectionInfo())) {
+            RecordSet rs;
+            Table table = db.getTable(TABLE_NAME);
+
+            rs = table.getRecordSet();
+            while (rs.next()) {
+                AssetStore store;
+                store = buildAssetStore(rs.getLong("id"),
+                                        rs.getString("name"),
+                                        AssetStoreType.valueOf(rs.getString("type")),
+                                        new AssetStoreConfig(rs.getString("config")),
+                                        rs.getBoolean("writable"));
+                stores.put(store.id, store);
+            }
+        }
+
+        return stores;
+    }
+
+    public static AssetStore get(final Long id)
+    {
+        return stores.get(id);
+    }
+
+    public static AssetStore get(final String name) throws DatabaseException
+    {
+        for (AssetStore store : getMap().values()) {
+            if (store.name != null && store.name.equals(name)) {
+                return store;
+            }
+        }
+
+        return null;
+    }
+
     /**
      * Create a new AssetStore.  Used in load().
      */
-    private static AssetStore buildAssetStore(long id,
-                                              String name,
-                                              AssetStoreType type,
-                                              AssetStoreConfig config,
-                                              boolean writable)
+    private static AssetStore buildAssetStore(final long id,
+                                              final String name,
+                                              final AssetStoreType type,
+                                              final AssetStoreConfig config,
+                                              final boolean writable)
     {
         if (name == null) throw new IllegalArgumentException("null name");
         if (type == null) throw new IllegalArgumentException("null type");
@@ -116,102 +167,44 @@ public abstract class AssetStore {
         throws IOException;
 
 
-    //
-    // store/load
-    //
-
     /**
      * Fetch the default store (the one with the highest id) from the
      * database.
      */
-    public static AssetStore loadDefault(Database db)
+    public static AssetStore getDefault()
         throws DatabaseException
     {
-        // NOTE maybe someday indicate the default store name in
-        // commonConfiguration.properties if we regularly use multiple
-        // stores.
-        return load(db, null, "id desc");
-    }
-
-    /**
-     * Fetch a single store from the database by name.
-     */
-    public static AssetStore load(Database db, String name)
-        throws DatabaseException
-    {
-        if (name == null) throw new IllegalArgumentException("null name");
-
-        SqlWhereFormatter where = new SqlWhereFormatter();
-        where.append("name", name);
-
-        return load(db, where);
-    }
-
-    /**
-     * Fetch a single store from the database by id.
-     */
-    public static AssetStore load(Database db, long id)
-        throws DatabaseException
-    {
-        if (id < 1) throw new IllegalArgumentException("bad id");
-
-        SqlWhereFormatter where = new SqlWhereFormatter();
-        where.append("id", id);
-
-        return load(db, where);
-    }
-
-    /**
-     * Fetch a single store from the database.
-     */
-    public static AssetStore load(Database db, SqlWhereFormatter where)
-        throws DatabaseException
-    {
-        if (where == null)
-            throw new IllegalArgumentException("null where formatter");
-
-        return load(db, where, null);
-    }
-
-    /**
-     * Fetch a single store from the database.
-     */
-    public static AssetStore load(Database db,
-                                  SqlWhereFormatter where,
-                                  String orderBy)
-        throws DatabaseException
-    {
-        // null "where" or orderBy is ok.
-        String whereStr = where != null ? where.getWhereClause() : null;
-
-        if (db == null)
-            throw new IllegalArgumentException("null database");
-
-        Table table = db.getTable(TABLE_NAME);
-
-        RecordSet rs = table.getRecordSet(whereStr, orderBy);
-        if (rs.next()) {
-            return buildAssetStore(rs.getLong("id"),
-                                   rs.getString("name"),
-                                   AssetStoreType.valueOf(rs.getString("type")),
-                                   new AssetStoreConfig(rs.getString("config")),
-                                   rs.getBoolean("writable"));
-        } else {
-            return null;
+        for (AssetStore store : getMap().values()) {
+            if (store.type == AssetStoreType.LOCAL) {
+                return store;
+            }
         }
+
+        //
+        // Otherwise return the first one in the map?
+        //
+        if (stores.values().iterator().hasNext()) {
+            return stores.values().iterator().next();
+        }
+
+        return null;
     }
 
     /**
      * Store to the given database.
      */
-    public void save(Database db) throws DatabaseException {
+    public void save(final Database db) throws DatabaseException {
         Table table = db.getTable(TABLE_NAME);
 
         if (id == NOT_SAVED) {
             SqlInsertFormatter formatter = new SqlInsertFormatter();
             fillFormatter(formatter);
 
-            id = (int)table.insertSequencedRow(formatter, "id");
+            id = table.insertSequencedRow(formatter, "id");
+
+            //
+            // TODO: Add this to our map!
+            //
         } else {
             SqlUpdateFormatter formatter = new SqlUpdateFormatter();
             fillFormatter(formatter);
@@ -225,7 +218,7 @@ public abstract class AssetStore {
     /**
      * Fill in formatter values from our properties.
      */
-    private void fillFormatter(SqlFormatter formatter) {
+    private void fillFormatter(final SqlFormatter formatter) {
         formatter.append("name", name);
         formatter.append("type", type.name());
         formatter.append("config", config.configString());
@@ -236,11 +229,13 @@ public abstract class AssetStore {
      * Delete this store from the given database.  Does not delete any
      * asset files.
      */
-    public void delete(Database db) throws DatabaseException {
+    public void delete(final Database db) throws DatabaseException {
         if (id == NOT_SAVED) return;
 
         Table table = db.getTable(TABLE_NAME);
 
         table.deleteRows("id = " + id);
+
+        getMap().remove(id);
     }
 }

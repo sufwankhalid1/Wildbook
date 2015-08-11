@@ -1,59 +1,79 @@
 package org.ecocean.servlet.export;
 
-import javax.servlet.*;
-import javax.servlet.http.*;
-
-import java.io.*;
-import java.util.*;
-
-import org.ecocean.*;
-import org.ecocean.genetics.*;
-import org.ecocean.servlet.ServletUtilities;
-
-
-
-import java.util.zip.ZipEntry;
 import java.io.File;
-import java.io.IOException;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.util.zip.ZipOutputStream;
-//import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Vector;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
-import org.geotools.data.*;
-import org.geotools.data.shapefile.*;
-import org.geotools.data.simple.*;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.ecocean.CommonConfiguration;
+import org.ecocean.Encounter;
+import org.ecocean.EncounterQueryProcessor;
+import org.ecocean.EncounterQueryResult;
+import org.ecocean.Shepherd;
+import org.ecocean.genetics.GeneticAnalysis;
+import org.ecocean.genetics.MitochondrialDNAAnalysis;
+import org.ecocean.genetics.TissueSample;
+import org.ecocean.servlet.ServletUtilities;
+import org.geotools.data.DefaultTransaction;
+import org.geotools.data.shapefile.ShapefileDataStore;
+import org.geotools.data.shapefile.ShapefileDataStoreFactory;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureSource;
+import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.feature.FeatureCollections;
-import org.geotools.feature.simple.*;
+import org.geotools.feature.simple.SimpleFeatureBuilder;
+import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.opengis.feature.simple.*;
+import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.simple.SimpleFeatureType;
 
-import com.vividsolutions.jts.geom.*;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.Point;
+//import java.io.FileWriter;
 //import java.sql.Date;
 //import java.net.URI;
-import com.vividsolutions.jts.geom.Point;
 
 //adds spots to a new encounter
 public class EncounterSearchExportShapefile extends HttpServlet{
-  
+
   private static final int BYTES_DOWNLOAD = 1024;
 
-  
-  public void init(ServletConfig config) throws ServletException {
+
+  @Override
+public void init(final ServletConfig config) throws ServletException {
       super.init(config);
     }
 
-  
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException,IOException {
+
+  @Override
+public void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException,IOException {
       doPost(request, response);
   }
-    
 
 
-  public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
-    
+
+  @Override
+public void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException{
+
     //set the response
     String context="context0";
     context=ServletUtilities.getContext(request);
@@ -64,10 +84,10 @@ public class EncounterSearchExportShapefile extends HttpServlet{
     //if(!shepherdDataDir.exists()){shepherdDataDir.mkdirs();}
     File encountersDir=new File(shepherdDataDir.getAbsolutePath()+"/encounters");
     //if(!encountersDir.exists()){encountersDir.mkdirs();}
-    
+
     Shepherd myShepherd = new Shepherd(context);
     Vector rEncounters = new Vector();
-    
+
     //set up the files
     String gisZipFilename = "exportGISShapefiles_" + request.getRemoteUser() + ".zip";
     //File gisFile = new File(getServletContext().getRealPath(("/encounters/" + gisZipFilename)));
@@ -89,13 +109,13 @@ public class EncounterSearchExportShapefile extends HttpServlet{
 
 
 
-    
-    
+
+
     myShepherd.beginDBTransaction();
-      
+
       try{
-      
-      
+
+
         EncounterQueryResult queryResult = EncounterQueryProcessor.processQuery(myShepherd, request, "year descending, month descending, day descending");
         rEncounters = queryResult.getResult();
 
@@ -103,21 +123,21 @@ public class EncounterSearchExportShapefile extends HttpServlet{
 				if (blocked.size() > 0) {
 					response.setContentType("text/html");
 					PrintWriter out = response.getWriter();
-					out.println(ServletUtilities.getHeader(request));  
+					out.println(ServletUtilities.getHeader(request));
 					out.println("<html><body><p><strong>Access denied.</strong></p>");
 					out.println(ServletUtilities.getFooter(context));
 					out.close();
 					return;
 				}
-      
-      
+
+
         int numMatchingEncounters=rEncounters.size();
-      
+
 
         for(int i=0;i<numMatchingEncounters;i++){
-        
+
           Encounter enc=(Encounter)rEncounters.get(i);
-          
+
           if ((enc.getDecimalLongitude()!=null) && (enc.getDecimalLatitude() != null)) {
             //let's also populate the Shapefile
             Point point = geometryFactory.createPoint(new Coordinate(enc.getDecimalLongitudeAsDouble(), enc.getDecimalLatitudeAsDouble()));
@@ -127,7 +147,7 @@ public class EncounterSearchExportShapefile extends HttpServlet{
               featureBuilder.add((new java.sql.Date(enc.getDateInMilliseconds())));
             }
             featureBuilder.add(enc.getCatalogNumber());
-            featureBuilder.add(enc.isAssignedToMarkedIndividual());
+            featureBuilder.add(enc.getIndividualID());
             if(enc.getSex()!=null){
               featureBuilder.add(enc.getSex());
             }
@@ -149,27 +169,27 @@ public class EncounterSearchExportShapefile extends HttpServlet{
                   }
                 }
               }
-            
+
             }
             featureBuilder.add(haploString);
             featureBuilder.add(("http://"+CommonConfiguration.getURLLocation(request)+"/encounters/encounter.jsp?number="+enc.getCatalogNumber()));
-            
+
             featureBuilder.add(enc.getDecimalLatitudeAsDouble());
             featureBuilder.add(enc.getDecimalLongitudeAsDouble());
-            
+
             String genusSpeciesString="";
             if((enc.getGenus()!=null)&&(enc.getSpecificEpithet()!=null)){
               genusSpeciesString = enc.getGenus()+" "+enc.getSpecificEpithet();
             }
             featureBuilder.add(genusSpeciesString);
-            
+
             SimpleFeature feature = featureBuilder.buildFeature(null);
-            
-            
+
+
             collection.add(feature);
           }
         }
-        
+
 
       //write out the shapefile
         File shapeFile = new File(encountersDir.getAbsolutePath()+"/" + shapeFilename);
@@ -187,28 +207,28 @@ public class EncounterSearchExportShapefile extends HttpServlet{
          org.geotools.data.Transaction transaction = new DefaultTransaction("create");
          String typeName = newDataStore.getTypeNames()[0];
          SimpleFeatureSource featureSource = newDataStore.getFeatureSource(typeName);
-         
-         
+
+
          if (featureSource instanceof SimpleFeatureStore) {
-        
+
                   SimpleFeatureStore featureStore = (SimpleFeatureStore) featureSource;
-         
+
                      featureStore.setTransaction(transaction);
-                     
-                      
+
+
                      try {
                          featureStore.addFeatures(collection);
                          transaction.commit();
-         
+
                      } catch (Exception problem) {
                          problem.printStackTrace();
                          transaction.rollback();
-         
-                     } 
+
+                     }
                      finally {
                          transaction.close();
                      }
-                     
+
                      //zip the results
                      // These are the files to include in the ZIP file
                String[] filenames = new String[]{
@@ -219,16 +239,16 @@ public class EncounterSearchExportShapefile extends HttpServlet{
                 shapeFile.getAbsolutePath().replaceAll(".shp",".prj"),
                 shapeFile.getAbsolutePath().replaceAll(".shp",".qix")
                };
-               
+
                // Create a buffer for reading the files
                byte[] buf = new byte[1024];
-               
+
                try {
                    // Create the ZIP file
                    String outFilename = shapeFile.getParentFile().getAbsolutePath()+File.separator+gisZipFilename;
                    //System.out.println(outFilename);
                    ZipOutputStream zipout = new ZipOutputStream(new FileOutputStream(outFilename));
-               
+
                    // Compress the files
                    for (int i=0; i<filenames.length; i++) {
                        FileInputStream in = new FileInputStream(filenames[i]);
@@ -236,56 +256,56 @@ public class EncounterSearchExportShapefile extends HttpServlet{
                        // Add ZIP entry to output stream.
                        File file2add=new File(filenames[i]);
                        zipout.putNextEntry(new ZipEntry(file2add.getName()));
-               
+
                        // Transfer bytes from the file to the ZIP file
                        int len;
                        while ((len = in.read(buf)) > 0) {
                            zipout.write(buf, 0, len);
                        }
-               
+
                        // Complete the entry
                        zipout.closeEntry();
                        in.close();
                    }
-               
+
                    // Complete the ZIP file
                    zipout.close();
-                   
+
                    //now write out the file
                    response.setContentType("application/zip");
                    response.setHeader("Content-Disposition","attachment;filename="+gisZipFilename);
                    ServletContext ctx = getServletContext();
                    //InputStream is = ctx.getResourceAsStream("/encounters/"+gisZipFilename);
                    InputStream is=new FileInputStream(outFilename);
-                   
+
                    int read=0;
                    byte[] bytes = new byte[BYTES_DOWNLOAD];
                    OutputStream os = response.getOutputStream();
-                  
+
                    while((read = is.read(bytes))!= -1){
                      os.write(bytes, 0, read);
                    }
                    os.flush();
-                   os.close(); 
-                   
-                   
-               } 
+                   os.close();
+
+
+               }
                catch (IOException e) {
                 e.printStackTrace();
                }
-                     
-                
-                 
+
+
+
           } //end if
           else {
                          System.out.println(typeName + " does not support read/write access");
-                         
+
                  }
 
-        
 
 
-        
+
+
       }
       catch(Exception ioe){
         ioe.printStackTrace();
@@ -296,19 +316,19 @@ public class EncounterSearchExportShapefile extends HttpServlet{
         out.println("<p>Please let the webmaster know you encountered an error at: "+this.getServletName()+" servlet</p></body></html>");
         out.println(ServletUtilities.getFooter(context));
       }
-      
+
 
 
     myShepherd.rollbackDBTransaction();
     myShepherd.closeDBTransaction();
 
 
-  
-      
-      
-      
+
+
+
+
     }
-  
+
   /**
    * Here is how you can use a SimpleFeatureType builder to create the schema for your shapefile
    * dynamically.
@@ -317,7 +337,7 @@ public class EncounterSearchExportShapefile extends HttpServlet{
    * DataUtilities.createFeatureType) because we can set a Coordinate Reference System for the
    * FeatureType and a a maximum field length for the 'name' field dddd
    */
-  private static SimpleFeatureType createFeatureType(String context) {
+  private static SimpleFeatureType createFeatureType(final String context) {
 
       SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
       builder.setName(CommonConfiguration.getHTMLTitle(context));
@@ -326,20 +346,20 @@ public class EncounterSearchExportShapefile extends HttpServlet{
       // add attributes in order
       builder.add("Location", Point.class);
       builder.add("Date", java.sql.Date.class);
-      builder.add("Encounter", String.class); 
-      builder.add("Individual", String.class); 
+      builder.add("Encounter", String.class);
+      builder.add("Individual", String.class);
       builder.add("Sex", String.class);
       builder.add("Haplotype", String.class);
       builder.add("URL", String.class);
       builder.add("Latitude", Double.class);
       builder.add("Longitude", Double.class);
-      builder.add("GenusSpecies", String.class); 
+      builder.add("GenusSpecies", String.class);
 
       // build the type
       final SimpleFeatureType LOCATION = builder.buildFeatureType();
 
       return LOCATION;
   }
-  
+
 
   }

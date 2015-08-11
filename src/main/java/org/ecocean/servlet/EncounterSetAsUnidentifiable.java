@@ -19,11 +19,11 @@
 
 package org.ecocean.servlet;
 
-import org.ecocean.CommonConfiguration;
-import org.ecocean.Encounter;
-import org.ecocean.MailThreadExecutorService;
-import org.ecocean.NotificationMailer;
-import org.ecocean.Shepherd;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Vector;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -31,32 +31,35 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Vector;
-import java.util.concurrent.ThreadPoolExecutor;
+import org.ecocean.CommonConfiguration;
+import org.ecocean.Encounter;
+import org.ecocean.MailThreadExecutorService;
+import org.ecocean.NotificationMailer;
+import org.ecocean.Shepherd;
 
 //Set alternateID for this encounter/sighting
 public class EncounterSetAsUnidentifiable extends HttpServlet {
 
-  public void init(ServletConfig config) throws ServletException {
+  @Override
+public void init(final ServletConfig config) throws ServletException {
     super.init(config);
   }
 
 
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+  @Override
+public void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
     doPost(request, response);
   }
 
 
-  private void setDateLastModified(Encounter enc) {
+  private void setDateLastModified(final Encounter enc) {
     String strOutputDateTime = ServletUtilities.getDate();
     enc.setDWCDateLastModified(strOutputDateTime);
   }
 
 
-  public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+  @Override
+public void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
     String context="context0";
     context=ServletUtilities.getContext(request);
     Shepherd myShepherd = new Shepherd(context);
@@ -71,7 +74,7 @@ public class EncounterSetAsUnidentifiable extends HttpServlet {
       myShepherd.beginDBTransaction();
       Encounter enc2reject = myShepherd.getEncounter(request.getParameter("number"));
       setDateLastModified(enc2reject);
-      boolean isOK = enc2reject.isAssignedToMarkedIndividual().equals("Unassigned");
+      boolean isOK = (enc2reject.getIndividualID() == null);
       myShepherd.rollbackDBTransaction();
       if (isOK) {
 
@@ -101,7 +104,7 @@ public class EncounterSetAsUnidentifiable extends HttpServlet {
           if(allStatesSize>0){
             for(int i=0;i<allStatesSize;i++){
               String stateName=allStates.get(i);
-              out.println("<p><a href=\"encounters/searchResults.jsp?state="+stateName+"\">View all "+stateName+" encounters</a></font></p>");   
+              out.println("<p><a href=\"encounters/searchResults.jsp?state="+stateName+"\">View all "+stateName+" encounters</a></font></p>");
             }
           }
           out.println(ServletUtilities.getFooter(context));
@@ -115,14 +118,14 @@ public class EncounterSetAsUnidentifiable extends HttpServlet {
           emailUpdate = CommonConfiguration.appendEmailRemoveHashString(request, emailUpdate,
             submitterEmail,context);
 
-          
+
         //let's get ready for emailing
         ThreadPoolExecutor es = MailThreadExecutorService.getExecutorService();
-        
+
         es.execute(new NotificationMailer(CommonConfiguration.getMailHost(context), CommonConfiguration.getAutoEmailAddress(context), submitterEmail, ("Encounter update: " + request.getParameter("number")), emailUpdate, e_images,context));
         es.shutdown();
-          
-          
+
+
 
         } else {
           out.println(ServletUtilities.getHeader(request));
@@ -133,7 +136,7 @@ public class EncounterSetAsUnidentifiable extends HttpServlet {
           if(allStatesSize>0){
             for(int i=0;i<allStatesSize;i++){
               String stateName=allStates.get(i);
-              out.println("<p><a href=\"encounters/searchResults.jsp?state="+stateName+"\">View all "+stateName+" encounters</a></font></p>");   
+              out.println("<p><a href=\"encounters/searchResults.jsp?state="+stateName+"\">View all "+stateName+" encounters</a></font></p>");
             }
           }
           out.println(ServletUtilities.getFooter(context));
@@ -156,5 +159,5 @@ public class EncounterSetAsUnidentifiable extends HttpServlet {
     myShepherd.closeDBTransaction();
   }
 }
-	
-	
+
+

@@ -5,7 +5,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.ecocean.mmutil.StringUtilities;
 
-public class SimpleUser {
+public class SimpleUser implements SimpleBeing {
     private final String username;
     private String fullName;
     private String affiliation;
@@ -57,6 +57,10 @@ public class SimpleUser {
         return fullName;
     }
 
+    /* (non-Javadoc)
+     * @see org.ecocean.rest.SimpleBeing#getDisplayName()
+     */
+    @Override
     public String getDisplayName() {
         String display;
         if (StringUtils.isBlank(fullName)) {
@@ -83,7 +87,7 @@ public class SimpleUser {
         return display + " - " + affiliation;
     }
 
-    public void setFullName(String fullName) {
+    public void setFullName(final String fullName) {
         this.fullName = fullName;
     }
 
@@ -91,10 +95,14 @@ public class SimpleUser {
         return affiliation;
     }
 
-    public void setAffiliation(String affiliation) {
+    public void setAffiliation(final String affiliation) {
         this.affiliation = affiliation;
     }
 
+    /* (non-Javadoc)
+     * @see org.ecocean.rest.SimpleBeing#getAvatar()
+     */
+    @Override
     public String getAvatar() {
         if (avatar != null) {
             return avatar;
@@ -117,7 +125,12 @@ public class SimpleUser {
             + "?s=80&d=identicon";
     }
 
-    public void setAvatar(String avatar) {
+    public void setAvatar(final String avatar) {
         this.avatar = avatar;
+    }
+
+    @Override
+    public String getSpecies() {
+        return "human";
     }
 }

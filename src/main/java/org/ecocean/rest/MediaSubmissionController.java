@@ -3,7 +3,6 @@ package org.ecocean.rest;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -18,7 +17,6 @@ import org.ecocean.SinglePhotoVideo;
 import org.ecocean.User;
 import org.ecocean.Util;
 import org.ecocean.media.MediaSubmission;
-import org.ecocean.security.Stormpath;
 import org.ecocean.servlet.ServletUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,16 +40,12 @@ import com.samsix.database.SqlInsertFormatter;
 import com.samsix.database.SqlUpdateFormatter;
 import com.samsix.database.SqlWhereFormatter;
 import com.samsix.database.Table;
-import com.stormpath.sdk.account.AccountList;
-import com.stormpath.sdk.account.Account;
-import com.stormpath.sdk.client.Client;
-import com.stormpath.sdk.directory.CustomData;
 
 @RestController
 @RequestMapping(value = "/obj/mediasubmission")
 public class MediaSubmissionController
 {
-    private static Logger log = LoggerFactory.getLogger(MediaSubmissionController.class);
+    private static Logger logger = LoggerFactory.getLogger(MediaSubmissionController.class);
 
     private void save(final Database db,
                       final MediaSubmission media)
@@ -237,7 +231,7 @@ System.out.println(sql);
 
     @RequestMapping(value = "/get/sources", method = RequestMethod.POST)
     public List<MediaSubmission> getSources(final HttpServletRequest request,
-                                            @RequestBody List<SinglePhotoVideo> media) throws DatabaseException {
+                                            @RequestBody final List<SinglePhotoVideo> media) throws DatabaseException {
         String context = "context0";
         context = ServletUtilities.getContext(request);
         return MediaSubmission.findMediaSources(media, context);
@@ -272,7 +266,7 @@ System.out.println(sql);
                 email = user.getEmailAddress();
 //                userstr = user.getFullName() + " (" + media.getUsername() + ") <" + email + ">";
             } else {
-                if (log.isDebugEnabled()) log.debug("curious: unable to load a User for username=" + uname);
+                if (logger.isDebugEnabled()) logger.debug("curious: unable to load a User for username=" + uname);
                 email = null;
 //                userstr = media.getUsername();
             }
@@ -280,7 +274,7 @@ System.out.println(sql);
             email = media.getEmail();
 //            userstr = media.getName() + " <" + email + ">";
         }
-        if (log.isDebugEnabled()) log.debug("sending thankyou email to:" + email);
+        if (logger.isDebugEnabled()) logger.debug("sending thankyou email to:" + email);
 
         //get the email thread handler
         ThreadPoolExecutor es = MailThreadExecutorService.getExecutorService();
@@ -334,8 +328,8 @@ System.out.println(sql);
                      final MediaSubmission media)
         throws DatabaseException
     {
-        if (log.isDebugEnabled()) {
-            log.debug("Calling MediaSubmission save for media [" + media + "]");
+        if (logger.isDebugEnabled()) {
+            logger.debug("Calling MediaSubmission save for media [" + media + "]");
         }
 
         ConnectionInfo ci = ShepherdPMF.getConnectionInfo();
@@ -378,8 +372,8 @@ System.out.println(sql);
 //                }
 //            }
 
-            if (log.isDebugEnabled()) {
-                log.debug("Returning media submission id [" + media.getId() + "]");
+            if (logger.isDebugEnabled()) {
+                logger.debug("Returning media submission id [" + media.getId() + "]");
             }
 
             return media.getId();
