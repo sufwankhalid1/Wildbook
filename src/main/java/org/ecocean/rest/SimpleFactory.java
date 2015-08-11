@@ -5,9 +5,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.ecocean.Point;
 import org.ecocean.ShepherdPMF;
 import org.ecocean.SinglePhotoVideo;
 import org.ecocean.media.MediaAsset;
+import org.ecocean.survey.SurveyTrack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -256,6 +258,20 @@ public class SimpleFactory {
                 userinfo.addEncounter(encounter);
             }
             userinfo.setIndividuals(new ArrayList<SimpleIndividual>(inds.values()));
+
+            //
+            // Get voyages they were a part of...
+            // TODO: This is a bad design! We are getting the voyages they were on by the photos they submitted to the SurveyTrack!
+            // Bleh! We need to have a SurveyTrack_User table that just indicates the user was on that SurveyTrack. For now I'm
+            // just going to code it based on the photos taken knowing that this will change.
+            //
+            sql = "SELECT DISTINCT(\"ID_OID\") as ID FROM \"SURVEYTRACK_MEDIA\" stm"
+                    +  " INNER JOIN \"SINGLEPHOTOVIDEO\" spv ON stm.\"DATACOLLECTIONEVENTID_EID\" = spv.\"DATACOLLECTIONEVENTID\""
+                    + whereRoot;
+            rs = db.getRecordSet(sql);
+            while (rs.next()) {
+                userinfo.addVoyage(getSurveyTrack(db, rs.getLong("ID")));
+            }
         }
 
         return userinfo;
@@ -284,6 +300,78 @@ public class SimpleFactory {
         }
 
         return ind;
+    }
+
+
+    private static List<SurveyTrack> readSurveyTracks(final RecordSet rs) throws DatabaseException
+    {
+        List<SurveyTrack> tracks = new ArrayList<SurveyTrack>();
+
+        SurveyTrack track = null;
+        long trackId = -1;
+        while (rs.next())
+        {
+            long id = rs.getLong("ID");
+            if (track == null || id != trackId) {
+                track = readSurveyTrack(rs);
+                tracks.add(track);
+            }
+
+            track.addPoint(readPoint(rs));
+        }
+
+        return tracks;
+    }
+
+
+    private static SurveyTrack getSurveyTrack(final Database db, final long id) throws DatabaseException
+    {
+        String sql = "SELECT st.*, p.* FROM \"SURVEYTRACK\" st"
+                + " INNER JOIN \"SURVEYTRACK_POINTS\" stp ON stp.\"ID_OID\" = st.\"ID\""
+                + " INNER JOIN \"POINT\" p ON p.\"POINT_ID\" = stp.\"POINT_ID_EID\""
+                + " WHERE st.\"ID\" = " + id
+                + " ORDER BY st.\"ID\", p.\"TIMESTAMP\"";
+
+        RecordSet rs = db.getRecordSet(sql);
+        return readSurveyTrack(rs);
+    }
+
+
+    private static SurveyTrack readSurveyTrack(final RecordSet rs) throws DatabaseException
+    {
+        SurveyTrack track = null;
+        while (rs.next()) {
+            if (track == null) {
+                track = readSurveyTrackCore(rs);
+            }
+
+            track.addPoint(readPoint(rs));
+        }
+
+        return track;
+    }
+
+
+    private static SurveyTrack readSurveyTrackCore(final RecordSet rs) throws DatabaseException
+    {
+        SurveyTrack surveyTrack = new SurveyTrack();
+        surveyTrack.setId(rs.getLong("ID"));
+        surveyTrack.setName(rs.getString("NAME"));
+        surveyTrack.setType(rs.getString("TYPE"));
+        surveyTrack.setVesselId(rs.getString("VESSELID"));
+
+        return surveyTrack;
+    }
+
+
+    private static Point readPoint(final RecordSet rs) throws DatabaseException
+    {
+        Point point = new Point();
+        point.setElevation(rs.getDouble("ELEVATION"));
+        point.setLatitude(rs.getDouble("LATITUDE"));
+        point.setLongitude(rs.getDouble("LONGITUDE"));
+        point.setTimestamp(rs.getLongObj("TIMESTAMP"));
+        return point;
     }
 
 

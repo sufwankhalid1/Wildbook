@@ -1,5 +1,6 @@
 package org.ecocean.survey;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.ecocean.Point;
@@ -11,46 +12,55 @@ public class SurveyTrack {
   private List<Point> points;
   private String vesselId;
   private String type;
-  private List<SinglePhotoVideo> media; 
+  private List<SinglePhotoVideo> media;
 
    public long getId() {
      return id;
    }
-  
-   public void setId(long id) {
+
+   public void setId(final long id) {
      this.id = id;
    }
-  
-  
+
+
   public String getName() {
     return name;
   }
-  
-  public void setName(String name) {
+
+  public void setName(final String name) {
     this.name = name;
   }
-  
+
+  public void addPoint(final Point point)
+  {
+      if (points == null) {
+          points = new ArrayList<Point>();
+      }
+
+      points.add(point);
+  }
+
   public List<Point> getPoints() {
     return points;
   }
-  
-  public void setPoints(List<Point> points) {
+
+  public void setPoints(final List<Point> points) {
     this.points = points;
   }
-  
+
   public String getVesselId() {
     return vesselId;
   }
-  
-  public void setVesselId(String vesselId) {
+
+  public void setVesselId(final String vesselId) {
     this.vesselId = vesselId;
   }
-  
+
   public String getType() {
     return type;
   }
-  
-  public void setType(String type) {
+
+  public void setType(final String type) {
     this.type = type;
   }
 
@@ -58,7 +68,7 @@ public class SurveyTrack {
     return media;
   }
 
-  public void setMedia(List<SinglePhotoVideo> media) {
+  public void setMedia(final List<SinglePhotoVideo> media) {
     this.media = media;
   }
 

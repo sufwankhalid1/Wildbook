@@ -74,8 +74,9 @@ block scripts
         
             var photos = !{JSON.stringify(data.userinfo.photos)};
             var encounters = !{JSON.stringify(data.userinfo.encounters)};
+            var voyages = !{JSON.stringify(data.userinfo.voyages)};
         
             app.configPromise.then(function() {
-                individualPage.init(photos, encounters);
+                individualPage.init(photos, encounters, voyages);
             });
         });

@@ -149,7 +149,8 @@ $(document).ready(function() {
                         var res = $.map(data, function(item) {
                             var label;
                             if (item.type == "individual") {
-                                label = "Whale: ";
+//                                label = "Whale: ";
+                                label = item.species + ": ";
                             } else if (item.type == "user") {
                                 label = "User: ";
                             } else {
