@@ -350,10 +350,6 @@
             <field name="satelliteTag" persistence-modifier="persistent">
             </field>
 
-            <fetch-group name="allSharks_min">
-                <field name="approved" />
-            </fetch-group>
-
             <fetch-group name="count" />
         </class>
 

@@ -143,17 +143,12 @@ public class Encounter implements java.io.Serializable {
   private String size_guess = "none provided";
   //String reported GPS values for lat and long of the encounter
   private String gpsLongitude = "", gpsLatitude = "";
-  //whether this encounter has been rejected and should be hidden from public display
-  //unidentifiable encounters generally contain some data worth saving but not enough for accurate photo-identification
-  private final boolean unidentifiable = false;
   //whether this encounter has a left-side spot image extracted
   public boolean hasSpotImage = false;
   //whether this encounter has a right-side spot image extracted
   public boolean hasRightSpotImage = false;
   //Indicates whether this record can be exposed via TapirLink
   private boolean okExposeViaTapirLink = false;
-  //whether this encounter has been approved for public display
-  private final boolean approved = true;
   //integers of the latitude and longitude degrees
   //private int lat=-1000, longitude=-1000;
   //name of the stored file from which the left-side spots were extracted
@@ -617,12 +612,6 @@ public class Encounter implements java.io.Serializable {
 
   }
 */
-/*
-  public void approve() {
-    approved = true;
-    okExposeViaTapirLink = true;
-  }
-*/
   /**
   public void resetAdditionalImageName(int position, String fileName) {
     additionalImageNames.set(position, fileName);
@@ -924,18 +913,12 @@ public class Encounter implements java.io.Serializable {
   }
 
   /*
-  public boolean wasRejected() {
-
-    return unidentifiable;
-  }
 
   public void reject() {
-    unidentifiable = true;
     //okExposeViaTapirLink=false;
   }
 
   public void reaccept() {
-    unidentifiable = false;
     //okExposeViaTapirLink=true;
   }
 */
@@ -1022,10 +1005,6 @@ public class Encounter implements java.io.Serializable {
     interestedResearchers.add(email);
   }
 
-
-  public boolean isApproved() {
-    return approved;
-  }
 
   public void removeInterestedResearcher(final String email) {
     for (int i = 0; i < interestedResearchers.size(); i++) {
@@ -1849,8 +1828,6 @@ public class Encounter implements java.io.Serializable {
     public void setState(final String newState){this.state=newState;}
 
     //DO NOT USE - LEGACY MIGRATION ONLY
-    public boolean getApproved(){return approved;}
-    public boolean getUnidentifiable(){return unidentifiable;}
 
     public Vector getOldAdditionalImageNames(){return additionalImageNames;}
 
