@@ -193,6 +193,14 @@
     display: inline-block;
 }
 
+#div-user-info {
+    padding: 5px;
+}
+
+#div-user-info p {
+    margin: 0;
+}
+
 #map-sightings {
     margin-top: 10px;
     width: 100%;
