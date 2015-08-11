@@ -24,20 +24,10 @@ console.log('do login thing');
         if (!username) username = '';
         var h = '<div><input id="login-username" value="' + username + '" placeholder="username" /></div><div><input id="login-password" type="password" placeholder="password" /></div>';
         if (redirectUrl) h += '<input id="login-redirectUrl" type="xhidden" value="' + redirectUrl + '" />';
-        h += '<div style="border-bottom: 2px solid black; margin-bottom: 10px; padding-bottom: 10px;"><input class="login-button" type="button" value="login" onClick="wildbook.auth.loginPopupTry()" /><span style="margin-left: 10px; color: #900;" id="login-message"></span><input class="login-button" type="button" value="forgot password" style="float: right;" onClick="window.location.href=\'/spPasswordReset?email=\' + $(\'#login-username\').val();" /></div>';
-        //h += '<div><input class="login-button" type="button" value="login using facebook" /><input class="login-button" type="button" value="login using google" /></div>';
+        h += '<div style="border-bottom: 2px solid black; margin-bottom: 10px; padding-bottom: 10px;"><input class="login-button btn" type="button" value="login" onClick="wildbook.auth.loginPopupTry()" /><span style="margin-left: 10px; color: #900;" id="login-message"></span><input class="login-button btn" type="button" value="forgot password" style="float: right;" onClick="window.location.href=\'/spPasswordReset?email=\' + $(\'#login-username\').val();" /></div>';
         if (!title) title = 'Login';
         alertplus.alert(h, details, title);
-/*
-        d.html(h);
-        d.dialog({
-            modal: true,
-            title: "login",
-            width: 600,
-            appendTo: "body",
-            resizable: false
-        });
-*/
+        $('.alertplus .btn-primary').html('Cancel');
     },
 
     loginPopupTry: function() {
@@ -46,7 +36,7 @@ console.log('do login thing');
         var password = $('#login-password').val();
         if (!username || !password) return;
         var redirectUrl = $('#login-redirectUrl').val();
-        $('#login-popup .login-button').prop('disabled', 'disabled').css('opacity', 0.5);
+        $('.alertplus .login-button').prop('disabled', 'disabled').css('opacity', 0.5);
         var args = {
             complete: function(x, status) {
                 var resp = {};
@@ -58,7 +48,8 @@ console.log('do login thing');
                 }
                 console.info(resp);
                 if (resp.success) {
-                    $('#login-popup').dialog('close');
+                    //$('#login-popup').dialog('close');
+                    $('.alertplus .btn-primary').click();  //hacktacular way to close popup dialog???
                     if (redirectUrl) {
                         window.location.href = redirectUrl;
                     } else {
@@ -67,7 +58,7 @@ console.log('do login thing');
                 } else {
                     console.error('login failure: ' + resp.error);
                     $('#login-message').html('failed');
-                    $('#login-popup .login-button').prop('disabled', false).css('opacity', 1);
+                    $('.alertplus .login-button').prop('disabled', false).css('opacity', 1);
                 }
             }
         };
@@ -93,7 +84,7 @@ console.log('do login thing');
         if (!el) return;
         var scope = el.scope();
         if (!scope) return;
-        if (!scope.data) return;
+        if (!scope.data) scope.data = {};
         scope.data.user = u;
         scope.$digest();
     }
