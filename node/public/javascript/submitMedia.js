@@ -5,7 +5,6 @@
 //});
 
 var submitMedia = (function () {
-    var markers = null;
     var hasGPS = false;
     var map = null;
 
@@ -14,12 +13,11 @@ var submitMedia = (function () {
     });
 
     function addToMap(latitude, longitude) {
-        if (markers) {
-            map.map.removeLayer(markers);
-        }
+        map.clear();
 
         if (latitude && longitude) {
-            markers = map.addIndividuals([[latitude, longitude]], 4);
+            map.addEncounter([latitude, longitude]);
+            map.fitToData(4);
         }
 
         //
@@ -261,17 +259,13 @@ var submitMedia = (function () {
                         //
                         // Add markers to map.
                         //
-                        var latlngs = [];
                         data.items.forEach(function(item) {
                             if (item.latitude && item.longitude) {
-                                latlngs.push({latlng: [item.latitude, item.longitude]});
+                                map.addEncounter([item.latitude, item.longitude]);
                             }
                         });
-
-                        map.addIndividuals(latlngs);
-                    } else {
-                        map.map.setView([0,0], 1);
                     }
+                    map.fitToData();
 
                     //
                     // Fixes problem with bootstrap keeping the map div

@@ -17,10 +17,10 @@ block content
                 .container-fluid.sight-stats
                     .row
                         .col-md-8
-                            span.sight-number #{data.individualsIdentified}
+                            span.sight-number #{data.userinfo.individuals.length}
                             span.sight-date-text= t("userpage.individualsIdentified")
                         .col-md-4
-                            span.sight-number #{data.voyagesCompleted}
+                            span.sight-number #{data.userinfo.voyages.length}
                             span.sight-date-text= t("userpage.voyagesCompleted")
                     .row
                         .container-fluid
@@ -54,13 +54,15 @@ block content
         hr
         
         
-block scripts
+block configScripts
     script(src="/vendor/leaflet/leaflet.js")
     script(src="/vendor/leaflet.markercluster/leaflet.markercluster.js")
+    script(src="/javascript/maptool.js")
+
+block scripts
     script(src="/vendor/photoswipe/photoswipe.min.js")
     script(src="/vendor/photoswipe/photoswipe-ui-default.min.js")
     script(src="/javascript/phototool.js")
-    script(src="/javascript/maptool.js")
     script(src='/javascript/individual.js')
     
     script.

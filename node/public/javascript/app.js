@@ -1,6 +1,6 @@
 /* global angular */
 
-'use strict';
+//'use strict';
 
 // Declare app level module which depends on filters, and services
 //angular.module('ppadminApp', ['ppadminApp.filters', 'ppadminApp.services', 'ppadminApp.directives'])
@@ -36,6 +36,9 @@ var app = {};
 var configPromise = $.get("/config")
 .then(function(config) {
     app.config = config;
+    if (typeof maptool !== 'undefined') {
+        maptool.init(config.maptool);
+    }
     return $.get(config.wildbook.url + "/obj/user");
 }, handleError)
 .then(function(user) {

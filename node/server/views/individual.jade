@@ -69,14 +69,15 @@ block content
         a(href="/submitMedia")
             button.btn.btn-primary= t("individual.shareExperience")
         
-        
-block scripts
-    script(src="/vendor/leaflet/leaflet.js")
+block configScripts
+    script(src="/vendor/leaflet/leaflet-src.js")
     script(src="/vendor/leaflet.markercluster/leaflet.markercluster.js")
+    script(src="/javascript/maptool.js")
+    
+block scripts
     script(src="/vendor/photoswipe/photoswipe.min.js")
     script(src="/vendor/photoswipe/photoswipe-ui-default.min.js")
     script(src="/javascript/phototool.js")
-    script(src="/javascript/maptool.js")
     script(src='/javascript/individual.js')
     
     script.

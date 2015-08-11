@@ -1,20 +1,31 @@
 var maptool = (function () {
-    var iconIndObj = null;
-    var iconIndividual = null;
+    var config = null;
+    var encIcons = {};
 
-    app.configPromise.then(function() {
-        var config = app.config.maptool;
-        if (config) {
-            iconIndObj = config.iconIndividual;
-            if (config.iconIndividual) {
-                iconIndividual = {icon: L.icon(config.iconIndividual)};
-            }
-        }
-    });
+    function init(conf) {
+        config = conf;
+    }
 
     var MapWrap = function(theMap) {
         var map = theMap;
+
+        var voyages;
         var currentPopup = null;
+
+        var encounters;
+        encounters = new L.MarkerClusterGroup({
+            iconCreateFunction: function(cluster) {
+                var iconDef = config.encounter.icons.cluster;
+                return new L.divIcon({className: 'individual-cluster',
+                                      iconSize: iconDef.iconSize,
+                                      iconAnchor: iconDef.iconAnchor,
+                                      html: '<div class="individual-cluster-count"><span>'
+                                          + cluster.getChildCount()
+                                          + '</span></div><img src="'
+                                          + iconDef.iconUrl + '"/>'});
+            }
+        });
+        map.addLayer(encounters);
 
         map.on("popupopen", function(evt) {
             currentPopup = evt.popup;
@@ -51,63 +62,109 @@ var maptool = (function () {
         //
 //        if (currentPopup != null) currentPopup._source.closePopup();
 
-        function addIndividuals(latlngs, maxZoom) {
-            if (! latlngs || latlngs.length == 0) {
-                map.fitWorld();
+        function getEncounterIcon(species) {
+            if (encIcons[species]) {
+                return encIcons[species];
+            }
+
+            if (config.encounter.icons[species]) {
+                var icon = {icon: L.icon(config.encounter.icons[species])};
+                encIcons[species] = icon;
+                return icon;
+            }
+
+            getEncounterIcon("default");
+        }
+
+        function getMarker(latlng, icon, popup) {
+            var marker = L.marker(latlng, icon);
+            if (popup) {
+                marker.bindPopup(popup);
+
+                marker.on('mouseover', function (evt) {
+                    closeCurrentPopup();
+                    this.openPopup();
+                });
+            }
+
+            return marker;
+        }
+
+        function addEncounter(encounter) {
+            //
+            // Just passed in a latlng because we have no other info. Also use default icon.
+            // Later, we can make sure we pass in a species somehow if we have it.
+            //
+            if (Array.isArray(encounter)) {
+                encounters.addLayer(getMarker(encounter, getEncounterIcon("default")));
                 return;
             }
 
-            var markers = new L.MarkerClusterGroup({
-                iconCreateFunction: function(cluster) {
-                    return new L.divIcon({className: 'individual-cluster',
-                                          iconSize: iconIndObj.iconSize,
-                                          iconAnchor: iconIndObj.iconAnchor,
-                                          html: '<div class="individual-cluster-count"><span>' + cluster.getChildCount() + '</span></div><img src="' + iconIndObj.iconUrl + '"/>'});
-                }
-            });
-
-            var boundPoints = [];
-            latlngs.forEach(function(latlng) {
-                var marker;
-                if (Array.isArray(latlng)) {
-                    boundPoints.push(latlng);
-                    marker = L.marker(latlng, iconIndividual);
-                } else {
-                    boundPoints.push(latlng.latlng);
-                    marker = L.marker(latlng.latlng, iconIndividual);
-
-                    if (latlng.popup) {
-                        marker.bindPopup(latlng.popup);
-
-                        marker.on('mouseover', function (e) {
-                            closeCurrentPopup();
-                            this.openPopup();
-                        });
-                    }
-
-                    //
-                    // Want to be able to mouse over and click on things in the popup
-                    //
-//                    marker.on('mouseout', function (evt) {
-//                        this.closePopup();
-//                    });
-                }
-//                markers.push(marker.addTo(map));
-                markers.addLayer(marker);
-            });
-
-            if (!maxZoom) {
-                maxZoom = 8;
+            if (! encounter.latitude || ! encounter.longitude) {
+                return;
             }
-            map.addLayer(markers);
-            map.fitBounds(boundPoints, {maxZoom: maxZoom});
 
-            return markers;
+            var iconIndividual;
+            var popup = $("<div>");
+            if (encounter.individual) {
+                popup.append(app.beingDiv(encounter.individual));
+                popup.append($("<span>").addClass("sight-date-text").text(encounter.individual.displayName));
+                iconIndividual = getEncounterIcon(encounter.individual.species);
+            } else {
+                popup.append($("<span>").addClass("sight-date-text").text("<Unknown>"));
+                iconIndividual = getEncounterIcon("default");
+            }
+
+            popup.append($("<br>"));
+            popup.append("Sighted: ")
+            popup.append($("<span>").addClass("sight-date").text(moment(encounter.dateInMilliseconds).format('LL')));
+            popup.append($("<br>"));
+            popup.append($("<span>").addClass("sight-date-text").text(encounter.verbatimLocation));
+            popup.append($("<br>"));
+            popup.append("by: ");
+            popup.append(app.beingDiv(encounter.submitter));
+
+            encounters.addLayer(getMarker([encounter.latitude, encounter.longitude], iconIndividual, popup[0]));
+        }
+
+        function addVoyage(points, popup) {
+            var vPoints = [];
+            points.forEach(function(point) {
+                vPoints.push([point.latitude, point.longitude]);
+            })
+
+            L.polyline(vPoints, {color: 'red'}).addTo(map);
         }
 
         return {
             map: map,
-            addIndividuals: addIndividuals
+            addEncounter: addEncounter,
+            addVoyage: addVoyage,
+            fitToData: function(maxZoom) {
+                var data = [];
+                if (encounters) {
+                    data.push(encounters);
+                }
+
+                if (voyages) {
+                    data.push(voyages);
+                }
+
+                if (data.length === 0) {
+                    map.fitWorld();
+                }
+
+                if (! maxZoom) {
+                    maxZoom = 8;
+                }
+
+                var group = new L.featureGroup(data);
+                map.fitBounds(group.getBounds(), {maxZoom: maxZoom});
+            },
+            clear: function() {
+                map.removeLayer(encounters);
+                map.removeLayer(voyages);
+            }
         };
     };
 
@@ -124,6 +181,7 @@ var maptool = (function () {
     }
 
     return {
+        init: init,
         createMap: createMap
     };
 })();

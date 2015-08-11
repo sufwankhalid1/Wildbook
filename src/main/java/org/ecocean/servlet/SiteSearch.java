@@ -40,6 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
+import com.samsix.util.string.StringUtilities;
 
 
 public class SiteSearch extends HttpServlet {
@@ -117,7 +118,7 @@ public class SiteSearch extends HttpServlet {
             //
             // TODO: Read species from db. See SimpleIndividual
             //
-            hm.put("species", "humpback_whale");
+            hm.put("species", StringUtilities.toTitleCase("humpback_whale".replace("_", " ")));
             list.add(hm);
         }
 
