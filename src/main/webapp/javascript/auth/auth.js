@@ -84,8 +84,7 @@ console.log('do login thing');
         if (!el) return;
         var scope = el.scope();
         if (!scope) return;
-        if (!scope.data) scope.data = {};
-        scope.data.user = u;
+        scope.user = u;
         scope.$digest();
     }
 };

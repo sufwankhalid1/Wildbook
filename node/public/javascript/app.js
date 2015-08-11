@@ -95,6 +95,11 @@ angular.module("nodeApp.controllers", [])
 //.controller("AppController", function ($scope, $http, dataService) {
 //    $scope.data = dataService.data;
 .controller("AppController", function ($scope, $http) {
+    configPromise.then( function() {
+        $scope.user = app.user;
+        $scope.$digest();
+    });
+
     $scope.login = function() {
         wildbook.auth.loginPopup($scope);
     };
