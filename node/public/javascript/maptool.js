@@ -13,6 +13,19 @@ var maptool = (function () {
         var currentPopup = null;
 
         var encounters;
+        var voyageTracks;
+
+        function getVoyageTrackLayer() {
+            if (voyageTracks) {
+                return voyageTracks;
+            }
+
+            //
+            // NOTE: I was going to use the simpler layerGroup but it doesn't have a getBounds()
+            // method that we need when we call the fitToData() method. Weird! Why not?!
+            //
+            return voyageTracks = new L.featureGroup().addTo(map);
+        }
 
         function getEncounterLayer() {
             if (encounters) {
@@ -143,7 +156,7 @@ var maptool = (function () {
                 vPoints.push([point.latitude, point.longitude]);
             })
 
-            L.polyline(vPoints, {color: 'red'}).addTo(map);
+            getVoyageTrackLayer().addLayer(L.polyline(vPoints, {color: 'red'}));
         }
 
         return {
@@ -154,6 +167,10 @@ var maptool = (function () {
                 var data = [];
                 if (encounters) {
                     data.push(encounters);
+                }
+
+                if (voyageTracks) {
+                    data.push(voyageTracks);
                 }
 
                 if (voyages) {
@@ -175,8 +192,10 @@ var maptool = (function () {
             clear: function() {
                 map.removeLayer(encounters);
                 map.removeLayer(voyages);
+                map.removeLayer(voyageTracks);
                 encounters = null;
                 voyages = null;
+                voyageTracks = null;
             }
         };
     };
