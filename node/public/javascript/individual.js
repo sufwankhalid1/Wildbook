@@ -26,9 +26,7 @@ var individualPage = (function () {
 
         if (voyages) {
             voyages.forEach(function(voyage) {
-                var popup = $("<div>");
-                popup.append($("<span>").addClass("sight-data-text").text(voyage.name));
-                map.addVoyage(voyage.points, popup);
+                map.addVoyage(voyage);
             });
         }
 

@@ -1,6 +1,9 @@
+'use strict'
+
 var maptool = (function () {
     var config = null;
     var encIcons = {};
+    var vesselIcons = {};
 
     function init(conf) {
         config = conf;
@@ -13,16 +16,11 @@ var maptool = (function () {
         var currentPopup = null;
 
         var encounters;
-        var voyageTracks;
 
         function fitToData(maxZoom) {
             var data = [];
             if (encounters) {
                 data.push(encounters);
-            }
-
-            if (voyageTracks) {
-                data.push(voyageTracks);
             }
 
             if (voyages) {
@@ -46,17 +44,6 @@ var maptool = (function () {
             fitToData();
           }).addTo(map);
 
-        function getVoyageTrackLayer() {
-            if (voyageTracks) {
-                return voyageTracks;
-            }
-
-            //
-            // NOTE: I was going to use the simpler layerGroup but it doesn't have a getBounds()
-            // method that we need when we call the fitToData() method. Weird! Why not?!
-            //
-            return voyageTracks = new L.featureGroup().addTo(map);
-        }
 
         function getVoyageLayer() {
             if (voyages) {
@@ -149,6 +136,20 @@ var maptool = (function () {
             getEncounterIcon("default");
         }
 
+        function getVesselIcon(type) {
+            if (vesselIcons[type]) {
+                return vesselIcons[type];
+            }
+
+            if (config.voyage.vessel.icons[type]) {
+                var icon = {icon: L.icon(config.voyage.vessel.icons[type])};
+                vesselIcons[type] = icon;
+                return icon;
+            }
+
+            getVesselIcon("default");
+        }
+
         function getMarker(latlng, icon, popup) {
             var marker = L.marker(latlng, icon);
             if (popup) {
@@ -202,15 +203,24 @@ var maptool = (function () {
             layer.addLayer(getMarker([encounter.latitude, encounter.longitude], iconIndividual, popup[0]));
         }
 
-        function addVoyage(points, popup) {
+        function addVoyage(voyage) {
+            if (! voyage.points || voyage.points.length === 0) {
+                return;
+            }
+
             var vPoints = [];
-            points.forEach(function(point) {
+            voyage.points.forEach(function(point) {
                 vPoints.push([point.latitude, point.longitude]);
             })
 
-            getVoyageTrackLayer().addLayer(L.polyline(vPoints, {color: 'red'}));
+            var timetrack = L.polyline(vPoints, {color: 'red'});
 
-            getVoyageLayer().addLayer(getMarker());
+            var popup = $("<div>");
+            popup.append($("<span>").addClass("sight-data-text").text(voyage.name));
+
+            var point = vPoints[vPoints.length-1];
+            var marker = getMarker(point, getVesselIcon("boat"), popup[0]);
+            getVoyageLayer().addLayer(new L.featureGroup([timetrack, marker]));
         }
 
         return {
@@ -221,10 +231,8 @@ var maptool = (function () {
             clear: function() {
                 map.removeLayer(encounters);
                 map.removeLayer(voyages);
-                map.removeLayer(voyageTracks);
                 encounters = null;
                 voyages = null;
-                voyageTracks = null;
             }
         };
     };
