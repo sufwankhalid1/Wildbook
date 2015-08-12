@@ -100,7 +100,7 @@ angular.module("nodeApp.controllers", [])
 .controller("AppController", function ($scope, $http) {
     configPromise.then( function() {
         $scope.user = app.user;
-        $scope.$digest();
+//        $scope.$digest();
     });
 
     $scope.login = function() {
