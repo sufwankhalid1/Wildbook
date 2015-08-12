@@ -49,6 +49,18 @@
                     }
                 }
             }
+        },
+        "voyage": {
+            "vessel": {
+                "icons": {
+                    "boat": {
+                        "iconUrl": "/images/vessels/boat_mapicon.png",
+                        "iconSize": [72, 72],
+                        "iconAnchor": [16, 79],
+                        "popupAnchor": [45, -66]
+                    }
+                }
+            }
         }
     }
 }

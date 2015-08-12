@@ -27,6 +27,27 @@ var maptool = (function () {
             return voyageTracks = new L.featureGroup().addTo(map);
         }
 
+        function getVoyageLayer() {
+            if (voyages) {
+                return voyages;
+            }
+
+            voyages = new L.MarkerClusterGroup({
+                iconCreateFunction: function(cluster) {
+                    var iconDef = config.voyage.vessel.icons.boat;
+                    return new L.divIcon({className: 'individual-cluster',
+                                          iconSize: iconDef.iconSize,
+                                          iconAnchor: iconDef.iconAnchor,
+                                          html: '<div class="individual-cluster-count"><span>'
+                                              + cluster.getChildCount()
+                                              + '</span></div><img src="'
+                                              + iconDef.iconUrl + '"/>'});
+                }
+            });
+            map.addLayer(voyages);
+            return voyages;
+        }
+
         function getEncounterLayer() {
             if (encounters) {
                 return encounters;
@@ -157,6 +178,8 @@ var maptool = (function () {
             })
 
             getVoyageTrackLayer().addLayer(L.polyline(vPoints, {color: 'red'}));
+
+            getVoyageLayer().addLayer(getMarker());
         }
 
         return {
