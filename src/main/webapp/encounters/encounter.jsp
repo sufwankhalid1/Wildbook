@@ -730,10 +730,10 @@ $(function() {
       
 								
     							<%
-    							if ((enc.isAssignedToMarkedIndividual()!=null)&&(enc.isAssignedToMarkedIndividual().equals("Unassigned"))) {
+    							if (enc.getIndividualID() != null) {
   								%>
     							<p class="para">
-    								 <%=encprops.getProperty("identified_as") %> <%=enc.isAssignedToMarkedIndividual()%> 
+    								 <%=encprops.getProperty("identified_as") %> <%=enc.getIndividualID()%> 
       								<%
         							if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
      								%>
@@ -748,7 +748,7 @@ $(function() {
     							%>
     							<p class="para">
     								
-      								<%=encprops.getProperty("identified_as") %> <a href="../individuals.jsp?langCode=<%=langCode%>&number=<%=enc.isAssignedToMarkedIndividual()%><%if(request.getParameter("noscript")!=null){%>&noscript=true<%}%>"><%=enc.isAssignedToMarkedIndividual()%></a>
+      								<%=encprops.getProperty("identified_as") %> <a href="../individuals.jsp?langCode=<%=langCode%>&number=<%=enc.getIndividualID()%><%if(request.getParameter("noscript")!=null){%>&noscript=true<%}%>"><%=enc.getIndividualID()%></a>
       								<%
         							if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
       								%>
@@ -805,7 +805,7 @@ $(function() {
   									<p><em><%=encprops.getProperty("identityMessage") %></em></p>	
   		
   									<%
-  									if((enc.isAssignedToMarkedIndividual()==null)||(enc.isAssignedToMarkedIndividual().equals("Unassigned"))){
+  									if (enc.getIndividualID() == null){
   									%>		
   		
   									<table border="1" cellpadding="1" cellspacing="0" bordercolor="#FFFFFF" >
@@ -843,7 +843,7 @@ $(function() {
 									<%
   									}
   		 	  	  					//Remove from MarkedIndividual if not unassigned
-		  	  						if((enc.isAssignedToMarkedIndividual() != null) && !enc.isAssignedToMarkedIndividual().equals("Unassigned") && CommonConfiguration.isCatalogEditable(context)) {
+		  	  						if (enc.getIndividualID() != null && CommonConfiguration.isCatalogEditable(context)) {
 		  							%>
 									<table cellpadding="1" cellspacing="0" bordercolor="#FFFFFF">
  										<tr>
@@ -877,7 +877,7 @@ $(function() {
 									<br /> 
 									<%
    									}
-									if((enc.isAssignedToMarkedIndividual()==null)||(enc.isAssignedToMarkedIndividual().equals("Unassigned"))){
+									if (enc.getIndividualID() == null) {
 									%>	 
 	 
 									<table border="1" cellpadding="1" cellspacing="0" bordercolor="#FFFFFF">
@@ -2914,7 +2914,7 @@ $("a#comments").click(function() {
                                 			String profilePhotoURL="../images/empty_profile.jpg";
                     		    
                          					if(thisUser.getUserImage()!=null){
-                         						profilePhotoURL="/"+CommonConfiguration.getDataDirectoryName(context)+"/users/"+thisUser.getUsername()+"/"+thisUser.getUserImage().getFilename();
+                         						profilePhotoURL="/"+CommonConfiguration.getDataDirectoryName(context)+"/users/"+thisUser.getUsername()+"/"+thisUser.getUserImage().webPath();
                          					}
                          					%>
                      						<tr>

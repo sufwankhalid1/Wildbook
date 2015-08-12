@@ -19,7 +19,8 @@
 
 package org.ecocean.servlet;
 
-import org.ecocean.*;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -27,33 +28,33 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.StringTokenizer;
-import java.util.Vector;
-import java.util.concurrent.ThreadPoolExecutor;
+import org.ecocean.CommonConfiguration;
+import org.ecocean.Encounter;
+import org.ecocean.Occurrence;
+import org.ecocean.Shepherd;
 
 
 public class OccurrenceAddEncounter extends HttpServlet {
 
 
-  public void init(ServletConfig config) throws ServletException {
+  @Override
+public void init(final ServletConfig config) throws ServletException {
     super.init(config);
   }
 
-  private void setDateLastModified(Encounter enc) {
+  private void setDateLastModified(final Encounter enc) {
 
     String strOutputDateTime = ServletUtilities.getDate();
     enc.setDWCDateLastModified(strOutputDateTime);
   }
 
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+  @Override
+public void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
     doPost(request, response);
   }
 
-  public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+  @Override
+public void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
     String context="context0";
     context=ServletUtilities.getContext(request);
     Shepherd myShepherd = new Shepherd(context);
@@ -73,7 +74,6 @@ public class OccurrenceAddEncounter extends HttpServlet {
       myShepherd.beginDBTransaction();
       Encounter enc2add = myShepherd.getEncounter(request.getParameter("number"));
       setDateLastModified(enc2add);
-      //String tempName = enc2add.isAssignedToMarkedIndividual();
       if ((myShepherd.isOccurrence(request.getParameter("occurrence")))&&(myShepherd.getOccurrenceForEncounter(request.getParameter("number"))==null)) {
         try {
 
@@ -86,13 +86,13 @@ public class OccurrenceAddEncounter extends HttpServlet {
           try {
             if (!addToMe.getEncounters().contains(enc2add)) {
               addToMe.addEncounter(enc2add);
-              
+
             }
             enc2add.setOccurrenceID(request.getParameter("occurrence").trim());
             enc2add.addComments("<p><em>" + request.getRemoteUser() + " on " + (new java.util.Date()).toString() + "</em><br>" + "Added to occurrence " + request.getParameter("occurrence") + ".</p>");
             addToMe.addComments("<p><em>" + request.getRemoteUser() + " on " + (new java.util.Date()).toString() + "</em><br>" + "Added encounter " + request.getParameter("number") + ".</p>");
 
-            
+
           } catch (Exception le) {
             le.printStackTrace();
             locked = true;
@@ -137,7 +137,7 @@ public class OccurrenceAddEncounter extends HttpServlet {
           e.printStackTrace();
           //myShepherd.closeDBTransaction();
         }
-      } 
+      }
       else {
         out.println(ServletUtilities.getHeader(request));
         out.println("<strong>Error:</strong> You can't add this encounter to an occurrence when it's already assigned to another one, or you may be trying to add this encounter to a nonexistent occurrence.");
@@ -147,7 +147,7 @@ public class OccurrenceAddEncounter extends HttpServlet {
       }
 
 
-    } 
+    }
     else {
       out.println(ServletUtilities.getHeader(request));
       out.println("<strong>Error:</strong> I didn't receive enough data to add this encounter to an occurrence.");
