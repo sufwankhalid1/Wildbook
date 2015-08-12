@@ -13,19 +13,27 @@ var maptool = (function () {
         var currentPopup = null;
 
         var encounters;
-        encounters = new L.MarkerClusterGroup({
-            iconCreateFunction: function(cluster) {
-                var iconDef = config.encounter.icons.cluster;
-                return new L.divIcon({className: 'individual-cluster',
-                                      iconSize: iconDef.iconSize,
-                                      iconAnchor: iconDef.iconAnchor,
-                                      html: '<div class="individual-cluster-count"><span>'
-                                          + cluster.getChildCount()
-                                          + '</span></div><img src="'
-                                          + iconDef.iconUrl + '"/>'});
+
+        function getEncounterLayer() {
+            if (encounters) {
+                return encounters;
             }
-        });
-        map.addLayer(encounters);
+
+            encounters = new L.MarkerClusterGroup({
+                iconCreateFunction: function(cluster) {
+                    var iconDef = config.encounter.icons.cluster;
+                    return new L.divIcon({className: 'individual-cluster',
+                                          iconSize: iconDef.iconSize,
+                                          iconAnchor: iconDef.iconAnchor,
+                                          html: '<div class="individual-cluster-count"><span>'
+                                              + cluster.getChildCount()
+                                              + '</span></div><img src="'
+                                              + iconDef.iconUrl + '"/>'});
+                }
+            });
+            map.addLayer(encounters);
+            return encounters;
+        }
 
         map.on("popupopen", function(evt) {
             currentPopup = evt.popup;
@@ -95,8 +103,10 @@ var maptool = (function () {
             // Just passed in a latlng because we have no other info. Also use default icon.
             // Later, we can make sure we pass in a species somehow if we have it.
             //
+            var layer = getEncounterLayer();
+
             if (Array.isArray(encounter)) {
-                encounters.addLayer(getMarker(encounter, getEncounterIcon("default")));
+                layer.addLayer(getMarker(encounter, getEncounterIcon("default")));
                 return;
             }
 
@@ -124,7 +134,7 @@ var maptool = (function () {
             popup.append("by: ");
             popup.append(app.beingDiv(encounter.submitter));
 
-            encounters.addLayer(getMarker([encounter.latitude, encounter.longitude], iconIndividual, popup[0]));
+            layer.addLayer(getMarker([encounter.latitude, encounter.longitude], iconIndividual, popup[0]));
         }
 
         function addVoyage(points, popup) {
@@ -152,6 +162,7 @@ var maptool = (function () {
 
                 if (data.length === 0) {
                     map.fitWorld();
+                    return;
                 }
 
                 if (! maxZoom) {
@@ -164,6 +175,8 @@ var maptool = (function () {
             clear: function() {
                 map.removeLayer(encounters);
                 map.removeLayer(voyages);
+                encounters = null;
+                voyages = null;
             }
         };
     };
