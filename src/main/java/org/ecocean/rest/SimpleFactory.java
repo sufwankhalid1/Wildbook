@@ -161,8 +161,14 @@ public class SimpleFactory {
     public static UserInfo getUserInfo(final String context,
                                        final String username) throws DatabaseException
     {
+        SimpleUser user = getUser(username);
+
+        if (user == null) {
+            return null;
+        }
+
         UserInfo userinfo;
-        userinfo = new UserInfo(getUser(username));
+        userinfo = new UserInfo(user);
 
         //
         // Add:
