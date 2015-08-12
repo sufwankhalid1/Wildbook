@@ -15,6 +15,37 @@ var maptool = (function () {
         var encounters;
         var voyageTracks;
 
+        function fitToData(maxZoom) {
+            var data = [];
+            if (encounters) {
+                data.push(encounters);
+            }
+
+            if (voyageTracks) {
+                data.push(voyageTracks);
+            }
+
+            if (voyages) {
+                data.push(voyages);
+            }
+
+            if (data.length === 0) {
+                map.fitWorld();
+                return;
+            }
+
+            if (! maxZoom) {
+                maxZoom = 8;
+            }
+
+            var group = new L.featureGroup(data);
+            map.fitBounds(group.getBounds(), {maxZoom: maxZoom});
+        }
+
+        L.easyButton("glyphicon-globe", function( buttonArg, mapArg ) {
+            fitToData();
+          }).addTo(map);
+
         function getVoyageTrackLayer() {
             if (voyageTracks) {
                 return voyageTracks;
@@ -186,32 +217,7 @@ var maptool = (function () {
             map: map,
             addEncounter: addEncounter,
             addVoyage: addVoyage,
-            fitToData: function(maxZoom) {
-                var data = [];
-                if (encounters) {
-                    data.push(encounters);
-                }
-
-                if (voyageTracks) {
-                    data.push(voyageTracks);
-                }
-
-                if (voyages) {
-                    data.push(voyages);
-                }
-
-                if (data.length === 0) {
-                    map.fitWorld();
-                    return;
-                }
-
-                if (! maxZoom) {
-                    maxZoom = 8;
-                }
-
-                var group = new L.featureGroup(data);
-                map.fitBounds(group.getBounds(), {maxZoom: maxZoom});
-            },
+            fitToData: fitToData,
             clear: function() {
                 map.removeLayer(encounters);
                 map.removeLayer(voyages);

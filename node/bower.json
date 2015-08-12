@@ -1,0 +1,10 @@
+{
+  "name" : "happywhale_web",
+  "version": "0.1.0",
+  "dependencies" : {
+    "Leaflet.EasyButton" : "latest"
+  },
+  "install" : {
+    "path" : "public/bcomponents"
+  }
+}

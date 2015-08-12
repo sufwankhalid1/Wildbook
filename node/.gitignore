@@ -3,4 +3,4 @@ public/cust
 server/cust
 locales/dev/cust.json
 secrets.json
-
+bower_components
