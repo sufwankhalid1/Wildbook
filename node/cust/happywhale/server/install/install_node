@@ -1,0 +1,11 @@
+#!/bin/bash
+if (( $# < 3 ))
+then
+    echo "Usage: intall_node <node-zip> <install-dir> <service_name>"
+    exit
+fi
+
+sudo stop $3
+sudo unzip -qo -d $2 $1
+sudo start $3
+
