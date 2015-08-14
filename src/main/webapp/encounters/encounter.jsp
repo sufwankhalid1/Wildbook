@@ -1,31 +1,13 @@
+<jsp:include page="../headerfull.jsp" flush="true">
+  <jsp:param name="isAdmin" value="<%=request.isUserInRole(\"admin\")%>" />
+</jsp:include>
 
-<%--
-  ~ Wildbook - A Mark-Recapture Framework
-  ~ Copyright (C) 2008-2014 Jason Holmberg
-  ~
-  ~ This program is free software; you can redistribute it and/or
-  ~ modify it under the terms of the GNU General Public License
-  ~ as published by the Free Software Foundation; either version 2
-  ~ of the License, or (at your option) any later version.
-  ~
-  ~ This program is distributed in the hope that it will be useful,
-  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  ~ GNU General Public License for more details.
-  ~
-  ~ You should have received a copy of the GNU General Public License
-  ~ along with this program; if not, write to the Free Software
-  ~ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-  --%>
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <%@ page contentType="text/html; charset=utf-8" language="java"
          import="org.joda.time.format.DateTimeFormat,org.joda.time.format.DateTimeFormatter,org.joda.time.LocalDateTime ,org.ecocean.servlet.ServletUtilities,com.drew.imaging.jpeg.JpegMetadataReader, com.drew.metadata.Directory, com.drew.metadata.Metadata, com.drew.metadata.Tag, org.ecocean.*,org.ecocean.servlet.ServletUtilities,org.ecocean.Util,org.ecocean.Util.MetalTagDesc,org.ecocean.Util.MeasurementDesc,org.ecocean.Measurement, org.ecocean.mmutil.*, org.ecocean.genetics.*, org.ecocean.tag.*, java.awt.Dimension, javax.jdo.Extent, javax.jdo.Query, java.io.File, java.text.DecimalFormat, java.util.*,org.ecocean.security.Collaboration" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>         
 
 <%!
-
   //shepherd must have an open trasnaction when passed in
   public String getNextIndividualNumber(Encounter enc, Shepherd myShepherd, String context) {
     String returnString = "";
@@ -62,13 +44,9 @@
             } else {
               startNum++;
             }
-
           }
           return returnString;
-
         }
-
-
       }
       return returnString;
     } 
@@ -77,12 +55,9 @@
       return returnString;
     }
   }
-
 %>
 
 <%
-
-
 String context="context0";
 context=ServletUtilities.getContext(request);
 //get encounter number
@@ -112,9 +87,6 @@ File encounterDir = new File(encountersDir, num);
 //handle translation
   //String langCode = "en";
 String langCode=ServletUtilities.getLanguageCode(request);
-    
-
-
 
 //let's load encounters.properties
   //Properties encprops = new Properties();
@@ -140,19 +112,6 @@ String langCode=ServletUtilities.getLanguageCode(request);
   pageContext.setAttribute("set", encprops.getProperty("set"));
 %>
 
-<html>
-
-<head prefix="og:http://ogp.me/ns#">
-  <title><%=CommonConfiguration.getHTMLTitle(context) %> - <%=encprops.getProperty("encounter") %> <%=num%>
-  </title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-  <meta name="Description"
-        content="<%=CommonConfiguration.getHTMLDescription(context) %>"/>
-  <meta name="Keywords"
-        content="<%=CommonConfiguration.getHTMLKeywords(context) %>"/>
-  <meta name="Author" content="<%=CommonConfiguration.getHTMLAuthor(context) %>"/>
-  
-  
 <!-- social meta start -->
 <meta property="og:site_name" content="<%=CommonConfiguration.getHTMLTitle(context) %> - <%=encprops.getProperty("encounter") %> <%=request.getParameter("number") %>" />
 
@@ -267,11 +226,6 @@ if (request.getParameter("number")!=null) {
       padding: 8px;
     }
 
-    -->
-
-
-
-
 th.measurement{
 	 font-size: 0.9em;
 	 font-weight: normal;
@@ -286,18 +240,8 @@ td.measurement{
 </style>
 
 
-  <!--
-    1 ) Reference to the files containing the JavaScript and CSS.
-    These files must be located on your server.
-  -->
-
   <script type="text/javascript" src="../tools/highslide/highslide-with-gallery.js"></script>
   <link rel="stylesheet" type="text/css" href="../tools/highslide/highslide.css"/>
-
-  <!--
-    2) Optionally override the settings defined at the top
-    of the highslide.js file. The parameter hs.graphicsDir is important!
-  -->
 
 
 <script type="text/javascript">
@@ -328,9 +272,6 @@ td.measurement{
 	</script>
 
   <script type="text/javascript">
-  
-
-  
       hs.graphicsDir = '../tools/highslide/graphics/';
       hs.align = 'center';
       hs.transitions = ['expand', 'crossfade'];
@@ -364,11 +305,6 @@ td.measurement{
         hideOnMouseOut: true
       }
     });
-    
-    //test comment
-    
-
-
   </script>
   
   <script>
@@ -481,25 +417,11 @@ margin-bottom: 8px !important;
 /*customizations*/
 .ui_tpicker_hour_label {margin-bottom:5px !important;}
 .ui_tpicker_minute_label {margin-bottom:5px !important;}
-
-
 </style>
 
+<script src="http://maps.google.com/maps/api/js?sensor=false&language=<%=langCode%>"></script>
 
-<body <%if (request.getParameter("noscript") == null) {%>
-  onload="initialize()" <%}%>>
-
-	<div id="wrapper">
-		<div id="page">
-			<jsp:include page="../header.jsp" flush="true">
-  				<jsp:param name="isAdmin" value="<%=request.isUserInRole(\"admin\")%>" />
-			</jsp:include>
-			
-			
-			<script src="http://maps.google.com/maps/api/js?sensor=false&language=<%=langCode%>"></script>
-
- <script type="text/javascript" src="http://geoxml3.googlecode.com/svn/branches/polys/geoxml3.js"></script>
- 
+<script type="text/javascript" src="http://geoxml3.googlecode.com/svn/branches/polys/geoxml3.js"></script>
 <script src="../javascript/imageTools.js"></script>
 
 			
@@ -573,7 +495,6 @@ if (request.getParameter("refreshImages") != null) {
     			%>
     			
 <script type="text/javascript">
-
 
 
 $(function() {
@@ -1601,8 +1522,6 @@ $("a#elev").click(function() {
 
     	}
 
-      
-      
       google.maps.event.addDomListener(window, 'load', initialize);
     </script>
     
@@ -5219,18 +5138,4 @@ catch(Exception e){
 
 
 
-<jsp:include page="../footer.jsp" flush="true"/>
-
-</div>
-<!-- end page -->
-
-</div>
-
-<!--end wrapper -->
-
-
-
-</body>
-</html>
-
-
+<jsp:include page="../footerfull.jsp" flush="true"/>
