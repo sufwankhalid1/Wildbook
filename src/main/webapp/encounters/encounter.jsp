@@ -291,8 +291,8 @@ td.measurement{
     These files must be located on your server.
   -->
 
-  <script type="text/javascript" src="../highslide/highslide/highslide-with-gallery.js"></script>
-  <link rel="stylesheet" type="text/css" href="../highslide/highslide/highslide.css"/>
+  <script type="text/javascript" src="../tools/highslide/highslide-with-gallery.js"></script>
+  <link rel="stylesheet" type="text/css" href="../tools/highslide/highslide.css"/>
 
   <!--
     2) Optionally override the settings defined at the top
@@ -331,7 +331,7 @@ td.measurement{
   
 
   
-      hs.graphicsDir = '../highslide/highslide/graphics/';
+      hs.graphicsDir = '../tools/highslide/graphics/';
       hs.align = 'center';
       hs.transitions = ['expand', 'crossfade'];
       hs.outlineType = 'rounded-white';
@@ -432,16 +432,6 @@ margin-bottom: 8px !important;
 
 </style>
 
-
-
-
-<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.4/themes/base/jquery-ui.css" rel="stylesheet" type="text/css" />
-
-
-<!--added below for improved map selection -->
-
-
-
 <!--  FACEBOOK LIKE BUTTON -->
 <div id="fb-root"></div>
 <script>(function(d, s, id) {
@@ -508,13 +498,7 @@ margin-bottom: 8px !important;
 			
 			<script src="http://maps.google.com/maps/api/js?sensor=false&language=<%=langCode%>"></script>
 
-<script src="http://code.jquery.com/ui/1.10.2/jquery-ui.js"></script>
-
  <script type="text/javascript" src="http://geoxml3.googlecode.com/svn/branches/polys/geoxml3.js"></script>
-  <link rel="stylesheet" href="//code.jquery.com/ui/1.11.1/themes/smoothness/jquery-ui.css">
- <script src="//code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
- 
-  <script src="../javascript/timepicker/jquery-ui-timepicker-addon.js"></script>
  
 <script src="../javascript/imageTools.js"></script>
 

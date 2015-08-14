@@ -50,7 +50,6 @@ function SortTable(opts) {
 	};
 
 	this.newSlice = function(col, reverse) {
-///console.warn('newSlice() col %o | start %o | start + howMany %o | reverse %o', col, this.opts.start, this.opts.start + this.opts.howMany, reverse);
 		this.results = this.slice(col, this.opts.start, this.opts.start + this.opts.howMany, reverse);
 	};
 
@@ -58,7 +57,6 @@ function SortTable(opts) {
 		this.opts.start += n;
 		if ((this.opts.start + this.opts.howMany) > this.matchesFilter.length) this.opts.start = this.matchesFilter.length - this.opts.howMany;
 		if (this.opts.start < 0) this.opts.start = 0;
-console.log('nudge() start -> %d', this.opts.start);
 		this.newSlice(this.sortCol, this.sortReverse);
 		this.show();
 	};
@@ -70,7 +68,6 @@ console.log('nudge() start -> %d', this.opts.start);
 	this.applyFilter = function(t) {
 		//if (!this.opts.filterEl) return;
 		//var t = filterEl.val();
-console.log(t);
 		this.filter(t);
 		this.opts.start = 0;
 		this.newSlice(1);
@@ -162,11 +159,9 @@ console.log(t);
 
 	this.headerClick = function(ev, el) {
 		var c = parseInt(el.getAttribute('data-colnum'));
-//console.info('c %o | ev %o | el %o', c, ev, el);
 		if ((c == undefined) || isNaN(c)) return;
 		this.opts.start = 0;
 		ev.preventDefault();
-		//console.log(c);
 		if (this.sortCol == c) {
 			this.sortReverse = !this.sortReverse;
 		} else {
@@ -181,7 +176,6 @@ console.log(t);
 		} else {
 			this.opts.tableEl.find('th.ptcol-' + this.opts.columns[c].key).addClass('headerSortDown');
 		}
-//console.log('sortCol=%d sortReverse=%o', this.sortCol, this.sortReverse);
 		this.newSlice(this.sortCol, this.sortReverse);
 		this.show();
 	};
@@ -193,14 +187,12 @@ console.log(t);
 	this.slice = function(col, start, end, reverse) {
 		if ((end == undefined) || (end > this.matchesFilter.length)) end = this.matchesFilter.length;
 		if ((start == undefined) || (start > this.matchesFilter.length)) start = 0;
-//console.log('col %o | start %o | end %o | reverse %o', col, start, end, reverse);
 		var at = -1;
 		var s = [];
 /*
 		var keys = [];
 		var map = {};
 		for (var i = start ; i <= end ; i++) {
-//console.log('%d %d %d', i, this.matchesFilter[i], this.sortsInd[col][this.matchesFilter[i]]);
 			var k = this.sortsInd[col][this.matchesFilter[i]];
 			keys.push(k);
 			map[k] = this.matchesFilter[i];
@@ -225,7 +217,6 @@ console.log(t);
 					this._sortCacheRev[col].unshift(this.sorts[col][i]);
 				}
 			}
-console.log(this._sortCache[col]);
 		}
 
 		if (reverse) return this._sortCacheRev[col].slice(start, end);
@@ -286,7 +277,6 @@ console.log(this._sortCache[col]);
 				var s = Math.floor((100 - b.value) / 100 * (me.matchesFilter.length - me.opts.perPage) + 0.5);
 				if (s == me.lastSliderStart) return;
 				me.lastSliderStart = s;
-				console.log(s);
 				me.opts.start = s;
 				me.newSlice(me.sortCol, me.sortReverse);
 				me.show();
@@ -300,13 +290,11 @@ console.log(this._sortCache[col]);
 		for (var c = 0 ; c < this.opts.columns.length ; c++) {
 			header.push(this.opts.columns[c].label || this.opts.columns[c].key);
 		}
-		console.info(header.join(' | '));
 		for (var i = 0 ; i < ind.length ; i++) {
 			var row = [i, ind[i]];
 			for (var c = 0 ; c < this.opts.columns.length ; c++) {
 				row.push(this.values[ind[i]][c]);
 			}
-			console.log(row.join(' | '));
 		}
 	};
 

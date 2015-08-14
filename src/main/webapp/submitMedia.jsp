@@ -1,20 +1,10 @@
 <jsp:include page="headerfull.jsp" flush="true"/>
 
-<link rel="stylesheet" href="tools/jquery-ui/jquery-ui.css" id="theme">
-
-<link href="tools/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 <link href="tools/angularjs-utilities/css/rcWizard.css" rel="stylesheet">
 <link rel="stylesheet" href="//blueimp.github.io/Gallery/css/blueimp-gallery.min.css">
 <link rel="stylesheet" href="tools/jquery-fileupload/css/jquery.fileupload.css">
 <link rel="stylesheet" href="tools/jquery-fileupload/css/jquery.fileupload-ui.css">
 <link rel="stylesheet" href="tools/leaflet/leaflet.css">
-<link rel="stylesheet" href="tools/alertplus/css/alertplus.css">
-<!-- Default fonts for jquery-ui are too big
-<style>
-.ui-widget {
-    font-size:90%;
-}
-</style> -->
 
 <style>
 /* Hide Angular JS elements before initializing */
@@ -34,14 +24,6 @@
 <script src="javascript/core.js"></script>
 <script src="javascript/classes/Base.js"></script>
 
-<!-- <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDz5Pgz2NCjFkss9AJwxqFjejPhxJrOj-M"></script> -->
-<!-- <script src="javascript/pager.js"></script> -->
-
-<script src="tools/jquery-ui/jquery-ui.js"></script>
-<script src="javascript/timepicker/jquery-ui-timepicker-addon.js"></script>
-
-<!-- CAUTION: jquery-ui must go before bootstrap or you get an error -->
-<script src="tools/bootstrap/javascript/bootstrap.min.js"></script>
 <script src="tools/angularjs-utilities/javascript/jquery.bootstrap.wizard.js"></script>
 <script src="tools/angularjs/javascript/angular-1.3.14.min.js"></script>
 <script src="tools/angularjs-utilities/javascript/directives/rcSubmit.js"></script>
@@ -50,7 +32,6 @@
 <script src="tools/angularjs-utilities/javascript/modules/rcWizard.js"></script>
 <script src="tools/angular-ui/ui-date/date.js"></script>
 <script src="tools/leaflet/leaflet-src.js"></script>
-<script src="tools/alertplus/javascript/alertplus.js"></script>
 
 <!-- The Load Image plugin is included for the preview images and image resizing functionality -->
 <script src="//blueimp.github.io/JavaScript-Load-Image/js/load-image.all.min.js"></script>

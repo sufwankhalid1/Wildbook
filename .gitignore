@@ -25,3 +25,4 @@ src/main/webapp/encounters/*20*
 /config/db/flyway_test.conf
 /m2_repo/
 /logs/
+bower_components

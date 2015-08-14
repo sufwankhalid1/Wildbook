@@ -283,8 +283,8 @@ table.tissueSample td {
     These files must be located on your server.
   -->
 
-  <script type="text/javascript" src="highslide/highslide/highslide-with-gallery.js"></script>
-  <link rel="stylesheet" type="text/css" href="highslide/highslide/highslide.css"/>
+  <script type="text/javascript" src="tools/highslide/highslide-with-gallery.js"></script>
+  <link rel="stylesheet" type="text/css" href="tools/highslide/highslide.css"/>
 
   <!--
     2) Optionally override the settings defined at the top
@@ -292,7 +292,7 @@ table.tissueSample td {
   -->
 
   <script type="text/javascript">
-    hs.graphicsDir = 'highslide/highslide/graphics/';
+    hs.graphicsDir = 'tools/highslide/graphics/';
     hs.align = 'center';
     hs.transitions = ['expand', 'crossfade'];
     hs.outlineType = 'rounded-white';
@@ -348,10 +348,6 @@ table.tissueSample td {
   })();
 </script>
 
-<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.4/themes/base/jquery-ui.css" rel="stylesheet" type="text/css" />
-
-
-
 </head>
 
 <body <%if (request.getParameter("noscript") == null) {%>
@@ -359,27 +355,15 @@ onunload="GUnload()" <%}%>>
 <div id="wrapper">
 <div id="page">
 <jsp:include page="header.jsp" flush="true">
-
-	<jsp:param name="isAdmin" value="<%=request.isUserInRole(\"admin\")%>" />
+    <jsp:param name="isAdmin" value="<%=request.isUserInRole(\"admin\")%>" />
 </jsp:include>
-  <script src="http://code.jquery.com/ui/1.10.2/jquery-ui.js"></script>
-
-<script src="//code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
-<link rel="stylesheet" href="//code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
-
 
 <script src="javascript/underscore-min.js"></script>
 <script src="javascript/backbone-min.js"></script>
 <script src="javascript/core.js"></script>
 <script src="javascript/classes/Base.js"></script>
 
-<link rel="stylesheet" href="javascript/tablesorter/themes/blue/style.css" type="text/css" media="print, projection, screen" />
-
-<link rel="stylesheet" href="css/pageableTable.css" />
 <script src="javascript/tsrt.js"></script>
-
-
-
 
 <style>
 .ptcol-maxYearsBetweenResightings {

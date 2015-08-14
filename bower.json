@@ -1,0 +1,29 @@
+{
+  "name": "wildbook",
+  "version": "5.3.0-RELEASE",
+  "dependencies" : {
+    "jquery": "2.1.4",
+    "jquery-ui" : "1.11.4",
+    "tablesorter": "latest"
+  },
+  "install": {
+    "path": "src/main/webapp/bcomponents",
+    "sources": {
+        "jquery-ui": [
+            "bower_components/jquery-ui/jquery-ui.min.js",
+            "bower_components/jquery-ui/jquery-ui.js",
+            "bower_components/jquery-ui/themes/smoothness/**"
+        ],
+        "jquery": [
+            "bower_components/jquery/dist/jquery.min.js",
+            "bower_components/jquery/dist/jquery.min.map",
+            "bower_components/jquery/dist/jquery.js"
+        ],
+        "tablesorter": [
+            "bower_components/tablesorter/jquery.metadata.js",
+            "bower_components/tablesorter/jquery.tablesorter.js",
+            "bower_components/tablesorter/themes/**"
+        ]
+    }
+  }
+}

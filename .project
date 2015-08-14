@@ -46,12 +46,30 @@
 	</natures>
 	<filteredResources>
 		<filter>
-			<id>1435854798283</id>
+			<id>1439500632542</id>
 			<name></name>
 			<type>30</type>
 			<matcher>
 				<id>org.eclipse.ui.ide.multiFilter</id>
 				<arguments>1.0-name-matches-false-false-target</arguments>
+			</matcher>
+		</filter>
+		<filter>
+			<id>1439500632546</id>
+			<name></name>
+			<type>26</type>
+			<matcher>
+				<id>org.eclipse.ui.ide.multiFilter</id>
+				<arguments>1.0-name-matches-false-false-node_modules</arguments>
+			</matcher>
+		</filter>
+		<filter>
+			<id>1439500632566</id>
+			<name></name>
+			<type>26</type>
+			<matcher>
+				<id>org.eclipse.ui.ide.multiFilter</id>
+				<arguments>1.0-name-matches-false-false-bower_components</arguments>
 			</matcher>
 		</filter>
 	</filteredResources>

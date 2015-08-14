@@ -1,72 +1,39 @@
-<%--
-  ~ The Shepherd Project - A Mark-Recapture Framework
-  ~ Copyright (C) 2011 Jason Holmberg
-  ~
-  ~ This program is free software; you can redistribute it and/or
-  ~ modify it under the terms of the GNU General Public License
-  ~ as published by the Free Software Foundation; either version 2
-  ~ of the License, or (at your option) any later version.
-  ~
-  ~ This program is distributed in the hope that it will be useful,
-  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  ~ GNU General Public License for more details.
-  ~
-  ~ You should have received a copy of the GNU General Public License
-  ~ along with this program; if not, write to the Free Software
-  ~ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-  --%>
+<jsp:include page="../headerfull.jsp" flush="true">
+  <jsp:param name="isAdmin" value="<%=request.isUserInRole(\"admin\")%>" />
+</jsp:include>
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <%@ page contentType="text/html; charset=utf-8" language="java"
          import="org.ecocean.servlet.ServletUtilities,org.ecocean.*, org.ecocean.servlet.ServletUtilities, java.io.File, java.io.FileOutputStream, java.io.OutputStreamWriter, java.util.*, org.datanucleus.api.rest.orgjson.JSONArray, org.json.JSONObject, org.datanucleus.api.rest.RESTUtils, org.datanucleus.api.jdo.JDOPersistenceManager " %>
-
-
-
-<html>
-<head>
-
-
 <%
-
 String context="context0";
 context=ServletUtilities.getContext(request);
 
   //let's load encounterSearch.properties
   //String langCode = "en";
   String langCode=ServletUtilities.getLanguageCode(request);
-  
 
   Properties encprops = new Properties();
   //encprops.load(getClass().getResourceAsStream("/bundles/" + langCode + "/searchResults.properties"));
   encprops=ShepherdProperties.getProperties("searchResults.properties", langCode, context);
-  
 
   Shepherd myShepherd = new Shepherd(context);
-
-
 
   int startNum = 1;
   int endNum = 10;
 
-
   try {
-
     if (request.getParameter("startNum") != null) {
       startNum = (new Integer(request.getParameter("startNum"))).intValue();
     }
     if (request.getParameter("endNum") != null) {
       endNum = (new Integer(request.getParameter("endNum"))).intValue();
     }
-
   } catch (NumberFormatException nfe) {
     startNum = 1;
     endNum = 10;
   }
 
   int numResults = 0;
-
-
   Vector rEncounters = new Vector();
 
   myShepherd.beginDBTransaction();
@@ -74,50 +41,13 @@ context=ServletUtilities.getContext(request);
   EncounterQueryResult queryResult = EncounterQueryProcessor.processQuery(myShepherd, request, "year descending, month descending, day descending");
   rEncounters = queryResult.getResult();
 
-
 //--let's estimate the number of results that might be unique
-
   int numUniqueEncounters = 0;
   int numUnidentifiedEncounters = 0;
   int numDuplicateEncounters = 0;
-/*
-  ArrayList uniqueEncounters = new ArrayList();
-  for (int q = 0; q < rEncounters.size(); q++) {
-    Encounter rEnc = (Encounter) rEncounters.get(q);
-    if ((rEnc.getIndividualID()!=null)&&(!rEnc.getIndividualID().equals("Unassigned"))) {
-      String assemblage = rEnc.getIndividualID() + ":" + rEnc.getYear() + ":" + rEnc.getMonth() + ":" + rEnc.getDay();
-      if (!uniqueEncounters.contains(assemblage)) {
-        numUniqueEncounters++;
-        uniqueEncounters.add(assemblage);
-      } else {
-        numDuplicateEncounters++;
-      }
-    } else {
-      numUnidentifiedEncounters++;
-    }
-
-  }
-*/
-
-//--end unique counting------------------------------------------
-
 %>
-<title><%=CommonConfiguration.getHTMLTitle(context)%>
-</title>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-<meta name="Description"
-      content="<%=CommonConfiguration.getHTMLDescription(context)%>"/>
-<meta name="Keywords"
-      content="<%=CommonConfiguration.getHTMLKeywords(context)%>"/>
-<meta name="Author" content="<%=CommonConfiguration.getHTMLAuthor(context)%>"/>
-<link href="<%=CommonConfiguration.getCSSURLLocation(request,context)%>"
-      rel="stylesheet" type="text/css"/>
-<link rel="shortcut icon"
-      href="<%=CommonConfiguration.getHTMLShortcutIcon(context)%>"/>
-</head>
 
 <style type="text/css">
-
 .ptcol-individualID {
 	position: relative;
 }
@@ -220,31 +150,14 @@ td.tdw:hover div {
   
 </style>
 
-
-<body onload="initialize()" onunload="GUnload()">
-<div id="wrapper">
-<div id="page">
-<jsp:include page="../header.jsp" flush="true">
-  <jsp:param name="isAdmin" value="<%=request.isUserInRole(\"admin\")%>" />
-</jsp:include>
-
-
-<script src="//code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
-<link rel="stylesheet" href="//code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
-
-<script src="../javascript/tablesorter/jquery.tablesorter.js"></script>
+<script src="../bcomponents/tablesorter/jquery.tablesorter.js"></script>
 
 <script src="../javascript/underscore-min.js"></script>
 <script src="../javascript/backbone-min.js"></script>
 <script src="../javascript/core.js"></script>
 <script src="../javascript/classes/Base.js"></script>
 
-<link rel="stylesheet" href="../javascript/tablesorter/themes/blue/style.css" type="text/css" media="print, projection, screen" />
-
-<link rel="stylesheet" href="../css/pageableTable.css" />
 <script src="../javascript/tsrt.js"></script>
-
-
 
 <div id="main">
 
@@ -964,15 +877,4 @@ console.log(t);
   rEncounters = null;
 
 %>
-<jsp:include page="../footer.jsp" flush="true"/>
-</div>
-</div>
-<!-- end page --></div>
-<!--end wrapper -->
-
-</body>
-</html>
-
-
-
-
+<jsp:include page="../footerfull.jsp" flush="true"/>

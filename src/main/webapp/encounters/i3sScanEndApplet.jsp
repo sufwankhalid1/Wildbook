@@ -61,9 +61,6 @@ context=ServletUtilities.getContext(request);
   <link
     href="http://<%=CommonConfiguration.getURLLocation(request)%>/css/ecocean.css"
     rel="stylesheet" type="text/css"/>
-      <link href="../css/pageableTable.css" rel="stylesheet" type="text/css"/>
-<link rel="stylesheet" href="../javascript/tablesorter/themes/blue/style.css" type="text/css" media="print, projection, screen" />
-      
 </head>
 
 <style type="text/css">

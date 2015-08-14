@@ -69,8 +69,6 @@ File encountersDir=new File(shepherdDataDir.getAbsolutePath()+"/encounters");
         rel="stylesheet" type="text/css"/>
   <link rel="shortcut icon"
         href="<%=CommonConfiguration.getHTMLShortcutIcon(context) %>"/>
-          <link href="../css/pageableTable.css" rel="stylesheet" type="text/css"/>
-<link rel="stylesheet" href="../javascript/tablesorter/themes/blue/style.css" type="text/css" media="print, projection, screen" />
       
 </head>
 

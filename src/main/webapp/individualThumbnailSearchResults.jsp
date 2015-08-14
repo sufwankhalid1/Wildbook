@@ -110,8 +110,8 @@
     These files must be located on your server.
   -->
 
-  <script type="text/javascript" src="highslide/highslide/highslide-with-gallery.js"></script>
-  <link rel="stylesheet" type="text/css" href="highslide/highslide/highslide.css"/>
+  <script type="text/javascript" src="tools/highslide/highslide-with-gallery.js"></script>
+  <link rel="stylesheet" type="text/css" href="tools/highslide/highslide.css"/>
 
   <!--
     2) Optionally override the settings defined at the top
@@ -119,7 +119,7 @@
   -->
 
   <script type="text/javascript">
-  hs.graphicsDir = 'highslide/highslide/graphics/';
+  hs.graphicsDir = 'tools/highslide/graphics/';
   hs.align = 'center';
   hs.showCredits = false;
 

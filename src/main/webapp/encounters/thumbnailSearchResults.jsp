@@ -1,35 +1,9 @@
-<%--
-  ~ The Shepherd Project - A Mark-Recapture Framework
-  ~ Copyright (C) 2011 Jason Holmberg
-  ~
-  ~ This program is free software; you can redistribute it and/or
-  ~ modify it under the terms of the GNU General Public License
-  ~ as published by the Free Software Foundation; either version 2
-  ~ of the License, or (at your option) any later version.
-  ~
-  ~ This program is distributed in the hope that it will be useful,
-  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  ~ GNU General Public License for more details.
-  ~
-  ~ You should have received a copy of the GNU General Public License
-  ~ along with this program; if not, write to the Free Software
-  ~ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-  --%>
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<jsp:include page="../headerfull.jsp" flush="true">
+  <jsp:param name="isAdmin" value="<%=request.isUserInRole(\"admin\")%>" />
+</jsp:include>
 <%@ page contentType="text/html; charset=utf-8" language="java"
-
          import="org.ecocean.servlet.ServletUtilities,javax.jdo.Query,com.drew.imaging.jpeg.JpegMetadataReader,com.drew.metadata.Metadata, com.drew.metadata.Tag, org.ecocean.mmutil.MediaUtilities,org.ecocean.*,java.io.File, java.util.*,org.ecocean.security.Collaboration, java.io.FileInputStream, javax.jdo.Extent" %>
-
-
-<html>
-<head>
-
-
-  <%
-  
+<%
   String context="context0";
   context=ServletUtilities.getContext(request);
   
@@ -41,7 +15,6 @@
   File encountersDir=new File(shepherdDataDir.getAbsolutePath()+"/encounters");
   //if(!encountersDir.exists()){encountersDir.mkdirs();}
 
-  
     int startNum = 0;
     int endNum = 45;
 
@@ -59,11 +32,9 @@
       endNum = 45;
     }
 
-
 //let's load thumbnailSearch.properties
     //String langCode = "en";
     String langCode=ServletUtilities.getLanguageCode(request);
-    
 
     Properties encprops = new Properties();
     //encprops.load(getClass().getResourceAsStream("/bundles/" + langCode + "/thumbnailSearchResults.properties"));
@@ -122,35 +93,12 @@
    }
 
   %>
-  <title><%=CommonConfiguration.getHTMLTitle(context) %>
-  </title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-  <meta name="Description"
-        content="<%=CommonConfiguration.getHTMLDescription(context) %>"/>
-  <meta name="Keywords"
-        content="<%=CommonConfiguration.getHTMLKeywords(context) %>"/>
-  <meta name="Author" content="<%=CommonConfiguration.getHTMLAuthor(context) %>"/>
-  <link href="<%=CommonConfiguration.getCSSURLLocation(request,context) %>"
-        rel="stylesheet" type="text/css"/>
-  <link rel="shortcut icon"
-        href="<%=CommonConfiguration.getHTMLShortcutIcon(context) %>"/>
 
+  <script type="text/javascript" src="../tools/highslide/highslide-with-gallery.js"></script>
+  <link rel="stylesheet" type="text/css" href="../tools/highslide/highslide.css"/>
 
-  <!--
-    1 ) Reference to the files containing the JavaScript and CSS.
-    These files must be located on your server.
-  -->
-
-  <script type="text/javascript" src="../highslide/highslide/highslide-with-gallery.js"></script>
-  <link rel="stylesheet" type="text/css" href="../highslide/highslide/highslide.css"/>
-
-  <!--
-    2) Optionally override the settings defined at the top
-    of the highslide.js file. The parameter hs.graphicsDir is important!
-  -->
-
-  <script type="text/javascript">
-  hs.graphicsDir = '../highslide/highslide/graphics/';
+<script type="text/javascript">
+  hs.graphicsDir = '../tools/highslide/graphics/';
   hs.align = 'center';
   hs.showCredits = false;
 
@@ -193,7 +141,7 @@
     });
 
   </script>
-</head>
+
 <style type="text/css">
 
   #tabmenu {
@@ -250,12 +198,7 @@
     padding: 8px;
   }
 </style>
-<body>
-<div id="wrapper">
-<div id="page">
-<jsp:include page="../header.jsp" flush="true">
-  <jsp:param name="isAdmin" value="<%=request.isUserInRole(\"admin\")%>" />
-</jsp:include>
+
 <div id="main">
 
 <%
@@ -887,11 +830,8 @@
 </table>
 
 <%
-
-
   startNum = startNum + 45;
   endNum = endNum + 45;
-
 %>
 
 <table width="810px">
@@ -924,18 +864,7 @@
 <%
   myShepherd.rollbackDBTransaction();
   myShepherd.closeDBTransaction();
-
- 
 %>
 
 <br/>
-<jsp:include page="../footer.jsp" flush="true"/>
-</div>
-</div>
-<!-- end page --></div>
-<!--end wrapper -->
-
-</body>
-</html>
-
-
+<jsp:include page="../footerfull.jsp" flush="true"/>

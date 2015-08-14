@@ -29,17 +29,10 @@ java.util.ArrayList" %>
 
 
 <%
-
-
 String context="context0";
 context=ServletUtilities.getContext(request);
 
   Shepherd myShepherd = new Shepherd("context0");
-
-  //Properties props = ShepherdProperties.getProperties("header.properties", langCode, context);
-  String requestURL = "http://" + CommonConfiguration.getURLLocation(request);
-  
- 
 
 Client client = Stormpath.getClient(ServletUtilities.getConfigDir(request));
 System.out.println("ok!");
@@ -93,8 +86,6 @@ System.out.println(acc);
         rel="stylesheet" type="text/css"/>
   <link rel="shortcut icon"
         href="<%=CommonConfiguration.getHTMLShortcutIcon(context) %>"/>
-<link rel="stylesheet" href="tools/jquery-ui/jquery-ui.css" id="theme">
-
 
   <style type="text/css">
     <!--
@@ -146,11 +137,9 @@ System.out.println(acc);
       <jsp:param name="isAdmin" value="<%=request.isUserInRole(\"admin\")%>" />
     </jsp:include>
 
-<script type="text/javascript" src="<%=requestURL %>/tools/jquery-ui/jquery-ui.js"></script -->
 <script src="javascript/core.js"></script>
 <script src="javascript/auth/auth.js"></script>
 <script src="javascript/auth/facebook.js"></script>
-	<!-- script type="text/javascript" src="<%=requestURL %>/tools/alertplus/javascript/alertplus.js"></script -->
 
     <div id="main">
       

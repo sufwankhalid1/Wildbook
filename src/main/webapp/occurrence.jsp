@@ -116,8 +116,8 @@ context=ServletUtilities.getContext(request);
     These files must be located on your server.
   -->
 
-  <script type="text/javascript" src="highslide/highslide/highslide-with-gallery.js"></script>
-  <link rel="stylesheet" type="text/css" href="highslide/highslide/highslide.css"/>
+  <script type="text/javascript" src="tools/highslide/highslide-with-gallery.js"></script>
+  <link rel="stylesheet" type="text/css" href="tools/highslide/highslide.css"/>
 
   <!--
     2) Optionally override the settings defined at the top
@@ -125,7 +125,7 @@ context=ServletUtilities.getContext(request);
   -->
 
   <script type="text/javascript">
-    hs.graphicsDir = 'highslide/highslide/graphics/';
+    hs.graphicsDir = 'tools/highslide/graphics/';
     hs.align = 'center';
     hs.transitions = ['expand', 'crossfade'];
     hs.outlineType = 'rounded-white';
@@ -162,8 +162,6 @@ context=ServletUtilities.getContext(request);
 
   </script>
   
-<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.4/themes/base/jquery-ui.css" rel="stylesheet" type="text/css" />
-
 <!--  FACEBOOK LIKE BUTTON -->
 <div id="fb-root"></div>
 <script>(function(d, s, id) {
@@ -195,9 +193,6 @@ context=ServletUtilities.getContext(request);
 
 	<jsp:param name="isAdmin" value="<%=request.isUserInRole(\"admin\")%>" />
 </jsp:include>
-
-<script src="http://code.jquery.com/ui/1.10.2/jquery-ui.js"></script>
-  
 
 <div id="main">
 

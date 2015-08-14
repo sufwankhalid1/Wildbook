@@ -42,6 +42,20 @@ Make sure you have the config directory of secrets (we need to make this a priva
 
 This should have to be very rarely updated so it should just be there once you create it. Then move on to building...
 
+I created a personal script that builds and scp's to the server which looks like this...
+
+    #!/bin/sh
+    cd /Users/ken/dev/wildme/Wildbook
+    mvn clean compile package -DskipTests -Dmaven.javadoc.skip=true -Dcust=happywhale
+    
+    cd node
+    mvn assembly:single -Dcust=happywhale
+    
+    cd ..
+    scp target/wildbook-5.3.0-RELEASE.war target/wildbook-5.3.0-RELEASE-config.zip node/target/animalus-0.1-SNAPSHOT-node.zip devhappywhale.com:/var/tmp
+
+... and I recommend you doing the same. Or to build the individual components...
+
     cd ${dev-dir}/Wildbook
     mvn clean install -Dcust=happywhale
     

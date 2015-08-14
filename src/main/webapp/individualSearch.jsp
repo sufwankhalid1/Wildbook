@@ -1,23 +1,7 @@
-<%--
-  ~ The Shepherd Project - A Mark-Recapture Framework
-  ~ Copyright (C) 2011-14 Jason Holmberg
-  ~
-  ~ This program is free software; you can redistribute it and/or
-  ~ modify it under the terms of the GNU General Public Licensef
-  ~ as published by the Free Software Foundation; either version 2
-  ~ of the License, or (at your option) any later version.
-  ~
-  ~ This program is distributed in the hope that it will be useful,
-  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  ~ GNU General Public License for more details.
-  ~
-  ~ You should have received a copy of the GNU General Public License
-  ~ along with this program; if not, write to the Free Software
-  ~ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-  --%>
+<jsp:include page="headerfull.jsp" flush="true">
+  <jsp:param name="isAdmin" value="<%=request.isUserInRole(\"admin\")%>" />
+</jsp:include>
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <%@ page contentType="text/html; charset=utf-8" language="java"
          import="org.ecocean.servlet.ServletUtilities,org.ecocean.*, javax.jdo.Extent, javax.jdo.Query, java.util.ArrayList, java.util.List, java.util.GregorianCalendar, java.util.Iterator, java.util.Properties" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>         
@@ -50,27 +34,6 @@ context=ServletUtilities.getContext(request);
 	
 %>
 
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml">
-<head>
-  <title><%=CommonConfiguration.getHTMLTitle(context) %>
-  </title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-  <meta name="Description"
-        content="<%=CommonConfiguration.getHTMLDescription(context) %>"/>
-  <meta name="Keywords"
-        content="<%=CommonConfiguration.getHTMLKeywords(context) %>"/>
-  <meta name="Author" content="<%=CommonConfiguration.getHTMLAuthor(context) %>"/>
-  <link href="<%=CommonConfiguration.getCSSURLLocation(request,context) %>"
-        rel="stylesheet" type="text/css"/>
-  <link rel="shortcut icon"
-        href="<%=CommonConfiguration.getHTMLShortcutIcon(context) %>"/>
-
- <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css" />
-  <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
-  <script src="http://code.jquery.com/ui/1.10.2/jquery-ui.js"></script>
-  
-  
-    <!-- Sliding div content: STEP1 Place inside the head section -->
   <script type="text/javascript" src="javascript/animatedcollapse.js"></script>
  
   <script type="text/javascript">
@@ -92,37 +55,28 @@ context=ServletUtilities.getContext(request);
     }
     animatedcollapse.init()
   </script>
-  <!-- /STEP2 Place inside the head section -->
 
 <script src="http://maps.google.com/maps/api/js?sensor=false&language=<%=langCode %>"></script>
 <script src="encounters/visual_files/keydragzoom.js" type="text/javascript"></script>
 <script type="text/javascript" src="http://geoxml3.googlecode.com/svn/branches/polys/geoxml3.js"></script>
 <script type="text/javascript" src="http://geoxml3.googlecode.com/svn/trunk/ProjectedOverlay.js"></script>
 
-  <!-- /STEP2 Place inside the head section -->
-  
-  
-
-</head>
-
 
 <style type="text/css">v\:* {
   behavior: url(#default#VML);
-}</style>
-
-<style type="text/css">
+}
 .full_screen_map {
-position: absolute !important;
-top: 0px !important;
-left: 0px !important;
-z-index: 1 !imporant;
-width: 100% !important;
-height: 100% !important;
-margin-top: 0px !important;
-margin-bottom: 8px !important;
+    position: absolute !important;
+    top: 0px !important;
+    left: 0px !important;
+    z-index: 1 !imporant;
+    width: 100% !important;
+    height: 100% !important;
+    margin-top: 0px !important;
+    margin-bottom: 8px !important;
 </style>
 
-<script>
+<!-- <script>
   function resetMap() {
     var ne_lat_element = document.getElementById('ne_lat');
     var ne_long_element = document.getElementById('ne_long');
@@ -138,12 +92,8 @@ margin-bottom: 8px !important;
 </script>
 
 <body onload="resetMap()" onunload="resetMap()">
-<div id="wrapper">
-<div id="page">
-<jsp:include page="header.jsp" flush="true">
+ -->
 
-  <jsp:param name="isAdmin" value="<%=request.isUserInRole(\"admin\")%>" />
-</jsp:include>
 <div id="main">
 <table width="720">
 <tr>
@@ -1654,20 +1604,4 @@ else {
 </tr>
 </table>
 <br>
-<jsp:include page="footer.jsp" flush="true"/>
-</div>
-</div>
-<!-- end page --></div>
-<!--end wrapper -->
-
-<%
-  kwQuery.closeAll();
-  myShepherd.closeDBTransaction();
-  kwQuery = null;
-  myShepherd = null;
-%>
-
-</body>
-</html>
-
-
+<jsp:include page="footerfull.jsp" flush="true"/>

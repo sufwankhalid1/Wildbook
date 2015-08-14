@@ -81,10 +81,8 @@ if(request.getQueryString()!=null){
         rel="stylesheet" type="text/css"/>
   <link rel="shortcut icon"
         href="<%=CommonConfiguration.getHTMLShortcutIcon(context) %>"/>
- <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css" />
-
-  
 </head>
+
 <style type="text/css">
   #tabmenu {
     color: #000;
@@ -141,7 +139,6 @@ if(request.getQueryString()!=null){
 
   <jsp:param name="isAdmin" value="<%=request.isUserInRole(\"admin\")%>" />
 </jsp:include>
- <script src="http://code.jquery.com/ui/1.10.2/jquery-ui.js"></script>
   
    <script>
    

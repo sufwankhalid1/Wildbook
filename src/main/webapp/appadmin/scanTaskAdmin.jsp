@@ -95,9 +95,6 @@ String langCode=ServletUtilities.getLanguageCode(request);
   <meta name="Author" content="<%=CommonConfiguration.getHTMLAuthor(context) %>"/>
   <link href="<%=CommonConfiguration.getCSSURLLocation(request,context) %>"
         rel="stylesheet" type="text/css"/>
-  <link href="../css/pageableTable.css" rel="stylesheet" type="text/css"/>
-<link rel="stylesheet" href="../javascript/tablesorter/themes/blue/style.css" type="text/css" media="print, projection, screen" />
-        
   <link rel="shortcut icon"
         href="<%=CommonConfiguration.getHTMLShortcutIcon(context) %>"/>
 

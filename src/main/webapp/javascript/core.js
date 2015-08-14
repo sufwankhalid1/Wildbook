@@ -5,12 +5,11 @@ var wildbook = {
         'MarkedIndividual',
         'SinglePhotoVideo',
         'Measurement',
-        'survey_Survey',
-        'survey_SurveyTrack',
         'Point',
         'Occurrence',
         'MediaSubmission',
-        'media_MediaTag'
+        'media_MediaTag',
+        'survey_Survey'
     ],
 
     Model: {},
@@ -22,9 +21,7 @@ var wildbook = {
         for (var i = 0 ; i < this.classNames.length ; i++) {
         classInit(this.classNames[i], function() {
             me._loadAllClassesCount--;
-//console.log('huh??? %o', me._loadAllClassesCount);
             if (me._loadAllClassesCount <= 0) {
-                //console.info('wildbook.loadAllClasses(): DONE loading all classes');
                 if (callback) callback();
             }
         });
@@ -40,7 +37,6 @@ var wildbook = {
         }
         var url = cls.prototype.url();
         if (arg) url += '/' + arg;
-console.log('fetch() url = ' + url);
 
         var ajax = {
             url: url,
@@ -57,7 +53,6 @@ console.log('fetch() url = ' + url);
             type: 'GET',
             dataType: 'json'
         };
-console.log('is %o', ajax);
         $.ajax(ajax);
     },
 */
@@ -115,7 +110,6 @@ console.log('is %o', ajax);
             return arr;
 
         } else if (cls = wildbook.isModelObject(obj)) {
-//console.log('cls = ' + cls);
             if (!wildbook.Model[cls]) {
                 console.warn('looks like we dont have a Model for org.ecocean.' + cls + '; returning as plain js object');
                 return obj;
@@ -147,80 +141,76 @@ console.log('is %o', ajax);
         classInit('Base', function() { wildbook.loadAllClasses(callback); });  //define base class first - rest can happen any order
     },
 
-		removeFromArray: function(arr, items) {
-			if (items.constructor != Array) items = [ items ];
-			var n = new Array();
-			for (var i = 0 ; i < arr.length ; i++) {
-				if (items.indexOf(arr[i]) < 0) n.push(arr[i]);
-			}
-			return n;
-		},
+    removeFromArray: function(arr, items) {
+        if (items.constructor != Array) items = [ items ];
+        var n = new Array();
+        for (var i = 0 ; i < arr.length ; i++) {
+            if (items.indexOf(arr[i]) < 0) n.push(arr[i]);
+        }
+        return n;
+    },
 
 
-		//making a whole social sub-object here, just cuz it seems like things might get busy
-		social: {
-			SERVICE_NOT_SUPPORTED: 'SERVICE_NOT_SUPPORTED',
-			enabled: function(svc) {  //svc is optional, but performs additional check that we have wildbookGlobals.social.FOO for that service
-				if (!wildbookGlobals || !wildbookGlobals.social) return false;
-				if (svc && !wildbookGlobals.social[svc]) return false;
-				return true;
-			},
-			allServices: function() {  //all possible supported by system
-				if (!wildbook.social.enabled()) return [];
-				return ['facebook', 'google', 'flickr'];
-			},
-			myServices: function() {  //based on what we have defined in socialAuth.properties file (various aspects may be en/disabled)
-				if (!wildbook.social.enabled()) return [];
-				return Object.keys(wildbookGlobals.social);
-			},
-			featureEnabled: function(svc, feature) {
-				if (!wildbook.social.enabled(svc)) return false;
-				if (wildbookGlobals.social[svc][feature] && wildbookGlobals.social[svc][feature].allow && (wildbookGlobals.social[svc][feature].allow != 'false')) return true;
-				return false;
-			},
-			//note: this is the public api key. secret keys are never made public (i.e. in js), so if you need that, talk to the backend.
-			apiKey: function(svc) {  //maps varying property name for each api key (from properties file)
-				if (svc == undefined) return wildbook.social.SERVICE_NOT_SUPPORTED;
-				if (!wildbook.social.enabled(svc)) return wildbook.social.SERVICE_NOT_SUPPORTED;
-				var keyMap = {
-					facebook: 'appid',
-					flickr: 'key',
-					google: 'FOO',  //TODO we dont have support for this yet
-				};
-				return wildbookGlobals.social[svc].auth[keyMap[svc]] || wildbook.social.SERVICE_NOT_SUPPORTED;
-			}
-		}, //end social.
+    //making a whole social sub-object here, just cuz it seems like things might get busy
+    social: {
+        SERVICE_NOT_SUPPORTED: 'SERVICE_NOT_SUPPORTED',
+        enabled: function(svc) {  //svc is optional, but performs additional check that we have wildbookGlobals.social.FOO for that service
+            if (!wildbookGlobals || !wildbookGlobals.social) return false;
+            if (svc && !wildbookGlobals.social[svc]) return false;
+            return true;
+        },
+        allServices: function() {  //all possible supported by system
+            if (!wildbook.social.enabled()) return [];
+            return ['facebook', 'google', 'flickr'];
+        },
+        myServices: function() {  //based on what we have defined in socialAuth.properties file (various aspects may be en/disabled)
+            if (!wildbook.social.enabled()) return [];
+            return Object.keys(wildbookGlobals.social);
+        },
+        featureEnabled: function(svc, feature) {
+            if (!wildbook.social.enabled(svc)) return false;
+            if (wildbookGlobals.social[svc][feature] && wildbookGlobals.social[svc][feature].allow && (wildbookGlobals.social[svc][feature].allow != 'false')) return true;
+            return false;
+        },
+        //note: this is the public api key. secret keys are never made public (i.e. in js), so if you need that, talk to the backend.
+        apiKey: function(svc) {  //maps varying property name for each api key (from properties file)
+            if (svc == undefined) return wildbook.social.SERVICE_NOT_SUPPORTED;
+            if (!wildbook.social.enabled(svc)) return wildbook.social.SERVICE_NOT_SUPPORTED;
+            var keyMap = {
+                    facebook: 'appid',
+                    flickr: 'key',
+                    google: 'FOO',  //TODO we dont have support for this yet
+            };
+            return wildbookGlobals.social[svc].auth[keyMap[svc]] || wildbook.social.SERVICE_NOT_SUPPORTED;
+        }
+    }, //end social.
 
-
-		_userWatchStatus: {},
-		userWatch: function(callback, millisec) {
-//console.log('trying userWatch()');
-			$.ajax({
-				url: wildbookGlobals.baseUrl + '/obj/user',
-				type: 'GET',
-				dataType: 'json',
-				success: function(d) {
-					var prev = (wildbook._userWatchStatus.user && wildbook._userWatchStatus.user.username) || null;
-					if (d && (prev != d.username)) {
-console.info('user has changed; username changed %o -> %o', prev, d.username);
-						callback(d);
-					}
-//else { console.info('no change. :/'); }
-					wildbook._userWatchStatus.user = d;
-					wildbook._userWatchStatus.timeChecked = new Date();
-				},
-				complete: function(x,st) {
-					if (wildbook._userWatchStatus.cancel) {
-						delete(wildbook._userWatchStatus.cancel);
-						return;
-					}
-					setTimeout(function() { wildbook.userWatch(callback, millisec); }, millisec);
-				}
-			});
-		},
-		userWatchCancel: function() {
-			wildbook._userWatchStatus.cancel = true;
-		},
+    _userWatchStatus: {},
+    userWatch: function(callback, millisec) {
+        $.ajax({
+            url: wildbookGlobals.baseUrl + '/obj/user',
+            type: 'GET',
+            dataType: 'json',
+            success: function(d) {
+                var prev = (wildbook._userWatchStatus.user && wildbook._userWatchStatus.user.username) || null;
+                if (d && (prev != d.username)) {
+                    callback(d);
+                }
+                wildbook._userWatchStatus.user = d;
+                wildbook._userWatchStatus.timeChecked = new Date();
+            },
+            complete: function(x,st) {
+                if (wildbook._userWatchStatus.cancel) {
+                    delete(wildbook._userWatchStatus.cancel);
+                    return;
+                }
+                setTimeout(function() { wildbook.userWatch(callback, millisec); }, millisec);
+            }
+        });
+    },
+    userWatchCancel: function() {
+        wildbook._userWatchStatus.cancel = true;
+    },
 };
 
 
@@ -242,11 +232,4 @@ function classInit(cname, callback) {
         callback();
     });
 }
-
-
-
-
-//$.getScript('/mm/javascript/prototype.js', function() { wildbook.init(); });
-
-//$(document).ready(function() { wildbook.init(); });
 

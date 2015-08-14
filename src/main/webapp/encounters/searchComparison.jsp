@@ -1,23 +1,7 @@
-<%--gen
-  ~ The Shepherd Project - A Mark-Recapture Framework
-  ~ Copyright (C) 2012 Jason Holmberg
-  ~
-  ~ This program is free software; you can redistribute it and/or
-  ~ modify it under the terms of the GNU General Public License
-  ~ as published by the Free Software Foundation; either version 2
-  ~ of the License, or (at your option) any later version.
-  ~
-  ~ This program is distributed in the hope that it will be useful,
-  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  ~ GNU General Public License for more details.
-  ~
-  ~ You should have received a copy of the GNU General Public License
-  ~ along with this program; if not, write to the Free Software
-  ~ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-  --%>
+<jsp:include page="../headerfull.jsp" flush="true">
+  <jsp:param name="isAdmin" value="<%=request.isUserInRole(\"admin\")%>" />
+</jsp:include>
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <%@ page contentType="text/html; charset=utf-8" language="java"
          import="org.ecocean.servlet.ServletUtilities,org.springframework.mock.web.MockHttpServletRequest,org.ecocean.*,javax.jdo.Extent, javax.jdo.Query, java.util.ArrayList, com.reijns.I3S.Point2D" %>
 <%@ page import="java.util.GregorianCalendar, java.util.List" %>
@@ -25,32 +9,13 @@
 <%@ page import="java.util.Properties" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>         
 
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml">
 <%
 String context="context0";
 context=ServletUtilities.getContext(request);
 %>
-<head>
-  <title><%=CommonConfiguration.getHTMLTitle(context) %>
-  </title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-  <meta name="Description"
-        content="<%=CommonConfiguration.getHTMLDescription(context) %>"/>
-  <meta name="Keywords"
-        content="<%=CommonConfiguration.getHTMLKeywords(context) %>"/>
-  <meta name="Author" content="<%=CommonConfiguration.getHTMLAuthor(context) %>"/>
-  <link href="<%=CommonConfiguration.getCSSURLLocation(request,context) %>"
-        rel="stylesheet" type="text/css"/>
-  <link rel="shortcut icon"
-        href="<%=CommonConfiguration.getHTMLShortcutIcon(context) %>"/>
 
-  <!-- Sliding div content: STEP1 Place inside the head section -->
-  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js"></script>
-  <script type="text/javascript" src="../javascript/animatedcollapse.js"></script>
-  
-  <!-- /STEP1 Place inside the head section -->
-  <!-- STEP2 Place inside the head section -->
-  <script type="text/javascript">
+<script type="text/javascript" src="../javascript/animatedcollapse.js"></script>
+<script type="text/javascript">
     animatedcollapse.addDiv('location', 'fade=1')
     animatedcollapse.addDiv('map', 'fade=1')
     animatedcollapse.addDiv('date', 'fade=1')
@@ -67,34 +32,29 @@ context=ServletUtilities.getContext(request);
       //state: "block" or "none", depending on state
     }
     animatedcollapse.init()
-  </script>
-  <!-- /STEP2 Place inside the head section -->
+</script>
 
 <script src="http://maps.google.com/maps/api/js?sensor=false"></script>
 <script src="visual_files/keydragzoom.js" type="text/javascript"></script>
 <script type="text/javascript" src="http://geoxml3.googlecode.com/svn/branches/polys/geoxml3.js"></script>
 <script type="text/javascript" src="http://geoxml3.googlecode.com/svn/trunk/ProjectedOverlay.js"></script>
 
-</head>
-
 <style type="text/css">v\:* {
   behavior: url(#default#VML);
   
-}</style>
-
-<style type="text/css">
+}
 .full_screen_map {
-position: absolute !important;
-top: 0px !important;
-left: 0px !important;
-z-index: 1 !imporant;
-width: 100% !important;
-height: 100% !important;
-margin-top: 0px !important;
-margin-bottom: 8px !important;
+    position: absolute !important;
+    top: 0px !important;
+    left: 0px !important;
+    z-index: 1 !imporant;
+    width: 100% !important;
+    height: 100% !important;
+    margin-top: 0px !important;
+    margin-bottom: 8px !important;
 </style>
 
-<script>
+<!-- <script>
   function resetMap() {
     var ne_lat_element = document.getElementById('ne_lat');
     var ne_long_element = document.getElementById('ne_long');
@@ -111,7 +71,7 @@ margin-bottom: 8px !important;
 </script>
 
 <body onload="resetMap()" onunload="resetMap()">
-
+ -->
 <%
   GregorianCalendar cal = new GregorianCalendar();
   int nowYear = cal.get(1);
@@ -159,11 +119,6 @@ margin-bottom: 8px !important;
 %>
 
 
-<div id="wrapper">
-<div id="page">
-<jsp:include page="../header.jsp" flush="true">
-  <jsp:param name="isAdmin" value="<%=request.isUserInRole(\"admin\")%>" />
-</jsp:include>
 <div id="main">
 <table width="810">
 <tr>
@@ -1395,16 +1350,4 @@ else {
 </tr>
 </table>
 <br />
-<jsp:include page="../footer.jsp" flush="true"/>
-</div>
-</div>
-<!-- end page -->
-</div>
-<!--end wrapper -->
-
-
-
-</body>
-</html>
-
-
+<jsp:include page="../footerfull.jsp" flush="true"/>
