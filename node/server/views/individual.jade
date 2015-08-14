@@ -10,45 +10,32 @@ block css
 block content
     .maincontent
         h1.has-icon.icon-happywhale= t("individual.meet", {individualId: data.info.individual.displayName})
-        
-        .container-fluid
-            .col-md-2
-                if data.info.individual.avatar
-                    img(src="#{config.wildbook.staticUrl}#{data.info.individual.avatar}" height="128px")
-                else
-                    img(src="/images/species/#{data.info.individual.species}.svg" height="128px")
-            .col-md-10
-                .container-fluid.sight-stats
-                    .row
-                        .col-md-3
-                            span.sight-date-text.pull-right= t("individual.firstSighted")
-                        .col-md-3
+        .container-fluid.individual-stats
+            .col-md-4
+                span.avatar
+                    if data.info.individual.avatar
+                        img(src="#{config.wildbook.staticUrl}#{data.info.individual.avatar}" height="256px")
+                    else
+                        //todo t()
+                        span.no-avatar(style="background-image:url(/cust/images/img_whale.svg)")="No Avatar"
+            .col-md-8
+                    ul.sight-stats-list
+                        li
+                            h3.sight-date-text= t("individual.firstSighted")
                             span.sight-date #{data.firstSeen}
-                        .col-md-3
-                            // birds
-                        .col-md-3
-                            // birds
-                    .row
-                        .container-fluid
-                            .col-md-2
-                                img(src="/cust/images/img_binoculars.svg" height="128px")
-                            .col-md-10
-                                .container-fluid.sight-stats
-                                    .col-md-4
-                                        .row
-                                            span.sight-number #{data.info.encounters.length}
-                                        .row
-                                            span.sight-date-text!= t("individual.reportedSightings")
-                                    .col-md-4
-                                        .row
-                                            img(src="/cust/images/img_whale.svg" height="80px")
-                                        .row
-                                            span.sight-date-text.pull-right= t("individual.lastSeen")
-                                    .col-md-4
-                                        .row
-                                            img(src="/cust/images/img_waves.svg")
-                                        .row
-                                            span.sight-date #{data.lastSeen}
+                        li
+                            h3.sight-date-text!= t("individual.reportedSightings")
+                            span.sight-number #{data.info.encounters.length}
+                        li
+                            h3.sight-date-text= t("individual.lastSeen")
+                            span.sight-date #{data.lastSeen}
+
+
+                            //img(src="/cust/images/img_binoculars.svg" height="128px")                        
+                            //img(src="/cust/images/img_whale.svg" height="80px")                                    
+                            //img(src="/cust/images/img_waves.svg")
+        .divider
+            img(src="/cust/images/img_waves.svg")  
 
         -var photos = data.info.photos
         //include partials/carousel

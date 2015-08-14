@@ -1,15 +1,12 @@
-.photo-group
+.photo-group.container-fluid
     if photos && photos[0]
-        row
+        .col-md-12
             img#main-photo.img-responsive(src="#{config.wildbook.staticUrl}#{photos[0].url}")
-    if photos && photos.length > 3
-        row
-            .col-md-4
-                img.img-thumbnail#sub-photo1(src="#{config.wildbook.staticUrl}#{photos[1].url}")
-            .col-md-4
-                img.img-thumbnail#sub-photo2(src="#{config.wildbook.staticUrl}#{photos[2].url}")
-            .col-md-4
-                img.img-thumbnail#sub-photo3(src="#{config.wildbook.staticUrl}#{photos[3].url}")
+        .col-md-12.photo-flex
+            if photos && photos.length > 3
+                img.photo-thumbnail#sub-photo1(src="#{config.wildbook.staticUrl}#{photos[1].url}")
+                img.photo-thumbnail#sub-photo2(src="#{config.wildbook.staticUrl}#{photos[2].url}")
+                img.photo-thumbnail#sub-photo3(src="#{config.wildbook.staticUrl}#{photos[3].url}")
 
 //
 // The photoswipe elements

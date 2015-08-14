@@ -30,9 +30,8 @@
 .maincontent {
     position: relative;
     width: 100%;
-    margin-bottom: 80px;
-    padding-left: 80px;
-    padding-right: 80px;
+    max-width: 1028px;
+    margin: 0 auto 80px;
 }
 
 .homecontainer {
@@ -184,9 +183,51 @@
     padding-top: 10px;
 }
 
-.being-avatar img {
-    width: 48px;
-    height: 48px;
+.individual-stats {
+    padding: 15px;
+}
+
+.avatar,
+.no-avatar {
+    width: 300px;
+    height: 300px;
+    display: inline-block;
+}
+
+.no-avatar {
+    line-height: 300px;
+    text-align: center;
+    border: 2px solid #efefef;
+    border-radius: 2px;
+    background: center center no-repeat;
+}
+
+.avatar img {
+    height: 100%;
+    width: 100%;
+}
+
+.sight-stats-list {
+    list-style: none outside;
+}
+
+.sight-stats-list li {
+    margin: 15px;
+    background: no-repeat cover;
+}
+
+.sight-stats-list span {
+    font-size: 2em;
+}
+
+.sight-stats-list h3 {
+    font-size: 1.5em;
+    margin: 0;
+}
+
+.divider {
+    text-align: center;
+    padding: 15px 0;
 }
 
 .being-info {
@@ -212,8 +253,17 @@
     cursor: zoom-in;
 }
 
-.photo-group .img-thumbnail {
-    max-height: 250px;
+.photo-flex {
+    display: flex;
+}
+
+.photo-flex img {
+    align-self: center;
+    width: 33%;
+    padding: 2px;
+}
+
+.photo-group .photo-thumbnail {
     cursor: zoom-in;
 }
 
