@@ -32,7 +32,9 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Vector;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -41,6 +43,7 @@ import javax.jdo.Query;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.shiro.crypto.SecureRandomNumberGenerator;
 import org.apache.shiro.crypto.hash.Sha512Hash;
 import org.apache.shiro.util.ByteSource;
@@ -77,12 +80,14 @@ import com.sun.syndication.io.SyndFeedInput;
 import com.sun.syndication.io.SyndFeedOutput;
 import com.sun.syndication.io.XmlReader;
 
+import de.neuland.jade4j.Jade4J;
+
 public class ServletUtilities {
     private static Logger log = LoggerFactory.getLogger(ServletUtilities.class);
     private static final String DEFAULT_LANG_CODE = "en";
 
 
-  public static String getHeader(HttpServletRequest request) {
+  public static String getHeader(final HttpServletRequest request) {
     try {
       FileReader fileReader = new FileReader(findResourceOnFileSystem("servletResponseTemplate.htm"));
       BufferedReader buffread = new BufferedReader(fileReader);
@@ -115,7 +120,7 @@ public class ServletUtilities {
 
   }
 
-  public static String getFooter(String context) {
+  public static String getFooter(final String context) {
     try {
       FileReader fileReader = new FileReader(findResourceOnFileSystem("servletResponseTemplate.htm"));
       BufferedReader buffread = new BufferedReader(fileReader);
@@ -141,7 +146,7 @@ public class ServletUtilities {
 
   }
 
-  public static void informInterestedParties(HttpServletRequest request, String number, String message, String context) {
+  public static void informInterestedParties(final HttpServletRequest request, final String number, final String message, final String context) {
     //String context="context0";
     //context=ServletUtilities.getContext(request);
     Shepherd myShepherd = new Shepherd(context);
@@ -201,7 +206,7 @@ public class ServletUtilities {
   }
 
   //inform researchers that have logged an interest with the encounter or marked individual
-  public static void informInterestedIndividualParties(HttpServletRequest request, String shark, String message, String context) {
+  public static void informInterestedIndividualParties(final HttpServletRequest request, final String shark, final String message, final String context) {
     Shepherd myShepherd = new Shepherd(context);
     myShepherd.beginDBTransaction();
 
@@ -265,7 +270,7 @@ public class ServletUtilities {
 
   //Loads a String of text from a specified file.
   //This is generally used to load an email template for automated emailing
-  public static String getText(String shepherdDataDir, String fileName, String langCode) {
+  public static String getText(final String shepherdDataDir, final String fileName, final String langCode) {
     String overrideText=loadOverrideText(shepherdDataDir, fileName, langCode);
     if (overrideText != null) {
       return overrideText;
@@ -292,7 +297,7 @@ public class ServletUtilities {
   }
 
   //Logs a new ATOM entry
-  public static synchronized void addATOMEntry(String title, String link, String description, File atomFile, String context) {
+  public static synchronized void addATOMEntry(final String title, final String link, final String description, final File atomFile, final String context) {
     try {
 
       if (atomFile.exists()) {
@@ -364,7 +369,7 @@ public class ServletUtilities {
   }
 
   //Logs a new entry in the library RSS file
-  public static synchronized void addRSSEntry(String title, String link, String description, File rssFile) {
+  public static synchronized void addRSSEntry(final String title, final String link, final String description, final File rssFile) {
     //File rssFile=new File("nofile.xml");
 
     try {
@@ -418,7 +423,7 @@ public class ServletUtilities {
     }
   }
 
-  public static File findResourceOnFileSystem(String resourceName) {
+  public static File findResourceOnFileSystem(final String resourceName) {
       if (log.isDebugEnabled()) {
           log.debug("Looking for resource [" + resourceName + "]");
       }
@@ -456,7 +461,7 @@ public class ServletUtilities {
       return null;
   }
 
-  public static boolean isUserAuthorizedForEncounter(Encounter enc, HttpServletRequest request) {
+  public static boolean isUserAuthorizedForEncounter(final Encounter enc, final HttpServletRequest request) {
     boolean isOwner = false;
     if (request.getUserPrincipal()!=null) {
       isOwner = true;
@@ -464,7 +469,7 @@ public class ServletUtilities {
     return isOwner;
   }
 
-  public static boolean isUserAuthorizedForIndividual(MarkedIndividual sharky, HttpServletRequest request) {
+  public static boolean isUserAuthorizedForIndividual(final MarkedIndividual sharky, final HttpServletRequest request) {
     if (request.getUserPrincipal()!=null) {
       return true;
     }
@@ -472,7 +477,7 @@ public class ServletUtilities {
   }
 
   //occurrence
-  public static boolean isUserAuthorizedForOccurrence(Occurrence sharky, HttpServletRequest request) {
+  public static boolean isUserAuthorizedForOccurrence(final Occurrence sharky, final HttpServletRequest request) {
     if (request.getUserPrincipal()!=null) {
       return true;
     }
@@ -480,7 +485,7 @@ public class ServletUtilities {
   }
 
 
-  public static Query setRange(Query query, int iterTotal, int highCount, int lowCount) {
+  public static Query setRange(final Query query, final int iterTotal, final int highCount, final int lowCount) {
 
     if (iterTotal > 10) {
 
@@ -504,7 +509,7 @@ public class ServletUtilities {
   }
 
 
-  public static String cleanFileName(String myString){
+  public static String cleanFileName(final String myString){
     return myString.replaceAll("[^a-zA-Z0-9\\.\\-]", "_");
   }
 
@@ -571,7 +576,7 @@ public class ServletUtilities {
     return conn;
 }
 
-public static String hashAndSaltPassword(String clearTextPassword, String salt) {
+public static String hashAndSaltPassword(final String clearTextPassword, final String salt) {
     return new Sha512Hash(clearTextPassword, salt, 200000).toHex();
 }
 
@@ -579,7 +584,7 @@ public static ByteSource getSalt() {
     return new SecureRandomNumberGenerator().nextBytes();
 }
 
-public static String getContext(HttpServletRequest request) {
+public static String getContext(final HttpServletRequest request) {
   String context="context0";
   if (ContextConfiguration.getDefaultContext() !=null ) {
     context=ContextConfiguration.getDefaultContext();
@@ -627,7 +632,7 @@ public static String getContext(HttpServletRequest request) {
 }
 
 
-    public static String getLanguageCode(HttpServletRequest request) {
+    public static String getLanguageCode(final HttpServletRequest request) {
         String context=ServletUtilities.getContext(request);
 
         ArrayList<String> supportedLanguages;
@@ -668,7 +673,7 @@ public static String getContext(HttpServletRequest request) {
     }
 
 
-    public static File dataDir(String context, String rootWebappPath)
+    public static File dataDir(final String context, final String rootWebappPath)
     {
         File webappsDir = new File(rootWebappPath).getParentFile();
         File shepherdDataDir = new File(webappsDir, CommonConfiguration.getDataDirectoryName(context));
@@ -678,26 +683,60 @@ public static String getContext(HttpServletRequest request) {
         return shepherdDataDir;
     }
 
-    //like above, but can pass a subdir to append
-    public static File dataDir(String context, String rootWebappPath, String subdir) {
+    public static File dataDir(final String context, final String rootWebappPath, final String subdir) {
         return new File(dataDir(context, rootWebappPath), subdir);
     }
 
-/*
-    //like above, but only need request passed
-    public static String dataDir(HttpServletRequest request) {
-        String context = "context0";
-        context = ServletUtilities.getContext(request);
-        //String rootWebappPath = request.getServletContext().getRealPath("/");  // only in 3.0??
-        //String rootWebappPath = request.getSession(true).getServlet().getServletContext().getRealPath("/");
-        ServletContext s = request.getServletContext();
-String rootWebappPath = "xxxxxx";
-        return dataDir(context, rootWebappPath);
-    }
-*/
 
-    public String getText2(final HttpServletRequest request,
-                           final String fileName) throws IOException {
+    private static String renderError(final HttpServletRequest request, final Throwable ex) {
+        if (ex == null) {
+            return "<NULL>";
+        }
+
+        Map<String, Object> map = null;
+        map = new HashMap<String, Object>();
+        map.put("message", ex.getMessage());
+        map.put("stack", ExceptionUtils.getStackTrace(ex));
+
+        try {
+            return Jade4J.render(request.getServletContext().getRealPath("/jade/error"), map);
+        } catch (Throwable ex2) {
+            ex2.printStackTrace();
+            return ex2.getMessage();
+        }
+    }
+
+
+    /**
+     *
+     * @param request
+     * @param jadeFile can have slashes in it to indicate sub-directories
+     * @return
+     */
+    public static String renderJade(final HttpServletRequest request, final String jadeFile) {
+        return renderJade(request, jadeFile, null);
+    }
+
+
+    /**
+     *
+     * @param request
+     * @param jadeFile can have slashes in it to indicate sub-directories
+     * @return
+     */
+    public static String renderJade(final HttpServletRequest request,
+                                    final String jadeFile,
+                                    final Map<String, Object> vars) {
+        try {
+            return Jade4J.render(request.getServletContext().getRealPath("/jade/" + jadeFile), vars);
+        } catch (Throwable ex) {
+            return renderError(request, ex);
+        }
+    }
+
+
+    public static String getText2(final HttpServletRequest request,
+                                  final String fileName) throws IOException {
         String configDir = getConfigDir(request);
         String langCode = getLanguageCode(request);
 
@@ -716,7 +755,7 @@ String rootWebappPath = "xxxxxx";
     }
 
 
-  private static String loadOverrideText(String shepherdDataDir, String fileName, String langCode) {
+  private static String loadOverrideText(final String shepherdDataDir, final String fileName, final String langCode) {
       if (log.isDebugEnabled()) {
           log.debug("Calling getText with shepherdDataDir [" + shepherdDataDir
                      + "], fileName [" + fileName
