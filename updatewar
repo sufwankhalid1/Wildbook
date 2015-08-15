@@ -1,0 +1,3 @@
+#!/bin/bash
+
+rsync -rv --exclude=WEB-INF --exclude=xcalendar --exclude=tools --exclude=bcomponents --exclude=onlinehelp --exclude=images --exclude=software src/main/webapp/ $TOMCAT_HOME/webapps/wildbook

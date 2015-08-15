@@ -135,7 +135,7 @@ public class MediaSubmissionController
     {
         List<MediaSubmission> mss = new ArrayList<MediaSubmission>();
         Table table = db.getTable("mediasubmission");
-        RecordSet rs = table.getRecordSet(where.getWhereClause());
+        RecordSet rs = table.getRecordSet(where.getWhereClause(), "timesubmitted desc");
         while (rs.next()) {
             MediaSubmission ms = new MediaSubmission();
             ms.setDescription(rs.getString("description"));

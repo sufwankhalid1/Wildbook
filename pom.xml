@@ -436,7 +436,13 @@
       <version>1.0.RC4.3</version>
       <scope>runtime</scope>
     </dependency>
-
+    
+    <dependency>
+        <groupId>de.neuland-bfi</groupId>
+        <artifactId>jade4j</artifactId>
+        <version>0.4.3</version>
+    </dependency>
+    
     <!-- This next runtime dependency is only necessary if you have
          a REST API and you want to secure it with OAuth: -->
     <!--
