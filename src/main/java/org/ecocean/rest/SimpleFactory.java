@@ -548,7 +548,7 @@ public class SimpleFactory {
     }
 
 
-    public static SimpleBeing getStormpathUser(final Account user)
+    public static SimpleUser getStormpathUser(final Account user)
     {
         SimpleUser su = new SimpleUser(user.getUsername(), user.getEmail());
 

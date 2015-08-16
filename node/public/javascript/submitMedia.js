@@ -134,6 +134,14 @@ var submitMedia = (function () {
                 "startTime": null
             };
 
+            $scope.getUsername = function() {
+                if ($scope.media.user) {
+                    return $scope.media.user.username;
+                }
+
+                return null;
+            }
+
             //
             // Default the user to agreeing to the terms.
             //
@@ -141,7 +149,10 @@ var submitMedia = (function () {
 
             app.configPromise.then(function() {
                 //app.user = {username:"tomcat"};
-                $scope.media.username = (app.user) ? app.user.username : null;
+//                $scope.media.username = (app.user) ? app.user.username : null;
+                if (app.user) {
+                    $scope.media.user = app.user;
+                }
             });
 
             function longToDate(date) {
@@ -176,8 +187,13 @@ var submitMedia = (function () {
 
                 $(document.body).css({ 'cursor': 'wait' });
 //                return $.post("wildbook/obj/mediasubmission/" + method, ms)
-//                return $.post($scope.data.config.wildbook.proxyUrl + "/obj/mediasubmission/" + method, ms)
-                return $.post(app.config.wildbook.proxyUrl + "/obj/mediasubmission/" + method, ms)
+//                return $.post(app.config.wildbook.proxyUrl + "/obj/mediasubmission/" + method, ms)
+                return $.ajax({
+                    url: app.config.wildbook.proxyUrl + "/obj/mediasubmission/" + method,
+                    type: "POST",
+                    data: JSON.stringify(ms),
+                    contentType: "application/json"
+                })
                 .then(function(mediaid) {
                     $(document.body).css({ 'cursor': 'default' });
                     return mediaid;
@@ -202,7 +218,7 @@ var submitMedia = (function () {
 
             $scope.isLoggedIn = function() {
 //                return (app.user);
-                return ($scope.media.username);
+                return ($scope.media.user);
             };
 
             $scope.getExifData = function() {
@@ -299,7 +315,7 @@ var submitMedia = (function () {
                     });
                 }
 
-                if ($scope.media.username) {
+                if ($scope.media.user) {
                     // user is logged in, skip all this!
                     return saveAndGo();
                 }
@@ -328,6 +344,7 @@ var submitMedia = (function () {
                                 user: newUser  //newUser returned is a SimpleUser so this is consistent with verifyUser(), fauncy!
                             };
 
+                            $scop.media.user = newUser;
                             return saveAndGo();
                         }, handleError);
                     }
@@ -341,6 +358,7 @@ var submitMedia = (function () {
                         return $q.reject();
                     }
 
+                    $scope.media.user = userData.user;
                     $scope.userVerify = userData;
                     return saveAndGo();
                 }, handleError);

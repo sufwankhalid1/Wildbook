@@ -83,7 +83,9 @@ public class MediaSubmissionController
         formatter.append("starttime", media.getStartTime());
         formatter.append("submissionid", media.getSubmissionid());
         formatter.append("timesubmitted", media.getTimeSubmitted());
-        formatter.append("username", media.getUser().getUsername());
+        if (media.getUser() != null) {
+            formatter.append("username", media.getUser().getUsername());
+        }
         formatter.append("verbatimlocation", media.getVerbatimLocation());
         formatter.append("status", media.getStatus());
     }
@@ -289,7 +291,7 @@ System.out.println(sql);
 
     @RequestMapping(value = "/complete", method = RequestMethod.POST)
     public void complete(final HttpServletRequest request,
-                         final MediaSubmission media)
+                         @RequestBody final MediaSubmission media)
         throws DatabaseException
     {
         ConnectionInfo ci = ShepherdPMF.getConnectionInfo();
@@ -373,8 +375,7 @@ System.out.println(sql);
 
 
     @RequestMapping(value = "/save", method = RequestMethod.POST)
-    public Long save(final HttpServletRequest request,
-                     final MediaSubmission media)
+    public Long save(@RequestBody final MediaSubmission media)
         throws DatabaseException
     {
         if (logger.isDebugEnabled()) {

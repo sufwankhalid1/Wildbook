@@ -6,6 +6,7 @@ import javax.jdo.PersistenceManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import org.apache.commons.lang3.StringUtils;
 import org.ecocean.Shepherd;
 import org.ecocean.User;
 import org.ecocean.Util;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.samsix.database.DatabaseException;
 import com.stormpath.sdk.account.Account;
 import com.stormpath.sdk.account.AccountList;
 import com.stormpath.sdk.client.Client;
@@ -56,10 +58,22 @@ public class UserController {
         return new ResponseEntity<User>(user, HttpStatus.OK);
     }
 
+    @RequestMapping(value = "simple", method = RequestMethod.GET)
+    public SimpleUser getSimpleUser(final HttpServletRequest request) throws DatabaseException {
+        String username = null;
+        if (request.getUserPrincipal() != null) {
+            username = request.getUserPrincipal().getName();
+        }
+
+        if (StringUtils.isBlank(username)) {
+            return null;
+        }
+        return SimpleFactory.getUser(username);
+    }
+
     @RequestMapping(value = "verify", method = RequestMethod.POST)
     public HashMap<String,Object> verifyEmail(final HttpServletRequest request,
                                               @RequestBody @Valid final String email) {
-System.out.println("email -> (" + email + ")");
         Client client = Stormpath.getClient(ServletUtilities.getConfigDir(request));
         HashMap<String,Object> rtn = new HashMap<String,Object>();
         rtn.put("success", false);  //assuming rtn will only be used on errors -- user is returned upon success
