@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.ecocean.Point;
 import org.ecocean.ShepherdPMF;
 import org.ecocean.SinglePhotoVideo;
@@ -413,7 +414,7 @@ public class SimpleFactory {
         encounter.setLongitude(rs.getDoubleObj("DECIMALLONGITUDE"));
         encounter.setVerbatimLocation(rs.getString("VERBATIMLOCALITY"));
 
-        encounter.setSubmitter(getUser(rs));
+        encounter.setSubmitter(readUser(rs));
         encounter.setIndividual(individual);
 
         return encounter;
@@ -517,7 +518,7 @@ public class SimpleFactory {
             RecordSet rs;
             rs = db.getRecordSet(sql);
             if (rs.next()) {
-                return getUser(rs);
+                return readUser(rs);
             }
 
             return null;
@@ -525,10 +526,10 @@ public class SimpleFactory {
     }
 
 
-    private static SimpleUser getUser(final RecordSet rs) throws DatabaseException
+    public static SimpleUser readUser(final RecordSet rs) throws DatabaseException
     {
         String username = rs.getString("USERNAME");
-        if (username == null) {
+        if (StringUtils.isBlank(username)) {
             return null;
         }
 

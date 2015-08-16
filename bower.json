@@ -4,7 +4,8 @@
   "dependencies" : {
     "jquery": "2.1.4",
     "jquery-ui" : "1.11.4",
-    "tablesorter": "latest"
+    "tablesorter": "latest",
+    "moment": "2.10.6"
   },
   "install": {
     "path": "src/main/webapp/bcomponents",

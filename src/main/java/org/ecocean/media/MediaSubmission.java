@@ -2,34 +2,25 @@ package org.ecocean.media;
 
 import java.util.Date;
 import java.util.List;
-import java.util.ArrayList;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.ecocean.SinglePhotoVideo;
-import org.ecocean.ShepherdPMF;
-import org.ecocean.Shepherd;
-import com.samsix.database.ConnectionInfo;
-import com.samsix.database.Database;
-import com.samsix.database.DatabaseException;
-import com.samsix.database.RecordSet;
-import com.samsix.database.SqlFormatter;
-import com.samsix.database.SqlInsertFormatter;
-import com.samsix.database.SqlUpdateFormatter;
-import com.samsix.database.SqlWhereFormatter;
-import com.samsix.database.Table;
+import org.ecocean.rest.SimpleUser;
 
 public class MediaSubmission {
     private Long id;
 
     //
-    // Either username is not null and name/email are null
-    // or name/email are not null and username is null. i.e.
+    // Either user is not null and name/email are null
+    // or name/email are not null and user is null. i.e.
     // either this is a user we know about or someone from the general public.
     //
-    private String username;
+    private SimpleUser user;
     private String name;
     private String email;
-    private String verbatimLocation; //description of location
+
+    //description of location
+    private String verbatimLocation;
     private Double latitude;
     private Double longitude;
 //    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSSZ")
@@ -55,44 +46,27 @@ public class MediaSubmission {
     public MediaSubmission() {
     }
 
-    public MediaSubmission(RecordSet rs) throws DatabaseException {
-        this.setDescription(rs.getString("description"));
-        this.setEmail(rs.getString("email"));
-        this.setEndTime(rs.getLongObj("endtime"));
-        this.setId(rs.getLong("id"));
-        this.setLatitude(rs.getDoubleObj("latitude"));
-        this.setLongitude(rs.getDoubleObj("longitude"));
-        this.setName(rs.getString("name"));
-        this.setStartTime(rs.getLongObj("starttime"));
-        this.setSubmissionid(rs.getString("submissionid"));
-        this.setTimeSubmitted(rs.getLongObj("timesubmitted"));
-        this.setUsername(rs.getString("username"));
-        this.setVerbatimLocation(rs.getString("verbatimlocation"));
-        this.setStatus(rs.getString("status"));
-    }
-
-
     public Long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(final Long id) {
         this.id = id;
     }
 
-    public String getUsername() {
-        return username;
+    public SimpleUser getUser() {
+        return user;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setUser(final SimpleUser user) {
+        this.user = user;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
@@ -100,7 +74,7 @@ public class MediaSubmission {
         return email;
     }
 
-    public void setEmail(String email) {
+    public void setEmail(final String email) {
         this.email = email;
     }
 
@@ -108,7 +82,7 @@ public class MediaSubmission {
         return verbatimLocation;
     }
 
-    public void setVerbatimLocation(String verbatimLocation) {
+    public void setVerbatimLocation(final String verbatimLocation) {
         this.verbatimLocation = verbatimLocation;
     }
 
@@ -116,7 +90,7 @@ public class MediaSubmission {
         return latitude;
     }
 
-    public void setLatitude(Double latitude) {
+    public void setLatitude(final Double latitude) {
         this.latitude = latitude;
     }
 
@@ -124,7 +98,7 @@ public class MediaSubmission {
         return longitude;
     }
 
-    public void setLongitude(Double longitude) {
+    public void setLongitude(final Double longitude) {
         this.longitude = longitude;
     }
 
@@ -132,7 +106,7 @@ public class MediaSubmission {
         return startTime;
     }
 
-    public void setStartTime(Long startTime) {
+    public void setStartTime(final Long startTime) {
         this.startTime = startTime;
     }
 
@@ -140,7 +114,7 @@ public class MediaSubmission {
         return endTime;
     }
 
-    public void setEndTime(Long endTime) {
+    public void setEndTime(final Long endTime) {
         this.endTime = endTime;
     }
 
@@ -148,7 +122,7 @@ public class MediaSubmission {
         return description;
     }
 
-    public void setDescription(String description) {
+    public void setDescription(final String description) {
         this.description = description;
     }
 
@@ -156,7 +130,7 @@ public class MediaSubmission {
         return media;
     }
 
-    public void setMedia(List<SinglePhotoVideo> media) {
+    public void setMedia(final List<SinglePhotoVideo> media) {
         this.media = media;
     }
 
@@ -164,7 +138,7 @@ public class MediaSubmission {
         return timeSubmitted;
     }
 
-    public void setTimeSubmitted(Long timeSubmitted) {
+    public void setTimeSubmitted(final Long timeSubmitted) {
         this.timeSubmitted = timeSubmitted;
     }
 
@@ -172,7 +146,7 @@ public class MediaSubmission {
         return submissionid;
     }
 
-    public void setSubmissionid(String submissionid) {
+    public void setSubmissionid(final String submissionid) {
         this.submissionid = submissionid;
     }
 
@@ -180,7 +154,7 @@ public class MediaSubmission {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(final String status) {
         this.status = status;
     }
 
@@ -189,49 +163,5 @@ public class MediaSubmission {
     public String toString()
     {
         return ToStringBuilder.reflectionToString(this);
-    } 
-
-    //note: this does *not* set .media but will grab them all via the mediasubmission_media table
-    public List<SinglePhotoVideo> fetchMedia(String context) throws DatabaseException {
-        ConnectionInfo ci = ShepherdPMF.getConnectionInfo();
-        Database db = new Database(ci);
-        if ((this.getId() == null) || this.getId().equals("")) return null;
-        String sql = "SELECT * FROM mediasubmission_media WHERE mediasubmissionid=" + this.getId();
-        RecordSet rs = db.getRecordSet(sql);
-        Shepherd myShepherd = new Shepherd(context);
-        List<SinglePhotoVideo> media = new ArrayList<SinglePhotoVideo>();
-        while (rs.next()) {
-            SinglePhotoVideo spv = myShepherd.getSinglePhotoVideo(rs.getString("mediaid"));
-            if (spv != null) media.add(spv);
-        }
-        db.release();
-        return media;
     }
-
-    public static List<MediaSubmission> findMediaSources(List<SinglePhotoVideo> media, String context) {
-        if ((media == null) || (media.size() < 1)) return null;
-        List<MediaSubmission> msList = new ArrayList<MediaSubmission>();
-        ConnectionInfo ci = ShepherdPMF.getConnectionInfo();
-        Database db = new Database(ci);
-        String mids = media.get(0).getDataCollectionEventID();
-        for (int i = 1 ; i < media.size() ; i++) {
-            mids += "', '" + media.get(i).getDataCollectionEventID();
-        }
-        String sql = "SELECT DISTINCT id,description,email,endtime,latitude,longitude,name,starttime,submissionid,timesubmitted,username,verbatimlocation,status FROM mediasubmission INNER JOIN mediasubmission_media ON (mediasubmission_media.mediasubmissionid = mediasubmission.id) WHERE mediasubmission_media.mediaid IN ('" + mids + "') ORDER BY id";
-System.out.println("sql = " + sql);
-        try {
-            RecordSet rs = db.getRecordSet(sql);
-            while (rs.next()) {
-                MediaSubmission ms = new MediaSubmission(rs);
-                ms.setMedia(ms.fetchMedia(context));
-                msList.add(ms);
-            }
-        } catch (DatabaseException dbe) {
-            System.out.println(dbe.toString());
-        } finally {
-            db.release();
-        }
-        return msList;
-    }
-
 }
