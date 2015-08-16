@@ -1,4 +1,20 @@
-/* Navigation */
+/* Navigation: Header and Footer */
+
+.navbar-inverse {
+    background-color: $background-dark;
+}
+
+.navbar-inverse .navbar-nav a,
+.navbar-inverse .navbar-nav p,
+.navbar-inverse .navbar-nav > li > a {
+    color: $font-color-inverse;
+}
+
+.navbar-inverse .navbar-nav > .active > a,
+.navbar-inverse .navbar-nav > .active > a:focus,
+.navbar-inverse .navbar-nav > .active > a:hover {
+    background-color: $background-dark-selected;
+}
 
 #navbar-logo-right {
     position: absolute;
@@ -10,17 +26,81 @@
     top: -15px;
 }
 
-
 .logo-svg {
-    background-image: url(../cust/images/logo.svg);
+    background-image: $logo-svg;
+}
+
+//todo: replace with padding to content container, remove div
+.push {
+    height: 50px;
 }
 
 .copyright {
     text-align: right;
     padding-top: 15px;
-    color: #EFEFEF;
+    color: $font-color-inverse;
 }
 
 .footer {
-    font-size: 12px;
+    font-size: $font-size-small;
 }
+
+/////////////////
+//search bar
+/////////////////
+
+.navbar-search {
+    margin-top: 14px;
+    height: 24px;
+}
+
+/* h/t http://jsfiddle.net/KyleMit/cyCFS/ */
+.left-inner-addon {
+    position: relative;
+}
+.left-inner-addon input {
+    padding-left: 30px;
+}
+
+.left-inner-addon i {
+    position: absolute;
+    padding: 10px 12px;
+    pointer-events: none;
+}
+
+.right-inner-addon {
+    position: relative;
+}
+.right-inner-addon input {
+    padding-right: 30px;    
+}
+.right-inner-addon #search-help {
+    position: absolute;
+    top: 20px;
+    padding: 1px 3px;
+    border-radius: 2px;
+    left: 0;
+    background-color: rgba(230,230,230,0.9);
+    display: none;
+}
+.right-inner-addon i {
+    position: absolute;
+    right: 0px;
+    padding: 10px 12px;
+    pointer-events: none;
+}
+
+//////
+//social
+//////
+
+.socialbox {
+    margin-top: 10px;
+    margin-right: 20px;
+}
+
+.zocial {
+    margin-left: 2px;
+    margin-right: 2px;
+}
+

@@ -1,1 +1,103 @@
 /* Home */
+
+.homecontainer {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    margin: 0 auto -50px; /* the bottom margin is the negative value of the footer's height */
+}
+
+.homeimage {
+    width: 100%;
+}
+
+.banner {
+    /*background-color: #060808;
+    opacity: 0.6;*/
+    background-color: rgba(6,8,8,0.6);
+    position: absolute;
+    width: 100%;
+    height: 150px;
+    top: 362px;
+    z-index: 100;
+    text-align: center;
+}
+
+.banner p {
+    font-size: 36px;
+    color: #EFEFEF;
+}
+
+.bannerreport {
+    padding-top: 20px;
+}
+
+.homefooter {
+    height: 220px;
+}
+
+.homefooter h1 {
+    font-size: 24px;
+    color: #94a1a4;
+}
+
+.homefooter h2 {
+    font-size: 18px;
+    color: #107D9F;
+}
+
+.homefootercol {
+    border-right-color: #94a1a4;
+    border-right-style: solid;
+    border-right-width: 2px;
+    height: 100%;
+}
+
+//social feeds
+
+.instagramfeed {
+    width: 220px;
+    margin-top: 10px;
+}
+
+.instagramimage {
+    /*padding: 0px !important;*/
+   margin-right: 5px;
+   margin-bottom: 5px;
+   width: 100px;
+   height: auto;
+}
+
+.twitterfeed {
+    height: 75%;
+    overflow-y: auto;
+}
+
+.twitterfeed blockquote {
+    padding: 5px 10px;
+    margin: 0 0 8px;
+    font-size: 16px;
+}
+
+.spotlight {
+    position: relative;
+}
+
+.spotlightphoto {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    z-index: 100;
+}
+
+.spotlightcontents {
+    position: absolute;
+    top: 0px;
+    left: 110px;
+    z-index: 100;
+}
+
+.spotlightcontents p {
+    font-size: 12px;
+    white-space: pre;
+}

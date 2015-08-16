@@ -1,1 +1,114 @@
 /* Individual */
+
+.maincontent {
+    position: relative;
+    width: 100%;
+    max-width: 1028px;
+    margin: 0 auto 80px;
+}
+
+#div-user-info {
+    padding: 5px;
+}
+
+#div-user-info p {
+    margin: 0;
+}
+
+.individual-stats {
+    padding: 15px;
+}
+
+.individual-cluster {
+    position:relative;
+}
+
+.individual-cluster-count {
+    border-radius: 16px;
+    width: 32px;
+    height: 32px;
+    text-align: center;
+    position: absolute;
+    top: -8;
+    left: 48;
+}
+
+
+.avatar,
+.no-avatar {
+    width: 300px;
+    height: 300px;
+    display: inline-block;
+}
+
+.no-avatar {
+    line-height: 300px;
+    text-align: center;
+    border: 2px solid #efefef;
+    border-radius: 2px;
+    background: center center no-repeat;
+}
+
+.avatar img {
+    height: 100%;
+    width: 100%;
+}
+
+.sight-stats-list {
+    list-style: none outside;
+}
+
+.sight-stats-list li {
+    margin: 15px;
+    background: no-repeat cover;
+}
+
+.sight-stats-list span {
+    font-size: 2em;
+}
+
+.sight-stats-list h3 {
+    font-size: 1.5em;
+    margin: 0;
+}
+
+.divider {
+    text-align: center;
+    padding: 15px 0;
+}
+
+.being-info {
+    display: inline-block;
+}
+
+//photo gallery
+
+#map-sightings {
+    margin-top: 10px;
+    width: 100%;
+    height: 600px;
+    border: 5px solid #96a1a5;
+}
+
+#main-photo {
+    cursor: zoom-in;
+}
+
+.photo-flex {
+    display: flex;
+}
+
+.photo-flex img {
+    align-self: center;
+    width: 33%;
+    padding: 2px;
+}
+
+.photo-group .photo-thumbnail {
+    cursor: zoom-in;
+}
+
+.photo-group .col-md-4 {
+    padding-left: 5px;
+    padding-right: 5px;
+}

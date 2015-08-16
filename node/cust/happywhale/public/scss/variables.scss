@@ -1,0 +1,29 @@
+//
+// Theme's variables file
+// Overrides the wildbook variables.scss
+//
+
+//Text
+
+//example: this line is not needed because the theme inherits the $font-family of the original style, but if it exists it overrides the original
+//$font-family: 'Courier New', sans-serif;
+
+//$font-size-base: 18px;
+$font-size-small: 12px;
+
+$font-color-main: pink;
+
+$font-color-heading: #222;
+
+$font-color-inverse: #efefef;
+
+
+//Site Colors
+
+$background-default: #fff;
+
+$background-dark: #107D9F;
+$background-dark-selected: #087A9A;
+
+//Photo Assets
+$logo-svg: url(../cust/images/logo.svg);

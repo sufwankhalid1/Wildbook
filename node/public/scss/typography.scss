@@ -1,1 +1,18 @@
 /* Typography and Icons */
+
+h1, h2, h3, h4, h5, h6, p, div {
+    font-family: $font-family;
+}
+
+.icon-happywhale {
+    background-image: url(../cust/images/img_whale_circle.svg);
+}
+.icon-voyageviewer {
+    background-image: url(../cust/images/img_voyageviewer.svg);
+}
+.icon-captain {
+    background-image: url(../cust/images/img_captain.svg);
+}
+.icon-user {
+    background-image: url(../cust/images/img_user_on.svg);
+}

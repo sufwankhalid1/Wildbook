@@ -1,12 +1,19 @@
 /* 
-* app.css - main stylesheet (todo scss)
-* For now this is a stub: @import all chunks. Todo: concatenate on deploy script / use grunt/gulp/sass to build (this file .scss)
+* app.scss
+* this file loads all the different style files
 */
 
-@import 'bootstrap-custom.scss';
-@import 'wildbook.scss';
+body {
+  padding-top: 50px;
+}
+
+@import url(http://fonts.googleapis.com/css?family=Lato:300,400,700,900);
+
+@import 'variables.scss';
+@import '../cust/scss/variables.scss'; //is this right?
 @import 'typography.scss';
 @import 'home.scss';
 @import 'individual.scss';
 @import 'nav.scss';
 @import 'page.scss';
+@import 'uploader.scss';

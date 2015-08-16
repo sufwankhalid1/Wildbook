@@ -1,0 +1,41 @@
+/* Uploader */
+
+#MediaSubmissionWizard {
+    width: 800px;
+    height: auto;
+    margin: 0 auto;
+}
+
+#fileupload {
+    overflow-x: hidden;  /* hides that blasted horizontal scrolling bar */
+}
+
+/* This should be part of bootstrap I think since I found other sites with this. I need this
+ * for the centering of images in the carousel
+ */
+.carousel-inner > .item > img, .carousel-inner > .item > a > img {
+  margin: auto;
+}
+
+.submitters {
+    padding: 0;
+    list-style-type: none;
+    display: inline;
+}
+
+.submitters li {
+    display: inline;
+}
+
+.dropbox {
+    background-color: #E3E3E3;
+    padding-top: 10px;
+}
+
+.submitMedia-login-message {
+    margin: 8px;
+    padding: 15px;
+    border-radius: 10px;
+    background-color: #CCC;
+    color: #333;
+}
