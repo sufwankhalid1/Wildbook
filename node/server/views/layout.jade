@@ -1,15 +1,8 @@
 html(ng-app="nodeApp")
     head
         title= t("app.title")
-        link(rel='stylesheet', href='/css/wildbook.css')
-        link(rel='stylesheet', href='/vendor/bootstrap/css/bootstrap.min.css')
-        link(rel='stylesheet', href='/css/bootstrap-custom.css')
-        link(rel='stylesheet', href='/vendor/jquery-ui/css/jquery-ui.css')
-        link(rel='stylesheet' href='/vendor/alertplus/css/alertplus.css')
-        link(rel='stylesheet', href='/vendor/zocial/zocial.css')
-        link(rel='stylesheet' href='/cust/css/cust.css')
-
-        block css
+        link(rel='stylesheet', href='/css/vendors.css')
+        link(rel='stylesheet', href='/css/app.css')
     body(ng-controller='AppController')
 
     nav.navbar.navbar-inverse.navbar-fixed-top#navbar-top
