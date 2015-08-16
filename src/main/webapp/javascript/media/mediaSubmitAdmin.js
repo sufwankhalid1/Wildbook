@@ -4,8 +4,10 @@ $(document).ready(function() {
         $("#mstable").DataTable({
             data: data,
             columns: [
-                      {data: 'id'},
+                      {data: 'id',
+                       title: 'ID'},
                       {data: 'user',
+                       title: 'Submitted By',
                        render: function(user) {
                           if (user) {
                               return user.displayName;
@@ -13,9 +15,12 @@ $(document).ready(function() {
                           return null;
                       }},
                       {data: 'timeSubmitted',
+                       title: 'Date',
                        render: function(timeSubmitted) {
                            return moment(timeSubmitted).format('lll');
-                       }}
+                       }},
+                       {data: 'status',
+                        title: 'Status'}
                   ]
         });
     }, function(error) {
