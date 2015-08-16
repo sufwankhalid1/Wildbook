@@ -1,71 +1,27 @@
-html(ng-app="nodeApp")
-    head
-        title= t("app.title")
-        link(rel='stylesheet', href='/css/vendors.css')
-        link(rel='stylesheet', href='/css/app.css')
-    body(ng-controller='AppController')
+// Main template file
+include head.jade
 
-    nav.navbar.navbar-inverse.navbar-fixed-top#navbar-top
-        .container
-            .collapse.navbar-collapse
-                ul.nav.navbar-nav
-                    li.home
-                        a(href="/")= t("header.menu.home")
-                    li.active
-                        a(href="/submitMedia")= t("header.menu.reportSighting")
-                    li.ng-cloak(ng-show="data.user")
-                        a(href="#me")= t("header.menu.me")
-                    li
-                        a(href="/about")= t("header.menu.about")
-                    li
-                        div.socialbox
-                            a.zocial.icon.facebook(href="https://www.facebook.com/#{config.social.facebook.id}" target="_blank")
-                            a.zocial.icon.twitter(href="https://twitter.com/#{config.social.twitter.id}" target="_blank")
-                            a.zocial.icon.instagram(href="https://instagram.com/#{config.social.instagram.id}" target="_blank")
-                            a.zocial.icon.email(href="mailto:#{config.social.email}")
-                    li
-                        .right-inner-addon
-                            i.glyphicon.glyphicon-search(style="top: -5px; color: #AAA;")
-                            input.search-query.form-control.navbar-search(type="text" id="search-site" placeholder!= t("header.menu.searchSite"))
-                            #search-help= t("header.menu.searchHelpNone")
-                    li.ng-cloak
-                        div(ng-show="user" id="div-user-info")
-                            p= t("header.menu.welcomeBack") + ", "
-                                | {{user.fullName || user.username}}!
-                            a(href="#")= t("header.menu.gotomy") + " | "
-                            a(href="#")= t("header.menu.signout")
-                        a(ng-show="!user" ng-click="login()")= t("header.menu.signin")
-        .logo-svg#navbar-logo-right
+body(ng-controller='AppController')
 
-    block content
+include partials/nav.jade
 
-    .footer.navbar-fixed-bottom.navbar-inverse
-        .container
-            .collapse.navbar-collapse
-                ul.nav.navbar-nav
-                    li
-                        a(href="/about")= t("footer.menu.about")
-                    li
-                        a(href="mailto:info@happywhale.com")= t("footer.menu.contact")
-                    li
-                        a(href="#" ng-click="terms()")= t("footer.menu.terms")
-                    li
-                        a(href="/help")= t("footer.menu.help")
-                p.navbar-inverse.copyright &copy; 2015 happywhale, All Rights Reserved
+block content
 
-    script(src='/vendor/jquery.min.js')
-    script(src='/vendor/moment/moment-with-locales.min.js')
-    script(src='/vendor/jquery-ui/js/jquery-ui.min.js')
-    script(src='/vendor/bootstrap/js/bootstrap.min.js')
-    script(src='/vendor/alertplus/js/alertplus.js')
-    script(src='/vendor/angularjs/angular.min.js')
-    
-    block configScripts
-    
-    script(src='/javascript/app.js')
+include partials/footer.jade
 
-    script(src='#{config.wildbook.proxyUrl}/JavascriptGlobals.js')
-    script(src='#{config.wildbook.proxyUrl}/javascript/core.js')
-    script(src='#{config.wildbook.proxyUrl}/javascript/auth/auth.js')
+script(src='/vendor/jquery.min.js')
+script(src='/vendor/moment/moment-with-locales.min.js')
+script(src='/vendor/jquery-ui/js/jquery-ui.min.js')
+script(src='/vendor/bootstrap/js/bootstrap.min.js')
+script(src='/vendor/alertplus/js/alertplus.js')
+script(src='/vendor/angularjs/angular.min.js')
 
-    block scripts
+block configScripts
+
+script(src='/javascript/app.js')
+
+script(src='#{config.wildbook.proxyUrl}/JavascriptGlobals.js')
+script(src='#{config.wildbook.proxyUrl}/javascript/core.js')
+script(src='#{config.wildbook.proxyUrl}/javascript/auth/auth.js')
+
+block scripts

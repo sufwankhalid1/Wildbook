@@ -1,0 +1,31 @@
+nav.navbar.navbar-inverse.navbar-fixed-top#navbar-top
+    .container
+        .collapse.navbar-collapse
+            ul.nav.navbar-nav
+                li.home
+                    a(href="/")= t("header.menu.home")
+                li.active
+                    a(href="/submitMedia")= t("header.menu.reportSighting")
+                li.ng-cloak(ng-show="data.user")
+                    a(href="#me")= t("header.menu.me")
+                li
+                    a(href="/about")= t("header.menu.about")
+                li
+                    div.socialbox
+                        a.zocial.icon.facebook(href="https://www.facebook.com/#{config.social.facebook.id}" target="_blank")
+                        a.zocial.icon.twitter(href="https://twitter.com/#{config.social.twitter.id}" target="_blank")
+                        a.zocial.icon.instagram(href="https://instagram.com/#{config.social.instagram.id}" target="_blank")
+                        a.zocial.icon.email(href="mailto:#{config.social.email}")
+                li
+                    .right-inner-addon
+                        i.glyphicon.glyphicon-search(style="top: -5px; color: #AAA;")
+                        input.search-query.form-control.navbar-search(type="text" id="search-site" placeholder!= t("header.menu.searchSite"))
+                        #search-help= t("header.menu.searchHelpNone")
+                li.ng-cloak
+                    div(ng-show="user" id="div-user-info")
+                        p= t("header.menu.welcomeBack") + ", "
+                            | {{user.fullName || user.username}}!
+                        a(href="#")= t("header.menu.gotomy") + " | "
+                        a(href="#")= t("header.menu.signout")
+                    a(ng-show="!user" ng-click="login()")= t("header.menu.signin")
+    .logo-svg#navbar-logo-right
