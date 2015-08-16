@@ -1,7 +1,31 @@
 link(rel='stylesheet', href="tools/datatables/css/jquery.dataTables.min.css")
+link(rel='stylesheet', href="css/mediaSubmission.css")
 
 h1 Media Submissions
 table#mstable.cell-border
+
+#work-div
+    #user-meta
+    #general-options
+    span#image-options
+        #image-size-slider
+        #image-size-info
+    button.mode-image(onClick="return toggleMode(this)") show as table
+
+#images-unused-scroll
+    #images-unused
+
+#media-table
+    p
+        input#media-filter-text(onChange="resetTableMediaSelected(); return tableMedia.applyFilter($('#media-filter-text').val())")
+        button filter
+        button(onClick="$('#media-filter-text').val(''); resetTableMediaSelected(); tableMedia.applyFilter(); return true;") clear
+        span#media-table-info(style="margin-left: 40px; color: #888; font-size: 0.8em;")
+
+    .pageableTable-wrapper
+        #media-progress loading...
+        table#media-results-table
+        #media-results-slider
 
 script(src="bcomponents/moment/moment.js")
 script(src="tools/datatables/js/jquery.dataTables.js")
