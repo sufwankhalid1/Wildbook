@@ -5,7 +5,8 @@
     "jquery": "2.1.4",
     "jquery-ui" : "1.11.4",
     "tablesorter": "latest",
-    "moment": "2.10.6"
+    "moment": "2.10.6",
+    "angular": "1.4.4"
   },
   "install": {
     "path": "src/main/webapp/bcomponents",

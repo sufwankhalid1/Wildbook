@@ -1,14 +1,21 @@
-$(document).ready(function() {
-    $.get("obj/mediasubmission/get/status")
-    .then(function(data) {
+angular.module('appWildbook', [])
+.controller("MediaSubmissionController", function ($scope, $http) {
+    $scope.doneEditing = function() {
+        //
+        // TODO: Finishing saving any unsaved changes to the media submission?
+        //
+        $scope.submission = null;
+    }
+
+
+    //
+    // Finally, kick us off.
+    //
+    return $http({url:"obj/mediasubmission/get/status"})
+    .then(function(result) {
         var table = $("#mstable").DataTable({
-            data: data,
+            data: result.data,
             columns: [
-                {
-                    data: 'id',
-                    title: 'Edit',
-                    render: ''
-                },
                 {
                     data: 'timeSubmitted',
                     title: 'Submitted',
@@ -45,30 +52,26 @@ $(document).ready(function() {
                 ]
         });
 
-//        var lastRow = null;
-//        $('#mstable tbody')
-//        .on( 'mouseover', 'tr', function () {
-//            if (lastRow = )
-//            lastRow =
-//            $(table.row(this)).addClass('highlight');
-//            var colIdx = table.cell(this).index().column;
-//
-//            if ( colIdx !== lastIdx ) {
-//                $( table.cells().nodes() ).removeClass( 'pageableTable-visible' );
-//                $( table.column( colIdx ).nodes() ).addClass( 'pageableTable-visible' );
-//            }
-//        } )
-//        .on( 'mouseleave', function () {
-//            $( table.cells().nodes() ).removeClass( 'pageableTable-visible' );
-//        } );
+    //        var lastRow = null;
+    //        $('#mstable tbody')
+    //        .on( 'mouseover', 'tr', function () {
+    //            if (lastRow = )
+    //            lastRow =
+    //            $(table.row(this)).addClass('highlight');
+    //            var colIdx = table.cell(this).index().column;
+    //
+    //            if ( colIdx !== lastIdx ) {
+    //                $( table.cells().nodes() ).removeClass( 'pageableTable-visible' );
+    //                $( table.column( colIdx ).nodes() ).addClass( 'pageableTable-visible' );
+    //            }
+    //        } )
+    //        .on( 'mouseleave', function () {
+    //            $( table.cells().nodes() ).removeClass( 'pageableTable-visible' );
+    //        } );
 
         $("#mstable").on("click", "tr", function() {
-            var data = table.row(this).data();
-
-            //
-            // TODO: Trigger John's code for editing a mediasubmission
-            //
-            console.log(data);
+            $scope.submission = table.row(this).data();
+            $scope.$digest();
         });
     }, function(error) {
         alertplus.error(error);
