@@ -224,6 +224,32 @@ public class MediaSubmissionController
 //    }
 
 
+
+    @RequestMapping(value = "/photos/{submissionid}", method = RequestMethod.GET)
+    public static List<SimplePhoto> getPhotos(final HttpServletRequest request,
+                                              @PathVariable("submissionid")
+                                              final String submissionid) throws DatabaseException
+    {
+        String context = ServletUtilities.getContext(request);
+
+        //
+        // Add photos
+        //
+        try (Database db = new Database(ShepherdPMF.getConnectionInfo())) {
+            String sql = "SELECT spv.* FROM mediasubmission_media m"
+                    + " INNER JOIN \"SINGLEPHOTOVIDEO\" spv ON spv.\"DATACOLLECTIONEVENTID\" = m.mediaid"
+                    + " WHERE m.mediasubmissionid = " + submissionid;
+            RecordSet rs = db.getRecordSet(sql);
+            List<SimplePhoto> photos = new ArrayList<SimplePhoto>();
+            while (rs.next()) {
+                photos.add(SimpleFactory.readPhoto(context, rs));
+            }
+
+            return photos;
+        }
+    }
+
+
     @RequestMapping(value = "/get/id/{mediaid}", method = RequestMethod.GET)
     public MediaSubmission get(final HttpServletRequest request,
                                @PathVariable("mediaid")
@@ -263,21 +289,19 @@ public class MediaSubmissionController
     public List<MediaSubmission> getSources(final HttpServletRequest request,
                                             @PathVariable("id") final int id) throws DatabaseException {
         if (id < 1) return null;
-        ConnectionInfo ci = ShepherdPMF.getConnectionInfo();
-        Database db = new Database(ci);
-        String sql = "SELECT \"DATACOLLECTIONEVENTID_EID\" AS mid FROM \"SURVEYTRACK_MEDIA\" WHERE \"ID_OID\"=" + id;
-System.out.println(sql);
-        RecordSet rs = db.getRecordSet(sql);
-        List<SinglePhotoVideo> media = new ArrayList<SinglePhotoVideo>();
-        while (rs.next()) {
-            SinglePhotoVideo spv = new SinglePhotoVideo();
-            spv.setDataCollectionEventID(rs.getString("mid"));
-            media.add(spv);
+
+        try (Database db = new Database(ShepherdPMF.getConnectionInfo())) {
+            String sql = "SELECT \"DATACOLLECTIONEVENTID_EID\" AS mid FROM \"SURVEYTRACK_MEDIA\" WHERE \"ID_OID\"=" + id;
+            RecordSet rs = db.getRecordSet(sql);
+            List<SinglePhotoVideo> media = new ArrayList<SinglePhotoVideo>();
+            while (rs.next()) {
+                SinglePhotoVideo spv = new SinglePhotoVideo();
+                spv.setDataCollectionEventID(rs.getString("mid"));
+                media.add(spv);
+            }
+
+            return findMediaSources(media, ServletUtilities.getContext(request));
         }
-        db.release();
-        String context = "context0";
-        context = ServletUtilities.getContext(request);
-        return findMediaSources(media, context);
     }
 
     @RequestMapping(value = "/get/sources", method = RequestMethod.POST)

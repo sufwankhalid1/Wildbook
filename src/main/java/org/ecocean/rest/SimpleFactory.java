@@ -1,5 +1,6 @@
 package org.ecocean.rest;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -68,7 +69,7 @@ public class SimpleFactory {
         //
         // Add photos
         //
-       try (Database db = new Database(ShepherdPMF.getConnectionInfo())) {
+        try (Database db = new Database(ShepherdPMF.getConnectionInfo())) {
             String sqlRoot = "SELECT spv.* FROM \"SINGLEPHOTOVIDEO\" spv"
                     + " INNER JOIN \"ENCOUNTER_IMAGES\" ei ON spv.\"DATACOLLECTIONEVENTID\" = ei.\"DATACOLLECTIONEVENTID_EID\""
                     + " INNER JOIN \"MARKEDINDIVIDUAL_ENCOUNTERS\" mie ON mie.\"CATALOGNUMBER_EID\" = ei.\"CATALOGNUMBER_OID\"";
@@ -87,8 +88,7 @@ public class SimpleFactory {
 
             rs = db.getRecordSet(sql);
             while (rs.next()) {
-//                photos.add(getPhoto(context, readPhoto(rs)));
-                photos.add(getPhoto(context, rs));
+                photos.add(readPhoto(context, rs));
             }
 
             //
@@ -106,7 +106,7 @@ public class SimpleFactory {
                         break;
                     }
 
-                    SimplePhoto photo = getPhoto(context, rs);
+                    SimplePhoto photo = readPhoto(context, rs);
 
                     boolean addphoto = true;
                     for (SimplePhoto foto : photos) {
@@ -195,7 +195,7 @@ public class SimpleFactory {
                     + whereRoot;
             rs = db.getRecordSet(sql);
             while (rs.next()) {
-                userinfo.addPhoto(getPhoto(context, rs));
+                userinfo.addPhoto(readPhoto(context, rs));
             }
 
             //
@@ -208,7 +208,7 @@ public class SimpleFactory {
 
             rs = db.getRecordSet(sql);
             while (rs.next()) {
-                userinfo.addPhoto(getPhoto(context, rs));
+                userinfo.addPhoto(readPhoto(context, rs));
             }
 
             //
@@ -227,7 +227,7 @@ public class SimpleFactory {
                         break;
                     }
 
-                    userinfo.addPhoto(getPhoto(context, rs));
+                    userinfo.addPhoto(readPhoto(context, rs));
                 }
             }
 
@@ -297,11 +297,7 @@ public class SimpleFactory {
         SimpleIndividual ind = new SimpleIndividual(id, rs.getString("NICKNAME"));
         ind.setSex(rs.getString("SEX"));
 
-//        SinglePhotoVideo spv = readPhoto(rs);
-//        if (spv != null) {
-//            ind.setAvatar(spv.asUrl(context));
-//        }
-        SimplePhoto photo = getPhoto(context, rs);
+        SimplePhoto photo = readPhoto(context, rs);
         if (photo != null) {
             ind.setAvatar(photo.getUrl());
         }
@@ -471,15 +467,22 @@ public class SimpleFactory {
 //        return se;
 //    }
 
+    private static String getThumbnail(final String url) {
+        int index = url.lastIndexOf( File.separatorChar );
+        return url.substring(0, index) + "/thumb" + url.substring(index);
+    }
+
 
     public static SimplePhoto getPhoto(final String context,
                                        final SinglePhotoVideo spv)
     {
-        return new SimplePhoto(spv.getDataCollectionEventID(), spv.asUrl(context));
+        String url = spv.asUrl(context);
+
+        return new SimplePhoto(spv.getDataCollectionEventID(), url, getThumbnail(url));
     }
 
 
-    public static SimplePhoto getPhoto(final String context, final RecordSet rs) throws DatabaseException
+    public static SimplePhoto readPhoto(final String context, final RecordSet rs) throws DatabaseException
     {
         String id = rs.getString("DATACOLLECTIONEVENTID");
         if (id == null) {
@@ -487,8 +490,7 @@ public class SimpleFactory {
         }
 
         String url = SinglePhotoVideo.getUrl(context, rs.getString("FULLFILESYSTEMPATH"), rs.getString("FILENAME"));
-        return new SimplePhoto(id, url);
-
+        return new SimplePhoto(id, url, getThumbnail(url));
     }
 
 
