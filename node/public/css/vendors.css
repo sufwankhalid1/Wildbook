@@ -1,6 +1,6 @@
 /*
-* vendors.css (todo scss)
-* concatenated vendor css dependencies
+* vendors.scss
+* this is a stub (todo: concatenate vendor css files instead of importing)
 */
 /* ui frameworks */
 @import url(../vendor/jquery-ui/css/jquery-ui.css);

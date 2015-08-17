@@ -1,6 +1,6 @@
 //
 // Theme's variables file
-// Overrides the wildbook variables.scss
+// Overrides the wildbook variables.scss here
 //
 
 //Text
@@ -9,13 +9,16 @@
 //$font-family: 'Courier New', sans-serif;
 
 //$font-size-base: 18px;
+
 $font-size-small: 12px;
 
-$font-color-main: pink;
+$font-color-main: #8dcbce;
 
-$font-color-heading: #222;
+$font-color-heading: #96a1a5;
 
 $font-color-inverse: #efefef;
+
+$font-color-dark: #107D9F;
 
 
 //Site Colors
@@ -23,7 +26,11 @@ $font-color-inverse: #efefef;
 $background-default: #fff;
 
 $background-dark: #107D9F;
+
 $background-dark-selected: #087A9A;
 
+$border-color-light: #96a1a5;
+
 //Photo Assets
+
 $logo-svg: url(../cust/images/logo.svg);

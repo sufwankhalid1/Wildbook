@@ -7,6 +7,30 @@
     margin: 0 auto 80px;
 }
 
+.maincontent h1.has-icon {
+    height: 70px;
+    font-size: 1.7em;
+    font-weight: bold;
+    padding-top: 12px;
+    line-height: 1.7em;
+}
+
+.maincontent h2 {
+    color: $font-color-main;
+    font-size: 1.3em;
+}
+
+.maincontent hr {
+    color: $font-color-main;
+    background-color: $font-color-main;
+    height: 1px;
+}
+
+.maincontent .btn .btn-primary {
+    background-color: $background-dark;
+    color: $font-color-inverse;
+}
+
 #div-user-info {
     padding: 5px;
 }
@@ -33,6 +57,18 @@
     left: 48;
 }
 
+.individual-cluster-count {
+    background-color: $background-dark;
+    color: #fff;
+    font-size: 1.6em;
+}
+
+.has-icon {
+    color: $font-color-main;
+    background-size: auto 65px;
+    background-repeat: no-repeat;
+    padding-left: 75px;
+}
 
 .avatar,
 .no-avatar {
@@ -44,9 +80,9 @@
 .no-avatar {
     line-height: 300px;
     text-align: center;
-    border: 2px solid #efefef;
-    border-radius: 2px;
     background: center center no-repeat;
+    color: $font-color-heading;
+    fonts-size: $font-size-small;
 }
 
 .avatar img {
@@ -72,6 +108,26 @@
     margin: 0;
 }
 
+.sight-date {
+    color: $font-color-main;
+    font-size: 2.5em;
+}
+
+.sight-date-text {
+    color: #96a1a5;
+    font-size: 1.8em;
+}
+
+.sight-number {
+    color: $font-color-main;
+    font-size: 4.0em;
+    text-align: center;
+}
+
+.sight-stats {
+    line-height: normal;
+}
+
 .divider {
     text-align: center;
     padding: 15px 0;
@@ -81,13 +137,16 @@
     display: inline-block;
 }
 
-//photo gallery
+////////////////////////
+//photo gallery and map
+////////////////////////
 
 #map-sightings {
     margin-top: 10px;
     width: 100%;
     height: 600px;
-    border: 5px solid #96a1a5;
+    border: 5px solid;
+    border-color: $border-color-light;
 }
 
 #main-photo {

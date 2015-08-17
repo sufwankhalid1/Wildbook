@@ -7,13 +7,16 @@
     margin: 0 auto -50px; /* the bottom margin is the negative value of the footer's height */
 }
 
+.homecontainer .btn .btn-primary {
+    background-color: $background-dark;
+    color: $font-color-inverse;
+}
+
 .homeimage {
     width: 100%;
 }
 
 .banner {
-    /*background-color: #060808;
-    opacity: 0.6;*/
     background-color: rgba(6,8,8,0.6);
     position: absolute;
     width: 100%;
@@ -25,7 +28,7 @@
 
 .banner p {
     font-size: 36px;
-    color: #EFEFEF;
+    color: $font-color-inverse;
 }
 
 .bannerreport {
@@ -43,7 +46,7 @@
 
 .homefooter h2 {
     font-size: 18px;
-    color: #107D9F;
+    color: $font-color-dark;
 }
 
 .homefootercol {
@@ -53,7 +56,9 @@
     height: 100%;
 }
 
+///////////////
 //social feeds
+///////////////
 
 .instagramfeed {
     width: 220px;
@@ -61,7 +66,6 @@
 }
 
 .instagramimage {
-    /*padding: 0px !important;*/
    margin-right: 5px;
    margin-bottom: 5px;
    width: 100px;
@@ -98,6 +102,6 @@
 }
 
 .spotlightcontents p {
-    font-size: 12px;
+    font-size: $font-size-small;
     white-space: pre;
 }
