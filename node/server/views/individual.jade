@@ -2,8 +2,8 @@ extends layout
 
 block content
     .maincontent
-        h1.has-icon.icon-happywhale= t("individual.meet", {individualId: data.info.individual.displayName})
         .container-fluid.individual-stats
+            h1.has-icon.icon-happywhale= t("individual.meet", {individualId: data.info.individual.displayName})
             .col-md-4
                 span.avatar
                     if data.info.individual.avatar
@@ -27,28 +27,33 @@ block content
                             //img(src="/cust/images/img_binoculars.svg" height="128px")                        
                             //img(src="/cust/images/img_whale.svg" height="80px")                                    
                             //img(src="/cust/images/img_waves.svg")
-        .divider
-            img(src="/cust/images/img_waves.svg")  
 
         -var photos = data.info.photos
         //include partials/carousel
         
         include partials/phototool
 
-        h2= t("individual.contributors")
-        hr
-        for being in data.info.submitters
-            ul.submitters
-                li
-                    include partials/avatar
-        hr
-        h2= t("individual.sightings")
-        hr
-        #map-sightings
-        
-        p= t("individual.seenIndividual")
-        a(href="/submitMedia")
-            button.btn.btn-primary= t("individual.shareExperience")
+        .container-fluid
+            .col-md-12
+                h2= t("individual.contributors")
+                hr
+                for being in data.info.submitters
+                    ul.submitters
+                        li
+                            include partials/avatar
+                            
+        .container-fluid
+            .col-md-12
+                hr
+                h2= t("individual.sightings")
+                hr
+                #map-sightings
+
+        .container-fluid
+            .col-md-12
+                p= t("individual.seenIndividual")
+                a(href="/submitMedia")
+                    button.btn.btn-primary= t("individual.shareExperience")
         
 block configScripts
     script(src="/vendor/leaflet/leaflet.js")
