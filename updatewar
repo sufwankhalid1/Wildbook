@@ -1,3 +1,30 @@
 #!/bin/bash
 
-rsync -rv --exclude=WEB-INF --exclude=xcalendar --exclude=tools --exclude=bcomponents --exclude=onlinehelp --exclude=images --exclude=software src/main/webapp/ $TOMCAT_HOME/webapps/wildbook
+VENDORS="--exclude=tools --exclude=bcomponents"
+classes=false
+while [[ $# > 1 ]]
+do
+    key="$1"
+    
+    case $key in
+        -v|--vendors)
+        THIRD_PARTY=""
+        shift
+        ;;
+        -c|--classes)
+        THIRD_PARTY=""
+        shift
+        ;;
+        *)
+        # unknown option
+        ;;
+    esac
+    shift
+done
+    
+rsync -rv $VENDORS --exclude=WEB-INF --exclude=xcalendar --exclude=onlinehelp --exclude=images --exclude=software src/main/webapp/ $TOMCAT_HOME/webapps/wildbook
+
+if [ "$classes" = true ] ; then
+    mvn compile -o;
+    rsync -rv target/classes/org/ $TOMCAT_HOME/webapps/wildbook/WEB-INF/classes/org
+fi
