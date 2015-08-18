@@ -423,23 +423,6 @@ public class SimpleFactory {
     }
 
 
-//    private static SinglePhotoVideo readPhoto(final RecordSet rs) throws DatabaseException
-//    {
-//        //
-//        // TODO: Add Keywords
-//        //
-//        SinglePhotoVideo spv = new SinglePhotoVideo();
-//        spv.setDataCollectionEventID(rs.getString("DATACOLLECTIONEVENTID"));
-//        spv.setCopyrightOwner(rs.getString("COPYRIGHTOWNER"));
-//        spv.setCopyrightStatement(rs.getString("COPYRIGHTSTATEMENT"));
-//        spv.setFilename(rs.getString("FILENAME"));
-//        spv.setFullFileSystemPath(rs.getString("FULLFILESYSTEMPATH"));
-//        spv.setSubmitter(rs.getString("SUBMITTER"));
-//
-//        return spv;
-//    }
-
-
 //    public static SimpleUser getUser(final String context, final String configDir, final String username) throws DatabaseException
 //    {
 //        Client client = Stormpath.getClient(configDir);
@@ -467,9 +450,17 @@ public class SimpleFactory {
 //        return se;
 //    }
 
-    private static String getThumbnail(final String url) {
+    public static String getThumbnail(final String url) {
+        return getScaledImage(url, MediaUploadServlet.THUMB_DIR);
+    }
+
+    public static String getMidsizeFile(final String url) {
+        return getScaledImage(url, MediaUploadServlet.MID_DIR);
+    }
+
+    private static String getScaledImage(final String url, final String subdir) {
         int index = url.lastIndexOf( File.separatorChar );
-        return url.substring(0, index) + "/thumb" + url.substring(index);
+        return url.substring(0, index) + "/" + subdir + url.substring(index);
     }
 
 

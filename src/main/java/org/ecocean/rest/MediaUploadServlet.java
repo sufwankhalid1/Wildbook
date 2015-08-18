@@ -56,6 +56,8 @@ public class MediaUploadServlet
     private static final Logger logger = LoggerFactory.getLogger(MediaUploadServlet.class);
 
     private static final String FILES_MAP = "filesMap";
+    public static final String THUMB_DIR = "thumb";
+    public static final String MID_DIR = "mid";
 
     private static ExecutorService executor = Executors.newFixedThreadPool(5);
     //
@@ -229,7 +231,7 @@ public class MediaUploadServlet
 
     private static File getThumbnailDir(final File baseDir)
     {
-        return new File(baseDir, "thumb");
+        return new File(baseDir, THUMB_DIR);
     }
 
 //    private static File getThumbnailFile(final File baseDir,
@@ -240,7 +242,7 @@ public class MediaUploadServlet
 
     private static File getMidsizeDir(final File baseDir)
     {
-        return new File(baseDir, "mid");
+        return new File(baseDir, MID_DIR);
     }
 
     private static File getRootDir(final HttpServletRequest request)
@@ -405,7 +407,7 @@ public class MediaUploadServlet
             return submitter;
         }
 
-        public void setSubmitter(String submitter) {
+        public void setSubmitter(final String submitter) {
             this.submitter = submitter;
         }
     }
@@ -426,7 +428,7 @@ public class MediaUploadServlet
           return name;
         }
 
-        public void setName(String name) {
+        public void setName(final String name) {
           this.name = name;
         }
 
@@ -434,7 +436,7 @@ public class MediaUploadServlet
           return size;
         }
 
-        public void setSize(long size) {
+        public void setSize(final long size) {
           this.size = size;
         }
 
@@ -442,7 +444,7 @@ public class MediaUploadServlet
           return type;
         }
 
-        public void setType(String type) {
+        public void setType(final String type) {
           this.type = type;
         }
 
@@ -450,7 +452,7 @@ public class MediaUploadServlet
             return url;
         }
 
-        public void setUrl(String url) {
+        public void setUrl(final String url) {
             this.url = url;
         }
 
@@ -458,7 +460,7 @@ public class MediaUploadServlet
             return thumbnailUrl;
         }
 
-        public void setThumbnailUrl(String thumbnailUrl) {
+        public void setThumbnailUrl(final String thumbnailUrl) {
             this.thumbnailUrl = thumbnailUrl;
         }
 

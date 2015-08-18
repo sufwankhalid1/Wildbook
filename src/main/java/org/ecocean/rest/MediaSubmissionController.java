@@ -1,5 +1,6 @@
 package org.ecocean.rest;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -40,6 +41,8 @@ import com.samsix.database.SqlInsertFormatter;
 import com.samsix.database.SqlUpdateFormatter;
 import com.samsix.database.SqlWhereFormatter;
 import com.samsix.database.Table;
+import com.samsix.util.OsUtils;
+import com.samsix.util.string.StringUtilities;
 
 @RestController
 @RequestMapping(value = "/obj/mediasubmission")
@@ -115,15 +118,7 @@ public class MediaSubmissionController
             RecordSet rs = db.getRecordSet(sql);
             List<SinglePhotoVideo> spvs = new ArrayList<SinglePhotoVideo>();
             while (rs.next()) {
-                SinglePhotoVideo media = new SinglePhotoVideo();
-                media.setDataCollectionEventID(rs.getString("DATACOLLECTIONEVENTID"));
-                media.setCopyrightOwner(rs.getString("COPYRIGHTOWNER"));
-                media.setCopyrightStatement(rs.getString("COPYRIGHTSTATEMENT"));
-                media.setCorrespondingStoryID(rs.getString("CORRESPONDINGSTORYID"));
-                media.setCorrespondingUsername(rs.getString("CORRESPONDINGUSERNAME"));
-                media.setFilename(rs.getString("FILENAME"));
-                media.setFullFileSystemPath(rs.getString("FULLFILESYSTEMPATH"));
-                spvs.add(media);
+                spvs.add(readPhoto(rs));
             }
             ms.setMedia(spvs);
 
@@ -213,6 +208,22 @@ public class MediaSubmissionController
         }
 
         return mss;
+    }
+
+
+    private static SinglePhotoVideo readPhoto(final RecordSet rs) throws DatabaseException
+    {
+        SinglePhotoVideo spv = new SinglePhotoVideo();
+        spv.setDataCollectionEventID(rs.getString("DATACOLLECTIONEVENTID"));
+        spv.setCopyrightOwner(rs.getString("COPYRIGHTOWNER"));
+        spv.setCopyrightStatement(rs.getString("COPYRIGHTSTATEMENT"));
+        spv.setCorrespondingStoryID(rs.getString("CORRESPONDINGSTORYID"));
+        spv.setCorrespondingUsername(rs.getString("CORRESPONDINGUSERNAME"));
+        spv.setFilename(rs.getString("FILENAME"));
+        spv.setFullFileSystemPath(rs.getString("FULLFILESYSTEMPATH"));
+        spv.setSubmitter(rs.getString("SUBMITTER"));
+
+        return spv;
     }
 
 
@@ -307,9 +318,113 @@ public class MediaSubmissionController
     @RequestMapping(value = "/get/sources", method = RequestMethod.POST)
     public List<MediaSubmission> getSources(final HttpServletRequest request,
                                             @RequestBody final List<SinglePhotoVideo> media) throws DatabaseException {
-        String context = "context0";
-        context = ServletUtilities.getContext(request);
-        return findMediaSources(media, context);
+        return findMediaSources(media, ServletUtilities.getContext(request));
+    }
+
+
+    @RequestMapping(value = "/deletemedia/{submissionid}", method = RequestMethod.POST)
+    public void deleteMedia(@PathVariable("submissionid") final int submissionid,
+                            @RequestBody final String mediaid)
+        throws DatabaseException
+    {
+        //
+        // Why, oh why, does this come through with an equal sign on the end?!
+        // I'm just going to strip it off rather than trying to figure it out. Frustrating!
+        //
+        String dceid;
+        if (mediaid.endsWith("=")) {
+            dceid = mediaid.substring(0, mediaid.length()-1);
+        } else {
+            dceid = mediaid;
+        }
+        try (Database db = ShepherdPMF.getDb()) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Deleting mediaid [" + dceid + "] from submission [" + submissionid + "]");
+            }
+
+            String sql = "SELECT * FROM \"SINGLEPHOTOVIDEO\" WHERE \"DATACOLLECTIONEVENTID\" = "
+                    + StringUtilities.wrapQuotes(dceid);
+            RecordSet rs = db.getRecordSet(sql);
+            SinglePhotoVideo spv;
+            if (rs.next()) {
+                spv = readPhoto(rs);
+            } else {
+                throw new IllegalArgumentException("No media with id [" + dceid + "] found.");
+            }
+
+            Table table = db.getTable("mediasubmission_media");
+            String where = "mediasubmissionid = "
+                    + submissionid
+                    + " AND mediaid = "
+                    + StringUtilities.wrapQuotes(dceid);
+            table.deleteRows(where);
+
+            deleteFiles(spv);
+        }
+    }
+
+
+    private void deleteFiles(final SinglePhotoVideo spv)
+    {
+        //
+        // Delete all the appropriate files from the disk.
+        //
+        OsUtils.delete(spv.getFile());
+        OsUtils.delete(new File(SimpleFactory.getThumbnail(spv.getFullFileSystemPath())));
+        OsUtils.delete(new File(SimpleFactory.getMidsizeFile(spv.getFullFileSystemPath())));
+    }
+
+
+    @RequestMapping(value = "/delete", method = RequestMethod.POST)
+    public void deleteMedia(@RequestBody final int submissionid)
+        throws DatabaseException
+    {
+        try (Database db = ShepherdPMF.getDb()) {
+            String mWhere = "mediasubmissionid = " + submissionid;
+
+            //
+            // Read in SPV's so that we can use the info to delete the physical files.
+            //
+            String sql = "SELECT * FROM \"SINGLEPHOTOVIDEO\" spv"
+                    + " INNER JOIN mediasubmission_media msm ON msm.mediaid = spv.\"DATACOLLECTIONEVENTID\""
+                    + " WHERE " + mWhere;
+            List<SinglePhotoVideo> spvs = new ArrayList<SinglePhotoVideo>();
+            RecordSet rs = db.getRecordSet(sql);
+            while (rs.next()) {
+                spvs.add(readPhoto(rs));
+            }
+
+            db.beginTransaction();
+
+            //
+            // Delete all the SPVs
+            //
+            sql = "DELETE spv FROM \"SINGLEPHOTOVIDEO\" spv"
+                    + " JOIN mediasubmission_media msm ON msm.mediaid = spv.\"DATACOLLECTIONEVENTID\""
+                    + " WHERE msm." + mWhere;
+            db.execute(sql);
+
+            //
+            // Delete all the joins
+            //
+            Table table = db.getTable("mediasubmission_media");
+            table.deleteRows(mWhere);
+
+            //
+            // Delete the media submission itself.
+            //
+            table = db.getTable("mediasubmission");
+            table.deleteRows("id = " + submissionid);
+
+            db.commitTransaction();
+
+            //
+            // Finally actually delete all the physical files.
+            //
+            for (SinglePhotoVideo spv : spvs) {
+                deleteFiles(spv);
+            }
+        }
     }
 
 
@@ -318,16 +433,8 @@ public class MediaSubmissionController
                          @RequestBody final MediaSubmission media)
         throws DatabaseException
     {
-        ConnectionInfo ci = ShepherdPMF.getConnectionInfo();
-
-        Database db = new Database(ci);
-
-        try {
+        try (Database db = ShepherdPMF.getDb()) {
             save(db, media);
-        } catch (DatabaseException ex) {
-            throw ex;
-        } finally {
-            db.release();
         }
 
         String context = ServletUtilities.getContext(request);

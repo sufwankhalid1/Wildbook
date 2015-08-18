@@ -19,18 +19,22 @@
 
 package org.ecocean;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+import java.util.TreeMap;
+
 import javax.jdo.JDOException;
 import javax.jdo.JDOHelper;
 import javax.jdo.PersistenceManagerFactory;
 
-import java.io.*;
-import java.util.*;
-
 import com.samsix.database.ConnectionInfo;
+import com.samsix.database.Database;
 import com.samsix.util.io.ResourceReader;
 import com.samsix.util.io.ResourceReaderImpl;
-
-import java.util.TreeMap;
 
 
 public class ShepherdPMF {
@@ -46,11 +50,15 @@ public class ShepherdPMF {
     return getConnectionInfo(ConnectionInfo.DBTYPE_PRIMARY);
   }
 
+  public static Database getDb() {
+      return new Database(getConnectionInfo());
+  }
+
   /**
    * Return the named S6 database connection info, or null if no info
    * exists for the name.
    */
-  public synchronized static ConnectionInfo getConnectionInfo(String connectionName) {
+  public synchronized static ConnectionInfo getConnectionInfo(final String connectionName) {
     if (connectionInfo.get(connectionName) == null) {
       ResourceReader reader = new ResourceReaderImpl("bundles.s6db");
       connectionInfo.put(connectionName, ConnectionInfo.valueOf(reader, connectionName));
@@ -59,7 +67,7 @@ public class ShepherdPMF {
     return connectionInfo.get(connectionName);
   }
 
-  public synchronized static PersistenceManagerFactory getPMF(String context) {
+  public synchronized static PersistenceManagerFactory getPMF(final String context) {
     //public static PersistenceManagerFactory getPMF(String dbLocation) {
 
     if(pmfs==null){pmfs=new TreeMap<String,PersistenceManagerFactory>();}
@@ -127,7 +135,7 @@ public class ShepherdPMF {
     }
   }
 
-  public static Properties loadOverrideProps(String shepherdDataDir) {
+  public static Properties loadOverrideProps(final String shepherdDataDir) {
     //System.out.println("     Starting loadOverrideProps");
     Properties myProps=new Properties();
     File configDir = new File("webapps/"+shepherdDataDir+"/WEB-INF/classes/bundles");

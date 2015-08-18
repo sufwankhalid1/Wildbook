@@ -10,6 +10,7 @@ div(ng-controller="MediaSubmissionController")
         h2 Edit Media Submission
         button.btn(ng-click="doneEditing()") Done
         {{submission.user.displayName}}
+        button.btn(ng-click="deleteSubmission()") Delete
         table#imagetable
 
 script(src="bcomponents/angular/angular.js")
