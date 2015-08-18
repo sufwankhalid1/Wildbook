@@ -1,19 +1,19 @@
-link(rel='stylesheet', href="tools/datatables/css/jquery.dataTables.min.css")
+link(rel='stylesheet', href="tools/datatables/css/datatables.min.css")
 //link(rel='stylesheet', href="css/mediaSubmission.css")
 
 div(ng-controller="MediaSubmissionController")
     div(ng-show="!submission")
         h1 Media Submissions
-        table#mstable.cell-border
+        table#mstable.table.table-striped.table-bordered
 
-    div(ng-show="submission")
+    div.ng-cloak(ng-show="submission")
         h2 Edit Media Submission
-        button.btn(ng-click="doneEditing()") Done
-        {{submission.user.displayName}}
-        button.btn(ng-click="deleteSubmission()") Delete
-        table#imagetable
+        h3.text-primary {{submission.user.displayName}}
+        button.btn.btn-primary(ng-click="doneEditing()") Done
+        button.btn.btn-danger.pull-right(ng-click="deleteSubmission()") Delete
+        table#imagetable.table.table-striped.table-bordered
 
 script(src="bcomponents/angular/angular.js")
 script(src="bcomponents/moment/moment.js")
-script(src="tools/datatables/js/jquery.dataTables.js")
+script(src="tools/datatables/js/datatables.min.js")
 script(src="javascript/media/mediaSubmitAdmin.js")
