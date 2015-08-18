@@ -2,17 +2,17 @@
 
 VENDORS="--exclude=tools --exclude=bcomponents"
 classes=false
-while [[ $# > 1 ]]
+
+while [[ $# > 0 ]]
 do
     key="$1"
-    
     case $key in
         -v|--vendors)
-        THIRD_PARTY=""
+        VENDORS=""
         shift
         ;;
         -c|--classes)
-        THIRD_PARTY=""
+        classes=true
         shift
         ;;
         *)
@@ -21,7 +21,7 @@ do
     esac
     shift
 done
-    
+
 rsync -rv $VENDORS --exclude=WEB-INF --exclude=xcalendar --exclude=onlinehelp --exclude=images --exclude=software src/main/webapp/ $TOMCAT_HOME/webapps/wildbook
 
 if [ "$classes" = true ] ; then
