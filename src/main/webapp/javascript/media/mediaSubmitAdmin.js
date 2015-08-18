@@ -7,7 +7,12 @@ angular.module('appWildbook', [])
     $scope.deleteImage = function(row, id) {
         return alertplus.confirm('Are you sure you want to delete this image?', "Delete Image", true)
         .then(function() {
-            $.post("obj/mediasubmission/deletemedia/" + $scope.submission.id, id)
+            $.ajax({
+                url: "obj/mediasubmission/deletemedia",
+                type: "POST",
+                data: JSON.stringify({submissionid: $scope.submission.id, mediaid: id}),
+                contentType: "application/json"
+            })
             .then(function() {
                 imageTable.row(row).remove().draw();
             }, handleError);
@@ -17,11 +22,18 @@ angular.module('appWildbook', [])
     $scope.deleteSubmission = function() {
         return alertplus.confirm('Are you sure you want to delete this <b>entire</b> submission?', "Delete Submission", true)
         .then(function() {
-            $.post("obj/mediasubmission/delete", "" + $scope.submission.id)
+            $.ajax({
+                url: "obj/mediasubmission/delete",
+                type: "POST",
+                data: JSON.stringify({submissionid: $scope.submission.id}),
+                contentType: "application/json"
+            })
             .then(function() {
-//                msTable.row($scope.currentRow).remove().draw();
-                $scope.submission = null;
-//                $scope.currentRow = null;
+                $scope.$apply(function() {
+                    $scope.submission = null;
+                })
+                $scope.currentRow.remove().draw();
+                $scope.currentRow = null;
             }, handleError);
         });
     }
@@ -128,11 +140,7 @@ angular.module('appWildbook', [])
 
     $("#mstable").on("click", "tr", function() {
         $scope.submission = msTable.row(this).data();
-
-        //
-        // TODO: figure out how to get the damn current row!! Then you can remove it after deleting.
-        //
-//        $scope.currentRow = msTable.row().index();
+        $scope.currentRow = msTable.row(this);
 
         return $http({url:"obj/mediasubmission/photos/" + $scope.submission.id})
         .then(function(images) {
@@ -146,7 +154,7 @@ angular.module('appWildbook', [])
         // TODO: Finishing saving any unsaved changes to the media submission?
         //
         $scope.submission = null;
-//        $scope.currentRow = null;
+        $scope.currentRow = null;
     };
 
     //

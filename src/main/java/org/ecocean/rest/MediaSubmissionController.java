@@ -322,41 +322,30 @@ public class MediaSubmissionController
     }
 
 
-    @RequestMapping(value = "/deletemedia/{submissionid}", method = RequestMethod.POST)
-    public void deleteMedia(@PathVariable("submissionid") final int submissionid,
-                            @RequestBody final String mediaid)
+    @RequestMapping(value = "/deletemedia", method = RequestMethod.POST)
+    public void deleteMedia(@RequestBody final MSMEntry msm)
         throws DatabaseException
     {
-        //
-        // Why, oh why, does this come through with an equal sign on the end?!
-        // I'm just going to strip it off rather than trying to figure it out. Frustrating!
-        //
-        String dceid;
-        if (mediaid.endsWith("=")) {
-            dceid = mediaid.substring(0, mediaid.length()-1);
-        } else {
-            dceid = mediaid;
-        }
         try (Database db = ShepherdPMF.getDb()) {
             if (logger.isDebugEnabled()) {
-                logger.debug("Deleting mediaid [" + dceid + "] from submission [" + submissionid + "]");
+                logger.debug("Deleting mediaid [" + msm.mediaid + "] from submission [" + msm.submissionid + "]");
             }
 
             String sql = "SELECT * FROM \"SINGLEPHOTOVIDEO\" WHERE \"DATACOLLECTIONEVENTID\" = "
-                    + StringUtilities.wrapQuotes(dceid);
+                    + StringUtilities.wrapQuotes(msm.mediaid);
             RecordSet rs = db.getRecordSet(sql);
             SinglePhotoVideo spv;
             if (rs.next()) {
                 spv = readPhoto(rs);
             } else {
-                throw new IllegalArgumentException("No media with id [" + dceid + "] found.");
+                throw new IllegalArgumentException("No media with id [" + msm.mediaid + "] found.");
             }
 
             Table table = db.getTable("mediasubmission_media");
             String where = "mediasubmissionid = "
-                    + submissionid
+                    + msm.submissionid
                     + " AND mediaid = "
-                    + StringUtilities.wrapQuotes(dceid);
+                    + StringUtilities.wrapQuotes(msm.mediaid);
             table.deleteRows(where);
 
             deleteFiles(spv);
@@ -376,11 +365,11 @@ public class MediaSubmissionController
 
 
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
-    public void deleteMedia(@RequestBody final int submissionid)
+    public void deleteSubmission(@RequestBody final MSMEntry msm)
         throws DatabaseException
     {
         try (Database db = ShepherdPMF.getDb()) {
-            String mWhere = "mediasubmissionid = " + submissionid;
+            String mWhere = "mediasubmissionid = " + msm.submissionid;
 
             //
             // Read in SPV's so that we can use the info to delete the physical files.
@@ -399,9 +388,9 @@ public class MediaSubmissionController
             //
             // Delete all the SPVs
             //
-            sql = "DELETE spv FROM \"SINGLEPHOTOVIDEO\" spv"
-                    + " JOIN mediasubmission_media msm ON msm.mediaid = spv.\"DATACOLLECTIONEVENTID\""
-                    + " WHERE msm." + mWhere;
+            sql = "DELETE FROM \"SINGLEPHOTOVIDEO\" spv"
+                    + " USING mediasubmission_media msm WHERE msm.mediaid = spv.\"DATACOLLECTIONEVENTID\""
+                    + " AND msm." + mWhere;
             db.execute(sql);
 
             //
@@ -414,7 +403,7 @@ public class MediaSubmissionController
             // Delete the media submission itself.
             //
             table = db.getTable("mediasubmission");
-            table.deleteRows("id = " + submissionid);
+            table.deleteRows("id = " + msm.submissionid);
 
             db.commitTransaction();
 
@@ -424,6 +413,19 @@ public class MediaSubmissionController
             for (SinglePhotoVideo spv : spvs) {
                 deleteFiles(spv);
             }
+
+            //
+            // Now delete the empty directories.
+            //
+            if (spvs.size() > 0) {
+                SinglePhotoVideo spv = spvs.get(0);
+
+                File parentDir = spv.getFile().getParentFile();
+                OsUtils.delete(new File(parentDir, MediaUploadServlet.THUMB_DIR));
+                OsUtils.delete(new File(parentDir, MediaUploadServlet.MID_DIR));
+                OsUtils.delete(parentDir);
+            }
+
         }
     }
 
@@ -725,6 +727,13 @@ public class MediaSubmissionController
         }
 
         return data;
+    }
+
+
+    public static class MSMEntry
+    {
+        public int submissionid;
+        public String mediaid;
     }
 
     public static class ExifItem
