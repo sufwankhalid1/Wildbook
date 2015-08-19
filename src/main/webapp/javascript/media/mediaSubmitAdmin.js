@@ -117,6 +117,7 @@ angular.module('appWildbook').controller("MediaSubmissionController", function (
              ],
         rowData: null,
         enableSorting: true,
+        pinnedColumnCount: 3,
         angularCompileRows: true
     };
 
