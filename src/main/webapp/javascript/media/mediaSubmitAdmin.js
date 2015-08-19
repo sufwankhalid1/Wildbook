@@ -136,6 +136,7 @@ angular.module('appWildbook').controller("MediaSubmissionController", function (
 
 
     $scope.doneEditing = function() {
+        $scope.zoomimage = null;
         $scope.submission = null;
     };
 
