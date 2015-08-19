@@ -217,8 +217,6 @@ public class MediaSubmissionController
         spv.setDataCollectionEventID(rs.getString("DATACOLLECTIONEVENTID"));
         spv.setCopyrightOwner(rs.getString("COPYRIGHTOWNER"));
         spv.setCopyrightStatement(rs.getString("COPYRIGHTSTATEMENT"));
-        spv.setCorrespondingStoryID(rs.getString("CORRESPONDINGSTORYID"));
-        spv.setCorrespondingUsername(rs.getString("CORRESPONDINGUSERNAME"));
         spv.setFilename(rs.getString("FILENAME"));
         spv.setFullFileSystemPath(rs.getString("FULLFILESYSTEMPATH"));
         spv.setSubmitter(rs.getString("SUBMITTER"));

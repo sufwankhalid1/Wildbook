@@ -606,7 +606,7 @@ public class MediaUploadServlet
                     logger.debug("About to save SPV...");
                 }
                 Shepherd shepherd = new Shepherd(context);
-                SinglePhotoVideo media = new SinglePhotoVideo(null, fullPath);
+                SinglePhotoVideo media = new SinglePhotoVideo(fullPath);
                 media.setSubmitter(submitter);
                 shepherd.getPM().makePersistent(media);
 

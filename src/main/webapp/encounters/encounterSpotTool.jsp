@@ -50,7 +50,7 @@ File encountersDir=new File(shepherdDataDir.getAbsolutePath()+"/encounters");
 File encounterDir = new File(encountersDir, num);
 */
 
-String imgSrc = spv.asUrl(enc, baseDir);
+String imgSrg = "/" + enc.dir(baseDir) + "/" + spv.getFilename();
 
 
 //handle some cache-related security

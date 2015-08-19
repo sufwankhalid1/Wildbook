@@ -1,13 +1,13 @@
 package org.ecocean;
 
 public class Story implements java.io.Serializable {
-  
-  
+
+
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = 1965897028115199370L;
-  
+
   private String storyTellerName;
   private String storyTellerEmail;
   private String storyText;
@@ -23,28 +23,28 @@ public class Story implements java.io.Serializable {
    * empty constructor required by JDO Enhancer
    */
   public Story() {}
-  
-  public Story(String storyID) {
+
+  public Story(final String storyID) {
     this.storyID=storyID;
   }
-  
+
   public String getStoryTellerName(){return storyTellerName;}
-  public void setStoryTellerName(String name){this.storyTellerName=name;}
-  
+  public void setStoryTellerName(final String name){this.storyTellerName=name;}
+
   public String getStoryTellerEmail(){return storyTellerEmail;}
-  public void setStoryTellerEmail(String email){this.storyTellerEmail=email;}
-  
+  public void setStoryTellerEmail(final String email){this.storyTellerEmail=email;}
+
   public String getStoryText(){return storyText;}
-  public void setStoryText(String text){this.storyText=text;}
-  
+  public void setStoryText(final String text){this.storyText=text;}
+
   public String getStoryMediaURL(){return storyMediaURL;}
-  public void setStoryMediaURL(String url){this.storyMediaURL=url;}
-  
+  public void setStoryMediaURL(final String url){this.storyMediaURL=url;}
+
   public String getStoryID(){return storyID;}
-  public void setStoryID(String id){this.storyID=id;}
-  
+  public void setStoryID(final String id){this.storyID=id;}
+
   public String getCorrespondingEncounterNumber(){return correspondingEncounterNumber;}
-  public void setCorrespondingEncounterNumber(String encounterNumber){
+  public void setCorrespondingEncounterNumber(final String encounterNumber){
     if(encounterNumber!=null){
       this.correspondingEncounterNumber=encounterNumber;
     }
@@ -52,9 +52,9 @@ public class Story implements java.io.Serializable {
       this.correspondingEncounterNumber=null;
     }
   }
-  
+
   public String getCorrespondingMarkedIndividualID(){return correspondingMarkedIndividualID;}
-  public void setCorrespondingMarkedIndividualID(String indyID){
+  public void setCorrespondingMarkedIndividualID(final String indyID){
     if(indyID!=null){
       this.correspondingMarkedIndividualID=indyID;
     }
@@ -62,9 +62,9 @@ public class Story implements java.io.Serializable {
       this.correspondingMarkedIndividualID=null;
     }
   }
-  
+
   public String getCorrespondingOccurrenceID(){return correspondingOccurrenceID;}
-  public void setCorrespondingOccurrenceID(String occurID){
+  public void setCorrespondingOccurrenceID(final String occurID){
     if(occurID!=null){
       this.correspondingOccurrenceID=occurID;
     }
@@ -72,9 +72,9 @@ public class Story implements java.io.Serializable {
       this.correspondingOccurrenceID=null;
     }
   }
-  
+
   public String getCorrespondingSocialUnitName(){return correspondingSocialUnitName;}
-  public void setCorrespondingSocialUnitName(String name){
+  public void setCorrespondingSocialUnitName(final String name){
     if(name!=null){
       this.correspondingSocialUnitName=name;
     }
@@ -82,16 +82,15 @@ public class Story implements java.io.Serializable {
       this.correspondingSocialUnitName=null;
     }
   }
-  
+
   public SinglePhotoVideo getCorrespondingThumbnailSinglePhotoVideo(){return correspondingThumbnailSinglePhotoVideo;}
-  public void setCorrespondingThumbnailSinglePhotoVideo(SinglePhotoVideo thumb){
+  public void setCorrespondingThumbnailSinglePhotoVideo(final SinglePhotoVideo thumb){
     if(thumb!=null){
       this.correspondingThumbnailSinglePhotoVideo=thumb;
-      if(storyID!=null)thumb.setCorrespondingStoryID(this.storyID);
     }
     else{
       this.correspondingThumbnailSinglePhotoVideo=null;
     }
   }
-  
+
 }
