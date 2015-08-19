@@ -1,5 +1,5 @@
 link(rel='stylesheet', href="tools/datatables/css/datatables.min.css")
-//link(rel='stylesheet', href="css/mediaSubmission.css")
+link(rel='stylesheet', href="css/mediaSubmitAdmin.css")
 
 div(ng-controller="MediaSubmissionController")
     div(ng-show="!submission")
@@ -13,7 +13,14 @@ div(ng-controller="MediaSubmissionController")
         button.btn.btn-danger.pull-right(ng-click="deleteSubmission()") Delete
         table#imagetable.table.table-striped.table-bordered
 
+script(type="text/ng-template", id="zoomimage.html")
+    .modal-body
+        img.image-zoom(src="{{zoomimage}}")
+    .modal-footer
+        button.btn.btn-primary(ng-click="cancel()") Close
+
 script(src="bcomponents/angular/angular.js")
+script(src="bcomponents/angular-bootstrap/ui-bootstrap-tpls.js")
 script(src="bcomponents/moment/moment.js")
 script(src="tools/datatables/js/datatables.min.js")
 script(src="javascript/media/mediaSubmitAdmin.js")

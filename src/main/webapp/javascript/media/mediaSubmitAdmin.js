@@ -1,5 +1,31 @@
-angular.module('appWildbook', [])
-.controller("MediaSubmissionController", function ($scope, $http, $compile) {
+angular.module('appWildbook', ["ui.bootstrap"])
+
+angular.module('appWildbook').controller('ModalZoomImageCtrl', function ($scope, $modalInstance, zoomimage) {
+    $scope.zoomimage = zoomimage;
+    $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
+    };
+  });
+
+angular.module('appWildbook').controller("MediaSubmissionController", function ($scope, $modal, $http, $compile) {
+    //
+    // See Modal section of http://angular-ui.github.io/bootstrap/ if you want to expand on this modal
+    // code. Usage here is *extremely* basic.
+    //
+    $scope.thumbZoom = function(zoomimage) {
+        var modalInstance = $modal.open({
+            animation: false,
+            templateUrl: 'zoomimage.html',
+            controller: 'ModalZoomImageCtrl',
+            size: "lg",
+            resolve: {
+                zoomimage: function () {
+                    return zoomimage;
+                }
+            }
+        });
+    };
+
     function handleError(ex) {
         alertplus.error(ex);
     }
@@ -14,13 +40,13 @@ angular.module('appWildbook', [])
                 contentType: "application/json"
             })
             .then(function() {
-                imageTable.row(row).remove().draw();
+                row.remove().draw();
             }, handleError);
         });
     };
 
     $scope.deleteSubmission = function() {
-        return alertplus.confirm('Are you sure you want to delete this <b>entire</b> submission?', "Delete Submission", true)
+        return alertplus.confirm('Are you sure you want to delete the <b>entire</b> submission?', "Delete Submission", true)
         .then(function() {
             $.ajax({
                 url: "obj/mediasubmission/delete",
@@ -31,15 +57,24 @@ angular.module('appWildbook', [])
             .then(function() {
                 $scope.$apply(function() {
                     $scope.submission = null;
+                    $scope.currentRow.remove().draw();
+                    $scope.currentRow = null;
                 })
-                $scope.currentRow.remove().draw();
-                $scope.currentRow = null;
             }, handleError);
         });
     }
 
     var msTable = $("#mstable").DataTable({
+        select: {style: "os"},
         columns: [
+                  {
+                      data: 'id',
+                      title: 'Delete',
+                      render: function(id, type, data, meta) {
+                          return '<a href="javascript:;"><i class="glyphicon glyphicon-edit"></i></a>';
+                      },
+                      width: "32px"
+                  },
                   {
                       data: 'timeSubmitted',
                       title: 'Submitted',
@@ -104,55 +139,58 @@ angular.module('appWildbook', [])
                       title: 'Image',
                       render: function(thumb) {
                           // the ../ is for now until we get actual address?
-                          return '<img width="50" src="../' + thumb + '">';
+                          return '<a href="javascript:;"><img width="50" src="..' + thumb + '"></a>';
                       }
                   }
                   ]
     });
 
     $("#imagetable").on("click", "td", function(evt) {
+        //
+        // To get row info from cell
+        //    imageTable.row(imageTable.cell(this).index().row).data();
+        //
+        // To get the number of rows in the table you can do.
+        //    imageTable.data().length
+        //
         var cell = imageTable.cell(this);
-        if (cell.index() && cell.index().column == 0) {
-            $scope.deleteImage(cell.index().row,cell.data());
+        if (!cell.index()) {
+            return;
+        }
+
+        var rowindex = cell.index().row;
+        var row = imageTable.row(rowindex);
+        switch (cell.index().column) {
+        case 0:
+            $scope.deleteImage(row, cell.data());
+            break;
+        case 1:
+            $scope.$apply(function() {
+                $scope.thumbZoom(row.data().url);
+            });
+            break;
         }
     });
 
-    //
-    // TODO: I think we have to do something like this to get the rows to highlight as
-    // we mouse over.
-    //
-//        var lastRow = null;
-//        $('#mstable tbody')
-//        .on( 'mouseover', 'tr', function () {
-//            if (lastRow = )
-//            lastRow =
-//            $(msTable.row(this)).addClass('highlight');
-//            var colIdx = msTable.cell(this).index().column;
-//
-//            if ( colIdx !== lastIdx ) {
-//                $( msTable.cells().nodes() ).removeClass( 'pageableTable-visible' );
-//                $( msTable.column( colIdx ).nodes() ).addClass( 'pageableTable-visible' );
-//            }
-//        } )
-//        .on( 'mouseleave', function () {
-//            $( msTable.cells().nodes() ).removeClass( 'pageableTable-visible' );
-//        } );
+    $("#mstable").on("click", "td", function() {
+        var cell = msTable.cell(this);
+        if (cell.index() && cell.index().column == 0) {
+            $scope.currentRow = msTable.row(cell.index().row);
+            $scope.submission = $scope.currentRow.data();
+            //
+            // This is the code if we add the click event to the <tr> element.
+            //
+            //$scope.currentRow = msTable.row(this);
 
-    $("#mstable").on("click", "tr", function() {
-        $scope.submission = msTable.row(this).data();
-        $scope.currentRow = msTable.row(this);
-
-        return $http({url:"obj/mediasubmission/photos/" + $scope.submission.id})
-        .then(function(images) {
-            imageTable.clear();
-            imageTable.rows.add(images.data).draw();
-        }, handleError);
+            return $http({url:"obj/mediasubmission/photos/" + $scope.submission.id})
+            .then(function(images) {
+                imageTable.clear();
+                imageTable.rows.add(images.data).draw();
+            }, handleError);
+        }
     });
 
     $scope.doneEditing = function() {
-        //
-        // TODO: Finishing saving any unsaved changes to the media submission?
-        //
         $scope.submission = null;
         $scope.currentRow = null;
     };
