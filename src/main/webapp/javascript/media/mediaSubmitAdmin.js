@@ -1,31 +1,6 @@
-//angular.module('appWildbook', ["ui.bootstrap", "angularGrid"])
 angular.module('appWildbook', ["angularGrid"])
-
-//angular.module('appWildbook').controller('ModalZoomImageCtrl', function ($scope, $modalInstance, zoomimage) {
-//    $scope.zoomimage = zoomimage;
-//    $scope.cancel = function () {
-//        $modalInstance.dismiss('cancel');
-//    };
-//});
-
-//angular.module('appWildbook').controller("MediaSubmissionController", function ($scope, $modal, $http, $compile) {
 angular.module('appWildbook').controller("MediaSubmissionController", function ($scope, $http, $compile) {
-    //
-    // See Modal section of http://angular-ui.github.io/bootstrap/ if you want to expand on this modal
-    // code. Usage here is *extremely* basic.
-    //
     $scope.viewImage = function(url) {
-//        var modalInstance = $modal.open({
-//            animation: false,
-//            templateUrl: 'zoomimage.html',
-//            controller: 'ModalZoomImageCtrl',
-//            size: "lg",
-//            resolve: {
-//                zoomimage: function () {
-//                    return url;
-//                }
-//            }
-//        });
         $scope.zoomimage = url;
     }
 

@@ -17,14 +17,7 @@ div(ng-controller="MediaSubmissionController")
             .col-md-10
                 img.ng-cloak(src="{{zoomimage}}", ng-show="zoomimage", style="max-height: 100%; max-width: 100%;")
 
-script(type="text/ng-template", id="zoomimage.html")
-    .modal-body
-        img(src="{{zoomimage}}", style="max-height: 100%; max-width: 100%;")
-    .modal-footer
-        button.btn.btn-primary(ng-click="cancel()") Close
-
 script(src="bcomponents/angular/angular.js")
-script(src="bcomponents/angular-bootstrap/ui-bootstrap-tpls.js")
 script(src="bcomponents/moment/moment.js")
 script(src="bcomponents/ag-grid/angular-grid.min.js")
 script(src="javascript/media/mediaSubmitAdmin.js")
