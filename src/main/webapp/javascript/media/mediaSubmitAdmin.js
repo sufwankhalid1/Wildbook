@@ -1,29 +1,32 @@
-angular.module('appWildbook', ["ui.bootstrap", "angularGrid"])
+//angular.module('appWildbook', ["ui.bootstrap", "angularGrid"])
+angular.module('appWildbook', ["angularGrid"])
 
-angular.module('appWildbook').controller('ModalZoomImageCtrl', function ($scope, $modalInstance, zoomimage) {
-    $scope.zoomimage = zoomimage;
-    $scope.cancel = function () {
-        $modalInstance.dismiss('cancel');
-    };
-  });
+//angular.module('appWildbook').controller('ModalZoomImageCtrl', function ($scope, $modalInstance, zoomimage) {
+//    $scope.zoomimage = zoomimage;
+//    $scope.cancel = function () {
+//        $modalInstance.dismiss('cancel');
+//    };
+//});
 
-angular.module('appWildbook').controller("MediaSubmissionController", function ($scope, $modal, $http, $compile) {
+//angular.module('appWildbook').controller("MediaSubmissionController", function ($scope, $modal, $http, $compile) {
+angular.module('appWildbook').controller("MediaSubmissionController", function ($scope, $http, $compile) {
     //
     // See Modal section of http://angular-ui.github.io/bootstrap/ if you want to expand on this modal
     // code. Usage here is *extremely* basic.
     //
     $scope.viewImage = function(url) {
-        var modalInstance = $modal.open({
-            animation: false,
-            templateUrl: 'zoomimage.html',
-            controller: 'ModalZoomImageCtrl',
-            size: "lg",
-            resolve: {
-                zoomimage: function () {
-                    return url;
-                }
-            }
-        });
+//        var modalInstance = $modal.open({
+//            animation: false,
+//            templateUrl: 'zoomimage.html',
+//            controller: 'ModalZoomImageCtrl',
+//            size: "lg",
+//            resolve: {
+//                zoomimage: function () {
+//                    return url;
+//                }
+//            }
+//        });
+        $scope.zoomimage = url;
     }
 
     function handleError(ex) {
@@ -33,6 +36,13 @@ angular.module('appWildbook').controller("MediaSubmissionController", function (
     function deleteRows(gridOptions, filter) {
         gridOptions.rowData = gridOptions.rowData.filter(filter);
         gridOptions.api.onNewRows();
+    }
+
+    $scope.sendForID = function(id) {
+        //
+        // TODO: Send photo to service and update row to show this somehow.
+        //
+        alertplus.alert("TODO: Send photo [" + id + "] to ID service.");
     }
 
     $scope.deleteImage = function(id) {
@@ -88,9 +98,9 @@ angular.module('appWildbook').controller("MediaSubmissionController", function (
         columnDefs:
             [
              {
-                 headerName: "Edit",
+                 headerName: "",
                  field: "id",
-                 width: 32,
+                 width: 24,
                  template: '<a href="javascript:;" ng-click="editSubmission(data)"><i class="glyphicon glyphicon-edit"></i></a>'
              },
              {
@@ -126,14 +136,21 @@ angular.module('appWildbook').controller("MediaSubmissionController", function (
             [
              {
                  field: 'id',
-                 headerName: 'Delete',
+                 headerName: '',
                  template: '<a href="javascript:;" ng-click="deleteImage(data.id)"><i class="glyphicon glyphicon-trash"></i></a>',
-                 width: 32
+                 width: 24
+             },
+             {
+                 field: 'id',
+                 headerName: '',
+                 template: '<a href="javascript:;" ng-click="sendForID(data.id)"><i class="glyphicon glyphicon-send"></i></a>',
+                 width: 24
              },
              {
                  field: 'thumbUrl',
                  headerName: 'Image',
-                 template: '<a href="javascript:;" ng-click="viewImage(data.url)"><img width="50px" src="..{{data.thumbUrl}}"></a>'
+                 template: '<a href="javascript:;" ng-click="viewImage(data.url)"><img width="50px" src="..{{data.thumbUrl}}"></a>',
+                 width: 60
              }
              ],
              rowData: null,
