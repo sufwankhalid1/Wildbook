@@ -12,7 +12,7 @@ angular.module('appWildbook').controller("MediaSubmissionController", function (
     // See Modal section of http://angular-ui.github.io/bootstrap/ if you want to expand on this modal
     // code. Usage here is *extremely* basic.
     //
-    $scope.thumbZoom = function(zoomimage) {
+    function thumbZoom(zoomimage) {
         var modalInstance = $modal.open({
             animation: false,
             templateUrl: 'zoomimage.html',
@@ -24,13 +24,13 @@ angular.module('appWildbook').controller("MediaSubmissionController", function (
                 }
             }
         });
-    };
+    }
 
     function handleError(ex) {
         alertplus.error(ex);
     }
 
-    $scope.deleteImage = function(row, id) {
+    function deleteImage(row, id) {
         return alertplus.confirm('Are you sure you want to delete this image?', "Delete Image", true)
         .then(function() {
             $.ajax({
@@ -43,7 +43,7 @@ angular.module('appWildbook').controller("MediaSubmissionController", function (
                 row.remove().draw();
             }, handleError);
         });
-    };
+    }
 
     $scope.deleteSubmission = function() {
         return alertplus.confirm('Are you sure you want to delete the <b>entire</b> submission?', "Delete Submission", true)
@@ -69,7 +69,7 @@ angular.module('appWildbook').controller("MediaSubmissionController", function (
         columns: [
                   {
                       data: 'id',
-                      title: 'Delete',
+                      title: 'Edit',
                       render: function(id, type, data, meta) {
                           return '<a href="javascript:;"><i class="glyphicon glyphicon-edit"></i></a>';
                       },
@@ -162,12 +162,10 @@ angular.module('appWildbook').controller("MediaSubmissionController", function (
         var row = imageTable.row(rowindex);
         switch (cell.index().column) {
         case 0:
-            $scope.deleteImage(row, cell.data());
+            deleteImage(row, cell.data());
             break;
         case 1:
-            $scope.$apply(function() {
-                $scope.thumbZoom(row.data().url);
-            });
+            thumbZoom(row.data().url);
             break;
         }
     });
