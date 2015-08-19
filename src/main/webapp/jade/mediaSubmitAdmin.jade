@@ -15,7 +15,7 @@ div(ng-controller="MediaSubmissionController")
             .col-md-2
                 .ag-fresh(ag-grid="imageGridOptions", style="height: 400px;")
             .col-md-10
-                img.ng-cloak(src="{{zoomimage}}", ng-show="zoomimage", style="max-height: 100%; max-width: 100%;")
+                img.ng-cloak(ng-src="{{zoomimage}}", ng-show="zoomimage", style="max-height: 100%; max-width: 100%;")
 
 script(src="bcomponents/angular/angular.js")
 script(src="bcomponents/moment/moment.js")
