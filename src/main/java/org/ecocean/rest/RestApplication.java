@@ -39,9 +39,10 @@ public class RestApplication extends SpringBootServletInitializer {
     @Override
     public void onStartup(final ServletContext servletContext) throws ServletException
     {
+        //
+        // WARN: DO NOT REMOVE THIS LINE
+        //
         super.onStartup(servletContext);
-
-        ConnectionInfo connectionInfo = ShepherdPMF.getConnectionInfo();
 
         //
         // Uses default location of db/migration on classpath. You will find it in the src/main/resources folder.
@@ -50,6 +51,7 @@ public class RestApplication extends SpringBootServletInitializer {
         // databases and allows me to get other developers sql patches even if I've applied a newer one myself
         // locally. In production, everything should be fine.
         //
+        ConnectionInfo connectionInfo = ShepherdPMF.getConnectionInfo();
         Flyway flyway = new Flyway();
         flyway.setOutOfOrder(true);
         flyway.setSqlMigrationPrefix("");
