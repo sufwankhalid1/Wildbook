@@ -443,6 +443,12 @@
         <version>0.4.3</version>
     </dependency>
     
+    <dependency>
+        <groupId>org.flywaydb</groupId>
+        <artifactId>flyway-core</artifactId>
+        <version>3.2.1</version>
+    </dependency>
+    
     <!-- This next runtime dependency is only necessary if you have
          a REST API and you want to secure it with OAuth: -->
     <!--
