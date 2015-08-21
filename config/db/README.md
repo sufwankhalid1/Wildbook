@@ -1,78 +1,62 @@
-How to set up the database
-==========================
+#How to set up the database
 
 Assumes Postgres for the examples.
 
-
-Create a db user to own and access the database
------------------------------------------------
+##Create a db user to own and access the database
 
 As postgres user:
 
-`$ createuser -dP shepherd`
+    createuser -dP shepherd
 
 
-Create database
----------------
+##Create database
 
-Still undecided if we want separate dev/prod/test dbs.
 Create what you need:
 
 As postgres user:
 
-`$ createdb -O shepherd wildbook`
+    createdb -O shepherd wildbook
 
 Test as you:
 
-`$ psql -U shepherd -h localhost -p 5432 wildbook`
+    psql -U shepherd -h localhost -p 5432 wildbook
 
 (`~/.pgpass` makes life nicer)
 
 
-Create tables
--------------
-
-(Hopefully obsolete)
-
-As you, for each db:
-
-`$ for f tables/*.sql; psql -U shepherd -h localhost -p 5432 wildbook < $f`
-
-
-Set up db migration properties
-------------------------------
+##Set up db migration properties
 
 Use the example as a guide:
 
-`$ cp flyway.conf{.example,}`
+    cp config/db/flyway.conf.example <private place>/flyway.conf
 
-`$ $EDITOR flyway.conf`
-
-Make other config files if you have multiple databases.
+And edit it to put in appropriate values. Make other config files if you have multiple databases.
 
 
-Run migrations to bring db up to date
--------------------------------------
+##Run migrations to bring db up to date
 
 Install flyway [commandline version](http://flywaydb.org/documentation/commandline/)
 
-From config/db:
+For the following commands you can skip the -configFile property if you run flyway from the same directory as the config file AND it's named flyway.conf.
 
-`$ flyway info`
+You may have to baseline your db first. This should only be true for this transition period for our development dbs. Once those are up-to-date this command should not be needed by any others. But for those run ...
 
-`$ flyway migrate`
+    flyway -configFile=<path_to_configfile> -baselineVersion=2015.05.14.10.03.01 baseline
 
-If using a secondary db, you'll need to specify an alternate config file
-like so:
+To run the migration and bring your db up to the current level...
 
-`$ flyway -configFile=flyway_test.conf info`
+    flyway --configFile=<path_to_configfile> migrate
 
+To get the record of installed patches you can do
 
-Set application properties
---------------------------
+    flyway --configFile=<path_to_configfile> info
+
+which just shows the results of the `schema_version` table that flyway installed on your db.
+
+##Set application properties
 
 Use the example as a guide:
 
-`$ cp src/main/resources/bundles/s6db.properties{.example,}`
+    cp src/main/resources/bundles/s6db.properties{.example,}
 
-`$ $EDITOR src/main/resources/bundles/s6db.properties`
+    $EDITOR src/main/resources/bundles/s6db.properties
