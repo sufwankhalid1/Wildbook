@@ -53,6 +53,16 @@ To get the record of installed patches you can do
 
 which just shows the results of the `schema_version` table that flyway installed on your db.
 
+##Creating new migration
+
+There is a script in the root of wildbook called `makesqlpatch` which should be run as follows ...
+    
+    ./makesqlpatch -m "brief message"
+    
+...and this will create a file in `src/main/resources/db/migration` of the format `YY.MM.DD.hh.mm.ss__brief_message.sql`
+
+This will be your new file to use. The script will both echo the name (and path) to the console so you can just copy it, also it will try and open it with the `open` command (which might not work on your system).
+
 ##Set application properties
 
 Use the example as a guide:
