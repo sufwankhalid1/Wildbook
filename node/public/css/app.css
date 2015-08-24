@@ -183,7 +183,7 @@ h1, h2, h3, h4, h5, h6, p, div {
   text-align: center;
   background: center center no-repeat;
   color: #96a1a5;
-  fonts-size: 12px;
+  font-size: 12px;
   border: 2px dashed #8dcbce; }
 
 .avatar img {
