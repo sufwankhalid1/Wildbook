@@ -16,6 +16,10 @@ module.exports = function(grunt) {
     },
     concat_css: {
       dist: {
+        options: {
+          assetBaseUrl: '',
+          baseDir: 'public',
+        },
         src: ['public/vendor/leaflet/leaflet.css',
              'public/vendor/leaflet.markercluster/MarkerCluster.css',
              'public/bcomponents/Leaflet.EasyButton/easy-button.css',
