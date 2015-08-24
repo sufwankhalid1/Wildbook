@@ -4,13 +4,18 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-concat-css');
 
-  
+  /*
+  * Deploy from a different cust scss:
+  * $ grunt sass -target='<custName>'
+  */
+  var target = grunt.option('target') || 'happywhale';
+
   grunt.initConfig({
     sass: {
       dist: {
         files: {
           'public/css/app.css': 'public/scss/app.scss',
-          'public/cust/css/cust.css': 'public/cust/scss/cust.scss'
+          'public/cust/css/cust.css': 'cust/' + target + '/public/scss/cust.scss'
         },
       },
     },
