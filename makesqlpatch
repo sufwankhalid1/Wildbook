@@ -1,0 +1,27 @@
+#!/bin/bash
+
+message=""
+
+while [[ $# > 0 ]]
+do
+    key="$1"
+    case $key in
+        -m)
+        shift
+        message=$1
+        message="__${message// /_}"
+        ;;
+        *)
+        # unknown option
+        ;;
+    esac
+    shift
+done
+
+DATE=`date +%Y.%m.%d.%H.%M.%S`
+
+file=src/main/resources/db/migration/${DATE}${message}.sql
+touch ${file}
+echo ${file}
+open ${file}
+

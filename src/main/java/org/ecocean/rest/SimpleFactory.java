@@ -1,10 +1,12 @@
 package org.ecocean.rest;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.ecocean.Point;
 import org.ecocean.ShepherdPMF;
 import org.ecocean.SinglePhotoVideo;
@@ -67,7 +69,7 @@ public class SimpleFactory {
         //
         // Add photos
         //
-       try (Database db = new Database(ShepherdPMF.getConnectionInfo())) {
+        try (Database db = new Database(ShepherdPMF.getConnectionInfo())) {
             String sqlRoot = "SELECT spv.* FROM \"SINGLEPHOTOVIDEO\" spv"
                     + " INNER JOIN \"ENCOUNTER_IMAGES\" ei ON spv.\"DATACOLLECTIONEVENTID\" = ei.\"DATACOLLECTIONEVENTID_EID\""
                     + " INNER JOIN \"MARKEDINDIVIDUAL_ENCOUNTERS\" mie ON mie.\"CATALOGNUMBER_EID\" = ei.\"CATALOGNUMBER_OID\"";
@@ -86,8 +88,7 @@ public class SimpleFactory {
 
             rs = db.getRecordSet(sql);
             while (rs.next()) {
-//                photos.add(getPhoto(context, readPhoto(rs)));
-                photos.add(getPhoto(context, rs));
+                photos.add(readPhoto(context, rs));
             }
 
             //
@@ -105,7 +106,7 @@ public class SimpleFactory {
                         break;
                     }
 
-                    SimplePhoto photo = getPhoto(context, rs);
+                    SimplePhoto photo = readPhoto(context, rs);
 
                     boolean addphoto = true;
                     for (SimplePhoto foto : photos) {
@@ -194,7 +195,7 @@ public class SimpleFactory {
                     + whereRoot;
             rs = db.getRecordSet(sql);
             while (rs.next()) {
-                userinfo.addPhoto(getPhoto(context, rs));
+                userinfo.addPhoto(readPhoto(context, rs));
             }
 
             //
@@ -207,7 +208,7 @@ public class SimpleFactory {
 
             rs = db.getRecordSet(sql);
             while (rs.next()) {
-                userinfo.addPhoto(getPhoto(context, rs));
+                userinfo.addPhoto(readPhoto(context, rs));
             }
 
             //
@@ -226,7 +227,7 @@ public class SimpleFactory {
                         break;
                     }
 
-                    userinfo.addPhoto(getPhoto(context, rs));
+                    userinfo.addPhoto(readPhoto(context, rs));
                 }
             }
 
@@ -296,11 +297,7 @@ public class SimpleFactory {
         SimpleIndividual ind = new SimpleIndividual(id, rs.getString("NICKNAME"));
         ind.setSex(rs.getString("SEX"));
 
-//        SinglePhotoVideo spv = readPhoto(rs);
-//        if (spv != null) {
-//            ind.setAvatar(spv.asUrl(context));
-//        }
-        SimplePhoto photo = getPhoto(context, rs);
+        SimplePhoto photo = readPhoto(context, rs);
         if (photo != null) {
             ind.setAvatar(photo.getUrl());
         }
@@ -413,7 +410,7 @@ public class SimpleFactory {
         encounter.setLongitude(rs.getDoubleObj("DECIMALLONGITUDE"));
         encounter.setVerbatimLocation(rs.getString("VERBATIMLOCALITY"));
 
-        encounter.setSubmitter(getUser(rs));
+        encounter.setSubmitter(readUser(rs));
         encounter.setIndividual(individual);
 
         return encounter;
@@ -424,23 +421,6 @@ public class SimpleFactory {
     {
         return readSimpleEncounter(readSimpleIndividual(context, rs), rs);
     }
-
-
-//    private static SinglePhotoVideo readPhoto(final RecordSet rs) throws DatabaseException
-//    {
-//        //
-//        // TODO: Add Keywords
-//        //
-//        SinglePhotoVideo spv = new SinglePhotoVideo();
-//        spv.setDataCollectionEventID(rs.getString("DATACOLLECTIONEVENTID"));
-//        spv.setCopyrightOwner(rs.getString("COPYRIGHTOWNER"));
-//        spv.setCopyrightStatement(rs.getString("COPYRIGHTSTATEMENT"));
-//        spv.setFilename(rs.getString("FILENAME"));
-//        spv.setFullFileSystemPath(rs.getString("FULLFILESYSTEMPATH"));
-//        spv.setSubmitter(rs.getString("SUBMITTER"));
-//
-//        return spv;
-//    }
 
 
 //    public static SimpleUser getUser(final String context, final String configDir, final String username) throws DatabaseException
@@ -470,15 +450,30 @@ public class SimpleFactory {
 //        return se;
 //    }
 
+    public static String getThumbnail(final String url) {
+        return getScaledImage(url, MediaUploadServlet.THUMB_DIR);
+    }
+
+    public static String getMidsizeFile(final String url) {
+        return getScaledImage(url, MediaUploadServlet.MID_DIR);
+    }
+
+    private static String getScaledImage(final String url, final String subdir) {
+        int index = url.lastIndexOf( File.separatorChar );
+        return url.substring(0, index) + "/" + subdir + url.substring(index);
+    }
+
 
     public static SimplePhoto getPhoto(final String context,
                                        final SinglePhotoVideo spv)
     {
-        return new SimplePhoto(spv.getDataCollectionEventID(), spv.asUrl(context));
+        String url = spv.asUrl(context);
+
+        return new SimplePhoto(spv.getDataCollectionEventID(), url, getThumbnail(url));
     }
 
 
-    public static SimplePhoto getPhoto(final String context, final RecordSet rs) throws DatabaseException
+    public static SimplePhoto readPhoto(final String context, final RecordSet rs) throws DatabaseException
     {
         String id = rs.getString("DATACOLLECTIONEVENTID");
         if (id == null) {
@@ -486,8 +481,7 @@ public class SimpleFactory {
         }
 
         String url = SinglePhotoVideo.getUrl(context, rs.getString("FULLFILESYSTEMPATH"), rs.getString("FILENAME"));
-        return new SimplePhoto(id, url);
-
+        return new SimplePhoto(id, url, getThumbnail(url));
     }
 
 
@@ -517,7 +511,7 @@ public class SimpleFactory {
             RecordSet rs;
             rs = db.getRecordSet(sql);
             if (rs.next()) {
-                return getUser(rs);
+                return readUser(rs);
             }
 
             return null;
@@ -525,10 +519,10 @@ public class SimpleFactory {
     }
 
 
-    private static SimpleUser getUser(final RecordSet rs) throws DatabaseException
+    public static SimpleUser readUser(final RecordSet rs) throws DatabaseException
     {
         String username = rs.getString("USERNAME");
-        if (username == null) {
+        if (StringUtils.isBlank(username)) {
             return null;
         }
 
@@ -547,7 +541,7 @@ public class SimpleFactory {
     }
 
 
-    public static SimpleBeing getStormpathUser(final Account user)
+    public static SimpleUser getStormpathUser(final Account user)
     {
         SimpleUser su = new SimpleUser(user.getUsername(), user.getEmail());
 

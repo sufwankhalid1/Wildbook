@@ -1,5 +1,6 @@
 package org.ecocean.rest;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -8,6 +9,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang3.StringUtils;
 import org.ecocean.CommonConfiguration;
 import org.ecocean.MailThreadExecutorService;
 import org.ecocean.NotificationMailer;
@@ -15,7 +17,6 @@ import org.ecocean.Shepherd;
 import org.ecocean.ShepherdPMF;
 import org.ecocean.SinglePhotoVideo;
 import org.ecocean.User;
-import org.ecocean.Util;
 import org.ecocean.media.MediaSubmission;
 import org.ecocean.servlet.ServletUtilities;
 import org.slf4j.Logger;
@@ -40,6 +41,8 @@ import com.samsix.database.SqlInsertFormatter;
 import com.samsix.database.SqlUpdateFormatter;
 import com.samsix.database.SqlWhereFormatter;
 import com.samsix.database.Table;
+import com.samsix.util.OsUtils;
+import com.samsix.util.string.StringUtilities;
 
 @RestController
 @RequestMapping(value = "/obj/mediasubmission")
@@ -83,7 +86,9 @@ public class MediaSubmissionController
         formatter.append("starttime", media.getStartTime());
         formatter.append("submissionid", media.getSubmissionid());
         formatter.append("timesubmitted", media.getTimeSubmitted());
-        formatter.append("username", media.getUsername());
+        if (media.getUser() != null) {
+            formatter.append("username", media.getUser().getUsername());
+        }
         formatter.append("verbatimlocation", media.getVerbatimLocation());
         formatter.append("status", media.getStatus());
     }
@@ -95,7 +100,7 @@ public class MediaSubmissionController
 
         try (Database db = new Database(ci)) {
             SqlWhereFormatter where = new SqlWhereFormatter();
-            where.append("id", mediaid);
+            where.append("ms.id", mediaid);
             List<MediaSubmission> mss = get(db, where);
 
             if (mss.size()==0) {
@@ -113,15 +118,7 @@ public class MediaSubmissionController
             RecordSet rs = db.getRecordSet(sql);
             List<SinglePhotoVideo> spvs = new ArrayList<SinglePhotoVideo>();
             while (rs.next()) {
-                SinglePhotoVideo media = new SinglePhotoVideo();
-                media.setDataCollectionEventID(rs.getString("DATACOLLECTIONEVENTID"));
-                media.setCopyrightOwner(rs.getString("COPYRIGHTOWNER"));
-                media.setCopyrightStatement(rs.getString("COPYRIGHTSTATEMENT"));
-                media.setCorrespondingStoryID(rs.getString("CORRESPONDINGSTORYID"));
-                media.setCorrespondingUsername(rs.getString("CORRESPONDINGUSERNAME"));
-                media.setFilename(rs.getString("FILENAME"));
-                media.setFullFileSystemPath(rs.getString("FULLFILESYSTEMPATH"));
-                spvs.add(media);
+                spvs.add(readPhoto(rs));
             }
             ms.setMedia(spvs);
 
@@ -130,32 +127,101 @@ public class MediaSubmissionController
     }
 
 
+    public static List<MediaSubmission> findMediaSources(final List<SinglePhotoVideo> media,
+                                                         final String context) throws DatabaseException {
+        if ((media == null) || (media.size() < 1)) return null;
+
+        String mids = media.get(0).getDataCollectionEventID();
+        for (int i = 1 ; i < media.size() ; i++) {
+            mids += "', '" + media.get(i).getDataCollectionEventID();
+        }
+
+        Long lastmsid = null;
+        List<SinglePhotoVideo> spvs = null;
+        Shepherd myShepherd = new Shepherd(context);
+        List<MediaSubmission> msList = new ArrayList<MediaSubmission>();
+        String sql = "SELECT * FROM mediasubmission ms"
+                + " LEFT OUTER JOIN \"USERS\" u on u.\"USERNAME\" = ms.username"
+                + " LEFT OUTER JOIN mediaasset ma ON ma.id = u.\"USERIMAGEID\""
+                + " LEFT OUTER JOIN mediasubmission_media msm ON (msm.mediasubmissionid = ms.id)"
+                + " WHERE msm.mediaid IN ('" + mids + "') ORDER BY id";
+        try (Database db = new Database(ShepherdPMF.getConnectionInfo())) {
+            RecordSet rs = db.getRecordSet(sql);
+            while (rs.next()) {
+                MediaSubmission ms = readMediaSubmission(rs);
+
+                if (! ms.getId().equals(lastmsid)) {
+                    lastmsid = ms.getId();
+                    msList.add(ms);
+                    spvs = new ArrayList<SinglePhotoVideo>();
+                    ms.setMedia(spvs);
+                }
+
+                SinglePhotoVideo spv = myShepherd.getSinglePhotoVideo(rs.getString("mediaid"));
+                if (spv != null) {
+                    spvs.add(spv);
+                }
+            }
+
+            return msList;
+        }
+    }
+
+
+    private static MediaSubmission readMediaSubmission(final RecordSet rs) throws DatabaseException
+    {
+        MediaSubmission ms = new MediaSubmission();
+        ms.setDescription(rs.getString("description"));
+        ms.setEmail(rs.getString("email"));
+        ms.setEndTime(rs.getLongObj("endtime"));
+        ms.setId(rs.getLong("id"));
+        ms.setLatitude(rs.getDoubleObj("latitude"));
+        ms.setLongitude(rs.getDoubleObj("longitude"));
+        ms.setName(rs.getString("name"));
+        ms.setStartTime(rs.getLongObj("starttime"));
+        ms.setSubmissionid(rs.getString("submissionid"));
+        ms.setTimeSubmitted(rs.getLongObj("timesubmitted"));
+        ms.setUser(SimpleFactory.readUser(rs));
+        ms.setVerbatimLocation(rs.getString("verbatimlocation"));
+        ms.setStatus(rs.getString("status"));
+
+        return ms;
+    }
+
+
     private List<MediaSubmission> get(final Database db,
                                       final SqlWhereFormatter where) throws DatabaseException
     {
+        String whereClause = where.getWhereClause();
         List<MediaSubmission> mss = new ArrayList<MediaSubmission>();
-        Table table = db.getTable("mediasubmission");
-        RecordSet rs = table.getRecordSet(where.getWhereClause(), "timesubmitted desc");
-        while (rs.next()) {
-            MediaSubmission ms = new MediaSubmission();
-            ms.setDescription(rs.getString("description"));
-            ms.setEmail(rs.getString("email"));
-            ms.setEndTime(rs.getLongObj("endtime"));
-            ms.setId(rs.getLong("id"));
-            ms.setLatitude(rs.getDoubleObj("latitude"));
-            ms.setLongitude(rs.getDoubleObj("longitude"));
-            ms.setName(rs.getString("name"));
-            ms.setStartTime(rs.getLongObj("starttime"));
-            ms.setSubmissionid(rs.getString("submissionid"));
-            ms.setTimeSubmitted(rs.getLongObj("timesubmitted"));
-            ms.setUsername(rs.getString("username"));
-            ms.setVerbatimLocation(rs.getString("verbatimlocation"));
-            ms.setStatus(rs.getString("status"));
+        String sql = "SELECT * FROM mediasubmission ms"
+                + " LEFT OUTER JOIN \"USERS\" u on u.\"USERNAME\" = ms.username"
+                + " LEFT OUTER JOIN mediaasset ma ON ma.id = u.\"USERIMAGEID\"";
+        if (! StringUtils.isBlank(whereClause)) {
+            sql += " WHERE " + whereClause;
+        }
+        sql += " ORDER BY timesubmitted desc";
 
-            mss.add(ms);
+        RecordSet rs = db.getRecordSet(sql);
+        while (rs.next()) {
+            mss.add(readMediaSubmission(rs));
         }
 
         return mss;
+    }
+
+
+    private static SinglePhotoVideo readPhoto(final RecordSet rs) throws DatabaseException
+    {
+        SinglePhotoVideo spv = new SinglePhotoVideo();
+        spv.setDataCollectionEventID(rs.getString("DATACOLLECTIONEVENTID"));
+        spv.setCopyrightOwner(rs.getString("COPYRIGHTOWNER"));
+        spv.setCopyrightStatement(rs.getString("COPYRIGHTSTATEMENT"));
+        spv.setFilename(rs.getString("FILENAME"));
+        spv.setFullFileSystemPath(rs.getString("FULLFILESYSTEMPATH"));
+        spv.setSubmitter(rs.getString("SUBMITTER"));
+
+        return spv;
     }
 
 
@@ -165,6 +231,32 @@ public class MediaSubmissionController
 //    public UserController(final UserService userService) {
 //        this.userService = userService;
 //    }
+
+
+
+    @RequestMapping(value = "/photos/{submissionid}", method = RequestMethod.GET)
+    public static List<SimplePhoto> getPhotos(final HttpServletRequest request,
+                                              @PathVariable("submissionid")
+                                              final String submissionid) throws DatabaseException
+    {
+        String context = ServletUtilities.getContext(request);
+
+        //
+        // Add photos
+        //
+        try (Database db = new Database(ShepherdPMF.getConnectionInfo())) {
+            String sql = "SELECT spv.* FROM mediasubmission_media m"
+                    + " INNER JOIN \"SINGLEPHOTOVIDEO\" spv ON spv.\"DATACOLLECTIONEVENTID\" = m.mediaid"
+                    + " WHERE m.mediasubmissionid = " + submissionid;
+            RecordSet rs = db.getRecordSet(sql);
+            List<SimplePhoto> photos = new ArrayList<SimplePhoto>();
+            while (rs.next()) {
+                photos.add(SimpleFactory.readPhoto(context, rs));
+            }
+
+            return photos;
+        }
+    }
 
 
     @RequestMapping(value = "/get/id/{mediaid}", method = RequestMethod.GET)
@@ -191,20 +283,14 @@ public class MediaSubmissionController
                                            final String status)
         throws DatabaseException
     {
-        ConnectionInfo ci = ShepherdPMF.getConnectionInfo();
-
-        Database db = new Database(ci);
-
-        try {
+        try (Database db = new Database(ShepherdPMF.getConnectionInfo())) {
             SqlWhereFormatter where = new SqlWhereFormatter();
             // * will mean get all, so we just have an empty where formatter
             // we want all other values, included null, to pass to the append method
             if (! "*".equals(status)) {
-                where.append("status", status);
+                where.append("ms.status", status);
             }
             return get(db, where);
-        } finally {
-            db.release();
         }
     }
 
@@ -212,69 +298,164 @@ public class MediaSubmissionController
     public List<MediaSubmission> getSources(final HttpServletRequest request,
                                             @PathVariable("id") final int id) throws DatabaseException {
         if (id < 1) return null;
-        ConnectionInfo ci = ShepherdPMF.getConnectionInfo();
-        Database db = new Database(ci);
-        String sql = "SELECT \"DATACOLLECTIONEVENTID_EID\" AS mid FROM \"SURVEYTRACK_MEDIA\" WHERE \"ID_OID\"=" + id;
-System.out.println(sql);
-        RecordSet rs = db.getRecordSet(sql);
-        List<SinglePhotoVideo> media = new ArrayList<SinglePhotoVideo>();
-        while (rs.next()) {
-            SinglePhotoVideo spv = new SinglePhotoVideo();
-            spv.setDataCollectionEventID(rs.getString("mid"));
-            media.add(spv);
+
+        try (Database db = new Database(ShepherdPMF.getConnectionInfo())) {
+            String sql = "SELECT \"DATACOLLECTIONEVENTID_EID\" AS mid FROM \"SURVEYTRACK_MEDIA\" WHERE \"ID_OID\"=" + id;
+            RecordSet rs = db.getRecordSet(sql);
+            List<SinglePhotoVideo> media = new ArrayList<SinglePhotoVideo>();
+            while (rs.next()) {
+                SinglePhotoVideo spv = new SinglePhotoVideo();
+                spv.setDataCollectionEventID(rs.getString("mid"));
+                media.add(spv);
+            }
+
+            return findMediaSources(media, ServletUtilities.getContext(request));
         }
-        db.release();
-        String context = "context0";
-        context = ServletUtilities.getContext(request);
-        return MediaSubmission.findMediaSources(media, context);
     }
 
     @RequestMapping(value = "/get/sources", method = RequestMethod.POST)
     public List<MediaSubmission> getSources(final HttpServletRequest request,
                                             @RequestBody final List<SinglePhotoVideo> media) throws DatabaseException {
-        String context = "context0";
-        context = ServletUtilities.getContext(request);
-        return MediaSubmission.findMediaSources(media, context);
+        return findMediaSources(media, ServletUtilities.getContext(request));
+    }
+
+
+    @RequestMapping(value = "/deletemedia", method = RequestMethod.POST)
+    public void deleteMedia(@RequestBody final MSMEntry msm)
+        throws DatabaseException
+    {
+        try (Database db = ShepherdPMF.getDb()) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Deleting mediaid [" + msm.mediaid + "] from submission [" + msm.submissionid + "]");
+            }
+
+            String sql = "SELECT * FROM \"SINGLEPHOTOVIDEO\" WHERE \"DATACOLLECTIONEVENTID\" = "
+                    + StringUtilities.wrapQuotes(msm.mediaid);
+            RecordSet rs = db.getRecordSet(sql);
+            SinglePhotoVideo spv;
+            if (rs.next()) {
+                spv = readPhoto(rs);
+            } else {
+                throw new IllegalArgumentException("No media with id [" + msm.mediaid + "] found.");
+            }
+
+            Table table = db.getTable("mediasubmission_media");
+            String where = "mediasubmissionid = "
+                    + msm.submissionid
+                    + " AND mediaid = "
+                    + StringUtilities.wrapQuotes(msm.mediaid);
+            table.deleteRows(where);
+
+            deleteFiles(spv);
+        }
+    }
+
+
+    private void deleteFiles(final SinglePhotoVideo spv)
+    {
+        //
+        // Delete all the appropriate files from the disk.
+        //
+        OsUtils.delete(spv.getFile());
+        OsUtils.delete(new File(SimpleFactory.getThumbnail(spv.getFullFileSystemPath())));
+        OsUtils.delete(new File(SimpleFactory.getMidsizeFile(spv.getFullFileSystemPath())));
+    }
+
+
+    @RequestMapping(value = "/delete", method = RequestMethod.POST)
+    public void deleteSubmission(@RequestBody final MSMEntry msm)
+        throws DatabaseException
+    {
+        try (Database db = ShepherdPMF.getDb()) {
+            String mWhere = "mediasubmissionid = " + msm.submissionid;
+
+            //
+            // Read in SPV's so that we can use the info to delete the physical files.
+            //
+            String sql = "SELECT * FROM \"SINGLEPHOTOVIDEO\" spv"
+                    + " INNER JOIN mediasubmission_media msm ON msm.mediaid = spv.\"DATACOLLECTIONEVENTID\""
+                    + " WHERE " + mWhere;
+            List<SinglePhotoVideo> spvs = new ArrayList<SinglePhotoVideo>();
+            RecordSet rs = db.getRecordSet(sql);
+            while (rs.next()) {
+                spvs.add(readPhoto(rs));
+            }
+
+            db.beginTransaction();
+
+            //
+            // Delete all the SPVs
+            //
+            sql = "DELETE FROM \"SINGLEPHOTOVIDEO\" spv"
+                    + " USING mediasubmission_media msm WHERE msm.mediaid = spv.\"DATACOLLECTIONEVENTID\""
+                    + " AND msm." + mWhere;
+            db.execute(sql);
+
+            //
+            // Delete all the joins
+            //
+            Table table = db.getTable("mediasubmission_media");
+            table.deleteRows(mWhere);
+
+            //
+            // Delete the media submission itself.
+            //
+            table = db.getTable("mediasubmission");
+            table.deleteRows("id = " + msm.submissionid);
+
+            db.commitTransaction();
+
+            //
+            // Finally actually delete all the physical files.
+            //
+            for (SinglePhotoVideo spv : spvs) {
+                deleteFiles(spv);
+            }
+
+            //
+            // Now delete the empty directories.
+            //
+            if (spvs.size() > 0) {
+                SinglePhotoVideo spv = spvs.get(0);
+
+                File parentDir = spv.getFile().getParentFile();
+                OsUtils.delete(new File(parentDir, MediaUploadServlet.THUMB_DIR));
+                OsUtils.delete(new File(parentDir, MediaUploadServlet.MID_DIR));
+                OsUtils.delete(parentDir);
+            }
+
+        }
     }
 
 
     @RequestMapping(value = "/complete", method = RequestMethod.POST)
     public void complete(final HttpServletRequest request,
-                         final MediaSubmission media)
+                         @RequestBody final MediaSubmission media)
         throws DatabaseException
     {
-        ConnectionInfo ci = ShepherdPMF.getConnectionInfo();
-
-        Database db = new Database(ci);
-
-        try {
+        try (Database db = ShepherdPMF.getDb()) {
             save(db, media);
-        } catch (DatabaseException ex) {
-            throw ex;
-        } finally {
-            db.release();
         }
 
         String context = ServletUtilities.getContext(request);
-//        String userstr;
 
         String email;
-        String uname = media.getUsername();
-        if (!Util.isEmpty(uname)) {
-            User user = new Shepherd(context).getUser(uname);
-            if (user != null) {
-                email = user.getEmailAddress();
-//                userstr = user.getFullName() + " (" + media.getUsername() + ") <" + email + ">";
-            } else {
-                if (logger.isDebugEnabled()) logger.debug("curious: unable to load a User for username=" + uname);
+        SimpleUser user = media.getUser();
+        if (user != null) {
+            User theUser = new Shepherd(context).getUser(user.getUsername());
+            if (theUser == null) {
+                logger.warn("curious: unable to load a User for username=" + user.getUsername());
                 email = null;
-//                userstr = media.getUsername();
+            } else {
+                email = theUser.getEmailAddress();
             }
         } else {
             email = media.getEmail();
-//            userstr = media.getName() + " <" + email + ">";
         }
-        if (logger.isDebugEnabled()) logger.debug("sending thankyou email to:" + email);
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("sending thankyou email to:" + email);
+        }
 
         //get the email thread handler
         ThreadPoolExecutor es = MailThreadExecutorService.getExecutorService();
@@ -323,9 +504,9 @@ System.out.println(sql);
         MediaUploadServlet.clearFileSet(request.getSession(), media.getSubmissionid());
     }
 
+
     @RequestMapping(value = "/save", method = RequestMethod.POST)
-    public Long save(final HttpServletRequest request,
-                     final MediaSubmission media)
+    public Long save(@RequestBody final MediaSubmission media)
         throws DatabaseException
     {
         if (logger.isDebugEnabled()) {
@@ -544,6 +725,13 @@ System.out.println(sql);
         }
 
         return data;
+    }
+
+
+    public static class MSMEntry
+    {
+        public int submissionid;
+        public String mediaid;
     }
 
     public static class ExifItem

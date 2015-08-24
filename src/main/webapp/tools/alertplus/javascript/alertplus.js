@@ -1,5 +1,5 @@
 /*!
- * AlertPlus v0.1.5 (https://github.com/crowmagnumb/alertplus)
+ * AlertPlus v0.1.8 (https://github.com/crowmagnumb/alertplus)
  * Copyright 2015 CrowMagnumb
  * Licensed under MIT (https://github.com/crowmagnumb/alertplus/blob/master/LICENSE)
  */
@@ -33,62 +33,168 @@ var alertplus = (function () {
               .append(messageArea)
               .append(detailsButton)
               .append(detailsContainer).appendTo(content);
+    var okButton = $("<button>").addClass("btn")
+        .addClass("btn-primary")
+        .attr("data-dismiss", "modal")
+        .attr("type", "button")
+        .text("OK");
+    
+    var cancelButton = $("<button>").addClass("btn")
+        .addClass("cancel")
+        .attr("data-dismiss", "modal")
+        .attr("type", "button")
+        .text("Cancel");
+    
     $("<div>").addClass("modal-footer")
-         .append($("<button>").addClass("btn")
-                              .addClass("btn-primary")
-                              .attr("data-dismiss", "modal")
-                              .attr("type", "button")
-                              .text("OK"))
-          .appendTo(content);
-
+        .append(cancelButton)
+        .append(okButton)
+        .appendTo(content);
 
     detailsButton.button();
-    detailsButton.click( function(evt) {
+    detailsButton.click(function(evt) {
         detailsContainer.toggle();
         leftChev.toggle();
         rightChev.toggle();
-    } );
-
-    function showAlert(message, details, title, dialogClass) {
+    });
+    
+    //
+    // In case we used the confirm method followed by the alert method in immediate
+    // succession we need to pause for a split second to let the bootstrap take care of
+    // hiding the dialog properly so that we can use it again. Without this we can get stuck
+    // in an unusable state. Empirically I found that 500 milliseconds seems to be enough time
+    // while 300 milliseconds does not. Soooo, hopefully this works across OS'es, across browsers, etc.
+    //
+    var lastClick = 0;
+    var PAUSE_TIME = 500;
+    function maybeWait() {
+        var elapsed = (new Date()) - lastClick;
+        if (elapsed < PAUSE_TIME) {
+            return $.Deferred(function(dfd) {
+                setTimeout(dfd.resolve, PAUSE_TIME - elapsed);
+            });
+        } else {
+            return (new $.Deferred).resolve();
+        }
+    }
+    
+    function reset() {
         //
         // Remove all possible other classes that could have been applied.
         //
+        titleDiv.removeClass("alert-warning");
         titleDiv.removeClass("alert-danger");
         titleDiv.removeClass("alert-info");
-
-        leftChev.hide();
-        rightChev.show();
-
-        //
-        // Now add in the passed class.
-        //
-        if (dialogClass) {
-            titleDiv.addClass("alert-" + dialogClass);
-        } else {
-            titleDiv.addClass("alert-info");
-        }
-
-        if (details) {
-            detailsButton.show();
-        } else {
-            detailsButton.hide();
-        }
-
-        messageArea.html( message );
-        if (!title) {
-            titleDiv.text("Information");
-        } else {
-            titleDiv.text(title);
-        }
-
         detailsContainer.hide();
-        detailsContent.html(details);
+        detailsButton.hide();
+        cancelButton.hide();
+        okButton.removeClass("btn-danger");
+    }
+    
+    function showConfirm(message, title, danger) {
+        return maybeWait().then(function() {
+            reset();
+            
+            if (danger) {
+                titleDiv.addClass("alert-danger");
+                okButton.addClass("btn-danger");
+            } else {
+                titleDiv.addClass("alert-warning");
+            }
+            
+            messageArea.html( message );
+            if (!title) {
+                titleDiv.text("Confirm");
+            } else {
+                titleDiv.text(title);
+            }
+    
+            var deferred = $.Deferred();
+            okButton.click(function(evt) {
+                lastClick = new Date();
+                deferred.resolve();
+            });
+            
+            cancelButton.click(function(evt) {
+                lastClick = new Date();
+                deferred.reject();
+            });
+            
+            cancelButton.show();
+            dialog.modal('show');
+            
+            return deferred;
+        });
+    }
 
-        dialog.modal('show');
+    function showAlert(message, details, title, dialogClass) {
+        maybeWait().then(function() {
+            reset();
+            
+            //
+            // Now add in the passed class.
+            //
+            if (dialogClass) {
+                titleDiv.addClass("alert-" + dialogClass);
+            } else {
+                titleDiv.addClass("alert-info");
+            }
+
+            if (details) {
+                leftChev.hide();
+                rightChev.show();
+                detailsButton.show();
+            }
+
+            if (!title) {
+                titleDiv.text("Information");
+            } else {
+                titleDiv.text(title);
+            }
+
+            messageArea.html( message );
+            detailsContent.html(details);
+
+            dialog.modal('show');
+        })
     }
 
     function displayError(message, details) {
         showAlert(message, details, "Error", "danger");
+    }
+
+    function stripHtmlElements(message) {
+        if (message.indexOf("<html>") < 0) {
+            return message;
+        }
+
+        //
+        // Extract just <body> from it because otherwise any styles inside
+        // of the document can mess up your parent document.
+        //
+        var start = message.indexOf("<body>");
+        var end = message.indexOf("</body>");
+        if (start > 0 && end > 0) {
+            message = message.slice(start + 6, end);
+        } else {
+            message = message;
+        }
+
+        //
+        // Now remove any <style> section that might be left in the body that
+        // can mess up your main page.
+        //
+        var notDone = true;
+        while (notDone) {
+            start = message.indexOf("<style");
+            end = message.indexOf("</style>");
+            if (start > 0 && end > 0) {
+                message = message.slice(0, start) + message.slice(end + 7);
+            } else {
+                notDone = false;
+            }
+        }
+
+        return message;
     }
 
     function showError(ex) {
@@ -127,7 +233,7 @@ var alertplus = (function () {
         var rtNotEmpty = (ex.responseText && ex.responseText !== "{}");
 
         if (rtNotEmpty) {
-            displayError(ex.responseText);
+            displayError(stripHtmlElements(ex.responseText));
             return;
         }
 
@@ -142,30 +248,12 @@ var alertplus = (function () {
         }
 
         if (ex.message) {
-            var message;
-            if (ex.message.indexOf("<html>") >= 0) {
-                //
-                // Extract just <body> from it because otherwise any styles inside
-                // of the document can mess up your parent document.
-                //
-                var start = ex.message.indexOf("<body>");
-                var end = ex.message.indexOf("</body>");
-                if (start > 0 && end > 0) {
-                    message = ex.message.slice(start + 6, end);
-                } else {
-                    message = ex.message;
-                }
+            var message = stripHtmlElements(ex.message);
 
-                if (ex.status) {
-                    message = "<h2>Error " + ex.status + "</h2>" + message;
-                }
-            } else {
-                if (ex.status) {
-                    message = "Error " + ex.status + ": " + ex.message;
-                } else {
-                    message = ex.message;
-                }
+            if (ex.status) {
+                message = "<h2>Error " + ex.status + "</h2><br>" + message;
             }
+
             displayError(message, ex.details);
             return;
         }
@@ -177,5 +265,6 @@ var alertplus = (function () {
     }
 
     return {alert: showAlert,
-            error: showError};
+            error: showError,
+            confirm: showConfirm};
 }());

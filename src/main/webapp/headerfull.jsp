@@ -24,7 +24,7 @@
 <%
 String context = ServletUtilities.getContext(request);
 %>
-<html>
+<html ng-app="appWildbook">
     <head>
         <title><%=CommonConfiguration.getHTMLTitle(context) %></title>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>

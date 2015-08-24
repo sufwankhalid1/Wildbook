@@ -1,7 +1,23 @@
-link(rel='stylesheet', href="tools/datatables/css/jquery.dataTables.min.css")
+link(rel='stylesheet', href="bcomponents/ag-grid/angular-grid.min.css")
+link(rel='stylesheet', href="bcomponents/ag-grid/theme-fresh.min.css")
 
-h1 Media Submissions
-table#mstable
+div(ng-controller="MediaSubmissionController")
+    div(ng-show="!submission")
+        h1 Media Submissions
+        .ag-fresh(ag-grid="msGridOptions", style="height: 400px;")
 
-script(src="tools/datatables/js/jquery.dataTables.js")
+    div.ng-cloak(ng-show="submission")
+        h2 Edit Media Submission
+        h3.text-primary {{submission.user.displayName}}
+        button.btn.btn-primary(ng-click="doneEditing()") Done
+        button.btn.btn-danger.pull-right(ng-click="deleteSubmission()") Delete
+        .container-flow
+            .col-md-2
+                .ag-fresh(ag-grid="imageGridOptions", style="height: 400px;")
+            .col-md-10
+                img.ng-cloak(ng-src="{{zoomimage}}", ng-show="zoomimage", style="max-height: 100%; max-width: 100%;")
+
+script(src="bcomponents/angular/angular.js")
+script(src="bcomponents/moment/moment.js")
+script(src="bcomponents/ag-grid/angular-grid.min.js")
 script(src="javascript/media/mediaSubmitAdmin.js")

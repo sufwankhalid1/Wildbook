@@ -1,5 +1,10 @@
 package org.ecocean.rest;
 
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+
+import org.ecocean.ShepherdPMF;
+import org.flywaydb.core.Flyway;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -8,6 +13,8 @@ import org.springframework.boot.context.web.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+
+import com.samsix.database.ConnectionInfo;
 
 @Configuration
 @EnableAutoConfiguration
@@ -27,6 +34,29 @@ public class RestApplication extends SpringBootServletInitializer {
 //        mapper.registerModule(new JodaModule());
 
         return application.sources(RestApplication.class);
+    }
+
+    @Override
+    public void onStartup(final ServletContext servletContext) throws ServletException
+    {
+        //
+        // WARN: DO NOT REMOVE THIS LINE
+        //
+        super.onStartup(servletContext);
+
+        //
+        // Uses default location of db/migration on classpath. You will find it in the src/main/resources folder.
+        // OutOfOrder = true makes it so that if two developers create SQL in a different order and one somehow
+        // gets applied to the database, the other's should too. This should only be an issue on development
+        // databases and allows me to get other developers sql patches even if I've applied a newer one myself
+        // locally. In production, everything should be fine.
+        //
+        ConnectionInfo connectionInfo = ShepherdPMF.getConnectionInfo();
+        Flyway flyway = new Flyway();
+        flyway.setOutOfOrder(true);
+        flyway.setSqlMigrationPrefix("");
+        flyway.setDataSource(connectionInfo.getUrl(), connectionInfo.getUserName(), connectionInfo.getPassword());
+        flyway.migrate();
     }
 
     @Bean

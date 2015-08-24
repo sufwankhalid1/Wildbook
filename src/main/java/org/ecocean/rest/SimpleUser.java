@@ -18,6 +18,12 @@ public class SimpleUser implements SimpleBeing {
     //
     private final String email;
 
+    public SimpleUser()
+    {
+        username = null;
+        email = null;
+    }
+
     public SimpleUser(final String username,
                       final String email)
     {
@@ -132,5 +138,12 @@ public class SimpleUser implements SimpleBeing {
     @Override
     public String getSpecies() {
         return "human";
+    }
+
+
+    @Override
+    public String toString()
+    {
+        return getUsername() + ": " + getDisplayName();
     }
 }

@@ -5,116 +5,90 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.lang3.StringUtils;
 import org.ecocean.servlet.ServletUtilities;
-
 
 public class SinglePhotoVideo extends DataCollectionEvent {
 
-  private static final long serialVersionUID = 7999349137348568641L;
-  private PatterningPassport patterningPassport;
-  private String filename;
-  private String fullFileSystemPath;
+    private static final long serialVersionUID = 7999349137348568641L;
+    private PatterningPassport patterningPassport;
+    private String filename;
+    private String fullFileSystemPath;
 
-  //use for User objects
-  String correspondingUsername;
+    private static String type = "SinglePhotoVideo";
+    private String copyrightOwner;
+    private String copyrightStatement;
+    private List<Keyword> keywords;
 
-  //Use for Story objects
-  String correspondingStoryID;
+    //
+    // username of person who submitted the photo
+    //
+    private String submitter;
 
-  /*
-  private String thumbnailFilename;
-  private String thumbnailFullFileSystemPath;
-  */
+    /**
+     * Empty constructor required for JDO persistence
+     */
+    public SinglePhotoVideo() {
+        // deserialization
+    }
 
-  private static String type = "SinglePhotoVideo";
-  private String copyrightOwner;
-  private String copyrightStatement;
-  private List<Keyword> keywords;
+    public SinglePhotoVideo(final File file) {
+        this(null, file);
+    }
 
-  //
-  // username of person who submitted the photo
-  //
-  private String submitter;
+    public SinglePhotoVideo(final String correspondingEncounterNumber,
+                            final File file) {
+        super(correspondingEncounterNumber, type);
 
-  /**
-   * Empty constructor required for JDO persistence
-   */
-  public SinglePhotoVideo(){}
+        this.filename = file.getName();
+        this.fullFileSystemPath = file.getAbsolutePath();
+    }
 
-  /*
-   * Required constructor for instance creation
-   */
-  public SinglePhotoVideo(final String correspondingEncounterNumber, final String filename, final String fullFileSystemPath) {
-    super(correspondingEncounterNumber, type);
-    this.filename = filename;
-    this.fullFileSystemPath = fullFileSystemPath;
-  }
-
-  public SinglePhotoVideo(final String correspondingEncounterNumber, final File file) {
-    super(correspondingEncounterNumber, type);
-    this.filename = file.getName();
-    this.fullFileSystemPath = file.getAbsolutePath();
-  }
-
-    public SinglePhotoVideo(final Encounter enc, final FileItem formFile, final String context, final String dataDir) throws Exception {
-//TODO FUTURE: should use context to find out METHOD of storage (e.g. remote, amazon, etc) and switch accordingly?
-    super(enc.getEncounterNumber(), type);
+    //TODO FUTURE: should use context to find out METHOD of storage (e.g. remote, amazon, etc) and switch accordingly?
+    public SinglePhotoVideo(final Encounter enc,
+                            final FileItem formFile,
+                            final String context,
+                            final String dataDir) throws Exception {
+        super(enc.getEncounterNumber(), type);
 
         String encID = enc.getEncounterNumber();
-        if ((encID == null) || encID.equals("")) {
+        if (StringUtils.isBlank(encID)) {
             throw new Exception("called SinglePhotoVideo(enc) with Encounter missing an ID");
         }
 
         //TODO generalize this when we encorporate METHOD?
-        //File dir = new File(dataDir + File.separator + correspondingEncounterNumber.charAt(0) + File.separator + correspondingEncounterNumber.charAt(1), correspondingEncounterNumber);
         File dir = new File(enc.dir(dataDir));
-        if (!dir.exists()) { dir.mkdirs(); }
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
 
-        //String origFilename = new File(formFile.getName()).getName();
         this.filename = ServletUtilities.cleanFileName(new File(formFile.getName()).getName());
-
         File file = new File(dir, this.filename);
-    this.fullFileSystemPath = file.getAbsolutePath();
-        formFile.write(file);  //TODO catch errors and return them, duh
-System.out.println("full path??? = " + this.fullFileSystemPath + " WRITTEN!");
+        this.fullFileSystemPath = file.getAbsolutePath();
+        formFile.write(file);
     }
 
-  /**
-   * Returns the photo or video represented by this object as a java.io.File
-   * This is a convenience method.
-   * @return java.io.File
-   */
-  public File getFile() {
-    if(fullFileSystemPath!=null){
-        return (new File(fullFileSystemPath));
+    /**
+     * Returns the photo or video represented by this object as a java.io.File
+     * This is a convenience method.
+     * @return java.io.File
+     */
+    public File getFile() {
+        if (fullFileSystemPath != null) {
+            return new File(fullFileSystemPath);
+        } else {
+            return null;
+        }
     }
-    else{return null;}
-  }
-
 
     public String asUrl(final String context) {
         return getUrl(context, this.fullFileSystemPath, this.filename);
     }
 
-    //old way, relied on being encounter-based  USE ABOVE!
-    public String asUrl(final Encounter enc, final String baseDir) {
-    System.out.println("*** OLD SinglePhotoVideo.asUrl(enc, baseDir) being called! please update to .asUrl(context)");
-        return "/" + enc.dir(baseDir) + "/" + this.filename;
-    }
-
-
-/*
-    public String asUrl(String context) {
-        String baseDir = CommonConfiguration.getDataDirectoryName(context);
-        return this.fullDir().toString() + ":::baseDir=("+baseDir+")";
-    }
-*/
-
     public static String getUrl(final String context, final String fullFileSystemPath, final String filename)
     {
         return getUrlDir(context, fullFileSystemPath) + "/" + filename;
     }
-
 
     private static String getUrlDir(final String context, final String fullFileSystemPath)
     {
@@ -147,83 +121,100 @@ System.out.println("full path??? = " + this.fullFileSystemPath + " WRITTEN!");
         return new File(this.fullFileSystemPath).getParentFile();
     }
 
-  /*
-  public File getThumbnailFile(){
-    if(thumbnailFullFileSystemPath!=null){
-        return (new File(thumbnailFullFileSystemPath));
-    }
-    else{return null;}
-  }
-  */
-
-  public String getFilename(){return filename;}
-  public void setFilename(final String newName){this.filename=newName;}
-
-  public String getFullFileSystemPath(){return fullFileSystemPath;}
-  public void setFullFileSystemPath(final String newPath){this.fullFileSystemPath=newPath;}
-
-  public String getCopyrightOwner(){return copyrightOwner;}
-  public void setCopyrightOwner(final String owner){copyrightOwner=owner;}
-
-  public String getCopyrightStatement(){return copyrightStatement;}
-  public void setCopyrightStatement(final String statement){copyrightStatement=statement;}
-
-   //public String getThumbnailFilename(){return (this.getDataCollectionEventID()+".jpg");}
-
-  /*
-  public void setThumbnailFilename(String newName){this.thumbnailFilename=newName;}
-
-  public String getThumbnailFullFileSystemPath(){return thumbnailFullFileSystemPath;}
-  public void setThumbnailFullFileSystemPath(String newPath){this.thumbnailFullFileSystemPath=newPath;}
-  */
-
-  public void addKeyword(final Keyword dce){
-    if(keywords==null){keywords=new ArrayList<Keyword>();}
-    if(!keywords.contains(dce)){keywords.add(dce);}
-  }
-  public void removeKeyword(final int num){keywords.remove(num);}
-  public List<Keyword> getKeywords(){return keywords;}
-  public void removeKeyword(final Keyword num){keywords.remove(num);}
-
-  public PatterningPassport getPatterningPassport() {
-    if (patterningPassport == null) {
-      patterningPassport = new PatterningPassport();
-    }
-    return patterningPassport;
-  }
-
-  public File getPatterningPassportFile() {
-    File f = this.getFile();
-    String xmlPath;
-    String dirPath;
-    if (f != null) {
-      dirPath = f.getParent();
-      xmlPath = dirPath + "/" + this.filename.substring(0,this.filename.indexOf(".")) + "_pp.xml";
-    } else {
-      return null; // no xml if no image!
+    public String getFilename() {
+        return filename;
     }
 
-    File xmlFile = new File(xmlPath);
-    if (xmlFile.isFile() == Boolean.FALSE) {
-      return null;
+    public void setFilename(final String newName) {
+        this.filename=newName;
     }
 
-    return xmlFile;
-  }
+    public String getFullFileSystemPath() {
+        return fullFileSystemPath;
+    }
 
-  /**
-   * @param patterningPassport the patterningPassport to set
-   */
-  public void setPatterningPassport(final PatterningPassport patterningPassport) {
-    this.patterningPassport = patterningPassport;
-  }
+    public void setFullFileSystemPath(final String newPath) {
+        this.fullFileSystemPath=newPath;
+    }
 
-  public String getCorrespondingUsername(){return correspondingUsername;}
-  public void setCorrespondingUsername(final String username){this.correspondingUsername=username;}
+    public String getCopyrightOwner() {
+        return copyrightOwner;
+    }
 
-  public String getCorrespondingStoryID(){return correspondingStoryID;}
-  public void setCorrespondingStoryID(final String userID){this.correspondingStoryID=userID;}
+    public void setCopyrightOwner(final String owner) {
+        copyrightOwner=owner;
+    }
 
+    public String getCopyrightStatement() {
+        return copyrightStatement;
+    }
+
+    public void setCopyrightStatement(final String statement) {
+        copyrightStatement=statement;
+    }
+
+    public void addKeyword(final Keyword dce){
+        if (keywords == null) {
+            keywords = new ArrayList<Keyword>();
+        }
+
+        if (!keywords.contains(dce)) {
+            keywords.add(dce);
+        }
+    }
+
+    public void removeKeyword(final int num) {
+        keywords.remove(num);
+    }
+
+    public List<Keyword> getKeywords() {
+        return keywords;
+    }
+
+    public void removeKeyword(final Keyword num) {
+        keywords.remove(num);
+    }
+
+    public String getSubmitter() {
+        return submitter;
+    }
+
+    public void setSubmitter(final String submitter) {
+        this.submitter = submitter;
+    }
+
+    public PatterningPassport getPatterningPassport() {
+        if (patterningPassport == null) {
+            patterningPassport = new PatterningPassport();
+        }
+        return patterningPassport;
+    }
+
+    public File getPatterningPassportFile() {
+        File f = this.getFile();
+        String xmlPath;
+        String dirPath;
+        if (f != null) {
+            dirPath = f.getParent();
+            xmlPath = dirPath + "/" + this.filename.substring(0,this.filename.indexOf(".")) + "_pp.xml";
+        } else {
+            return null; // no xml if no image!
+        }
+
+        File xmlFile = new File(xmlPath);
+        if (xmlFile.isFile() == Boolean.FALSE) {
+            return null;
+        }
+
+        return xmlFile;
+    }
+
+    /**
+     * @param patterningPassport the patterningPassport to set
+     */
+    public void setPatterningPassport(final PatterningPassport patterningPassport) {
+        this.patterningPassport = patterningPassport;
+    }
 
     //background scaling of the image to some target path
     // true = doing it (background); false = cannot do it (no external command support; not image)
@@ -277,13 +268,4 @@ System.out.println("full path??? = " + this.fullFileSystemPath + " WRITTEN!");
         if (this.getDataCollectionEventID() == null) return -1;
         return this.getDataCollectionEventID().hashCode();
     }
-
-    public String getSubmitter() {
-        return submitter;
-    }
-
-    public void setSubmitter(final String submitter) {
-        this.submitter = submitter;
-    }
-
 }

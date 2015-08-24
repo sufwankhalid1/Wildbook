@@ -208,16 +208,16 @@ public class SurveyTrackController
         if (track != null) {
             HashMap<SinglePhotoVideo,List<String>> tags = MediaTag.getTags(track.getMedia());
             List<HashMap<String, Object>> media = new ArrayList<HashMap<String, Object>>();  //will be sorted based on sources
-            List<MediaSubmission> sources = MediaSubmission.findMediaSources(track.getMedia(), context);
+            List<MediaSubmission> sources = MediaSubmissionController.findMediaSources(track.getMedia(), context);
             if (sources.size() > 0) {
                 //obj.put("sources", sources);  //do we ever need this in rest response???
                 List<SimpleUser> contrib = new ArrayList<SimpleUser>();
                 HashMap<Long,SimpleUser> contribMap = new HashMap<Long,SimpleUser>();
                 for (MediaSubmission m : sources) {
                     //note: (in theory) there should be a stormpath user for every mediasubmission; so we should get it via username or email
-                    SimpleUser u = SimpleFactory.getUser(m.getUsername());
-                    if (!contrib.contains(u)) contrib.add(u);
-                    contribMap.put(m.getId(), u);
+                    SimpleUser user = m.getUser();
+                    if (!contrib.contains(user)) contrib.add(user);
+                    contribMap.put(m.getId(), user);
                     for (SinglePhotoVideo spv : m.getMedia()) {
                         if ((track.getMedia() != null) && track.getMedia().contains(spv)) {
                             HashMap<String, Object> h = new HashMap<String, Object>();

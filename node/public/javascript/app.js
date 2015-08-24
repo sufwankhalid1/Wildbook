@@ -39,7 +39,7 @@ var configPromise = $.get("/config")
     if (typeof maptool !== 'undefined') {
         maptool.init(config.maptool);
     }
-    return $.get(config.wildbook.url + "/obj/user");
+    return $.get(config.wildbook.url + "/obj/user/simple");
 }, handleError)
 .then(function(user) {
     if (user.username) {
