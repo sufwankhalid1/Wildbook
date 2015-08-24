@@ -3,7 +3,7 @@
 .maincontent {
     position: relative;
     width: 100%;
-    max-width: 1028px;
+    max-width: 1280px;
     margin: 0 auto 80px;
 }
 
@@ -70,19 +70,22 @@
     padding-left: 75px;
 }
 
+//invidivual/user avatar
+
 .avatar,
 .no-avatar {
-    width: 300px;
-    height: 300px;
+    width: 250px;
+    height: 250px;
     display: inline-block;
+    margin: 0 auto;
 }
 
 .no-avatar {
-    line-height: 300px;
     text-align: center;
     background: center center no-repeat;
     color: $font-color-heading;
     fonts-size: $font-size-small;
+    border: 2px dashed #8dcbce;
 }
 
 .avatar img {
@@ -90,13 +93,92 @@
     width: 100%;
 }
 
-.sight-stats-list {
-    list-style: none outside;
+.stats-col {
+    height: 280px;
+    @include flexbox-display-flex;
+    @include flexbox-flex-flow(column nowrap);
+    @include flexbox-justify-content(flex-end);
 }
 
-.sight-stats-list li {
-    margin: 15px;
-    background: no-repeat cover;
+.flex-justify-center {
+    min-width: 250px;
+    @include flexbox-justify-content(center);
+}
+
+.sight-number-info {
+    position: absolute;
+    height: 140px;
+    left: 0;
+    bottom: 15px;
+    width: 50%;
+    background: center bottom no-repeat;
+    background-size: contain;
+    background-image: $individual-sightings;
+}
+
+.sight-date-info {
+    height: 190px;
+    background: center center no-repeat;
+    background-size: contain;
+    background-image: $individual-count;
+}
+
+.infographic-2 {
+    position: relative;
+    @include flexbox-display-flex();
+    @include flexbox-flex-flow(column nowrap);
+    width: 70%;
+    margin: 0 15%;
+}
+
+.infographic-2 .sight-number-text {
+    @include flexbox-align-self(flex-end);
+    @include flexbox-order(2);
+    text-align: center;
+    width: 50%;
+}
+
+.infographic-2 .sight-number {
+    @include flexbox-align-self(flex-end);
+    @include flexbox-order(1);
+    display: block;
+    width: 50%;
+    text-align: center;
+    position: relative;
+    top: 30px;
+    font-weight: bold;
+}
+
+.infographic-1,
+.infographic-3 {
+    text-align: center;
+}
+
+.infographic-3 {
+    @include flexbox-display-flex;
+    @include flexbox-flex-flow(column nowrap);
+    @include flexbox-justify-content(flex-end);
+    height: 250px;
+}
+
+//only on large screens:
+
+@media (min-width: 768px) { 
+    .infographic-1,
+    .infographic-3 {
+        text-align: left;
+    }
+    .infographic-2 {
+        margin: 0;
+    }
+    .sight-number-info {
+        background-position: left bottom;
+    }
+    .avatar,
+    .no-avatar {
+        display: inline-block;
+        margin: 0;
+    }
 }
 
 .sight-stats-list span {
@@ -110,18 +192,29 @@
 
 .sight-date {
     color: $font-color-main;
-    font-size: 2.5em;
+    font-size: 2.8em;
+    font-weight: bold;
 }
 
+.sight-date,
 .sight-date-text {
+    white-space: nowrap;
+    display: inline-block;
+}
+
+.sight-date-text,
+.sight-number-text {
     color: #96a1a5;
     font-size: 1.8em;
 }
 
+.sight-date-text {
+    margin-right: 5px;
+}
+
 .sight-number {
     color: $font-color-main;
-    font-size: 4.0em;
-    text-align: center;
+    font-size: 6em;
 }
 
 .sight-stats {

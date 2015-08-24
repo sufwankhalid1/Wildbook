@@ -3,58 +3,62 @@ extends layout
 block content
     .maincontent
         .container-fluid.individual-stats
-            h1.has-icon.icon-happywhale= t("individual.meet", {individualId: data.info.individual.displayName})
-            .col-md-4
-                span.avatar
-                    if data.info.individual.avatar
-                        img(src="#{config.wildbook.staticUrl}#{data.info.individual.avatar}" height="256px")
-                    else
-                        //todo t()
-                        span.no-avatar(style="background-image:url(/cust/images/img_whale.svg)")="No Avatar"
-            .col-md-8
-                    ul.sight-stats-list
-                        li
-                            h3.sight-date-text= t("individual.firstSighted")
-                            span.sight-date #{data.firstSeen}
-                        li
-                            h3.sight-date-text!= t("individual.reportedSightings")
-                            span.sight-number #{data.info.encounters.length}
-                        li
+            .row
+                .col-xs-12
+                    h1.has-icon.icon-happywhale= t("individual.meet", {individualId: data.info.individual.displayName})
+            .row
+                .stats-col.flex-justify-center.col-lg-3.col-md-3.col-sm-12.col-xs-12
+                    span.avatar
+                        if data.info.individual.avatar
+                            img(src="#{config.wildbook.staticUrl}#{data.info.individual.avatar}" height="256px")
+                        else
+                            //todo t()
+                            span.no-avatar(style="background-image:url(/cust/images/img_whale.svg)")="NO IMAGE"
+                .clearfix.visible-sm-block
+                .stats-col.col-lg-5.col-md-5.col-sm-6.col-xs-12
+                    .row-inner.infographic-1
+                        h3.sight-date-text= t("individual.firstSighted")
+                        span.sight-date #{data.firstSeen}
+                    .row-inner.infographic-2
+                        .sight-number-info
+                        h3.sight-number-text!= t("individual.reportedSightings")
+                        span.sight-number #{data.info.encounters.length}
+                .stats-col.col-md-4.col-sm-6.col-xs-12
+                    .row-inner.infographic-3
+                        .sight-date-info
+                        .flex-align
                             h3.sight-date-text= t("individual.lastSeen")
                             span.sight-date #{data.lastSeen}
-
-
-                            //img(src="/cust/images/img_binoculars.svg" height="128px")                        
-                            //img(src="/cust/images/img_whale.svg" height="80px")                                    
-                            //img(src="/cust/images/img_waves.svg")
-
         -var photos = data.info.photos
         //include partials/carousel
         
         include partials/phototool
 
         .container-fluid
-            .col-md-12
-                h2= t("individual.contributors")
-                hr
-                for being in data.info.submitters
-                    ul.submitters
-                        li
-                            include partials/avatar
-                            
+            .row
+                .col-md-12
+                    h2= t("individual.contributors")
+                    hr
+                    for being in data.info.submitters
+                        ul.submitters
+                            li
+                                include partials/avatar
+                                
         .container-fluid
-            .col-md-12
-                hr
-                h2= t("individual.sightings")
-                hr
-                #map-sightings
+            .row
+                .col-md-12
+                    hr
+                    h2= t("individual.sightings")
+                    hr
+                    #map-sightings
 
         .container-fluid
-            .col-md-12
-                p= t("individual.seenIndividual")
-                a(href="/submitMedia")
-                    button.btn.btn-primary= t("individual.shareExperience")
-        
+            .row
+                .col-md-12
+                    p= t("individual.seenIndividual")
+                    a(href="/submitMedia")
+                        button.btn.btn-primary= t("individual.shareExperience")
+            
 block configScripts
     script(src="/vendor/leaflet/leaflet.js")
     script(src="/vendor/leaflet.markercluster/leaflet.markercluster.js")

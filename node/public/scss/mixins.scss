@@ -1,0 +1,38 @@
+//Mixins.scss
+
+@mixin flexbox-order($order) {
+  -webkit-box-ordinal-group: $order;
+  -moz-box-ordinal-group: $order;
+  -ms-flex-order: $order;
+  -webkit-order: $order;
+  order: $order;
+}
+
+@mixin flexbox-display-flex {
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+}
+
+@mixin flexbox-flex-flow($flow) {
+    -os-flex-flow: $flow;
+    -moz-flex-flow: $flow;
+    -webkit-flex-flow: $flow;
+    flex-flow: $flow;
+}
+
+@mixin flexbox-justify-content($just) {
+    -webkit-justify-content: $just;
+    -ms-justify-content: $just;
+    -moz-justify-content: $just;
+    justify-content: $just;
+}
+
+@mixin flexbox-align-self($self) {
+    -moz-align-self: $self;
+    -webkit-align-self: $self;
+    -ms-align-self: $self;
+    align-self: $self;
+}
