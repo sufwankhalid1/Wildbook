@@ -5,4 +5,3 @@ locales/dev/cust.json
 secrets.json
 bower_components
 .sass-cache/
-*.css.map
