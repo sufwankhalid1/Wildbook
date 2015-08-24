@@ -4,7 +4,7 @@
             .col-md-12
                 #main-photo.photo-thumbnail-main(style="background-image:url(#{config.wildbook.staticUrl}#{photos[0].url})")
             .visible-xs-block.col-md-12
-                span()="More images:"
+                span.more-images-mobile()="More images:"
             .col-md-12
                 if photos && photos.length > 3
                     .photo-thumbnail.col-sm-4#sub-photo1(style="background-image:url(#{config.wildbook.staticUrl}#{photos[1].url})")

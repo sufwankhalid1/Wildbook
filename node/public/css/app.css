@@ -10,7 +10,7 @@ body {
 h1, h2, h3, h4, h5, h6, p, div {
   font-family: "Lato", Helvetica, sans-serif; }
 
-.icon-happywhale {
+.icon-bullet-individual {
   background-image: url(../cust/images/img_whale_circle.svg); }
 
 .icon-voyageviewer {
@@ -21,6 +21,12 @@ h1, h2, h3, h4, h5, h6, p, div {
 
 .icon-user {
   background-image: url(../cust/images/img_user_on.svg); }
+
+.icon-sightings {
+  background-image: url(../cust/images/img_binoc_circle.svg); }
+
+.icon-star {
+  background-image: url(../cust/images/img_star_circle.svg); }
 
 .btn-oversize {
   text-transform: uppercase;
@@ -120,16 +126,15 @@ h1, h2, h3, h4, h5, h6, p, div {
   max-width: 1280px;
   margin: 0 auto 80px; }
 
-.maincontent h1.has-icon {
-  height: 70px;
-  font-size: 1.7em;
+.maincontent h1.has-icon,
+.maincontent h2.has-icon {
   font-weight: bold;
-  padding-top: 12px;
-  line-height: 1.7em; }
+  font-size: 1.7em;
+  line-height: 2.6em;
+  margin: 0; }
 
 .maincontent h2 {
-  color: #8dcbce;
-  font-size: 1.3em; }
+  color: #8dcbce; }
 
 .maincontent hr {
   color: #8dcbce;
@@ -356,6 +361,10 @@ h1, h2, h3, h4, h5, h6, p, div {
   background-position: center center;
   background-size: cover; }
 
+.photo-group {
+  margin-top: 15px;
+  margin-bottom: 15px; }
+
 .photo-group .photo-thumbnail {
   min-height: 250px;
   border-style: solid;
@@ -366,11 +375,26 @@ h1, h2, h3, h4, h5, h6, p, div {
   width: 100%;
   height: auto; }
 
+.more-images-mobile {
+  color: #8dcbce;
+  font-size: 1.7em; }
+
 .photo-thumbnail:first-child {
   border-left-width: 0; }
 
 .photo-thumbnail:last-child {
   border-right-width: 0; }
+
+.submitters {
+  padding: 0;
+  list-style-type: none;
+  display: inline; }
+
+.submitters li {
+  display: inline; }
+
+.share-action {
+  text-align: center; }
 
 /* Navigation: Header and Footer */
 .navbar-inverse {
@@ -477,14 +501,6 @@ h1, h2, h3, h4, h5, h6, p, div {
  */
 .carousel-inner > .item > img, .carousel-inner > .item > a > img {
   margin: auto; }
-
-.submitters {
-  padding: 0;
-  list-style-type: none;
-  display: inline; }
-
-.submitters li {
-  display: inline; }
 
 .dropbox {
   background-color: #E3E3E3;

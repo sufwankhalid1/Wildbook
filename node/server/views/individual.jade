@@ -5,7 +5,7 @@ block content
         .container-fluid.individual-stats
             .row
                 .col-xs-12
-                    h1.has-icon.icon-happywhale= t("individual.meet", {individualId: data.info.individual.displayName})
+                    h1.has-icon.icon-bullet-individual= t("individual.meet", {individualId: data.info.individual.displayName})
             .row
                 .stats-col.flex-justify-center.col-lg-3.col-md-3.col-sm-12.col-xs-12
                     span.avatar
@@ -37,27 +37,26 @@ block content
         .container-fluid
             .row
                 .col-md-12
-                    h2= t("individual.contributors")
+                    h2.has-icon.icon-star= t("individual.contributors")
                     hr
                     for being in data.info.submitters
                         ul.submitters
                             li
                                 include partials/avatar
+                    hr
                                 
         .container-fluid
             .row
                 .col-md-12
-                    hr
-                    h2= t("individual.sightings")
-                    hr
+                    h2.has-icon.icon-sightings= t("individual.sightings")
                     #map-sightings
 
-        .container-fluid
+        .container-fluid.share-action
             .row
                 .col-md-12
-                    p= t("individual.seenIndividual")
+                    h2= t("individual.seenIndividual")
                     a(href="/submitMedia")
-                        button.btn.btn-primary= t("individual.shareExperience")
+                        button.btn.btn-primary.btn-lg= t("individual.shareExperience")
             
 block configScripts
     script(src="/vendor/leaflet/leaflet.js")

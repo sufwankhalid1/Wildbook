@@ -31,11 +31,11 @@ block content
 
         -var photos = data.userinfo.photos
         if photos.length > 0
-            h1.has-icon.icon-happywhale= t("userpage.topRatedContributions")
+            h1.has-icon.icon-bullet-individual= t("userpage.topRatedContributions")
             hr
             include partials/phototool
 
-        h1.has-icon.icon-happywhale= t("userpage.individualsEncountered")
+        h1.has-icon.icon-bullet-individual= t("userpage.individualsEncountered")
         hr
         #map-sightings
         

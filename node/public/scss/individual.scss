@@ -7,17 +7,16 @@
     margin: 0 auto 80px;
 }
 
-.maincontent h1.has-icon {
-    height: 70px;
-    font-size: 1.7em;
+.maincontent h1.has-icon,
+.maincontent h2.has-icon {
     font-weight: bold;
-    padding-top: 12px;
-    line-height: 1.7em;
+    font-size: 1.7em;
+    line-height: 2.6em;
+    margin: 0;
 }
 
 .maincontent h2 {
     color: $font-color-main;
-    font-size: 1.3em;
 }
 
 .maincontent hr {
@@ -245,6 +244,11 @@
     background-size: cover;
 }
 
+.photo-group {
+    margin-top: 15px;
+    margin-bottom: 15px;    
+}
+
 .photo-group .photo-thumbnail {
     min-height: 250px;
     border-style: solid;
@@ -257,10 +261,36 @@
     height: auto;
 }
 
+//This is a little message that shows up on extra small devices
+.more-images-mobile {
+    color: $font-color-main;
+    font-size: 1.7em;
+}
+
 .photo-thumbnail:first-child {
     border-left-width: 0;
 }
 
 .photo-thumbnail:last-child {
     border-right-width: 0;
+}
+
+////////////////////////////////////////
+//submitters section of individual/user
+////////////////////////////////////////
+
+.submitters {
+    padding: 0;
+    list-style-type: none;
+    display: inline;
+}
+
+.submitters li {
+    display: inline;
+}
+
+//Share message at bottom of page
+
+.share-action {
+    text-align: center;
 }
