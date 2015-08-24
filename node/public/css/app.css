@@ -302,12 +302,7 @@ h1, h2, h3, h4, h5, h6, p, div {
     margin: 0; }
 
   .sight-number-info {
-    background-position: left bottom; }
-
-  .avatar,
-  .no-avatar {
-    display: inline-block;
-    margin: 0; } }
+    background-position: left bottom; } }
 .sight-stats-list span {
   font-size: 2em; }
 
