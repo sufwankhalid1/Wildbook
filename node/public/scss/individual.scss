@@ -237,25 +237,30 @@
     border-color: $border-color-light;
 }
 
-#main-photo {
+.photo-thumbnail,
+.photo-thumbnail-main {
     cursor: zoom-in;
-}
-
-.photo-flex {
-    display: flex;
-}
-
-.photo-flex img {
-    align-self: center;
-    width: 33%;
-    padding: 2px;
+    min-height: 500px;
+    background-position: center center;
+    background-size: cover;
 }
 
 .photo-group .photo-thumbnail {
-    cursor: zoom-in;
+    min-height: 250px;
+    border-style: solid;
+    border-width: 2px 1px;
+    border-color: $background-default;
 }
 
-.photo-group .col-md-4 {
-    padding-left: 5px;
-    padding-right: 5px;
+.photo-group .photo-thumbnail-main {
+    width: 100%;
+    height: auto;
+}
+
+.photo-thumbnail:first-child {
+    border-left-width: 0;
+}
+
+.photo-thumbnail:last-child {
+    border-right-width: 0;
 }
