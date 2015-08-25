@@ -175,44 +175,49 @@
     }
 }
 
-.sight-stats-list span {
-    font-size: 2em;
-}
 
-.sight-stats-list h3 {
-    font-size: 1.5em;
-    margin: 0;
-}
+.individual-stats {
 
-.sight-date {
-    color: $font-color-main;
-    font-size: 2.8em;
-    font-weight: bold;
-}
+    .sight-stats-list span {
+        font-size: 2em;
+    }
 
-.sight-date,
-.sight-date-text {
-    white-space: nowrap;
-    display: inline-block;
-}
+    .sight-stats-list h3 {
+        font-size: 1.5em;
+        margin: 0;
+    }
 
-.sight-date-text,
-.sight-number-text {
-    color: #96a1a5;
-    font-size: 1.8em;
-}
+    .sight-date {
+        color: $font-color-main;
+        font-size: 2.8em;
+        font-weight: bold;
+    }
 
-.sight-date-text {
-    margin-right: 5px;
-}
+    .sight-date,
+    .sight-date-text {
+        white-space: nowrap;
+        display: inline-block;
+    }
 
-.sight-number {
-    color: $font-color-main;
-    font-size: 6em;
-}
+    .sight-date-text,
+    .sight-number-text {
+        color: #96a1a5;
+        font-size: 1.8em;
+    }
 
-.sight-stats {
-    line-height: normal;
+    .sight-date-text {
+        margin-right: 5px;
+    }
+
+    .sight-number {
+        color: $font-color-main;
+        font-size: 6em;
+    }
+
+    .sight-stats {
+        line-height: normal;
+    }   
+
 }
 
 .divider {
@@ -225,16 +230,8 @@
 }
 
 ////////////////////////
-//photo gallery and map
+//photo gallery
 ////////////////////////
-
-#map-sightings {
-    margin-top: 10px;
-    width: 100%;
-    height: 600px;
-    border: 5px solid;
-    border-color: $border-color-light;
-}
 
 .photo-thumbnail,
 .photo-thumbnail-main {
@@ -273,6 +270,24 @@
 
 .photo-thumbnail:last-child {
     border-right-width: 0;
+}
+
+////////////////
+//Sightings map
+////////////////
+
+#map-sightings {
+    margin-top: 10px;
+    width: 100%;
+    height: 600px;
+    border: 5px solid;
+    border-color: $border-color-light;
+}
+
+.map-sightings {
+    
+
+    
 }
 
 ////////////////////////////////////////

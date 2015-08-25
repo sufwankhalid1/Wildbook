@@ -308,36 +308,29 @@ h1, h2, h3, h4, h5, h6, p, div {
 
   .sight-number-info {
     background-position: left bottom; } }
-.sight-stats-list span {
+.individual-stats .sight-stats-list span {
   font-size: 2em; }
-
-.sight-stats-list h3 {
+.individual-stats .sight-stats-list h3 {
   font-size: 1.5em;
   margin: 0; }
-
-.sight-date {
+.individual-stats .sight-date {
   color: #8dcbce;
   font-size: 2.8em;
   font-weight: bold; }
-
-.sight-date,
-.sight-date-text {
+.individual-stats .sight-date,
+.individual-stats .sight-date-text {
   white-space: nowrap;
   display: inline-block; }
-
-.sight-date-text,
-.sight-number-text {
+.individual-stats .sight-date-text,
+.individual-stats .sight-number-text {
   color: #96a1a5;
   font-size: 1.8em; }
-
-.sight-date-text {
+.individual-stats .sight-date-text {
   margin-right: 5px; }
-
-.sight-number {
+.individual-stats .sight-number {
   color: #8dcbce;
   font-size: 6em; }
-
-.sight-stats {
+.individual-stats .sight-stats {
   line-height: normal; }
 
 .divider {
@@ -346,13 +339,6 @@ h1, h2, h3, h4, h5, h6, p, div {
 
 .being-info {
   display: inline-block; }
-
-#map-sightings {
-  margin-top: 10px;
-  width: 100%;
-  height: 600px;
-  border: 5px solid;
-  border-color: #96a1a5; }
 
 .photo-thumbnail,
 .photo-thumbnail-main {
@@ -384,6 +370,13 @@ h1, h2, h3, h4, h5, h6, p, div {
 
 .photo-thumbnail:last-child {
   border-right-width: 0; }
+
+#map-sightings {
+  margin-top: 10px;
+  width: 100%;
+  height: 600px;
+  border: 5px solid;
+  border-color: #96a1a5; }
 
 .submitters {
   padding: 0;
