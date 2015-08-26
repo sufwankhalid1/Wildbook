@@ -1,14 +1,12 @@
 package org.ecocean.media;
 
 import java.util.Date;
-import java.util.List;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.ecocean.SinglePhotoVideo;
 import org.ecocean.rest.SimpleUser;
 
 public class MediaSubmission {
-    private Long id;
+    private Integer id;
 
     //
     // Either user is not null and name/email are null
@@ -30,7 +28,6 @@ public class MediaSubmission {
 //    private DateTime endTime;
     private Long endTime;
     private String description;
-    private List<SinglePhotoVideo> media;
 //    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSSZ")
 //    private DateTime timeSubmitted = new DateTime();
     private Long timeSubmitted = new Date().getTime();
@@ -46,11 +43,11 @@ public class MediaSubmission {
     public MediaSubmission() {
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(final Long id) {
+    public void setId(final Integer id) {
         this.id = id;
     }
 
@@ -124,14 +121,6 @@ public class MediaSubmission {
 
     public void setDescription(final String description) {
         this.description = description;
-    }
-
-    public List<SinglePhotoVideo> getMedia() {
-        return media;
-    }
-
-    public void setMedia(final List<SinglePhotoVideo> media) {
-        this.media = media;
     }
 
     public Long getTimeSubmitted() {

@@ -10,7 +10,7 @@ block content
                 .stats-col.flex-justify-center.col-lg-3.col-md-3.col-sm-12.col-xs-12
                     span.avatar
                         if data.info.individual.avatar
-                            img(src="#{config.wildbook.staticUrl}#{data.info.individual.avatar}" height="256px")
+                            img(src="#{data.info.individual.avatar}" height="256px")
                         else
                             //todo t()
                             span.no-avatar(style="background-image:url(/cust/images/img_whale.svg)")="NO IMAGE"

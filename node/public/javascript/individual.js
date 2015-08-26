@@ -7,7 +7,7 @@ var individualPage = (function () {
 
         if (photos) {
             photos.forEach(function(photo){
-                fotos.push({src: app.config.wildbook.staticUrl + photo.url, w: 0, h:0});
+                fotos.push({src: photo.url, w: 0, h:0});
             });
         }
 

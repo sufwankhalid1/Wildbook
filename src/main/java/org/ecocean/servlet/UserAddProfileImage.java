@@ -35,8 +35,8 @@ import org.ecocean.Shepherd;
 import org.ecocean.ShepherdPMF;
 import org.ecocean.User;
 import org.ecocean.media.AssetStore;
-import org.ecocean.media.AssetType;
 import org.ecocean.media.MediaAsset;
+import org.ecocean.media.MediaAssetFactory;
 import org.ecocean.mmutil.MediaUtilities;
 import org.ecocean.mmutil.StringUtilities;
 import org.slf4j.Logger;
@@ -48,6 +48,7 @@ import com.oreilly.servlet.multipart.ParamPart;
 import com.oreilly.servlet.multipart.Part;
 import com.samsix.database.ConnectionInfo;
 import com.samsix.database.Database;
+import com.samsix.database.DatabaseException;
 
 /**
  * Uploads a new image to the file system and associates the image with an Encounter record
@@ -198,19 +199,21 @@ public class UserAddProfileImage extends HttpServlet {
     /**
      * Copy the submitted file into the AssetStore under the user's
      * subdirectory.
+     * @throws DatabaseException
      */
     private MediaAsset importImage(final Database db,
                                    final AssetStore store,
                                    final File image,
                                    final String filename,
                                    final String username)
-        throws IOException, UnsupportedEncodingException
+        throws IOException, UnsupportedEncodingException, DatabaseException
     {
         String dest = username + "/" + filename;
 
         log.debug("Storing user image to: " + dest);
 
-        MediaAsset ma = store.copyIn(db, image, dest, AssetType.ORIGINAL);
+        MediaAsset ma = store.copyIn(image, dest, null);
+        MediaAssetFactory.save(db, ma);
 
         image.delete();
 

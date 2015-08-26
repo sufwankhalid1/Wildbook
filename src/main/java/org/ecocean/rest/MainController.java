@@ -8,7 +8,6 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.ecocean.servlet.ServletUtilities;
 import org.ecocean.util.LogBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,37 +25,36 @@ public class MainController
     private static Logger logger = LoggerFactory.getLogger(MainController.class);
 
     @RequestMapping(value = "/individual/get/{id}", method = RequestMethod.GET)
-    public IndividualInfo getIndividual(final HttpServletRequest request,
-                                        @PathVariable("id")
+    public IndividualInfo getIndividual(@PathVariable("id")
                                         final String id) throws DatabaseException
     {
-        String context = ServletUtilities.getContext(request);
-
         IndividualInfo indinfo = new IndividualInfo();
 
-        indinfo.individual = SimpleFactory.getIndividual(context, id);
-        indinfo.photos = SimpleFactory.getIndividualPhotos(context, indinfo.individual.getId());
-        indinfo.encounters = SimpleFactory.getIndividualEncounters(context, indinfo.individual);
+        indinfo.individual = SimpleFactory.getIndividual(id);
+        if (indinfo.individual == null) {
+            return null;
+        }
+
+        indinfo.photos = SimpleFactory.getIndividualPhotos(indinfo.individual.getId());
+        indinfo.encounters = SimpleFactory.getIndividualEncounters(indinfo.individual);
 
         return indinfo;
     }
 
 
     @RequestMapping(value = "/user/get/{username}", method = RequestMethod.GET)
-    public SimpleBeing getUser(final HttpServletRequest request,
-                              @PathVariable("username")
-                              final String username) throws DatabaseException
+    public SimpleBeing getUser(@PathVariable("username")
+                               final String username) throws DatabaseException
     {
         return SimpleFactory.getUser(username);
     }
 
 
     @RequestMapping(value = "/userinfo/get/{username}", method = RequestMethod.GET)
-    public UserInfo getUserInfo(final HttpServletRequest request,
-                                @PathVariable("username")
+    public UserInfo getUserInfo(@PathVariable("username")
                                 final String username) throws DatabaseException
     {
-        return SimpleFactory.getUserInfo(ServletUtilities.getContext(request), username);
+        return SimpleFactory.getUserInfo(username);
     }
 
 

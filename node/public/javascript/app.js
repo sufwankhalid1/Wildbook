@@ -157,8 +157,7 @@ $(document).ready(function() {
                         var res = $.map(data, function(item) {
                             var label;
                             if (item.type == "individual") {
-//                                label = "Whale: ";
-                                label = item.species + ": ";
+                                label = item.speciesdisplay + ": ";
                             } else if (item.type == "user") {
                                 label = "User: ";
                             } else {

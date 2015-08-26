@@ -43,7 +43,7 @@ public class UserInfo {
         }
 
         for (SimplePhoto foto : photos) {
-            if (foto.getId().equals(photo.getId())) {
+            if (foto.getId() == photo.getId()) {
                 // don't add the same photo twice
                 return;
             }

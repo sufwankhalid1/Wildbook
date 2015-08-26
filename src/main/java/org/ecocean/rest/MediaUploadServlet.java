@@ -14,7 +14,6 @@ import java.util.concurrent.Executors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import javax.jdo.PersistenceManager;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.HttpServlet;
@@ -27,12 +26,14 @@ import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.ecocean.CommonConfiguration;
 import org.ecocean.GeoFileProcessor;
 import org.ecocean.ImageProcessor;
 import org.ecocean.Shepherd;
 import org.ecocean.ShepherdPMF;
-import org.ecocean.SinglePhotoVideo;
+import org.ecocean.media.AssetStore;
+import org.ecocean.media.LocalAssetStore;
+import org.ecocean.media.MediaAsset;
+import org.ecocean.media.MediaAssetFactory;
 import org.ecocean.mmutil.FileUtilities;
 import org.ecocean.servlet.ServletUtilities;
 import org.ecocean.util.LogBuilder;
@@ -41,12 +42,9 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.samsix.database.ConnectionInfo;
 import com.samsix.database.Database;
-import com.samsix.database.RecordSet;
+import com.samsix.database.DatabaseException;
 import com.samsix.database.SqlInsertFormatter;
-import com.samsix.database.SqlWhereFormatter;
-import com.samsix.util.string.StringUtilities;
 
 @MultipartConfig
 public class MediaUploadServlet
@@ -71,10 +69,9 @@ public class MediaUploadServlet
         filesMap.remove(String.valueOf(msid));
     }
 
-
     public static void deleteFileFromSet(final HttpServletRequest request,
-                                         final long msid,
-                                         final String filename)
+                                         final int msid,
+                                         final String filename) throws DatabaseException
     {
         Map<String, FileSet> filesMap = getFilesMap(request.getSession());
         FileSet fileSet = filesMap.get(String.valueOf(msid));
@@ -83,16 +80,16 @@ public class MediaUploadServlet
             return;
         }
 
-        String context = ServletUtilities.getContext(request);
-        File baseDir = getBaseDir(context, String.valueOf(msid));
-
         for (FileMeta file : new ArrayList<FileMeta>(fileSet.files)) {
             if (file.name.equalsIgnoreCase(filename)) {
-                executor.execute(new DeleteMedia(context,
-                        msid,
-                        getRootDir(request),
-                        baseDir,
-                        file));
+                //
+                // If the file has been saved (the thread actually got run) then
+                // we can delete the file. If not, we will remove it from the user's
+                // browser list but the mediasubmission will still contain this.
+                //
+                if (file.getId() != null) {
+                    MediaSubmissionController.deleteMedia(msid, file.getId());
+                }
                 fileSet.files.remove(file);
             }
         }
@@ -182,9 +179,6 @@ public class MediaUploadServlet
 
          String id = request.getParameter("id");
 
-         //
-         // TODO: Add id to the "get" url so that we can read it here.
-         //
          if (id == null) {
              return;
          }
@@ -222,11 +216,10 @@ public class MediaUploadServlet
          }
     }
 
-    private static File getBaseDir(final String context,
-                                   final String msid)
+
+    private static File getRelBaseDir(final String msid)
     {
-        String dataDirName = CommonConfiguration.getDataDirectoryName(context);
-        return new File(new File(dataDirName, "mediasubmission"), msid);
+        return new File("/mediasubmission", msid);
     }
 
     private static File getThumbnailDir(final File baseDir)
@@ -240,16 +233,16 @@ public class MediaUploadServlet
 //        return new File(getThumbnailDir(baseDir), fileName);
 //    }
 
-    private static File getMidsizeDir(final File baseDir)
-    {
-        return new File(baseDir, MID_DIR);
-    }
+//    private static File getMidsizeDir(final File baseDir)
+//    {
+//        return new File(baseDir, MID_DIR);
+//    }
 
-    private static File getRootDir(final HttpServletRequest request)
-    {
-//        return ServletUtilities.dataDir(context, request.getServletContext().getRealPath("/"));
-        return new File(request.getServletContext().getRealPath("/")).getParentFile();
-    }
+//    private static File getRootDir(final HttpServletRequest request)
+//    {
+////        return ServletUtilities.dataDir(context, request.getServletContext().getRealPath("/"));
+//        return new File(request.getServletContext().getRealPath("/")).getParentFile();
+//    }
 
     private static FileSet uploadByApacheFileUpload(final HttpServletRequest request)
         throws IOException, ServletException
@@ -304,13 +297,13 @@ public class MediaUploadServlet
                     }
                 }
 
-                String context = ServletUtilities.getContext(request);
+                File baseDir = getRelBaseDir(fileset.getID());
 
-                File rootDir = getRootDir(request);
-                File baseDir = getBaseDir(context, fileset.getID());
-
-                File fullBaseDir = new File(rootDir, baseDir.getPath());
-                fullBaseDir.mkdirs();
+                //
+                // TODO: Have a way to specify the asset store for media submissions
+                // For now I will assume the first one.
+                //
+                LocalAssetStore store = (LocalAssetStore) AssetStore.get(1);
 
                 int id;
                 try {
@@ -321,15 +314,7 @@ public class MediaUploadServlet
                 }
 
                 for (FileMeta file : fileset.getFiles()) {
-                    //
-                    // TODO: Save contents of image to a file and create a thumbnail.
-                    // Then add url and thumbnail_url to the FileMeta class. Maybe add
-                    // thumbnail image binary to FileMeta as well so that we can just
-                    // return that in a get? Or should it be statically delivered?
-                    // Both could be statically delivered if we save them to a proper
-                    // spot and then we can get rid of using the get method?
-                    //
-                    file.setUrl("/" + new File(baseDir, file.getName()));
+                    file.setUrl(store.webPath(new File(baseDir, file.getName()).toPath()).toExternalForm());
 
                     if (Shepherd.isAcceptableImageFile(file.getName())) {
 //                        file.setThumbnailUrl("/" + getThumbnailFile(baseDir, file.getName()));
@@ -348,13 +333,14 @@ public class MediaUploadServlet
                     // yet by the time the user gets the results back from this servlet.
                     // If so, they will get a broken link image.
                     //
-                    executor.execute(new SaveMedia(context,
+                    executor.execute(new SaveMedia(ServletUtilities.getContext(request),
+                                                   store,
                                                    id,
                                                    fileset.getSubmitter(),
-                                                   fullBaseDir,
+                                                   baseDir,
                                                    file));
                 }
-            } catch (FileUploadException ex) {
+            } catch (FileUploadException | DatabaseException ex) {
                 ex.printStackTrace();
             }
         }
@@ -416,6 +402,10 @@ public class MediaUploadServlet
     @JsonIgnoreProperties({"content"})
     public static class FileMeta
     {
+        //
+        // This will be the mediaasset id after the file gets saved.
+        //
+        private Integer id;
         private String name;
         private long size;
         private String type;
@@ -474,6 +464,14 @@ public class MediaUploadServlet
           this.content = content;
         }
 
+        public Integer getId() {
+            return id;
+        }
+
+        public void setId(final Integer id) {
+            this.id = id;
+        }
+
         @Override
         public String toString()
         {
@@ -486,18 +484,21 @@ public class MediaUploadServlet
         implements Runnable
     {
         private final String context;
+        private final LocalAssetStore store;
         private final int submissionId;
         private final String submitter;
         private final File baseDir;
         private final FileMeta file;
 
         public SaveMedia(final String context,
+                         final LocalAssetStore store,
                          final int submissionId,
                          final String submitter,
                          final File baseDir,
                          final FileMeta file)
         {
             this.context = context;
+            this.store = store;
             this.submissionId = submissionId;
             this.submitter = submitter;
             this.baseDir = baseDir;
@@ -506,20 +507,20 @@ public class MediaUploadServlet
 
         @Override
         public void run() {
-            if (logger.isDebugEnabled()) {
-                logger.debug(LogBuilder.get("Saving media").appendVar("id", submissionId)
-                                       .appendVar("file.getName()", file.getName()).toString());
-            }
-
-            if (file.getName().toLowerCase().indexOf(".zip") == -1) {
-                processFile(file.getName(), file.getContent(), false);
-                return;
-            }
-
-            //
-            // Run zip file extraction
-            //
             try {
+                if (logger.isDebugEnabled()) {
+                    logger.debug(LogBuilder.get("Saving media").appendVar("id", submissionId)
+                                           .appendVar("file.getName()", file.getName()).toString());
+                }
+
+                if (file.getName().toLowerCase().indexOf(".zip") == -1) {
+                    processFile(file.getName(), file.getContent(), false);
+                    return;
+                }
+
+                //
+                // Run zip file extraction
+                //
                 try (ZipInputStream   zis = new ZipInputStream(file.content)) {
                     ZipEntry zipEntry;
                     while ( ( zipEntry = zis.getNextEntry() ) != null )
@@ -553,26 +554,33 @@ public class MediaUploadServlet
             }
         }
 
-        private void processFile(final String fileName, final InputStream content, final boolean keepOpen)
+        private void processFile(final String fileName,
+                                 final InputStream content,
+                                 final boolean fromZip)
         {
-            File fullPath = new File(baseDir, fileName);
+            File relFile = new File(baseDir, fileName);
+
+            File fullPath = store.getFile(relFile.toPath());
             fullPath.getParentFile().mkdirs();
 
-//            CommonConfiguration.getDataDirectoryName(context);
+            MediaAsset ma = new MediaAsset(store, relFile.toPath());
+
             try {
                 if (logger.isDebugEnabled()) {
                     logger.debug(LogBuilder.quickLog("fullPath", fullPath.toString()));
                 }
-                FileUtilities.saveStreamToFile(content, fullPath, keepOpen);
+                FileUtilities.saveStreamToFile(content, fullPath, fromZip);
 
                 //
                 // Make Thumbnail
                 //
                 if (Shepherd.isAcceptableImageFile(fileName)) {
-                    File thumbDir = getThumbnailDir(baseDir);
-                    thumbDir.mkdirs();
+                    File relThumb = new File(getThumbnailDir(baseDir), fileName);
 
-                    File thumbFile = new File(thumbDir, fileName);
+                    File thumbFile = store.getFile(relThumb.toPath());
+                    thumbFile.getParentFile().mkdirs();
+
+                    ma.setThumb(store, relThumb.toPath());
 
                     ImageProcessor iproc;
                     iproc = new ImageProcessor(context,
@@ -584,18 +592,18 @@ public class MediaUploadServlet
                                                null);
                     iproc.run();
 
-                    File midDir = getMidsizeDir(baseDir);
-                    midDir.mkdirs();
-
-                    File midFile = new File(midDir, fileName);
-                    iproc = new ImageProcessor(context,
-                                               "resize",
-                                               800,
-                                               600,
-                                               fullPath.getAbsolutePath(),
-                                               midFile.getAbsolutePath(),
-                                               null);
-                    iproc.run();
+//                    File midDir = getMidsizeDir(baseDir);
+//                    midDir.mkdirs();
+//
+//                    File midFile = new File(midDir, fileName);
+//                    iproc = new ImageProcessor(context,
+//                                               "resize",
+//                                               800,
+//                                               600,
+//                                               fullPath.getAbsolutePath(),
+//                                               midFile.getAbsolutePath(),
+//                                               null);
+//                    iproc.run();
                 } else if (Shepherd.isAcceptableGpsFile(fileName)) {
                     GeoFileProcessor gproc;
                     gproc = new GeoFileProcessor(fullPath.getAbsolutePath());
@@ -603,127 +611,33 @@ public class MediaUploadServlet
                 }
 
                 if (logger.isDebugEnabled()) {
-                    logger.debug("About to save SPV...");
-                }
-                Shepherd shepherd = new Shepherd(context);
-                SinglePhotoVideo media = new SinglePhotoVideo(fullPath);
-                media.setSubmitter(submitter);
-                shepherd.getPM().makePersistent(media);
-
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Done saving SPV");
+                    logger.debug("About to save media asset...");
                 }
 
-                ConnectionInfo ci = ShepherdPMF.getConnectionInfo();
+                try (Database db = ShepherdPMF.getDb()) {
+                    ma.setSubmitter(submitter);
+                    MediaAssetFactory.save(db, ma);
 
-                SqlInsertFormatter formatter = new SqlInsertFormatter();
-                formatter.append("mediasubmissionid", submissionId);
-                formatter.append("mediaid", media.getDataCollectionEventID());
-                if (logger.isDebugEnabled()) {
-                    logger.debug(LogBuilder.quickLog("About to save link to media", media.getDataCollectionEventID()));
-                }
-                try (Database db = new Database(ci)) {
+                    if (! fromZip) {
+                        //
+                        // In case the user decides to delete the file they just uploaded
+                        // (provided this has been called by then). If it's a zip file they
+                        // won't be able to delete it.
+                        //
+                        file.setId(ma.getID());
+                    }
+                    SqlInsertFormatter formatter = new SqlInsertFormatter();
+                    formatter.append("mediasubmissionid", submissionId);
+                    formatter.append("mediaid", ma.getID());
+
+                    if (logger.isDebugEnabled()) {
+                        logger.debug(LogBuilder.quickLog("About to save link to media", ma.getID()));
+                    }
+
                     db.getTable("mediasubmission_media").insertRow(formatter);
                 }
             } catch (Exception ex) {
                 logger.error("Trouble saving media file [" + fullPath.getAbsolutePath() + "]", ex);
-            }
-        }
-    }
-
-
-    private static class DeleteMedia
-        implements Runnable
-    {
-        private final String context;
-        private final long id;
-        private final File rootDir;
-        private final File baseDir;
-        private final FileMeta file;
-
-        public DeleteMedia(final String context,
-                           final long id,
-                           final File rootDir,
-                           final File baseDir,
-                           final FileMeta file)
-        {
-            this.context = context;
-            this.id = id;
-            this.rootDir = rootDir;
-            this.baseDir = baseDir;
-            this.file = file;
-        }
-
-        @Override
-        public void run() {
-            if (logger.isDebugEnabled()) {
-                logger.debug(LogBuilder.quickLog("Deleting media", id));
-            }
-
-            File fullBaseDir = new File(rootDir, baseDir.getPath());
-            fullBaseDir.mkdirs();
-
-            File fullPath = new File(fullBaseDir, file.getName());
-
-            try {
-                if (logger.isDebugEnabled()) {
-                    logger.debug(LogBuilder.quickLog("fullPath", fullPath.toString()));
-                }
-
-                fullPath.delete();
-
-                //
-                // Make Thumbnail
-                //
-                if (Shepherd.isAcceptableImageFile(file.getName())) {
-                    File thumbDir = new File(fullBaseDir, "thumb");
-                    File thumbPath = new File(thumbDir, file.getName());
-                    thumbPath.delete();
-                }
-
-                if (file.getName().indexOf(".kmz") > -1) {
-                    new File(fullPath.getAbsolutePath() + ".json").delete();
-                }
-
-                ConnectionInfo ci = ShepherdPMF.getConnectionInfo();
-
-                try (Database db = new Database(ci)){
-                    String sql;
-                    sql = "SELECT mediaid FROM mediasubmission_media msm"
-                          + " INNER JOIN \"SINGLEPHOTOVIDEO\" spv ON spv.\"DATACOLLECTIONEVENTID\" = msm.mediaid"
-                          + " WHERE spv.\"FILENAME\"= " + StringUtilities.wrapQuotes(file.getName())
-                          + " AND mediasubmissionid = " + id;
-                    RecordSet rs = db.getRecordSet(sql);
-                    if (!rs.next()) {
-                        return;
-                    }
-
-                    String mediaid = rs.getString("mediaid");
-
-                    //
-                    // Delete SPV
-                    //
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("About to delete SPV...");
-                    }
-
-                    Shepherd shepherd = new Shepherd(context);
-                    PersistenceManager pm = shepherd.getPM();
-                    Object obj;
-                    obj = pm.getObjectById(pm.newObjectIdInstance(SinglePhotoVideo.class, mediaid ), true);
-                    pm.deletePersistent(obj);
-
-
-                    SqlWhereFormatter formatter = new SqlWhereFormatter();
-                    formatter.append("mediasubmissionid", id);
-                    formatter.append("mediaid", mediaid);
-                    if (logger.isDebugEnabled()) {
-                        logger.debug(LogBuilder.quickLog("About to delete link to media", mediaid));
-                    }
-                    db.getTable("mediasubmission_media").deleteRows(formatter.getWhereClause());
-                }
-            } catch (Exception ex) {
-                logger.error("Trouble deleting media file [" + fullPath.getAbsolutePath() + "]", ex);
             }
         }
     }

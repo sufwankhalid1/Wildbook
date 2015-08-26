@@ -18,19 +18,20 @@
 
 package org.ecocean.media;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import java.lang.*;
-import java.nio.file.*;
-import static java.nio.file.StandardCopyOption.*;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
-import com.oreilly.servlet.multipart.FilePart;
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
-import com.samsix.database.*;
-
+import org.ecocean.util.LogBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.samsix.database.DatabaseException;
 
 /**
  * LocalAssetStore references MediaAssets on the current host's
@@ -48,9 +49,12 @@ import org.slf4j.LoggerFactory;
  * default (see AssetStore.loadDefault()).
  */
 public class LocalAssetStore extends AssetStore {
-    private static Logger log = LoggerFactory.getLogger(LocalAssetStore.class);
+    private static Logger logger = LoggerFactory.getLogger(LocalAssetStore.class);
     private static final String KEY_ROOT = "root";
     private static final String KEY_WEB_ROOT = "webroot";
+
+    private Path root;
+    private String webRoot;
 
 
     /**
@@ -67,8 +71,8 @@ public class LocalAssetStore extends AssetStore {
      * @param wriable True if we are allowed to save files under the
      * root.
      */
-    public LocalAssetStore(String name, Path root,
-                           URL webRoot, boolean writable)
+    public LocalAssetStore(final String name, final Path root,
+                           final String webRoot, final boolean writable)
     {
         this(NOT_SAVED, name, makeConfig(root, webRoot), writable);
     }
@@ -83,8 +87,8 @@ public class LocalAssetStore extends AssetStore {
      * @param webRoot Base web url under which asset paths are
      * appended.  If null, this store offers no web access to assets.
      */
-    LocalAssetStore(long id, String name,
-                    AssetStoreConfig config, boolean writable)
+    LocalAssetStore(final int id, final String name,
+                    final AssetStoreConfig config, final boolean writable)
     {
         super(id, name, AssetStoreType.LOCAL, config, writable);
     }
@@ -92,7 +96,7 @@ public class LocalAssetStore extends AssetStore {
     /**
      * Create our config map.
      */
-    private static AssetStoreConfig makeConfig(Path root, URL webRoot) {
+    private static AssetStoreConfig makeConfig(final Path root, final String webRoot) {
         AssetStoreConfig config = new AssetStoreConfig();
 
         if (root != null) config.put(KEY_ROOT, root);
@@ -101,8 +105,25 @@ public class LocalAssetStore extends AssetStore {
         return config;
     }
 
-    private Path root() { return config.getPath(KEY_ROOT); }
-    private URL webRoot() { return config.getURL(KEY_WEB_ROOT); }
+    public Path root() {
+        if (root == null) {
+            root = config.getPath(KEY_ROOT);
+            if (logger.isInfoEnabled()) {
+                logger.info("Asset Store [" + name + "] using root [" + root + "]");
+            }
+        }
+        return root;
+    }
+
+    private String webRoot() {
+        if (webRoot == null) {
+            webRoot = config.getString(KEY_WEB_ROOT);
+            if (logger.isInfoEnabled()) {
+                logger.info("Asset Store [" + name + "] using web root [" + webRoot + "]");
+            }
+        }
+        return webRoot;
+    }
 
     /**
      * Create a new MediaAsset that points to an existing file under
@@ -114,11 +135,12 @@ public class LocalAssetStore extends AssetStore {
      * @return The MediaAsset, or null if the path is invalid (not
      * under the asset root or nonexistent).
      */
-    public MediaAsset create(Path path, AssetType type) {
+    @Override
+    public MediaAsset create(final Path path, final String type) {
         try {
             return new MediaAsset(this, ensurePath(root(), path), type);
         } catch (IllegalArgumentException e) {
-            log.warn("Bad path", e);
+            logger.warn("Bad path", e);
             return null;
         }
     }
@@ -133,12 +155,13 @@ public class LocalAssetStore extends AssetStore {
      * @return The MediaAsset, or null if the path is invalid (not
      * under the asset root or nonexistent).
      */
-    public MediaAsset create(String path, AssetType type) {
+    @Override
+    public MediaAsset create(final String path, final String type) {
         try {
             Path p = new File(path).toPath();
             return new MediaAsset(this, ensurePath(root(), p), type);
         } catch (IllegalArgumentException e) {
-            log.warn("Bad path", e);
+            logger.warn("Bad path", e);
             return null;
         }
     }
@@ -153,23 +176,54 @@ public class LocalAssetStore extends AssetStore {
      * relative to the asset store root in which to store the file.
      *
      * @param type Probably AssetType.ORIGINAL.
+     * @throws DatabaseException
      */
-    public MediaAsset copyIn(Database db, File file,
-                             String path, AssetType type)
+    @Override
+    public MediaAsset copyIn(final File file,
+                             final String path,
+                             final String category)
         throws IOException
     {
         Path root = root();
-        Path p = new File(path).toPath();
-        Path subpath = checkPath(root, p);
+        Path subpath = checkPath(root, new File(path).toPath());
+
         Path fullpath = root.resolve(subpath);
 
         fullpath.getParent().toFile().mkdirs();
-        log.debug("copying from " + file + " to " + fullpath);
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("copying from " + file + " to " + fullpath);
+        }
 
         Files.copy(file.toPath(), fullpath, REPLACE_EXISTING);
 
-        return MediaAsset.findOrCreate(db, this, subpath, type);
+        return new MediaAsset(this, subpath, category);
     }
+
+
+    @Override
+    public void deleteFrom(final Path path)
+    {
+        File file = getFile(path);
+        if (!file.exists()) {
+            return;
+        }
+
+        file.delete();
+
+        File parentDir = file.getParentFile();
+
+        File[] files = parentDir.listFiles();
+        if (files == null || files.length == 0) { //some JVMs return null for empty dirs
+            parentDir.delete();
+        }
+    }
+
+
+    public File getFile(final Path path) {
+        return new File(root().toString(), path.toString());
+    }
+
 
     /**
      * Make sure path is under the root, either passed in as a
@@ -177,14 +231,15 @@ public class LocalAssetStore extends AssetStore {
      *
      * @return Subpath to the file relative to the root.
      */
-    public static Path checkPath(Path root, Path path) {
+    public static Path checkPath(final Path root, final Path path) {
         if (path == null) throw new IllegalArgumentException("null path");
 
         Path result = root.resolve(path);
         result = root.relativize(result.normalize());
 
-        if (result.startsWith(".."))
+        if (result.startsWith("..")) {
             throw new IllegalArgumentException("Path not under given root");
+        }
 
         return result;
     }
@@ -195,7 +250,7 @@ public class LocalAssetStore extends AssetStore {
      *
      * @return Subpath to the file relative to the root.
      */
-    public static Path ensurePath(Path root, Path path) {
+    public static Path ensurePath(final Path root, final Path path) {
         Path result = checkPath(root, path);
 
         Path full = root.resolve(path);
@@ -209,14 +264,31 @@ public class LocalAssetStore extends AssetStore {
      * Return a full URL to the given MediaAsset, or null if the asset
      * is not web-accessible.
      */
-    public URL webPath(MediaAsset asset) {
+    @Override
+    public URL webPath(final Path path) {
         if (webRoot() == null) return null;
-        if (asset == null) return null;
+        if (path == null) return null;
 
         try {
-            return new URL(webRoot(), asset.path.toString());
+            if (logger.isDebugEnabled()) {
+                logger.debug(LogBuilder.get().appendVar("webroot", webRoot().toString())
+                                .appendVar("path", path.toString()).toString());
+            }
+
+            URL url;
+            if (!path.startsWith("/")) {
+                url = new URL(webRoot() + "/" + path.toString());
+            } else {
+                url = new URL(webRoot() + path.toString());
+            }
+
+            if (logger.isDebugEnabled()) {
+                logger.debug(LogBuilder.quickLog("url", url.toString()));
+            }
+
+            return url;
         } catch (MalformedURLException e) {
-            log.warn("Can't construct web path", e);
+            logger.warn("Can't construct web path", e);
             return null;
         }
     }

@@ -18,252 +18,124 @@
 
 package org.ecocean.media;
 
-import java.io.File;
 import java.net.URL;
 import java.nio.file.Path;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.samsix.database.Database;
-import com.samsix.database.DatabaseException;
-import com.samsix.database.RecordSet;
-import com.samsix.database.SqlFormatter;
-import com.samsix.database.SqlInsertFormatter;
-import com.samsix.database.SqlUpdateFormatter;
-import com.samsix.database.SqlWhereFormatter;
-import com.samsix.database.Table;
+import java.util.Set;
 
 /**
  * MediaAsset describes a photo or video that can be displayed or used
  * for processing and analysis.
  */
 public class MediaAsset {
-    private static Logger log = LoggerFactory.getLogger(MediaAsset.class);
-    private static final String TABLE_NAME = "mediaasset";
-    public static final long NOT_SAVED = -1;
-    public long id = NOT_SAVED;
-    public AssetStore store;
-    public Path path;
-    public AssetType type;
-    // public Set<Keyword> keywords;
-    // public Set<Object> metadata;
+    protected int id = MediaAssetFactory.NOT_SAVED;
 
+    protected AssetStore store;
+    protected Path path;
 
-    /**
-     * Look for an existing asset with the given store and path.  If
-     * one exists, return it.  If not, create, save, and return one.
-     */
-    protected static MediaAsset findOrCreate (final Database db, final AssetStore store,
-                                              final Path path, final AssetType type)
-    {
-        try {
-            MediaAsset ma = load(db, store, path);
+    protected String category;
+    protected Set<String> tags;
+    protected Integer parentId;
+    protected Integer rootId;
 
-            if (ma == null) {
-                ma = new MediaAsset(store, path, type);
-                ma.save(db);
-            }
+    protected AssetStore thumbStore;
+    protected Path thumbPath;
+    protected String submitter;
 
-            return ma;
-        } catch (DatabaseException e) {
-            log.warn("finding or creating", e);
-            return null;
-        }
-    }
 
     /**
      * To be called by AssetStore factory method.
      */
-    protected MediaAsset(final AssetStore store, final Path path, final AssetType type)
+    public MediaAsset(final AssetStore store, final Path path, final String category)
     {
-        this(NOT_SAVED, store, path, type);
+        this(MediaAssetFactory.NOT_SAVED, store, path, category);
     }
 
-    /**
-     * To be called by load().
-     */
-    private MediaAsset(final long id, final AssetStore store, final Path path, final AssetType type)
-    {
-        if (store == null) throw new IllegalArgumentException("Null store");
-        if (path == null) throw new IllegalArgumentException("Null path");
-        if (type == null) throw new IllegalArgumentException("Null type");
 
+    public MediaAsset(final AssetStore store, final Path path)
+    {
+        this(MediaAssetFactory.NOT_SAVED, store, path, null);
+    }
+
+
+    public MediaAsset(final int id, final AssetStore store, final Path path, final String category)
+    {
         this.id = id;
         this.store = store;
         this.path = path;
-        this.type = type;
+        this.category = category;
     }
 
-    //
-    // asset file access
-    //
+
+    private URL getUrl(final AssetStore store, final Path path) {
+        if (store == null) {
+            return null;
+        }
+
+        return store.webPath(path);
+    }
+
+    private String getUrlString(final URL url) {
+        if (url == null) {
+            return null;
+        }
+
+        return url.toExternalForm();
+    }
+
+
+    public int getID()
+    {
+        return id;
+    }
+
+    public AssetStore getStore()
+    {
+        return store;
+    }
+
+    public Path getPath()
+    {
+        return path;
+    }
 
     /**
      * Return a full web-accessible url to the asset, or null if the
      * asset is not web-accessible.
      */
     public URL webPath() {
-        return store.webPath(this);
+        return getUrl(store, path);
     }
+
+    public String webPathString() {
+        return getUrlString(webPath());
+    }
+
+    public String thumbWebPathString() {
+        return getUrlString(thumbWebPath());
+    }
+
 
     /**
-     * Return the html to display this asset in a web page, or null if
-     * it is not web-accessible.
+     * Return a full web-accessible url to the asset, or null if the
+     * asset is not web-accessible.
      */
-    public String getDOM() {
-        URL path = webPath();
-
-        if (path != null) {
-            return String.format("<img src=\"%s\"/>", path);
-        } else {
-            return null;
-        }
+    public URL thumbWebPath() {
+        return getUrl(thumbStore, thumbPath);
     }
 
-    //
-    // familial relationships
-    //
-    /*
-    public MediaAsset getParent() {
-        return null; // TODO - ask db on demand
-    }
-
-    public Set<MediaAsset> getChildren() {
-        return null; // TODO - ask db on demand
-    }
-
-    // TODO MAYBE?
-    public Set<MediaAsset> getChildren(AssetType type) {
-        return null; // TODO - ask db on demand
-    }
-    */
-    // findFirst(type) / findAll(type)
-    /*
-    public Set<MediaAsset> findChildren(AssetType type) {
-        // NOTE we don't keep list of children!
-        return null; // TODO - ask db on demand
-    }
-
-    public MediaAsset getThumbnail() {
-        // TODO: best way to handle this?
-        // like findChildren(), but return first of known type.
-        return null;
-    }
-    */
-
-    //
-    // CRUD
-    //
-
-    /**
-     * Fetch a single asset from the database by id.
-     */
-    public static MediaAsset load(final Database db, final long id)
-        throws DatabaseException
+    public void setThumb(final AssetStore store, final Path path)
     {
-        if (id < 1) throw new IllegalArgumentException("bad id");
-
-        SqlWhereFormatter where = new SqlWhereFormatter();
-        where.append("id", id);
-
-        return load(db, where);
-    }
-
-    /**
-     * Fetch a single asset from the database by store and path.
-     */
-    public static MediaAsset load(final Database db, final AssetStore store, final Path path)
-        throws DatabaseException
-    {
-        if (store == null) throw new IllegalArgumentException("null store");
-        if (path == null) throw new IllegalArgumentException("null path");
-
-        SqlWhereFormatter where = new SqlWhereFormatter();
-        where.append("store", store.id);
-        where.append("path", path.toString());
-
-        return load(db, where);
-    }
-
-    /**
-     * Fetch a single asset from the database.
-     */
-    public static MediaAsset load(final Database db, final SqlWhereFormatter where)
-        throws DatabaseException
-    {
-        if (db == null)
-            throw new IllegalArgumentException("null database");
-        if (where == null)
-            throw new IllegalArgumentException("null where formatter");
-
-        Table table = db.getTable(TABLE_NAME);
-
-        RecordSet rs = table.getRecordSet(where.getWhereClause(), 1);
-        if (rs.next()) {
-            return valueOf(rs);
-        } else {
-            return null;
-        }
+        thumbStore = store;
+        thumbPath = path;
     }
 
 
-    public static MediaAsset valueOf(final RecordSet rs) throws DatabaseException
-    {
-        String pathstr = rs.getString("path");
-        if (pathstr == null) {
-            return null;
-        }
-
-        Path path = new File(pathstr).toPath();
-
-        return new MediaAsset(rs.getLong("id"),
-                              AssetStore.get(rs.getLong("store")),
-                              path,
-                              AssetType.valueOf(rs.getString("type")));
+    public String getSubmitter() {
+        return submitter;
     }
 
 
-    /**
-     * Store to the given database.
-     */
-    public void save(final Database db) throws DatabaseException {
-        Table table = db.getTable(TABLE_NAME);
-
-        if (id == NOT_SAVED) {
-            SqlInsertFormatter formatter = new SqlInsertFormatter();
-            fillFormatter(formatter);
-
-            id = table.insertSequencedRow(formatter, "id");
-        } else {
-            SqlUpdateFormatter formatter = new SqlUpdateFormatter();
-            fillFormatter(formatter);
-
-            SqlWhereFormatter where = new SqlWhereFormatter();
-            where.append("id", id);
-            table.updateRow(formatter.getUpdateClause(), where.getWhereClause());
-        }
-    }
-
-    /**
-     * Fill in formatter values from our properties.
-     */
-    private void fillFormatter(final SqlFormatter formatter) {
-        formatter.append("store", store.id);
-        formatter.append("path", path.toString());
-        formatter.append("type", type.name());
-    }
-
-    /**
-     * Delete this asset and any child assets from the given database.
-     * Does not delete any asset files.
-     *
-     * @param db Database where the asset lives.
-     */
-    public void delete(final Database db) throws DatabaseException {
-        if (id == NOT_SAVED) return;
-
-        Table table = db.getTable(TABLE_NAME);
-        table.deleteRows("id = " + id);
+    public void setSubmitter(final String submitter) {
+        this.submitter = submitter;
     }
 }

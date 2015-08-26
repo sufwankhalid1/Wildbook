@@ -124,7 +124,7 @@ angular.module('appWildbook').controller("MediaSubmissionController", function (
              {
                  field: 'thumbUrl',
                  headerName: 'Image',
-                 template: '<a href="javascript:;" ng-click="viewImage(data.url)"><img width="50px" src="..{{data.thumbUrl}}"></a>',
+                 template: '<a href="javascript:;" ng-click="viewImage(data.url)"><img width="50px" src="{{data.thumbUrl}}"></a>',
                  width: 60
              }
              ],

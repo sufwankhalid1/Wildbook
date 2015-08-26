@@ -47,20 +47,20 @@ import com.samsix.database.Table;
 public abstract class AssetStore {
     private static Logger log = LoggerFactory.getLogger(AssetStore.class);
     private static final String TABLE_NAME = "assetstore";
-    private static Map<Long, AssetStore> stores;
+    private static Map<Integer, AssetStore> stores;
 
-    public static final long NOT_SAVED = -1;
-    public long id = NOT_SAVED;
-    public String name;
-    public AssetStoreType type = AssetStoreType.LOCAL;
-    public AssetStoreConfig config;
-    public boolean writable = true;
+    public static final int NOT_SAVED = -1;
+    protected int id = NOT_SAVED;
+    protected String name;
+    protected AssetStoreType type = AssetStoreType.LOCAL;
+    protected AssetStoreConfig config;
+    protected boolean writable = true;
 
 
     /**
      * Create a new AssetStore.
      */
-    protected AssetStore(final long id, final String name,
+    protected AssetStore(final int id, final String name,
                          final AssetStoreType type,
                          final AssetStoreConfig config,
                          final boolean writable)
@@ -76,22 +76,22 @@ public abstract class AssetStore {
     }
 
 
-    private static Map<Long, AssetStore> getMap() throws DatabaseException
+    private static Map<Integer, AssetStore> getMap() throws DatabaseException
     {
         if (stores != null) {
             return stores;
         }
 
-        stores = new HashMap<Long, AssetStore>();
+        stores = new HashMap<Integer, AssetStore>();
 
-        try (Database db = new Database(ShepherdPMF.getConnectionInfo())) {
+        try (Database db = ShepherdPMF.getDb()) {
             RecordSet rs;
             Table table = db.getTable(TABLE_NAME);
 
             rs = table.getRecordSet();
             while (rs.next()) {
                 AssetStore store;
-                store = buildAssetStore(rs.getLong("id"),
+                store = buildAssetStore(rs.getInt("id"),
                                         rs.getString("name"),
                                         AssetStoreType.valueOf(rs.getString("type")),
                                         new AssetStoreConfig(rs.getString("config")),
@@ -103,9 +103,9 @@ public abstract class AssetStore {
         return stores;
     }
 
-    public static AssetStore get(final Long id)
+    public static AssetStore get(final Integer id) throws DatabaseException
     {
-        return stores.get(id);
+        return getMap().get(id);
     }
 
     public static AssetStore get(final String name) throws DatabaseException
@@ -122,18 +122,19 @@ public abstract class AssetStore {
     /**
      * Create a new AssetStore.  Used in load().
      */
-    private static AssetStore buildAssetStore(final long id,
+    private static AssetStore buildAssetStore(final int id,
                                               final String name,
                                               final AssetStoreType type,
                                               final AssetStoreConfig config,
                                               final boolean writable)
     {
-        if (name == null) throw new IllegalArgumentException("null name");
-        if (type == null) throw new IllegalArgumentException("null type");
+        if (name == null) throw new IllegalArgumentException("null asset store name");
+        if (type == null) throw new IllegalArgumentException("null asset store type");
 
-        if (type == AssetStoreType.LOCAL) {
+        switch (type) {
+        case LOCAL:
             return new LocalAssetStore(id, name, config, writable);
-        } else {
+        default:
             log.error("Unhandled asset store type: " + type);
             return null;
         }
@@ -143,29 +144,29 @@ public abstract class AssetStore {
     // do stuff
     //
 
-    public abstract URL webPath(MediaAsset asset);
+    public abstract URL webPath(Path path);
 
-    public abstract MediaAsset create(Path path, AssetType type);
+    public abstract MediaAsset create(Path path, String type);
 
-    public abstract MediaAsset create(String path, AssetType type);
+    public abstract MediaAsset create(String path, String type);
 
     /**
      * Create a new asset from the given form submission part.  The
      * file is copied in to the store as part of this process.
-     *
-     * @param db Database to store the new asset in.
      *
      * @param file File to copy in.
      *
      * @param path The (optional) subdirectory and (required) filename
      * relative to the asset store root in which to store the file.
      *
-     * @param type Probably AssetType.ORIGINAL.
+     * @param category Probably AssetType.ORIGINAL.
      */
-    public abstract MediaAsset copyIn(Database db, File file,
-                                      String path, AssetType type)
-        throws IOException;
+    public abstract MediaAsset copyIn(final File file,
+                                      final String path,
+                                      final String category)
+                                              throws IOException;
 
+    public abstract void deleteFrom(final Path path);
 
     /**
      * Fetch the default store (the one with the highest id) from the
@@ -224,6 +225,7 @@ public abstract class AssetStore {
         formatter.append("config", config.configString());
         formatter.append("writable", writable);
     }
+
 
     /**
      * Delete this store from the given database.  Does not delete any
