@@ -18,20 +18,19 @@
 
 package org.ecocean.media;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import java.nio.file.*;
-import java.lang.reflect.*;
-
-import com.samsix.database.*;
-import com.google.gson.*;
-import com.google.gson.reflect.*;
+import java.io.File;
+import java.lang.reflect.Type;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.ecocean.ShepherdPMF;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 /**
  * AssetStoreConfig manages configuration variables for subclasses of
@@ -52,7 +51,7 @@ public class AssetStoreConfig {
     /**
      * Create a config by deserializing a string.
      */
-    public AssetStoreConfig(String configString) {
+    public AssetStoreConfig(final String configString) {
         Type type = new TypeToken<HashMap<String, String>>() {}.getType();
 
         config = new Gson().fromJson(configString, type);
@@ -61,7 +60,7 @@ public class AssetStoreConfig {
     /**
      * Add a config variable.
      */
-    public void put(String key, Object value) {
+    public void put(final String key, final Object value) {
         if (key == null) throw new IllegalArgumentException("null key");
         if (value == null) throw new IllegalArgumentException("null value");
         config.put(key, value.toString());
@@ -71,7 +70,7 @@ public class AssetStoreConfig {
      * Return a config variable of the URL type, or null if it doesn't
      * exist or cannot be converted to a URL.
      */
-    public URL getURL(String key) {
+    public URL getURL(final String key) {
         String value = config.get(key);
 
         try {
@@ -85,14 +84,14 @@ public class AssetStoreConfig {
     /**
      * Return a config variable of the Path type.
      */
-    public Path getPath(String key) {
+    public Path getPath(final String key) {
         return new File(config.get(key)).toPath();
     }
 
     /**
      * Return a config variable of the String type.
      */
-    public String getString(String key) {
+    public String getString(final String key) {
         return config.get(key);
     }
 

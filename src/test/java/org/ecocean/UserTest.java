@@ -1,7 +1,7 @@
 /*
  * This file is a part of Wildbook.
  * Copyright (C) 2015 WildMe
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -18,26 +18,27 @@
 
 package org.ecocean;
 
-import java.util.*;
-import java.nio.*;
-import java.nio.file.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 
+import java.nio.file.Paths;
+
+import org.ecocean.media.AssetStore;
+import org.ecocean.media.LocalAssetStore;
+import org.ecocean.media.MediaAsset;
+import org.ecocean.media.MediaAssetFactory;
 import org.ecocean.servlet.ServletUtilities;
-import org.ecocean.media.*;
+import org.junit.Test;
 
-import com.samsix.database.*;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.junit.*;
-import static org.junit.Assert.*;
+import com.samsix.database.ConnectionInfo;
+import com.samsix.database.Database;
+import com.samsix.database.DatabaseException;
 
 /**
  * Test some User routines.
  */
 public class UserTest extends DBTestBase {
-    private static Logger log = LoggerFactory.getLogger(UserTest.class);
     private static final String USERNAME = "test";
 
 
@@ -49,7 +50,7 @@ public class UserTest extends DBTestBase {
         User user = createTestUser(shepherd);
         assertNotNull("Didn't create user", user);
         assertNull("Image already exists 1", user.getUserImageID());
-        
+
         // test load
         user = shepherd.getUser(USERNAME);
         assertNotNull("Didn't load user", user);
@@ -65,9 +66,9 @@ public class UserTest extends DBTestBase {
             las.save(db);
 
             try {
-                MediaAsset ma = las.create(Paths.get("/etc/hosts"), AssetType.ORIGINAL);
+                MediaAsset ma = las.create(Paths.get("/etc/hosts"), null);
                 assertNotNull("Null MediaAsset", ma);
-                ma.save(db);
+                MediaAssetFactory.save(db, ma);
 
                 user.setUserImage(ma);
             } catch (IllegalArgumentException iaex) {
@@ -81,7 +82,7 @@ public class UserTest extends DBTestBase {
 
             MediaAsset ma2 = user.getUserImage();
             assertNotNull("Failed to retrieve image", ma2);
-            
+
             // delete user image (not implemented)
 
             db.rollbackTransaction();
@@ -94,7 +95,7 @@ public class UserTest extends DBTestBase {
         shepherd.closeDBTransaction();
     }
 
-    private User createTestUser(Shepherd shepherd) {
+    private User createTestUser(final Shepherd shepherd) {
         String salt = ServletUtilities.getSalt().toHex();
         String hashedPassword = ServletUtilities.hashAndSaltPassword("not2,bGuesd", salt);
         User user = new User(USERNAME, hashedPassword, salt);

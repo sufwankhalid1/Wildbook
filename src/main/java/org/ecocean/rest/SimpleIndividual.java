@@ -1,11 +1,14 @@
 package org.ecocean.rest;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.text.WordUtils;
 
 
-class SimpleIndividual implements SimpleBeing
+public class SimpleIndividual implements SimpleBeing
 {
-    private String id;
+    private int id;
+    private String alternateId;
+    private String species;
     private String nickname;
     private String sex;
     private String avatar;
@@ -16,10 +19,10 @@ class SimpleIndividual implements SimpleBeing
         // for deserialization
     }
 
-    public SimpleIndividual(final String id,
+    public SimpleIndividual(final int id,
                             final String nickname)
     {
-        this.setId(id);
+        this.id = id;
         this.setNickname(nickname);
     }
 
@@ -35,12 +38,8 @@ class SimpleIndividual implements SimpleBeing
     }
 
 
-    public String getId() {
+    public int getId() {
         return id;
-    }
-
-    public void setId(final String id) {
-        this.id = id;
     }
 
     public String getNickname() {
@@ -52,13 +51,25 @@ class SimpleIndividual implements SimpleBeing
     }
 
 
+    public void setSpecies(final String species) {
+        this.species = species;
+    }
+
+
     @Override
     public String getDisplayName() {
-        if (! StringUtils.isBlank(nickname)) {
-            return nickname + " (" + id + ")";
+        String name;
+        if (StringUtils.isBlank(nickname)) {
+            name = "unknown";
+        } else {
+            name = nickname;
         }
 
-        return id;
+        if (StringUtils.isBlank(alternateId)) {
+            return name;
+        }
+
+        return name + " (" + alternateId + ")";
     }
 
 
@@ -73,10 +84,22 @@ class SimpleIndividual implements SimpleBeing
 
     @Override
     public String getSpecies() {
-        //
-        // TODO: Put this in the db. For now I'm hard-coding everything
-        // to humpbacks.
-        //
-        return "humpback_whale";
+        return species;
+    }
+
+    public String getSpeciesDisplayName() {
+        if (StringUtils.isBlank(species)) {
+            return "Individual";
+        }
+
+        return WordUtils.capitalize(species.replace("_", " "));
+    }
+
+    public String getAlternateId() {
+        return alternateId;
+    }
+
+    public void setAlternateId(final String alternateId) {
+        this.alternateId = alternateId;
     }
 }

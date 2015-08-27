@@ -4,7 +4,7 @@ package org.ecocean.rest;
 
 class SimpleEncounter
 {
-    private String guid;
+    private int id;
     private Long dateInMilliseconds;
     private String locationid;
     private String verbatimLocation;
@@ -18,18 +18,22 @@ class SimpleEncounter
         // for deserialization
     }
 
-    public SimpleEncounter(final String guid,
+    public SimpleEncounter(final int id,
                            final Long dateInMilliseconds)
     {
-        this.guid = guid;
+        this.id = id;
         this.dateInMilliseconds = dateInMilliseconds;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public Long getDateInMilliseconds() {
         return dateInMilliseconds;
     }
 
-    public void setDateInMilliseconds(Long dateInMilliseconds) {
+    public void setDateInMilliseconds(final Long dateInMilliseconds) {
         this.dateInMilliseconds = dateInMilliseconds;
     }
 
@@ -37,7 +41,7 @@ class SimpleEncounter
         return locationid;
     }
 
-    public void setLocationid(String locationid) {
+    public void setLocationid(final String locationid) {
         this.locationid = locationid;
     }
 
@@ -45,7 +49,7 @@ class SimpleEncounter
         return verbatimLocation;
     }
 
-    public void setVerbatimLocation(String verbatimLocation) {
+    public void setVerbatimLocation(final String verbatimLocation) {
         this.verbatimLocation = verbatimLocation;
     }
 
@@ -53,7 +57,7 @@ class SimpleEncounter
         return latitude;
     }
 
-    public void setLatitude(Double latitude) {
+    public void setLatitude(final Double latitude) {
         this.latitude = latitude;
     }
 
@@ -61,7 +65,7 @@ class SimpleEncounter
         return longitude;
     }
 
-    public void setLongitude(Double longitude) {
+    public void setLongitude(final Double longitude) {
         this.longitude = longitude;
     }
 
@@ -77,7 +81,7 @@ class SimpleEncounter
         return individual;
     }
 
-    public void setIndividual(SimpleIndividual individual) {
+    public void setIndividual(final SimpleIndividual individual) {
         this.individual = individual;
     }
 }

@@ -513,11 +513,12 @@ public class Shepherd {
   public User getUserByEmailAddress(final String email){
     String filter="SELECT FROM org.ecocean.User WHERE emailAddress == \""+email+"\"";
     Query query=getPM().newQuery(filter);
-    Collection c = (Collection) (query.execute());
-    Iterator it = c.iterator();
+    @SuppressWarnings("unchecked")
+    Collection<User> c = (Collection<User>) (query.execute());
+    Iterator<User> it = c.iterator();
 
     while(it.hasNext()){
-      User myUser=(User)it.next();
+      User myUser = it.next();
       query.closeAll();
       return myUser;
     }

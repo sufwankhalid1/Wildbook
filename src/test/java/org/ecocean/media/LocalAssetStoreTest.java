@@ -18,14 +18,18 @@
 
 package org.ecocean.media;
 
-import org.junit.*;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
+import java.io.File;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Path;
 
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +52,7 @@ public class LocalAssetStoreTest {
     public void checkWebPath() {
         AssetStore las = new LocalAssetStore("test", rootPath(), webRoot(), true);
 
-        MediaAsset ma = las.create(testFilePath(), AssetType.ORIGINAL);
+        MediaAsset ma = las.create(testFilePath(), null);
         assertNotNull("Null MediaAsset", ma);
 
         URL url = ma.webPath();
@@ -59,7 +63,7 @@ public class LocalAssetStoreTest {
         // now with more nulls!
         las = new LocalAssetStore("test", rootPath(), null, true);
 
-        ma = las.create(testFilePath(), AssetType.ORIGINAL);
+        ma = las.create(testFilePath(), null);
         assertNotNull("Null MediaAsset", ma);
         url = ma.webPath();
         assertNull("Not null URL", url);
@@ -153,12 +157,7 @@ public class LocalAssetStoreTest {
     /**
      * Return an example web root url for testing.
      */
-    private URL webRoot() {
-        try {
-            return new URL("http://example.com/assets/");
-        } catch (MalformedURLException e) {
-            log.warn("Can't construct test web root", e);
-            return null;
-        }
+    private String webRoot() {
+        return "http://example.com/assets/";
     }
 }

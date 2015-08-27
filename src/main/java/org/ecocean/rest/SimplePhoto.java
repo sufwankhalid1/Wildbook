@@ -1,9 +1,9 @@
 package org.ecocean.rest;
 
 
-class SimplePhoto
+public class SimplePhoto
 {
-    private String id;
+    private int id;
     private String url;
     private String thumbUrl;
 
@@ -12,7 +12,7 @@ class SimplePhoto
         // for deserialization
     }
 
-    public SimplePhoto(final String id,
+    public SimplePhoto(final int id,
                        final String url,
                        final String thumbUrl)
     {
@@ -21,11 +21,11 @@ class SimplePhoto
         this.thumbUrl = thumbUrl;
     }
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(final String id) {
+    public void setId(final int id) {
         this.id = id;
     }
 

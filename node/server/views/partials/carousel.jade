@@ -1,5 +1,5 @@
 if photos
-    //img.individual-main-image(src="#{config.wildbook.staticUrl}#{photos[0]}")
+    //img.individual-main-image(src="#{photos[0]}")
 
     #photo-carousel.carousel.slide(data-ride="carousel" data-interval="5000")
         //ol.carousel-indicators
@@ -14,7 +14,7 @@ if photos
                     .item.active
                         .col-md-4
                             a(href="#")
-                                img.img-responsive.carousel-image(src="#{config.wildbook.staticUrl}#{photo.url}")
+                                img.img-responsive.carousel-image(src="#{photo.url}")
                                 if photo.caption
                                     .carousel-caption
                                         h3 photo.caption
@@ -22,7 +22,7 @@ if photos
                     .item
                         .col-md-4
                             a(href="#")
-                                img.img-responsive.carousel-image(src="#{config.wildbook.staticUrl}#{photo.url}")
+                                img.img-responsive.carousel-image(src="#{photo.url}")
                                 if photo.caption
                                     .carousel-caption
                                         h3 photo.caption

@@ -1,18 +1,17 @@
 package org.ecocean;
 
-import java.util.Date;
 import java.io.Serializable;
-import org.ecocean.SinglePhotoVideo;
-import org.ecocean.media.*;
+import java.util.Date;
 
-import com.samsix.database.*;
-
+import org.ecocean.media.MediaAsset;
+import org.ecocean.media.MediaAssetFactory;
 import org.joda.time.DateTime;
-
-import com.stormpath.sdk.account.*;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.samsix.database.Database;
+import com.samsix.database.DatabaseException;
+import com.stormpath.sdk.account.Account;
 
 /**
  * <code>User</code> stores information about a contact/user.
@@ -37,7 +36,7 @@ public class User implements Serializable {
     private String userProject;
     private String userStatement;
     private String userURL;
-    private Long userImageID;
+    private Integer userImageID;
     private MediaAsset userImage; // not persisted
 
     //Misc. information about this user
@@ -62,7 +61,7 @@ public class User implements Serializable {
     //JDOQL required empty instantiator
     public User(){}
 
-    public User(String fullName, String emailAddress, String physicalAddress, String phoneNumber, String affiliation, String notes) {
+    public User(final String fullName, final String emailAddress, final String physicalAddress, final String phoneNumber, final String affiliation, final String notes) {
         setFullName(fullName);
         setEmailAddress(emailAddress);
         setPhysicalAddress(physicalAddress);
@@ -73,7 +72,7 @@ public class User implements Serializable {
         this.lastLogin=-1;
     }
 
-    public User(String username,String password, String salt){
+    public User(final String username,final String password, final String salt){
         setUsername(username);
         setPassword(password);
         setSalt(salt);
@@ -82,7 +81,7 @@ public class User implements Serializable {
         this.lastLogin=-1;
     }
 
-    public User(Account acc) {
+    public User(final Account acc) {
         //i *think* Stormpath will force these two the same; but not sure... so being careful
         String uname = acc.getUsername();
         if (uname == null) uname = acc.getEmail();
@@ -101,7 +100,7 @@ public class User implements Serializable {
     {
         return this.fullName;
     }
-    public void setFullName (String fullName)
+    public void setFullName (final String fullName)
     {
         this.fullName = fullName;
         RefreshDate();
@@ -111,7 +110,7 @@ public class User implements Serializable {
     {
         return this.emailAddress;
     }
-    public void setEmailAddress (String emailAddress)
+    public void setEmailAddress (final String emailAddress)
     {
         this.emailAddress = emailAddress;
         RefreshDate();
@@ -121,7 +120,7 @@ public class User implements Serializable {
     {
         return this.physicalAddress;
     }
-    public void setPhysicalAddress (String physicalAddress)
+    public void setPhysicalAddress (final String physicalAddress)
     {
         this.physicalAddress = physicalAddress;
         RefreshDate();
@@ -131,7 +130,7 @@ public class User implements Serializable {
     {
         return this.phoneNumber;
     }
-    public void setPhoneNumber (String phoneNumber)
+    public void setPhoneNumber (final String phoneNumber)
     {
         this.phoneNumber = phoneNumber;
         RefreshDate();
@@ -141,7 +140,7 @@ public class User implements Serializable {
     {
         return this.affiliation;
     }
-    public void setAffiliation (String affiliation)
+    public void setAffiliation (final String affiliation)
     {
         this.affiliation = affiliation;
         RefreshDate();
@@ -151,7 +150,7 @@ public class User implements Serializable {
     {
         return this.notes;
     }
-    public void setNotes (String notes)
+    public void setNotes (final String notes)
     {
         this.notes = notes;
         RefreshDate();
@@ -165,69 +164,69 @@ public class User implements Serializable {
     public long getUserID() {
         return userID;
     }
-    public void setUserID(long userID) {
+    public void setUserID(final long userID) {
         this.userID = userID;
     }
 
     public String getUsername() {
         return username;
     }
-    public void setUsername(String username) {
+    public void setUsername(final String username) {
         this.username = username;
     }
 
     public String getPassword() {
         return password;
     }
-    public void setPassword(String password) {
+    public void setPassword(final String password) {
         this.password = password;
     }
 
-    public void setSalt(String salt){this.salt=salt;}
+    public void setSalt(final String salt){this.salt=salt;}
     public String getSalt(){return salt;}
 
-    public void setUserProject(String newProj) {
+    public void setUserProject(final String newProj) {
         userProject = newProj;
     }
     public String getUserProject(){return userProject;}
 
-    public void setUserStatement(String newState) {
+    public void setUserStatement(final String newState) {
         userStatement = newState;
     }
     public String getUserStatement(){return userStatement;}
 
-    public Long getUserImageID() {return userImageID;}
+    public Integer getUserImageID() {return userImageID;}
 
     public MediaAsset getUserImage() {return userImage;}
 
-    public synchronized void cacheUserImage(Database db) {
+    public synchronized void cacheUserImage(final Database db) {
         if (db == null)
             throw new IllegalArgumentException("null database");
 
         if (userImageID == null ||
-            userImageID == MediaAsset.NOT_SAVED)
+            userImageID == MediaAssetFactory.NOT_SAVED)
             return;
 
         try {
-            userImage = MediaAsset.load(db, userImageID);
+            userImage = MediaAssetFactory.load(db, userImageID);
         } catch (DatabaseException e) {
             log.error("Error while loading user image " + userImageID + " from db " + db, e);
         }
     }
 
-    public synchronized void setUserImage(MediaAsset image) {
+    public synchronized void setUserImage(final MediaAsset image) {
         if (image == null) {
             userImageID = null;
-        } else if (image.id == MediaAsset.NOT_SAVED) {
+        } else if (image.getID() == MediaAssetFactory.NOT_SAVED) {
             throw new IllegalArgumentException("Image must be saved prior to set");
         } else {
-            userImageID = image.id;
+            userImageID = image.getID();
         }
 
         userImage = image;
     }
 
-    public void setUserURL(String newURL) {
+    public void setUserURL(final String newURL) {
         userURL = newURL;
     }
     public String getUserURL(){return userURL;}
@@ -241,17 +240,17 @@ public class User implements Serializable {
         return (new DateTime(this.lastLogin)).toString();
     }
 
-    public void setLastLogin(long lastie){this.lastLogin=lastie;}
+    public void setLastLogin(final long lastie){this.lastLogin=lastie;}
 
     public boolean getReceiveEmails(){return receiveEmails;}
-    public void setReceiveEmails(boolean receive){this.receiveEmails=receive;}
+    public void setReceiveEmails(final boolean receive){this.receiveEmails=receive;}
 
     public boolean getAcceptedUserAgreement(){return acceptedUserAgreement;}
 
-    public void setAcceptedUserAgreement(boolean accept){this.acceptedUserAgreement=accept;}
+    public void setAcceptedUserAgreement(final boolean accept){this.acceptedUserAgreement=accept;}
 
     //TODO this needs to be dealt with better.  see: rant about saving usernames from forms
-    public static boolean isUsernameAnonymous(String uname) {
+    public static boolean isUsernameAnonymous(final String uname) {
         return ((uname == null) || uname.equals("") || uname.equals("N/A"));
     }
 

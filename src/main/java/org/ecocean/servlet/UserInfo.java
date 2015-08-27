@@ -19,7 +19,9 @@
 
 package org.ecocean.servlet;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -27,22 +29,25 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.samsix.database.*;
-
-import org.ecocean.*;
-import org.ecocean.media.*;
+import org.ecocean.CommonConfiguration;
+import org.ecocean.Shepherd;
+import org.ecocean.User;
+import org.ecocean.media.MediaAsset;
 
 public class UserInfo extends HttpServlet {
 
-    public void init(ServletConfig config) throws ServletException {
+    @Override
+    public void init(final ServletConfig config) throws ServletException {
         super.init(config);
     }
 
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    @Override
+    public void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
         doPost(request, response);
     }
 
-    public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    @Override
+    public void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
         String context="context0";
         //context=ServletUtilities.getContext(request);
         Shepherd myShepherd = new Shepherd(context);
@@ -79,10 +84,10 @@ public class UserInfo extends HttpServlet {
         out.close();
     }
 
-    private String getPhotoURL(User user) {
+    private String getPhotoURL(final User user) {
         MediaAsset image = user.getUserImage();
         if (image != null) {
-            return image.webPath().toString();
+            return image.webPathString();
         }
 
         // fallback

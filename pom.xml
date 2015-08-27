@@ -415,7 +415,7 @@
     <dependency>
       <groupId>com.samsix</groupId>
       <artifactId>s6-db</artifactId>
-      <version>1.0.4</version>
+      <version>1.0.5-SNAPSHOT</version>
     </dependency>
 
     <dependency>
@@ -657,6 +657,15 @@
                 </goals>
               </execution>
             </executions>
+        </plugin>
+        
+        <plugin>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-maven-plugin</artifactId>
+            <version>3.2.1</version>
+            <configuration>
+                ....
+            </configuration>
         </plugin>
     </plugins>
 

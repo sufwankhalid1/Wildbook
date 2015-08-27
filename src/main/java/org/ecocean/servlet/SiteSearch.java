@@ -23,9 +23,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
-import javax.jdo.Query;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -33,13 +31,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
-import org.ecocean.MarkedIndividual;
-import org.ecocean.Shepherd;
-import org.ecocean.User;
+import org.ecocean.ShepherdPMF;
+import org.ecocean.rest.SimpleFactory;
+import org.ecocean.rest.SimpleIndividual;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
+import com.samsix.database.Database;
+import com.samsix.database.DatabaseException;
+import com.samsix.database.RecordSet;
 import com.samsix.util.string.StringUtilities;
 
 
@@ -60,9 +61,6 @@ public class SiteSearch extends HttpServlet {
 
     @Override
     public void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
-        String context="context0";
-        context=ServletUtilities.getContext(request);
-        Shepherd myShepherd = new Shepherd(context);
         //set up for response
         response.setContentType("text/json");
         PrintWriter out = response.getWriter();
@@ -73,84 +71,60 @@ public class SiteSearch extends HttpServlet {
             return;
         }
 
-        String regex = ".*" + term.toLowerCase() + ".*";
+        try (Database db = ShepherdPMF.getDb()) {
+            String search = StringUtilities.wrapQuotes("%" + term.toLowerCase() + "%");
+            ArrayList<HashMap<String, String>> list = new ArrayList<HashMap<String, String>>();
 
-        ArrayList<HashMap<String, String>> list = new ArrayList<HashMap<String, String>>();
-        String filter;
-        Query query;
+            RecordSet rs;
 
-        //
-        // Query on Individuals
-        //
-        filter = "this.nickName.toLowerCase().matches('"
-                + regex
-                + "') || this.individualID.matches('"
-                + regex + "')";
+            String sql;
+            sql = "select * from individuals where lower(alternateid) like "
+                    + search
+                    + " OR lower(nickname) like "
+                    + search;
 
-        query = myShepherd.getPM().newQuery(MarkedIndividual.class);
-        query.setFilter(filter);
+            rs = db.getRecordSet(sql);
+            while (rs.next()) {
+                SimpleIndividual individual = SimpleFactory.readSimpleIndividual(rs);
 
-        //
-        // Check to make sure our query is fine, log error if not.
-        //
-        if (logger.isDebugEnabled()) {
-            logger.debug(filter);
-            try {
-                query.compile();
-            } catch (Throwable ex) {
-                logger.error("Bad query", ex);
+                HashMap<String, String> hm = new HashMap<String, String>();
+                hm.put("label", individual.getDisplayName());
+                hm.put("value", String.valueOf(individual.getId()));
+                hm.put("type", "individual");
+                hm.put("species", individual.getSpecies());
+                hm.put("speciesdisplay", individual.getSpeciesDisplayName());
+                list.add(hm);
             }
-        }
-
-        @SuppressWarnings("unchecked")
-        List<MarkedIndividual> individuals = (List<MarkedIndividual>) query.execute();
-
-        for (MarkedIndividual ind : individuals) {
-            HashMap<String, String> hm = new HashMap<String, String>();
-            if (StringUtils.isBlank(ind.getNickName())) {
-                hm.put("label", ind.getIndividualID());
-            } else {
-                hm.put("label", ind.getNickName() + " (" + ind.getIndividualID() + ")");
-            }
-            hm.put("value", ind.getIndividualID());
-            hm.put("type", "individual");
 
             //
-            // TODO: Read species from db. See SimpleIndividual
+            // Query on Users
             //
-            hm.put("species", StringUtilities.toTitleCase("humpback_whale".replace("_", " ")));
-            list.add(hm);
-        }
+            sql = "select * from \"USERS\" where lower(\"FULLNAME\") like "
+                    + search
+                    + " OR lower(\"USERNAME\") like "
+                    + search;
 
-        //
-        // Query on Users
-        //
-        filter = "this.fullName.toLowerCase().matches('"
-                + regex
-                + "') || this.username.toLowerCase().matches('"
-                + regex + "')";
-
-        query = myShepherd.getPM().newQuery(User.class);
-        query.setFilter(filter);
-
-        @SuppressWarnings("unchecked")
-        List<User> users = (List<User>) query.execute();
-
-        for (User user : users) {
-            HashMap<String, String> hm = new HashMap<String, String>();
-            if (StringUtils.isBlank(user.getFullName())) {
-                hm.put("label", user.getUsername());
-            } else {
-                hm.put("label", user.getFullName() + " (" + user.getUsername() + ")");
+            rs = db.getRecordSet(sql);
+            while (rs.next()) {
+                HashMap<String, String> hm = new HashMap<String, String>();
+                String fullname = rs.getString("FULLNAME");
+                String username = rs.getString("USERNAME");
+                if (StringUtils.isBlank(fullname)) {
+                    hm.put("label", username);
+                } else {
+                    hm.put("label", fullname + " (" + username + ")");
+                }
+                hm.put("value", username);
+                hm.put("type", "user");
+                list.add(hm);
             }
-            hm.put("value", user.getUsername());
-            hm.put("type", "user");
-            list.add(hm);
-        }
 
-        //
-        // return our results
-        //
-        out.println(new Gson().toJson(list));
+            //
+            // return our results
+            //
+            out.println(new Gson().toJson(list));
+        } catch (DatabaseException ex) {
+            throw new ServletException(ex);
+        }
     }
 }

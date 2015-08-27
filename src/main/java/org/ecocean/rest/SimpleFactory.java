@@ -2,6 +2,7 @@ package org.ecocean.rest;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +12,7 @@ import org.ecocean.Point;
 import org.ecocean.ShepherdPMF;
 import org.ecocean.SinglePhotoVideo;
 import org.ecocean.media.MediaAsset;
+import org.ecocean.media.MediaAssetFactory;
 import org.ecocean.survey.SurveyTrack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,13 +46,13 @@ public class SimpleFactory {
 //    }
 
 
-    public static List<SimpleEncounter> getIndividualEncounters(final String context, final SimpleIndividual individual) throws DatabaseException
+    public static List<SimpleEncounter> getIndividualEncounters(final SimpleIndividual individual) throws DatabaseException
     {
         try (Database db = new Database(ShepherdPMF.getConnectionInfo())) {
-            String sql = "SELECT * FROM \"ENCOUNTER\" e"
-                    + " LEFT OUTER JOIN \"USERS\" u ON u.\"USERNAME\" = e.\"SUBMITTERID\""
+            String sql = "SELECT * FROM encounters e"
+                    + " LEFT OUTER JOIN \"USERS\" u ON u.\"USERNAME\" = e.submitter"
                     + " LEFT OUTER JOIN mediaasset ma ON ma.id = u.\"USERIMAGEID\""
-                    + " WHERE \"INDIVIDUALID\" = " + StringUtilities.wrapQuotes(individual.getId());
+                    + " WHERE individualid = " + individual.getId();
 
             List<SimpleEncounter> encounters = new ArrayList<SimpleEncounter>();
 
@@ -64,17 +66,16 @@ public class SimpleFactory {
         }
     }
 
-    public static List<SimplePhoto> getIndividualPhotos(final String context, final String individualId) throws DatabaseException
+    public static List<SimplePhoto> getIndividualPhotos(final int individualId) throws DatabaseException
     {
         //
         // Add photos
         //
         try (Database db = new Database(ShepherdPMF.getConnectionInfo())) {
-            String sqlRoot = "SELECT spv.* FROM \"SINGLEPHOTOVIDEO\" spv"
-                    + " INNER JOIN \"ENCOUNTER_IMAGES\" ei ON spv.\"DATACOLLECTIONEVENTID\" = ei.\"DATACOLLECTIONEVENTID_EID\""
-                    + " INNER JOIN \"MARKEDINDIVIDUAL_ENCOUNTERS\" mie ON mie.\"CATALOGNUMBER_EID\" = ei.\"CATALOGNUMBER_OID\"";
-            String mtmJoin = " INNER JOIN \"MEDIATAG_MEDIA\" mtm ON spv.\"DATACOLLECTIONEVENTID\" = mtm.\"DATACOLLECTIONEVENTID_EID\"";
-            String whereRoot = " WHERE mie.\"INDIVIDUALID_OID\" = " + StringUtilities.wrapQuotes(individualId);
+            String sqlRoot = "SELECT ma.* FROM mediaasset ma"
+                    + " INNER JOIN encounter_media em ON ma.id = em.mediaid"
+                    + " INNER JOIN encounters e ON e.encounterid = em.encounterid";
+            String whereRoot = " WHERE e.individualid = " + individualId;
 
             String sql;
             RecordSet rs;
@@ -83,12 +84,11 @@ public class SimpleFactory {
             //
             // Find the highlight images for this individual.
             //
-            sql = sqlRoot + mtmJoin + whereRoot
-                    + " AND mtm.\"NAME_OID\" = 'highlight'";
+            sql = sqlRoot + whereRoot + " AND 'highlight' = ANY (ma.tags)";
 
             rs = db.getRecordSet(sql);
             while (rs.next()) {
-                photos.add(readPhoto(context, rs));
+                photos.add(readPhoto(rs));
             }
 
             //
@@ -106,11 +106,11 @@ public class SimpleFactory {
                         break;
                     }
 
-                    SimplePhoto photo = readPhoto(context, rs);
+                    SimplePhoto photo = readPhoto(rs);
 
                     boolean addphoto = true;
                     for (SimplePhoto foto : photos) {
-                        if (foto.getId().equals(photo.getId())) {
+                        if (foto.getId() == photo.getId()) {
                             // don't add the same photo twice
                             addphoto = false;
                             break;
@@ -141,17 +141,17 @@ public class SimpleFactory {
 //    }
 
 
-    public static SimpleIndividual getIndividual(final String context, final String individualId) throws DatabaseException
+    public static SimpleIndividual getIndividual(final String individualId) throws DatabaseException
     {
         try (Database db = new Database(ShepherdPMF.getConnectionInfo())) {
             String sql;
             RecordSet rs;
-            sql = "select * from \"MARKEDINDIVIDUAL\" mi"
-                    + " left outer join \"SINGLEPHOTOVIDEO\" spv on mi.\"AVATAR_DATACOLLECTIONEVENTID_OID\" = spv.\"DATACOLLECTIONEVENTID\""
-                    + " where \"INDIVIDUALID\" = " + StringUtilities.wrapQuotes(individualId);
+            sql = "select * from individuals i"
+                    + " left outer join mediaasset ma on ma.id = i.avatarid"
+                    + " where individualid = " + individualId;
             rs = db.getRecordSet(sql);
             if (rs.next()) {
-                return readSimpleIndividual(context, rs);
+                return readSimpleIndividual(rs);
             }
 
             return null;
@@ -159,8 +159,7 @@ public class SimpleFactory {
     }
 
 
-    public static UserInfo getUserInfo(final String context,
-                                       final String username) throws DatabaseException
+    public static UserInfo getUserInfo(final String username) throws DatabaseException
     {
         SimpleUser user = getUser(username);
 
@@ -176,8 +175,8 @@ public class SimpleFactory {
         // 4) Indivduals identified (unique Individuals from Encounters
         // 5) Voyages on
         //
-        String sqlRoot = "SELECT spv.* FROM \"SINGLEPHOTOVIDEO\" spv";
-        String whereRoot = " WHERE spv.\"SUBMITTER\" = " + StringUtilities.wrapQuotes(username);
+        String sqlRoot = "SELECT ma.* FROM mediaasset ma";
+        String whereRoot = " WHERE ma.submitter = " + StringUtilities.wrapQuotes(username);
 
         try (Database db = new Database(ShepherdPMF.getConnectionInfo())) {
             String sql;
@@ -191,24 +190,21 @@ public class SimpleFactory {
             // Did the user submit an avatar photo?
             //
             sql = sqlRoot
-                    + " INNER JOIN \"MARKEDINDIVIDUAL\" mi ON spv.\"DATACOLLECTIONEVENTID\" = mi.\"AVATAR_DATACOLLECTIONEVENTID_OID\""
+                    + " INNER JOIN individuals i ON ma.id = i.avatarid"
                     + whereRoot;
             rs = db.getRecordSet(sql);
             while (rs.next()) {
-                userinfo.addPhoto(readPhoto(context, rs));
+                userinfo.addPhoto(readPhoto(rs));
             }
 
             //
             // Highlighted photos
             //
-            sql = sqlRoot
-                    + " INNER JOIN \"MEDIATAG_MEDIA\" mtm ON spv.\"DATACOLLECTIONEVENTID\" = mtm.\"DATACOLLECTIONEVENTID_EID\""
-                    + whereRoot
-                    + " AND mtm.\"NAME_OID\" = 'highlight'";
+            sql = sqlRoot + whereRoot + " AND 'highlight' = ANY (ma.tags)";
 
             rs = db.getRecordSet(sql);
             while (rs.next()) {
-                userinfo.addPhoto(readPhoto(context, rs));
+                userinfo.addPhoto(readPhoto(rs));
             }
 
             //
@@ -227,14 +223,14 @@ public class SimpleFactory {
                         break;
                     }
 
-                    userinfo.addPhoto(readPhoto(context, rs));
+                    userinfo.addPhoto(readPhoto(rs));
                 }
             }
 
             //
             // 2) Total Number of photos
             //
-            sql = "SELECT count(*) AS count FROM \"SINGLEPHOTOVIDEO\" spv" + whereRoot;
+            sql = "SELECT count(*) AS count FROM mediaasset ma" + whereRoot;
             rs = db.getRecordSet(sql);
             if (rs.next()) {
                 userinfo.setTotalPhotoCount(rs.getInt("count"));
@@ -246,18 +242,18 @@ public class SimpleFactory {
             // is duplicated because javascript does not have hashmaps which makes the code to try and
             // get all the unique values of individualID into an array much messier.
             //
-            sql = "select e.*, mi.*, spva.*, u.*, ma.* from \"ENCOUNTER\" e"
-                    + " inner join \"ENCOUNTER_IMAGES\" ei on e.\"CATALOGNUMBER\" = ei.\"CATALOGNUMBER_OID\""
-                    + " inner join \"SINGLEPHOTOVIDEO\" spv on ei.\"DATACOLLECTIONEVENTID_EID\" = spv.\"DATACOLLECTIONEVENTID\""
-                    + " left outer join \"MARKEDINDIVIDUAL\" mi on e.\"INDIVIDUALID\" = mi.\"INDIVIDUALID\""
-                    + " left outer join \"SINGLEPHOTOVIDEO\" spva on mi.\"AVATAR_DATACOLLECTIONEVENTID_OID\" = spva.\"DATACOLLECTIONEVENTID\""
-                    + " LEFT OUTER JOIN \"USERS\" u ON u.\"USERNAME\" = e.\"SUBMITTERID\""
-                    + " LEFT OUTER JOIN mediaasset ma ON ma.id = u.\"USERIMAGEID\""
+            sql = "select e.*, i.*, maa.*, u.*, mau.* from encounters e"
+                    + " inner join encounter_media em on em.encounterid = e.encounterid"
+                    + " inner join mediaasset ma on ma.id = em.mediaid"
+                    + " left outer join individuals i on i.individualid = e.individualid"
+                    + " left outer join mediaasset maa on maa.id = i.avatarid"
+                    + " LEFT OUTER JOIN \"USERS\" u ON u.\"USERNAME\" = e.submitter"
+                    + " LEFT OUTER JOIN mediaasset mau ON mau.id = u.\"USERIMAGEID\""
                     + whereRoot;
-            Map<String, SimpleIndividual> inds = new HashMap<String, SimpleIndividual>();
+            Map<Integer, SimpleIndividual> inds = new HashMap<>();
             rs = db.getRecordSet(sql);
             while (rs.next()) {
-                SimpleEncounter encounter = readSimpleEncounter(context, rs);
+                SimpleEncounter encounter = readSimpleEncounter(rs);
                 SimpleIndividual ind = encounter.getIndividual();
                 if (ind != null) {
                     inds.put(ind.getId(), ind);
@@ -267,39 +263,39 @@ public class SimpleFactory {
             userinfo.setIndividuals(new ArrayList<SimpleIndividual>(inds.values()));
 
             //
-            // Get voyages they were a part of...
-            // TODO: This is a bad design! We are getting the voyages they were on by the photos they submitted to the SurveyTrack!
-            // Bleh! We need to have a SurveyTrack_User table that just indicates the user was on that SurveyTrack. For now I'm
-            // just going to code it based on the photos taken knowing that this will change.
+            // TODO: Fix this so that it works with new file types. Don't think we need to convert the tiny
+            // bit of data that has accumulated on the server as I think it is only John's test data.
             //
-            sql = "SELECT DISTINCT(\"ID_OID\") as ID FROM \"SURVEYTRACK_MEDIA\" stm"
-                    +  " INNER JOIN \"SINGLEPHOTOVIDEO\" spv ON stm.\"DATACOLLECTIONEVENTID_EID\" = spv.\"DATACOLLECTIONEVENTID\""
-                    + whereRoot;
-            rs = db.getRecordSet(sql);
-            while (rs.next()) {
-                userinfo.addVoyage(getSurveyTrack(db, rs.getLong("ID")));
-            }
+//            //
+//            // Get voyages they were a part of...
+//            // TODO: This is a bad design! We are getting the voyages they were on by the photos they submitted to the SurveyTrack!
+//            // Bleh! We need to have a SurveyTrack_User table that just indicates the user was on that SurveyTrack. For now I'm
+//            // just going to code it based on the photos taken knowing that this will change.
+//            //
+//            sql = "SELECT DISTINCT(\"ID_OID\") as ID FROM \"SURVEYTRACK_MEDIA\" stm"
+//                    +  " INNER JOIN \"SINGLEPHOTOVIDEO\" spv ON stm.\"DATACOLLECTIONEVENTID_EID\" = spv.\"DATACOLLECTIONEVENTID\""
+//                    + whereRoot;
+//            rs = db.getRecordSet(sql);
+//            while (rs.next()) {
+//                userinfo.addVoyage(getSurveyTrack(db, rs.getLong("ID")));
+//            }
+            userinfo.setVoyages(Collections.<SurveyTrack>emptyList());
         }
 
         return userinfo;
     }
 
 
-    private static SimpleIndividual readSimpleIndividual(final String context,
-                                                         final RecordSet rs) throws DatabaseException
+    public static SimpleIndividual readSimpleIndividual(final RecordSet rs) throws DatabaseException
     {
-        String id = rs.getString("INDIVIDUALID");
+        SimpleIndividual ind = new SimpleIndividual(rs.getInt("individualid"), rs.getString("nickname"));
+        ind.setSex(rs.getString("sex"));
+        ind.setSpecies(rs.getString("species"));
+        ind.setAlternateId(rs.getString("alternateid"));
 
-        if (id == null) {
-            return null;
-        }
-
-        SimpleIndividual ind = new SimpleIndividual(id, rs.getString("NICKNAME"));
-        ind.setSex(rs.getString("SEX"));
-
-        SimplePhoto photo = readPhoto(context, rs);
+        SimplePhoto photo = readPhoto(rs);
         if (photo != null) {
-            ind.setAvatar(photo.getUrl());
+            ind.setAvatar(photo.getThumbUrl());
         }
 
         return ind;
@@ -378,37 +374,15 @@ public class SimpleFactory {
     }
 
 
-//    private static Encounter readEncounter(final RecordSet rs) throws DatabaseException
-//    {
-//        Encounter encounter = new Encounter();
-//
-//        encounter.setEncounterNumber(rs.getString("CATALOGNUMBER"));
-//        encounter.setDWCGlobalUniqueIdentifier(rs.getString("GUID"));
-//        encounter.setDateInMilliseconds(rs.getLong("DATEINMILLISECONDS"));
-//        encounter.setLocationID(rs.getString("LOCATIONID"));
-//        encounter.setLatitude(rs.getDoubleObj("DECIMALLATITUDE"));
-//        encounter.setLongitude(rs.getDoubleObj("DECIMALLONGITUDE"));
-//        encounter.setSubmitterName(rs.getString("SUBMITTERID"));
-//        encounter.setIndividualID(rs.getString("INDIVIDUALID"));
-//
-//        return encounter;
-//    }
-
-
     private static SimpleEncounter readSimpleEncounter(final SimpleIndividual individual,
                                                        final RecordSet rs) throws DatabaseException
     {
-        String number = rs.getString("CATALOGNUMBER");
-        if (number == null) {
-            return null;
-        }
+        SimpleEncounter encounter = new SimpleEncounter(rs.getInt("encounterid"), rs.getLong("encdate"));
 
-        SimpleEncounter encounter = new SimpleEncounter(number, rs.getLong("DATEINMILLISECONDS"));
-
-        encounter.setLocationid(rs.getString("LOCATIONID"));
-        encounter.setLatitude(rs.getDoubleObj("DECIMALLATITUDE"));
-        encounter.setLongitude(rs.getDoubleObj("DECIMALLONGITUDE"));
-        encounter.setVerbatimLocation(rs.getString("VERBATIMLOCALITY"));
+        encounter.setLocationid(rs.getString("locationid"));
+        encounter.setLatitude(rs.getDoubleObj("latitude"));
+        encounter.setLongitude(rs.getDoubleObj("longitude"));
+        encounter.setVerbatimLocation(rs.getString("verbatimLocation"));
 
         encounter.setSubmitter(readUser(rs));
         encounter.setIndividual(individual);
@@ -416,10 +390,9 @@ public class SimpleFactory {
         return encounter;
     }
 
-    private static SimpleEncounter readSimpleEncounter(final String context,
-                                                       final RecordSet rs) throws DatabaseException
+    private static SimpleEncounter readSimpleEncounter(final RecordSet rs) throws DatabaseException
     {
-        return readSimpleEncounter(readSimpleIndividual(context, rs), rs);
+        return readSimpleEncounter(readSimpleIndividual(rs), rs);
     }
 
 
@@ -469,19 +442,24 @@ public class SimpleFactory {
     {
         String url = spv.asUrl(context);
 
-        return new SimplePhoto(spv.getDataCollectionEventID(), url, getThumbnail(url));
+        //
+        // TODO: Get rid of this actually. I don't want to have to mess with the voyage
+        // page at the moment so i'm just going to make it compile.
+        //
+//        return new SimplePhoto(spv.getDataCollectionEventID(), url, getThumbnail(url));
+        return new SimplePhoto(0, url, getThumbnail(url));
     }
 
 
-    public static SimplePhoto readPhoto(final String context, final RecordSet rs) throws DatabaseException
+    public static SimplePhoto readPhoto(final RecordSet rs) throws DatabaseException
     {
-        String id = rs.getString("DATACOLLECTIONEVENTID");
-        if (id == null) {
+        MediaAsset ma = MediaAssetFactory.valueOf(rs);
+
+        if (ma == null) {
             return null;
         }
 
-        String url = SinglePhotoVideo.getUrl(context, rs.getString("FULLFILESYSTEMPATH"), rs.getString("FILENAME"));
-        return new SimplePhoto(id, url, getThumbnail(url));
+        return new SimplePhoto(ma.getID(), ma.webPathString(), ma.thumbWebPathString());
     }
 
 
@@ -528,10 +506,10 @@ public class SimpleFactory {
 
         SimpleUser su = new SimpleUser(rs.getString("USERNAME"), rs.getString("EMAILADDRESS"));
 
-        MediaAsset ma = MediaAsset.valueOf(rs);
+        MediaAsset ma = MediaAssetFactory.valueOf(rs);
 
         if (ma != null) {
-            su.setAvatar(ma.webPath().getFile());
+            su.setAvatar(ma.webPathString());
         }
 
         su.setAffiliation(rs.getString("AFFILIATION"));
