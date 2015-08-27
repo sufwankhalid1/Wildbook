@@ -16,7 +16,6 @@ block content
                             span.no-avatar
                 .clearfix.visible-sm-block
                 .stats-col.col-lg-5.col-md-5.col-sm-6.col-xs-12
-                    //todo: add specific code for styling userpage infog
                     .row-inner.infographic-4
                         span.sight-individual-number #{data.userinfo.individuals.length}
                         h3.sight-individual-number-text= t("userpage.individualsIdentified")
@@ -30,27 +29,32 @@ block content
                         h3.sight-voyage-text= t("userpage.voyagesCompleted")
                         .sight-voyage-info
 
-                                //img(src="/cust/images/img_voyageviewer.svg" 
-                                //img(src="/cust/images/img_binoculars.svg" 
-
-
         -var photos = data.userinfo.photos
+
         if photos.length > 0
-            h1.has-icon.icon-bullet-individual= t("userpage.topRatedContributions")
-            hr
             include partials/phototool
 
-        h1.has-icon.icon-bullet-individual= t("userpage.individualsEncountered")
-        hr
-        #map-sightings
+        .container-fluid
+            .row
+                .col-md-12
+                    h2.has-icon.icon-bullet-individual= t("userpage.individualsEncountered")
+                hr
+        .container-fluid.map-sightings
+            .row
+                .col-md-12
+                    #map-sightings
 
-        for being in data.userinfo.individuals
-            ul.submitters
-                li
-                    include partials/avatar
-
-        h1.has-icon.icon-voyageviewer= t("userpage.voyages")
-        hr
+        .container-fluid
+            .row
+                .col-md-12
+                    for being in data.userinfo.individuals
+                        ul.submitters
+                            li
+                                include partials/avatar
+            .row
+                .col-md-12
+                    h2.has-icon.icon-voyageviewer= t("userpage.voyages")
+                    hr
 
 
 block configScripts

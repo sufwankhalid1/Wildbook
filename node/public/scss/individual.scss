@@ -137,6 +137,9 @@
 .infographic-2,
 .infographic-5 {
     position: relative;
+    width: 100%;
+    max-width: 360px;
+    margin: 0 auto;
     @include flexbox-display-flex();
     @include flexbox-flex-flow(column nowrap);
 }

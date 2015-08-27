@@ -247,6 +247,9 @@ h1, h2, h3, h4, h5, h6, p, div {
 .infographic-2,
 .infographic-5 {
   position: relative;
+  width: 100%;
+  max-width: 360px;
+  margin: 0 auto;
   display: -webkit-box;
   display: -moz-box;
   display: -ms-flexbox;
