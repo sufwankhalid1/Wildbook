@@ -20,6 +20,7 @@ echo "Using TOMCAT_HOME=$TOMCAT_HOME"
 sudo /etc/init.d/tomcat8 stop
 sudo rm -rf $TOMCAT_HOME/work
 sudo mv /var/log/tomcat8/catalina.out /var/log/tomcat8/catalina.out.old
+sudo mv /opt/happywhale/log/core.html /opt/happywhale/log/core_old.html
 if (( $# > 0 ))
 then
     sudo rm -rf $TOMCAT_HOME/webapps/${webapp}
