@@ -410,13 +410,6 @@ h1, h2, h3, h4, h5, h6, p, div {
 .photo-thumbnail:last-child {
   border-right-width: 0; }
 
-#map-sightings {
-  margin-top: 10px;
-  width: 100%;
-  height: 600px;
-  border: 5px solid;
-  border-color: #96a1a5; }
-
 .submitters {
   padding: 0;
   list-style-type: none;
@@ -663,5 +656,25 @@ li.active .wizard-icon.map {
 .activity-text {
   display: inline-block;
   line-height: 47px; }
+
+/* Map Tool */
+#map-sightings {
+  margin-top: 10px;
+  width: 100%;
+  height: 600px;
+  border: 5px solid;
+  border-color: #96a1a5; }
+
+.individual-popup dt {
+  text-transform: uppercase;
+  font-size: 1.5em;
+  color: #96a1a5; }
+.individual-popup dd {
+  font-size: 1.5em;
+  color: #8dcbce; }
+.individual-popup .popup-avatar {
+  text-align: center; }
+  .individual-popup .popup-avatar img {
+    width: 150px; }
 
 /*# sourceMappingURL=app.css.map */

@@ -190,10 +190,10 @@ var maptool = (function () {
             }
             popup.append($("<dd/>", { class: 'popup-name' }).text(nameIndividual));
 
-            popup.append($("<dt/>", { class: 'popup-date-label' }).text('Date Sighted'));
+            popup.append($("<dt/>", { class: 'popup-date-label' }).text('Sighted On'));
             popup.append($("<dd/>", { class: 'popup-date' }).text(moment(encounter.dateInMilliseconds).format('LL')));
 
-            popup.append($("<dt/>", { class: 'popup-location-date'}).text('Sighting Location'));
+            popup.append($("<dt/>", { class: 'popup-location-date'}).text('Location'));
             popup.append($("<dd/>", { class: 'popup-location'}).text(encounter.verbatimLocation));
 
             popup.append($("<dt/>", { class: 'popup-submitter-label' }).text('Submitted By'));

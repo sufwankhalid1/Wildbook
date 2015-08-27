@@ -28,7 +28,6 @@ block content
                         span.sight-voyage #{data.userinfo.voyages.length}
                         h3.sight-voyage-text= t("userpage.voyagesCompleted")
                         .sight-voyage-info
-
         -var photos = data.userinfo.photos
 
         if photos.length > 0
@@ -47,8 +46,8 @@ block content
         .container-fluid
             .row
                 .col-md-12
-                    for being in data.userinfo.individuals
-                        ul.submitters
+                    ul.submitters
+                        for being in data.userinfo.individuals
                             li
                                 include partials/avatar
             .row

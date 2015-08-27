@@ -244,7 +244,7 @@
     .sight-individual-number-text,
     .sight-photocount-text,
     .sight-voyage-text {
-        color: #96a1a5;
+        color: $font-color-heading;
         font-size: 1.8em;
     }
 
@@ -316,24 +316,6 @@
 
 .photo-thumbnail:last-child {
     border-right-width: 0;
-}
-
-////////////////
-//Sightings map
-////////////////
-
-#map-sightings {
-    margin-top: 10px;
-    width: 100%;
-    height: 600px;
-    border: 5px solid;
-    border-color: $border-color-light;
-}
-
-.map-sightings {
-    
-
-    
 }
 
 ////////////////////////////////////////
