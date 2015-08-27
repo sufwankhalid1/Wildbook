@@ -119,7 +119,7 @@ h1, h2, h3, h4, h5, h6, p, div {
   font-size: 12px;
   white-space: pre; }
 
-/* Individual */
+/* Individual and User Page */
 .maincontent {
   position: relative;
   width: 100%;
@@ -218,7 +218,8 @@ h1, h2, h3, h4, h5, h6, p, div {
   -moz-justify-content: center;
   justify-content: center; }
 
-.sight-number-info {
+.sight-number-info,
+.sight-photocount-info {
   position: absolute;
   height: 140px;
   left: 0;
@@ -228,13 +229,23 @@ h1, h2, h3, h4, h5, h6, p, div {
   background-size: contain;
   background-image: url(../cust/images/img-binoculars.png); }
 
+.sight-date-info,
+.sight-photocount-info,
+.sight-voyage-info {
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: contain; }
+
 .sight-date-info {
   height: 190px;
-  background: center center no-repeat;
-  background-size: contain;
   background-image: url(../cust/images/img-birds-wave.png); }
 
-.infographic-2 {
+.sight-voyage-info {
+  height: 125px;
+  background-image: url(../cust/images/img-boat-wave.png); }
+
+.infographic-2,
+.infographic-5 {
   position: relative;
   display: -webkit-box;
   display: -moz-box;
@@ -244,11 +255,10 @@ h1, h2, h3, h4, h5, h6, p, div {
   -os-flex-flow: column nowrap;
   -moz-flex-flow: column nowrap;
   -webkit-flex-flow: column nowrap;
-  flex-flow: column nowrap;
-  width: 70%;
-  margin: 0 15%; }
+  flex-flow: column nowrap; }
 
-.infographic-2 .sight-number-text {
+.infographic-2 .sight-number-text,
+.infographic-5 .sight-photocount-text {
   -moz-align-self: flex-end;
   -webkit-align-self: flex-end;
   -ms-align-self: flex-end;
@@ -261,7 +271,8 @@ h1, h2, h3, h4, h5, h6, p, div {
   text-align: center;
   width: 50%; }
 
-.infographic-2 .sight-number {
+.infographic-2 .sight-number,
+.infographic-5 .sight-photocount {
   -moz-align-self: flex-end;
   -webkit-align-self: flex-end;
   -ms-align-self: flex-end;
@@ -279,7 +290,9 @@ h1, h2, h3, h4, h5, h6, p, div {
   font-weight: bold; }
 
 .infographic-1,
-.infographic-3 {
+.infographic-3,
+.infographic-4,
+.infographic-6 {
   text-align: center; }
 
 .infographic-3 {
@@ -298,36 +311,59 @@ h1, h2, h3, h4, h5, h6, p, div {
   justify-content: flex-end;
   height: 250px; }
 
+.infographic-4 .sight-individual-number {
+  padding-right: 5px; }
+
 @media (min-width: 768px) {
   .infographic-1,
-  .infographic-3 {
+  .infographic-3,
+  .infographic-4 {
     text-align: left; }
 
-  .infographic-2 {
+  .infographic-2,
+  .infographic-5 {
     margin: 0; }
 
-  .sight-number-info {
+  .sight-number-info,
+  .sight-photocount-info {
     background-position: left bottom; } }
 .individual-stats .sight-stats-list span {
   font-size: 2em; }
 .individual-stats .sight-stats-list h3 {
   font-size: 1.5em;
   margin: 0; }
-.individual-stats .sight-date {
+.individual-stats .sight-date,
+.individual-stats .sight-individual-number,
+.individual-stats .sight-voyage {
   color: #8dcbce;
   font-size: 2.8em;
   font-weight: bold; }
 .individual-stats .sight-date,
-.individual-stats .sight-date-text {
+.individual-stats .sight-date-text,
+.individual-stats .sight-individual-number,
+.individual-stats .sight-individual-number-text {
   white-space: nowrap;
   display: inline-block; }
+.individual-stats .sight-voyage {
+  display: block; }
+.individual-stats .sight-voyage-text {
+  position: relative;
+  bottom: 15px;
+  display: inline-block;
+  max-width: 150px; }
 .individual-stats .sight-date-text,
-.individual-stats .sight-number-text {
+.individual-stats .sight-number-text,
+.individual-stats .sight-individual-number-text,
+.individual-stats .sight-photocount-text,
+.individual-stats .sight-voyage-text {
   color: #96a1a5;
   font-size: 1.8em; }
-.individual-stats .sight-date-text {
+.individual-stats .sight-date-text,
+.individual-stats .sight-individual-number-text,
+.individual-stats .sight-voyage-text {
   margin-right: 5px; }
-.individual-stats .sight-number {
+.individual-stats .sight-number,
+.individual-stats .sight-photocount {
   color: #8dcbce;
   font-size: 6em; }
 .individual-stats .sight-stats {

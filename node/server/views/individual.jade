@@ -12,7 +12,7 @@ block content
                         if data.info.individual.avatar
                             img(src="#{data.info.individual.avatar}" height="256px")
                         else
-                            //todo t()
+                            //todo t() todo image url from data
                             span.no-avatar(style="background-image:url(/cust/images/img_whale.svg)")="NO IMAGE"
                 .clearfix.visible-sm-block
                 .stats-col.col-lg-5.col-md-5.col-sm-6.col-xs-12
@@ -31,7 +31,7 @@ block content
                             span.sight-date #{data.lastSeen}
         -var photos = data.info.photos
         //include partials/carousel
-        
+
         include partials/phototool
 
         .container-fluid
@@ -44,7 +44,7 @@ block content
                             li
                                 include partials/avatar
                     hr
-                                
+
         .container-fluid.map-sightings
             .row
                 .col-md-12
@@ -57,19 +57,19 @@ block content
                     h2= t("individual.seenIndividual")
                     a(href="/submitMedia")
                         button.btn.btn-primary.btn-lg= t("individual.shareExperience")
-            
+
 block configScripts
     script(src="/vendor/leaflet/leaflet.js")
     script(src="/vendor/leaflet.markercluster/leaflet.markercluster.js")
     script(src="/bcomponents/Leaflet.EasyButton/easy-button.js")
     script(src="/javascript/maptool.js")
-    
+
 block scripts
     script(src="/vendor/photoswipe/photoswipe.min.js")
     script(src="/vendor/photoswipe/photoswipe-ui-default.min.js")
     script(src="/javascript/phototool.js")
     script(src='/javascript/individual.js')
-    
+
     script.
         $(document).ready(function() {
             //
@@ -78,10 +78,10 @@ block scripts
             //    $('.carousel').carousel({
             //        interval: 3000
             //    });
-        
+
             var photos = !{JSON.stringify(data.info.photos)};
             var encounters = !{JSON.stringify(data.info.encounters)};
-        
+
             app.configPromise.then(function() {
                 individualPage.init(photos, encounters);
             });

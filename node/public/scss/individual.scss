@@ -1,4 +1,4 @@
-/* Individual */
+/* Individual and User Page */
 
 .maincontent {
     position: relative;
@@ -104,7 +104,8 @@
     @include flexbox-justify-content(center);
 }
 
-.sight-number-info {
+.sight-number-info,
+.sight-photocount-info {
     position: absolute;
     height: 140px;
     left: 0;
@@ -115,29 +116,41 @@
     background-image: $individual-sightings;
 }
 
+.sight-date-info,
+.sight-photocount-info,
+.sight-voyage-info {
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+
 .sight-date-info {
     height: 190px;
-    background: center center no-repeat;
-    background-size: contain;
     background-image: $individual-count;
 }
 
-.infographic-2 {
+.sight-voyage-info {
+    height: 125px;
+    background-image: $user-count;
+}
+
+.infographic-2,
+.infographic-5 {
     position: relative;
     @include flexbox-display-flex();
     @include flexbox-flex-flow(column nowrap);
-    width: 70%;
-    margin: 0 15%;
 }
 
-.infographic-2 .sight-number-text {
+.infographic-2 .sight-number-text,
+.infographic-5 .sight-photocount-text {
     @include flexbox-align-self(flex-end);
     @include flexbox-order(2);
     text-align: center;
     width: 50%;
 }
 
-.infographic-2 .sight-number {
+.infographic-2 .sight-number,
+.infographic-5 .sight-photocount {
     @include flexbox-align-self(flex-end);
     @include flexbox-order(1);
     display: block;
@@ -149,7 +162,9 @@
 }
 
 .infographic-1,
-.infographic-3 {
+.infographic-3,
+.infographic-4,
+.infographic-6 {
     text-align: center;
 }
 
@@ -160,17 +175,24 @@
     height: 250px;
 }
 
+.infographic-4 .sight-individual-number {
+    padding-right: 5px;
+}
+
 //only on large screens:
 
 @media (min-width: 768px) { 
     .infographic-1,
-    .infographic-3 {
+    .infographic-3,
+    .infographic-4 {
         text-align: left;
     }
-    .infographic-2 {
+    .infographic-2,
+    .infographic-5 {
         margin: 0;
     }
-    .sight-number-info {
+    .sight-number-info,
+    .sight-photocount-info {
         background-position: left bottom;
     }
 }
@@ -187,29 +209,50 @@
         margin: 0;
     }
 
-    .sight-date {
+    .sight-date,
+    .sight-individual-number,
+    .sight-voyage {
         color: $font-color-main;
         font-size: 2.8em;
         font-weight: bold;
     }
 
     .sight-date,
-    .sight-date-text {
+    .sight-date-text,
+    .sight-individual-number,
+    .sight-individual-number-text {
         white-space: nowrap;
         display: inline-block;
     }
 
+    .sight-voyage {
+        display: block;
+    }
+
+    .sight-voyage-text {
+        position: relative;
+        bottom: 15px;
+        display: inline-block;
+        max-width: 150px;
+    }
+
     .sight-date-text,
-    .sight-number-text {
+    .sight-number-text,
+    .sight-individual-number-text,
+    .sight-photocount-text,
+    .sight-voyage-text {
         color: #96a1a5;
         font-size: 1.8em;
     }
 
-    .sight-date-text {
+    .sight-date-text,
+    .sight-individual-number-text,
+    .sight-voyage-text {
         margin-right: 5px;
     }
 
-    .sight-number {
+    .sight-number,
+    .sight-photocount {
         color: $font-color-main;
         font-size: 6em;
     }
