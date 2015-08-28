@@ -12,7 +12,7 @@
     font-weight: bold;
     font-size: 1.7em;
     line-height: 2.6em;
-    margin: 0;
+    margin: 15px 0;
 }
 
 .maincontent h2 {
@@ -20,9 +20,8 @@
 }
 
 .maincontent hr {
-    color: $font-color-main;
-    background-color: $font-color-main;
-    height: 1px;
+    width: 30px;
+    margin: 30 auto;
 }
 
 .maincontent .btn .btn-primary {
@@ -76,7 +75,6 @@
     width: 250px;
     height: 250px;
     display: inline-block;
-    margin: 0 auto;
 }
 
 .no-avatar {
@@ -257,13 +255,22 @@
     .sight-number,
     .sight-photocount {
         color: $font-color-main;
-        font-size: 6em;
+        font-size: 5em;
     }
 
     .sight-stats {
         line-height: normal;
     }   
 
+}
+
+@media (min-width: 768px) { 
+    .individual-stats {
+        .sight-number,
+        .sight-photocount {
+            font-size: 6em;
+        }
+    }
 }
 
 .divider {
@@ -323,11 +330,46 @@
 .submitters {
     padding: 0;
     list-style-type: none;
-    display: inline;
+    @include flexbox-display-flex;
+    @include flexbox-flex-flow(row nowrap);
+    @include flexbox-justify-content(flex-start);
 }
 
 .submitters li {
-    display: inline;
+    width: 80px;
+    height: 80px;
+    margin: 15px 15px 15px 0;
+}
+
+.submitters-add-yours {
+    @include flexbox-order(99);
+
+    a {
+        font-size: 1em;
+        color: $font-color-heading;
+        display: block;
+        height: 80px;
+        padding: 20px 0 0 0;
+        text-align: center;
+        text-decoration: none;
+        border: 2px dashed $font-color-heading;
+        border-radius: 2px;
+    }
+    a:focus,
+    a:visited,
+    a:active {
+        color: $font-color-heading;
+    }
+
+    a:hover {
+        color: $font-color-inverse;
+        background: $background-dark;
+        border-color: transparent;
+    }
+
+    span {
+        display: block;
+    }
 }
 
 //individual sightings on the user page
@@ -337,8 +379,46 @@
     list-style: none outside;
 }
 
+.sighting-avatar {
+    min-height: 200px;
+    max-width: 200px;
+}
+
+.sighting-avatar-img {
+    width: 100%;
+    height: 100%;
+    max-width: 200px;
+    min-height: 200px;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: contain;
+}
+
+.sighting-info {
+    font-size: 1.5em;
+    padding-top: 15px;
+    min-height: 200px;
+
+    .sighting-name-label {
+        text-transform: capitalize;
+    }
+
+    .sighting-name-label,
+    .sighting-your-label,
+    .sighting-total-label {
+        color: $font-color-heading;
+    }
+
+    .sighting-name-value,
+    .sighting-your-value,
+    .sighting-total-value {
+        color: $font-color-main;
+    }
+}
+
 //Share message at bottom of page
 
 .share-action {
+    padding: 30px;
     text-align: center;
 }

@@ -38,8 +38,11 @@ block content
                 .col-md-12
                     h2.has-icon.icon-star= t("individual.contributors")
                     hr
-                    for human in data.info.submitters
-                        ul.submitters
+                    ul.submitters
+                        li.submitters-add-yours
+                            a(href="/submitMedia")
+                                span()= "Add Your Photos"
+                        for human in data.info.submitters
                             li
                                 include partials/submitters
                     hr
