@@ -5,12 +5,11 @@ package org.ecocean.rest;
 class SimpleEncounter
 {
     private int id;
-    private Long dateInMilliseconds;
+    private Long encdate;
     private String locationid;
     private String verbatimLocation;
     private Double latitude;
     private Double longitude;
-    private SimpleUser submitter;
     private SimpleIndividual individual;
 
     public SimpleEncounter()
@@ -19,22 +18,22 @@ class SimpleEncounter
     }
 
     public SimpleEncounter(final int id,
-                           final Long dateInMilliseconds)
+                           final Long encdate)
     {
         this.id = id;
-        this.dateInMilliseconds = dateInMilliseconds;
+        this.encdate = encdate;
     }
 
     public int getId() {
         return id;
     }
 
-    public Long getDateInMilliseconds() {
-        return dateInMilliseconds;
+    public Long getEncDate() {
+        return encdate;
     }
 
-    public void setDateInMilliseconds(final Long dateInMilliseconds) {
-        this.dateInMilliseconds = dateInMilliseconds;
+    public void setEncDate(final Long encdate) {
+        this.encdate = encdate;
     }
 
     public String getLocationid() {
@@ -67,14 +66,6 @@ class SimpleEncounter
 
     public void setLongitude(final Double longitude) {
         this.longitude = longitude;
-    }
-
-    public SimpleUser getSubmitter() {
-        return submitter;
-    }
-
-    public void setSubmitter(final SimpleUser submitter) {
-        this.submitter = submitter;
     }
 
     public SimpleIndividual getIndividual() {

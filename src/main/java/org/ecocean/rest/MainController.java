@@ -1,13 +1,11 @@
 package org.ecocean.rest;
 
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.ecocean.ShepherdPMF;
 import org.ecocean.util.LogBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
 
 @RestController
@@ -26,19 +25,22 @@ public class MainController
 
     @RequestMapping(value = "/individual/get/{id}", method = RequestMethod.GET)
     public IndividualInfo getIndividual(@PathVariable("id")
-                                        final String id) throws DatabaseException
+                                        final int id) throws DatabaseException
     {
-        IndividualInfo indinfo = new IndividualInfo();
+        try (Database db = ShepherdPMF.getDb()) {
+            IndividualInfo indinfo = new IndividualInfo();
 
-        indinfo.individual = SimpleFactory.getIndividual(id);
-        if (indinfo.individual == null) {
-            return null;
+            indinfo.individual = SimpleFactory.getIndividual(db, id);
+            if (indinfo.individual == null) {
+                return null;
+            }
+
+            indinfo.photos = SimpleFactory.getIndividualPhotos(db, id);
+            indinfo.encounters = SimpleFactory.getIndividualEncounters(db, indinfo.individual);
+            indinfo.submitters = SimpleFactory.getIndividualSubmitters(db, id);
+
+            return indinfo;
         }
-
-        indinfo.photos = SimpleFactory.getIndividualPhotos(indinfo.individual.getId());
-        indinfo.encounters = SimpleFactory.getIndividualEncounters(indinfo.individual);
-
-        return indinfo;
     }
 
 
@@ -76,23 +78,6 @@ public class MainController
         public SimpleIndividual individual;
         public List<SimpleEncounter> encounters;
         public List<SimplePhoto> photos;
-
-        public List<SimpleUser> getSubmitters() {
-            if (encounters == null) {
-                return null;
-            }
-
-            //
-            // Use a hash set to keep from getting duplicates
-            //
-            Set<SimpleUser> submitters = new HashSet<SimpleUser>();
-            for (SimpleEncounter encounter : encounters) {
-                if (encounter.getSubmitter() != null) {
-                    submitters.add(encounter.getSubmitter());
-                }
-            }
-
-            return new ArrayList<SimpleUser>(submitters);
-        }
+        public List<SimpleUser> submitters;
     }
 }

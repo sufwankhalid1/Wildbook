@@ -46,85 +46,99 @@ public class SimpleFactory {
 //    }
 
 
-    public static List<SimpleEncounter> getIndividualEncounters(final SimpleIndividual individual) throws DatabaseException
+    public static List<SimpleEncounter> getIndividualEncounters(final Database db, final SimpleIndividual individual) throws DatabaseException
     {
-        try (Database db = new Database(ShepherdPMF.getConnectionInfo())) {
-            String sql = "SELECT * FROM encounters e"
-                    + " LEFT OUTER JOIN \"USERS\" u ON u.\"USERNAME\" = e.submitter"
-                    + " LEFT OUTER JOIN mediaasset ma ON ma.id = u.\"USERIMAGEID\""
-                    + " WHERE individualid = " + individual.getId();
+        String sql = "SELECT * FROM encounters e"
+                + " LEFT OUTER JOIN \"USERS\" u ON u.\"USERNAME\" = e.submitter"
+                + " LEFT OUTER JOIN mediaasset ma ON ma.id = u.\"USERIMAGEID\""
+                + " WHERE individualid = " + individual.getId();
 
-            List<SimpleEncounter> encounters = new ArrayList<SimpleEncounter>();
+        List<SimpleEncounter> encounters = new ArrayList<SimpleEncounter>();
 
-            RecordSet rs;
-            rs = db.getRecordSet(sql);
-            while (rs.next()) {
-                encounters.add(readSimpleEncounter(individual, rs));
-            }
-
-            return encounters;
+        RecordSet rs = db.getRecordSet(sql);
+        while (rs.next()) {
+            encounters.add(readSimpleEncounter(individual, rs));
         }
+
+        return encounters;
     }
 
-    public static List<SimplePhoto> getIndividualPhotos(final int individualId) throws DatabaseException
+
+    public static List<SimpleUser> getIndividualSubmitters(final Database db, final int individualid) throws DatabaseException
+    {
+        String sql = "SELECT distinct(u.*) FROM encounters e"
+                + " inner join encounter_media em on em.encounterid = e.encounterid"
+                + " inner join mediaasset ma on ma.id = em.mediaid"
+                + " inner join \"USERS\" u ON u.\"USERNAME\" = ma.submitter"
+                + " WHERE individualid = " + individualid;
+
+        List<SimpleUser> submitters = new ArrayList<>();
+
+        RecordSet rs = db.getRecordSet(sql);
+        while (rs.next()) {
+            submitters.add(readUser(rs));
+        }
+
+        return submitters;
+    }
+
+    public static List<SimplePhoto> getIndividualPhotos(final Database db, final int individualId) throws DatabaseException
     {
         //
         // Add photos
         //
-        try (Database db = new Database(ShepherdPMF.getConnectionInfo())) {
-            String sqlRoot = "SELECT ma.* FROM mediaasset ma"
-                    + " INNER JOIN encounter_media em ON ma.id = em.mediaid"
-                    + " INNER JOIN encounters e ON e.encounterid = em.encounterid";
-            String whereRoot = " WHERE e.individualid = " + individualId;
+        String sqlRoot = "SELECT ma.* FROM mediaasset ma"
+                + " INNER JOIN encounter_media em ON ma.id = em.mediaid"
+                + " INNER JOIN encounters e ON e.encounterid = em.encounterid";
+        String whereRoot = " WHERE e.individualid = " + individualId;
 
-            String sql;
-            RecordSet rs;
-            List<SimplePhoto> photos = new ArrayList<SimplePhoto>();
+        String sql;
+        RecordSet rs;
+        List<SimplePhoto> photos = new ArrayList<SimplePhoto>();
 
-            //
-            // Find the highlight images for this individual.
-            //
-            sql = sqlRoot + whereRoot + " AND 'highlight' = ANY (ma.tags)";
+        //
+        // Find the highlight images for this individual.
+        //
+        sql = sqlRoot + whereRoot + " AND 'highlight' = ANY (ma.tags)";
+
+        rs = db.getRecordSet(sql);
+        while (rs.next()) {
+            photos.add(readPhoto(rs));
+        }
+
+        //
+        // If we are not at our minimum number of photos go ahead
+        // and grab the rest at random. Grab the minimum number of photos
+        // rather than the minimum minus the number already retrieved so
+        // that we can throw out any duplicates.
+        //
+        if (photos.size() < MIN_PHOTOS) {
+            sql = sqlRoot + whereRoot + " LIMIT " + MIN_PHOTOS;
 
             rs = db.getRecordSet(sql);
             while (rs.next()) {
-                photos.add(readPhoto(rs));
-            }
+                if (photos.size() >= MIN_PHOTOS) {
+                    break;
+                }
 
-            //
-            // If we are not at our minimum number of photos go ahead
-            // and grab the rest at random. Grab the minimum number of photos
-            // rather than the minimum minus the number already retrieved so
-            // that we can throw out any duplicates.
-            //
-            if (photos.size() < MIN_PHOTOS) {
-                sql = sqlRoot + whereRoot + " LIMIT " + MIN_PHOTOS;
+                SimplePhoto photo = readPhoto(rs);
 
-                rs = db.getRecordSet(sql);
-                while (rs.next()) {
-                    if (photos.size() >= MIN_PHOTOS) {
+                boolean addphoto = true;
+                for (SimplePhoto foto : photos) {
+                    if (foto.getId() == photo.getId()) {
+                        // don't add the same photo twice
+                        addphoto = false;
                         break;
                     }
+                }
 
-                    SimplePhoto photo = readPhoto(rs);
-
-                    boolean addphoto = true;
-                    for (SimplePhoto foto : photos) {
-                        if (foto.getId() == photo.getId()) {
-                            // don't add the same photo twice
-                            addphoto = false;
-                            break;
-                        }
-                    }
-
-                    if (addphoto) {
-                        photos.add(photo);
-                    }
+                if (addphoto) {
+                    photos.add(photo);
                 }
             }
-
-            return photos;
         }
+
+        return photos;
     }
 
 
@@ -141,21 +155,19 @@ public class SimpleFactory {
 //    }
 
 
-    public static SimpleIndividual getIndividual(final String individualId) throws DatabaseException
+    public static SimpleIndividual getIndividual(final Database db, final int individualId) throws DatabaseException
     {
-        try (Database db = new Database(ShepherdPMF.getConnectionInfo())) {
-            String sql;
-            RecordSet rs;
-            sql = "select * from individuals i"
-                    + " left outer join mediaasset ma on ma.id = i.avatarid"
-                    + " where individualid = " + individualId;
-            rs = db.getRecordSet(sql);
-            if (rs.next()) {
-                return readSimpleIndividual(rs);
-            }
-
-            return null;
+        String sql;
+        RecordSet rs;
+        sql = "select * from individuals i"
+                + " left outer join mediaasset ma on ma.id = i.avatarid"
+                + " where individualid = " + individualId;
+        rs = db.getRecordSet(sql);
+        if (rs.next()) {
+            return readSimpleIndividual(rs);
         }
+
+        return null;
     }
 
 
@@ -242,22 +254,26 @@ public class SimpleFactory {
             // is duplicated because javascript does not have hashmaps which makes the code to try and
             // get all the unique values of individualID into an array much messier.
             //
-            sql = "select e.*, i.*, maa.*, u.*, mau.* from encounters e"
-                    + " inner join encounter_media em on em.encounterid = e.encounterid"
-                    + " inner join mediaasset ma on ma.id = em.mediaid"
+            sql = "select e.*, i.*, maa.* from encounters e"
                     + " left outer join individuals i on i.individualid = e.individualid"
                     + " left outer join mediaasset maa on maa.id = i.avatarid"
-                    + " LEFT OUTER JOIN \"USERS\" u ON u.\"USERNAME\" = e.submitter"
-                    + " LEFT OUTER JOIN mediaasset mau ON mau.id = u.\"USERIMAGEID\""
-                    + whereRoot;
+                    + " where exists (select * from encounter_media em"
+                    + " inner join mediaasset ma on ma.id = em.mediaid"
+                    + whereRoot
+                    + " and em.encounterid = e.encounterid)";
+
             Map<Integer, SimpleIndividual> inds = new HashMap<>();
             rs = db.getRecordSet(sql);
             while (rs.next()) {
-                SimpleEncounter encounter = readSimpleEncounter(rs);
-                SimpleIndividual ind = encounter.getIndividual();
-                if (ind != null) {
+                Integer indid = rs.getInteger("individualid");
+
+                SimpleIndividual ind = inds.get(indid);
+                if (ind == null) {
+                    ind = readSimpleIndividual(rs);
                     inds.put(ind.getId(), ind);
                 }
+
+                SimpleEncounter encounter = readSimpleEncounter(ind, rs);
                 userinfo.addEncounter(encounter);
             }
             userinfo.setIndividuals(new ArrayList<SimpleIndividual>(inds.values()));
@@ -384,7 +400,6 @@ public class SimpleFactory {
         encounter.setLongitude(rs.getDoubleObj("longitude"));
         encounter.setVerbatimLocation(rs.getString("verbatimLocation"));
 
-        encounter.setSubmitter(readUser(rs));
         encounter.setIndividual(individual);
 
         return encounter;
