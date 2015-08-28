@@ -10,13 +10,23 @@ div(ng-controller="MediaSubmissionController")
         h2 Edit Media Submission
         h3.text-primary {{submission.user.displayName}}
         button.btn.btn-primary(ng-click="doneEditing()") Done
+        button.btn.btn-primary(ng-click="createEncounter()") Create Encounter
         button.btn.btn-danger.pull-right(ng-click="deleteSubmission()") Delete
         .container-flow
-            .col-md-2
+            .col-md-1
+                h3 Media
                 .ag-fresh(ag-grid="imageGridOptions", style="height: 400px;")
             .col-md-10
                 img.ng-cloak(ng-src="{{zoomimage}}", ng-show="zoomimage", style="max-height: 100%; max-width: 100%;")
-
+                include partials/encounter_form
+            .col-md-1
+                h3 Encounters
+                ul
+                    li(ng-repeat="encounter in encounters")
+                        a(ng-click="editEncounter(encounter)") Edit
+                        encounter.individual.displayName
+                        encounter.encdate
+        
 script(src="bcomponents/angular/angular.js")
 script(src="bcomponents/moment/moment.js")
 script(src="bcomponents/ag-grid/angular-grid.min.js")

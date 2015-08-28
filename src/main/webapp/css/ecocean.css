@@ -101,9 +101,10 @@ a.launchPopup {
 }
 
 #page {
-  width: 811px;
+  width: 100%;
   text-align: left;
-  padding: 0px;
+  padding-left: 20px;
+  padding-right: 20px;
   margin: 0 auto 0 auto;
   background-color: #fff;
   min-height: 800px;
@@ -114,7 +115,7 @@ a.launchPopup {
   margin: 0;
   padding: 0;
   height: 15px;
-  width: 810px;
+  width: 100%;
   background: #F30;
   clear: both;
 }
@@ -124,13 +125,13 @@ a.launchPopup {
   margin: 0;
   padding: 0;
   height: 150px;
-  width: 810px;
+  width: 100%;
   background-color: #03f;
   clear: both;
 }
 
 #top-menu {
-  width: 810px;
+  width: 100%
   height: 25px;
   background-color: #03F;
   float: left;
@@ -143,7 +144,7 @@ a.launchPopup {
   float: left;
   padding-top: 16px;
   clear: both;
-  width: 810px;
+  width: 100%;
   min-height: 500px;
 }
 
@@ -168,7 +169,7 @@ a.launchPopup {
 
 #maincol-wide-solo {
   float: left;
-  width: 810px;
+  width: 100%;
   overflow: hidden;
 }
 
@@ -832,7 +833,7 @@ div.module_feed span {
 }
 
 #adsense {
-  width: 810px;
+  width: 100%;
   height: 90px;
   float: right;
   background-color: #EEE;
@@ -1145,7 +1146,7 @@ way to fit your requirements.
 #menu_container {
   margin: 0px 0 120px 0px;
   position: relative;
-  width: 810px;
+  width: 100%;
   height: 25px;
   z-index: 100;
 }

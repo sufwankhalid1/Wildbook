@@ -1,7 +1,10 @@
-angular.module('appWildbook', ["angularGrid"])
-angular.module('appWildbook').controller("MediaSubmissionController", function ($scope, $http, $compile) {
+var app = angular.module('appWildbook', ["angularGrid"])
+app.controller("MediaSubmissionController", function ($scope, $http, $compile) {
+    $scope.encounters = [];
+
     $scope.viewImage = function(url) {
         $scope.zoomimage = url;
+        $scope.encounter = null;
     }
 
     function handleError(ex) {
@@ -18,6 +21,30 @@ angular.module('appWildbook').controller("MediaSubmissionController", function (
         // TODO: Send photo to service and update row to show this somehow.
         //
         alertplus.alert("TODO: Send photo [" + id + "] to ID service.");
+    }
+
+    $scope.editEncounter = function(encounter) {
+        $scope.zoomimage = null;
+        $scope.encounter = encounter;
+    }
+
+    $scope.createEncounter = function() {
+        //
+        // TODO: Make sure they are creating this encounter from a known individual. That
+        // will be the requirement at first.
+        //
+        // TODO: Before willy-nilly creating an encounter from this data we should first
+        // see if there are any other encounters for this individual, date, and location
+        // and use this one instead.
+        //
+        var encounter = {
+                verbatimLocation: $scope.submission.verbatimLocation,
+                encdate: $scope.submission.startTime,
+                latitude: $scope.submission.latitude,
+                longitude: $scope.submission.longitude
+                };
+        $scope.encounters.push(encounter);
+        editEncounter(encounter);
     }
 
     $scope.deleteImage = function(id) {
@@ -148,4 +175,7 @@ angular.module('appWildbook').controller("MediaSubmissionController", function (
         $scope.msGridOptions.rowData = result.data;
         $scope.msGridOptions.api.onNewRows();
     }, handleError);
+});
+
+app.controller("EncounterFormController", function($scope) {
 });
