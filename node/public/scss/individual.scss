@@ -318,9 +318,7 @@
     border-right-width: 0;
 }
 
-////////////////////////////////////////
-//submitters section of individual/user
-////////////////////////////////////////
+//submitters section of individual
 
 .submitters {
     padding: 0;
@@ -330,6 +328,13 @@
 
 .submitters li {
     display: inline;
+}
+
+//individual sightings on the user page
+
+.individual-sightings {
+    padding: 0;
+    list-style: none outside;
 }
 
 //Share message at bottom of page

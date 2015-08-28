@@ -38,10 +38,10 @@ block content
                 .col-md-12
                     h2.has-icon.icon-star= t("individual.contributors")
                     hr
-                    for being in data.info.submitters
+                    for human in data.info.submitters
                         ul.submitters
                             li
-                                include partials/avatar
+                                include partials/submitters
                     hr
 
         .container-fluid.map-sightings

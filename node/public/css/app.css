@@ -418,6 +418,10 @@ h1, h2, h3, h4, h5, h6, p, div {
 .submitters li {
   display: inline; }
 
+.individual-sightings {
+  padding: 0;
+  list-style: none outside; }
+
 .share-action {
   text-align: center; }
 
@@ -668,7 +672,8 @@ li.active .wizard-icon.map {
 .individual-popup dt {
   text-transform: uppercase;
   font-size: 1.5em;
-  color: #96a1a5; }
+  color: #96a1a5;
+  margin-top: 5px; }
 .individual-popup dd {
   font-size: 1.5em;
   color: #8dcbce; }
