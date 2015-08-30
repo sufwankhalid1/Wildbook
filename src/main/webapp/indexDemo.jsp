@@ -343,8 +343,8 @@ finally{
 <section class="hero container-fluid main-section relative">
     <div class="container relative">
         <div class="col-xs-12 col-sm-10 col-md-8 col-lg-6">
-            <h1 class="hidden">Wildbook</h1>
-            <h2>Wildbook helps you study, <br/> identify and protect wildlife populations!</h2>
+            <h1 class="hidden">Wildbook: Demo Site</h1>
+            <h2>Wildbook helps you study, <br/> identify and protect wildlife populations! This is a demo site to try it out.</h2>
             <!--
             <button id="watch-movie" class="large light">
 				Watch the movie 
@@ -352,7 +352,13 @@ finally{
 			</button>
 			-->
             <a href="submit.jsp">
-                <button class="large">Report encounter<span class="button-icon" aria-hidden="true"></button>
+                <button class="large">Report sample encounter<span class="button-icon" aria-hidden="true"></button>
+            </a>
+            <a href="login.jsp">
+                <button class="large">Demo Login<span class="button-icon" aria-hidden="true"></button>
+            </a>
+            <a href="http://www.wildme.org/wildbook" target="_blank">
+                <button class="large">Wildbook Open Source<span class="button-icon" aria-hidden="true"></button>
             </a>
         </div>
 
