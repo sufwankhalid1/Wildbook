@@ -75,7 +75,7 @@ import net.tanesha.recaptcha.ReCaptchaResponse;
       new_message.append("\n\rPotential species: "+request.getParameter("species"));
       new_message.append("\n\rUsage model: "+request.getParameter("usage"));
       //email the new submission address defined in commonConfiguration.properties
-      es.execute(new NotificationMailer(CommonConfiguration.getMailHost(context), "do-not-reply@splashcatalog.org", "scott.baker@oregonstate.edu,holmbergius@gmail.com", "New DemoDNA site login!", new_message.toString(), e_images,context));
+      //es.execute(new NotificationMailer(CommonConfiguration.getMailHost(context), "do-not-reply@splashcatalog.org", "scott.baker@oregonstate.edu,holmbergius@gmail.com", "New DemoDNA site login!", new_message.toString(), e_images,context));
 
       es.shutdown();
        
