@@ -2,7 +2,9 @@
 <%@ page contentType="text/html; charset=utf-8" 
 		language="java"
         import="org.ecocean.servlet.ServletUtilities,org.ecocean.*, java.util.Properties" %>
-
+<!-- Add reCAPTCHA -->
+<%@ page import="net.tanesha.recaptcha.ReCaptcha" %>
+<%@ page import="net.tanesha.recaptcha.ReCaptchaFactory" %>
 
 <%
 
@@ -42,7 +44,60 @@ context=ServletUtilities.getContext(request);
 
               <h1 class="intro"><%=props.getProperty("databaseLogin")%>
               </h1>
+<%
 
+if(context.equals("context3")){
+	
+	
+%>
+<!-- This is the demo site, so let's use RECAPTCHA -->
+<form action="RecaptchaLogin" method="post">
+    <table align="left" border="0" cellspacing="0" cellpadding="3">
+        <tr>
+            <td><i>1. Required</i>: please enter your email address:</td>
+            <td><input type="text" name="email" maxlength="50" /></td>
+        </tr>
+        <tr>
+            <td>2. What are the species to use Wildbook for?</td>
+            <td><input type="text" name="species" maxlength="50" /></td>
+        </tr>
+              <tr>
+        	<td>3. Evaluating Wildbook for: </td>
+        	<td>
+        	
+        	<input type="radio" name="usage" value="Occurrence only">Species Occurrence only</input><br />
+        	<input type="radio" name="usage" value="CMR Photo ID"> Photo-identification</input><br />
+        	<input type="radio" name="usage" value="CMR Genetic ID"> Genetic-identification</input><br />
+        	<input type="radio" name="usage" value="CMR Mixed Photo and Genetic ID"> Mixed Photo- and Genetic-identification</input><br />
+        	<input type="radio" name="usage" value="Unknown"> Unknown</input><br />
+        	
+        	
+        	</td>
+        </tr>
+        <tr>
+        <td>4. <i>Required</i>: please let us know that you're human.</td>
+            <td>
+            	<%
+					ReCaptcha c = ReCaptchaFactory.newReCaptcha("6LczL_cSAAAAAMhdEozUpEWyt9QzmU_yk7XBlljw", "6LczL_cSAAAAAIW8b4PWN5jv0TdjcqEEC61E6-ro", false);
+					out.print(c.createRecaptchaHtml(null, null));
+				%>
+			</td>
+        </tr>
+        <tr>
+            <td colspan="2" align="left"><input type="submit" name="submit" value="<%=props.getProperty("login") %>" /></td>
+        </tr>
+        
+    </table>
+</form>
+
+
+
+
+<%
+}
+
+else{
+%>	
               <p align="left"><%=props.getProperty("requested")%>
               </p>
 
@@ -137,7 +192,9 @@ if((CommonConfiguration.getProperty("allowSocialMediaAccountCreation", "context0
               
               </p>
 
-
+<%
+}
+%>
 
               <p>&nbsp;</p>
               
