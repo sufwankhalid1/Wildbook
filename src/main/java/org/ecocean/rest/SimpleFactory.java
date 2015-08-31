@@ -48,10 +48,7 @@ public class SimpleFactory {
 
     public static List<SimpleEncounter> getIndividualEncounters(final Database db, final SimpleIndividual individual) throws DatabaseException
     {
-        String sql = "SELECT * FROM encounters e"
-                + " LEFT OUTER JOIN \"USERS\" u ON u.\"USERNAME\" = e.submitter"
-                + " LEFT OUTER JOIN mediaasset ma ON ma.id = u.\"USERIMAGEID\""
-                + " WHERE individualid = " + individual.getId();
+        String sql = "SELECT * FROM encounters e WHERE individualid = " + individual.getId();
 
         List<SimpleEncounter> encounters = new ArrayList<SimpleEncounter>();
 
