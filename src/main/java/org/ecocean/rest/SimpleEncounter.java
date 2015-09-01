@@ -5,6 +5,8 @@ package org.ecocean.rest;
 class SimpleEncounter
 {
     private int id;
+    private Date encdate;
+
     private Long encdate;
     private String locationid;
     private String verbatimLocation;
