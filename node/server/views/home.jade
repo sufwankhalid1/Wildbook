@@ -9,9 +9,9 @@ block content
                 a(href="/submitMedia")
                     button.btn.btn-primary= t("header.menu.reportSighting")+" >"
 
-        .container-fluid.homefooter
-            .col-md-3.homefootercol.home-left
-                .social
+        .container-fluid.home-content
+            .col-md-3.home-col
+                .social-icons.row-inner
                     h2 Connect With Us
                     .social-flex
                         a.round-icon.icon-facebook(href="https://www.facebook.com/#{config.social.facebook.id}", target="_blank")
@@ -21,25 +21,26 @@ block content
                         a.round-icon.icon-instagram(href="https://instagram.com/#{config.social.instagram.id}", target="_blank")
                         a.round-icon.icon-linkedin()
                         a.round-icon.icon-letter-mail(href="mailto:#{config.social.email}")
-                .instagramfeed
-                    p
-                        a(href="https://instagram.com/#{config.social.instagram.id}", target="_blank") @#{config.social.instagram.id}
-                        span= t("home.social.onInstagram")
-                    for item in home.social.instagram.feed
-                        a(href="#{item.link}" target="_blank")
-                            - var tooltip
-                            if item.caption
-                                - tooltip=item.caption.text
-                            else
-                                - tooltip = ""
-                            img.instagramimage(src="#{item.images.thumbnail.url}" data-toggle="tooltip" title="#{tooltip}")
-            .col-md-6.homefootercol
-                h1= t("home.footer.whatGoingOn")
+                .instagram-feed.row-inner
+                    .instagram-feed-flex
+                        p.instagram-feed-title
+                            a(href="https://instagram.com/#{config.social.instagram.id}", target="_blank") @#{config.social.instagram.id}
+                            span= t("home.social.onInstagram")
+                        for item in home.social.instagram.feed
+                            a.instagram-feed-item(href="#{item.link}" target="_blank")
+                                - var tooltip
+                                if item.caption
+                                    - tooltip=item.caption.text
+                                else
+                                    - tooltip = ""
+                                img(src="#{item.images.thumbnail.url}" data-toggle="tooltip" title="#{tooltip}")
+            .col-md-6.home-col
+                h2= t("home.footer.whatGoingOn")
                 .twitterfeed
                    for item in home.social.twitter.feed
                         blockquote !{item.text}
-            .col-md-3
-                h1= t("home.footer.spotlight")
+            .col-md-3.home-col
+                h2= t("home.footer.spotlight")
                 .spotlight
                     img(src="/images/spotlight_card.png")
                     img.spotlightphoto(src="/images/spotlight_photo.png")

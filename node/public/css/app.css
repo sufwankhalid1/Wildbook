@@ -136,19 +136,17 @@ h1, h2, h3, h4, h5, h6, p, div {
 .bannerreport {
   padding-top: 20px; }
 
-.homefooter h1 {
+.home-content h1 {
   font-size: 24px;
   color: #94a1a4; }
 
-.homefooter h2 {
+.home-content h2 {
   font-size: 18px;
-  color: #107D9F; }
+  color: #107D9F;
+  margin: 20px 0 20px; }
 
-.homefootercol {
-  border-right-color: #94a1a4;
-  border-right-style: solid;
-  border-right-width: 2px;
-  height: 100%; }
+.home-col .row-inner {
+  margin-bottom: 30px; }
 
 .social-flex {
   display: -webkit-box;
@@ -165,16 +163,34 @@ h1, h2, h3, h4, h5, h6, p, div {
   -moz-justify-content: space-around;
   justify-content: space-around;
   margin: 0 auto;
-  max-width: 300px; }
+  max-width: 350px; }
 
-.instagramfeed {
-  width: 220px;
-  margin-top: 10px; }
+.instagram-feed-flex {
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  -os-flex-flow: row wrap;
+  -moz-flex-flow: row wrap;
+  -webkit-flex-flow: row wrap;
+  flex-flow: row wrap;
+  -webkit-justify-content: center;
+  -ms-justify-content: center;
+  -moz-justify-content: center;
+  justify-content: center;
+  margin: 0 auto; }
 
-.instagramimage {
-  margin-right: 5px;
-  margin-bottom: 5px;
-  width: 100px;
+.instagram-feed-item {
+  margin: 0 2px 2px 0;
+  display: block; }
+
+.instagram-feed-title {
+  width: 100%;
+  text-align: center; }
+
+.instagram-feed-flex img {
+  width: 150px;
   height: auto; }
 
 .twitterfeed {
