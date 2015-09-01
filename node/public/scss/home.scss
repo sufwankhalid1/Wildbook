@@ -36,13 +36,13 @@
 }
 
 .home-content h1 {
-    font-size: 24px;
-    color: #94a1a4;
+    font-size: 32px;
+    color: $font-color-heading2;
 }
 
 .home-content h2 {
-    font-size: 18px;
-    color: $font-color-dark;
+    font-size: 24px;
+    color: $font-color-heading2;
     margin: 20px 0 20px;
 }
 
@@ -84,15 +84,41 @@
     height: auto;
 }
 
-.twitterfeed {
-    height: 75%;
-    overflow-y: auto;
+.twitter-feed {
+    list-style: none outside;
+    padding: 0;
+    margin: 0;
 }
 
-.twitterfeed blockquote {
-    padding: 5px 10px;
-    margin: 0 0 8px;
+.twitter-feed {
+    h4, p {
+        margin: 0;
+        padding: 0;
+    }
+}
+
+.twitter-feed h4 {
+    color: $font-color-dark;
+}
+
+.twitter-feed p {
     font-size: 16px;
+}
+
+.twitter-more {
+    text-align: right;
+}
+
+.twitter-more a:hover {
+    text-decoration: none;
+}
+
+.twitter-more i:before {
+    color: $font-color-dark;
+    font-size: 20px;
+    position: relative;
+    top: 4px;
+    left: 4px;
 }
 
 .spotlight {

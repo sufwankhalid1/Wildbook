@@ -69,7 +69,8 @@
             "spotlight": "Profile Spotlight"
         },
         "social": {
-            "onInstagram": " on Instagram"
+            "onInstagram": " on Instagram",
+            "moreTwitter": "read more news on our twitter profile"
         }
     },
     "individual": {

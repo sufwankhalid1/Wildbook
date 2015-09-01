@@ -13,14 +13,7 @@ block content
             .col-md-3.home-col
                 .social-icons.row-inner
                     h2 Connect With Us
-                    .social-flex
-                        a.round-icon.icon-facebook(href="https://www.facebook.com/#{config.social.facebook.id}", target="_blank")
-                        a.round-icon.icon-twitter(href="https://twitter.com/#{config.social.twitter.id}", target="_blank")
-                        a.round-icon.icon-google-plus()
-                        //a.round-icon.icon-youtube()
-                        a.round-icon.icon-instagram(href="https://instagram.com/#{config.social.instagram.id}", target="_blank")
-                        a.round-icon.icon-linkedin()
-                        a.round-icon.icon-letter-mail(href="mailto:#{config.social.email}")
+                    include partials/social-icons
                 .instagram-feed.row-inner
                     .instagram-feed-flex
                         p.instagram-feed-title
@@ -35,10 +28,18 @@ block content
                                     - tooltip = ""
                                 img(src="#{item.images.thumbnail.url}" data-toggle="tooltip" title="#{tooltip}")
             .col-md-6.home-col
-                h2= t("home.footer.whatGoingOn")
-                .twitterfeed
-                   for item in home.social.twitter.feed
-                        blockquote !{item.text}
+                .twitter.row-inner
+                    h2= t("home.footer.whatGoingOn")
+                    ul.twitter-feed
+                       for item in home.social.twitter.feed
+                            li
+                                h4 !{item.created_at}:
+                                p !{item.text}
+                                hr
+                    .twitter-more
+                        a(href="https://twitter.com/#{config.social.twitter.id}", target="_blank") 
+                            span= t("home.social.moreTwitter")
+                            i.icon-twitter(href="https://twitter.com/#{config.social.twitter.id}", target="_blank")
             .col-md-3.home-col
                 h2= t("home.footer.spotlight")
                 .spotlight

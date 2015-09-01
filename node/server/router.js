@@ -97,6 +97,7 @@ function twitterFeed(config) {
             //
             home.social.twitter.feed = reply.map(function(value) {
                 var tweet = value.text || "";
+                var tweetDate = moment(value.created_at, 'dd MMM DD HH:mm:ss ZZ YYYY', 'en').format("ll");
 //                console.log(tweet);
                 var value;
                 var startIndex = 0;
@@ -127,7 +128,10 @@ function twitterFeed(config) {
                     };
                 }
 
-                return {text: value};
+                return {
+                    text: value,
+                    created_at: tweetDate
+                };
             });
 
 //            console.log(home.social.twitter.feed);

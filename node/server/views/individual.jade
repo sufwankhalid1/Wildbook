@@ -31,7 +31,7 @@ block content
                             span.sight-date #{data.lastSeen}
         -var photos = data.info.photos
         //include partials/carousel
-        
+
         include partials/phototool
 
         .container-fluid
@@ -43,7 +43,7 @@ block content
                         ul.submitters
                             li
                                 include partials/avatar
-                                
+
         .container-fluid
             .row
                 .col-md-12
@@ -58,19 +58,19 @@ block content
                     p= t("individual.seenIndividual")
                     a(href="/submitMedia")
                         button.btn.btn-primary= t("individual.shareExperience")
-            
+
 block configScripts
     script(src="/vendor/leaflet/leaflet.js")
     script(src="/vendor/leaflet.markercluster/leaflet.markercluster.js")
     script(src="/bcomponents/Leaflet.EasyButton/easy-button.js")
     script(src="/javascript/maptool.js")
-    
+
 block scripts
     script(src="/vendor/photoswipe/photoswipe.min.js")
     script(src="/vendor/photoswipe/photoswipe-ui-default.min.js")
     script(src="/javascript/phototool.js")
     script(src='/javascript/individual.js')
-    
+
     script.
         $(document).ready(function() {
             //
@@ -79,10 +79,10 @@ block scripts
             //    $('.carousel').carousel({
             //        interval: 3000
             //    });
-        
+
             var photos = !{JSON.stringify(data.info.photos)};
             var encounters = !{JSON.stringify(data.info.encounters)};
-        
+
             app.configPromise.then(function() {
                 individualPage.init(photos, encounters);
             });
