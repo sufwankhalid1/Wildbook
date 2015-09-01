@@ -10,8 +10,21 @@ block content
                     button.btn.btn-primary= t("header.menu.reportSighting")+" >"
 
         .container-fluid.homefooter
-            .col-md-3.homefootercol
-                div.instagramfeed
+            .col-md-3.homefootercol.home-left
+                .social
+                    h2 Connect With Us
+                    .social-flex
+                        a.round-icon.icon-facebook(href="https://www.facebook.com/#{config.social.facebook.id}", target="_blank")
+                        a.round-icon.icon-twitter(href="https://twitter.com/#{config.social.twitter.id}", target="_blank")
+                        a.round-icon.icon-google-plus()
+                        //a.round-icon.icon-youtube()
+                        a.round-icon.icon-instagram(href="https://instagram.com/#{config.social.instagram.id}", target="_blank")
+                        a.round-icon.icon-linkedin()
+                        a.round-icon.icon-letter-mail(href="mailto:#{config.social.email}")
+                .instagramfeed
+                    p
+                        a(href="https://instagram.com/#{config.social.instagram.id}", target="_blank") @#{config.social.instagram.id}
+                        span= t("home.social.onInstagram")
                     for item in home.social.instagram.feed
                         a(href="#{item.link}" target="_blank")
                             - var tooltip

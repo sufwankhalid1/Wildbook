@@ -1,0 +1,90 @@
+@charset "UTF-8";
+
+@font-face {
+  font-family: "Wildbook";
+  src:url("../fonts/Wildbook.eot");
+  src:url("../fonts/Wildbook.eot?#iefix") format("embedded-opentype"),
+    url("../fonts/Wildbook.woff") format("woff"),
+    url("../fonts/Wildbook.ttf") format("truetype"),
+    url("../fonts/Wildbook.svg#untitled-font-1") format("svg");
+  font-weight: normal;
+  font-style: normal;
+}
+
+[data-icon]:before {
+  font-family: "Wildbook" !important;
+  content: attr(data-icon);
+  font-style: normal !important;
+  font-weight: normal !important;
+  font-variant: normal !important;
+  text-transform: none !important;
+  speak: none;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: $font-color-inverse;
+}
+
+[class^="icon-"]:before,
+[class*=" icon-"]:before {
+  font-family: "Wildbook" !important;
+  font-style: normal !important;
+  font-weight: normal !important;
+  font-variant: normal !important;
+  text-transform: none !important;
+  speak: none;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: $font-color-inverse;
+}
+
+.round-icon,
+a.round-icon {
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
+  margin: 0;
+  padding: 0;
+  display: inline-block !important;
+  background: $background-dark;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  text-align: center;
+}
+
+.round-icon:hover:before {
+  color: $background-dark;
+}
+
+.round-icon:hover {
+  cursor: pointer;
+  text-decoration: none;
+  border-color: $background-dark;
+  background-color: $background-default;
+}
+
+.icon-instagram:before {
+  content: "a";
+}
+.icon-facebook:before {
+  content: "b";
+}
+.icon-google-plus:before {
+  content: "c";
+}
+.icon-twitter:before {
+  content: "d";
+}
+.icon-youtube:before {
+  content: "e";
+}
+.icon-rss-two:before {
+  content: "f";
+}
+.icon-letter-mail:before {
+  content: "g";
+}
+.icon-linkedin:before {
+  content: "h";
+}

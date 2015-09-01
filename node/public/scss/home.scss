@@ -35,10 +35,6 @@
     padding-top: 20px;
 }
 
-.homefooter {
-    height: 220px;
-}
-
 .homefooter h1 {
     font-size: 24px;
     color: #94a1a4;
@@ -59,6 +55,14 @@
 ///////////////
 //social feeds
 ///////////////
+
+.social-flex {
+    @include flexbox-display-flex;
+    @include flexbox-flex-flow(row nowrap);
+    @include flexbox-justify-content(space-around);
+    margin: 0 auto;
+    max-width: 300px;
+}
 
 .instagramfeed {
     width: 220px;
