@@ -56,7 +56,7 @@ function instagramFeed(config, secrets) {
     var url = "https://api.instagram.com/v1/users/"
         + config.client.social.instagram.user_id
         + "/media/recent/?count="
-        + (config.client.social.instagram.feed_count ? config.client.social.instagram.feed_count : 4)
+        + (config.client.social.instagram.feed_count ? config.client.social.instagram.feed_count : 16)
         + "&access_token="
         + secrets.social.instagram.access_token;
 //    console.log(url);

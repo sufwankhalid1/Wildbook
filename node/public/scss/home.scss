@@ -35,41 +35,53 @@
     padding-top: 20px;
 }
 
-.homefooter {
-    height: 220px;
-}
-
-.homefooter h1 {
+.home-content h1 {
     font-size: 24px;
     color: #94a1a4;
 }
 
-.homefooter h2 {
+.home-content h2 {
     font-size: 18px;
     color: $font-color-dark;
+    margin: 20px 0 20px;
 }
 
-.homefootercol {
-    border-right-color: #94a1a4;
-    border-right-style: solid;
-    border-right-width: 2px;
-    height: 100%;
+.home-col .row-inner {
+    margin-bottom: 30px;
 }
 
 ///////////////
 //social feeds
 ///////////////
 
-.instagramfeed {
-    width: 220px;
-    margin-top: 10px;
+.social-flex {
+    @include flexbox-display-flex;
+    @include flexbox-flex-flow(row nowrap);
+    @include flexbox-justify-content(space-around);
+    margin: 0 auto;
+    max-width: 350px;
 }
 
-.instagramimage {
-   margin-right: 5px;
-   margin-bottom: 5px;
-   width: 100px;
-   height: auto;
+.instagram-feed-flex {
+    @include flexbox-display-flex;
+    @include flexbox-flex-flow(row wrap);
+    @include flexbox-justify-content(center);
+    margin: 0 auto;
+}
+
+.instagram-feed-item {
+    margin: 0 2px 2px 0;
+    display: block;
+}
+
+.instagram-feed-title {
+    width: 100%;
+    text-align: center;
+}
+
+.instagram-feed-flex img {
+    width: 150px;
+    height: auto;
 }
 
 .twitterfeed {
