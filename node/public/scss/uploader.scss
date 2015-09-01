@@ -39,39 +39,37 @@
 }
 
 .wizard-page-header span {
-    color: #94a1a4;
+    color: $font-color-heading2;
 }
 
-li.active .wizard-page-header span {
-    color: #8dcbce;
-}
-
-li.active .wizard-icon.info {
-    background: url(../images/img_user_on.svg) no-repeat;
+.wizard-icon {
     background-size: auto 48px;
-}
-
-li.active .wizard-icon.upload {
-    background: url(../images/img_upload_on.svg) no-repeat;
-    background-size: auto 48px;
-}
-
-li.active .wizard-icon.map {
-    background: url(../images/img_map_on.svg) no-repeat;
-    background-size: auto 48px;
+    background-repeat: no-repeat;
 }
 
 .wizard-icon.info {
-    background: url(../images/img_user_off.svg) no-repeat;
-    background-size: auto 48px;
+    background-image: $wizard-user-off;
 }
 
 .wizard-icon.upload {
-    background: url(../images/img_upload_off.svg) no-repeat;
-    background-size: auto 48px;
+    background-image: $wizard-upload-off;
 }
 
 .wizard-icon.map {
-    background: url(../images/img_map_off.svg) no-repeat;
-    background-size: auto 48px;
+    background-image: $wizard-map-off;
+}
+
+.active {
+    .wizard-icon.info {
+        background-image: $wizard-user;
+    }
+    .wizard-icon.upload {
+        background-image: $wizard-upload;
+    }
+    .wizard-icon.map {
+        background-image: $wizard-map;
+    }
+    .wizard-page-header span {
+        color: $font-color-main;
+    }
 }
