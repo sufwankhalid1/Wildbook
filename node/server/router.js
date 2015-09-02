@@ -56,7 +56,7 @@ function instagramFeed(config, secrets) {
     var url = "https://api.instagram.com/v1/users/"
         + config.client.social.instagram.user_id
         + "/media/recent/?count="
-        + (config.client.social.instagram.feed_count ? config.client.social.instagram.feed_count : 4)
+        + (config.client.social.instagram.feed_count ? config.client.social.instagram.feed_count : 16)
         + "&access_token="
         + secrets.social.instagram.access_token;
 //    console.log(url);
@@ -97,6 +97,7 @@ function twitterFeed(config) {
             //
             home.social.twitter.feed = reply.map(function(value) {
                 var tweet = value.text || "";
+                var tweetDate = moment(value.created_at, 'dd MMM DD HH:mm:ss ZZ YYYY', 'en').format("ll");
 //                console.log(tweet);
                 var value;
                 var startIndex = 0;
@@ -127,7 +128,10 @@ function twitterFeed(config) {
                     };
                 }
 
-                return {text: value};
+                return {
+                    text: value,
+                    created_at: tweetDate
+                };
             });
 
 //            console.log(home.social.twitter.feed);

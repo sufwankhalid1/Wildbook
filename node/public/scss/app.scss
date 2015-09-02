@@ -18,6 +18,8 @@ body {
 @import 'mixins.scss';
 //@todo: currently we bake the variables using an @import rule, but we will want a way to build this with any specific cust's variables.scss. In the future it would ideally use some shared configuration, so app.css and cust.css will live in a cust-specific location, e.g. public/happywhale/css | public/happybear/css. This is because we can't generate the css assets dynamically, only during development.
 @import '../cust/scss/variables.scss';
+
+@import 'wildbook_icon.scss';
 @import 'typography.scss';
 @import 'home.scss';
 @import 'individual.scss';

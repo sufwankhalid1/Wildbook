@@ -34,7 +34,6 @@ module.exports = function(grunt) {
              'public/vendor/photoswipe/default-skin/default-skin.css',
              'public/vendor/jquery-fileupload/css/jquery.fileupload.css',
              'public/vendor/jquery-fileupload/css/jquery.fileupload-ui.css',
-             'public/vendor/zocial/zocial.css',
              'public/vendor/alertplus/css/alertplus.css'],
         dest: 'public/css/vendors.css',
       },
