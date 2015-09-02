@@ -531,6 +531,9 @@ h1, h2, h3, h4, h5, h6, p, div {
   transform: rotate(-23deg);
   top: -15px; }
 
+.navbar-login {
+  cursor: pointer; }
+
 .logo-svg {
   background-image: url(../cust/images/logo.svg); }
 
@@ -544,6 +547,24 @@ h1, h2, h3, h4, h5, h6, p, div {
 
 .footer {
   font-size: 12px; }
+
+.navbar-inverse .navbar-toggle {
+  float: left;
+  margin: 8px 15px;
+  border-color: transparent; }
+
+.navbar-inverse .navbar-toggle[aria-expanded="true"] {
+  background: #087A9A;
+  border-color: #efefef; }
+
+.navbar-search-wrap {
+  max-width: 350px; }
+
+.navbar-collapse .navbar-search-wrap {
+  padding-left: 15px; }
+
+.navbar-collapse .navbar-login {
+  text-align: right; }
 
 .navbar-search {
   margin-top: 14px;
