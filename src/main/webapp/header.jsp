@@ -1,5 +1,5 @@
 <%--
-  ~ The Shepherd Project - A Mark-Recapture Framework
+  ~ Wildbook - A Mark-Recapture Framework
   ~ Copyright (C) 2008-2015 Jason Holmberg
   ~
   ~ This program is free software; you can redistribute it and/or
@@ -113,7 +113,7 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
 		                      		%>
 		                      
 		                      		<li><a href="<%=urlLoc %>/myAccount.jsp" title=""><img align="left" title="Your Account" style="border-radius: 3px;border:1px solid #ffffff;margin-top: -7px;" width="*" height="32px" src="<%=profilePhotoURL %>" /></a></li>
-		             				<li><a href="<%=urlLoc %>/logout.jsp" >Logout</a></li>
+		             				<li><a href="<%=urlLoc %>/logout.jsp" ><%=props.getProperty("logout") %></a></li>
 		                      
 		                      		<%
 	                          }
@@ -126,7 +126,7 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
 	                      else{
 	                      %>
 	                      
-	                      	<li><a href="<%=urlLoc %>/welcome.jsp" title="">Login</a></li>
+	                      	<li><a href="<%=urlLoc %>/welcome.jsp" title=""><%=props.getProperty("login") %></a></li>
 	                      
 	                      <%
 	                      }
@@ -145,9 +145,10 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
                         <li><a target="_blank" href="<%=CommonConfiguration.getWikiLocation(context) %>"><%=props.getProperty("userWiki")%></a></li>
                       <% 
                       } 
-                      %>
-                      <li><a href="http://www.wildme.org/wildbook" target="_blank">v.<%=ContextConfiguration.getVersion() %></a></li>
-                    	<%		ArrayList<String> contextNames=ContextConfiguration.getContextNames();
+                     	
+                      
+                      
+                      ArrayList<String> contextNames=ContextConfiguration.getContextNames();
                 		int numContexts=contextNames.size();
                 		if(numContexts>1){
                 		%>
@@ -192,7 +193,53 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
                 			<%
                 		}
                 		%>
-                		
+                		   <!-- Can we inject language functionality here? -->
+                    <%
+                    
+            		ArrayList<String> supportedLanguages=CommonConfiguration.getSequentialPropertyValues("language", context);
+            		int numSupportedLanguages=supportedLanguages.size();
+            		
+            		if(numSupportedLanguages>1){
+            		%>
+            			<li>
+            					
+            					
+            					<%
+            					for(int h=0;h<numSupportedLanguages;h++){
+            						String selected="";
+            						if(ServletUtilities.getLanguageCode(request).equals(supportedLanguages.get(h))){selected="selected=\"selected\"";}
+            						String myLang=supportedLanguages.get(h);
+            					%>
+            						<img style="cursor: pointer" id="flag_<%=myLang %>" title="<%=CommonConfiguration.getProperty(myLang, context) %>" src="http://<%=CommonConfiguration.getURLLocation(request) %>/images/flag_<%=myLang %>.gif" />
+            						<script type="text/javascript">
+            	
+            							$( "#flag_<%=myLang%>" ).click(function() {
+            		
+            								//alert( "Handler for .change() called with new value: "+$( "#langCode option:selected" ).text() +" with value "+ $( "#langCode option:selected").val());
+            								$.cookie("wildbookLangCode", "<%=myLang%>", {
+            			   						path    : '/',          //The value of the path attribute of the cookie 
+            			                           //(default: path of page that created the cookie).
+            		   
+            			   						secure  : false          //If set to true the secure attribute of the cookie
+            			                           //will be set and the cookie transmission will
+            			                           //require a secure protocol (defaults to false).
+            								});
+            			
+            								//alert("I have set the wildbookContext cookie to value: "+$.cookie("wildbookContext"));
+            								location.reload(true);
+            			
+            							});
+            	
+            						</script>
+            					<%
+            					}
+            					%>
+            				
+            		</li>
+            		<%
+            		}
+            		%>
+            		<!-- end language functionality injection -->
                 	
                     
                     
@@ -232,19 +279,19 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
                       <li><a href="<%=urlLoc %>/submit.jsp"><%=props.getProperty("report")%></a></li>
                    
                       <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Learn <span class="caret"></span></a>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><%=props.getProperty("learn")%> <span class="caret"></span></a>
                         <ul class="dropdown-menu" role="menu">
-                        	<li class="dropdown"><a href="<%=urlLoc %>/overview.jsp">About Your Project</a></li>
-                          	<li><a href="<%=urlLoc %>/photographing.jsp">How to Photograph</a></li>
+                        	<li class="dropdown"><a href="<%=urlLoc %>/overview.jsp"><%=props.getProperty("aboutYourProject")%></a></li>
+                          	<li><a href="<%=urlLoc %>/photographing.jsp"><%=props.getProperty("howToPhotograph")%></a></li>
                                  
-                          	<li><a target="_blank" href="http://www.wildme.org/wildbook">Learn about Wildbook</a></li>
+                          	<li><a target="_blank" href="http://www.wildme.org/wildbook"><%=props.getProperty("learnAboutShepherd")%></a></li>
                         </ul>
                       </li>
                       
                       <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><%=props.getProperty("participate")%> <span class="caret"></span></a>
                         <ul class="dropdown-menu" role="menu">
-                          <li><a href="<%=urlLoc %>/adoptananimal.jsp">Adoption</a></li>
+                          <li><a href="<%=urlLoc %>/adoptananimal.jsp"><%=props.getProperty("adoptions")%></a></li>
                           <li><a href="<%=urlLoc %>/userAgreement.jsp"><%=props.getProperty("userAgreement")%></a></li>
                           
                           <!--  examples of navigation dividers
@@ -261,9 +308,9 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
                         </ul>
                       </li>
                       <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Encounters <span class="caret"></span></a>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><%=props.getProperty("encounters")%> <span class="caret"></span></a>
                         <ul class="dropdown-menu" role="menu">
-                          <li class="dropdown-header">By State</li>
+                          <li class="dropdown-header"><%=props.getProperty("states")%></li>
                         
                         <!-- list encounters by state -->
                           <% boolean moreStates=true;
@@ -288,7 +335,7 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
                       
                       <!-- start locationID sites -->
                        <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Sites <span class="caret"></span></a>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><%=props.getProperty("sites") %> <span class="caret"></span></a>
                         <ul class="dropdown-menu" role="menu">
                          
                         
@@ -331,7 +378,7 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
                             %>
                               <li><a href="<%=urlLoc %>/myAccount.jsp"><%=props.getProperty("myAccount")%></a></li>
                             <% }
-                            if(CommonConfiguration.allowBatchUpload(context) && (request.isUserInRole("admin") || request.isUserInRole("RegionalManager"))) { %>
+                            if(CommonConfiguration.allowBatchUpload(context) && (request.isUserInRole("admin"))) { %>
                               <li><a href="<%=urlLoc %>/BatchUpload/start"><%=props.getProperty("batchUpload")%></a></li>
                             <% }
                             if(request.isUserInRole("admin")) { %>
@@ -359,12 +406,16 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
                                 <li><a href="<%=urlLoc %>/javadoc/index.html">Javadoc</a></li>
                                 <% if(CommonConfiguration.isCatalogEditable(context)) { %>
                                   <li class="divider"></li>
-                                  <li><a href="<%=urlLoc %>/appadmin/import.jsp">Data Import</a></li>
+                                  <li><a href="<%=urlLoc %>/appadmin/import.jsp"><%=props.getProperty("dataImport")%></a></li>
                                 <% }
                             } //end if admin %>
                         </ul>
                       </li>
                     </ul>
+                    
+                 
+            		
+                    
                   </div>
                   
                 </div>
