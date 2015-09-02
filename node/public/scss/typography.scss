@@ -4,17 +4,23 @@ h1, h2, h3, h4, h5, h6, p, div {
     font-family: $font-family;
 }
 
-.icon-happywhale {
-    background-image: url(../cust/images/img_whale_circle.svg);
+.icon-bullet-individual {
+    background-image: $individual-bullet;
 }
 .icon-voyageviewer {
-    background-image: url(../cust/images/img_voyageviewer.svg);
+    background-image: $boat-bullet;
 }
 .icon-captain {
-    background-image: url(../cust/images/img_captain.svg);
+    background-image: $captain-icon;
 }
 .icon-user {
-    background-image: url(../cust/images/img_user_on.svg);
+    background-image: $human-bullet;
+}
+.icon-sightings {
+    background-image: $binoculars-bullet;
+}
+.icon-star {
+    background-image: $star-bullet;
 }
 
 .btn-oversize {

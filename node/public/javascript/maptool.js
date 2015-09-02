@@ -180,25 +180,24 @@ var maptool = (function () {
                 return;
             }
 
-            var iconIndividual;
-            var popup = $("<div>");
-            if (encounter.individual) {
-                popup.append(app.beingDiv(encounter.individual));
-                popup.append($("<span>").addClass("sight-date-text").text(encounter.individual.displayName));
-                iconIndividual = getEncounterIcon(encounter.individual.species);
-            } else {
-                popup.append($("<span>").addClass("sight-date-text").text("<Unknown>"));
-                iconIndividual = getEncounterIcon("default");
-            }
+            var iconIndividual = encounter.individual ? getEncounterIcon(encounter.individual.species) : getEncounterIcon('default');
+            var nameIndividual = encounter.individual ? encounter.individual.displayName : 'unknown';
 
-            popup.append($("<br>"));
-            popup.append("Sighted: ")
-            popup.append($("<span>").addClass("sight-date").text(moment(encounter.dateInMilliseconds).format('LL')));
-            popup.append($("<br>"));
-            popup.append($("<span>").addClass("sight-date-text").text(encounter.verbatimLocation));
-            popup.append($("<br>"));
-            popup.append("by: ");
-            popup.append(app.beingDiv(encounter.submitter));
+            var popup = $("<dl>", { class: 'individual-popup' });
+            popup.append($("<dt/>", { class: 'popup-avatar-label' }).text('Individual Sighted'));
+            if (encounter.individual) {
+                popup.append($("<dd/>", { class: 'popup-avatar' }).append(app.beingDiv(encounter.individual)));
+            }
+            popup.append($("<dd/>", { class: 'popup-name' }).text(nameIndividual));
+
+            popup.append($("<dt/>", { class: 'popup-date-label' }).text('Sighted On'));
+            popup.append($("<dd/>", { class: 'popup-date' }).text(moment(encounter.dateInMilliseconds).format('LL')));
+
+            popup.append($("<dt/>", { class: 'popup-location-date'}).text('Location'));
+            popup.append($("<dd/>", { class: 'popup-location'}).text(encounter.verbatimLocation));
+
+            popup.append($("<dt/>", { class: 'popup-submitter-label' }).text('Submitted By'));
+            popup.append($("<dd/>", { class: 'popup-submitter'}).append(app.beingDiv(encounter.submitter)));
 
             layer.addLayer(getMarker([encounter.latitude, encounter.longitude], iconIndividual, popup[0]));
         }

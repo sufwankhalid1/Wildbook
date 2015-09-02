@@ -10,7 +10,7 @@ body {
 h1, h2, h3, h4, h5, h6, p, div {
   font-family: "Lato", Helvetica, sans-serif; }
 
-.icon-happywhale {
+.icon-bullet-individual {
   background-image: url(../cust/images/img_whale_circle.svg); }
 
 .icon-voyageviewer {
@@ -21,6 +21,12 @@ h1, h2, h3, h4, h5, h6, p, div {
 
 .icon-user {
   background-image: url(../cust/images/img_user_on.svg); }
+
+.icon-sightings {
+  background-image: url(../cust/images/img_binoc_circle.svg); }
+
+.icon-star {
+  background-image: url(../cust/images/img_star_circle.svg); }
 
 .btn-oversize {
   text-transform: uppercase;
@@ -113,28 +119,26 @@ h1, h2, h3, h4, h5, h6, p, div {
   font-size: 12px;
   white-space: pre; }
 
-/* Individual */
+/* Individual and User Page */
 .maincontent {
   position: relative;
   width: 100%;
   max-width: 1280px;
   margin: 0 auto 80px; }
 
-.maincontent h1.has-icon {
-  height: 70px;
-  font-size: 1.7em;
+.maincontent h1.has-icon,
+.maincontent h2.has-icon {
   font-weight: bold;
-  padding-top: 12px;
-  line-height: 1.7em; }
+  font-size: 1.7em;
+  line-height: 2.6em;
+  margin: 15px 0; }
 
 .maincontent h2 {
-  color: #8dcbce;
-  font-size: 1.3em; }
+  color: #8dcbce; }
 
 .maincontent hr {
-  color: #8dcbce;
-  background-color: #8dcbce;
-  height: 1px; }
+  width: 30px;
+  margin: 30 auto; }
 
 .maincontent .btn .btn-primary {
   background-color: #107D9F;
@@ -176,8 +180,7 @@ h1, h2, h3, h4, h5, h6, p, div {
 .no-avatar {
   width: 250px;
   height: 250px;
-  display: inline-block;
-  margin: 0 auto; }
+  display: inline-block; }
 
 .no-avatar {
   text-align: center;
@@ -213,7 +216,8 @@ h1, h2, h3, h4, h5, h6, p, div {
   -moz-justify-content: center;
   justify-content: center; }
 
-.sight-number-info {
+.sight-number-info,
+.sight-photocount-info {
   position: absolute;
   height: 140px;
   left: 0;
@@ -223,14 +227,27 @@ h1, h2, h3, h4, h5, h6, p, div {
   background-size: contain;
   background-image: url(../cust/images/img-binoculars.png); }
 
+.sight-date-info,
+.sight-photocount-info,
+.sight-voyage-info {
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: contain; }
+
 .sight-date-info {
   height: 190px;
-  background: center center no-repeat;
-  background-size: contain;
   background-image: url(../cust/images/img-birds-wave.png); }
 
-.infographic-2 {
+.sight-voyage-info {
+  height: 125px;
+  background-image: url(../cust/images/img-boat-wave.png); }
+
+.infographic-2,
+.infographic-5 {
   position: relative;
+  width: 100%;
+  max-width: 360px;
+  margin: 0 auto;
   display: -webkit-box;
   display: -moz-box;
   display: -ms-flexbox;
@@ -239,11 +256,10 @@ h1, h2, h3, h4, h5, h6, p, div {
   -os-flex-flow: column nowrap;
   -moz-flex-flow: column nowrap;
   -webkit-flex-flow: column nowrap;
-  flex-flow: column nowrap;
-  width: 70%;
-  margin: 0 15%; }
+  flex-flow: column nowrap; }
 
-.infographic-2 .sight-number-text {
+.infographic-2 .sight-number-text,
+.infographic-5 .sight-photocount-text {
   -moz-align-self: flex-end;
   -webkit-align-self: flex-end;
   -ms-align-self: flex-end;
@@ -256,7 +272,8 @@ h1, h2, h3, h4, h5, h6, p, div {
   text-align: center;
   width: 50%; }
 
-.infographic-2 .sight-number {
+.infographic-2 .sight-number,
+.infographic-5 .sight-photocount {
   -moz-align-self: flex-end;
   -webkit-align-self: flex-end;
   -ms-align-self: flex-end;
@@ -274,7 +291,9 @@ h1, h2, h3, h4, h5, h6, p, div {
   font-weight: bold; }
 
 .infographic-1,
-.infographic-3 {
+.infographic-3,
+.infographic-4,
+.infographic-6 {
   text-align: center; }
 
 .infographic-3 {
@@ -293,48 +312,68 @@ h1, h2, h3, h4, h5, h6, p, div {
   justify-content: flex-end;
   height: 250px; }
 
+.infographic-4 .sight-individual-number {
+  padding-right: 5px; }
+
 @media (min-width: 768px) {
   .infographic-1,
-  .infographic-3 {
+  .infographic-3,
+  .infographic-4 {
     text-align: left; }
 
-  .infographic-2 {
+  .infographic-2,
+  .infographic-5 {
     margin: 0; }
 
-  .sight-number-info {
+  .sight-number-info,
+  .sight-photocount-info {
     background-position: left bottom; } }
-.sight-stats-list span {
+.individual-stats .sight-stats-list span {
   font-size: 2em; }
-
-.sight-stats-list h3 {
+.individual-stats .sight-stats-list h3 {
   font-size: 1.5em;
   margin: 0; }
-
-.sight-date {
+.individual-stats .sight-date,
+.individual-stats .sight-individual-number,
+.individual-stats .sight-voyage {
   color: #8dcbce;
   font-size: 2.8em;
   font-weight: bold; }
-
-.sight-date,
-.sight-date-text {
+.individual-stats .sight-date,
+.individual-stats .sight-date-text,
+.individual-stats .sight-individual-number,
+.individual-stats .sight-individual-number-text {
   white-space: nowrap;
   display: inline-block; }
-
-.sight-date-text,
-.sight-number-text {
+.individual-stats .sight-voyage {
+  display: block; }
+.individual-stats .sight-voyage-text {
+  position: relative;
+  bottom: 15px;
+  display: inline-block;
+  max-width: 150px; }
+.individual-stats .sight-date-text,
+.individual-stats .sight-number-text,
+.individual-stats .sight-individual-number-text,
+.individual-stats .sight-photocount-text,
+.individual-stats .sight-voyage-text {
   color: #96a1a5;
   font-size: 1.8em; }
-
-.sight-date-text {
+.individual-stats .sight-date-text,
+.individual-stats .sight-individual-number-text,
+.individual-stats .sight-voyage-text {
   margin-right: 5px; }
-
-.sight-number {
+.individual-stats .sight-number,
+.individual-stats .sight-photocount {
   color: #8dcbce;
-  font-size: 6em; }
-
-.sight-stats {
+  font-size: 5em; }
+.individual-stats .sight-stats {
   line-height: normal; }
 
+@media (min-width: 768px) {
+  .individual-stats .sight-number,
+  .individual-stats .sight-photocount {
+    font-size: 6em; } }
 .divider {
   text-align: center;
   padding: 15px 0; }
@@ -342,30 +381,121 @@ h1, h2, h3, h4, h5, h6, p, div {
 .being-info {
   display: inline-block; }
 
-#map-sightings {
-  margin-top: 10px;
-  width: 100%;
-  height: 600px;
-  border: 5px solid;
-  border-color: #96a1a5; }
+.photo-thumbnail,
+.photo-thumbnail-main {
+  cursor: zoom-in;
+  min-height: 500px;
+  background-position: center center;
+  background-size: cover; }
 
-#main-photo {
-  cursor: zoom-in; }
-
-.photo-flex {
-  display: flex; }
-
-.photo-flex img {
-  align-self: center;
-  width: 33%;
-  padding: 2px; }
+.photo-group {
+  margin-top: 15px;
+  margin-bottom: 15px; }
 
 .photo-group .photo-thumbnail {
-  cursor: zoom-in; }
+  min-height: 250px;
+  border-style: solid;
+  border-width: 2px 1px;
+  border-color: #fff; }
 
-.photo-group .col-md-4 {
-  padding-left: 5px;
-  padding-right: 5px; }
+.photo-group .photo-thumbnail-main {
+  width: 100%;
+  height: auto; }
+
+.more-images-mobile {
+  color: #8dcbce;
+  font-size: 1.7em; }
+
+.photo-thumbnail:first-child {
+  border-left-width: 0; }
+
+.photo-thumbnail:last-child {
+  border-right-width: 0; }
+
+.submitters {
+  padding: 0;
+  list-style-type: none;
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  -os-flex-flow: row nowrap;
+  -moz-flex-flow: row nowrap;
+  -webkit-flex-flow: row nowrap;
+  flex-flow: row nowrap;
+  -webkit-justify-content: flex-start;
+  -ms-justify-content: flex-start;
+  -moz-justify-content: flex-start;
+  justify-content: flex-start; }
+
+.submitters li {
+  width: 80px;
+  height: 80px;
+  margin: 15px 15px 15px 0; }
+
+.submitters-add-yours {
+  -webkit-box-ordinal-group: 99;
+  -moz-box-ordinal-group: 99;
+  -ms-flex-order: 99;
+  -webkit-order: 99;
+  order: 99; }
+  .submitters-add-yours a {
+    font-size: 1em;
+    color: #96a1a5;
+    display: block;
+    height: 80px;
+    padding: 20px 0 0 0;
+    text-align: center;
+    text-decoration: none;
+    border: 2px dashed #96a1a5;
+    border-radius: 2px; }
+  .submitters-add-yours a:focus,
+  .submitters-add-yours a:visited,
+  .submitters-add-yours a:active {
+    color: #96a1a5; }
+  .submitters-add-yours a:hover {
+    color: #efefef;
+    background: #107D9F;
+    border-color: transparent; }
+  .submitters-add-yours span {
+    display: block; }
+
+.individual-sightings {
+  padding: 0;
+  list-style: none outside; }
+
+.sighting-avatar {
+  min-height: 200px;
+  max-width: 200px; }
+
+.sighting-avatar-img {
+  width: 100%;
+  height: 100%;
+  max-width: 200px;
+  min-height: 200px;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: contain; }
+
+.sighting-info {
+  font-size: 1.5em;
+  padding-top: 15px;
+  min-height: 200px; }
+  .sighting-info .sighting-name-label {
+    text-transform: capitalize; }
+  .sighting-info .sighting-name-label,
+  .sighting-info .sighting-your-label,
+  .sighting-info .sighting-total-label {
+    color: #96a1a5; }
+  .sighting-info .sighting-name-value,
+  .sighting-info .sighting-your-value,
+  .sighting-info .sighting-total-value {
+    color: #8dcbce; }
+
+.share-action {
+  padding: 30px;
+  text-align: center; }
 
 /* Navigation: Header and Footer */
 .navbar-inverse {
@@ -472,14 +602,6 @@ h1, h2, h3, h4, h5, h6, p, div {
  */
 .carousel-inner > .item > img, .carousel-inner > .item > a > img {
   margin: auto; }
-
-.submitters {
-  padding: 0;
-  list-style-type: none;
-  display: inline; }
-
-.submitters li {
-  display: inline; }
 
 .dropbox {
   background-color: #E3E3E3;
@@ -610,5 +732,26 @@ li.active .wizard-icon.map {
 .activity-text {
   display: inline-block;
   line-height: 47px; }
+
+/* Map Tool */
+#map-sightings {
+  margin-top: 10px;
+  width: 100%;
+  height: 600px;
+  border: 5px solid;
+  border-color: #96a1a5; }
+
+.individual-popup dt {
+  text-transform: uppercase;
+  font-size: 1.5em;
+  color: #96a1a5;
+  margin-top: 5px; }
+.individual-popup dd {
+  font-size: 1.5em;
+  color: #8dcbce; }
+.individual-popup .popup-avatar {
+  text-align: center; }
+  .individual-popup .popup-avatar img {
+    width: 150px; }
 
 /*# sourceMappingURL=app.css.map */
