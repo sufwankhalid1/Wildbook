@@ -70,6 +70,12 @@ function instagramFeed(config, secrets) {
     });
 }
 
+//take an encDate data object and return a moment object
+function formatEncDate(encDate) {
+    var dateString = encDate.year + '-' + encDate.monthValue + '-' + encDate.dayOfMonth;
+    return moment(dateString, 'YYYY-M-D');
+}
+
 var Codebird = require("codebird");
 function twitterFeed(config) {
     //
@@ -351,25 +357,26 @@ module.exports = function(app, config, secrets, debug) {
         .then(function(response) {
             var data = JSON.parse(response);
 
-            var first = Number.POSITIVE_INFINITY;
-            var last = 0;
-
+            // var first = Number.POSITIVE_INFINITY;
+            // var last = 0;
+            var first, last;
             for (encounter of data.encounters) {
-                if (encounter.dateInMilliseconds === 0) {
-                    continue;
+                theDate = formatEncDate(encounter.encDate);
+                if(!first && !last) {
+                    first = theDate;
+                    last = theDate;
                 }
-                if (encounter.dateInMilliseconds > last) {
-                    last = encounter.dateInMilliseconds;
+                if(theDate.isBefore(first)) {
+                    first = theDate;
                 }
-
-                if (encounter.dateInMilliseconds < first) {
-                    first = encounter.dateInMilliseconds;
+                if(theDate.isAfter(last)) {
+                    last = theDate;
                 }
             }
 
             var vars = {data: {info: data,
-                firstSeen: (first === Number.POSITIVE_INFINITY) ? "" : moment(first).format("ll"),
-                        lastSeen: (last === 0) ? "" : moment(last).format("ll")
+                firstSeen: (first === Number.POSITIVE_INFINITY) ? "" : first.format("ll"),
+                        lastSeen: (last === 0) ? "" : last.format("ll")
                     }};
 
             if (debug) {

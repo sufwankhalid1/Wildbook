@@ -607,14 +607,14 @@ h1, h2, h3, h4, h5, h6, p, div {
   list-style: none outside; }
 
 .sighting-avatar {
-  min-height: 200px;
-  max-width: 200px; }
+  min-height: 100px;
+  max-width: 100px; }
 
 .sighting-avatar-img {
   width: 100%;
   height: 100%;
-  max-width: 200px;
-  min-height: 200px;
+  max-width: 100px;
+  min-height: 100px;
   background-repeat: no-repeat;
   background-position: center center;
   background-size: contain; }
@@ -622,16 +622,27 @@ h1, h2, h3, h4, h5, h6, p, div {
 .sighting-info {
   font-size: 1.5em;
   padding-top: 15px;
-  min-height: 200px; }
+  min-height: 100px;
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  -os-flex-flow: column nowrap;
+  -moz-flex-flow: column nowrap;
+  -webkit-flex-flow: column nowrap;
+  flex-flow: column nowrap;
+  -webkit-justify-content: center;
+  -ms-justify-content: center;
+  -moz-justify-content: center;
+  justify-content: center; }
   .sighting-info .sighting-name-label {
     text-transform: capitalize; }
   .sighting-info .sighting-name-label,
-  .sighting-info .sighting-your-label,
-  .sighting-info .sighting-total-label {
+  .sighting-info .sighting-your-label {
     color: #96a1a5; }
   .sighting-info .sighting-name-value,
-  .sighting-info .sighting-your-value,
-  .sighting-info .sighting-total-value {
+  .sighting-info .sighting-your-value {
     color: #8dcbce; }
 
 .share-action {

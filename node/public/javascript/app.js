@@ -86,7 +86,6 @@ app.beingDiv = function(being) {
     return div;
 }
 
-
 //ngApp.factory('dataService', function() {
 //    var _data = {};
 //    return {
