@@ -108,7 +108,7 @@ angular.module("nodeApp.controllers", [])
     });
 
     $scope.login = function() {
-        wildbook.auth.loginPopup($scope);
+        wildbook.auth.loginPopup(app.config.wildbook.url);
     };
 
     $scope.terms = function() {

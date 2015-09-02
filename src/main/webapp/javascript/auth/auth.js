@@ -1,6 +1,8 @@
 if (typeof wildbook == 'undefined') wildbook = {};
 
 wildbook.auth = {
+    baseUrl: null,
+
     isLoggedIn: function() {
         return false;
     },
@@ -11,16 +13,16 @@ wildbook.auth = {
 
     login: function() {
         if (this.isLoggedIn()) return true;
-console.log('do login thing');
     },
 
-    loginPopup: function(ngScope, username, title, details, redirectUrl) {
+    loginPopup: function(baseUrl, username, title, details, redirectUrl) {
 /*
         var d = $('#login-popup');
         if (!d.length) {
             d = $('<div id="login-popup">').css("display", "none").addClass("alertplus");
         }
 */
+        this.baseUrl = baseUrl;
         if (!username) username = '';
         var h = '<div><input id="login-username" value="' + username + '" placeholder="username" /></div><div><input id="login-password" type="password" placeholder="password" /></div>';
         if (redirectUrl) h += '<input id="login-redirectUrl" type="xhidden" value="' + redirectUrl + '" />';
@@ -67,7 +69,7 @@ console.log('do login thing');
 
     loginAjax: function(username, password, args) {
         if (!args) args = {};
-        args.url = app.config.wildbook.url + '/LoginUser?json=true&username=' + username + '&password=' + password;  //TODO https!
+        args.url = this.baseUrl + '/LoginUser?json=true&username=' + username + '&password=' + password;  //TODO https!
         args.type = 'GET';
         args.dataType = 'json';
         if (!args.complete) args.complete = function(a,b,c) { console.info('loginAjax return: %o %o %o',a,b,c); };

@@ -351,7 +351,7 @@ var submitMedia = (function () {
 
                     if (userData.userInfo
                         && ! userData.userInfo.unverified) {
-                        wildbook.auth.loginPopup(undefined,
+                        wildbook.auth.loginPopup(app.config.wildbook.url,
                                                  $scope.media.email,
                                                  'Please login to continue',
                                                  'There is an account associated with this email address, and you must login to continue with submitting media.');
