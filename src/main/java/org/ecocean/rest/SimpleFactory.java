@@ -14,8 +14,6 @@ import org.ecocean.SinglePhotoVideo;
 import org.ecocean.media.MediaAsset;
 import org.ecocean.media.MediaAssetFactory;
 import org.ecocean.survey.SurveyTrack;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
@@ -25,7 +23,7 @@ import com.stormpath.sdk.account.Account;
 import com.stormpath.sdk.directory.CustomData;
 
 public class SimpleFactory {
-    private final static Logger logger = LoggerFactory.getLogger(SimpleFactory.class);
+//    private final static Logger logger = LoggerFactory.getLogger(SimpleFactory.class);
     private final static int MIN_PHOTOS = 8;
 
     private SimpleFactory() {
@@ -387,11 +385,13 @@ public class SimpleFactory {
     }
 
 
-    private static SimpleEncounter readSimpleEncounter(final SimpleIndividual individual,
-                                                       final RecordSet rs) throws DatabaseException
+    public static SimpleEncounter readSimpleEncounter(final SimpleIndividual individual,
+                                                      final RecordSet rs) throws DatabaseException
     {
-        SimpleEncounter encounter = new SimpleEncounter(rs.getInt("encounterid"), rs.getLong("encdate"));
+        SimpleEncounter encounter = new SimpleEncounter(rs.getInt("encounterid"), rs.getLocalDate("encdate"));
 
+        encounter.setStarttime(rs.getOffsetTime("starttime"));
+        encounter.setEndtime(rs.getOffsetTime("endtime"));
         encounter.setLocationid(rs.getString("locationid"));
         encounter.setLatitude(rs.getDoubleObj("latitude"));
         encounter.setLongitude(rs.getDoubleObj("longitude"));
@@ -402,7 +402,7 @@ public class SimpleFactory {
         return encounter;
     }
 
-    private static SimpleEncounter readSimpleEncounter(final RecordSet rs) throws DatabaseException
+    public static SimpleEncounter readSimpleEncounter(final RecordSet rs) throws DatabaseException
     {
         return readSimpleEncounter(readSimpleIndividual(rs), rs);
     }

@@ -1,13 +1,15 @@
 package org.ecocean.rest;
 
-
+import java.time.LocalDate;
+import java.time.OffsetTime;
 
 class SimpleEncounter
 {
     private int id;
-    private Date encdate;
+    private LocalDate encdate;
+    private OffsetTime starttime;
+    private OffsetTime endtime;
 
-    private Long encdate;
     private String locationid;
     private String verbatimLocation;
     private Double latitude;
@@ -20,7 +22,7 @@ class SimpleEncounter
     }
 
     public SimpleEncounter(final int id,
-                           final Long encdate)
+                           final LocalDate encdate)
     {
         this.id = id;
         this.encdate = encdate;
@@ -30,11 +32,11 @@ class SimpleEncounter
         return id;
     }
 
-    public Long getEncDate() {
+    public LocalDate getEncDate() {
         return encdate;
     }
 
-    public void setEncDate(final Long encdate) {
+    public void setEncDate(final LocalDate encdate) {
         this.encdate = encdate;
     }
 
@@ -76,5 +78,21 @@ class SimpleEncounter
 
     public void setIndividual(final SimpleIndividual individual) {
         this.individual = individual;
+    }
+
+    public OffsetTime getStarttime() {
+        return starttime;
+    }
+
+    public void setStarttime(final OffsetTime starttime) {
+        this.starttime = starttime;
+    }
+
+    public OffsetTime getEndtime() {
+        return endtime;
+    }
+
+    public void setEndtime(final OffsetTime endtime) {
+        this.endtime = endtime;
     }
 }

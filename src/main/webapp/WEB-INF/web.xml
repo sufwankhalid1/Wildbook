@@ -289,11 +289,6 @@
   </servlet>
 
   <servlet>
-    <servlet-name>SiteSearch</servlet-name>
-    <servlet-class>org.ecocean.servlet.SiteSearch</servlet-class>
-  </servlet>
-
-  <servlet>
     <servlet-name>EncounterSetAlternateID</servlet-name>
     <servlet-class>org.ecocean.servlet.EncounterSetAlternateID</servlet-class>
   </servlet>
@@ -1448,11 +1443,6 @@
   <servlet-mapping>
     <servlet-name>IndividualSetAlternateID</servlet-name>
     <url-pattern>/IndividualSetAlternateID</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>SiteSearch</servlet-name>
-    <url-pattern>/search</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>
