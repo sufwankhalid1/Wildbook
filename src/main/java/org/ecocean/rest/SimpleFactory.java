@@ -13,12 +13,14 @@ import org.ecocean.ShepherdPMF;
 import org.ecocean.SinglePhotoVideo;
 import org.ecocean.media.MediaAsset;
 import org.ecocean.media.MediaAssetFactory;
+import org.ecocean.media.MediaAssetType;
 import org.ecocean.survey.SurveyTrack;
 
 import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
 import com.samsix.database.RecordSet;
 import com.samsix.database.SpecialSqlCondition;
+import com.samsix.database.SqlRelationType;
 import com.samsix.database.SqlStatement;
 import com.samsix.util.string.StringUtilities;
 import com.stormpath.sdk.account.Account;
@@ -84,21 +86,19 @@ public class SimpleFactory {
         //
         // Add photos
         //
-        String sqlRoot = "SELECT ma.* FROM mediaasset ma"
-                + " INNER JOIN encounter_media em ON ma.id = em.mediaid"
-                + " INNER JOIN encounters e ON e.encounterid = em.encounterid";
-        String whereRoot = " WHERE e.individualid = " + individualId;
+        SqlStatement sql = new SqlStatement("mediaasset", "ma", "ma.*");
+        sql.addInnerJoin("ma", "id", "encounter_media", "em", "mediaid");
+        sql.addInnerJoin("em", "encounterid", "encounters", "e", "encounterid");
+        sql.addCondition("ma", "type", SqlRelationType.EQUAL, MediaAssetType.IMAGE.getCode());
+        sql.addCondition("e", "individualid", SqlRelationType.EQUAL, individualId);
 
-        String sql;
         RecordSet rs;
         List<SimplePhoto> photos = new ArrayList<SimplePhoto>();
 
         //
         // Find the highlight images for this individual.
         //
-        sql = sqlRoot + whereRoot + " AND 'highlight' = ANY (ma.tags)";
-
-        rs = db.getRecordSet(sql);
+        rs = db.getRecordSet(sql.getSql() + " AND 'highlight' = ANY (ma.tags)");
         while (rs.next()) {
             photos.add(readPhoto(rs));
         }
@@ -110,9 +110,7 @@ public class SimpleFactory {
         // that we can throw out any duplicates.
         //
         if (photos.size() < MIN_PHOTOS) {
-            sql = sqlRoot + whereRoot + " LIMIT " + MIN_PHOTOS;
-
-            rs = db.getRecordSet(sql);
+            rs = db.getRecordSet(sql.getSql() + " LIMIT " + MIN_PHOTOS);
             while (rs.next()) {
                 if (photos.size() >= MIN_PHOTOS) {
                     break;
@@ -195,7 +193,7 @@ public class SimpleFactory {
         //
         String sqlRoot = "SELECT ma.* FROM mediaasset ma";
         String whereRoot = " WHERE ma.submitter = " + StringUtilities.wrapQuotes(username)
-            + " AND ma.type = 1";
+            + " AND ma.type = " + MediaAssetType.IMAGE.getCode();
 
         try (Database db = new Database(ShepherdPMF.getConnectionInfo())) {
             String sql;
