@@ -148,7 +148,7 @@ $(document).ready(function() {
             //source: app.config.wildbook.proxyUrl + "/search"
             source: function( request, response ) {
                 $.ajax({
-                    url: app.config.wildbook.proxyUrl + "/search",
+                    url: app.config.wildbook.proxyUrl + "/search/site",
                     dataType: "json",
                     data: {
                         term: request.term

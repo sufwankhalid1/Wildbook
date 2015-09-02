@@ -30,9 +30,6 @@ app.controller("MediaSubmissionController", function ($scope, $http, $compile) {
 
     $scope.createEncounter = function() {
         //
-        // TODO: Make sure they are creating this encounter from a known individual. That
-        // will be the requirement at first.
-        //
         // TODO: Before willy-nilly creating an encounter from this data we should first
         // see if there are any other encounters for this individual, date, and location
         // and use this one instead.
