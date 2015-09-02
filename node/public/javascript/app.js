@@ -86,6 +86,11 @@ app.beingDiv = function(being) {
     return div;
 }
 
+app.toMoment = function(encDate) {
+    var dateString = encDate.year + '-' + encDate.monthValue + '-' + encDate.dayOfMonth;
+    return moment(dateString, 'YYYY-M-D');
+}
+
 //ngApp.factory('dataService', function() {
 //    var _data = {};
 //    return {

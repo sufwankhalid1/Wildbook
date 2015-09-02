@@ -283,7 +283,9 @@ public class SimpleFactory {
                 SimpleIndividual ind = inds.get(indid);
                 if (ind == null) {
                     ind = readSimpleIndividual(rs);
-                    inds.put(ind.getId(), ind);
+                    if (ind != null) {
+                        inds.put(ind.getId(), ind);
+                    }
                 }
 
                 SimpleEncounter encounter = readSimpleEncounter(ind, rs);
@@ -318,6 +320,9 @@ public class SimpleFactory {
     public static SimpleIndividual readSimpleIndividual(final RecordSet rs) throws DatabaseException
     {
         Integer indid = rs.getInteger("individualid");
+        if (indid == null) {
+            return null;
+        }
 
         SimpleIndividual ind = new SimpleIndividual(indid, rs.getString("nickname"));
         ind.setSex(rs.getString("sex"));

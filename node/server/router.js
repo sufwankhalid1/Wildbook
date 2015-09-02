@@ -71,7 +71,7 @@ function instagramFeed(config, secrets) {
 }
 
 //take an encDate data object and return a moment object
-function formatEncDate(encDate) {
+function toMoment(encDate) {
     var dateString = encDate.year + '-' + encDate.monthValue + '-' + encDate.dayOfMonth;
     return moment(dateString, 'YYYY-M-D');
 }
@@ -114,22 +114,22 @@ function twitterFeed(config) {
                     value = "";
                     while (index >= 0) {
                         value += tweet.slice(startIndex, index);
-                        var spaceIndex = tweet.indexOf(" ", index);
+                        startIndex = tweet.indexOf(" ", index);
                         var link;
-                        if (spaceIndex <= -1) {
+                        if (startIndex <= -1) {
                             link = tweet.slice(index);
                             index = -1;
                         } else {
-                            link = tweet.slice(index, spaceIndex);
-                            index = tweet.indexOf("http", spaceIndex);
+                            link = tweet.slice(index, startIndex);
+                            index = tweet.indexOf("http", startIndex);
                         }
                         value += '<a href="' + link + '" target="_blank">' + link + '</a>';
 
                         //
                         // If this is the last then we need to make sure we get the rest of it.
                         //
-                        if (index < 0 && spaceIndex >= 0) {
-                            value += tweet.slice(spaceIndex);
+                        if (index < 0 && startIndex >= 0) {
+                            value += tweet.slice(startIndex);
                         }
                     };
                 }
@@ -357,26 +357,25 @@ module.exports = function(app, config, secrets, debug) {
         .then(function(response) {
             var data = JSON.parse(response);
 
-            // var first = Number.POSITIVE_INFINITY;
-            // var last = 0;
-            var first, last;
+            var first;
+            var last;
             for (encounter of data.encounters) {
-                theDate = formatEncDate(encounter.encDate);
-                if(!first && !last) {
+                theDate = toMoment(encounter.encDate);
+                if (!first && !last) {
                     first = theDate;
                     last = theDate;
                 }
-                if(theDate.isBefore(first)) {
+                if (theDate.isBefore(first)) {
                     first = theDate;
                 }
-                if(theDate.isAfter(last)) {
+                if (theDate.isAfter(last)) {
                     last = theDate;
                 }
             }
 
             var vars = {data: {info: data,
-                firstSeen: (first === Number.POSITIVE_INFINITY) ? "" : first.format("ll"),
-                        lastSeen: (last === 0) ? "" : last.format("ll")
+                firstSeen: (!first) ? "" : first.format("ll"),
+                        lastSeen: (!last) ? "" : last.format("ll")
                     }};
 
             if (debug) {

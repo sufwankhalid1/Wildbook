@@ -191,7 +191,7 @@ var maptool = (function () {
             popup.append($("<dd/>", { class: 'popup-name' }).text(nameIndividual));
 
             popup.append($("<dt/>", { class: 'popup-date-label' }).text('Sighted On'));
-            popup.append($("<dd/>", { class: 'popup-date' }).text(moment(encounter.dateInMilliseconds).format('LL')));
+            popup.append($("<dd/>", { class: 'popup-date' }).text(app.toMoment(encounter.encDate).format('LL')));
 
             popup.append($("<dt/>", { class: 'popup-location-date'}).text('Location'));
             popup.append($("<dd/>", { class: 'popup-location'}).text(encounter.verbatimLocation));
