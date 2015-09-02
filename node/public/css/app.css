@@ -132,13 +132,15 @@ h1, h2, h3, h4, h5, h6, p, div {
 .banner .btn-primary:hover {
   background-color: #087A9A; }
 
-.home-content h1 {
-  font-size: 32px;
-  color: #94a1a4; }
-.home-content h2 {
-  font-size: 24px;
-  color: #94a1a4;
-  margin: 20px 0 20px; }
+.home-content {
+  padding-top: 30px; }
+  .home-content h1 {
+    font-size: 32px;
+    color: #94a1a4; }
+  .home-content h2 {
+    font-size: 24px;
+    color: #94a1a4;
+    margin: 20px 0 30px; }
 
 .home-down {
   position: absolute;
