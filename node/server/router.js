@@ -56,7 +56,7 @@ function instagramFeed(config, secrets) {
     var url = "https://api.instagram.com/v1/users/"
         + config.client.social.instagram.user_id
         + "/media/recent/?count="
-        + (config.client.social.instagram.feed_count ? config.client.social.instagram.feed_count : 4)
+        + (config.client.social.instagram.feed_count ? config.client.social.instagram.feed_count : 16)
         + "&access_token="
         + secrets.social.instagram.access_token;
 //    console.log(url);
@@ -68,6 +68,12 @@ function instagramFeed(config, secrets) {
         console.log(ex);
         home.social.instagram.feed = [];
     });
+}
+
+//take an encDate data object and return a moment object
+function toMoment(encDate) {
+    var dateString = encDate.year + '-' + encDate.monthValue + '-' + encDate.dayOfMonth;
+    return moment(dateString, 'YYYY-M-D');
 }
 
 var Codebird = require("codebird");
@@ -97,6 +103,7 @@ function twitterFeed(config) {
             //
             home.social.twitter.feed = reply.map(function(value) {
                 var tweet = value.text || "";
+                var tweetDate = moment(value.created_at, 'dd MMM DD HH:mm:ss ZZ YYYY', 'en').format("ll");
 //                console.log(tweet);
                 var value;
                 var startIndex = 0;
@@ -107,27 +114,30 @@ function twitterFeed(config) {
                     value = "";
                     while (index >= 0) {
                         value += tweet.slice(startIndex, index);
-                        var spaceIndex = tweet.indexOf(" ", index);
+                        startIndex = tweet.indexOf(" ", index);
                         var link;
-                        if (spaceIndex <= -1) {
+                        if (startIndex <= -1) {
                             link = tweet.slice(index);
                             index = -1;
                         } else {
-                            link = tweet.slice(index, spaceIndex);
-                            index = tweet.indexOf("http", spaceIndex);
+                            link = tweet.slice(index, startIndex);
+                            index = tweet.indexOf("http", startIndex);
                         }
                         value += '<a href="' + link + '" target="_blank">' + link + '</a>';
 
                         //
                         // If this is the last then we need to make sure we get the rest of it.
                         //
-                        if (index < 0 && spaceIndex >= 0) {
-                            value += tweet.slice(spaceIndex);
+                        if (index < 0 && startIndex >= 0) {
+                            value += tweet.slice(startIndex);
                         }
                     };
                 }
 
-                return {text: value};
+                return {
+                    text: value,
+                    created_at: tweetDate
+                };
             });
 
 //            console.log(home.social.twitter.feed);
@@ -347,25 +357,25 @@ module.exports = function(app, config, secrets, debug) {
         .then(function(response) {
             var data = JSON.parse(response);
 
-            var first = Number.POSITIVE_INFINITY;
-            var last = 0;
-
+            var first;
+            var last;
             for (encounter of data.encounters) {
-                if (encounter.dateInMilliseconds === 0) {
-                    continue;
+                theDate = toMoment(encounter.encDate);
+                if (!first && !last) {
+                    first = theDate;
+                    last = theDate;
                 }
-                if (encounter.dateInMilliseconds > last) {
-                    last = encounter.dateInMilliseconds;
+                if (theDate.isBefore(first)) {
+                    first = theDate;
                 }
-
-                if (encounter.dateInMilliseconds < first) {
-                    first = encounter.dateInMilliseconds;
+                if (theDate.isAfter(last)) {
+                    last = theDate;
                 }
             }
 
             var vars = {data: {info: data,
-                firstSeen: (first === Number.POSITIVE_INFINITY) ? "" : moment(first).format("ll"),
-                        lastSeen: (last === 0) ? "" : moment(last).format("ll")
+                firstSeen: (!first) ? "" : first.format("ll"),
+                        lastSeen: (!last) ? "" : last.format("ll")
                     }};
 
             if (debug) {

@@ -1,7 +1,7 @@
 {
     "client": {
         "wildbook": {
-            "url": "http://devhappywhale.com:8080/wildbook",
+            "url": "http://wildbook.devhappywhale.com",
             "staticUrl": "http://wildbook.devhappywhale.com",
             "proxy": false
         }

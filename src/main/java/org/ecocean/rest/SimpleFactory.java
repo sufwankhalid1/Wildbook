@@ -13,19 +13,21 @@ import org.ecocean.ShepherdPMF;
 import org.ecocean.SinglePhotoVideo;
 import org.ecocean.media.MediaAsset;
 import org.ecocean.media.MediaAssetFactory;
+import org.ecocean.media.MediaAssetType;
 import org.ecocean.survey.SurveyTrack;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
 import com.samsix.database.RecordSet;
+import com.samsix.database.SpecialSqlCondition;
+import com.samsix.database.SqlRelationType;
+import com.samsix.database.SqlStatement;
 import com.samsix.util.string.StringUtilities;
 import com.stormpath.sdk.account.Account;
 import com.stormpath.sdk.directory.CustomData;
 
 public class SimpleFactory {
-    private final static Logger logger = LoggerFactory.getLogger(SimpleFactory.class);
+//    private final static Logger logger = LoggerFactory.getLogger(SimpleFactory.class);
     private final static int MIN_PHOTOS = 8;
 
     private SimpleFactory() {
@@ -84,21 +86,19 @@ public class SimpleFactory {
         //
         // Add photos
         //
-        String sqlRoot = "SELECT ma.* FROM mediaasset ma"
-                + " INNER JOIN encounter_media em ON ma.id = em.mediaid"
-                + " INNER JOIN encounters e ON e.encounterid = em.encounterid";
-        String whereRoot = " WHERE e.individualid = " + individualId;
+        SqlStatement sql = new SqlStatement("mediaasset", "ma", "ma.*");
+        sql.addInnerJoin("ma", "id", "encounter_media", "em", "mediaid");
+        sql.addInnerJoin("em", "encounterid", "encounters", "e", "encounterid");
+        sql.addCondition("ma", "type", SqlRelationType.EQUAL, MediaAssetType.IMAGE.getCode());
+        sql.addCondition("e", "individualid", SqlRelationType.EQUAL, individualId);
 
-        String sql;
         RecordSet rs;
         List<SimplePhoto> photos = new ArrayList<SimplePhoto>();
 
         //
         // Find the highlight images for this individual.
         //
-        sql = sqlRoot + whereRoot + " AND 'highlight' = ANY (ma.tags)";
-
-        rs = db.getRecordSet(sql);
+        rs = db.getRecordSet(sql.getSql() + " AND 'highlight' = ANY (ma.tags)");
         while (rs.next()) {
             photos.add(readPhoto(rs));
         }
@@ -110,9 +110,7 @@ public class SimpleFactory {
         // that we can throw out any duplicates.
         //
         if (photos.size() < MIN_PHOTOS) {
-            sql = sqlRoot + whereRoot + " LIMIT " + MIN_PHOTOS;
-
-            rs = db.getRecordSet(sql);
+            rs = db.getRecordSet(sql.getSql() + " LIMIT " + MIN_PHOTOS);
             while (rs.next()) {
                 if (photos.size() >= MIN_PHOTOS) {
                     break;
@@ -151,20 +149,39 @@ public class SimpleFactory {
 //        return ind;
 //    }
 
+    public static SqlStatement getIndividualStatement()
+    {
+        SqlStatement sql = new SqlStatement("individuals", "i");
+        sql.addLeftOuterJoin("i", "avatarid", "mediaasset", "ma", "id");
+        return sql;
+    }
 
     public static SimpleIndividual getIndividual(final Database db, final int individualId) throws DatabaseException
     {
-        String sql;
         RecordSet rs;
-        sql = "select * from individuals i"
-                + " left outer join mediaasset ma on ma.id = i.avatarid"
-                + " where individualid = " + individualId;
-        rs = db.getRecordSet(sql);
+        SqlStatement sql = getIndividualStatement();
+        sql.addCondition("i", "individualid", SqlRelationType.EQUAL, individualId);
+        rs = db.getRecordSet(sql.getSql());
         if (rs.next()) {
             return readSimpleIndividual(rs);
         }
 
         return null;
+    }
+
+
+    public static SqlStatement getEncounterStatement()
+    {
+        SqlStatement sql = new SqlStatement("encounters", "e");
+        sql.addLeftOuterJoin("e", "individualid", "individuals", "i", "individualid");
+        sql.addLeftOuterJoin("i", "avatarid", "mediaasset", "ma", "id");
+        return sql;
+    }
+
+    public static SqlStatement getUserStatement() {
+        SqlStatement sql = new SqlStatement("\"USERS\"", "u");
+        sql.addLeftOuterJoin("u", "\"USERIMAGEID\"", "mediaasset", "ma", "id");
+        return sql;
     }
 
 
@@ -185,7 +202,8 @@ public class SimpleFactory {
         // 5) Voyages on
         //
         String sqlRoot = "SELECT ma.* FROM mediaasset ma";
-        String whereRoot = " WHERE ma.submitter = " + StringUtilities.wrapQuotes(username);
+        String whereRoot = " WHERE ma.submitter = " + StringUtilities.wrapQuotes(username)
+            + " AND ma.type = " + MediaAssetType.IMAGE.getCode();
 
         try (Database db = new Database(ShepherdPMF.getConnectionInfo())) {
             String sql;
@@ -251,23 +269,23 @@ public class SimpleFactory {
             // is duplicated because javascript does not have hashmaps which makes the code to try and
             // get all the unique values of individualID into an array much messier.
             //
-            sql = "select e.*, i.*, maa.* from encounters e"
-                    + " left outer join individuals i on i.individualid = e.individualid"
-                    + " left outer join mediaasset maa on maa.id = i.avatarid"
-                    + " where exists (select * from encounter_media em"
+            SqlStatement ss = getEncounterStatement();
+            ss.addCondition(new SpecialSqlCondition("exists (select * from encounter_media em"
                     + " inner join mediaasset ma on ma.id = em.mediaid"
                     + whereRoot
-                    + " and em.encounterid = e.encounterid)";
+                    + " and em.encounterid = e.encounterid)"));
 
             Map<Integer, SimpleIndividual> inds = new HashMap<>();
-            rs = db.getRecordSet(sql);
+            rs = db.getRecordSet(ss.getSql());
             while (rs.next()) {
                 Integer indid = rs.getInteger("individualid");
 
                 SimpleIndividual ind = inds.get(indid);
                 if (ind == null) {
                     ind = readSimpleIndividual(rs);
-                    inds.put(ind.getId(), ind);
+                    if (ind != null) {
+                        inds.put(ind.getId(), ind);
+                    }
                 }
 
                 SimpleEncounter encounter = readSimpleEncounter(ind, rs);
@@ -301,7 +319,12 @@ public class SimpleFactory {
 
     public static SimpleIndividual readSimpleIndividual(final RecordSet rs) throws DatabaseException
     {
-        SimpleIndividual ind = new SimpleIndividual(rs.getInt("individualid"), rs.getString("nickname"));
+        Integer indid = rs.getInteger("individualid");
+        if (indid == null) {
+            return null;
+        }
+
+        SimpleIndividual ind = new SimpleIndividual(indid, rs.getString("nickname"));
         ind.setSex(rs.getString("sex"));
         ind.setSpecies(rs.getString("species"));
         ind.setAlternateId(rs.getString("alternateid"));
@@ -387,11 +410,13 @@ public class SimpleFactory {
     }
 
 
-    private static SimpleEncounter readSimpleEncounter(final SimpleIndividual individual,
-                                                       final RecordSet rs) throws DatabaseException
+    public static SimpleEncounter readSimpleEncounter(final SimpleIndividual individual,
+                                                      final RecordSet rs) throws DatabaseException
     {
-        SimpleEncounter encounter = new SimpleEncounter(rs.getInt("encounterid"), rs.getLong("encdate"));
+        SimpleEncounter encounter = new SimpleEncounter(rs.getInt("encounterid"), rs.getLocalDate("encdate"));
 
+        encounter.setStarttime(rs.getOffsetTime("starttime"));
+        encounter.setEndtime(rs.getOffsetTime("endtime"));
         encounter.setLocationid(rs.getString("locationid"));
         encounter.setLatitude(rs.getDoubleObj("latitude"));
         encounter.setLongitude(rs.getDoubleObj("longitude"));
@@ -402,7 +427,7 @@ public class SimpleFactory {
         return encounter;
     }
 
-    private static SimpleEncounter readSimpleEncounter(final RecordSet rs) throws DatabaseException
+    public static SimpleEncounter readSimpleEncounter(final RecordSet rs) throws DatabaseException
     {
         return readSimpleEncounter(readSimpleIndividual(rs), rs);
     }
@@ -493,13 +518,10 @@ public class SimpleFactory {
     public static SimpleUser getUser(final String username) throws DatabaseException
     {
         try (Database db = new Database(ShepherdPMF.getConnectionInfo())) {
-            String sql;
-            sql = "select * from \"USERS\" u"
-                    + " LEFT OUTER JOIN mediaasset ma ON ma.id = u.\"USERIMAGEID\""
-                    + " WHERE u.\"USERNAME\" = " + StringUtilities.wrapQuotes(username);
-
+            SqlStatement sql = getUserStatement();
+            sql.addCondition("u", "\"USERNAME\"",SqlRelationType.EQUAL, username);
             RecordSet rs;
-            rs = db.getRecordSet(sql);
+            rs = db.getRecordSet(sql.getSql());
             if (rs.next()) {
                 return readUser(rs);
             }

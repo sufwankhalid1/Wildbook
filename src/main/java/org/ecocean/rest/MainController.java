@@ -73,7 +73,7 @@ public class MainController
         return request.getServletContext().getInitParameter(var);
     }
 
-    public class IndividualInfo
+    static class IndividualInfo
     {
         public SimpleIndividual individual;
         public List<SimpleEncounter> encounters;

@@ -1,4 +1,4 @@
-/* Individual */
+/* Individual and User Page */
 
 .maincontent {
     position: relative;
@@ -7,23 +7,21 @@
     margin: 0 auto 80px;
 }
 
-.maincontent h1.has-icon {
-    height: 70px;
-    font-size: 1.7em;
+.maincontent h1.has-icon,
+.maincontent h2.has-icon {
     font-weight: bold;
-    padding-top: 12px;
-    line-height: 1.7em;
+    font-size: 1.7em;
+    line-height: 2.6em;
+    margin: 15px 0;
 }
 
 .maincontent h2 {
     color: $font-color-main;
-    font-size: 1.3em;
 }
 
 .maincontent hr {
-    color: $font-color-main;
-    background-color: $font-color-main;
-    height: 1px;
+    width: 30px;
+    margin: 30 auto;
 }
 
 .maincontent .btn .btn-primary {
@@ -77,7 +75,6 @@
     width: 250px;
     height: 250px;
     display: inline-block;
-    margin: 0 auto;
 }
 
 .no-avatar {
@@ -105,7 +102,8 @@
     @include flexbox-justify-content(center);
 }
 
-.sight-number-info {
+.sight-number-info,
+.sight-photocount-info {
     position: absolute;
     height: 140px;
     left: 0;
@@ -116,29 +114,44 @@
     background-image: $individual-sightings;
 }
 
+.sight-date-info,
+.sight-photocount-info,
+.sight-voyage-info {
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+
 .sight-date-info {
     height: 190px;
-    background: center center no-repeat;
-    background-size: contain;
     background-image: $individual-count;
 }
 
-.infographic-2 {
-    position: relative;
-    @include flexbox-display-flex();
-    @include flexbox-flex-flow(column nowrap);
-    width: 70%;
-    margin: 0 15%;
+.sight-voyage-info {
+    height: 125px;
+    background-image: $user-count;
 }
 
-.infographic-2 .sight-number-text {
+.infographic-2,
+.infographic-5 {
+    position: relative;
+    width: 100%;
+    max-width: 360px;
+    margin: 0 auto;
+    @include flexbox-display-flex();
+    @include flexbox-flex-flow(column nowrap);
+}
+
+.infographic-2 .sight-number-text,
+.infographic-5 .sight-photocount-text {
     @include flexbox-align-self(flex-end);
     @include flexbox-order(2);
     text-align: center;
     width: 50%;
 }
 
-.infographic-2 .sight-number {
+.infographic-2 .sight-number,
+.infographic-5 .sight-photocount {
     @include flexbox-align-self(flex-end);
     @include flexbox-order(1);
     display: block;
@@ -150,7 +163,9 @@
 }
 
 .infographic-1,
-.infographic-3 {
+.infographic-3,
+.infographic-4,
+.infographic-6 {
     text-align: center;
 }
 
@@ -161,59 +176,101 @@
     height: 250px;
 }
 
+.infographic-4 .sight-individual-number {
+    padding-right: 5px;
+}
+
 //only on large screens:
 
 @media (min-width: 768px) { 
     .infographic-1,
-    .infographic-3 {
+    .infographic-3,
+    .infographic-4 {
         text-align: left;
     }
-    .infographic-2 {
+    .infographic-2,
+    .infographic-5 {
         margin: 0;
     }
-    .sight-number-info {
+    .sight-number-info,
+    .sight-photocount-info {
         background-position: left bottom;
     }
 }
 
-.sight-stats-list span {
-    font-size: 2em;
+
+.individual-stats {
+
+    .sight-stats-list span {
+        font-size: 2em;
+    }
+
+    .sight-stats-list h3 {
+        font-size: 1.5em;
+        margin: 0;
+    }
+
+    .sight-date,
+    .sight-individual-number,
+    .sight-voyage {
+        color: $font-color-main;
+        font-size: 2.8em;
+        font-weight: bold;
+    }
+
+    .sight-date,
+    .sight-date-text,
+    .sight-individual-number,
+    .sight-individual-number-text {
+        white-space: nowrap;
+        display: inline-block;
+    }
+
+    .sight-voyage {
+        display: block;
+    }
+
+    .sight-voyage-text {
+        position: relative;
+        bottom: 15px;
+        display: inline-block;
+        max-width: 150px;
+    }
+
+    .sight-date-text,
+    .sight-number-text,
+    .sight-individual-number-text,
+    .sight-photocount-text,
+    .sight-voyage-text {
+        color: $font-color-heading;
+        font-size: 1.8em;
+    }
+
+    .sight-date-text,
+    .sight-individual-number-text,
+    .sight-voyage-text {
+        margin-right: 5px;
+    }
+
+    .sight-number,
+    .sight-photocount {
+        color: $font-color-main;
+        font-size: 5em;
+    }
+
+    .sight-stats {
+        line-height: normal;
+    }   
+
 }
 
-.sight-stats-list h3 {
-    font-size: 1.5em;
-    margin: 0;
-}
-
-.sight-date {
-    color: $font-color-main;
-    font-size: 2.8em;
-    font-weight: bold;
-}
-
-.sight-date,
-.sight-date-text {
-    white-space: nowrap;
-    display: inline-block;
-}
-
-.sight-date-text,
-.sight-number-text {
-    color: #96a1a5;
-    font-size: 1.8em;
-}
-
-.sight-date-text {
-    margin-right: 5px;
-}
-
-.sight-number {
-    color: $font-color-main;
-    font-size: 6em;
-}
-
-.sight-stats {
-    line-height: normal;
+@media (min-width: 768px) { 
+    .individual-stats {
+        .sight-number,
+        .sight-photocount {
+            font-size: 6em;
+        }
+    }
 }
 
 .divider {
@@ -226,36 +283,143 @@
 }
 
 ////////////////////////
-//photo gallery and map
+//photo gallery
 ////////////////////////
 
-#map-sightings {
-    margin-top: 10px;
-    width: 100%;
-    height: 600px;
-    border: 5px solid;
-    border-color: $border-color-light;
-}
-
-#main-photo {
+.photo-thumbnail,
+.photo-thumbnail-main {
     cursor: zoom-in;
+    min-height: 500px;
+    background-position: center center;
+    background-size: cover;
 }
 
-.photo-flex {
-    display: flex;
-}
-
-.photo-flex img {
-    align-self: center;
-    width: 33%;
-    padding: 2px;
+.photo-group {
+    margin-top: 15px;
+    margin-bottom: 15px;    
 }
 
 .photo-group .photo-thumbnail {
-    cursor: zoom-in;
+    min-height: 250px;
+    border-style: solid;
+    border-width: 2px 1px;
+    border-color: $background-default;
 }
 
-.photo-group .col-md-4 {
-    padding-left: 5px;
-    padding-right: 5px;
+.photo-group .photo-thumbnail-main {
+    width: 100%;
+    height: auto;
+}
+
+//This is a little message that shows up on extra small devices
+.more-images-mobile {
+    color: $font-color-main;
+    font-size: 1.7em;
+}
+
+.photo-thumbnail:first-child {
+    border-left-width: 0;
+}
+
+.photo-thumbnail:last-child {
+    border-right-width: 0;
+}
+
+//submitters section of individual
+
+.submitters {
+    padding: 0;
+    list-style-type: none;
+    @include flexbox-display-flex;
+    @include flexbox-flex-flow(row nowrap);
+    @include flexbox-justify-content(flex-start);
+}
+
+.submitters li {
+    width: 80px;
+    height: 80px;
+    margin: 15px 15px 15px 0;
+}
+
+.submitters-add-yours {
+    @include flexbox-order(99);
+
+    a {
+        font-size: 1em;
+        color: $font-color-heading;
+        display: block;
+        height: 80px;
+        padding: 20px 0 0 0;
+        text-align: center;
+        text-decoration: none;
+        border: 2px dashed $font-color-heading;
+        border-radius: 2px;
+    }
+    a:focus,
+    a:visited,
+    a:active {
+        color: $font-color-heading;
+    }
+
+    a:hover {
+        color: $font-color-inverse;
+        background: $background-dark;
+        border-color: transparent;
+    }
+
+    span {
+        display: block;
+    }
+}
+
+//individual sightings on the user page
+
+.individual-sightings {
+    padding: 0;
+    list-style: none outside;
+}
+
+.sighting-avatar {
+    min-height: 100px;
+    max-width: 100px;
+}
+
+.sighting-avatar-img {
+    width: 100%;
+    height: 100%;
+    max-width: 100px;
+    min-height: 100px;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: contain;
+}
+
+.sighting-info {
+    font-size: 1.5em;
+    padding-top: 15px;
+    min-height: 100px;
+    @include flexbox-display-flex;
+    @include flexbox-flex-flow(column nowrap);
+    @include flexbox-justify-content(center);
+
+    .sighting-name-label {
+        text-transform: capitalize;
+    }
+
+    .sighting-name-label,
+    .sighting-your-label {
+        color: $font-color-heading;
+    }
+
+    .sighting-name-value,
+    .sighting-your-value {
+        color: $font-color-main;
+    }
+}
+
+//Share message at bottom of page
+
+.share-action {
+    padding: 30px;
+    text-align: center;
 }

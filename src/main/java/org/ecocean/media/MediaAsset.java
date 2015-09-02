@@ -32,6 +32,8 @@ public class MediaAsset {
     protected AssetStore store;
     protected Path path;
 
+    protected MediaAssetType type;
+
     protected String category;
     protected Set<String> tags;
     protected Integer parentId;
@@ -47,21 +49,26 @@ public class MediaAsset {
      */
     public MediaAsset(final AssetStore store, final Path path, final String category)
     {
-        this(MediaAssetFactory.NOT_SAVED, store, path, category);
+        this(MediaAssetFactory.NOT_SAVED, store, path, MediaAssetType.fromFilename(path.toString()), category);
     }
 
 
     public MediaAsset(final AssetStore store, final Path path)
     {
-        this(MediaAssetFactory.NOT_SAVED, store, path, null);
+        this(store, path, null);
     }
 
 
-    public MediaAsset(final int id, final AssetStore store, final Path path, final String category)
+    public MediaAsset(final int id,
+                      final AssetStore store,
+                      final Path path,
+                      final MediaAssetType type,
+                      final String category)
     {
         this.id = id;
         this.store = store;
         this.path = path;
+        this.type = type;
         this.category = category;
     }
 
@@ -96,6 +103,10 @@ public class MediaAsset {
     public Path getPath()
     {
         return path;
+    }
+
+    public MediaAssetType getType() {
+        return type;
     }
 
     /**

@@ -1,0 +1,16 @@
+.container-fluid
+    .sighting-avatar.col-md-3.col-sm-12
+        a(href='/individual/' + being.id)
+            if being.avatar
+                .sighting-avatar-img(style="background-image: url(#{being.avatar});")
+            else
+                .sighting-avatar-img(style="background-image: url(/images/species/humpback_whale.svg);")
+    .sighting-info.col-md-9.col-sm-12
+        .sighting-name
+            //@todo: data should come formatted like this, move out of template
+            - var gender = !being.gender || being.gender == 'unknown' ? '(Gender Unknown)' : being.gender
+            span.sighting-name-label()= being.speciesDisplayName + ': '
+            span.sighting-name-value()= being.displayName + ' : ' + gender
+        //.sighting-your-encounters
+            //span.sighting-your-label()= "First Spotted: "
+            //span.sighting-your-value()= "time, place"

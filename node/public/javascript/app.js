@@ -86,6 +86,10 @@ app.beingDiv = function(being) {
     return div;
 }
 
+app.toMoment = function(encDate) {
+    var dateString = encDate.year + '-' + encDate.monthValue + '-' + encDate.dayOfMonth;
+    return moment(dateString, 'YYYY-M-D');
+}
 
 //ngApp.factory('dataService', function() {
 //    var _data = {};
@@ -148,7 +152,7 @@ $(document).ready(function() {
             //source: app.config.wildbook.proxyUrl + "/search"
             source: function( request, response ) {
                 $.ajax({
-                    url: app.config.wildbook.proxyUrl + "/search",
+                    url: app.config.wildbook.proxyUrl + "/search/site",
                     dataType: "json",
                     data: {
                         term: request.term

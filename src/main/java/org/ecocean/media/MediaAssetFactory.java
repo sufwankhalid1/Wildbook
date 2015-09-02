@@ -65,6 +65,7 @@ public class MediaAssetFactory {
         MediaAsset ma = new MediaAsset(rs.getInt("id"),
                                        AssetStore.get(rs.getInteger("store")),
                                        createPath(rs.getString("path")),
+                                       MediaAssetType.fromCode(rs.getInt("type")),
                                        rs.getString("category"));
         ma.parentId = rs.getInteger("parent");
         ma.rootId = rs.getInteger("root");
@@ -106,6 +107,7 @@ public class MediaAssetFactory {
     private static void fillFormatter(final SqlFormatter formatter, final MediaAsset ma) {
         formatter.append("store", ma.store.id);
         formatter.append("path", ma.path.toString());
+        formatter.append("type", ma.type.getCode());
         formatter.append("category", ma.category);
         formatter.append("parent", ma.parentId);
         formatter.append("root", ma.rootId);

@@ -6,7 +6,7 @@ import org.apache.commons.lang3.text.WordUtils;
 
 public class SimpleIndividual implements SimpleBeing
 {
-    private int id;
+    private Integer id;
     private String alternateId;
     private String species;
     private String nickname;
@@ -19,7 +19,7 @@ public class SimpleIndividual implements SimpleBeing
         // for deserialization
     }
 
-    public SimpleIndividual(final int id,
+    public SimpleIndividual(final Integer id,
                             final String nickname)
     {
         this.id = id;
@@ -38,7 +38,7 @@ public class SimpleIndividual implements SimpleBeing
     }
 
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 

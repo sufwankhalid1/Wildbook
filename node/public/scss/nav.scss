@@ -26,6 +26,10 @@
     top: -15px;
 }
 
+.navbar-login {
+    cursor: pointer;
+}
+
 .logo-svg {
     background-image: $logo-svg;
 }
@@ -45,9 +49,33 @@
     font-size: $font-size-small;
 }
 
+//Hamburger icon on small screens
+.navbar-inverse .navbar-toggle {
+    float: left;
+    margin: 8px 15px;
+    border-color: transparent;
+}
+
+.navbar-inverse .navbar-toggle[aria-expanded="true"] {
+    background: $background-dark-selected;
+    border-color: $font-color-inverse;
+}
+
 /////////////////
 //search bar
 /////////////////
+
+.navbar-search-wrap {
+    max-width: 350px;
+}
+
+.navbar-collapse .navbar-search-wrap {
+    padding-left: 15px;
+}
+
+.navbar-collapse .navbar-login {
+    text-align: right;
+}
 
 .navbar-search {
     margin-top: 14px;
@@ -72,7 +100,7 @@
     position: relative;
 }
 .right-inner-addon input {
-    padding-right: 30px;    
+    padding-right: 30px;
 }
 .right-inner-addon #search-help {
     position: absolute;

@@ -2,52 +2,57 @@ extends layout
 
 block content
     .maincontent
-        h1.has-icon.icon-user #{data.userinfo.user.displayName}
-        
-        .container-fluid
-            .col-md-2
-                img(src="#{data.userinfo.user.avatar}" height="128px")
-            .col-md-10
-                .container-fluid.sight-stats
-                    .row
-                        .col-md-8
-                            span.sight-number #{data.userinfo.individuals.length}
-                            span.sight-date-text= t("userpage.individualsIdentified")
-                        .col-md-4
-                            span.sight-number #{data.userinfo.voyages.length}
-                            span.sight-date-text= t("userpage.voyagesCompleted")
-                    .row
-                        .container-fluid
-                            .col-md-4
-                                img(src="/cust/images/img_binoculars.svg" height="128px")
-                            .col-md-4
-                                .row
-                                    span.sight-number #{data.userinfo.totalPhotoCount}
-                                .row
-                                   span.sight-date-text!= t("userpage.imagesSubmitted")
-                            .col-md-4
-                                img(src="/cust/images/img_voyageviewer.svg" height="80px")
-
-
+        .container-fluid.individual-stats
+            .row
+                .col-xs-12
+                    h1.has-icon.icon-user #{data.userinfo.user.displayName}
+            .row
+                .stats-col.flex-justify-center.col-lg-3.col-md-3.col-sm-12.col-xs-12
+                    span.avatar
+                        if data.userinfo.user.avatar
+                            img(src="#{data.userinfo.user.avatar}" height="256px")
+                        else
+                            //todo t() todo dummy image from data
+                            span.no-avatar
+                .clearfix.visible-sm-block
+                .stats-col.col-lg-5.col-md-5.col-sm-6.col-xs-12
+                    .row-inner.infographic-4
+                        span.sight-individual-number #{data.userinfo.individuals.length}
+                        h3.sight-individual-number-text= t("userpage.individualsIdentified")
+                    .row-inner.infographic-5
+                        .sight-photocount-info
+                        h3.sight-photocount-text!= t("userpage.imagesSubmitted")
+                        span.sight-photocount #{data.userinfo.totalPhotoCount}
+                .stats-col.col-md-4.col-sm-6.col-xs-12.flex-justify-top
+                    .row-inner.infographic-6
+                        span.sight-voyage #{data.userinfo.voyages.length}
+                        h3.sight-voyage-text= t("userpage.voyagesCompleted")
+                        .sight-voyage-info
         -var photos = data.userinfo.photos
+
         if photos.length > 0
-            h1.has-icon.icon-happywhale= t("userpage.topRatedContributions")
-            hr
             include partials/phototool
 
-        h1.has-icon.icon-happywhale= t("userpage.individualsEncountered")
-        hr
-        #map-sightings
-        
-        for being in data.userinfo.individuals
-            ul.submitters
-                li
-                    include partials/avatar
-        
-        h1.has-icon.icon-voyageviewer= t("userpage.voyages")
-        hr
-        
-        
+        .container-fluid
+            .row
+                .col-md-12
+                    h2.has-icon.icon-bullet-individual= t("userpage.individualsEncountered")
+            hr
+            .row
+                .col-md-12
+                    #map-sightings
+            .row
+                .col-md-12
+                    ul.individual-sightings
+                        for being in data.userinfo.individuals
+                            li
+                                include partials/individual_sighting
+            .row
+                .col-md-12
+                    h2.has-icon.icon-voyageviewer= t("userpage.voyages")
+            hr
+
+
 block configScripts
     script(src="/vendor/leaflet/leaflet.js")
     script(src="/vendor/leaflet.markercluster/leaflet.markercluster.js")
@@ -59,7 +64,7 @@ block scripts
     script(src="/vendor/photoswipe/photoswipe-ui-default.min.js")
     script(src="/javascript/phototool.js")
     script(src='/javascript/individual.js')
-    
+
     script.
         $(document).ready(function() {
             //
@@ -68,11 +73,11 @@ block scripts
             //    $('.carousel').carousel({
             //        interval: 3000
             //    });
-        
+
             var photos = !{JSON.stringify(data.userinfo.photos)};
             var encounters = !{JSON.stringify(data.userinfo.encounters)};
             var voyages = !{JSON.stringify(data.userinfo.voyages)};
-        
+
             app.configPromise.then(function() {
                 individualPage.init(photos, encounters, voyages);
             });

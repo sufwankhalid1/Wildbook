@@ -67,7 +67,7 @@ console.log('do login thing');
 
     loginAjax: function(username, password, args) {
         if (!args) args = {};
-        args.url = wildbookGlobals.baseUrl + '/LoginUser?json=true&username=' + username + '&password=' + password;  //TODO https!
+        args.url = app.config.wildbook.url + '/LoginUser?json=true&username=' + username + '&password=' + password;  //TODO https!
         args.type = 'GET';
         args.dataType = 'json';
         if (!args.complete) args.complete = function(a,b,c) { console.info('loginAjax return: %o %o %o',a,b,c); };
