@@ -149,15 +149,19 @@ public class SimpleFactory {
 //        return ind;
 //    }
 
+    public static SqlStatement getIndividualStatement()
+    {
+        SqlStatement sql = new SqlStatement("individuals", "i");
+        sql.addLeftOuterJoin("i", "avatarid", "mediaasset", "ma", "id");
+        return sql;
+    }
 
     public static SimpleIndividual getIndividual(final Database db, final int individualId) throws DatabaseException
     {
-        String sql;
         RecordSet rs;
-        sql = "select * from individuals i"
-                + " left outer join mediaasset ma on ma.id = i.avatarid"
-                + " where individualid = " + individualId;
-        rs = db.getRecordSet(sql);
+        SqlStatement sql = getIndividualStatement();
+        sql.addCondition("i", "individualid", SqlRelationType.EQUAL, individualId);
+        rs = db.getRecordSet(sql.getSql());
         if (rs.next()) {
             return readSimpleIndividual(rs);
         }
@@ -170,7 +174,13 @@ public class SimpleFactory {
     {
         SqlStatement sql = new SqlStatement("encounters", "e");
         sql.addLeftOuterJoin("e", "individualid", "individuals", "i", "individualid");
-        sql.addLeftOuterJoin("i", "avatarid", "mediaasset", "maa", "id");
+        sql.addLeftOuterJoin("i", "avatarid", "mediaasset", "ma", "id");
+        return sql;
+    }
+
+    public static SqlStatement getUserStatement() {
+        SqlStatement sql = new SqlStatement("\"USERS\"", "u");
+        sql.addLeftOuterJoin("u", "\"USERIMAGEID\"", "mediaasset", "ma", "id");
         return sql;
     }
 
@@ -503,13 +513,10 @@ public class SimpleFactory {
     public static SimpleUser getUser(final String username) throws DatabaseException
     {
         try (Database db = new Database(ShepherdPMF.getConnectionInfo())) {
-            String sql;
-            sql = "select * from \"USERS\" u"
-                    + " LEFT OUTER JOIN mediaasset ma ON ma.id = u.\"USERIMAGEID\""
-                    + " WHERE u.\"USERNAME\" = " + StringUtilities.wrapQuotes(username);
-
+            SqlStatement sql = getUserStatement();
+            sql.addCondition("u", "\"USERNAME\"",SqlRelationType.EQUAL, username);
             RecordSet rs;
-            rs = db.getRecordSet(sql);
+            rs = db.getRecordSet(sql.getSql());
             if (rs.next()) {
                 return readUser(rs);
             }

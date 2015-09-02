@@ -16,16 +16,44 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
+import com.samsix.database.GroupedSqlCondition;
 import com.samsix.database.RecordSet;
 import com.samsix.database.SqlRelationType;
 import com.samsix.database.SqlStatement;
-import com.samsix.util.string.StringUtilities;
 
 @RestController
 @RequestMapping(value = "/search")
 public class SearchController
 {
     Logger logger = LoggerFactory.getLogger(SearchController.class);
+
+    private List<SimpleIndividual> searchIndividuals(final Database db, final String term) throws DatabaseException {
+        List<SimpleIndividual> individuals = new ArrayList<>();
+
+        if (StringUtils.isBlank(term)) {
+            return individuals;
+        }
+
+        String searchTerm = "%" + term.toLowerCase() + "%";
+
+        RecordSet rs;
+        SqlStatement ss = SimpleFactory.getIndividualStatement();
+
+        GroupedSqlCondition cond = GroupedSqlCondition.orGroup();
+        cond.addCondition(ss.findTable("i"), "alternateid", SqlRelationType.LIKE, searchTerm)
+            .setFunction("lower");
+        cond.addCondition(ss.findTable("i"), "nickname", SqlRelationType.LIKE, searchTerm)
+            .setFunction("lower");
+        ss.addCondition(cond);
+
+        rs = db.getRecordSet(ss.getSql());
+        while (rs.next()) {
+            individuals.add(SimpleFactory.readSimpleIndividual(rs));
+        }
+
+        return individuals;
+    }
+
 
     @RequestMapping(value = "/site", method = RequestMethod.GET)
     public List<SiteSearchResult> searchSite(final HttpServletResponse response,
@@ -34,52 +62,45 @@ public class SearchController
     {
         List<SiteSearchResult> results = new ArrayList<>();
 
-        if ((term == null) || term.equals("")) {
+        if (StringUtils.isBlank(term)) {
             return results;
         }
 
         try (Database db = ShepherdPMF.getDb()) {
-            String search = StringUtilities.wrapQuotes("%" + term.toLowerCase() + "%");
-
-            RecordSet rs;
-            String sql;
-            sql = "select * from individuals where lower(alternateid) like "
-                    + search
-                    + " OR lower(nickname) like "
-                    + search;
-
-            rs = db.getRecordSet(sql);
-            while (rs.next()) {
-                SimpleIndividual individual = SimpleFactory.readSimpleIndividual(rs);
+            for (SimpleIndividual individual : searchIndividuals(db, term)) {
                 SiteSearchResult result = new SiteSearchResult();
                 result.label = individual.getDisplayName();
                 result.value = String.valueOf(individual.getId());
                 result.type = "individual";
                 result.species = individual.getSpecies();
                 result.speciesdisplay = individual.getSpeciesDisplayName();
+                result.avatar = individual.getAvatar();
                 results.add(result);
             }
+
+            String searchTerm = "%" + term.toLowerCase() + "%";
 
             //
             // Query on Users
             //
-            sql = "select * from \"USERS\" where lower(\"FULLNAME\") like "
-                    + search
-                    + " OR lower(\"USERNAME\") like "
-                    + search;
+            SqlStatement ss = SimpleFactory.getUserStatement();
 
-            rs = db.getRecordSet(sql);
+            GroupedSqlCondition cond = GroupedSqlCondition.orGroup();
+            cond.addCondition(ss.findTable("u"), "\"FULLNAME\"", SqlRelationType.LIKE, searchTerm)
+                .setFunction("lower");
+            cond.addCondition(ss.findTable("u"), "\"USERNAME\"", SqlRelationType.LIKE, searchTerm)
+                .setFunction("lower");
+            ss.addCondition(cond);
+
+            RecordSet rs = db.getRecordSet(ss.getSql());
             while (rs.next()) {
+                SimpleUser user = SimpleFactory.readUser(rs);
+
                 SiteSearchResult result = new SiteSearchResult();
-                String fullname = rs.getString("FULLNAME");
-                String username = rs.getString("USERNAME");
-                if (StringUtils.isBlank(fullname)) {
-                    result.label = username;
-                } else {
-                    result.label = fullname + " (" + username + ")";
-                }
-                result.value = username;
+                result.label = user.getDisplayName();
+                result.value = user.getUsername();
                 result.type = "user";
+                result.avatar = user.getAvatar();
                 results.add(result);
             }
 
@@ -116,6 +137,17 @@ public class SearchController
     }
 
 
+    @RequestMapping(value = "/individual", method = RequestMethod.GET)
+    public List<SimpleIndividual> searchIndividual(final HttpServletResponse response,
+                                                   @RequestParam
+                                                   final String name) throws DatabaseException
+    {
+        try (Database db = ShepherdPMF.getDb()) {
+            return searchIndividuals(db, name);
+        }
+    }
+
+
     static class SiteSearchResult
     {
         public String label;
@@ -123,5 +155,6 @@ public class SearchController
         public String type;
         public String species;
         public String speciesdisplay;
+        public String avatar;
     }
 }
