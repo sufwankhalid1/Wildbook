@@ -194,7 +194,8 @@ public class SimpleFactory {
         // 5) Voyages on
         //
         String sqlRoot = "SELECT ma.* FROM mediaasset ma";
-        String whereRoot = " WHERE ma.submitter = " + StringUtilities.wrapQuotes(username);
+        String whereRoot = " WHERE ma.submitter = " + StringUtilities.wrapQuotes(username)
+            + " AND ma.type = 1";
 
         try (Database db = new Database(ShepherdPMF.getConnectionInfo())) {
             String sql;
@@ -308,7 +309,9 @@ public class SimpleFactory {
 
     public static SimpleIndividual readSimpleIndividual(final RecordSet rs) throws DatabaseException
     {
-        SimpleIndividual ind = new SimpleIndividual(rs.getInt("individualid"), rs.getString("nickname"));
+        Integer indid = rs.getInteger("individualid");
+
+        SimpleIndividual ind = new SimpleIndividual(indid, rs.getString("nickname"));
         ind.setSex(rs.getString("sex"));
         ind.setSpecies(rs.getString("species"));
         ind.setAlternateId(rs.getString("alternateid"));

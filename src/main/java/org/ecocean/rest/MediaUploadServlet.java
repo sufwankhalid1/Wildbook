@@ -574,7 +574,8 @@ public class MediaUploadServlet
                 //
                 // Make Thumbnail
                 //
-                if (Shepherd.isAcceptableImageFile(fileName)) {
+                switch (ma.getType()) {
+                case IMAGE: {
                     File relThumb = new File(getThumbnailDir(baseDir), fileName);
 
                     File thumbFile = store.getFile(relThumb.toPath());
@@ -604,10 +605,16 @@ public class MediaUploadServlet
 //                                               midFile.getAbsolutePath(),
 //                                               null);
 //                    iproc.run();
-                } else if (Shepherd.isAcceptableGpsFile(fileName)) {
+                    break;
+                }
+                case VIDEO: {
                     GeoFileProcessor gproc;
                     gproc = new GeoFileProcessor(fullPath.getAbsolutePath());
                     gproc.run();
+                    break;
+                }
+                default:
+                    break;
                 }
 
                 if (logger.isDebugEnabled()) {
