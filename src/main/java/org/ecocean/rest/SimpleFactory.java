@@ -18,6 +18,8 @@ import org.ecocean.survey.SurveyTrack;
 import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
 import com.samsix.database.RecordSet;
+import com.samsix.database.SpecialSqlCondition;
+import com.samsix.database.SqlStatement;
 import com.samsix.util.string.StringUtilities;
 import com.stormpath.sdk.account.Account;
 import com.stormpath.sdk.directory.CustomData;
@@ -166,6 +168,15 @@ public class SimpleFactory {
     }
 
 
+    public static SqlStatement getEncounterStatement()
+    {
+        SqlStatement sql = new SqlStatement("encounters", "e");
+        sql.addLeftOuterJoin("e", "individualid", "individuals", "i", "individualid");
+        sql.addLeftOuterJoin("i", "avatarid", "mediaasset", "maa", "id");
+        return sql;
+    }
+
+
     public static UserInfo getUserInfo(final String username) throws DatabaseException
     {
         SimpleUser user = getUser(username);
@@ -249,16 +260,14 @@ public class SimpleFactory {
             // is duplicated because javascript does not have hashmaps which makes the code to try and
             // get all the unique values of individualID into an array much messier.
             //
-            sql = "select e.*, i.*, maa.* from encounters e"
-                    + " left outer join individuals i on i.individualid = e.individualid"
-                    + " left outer join mediaasset maa on maa.id = i.avatarid"
-                    + " where exists (select * from encounter_media em"
+            SqlStatement ss = getEncounterStatement();
+            ss.addCondition(new SpecialSqlCondition("exists (select * from encounter_media em"
                     + " inner join mediaasset ma on ma.id = em.mediaid"
                     + whereRoot
-                    + " and em.encounterid = e.encounterid)";
+                    + " and em.encounterid = e.encounterid)"));
 
             Map<Integer, SimpleIndividual> inds = new HashMap<>();
-            rs = db.getRecordSet(sql);
+            rs = db.getRecordSet(ss.getSql());
             while (rs.next()) {
                 Integer indid = rs.getInteger("individualid");
 

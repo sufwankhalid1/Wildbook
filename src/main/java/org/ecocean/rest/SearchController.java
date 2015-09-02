@@ -19,7 +19,6 @@ import com.samsix.database.DatabaseException;
 import com.samsix.database.RecordSet;
 import com.samsix.database.SqlRelationType;
 import com.samsix.database.SqlStatement;
-import com.samsix.database.SqlTable;
 import com.samsix.util.string.StringUtilities;
 
 @RestController
@@ -96,8 +95,8 @@ public class SearchController
                                                  @RequestParam
                                                  final String individualid) throws DatabaseException
     {
-        SqlStatement sql = new SqlStatement("encounters", "e");
-        sql.addInnerJoin("e", "individualid", new SqlTable("individuals", "i"), "individualid");
+        SqlStatement sql = SimpleFactory.getEncounterStatement();
+
         if (! StringUtils.isBlank(encdate)) {
             sql.addCondition("e", "encdate", SqlRelationType.EQUAL, encdate);
         }
