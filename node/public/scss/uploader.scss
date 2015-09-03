@@ -1,15 +1,19 @@
 /* Uploader */
 
 #MediaSubmissionWizard {
-    width: 800px;
-    height: auto;
+    max-width: 800px;
     margin: 0 auto;
+}
+
+#userForm {
+    width: 100%;
+    max-width: 400px;
 }
 
 .wizard-icon {
     margin-right: 10px;
     display: inline-block;
-    vertical-align:middle;
+    vertical-align: middle;
     width: 48px;
     height: 48px;
 }

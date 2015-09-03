@@ -37,13 +37,13 @@ block content
                                     .form-group
                                         label.control-label Was this part of a survey? If so, please enter survey id here.
                                         input.form-control(type='text', ng-model='media.submissionid')
-                                        
-                                        
+
+
                                 form#fileupload.tab-pane(action='mediaupload', method='POST', name='formMedia', rc-step='', rc-submit='getExifData()', novalidate='', enctype='multipart/form-data', data-ng-controller='SubmissionFileUploadController', data-file-upload='options', data-ng-class="{'fileupload-processing': processing() || loadingFiles}", style='overflow-y:auto;')
                                     // Redirect browsers with JavaScript disabled to the origin page
                                     noscript
                                         input(type='hidden', name='redirect', value='/')
-                                        
+
                                     .submitMedia-login-message.ng-cloak(ng-show='userVerify && userVerify.newlyCreatedUser')
                                         | You appear to be a new user -- welcome!  An account will be created for you when you submission is complete.
                                         | Please be sure to check your email for further instructions.
@@ -57,7 +57,7 @@ block content
                                     ul
                                         li Drag and drop files below or click "Add files..." below to select files.
                                         li
-                                            | Please compress uploads of more than 100 images into a zip file, and for uploads > 1GB 
+                                            | Please compress uploads of more than 100 images into a zip file, and for uploads > 1GB
                                             a(href="mailto:info@happywhale.com") contact us
                                         li Once all file previews have loaded, click ‘Start upload’ above.
                                         li In the event that an individual file fails to upload please click ‘Cancel’ on that file only so that the other files are received.
@@ -122,8 +122,8 @@ block content
                                                         span Delete
                                     .form-group
                                         .pull-right
-                                            label.control-label By submitting content, I acknowledge and accept the 
-                                                a(href="#" ng-click="terms()") Terms & Conditions 
+                                            label.control-label By submitting content, I acknowledge and accept the
+                                                a(href="#" ng-click="terms()") Terms & Conditions
                                                 | of use of Happywhale.com
                                             input(type="checkbox", ng-model="data.agreeTerms")
                                 form#metaForm.tab-pane(name='formMeta', rc-submit='completeWizard()', rc-step='')

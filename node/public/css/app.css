@@ -8,8 +8,8 @@ body {
 
 @font-face {
   font-family: "Wildbook";
-  src: url("../fonts/wildbook.eot");
-  src: url("../fonts/wildbook.eot?#iefix") format("embedded-opentype"), url("../fonts/wildbook.woff") format("woff"), url("../fonts/wildbook.ttf") format("truetype"), url("../fonts/wildbook.svg#untitled-font-1") format("svg");
+  src: url("../fonts/Wildbook.eot");
+  src: url("../fonts/Wildbook.eot?#iefix") format("embedded-opentype"), url("../fonts/Wildbook.woff") format("woff"), url("../fonts/Wildbook.ttf") format("truetype"), url("../fonts/Wildbook.svg#untitled-font-1") format("svg");
   font-weight: normal;
   font-style: normal; }
 [data-icon]:before {
@@ -759,9 +759,12 @@ h1, h2, h3, h4, h5, h6, p, div {
 /* Page */
 /* Uploader */
 #MediaSubmissionWizard {
-  width: 800px;
-  height: auto;
+  max-width: 800px;
   margin: 0 auto; }
+
+#userForm {
+  width: 100%;
+  max-width: 400px; }
 
 .wizard-icon {
   margin-right: 10px;
