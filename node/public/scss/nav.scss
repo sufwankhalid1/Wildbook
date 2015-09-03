@@ -69,8 +69,25 @@
     max-width: 350px;
 }
 
+.navbar-search-wrap .glyphicon {
+    top: -3px;
+    color: $font-color-dark;
+}
+
 .navbar-collapse .navbar-search-wrap {
     padding-left: 15px;
+}
+
+.navbar {
+    .ui-menu-item {
+        color: $font-color-dark;
+    }
+    .ui-state-focus {
+        font-weight: normal;
+        border-color: $font-color-main;
+        background: $font-color-dark;
+        color: $font-color-inverse;
+    }
 }
 
 .navbar-collapse .navbar-login {
@@ -78,8 +95,8 @@
 }
 
 .navbar-search {
-    margin-top: 14px;
-    height: 24px;
+    margin-top: 11px;
+    height: 28px;
 }
 
 /* h/t http://jsfiddle.net/KyleMit/cyCFS/ */
@@ -116,19 +133,5 @@
     right: 0px;
     padding: 10px 12px;
     pointer-events: none;
-}
-
-//////
-//social
-//////
-
-.socialbox {
-    margin-top: 10px;
-    margin-right: 20px;
-}
-
-.zocial {
-    margin-left: 2px;
-    margin-right: 2px;
 }
 

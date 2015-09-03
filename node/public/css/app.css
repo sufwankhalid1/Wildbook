@@ -701,15 +701,27 @@ h1, h2, h3, h4, h5, h6, p, div {
 .navbar-search-wrap {
   max-width: 350px; }
 
+.navbar-search-wrap .glyphicon {
+  top: -3px;
+  color: #107D9F; }
+
 .navbar-collapse .navbar-search-wrap {
   padding-left: 15px; }
+
+.navbar .ui-menu-item {
+  color: #107D9F; }
+.navbar .ui-state-focus {
+  font-weight: normal;
+  border-color: #8dcbce;
+  background: #107D9F;
+  color: #efefef; }
 
 .navbar-collapse .navbar-login {
   text-align: right; }
 
 .navbar-search {
-  margin-top: 14px;
-  height: 24px; }
+  margin-top: 11px;
+  height: 28px; }
 
 /* h/t http://jsfiddle.net/KyleMit/cyCFS/ */
 .left-inner-addon {
@@ -743,14 +755,6 @@ h1, h2, h3, h4, h5, h6, p, div {
   right: 0px;
   padding: 10px 12px;
   pointer-events: none; }
-
-.socialbox {
-  margin-top: 10px;
-  margin-right: 20px; }
-
-.zocial {
-  margin-left: 2px;
-  margin-right: 2px; }
 
 /* Page */
 /* Uploader */
