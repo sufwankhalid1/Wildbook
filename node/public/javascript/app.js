@@ -162,7 +162,7 @@ angular.module("nodeApp.controllers", [])
     };
 
     $scope.logout = function() {
-        $http.get(app.config.wildbook.url + "/LogoutUser")
+        $http({url: app.config.wildbook.url + "/LogoutUser", withCredentials: true})
         .then(function() {
             $scope.user = null;
         })
