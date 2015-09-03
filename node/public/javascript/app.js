@@ -39,7 +39,11 @@ var configPromise = $.get("/config")
     if (typeof maptool !== 'undefined') {
         maptool.init(config.maptool);
     }
-    return $.get(config.wildbook.url + "/obj/user/simple");
+    //
+    // Must force credentials to be sent or else the cookie for the config.wildbook.url domain
+    // is not sent by ajax. This cookie has our login info in it if we are already logged in.
+    //
+    return $.ajax({url: config.wildbook.url + "/obj/user/simple", xhrFields: { withCredentials: true}});
 }, handleError)
 .then(function(user) {
     if (user.username) {
@@ -166,6 +170,7 @@ angular.module("nodeApp.controllers", [])
 
     return configPromise.then( function() {
         $scope.user = app.user;
+        setTimeout(function(){$scope.$apply();});
     });
 });
 
