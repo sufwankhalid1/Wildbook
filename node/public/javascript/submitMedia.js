@@ -344,7 +344,7 @@ var submitMedia = (function () {
                                 user: newUser  //newUser returned is a SimpleUser so this is consistent with verifyUser(), fauncy!
                             };
 
-                            $scop.media.user = newUser;
+                            $scope.media.user = newUser;
                             return saveAndGo();
                         }, handleError);
                     }
@@ -354,7 +354,8 @@ var submitMedia = (function () {
                         wildbook.auth.loginPopup(app.config.wildbook.url,
                                                  $scope.media.email,
                                                  'Please login to continue',
-                                                 'There is an account associated with this email address, and you must login to continue with submitting media.');
+                                                 'There is an account associated with this email address, and you must login to continue with submitting media.',
+                                                 'submitMedia');
                         return $q.reject();
                     }
 
