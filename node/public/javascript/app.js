@@ -39,7 +39,11 @@ var configPromise = $.get("/config")
     if (typeof maptool !== 'undefined') {
         maptool.init(config.maptool);
     }
-    return $.get(config.wildbook.url + "/obj/user/simple");
+    //
+    // Must force credentials to be sent or else the cookie for the config.wildbook.url domain
+    // is not sent by ajax. This cookie has our login info in it if we are already logged in.
+    //
+    return $.ajax({url: config.wildbook.url + "/obj/user/simple", xhrFields: { withCredentials: true}});
 }, handleError)
 .then(function(user) {
     if (user.username) {
@@ -98,18 +102,71 @@ app.toMoment = function(encDate) {
 //    };
 //});
 
-angular.module("nodeApp.controllers", [])
-//.controller("AppController", function ($scope, $http, dataService) {
-//    $scope.data = dataService.data;
-.controller("AppController", function ($scope, $http) {
-    configPromise.then( function() {
-        $scope.user = app.user;
-//        $scope.$digest();
+function configSearchBox() {
+    $('#search-site').autocomplete({
+        appendTo: $('#navbar-top'),
+        response: function(ev, ui) {
+            if (ui.content.length < 1) {
+                $('#search-help').show();
+            } else {
+                $('#search-help').hide();
+            }
+        },
+        select: function(ev, ui) {
+            if (ui.item.type == "individual") {
+                window.location.replace("/individual/" + ui.item.value);
+            } else if (ui.item.type == "user") {
+                window.location.replace("/user/" + ui.item.value);
+            } else {
+                alertplus.alert("Unknown result [" + ui.item.value + "] of type [" + ui.item.type + "]");
+            }
+            return false;
+        },
+        //source: app.config.wildbook.proxyUrl + "/search"
+        source: function( request, response ) {
+            $.ajax({
+                url: app.config.wildbook.proxyUrl + "/search/site",
+                dataType: "json",
+                data: {
+                    term: request.term
+                },
+                success: function( data ) {
+                    var res = $.map(data, function(item) {
+                        var label;
+                        if (item.type == "individual") {
+                            label = item.speciesdisplay + ": ";
+                        } else if (item.type == "user") {
+                            label = "User: ";
+                        } else {
+                            label = "";
+                        }
+                        return {label: label + item.label,
+                                value: item.value,
+                                type: item.type};
+                        });
+
+                    response(res);
+                }
+            });
+        }
     });
 
+    //this hides the no results message when the user leaves search field
+    $('#search-site').on('blur', function() { $('#search-help').hide(); });
+}
+
+angular.module("nodeApp.controllers", [])
+.controller("AppController", function ($scope, $http) {
     $scope.login = function() {
         wildbook.auth.loginPopup(app.config.wildbook.url);
     };
+
+    $scope.logout = function() {
+        $http({url: app.config.wildbook.url + "/LogoutUser", withCredentials: true})
+        .then(function() {
+            $scope.user = null;
+        })
+    }
 
     $scope.terms = function() {
         $http.get("/terms")
@@ -117,9 +174,12 @@ angular.module("nodeApp.controllers", [])
             alertplus.alert(terms.data, null, "Usage Agreement");
         });
     }
-});
 
-//app.ngApp = ngApp;
+    return configPromise.then( function() {
+        $scope.user = app.user;
+        setTimeout(function(){$scope.$apply();});
+    });
+});
 
 $(document).ready(function() {
     moment.locale(window.navigator.userLanguage || window.navigator.language || 'en');
@@ -129,57 +189,8 @@ $(document).ready(function() {
     //
     $('[data-toggle="tooltip"]').tooltip();
 
-    configPromise.done( function() {
-        $('#search-site').autocomplete({
-            appendTo: $('#navbar-top'),
-            response: function(ev, ui) {
-                if (ui.content.length < 1) {
-                    $('#search-help').show();
-                } else {
-                    $('#search-help').hide();
-                }
-            },
-            select: function(ev, ui) {
-                if (ui.item.type == "individual") {
-                    window.location.replace("/individual/" + ui.item.value);
-                } else if (ui.item.type == "user") {
-                    window.location.replace("/user/" + ui.item.value);
-                } else {
-                    alertplus.alert("Unknown result [" + ui.item.value + "] of type [" + ui.item.type + "]");
-                }
-                return false;
-            },
-            //source: app.config.wildbook.proxyUrl + "/search"
-            source: function( request, response ) {
-                $.ajax({
-                    url: app.config.wildbook.proxyUrl + "/search/site",
-                    dataType: "json",
-                    data: {
-                        term: request.term
-                    },
-                    success: function( data ) {
-                        var res = $.map(data, function(item) {
-                            var label;
-                            if (item.type == "individual") {
-                                label = item.speciesdisplay + ": ";
-                            } else if (item.type == "user") {
-                                label = "User: ";
-                            } else {
-                                label = "";
-                            }
-                            return {label: label + item.label,
-                                    value: item.value,
-                                    type: item.type};
-                            });
-
-                        response(res);
-                    }
-                });
-            }
-        });
+    configPromise.done(function() {
+        configSearchBox();
     });
-
-    //this hides the no results message when the user leaves search field
-    $('#search-site').on('blur', function() { $('#search-help').hide(); });
 });
 
