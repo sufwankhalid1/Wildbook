@@ -161,6 +161,13 @@ angular.module("nodeApp.controllers", [])
         wildbook.auth.loginPopup(app.config.wildbook.url);
     };
 
+    $scope.logout = function() {
+        $http.get(app.config.wildbook.url + "/LogoutUser")
+        .then(function() {
+            $scope.user = null;
+        })
+    }
+
     $scope.terms = function() {
         $http.get("/terms")
         .then(function(terms) {
