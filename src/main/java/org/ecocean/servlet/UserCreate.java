@@ -19,12 +19,10 @@
 
 package org.ecocean.servlet;
 
-import org.ecocean.*;
-
-import com.oreilly.servlet.multipart.FilePart;
-import com.oreilly.servlet.multipart.MultipartParser;
-import com.oreilly.servlet.multipart.ParamPart;
-import com.oreilly.servlet.multipart.Part;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -32,31 +30,33 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-
-import java.util.Properties;
+import org.ecocean.CommonConfiguration;
+import org.ecocean.ContextConfiguration;
+import org.ecocean.Role;
+import org.ecocean.Shepherd;
+import org.ecocean.User;
 
 
 public class UserCreate extends HttpServlet {
 
-  public void init(ServletConfig config) throws ServletException {
+  @Override
+public void init(final ServletConfig config) throws ServletException {
     super.init(config);
   }
 
 
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+  @Override
+public void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
     doPost(request, response);
   }
 
 
-  public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-    
+  @Override
+public void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
+
     String context="context0";
     //context=ServletUtilities.getContext(request);
-    
+
     //set up the user directory
     //setup data dir
     String rootWebappPath = getServletContext().getRealPath("/");
@@ -65,7 +65,7 @@ public class UserCreate extends HttpServlet {
     if(!shepherdDataDir.exists()){shepherdDataDir.mkdirs();}
     File usersDir=new File(shepherdDataDir.getAbsolutePath()+"/users");
     if(!usersDir.exists()){usersDir.mkdirs();}
-    
+
     //set up for response
     response.setContentType("text/html");
     PrintWriter out = response.getWriter();
@@ -81,78 +81,73 @@ public class UserCreate extends HttpServlet {
     //create a new Role from an encounter
 
     if ((request.getParameter("username") != null) &&  (!request.getParameter("username").trim().equals("")) && (((request.getParameter("password") != null) &&  (!request.getParameter("password").trim().equals("")) && (request.getParameter("password2") != null) &&  (!request.getParameter("password2").trim().equals(""))) || (request.getParameter("isEdit")!=null))) {
-      
+
       String username=request.getParameter("username").trim();
-      
+
       String password="";
       if(!isEdit)password=request.getParameter("password").trim();
       String password2="";
       if(!isEdit)password2=request.getParameter("password2").trim();
-      
+
       if((password.equals(password2))||(isEdit)){
-        
+
         Shepherd myShepherd = new Shepherd(context);
-        
+
         User newUser=new User();
-      
+
         myShepherd.beginDBTransaction();
-      
-        if(myShepherd.getUser(username)==null){
-          
-          
-          String salt=ServletUtilities.getSalt().toHex();
-          String hashedPassword=ServletUtilities.hashAndSaltPassword(password, salt);
-          //System.out.println("hashed password: "+hashedPassword+" with salt "+salt + " from source password "+password);
-          newUser=new User(username,hashedPassword,salt);
+
+        if (myShepherd.getUser(username) == null) {
+          newUser=new User(username, password);
           myShepherd.getPM().makePersistent(newUser);
           createThisUser=true;
         }
         else{
           newUser=myShepherd.getUser(username);
         }
-        
+
         //here handle all of the other User fields (e.g., email address, etc.)
         if((request.getParameter("fullName")!=null)&&(!request.getParameter("fullName").trim().equals(""))){
           newUser.setFullName(request.getParameter("fullName").trim());
         }
         else if(isEdit&&(request.getParameter("fullName")!=null)&&(request.getParameter("fullName").trim().equals(""))){newUser.setFullName(null);}
-        
+
         if(request.getParameter("receiveEmails")!=null){
           newUser.setReceiveEmails(true);
         }
         else{newUser.setReceiveEmails(false);}
-        
+
         if((request.getParameter("emailAddress")!=null)&&(!request.getParameter("emailAddress").trim().equals(""))){
           newUser.setEmailAddress(request.getParameter("emailAddress").trim());
         }
         else if(isEdit&&(request.getParameter("emailAddress")!=null)&&(request.getParameter("emailAddress").trim().equals(""))){newUser.setEmailAddress(null);}
-        
+
         if((request.getParameter("affiliation")!=null)&&(!request.getParameter("affiliation").trim().equals(""))){
           newUser.setAffiliation(request.getParameter("affiliation").trim());
         }
         else if(isEdit&&(request.getParameter("affiliation")!=null)&&(request.getParameter("affiliation").trim().equals(""))){newUser.setAffiliation(null);}
-        
+
         if((request.getParameter("userProject")!=null)&&(!request.getParameter("userProject").trim().equals(""))){
           newUser.setUserProject(request.getParameter("userProject").trim());
         }
         else if(isEdit&&(request.getParameter("userProject")!=null)&&(request.getParameter("userProject").trim().equals(""))){newUser.setUserProject(null);}
-        
+
         if((request.getParameter("userStatement")!=null)&&(!request.getParameter("userStatement").trim().equals(""))){
           newUser.setUserStatement(request.getParameter("userStatement").trim());
         }
         else if(isEdit&&(request.getParameter("userStatement")!=null)&&(request.getParameter("userStatement").trim().equals(""))){newUser.setUserStatement(null);}
-        
+
         if((request.getParameter("userURL")!=null)&&(!request.getParameter("userURL").trim().equals(""))){
           newUser.setUserURL(request.getParameter("userURL").trim());
         }
         else if(isEdit&&(request.getParameter("userURL")!=null)&&(request.getParameter("userURL").trim().equals(""))){newUser.setUserURL(null);}
-        
+
         newUser.RefreshDate();
-        
-        
-        
+
+
+
         //now handle roles
-        
+
         //if this is not a new user, we need to blow away all old roles
         ArrayList<Role> preexistingRoles=new ArrayList<Role>();
         if(!createThisUser){
@@ -160,15 +155,15 @@ public class UserCreate extends HttpServlet {
           preexistingRoles=myShepherd.getAllRolesForUser(username);
           myShepherd.getPM().deletePersistentAll(preexistingRoles);
         }
-        
-        
+
+
         //start role processing
-        
+
         ArrayList<String> contexts=ContextConfiguration.getContextNames();
         int numContexts=contexts.size();
         //System.out.println("numContexts is: "+numContexts);
         for(int d=0;d<numContexts;d++){
-        
+
           String[] roles=request.getParameterValues("context"+d+"rolename");
           if(roles!=null){
           int numRoles=roles.length;
@@ -179,7 +174,7 @@ public class UserCreate extends HttpServlet {
              if(!thisRole.trim().equals("")){
             Role role=new Role();
             if(myShepherd.getRole(thisRole,username,("context"+d))==null){
-            
+
               role.setRolename(thisRole);
               role.setUsername(username);
               role.setContext("context"+d);
@@ -195,13 +190,13 @@ public class UserCreate extends HttpServlet {
           }
         }
         //end role processing
-        
-        
 
-        myShepherd.commitDBTransaction();    
+
+
+        myShepherd.commitDBTransaction();
         myShepherd.closeDBTransaction();
         myShepherd=null;
-       
+
 
             //output success statement
             out.println(ServletUtilities.getHeader(request));
@@ -210,11 +205,11 @@ public class UserCreate extends HttpServlet {
             }
             else{
               out.println("<strong>Success:</strong> User '" + username + "' was successfully updated and has assigned roles: <ul>" + addedRoles.replaceAll("SEPARATORSTART", "<li>").replaceAll("SEPARATOREND", "</li>")+"</ul>");
-              
+
             }
             out.println("<p><a href=\"http://" + CommonConfiguration.getURLLocation(request) + "/appadmin/users.jsp?context=context0" + "\">Return to User Administration" + "</a></p>\n");
             out.println(ServletUtilities.getFooter(context));
-            
+
     }
     else{
         //output failure statement
@@ -222,10 +217,10 @@ public class UserCreate extends HttpServlet {
         out.println("<strong>Failure:</strong> User was NOT successfully created. Your passwords did not match.");
         out.println("<p><a href=\"http://" + CommonConfiguration.getURLLocation(request) + "/appadmin/users.jsp?context=context0" + "\">Return to User Administration" + "</a></p>\n");
         out.println(ServletUtilities.getFooter(context));
-        
+
       }
-      
-      
+
+
 }
 else{
   //output failure statement
@@ -233,16 +228,16 @@ else{
   out.println("<strong>Failure:</strong> User was NOT successfully created. I did not have all of the username and password information I needed.");
   out.println("<p><a href=\"http://" + CommonConfiguration.getURLLocation(request) + "/appadmin/users.jsp?context=context0" + "\">Return to User Administration" + "</a></p>\n");
   out.println(ServletUtilities.getFooter(context));
-  
+
 }
 
 
-   
+
 
 
 
     out.close();
-    
+
   }
 }
 

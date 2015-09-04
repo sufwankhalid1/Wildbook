@@ -135,8 +135,8 @@ var submitMedia = (function () {
             };
 
             $scope.getUsername = function() {
-                if ($scope.media.user) {
-                    return $scope.media.user.username;
+                if ($scope.user) {
+                    return $scope.user.username;
                 }
 
                 return null;
@@ -147,13 +147,11 @@ var submitMedia = (function () {
             //
             $scope.data = {agreeTerms: true};
 
-            app.configPromise.then(function() {
-                //app.user = {username:"tomcat"};
-//                $scope.media.username = (app.user) ? app.user.username : null;
-                if (app.user) {
-                    $scope.media.user = app.user;
-                }
-            });
+//            app.configPromise.then(function() {
+//                if (app.user) {
+//                    $scope.media.user = app.user;
+//                }
+//            });
 
             function longToDate(date) {
                 if (date) {
@@ -170,6 +168,7 @@ var submitMedia = (function () {
                 // the long we use here.
                 //
                 var ms = $.extend({}, media);
+                ms.user = $scope.user;
 
                 var endTime = toTime(ms.endTime);
                 if (isNaN(endTime)) {
@@ -186,8 +185,6 @@ var submitMedia = (function () {
                 ms.startTime = startTime;
 
                 $(document.body).css({ 'cursor': 'wait' });
-//                return $.post("wildbook/obj/mediasubmission/" + method, ms)
-//                return $.post(app.config.wildbook.proxyUrl + "/obj/mediasubmission/" + method, ms)
                 return $.ajax({
                     url: app.config.wildbook.proxyUrl + "/obj/mediasubmission/" + method,
                     type: "POST",
@@ -217,8 +214,7 @@ var submitMedia = (function () {
             };
 
             $scope.isLoggedIn = function() {
-//                return (app.user);
-                return ($scope.media.user);
+                return ($scope.user);
             };
 
             $scope.getExifData = function() {
@@ -305,17 +301,16 @@ var submitMedia = (function () {
                 var saveAndGo = function() {
                     return savems($scope.media, "save")
                     .then(function(data) {
-                        $scope.$apply(function(){
-                            //
-                            // NOTE: This is bound using ng-value instead of ng-model
-                            // because it is a hidden element.
-                            //
-                            $scope.media.id = data;
-                        });
+                        //
+                        // NOTE: This is bound using ng-value instead of ng-model
+                        // because it is a hidden element.
+                        //
+                        $scope.media.id = data;
+                        setTimeout(function(){$scope.$apply();});
                     });
                 }
 
-                if ($scope.media.user) {
+                if ($scope.user) {
                     // user is logged in, skip all this!
                     return saveAndGo();
                 }
@@ -327,42 +322,45 @@ var submitMedia = (function () {
                     data: $scope.media.email,
                     dataType: 'json'
                 })
-                .then(function(userData) {
-                    if (! userData.success) {
-                        return $.ajax({
-                            url: app.config.wildbook.proxyUrl + '/obj/user/create',
-                            contentType: 'application/json',
-                            type: 'POST',
-                            data: JSON.stringify({email: $scope.media.email, fullName: $scope.media.name}),
-                            dataType: 'json'
-                        })
-                        .then(function(newUser) {
-                            $scope.userVerify = {
-                                newlyCreatedUser: true,  //special value only sent here, not via verifyUser()
-                                success: true,
-                                userInfo: { unverified: true },
-                                user: newUser  //newUser returned is a SimpleUser so this is consistent with verifyUser(), fauncy!
-                            };
+                .then(function(verifyResult) {
+                    $scope.userInfo = {
+                        newlyCreated: false,
+                        unverified: verifyResult.unverified
+                    };
 
-                            $scope.media.user = newUser;
-                            return saveAndGo();
-                        }, handleError);
+                    if (verifyResult.unverified) {
+                        $scope.user = verifyResult.user;
+                        return saveAndGo();
                     }
 
-                    if (userData.userInfo
-                        && ! userData.userInfo.unverified) {
-                        wildbook.auth.loginPopup(app.config.wildbook.url,
-                                                 $scope.media.email,
-                                                 'Please login to continue',
-                                                 'There is an account associated with this email address, and you must login to continue with submitting media.',
-                                                 'submitMedia');
-                        return $q.reject();
-                    }
+//                      'There is an account associated with this email address, and you must login to continue with submitting media.',
+//                      'submitMedia')
+                    return wildbook.auth.login(app.config.wildbook.url,
+                                               $scope.media.email,
+                                               'Please login to continue')
+                    .then(function(user) {
+                        $scope.user = user;
+                    });
+                },
+                function() {
+                    return $.ajax({
+                        url: app.config.wildbook.proxyUrl + '/obj/user/create',
+                        contentType: 'application/json',
+                        type: 'POST',
+                        data: JSON.stringify({email: $scope.media.email, fullName: $scope.media.name}),
+                        dataType: 'json'
+                    })
+                    .then(function(newUser) {
+                        $scope.userInfo = {
+                            newlyCreated: true,
+                            unverified: true
+                        };
 
-                    $scope.media.user = userData.user;
-                    $scope.userVerify = userData;
-                    return saveAndGo();
-                }, handleError);
+                        $scope.user = newUser;
+
+                        return saveAndGo();
+                    }, handleError);
+                });
             };
 
 
@@ -485,7 +483,3 @@ var submitMedia = (function () {
 //        console.log(JSON.stringify(smms.media));
 //    }};
 })();
-
-
-
-

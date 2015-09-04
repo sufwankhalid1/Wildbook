@@ -95,6 +95,21 @@ app.toMoment = function(encDate) {
     return moment(dateString, 'YYYY-M-D');
 }
 
+app.wait = (function () {
+    var waitDiv = $('<div class="modal hide" data-backdrop="static" data-keyboard="false"><div class="modal-header">'
+            + '<h1>Processing...</h1>'
+            + '</div><div class="modal-body"><img src="/images/wait.gif"></div></div>');
+    return {
+        show: function() {
+            waitDiv.modal('show');
+        },
+        hide: function () {
+            waitDiv.modal('hide');
+        },
+
+    };
+})();
+
 //ngApp.factory('dataService', function() {
 //    var _data = {};
 //    return {
@@ -158,13 +173,18 @@ function configSearchBox() {
 angular.module("nodeApp.controllers", [])
 .controller("AppController", function ($scope, $http) {
     $scope.login = function() {
-        wildbook.auth.loginPopup(app.config.wildbook.url);
+        wildbook.auth.login(app.config.wildbook.url)
+        .then(function(user) {
+            $scope.user = user;
+            setTimeout(function(){$scope.$apply();});
+        })
     };
 
     $scope.logout = function() {
         $http({url: app.config.wildbook.url + "/LogoutUser", withCredentials: true})
         .then(function() {
             $scope.user = null;
+            setTimeout(function(){$scope.$apply();});
         })
     }
 

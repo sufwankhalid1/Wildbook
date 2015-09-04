@@ -5,13 +5,13 @@ import java.util.Date;
 
 import org.ecocean.media.MediaAsset;
 import org.ecocean.media.MediaAssetFactory;
+import org.ecocean.servlet.ServletUtilities;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
-import com.stormpath.sdk.account.Account;
 
 /**
  * <code>User</code> stores information about a contact/user.
@@ -72,23 +72,15 @@ public class User implements Serializable {
         this.lastLogin=-1;
     }
 
-    public User(final String username,final String password, final String salt){
+    public User(final String username, final String password){
         setUsername(username);
-        setPassword(password);
-        setSalt(salt);
+
+        salt = ServletUtilities.getSalt().toHex();
+        this.password = ServletUtilities.hashAndSaltPassword(password, salt);
+
         setReceiveEmails(true);
         RefreshDate();
         this.lastLogin=-1;
-    }
-
-    public User(final Account acc) {
-        //i *think* Stormpath will force these two the same; but not sure... so being careful
-        String uname = acc.getUsername();
-        if (uname == null) uname = acc.getEmail();
-        setUsername(uname);
-        setFullName(acc.getGivenName() + " " + acc.getSurname());  //so non-international of us!
-        setEmailAddress(acc.getEmail());
-        setPassword(Util.generateUUID());
     }
 
     public void RefreshDate()

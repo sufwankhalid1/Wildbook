@@ -28,7 +28,6 @@ import org.ecocean.media.AssetStore;
 import org.ecocean.media.LocalAssetStore;
 import org.ecocean.media.MediaAsset;
 import org.ecocean.media.MediaAssetFactory;
-import org.ecocean.servlet.ServletUtilities;
 import org.junit.Test;
 
 import com.samsix.database.ConnectionInfo;
@@ -96,9 +95,7 @@ public class UserTest extends DBTestBase {
     }
 
     private User createTestUser(final Shepherd shepherd) {
-        String salt = ServletUtilities.getSalt().toHex();
-        String hashedPassword = ServletUtilities.hashAndSaltPassword("not2,bGuesd", salt);
-        User user = new User(USERNAME, hashedPassword, salt);
+        User user = new User(USERNAME, "not2,bGuesd");
         shepherd.getPM().makePersistent(user);
         //shepherd.commitDBTransaction();
         return user;

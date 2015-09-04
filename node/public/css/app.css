@@ -285,10 +285,10 @@ h1, h2, h3, h4, h5, h6, p, div {
   background-color: #107D9F;
   color: #efefef; }
 
-#div-user-info {
+.div-user-info {
   padding: 5px; }
 
-#div-user-info p {
+.div-user-info p {
   margin: 0; }
 
 .individual-stats {

@@ -44,10 +44,10 @@ block content
                                     noscript
                                         input(type='hidden', name='redirect', value='/')
 
-                                    .submitMedia-login-message.ng-cloak(ng-show='userVerify && userVerify.newlyCreatedUser')
+                                    .submitMedia-login-message.ng-cloak(ng-show='userInfo && userInfo.newlyCreatedUser')
                                         | You appear to be a new user -- welcome!  An account will be created for you when you submission is complete.
                                         | Please be sure to check your email for further instructions.
-                                    .submitMedia-login-message.ng-cloak(ng-show='userVerify && userVerify.userInfo && userVerify.userInfo.unverified && ! userVerify.newlyCreatedUser')
+                                    .submitMedia-login-message.ng-cloak(ng-show='userInfo && userInfo.unverified && ! userInfo.newlyCreatedUser')
                                         | Welcome back!  It seems you have submitted photos to us before.  You can activate your account for access to more features.
                                         | If you did not receive the account activation email, you can choose to
                                         a.button(href="#")

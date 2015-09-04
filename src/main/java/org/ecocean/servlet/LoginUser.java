@@ -1,9 +1,7 @@
 package org.ecocean.servlet;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.Date;
-import java.util.HashMap;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -11,22 +9,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authc.IncorrectCredentialsException;
-import org.apache.shiro.authc.UnknownAccountException;
-import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.web.util.WebUtils;
 import org.ecocean.CommonConfiguration;
 import org.ecocean.Shepherd;
-import org.ecocean.User;
-import org.ecocean.security.Stormpath;
+import org.ecocean.rest.UserController;
+import org.ecocean.security.UserToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.gson.Gson;
-import com.stormpath.sdk.account.Account;
-import com.stormpath.sdk.client.Client;
-import com.stormpath.sdk.resource.ResourceException;
 
 
 /**
@@ -51,11 +41,12 @@ import com.stormpath.sdk.resource.ResourceException;
         super();
     }
 
+
     /* (non-Java-doc)
      * @see javax.servlet.http.HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
      */
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
 
         doPost(request, response);
     }
@@ -64,10 +55,7 @@ import com.stormpath.sdk.resource.ResourceException;
      * @see javax.servlet.http.HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
      */
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
-        String url = "/login.jsp";
-
+    protected void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
         if (logger.isDebugEnabled()) {
             logger.debug("Starting LoginUser servlet...");
         }
@@ -76,101 +64,18 @@ import com.stormpath.sdk.resource.ResourceException;
         String username = request.getParameter("username").trim();
         String password = request.getParameter("password").trim();
 
-        boolean wantJson = (request.getParameter("json") != null);
+        UserToken userToken = UserController.getUserToken(request, username, password);
 
-        String salt="";
-        String context="context0";
-
-        Shepherd myShepherd=new Shepherd(context);
-        myShepherd.beginDBTransaction();
-
-        User loggedInUser = null;
+        //
+        // If user is null, bail back to our login page.
+        //
+        if (userToken.getUser() == null) {
+            request.setAttribute("error", "No user found with username [" + username + "]" );
+            WebUtils.redirectToSavedRequest(request, response, "/login.jsp");
+            return;
+        }
 
         try {
-          if (myShepherd.getUser(username) != null) {
-            User user=myShepherd.getUser(username);
-            loggedInUser = user;
-
-            salt=user.getSalt();
-            if (request.getParameter("acceptUserAgreement") != null) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Trying to set acceptance for UserAgreement!");
-                }
-                user.setAcceptedUserAgreement(true);
-                myShepherd.commitDBTransaction();
-            }
-            else{
-              myShepherd.rollbackDBTransaction();
-            }
-          }
-          else{
-            myShepherd.rollbackDBTransaction();
-          }
-        }
-        catch(Exception e){
-          myShepherd.rollbackDBTransaction();
-        }
-
-        myShepherd.closeDBTransaction();
-
-        String hashedPassword=ServletUtilities.hashAndSaltPassword(password, salt);
-
-        //we *first* try Stormpath, and see what we get
-        Client client = Stormpath.getClient(ServletUtilities.getConfigDir(request));
-        myShepherd = new Shepherd(context);
-
-        if (client != null) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("checking Stormpath for login (username=" + username + ")...");
-            }
-            Account acc = null;
-            try {
-                acc = Stormpath.loginAccount(client, username, password);
-            } catch (ResourceException ex) {
-                logger.warn("failed to authenticate user '"
-                    + username
-                    + "' via Stormpath; falling back to Wildbook User: "
-                    + ex.toString());
-            }
-
-            if (acc != null) {
-                User u = myShepherd.getUserByEmailAddress(acc.getEmail());
-                loggedInUser = u;
-                if (u == null) {
-                    //TODO we should probably have some kinda rules here: like stormpath user is a certain group etc
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("successful authentication via Stormpath, but no Wildbook user for email "
-                            + acc.getEmail()
-                            + ". creating one!");
-                    }
-                    try {
-                        u = new User(acc);
-                        myShepherd.getPM().makePersistent(u);
-                        loggedInUser = u;
-                    } catch (Exception ex) {
-                        logger.error("trouble creating Wildbook user from Stormpath: " + ex.toString());
-                    }
-                }
-
-                if (u != null) {
-                    //hackily log them into wb!
-                    username = u.getUsername();
-                    hashedPassword = u.getPassword();
-                }
-            }
-        }
-
-        //create a UsernamePasswordToken using the
-        //username and password provided by the user
-        UsernamePasswordToken token = new UsernamePasswordToken(username, hashedPassword);
-
-        boolean redirectUser=false;
-
-        try {
-            //get the user (aka subject) associated with
-            //this request.
-            Subject subject = SecurityUtils.getSubject();
-
             //The use of IniShiroFilter specified in web.xml
             //caused JSecurity to create the DefaultWebSecurityManager object
             //see: http://jsecurity.org/api/org/jsecurity/web/DefaultWebSecurityManager.html
@@ -198,94 +103,49 @@ import com.stormpath.sdk.resource.ResourceException;
             //for a list of potential Exceptions that might be generated if
             //authentication fails (e.g. incorrect password, no username found)
 
-            subject.login(token);
+            //
+            // get the user (aka subject) associated with this request.
+            //
+            Subject subject = SecurityUtils.getSubject();
+            subject.login(userToken.getToken());
 
-            myShepherd.beginDBTransaction();
-                if (myShepherd.getUser(username) != null) {
-                    User user=myShepherd.getUser(username);
-                    if ((CommonConfiguration.getProperty("showUserAgreement",context) != null)
-                         && (CommonConfiguration.getProperty("userAgreementURL",context) != null)
-                         && (CommonConfiguration.getProperty("showUserAgreement",context).equals("true"))
-                         && (!user.getAcceptedUserAgreement())) {
+            String context = ServletUtilities.getContext(request);
+            Shepherd myShepherd = new Shepherd(context);
+            try {
+                myShepherd.beginDBTransaction();
 
-                        subject.logout();
-                        // redirect to the user agreement
-                        redirectUser=true;
-                    } else {
-                        user.setLastLogin((new Date()).getTime());
-                        url = "/welcome.jsp";}
+                if (request.getParameter("acceptUserAgreement") != null) {
+                    userToken.getUser().setAcceptedUserAgreement(true);
+                }
+
+                if (UserController.notAcceptedTerms(context, userToken.getUser())) {
+                    subject.logout();
+
+                    // redirect to the user agreement
+                    // forward the request and response to the view
+                    String url = CommonConfiguration.getProperty("userAgreementURL",context);
+                    RequestDispatcher dispatcher = getServletContext().getRequestDispatcher(url);
+
+                    dispatcher.forward(request, response);
+                } else {
+                    userToken.getUser().setLastLogin((new Date()).getTime());
+                    WebUtils.redirectToSavedRequest(request, response, "/welcome.jsp");
                 }
 
                 myShepherd.commitDBTransaction();
+            } catch(Exception ex) {
+                myShepherd.rollbackDBTransaction();
+                throw ex;
+            } finally {
                 myShepherd.closeDBTransaction();
-
-                if (redirectUser && !wantJson) {
-                    url=CommonConfiguration.getProperty("userAgreementURL",context);
-                }
-
-                //clear the information stored in the token
-                token.clear();
-        }
-        catch (UnknownAccountException ex) {
-            //username provided was not found
+            }
+        } catch (Exception ex) {
             ex.printStackTrace();
             request.setAttribute("error", ex.getMessage() );
-            myShepherd.rollbackDBTransaction();
-            myShepherd.closeDBTransaction();
-
-        }
-        catch (IncorrectCredentialsException ex) {
-            //password provided did not match password found in database
-            //for the username provided
-            myShepherd.rollbackDBTransaction();
-            myShepherd.closeDBTransaction();
-            ex.printStackTrace();
-            request.setAttribute("error", ex.getMessage());
-        }
-        catch (Exception ex) {
-            ex.printStackTrace();
-            request.setAttribute("error", "Login NOT SUCCESSFUL - cause not known!");
-        }
-
-        // forward the request and response to the view
-        //RequestDispatcher dispatcher = getServletContext().getRequestDispatcher(url);
-
-        //dispatcher.forward(request, response);
-
-        //WebUtils.redirectToSavedRequest(request, response, url);
-
-        // forward the request and response to the view
-        if (redirectUser && !wantJson) {
-            //RequestDispatcher dispatcher = getServletContext().getRequestDispatcher(url);
-            //dispatcher.forward(request, response);
-
-            // forward the request and response to the view
-            RequestDispatcher dispatcher = getServletContext().getRequestDispatcher(url);
-
-            dispatcher.forward(request, response);
-        }
-
-        if (wantJson) {
-            HashMap rtn = new HashMap();
-            rtn.put("username", username);
-            Object err = request.getAttribute("error");
-            if (err != null) {
-                rtn.put("error", err);
-                rtn.put("success", false);
-            } else {
-                rtn.put("fullName", loggedInUser.getFullName());
-                rtn.put("success", true);
-            }
-            if (redirectUser) {
-                rtn.put("needsTerms", true);
-            }
-            PrintWriter out = response.getWriter();
-            response.setContentType("application/json");
-            response.setCharacterEncoding("UTF-8");
-            String json = new Gson().toJson(rtn);
-            out.println(json);
-        } else {
-            WebUtils.redirectToSavedRequest(request, response, url);
+            WebUtils.redirectToSavedRequest(request, response, "/login.jsp");
+        } finally {
+            //clear the information stored in the token
+            userToken.getToken().clear();
         }
     }
 }

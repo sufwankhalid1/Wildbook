@@ -22,7 +22,7 @@ nav.navbar.navbar-inverse.navbar-fixed-top#navbar-top
                         input.search-query.form-control.navbar-search(type="text" id="search-site" placeholder!= t("header.menu.searchSite"))
                         #search-help= t("header.menu.searchHelpNone")
                 li.navbar-login.ng-cloak
-                    div(ng-show="user" id="div-user-info")
+                    .div-user-info(ng-show="user")
                         p= t("header.menu.welcomeBack") + ", "
                             | {{user.fullName || user.username}}!
                         a(href="/user/{{user.username}}")= t("header.menu.gotomy") + " | "

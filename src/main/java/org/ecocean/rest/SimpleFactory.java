@@ -11,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.ecocean.Point;
 import org.ecocean.ShepherdPMF;
 import org.ecocean.SinglePhotoVideo;
+import org.ecocean.User;
 import org.ecocean.media.MediaAsset;
 import org.ecocean.media.MediaAssetFactory;
 import org.ecocean.media.MediaAssetType;
@@ -550,6 +551,20 @@ public class SimpleFactory {
         su.setFullName(rs.getString("FULLNAME"));
 
         return su;
+    }
+
+
+    public static SimpleUser fromUser(final User user) {
+        SimpleUser su = new SimpleUser(user.getUsername(), user.getEmailAddress());
+        if (user.getUserImage() != null) {
+            su.setAvatar(user.getUserImage().webPathString());
+        }
+
+        su.setAffiliation(user.getAffiliation());
+        su.setFullName(user.getFullName());
+
+        return su;
+
     }
 
 

@@ -35,12 +35,7 @@ context=ServletUtilities.getContext(request);
 	myShepherd.beginDBTransaction();
   	ArrayList<User> users=myShepherd.getAllUsers();
   	if(users.size()==0){
-  		String salt=ServletUtilities.getSalt().toHex();
-        String hashedPassword=ServletUtilities.hashAndSaltPassword("tomcat123", salt);
-        //System.out.println("Creating default hashed password: "+hashedPassword+" with salt "+salt);
-        
-        
-  		User newUser=new User("tomcat",hashedPassword,salt);
+  		User newUser=new User("tomcat","tomcat123");
   		myShepherd.getPM().makePersistent(newUser);
   		System.out.println("Creating tomcat user account...");
   		myShepherd.commitDBTransaction();
