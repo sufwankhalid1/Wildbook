@@ -17,7 +17,8 @@ wildbook.auth = (function() {
             return $.ajax({url: baseUrl + '/obj/user/login',
                            type: "POST",
                            data: JSON.stringify({username: username, password: password}),
-                           contentType: "application/json"})
+                           contentType: "application/json",
+                           xhrFields: {withCredentials: true}})
             .then(function(response) {
                 app.wait.hide();
                 return response;

@@ -69,7 +69,7 @@ import org.slf4j.LoggerFactory;
         //
         // If user is null, bail back to our login page.
         //
-        if (userToken.getUser() == null) {
+        if (userToken == null) {
             request.setAttribute("error", "No user found with username [" + username + "]" );
             WebUtils.redirectToSavedRequest(request, response, "/login.jsp");
             return;
