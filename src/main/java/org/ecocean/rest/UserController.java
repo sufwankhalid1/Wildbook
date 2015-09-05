@@ -33,8 +33,6 @@ import com.stormpath.sdk.account.AccountList;
 import com.stormpath.sdk.client.Client;
 import com.stormpath.sdk.resource.ResourceException;
 
-
-///// TODO should this be returning a SimpleUser now instead?
 @RestController
 @RequestMapping(value = "/obj/user")
 public class UserController {
