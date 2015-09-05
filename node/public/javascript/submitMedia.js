@@ -139,6 +139,10 @@ var submitMedia = (function () {
                     return $scope.user.username;
                 }
 
+                if ($scope.userInfo && $scope.userInfo.unverifiedUser) {
+                    return $scope.userInfo.unverifiedUser.username;
+                }
+
                 return null;
             }
 
@@ -168,7 +172,11 @@ var submitMedia = (function () {
                 // the long we use here.
                 //
                 var ms = $.extend({}, media);
-                ms.user = $scope.user;
+                if ($scope.user) {
+                    ms.user = $scope.user;
+                } else if ($scope.userInfo) {
+                    ms.user = $scope.userInfo.unverifiedUser;
+                }
 
                 var endTime = toTime(ms.endTime);
                 if (isNaN(endTime)) {
@@ -323,23 +331,21 @@ var submitMedia = (function () {
                     dataType: 'json'
                 })
                 .then(function(verifyResult) {
-                    $scope.userInfo = {
-                        newlyCreated: false,
-                        unverified: verifyResult.unverified
-                    };
-
                     if (verifyResult.unverified) {
-                        $scope.user = verifyResult.user;
+                        $scope.userInfo = {
+                            newlyCreated: false,
+                            unverifiedUser: verifyResult.user
+                        };
                         return saveAndGo();
                     }
 
-//                      'There is an account associated with this email address, and you must login to continue with submitting media.',
-//                      'submitMedia')
                     return wildbook.auth.login(app.config.wildbook.url,
                                                $scope.media.email,
-                                               'Please login to continue')
+                                               'Please login to continue',
+                                               'There is an account associated with this email address, and you must login to continue with submitting media.')
                     .then(function(user) {
                         $scope.user = user;
+                        return saveAndGo();
                     });
                 },
                 function() {
@@ -353,11 +359,8 @@ var submitMedia = (function () {
                     .then(function(newUser) {
                         $scope.userInfo = {
                             newlyCreated: true,
-                            unverified: true
+                            unverifiedUser: newUser
                         };
-
-                        $scope.user = newUser;
-
                         return saveAndGo();
                     }, handleError);
                 });

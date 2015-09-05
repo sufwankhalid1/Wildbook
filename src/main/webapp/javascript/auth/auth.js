@@ -4,7 +4,7 @@ wildbook.auth = (function() {
     function loginAttempt(baseUrl, username, title, message) {
         var dialog = '<div><input id="login-username" value="'
             + (username || '')
-            + '" placeholder="username" /></div><div><input id="login-password" type="password" placeholder="password" /></div>'
+            + '" placeholder="username/email" /></div><div><input id="login-password" type="password" placeholder="password" /></div>'
             + '<div style="border-bottom: 2px solid black; margin-bottom: 10px; padding-bottom: 10px;"><span style="margin-left: 10px; color: #900;">'
             + (message || '')
             + '</span><input class="login-button btn" type="button" value="forgot password" style="float: right;" onClick="window.location.href=\'/spPasswordReset?email=\' + $(\'#login-username\').val();" /></div>';
@@ -25,9 +25,6 @@ wildbook.auth = (function() {
             },
             function(ex) {
                 app.wait.hide();
-//                alertplus.error(ex);
-//                alert(ex.message);
-//                $('#login-message').html(ex.message);
                 return loginAttempt(baseUrl, username, title, ex.responseJSON.message);
             });
         });

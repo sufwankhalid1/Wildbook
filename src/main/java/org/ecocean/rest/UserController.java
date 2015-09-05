@@ -97,7 +97,7 @@ public class UserController {
             return null;
         }
 
-        User user = shepherd.getUserByEmailAddress(acc.getEmail());
+        User user = shepherd.getUserByNameOrEmail(acc.getEmail());
         if (user == null) {
             //TODO we should probably have some kinda rules here: like stormpath user is a certain group etc
             if (logger.isDebugEnabled()) {
@@ -135,7 +135,7 @@ public class UserController {
             //
             // Try our standard way
             //
-            user = shepherd.getUser(username);
+            user = shepherd.getUserByNameOrEmail(username);
 
             if (user == null) {
                 return null;
@@ -270,13 +270,17 @@ public class UserController {
         }
 
         String givenName = "Unknown";
-        if (!Util.isEmpty(user.fullName)) givenName = user.fullName;
+        if (!Util.isEmpty(user.fullName)) {
+            givenName = user.fullName;
+        }
+
         String surname = "-";
         int si = givenName.indexOf(" ");
         if (si > -1) {
             surname = givenName.substring(si+1);
             givenName = givenName.substring(0,si);
         }
+
         HashMap<String,Object> custom = new HashMap<String,Object>();
         custom.put("unverified", true);
         String errorMsg = null;

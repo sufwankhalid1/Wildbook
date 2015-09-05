@@ -400,11 +400,7 @@ public class MediaSubmissionController
 
         String email;
         if (user != null) {
-            User wbUser;
-            wbUser = shepherd.getUser(user.getUsername());
-            if (wbUser == null) {
-                wbUser = shepherd.getUserByEmailAddress(user.getUsername());
-            }
+            User wbUser = shepherd.getUserByNameOrEmail(user.getUsername());
             if (wbUser == null) {
                 logger.warn("curious: unable to load a User for username/email=" + user.getUsername());
                 email = null;

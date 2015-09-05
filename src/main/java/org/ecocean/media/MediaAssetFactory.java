@@ -75,6 +75,7 @@ public class MediaAssetFactory {
         }
         ma.thumbStore = AssetStore.get(rs.getInteger("thumbstore"));
         ma.thumbPath = createPath(rs.getString("thumbpath"));
+        ma.submitter = rs.getString("submitter");
 
         return ma;
     }
@@ -130,6 +131,7 @@ public class MediaAssetFactory {
             tags = tagb.append("}").toString();
         }
         formatter.append("tags", tags);
+        formatter.append("submitter", ma.getSubmitter());
     }
 
     /**

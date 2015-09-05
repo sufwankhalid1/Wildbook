@@ -510,7 +510,16 @@ public class Shepherd {
       }
   }
 
-  public User getUserByEmailAddress(final String email){
+  public User getUserByNameOrEmail(final String term) {
+      User user = getUser(term);
+      if (user == null) {
+          return getUserByEmailAddress(term);
+      }
+
+      return user;
+  }
+
+  private User getUserByEmailAddress(final String email){
     String filter="SELECT FROM org.ecocean.User WHERE emailAddress == \""+email+"\"";
     Query query=getPM().newQuery(filter);
     @SuppressWarnings("unchecked")
