@@ -1690,7 +1690,34 @@ public class Encounter implements java.io.Serializable {
 
     public void addMeasurement(final Measurement measurement){
       if(measurements==null){measurements=new ArrayList<Measurement>();}
-      if(!measurements.contains(measurement)){measurements.add(measurement);}
+      
+      //now start checking for existence of a previous measurement
+      
+      //if we have it but the new value is null, remove the measurement
+      if((this.hasMeasurement(measurement.getType()))&&(measurement.getValue()==null)){
+        Measurement m=this.getMeasurement(measurement.getType());
+        measurements.remove(m);
+        myShepherd.getPM().deletePersistent(m);
+        myShepherd.commitDBTransaction();
+        myShepherd.beginDBTransaction();
+      }
+      
+      //just add the measurement it if we did not have it before
+      else if(!this.hasMeasurement(measurement.getType())){
+        measurements.add(measurement);
+        myShepherd.commitDBTransaction();
+        myShepherd.beginDBTransaction();
+      }
+      
+      //if we had it before then just update the value
+      else if((this.hasMeasurement(measurement.getType()))&&(measurement!=null)){
+        Measurement m=this.getMeasurement(measurement.getType());
+        m.setValue(measurement.getValue());
+        m.setSamplingProtocol(measurement.getSamplingProtocol());
+        myShepherd.commitDBTransaction();
+        myShepherd.beginDBTransaction();
+      }
+      
     }
     public void removeMeasurement(final int num){measurements.remove(num);}
     public List<Measurement> getMeasurements(){return measurements;}

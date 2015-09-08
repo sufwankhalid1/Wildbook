@@ -1,7 +1,3 @@
-<jsp:include page="../headerfull.jsp" flush="true">
-  <jsp:param name="isAdmin" value="<%=request.isUserInRole(\"admin\")%>" />
-</jsp:include>
-
 <%@ page contentType="text/html; charset=utf-8" language="java"
          import="org.ecocean.servlet.ServletUtilities,org.springframework.mock.web.MockHttpServletRequest,org.ecocean.*,javax.jdo.Extent, javax.jdo.Query, java.util.ArrayList, com.reijns.I3S.Point2D" %>
 <%@ page import="java.util.GregorianCalendar, java.util.List" %>
@@ -14,8 +10,14 @@ String context="context0";
 context=ServletUtilities.getContext(request);
 %>
 
-<script type="text/javascript" src="../javascript/animatedcollapse.js"></script>
-<script type="text/javascript">
+<jsp:include page="../header.jsp" flush="true"/>
+
+  <!-- Sliding div content: STEP1 Place inside the head section -->
+ <script type="text/javascript" src="../javascript/animatedcollapse.js"></script>
+  
+  <!-- /STEP1 Place inside the head section -->
+  <!-- STEP2 Place inside the head section -->
+  <script type="text/javascript">
     animatedcollapse.addDiv('location', 'fade=1')
     animatedcollapse.addDiv('map', 'fade=1')
     animatedcollapse.addDiv('date', 'fade=1')
@@ -32,29 +34,34 @@ context=ServletUtilities.getContext(request);
       //state: "block" or "none", depending on state
     }
     animatedcollapse.init()
-</script>
+  </script>
+  <!-- /STEP2 Place inside the head section -->
 
 <script src="http://maps.google.com/maps/api/js?sensor=false"></script>
 <script src="visual_files/keydragzoom.js" type="text/javascript"></script>
 <script type="text/javascript" src="http://geoxml3.googlecode.com/svn/branches/polys/geoxml3.js"></script>
 <script type="text/javascript" src="http://geoxml3.googlecode.com/svn/trunk/ProjectedOverlay.js"></script>
 
+</head>
+
 <style type="text/css">v\:* {
   behavior: url(#default#VML);
   
-}
+}</style>
+
+<style type="text/css">
 .full_screen_map {
-    position: absolute !important;
-    top: 0px !important;
-    left: 0px !important;
-    z-index: 1 !imporant;
-    width: 100% !important;
-    height: 100% !important;
-    margin-top: 0px !important;
-    margin-bottom: 8px !important;
+position: absolute !important;
+top: 0px !important;
+left: 0px !important;
+z-index: 1 !imporant;
+width: 100% !important;
+height: 100% !important;
+margin-top: 0px !important;
+margin-bottom: 8px !important;
 </style>
 
-<!-- <script>
+<script>
   function resetMap() {
     var ne_lat_element = document.getElementById('ne_lat');
     var ne_long_element = document.getElementById('ne_long');
@@ -70,8 +77,8 @@ context=ServletUtilities.getContext(request);
   }
 </script>
 
-<body onload="resetMap()" onunload="resetMap()">
- -->
+
+
 <%
   GregorianCalendar cal = new GregorianCalendar();
   int nowYear = cal.get(1);
@@ -119,7 +126,7 @@ context=ServletUtilities.getContext(request);
 %>
 
 
-<div id="main">
+<div class="container maincontent">
 <table width="810">
 <tr>
 <td>
@@ -1350,4 +1357,10 @@ else {
 </tr>
 </table>
 <br />
-<jsp:include page="../footerfull.jsp" flush="true"/>
+
+</div>
+
+<jsp:include page="../footer.jsp" flush="true"/>
+
+
+

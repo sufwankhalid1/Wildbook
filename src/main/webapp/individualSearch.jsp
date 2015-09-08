@@ -1,7 +1,3 @@
-<jsp:include page="headerfull.jsp" flush="true">
-  <jsp:param name="isAdmin" value="<%=request.isUserInRole(\"admin\")%>" />
-</jsp:include>
-
 <%@ page contentType="text/html; charset=utf-8" language="java"
          import="org.ecocean.servlet.ServletUtilities,org.ecocean.*, javax.jdo.Extent, javax.jdo.Query, java.util.ArrayList, java.util.List, java.util.GregorianCalendar, java.util.Iterator, java.util.Properties" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>         
@@ -34,6 +30,10 @@ context=ServletUtilities.getContext(request);
 	
 %>
 
+
+<jsp:include page="header.jsp" flush="true"/>
+  
+    <!-- Sliding div content: STEP1 Place inside the head section -->
   <script type="text/javascript" src="javascript/animatedcollapse.js"></script>
  
   <script type="text/javascript">
@@ -55,28 +55,35 @@ context=ServletUtilities.getContext(request);
     }
     animatedcollapse.init()
   </script>
+  <!-- /STEP2 Place inside the head section -->
 
 <script src="http://maps.google.com/maps/api/js?sensor=false&language=<%=langCode %>"></script>
 <script src="encounters/visual_files/keydragzoom.js" type="text/javascript"></script>
 <script type="text/javascript" src="http://geoxml3.googlecode.com/svn/branches/polys/geoxml3.js"></script>
 <script type="text/javascript" src="http://geoxml3.googlecode.com/svn/trunk/ProjectedOverlay.js"></script>
 
+  <!-- /STEP2 Place inside the head section -->
+  
+  
+
 
 <style type="text/css">v\:* {
   behavior: url(#default#VML);
-}
+}</style>
+
+<style type="text/css">
 .full_screen_map {
-    position: absolute !important;
-    top: 0px !important;
-    left: 0px !important;
-    z-index: 1 !imporant;
-    width: 100% !important;
-    height: 100% !important;
-    margin-top: 0px !important;
-    margin-bottom: 8px !important;
+position: absolute !important;
+top: 0px !important;
+left: 0px !important;
+z-index: 1 !imporant;
+width: 100% !important;
+height: 100% !important;
+margin-top: 0px !important;
+margin-bottom: 8px !important;
 </style>
 
-<!-- <script>
+<script>
   function resetMap() {
     var ne_lat_element = document.getElementById('ne_lat');
     var ne_long_element = document.getElementById('ne_long');
@@ -91,10 +98,7 @@ context=ServletUtilities.getContext(request);
   }
 </script>
 
-<body onload="resetMap()" onunload="resetMap()">
- -->
-
-<div id="main">
+<div class="container maincontent">
 <table width="720">
 <tr>
 <td>
@@ -1393,6 +1397,17 @@ else {
               <br></em></p>
           </td>
         </tr>
+        <tr>
+          <td>
+            <p><strong><%=props.getProperty("nickName")%>:</strong> <em> <input
+              name="nickNameField" type="text" id="nickNameField" size="25"
+              maxlength="100"> <span class="para"><a
+              href="<%=CommonConfiguration.getWikiLocation(context)%>nickName"
+              target="_blank"><img src="images/information_icon_svg.gif"
+                                   alt="Help" width="15" height="15" border="0" align="absmiddle"/></a></span>
+              <br></em></p>
+          </td>
+        </tr>
 
         <tr>
           <td>
@@ -1555,12 +1570,15 @@ else {
 <td>
   <div id="metadata" style="display:none; ">
   <p><%=props.getProperty("metadataInstructions") %></p>
+
+	<strong><%=props.getProperty("username")%></strong><br />
       <%
-        ArrayList<User> users = myShepherd.getAllUsers();
+      	Shepherd inShepherd=new Shepherd("context0");
+        ArrayList<User> users = inShepherd.getAllUsers();
         int numUsers = users.size();
 
       %>
-	<strong><%=props.getProperty("username")%></strong><br />
+
       <select multiple size="5" name="username" id="username">
         <option value="None"></option>
         <%
@@ -1577,7 +1595,11 @@ else {
           }
         %>
       </select>
+<%
+inShepherd.rollbackDBTransaction();
+inShepherd.closeDBTransaction();
 
+%>
 </div>
 </td>
 </tr>
@@ -1604,4 +1626,17 @@ else {
 </tr>
 </table>
 <br>
-<jsp:include page="footerfull.jsp" flush="true"/>
+</div>
+
+<jsp:include page="footer.jsp" flush="true"/>
+
+
+<%
+  kwQuery.closeAll();
+  myShepherd.closeDBTransaction();
+  kwQuery = null;
+  myShepherd = null;
+%>
+
+
+

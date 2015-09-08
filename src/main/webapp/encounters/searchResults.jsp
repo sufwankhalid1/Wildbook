@@ -1,39 +1,47 @@
-<jsp:include page="../headerfull.jsp" flush="true">
-  <jsp:param name="isAdmin" value="<%=request.isUserInRole(\"admin\")%>" />
-</jsp:include>
-
 <%@ page contentType="text/html; charset=utf-8" language="java"
          import="org.ecocean.servlet.ServletUtilities,org.ecocean.*, org.ecocean.servlet.ServletUtilities, java.io.File, java.io.FileOutputStream, java.io.OutputStreamWriter, java.util.*, org.datanucleus.api.rest.orgjson.JSONArray, org.json.JSONObject, org.datanucleus.api.rest.RESTUtils, org.datanucleus.api.jdo.JDOPersistenceManager " %>
+
+
 <%
+
 String context="context0";
 context=ServletUtilities.getContext(request);
 
   //let's load encounterSearch.properties
   //String langCode = "en";
   String langCode=ServletUtilities.getLanguageCode(request);
+  
 
   Properties encprops = new Properties();
   //encprops.load(getClass().getResourceAsStream("/bundles/" + langCode + "/searchResults.properties"));
   encprops=ShepherdProperties.getProperties("searchResults.properties", langCode, context);
+  
 
   Shepherd myShepherd = new Shepherd(context);
+
+
 
   int startNum = 1;
   int endNum = 10;
 
+
   try {
+
     if (request.getParameter("startNum") != null) {
       startNum = (new Integer(request.getParameter("startNum"))).intValue();
     }
     if (request.getParameter("endNum") != null) {
       endNum = (new Integer(request.getParameter("endNum"))).intValue();
     }
+
   } catch (NumberFormatException nfe) {
     startNum = 1;
     endNum = 10;
   }
 
   int numResults = 0;
+
+
   Vector rEncounters = new Vector();
 
   myShepherd.beginDBTransaction();
@@ -41,13 +49,38 @@ context=ServletUtilities.getContext(request);
   EncounterQueryResult queryResult = EncounterQueryProcessor.processQuery(myShepherd, request, "year descending, month descending, day descending");
   rEncounters = queryResult.getResult();
 
+
 //--let's estimate the number of results that might be unique
+
   int numUniqueEncounters = 0;
   int numUnidentifiedEncounters = 0;
   int numDuplicateEncounters = 0;
+/*
+  ArrayList uniqueEncounters = new ArrayList();
+  for (int q = 0; q < rEncounters.size(); q++) {
+    Encounter rEnc = (Encounter) rEncounters.get(q);
+    if ((rEnc.getIndividualID()!=null)&&(!rEnc.getIndividualID().equals("Unassigned"))) {
+      String assemblage = rEnc.getIndividualID() + ":" + rEnc.getYear() + ":" + rEnc.getMonth() + ":" + rEnc.getDay();
+      if (!uniqueEncounters.contains(assemblage)) {
+        numUniqueEncounters++;
+        uniqueEncounters.add(assemblage);
+      } else {
+        numDuplicateEncounters++;
+      }
+    } else {
+      numUnidentifiedEncounters++;
+    }
+
+  }
+*/
+
+//--end unique counting------------------------------------------
+
 %>
 
+
 <style type="text/css">
+
 .ptcol-individualID {
 	position: relative;
 }
@@ -150,28 +183,28 @@ td.tdw:hover div {
   
 </style>
 
-<script src="../bcomponents/tablesorter/jquery.tablesorter.js"></script>
+<jsp:include page="../header.jsp" flush="true"/>
+
+<script src="../javascript/tablesorter/jquery.tablesorter.js"></script>
 
 <script src="../javascript/underscore-min.js"></script>
 <script src="../javascript/backbone-min.js"></script>
 <script src="../javascript/core.js"></script>
 <script src="../javascript/classes/Base.js"></script>
 
+<link rel="stylesheet" href="../javascript/tablesorter/themes/blue/style.css" type="text/css" media="print, projection, screen" />
+
+<link rel="stylesheet" href="../css/pageableTable.css" />
 <script src="../javascript/tsrt.js"></script>
 
-<div id="main">
 
-<table width="810px" border="0" cellspacing="0" cellpadding="0">
-  <tr>
-    <td>
-      <p>
+
+<div class="container maincontent">
+
 
       <h1 class="intro"><%=encprops.getProperty("title")%>
       </h1>
-      </p>    
-    </td>
-  </tr>
-</table>
+ 
 
 <ul id="tabmenu">
 
@@ -869,7 +902,7 @@ console.log(t);
 
 
 </p>
-<br>
+
 
 <%
   myShepherd.rollbackDBTransaction();
@@ -877,4 +910,10 @@ console.log(t);
   rEncounters = null;
 
 %>
-<jsp:include page="../footerfull.jsp" flush="true"/>
+</div>
+<jsp:include page="../footer.jsp" flush="true"/>
+
+
+
+
+

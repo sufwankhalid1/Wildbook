@@ -75,7 +75,7 @@ public class LoginIT {
   public void testUnsuccessfulLogin() {
     setScriptingEnabled(false);
     beginAt("/index.jsp");
-    clickLinkWithExactText("Log in");
+    clickLinkWithExactText("Login");
     setTextField("username", "foo");
     setTextField("password", "bar");
     submit();

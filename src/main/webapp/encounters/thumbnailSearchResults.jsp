@@ -1,9 +1,10 @@
-<jsp:include page="../headerfull.jsp" flush="true">
-  <jsp:param name="isAdmin" value="<%=request.isUserInRole(\"admin\")%>" />
-</jsp:include>
-<%@ page contentType="text/html; charset=utf-8" language="java"
-         import="org.ecocean.servlet.ServletUtilities,javax.jdo.Query,com.drew.imaging.jpeg.JpegMetadataReader,com.drew.metadata.Metadata, com.drew.metadata.Tag, org.ecocean.mmutil.MediaUtilities,org.ecocean.*,java.io.File, java.util.*,org.ecocean.security.Collaboration, java.io.FileInputStream, javax.jdo.Extent" %>
-<%
+<%@ page contentType="text/html; charset=utf-8" 
+		language="java"
+ 		import="org.ecocean.servlet.ServletUtilities,javax.jdo.Query,com.drew.imaging.jpeg.JpegMetadataReader,com.drew.metadata.Metadata, com.drew.metadata.Tag, org.ecocean.mmutil.MediaUtilities,org.ecocean.*,java.io.File, java.util.*,org.ecocean.security.Collaboration, java.io.FileInputStream, javax.jdo.Extent" %>
+
+
+  <%
+  
   String context="context0";
   context=ServletUtilities.getContext(request);
   
@@ -15,6 +16,7 @@
   File encountersDir=new File(shepherdDataDir.getAbsolutePath()+"/encounters");
   //if(!encountersDir.exists()){encountersDir.mkdirs();}
 
+  
     int startNum = 0;
     int endNum = 45;
 
@@ -32,9 +34,11 @@
       endNum = 45;
     }
 
+
 //let's load thumbnailSearch.properties
     //String langCode = "en";
     String langCode=ServletUtilities.getLanguageCode(request);
+    
 
     Properties encprops = new Properties();
     //encprops.load(getClass().getResourceAsStream("/bundles/" + langCode + "/thumbnailSearchResults.properties"));
@@ -93,14 +97,26 @@
    }
 
   %>
+ <jsp:include page="../header.jsp" flush="true"/>
 
-  <script type="text/javascript" src="../tools/highslide/highslide-with-gallery.js"></script>
-  <link rel="stylesheet" type="text/css" href="../tools/highslide/highslide.css"/>
+  <!--
+    1 ) Reference to the files containing the JavaScript and CSS.
+    These files must be located on your server.
+  -->
 
-<script type="text/javascript">
-  hs.graphicsDir = '../tools/highslide/graphics/';
-  hs.align = 'center';
+  <script type="text/javascript" src="../highslide/highslide/highslide-with-gallery.js"></script>
+  <link rel="stylesheet" type="text/css" href="../highslide/highslide/highslide.css"/>
+
+  <!--
+    2) Optionally override the settings defined at the top
+    of the highslide.js file. The parameter hs.graphicsDir is important!
+  -->
+
+  <script type="text/javascript">
+  hs.graphicsDir = '../highslide/highslide/graphics/';
+  hs.align = 'auto';
   hs.showCredits = false;
+  hs.anchor = 'top';
 
   //transition behavior
   hs.transitions = ['expand', 'crossfade'];
@@ -115,7 +131,7 @@
   // define the restraining box
   hs.useBox = true;
   hs.width = 810;
-  hs.height=500;
+  hs.height=250;
 
     //block right-click user copying if no permissions available
     <%
@@ -141,7 +157,7 @@
     });
 
   </script>
-
+</head>
 <style type="text/css">
 
   #tabmenu {
@@ -199,7 +215,8 @@
   }
 </style>
 
-<div id="main">
+
+<div class="container maincontent">
 
 <%
   String rq = "";
@@ -352,13 +369,7 @@
             }
             %>
             >
-			<%
-            if(!thumbLink.endsWith("video.jpg")){
-            	%>
-              <h3><%=(countMe + startNum) %></h3>
-            <%
-            }
-            %>
+			
               <%
                 if ((request.getParameter("referenceImageName") != null)&&(!thumbLink.endsWith("video.jpg"))) {
                 	if(myShepherd.isSinglePhotoVideo(request.getParameter("referenceImageName"))){
@@ -830,8 +841,11 @@
 </table>
 
 <%
+
+
   startNum = startNum + 45;
   endNum = endNum + 45;
+
 %>
 
 <table width="810px">
@@ -864,7 +878,12 @@
 <%
   myShepherd.rollbackDBTransaction();
   myShepherd.closeDBTransaction();
+
+ 
 %>
 
-<br/>
-<jsp:include page="../footerfull.jsp" flush="true"/>
+</div>
+<jsp:include page="../footer.jsp" flush="true"/>
+
+
+

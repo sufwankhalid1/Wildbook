@@ -31,11 +31,20 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.ecocean.CommonConfiguration;
-import org.ecocean.Encounter;
-import org.ecocean.MailThreadExecutorService;
-import org.ecocean.NotificationMailer;
 import org.ecocean.Shepherd;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.Vector;
+import java.util.concurrent.ThreadPoolExecutor;
 
 //Set alternateID for this encounter/sighting
 public class EncounterSetAsUnidentifiable extends HttpServlet {
@@ -62,6 +71,7 @@ public void doGet(final HttpServletRequest request, final HttpServletResponse re
 public void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
     String context="context0";
     context=ServletUtilities.getContext(request);
+    String langCode = ServletUtilities.getLanguageCode(request);
     Shepherd myShepherd = new Shepherd(context);
     //set up for response
     response.setContentType("text/html");
@@ -111,21 +121,13 @@ public void doPost(final HttpServletRequest request, final HttpServletResponse r
           String message = "Encounter " + request.getParameter("number") + " was set as unidentifiable in the database.";
           ServletUtilities.informInterestedParties(request, request.getParameter("number"),message,context);
 
-          String emailUpdate = ServletUtilities.getText(CommonConfiguration.getDataDirectoryName(context),"dataUpdate.txt",ServletUtilities.getLanguageCode(request)) + "\nEncounter: " + request.getParameter("number") + "\nhttp://" + CommonConfiguration.getURLLocation(request) + "/encounters/encounter.jsp?number=" + request.getParameter("number") + "\n";
-
-          Vector e_images = new Vector();
-
-          emailUpdate = CommonConfiguration.appendEmailRemoveHashString(request, emailUpdate,
-            submitterEmail,context);
-
-
-        //let's get ready for emailing
-        ThreadPoolExecutor es = MailThreadExecutorService.getExecutorService();
-
-        es.execute(new NotificationMailer(CommonConfiguration.getMailHost(context), CommonConfiguration.getAutoEmailAddress(context), submitterEmail, ("Encounter update: " + request.getParameter("number")), emailUpdate, e_images,context));
-        es.shutdown();
-
-
+          // Email submitter about change
+          Map<String, String> tagMap = NotificationMailer.createBasicTagMap(request, enc2reject);
+          tagMap.put("@TEXT_CONTENT@", message);
+          ThreadPoolExecutor es = MailThreadExecutorService.getExecutorService();
+          NotificationMailer mailer = new NotificationMailer(context, null, submitterEmail, "encounterDataUpdate", tagMap);
+          es.execute(mailer);
+          es.shutdown();
 
         } else {
           out.println(ServletUtilities.getHeader(request));

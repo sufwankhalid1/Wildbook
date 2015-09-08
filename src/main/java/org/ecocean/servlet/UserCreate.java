@@ -67,7 +67,7 @@ public void doPost(final HttpServletRequest request, final HttpServletResponse r
     if(!usersDir.exists()){usersDir.mkdirs();}
 
     //set up for response
-    response.setContentType("text/html");
+    response.setContentType("text/html; charset=UTF-8");
     PrintWriter out = response.getWriter();
     boolean createThisUser = false;
 
@@ -201,11 +201,11 @@ public void doPost(final HttpServletRequest request, final HttpServletResponse r
             //output success statement
             out.println(ServletUtilities.getHeader(request));
             if(createThisUser){
-              out.println("<strong>Success:</strong> User '" + username + "' was successfully created with added roles: <ul>" + addedRoles.replaceAll("SEPARATORSTART", "<li>").replaceAll("SEPARATOREND", "</li>")+"</ul>");
+              out.println("<strong>Success:</strong> User '" + StringEscapeUtils.escapeHtml4(username) + "' was successfully created with added roles: <ul>" + addedRoles.replaceAll("SEPARATORSTART", "<li>").replaceAll("SEPARATOREND", "</li>")+"</ul>");
             }
             else{
-              out.println("<strong>Success:</strong> User '" + username + "' was successfully updated and has assigned roles: <ul>" + addedRoles.replaceAll("SEPARATORSTART", "<li>").replaceAll("SEPARATOREND", "</li>")+"</ul>");
-
+              out.println("<strong>Success:</strong> User '" + StringEscapeUtils.escapeHtml4(username) + "' was successfully updated and has assigned roles: <ul>" + addedRoles.replaceAll("SEPARATORSTART", "<li>").replaceAll("SEPARATOREND", "</li>")+"</ul>");
+              
             }
             out.println("<p><a href=\"http://" + CommonConfiguration.getURLLocation(request) + "/appadmin/users.jsp?context=context0" + "\">Return to User Administration" + "</a></p>\n");
             out.println(ServletUtilities.getFooter(context));

@@ -26,18 +26,23 @@ import java.util.StringTokenizer;
 import java.util.Vector;
 import java.util.concurrent.ThreadPoolExecutor;
 
+import org.ecocean.CommonConfiguration;
+
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.ecocean.CommonConfiguration;
-import org.ecocean.Encounter;
-import org.ecocean.MailThreadExecutorService;
-import org.ecocean.MarkedIndividual;
-import org.ecocean.NotificationMailer;
-import org.ecocean.Shepherd;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ThreadPoolExecutor;
 
 
 public class IndividualCreate extends HttpServlet {
@@ -65,6 +70,7 @@ public void doGet(final HttpServletRequest request, final HttpServletResponse re
 public void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
     String context="context0";
     context=ServletUtilities.getContext(request);
+    String langCode = ServletUtilities.getLanguageCode(request);
     Shepherd myShepherd = new Shepherd(context);
     //set up for response
     response.setContentType("text/html");
@@ -131,73 +137,31 @@ public void doPost(final HttpServletRequest request, final HttpServletResponse r
             myShepherd.commitDBTransaction();
             myShepherd.closeDBTransaction();
             if (request.getParameter("noemail") == null) {
-              //send the e-mail
-              Vector e_images = new Vector();
-              String thanksmessage = ServletUtilities.getText(CommonConfiguration.getDataDirectoryName(context),"createdMarkedIndividual.html",ServletUtilities.getLanguageCode(request));
-              thanksmessage = thanksmessage.replaceAll("INSERTTEXT",("<a href=\"http://" + CommonConfiguration.getURLLocation(request) + "/individuals.jsp?number=" + newIndividualID+"\">Click here to learn more about "+newIndividualID+ " in Wildbook!</a>"));
 
               ThreadPoolExecutor es = MailThreadExecutorService.getExecutorService();
 
-              //notify the admins
-              es.execute(new NotificationMailer(CommonConfiguration.getMailHost(context), CommonConfiguration.getAutoEmailAddress(context), CommonConfiguration.getNewSubmissionEmail(context), ("Encounter update: " + request.getParameter("number")), CommonConfiguration.appendEmailRemoveHashString(request, thanksmessage, submitter,context), e_images,context));
+              // Notify new-submissions address (try "newsub" template, or fallback to standard)
+              Map<String, String> tagMap = NotificationMailer.createBasicTagMap(request, newShark, enc2make);
+              String mailTo = CommonConfiguration.getNewSubmissionEmail(context);
+              NotificationMailer mailer = new NotificationMailer(context, null, mailTo, "individualCreate", tagMap);
+              mailer.appendToSubject(" (sent to submitters)");
+      			  es.execute(mailer);
 
-              if (submitter.indexOf(",") != -1) {
-                StringTokenizer str = new StringTokenizer(submitter, ",");
-                while (str.hasMoreTokens()) {
-                  String token = str.nextToken().trim();
-                  if (!token.equals("")) {
-                    String personalizedThanksMessage = CommonConfiguration.appendEmailRemoveHashString(request, thanksmessage, token,context);
-
-                    es.execute(new NotificationMailer(CommonConfiguration.getMailHost(context), CommonConfiguration.getAutoEmailAddress(context), token, ("Encounter update: " + request.getParameter("number")), personalizedThanksMessage, e_images,context));
-                  }
-                }
-              } else {
-                String personalizedThanksMessage = CommonConfiguration.appendEmailRemoveHashString(request, thanksmessage, submitter,context);
-
-                es.execute(new NotificationMailer(CommonConfiguration.getMailHost(context), CommonConfiguration.getAutoEmailAddress(context), submitter, ("Encounter update: " + request.getParameter("number")), personalizedThanksMessage, e_images,context));
+      			  // Notify submitters, photographers, and informOthers values
+              Set<String> cSubmitters = new HashSet<>();
+              if (submitter != null)
+                cSubmitters.addAll(NotificationMailer.splitEmails(submitter));
+              if (photographer != null)
+                cSubmitters.addAll(NotificationMailer.splitEmails(photographer));
+              if (informers != null)
+                cSubmitters.addAll(NotificationMailer.splitEmails(informers));
+              if (newShark != null)
+                tagMap.put(NotificationMailer.EMAIL_NOTRACK, "individual=" + newShark.getIndividualID());
+              for (String emailTo : cSubmitters) {
+                tagMap.put(NotificationMailer.EMAIL_HASH_TAG, Encounter.getHashOfEmailString(emailTo));
+                es.execute(new NotificationMailer(context, null, emailTo, "individualCreate", tagMap));
               }
-
-              if (photographer.indexOf(",") != -1) {
-                StringTokenizer str = new StringTokenizer(photographer, ",");
-                while (str.hasMoreTokens()) {
-                  String token = str.nextToken().trim();
-                  if (!token.equals("")) {
-                    String personalizedThanksMessage = CommonConfiguration
-                      .appendEmailRemoveHashString(request, thanksmessage, token,context);
-
-                    es.execute(new NotificationMailer(CommonConfiguration.getMailHost(context), CommonConfiguration.getAutoEmailAddress(context), token, ("Encounter update: " + request.getParameter("number")), personalizedThanksMessage, e_images,context));
-                  }
-                }
-              } else {
-                String personalizedThanksMessage = CommonConfiguration
-                  .appendEmailRemoveHashString(request, thanksmessage, photographer,context);
-
-                es.execute(new NotificationMailer(CommonConfiguration.getMailHost(context), CommonConfiguration.getAutoEmailAddress(context), photographer, ("Encounter update: " + request.getParameter("number")), personalizedThanksMessage, e_images,context));
-              }
-
-
-              if ((informers != null) && (!informers.equals(""))) {
-
-                if (informers.indexOf(",") != -1) {
-                  StringTokenizer str = new StringTokenizer(informers, ",");
-                  while (str.hasMoreTokens()) {
-                    String token = str.nextToken().trim();
-                    if (!token.equals("")) {
-                      String personalizedThanksMessage = CommonConfiguration
-                        .appendEmailRemoveHashString(request, thanksmessage, token,context);
-
-                      es.execute(new NotificationMailer(CommonConfiguration.getMailHost(context), CommonConfiguration.getAutoEmailAddress(context), token, ("Encounter update: " + request.getParameter("number")), personalizedThanksMessage, e_images,context));
-                    }
-                  }
-                } else {
-                  String personalizedThanksMessage = CommonConfiguration.appendEmailRemoveHashString(request, thanksmessage, informers,context);
-
-                  es.execute(new NotificationMailer(CommonConfiguration.getMailHost(context), CommonConfiguration.getAutoEmailAddress(context), informers, ("Encounter update: " + request.getParameter("number")), personalizedThanksMessage, e_images,context));
-                }
-
-
-              }
-
+              es.shutdown();
 
               String rssTitle = "New marked individual: " + newIndividualID;
               String rssLink = "http://" + CommonConfiguration.getURLLocation(request) + "/individuals.jsp?number=" + newIndividualID;
@@ -214,10 +178,7 @@ public void doPost(final HttpServletRequest request, final HttpServletResponse r
 
 
               ServletUtilities.addATOMEntry(rssTitle, rssLink, rssDescription, atomFile,context);
-
-              //shutdown the mailing threadpool
-              es.shutdown();
-
+              
             }
             //set up the directory for this individual
             File thisSharkDir = new File(individualsDir, newIndividualID);

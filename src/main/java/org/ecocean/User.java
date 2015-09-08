@@ -241,10 +241,32 @@ public class User implements Serializable {
 
     public void setAcceptedUserAgreement(final boolean accept){this.acceptedUserAgreement=accept;}
 
-    //TODO this needs to be dealt with better.  see: rant about saving usernames from forms
-    public static boolean isUsernameAnonymous(final String uname) {
-        return ((uname == null) || uname.equals("") || uname.equals("N/A"));
-    }
+
+		public String getSocial(String type) {
+			if (social == null) return null;
+			return social.get(type);
+		}
+		public void setSocial(String type, String s) {
+        if ((s == null) || s.equals("")) {
+            unsetSocial(type);
+            return;
+        }
+        if (social == null) social = new HashMap<String,String>();
+        social.put(type, s);
+		}
+		public void setSocial(String type) {
+			unsetSocial(type);
+		}
+		public void unsetSocial(String type) {
+			if (social == null) return;
+			social.remove(type);
+		}
+
+
+		//TODO this needs to be dealt with better.  see: rant about saving usernames from forms
+		public static boolean isUsernameAnonymous(String uname) {
+			return ((uname == null) || uname.equals("") || uname.equals("N/A"));
+		}
 
     //public String getCurrentContext(){return currentContext;}
     //public void setCurrentContext(String newContext){currentContext=newContext;}

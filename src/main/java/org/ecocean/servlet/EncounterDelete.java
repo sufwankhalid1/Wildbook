@@ -44,6 +44,8 @@ import org.slf4j.LoggerFactory;
 
 
 public class EncounterDelete extends HttpServlet {
+  /** SLF4J logger instance for writing log entries. */
+  public static Logger log = LoggerFactory.getLogger(EncounterDelete.class);
 
   @Override
 public void init(final ServletConfig config) throws ServletException {
@@ -67,6 +69,7 @@ public void doGet(final HttpServletRequest request, final HttpServletResponse re
 public void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
     String context="context0";
     context=ServletUtilities.getContext(request);
+    String langCode = ServletUtilities.getLanguageCode(request);
     Shepherd myShepherd = new Shepherd(context);
     //set up for response
     response.setContentType("text/html");
@@ -130,6 +133,7 @@ public void doPost(final HttpServletRequest request, final HttpServletResponse r
 
         } catch (Exception edel) {
           locked = true;
+          log.warn("Failed to serialize encounter: " + request.getParameter("number"), edel);
           edel.printStackTrace();
           myShepherd.rollbackDBTransaction();
 
@@ -156,16 +160,17 @@ public void doPost(final HttpServletRequest request, final HttpServletResponse r
           }
 
           out.println(ServletUtilities.getFooter(context));
-          Vector e_images = new Vector();
-          NotificationMailer mailer = new NotificationMailer(CommonConfiguration.getMailHost(context), CommonConfiguration.getAutoEmailAddress(context), CommonConfiguration.getNewSubmissionEmail(context), ("Removed encounter " + request.getParameter("number")), "Encounter " + request.getParameter("number") + " has been removed from the database by user " + request.getRemoteUser() + ".", e_images,context);
 
-		  //let's get ready for emailing
+          // Notify new-submissions address
+          Map<String, String> tagMap = NotificationMailer.createBasicTagMap(request, enc2trash);
+          tagMap.put("@USER@", request.getRemoteUser());
+          tagMap.put("@ENCOUNTER_ID@", request.getParameter("number"));
+          String mailTo = CommonConfiguration.getNewSubmissionEmail(context);
+          NotificationMailer mailer = new NotificationMailer(context, null, mailTo, "encounterDelete", tagMap);
           ThreadPoolExecutor es = MailThreadExecutorService.getExecutorService();
-		  es.execute(mailer);
-		  es.shutdown();
-
-
-        }
+          es.execute(mailer);
+          es.shutdown();
+        } 
         else {
           out.println(ServletUtilities.getHeader(request));
           out.println("<strong>Failure:</strong> I have NOT removed encounter " + request.getParameter("number") + " from the database. An exception occurred in the deletion process.");

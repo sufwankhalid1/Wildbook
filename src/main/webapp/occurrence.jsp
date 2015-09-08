@@ -1,23 +1,3 @@
-<%--
-  ~ The Shepherd Project - A Mark-Recapture Framework
-  ~ Copyright (C) 2012 Jason Holmberg
-  ~
-  ~ This program is free software; you can redistribute it and/or
-  ~ modify it under the terms of the GNU General Public License
-  ~ as published by the Free Software Foundation; either version 2
-  ~ of the License, or (at your option) any later version.
-  ~
-  ~ This program is distributed in the hope that it will be useful,
-  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  ~ GNU General Public License for more details.
-  ~
-  ~ You should have received a copy of the GNU General Public License
-  ~ along with this program; if not, write to the Free Software
-  ~ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-  --%>
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <%@ page contentType="text/html; charset=utf-8" language="java"
          import="javax.jdo.Query,org.ecocean.*,org.ecocean.servlet.ServletUtilities,java.io.File, java.util.*, org.ecocean.genetics.*, org.ecocean.security.Collaboration, com.google.gson.Gson" %>
 
@@ -69,24 +49,6 @@ context=ServletUtilities.getContext(request);
 
 %>
 
-<html>
-<head>
-
-  <title><%=CommonConfiguration.getHTMLTitle(context) %>
-  </title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-  <meta name="Description"
-        content="<%=CommonConfiguration.getHTMLDescription(context) %>"/>
-  <meta name="Keywords"
-        content="<%=CommonConfiguration.getHTMLKeywords(context) %>"/>
-  <meta name="Author" content="<%=CommonConfiguration.getHTMLAuthor(context) %>"/>
-  <link href="<%=CommonConfiguration.getCSSURLLocation(request,context) %>"
-        rel="stylesheet" type="text/css"/>
-  <link rel="shortcut icon"
-        href="<%=CommonConfiguration.getHTMLShortcutIcon(context) %>"/>
-        
-
-
  
   
   <style type="text/css">
@@ -109,6 +71,9 @@ context=ServletUtilities.getContext(request);
 
     -->
   </style>
+  
+  
+  <jsp:include page="header.jsp" flush="true"/>
 
 
   <!--
@@ -116,8 +81,8 @@ context=ServletUtilities.getContext(request);
     These files must be located on your server.
   -->
 
-  <script type="text/javascript" src="tools/highslide/highslide-with-gallery.js"></script>
-  <link rel="stylesheet" type="text/css" href="tools/highslide/highslide.css"/>
+  <script type="text/javascript" src="highslide/highslide/highslide-with-gallery.js"></script>
+  <link rel="stylesheet" type="text/css" href="highslide/highslide/highslide.css"/>
 
   <!--
     2) Optionally override the settings defined at the top
@@ -125,8 +90,8 @@ context=ServletUtilities.getContext(request);
   -->
 
   <script type="text/javascript">
-    hs.graphicsDir = 'tools/highslide/graphics/';
-    hs.align = 'center';
+    hs.graphicsDir = 'highslide/highslide/graphics/';
+    
     hs.transitions = ['expand', 'crossfade'];
     hs.outlineType = 'rounded-white';
     hs.fadeInOut = true;
@@ -135,7 +100,9 @@ context=ServletUtilities.getContext(request);
     //define the restraining box
     hs.useBox = true;
     hs.width = 810;
-    hs.height = 500;
+    hs.height = 250;
+    hs.align = 'auto';
+  	hs.anchor = 'top';
 
     //block right-click user copying if no permissions available
     <%
@@ -161,7 +128,7 @@ context=ServletUtilities.getContext(request);
     });
 
   </script>
-  
+
 <!--  FACEBOOK LIKE BUTTON -->
 <div id="fb-root"></div>
 <script>(function(d, s, id) {
@@ -183,23 +150,8 @@ context=ServletUtilities.getContext(request);
 
 
 
+<div class="container maincontent">
 
-</head>
-
-<body <%if (request.getParameter("noscript") == null) {%> onload="initialize()" onunload="GUnload()" <%}%>>
-<div id="wrapper">
-<div id="page">
-<jsp:include page="header.jsp" flush="true">
-
-	<jsp:param name="isAdmin" value="<%=request.isUserInRole(\"admin\")%>" />
-</jsp:include>
-
-<div id="main">
-
-
-<div id="maincol-wide-solo">
-
-<div id="maintext">
 <%
   myShepherd.beginDBTransaction();
   try {
@@ -1051,9 +1003,8 @@ else {
 </tr>
 </table>
 
-</div><!-- end maintext -->
-<jsp:include page="footer.jsp" flush="true"/>
-</div><!-- end main-wide -->
+
+
       
       <%
     
@@ -1068,13 +1019,8 @@ else {
   myShepherd.closeDBTransaction();
 
 %>
-
 </div>
+<jsp:include page="footer.jsp" flush="true"/>
 
-</div>
 
-<!-- end page -->
-<!--end wrapper -->
-</body>
-</html>
 

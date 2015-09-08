@@ -38,10 +38,14 @@ import java.lang.reflect.Field;
 import java.io.*;
 import java.util.*;
 
+
 import org.springframework.boot.context.embedded.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 //import org.springframework.boot.context.embedded.ServletRegistrationBean;
 //import org.springframework.context.annotation.Bean;
+
+import org.ecocean.security.SocialAuth;
+
 import org.w3c.dom.Document;
 import com.google.gson.Gson;
 

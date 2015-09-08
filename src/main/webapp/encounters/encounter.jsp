@@ -1,13 +1,10 @@
-<jsp:include page="../headerfull.jsp" flush="true">
-  <jsp:param name="isAdmin" value="<%=request.isUserInRole(\"admin\")%>" />
-</jsp:include>
-
 <%@ page contentType="text/html; charset=utf-8" language="java"
-         import="org.joda.time.format.DateTimeFormat,org.joda.time.format.DateTimeFormatter,org.joda.time.LocalDateTime ,org.ecocean.servlet.ServletUtilities,com.drew.imaging.jpeg.JpegMetadataReader, com.drew.metadata.Directory, com.drew.metadata.Metadata, com.drew.metadata.Tag, org.ecocean.*,org.ecocean.servlet.ServletUtilities,org.ecocean.Util,org.ecocean.Util.MetalTagDesc,org.ecocean.Util.MeasurementDesc,org.ecocean.Measurement, org.ecocean.mmutil.*, org.ecocean.genetics.*, org.ecocean.tag.*, java.awt.Dimension, javax.jdo.Extent, javax.jdo.Query, java.io.File, java.text.DecimalFormat, java.util.*,org.ecocean.security.Collaboration" %>
+         import="org.joda.time.format.DateTimeFormat,org.joda.time.format.DateTimeFormatter,org.joda.time.LocalDateTime ,org.ecocean.servlet.ServletUtilities,com.drew.imaging.jpeg.JpegMetadataReader, com.drew.metadata.Directory, com.drew.metadata.Metadata, com.drew.metadata.Tag, org.ecocean.*,org.ecocean.servlet.ServletUtilities,org.ecocean.Util,org.ecocean.Measurement, org.ecocean.Util.*, org.ecocean.genetics.*, org.ecocean.tag.*, java.awt.Dimension, javax.jdo.Extent, javax.jdo.Query, java.io.File, java.text.DecimalFormat, java.util.*,org.ecocean.security.Collaboration" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>         
 
 <%!
+
   //shepherd must have an open trasnaction when passed in
   public String getNextIndividualNumber(Encounter enc, Shepherd myShepherd, String context) {
     String returnString = "";
@@ -44,9 +41,13 @@
             } else {
               startNum++;
             }
+
           }
           return returnString;
+
         }
+
+
       }
       return returnString;
     } 
@@ -55,9 +56,12 @@
       return returnString;
     }
   }
+
 %>
 
 <%
+
+
 String context="context0";
 context=ServletUtilities.getContext(request);
 //get encounter number
@@ -87,6 +91,9 @@ File encounterDir = new File(encountersDir, num);
 //handle translation
   //String langCode = "en";
 String langCode=ServletUtilities.getLanguageCode(request);
+    
+
+
 
 //let's load encounters.properties
   //Properties encprops = new Properties();
@@ -112,47 +119,10 @@ String langCode=ServletUtilities.getLanguageCode(request);
   pageContext.setAttribute("set", encprops.getProperty("set"));
 %>
 
-<!-- social meta start -->
-<meta property="og:site_name" content="<%=CommonConfiguration.getHTMLTitle(context) %> - <%=encprops.getProperty("encounter") %> <%=request.getParameter("number") %>" />
-
-<link rel="canonical" href="http://<%=CommonConfiguration.getURLLocation(request) %>/encounters/encounter.jsp?number=<%=request.getParameter("number") %>" />
-
-<meta itemprop="name" content="<%=encprops.getProperty("encounter")%> <%=request.getParameter("number")%>" />
-<meta itemprop="description" content="<%=CommonConfiguration.getHTMLDescription(context)%>" />
-<%
-if (request.getParameter("number")!=null) {
-	
-		if(myShepherd.isEncounter(num)){
-			Encounter metaEnc = myShepherd.getEncounter(num);
-			int numImgs=metaEnc.getImages().size();
-			if((metaEnc.getImages()!=null)&&(numImgs>0)){
-				for(int b=0;b<numImgs;b++){
-				SinglePhotoVideo metaSPV=metaEnc.getImages().get(b);
-%>
-<meta property="og:image" content="http://<%=CommonConfiguration.getURLLocation(request) %>/<%=CommonConfiguration.getDataDirectoryName(context) %>/encounters/<%=(request.getParameter("number")+"/"+metaSPV.getFilename())%>" />
-<link rel="image_src" href="http://<%=CommonConfiguration.getURLLocation(request) %>/<%=CommonConfiguration.getDataDirectoryName(context) %>/encounters/<%=(request.getParameter("number")+"/"+metaSPV.getFilename())%>" / >
-<%
-			}
-		}
-		}
-}
-%>
-
-<meta property="og:title" content="<%=CommonConfiguration.getHTMLTitle(context) %> - <%=encprops.getProperty("encounter") %> <%=request.getParameter("number") %>" />
-<meta property="og:description" content="<%=CommonConfiguration.getHTMLDescription(context)%>" />
-
-<meta property="og:url" content="http://<%=CommonConfiguration.getURLLocation(request) %>/encounters/encounter.jsp?number=<%=request.getParameter("number") %>" />
 
 
-<meta property="og:type" content="website" />
+<jsp:include page="../header.jsp" flush="true"/>
 
-<!-- social meta end -->
-
-  
-  <link href="<%=CommonConfiguration.getCSSURLLocation(request,context) %>"
-        rel="stylesheet" type="text/css"/>
-  <link rel="shortcut icon"
-        href="<%=CommonConfiguration.getHTMLShortcutIcon(context) %>"/>
   <style type="text/css">
     <!--
 
@@ -226,6 +196,11 @@ if (request.getParameter("number")!=null) {
       padding: 8px;
     }
 
+    -->
+
+
+
+
 th.measurement{
 	 font-size: 0.9em;
 	 font-weight: normal;
@@ -240,8 +215,18 @@ td.measurement{
 </style>
 
 
-  <script type="text/javascript" src="../tools/highslide/highslide-with-gallery.js"></script>
-  <link rel="stylesheet" type="text/css" href="../tools/highslide/highslide.css"/>
+  <!--
+    1 ) Reference to the files containing the JavaScript and CSS.
+    These files must be located on your server.
+  -->
+
+  <script type="text/javascript" src="../highslide/highslide/highslide-with-gallery.js"></script>
+  <link rel="stylesheet" type="text/css" href="../highslide/highslide/highslide.css"/>
+
+  <!--
+    2) Optionally override the settings defined at the top
+    of the highslide.js file. The parameter hs.graphicsDir is important!
+  -->
 
 
 <script type="text/javascript">
@@ -271,41 +256,7 @@ td.measurement{
 	}
 	</script>
 
-  <script type="text/javascript">
-      hs.graphicsDir = '../tools/highslide/graphics/';
-      hs.align = 'center';
-      hs.transitions = ['expand', 'crossfade'];
-      hs.outlineType = 'rounded-white';
-      hs.fadeInOut = true;
-
-
-    //block right-click user copying if no permissions available
-    <%
-    if(request.getUserPrincipal()!=null){
-    %>
-    hs.blockRightClick = false;
-    <%
-    }
-    else{
-    %>
-    hs.blockRightClick = true;
-	<%
-    }
-	%>
-    // Add the controlbar
-    hs.addSlideshow({
-      //slideshowGroup: 'group1',
-      interval: 5000,
-      repeat: false,
-      useControls: true,
-      fixedControls: 'fit',
-      overlayOptions: {
-        opacity: 0.75,
-        position: 'bottom center',
-        hideOnMouseOut: true
-      }
-    });
-  </script>
+ 
   
   <script>
             function initialize() {
@@ -368,6 +319,11 @@ margin-bottom: 8px !important;
 
 </style>
 
+
+<!--added below for improved map selection -->
+
+
+
 <!--  FACEBOOK LIKE BUTTON -->
 <div id="fb-root"></div>
 <script>(function(d, s, id) {
@@ -417,15 +373,24 @@ margin-bottom: 8px !important;
 /*customizations*/
 .ui_tpicker_hour_label {margin-bottom:5px !important;}
 .ui_tpicker_minute_label {margin-bottom:5px !important;}
+
+
 </style>
 
+			
+			
 <script src="http://maps.google.com/maps/api/js?sensor=false&language=<%=langCode%>"></script>
-
 <script type="text/javascript" src="http://geoxml3.googlecode.com/svn/branches/polys/geoxml3.js"></script>
+
+ 
+  <script src="../javascript/timepicker/jquery-ui-timepicker-addon.js"></script>
+ 
 <script src="../javascript/imageTools.js"></script>
 
 			
-			<div id="main">
+
+
+<div class="container maincontent">
 
 
 			<%
@@ -477,7 +442,7 @@ margin-bottom: 8px !important;
       
 if (request.getParameter("refreshImages") != null) {
 	System.out.println("refreshing images!!! ==========");
-	enc.refreshAssetFormats(context, ServletUtilities.dataDir(context, rootWebappPath).getAbsolutePath());
+	enc.refreshAssetFormats(context, ServletUtilities.dataDir(context, rootWebappPath));
 	System.out.println("============ out ==============");
 }
 
@@ -495,6 +460,7 @@ if (request.getParameter("refreshImages") != null) {
     			%>
     			
 <script type="text/javascript">
+
 
 
 $(function() {
@@ -596,8 +562,10 @@ $(function() {
     						%>
     						
     						
-    							<p class="<%=classColor%>"><img align="absmiddle" src="../images/Crystal_Clear_action_find.png" width="50px" height="50px" /> 
-    						 <strong><%=encprops.getProperty("title") %></strong>: <%=num%><%=livingStatus %></p>
+    						<h1 class="<%=classColor%>"> 
+    						 	<%=encprops.getProperty("title") %><%=livingStatus %>
+    						 </h1>
+    					
     						
     					</td>
     				</tr>
@@ -606,7 +574,7 @@ $(function() {
 				
      
     			<p class="caption"><em><%=encprops.getProperty("description") %></em></p>
- 					<table>
+ 					<table style="border-spacing: 10px;border-collapse: inherit;">
  						<tr valign="middle">  
   							<td>
     							<!-- Google PLUS-ONE button -->
@@ -630,15 +598,20 @@ $(function() {
 
 <!-- START IDENTITY ATTRIBUTE -->								
 
-  <p><img align="absmiddle" src="../images/wild-me-logo-only-100-100.png" width="40px" height="40px" /> <strong><%=encprops.getProperty("identity") %></strong></p>
+  <h2><img align="absmiddle" src="../images/wild-me-logo-only-100-100.png" width="40px" height="40px" /> <%=encprops.getProperty("identity") %></h2>
       
+<% if (isOwner && CommonConfiguration.isCatalogEditable(context)) { %>
+<div class="encounter-vm-button">
+	<a href="encounterVM.jsp?number=<%=num%>">[Visual Matcher]</a>
+</div>
+<% } %>
       
 								
     							<%
-    							if (enc.getIndividualID() != null) {
+    							if (enc.isAssignedToMarkedIndividual().equals("Unassigned")) {
   								%>
     							<p class="para">
-    								 <%=encprops.getProperty("identified_as") %> <%=enc.getIndividualID()%> 
+    								 <%=encprops.getProperty("identified_as") %> <%=enc.isAssignedToMarkedIndividual()%> 
       								<%
         							if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
      								%>
@@ -653,7 +626,7 @@ $(function() {
     							%>
     							<p class="para">
     								
-      								<%=encprops.getProperty("identified_as") %> <a href="../individuals.jsp?langCode=<%=langCode%>&number=<%=enc.getIndividualID()%><%if(request.getParameter("noscript")!=null){%>&noscript=true<%}%>"><%=enc.getIndividualID()%></a>
+      								<%=encprops.getProperty("identified_as") %> <a href="../individuals.jsp?langCode=<%=langCode%>&number=<%=enc.isAssignedToMarkedIndividual()%><%if(request.getParameter("noscript")!=null){%>&noscript=true<%}%>"><%=enc.isAssignedToMarkedIndividual()%></a>
       								<%
         							if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
       								%>
@@ -710,7 +683,7 @@ $(function() {
   									<p><em><%=encprops.getProperty("identityMessage") %></em></p>	
   		
   									<%
-  									if (enc.getIndividualID() == null){
+  									if((enc.isAssignedToMarkedIndividual()==null)||(enc.isAssignedToMarkedIndividual().equals("Unassigned"))){
   									%>		
   		
   									<table border="1" cellpadding="1" cellspacing="0" bordercolor="#FFFFFF" >
@@ -748,7 +721,7 @@ $(function() {
 									<%
   									}
   		 	  	  					//Remove from MarkedIndividual if not unassigned
-		  	  						if (enc.getIndividualID() != null && CommonConfiguration.isCatalogEditable(context)) {
+		  	  						if((!enc.isAssignedToMarkedIndividual().equals("Unassigned")) && CommonConfiguration.isCatalogEditable(context)) {
 		  							%>
 									<table cellpadding="1" cellspacing="0" bordercolor="#FFFFFF">
  										<tr>
@@ -782,7 +755,7 @@ $(function() {
 									<br /> 
 									<%
    									}
-									if (enc.getIndividualID() == null) {
+									if((enc.isAssignedToMarkedIndividual()==null)||(enc.isAssignedToMarkedIndividual().equals("Unassigned"))){
 									%>	 
 	 
 									<table border="1" cellpadding="1" cellspacing="0" bordercolor="#FFFFFF">
@@ -1039,8 +1012,9 @@ $("a#occurrence").click(function() {
 <tr>
 <td width="560px" style="vertical-align:top; background-color: #E8E8E8">
 
-<p><img align="absmiddle" src="../images/calendar.png" width="40px" height="40px" /> <strong><%=encprops.getProperty("date") %>
-</strong><br/><br/>
+<h2><img align="absmiddle" src="../images/calendar.png" width="40px" height="40px" /><%=encprops.getProperty("date") %>
+</h2>
+<p>
 <%if(enc.getDateInMilliseconds()!=null){ %>
   <a
     href="http://<%=CommonConfiguration.getURLLocation(request)%>/xcalendar/calendar.jsp?scDate=<%=enc.getMonth()%>/1/<%=enc.getYear()%>">
@@ -1234,9 +1208,9 @@ $("a#date").click(function() {
 
 
 <br />
-<p>
-	<img src="../images/2globe_128.gif" width="40px" height="40px" align="absmiddle"/> <strong><%=encprops.getProperty("location") %> </strong>
-</p>	 
+<h2>
+	<img src="../images/2globe_128.gif" width="40px" height="40px" align="absmiddle"/> <%=encprops.getProperty("location") %>
+</h2>	 
 <%
 if(enc.getLocation()!=null){
 %>
@@ -1522,6 +1496,8 @@ $("a#elev").click(function() {
 
     	}
 
+      
+      
       google.maps.event.addDomListener(window, 'load', initialize);
     </script>
     
@@ -1762,7 +1738,7 @@ $("a#country").click(function() {
 <tr>
 <td width="560px" style="vertical-align:top; background-color: #E8E8E8">
 
-<p><img align="absmiddle" src="../images/Crystal_Clear_kuser2.png" width="40px" height="42px" /> <strong><%=encprops.getProperty("contactInformation") %></strong></p>
+<h2><img align="absmiddle" src="../images/Crystal_Clear_kuser2.png" width="40px" height="42px" /> <%=encprops.getProperty("contactInformation") %></h2>
 
 <table>
 	<tr>
@@ -2135,7 +2111,7 @@ $("a#country").click(function() {
   </table>
   
   <br />
-  <p><img align="absmiddle" src="../images/Note-Book-icon.png" width="40px" height="40px" /> <strong><%=encprops.getProperty("observationAttributes") %></strong></p>
+  <h2><img align="absmiddle" src="../images/Note-Book-icon.png" width="40px" height="40px" /> <%=encprops.getProperty("observationAttributes") %></h2>
 <!-- START TAXONOMY ATTRIBUTE -->    
 <%
     if(CommonConfiguration.showProperty("showTaxonomy",context)){
@@ -2710,9 +2686,15 @@ $("a#comments").click(function() {
 <tr>
 <td width="560px" style="vertical-align:top; background-color: #E8E8E8">
 
-<p><img align="absmiddle" width="40px" height="40px" style="border-style: none;" src="../images/workflow_icon.gif" /> <strong><%=encprops.getProperty("metadata") %></strong></p>
+<h2><img align="absmiddle" width="40px" height="40px" style="border-style: none;" src="../images/workflow_icon.gif" /> <%=encprops.getProperty("metadata") %></h2>
 								
+								
+								<p class="para">
+									Number: <%=num%>
+								</p>
 								<!-- START WORKFLOW ATTRIBUTE -->
+								
+								
  								<%
         						
 									String state="";
@@ -2808,16 +2790,17 @@ $("a#comments").click(function() {
                          				if(enc.getAssignedUsername()!=null){
 
                         	 				String username=enc.getAssignedUsername();
-                         					if(myShepherd.getUser(username)!=null){
+                        	 				Shepherd aUserShepherd=new Shepherd("context0");
+                         					if(aUserShepherd.getUser(username)!=null){
                          					%>
                                 			<table>
                                 			<%
                          	
-                         					User thisUser=myShepherd.getUser(username);
+                         					User thisUser=aUserShepherd.getUser(username);
                                 			String profilePhotoURL="../images/empty_profile.jpg";
                     		    
                          					if(thisUser.getUserImage()!=null){
-                         						profilePhotoURL="/"+CommonConfiguration.getDataDirectoryName(context)+"/users/"+thisUser.getUsername()+"/"+thisUser.getUserImage().webPath();
+                         						profilePhotoURL="/"+CommonConfiguration.getDataDirectoryName("context0")+"/users/"+thisUser.getUsername()+"/"+thisUser.getUserImage().getFilename();
                          					}
                          					%>
                      						<tr>
@@ -2918,7 +2901,10 @@ $("a#username").click(function() {
                       	&nbsp;
                       	<%	
                       	}
-                      	} //end if show users to general public
+                        aUserShepherd.rollbackDBTransaction();
+                        aUserShepherd.closeDBTransaction();
+                      	} 
+                         				//insert here
                          	if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
 %>
 
@@ -2940,17 +2926,25 @@ $("a#username").click(function() {
           <select name="submitter" id="submitter">
         	<option value=""></option>
         	<%
-        	ArrayList<String> usernames=myShepherd.getAllUsernames();
+        	
+        	Shepherd userShepherd=new Shepherd("context0");
+        	userShepherd.beginDBTransaction();
+        	ArrayList<String> usernames=userShepherd.getAllUsernames();
+        	
+        	
+        	
         	int numUsers=usernames.size();
         	for(int i=0;i<numUsers;i++){
         		String thisUsername=usernames.get(i);
-        		User thisUser2=myShepherd.getUser(thisUsername);
+        		User thisUser2=userShepherd.getUser(thisUsername);
         		String thisUserFullname=thisUsername;
         		if(thisUser2.getFullName()!=null){thisUserFullname=thisUser2.getFullName();}
         	%>
         	<option value="<%=thisUsername%>"><%=thisUserFullname%></option>
         	<%
 			}
+        	userShepherd.rollbackDBTransaction();
+        	userShepherd.closeDBTransaction();
         	%>
       	</select> 
               
@@ -3115,7 +3109,7 @@ $("a#autocomments").click(function() {
   pageContext.setAttribute("measurementTitle", encprops.getProperty("measurements"));
   pageContext.setAttribute("measurements", Util.findMeasurementDescs(langCode,context));
 %>
-<p><img align="absmiddle" width="40px" height="40px" style="border-style: none;" src="../images/ruler.png" /> <strong><c:out value="${measurementTitle}"></c:out></strong>
+<h2><img align="absmiddle" width="40px" height="40px" style="border-style: none;" src="../images/ruler.png" /> <c:out value="${measurementTitle}"></c:out></h2>
 <c:if test="${editable and !empty measurements}">
   <a id="measure" class="launchPopup"><img align="absmiddle" width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" /></a></font>
 </c:if>
@@ -3227,7 +3221,7 @@ $("a#measure").click(function() {
 
 <c:if test="${showMetalTags}">
 
-<p><img align="absmiddle" src="../images/Crystal_Clear_app_starthere.png" width="40px" height="40px" /> <strong><%=encprops.getProperty("tracking") %></strong></p>
+<h2><img align="absmiddle" src="../images/Crystal_Clear_app_starthere.png" width="40px" height="40px" /> <%=encprops.getProperty("tracking") %></h2>
 <%
   pageContext.setAttribute("metalTagTitle", encprops.getProperty("metalTags"));
   pageContext.setAttribute("metalTags", Util.findMetalTagDescs(langCode,context));
@@ -3481,9 +3475,7 @@ $("a#sat").click(function() {
 </tr>
 </table>
 
-
-<br />
-<p><img align="absmiddle" src="../images/lightning_dynamic_props.gif" /> <strong><%=encprops.getProperty("dynamicProperties") %></strong>
+<h2><img align="absmiddle" src="../images/lightning_dynamic_props.gif" /> <%=encprops.getProperty("dynamicProperties") %></h2>
 <%
 if(isOwner){
 %>
@@ -3492,11 +3484,7 @@ if(isOwner){
 	</a>
 <%
 }
-%>
- 
-</p>
- 
-<%
+
 
   if (enc.getDynamicProperties() != null) {
     //let's create a TreeMap of the properties
@@ -3505,7 +3493,6 @@ if(isOwner){
     while (st.hasMoreTokens()) {
       String token = st.nextToken();
       int equalPlace = token.indexOf("=");
-			if (equalPlace < 0) continue;
       String nm = token.substring(0, (equalPlace));
       String vl = token.substring(equalPlace + 1);
       numDynProps++;
@@ -3620,7 +3607,7 @@ $("a#dynamicPropertyAdd").click(function() {
 
 </td>
 
-  <td style="vertical-align: top">
+  <td style="vertical-align: top;padding-left: 10px;">
     <jsp:include page="encounterImagesEmbed.jsp" flush="true">
     	<jsp:param name="encounterNumber" value="<%=num%>" />
     	<jsp:param name="isOwner" value="<%=isOwner %>" />
@@ -5110,8 +5097,7 @@ catch(Exception e){
 	%>
 	<p>Hit an error.<br /> <%=e.toString()%></p>
 
-</body>
-</html>
+
 <%
 }
 
@@ -5138,4 +5124,8 @@ catch(Exception e){
 
 
 
-<jsp:include page="../footerfull.jsp" flush="true"/>
+<jsp:include page="../footer.jsp" flush="true"/>
+
+
+
+

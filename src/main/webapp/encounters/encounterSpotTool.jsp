@@ -50,7 +50,7 @@ File encountersDir=new File(shepherdDataDir.getAbsolutePath()+"/encounters");
 File encounterDir = new File(encountersDir, num);
 */
 
-String imgSrg = "/" + enc.dir(baseDir) + "/" + spv.getFilename();
+String imgSrc = spv.asUrl(enc, baseDir);
 
 
 //handle some cache-related security
@@ -665,9 +665,12 @@ function allGood(d) {
 			
 			<script src="http://maps.google.com/maps/api/js?sensor=false&language=<%=langCode%>"></script>
 
-<script type="text/javascript" src="http://geoxml3.googlecode.com/svn/branches/polys/geoxml3.js"></script>
-<script src="../javascript/imageTools.js"></script>
 
+ <script type="text/javascript" src="http://geoxml3.googlecode.com/svn/branches/polys/geoxml3.js"></script>
+
+  <script src="../javascript/timepicker/jquery-ui-timepicker-addon.js"></script>
+ 
+<script src="../javascript/imageTools.js"></script>
 <script>
 $(document).ready(function() {
 	checkImage($('#imageTools-img'));
