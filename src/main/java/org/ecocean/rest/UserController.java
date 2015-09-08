@@ -242,6 +242,31 @@ public class UserController {
         return verify;
     }
 
+    public static String[] parseName(final String fullname) {
+        String[] name = new String[2];
+
+        String givenName = "Unknown";
+        if (! StringUtils.isBlank(fullname)) {
+            givenName = fullname;
+        }
+
+        int si = givenName.indexOf(" ");
+        if (si > -1) {
+            name[0] = givenName.substring(0,si);
+            name[1] = givenName.substring(si+1);
+        } else {
+            name[0] = givenName;
+            //
+            // WARNING: Stormpath requires a last name so we have to put *something* here.
+            // Feel free to change it to something else if others agree but for now we are
+            // using a dash as a placeholder.
+            //
+            name[1] = "-";
+        }
+
+        return name;
+    }
+
     @RequestMapping(value = "create", method = RequestMethod.POST)
     public ResponseEntity<Object> createUser(final HttpServletRequest request,
                                              @RequestBody @Valid final UserInfo user) {
@@ -267,25 +292,14 @@ public class UserController {
             return new ResponseEntity<Object>(rtn, HttpStatus.BAD_REQUEST);
         }
 
-        String givenName = "Unknown";
-        if (!Util.isEmpty(user.fullName)) {
-            givenName = user.fullName;
-        }
-
-        String surname = "-";
-        int si = givenName.indexOf(" ");
-        if (si > -1) {
-            surname = givenName.substring(si+1);
-            givenName = givenName.substring(0,si);
-        }
-
         HashMap<String,Object> custom = new HashMap<String,Object>();
         custom.put("unverified", true);
         String errorMsg = null;
         Account acc = null;
+        String[] name = parseName(user.fullName);
         String password = Stormpath.randomInitialPassword();
         try {
-            acc = Stormpath.createAccount(client, givenName, surname, user.email, password, null, custom);
+            acc = Stormpath.createAccount(client, name[0], name[1], user.email, password, null, custom);
             if (logger.isDebugEnabled()) {
                 logger.debug("successfully created Stormpath user for " + user.email);
             }
