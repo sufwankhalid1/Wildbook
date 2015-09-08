@@ -351,30 +351,34 @@ module.exports = function(app, config, secrets, debug) {
     });
 
     app.get("/spPasswordReset", function(req, res) {
-        var i = req.url.indexOf("?sptoken=");
-        var tokenInfo = {};
-        if (i < 0) {
-            tokenInfo.error = "no token passed";
-            var j = req.url.indexOf("?email=");
-            res.render('spPasswordReset', makeVars({tokenInfo: tokenInfo, passedEmail: ((j > -1) ? req.url.substr(j+7) : '') }));
-        } else {
-            tokenInfo.token = req.url.substr(i+9);
-            var url = config.wildbook.url + "/PasswordReset?verify&token=" + tokenInfo.token;
-            request(url)
+        var resetData = {
+            tokenInfo: {},
+            page: {
+                title: req.t("passwordReset.title")
+            }
+        };
+        var tokenVarIndex = req.url.indexOf("?sptoken=");
+        if(tokenVarIndex > 0) {
+            var token = req.url.substr(tokenVarIndex + 9);
+            resetData.tokenInfo.token = token;
+            request(config.wildbook.url + "/PasswordReset?verify&token=" + token)
             .then(function(response) {
-                tokenInfo.resp = JSON.parse(response);
-                if (tokenInfo.resp.success) {
-                    res.render('spPasswordReset', makeVars({tokenInfo: tokenInfo}));
-                } else {
+                var data = JSON.parse(response);
+                if(!data.resp.success) {
                     console.error("token (" + tokenInfo.token + ") failed to validate: " + tokenInfo.resp.error);
-                    delete(tokenInfo.token);
-                    res.render('spPasswordReset', makeVars({tokenInfo: tokenInfo}));
+                    delete resetData.tokenInfo.token;
                 }
             })
             .catch(function(ex) {
                 renderError(res, new VError(ex, "Trouble verifying token"));
             });
         }
+        else {
+            var emailVarIndex = req.url.indexOf("?email=");
+            resetData.tokenInfo.error = "no token passed";
+            resetData.passedEmail = emailVarIndex > 0 ? req.url.substr(emailVarIndex + 7) : "";
+        }
+        res.render('spPasswordReset', makeVars(resetData));
     });
 
     app.get("/individual/*", function(req, res) {

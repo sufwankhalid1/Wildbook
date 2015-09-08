@@ -14,7 +14,9 @@
     background-color: rgba(6,8,8,0.6);
     padding: 30px 0;
     text-align: center;
-    color: $font-color-inverse;
+    h1 {
+        color: $font-color-inverse;
+    }
 }
 
 .banner .btn-primary {

@@ -160,8 +160,9 @@ hr {
   top: 50%;
   background-color: rgba(6, 8, 8, 0.6);
   padding: 30px 0;
-  text-align: center;
-  color: #efefef; }
+  text-align: center; }
+  .home-image-full .banner h1 {
+    color: #efefef; }
 
 .banner .btn-primary {
   background-color: #107D9F;
