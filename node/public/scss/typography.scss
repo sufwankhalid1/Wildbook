@@ -28,3 +28,48 @@ h1, h2, h3, h4, h5, h6, p, div {
     margin: 20px 12px;
     font-size: 1.3em;
 }
+
+h1.has-icon,
+h2.has-icon {
+    font-weight: bold;
+    font-size: 1.7em;
+    line-height: 2.6em;
+    margin: 15px 0;
+}
+
+h1 {
+    color: $font-color-heading;
+}
+
+h2 {
+    color: $font-color-main;
+}
+
+h3 {
+    color: $font-color-heading2;
+}
+
+hr {
+    width: 30px;
+    margin: 30px auto;
+}
+
+.btn .btn-primary {
+    background-color: $background-dark;
+    color: $font-color-inverse;
+}
+
+//by page
+.page-inner {
+    padding-top: 60px;
+
+    p {
+        font-size: 1.4em;
+    }
+
+    h1 {
+        margin-bottom: 60px;
+        font-size: 3em;
+        color: $font-color-dark;
+    }
+}

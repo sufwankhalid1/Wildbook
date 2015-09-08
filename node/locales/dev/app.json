@@ -27,6 +27,7 @@
         }
     },
     "voyage": {
+        "title": "Voyage (Beta)",
         "banner": {
             "main": "Know your whales",
             "info": "Meet the individual whales in your photographs."
@@ -46,6 +47,7 @@
         "btnAddMedia": "Add Media +"
     },
     "passwordReset": {
+        "title": "Reset Your Password",
         "h1": "Reset your password",
         "enterEmail": "enter email address of account to reset",
         "buttonEmail": "Send reset email",
@@ -57,12 +59,14 @@
         "buttonReset": "Reset password"
     },
     "activity": {
+        "title": "Recent Activity",
         "h2RecentActivity": "Recent Activity",
         "uploadedVoyage": "__userLink__ uploaded __what__ to this voyage",
         "like": "__userLink__ liked __targetUser__'s __targetLink__",
         "addedVoyage": "__userLink__ add this voyage to __userPossessivePronoun__ profile"
     },
     "home": {
+        "title": "Let's Find Your Whales",
         "banner": {"reportQuestion": "Let’s find your whales"},
         "footer": {
             "whatGoingOn": "What's Going On",
@@ -90,5 +94,17 @@
         "topRatedContributions": "Top Rated Contributions",
         "individualsEncountered": "Indivduals Encountered",
         "voyages": "Voyages"
+    },
+    "help": {
+        "title": "Help and FAQ"
+    },
+    "about": {
+        "title": "About"
+    },
+    "terms": {
+        "title": "UsageAgreement"
+    },
+    "media": {
+        "title": "Submit Media"
     }
 }

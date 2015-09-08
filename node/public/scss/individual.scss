@@ -1,34 +1,4 @@
 /* Individual and User Page */
-
-.maincontent {
-    position: relative;
-    width: 100%;
-    max-width: 1280px;
-    margin: 0 auto 80px;
-}
-
-.maincontent h1.has-icon,
-.maincontent h2.has-icon {
-    font-weight: bold;
-    font-size: 1.7em;
-    line-height: 2.6em;
-    margin: 15px 0;
-}
-
-.maincontent h2 {
-    color: $font-color-main;
-}
-
-.maincontent hr {
-    width: 30px;
-    margin: 30 auto;
-}
-
-.maincontent .btn .btn-primary {
-    background-color: $background-dark;
-    color: $font-color-inverse;
-}
-
 #div-user-info {
     padding: 5px;
 }

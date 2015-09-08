@@ -236,11 +236,6 @@ function voyageParser(data) {
 
 
 module.exports = function(app, config, secrets, debug) {
-//    var usageAgreement = markdown.toHTML(fs.readFileSync(config.cust.serverDir + "/docs/UsageAgreement.md", "utf8"));
-//    var helpAndFaq = markdown.toHTML(fs.readFileSync(config.cust.serverDir + "/docs/HelpAndFaq.md", "utf8"));
-    var usageAgreement = mdd.Transform(fs.readFileSync(config.cust.serverDir + "/docs/UsageAgreement.md", "utf8"));
-    var helpAndFaq = mdd.Transform(fs.readFileSync(config.cust.serverDir + "/docs/HelpAndFaq.md", "utf8"));
-
     var vars = {config: config.client};
 
     function makeVars(extraVars) {
@@ -248,7 +243,12 @@ module.exports = function(app, config, secrets, debug) {
     }
 
     function renderError(res, ex) {
-        res.render('error', makeVars({error: makeError(ex)}));
+        res.render('error', makeVars({
+            error: makeError(ex),
+            page: {
+                title: "Error"
+            }
+        }));
     }
 
     var cb = new Codebird;
@@ -279,7 +279,12 @@ module.exports = function(app, config, secrets, debug) {
         // NOTE: i18n available as req.i18n.t or just req.t
         // Also res.locals.t
         //
-        res.render('home', makeVars({home: home}));
+        res.render('home', makeVars({
+            home: home,
+            page: {
+                title: req.t("home.title")
+            }
+        }));
     });
 
     app.get('/config', function(req,res) {
@@ -287,19 +292,44 @@ module.exports = function(app, config, secrets, debug) {
     });
 
     app.get('/submitMedia', function(req, res) {
-        res.render('mediasubmission', vars);
+        res.render('mediasubmission', makeVars({
+            page: {
+                title: req.t("media.title")
+            }
+        }));
     });
 
     app.get("/about", function(req, res) {
-        res.render('about', vars);
+        res.render('page', makeVars({
+            page: {
+                title: req.t("about.title"),
+                content: mdd.Transform(fs.readFileSync(config.cust.serverDir + "/docs/About.md", "utf8"))
+            }
+        }));
     });
 
-    app.get("/terms", function(req, res) {
+    var usageAgreement = mdd.Transform(fs.readFileSync(config.cust.serverDir + "/docs/UsageAgreement.md", "utf8"));
+
+    app.get("/termsModal", function(req, res) {
         res.send(usageAgreement);
     });
 
+    app.get("/terms", function(req, res) {
+        res.render('page', makeVars({
+            page: {
+                title: req.t("terms.title"),
+                content: usageAgreement
+            }
+        }));
+    });
+
     app.get("/help", function(req, res) {
-        res.render('help', makeVars({page: helpAndFaq}));
+        res.render('page', makeVars({
+            page: {
+                title: req.t("help.title"),
+                content: mdd.Transform(fs.readFileSync(config.cust.serverDir + "/docs/HelpAndFaq.md", "utf8"))
+            }
+        }));
     });
 
     app.get("/voyage/*", function(req, res) {
@@ -309,6 +339,9 @@ module.exports = function(app, config, secrets, debug) {
         request(url)
         .then(function(response) {
             data.voyage = JSON.parse(response);
+            data.page = {
+                title: req.t(voyage.title)
+            }
             voyageParser(data.voyage);
             res.render('voyage', makeVars(data));
         })
@@ -355,8 +388,11 @@ module.exports = function(app, config, secrets, debug) {
 
         request(url)
         .then(function(response) {
-            var data = JSON.parse(response);
+            if (debug) {
+                console.log("URL [" + url + "]:\n" + JSON.stringify(vars, null, 4));
+            }
 
+            var data = JSON.parse(response);
             var first;
             var last;
             for (encounter of data.encounters) {
@@ -372,17 +408,19 @@ module.exports = function(app, config, secrets, debug) {
                     last = theDate;
                 }
             }
+            first = (!first) ? "" : first.format("ll");
+            last = (!last) ? "" : last.format("ll");
 
-            var vars = {data: {info: data,
-                firstSeen: (!first) ? "" : first.format("ll"),
-                        lastSeen: (!last) ? "" : last.format("ll")
-                    }};
-
-            if (debug) {
-                console.log("URL [" + url + "]:\n" + JSON.stringify(vars, null, 4));
-            }
-
-            res.render("individual", makeVars(vars));
+            res.render("individual", makeVars({
+                page: {
+                    title: data.individual.displayName + " (" + data.individual.speciesDisplayName + ")"
+                },
+                data: {
+                    info: data,
+                    firstSeen: first,
+                    lastSeend: last
+                }
+            }));
         })
         .catch(function(ex) {
             renderError(res, new VError(ex, "Can't get individual [" + id + "]"));
@@ -396,7 +434,15 @@ module.exports = function(app, config, secrets, debug) {
 
         request(url)
         .then(function(response) {
-            res.render("userpage", makeVars({data: {userinfo: JSON.parse(response)}}));
+            var data = JSON.parse(response);
+            res.render("userpage", makeVars({
+                page: {
+                    title: data.user.displayName
+                },
+                data: {
+                    userinfo: data
+                }
+            }));
         })
         .catch(function(ex) {
             renderError(res, new VError(ex, "Can't get individual [" + id + "]"));

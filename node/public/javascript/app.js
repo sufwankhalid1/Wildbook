@@ -189,7 +189,7 @@ angular.module("nodeApp.controllers", [])
     }
 
     $scope.terms = function() {
-        $http.get("/terms")
+        $http.get("/termsModal")
         .then(function(terms) {
             alertplus.alert(terms.data, null, "Usage Agreement");
         });

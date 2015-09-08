@@ -114,6 +114,39 @@ h1, h2, h3, h4, h5, h6, p, div {
   margin: 20px 12px;
   font-size: 1.3em; }
 
+h1.has-icon,
+h2.has-icon {
+  font-weight: bold;
+  font-size: 1.7em;
+  line-height: 2.6em;
+  margin: 15px 0; }
+
+h1 {
+  color: #96a1a5; }
+
+h2 {
+  color: #8dcbce; }
+
+h3 {
+  color: #94a1a4; }
+
+hr {
+  width: 30px;
+  margin: 30px auto; }
+
+.btn .btn-primary {
+  background-color: #107D9F;
+  color: #efefef; }
+
+.page-inner {
+  padding-top: 60px; }
+  .page-inner p {
+    font-size: 1.4em; }
+  .page-inner h1 {
+    margin-bottom: 60px;
+    font-size: 3em;
+    color: #107D9F; }
+
 /* Home */
 .home-image-full {
   position: relative;
@@ -261,30 +294,6 @@ h1, h2, h3, h4, h5, h6, p, div {
   white-space: pre; }
 
 /* Individual and User Page */
-.maincontent {
-  position: relative;
-  width: 100%;
-  max-width: 1280px;
-  margin: 0 auto 80px; }
-
-.maincontent h1.has-icon,
-.maincontent h2.has-icon {
-  font-weight: bold;
-  font-size: 1.7em;
-  line-height: 2.6em;
-  margin: 15px 0; }
-
-.maincontent h2 {
-  color: #8dcbce; }
-
-.maincontent hr {
-  width: 30px;
-  margin: 30 auto; }
-
-.maincontent .btn .btn-primary {
-  background-color: #107D9F;
-  color: #efefef; }
-
 #div-user-info {
   padding: 5px; }
 
@@ -757,6 +766,18 @@ h1, h2, h3, h4, h5, h6, p, div {
   pointer-events: none; }
 
 /* Page */
+.page-full,
+.page-inner {
+  position: relative;
+  width: 100%;
+  margin: 0 auto 80px; }
+
+.page-full {
+  max-width: 1280px; }
+
+.page-inner {
+  max-width: 1028px; }
+
 /* Uploader */
 #MediaSubmissionWizard {
   max-width: 800px;
