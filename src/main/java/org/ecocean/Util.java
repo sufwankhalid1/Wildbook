@@ -1,42 +1,34 @@
 package org.ecocean;
 
+//EXIF-related imports
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 //import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 //import java.util.Enumeration;
 import java.util.List;
-import java.util.Locale;
-import java.util.MissingResourceException;
 import java.util.Properties;
-import java.util.ResourceBundle;
 import java.util.UUID;
-
-//EXIF-related imports
-import java.io.File;
-import java.io.InputStream;
-import java.io.FileInputStream;
-import com.drew.imaging.jpeg.JpegMetadataReader;
-import com.drew.metadata.Directory;
-import com.drew.metadata.Metadata;
-import com.drew.metadata.Tag;
-import java.util.Iterator;
-import org.apache.commons.io.IOUtils;
 
 //import javax.jdo.JDOException;
 //import javax.jdo.JDOHelper;
 import javax.jdo.Query;
 //import javax.jdo.PersistenceManagerFactory;
 
-
+import org.apache.commons.io.IOUtils;
 import org.ecocean.tag.MetalTag;
-import org.ecocean.*;
 
-
+import com.drew.imaging.jpeg.JpegMetadataReader;
+import com.drew.metadata.Directory;
+import com.drew.metadata.Metadata;
+import com.drew.metadata.Tag;
 //use Point2D to represent cached GPS coordinates
 import com.reijns.I3S.Point2D;
 
 public class Util {
-  
+
   //Measurement static values
   private static final String MEASUREMENT = "measurement";
   private static final String BIOLOGICALMEASUREMENT = "biologicalMeasurementType";
@@ -44,11 +36,11 @@ public class Util {
   private static final String BIOLOGICALMEASUREMENTUNITS = BIOLOGICALMEASUREMENT.replaceAll("Type", "Units");
   private static final String METAL_TAG_LOCATION = "metalTagLocation";
   private static final String SATELLITE_TAG_NAME = "satelliteTagName";
-  
+
   //GPS coordinate caching for Encounter Search and Individual Search
   private static ArrayList<Point2D> coords;
-  
-  public static List<MeasurementDesc> findMeasurementDescs(String langCode,String context) {
+
+  public static List<MeasurementDesc> findMeasurementDescs(final String langCode,final String context) {
     List<MeasurementDesc> list = new ArrayList<MeasurementDesc>();
     List<String> types = CommonConfiguration.getIndexedValues(MEASUREMENT,context);
     if (types.size() > 0) {
@@ -63,8 +55,8 @@ public class Util {
     }
     return list;
   }
-  
-  public static List<MeasurementDesc> findBiologicalMeasurementDescs(String langCode, String context) {
+
+  public static List<MeasurementDesc> findBiologicalMeasurementDescs(final String langCode, final String context) {
     List<MeasurementDesc> list = new ArrayList<MeasurementDesc>();
     List<String> types = CommonConfiguration.getIndexedValues(BIOLOGICALMEASUREMENT,context);
     if (types.size() > 0) {
@@ -79,16 +71,16 @@ public class Util {
     }
     return list;
   }
-  
+
 	//a hook to UUID generator
 	public static String generateUUID() {
 		return UUID.randomUUID().toString();
 	}
 
-	public static boolean isUUID(String s) {
+	public static boolean isUUID(final String s) {
 		boolean ok = true;
 		try {
-			UUID u = UUID.fromString(s);
+			UUID.fromString(s);
 		} catch (java.lang.IllegalArgumentException e) {
 			ok = false;
 		}
@@ -101,10 +93,10 @@ public class Util {
    * @param langCode
    * @return
    */
-  public static List<OptionDesc> findSamplingProtocols(String langCode,String context) {
+  public static List<OptionDesc> findSamplingProtocols(final String langCode,final String context) {
     List<String> values = CommonConfiguration.getIndexedValues("samplingProtocol",context);
     List<OptionDesc> list = new ArrayList<OptionDesc>();
-    
+
     /*
     for (String key : values) {
       String label = findLabel(key, langCode,context);
@@ -116,12 +108,12 @@ public class Util {
       String key="samplingProtocol"+i;
       String label = findLabel(key, langCode,context);
       list.add(new OptionDesc(key, label));
-      
+
     }
     return list;
   }
-  
-  public static String getLocalizedSamplingProtocol(String samplingProtocol, String langCode, String context) {
+
+  public static String getLocalizedSamplingProtocol(final String samplingProtocol, final String langCode, final String context) {
     if (samplingProtocol != null) {
       List<OptionDesc> samplingProtocols = findSamplingProtocols(langCode,context);
       for (OptionDesc optionDesc : samplingProtocols) {
@@ -132,8 +124,8 @@ public class Util {
     }
     return null;
   }
-  
-  public static List<MetalTagDesc> findMetalTagDescs(String langCode,String context) {
+
+  public static List<MetalTagDesc> findMetalTagDescs(final String langCode,final String context) {
     List<String> metalTagLocations = CommonConfiguration.getIndexedValues(METAL_TAG_LOCATION,context);
     List<MetalTagDesc> list = new ArrayList<MetalTagDesc>();
     for (String location : metalTagLocations) {
@@ -142,7 +134,7 @@ public class Util {
     }
     return list;
   }
-  
+
   /**
    * Find the MetalTag instance belonging to an Encounter that is described by the MetalTagDesc.
    * @param metalTagDesc
@@ -150,7 +142,7 @@ public class Util {
    * @param encounter
    * @return
    */
-  public static MetalTag findMetalTag(MetalTagDesc metalTagDesc, Encounter encounter) {
+  public static MetalTag findMetalTag(final MetalTagDesc metalTagDesc, final Encounter encounter) {
     List<MetalTag> metalTags = encounter.getMetalTags();
     if (metalTags != null) {
       for (MetalTag metalTag : metalTags) {
@@ -161,15 +153,15 @@ public class Util {
     }
     return null;
   }
-  
-  public static List<String> findSatelliteTagNames(String context) {
+
+  public static List<String> findSatelliteTagNames(final String context) {
     return CommonConfiguration.getIndexedValues(SATELLITE_TAG_NAME,context);
   }
-  
-  private static String findLabel(String key, String langCode, String context) {
-    
+
+  private static String findLabel(final String key, final String langCode, final String context) {
+
     //System.out.println("Trying to find key: "+key+" with langCode "+langCode);
-    
+
     /*
     Locale locale = Locale.US;
     if (langCode != null) {
@@ -183,34 +175,34 @@ public class Util {
       System.out.println("Error finding bundle or key for key: " + key);
     }
     return key;*/
-    
+
     Properties myProps = ShepherdProperties.getProperties("commonConfigurationLabels.properties", langCode, context);
     return myProps.getProperty(key+".label");
-    
-    
+
+
   }
-  
-  public static String quote(String arg) {
+
+  public static String quote(final String arg) {
     StringBuilder sb = new StringBuilder(arg.length() + 2);
     sb.append('"');
     sb.append(arg);
     sb.append('"');
     return sb.toString();
   }
-  
+
   public static class MeasurementDesc {
     private String type;
     private String label;
     private String units;
     private String unitsLabel;
-    
-    private MeasurementDesc(String type, String label, String units, String unitsLabel) {
+
+    private MeasurementDesc(final String type, final String label, final String units, final String unitsLabel) {
       this.type = type;
       this.label = label;
       this.units = units;
       this.unitsLabel = unitsLabel;
     }
-    
+
     public String getType() {
       return type;
     }
@@ -224,11 +216,11 @@ public class Util {
       return unitsLabel;
     }
   }
-  
+
   public static class OptionDesc {
     private String name;
     private String display;
-    private OptionDesc(String name, String display) {
+    private OptionDesc(final String name, final String display) {
       this.name = name;
       this.display = display;
     }
@@ -238,14 +230,14 @@ public class Util {
     public String getDisplay() {
       return display;
     }
-    
+
   }
-  
+
   public static class MetalTagDesc {
     private String location;
     private String locationLabel;
-    
-    private MetalTagDesc(String location, String locationLabel) {
+
+    private MetalTagDesc(final String location, final String locationLabel) {
       this.location = location;
       this.locationLabel = locationLabel;
     }
@@ -259,18 +251,19 @@ public class Util {
     }
 
   }
-  
-  public synchronized static ArrayList<Point2D> getCachedGPSCoordinates(boolean refresh,String context) {
+
+  public synchronized static ArrayList<Point2D> getCachedGPSCoordinates(final boolean refresh,final String context) {
     try {
       if ((coords == null)||(refresh)) {
 
         //execute the JDOQL
         Shepherd myShepherd=new Shepherd(context);
         Query query=myShepherd.getPM().newQuery("SELECT FROM org.ecocean.Encounter WHERE decimalLatitude != null && decimalLongitude != null");
+        @SuppressWarnings("unchecked")
         Collection<Encounter> c = (Collection<Encounter>) (query.execute());
         ArrayList<Encounter> encs=new ArrayList<Encounter>(c);
         int encsSize=encs.size();
-        
+
         //populate coords
         coords=new ArrayList<Point2D>(encsSize);
         for(int i=0;i<encsSize;i++){
@@ -285,53 +278,45 @@ public class Util {
 
         query.closeAll();
       }
-      
+
       return coords;
-    } 
+    }
     catch (Exception jdo) {
       jdo.printStackTrace();
       System.out.println("I hit an error trying to populate the cached GPS coordinates in Util.java.");
       return new ArrayList<Point2D>();
     }
   }
-  
-  public static String getEXIFDataFromJPEGAsHTML(File exifImage){
-    StringBuffer results=new StringBuffer("<p>File not found on file system. No EXIF data available.</p><p>Looking in: "+exifImage.getAbsolutePath()+"</p>");
-    if(exifImage.exists()){
-      results=new StringBuffer();
-      InputStream inp=null;
-    
-      try{
-          inp = new FileInputStream(exifImage);
-          Metadata metadata = JpegMetadataReader.readMetadata(exifImage);
-          // iterate through metadata directories
-          Iterator directories = metadata.getDirectories().iterator();
-          while (directories.hasNext()) {
-              Directory directory = (Directory) directories.next();
-              // iterate through tags and print to System.out
-              Iterator tags = directory.getTags().iterator();
-              while (tags.hasNext()) {
-                Tag tag = (Tag) tags.next();
-                results.append(tag.toString()+"<br/>");
-              }
-          }
-          inp.close();
-        } //end try
-        catch(Exception e){
-          results=null;
-          results=new StringBuffer("<p>Cannot read metadata for this file.</p>");
+
+    public static String getEXIFDataFromJPEGAsHTML(final File exifImage){
+        if (! exifImage.exists()) {
+            return "<p>File not found on file system. No EXIF data available.</p><p>Looking in [" + exifImage.getAbsolutePath() + "]</p>";
         }
-      finally {
-        IOUtils.closeQuietly(inp);
-      }
 
-        
-    } //end if
-    return results.toString();
-    
-  }
+        StringBuffer results = new StringBuffer();
+        InputStream inp = null;
+        try {
+            inp = new FileInputStream(exifImage);
+            Metadata metadata = JpegMetadataReader.readMetadata(exifImage);
+            // iterate through metadata directories
+            for (Directory directory : metadata.getDirectories()) {
+                // iterate through tags and print to System.out
+                for (Tag tag : directory.getTags()) {
+                    results.append(tag.toString()+"<br/>");
+                }
+            }
+            inp.close();
+            return results.toString();
+        } //end try
+        catch (Exception e) {
+            return "<p>Cannot read metadata for this file.</p>";
+        }
+        finally {
+            IOUtils.closeQuietly(inp);
+        }
+    }
 
-    public static boolean isEmpty(String s) {
+    public static boolean isEmpty(final String s) {
         if (s == null) return true;
         if (s.trim().equals("")) return true;
         return false;

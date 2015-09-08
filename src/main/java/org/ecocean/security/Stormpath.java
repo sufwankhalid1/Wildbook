@@ -4,10 +4,10 @@ package org.ecocean.security;
 
 
 import java.util.HashMap;
-import javax.servlet.http.HttpServletRequest;
 
 import org.ecocean.User;
 import org.ecocean.Util;
+import org.ecocean.rest.UserController;
 
 import com.stormpath.sdk.account.Account;
 import com.stormpath.sdk.account.AccountList;
@@ -37,7 +37,7 @@ public class Stormpath {
     // we cache the application too.  is this lame?
     private static Application myApplication = null;
 
-    public static Client getClient(String configDir) {
+    public static Client getClient(final String configDir) {
         if (myClient != null) return myClient;
 
         ApiKey apiKey = ApiKeys.builder().setFileLocation(configDir + "/stormpathApiKey.properties").build();
@@ -57,11 +57,11 @@ public class Stormpath {
 */
 
     //just get default (no appName passed)
-    public static Application getApplication(Client client) {
+    public static Application getApplication(final Client client) {
         return getApplication(client, null);
     }
 
-    public static Application getApplication(Client client, String appName) {
+    public static Application getApplication(final Client client, String appName) {
         //NOTE DANGER! this caching assumes only one application will be used ever.  lame? maybe!
         if (myApplication != null) return myApplication;
 
@@ -75,7 +75,7 @@ public class Stormpath {
     }
 
     //note: username and custom are optional (username becomes email address if not provided); the rest are required
-    public static Account createAccount(Client client, String givenName, String surname, String email, String password, String username, HashMap<String,Object> custom) throws Exception {
+    public static Account createAccount(final Client client, final String givenName, final String surname, final String email, final String password, final String username, final HashMap<String,Object> custom) throws Exception {
         if (isEmpty(givenName) || isEmpty(surname) || isEmpty(email) || isEmpty(password)) throw new Exception("missing required fields to create user");
         Account account = client.instantiate(Account.class);
         account.setGivenName(givenName);
@@ -97,30 +97,23 @@ public class Stormpath {
 
 
     //convenience by-username version of below
-    public static AccountList getAccounts(Client client, String username) {
+    public static AccountList getAccounts(final Client client, final String username) {
         HashMap<String, Object> q = new HashMap<String, Object>();
         q.put("username", username);
         return getAccounts(client, q);
     }
 
-    public static AccountList getAccounts(Client client, HashMap<String, Object> q) {
+    public static AccountList getAccounts(final Client client, final HashMap<String, Object> q) {
         Application app = getApplication(client);
         return app.getAccounts(q);
     }
 
 
-    public static Account createAccount(Client client, User user) throws Exception {
-        String givenName = user.getFullName();
-        if (givenName == null) givenName = user.getUsername();
-        String surname = "-";
-        int i = givenName.indexOf(" ");
-        if (i > -1) {
-            surname = givenName.substring(i + 1);
-            givenName = givenName.substring(i - 1);
-        }
+    public static Account createAccount(final Client client, final User user) throws Exception {
+        String[] name = UserController.parseName(user.getFullName());
         HashMap<String,Object> h = new HashMap<String,Object>();
         h.put("creationNote", "created from Wildbook User");
-        return createAccount(client, givenName, surname, user.getEmailAddress(), randomInitialPassword(), user.getUsername(), h);
+        return createAccount(client, name[0], name[1], user.getEmailAddress(), randomInitialPassword(), user.getUsername(), h);
     }
 
     //satisfies Stormcloud requirements, and is sufficiently unguessable
@@ -128,20 +121,20 @@ public class Stormpath {
         return "X" + Util.generateUUID() + "X";
     }
 
-    public static Account sendPasswordResetEmail(Client client, String email) {
+    public static Account sendPasswordResetEmail(final Client client, final String email) {
         Application app = getApplication(client);
         return app.sendPasswordResetEmail(email);
     }
 
     //note: "username" can also be email, apparently
-    public static Account loginAccount(Client client, String username, String password) throws ResourceException {
+    public static Account loginAccount(final Client client, final String username, final String password) throws ResourceException {
         Application app = getApplication(client);
         UsernamePasswordRequest req = new UsernamePasswordRequest(username, password);
         AuthenticationResult res = app.authenticateAccount(req);
         return res.getAccount();
     }
 
-    private static boolean isEmpty(String s) {
+    private static boolean isEmpty(final String s) {
         return ((s == null) || s.equals(""));
     }
 
