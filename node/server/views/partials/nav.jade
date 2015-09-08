@@ -22,10 +22,16 @@ nav.navbar.navbar-inverse.navbar-fixed-top#navbar-top
                         input.search-query.form-control.navbar-search(type="text" id="search-site" placeholder!= t("header.menu.searchSite"))
                         #search-help= t("header.menu.searchHelpNone")
                 li.navbar-login.ng-cloak
-                    .div-user-info(ng-show="user")
+                    .navbar-login-wrapper(ng-show="user")
                         p= t("header.menu.welcomeBack") + ", "
                             | {{user.fullName || user.username}}!
-                        a(href="/user/{{user.username}}")= t("header.menu.gotomy") + " | "
-                        a(href="javascript:;", ng-click="logout()")= t("header.menu.signout")
-                    a(ng-show="!user" ng-click="login()")= t("header.menu.signin")
+                        p
+                            span
+                                a(href="/user/{{user.username}}")= t("header.menu.gotomy")
+                                =" | "
+                            a(href="javascript:;", ng-click="logout()", class="navbar-logout-link")= t("header.menu.signout")
+                    .navbar-logged-in-wrapper(ng-show="!user")
+                        p= t("header.menu.welcomeSignIn")
+                        p= t("header.menu.alreadyMember") + " | "
+                            a(ng-click="login()", class="navbar-login-link")= t("header.menu.signin")
     .logo-svg#navbar-logo-right
