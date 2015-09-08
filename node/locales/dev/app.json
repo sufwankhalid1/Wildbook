@@ -13,6 +13,8 @@
             "searchHelpNone": "No matching whales",
             "welcomeBack": "Welcome Back",
             "signin": "Sign in",
+            "welcomeSignIn": "Welcome to Happy Whale!",
+            "alreadyMember": "Already a user?",
             "gotomy": "Go to My Whales",
             "signout": "Sign Out"
         }

@@ -99,6 +99,20 @@
     height: 28px;
 }
 
+.navbar-login-wrapper,
+.navbar-logged-in-wrapper {
+    font-size: 0.8em;
+    line-height: 0.5em;
+    margin-left: 10px;
+    margin-top: 14px;
+    text-align: left;
+}
+
+.navbar-login-link,
+.navbar-logout-link {
+    font-weight: bold;
+}
+
 /* h/t http://jsfiddle.net/KyleMit/cyCFS/ */
 .left-inner-addon {
     position: relative;
