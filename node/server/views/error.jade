@@ -1,6 +1,8 @@
 extends layout
-
 block content
-    .page-full
-        h2!= error.message
-        pre!= error.stack
+    .error-page-background-full
+        .container-fluid.page-inner
+            h1()= page.title
+            p()= page.content
+            if page.stack
+                blockquote()= page.stack

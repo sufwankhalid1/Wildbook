@@ -243,12 +243,19 @@ module.exports = function(app, config, secrets, debug) {
     }
 
     function renderError(res, ex) {
-        res.render('error', makeVars({
-            error: makeError(ex),
+        var err = makeError(ex);
+        var errObj = {
             page: {
-                title: "Error"
+                title: res.locals.t("error.default.title"),
+                content: res.locals.t("error.default.content"),
+                stack: null
             }
-        }));
+        };
+        if(config.client.wildbook.url.indexOf('dev') > 0 || config.client.wildbook.url.indexOf('localhost') > 0) {
+            errObj.page.content = err.message || "No Error Message";
+            errObj.page.stack = err.stack || "No Stack Trace";
+        }
+        res.render('error', makeVars(errObj));
     }
 
     var cb = new Codebird;
@@ -519,6 +526,11 @@ module.exports = function(app, config, secrets, debug) {
     //=================
 
     app.get('*', function(req, res) {
-        renderError(res, "I'm sorry, the page or resource at [" + req.url + "] you are searching for is currently unavailable.");
+        res.render('error', makeVars({
+            page: {
+                title: req.t("error.notFound.title"),
+                content: req.t("error.notFound.content", { url: req.url })
+            }
+        }));
     });
 };

@@ -14,3 +14,22 @@
 .page-inner {
     max-width: 1028px;
 }
+
+.error-page-background-full {
+    height: 100vh;
+    width: 100vw;
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-image: $not-found;
+    h1 {
+        color: $font-color-inverse;
+    }
+    p {
+        color: $font-color-inverse;
+    }
+    blockquote {
+        background-color: $background-dark;
+        color: $font-color-inverse;
+    }
+}

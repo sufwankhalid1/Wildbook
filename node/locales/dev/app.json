@@ -108,5 +108,15 @@
     },
     "media": {
         "title": "Submit Media"
+    },
+    "error": {
+        "notFound": {
+            "title": "Not Found (404)",
+            "content": "I'm sorry, the page or resource at [__url__] is currently unavailable."
+        },
+        "default": {
+            "title": "Error",
+            "content": "Something Went Wrong  :("
+        }
     }
 }

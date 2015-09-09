@@ -791,6 +791,21 @@ hr {
 .page-inner {
   max-width: 1028px; }
 
+.error-page-background-full {
+  height: 100vh;
+  width: 100vw;
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-image: url(../cust/images/not_found.jpg); }
+  .error-page-background-full h1 {
+    color: #efefef; }
+  .error-page-background-full p {
+    color: #efefef; }
+  .error-page-background-full blockquote {
+    background-color: #107D9F;
+    color: #efefef; }
+
 /* Uploader */
 #MediaSubmissionWizard {
   max-width: 800px;
