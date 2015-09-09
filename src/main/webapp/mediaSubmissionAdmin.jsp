@@ -1,4 +1,4 @@
-<jsp:include page="headerfull.jsp" flush="true"/>
+<jsp:include page="header.jsp" flush="true"/>
 
 <%@ page contentType="text/html; charset=utf-8" language="java"
          import="
@@ -229,4 +229,4 @@ org.ecocean.Shepherd myShepherd = new org.ecocean.Shepherd(context);
     </div>
 </div>
 
-<jsp:include page="footerfull.jsp" flush="true"/>
+<jsp:include page="footer.jsp" flush="true"/>

@@ -1,13 +1,12 @@
 <%@ page contentType="text/html; charset=utf-8" language="java"
-     import="org.ecocean.*,
-              org.ecocean.servlet.ServletUtilities,
-              java.util.ArrayList,
-              java.util.List,
-              java.util.Map,
-              java.util.Iterator,
-              java.util.Properties,
-              java.util.StringTokenizer
-              "
+import="org.ecocean.*,
+        org.ecocean.servlet.ServletUtilities,
+        java.util.ArrayList,
+        java.util.List,
+        java.util.Map,
+        java.util.Iterator,
+        java.util.Properties,
+        java.util.StringTokenizer"
 %>
 
 
@@ -25,38 +24,38 @@ myShepherd=new Shepherd(context);
 
 //check for and inject a default user 'tomcat' if none exists
   
-  	//check usernames and passwords
-	myShepherd.beginDBTransaction();
-  	ArrayList<User> users=myShepherd.getAllUsers();
-  	if(users.size()==0){
-  		User newUser=new User("tomcat","tomcat123");
-  		myShepherd.getPM().makePersistent(newUser);
-  		System.out.println("Creating tomcat user account...");
-  		myShepherd.commitDBTransaction();
-		
-  	  	ArrayList<Role> roles=myShepherd.getAllRoles();
-  	  	if(roles.size()==0){
-  	  		
-  	  		myShepherd.beginDBTransaction();
-  	  		System.out.println("Creating tomcat roles...");
-  	  		
-  	  		Role newRole1=new Role("tomcat","admin");
-  	  		newRole1.setContext("context0");
-  	  		myShepherd.getPM().makePersistent(newRole1);
-	  		Role newRole4=new Role("tomcat","destroyer");
-	  		newRole4.setContext("context0");
-	  		myShepherd.getPM().makePersistent(newRole4);
-			
-			Role newRole7=new Role("tomcat","rest");
-	  		newRole7.setContext("context0");
-	  		myShepherd.getPM().makePersistent(newRole7);
-			
-			myShepherd.commitDBTransaction();
-			
-	  		
-	  		System.out.println("Creating tomcat user account...");
-  	  	}
-  	}
+      //check usernames and passwords
+    myShepherd.beginDBTransaction();
+      ArrayList<User> users=myShepherd.getAllUsers();
+      if(users.size()==0){
+          User newUser=new User("tomcat","tomcat123");
+          myShepherd.getPM().makePersistent(newUser);
+          System.out.println("Creating tomcat user account...");
+          myShepherd.commitDBTransaction();
+        
+            ArrayList<Role> roles=myShepherd.getAllRoles();
+            if(roles.size()==0){
+                
+                myShepherd.beginDBTransaction();
+                System.out.println("Creating tomcat roles...");
+                
+                Role newRole1=new Role("tomcat","admin");
+                newRole1.setContext("context0");
+                myShepherd.getPM().makePersistent(newRole1);
+              Role newRole4=new Role("tomcat","destroyer");
+              newRole4.setContext("context0");
+              myShepherd.getPM().makePersistent(newRole4);
+            
+            Role newRole7=new Role("tomcat","rest");
+              newRole7.setContext("context0");
+              myShepherd.getPM().makePersistent(newRole7);
+            
+            myShepherd.commitDBTransaction();
+            
+              
+              System.out.println("Creating tomcat user account...");
+            }
+      }
 
 
 %>
@@ -143,20 +142,20 @@ margin-bottom: 8px !important;
   };
   
   
-  		//map
-  		var map;
+          //map
+          var map;
   
       function initialize() {
-    	  
-    	  
-    	// Create an array of styles for our Goolge Map.
-  	    //var gmap_styles = [{"stylers":[{"visibility":"off"}]},{"featureType":"water","stylers":[{"visibility":"on"},{"color":"#00c0f7"}]},{"featureType":"landscape","stylers":[{"visibility":"on"},{"color":"#005589"}]},{"featureType":"administrative","elementType":"geometry.stroke","stylers":[{"visibility":"on"},{"color":"#00c0f7"},{"weight":1}]}]
+          
+          
+        // Create an array of styles for our Goolge Map.
+          //var gmap_styles = [{"stylers":[{"visibility":"off"}]},{"featureType":"water","stylers":[{"visibility":"on"},{"color":"#00c0f7"}]},{"featureType":"landscape","stylers":[{"visibility":"on"},{"color":"#005589"}]},{"featureType":"administrative","elementType":"geometry.stroke","stylers":[{"visibility":"on"},{"color":"#00c0f7"},{"weight":1}]}]
 
       
         var center = new google.maps.LatLng(0,0);
         var mapZoom = 1;
-    	if($("#map_canvas").hasClass("full_screen_map")){mapZoom=3;}
-    	var bounds = new google.maps.LatLngBounds();
+        if($("#map_canvas").hasClass("full_screen_map")){mapZoom=3;}
+        var bounds = new google.maps.LatLngBounds();
         
         map = new google.maps.Map(document.getElementById('map_canvas'), {
           zoom: mapZoom,
@@ -164,181 +163,181 @@ margin-bottom: 8px !important;
           mapTypeId: google.maps.MapTypeId.HYBRID
         });
 
-    	  //adding the fullscreen control to exit fullscreen
-    	  var fsControlDiv = document.createElement('DIV');
-    	  var fsControl = new FSControl(fsControlDiv, map);
-    	  fsControlDiv.index = 1;
-    	  map.controls[google.maps.ControlPosition.TOP_RIGHT].push(fsControlDiv);
+          //adding the fullscreen control to exit fullscreen
+          var fsControlDiv = document.createElement('DIV');
+          var fsControl = new FSControl(fsControlDiv, map);
+          fsControlDiv.index = 1;
+          map.controls[google.maps.ControlPosition.TOP_RIGHT].push(fsControlDiv);
 
     
-    	    // Create a new StyledMapType object, passing it the array of styles,
-    	    // as well as the name to be displayed on the map type control.
-    	    var styledMap = new google.maps.StyledMapType(gmap_styles, {name: "Styled Map"});
-    	
-    	    //Associate the styled map with the MapTypeId and set it to display.
-    	    map.mapTypes.set('map_style', styledMap);
-    	    map.setMapTypeId('map_style');
-    	  
+            // Create a new StyledMapType object, passing it the array of styles,
+            // as well as the name to be displayed on the map type control.
+            var styledMap = new google.maps.StyledMapType(gmap_styles, {name: "Styled Map"});
+        
+            //Associate the styled map with the MapTypeId and set it to display.
+            map.mapTypes.set('map_style', styledMap);
+            map.setMapTypeId('map_style');
+          
         var markers = [];
- 	    var movePathCoordinates = [];
- 	    
- 	    //iterate here to add points per location ID
- 	    
- 		var maxZoomService = new google.maps.MaxZoomService();
- 		maxZoomService.getMaxZoomAtLatLng(map.getCenter(), function(response) {
- 			    if (response.status == google.maps.MaxZoomStatus.OK) {
- 			    	if(response.zoom < map.getZoom()){
- 			    		map.setZoom(response.zoom);
- 			    	}
- 			    }
- 			    
- 		});
+         var movePathCoordinates = [];
+         
+         //iterate here to add points per location ID
+         
+         var maxZoomService = new google.maps.MaxZoomService();
+         maxZoomService.getMaxZoomAtLatLng(map.getCenter(), function(response) {
+                 if (response.status == google.maps.MaxZoomStatus.OK) {
+                     if(response.zoom < map.getZoom()){
+                         map.setZoom(response.zoom);
+                     }
+                 }
+                 
+         });
 
- 		
- 		//let's add map points for our locationIDs
- 		<%
- 		List<String> locs=CommonConfiguration.getIndexedValues("locationID", context);
- 		int numLocationIDs = locs.size();
- 		Properties locProps=ShepherdProperties.getProperties("locationIDGPS.properties", "", context);
- 		myShepherd.beginDBTransaction();
- 		
- 		for(int i=0;i<numLocationIDs;i++){
- 			
- 			String locID = locs.get(i);
- 			if((locProps.getProperty(locID)!=null)&&(locProps.getProperty(locID).indexOf(",")!=-1)){
- 				
- 				StringTokenizer st = new StringTokenizer(locProps.getProperty(locID), ",");
- 				String lat = st.nextToken();
- 				String longit=st.nextToken();
- 				String thisLatLong=lat+","+longit;
- 				
- 		        //now  let's calculate how many
- 		        int numSightings=myShepherd.getNumEncounters(locID);
- 		        if(numSightings>0){
- 		        
- 		        	Integer numSightingsInteger=new Integer(numSightings);
- 		          
- 		          
- 		          %>
- 		          
- 		         var latLng = new google.maps.LatLng(<%=thisLatLong%>);
-		          bounds.extend(latLng);
- 		          
- 		          var divString<%=i%> = "<div style=\"font-weight:bold;text-align: center;line-height: 45px;vertical-align: middle;width:60px;height:49px;padding: 2px; background-image: url('http://www.mantamatcher.org/cust/mantamatcher/img/icon_manta_shape_white.svg');background-size: cover\"><a href=\"http://www.mantamatcher.org/encounters/searchResults.jsp?locationCodeField=<%=locID %>\"><%=numSightingsInteger.toString() %></a></div>";
- 		          
- 		         
- 		         var marker<%=i%> = new RichMarker({
- 		            position: latLng,
- 		            map: map,
- 		            draggable: false,
- 		           content: divString<%=i%>,
- 		           flat: true 
- 		        });
- 		               
- 		          
- 		          
- 			      markers.push(marker<%=i%>);
- 		          map.fitBounds(bounds); 
- 				
- 				<%
- 			} //end if
- 				
- 			}  //end if
- 			
- 		}  //end for
- 		myShepherd.rollbackDBTransaction();
- 	 	%>
- 	 
+         
+         //let's add map points for our locationIDs
+         <%
+         List<String> locs=CommonConfiguration.getIndexedValues("locationID", context);
+         int numLocationIDs = locs.size();
+         Properties locProps=ShepherdProperties.getProperties("locationIDGPS.properties", "", context);
+         myShepherd.beginDBTransaction();
+         
+         for(int i=0;i<numLocationIDs;i++){
+             
+             String locID = locs.get(i);
+             if((locProps.getProperty(locID)!=null)&&(locProps.getProperty(locID).indexOf(",")!=-1)){
+                 
+                 StringTokenizer st = new StringTokenizer(locProps.getProperty(locID), ",");
+                 String lat = st.nextToken();
+                 String longit=st.nextToken();
+                 String thisLatLong=lat+","+longit;
+                 
+                 //now  let's calculate how many
+                 int numSightings=myShepherd.getNumEncounters(locID);
+                 if(numSightings>0){
+                 
+                     Integer numSightingsInteger=new Integer(numSightings);
+                   
+                   
+                   %>
+                   
+                  var latLng = new google.maps.LatLng(<%=thisLatLong%>);
+                  bounds.extend(latLng);
+                   
+                   var divString<%=i%> = "<div style=\"font-weight:bold;text-align: center;line-height: 45px;vertical-align: middle;width:60px;height:49px;padding: 2px; background-image: url('http://www.mantamatcher.org/cust/mantamatcher/img/icon_manta_shape_white.svg');background-size: cover\"><a href=\"http://www.mantamatcher.org/encounters/searchResults.jsp?locationCodeField=<%=locID %>\"><%=numSightingsInteger.toString() %></a></div>";
+                   
+                  
+                  var marker<%=i%> = new RichMarker({
+                     position: latLng,
+                     map: map,
+                     draggable: false,
+                    content: divString<%=i%>,
+                    flat: true 
+                 });
+                        
+                   
+                   
+                   markers.push(marker<%=i%>);
+                   map.fitBounds(bounds); 
+                 
+                 <%
+             } //end if
+                 
+             }  //end if
+             
+         }  //end for
+         myShepherd.rollbackDBTransaction();
+          %>
+      
 
- 	 } // end initialize function
+      } // end initialize function
         
       function fullScreen(){
-  		$("#map_canvas").addClass('full_screen_map');
-  		$('html, body').animate({scrollTop:0}, 'slow');
-  		initialize();
-  		
-  		//hide header
-  		$("#header_menu").hide();
-  		
-  		if(overlaysSet){overlaysSet=false;setOverlays();}
-  		//alert("Trying to execute fullscreen!");
-  	}
+          $("#map_canvas").addClass('full_screen_map');
+          $('html, body').animate({scrollTop:0}, 'slow');
+          initialize();
+          
+          //hide header
+          $("#header_menu").hide();
+          
+          if(overlaysSet){overlaysSet=false;setOverlays();}
+          //alert("Trying to execute fullscreen!");
+      }
 
 
-  	function exitFullScreen() {
-  		$("#header_menu").show();
-  		$("#map_canvas").removeClass('full_screen_map');
+      function exitFullScreen() {
+          $("#header_menu").show();
+          $("#map_canvas").removeClass('full_screen_map');
 
-  		initialize();
-  		if(overlaysSet){overlaysSet=false;setOverlays();}
-  		//alert("Trying to execute exitFullScreen!");
-  	}
-  	
-  	
+          initialize();
+          if(overlaysSet){overlaysSet=false;setOverlays();}
+          //alert("Trying to execute exitFullScreen!");
+      }
+      
+      
 
 
-  	//making the exit fullscreen button
-  	function FSControl(controlDiv, map) {
+      //making the exit fullscreen button
+      function FSControl(controlDiv, map) {
 
-  	  // Set CSS styles for the DIV containing the control
-  	  // Setting padding to 5 px will offset the control
-  	  // from the edge of the map
-  	  controlDiv.style.padding = '5px';
+        // Set CSS styles for the DIV containing the control
+        // Setting padding to 5 px will offset the control
+        // from the edge of the map
+        controlDiv.style.padding = '5px';
 
-  	  // Set CSS for the control border
-  	  var controlUI = document.createElement('DIV');
-  	  controlUI.style.backgroundColor = '#f8f8f8';
-  	  controlUI.style.borderStyle = 'solid';
-  	  controlUI.style.borderWidth = '1px';
-  	  controlUI.style.borderColor = '#a9bbdf';;
-  	  controlUI.style.boxShadow = '0 1px 3px rgba(0,0,0,0.5)';
-  	  controlUI.style.cursor = 'pointer';
-  	  controlUI.style.textAlign = 'center';
-  	  controlUI.title = 'Toggle the fullscreen mode';
-  	  //controlDiv.appendChild(controlUI);
+        // Set CSS for the control border
+        var controlUI = document.createElement('DIV');
+        controlUI.style.backgroundColor = '#f8f8f8';
+        controlUI.style.borderStyle = 'solid';
+        controlUI.style.borderWidth = '1px';
+        controlUI.style.borderColor = '#a9bbdf';;
+        controlUI.style.boxShadow = '0 1px 3px rgba(0,0,0,0.5)';
+        controlUI.style.cursor = 'pointer';
+        controlUI.style.textAlign = 'center';
+        controlUI.title = 'Toggle the fullscreen mode';
+        //controlDiv.appendChild(controlUI);
 
-  	  // Set CSS for the control interior
-  	  var controlText = document.createElement('DIV');
-  	  controlText.style.fontSize = '12px';
-  	  controlText.style.fontWeight = 'bold';
-  	  controlText.style.color = '#000000';
-  	  controlText.style.paddingLeft = '4px';
-  	  controlText.style.paddingRight = '4px';
-  	  controlText.style.paddingTop = '3px';
-  	  controlText.style.paddingBottom = '2px';
-  	  controlUI.appendChild(controlText);
-  	  controlText.style.visibility='hidden';
-  	  //toggle the text of the button
-  	   
-  	  if($("#map_canvas").hasClass("full_screen_map")){
-  	      controlText.innerHTML = 'Exit Fullscreen';
-  	    } else {
-  	      controlText.innerHTML = 'Fullscreen';
-  	    }
+        // Set CSS for the control interior
+        var controlText = document.createElement('DIV');
+        controlText.style.fontSize = '12px';
+        controlText.style.fontWeight = 'bold';
+        controlText.style.color = '#000000';
+        controlText.style.paddingLeft = '4px';
+        controlText.style.paddingRight = '4px';
+        controlText.style.paddingTop = '3px';
+        controlText.style.paddingBottom = '2px';
+        controlUI.appendChild(controlText);
+        controlText.style.visibility='hidden';
+        //toggle the text of the button
+         
+        if($("#map_canvas").hasClass("full_screen_map")){
+            controlText.innerHTML = 'Exit Fullscreen';
+          } else {
+            controlText.innerHTML = 'Fullscreen';
+          }
 
-  	  // Setup the click event listeners: toggle the full screen
+        // Setup the click event listeners: toggle the full screen
 
-  	  google.maps.event.addDomListener(controlUI, 'click', function() {
+        google.maps.event.addDomListener(controlUI, 'click', function() {
 
-  	   if($("#map_canvas").hasClass("full_screen_map")){
-  	    exitFullScreen();
-  	    } else {
-  	    fullScreen();
-  	    }
-  	  });
+         if($("#map_canvas").hasClass("full_screen_map")){
+          exitFullScreen();
+          } else {
+          fullScreen();
+          }
+        });
 
-  	}
+      }
 
     
 
-  	
+      
     
     google.maps.event.addDomListener(window, 'load', initialize);
     google.maps.event.addDomListener(window, "resize", function() {
-    	 var center = map.getCenter();
-    	 google.maps.event.trigger(map, "resize");
-    	 map.setCenter(center); 
-    	});
+         var center = map.getCenter();
+         google.maps.event.trigger(map, "resize");
+         map.setCenter(center); 
+        });
     
     
     
@@ -384,97 +383,97 @@ finally{
             <h2>Wildbook helps you study, <br/> identify and protect wildlife populations!</h2>
             <!--
             <button id="watch-movie" class="large light">
-				Watch the movie 
-				<span class="button-icon" aria-hidden="true">
-			</button>
-			-->
+                Watch the movie 
+                <span class="button-icon" aria-hidden="true">
+            </button>
+            -->
             <a href="submit.jsp">
                 <button class="large">Report encounter<span class="button-icon" aria-hidden="true"></button>
             </a>
         </div>
 
-	</div>
-	 <div class="video-wrapper">
-		<div class="embed-container">
-			<iframe id="herovideo" src="http://player.vimeo.com/video/123083341?api=1&amp;player_id=herovideo" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
-		</div>
-	</div>
+    </div>
+     <div class="video-wrapper">
+        <div class="embed-container">
+            <iframe id="herovideo" src="http://player.vimeo.com/video/123083341?api=1&amp;player_id=herovideo" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
+        </div>
+    </div>
     
 </section>
 
 <section class="container text-center main-section">
-	
-	<h2 class="section-header">How it works</h2>
+    
+    <h2 class="section-header">How it works</h2>
 
-	<div id="howtocarousel" class="carousel slide" data-ride="carousel">
-		<ol class="list-inline carousel-indicators slide-nav">
-	        <li data-target="#howtocarousel" data-slide-to="0" class="active">1. Photograph an animal<span class="caret"></span></li>
-	        <li data-target="#howtocarousel" data-slide-to="1" class="">2. Submit photo/video<span class="caret"></span></li>
-	        <li data-target="#howtocarousel" data-slide-to="2" class="">3. Researcher verification<span class="caret"></span></li>
-	        <li data-target="#howtocarousel" data-slide-to="3" class="">4. Matching process<span class="caret"></span></li>
-	        <li data-target="#howtocarousel" data-slide-to="4" class="">5. Match result<span class="caret"></span></li>
-	    </ol> 
-		<div class="carousel-inner text-left">
-			<div class="item active">
-				<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
-					<h3>Photograph the ID area</h3>
-					<p class="lead">
-						Each animal should have an individual fingerprint: the pattern of spots or other markings. Get an image or video of their &ldquo;print&rdquo; and we can match that pattern to others already in the database, or your animal might be completely new to the database.
-					</p>
-					<p class="lead">
-						<a href="photographing.jsp" title="">See the photography guide</a>
-					</p>
-				</div>
-				<div class="col-xs-12 col-sm-4 col-sm-offset-2 col-md-4 col-md-offset-2 col-lg-4 col-lg-offset-2">
-					<img class="pull-right" src="images/how_it_works_bellyshot_of_manta.jpg" alt=""  />
-				</div>
-			</div>
-			<div class="item">
-				<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
-					<h3>Submit photo/video</h3>
-					<p class="lead">
-						You can upload files from your computer, or take them directly from your Flickr or Facebook account. Be sure to enter when and where you saw the animal, and add other information, such as species or sex, if you can. You will receive email updates when your animal is processed by a researcher.
-					</p>
-				</div>
-				<div class="col-xs-12 col-sm-4 col-sm-offset-2 col-md-4 col-md-offset-2 col-lg-4 col-lg-offset-2">
-					<img class="pull-right" src="images/how_it_works_submit.jpg" alt=""  />
-				</div>
-			</div>
-			<div class="item">
-				<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
-					<h3>Researcher verification</h3>
-					<p class="lead">
-						When you submit an identification photo, a local researcher receives a notification. This researcher will double check that the information you submitted is correct (so don't worry if you are unsure about which species you saw!).
-					</p>
-				</div>
-				<div class="col-xs-12 col-sm-4 col-sm-offset-2 col-md-4 col-md-offset-2 col-lg-4 col-lg-offset-2">
-					<img class="pull-right" src="images/how_it_works_researcher_verification.jpg" alt=""  />
-				</div>
-			</div>
-			<div class="item">
-				<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
-					<h3>Matching process</h3>
-					<p class="lead">
-						Once a researcher is happy with all the data accompanying the identification photo, they will look for a photo match, sometimes using a computer vision algorithm. The algorithm is like facial recognition software for animal paterns.
-					</p>
-				</div>
-				<div class="col-xs-12 col-sm-4 col-sm-offset-2 col-md-4 col-md-offset-2 col-lg-4 col-lg-offset-2">
-					<img class="pull-right" src="images/how_it_works_matching_process.jpg" alt=""  />
-				</div>
-			</div>
-			<div class="item">
-				<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
-					<h3>Match Result</h3>
-					<p class="lead">
-						The algorithm (or manual comparison) provides researchers with a ranked selection of possible matches. Researchers will then visually confirm a match to an existing animal in the database, or create a new individual profile. 
-					</p>
-				</div>
-				<div class="col-xs-12 col-sm-4 col-sm-offset-2 col-md-4 col-md-offset-2 col-lg-4 col-lg-offset-2">
-					<img class="pull-right" src="images/how_it_works_match_result.jpg" alt=""  />
-				</div>
-			</div>
-		</div>
-	</div>
+    <div id="howtocarousel" class="carousel slide" data-ride="carousel">
+        <ol class="list-inline carousel-indicators slide-nav">
+            <li data-target="#howtocarousel" data-slide-to="0" class="active">1. Photograph an animal<span class="caret"></span></li>
+            <li data-target="#howtocarousel" data-slide-to="1" class="">2. Submit photo/video<span class="caret"></span></li>
+            <li data-target="#howtocarousel" data-slide-to="2" class="">3. Researcher verification<span class="caret"></span></li>
+            <li data-target="#howtocarousel" data-slide-to="3" class="">4. Matching process<span class="caret"></span></li>
+            <li data-target="#howtocarousel" data-slide-to="4" class="">5. Match result<span class="caret"></span></li>
+        </ol> 
+        <div class="carousel-inner text-left">
+            <div class="item active">
+                <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                    <h3>Photograph the ID area</h3>
+                    <p class="lead">
+                        Each animal should have an individual fingerprint: the pattern of spots or other markings. Get an image or video of their &ldquo;print&rdquo; and we can match that pattern to others already in the database, or your animal might be completely new to the database.
+                    </p>
+                    <p class="lead">
+                        <a href="photographing.jsp" title="">See the photography guide</a>
+                    </p>
+                </div>
+                <div class="col-xs-12 col-sm-4 col-sm-offset-2 col-md-4 col-md-offset-2 col-lg-4 col-lg-offset-2">
+                    <img class="pull-right" src="images/how_it_works_bellyshot_of_manta.jpg" alt=""  />
+                </div>
+            </div>
+            <div class="item">
+                <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                    <h3>Submit photo/video</h3>
+                    <p class="lead">
+                        You can upload files from your computer, or take them directly from your Flickr or Facebook account. Be sure to enter when and where you saw the animal, and add other information, such as species or sex, if you can. You will receive email updates when your animal is processed by a researcher.
+                    </p>
+                </div>
+                <div class="col-xs-12 col-sm-4 col-sm-offset-2 col-md-4 col-md-offset-2 col-lg-4 col-lg-offset-2">
+                    <img class="pull-right" src="images/how_it_works_submit.jpg" alt=""  />
+                </div>
+            </div>
+            <div class="item">
+                <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                    <h3>Researcher verification</h3>
+                    <p class="lead">
+                        When you submit an identification photo, a local researcher receives a notification. This researcher will double check that the information you submitted is correct (so don't worry if you are unsure about which species you saw!).
+                    </p>
+                </div>
+                <div class="col-xs-12 col-sm-4 col-sm-offset-2 col-md-4 col-md-offset-2 col-lg-4 col-lg-offset-2">
+                    <img class="pull-right" src="images/how_it_works_researcher_verification.jpg" alt=""  />
+                </div>
+            </div>
+            <div class="item">
+                <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                    <h3>Matching process</h3>
+                    <p class="lead">
+                        Once a researcher is happy with all the data accompanying the identification photo, they will look for a photo match, sometimes using a computer vision algorithm. The algorithm is like facial recognition software for animal paterns.
+                    </p>
+                </div>
+                <div class="col-xs-12 col-sm-4 col-sm-offset-2 col-md-4 col-md-offset-2 col-lg-4 col-lg-offset-2">
+                    <img class="pull-right" src="images/how_it_works_matching_process.jpg" alt=""  />
+                </div>
+            </div>
+            <div class="item">
+                <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                    <h3>Match Result</h3>
+                    <p class="lead">
+                        The algorithm (or manual comparison) provides researchers with a ranked selection of possible matches. Researchers will then visually confirm a match to an existing animal in the database, or create a new individual profile. 
+                    </p>
+                </div>
+                <div class="col-xs-12 col-sm-4 col-sm-offset-2 col-md-4 col-md-offset-2 col-lg-4 col-lg-offset-2">
+                    <img class="pull-right" src="images/how_it_works_match_result.jpg" alt=""  />
+                </div>
+            </div>
+        </div>
+    </div>
 </section>
 
 <div class="container-fluid relative data-section">
@@ -489,7 +488,7 @@ finally{
             if(featuredUser!=null){
                 String profilePhotoURL="images/empty_profile.jpg";
                 if(featuredUser.getUserImage()!=null){
-                	profilePhotoURL=featuredUser.getUserImage().webPathString();
+                    profilePhotoURL=featuredUser.getUserImage().webPathString();
                 } 
             
             %>
@@ -577,10 +576,10 @@ finally{
                           String spotter=keys.next();
                           int numUserEncs=values.next().intValue();
                           if(myShepherd.getUser(spotter)!=null){
-                        	  String profilePhotoURL="images/empty_profile.jpg";
+                              String profilePhotoURL="images/empty_profile.jpg";
                               User thisUser=myShepherd.getUser(spotter);
                               if(thisUser.getUserImage()!=null){
-                              	profilePhotoURL=thisUser.getUserImage().webPathString();
+                                  profilePhotoURL=thisUser.getUserImage().webPathString();
                               } 
                               //System.out.println(spotters.values().toString());
                             Integer myInt=spotters.get(spotter);
@@ -665,8 +664,8 @@ finally{
                 <h3 class="uppercase">Adopt an animal</h3>
                 <ul>
                     <li>Support individual research programs in different regions</li>
-					<li>Receive email updates when we resight your adopted animal</li>
-					<li>Display your photo and a quote on the animal's page in our database</li>
+                    <li>Receive email updates when we resight your adopted animal</li>
+                    <li>Display your photo and a quote on the animal's page in our database</li>
 </ul>
                 <a href="adoptananimal.jsp" title="">Learn more about adopting an individual animal in our study</a>
             </div>
@@ -675,28 +674,28 @@ finally{
             Adoption adopt=myShepherd.getRandomAdoptionWithPhotoAndStatement();
             if(adopt!=null){
             %>
-            	<div class="adopter-badge focusbox col-xs-12 col-sm-6 col-md-6 col-lg-6">
-	                <div class="focusbox-inner" style="overflow: hidden;">
-	                	<%
-	                    String profilePhotoURL="/"+CommonConfiguration.getDataDirectoryName(context)+"/adoptions/"+adopt.getID()+"/thumb.jpg";
-	                    
-	                	%>
-	                    <img src="<%=profilePhotoURL %>" alt="" class="pull-right round">
-	                    <h2><small>Meet an adopter:</small><%=adopt.getAdopterName() %></h2>
-	                    <%
-	                    if(adopt.getAdopterQuote()!=null){
-	                    %>
-		                    <blockquote>
-		                        <%=adopt.getAdopterQuote() %>
-		                    </blockquote>
-	                    <%
-	                    }
-	                    %>
-	                </div>
-	            </div>
+                <div class="adopter-badge focusbox col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                    <div class="focusbox-inner" style="overflow: hidden;">
+                        <%
+                        String profilePhotoURL="/"+CommonConfiguration.getDataDirectoryName(context)+"/adoptions/"+adopt.getID()+"/thumb.jpg";
+                        
+                        %>
+                        <img src="<%=profilePhotoURL %>" alt="" class="pull-right round">
+                        <h2><small>Meet an adopter:</small><%=adopt.getAdopterName() %></h2>
+                        <%
+                        if(adopt.getAdopterQuote()!=null){
+                        %>
+                            <blockquote>
+                                <%=adopt.getAdopterQuote() %>
+                            </blockquote>
+                        <%
+                        }
+                        %>
+                    </div>
+                </div>
             
             <%
-			}
+            }
             myShepherd.rollbackDBTransaction();
             %>
             
@@ -711,10 +710,10 @@ finally{
             </div>
             <div class="col-xs-12 col-sm-5 col-md-5 col-lg-5 col-sm-offset-1 col-md-offset-1 col-lg-offset-1">
                 <a href="adoptananimal.jsp">
-	                <button class="large contrast">
-	                    Donate
-	                    <span class="button-icon" aria-hidden="true">
-	                </button>
+                    <button class="large contrast">
+                        Donate
+                        <span class="button-icon" aria-hidden="true">
+                    </button>
                 </a>
             </div>
         </section>

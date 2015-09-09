@@ -1,4 +1,4 @@
-<jsp:include page="headerfull.jsp" flush="true"/>
+<jsp:include page="header.jsp" flush="true"/>
 
 <link href="tools/angularjs-utilities/css/rcWizard.css" rel="stylesheet">
 <link rel="stylesheet" href="//blueimp.github.io/Gallery/css/blueimp-gallery.min.css">
@@ -299,4 +299,4 @@
     <p>We have received your data and will begin analyzing it. We will periodically report back results. Be sure to check your email in a few minutes for a link back to your data where you can check our latest conclusions.</p>
 </div>
 
-<jsp:include page="footerfull.jsp" flush="true"/>
+<jsp:include page="footer.jsp" flush="true"/>

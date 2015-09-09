@@ -34,242 +34,192 @@
 %>
 
 <%
-String context="context0";
-context=ServletUtilities.getContext(request);
-String langCode=ServletUtilities.getLanguageCode(request);
+String context = ServletUtilities.getContext(request);
+String langCode = ServletUtilities.getLanguageCode(request);
 Properties props = new Properties();
 props = ShepherdProperties.getProperties("header.properties", langCode, context);
 
 String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
 %>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html ng-app="appWildbook">
     <head>
-      <title><%=CommonConfiguration.getHTMLTitle(context)%>
-      </title>
-      <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-      <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-      <meta name="Description"
-            content="<%=CommonConfiguration.getHTMLDescription(context) %>"/>
-      <meta name="Keywords"
-            content="<%=CommonConfiguration.getHTMLKeywords(context) %>"/>
-      <meta name="Author" content="<%=CommonConfiguration.getHTMLAuthor(context) %>"/>
-      <link rel="shortcut icon"
-            href="<%=CommonConfiguration.getHTMLShortcutIcon(context) %>"/>
-      <link href='http://fonts.googleapis.com/css?family=Oswald:400,300,700' rel='stylesheet' type='text/css'/>
-      <link rel="stylesheet" href="<%=urlLoc %>/cust/mantamatcher/css/manta.css" />
-      <link href="<%=urlLoc %>/tools/jquery-ui/css/jquery-ui.css" rel="stylesheet" type="text/css"/>
-      <link href="<%=urlLoc %>/tools/hello/css/zocial.css" rel="stylesheet" type="text/css"/>
-	  <link rel="stylesheet" href="<%=urlLoc %>/tools/jquery-ui/css/themes/smoothness/jquery-ui.css" type="text/css" />
+        <title><%=CommonConfiguration.getHTMLTitle(context)%></title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+        <meta name="Description"
+              content="<%=CommonConfiguration.getHTMLDescription(context) %>"/>
+        <meta name="Keywords"
+              content="<%=CommonConfiguration.getHTMLKeywords(context) %>"/>
+        <meta name="Author" content="<%=CommonConfiguration.getHTMLAuthor(context) %>"/>
+        <link rel="shortcut icon"
+              href="<%=CommonConfiguration.getHTMLShortcutIcon(context) %>"/>
+        <link href='http://fonts.googleapis.com/css?family=Oswald:400,300,700' rel='stylesheet' type='text/css'/>
+        <link rel="stylesheet" href="<%=urlLoc %>/cust/mantamatcher/css/manta.css" />
+        <link href="<%=urlLoc %>/tools/jquery-ui/css/jquery-ui.css" rel="stylesheet" type="text/css"/>
+        <link href="<%=urlLoc %>/tools/hello/css/zocial.css" rel="stylesheet" type="text/css"/>
+        <link rel="stylesheet" href="<%=urlLoc %>/tools/jquery-ui/css/themes/smoothness/jquery-ui.css" type="text/css" />
 
-
-      <script src="<%=urlLoc %>/tools/jquery/js/jquery.min.js"></script>
-      <script src="<%=urlLoc %>/tools/bootstrap/js/bootstrap.min.js"></script>
-      <script type="text/javascript" src="<%=urlLoc %>/javascript/core.js"></script>
-      <script type="text/javascript" src="<%=urlLoc %>/tools/jquery-ui/javascript/jquery-ui.min.js"></script>
-      
-     <script type="text/javascript" src="<%=urlLoc %>/javascript/jquery.blockUI.js"></script>
-	<script type="text/javascript" src="<%=urlLoc %>/javascript/jquery.cookie.js"></script>
-      
-      
-      <script type="text/javascript" src="<%=urlLoc %>/tools/hello/javascript/hello.all.js"></script>
-      <script type="text/javascript"  src="<%=urlLoc %>/JavascriptGlobals.js"></script>
-      <script type="text/javascript"  src="<%=urlLoc %>/javascript/collaboration.js"></script>
-      
-     <script src="http://a.vimeocdn.com/js/froogaloop2.min.js"></script>    
-  	<script src="<%=urlLoc %>/cust/mantamatcher/js/behaviour.js"></script>
- 
-  
+        <script src="<%=urlLoc %>/tools/jquery/js/jquery.min.js"></script>
+        <script src="<%=urlLoc %>/tools/bootstrap/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="<%=urlLoc %>/javascript/core.js"></script>
+        <script type="text/javascript" src="<%=urlLoc %>/tools/jquery-ui/javascript/jquery-ui.min.js"></script>
+        <script type="text/javascript" src="<%=urlLoc %>/javascript/jquery.blockUI.js"></script>
+        <script type="text/javascript" src="<%=urlLoc %>/javascript/jquery.cookie.js"></script>
+        <script type="text/javascript" src="<%=urlLoc %>/tools/hello/javascript/hello.all.js"></script>
+        <script type="text/javascript"  src="<%=urlLoc %>/JavascriptGlobals.js"></script>
+        <script type="text/javascript"  src="<%=urlLoc %>/javascript/collaboration.js"></script>
+        <script src="http://a.vimeocdn.com/js/froogaloop2.min.js"></script>    
+        <script src="<%=urlLoc %>/cust/mantamatcher/js/behaviour.js"></script>
     </head>
     
     <body role="document">
-
-        <!-- ****header**** -->
         <header class="page-header clearfix">
             <nav class="navbar navbar-default navbar-fixed-top">
-              <div class="header-top-wrapper">
-                <div class="container">
-                <a href="http://www.wildme.org" id="wild-me-badge">A Wild me project</a>
-                  <div class="search-and-secondary-wrapper">
-                    <ul class="secondary-nav hor-ul no-bullets">
+                <div class="header-top-wrapper">
+                    <div class="container">
+                        <a href="http://www.wildme.org" id="wild-me-badge">A Wild me project</a>
+                        <div class="search-and-secondary-wrapper">
+                            <ul class="secondary-nav hor-ul no-bullets">
+                                <%
+                                if (request.getUserPrincipal() != null) {
+                                    Shepherd myShepherd = new Shepherd(context);
+                                    
+                                    try {
+                                        myShepherd.beginDBTransaction();
+                                        String username = request.getUserPrincipal().toString();
+                                        User user = myShepherd.getUser(username);
+                                        String fullname=username;
+                                        if (user.getFullName() != null) {
+                                            fullname=user.getFullName();
+                                        }
+                                        String profilePhotoURL=urlLoc+"/images/empty_profile.jpg";
+                                        if (user.getUserImage() != null) {
+                                            profilePhotoURL=user.getUserImage().webPathString();
+                                        }
+                                %>
+                                <li><a href="<%=urlLoc %>/myAccount.jsp" title=""><img align="left" title="Your Account" style="border-radius: 3px;border:1px solid #ffffff;margin-top: -7px;" width="*" height="32px" src="<%=profilePhotoURL %>" /></a></li>
+                                <li><a href="<%=urlLoc %>/logout.jsp" ><%=props.getProperty("logout") %></a></li>
+                                <%
+                                    }
+                                    catch(Exception e) {
+                                        e.printStackTrace();
+                                    } finally {
+                                        myShepherd.rollbackDBTransaction();
+                                        myShepherd.closeDBTransaction();
+                                    }
+                                } else {
+                                %>
+                                <li><a href="<%=urlLoc %>/welcome.jsp" title=""><%=props.getProperty("login") %></a></li>
+                                <%
+                                }
+                                if (CommonConfiguration.getWikiLocation(context) != null) {
+                                %>
+                                <li><a target="_blank" href="<%=CommonConfiguration.getWikiLocation(context) %>"><%=props.getProperty("userWiki")%></a></li>
+                                <%
+                                }
+                              
+                                ArrayList<String> contextNames = ContextConfiguration.getContextNames();
+                                int numContexts = contextNames.size();
+                                if (numContexts > 1) {
+                                %>
+                                <li>
+                                    <form>
+                                        <%=props.getProperty("switchContext") %>&nbsp;
+                                        <select style="color: black;" id="context" name="context">
+                                        <%
+                                        for (int h=0; h<numContexts; h++) {
+                                            String selected="";
+                                            if (ServletUtilities.getContext(request).equals(("context"+h))) {
+                                                selected="selected=\"selected\"";
+                                            }
+                                        %>
+                                        <option value="context<%=h%>" <%=selected %>><%=contextNames.get(h) %></option>
+                                        <%
+                                        }
+                                        %>
+                                        </select>
+                                    </form>
+                                </li>
+                                <script type="text/javascript">
+                                    $("#context").change(function() {
+                                        //alert( "Handler for .change() called with new value: "+$( "#context option:selected" ).text() +" with value "+ $( "#context option:selected").val());
+                                        $.cookie("wildbookContext", $( "#context option:selected").val(), {
+                                            path    : '/',          //The value of the path attribute of the cookie 
+                                                                    //(default: path of page that created the cookie).
+                                            secure  : false         //If set to true the secure attribute of the cookie
+                                                                    //will be set and the cookie transmission will
+                                                                    //require a secure protocol (defaults to false).
+                                        });
+                                        //alert("I have set the wildbookContext cookie to value: "+$.cookie("wildbookContext"));
+                                        location.reload(true);
+                                    });
+                                </script>
+                                <%
+                                }
+                                
+                                ArrayList<String> supportedLanguages = CommonConfiguration.getSequentialPropertyValues("language", context);
+                                int numSupportedLanguages=supportedLanguages.size();
+                            
+                                if(numSupportedLanguages>1){
+                                %>
+                                <li>
+                                <%
+                                for (int h=0;h<numSupportedLanguages;h++) {
+                                    String selected="";
+                                    if (ServletUtilities.getLanguageCode(request).equals(supportedLanguages.get(h))) {
+                                        selected="selected=\"selected\"";
+                                    }
+                                    String myLang=supportedLanguages.get(h);
+                                %>
+                                    <img style="cursor: pointer" id="flag_<%=myLang %>" title="<%=CommonConfiguration.getProperty(myLang, context) %>" src="http://<%=CommonConfiguration.getURLLocation(request) %>/images/flag_<%=myLang %>.gif" />
+                                    <script type="text/javascript">
+                                        $( "#flag_<%=myLang%>" ).click(function() {
+                                            //alert( "Handler for .change() called with new value: "+$( "#langCode option:selected" ).text() +" with value "+ $( "#langCode option:selected").val());
+                                            $.cookie("wildbookLangCode", "<%=myLang%>", {
+                                                path    : '/',          //The value of the path attribute of the cookie 
+                                                                        //(default: path of page that created the cookie).
+                                                secure  : false          //If set to true the secure attribute of the cookie
+                                                                        //will be set and the cookie transmission will
+                                                                       //require a secure protocol (defaults to false).
+                                            });
+                                            //alert("I have set the wildbookContext cookie to value: "+$.cookie("wildbookContext"));
+                                            location.reload(true);
+                                        });
+                                    </script>
+                                <%
+                                }
+                                %>
+                                </li>
+                            <%
+                            }
+                            %>
+                            </ul>
                     
-                   
-                      <%
-                      
-	                      if(request.getUserPrincipal()!=null){
-	                    	  Shepherd myShepherd = new Shepherd(context);
-	                          
-	                          try{
-	                        	  myShepherd.beginDBTransaction();
-		                    	  String username = request.getUserPrincipal().toString();
-		                    	  User user = myShepherd.getUser(username);
-		                    	  String fullname=username;
-		                    	  if(user.getFullName()!=null){fullname=user.getFullName();}
-		                    	  String profilePhotoURL=urlLoc+"/images/empty_profile.jpg";
-		                          if(user.getUserImage()!=null){
-		                          	profilePhotoURL="/"+CommonConfiguration.getDataDirectoryName(context)+"/users/"+user.getUsername()+"/"+user.getUserImage().getFilename();
-		                          } 
-		                          
-		                      		%>
-		                      
-		                      		<li><a href="<%=urlLoc %>/myAccount.jsp" title=""><img align="left" title="Your Account" style="border-radius: 3px;border:1px solid #ffffff;margin-top: -7px;" width="*" height="32px" src="<%=profilePhotoURL %>" /></a></li>
-		             				<li><a href="<%=urlLoc %>/logout.jsp" ><%=props.getProperty("logout") %></a></li>
-		                      
-		                      		<%
-	                          }
-	                          catch(Exception e){e.printStackTrace();}
-	                          finally{
-	                        	  myShepherd.rollbackDBTransaction();
-	                        	  myShepherd.closeDBTransaction();
-	                          }
-	                      }
-	                      else{
-	                      %>
-	                      
-	                      	<li><a href="<%=urlLoc %>/welcome.jsp" title=""><%=props.getProperty("login") %></a></li>
-	                      
-	                      <%
-	                      }
-                      
-                      %>
-                      
-                       <!--  
-                      <li><a href="#" title="">English</a></li>
-                     --> 
-
-                      
-                      
-                      <% 
-                      if (CommonConfiguration.getWikiLocation(context)!=null) { 
-                      %>
-                        <li><a target="_blank" href="<%=CommonConfiguration.getWikiLocation(context) %>"><%=props.getProperty("userWiki")%></a></li>
-                      <% 
-                      } 
-                     	
-                      
-                      
-                      ArrayList<String> contextNames=ContextConfiguration.getContextNames();
-                		int numContexts=contextNames.size();
-                		if(numContexts>1){
-                		%>
-                		
-                		<li>
-                						<form>
-                						<%=props.getProperty("switchContext") %>&nbsp;
-                							<select style="color: black;" id="context" name="context">
-			                					<%
-			                					for(int h=0;h<numContexts;h++){
-			                						String selected="";
-			                						if(ServletUtilities.getContext(request).equals(("context"+h))){selected="selected=\"selected\"";}
-			                					%>
-			                					
-			                						<option value="context<%=h%>" <%=selected %>><%=contextNames.get(h) %></option>
-			                					<%
-			                					}
-			                					%>
-                							</select>
-                						</form>
-                			</li>
-                			<script type="text/javascript">
-                		
-	                			$( "#context" ).change(function() {
-	                			
-		                  			//alert( "Handler for .change() called with new value: "+$( "#context option:selected" ).text() +" with value "+ $( "#context option:selected").val());
-		                  			$.cookie("wildbookContext", $( "#context option:selected").val(), {
-		                  			   path    : '/',          //The value of the path attribute of the cookie 
-		                  			                           //(default: path of page that created the cookie).
-		                			   
-		                  			   secure  : false          //If set to true the secure attribute of the cookie
-		                  			                           //will be set and the cookie transmission will
-		                  			                           //require a secure protocol (defaults to false).
-		                  			});
-		                  			
-		                  			//alert("I have set the wildbookContext cookie to value: "+$.cookie("wildbookContext"));
-		                  			location.reload(true);
-		                  			
-	                			});
-	                	
-                			</script>
-                			<%
-                		}
-                		%>
-                		   <!-- Can we inject language functionality here? -->
-                    <%
-                    
-            		ArrayList<String> supportedLanguages=CommonConfiguration.getSequentialPropertyValues("language", context);
-            		int numSupportedLanguages=supportedLanguages.size();
-            		
-            		if(numSupportedLanguages>1){
-            		%>
-            			<li>
-            					
-            					
-            					<%
-            					for(int h=0;h<numSupportedLanguages;h++){
-            						String selected="";
-            						if(ServletUtilities.getLanguageCode(request).equals(supportedLanguages.get(h))){selected="selected=\"selected\"";}
-            						String myLang=supportedLanguages.get(h);
-            					%>
-            						<img style="cursor: pointer" id="flag_<%=myLang %>" title="<%=CommonConfiguration.getProperty(myLang, context) %>" src="http://<%=CommonConfiguration.getURLLocation(request) %>/images/flag_<%=myLang %>.gif" />
-            						<script type="text/javascript">
-            	
-            							$( "#flag_<%=myLang%>" ).click(function() {
-            		
-            								//alert( "Handler for .change() called with new value: "+$( "#langCode option:selected" ).text() +" with value "+ $( "#langCode option:selected").val());
-            								$.cookie("wildbookLangCode", "<%=myLang%>", {
-            			   						path    : '/',          //The value of the path attribute of the cookie 
-            			                           //(default: path of page that created the cookie).
-            		   
-            			   						secure  : false          //If set to true the secure attribute of the cookie
-            			                           //will be set and the cookie transmission will
-            			                           //require a secure protocol (defaults to false).
-            								});
-            			
-            								//alert("I have set the wildbookContext cookie to value: "+$.cookie("wildbookContext"));
-            								location.reload(true);
-            			
-            							});
-            	
-            						</script>
-            					<%
-            					}
-            					%>
-            				
-            		</li>
-            		<%
-            		}
-            		%>
-            		<!-- end language functionality injection -->
-                	
-                    
-                    
-                    
-                    </ul>
-                    
-                    <div class="search-wrapper">
-                      <label class="search-field-header">
-                            <form name="form2" method="get" action="<%=urlLoc %>/individuals.jsp">
-	                            <input type="text" id="search-site" placeholder="nickname, id, site, encounter nr., etc." class="search-query form-control navbar-search ui-autocomplete-input" autocomplete="off" name="number" />
-	                            <input type="hidden" name="langCode" value="<%=langCode%>"/>
-	                            <input type="submit" value="search" />
-                          </form>
-                      </label>
+                            <div class="search-wrapper">
+                                <label class="search-field-header">
+                                    <form name="form2" method="get" action="<%=urlLoc %>/individuals.jsp">
+                                        <input type="text" id="search-site" placeholder="nickname, id, site, encounter nr., etc." class="search-query form-control navbar-search ui-autocomplete-input" autocomplete="off" name="number" />
+                                        <input type="hidden" name="langCode" value="<%=langCode%>"/>
+                                        <input type="submit" value="search" />
+                                    </form>
+                                </label>
+                            </div>
+                        </div>
+                        <a class="navbar-brand" target="_blank" href="<%=urlLoc %>">Wildbook for Mark-Recapture Studies</a>
                     </div>
-                  </div>
-                  <a class="navbar-brand" target="_blank" href="<%=urlLoc %>">Wildbook for Mark-Recapture Studies</a>
                 </div>
-              </div>
               
-              <div class="nav-bar-wrapper">
-                <div class="container">
-                  <div class="navbar-header clearfix">
-                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-                      <span class="sr-only">Toggle navigation</span>
-                      <span class="icon-bar"></span>
-                      <span class="icon-bar"></span>
-                      <span class="icon-bar"></span>
-                    </button>
-                  </div>
+                <div class="nav-bar-wrapper">
+                     <div class="container">
+                         <div class="navbar-header clearfix">
+                             <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                                <span class="sr-only">Toggle navigation</span>
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                             </button>
+                         </div>
                   
                   <div id="navbar" class="navbar-collapse collapse">
                   <div id="notifications"><%= Collaboration.getNotificationsWidgetHtml(request) %></div>
@@ -281,10 +231,10 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
                       <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><%=props.getProperty("learn")%> <span class="caret"></span></a>
                         <ul class="dropdown-menu" role="menu">
-                        	<li class="dropdown"><a href="<%=urlLoc %>/overview.jsp"><%=props.getProperty("aboutYourProject")%></a></li>
-                          	<li><a href="<%=urlLoc %>/photographing.jsp"><%=props.getProperty("howToPhotograph")%></a></li>
+                            <li class="dropdown"><a href="<%=urlLoc %>/overview.jsp"><%=props.getProperty("aboutYourProject")%></a></li>
+                              <li><a href="<%=urlLoc %>/photographing.jsp"><%=props.getProperty("howToPhotograph")%></a></li>
                                  
-                          	<li><a target="_blank" href="http://www.wildme.org/wildbook"><%=props.getProperty("learnAboutShepherd")%></a></li>
+                              <li><a target="_blank" href="http://www.wildme.org/wildbook"><%=props.getProperty("learnAboutShepherd")%></a></li>
                         </ul>
                       </li>
                       
@@ -348,7 +298,7 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
                                    <li><a href="<%=urlLoc %>/encounters/searchResultsAnalysis.jsp?locationCodeField=<%=CommonConfiguration.getProperty(currentLocationID,context) %>"><%=WordUtils.capitalize(CommonConfiguration.getProperty(currentLocationID,context)) %></a></li>
                                  <% siteNum++;
                                  } else {
-                                	 moreLocationIDs=false;
+                                     moreLocationIDs=false;
                                  }
                             } //end while %>
                         
@@ -377,9 +327,6 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
                             if(request.getUserPrincipal()!=null) {
                             %>
                               <li><a href="<%=urlLoc %>/myAccount.jsp"><%=props.getProperty("myAccount")%></a></li>
-                            <% }
-                            if(CommonConfiguration.allowBatchUpload(context) && (request.isUserInRole("admin"))) { %>
-                              <li><a href="<%=urlLoc %>/BatchUpload/start"><%=props.getProperty("batchUpload")%></a></li>
                             <% }
                             if(request.isUserInRole("admin")) { %>
                               <li><a href="<%=urlLoc %>/appadmin/admin.jsp"><%=props.getProperty("general")%></a></li>
@@ -412,10 +359,6 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
                         </ul>
                       </li>
                     </ul>
-                    
-                 
-            		
-                    
                   </div>
                   
                 </div>
@@ -438,7 +381,7 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
                     window.location.replace("<%=("http://" + CommonConfiguration.getURLLocation(request)+"/individuals.jsp?number=") %>" + ui.item.value);
                 } 
                 else if (ui.item.type == "locationID") {
-                	window.location.replace("<%=("http://" + CommonConfiguration.getURLLocation(request)+"/encounters/searchResultsAnalysis.jsp?locationCodeField=") %>" + ui.item.value);
+                    window.location.replace("<%=("http://" + CommonConfiguration.getURLLocation(request)+"/encounters/searchResultsAnalysis.jsp?locationCodeField=") %>" + ui.item.value);
                 } 
                 /*
                 //restore user later
