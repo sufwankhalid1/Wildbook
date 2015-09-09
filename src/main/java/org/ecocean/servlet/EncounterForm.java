@@ -19,22 +19,21 @@
 
 package org.ecocean.servlet;
 
+import java.io.File;
 //////
 //import java.io.*;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 import java.util.StringTokenizer;
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -47,8 +46,10 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.ecocean.CommonConfiguration;
+import org.ecocean.CommonConfiguration;
 import org.ecocean.Encounter;
 import org.ecocean.Measurement;
+import org.ecocean.Shepherd;
 import org.ecocean.Shepherd;
 import org.ecocean.ShepherdProperties;
 import org.ecocean.SinglePhotoVideo;
@@ -70,21 +71,6 @@ import org.ecocean.SinglePhotoVideo;
 import org.ecocean.User;
 */
 
-
-import org.apache.shiro.web.util.WebUtils;
-//import org.ecocean.*;
-import org.ecocean.security.SocialAuth;
-
-import org.ecocean.CommonConfiguration;
-import org.ecocean.Shepherd;
-import org.ecocean.User;
-import org.pac4j.core.context.J2EContext;
-import org.pac4j.core.context.WebContext;
-import org.pac4j.oauth.client.FacebookClient;
-//import org.pac4j.oauth.client.YahooClient;
-import org.pac4j.oauth.credentials.OAuthCredentials;
-import org.pac4j.oauth.profile.facebook.FacebookProfile;
-
 /**
  * Uploads a new image to the file system and associates the image with an Encounter record
  *
@@ -93,26 +79,26 @@ import org.pac4j.oauth.profile.facebook.FacebookProfile;
 public class EncounterForm extends HttpServlet {
 
   @Override
-public void init(ServletConfig config) throws ServletException {
+public void init(final ServletConfig config) throws ServletException {
     super.init(config);
   }
 
   @Override
-public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+public void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
     doPost(request, response);
   }
 
 private final String UPLOAD_DIRECTORY = "/tmp";
 
     //little helper function for pulling values as strings even if null (not set via form)
-    private String getVal(HashMap fv, String key) {
+    private String getVal(final HashMap fv, final String key) {
         if (fv.get(key) == null) {
             return "";
         }
         return fv.get(key).toString();
     }
 
-  private SatelliteTag getSatelliteTag(HashMap fv) {
+  private SatelliteTag getSatelliteTag(final HashMap fv) {
     String argosPttNumber =  getVal(fv, "satelliteTagArgosPttNumber");
     String satelliteTagName = getVal(fv, "satelliteTagName");
     String tagSerial = getVal(fv, "satelliteTagSerial");
@@ -122,7 +108,7 @@ private final String UPLOAD_DIRECTORY = "/tmp";
     return null;
   }
 
-  private AcousticTag getAcousticTag(HashMap fv) {
+  private AcousticTag getAcousticTag(final HashMap fv) {
     String acousticTagId = getVal(fv, "acousticTagId");
     String acousticTagSerial = getVal(fv, "acousticTagSerial");
     if (acousticTagId.length() > 0 || acousticTagSerial.length() > 0) {
@@ -132,7 +118,7 @@ private final String UPLOAD_DIRECTORY = "/tmp";
   }
 
 
-  private List<MetalTag> getMetalTags(HashMap fv) {
+  private List<MetalTag> getMetalTags(final HashMap fv) {
     List<MetalTag> list = new ArrayList<MetalTag>();
         List<String> keys = Arrays.asList("left", "right");  //TODO programatically build from form
 
@@ -147,7 +133,7 @@ private final String UPLOAD_DIRECTORY = "/tmp";
   }
 
 
-  private List<Measurement> getMeasurements(HashMap fv, String encID, String context) {
+  private List<Measurement> getMeasurements(final HashMap fv, final String encID, final String context) {
     List<Measurement> list = new ArrayList<Measurement>();
         //List<String> keys = Arrays.asList("weight", "length", "height");  //TODO programatically build from form
 
@@ -207,7 +193,7 @@ got regular field (measurement(heightsamplingProtocol))=(samplingProtocol0)
   public static final String ERROR_PROPERTY_MAX_LENGTH_EXCEEDED = "The maximum upload length has been exceeded by the client.";
 
   @Override
-public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+public void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
 		request.setCharacterEncoding("UTF-8");
 
 		HashMap fv = new HashMap();
@@ -477,23 +463,15 @@ System.out.println(" **** here is what i think locationID is: " + fv.get("locati
 
 
           if(numTokens>=1){
-            //try {
-            year=reportedDateTime.getYear();
-              if(year>(dt.getYear()+1)){
-                //badDate=true;
-                year=0;
-                throw new Exception("    An unknown exception occurred during date processing in EncounterForm. The user may have input an improper format: "+year+" > "+dt.getYear());
-              }
-
-           //} catch (Exception e) { year=-1;}
+              year=reportedDateTime.getYear();
           }
           if(numTokens>=2){
-            try { month=reportedDateTime.getMonthOfYear(); } catch (Exception e) { month=-1;}
+            month=reportedDateTime.getMonthOfYear();
           }
           else{month=-1;}
           //see if we can get a day, because we do want to support only yyy-MM too
-          if(str.countTokens()>=3){
-            try { day=reportedDateTime.getDayOfMonth(); } catch (Exception e) { day=0; }
+          if (str.countTokens()>=3){
+            day=reportedDateTime.getDayOfMonth();
           }
           else{day=0;}
 
@@ -536,7 +514,7 @@ System.out.println("about to do enc()");
 System.out.println("hey, i think i may have made an encounter, encID=" + encID);
 System.out.println("enc ?= " + enc.toString());
 
-            String baseDir = ServletUtilities.dataDir(context, rootDir);
+            String baseDir = ServletUtilities.dataDir(context, rootDir).getAbsolutePath();
             ArrayList<SinglePhotoVideo> images = new ArrayList<SinglePhotoVideo>();
             for (FileItem item : formFiles) {
                 /* this will actually write file to filesystem (or [FUTURE] wherever)
@@ -654,8 +632,8 @@ got regular field (measurement(heightsamplingProtocol))=(samplingProtocol0)
       if(fv.get("scars")!=null){
         enc.setDistinguishingScar(fv.get("scars").toString());
       }
-      
-      
+
+
       int sizePeriod=0;
       if ((fv.get("measureUnits") != null) && fv.get("measureUnits").toString().equals("Feet")) {
 
@@ -896,7 +874,7 @@ System.out.println("depth --> " + fv.get("depth").toString());
       enc.setDWCImageURL(("http://" + CommonConfiguration.getURLLocation(request) + "/encounters/encounter.jsp?number=" + encID));
 
       //populate DarwinCore dates
-
+      LocalDateTime dt = new LocalDateTime();
       DateTimeFormatter fmt = ISODateTimeFormat.date();
       String strOutputDateTime = fmt.print(dt);
       enc.setDWCDateAdded(strOutputDateTime);

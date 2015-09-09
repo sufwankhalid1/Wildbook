@@ -23,9 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -45,6 +43,7 @@ import org.ecocean.MailThreadExecutorService;
 import org.ecocean.MarkedIndividual;
 import org.ecocean.NotificationMailer;
 import org.ecocean.Shepherd;
+import org.ecocean.mmutil.StringUtilities;
 
 
 public class IndividualAddEncounter extends HttpServlet {
@@ -166,7 +165,7 @@ public void doPost(final HttpServletRequest request, final HttpServletResponse r
               for (String emailTo : cSubmitters) {
                 if (!"".equals(emailTo)) {
                   tagMap.put(NotificationMailer.EMAIL_NOTRACK, "number=" + enc2add.getCatalogNumber());
-                  tagMap.put(NotificationMailer.EMAIL_HASH_TAG, Encounter.getHashOfEmailString(emailTo));
+                  tagMap.put(NotificationMailer.EMAIL_HASH_TAG, StringUtilities.getHashOf(emailTo));
                   es.execute(new NotificationMailer(context, null, emailTo, emailTemplate, tagMap));
                 }
               }
@@ -176,7 +175,7 @@ public void doPost(final HttpServletRequest request, final HttpServletResponse r
               cOthers.removeAll(cSubmitters);
               for (String emailTo : cOthers) {
                 tagMap.put(NotificationMailer.EMAIL_NOTRACK, "number=" + enc2add.getCatalogNumber());
-                tagMap.put(NotificationMailer.EMAIL_HASH_TAG, Encounter.getHashOfEmailString(emailTo));
+                tagMap.put(NotificationMailer.EMAIL_HASH_TAG, StringUtilities.getHashOf(emailTo));
                 es.execute(new NotificationMailer(context, null, emailTo, emailTemplate, tagMap));
               }
 
@@ -188,7 +187,7 @@ public void doPost(final HttpServletRequest request, final HttpServletResponse r
               cAdopters.removeAll(allAssociatedEmails);
               for (String emailTo : cAdopters) {
                 tagMap.put(NotificationMailer.EMAIL_NOTRACK, "number=" + enc2add.getCatalogNumber());
-                tagMap.put(NotificationMailer.EMAIL_HASH_TAG, Encounter.getHashOfEmailString(emailTo));
+                tagMap.put(NotificationMailer.EMAIL_HASH_TAG, StringUtilities.getHashOf(emailTo));
                 tagMap.put(NotificationMailer.STANDARD_CONTENT_TAG, tagMap.get("@ENCOUNTER_LINK@"));
                 es.execute(new NotificationMailer(context, null, emailTo, emailTemplate + "-adopter", tagMap));
               }

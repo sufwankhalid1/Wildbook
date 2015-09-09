@@ -19,23 +19,24 @@
 
 package org.ecocean.servlet;
 
-import org.ecocean.CommonConfiguration;
-import org.ecocean.SinglePhotoVideo;
-import org.ecocean.MarkedIndividual;
-import org.ecocean.Encounter;
-import org.ecocean.Shepherd;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Iterator;
+
+import org.ecocean.CommonConfiguration;
+import org.ecocean.Encounter;
+import org.ecocean.MarkedIndividual;
+import org.ecocean.Shepherd;
+import org.ecocean.SinglePhotoVideo;
 
 import com.google.gson.Gson;
 
@@ -43,16 +44,19 @@ import com.google.gson.Gson;
 public class EncounterVMData extends HttpServlet {
 
 
-  public void init(ServletConfig config) throws ServletException {
+  @Override
+public void init(final ServletConfig config) throws ServletException {
     super.init(config);
   }
 
 
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+  @Override
+public void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
     doPost(request, response);
   }
 
-  public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+  @Override
+public void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
     String context="context0";
     context=ServletUtilities.getContext(request);
     Shepherd myShepherd = new Shepherd(context);
@@ -84,9 +88,9 @@ public class EncounterVMData extends HttpServlet {
 						indiv.addComments("<p><em>" + request.getRemoteUser() + " on " + (new java.util.Date()).toString() + "</em><br>" + "Created " + matchID + ".</p>");
 						indiv.setDateTimeCreated(ServletUtilities.getDate());
 						myShepherd.addMarkedIndividual(indiv);
-          } 
+          }
 
-					enc.assignToMarkedIndividual(matchID);
+					enc.setIndividualID(matchID);
 					enc.addComments("<p><em>" + request.getRemoteUser() + " on " + (new java.util.Date()).toString() + "</em><br>" + "Added to " + matchID + ".</p>");
 					enc.setMatchedBy("Visual Matcher");
 					myShepherd.storeNewEncounter(enc, enc.getCatalogNumber());
@@ -163,7 +167,7 @@ public class EncounterVMData extends HttpServlet {
 						images.add(i);
 					}
 				}
-		
+
 				rtn.put("id", enc.getCatalogNumber());
 				rtn.put("patterningCode", enc.getPatterningCode());
 				rtn.put("sex", enc.getSex());

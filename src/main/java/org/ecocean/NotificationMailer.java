@@ -31,7 +31,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
 import javax.servlet.http.HttpServletRequest;
+
 import org.ecocean.servlet.ServletUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -176,7 +178,11 @@ public final class NotificationMailer implements Runnable {
    * @param types list of email types to try ((e.g. [<em>individualAddEncounter-auto</em>, <em>individualAddEncounter</em>])
    * @param map map of search/replace strings for email template (if order is important, supply {@code LinkedHashMap}
    */
-  public NotificationMailer(String context, String langCode, Collection<String> to, List<String> types, Map<String, String> map) {
+  public NotificationMailer(final String context,
+                            final String langCode,
+                            final Collection<String> to,
+                            final List<String> types,
+                            final Map<String, String> map) {
     Objects.requireNonNull(context);
     Objects.requireNonNull(to);
     for (String s : to) {
@@ -243,7 +249,7 @@ public final class NotificationMailer implements Runnable {
    * @param type email type ((e.g. <em>individualAddEncounter</em>)
    * @param map map of search/replace strings for email template (if order is important, supply {@code LinkedHashMap}
    */
-  public NotificationMailer(String context, String langCode, Collection<String> to, String type, Map<String, String> map) {
+  public NotificationMailer(final String context, final String langCode, final Collection<String> to, final String type, final Map<String, String> map) {
     this(context, langCode, to, Arrays.asList(type), map);
   }
 
@@ -256,7 +262,7 @@ public final class NotificationMailer implements Runnable {
    * @param types list of email types to try ((e.g. [<em>individualAddEncounter-auto</em>, <em>individualAddEncounter</em>])
    * @param map map of search/replace strings for email template (if order is important, supply {@code LinkedHashMap}
    */
-  public NotificationMailer(String context, String langCode, String to, List<String> types, Map<String, String> map) {
+  public NotificationMailer(final String context, final String langCode, final String to, final List<String> types, final Map<String, String> map) {
     this(context, langCode, Arrays.asList(to), types, map);
   }
 
@@ -269,7 +275,7 @@ public final class NotificationMailer implements Runnable {
    * @param type email type ((e.g. <em>individualAddEncounter</em>)
    * @param map map of search/replace strings for email template (if order is important, supply {@code LinkedHashMap}
    */
-  public NotificationMailer(String context, String langCode, String to, String type, Map<String, String> map) {
+  public NotificationMailer(final String context, final String langCode, final String to, final String type, final Map<String, String> map) {
     this(context, langCode, Arrays.asList(to), type, map);
   }
 
@@ -284,7 +290,7 @@ public final class NotificationMailer implements Runnable {
    * @param type email type ((e.g. <em>individualAddEncounter</em>)
    * @param text text with which to replace standard content tag
    */
-  public NotificationMailer(String context, String langCode, Collection<String> to, String type, final String text) {
+  public NotificationMailer(final String context, final String langCode, final Collection<String> to, final String type, final String text) {
     this(context, langCode, to, type, new HashMap<String, String>(){{ put(STANDARD_CONTENT_TAG, text); }});
   }
 
@@ -300,7 +306,7 @@ public final class NotificationMailer implements Runnable {
    * @param type email type ((e.g. <em>individualAddEncounter</em>)
    * @param text text with which to replace standard content tag
    */
-  public NotificationMailer(String context, String langCode, String to, String type, final String text) {
+  public NotificationMailer(final String context, final String langCode, final String to, final String type, final String text) {
     this(context, langCode, Arrays.asList(to), type, text);
   }
 
@@ -319,7 +325,7 @@ public final class NotificationMailer implements Runnable {
    * @param type string specifying type of email (e.g. <em>individualAddEncounter</em>)
    * @return true if the template type exists, false otherwise
    */
-  public boolean existsEmailTemplate(String langCode, String type) {
+  public boolean existsEmailTemplate(final String langCode, final String type) {
     try {
       return resolveTemplatesFromRoot(langCode, type)[0] != null;
     } catch (IOException ex) {
@@ -336,7 +342,7 @@ public final class NotificationMailer implements Runnable {
    * @param types collection of types of email (e.g. <em>individualAddEncounter</em>)
    * @return {@code EmailTemplate} instance
    */
-  private EmailTemplate loadEmailTemplate(String langCode, List<String> types) throws IOException {
+  private EmailTemplate loadEmailTemplate(final String langCode, final List<String> types) throws IOException {
     if (langCode != null && !"".equals(langCode.trim())) {
       for (String type : types) {
         if (existsEmailTemplate(langCode, type))
@@ -359,7 +365,7 @@ public final class NotificationMailer implements Runnable {
    * @param type string specifying type of email (e.g. <em>individualAddEncounter</em>)
    * @return {@code EmailTemplate} instance
    */
-  private EmailTemplate loadEmailTemplate(String langCode, String type) throws IOException {
+  private EmailTemplate loadEmailTemplate(final String langCode, final String type) throws IOException {
     // Load generic email template for context.
     File[] fBase = resolveTemplatesFromRoot(langCode, BASE_TEMPLATE_ROOT);
     if (fBase[0] == null || !fBase[0].isFile())
@@ -416,7 +422,7 @@ public final class NotificationMailer implements Runnable {
    * @return pair (as 2-element array) of files (plain text, HTML text)
    * @throws IOException if a problem occurs in locating the template files
    */
-  private File[] resolveTemplatesFromRoot(String langCode, String baseName) throws IOException {
+  private File[] resolveTemplatesFromRoot(final String langCode, final String baseName) throws IOException {
     Objects.requireNonNull(langCode);
     Objects.requireNonNull(baseName);
     String s = baseName + ".txt";
@@ -437,7 +443,7 @@ public final class NotificationMailer implements Runnable {
    * @param search term to find in both subject and body
    * @param replace term to substitute when a match is found
    */
-  public void replace(String search, String replace) {
+  public void replace(final String search, final String replace) {
     mailer.replace(search, replace, true);
   }
 
@@ -448,7 +454,7 @@ public final class NotificationMailer implements Runnable {
    * @param search regex search term
    * @param replace regex replacement term
    */
-  public void replaceRegex(String search, String replace) {
+  public void replaceRegex(final String search, final String replace) {
     mailer.replaceRegex(search, replace, 0, true);
   }
 
@@ -458,7 +464,7 @@ public final class NotificationMailer implements Runnable {
    * @param search term to find
    * @param replace term to substitute
    */
-  public void replaceInPlainText(String search, String replace) {
+  public void replaceInPlainText(final String search, final String replace) {
     mailer.replaceInPlainText(search, replace, true);
   }
 
@@ -468,7 +474,7 @@ public final class NotificationMailer implements Runnable {
    * @param search regex search term
    * @param replace regex replacement term
    */
-  public void replaceRegexInPlainText(String search, String replace) {
+  public void replaceRegexInPlainText(final String search, final String replace) {
     mailer.replaceRegexInPlainText(search, replace, true);
   }
 
@@ -478,7 +484,7 @@ public final class NotificationMailer implements Runnable {
    * @param search term to find in both subject and body
    * @param replace term to substitute when a match is found
    */
-  public void replaceInHtmlText(String search, String replace) {
+  public void replaceInHtmlText(final String search, final String replace) {
     mailer.replaceInHtmlText(search, replace, true);
   }
 
@@ -488,7 +494,7 @@ public final class NotificationMailer implements Runnable {
    * @param search regex search term
    * @param replace regex replacement term
    */
-  public void replaceRegexInHtmlText(String search, String replace) {
+  public void replaceRegexInHtmlText(final String search, final String replace) {
     mailer.replaceRegexInHtmlText(search, replace, true);
   }
 
@@ -532,7 +538,7 @@ public final class NotificationMailer implements Runnable {
    * @param ind MarkedIndividual for which to add tag data
    * @return map instance for tag replacement in email template
    */
-  public static Map<String, String> createBasicTagMap(HttpServletRequest req, MarkedIndividual ind) {
+  public static Map<String, String> createBasicTagMap(final HttpServletRequest req, final MarkedIndividual ind) {
     Map<String, String> map = new HashMap<>();
     addTags(map, req, ind);
     return map;
@@ -568,7 +574,7 @@ public final class NotificationMailer implements Runnable {
    * @param enc Encounter for which to add tag data
    * @return map instance for tag replacement in email template
    */
-  public static Map<String, String> createBasicTagMap(HttpServletRequest req, Encounter enc) {
+  public static Map<String, String> createBasicTagMap(final HttpServletRequest req, final Encounter enc) {
     Map<String, String> map = new HashMap<>();
     addTags(map, req, enc);
     return map;
@@ -586,7 +592,7 @@ public final class NotificationMailer implements Runnable {
    * @param enc Encounter for which to add tag data
    * @return map instance for tag replacement in email template
    */
-  public static Map<String, String> createBasicTagMap(HttpServletRequest req, MarkedIndividual ind, Encounter enc) {
+  public static Map<String, String> createBasicTagMap(final HttpServletRequest req, final MarkedIndividual ind, final Encounter enc) {
     Map<String, String> map = new HashMap<>();
     addTags(map, req, ind);
     addTags(map, req, enc);
@@ -600,7 +606,7 @@ public final class NotificationMailer implements Runnable {
    * @param ind MarkedIndividual for which to add tag data
    * @param map map to which to add tag data
    */
-  private static void addTags(Map<String, String> map, HttpServletRequest req, MarkedIndividual ind) {
+  private static void addTags(final Map<String, String> map, final HttpServletRequest req, final MarkedIndividual ind) {
     Objects.requireNonNull(map);
     if (!map.containsKey("@URL_LOCATION@"))
       map.put("@URL_LOCATION@", String.format("http://%s", CommonConfiguration.getURLLocation(req)));
@@ -624,7 +630,7 @@ public final class NotificationMailer implements Runnable {
    * @param enc Encounter for which to add tag data
    * @return map instance for tag replacement in email template
    */
-  private static void addTags(Map<String, String> map, HttpServletRequest req, Encounter enc) {
+  private static void addTags(final Map<String, String> map, final HttpServletRequest req, final Encounter enc) {
     Objects.requireNonNull(map);
     if (!map.containsKey("@URL_LOCATION@"))
       map.put("@URL_LOCATION@", String.format("http://%s", CommonConfiguration.getURLLocation(req)));
@@ -657,7 +663,7 @@ public final class NotificationMailer implements Runnable {
    * @param cs comma-separated string of email addresses
    * @return list of strings
    */
-  public static List<String> splitEmails(String cs) {
+  public static List<String> splitEmails(final String cs) {
     if (cs == null)
       return Collections.EMPTY_LIST;
     // Conservative checking to avoid potential blank email entries.
@@ -676,7 +682,7 @@ public final class NotificationMailer implements Runnable {
    * @param c collection of email addresses to join
    * @return comma-separated string
    */
-  public static String joinEmails(Collection<String> c) {
+  public static String joinEmails(final Collection<String> c) {
     return EmailTemplate.join(", ", c);
   }
 
@@ -687,7 +693,7 @@ public final class NotificationMailer implements Runnable {
    * @param c collection to process
    * @return original collection, with blanks removed
    */
-  public static <T extends Collection<String>> T filterBlanks(T c) {
+  public static <T extends Collection<String>> T filterBlanks(final T c) {
     if (c == null || c.isEmpty())
       return c;
     Collection<String> x = new HashSet<>();
@@ -704,7 +710,7 @@ public final class NotificationMailer implements Runnable {
    * Appends the specified text to the email subject line.
    * @param text text to append
    */
-  public void appendToSubject(String text) {
+  public void appendToSubject(final String text) {
     Objects.requireNonNull(text);
     String subj = mailer.getSubject();
     mailer.setSubject(subj == null ? text : subj + text);

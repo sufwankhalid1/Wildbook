@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Vector;
+import java.util.Map;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import javax.servlet.ServletConfig;
@@ -170,7 +170,7 @@ public void doPost(final HttpServletRequest request, final HttpServletResponse r
           ThreadPoolExecutor es = MailThreadExecutorService.getExecutorService();
           es.execute(mailer);
           es.shutdown();
-        } 
+        }
         else {
           out.println(ServletUtilities.getHeader(request));
           out.println("<strong>Failure:</strong> I have NOT removed encounter " + request.getParameter("number") + " from the database. An exception occurred in the deletion process.");

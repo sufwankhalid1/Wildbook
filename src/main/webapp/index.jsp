@@ -29,12 +29,7 @@ myShepherd=new Shepherd(context);
 	myShepherd.beginDBTransaction();
   	ArrayList<User> users=myShepherd.getAllUsers();
   	if(users.size()==0){
-  		String salt=ServletUtilities.getSalt().toHex();
-        String hashedPassword=ServletUtilities.hashAndSaltPassword("tomcat123", salt);
-        //System.out.println("Creating default hashed password: "+hashedPassword+" with salt "+salt);
-        
-        
-  		User newUser=new User("tomcat",hashedPassword,salt);
+  		User newUser=new User("tomcat","tomcat123");
   		myShepherd.getPM().makePersistent(newUser);
   		System.out.println("Creating tomcat user account...");
   		myShepherd.commitDBTransaction();
@@ -494,7 +489,7 @@ finally{
             if(featuredUser!=null){
                 String profilePhotoURL="images/empty_profile.jpg";
                 if(featuredUser.getUserImage()!=null){
-                	profilePhotoURL="/"+CommonConfiguration.getDataDirectoryName(context)+"/users/"+featuredUser.getUsername()+"/"+featuredUser.getUserImage().getFilename();
+                	profilePhotoURL=featuredUser.getUserImage().webPathString();
                 } 
             
             %>
@@ -585,7 +580,7 @@ finally{
                         	  String profilePhotoURL="images/empty_profile.jpg";
                               User thisUser=myShepherd.getUser(spotter);
                               if(thisUser.getUserImage()!=null){
-                              	profilePhotoURL="/"+CommonConfiguration.getDataDirectoryName(context)+"/users/"+thisUser.getUsername()+"/"+thisUser.getUserImage().getFilename();
+                              	profilePhotoURL=thisUser.getUserImage().webPathString();
                               } 
                               //System.out.println(spotters.values().toString());
                             Integer myInt=spotters.get(spotter);

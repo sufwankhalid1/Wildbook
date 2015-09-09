@@ -20,13 +20,16 @@
 package org.ecocean.servlet;
 
 import java.io.File;
+import java.io.File;
+import java.io.IOException;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.StringTokenizer;
-import java.util.Vector;
+import java.io.PrintWriter;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ThreadPoolExecutor;
-
-import org.ecocean.CommonConfiguration;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -34,15 +37,13 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ThreadPoolExecutor;
+import org.ecocean.CommonConfiguration;
+import org.ecocean.Encounter;
+import org.ecocean.MailThreadExecutorService;
+import org.ecocean.MarkedIndividual;
+import org.ecocean.NotificationMailer;
+import org.ecocean.Shepherd;
+import org.ecocean.mmutil.StringUtilities;
 
 
 public class IndividualCreate extends HttpServlet {
@@ -115,8 +116,9 @@ public void doPost(final HttpServletRequest request, final HttpServletResponse r
 
 
         if (belongsTo == null && newIndividualID != null) {
+            MarkedIndividual newShark = null;
           try {
-            MarkedIndividual newShark = new MarkedIndividual(newIndividualID, enc2make);
+            newShark = new MarkedIndividual(newIndividualID, enc2make);
             enc2make.setIndividualID(newIndividualID);
             enc2make.setMatchedBy("Unmatched first encounter");
             newShark.addComments("<p><em>" + request.getRemoteUser() + " on " + (new java.util.Date()).toString() + "</em><br>" + "Created " + newIndividualID + ".</p>");
@@ -158,7 +160,7 @@ public void doPost(final HttpServletRequest request, final HttpServletResponse r
               if (newShark != null)
                 tagMap.put(NotificationMailer.EMAIL_NOTRACK, "individual=" + newShark.getIndividualID());
               for (String emailTo : cSubmitters) {
-                tagMap.put(NotificationMailer.EMAIL_HASH_TAG, Encounter.getHashOfEmailString(emailTo));
+                tagMap.put(NotificationMailer.EMAIL_HASH_TAG, StringUtilities.getHashOf(emailTo));
                 es.execute(new NotificationMailer(context, null, emailTo, "individualCreate", tagMap));
               }
               es.shutdown();
@@ -178,7 +180,7 @@ public void doPost(final HttpServletRequest request, final HttpServletResponse r
 
 
               ServletUtilities.addATOMEntry(rssTitle, rssLink, rssDescription, atomFile,context);
-              
+
             }
             //set up the directory for this individual
             File thisSharkDir = new File(individualsDir, newIndividualID);

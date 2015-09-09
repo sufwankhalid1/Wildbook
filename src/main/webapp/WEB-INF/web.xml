@@ -134,7 +134,6 @@
 				   /UpdateEmailAddress = authc, roles[admin]
 		      			
 				
-				/BatchUpload/** = authc, roles[admin]
 				/appadmin/batch* = authc, roles[admin]
 				/EncounterSetSubmitterID = authc, roles[admin]
 				 
@@ -444,19 +443,6 @@
     <servlet-class>org.ecocean.servlet.AdoptionAction</servlet-class>
   </servlet>
 
-  <!--
-  
-    <servlet>
-    <servlet-name>BatchUpload</servlet-name>
-    <servlet-class>org.ecocean.servlet.BatchUpload</servlet-class>
-  </servlet>
-  
-   <servlet-mapping>
-    <servlet-name>BatchUpload</servlet-name>
-    <url-pattern>/BatchUpload/*</url-pattern>
-  </servlet-mapping>
-  -->
-  
     <servlet>
       <servlet-name>UserCreate</servlet-name>
       <servlet-class>org.ecocean.servlet.UserCreate</servlet-class>
@@ -777,8 +763,15 @@
     <servlet-name>TissueSampleSetMicrosatelliteMarkers</servlet-name>
     <servlet-class>org.ecocean.servlet.TissueSampleSetMicrosatelliteMarkers</servlet-class>
   </servlet>
-
   <servlet>
+   <servlet-name>TissueSampleRemoveBiologicalMeasurement</servlet-name>
+   <servlet-class>org.ecocean.servlet.TissueSampleRemoveBiologicalMeasurement</servlet-class>
+  </servlet>
+<servlet>
+   <servlet-name>TissueSampleRemoveHaplotype</servlet-name>
+   <servlet-class>org.ecocean.servlet.TissueSampleRemoveHaplotype</servlet-class>
+ </servlet>
+   <servlet>
     <servlet-name>TissueSampleSetSexAnalysis</servlet-name>
     <servlet-class>org.ecocean.servlet.TissueSampleSetSexAnalysis</servlet-class>
   </servlet>

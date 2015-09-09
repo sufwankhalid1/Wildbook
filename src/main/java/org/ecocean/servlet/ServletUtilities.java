@@ -28,19 +28,29 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.List;
+import java.util.Map;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Vector;
+import java.util.Properties;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import javax.jdo.Query;
+import javax.jdo.Query;
 import javax.servlet.http.Cookie;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+//import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -62,6 +72,7 @@ import org.ecocean.NotificationMailer;
 import org.ecocean.Occurrence;
 import org.ecocean.Shepherd;
 import org.ecocean.ShepherdProperties;
+import org.ecocean.mmutil.StringUtilities;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
@@ -80,36 +91,7 @@ import com.sun.syndication.io.SyndFeedInput;
 import com.sun.syndication.io.SyndFeedOutput;
 import com.sun.syndication.io.XmlReader;
 
-
 import de.neuland.jade4j.Jade4J;
-
-import javax.jdo.Query;
-//import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.ServletContext;
-//import javax.servlet.http.HttpSession;
-
-
-import java.io.*;
-import java.net.URL;
-import java.text.CharacterIterator;
-import java.text.StringCharacterIterator;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Vector;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.sql.*;
-import java.util.Collection;
-import java.util.Map;
-
-import org.ecocean.*;
-import org.apache.shiro.crypto.hash.*;
-import org.apache.shiro.util.*; 
-import org.apache.shiro.crypto.*;
-
-import java.util.Properties;
-
-import javax.servlet.http.Cookie;
 
 //ATOM feed
 
@@ -185,7 +167,7 @@ public class ServletUtilities {
    * @param message message to include in email notification
    * @param context webapp context
    */
-  public static void informInterestedParties(HttpServletRequest request, String encounterNumber, String message, String context) {
+  public static void informInterestedParties(final HttpServletRequest request, final String encounterNumber, final String message, final String context) {
     Shepherd shep = new Shepherd(context);
     shep.beginDBTransaction();
     if (shep.isEncounter(encounterNumber)) {
@@ -197,7 +179,7 @@ public class ServletUtilities {
           for (String mailTo : notifyMe) {
             Map<String, String> tagMap = NotificationMailer.createBasicTagMap(request, enc);
             tagMap.put(NotificationMailer.EMAIL_NOTRACK, "number=" + encounterNumber);
-            tagMap.put(NotificationMailer.EMAIL_HASH_TAG, Encounter.getHashOfEmailString(mailTo));
+            tagMap.put(NotificationMailer.EMAIL_HASH_TAG, StringUtilities.getHashOf(mailTo));
             tagMap.put(NotificationMailer.STANDARD_CONTENT_TAG, message == null ? "" : message);
 //            String langCode = ServletUtilities.getLanguageCode(request);
             NotificationMailer mailer = new NotificationMailer(context, null, mailTo, "encounterDataUpdate", tagMap);
@@ -218,7 +200,7 @@ public class ServletUtilities {
    * @param message message to include in email notification
    * @param context webapp context
    */
-  public static void informInterestedIndividualParties(HttpServletRequest request, String individualID, String message, String context) {
+  public static void informInterestedIndividualParties(final HttpServletRequest request, final String individualID, final String message, final String context) {
     Shepherd shep = new Shepherd(context);
     shep.beginDBTransaction();
     if (shep.isMarkedIndividual(individualID)) {
@@ -230,7 +212,7 @@ public class ServletUtilities {
           for (String mailTo : notifyMe) {
             Map<String, String> tagMap = NotificationMailer.createBasicTagMap(request, ind);
             tagMap.put(NotificationMailer.EMAIL_NOTRACK, "individual=" + individualID);
-            tagMap.put(NotificationMailer.EMAIL_HASH_TAG, Encounter.getHashOfEmailString(mailTo));
+            tagMap.put(NotificationMailer.EMAIL_HASH_TAG, StringUtilities.getHashOf(mailTo));
             tagMap.put(NotificationMailer.STANDARD_CONTENT_TAG, message == null ? "" : message);
 //            String langCode = ServletUtilities.getLanguageCode(request);
             NotificationMailer mailer = new NotificationMailer(context, null, mailTo, "individualDataUpdate", tagMap);
@@ -244,6 +226,9 @@ public class ServletUtilities {
     shep.closeDBTransaction();
   }
 
+  public static String getConfigDir(final HttpServletRequest request) {
+      return request.getServletContext().getInitParameter("config.dir");
+  }
 
   //Loads a String of text from a specified file.
   //This is generally used to load an email template for automated emailing

@@ -13,7 +13,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.ecocean.CommonConfiguration;
 import org.ecocean.MailThreadExecutorService;
-import org.ecocean.NotificationMailer;
 import org.ecocean.Shepherd;
 import org.ecocean.ShepherdPMF;
 import org.ecocean.User;
@@ -434,24 +433,24 @@ public class MediaSubmissionController
         newMediaMessage=newMediaMessage.replaceAll("INSERTTEXT", ("http://" + CommonConfiguration.getURLLocation
                 (request) + "/mediaSubmissionAdmin.jsp?mediaSubmissionID=" + media.getId()));
 
-        es.execute(new NotificationMailer(CommonConfiguration.getMailHost(context),
-                                          CommonConfiguration.getAutoEmailAddress(context),
-                                          CommonConfiguration.getNewSubmissionEmail(context),
-                                          ("("+CommonConfiguration.getHTMLTitle(context)+") New media submission: " + media.getId()),
-                                          newMediaMessage,
-                                          null,
-                                          context));
+//        es.execute(new NotificationMailer(CommonConfiguration.getMailHost(context),
+//                                          CommonConfiguration.getAutoEmailAddress(context),
+//                                          CommonConfiguration.getNewSubmissionEmail(context),
+//                                          ("("+CommonConfiguration.getHTMLTitle(context)+") New media submission: " + media.getId()),
+//                                          newMediaMessage,
+//                                          null,
+//                                          context));
         if (email != null) {
             if (logger.isDebugEnabled()) {
                 logger.debug("sending thankyou email to:" + email);
             }
-            es.execute(new NotificationMailer(CommonConfiguration.getMailHost(context),
-                                              CommonConfiguration.getAutoEmailAddress(context),
-                                              email,
-                                              ("("+CommonConfiguration.getHTMLTitle(context)+") Thank you for your report!"),
-                                              thanksmessage,
-                                              null,
-                                              context));
+//            es.execute(new NotificationMailer(CommonConfiguration.getMailHost(context),
+//                                              CommonConfiguration.getAutoEmailAddress(context),
+//                                              email,
+//                                              ("("+CommonConfiguration.getHTMLTitle(context)+") Thank you for your report!"),
+//                                              thanksmessage,
+//                                              null,
+//                                              context));
         }
 
         //

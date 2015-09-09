@@ -20,13 +20,19 @@
 package org.ecocean;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.TreeMap;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
@@ -39,7 +45,7 @@ public class CommonConfiguration {
   private static Map<String, Properties> propMap = new HashMap<String, Properties>();
 
 
-  private static Properties get(String context) {
+  private static Properties get(final String context) {
     Properties props = propMap.get(context);
     if (props == null) {
       props = loadProps(context);
@@ -51,7 +57,7 @@ public class CommonConfiguration {
 
 
 
-  private static synchronized Properties loadProps(String context) {
+  private static synchronized Properties loadProps(final String context) {
       Properties props=new Properties();
       try {
         props=ShepherdProperties.getProperties(COMMON_CONFIGURATION_PROPERTIES, "",context);
@@ -64,7 +70,7 @@ public class CommonConfiguration {
   }
 
   //start getter methods
-  public static String getURLLocation(HttpServletRequest request) {
+  public static String getURLLocation(final HttpServletRequest request) {
     return request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
   }
 
@@ -79,7 +85,7 @@ public class CommonConfiguration {
    * @return URI for the specified context path
    * @throws URISyntaxException if thrown when creating URI
    */
-  public static URI getServerURI(HttpServletRequest req, String contextPath) throws URISyntaxException {
+  public static URI getServerURI(final HttpServletRequest req, final String contextPath) throws URISyntaxException {
     return new URI(req.getScheme(), null, req.getServerName(), req.getServerPort(), contextPath, null, null).normalize();
   }
 
@@ -93,68 +99,68 @@ public class CommonConfiguration {
    * @return URI string for the server's root (without context path)
    * @throws URISyntaxException if thrown when creating URI
    */
-  public static String getServerURL(HttpServletRequest req, String contextPath) throws URISyntaxException {
+  public static String getServerURL(final HttpServletRequest req, final String contextPath) throws URISyntaxException {
     return getServerURI(req, contextPath).toASCIIString();
   }
 
-  
-  public static String getMailHost(String context) {
+
+  public static String getMailHost(final String context) {
     String s = getProperty("mailHost", context);
     return s != null ? s.trim() : s;
   }
 
-  public static boolean getMailHostSslOption(String context) {
+  public static boolean getMailHostSslOption(final String context) {
     return parseBoolean(getProperty("mailHostSSL",context), false);
   }
 
-  public static String getMailAuth(String context) {
+  public static String getMailAuth(final String context) {
     String s = getProperty("mailAuth", context);
     return s != null ? s.trim() : s;
   }
 
-  public static String getWikiLocation(String context) {
+  public static String getWikiLocation(final String context) {
     Properties props=get(context);
     if(props.getProperty("wikiLocation")!=null){return props.getProperty("wikiLocation").trim();}
     return null;
   }
 
-  public static String getDBLocation(String context) {
+  public static String getDBLocation(final String context) {
     return getProperty("dbLocation",context).trim();
   }
 
-  public static String getAutoEmailAddress(String context) {
+  public static String getAutoEmailAddress(final String context) {
     return getProperty("autoEmailAddress", context).trim();
   }
 
-  public static String getNewSubmissionEmail(String context) {
+  public static String getNewSubmissionEmail(final String context) {
     return getProperty("newSubmissionEmail",context).trim();
   }
 
-  public static String getR(String context) {
+  public static String getR(final String context) {
     return getProperty("R", context).trim();
   }
 
-  public static String getEpsilon(String context) {
+  public static String getEpsilon(final String context) {
     return getProperty("epsilon",context).trim();
   }
 
-  public static String getSizelim(String context) {
+  public static String getSizelim(final String context) {
     return getProperty("sizelim",context).trim();
   }
 
-  public static String getMaxTriangleRotation(String context) {
+  public static String getMaxTriangleRotation(final String context) {
     return getProperty("maxTriangleRotation",context).trim();
   }
 
-  public static String getC(String context) {
+  public static String getC(final String context) {
     return getProperty("C",context).trim();
   }
 
-  public static String getHTMLDescription(String context) {
+  public static String getHTMLDescription(final String context) {
     return getProperty("htmlDescription",context).trim();
   }
 
-  public static int getMaxMediaSizeInMegabytes(String context){
+  public static int getMaxMediaSizeInMegabytes(final String context){
     int maxSize=10;
 
     try{
@@ -171,34 +177,34 @@ public class CommonConfiguration {
     return maxSize;
   }
 
-  public static String getHTMLKeywords(String context) {
+  public static String getHTMLKeywords(final String context) {
     return getProperty("htmlKeywords",context).trim();
   }
 
-  public static String getHTMLTitle(String context) {
+  public static String getHTMLTitle(final String context) {
     return getProperty("htmlTitle",context).trim();
   }
 
 
-  public static String getCSSURLLocation(HttpServletRequest request, String context) {
+  public static String getCSSURLLocation(final HttpServletRequest request, final String context) {
     return (request.getScheme() + "://" +
       getURLLocation(request) + "/" +
       getProperty("cssURLLocation",context)).trim();
   }
 
-  public static String getHTMLAuthor(String context) {
+  public static String getHTMLAuthor(final String context) {
     return getProperty("htmlAuthor",context).trim();
   }
 
-  public static String getHTMLShortcutIcon(String context) {
+  public static String getHTMLShortcutIcon(final String context) {
     return getProperty("htmlShortcutIcon",context).trim();
   }
 
-  public static String getGlobalUniqueIdentifierPrefix(String context) {
+  public static String getGlobalUniqueIdentifierPrefix(final String context) {
     return getProperty("GlobalUniqueIdentifierPrefix",context);
   }
 
-  public static String getURLToMastheadGraphic(HttpServletRequest request, String context) {
+  public static String getURLToMastheadGraphic(final HttpServletRequest request, final String context) {
     String prop = getProperty("urlToMastheadGraphic",context);
     if (prop.startsWith("http:")) {
         return prop;
@@ -207,35 +213,35 @@ public class CommonConfiguration {
     return "http://" + CommonConfiguration.getURLLocation(request) + prop;
   }
 
-  public static String getTapirLinkURL(String context) {
+  public static String getTapirLinkURL(final String context) {
     return getProperty("tapirLinkURL",context);
   }
 
-  public static String getIPTURL(String context) {
+  public static String getIPTURL(final String context) {
     return getProperty("iptURL",context);
   }
 
-  public static String getURLToFooterGraphic(String context) {
+  public static String getURLToFooterGraphic(final String context) {
     return getProperty("urlToFooterGraphic",context);
   }
 
-  public static String getGoogleMapsKey(String context) {
+  public static String getGoogleMapsKey(final String context) {
     return getProperty("googleMapsKey",context);
   }
 
-  public static String getGoogleSearchKey(String context) {
+  public static String getGoogleSearchKey(final String context) {
     return getProperty("googleSearchKey",context);
   }
 
-  public static String getProperty(String name, String context) {
+  public static String getProperty(final String name, final String context) {
     return get(context).getProperty(name);
   }
 
-  public static Enumeration<?> getPropertyNames(String context) {
+  public static Enumeration<?> getPropertyNames(final String context) {
     return get(context).propertyNames();
   }
 
-  public static ArrayList<String> getSequentialPropertyValues(String propertyPrefix, String context){
+  public static ArrayList<String> getSequentialPropertyValues(final String propertyPrefix, final String context){
     Properties myProps=get(context);
     //System.out.println(myProps.toString());
     ArrayList<String> returnThese=new ArrayList<String>();
@@ -262,7 +268,7 @@ public class CommonConfiguration {
    * @param thisString The name of the property to show/hide.
    * @return true if the property is not defined or has any other value than "false". Otherwise, returns false.
    */
-  public static boolean showProperty(String thisString, String context) {
+  public static boolean showProperty(final String thisString, final String context) {
     if((getProperty(thisString, context)!=null)&&(getProperty(thisString, context).equals("false"))){return false;}
     return true;
   }
@@ -272,7 +278,7 @@ public class CommonConfiguration {
    *
    * @return true if adoption functionality should be displayed. False if adoptions are not supported in this catalog.
    */
-  public static boolean allowAdoptions(String context) {
+  public static boolean allowAdoptions(final String context) {
     get(context);
     boolean canAdopt = true;
     if ((getProperty("allowAdoptions",context) != null) && (getProperty("allowAdoptions", context).equals("false"))) {
@@ -280,26 +286,15 @@ public class CommonConfiguration {
     }
     return canAdopt;
   }
-  
-  
-  /**
-   * This configuration option defines whether batch upload of {@link MarkedIndividual} or {@link Encounter} objects are allowed.
-   *
-   * @return true if batch upload functionality should be displayed. False if batch upload are not supported in this catalog.
-   */
-  public static boolean allowBatchUpload(String context) {
-    return parseBoolean(getProperty("allowBatchUpload",context), false);
-  }
 
 
-  
   /**
    * Helper method to parse boolean from string.
    * @param s string to parse
    * @param def default value
    * @return true if s is one of { true, yes, ok, 1 }
    */
-  private static boolean parseBoolean(String s, boolean def) {
+  private static boolean parseBoolean(final String s, final boolean def) {
     if (s == null)
       return def;
     String prop = s.trim().toLowerCase(Locale.US);
@@ -309,43 +304,7 @@ public class CommonConfiguration {
     return false;
   }
 
-  /**
-   * This configuration option defines the class name of the batch data plugin
-   * to use (must implement {@link org.ecocean.batch.BatchProcessorPlugin}).
-   *
-   * @return Fully-qualified class name of the plugin to use, or null.
-   */
-  public static String getBatchUploadPlugin(String context) {
-    //initialize(context);
-    if (getProperty("batchUploadPlugin", context) != null) {
-      return getProperty("batchUploadPlugin", context).trim();
-    }
-    return null;
-  }
-
-  /**
-   * This configuration option defines whether batch upload of {@link MarkedIndividual} or {@link Encounter} objects are allowed.
-   *
-   * @return true if batch upload functionality should be displayed. False if batch upload are not supported in this catalog.
-   */
-  public static int getBatchUploadProgressRefresh(String context) {
-    initialize(context);
-    int def = 10;
-    String prop = getProperty("batchUploadProgressRefresh", context);
-    if (prop == null || "".equals(prop.trim())) {
-      return def;
-    }
-    try {
-      return Integer.parseInt(prop.trim());
-    } catch (NumberFormatException ex) {
-      return def;
-    }
-  }
-
-
-  
-
-  public static boolean sendEmailNotifications(String context) {
+  public static boolean sendEmailNotifications(final String context) {
     get(context);
     boolean sendNotifications = true;
     if ((getProperty("sendEmailNotifications",context) != null) && (getProperty("sendEmailNotifications", context).equals("false"))) {
@@ -359,7 +318,7 @@ public class CommonConfiguration {
    *
    * @return true if nicknames are displayed for MarkedIndividual entries. False otherwise.
    */
-  public static boolean allowNicknames(String context) {
+  public static boolean allowNicknames(final String context) {
     get(context);
     boolean canNickname = true;
     if ((getProperty("allowNicknames",context) != null) && (getProperty("allowNicknames",context).equals("false"))) {
@@ -373,7 +332,7 @@ public class CommonConfiguration {
    *
    * @return true if this catalog is for a species for which the spot pattern recognition software component can be used. False otherwise.
    */
-  public static boolean useSpotPatternRecognition(String context) {
+  public static boolean useSpotPatternRecognition(final String context) {
     get(context);
     boolean useSpotPatternRecognition = true;
     if ((getProperty("useSpotPatternRecognition",context) != null) && (getProperty("useSpotPatternRecognition",context).equals("false"))) {
@@ -387,7 +346,7 @@ public class CommonConfiguration {
    *
    * @return true if edits are allows. False otherwise.
    */
-  public static boolean isCatalogEditable(String context) {
+  public static boolean isCatalogEditable(final String context) {
     get(context);
     boolean isCatalogEditable = true;
     if ((getProperty("isCatalogEditable", context) != null) && (getProperty("isCatalogEditable", context).equals("false"))) {
@@ -401,7 +360,7 @@ public class CommonConfiguration {
    *
    * @return true if EXIF data should be shown. False otherwise.
    */
-  public static boolean showEXIFData(String context) {
+  public static boolean showEXIFData(final String context) {
     get(context);
     boolean showEXIF = true;
     if ((getProperty("showEXIF",context) != null) && (getProperty("showEXIF", context).equals("false"))) {
@@ -415,7 +374,7 @@ public class CommonConfiguration {
    *
    * @return true if a TapirLink provider is used with the framework. False otherwise.
    */
-  public static boolean useTapirLinkURL(String context) {
+  public static boolean useTapirLinkURL(final String context) {
     get(context);
     boolean useTapirLink = true;
     if ((getProperty("tapirLinkURL",context) != null) && (getProperty("tapirLinkURL",context).equals("false"))) {
@@ -424,28 +383,28 @@ public class CommonConfiguration {
     return useTapirLink;
   }
 
-  public static boolean showMeasurements(String context) {
+  public static boolean showMeasurements(final String context) {
     return showCategory("showMeasurements",context);
   }
 
-  public static boolean showMetalTags(String context) {
+  public static boolean showMetalTags(final String context) {
     return showCategory("showMetalTags",context);
   }
 
-  public static boolean showAcousticTag(String context) {
+  public static boolean showAcousticTag(final String context) {
     return showCategory("showAcousticTag",context);
   }
 
-  public static boolean showSatelliteTag(String context) {
+  public static boolean showSatelliteTag(final String context) {
     return showCategory("showSatelliteTag",context);
   }
 
-  public static boolean showReleaseDate(String context) {
+  public static boolean showReleaseDate(final String context) {
     return showCategory("showReleaseDate",context);
   }
 
-  public static String appendEmailRemoveHashString(HttpServletRequest request, String
-                                                   originalString, String emailAddress, String context) {
+  public static String appendEmailRemoveHashString(final HttpServletRequest request, String
+                                                   originalString, final String emailAddress, final String context) {
     get(context);
     if (getProperty("removeEmailString",context) != null) {
       originalString = originalString.replaceAll("REMOVEME",("\n\n" + getProperty("removeEmailString",context)
@@ -457,7 +416,7 @@ public class CommonConfiguration {
     return originalString;
   }
 
-  public static Map<String, String> getIndexedValuesMap(String baseKey, String context) {
+  public static Map<String, String> getIndexedValuesMap(final String baseKey, final String context) {
     Map<String, String> map = new TreeMap<>();
     boolean hasMore = true;
     int index = 0;
@@ -477,7 +436,7 @@ public class CommonConfiguration {
     return map;
   }
 
-  public static List<String> getIndexedValues(String baseKey, String context) {
+  public static List<String> getIndexedValues(final String baseKey, final String context) {
     List<String> list = new ArrayList<String>();
     boolean hasMore = true;
     int index = 0;
@@ -497,7 +456,7 @@ public class CommonConfiguration {
     return list;
   }
 
-  public static Integer getIndexNumberForValue(String baseKey, String checkValue, String context){
+  public static Integer getIndexNumberForValue(final String baseKey, final String checkValue, final String context){
     System.out.println("getIndexNumberForValue started for baseKey "+baseKey+" and checkValue "+checkValue);
     boolean hasMore = true;
     int index = 0;
@@ -519,7 +478,7 @@ public class CommonConfiguration {
   }
 
 
-  private static boolean showCategory(final String category, String context) {
+  private static boolean showCategory(final String category, final String context) {
     String showMeasurements = getProperty(category,context);
     return !Boolean.FALSE.toString().equals(showMeasurements);
   }
@@ -549,7 +508,7 @@ public class CommonConfiguration {
    *
    * @return true if edits are allows. False otherwise.
    */
-  public static boolean showUsersToPublic(String context) {
+  public static boolean showUsersToPublic(final String context) {
     get(context);
     boolean showUsersToPublic = true;
     if ((getProperty("showUsersToPublic",context) != null) && (getProperty("showUsersToPublic",context).equals("false"))) {
@@ -557,14 +516,14 @@ public class CommonConfiguration {
     }
     return showUsersToPublic;
   }
-  
+
   /**
    * Gets the directory for holding website data ('shepherd_data_dir').
    * @param sc ServletContext as reference for finding directory
    * @return The data directory used for web application storage.
    * @throws FileNotFoundException if folder not found (or unable to create)
    */
-  public static File getDataDirectory(ServletContext sc, String context) throws FileNotFoundException {
+  public static File getDataDirectory(final ServletContext sc, final String context) throws FileNotFoundException {
     String webappRoot = sc.getRealPath("/");
     File dataDir = new File(webappRoot).getParentFile();
     File f = new File(dataDir, getDataDirectoryName(context));
@@ -580,7 +539,7 @@ public class CommonConfiguration {
    * @return The user-specific data directory used for web application storage.
    * @throws FileNotFoundException if folder not found (or unable to create)
    */
-  public static File getUsersDataDirectory(ServletContext sc, String context) throws FileNotFoundException {
+  public static File getUsersDataDirectory(final ServletContext sc, final String context) throws FileNotFoundException {
     File f = new File(getDataDirectory(sc, context), "users");
     if (!f.exists() && !f.mkdir())
       throw new FileNotFoundException("Unable to find/create folder: " + f.getAbsolutePath());
@@ -594,7 +553,7 @@ public class CommonConfiguration {
    * @return The user-specific data directory used for web application storage.
    * @throws FileNotFoundException if folder not found (or unable to create)
    */
-  public static File getDataDirectoryForUser(ServletContext sc, String username, String context) throws FileNotFoundException {
+  public static File getDataDirectoryForUser(final ServletContext sc, final String username, final String context) throws FileNotFoundException {
     if (username == null)
       throw new NullPointerException();
     if ("".equals(username.trim()))
@@ -604,9 +563,9 @@ public class CommonConfiguration {
       throw new FileNotFoundException("Unable to find/create folder: " + f.getAbsolutePath());
     return f;
   }
-  
-  
-  public static boolean isIntegratedWithWildMe(String context){
+
+
+  public static boolean isIntegratedWithWildMe(final String context){
 
     get(context);
     boolean integrated = true;

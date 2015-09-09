@@ -22,6 +22,7 @@ package org.ecocean;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -519,7 +520,7 @@ public class Shepherd {
       return user;
   }
 
-  private User getUserByEmailAddress(final String email){
+  public User getUserByEmailAddress(final String email){
     String filter="SELECT FROM org.ecocean.User WHERE emailAddress == \""+email+"\"";
     Query query=getPM().newQuery(filter);
     @SuppressWarnings("unchecked")
@@ -1025,6 +1026,15 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(final Class<T> clazz, f
       npe.printStackTrace();
       return null;
     }
+  }
+
+  public ArrayList<SinglePhotoVideo> getAllSinglePhotoVideosWithKeyword(final Keyword word) {
+      String keywordQueryString="SELECT FROM org.ecocean.SinglePhotoVideo WHERE keywords.contains(word0) && ( word0.indexname == \""+word.getIndexname()+"\" ) VARIABLES org.ecocean.Keyword word0";
+      Query samples = pm.newQuery(keywordQueryString);
+      Collection c = (Collection) (samples.execute());
+      ArrayList<SinglePhotoVideo> myArray=new ArrayList<SinglePhotoVideo>(c);
+      samples.closeAll();
+      return myArray;
   }
 
   public Iterator getAllSinglePhotoVideosNoQuery() {
@@ -1535,23 +1545,8 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(final Class<T> clazz, f
     query.closeAll();
     return null;
   }
-  
-  public User getUserByEmailAddress(String email){
-    String filter="SELECT FROM org.ecocean.User WHERE emailAddress == \""+email+"\"";
-    Query query=getPM().newQuery(filter);
-    Collection c = (Collection) (query.execute());
-    Iterator it = c.iterator();
 
-    while(it.hasNext()){
-      User myUser=(User)it.next();
-      query.closeAll();
-      return myUser;
-    }
-    query.closeAll();
-    return null;
-  }
-
-  public User getUserBySocialId(String service, String id) {
+  public User getUserBySocialId(final String service, final String id) {
         if ((id == null) || (service == null)) return null;
         ArrayList<User> users = getAllUsers();
         for (int i = 0 ; i < users.size() ; i++) {
@@ -1559,7 +1554,7 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(final Class<T> clazz, f
         }
         return null;
 
-/*   TODO figure out how to query on HashMaps within fields 
+/*   TODO figure out how to query on HashMaps within fields
     String filter="SELECT FROM org.ecocean.User WHERE social_" + service + " == \"" + id + "\"";
     Query query=getPM().newQuery(filter);
     Collection c = (Collection) (query.execute());
@@ -3205,7 +3200,7 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(final Class<T> clazz, f
     if((c!=null)&&(c.size()>0)){return c.iterator();}
     else{return null;}
   }
-  
+
   public User getRandomUserWithPhotoAndStatement(){
     //(username.toLowerCase().indexOf('demo') == -1)
     String filter = "fullName != null && userImage != null && userStatement != null && (username.toLowerCase().indexOf('demo') == -1) && (username.toLowerCase().indexOf('test') == -1)";
@@ -3223,8 +3218,8 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(final Class<T> clazz, f
     q.closeAll();
     return null;
   }
-  
-  public ArrayList<Encounter> getMostRecentIdentifiedEncountersByDate(int numToReturn){
+
+  public ArrayList<Encounter> getMostRecentIdentifiedEncountersByDate(final int numToReturn){
     ArrayList<Encounter> matchingEncounters = new ArrayList<Encounter>();
     String filter = "individualID != null";
     Extent encClass = pm.getExtent(Encounter.class, true);
@@ -3232,26 +3227,26 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(final Class<T> clazz, f
     q.setOrdering("dwcDateAddedLong descending");
     Collection c = (Collection) (q.execute());
     if((c!=null)&&(c.size()>0)){
-      
+
       int numAdded=0;
       while(numAdded<numToReturn){
-        ArrayList<Encounter> results=new ArrayList<Encounter>(c); 
+        ArrayList<Encounter> results=new ArrayList<Encounter>(c);
         matchingEncounters.add(results.get(numAdded));
         numAdded++;
       }
-      
+
     }
-    
+
     q.closeAll();
     return matchingEncounters;
   }
-  
-  public Map<String,Integer> getTopUsersSubmittingEncountersSinceTimeInDescendingOrder(long startTime){
 
-    
+  public Map<String,Integer> getTopUsersSubmittingEncountersSinceTimeInDescendingOrder(final long startTime){
+
+
     Map<String,Integer> matchingUsers=new HashMap<String,Integer>();
-    
-    
+
+
     String filter = "submitterID != null && dwcDateAddedLong >= "+startTime;
     System.out.println("     My filter is: "+filter);
     Extent encClass = pm.getExtent(Encounter.class, true);
@@ -3265,7 +3260,7 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(final Class<T> clazz, f
     for(int i=0;i<numAllUsers;i++){
       String thisUser=allUsers.get(i);
       if((!thisUser.trim().equals(""))&&(getUser(thisUser)!=null)){
-        
+
         String userFilter = "submitterID == \"" + thisUser + "\" && dwcDateAddedLong >= "+startTime;
         Extent userClass = pm.getExtent(Encounter.class, true);
         Query subq = pm.newQuery(userClass, userFilter);
@@ -3275,13 +3270,14 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(final Class<T> clazz, f
         subq.closeAll();
       }
     }
-    
+
     return sortByValues(matchingUsers);
   }
-  
+
   public static <K, V extends Comparable<V>> Map<K, V> sortByValues(final Map<K, V> map) {
     Comparator<K> valueComparator =  new Comparator<K>() {
-        public int compare(K k1, K k2) {
+        @Override
+        public int compare(final K k1, final K k2) {
             int compare = map.get(k2).compareTo(map.get(k1));
             if (compare == 0) return 1;
             else return compare;
@@ -3291,8 +3287,8 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(final Class<T> clazz, f
     sortedByValues.putAll(map);
     return sortedByValues;
 }
-  
-  
+
+
   public Adoption getRandomAdoptionWithPhotoAndStatement(){
     String filter = "adopterName != null && adopterImage != null && adopterQuote != null";
     Extent encClass = pm.getExtent(Adoption.class, true);
