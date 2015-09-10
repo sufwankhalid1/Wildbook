@@ -54,19 +54,20 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
         <meta name="Author" content="<%=CommonConfiguration.getHTMLAuthor(context) %>"/>
         <link rel="shortcut icon"
               href="<%=CommonConfiguration.getHTMLShortcutIcon(context) %>"/>
-        <link href='http://fonts.googleapis.com/css?family=Oswald:400,300,700' rel='stylesheet' type='text/css'/>
-        <link rel="stylesheet" href="<%=urlLoc %>/cust/mantamatcher/css/manta.css" />
-        <link href="<%=urlLoc %>/tools/jquery-ui/css/jquery-ui.css" rel="stylesheet" type="text/css"/>
-        <link rel="stylesheet" href="tools/alertplus/css/alertplus.css">
-        <link rel="stylesheet" href="<%=urlLoc %>/tools/jquery-ui/css/themes/smoothness/jquery-ui.css" type="text/css" />
+              
+        <link rel="stylesheet" href='http://fonts.googleapis.com/css?family=Oswald:400,300,700' type='text/css'/>
+        <link rel="stylesheet" href="<%=urlLoc%>/cust/mantamatcher/css/manta.css" />
+        <link rel="stylesheet" href="<%=urlLoc%>/bcomponents/jquery-ui/jquery-ui.min.css" type="text/css"/>
+        <link rel="stylesheet" href="<%=urlLoc%>/bcomponents/jquery-ui/theme.css" type="text/css" />
+        <link rel="stylesheet" href="<%=urlLoc%>/tools/alertplus/css/alertplus.css">
 
-        <script src="<%=urlLoc %>/tools/jquery/js/jquery.min.js"></script>
-        <script src="<%=urlLoc %>/tools/bootstrap/js/bootstrap.min.js"></script>
-        <script src="<%=urlLoc %>/tools/alertplus/javascript/alertplus.js"></script>
-        <script type="text/javascript" src="<%=urlLoc %>/javascript/core.js"></script>
-        <script type="text/javascript" src="<%=urlLoc %>/tools/jquery-ui/javascript/jquery-ui.min.js"></script>
-        <script type="text/javascript" src="<%=urlLoc %>/javascript/jquery.blockUI.js"></script>
-        <script type="text/javascript" src="<%=urlLoc %>/javascript/jquery.cookie.js"></script>
+        <script src="<%=urlLoc%>/bcomponents/jquery/jquery.min.js"></script>
+        <script src="<%=urlLoc%>/tools/bootstrap/js/bootstrap.min.js"></script>
+        <script src="<%=urlLoc%>/tools/alertplus/javascript/alertplus.js"></script>
+        <script src="<%=urlLoc%>/javascript/core.js"></script>
+        <script src="<%=urlLoc%>/bcomponents/jquery-ui/jquery-ui.min.js"></script>
+        <script src="<%=urlLoc%>/javascript/jquery.blockUI.js"></script>
+        <script src="<%=urlLoc%>/javascript/jquery.cookie.js"></script>
         
         <!-- <script type="text/javascript"  src="/JavascriptGlobals.js"></script>  -->
         <!-- <script type="text/javascript"  src="/javascript/collaboration.js"></script>  -->

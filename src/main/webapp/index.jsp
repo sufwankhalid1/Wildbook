@@ -26,7 +26,7 @@ import="org.ecocean.Adoption,
 <jsp:include page="header.jsp" flush="true"/>
 
 <script src="http://a.vimeocdn.com/js/froogaloop2.min.js"></script>
-<script src="<%=urlLoc %>/cust/mantamatcher/js/behaviour.js"></script>
+<script src="cust/mantamatcher/js/behaviour.js"></script>
 
 <%
 String context=ServletUtilities.getContext(request);
@@ -141,12 +141,9 @@ margin-bottom: 8px !important;
           var map;
   
       function initialize() {
-          
-          
-        // Create an array of styles for our Goolge Map.
+          // Create an array of styles for our Goolge Map.
           //var gmap_styles = [{"stylers":[{"visibility":"off"}]},{"featureType":"water","stylers":[{"visibility":"on"},{"color":"#00c0f7"}]},{"featureType":"landscape","stylers":[{"visibility":"on"},{"color":"#005589"}]},{"featureType":"administrative","elementType":"geometry.stroke","stylers":[{"visibility":"on"},{"color":"#00c0f7"},{"weight":1}]}]
 
-      
         var center = new google.maps.LatLng(0,0);
         var mapZoom = 1;
         if($("#map_canvas").hasClass("full_screen_map")){mapZoom=3;}
