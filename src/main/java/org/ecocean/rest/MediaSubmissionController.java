@@ -13,13 +13,13 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.ecocean.CommonConfiguration;
 import org.ecocean.MailThreadExecutorService;
-import org.ecocean.Shepherd;
 import org.ecocean.ShepherdPMF;
 import org.ecocean.media.LocalAssetStore;
 import org.ecocean.media.MediaAsset;
 import org.ecocean.media.MediaAssetFactory;
 import org.ecocean.media.MediaSubmission;
 import org.ecocean.security.User;
+import org.ecocean.security.UserFactory;
 import org.ecocean.servlet.ServletUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,7 +87,7 @@ public class MediaSubmissionController
         formatter.append("submissionid", media.getSubmissionid());
         formatter.append("timesubmitted", media.getTimeSubmitted());
         if (media.getUser() != null) {
-            formatter.append("username", media.getUser().getUsername());
+            formatter.append("userid", media.getUser().getId());
         }
         formatter.append("verbatimlocation", media.getVerbatimLocation());
         formatter.append("status", media.getStatus());
@@ -109,46 +109,6 @@ public class MediaSubmissionController
             return media;
         }
     }
-
-
-//    public static List<MediaSubmission> findMediaSources(final List<SinglePhotoVideo> media,
-//                                                         final String context) throws DatabaseException {
-//        if ((media == null) || (media.size() < 1)) return null;
-//
-//        String mids = media.get(0).getDataCollectionEventID();
-//        for (int i = 1 ; i < media.size() ; i++) {
-//            mids += "', '" + media.get(i).getDataCollectionEventID();
-//        }
-//
-//        Integer lastmsid = null;
-//        List<MediaAsset> medias = null;
-//        List<MediaSubmission> msList = new ArrayList<MediaSubmission>();
-//        String sql = "SELECT ms.*, ma.* FROM mediasubmission ms"
-//                + " LEFT OUTER JOIN \"USERS\" u on u.\"USERNAME\" = ms.username"
-//                + " LEFT OUTER JOIN mediaasset ma ON ma.id = u.\"USERIMAGEID\""
-//                + " LEFT OUTER JOIN mediasubmission_media msm ON (msm.mediasubmissionid = ms.id)"
-//                + " WHERE msm.mediaid IN ('" + mids + "') ORDER BY id";
-//        try (Database db = new Database(ShepherdPMF.getConnectionInfo())) {
-//            RecordSet rs = db.getRecordSet(sql);
-//            while (rs.next()) {
-//                MediaSubmission ms = readMediaSubmission(rs);
-//
-//                if (! ms.getId().equals(lastmsid)) {
-//                    lastmsid = ms.getId();
-//                    msList.add(ms);
-//                    medias = new ArrayList<MediaAsset>();
-//                    ms.setMedia(medias);
-//                }
-//
-//                MediaAsset ma = MediaAssetFactory.valueOf(rs);
-//                if (ma != null) {
-//                    medias.add(ma);
-//                }
-//            }
-//
-//            return msList;
-//        }
-//    }
 
 
     private static MediaSubmission readMediaSubmission(final RecordSet rs) throws DatabaseException
@@ -390,74 +350,72 @@ public class MediaSubmissionController
     {
         try (Database db = ShepherdPMF.getDb()) {
             save(db, media);
-        }
 
-        String context = ServletUtilities.getContext(request);
-        Shepherd shepherd = new Shepherd(context);
+            SimpleUser user = media.getUser();
 
-        SimpleUser user = media.getUser();
-
-        String email;
-        if (user != null) {
-            User wbUser = shepherd.getUserById(user.getId());
-            if (wbUser == null) {
-                logger.warn("curious: unable to load a user with id [" + user.getId() + "]");
-                email = null;
+            String email;
+            if (user != null) {
+                User wbUser = UserFactory.getUserById(db, user.getId());
+                if (wbUser == null) {
+                    logger.warn("curious: unable to load a user with id [" + user.getId() + "]");
+                    email = null;
+                } else {
+                    email = wbUser.getEmail();
+                }
             } else {
-                email = wbUser.getEmail();
+                email = media.getEmail();
             }
-        } else {
-            email = media.getEmail();
-        }
 
-        //get the email thread handler
-        ThreadPoolExecutor es = MailThreadExecutorService.getExecutorService();
+            //get the email thread handler
+            ThreadPoolExecutor es = MailThreadExecutorService.getExecutorService();
 
-        //email the new submission address defined in commonConfiguration.properties
+            //email the new submission address defined in commonConfiguration.properties
 
-        //build the URL
-        //build the message as HTML
-        //mediaSubmission.jsp?mediaSubmissionID=
-        //thank the submitter and photographer
-        String thanksmessage = ServletUtilities.getText(CommonConfiguration.getDataDirectoryName(context),
-                                                        "thankyou.html",
-                                                        ServletUtilities.getLanguageCode(request));
-        String newMediaMessage = ServletUtilities.getText(CommonConfiguration.getDataDirectoryName(context),
-                                                          "newmedia.html",
-                                                          ServletUtilities.getLanguageCode(request));
+            //build the URL
+            //build the message as HTML
+            //mediaSubmission.jsp?mediaSubmissionID=
+            //thank the submitter and photographer
+            String context = ServletUtilities.getContext(request);
+            String thanksmessage = ServletUtilities.getText(CommonConfiguration.getDataDirectoryName(context),
+                                                            "thankyou.html",
+                                                            ServletUtilities.getLanguageCode(request));
+            String newMediaMessage = ServletUtilities.getText(CommonConfiguration.getDataDirectoryName(context),
+                                                              "newmedia.html",
+                                                              ServletUtilities.getLanguageCode(request));
 
 
-        //add the encounter link
-        thanksmessage=thanksmessage.replaceAll("INSERTTEXT", ("http://" + CommonConfiguration.getURLLocation
-          (request) + "/mediaSubmission.jsp?mediaSubmissionID=" + media.getId()));
-        newMediaMessage=newMediaMessage.replaceAll("INSERTTEXT", ("http://" + CommonConfiguration.getURLLocation
-                (request) + "/mediaSubmissionAdmin.jsp?mediaSubmissionID=" + media.getId()));
+            //add the encounter link
+            thanksmessage=thanksmessage.replaceAll("INSERTTEXT", ("http://" + CommonConfiguration.getURLLocation
+              (request) + "/mediaSubmission.jsp?mediaSubmissionID=" + media.getId()));
+            newMediaMessage=newMediaMessage.replaceAll("INSERTTEXT", ("http://" + CommonConfiguration.getURLLocation
+                    (request) + "/mediaSubmissionAdmin.jsp?mediaSubmissionID=" + media.getId()));
 
-//        es.execute(new NotificationMailer(CommonConfiguration.getMailHost(context),
-//                                          CommonConfiguration.getAutoEmailAddress(context),
-//                                          CommonConfiguration.getNewSubmissionEmail(context),
-//                                          ("("+CommonConfiguration.getHTMLTitle(context)+") New media submission: " + media.getId()),
-//                                          newMediaMessage,
-//                                          null,
-//                                          context));
-        if (email != null) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("sending thankyou email to:" + email);
+    //        es.execute(new NotificationMailer(CommonConfiguration.getMailHost(context),
+    //                                          CommonConfiguration.getAutoEmailAddress(context),
+    //                                          CommonConfiguration.getNewSubmissionEmail(context),
+    //                                          ("("+CommonConfiguration.getHTMLTitle(context)+") New media submission: " + media.getId()),
+    //                                          newMediaMessage,
+    //                                          null,
+    //                                          context));
+            if (email != null) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("sending thankyou email to:" + email);
+                }
+    //            es.execute(new NotificationMailer(CommonConfiguration.getMailHost(context),
+    //                                              CommonConfiguration.getAutoEmailAddress(context),
+    //                                              email,
+    //                                              ("("+CommonConfiguration.getHTMLTitle(context)+") Thank you for your report!"),
+    //                                              thanksmessage,
+    //                                              null,
+    //                                              context));
             }
-//            es.execute(new NotificationMailer(CommonConfiguration.getMailHost(context),
-//                                              CommonConfiguration.getAutoEmailAddress(context),
-//                                              email,
-//                                              ("("+CommonConfiguration.getHTMLTitle(context)+") Thank you for your report!"),
-//                                              thanksmessage,
-//                                              null,
-//                                              context));
-        }
 
-        //
-        // Now finally remove the files from the users session object so that
-        // they can submit again with a fresh set.
-        //
-        MediaUploadServlet.clearFileSet(request.getSession(), media.getSubmissionid());
+            //
+            // Now finally remove the files from the users session object so that
+            // they can submit again with a fresh set.
+            //
+            MediaUploadServlet.clearFileSet(request.getSession(), media.getSubmissionid());
+        }
     }
 
 

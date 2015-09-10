@@ -6,12 +6,16 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.ecocean.mmutil.StringUtilities;
 
 public class SimpleUser implements SimpleBeing {
-    private final Integer id;
-    private final String username;
-    private final String fullName;
+    private Integer id;
+    private String username;
+    private String fullName;
     private String affiliation;
     private String statement;
     private String avatar;
+
+    public SimpleUser() {
+        // For deserialization.
+    }
 
     public SimpleUser(final Integer id,
                       final String username,

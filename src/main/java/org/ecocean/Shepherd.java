@@ -455,12 +455,6 @@ public class Shepherd {
       }
   }
 
-  public User getUserById(final int id) throws DatabaseException {
-      try (Database db = ShepherdPMF.getDb()) {
-          return UserFactory.getUserById(db, id);
-      }
-  }
-
   public User getUserByNameOrEmail(final String term) throws DatabaseException {
       try (Database db = ShepherdPMF.getDb()) {
           User user = UserFactory.getUser(db, term);
