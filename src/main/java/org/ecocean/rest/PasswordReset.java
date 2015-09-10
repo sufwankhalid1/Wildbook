@@ -2,36 +2,21 @@ package org.ecocean.rest;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-//import java.util.Date;
-//import java.util.HashMap;
 
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-/*
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authc.IncorrectCredentialsException;
-import org.apache.shiro.authc.UnknownAccountException;
-import org.apache.shiro.authc.UsernamePasswordToken;
-import org.apache.shiro.subject.Subject;
-import org.apache.shiro.web.util.WebUtils;
-*/
-import org.ecocean.servlet.ServletUtilities;
-//import org.ecocean.CommonConfiguration;
-//import org.ecocean.Shepherd;
-//import org.ecocean.User;
 import org.ecocean.Util;
 import org.ecocean.security.Stormpath;
-import com.stormpath.sdk.account.Account;
-import com.stormpath.sdk.client.Client;
-import com.stormpath.sdk.resource.ResourceException;
-import com.stormpath.sdk.directory.CustomData;
-
+import org.ecocean.servlet.ServletUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-//import com.google.gson.Gson;
+
+import com.stormpath.sdk.account.Account;
+import com.stormpath.sdk.client.Client;
+import com.stormpath.sdk.directory.CustomData;
+import com.stormpath.sdk.resource.ResourceException;
 
 
 /*
@@ -53,7 +38,7 @@ import org.slf4j.LoggerFactory;
      * @see javax.servlet.http.HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
      */
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
 
         doPost(request, response);
     }
@@ -62,7 +47,7 @@ import org.slf4j.LoggerFactory;
      * @see javax.servlet.http.HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
      */
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         PrintWriter out = response.getWriter();
@@ -92,7 +77,7 @@ import org.slf4j.LoggerFactory;
         out.close();
     }
 
-    private void sendResetEmail(PrintWriter out, Client client, String email) {
+    private void sendResetEmail(final PrintWriter out, final Client client, final String email) {
         if (logger.isDebugEnabled()) logger.debug("sending Stormpath password reset for email=" + email);
         Account acc = null;
         try {
@@ -108,7 +93,7 @@ import org.slf4j.LoggerFactory;
         }
     }
 
-    private void verifyToken(PrintWriter out, Client client, String token) {
+    private void verifyToken(final PrintWriter out, final Client client, final String token) {
         Account acc = null;
         try {
             acc = Stormpath.getApplication(client).verifyPasswordResetToken(token);
@@ -123,7 +108,7 @@ import org.slf4j.LoggerFactory;
         }
     }
 
-    private void setPassword(PrintWriter out, Client client, String token, String password) {
+    private void setPassword(final PrintWriter out, final Client client, final String token, final String password) {
         Account acc = null;
         try {
             acc = Stormpath.getApplication(client).resetPassword(token, password);

@@ -25,6 +25,7 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.ecocean.GeoFileProcessor;
 import org.ecocean.ImageProcessor;
@@ -622,7 +623,9 @@ public class MediaUploadServlet
                 }
 
                 try (Database db = ShepherdPMF.getDb()) {
-                    ma.setSubmitter(submitter);
+                    if (! StringUtils.isBlank(submitter)) {
+                        ma.setSubmitterId(Integer.parseInt(submitter));
+                    }
                     MediaAssetFactory.save(db, ma);
 
                     if (! fromZip) {

@@ -19,8 +19,13 @@
 
 package org.ecocean.servlet;
 
-import org.ecocean.*;
-import org.ecocean.security.Collaboration;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -28,26 +33,33 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import java.io.*;
-import java.util.*;
-
-import java.util.concurrent.ThreadPoolExecutor;
+import org.ecocean.CommonConfiguration;
+import org.ecocean.ContextConfiguration;
+import org.ecocean.MailThreadExecutorService;
+import org.ecocean.NotificationMailer;
+import org.ecocean.Shepherd;
+import org.ecocean.ShepherdProperties;
+import org.ecocean.User;
+import org.ecocean.security.Collaboration;
 
 import com.google.gson.Gson;
 
 public class Collaborate extends HttpServlet {
 
 
-  public void init(ServletConfig config) throws ServletException {
+  @Override
+public void init(final ServletConfig config) throws ServletException {
     super.init(config);
   }
 
 
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+  @Override
+public void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
     doPost(request, response);
   }
 
-  public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+  @Override
+public void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
     String context = ServletUtilities.getContext(request);
     Shepherd myShepherd = new Shepherd(context);
 
@@ -119,7 +131,7 @@ System.out.println(collabs);
   			myShepherd.storeNewCollaboration(collab);
 
 				//TODO move emailing to .create()  ??
-				User recip = myShepherd.getUser(username);
+				User recip = myShepherd.getUserOLD(username);
 				if ((recip != null) && recip.getReceiveEmails() && (recip.getEmailAddress() != null) && !recip.getEmailAddress().equals("")) {
 					String mailTo = recip.getEmailAddress();
           Map<String, String> tagMap = new HashMap<>();
@@ -164,5 +176,5 @@ System.out.println(collabs);
 
 
 }
-  
-  
+
+

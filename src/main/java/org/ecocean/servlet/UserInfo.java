@@ -57,7 +57,7 @@ public class UserInfo extends HttpServlet {
 
         String username = request.getParameter("username").trim();
 
-        User user = myShepherd.getUser(username);
+        User user = myShepherd.getUserOLD(username);
 
         if (!CommonConfiguration.showUsersToPublic(context)) {
             out.println("<p>invalid</p>");

@@ -15,11 +15,11 @@ import org.ecocean.CommonConfiguration;
 import org.ecocean.MailThreadExecutorService;
 import org.ecocean.Shepherd;
 import org.ecocean.ShepherdPMF;
-import org.ecocean.User;
 import org.ecocean.media.LocalAssetStore;
 import org.ecocean.media.MediaAsset;
 import org.ecocean.media.MediaAssetFactory;
 import org.ecocean.media.MediaSubmission;
+import org.ecocean.security.User;
 import org.ecocean.servlet.ServletUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -193,8 +193,8 @@ public class MediaSubmissionController
         String whereClause = where.getWhereClause();
         List<MediaSubmission> mss = new ArrayList<MediaSubmission>();
         String sql = "SELECT * FROM mediasubmission ms"
-                + " LEFT OUTER JOIN \"USERS\" u on u.\"USERNAME\" = ms.username"
-                + " LEFT OUTER JOIN mediaasset ma ON ma.id = u.\"USERIMAGEID\"";
+                + " LEFT OUTER JOIN users u on u.id = ms.userid"
+                + " LEFT OUTER JOIN mediaasset ma ON ma.id = u.avatarid";
         if (! StringUtils.isBlank(whereClause)) {
             sql += " WHERE " + whereClause;
         }
@@ -399,12 +399,12 @@ public class MediaSubmissionController
 
         String email;
         if (user != null) {
-            User wbUser = shepherd.getUserByNameOrEmail(user.getUsername());
+            User wbUser = shepherd.getUserById(user.getId());
             if (wbUser == null) {
-                logger.warn("curious: unable to load a User for username/email=" + user.getUsername());
+                logger.warn("curious: unable to load a user with id [" + user.getId() + "]");
                 email = null;
             } else {
-                email = wbUser.getEmailAddress();
+                email = wbUser.getEmail();
             }
         } else {
             email = media.getEmail();

@@ -51,7 +51,7 @@ public class UserTest extends DBTestBase {
         assertNull("Image already exists 1", user.getUserImageID());
 
         // test load
-        user = shepherd.getUser(USERNAME);
+        user = shepherd.getUserOLD(USERNAME);
         assertNotNull("Didn't load user", user);
         assertNull("Image already exists 2", user.getUserImageID());
 

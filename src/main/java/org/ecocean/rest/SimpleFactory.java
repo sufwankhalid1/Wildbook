@@ -7,11 +7,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
 import org.ecocean.Point;
 import org.ecocean.ShepherdPMF;
 import org.ecocean.SinglePhotoVideo;
-import org.ecocean.User;
 import org.ecocean.media.MediaAsset;
 import org.ecocean.media.MediaAssetFactory;
 import org.ecocean.media.MediaAssetType;
@@ -25,7 +23,6 @@ import com.samsix.database.SqlRelationType;
 import com.samsix.database.SqlStatement;
 import com.samsix.util.string.StringUtilities;
 import com.stormpath.sdk.account.Account;
-import com.stormpath.sdk.directory.CustomData;
 
 public class SimpleFactory {
 //    private final static Logger logger = LoggerFactory.getLogger(SimpleFactory.class);
@@ -64,22 +61,27 @@ public class SimpleFactory {
     }
 
 
-    public static List<SimpleUser> getIndividualSubmitters(final Database db, final int individualid) throws DatabaseException
-    {
-        String sql = "SELECT distinct(u.*) FROM encounters e"
-                + " inner join encounter_media em on em.encounterid = e.encounterid"
-                + " inner join mediaasset ma on ma.id = em.mediaid"
-                + " inner join \"USERS\" u ON u.\"USERNAME\" = ma.submitter"
-                + " WHERE individualid = " + individualid;
-
-        List<SimpleUser> submitters = new ArrayList<>();
+    public static List<SimpleUser> readSimpleUsers(final Database db, final String sql) throws DatabaseException {
+        List<SimpleUser> users = new ArrayList<>();
 
         RecordSet rs = db.getRecordSet(sql);
         while (rs.next()) {
-            submitters.add(readUser(rs));
+            users.add(readUser(rs));
         }
 
-        return submitters;
+        return users;
+    }
+
+
+    public static List<SimpleUser> getIndividualSubmitters(final Database db, final int individualid) throws DatabaseException
+    {
+        SqlStatement sql = getUserStatement(true);
+        sql.addInnerJoin("u", "id", "mediaasset", "ma2", "submitterid");
+        sql.addInnerJoin("ma2", "id", "encounter_media", "em", "mediaid");
+        sql.addInnerJoin("em", "encounterid", "encounters", "e", "encounterid");
+        sql.addCondition("e", "individualid", SqlRelationType.EQUAL, individualid);
+
+        return readSimpleUsers(db, sql.getSql());
     }
 
     public static List<SimplePhoto> getIndividualPhotos(final Database db, final int individualId) throws DatabaseException
@@ -179,9 +181,16 @@ public class SimpleFactory {
         return sql;
     }
 
+    public static SqlStatement getUserStatement(final boolean distinct) {
+        SqlStatement sql = getUserStatement();
+        sql.setSelectString("u.*, ma.*");
+        sql.setSelectDistinct(true);
+        return sql;
+    }
+
     public static SqlStatement getUserStatement() {
-        SqlStatement sql = new SqlStatement("\"USERS\"", "u");
-        sql.addLeftOuterJoin("u", "\"USERIMAGEID\"", "mediaasset", "ma", "id");
+        SqlStatement sql = new SqlStatement("users", "u");
+        sql.addLeftOuterJoin("u", "avatarid", "mediaasset", "ma", "id");
         return sql;
     }
 
@@ -520,7 +529,27 @@ public class SimpleFactory {
     {
         try (Database db = new Database(ShepherdPMF.getConnectionInfo())) {
             SqlStatement sql = getUserStatement();
-            sql.addCondition("u", "\"USERNAME\"",SqlRelationType.EQUAL, username);
+            sql.addCondition("u", "username",SqlRelationType.EQUAL, username);
+            RecordSet rs;
+            rs = db.getRecordSet(sql.getSql());
+            if (rs.next()) {
+                return readUser(rs);
+            }
+
+            return null;
+        }
+    }
+
+
+    public static SimpleUser getUser(final Integer userid) throws DatabaseException
+    {
+        if (userid == null) {
+            return null;
+        }
+
+        try (Database db = new Database(ShepherdPMF.getConnectionInfo())) {
+            SqlStatement sql = getUserStatement();
+            sql.addCondition("u", "userid",SqlRelationType.EQUAL, userid);
             RecordSet rs;
             rs = db.getRecordSet(sql.getSql());
             if (rs.next()) {
@@ -534,49 +563,60 @@ public class SimpleFactory {
 
     public static SimpleUser readUser(final RecordSet rs) throws DatabaseException
     {
-        String username = rs.getString("USERNAME");
-        if (StringUtils.isBlank(username)) {
+        Integer id = rs.getInteger("userid");
+        if (id == null) {
             return null;
         }
 
-        SimpleUser su = new SimpleUser(rs.getString("USERNAME"), rs.getString("EMAILADDRESS"));
+        SimpleUser user = new SimpleUser(id, rs.getString("username"), rs.getString("fullname"));
 
         MediaAsset ma = MediaAssetFactory.valueOf(rs);
 
         if (ma != null) {
-            su.setAvatar(ma.webPathString());
+            user.setAvatar(ma.webPathString(), rs.getString("email"));
         }
+        user.setStatement(rs.getString("statement"));
 
-        su.setAffiliation(rs.getString("AFFILIATION"));
-        su.setFullName(rs.getString("FULLNAME"));
+//        user.setAffiliation(rs.getString("AFFILIATION"));
 
-        return su;
+        return user;
+    }
+
+    public static SimpleUser getProfiledUser() {
+
+        try (Database db = new Database(ShepherdPMF.getConnectionInfo())) {
+            //
+            // Weird way to get random row but seems to work. Probably won't scale super well but we
+            // can deal with that later.
+            //
+            SqlStatement sql = getUserStatement();
+            sql.addCondition(new SpecialSqlCondition("u.statement IS NOT NULL"));
+            sql.setOrderBy("random()");
+            sql.setLimit(1);
+
+            RecordSet rs;
+            try {
+                rs = db.getRecordSet(sql.getSql());
+                if (rs.next()) {
+                    return readUser(rs);
+                }
+            } catch (DatabaseException ex) {
+                ex.printStackTrace();
+            }
+
+            return null;
+        }
     }
 
 
-    public static SimpleUser fromUser(final User user) {
-        SimpleUser su = new SimpleUser(user.getUsername(), user.getEmailAddress());
-        if (user.getUserImage() != null) {
-            su.setAvatar(user.getUserImage().webPathString());
-        }
-
-        su.setAffiliation(user.getAffiliation());
-        su.setFullName(user.getFullName());
-
-        return su;
-
-    }
-
-
-    public static SimpleUser getStormpathUser(final Account user)
+    public static SimpleUser simpleUserFromStormpath(final Account acc)
     {
-        SimpleUser su = new SimpleUser(user.getUsername(), user.getEmail());
+        SimpleUser user = new SimpleUser(null, acc.getUsername(), acc.getFullName());
+        user.setAvatar(null, acc.getEmail());
 
-        CustomData data = user.getCustomData();
+//        CustomData data = acc.getCustomData();
+//        su.setAffiliation((String)data.get("affiliation"));
 
-        su.setAffiliation((String)data.get("affiliation"));
-        su.setFullName(user.getFullName());
-
-        return su;
+        return user;
     }
 }

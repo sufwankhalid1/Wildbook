@@ -41,7 +41,7 @@ public class MediaAsset {
 
     protected AssetStore thumbStore;
     protected Path thumbPath;
-    protected String submitter;
+    protected Integer submitterid;
 
 
     /**
@@ -141,12 +141,12 @@ public class MediaAsset {
     }
 
 
-    public String getSubmitter() {
-        return submitter;
+    public Integer getSubmitterId() {
+        return submitterid;
     }
 
 
-    public void setSubmitter(final String submitter) {
-        this.submitter = submitter;
+    public void setSubmitterId(final Integer submitterid) {
+        this.submitterid = submitterid;
     }
 }

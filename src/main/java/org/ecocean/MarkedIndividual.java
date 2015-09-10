@@ -1549,7 +1549,7 @@ public Float getMinDistanceBetweenTwoMarkedIndividuals(final MarkedIndividual ot
 		for (String u : uids) {
 			Collaboration c = Collaboration.findCollaborationWithUser(u, collabs);
 			if ((c == null) || (c.getState() == null)) {
-				User user = myShepherd.getUser(u);
+				User user = myShepherd.getUserOLD(u);
 				String fullName = u;
 				if (user.getFullName()!=null) fullName = user.getFullName();
 				open.add(u);

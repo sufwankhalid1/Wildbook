@@ -86,9 +86,9 @@ public class SearchController
             SqlStatement ss = SimpleFactory.getUserStatement();
 
             GroupedSqlCondition cond = GroupedSqlCondition.orGroup();
-            cond.addCondition(ss.findTable("u"), "\"FULLNAME\"", SqlRelationType.LIKE, searchTerm)
+            cond.addCondition(ss.findTable("u"), "fullname", SqlRelationType.LIKE, searchTerm)
                 .setFunction("lower");
-            cond.addCondition(ss.findTable("u"), "\"USERNAME\"", SqlRelationType.LIKE, searchTerm)
+            cond.addCondition(ss.findTable("u"), "username", SqlRelationType.LIKE, searchTerm)
                 .setFunction("lower");
             ss.addCondition(cond);
 

@@ -20,12 +20,14 @@
 /* this creates a javascript output that contains a bunch of useful data for javascript given this context/language */
 package org.ecocean.servlet;
 
-import org.ecocean.ApiAccess;
-import org.ecocean.CommonConfiguration;
-import org.ecocean.Shepherd;
-import org.ecocean.Keyword;
-import org.ecocean.security.SocialAuth;
-import org.ecocean.ShepherdProperties;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Properties;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -33,21 +35,16 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import java.lang.reflect.Field;
-
-import java.io.*;
-import java.util.*;
-
-
-import org.springframework.boot.context.embedded.ServletRegistrationBean;
-import org.springframework.context.annotation.Bean;
-//import org.springframework.boot.context.embedded.ServletRegistrationBean;
-//import org.springframework.context.annotation.Bean;
-
+import org.ecocean.ApiAccess;
+import org.ecocean.CommonConfiguration;
+import org.ecocean.Keyword;
+import org.ecocean.Shepherd;
+import org.ecocean.ShepherdProperties;
+import org.ecocean.security.SocialAuth;
 import org.ecocean.security.SocialAuth;
 
-import org.w3c.dom.Document;
 import com.google.gson.Gson;
+import com.samsix.database.DatabaseException;
 
 public class JavascriptGlobals extends HttpServlet {
 //  @Bean
@@ -56,16 +53,19 @@ public class JavascriptGlobals extends HttpServlet {
 //      return new ServletRegistrationBean(new JavascriptGlobals(),"/JavascriptGlobals.js");
 //  }
 
-  public void init(ServletConfig config) throws ServletException {
+  @Override
+public void init(final ServletConfig config) throws ServletException {
     super.init(config);
   }
 
 
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+  @Override
+public void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
     doPost(request, response);
   }
 
-  public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+  @Override
+public void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
     String context="context0";
     context = ServletUtilities.getContext(request);
     Shepherd myShepherd = new Shepherd(context);
@@ -117,7 +117,11 @@ public class JavascriptGlobals extends HttpServlet {
 			defn.put("fields", fhm);
 			//HashMap ap = access.permissions(cls.getName(), request);
 			//defn.put("permissions", ap);
-			defn.put("permissions", access.permissions(cls.getName(), request));
+			try {
+                defn.put("permissions", access.permissions(cls.getName(), request));
+            } catch (DatabaseException ex) {
+                ex.printStackTrace();
+            }
 			classDefn.put(cls.getName(), defn);
 		}
 		rtn.put("classDefinitions", classDefn);
@@ -148,7 +152,7 @@ public class JavascriptGlobals extends HttpServlet {
 
 //wildbookGlobals.properties.lang.collaboration.invitePromptOne
 
-    public void propvalToHashMap(String name, String val, HashMap h) {
+    public void propvalToHashMap(final String name, final String val, HashMap h) {
         if (name.equals("secret")) return;  //TODO **totally** hactacular, but we dont want social secret keys sent out -- maybe pass in optional blacklist???
         if (h == null) h = new HashMap();
         int i = name.indexOf(".");
@@ -165,5 +169,5 @@ public class JavascriptGlobals extends HttpServlet {
 
 
 }
-  
-  
+
+

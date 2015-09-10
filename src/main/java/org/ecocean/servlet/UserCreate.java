@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Set;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -30,216 +31,132 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.ecocean.CommonConfiguration;
 import org.ecocean.ContextConfiguration;
-import org.ecocean.Role;
-import org.ecocean.Shepherd;
-import org.ecocean.User;
+import org.ecocean.ShepherdPMF;
+import org.ecocean.security.User;
+import org.ecocean.security.UserFactory;
+
+import com.samsix.database.Database;
 
 
 public class UserCreate extends HttpServlet {
-
-  @Override
-public void init(final ServletConfig config) throws ServletException {
-    super.init(config);
-  }
-
-
-  @Override
-public void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
-    doPost(request, response);
-  }
-
-
-  @Override
-public void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
-
-    String context="context0";
-    //context=ServletUtilities.getContext(request);
-
-    //set up the user directory
-    //setup data dir
-    String rootWebappPath = getServletContext().getRealPath("/");
-    File webappsDir = new File(rootWebappPath).getParentFile();
-    File shepherdDataDir = new File(webappsDir, CommonConfiguration.getDataDirectoryName(context));
-    if(!shepherdDataDir.exists()){shepherdDataDir.mkdirs();}
-    File usersDir=new File(shepherdDataDir.getAbsolutePath()+"/users");
-    if(!usersDir.exists()){usersDir.mkdirs();}
-
-    //set up for response
-    response.setContentType("text/html; charset=UTF-8");
-    PrintWriter out = response.getWriter();
-    boolean createThisUser = false;
-
-    String addedRoles="";
-    boolean isEdit=false;
-    if(request.getParameter("isEdit")!=null){
-      isEdit=true;
-      //System.out.println("isEdit is TRUE in UserCreate!");
+    @Override
+    public void init(final ServletConfig config) throws ServletException {
+        super.init(config);
     }
 
-    //create a new Role from an encounter
+    @Override
+    public void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
+        doPost(request, response);
+    }
 
-    if ((request.getParameter("username") != null) &&  (!request.getParameter("username").trim().equals("")) && (((request.getParameter("password") != null) &&  (!request.getParameter("password").trim().equals("")) && (request.getParameter("password2") != null) &&  (!request.getParameter("password2").trim().equals(""))) || (request.getParameter("isEdit")!=null))) {
+    @Override
+    public void doPost(final HttpServletRequest request, final HttpServletResponse response)
+            throws ServletException, IOException {
+        String context="context0";
+        //context=ServletUtilities.getContext(request);
 
-      String username=request.getParameter("username").trim();
+        //set up the user directory
+        //setup data dir
+        String rootWebappPath = getServletContext().getRealPath("/");
+        File webappsDir = new File(rootWebappPath).getParentFile();
+        File shepherdDataDir = new File(webappsDir, CommonConfiguration.getDataDirectoryName(context));
+        if(!shepherdDataDir.exists()){shepherdDataDir.mkdirs();}
+        File usersDir=new File(shepherdDataDir.getAbsolutePath()+"/users");
+        if(!usersDir.exists()){usersDir.mkdirs();}
 
-      String password="";
-      if(!isEdit)password=request.getParameter("password").trim();
-      String password2="";
-      if(!isEdit)password2=request.getParameter("password2").trim();
+        //set up for response
+        response.setContentType("text/html; charset=UTF-8");
+        PrintWriter out = response.getWriter();
 
-      if((password.equals(password2))||(isEdit)){
+        //
+        // TODO: get rid of isEdit parameter in the call to this? I have no idea what that was doing.
+        // TODO: change username parameter to userid in calls to this.
+        //
+    //    boolean isEdit=false;
+    //    if(request.getParameter("isEdit")!=null){
+    //      isEdit=true;
+    //    }
 
-        Shepherd myShepherd = new Shepherd(context);
+        try (Database db = ShepherdPMF.getDb()) {
+            Integer userid = NumberUtils.createInteger(request.getParameter("userid"));
 
-        User newUser=new User();
-
-        myShepherd.beginDBTransaction();
-
-        if (myShepherd.getUser(username) == null) {
-          newUser=new User(username, password);
-          myShepherd.getPM().makePersistent(newUser);
-          createThisUser=true;
-        }
-        else{
-          newUser=myShepherd.getUser(username);
-        }
-
-        //here handle all of the other User fields (e.g., email address, etc.)
-        if((request.getParameter("fullName")!=null)&&(!request.getParameter("fullName").trim().equals(""))){
-          newUser.setFullName(request.getParameter("fullName").trim());
-        }
-        else if(isEdit&&(request.getParameter("fullName")!=null)&&(request.getParameter("fullName").trim().equals(""))){newUser.setFullName(null);}
-
-        if(request.getParameter("receiveEmails")!=null){
-          newUser.setReceiveEmails(true);
-        }
-        else{newUser.setReceiveEmails(false);}
-
-        if((request.getParameter("emailAddress")!=null)&&(!request.getParameter("emailAddress").trim().equals(""))){
-          newUser.setEmailAddress(request.getParameter("emailAddress").trim());
-        }
-        else if(isEdit&&(request.getParameter("emailAddress")!=null)&&(request.getParameter("emailAddress").trim().equals(""))){newUser.setEmailAddress(null);}
-
-        if((request.getParameter("affiliation")!=null)&&(!request.getParameter("affiliation").trim().equals(""))){
-          newUser.setAffiliation(request.getParameter("affiliation").trim());
-        }
-        else if(isEdit&&(request.getParameter("affiliation")!=null)&&(request.getParameter("affiliation").trim().equals(""))){newUser.setAffiliation(null);}
-
-        if((request.getParameter("userProject")!=null)&&(!request.getParameter("userProject").trim().equals(""))){
-          newUser.setUserProject(request.getParameter("userProject").trim());
-        }
-        else if(isEdit&&(request.getParameter("userProject")!=null)&&(request.getParameter("userProject").trim().equals(""))){newUser.setUserProject(null);}
-
-        if((request.getParameter("userStatement")!=null)&&(!request.getParameter("userStatement").trim().equals(""))){
-          newUser.setUserStatement(request.getParameter("userStatement").trim());
-        }
-        else if(isEdit&&(request.getParameter("userStatement")!=null)&&(request.getParameter("userStatement").trim().equals(""))){newUser.setUserStatement(null);}
-
-        if((request.getParameter("userURL")!=null)&&(!request.getParameter("userURL").trim().equals(""))){
-          newUser.setUserURL(request.getParameter("userURL").trim());
-        }
-        else if(isEdit&&(request.getParameter("userURL")!=null)&&(request.getParameter("userURL").trim().equals(""))){newUser.setUserURL(null);}
-
-        newUser.RefreshDate();
-
-
-
-        //now handle roles
-
-        //if this is not a new user, we need to blow away all old roles
-        ArrayList<Role> preexistingRoles=new ArrayList<Role>();
-        if(!createThisUser){
-          //get existing roles for this existing user
-          preexistingRoles=myShepherd.getAllRolesForUser(username);
-          myShepherd.getPM().deletePersistentAll(preexistingRoles);
-        }
-
-
-        //start role processing
-
-        ArrayList<String> contexts=ContextConfiguration.getContextNames();
-        int numContexts=contexts.size();
-        //System.out.println("numContexts is: "+numContexts);
-        for(int d=0;d<numContexts;d++){
-
-          String[] roles=request.getParameterValues("context"+d+"rolename");
-          if(roles!=null){
-          int numRoles=roles.length;
-          //System.out.println("numRoles in context"+d+" is: "+numRoles);
-          for(int i=0;i<numRoles;i++){
-
-            String thisRole=roles[i].trim();
-             if(!thisRole.trim().equals("")){
-            Role role=new Role();
-            if(myShepherd.getRole(thisRole,username,("context"+d))==null){
-
-              role.setRolename(thisRole);
-              role.setUsername(username);
-              role.setContext("context"+d);
-              myShepherd.getPM().makePersistent(role);
-              addedRoles+=("SEPARATORSTART"+ContextConfiguration.getNameForContext("context"+d)+":"+roles[i]+"SEPARATOREND");
-              //System.out.println(addedRoles);
-              myShepherd.commitDBTransaction();
-              myShepherd.beginDBTransaction();
-              //System.out.println("Creating role: context"+d+thisRole);
+            User user = UserFactory.getUserById(db, userid);
+            boolean createThisUser;
+            if (user == null) {
+                createThisUser = true;
+                user = new User();
+            } else {
+                createThisUser = false;
+                //
+                // if this is not a new user, we need to blow away all old roles
+                //
+                UserFactory.deleteRoles(db, userid);
             }
-          }
-          }
-          }
-        }
-        //end role processing
+
+            UserSelfUpdate.updateUserFromRequest(request, user);
+            UserFactory.saveUser(db, user);
 
 
+            String addedRoles="";
+            ArrayList<String> contexts=ContextConfiguration.getContextNames();
+            for (int contextNum = 0; contextNum < contexts.size(); contextNum++) {
+                String ctxt = "context" + contextNum;
+                Set<String> existingRoles = UserFactory.getAllRolesForUserInContext(db, userid, ctxt);
 
-        myShepherd.commitDBTransaction();
-        myShepherd.closeDBTransaction();
-        myShepherd=null;
-
+                String[] roles = request.getParameterValues(context + "rolename");
+                if (roles != null) {
+                    int numRoles=roles.length;
+                    for (int i=0; i < numRoles; i++) {
+                        String thisRole = roles[i].trim();
+                        if (! StringUtils.isBlank(thisRole) && ! existingRoles.contains(thisRole)) {
+                            UserFactory.addRole(db, userid, ctxt, thisRole);
+                            addedRoles += "SEPARATORSTART"
+                                    + ContextConfiguration.getNameForContext(ctxt)
+                                    + ":"
+                                    + thisRole
+                                    + "SEPARATOREND";
+                        }
+                    }
+                }
+            }
 
             //output success statement
             out.println(ServletUtilities.getHeader(request));
-            if(createThisUser){
-              out.println("<strong>Success:</strong> User '" + StringEscapeUtils.escapeHtml4(username) + "' was successfully created with added roles: <ul>" + addedRoles.replaceAll("SEPARATORSTART", "<li>").replaceAll("SEPARATOREND", "</li>")+"</ul>");
+            String message;
+            if (createThisUser) {
+                message = "created with added roles";
+            } else {
+                message = "updated and has assigned roles";
             }
-            else{
-              out.println("<strong>Success:</strong> User '" + StringEscapeUtils.escapeHtml4(username) + "' was successfully updated and has assigned roles: <ul>" + addedRoles.replaceAll("SEPARATORSTART", "<li>").replaceAll("SEPARATOREND", "</li>")+"</ul>");
 
-            }
+            out.println("<strong>Success:</strong> User ["
+                    + userid
+                    + "] was successfully "
+                    + message
+                    + ": <ul>"
+                    + addedRoles.replaceAll("SEPARATORSTART", "<li>").replaceAll("SEPARATOREND", "</li>")
+                    +"</ul>");
+            out.println("<p><a href=\"http://"
+                    + CommonConfiguration.getURLLocation(request)
+                    + "/appadmin/users.jsp?context=context0"
+                    + "\">Return to User Administration"
+                    + "</a></p>\n");
+            out.println(ServletUtilities.getFooter(context));
+        } catch(Exception ex) {
+            //output failure statement
+            out.println(ServletUtilities.getHeader(request));
+            out.println("<strong>Failure:</strong>");
+            out.println(ex.getMessage());
             out.println("<p><a href=\"http://" + CommonConfiguration.getURLLocation(request) + "/appadmin/users.jsp?context=context0" + "\">Return to User Administration" + "</a></p>\n");
             out.println(ServletUtilities.getFooter(context));
-
+        } finally {
+            out.close();
+        }
     }
-    else{
-        //output failure statement
-        out.println(ServletUtilities.getHeader(request));
-        out.println("<strong>Failure:</strong> User was NOT successfully created. Your passwords did not match.");
-        out.println("<p><a href=\"http://" + CommonConfiguration.getURLLocation(request) + "/appadmin/users.jsp?context=context0" + "\">Return to User Administration" + "</a></p>\n");
-        out.println(ServletUtilities.getFooter(context));
-
-      }
-
-
-}
-else{
-  //output failure statement
-  out.println(ServletUtilities.getHeader(request));
-  out.println("<strong>Failure:</strong> User was NOT successfully created. I did not have all of the username and password information I needed.");
-  out.println("<p><a href=\"http://" + CommonConfiguration.getURLLocation(request) + "/appadmin/users.jsp?context=context0" + "\">Return to User Administration" + "</a></p>\n");
-  out.println(ServletUtilities.getFooter(context));
-
-}
-
-
-
-
-
-
-    out.close();
-
-  }
 }
 
 

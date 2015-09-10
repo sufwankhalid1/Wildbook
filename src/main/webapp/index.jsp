@@ -1,12 +1,24 @@
 <%@ page contentType="text/html; charset=utf-8" language="java"
-import="org.ecocean.*,
+import="org.ecocean.Adoption,
+        org.ecocean.CommonConfiguration,
+        org.ecocean.Encounter,
+        org.ecocean.ShepherdProperties,
+        org.ecocean.Shepherd,
+        org.ecocean.ShepherdPMF,
+        org.ecocean.rest.MainController,
+        org.ecocean.rest.SimpleFactory,
+        org.ecocean.rest.SimpleUser,
+        org.ecocean.security.User,
+        org.ecocean.security.UserFactory,
         org.ecocean.servlet.ServletUtilities,
         java.util.ArrayList,
         java.util.List,
         java.util.Map,
         java.util.Iterator,
         java.util.Properties,
-        java.util.StringTokenizer"
+        java.util.StringTokenizer,
+        com.samsix.database.Database,
+        com.samsix.database.RecordSet"
 %>
 
 
@@ -23,41 +35,21 @@ myShepherd=new Shepherd(context);
 
 
 //check for and inject a default user 'tomcat' if none exists
-  
-      //check usernames and passwords
-    myShepherd.beginDBTransaction();
-      ArrayList<User> users=myShepherd.getAllUsers();
-      if(users.size()==0){
-          User newUser=new User("tomcat","tomcat123");
-          myShepherd.getPM().makePersistent(newUser);
-          System.out.println("Creating tomcat user account...");
-          myShepherd.commitDBTransaction();
+try (Database db = ShepherdPMF.getDb()) {
+    String sql = "SELECT count(*) as numusers FROM users";
+    RecordSet rs = db.getRecordSet(sql);
+    rs.next();
+    if (rs.getInt("numusers") == 0) {
+        User newUser = new User(null, "tomcat", "Tomcat User", "tomcat123");
+          
+        System.out.println("Creating tomcat user account...");
         
-            ArrayList<Role> roles=myShepherd.getAllRoles();
-            if(roles.size()==0){
-                
-                myShepherd.beginDBTransaction();
-                System.out.println("Creating tomcat roles...");
-                
-                Role newRole1=new Role("tomcat","admin");
-                newRole1.setContext("context0");
-                myShepherd.getPM().makePersistent(newRole1);
-              Role newRole4=new Role("tomcat","destroyer");
-              newRole4.setContext("context0");
-              myShepherd.getPM().makePersistent(newRole4);
-            
-            Role newRole7=new Role("tomcat","rest");
-              newRole7.setContext("context0");
-              myShepherd.getPM().makePersistent(newRole7);
-            
-            myShepherd.commitDBTransaction();
-            
-              
-              System.out.println("Creating tomcat user account...");
-            }
-      }
-
-
+        UserFactory.saveUser(db, newUser);
+        UserFactory.addRole(db, newUser.getUserId(), "context0", "admin");
+        UserFactory.addRole(db, newUser.getUserId(), "context0", "destroyer");
+        UserFactory.addRole(db, newUser.getUserId(), "context0", "rest");
+    }
+}
 %>
 
 <style type="text/css">
@@ -483,14 +475,14 @@ finally{
         
             <!-- Random user profile to select -->
             <%
-            myShepherd.beginDBTransaction();
-            User featuredUser=myShepherd.getRandomUserWithPhotoAndStatement();
-            if(featuredUser!=null){
-                String profilePhotoURL="images/empty_profile.jpg";
-                if(featuredUser.getUserImage()!=null){
-                    profilePhotoURL=featuredUser.getUserImage().webPathString();
-                } 
-            
+            SimpleUser featuredUser = SimpleFactory.getProfiledUser();
+            if (featuredUser != null) {
+                String profilePhotoURL;
+                if (featuredUser.getAvatar() != null) {
+                    profilePhotoURL = featuredUser.getAvatar();
+                } else {
+                    profilePhotoURL = "images/empty_profile.jpg";
+                }
             %>
                 <section class="col-xs-12 col-sm-6 col-md-4 col-lg-4 padding focusbox">
                     <div class="focusbox-inner opec">
@@ -506,14 +498,13 @@ finally{
                                 }
                                 %>
                             </p>
-                            <p><%=featuredUser.getUserStatement() %></p>
+                            <p><%=featuredUser.getStatement() %></p>
                         </div>
                         <a href="whoAreWe.jsp" title="" class="cta">Show me all the contributors</a>
                     </div>
                 </section>
             <%
             }
-            myShepherd.rollbackDBTransaction();
             %>
             
             
@@ -560,51 +551,23 @@ finally{
                     <h2>Top spotters (past 30 days)</h2>
                     <ul class="encounter-list list-unstyled">
                     <%
-                    myShepherd.beginDBTransaction();
-                    
-                    //System.out.println("Date in millis is:"+(new org.joda.time.DateTime()).getMillis());
-                    long startTime=(new org.joda.time.DateTime()).getMillis()+(1000*60*60*24*30);
-                    
-                    System.out.println("  I think my startTime is: "+startTime);
-                    
-                    Map<String,Integer> spotters = myShepherd.getTopUsersSubmittingEncountersSinceTimeInDescendingOrder(startTime);
-                    int numUsersToDisplay=3;
-                    if(spotters.size()<numUsersToDisplay){numUsersToDisplay=spotters.size();}
-                    Iterator<String> keys=spotters.keySet().iterator();
-                    Iterator<Integer> values=spotters.values().iterator();
-                    while((keys.hasNext())&&(numUsersToDisplay>0)){
-                          String spotter=keys.next();
-                          int numUserEncs=values.next().intValue();
-                          if(myShepherd.getUser(spotter)!=null){
-                              String profilePhotoURL="images/empty_profile.jpg";
-                              User thisUser=myShepherd.getUser(spotter);
-                              if(thisUser.getUserImage()!=null){
-                                  profilePhotoURL=thisUser.getUserImage().webPathString();
-                              } 
-                              //System.out.println(spotters.values().toString());
-                            Integer myInt=spotters.get(spotter);
-                            //System.out.println(spotters);
-                            
+                    List<MainController.Contributor> contribs = MainController.getTopContributors(30, 3);
+                    for (MainController.Contributor contrib : contribs) {
                           %>
                                 <li>
-                                    <img src="<%=profilePhotoURL %>" width="80px" height="*" alt="" class="pull-left" />
+                                    <img src="<%=contrib.user.getAvatar()%>" width="80px" height="*" alt="" class="pull-left" />
                                     <%
-                                    if(thisUser.getAffiliation()!=null){
+                                    if (contrib.user.getAffiliation() != null) {
                                     %>
-                                    <small><%=thisUser.getAffiliation() %></small>
+                                    <small><%=contrib.user.getAffiliation()%></small>
                                     <%
                                       }
                                     %>
-                                    <p><a href="#" title=""><%=spotter %></a>, <span><%=numUserEncs %> encounters<span></p>
+                                    <p><a href="#" title=""><%=contrib.user.getDisplayName() %></a>, <span><%=contrib.numEncs %> encounters<span></p>
                                 </li>
-                                
                            <%
-                           numUsersToDisplay--;
-                    }    
-                   } //end while
-                   myShepherd.rollbackDBTransaction();
+                   }
                    %>
-                        
                     </ul>   
                     <a href="whoAreWe.jsp" title="" class="cta">See all spotters</a>
                 </div>

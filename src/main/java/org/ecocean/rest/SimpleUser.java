@@ -6,30 +6,109 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.ecocean.mmutil.StringUtilities;
 
 public class SimpleUser implements SimpleBeing {
+    private final Integer id;
     private final String username;
-    private String fullName;
+    private final String fullName;
     private String affiliation;
+    private String statement;
     private String avatar;
 
-    //
-    // NOTE: Do not create a getter for email because
-    // we don't want to expose that to the web. Used here for
-    // ID purposes only as that is what stormpath uses.
-    //
-    private final String email;
-
-    public SimpleUser()
+    public SimpleUser(final Integer id,
+                      final String username,
+                      final String fullName)
     {
-        username = null;
-        email = null;
-    }
-
-    public SimpleUser(final String username,
-                      final String email)
-    {
+        this.id = id;
         this.username = username;
-        this.email = email;
+        this.fullName = fullName;
     }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    //
+    // TODO: I think this should this be stored as a separate link to
+    // to an organization table. That way we can have all kinds of info
+    // about the organization. The user may be affiliated with more than
+    // one org. In addition, the orgs should probably also be who can
+    // create surveys.
+    //
+    public String getAffiliation() {
+        return affiliation;
+    }
+
+    public void setAffiliation(final String affiliation) {
+        this.affiliation = affiliation;
+    }
+
+    public void setAvatar(final String avatar, final String email) {
+        if (StringUtils.isBlank(avatar) && ! StringUtils.isBlank(email)) {
+            //
+            // Return 80x80 sized gravatar. They default to 80x80 but can be requested up to 2048x2048.
+            // Though most users will have used a small image.
+            // Feel free to change if you want it bigger as all the code on the browser side should
+            // be sized to fit it's use anyway.
+            // NOTE: d=identicon makes default (when not set by user) be those crazy (unique) geometric shapes, rather than the gravatar logo
+            //         - https://en.wikipedia.org/wiki/Identicon
+            //
+            this.avatar = "http://www.gravatar.com/avatar/"
+                    + StringUtilities.getHashOf(email.trim().toLowerCase())
+                    + "?s=80&d=identicon";
+        } else {
+            this.avatar = avatar;
+        }
+    }
+
+    public String getStatement() {
+        return statement;
+    }
+
+    public void setStatement(final String statement) {
+        this.statement = statement;
+    }
+
+
+    //===========================
+    //  SimpleBeing interface
+    //===========================
+
+    /* (non-Javadoc)
+     * @see org.ecocean.rest.SimpleBeing#getDisplayName()
+     */
+    @Override
+    public String getDisplayName() {
+        if (StringUtils.isBlank(fullName)) {
+            return username;
+        }
+
+        return fullName;
+    }
+
+    /* (non-Javadoc)
+     * @see org.ecocean.rest.SimpleBeing#getAvatar()
+     */
+    @Override
+    public String getAvatar() {
+        return avatar;
+    }
+
+    @Override
+    public String getSpecies() {
+        return "human";
+    }
+
+
+    //===========================
+    //  Object interface
+    //===========================
 
     @Override
     public boolean equals(final Object obj)
@@ -41,8 +120,7 @@ public class SimpleUser implements SimpleBeing {
         SimpleUser other = (SimpleUser) obj;
 
         return new EqualsBuilder()
-            .append(username, other.username)
-            .append(email, other.email)
+            .append(id, other.id)
             .isEquals();
     }
 
@@ -50,96 +128,9 @@ public class SimpleUser implements SimpleBeing {
     public int hashCode()
     {
         return new HashCodeBuilder()
-            .append(username)
-            .append(email)
+            .append(id)
             .toHashCode();
     }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public String getFullName() {
-        return fullName;
-    }
-
-    /* (non-Javadoc)
-     * @see org.ecocean.rest.SimpleBeing#getDisplayName()
-     */
-    @Override
-    public String getDisplayName() {
-        String display;
-        if (StringUtils.isBlank(fullName)) {
-            //
-            // Check for email and strip out the end part to secure from seeing the email address.
-            // This way we only show the stuff before the @. If this is on the client side, then the
-            // username will have the full email address but only astute people will be able to find it.
-            //
-            int index = username.indexOf("@");
-            if (index >= 0) {
-                display = username.substring(0, index);
-            }
-
-            display = username;
-        } else {
-            display = fullName;
-        }
-
-
-        if (StringUtils.isBlank(affiliation)) {
-            return display;
-        }
-
-        return display + " - " + affiliation;
-    }
-
-    public void setFullName(final String fullName) {
-        this.fullName = fullName;
-    }
-
-    public String getAffiliation() {
-        return affiliation;
-    }
-
-    public void setAffiliation(final String affiliation) {
-        this.affiliation = affiliation;
-    }
-
-    /* (non-Javadoc)
-     * @see org.ecocean.rest.SimpleBeing#getAvatar()
-     */
-    @Override
-    public String getAvatar() {
-        if (avatar != null) {
-            return avatar;
-        }
-
-        if (email == null) {
-            return null;
-        }
-
-        //
-        // Return 80x80 sized gravatar. They default to 80x80 but can be requested up to 2048x2048.
-        // Though most users will have used a small image.
-        // Feel free to change if you want it bigger as all the code on the browser side should
-        // be sized to fit it's use anyway.
-        // NOTE: d=identicon makes default (when not set by user) be those crazy (unique) geometric shapes, rather than the gravatar logo
-        //         - https://en.wikipedia.org/wiki/Identicon
-        //
-        return "http://www.gravatar.com/avatar/"
-            + StringUtilities.getHashOf(email.trim().toLowerCase())
-            + "?s=80&d=identicon";
-    }
-
-    public void setAvatar(final String avatar) {
-        this.avatar = avatar;
-    }
-
-    @Override
-    public String getSpecies() {
-        return "human";
-    }
-
 
     @Override
     public String toString()

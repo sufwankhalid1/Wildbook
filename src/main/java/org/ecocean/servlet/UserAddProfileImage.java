@@ -129,7 +129,7 @@ public class UserAddProfileImage extends HttpServlet {
             }
 
             myShepherd.beginDBTransaction();
-            User user = myShepherd.getUser(username);
+            User user = myShepherd.getUserOLD(username);
             if (user == null) {
                 throw new IllegalArgumentException("Couldn't find the user '" + username + "'");
             }

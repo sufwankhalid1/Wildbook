@@ -64,18 +64,19 @@ import org.slf4j.LoggerFactory;
         String username = request.getParameter("username").trim();
         String password = request.getParameter("password").trim();
 
-        UserToken userToken = UserController.getUserToken(request, username, password);
-
-        //
-        // If user is null, bail back to our login page.
-        //
-        if (userToken == null) {
-            request.setAttribute("error", "No user found with username/email [" + username + "]" );
-            WebUtils.redirectToSavedRequest(request, response, "/login.jsp");
-            return;
-        }
-
+        UserToken userToken = null;
         try {
+            userToken = UserController.getUserToken(request, username, password);
+
+            //
+            // If user is null, bail back to our login page.
+            //
+            if (userToken == null) {
+                request.setAttribute("error", "No user found with username/email [" + username + "]" );
+                WebUtils.redirectToSavedRequest(request, response, "/login.jsp");
+                return;
+            }
+
             //The use of IniShiroFilter specified in web.xml
             //caused JSecurity to create the DefaultWebSecurityManager object
             //see: http://jsecurity.org/api/org/jsecurity/web/DefaultWebSecurityManager.html
@@ -144,8 +145,10 @@ import org.slf4j.LoggerFactory;
             request.setAttribute("error", ex.getMessage() );
             WebUtils.redirectToSavedRequest(request, response, "/login.jsp");
         } finally {
-            //clear the information stored in the token
-            userToken.getToken().clear();
+            if (userToken != null) {
+                //clear the information stored in the token
+                userToken.clear();
+            }
         }
     }
 }

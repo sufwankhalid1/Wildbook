@@ -8,30 +8,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import java.util.Date;
-
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authc.IncorrectCredentialsException;
-import org.apache.shiro.authc.UnknownAccountException;
-import org.apache.shiro.authc.UsernamePasswordToken;
-import org.apache.shiro.subject.Subject;
-
-/*
-import org.pac4j.core.client.*;
-import org.pac4j.core.context.*;
-import org.pac4j.oauth.*;
-import org.pac4j.oauth.client.*;
-import org.pac4j.oauth.credentials.*;
-import org.pac4j.oauth.profile.facebook.*;
-*/
-
-import org.apache.shiro.web.util.WebUtils;
-//import org.ecocean.*;
-import org.ecocean.security.SocialAuth;
-
 import org.ecocean.CommonConfiguration;
 import org.ecocean.Shepherd;
 import org.ecocean.User;
+//import org.ecocean.*;
+import org.ecocean.security.SocialAuth;
 import org.pac4j.core.context.J2EContext;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.oauth.client.FacebookClient;
@@ -39,11 +20,12 @@ import org.pac4j.oauth.client.FacebookClient;
 import org.pac4j.oauth.credentials.OAuthCredentials;
 import org.pac4j.oauth.profile.facebook.FacebookProfile;
 //import org.pac4j.oauth.profile.yahoo.YahooProfile;
-
-import org.scribe.builder.*;
-import org.scribe.builder.api.*;
-import org.scribe.model.*;
-import org.scribe.oauth.*;
+import org.scribe.model.OAuthRequest;
+import org.scribe.model.Response;
+import org.scribe.model.Token;
+import org.scribe.model.Verb;
+import org.scribe.model.Verifier;
+import org.scribe.oauth.OAuthService;
 
 
 
@@ -71,7 +53,7 @@ import org.scribe.oauth.*;
      * @see javax.servlet.http.HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
      */
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
 
         doPost(request, response);
     }
@@ -80,7 +62,7 @@ import org.scribe.oauth.*;
      * @see javax.servlet.http.HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
      */
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
     HttpSession session = request.getSession(true);
 
     PrintWriter out = response.getWriter();
@@ -93,7 +75,7 @@ import org.scribe.oauth.*;
         String username = null;
         if (request.getUserPrincipal() != null) username = request.getUserPrincipal().getName();
         if (username == null) username = "";
-        User user = myShepherd.getUser(username);
+        User user = myShepherd.getUserOLD(username);
 
         if (user == null) {
             response.sendRedirect("login.jsp");

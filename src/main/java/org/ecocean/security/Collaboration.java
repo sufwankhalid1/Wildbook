@@ -1,13 +1,20 @@
 package org.ecocean.security;
 
-//import java.util.Date;
-import java.util.*;
-import java.io.Serializable;
-import org.ecocean.*;
-import org.ecocean.servlet.ServletUtilities;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Properties;
 
 import javax.jdo.Query;
 import javax.servlet.http.HttpServletRequest;
+
+import org.ecocean.CommonConfiguration;
+import org.ecocean.Encounter;
+import org.ecocean.MarkedIndividual;
+import org.ecocean.Occurrence;
+import org.ecocean.Shepherd;
+import org.ecocean.ShepherdProperties;
+import org.ecocean.User;
+import org.ecocean.servlet.ServletUtilities;
 
 
 
@@ -37,7 +44,7 @@ public class Collaboration implements java.io.Serializable {
 	public Collaboration() {}
 
 ////////////////TODO prevent duplicates
-	public Collaboration(String username1, String username2) {
+	public Collaboration(final String username1, final String username2) {
 		this.setUsername1(username1);
 		this.setUsername2(username2);
 		this.setState(STATE_INITIALIZED);
@@ -48,7 +55,7 @@ public class Collaboration implements java.io.Serializable {
 		return this.username1;
 	}
 
-	public void setUsername1(String name) {
+	public void setUsername1(final String name) {
 		this.username1 = name;
 		this.setId();
 	}
@@ -57,7 +64,7 @@ public class Collaboration implements java.io.Serializable {
 		return this.username2;
 	}
 
-	public void setUsername2(String name) {
+	public void setUsername2(final String name) {
 		this.username2 = name;
 		this.setId();
 	}
@@ -66,7 +73,7 @@ public class Collaboration implements java.io.Serializable {
 		return this.dateTimeCreated;
 	}
 
-	public void setDateTimeCreated(long d) {
+	public void setDateTimeCreated(final long d) {
 		this.dateTimeCreated = d;
 	}
 
@@ -74,7 +81,7 @@ public class Collaboration implements java.io.Serializable {
 		this.setDateTimeCreated(new Date().getTime());
 	}
 
-	public void setState(String s) {
+	public void setState(final String s) {
 		this.state = s;
 	}
 
@@ -98,30 +105,30 @@ public class Collaboration implements java.io.Serializable {
 
 //TODO this should do other steps?  maybe? like notify user??
 // NOTE the first user, by convention, is the initiator
-	public static Collaboration create(String u1, String u2) {
+	public static Collaboration create(final String u1, final String u2) {
 		Collaboration c = new Collaboration(u1,u2);
   //storeNewCollaboration(Collaboration collab) {
 		return c;
 	}
 
 	//fetch all collabs for the user
-	public static ArrayList collaborationsForCurrentUser(HttpServletRequest request) {
+	public static ArrayList collaborationsForCurrentUser(final HttpServletRequest request) {
 		return collaborationsForCurrentUser(request, null);
 	}
 
 	//like above, but can specify a state
-	public static ArrayList collaborationsForCurrentUser(HttpServletRequest request, String state) {
+	public static ArrayList collaborationsForCurrentUser(final HttpServletRequest request, final String state) {
 		String context = ServletUtilities.getContext(request);
 		if (request.getUserPrincipal() == null) return null;  //TODO is this cool?
 		String username = request.getUserPrincipal().getName();
 		return collaborationsForUser(context, username, state);
 	}
 
-	public static ArrayList collaborationsForUser(String context, String username) {
+	public static ArrayList collaborationsForUser(final String context, final String username) {
 		return collaborationsForUser(context, username, null);
 	}
 
-	public static ArrayList collaborationsForUser(String context, String username, String state) {
+	public static ArrayList collaborationsForUser(final String context, final String username, final String state) {
 //TODO cache!!!  (may be hit a lot)
 		String queryString = "SELECT FROM org.ecocean.security.Collaboration WHERE ((username1 == '" + username + "') || (username2 == '" + username + "'))";
 		if (state != null) {
@@ -134,7 +141,7 @@ public class Collaboration implements java.io.Serializable {
     return myShepherd.getAllOccurrences(query);
 	}
 
-	public static Collaboration collaborationBetweenUsers(String context, String u1, String u2) {
+	public static Collaboration collaborationBetweenUsers(final String context, final String u1, final String u2) {
 		return findCollaborationWithUser(u2, collaborationsForUser(context, u1));
 /*
 		ArrayList<Collaboration> all = collaborationsForUser(context, u1);
@@ -145,7 +152,7 @@ public class Collaboration implements java.io.Serializable {
 */
 	}
 
-	public static boolean canCollaborate(String context, String u1, String u2) {
+	public static boolean canCollaborate(final String context, final String u1, final String u2) {
 		if (User.isUsernameAnonymous(u1) || User.isUsernameAnonymous(u2)) return true;  //TODO not sure???
 		if (u1.equals(u2)) return true;
 		Collaboration c = collaborationBetweenUsers(context, u1, u2);
@@ -154,7 +161,7 @@ public class Collaboration implements java.io.Serializable {
 		return false;
 	}
 
-	public static Collaboration findCollaborationWithUser(String username, ArrayList all) {
+	public static Collaboration findCollaborationWithUser(final String username, final ArrayList all) {
 		if (all == null) return null;
 		ArrayList<Collaboration> collabs = all;
 		for (Collaboration c : collabs) {
@@ -164,7 +171,7 @@ public class Collaboration implements java.io.Serializable {
 	}
 
 
-	public static String getNotificationsWidgetHtml(HttpServletRequest request) {
+	public static String getNotificationsWidgetHtml(final HttpServletRequest request) {
 		String context = "context0";
 		context = ServletUtilities.getContext(request);
 		String langCode = ServletUtilities.getLanguageCode(request);
@@ -185,7 +192,7 @@ public class Collaboration implements java.io.Serializable {
 	}
 
 
-	public static boolean securityEnabled(String context) {
+	public static boolean securityEnabled(final String context) {
 		String enabled = CommonConfiguration.getProperty("collaborationSecurityEnabled", context);
 		if ((enabled == null) || !enabled.equals("true")) {
 			return false;
@@ -195,7 +202,7 @@ public class Collaboration implements java.io.Serializable {
 	}
 
 
-	public static boolean canUserAccessEncounter(Encounter enc, HttpServletRequest request) {
+	public static boolean canUserAccessEncounter(final Encounter enc, final HttpServletRequest request) {
 		String context = ServletUtilities.getContext(request);
 		if (!securityEnabled(context)) return true;
 		if (request.isUserInRole("admin")) return true;  //TODO generalize and/or allow other roles all-access
@@ -211,7 +218,7 @@ public class Collaboration implements java.io.Serializable {
 	}
 
 
-	public static boolean canUserAccessOccurrence(Occurrence occ, HttpServletRequest request) {
+	public static boolean canUserAccessOccurrence(final Occurrence occ, final HttpServletRequest request) {
   	ArrayList<Encounter> all = occ.getEncounters();
 		if ((all == null) || (all.size() < 1)) return true;
 		for (Encounter enc : all) {
@@ -221,7 +228,7 @@ public class Collaboration implements java.io.Serializable {
 	}
 
 
-	public static boolean canUserAccessMarkedIndividual(MarkedIndividual mi, HttpServletRequest request) {
+	public static boolean canUserAccessMarkedIndividual(final MarkedIndividual mi, final HttpServletRequest request) {
 		return true;  //FOR NOW(?) anyone can get to individual always
 /*
   	Vector<Encounter> all = mi.getEncounters();

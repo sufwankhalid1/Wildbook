@@ -1,7 +1,6 @@
 package org.ecocean.security;
 
 import org.apache.shiro.authc.UsernamePasswordToken;
-import org.ecocean.User;
 
 public class UserToken {
     private final User user;
@@ -18,5 +17,9 @@ public class UserToken {
 
     public UsernamePasswordToken getToken() {
         return token;
+    }
+
+    public void clear() {
+        token.clear();
     }
 }

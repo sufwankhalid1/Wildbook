@@ -19,7 +19,8 @@
 
 package org.ecocean.servlet;
 
-import org.ecocean.*;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -27,21 +28,26 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import java.io.*;
+import org.ecocean.CommonConfiguration;
+import org.ecocean.Shepherd;
+import org.ecocean.User;
 
 public class UserDelete extends HttpServlet {
 
 
-  public void init(ServletConfig config) throws ServletException {
+  @Override
+public void init(final ServletConfig config) throws ServletException {
     super.init(config);
   }
 
 
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+  @Override
+public void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
     doPost(request, response);
   }
 
-  public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+  @Override
+public void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
     String context="context0";
     //context=ServletUtilities.getContext(request);
     Shepherd myShepherd = new Shepherd(context);
@@ -54,13 +60,13 @@ public class UserDelete extends HttpServlet {
 
 
     myShepherd.beginDBTransaction();
-    if (myShepherd.getUser(username)!=null) {
+    if (myShepherd.getUserOLD(username)!=null) {
 
       try {
-        User ad = myShepherd.getUser(username);
+        User ad = myShepherd.getUserOLD(username);
         myShepherd.getPM().deletePersistent(ad);
 
-      } 
+      }
       catch (Exception le) {
         locked = true;
         le.printStackTrace();
@@ -76,7 +82,7 @@ public class UserDelete extends HttpServlet {
 
         out.println("<p><a href=\"http://" + CommonConfiguration.getURLLocation(request) + "/appadmin/users.jsp?context=context0" + "\">Return to User Administration" + "</a></p>\n");
         out.println(ServletUtilities.getFooter(context));
-      } 
+      }
       else {
 
         out.println(ServletUtilities.getHeader(request));
@@ -100,5 +106,5 @@ public class UserDelete extends HttpServlet {
 
 
 }
-  
-  
+
+

@@ -259,12 +259,12 @@ System.out.println("-----------------------------------------otoken= " + otoken)
 
     String origUsername = username;
     int count = 0;
-    User already = myShepherd.getUser(username);
+    User already = myShepherd.getUserOLD(username);
     while (already != null) {
         count++;
 System.out.println("UserCreateSocial.createUser: username " + username + " already exists, appending " + count);
         username = origUsername + count;
-        already = myShepherd.getUser(username);
+        already = myShepherd.getUserOLD(username);
     }
 
 		User user = new User(username,  Util.generateUUID());

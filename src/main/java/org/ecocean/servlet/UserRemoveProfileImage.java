@@ -19,8 +19,8 @@
 
 package org.ecocean.servlet;
 
-import org.ecocean.*;
-import org.ecocean.media.*;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -28,27 +28,26 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Iterator;
-import java.util.Vector;
-
-import com.samsix.database.*;
+import org.ecocean.CommonConfiguration;
+import org.ecocean.Shepherd;
+import org.ecocean.User;
 
 
 public class UserRemoveProfileImage extends HttpServlet {
 
 
-    public void init(ServletConfig config) throws ServletException {
+    @Override
+    public void init(final ServletConfig config) throws ServletException {
         super.init(config);
     }
 
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    @Override
+    public void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
         doPost(request, response);
     }
 
-    public void doPost(HttpServletRequest request, HttpServletResponse response)
+    @Override
+    public void doPost(final HttpServletRequest request, final HttpServletResponse response)
         throws ServletException, IOException
     {
         String context="context0";
@@ -69,7 +68,7 @@ public class UserRemoveProfileImage extends HttpServlet {
         String deleteMessage = null;
 
         myShepherd.beginDBTransaction();
-        User user = myShepherd.getUser(username);
+        User user = myShepherd.getUserOLD(username);
         if (user != null) {
             user.setUserImage(null);
         }

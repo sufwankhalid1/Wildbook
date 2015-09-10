@@ -43,7 +43,7 @@ var configPromise = $.get("/config")
     // Must force credentials to be sent or else the cookie for the config.wildbook.url domain
     // is not sent by ajax. This cookie has our login info in it if we are already logged in.
     //
-    return $.ajax({url: config.wildbook.url + "/obj/user/simple", xhrFields: {withCredentials: true}});
+    return $.ajax({url: config.wildbook.url + "/obj/user/isloggedin", xhrFields: {withCredentials: true}});
 }, handleError)
 .then(function(user) {
     if (user.username) {

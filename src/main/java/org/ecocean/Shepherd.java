@@ -22,7 +22,6 @@ package org.ecocean;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -49,12 +48,15 @@ import org.ecocean.genetics.TissueSample;
 import org.ecocean.grid.ScanTask;
 import org.ecocean.grid.ScanWorkItem;
 import org.ecocean.security.Collaboration;
+import org.ecocean.security.User;
+import org.ecocean.security.UserFactory;
 import org.ecocean.servlet.ServletUtilities;
 import org.ecocean.social.Relationship;
 import org.ecocean.social.SocialUnit;
 
 import com.samsix.database.ConnectionInfo;
 import com.samsix.database.Database;
+import com.samsix.database.DatabaseException;
 
 /**
  * <code>Shepherd</code>	is the main	information	retrieval, processing, and persistence class to	be used	for	all	shepherd project applications.
@@ -418,7 +420,6 @@ public class Shepherd {
   }
 
   public Role getRole(final String rolename, final String username, final String context) {
-
     ArrayList<Role> roles = getAllRoles();
     int numRoles=roles.size();
     for(int i=0;i<numRoles;i++) {
@@ -430,72 +431,9 @@ public class Shepherd {
     return null;
   }
 
-  public ArrayList<Role> getAllRolesForUserInContext(final String username, final String context) {
-    String actualContext="context0";
-    if(context!=null){actualContext=context;}
-    String filter = "this.username == '" + username + "' && this.context == '"+actualContext+"'";
-    Extent encClass = pm.getExtent(Role.class, true);
-    Query acceptedEncounters = pm.newQuery(encClass, filter);
-    Collection c = (Collection) (acceptedEncounters.execute());
-    ArrayList<Role> roles=new ArrayList<Role>();
-    if(c!=null){roles=new ArrayList<Role>(c);}
-    acceptedEncounters.closeAll();
-    return roles;
-  }
-
-  public ArrayList<Role> getAllRolesForUser(final String username) {
-    String filter = "this.username == '" + username + "'";
-    Extent encClass = pm.getExtent(Role.class, true);
-    Query acceptedEncounters = pm.newQuery(encClass, filter);
-    Collection c = (Collection) (acceptedEncounters.execute());
-    ArrayList<Role> roles=new ArrayList<Role>(c);
-    acceptedEncounters.closeAll();
-    return roles;
-  }
-
-  public boolean doesUserHaveRole(final String username, final String rolename, final String context) {
-    String filter = "this.username == '" + username + "' && this.rolename == '" + rolename + "' && this.context == '"+context+"'";
-    Extent encClass = pm.getExtent(Role.class, true);
-    Query acceptedEncounters = pm.newQuery(encClass, filter);
-    Collection c = (Collection) (acceptedEncounters.execute());
-    int size=c.size();
-    acceptedEncounters.closeAll();
-    if(size>0){return true;}
-    return false;
-  }
-
-  public boolean doesUserHaveAnyRoleInContext(final String username, final String context) {
-    String filter = "this.username == '" + username + "' && this.context == '"+context+"'";
-    Extent encClass = pm.getExtent(Role.class, true);
-    Query acceptedEncounters = pm.newQuery(encClass, filter);
-    Collection c = (Collection) (acceptedEncounters.execute());
-    int size=c.size();
-    acceptedEncounters.closeAll();
-    if(size>0){return true;}
-    return false;
-  }
-
-  public String getAllRolesForUserAsString(final String username) {
-    String filter = "this.username == '" + username + "'";
-    Extent encClass = pm.getExtent(Role.class, true);
-    Query acceptedEncounters = pm.newQuery(encClass, filter);
-    Collection c = (Collection) (acceptedEncounters.execute());
-    ArrayList<Role> roles=new ArrayList<Role>(c);
-    int numRoles=roles.size();
-    String rolesFound="";
-    for(int i=0;i<numRoles;i++){
-      String context="context0";
-      if(roles.get(i).getContext()!=null){context=roles.get(i).getContext();}
-      String contextName=ContextConfiguration.getNameForContext(context);
-      rolesFound+=(contextName+":"+roles.get(i).getRolename()+"\r");
-    }
-    acceptedEncounters.closeAll();
-    return rolesFound;
-  }
-
-  public User getUser(final String username) {
+  public org.ecocean.User getUserOLD(final String username) {
       try {
-          User user = ((User) (pm.getObjectById(pm.newObjectIdInstance(User.class, username.trim()), true)));
+          org.ecocean.User user = ((org.ecocean.User) (pm.getObjectById(pm.newObjectIdInstance(User.class, username.trim()), true)));
 
           // load non-DataNucleus fields
           ConnectionInfo ci = ShepherdPMF.getConnectionInfo();
@@ -511,29 +449,33 @@ public class Shepherd {
       }
   }
 
-  public User getUserByNameOrEmail(final String term) {
-      User user = getUser(term);
-      if (user == null) {
-          return getUserByEmailAddress(term);
+  public User getUser(final String username) throws DatabaseException {
+      try (Database db = ShepherdPMF.getDb()) {
+          return UserFactory.getUser(db, username);
       }
-
-      return user;
   }
 
-  public User getUserByEmailAddress(final String email){
-    String filter="SELECT FROM org.ecocean.User WHERE emailAddress == \""+email+"\"";
-    Query query=getPM().newQuery(filter);
-    @SuppressWarnings("unchecked")
-    Collection<User> c = (Collection<User>) (query.execute());
-    Iterator<User> it = c.iterator();
+  public User getUserById(final int id) throws DatabaseException {
+      try (Database db = ShepherdPMF.getDb()) {
+          return UserFactory.getUserById(db, id);
+      }
+  }
 
-    while(it.hasNext()){
-      User myUser = it.next();
-      query.closeAll();
-      return myUser;
-    }
-    query.closeAll();
-    return null;
+  public User getUserByNameOrEmail(final String term) throws DatabaseException {
+      try (Database db = ShepherdPMF.getDb()) {
+          User user = UserFactory.getUser(db, term);
+          if (user == null) {
+              return UserFactory.getUserByEmailAddress(db, term);
+          }
+
+          return user;
+      }
+  }
+
+  public User getUserByEmailAddress(final String email) throws DatabaseException{
+      try (Database db = ShepherdPMF.getDb()) {
+          return UserFactory.getUserByEmailAddress(db, email);
+      }
   }
 
   public TissueSample getTissueSample(final String sampleID, final String encounterNumber) {
@@ -1420,15 +1362,15 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(final Class<T> clazz, f
    * Retrieve the distinct User objects for all Encounters related to this MarkedIndividual
    *
    */
-  public ArrayList<User> getAllUsersForMarkedIndividual(final MarkedIndividual indie){
-    ArrayList<User> relatedUsers=new ArrayList<User>();
+  public ArrayList<org.ecocean.User> getAllUsersForMarkedIndividual(final MarkedIndividual indie) {
+    ArrayList<org.ecocean.User> relatedUsers=new ArrayList<>();
     ArrayList<String> usernames=indie.getAllAssignedUsers();
     int size=usernames.size();
     if(size>0){
       for(int i=0;i<size;i++){
         String thisUsername=usernames.get(i);
-        if(getUser(thisUsername)!=null){
-          relatedUsers.add(getUser(thisUsername));
+        if(getUserOLD(thisUsername)!=null){
+          relatedUsers.add(getUserOLD(thisUsername));
         }
       }
     }
@@ -1440,15 +1382,15 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(final Class<T> clazz, f
    * Retrieve the distinct User objects for all Encounters related to this Occurrence
    *
    */
-  public ArrayList<User> getAllUsersForOccurrence(final Occurrence indie){
-    ArrayList<User> relatedUsers=new ArrayList<User>();
+  public ArrayList<org.ecocean.User> getAllUsersForOccurrence(final Occurrence indie) {
+    ArrayList<org.ecocean.User> relatedUsers=new ArrayList<>();
     ArrayList<String> usernames=indie.getAllAssignedUsers();
     int size=usernames.size();
     if(size>0){
       for(int i=0;i<size;i++){
         String thisUsername=usernames.get(i);
-        if(getUser(thisUsername)!=null){
-          relatedUsers.add(getUser(thisUsername));
+        if(getUserOLD(thisUsername)!=null){
+          relatedUsers.add(getUserOLD(thisUsername));
         }
       }
     }
@@ -1460,8 +1402,8 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(final Class<T> clazz, f
    * Retrieve the distinct User objects for all Encounters related to this MarkedIndividual
    *
    */
-  public ArrayList<User> getAllUsersForMarkedIndividual(final String indie){
-    ArrayList<User> relatedUsers=new ArrayList<User>();
+  public ArrayList<org.ecocean.User> getAllUsersForMarkedIndividual(final String indie) {
+    ArrayList<org.ecocean.User> relatedUsers=new ArrayList<>();
     if(getMarkedIndividual(indie)!=null){
       MarkedIndividual foundIndie=getMarkedIndividual(indie);
       return getAllUsersForMarkedIndividual(foundIndie);
@@ -1472,8 +1414,8 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(final Class<T> clazz, f
   /* Retrieve the distinct User objects for all Encounters related to this Occurrence
   *
   */
- public ArrayList<User> getAllUsersForOccurrence(final String occur){
-   ArrayList<User> relatedUsers=new ArrayList<User>();
+ public ArrayList<org.ecocean.User> getAllUsersForOccurrence(final String occur) {
+   ArrayList<org.ecocean.User> relatedUsers=new ArrayList<>();
    if(getOccurrence(occur)!=null){
      Occurrence foundOccur=getOccurrence(occur);
      return getAllUsersForOccurrence(foundOccur);
@@ -1546,9 +1488,9 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(final Class<T> clazz, f
     return null;
   }
 
-  public User getUserBySocialId(final String service, final String id) {
+  public org.ecocean.User getUserBySocialId(final String service, final String id) {
         if ((id == null) || (service == null)) return null;
-        ArrayList<User> users = getAllUsers();
+        ArrayList<org.ecocean.User> users = getAllUsers();
         for (int i = 0 ; i < users.size() ; i++) {
             if (id.equals(users.get(i).getSocial(service))) return users.get(i);
         }
@@ -2319,16 +2261,16 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(final Class<T> clazz, f
     return it;
   }
 
-  public ArrayList<User> getAllUsers() {
+  public ArrayList<org.ecocean.User> getAllUsers() {
     Collection c;
-    ArrayList<User> list = new ArrayList<User>();
+    ArrayList<org.ecocean.User> list = new ArrayList<>();
     Extent userClass = pm.getExtent(User.class, true);
     Query users = pm.newQuery(userClass);
     users.setOrdering("fullName ascending");
     try {
       c = (Collection) (users.execute());
       if(c!=null){
-        list = new ArrayList<User>(c);
+        list = new ArrayList<>(c);
       }
       users.closeAll();
       return list;
@@ -2338,19 +2280,6 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(final Class<T> clazz, f
       npe.printStackTrace();
       return null;
     }
-  }
-
-  public String getAllUserEmailAddressesForLocationID(final String locationID, final String context){
-    String addresses="";
-    ArrayList<User> users = getAllUsers();
-    int numUsers=users.size();
-    for(int i=0;i<numUsers;i++){
-      User user=users.get(i);
-      if(doesUserHaveRole(user.getUsername(), locationID.trim(),context)){
-        if((user.getReceiveEmails())&&(user.getEmailAddress()!=null)){addresses+=(user.getEmailAddress()+",");}
-      }
-    }
-    return addresses;
   }
 
   public Iterator getAllOccurrences() {
@@ -3201,24 +3130,6 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(final Class<T> clazz, f
     else{return null;}
   }
 
-  public User getRandomUserWithPhotoAndStatement(){
-    //(username.toLowerCase().indexOf('demo') == -1)
-    String filter = "fullName != null && userImage != null && userStatement != null && (username.toLowerCase().indexOf('demo') == -1) && (username.toLowerCase().indexOf('test') == -1)";
-    Extent encClass = pm.getExtent(User.class, true);
-    Query q = pm.newQuery(encClass, filter);
-    Collection c = (Collection) (q.execute());
-    if((c!=null)&&(c.size()>0)){
-      ArrayList<User> matchingUsers=new ArrayList<>(c);
-      q.closeAll();
-      int numUsers=matchingUsers.size();
-      Random rn = new Random();
-      int userNumber = rn.nextInt(numUsers);
-      return matchingUsers.get(userNumber);
-    }
-    q.closeAll();
-    return null;
-  }
-
   public ArrayList<Encounter> getMostRecentIdentifiedEncountersByDate(final int numToReturn){
     ArrayList<Encounter> matchingEncounters = new ArrayList<Encounter>();
     String filter = "individualID != null";
@@ -3241,54 +3152,6 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(final Class<T> clazz, f
     return matchingEncounters;
   }
 
-  public Map<String,Integer> getTopUsersSubmittingEncountersSinceTimeInDescendingOrder(final long startTime){
-
-
-    Map<String,Integer> matchingUsers=new HashMap<String,Integer>();
-
-
-    String filter = "submitterID != null && dwcDateAddedLong >= "+startTime;
-    System.out.println("     My filter is: "+filter);
-    Extent encClass = pm.getExtent(Encounter.class, true);
-    Query q = pm.newQuery(encClass, filter);
-    q.setResult("distinct submitterID");
-    Collection c = (Collection) (q.execute());
-    ArrayList<String> allUsers = new ArrayList<String>(c);
-    q.closeAll();
-    int numAllUsers=allUsers.size();
-    //System.out.println("     All users: "+numAllUsers);
-    for(int i=0;i<numAllUsers;i++){
-      String thisUser=allUsers.get(i);
-      if((!thisUser.trim().equals(""))&&(getUser(thisUser)!=null)){
-
-        String userFilter = "submitterID == \"" + thisUser + "\" && dwcDateAddedLong >= "+startTime;
-        Extent userClass = pm.getExtent(Encounter.class, true);
-        Query subq = pm.newQuery(userClass, userFilter);
-        Collection userC = (Collection) (subq.execute());
-        matchingUsers.put(thisUser, (new Integer(userC.size())));
-        //System.out.println("     Adding user:"+thisUser+" with "+userC.size());
-        subq.closeAll();
-      }
-    }
-
-    return sortByValues(matchingUsers);
-  }
-
-  public static <K, V extends Comparable<V>> Map<K, V> sortByValues(final Map<K, V> map) {
-    Comparator<K> valueComparator =  new Comparator<K>() {
-        @Override
-        public int compare(final K k1, final K k2) {
-            int compare = map.get(k2).compareTo(map.get(k1));
-            if (compare == 0) return 1;
-            else return compare;
-        }
-    };
-    Map<K, V> sortedByValues = new TreeMap<K, V>(valueComparator);
-    sortedByValues.putAll(map);
-    return sortedByValues;
-}
-
-
   public Adoption getRandomAdoptionWithPhotoAndStatement(){
     String filter = "adopterName != null && adopterImage != null && adopterQuote != null";
     Extent encClass = pm.getExtent(Adoption.class, true);
@@ -3305,8 +3168,5 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(final Class<T> clazz, f
     q.closeAll();
     return null;
   }
-
-
-
-} //end Shepherd class
+}
 

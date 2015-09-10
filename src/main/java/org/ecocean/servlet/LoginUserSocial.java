@@ -2,43 +2,39 @@ package org.ecocean.servlet;
 
 import java.io.IOException;
 
-
-
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import java.util.Date;
 
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.IncorrectCredentialsException;
 import org.apache.shiro.authc.UnknownAccountException;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
-
-import org.pac4j.core.client.*;
-import org.pac4j.core.context.*;
-import org.pac4j.oauth.client.*;
-import org.pac4j.oauth.credentials.*;
-import org.pac4j.oauth.profile.facebook.*;
-
 import org.apache.shiro.web.util.WebUtils;
-import org.ecocean.*;
+import org.ecocean.CommonConfiguration;
+import org.ecocean.Shepherd;
+import org.ecocean.User;
 import org.ecocean.security.SocialAuth;
-
-import org.scribe.builder.*;
-import org.scribe.builder.api.*;
-import org.scribe.model.*;
-import org.scribe.oauth.*;
+import org.pac4j.core.context.J2EContext;
+import org.pac4j.core.context.WebContext;
+import org.pac4j.oauth.client.FacebookClient;
+import org.pac4j.oauth.credentials.OAuthCredentials;
+import org.pac4j.oauth.profile.facebook.FacebookProfile;
+import org.scribe.model.OAuthRequest;
+import org.scribe.model.Response;
+import org.scribe.model.Token;
+import org.scribe.model.Verb;
+import org.scribe.model.Verifier;
+import org.scribe.oauth.OAuthService;
 
 
 /**
  * Uses JSecurity to authenticate a user
  * If user can be authenticated successfully
  * forwards user to /secure/index.jsp
- * 
+ *
  * If user cannot be authenticated then forwards
  * user to the /login.jsp which will display
  * an error message
@@ -46,32 +42,30 @@ import org.scribe.oauth.*;
  */
  public class LoginUserSocial extends javax.servlet.http.HttpServlet implements javax.servlet.Servlet {
    static final long serialVersionUID = 1L;
-   
+
     /* (non-Java-doc)
 	 * @see javax.servlet.http.HttpServlet#HttpServlet()
 	 */
 	public LoginUserSocial() {
 		super();
-	}   	
-	
+	}
+
 	/* (non-Java-doc)
 	 * @see javax.servlet.http.HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	@Override
+    protected void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
 
 		doPost(request, response);
-	}  	
-	
+	}
+
 	/* (non-Java-doc)
 	 * @see javax.servlet.http.HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	@Override
+    protected void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
     HttpSession session = request.getSession(true);
 
-		String url = "/login.jsp";
-		
-		System.out.println("Starting LoginUserSocial servlet...");
-		
 		String context = "context0";
 		Shepherd myShepherd = new Shepherd(context);
 		//myShepherd.beginDBTransaction();
@@ -191,8 +185,8 @@ System.out.println("found a user that matched flickr id: " + username);
 
 
 		UsernamePasswordToken token = new UsernamePasswordToken(username, hashedPassword);
-		
-	
+
+
 		try {
 			Subject subject = SecurityUtils.getSubject();
 			subject.login(token);
@@ -213,6 +207,6 @@ System.out.println("found a user that matched flickr id: " + username);
 
 
 		WebUtils.redirectToSavedRequest(request, response, "welcome.jsp");
-	}   	  	    
+	}
 
 }

@@ -96,6 +96,7 @@ new_message.append("<html><body>");
     	  //informMe = email_props.getProperty(enc.getLocationCode());
         
         //the new way loads email addresses based on User object roles matching location ID
+
         informMe=myShepherd.getAllUserEmailAddressesForLocationID(enc.getLocationID(),context);
         
         

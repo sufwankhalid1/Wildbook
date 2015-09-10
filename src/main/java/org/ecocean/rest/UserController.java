@@ -2,19 +2,21 @@ package org.ecocean.rest;
 
 import java.util.HashMap;
 
-import javax.jdo.PersistenceManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
 import org.ecocean.CommonConfiguration;
 import org.ecocean.Shepherd;
-import org.ecocean.User;
+import org.ecocean.ShepherdPMF;
 import org.ecocean.Util;
 import org.ecocean.security.Stormpath;
+import org.ecocean.security.User;
+import org.ecocean.security.UserFactory;
 import org.ecocean.security.UserToken;
 import org.ecocean.servlet.ServletUtilities;
 import org.slf4j.Logger;
@@ -27,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
 import com.stormpath.sdk.account.Account;
 import com.stormpath.sdk.account.AccountList;
@@ -39,20 +42,22 @@ public class UserController {
 
     private static Logger logger = LoggerFactory.getLogger(MediaSubmissionController.class);
 
-    private static User userFromStormpath(final Account acc, final String password) {
+    private static User createUserFromStormpath(final Account acc, final String password) {
         //
-        // Auto-generate username if none used or if that used is same as
+        // Don't use username from stormpath if it is the same as
         // the email. We don't want the email address to be the username for
         // security issues.
         //
-        String uname = acc.getUsername();
-        if (uname == null || uname.equals(acc.getEmail())) {
-            uname = Util.generateUUID();
+        String uname;
+        if (acc.getEmail().equals(acc.getUsername())) {
+            uname = null;
+        } else {
+            uname = acc.getUsername();
         }
-        User user = new User(uname, password);
 
-        user.setFullName(acc.getGivenName() + " " + acc.getSurname());  //so non-international of us!
-        user.setEmailAddress(acc.getEmail());
+        // so non-international of us!
+        User user = new User(null, uname, acc.getGivenName() + " " + acc.getSurname(), acc.getEmail());
+        user.initPassword(password);
 
         //
         // Let's assume that new stormpath people have accepted the
@@ -67,7 +72,7 @@ public class UserController {
     private static User getStormpathUser(final HttpServletRequest request,
                                          final Shepherd shepherd,
                                          final String username,
-                                         final String password)
+                                         final String password) throws DatabaseException
     {
         Client client = Stormpath.getClient(ServletUtilities.getConfigDir(request));
 
@@ -95,7 +100,7 @@ public class UserController {
             return null;
         }
 
-        User user = shepherd.getUserByNameOrEmail(acc.getEmail());
+        User user = shepherd.getUserByEmailAddress(acc.getEmail());
         if (user == null) {
             //TODO we should probably have some kinda rules here: like stormpath user is a certain group etc
             if (logger.isDebugEnabled()) {
@@ -104,7 +109,7 @@ public class UserController {
                         + ". creating one!");
             }
             try {
-                user = userFromStormpath(acc, password);
+                user = createUserFromStormpath(acc, password);
                 shepherd.getPM().makePersistent(user);
             } catch (Exception ex) {
                 logger.error("trouble creating Wildbook user from Stormpath: " + ex.toString());
@@ -125,7 +130,7 @@ public class UserController {
 
     public static UserToken getUserToken(final HttpServletRequest request,
                                          final String username,
-                                         final String password) {
+                                         final String password) throws DatabaseException {
         Shepherd shepherd = ServletUtilities.getShepherd(request);
         User spUser = getStormpathUser(request, shepherd, username, password);
         User user;
@@ -145,7 +150,7 @@ public class UserController {
 
         UsernamePasswordToken token;
         if (spUser == null) {
-            token = new UsernamePasswordToken(user.getUsername(),
+            token = new UsernamePasswordToken(user.getUserId().toString(),
                                               ServletUtilities.hashAndSaltPassword(password, user.getSalt()));
         } else {
             //
@@ -153,44 +158,29 @@ public class UserController {
             // password to be correct so we use the value from the db. Should be the
             // same as that on stormpath?
             //
-            token = new UsernamePasswordToken(user.getUsername(), user.getPassword());
+            token = new UsernamePasswordToken(user.getUserId().toString(), user.getHashedPass());
         }
 
         return new UserToken(user, token);
     }
 
-    @RequestMapping(value = "", method = RequestMethod.GET)
-    public ResponseEntity<User> save(final HttpServletRequest request) {
-        String context = "context0";
-        context = ServletUtilities.getContext(request);
-        Shepherd myShepherd = new Shepherd(context);
-        User user = null;
-        String username = null;
-        if (request.getUserPrincipal() != null) username = request.getUserPrincipal().getName();
-        if ((username != null) && !username.equals("")) user = myShepherd.getUser(username);
-        if (user == null) {
-            user = new User();
-        }
-        return new ResponseEntity<User>(user, HttpStatus.OK);
-    }
 
-    @RequestMapping(value = "simple", method = RequestMethod.GET)
-    public SimpleUser getSimpleUser(final HttpServletRequest request) throws DatabaseException {
-        String username = null;
-        if (request.getUserPrincipal() != null) {
-            username = request.getUserPrincipal().getName();
-        }
-
-        if (StringUtils.isBlank(username)) {
+    @RequestMapping(value = "isloggedin", method = RequestMethod.GET)
+    public static SimpleUser isLoggedIn(final HttpServletRequest request) throws DatabaseException {
+        if (request.getUserPrincipal() == null) {
             return null;
         }
-        return SimpleFactory.getUser(username);
+
+        Integer userid = NumberUtils.createInteger(request.getUserPrincipal().getName());
+
+        return SimpleFactory.getUser(userid);
     }
+
 
     @RequestMapping(value = "login", method = RequestMethod.POST)
     public SimpleUser loginCall(final HttpServletRequest request,
                                 @RequestBody
-                                final LoginAttempt loginAttempt)
+                                final LoginAttempt loginAttempt) throws DatabaseException
     {
         UserToken userToken = getUserToken(request, loginAttempt.username, loginAttempt.password);
 
@@ -202,9 +192,9 @@ public class UserController {
             Subject subject = SecurityUtils.getSubject();
             subject.login(userToken.getToken());
 
-            return SimpleFactory.fromUser(userToken.getUser());
+            return userToken.getUser().toSimple();
         } finally {
-            userToken.getToken().clear();
+            userToken.clear();
         }
     }
 
@@ -229,7 +219,7 @@ public class UserController {
         Account acc = accs.iterator().next();
 
         UserVerify verify = new UserVerify();
-        verify.user = SimpleFactory.getStormpathUser(acc);
+        verify.user = SimpleFactory.simpleUserFromStormpath(acc);
         Object unverified = acc.getCustomData().get("unverified");
         if (unverified != null) {
             if (unverified instanceof Boolean) {
@@ -312,15 +302,14 @@ public class UserController {
 
         if (errorMsg == null) {
             //acc.setStatus(AccountStatus.UNVERIFIED);  //seems to have no effect, but also not sure if this is cool by Stormpath
-            User wbuser = userFromStormpath(acc, password);
-            PersistenceManager pm = ServletUtilities.getShepherd(request).getPM();
-            try {
-                pm.makePersistent(wbuser);
-            } catch (Exception ex) {
+            User wbuser = createUserFromStormpath(acc, password);
+            try (Database db = ShepherdPMF.getDb()) {
+                UserFactory.saveUser(db, wbuser);
+            } catch (DatabaseException ex) {
                 //not sure if this is actually a big deal, as i *think* the only way it could happen is if user already exists in wb???
                 logger.error("could not create Wildbook User for email=" + user.email + ": " + ex.toString());
             }
-            return new ResponseEntity<Object>(SimpleFactory.getStormpathUser(acc), HttpStatus.OK);
+            return new ResponseEntity<Object>(SimpleFactory.simpleUserFromStormpath(acc), HttpStatus.OK);
         } else {
             rtn.put("message", "There was an error creating the new user: " + errorMsg);
             return new ResponseEntity<Object>(rtn, HttpStatus.BAD_REQUEST);

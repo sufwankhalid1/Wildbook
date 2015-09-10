@@ -188,7 +188,7 @@ var wildbook = {
     _userWatchStatus: {},
     userWatch: function(callback, millisec) {
         $.ajax({
-            url: wildbookGlobals.baseUrl + '/obj/user',
+            url: wildbookGlobals.baseUrl + '/obj/user/isloggedin',
             type: 'GET',
             dataType: 'json',
             success: function(d) {

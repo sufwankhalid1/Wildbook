@@ -1,6 +1,8 @@
 package org.ecocean.rest;
 
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -16,12 +18,49 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
+import com.samsix.database.RecordSet;
+import com.samsix.database.SqlStatement;
+import com.samsix.util.string.StringUtilities;
 
 @RestController
 @RequestMapping(value = "/data")
 public class MainController
 {
     private static Logger logger = LoggerFactory.getLogger(MainController.class);
+
+    public static List<Contributor> getTopContributors(final int pastNumDays, final int number)
+            throws DatabaseException
+    {
+        LocalDate since = LocalDate.now().minusDays(pastNumDays);
+
+        String table = "(select ma2.submitterid, count(*) as numEncs from mediaasset ma2"
+                + " inner join encounter_media em on ma2.id = em.mediaid"
+                + " inner join encounters e on em.encounterid = e.encounterid"
+                + " where e.encdate > "
+                + StringUtilities.wrapQuotes(since.toString())
+                + " and submitterid is not null"
+                + " group by ma2.submitterid"
+                + " order by numEncs desc limit "
+                + number
+                + ")";
+
+        SqlStatement sql = SimpleFactory.getUserStatement();
+        sql.addInnerJoin("u", "userid", table, "c", "submitterid");
+        try (Database db = ShepherdPMF.getDb()) {
+            List<Contributor> contribs = new ArrayList<>();
+
+            RecordSet rs = db.getRecordSet(sql.getSql());
+            while (rs.next()) {
+                Contributor contrib = new Contributor();
+                contrib.user = SimpleFactory.readUser(rs);
+                contrib.numEncs = rs.getInt("numEncs");
+                contribs.add(contrib);
+            }
+
+            return contribs;
+        }
+    }
+
 
     @RequestMapping(value = "/individual/get/{id}", method = RequestMethod.GET)
     public IndividualInfo getIndividual(@PathVariable("id")
@@ -79,5 +118,10 @@ public class MainController
         public List<SimpleEncounter> encounters;
         public List<SimplePhoto> photos;
         public List<SimpleUser> submitters;
+    }
+
+    public static class Contributor {
+        public SimpleUser user;
+        public int numEncs;
     }
 }
