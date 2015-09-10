@@ -57,20 +57,19 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
         <link href='http://fonts.googleapis.com/css?family=Oswald:400,300,700' rel='stylesheet' type='text/css'/>
         <link rel="stylesheet" href="<%=urlLoc %>/cust/mantamatcher/css/manta.css" />
         <link href="<%=urlLoc %>/tools/jquery-ui/css/jquery-ui.css" rel="stylesheet" type="text/css"/>
-        <link href="<%=urlLoc %>/tools/hello/css/zocial.css" rel="stylesheet" type="text/css"/>
+        <link rel="stylesheet" href="tools/alertplus/css/alertplus.css">
         <link rel="stylesheet" href="<%=urlLoc %>/tools/jquery-ui/css/themes/smoothness/jquery-ui.css" type="text/css" />
 
         <script src="<%=urlLoc %>/tools/jquery/js/jquery.min.js"></script>
         <script src="<%=urlLoc %>/tools/bootstrap/js/bootstrap.min.js"></script>
+        <script src="<%=urlLoc %>/tools/alertplus/javascript/alertplus.js"></script>
         <script type="text/javascript" src="<%=urlLoc %>/javascript/core.js"></script>
         <script type="text/javascript" src="<%=urlLoc %>/tools/jquery-ui/javascript/jquery-ui.min.js"></script>
         <script type="text/javascript" src="<%=urlLoc %>/javascript/jquery.blockUI.js"></script>
         <script type="text/javascript" src="<%=urlLoc %>/javascript/jquery.cookie.js"></script>
-        <script type="text/javascript" src="<%=urlLoc %>/tools/hello/javascript/hello.all.js"></script>
-        <script type="text/javascript"  src="<%=urlLoc %>/JavascriptGlobals.js"></script>
-        <script type="text/javascript"  src="<%=urlLoc %>/javascript/collaboration.js"></script>
-        <script src="http://a.vimeocdn.com/js/froogaloop2.min.js"></script>    
-        <script src="<%=urlLoc %>/cust/mantamatcher/js/behaviour.js"></script>
+        
+        <!-- <script type="text/javascript"  src="/JavascriptGlobals.js"></script>  -->
+        <!-- <script type="text/javascript"  src="/javascript/collaboration.js"></script>  -->
     </head>
     
     <body role="document">
@@ -387,7 +386,7 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
             //source: app.config.wildbook.proxyUrl + "/search"
             source: function( request, response ) {
                 $.ajax({
-                    url: '<%=("http://" + CommonConfiguration.getURLLocation(request)) %>/SiteSearch',
+                    url: '<%=("http://" + CommonConfiguration.getURLLocation(request)) %>/search/site',
                     dataType: "json",
                     data: {
                         term: request.term

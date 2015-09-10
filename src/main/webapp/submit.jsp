@@ -6,11 +6,6 @@
                  java.util.Properties" %>
 
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-
-<link href="tools/bootstrap/css/bootstrap.min.css" rel="stylesheet"/>
-
-<jsp:include page="header.jsp" flush="true"/>
-
 <%
 boolean isIE = request.getHeader("user-agent").contains("MSIE ");
 String context="context0";
@@ -32,7 +27,12 @@ context=ServletUtilities.getContext(request);
     
     long maxSizeMB = CommonConfiguration.getMaxMediaSizeInMegabytes(context);
     long maxSizeBytes = maxSizeMB * 1048576;
+String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
 %>
+
+<jsp:include page="header.jsp" flush="true"/>
+<link href="<%=urlLoc %>/tools/hello/css/zocial.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="<%=urlLoc %>/tools/hello/javascript/hello.all.js"></script>
 
 <style type="text/css">
     .full_screen_map {

@@ -134,13 +134,13 @@ var submitMedia = (function () {
                 "startTime": null
             };
 
-            $scope.getUsername = function() {
+            $scope.getUserId = function() {
                 if ($scope.user) {
-                    return $scope.user.username;
+                    return $scope.user.id;
                 }
 
                 if ($scope.userInfo && $scope.userInfo.unverifiedUser) {
-                    return $scope.userInfo.unverifiedUser.username;
+                    return $scope.userInfo.unverifiedUser.id;
                 }
 
                 return null;

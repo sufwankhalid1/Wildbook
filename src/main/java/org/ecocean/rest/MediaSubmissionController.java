@@ -193,7 +193,7 @@ public class MediaSubmissionController
         String whereClause = where.getWhereClause();
         List<MediaSubmission> mss = new ArrayList<MediaSubmission>();
         String sql = "SELECT * FROM mediasubmission ms"
-                + " LEFT OUTER JOIN users u on u.id = ms.userid"
+                + " LEFT OUTER JOIN users u on u.userid = ms.userid"
                 + " LEFT OUTER JOIN mediaasset ma ON ma.id = u.avatarid";
         if (! StringUtils.isBlank(whereClause)) {
             sql += " WHERE " + whereClause;

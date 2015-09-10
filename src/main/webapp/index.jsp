@@ -25,6 +25,9 @@ import="org.ecocean.Adoption,
 
 <jsp:include page="header.jsp" flush="true"/>
 
+<script src="http://a.vimeocdn.com/js/froogaloop2.min.js"></script>
+<script src="<%=urlLoc %>/cust/mantamatcher/js/behaviour.js"></script>
+
 <%
 String context=ServletUtilities.getContext(request);
 

@@ -281,7 +281,7 @@ public class MediaUploadServlet
                             case "mediaid":
                                 fileset.setID(item.getString());
                                 break;
-                            case "submitter":
+                            case "submitterid":
                                 fileset.setSubmitter(item.getString());
                                 break;
                         }

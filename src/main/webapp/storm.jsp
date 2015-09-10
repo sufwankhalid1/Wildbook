@@ -81,7 +81,6 @@ System.out.println(acc);
   <meta name="Keywords"
         content="<%=CommonConfiguration.getHTMLKeywords(context) %>"/>
   <meta name="Author" content="<%=CommonConfiguration.getHTMLAuthor(context) %>"/>
-<link rel="stylesheet" href="tools/alertplus/css/alertplus.css">
   <link href="<%=CommonConfiguration.getCSSURLLocation(request,context) %>"
         rel="stylesheet" type="text/css"/>
   <link rel="shortcut icon"
