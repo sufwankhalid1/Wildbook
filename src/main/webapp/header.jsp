@@ -308,23 +308,21 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
                       <li>
                         <a href="<%=urlLoc %>/contactus.jsp"><%=props.getProperty("contactUs")%> </a>
                       </li>
+                      <%
+                      if (request.getUserPrincipal() != null) {
+                      %>
                       <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><%=props.getProperty("administer")%> <span class="caret"></span></a>
                         <ul class="dropdown-menu" role="menu">
-                            <% if (CommonConfiguration.getWikiLocation(context)!=null) { %>
-                              <li><a target="_blank" href="<%=CommonConfiguration.getWikiLocation(context) %>/photographing.jsp"><%=props.getProperty("userWiki")%></a></li>
-                            <% }
-                            if(request.getUserPrincipal()!=null) {
-                            %>
                               <li><a href="<%=urlLoc %>/myAccount.jsp"><%=props.getProperty("myAccount")%></a></li>
-                            <% }
-                            if(request.isUserInRole("admin")) { %>
+                            <% if (request.isUserInRole("admin")) { %>
                               <li><a href="<%=urlLoc %>/appadmin/admin.jsp"><%=props.getProperty("general")%></a></li>
                               <li><a href="<%=urlLoc %>/appadmin/logs.jsp"><%=props.getProperty("logs")%></a></li>
                                 <% if(CommonConfiguration.useSpotPatternRecognition(context)) { %>
                                  <li><a href="<%=urlLoc %>/software/software.jsp"><%=props.getProperty("gridSoftware")%></a></li>
                                 <% } %>
                                 <li><a href="<%=urlLoc %>/appadmin/users.jsp?context=context0"><%=props.getProperty("userManagement")%></a></li>
+                                <li><a href="<%=urlLoc %>/admin.jsp?j=mediaSubmitAdmin"><%=props.getProperty("mediaSubmissionManagement")%></a></li>
                                 <% if (CommonConfiguration.getTapirLinkURL(context) != null) { %>
                                   <li><a href="<%=CommonConfiguration.getTapirLinkURL(context) %>"><%=props.getProperty("tapirLink")%></a></li>
                                 <% } 
@@ -348,6 +346,7 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
                             } //end if admin %>
                         </ul>
                       </li>
+                      <% } %>
                     </ul>
                   </div>
                   
