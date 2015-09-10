@@ -56,7 +56,11 @@ public class ShepherdRealm extends AuthorizingRealm {
         // TODO: Shouldn't this just pass in the entire User object as the principal? And fullname
         // as realmName? I don't get it. --ken
         //
-        return new SimpleAuthenticationInfo(userid, user.getHashedPass().toCharArray(), user.getFullName());
+        String realmName = user.getFullName();
+        if (realmName == null) {
+            realmName = "";
+        }
+        return new SimpleAuthenticationInfo(userid, user.getHashedPass().toCharArray(), realmName);
     }
 
 

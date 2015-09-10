@@ -25,7 +25,7 @@ public class User {
 
     private String hashedPass;
     private String salt;
-    private int avatarid = -1;
+    private Integer avatarid;
     private String statement;
 
     private boolean acceptedUserAgreement=false;
@@ -194,11 +194,11 @@ public class User {
         return user;
     }
 
-    public int getAvatarid() {
+    public Integer getAvatarid() {
         return avatarid;
     }
 
-    public void setAvatarid(final int avatarid) {
+    public void setAvatarid(final Integer avatarid) {
         this.avatarid = avatarid;
     }
 

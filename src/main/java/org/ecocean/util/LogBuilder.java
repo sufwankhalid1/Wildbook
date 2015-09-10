@@ -1,5 +1,7 @@
 package org.ecocean.util;
 
+import org.slf4j.Logger;
+
 public class LogBuilder {
     private final StringBuilder builder;
 
@@ -72,6 +74,11 @@ public class LogBuilder {
                                 final int value)
     {
         return appendVar(variable, String.valueOf(value));
+    }
+
+
+    public void debug(final Logger logger) {
+        logger.debug(toString());
     }
 
     @Override

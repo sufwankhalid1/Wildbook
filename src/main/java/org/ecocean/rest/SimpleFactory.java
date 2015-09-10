@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.math.NumberUtils;
 import org.ecocean.Point;
 import org.ecocean.ShepherdPMF;
 import org.ecocean.SinglePhotoVideo;
@@ -14,6 +15,8 @@ import org.ecocean.media.MediaAsset;
 import org.ecocean.media.MediaAssetFactory;
 import org.ecocean.media.MediaAssetType;
 import org.ecocean.survey.SurveyTrack;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
@@ -25,7 +28,7 @@ import com.samsix.util.string.StringUtilities;
 import com.stormpath.sdk.account.Account;
 
 public class SimpleFactory {
-//    private final static Logger logger = LoggerFactory.getLogger(SimpleFactory.class);
+    private final static Logger logger = LoggerFactory.getLogger(SimpleFactory.class);
     private final static int MIN_PHOTOS = 8;
 
     private SimpleFactory() {
@@ -536,6 +539,22 @@ public class SimpleFactory {
                 return readUser(rs);
             }
 
+            return null;
+        }
+    }
+
+
+    public static SimpleUser getUserByIdString(final String userid)
+    {
+        //
+        // I decided to swallow the error here because I didn't want to bother
+        // catching errors in the jsp files which lead me to write this method.
+        // Not critical if you want to change it.
+        //
+        try (Database db = ShepherdPMF.getDb()) {
+            return getUser(NumberUtils.createInteger(userid));
+        } catch (DatabaseException ex) {
+            logger.error("Can't get user from idstring [" + userid + "]", ex);
             return null;
         }
     }

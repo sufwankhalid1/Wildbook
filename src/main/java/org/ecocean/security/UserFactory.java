@@ -7,6 +7,8 @@ import org.ecocean.ContextConfiguration;
 import org.ecocean.ShepherdPMF;
 import org.ecocean.rest.SimpleFactory;
 import org.ecocean.rest.SimpleUser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
@@ -18,14 +20,30 @@ import com.samsix.database.SqlWhereFormatter;
 import com.samsix.database.Table;
 
 public class UserFactory {
+    private static Logger logger = LoggerFactory.getLogger(UserFactory.class);
+
     private static String TABLE_NAME = "users";
     private static String ROLE_TABLE_NAME = "userroles";
 
     private UserFactory() {
         // prevent instantiation
     }
+//
+//
+//    public static User getUserById(final Integer id) {
+//        try (Database db = ShepherdPMF.getDb()) {
+//            return getUserById(db, id);
+//        } catch (DatabaseException ex) {
+//            logger.error("Can't get user.", ex);
+//            return null;
+//        }
+//    }
 
-    public static User getUserById(final Database db, final int id) throws DatabaseException {
+    public static User getUserById(final Database db, final Integer id) throws DatabaseException {
+        if (id == null) {
+            return null;
+        }
+
         Table users = db.getTable(TABLE_NAME);
         SqlWhereFormatter where = new SqlWhereFormatter();
         where.append("userid", id);
@@ -105,7 +123,6 @@ public class UserFactory {
 
 
     private static void fillFormatter(final SqlFormatter formatter, final User user) {
-        formatter.append("userid", user.getUserId());
         formatter.append("username", user.getUsername());
         formatter.append("fullname", user.getFullName());
         formatter.append("email", user.getEmail());
@@ -153,7 +170,7 @@ public class UserFactory {
         users.insertRow(formatter.getColumnClause(), formatter.getValueClause());
     }
 
-    public boolean doesUserHaveRole(final Database db, final Integer userid, final String role, final String context)
+    public static boolean doesUserHaveRole(final Database db, final Integer userid, final String role, final String context)
             throws DatabaseException {
         if (userid == null) {
             return false;
@@ -169,7 +186,11 @@ public class UserFactory {
         return (rs.next());
     }
 
-    public String getAllRolesForUserAsString(final Integer userid) throws DatabaseException {
+    public static String getAllRolesForUserAsString(final Integer userid) throws DatabaseException {
+        if (userid == null) {
+            return "";
+        }
+
         try (Database db = ShepherdPMF.getDb()) {
             Table users = db.getTable(ROLE_TABLE_NAME);
             SqlWhereFormatter where = new SqlWhereFormatter();

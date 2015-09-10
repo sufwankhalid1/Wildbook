@@ -1,9 +1,17 @@
 <%@ page contentType="text/html; charset=utf-8" language="java"
-         import="org.ecocean.servlet.ServletUtilities,java.util.ArrayList,org.ecocean.*,java.util.Properties,org.slf4j.Logger,org.slf4j.LoggerFactory,org.apache.commons.lang3.StringEscapeUtils" %>
+         import="
+         org.ecocean.ShepherdProperties,
+         org.ecocean.servlet.ServletUtilities,
+         org.ecocean.rest.SimpleFactory,
+         org.ecocean.rest.SimpleUser,
+         org.ecocean.security.UserFactory,
+         java.util.Properties,
+         org.slf4j.Logger,
+         org.slf4j.LoggerFactory,
+         org.apache.commons.lang3.StringEscapeUtils" %>
 
 <%
-String context="context0";
-context=ServletUtilities.getContext(request);
+String context = ServletUtilities.getContext(request);
 
 
   //handle some cache-related security
@@ -16,57 +24,39 @@ context=ServletUtilities.getContext(request);
   //setup our Properties object to hold all properties
   //String langCode = "en";
   String langCode=ServletUtilities.getLanguageCode(request);
-  
-
 
   //set up the file input stream
   Properties props = new Properties();
   //props.load(getClass().getResourceAsStream("/bundles/" + langCode + "/welcome.properties"));
-  props = ShepherdProperties.getProperties("welcome.properties", langCode,context);
-
+  props = ShepherdProperties.getProperties("welcome.properties", langCode, context);
 
   session = request.getSession(true);
   session.putValue("logged", "true");
   if ((request.getParameter("reflect") != null)) {
     response.sendRedirect(request.getParameter("reflect"));
   }
-  ;
+  
+   Logger logger = LoggerFactory.getLogger(getClass());
+   if (logger.isInfoEnabled()) {
+      logger.info(request.getRemoteUser() + " logged in from IP address " + request.getRemoteAddr() + ".");
+   }
+   
+   SimpleUser user = SimpleFactory.getUserByIdString(request.getRemoteUser());
 %>
 <jsp:include page="header.jsp" flush="true"/>
 
 <div class="container maincontent">
+    <h1 class="intro"><%=props.getProperty("loginSuccess")%></h1>
 
-          <h1 class="intro"><%=props.getProperty("loginSuccess")%>
-          </h1>
+    <p><%=props.getProperty("loggedInAs")%>
+        <strong><%=user.getDisplayName()%></strong>.
+    </p>
 
+    <p><%=props.getProperty("grantedRole")%><br/>
+        <em><%=UserFactory.getAllRolesForUserAsString(user.getId()).replaceAll("\r","<br/>")%></em>
+    </p>
+    <p><%=props.getProperty("pleaseChoose")%></p>
+    <p>&nbsp;</p>
+</div>
 
-          <p><%=props.getProperty("loggedInAs")%> <strong><%=StringEscapeUtils.escapeHtml4(request.getRemoteUser())%>
-          </strong>.
-          </p>
-
-          <p><%=props.getProperty("grantedRole")%><br />
-			<%
-			Shepherd myShepherd=new Shepherd("context0");
-			myShepherd.beginDBTransaction();
-			%>
-             <em><%=myShepherd.getAllRolesForUserAsString(request.getRemoteUser()).replaceAll("\r","<br />")%></em></p>
-            
-            <%
-            
-            myShepherd.rollbackDBTransaction();
-            myShepherd.closeDBTransaction();
-            
-	        Logger log = LoggerFactory.getLogger(getClass());
-	        log.info(request.getRemoteUser()+" logged in from IP address "+request.getRemoteAddr()+".");
-			
-	    %>
-
-
-          <p><%=props.getProperty("pleaseChoose")%>
-          </p>
-
-          <p>&nbsp;</p>
-        </div>
-
-      <jsp:include page="footer.jsp" flush="true"/>
-
+<jsp:include page="footer.jsp" flush="true"/>
