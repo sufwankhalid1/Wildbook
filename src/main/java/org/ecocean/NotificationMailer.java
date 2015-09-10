@@ -34,6 +34,7 @@ import java.util.Objects;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.ecocean.media.MediaSubmission;
 import org.ecocean.servlet.ServletUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -580,6 +581,33 @@ public final class NotificationMailer implements Runnable {
     return map;
   }
 
+
+  /**
+   * Creates a basic tag map for the specified MediaSubmission.
+   * This map can subsequently be enhanced with extra tags.
+   * MediaSubmission tags included:
+   * <ul>
+   * <li>&#64;MEDIASUBMISSION_LINK&#64;</li>
+   * <li>&#64;MEDIASUBMISION_NAME&#64;</li>
+   * <li>&#64;MEDIASUBMISION_EMAIL&#64;</li>
+   * <li>&#64;MEDIASUBMISION_VERBATIMLOCATION&#64;</li>
+   * <li>&#64;MEDIASUBMISION_LATITUDE&#64;</li>
+   * <li>&#64;MEDIASUBMISION_LONGITUDE&#64;</li>
+   * <li>&#64;MEDIASUBMISION_DESCRIPTION&#64;</li>
+   * <li>&#64;MEDIASUBMISION_STATUS&#64;</li>
+   * <li>&#64;MEDIASUBMISION_SUBMISSIONID&#64;</li>
+   * </ul>
+   *
+   * @param req servlet request for data reference
+   * @param ms MediaSubmission for which to add tag data
+   * @return map instance for tag replacement in email template
+   */
+  public static Map<String, String> createBasicTagMap(final HttpServletRequest req, final MediaSubmission ms) {
+    Map<String, String> map = new HashMap<>();
+    addTags(map, req, ms);
+    return map;
+  }
+
   /**
    * Creates a basic tag map for the specified encounter.
    * This map can subsequently be enhanced with extra tags.
@@ -655,6 +683,32 @@ public final class NotificationMailer implements Runnable {
       map.put("@ENCOUNTER_PHOTOGRAPHER_EMAIL@", enc.getPhotographerEmail());
       map.put("@ENCOUNTER_COMMENTS@", enc.getComments());
       map.put("@ENCOUNTER_USER@", enc.getAssignedUsername());
+    }
+  }
+
+  /**
+   * Creates a basic tag map for the specified MediaSubmission.
+   * This map can subsequently be enhanced with extra tags.
+   *
+   * @param req servlet request for data reference
+   * @param ms MediaSubmission for which to add tag data
+   * @return map instance for tag replacement in email template
+   */
+  private static void addTags(final Map<String, String> map, final HttpServletRequest req, final MediaSubmission ms) {
+    Objects.requireNonNull(map);
+    if (!map.containsKey("@URL_LOCATION@"))
+      map.put("@URL_LOCATION@", String.format("http://%s", CommonConfiguration.getURLLocation(req)));
+    if (ms != null) {
+      map.put("@MEDIASUBMISSION_LINK@", String.format("%s/mediaSubmissionAdmin.jsp?mediaSubmissionID=%s", map.get("@URL_LOCATION@"), ms.getSubmissionid()));
+      map.put("@MEDIASUBMISION_NAME@", ms.getName());
+      map.put("@MEDIASUBMISION_EMAIL@", ms.getEmail());
+      map.put("@MEDIASUBMISION_VERBATIMLOCATION@", ms.getVerbatimLocation());
+      map.put("@MEDIASUBMISION_LATITUDE@", Objects.toString(ms.getLatitude(), ""));
+      map.put("@MEDIASUBMISION_LONGITUDE@", Objects.toString(ms.getLongitude(), ""));
+      map.put("@MEDIASUBMISION_DESCRIPTION@", ms.getDescription());
+      map.put("@MEDIASUBMISION_STATUS@", ms.getStatus());
+      map.put("@MEDIASUBMISION_SUBMISSIONID@", ms.getSubmissionid());
+      map.put("@MEDIASUBMISION_DATE@", Objects.toString(ms.getStartTime(), ""));
     }
   }
 

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import javax.servlet.http.HttpServletRequest;
@@ -13,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.ecocean.CommonConfiguration;
 import org.ecocean.MailThreadExecutorService;
+import org.ecocean.NotificationMailer;
 import org.ecocean.ShepherdPMF;
 import org.ecocean.media.LocalAssetStore;
 import org.ecocean.media.MediaAsset;
@@ -384,31 +386,35 @@ public class MediaSubmissionController
                                                               ServletUtilities.getLanguageCode(request));
 
 
-            //add the encounter link
+
             thanksmessage=thanksmessage.replaceAll("INSERTTEXT", ("http://" + CommonConfiguration.getURLLocation
               (request) + "/mediaSubmission.jsp?mediaSubmissionID=" + media.getId()));
             newMediaMessage=newMediaMessage.replaceAll("INSERTTEXT", ("http://" + CommonConfiguration.getURLLocation
                     (request) + "/mediaSubmissionAdmin.jsp?mediaSubmissionID=" + media.getId()));
 
-    //        es.execute(new NotificationMailer(CommonConfiguration.getMailHost(context),
-    //                                          CommonConfiguration.getAutoEmailAddress(context),
-    //                                          CommonConfiguration.getNewSubmissionEmail(context),
-    //                                          ("("+CommonConfiguration.getHTMLTitle(context)+") New media submission: " + media.getId()),
-    //                                          newMediaMessage,
-    //                                          null,
-    //                                          context));
+
+            // Email notify admin of new mediasubmission in WIldbook
+            Map<String, String> tagMap = NotificationMailer.createBasicTagMap(request,media);
+            List<String> mailTo = NotificationMailer.splitEmails(CommonConfiguration.getNewSubmissionEmail(context));
+            //String mailSubj = "New media submission: " + media.getSubmissionid();
+            for (String emailTo : mailTo) {
+              NotificationMailer mailer = new NotificationMailer(context, null, emailTo, "newMediaSubmission-summary", tagMap);
+              es.execute(mailer);
+            }
+
+
             if (email != null) {
                 if (logger.isDebugEnabled()) {
                     logger.debug("sending thankyou email to:" + email);
                 }
-    //            es.execute(new NotificationMailer(CommonConfiguration.getMailHost(context),
-    //                                              CommonConfiguration.getAutoEmailAddress(context),
-    //                                              email,
-    //                                              ("("+CommonConfiguration.getHTMLTitle(context)+") Thank you for your report!"),
-    //                                              thanksmessage,
-    //                                              null,
-    //                                              context));
+                List<String> mailToSubmitters = NotificationMailer.splitEmails(email);
+                //String mailSubjSubmitters = "Thank you for your sighting report!";
+                for (String emailTo : mailToSubmitters) {
+                  NotificationMailer mailer = new NotificationMailer(context, null, emailTo, "newMediaSubmission", tagMap);
+                  es.execute(mailer);
+                }
             }
+
 
             //
             // Now finally remove the files from the users session object so that
