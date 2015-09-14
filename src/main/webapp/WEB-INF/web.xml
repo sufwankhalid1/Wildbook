@@ -36,10 +36,10 @@
 
 
 
-  <display-name>Shepherd Project Framework for Mark-Recapture Studies</display-name>
-  <description>
-    Photo-identification Library
-  </description>
+    <display-name>Shepherd Project Framework for Mark-Recapture Studies</display-name>
+    <description>
+        Photo-identification Library
+    </description>
 
   <!-- Struts Tag Library Descriptors -->
   <!--jsp-config>

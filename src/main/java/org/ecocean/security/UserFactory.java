@@ -7,8 +7,6 @@ import org.ecocean.ContextConfiguration;
 import org.ecocean.ShepherdPMF;
 import org.ecocean.rest.SimpleFactory;
 import org.ecocean.rest.SimpleUser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
@@ -20,7 +18,7 @@ import com.samsix.database.SqlWhereFormatter;
 import com.samsix.database.Table;
 
 public class UserFactory {
-    private static Logger logger = LoggerFactory.getLogger(UserFactory.class);
+//    private static Logger logger = LoggerFactory.getLogger(UserFactory.class);
 
     private static String TABLE_NAME = "users";
     private static String ROLE_TABLE_NAME = "userroles";
@@ -38,6 +36,11 @@ public class UserFactory {
 //            return null;
 //        }
 //    }
+
+    public static long getNumUsers(final Database db) throws DatabaseException {
+        Table users = db.getTable(TABLE_NAME);
+        return users.getCount(null);
+    }
 
     public static User getUserById(final Database db, final Integer id) throws DatabaseException {
         if (id == null) {
@@ -71,10 +74,14 @@ public class UserFactory {
         return null;
     }
 
-    public static User getUserByEmailAddress(final Database db, final String email) throws DatabaseException{
+    public static User getUserByEmail(final Database db, final String email) throws DatabaseException {
+        if (email == null) {
+            return null;
+        }
+
         Table users = db.getTable(TABLE_NAME);
         SqlWhereFormatter where = new SqlWhereFormatter();
-        where.append("email", email);
+        where.append("lower(email)", email.toLowerCase());
         RecordSet rs = users.getRecordSet(where.getWhereClause());
 
         if (rs.next()) {
@@ -82,6 +89,18 @@ public class UserFactory {
         }
 
         return null;
+    }
+
+    public static User getUserByNameOrEmail(final Database db, final String term) throws DatabaseException {
+        if (term == null) {
+            return null;
+        }
+
+        User user = UserFactory.getUser(db, term);
+        if (user != null) {
+            return user;
+        }
+        return UserFactory.getUserByEmail(db, term);
     }
 
 
@@ -99,6 +118,7 @@ public class UserFactory {
         user.setPhysicalAddress(rs.getString("physicaladdress"));
         user.setSaltAndHashedPass(rs.getString("salt"), rs.getString("password"));
         user.setAvatarid(rs.getInteger("avatarid"));
+        user.setVerified(rs.getBoolean("verified"));
         return user;
     }
 
@@ -134,6 +154,7 @@ public class UserFactory {
         formatter.append("avatarid", user.getAvatarid());
         formatter.append("acceptedua", user.getAcceptedUserAgreement());
         formatter.append("statement", user.getStatement());
+        formatter.append("verified", user.isVerified());
     }
 
 

@@ -35,10 +35,11 @@ import javax.servlet.http.HttpServletResponse;
 import org.ecocean.CommonConfiguration;
 import org.ecocean.MailThreadExecutorService;
 import org.ecocean.NotificationMailer;
-import org.ecocean.Shepherd;
 import org.ecocean.security.User;
+import org.ecocean.security.UserFactory;
 import org.joda.time.LocalDateTime;
 
+import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
 
 
@@ -74,14 +75,6 @@ public void doPost(final HttpServletRequest request, final HttpServletResponse r
     //set up for response
     response.setContentType("text/html");
     PrintWriter out = response.getWriter();
-    boolean createThisUser = false;
-
-    String addedRoles="";
-    boolean isEdit=false;
-    if(request.getParameter("isEdit")!=null){
-      isEdit=true;
-      //System.out.println("isEdit is TRUE in UserCreate!");
-    }
 
     //create a new Role from an encounter
 
@@ -91,13 +84,9 @@ public void doPost(final HttpServletRequest request, final HttpServletResponse r
       out.println(ServletUtilities.getHeader(request));
 
       String username=request.getParameter("username").trim();
-
-
-        Shepherd myShepherd = new Shepherd(context);
-
         User myUser;
-        try {
-            myUser = myShepherd.getUserByNameOrEmail(username);
+        try (Database db = ServletUtilities.getDb(request)){
+            myUser = UserFactory.getUserByNameOrEmail(db, username);
         } catch (DatabaseException ex) {
             ex.printStackTrace();
             myUser = null;

@@ -350,7 +350,7 @@ module.exports = function(app, config, secrets, debug) {
         });
     });
 
-    app.get("/spPasswordReset", function(req, res) {
+    app.get("/resetpass", function(req, res) {
         var resetData = {
             tokenInfo: {},
             page: {
@@ -358,16 +358,12 @@ module.exports = function(app, config, secrets, debug) {
             }
         };
         var tokenVarIndex = req.url.indexOf("?sptoken=");
-        if(tokenVarIndex > 0) {
-            var token = req.url.substr(tokenVarIndex + 9);
-            resetData.tokenInfo.token = token;
-            request(config.wildbook.url + "/PasswordReset?verify&token=" + token)
-            .then(function(response) {
-                var data = JSON.parse(response);
-                if(!data.resp.success) {
-                    console.error("token (" + tokenInfo.token + ") failed to validate: " + tokenInfo.resp.error);
-                    delete resetData.tokenInfo.token;
-                }
+        if (tokenVarIndex > 0) {
+            resetData.tokenInfo.token = req.url.substr(tokenVarIndex + 9);
+            request.post({url: config.wildbook.url + "/obj/user/verifypasstoken",
+                type: "POST",
+                data: resetData.tokenInfo.token,
+                contentType: "text/plain"
             })
             .catch(function(ex) {
                 renderError(res, new VError(ex, "Trouble verifying token"));
@@ -378,7 +374,7 @@ module.exports = function(app, config, secrets, debug) {
             resetData.tokenInfo.error = "no token passed";
             resetData.passedEmail = emailVarIndex > 0 ? req.url.substr(emailVarIndex + 7) : "";
         }
-        res.render('spPasswordReset', makeVars(resetData));
+        res.render('passwordReset', makeVars(resetData));
     });
 
     app.get("/individual/*", function(req, res) {
@@ -449,7 +445,7 @@ module.exports = function(app, config, secrets, debug) {
             }));
         })
         .catch(function(ex) {
-            renderError(res, new VError(ex, "Can't get individual [" + id + "]"));
+            renderError(res, new VError(ex, "Can't get user [" + username + "]"));
         });
     });
 

@@ -49,14 +49,12 @@ import org.ecocean.grid.ScanTask;
 import org.ecocean.grid.ScanWorkItem;
 import org.ecocean.security.Collaboration;
 import org.ecocean.security.User;
-import org.ecocean.security.UserFactory;
 import org.ecocean.servlet.ServletUtilities;
 import org.ecocean.social.Relationship;
 import org.ecocean.social.SocialUnit;
 
 import com.samsix.database.ConnectionInfo;
 import com.samsix.database.Database;
-import com.samsix.database.DatabaseException;
 
 /**
  * <code>Shepherd</code>	is the main	information	retrieval, processing, and persistence class to	be used	for	all	shepherd project applications.
@@ -86,10 +84,9 @@ import com.samsix.database.DatabaseException;
 public class Shepherd {
 
   private PersistenceManager pm;
-  public static Vector matches = new Vector();
-  //private PersistenceManagerFactory pmf;
   private String localContext;
 
+  public Vector matches;
 
   /**
    * Constructor to create a new shepherd thread object
@@ -419,18 +416,6 @@ public class Shepherd {
     return tempEnc;
   }
 
-  public Role getRole(final String rolename, final String username, final String context) {
-    ArrayList<Role> roles = getAllRoles();
-    int numRoles=roles.size();
-    for(int i=0;i<numRoles;i++) {
-      Role kw = roles.get(i);
-      if((kw.getRolename().equals(rolename))&&(kw.getUsername().equals(username))&&(kw.getContext().equals(context))){
-        return kw;
-      }
-    }
-    return null;
-  }
-
   public org.ecocean.User getUserOLD(final String username) {
       try {
           org.ecocean.User user = ((org.ecocean.User) (pm.getObjectById(pm.newObjectIdInstance(User.class, username.trim()), true)));
@@ -446,29 +431,6 @@ public class Shepherd {
           return null;
       } catch (javax.jdo.JDOObjectNotFoundException ex) {
           return null;
-      }
-  }
-
-  public User getUser(final String username) throws DatabaseException {
-      try (Database db = ShepherdPMF.getDb()) {
-          return UserFactory.getUser(db, username);
-      }
-  }
-
-  public User getUserByNameOrEmail(final String term) throws DatabaseException {
-      try (Database db = ShepherdPMF.getDb()) {
-          User user = UserFactory.getUser(db, term);
-          if (user == null) {
-              return UserFactory.getUserByEmailAddress(db, term);
-          }
-
-          return user;
-      }
-  }
-
-  public User getUserByEmailAddress(final String email) throws DatabaseException{
-      try (Database db = ShepherdPMF.getDb()) {
-          return UserFactory.getUserByEmailAddress(db, email);
       }
   }
 
@@ -1856,22 +1818,6 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(final Class<T> clazz, f
     return num;
   }
 
-  public int getNumUsers() {
-    int num = 0;
-    Query q = pm.newQuery(User.class); // no filter, so all instances match
-
-    try {
-      Collection results = (Collection) q.execute();
-      num = results.size();
-
-    } catch (javax.jdo.JDOException x) {
-      x.printStackTrace();
-      return num;
-    }
-    q.closeAll();
-    return num;
-  }
-
 
   public int getNumScanTasks() {
     Extent allTasks = null;
@@ -2811,16 +2757,6 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(final Class<T> clazz, f
     Query q = pm.newQuery(MitochondrialDNAAnalysis.class);
     q.setResult("distinct haplotype");
     q.setOrdering("haplotype ascending");
-    Collection results = (Collection) q.execute();
-    ArrayList al=new ArrayList(results);
-	    q.closeAll();
-    return al;
-  }
-
-  public ArrayList<String> getAllRoleNames() {
-    Query q = pm.newQuery(Role.class);
-    q.setResult("distinct rolename");
-    q.setOrdering("rolename ascending");
     Collection results = (Collection) q.execute();
     ArrayList al=new ArrayList(results);
 	    q.closeAll();

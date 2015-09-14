@@ -7,7 +7,7 @@ wildbook.auth = (function() {
             + '" placeholder="username/email" /></div><div><input id="login-password" type="password" placeholder="password" /></div>'
             + '<div style="border-bottom: 2px solid black; margin-bottom: 10px; padding-bottom: 10px;"><span style="margin-left: 10px; color: #900;">'
             + (message || '')
-            + '</span><input class="login-button btn" type="button" value="forgot password" style="float: right;" onClick="window.location.href=\'/spPasswordReset?email=\' + $(\'#login-username\').val();" /></div>';
+            + '</span><input class="login-button btn" type="button" value="forgot password" style="float: right;" onClick="window.location.href=\'/resetpass?email=\' + $(\'#login-username\').val();" /></div>';
         return alertplus.confirm(dialog, title || "Login")
         .then(function() {
             var username = $('#login-username').val();

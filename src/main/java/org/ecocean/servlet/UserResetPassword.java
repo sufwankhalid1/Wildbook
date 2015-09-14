@@ -66,10 +66,6 @@ public void doPost(final HttpServletRequest request, final HttpServletResponse r
     //set up for response
     response.setContentType("text/html");
     PrintWriter out = response.getWriter();
-    boolean createThisUser = false;
-
-    String addedRoles="";
-
 
     //create a new Role from an encounter
 

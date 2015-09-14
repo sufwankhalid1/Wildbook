@@ -25,7 +25,6 @@ import com.samsix.database.SpecialSqlCondition;
 import com.samsix.database.SqlRelationType;
 import com.samsix.database.SqlStatement;
 import com.samsix.util.string.StringUtilities;
-import com.stormpath.sdk.account.Account;
 
 public class SimpleFactory {
     private final static Logger logger = LoggerFactory.getLogger(SimpleFactory.class);
@@ -625,17 +624,5 @@ public class SimpleFactory {
 
             return null;
         }
-    }
-
-
-    public static SimpleUser simpleUserFromStormpath(final Account acc)
-    {
-        SimpleUser user = new SimpleUser(null, acc.getUsername(), acc.getFullName());
-        user.setAvatar(null, acc.getEmail());
-
-//        CustomData data = acc.getCustomData();
-//        su.setAffiliation((String)data.get("affiliation"));
-
-        return user;
     }
 }

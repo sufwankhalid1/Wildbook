@@ -22,7 +22,6 @@ package org.ecocean.servlet;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -71,6 +70,7 @@ import org.ecocean.MarkedIndividual;
 import org.ecocean.NotificationMailer;
 import org.ecocean.Occurrence;
 import org.ecocean.Shepherd;
+import org.ecocean.ShepherdPMF;
 import org.ecocean.ShepherdProperties;
 import org.ecocean.mmutil.StringUtilities;
 import org.joda.time.DateTime;
@@ -79,7 +79,7 @@ import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.samsix.util.OsUtils;
+import com.samsix.database.Database;
 import com.sun.syndication.feed.synd.SyndCategory;
 import com.sun.syndication.feed.synd.SyndCategoryImpl;
 import com.sun.syndication.feed.synd.SyndContent;
@@ -131,7 +131,18 @@ public class ServletUtilities {
       String error = "<html><body><p>An error occurred while attempting to read from the template file servletResponseTemplate.htm. This probably will not affect the success of the operation you were trying to perform.";
       return error;
     }
+  }
 
+  /**
+   * At present this just returns our one db connection. I'm wrapping it in this class
+   * so that in the future we could have a different db per context and then we can
+   * just return that db as we would get the context from the HttpServletRequest.
+   *
+   * @param request
+   * @return
+   */
+  public static Database getDb(final HttpServletRequest request) {
+      return ShepherdPMF.getDb();
   }
 
   public static String getFooter(final String context) {
@@ -226,9 +237,10 @@ public class ServletUtilities {
     shep.closeDBTransaction();
   }
 
-  public static String getConfigDir(final HttpServletRequest request) {
-      return request.getServletContext().getInitParameter("config.dir");
-  }
+//  public static String getConfigDir(final HttpServletRequest request) {
+////      return request.getServletContext().getInitParameter("config.dir");
+//      return Global.INST.getInitResources().getString("config.dir", null);
+//  }
 
   //Loads a String of text from a specified file.
   //This is generally used to load an email template for automated emailing
@@ -692,24 +704,24 @@ public static String getContext(final HttpServletRequest request) {
     }
 
 
-    public static String getText2(final HttpServletRequest request,
-                                  final String fileName) throws IOException {
-        String configDir = getConfigDir(request);
-        String langCode = getLanguageCode(request);
-
-        File file = new File(configDir + "/text/" + langCode + "/" + fileName);
-
-        if (file.exists()) {
-            return OsUtils.readFileToString(file);
-        }
-
-        file = new File(configDir + "/text/" + DEFAULT_LANG_CODE + "/" + fileName);
-        if (file.exists()) {
-            return OsUtils.readFileToString(file);
-        }
-
-        throw new FileNotFoundException(file.getAbsolutePath());
-    }
+//    public static String getText2(final HttpServletRequest request,
+//                                  final String fileName) throws IOException {
+//        String configDir = getConfigDir(request);
+//        String langCode = getLanguageCode(request);
+//
+//        File file = new File(configDir + "/text/" + langCode + "/" + fileName);
+//
+//        if (file.exists()) {
+//            return OsUtils.readFileToString(file);
+//        }
+//
+//        file = new File(configDir + "/text/" + DEFAULT_LANG_CODE + "/" + fileName);
+//        if (file.exists()) {
+//            return OsUtils.readFileToString(file);
+//        }
+//
+//        throw new FileNotFoundException(file.getAbsolutePath());
+//    }
 
 
   private static String loadOverrideText(final String shepherdDataDir, final String fileName, final String langCode) {

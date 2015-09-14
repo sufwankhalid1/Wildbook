@@ -239,8 +239,6 @@ margin-bottom: 8px !important;
          }  //end for
          myShepherd.rollbackDBTransaction();
           %>
-      
-
       } // end initialize function
         
       function fullScreen(){
@@ -255,7 +253,6 @@ margin-bottom: 8px !important;
           //alert("Trying to execute fullscreen!");
       }
 
-
       function exitFullScreen() {
           $("#header_menu").show();
           $("#map_canvas").removeClass('full_screen_map');
@@ -264,9 +261,6 @@ margin-bottom: 8px !important;
           if(overlaysSet){overlaysSet=false;setOverlays();}
           //alert("Trying to execute exitFullScreen!");
       }
-      
-      
-
 
       //making the exit fullscreen button
       function FSControl(controlDiv, map) {
@@ -320,52 +314,40 @@ margin-bottom: 8px !important;
 
       }
 
-    
-
-      
-    
     google.maps.event.addDomListener(window, 'load', initialize);
     google.maps.event.addDomListener(window, "resize", function() {
          var center = map.getCenter();
          google.maps.event.trigger(map, "resize");
          map.setCenter(center); 
         });
-    
-    
-    
-    
   </script>
-
+  
 <%
+    int numMarkedIndividuals = 0;
+    int numEncounters = 0;
+    long numDataContributors = 0;
 
+    try {
+        myShepherd.beginDBTransaction();
 
-//let's quickly get the data we need from Shepherd
-
-int numMarkedIndividuals=0;
-int numEncounters=0;
-int numDataContributors=0;
-
-
-try{
-    myShepherd.beginDBTransaction();
-    
-    numMarkedIndividuals=myShepherd.getNumMarkedIndividuals();
-    numEncounters=myShepherd.getNumEncounters();
-    numDataContributors=myShepherd.getNumUsers();
-
-    
-}
-catch(Exception e){
-    e.printStackTrace();
-}
-finally{
-    if(myShepherd!=null){
-        if(myShepherd.getPM()!=null){
-            myShepherd.rollbackDBTransaction();
-            if(!myShepherd.getPM().isClosed()){myShepherd.closeDBTransaction();}
+        numMarkedIndividuals = myShepherd.getNumMarkedIndividuals();
+        numEncounters = myShepherd.getNumEncounters();
+    } catch (Exception e) {
+        e.printStackTrace();
+    } finally {
+        if (myShepherd != null) {
+            if (myShepherd.getPM() != null) {
+                myShepherd.rollbackDBTransaction();
+                if (!myShepherd.getPM().isClosed()) {
+                    myShepherd.closeDBTransaction();
+                }
+            }
         }
     }
-}
+
+    try (Database db = ServletUtilities.getDb(request)) {
+        numDataContributors = UserFactory.getNumUsers(db);
+    }
 %>
 
 <section class="hero container-fluid main-section relative">

@@ -28,7 +28,8 @@ public class User {
     private Integer avatarid;
     private String statement;
 
-    private boolean acceptedUserAgreement=false;
+    private boolean verified = false;
+    private boolean acceptedUserAgreement = false;
 
     public User() {
         // blank constructor for when creating a new user.
@@ -208,5 +209,13 @@ public class User {
 
     public void setStatement(final String statement) {
         this.statement = statement;
+    }
+
+    public boolean isVerified() {
+        return verified;
+    }
+
+    public void setVerified(final boolean verified) {
+        this.verified = verified;
     }
 }

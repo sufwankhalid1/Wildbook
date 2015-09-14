@@ -98,7 +98,7 @@ public class SearchController
 
                 SiteSearchResult result = new SiteSearchResult();
                 result.label = user.getDisplayName();
-                result.value = user.getUsername();
+                result.value = String.valueOf(user.getId());
                 result.type = "user";
                 result.avatar = user.getAvatar();
                 results.add(result);

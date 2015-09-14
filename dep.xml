@@ -10,7 +10,7 @@
     </formats>
     <fileSets>
         <fileSet>
-            <directory>${project.basedir}/cust/${cust}/wildbook/config</directory>
+            <directory>${project.basedir}/cust/${wildbook.cust}/wildbook/config</directory>
             <outputDirectory>/</outputDirectory>
             <includes>
                 <include>**</include>
@@ -18,7 +18,7 @@
         </fileSet>
         <!-- Pull secret stuff from non-public repo location on the disk. -->
         <fileSet>
-            <directory>${project.basedir}/../cust/${cust}/wildbook/config</directory>
+            <directory>${project.basedir}/../cust/${wildbook.cust}/wildbook/config</directory>
             <outputDirectory>/</outputDirectory>
             <includes>
                 <include>**</include>

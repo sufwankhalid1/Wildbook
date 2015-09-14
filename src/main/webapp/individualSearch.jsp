@@ -1508,11 +1508,7 @@ else {
     		<tr>
     		<td style="vertical-align: top"> 
 			<%
-        //ArrayList<String> roles = myShepherd.getAllRoleNames();
-        
 		List<String> roles=CommonConfiguration.getIndexedValues("relationshipRole",context);
-			
-		//System.out.println(haplos.toString());
 
         if ((roles!=null)&&(roles.size()>0)) {
         	int totalNames = roles.size();

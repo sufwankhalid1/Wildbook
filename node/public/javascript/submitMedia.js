@@ -139,8 +139,8 @@ var submitMedia = (function () {
                     return $scope.user.id;
                 }
 
-                if ($scope.userInfo && $scope.userInfo.unverifiedUser) {
-                    return $scope.userInfo.unverifiedUser.id;
+                if ($scope.verifyResult && $scope.verifyResult.user) {
+                    return $scope.verifyResult.user.id;
                 }
 
                 return null;
@@ -175,7 +175,7 @@ var submitMedia = (function () {
                 if ($scope.user) {
                     ms.user = $scope.user;
                 } else if ($scope.userInfo) {
-                    ms.user = $scope.userInfo.unverifiedUser;
+                    ms.user = $scope.verifyResult.user;
                 }
 
                 var endTime = toTime(ms.endTime);
@@ -325,17 +325,15 @@ var submitMedia = (function () {
 
                 return $.ajax({
                     url: app.config.wildbook.proxyUrl + '/obj/user/verify',
-                    contentType: 'text/plain',
+                    contentType: 'application/json',
                     type: 'POST',
-                    data: $scope.media.email,
+                    data: JSON.stringify({email: $scope.media.email, fullName: $scope.media.name}),
                     dataType: 'json'
                 })
                 .then(function(verifyResult) {
-                    if (verifyResult.unverified) {
-                        $scope.userInfo = {
-                            newlyCreated: false,
-                            unverifiedUser: verifyResult.user
-                        };
+                    $scope.verifyResult = verifyResult;
+
+                    if (verifyResult.newlyCreated || ! verifyResult.verified) {
                         return saveAndGo();
                     }
 
@@ -343,27 +341,11 @@ var submitMedia = (function () {
                                                $scope.media.email,
                                                'Please login to continue',
                                                'There is an account associated with this email address, and you must login to continue with submitting media.')
-                    .then(function(user) {
-                        $scope.user = user;
-                        return saveAndGo();
-                    });
-                },
-                function() {
-                    return $.ajax({
-                        url: app.config.wildbook.proxyUrl + '/obj/user/create',
-                        contentType: 'application/json',
-                        type: 'POST',
-                        data: JSON.stringify({email: $scope.media.email, fullName: $scope.media.name}),
-                        dataType: 'json'
-                    })
-                    .then(function(newUser) {
-                        $scope.userInfo = {
-                            newlyCreated: true,
-                            unverifiedUser: newUser
-                        };
-                        return saveAndGo();
-                    }, handleError);
-                });
+                   .then(function(user) {
+                       $scope.user = user;
+                       return saveAndGo();
+                   });
+                }, handleError);
             };
 
 

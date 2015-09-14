@@ -21,6 +21,7 @@ package org.ecocean;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,6 +32,9 @@ import javax.jdo.JDOException;
 import javax.jdo.JDOHelper;
 import javax.jdo.PersistenceManagerFactory;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.samsix.database.ConnectionInfo;
 import com.samsix.database.Database;
 import com.samsix.util.io.ResourceReader;
@@ -38,6 +42,8 @@ import com.samsix.util.io.ResourceReaderImpl;
 
 
 public class ShepherdPMF {
+    private static Logger logger = LoggerFactory.getLogger(ShepherdPMF.class);
+
   private static TreeMap<String,PersistenceManagerFactory> pmfs=new TreeMap<String,PersistenceManagerFactory>();
 
   private static Map<String,ConnectionInfo> connectionInfo = new HashMap<>();
@@ -60,8 +66,12 @@ public class ShepherdPMF {
    */
   public synchronized static ConnectionInfo getConnectionInfo(final String connectionName) {
     if (connectionInfo.get(connectionName) == null) {
-      ResourceReader reader = new ResourceReaderImpl("bundles.s6db");
-      connectionInfo.put(connectionName, ConnectionInfo.valueOf(reader, connectionName));
+        try {
+            ResourceReader reader = new ResourceReaderImpl("bundles/s6db.properties");
+            connectionInfo.put(connectionName, ConnectionInfo.valueOf(reader, connectionName));
+        } catch (IOException ex) {
+            logger.warn("Can't find properties [bundles/s6db]", ex);
+        }
     }
 
     return connectionInfo.get(connectionName);

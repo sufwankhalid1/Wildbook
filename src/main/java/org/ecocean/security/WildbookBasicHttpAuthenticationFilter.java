@@ -5,15 +5,17 @@ import javax.servlet.ServletResponse;
 
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.web.filter.authc.BasicHttpAuthenticationFilter;
-import org.ecocean.Shepherd;
-import org.ecocean.User;
+import org.ecocean.ShepherdPMF;
 import org.ecocean.servlet.ServletUtilities;
+
+import com.samsix.database.Database;
+import com.samsix.database.DatabaseException;
 
 public class WildbookBasicHttpAuthenticationFilter extends
     BasicHttpAuthenticationFilter {
 
 
-  @Override
+@Override
 protected AuthenticationToken createToken(final ServletRequest request, final ServletResponse response) {
         String authorizationHeader = getAuthzHeader(request);
         if (authorizationHeader == null || authorizationHeader.length() == 0) {
@@ -21,10 +23,6 @@ protected AuthenticationToken createToken(final ServletRequest request, final Se
            // Authorization header.
             return createToken("", "", request, response);
        }
-
-        //if (log.isDebugEnabled()) {
-        //    log.debug("Attempting to execute login with headers [" + authorizationHeader + "]");
-        //}
 
         String[] prinCred = getPrincipalsAndCredentials(authorizationHeader, request);
         if (prinCred == null || prinCred.length < 2) {
@@ -34,43 +32,33 @@ protected AuthenticationToken createToken(final ServletRequest request, final Se
            return createToken(username, "", request, response);
         }
 
-       String username = prinCred[0];
+        String username = prinCred[0];
         String password = prinCred[1];
 
-        String salt="";
-        String context="context0";
-        //context=ServletUtilities.getContext(request);
-        Shepherd myShepherd=new Shepherd(context);
-        myShepherd.beginDBTransaction();
-
-        try{
-          if(myShepherd.getUser(username)!=null){
-            User user=myShepherd.getUserOLD(username);
-            salt=user.getSalt();
-            if(request.getParameter("acceptUserAgreement")!=null){
-              System.out.println("Trying to set acceptance for UserAgreement!");
-              user.setAcceptedUserAgreement(true);
-              myShepherd.commitDBTransaction();
-            }
-            else{
-              myShepherd.rollbackDBTransaction();
+        try (Database db = ShepherdPMF.getDb()) {
+            User user = UserFactory.getUserByNameOrEmail(db, username);
+            if (user != null) {
+                //
+                // What is going on here?
+                // Refactored but just preserved the functionality that was there.
+                //
+                return createToken(username, ServletUtilities.hashAndSaltPassword(password, ""), request, response);
             }
 
-          }
-          else{
-            myShepherd.rollbackDBTransaction();
-          }
+            if (request.getParameter("acceptUserAgreement") != null){
+                user.setAcceptedUserAgreement(true);
+                UserFactory.saveUser(db, user);
+            }
+            return createToken(username,
+                               ServletUtilities.hashAndSaltPassword(password, user.getSalt()),
+                               request,
+                               response);
+        } catch (DatabaseException ex) {
+            //
+            // Again, not sure about this. See above.
+            //
+            return createToken(username, ServletUtilities.hashAndSaltPassword(password, ""), request, response);
         }
-        catch(Exception e){
-          myShepherd.rollbackDBTransaction();
-        }
-
-        myShepherd.closeDBTransaction();
-        String hashedPassword=ServletUtilities.hashAndSaltPassword(password, salt);
-
-
-
-        return createToken(username, hashedPassword, request, response);
   }
 
 
