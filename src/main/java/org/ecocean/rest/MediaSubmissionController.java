@@ -378,20 +378,6 @@ public class MediaSubmissionController
             //mediaSubmission.jsp?mediaSubmissionID=
             //thank the submitter and photographer
             String context = ServletUtilities.getContext(request);
-            String thanksmessage = ServletUtilities.getText(CommonConfiguration.getDataDirectoryName(context),
-                                                            "thankyou.html",
-                                                            ServletUtilities.getLanguageCode(request));
-            String newMediaMessage = ServletUtilities.getText(CommonConfiguration.getDataDirectoryName(context),
-                                                              "newmedia.html",
-                                                              ServletUtilities.getLanguageCode(request));
-
-
-
-            thanksmessage=thanksmessage.replaceAll("INSERTTEXT", ("http://" + CommonConfiguration.getURLLocation
-              (request) + "/mediaSubmission.jsp?mediaSubmissionID=" + media.getId()));
-            newMediaMessage=newMediaMessage.replaceAll("INSERTTEXT", ("http://" + CommonConfiguration.getURLLocation
-                    (request) + "/mediaSubmissionAdmin.jsp?mediaSubmissionID=" + media.getId()));
-
 
             // Email notify admin of new mediasubmission in WIldbook
             Map<String, String> tagMap = NotificationMailer.createBasicTagMap(request,media);
