@@ -428,9 +428,9 @@ module.exports = function(app, config, secrets, debug) {
     });
 
     app.get("/user/*", function(req, res) {
-        var username = req.url.slice(6);
+        var userid = req.url.slice(6);
 
-        var url = config.wildbook.authUrl + "/data/userinfo/get/" + username;
+        var url = config.wildbook.authUrl + "/data/userinfo/get/" + userid;
 
         request(url)
         .then(function(response) {
@@ -445,7 +445,7 @@ module.exports = function(app, config, secrets, debug) {
             }));
         })
         .catch(function(ex) {
-            renderError(res, new VError(ex, "Can't get user [" + username + "]"));
+            renderError(res, new VError(ex, "Can't get user [" + userid + "]"));
         });
     });
 

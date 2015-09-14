@@ -24,7 +24,6 @@ import com.samsix.database.RecordSet;
 import com.samsix.database.SpecialSqlCondition;
 import com.samsix.database.SqlRelationType;
 import com.samsix.database.SqlStatement;
-import com.samsix.util.string.StringUtilities;
 
 public class SimpleFactory {
     private final static Logger logger = LoggerFactory.getLogger(SimpleFactory.class);
@@ -197,9 +196,9 @@ public class SimpleFactory {
     }
 
 
-    public static UserInfo getUserInfo(final String username) throws DatabaseException
+    public static UserInfo getUserInfo(final int userid) throws DatabaseException
     {
-        SimpleUser user = getUser(username);
+        SimpleUser user = getUser(userid);
 
         if (user == null) {
             return null;
@@ -214,7 +213,7 @@ public class SimpleFactory {
         // 5) Voyages on
         //
         String sqlRoot = "SELECT ma.* FROM mediaasset ma";
-        String whereRoot = " WHERE ma.submitter = " + StringUtilities.wrapQuotes(username)
+        String whereRoot = " WHERE ma.submitterid = " + userid
             + " AND ma.type = " + MediaAssetType.IMAGE.getCode();
 
         try (Database db = new Database(ShepherdPMF.getConnectionInfo())) {

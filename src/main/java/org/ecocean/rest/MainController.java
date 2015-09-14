@@ -93,9 +93,9 @@ public class MainController
 
     @RequestMapping(value = "/userinfo/get/{username}", method = RequestMethod.GET)
     public UserInfo getUserInfo(@PathVariable("username")
-                                final String username) throws DatabaseException
+                                final int userid) throws DatabaseException
     {
-        return SimpleFactory.getUserInfo(username);
+        return SimpleFactory.getUserInfo(userid);
     }
 
 
