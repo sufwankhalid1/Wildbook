@@ -77,7 +77,7 @@ public class SimpleFactory {
     public static List<SimpleUser> getIndividualSubmitters(final Database db, final int individualid) throws DatabaseException
     {
         SqlStatement sql = getUserStatement(true);
-        sql.addInnerJoin("u", "id", "mediaasset", "ma2", "submitterid");
+        sql.addInnerJoin("u", "userid", "mediaasset", "ma2", "submitterid");
         sql.addInnerJoin("ma2", "id", "encounter_media", "em", "mediaid");
         sql.addInnerJoin("em", "encounterid", "encounters", "e", "encounterid");
         sql.addCondition("e", "individualid", SqlRelationType.EQUAL, individualid);
