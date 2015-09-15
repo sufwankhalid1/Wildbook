@@ -15,11 +15,35 @@ mixin container()
 mixin tablerow()
     table.row
         tr
-            td
+            td.wrapper
                 block
 
-mixin wrapper()
-    table.wrapper
+mixin wrapper(panel)
+    table.wrapper&attributes(attributes)
+        tr
+            if(panel == 'panel')
+                td.panel
+                    block
+            else
+                td.inverse-color
+                    block
+
+mixin column(padding)
+    table&attributes(attributes)
+        tr
+            if(padding == 'padding')
+                td.text-pad
+                    block
+            else
+                td
+                    block
+            +expander()
+
+mixin expander()
+    td.expander
+
+mixin button(content, href)
+    table.button.medium-buttom&attributes(attributes)
         tr
             td
-                block
+                a(href="#{href}")= content
