@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
@@ -162,37 +161,33 @@ public class UserController {
     }
 
 
-    public static void logoutUser(final HttpServletRequest request,
-                                  final HttpServletResponse response) throws ServletException, IOException {
+    public static void logoutUser(final HttpServletRequest request) throws ServletException, IOException {
         Subject subject = SecurityUtils.getSubject();
         if (subject != null) {
             subject.logout();
         }
-        request.logout();
 
         HttpSession session = request.getSession(false);
         if( session != null ) {
             session.invalidate();
         }
-
-//        response.reset();
-//
-//        response.setHeader("Cache-Control", "no-cache");
-//        response.setHeader("Pragma", "no-cache");
-//        response.setHeader("Cache-Control", "no-store");
-//        response.setHeader("Cache-Control", "must-revalidate");
-//        response.setDateHeader("Expires", 0);
-
-//        request.getServletContext().getRequestDispatcher("/index.jsp").forward(request, response);
     }
 
 
-    @RequestMapping(value = "logout", method = RequestMethod.POST)
-    public void logoutCall(final HttpServletRequest request,
-                           final HttpServletResponse response) throws ServletException, IOException
-    {
-        logoutUser(request, response);
-    }
+    /*
+     * This doesn't work in the sense that from a different origin (a node server calling in restfully)
+     * does not know that we are now logged out. We are logged out because going to wildbook verifies
+     * that, but if we go to our node server and check isLoggedIn it thinks we are. Thus, the UserPrincipal
+     * for that session is not getting nulled out. However, if we use this exact same line of code in
+     * the servlet LogoutUser from this same node server, the UserPrincipal is nulled out. Something
+     * bizarre going on there that I don't understand. Just means I'm hanging on to that LogoutUser
+     * one-line servlet. :)
+     */
+//    @RequestMapping(value = "logout", method = RequestMethod.GET)
+//    public void logoutCall(final HttpServletRequest request) throws ServletException, IOException
+//    {
+//        logoutUser(request);
+//    }
 
     public static String[] parseName(final String fullname) {
         String[] name = new String[2];
