@@ -7,19 +7,19 @@ mixin tablebody()
                     block
 
 mixin container()
-    table.container&attributes(attributes)
+    table.container
         tr
             td
                 block
 
-mixin outerrow()
+mixin tablerow()
     table.row
         tr
-            td.wrapper.last
+            td
                 block
 
-mixin innerrow()
-    table.row
+mixin wrapper()
+    table.wrapper
         tr
             block
 
