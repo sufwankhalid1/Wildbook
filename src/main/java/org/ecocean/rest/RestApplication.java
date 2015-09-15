@@ -58,7 +58,7 @@ public class RestApplication extends SpringBootServletInitializer {
         ResourceReaderImpl initResources = new ResourceReaderImpl();
 
         try {
-            initResources.addSource("application.properties");
+            initResources.addSource("application");
         } catch (IOException ex) {
             logger.warn("Problem reading from application properties", ex);
         }
@@ -72,7 +72,7 @@ public class RestApplication extends SpringBootServletInitializer {
         }
 
         try {
-            initResources.addSource("cust/" + cust + "/application.properties");
+            initResources.addSource("cust/" + cust + "/application");
         } catch (IOException ex) {
             logger.warn("Trouble reading from customer configuration file" , ex);
         }
@@ -111,13 +111,10 @@ public class RestApplication extends SpringBootServletInitializer {
         Global.INST.setInitResources(initResources);
 
         try {
-            if (logger.isDebugEnabled()) {
-                logger.debug(initResources.getString("auth.stormpath.properties"));
-                logger.debug(initResources.getString("auth.stormpath.appname"));
-            }
-
-            Stormpath.init(initResources.getString("auth.stormpath.properties"),
-                           initResources.getString("auth.stormpath.appname"));
+            ResourceReaderImpl secrets = new ResourceReaderImpl("secrets");
+            Stormpath.init(secrets.getString("auth.stormpath.apikey.id"),
+                           secrets.getString("auth.stormpath.apikey.secret"),
+                           initResources.getString("auth.stormpath.appname", cust));
         } catch (Throwable ex) {
             logger.error("Trouble initializing stormpath.", ex);
         }

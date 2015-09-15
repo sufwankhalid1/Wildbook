@@ -12,7 +12,7 @@ import org.ecocean.rest.UserController;
 
 import com.stormpath.sdk.account.Account;
 import com.stormpath.sdk.account.AccountList;
-import com.stormpath.sdk.api.ApiKey;
+import com.stormpath.sdk.api.ApiKeyBuilder;
 import com.stormpath.sdk.api.ApiKeys;
 import com.stormpath.sdk.application.Application;
 import com.stormpath.sdk.application.ApplicationList;
@@ -38,9 +38,12 @@ public class Stormpath {
     // we cache the application too.  is this lame?
     private static Application application = null;
 
-    public static void init(final String configFile, final String appName) {
-        ApiKey apiKey = ApiKeys.builder().setFileLocation(configFile).build();
-        client = Clients.builder().setApiKey(apiKey).build();
+    public static void init(final String id, final String secret, final String appName) {
+        ApiKeyBuilder keyBuilder = ApiKeys.builder();
+        keyBuilder.setId(id);
+        keyBuilder.setSecret(secret);
+
+        client = Clients.builder().setApiKey(keyBuilder.build()).build();
 
         //If using Google App Engine, you must use Basic authentication:
         //Client client = Clients.builder().setApiKey(apiKey)
