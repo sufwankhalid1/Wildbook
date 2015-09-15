@@ -15,11 +15,11 @@ mixin container()
 mixin tablerow()
     table.row
         tr
-            td
+            td.wrapper
                 block
 
-mixin wrapper()
-    table.wrapper
+mixin wrapper(panel)
+    table.wrapper&attributes(attributes)
         tr
             block
 
