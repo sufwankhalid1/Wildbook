@@ -1,14 +1,5 @@
 extends partials/layout
 
-block customcss
-    style(type="text/css").
-        body {
-            background: #fff;
-        }
-
-block title
-    | First Submission
-
 block content
     include partials/message-header.jade
     +container()
