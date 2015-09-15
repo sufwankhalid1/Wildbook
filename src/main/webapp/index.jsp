@@ -21,8 +21,6 @@ import="org.ecocean.Adoption,
         com.samsix.database.RecordSet"
 %>
 
-
-
 <jsp:include page="header.jsp" flush="true"/>
 
 <script src="http://a.vimeocdn.com/js/froogaloop2.min.js"></script>
@@ -328,21 +326,10 @@ margin-bottom: 8px !important;
     long numDataContributors = 0;
 
     try {
-        myShepherd.beginDBTransaction();
-
         numMarkedIndividuals = myShepherd.getNumMarkedIndividuals();
         numEncounters = myShepherd.getNumEncounters();
     } catch (Exception e) {
         e.printStackTrace();
-    } finally {
-        if (myShepherd != null) {
-            if (myShepherd.getPM() != null) {
-                myShepherd.rollbackDBTransaction();
-                if (!myShepherd.getPM().isClosed()) {
-                    myShepherd.closeDBTransaction();
-                }
-            }
-        }
     }
 
     try (Database db = ServletUtilities.getDb(request)) {
@@ -494,9 +481,8 @@ margin-bottom: 8px !important;
                 <div class="focusbox-inner opec">
                     <h2>Latest animal encounters</h2>
                     <ul class="encounter-list list-unstyled">
-                       
                        <%
-                       ArrayList<Encounter> latestIndividuals=myShepherd.getMostRecentIdentifiedEncountersByDate(3);
+                       ArrayList<Encounter> latestIndividuals = myShepherd.getMostRecentIdentifiedEncountersByDate(3);
                        int numResults=latestIndividuals.size();
                        myShepherd.beginDBTransaction();
                        for(int i=0;i<numResults;i++){
@@ -516,12 +502,9 @@ margin-bottom: 8px !important;
                                     </time>
                                 </small>
                                 <p><a href="encounters/encounter.jsp?number=<%=thisEnc.getCatalogNumber() %>" title=""><%=thisEnc.getIndividualID() %></a></p>
-                           
-                           
                             </li>
                         <%
                         }
-                        myShepherd.rollbackDBTransaction();
                         %>
                        
                     </ul>
@@ -664,7 +647,6 @@ margin-bottom: 8px !important;
         </section>
     </section>
 </div>
-
 
 <jsp:include page="footer.jsp" flush="true"/>
 
