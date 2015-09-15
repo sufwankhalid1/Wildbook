@@ -56,7 +56,7 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
               href="<%=CommonConfiguration.getHTMLShortcutIcon(context) %>"/>
               
         <link rel="stylesheet" href='http://fonts.googleapis.com/css?family=Oswald:400,300,700' type='text/css'/>
-        <link rel="stylesheet" href="<%=urlLoc%>/cust/mantamatcher/css/manta.css" />
+        <link rel="stylesheet" href="<%=urlLoc%>/css/wildbook.css" />
         <link rel="stylesheet" href="<%=urlLoc%>/bcomponents/jquery-ui/jquery-ui.min.css" type="text/css"/>
         <link rel="stylesheet" href="<%=urlLoc%>/bcomponents/jquery-ui/theme.css" type="text/css" />
         <link rel="stylesheet" href="<%=urlLoc%>/tools/alertplus/css/alertplus.css">

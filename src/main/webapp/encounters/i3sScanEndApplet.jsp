@@ -58,9 +58,6 @@ context=ServletUtilities.getContext(request);
   </title>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
   <meta http-equiv="expires" content="0">
-  <link
-    href="http://<%=CommonConfiguration.getURLLocation(request)%>/css/ecocean.css"
-    rel="stylesheet" type="text/css"/>
 </head>
 
 <style type="text/css">

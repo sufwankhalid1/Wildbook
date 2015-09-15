@@ -27,7 +27,6 @@ context=ServletUtilities.getContext(request);
 <meta name="Description" content="The Wildbook for Whale Sharks photo-identification library is a visual database of whale shark (Rhincodon typus) encounters and of individually catalogued whale sharks. The library is maintained and used by marine biologists to collect and analyze whale shark encounter data to learn more about these amazing creatures." />
 <meta name="Keywords" content="whale shark,whale,shark,Rhincodon typus,requin balleine,Rhineodon,Rhiniodon,big fish,Wild Me,Brad Norman, fish, coral, sharks, elasmobranch, mark, recapture, photo-identification, identification, conservation, citizen science" />
 <meta name="Author" content="Wild Me - info@whaleshark.org" />
-<link href="css/ecocean.css" rel="stylesheet" type="text/css" />
 <link rel="shortcut icon" href="images/favicon.ico" />
 
 </head>
