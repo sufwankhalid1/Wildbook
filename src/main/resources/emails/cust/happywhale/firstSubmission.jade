@@ -1,7 +1,14 @@
 extends layout
 
+block customcss
+    style(type="text/css").
+        body {
+            background: #fff;
+        }
+
 block title
     | First Submission
+
 block content
     p Now is the time to act!
     a.btn(href="/") Act Now!
