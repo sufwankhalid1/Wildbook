@@ -1,6 +1,11 @@
 package org.ecocean.rest;
 
+import java.io.IOException;
+
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import org.apache.commons.lang3.StringUtils;
@@ -145,10 +150,48 @@ public class UserController {
             Subject subject = SecurityUtils.getSubject();
             subject.login(userToken.getToken());
 
+            userToken.getUser().setLastLogin(System.currentTimeMillis());
+            try (Database db = ServletUtilities.getDb(request)) {
+                UserFactory.saveUser(db, userToken.getUser());
+            }
+
             return userToken.getUser().toSimple();
         } finally {
             userToken.clear();
         }
+    }
+
+
+    public static void logoutUser(final HttpServletRequest request,
+                                  final HttpServletResponse response) throws ServletException, IOException {
+        Subject subject = SecurityUtils.getSubject();
+        if (subject != null) {
+            subject.logout();
+        }
+        request.logout();
+
+        HttpSession session = request.getSession(false);
+        if( session != null ) {
+            session.invalidate();
+        }
+
+//        response.reset();
+//
+//        response.setHeader("Cache-Control", "no-cache");
+//        response.setHeader("Pragma", "no-cache");
+//        response.setHeader("Cache-Control", "no-store");
+//        response.setHeader("Cache-Control", "must-revalidate");
+//        response.setDateHeader("Expires", 0);
+
+//        request.getServletContext().getRequestDispatcher("/index.jsp").forward(request, response);
+    }
+
+
+    @RequestMapping(value = "logout", method = RequestMethod.POST)
+    public void logoutCall(final HttpServletRequest request,
+                           final HttpServletResponse response) throws ServletException, IOException
+    {
+        logoutUser(request, response);
     }
 
     public static String[] parseName(final String fullname) {

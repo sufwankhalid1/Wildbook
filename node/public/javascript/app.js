@@ -182,6 +182,7 @@ angular.module("nodeApp.controllers", [])
 
     $scope.logout = function() {
         $http({url: app.config.wildbook.url + "/LogoutUser", withCredentials: true})
+//        $http.post(app.config.wildbook.url + "/obj/user/logout", {withCredentials: true})
         .then(function() {
             $scope.user = null;
             setTimeout(function(){$scope.$apply();});

@@ -68,9 +68,6 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
         <script src="<%=urlLoc%>/bcomponents/jquery-ui/jquery-ui.min.js"></script>
         <script src="<%=urlLoc%>/javascript/jquery.blockUI.js"></script>
         <script src="<%=urlLoc%>/javascript/jquery.cookie.js"></script>
-        
-        <!-- <script type="text/javascript"  src="/JavascriptGlobals.js"></script>  -->
-        <!-- <script type="text/javascript"  src="/javascript/collaboration.js"></script>  -->
     </head>
     
     <body role="document">
