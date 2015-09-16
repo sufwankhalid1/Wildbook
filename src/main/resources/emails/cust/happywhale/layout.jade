@@ -19,12 +19,10 @@ html(lang="en")
 body
     +tablebody()
         +container()
-            +tablerow()
+            +outerrow()
                 +wrapper("panel")(class="last")
                     +column()(class='twelve columns')
                         block content
             block boxes
-            +tablerow()
-                +wrapper()(class="last")
-                    +column("padding")(class='twelve columns')
-                        include partials/footer.jade
+
+            include partials/footer.jade
