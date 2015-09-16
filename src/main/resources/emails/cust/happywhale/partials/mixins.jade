@@ -7,16 +7,21 @@ mixin tablebody()
                     block
 
 mixin container()
-    table.container
+    table.container&attributes(attributes)
         tr
             td
                 block
 
-mixin tablerow()
+mixin outerrow()
     table.row
         tr
             td.wrapper
                 block
+
+mixin innerrow()
+    table.row
+        tr
+            block
 
 mixin wrapper(panel)
     table.wrapper&attributes(attributes)
@@ -25,7 +30,7 @@ mixin wrapper(panel)
                 td.panel
                     block
             else
-                td.inverse-color
+                td
                     block
 
 mixin column(padding)
@@ -42,8 +47,17 @@ mixin column(padding)
 mixin expander()
     td.expander
 
-mixin button(content, href)
-    table.button.medium-buttom&attributes(attributes)
+mixin centeredbutton(content, href)
+    table.row.no-padding
         tr
-            td
-                a(href="#{href}")= content
+            td.wrapper.offset-by-three
+                table.columns.twelve
+                    tr
+                        td.sub-column.three
+                        td.sub-column.six.pad-button
+                            table.button.radius.medium-buttom&attributes(attributes)
+                                tr
+                                    td.pad-button
+                                        a(href="#{href}")= content
+                        td.sub-column.three
+                        +expander

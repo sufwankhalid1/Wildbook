@@ -10,8 +10,10 @@ block title
     | First Submission
 
 block content
-    p Now is the time to act!
-    +button('act now!', 'http://google.com')
+    include partials/message-header.jade
+    +container()
+        p Now is the time to act!
+    +centeredbutton('act now!', 'http://google.com')
 
 block boxes
     include partials/useful.jade
