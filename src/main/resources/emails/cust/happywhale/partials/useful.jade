@@ -1,3 +1,14 @@
 +outerrow()
     +wrapper("panel")
-        +column()(class="twelve columns") Useful links box
+        table.twelve.columns.last.useful_links
+            tr
+                td.four.sub-columns.center
+                    img(src="http://happywhale.com/cust/images/img_user_on.svg", height=60, width=60)
+                    div Your Profile
+                td.four.sub-columns.center
+                    img(src="http://happywhale.com/cust/images/img_whale_circle.svg", height=60, width=60)
+                    div Submit Images
+                td.four.sub-columns.center.last
+                    img(src="http://happywhale.com/cust/images/img_star_circle.svg", height=60, width=60)
+                    div Help & FAQ
+                +expander
