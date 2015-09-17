@@ -61,3 +61,17 @@ mixin centeredbutton(content, href)
                                         a(href="#{href}")= content
                         td.sub-column.three
                         +expander
+
+mixin individual(src, date, location, items)
+    div.individual
+        img(src=src, width=550)
+        div
+            div
+                b Sighted on: 
+                span= date
+            div
+                b Location: 
+                span= location
+            div
+                b Media Items You Submitted: 
+                span= items
