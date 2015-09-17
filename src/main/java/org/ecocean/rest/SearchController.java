@@ -3,10 +3,13 @@ package org.ecocean.rest;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
-import org.ecocean.ShepherdPMF;
+import org.ecocean.security.UserFactory;
+import org.ecocean.servlet.ServletUtilities;
+import org.ecocean.survey.SurveyFactory;
+import org.ecocean.survey.SurveyPartObj;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,6 +23,7 @@ import com.samsix.database.GroupedSqlCondition;
 import com.samsix.database.RecordSet;
 import com.samsix.database.SqlRelationType;
 import com.samsix.database.SqlStatement;
+import com.samsix.database.SqlTable;
 
 @RestController
 @RequestMapping(value = "/search")
@@ -37,16 +41,16 @@ public class SearchController
         String searchTerm = "%" + term.toLowerCase() + "%";
 
         RecordSet rs;
-        SqlStatement ss = SimpleFactory.getIndividualStatement();
+        SqlStatement sql = SimpleFactory.getIndividualStatement();
 
         GroupedSqlCondition cond = GroupedSqlCondition.orGroup();
-        cond.addCondition(ss.findTable("i"), "alternateid", SqlRelationType.LIKE, searchTerm)
+        cond.addCondition(sql.findTable("i"), "alternateid", SqlRelationType.LIKE, searchTerm)
             .setFunction("lower");
-        cond.addCondition(ss.findTable("i"), "nickname", SqlRelationType.LIKE, searchTerm)
+        cond.addCondition(sql.findTable("i"), "nickname", SqlRelationType.LIKE, searchTerm)
             .setFunction("lower");
-        ss.addCondition(cond);
+        sql.addCondition(cond);
 
-        rs = db.getRecordSet(ss.getSql());
+        rs = db.getRecordSet(sql);
         while (rs.next()) {
             individuals.add(SimpleFactory.readSimpleIndividual(rs));
         }
@@ -56,7 +60,7 @@ public class SearchController
 
 
     @RequestMapping(value = "/site", method = RequestMethod.GET)
-    public List<SiteSearchResult> searchSite(final HttpServletResponse response,
+    public List<SiteSearchResult> searchSite(final HttpServletRequest request,
                                              @RequestParam
                                              final String term) throws DatabaseException
     {
@@ -66,7 +70,7 @@ public class SearchController
             return results;
         }
 
-        try (Database db = ShepherdPMF.getDb()) {
+        try (Database db = ServletUtilities.getDb(request)) {
             for (SimpleIndividual individual : searchIndividuals(db, term)) {
                 SiteSearchResult result = new SiteSearchResult();
                 result.label = individual.getDisplayName();
@@ -78,23 +82,17 @@ public class SearchController
                 results.add(result);
             }
 
-            String searchTerm = "%" + term.toLowerCase() + "%";
+            SqlStatement sql = UserFactory.getUserStatement();
 
-            //
-            // Query on Users
-            //
-            SqlStatement ss = SimpleFactory.getUserStatement();
-
+            SqlTable users = sql.findTable(UserFactory.AlIAS_USERS);
             GroupedSqlCondition cond = GroupedSqlCondition.orGroup();
-            cond.addCondition(ss.findTable("u"), "fullname", SqlRelationType.LIKE, searchTerm)
-                .setFunction("lower");
-            cond.addCondition(ss.findTable("u"), "username", SqlRelationType.LIKE, searchTerm)
-                .setFunction("lower");
-            ss.addCondition(cond);
+            cond.addContainsCondition(users, "fullname", term);
+            cond.addContainsCondition(users, "username", term);
+            sql.addCondition(cond);
 
-            RecordSet rs = db.getRecordSet(ss.getSql());
+            RecordSet rs = db.getRecordSet(sql);
             while (rs.next()) {
-                SimpleUser user = SimpleFactory.readUser(rs);
+                SimpleUser user = UserFactory.readSimpleUser(rs);
 
                 SiteSearchResult result = new SiteSearchResult();
                 result.label = user.getDisplayName();
@@ -110,7 +108,7 @@ public class SearchController
 
 
     @RequestMapping(value = "/encounter", method = RequestMethod.GET)
-    public List<SimpleEncounter> searchEncounter(final HttpServletResponse response,
+    public List<SimpleEncounter> searchEncounter(final HttpServletRequest request,
                                                  @RequestParam
                                                  final String encdate,
                                                  @RequestParam
@@ -125,9 +123,9 @@ public class SearchController
             sql.addCondition("i", "individualid", SqlRelationType.EQUAL, individualid);
         }
 
-        try (Database db = ShepherdPMF.getDb()) {
+        try (Database db = ServletUtilities.getDb(request)) {
             List<SimpleEncounter> encounters = new ArrayList<>();
-            RecordSet rs = db.getRecordSet(sql.getSql());
+            RecordSet rs = db.getRecordSet(sql);
             while (rs.next()) {
                 encounters.add(SimpleFactory.readSimpleEncounter(rs));
             }
@@ -138,12 +136,59 @@ public class SearchController
 
 
     @RequestMapping(value = "/individual", method = RequestMethod.GET)
-    public List<SimpleIndividual> searchIndividual(final HttpServletResponse response,
+    public List<SimpleIndividual> searchIndividual(final HttpServletRequest request,
                                                    @RequestParam
                                                    final String name) throws DatabaseException
     {
-        try (Database db = ShepherdPMF.getDb()) {
+        try (Database db = ServletUtilities.getDb(request)) {
             return searchIndividuals(db, name);
+        }
+    }
+
+
+    @RequestMapping(value = "/survey", method = RequestMethod.GET)
+    public List<SurveyPartObj> searchSurvey(final HttpServletRequest request,
+                                            @RequestParam
+                                            final Integer vesselid,
+                                            @RequestParam
+                                            final String surveyname,
+                                            @RequestParam
+                                            final String code,
+                                            @RequestParam
+                                            final Integer orgid,
+                                            @RequestParam
+                                            final String date) throws DatabaseException
+    {
+        try (Database db = ServletUtilities.getDb(request)) {
+            SqlStatement sql = SurveyFactory.getSqlStatement();
+
+            if (vesselid != null) {
+                sql.addCondition(SurveyFactory.ALIAS_SURVEYPART, "vesselid", SqlRelationType.EQUAL, vesselid);
+            }
+
+            if (! StringUtils.isBlank(code)) {
+                sql.addContainsCondition(SurveyFactory.ALIAS_SURVEYPART, "code", code);
+            }
+
+            if (! StringUtils.isBlank(surveyname)) {
+                sql.addContainsCondition(SurveyFactory.ALIAS_SURVEY, "surveyname", surveyname);
+            }
+
+            if (orgid != null) {
+                sql.addCondition(SurveyFactory.ALIAS_SURVEY, "orgid", SqlRelationType.EQUAL, orgid);
+            }
+
+            if (! StringUtils.isBlank(date)) {
+                sql.addCondition(SurveyFactory.ALIAS_SURVEYPART, "partdate", SqlRelationType.EQUAL, date);
+            }
+
+            List<SurveyPartObj> parts = new ArrayList<>();
+            RecordSet rs = db.getRecordSet(sql);
+            while (rs.next()) {
+                parts.add(SurveyFactory.readSurveyPartObj(rs));
+            }
+
+            return parts;
         }
     }
 

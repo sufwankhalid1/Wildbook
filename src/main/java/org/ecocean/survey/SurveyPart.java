@@ -1,0 +1,96 @@
+package org.ecocean.survey;
+
+import java.time.LocalDate;
+import java.time.OffsetTime;
+
+import org.ecocean.Location;
+
+public class SurveyPart {
+    //
+    // This can be a primitive since I think it will exist.
+    //
+    private int surveyId;
+    private Integer surveyPartId;
+
+    private Vessel vessel;
+
+    private LocalDate partDate;
+    private OffsetTime starttime;
+    private OffsetTime endtime;
+
+    private String code;
+    private String comments;
+    private Location location;
+
+    public Vessel getVessel() {
+        return vessel;
+    }
+
+    public void setVessel(final Vessel vessel) {
+        this.vessel = vessel;
+    }
+
+    public int getSurveyPartId() {
+        return surveyPartId;
+    }
+
+    public void setSurveyPartId(final int surveyPartId) {
+        this.surveyPartId = surveyPartId;
+    }
+
+    public int getSurveyId() {
+        return surveyId;
+    }
+
+    public void setSurveyId(final int surveyId) {
+        this.surveyId = surveyId;
+    }
+
+    public LocalDate getPartDate() {
+        return partDate;
+    }
+
+    public void setPartDate(final LocalDate partDate) {
+        this.partDate = partDate;
+    }
+
+    public OffsetTime getStarttime() {
+        return starttime;
+    }
+
+    public void setStarttime(final OffsetTime starttime) {
+        this.starttime = starttime;
+    }
+
+    public OffsetTime getEndtime() {
+        return endtime;
+    }
+
+    public void setEndtime(final OffsetTime endtime) {
+        this.endtime = endtime;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(final String code) {
+        this.code = code;
+    }
+
+    public String getComments() {
+        return comments;
+    }
+
+    public void setComments(final String comments) {
+        this.comments = comments;
+    }
+
+    public Location getLocation() {
+        return location;
+    }
+
+    public void setLocation(final Location location) {
+        this.location = location;
+    }
+}

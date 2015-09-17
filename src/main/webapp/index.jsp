@@ -444,7 +444,13 @@ margin-bottom: 8px !important;
         
             <!-- Random user profile to select -->
             <%
-            SimpleUser featuredUser = SimpleFactory.getProfiledUser();
+            SimpleUser featuredUser = null;
+            try (Database db = ServletUtilities.getDb(request)) {
+                featuredUser = SimpleFactory.getProfiledUser(db);
+            } catch (DatabaseException ex) {
+                ex.printStackTrace();
+            }
+            
             if (featuredUser != null) {
                 String profilePhotoURL;
                 if (featuredUser.getAvatar() != null) {

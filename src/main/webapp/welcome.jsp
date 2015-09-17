@@ -41,7 +41,7 @@ String context = ServletUtilities.getContext(request);
       logger.info(request.getRemoteUser() + " logged in from IP address " + request.getRemoteAddr() + ".");
    }
    
-   SimpleUser user = SimpleFactory.getUserByIdString(request.getRemoteUser());
+   SimpleUser user = ServletUtilities.getUser(request);
 %>
 <jsp:include page="header.jsp" flush="true"/>
 

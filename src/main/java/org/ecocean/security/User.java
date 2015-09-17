@@ -2,6 +2,7 @@ package org.ecocean.security;
 
 import java.time.LocalDate;
 
+import org.ecocean.Organization;
 import org.ecocean.rest.SimpleUser;
 import org.ecocean.servlet.ServletUtilities;
 import org.joda.time.DateTime;
@@ -10,6 +11,8 @@ public class User {
     private Integer id;
     private String username;
     private String fullName;
+
+    private Organization organization;
 
     //
     // Not persisted. Only for generating SimpleUsers.
@@ -35,22 +38,15 @@ public class User {
         // blank constructor for when creating a new user.
     }
 
-    public User(final SimpleUser user, final String email) {
-        this.id = user.getId();
-        this.username = user.getUsername();
-        this.fullName = user.getFullName();
-        this.avatar = user.getAvatar();
-        this.statement = user.getStatement();
-
-        this.email = email;
-    }
-
     public User(final Integer id,
                 final String username,
                 final String fullName,
                 final String email)
     {
-        this(new SimpleUser(id, username, fullName), email);
+        this.id = id;
+        this.username = username;
+        this.fullName = fullName;
+        this.email = email;
     }
 
     public Integer getUserId() {
@@ -189,9 +185,11 @@ public class User {
 
     public SimpleUser toSimple()
     {
-
         SimpleUser user = new SimpleUser(id, username, fullName);
-        user.setAvatar(avatar, email);
+        if (organization != null) {
+            user.setAffiliation(organization.getName());
+        }
+        user.setAvatar(avatar);
         return user;
     }
 
@@ -201,6 +199,14 @@ public class User {
 
     public void setAvatarid(final Integer avatarid) {
         this.avatarid = avatarid;
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(final String avatar) {
+        this.avatar = avatar;
     }
 
     public String getStatement() {
@@ -217,5 +223,13 @@ public class User {
 
     public void setVerified(final boolean verified) {
         this.verified = verified;
+    }
+
+    public Organization getOrganization() {
+        return organization;
+    }
+
+    public void setOrganization(final Organization organization) {
+        this.organization = organization;
     }
 }

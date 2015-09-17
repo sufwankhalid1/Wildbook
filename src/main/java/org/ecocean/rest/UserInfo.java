@@ -3,7 +3,7 @@ package org.ecocean.rest;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.ecocean.survey.SurveyTrack;
+import org.ecocean.survey.SurveyPart;
 
 public class UserInfo {
     private final SimpleBeing user;
@@ -11,7 +11,7 @@ public class UserInfo {
     private final List<SimpleEncounter> encounters = new ArrayList<SimpleEncounter>();
     private final List<SimplePhoto> photos = new ArrayList<SimplePhoto>();
     private List<SimpleIndividual> individuals;
-    private List<SurveyTrack> voyages;
+    private List<SurveyPart> voyages;
 
 
     public UserInfo(final SimpleBeing user)
@@ -68,18 +68,18 @@ public class UserInfo {
         this.individuals = individuals;
     }
 
-    public List<SurveyTrack> getVoyages() {
+    public List<SurveyPart> getVoyages() {
         return voyages;
     }
 
-    public void setVoyages(final List<SurveyTrack> voyages) {
+    public void setVoyages(final List<SurveyPart> voyages) {
         this.voyages = voyages;
     }
 
-    public void addVoyage(final SurveyTrack voyage)
+    public void addVoyage(final SurveyPart voyage)
     {
         if (voyages == null) {
-            voyages = new ArrayList<SurveyTrack>();
+            voyages = new ArrayList<SurveyPart>();
         }
 
         voyages.add(voyage);

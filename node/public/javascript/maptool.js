@@ -171,12 +171,12 @@ var maptool = (function () {
             //
             var layer = getEncounterLayer();
 
-            if (Array.isArray(encounter)) {
-                layer.addLayer(getMarker(encounter, getEncounterIcon("default")));
-                return;
-            }
+//            if (Array.isArray(encounter)) {
+//                layer.addLayer(getMarker(encounter, getEncounterIcon("default")));
+//                return;
+//            }
 
-            if (! encounter.latitude || ! encounter.longitude) {
+            if (! encounter.location || ! encounter.location.latitude || ! encounter.location.longitude) {
                 return;
             }
 
@@ -194,12 +194,12 @@ var maptool = (function () {
             popup.append($("<dd/>", { class: 'popup-date' }).text(app.toMoment(encounter.encDate).format('LL')));
 
             popup.append($("<dt/>", { class: 'popup-location-date'}).text('Location'));
-            popup.append($("<dd/>", { class: 'popup-location'}).text(encounter.verbatimLocation));
+            popup.append($("<dd/>", { class: 'popup-location'}).text(encounter.location.verbatimLocation));
 
             popup.append($("<dt/>", { class: 'popup-submitter-label' }).text('Submitted By'));
             popup.append($("<dd/>", { class: 'popup-submitter'}).append(app.beingDiv(encounter.submitter)));
 
-            layer.addLayer(getMarker([encounter.latitude, encounter.longitude], iconIndividual, popup[0]));
+            layer.addLayer(getMarker([encounter.location.latitude, encounter.location.longitude], iconIndividual, popup[0]));
         }
 
         function addVoyage(voyage) {

@@ -3,9 +3,13 @@ package org.ecocean.security;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.ecocean.ContextConfiguration;
+import org.ecocean.Organization;
 import org.ecocean.ShepherdPMF;
-import org.ecocean.rest.SimpleFactory;
+import org.ecocean.media.MediaAsset;
+import org.ecocean.media.MediaAssetFactory;
+import org.ecocean.mmutil.StringUtilities;
 import org.ecocean.rest.SimpleUser;
 
 import com.samsix.database.Database;
@@ -13,6 +17,8 @@ import com.samsix.database.DatabaseException;
 import com.samsix.database.RecordSet;
 import com.samsix.database.SqlFormatter;
 import com.samsix.database.SqlInsertFormatter;
+import com.samsix.database.SqlRelationType;
+import com.samsix.database.SqlStatement;
 import com.samsix.database.SqlUpdateFormatter;
 import com.samsix.database.SqlWhereFormatter;
 import com.samsix.database.Table;
@@ -20,25 +26,42 @@ import com.samsix.database.Table;
 public class UserFactory {
 //    private static Logger logger = LoggerFactory.getLogger(UserFactory.class);
 
-    private static String TABLE_NAME = "users";
-    private static String ROLE_TABLE_NAME = "userroles";
+    private static String TABLENAME_USERS = "users";
+    private static String TABLENAME_ROLES = "userroles";
+    public static String TABLENAME_ORG = "organization";
+
+    public static String AlIAS_USERS = "u";
+    public static String ALIAS_ORG = "o";
 
     private UserFactory() {
         // prevent instantiation
     }
-//
-//
-//    public static User getUserById(final Integer id) {
-//        try (Database db = ShepherdPMF.getDb()) {
-//            return getUserById(db, id);
-//        } catch (DatabaseException ex) {
-//            logger.error("Can't get user.", ex);
-//            return null;
-//        }
-//    }
+
+    public static SqlStatement getUserStatement() {
+        SqlStatement sql = new SqlStatement(TABLENAME_USERS, AlIAS_USERS);
+        sql.addLeftOuterJoin(AlIAS_USERS, "orgid", TABLENAME_ORG, ALIAS_ORG, "orgid");
+        sql.addLeftOuterJoin(AlIAS_USERS,
+                             "avatarid",
+                             MediaAssetFactory.TABLENAME_MEDIAASSET,
+                             MediaAssetFactory.ALIAS_MEDIAASSET,
+                             "id");
+        return sql;
+    }
+
+    public static SqlStatement getUserStatement(final boolean distinct) {
+        SqlStatement sql = getUserStatement();
+        sql.setSelectString(AlIAS_USERS
+                            + ".*, "
+                            + ALIAS_ORG
+                            + ".*, "
+                            + MediaAssetFactory.ALIAS_MEDIAASSET
+                            + ".*");
+        sql.setSelectDistinct(true);
+        return sql;
+    }
 
     public static long getNumUsers(final Database db) throws DatabaseException {
-        Table users = db.getTable(TABLE_NAME);
+        Table users = db.getTable(TABLENAME_USERS);
         return users.getCount(null);
     }
 
@@ -47,10 +70,9 @@ public class UserFactory {
             return null;
         }
 
-        Table users = db.getTable(TABLE_NAME);
-        SqlWhereFormatter where = new SqlWhereFormatter();
-        where.append("userid", id);
-        RecordSet rs = users.getRecordSet(where.getWhereClause());
+        SqlStatement sql = getUserStatement();
+        sql.addCondition(AlIAS_USERS, "userid", SqlRelationType.EQUAL, id);
+        RecordSet rs = db.getRecordSet(sql);
 
         if (rs.next()) {
             return UserFactory.readUser(rs);
@@ -61,11 +83,9 @@ public class UserFactory {
 
 
     public static User getUser(final Database db, final String username) throws DatabaseException {
-
-        Table users = db.getTable(TABLE_NAME);
-        SqlWhereFormatter where = new SqlWhereFormatter();
-        where.append("lower(username)", username.toLowerCase());
-        RecordSet rs = users.getRecordSet(where.getWhereClause());
+        SqlStatement sql = getUserStatement();
+        sql.addCondition(AlIAS_USERS, "username", SqlRelationType.EQUAL, username.toLowerCase()).setFunction("lower");
+        RecordSet rs = db.getRecordSet(sql);
 
         if (rs.next()) {
             return readUser(rs);
@@ -79,13 +99,12 @@ public class UserFactory {
             return null;
         }
 
-        Table users = db.getTable(TABLE_NAME);
-        SqlWhereFormatter where = new SqlWhereFormatter();
-        where.append("lower(email)", email.toLowerCase());
-        RecordSet rs = users.getRecordSet(where.getWhereClause());
+        SqlStatement sql = getUserStatement();
+        sql.addCondition(AlIAS_USERS, "email", SqlRelationType.EQUAL, email.toLowerCase()).setFunction("lower");
+        RecordSet rs = db.getRecordSet(sql);
 
         if (rs.next()) {
-            return UserFactory.readUser(rs);
+            return readUser(rs);
         }
 
         return null;
@@ -105,35 +124,72 @@ public class UserFactory {
 
 
     public static User readUser(final RecordSet rs) throws DatabaseException {
-        SimpleUser su = SimpleFactory.readUser(rs);
-        if (su == null) {
+        Integer id = rs.getInteger("userid");
+        if (id == null) {
             return null;
         }
 
-        User user = new User(su, rs.getString("email"));
+        User user = new User(id, rs.getString("username"), rs.getString("fullname"), rs.getString("email"));
+
+        MediaAsset ma = MediaAssetFactory.valueOf(rs);
+
+        if (ma != null) {
+            user.setAvatarid(rs.getInteger("avatarid"));
+            user.setAvatar(UserFactory.getAvatar(ma.webPathString(), rs.getString("email")));
+        }
+        user.setStatement(rs.getString("statement"));
+        user.setOrganization(readOrganization(rs));
+
         user.setAcceptedUserAgreement(rs.getBoolean("acceptedua"));
         user.setCreationDate(rs.getLocalDate("creationdate"));
         user.setLastLogin(rs.getLong("lastlogin"));
         user.setPhoneNumber(rs.getString("phonenumber"));
         user.setPhysicalAddress(rs.getString("physicaladdress"));
         user.setSaltAndHashedPass(rs.getString("salt"), rs.getString("password"));
-        user.setAvatarid(rs.getInteger("avatarid"));
         user.setVerified(rs.getBoolean("verified"));
+
         return user;
     }
 
 
+    public static SimpleUser readSimpleUser(final RecordSet rs) throws DatabaseException {
+        User user = UserFactory.readUser(rs);
+        if (user == null) {
+            return null;
+        }
+
+        return user.toSimple();
+    }
+
+    public static String getAvatar(final String avatar, final String email) {
+        if (StringUtils.isBlank(avatar) && ! StringUtils.isBlank(email)) {
+            //
+            // Return 80x80 sized gravatar. They default to 80x80 but can be requested up to 2048x2048.
+            // Though most users will have used a small image.
+            // Feel free to change if you want it bigger as all the code on the browser side should
+            // be sized to fit it's use anyway.
+            // NOTE: d=identicon makes default (when not set by user) be those crazy (unique) geometric shapes, rather than the gravatar logo
+            //         - https://en.wikipedia.org/wiki/Identicon
+            //
+            return "http://www.gravatar.com/avatar/"
+                    + StringUtilities.getHashOf(email.trim().toLowerCase())
+                    + "?s=80&d=identicon";
+        }
+
+        return avatar;
+    }
+
     public static void saveUser(final Database db, final User user) throws DatabaseException {
-        Table table = db.getTable(TABLE_NAME);
+        Table table = db.getTable(TABLENAME_USERS);
 
         if (user.getUserId() == null) {
             SqlInsertFormatter formatter = new SqlInsertFormatter();
-            fillFormatter(formatter, user);
+            fillUserFormatter(formatter, user);
 
             user.setUserId(table.insertSequencedRow(formatter, "userid"));
         } else {
             SqlUpdateFormatter formatter = new SqlUpdateFormatter();
-            fillFormatter(formatter, user);
+            fillUserFormatter(formatter, user);
 
             SqlWhereFormatter where = new SqlWhereFormatter();
             where.append("userid", user.getUserId());
@@ -142,7 +198,7 @@ public class UserFactory {
     }
 
 
-    private static void fillFormatter(final SqlFormatter formatter, final User user) {
+    private static void fillUserFormatter(final SqlFormatter formatter, final User user) {
         formatter.append("username", user.getUsername());
         formatter.append("fullname", user.getFullName());
         formatter.append("email", user.getEmail());
@@ -158,10 +214,14 @@ public class UserFactory {
     }
 
 
+    //======================================
+    // Role stuff
+    //======================================
+
     public static Set<String> getAllRolesForUserInContext(final Database db,
                                                           final int userid,
                                                           final String context) throws DatabaseException {
-        Table users = db.getTable(ROLE_TABLE_NAME);
+        Table users = db.getTable(TABLENAME_ROLES);
         SqlWhereFormatter where = new SqlWhereFormatter();
         where.append("userid", userid);
         where.append("context", context);
@@ -177,13 +237,13 @@ public class UserFactory {
 
 
     public static void deleteRoles(final Database db, final int userid) throws DatabaseException {
-        Table users = db.getTable(ROLE_TABLE_NAME);
+        Table users = db.getTable(TABLENAME_ROLES);
         users.deleteRows("userid = " + userid);
     }
 
 
     public static void addRole(final Database db, final int userid, final String context, final String role) throws DatabaseException {
-        Table users = db.getTable(ROLE_TABLE_NAME);
+        Table users = db.getTable(TABLENAME_ROLES);
         SqlInsertFormatter formatter = new SqlInsertFormatter();
         formatter.append("userid", userid)
             .append("context", context)
@@ -197,7 +257,7 @@ public class UserFactory {
             return false;
         }
 
-        Table users = db.getTable(ROLE_TABLE_NAME);
+        Table users = db.getTable(TABLENAME_ROLES);
         SqlWhereFormatter where = new SqlWhereFormatter();
         where.append("userid", userid);
         where.append("context", context);
@@ -213,7 +273,7 @@ public class UserFactory {
         }
 
         try (Database db = ShepherdPMF.getDb()) {
-            Table users = db.getTable(ROLE_TABLE_NAME);
+            Table users = db.getTable(TABLENAME_ROLES);
             SqlWhereFormatter where = new SqlWhereFormatter();
             where.append("userid", userid);
             RecordSet rs = users.getRecordSet(where.getWhereClause());
@@ -226,5 +286,41 @@ public class UserFactory {
 
             return rolesFound;
         }
+    }
+
+    //===================================
+    // Organization stuff
+    //===================================
+
+    public static Organization readOrganization(final RecordSet rs) throws DatabaseException {
+        Integer orgId = rs.getInteger("orgid");
+        if (orgId == null) {
+            return null;
+        }
+        return new Organization(orgId, rs.getString("name"));
+    }
+
+
+    public static void saveOrganization(final Database db, final Organization organization) throws DatabaseException {
+        Table table = db.getTable(TABLENAME_ORG);
+
+        if (organization.getOrgId() == null) {
+            SqlInsertFormatter formatter = new SqlInsertFormatter();
+            fillOrgFormatter(formatter, organization);
+
+            organization.setOrgId(table.insertSequencedRow(formatter, "orgid"));
+        } else {
+            SqlUpdateFormatter formatter = new SqlUpdateFormatter();
+            fillOrgFormatter(formatter, organization);
+
+            SqlWhereFormatter where = new SqlWhereFormatter();
+            where.append("orgid", organization.getOrgId());
+            table.updateRow(formatter.getUpdateClause(), where.getWhereClause());
+        }
+    }
+
+
+    private static void fillOrgFormatter(final SqlFormatter formatter, final Organization organization) {
+        formatter.append("name", organization.getName());
     }
 }

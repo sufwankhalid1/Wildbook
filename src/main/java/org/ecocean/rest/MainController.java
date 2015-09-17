@@ -8,6 +8,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import org.ecocean.ShepherdPMF;
+import org.ecocean.security.UserFactory;
 import org.ecocean.util.LogBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,15 +45,15 @@ public class MainController
                 + number
                 + ")";
 
-        SqlStatement sql = SimpleFactory.getUserStatement();
-        sql.addInnerJoin("u", "userid", table, "c", "submitterid");
+        SqlStatement sql = UserFactory.getUserStatement();
+        sql.addInnerJoin(UserFactory.AlIAS_USERS, "userid", table, "c", "submitterid");
         try (Database db = ShepherdPMF.getDb()) {
             List<Contributor> contribs = new ArrayList<>();
 
-            RecordSet rs = db.getRecordSet(sql.getSql());
+            RecordSet rs = db.getRecordSet(sql);
             while (rs.next()) {
                 Contributor contrib = new Contributor();
-                contrib.user = SimpleFactory.readUser(rs);
+                contrib.user = UserFactory.readSimpleUser(rs);
                 contrib.numEncs = rs.getInt("numEncs");
                 contribs.add(contrib);
             }

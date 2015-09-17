@@ -7,14 +7,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.math.NumberUtils;
-import org.ecocean.Point;
+import org.ecocean.Location;
 import org.ecocean.ShepherdPMF;
 import org.ecocean.SinglePhotoVideo;
 import org.ecocean.media.MediaAsset;
 import org.ecocean.media.MediaAssetFactory;
 import org.ecocean.media.MediaAssetType;
-import org.ecocean.survey.SurveyTrack;
+import org.ecocean.security.UserFactory;
+import org.ecocean.survey.SurveyPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,12 +62,12 @@ public class SimpleFactory {
     }
 
 
-    public static List<SimpleUser> readSimpleUsers(final Database db, final String sql) throws DatabaseException {
+    private static List<SimpleUser> readSimpleUsers(final Database db, final SqlStatement sql) throws DatabaseException {
         List<SimpleUser> users = new ArrayList<>();
 
         RecordSet rs = db.getRecordSet(sql);
         while (rs.next()) {
-            users.add(readUser(rs));
+            users.add(UserFactory.readSimpleUser(rs));
         }
 
         return users;
@@ -76,13 +76,17 @@ public class SimpleFactory {
 
     public static List<SimpleUser> getIndividualSubmitters(final Database db, final int individualid) throws DatabaseException
     {
-        SqlStatement sql = getUserStatement(true);
-        sql.addInnerJoin("u", "userid", "mediaasset", "ma2", "submitterid");
+        SqlStatement sql = UserFactory.getUserStatement(true);
+        sql.addInnerJoin(UserFactory.AlIAS_USERS,
+                         "userid",
+                         MediaAssetFactory.TABLENAME_MEDIAASSET,
+                         "ma2",
+                         "submitterid");
         sql.addInnerJoin("ma2", "id", "encounter_media", "em", "mediaid");
         sql.addInnerJoin("em", "encounterid", "encounters", "e", "encounterid");
         sql.addCondition("e", "individualid", SqlRelationType.EQUAL, individualid);
 
-        return readSimpleUsers(db, sql.getSql());
+        return readSimpleUsers(db, sql);
     }
 
     public static List<SimplePhoto> getIndividualPhotos(final Database db, final int individualId) throws DatabaseException
@@ -90,10 +94,15 @@ public class SimpleFactory {
         //
         // Add photos
         //
-        SqlStatement sql = new SqlStatement("mediaasset", "ma", "ma.*");
-        sql.addInnerJoin("ma", "id", "encounter_media", "em", "mediaid");
+        SqlStatement sql = new SqlStatement(MediaAssetFactory.TABLENAME_MEDIAASSET,
+                                            MediaAssetFactory.ALIAS_MEDIAASSET,
+                                            MediaAssetFactory.ALIAS_MEDIAASSET + ".*");
+        sql.addInnerJoin(MediaAssetFactory.ALIAS_MEDIAASSET, "id", "encounter_media", "em", "mediaid");
         sql.addInnerJoin("em", "encounterid", "encounters", "e", "encounterid");
-        sql.addCondition("ma", "type", SqlRelationType.EQUAL, MediaAssetType.IMAGE.getCode());
+        sql.addCondition(MediaAssetFactory.ALIAS_MEDIAASSET,
+                         "type",
+                         SqlRelationType.EQUAL,
+                         MediaAssetType.IMAGE.getCode());
         sql.addCondition("e", "individualid", SqlRelationType.EQUAL, individualId);
 
         RecordSet rs;
@@ -102,7 +111,7 @@ public class SimpleFactory {
         //
         // Find the highlight images for this individual.
         //
-        rs = db.getRecordSet(sql.getSql() + " AND 'highlight' = ANY (ma.tags)");
+        rs = db.getRecordSet(sql.getSql() + " AND 'highlight' = ANY (" + MediaAssetFactory.ALIAS_MEDIAASSET + ".tags)");
         while (rs.next()) {
             photos.add(readPhoto(rs));
         }
@@ -156,7 +165,11 @@ public class SimpleFactory {
     public static SqlStatement getIndividualStatement()
     {
         SqlStatement sql = new SqlStatement("individuals", "i");
-        sql.addLeftOuterJoin("i", "avatarid", "mediaasset", "ma", "id");
+        sql.addLeftOuterJoin("i",
+                             "avatarid",
+                             MediaAssetFactory.TABLENAME_MEDIAASSET,
+                             MediaAssetFactory.ALIAS_MEDIAASSET,
+                             "id");
         return sql;
     }
 
@@ -165,7 +178,7 @@ public class SimpleFactory {
         RecordSet rs;
         SqlStatement sql = getIndividualStatement();
         sql.addCondition("i", "individualid", SqlRelationType.EQUAL, individualId);
-        rs = db.getRecordSet(sql.getSql());
+        rs = db.getRecordSet(sql);
         if (rs.next()) {
             return readSimpleIndividual(rs);
         }
@@ -178,23 +191,13 @@ public class SimpleFactory {
     {
         SqlStatement sql = new SqlStatement("encounters", "e");
         sql.addLeftOuterJoin("e", "individualid", "individuals", "i", "individualid");
-        sql.addLeftOuterJoin("i", "avatarid", "mediaasset", "ma", "id");
+        sql.addLeftOuterJoin("i",
+                             "avatarid",
+                             MediaAssetFactory.TABLENAME_MEDIAASSET,
+                             MediaAssetFactory.ALIAS_MEDIAASSET,
+                             "id");
         return sql;
     }
-
-    public static SqlStatement getUserStatement(final boolean distinct) {
-        SqlStatement sql = getUserStatement();
-        sql.setSelectString("u.*, ma.*");
-        sql.setSelectDistinct(true);
-        return sql;
-    }
-
-    public static SqlStatement getUserStatement() {
-        SqlStatement sql = new SqlStatement("users", "u");
-        sql.addLeftOuterJoin("u", "avatarid", "mediaasset", "ma", "id");
-        return sql;
-    }
-
 
     public static UserInfo getUserInfo(final int userid) throws DatabaseException
     {
@@ -287,7 +290,7 @@ public class SimpleFactory {
                     + " and em.encounterid = e.encounterid)"));
 
             Map<Integer, SimpleIndividual> inds = new HashMap<>();
-            rs = db.getRecordSet(ss.getSql());
+            rs = db.getRecordSet(ss);
             while (rs.next()) {
                 Integer indid = rs.getInteger("individualid");
 
@@ -319,9 +322,9 @@ public class SimpleFactory {
 //                    + whereRoot;
 //            rs = db.getRecordSet(sql);
 //            while (rs.next()) {
-//                userinfo.addVoyage(getSurveyTrack(db, rs.getLong("ID")));
+//                userinfo.addVoyage(SurveyFactory.getSurveyTrack(db, rs.getLong("ID")));
 //            }
-            userinfo.setVoyages(Collections.<SurveyTrack>emptyList());
+            userinfo.setVoyages(Collections.<SurveyPart>emptyList());
         }
 
         return userinfo;
@@ -349,78 +352,6 @@ public class SimpleFactory {
     }
 
 
-    private static List<SurveyTrack> readSurveyTracks(final RecordSet rs) throws DatabaseException
-    {
-        List<SurveyTrack> tracks = new ArrayList<SurveyTrack>();
-
-        SurveyTrack track = null;
-        long trackId = -1;
-        while (rs.next())
-        {
-            long id = rs.getLong("ID");
-            if (track == null || id != trackId) {
-                track = readSurveyTrack(rs);
-                tracks.add(track);
-            }
-
-            track.addPoint(readPoint(rs));
-        }
-
-        return tracks;
-    }
-
-
-    private static SurveyTrack getSurveyTrack(final Database db, final long id) throws DatabaseException
-    {
-        String sql = "SELECT st.*, p.* FROM \"SURVEYTRACK\" st"
-                + " INNER JOIN \"SURVEYTRACK_POINTS\" stp ON stp.\"ID_OID\" = st.\"ID\""
-                + " INNER JOIN \"POINT\" p ON p.\"POINT_ID\" = stp.\"POINT_ID_EID\""
-                + " WHERE st.\"ID\" = " + id
-                + " ORDER BY st.\"ID\", p.\"TIMESTAMP\"";
-
-        RecordSet rs = db.getRecordSet(sql);
-        return readSurveyTrack(rs);
-    }
-
-
-    private static SurveyTrack readSurveyTrack(final RecordSet rs) throws DatabaseException
-    {
-        SurveyTrack track = null;
-        while (rs.next()) {
-            if (track == null) {
-                track = readSurveyTrackCore(rs);
-            }
-
-            track.addPoint(readPoint(rs));
-        }
-
-        return track;
-    }
-
-
-    private static SurveyTrack readSurveyTrackCore(final RecordSet rs) throws DatabaseException
-    {
-        SurveyTrack surveyTrack = new SurveyTrack();
-        surveyTrack.setId(rs.getLong("ID"));
-        surveyTrack.setName(rs.getString("NAME"));
-        surveyTrack.setType(rs.getString("TYPE"));
-        surveyTrack.setVesselId(rs.getString("VESSELID"));
-
-        return surveyTrack;
-    }
-
-
-    private static Point readPoint(final RecordSet rs) throws DatabaseException
-    {
-        Point point = new Point();
-        point.setElevation(rs.getDouble("ELEVATION"));
-        point.setLatitude(rs.getDouble("LATITUDE"));
-        point.setLongitude(rs.getDouble("LONGITUDE"));
-        point.setTimestamp(rs.getLongObj("TIMESTAMP"));
-        return point;
-    }
-
-
     public static SimpleEncounter readSimpleEncounter(final SimpleIndividual individual,
                                                       final RecordSet rs) throws DatabaseException
     {
@@ -428,14 +359,19 @@ public class SimpleFactory {
 
         encounter.setStarttime(rs.getOffsetTime("starttime"));
         encounter.setEndtime(rs.getOffsetTime("endtime"));
-        encounter.setLocationid(rs.getString("locationid"));
-        encounter.setLatitude(rs.getDoubleObj("latitude"));
-        encounter.setLongitude(rs.getDoubleObj("longitude"));
-        encounter.setVerbatimLocation(rs.getString("verbatimLocation"));
-
+        encounter.setLocation(readLocation(rs));
         encounter.setIndividual(individual);
 
         return encounter;
+    }
+
+    public static Location readLocation(final RecordSet rs) throws DatabaseException
+    {
+        return new Location(rs.getString("locationid"),
+                            rs.getDoubleObj("latitude"),
+                            rs.getDoubleObj("longitude"),
+                            rs.getString("verbatimLocation"));
+
     }
 
     public static SimpleEncounter readSimpleEncounter(final RecordSet rs) throws DatabaseException
@@ -529,30 +465,13 @@ public class SimpleFactory {
     public static SimpleUser getUser(final String username) throws DatabaseException
     {
         try (Database db = new Database(ShepherdPMF.getConnectionInfo())) {
-            SqlStatement sql = getUserStatement();
-            sql.addCondition("u", "username",SqlRelationType.EQUAL, username);
-            RecordSet rs;
-            rs = db.getRecordSet(sql.getSql());
+            SqlStatement sql = UserFactory.getUserStatement();
+            sql.addCondition(UserFactory.AlIAS_USERS, "username",SqlRelationType.EQUAL, username);
+            RecordSet rs = db.getRecordSet(sql);
             if (rs.next()) {
-                return readUser(rs);
+                return UserFactory.readSimpleUser(rs);
             }
 
-            return null;
-        }
-    }
-
-
-    public static SimpleUser getUserByIdString(final String userid)
-    {
-        //
-        // I decided to swallow the error here because I didn't want to bother
-        // catching errors in the jsp files which lead me to write this method.
-        // Not critical if you want to change it.
-        //
-        try (Database db = ShepherdPMF.getDb()) {
-            return getUser(NumberUtils.createInteger(userid));
-        } catch (DatabaseException ex) {
-            logger.error("Can't get user from idstring [" + userid + "]", ex);
             return null;
         }
     }
@@ -565,12 +484,11 @@ public class SimpleFactory {
         }
 
         try (Database db = new Database(ShepherdPMF.getConnectionInfo())) {
-            SqlStatement sql = getUserStatement();
-            sql.addCondition("u", "userid",SqlRelationType.EQUAL, userid);
-            RecordSet rs;
-            rs = db.getRecordSet(sql.getSql());
+            SqlStatement sql = UserFactory.getUserStatement();
+            sql.addCondition(UserFactory.AlIAS_USERS, "userid",SqlRelationType.EQUAL, userid);
+            RecordSet rs = db.getRecordSet(sql);
             if (rs.next()) {
-                return readUser(rs);
+                return UserFactory.readSimpleUser(rs);
             }
 
             return null;
@@ -578,50 +496,21 @@ public class SimpleFactory {
     }
 
 
-    public static SimpleUser readUser(final RecordSet rs) throws DatabaseException
-    {
-        Integer id = rs.getInteger("userid");
-        if (id == null) {
-            return null;
+    public static SimpleUser getProfiledUser(final Database db) throws DatabaseException {
+        //
+        // Weird (but cool) way to get random row but seems to work. Probably won't scale super well but we
+        // can deal with that later.
+        //
+        SqlStatement sql = UserFactory.getUserStatement();
+        sql.addCondition(new SpecialSqlCondition(UserFactory.AlIAS_USERS + ".statement IS NOT NULL"));
+        sql.setOrderBy("random()");
+        sql.setLimit(1);
+
+        RecordSet rs = db.getRecordSet(sql);
+        if (rs.next()) {
+            return UserFactory.readSimpleUser(rs);
         }
 
-        SimpleUser user = new SimpleUser(id, rs.getString("username"), rs.getString("fullname"));
-
-        MediaAsset ma = MediaAssetFactory.valueOf(rs);
-
-        if (ma != null) {
-            user.setAvatar(ma.webPathString(), rs.getString("email"));
-        }
-        user.setStatement(rs.getString("statement"));
-
-//        user.setAffiliation(rs.getString("AFFILIATION"));
-
-        return user;
-    }
-
-    public static SimpleUser getProfiledUser() {
-
-        try (Database db = new Database(ShepherdPMF.getConnectionInfo())) {
-            //
-            // Weird way to get random row but seems to work. Probably won't scale super well but we
-            // can deal with that later.
-            //
-            SqlStatement sql = getUserStatement();
-            sql.addCondition(new SpecialSqlCondition("u.statement IS NOT NULL"));
-            sql.setOrderBy("random()");
-            sql.setLimit(1);
-
-            RecordSet rs;
-            try {
-                rs = db.getRecordSet(sql.getSql());
-                if (rs.next()) {
-                    return readUser(rs);
-                }
-            } catch (DatabaseException ex) {
-                ex.printStackTrace();
-            }
-
-            return null;
-        }
+        return null;
     }
 }

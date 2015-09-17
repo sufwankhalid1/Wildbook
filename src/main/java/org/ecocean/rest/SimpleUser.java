@@ -3,7 +3,6 @@ package org.ecocean.rest;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.ecocean.mmutil.StringUtilities;
 
 public class SimpleUser implements SimpleBeing {
     private Integer id;
@@ -38,13 +37,6 @@ public class SimpleUser implements SimpleBeing {
         return fullName;
     }
 
-    //
-    // TODO: I think this should this be stored as a separate link to
-    // to an organization table. That way we can have all kinds of info
-    // about the organization. The user may be affiliated with more than
-    // one org. In addition, the orgs should probably also be who can
-    // create surveys.
-    //
     public String getAffiliation() {
         return affiliation;
     }
@@ -53,22 +45,8 @@ public class SimpleUser implements SimpleBeing {
         this.affiliation = affiliation;
     }
 
-    public void setAvatar(final String avatar, final String email) {
-        if (StringUtils.isBlank(avatar) && ! StringUtils.isBlank(email)) {
-            //
-            // Return 80x80 sized gravatar. They default to 80x80 but can be requested up to 2048x2048.
-            // Though most users will have used a small image.
-            // Feel free to change if you want it bigger as all the code on the browser side should
-            // be sized to fit it's use anyway.
-            // NOTE: d=identicon makes default (when not set by user) be those crazy (unique) geometric shapes, rather than the gravatar logo
-            //         - https://en.wikipedia.org/wiki/Identicon
-            //
-            this.avatar = "http://www.gravatar.com/avatar/"
-                    + StringUtilities.getHashOf(email.trim().toLowerCase())
-                    + "?s=80&d=identicon";
-        } else {
-            this.avatar = avatar;
-        }
+    public void setAvatar(final String avatar) {
+        this.avatar = avatar;
     }
 
     public String getStatement() {
@@ -89,11 +67,18 @@ public class SimpleUser implements SimpleBeing {
      */
     @Override
     public String getDisplayName() {
+        String displayName;
         if (StringUtils.isBlank(fullName)) {
-            return username;
+            displayName = username;
+        } else {
+            displayName = fullName;
         }
 
-        return fullName;
+        if (affiliation != null) {
+            return displayName + " (" + affiliation + ")";
+        }
+
+        return displayName;
     }
 
     /* (non-Javadoc)

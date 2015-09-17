@@ -27,32 +27,23 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import java.util.List;
-import java.util.Map;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Properties;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import javax.jdo.Query;
-import javax.jdo.Query;
 import javax.servlet.http.Cookie;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-//import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.shiro.crypto.SecureRandomNumberGenerator;
 import org.apache.shiro.crypto.hash.Sha512Hash;
 import org.apache.shiro.util.ByteSource;
@@ -73,6 +64,8 @@ import org.ecocean.Shepherd;
 import org.ecocean.ShepherdPMF;
 import org.ecocean.ShepherdProperties;
 import org.ecocean.mmutil.StringUtilities;
+import org.ecocean.rest.SimpleFactory;
+import org.ecocean.rest.SimpleUser;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
@@ -80,6 +73,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.samsix.database.Database;
+import com.samsix.database.DatabaseException;
 import com.sun.syndication.feed.synd.SyndCategory;
 import com.sun.syndication.feed.synd.SyndCategoryImpl;
 import com.sun.syndication.feed.synd.SyndContent;
@@ -97,7 +91,7 @@ import de.neuland.jade4j.Jade4J;
 
 
 public class ServletUtilities {
-    private static Logger log = LoggerFactory.getLogger(ServletUtilities.class);
+    private static Logger logger = LoggerFactory.getLogger(ServletUtilities.class);
     private static final String DEFAULT_LANG_CODE = "en";
 
 
@@ -398,27 +392,27 @@ public class ServletUtilities {
   }
 
   public static File findResourceOnFileSystem(final String resourceName) {
-      if (log.isDebugEnabled()) {
-          log.debug("Looking for resource [" + resourceName + "]");
+      if (logger.isDebugEnabled()) {
+          logger.debug("Looking for resource [" + resourceName + "]");
       }
 
       URL resourceURL = ServletUtilities.class.getClassLoader().getResource(resourceName);
 
       if (resourceURL == null) {
-          if (log.isDebugEnabled()) {
-              log.debug("Resource is not found");
+          if (logger.isDebugEnabled()) {
+              logger.debug("Resource is not found");
           }
           return null;
       }
 
-      if (log.isDebugEnabled()) {
-          log.debug("Looking for resourceURL [" + resourceURL + "]");
+      if (logger.isDebugEnabled()) {
+          logger.debug("Looking for resourceURL [" + resourceURL + "]");
       }
 
       String resourcePath = resourceURL.getPath();
       if (resourcePath == null) {
-          if (log.isDebugEnabled()) {
-              log.debug("Resource path is null");
+          if (logger.isDebugEnabled()) {
+              logger.debug("Resource path is null");
           }
           return null;
       }
@@ -428,12 +422,26 @@ public class ServletUtilities {
           return tmp;
       }
 
-      if (log.isDebugEnabled()) {
-          log.debug("Resource URL is not found");
+      if (logger.isDebugEnabled()) {
+          logger.debug("Resource URL is not found");
       }
 
       return null;
   }
+
+    public static SimpleUser getUser(final HttpServletRequest request) {
+        //
+        // I decided to swallow the error here because I didn't want to bother
+        // catching errors in the jsp files which lead me to write this method.
+        // Not critical if you want to change it.
+        //
+        try (Database db = getDb(request)) {
+            return SimpleFactory.getUser(NumberUtils.createInteger(request.getRemoteUser()));
+        } catch (DatabaseException ex) {
+            logger.error("Can't get user from idstring [" + request.getRemoteUser() + "]", ex);
+            return null;
+        }
+    }
 
   public static boolean isUserAuthorizedForEncounter(final Encounter enc, final HttpServletRequest request) {
     boolean isOwner = false;
@@ -725,16 +733,16 @@ public static String getContext(final HttpServletRequest request) {
 
 
   private static String loadOverrideText(final String shepherdDataDir, final String fileName, final String langCode) {
-      if (log.isDebugEnabled()) {
-          log.debug("Calling getText with shepherdDataDir [" + shepherdDataDir
+      if (logger.isDebugEnabled()) {
+          logger.debug("Calling getText with shepherdDataDir [" + shepherdDataDir
                      + "], fileName [" + fileName
                      + "], langCode [" + langCode + "]");
       }
 
     File configDir = new File("webapps/"+shepherdDataDir+"/WEB-INF/classes/bundles/"+langCode);
 
-    if (log.isDebugEnabled()) {
-        log.debug("configDir [" + configDir.getAbsolutePath() + "]");
+    if (logger.isDebugEnabled()) {
+        logger.debug("configDir [" + configDir.getAbsolutePath() + "]");
     }
 
     //
@@ -747,8 +755,8 @@ public static String getContext(final HttpServletRequest request) {
 
       configDir = new File(fixedPath);
 
-      if (log.isDebugEnabled()) {
-          log.debug("Fixed configDir to [" + configDir.getAbsolutePath() + "]");
+      if (logger.isDebugEnabled()) {
+          logger.debug("Fixed configDir to [" + configDir.getAbsolutePath() + "]");
       }
     }
 
@@ -758,13 +766,13 @@ public static String getContext(final HttpServletRequest request) {
 
     File configFile = new File(configDir, fileName);
 
-    if (log.isDebugEnabled()) {
-        log.debug("Looking for overriding file [" + configFile.getAbsolutePath() + "]");
+    if (logger.isDebugEnabled()) {
+        logger.debug("Looking for overriding file [" + configFile.getAbsolutePath() + "]");
     }
 
     if (!configFile.exists()) {
-        if (log.isDebugEnabled()) {
-            log.debug("File does not exist");
+        if (logger.isDebugEnabled()) {
+            logger.debug("File does not exist");
         }
         return null;
     }

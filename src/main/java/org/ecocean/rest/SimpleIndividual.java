@@ -2,6 +2,7 @@ package org.ecocean.rest;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.WordUtils;
+import org.ecocean.Global;
 
 
 public class SimpleIndividual implements SimpleBeing
@@ -60,7 +61,7 @@ public class SimpleIndividual implements SimpleBeing
     public String getDisplayName() {
         String name;
         if (StringUtils.isBlank(nickname)) {
-            name = "unknown";
+            name = Global.INST.getInitResources().getString("individuals.unnamed.nickname", "[Unnamed]");
         } else {
             name = nickname;
         }

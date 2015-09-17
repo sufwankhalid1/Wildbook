@@ -126,7 +126,7 @@ public class MediaSubmissionController
         ms.setStartTime(rs.getLongObj("starttime"));
         ms.setSubmissionid(rs.getString("submissionid"));
         ms.setTimeSubmitted(rs.getLongObj("timesubmitted"));
-        ms.setUser(SimpleFactory.readUser(rs));
+        ms.setUser(UserFactory.readSimpleUser(rs));
         ms.setVerbatimLocation(rs.getString("verbatimlocation"));
         ms.setStatus(rs.getString("status"));
 

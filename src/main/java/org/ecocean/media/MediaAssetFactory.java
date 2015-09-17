@@ -15,7 +15,9 @@ import com.samsix.database.SqlWhereFormatter;
 import com.samsix.database.Table;
 
 public class MediaAssetFactory {
-    public static final String TABLE_NAME = "mediaasset";
+    public static final String TABLENAME_MEDIAASSET = "mediaasset";
+    public static final String ALIAS_MEDIAASSET = "ma";
+
     public static final int NOT_SAVED = -1;
 
 
@@ -33,7 +35,7 @@ public class MediaAssetFactory {
         SqlWhereFormatter where = new SqlWhereFormatter();
         where.append("id", id);
 
-        Table table = db.getTable(TABLE_NAME);
+        Table table = db.getTable(TABLENAME_MEDIAASSET);
 
         RecordSet rs = table.getRecordSet(where.getWhereClause(), 1);
         if (rs.next()) {
@@ -85,7 +87,7 @@ public class MediaAssetFactory {
      * Store to the given database.
      */
     public static void save(final Database db, final MediaAsset ma) throws DatabaseException {
-        Table table = db.getTable(TABLE_NAME);
+        Table table = db.getTable(TABLENAME_MEDIAASSET);
 
         if (ma.id == NOT_SAVED) {
             SqlInsertFormatter formatter = new SqlInsertFormatter();
@@ -141,7 +143,7 @@ public class MediaAssetFactory {
      * @param db Database where the asset lives.
      */
     public static void delete(final Database db, final int id) throws DatabaseException {
-        Table table = db.getTable(TABLE_NAME);
+        Table table = db.getTable(TABLENAME_MEDIAASSET);
         table.deleteRows("id = " + id);
     }
 

@@ -1,107 +1,48 @@
 package org.ecocean.survey;
 
-import java.util.List;
-
 import org.apache.commons.lang3.builder.ToStringBuilder;
-
+import org.ecocean.Organization;
 
 public class Survey {
-    private long id;
-    private String surveyId;
-    private Double effort;
-    private String organization;
-    private String comments;
-    private String name;
-    private Long startTime;
-    private Long endTime;
-    private String type;
-    private List<SurveyTrack> tracks;
+    private Integer surveyId;
+    private Organization organization;
+    private String surveyNumber;
 
+    public Survey(final Integer surveyId,
+                  final Organization organization,
+                  final String surveyNumber) {
+        this.surveyId = surveyId;
+        this.organization = organization;
+        this.surveyNumber = surveyNumber;
+    }
 
-    public long getId() {
-      return id;
+    public Organization getOrganization() {
+        return organization;
     }
-  
-    public void setId(long id) {
-      this.id = id;
+
+    public void setOrganization(final Organization organization) {
+        this.organization = organization;
     }
-  
-  
-    public String getSurveyId() {
+
+    public Integer getSurveyId() {
         return surveyId;
     }
-    
-    public void setSurveyId(final String surveyId) {
+
+    public void setSurveyId(final Integer surveyId) {
         this.surveyId = surveyId;
     }
-    
-    public Double getEffort() {
-        return effort;
+
+    public String getSurveyNumber() {
+        return surveyNumber;
     }
-  
-  public void setEffort(Double effort) {
-    this.effort = effort;
-  }
-  
-  public String getOrganization() {
-    return organization;
-  }
-  
-  public void setOrganization(String organization) {
-    this.organization = organization;
-  }
-  
-  public Long getStartTime() {
-    return startTime;
-  }
-  
-  public void setStartTime(Long startTime) {
-    this.startTime = startTime;
-  }
-  
-  public Long getEndTime() {
-    return endTime;
-  }
-  
-  public void setEndTime(Long endTime) {
-    this.endTime = endTime;
-  }
-  
-  public String getType() {
-    return type;
-  }
-  
-  public void setType(String type) {
-    this.type = type;
-  }
 
-  public List<SurveyTrack> getTracks() {
-    return tracks;
-  }
+    public void setSurveyNumber(final String surveyNumber) {
+        this.surveyNumber = surveyNumber;
+    }
 
-  public void setTracks(List<SurveyTrack> tracks) {
-    this.tracks = tracks;
-  }
-
-  public String getComments() {
-    return comments;
-  }
-
-  public void setComments(String comments) {
-    this.comments = comments;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  @Override
-  public String toString()
-  {
-     return ToStringBuilder.reflectionToString(this);
-  }
+    @Override
+    public String toString()
+    {
+        return ToStringBuilder.reflectionToString(this);
+    }
 }

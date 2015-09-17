@@ -3,17 +3,18 @@ package org.ecocean.rest;
 import java.time.LocalDate;
 import java.time.OffsetTime;
 
+import org.ecocean.Location;
+
 class SimpleEncounter
 {
     private int id;
+
     private LocalDate encdate;
     private OffsetTime starttime;
     private OffsetTime endtime;
 
-    private String locationid;
-    private String verbatimLocation;
-    private Double latitude;
-    private Double longitude;
+    private Location location;
+
     private SimpleIndividual individual;
 
     public SimpleEncounter()
@@ -40,38 +41,6 @@ class SimpleEncounter
         this.encdate = encdate;
     }
 
-    public String getLocationid() {
-        return locationid;
-    }
-
-    public void setLocationid(final String locationid) {
-        this.locationid = locationid;
-    }
-
-    public String getVerbatimLocation() {
-        return verbatimLocation;
-    }
-
-    public void setVerbatimLocation(final String verbatimLocation) {
-        this.verbatimLocation = verbatimLocation;
-    }
-
-    public Double getLatitude() {
-        return latitude;
-    }
-
-    public void setLatitude(final Double latitude) {
-        this.latitude = latitude;
-    }
-
-    public Double getLongitude() {
-        return longitude;
-    }
-
-    public void setLongitude(final Double longitude) {
-        this.longitude = longitude;
-    }
-
     public SimpleIndividual getIndividual() {
         return individual;
     }
@@ -94,5 +63,13 @@ class SimpleEncounter
 
     public void setEndtime(final OffsetTime endtime) {
         this.endtime = endtime;
+    }
+
+    public Location getLocation() {
+        return location;
+    }
+
+    public void setLocation(final Location location) {
+        this.location = location;
     }
 }

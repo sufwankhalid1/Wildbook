@@ -7,18 +7,18 @@ form.form.form-horizontal.ng-cloak(novalidate, ng-controller="EncounterFormContr
         input.form-control(type="date", ng-model="encounter.encdate")
     .form-group
         label.control-label Latitude:
-        input.form-control(type="text", ng-model="encounter.latitude")
+        input.form-control(type="text", ng-model="encounter.location.latitude")
     .form-group
         label.control-label Longitude:
-        input.form-control(type="text", ng-model="encounter.longitude")
+        input.form-control(type="text", ng-model="encounter.location.longitude")
     .form-group
         label.control-label Submitter:
         input.form-control(type="text", ng-model="encounter.submitter")
     .form-group
         labe.control-labell Location ID:
-        input.form-control(type="text", ng-model="encounter.locationid")
+        input.form-control(type="text", ng-model="encounter.location.locationid")
     .form-group
         label.control-label Verbatim Location:
-        input.form-control(type="text", ng-model="encounter.verbatimLocation")
+        input.form-control(type="text", ng-model="encounter.location.verbatimLocation")
 
     input(type="submit", ng-click="update(encounter)", value="Save")
