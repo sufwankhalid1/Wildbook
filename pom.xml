@@ -477,12 +477,6 @@
     </dependency>
     -->
 
-    <dependency>
-      <groupId>org.pac4j</groupId>
-      <artifactId>pac4j-oauth</artifactId>
-      <version>1.7.0</version>
-    </dependency>
-
   </dependencies>
 
   <build>
