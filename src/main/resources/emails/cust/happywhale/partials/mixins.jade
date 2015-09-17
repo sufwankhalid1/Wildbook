@@ -15,7 +15,7 @@ mixin container()
 mixin outerrow()
     table.row
         tr
-            td.wrapper
+            td.wrapper.last
                 block
 
 mixin innerrow()
@@ -50,7 +50,7 @@ mixin expander()
 mixin centeredbutton(content, href)
     table.row.no-padding
         tr
-            td.wrapper.offset-by-three
+            td.wrapper.offset-by-three.last
                 table.columns.twelve
                     tr
                         td.sub-column.three
