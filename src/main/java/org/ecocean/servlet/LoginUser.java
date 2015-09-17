@@ -12,7 +12,6 @@ import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.web.util.WebUtils;
 import org.ecocean.CommonConfiguration;
-import org.ecocean.ShepherdPMF;
 import org.ecocean.rest.UserController;
 import org.ecocean.security.UserFactory;
 import org.ecocean.security.UserToken;
@@ -140,7 +139,7 @@ import com.samsix.database.Database;
             } else {
                 userToken.getUser().setLastLogin((new Date()).getTime());
 
-                try (Database db = ShepherdPMF.getDb()) {
+                try (Database db = ServletUtilities.getDb(request)) {
                     if (logger.isDebugEnabled()) {
                         logger.debug("Saving user...");
                     }

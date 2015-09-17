@@ -15,7 +15,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.ecocean.CommonConfiguration;
 import org.ecocean.MailThreadExecutorService;
 import org.ecocean.NotificationMailer;
-import org.ecocean.ShepherdPMF;
 import org.ecocean.media.LocalAssetStore;
 import org.ecocean.media.MediaAsset;
 import org.ecocean.media.MediaAssetFactory;
@@ -36,7 +35,6 @@ import com.drew.lang.GeoLocation;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.exif.ExifSubIFDDirectory;
 import com.drew.metadata.exif.GpsDirectory;
-import com.samsix.database.ConnectionInfo;
 import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
 import com.samsix.database.RecordSet;
@@ -96,9 +94,10 @@ public class MediaSubmissionController
     }
 
 
-    private List<MediaAsset> getMediaSubmissionMedia(final long msid) throws DatabaseException
+    private List<MediaAsset> getMediaSubmissionMedia(final HttpServletRequest request,
+                                                     final long msid) throws DatabaseException
     {
-        try (Database db = ShepherdPMF.getDb()) {
+        try (Database db = ServletUtilities.getDb(request)) {
             String sql = "SELECT ma.* FROM mediasubmission_media m"
                     + " INNER JOIN mediaasset ma ON ma.id = m.mediaid"
                     + " WHERE m.mediasubmissionid = " + msid;
@@ -131,21 +130,6 @@ public class MediaSubmissionController
         ms.setStatus(rs.getString("status"));
 
         return ms;
-    }
-
-
-    public MediaSubmission get(final int msid) throws DatabaseException {
-        try (Database db = ShepherdPMF.getDb()) {
-            SqlWhereFormatter where = new SqlWhereFormatter();
-            where.append("ms.id", msid);
-            List<MediaSubmission> mss = get(db, where);
-
-            if (mss.size()==0) {
-                return null;
-            }
-
-            return mss.get(0);
-        }
     }
 
 
@@ -188,7 +172,7 @@ public class MediaSubmissionController
         //
         // Add photos
         //
-        try (Database db = new Database(ShepherdPMF.getConnectionInfo())) {
+        try (Database db = ServletUtilities.getDb(request)) {
             String sql = "SELECT ma.* FROM mediasubmission_media m"
                     + " INNER JOIN mediaasset ma ON ma.id = m.mediaid"
                     + " WHERE m.mediasubmissionid = " + submissionid;
@@ -227,7 +211,7 @@ public class MediaSubmissionController
                                            final String status)
         throws DatabaseException
     {
-        try (Database db = new Database(ShepherdPMF.getConnectionInfo())) {
+        try (Database db = ServletUtilities.getDb(request)) {
             SqlWhereFormatter where = new SqlWhereFormatter();
             // * will mean get all, so we just have an empty where formatter
             // we want all other values, included null, to pass to the append method
@@ -263,44 +247,48 @@ public class MediaSubmissionController
 //        return findMediaSources(media, ServletUtilities.getContext(request));
 //    }
 
-    public static void deleteMedia(final int submissionid, final int mediaid) throws DatabaseException
+    public static void deleteMedia(final Database db,
+                                   final int submissionid,
+                                   final int mediaid) throws DatabaseException
     {
-        try (Database db = ShepherdPMF.getDb()) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Deleting mediaid [" + mediaid + "] from submission [" + submissionid + "]");
-            }
-
-            MediaAsset ma = MediaAssetFactory.load(db, mediaid);
-
-            if (ma == null) {
-                throw new IllegalArgumentException("No media with id [" + mediaid + "] found.");
-            }
-
-            Table table = db.getTable("mediasubmission_media");
-            String where = "mediasubmissionid = "
-                    + submissionid
-                    + " AND mediaid = "
-                    + mediaid;
-            table.deleteRows(where);
-
-            MediaAssetFactory.delete(db, ma.getID());
-            MediaAssetFactory.deleteFromStore(ma);
+        if (logger.isDebugEnabled()) {
+            logger.debug("Deleting mediaid [" + mediaid + "] from submission [" + submissionid + "]");
         }
+
+        MediaAsset ma = MediaAssetFactory.load(db, mediaid);
+
+        if (ma == null) {
+            throw new IllegalArgumentException("No media with id [" + mediaid + "] found.");
+        }
+
+        Table table = db.getTable("mediasubmission_media");
+        String where = "mediasubmissionid = "
+                + submissionid
+                + " AND mediaid = "
+                + mediaid;
+        table.deleteRows(where);
+
+        MediaAssetFactory.delete(db, ma.getID());
+        MediaAssetFactory.deleteFromStore(ma);
     }
 
     @RequestMapping(value = "/deletemedia", method = RequestMethod.POST)
-    public void deleteMedia(@RequestBody final MSMEntry msm)
+    public void deleteMedia(final HttpServletRequest request,
+                            @RequestBody final MSMEntry msm)
         throws DatabaseException
     {
-        deleteMedia(msm.submissionid, msm.mediaid);
+        try (Database db = ServletUtilities.getDb(request)) {
+            deleteMedia(db, msm.submissionid, msm.mediaid);
+        }
     }
 
 
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
-    public void deleteSubmission(@RequestBody final MSMEntry msm)
+    public void deleteSubmission(final HttpServletRequest request,
+                                 @RequestBody final MSMEntry msm)
         throws DatabaseException, IOException
     {
-        try (Database db = ShepherdPMF.getDb()) {
+        try (Database db = ServletUtilities.getDb(request)) {
             String mWhere = "mediasubmissionid = " + msm.submissionid;
 
             String sql = "SELECT ma.* FROM mediaasset ma"
@@ -350,7 +338,7 @@ public class MediaSubmissionController
                          @RequestBody final MediaSubmission media)
         throws DatabaseException
     {
-        try (Database db = ShepherdPMF.getDb()) {
+        try (Database db = ServletUtilities.getDb(request)) {
             save(db, media);
 
             SimpleUser user = media.getUser();
@@ -412,18 +400,15 @@ public class MediaSubmissionController
 
 
     @RequestMapping(value = "/save", method = RequestMethod.POST)
-    public Integer save(@RequestBody final MediaSubmission media)
+    public Integer save(final HttpServletRequest request,
+                        @RequestBody final MediaSubmission media)
         throws DatabaseException
     {
         if (logger.isDebugEnabled()) {
             logger.debug("Calling MediaSubmission save for media [" + media + "]");
         }
 
-        ConnectionInfo ci = ShepherdPMF.getConnectionInfo();
-
-        Database db = new Database(ci);
-
-        try {
+        try (Database db = ServletUtilities.getDb(request)){
             //
             // Save media submission
             //
@@ -446,7 +431,7 @@ public class MediaSubmissionController
 //                //
 //                RecordSet rs;
 //                SqlWhereFormatter where = new SqlWhereFormatter();
-//                where.append("SURVEYID"), media.getSubmissionid());
+//                where.append(SurveyFactory.PK_SURVEY), media.getSubmissionid());
 //
 //                rs = db.getTable("SURVEY").getRecordSet(where.getWhereClause());
 //                if (rs.next()) {
@@ -464,9 +449,6 @@ public class MediaSubmissionController
             }
 
             return media.getId();
-
-        } finally {
-            db.release();
         }
 
 //        PersistenceManager pm = myShepherd.getPM();
@@ -520,12 +502,7 @@ public class MediaSubmissionController
                             final long msid)
         throws DatabaseException
     {
-        //
-        // TODO: Build a mediasubmission object that has both a mediasubmission as it stands,
-        // so that it can be sent to the server (in the other method using this), and a collection of
-        // actual MediaAssets so that we can properly read the physical files.
-        //
-        List<MediaAsset> media = getMediaSubmissionMedia(msid);
+        List<MediaAsset> media = getMediaSubmissionMedia(request, msid);
 
         ExifData data = new ExifData();
         ExifAvg avg = data.avg;

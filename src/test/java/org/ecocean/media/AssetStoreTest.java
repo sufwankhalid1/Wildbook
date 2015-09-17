@@ -23,7 +23,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import org.ecocean.ShepherdPMF;
+import org.ecocean.Global;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +40,7 @@ public class AssetStoreTest {
 
     @Test
     public void testSaveLoadDelete() {
-        ConnectionInfo ci = ShepherdPMF.getConnectionInfo("Test");
+        ConnectionInfo ci = Global.INST.getConnectionInfo("Test");
 
         if (ci == null) return;
 
@@ -51,7 +51,7 @@ public class AssetStoreTest {
             // clean up possible leftovers from a previous run
             store = AssetStore.get(name);
             if (store != null) {
-                store.delete(db);
+                AssetStoreFactory.delete(db, store);
             }
 
             // should be gone now
@@ -60,9 +60,8 @@ public class AssetStoreTest {
 
             // new from scratch
             store = new LocalAssetStore(name, null, null, true);
-            store.save(db);
-            long id = store.id;
-            assertTrue("ID not set", id != AssetStore.NOT_SAVED);
+            AssetStoreFactory.save(db, store);
+            assertTrue("ID not set", store.id != null);
 
             // load by id
             store = AssetStore.get(store.id);
@@ -77,7 +76,7 @@ public class AssetStoreTest {
             assertNotNull("Default store not loaded", store);
 
             // delete
-            store.delete(db);
+            AssetStoreFactory.delete(db, store);
             store = AssetStore.get(name);
             assertNull("New store not deleted", store);
 

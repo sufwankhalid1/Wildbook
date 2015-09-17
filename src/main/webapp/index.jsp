@@ -522,7 +522,7 @@ margin-bottom: 8px !important;
                     <h2>Top spotters (past 30 days)</h2>
                     <ul class="encounter-list list-unstyled">
                     <%
-                    List<MainController.Contributor> contribs = MainController.getTopContributors(30, 3);
+                    List<MainController.Contributor> contribs = MainController.getTopContributors(request, 30, 3);
                     for (MainController.Contributor contrib : contribs) {
                           %>
                                 <li>

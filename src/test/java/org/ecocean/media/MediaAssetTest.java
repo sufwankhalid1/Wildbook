@@ -48,7 +48,7 @@ public class MediaAssetTest extends DBTestBase {
 
         try (Database db = new Database(ci)) {
             AssetStore las = new LocalAssetStore("test", Paths.get("/etc"), null, true);
-            las.save(db);
+            AssetStoreFactory.save(db, las);
 
             MediaAsset ma = las.create(Paths.get("/etc/hosts"), null);
             assertNotNull("Null MediaAsset", ma);
@@ -68,7 +68,7 @@ public class MediaAssetTest extends DBTestBase {
             ma = MediaAssetFactory.load(db, id);
             assertNull("New MediaAsset not deleted", ma);
 
-            las.delete(db); // clean up
+            AssetStoreFactory.delete(db, las);  // clean up
 
         } catch (DatabaseException ex) {
             fail(ex.getMessage());

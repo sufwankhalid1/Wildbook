@@ -19,6 +19,7 @@
 package org.ecocean;
 
 import org.ecocean.media.AssetStore;
+import org.ecocean.media.AssetStoreFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.slf4j.Logger;
@@ -39,7 +40,7 @@ public class DBTestBase {
     @Before
     @After
     public void cleanTestDB() {
-        ci = ShepherdPMF.getConnectionInfo("Test");
+        ci = Global.INST.getConnectionInfo("Test");
 
         if (ci == null) {
             return;
@@ -52,7 +53,7 @@ public class DBTestBase {
                  as != null;
                  as = AssetStore.getDefault())
             {
-                as.delete(db);
+                AssetStoreFactory.delete(db, as);
             }
         } catch (DatabaseException ex) {
             log.warn("cleaning test db", ex);

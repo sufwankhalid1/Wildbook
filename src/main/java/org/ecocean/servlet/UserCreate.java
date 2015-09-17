@@ -35,7 +35,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.ecocean.CommonConfiguration;
 import org.ecocean.ContextConfiguration;
-import org.ecocean.ShepherdPMF;
 import org.ecocean.security.User;
 import org.ecocean.security.UserFactory;
 
@@ -81,7 +80,7 @@ public class UserCreate extends HttpServlet {
     //      isEdit=true;
     //    }
 
-        try (Database db = ShepherdPMF.getDb()) {
+        try (Database db = ServletUtilities.getDb(request)) {
             Integer userid = NumberUtils.createInteger(request.getParameter("userid"));
 
             User user = UserFactory.getUserById(db, userid);

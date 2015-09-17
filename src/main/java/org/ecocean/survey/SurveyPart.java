@@ -30,11 +30,11 @@ public class SurveyPart {
         this.vessel = vessel;
     }
 
-    public int getSurveyPartId() {
+    public Integer getSurveyPartId() {
         return surveyPartId;
     }
 
-    public void setSurveyPartId(final int surveyPartId) {
+    public void setSurveyPartId(final Integer surveyPartId) {
         this.surveyPartId = surveyPartId;
     }
 

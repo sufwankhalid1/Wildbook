@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.ecocean.Location;
-import org.ecocean.ShepherdPMF;
 import org.ecocean.SinglePhotoVideo;
 import org.ecocean.media.MediaAsset;
 import org.ecocean.media.MediaAssetFactory;
@@ -22,6 +21,7 @@ import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
 import com.samsix.database.RecordSet;
 import com.samsix.database.SpecialSqlCondition;
+import com.samsix.database.SqlFormatter;
 import com.samsix.database.SqlRelationType;
 import com.samsix.database.SqlStatement;
 
@@ -199,9 +199,9 @@ public class SimpleFactory {
         return sql;
     }
 
-    public static UserInfo getUserInfo(final int userid) throws DatabaseException
+    public static UserInfo getUserInfo(final Database db, final int userid) throws DatabaseException
     {
-        SimpleUser user = getUser(userid);
+        SimpleUser user = getUser(db, userid);
 
         if (user == null) {
             return null;
@@ -219,98 +219,97 @@ public class SimpleFactory {
         String whereRoot = " WHERE ma.submitterid = " + userid
             + " AND ma.type = " + MediaAssetType.IMAGE.getCode();
 
-        try (Database db = new Database(ShepherdPMF.getConnectionInfo())) {
-            String sql;
-            RecordSet rs;
+        String sql;
+        RecordSet rs;
 
-            //
-            // 1) Highlighted Photos (including any avatar photos)
-            //
+        //
+        // 1) Highlighted Photos (including any avatar photos)
+        //
 
-            //
-            // Did the user submit an avatar photo?
-            //
-            sql = sqlRoot
-                    + " INNER JOIN individuals i ON ma.id = i.avatarid"
-                    + whereRoot;
+        //
+        // Did the user submit an avatar photo?
+        //
+        sql = sqlRoot
+                + " INNER JOIN individuals i ON ma.id = i.avatarid"
+                + whereRoot;
+        rs = db.getRecordSet(sql);
+        while (rs.next()) {
+            userinfo.addPhoto(readPhoto(rs));
+        }
+
+        //
+        // Highlighted photos
+        //
+        sql = sqlRoot + whereRoot + " AND 'highlight' = ANY (ma.tags)";
+
+        rs = db.getRecordSet(sql);
+        while (rs.next()) {
+            userinfo.addPhoto(readPhoto(rs));
+        }
+
+        //
+        // If we are not at our minimum number of photos go ahead
+        // and grab the rest at random. Grab the minimum number of photos
+        // rather than the minimum minus the number already retrieved so
+        // that we can throw out any duplicates. That code is embedded
+        // in the addPhoto method of the SimpleIndividual
+        //
+        if (userinfo.getPhotos().size() < MIN_PHOTOS) {
+            sql = sqlRoot + whereRoot + " LIMIT " + MIN_PHOTOS;
+
             rs = db.getRecordSet(sql);
             while (rs.next()) {
+                if (userinfo.getPhotos().size() >= MIN_PHOTOS) {
+                    break;
+                }
+
                 userinfo.addPhoto(readPhoto(rs));
             }
+        }
 
-            //
-            // Highlighted photos
-            //
-            sql = sqlRoot + whereRoot + " AND 'highlight' = ANY (ma.tags)";
+        //
+        // 2) Total Number of photos
+        //
+        sql = "SELECT count(*) AS count FROM mediaasset ma" + whereRoot;
+        rs = db.getRecordSet(sql);
+        if (rs.next()) {
+            userinfo.setTotalPhotoCount(rs.getInt("count"));
+        }
 
-            rs = db.getRecordSet(sql);
-            while (rs.next()) {
-                userinfo.addPhoto(readPhoto(rs));
-            }
+        //
+        // 3) Encounters/Individuals
+        // NOTE: Doing the individual stuff here on the server even though the information
+        // is duplicated because javascript does not have hashmaps which makes the code to try and
+        // get all the unique values of individualID into an array much messier.
+        //
+        SqlStatement ss = getEncounterStatement();
+        ss.addCondition(new SpecialSqlCondition("exists (select * from encounter_media em"
+                + " inner join mediaasset ma on ma.id = em.mediaid"
+                + whereRoot
+                + " and em.encounterid = e.encounterid)"));
 
-            //
-            // If we are not at our minimum number of photos go ahead
-            // and grab the rest at random. Grab the minimum number of photos
-            // rather than the minimum minus the number already retrieved so
-            // that we can throw out any duplicates. That code is embedded
-            // in the addPhoto method of the SimpleIndividual
-            //
-            if (userinfo.getPhotos().size() < MIN_PHOTOS) {
-                sql = sqlRoot + whereRoot + " LIMIT " + MIN_PHOTOS;
+        Map<Integer, SimpleIndividual> inds = new HashMap<>();
+        rs = db.getRecordSet(ss);
+        while (rs.next()) {
+            Integer indid = rs.getInteger("individualid");
 
-                rs = db.getRecordSet(sql);
-                while (rs.next()) {
-                    if (userinfo.getPhotos().size() >= MIN_PHOTOS) {
-                        break;
-                    }
-
-                    userinfo.addPhoto(readPhoto(rs));
+            SimpleIndividual ind = inds.get(indid);
+            if (ind == null) {
+                ind = readSimpleIndividual(rs);
+                if (ind != null) {
+                    inds.put(ind.getId(), ind);
                 }
             }
 
-            //
-            // 2) Total Number of photos
-            //
-            sql = "SELECT count(*) AS count FROM mediaasset ma" + whereRoot;
-            rs = db.getRecordSet(sql);
-            if (rs.next()) {
-                userinfo.setTotalPhotoCount(rs.getInt("count"));
-            }
+            SimpleEncounter encounter = readSimpleEncounter(ind, rs);
+            userinfo.addEncounter(encounter);
+        }
+        userinfo.setIndividuals(new ArrayList<SimpleIndividual>(inds.values()));
 
-            //
-            // 3) Encounters/Individuals
-            // NOTE: Doing the individual stuff here on the server even though the information
-            // is duplicated because javascript does not have hashmaps which makes the code to try and
-            // get all the unique values of individualID into an array much messier.
-            //
-            SqlStatement ss = getEncounterStatement();
-            ss.addCondition(new SpecialSqlCondition("exists (select * from encounter_media em"
-                    + " inner join mediaasset ma on ma.id = em.mediaid"
-                    + whereRoot
-                    + " and em.encounterid = e.encounterid)"));
-
-            Map<Integer, SimpleIndividual> inds = new HashMap<>();
-            rs = db.getRecordSet(ss);
-            while (rs.next()) {
-                Integer indid = rs.getInteger("individualid");
-
-                SimpleIndividual ind = inds.get(indid);
-                if (ind == null) {
-                    ind = readSimpleIndividual(rs);
-                    if (ind != null) {
-                        inds.put(ind.getId(), ind);
-                    }
-                }
-
-                SimpleEncounter encounter = readSimpleEncounter(ind, rs);
-                userinfo.addEncounter(encounter);
-            }
-            userinfo.setIndividuals(new ArrayList<SimpleIndividual>(inds.values()));
-
-            //
-            // TODO: Fix this so that it works with new file types. Don't think we need to convert the tiny
-            // bit of data that has accumulated on the server as I think it is only John's test data.
-            //
+        //
+        // TODO: Fix this so that it works with new file types. Don't think we need to convert the tiny
+        // bit of data that has accumulated on the server as I think it is only John's test data.
+        //
 //            //
 //            // Get voyages they were a part of...
 //            // TODO: This is a bad design! We are getting the voyages they were on by the photos they submitted to the SurveyTrack!
@@ -324,8 +323,7 @@ public class SimpleFactory {
 //            while (rs.next()) {
 //                userinfo.addVoyage(SurveyFactory.getSurveyTrack(db, rs.getLong("ID")));
 //            }
-            userinfo.setVoyages(Collections.<SurveyPart>emptyList());
-        }
+        userinfo.setVoyages(Collections.<SurveyPart>emptyList());
 
         return userinfo;
     }
@@ -372,6 +370,13 @@ public class SimpleFactory {
                             rs.getDoubleObj("longitude"),
                             rs.getString("verbatimLocation"));
 
+    }
+
+    public static void fillFormatterWithLoc(final SqlFormatter formatter, final Location location) {
+        formatter.append("latitude", location.getLatitude());
+        formatter.append("longitude", location.getLongitude());
+        formatter.append("locationid", location.getLocationid());
+        formatter.append("verbatimlocation", location.getVerbatimLocation());
     }
 
     public static SimpleEncounter readSimpleEncounter(final RecordSet rs) throws DatabaseException
@@ -462,37 +467,33 @@ public class SimpleFactory {
 //    }
 
 
-    public static SimpleUser getUser(final String username) throws DatabaseException
+    public static SimpleUser getUser(final Database db, final String username) throws DatabaseException
     {
-        try (Database db = new Database(ShepherdPMF.getConnectionInfo())) {
-            SqlStatement sql = UserFactory.getUserStatement();
-            sql.addCondition(UserFactory.AlIAS_USERS, "username",SqlRelationType.EQUAL, username);
-            RecordSet rs = db.getRecordSet(sql);
-            if (rs.next()) {
-                return UserFactory.readSimpleUser(rs);
-            }
-
-            return null;
+        SqlStatement sql = UserFactory.getUserStatement();
+        sql.addCondition(UserFactory.AlIAS_USERS, "username",SqlRelationType.EQUAL, username);
+        RecordSet rs = db.getRecordSet(sql);
+        if (rs.next()) {
+            return UserFactory.readSimpleUser(rs);
         }
+
+        return null;
     }
 
 
-    public static SimpleUser getUser(final Integer userid) throws DatabaseException
+    public static SimpleUser getUser(final Database db, final Integer userid) throws DatabaseException
     {
         if (userid == null) {
             return null;
         }
 
-        try (Database db = new Database(ShepherdPMF.getConnectionInfo())) {
-            SqlStatement sql = UserFactory.getUserStatement();
-            sql.addCondition(UserFactory.AlIAS_USERS, "userid",SqlRelationType.EQUAL, userid);
-            RecordSet rs = db.getRecordSet(sql);
-            if (rs.next()) {
-                return UserFactory.readSimpleUser(rs);
-            }
-
-            return null;
+        SqlStatement sql = UserFactory.getUserStatement();
+        sql.addCondition(UserFactory.AlIAS_USERS, "userid",SqlRelationType.EQUAL, userid);
+        RecordSet rs = db.getRecordSet(sql);
+        if (rs.next()) {
+            return UserFactory.readSimpleUser(rs);
         }
+
+        return null;
     }
 
 

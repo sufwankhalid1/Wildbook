@@ -4,7 +4,7 @@
          org.ecocean.servlet.ServletUtilities,
          org.ecocean.rest.SimpleFactory,
          org.ecocean.rest.SimpleUser,
-         org.ecocean.security.UserFactory,
+         org.ecocean.rest.UserController,
          java.util.Properties,
          org.slf4j.Logger,
          org.slf4j.LoggerFactory,
@@ -53,7 +53,7 @@ String context = ServletUtilities.getContext(request);
     </p>
 
     <p><%=props.getProperty("grantedRole")%><br/>
-        <em><%=UserFactory.getAllRolesForUserAsString(user.getId()).replaceAll("\r","<br/>")%></em>
+        <em><%=UserController.getAllRolesForUserAsString(request, user.getId()).replaceAll("\r","<br/>")%></em>
     </p>
     <p><%=props.getProperty("pleaseChoose")%></p>
     <p>&nbsp;</p>

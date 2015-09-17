@@ -25,6 +25,7 @@ import static org.junit.Assert.fail;
 import java.nio.file.Paths;
 
 import org.ecocean.media.AssetStore;
+import org.ecocean.media.AssetStoreFactory;
 import org.ecocean.media.LocalAssetStore;
 import org.ecocean.media.MediaAsset;
 import org.ecocean.media.MediaAssetFactory;
@@ -56,13 +57,13 @@ public class UserTest extends DBTestBase {
         assertNull("Image already exists 2", user.getUserImageID());
 
         // test user image
-        ConnectionInfo ci = ShepherdPMF.getConnectionInfo("Test");
+        ConnectionInfo ci = Global.INST.getConnectionInfo("Test");
         try (Database db = new Database(ci)) {
             db.beginTransaction();
 
             // NOTE: make image file doesn't need to exist for this test
             AssetStore las = new LocalAssetStore("test", Paths.get("/etc"), null, true);
-            las.save(db);
+            AssetStoreFactory.delete(db, las);
 
             try {
                 MediaAsset ma = las.create(Paths.get("/etc/hosts"), null);

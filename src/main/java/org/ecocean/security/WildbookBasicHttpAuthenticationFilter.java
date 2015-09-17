@@ -5,7 +5,6 @@ import javax.servlet.ServletResponse;
 
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.web.filter.authc.BasicHttpAuthenticationFilter;
-import org.ecocean.ShepherdPMF;
 import org.ecocean.servlet.ServletUtilities;
 
 import com.samsix.database.Database;
@@ -33,7 +32,7 @@ public class WildbookBasicHttpAuthenticationFilter
         String username = prinCred[0];
         String password = prinCred[1];
 
-        try (Database db = ShepherdPMF.getDb()) {
+        try (Database db = ServletUtilities.getDb(request)) {
             User user = UserFactory.getUserByNameOrEmail(db, username);
             if (user != null) {
                 //

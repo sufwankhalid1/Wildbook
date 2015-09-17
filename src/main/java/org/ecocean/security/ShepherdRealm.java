@@ -18,7 +18,7 @@ import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.web.util.WebUtils;
-import org.ecocean.ShepherdPMF;
+import org.ecocean.Global;
 import org.ecocean.servlet.ServletUtilities;
 
 import com.samsix.database.Database;
@@ -41,8 +41,12 @@ public class ShepherdRealm extends AuthorizingRealm {
             throw new AccountException("Null usernames are not allowed by this realm.");
         }
 
+        //
+        // TODO: Can we get the db from the request object? Can we get the request object
+        // like we do for doGetAuthorizationInfo below?
+        //
         User user = null;
-        try (Database db = ShepherdPMF.getDb()) {
+        try (Database db = Global.INST.getDb()) {
             user = UserFactory.getUserById(db, Integer.parseInt(userid));
         } catch (DatabaseException ex) {
             throw new AuthenticationException("Trouble authenticating user [" + userid + "]", ex);
@@ -81,7 +85,7 @@ public class ShepherdRealm extends AuthorizingRealm {
         // we can get a context0 db connection. Right now it will be getting the one and only
         // connection for the db.
         //
-        try (Database db = ShepherdPMF.getDb()) {
+        try (Database db = ServletUtilities.getDb(request)) {
             return new SimpleAuthorizationInfo(UserFactory.getAllRolesForUserInContext(db, userid, context));
         } catch (DatabaseException ex) {
             ex.printStackTrace();

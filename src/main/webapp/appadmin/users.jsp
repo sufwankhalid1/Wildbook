@@ -86,7 +86,7 @@ String context="context0";
       		<td style="font-size:small"><%=StringEscapeUtils.escapeHtml4(fullName)%></td>
       		<td style="font-size:small"><a href="mailto:<%=emailAddress%>"><img height="20px" width="20px" src="../images/Crystal_Clear_app_email.png" /></a></td>
       		<td style="font-size:small"><%=affiliation%></td>
-      		<td style="font-size:x-small"><em><%=myShepherd.getAllRolesForUserAsString(user.getUserId()).replaceAll("\r","<br />") %></em></td>
+      		<td style="font-size:x-small"><em><%=UserController.getAllRolesForUserAsString(request, user.getUserId()).replaceAll("\r","<br />") %></em></td>
       		<td><a href="users.jsp?context=context0&username=<%=user.getUsername()%>&isEdit=true#editUser"><img width="20px" height="20px" src="../images/Crystal_Clear_action_edit.png" /></a></td>   	
       		<td>
       			<%

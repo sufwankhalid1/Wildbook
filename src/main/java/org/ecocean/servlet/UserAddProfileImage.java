@@ -32,7 +32,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.ecocean.CommonConfiguration;
 import org.ecocean.Shepherd;
-import org.ecocean.ShepherdPMF;
 import org.ecocean.User;
 import org.ecocean.media.AssetStore;
 import org.ecocean.media.MediaAsset;
@@ -46,7 +45,6 @@ import com.oreilly.servlet.multipart.FilePart;
 import com.oreilly.servlet.multipart.MultipartParser;
 import com.oreilly.servlet.multipart.ParamPart;
 import com.oreilly.servlet.multipart.Part;
-import com.samsix.database.ConnectionInfo;
 import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
 
@@ -114,8 +112,7 @@ public class UserAddProfileImage extends HttpServlet {
             return;
         }
 
-        ConnectionInfo ci = ShepherdPMF.getConnectionInfo();
-        try (Database db = new Database(ci)) {
+        try (Database db = ServletUtilities.getDb(request)) {
             AssetStore assetStore = AssetStore.getDefault();
             if (assetStore == null) {
                 throw new IllegalArgumentException("Can't load the default asset store");

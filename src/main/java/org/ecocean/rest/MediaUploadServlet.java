@@ -30,7 +30,6 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.ecocean.GeoFileProcessor;
 import org.ecocean.ImageProcessor;
 import org.ecocean.Shepherd;
-import org.ecocean.ShepherdPMF;
 import org.ecocean.media.AssetStore;
 import org.ecocean.media.LocalAssetStore;
 import org.ecocean.media.MediaAsset;
@@ -43,6 +42,7 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.samsix.database.ConnectionInfo;
 import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
 import com.samsix.database.SqlInsertFormatter;
@@ -81,17 +81,19 @@ public class MediaUploadServlet
             return;
         }
 
-        for (FileMeta file : new ArrayList<FileMeta>(fileSet.files)) {
-            if (file.name.equalsIgnoreCase(filename)) {
-                //
-                // If the file has been saved (the thread actually got run) then
-                // we can delete the file. If not, we will remove it from the user's
-                // browser list but the mediasubmission will still contain this.
-                //
-                if (file.getId() != null) {
-                    MediaSubmissionController.deleteMedia(msid, file.getId());
+        try (Database db = ServletUtilities.getDb(request)) {
+            for (FileMeta file : new ArrayList<FileMeta>(fileSet.files)) {
+                if (file.name.equalsIgnoreCase(filename)) {
+                    //
+                    // If the file has been saved (the thread actually got run) then
+                    // we can delete the file. If not, we will remove it from the user's
+                    // browser list but the mediasubmission will still contain this.
+                    //
+                    if (file.getId() != null) {
+                        MediaSubmissionController.deleteMedia(db, msid, file.getId());
+                    }
+                    fileSet.files.remove(file);
                 }
-                fileSet.files.remove(file);
             }
         }
     }
@@ -335,13 +337,14 @@ public class MediaUploadServlet
                     // If so, they will get a broken link image.
                     //
                     executor.execute(new SaveMedia(ServletUtilities.getContext(request),
+                                                   ServletUtilities.getConnectionInfo(request),
                                                    store,
                                                    id,
                                                    fileset.getSubmitter(),
                                                    baseDir,
                                                    file));
                 }
-            } catch (FileUploadException | DatabaseException ex) {
+            } catch (FileUploadException ex) {
                 ex.printStackTrace();
             }
         }
@@ -485,6 +488,7 @@ public class MediaUploadServlet
         implements Runnable
     {
         private final String context;
+        private final ConnectionInfo ci;
         private final LocalAssetStore store;
         private final int submissionId;
         private final String submitter;
@@ -492,6 +496,7 @@ public class MediaUploadServlet
         private final FileMeta file;
 
         public SaveMedia(final String context,
+                         final ConnectionInfo ci,
                          final LocalAssetStore store,
                          final int submissionId,
                          final String submitter,
@@ -499,6 +504,7 @@ public class MediaUploadServlet
                          final FileMeta file)
         {
             this.context = context;
+            this.ci = ci;
             this.store = store;
             this.submissionId = submissionId;
             this.submitter = submitter;
@@ -622,7 +628,7 @@ public class MediaUploadServlet
                     logger.debug("About to save media asset...");
                 }
 
-                try (Database db = ShepherdPMF.getDb()) {
+                try (Database db = new Database(ci)) {
                     if (! StringUtils.isBlank(submitter)) {
                         ma.setSubmitterId(Integer.parseInt(submitter));
                     }

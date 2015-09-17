@@ -6,10 +6,7 @@ var wildbook = {
         'SinglePhotoVideo',
         'Measurement',
         'Point',
-        'Occurrence',
-        'MediaSubmission',
-        'media_MediaTag',
-        'survey_Survey'
+        'Occurrence'
     ],
 
     Model: {},

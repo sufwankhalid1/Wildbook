@@ -118,7 +118,7 @@ public class ApiAccess {
         }
 
         String context = ServletUtilities.getContext(request);
-        try (Database db = ShepherdPMF.getDb()) {
+        try (Database db = ServletUtilities.getDb(request)) {
             roles = UserFactory.getAllRolesForUserInContext(db, userid, context);
         }
 

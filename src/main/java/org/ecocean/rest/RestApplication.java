@@ -7,7 +7,8 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 
 import org.ecocean.Global;
-import org.ecocean.ShepherdPMF;
+import org.ecocean.media.AssetStore;
+import org.ecocean.media.AssetStoreFactory;
 import org.ecocean.security.Stormpath;
 import org.flywaydb.core.Flyway;
 import org.slf4j.Logger;
@@ -20,6 +21,7 @@ import org.springframework.boot.context.web.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
 
 import com.samsix.database.ConnectionInfo;
+import com.samsix.database.Database;
 import com.samsix.util.UtilException;
 import com.samsix.util.io.ResourceReaderImpl;
 
@@ -55,6 +57,9 @@ public class RestApplication extends SpringBootServletInitializer {
         //
         super.onStartup(servletContext);
 
+        //
+        // Load up resources
+        //
         ResourceReaderImpl initResources = new ResourceReaderImpl();
 
         try {
@@ -110,6 +115,23 @@ public class RestApplication extends SpringBootServletInitializer {
         //
         Global.INST.setInitResources(initResources);
 
+        //
+        // Finish loading up resources.
+        //
+
+        //
+        // Initialize other parts of the app.
+        //
+        try (Database db = Global.INST.getDb()) {
+            //
+            // Set the static AssetStores map.
+            //
+            AssetStore.init(AssetStoreFactory.getStores(db));
+        } catch (Throwable ex) {
+            logger.error("Trouble initializing the app.", ex);
+        }
+
+
         try {
             ResourceReaderImpl secrets = new ResourceReaderImpl("secrets");
             Stormpath.init(secrets.getString("auth.stormpath.apikey.id"),
@@ -126,7 +148,7 @@ public class RestApplication extends SpringBootServletInitializer {
         // databases and allows me to get other developers sql patches even if I've applied a newer one myself
         // locally. In production, everything should be fine.
         //
-        ConnectionInfo connectionInfo = ShepherdPMF.getConnectionInfo();
+        ConnectionInfo connectionInfo = Global.INST.getConnectionInfo();
         Flyway flyway = new Flyway();
         flyway.setOutOfOrder(true);
         flyway.setSqlMigrationPrefix("");

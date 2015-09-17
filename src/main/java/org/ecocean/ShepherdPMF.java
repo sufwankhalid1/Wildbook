@@ -21,10 +21,7 @@ package org.ecocean;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
 
@@ -35,47 +32,11 @@ import javax.jdo.PersistenceManagerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.samsix.database.ConnectionInfo;
-import com.samsix.database.Database;
-import com.samsix.util.io.ResourceReader;
-import com.samsix.util.io.ResourceReaderImpl;
-
 
 public class ShepherdPMF {
     private static Logger logger = LoggerFactory.getLogger(ShepherdPMF.class);
 
   private static TreeMap<String,PersistenceManagerFactory> pmfs=new TreeMap<String,PersistenceManagerFactory>();
-
-  private static Map<String,ConnectionInfo> connectionInfo = new HashMap<>();
-
-
-  /**
-   * Return the default (primary) S6 database connection info.
-   */
-  public synchronized static ConnectionInfo getConnectionInfo() {
-    return getConnectionInfo(ConnectionInfo.DBTYPE_PRIMARY);
-  }
-
-  public static Database getDb() {
-      return new Database(getConnectionInfo());
-  }
-
-  /**
-   * Return the named S6 database connection info, or null if no info
-   * exists for the name.
-   */
-  public synchronized static ConnectionInfo getConnectionInfo(final String connectionName) {
-    if (connectionInfo.get(connectionName) == null) {
-        try {
-            ResourceReader reader = new ResourceReaderImpl("bundles/s6db.properties");
-            connectionInfo.put(connectionName, ConnectionInfo.valueOf(reader, connectionName));
-        } catch (IOException ex) {
-            logger.warn("Can't find properties [bundles/s6db]", ex);
-        }
-    }
-
-    return connectionInfo.get(connectionName);
-  }
 
   public synchronized static PersistenceManagerFactory getPMF(final String context) {
     //public static PersistenceManagerFactory getPMF(String dbLocation) {

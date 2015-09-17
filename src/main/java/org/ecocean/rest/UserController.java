@@ -13,6 +13,7 @@ import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
 import org.ecocean.CommonConfiguration;
+import org.ecocean.ContextConfiguration;
 import org.ecocean.security.Stormpath;
 import org.ecocean.security.User;
 import org.ecocean.security.UserFactory;
@@ -29,6 +30,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
+import com.samsix.database.RecordSet;
+import com.samsix.database.SqlWhereFormatter;
+import com.samsix.database.Table;
 import com.stormpath.sdk.account.Account;
 import com.stormpath.sdk.resource.ResourceException;
 
@@ -121,6 +125,28 @@ public class UserController {
         }
     }
 
+    public static String getAllRolesForUserAsString(final HttpServletRequest request,
+                                                    final Integer userid) throws DatabaseException {
+        if (userid == null) {
+            return "";
+        }
+
+        try (Database db = ServletUtilities.getDb(request)) {
+            Table users = db.getTable(UserFactory.TABLENAME_ROLES);
+            SqlWhereFormatter where = new SqlWhereFormatter();
+            where.append("userid", userid);
+            RecordSet rs = users.getRecordSet(where.getWhereClause());
+
+            String rolesFound = "";
+            while (rs.next()) {
+                String contextName = ContextConfiguration.getNameForContext(rs.getString("context"));
+                rolesFound += contextName+":" + rs.getString("rolename") + "\r";
+            }
+
+            return rolesFound;
+        }
+    }
+
 
     @RequestMapping(value = "isloggedin", method = RequestMethod.GET)
     public static SimpleUser isLoggedIn(final HttpServletRequest request) throws DatabaseException {
@@ -130,7 +156,9 @@ public class UserController {
 
         Integer userid = NumberUtils.createInteger(request.getUserPrincipal().getName());
 
-        return SimpleFactory.getUser(userid);
+        try (Database db = ServletUtilities.getDb(request)) {
+            return SimpleFactory.getUser(db, userid);
+        }
     }
 
 

@@ -39,6 +39,7 @@ import java.util.Properties;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import javax.jdo.Query;
+import javax.servlet.ServletRequest;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
@@ -56,12 +57,12 @@ import org.dom4j.io.XMLWriter;
 import org.ecocean.CommonConfiguration;
 import org.ecocean.ContextConfiguration;
 import org.ecocean.Encounter;
+import org.ecocean.Global;
 import org.ecocean.MailThreadExecutorService;
 import org.ecocean.MarkedIndividual;
 import org.ecocean.NotificationMailer;
 import org.ecocean.Occurrence;
 import org.ecocean.Shepherd;
-import org.ecocean.ShepherdPMF;
 import org.ecocean.ShepherdProperties;
 import org.ecocean.mmutil.StringUtilities;
 import org.ecocean.rest.SimpleFactory;
@@ -72,6 +73,7 @@ import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.samsix.database.ConnectionInfo;
 import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
 import com.sun.syndication.feed.synd.SyndCategory;
@@ -135,9 +137,14 @@ public class ServletUtilities {
    * @param request
    * @return
    */
-  public static Database getDb(final HttpServletRequest request) {
-      return ShepherdPMF.getDb();
+  public static Database getDb(final ServletRequest request) {
+      return Global.INST.getDb();
   }
+
+  public static ConnectionInfo getConnectionInfo(final ServletRequest request) {
+      return Global.INST.getConnectionInfo();
+  }
+
 
   public static String getFooter(final String context) {
     try {
@@ -436,7 +443,7 @@ public class ServletUtilities {
         // Not critical if you want to change it.
         //
         try (Database db = getDb(request)) {
-            return SimpleFactory.getUser(NumberUtils.createInteger(request.getRemoteUser()));
+            return SimpleFactory.getUser(db, NumberUtils.createInteger(request.getRemoteUser()));
         } catch (DatabaseException ex) {
             logger.error("Can't get user from idstring [" + request.getRemoteUser() + "]", ex);
             return null;

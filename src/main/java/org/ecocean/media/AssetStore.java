@@ -22,21 +22,13 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import org.ecocean.ShepherdPMF;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.samsix.database.Database;
-import com.samsix.database.DatabaseException;
-import com.samsix.database.RecordSet;
-import com.samsix.database.SqlFormatter;
-import com.samsix.database.SqlInsertFormatter;
-import com.samsix.database.SqlUpdateFormatter;
-import com.samsix.database.SqlWhereFormatter;
-import com.samsix.database.Table;
 
 /**
  * AssetStore describes a location and methods for access to a set of
@@ -45,12 +37,11 @@ import com.samsix.database.Table;
  * @see LocalAssetStore
  */
 public abstract class AssetStore {
-    private static Logger log = LoggerFactory.getLogger(AssetStore.class);
-    private static final String TABLE_NAME = "assetstore";
+    private static Logger logger = LoggerFactory.getLogger(AssetStore.class);
+
     private static Map<Integer, AssetStore> stores;
 
-    public static final int NOT_SAVED = -1;
-    protected int id = NOT_SAVED;
+    protected Integer id;
     protected String name;
     protected AssetStoreType type = AssetStoreType.LOCAL;
     protected AssetStoreConfig config;
@@ -60,7 +51,7 @@ public abstract class AssetStore {
     /**
      * Create a new AssetStore.
      */
-    protected AssetStore(final int id, final String name,
+    protected AssetStore(final Integer id, final String name,
                          final AssetStoreType type,
                          final AssetStoreConfig config,
                          final boolean writable)
@@ -75,40 +66,42 @@ public abstract class AssetStore {
         this.writable = writable;
     }
 
+    public static synchronized void init(final List<AssetStore> storelist) {
+        stores = new HashMap<Integer, AssetStore>();
+        for (AssetStore store : storelist) {
+            stores.put(store.id, store);
+        }
+    }
 
-    private static Map<Integer, AssetStore> getMap() throws DatabaseException
+
+    private static Map<Integer, AssetStore> getMap()
     {
         if (stores != null) {
-            return stores;
-        }
-
-        stores = new HashMap<Integer, AssetStore>();
-
-        try (Database db = ShepherdPMF.getDb()) {
-            RecordSet rs;
-            Table table = db.getTable(TABLE_NAME);
-
-            rs = table.getRecordSet();
-            while (rs.next()) {
-                AssetStore store;
-                store = buildAssetStore(rs.getInt("id"),
-                                        rs.getString("name"),
-                                        AssetStoreType.valueOf(rs.getString("type")),
-                                        new AssetStoreConfig(rs.getString("config")),
-                                        rs.getBoolean("writable"));
-                stores.put(store.id, store);
-            }
+            logger.warn("Asset Stores were not set up!");
+            return Collections.emptyMap();
         }
 
         return stores;
     }
 
-    public static AssetStore get(final Integer id) throws DatabaseException
+
+    public static synchronized void add(final AssetStore store)
+    {
+        getMap().put(store.id, store);
+    }
+
+
+    public static synchronized void remove(final AssetStore store)
+    {
+        getMap().remove(store.id);
+    }
+
+    public static AssetStore get(final Integer id)
     {
         return getMap().get(id);
     }
 
-    public static AssetStore get(final String name) throws DatabaseException
+    public static AssetStore get(final String name)
     {
         for (AssetStore store : getMap().values()) {
             if (store.name != null && store.name.equals(name)) {
@@ -119,30 +112,6 @@ public abstract class AssetStore {
         return null;
     }
 
-    /**
-     * Create a new AssetStore.  Used in load().
-     */
-    private static AssetStore buildAssetStore(final int id,
-                                              final String name,
-                                              final AssetStoreType type,
-                                              final AssetStoreConfig config,
-                                              final boolean writable)
-    {
-        if (name == null) throw new IllegalArgumentException("null asset store name");
-        if (type == null) throw new IllegalArgumentException("null asset store type");
-
-        switch (type) {
-        case LOCAL:
-            return new LocalAssetStore(id, name, config, writable);
-        default:
-            log.error("Unhandled asset store type: " + type);
-            return null;
-        }
-    }
-
-    //
-    // do stuff
-    //
 
     public abstract URL webPath(Path path);
 
@@ -168,12 +137,7 @@ public abstract class AssetStore {
 
     public abstract void deleteFrom(final Path path);
 
-    /**
-     * Fetch the default store (the one with the highest id) from the
-     * database.
-     */
     public static AssetStore getDefault()
-        throws DatabaseException
     {
         for (AssetStore store : getMap().values()) {
             if (store.type == AssetStoreType.LOCAL) {
@@ -189,55 +153,5 @@ public abstract class AssetStore {
         }
 
         return null;
-    }
-
-    /**
-     * Store to the given database.
-     */
-    public void save(final Database db) throws DatabaseException {
-        Table table = db.getTable(TABLE_NAME);
-
-        if (id == NOT_SAVED) {
-            SqlInsertFormatter formatter = new SqlInsertFormatter();
-            fillFormatter(formatter);
-
-            id = table.insertSequencedRow(formatter, "id");
-
-            //
-            // TODO: Add this to our map!
-            //
-        } else {
-            SqlUpdateFormatter formatter = new SqlUpdateFormatter();
-            fillFormatter(formatter);
-
-            SqlWhereFormatter where = new SqlWhereFormatter();
-            where.append("id", id);
-            table.updateRow(formatter.getUpdateClause(), where.getWhereClause());
-        }
-    }
-
-    /**
-     * Fill in formatter values from our properties.
-     */
-    private void fillFormatter(final SqlFormatter formatter) {
-        formatter.append("name", name);
-        formatter.append("type", type.name());
-        formatter.append("config", config.configString());
-        formatter.append("writable", writable);
-    }
-
-
-    /**
-     * Delete this store from the given database.  Does not delete any
-     * asset files.
-     */
-    public void delete(final Database db) throws DatabaseException {
-        if (id == NOT_SAVED) return;
-
-        Table table = db.getTable(TABLE_NAME);
-
-        table.deleteRows("id = " + id);
-
-        getMap().remove(id);
     }
 }

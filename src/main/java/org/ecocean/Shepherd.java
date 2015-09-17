@@ -53,7 +53,6 @@ import org.ecocean.servlet.ServletUtilities;
 import org.ecocean.social.Relationship;
 import org.ecocean.social.SocialUnit;
 
-import com.samsix.database.ConnectionInfo;
 import com.samsix.database.Database;
 
 /**
@@ -421,8 +420,7 @@ public class Shepherd {
           org.ecocean.User user = ((org.ecocean.User) (pm.getObjectById(pm.newObjectIdInstance(User.class, username.trim()), true)));
 
           // load non-DataNucleus fields
-          ConnectionInfo ci = ShepherdPMF.getConnectionInfo();
-          try (Database db = new Database(ci)) {
+          try (Database db = Global.INST.getDb()) {
               user.cacheUserImage(db);
           }
 

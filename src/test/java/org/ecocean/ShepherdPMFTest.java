@@ -1,7 +1,7 @@
 /*
  * This file is a part of Wildbook.
  * Copyright (C) 2015 WildMe
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -18,15 +18,13 @@
 
 package org.ecocean;
 
-import java.util.*;
+import static org.junit.Assert.assertNotNull;
 
-import com.samsix.database.*;
-
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.junit.*;
-import static org.junit.Assert.*;
+import com.samsix.database.ConnectionInfo;
 
 /**
  * Test some ShepherdPMF routines.
@@ -36,7 +34,7 @@ public class ShepherdPMFTest {
 
 	@Test
     public void testGetDefaultConnectionInfo() {
-        ConnectionInfo info = ShepherdPMF.getConnectionInfo();
+        ConnectionInfo info = Global.INST.getConnectionInfo();
         assertNotNull("No info for primary db", info);
         assertNotNull("No name for primary db", info.getUserName());
     }
@@ -44,7 +42,7 @@ public class ShepherdPMFTest {
 	@Test
     public void testGetNamedConnectionInfo() {
         // we *might* have a test db.  failure is ok.
-        ConnectionInfo info = ShepherdPMF.getConnectionInfo("Test");
+        ConnectionInfo info = Global.INST.getConnectionInfo("Test");
         if (info == null) {
             log.warn("No test database.");
         }

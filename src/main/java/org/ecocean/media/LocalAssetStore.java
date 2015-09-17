@@ -74,7 +74,7 @@ public class LocalAssetStore extends AssetStore {
     public LocalAssetStore(final String name, final Path root,
                            final String webRoot, final boolean writable)
     {
-        this(NOT_SAVED, name, makeConfig(root, webRoot), writable);
+        this(null, name, makeConfig(root, webRoot), writable);
     }
 
     /**
@@ -87,7 +87,7 @@ public class LocalAssetStore extends AssetStore {
      * @param webRoot Base web url under which asset paths are
      * appended.  If null, this store offers no web access to assets.
      */
-    LocalAssetStore(final int id, final String name,
+    LocalAssetStore(final Integer id, final String name,
                     final AssetStoreConfig config, final boolean writable)
     {
         super(id, name, AssetStoreType.LOCAL, config, writable);

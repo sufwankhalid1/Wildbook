@@ -7,8 +7,8 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.ecocean.ShepherdPMF;
 import org.ecocean.security.UserFactory;
+import org.ecocean.servlet.ServletUtilities;
 import org.ecocean.util.LogBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +29,9 @@ public class MainController
 {
     private static Logger logger = LoggerFactory.getLogger(MainController.class);
 
-    public static List<Contributor> getTopContributors(final int pastNumDays, final int number)
+    public static List<Contributor> getTopContributors(final HttpServletRequest request,
+                                                       final int pastNumDays,
+                                                       final int number)
             throws DatabaseException
     {
         LocalDate since = LocalDate.now().minusDays(pastNumDays);
@@ -47,7 +49,7 @@ public class MainController
 
         SqlStatement sql = UserFactory.getUserStatement();
         sql.addInnerJoin(UserFactory.AlIAS_USERS, "userid", table, "c", "submitterid");
-        try (Database db = ShepherdPMF.getDb()) {
+        try (Database db = ServletUtilities.getDb(request)) {
             List<Contributor> contribs = new ArrayList<>();
 
             RecordSet rs = db.getRecordSet(sql);
@@ -64,10 +66,11 @@ public class MainController
 
 
     @RequestMapping(value = "/individual/get/{id}", method = RequestMethod.GET)
-    public IndividualInfo getIndividual(@PathVariable("id")
+    public IndividualInfo getIndividual(final HttpServletRequest request,
+                                        @PathVariable("id")
                                         final int id) throws DatabaseException
     {
-        try (Database db = ShepherdPMF.getDb()) {
+        try (Database db = ServletUtilities.getDb(request)) {
             IndividualInfo indinfo = new IndividualInfo();
 
             indinfo.individual = SimpleFactory.getIndividual(db, id);
@@ -85,18 +88,24 @@ public class MainController
 
 
     @RequestMapping(value = "/user/get/{username}", method = RequestMethod.GET)
-    public SimpleBeing getUser(@PathVariable("username")
+    public SimpleBeing getUser(final HttpServletRequest request,
+                               @PathVariable("username")
                                final String username) throws DatabaseException
     {
-        return SimpleFactory.getUser(username);
+        try (Database db = ServletUtilities.getDb(request)) {
+            return SimpleFactory.getUser(db, username);
+        }
     }
 
 
     @RequestMapping(value = "/userinfo/get/{username}", method = RequestMethod.GET)
-    public UserInfo getUserInfo(@PathVariable("username")
+    public UserInfo getUserInfo(final HttpServletRequest request,
+                                @PathVariable("username")
                                 final int userid) throws DatabaseException
     {
-        return SimpleFactory.getUserInfo(userid);
+        try (Database db = ServletUtilities.getDb(request)) {
+            return SimpleFactory.getUserInfo(db, userid);
+        }
     }
 
 

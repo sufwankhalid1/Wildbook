@@ -32,7 +32,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.ecocean.CommonConfiguration;
-import org.ecocean.ShepherdPMF;
 import org.ecocean.security.User;
 import org.ecocean.security.UserFactory;
 
@@ -126,7 +125,7 @@ public class UserSelfUpdate extends HttpServlet {
         Integer userid = NumberUtils.createInteger(request.getUserPrincipal().getName());
 
         PrintWriter out = response.getWriter();
-        try (Database db = ShepherdPMF.getDb()) {
+        try (Database db = ServletUtilities.getDb(request)) {
             User user = UserFactory.getUserById(db, userid);
 
             if (user == null) {

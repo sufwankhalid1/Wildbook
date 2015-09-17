@@ -4,9 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
-import org.ecocean.ContextConfiguration;
 import org.ecocean.Organization;
-import org.ecocean.ShepherdPMF;
 import org.ecocean.media.MediaAsset;
 import org.ecocean.media.MediaAssetFactory;
 import org.ecocean.mmutil.StringUtilities;
@@ -27,7 +25,7 @@ public class UserFactory {
 //    private static Logger logger = LoggerFactory.getLogger(UserFactory.class);
 
     private static String TABLENAME_USERS = "users";
-    private static String TABLENAME_ROLES = "userroles";
+    public static String TABLENAME_ROLES = "userroles";
     public static String TABLENAME_ORG = "organization";
 
     public static String AlIAS_USERS = "u";
@@ -267,26 +265,6 @@ public class UserFactory {
         return (rs.next());
     }
 
-    public static String getAllRolesForUserAsString(final Integer userid) throws DatabaseException {
-        if (userid == null) {
-            return "";
-        }
-
-        try (Database db = ShepherdPMF.getDb()) {
-            Table users = db.getTable(TABLENAME_ROLES);
-            SqlWhereFormatter where = new SqlWhereFormatter();
-            where.append("userid", userid);
-            RecordSet rs = users.getRecordSet(where.getWhereClause());
-
-            String rolesFound = "";
-            while (rs.next()) {
-                String contextName = ContextConfiguration.getNameForContext(rs.getString("context"));
-                rolesFound += contextName+":" + rs.getString("rolename") + "\r";
-            }
-
-            return rolesFound;
-        }
-    }
 
     //===================================
     // Organization stuff

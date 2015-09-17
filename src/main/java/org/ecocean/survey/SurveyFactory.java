@@ -23,6 +23,9 @@ public class SurveyFactory {
     public static String ALIAS_SURVEYPART = "sp";
     public static String ALIAS_VESSEL = "v";
 
+    public static String PK_SURVEY = "surveyid";
+    public static String PK_SURVEYPART = "surveypartid";
+
     private SurveyFactory() {
         // prevent instantiation
     }
@@ -32,26 +35,14 @@ public class SurveyFactory {
         SqlStatement sql = new SqlStatement(TABLENAME_SURVEY,
                                             ALIAS_SURVEY,
                                             ALIAS_SURVEY + ".*, " + ALIAS_SURVEYPART + ".*, " + ALIAS_VESSEL + ".*");
-        sql.addInnerJoin(ALIAS_SURVEY, "surveyid", TABLENAME_SURVEYPART, ALIAS_SURVEYPART, "surveyid");
+        sql.addInnerJoin(ALIAS_SURVEY, PK_SURVEY, TABLENAME_SURVEYPART, ALIAS_SURVEYPART, PK_SURVEY);
         sql.addLeftOuterJoin(ALIAS_SURVEYPART, "vesselid", TABLENAME_VESSEL, ALIAS_VESSEL, "vesselid");
         sql.addLeftOuterJoin(ALIAS_SURVEY, "orgid", UserFactory.TABLENAME_ORG, UserFactory.ALIAS_ORG, "orgid");
         return sql;
     }
 
-
-//    private static SurveyPart getSurveyTrack(final Database db, final int id) throws DatabaseException
-//    {
-//        SqlStatement sql = new SqlStatement(TABLENAME_SURVEYPART, ALIAS_SURVEYPART);
-//        sql.addLeftOuterJoin(ALIAS_SURVEYPART, "surveypartid", "surveypoint", "p", "surveypartid");
-//        sql.addCondition(ALIAS_SURVEYPART, "surveypartid", SqlRelationType.EQUAL, id);
-//        sql.setOrderBy("p.pointtime");
-//
-//        RecordSet rs = db.getRecordSet(sql.getSql());
-//        return readSurveyTrack(rs);
-//    }
-
     private static Survey readSurvey(final RecordSet rs) throws DatabaseException {
-        return new Survey(rs.getInteger("surveyid"),
+        return new Survey(rs.getInteger(PK_SURVEY),
                           UserFactory.readOrganization(rs),
                           rs.getString("surveynumber"));
     }
@@ -61,7 +52,7 @@ public class SurveyFactory {
     {
         SurveyPart surveyTrack = new SurveyPart();
         surveyTrack.setSurveyPartId(rs.getInteger("surveypartid"));
-        surveyTrack.setSurveyId(rs.getInt("surveyid"));
+        surveyTrack.setSurveyId(rs.getInt(PK_SURVEY));
         surveyTrack.setVessel(readVessel(rs));
         surveyTrack.setPartDate(rs.getLocalDate("partdate"));
         surveyTrack.setStarttime(rs.getOffsetTime("starttime"));
@@ -90,6 +81,69 @@ public class SurveyFactory {
         part.part = readSurveyPart(rs);
 
         return part;
+    }
+
+
+    public static void saveSurvey(final Database db, final Survey survey) throws DatabaseException {
+        Table table = db.getTable(TABLENAME_VESSEL);
+
+        if (survey.getSurveyId() == null) {
+            SqlInsertFormatter formatter = new SqlInsertFormatter();
+            fillSurveyFormatter(formatter, survey);
+
+            survey.setSurveyId(table.insertSequencedRow(formatter, PK_SURVEY));
+        } else {
+            SqlUpdateFormatter formatter = new SqlUpdateFormatter();
+            fillSurveyFormatter(formatter, survey);
+
+            SqlWhereFormatter where = new SqlWhereFormatter();
+            where.append(PK_SURVEY, survey.getSurveyId());
+            table.updateRow(formatter.getUpdateClause(), where.getWhereClause());
+        }
+    }
+
+
+    private static void fillSurveyFormatter(final SqlFormatter formatter, final Survey survey) {
+        if (survey.getOrganization() == null) {
+            formatter.append("orgid", (Integer) null);
+        } else {
+            formatter.append("orgid", survey.getOrganization().getOrgId());
+        }
+        formatter.append("surveynumber", survey.getSurveyNumber());
+    }
+
+
+    public static void saveSurveyPart(final Database db, final SurveyPart spart) throws DatabaseException {
+        Table table = db.getTable(TABLENAME_VESSEL);
+
+        if (spart.getSurveyPartId() == null) {
+            SqlInsertFormatter formatter = new SqlInsertFormatter();
+            fillSurveyPartFormatter(formatter, spart);
+
+            spart.setSurveyId(table.insertSequencedRow(formatter, PK_SURVEYPART));
+        } else {
+            SqlUpdateFormatter formatter = new SqlUpdateFormatter();
+            fillSurveyPartFormatter(formatter, spart);
+
+            SqlWhereFormatter where = new SqlWhereFormatter();
+            where.append(PK_SURVEYPART, spart.getSurveyPartId());
+            table.updateRow(formatter.getUpdateClause(), where.getWhereClause());
+        }
+    }
+
+
+    private static void fillSurveyPartFormatter(final SqlFormatter formatter, final SurveyPart spart) {
+        formatter.append(PK_SURVEY, spart.getSurveyId());
+        if (spart.getVessel() == null) {
+            formatter.append("vesselid", (Integer) null);
+        } else {
+            formatter.append("vesselid", spart.getVessel().getVesselId());
+        }
+        formatter.append("code", spart.getCode());
+        formatter.append("comments", spart.getComments());
+        formatter.append("starttime", spart.getStarttime().toString());
+        formatter.append("endtime", spart.getEndtime().toString());
+        SimpleFactory.fillFormatterWithLoc(formatter, spart.getLocation());
     }
 
     //===================================
