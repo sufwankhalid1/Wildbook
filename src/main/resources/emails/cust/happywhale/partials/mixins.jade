@@ -61,9 +61,10 @@ mixin centeredbutton(content, href)
                                         a(href="#{href}")= content
                         td.sub-column.three
                         +expander
+                block
 
-mixin individual(src, date, location, items)
-    div.individual
+mixin submission(src, date, location, items)
+    div.submission
         img(src=src, width=550)
         div
             div
@@ -72,6 +73,37 @@ mixin individual(src, date, location, items)
             div
                 b Location: 
                 span= location
-            div
-                b Media Items You Submitted: 
-                span= items
+            if(items)
+                div
+                    b Media Items You Submitted: 
+                    span= items
+
+mixin match(src1, src2, name)
+    table.row
+        tr
+            td.wrapper.last
+                table.columns.twelve
+                    tr
+                        td.sub-column.six.center.middle
+                            img(src=src1)
+                        td.sub-column.six.center.middle.last
+                            img(src=src2)
+                        +expander
+    table.row
+        tr
+            td.wrapper.last
+                table.columns.twelve
+                    tr
+                        td.sub-column.six.center.top
+                            b Your Submission
+                        td.sub-column.six.center.last.top
+                            b=name
+                        +expander
+    table.row
+        tr
+            td.wrapper.last
+                table.columns.twelve
+                    tr
+                        td
+                            p More information about this individual:
+                            p [list gender, age, number of sightings, locations?]
