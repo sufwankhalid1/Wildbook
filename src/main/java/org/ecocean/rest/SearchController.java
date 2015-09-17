@@ -6,10 +6,12 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.ecocean.security.UserFactory;
 import org.ecocean.servlet.ServletUtilities;
 import org.ecocean.survey.SurveyFactory;
 import org.ecocean.survey.SurveyPartObj;
+import org.ecocean.util.LogBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -148,38 +150,33 @@ public class SearchController
 
     @RequestMapping(value = "/survey", method = RequestMethod.GET)
     public List<SurveyPartObj> searchSurvey(final HttpServletRequest request,
-                                            @RequestParam
-                                            final Integer vesselid,
-                                            @RequestParam
-                                            final String surveyname,
-                                            @RequestParam
-                                            final String code,
-                                            @RequestParam
-                                            final Integer orgid,
-                                            @RequestParam
-                                            final String date) throws DatabaseException
+                                            final SurveySearch search) throws DatabaseException
     {
+        if (logger.isDebugEnabled()) {
+            logger.debug(LogBuilder.quickLog("search", ToStringBuilder.reflectionToString(search)));
+        }
+
         try (Database db = ServletUtilities.getDb(request)) {
             SqlStatement sql = SurveyFactory.getSqlStatement();
 
-            if (vesselid != null) {
-                sql.addCondition(SurveyFactory.ALIAS_SURVEYPART, "vesselid", SqlRelationType.EQUAL, vesselid);
+            if (search.vesselid != null) {
+                sql.addCondition(SurveyFactory.ALIAS_SURVEYPART, "vesselid", SqlRelationType.EQUAL, search.vesselid);
             }
 
-            if (! StringUtils.isBlank(code)) {
-                sql.addContainsCondition(SurveyFactory.ALIAS_SURVEYPART, "code", code);
+            if (! StringUtils.isBlank(search.code)) {
+                sql.addContainsCondition(SurveyFactory.ALIAS_SURVEYPART, "code", search.code);
             }
 
-            if (! StringUtils.isBlank(surveyname)) {
-                sql.addContainsCondition(SurveyFactory.ALIAS_SURVEY, "surveyname", surveyname);
+            if (! StringUtils.isBlank(search.surveynumber)) {
+                sql.addContainsCondition(SurveyFactory.ALIAS_SURVEY, "surveynumber", search.surveynumber);
             }
 
-            if (orgid != null) {
-                sql.addCondition(SurveyFactory.ALIAS_SURVEY, "orgid", SqlRelationType.EQUAL, orgid);
+            if (search.orgid != null) {
+                sql.addCondition(SurveyFactory.ALIAS_SURVEY, "orgid", SqlRelationType.EQUAL, search.orgid);
             }
 
-            if (! StringUtils.isBlank(date)) {
-                sql.addCondition(SurveyFactory.ALIAS_SURVEYPART, "partdate", SqlRelationType.EQUAL, date);
+            if (! StringUtils.isBlank(search.date)) {
+                sql.addCondition(SurveyFactory.ALIAS_SURVEYPART, "partdate", SqlRelationType.EQUAL, search.date);
             }
 
             List<SurveyPartObj> parts = new ArrayList<>();
@@ -201,5 +198,45 @@ public class SearchController
         public String species;
         public String speciesdisplay;
         public String avatar;
+    }
+
+    static class SurveySearch
+    {
+        private Integer vesselid;
+        private String surveynumber;
+        private String code;
+        private Integer orgid;
+        private String date;
+
+        public Integer getVesselid() {
+            return vesselid;
+        }
+        public void setVesselid(final Integer vesselid) {
+            this.vesselid = vesselid;
+        }
+        public String getSurveynumber() {
+            return surveynumber;
+        }
+        public void setSurveynumber(final String surveynumber) {
+            this.surveynumber = surveynumber;
+        }
+        public String getCode() {
+            return code;
+        }
+        public void setCode(final String code) {
+            this.code = code;
+        }
+        public Integer getOrgid() {
+            return orgid;
+        }
+        public void setOrgid(final Integer orgid) {
+            this.orgid = orgid;
+        }
+        public String getDate() {
+            return date;
+        }
+        public void setDate(final String date) {
+            this.date = date;
+        }
     }
 }
