@@ -15,6 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.ecocean.CommonConfiguration;
 import org.ecocean.MailThreadExecutorService;
 import org.ecocean.NotificationMailer;
+import org.ecocean.NotificationMailerHelper;
 import org.ecocean.media.LocalAssetStore;
 import org.ecocean.media.MediaAsset;
 import org.ecocean.media.MediaAssetFactory;
@@ -368,8 +369,8 @@ public class MediaSubmissionController
             String context = ServletUtilities.getContext(request);
 
             // Email notify admin of new mediasubmission in WIldbook
-            Map<String, String> tagMap = NotificationMailer.createBasicTagMap(request,media);
-            List<String> mailTo = NotificationMailer.splitEmails(CommonConfiguration.getNewSubmissionEmail(context));
+            Map<String, String> tagMap = NotificationMailerHelper.createBasicTagMap(request,media);
+            List<String> mailTo = NotificationMailerHelper.splitEmails(CommonConfiguration.getNewSubmissionEmail(context));
             //String mailSubj = "New media submission: " + media.getSubmissionid();
             for (String emailTo : mailTo) {
               NotificationMailer mailer = new NotificationMailer(context, null, emailTo, "newMediaSubmission-summary", tagMap);
@@ -381,12 +382,8 @@ public class MediaSubmissionController
                 if (logger.isDebugEnabled()) {
                     logger.debug("sending thankyou email to:" + email);
                 }
-                List<String> mailToSubmitters = NotificationMailer.splitEmails(email);
-                //String mailSubjSubmitters = "Thank you for your sighting report!";
-                for (String emailTo : mailToSubmitters) {
-                  NotificationMailer mailer = new NotificationMailer(context, null, emailTo, "newMediaSubmission", tagMap);
-                  es.execute(mailer);
-                }
+                NotificationMailer mailer = new NotificationMailer(context, null, email, "newMediaSubmission", tagMap);
+                es.execute(mailer);
             }
 
 

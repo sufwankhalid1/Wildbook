@@ -92,7 +92,7 @@ public class TrackIt extends HttpServlet {
         out.println(ServletUtilities.getFooter(context));
 
         String message = "This is a confirmation that e-mail tracking of data changes to encounter " + encounterNumber + " has now started. You should receive e-mail updates any time changes to this encounter are made.";
-        Map<String, String> tagMap = NotificationMailer.createBasicTagMap(request, enc);
+        Map<String, String> tagMap = NotificationMailerHelper.createBasicTagMap(request, enc);
         NotificationMailer mailer = new NotificationMailer(context, null, email, "encounterTrackingStarted", message);
 //        ThreadPoolExecutor es = MailThreadExecutorService.getExecutorService();
 //        es.execute(mailer);
@@ -132,7 +132,7 @@ public class TrackIt extends HttpServlet {
         out.println(ServletUtilities.getFooter(context));
         Vector e_images = new Vector();
         String message = "This is a confirmation that e-mail tracking of data changes to " + shark + " has now started. You should receive e-mail updates any time changes to this record are made.";
-        Map<String, String> tagMap = NotificationMailer.createBasicTagMap(request, enc);
+        Map<String, String> tagMap = NotificationMailerHelper.createBasicTagMap(request, enc);
         NotificationMailer mailer = new NotificationMailer(context, null, email, "encounterTrackingStarted", message);
 //        ThreadPoolExecutor es = MailThreadExecutorService.getExecutorService();
 //        es.execute(mailer);

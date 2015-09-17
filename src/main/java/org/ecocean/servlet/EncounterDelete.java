@@ -38,6 +38,7 @@ import org.ecocean.CommonConfiguration;
 import org.ecocean.Encounter;
 import org.ecocean.MailThreadExecutorService;
 import org.ecocean.NotificationMailer;
+import org.ecocean.NotificationMailerHelper;
 import org.ecocean.Shepherd;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -162,7 +163,7 @@ public void doPost(final HttpServletRequest request, final HttpServletResponse r
           out.println(ServletUtilities.getFooter(context));
 
           // Notify new-submissions address
-          Map<String, String> tagMap = NotificationMailer.createBasicTagMap(request, enc2trash);
+          Map<String, String> tagMap = NotificationMailerHelper.createBasicTagMap(request, enc2trash);
           tagMap.put("@USER@", request.getRemoteUser());
           tagMap.put("@ENCOUNTER_ID@", request.getParameter("number"));
           String mailTo = CommonConfiguration.getNewSubmissionEmail(context);

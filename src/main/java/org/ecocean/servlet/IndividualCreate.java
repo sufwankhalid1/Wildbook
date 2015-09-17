@@ -42,6 +42,7 @@ import org.ecocean.Encounter;
 import org.ecocean.MailThreadExecutorService;
 import org.ecocean.MarkedIndividual;
 import org.ecocean.NotificationMailer;
+import org.ecocean.NotificationMailerHelper;
 import org.ecocean.Shepherd;
 import org.ecocean.mmutil.StringUtilities;
 
@@ -143,7 +144,7 @@ public void doPost(final HttpServletRequest request, final HttpServletResponse r
               ThreadPoolExecutor es = MailThreadExecutorService.getExecutorService();
 
               // Notify new-submissions address (try "newsub" template, or fallback to standard)
-              Map<String, String> tagMap = NotificationMailer.createBasicTagMap(request, newShark, enc2make);
+              Map<String, String> tagMap = NotificationMailerHelper.createBasicTagMap(request, newShark, enc2make);
               String mailTo = CommonConfiguration.getNewSubmissionEmail(context);
               NotificationMailer mailer = new NotificationMailer(context, null, mailTo, "individualCreate", tagMap);
               mailer.appendToSubject(" (sent to submitters)");
@@ -152,11 +153,11 @@ public void doPost(final HttpServletRequest request, final HttpServletResponse r
       			  // Notify submitters, photographers, and informOthers values
               Set<String> cSubmitters = new HashSet<>();
               if (submitter != null)
-                cSubmitters.addAll(NotificationMailer.splitEmails(submitter));
+                cSubmitters.addAll(NotificationMailerHelper.splitEmails(submitter));
               if (photographer != null)
-                cSubmitters.addAll(NotificationMailer.splitEmails(photographer));
+                cSubmitters.addAll(NotificationMailerHelper.splitEmails(photographer));
               if (informers != null)
-                cSubmitters.addAll(NotificationMailer.splitEmails(informers));
+                cSubmitters.addAll(NotificationMailerHelper.splitEmails(informers));
               if (newShark != null)
                 tagMap.put(NotificationMailer.EMAIL_NOTRACK, "individual=" + newShark.getIndividualID());
               for (String emailTo : cSubmitters) {

@@ -22,19 +22,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import javax.servlet.http.HttpServletRequest;
-
-import org.ecocean.media.MediaSubmission;
 import org.ecocean.servlet.ServletUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -182,10 +175,11 @@ public final class NotificationMailer implements Runnable {
   public NotificationMailer(final String context,
                             final String langCode,
                             final Collection<String> to,
-                            final List<String> types,
+                            final String type,
                             final Map<String, String> map) {
     Objects.requireNonNull(context);
     Objects.requireNonNull(to);
+
     for (String s : to) {
       if (s == null || "".equals(s.trim()))
         throw new IllegalArgumentException("Invalid email TO address specified");
@@ -200,7 +194,7 @@ public final class NotificationMailer implements Runnable {
     if (mailAuth != null && mailAuth.contains(":"))
       mAuth = mailAuth.split(":", 2);
     try {
-      mailer = loadEmailTemplate(langCode, types);
+      mailer = findAndLoadEmailTemplate(langCode, type);
       mailer.setHost(host, useSSL);
       if (mAuth != null)
         mailer.setUseAuth(true, mAuth[0], mAuth[1]);
@@ -241,31 +235,6 @@ public final class NotificationMailer implements Runnable {
     }
   }
 
-  /**
-   * Creates a new NotificationMailer instance.
-   *
-   * @param context webapp context
-   * @param langCode language code for template loading
-   * @param to email recipients
-   * @param type email type ((e.g. <em>individualAddEncounter</em>)
-   * @param map map of search/replace strings for email template (if order is important, supply {@code LinkedHashMap}
-   */
-  public NotificationMailer(final String context, final String langCode, final Collection<String> to, final String type, final Map<String, String> map) {
-    this(context, langCode, to, Arrays.asList(type), map);
-  }
-
-  /**
-   * Creates a new NotificationMailer instance.
-   *
-   * @param context webapp context
-   * @param langCode language code for template loading
-   * @param to email recipient
-   * @param types list of email types to try ((e.g. [<em>individualAddEncounter-auto</em>, <em>individualAddEncounter</em>])
-   * @param map map of search/replace strings for email template (if order is important, supply {@code LinkedHashMap}
-   */
-  public NotificationMailer(final String context, final String langCode, final String to, final List<String> types, final Map<String, String> map) {
-    this(context, langCode, Arrays.asList(to), types, map);
-  }
 
   /**
    * Creates a new NotificationMailer instance.
@@ -291,6 +260,7 @@ public final class NotificationMailer implements Runnable {
    * @param type email type ((e.g. <em>individualAddEncounter</em>)
    * @param text text with which to replace standard content tag
    */
+  @SuppressWarnings("serial")
   public NotificationMailer(final String context, final String langCode, final Collection<String> to, final String type, final String text) {
     this(context, langCode, to, type, new HashMap<String, String>(){{ put(STANDARD_CONTENT_TAG, text); }});
   }
@@ -311,22 +281,7 @@ public final class NotificationMailer implements Runnable {
     this(context, langCode, Arrays.asList(to), type, text);
   }
 
-  /**
-   * Removes any initialized HTML text assigned to this mailer.
-   * This can be called to ensure a plain text only email is sent.
-   */
-  public void removeHtmlText() {
-    mailer.removeHtmlText();
-  }
-
-  /**
-   * Checks if an email template for the specified email type exists.
-   *
-   * @param langCode language code for template loading
-   * @param type string specifying type of email (e.g. <em>individualAddEncounter</em>)
-   * @return true if the template type exists, false otherwise
-   */
-  public boolean existsEmailTemplate(final String langCode, final String type) {
+  private boolean existsEmailTemplate(final String langCode, final String type) {
     try {
       return resolveTemplatesFromRoot(langCode, type)[0] != null;
     } catch (IOException ex) {
@@ -334,27 +289,18 @@ public final class NotificationMailer implements Runnable {
     }
   }
 
-  /**
-   * Loads an email template from the specified email types.
-   * This method traverses the list of types until one is found that provides
-   * a valid email template.
-   *
-   * @param langCode language code for template loading
-   * @param types collection of types of email (e.g. <em>individualAddEncounter</em>)
-   * @return {@code EmailTemplate} instance
-   */
-  private EmailTemplate loadEmailTemplate(final String langCode, final List<String> types) throws IOException {
+  private EmailTemplate findAndLoadEmailTemplate(final String langCode, final String type) throws IOException {
     if (langCode != null && !"".equals(langCode.trim())) {
-      for (String type : types) {
-        if (existsEmailTemplate(langCode, type))
-          return loadEmailTemplate(langCode, type);
-      }
+        if (existsEmailTemplate(langCode, type)) {
+            return loadEmailTemplate(langCode, type);
+        }
     }
+
     // Default to "en" if none found yet.
-    for (String type : types) {
-      if (existsEmailTemplate("en", type))
+    if (existsEmailTemplate("en", type)) {
         return loadEmailTemplate("en", type);
     }
+
     throw new FileNotFoundException("Failed to find valid email template in specified types");
   }
 
@@ -426,6 +372,7 @@ public final class NotificationMailer implements Runnable {
   private File[] resolveTemplatesFromRoot(final String langCode, final String baseName) throws IOException {
     Objects.requireNonNull(langCode);
     Objects.requireNonNull(baseName);
+
     String s = baseName + ".txt";
     File f = ServletUtilities.findResourceOnFileSystem(String.format("%s/%s/%s", SEARCH_PATH, langCode, s));
     if (f == null) {
@@ -437,66 +384,13 @@ public final class NotificationMailer implements Runnable {
     return EmailTemplate.resolveTemplatesFromRoot(f.getParentFile(), baseName);
   }
 
-  /**
-   * Performs a string search/replace on the subject and body of the template.
-   * This method is a convenience to perform all replacements throughout.
-   *
-   * @param search term to find in both subject and body
-   * @param replace term to substitute when a match is found
-   */
-  public void replace(final String search, final String replace) {
-    mailer.replace(search, replace, true);
-  }
+  public void appendToSubject(final String text) {
+      if (text == null) {
+          return;
+      }
 
-  /**
-   * Searches and replaces one or all occurrences of the specified regular
-   * expression search term with the specified replacement.
-   * This method is a convenience to perform all replacements throughout.
-   * @param search regex search term
-   * @param replace regex replacement term
-   */
-  public void replaceRegex(final String search, final String replace) {
-    mailer.replaceRegex(search, replace, 0, true);
-  }
-
-  /**
-   * Performs a string search/replace on the plain text message body template.
-   *
-   * @param search term to find
-   * @param replace term to substitute
-   */
-  public void replaceInPlainText(final String search, final String replace) {
-    mailer.replaceInPlainText(search, replace, true);
-  }
-
-  /**
-   * Performs a regex search/replace on the plain text message body template.
-   *
-   * @param search regex search term
-   * @param replace regex replacement term
-   */
-  public void replaceRegexInPlainText(final String search, final String replace) {
-    mailer.replaceRegexInPlainText(search, replace, true);
-  }
-
-  /**
-   * Performs a string search/replace on the HTML message body template.
-   *
-   * @param search term to find in both subject and body
-   * @param replace term to substitute when a match is found
-   */
-  public void replaceInHtmlText(final String search, final String replace) {
-    mailer.replaceInHtmlText(search, replace, true);
-  }
-
-  /**
-   * Performs a regex search/replace on the HTML message body template.
-   *
-   * @param search regex search term
-   * @param replace regex replacement term
-   */
-  public void replaceRegexInHtmlText(final String search, final String replace) {
-    mailer.replaceRegexInHtmlText(search, replace, true);
+      String subj = mailer.getSubject();
+      mailer.setSubject(subj == null ? text : subj + text);
   }
 
   @Override
@@ -518,255 +412,5 @@ public final class NotificationMailer implements Runnable {
         }
       }
     }
-  }
-
-  /**
-   * Creates a basic tag map for the specified encounter.
-   * This map can subsequently be enhanced with extra tags.
-   * Individual tags included:
-   * <ul>
-   * <li>&#64;INDIVIDUAL_LINK&#64;</li>
-   * <li>&#64;INDIVIDUAL_ID&#64;</li>
-   * <li>&#64;INDIVIDUAL_ALT_ID&#64;</li>
-   * <li>&#64;INDIVIDUAL_SEX&#64;</li>
-   * <li>&#64;INDIVIDUAL_NAME&#64;</li>
-   * <li>&#64;INDIVIDUAL_NICKNAME&#64;</li>
-   * <li>&#64;INDIVIDUAL_NICKNAMER&#64;</li>
-   * <li>&#64;INDIVIDUAL_COMMENTS&#64;</li>
-   * </ul>
-   *
-   * @param req servlet request for data reference
-   * @param ind MarkedIndividual for which to add tag data
-   * @return map instance for tag replacement in email template
-   */
-  public static Map<String, String> createBasicTagMap(final HttpServletRequest req, final MarkedIndividual ind) {
-    Map<String, String> map = new HashMap<>();
-    addTags(map, req, ind);
-    return map;
-  }
-
-  /**
-   * Creates a basic tag map for the specified encounter.
-   * This map can subsequently be enhanced with extra tags.
-   * Encounter tags included:
-   * <ul>
-   * <li>&#64;ENCOUNTER_LINK&#64;</li>
-   * <li>&#64;ENCOUNTER_ID&#64;</li>
-   * <li>&#64;ENCOUNTER_ALT_ID&#64;</li>
-   * <li>&#64;ENCOUNTER_INDIVIDUALID&#64;</li>
-   * <li>&#64;ENCOUNTER_DATE&#64;</li>
-   * <li>&#64;ENCOUNTER_LOCATION&#64;</li>
-   * <li>&#64;ENCOUNTER_LOCATIONID&#64;</li>
-   * <li>&#64;ENCOUNTER_SEX&#64;</li>
-   * <li>&#64;ENCOUNTER_LIFE_STAGE&#64;</li>
-   * <li>&#64;ENCOUNTER_COUNTRY&#64;</li>
-   * <li>&#64;ENCOUNTER_SUBMITTER_NAME&#64;</li>
-   * <li>&#64;ENCOUNTER_SUBMITTER_ID&#64;</li>
-   * <li>&#64;ENCOUNTER_SUBMITTER_EMAIL&#64;</li>
-   * <li>&#64;ENCOUNTER_SUBMITTER_ORGANIZATION&#64;</li>
-   * <li>&#64;ENCOUNTER_SUBMITTER_PROJECT&#64;</li>
-   * <li>&#64;ENCOUNTER_PHOTOGRAPHER_NAME&#64;</li>
-   * <li>&#64;ENCOUNTER_PHOTOGRAPHER_EMAIL&#64;</li>
-   * <li>&#64;ENCOUNTER_COMMENTS&#64;</li>
-   * <li>&#64;ENCOUNTER_USER&#64;</li>
-   * </ul>
-   *
-   * @param req servlet request for data reference
-   * @param enc Encounter for which to add tag data
-   * @return map instance for tag replacement in email template
-   */
-  public static Map<String, String> createBasicTagMap(final HttpServletRequest req, final Encounter enc) {
-    Map<String, String> map = new HashMap<>();
-    addTags(map, req, enc);
-    return map;
-  }
-
-
-  /**
-   * Creates a basic tag map for the specified MediaSubmission.
-   * This map can subsequently be enhanced with extra tags.
-   * MediaSubmission tags included:
-   * <ul>
-   * <li>&#64;MEDIASUBMISSION_LINK&#64;</li>
-   * <li>&#64;MEDIASUBMISION_NAME&#64;</li>
-   * <li>&#64;MEDIASUBMISION_EMAIL&#64;</li>
-   * <li>&#64;MEDIASUBMISION_VERBATIMLOCATION&#64;</li>
-   * <li>&#64;MEDIASUBMISION_LATITUDE&#64;</li>
-   * <li>&#64;MEDIASUBMISION_LONGITUDE&#64;</li>
-   * <li>&#64;MEDIASUBMISION_DESCRIPTION&#64;</li>
-   * <li>&#64;MEDIASUBMISION_STATUS&#64;</li>
-   * <li>&#64;MEDIASUBMISION_SUBMISSIONID&#64;</li>
-   * </ul>
-   *
-   * @param req servlet request for data reference
-   * @param ms MediaSubmission for which to add tag data
-   * @return map instance for tag replacement in email template
-   */
-  public static Map<String, String> createBasicTagMap(final HttpServletRequest req, final MediaSubmission ms) {
-    Map<String, String> map = new HashMap<>();
-    addTags(map, req, ms);
-    return map;
-  }
-
-  /**
-   * Creates a basic tag map for the specified encounter.
-   * This map can subsequently be enhanced with extra tags.
-   * Tags included are the union of those added by
-   * {@link #addTags(Map, HttpServletRequest, MarkedIndividual)}
-   * and {@link #addTags(Map, HttpServletRequest, Encounter)}.
-   *
-   * @param req servlet request for data reference
-   * @param ind MarkedIndividual for which to add tag data
-   * @param enc Encounter for which to add tag data
-   * @return map instance for tag replacement in email template
-   */
-  public static Map<String, String> createBasicTagMap(final HttpServletRequest req, final MarkedIndividual ind, final Encounter enc) {
-    Map<String, String> map = new HashMap<>();
-    addTags(map, req, ind);
-    addTags(map, req, enc);
-    return map;
-  }
-
-  /**
-   * Adds info tags for the specified encounter.
-   *
-   * @param req servlet request for data reference
-   * @param ind MarkedIndividual for which to add tag data
-   * @param map map to which to add tag data
-   */
-  private static void addTags(final Map<String, String> map, final HttpServletRequest req, final MarkedIndividual ind) {
-    Objects.requireNonNull(map);
-    if (!map.containsKey("@URL_LOCATION@"))
-      map.put("@URL_LOCATION@", String.format("http://%s", CommonConfiguration.getURLLocation(req)));
-    if (ind != null) {
-      map.put("@INDIVIDUAL_LINK@", String.format("%s/individuals.jsp?number=%s", map.get("@URL_LOCATION@"), ind.getIndividualID()));
-      map.put("@INDIVIDUAL_ID@", ind.getIndividualID());
-      map.put("@INDIVIDUAL_ALT_ID@", ind.getAlternateID());
-      map.put("@INDIVIDUAL_SEX@", ind.getSex());
-      map.put("@INDIVIDUAL_NAME@", ind.getName());
-      map.put("@INDIVIDUAL_NICKNAME@", ind.getNickName());
-      map.put("@INDIVIDUAL_NICKNAMER@", ind.getNickNamer());
-      map.put("@INDIVIDUAL_COMMENTS@", ind.getComments());
-    }
-  }
-
-  /**
-   * Creates a basic tag map for the specified encounter.
-   * This map can subsequently be enhanced with extra tags.
-   *
-   * @param req servlet request for data reference
-   * @param enc Encounter for which to add tag data
-   * @return map instance for tag replacement in email template
-   */
-  private static void addTags(final Map<String, String> map, final HttpServletRequest req, final Encounter enc) {
-    Objects.requireNonNull(map);
-    if (!map.containsKey("@URL_LOCATION@"))
-      map.put("@URL_LOCATION@", String.format("http://%s", CommonConfiguration.getURLLocation(req)));
-    if (enc != null) {
-      // Add useful encounter fields.
-      map.put("@ENCOUNTER_LINK@", String.format("%s/encounters/encounter.jsp?number=%s", map.get("@URL_LOCATION@"), enc.getCatalogNumber()));
-      map.put("@ENCOUNTER_ID@", enc.getCatalogNumber());
-      map.put("@ENCOUNTER_ALT_ID@", enc.getAlternateID());
-      map.put("@ENCOUNTER_INDIVIDUALID@", enc.getIndividualID());
-      map.put("@ENCOUNTER_DATE@", enc.getDate());
-      map.put("@ENCOUNTER_LOCATION@", enc.getLocation());
-      map.put("@ENCOUNTER_LOCATIONID@", enc.getLocationID());
-      map.put("@ENCOUNTER_SEX@", enc.getSex());
-      map.put("@ENCOUNTER_LIFE_STAGE@", enc.getLifeStage());
-      map.put("@ENCOUNTER_COUNTRY@", enc.getCountry());
-      map.put("@ENCOUNTER_SUBMITTER_NAME@", enc.getSubmitterName());
-      map.put("@ENCOUNTER_SUBMITTER_ID@", enc.getSubmitterID());
-      map.put("@ENCOUNTER_SUBMITTER_EMAIL@", enc.getSubmitterEmail());
-      map.put("@ENCOUNTER_SUBMITTER_ORGANIZATION@", enc.getSubmitterOrganization());
-      map.put("@ENCOUNTER_SUBMITTER_PROJECT@", enc.getSubmitterProject());
-      map.put("@ENCOUNTER_PHOTOGRAPHER_NAME@", enc.getPhotographerName());
-      map.put("@ENCOUNTER_PHOTOGRAPHER_EMAIL@", enc.getPhotographerEmail());
-      map.put("@ENCOUNTER_COMMENTS@", enc.getComments());
-      map.put("@ENCOUNTER_USER@", enc.getAssignedUsername());
-    }
-  }
-
-  /**
-   * Creates a basic tag map for the specified MediaSubmission.
-   * This map can subsequently be enhanced with extra tags.
-   *
-   * @param req servlet request for data reference
-   * @param ms MediaSubmission for which to add tag data
-   * @return map instance for tag replacement in email template
-   */
-  private static void addTags(final Map<String, String> map, final HttpServletRequest req, final MediaSubmission ms) {
-    Objects.requireNonNull(map);
-    if (!map.containsKey("@URL_LOCATION@"))
-      map.put("@URL_LOCATION@", String.format("http://%s", CommonConfiguration.getURLLocation(req)));
-    if (ms != null) {
-      map.put("@MEDIASUBMISSION_LINK@", String.format("%s/mediaSubmissionAdmin.jsp?mediaSubmissionID=%s", map.get("@URL_LOCATION@"), ms.getSubmissionid()));
-      map.put("@MEDIASUBMISION_NAME@", ms.getName());
-      map.put("@MEDIASUBMISION_EMAIL@", ms.getEmail());
-      map.put("@MEDIASUBMISION_VERBATIMLOCATION@", ms.getVerbatimLocation());
-      map.put("@MEDIASUBMISION_LATITUDE@", Objects.toString(ms.getLatitude(), ""));
-      map.put("@MEDIASUBMISION_LONGITUDE@", Objects.toString(ms.getLongitude(), ""));
-      map.put("@MEDIASUBMISION_DESCRIPTION@", ms.getDescription());
-      map.put("@MEDIASUBMISION_STATUS@", ms.getStatus());
-      map.put("@MEDIASUBMISION_SUBMISSIONID@", ms.getSubmissionid());
-      map.put("@MEDIASUBMISION_DATE@", Objects.toString(ms.getStartTime(), ""));
-    }
-  }
-
-  /**
-   * Splits a comma-separated string of email addresses.
-   * @param cs comma-separated string of email addresses
-   * @return list of strings
-   */
-  public static List<String> splitEmails(final String cs) {
-    if (cs == null)
-      return Collections.EMPTY_LIST;
-    // Conservative checking to avoid potential blank email entries.
-    String[] sep = cs.split("\\s*,\\s*");
-    List<String> list = new ArrayList<>();
-    for (String s : sep) {
-      String t = s.trim();
-      if (!"".equals(t))
-        list.add(t);
-    }
-    return list;
-  }
-
-  /**
-   * Joins email addresses into a single string (delimited by &quot;, &quot;.
-   * @param c collection of email addresses to join
-   * @return comma-separated string
-   */
-  public static String joinEmails(final Collection<String> c) {
-    return EmailTemplate.join(", ", c);
-  }
-
-  /**
-   * Removes all null and whitespace-only entries from the specified collection.
-   *
-   * @param <T> collection type
-   * @param c collection to process
-   * @return original collection, with blanks removed
-   */
-  public static <T extends Collection<String>> T filterBlanks(final T c) {
-    if (c == null || c.isEmpty())
-      return c;
-    Collection<String> x = new HashSet<>();
-    x.add(null);
-    for (String s : c) {
-      if (s != null && "".equals(s.trim()))
-        x.add(s);
-    }
-    c.removeAll(x);
-    return c;
-  }
-
-  /**
-   * Appends the specified text to the email subject line.
-   * @param text text to append
-   */
-  public void appendToSubject(final String text) {
-    Objects.requireNonNull(text);
-    String subj = mailer.getSubject();
-    mailer.setSubject(subj == null ? text : subj + text);
   }
 }

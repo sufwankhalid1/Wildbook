@@ -98,7 +98,7 @@ public class DontTrack extends HttpServlet {
         out.println("<p><a href=\"http://" + CommonConfiguration.getURLLocation(request) + "/encounters/encounter.jsp?number=" + encounterNumber + "\">Go to encounter " + encounterNumber + "</a></p>\n");
         out.println(ServletUtilities.getFooter(context));
         // Send email
-        Map<String, String> tagMap = NotificationMailer.createBasicTagMap(request, enc);
+        Map<String, String> tagMap = NotificationMailerHelper.createBasicTagMap(request, enc);
         NotificationMailer mailer = new NotificationMailer(context, null, email, "encounterTrackingStopped", tagMap);
 //        ThreadPoolExecutor es = MailThreadExecutorService.getExecutorService();
 //        es.execute(mailer);
@@ -153,7 +153,7 @@ public class DontTrack extends HttpServlet {
         out.println(ServletUtilities.getFooter(context));
 
         String message = "This is a confirmation that e-mail tracking of data changes to " + shark + " has now been stopped.";
-        Map<String, String> tagMap = NotificationMailer.createBasicTagMap(request, enc);
+        Map<String, String> tagMap = NotificationMailerHelper.createBasicTagMap(request, enc);
         NotificationMailer mailer = new NotificationMailer(context, null, email, "encounterTrackingStopped", tagMap);
 //        ThreadPoolExecutor es = MailThreadExecutorService.getExecutorService();
 //        es.execute(mailer);

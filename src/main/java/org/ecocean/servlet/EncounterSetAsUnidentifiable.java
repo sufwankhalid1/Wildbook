@@ -35,6 +35,7 @@ import org.ecocean.CommonConfiguration;
 import org.ecocean.Encounter;
 import org.ecocean.MailThreadExecutorService;
 import org.ecocean.NotificationMailer;
+import org.ecocean.NotificationMailerHelper;
 import org.ecocean.Shepherd;
 
 //Set alternateID for this encounter/sighting
@@ -113,7 +114,7 @@ public void doPost(final HttpServletRequest request, final HttpServletResponse r
           ServletUtilities.informInterestedParties(request, request.getParameter("number"),message,context);
 
           // Email submitter about change
-          Map<String, String> tagMap = NotificationMailer.createBasicTagMap(request, enc2reject);
+          Map<String, String> tagMap = NotificationMailerHelper.createBasicTagMap(request, enc2reject);
           tagMap.put("@TEXT_CONTENT@", message);
           ThreadPoolExecutor es = MailThreadExecutorService.getExecutorService();
           NotificationMailer mailer = new NotificationMailer(context, null, submitterEmail, "encounterDataUpdate", tagMap);

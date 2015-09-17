@@ -42,6 +42,7 @@ import org.ecocean.Encounter;
 import org.ecocean.MailThreadExecutorService;
 import org.ecocean.MarkedIndividual;
 import org.ecocean.NotificationMailer;
+import org.ecocean.NotificationMailerHelper;
 import org.ecocean.Shepherd;
 import org.ecocean.mmutil.StringUtilities;
 
@@ -148,7 +149,7 @@ public void doPost(final HttpServletRequest request, final HttpServletResponse r
               String emailTemplate = "individualAddEncounter";
 
               // Notify administrator address
-              Map<String, String> tagMap = NotificationMailer.createBasicTagMap(request, addToMe, enc2add);
+              Map<String, String> tagMap = NotificationMailerHelper.createBasicTagMap(request, addToMe, enc2add);
               String mailTo = CommonConfiguration.getAutoEmailAddress(context);
               NotificationMailer mailer = new NotificationMailer(context, null, mailTo, emailTemplate, tagMap);
               mailer.appendToSubject(" (sent to submitters)");
@@ -157,11 +158,11 @@ public void doPost(final HttpServletRequest request, final HttpServletResponse r
       			  // Notify submitters, photographers, and informOthers values
               Set<String> cSubmitters = new HashSet<>();
               if (enc2add.getSubmitterEmail() != null)
-                cSubmitters.addAll(NotificationMailer.splitEmails(enc2add.getSubmitterEmail()));
+                cSubmitters.addAll(NotificationMailerHelper.splitEmails(enc2add.getSubmitterEmail()));
               if (enc2add.getPhotographerEmail() != null)
-                cSubmitters.addAll(NotificationMailer.splitEmails(enc2add.getPhotographerEmail()));
+                cSubmitters.addAll(NotificationMailerHelper.splitEmails(enc2add.getPhotographerEmail()));
               if (enc2add.getInformOthers() != null)
-                cSubmitters.addAll(NotificationMailer.splitEmails(enc2add.getInformOthers()));
+                cSubmitters.addAll(NotificationMailerHelper.splitEmails(enc2add.getInformOthers()));
               for (String emailTo : cSubmitters) {
                 if (!"".equals(emailTo)) {
                   tagMap.put(NotificationMailer.EMAIL_NOTRACK, "number=" + enc2add.getCatalogNumber());

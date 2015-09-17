@@ -61,6 +61,7 @@ import org.ecocean.Global;
 import org.ecocean.MailThreadExecutorService;
 import org.ecocean.MarkedIndividual;
 import org.ecocean.NotificationMailer;
+import org.ecocean.NotificationMailerHelper;
 import org.ecocean.Occurrence;
 import org.ecocean.Shepherd;
 import org.ecocean.ShepherdProperties;
@@ -189,7 +190,7 @@ public class ServletUtilities {
         if (!notifyMe.isEmpty()) {
           ThreadPoolExecutor es = MailThreadExecutorService.getExecutorService();
           for (String mailTo : notifyMe) {
-            Map<String, String> tagMap = NotificationMailer.createBasicTagMap(request, enc);
+            Map<String, String> tagMap = NotificationMailerHelper.createBasicTagMap(request, enc);
             tagMap.put(NotificationMailer.EMAIL_NOTRACK, "number=" + encounterNumber);
             tagMap.put(NotificationMailer.EMAIL_HASH_TAG, StringUtilities.getHashOf(mailTo));
             tagMap.put(NotificationMailer.STANDARD_CONTENT_TAG, message == null ? "" : message);
@@ -222,7 +223,7 @@ public class ServletUtilities {
         if (!notifyMe.isEmpty()) {
           ThreadPoolExecutor es = MailThreadExecutorService.getExecutorService();
           for (String mailTo : notifyMe) {
-            Map<String, String> tagMap = NotificationMailer.createBasicTagMap(request, ind);
+            Map<String, String> tagMap = NotificationMailerHelper.createBasicTagMap(request, ind);
             tagMap.put(NotificationMailer.EMAIL_NOTRACK, "individual=" + individualID);
             tagMap.put(NotificationMailer.EMAIL_HASH_TAG, StringUtilities.getHashOf(mailTo));
             tagMap.put(NotificationMailer.STANDARD_CONTENT_TAG, message == null ? "" : message);
