@@ -29,12 +29,9 @@ import javax.jdo.JDOException;
 import javax.jdo.JDOHelper;
 import javax.jdo.PersistenceManagerFactory;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 
 public class ShepherdPMF {
-    private static Logger logger = LoggerFactory.getLogger(ShepherdPMF.class);
+//    private static Logger logger = LoggerFactory.getLogger(ShepherdPMF.class);
 
   private static TreeMap<String,PersistenceManagerFactory> pmfs=new TreeMap<String,PersistenceManagerFactory>();
 
