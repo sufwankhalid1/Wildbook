@@ -33,8 +33,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.ecocean.CommonConfiguration;
-import org.ecocean.MailThreadExecutorService;
-import org.ecocean.NotificationMailer;
+import org.ecocean.email.old.MailThreadExecutorService;
+import org.ecocean.email.old.NotificationMailer;
 import org.ecocean.security.User;
 import org.ecocean.security.UserFactory;
 import org.joda.time.LocalDateTime;

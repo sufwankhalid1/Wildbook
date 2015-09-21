@@ -36,10 +36,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.ecocean.CommonConfiguration;
 import org.ecocean.Encounter;
-import org.ecocean.MailThreadExecutorService;
-import org.ecocean.NotificationMailer;
-import org.ecocean.NotificationMailerHelper;
 import org.ecocean.Shepherd;
+import org.ecocean.email.EmailUtils;
+import org.ecocean.email.old.MailThreadExecutorService;
+import org.ecocean.email.old.NotificationMailer;
+import org.ecocean.email.old.NotificationMailerHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -166,7 +167,7 @@ public void doPost(final HttpServletRequest request, final HttpServletResponse r
           Map<String, String> tagMap = NotificationMailerHelper.createBasicTagMap(request, enc2trash);
           tagMap.put("@USER@", request.getRemoteUser());
           tagMap.put("@ENCOUNTER_ID@", request.getParameter("number"));
-          String mailTo = CommonConfiguration.getNewSubmissionEmail(context);
+          String mailTo = EmailUtils.getAdminRecipients();
           NotificationMailer mailer = new NotificationMailer(context, null, mailTo, "encounterDelete", tagMap);
           ThreadPoolExecutor es = MailThreadExecutorService.getExecutorService();
           es.execute(mailer);

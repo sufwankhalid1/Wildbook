@@ -35,11 +35,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.ecocean.CommonConfiguration;
 import org.ecocean.ContextConfiguration;
-import org.ecocean.MailThreadExecutorService;
-import org.ecocean.NotificationMailer;
 import org.ecocean.Shepherd;
 import org.ecocean.ShepherdProperties;
 import org.ecocean.User;
+import org.ecocean.email.old.MailThreadExecutorService;
+import org.ecocean.email.old.NotificationMailer;
 import org.ecocean.security.Collaboration;
 
 import com.google.gson.Gson;

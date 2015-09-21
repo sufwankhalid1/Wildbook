@@ -19,7 +19,10 @@
 
 package org.ecocean.servlet;
 
-import org.ecocean.*;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Map;
+import java.util.Vector;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -27,27 +30,32 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Map;
-import java.util.Vector;
+import org.ecocean.CommonConfiguration;
+import org.ecocean.Encounter;
+import org.ecocean.MarkedIndividual;
+import org.ecocean.Shepherd;
+import org.ecocean.email.old.NotificationMailer;
+import org.ecocean.email.old.NotificationMailerHelper;
 
 
 public class DontTrack extends HttpServlet {
 
 
-  public void init(ServletConfig config) throws ServletException {
+  @Override
+public void init(final ServletConfig config) throws ServletException {
     super.init(config);
   }
 
 
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+  @Override
+public void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
 
     doPost(request, response);
   }
 
 
-  public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+  @Override
+public void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
     String context="context0";
     context=ServletUtilities.getContext(request);
     String langCode = ServletUtilities.getLanguageCode(request);
@@ -181,5 +189,5 @@ public class DontTrack extends HttpServlet {
 
 
 }
-	
-	
+
+

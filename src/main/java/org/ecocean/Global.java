@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.ecocean.email.Emailer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,22 +19,24 @@ public enum Global {
     private static Logger logger = LoggerFactory.getLogger(Global.class);
 
     private Map<String,ConnectionInfo> connectionInfo = new HashMap<>();
-    private ResourceReader initResources;
+    private ResourceReader appResources;
 
-    public void setInitResources(final ResourceReader resources) {
-        initResources = resources;
+    private Emailer emailer;
+
+    public void setAppResources(final ResourceReader resources) {
+        appResources = resources;
     }
 
-    public ResourceReader getInitResources() {
-        if (initResources == null) {
+    public ResourceReader getAppResources() {
+        if (appResources == null) {
             //
             // Purely as a safe-guard. Should not happen.
             //
-            initResources = new ResourceReaderImpl();
-            logger.warn("Init Resources were null, setting to empty set.");
+            appResources = new ResourceReaderImpl();
+            logger.warn("App Resources were null, setting to empty set.");
         }
 
-        return initResources;
+        return appResources;
     }
 
 
@@ -56,5 +59,17 @@ public enum Global {
       }
 
       return connectionInfo.get(connectionName);
+    }
+
+    public Emailer getEmailer() {
+        if (emailer == null) {
+            String host = getAppResources().getString("email.host", "localhost");
+            String username = getAppResources().getString("email.username", null);
+            String password = getAppResources().getString("email.password", null);
+
+            emailer = new Emailer(host, username, password);
+        }
+
+        return emailer;
     }
 }

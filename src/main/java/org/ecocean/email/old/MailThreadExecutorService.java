@@ -17,7 +17,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.ecocean;
+package org.ecocean.email.old;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -25,25 +25,23 @@ import java.util.concurrent.TimeUnit;
 
 public class MailThreadExecutorService {
 
-  //private static ThreadPoolExecutor threadPool;
+    //private static ThreadPoolExecutor threadPool;
 
-  public synchronized static ThreadPoolExecutor getExecutorService() {
+    public synchronized static ThreadPoolExecutor getExecutorService() {
+        try {
+            // if ((threadPool == null)||(threadPool.isTerminated())) {
 
-    try {
-      //if ((threadPool == null)||(threadPool.isTerminated())) {
+            //threadPool = new ThreadPoolExecutor(1, 1, 0, TimeUnit.SECONDS, (new ArrayBlockingQueue(100)));
 
-        //threadPool = new ThreadPoolExecutor(1, 1, 0, TimeUnit.SECONDS, (new ArrayBlockingQueue(100)));
+            return (new ThreadPoolExecutor(1, 1, 0, TimeUnit.SECONDS, (new ArrayBlockingQueue(100))));
 
-        return (new ThreadPoolExecutor(1, 1, 0, TimeUnit.SECONDS, (new ArrayBlockingQueue(100))));
 
-        
-      //}
-      //return threadPool;
-    } catch (Exception jdo) {
-      jdo.printStackTrace();
-      System.out.println("I couldn't deliver a requested ThreadPoolExecutor.");
-      return null;
+            //}
+            //return threadPool;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            System.out.println("I couldn't deliver a requested ThreadPoolExecutor.");
+            return null;
+        }
     }
-  }
-
 }

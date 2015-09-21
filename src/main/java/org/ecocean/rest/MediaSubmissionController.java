@@ -5,17 +5,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ThreadPoolExecutor;
 
+import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
-import org.ecocean.CommonConfiguration;
-import org.ecocean.MailThreadExecutorService;
-import org.ecocean.NotificationMailer;
-import org.ecocean.NotificationMailerHelper;
+import org.ecocean.email.EmailUtils;
 import org.ecocean.media.LocalAssetStore;
 import org.ecocean.media.MediaAsset;
 import org.ecocean.media.MediaAssetFactory;
@@ -44,6 +42,8 @@ import com.samsix.database.SqlInsertFormatter;
 import com.samsix.database.SqlUpdateFormatter;
 import com.samsix.database.SqlWhereFormatter;
 import com.samsix.database.Table;
+
+import de.neuland.jade4j.exceptions.JadeException;
 
 @RestController
 @RequestMapping(value = "/obj/mediasubmission")
@@ -357,33 +357,33 @@ public class MediaSubmissionController
                 email = media.getEmail();
             }
 
-            //get the email thread handler
-            ThreadPoolExecutor es = MailThreadExecutorService.getExecutorService();
-
-            //email the new submission address defined in commonConfiguration.properties
-
-            //build the URL
-            //build the message as HTML
-            //mediaSubmission.jsp?mediaSubmissionID=
-            //thank the submitter and photographer
-            String context = ServletUtilities.getContext(request);
-
+            //
             // Email notify admin of new mediasubmission in WIldbook
-            Map<String, String> tagMap = NotificationMailerHelper.createBasicTagMap(request,media);
-            List<String> mailTo = NotificationMailerHelper.splitEmails(CommonConfiguration.getNewSubmissionEmail(context));
-            //String mailSubj = "New media submission: " + media.getSubmissionid();
-            for (String emailTo : mailTo) {
-              NotificationMailer mailer = new NotificationMailer(context, null, emailTo, "newMediaSubmission-summary", tagMap);
-              es.execute(mailer);
-            }
+            //
+            Map<String, Object> model = new HashMap<>();
+            model.put("submission", media);
 
+            try {
+                EmailUtils.sendJadeTemplate(EmailUtils.getAdminSender(),
+                                            EmailUtils.getAdminRecipients(),
+                                            "submission/newadmin",
+                                            model);
+            } catch (JadeException | IOException | MessagingException ex) {
+                logger.error("Trouble sending admin email", ex);
+            }
 
             if (email != null) {
                 if (logger.isDebugEnabled()) {
                     logger.debug("sending thankyou email to:" + email);
                 }
-                NotificationMailer mailer = new NotificationMailer(context, null, email, "newMediaSubmission", tagMap);
-                es.execute(mailer);
+                try {
+                    EmailUtils.sendJadeTemplate(EmailUtils.getAdminSender(),
+                                                email,
+                                                "submission/newthankyou",
+                                                model);
+                } catch (JadeException | IOException | MessagingException ex) {
+                    logger.error("Trouble sending thank you email to [" + email + "]", ex);
+                }
             }
 
 

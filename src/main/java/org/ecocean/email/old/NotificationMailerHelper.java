@@ -1,4 +1,4 @@
-package org.ecocean;
+package org.ecocean.email.old;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -9,6 +9,9 @@ import java.util.Objects;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.ecocean.CommonConfiguration;
+import org.ecocean.Encounter;
+import org.ecocean.MarkedIndividual;
 import org.ecocean.media.MediaSubmission;
 
 public class NotificationMailerHelper {
@@ -99,7 +102,7 @@ public class NotificationMailerHelper {
        */
       public static Map<String, String> createBasicTagMap(final HttpServletRequest req, final MediaSubmission ms) {
         Map<String, String> map = new HashMap<>();
-        NotificationMailerHelper.addTags(map, req, ms);
+        addTags(map, req, ms);
         return map;
       }
 
@@ -216,7 +219,7 @@ public class NotificationMailerHelper {
         if (cs == null) {
           return Collections.emptyList();
         }
-    
+
         // Conservative checking to avoid potential blank email entries.
         String[] sep = cs.split("\\s*,\\s*");
         List<String> list = new ArrayList<>();

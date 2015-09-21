@@ -16,7 +16,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.ecocean;
+package org.ecocean.email.old;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -28,6 +28,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import org.ecocean.Global;
+import org.ecocean.email.EmailUtils;
+import org.ecocean.email.Emailer;
 import org.ecocean.servlet.ServletUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -156,8 +159,6 @@ public final class NotificationMailer implements Runnable {
   private String sender;
   /** Email addresses of recipients. */
   private Collection<String> recipients;
-  /** Map of tags/replacements for email content. */
-  private Map<String, String> map;
   /** Email template processor. */
   private EmailTemplate mailer;
   /** Flag indicating whether setup failed. */
@@ -184,20 +185,26 @@ public final class NotificationMailer implements Runnable {
       if (s == null || "".equals(s.trim()))
         throw new IllegalArgumentException("Invalid email TO address specified");
     }
-    this.context = context;
-    this.sender = CommonConfiguration.getAutoEmailAddress(context);
+    this.sender = EmailUtils.getAdminSender();
     this.recipients = to;
-    this.host = CommonConfiguration.getMailHost(context);
-    boolean useSSL = CommonConfiguration.getMailHostSslOption(context);
-    String mailAuth = CommonConfiguration.getMailAuth(context);
-    String[] mAuth = null;
-    if (mailAuth != null && mailAuth.contains(":"))
-      mAuth = mailAuth.split(":", 2);
+
+    //
+    // NOTE: Only grabbing the emailer here for now to get host and/or
+    // auth info. Eventually this class should either use the emailer
+    // to actually send the email or actually the class should probably just
+    // go away in lieu of the other class. That is, this code is replaced by Emailer.
+    //
+    Emailer emailer = Global.INST.getEmailer();
+    this.host = emailer.getHost();
+    boolean useSSL = (emailer.getUsername() != null);
+
     try {
       mailer = findAndLoadEmailTemplate(langCode, type);
       mailer.setHost(host, useSSL);
-      if (mAuth != null)
-        mailer.setUseAuth(true, mAuth[0], mAuth[1]);
+      if (useSSL) {
+          mailer.setUseAuth(true, emailer.getUsername(), emailer.getPassword());
+      }
+
       // Can also set port/SSL/etc. here if needed.
       // Perform tag replacements.
       if (map != null) {
@@ -343,13 +350,15 @@ public final class NotificationMailer implements Runnable {
       }
       String ht = (fCont[1] == null) ? null : TemplateFiller.loadTextFromFile(fCont[1]);
       template.replaceInPlainText(BASE_CONTENT_TAG, pt, false);
-      if (template.hasHtmlText())
+      if (template.hasHtmlText()) {
         template.replaceInHtmlText(BASE_CONTENT_TAG, ht, false);
+      }
     } else {
       // Place content in base template.
       template.replaceInPlainText(BASE_CONTENT_TAG, STANDARD_CONTENT_TAG, false);
-      if (template.hasHtmlText())
+      if (template.hasHtmlText()) {
         template.replaceInHtmlText(BASE_CONTENT_TAG, STANDARD_CONTENT_TAG, false);
+      }
     }
 
     // Return template.
@@ -399,18 +408,7 @@ public final class NotificationMailer implements Runnable {
       log.info("*** Not processing email as setup failed; see previous error log. ***");
       return;
     }
-    if (CommonConfiguration.sendEmailNotifications(context)) {
-      if (!"".equals(host.trim()) && !"none".equalsIgnoreCase(host)) {
-        try {
-          mailer.sendSingle(sender, recipients);
-        }
-        catch (Exception ex) {
-          ex.printStackTrace();
-          log.error("Error sending notification email", ex);
-          log.error("     from: " + sender);
-          log.error("     to  : " + EmailTemplate.join(",", recipients));
-        }
-      }
-    }
+
+    mailer.sendSingle(sender, recipients, null, null);
   }
 }

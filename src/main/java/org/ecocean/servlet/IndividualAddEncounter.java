@@ -39,11 +39,12 @@ import javax.servlet.http.HttpServletResponse;
 import org.ecocean.Adoption;
 import org.ecocean.CommonConfiguration;
 import org.ecocean.Encounter;
-import org.ecocean.MailThreadExecutorService;
 import org.ecocean.MarkedIndividual;
-import org.ecocean.NotificationMailer;
-import org.ecocean.NotificationMailerHelper;
 import org.ecocean.Shepherd;
+import org.ecocean.email.EmailUtils;
+import org.ecocean.email.old.MailThreadExecutorService;
+import org.ecocean.email.old.NotificationMailer;
+import org.ecocean.email.old.NotificationMailerHelper;
 import org.ecocean.mmutil.StringUtilities;
 
 
@@ -150,7 +151,7 @@ public void doPost(final HttpServletRequest request, final HttpServletResponse r
 
               // Notify administrator address
               Map<String, String> tagMap = NotificationMailerHelper.createBasicTagMap(request, addToMe, enc2add);
-              String mailTo = CommonConfiguration.getAutoEmailAddress(context);
+              String mailTo = EmailUtils.getAdminSender();
               NotificationMailer mailer = new NotificationMailer(context, null, mailTo, emailTemplate, tagMap);
               mailer.appendToSubject(" (sent to submitters)");
       			  es.execute(mailer);

@@ -276,7 +276,7 @@ public class LocalAssetStore extends AssetStore {
             }
 
             URL url;
-            if (!path.startsWith("/")) {
+            if (! path.startsWith("/")) {
                 url = new URL(webRoot() + "/" + path.toString());
             } else {
                 url = new URL(webRoot() + path.toString());

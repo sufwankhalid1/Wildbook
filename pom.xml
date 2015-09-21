@@ -137,7 +137,7 @@
     <dependency>
       <groupId>javax.mail</groupId>
       <artifactId>mail</artifactId>
-      <version>1.4.1</version>
+      <version>1.4.7</version>
     </dependency>
 
     <dependency>
@@ -432,7 +432,7 @@
     <dependency>
       <groupId>com.samsix</groupId>
       <artifactId>s6-util</artifactId>
-      <version>1.0.3</version>
+      <version>1.0.4-SNAPSHOT</version>
     </dependency>
 
     <dependency>

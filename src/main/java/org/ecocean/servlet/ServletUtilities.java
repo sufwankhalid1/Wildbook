@@ -58,16 +58,17 @@ import org.ecocean.CommonConfiguration;
 import org.ecocean.ContextConfiguration;
 import org.ecocean.Encounter;
 import org.ecocean.Global;
-import org.ecocean.MailThreadExecutorService;
 import org.ecocean.MarkedIndividual;
-import org.ecocean.NotificationMailer;
-import org.ecocean.NotificationMailerHelper;
 import org.ecocean.Occurrence;
 import org.ecocean.Shepherd;
 import org.ecocean.ShepherdProperties;
+import org.ecocean.email.old.MailThreadExecutorService;
+import org.ecocean.email.old.NotificationMailer;
+import org.ecocean.email.old.NotificationMailerHelper;
 import org.ecocean.mmutil.StringUtilities;
 import org.ecocean.rest.SimpleFactory;
 import org.ecocean.rest.SimpleUser;
+import org.ecocean.util.Jade4JUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
@@ -87,8 +88,6 @@ import com.sun.syndication.feed.synd.SyndFeed;
 import com.sun.syndication.io.SyndFeedInput;
 import com.sun.syndication.io.SyndFeedOutput;
 import com.sun.syndication.io.XmlReader;
-
-import de.neuland.jade4j.Jade4J;
 
 //ATOM feed
 
@@ -684,7 +683,7 @@ public static String getContext(final HttpServletRequest request) {
         map.put("stack", ExceptionUtils.getStackTrace(ex));
 
         try {
-            return Jade4J.render(request.getServletContext().getRealPath("/jade/error"), map);
+            return Jade4JUtils.renderFile(request.getServletContext().getRealPath("/jade/error"), map);
         } catch (Throwable ex2) {
             ex2.printStackTrace();
             return ex2.getMessage();
@@ -713,7 +712,7 @@ public static String getContext(final HttpServletRequest request) {
                                     final String jadeFile,
                                     final Map<String, Object> vars) {
         try {
-            return Jade4J.render(request.getServletContext().getRealPath("/jade/" + jadeFile), vars);
+            return Jade4JUtils.renderFile(request.getServletContext().getRealPath("/jade/" + jadeFile), vars);
         } catch (Throwable ex) {
             return renderError(request, ex);
         }

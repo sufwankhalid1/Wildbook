@@ -30,14 +30,11 @@ import java.net.URL;
 import java.nio.file.Path;
 
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * LocalAssetStoreTest tests LocalAssetStore.
  */
 public class LocalAssetStoreTest {
-    private static Logger log = LoggerFactory.getLogger(LocalAssetStoreTest.class);
 
     /** Subdir of resources dir that contains our test resource files. */
     private final static String TEST_DIR = "media";
@@ -158,6 +155,6 @@ public class LocalAssetStoreTest {
      * Return an example web root url for testing.
      */
     private String webRoot() {
-        return "http://example.com/assets/";
+        return "http://example.com/assets";
     }
 }

@@ -1,7 +1,7 @@
 /*
  * This file is a part of Wildbook.
  * Copyright (C) 2015 WildMe
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -18,14 +18,15 @@
 
 package org.ecocean.media;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.Path;
 
-import org.junit.*;
-
-import static org.junit.Assert.*;
+import org.junit.Test;
 
 /**
  * Test AssetStoreConfig routines.
@@ -37,7 +38,7 @@ public class AssetStoreConfigTest {
         AssetStoreConfig config = new AssetStoreConfig();
 
 		assertEquals("Empty config", "{}", config.configString());
-        
+
         config.put("root", new File("/tmp").toPath());
 		assertEquals("Simple config", "{\"root\":\"/tmp\"}", config.configString());
     }
@@ -62,18 +63,13 @@ public class AssetStoreConfigTest {
 
     @Test
     public void testGetConfigString() {
-        try {
-            AssetStoreConfig config = new AssetStoreConfig();
+        AssetStoreConfig config = new AssetStoreConfig();
 
-            String string = "/tmp";
-            Path path = new File(string).toPath();
-            URL url = new URL("http://example.com/assets");
+        String string = "/tmp";
+        Path path = new File(string).toPath();
 
-            config.put("root", path);
+        config.put("root", path);
 
-            assertEquals("String", string, config.getString("root"));
-        } catch (MalformedURLException e) {
-            fail("Bad URL format");
-        }
+        assertEquals("String", string, config.getString("root"));
     }
 }

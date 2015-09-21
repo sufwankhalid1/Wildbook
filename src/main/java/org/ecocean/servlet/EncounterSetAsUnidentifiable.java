@@ -33,9 +33,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.ecocean.CommonConfiguration;
 import org.ecocean.Encounter;
-import org.ecocean.MailThreadExecutorService;
-import org.ecocean.NotificationMailer;
-import org.ecocean.NotificationMailerHelper;
+import org.ecocean.email.old.MailThreadExecutorService;
+import org.ecocean.email.old.NotificationMailer;
+import org.ecocean.email.old.NotificationMailerHelper;
 import org.ecocean.Shepherd;
 
 //Set alternateID for this encounter/sighting

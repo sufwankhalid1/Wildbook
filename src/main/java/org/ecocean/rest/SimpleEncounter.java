@@ -3,9 +3,10 @@ package org.ecocean.rest;
 import java.time.LocalDate;
 import java.time.OffsetTime;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.ecocean.Location;
 
-class SimpleEncounter
+public class SimpleEncounter
 {
     private int id;
 
@@ -71,5 +72,11 @@ class SimpleEncounter
 
     public void setLocation(final Location location) {
         this.location = location;
+    }
+
+    @Override
+    public String toString()
+    {
+        return ToStringBuilder.reflectionToString(this);
     }
 }

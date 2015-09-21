@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8" language="java"
-         import="org.ecocean.*, org.ecocean.servlet.ServletUtilities, java.awt.Dimension, java.io.File, java.util.*, java.util.concurrent.ThreadPoolExecutor, javax.servlet.http.HttpSession" %>
+         import="org.ecocean.*, org.ecocean.email.EmailUtils; org.ecocean.servlet.ServletUtilities, java.awt.Dimension, java.io.File, java.util.*, java.util.concurrent.ThreadPoolExecutor, javax.servlet.http.HttpSession" %>
 <%@ taglib uri="http://www.sunwesttek.com/di" prefix="di" %>
 
 <jsp:include page="header.jsp" flush="true"/>
@@ -204,7 +204,7 @@ new_message.append("<html><body>");
 
 <p><%=props.getProperty("futureReference") %> <strong><%=number%></strong>.</p>
 
-<%=props.getProperty("questions") %> <a href="mailto:<%=CommonConfiguration.getAutoEmailAddress(context) %>"><%=CommonConfiguration.getAutoEmailAddress(context) %></a></p>
+<%=props.getProperty("questions") %> <a href="mailto:<%=EmailUtils.getAdminSender() %>"><%=EmailUtils.getAdminSender() %></a></p>
 
 <p>
 	<a href="http://<%=CommonConfiguration.getURLLocation(request)%>/encounters/encounter.jsp?number=<%=number%>"><%=props.getProperty("viewEncounter") %> <%=number%></a>.
@@ -212,14 +212,12 @@ new_message.append("<html><body>");
 <%
 
 
-if(CommonConfiguration.sendEmailNotifications(context)){
-
   // Retrieve background service for processing emails
   ThreadPoolExecutor es = MailThreadExecutorService.getExecutorService();
 
   // Email new submission address(es) defined in commonConfiguration.properties
   Map<String, String> tagMap = NotificationMailer.createBasicTagMap(request, enc);
-  List<String> mailTo = NotificationMailer.splitEmails(CommonConfiguration.getNewSubmissionEmail(context));
+  List<String> mailTo = NotificationMailer.splitEmails(EmailUtils.getAdminRecipients());
   String mailSubj = "New encounter submission: " + number;
   for (String emailTo : mailTo) {
     NotificationMailer mailer = new NotificationMailer(context, null, emailTo, "newSubmission-summary", tagMap);
@@ -265,7 +263,6 @@ if(CommonConfiguration.sendEmailNotifications(context)){
     }
   }
   es.shutdown();
-}
 
 myShepherd=null;
 

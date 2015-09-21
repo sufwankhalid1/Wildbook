@@ -39,11 +39,12 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.ecocean.CommonConfiguration;
 import org.ecocean.Encounter;
-import org.ecocean.MailThreadExecutorService;
 import org.ecocean.MarkedIndividual;
-import org.ecocean.NotificationMailer;
-import org.ecocean.NotificationMailerHelper;
 import org.ecocean.Shepherd;
+import org.ecocean.email.EmailUtils;
+import org.ecocean.email.old.MailThreadExecutorService;
+import org.ecocean.email.old.NotificationMailer;
+import org.ecocean.email.old.NotificationMailerHelper;
 import org.ecocean.mmutil.StringUtilities;
 
 
@@ -145,7 +146,7 @@ public void doPost(final HttpServletRequest request, final HttpServletResponse r
 
               // Notify new-submissions address (try "newsub" template, or fallback to standard)
               Map<String, String> tagMap = NotificationMailerHelper.createBasicTagMap(request, newShark, enc2make);
-              String mailTo = CommonConfiguration.getNewSubmissionEmail(context);
+              String mailTo = EmailUtils.getAdminRecipients();
               NotificationMailer mailer = new NotificationMailer(context, null, mailTo, "individualCreate", tagMap);
               mailer.appendToSubject(" (sent to submitters)");
       			  es.execute(mailer);

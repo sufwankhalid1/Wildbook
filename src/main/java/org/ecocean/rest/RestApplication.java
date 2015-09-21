@@ -60,24 +60,24 @@ public class RestApplication extends SpringBootServletInitializer {
         //
         // Load up resources
         //
-        ResourceReaderImpl initResources = new ResourceReaderImpl();
+        ResourceReaderImpl appResources = new ResourceReaderImpl();
 
         try {
-            initResources.addSource("application");
+            appResources.addSource("application");
         } catch (IOException ex) {
             logger.warn("Problem reading from application properties", ex);
         }
 
         String cust;
         try {
-            cust = initResources.getString("cust.name");
+            cust = appResources.getString("cust.name");
         } catch (UtilException ex) {
             logger.warn("Could not read customer name to configure application.", ex);
             cust = null;
         }
 
         try {
-            initResources.addSource("cust/" + cust + "/application");
+            appResources.addSource("cust/" + cust + "/application");
         } catch (IOException ex) {
             logger.warn("Trouble reading from customer configuration file" , ex);
         }
@@ -92,7 +92,7 @@ public class RestApplication extends SpringBootServletInitializer {
         try {
             File configFile = new File(new File(System.getProperty("catalina.base"), "conf"),
                                        servletContext.getContextPath() + "_init.properties");
-            initResources.addSource(configFile);
+            appResources.addSource(configFile);
         } catch (Throwable ex) {
             //
             // This is really just here to preserve the old way. If you just add the file above
@@ -113,7 +113,7 @@ public class RestApplication extends SpringBootServletInitializer {
         //
         // Now set this on the global so that we can use it elsewhere.
         //
-        Global.INST.setInitResources(initResources);
+        Global.INST.setAppResources(appResources);
 
         //
         // Finish loading up resources.
@@ -136,7 +136,7 @@ public class RestApplication extends SpringBootServletInitializer {
             ResourceReaderImpl secrets = new ResourceReaderImpl("secrets");
             Stormpath.init(secrets.getString("auth.stormpath.apikey.id"),
                            secrets.getString("auth.stormpath.apikey.secret"),
-                           initResources.getString("auth.stormpath.appname", cust));
+                           appResources.getString("auth.stormpath.appname", cust));
         } catch (Throwable ex) {
             logger.error("Trouble initializing stormpath.", ex);
         }

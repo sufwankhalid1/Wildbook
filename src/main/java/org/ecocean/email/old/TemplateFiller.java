@@ -1,4 +1,4 @@
-package org.ecocean;
+package org.ecocean.email.old;
 
 import java.io.File;
 import java.io.FileNotFoundException;

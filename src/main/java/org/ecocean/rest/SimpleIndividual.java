@@ -61,7 +61,7 @@ public class SimpleIndividual implements SimpleBeing
     public String getDisplayName() {
         String name;
         if (StringUtils.isBlank(nickname)) {
-            name = Global.INST.getInitResources().getString("individuals.unnamed.nickname", "[Unnamed]");
+            name = Global.INST.getAppResources().getString("individuals.unnamed.nickname", "[Unnamed]");
         } else {
             name = nickname;
         }

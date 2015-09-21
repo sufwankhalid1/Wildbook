@@ -103,21 +103,6 @@ public class CommonConfiguration {
     return getServerURI(req, contextPath).toASCIIString();
   }
 
-
-  public static String getMailHost(final String context) {
-    String s = getProperty("mailHost", context);
-    return s != null ? s.trim() : s;
-  }
-
-  public static boolean getMailHostSslOption(final String context) {
-    return parseBoolean(getProperty("mailHostSSL",context), false);
-  }
-
-  public static String getMailAuth(final String context) {
-    String s = getProperty("mailAuth", context);
-    return s != null ? s.trim() : s;
-  }
-
   public static String getWikiLocation(final String context) {
     Properties props=get(context);
     if(props.getProperty("wikiLocation")!=null){return props.getProperty("wikiLocation").trim();}
@@ -126,14 +111,6 @@ public class CommonConfiguration {
 
   public static String getDBLocation(final String context) {
     return getProperty("dbLocation",context).trim();
-  }
-
-  public static String getAutoEmailAddress(final String context) {
-    return getProperty("autoEmailAddress", context).trim();
-  }
-
-  public static String getNewSubmissionEmail(final String context) {
-    return getProperty("newSubmissionEmail",context).trim();
   }
 
   public static String getR(final String context) {
@@ -302,15 +279,6 @@ public class CommonConfiguration {
       return true;
     }
     return false;
-  }
-
-  public static boolean sendEmailNotifications(final String context) {
-    get(context);
-    boolean sendNotifications = true;
-    if ((getProperty("sendEmailNotifications",context) != null) && (getProperty("sendEmailNotifications", context).equals("false"))) {
-      sendNotifications = false;
-    }
-    return sendNotifications;
   }
 
   /**
