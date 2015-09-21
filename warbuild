@@ -1,0 +1,3 @@
+#!/bin/bash
+export MAVEN_OPTS=-Xmx512m
+mvn clean compile package -DskipTests -Dmaven.javadoc.skip=true -Dwildbook.cust=happywhale $1
