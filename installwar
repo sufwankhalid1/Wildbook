@@ -1,0 +1,31 @@
+#!/bin/bash
+webapp=$2
+
+if (( $# == 1 ))
+then
+    webapp=wildbook
+fi
+
+if (( $# == 0 ))
+then
+    echo "Just restarting tomcat..."
+fi
+
+sh $TOMCAT_HOME/bin/shutdown.sh
+rm -rf $TOMCAT_HOME/work
+rm -rf $TOMCAT_HOME/logs/*
+
+if [ -z "$WILDBOOK_LOGDIR" ]; then
+    rm -rf $WILDBOOK_LOGDIR/*.html
+    rm -rf $WILDBOOK_LOGDIR/*.log
+fi  
+
+if (( $# > 1 ))
+then
+    rm -rf $TOMCAT_HOME/webapps/${webapp}
+    rm -f $TOMCAT_HOME/webapps/${webapp}.war
+    cp -v $1 $TOMCAT_HOME/webapps/${webapp}.war
+fi
+
+export CATALINA_OPTS="-Xmx512m -Dlogging.config=$WILDBOOK_LOGDIR/logback.xml"
+sh $TOMCAT_HOME/bin/startup.sh

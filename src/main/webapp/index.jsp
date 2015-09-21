@@ -18,7 +18,7 @@ import="org.ecocean.Adoption,
         java.util.Properties,
         java.util.StringTokenizer,
         com.samsix.database.Database,
-        com.samsix.database.RecordSet"
+        com.samsix.database.DatabaseException"
 %>
 
 <jsp:include page="header.jsp" flush="true"/>
@@ -31,26 +31,7 @@ String context=ServletUtilities.getContext(request);
 
 //set up our Shepherd
 
-Shepherd myShepherd=null;
-myShepherd=new Shepherd(context);
-
-
-//check for and inject a default user 'tomcat' if none exists
-try (Database db = ShepherdPMF.getDb()) {
-    String sql = "SELECT count(*) as numusers FROM users";
-    RecordSet rs = db.getRecordSet(sql);
-    rs.next();
-    if (rs.getInt("numusers") == 0) {
-        User newUser = new User(null, "tomcat", "Tomcat User", "tomcat123");
-          
-        System.out.println("Creating tomcat user account...");
-        
-        UserFactory.saveUser(db, newUser);
-        UserFactory.addRole(db, newUser.getUserId(), "context0", "admin");
-        UserFactory.addRole(db, newUser.getUserId(), "context0", "destroyer");
-        UserFactory.addRole(db, newUser.getUserId(), "context0", "rest");
-    }
-}
+Shepherd myShepherd = new Shepherd(context);
 %>
 
 <style type="text/css">

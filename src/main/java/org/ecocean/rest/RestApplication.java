@@ -10,6 +10,8 @@ import org.ecocean.Global;
 import org.ecocean.media.AssetStore;
 import org.ecocean.media.AssetStoreFactory;
 import org.ecocean.security.Stormpath;
+import org.ecocean.security.User;
+import org.ecocean.security.UserFactory;
 import org.flywaydb.core.Flyway;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +24,8 @@ import org.springframework.context.annotation.Bean;
 
 import com.samsix.database.ConnectionInfo;
 import com.samsix.database.Database;
+import com.samsix.database.DatabaseException;
+import com.samsix.database.RecordSet;
 import com.samsix.util.UtilException;
 import com.samsix.util.io.ResourceReaderImpl;
 
@@ -154,6 +158,24 @@ public class RestApplication extends SpringBootServletInitializer {
         flyway.setSqlMigrationPrefix("");
         flyway.setDataSource(connectionInfo.getUrl(), connectionInfo.getUserName(), connectionInfo.getPassword());
         flyway.migrate();
+
+        //check for and inject a default user 'tomcat' if none exists
+        try (Database db = Global.INST.getDb()) {
+            String sql = "SELECT count(*) as numusers FROM users";
+            RecordSet rs = db.getRecordSet(sql);
+            if (rs.next() && rs.getInt("numusers") == 0) {
+                User newUser = new User(null, "tomcat", "Tomcat User", "tomcat123");
+
+                logger.info("Creating tomcat user account...");
+
+                UserFactory.saveUser(db, newUser);
+                UserFactory.addRole(db, newUser.getUserId(), "context0", "admin");
+                UserFactory.addRole(db, newUser.getUserId(), "context0", "destroyer");
+                UserFactory.addRole(db, newUser.getUserId(), "context0", "rest");
+            }
+        } catch (DatabaseException ex) {
+           logger.error("Can't create bootstrap user tomcat.", ex);
+        }
     }
 
     @Bean
