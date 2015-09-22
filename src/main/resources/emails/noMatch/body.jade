@@ -1,4 +1,4 @@
-extends partials/layout
+extends ../partials/layout
 
 block customcss
     style(type="text/css").
@@ -10,7 +10,7 @@ block title
     | Working on matching your submission
 
 block content
-    include partials/message-header.jade
+    include ../partials/message-header.jade
     +container()
         p It's been [five] days since you submitted your photo to [HappyWhale].
         p We wanted to let you know that we are still working on matching your submission to an individual [Humpback Whale]. Once a match is made, you will be notified and receive additional information about your sighting.
@@ -23,4 +23,4 @@ block content
     +centeredbutton('VISIT SITE', 'http://happywhale.com')
 
 block boxes
-    include partials/useful.jade
+    include ../partials/useful.jade

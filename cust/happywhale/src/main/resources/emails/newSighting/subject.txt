@@ -1,1 +1,0 @@
-${user.displayName}, $(individual.displayName) was sighted again!

@@ -1,4 +1,4 @@
-extends partials/layout
+extends ../artials/layout
 
 block customcss
     style(type="text/css").
@@ -10,7 +10,7 @@ block title
     | Thank you for your submission!
 
 block content
-    include partials/message-header.jade
+    include ../partials/message-header.jade
     +container()
         p We just received an additional submission from you and wanted to say thanks! You can log in to your account at any time to track new sightings and connect with people around the world!
         p
@@ -22,4 +22,4 @@ block content
     +centeredbutton('LOG IN', 'http://google.com')
 
 block boxes
-    include partials/useful.jade
+    include ../partials/useful.jade

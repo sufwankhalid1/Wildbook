@@ -1,4 +1,4 @@
-extends partials/layout
+extends ../partials/layout
 
 block title
     | Reset your password
@@ -7,4 +7,4 @@ block content
     include partials/message-header.jade
     +container()
         p A request has been made to reset your password. Click the button below to reset your password and choose a new one.
-    +centeredbutton('RESET PASSWORD', 'http://happywhale.com')(class="success")
+    +centeredbutton('RESET PASSWORD', 'http://happywhale.com')

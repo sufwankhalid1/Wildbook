@@ -1,4 +1,4 @@
-extends partials/layout
+extends ../partials/layout
 
 block customcss
     style(type="text/css").
@@ -10,7 +10,7 @@ block title
     | Your submission has been matched!
 
 block content
-    include partials/message-header.jade
+    include ../partials/message-header.jade
     +container()
         p One of your submissions has been matched to a known [Humback Whale]. Thank you for providing us information that will help scientists track the health and wellbeing of wildlife.
         p
@@ -23,4 +23,4 @@ block content
             a(href="/", class="alert") REPORT A FALSE MATCH
 
 block boxes
-    include partials/useful.jade
+    include ../partials/useful.jade
