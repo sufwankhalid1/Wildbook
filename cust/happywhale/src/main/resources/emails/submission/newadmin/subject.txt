@@ -1,1 +1,1 @@
-new admin subject
+new admin subject ${blah}

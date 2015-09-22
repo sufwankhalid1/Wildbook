@@ -1,6 +1,7 @@
 package org.ecocean.util;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Map;
 
 import org.ecocean.Global;
@@ -9,6 +10,7 @@ import de.neuland.jade4j.JadeConfiguration;
 import de.neuland.jade4j.exceptions.JadeCompilerException;
 import de.neuland.jade4j.exceptions.JadeException;
 import de.neuland.jade4j.template.ClasspathTemplateLoader;
+import de.neuland.jade4j.template.JadeTemplate;
 
 public class Jade4JUtils {
     private static JadeConfiguration fileConfig;
@@ -50,18 +52,31 @@ public class Jade4JUtils {
     }
 
 
+    private static String renderTemplate(final JadeConfiguration config,
+                                         final String template,
+                                         final Map<String, Object> model)
+        throws JadeCompilerException, JadeException, IOException
+    {
+        JadeTemplate jt = config.getTemplate(template);
+
+        if (model != null) {
+            return config.renderTemplate(jt, model);
+        }
+
+        return config.renderTemplate(jt, Collections.emptyMap());
+    }
+
+
     public static String renderFile(final String template, final Map<String, Object> model)
             throws JadeCompilerException, JadeException, IOException
     {
-        JadeConfiguration config = getFileConfig();
-        return config.renderTemplate(config.getTemplate(template), model);
+        return renderTemplate(getFileConfig(), template, model);
     }
 
 
     public static String renderCP(final String template, final Map<String, Object> model)
             throws JadeCompilerException, JadeException, IOException
     {
-        JadeConfiguration config = getCPConfig();
-        return config.renderTemplate(config.getTemplate(template), model);
+        return renderTemplate(getCPConfig(), template, model);
     }
 }

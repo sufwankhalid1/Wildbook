@@ -32,6 +32,16 @@ public class EmailUtils {
         return Global.INST.getAppResources().getString("email.admin.sender", null);
     }
 
+    private static String getPrefix(final String template) {
+        return "emails/" + template;
+    }
+
+    public static String getJadeEmailBody(final String template, final Map<String, Object> model)
+            throws JadeCompilerException, JadeException, IOException
+    {
+        return Jade4JUtils.renderCP(getPrefix(template) + "/body.jade", model);
+    }
+
 
     public static void sendJadeTemplate(final String sender,
                                         final String recipients,
@@ -47,8 +57,7 @@ public class EmailUtils {
         // Should we make our own cache for those then too so that these are cached along with the templates?
         // Probably.
         //
-        String prefix = "emails/" + template;
-        String subject = StringUtilities.readResourceToString(prefix + "/subject.text");
+        String subject = StringUtilities.readResourceToString(getPrefix(template) + "/subject.txt");
         if (subject == null) {
             subject = template;
         } else {
@@ -57,8 +66,9 @@ public class EmailUtils {
             subject = attrString.computeString(subject);
         }
 
-        String body = Jade4JUtils.renderCP(prefix + "/body.jade", model);
-
-        Global.INST.getEmailer().send(sender, recipients, subject, body);
+        Global.INST.getEmailer().send(sender,
+                                      recipients,
+                                      subject,
+                                      getJadeEmailBody(template, model));
     }
 }
