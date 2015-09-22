@@ -1,0 +1,22 @@
+extends partials/layout
+
+block title
+    | [Shai], [CRC-9726] was sighted again!
+
+block content
+    include partials/message-header.jade
+    +container()
+        p We thought you'd be interested to know that an individual you've sighted in the past has been spotted again!
+        p
+            h5 Here is some information about the sighting:
+            +submission("http://wildbook.happywhale.com/shepherd_data_dir/mediasubmission/125/20141103_kspencer_8401.jpg", "9/14/2015", "Santa Cruz, CA (41 25 01N and 120 58 57W)")
+        p
+            span The [Humpback Whale] was sighted by [HappyWhale] user
+                a(href="/")
+                 |  [Captain Ahab]
+            | . Click the link below to see all of [CRC-9726]'s sightings over the years, including yours. 
+            b Thank you for supporting our research!
+    +centeredbutton('VIEW INDIVIDUAL', 'http://google.com')
+
+block boxes
+    include partials/useful.jade

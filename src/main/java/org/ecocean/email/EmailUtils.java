@@ -17,6 +17,8 @@ import com.samsix.util.string.StringUtilities;
 import de.neuland.jade4j.exceptions.JadeCompilerException;
 import de.neuland.jade4j.exceptions.JadeException;
 
+//import jsoup here?
+
 public class EmailUtils {
     private static Logger logger = LoggerFactory.getLogger(EmailUtils.class);
 
@@ -41,6 +43,43 @@ public class EmailUtils {
     {
         return Jade4JUtils.renderCP(getPrefix(template) + "/body.jade", model);
     }
+    public static String getJadeEmailSubject(final String template, final Map<String, Object> model)
+            throws JadeCompilerException, JadeException, IOException
+    {
+        return Jade4Utils.renderCP(getPrefix(template) + "/subject.jade", model);
+    }
+    //Is this legit?
+    public static String inlineCss(final String html) {
+        final String style = "style";
+        Document doc = Jsoup.parse(html);
+        Elements els = doc.select(style);// to get all the style elements
+        for (Element e : els) {
+          String styleRules = e.getAllElements().get(0).data().replaceAll("\n", "").trim();
+          String delims = "{}";
+          StringTokenizer st = new StringTokenizer(styleRules, delims);
+          while (st.countTokens() > 1) {
+            String selector = st.nextToken(), properties = st.nextToken();
+            if (!selector.contains(":")) { // skip a:hover rules, etc.
+              Elements selectedElements = doc.select(selector);
+              for (Element selElem : selectedElements) {
+                String oldProperties = selElem.attr(style);
+                selElem.attr(style,
+                    oldProperties.length() > 0 ? concatenateProperties(
+                        oldProperties, properties) : properties);
+              }
+            }
+          }
+          e.remove();
+        }
+        return doc.toString();
+    }
+
+  private static String concatenateProperties(String oldProp, @NotNull String newProp) {
+    oldProp = oldProp.trim();
+    if (!oldProp.endsWith(";"))
+      oldProp += ";";
+    return oldProp + newProp.replaceAll("\\s{2,}", " ");
+  }
 
 
     public static void sendJadeTemplate(final String sender,
@@ -68,7 +107,7 @@ public class EmailUtils {
 
         Global.INST.getEmailer().send(sender,
                                       recipients,
-                                      subject,
+                                      getJadeEmailSubject(template, model),
                                       getJadeEmailBody(template, model));
     }
 }
