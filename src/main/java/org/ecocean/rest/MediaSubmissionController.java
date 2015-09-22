@@ -366,7 +366,7 @@ public class MediaSubmissionController
             try {
                 EmailUtils.sendJadeTemplate(EmailUtils.getAdminSender(),
                                             EmailUtils.getAdminRecipients(),
-                                            "submission/newadmin",
+                                            "admin/newSubmission",
                                             model);
             } catch (JadeException | IOException | MessagingException ex) {
                 logger.error("Trouble sending admin email", ex);
@@ -377,9 +377,10 @@ public class MediaSubmissionController
                     logger.debug("sending thankyou email to:" + email);
                 }
                 try {
+                    //IS THIS FOR THE FIRST SUBMISSION, SECOND, OR BOTH?
                     EmailUtils.sendJadeTemplate(EmailUtils.getAdminSender(),
                                                 email,
-                                                "submission/newthankyou",
+                                                "firstSubmission",
                                                 model);
                 } catch (JadeException | IOException | MessagingException ex) {
                     logger.error("Trouble sending thank you email to [" + email + "]", ex);
