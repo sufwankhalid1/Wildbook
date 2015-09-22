@@ -1,3 +1,4 @@
+include ../partials/mixins.jade
 extends ../partials/layout
 
 block customcss
@@ -7,20 +8,17 @@ block customcss
         }
 
 block title
-    | Working on matching your submission
+    | We're still working on matching your submission from #{submission.date}
 
 block content
     include ../partials/message-header.jade
     +container()
-        p It's been [five] days since you submitted your photo to [HappyWhale].
-        p We wanted to let you know that we are still working on matching your submission to an individual [Humpback Whale]. Once a match is made, you will be notified and receive additional information about your sighting.
+        p It's been #{submission.daysSince} days since you submitted your photo to #{site.name}.
+        p We wanted to let you know that we are still working on matching your submission to an individual animal. Once a match is made, you will be notified and receive additional information about your sighting.
         p
             h5 Here is some information from your submission:
-            +submission("http://wildbook.devhappywhale.com/shepherd_data_dir/mediasubmission/217/10957.jpg", "9/14/2015", "Santa Cruz, CA (41 25 01N and 120 58 57W)", "1")
+            +submission(submission.photos[0].url, submission.timeSubmitted, submission.verbatimLocation, submission.photos.length)
         p
             span In the meantime, feel free to browse our website to see the most recent submissions and matches of wildlife around the world! 
             b Thank you for supporting our research!
-    +centeredbutton('VISIT SITE', 'http://happywhale.com')
-
-block boxes
-    include ../partials/useful.jade
+    +centeredbutton('VISIT SITE', site.url)

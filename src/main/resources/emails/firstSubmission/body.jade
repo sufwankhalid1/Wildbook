@@ -1,3 +1,4 @@
+include ../partials/mixins.jade
 extends ../partials/layout
 
 block customcss
@@ -12,14 +13,11 @@ block title
 block content
     include ../partials/message-header.jade
     +container()
-        p Welcome to [HappyWhale]! An account has been created for you with your first media submission. You can use it to track your sightings, share them with others, and connect with people around the world!
+        p Welcome to #{site.name}! An account has been created for you with your first media submission. You can use it to track your sightings, share them with others, and connect with people around the world!
         p
             h5 Here is some information from your first submission:
-            +submission("http://wildbook.happywhale.com/shepherd_data_dir/mediasubmission/125/20141103_kspencer_8401.jpg", "9/14/2015", "Santa Cruz CA", "3")
+            +submission(submission.photos[0].url, submission.timeSubmitted, submission.verbatimLocation, submission.photos.length)
         p
             span Once a match is made, you will be notified and receive additional information about your sighting. 
             b Thank you for supporting our research!
-    +centeredbutton('VERIFY ACCOUNT', 'http://google.com')(class="success")
-
-block boxes
-    include ../partials/useful.jade
+    +centeredbutton('VERIFY ACCOUNT', site.verifyUrl)

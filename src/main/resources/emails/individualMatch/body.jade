@@ -1,3 +1,4 @@
+include ../partials/mixins.jade
 extends ../partials/layout
 
 block customcss
@@ -7,20 +8,17 @@ block customcss
         }
 
 block title
-    | Your submission has been matched!
+    | #{user.displayName}, we found an individual matching your submission to ${site.name}
 
 block content
     include ../partials/message-header.jade
     +container()
-        p One of your submissions has been matched to a known [Humback Whale]. Thank you for providing us information that will help scientists track the health and wellbeing of wildlife.
+        p One of your submissions has been matched to a known #{individual.speciesDisplayName}. Thank you for providing us information that will help scientists track the health and wellbeing of wildlife.
         p
             h5 Here are the details:
-            +match('http://wildbook.happywhale.com/shepherd_data_dir/mediasubmission/187/20150619_TCheeseman_1436.jpg', 'http://wildbook.happywhale.com/shepherd_data_dir/mediasubmission/395/june6wwFLUKES-5.jpg', 'CRC-12555')
+            +match(submission.photos[0].url, individual.photos[0].url, individual.displayName)
         p
             span You can view this individual by clicking the button below. There you'll be able to share your finding with friends and family! If you feel that the match was false, submit a report using the link at the bottom of this message.
-    +centeredbutton('VIEW INDIVIDUAL', 'http://happywhale.com')
+    +centeredbutton('VIEW INDIVIDUAL', site.url + '/individual/' +  individual.id)
         p.center(style="text-align: center")
-            a(href="/", class="alert") REPORT A FALSE MATCH
-
-block boxes
-    include ../partials/useful.jade
+            a(href=site.url + '/reportFalse/' + individual.id', class="alert") REPORT A FALSE MATCH

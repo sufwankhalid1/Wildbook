@@ -1,7 +1,8 @@
+include ../partials/mixins.jade
 extends ../partials/layout
 
 block title
-    | [Shai], [CRC-9726] was sighted again!
+    | #{user.displayName}, #(individual.displayName) was sighted again!
 
 block content
     include ../partials/message-header.jade
@@ -9,14 +10,11 @@ block content
         p We thought you'd be interested to know that an individual you've sighted in the past has been spotted again!
         p
             h5 Here is some information about the sighting:
-            +submission("http://wildbook.happywhale.com/shepherd_data_dir/mediasubmission/125/20141103_kspencer_8401.jpg", "9/14/2015", "Santa Cruz, CA")
+            +submission(submission.photos[0].url, submission.timeSubmitted, submission.verbatimLocation)
         p
-            span The [Humpback Whale] was sighted by [HappyWhale] user
-                a(href="/")
-                    | [Captain Ahab]
-                | . Click the link below to see all of [CRC-9726]'s sightings over the years, including yours. 
+            span The #{individual.speciesDisplayName} was sighted by #{site.name} user
+                a(href=site.url + '/user/' + submission.user.id)
+                    | #{submission.user.displayName}
+                | . Click the link below to see all of #{individual.displayName}'s sightings over the years, including yours. 
             b Thank you for supporting our research!
-    +centeredbutton('VIEW INDIVIDUAL', 'http://google.com')
-
-block boxes
-    include ../partials/useful.jade
+    +centeredbutton('VIEW INDIVIDUAL', site.url + '/individual/' +  individual.id)

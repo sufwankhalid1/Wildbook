@@ -362,6 +362,7 @@ public class MediaSubmissionController
             //
             Map<String, Object> model = new HashMap<>();
             model.put("submission", media);
+            model.put("user", user);
 
             try {
                 EmailUtils.sendJadeTemplate(EmailUtils.getAdminSender(),

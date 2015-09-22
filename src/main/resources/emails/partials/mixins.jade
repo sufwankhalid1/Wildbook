@@ -13,7 +13,7 @@ mixin container()
                 block
 
 mixin outerrow(class)
-    table.row(class="#{class}")
+    table.row(class=class)
         tr
             td.wrapper.last
                 block
@@ -58,7 +58,7 @@ mixin centeredbutton(content, href)
                             table.button.radius.medium-button
                                 tr
                                     td.pad-button
-                                        a(href="#{href}")= content
+                                        a(href=href)= content
                         td.sub-column.three
                         +expander
                 block

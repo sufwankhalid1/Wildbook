@@ -1,4 +1,5 @@
-extends ../artials/layout
+include ../partials/mixins.jade
+extends ../partials/layout
 
 block customcss
     style(type="text/css").
@@ -15,11 +16,8 @@ block content
         p We just received an additional submission from you and wanted to say thanks! You can log in to your account at any time to track new sightings and connect with people around the world!
         p
             h5 Here is some information from your submission:
-            +submission("http://wildbook.happywhale.com/shepherd_data_dir/mediasubmission/125/20141103_kspencer_8401.jpg", "9/14/2015", "Santa Cruz, CA (41 25 01N and 120 58 57W)", "3")
+            +submission(submission.photos[0].url, submission.timeSubmitted, submission.verbatimLocation, submission.photos.length)
         p
             span Once a match is made, you will be notified and receive additional information about your sighting. 
             b Thank you for supporting our research!
-    +centeredbutton('LOG IN', 'http://google.com')
-
-block boxes
-    include ../partials/useful.jade
+    +centeredbutton('LOG IN', site.url)
