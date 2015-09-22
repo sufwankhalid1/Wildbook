@@ -46,40 +46,40 @@ public class EmailUtils {
     public static String getJadeEmailSubject(final String template, final Map<String, Object> model)
             throws JadeCompilerException, JadeException, IOException
     {
-        return Jade4Utils.renderCP(getPrefix(template) + "/subject.jade", model);
+        return Jade4JUtils.renderCP(getPrefix(template) + "/subject.jade", model);
     }
     //Is this legit?
-    public static String inlineCss(final String html) {
-        final String style = "style";
-        Document doc = Jsoup.parse(html);
-        Elements els = doc.select(style);// to get all the style elements
-        for (Element e : els) {
-          String styleRules = e.getAllElements().get(0).data().replaceAll("\n", "").trim();
-          String delims = "{}";
-          StringTokenizer st = new StringTokenizer(styleRules, delims);
-          while (st.countTokens() > 1) {
-            String selector = st.nextToken(), properties = st.nextToken();
-            if (!selector.contains(":")) { // skip a:hover rules, etc.
-              Elements selectedElements = doc.select(selector);
-              for (Element selElem : selectedElements) {
-                String oldProperties = selElem.attr(style);
-                selElem.attr(style,
-                    oldProperties.length() > 0 ? concatenateProperties(
-                        oldProperties, properties) : properties);
-              }
-            }
-          }
-          e.remove();
-        }
-        return doc.toString();
-    }
+  //   public static String inlineCss(final String html) {
+  //       final String style = "style";
+  //       Document doc = Jsoup.parse(html);
+  //       Elements els = doc.select(style);// to get all the style elements
+  //       for (Element e : els) {
+  //         String styleRules = e.getAllElements().get(0).data().replaceAll("\n", "").trim();
+  //         String delims = "{}";
+  //         StringTokenizer st = new StringTokenizer(styleRules, delims);
+  //         while (st.countTokens() > 1) {
+  //           String selector = st.nextToken(), properties = st.nextToken();
+  //           if (!selector.contains(":")) { // skip a:hover rules, etc.
+  //             Elements selectedElements = doc.select(selector);
+  //             for (Element selElem : selectedElements) {
+  //               String oldProperties = selElem.attr(style);
+  //               selElem.attr(style,
+  //                   oldProperties.length() > 0 ? concatenateProperties(
+  //                       oldProperties, properties) : properties);
+  //             }
+  //           }
+  //         }
+  //         e.remove();
+  //       }
+  //       return doc.toString();
+  //   }
 
-  private static String concatenateProperties(String oldProp, @NotNull String newProp) {
-    oldProp = oldProp.trim();
-    if (!oldProp.endsWith(";"))
-      oldProp += ";";
-    return oldProp + newProp.replaceAll("\\s{2,}", " ");
-  }
+  // private static String concatenateProperties(String oldProp, String newProp) {
+  //   oldProp = oldProp.trim();
+  //   if (!oldProp.endsWith(";"))
+  //     oldProp += ";";
+  //   return oldProp + newProp.replaceAll("\\s{2,}", " ");
+  // }
 
 
     public static void sendJadeTemplate(final String sender,
@@ -96,7 +96,7 @@ public class EmailUtils {
         // Should we make our own cache for those then too so that these are cached along with the templates?
         // Probably.
         //
-        String subject = StringUtilities.readResourceToString(getPrefix(template) + "/subject.txt");
+        String subject = getJadeEmailSubject(template, model);
         if (subject == null) {
             subject = template;
         } else {
