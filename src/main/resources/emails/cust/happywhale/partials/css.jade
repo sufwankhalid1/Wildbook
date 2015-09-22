@@ -29,13 +29,23 @@ style(type="text/css").
         display: inline-block;
     }
     .greeting {
-        vertical-align: middle;
+        vertical-align: bottom;
     }
     .left {
         text-align: left;
     }
     .right {
         text-align: right;
+    }
+    .middle {
+        vertical-align: middle;
+    }
+    .top {
+        vertical-align: top;
+    }
+    a.alert {
+        color: #970B0E;
+        font-weight: bold;
     }
     .footer .panel {
         background: #107d9f;
@@ -62,15 +72,16 @@ style(type="text/css").
         display: inline-block;
         max-width: 65px;
     }
-    div.individual {
+    div.submission,
+    div.match {
         padding: 15px;
     }
-    div.individual img {
-        margin: 15px 0;
+    div.submission img {
+        margin: 10px 0;
     }
 
     @media only screen and (min-width: 601px) {
-        div.individual img {
+        div.submission img {
             max-width: 550px;
         }
     }

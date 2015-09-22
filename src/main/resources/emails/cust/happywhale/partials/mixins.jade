@@ -26,11 +26,6 @@ mixin innerrow()
 mixin wrapper(panel)
     table.wrapper&attributes(attributes)
         tr
-            block
-
-mixin wrapper(panel)
-    table.wrapper&attributes(attributes)
-        tr
             if(panel == 'panel')
                 td.panel
                     block
