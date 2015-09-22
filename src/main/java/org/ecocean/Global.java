@@ -72,4 +72,9 @@ public enum Global {
 
         return emailer;
     }
+
+
+    public boolean isDevEnv() {
+        return appResources.getBoolean("environment.development", false);
+    }
 }

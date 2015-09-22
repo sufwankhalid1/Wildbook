@@ -43,9 +43,9 @@ public class Jade4JUtils {
         if (fileConfig == null) {
             fileConfig = new JadeConfiguration();
             //
-            // For debug purposes you can disable the cache.
+            // For debug purposes we disable the cache when developing
             //
-            fileConfig.setCaching(Global.INST.getAppResources().getBoolean("email.jade.cache.enabled", true));
+            fileConfig.setCaching(! Global.INST.isDevEnv());
         }
 
         return fileConfig;

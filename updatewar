@@ -2,7 +2,7 @@
 
 VENDORS="--exclude=tools --exclude=bcomponents"
 classes=false
-
+cust=
 while [[ $# > 0 ]]
 do
     key="$1"
@@ -11,8 +11,12 @@ do
         VENDORS=""
         shift
         ;;
-        -c|--classes)
+        -C|--classes)
         classes=true
+        shift
+        ;;
+        -c|--cust)
+        cust="$2"
         shift
         ;;
         *)
@@ -25,6 +29,14 @@ done
 rsync -rv $VENDORS --exclude=WEB-INF --exclude=xcalendar --exclude=onlinehelp --exclude=images --exclude=software src/main/webapp/ $TOMCAT_HOME/webapps/wildbook
 
 if [ "$classes" = true ] ; then
-    mvn compile -o;
+    mvn compile -o
     rsync -rv target/classes/org/ $TOMCAT_HOME/webapps/wildbook/WEB-INF/classes/org
+fi
+
+#
+# Get cust resources copied over.
+#
+if [ ! -z "$cust" ]; then
+    mvn compile -o -Dwildbook.cust=${cust}
+    rsync -rv target/classes/ $TOMCAT_HOME/webapps/wildbook/WEB-INF/classes
 fi

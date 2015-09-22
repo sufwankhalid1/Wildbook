@@ -88,7 +88,7 @@ public class RestApplication extends SpringBootServletInitializer {
 
         //
         // TODO: I could not for the life of me get tomcat (on my mac dev machine anyway)
-        // read this file from anywhere despite the fact that I tried to put it in all the
+        // to read this file from anywhere despite the fact that I tried to put it in all the
         // places that are supposed to be on the classpath. So instead I had to resort
         // to loading it by direct file input.
         //
