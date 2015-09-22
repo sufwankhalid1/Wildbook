@@ -43,11 +43,6 @@ public class EmailUtils {
     {
         return Jade4JUtils.renderCP(getPrefix(template) + "/body.jade", model);
     }
-    public static String getJadeEmailSubject(final String template, final Map<String, Object> model)
-            throws JadeCompilerException, JadeException, IOException
-    {
-        return Jade4JUtils.renderCP(getPrefix(template) + "/subject.jade", model);
-    }
     //Is this legit?
   //   public static String inlineCss(final String html) {
   //       final String style = "style";
@@ -96,7 +91,7 @@ public class EmailUtils {
         // Should we make our own cache for those then too so that these are cached along with the templates?
         // Probably.
         //
-        String subject = getJadeEmailSubject(template, model);
+        String subject = StringUtilities.readResourceToString(getPrefix(template) + "/subject.txt");
         if (subject == null) {
             subject = template;
         } else {
@@ -107,7 +102,7 @@ public class EmailUtils {
 
         Global.INST.getEmailer().send(sender,
                                       recipients,
-                                      getJadeEmailSubject(template, model),
+                                      subject,
                                       getJadeEmailBody(template, model));
     }
 }
