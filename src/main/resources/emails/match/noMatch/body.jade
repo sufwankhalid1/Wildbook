@@ -1,5 +1,5 @@
-include ../partials/mixins.jade
-extends ../partials/layout
+include ../../partials/mixins.jade
+extends ../../partials/layout
 
 block customcss
     style(type="text/css").
@@ -11,7 +11,7 @@ block title
     | We're still working on matching your submission from #{subinfo.date}
 
 block content
-    include ../partials/message-header.jade
+    include ../../partials/message-header.jade
     +container()
         p It's been #{subinfo.daysSince} days since you submitted your photo to #{cust.info.website}.
         p We wanted to let you know that we are still working on matching your submission to an individual animal. Once a match is made, you will be notified and receive additional information about your sighting.

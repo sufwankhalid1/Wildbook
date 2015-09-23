@@ -1,5 +1,5 @@
-include ../partials/mixins.jade
-extends ../partials/layout
+include ../../partials/mixins.jade
+extends ../../partials/layout
 
 block customcss
     style(type="text/css").
@@ -11,7 +11,7 @@ block title
     | #{user.fullName}, we found an individual matching your submission to #{cust.displayName}
 
 block content
-    include ../partials/message-header.jade
+    include ../../partials/message-header.jade
     +container()
         p One of your submissions has been matched to a known #{individual.speciesDisplayName}. Thank you for providing us information that will help scientists track the health and wellbeing of wildlife.
         p

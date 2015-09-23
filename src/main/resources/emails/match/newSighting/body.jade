@@ -1,11 +1,11 @@
-include ../partials/mixins.jade
-extends ../partials/layout
+include ../../partials/mixins.jade
+extends ../../partials/layout
 
 block title
     | #{user.fullName}, #(individual.displayName) was sighted again!
 
 block content
-    include ../partials/message-header.jade
+    include ../../partials/message-header.jade
     +container()
         p We thought you'd be interested to know that an individual you've sighted in the past has been spotted again!
             h5 Here is some information about the sighting:
