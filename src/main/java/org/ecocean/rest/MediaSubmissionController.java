@@ -364,6 +364,19 @@ public class MediaSubmissionController
             model.put("submission", media);
             model.put("user", user);
 
+            //
+            // Check db for any submissions already.
+            //
+            // If (first submission)
+//                send fs
+//
+//                else
+//                    if (verified)
+//                        send thanks
+//                        else
+//                            send thanks hey, verify
+            //
+            //
             try {
                 EmailUtils.sendJadeTemplate(EmailUtils.getAdminSender(),
                                             EmailUtils.getAdminRecipients(),

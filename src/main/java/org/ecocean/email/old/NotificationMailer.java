@@ -140,7 +140,7 @@ public final class NotificationMailer implements Runnable {
   /** Charset for HTML text email. */
   private static final Charset CHARSET_HTML = Charset.forName("UTF-8");
   /** Search path for email templates (relative to root resources). */
-  private static final String SEARCH_PATH = "emails";
+  private static final String SEARCH_PATH = "emails/notificationmailer";
   /** Base email template from which all emails are derived. */
   private static final String BASE_TEMPLATE_ROOT = "email-template";
   /** Tag in base template to replace with email-specific content. */
