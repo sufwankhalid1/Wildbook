@@ -1,13 +1,19 @@
 package org.ecocean.email;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.AddressException;
 
 import org.ecocean.Global;
 import org.ecocean.util.Jade4JUtils;
+import org.ecocean.util.LogBuilder;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,10 +23,19 @@ import com.samsix.util.string.StringUtilities;
 import de.neuland.jade4j.exceptions.JadeCompilerException;
 import de.neuland.jade4j.exceptions.JadeException;
 
-//import jsoup here?
 
 public class EmailUtils {
-    private static Logger logger = LoggerFactory.getLogger(EmailUtils.class);
+    private final static String ATTR_STYLE = "style";
+    private final static Logger logger = LoggerFactory.getLogger(EmailUtils.class);
+
+    private final static List<String> genericKeys =
+            Arrays.asList(new String[]{"cust.displayname",
+                                       "cust.info.website",
+                                       "cust.info.logo",
+                                       "cust.info.social.instagram",
+                                       "cust.info.social.facebook",
+                                       "cust.info.social.twitter"});
+
 
     private EmailUtils() {
         // prevent instantiation
@@ -38,44 +53,64 @@ public class EmailUtils {
         return "emails/" + template;
     }
 
-    public static String getJadeEmailBody(final String template, final Map<String, Object> model)
+    public static String getJadeEmailBody(final String template,
+                                          final Map<String, Object> model,
+                                          final boolean inlineStyles)
             throws JadeCompilerException, JadeException, IOException
     {
-        return Jade4JUtils.renderCP(getPrefix(template) + "/body.jade", model);
+        String body = Jade4JUtils.renderCP(getPrefix(template) + "/body.jade", model);
+
+        if (inlineStyles) {
+            return inlineCss(body);
+        }
+
+        return body;
     }
-    //TODO: Make the following code work, then inline css before returning the email body ^
 
-  //   public static String inlineCss(final String html) {
-  //       final String style = "style";
-  //       Document doc = Jsoup.parse(html);
-  //       Elements els = doc.select(style);// to get all the style elements
-  //       for (Element e : els) {
-  //         String styleRules = e.getAllElements().get(0).data().replaceAll("\n", "").trim();
-  //         String delims = "{}";
-  //         StringTokenizer st = new StringTokenizer(styleRules, delims);
-  //         while (st.countTokens() > 1) {
-  //           String selector = st.nextToken(), properties = st.nextToken();
-  //           if (!selector.contains(":")) { // skip a:hover rules, etc.
-  //             Elements selectedElements = doc.select(selector);
-  //             for (Element selElem : selectedElements) {
-  //               String oldProperties = selElem.attr(style);
-  //               selElem.attr(style,
-  //                   oldProperties.length() > 0 ? concatenateProperties(
-  //                       oldProperties, properties) : properties);
-  //             }
-  //           }
-  //         }
-  //         e.remove();
-  //       }
-  //       return doc.toString();
-  //   }
+    //
+    // Code to inline the css so that it can be used in webmail
+    //
+    private static String inlineCss(final String html) {
+        Document doc = Jsoup.parse(html);
 
-  // private static String concatenateProperties(String oldProp, String newProp) {
-  //   oldProp = oldProp.trim();
-  //   if (!oldProp.endsWith(";"))
-  //     oldProp += ";";
-  //   return oldProp + newProp.replaceAll("\\s{2,}", " ");
-  // }
+        //
+        // to get all the style elements
+        //
+        doc.select(ATTR_STYLE).forEach(element -> {
+            String styleRules = element.getAllElements().get(0).data().replaceAll("\n", "").trim();
+            String delims = "{}";
+            StringTokenizer st = new StringTokenizer(styleRules, delims);
+            while (st.countTokens() > 1) {
+                String selector = st.nextToken(), properties = st.nextToken();
+
+                if (logger.isDebugEnabled()) {
+                    logger.debug(LogBuilder.quickLog("selector", selector));
+                }
+
+                if (! selector.contains(":")) { // skip a:hover rules, etc.
+                    doc.select(selector).forEach(selElem -> {
+                        String oldProperties = selElem.attr(ATTR_STYLE);
+                        selElem.attr(ATTR_STYLE,
+                                     oldProperties.length() > 0
+                                         ? concatenateProperties(oldProperties, properties)
+                                         : properties);
+                    });
+                }
+            }
+            element.remove();
+        });
+
+        return doc.toString();
+    }
+
+    private static String concatenateProperties(String oldProp, final String newProp) {
+        oldProp = oldProp.trim();
+        if (!oldProp.endsWith(";")) {
+            oldProp += ";";
+        }
+
+        return oldProp + newProp.replaceAll("\\s{2,}", " ");
+    }
 
 
     public static void sendJadeTemplate(final String sender,
@@ -83,6 +118,12 @@ public class EmailUtils {
                                         final String template,
                                         final Map<String, Object> model)
         throws JadeCompilerException, JadeException, IOException, AddressException, MessagingException {
+
+        //
+        // Add generic key stuff to the email model
+        //
+        genericKeys.forEach(key -> model.put(key, Global.INST.getAppResources().getString(key, null)));
+
         //
         // TODO: Add in internationalization by reading into the model a list of internationalizations.
         // Tack them into the map as a map called "trans" or something like that.
@@ -104,6 +145,6 @@ public class EmailUtils {
         Global.INST.getEmailer().send(sender,
                                       recipients,
                                       subject,
-                                      getJadeEmailBody(template, model));
+                                      getJadeEmailBody(template, model, true));
     }
 }

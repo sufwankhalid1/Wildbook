@@ -30,7 +30,9 @@ public class EmailTester {
     public void testEmail(final HttpServletRequest request,
                           final HttpServletResponse response,
                           @RequestParam
-                          final String template)
+                          final String template,
+                          @RequestParam(defaultValue = "true")
+                          final boolean inlinestyles)
         throws JadeCompilerException, JadeException, IOException, NumberFormatException, DatabaseException
     {
         Map<String, Object> model = new HashMap<String, Object>();
@@ -54,6 +56,6 @@ public class EmailTester {
         }
 
         PrintWriter out = response.getWriter();
-        out.println(EmailUtils.getJadeEmailBody(template, model));
+        out.println(EmailUtils.getJadeEmailBody(template, model, inlinestyles));
     }
 }
