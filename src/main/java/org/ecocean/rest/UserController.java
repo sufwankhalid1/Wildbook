@@ -254,6 +254,8 @@ public class UserController {
 
         try (Database db = ServletUtilities.getDb(request)) {
             User user = UserFactory.getUserByEmail(db, userInfo.email);
+            verify.newlyCreated = (user == null);
+
             if (user == null) {
                 //
                 // Check to see if for some reason we have this user on stormpath.
@@ -280,8 +282,8 @@ public class UserController {
                     Stormpath.getApplication().sendPasswordResetEmail(userInfo.email);
                 }
 
-                User wbuser = createUserFromStormpath(acc, password);
-                UserFactory.saveUser(db, wbuser);
+                user = createUserFromStormpath(acc, password);
+                UserFactory.saveUser(db, user);
             }
 
             verify.user = user.toSimple();

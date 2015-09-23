@@ -109,7 +109,7 @@ public class MediaSubmissionController
 
             List<MediaSubmission> mss = new ArrayList<MediaSubmission>();
 
-            db.getRecordSet(sql).forEach((rs) -> {
+            db.select(sql, (rs) -> {
                 mss.add(MediaSubmissionFactory.readMediaSubmission(rs));
             });
 
@@ -234,31 +234,31 @@ public class MediaSubmissionController
         throws DatabaseException
     {
         try (Database db = ServletUtilities.getDb(request)) {
-            MediaSubmissionFactory.save(db, media);
-
-            SimpleUser user = media.getUser();
-
-            User wbUser;
-            String email;
-            if (user != null) {
-                wbUser = UserFactory.getUserById(db, user.getId());
-                if (wbUser == null) {
-                    logger.warn("curious: unable to load a user with id [" + user.getId() + "]");
-                    email = null;
-                } else {
-                    email = wbUser.getEmail();
-                }
+            User user;
+            if (media.getUser() != null) {
+                user = UserFactory.getUserById(db, media.getUser().getId());
             } else {
-                wbUser = null;
-                email = media.getEmail();
+                user = UserFactory.getUserByEmail(db, media.getEmail());
+                //
+                // The user was added to the database, let's make sure the
+                // media submission has this info so that when we save it
+                // it will be with the user.
+                //
+                if (user != null) {
+                    media.setUser(user.toSimple());
+                }
             }
+
+            MediaSubmissionFactory.save(db, media);
 
             //
             // Email notify admin of new mediasubmission in WIldbook
             //
             Map<String, Object> model = EmailUtils.createModel();
             model.put("submission", media);
-            model.put("user", user);
+            if (user != null) {
+                model.put("user", user.toSimple());
+            }
 
             //
             // Send email to admin to let them know that there has been a new submission.
@@ -275,32 +275,32 @@ public class MediaSubmissionController
             //
             // Send email to user to thank them for their submission.
             //
-            if (email != null) {
+            if (user != null) {
                 Table table = db.getTable(MediaSubmissionFactory.TABLENAME_MEDIASUBMISSION);
-                long count = table.getCount("id != " + media.getId() + " AND userid = " + user.getId());
+                long count = table.getCount("id != " + media.getId() + " AND userid = " + user.getUserId());
 
                 String template;
                 if (count == 0) {
                     template = "media/firstSubmission";
-                } else if (wbUser == null || ! wbUser.isVerified()) {
+                } else if (user == null || ! user.isVerified()) {
                     template = "media/anotherSubmissionUnverified";
                 } else{
                     template = "media/anotherSubmission";
                 }
 
                 if (logger.isDebugEnabled()) {
-                    logger.debug("sending thankyou email to:" + email);
+                    logger.debug("sending thankyou email to:" + user.getEmail());
                 }
                 try {
                     EmailUtils.sendJadeTemplate(EmailUtils.getAdminSender(),
-                                                email,
+                                                user.getEmail(),
                                                 template,
                                                 model);
                 } catch (JadeException | IOException | MessagingException ex) {
                     logger.error("Trouble sending thank you email ["
                             + template
                             + "] to ["
-                            + email
+                            + user.getEmail()
                             + "]", ex);
                 }
             }
