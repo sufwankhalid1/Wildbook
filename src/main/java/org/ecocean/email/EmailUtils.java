@@ -2,6 +2,7 @@ package org.ecocean.email;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -113,16 +114,23 @@ public class EmailUtils {
     }
 
 
-    public static void sendJadeTemplate(final String sender,
-                                        final String recipients,
-                                        final String template,
-                                        final Map<String, Object> model)
-        throws JadeCompilerException, JadeException, IOException, AddressException, MessagingException {
+    public static Map<String, Object> createModel() {
+        Map<String, Object> model = new HashMap<>();
 
         //
         // Add generic key stuff to the email model
         //
         genericKeys.forEach(key -> model.put(key, Global.INST.getAppResources().getString(key, null)));
+
+        return model;
+    }
+
+
+    public static void sendJadeTemplate(final String sender,
+                                        final String recipients,
+                                        final String template,
+                                        final Map<String, Object> model)
+        throws JadeCompilerException, JadeException, IOException, AddressException, MessagingException {
 
         //
         // TODO: Add in internationalization by reading into the model a list of internationalizations.

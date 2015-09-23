@@ -2,7 +2,6 @@ package org.ecocean.rest;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -35,7 +34,7 @@ public class EmailTester {
                           final boolean inlinestyles)
         throws JadeCompilerException, JadeException, IOException, NumberFormatException, DatabaseException
     {
-        Map<String, Object> model = new HashMap<String, Object>();
+        Map<String, Object> model = EmailUtils.createModel();
 
         try (Database db = ServletUtilities.getDb(request)) {
             String individualId = request.getParameter("individualid");

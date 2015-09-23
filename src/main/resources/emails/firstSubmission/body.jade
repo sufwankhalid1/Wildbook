@@ -13,7 +13,7 @@ block title
 block content
     include ../partials/message-header.jade
     +container()
-        p Welcome to #{site.name}! An account has been created for you with your first media submission. You can use it to track your sightings, share them with others, and connect with people around the world!
+        p Welcome to #{cust.info.website}! An account has been created for you with your first media submission. You can use it to track your sightings, share them with others, and connect with people around the world!
         p
             h5 Here is some information from your first submission:
             +submission(submission.photos[0].url, submission.timeSubmitted, submission.verbatimLocation, submission.photos.length)

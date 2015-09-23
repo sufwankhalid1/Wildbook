@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -360,7 +359,7 @@ public class MediaSubmissionController
             //
             // Email notify admin of new mediasubmission in WIldbook
             //
-            Map<String, Object> model = new HashMap<>();
+            Map<String, Object> model = EmailUtils.createModel();
             model.put("submission", media);
             model.put("user", user);
 
