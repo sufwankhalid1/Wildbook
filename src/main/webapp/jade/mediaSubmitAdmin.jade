@@ -19,22 +19,41 @@ div(ng-controller="MediaSubmissionController")
         .container-flow
             .col-md-2
                 span Voyages
+                    a(href="javascript:;", ng-click="searchVoyage()")
+                        i.glyphicon.glyphicon-search
+                    a(href="javascript:;", ng-click="addVoyage()")
+                        i.glyphicon.glyphicon-plus
                 ul
                     li(ng-repeat="voyage in voyages")
                         +encounter_listitem(voyages.encounters)
                 span Encounters
+                    a(href="javascript:;", ng-click="searchEncounter()")
+                        i.glyphicon.glyphicon-search
+                    a(href="javascript:;", ng-click="addEncounter()")
+                        i.glyphicon.glyphicon-plus
                 +encounter_listitem(encounters)
             .col-md-10(style="height: 100%")
-                div(style="height: 50%)
-                    span.text-primary Submitted by: {{submission.user.displayName}}
-                    span on: {{timeToDate(submission.timeSubmitted)}}
-                    div
-                        span(ng-repeat="photo in photos", width="100px")
-                            a(href="javascript:;", ng-click="viewImage(photo.url)")
-                                img(ng-src="{{photo.thumbUrl}}", style="padding: 2px; max-width: 100%")
-                div(style="height: 50%")
-                //img.ng-cloak(ng-src="{{zoomimage}}", ng-show="zoomimage", style="max-height: 100%; max-width: 100%;")
-                //include partials/encounter_form
+                .ng-cloak(ng-show="! encsearch")
+                    div(style="height: 50%)
+                        span.text-primary Submitted by: {{submission.user.displayName}}
+                        span on: {{timeToDate(submission.timeSubmitted)}}
+                        div
+                            span(ng-repeat="photo in photos", width="100px")
+                                a(href="javascript:;", ng-click="viewImage(photo.url)")
+                                    img(ng-src="{{photo.thumbUrl}}", style="padding: 2px; max-width: 100%")
+                    div(style="height: 50%")
+                        .ng-cloak(ng-show="encounter")
+                            include partials/encounter_view
+                        //img.ng-cloak(ng-src="{{zoomimage}}", ng-show="zoomimage", style="max-height: 100%; max-width: 100%;")
+                .ng-cloak(ng-show="encsearch")
+                    .ng-cloak(ng-show="search.voyage")
+                        include partials/voyage_search
+                    .ng-cloak(ng-show="edit.voyage")
+                        include partials/voyage_edit
+                    .ng-cloak(ng-show="search.encounter")
+                        include partials/encounter_search
+                    .ng-cloak(ng-show="edit.encounter")
+                        include partials/encounter_edit
 
 script(src="bcomponents/angular/angular.js")
 script(src="bcomponents/moment/moment.js")

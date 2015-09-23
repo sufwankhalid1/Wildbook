@@ -16,13 +16,6 @@ app.controller("MediaSubmissionController", function ($scope, $http, $compile) {
         gridOptions.api.onNewRows();
     }
 
-    $scope.sendForID = function(id) {
-        //
-        // TODO: Send photo to service and update row to show this somehow.
-        //
-        alertplus.alert("TODO: Send photo [" + id + "] to ID service.");
-    }
-
 //    $scope.editEncounter = function(encounter) {
 //        $scope.zoomimage = null;
 //        $scope.encounter = encounter;

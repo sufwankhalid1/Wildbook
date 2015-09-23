@@ -24,12 +24,14 @@ import com.samsix.database.Table;
 public class UserFactory {
 //    private static Logger logger = LoggerFactory.getLogger(UserFactory.class);
 
-    private static String TABLENAME_USERS = "users";
+    public static String TABLENAME_USERS = "users";
     public static String TABLENAME_ROLES = "userroles";
     public static String TABLENAME_ORG = "organization";
 
     public static String AlIAS_USERS = "u";
     public static String ALIAS_ORG = "o";
+
+    public static String PK_USERS = "userid";
 
     private UserFactory() {
         // prevent instantiation
@@ -69,7 +71,7 @@ public class UserFactory {
         }
 
         SqlStatement sql = getUserStatement();
-        sql.addCondition(AlIAS_USERS, "userid", SqlRelationType.EQUAL, id);
+        sql.addCondition(AlIAS_USERS, PK_USERS, SqlRelationType.EQUAL, id);
         RecordSet rs = db.getRecordSet(sql);
 
         if (rs.next()) {
@@ -122,7 +124,7 @@ public class UserFactory {
 
 
     public static User readUser(final RecordSet rs) throws DatabaseException {
-        Integer id = rs.getInteger("userid");
+        Integer id = rs.getInteger(PK_USERS);
         if (id == null) {
             return null;
         }
@@ -184,13 +186,13 @@ public class UserFactory {
             SqlInsertFormatter formatter = new SqlInsertFormatter();
             fillUserFormatter(formatter, user);
 
-            user.setUserId(table.insertSequencedRow(formatter, "userid"));
+            user.setUserId(table.insertSequencedRow(formatter, PK_USERS));
         } else {
             SqlUpdateFormatter formatter = new SqlUpdateFormatter();
             fillUserFormatter(formatter, user);
 
             SqlWhereFormatter where = new SqlWhereFormatter();
-            where.append("userid", user.getUserId());
+            where.append(PK_USERS, user.getUserId());
             table.updateRow(formatter.getUpdateClause(), where.getWhereClause());
         }
     }
@@ -221,7 +223,7 @@ public class UserFactory {
                                                           final String context) throws DatabaseException {
         Table users = db.getTable(TABLENAME_ROLES);
         SqlWhereFormatter where = new SqlWhereFormatter();
-        where.append("userid", userid);
+        where.append(PK_USERS, userid);
         where.append("context", context);
         RecordSet rs = users.getRecordSet(where.getWhereClause());
 
@@ -243,7 +245,7 @@ public class UserFactory {
     public static void addRole(final Database db, final int userid, final String context, final String role) throws DatabaseException {
         Table users = db.getTable(TABLENAME_ROLES);
         SqlInsertFormatter formatter = new SqlInsertFormatter();
-        formatter.append("userid", userid)
+        formatter.append(PK_USERS, userid)
             .append("context", context)
             .append("rolename", role);
         users.insertRow(formatter.getColumnClause(), formatter.getValueClause());
@@ -257,7 +259,7 @@ public class UserFactory {
 
         Table users = db.getTable(TABLENAME_ROLES);
         SqlWhereFormatter where = new SqlWhereFormatter();
-        where.append("userid", userid);
+        where.append(PK_USERS, userid);
         where.append("context", context);
         where.append("rolename", role);
         RecordSet rs = users.getRecordSet(where.getWhereClause());
