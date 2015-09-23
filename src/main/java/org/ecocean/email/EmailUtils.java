@@ -43,7 +43,8 @@ public class EmailUtils {
     {
         return Jade4JUtils.renderCP(getPrefix(template) + "/body.jade", model);
     }
-    //Is this legit?
+    //TODO: Make the following code work, then inline css before returning the email body ^
+
   //   public static String inlineCss(final String html) {
   //       final String style = "style";
   //       Document doc = Jsoup.parse(html);
