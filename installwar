@@ -15,7 +15,7 @@ sh $TOMCAT_HOME/bin/shutdown.sh
 rm -rf $TOMCAT_HOME/work
 rm -rf $TOMCAT_HOME/logs/*
 
-if [ -z "$WILDBOOK_LOGDIR" ]; then
+if ! [ -z ${WILDBOOK_LOGDIR+x} ]; then
     rm -rf $WILDBOOK_LOGDIR/*.html
     rm -rf $WILDBOOK_LOGDIR/*.log
 fi  

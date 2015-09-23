@@ -1,3 +1,5 @@
+include partials/mixins.jade
+
 link(rel='stylesheet', href="bcomponents/ag-grid/angular-grid.min.css")
 link(rel='stylesheet', href="bcomponents/ag-grid/theme-fresh.min.css")
 
@@ -7,26 +9,33 @@ div(ng-controller="MediaSubmissionController")
         .ag-fresh(ag-grid="msGridOptions", style="height: 400px;")
 
     div.ng-cloak(ng-show="submission")
-        h2 Edit Media Submission
-        h3.text-primary {{submission.user.displayName}}
-        button.btn.btn-primary(ng-click="doneEditing()") Done
-        button.btn.btn-primary(ng-click="createEncounter()") Create Encounter
-        button.btn.btn-danger.pull-right(ng-click="deleteSubmission()") Delete
+        h3 Edit Media Submission
+            span
+                button.btn.btn-primary(ng-click="doneEditing()")
+                    i.glyphicon.glyphicon-check
+            span
+                button.btn.btn-danger(ng-click="deleteSubmission()")
+                    i.glyphicon.glyphicon-trash
         .container-flow
-            .col-md-1
-                h3 Media
-                .ag-fresh(ag-grid="imageGridOptions", style="height: 400px;")
-            .col-md-10
-                img.ng-cloak(ng-src="{{zoomimage}}", ng-show="zoomimage", style="max-height: 100%; max-width: 100%;")
-                include partials/encounter_form
-            .col-md-1
-                h3 Encounters
+            .col-md-2
+                span Voyages
                 ul
-                    li(ng-repeat="encounter in encounters")
-                        a(ng-click="editEncounter(encounter)") Edit
-                        encounter.individual.displayName
-                        encounter.encdate
-        
+                    li(ng-repeat="voyage in voyages")
+                        +encounter_listitem(voyages.encounters)
+                span Encounters
+                +encounter_listitem(encounters)
+            .col-md-10(style="height: 100%")
+                div(style="height: 50%)
+                    span.text-primary Submitted by: {{submission.user.displayName}}
+                    span on: {{timeToDate(submission.timeSubmitted)}}
+                    div
+                        span(ng-repeat="photo in photos", width="100px")
+                            a(href="javascript:;", ng-click="viewImage(photo.url)")
+                                img(ng-src="{{photo.thumbUrl}}", style="padding: 2px; max-width: 100%")
+                div(style="height: 50%")
+                //img.ng-cloak(ng-src="{{zoomimage}}", ng-show="zoomimage", style="max-height: 100%; max-width: 100%;")
+                //include partials/encounter_form
+
 script(src="bcomponents/angular/angular.js")
 script(src="bcomponents/moment/moment.js")
 script(src="bcomponents/ag-grid/angular-grid.min.js")

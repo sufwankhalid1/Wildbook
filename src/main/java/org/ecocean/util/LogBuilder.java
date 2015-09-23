@@ -32,6 +32,16 @@ public class LogBuilder {
     }
 
     public static String quickLog(final String variable,
+                                  final Object value)
+    {
+        if (value == null) {
+            return new LogBuilder().appendVar(variable, "<null>").toString();
+        }
+
+        return new LogBuilder().appendVar(variable, value.toString()).toString();
+    }
+
+    public static String quickLog(final String variable,
                                   final int value)
     {
         return quickLog(variable, String.valueOf(value));

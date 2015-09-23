@@ -1,0 +1,6 @@
+mixin encounter_listitem(encounters)
+    ul
+        li(ng-repeat="encounter in encounters")
+            a(ng-click="editEncounter(encounter)") Edit
+            encounter.individual.displayName
+            encounter.encdate

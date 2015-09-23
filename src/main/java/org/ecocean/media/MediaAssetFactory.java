@@ -5,6 +5,10 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashSet;
 
+import org.ecocean.util.LogBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
 import com.samsix.database.RecordSet;
@@ -15,6 +19,8 @@ import com.samsix.database.SqlWhereFormatter;
 import com.samsix.database.Table;
 
 public class MediaAssetFactory {
+    private static final Logger logger = LoggerFactory.getLogger(MediaAssetFactory.class);
+
     public static final String TABLENAME_MEDIAASSET = "mediaasset";
     public static final String ALIAS_MEDIAASSET = "ma";
 
@@ -62,6 +68,11 @@ public class MediaAssetFactory {
         //
         if (! rs.hasColumn("id")) {
             return null;
+        }
+
+        if (logger.isDebugEnabled()) {
+            logger.debug(LogBuilder.quickLog("storeid", rs.getInteger("store")));
+            logger.debug(LogBuilder.quickLog("store", AssetStore.get(rs.getInteger("store"))));
         }
 
         MediaAsset ma = new MediaAsset(rs.getInt("id"),

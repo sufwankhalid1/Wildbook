@@ -2,10 +2,10 @@ var app = angular.module('appWildbook', ["angularGrid"])
 app.controller("MediaSubmissionController", function ($scope, $http, $compile) {
     $scope.encounters = [];
 
-    $scope.viewImage = function(url) {
-        $scope.zoomimage = url;
-        $scope.encounter = null;
-    }
+//    $scope.viewImage = function(url) {
+//        $scope.zoomimage = url;
+//        $scope.encounter = null;
+//    }
 
     function handleError(ex) {
         alertplus.error(ex);
@@ -23,26 +23,26 @@ app.controller("MediaSubmissionController", function ($scope, $http, $compile) {
         alertplus.alert("TODO: Send photo [" + id + "] to ID service.");
     }
 
-    $scope.editEncounter = function(encounter) {
-        $scope.zoomimage = null;
-        $scope.encounter = encounter;
-    }
-
-    $scope.createEncounter = function() {
-        //
-        // TODO: Before willy-nilly creating an encounter from this data we should first
-        // see if there are any other encounters for this individual, date, and location
-        // and use this one instead.
-        //
-        var encounter = {
-                verbatimLocation: $scope.submission.verbatimLocation,
-                encdate: $scope.submission.startTime,
-                latitude: $scope.submission.latitude,
-                longitude: $scope.submission.longitude
-                };
-        $scope.encounters.push(encounter);
-        editEncounter(encounter);
-    }
+//    $scope.editEncounter = function(encounter) {
+//        $scope.zoomimage = null;
+//        $scope.encounter = encounter;
+//    }
+//
+//    $scope.createEncounter = function() {
+//        //
+//        // TODO: Before willy-nilly creating an encounter from this data we should first
+//        // see if there are any other encounters for this individual, date, and location
+//        // and use this one instead.
+//        //
+//        var encounter = {
+//                verbatimLocation: $scope.submission.verbatimLocation,
+//                encdate: $scope.submission.startTime,
+//                latitude: $scope.submission.latitude,
+//                longitude: $scope.submission.longitude
+//                };
+//        $scope.encounters.push(encounter);
+//        editEncounter(encounter);
+//    }
 
     $scope.deleteImage = function(id) {
         return alertplus.confirm('Are you sure you want to delete this image?', "Delete Image", true)
@@ -54,9 +54,9 @@ app.controller("MediaSubmissionController", function ($scope, $http, $compile) {
                 contentType: "application/json"
             })
             .then(function() {
-                deleteRows($scope.imageGridOptions, function(value) {
-                    return (value.id !== id);
-                })
+                $scope.photos = photos.filter(function(photo) {
+                    return (photo.id !== id);
+                });
             }, handleError);
         });
     }
@@ -65,8 +65,7 @@ app.controller("MediaSubmissionController", function ($scope, $http, $compile) {
         return $http({url:"obj/mediasubmission/photos/" + submission.id})
         .then(function(result) {
             $scope.submission = submission;
-            $scope.imageGridOptions.rowData = result.data;
-            $scope.imageGridOptions.api.onNewRows();
+            $scope.photos = result.data;
         }, handleError);
     }
 
@@ -90,8 +89,11 @@ app.controller("MediaSubmissionController", function ($scope, $http, $compile) {
                 })
             }, handleError);
         });
-    }
+    };
 
+    $scope.timeToDate = function(time) {
+        return moment(time).format('lll');
+    };
 
     $scope.msGridOptions = {
         columnDefs:
@@ -106,7 +108,7 @@ app.controller("MediaSubmissionController", function ($scope, $http, $compile) {
                  headerName: "Submitted",
                  field: "timeSubmitted",
                  cellRenderer: function(params) {
-                     return moment(params.value).format('lll');
+                     return $scope.timeToDate(params.value);
                  }
              },
              {
@@ -130,37 +132,37 @@ app.controller("MediaSubmissionController", function ($scope, $http, $compile) {
         angularCompileRows: true
     };
 
-    $scope.imageGridOptions = {
-        columnDefs:
-            [
-             {
-                 field: 'id',
-                 headerName: '',
-                 template: '<a href="javascript:;" ng-click="deleteImage(data.id)"><i class="glyphicon glyphicon-trash"></i></a>',
-                 width: 24
-             },
-             {
-                 field: 'id',
-                 headerName: '',
-                 template: '<a href="javascript:;" ng-click="sendForID(data.id)"><i class="glyphicon glyphicon-send"></i></a>',
-                 width: 24
-             },
-             {
-                 field: 'thumbUrl',
-                 headerName: 'Image',
-                 template: '<a href="javascript:;" ng-click="viewImage(data.url)"><img width="50px" src="{{data.thumbUrl}}"></a>',
-                 width: 60
-             }
-             ],
-             rowData: null,
-             rowHeight: 50,
-             enableSorting: true,
-             angularCompileRows: true
-    };
+//    $scope.imageGridOptions = {
+//        columnDefs:
+//            [
+//             {
+//                 field: 'id',
+//                 headerName: '',
+//                 template: '<a href="javascript:;" ng-click="deleteImage(data.id)"><i class="glyphicon glyphicon-trash"></i></a>',
+//                 width: 24
+//             },
+//             {
+//                 field: 'id',
+//                 headerName: '',
+//                 template: '<a href="javascript:;" ng-click="sendForID(data.id)"><i class="glyphicon glyphicon-send"></i></a>',
+//                 width: 24
+//             },
+//             {
+//                 field: 'thumbUrl',
+//                 headerName: 'Image',
+//                 template: '<a href="javascript:;" ng-click="viewImage(data.url)"><img width="50px" src="{{data.thumbUrl}}"></a>',
+//                 width: 60
+//             }
+//             ],
+//             rowData: null,
+//             rowHeight: 50,
+//             enableSorting: true,
+//             angularCompileRows: true
+//    };
 
 
     $scope.doneEditing = function() {
-        $scope.zoomimage = null;
+//        $scope.zoomimage = null;
         $scope.submission = null;
     };
 
