@@ -19,6 +19,6 @@ block content
             +match(submission.photos[0].url, individual.photos[0].url, individual.displayName)
         p
             span You can view this individual by clicking the button below. There you'll be able to share your finding with friends and family! If you feel that the match was false, submit a report using the link at the bottom of this message.
-    +centeredbutton('VIEW INDIVIDUAL', site.url + '/individual/' +  individual.id)
+    +centeredbutton('VIEW INDIVIDUAL', cust.info.website + '/individual/' +  individual.id)
         p.center(style="text-align: center")
-            a(href=site.url + '/reportFalse/' + individual.id', class="alert") REPORT A FALSE MATCH
+            a(href=cust.info.website + '/reportFalse/' + individual.id', class="alert") REPORT A FALSE MATCH

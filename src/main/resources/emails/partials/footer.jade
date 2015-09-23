@@ -5,9 +5,9 @@
                 td.four.sub-columns.left.text-pad-left.inverse-color(align="left")
                     span &copy 2015 All rights reserverd
                 td.eight.sub-columns.right.inverse-color(align="right")
-                    a(href=site.terms)= "Terms of use"
+                    a(href=cust.info.website + '/terms')= "Terms of use"
                     span()= " | "
-                    a(href=site.unsubscribe)= "Unsubscribe"
+                    a(href=cust.info.website + '/usubscribe&user=' + user.id)= "Unsubscribe"
 +outerrow("footer")
     +wrapper("panel")(class="footer")
         table.twelve.columns
@@ -15,12 +15,12 @@
                 td.four.sub-columns.left.text-pad-left.inverse-color(align="left")
                     | #{site.address}
                 td.four.sub-columns.center.inverse-color.logo(align="center")
-                    img(src=site.logoUrl, alt="Logo", height="90", width="92")
+                    img(src=cust.info.logo, alt="Logo", height="90", width="92")
                 td.four.sub-columns.right.inverse-color(align="right")
                     //- TODO: Images instead of text for social:
                     div
-                        a(href=site.instagram) Instagram
+                        a(href=cust.info.social.instagram) Instagram
                     div
-                        a(href=site.facebook) Facebook
+                        a(href=cust.info.social.facebook) Facebook
                     div
-                        a(href=site.twitter) Twitter
+                        a(href=cust.info.social.twitter) Twitter

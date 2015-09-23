@@ -13,7 +13,7 @@ block title
 block content
     include ../partials/message-header.jade
     +container()
-        p It's been #{submission.daysSince} days since you submitted your photo to #{site.name}.
+        p It's been #{submission.daysSince} days since you submitted your photo to #{cust.info.website}.
         p We wanted to let you know that we are still working on matching your submission to an individual animal. Once a match is made, you will be notified and receive additional information about your sighting.
         p
             h5 Here is some information from your submission:
@@ -21,4 +21,4 @@ block content
         p
             span In the meantime, feel free to browse our website to see the most recent submissions and matches of wildlife around the world! 
             b Thank you for supporting our research!
-    +centeredbutton('VISIT SITE', site.url)
+    +centeredbutton('VISIT SITE', cust.info.website)
