@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,7 +77,7 @@ public abstract class AssetStore {
 
     private static Map<Integer, AssetStore> getMap()
     {
-        if (stores != null) {
+        if (stores == null) {
             logger.warn("Asset Stores were not set up!");
             return Collections.emptyMap();
         }
@@ -153,5 +154,15 @@ public abstract class AssetStore {
         }
 
         return null;
+    }
+
+    @Override
+    public String toString()
+    {
+        return new ToStringBuilder(this)
+                .append("id", id)
+                .append("name", name)
+                .append("type", type)
+                .toString();
     }
 }

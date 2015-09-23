@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.ecocean.Location;
-import org.ecocean.SinglePhotoVideo;
 import org.ecocean.media.MediaAsset;
 import org.ecocean.media.MediaAssetFactory;
 import org.ecocean.media.MediaAssetType;
@@ -426,18 +425,18 @@ public class SimpleFactory {
     }
 
 
-    public static SimplePhoto getPhoto(final String context,
-                                       final SinglePhotoVideo spv)
-    {
-        String url = spv.asUrl(context);
-
-        //
-        // TODO: Get rid of this actually. I don't want to have to mess with the voyage
-        // page at the moment so i'm just going to make it compile.
-        //
-//        return new SimplePhoto(spv.getDataCollectionEventID(), url, getThumbnail(url));
-        return new SimplePhoto(0, url, getThumbnail(url));
-    }
+//    public static SimplePhoto getPhoto(final String context,
+//                                       final SinglePhotoVideo spv)
+//    {
+//        String url = spv.asUrl(context);
+//
+//        //
+//        // TODO: Get rid of this actually. I don't want to have to mess with the voyage
+//        // page at the moment so i'm just going to make it compile.
+//        //
+////        return new SimplePhoto(spv.getDataCollectionEventID(), url, getThumbnail(url));
+//        return new SimplePhoto(0, url, getThumbnail(url));
+//    }
 
 
     public static SimplePhoto readPhoto(final RecordSet rs) throws DatabaseException
