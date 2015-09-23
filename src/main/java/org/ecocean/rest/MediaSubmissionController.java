@@ -11,12 +11,12 @@ import java.util.Map;
 import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.lang3.StringUtils;
 import org.ecocean.email.EmailUtils;
 import org.ecocean.media.LocalAssetStore;
 import org.ecocean.media.MediaAsset;
 import org.ecocean.media.MediaAssetFactory;
 import org.ecocean.media.MediaSubmission;
+import org.ecocean.media.MediaSubmissionFactory;
 import org.ecocean.security.User;
 import org.ecocean.security.UserFactory;
 import org.ecocean.servlet.ServletUtilities;
@@ -36,10 +36,8 @@ import com.drew.metadata.exif.GpsDirectory;
 import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
 import com.samsix.database.RecordSet;
-import com.samsix.database.SqlFormatter;
-import com.samsix.database.SqlInsertFormatter;
-import com.samsix.database.SqlUpdateFormatter;
-import com.samsix.database.SqlWhereFormatter;
+import com.samsix.database.SqlRelationType;
+import com.samsix.database.SqlStatement;
 import com.samsix.database.Table;
 
 import de.neuland.jade4j.exceptions.JadeException;
@@ -49,119 +47,6 @@ import de.neuland.jade4j.exceptions.JadeException;
 public class MediaSubmissionController
 {
     private static Logger logger = LoggerFactory.getLogger(MediaSubmissionController.class);
-
-    private void save(final Database db,
-                      final MediaSubmission media)
-        throws
-            DatabaseException
-    {
-        Table table = db.getTable("mediasubmission");
-        if (media.getId() == null) {
-            SqlInsertFormatter formatter;
-            formatter = new SqlInsertFormatter();
-            fillFormatter(db, formatter, media);
-            media.setId(table.insertSequencedRow(formatter, "id"));
-        } else {
-            SqlUpdateFormatter formatter;
-            formatter = new SqlUpdateFormatter();
-            formatter.append("id", media.getId());
-            fillFormatter(db, formatter, media);
-            SqlWhereFormatter where = new SqlWhereFormatter();
-            where.append("id", media.getId());
-            table.updateRow(formatter.getUpdateClause(), where.getWhereClause());
-        }
-    }
-
-
-    private void fillFormatter(final Database db,
-                               final SqlFormatter formatter,
-                               final MediaSubmission media)
-    {
-        formatter.append("description", media.getDescription());
-        formatter.append("email", media.getEmail());
-        formatter.append("endtime", media.getEndTime());
-        formatter.append("latitude", media.getLatitude());
-        formatter.append("longitude", media.getLongitude());
-        formatter.append("name", media.getName());
-        formatter.append("starttime", media.getStartTime());
-        formatter.append("submissionid", media.getSubmissionid());
-        formatter.append("timesubmitted", media.getTimeSubmitted());
-        if (media.getUser() != null) {
-            formatter.append("userid", media.getUser().getId());
-        }
-        formatter.append("verbatimlocation", media.getVerbatimLocation());
-        formatter.append("status", media.getStatus());
-    }
-
-
-    private List<MediaAsset> getMediaSubmissionMedia(final HttpServletRequest request,
-                                                     final long msid) throws DatabaseException
-    {
-        try (Database db = ServletUtilities.getDb(request)) {
-            String sql = "SELECT ma.* FROM mediasubmission_media m"
-                    + " INNER JOIN mediaasset ma ON ma.id = m.mediaid"
-                    + " WHERE m.mediasubmissionid = " + msid;
-            RecordSet rs = db.getRecordSet(sql);
-            List<MediaAsset> media = new ArrayList<>();
-            while (rs.next()) {
-                media.add(MediaAssetFactory.valueOf(rs));
-            }
-
-            return media;
-        }
-    }
-
-
-    private static MediaSubmission readMediaSubmission(final RecordSet rs) throws DatabaseException
-    {
-        MediaSubmission ms = new MediaSubmission();
-        ms.setDescription(rs.getString("description"));
-        ms.setEmail(rs.getString("email"));
-        ms.setEndTime(rs.getLongObj("endtime"));
-        ms.setId(rs.getInteger("id"));
-        ms.setLatitude(rs.getDoubleObj("latitude"));
-        ms.setLongitude(rs.getDoubleObj("longitude"));
-        ms.setName(rs.getString("name"));
-        ms.setStartTime(rs.getLongObj("starttime"));
-        ms.setSubmissionid(rs.getString("submissionid"));
-        ms.setTimeSubmitted(rs.getLongObj("timesubmitted"));
-        ms.setUser(UserFactory.readSimpleUser(rs));
-        ms.setVerbatimLocation(rs.getString("verbatimlocation"));
-        ms.setStatus(rs.getString("status"));
-
-        return ms;
-    }
-
-
-    private List<MediaSubmission> get(final Database db,
-                                      final SqlWhereFormatter where) throws DatabaseException
-    {
-        String whereClause = where.getWhereClause();
-        List<MediaSubmission> mss = new ArrayList<MediaSubmission>();
-        String sql = "SELECT * FROM mediasubmission ms"
-                + " LEFT OUTER JOIN users u on u.userid = ms.userid"
-                + " LEFT OUTER JOIN mediaasset ma ON ma.id = u.avatarid";
-        if (! StringUtils.isBlank(whereClause)) {
-            sql += " WHERE " + whereClause;
-        }
-        sql += " ORDER BY timesubmitted desc";
-
-        RecordSet rs = db.getRecordSet(sql);
-        while (rs.next()) {
-            mss.add(readMediaSubmission(rs));
-        }
-
-        return mss;
-    }
-
-
-//    private final UserService userService;
-//
-//    @Inject
-//    public UserController(final UserService userService) {
-//        this.userService = userService;
-//    }
-
 
 
     @RequestMapping(value = "/photos/{submissionid}", method = RequestMethod.GET)
@@ -212,13 +97,23 @@ public class MediaSubmissionController
         throws DatabaseException
     {
         try (Database db = ServletUtilities.getDb(request)) {
-            SqlWhereFormatter where = new SqlWhereFormatter();
+            //
             // * will mean get all, so we just have an empty where formatter
             // we want all other values, included null, to pass to the append method
+            //
+            SqlStatement sql = MediaSubmissionFactory.getStatement();
             if (! "*".equals(status)) {
-                where.append("ms.status", status);
+                sql.addCondition(MediaSubmissionFactory.ALIAS_MEDIASUBMISSION, "status", SqlRelationType.EQUAL, status);
             }
-            return get(db, where);
+            sql.setOrderBy("timesubmitted desc");
+
+            List<MediaSubmission> mss = new ArrayList<MediaSubmission>();
+
+            db.getRecordSet(sql).forEach((rs) -> {
+                mss.add(MediaSubmissionFactory.readMediaSubmission(rs));
+            });
+
+            return mss;
         }
     }
 
@@ -339,13 +234,14 @@ public class MediaSubmissionController
         throws DatabaseException
     {
         try (Database db = ServletUtilities.getDb(request)) {
-            save(db, media);
+            MediaSubmissionFactory.save(db, media);
 
             SimpleUser user = media.getUser();
 
+            User wbUser;
             String email;
             if (user != null) {
-                User wbUser = UserFactory.getUserById(db, user.getId());
+                wbUser = UserFactory.getUserById(db, user.getId());
                 if (wbUser == null) {
                     logger.warn("curious: unable to load a user with id [" + user.getId() + "]");
                     email = null;
@@ -353,6 +249,7 @@ public class MediaSubmissionController
                     email = wbUser.getEmail();
                 }
             } else {
+                wbUser = null;
                 email = media.getEmail();
             }
 
@@ -364,17 +261,7 @@ public class MediaSubmissionController
             model.put("user", user);
 
             //
-            // Check db for any submissions already.
-            //
-            // If (first submission)
-//                send fs
-//
-//                else
-//                    if (verified)
-//                        send thanks
-//                        else
-//                            send thanks hey, verify
-            //
+            // Send email to admin to let them know that there has been a new submission.
             //
             try {
                 EmailUtils.sendJadeTemplate(EmailUtils.getAdminSender(),
@@ -385,21 +272,38 @@ public class MediaSubmissionController
                 logger.error("Trouble sending admin email", ex);
             }
 
+            //
+            // Send email to user to thank them for their submission.
+            //
             if (email != null) {
+                Table table = db.getTable(MediaSubmissionFactory.TABLENAME_MEDIASUBMISSION);
+                long count = table.getCount("id != " + media.getId() + " AND userid = " + user.getId());
+
+                String template;
+                if (count == 0) {
+                    template = "media/firstSubmission";
+                } else if (wbUser == null || ! wbUser.isVerified()) {
+                    template = "media/anotherSubmissionUnverified";
+                } else{
+                    template = "media/anotherSubmission";
+                }
+
                 if (logger.isDebugEnabled()) {
                     logger.debug("sending thankyou email to:" + email);
                 }
                 try {
-                    //IS THIS FOR THE FIRST SUBMISSION, SECOND, OR BOTH?
                     EmailUtils.sendJadeTemplate(EmailUtils.getAdminSender(),
                                                 email,
-                                                "firstSubmission",
+                                                template,
                                                 model);
                 } catch (JadeException | IOException | MessagingException ex) {
-                    logger.error("Trouble sending thank you email to [" + email + "]", ex);
+                    logger.error("Trouble sending thank you email ["
+                            + template
+                            + "] to ["
+                            + email
+                            + "]", ex);
                 }
             }
-
 
             //
             // Now finally remove the files from the users session object so that
@@ -424,7 +328,7 @@ public class MediaSubmissionController
             // Save media submission
             //
 //            boolean isNew = (media.getId() == null);
-            save(db, media);
+            MediaSubmissionFactory.save(db, media);
 
             //
             // TODO: This code works as is EXCEPT due to the stupid IDX ordering column
@@ -461,39 +365,6 @@ public class MediaSubmissionController
 
             return media.getId();
         }
-
-//        PersistenceManager pm = myShepherd.getPM();
-////        MediaSubmission ms;
-////        if (media.getId() != null) {
-////            ms = ((MediaSubmission) (pm.getObjectById(pm.newObjectIdInstance(MediaSubmission.class, media.getId()), true)));
-////            //
-////            // TODO: Switch to regular SQL!!!
-////            // Now I would have to go through all of the properties on the media and set
-////            // them to the current one?! WTF.
-////            //
-////        } else {
-////            ms = media;
-////        }
-//
-//        if (media.getSubmissionid() != null) {
-////            survey = ((Survey) (pm.getObjectById(pm.newObjectIdInstance(Survey.class, media.getSubmissionid()), true)));
-//            Query query = pm.newQuery(
-//                    "SELECT FROM \"SURVEY\" WHERE \"SURVEYID\" == '" + media.getSubmissionid() + "'");
-//                @SuppressWarnings("unchecked")
-//                List<Survey> results = (List<Survey>)query.execute();
-//                if (results.size() > 0) {
-//                    Survey survey = results.get(0);
-//                    survey.getMedia().add(media);
-//                    pm.makePersistent(survey);
-//                } else {
-//                    pm.makePersistent(media);
-//                }
-//        } else {
-//            pm.makePersistent(media);
-//        }
-////        myShepherd.beginDBTransaction();
-////        myShepherd.getPM().makePersistent(media);
-////        myShepherd.commitDBTransaction();
     }
 
 
@@ -513,7 +384,10 @@ public class MediaSubmissionController
                             final long msid)
         throws DatabaseException
     {
-        List<MediaAsset> media = getMediaSubmissionMedia(request, msid);
+        List<MediaAsset> media = null;
+        try (Database db = ServletUtilities.getDb(request)) {
+            media = MediaSubmissionFactory.getMedia(db, msid);
+        }
 
         ExifData data = new ExifData();
         ExifAvg avg = data.avg;
