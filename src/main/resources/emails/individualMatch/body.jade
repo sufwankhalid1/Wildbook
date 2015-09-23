@@ -8,7 +8,7 @@ block customcss
         }
 
 block title
-    | #{user.displayName}, we found an individual matching your submission to ${site.name}
+    | #{user.fullName}, we found an individual matching your submission to #{cust.displayName}
 
 block content
     include ../partials/message-header.jade
@@ -16,7 +16,7 @@ block content
         p One of your submissions has been matched to a known #{individual.speciesDisplayName}. Thank you for providing us information that will help scientists track the health and wellbeing of wildlife.
         p
             h5 Here are the details:
-            +match(submission.photos[0].url, individual.photos[0].url, individual.displayName)
+            +match(subinfo.photo, photos[0].url, individual.displayName)
         p
             span You can view this individual by clicking the button below. There you'll be able to share your finding with friends and family! If you feel that the match was false, submit a report using the link at the bottom of this message.
     +centeredbutton('VIEW INDIVIDUAL', cust.info.website + '/individual/' +  individual.id)

@@ -1,1 +1,1 @@
-${user.displayName}, $(individual.displayName) was sighted again!
+${user.fullName}, $(individual.displayName) was sighted again!

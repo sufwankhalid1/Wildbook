@@ -1,1 +1,1 @@
-${user.displayName}, we found an individual matching your submission to ${site.name}
+${user.fullName}, we found an individual matching your submission to ${cust.displayname}
