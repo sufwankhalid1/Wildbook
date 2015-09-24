@@ -27,7 +27,7 @@ nav.navbar.navbar-inverse.navbar-fixed-top#navbar-top
                             | {{user.fullName || user.username}}!
                         p
                             span
-                                a(href="/user/{{user.username}}")= t("header.menu.gotomy")
+                                a(href="/user/{{user.id}}")= t("header.menu.gotomy")
                                 =" | "
                             a(href="javascript:;", ng-click="logout()", class="navbar-logout-link")= t("header.menu.signout")
                     .navbar-logged-in-wrapper(ng-show="!user")
