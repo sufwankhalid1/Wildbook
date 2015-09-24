@@ -1,1 +1,1 @@
-${user.fullName}, Your first submission has been received!
+Your first submission has been received!
