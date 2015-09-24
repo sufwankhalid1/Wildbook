@@ -1,14 +1,8 @@
-#About us
+##Happy Whale
 Share with us your whale photos, and if we are able to recognize individuals, we will tell you what we know about them. Our initial focus is on the whales of the California coastline, in particular the Humpback Whales of Monterey Bay. We know the whales here best, and have a good chance of recognizing any Humpback with a patterned fluke (tail). With every recognizable individual, we’ll share a story of a whale and will allow scientists to know more about the movements and populations of our most magnificent ocean neighbors.
 
-Happywhale.com is a project of Animal.us, a Public Benefits Corporation with the mission of enabling people to recognize, connect with and follow individual animals to further science and create a rich understanding of wild species.
-
 ##The Team
-
-Happywhale depends on a collaboration between Animal.us, Wildme.org, and Cascadia Research Collective.
-
-Wildme.org is a tax-exempt non-profit that facilitates development and sharing of information and tools (data and software) to assist with 'best practice' management for wildlife conservation. Wild Me is responsible for the Wildbook open source software framework to support mark-recapture, molecular ecology, and social ecology studies.
-See [wildme.org](http://www.wildme.org) for more information.
+Happywhale.com is the first project by Animal.us, a Public Benefits Corporation with the mission of enabling people to recognize, connect with and follow individual animals to further science and create a rich understanding of wild species. We use [wildbook](http://www.wildme.org), an open source software framework for managing wildlife information and sightings. Happy Whale depends on a collaboration between Animal.us and the Cascadia Research Collective.
 
 Cascadia Research Collective is a tax-exempt non-profit research organization founded in 1979 that has coordinated the long term photo-ID efforts on blue, humpback, and gray whales on the US West Coast since the mid 1980s. More recently, photo-ID efforts have expanded to include fin whales, Risso’s dolphins and Cuvier’s beaked whales. See [cascadiaresearch.org](http://www.cascadiaresearch.org) for more information.
 
