@@ -1,17 +1,28 @@
 //- login.jade
 //- an angular modal masking the page for login, while keeping your place on the page
-div.login-modal.page-full(ng-show="login.on")
+div.login-modal(ng-show="login.on")
         .container-fluid
             .row
                 .col-md-4.col-md-offset-4.col-sm-6.col-sm-offset-3.col-xs-10.col-xs-offset-1
-                    div.form-group
-                        label(for="login-user") Username / Email Address
-                        input#login-user.login-username.form-control(ng-model="username")
-                    div.form-group
-                        label(for="login-pass") Password
-                        input#login-pass.login-password.form-control(type="password", ng-model="password")
-                        p.help-block
-                            a(href="/resetpass", target="_blank") Forgot my password
-                    div.form-group
+                    div(ng-show="login.on && !reset.on")
+                        h1 Login to Happy Whale
+                        div.form-group
+                            label(for="login-user") Username / Email Address
+                            input#login-user.login-username.form-control(ng-model="login.username")
+                        div.form-group
+                            label(for="login-pass") Password
+                            input#login-pass.login-password.form-control(type="password", ng-model="login.password")
+                            p.help-block
+                                span.link(ng-click="reset.on = true") Forgot your password?
+                        div.form-group
+                            span.btn.btn-medium.btn-success.right LOG IN
+                    div(ng-show="login.on && reset.on")
+                        h1 Reset Your Password
+                        div.form-group
+                            label(for="reset-email") Email Address
+                            input#reset-email.reset-email.form-control(ng-model="login.reset.email")
+                            p.help-block We'll send a password reset link to this address.
+                        div.form-group
+                            span.btn.btn-medium.btn-warning.right RESET
         div.close-modal 
-            a(ng-click="login.on = false") X
+            a(ng-click="login.on = false; reset.on = false") X

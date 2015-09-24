@@ -826,6 +826,11 @@ hr {
     cursor: pointer; }
     .login-modal .close-modal a {
       text-decoration: none; }
+  .login-modal .link {
+    color: #96a1a5;
+    cursor: pointer; }
+  .login-modal .link:hover {
+    color: #94a1a4; }
 
 /* Uploader */
 #MediaSubmissionWizard {

@@ -58,4 +58,11 @@
             text-decoration: none;
         }
     }
+    .link {
+        color: $font-color-heading;
+        cursor: pointer;
+    }
+    .link:hover {
+        color: $font-color-heading2;
+    }
 }
