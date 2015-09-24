@@ -66,7 +66,7 @@ mixin centeredbutton(content, href)
 mixin submission(src, date, location, items)
     div.submission
         img(src="#{src}", width=550, alt="Your Submission")
-        div
+        div.submission-content
             if(date)
                 div
                     b Sighted on: 
@@ -79,6 +79,7 @@ mixin submission(src, date, location, items)
                 div
                     b Media Items You Submitted: 
                     span= items
+        div(style="clear: both;")
 
 mixin match(src1, src2, name)
     table.row
@@ -101,11 +102,3 @@ mixin match(src1, src2, name)
                         td.sub-column.six.center.last.top
                             b=name
                         +expander
-    table.row
-        tr
-            td.wrapper.last
-                table.columns.twelve
-                    tr
-                        td
-                            p More information about this individual:
-                            p [list gender, age, number of sightings, locations?]

@@ -20,5 +20,5 @@ block content
         p
             span You can view this individual by clicking the button below. There you'll be able to share your finding with friends and family! If you feel that the match was false, submit a report using the link at the bottom of this message.
     +centeredbutton('VIEW INDIVIDUAL', cust.info.website + '/individual/' +  individual.id)
-        p.center(style="text-align: center")
+        p.center(style="text-align: center !important; color: #222222 !important")
             a(href=cust.info.website + '/reportFalse/' + individual.id', class="alert") REPORT A FALSE MATCH
