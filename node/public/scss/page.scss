@@ -17,7 +17,7 @@
 
 .error-page-background-full {
     height: 100vh;
-    width: 100vw;
+    width: 100%;
     background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;
@@ -31,5 +31,31 @@
     blockquote {
         background-color: $background-dark;
         color: $font-color-inverse;
+    }
+}
+
+.login-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.85);
+    label, .close-modal {
+        color: #fff;
+    }
+    .row {
+        height: 100vh;
+        padding: 20% 0 0;
+    }
+    .close-modal {
+        position: absolute;
+        top: 70px;
+        left: 20px;
+        font-size: 24px;
+        cursor: pointer;
+        a {
+            text-decoration: none;
+        }
     }
 }

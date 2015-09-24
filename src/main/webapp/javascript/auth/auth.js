@@ -32,4 +32,3 @@ wildbook.auth = (function() {
 
     return {login: loginAttempt};
 })();
-
