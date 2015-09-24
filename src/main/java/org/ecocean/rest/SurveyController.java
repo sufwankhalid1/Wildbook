@@ -45,24 +45,6 @@ public class SurveyController {
     @RequestMapping(value = "/part/save", method = RequestMethod.POST)
     public void savePart(final HttpServletRequest request,
                          @RequestBody @Valid final SurveyPartObj spo) throws DatabaseException {
-
-        //
-        // TODO: Remove if the following code using Lambda's works
-        //
-//        Database db = ServletUtilities.getDb(request);
-//        try {
-//            db.beginTransaction();
-//
-//            SurveyFactory.saveSurvey(db, spo.survey);
-//            SurveyFactory.saveSurveyPart(db, spo.part);
-//
-//            db.commitTransaction();
-//        } catch (Throwable ex) {
-//            db.rollbackTransaction();
-//        } finally {
-//            db.release();
-//        }
-
         try (Database db = ServletUtilities.getDb(request)) {
             db.performTransaction(() -> {
               SurveyFactory.saveSurvey(db, spo.survey);

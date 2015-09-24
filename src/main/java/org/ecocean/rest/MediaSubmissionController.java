@@ -195,28 +195,26 @@ public class MediaSubmissionController
                 media.add(MediaAssetFactory.valueOf(rs));
             }
 
-            db.beginTransaction();
+            db.performTransaction(() -> {
+                //
+                // Delete all the joins
+                //
+                Table table = db.getTable("mediasubmission_media");
+                table.deleteRows(mWhere);
 
-            //
-            // Delete all the joins
-            //
-            Table table = db.getTable("mediasubmission_media");
-            table.deleteRows(mWhere);
+                //
+                // Delete the media submission itself.
+                //
+                table = db.getTable("mediasubmission");
+                table.deleteRows("id = " + msm.submissionid);
 
-            //
-            // Delete the media submission itself.
-            //
-            table = db.getTable("mediasubmission");
-            table.deleteRows("id = " + msm.submissionid);
-
-            //
-            // Delete all the files.
-            //
-            for (MediaAsset aMedia : media) {
-                MediaAssetFactory.delete(db, aMedia.getID());
-            }
-
-            db.commitTransaction();
+                //
+                // Delete all the files.
+                //
+                for (MediaAsset aMedia : media) {
+                    MediaAssetFactory.delete(db, aMedia.getID());
+                }
+            });
 
             //
             // Now delete the physical files.
