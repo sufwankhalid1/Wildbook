@@ -65,14 +65,16 @@ mixin centeredbutton(content, href)
 
 mixin submission(src, date, location, items)
     div.submission
-        img(src="#{src}", width=550)
+        img(src="#{src}", width=550, alt="Your Submission")
         div
-            div
-                b Sighted on: 
-                span= date
-            div
-                b Location: 
-                span= location
+            if(date)
+                div
+                    b Sighted on: 
+                    span= date
+            if(location)
+                div
+                    b Location: 
+                    span= location
             if(items)
                 div
                     b Media Items You Submitted: 
@@ -85,9 +87,9 @@ mixin match(src1, src2, name)
                 table.columns.twelve
                     tr
                         td.sub-column.six.center.middle
-                            img(src="#{src1}")
+                            img(src="#{src1}" alt="Your Submission")
                         td.sub-column.six.center.middle.last
-                            img(src="#{src2}")
+                            img(src="#{src2}" alt="Recent Match")
                         +expander
     table.row
         tr
