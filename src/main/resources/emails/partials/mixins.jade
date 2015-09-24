@@ -58,14 +58,14 @@ mixin centeredbutton(content, href)
                             table.button.radius.medium-button
                                 tr
                                     td.pad-button
-                                        a(href=href)= content
+                                        a(href="#{href}")= content
                         td.sub-column.three
                         +expander
                 block
 
 mixin submission(src, date, location, items)
     div.submission
-        img(src=src, width=550)
+        img(src="#{src}", width=550)
         div
             div
                 b Sighted on: 
