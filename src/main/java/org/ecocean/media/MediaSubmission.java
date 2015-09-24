@@ -21,6 +21,11 @@ public class MediaSubmission {
     private String verbatimLocation;
     private Double latitude;
     private Double longitude;
+
+    //
+    // TODO: Fix these dates. Use LocalDateTime and date stuff in postgres.
+    // Right now start time and end time are in milliseconds since the epoch. Crazy.
+    //
 //    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSSZ")
 //    private DateTime startTime;
     private Long startTime;

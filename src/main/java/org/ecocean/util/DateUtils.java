@@ -10,16 +10,20 @@ public class DateUtils {
         // prevent instantiation
     }
 
-    public static LocalDateTime epochSecToLDT(final long epochSecond) {
-        return LocalDateTime.ofInstant(Instant.ofEpochSecond(epochSecond), ZoneId.systemDefault());
+    public static LocalDateTime epochSecToLDT(final long epochMilliSecond) {
+        return LocalDateTime.ofInstant(Instant.ofEpochSecond(epochMilliSecond/1000), ZoneId.systemDefault());
     }
 
     /**
      * @param epochSecond seconds since the epoch
      * @return date as string (e.g. "1986-04-08 12:30")
      */
-    public static String epochSecToString(final long epochSecond) {
+    public static String epochSecToString(final long epochMilliSecond) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-        return epochSecToLDT(epochSecond).format(formatter);
+        return epochSecToLDT(epochMilliSecond).format(formatter);
     }
+
+//    public static long nowEpochSec() {
+//        return LocalDateTime.now().atZone(ZoneId.systemDefault()).toEpochSecond();
+//    }
 }
