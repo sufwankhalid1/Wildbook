@@ -15,11 +15,13 @@ import org.ecocean.email.EmailUtils;
 import org.ecocean.media.LocalAssetStore;
 import org.ecocean.media.MediaAsset;
 import org.ecocean.media.MediaAssetFactory;
+import org.ecocean.media.MediaAssetType;
 import org.ecocean.media.MediaSubmission;
 import org.ecocean.media.MediaSubmissionFactory;
 import org.ecocean.security.User;
 import org.ecocean.security.UserFactory;
 import org.ecocean.servlet.ServletUtilities;
+import org.ecocean.util.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -256,6 +258,25 @@ public class MediaSubmissionController
             model.put("submission", media);
             if (user != null) {
                 model.put("user", user.toSimple());
+            }
+
+            try {
+                List<MediaAsset> mas = MediaSubmissionFactory.getMedia(db, media.getId());
+                for (MediaAsset ma : mas) {
+                    if (MediaAssetType.IMAGE.equals(ma.getType())) {
+                        model.put("subinfo.photo", ma.thumbWebPathString());
+                        break;
+                    }
+                }
+
+                model.put("subinfo.number", String.valueOf(mas.size()));
+                model.put("subinfo.date", DateUtils.ofEpochSecond(media.getTimeSubmitted()));
+            } catch (Throwable ex) {
+                //
+                // Catch everything so that we don't bail simply because something went wrong
+                // here.
+                //
+                logger.error("Problem filling out the email model", ex);
             }
 
             //

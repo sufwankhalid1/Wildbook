@@ -97,7 +97,6 @@ public class Emailer {
         }
 
         session.setDebug(logger.isDebugEnabled());
-
         final Message msg = new MimeMessage(session);
         msg.setFrom(new InternetAddress(from));
 
