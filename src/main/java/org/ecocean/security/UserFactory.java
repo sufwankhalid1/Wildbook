@@ -44,7 +44,7 @@ public class UserFactory {
                              "avatarid",
                              MediaAssetFactory.TABLENAME_MEDIAASSET,
                              MediaAssetFactory.ALIAS_MEDIAASSET,
-                             "id");
+                             MediaAssetFactory.PK_MEDIAASSET);
         return sql;
     }
 

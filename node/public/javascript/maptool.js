@@ -106,6 +106,54 @@ var maptool = (function () {
 //            currentPopup._container.onmouseleave = function(evt) {
 //                closeCurrentPopup();
 //            };
+
+            var popup = $(evt.popup._content);
+
+            if (popup.is(":empty")) {
+                if (popup.data().encounter) {
+                    var encounter = popup.data().encounter;
+
+                    //
+                    // NOTE: we could also call evt.popup.setContent(<html>);
+                    //
+                    popup.append($("<dt/>").addClass('popup-avatar-label').text('Individual Sighted'));
+                    if (encounter.individual) {
+                        popup.append($("<dd/>").addClass('popup-avatar').append(app.beingDiv(encounter.individual)));
+                    }
+
+                    var nameIndividual = encounter.individual ? encounter.individual.displayName : 'unknown';
+                    popup.append($("<dd/>").addClass('popup-name').text(nameIndividual));
+
+                    popup.append($("<dt/>").addClass('popup-date-label').text('Sighted On'));
+                    popup.append($("<dd/>").addClass('popup-date').text(app.toMoment(encounter.encDate).format('LL')));
+
+                    popup.append($("<dt/>").addClass('popup-location-date').text('Location'));
+                    popup.append($("<dd/>").addClass('popup-location').text(encounter.location.verbatimLocation));
+
+                    popup.append($("<dt/>").addClass('popup-submitter-label').text('Sighted By'));
+                    var sightersElement = $("<dd/>").addClass('popup-submitter');
+                    popup.append(sightersElement);
+
+                    $.ajax({url: app.config.wildbook.url + "/data/encounter/sighters/" + encounter.id})
+                    .then(function(sighters) {
+                        sighters.forEach(function(sighter) {
+                            sightersElement.append(app.beingDiv(sighter));
+                        });
+                        evt.popup.update();
+                    },
+                    function(ex) {
+                        alertplus.error(ex);
+                    });
+
+                    popup.addClass('individual-popup');
+
+                    //
+                    // Makes sure the popup reacts to the additions to it's html content. Such as
+                    // resizing appropriately.
+                    //
+                    evt.popup.update();
+                }
+            }
         });
 
         function closeCurrentPopup() {
@@ -165,40 +213,15 @@ var maptool = (function () {
         }
 
         function addEncounter(encounter) {
-            //
-            // Just passed in a latlng because we have no other info. Also use default icon.
-            // Later, we can make sure we pass in a species somehow if we have it.
-            //
-            var layer = getEncounterLayer();
-
-//            if (Array.isArray(encounter)) {
-//                layer.addLayer(getMarker(encounter, getEncounterIcon("default")));
-//                return;
-//            }
-
             if (! encounter.location || ! encounter.location.latitude || ! encounter.location.longitude) {
                 return;
             }
 
             var iconIndividual = encounter.individual ? getEncounterIcon(encounter.individual.species) : getEncounterIcon('default');
-            var nameIndividual = encounter.individual ? encounter.individual.displayName : 'unknown';
 
-            var popup = $("<dl>", { class: 'individual-popup' });
-            popup.append($("<dt/>", { class: 'popup-avatar-label' }).text('Individual Sighted'));
-            if (encounter.individual) {
-                popup.append($("<dd/>", { class: 'popup-avatar' }).append(app.beingDiv(encounter.individual)));
-            }
-            popup.append($("<dd/>", { class: 'popup-name' }).text(nameIndividual));
+            var popup = $("<dl>").data("encounter", encounter);
 
-            popup.append($("<dt/>", { class: 'popup-date-label' }).text('Sighted On'));
-            popup.append($("<dd/>", { class: 'popup-date' }).text(app.toMoment(encounter.encDate).format('LL')));
-
-            popup.append($("<dt/>", { class: 'popup-location-date'}).text('Location'));
-            popup.append($("<dd/>", { class: 'popup-location'}).text(encounter.location.verbatimLocation));
-
-            popup.append($("<dt/>", { class: 'popup-submitter-label' }).text('Submitted By'));
-            popup.append($("<dd/>", { class: 'popup-submitter'}).append(app.beingDiv(encounter.submitter)));
-
+            var layer = getEncounterLayer();
             layer.addLayer(getMarker([encounter.location.latitude, encounter.location.longitude], iconIndividual, popup[0]));
         }
 
@@ -214,6 +237,10 @@ var maptool = (function () {
 
             var timetrack = L.polyline(vPoints, {color: 'red'});
 
+            //
+            // TODO: Make this popup auto-fill like the encounter one does
+            // but only after opening.
+            //
             var popup = $("<div>");
             popup.append($("<span>").addClass("sight-data-text").text(voyage.name));
 

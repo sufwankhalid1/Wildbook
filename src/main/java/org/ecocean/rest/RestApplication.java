@@ -155,6 +155,20 @@ public class RestApplication extends SpringBootServletInitializer {
         ConnectionInfo connectionInfo = Global.INST.getConnectionInfo();
         Flyway flyway = new Flyway();
         flyway.setOutOfOrder(true);
+        //
+        // Turn off the validate on migrate. Complicated issue.
+        // Sometimes I find that you want to rewrite the
+        // patch *after* it has been applied. For instance, it might have worked on your test db,
+        // but then you find out that it doesn't work on someone else's db or even on production.
+        // But you want to make sure that any future dbs that it is run on will run correctly.
+        // There are two options. One is to run flyway.repair() which "repairs" the checksums, the
+        // other is to ignore the checksums. The first just seems like another way to ignore them
+        // but people complain of getting errors using this. Since I can't see the added benefit
+        // of "repairing" and since it is apparently error prone itself, I am choosing to ignore them
+        // by setting ValidateOnMigrate to false.
+        //
+        flyway.setValidateOnMigrate(false);
+
         flyway.setSqlMigrationPrefix("");
         flyway.setDataSource(connectionInfo.getUrl(), connectionInfo.getUserName(), connectionInfo.getPassword());
         flyway.migrate();

@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.ecocean.media.MediaAssetFactory;
 import org.ecocean.security.UserFactory;
 import org.ecocean.servlet.ServletUtilities;
 import org.ecocean.util.LogBuilder;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
 import com.samsix.database.RecordSet;
+import com.samsix.database.SqlRelationType;
 import com.samsix.database.SqlStatement;
 import com.samsix.util.string.StringUtilities;
 
@@ -48,7 +50,7 @@ public class MainController
                 + ")";
 
         SqlStatement sql = UserFactory.getUserStatement();
-        sql.addInnerJoin(UserFactory.AlIAS_USERS, "userid", table, "c", "submitterid");
+        sql.addInnerJoin(UserFactory.AlIAS_USERS, UserFactory.PK_USERS, table, "c", "submitterid");
         try (Database db = ServletUtilities.getDb(request)) {
             List<Contributor> contribs = new ArrayList<>();
 
@@ -83,6 +85,36 @@ public class MainController
             indinfo.submitters = SimpleFactory.getIndividualSubmitters(db, id);
 
             return indinfo;
+        }
+    }
+
+
+    @RequestMapping(value = "/encounter/sighters/{id}", method = RequestMethod.GET)
+    public List<SimpleUser> getUser(final HttpServletRequest request,
+                                    @PathVariable("id")
+                                    final int encounterid) throws DatabaseException
+    {
+        SqlStatement sql = UserFactory.getUserStatement(true);
+        sql.addInnerJoin(UserFactory.AlIAS_USERS,
+                         UserFactory.PK_USERS,
+                         MediaAssetFactory.TABLENAME_MEDIAASSET,
+                         "ma2",
+                         "submitterid");
+        sql.addInnerJoin("ma2",
+                         MediaAssetFactory.PK_MEDIAASSET,
+                         "encounter_media",
+                         "em",
+                         "mediaid");
+        sql.addCondition("em", "encounterid", SqlRelationType.EQUAL, encounterid);
+
+        try (Database db = ServletUtilities.getDb(request)) {
+            List<SimpleUser> sighters = new ArrayList<>();
+
+            db.select(sql, (rs) -> {
+                sighters.add(UserFactory.readSimpleUser(rs));
+            });
+
+            return sighters;
         }
     }
 

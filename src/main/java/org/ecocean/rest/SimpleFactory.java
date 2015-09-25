@@ -81,7 +81,7 @@ public class SimpleFactory {
                          MediaAssetFactory.TABLENAME_MEDIAASSET,
                          "ma2",
                          "submitterid");
-        sql.addInnerJoin("ma2", "id", "encounter_media", "em", "mediaid");
+        sql.addInnerJoin("ma2", MediaAssetFactory.PK_MEDIAASSET, "encounter_media", "em", "mediaid");
         sql.addInnerJoin("em", "encounterid", "encounters", "e", "encounterid");
         sql.addCondition("e", "individualid", SqlRelationType.EQUAL, individualid);
 
@@ -96,7 +96,7 @@ public class SimpleFactory {
         SqlStatement sql = new SqlStatement(MediaAssetFactory.TABLENAME_MEDIAASSET,
                                             MediaAssetFactory.ALIAS_MEDIAASSET,
                                             MediaAssetFactory.ALIAS_MEDIAASSET + ".*");
-        sql.addInnerJoin(MediaAssetFactory.ALIAS_MEDIAASSET, "id", "encounter_media", "em", "mediaid");
+        sql.addInnerJoin(MediaAssetFactory.ALIAS_MEDIAASSET, MediaAssetFactory.PK_MEDIAASSET, "encounter_media", "em", "mediaid");
         sql.addInnerJoin("em", "encounterid", "encounters", "e", "encounterid");
         sql.addCondition(MediaAssetFactory.ALIAS_MEDIAASSET,
                          "type",
@@ -168,7 +168,7 @@ public class SimpleFactory {
                              "avatarid",
                              MediaAssetFactory.TABLENAME_MEDIAASSET,
                              MediaAssetFactory.ALIAS_MEDIAASSET,
-                             "id");
+                             MediaAssetFactory.PK_MEDIAASSET);
         return sql;
     }
 
@@ -194,7 +194,7 @@ public class SimpleFactory {
                              "avatarid",
                              MediaAssetFactory.TABLENAME_MEDIAASSET,
                              MediaAssetFactory.ALIAS_MEDIAASSET,
-                             "id");
+                             MediaAssetFactory.PK_MEDIAASSET);
         return sql;
     }
 
@@ -368,7 +368,6 @@ public class SimpleFactory {
                             rs.getDoubleObj("latitude"),
                             rs.getDoubleObj("longitude"),
                             rs.getString("verbatimLocation"));
-
     }
 
     public static void fillFormatterWithLoc(final SqlFormatter formatter, final Location location) {

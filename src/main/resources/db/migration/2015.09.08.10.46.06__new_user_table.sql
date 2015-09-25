@@ -35,5 +35,12 @@ insert into users (username, fullname, creationdate, email, lastlogin, password,
 
 insert into userroles select id, "CONTEXT", "ROLE_NAME" FROM "USER_ROLES" ur inner join users u on u.username = ur."USERNAME";
 
-update mediasubmission set userid = (select id from users u where u.username = mediasubmission.username);
-update mediaasset set submitterid = (select id from users u where u.username = mediaasset.submitter);
+update mediasubmission set userid = (select id from users u
+       where lower(u.username) = lower(mediasubmission.email)
+       or lower(u.email) = lower(mediasubmission.email));
+update mediasubmission set userid = (select id from users u
+       where lower(u.username) = lower(mediasubmission.username)
+       or lower(u.email) = lower(mediasubmission.username));
+update mediaasset set submitterid = (select id from users u
+    where lower(u.username) = lower(mediaasset.submitter)
+    or lower(u.email) = lower(mediaasset.submitter));

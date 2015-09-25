@@ -270,7 +270,7 @@ public class MediaSubmissionController
                 }
 
                 model.put("subinfo.number", String.valueOf(mas.size()));
-                model.put("subinfo.date", DateUtils.epochSecToString(media.getTimeSubmitted()));
+                model.put("subinfo.date", DateUtils.epochMilliSecToString(media.getTimeSubmitted()));
             } catch (Throwable ex) {
                 //
                 // Catch everything so that we don't bail simply because something went wrong

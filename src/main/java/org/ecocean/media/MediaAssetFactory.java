@@ -23,9 +23,9 @@ public class MediaAssetFactory {
 
     public static final String TABLENAME_MEDIAASSET = "mediaasset";
     public static final String ALIAS_MEDIAASSET = "ma";
+    public static final String PK_MEDIAASSET = "id";
 
     public static final int NOT_SAVED = -1;
-
 
     private MediaAssetFactory() {
         // prevent instantiation
@@ -39,7 +39,7 @@ public class MediaAssetFactory {
         throws DatabaseException
     {
         SqlWhereFormatter where = new SqlWhereFormatter();
-        where.append("id", id);
+        where.append(PK_MEDIAASSET, id);
 
         Table table = db.getTable(TABLENAME_MEDIAASSET);
 
@@ -66,7 +66,7 @@ public class MediaAssetFactory {
         //
         // Will happen if in a left join query there is no associated media asset.
         //
-        if (! rs.hasColumn("id")) {
+        if (! rs.hasColumn(PK_MEDIAASSET)) {
             return null;
         }
 
@@ -75,7 +75,7 @@ public class MediaAssetFactory {
             logger.debug(LogBuilder.quickLog("store", AssetStore.get(rs.getInteger("store"))));
         }
 
-        MediaAsset ma = new MediaAsset(rs.getInt("id"),
+        MediaAsset ma = new MediaAsset(rs.getInt(PK_MEDIAASSET),
                                        AssetStore.get(rs.getInteger("store")),
                                        createPath(rs.getString("path")),
                                        MediaAssetType.fromCode(rs.getInt("type")),
@@ -104,13 +104,13 @@ public class MediaAssetFactory {
             SqlInsertFormatter formatter = new SqlInsertFormatter();
             fillFormatter(formatter, ma);
 
-            ma.id = table.insertSequencedRow(formatter, "id");
+            ma.id = table.insertSequencedRow(formatter, PK_MEDIAASSET);
         } else {
             SqlUpdateFormatter formatter = new SqlUpdateFormatter();
             fillFormatter(formatter, ma);
 
             SqlWhereFormatter where = new SqlWhereFormatter();
-            where.append("id", ma.id);
+            where.append(PK_MEDIAASSET, ma.id);
             table.updateRow(formatter.getUpdateClause(), where.getWhereClause());
         }
     }

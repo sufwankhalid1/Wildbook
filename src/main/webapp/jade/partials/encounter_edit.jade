@@ -1,4 +1,4 @@
-form.form.form-horizontal.ng-cloak(novalidate, ng-controller="EncounterFormController", ng-show="encounter")
+form.form.form-horizontal.ng-cloak(novalidate, ng-controller="EncounterFormController")
     legend Encounter
     input(type="hidden", ng-model="encounter.encounterid")
     input(type="hidden", ng-model="encounter.individualid")
@@ -11,9 +11,6 @@ form.form.form-horizontal.ng-cloak(novalidate, ng-controller="EncounterFormContr
     .form-group
         label.control-label Longitude:
         input.form-control(type="text", ng-model="encounter.location.longitude")
-    .form-group
-        label.control-label Submitter:
-        input.form-control(type="text", ng-model="encounter.submitter")
     .form-group
         labe.control-labell Location ID:
         input.form-control(type="text", ng-model="encounter.location.locationid")
