@@ -1,7 +1,7 @@
 //- login.jade
 //- an angular modal masking the page for login, while keeping your place on the page
-div.login-modal.ng-cloak(ng-show="showlogin && !user" ng-controller="LoginController")
-        .container-fluid
+div.login-modal.ng-cloak(ng-show="showlogin && !user")
+        .container-fluid(ng-controller="LoginController")
             .row
                 .col-md-4.col-md-offset-4.col-sm-6.col-sm-offset-3.col-xs-10.col-xs-offset-1
                     div(ng-show="showlogin && !reset.on && !reset.sent")
