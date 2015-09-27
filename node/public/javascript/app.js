@@ -190,6 +190,10 @@ angular.module('nodeApp.controllers', ['nodeApp.config'])
     $scope.resetForm = {
         email: null
     }
+    $scope.reset = {
+        on: false,
+        sent: false
+    };
     $scope.login = function() {
         $http.post(app.config.wildbook.url + '/obj/user/login',
         {
@@ -206,11 +210,34 @@ angular.module('nodeApp.controllers', ['nodeApp.config'])
         }, function() {
             $scope.loginForm.error = "Invalid Username or Password.";
         });
+    };
+    $scope.sendreset = function() {
+        $http.post(app.config.wildbook.url + '/obj/user/sendpassreset', $scope.resetForm.email, { contentType: 'text/plain' })
+        .then(function() {
+            $scope.reset.on = false;
+            $scope.reset.sent = true;
+        });
     }
 }])
 .controller("IndividualController", ['$scope', '$http', 'configFactory', function(scope, http, config) {
     config.getConfig().then(function(configData) {
         individualPage.init(config, photos, encounters);
     });
+}])
+.controller("ResetController", ['$scope', '$http', '$attrs', function(scope, http, attrs) {
+    scope.form = {
+        password: null,
+        password2: null
+    }
+    scope.passwordError = null;
+    scope.reset = function() {
+        http.post(app.config.wildbook.url + '/obj/user/resetpass',
+            { token: attrs.token, password: scope.form.password },
+            { contentType: 'application/json'})
+        .then(function() {
+            scope.done = true;
+        }, function(res) {
+            scope.passwordError = 'Something went wrong. Please try again.';
+        });
+    };
 }]);
-

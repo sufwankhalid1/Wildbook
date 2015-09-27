@@ -820,7 +820,7 @@ hr {
     color: #fff; }
   .login-modal .row {
     height: 100vh;
-    padding: 20% 0 0; }
+    padding: 10% 0 0; }
   .login-modal .close-modal {
     position: absolute;
     top: 70px;
@@ -834,6 +834,11 @@ hr {
     cursor: pointer; }
   .login-modal .link:hover {
     color: #94a1a4; }
+
+.reset-page {
+  position: relative;
+  height: 100vh;
+  min-height: 500px; }
 
 /* Uploader */
 #MediaSubmissionWizard {

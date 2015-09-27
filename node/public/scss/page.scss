@@ -46,7 +46,7 @@
     }
     .row {
         height: 100vh;
-        padding: 20% 0 0;
+        padding: 10% 0 0;
     }
     .close-modal {
         position: absolute;
@@ -65,4 +65,10 @@
     .link:hover {
         color: $font-color-heading2;
     }
+}
+
+.reset-page {
+    position: relative;
+    height: 90vh;
+    min-height: 500px;
 }

@@ -1,10 +1,10 @@
 //- login.jade
 //- an angular modal masking the page for login, while keeping your place on the page
-div.login-modal.ng-cloak(ng-show="showlogin && !user")
-        .container-fluid(ng-controller="LoginController")
+div.login-modal.ng-cloak(ng-show="showlogin && !user" ng-controller="LoginController")
+        .container-fluid
             .row
                 .col-md-4.col-md-offset-4.col-sm-6.col-sm-offset-3.col-xs-10.col-xs-offset-1
-                    div(ng-show="showlogin && !reset.on")
+                    div(ng-show="showlogin && !reset.on && !reset.sent")
                         h1 Login to Happy Whale
                         div.form-group
                             label(for="login-user") Username / Email Address
@@ -24,7 +24,11 @@ div.login-modal.ng-cloak(ng-show="showlogin && !user")
                             input#reset-email.reset-email.form-control(ng-model="resetForm.email")
                             p.help-block We'll send a password reset link to this address.
                         div.form-group
-                            button.btn.btn-medium.btn-warning.right RESET
-                    div(ng-show="showlogin && reset")
+                            button.btn.btn-medium.btn-warning.right(ng-click="sendreset()") RESET
+                    div(ng-show="showlogin && reset.sent")
+                        h1 Password Reset Sent to Email!
+                        p Please check your email address for a link.
+                        div.form-group
+                            button.btn.btn-medium.btn-success.right(ng-click="showlogin = false; reset.on = false") CLOSE
         div.close-modal 
             a(ng-click="showlogin = false; reset.on = false") X
