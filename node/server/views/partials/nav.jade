@@ -33,5 +33,5 @@ nav.navbar.navbar-inverse.navbar-fixed-top#navbar-top
                     .navbar-logged-in-wrapper(ng-show="!user")
                         p= t("header.menu.welcomeSignIn")
                         p= t("header.menu.alreadyMember") + " | "
-                            a(ng-click="login.on = true", class="navbar-login-link")= t("header.menu.signin")
+                            a(ng-click="showlogin = true", class="navbar-login-link")= t("header.menu.signin")
     .logo-svg#navbar-logo-right

@@ -26,34 +26,13 @@
 //
 //    return {status: status, message: message};
 //}
-var ngApp = angular.module('nodeApp', ['nodeApp.controllers']);
+var ngApp = angular.module('nodeApp', ['nodeApp.config', 'nodeApp.controllers']);
 
 function handleError(jqXHR) {
     alertplus.error(jqXHR);
 }
 
 var app = {};
-var configPromise = $.get("/config")
-.then(function(config) {
-    app.config = config;
-    if (typeof maptool !== 'undefined') {
-        maptool.init(config.maptool);
-    }
-    //
-    // Must force credentials to be sent or else the cookie for the config.wildbook.url domain
-    // is not sent by ajax. This cookie has our login info in it if we are already logged in.
-    //
-    return $.ajax({url: config.wildbook.url + "/obj/user/isloggedin", xhrFields: {withCredentials: true}});
-}, handleError)
-.then(function(user) {
-    if (user.username) {
-        app.user = user;
-    } else {
-        app.user = null;
-    }
-}, handleError);
-
-app.configPromise = configPromise;
 
 app.beingDiv = function(being) {
     if (!being) {
@@ -94,28 +73,6 @@ app.toMoment = function(encDate) {
     var dateString = encDate.year + '-' + encDate.monthValue + '-' + encDate.dayOfMonth;
     return moment(dateString, 'YYYY-M-D');
 }
-
-app.wait = (function () {
-    var waitDiv = $('<div class="modal hide" data-backdrop="static" data-keyboard="false"><div class="modal-header">'
-            + '<h1>Processing...</h1>'
-            + '</div><div class="modal-body"><img src="/images/wait.gif"></div></div>');
-    return {
-        show: function() {
-            waitDiv.modal('show');
-        },
-        hide: function () {
-            waitDiv.modal('hide');
-        },
-
-    };
-})();
-
-//ngApp.factory('dataService', function() {
-//    var _data = {};
-//    return {
-//        data: _data
-//    };
-//});
 
 function configSearchBox() {
     $('#search-site').autocomplete({
@@ -169,52 +126,91 @@ function configSearchBox() {
     //this hides the no results message when the user leaves search field
     $('#search-site').on('blur', function() { $('#search-help').hide(); });
 }
-
-angular.module("nodeApp.controllers", [])
-.controller("AppController", function ($scope, $http) {
-    $scope.login = function() {
-        wildbook.auth.login(app.config.wildbook.url)
-        .then(function(user) {
-            $scope.user = user;
-            setTimeout(function(){$scope.$apply();});
-        })
+angular.module("nodeApp.config", [])
+.factory('configFactory', ['$http', '$q', function($http, $q) {
+    var defConfig = $q.defer();
+    $http.get('/config')
+    .success(function(res) {
+        return defConfig.resolve(res);
+    })
+    .error(function(err){
+        console.log('ng error getting config');
+    });
+    return {
+        getConfig: function() {
+            return defConfig.promise;
+        }
     };
+}]);
 
-    $scope.logout = function() {
-        $http({url: app.config.wildbook.url + "/LogoutUser", withCredentials: true})
-//        $http({url: app.config.wildbook.url + "/obj/user/logout", withCredentials: true})
-//        $http({url: app.config.wildbook.url + "/logout.jsp", withCredentials: true})
-//        $http({url: app.config.wildbook.url + "/logout.jsp"})
-//        $http.post(app.config.wildbook.url + "/obj/user/logout", {withCredentials: true})
-        .then(function() {
-            $scope.user = null;
-            setTimeout(function(){$scope.$apply();});
-        })
+angular.module('nodeApp.controllers', ['nodeApp.config'])
+.controller('AppController', ['$scope', '$http', 'configFactory', function ($scope, $http, config) {
+    $scope.user = null;
+    $scope.showlogin = false;
+    config.getConfig().then(function(configData) {
+        app.config = configData;
+        $http.get(app.config.wildbook.url + '/obj/user/isloggedin', {withCredentials: true})
+        .then(function(res) {
+            $scope.user = res.data;
+        });
+
+        //setup map tool
+        if(typeof maptool !== 'undefined') {
+            maptool.init(configData.maptool);
+        }
+        //setup locale, tooltips, searchbox:
+        moment.locale(window.navigator.userLanguage || window.navigator.language || 'en');
+
+        $('[data-toggle="tooltip"]').tooltip();
+
+        configSearchBox();
+
+        $scope.logout = function() {
+            $http({url: app.config.wildbook.url + "/LogoutUser", withCredentials: true})
+            .then(function() {
+                $scope.user = null;
+                setTimeout(function(){$scope.$apply();});
+            })
+        }
+
+        $scope.terms = function() {
+            $http.get("/termsModal")
+            .then(function(terms) {
+                alertplus.alert(terms.data, null, "Usage Agreement");
+            });
+        }
+    });
+}])
+.controller("LoginController", ['$scope', '$http', 'configFactory', function($scope, $http, config) {
+    $scope.loginForm = {
+        username: null,
+        password: null,
+        error: null
     }
-
-    $scope.terms = function() {
-        $http.get("/termsModal")
-        .then(function(terms) {
-            alertplus.alert(terms.data, null, "Usage Agreement");
+    $scope.resetForm = {
+        email: null
+    }
+    $scope.login = function() {
+        $http.post(app.config.wildbook.url + '/obj/user/login',
+        {
+            username: $scope.loginForm.username,
+            password: $scope.loginForm.password
+        },
+        {
+            withCredentials: true,
+            contentType: 'application/json'
+        })
+        .then(function(res) {
+            $scope.$parent.user = res.data;
+            $scope.$parent.showlogin = false;
+        }, function() {
+            $scope.loginForm.error = "Invalid Username or Password.";
         });
     }
-
-    return configPromise.then( function() {
-        $scope.user = app.user;
-        setTimeout(function(){$scope.$apply();});
+}])
+.controller("IndividualController", ['$scope', '$http', 'configFactory', function(scope, http, config) {
+    config.getConfig().then(function(configData) {
+        individualPage.init(config, photos, encounters);
     });
-});
-
-$(document).ready(function() {
-    moment.locale(window.navigator.userLanguage || window.navigator.language || 'en');
-
-    //
-    // Trigger bootstrap tooltips
-    //
-    $('[data-toggle="tooltip"]').tooltip();
-
-    configPromise.done(function() {
-        configSearchBox();
-    });
-});
+}]);
 

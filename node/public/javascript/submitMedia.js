@@ -407,9 +407,9 @@ var submitMedia = (function () {
          }
     ])
     .controller('SubmissionFileUploadController',
-        ['$scope', '$http',
-         function ($scope, $http) {
-            app.configPromise.then(function() {
+        ['$scope', '$http', 'configFactory',
+         function ($scope, $http, config) {
+            config.getConfig().then(function() {
                  $scope.options = {
     //                   url: "http://wildbook.happywhale.com/mediaupload"
     //                url: config.wildbook.url + "/mediaupload"

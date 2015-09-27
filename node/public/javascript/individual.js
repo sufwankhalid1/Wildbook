@@ -1,7 +1,7 @@
 'use strict';
 
 var individualPage = (function () {
-    function init(photos, encounters, voyages) {
+    function init(config, photos, encounters, voyages) {
         // build photos array for phototool
         var fotos = [];
 

@@ -6,6 +6,10 @@ body {
   padding-top: 50px;
 }
 
+[ng\:cloak], [ng-cloak], .ng-cloak {
+  display: none !important;
+}
+
 //where to?
 #password-success {
     font-size: 1.7em;
