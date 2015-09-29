@@ -1,7 +1,9 @@
 package org.ecocean.util;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.OffsetTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
@@ -26,4 +28,19 @@ public class DateUtils {
 //    public static long nowEpochSec() {
 //        return LocalDateTime.now().atZone(ZoneId.systemDefault()).toEpochSecond();
 //    }
+
+    public static String format(final LocalDate date, final OffsetTime start, final OffsetTime end) {
+        StringBuilder builder = new StringBuilder();
+        builder.append(date.toString());
+
+        if (start != null) {
+            builder.append(" ").append(start.toString());
+        }
+
+        if (end != null) {
+            builder.append("-").append(end.toString());
+        }
+
+        return builder.toString();
+    }
 }

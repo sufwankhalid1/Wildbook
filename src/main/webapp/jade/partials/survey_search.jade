@@ -3,11 +3,11 @@ form.form.form-horizontal.ng-cloak(novalidate, ng-controller="SurveySearchContro
     .container-fluid
         .col-md-4
             .form-group
-                label.control-label Vessel:
-                input.form-control(type="text", ng-model="surveysearch.vesselid")
-            .form-group
                 label.control-label Organization:
                 input.form-control(type="text", ng-model="surveysearch.orgid")
+            .form-group
+                label.control-label Vessel:
+                input.form-control(type="text", ng-model="surveysearch.vesselid")
         .col-md-4
             .form-group
                 label.control-label Survey Number:
@@ -21,5 +21,6 @@ form.form.form-horizontal.ng-cloak(novalidate, ng-controller="SurveySearchContro
                 input.form-control(type="date", ng-model="surveysearch.date")
 
             input(type="submit", ng-click="search()", value="Search")
-
-    .ag-fresh.ng-cloak(ag-grid="surveyGridOptions", style="height: 400px;", ng-show="surveys")
+    .ng-cloak(ng-show="gotresults")
+        legend Results
+        .ag-fresh(ag-grid="surveyGridOptions", style="height: 400px;")

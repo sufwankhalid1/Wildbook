@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.OffsetTime;
 
 import org.ecocean.Location;
+import org.ecocean.util.DateUtils;
 
 public class SurveyPart {
     //
@@ -92,5 +93,9 @@ public class SurveyPart {
 
     public void setLocation(final Location location) {
         this.location = location;
+    }
+
+    public String getFormattedTime() {
+        return DateUtils.format(partDate, starttime, endtime);
     }
 }
