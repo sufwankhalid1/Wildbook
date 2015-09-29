@@ -1,7 +1,7 @@
 package org.ecocean.survey;
 
+import org.ecocean.LocationFactory;
 import org.ecocean.Point;
-import org.ecocean.rest.SimpleFactory;
 import org.ecocean.security.UserFactory;
 
 import com.samsix.database.Database;
@@ -30,7 +30,7 @@ public class SurveyFactory {
         // prevent instantiation
     }
 
-    public static SqlStatement getSqlStatement()
+    public static SqlStatement getSurveyStatement()
     {
         SqlStatement sql = new SqlStatement(TABLENAME_SURVEY,
                                             ALIAS_SURVEY,
@@ -38,6 +38,16 @@ public class SurveyFactory {
         sql.addInnerJoin(ALIAS_SURVEY, PK_SURVEY, TABLENAME_SURVEYPART, ALIAS_SURVEYPART, PK_SURVEY);
         sql.addLeftOuterJoin(ALIAS_SURVEYPART, "vesselid", TABLENAME_VESSEL, ALIAS_VESSEL, "vesselid");
         sql.addLeftOuterJoin(ALIAS_SURVEY, "orgid", UserFactory.TABLENAME_ORG, UserFactory.ALIAS_ORG, "orgid");
+        return sql;
+    }
+
+    public static SqlStatement getSurveyStatement(final boolean distinct)
+    {
+        SqlStatement sql = getSurveyStatement();
+        sql.setSelectDistinct(true);
+        sql.addSelectTable(ALIAS_SURVEY);
+        sql.addSelectTable(ALIAS_SURVEYPART);
+        sql.addSelectTable(UserFactory.ALIAS_ORG);
         return sql;
     }
 
@@ -60,7 +70,7 @@ public class SurveyFactory {
 
         surveyTrack.setCode(rs.getString("code"));
         surveyTrack.setComments(rs.getString("comments"));
-        surveyTrack.setLocation(SimpleFactory.readLocation(rs));
+        surveyTrack.setLocation(LocationFactory.readLocation(rs));
 
         return surveyTrack;
     }
@@ -143,7 +153,7 @@ public class SurveyFactory {
         formatter.append("comments", spart.getComments());
         formatter.append("starttime", spart.getStarttime().toString());
         formatter.append("endtime", spart.getEndtime().toString());
-        SimpleFactory.fillFormatterWithLoc(formatter, spart.getLocation());
+        LocationFactory.fillFormatterWithLoc(formatter, spart.getLocation());
     }
 
     //===================================

@@ -6,7 +6,6 @@ import="org.ecocean.Adoption,
         org.ecocean.Shepherd,
         org.ecocean.ShepherdPMF,
         org.ecocean.rest.MainController,
-        org.ecocean.rest.SimpleFactory,
         org.ecocean.rest.SimpleUser,
         org.ecocean.security.User,
         org.ecocean.security.UserFactory,
@@ -427,7 +426,7 @@ margin-bottom: 8px !important;
             <%
             SimpleUser featuredUser = null;
             try (Database db = ServletUtilities.getDb(request)) {
-                featuredUser = SimpleFactory.getProfiledUser(db);
+                featuredUser = UserFactory.getProfiledUser(db);
             } catch (DatabaseException ex) {
                 ex.printStackTrace();
             }

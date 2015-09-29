@@ -7,6 +7,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.ecocean.encounter.EncounterFactory;
+import org.ecocean.encounter.SimpleEncounter;
 import org.ecocean.security.UserFactory;
 import org.ecocean.servlet.ServletUtilities;
 import org.ecocean.survey.SurveyFactory;
@@ -43,7 +45,7 @@ public class SearchController
         String searchTerm = "%" + term.toLowerCase() + "%";
 
         RecordSet rs;
-        SqlStatement sql = SimpleFactory.getIndividualStatement();
+        SqlStatement sql = EncounterFactory.getIndividualStatement();
 
         GroupedSqlCondition cond = GroupedSqlCondition.orGroup();
         cond.addCondition(sql.findTable("i"), "alternateid", SqlRelationType.LIKE, searchTerm)
@@ -54,7 +56,7 @@ public class SearchController
 
         rs = db.getRecordSet(sql);
         while (rs.next()) {
-            individuals.add(SimpleFactory.readSimpleIndividual(rs));
+            individuals.add(EncounterFactory.readSimpleIndividual(rs));
         }
 
         return individuals;
@@ -116,7 +118,7 @@ public class SearchController
                                                  @RequestParam
                                                  final String individualid) throws DatabaseException
     {
-        SqlStatement sql = SimpleFactory.getEncounterStatement();
+        SqlStatement sql = EncounterFactory.getEncounterStatement();
 
         if (! StringUtils.isBlank(encdate)) {
             sql.addCondition("e", "encdate", SqlRelationType.EQUAL, encdate);
@@ -129,7 +131,7 @@ public class SearchController
             List<SimpleEncounter> encounters = new ArrayList<>();
             RecordSet rs = db.getRecordSet(sql);
             while (rs.next()) {
-                encounters.add(SimpleFactory.readSimpleEncounter(rs));
+                encounters.add(EncounterFactory.readSimpleEncounter(rs));
             }
 
             return encounters;
@@ -157,7 +159,7 @@ public class SearchController
         }
 
         try (Database db = ServletUtilities.getDb(request)) {
-            SqlStatement sql = SurveyFactory.getSqlStatement();
+            SqlStatement sql = SurveyFactory.getSurveyStatement();
 
             if (search.vesselid != null) {
                 sql.addCondition(SurveyFactory.ALIAS_SURVEYPART, "vesselid", SqlRelationType.EQUAL, search.vesselid);
@@ -180,10 +182,9 @@ public class SearchController
             }
 
             List<SurveyPartObj> parts = new ArrayList<>();
-            RecordSet rs = db.getRecordSet(sql);
-            while (rs.next()) {
+            db.select(sql, (rs) -> {
                 parts.add(SurveyFactory.readSurveyPartObj(rs));
-            }
+            });
 
             return parts;
         }

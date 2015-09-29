@@ -9,7 +9,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.AddressException;
 
 import org.ecocean.Location;
-import org.ecocean.rest.SimpleEncounter;
+import org.ecocean.encounter.SimpleEncounter;
 import org.ecocean.util.Jade4JUtils;
 import org.junit.Test;
 

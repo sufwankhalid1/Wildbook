@@ -3,6 +3,7 @@ package org.ecocean.rest;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.ecocean.encounter.SimpleEncounter;
 import org.ecocean.survey.SurveyPart;
 
 public class UserInfo {

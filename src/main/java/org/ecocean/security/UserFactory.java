@@ -1,6 +1,8 @@
 package org.ecocean.security;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -13,6 +15,7 @@ import org.ecocean.rest.SimpleUser;
 import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
 import com.samsix.database.RecordSet;
+import com.samsix.database.SpecialSqlCondition;
 import com.samsix.database.SqlFormatter;
 import com.samsix.database.SqlInsertFormatter;
 import com.samsix.database.SqlRelationType;
@@ -72,26 +75,29 @@ public class UserFactory {
 
         SqlStatement sql = getUserStatement();
         sql.addCondition(AlIAS_USERS, PK_USERS, SqlRelationType.EQUAL, id);
-        RecordSet rs = db.getRecordSet(sql);
 
-        if (rs.next()) {
-            return UserFactory.readUser(rs);
-        }
-
-        return null;
+        return db.selectFirst(sql, (rs) -> {
+            return readUser(rs);
+        });
     }
 
 
     public static User getUser(final Database db, final String username) throws DatabaseException {
         SqlStatement sql = getUserStatement();
         sql.addCondition(AlIAS_USERS, "username", SqlRelationType.EQUAL, username.toLowerCase()).setFunction("lower");
-        RecordSet rs = db.getRecordSet(sql);
-
-        if (rs.next()) {
+        return db.selectFirst(sql, (rs) -> {
             return readUser(rs);
+        });
+    }
+
+    public static SimpleUser getSimpleUser(final Database db, final String username) throws DatabaseException
+    {
+        User user = getUser(db, username);
+        if (user == null) {
+            return null;
         }
 
-        return null;
+        return user.toSimple();
     }
 
     public static User getUserByEmail(final Database db, final String email) throws DatabaseException {
@@ -101,13 +107,9 @@ public class UserFactory {
 
         SqlStatement sql = getUserStatement();
         sql.addCondition(AlIAS_USERS, "email", SqlRelationType.EQUAL, email.toLowerCase()).setFunction("lower");
-        RecordSet rs = db.getRecordSet(sql);
-
-        if (rs.next()) {
+        return db.selectFirst(sql, (rs) -> {
             return readUser(rs);
-        }
-
-        return null;
+        });
     }
 
     public static User getUserByNameOrEmail(final Database db, final String term) throws DatabaseException {
@@ -115,11 +117,11 @@ public class UserFactory {
             return null;
         }
 
-        User user = UserFactory.getUser(db, term);
+        User user = getUser(db, term);
         if (user != null) {
             return user;
         }
-        return UserFactory.getUserByEmail(db, term);
+        return getUserByEmail(db, term);
     }
 
 
@@ -135,7 +137,7 @@ public class UserFactory {
 
         if (ma != null) {
             user.setAvatarid(rs.getInteger("avatarid"));
-            user.setAvatar(UserFactory.getAvatar(ma.webPathString(), rs.getString("email")));
+            user.setAvatar(getAvatar(ma.webPathString(), rs.getString("email")));
         }
         user.setStatement(rs.getString("statement"));
         user.setOrganization(readOrganization(rs));
@@ -153,7 +155,7 @@ public class UserFactory {
 
 
     public static SimpleUser readSimpleUser(final RecordSet rs) throws DatabaseException {
-        User user = UserFactory.readUser(rs);
+        User user = readUser(rs);
         if (user == null) {
             return null;
         }
@@ -225,12 +227,11 @@ public class UserFactory {
         SqlWhereFormatter where = new SqlWhereFormatter();
         where.append(PK_USERS, userid);
         where.append("context", context);
-        RecordSet rs = users.getRecordSet(where.getWhereClause());
 
         Set<String> roles = new HashSet<>();
-        while (rs.next()) {
+        users.select((rs) -> {
             roles.add(rs.getString("rolename"));
-        }
+        }, where.getWhereClause());
 
         return roles;
     }
@@ -262,9 +263,8 @@ public class UserFactory {
         where.append(PK_USERS, userid);
         where.append("context", context);
         where.append("rolename", role);
-        RecordSet rs = users.getRecordSet(where.getWhereClause());
 
-        return (rs.next());
+        return (users.getCount(where.getWhereClause()) > 0);
     }
 
 
@@ -302,5 +302,43 @@ public class UserFactory {
 
     private static void fillOrgFormatter(final SqlFormatter formatter, final Organization organization) {
         formatter.append("name", organization.getName());
+    }
+
+    public static List<SimpleUser> readSimpleUsers(final Database db, final SqlStatement sql) throws DatabaseException {
+        List<SimpleUser> users = new ArrayList<>();
+
+        db.select(sql, (rs) -> {
+            users.add(readSimpleUser(rs));
+        });
+
+        return users;
+    }
+
+    public static SimpleUser getUser(final Database db, final Integer userid) throws DatabaseException
+    {
+        if (userid == null) {
+            return null;
+        }
+
+        SqlStatement sql = getUserStatement();
+        sql.addCondition(AlIAS_USERS, "userid",SqlRelationType.EQUAL, userid);
+        return db.selectFirst(sql, (rs) -> {
+            return readSimpleUser(rs);
+        });
+    }
+
+    public static SimpleUser getProfiledUser(final Database db) throws DatabaseException {
+        //
+        // Weird (but cool) way to get random row but seems to work. Probably won't scale super well but we
+        // can deal with that later.
+        //
+        SqlStatement sql = getUserStatement();
+        sql.addCondition(new SpecialSqlCondition(AlIAS_USERS + ".statement IS NOT NULL"));
+        sql.setOrderBy("random()");
+        sql.setLimit(1);
+
+        return db.selectFirst(sql, (rs) -> {
+            return readSimpleUser(rs);
+        });
     }
 }

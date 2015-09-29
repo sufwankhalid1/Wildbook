@@ -1,19 +1,25 @@
 form.form.form-horizontal.ng-cloak(novalidate, ng-controller="SurveySearchController")
     legend Survey Search
-    .form-group
-        label.control-label Vessel:
-        input.form-control(type="text", ng-model="surveysearch.vesselid")
-    .form-group
-        label.control-label Survey Number:
-        input.form-control(type="text", ng-model="surveysearch.surveynumber")
-    .form-group
-        label.control-label Code:
-        input.form-control(type="text", ng-model="surveysearch.code")
-    .form-group
-        label.control-label Organization:
-        input.form-control(type="text", ng-model="surveysearch.orgid")
-    .form-group
-        labe.control-labell Date:
-        input.form-control(type="date", ng-model="surveysearch.date")
+    .container-fluid
+        .col-md-4
+            .form-group
+                label.control-label Vessel:
+                input.form-control(type="text", ng-model="surveysearch.vesselid")
+            .form-group
+                label.control-label Organization:
+                input.form-control(type="text", ng-model="surveysearch.orgid")
+        .col-md-4
+            .form-group
+                label.control-label Survey Number:
+                input.form-control(type="text", ng-model="surveysearch.surveynumber")
+            .form-group
+                label.control-label Code:
+                input.form-control(type="text", ng-model="surveysearch.code")
+        .col-md-4
+            .form-group
+                label.control-label Date:
+                input.form-control(type="date", ng-model="surveysearch.date")
 
-    input(type="submit", ng-click="searchSurvey()", value="Search")
+            input(type="submit", ng-click="search()", value="Search")
+
+    .ag-fresh.ng-cloak(ag-grid="surveyGridOptions", style="height: 400px;", ng-show="surveys")

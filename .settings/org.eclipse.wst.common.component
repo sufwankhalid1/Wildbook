@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><project-modules id="moduleCoreId" project-version="1.5.0">
   <wb-module deploy-name="wildbook">
-        <dependent-module archiveName="s6-db-1.0.6-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/s6db/s6db">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
-        <dependent-module archiveName="s6-util-1.0.4-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/s6-util/s6-util">
+        <dependent-module archiveName="s6-db-1.0.7-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/s6db/s6db">
             <dependency-type>uses</dependency-type>
         </dependent-module>
     <property name="context-root" value="wildbook"/>

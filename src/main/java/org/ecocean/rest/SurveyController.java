@@ -26,7 +26,7 @@ public class SurveyController {
                                  @PathVariable("id")
                                  final int surveypartid) throws DatabaseException {
         try (Database db = ServletUtilities.getDb(request)) {
-            SqlStatement sql = SurveyFactory.getSqlStatement();
+            SqlStatement sql = SurveyFactory.getSurveyStatement();
 
             sql.addCondition(SurveyFactory.ALIAS_SURVEYPART,
                              SurveyFactory.PK_SURVEYPART,

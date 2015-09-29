@@ -1,10 +1,11 @@
-package org.ecocean.rest;
+package org.ecocean.encounter;
 
 import java.time.LocalDate;
 import java.time.OffsetTime;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.ecocean.Location;
+import org.ecocean.rest.SimpleIndividual;
 
 public class SimpleEncounter
 {

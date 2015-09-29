@@ -12,6 +12,8 @@ import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
 
 import org.ecocean.email.EmailUtils;
+import org.ecocean.encounter.EncounterFactory;
+import org.ecocean.encounter.SimpleEncounter;
 import org.ecocean.media.LocalAssetStore;
 import org.ecocean.media.MediaAsset;
 import org.ecocean.media.MediaAssetFactory;
@@ -21,6 +23,8 @@ import org.ecocean.media.MediaSubmissionFactory;
 import org.ecocean.security.User;
 import org.ecocean.security.UserFactory;
 import org.ecocean.servlet.ServletUtilities;
+import org.ecocean.survey.SurveyFactory;
+import org.ecocean.survey.SurveyPartObj;
 import org.ecocean.util.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,20 +60,79 @@ public class MediaSubmissionController
                                               @PathVariable("submissionid")
                                               final String submissionid) throws DatabaseException
     {
-        //
-        // Add photos
-        //
         try (Database db = ServletUtilities.getDb(request)) {
             String sql = "SELECT ma.* FROM mediasubmission_media m"
                     + " INNER JOIN mediaasset ma ON ma.id = m.mediaid"
                     + " WHERE m.mediasubmissionid = " + submissionid;
-            RecordSet rs = db.getRecordSet(sql);
             List<SimplePhoto> photos = new ArrayList<SimplePhoto>();
-            while (rs.next()) {
-                photos.add(SimpleFactory.readPhoto(rs));
-            }
+            db.select(sql, (rs) -> {
+                photos.add(MediaAssetFactory.readPhoto(rs));
+            });
 
             return photos;
+        }
+    }
+
+
+    @RequestMapping(value = "/encounters/{submissionid}", method = RequestMethod.GET)
+    public static SubmissionEncounters getEncounters(final HttpServletRequest request,
+                                                     @PathVariable("submissionid")
+                                                     final String submissionid) throws DatabaseException
+    {
+        try (Database db = ServletUtilities.getDb(request)) {
+            SubmissionEncounters se = new SubmissionEncounters();
+            //
+            // Get the encounters from the encounter_media and any survey parts they
+            // are part of.
+            //
+            SqlStatement sql = EncounterFactory.getEncounterStatement(true);
+            sql.addInnerJoin(EncounterFactory.ALIAS_ENCOUNTERS,
+                             EncounterFactory.PK_ENCOUNTERS,
+                             EncounterFactory.TABLENAME_ENCOUNTER_MEDIA,
+                             EncounterFactory.ALIAS_ENCOUNTER_MEDIA,
+                             EncounterFactory.PK_ENCOUNTERS);
+            sql.addInnerJoin(EncounterFactory.ALIAS_ENCOUNTER_MEDIA,
+                             "mediaid",
+                             MediaSubmissionFactory.TABLENAME_MEDIASUB_MEDIA,
+                             MediaSubmissionFactory.ALIAS_MEDIASUB_MEDIA,
+                             "mediaid");
+            sql.addCondition(MediaSubmissionFactory.ALIAS_MEDIASUB_MEDIA,
+                             "mediasubmissionid",
+                             SqlRelationType.EQUAL,
+                             submissionid);
+
+            List<SimpleEncounter> encounters = new ArrayList<>();
+            db.select(sql, (rs) -> {
+                encounters.add(EncounterFactory.readSimpleEncounter(rs));
+            });
+
+            sql = SurveyFactory.getSurveyStatement(true);
+            sql.addInnerJoin(SurveyFactory.ALIAS_SURVEYPART,
+                             SurveyFactory.PK_SURVEYPART,
+                             "surveypart_encounters",
+                             "spe",
+                             SurveyFactory.PK_SURVEYPART);
+            sql.addCondition("spe", EncounterFactory.PK_ENCOUNTERS, SqlRelationType.EQUAL, "?");
+            for (SimpleEncounter encounter : encounters) {
+                SurveyPartObj spo = db.selectFirst(sql, (rs) -> {
+                    return SurveyFactory.readSurveyPartObj(rs);
+                }, encounter.getId());
+
+                //
+                // If we didn't have a survey part for this encounter than just add it to the
+                // generic encounters, otherwise add it to the survey encounters.
+                //
+                if (spo == null) {
+                    se.encounters.add(encounter);
+                } else {
+                    SurveyEncounters ses = new SurveyEncounters();
+                    ses.survey = spo;
+                    ses.encounters.add(encounter);
+                    se.surveyEncounters.add(ses);
+                }
+            }
+
+            return se;
         }
     }
 
@@ -258,6 +321,15 @@ public class MediaSubmissionController
             model.put("submission", media);
             if (user != null) {
                 model.put("user", user.toSimple());
+                model.put("userverified", user.isVerified());
+
+                //
+                // TODO: Create and send new reset token and add it
+                // to the model.
+                //
+//                if (! user.isVerified()) {
+//                    model.put("token", newToken);
+//                }
             }
 
             try {
@@ -301,9 +373,7 @@ public class MediaSubmissionController
                 String template;
                 if (count == 0) {
                     template = "media/firstSubmission";
-                } else if (user == null || ! user.isVerified()) {
-                    template = "media/anotherSubmissionUnverified";
-                } else{
+                } else {
                     template = "media/anotherSubmission";
                 }
 
@@ -549,5 +619,16 @@ public class MediaSubmissionController
     {
         public List<ExifItem> items = new ArrayList<ExifItem>();
         public ExifAvg avg = new ExifAvg();
+    }
+
+    public static class SubmissionEncounters
+    {
+        public List<SimpleEncounter> encounters = new ArrayList<>();
+        public List<SurveyEncounters> surveyEncounters = new ArrayList<>();
+    }
+
+    public static class SurveyEncounters {
+        public SurveyPartObj survey;
+        public List<SimpleEncounter> encounters = new ArrayList<>();
     }
 }

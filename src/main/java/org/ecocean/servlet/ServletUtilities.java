@@ -66,8 +66,8 @@ import org.ecocean.email.old.MailThreadExecutorService;
 import org.ecocean.email.old.NotificationMailer;
 import org.ecocean.email.old.NotificationMailerHelper;
 import org.ecocean.mmutil.StringUtilities;
-import org.ecocean.rest.SimpleFactory;
 import org.ecocean.rest.SimpleUser;
+import org.ecocean.security.UserFactory;
 import org.ecocean.util.Jade4JUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
@@ -443,7 +443,7 @@ public class ServletUtilities {
         // Not critical if you want to change it.
         //
         try (Database db = getDb(request)) {
-            return SimpleFactory.getUser(db, NumberUtils.createInteger(request.getRemoteUser()));
+            return UserFactory.getUser(db, NumberUtils.createInteger(request.getRemoteUser()));
         } catch (DatabaseException ex) {
             logger.error("Can't get user from idstring [" + request.getRemoteUser() + "]", ex);
             return null;

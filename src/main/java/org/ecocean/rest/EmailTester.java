@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.ecocean.email.EmailUtils;
+import org.ecocean.encounter.EncounterFactory;
 import org.ecocean.security.User;
 import org.ecocean.security.UserFactory;
 import org.ecocean.servlet.ServletUtilities;
@@ -39,7 +40,7 @@ public class EmailTester {
         try (Database db = ServletUtilities.getDb(request)) {
             String individualId = request.getParameter("individualid");
             if (individualId != null) {
-                SimpleIndividual ind = SimpleFactory.getIndividual(db, Integer.parseInt(individualId));
+                SimpleIndividual ind = EncounterFactory.getIndividual(db, Integer.parseInt(individualId));
                 if (ind != null) {
                     model.put("individual", ind);
                 }

@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.ecocean.SinglePhotoVideo;
-import org.ecocean.rest.SimpleFactory;
+import org.ecocean.media.MediaAssetFactory;
 import org.flywaydb.core.api.migration.jdbc.JdbcMigration;
 
 import com.samsix.database.Database;
@@ -39,7 +39,7 @@ public class V2015_08_23_17_21_50__convert_media implements JdbcMigration {
         formatter.append("store", 1);
         formatter.append("path", url);
         formatter.append("thumbstore", 1);
-        formatter.append("thumbpath", SimpleFactory.getThumbnail(url));
+        formatter.append("thumbpath", MediaAssetFactory.getThumbnail(url));
 
         int mediaid = tablema.insertSequencedRow(formatter, "id");
 

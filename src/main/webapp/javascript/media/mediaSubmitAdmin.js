@@ -1,5 +1,11 @@
 var app = angular.module('appWildbook', ["angularGrid"])
-app.controller("MediaSubmissionController", function ($scope, $http, $compile) {
+app.factory('$exceptionHandler', function() {
+    return function(exception, cause) {
+        alertplus.error(exception);
+      };
+});
+
+app.controller("MediaSubmissionController", function ($scope, $http, $q, $compile) {
     $scope.encounters = [];
 
 //    $scope.viewImage = function(url) {
@@ -55,13 +61,16 @@ app.controller("MediaSubmissionController", function ($scope, $http, $compile) {
     }
 
     $scope.editSubmission = function(submission) {
-        return $http({url:"obj/mediasubmission/photos/" + submission.id})
-        .then(function(result) {
+        return $q.all([$http({url:"obj/mediasubmission/photos/" + submission.id}),
+                       $http({url:"obj/mediasubmission/encounters/" + submission.id})])
+//                       $q.resolve({encounters: [{individual: {displayName: 'test'}, encdate: '2009-12-13'}]})])
+        .then(function(results) {
             $scope.submission = submission;
-            $scope.photos = result.data;
+            $scope.photos = results[0].data;
+
+            $scope.encounters = results[1].encounters;
         }, handleError);
     }
-
 
     $scope.deleteSubmission = function() {
         return alertplus.confirm('Are you sure you want to delete the <b>entire</b> submission?', "Delete Submission", true)
@@ -170,4 +179,15 @@ app.controller("MediaSubmissionController", function ($scope, $http, $compile) {
 });
 
 app.controller("EncounterFormController", function($scope) {
+});
+
+app.controller("SurveySearchController", function($scope, $http, $exceptionHandler) {
+    $scope.search = function() {
+        $http({url: "search/survey", data: $scope.surveysearch})
+        .then(function(data) {
+            // fill grid
+            console.log(data.data);
+        },
+        $exceptionHandler);
+    }
 });

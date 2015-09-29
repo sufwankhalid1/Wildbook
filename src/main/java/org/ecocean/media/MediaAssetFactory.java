@@ -5,6 +5,8 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashSet;
 
+import org.ecocean.rest.MediaUploadServlet;
+import org.ecocean.rest.SimplePhoto;
 import org.ecocean.util.LogBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -164,5 +166,31 @@ public class MediaAssetFactory {
             ma.thumbStore.deleteFrom(ma.thumbPath);
         }
         ma.store.deleteFrom(ma.path);
+    }
+
+
+    public static SimplePhoto readPhoto(final RecordSet rs) throws DatabaseException
+    {
+        MediaAsset ma = valueOf(rs);
+
+        if (ma == null) {
+            return null;
+        }
+
+        return new SimplePhoto(ma.getID(), ma.webPathString(), ma.thumbWebPathString());
+    }
+
+
+    public static String getThumbnail(final String url) {
+        return getScaledImage(url, MediaUploadServlet.THUMB_DIR);
+    }
+
+    public static String getMidsizeFile(final String url) {
+        return getScaledImage(url, MediaUploadServlet.MID_DIR);
+    }
+
+    public static String getScaledImage(final String url, final String subdir) {
+        int index = url.lastIndexOf( File.separatorChar );
+        return url.substring(0, index) + "/" + subdir + url.substring(index);
     }
 }

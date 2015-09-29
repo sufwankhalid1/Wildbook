@@ -10,6 +10,7 @@ import com.samsix.database.DatabaseException;
 import com.samsix.database.RecordSet;
 import com.samsix.database.SqlFormatter;
 import com.samsix.database.SqlInsertFormatter;
+import com.samsix.database.SqlRelationType;
 import com.samsix.database.SqlStatement;
 import com.samsix.database.SqlUpdateFormatter;
 import com.samsix.database.SqlWhereFormatter;
@@ -18,6 +19,9 @@ import com.samsix.database.Table;
 public class MediaSubmissionFactory {
     public final static String TABLENAME_MEDIASUBMISSION = "mediasubmission";
     public final static String ALIAS_MEDIASUBMISSION = "ms";
+
+    public final static String TABLENAME_MEDIASUB_MEDIA = "mediasubmission_media";
+    public final static String ALIAS_MEDIASUB_MEDIA = "msm";
 
     private MediaSubmissionFactory() {
         // prevent instantiation
@@ -86,14 +90,22 @@ public class MediaSubmissionFactory {
     public static List<MediaAsset> getMedia(final Database db,
                                             final long msid) throws DatabaseException
     {
-        String sql = "SELECT ma.* FROM mediasubmission_media m"
-                + " INNER JOIN mediaasset ma ON ma.id = m.mediaid"
-                + " WHERE m.mediasubmissionid = " + msid;
-        RecordSet rs = db.getRecordSet(sql);
+//        String sql = "SELECT ma.* FROM mediasubmission_media m"
+//                + " INNER JOIN mediaasset ma ON ma.id = m.mediaid"
+//                + " WHERE m.mediasubmissionid = " + msid;
+        SqlStatement sql = new SqlStatement(TABLENAME_MEDIASUB_MEDIA, ALIAS_MEDIASUB_MEDIA);
+        sql.addInnerJoin(ALIAS_MEDIASUB_MEDIA,
+                         "mediaid",
+                         MediaAssetFactory.TABLENAME_MEDIAASSET,
+                         MediaAssetFactory.ALIAS_MEDIAASSET,
+                         MediaAssetFactory.PK_MEDIAASSET);
+        sql.addSelectTable(MediaAssetFactory.ALIAS_MEDIAASSET);
+        sql.addCondition(ALIAS_MEDIASUB_MEDIA, "mediasubmissionid", SqlRelationType.EQUAL, msid);
+
         List<MediaAsset> media = new ArrayList<>();
-        while (rs.next()) {
+        db.select(sql, (rs) -> {
             media.add(MediaAssetFactory.valueOf(rs));
-        }
+        });
 
         return media;
     }

@@ -2,7 +2,6 @@
          import="
          org.ecocean.ShepherdProperties,
          org.ecocean.servlet.ServletUtilities,
-         org.ecocean.rest.SimpleFactory,
          org.ecocean.rest.SimpleUser,
          org.ecocean.rest.UserController,
          java.util.Properties,

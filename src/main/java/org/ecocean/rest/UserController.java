@@ -157,7 +157,7 @@ public class UserController {
         Integer userid = NumberUtils.createInteger(request.getUserPrincipal().getName());
 
         try (Database db = ServletUtilities.getDb(request)) {
-            return SimpleFactory.getUser(db, userid);
+            return UserFactory.getUser(db, userid);
         }
     }
 

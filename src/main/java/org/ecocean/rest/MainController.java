@@ -3,13 +3,20 @@ package org.ecocean.rest;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.ecocean.encounter.EncounterFactory;
+import org.ecocean.encounter.SimpleEncounter;
 import org.ecocean.media.MediaAssetFactory;
+import org.ecocean.media.MediaAssetType;
 import org.ecocean.security.UserFactory;
 import org.ecocean.servlet.ServletUtilities;
+import org.ecocean.survey.SurveyPart;
 import org.ecocean.util.LogBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
 import com.samsix.database.RecordSet;
+import com.samsix.database.SpecialSqlCondition;
 import com.samsix.database.SqlRelationType;
 import com.samsix.database.SqlStatement;
 import com.samsix.util.string.StringUtilities;
@@ -30,6 +38,8 @@ import com.samsix.util.string.StringUtilities;
 public class MainController
 {
     private static Logger logger = LoggerFactory.getLogger(MainController.class);
+    private final static int MIN_PHOTOS = 8;
+
 
     public static List<Contributor> getTopContributors(final HttpServletRequest request,
                                                        final int pastNumDays,
@@ -75,14 +85,14 @@ public class MainController
         try (Database db = ServletUtilities.getDb(request)) {
             IndividualInfo indinfo = new IndividualInfo();
 
-            indinfo.individual = SimpleFactory.getIndividual(db, id);
+            indinfo.individual = EncounterFactory.getIndividual(db, id);
             if (indinfo.individual == null) {
                 return null;
             }
 
-            indinfo.photos = SimpleFactory.getIndividualPhotos(db, id);
-            indinfo.encounters = SimpleFactory.getIndividualEncounters(db, indinfo.individual);
-            indinfo.submitters = SimpleFactory.getIndividualSubmitters(db, id);
+            indinfo.photos = MainController.getIndividualPhotos(db, id);
+            indinfo.encounters = EncounterFactory.getIndividualEncounters(db, indinfo.individual);
+            indinfo.submitters = EncounterFactory.getIndividualSubmitters(db, id);
 
             return indinfo;
         }
@@ -125,7 +135,7 @@ public class MainController
                                final String username) throws DatabaseException
     {
         try (Database db = ServletUtilities.getDb(request)) {
-            return SimpleFactory.getUser(db, username);
+            return UserFactory.getSimpleUser(db, username);
         }
     }
 
@@ -136,7 +146,7 @@ public class MainController
                                 final int userid) throws DatabaseException
     {
         try (Database db = ServletUtilities.getDb(request)) {
-            return SimpleFactory.getUserInfo(db, userid);
+            return MainController.getUserInfo(db, userid);
         }
     }
 
@@ -152,6 +162,196 @@ public class MainController
                     .appendVar("value", request.getServletContext().getInitParameter(var)).toString());
         }
         return request.getServletContext().getInitParameter(var);
+    }
+
+    public static UserInfo getUserInfo(final Database db, final int userid) throws DatabaseException
+        {
+            SimpleUser user = UserFactory.getUser(db, userid);
+
+            if (user == null) {
+                return null;
+            }
+
+            UserInfo userinfo;
+            userinfo = new UserInfo(user);
+
+            //
+            // Add:
+            // 4) Indivduals identified (unique Individuals from Encounters
+            // 5) Voyages on
+            //
+            String sqlRoot = "SELECT ma.* FROM mediaasset ma";
+            String whereRoot = " WHERE ma.submitterid = " + userid
+                + " AND ma.type = " + MediaAssetType.IMAGE.getCode();
+
+            String sql;
+            RecordSet rs;
+
+            //
+            // 1) Highlighted Photos (including any avatar photos)
+            //
+
+            //
+            // Did the user submit an avatar photo?
+            //
+            sql = sqlRoot
+                    + " INNER JOIN individuals i ON ma.id = i.avatarid"
+                    + whereRoot;
+            rs = db.getRecordSet(sql);
+            while (rs.next()) {
+                userinfo.addPhoto(MediaAssetFactory.readPhoto(rs));
+            }
+
+            //
+            // Highlighted photos
+            //
+            sql = sqlRoot + whereRoot + " AND 'highlight' = ANY (ma.tags)";
+
+            rs = db.getRecordSet(sql);
+            while (rs.next()) {
+                userinfo.addPhoto(MediaAssetFactory.readPhoto(rs));
+            }
+
+            //
+            // If we are not at our minimum number of photos go ahead
+            // and grab the rest at random. Grab the minimum number of photos
+            // rather than the minimum minus the number already retrieved so
+            // that we can throw out any duplicates. That code is embedded
+            // in the addPhoto method of the SimpleIndividual
+            //
+            if (userinfo.getPhotos().size() < MIN_PHOTOS) {
+                sql = sqlRoot + whereRoot + " LIMIT " + MIN_PHOTOS;
+
+                rs = db.getRecordSet(sql);
+                while (rs.next()) {
+                    if (userinfo.getPhotos().size() >= MIN_PHOTOS) {
+                        break;
+                    }
+
+                    userinfo.addPhoto(MediaAssetFactory.readPhoto(rs));
+                }
+            }
+
+            //
+            // 2) Total Number of photos
+            //
+            sql = "SELECT count(*) AS count FROM mediaasset ma" + whereRoot;
+            rs = db.getRecordSet(sql);
+            if (rs.next()) {
+                userinfo.setTotalPhotoCount(rs.getInt("count"));
+            }
+
+            //
+            // 3) Encounters/Individuals
+            // NOTE: Doing the individual stuff here on the server even though the information
+            // is duplicated because javascript does not have hashmaps which makes the code to try and
+            // get all the unique values of individualID into an array much messier.
+            //
+            SqlStatement ss = EncounterFactory.getEncounterStatement();
+            ss.addCondition(new SpecialSqlCondition("exists (select * from encounter_media em"
+                    + " inner join mediaasset ma on ma.id = em.mediaid"
+                    + whereRoot
+                    + " and em.encounterid = e.encounterid)"));
+
+            Map<Integer, SimpleIndividual> inds = new HashMap<>();
+            rs = db.getRecordSet(ss);
+            while (rs.next()) {
+                Integer indid = rs.getInteger("individualid");
+
+                SimpleIndividual ind = inds.get(indid);
+                if (ind == null) {
+                    ind = EncounterFactory.readSimpleIndividual(rs);
+                    if (ind != null) {
+                        inds.put(ind.getId(), ind);
+                    }
+                }
+
+                SimpleEncounter encounter = EncounterFactory.readSimpleEncounter(ind, rs);
+                userinfo.addEncounter(encounter);
+            }
+            userinfo.setIndividuals(new ArrayList<SimpleIndividual>(inds.values()));
+
+            //
+            // TODO: Fix this so that it works with new file types. Don't think we need to convert the tiny
+            // bit of data that has accumulated on the server as I think it is only John's test data.
+            //
+    //            //
+    //            // Get voyages they were a part of...
+    //            // TODO: This is a bad design! We are getting the voyages they were on by the photos they submitted to the SurveyTrack!
+    //            // Bleh! We need to have a SurveyTrack_User table that just indicates the user was on that SurveyTrack. For now I'm
+    //            // just going to code it based on the photos taken knowing that this will change.
+    //            //
+    //            sql = "SELECT DISTINCT(\"ID_OID\") as ID FROM \"SURVEYTRACK_MEDIA\" stm"
+    //                    +  " INNER JOIN \"SINGLEPHOTOVIDEO\" spv ON stm.\"DATACOLLECTIONEVENTID_EID\" = spv.\"DATACOLLECTIONEVENTID\""
+    //                    + whereRoot;
+    //            rs = db.getRecordSet(sql);
+    //            while (rs.next()) {
+    //                userinfo.addVoyage(SurveyFactory.getSurveyTrack(db, rs.getLong("ID")));
+    //            }
+            userinfo.setVoyages(Collections.<SurveyPart>emptyList());
+
+            return userinfo;
+        }
+
+
+    public static List<SimplePhoto> getIndividualPhotos(final Database db, final int individualId) throws DatabaseException
+    {
+        //
+        // Add photos
+        //
+        SqlStatement sql = new SqlStatement(MediaAssetFactory.TABLENAME_MEDIAASSET,
+                                            MediaAssetFactory.ALIAS_MEDIAASSET,
+                                            MediaAssetFactory.ALIAS_MEDIAASSET + ".*");
+        sql.addInnerJoin(MediaAssetFactory.ALIAS_MEDIAASSET, MediaAssetFactory.PK_MEDIAASSET, "encounter_media", "em", "mediaid");
+        sql.addInnerJoin("em", "encounterid", "encounters", "e", "encounterid");
+        sql.addCondition(MediaAssetFactory.ALIAS_MEDIAASSET,
+                         "type",
+                         SqlRelationType.EQUAL,
+                         MediaAssetType.IMAGE.getCode());
+        sql.addCondition("e", "individualid", SqlRelationType.EQUAL, individualId);
+
+        RecordSet rs;
+        List<SimplePhoto> photos = new ArrayList<SimplePhoto>();
+
+        //
+        // Find the highlight images for this individual.
+        //
+        rs = db.getRecordSet(sql.getSql() + " AND 'highlight' = ANY (" + MediaAssetFactory.ALIAS_MEDIAASSET + ".tags)");
+        while (rs.next()) {
+            photos.add(MediaAssetFactory.readPhoto(rs));
+        }
+
+        //
+        // If we are not at our minimum number of photos go ahead
+        // and grab the rest at random. Grab the minimum number of photos
+        // rather than the minimum minus the number already retrieved so
+        // that we can throw out any duplicates.
+        //
+        if (photos.size() < MIN_PHOTOS) {
+            rs = db.getRecordSet(sql.getSql() + " LIMIT " + MIN_PHOTOS);
+            while (rs.next()) {
+                if (photos.size() >= MIN_PHOTOS) {
+                    break;
+                }
+
+                SimplePhoto photo = MediaAssetFactory.readPhoto(rs);
+
+                boolean addphoto = true;
+                for (SimplePhoto foto : photos) {
+                    if (foto.getId() == photo.getId()) {
+                        // don't add the same photo twice
+                        addphoto = false;
+                        break;
+                    }
+                }
+
+                if (addphoto) {
+                    photos.add(photo);
+                }
+            }
+        }
+
+        return photos;
     }
 
     static class IndividualInfo
