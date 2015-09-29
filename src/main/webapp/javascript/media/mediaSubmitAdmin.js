@@ -99,35 +99,30 @@ app.controller("MediaSubmissionController", function ($scope, $http, $q, $compil
 
     $scope.msGridOptions = {
         columnDefs:
-            [
-             {
-                 headerName: "",
-                 field: "id",
-                 width: 24,
-                 template: '<a href="javascript:;" ng-click="editSubmission(data)"><i class="glyphicon glyphicon-edit"></i></a>'
+            [{headerName: "",
+              field: "id",
+              width: 24,
+              template: '<a href="javascript:;" ng-click="editSubmission(data)"><i class="glyphicon glyphicon-edit"></i></a>'
              },
-             {
-                 headerName: "Submitted",
-                 field: "timeSubmitted",
-                 cellRenderer: function(params) {
-                     return $scope.timeToDate(params.value);
-                 }
+             {headerName: "Submitted",
+              field: "timeSubmitted",
+              cellRenderer: function(params) {
+                  return $scope.timeToDate(params.value);
+              }
              },
-             {
-                 headerName: "Submitted By",
-                 field: "user",
-                 cellRenderer: function(params) {
-                     if (params.value) {
-                         return params.value.displayName;
-                     }
-                     return null;
-                 }
+             {headerName: "Submitted By",
+              field: "user",
+              cellRenderer: function(params) {
+                  if (params.value) {
+                      return params.value.displayName;
+                  }
+                  return null;
+              }
              },
              {headerName: "Survey ID", field: "submissionid"},
              {headerName: "Description", field: "description"},
              {headerName: "Location", field: "verbatimLocation"},
-             {headerName: "Status", field: "status"}
-             ],
+             {headerName: "Status", field: "status"}],
         rowData: null,
         enableSorting: true,
         pinnedColumnCount: 3,
@@ -184,10 +179,23 @@ app.controller("EncounterFormController", function($scope) {
 app.controller("SurveySearchController", function($scope, $http, $exceptionHandler) {
     $scope.search = function() {
         $http({url: "search/survey", data: $scope.surveysearch})
-        .then(function(data) {
-            // fill grid
-            console.log(data.data);
+        .then(function(result) {
+            $scope.gotresults = true;
+            $scope.surveyGridOptions.rowData = result.data;
+            $scope.surveyGridOptions.api.onNewRows();
         },
         $exceptionHandler);
-    }
+    };
+
+    $scope.surveyGridOptions = {
+        columnDefs:
+            [{headerName: "Organization", field: "survey.organization.name"},
+             {headerName: "Number", field: "survey.surveyNumber"},
+             {headerName: "Date", field: "part.formattedDate"},
+             {headerName: "Code", field: "code"},
+             {headerName: "location", field: "part.location.locationid"}],
+        rowData: null,
+        enableSorting: true,
+        angularCompileRows: true
+    };
 });

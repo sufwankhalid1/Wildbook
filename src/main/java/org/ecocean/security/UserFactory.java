@@ -234,7 +234,7 @@ public class UserFactory {
         formatter.append("statement", user.getStatement());
         formatter.append("verified", user.isVerified());
         formatter.append("prtoken", user.getPrtoken());
-        formatter.append("prtimestamp", user.getPrtimestamp().toString());
+        formatter.append("prtimestamp", user.getPrtimestamp());
     }
 
 

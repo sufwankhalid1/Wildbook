@@ -37,6 +37,10 @@ public class EmailUtils {
                                        "cust.info.social.facebook",
                                        "cust.info.social.twitter"});
 
+    public static final String TAG_USER = "user";
+    public static final String TAG_TOKEN = "token";
+    public static final String TAG_INDIVIDUAL = "individual";
+    public static final String TAG_SUBMISSION = "submission";
 
     private EmailUtils() {
         // prevent instantiation

@@ -42,7 +42,7 @@ public class EmailTester {
             if (individualId != null) {
                 SimpleIndividual ind = EncounterFactory.getIndividual(db, Integer.parseInt(individualId));
                 if (ind != null) {
-                    model.put("individual", ind);
+                    model.put(EmailUtils.TAG_INDIVIDUAL, ind);
                 }
             }
 
@@ -50,7 +50,7 @@ public class EmailTester {
             if (userId != null) {
                 User user = UserFactory.getUserById(db, Integer.parseInt(userId));
                 if (user !=null) {
-                    model.put("user", user);
+                    model.put(EmailUtils.TAG_USER, user);
                 }
             }
         }

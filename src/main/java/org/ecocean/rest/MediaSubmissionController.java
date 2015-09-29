@@ -318,9 +318,9 @@ public class MediaSubmissionController
             // Email notify admin of new mediasubmission in WIldbook
             //
             Map<String, Object> model = EmailUtils.createModel();
-            model.put("submission", media);
+            model.put(EmailUtils.TAG_SUBMISSION, media);
             if (user != null) {
-                model.put("user", user.toSimple());
+                model.put(EmailUtils.TAG_USER, user.toSimple());
                 model.put("userverified", user.isVerified());
 
                 //
@@ -330,7 +330,7 @@ public class MediaSubmissionController
                 //
                 if (! user.isVerified()) {
                     try {
-                        model.put("token", UserFactory.createPWResetToken(db, user.getUserId()));
+                        model.put(EmailUtils.TAG_TOKEN, UserFactory.createPWResetToken(db, user.getUserId()));
                     } catch (DatabaseException ex) {
                         logger.error("Can't create password reset token to send to user for verification.", ex);
                     }

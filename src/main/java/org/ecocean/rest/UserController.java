@@ -259,13 +259,14 @@ public class UserController {
                 throw new IllegalAccessException("No user found with this email.");
             }
 
-            UserFactory.createPWResetToken(db, user.getUserId());
+            String token = UserFactory.createPWResetToken(db, user.getUserId());
 
             Map<String, Object> model = EmailUtils.createModel();
-            model.put("user", user.toSimple());
+            model.put(EmailUtils.TAG_USER, user.toSimple());
+            model.put(EmailUtils.TAG_TOKEN, token);
             EmailUtils.sendJadeTemplate(EmailUtils.getAdminSender(),
                     user.getEmail(),
-                    "passwordReset",
+                    "account/passwordReset",
                     model);
         }
     }
