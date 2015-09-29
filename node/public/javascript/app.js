@@ -218,6 +218,12 @@ angular.module('nodeApp.controllers', ['nodeApp.config'])
             $scope.reset.sent = true;
         });
     }
+    $scope.loginValidClass = function() {
+        return $scope.loginForm.username && $scope.loginForm.password ? '' : 'disabled';
+    }
+    $scope.resetValidClass = function() {
+        return $scope.resetForm.email ? '' : 'disabled';
+    }
 }])
 .controller("IndividualController", ['$scope', '$http', 'configFactory', function(scope, http, config) {
     config.getConfig().then(function(configData) {

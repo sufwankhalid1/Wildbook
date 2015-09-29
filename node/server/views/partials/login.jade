@@ -4,31 +4,31 @@ div.login-modal.ng-cloak(ng-show="showlogin && !user")
         .container-fluid(ng-controller="LoginController")
             .row
                 .col-md-4.col-md-offset-4.col-sm-6.col-sm-offset-3.col-xs-10.col-xs-offset-1
-                    div(ng-show="showlogin && !reset.on && !reset.sent")
+                    div(ng-show="$parent.showlogin && !reset.on && !reset.sent")
                         h1 Login to Happy Whale
                         div.form-group
                             label(for="login-user") Username / Email Address
-                            input#login-user.login-username.form-control(ng-model="loginForm.username")
+                            input#login-user.login-username.form-control(ng-model="loginForm.username", required="required")
                             p.help-block(ng-show="loginForm.error") {{ loginForm.error }}
                         div.form-group
                             label(for="login-pass") Password
-                            input#login-pass.login-password.form-control(type="password", ng-model="loginForm.password")
+                            input#login-pass.login-password.form-control(type="password", ng-model="loginForm.password", required="required")
                             p.help-block
                                 span.link(ng-click="reset.on = true") Forgot your password?
                         div.form-group
-                            button.btn.btn-medium.btn-success.right(ng-click="login()") LOG IN
-                    div(ng-show="showlogin && reset.on")
+                            button.btn.btn-medium.btn-success(ng-click="login()", ng-class="loginValidClass()") LOG IN
+                    div(ng-show="$parent.showlogin && reset.on")
                         h1 Reset Your Password
                         div.form-group
                             label(for="reset-email") Email Address
-                            input#reset-email.reset-email.form-control(ng-model="resetForm.email")
+                            input#reset-email.reset-email.form-control(ng-model="resetForm.email", required="required")
                             p.help-block We'll send a password reset link to this address.
                         div.form-group
-                            button.btn.btn-medium.btn-warning.right(ng-click="sendreset()") RESET
-                    div(ng-show="showlogin && reset.sent")
+                            button.btn.btn-medium.btn-warning(ng-click="sendreset()", ng-class="resetValidClass()") RESET
+                    div(ng-show="$parent.showlogin && reset.sent")
                         h1 Password Reset Sent to Email!
                         p Please check your email address for a link.
                         div.form-group
-                            button.btn.btn-medium.btn-success.right(ng-click="showlogin = false; reset.on = false") CLOSE
+                            button.btn.btn-medium.btn-success(ng-click="$parent.showlogin = false; reset.on = false") CLOSE
         div.close-modal 
-            a(ng-click="showlogin = false; reset.on = false") X
+            a(ng-click="$parent.showlogin = false; reset.on = false") X
