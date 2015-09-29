@@ -324,12 +324,17 @@ public class MediaSubmissionController
                 model.put("userverified", user.isVerified());
 
                 //
-                // TODO: Create and send new reset token and add it
-                // to the model.
+                // Create and send new reset token and add it
+                // to the model so that the user can verify their account
+                // directly from the email.
                 //
-//                if (! user.isVerified()) {
-//                    model.put("token", newToken);
-//                }
+                if (! user.isVerified()) {
+                    try {
+                        model.put("token", UserFactory.createPWResetToken(db, user.getUserId()));
+                    } catch (DatabaseException ex) {
+                        logger.error("Can't create password reset token to send to user for verification.", ex);
+                    }
+                }
             }
 
             try {

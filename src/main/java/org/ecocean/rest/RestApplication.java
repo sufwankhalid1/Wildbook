@@ -9,7 +9,6 @@ import javax.servlet.ServletException;
 import org.ecocean.Global;
 import org.ecocean.media.AssetStore;
 import org.ecocean.media.AssetStoreFactory;
-import org.ecocean.security.Stormpath;
 import org.ecocean.security.User;
 import org.ecocean.security.UserFactory;
 import org.flywaydb.core.Flyway;
@@ -135,15 +134,19 @@ public class RestApplication extends SpringBootServletInitializer {
             logger.error("Trouble initializing the app.", ex);
         }
 
-
-        try {
-            ResourceReaderImpl secrets = new ResourceReaderImpl("secrets");
-            Stormpath.init(secrets.getString("auth.stormpath.apikey.id"),
-                           secrets.getString("auth.stormpath.apikey.secret"),
-                           appResources.getString("auth.stormpath.appname", cust));
-        } catch (Throwable ex) {
-            logger.error("Trouble initializing stormpath.", ex);
-        }
+        //
+        // Old code to initialize stormpath. If, for some reason we decide to make it
+        // an optional user admin option, you will have to make it configurable to turn
+        // it on but not required.
+        //
+//        try {
+//            ResourceReaderImpl secrets = new ResourceReaderImpl("secrets");
+//            Stormpath.init(secrets.getString("auth.stormpath.apikey.id"),
+//                           secrets.getString("auth.stormpath.apikey.secret"),
+//                           appResources.getString("auth.stormpath.appname", cust));
+//        } catch (Throwable ex) {
+//            logger.error("Trouble initializing stormpath.", ex);
+//        }
 
         //
         // Uses default location of db/migration on classpath. You will find it in the src/main/resources folder.

@@ -1,5 +1,8 @@
 package org.ecocean.security;
 
+import java.math.BigInteger;
+import java.security.SecureRandom;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -26,6 +29,8 @@ import com.samsix.database.Table;
 
 public class UserFactory {
 //    private static Logger logger = LoggerFactory.getLogger(UserFactory.class);
+
+    private static SecureRandom random = new SecureRandom();
 
     public static String TABLENAME_USERS = "users";
     public static String TABLENAME_ROLES = "userroles";
@@ -100,6 +105,19 @@ public class UserFactory {
         return user.toSimple();
     }
 
+    public static User getUserByPRToken(final Database db, final String token) throws DatabaseException {
+        if (token == null) {
+            return null;
+        }
+
+        SqlStatement sql = getUserStatement();
+        sql.addCondition(AlIAS_USERS, "prtoken", SqlRelationType.EQUAL, token);
+        return db.selectFirst(sql, (rs) -> {
+            return readUser(rs);
+        });
+    }
+
+
     public static User getUserByEmail(final Database db, final String email) throws DatabaseException {
         if (email == null) {
             return null;
@@ -149,6 +167,8 @@ public class UserFactory {
         user.setPhysicalAddress(rs.getString("physicaladdress"));
         user.setSaltAndHashedPass(rs.getString("salt"), rs.getString("password"));
         user.setVerified(rs.getBoolean("verified"));
+        user.setPrtoken(rs.getString("prtoken"));
+        user.setPrtimestamp(rs.getLocalDateTime("prtimestamp"));
 
         return user;
     }
@@ -213,6 +233,8 @@ public class UserFactory {
         formatter.append("acceptedua", user.getAcceptedUserAgreement());
         formatter.append("statement", user.getStatement());
         formatter.append("verified", user.isVerified());
+        formatter.append("prtoken", user.getPrtoken());
+        formatter.append("prtimestamp", user.getPrtimestamp().toString());
     }
 
 
@@ -340,5 +362,39 @@ public class UserFactory {
         return db.selectFirst(sql, (rs) -> {
             return readSimpleUser(rs);
         });
+    }
+
+    public static String createPWResetToken(final Database db, final int userid) throws DatabaseException {
+        //
+        // This works by choosing 130 bits from a cryptographically secure random bit generator
+        //  and encoding them in base-32
+        //
+        String token = new BigInteger(390, random).toString(32);
+
+        SqlUpdateFormatter formatter = new SqlUpdateFormatter();
+        formatter.append("prtoken", token)
+            .append("prtimestamp", LocalDateTime.now().toString());
+
+        db.getTable(TABLENAME_USERS).updateRow(formatter.getUpdateClause(), PK_USERS + " = " + userid);
+
+        return token;
+    }
+
+    public static User verifyPRToken(final Database db, final String token) throws IllegalAccessException, DatabaseException {
+        User user = UserFactory.getUserByPRToken(db, token);
+
+        if (user == null) {
+            throw new IllegalAccessException("Unknown password reset token.");
+        }
+
+        LocalDateTime aWeekAgo = LocalDateTime.now().minusWeeks(1);
+        if (user.getPrtimestamp().isBefore(aWeekAgo)) {
+            //
+            // Expired reset token.
+            //
+            throw new IllegalAccessException("Password reset token is out of date.");
+        }
+
+        return user;
     }
 }

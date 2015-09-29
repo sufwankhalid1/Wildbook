@@ -1,6 +1,7 @@
 package org.ecocean.security;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import org.ecocean.Organization;
 import org.ecocean.rest.SimpleUser;
@@ -33,6 +34,9 @@ public class User {
 
     private boolean verified = false;
     private boolean acceptedUserAgreement = false;
+
+    private String prtoken;
+    private LocalDateTime prtimestamp;
 
     public User() {
         // blank constructor for when creating a new user.
@@ -231,5 +235,21 @@ public class User {
 
     public void setOrganization(final Organization organization) {
         this.organization = organization;
+    }
+
+    public String getPrtoken() {
+        return prtoken;
+    }
+
+    public void setPrtoken(String prtoken) {
+        this.prtoken = prtoken;
+    }
+
+    public LocalDateTime getPrtimestamp() {
+        return prtimestamp;
+    }
+
+    public void setPrtimestamp(LocalDateTime prtimestamp) {
+        this.prtimestamp = prtimestamp;
     }
 }

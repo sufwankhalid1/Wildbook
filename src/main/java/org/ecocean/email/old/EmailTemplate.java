@@ -34,8 +34,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.stormpath.sdk.lang.Collections;
-
 
 /**
  * <p>Convenience template mechanism for sending emails using JavaMail.
@@ -426,10 +424,10 @@ public final class EmailTemplate {
             message.setFrom(new InternetAddress(from));
 
             message.setRecipients(Message.RecipientType.TO, convertAddresses(to));
-            if (! Collections.isEmpty(cc)) {
+            if (! CollectionUtils.isEmpty(cc)) {
                 message.setRecipients(Message.RecipientType.CC, convertAddresses(cc));
             }
-            if (! Collections.isEmpty(bcc)) {
+            if (! CollectionUtils.isEmpty(bcc)) {
                 message.setRecipients(Message.RecipientType.BCC, convertAddresses(bcc));
             }
 
