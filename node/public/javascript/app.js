@@ -230,20 +230,26 @@ angular.module('nodeApp.controllers', ['nodeApp.config'])
         individualPage.init(config, photos, encounters);
     });
 }])
-.controller("ResetController", ['$scope', '$http', '$attrs', function(scope, http, attrs) {
-    scope.form = {
+.controller("ResetController", ['$scope', '$http', '$attrs', function($scope, http, attrs) {
+    $scope.form = {
         password: null,
-        password2: null
+        password2: null,
+        token: attrs.token
     }
-    scope.passwordError = null;
-    scope.reset = function() {
-        http.post(app.config.wildbook.url + '/obj/user/resetpass',
-            { token: attrs.token, password: scope.form.password },
-            { contentType: 'application/json'})
-        .then(function() {
-            scope.done = true;
-        }, function(res) {
-            scope.passwordError = 'Something went wrong. Please try again.';
-        });
+    $scope.passwordError = null;
+    $scope.reset = function() {
+        if($scope.form.password && $scope.form.password2 && $scope.form.token) {
+            http.post(app.config.wildbook.url + '/obj/user/resetpass',
+                { token: $scope.form.token, password: $scope.form.password },
+                { contentType: 'application/json'})
+            .then(function() {
+                $scope.done = true;
+            }, function(res) {
+                $scope.passwordError = 'Something went wrong. Please try again.';
+            });
+        }
     };
-}]);
+    $scope.verifyPasswordForm = function() {
+        return !!$scope.form.password && $scope.form.password === $scope.form.password2 ? '' : 'disabled';
+    }
+}])
