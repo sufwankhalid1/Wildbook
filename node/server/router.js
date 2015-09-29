@@ -384,9 +384,9 @@ module.exports = function(app, config, secrets, debug) {
                 title: req.t("passwordReset.title")
             }
         };
-        var tokenVarIndex = req.url.indexOf("?sptoken=");
+        var tokenVarIndex = req.url.indexOf("?token=");
         if (tokenVarIndex > 0) {
-            resetData.tokenInfo.token = verifyToken(req.url.substr(tokenVarIndex + 9), res);
+            resetData.tokenInfo.token = verifyToken(req.url.substr(tokenVarIndex + 7), res);
         }
         else {
             var emailVarIndex = req.url.indexOf("?email=");

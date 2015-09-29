@@ -171,14 +171,19 @@ angular.module('nodeApp.controllers', ['nodeApp.config'])
                 $scope.user = null;
                 setTimeout(function(){$scope.$apply();});
             })
-        }
+        };
 
         $scope.terms = function() {
             $http.get("/termsModal")
             .then(function(terms) {
                 alertplus.alert(terms.data, null, "Usage Agreement");
             });
-        }
+        };
+
+        $scope.showloginmodal = function(username) {
+            $scope.showlogin = true;
+            $scope.$broadcast('loginEvent', { username: username });
+        };
     });
 }])
 .controller("LoginController", ['$scope', '$http', 'configFactory', function($scope, $http, config) {
@@ -224,6 +229,12 @@ angular.module('nodeApp.controllers', ['nodeApp.config'])
     $scope.resetValidClass = function() {
         return $scope.resetForm.email ? '' : 'disabled';
     }
+
+    //AppController may broadcast some information to LoginController from other forms
+    $scope.$on('loginEvent', function(event, data) {
+        $scope.loginForm.username = data.username;
+        $scope.reset.on = false;
+    })
 }])
 .controller("IndividualController", ['$scope', '$http', 'configFactory', function(scope, http, config) {
     config.getConfig().then(function(configData) {
@@ -252,4 +263,4 @@ angular.module('nodeApp.controllers', ['nodeApp.config'])
     $scope.verifyPasswordForm = function() {
         return !!$scope.form.password && $scope.form.password === $scope.form.password2 ? '' : 'disabled';
     }
-}])
+}]);

@@ -8,4 +8,4 @@ block content
     include ../partials/message-header.jade
     +container()
         p A request has been made to reset your password. Click the button below to reset your password and choose a new one.
-    +centeredbutton('RESET PASSWORD', cust.info.website + 'resetPassword/' + user.resetPasswordToken)
+    +centeredbutton('RESET PASSWORD', cust.info.website + 'resetpass?token=' + token)

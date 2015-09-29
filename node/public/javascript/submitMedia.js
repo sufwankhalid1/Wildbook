@@ -337,14 +337,8 @@ var submitMedia = (function () {
                         return saveAndGo();
                     }
 
-                    return wildbook.auth.login(app.config.wildbook.url,
-                                               $scope.media.email,
-                                               'Please login to continue',
-                                               'There is an account associated with this email address, and you must login to continue with submitting media.')
-                   .then(function(user) {
-                       $scope.user = user;
-                       return saveAndGo();
-                   });
+                    $scope.$parent.showloginmodal($scope.media.email);
+                    return $.Deferred().reject();
                 }, handleError);
             };
 
