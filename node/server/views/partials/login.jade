@@ -26,8 +26,8 @@ div.login-modal.ng-cloak(ng-show="showlogin && !user")
                         div.form-group
                             button.btn.btn-medium.btn-warning(ng-click="sendreset()", ng-class="resetValidClass()") RESET
                     div(ng-show="$parent.showlogin && reset.sent")
-                        h1 Password Reset Sent to Email!
-                        p Please check your email address for a link.
+                        h1 Check your Email
+                        p Please check your email for a link to reset your password.
                         div.form-group
                             button.btn.btn-medium.btn-success(ng-click="$parent.showlogin = false; reset.on = false") CLOSE
             div.close-modal 

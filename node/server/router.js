@@ -363,6 +363,7 @@ module.exports = function(app, config, secrets, debug) {
     * use password reset for verification.
     */
     app.get("/verify", function(req, res) {
+        var token = null;
         var verifyData = {
             token: null,
             page: {
@@ -371,7 +372,7 @@ module.exports = function(app, config, secrets, debug) {
         }
         var tokenVarIndex = req.url.indexOf("?token=");
         if(tokenVarIndex > 0) {
-            verifyData.token = req.url.substr(tokenVarIndex + 7);
+            verifyData.token = verifyToken(req.url.substr(tokenVarIndex + 7), res);
         }
         res.render('verify', makeVars(verifyData));
     });
@@ -385,15 +386,7 @@ module.exports = function(app, config, secrets, debug) {
         };
         var tokenVarIndex = req.url.indexOf("?sptoken=");
         if (tokenVarIndex > 0) {
-            resetData.tokenInfo.token = req.url.substr(tokenVarIndex + 9);
-            request.post({url: config.wildbook.url + "/obj/user/verifypasstoken",
-                type: "POST",
-                data: resetData.tokenInfo.token,
-                contentType: "text/plain"
-            })
-            .catch(function(ex) {
-                renderError(res, new VError(ex, "Trouble verifying token"));
-            });
+            resetData.tokenInfo.token = verifyToken(req.url.substr(tokenVarIndex + 9), res);
         }
         else {
             var emailVarIndex = req.url.indexOf("?email=");
@@ -402,6 +395,22 @@ module.exports = function(app, config, secrets, debug) {
         }
         res.render('passwordReset', makeVars(resetData));
     });
+
+    /* Send a password reset / user verification token to wildbook */
+    function verifyToken(token, res) {
+        request.post({url: config.wildbook.url + "/obj/user/verifypasstoken",
+            type: "POST",
+            data: token,
+            contentType: "text/plain"
+        })
+        .then(function(res) {
+            return token;
+        })
+        .catch(function(ex) {
+            renderError(res, new VError(ex, "Trouble verifying token"));
+            return null;
+        });
+    }
 
     app.get("/individual/*", function(req, res) {
         var id = req.url.slice(12);
