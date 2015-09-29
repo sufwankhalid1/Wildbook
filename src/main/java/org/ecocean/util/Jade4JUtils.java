@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.Map;
 
 import org.ecocean.Global;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.neuland.jade4j.JadeConfiguration;
 import de.neuland.jade4j.exceptions.JadeCompilerException;
@@ -13,6 +15,8 @@ import de.neuland.jade4j.template.ClasspathTemplateLoader;
 import de.neuland.jade4j.template.JadeTemplate;
 
 public class Jade4JUtils {
+    private static Logger logger = LoggerFactory.getLogger(Jade4JUtils.class);
+
     private static JadeConfiguration fileConfig;
     private static JadeConfiguration cpConfig;
 
@@ -57,6 +61,10 @@ public class Jade4JUtils {
                                          final Map<String, Object> model)
         throws JadeCompilerException, JadeException, IOException
     {
+        if (logger.isDebugEnabled()) {
+            logger.debug(LogBuilder.quickLog("rendering template", template));
+        }
+
         JadeTemplate jt = config.getTemplate(template);
 
         if (model != null) {
