@@ -45,33 +45,6 @@ import de.neuland.jade4j.exceptions.JadeException;
 public class UserController {
 
     private static Logger logger = LoggerFactory.getLogger(MediaSubmissionController.class);
-//    private static String DEFAULT_SURNAME = "-";
-
-//    private static User createUserFromStormpath(final Account acc, final String password) {
-//        //
-//        // Don't use username from stormpath if it is the same as
-//        // the email. We don't want the email address to be the username for
-//        // security issues.
-//        //
-//        String uname;
-//        if (acc.getEmail().equals(acc.getUsername())) {
-//            uname = null;
-//        } else {
-//            uname = acc.getUsername();
-//        }
-//
-//        // so non-international of us!
-//        User user = new User(null, uname, acc.getGivenName() + " " + acc.getSurname(), acc.getEmail());
-//        user.initPassword(password);
-//
-//        //
-//        // Let's assume that new stormpath people have accepted the
-//        // user agreement. They should be saying yes to this as they log in anyway. Shouldn't
-//        // be a separate thing.
-//        //
-//        user.setAcceptedUserAgreement(true);
-//        return user;
-//    }
 
     public static boolean notAcceptedTerms(final String context, final User user) {
         return (CommonConfiguration.getProperty("showUserAgreement",context) != null)
@@ -112,7 +85,7 @@ public class UserController {
 //                                + acc.getEmail()
 //                                + ". creating one!");
 //                    }
-//                    user = createUserFromStormpath(acc, password);
+//                    user = Stormpath.createUserFromStormpath(acc, password);
 //                    UserFactory.saveUser(db, user);
 //                }
 //
@@ -238,31 +211,6 @@ public class UserController {
 //        logoutUser(request);
 //    }
 
-//    public static String[] parseName(final String fullname) {
-//        String[] name = new String[2];
-//
-//        String givenName = "Unknown";
-//        if (! StringUtils.isBlank(fullname)) {
-//            givenName = fullname;
-//        }
-//
-//        int si = givenName.indexOf(" ");
-//        if (si > -1) {
-//            name[0] = givenName.substring(0,si);
-//            name[1] = givenName.substring(si+1);
-//        } else {
-//            name[0] = givenName;
-//            //
-//            // WARNING: Stormpath requires a last name so we have to put *something* here.
-//            // Feel free to change it to something else if others agree but for now we are
-//            // using a dash as a placeholder.
-//            //
-//            name[1] = DEFAULT_SURNAME;
-//        }
-//
-//        return name;
-//    }
-
 
     @RequestMapping(value = "verify", method = RequestMethod.POST)
     public UserVerify verifyEmail(final HttpServletRequest request,
@@ -278,33 +226,6 @@ public class UserController {
             verify.newlyCreated = (user == null);
 
             if (user == null) {
-//                //
-//                // Check to see if for some reason we have this user on stormpath.
-//                // If not create it.
-//                //
-//                String password = Stormpath.randomInitialPassword();
-//                Account acc = Stormpath.getAccount(userInfo.email);
-//                if (acc == null) {
-//                    String[] name = parseName(userInfo.fullName);
-//                    acc = Stormpath.createAccount(name[0], name[1], userInfo.email, password, null, null);
-//
-//                    if (logger.isDebugEnabled()) {
-//                        logger.debug("successfully created Stormpath user for " + userInfo.email);
-//                    }
-//                } else {
-//                    //
-//                    // Case that should not happen but in case it does we need to keep the passwords
-//                    // matched up so we will ask them to reset the password I guess? maybe we should
-//                    // just delete the stormpath account and recreate it? Can we even do that with the api?
-//                    //
-//                    if (logger.isDebugEnabled()) {
-//                        logger.debug("found existing Stormpath user for " + userInfo.email);
-//                    }
-//                    Stormpath.getApplication().sendPasswordResetEmail(userInfo.email);
-//                }
-//
-//                user = createUserFromStormpath(acc, password);
-
                 user = new User(null, null, userInfo.fullName, userInfo.email);
                 user.initPassword(Util.generateUUID());
                 //
@@ -331,24 +252,7 @@ public class UserController {
         if (logger.isDebugEnabled()) {
             logger.debug("Sending reset email for address [" + email + "]");
         }
-//        //
-//        // We need to check to see that we have an account on stormpath first.
-//        // If we don't we will get an error with this call, so I guess create one?
-//        // I think givenName can not be null so use first part of email address as given name?
-//        // Bleh.
-//        //
-//        Account account = Stormpath.getAccount(email);
-//        if (account == null) {
-//            int index = email.indexOf("@");
-//            account = Stormpath.createAccount(email.substring(0,index),
-//                                              DEFAULT_SURNAME,
-//                                              email,
-//                                              Stormpath.randomInitialPassword(),
-//                                              null,
-//                                              null);
-//        }
-//
-//        Stormpath.getApplication().sendPasswordResetEmail(email);
+
         try (Database db = ServletUtilities.getDb(request)) {
             User user = UserFactory.getUserByEmail(db, email);
             if (user == null) {
@@ -374,16 +278,8 @@ public class UserController {
             logger.debug(LogBuilder.quickLog("token", reset.token));
             logger.debug(LogBuilder.quickLog("password", reset.password));
         }
-//        Account acc = Stormpath.getApplication().resetPassword(reset.token, reset.password);
-//        if (acc == null) {
-//            return;
-//        }
-        try (Database db = ServletUtilities.getDb(request)) {
-            //
-            // Now get user from reset token.
-            //
-//            User user = UserFactory.getUserByEmail(db, acc.getEmail());
 
+        try (Database db = ServletUtilities.getDb(request)) {
             User user = UserFactory.verifyPRToken(db, reset.token);
 
             user.resetPassword(reset.password);
@@ -396,7 +292,6 @@ public class UserController {
     @RequestMapping(value = "verifypasstoken", method = RequestMethod.POST)
     public void verifyPassToken(final HttpServletRequest request,
                                 @RequestBody @Valid final String token) throws IllegalAccessException, DatabaseException {
-//        Stormpath.getApplication().verifyPasswordResetToken(token);
         try (Database db = ServletUtilities.getDb(request)) {
             UserFactory.verifyPRToken(db, token);
         }
