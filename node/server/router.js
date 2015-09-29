@@ -357,6 +357,25 @@ module.exports = function(app, config, secrets, debug) {
         });
     });
 
+    /*
+    * A route to verify your account. It will be expecting to see the verify token
+    * passed as a url parameter, and in the absence of one it will prompt the user to
+    * use password reset for verification.
+    */
+    app.get("/verify", function(req, res) {
+        var verifyData = {
+            token: null,
+            page: {
+                title: req.t("verifyAccount.title")
+            }
+        }
+        var tokenVarIndex = req.url.indexOf("?token=");
+        if(tokenVarIndex > 0) {
+            verifyData.token = req.url.substr(tokenVarIndex + 7);
+        }
+        res.render('verify', makeVars(verifyData));
+    });
+
     app.get("/resetpass", function(req, res) {
         var resetData = {
             tokenInfo: {},

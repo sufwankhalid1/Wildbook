@@ -142,11 +142,11 @@ hr {
   color: #efefef; }
 
 .page-inner {
-  padding-top: 60px; }
+  padding-top: 30px; }
   .page-inner p {
     font-size: 1.4em; }
   .page-inner h1 {
-    margin-bottom: 60px;
+    margin-bottom: 30px;
     font-size: 3em;
     color: #107D9F; }
 
@@ -837,7 +837,7 @@ hr {
 
 .reset-page {
   position: relative;
-  height: 100vh;
+  height: 90vh;
   min-height: 500px; }
 
 /* Uploader */
