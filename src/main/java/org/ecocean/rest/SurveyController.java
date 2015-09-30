@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
-import com.samsix.database.RecordSet;
 import com.samsix.database.SqlRelationType;
 import com.samsix.database.SqlStatement;
 
@@ -33,12 +32,9 @@ public class SurveyController {
                              SqlRelationType.EQUAL,
                              surveypartid);
 
-            RecordSet rs = db.getRecordSet(sql);
-            if (rs.next()) {
+            return db.selectFirst(sql, (rs) -> {
                 return SurveyFactory.readSurveyPartObj(rs);
-            }
-
-            return null;
+            });
         }
     }
 

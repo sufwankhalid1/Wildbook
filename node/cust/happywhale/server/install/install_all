@@ -1,9 +1,9 @@
 #!/bin/bash
 mv /var/tmp/wildbook.dump /var/tmp/wildbook.dump.OLD
-pg_dump -d wildbook -f /var/tmp/wildbook.dump
+pg_dump -d wildbook -U shepherd -f /var/tmp/wildbook.dump
 
-sudo ./install_war /var/tmp/wildbook-5.4.0-RELEASE.war
-sudo ./install_node /var/tmp/animalus-0.1-SNAPSHOT-node.zip /opt/happywhale happywhale_web
+/opt/happywhale/install_war /var/tmp/wildbook-5.4.0-RELEASE.war
+/opt/happywhale/install_node /var/tmp/animalus-0.1-SNAPSHOT-node.zip /opt/happywhale happywhale_web
 sudo unzip -qo -d /opt/happywhale/wildbook /var/tmp/wildbook-5.4.0-RELEASE-config.zip
 
 PAYLOAD="payload={\"channel\": \"#deploy\", \"username\": \"devhappywhale.com\", \"text\": \"I just got a new *deploy*\", \"icon_emoji\": \":computer:\"}";
