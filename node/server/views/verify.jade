@@ -8,23 +8,23 @@ block content
             .col-lg-6.col-lg-offset-3.col-md-6.col-md-offset-3.col-sm-8.col-sm-offset-2.col-xs-12
                 div(ng-show="!done")
                     if token
-                        h1 Verify Your account
-                        p Verified accounts require a user to login before they can upload media. In order to verify your account, please choose a password:
+                        h1!= t('verify.title')
+                        p!= t('verify.description')
                         div.form-group
-                            label(for="password") Password
+                            label(for="password")!= t('verify.password')
                             input#password.form-control(type="password", ng-model="form.password", required="required")
                         div.form-group
-                            label(for="retypePassword") Retype Password
+                            label(for="retypePassword")!= t('verify.retypePassword')
                             input#retypePassword.form-control(type="password", ng-model="form.password2", required="required")
                         div.form-group
-                            button.btn.btn-medium.btn-success(ng-click="reset()", ng-class="verifyPasswordForm()") VERIFY MY ACCOUNT
+                            button.btn.btn-medium.btn-success(ng-click="reset()", ng-class="verifyPasswordForm()")!= t('verify.verifyButton')
                             p.help-text {{ passwordError }}
                     else
-                        h1 Something Went Wrong...
-                        p The account cannot be verified at this moment. To verify, go to login and choose 'reset your password'.
-                        a.btn.btn-medium.btn-success(href="/") GO BACK
+                        h1!= t('verify.errorTitle')
+                        p!= t('verify.errorMessage')
+                        a.btn.btn-medium.btn-success(href="/")!= t('verify.errorButton')
                 div(ng-show="done")
-                    h1 Account Verified
-                    p All right! Your account has been verified. You can now use your password to log in and see your past submissions.
+                    h1!= t('verify.verifySuccessTitle')
+                    p!= t('verify.verifySuccessMessage')
                     div.form-group
-                        a.btn.btn-medium.btn-success(ng-click="$parent.showlogin = true") LOG IN
+                        a.btn.btn-medium.btn-success(ng-click="$parent.showlogin = true")!= t('verify.verifyLogIn')

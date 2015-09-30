@@ -48,6 +48,32 @@
         "btnIDPhotos": "I.D. Your Photos",
         "btnAddMedia": "Add Media +"
     },
+    "login": {
+        "title": "Login to Happy Whale",
+        "labelUsername": "Username / Email Address",
+        "labelPassword": "Password",
+        "forgotPassword": "Forgot your password?",
+        "resetFormTitle": "Reset Your Password",
+        "resetHelper": "We'll send a password reset link to this address",
+        "resetSuccessTitle": "Check your Email",
+        "resetSuccessMessage": "Please check you email for a link to reset your password.",
+        "loginButton": "LOG IN",
+        "resetButton": "SEND",
+        "resetSuccessButton": "CLOSE"
+    },
+    "verify": {
+        "title": "Verify Your Account",
+        "description": "Verified accounts require a user to login before they can upload media. In order to verify your account, please choose a password:",
+        "password": "Password",
+        "retypePassword": "Retype Password",
+        "verifyButton": "VERIFY MY ACCOUNT",
+        "errorTitle": "Something Went Wrong...",
+        "errorMessage": "The account cannot be verified at this moment. To verify, go to login and choose 'reset your password'.",
+        "errorButton": "GO BACK",
+        "verifySuccessTitle": "Account Verified",
+        "verifySuccessMessage": "All right! Your account has been verified. You can now use your password to log in and see your past submissions.",
+        "verifyLogIn": "LOG IN"
+    },
     "passwordReset": {
         "title": "Reset Your Password",
         "h1": "Reset your password",
@@ -58,7 +84,8 @@
         "passwordReset": "Password has been successfully reset.",
         "enterNew": "enter new password",
         "verifyNew": "verify new password",
-        "buttonReset": "Reset password"
+        "buttonReset": "Reset password",
+        "buttonBack": "BACK"
     },
     "activity": {
         "title": "Recent Activity",

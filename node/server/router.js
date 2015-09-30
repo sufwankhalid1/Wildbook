@@ -367,7 +367,7 @@ module.exports = function(app, config, secrets, debug) {
         var verifyData = {
             token: null,
             page: {
-                title: req.t("verifyAccount.title")
+                title: req.t("verify.title")
             }
         }
         var tokenVarIndex = req.url.indexOf("?token=");
