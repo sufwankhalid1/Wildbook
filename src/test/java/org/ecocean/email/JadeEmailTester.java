@@ -11,9 +11,8 @@ import javax.mail.internet.AddressException;
 import org.ecocean.Location;
 import org.ecocean.encounter.SimpleEncounter;
 import org.ecocean.util.Jade4JUtils;
+import org.junit.Assert;
 import org.junit.Test;
-
-import com.vividsolutions.jts.util.Assert;
 
 import de.neuland.jade4j.exceptions.JadeCompilerException;
 import de.neuland.jade4j.exceptions.JadeException;
@@ -33,6 +32,6 @@ public class JadeEmailTester {
 
         String body = Jade4JUtils.renderCP("emails/test/furtherdown/body.jade", model);
 
-        Assert.equals("<html><h1>Hello Bob Wills</h1><p>You saw something in: Santa Fe</p><h2>We have some footer stuff</h2></html>", body);
+        Assert.assertEquals("<html><h1>Hello Bob Wills</h1><p>You saw something in: Santa Fe</p><h2>We have some footer stuff</h2></html>", body);
     }
 }
