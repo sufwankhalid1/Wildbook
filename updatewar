@@ -3,6 +3,7 @@
 VENDORS="--exclude=tools --exclude=bcomponents"
 classes=false
 cust=
+webapp=
 while [[ $# > 0 ]]
 do
     key="$1"
@@ -15,6 +16,10 @@ do
         classes=true
         shift
         ;;
+	-w|--webapp)
+	webapp=$2
+	shift
+	;;
         -c|--cust)
         cust="$2"
         shift
@@ -26,11 +31,14 @@ do
     shift
 done
 
-rsync -rv $VENDORS --exclude=WEB-INF --exclude=xcalendar --exclude=onlinehelp --exclude=images --exclude=software src/main/webapp/ $TOMCAT_HOME/webapps/wildbook
+if [ -z ${webapp+x} ]; then
+    webapp=wildbook
+fi
+rsync -rv $VENDORS --exclude=WEB-INF --exclude=xcalendar --exclude=onlinehelp --exclude=images --exclude=software src/main/webapp/ $TOMCAT_HOME/webapps/${webapp}
 
 if [ "$classes" = true ] ; then
     mvn compile -o
-    rsync -rv target/classes/org/ $TOMCAT_HOME/webapps/wildbook/WEB-INF/classes/org
+    rsync -rv target/classes/org/ $TOMCAT_HOME/webapps/${webapp}/WEB-INF/classes/org
 fi
 
 #
@@ -38,5 +46,5 @@ fi
 #
 if [ ! -z "$cust" ]; then
     mvn compile -o -Dwildbook.cust=${cust}
-    rsync -rv target/classes/ $TOMCAT_HOME/webapps/wildbook/WEB-INF/classes
+    rsync -rv target/classes/ $TOMCAT_HOME/webapps/${webapp}/WEB-INF/classes
 fi
