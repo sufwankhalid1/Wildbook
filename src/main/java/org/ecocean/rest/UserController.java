@@ -248,13 +248,13 @@ public class UserController {
 
     @RequestMapping(value = "sendpassreset", method = RequestMethod.POST)
     public void sendResetEmail(final HttpServletRequest request,
-                               @RequestBody @Valid final String email) throws DatabaseException, IllegalAccessException, JadeCompilerException, AddressException, JadeException, IOException, MessagingException {
+                               @RequestBody @Valid final String userameOrEmail) throws DatabaseException, IllegalAccessException, JadeCompilerException, AddressException, JadeException, IOException, MessagingException {
         if (logger.isDebugEnabled()) {
-            logger.debug("Sending reset email for address [" + email + "]");
+            logger.debug("Sending reset email for address [" + userameOrEmail + "]");
         }
 
         try (Database db = ServletUtilities.getDb(request)) {
-            User user = UserFactory.getUserByEmail(db, email);
+            User user = UserFactory.getUserByNameOrEmail(db, userameOrEmail);
             if (user == null) {
                 throw new IllegalAccessException("No user found with this email.");
             }
