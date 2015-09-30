@@ -1,9 +1,10 @@
 #!/bin/bash
 webapp=$2
 
-if (( $# == 1 ))
-then
+if [ -z ${2+x} ]; then
     webapp=wildbook
+else
+    webapp=$2
 fi
 
 if (( $# == 0 ))
@@ -18,9 +19,9 @@ rm -rf $TOMCAT_HOME/logs/*
 if ! [ -z ${WILDBOOK_LOGDIR+x} ]; then
     rm -rf $WILDBOOK_LOGDIR/*.html
     rm -rf $WILDBOOK_LOGDIR/*.log
-fi  
+fi
 
-if (( $# > 1 ))
+if (( $# > 0 ))
 then
     rm -rf $TOMCAT_HOME/webapps/${webapp}
     rm -f $TOMCAT_HOME/webapps/${webapp}.war
