@@ -112,7 +112,6 @@ public class RestApplication extends SpringBootServletInitializer {
 //            initResources.addSource(props);
         }
 
-
         //
         // Now set this on the global so that we can use it elsewhere.
         //
