@@ -397,4 +397,12 @@ public class UserFactory {
 
         return user;
     }
+
+    public static List<Organization> getOrganizations(final Database db) throws DatabaseException {
+        List<Organization> orgs = new ArrayList<>();
+        db.getTable(TABLENAME_ORG).select((rs) -> {
+            orgs.add(readOrganization(rs));
+        });
+        return orgs;
+    }
 }

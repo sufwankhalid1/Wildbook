@@ -1,5 +1,7 @@
 package org.ecocean.survey;
 
+import java.util.List;
+
 import org.ecocean.LocationFactory;
 import org.ecocean.Point;
 import org.ecocean.security.UserFactory;
@@ -9,6 +11,7 @@ import com.samsix.database.DatabaseException;
 import com.samsix.database.RecordSet;
 import com.samsix.database.SqlFormatter;
 import com.samsix.database.SqlInsertFormatter;
+import com.samsix.database.SqlRelationType;
 import com.samsix.database.SqlStatement;
 import com.samsix.database.SqlUpdateFormatter;
 import com.samsix.database.SqlWhereFormatter;
@@ -25,6 +28,7 @@ public class SurveyFactory {
 
     public static String PK_SURVEY = "surveyid";
     public static String PK_SURVEYPART = "surveypartid";
+    public static String PK_VESSEL = "vesselid";
 
     private SurveyFactory() {
         // prevent instantiation
@@ -32,24 +36,31 @@ public class SurveyFactory {
 
     public static SqlStatement getSurveyStatement()
     {
-        SqlStatement sql = new SqlStatement(TABLENAME_SURVEY,
-                                            ALIAS_SURVEY,
-                                            ALIAS_SURVEY + ".*, " + ALIAS_SURVEYPART + ".*, " + ALIAS_VESSEL + ".*");
-        sql.addInnerJoin(ALIAS_SURVEY, PK_SURVEY, TABLENAME_SURVEYPART, ALIAS_SURVEYPART, PK_SURVEY);
-        sql.addLeftOuterJoin(ALIAS_SURVEYPART, "vesselid", TABLENAME_VESSEL, ALIAS_VESSEL, "vesselid");
-        sql.addLeftOuterJoin(ALIAS_SURVEY, "orgid", UserFactory.TABLENAME_ORG, UserFactory.ALIAS_ORG, "orgid");
-        return sql;
+        return getSurveyStatement(false);
     }
 
     public static SqlStatement getSurveyStatement(final boolean distinct)
     {
-        SqlStatement sql = getSurveyStatement();
-        sql.setSelectDistinct(true);
-        sql.addSelectTable(ALIAS_SURVEY);
-        sql.addSelectTable(ALIAS_SURVEYPART);
-        sql.addSelectTable(UserFactory.ALIAS_ORG);
+        SqlStatement sql = new SqlStatement(TABLENAME_SURVEY, ALIAS_SURVEY);
+        sql.addInnerJoin(ALIAS_SURVEY, PK_SURVEY, TABLENAME_SURVEYPART, ALIAS_SURVEYPART, PK_SURVEY);
+        sql.addLeftOuterJoin(ALIAS_SURVEYPART, PK_VESSEL, TABLENAME_VESSEL, ALIAS_VESSEL, PK_VESSEL);
+        sql.addLeftOuterJoin(ALIAS_SURVEY, "orgid", UserFactory.TABLENAME_ORG, UserFactory.ALIAS_ORG, "orgid");
+
+        if (distinct) {
+            sql.setSelectDistinct(true);
+            sql.addSelectTable(ALIAS_SURVEY);
+            sql.addSelectTable(ALIAS_SURVEYPART);
+            sql.addSelectTable(ALIAS_VESSEL);
+            sql.addSelectTable(UserFactory.ALIAS_ORG);
+        }
         return sql;
     }
+
+    public static SqlStatement getVesselStatement() {
+        SqlStatement sql = new SqlStatement(TABLENAME_VESSEL, ALIAS_VESSEL);
+        return sql;
+    }
+
 
     private static Survey readSurvey(final RecordSet rs) throws DatabaseException {
         return new Survey(rs.getInteger(PK_SURVEY),
@@ -145,9 +156,9 @@ public class SurveyFactory {
     private static void fillSurveyPartFormatter(final SqlFormatter formatter, final SurveyPart spart) {
         formatter.append(PK_SURVEY, spart.getSurveyId());
         if (spart.getVessel() == null) {
-            formatter.append("vesselid", (Integer) null);
+            formatter.append(PK_VESSEL, (Integer) null);
         } else {
-            formatter.append("vesselid", spart.getVessel().getVesselId());
+            formatter.append(PK_VESSEL, spart.getVessel().getVesselId());
         }
         formatter.append("code", spart.getCode());
         formatter.append("comments", spart.getComments());
@@ -161,18 +172,23 @@ public class SurveyFactory {
     //===================================
 
     public static Vessel readVessel(final RecordSet rs) throws DatabaseException {
-        Integer vesselId = rs.getInteger("vesselid");
+        Integer vesselId = rs.getInteger(PK_VESSEL);
 
         if (vesselId == null) {
             return null;
         }
 
-        return new Vessel(vesselId,
-                          rs.getInt("orgid"),
-                          rs.getString("type"),
-                          rs.getString("name"));
+        return new Vessel(vesselId, rs.getInt("orgid"), rs.getString("type"), rs.getString("name"));
     }
 
+    public static List<Vessel> getVesselsByOrg(final Database db, final int orgid) throws DatabaseException {
+        SqlStatement sql = SurveyFactory.getVesselStatement();
+        sql.addCondition(ALIAS_VESSEL, "orgid", SqlRelationType.EQUAL, orgid);
+
+        return db.selectList(sql, (rs) -> {
+            return readVessel(rs);
+        });
+    }
 
     public static void saveVessel(final Database db, final Vessel vessel) throws DatabaseException {
         Table table = db.getTable(TABLENAME_VESSEL);
@@ -181,13 +197,13 @@ public class SurveyFactory {
             SqlInsertFormatter formatter = new SqlInsertFormatter();
             fillOrgFormatter(formatter, vessel);
 
-            vessel.setVesselId(table.insertSequencedRow(formatter, "vesselid"));
+            vessel.setVesselId(table.insertSequencedRow(formatter, PK_VESSEL));
         } else {
             SqlUpdateFormatter formatter = new SqlUpdateFormatter();
             fillOrgFormatter(formatter, vessel);
 
             SqlWhereFormatter where = new SqlWhereFormatter();
-            where.append("vesselid", vessel.getVesselId());
+            where.append(PK_VESSEL, vessel.getVesselId());
             table.updateRow(formatter.getUpdateClause(), where.getWhereClause());
         }
     }

@@ -1,7 +1,5 @@
-include partials/mixins.jade
-
-link(rel='stylesheet', href="bcomponents/ag-grid/angular-grid.min.css")
-link(rel='stylesheet', href="bcomponents/ag-grid/theme-fresh.min.css")
+include header
+include partials/mixins
 
 div(ng-controller="MediaSubmissionController")
     div(ng-show="!submission")
@@ -54,8 +52,3 @@ div(ng-controller="MediaSubmissionController")
                         include partials/encounter_search
                     .ng-cloak(ng-show="encounter_edit")
                         include partials/encounter_edit
-
-script(src="bcomponents/angular/angular.js")
-script(src="bcomponents/moment/moment.js")
-script(src="bcomponents/ag-grid/angular-grid.min.js")
-script(src="javascript/media/mediaSubmitAdmin.js")

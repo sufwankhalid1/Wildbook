@@ -70,7 +70,7 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
         <script src="<%=urlLoc%>/javascript/jquery.cookie.js"></script>
     </head>
     
-    <body role="document">
+    <body role="document" ng-controller="MainController">
         <header class="page-header clearfix">
             <nav class="navbar navbar-default navbar-fixed-top">
                 <div class="header-top-wrapper">

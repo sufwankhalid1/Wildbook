@@ -1,15 +1,19 @@
 package org.ecocean.rest;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.ecocean.servlet.ServletUtilities;
 import org.ecocean.survey.SurveyFactory;
 import org.ecocean.survey.SurveyPartObj;
+import org.ecocean.survey.Vessel;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.samsix.database.Database;
@@ -35,6 +39,15 @@ public class SurveyController {
             return db.selectFirst(sql, (rs) -> {
                 return SurveyFactory.readSurveyPartObj(rs);
             });
+        }
+    }
+
+    @RequestMapping(value = "/vessels/get", method = RequestMethod.GET)
+    public List<Vessel> getVessels(final HttpServletRequest request,
+                                   @RequestParam
+                                   final int orgid) throws DatabaseException {
+        try (Database db = ServletUtilities.getDb(request)) {
+            return SurveyFactory.getVesselsByOrg(db, orgid);
         }
     }
 

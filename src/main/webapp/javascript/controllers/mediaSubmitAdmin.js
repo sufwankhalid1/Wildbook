@@ -1,21 +1,10 @@
-var app = angular.module('appWildbook', ["angularGrid"])
-app.factory('$exceptionHandler', function() {
-    return function(exception, cause) {
-        alertplus.error(exception);
-      };
-});
-
-app.controller("MediaSubmissionController", function ($scope, $http, $q, $compile) {
+wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q, $compile, $exceptionHandler) {
     $scope.encounters = [];
 
 //    $scope.viewImage = function(url) {
 //        $scope.zoomimage = url;
 //        $scope.encounter = null;
 //    }
-
-    function handleError(ex) {
-        alertplus.error(ex);
-    }
 
     function deleteRows(gridOptions, filter) {
         gridOptions.rowData = gridOptions.rowData.filter(filter);
@@ -56,7 +45,7 @@ app.controller("MediaSubmissionController", function ($scope, $http, $q, $compil
                 $scope.photos = photos.filter(function(photo) {
                     return (photo.id !== id);
                 });
-            }, handleError);
+            }, $exceptionHandler);
         });
     }
 
@@ -69,7 +58,7 @@ app.controller("MediaSubmissionController", function ($scope, $http, $q, $compil
             $scope.photos = results[0].data;
 
             $scope.encounters = results[1].encounters;
-        }, handleError);
+        }, $exceptionHandler);
     }
 
     $scope.deleteSubmission = function() {
@@ -89,7 +78,7 @@ app.controller("MediaSubmissionController", function ($scope, $http, $q, $compil
 
                     $scope.submission = null;
                 })
-            }, handleError);
+            }, $exceptionHandler);
         });
     };
 
@@ -170,32 +159,8 @@ app.controller("MediaSubmissionController", function ($scope, $http, $q, $compil
     .then(function(result) {
         $scope.msGridOptions.rowData = result.data;
         $scope.msGridOptions.api.onNewRows();
-    }, handleError);
+    }, $exceptionHandler);
 });
 
-app.controller("EncounterFormController", function($scope) {
-});
-
-app.controller("SurveySearchController", function($scope, $http, $exceptionHandler) {
-    $scope.search = function() {
-        $http({url: "search/survey", data: $scope.surveysearch})
-        .then(function(result) {
-            $scope.gotresults = true;
-            $scope.surveyGridOptions.rowData = result.data;
-            $scope.surveyGridOptions.api.onNewRows();
-        },
-        $exceptionHandler);
-    };
-
-    $scope.surveyGridOptions = {
-        columnDefs:
-            [{headerName: "Organization", field: "survey.organization.name"},
-             {headerName: "Number", field: "survey.surveyNumber"},
-             {headerName: "Date", field: "part.formattedDate"},
-             {headerName: "Code", field: "code"},
-             {headerName: "location", field: "part.location.locationid"}],
-        rowData: null,
-        enableSorting: true,
-        angularCompileRows: true
-    };
+wildbook.app.controller("EncounterFormController", function($scope) {
 });

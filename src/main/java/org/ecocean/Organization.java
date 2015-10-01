@@ -26,4 +26,11 @@ public class Organization {
     public void setName(final String name) {
         this.name = name;
     }
+
+    public String getDisplayName() {
+        //
+        // For now just name. I anticipate more.
+        //
+        return name;
+    }
 }

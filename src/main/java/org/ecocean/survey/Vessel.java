@@ -52,4 +52,14 @@ public class Vessel {
     public void setName(final String name) {
         this.name = name;
     }
+
+    public String getDisplayName() {
+        StringBuilder builder = new StringBuilder();
+        if (type != null) {
+            builder.append(type).append(": ");
+        }
+
+        builder.append(name);
+        return builder.toString();
+    }
 }

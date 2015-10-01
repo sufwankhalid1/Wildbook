@@ -4,10 +4,14 @@ form.form.form-horizontal.ng-cloak(novalidate, ng-controller="SurveySearchContro
         .col-md-4
             .form-group
                 label.control-label Organization:
-                input.form-control(type="text", ng-model="surveysearch.orgid")
+                select.form-control(ng-options="org.displayName for org in maindata.organizations track by org.orgId"
+                                    ng-model="search.organization", ng-change="orgChange()")
+                    option(value="") --- select one ---
             .form-group
                 label.control-label Vessel:
-                input.form-control(type="text", ng-model="surveysearch.vesselid")
+                select.form-control(ng-model="surveysearch.vesselid")
+                    option(value="") --- select one ---
+                    option(ng-repeat="vessel in data.vessels", value="{{vessel.vesselId}}"){{vessel.displayName}}
         .col-md-4
             .form-group
                 label.control-label Survey Number:
@@ -24,3 +28,4 @@ form.form.form-horizontal.ng-cloak(novalidate, ng-controller="SurveySearchContro
     .ng-cloak(ng-show="gotresults")
         legend Results
         .ag-fresh(ag-grid="surveyGridOptions", style="height: 400px;")
+script(src="javascript/controllers/survey_search.js")
