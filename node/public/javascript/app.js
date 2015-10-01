@@ -126,22 +126,6 @@ function configSearchBox() {
     //this hides the no results message when the user leaves search field
     $('#search-site').on('blur', function() { $('#search-help').hide(); });
 }
-angular.module("nodeApp.config", [])
-.factory('configFactory', ['$http', '$q', function($http, $q) {
-    var defConfig = $q.defer();
-    $http.get('/config')
-    .success(function(res) {
-        return defConfig.resolve(res);
-    })
-    .error(function(err){
-        console.log('ng error getting config');
-    });
-    return {
-        getConfig: function() {
-            return defConfig.promise;
-        }
-    };
-}]);
 
 angular.module('nodeApp.controllers', ['nodeApp.config'])
 .controller('AppController', ['$scope', '$http', 'configFactory', function ($scope, $http, config) {
@@ -199,7 +183,11 @@ angular.module('nodeApp.controllers', ['nodeApp.config'])
         on: false,
         sent: false
     };
-    $scope.login = function() {
+    $scope.login = function(event) {
+        if((event && event.keyCode != 13) 
+            || !$scope.loginForm.username) {
+            return;
+        }
         $http.post(app.config.wildbook.url + '/obj/user/login',
         {
             username: $scope.loginForm.username,
@@ -216,7 +204,12 @@ angular.module('nodeApp.controllers', ['nodeApp.config'])
             $scope.loginForm.error = "Invalid Username or Password.";
         });
     };
-    $scope.sendreset = function() {
+    $scope.sendreset = function(event) {
+        if((event && event.keyCode != 13) 
+            || !$scope.resetForm.email
+            || !$scope.reset.on) {
+            return;
+        }
         $http.post(app.config.wildbook.url + '/obj/user/sendpassreset', $scope.resetForm.email, { contentType: 'text/plain' })
         .then(function() {
             $scope.reset.on = false;
@@ -229,12 +222,23 @@ angular.module('nodeApp.controllers', ['nodeApp.config'])
     $scope.resetValidClass = function() {
         return $scope.resetForm.email ? '' : 'disabled';
     }
+    $scope.closemodal = function() {
+        $scope.$parent.showlogin = false;
+        $scope.reset.on = false;
+        $scope.reset.sent = false;
+    }
+    $scope.closemodalDone = function() {
+        if($scope.reset.sent) {
+            $scope.closemodal();
+        }
+    }
 
     //AppController may broadcast some information to LoginController from other forms
     $scope.$on('loginEvent', function(event, data) {
         $scope.loginForm.username = data.username;
         $scope.reset.on = false;
-    })
+        $scope.reset.sent = false;
+    });
 }])
 .controller("IndividualController", ['$scope', '$http', 'configFactory', function(scope, http, config) {
     config.getConfig().then(function(configData) {
@@ -248,7 +252,10 @@ angular.module('nodeApp.controllers', ['nodeApp.config'])
         token: attrs.token
     }
     $scope.passwordError = null;
-    $scope.reset = function() {
+    $scope.reset = function(event) {
+        if(event && event.keyCode != 13) {
+            return;
+        }
         if($scope.form.password && $scope.form.password2 && $scope.form.token) {
             http.post(app.config.wildbook.url + '/obj/user/resetpass',
                 { token: $scope.form.token, password: $scope.form.password },
@@ -264,3 +271,35 @@ angular.module('nodeApp.controllers', ['nodeApp.config'])
         return !!$scope.form.password && $scope.form.password === $scope.form.password2 ? '' : 'disabled';
     }
 }]);
+
+angular.module("nodeApp.config", [])
+.factory('configFactory', ['$http', '$q', function($http, $q) {
+    var defConfig = $q.defer();
+    $http.get('/config')
+    .success(function(res) {
+        return defConfig.resolve(res);
+    })
+    .error(function(err){
+        console.log('ng error getting config');
+    });
+    return {
+        getConfig: function() {
+            return defConfig.promise;
+        }
+    };
+}])
+.directive('focusMe', function($timeout, $parse) {
+    return {
+        scope: true,
+        link: function(scope, element, attrs) {
+          var model = $parse(attrs.focusMe);
+          scope.$watch(model, function(value) {
+            if(value === true) { 
+              $timeout(function() {
+                element[0].focus(); 
+              });
+            }
+          });
+        }
+      };
+})

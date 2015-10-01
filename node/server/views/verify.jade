@@ -12,7 +12,7 @@ block content
                         p!= t('verify.description')
                         div.form-group
                             label(for="password")!= t('verify.password')
-                            input#password.form-control(type="password", ng-model="form.password", required="required")
+                            input#password.form-control(type="password", ng-model="form.password", required="required", focus-me="!done")
                         div.form-group
                             label(for="retypePassword")!= t('verify.retypePassword')
                             input#retypePassword.form-control(type="password", ng-model="form.password2", required="required")
@@ -27,4 +27,4 @@ block content
                     h1!= t('verify.verifySuccessTitle')
                     p!= t('verify.verifySuccessMessage')
                     div.form-group
-                        a.btn.btn-medium.btn-success(ng-click="$parent.showlogin = true")!= t('verify.verifyLogIn')
+                        a.btn.btn-medium.btn-success(ng-click="$parent.showlogin = true", focus-me="done")!= t('verify.verifyLogIn')

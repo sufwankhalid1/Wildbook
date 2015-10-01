@@ -94,6 +94,9 @@ a.round-icon {
 h1, h2, h3, h4, h5, h6, p, div {
   font-family: "Lato", Helvetica, sans-serif; }
 
+.help-block {
+  color: #efefef; }
+
 .icon-bullet-individual {
   background-image: url(../cust/images/img_whale_circle.svg); }
 

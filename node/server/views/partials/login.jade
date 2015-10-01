@@ -8,11 +8,11 @@ div.login-modal.ng-cloak(ng-show="showlogin && !user")
                         h1!= t('login.title')
                         div.form-group
                             label(for="login-user")!= t('login.labelUsername')
-                            input#login-user.login-username.form-control(ng-model="loginForm.username", required="required")
+                            input#login-user.login-username.form-control(ng-model="loginForm.username", required="required", focus-me="$parent.showlogin")
                             p.help-block(ng-show="loginForm.error") {{ loginForm.error }}
                         div.form-group
                             label(for="login-pass")!= t('login.labelPassword')
-                            input#login-pass.login-password.form-control(type="password", ng-model="loginForm.password", required="required")
+                            input#login-pass.login-password.form-control(type="password", ng-model="loginForm.password", required="required", ng-keyup="login($event)")
                             p.help-block
                                 span.link(ng-click="reset.on = true")!= t('login.forgotPassword')
                         div.form-group
@@ -21,14 +21,14 @@ div.login-modal.ng-cloak(ng-show="showlogin && !user")
                         h1!= t('login.resetFormTitle')
                         div.form-group
                             label(for="reset-email")!= t('login.labelUsername')
-                            input#reset-email.reset-email.form-control(ng-model="resetForm.email", required="required")
+                            input#reset-email.reset-email.form-control(ng-model="resetForm.email", required="required", focus-me="$parent.showlogin && reset.on", ng-keyup="sendreset($event)")
                             p.help-block!= t('login.resetHelper')
                         div.form-group
                             button.btn.btn-medium.btn-warning(ng-click="sendreset()", ng-class="resetValidClass()")!= t('login.resetButton')
                     div(ng-show="$parent.showlogin && reset.sent")
                         h1!= t('login.resetSuccessTitle')
-                        p!= t('login.resetSuccessMessage')
+                        p.help-block!= t('login.resetSuccessMessage')
                         div.form-group
-                            button.btn.btn-medium.btn-success(ng-click="$parent.showlogin = false; reset.on = false")!= t('resetSuccessButton')
+                            button.btn.btn-medium.btn-success(ng-click="closemodal()", focus-me="$parent.showlogin && reset.sent")!= t('login.resetSuccessButton')
             div.close-modal 
-                a(ng-click="$parent.showlogin = false; reset.on = false;") X
+                a(ng-click="closemodal()") X
