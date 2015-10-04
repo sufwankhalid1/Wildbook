@@ -7,6 +7,8 @@ import javax.validation.Valid;
 
 import org.ecocean.servlet.ServletUtilities;
 import org.ecocean.survey.SurveyFactory;
+import org.ecocean.survey.SurveyObj;
+import org.ecocean.survey.SurveyPart;
 import org.ecocean.survey.SurveyPartObj;
 import org.ecocean.survey.Vessel;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -51,13 +53,26 @@ public class SurveyController {
         }
     }
 
-    @RequestMapping(value = "/part/save", method = RequestMethod.POST)
+    @RequestMapping(value = "save", method = RequestMethod.POST)
     public void savePart(final HttpServletRequest request,
-                         @RequestBody @Valid final SurveyPartObj spo) throws DatabaseException {
+                         @RequestBody @Valid final SurveyObj survey) throws DatabaseException {
+        if (survey == null) {
+            return;
+        }
+
+        if (survey.survey == null) {
+            return;
+        }
+
         try (Database db = ServletUtilities.getDb(request)) {
             db.performTransaction(() -> {
-              SurveyFactory.saveSurvey(db, spo.survey);
-              SurveyFactory.saveSurveyPart(db, spo.part);
+              SurveyFactory.saveSurvey(db, survey.survey);
+              if (survey.tracks != null) {
+                  for (SurveyPart track : survey.tracks) {
+                      track.setSurveyId(survey.survey.getSurveyId());
+                      SurveyFactory.saveSurveyPart(db, track);
+                  }
+              }
             });
         }
     }

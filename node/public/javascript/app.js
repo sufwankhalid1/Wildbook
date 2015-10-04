@@ -69,9 +69,10 @@ app.beingDiv = function(being) {
     return div;
 }
 
-app.toMoment = function(encDate) {
-    var dateString = encDate.year + '-' + encDate.monthValue + '-' + encDate.dayOfMonth;
-    return moment(dateString, 'YYYY-M-D');
+app.toMoment = function(date) {
+//    var dateString = date.year + '-' + date.monthValue + '-' + date.dayOfMonth;
+//    return moment(dateString, 'YYYY-M-D');
+    return moment({year: date[0], month: date[1], day: date[2]});
 }
 
 function configSearchBox() {
@@ -184,7 +185,7 @@ angular.module('nodeApp.controllers', ['nodeApp.config'])
         sent: false
     };
     $scope.login = function(event) {
-        if((event && event.keyCode != 13) 
+        if((event && event.keyCode != 13)
             || !$scope.loginForm.username) {
             return;
         }
@@ -205,7 +206,7 @@ angular.module('nodeApp.controllers', ['nodeApp.config'])
         });
     };
     $scope.sendreset = function(event) {
-        if((event && event.keyCode != 13) 
+        if((event && event.keyCode != 13)
             || !$scope.resetForm.email
             || !$scope.reset.on) {
             return;
@@ -294,9 +295,9 @@ angular.module("nodeApp.config", [])
         link: function(scope, element, attrs) {
           var model = $parse(attrs.focusMe);
           scope.$watch(model, function(value) {
-            if(value === true) { 
+            if(value === true) {
               $timeout(function() {
-                element[0].focus(); 
+                element[0].focus();
               });
             }
           });

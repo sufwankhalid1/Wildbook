@@ -5,6 +5,8 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -14,6 +16,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ControllerAdvice
 public class ExceptionHandlerController {
+    private Logger logger = LoggerFactory.getLogger(ExceptionHandlerController.class);
+
 //    public static final String DEFAULT_ERROR_VIEW = "error";
 
 //    @ExceptionHandler(value = {Exception.class, RuntimeException.class})
@@ -37,10 +41,9 @@ public class ExceptionHandlerController {
     @ExceptionHandler({Exception.class, RuntimeException.class})
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
-    public ErrorInfo handleException5(Exception ex, HttpServletResponse response) throws IOException
+    public ErrorInfo handleException5(final Exception ex, final HttpServletResponse response) throws IOException
     {
-        System.err.println("****Spring Handled Exception*****");
-        ex.printStackTrace();
+        logger.error("****Spring Handled Exception*****", ex);
 
         ErrorInfo info = new ErrorInfo();
         info.message = ex.getMessage();

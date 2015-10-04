@@ -1,28 +1,36 @@
 form.form.form-horizontal.ng-cloak(novalidate, ng-controller="SurveyEditController")
-    legend Survey Edit
+    legend Edit Survey
     .container-fluid
-        .col-md-4
-            .form-group
-                label.control-label Organization:
-                select.form-control(ng-options="org.displayName for org in maindata.organizations track by org.orgId"
-                                    ng-model="survey.organization", ng-change="orgChange()")
-                    option(value="") --- select one ---
-            .form-group
-                label.control-label Vessel:
-                select.form-control(ng-model="surveysearch.vesselid")
-                    option(value="") --- select one ---
-                    option(ng-repeat="vessel in data.vessels", value="{{vessel.vesselId}}"){{vessel.displayName}}
-        .col-md-4
-            .form-group
-                label.control-label Survey Number:
-                input.form-control(type="text", ng-model="surveysearch.surveynumber")
-            .form-group
-                label.control-label Code:
-                input.form-control(type="text", ng-model="surveysearch.code")
-        .col-md-4
-            .form-group
-                label.control-label Date:
-                input.form-control(type="date", ng-model="surveysearch.date")
+        .row
+            fieldset
+                legend Survey
+                .col-md-4
+                    .form-group
+                        label.control-label Organization:
+                        select.form-control(ng-options="org.displayName for org in maindata.organizations track by org.orgId"
+                                            ng-model="survey.survey.organization", ng-change="orgChange()")
+                            option(value="") --- select one ---
+                .col-md-4
+                    .form-group
+                        label.control-label Survey Number:
+                        input.form-control(type="text", ng-model="survey.survey.surveyNumber")
+        .row(ng-repeat="track in survey.tracks")
+            fieldset
+                legend Track
+                .col-md-4
+                    .form-group
+                        label.control-label Vessel:
+                        select.form-control(ng-options="vessel.displayName for vessel in data.vessels track by vessel.vesselId"
+                                            ng-model="track.vessel")
+                            option(value="") --- select one ---
+                .col-md-4
+                    .form-group
+                        label.control-label Date:
+                        date-input.form-control(ng-model="track.partDate")
+                .col-md-4
+                    .form-group
+                        label.control-label Code:
+                        input.form-control(type="text", ng-model="track.code")
 
-            input(type="submit", ng-click="save()", value="Save")
+    input(type="submit", ng-click="save()", value="Save")
 script(src="javascript/controllers/survey_edit.js")

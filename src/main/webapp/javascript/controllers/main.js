@@ -53,3 +53,30 @@ wildbook.app.controller("MainController", function($scope, $http, $q, $exception
         $scope.maindata.organizations = result.data;
     }, $exceptionHandler);
 });
+
+wildbook.app.directive(
+        'dateInput',
+        function() {
+            return {
+                require: 'ngModel',
+                template: '<input type="date"></input>',
+                replace: true,
+                link: function(scope, elm, attrs, ngModelCtrl) {
+                    ngModelCtrl.$formatters.push(function (modelValue) {
+                        if (! modelValue) {
+                            return null;
+                        }
+
+                        if (modelValue.constructor === Array) {
+                            return moment({year: modelValue[0], month: modelValue[1] - 1, date: modelValue[2]}).format();
+                        }
+                        return null;
+                    });
+
+                    ngModelCtrl.$parsers.push(function(viewValue) {
+                        var mdate = moment(viewValue);
+                        return [mdate.year(), mdate.month() + 1, mdate.date()];
+                    });
+                },
+            };
+    });

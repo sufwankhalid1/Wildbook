@@ -71,9 +71,10 @@ function instagramFeed(config, secrets) {
 }
 
 //take an encDate data object and return a moment object
-function toMoment(encDate) {
-    var dateString = encDate.year + '-' + encDate.monthValue + '-' + encDate.dayOfMonth;
-    return moment(dateString, 'YYYY-M-D');
+function toMoment(date) {
+//    var dateString = date.year + '-' + date.monthValue + '-' + date.dayOfMonth;
+//    return moment(dateString, 'YYYY-M-D');
+    return moment({year: date[0], month: date[1], day: date[2]});
 }
 
 var Codebird = require("codebird");

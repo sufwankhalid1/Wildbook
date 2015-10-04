@@ -8,6 +8,10 @@ public class Survey {
     private Organization organization;
     private String surveyNumber;
 
+    public Survey() {
+        // deserialization
+    }
+
     public Survey(final Integer surveyId,
                   final Organization organization,
                   final String surveyNumber) {

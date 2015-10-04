@@ -15,6 +15,7 @@ public class SurveyPart {
 
     private Vessel vessel;
 
+    //@JsonFormat(shape = JsonFormat.Shape.STRING, pattern="yyyy-MM-dd")
     private LocalDate partDate;
     private OffsetTime starttime;
     private OffsetTime endtime;

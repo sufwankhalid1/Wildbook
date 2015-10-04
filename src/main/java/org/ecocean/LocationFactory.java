@@ -18,9 +18,16 @@ public class LocationFactory {
     }
 
     public static void fillFormatterWithLoc(final SqlFormatter formatter, final Location location) {
-        formatter.append("latitude", location.getLatitude());
-        formatter.append("longitude", location.getLongitude());
-        formatter.append("locationid", location.getLocationid());
-        formatter.append("verbatimlocation", location.getVerbatimLocation());
+        if (location == null) {
+            formatter.appendNull("latitude");
+            formatter.appendNull("longitude");
+            formatter.appendNull("locationid");
+            formatter.appendNull("verbatimlocation");
+        } else {
+            formatter.append("latitude", location.getLatitude());
+            formatter.append("longitude", location.getLongitude());
+            formatter.append("locationid", location.getLocationid());
+            formatter.append("verbatimlocation", location.getVerbatimLocation());
+        }
     }
 }

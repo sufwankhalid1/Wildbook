@@ -1,17 +1,21 @@
 wildbook.app.controller("SurveyEditController", function($scope, $http, $exceptionHandler) {
-    $scope.orgChange = function() {
-        $scope.data = {};
+    $scope.data = {};
+    //
+    // New empty survey with one empty track. This is for new surveys.
+    //
+    $scope.survey = {survey: {}, tracks: [{}]};
 
+    $scope.orgChange = function() {
         //
         // This is apparently a copy of the object in the collection so
         // setting anything on this is not preserved from one selection
         // to the next. So we have to adjust the original collection.
         //
-        var org = $scope.survey.organization;
+        var org = $scope.survey.survey.organization;
 
         if (org == null) {
             $scope.data.vessels = null;
-            delete $scope.survey.organization;
+            delete $scope.survey.survey.organization;
             return;
         }
 
@@ -19,10 +23,12 @@ wildbook.app.controller("SurveyEditController", function($scope, $http, $excepti
         .then(function(vessels) {
             $scope.data.vessels = vessels;
         });
+    };
 
-        $scope.save = function() {
-            //
-            // TODO: Save survey
-        }
-    }
+    $scope.save = function() {
+        $http.post('obj/survey/save', $scope.survey)
+        .then(function() {
+            $scope.$broadcast('survey_edit_done', $scope.survey);
+        }, $exceptionHandler);
+    };
 });

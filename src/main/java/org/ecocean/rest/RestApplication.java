@@ -45,9 +45,6 @@ public class RestApplication extends SpringBootServletInitializer {
 
     @Override
     protected final SpringApplicationBuilder configure(final SpringApplicationBuilder application) {
-//        ObjectMapper mapper = new ObjectMapper();
-//        mapper.registerModule(new JodaModule());
-
         return application.sources(RestApplication.class);
     }
 
@@ -66,7 +63,7 @@ public class RestApplication extends SpringBootServletInitializer {
         ResourceReaderImpl appResources = new ResourceReaderImpl();
 
         try {
-            appResources.addSource("application");
+            appResources.addSource("wildbook");
         } catch (IOException ex) {
             logger.warn("Problem reading from application properties", ex);
         }
@@ -80,7 +77,7 @@ public class RestApplication extends SpringBootServletInitializer {
         }
 
         try {
-            appResources.addSource("cust/" + cust + "/application");
+            appResources.addSource("cust/" + cust + "/wildbook");
         } catch (IOException ex) {
             logger.warn("Trouble reading from customer configuration file" , ex);
         }

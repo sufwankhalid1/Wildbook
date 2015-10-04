@@ -17,17 +17,17 @@ div(ng-controller="MediaSubmissionController")
         .container-flow
             .col-md-2
                 span Surveys
-                    a(href="javascript:;", ng-click="survey_search = true")
+                    a(href="javascript:;", ng-click="showPanel('survey_search')")
                         i.glyphicon.glyphicon-search
-                    a(href="javascript:;", ng-click="addSurvey()")
+                    a(href="javascript:;", ng-click="showPanel('survey_edit')")
                         i.glyphicon.glyphicon-plus
                 ul
                     li(ng-repeat="survey in surveys")
                         +encounter_listitem(survey.encounters)
                 span Encounters
-                    a(href="javascript:;", ng-click="searchEncounter()")
+                    a(href="javascript:;", ng-click="showPanel('encounter_search')")
                         i.glyphicon.glyphicon-search
-                    a(href="javascript:;", ng-click="addEncounter()")
+                    a(href="javascript:;", ng-click="showPanel('encounter_edit')")
                         i.glyphicon.glyphicon-plus
                 +encounter_listitem(encounters)
             .col-md-10(style="height: 100%")
@@ -44,11 +44,11 @@ div(ng-controller="MediaSubmissionController")
                             include partials/encounter_view
                         //img.ng-cloak(ng-src="{{zoomimage}}", ng-show="zoomimage", style="max-height: 100%; max-width: 100%;")
                 div
-                    .ng-cloak(ng-show="survey_search")
+                    .ng-cloak(ng-show="panel['survey_search']")
                         include partials/survey_search
-                    .ng-cloak(ng-show="survey_edit")
+                    .ng-cloak(ng-show="panel['survey_edit']")
                         include partials/survey_edit
-                    .ng-cloak(ng-show="encounter_search")
+                    .ng-cloak(ng-show="panel['encounter_search']")
                         include partials/encounter_search
-                    .ng-cloak(ng-show="encounter_edit")
+                    .ng-cloak(ng-show="panel['encounter_edit']")
                         include partials/encounter_edit

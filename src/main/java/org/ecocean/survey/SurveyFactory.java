@@ -106,7 +106,11 @@ public class SurveyFactory {
 
 
     public static void saveSurvey(final Database db, final Survey survey) throws DatabaseException {
-        Table table = db.getTable(TABLENAME_VESSEL);
+        if (survey == null) {
+            return;
+        }
+
+        Table table = db.getTable(TABLENAME_SURVEY);
 
         if (survey.getSurveyId() == null) {
             SqlInsertFormatter formatter = new SqlInsertFormatter();
@@ -135,7 +139,7 @@ public class SurveyFactory {
 
 
     public static void saveSurveyPart(final Database db, final SurveyPart spart) throws DatabaseException {
-        Table table = db.getTable(TABLENAME_VESSEL);
+        Table table = db.getTable(TABLENAME_SURVEYPART);
 
         if (spart.getSurveyPartId() == null) {
             SqlInsertFormatter formatter = new SqlInsertFormatter();
@@ -162,8 +166,9 @@ public class SurveyFactory {
         }
         formatter.append("code", spart.getCode());
         formatter.append("comments", spart.getComments());
-        formatter.append("starttime", spart.getStarttime().toString());
-        formatter.append("endtime", spart.getEndtime().toString());
+        formatter.append("partdate", spart.getPartDate());
+        formatter.append("starttime", spart.getStarttime());
+        formatter.append("endtime", spart.getEndtime());
         LocationFactory.fillFormatterWithLoc(formatter, spart.getLocation());
     }
 
@@ -195,12 +200,12 @@ public class SurveyFactory {
 
         if (vessel.getVesselId() == null) {
             SqlInsertFormatter formatter = new SqlInsertFormatter();
-            fillOrgFormatter(formatter, vessel);
+            fillVesselFormatter(formatter, vessel);
 
             vessel.setVesselId(table.insertSequencedRow(formatter, PK_VESSEL));
         } else {
             SqlUpdateFormatter formatter = new SqlUpdateFormatter();
-            fillOrgFormatter(formatter, vessel);
+            fillVesselFormatter(formatter, vessel);
 
             SqlWhereFormatter where = new SqlWhereFormatter();
             where.append(PK_VESSEL, vessel.getVesselId());
@@ -209,7 +214,7 @@ public class SurveyFactory {
     }
 
 
-    private static void fillOrgFormatter(final SqlFormatter formatter, final Vessel vessel) {
+    private static void fillVesselFormatter(final SqlFormatter formatter, final Vessel vessel) {
         formatter.append("orgid", vessel.getOrgId());
         formatter.append("type", vessel.getType());
         formatter.append("name", vessel.getName());

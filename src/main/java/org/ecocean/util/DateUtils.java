@@ -30,6 +30,10 @@ public class DateUtils {
 //    }
 
     public static String format(final LocalDate date, final OffsetTime start, final OffsetTime end) {
+        if (date == null) {
+            return null;
+        }
+
         StringBuilder builder = new StringBuilder();
         builder.append(date.toString());
 

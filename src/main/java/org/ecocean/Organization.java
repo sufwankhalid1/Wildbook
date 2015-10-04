@@ -4,6 +4,10 @@ public class Organization {
     private Integer orgId;
     private String name;
 
+    public Organization() {
+        // deserialization
+    }
+
     public Organization(final Integer orgId,
                         final String name)
     {

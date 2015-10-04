@@ -7,7 +7,7 @@ public class Vessel {
     private String name;
 
     public Vessel() {
-        // empty constructor
+        // deserialization
     }
 
     public Vessel(final Integer vesselId,
