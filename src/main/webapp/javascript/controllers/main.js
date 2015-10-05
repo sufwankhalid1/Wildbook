@@ -1,4 +1,4 @@
-wildbook.app = angular.module('appWildbook', ["angularGrid"]);
+wildbook.app = angular.module('appWildbook', ["agGrid"]);
 wildbook.app.factory('$exceptionHandler', function() {
     return function(ex, cause) {
         //

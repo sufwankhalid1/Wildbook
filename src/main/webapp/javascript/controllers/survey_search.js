@@ -28,11 +28,14 @@ wildbook.app.controller("SurveySearchController", function($scope, $http, $excep
         $http({url: "search/survey", params: $scope.surveysearch})
         .then(function(result) {
             $scope.gotresults = true;
-            $scope.surveyGridOptions.rowData = result.data;
-            $scope.surveyGridOptions.api.onNewRows();
+            $scope.surveyGridOptions.api.setRowData(result.data);
         },
         $exceptionHandler);
     };
+
+    function rowSelectedFunc(event) {
+        alertplus.alert(event.node.data);
+    }
 
     $scope.surveyGridOptions = {
         columnDefs:
@@ -82,6 +85,7 @@ wildbook.app.controller("SurveySearchController", function($scope, $http, $excep
              }],
         rowData: null,
         enableSorting: true,
-        angularCompileRows: true
+        rowSelection: 'single',
+        onRowSelected: rowSelectedFunc
     };
 });

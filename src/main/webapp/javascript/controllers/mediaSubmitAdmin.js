@@ -11,8 +11,7 @@ wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q
 //    }
 
     function deleteRows(gridOptions, filter) {
-        gridOptions.rowData = gridOptions.rowData.filter(filter);
-        gridOptions.api.onNewRows();
+        gridOptions.api.setRowData(gridOptions.rowData.filter(filter));
     }
 
     $scope.$on('survey_edit_done', function(event, survey) {
@@ -175,8 +174,7 @@ wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q
     //
     return $http({url:"obj/mediasubmission/get/status"})
     .then(function(result) {
-        $scope.msGridOptions.rowData = result.data;
-        $scope.msGridOptions.api.onNewRows();
+        $scope.msGridOptions.api.setRowData(result.data);
     }, $exceptionHandler);
 });
 

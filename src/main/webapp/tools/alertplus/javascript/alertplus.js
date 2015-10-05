@@ -1,5 +1,5 @@
 /*!
- * AlertPlus v0.1.8 (https://github.com/crowmagnumb/alertplus)
+ * AlertPlus v0.1.9 (https://github.com/crowmagnumb/alertplus)
  * Copyright 2015 CrowMagnumb
  * Licensed under MIT (https://github.com/crowmagnumb/alertplus/blob/master/LICENSE)
  */
@@ -125,7 +125,29 @@ var alertplus = (function () {
             return deferred;
         });
     }
-
+    
+    function syntaxHighlight(json) {
+        if (typeof json != 'string') {
+             json = JSON.stringify(json, undefined, 2);
+        }
+        json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+            var cls = 'type-number';
+            if (/^"/.test(match)) {
+                if (/:$/.test(match)) {
+                    cls = 'type-key';
+                } else {
+                    cls = 'type-string';
+                }
+            } else if (/true|false/.test(match)) {
+                cls = 'type-boolean';
+            } else if (/null/.test(match)) {
+                cls = 'type-null';
+            }
+            return '<span class="' + cls + '">' + match + '</span>';
+        });
+    }
+    
     function showAlert(message, details, title, dialogClass) {
         maybeWait().then(function() {
             reset();
@@ -151,7 +173,11 @@ var alertplus = (function () {
                 titleDiv.text(title);
             }
 
-            messageArea.html( message );
+            if (typeof message === "object") {
+                messageArea.html("<pre>" + syntaxHighlight(message) + "</pre>");
+            } else {
+                messageArea.html(message);
+            }
             detailsContent.html(details);
 
             dialog.modal('show');

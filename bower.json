@@ -8,7 +8,7 @@
     "moment": "2.10.6",
     "angular": "1.4.4",
     "angular-bootstrap": "0.13.3",
-    "ag-grid": "1.13.0"
+    "ag-grid": "2.2.0"
   },
   "install": {
     "path": "src/main/webapp/bcomponents",
@@ -29,8 +29,8 @@
             "bower_components/tablesorter/themes/**"
         ],
         "ag-grid": [
-            "bower_components/ag-grid/dist/angular-grid.min.js",
-            "bower_components/ag-grid/dist/angular-grid.min.css",
+            "bower_components/ag-grid/dist/ag-grid.min.js",
+            "bower_components/ag-grid/dist/ag-grid.min.css",
             "bower_components/ag-grid/dist/theme-fresh.min.css"
         ]
     }

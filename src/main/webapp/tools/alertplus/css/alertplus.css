@@ -18,3 +18,10 @@
 .alertplus .alert {
     padding: 8px;
 }
+
+.alertplus .type-string { color: green; }
+.alertplus .type-number { color: blue; }
+.alertplus .type-boolean { color: blue; }
+.alertplus .type-null { color: gray; }
+.alertplus .type-key { color: black; }
+
