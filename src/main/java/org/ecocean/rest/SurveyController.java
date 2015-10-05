@@ -11,6 +11,9 @@ import org.ecocean.survey.SurveyObj;
 import org.ecocean.survey.SurveyPart;
 import org.ecocean.survey.SurveyPartObj;
 import org.ecocean.survey.Vessel;
+import org.ecocean.util.LogBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,6 +29,8 @@ import com.samsix.database.SqlStatement;
 @RestController
 @RequestMapping(value = "/obj/survey")
 public class SurveyController {
+    private Logger logger = LoggerFactory.getLogger(SurveyController.class);
+
     @RequestMapping(value = "/part/get/{id}", method = RequestMethod.GET)
     public SurveyPartObj getPart(final HttpServletRequest request,
                                  @PathVariable("id")
@@ -69,6 +74,9 @@ public class SurveyController {
               SurveyFactory.saveSurvey(db, survey.survey);
               if (survey.tracks != null) {
                   for (SurveyPart track : survey.tracks) {
+                      if (logger.isDebugEnabled()) {
+                          LogBuilder.debug(logger, "track", track);
+                      }
                       track.setSurveyId(survey.survey.getSurveyId());
                       SurveyFactory.saveSurveyPart(db, track);
                   }

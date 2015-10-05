@@ -15,6 +15,10 @@ public class LogBuilder {
         builder = new StringBuilder(initialMsg);
     }
 
+    public static void debug(final Logger logger, final String variable, final Object value) {
+        logger.debug(quickLog(variable, value));
+    }
+
     public static LogBuilder get()
     {
         return new LogBuilder();
@@ -85,7 +89,6 @@ public class LogBuilder {
     {
         return appendVar(variable, String.valueOf(value));
     }
-
 
     public void debug(final Logger logger) {
         logger.debug(toString());

@@ -145,7 +145,7 @@ public class SurveyFactory {
             SqlInsertFormatter formatter = new SqlInsertFormatter();
             fillSurveyPartFormatter(formatter, spart);
 
-            spart.setSurveyId(table.insertSequencedRow(formatter, PK_SURVEYPART));
+            spart.setSurveyPartId(table.insertSequencedRow(formatter, PK_SURVEYPART));
         } else {
             SqlUpdateFormatter formatter = new SqlUpdateFormatter();
             fillSurveyPartFormatter(formatter, spart);

@@ -36,11 +36,41 @@ wildbook.app.controller("SurveySearchController", function($scope, $http, $excep
 
     $scope.surveyGridOptions = {
         columnDefs:
-            [{headerName: "Organization", field: "survey.organization.name"},
-             {headerName: "Number", field: "survey.surveyNumber"},
-             {headerName: "Date", field: "part.formattedDate"},
-             {headerName: "Code", field: "code"},
-             {headerName: "location", field: "part.location.locationid"}],
+            [{headerName: "Organization",
+                field: "survey",
+                cellRenderer: function(params) {
+                    if (params.value.organization) {
+                        return params.value.organization.displayName;
+                    }
+                    return null;
+                }
+             },
+             {headerName: "Number",
+                 field: "survey",
+                 cellRenderer: function(params) {
+                     return params.value.surveyNumber;
+                 }
+             },
+             {headerName: "Date",
+                 field: "part",
+                 cellRenderer: function(params) {
+                     return params.value.formattedTime;
+                 }
+             },
+             {headerName: "Code",
+                 field: "part",
+                 cellRenderer: function(params) {
+                     return params.value.code;
+                 }
+             },
+             {headerName: "Location",
+                field: "part",
+                 cellRenderer: function(params) {
+                     if (params.value.location) {
+                         return params.value.location.locationid;
+                     }
+                 }
+             }],
         rowData: null,
         enableSorting: true,
         angularCompileRows: true

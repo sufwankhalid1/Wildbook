@@ -68,14 +68,62 @@ wildbook.app.directive(
                         }
 
                         if (modelValue.constructor === Array) {
-                            return moment({year: modelValue[0], month: modelValue[1] - 1, date: modelValue[2]}).format();
+                            //
+                            // For some reason the month is zero-based and nothing else is. Sigh.
+                            //
+                            return moment({year: modelValue[0],
+                                           month: modelValue[1] - 1,
+                                           date: modelValue[2]}).format();
                         }
                         return null;
                     });
 
                     ngModelCtrl.$parsers.push(function(viewValue) {
+                        if (! viewValue) {
+                            return null;
+                        }
+
                         var mdate = moment(viewValue);
+                        //
+                        // For some reason the month is zero-based and nothing else is. Sigh.
+                        //
                         return [mdate.year(), mdate.month() + 1, mdate.date()];
+                    });
+                },
+            };
+    });
+
+wildbook.app.directive(
+        'timeInput',
+        function() {
+            return {
+                require: 'ngModel',
+                template: '<input type="time"></input>',
+                replace: true,
+                link: function(scope, elm, attrs, ngModelCtrl) {
+                    ngModelCtrl.$formatters.push(function (modelValue) {
+                        if (! modelValue) {
+                            return null;
+                        }
+
+                        if (modelValue.constructor === Array) {
+                            return moment({hour: modelValue[0],
+                                           minute: modelValue[1],
+                                           second: modelValue[2]}).format("hh:mm:ss a");
+                        }
+                        return null;
+                    });
+
+                    ngModelCtrl.$parsers.push(function(viewValue) {
+                        if (! viewValue) {
+                            return null;
+                        }
+
+                        var mdate = moment(viewValue);
+                        //
+                        // TODO: Deal with timezone
+                        //
+                        return [mdate.hour(), mdate.minute(), mdate.second(), "+0"];
                     });
                 },
             };

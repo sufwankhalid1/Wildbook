@@ -17,20 +17,57 @@ form.form.form-horizontal.ng-cloak(novalidate, ng-controller="SurveyEditControll
         .row(ng-repeat="track in survey.tracks")
             fieldset
                 legend Track
-                .col-md-4
+                .row
+                    .col-md-4
+                        .form-group
+                            label.control-label Vessel:
+                            select.form-control(ng-options="vessel.displayName for vessel in data.vessels track by vessel.vesselId"
+                                                ng-model="track.vessel")
+                                option(value="") --- select one ---
+                    .col-md-4
+                        .form-group
+                            label.control-label Code:
+                            input.form-control(type="text", ng-model="track.code")
+                .row
+                    .col-md-4
+                        .form-group
+                            label.control-label Date:
+                            date-input.form-control(ng-model="track.partDate")
+                    .col-md-4
+                        .form-group
+                            label.control-label Start Time:
+                            time-input.form-control(ng-model="track.starttime", ng-disabled="true")
+                    .col-md-4
+                        .form-group
+                            label.control-label End Time:
+                            time-input.form-control(ng-model="track.endtime", ng-disabled="true")
+                .row
+                    //+location_edit(track.location)
+                    //
+                    // Create button for picking from a map
+                    //
+                    legend Location
+                    .row
+                        .col-md-4
+                            .form-group
+                                label.control-label Location ID:
+                                input.form-control(type="text", ng-model="track.location.locationid")
+                        .col-md-4
+                            .form-group
+                                label.control-label Latitude:
+                                input.form-control(type="text", ng-model="track.location.latitude")
+                        .col-md-4
+                            .form-group
+                                label.control-label Longitude:
+                                input.form-control(type="text", ng-model="track.location.longitude")
+                    .row
+                        .form-group
+                            label.control-label Verbatim Location:
+                            input.form-control(type="textarea", rows="4", ng-model="track.location.verbatimLocation")
+                .row
                     .form-group
-                        label.control-label Vessel:
-                        select.form-control(ng-options="vessel.displayName for vessel in data.vessels track by vessel.vesselId"
-                                            ng-model="track.vessel")
-                            option(value="") --- select one ---
-                .col-md-4
-                    .form-group
-                        label.control-label Date:
-                        date-input.form-control(ng-model="track.partDate")
-                .col-md-4
-                    .form-group
-                        label.control-label Code:
-                        input.form-control(type="text", ng-model="track.code")
+                        label.control-label Comments:
+                        input.form-control(type="textarea", rows="4", ng-model="track.comments")
 
     input(type="submit", ng-click="save()", value="Save")
 script(src="javascript/controllers/survey_edit.js")

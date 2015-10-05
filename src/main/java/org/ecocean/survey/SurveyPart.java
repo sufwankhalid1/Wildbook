@@ -3,6 +3,7 @@ package org.ecocean.survey;
 import java.time.LocalDate;
 import java.time.OffsetTime;
 
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.ecocean.Location;
 import org.ecocean.util.DateUtils;
 
@@ -98,5 +99,10 @@ public class SurveyPart {
 
     public String getFormattedTime() {
         return DateUtils.format(partDate, starttime, endtime);
+    }
+
+    @Override
+    public String toString() {
+        return ReflectionToStringBuilder.toString(this);
     }
 }
