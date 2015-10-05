@@ -299,7 +299,7 @@ public class UserFactory {
         if (orgId == null) {
             return null;
         }
-        return new Organization(orgId, rs.getString("name"));
+        return new Organization(orgId, rs.getString("orgname"));
     }
 
 
@@ -323,7 +323,7 @@ public class UserFactory {
 
 
     private static void fillOrgFormatter(final SqlFormatter formatter, final Organization organization) {
-        formatter.append("name", organization.getName());
+        formatter.append("orgname", organization.getName());
     }
 
     public static List<SimpleUser> readSimpleUsers(final Database db, final SqlStatement sql) throws DatabaseException {

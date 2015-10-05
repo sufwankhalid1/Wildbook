@@ -51,6 +51,15 @@ wildbook.app.controller("SurveySearchController", function($scope, $http, $excep
                      return params.value.surveyNumber;
                  }
              },
+             {headerName: "Vessel",
+                 field: "part",
+                 cellRenderer: function(params) {
+                     if (params.value.vessel) {
+                         return params.value.vessel.displayName;
+                     }
+                     return null;
+                 }
+             },
              {headerName: "Date",
                  field: "part",
                  cellRenderer: function(params) {
