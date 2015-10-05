@@ -1,5 +1,5 @@
 wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q, $compile, $exceptionHandler) {
-    var panels = ['survey_search', 'survey_edit', 'encounter_search', 'encounter_edit'];
+    var panels = ['survey_search', 'survey_edit', 'encounter_search', 'encounter_edit', 'encounter_view'];
 
     $scope.encounters = [];
     $scope.surveys = [];
@@ -15,10 +15,12 @@ wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q
     }
 
     $scope.$on('survey_edit_done', function(event, survey) {
-        //
-        // TODO: hide the edit form and add the survey to the tree.
-        //
-        alertplus.alert("broadcast received!" + JSON.stringify(survey));
+        $scope.showPanel(null);
+        $scope.surveys.push(survey);
+    });
+
+    $scope.$on('survey_search_done', function(event, survey) {
+        $scope.showPanel(null);
         $scope.surveys.push(survey);
     });
 
@@ -179,4 +181,13 @@ wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q
 });
 
 wildbook.app.controller("EncounterFormController", function($scope) {
+});
+
+wildbook.app.directive('locationEdit', function() {
+    return {restrict: 'E',
+        scope: {
+            location: '='
+        },
+        templateUrl: 'util/render?j=partials/location_edit.jade'
+    };
 });

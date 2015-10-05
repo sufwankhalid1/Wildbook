@@ -1,0 +1,18 @@
+legend Location
+.row
+    .col-md-4
+        .form-group
+            label.control-label Location ID:
+            input.form-control(type="text", ng-model="location.locationid")
+    .col-md-4
+        .form-group
+            label.control-label Latitude:
+            input.form-control(type="text", ng-model="location.latitude")
+    .col-md-4
+        .form-group
+            label.control-label Longitude:
+            input.form-control(type="text", ng-model="location.longitude")
+.row
+    .form-group
+        label.control-label Verbatim Location:
+        input.form-control(type="textarea", rows="4", ng-model="location.verbatimLocation")

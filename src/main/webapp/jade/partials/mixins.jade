@@ -1,29 +1,4 @@
-mixin encounter_listitem(encounters)
-    ul
-        li(ng-repeat="encounter in encounters")
-            a(href="javascript;:", ng-click="editEncounter(encounter)")
-                span {{encounter.individual.displayName}} - {{encounter.encdate}}
-
-//mixin location_edit(location)
-//    //
-//    // Create button for picking from a map
-//    //
-//    legend Location
-//    .row
-//        .col-md-4
-//            .form-group
-//                label.control-label Location ID:
-//                input.form-control(type="text", ng-model="location.locationid")
-//        .col-md-4
-//            .form-group
-//                label.control-label Latitude:
-//                input.form-control(type="text", ng-model="location.latitude")
-//        .col-md-4
-//            .form-group
-//                label.control-label Longitude:
-//                input.form-control(type="text", ng-model="location.longitude")
-//    .row
-//        .form-group
-//            label.control-label Verbatim Location:
-//            input.form-control(type="textarea", rows="4", ng-model="location.verbatimLocation")
-//
+mixin encounter_listitems(encounters)
+    .list-group
+        a.list-group-item(href="javascript;:", ng-repeat="encounter in encounters", ng-click="editEncounter(encounter)")
+            span {{encounter.individual.displayName}} - {{encounter.encdate}}

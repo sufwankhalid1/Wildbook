@@ -8,12 +8,12 @@ form.form.form-horizontal.ng-cloak(novalidate, ng-controller="SurveyEditControll
                     .form-group
                         label.control-label Organization:
                         select.form-control(ng-options="org.displayName for org in maindata.organizations track by org.orgId"
-                                            ng-model="survey.survey.organization", ng-change="orgChange()")
+                                            ng-model="survey.organization", ng-change="orgChange()")
                             option(value="") --- select one ---
                 .col-md-4
                     .form-group
                         label.control-label Survey Number:
-                        input.form-control(type="text", ng-model="survey.survey.surveyNumber")
+                        input.form-control(type="text", ng-model="survey.surveyNumber")
         .row(ng-repeat="track in survey.tracks")
             fieldset
                 legend Track
@@ -42,28 +42,7 @@ form.form.form-horizontal.ng-cloak(novalidate, ng-controller="SurveyEditControll
                             label.control-label End Time:
                             time-input.form-control(ng-model="track.endtime", ng-disabled="true")
                 .row
-                    //+location_edit(track.location)
-                    //
-                    // Create button for picking from a map
-                    //
-                    legend Location
-                    .row
-                        .col-md-4
-                            .form-group
-                                label.control-label Location ID:
-                                input.form-control(type="text", ng-model="track.location.locationid")
-                        .col-md-4
-                            .form-group
-                                label.control-label Latitude:
-                                input.form-control(type="text", ng-model="track.location.latitude")
-                        .col-md-4
-                            .form-group
-                                label.control-label Longitude:
-                                input.form-control(type="text", ng-model="track.location.longitude")
-                    .row
-                        .form-group
-                            label.control-label Verbatim Location:
-                            input.form-control(type="textarea", rows="4", ng-model="track.location.verbatimLocation")
+                    location-edit(location="track.location")
                 .row
                     .form-group
                         label.control-label Comments:

@@ -1,54 +1,59 @@
-include header
-include partials/mixins
+extends header
 
-div(ng-controller="MediaSubmissionController")
-    div(ng-show="!submission")
-        h1 Media Submissions
-        .ag-fresh(ag-grid="msGridOptions", style="height: 400px;")
+block scripts
+    script(src="javascript/controllers/mediaSubmitAdmin.js")
 
-    div.ng-cloak(ng-show="submission")
-        h3 Edit Media Submission
-            span
-                button.btn.btn-primary(ng-click="doneEditing()")
-                    i.glyphicon.glyphicon-check
-            span
-                button.btn.btn-danger(ng-click="deleteSubmission()")
-                    i.glyphicon.glyphicon-trash
-        .container-flow
-            .col-md-2
-                span Surveys
-                    a(href="javascript:;", ng-click="showPanel('survey_search')")
-                        i.glyphicon.glyphicon-search
-                    a(href="javascript:;", ng-click="showPanel('survey_edit')")
-                        i.glyphicon.glyphicon-plus
-                ul
-                    li(ng-repeat="survey in surveys")
-                        +encounter_listitem(survey.encounters)
-                span Encounters
-                    a(href="javascript:;", ng-click="showPanel('encounter_search')")
-                        i.glyphicon.glyphicon-search
-                    a(href="javascript:;", ng-click="showPanel('encounter_edit')")
-                        i.glyphicon.glyphicon-plus
-                +encounter_listitem(encounters)
-            .col-md-10(style="height: 100%")
-                div
-                    div(style="height: 50%)
-                        span.text-primary Submitted by: {{submission.user.displayName}}
-                        span on: {{timeToDate(submission.timeSubmitted)}}
-                        div
+block content
+    include partials/mixins
+
+    div(ng-controller="MediaSubmissionController")
+        div(ng-show="!submission")
+            h1 Media Submissions
+            .ag-fresh(ag-grid="msGridOptions", style="height: 400px;")
+
+        div.ng-cloak(ng-show="submission")
+            h3 Edit Media Submission
+                span
+                    button.btn.btn-primary(ng-click="doneEditing()")
+                        i.glyphicon.glyphicon-check
+                span
+                    button.btn.btn-danger(ng-click="deleteSubmission()")
+                        i.glyphicon.glyphicon-trash
+            .container-flow
+                .col-md-2
+                    span Surveys
+                        a(href="javascript:;", ng-click="showPanel('survey_search')")
+                            i.glyphicon.glyphicon-search
+                        a(href="javascript:;", ng-click="showPanel('survey_edit')")
+                            i.glyphicon.glyphicon-plus
+                        .list-group
+                            a.list-group-item(href="javascript;:", ng-repeat="survey in surveys", ng-click="todo_maybe()")
+                                span {{survey.organization.displayName}} - {{survey.surveyNumber}}
+                                +encounter_listitems(survey.encounters)
+                    span Encounters
+                        a(href="javascript:;", ng-click="showPanel('encounter_search')")
+                            i.glyphicon.glyphicon-search
+                        a(href="javascript:;", ng-click="showPanel('encounter_edit')")
+                            i.glyphicon.glyphicon-plus
+                    +encounter_listitems(encounters)
+                .col-md-10(style="height: 100%")
+                    .row(style="height: 50%)
+                        .row
+                            span.text-primary Submitted by: {{submission.user.displayName}}
+                            span on: {{timeToDate(submission.timeSubmitted)}}
+                        .row
                             span(ng-repeat="photo in photos", width="100px")
                                 a(href="javascript:;", ng-click="viewImage(photo.url)")
                                     img(ng-src="{{photo.thumbUrl}}", style="padding: 2px; max-width: 100%")
-                    div(style="height: 50%")
-                        .ng-cloak(ng-show="encounter")
+                    .row(style="height: 50%")
+                        .ng-cloak(ng-show="panel['encounter_view']")
                             include partials/encounter_view
                         //img.ng-cloak(ng-src="{{zoomimage}}", ng-show="zoomimage", style="max-height: 100%; max-width: 100%;")
-                div
-                    .ng-cloak(ng-show="panel['survey_search']")
-                        include partials/survey_search
-                    .ng-cloak(ng-show="panel['survey_edit']")
-                        include partials/survey_edit
-                    .ng-cloak(ng-show="panel['encounter_search']")
-                        include partials/encounter_search
-                    .ng-cloak(ng-show="panel['encounter_edit']")
-                        include partials/encounter_edit
+                        .ng-cloak(ng-show="panel['survey_search']")
+                            include partials/survey_search
+                        .ng-cloak(ng-show="panel['survey_edit']")
+                            include partials/survey_edit
+                        .ng-cloak(ng-show="panel['encounter_search']")
+                            include partials/encounter_search
+                        .ng-cloak(ng-show="panel['encounter_edit']")
+                            include partials/encounter_edit

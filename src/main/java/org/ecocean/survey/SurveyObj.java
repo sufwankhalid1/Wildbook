@@ -2,7 +2,6 @@ package org.ecocean.survey;
 
 import java.util.List;
 
-public class SurveyObj {
-    public Survey survey;
+public class SurveyObj extends Survey {
     public List<SurveyPart> tracks;
 }

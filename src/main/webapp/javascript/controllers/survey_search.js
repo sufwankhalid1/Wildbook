@@ -34,7 +34,9 @@ wildbook.app.controller("SurveySearchController", function($scope, $http, $excep
     };
 
     function rowSelectedFunc(event) {
-        alertplus.alert(event.node.data);
+        var survey = event.node.data.survey;
+        survey.tracks = [event.node.data.part];
+        $scope.$emit('survey_search_done', survey);
     }
 
     $scope.surveyGridOptions = {

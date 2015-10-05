@@ -3,7 +3,7 @@ wildbook.app.controller("SurveyEditController", function($scope, $http, $excepti
     //
     // New empty survey with one empty track. This is for new surveys.
     //
-    $scope.survey = {survey: {}, tracks: [{}]};
+    $scope.survey = {tracks: [{}]};
 
     $scope.orgChange = function() {
         //
@@ -11,11 +11,11 @@ wildbook.app.controller("SurveyEditController", function($scope, $http, $excepti
         // setting anything on this is not preserved from one selection
         // to the next. So we have to adjust the original collection.
         //
-        var org = $scope.survey.survey.organization;
+        var org = $scope.survey.organization;
 
         if (org == null) {
             $scope.data.vessels = null;
-            delete $scope.survey.survey.organization;
+            delete $scope.survey.organization;
             return;
         }
 
@@ -28,7 +28,7 @@ wildbook.app.controller("SurveyEditController", function($scope, $http, $excepti
     $scope.save = function() {
         $http.post('obj/survey/save', $scope.survey)
         .then(function() {
-            $scope.$broadcast('survey_edit_done', $scope.survey);
+            $scope.$emit('survey_edit_done', $scope.survey);
         }, $exceptionHandler);
     };
 });

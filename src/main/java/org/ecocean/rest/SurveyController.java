@@ -65,19 +65,15 @@ public class SurveyController {
             return;
         }
 
-        if (survey.survey == null) {
-            return;
-        }
-
         try (Database db = ServletUtilities.getDb(request)) {
             db.performTransaction(() -> {
-              SurveyFactory.saveSurvey(db, survey.survey);
+              SurveyFactory.saveSurvey(db, survey);
               if (survey.tracks != null) {
                   for (SurveyPart track : survey.tracks) {
                       if (logger.isDebugEnabled()) {
                           LogBuilder.debug(logger, "track", track);
                       }
-                      track.setSurveyId(survey.survey.getSurveyId());
+                      track.setSurveyId(survey.getSurveyId());
                       SurveyFactory.saveSurveyPart(db, track);
                   }
               }
