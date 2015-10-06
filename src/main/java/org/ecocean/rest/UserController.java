@@ -1,7 +1,6 @@
 package org.ecocean.rest;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 
 import javax.mail.MessagingException;
@@ -17,7 +16,6 @@ import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
 import org.ecocean.CommonConfiguration;
 import org.ecocean.ContextConfiguration;
-import org.ecocean.Organization;
 import org.ecocean.Util;
 import org.ecocean.email.EmailUtils;
 import org.ecocean.security.User;
@@ -291,7 +289,6 @@ public class UserController {
         }
     }
 
-
     @RequestMapping(value = "verifypasstoken", method = RequestMethod.POST)
     public void verifyPassToken(final HttpServletRequest request,
                                 @RequestBody @Valid final String token) throws IllegalAccessException, DatabaseException {
@@ -299,14 +296,6 @@ public class UserController {
             UserFactory.verifyPRToken(db, token);
         }
     }
-
-    @RequestMapping(value = "orgs/get", method = RequestMethod.GET)
-    public List<Organization> getOrganizations(final HttpServletRequest request) throws DatabaseException {
-        try (Database db = ServletUtilities.getDb(request)) {
-            return UserFactory.getOrganizations(db);
-        }
-    }
-
 
 
     //

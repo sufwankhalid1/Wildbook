@@ -1,10 +1,14 @@
 package org.ecocean;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.ecocean.email.Emailer;
+import org.ecocean.media.AssetStore;
+import org.ecocean.media.AssetStoreFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,9 +26,27 @@ public enum Global {
     private ResourceReader appResources;
 
     private Emailer emailer;
+    private List<Species> species = new ArrayList<Species>();
 
-    public void setAppResources(final ResourceReader resources) {
+    public void init(final ResourceReader resources) {
         appResources = resources;
+
+        //
+        // Initialize other parts of the app.
+        //
+        try (Database db = Global.INST.getDb()) {
+            //
+            // Set the static AssetStores map.
+            //
+            AssetStore.init(AssetStoreFactory.getStores(db));
+
+            db.getTable("species").select((rs) -> {
+                species.add(new Species(rs.getString("code"), rs.getString("name")));
+            });
+
+        } catch (Throwable ex) {
+            logger.error("Trouble initializing the app.", ex);
+        }
     }
 
     public ResourceReader getAppResources() {
@@ -76,5 +98,9 @@ public enum Global {
 
     public boolean isDevEnv() {
         return appResources.getBoolean("environment.development", false);
+    }
+
+    public List<Species> getSpecies() {
+        return species;
     }
 }

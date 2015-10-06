@@ -7,7 +7,7 @@ form.form.form-horizontal.ng-cloak(novalidate, ng-controller="SurveyEditControll
                 .col-md-4
                     .form-group
                         label.control-label Organization:
-                        select.form-control(ng-options="org.displayName for org in maindata.organizations track by org.orgId"
+                        select.form-control(ng-options="org.displayName for org in config.orgs track by org.orgId"
                                             ng-model="survey.organization", ng-change="orgChange()")
                             option(value="") --- select one ---
                 .col-md-4

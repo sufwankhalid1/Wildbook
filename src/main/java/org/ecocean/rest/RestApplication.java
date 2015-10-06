@@ -7,8 +7,6 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 
 import org.ecocean.Global;
-import org.ecocean.media.AssetStore;
-import org.ecocean.media.AssetStoreFactory;
 import org.ecocean.security.User;
 import org.ecocean.security.UserFactory;
 import org.flywaydb.core.Flyway;
@@ -112,23 +110,7 @@ public class RestApplication extends SpringBootServletInitializer {
         //
         // Now set this on the global so that we can use it elsewhere.
         //
-        Global.INST.setAppResources(appResources);
-
-        //
-        // Finish loading up resources.
-        //
-
-        //
-        // Initialize other parts of the app.
-        //
-        try (Database db = Global.INST.getDb()) {
-            //
-            // Set the static AssetStores map.
-            //
-            AssetStore.init(AssetStoreFactory.getStores(db));
-        } catch (Throwable ex) {
-            logger.error("Trouble initializing the app.", ex);
-        }
+        Global.INST.init(appResources);
 
         //
         // Old code to initialize stormpath. If, for some reason we decide to make it

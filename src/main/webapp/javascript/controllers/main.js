@@ -10,11 +10,7 @@ wildbook.app.factory('$exceptionHandler', function() {
 });
 
 wildbook.app.controller("MainController", function($scope, $http, $q, $exceptionHandler) {
-    //
-    // TODO: Make a single call to get all the "global" data that we might need throughout the app
-    // rather than piecemeal?
-    //
-    $scope.maindata = {};
+    $scope.config = null;
 
     $scope.getVessels = function(org) {
         //
@@ -22,7 +18,7 @@ wildbook.app.controller("MainController", function($scope, $http, $q, $exception
         // it and thus cache the results for future occerences of the user picking
         // this organization again in the list.
         //
-        var orgfilter = $scope.maindata.organizations.filter(function(value) {
+        var orgfilter = $scope.config.orgs.filter(function(value) {
             return (value.orgId == org.orgId);
         });
 
@@ -48,9 +44,9 @@ wildbook.app.controller("MainController", function($scope, $http, $q, $exception
         }
     };
 
-    return $http({url:"obj/user/orgs/get"})
+    return $http({url:"util/init"})
     .then(function(result) {
-        $scope.maindata.organizations = result.data;
+        $scope.config = result.data;
     }, $exceptionHandler);
 });
 
