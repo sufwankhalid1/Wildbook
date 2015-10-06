@@ -182,12 +182,3 @@ wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q
 
 wildbook.app.controller("EncounterFormController", function($scope) {
 });
-
-wildbook.app.directive('locationEdit', function() {
-    return {restrict: 'E',
-        scope: {
-            location: '='
-        },
-        templateUrl: 'util/render?j=partials/location_edit.jade'
-    };
-});
