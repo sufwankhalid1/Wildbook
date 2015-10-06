@@ -16,15 +16,16 @@ block content
                 .row
                     .col-md-12
                         h3 Edit Media Submission
-                        span
+                        span.media-admin-edit-icon
                             button.btn.btn-primary(ng-click="doneEditing()")
                                 i.glyphicon.glyphicon-check
-                        span
+                        span.media-admin-edit-icon
                             button.btn.btn-danger(ng-click="deleteSubmission()")
                                 i.glyphicon.glyphicon-trash
                 .row
                     .col-md-2
-                        span Surveys
+                        div.media-admin-nav
+                            span.media-admin-nav-label Surveys
                             a(href="javascript:;", ng-click="showPanel('survey_search')")
                                 i.glyphicon.glyphicon-search
                             a(href="javascript:;", ng-click="showPanel('survey_edit')")
@@ -33,12 +34,13 @@ block content
                                 a.list-group-item(href="javascript;:", ng-repeat="survey in surveys", ng-click="todo_maybe()")
                                     span {{survey.organization.displayName}} - {{survey.surveyNumber}}
                                     +encounter_listitems(survey.encounters)
-                        span Encounters
+                        div.media-admin-nav
+                            span.media-admin-nav-label Encounters
                             a(href="javascript:;", ng-click="showPanel('encounter_search')")
                                 i.glyphicon.glyphicon-search
                             a(href="javascript:;", ng-click="showPanel('encounter_edit')")
                                 i.glyphicon.glyphicon-plus
-                        +encounter_listitems(encounters)
+                            +encounter_listitems(encounters)
                     .col-md-10
                         .container-fluid
                             .row
