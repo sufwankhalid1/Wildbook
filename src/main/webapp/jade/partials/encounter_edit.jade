@@ -4,19 +4,19 @@ form.form.ng-cloak(novalidate, ng-controller="EncounterFormController")
         input(type="hidden", ng-model="encounter.encounterid")
         input(type="hidden", ng-model="encounter.individualid")
     .form-row
-        .form-group
+        .form-group.col-md-6
             label.control-label Name:
             input.form-control(type="date", ng-model="encounter.encdate")
-        .form-group
+        .form-group.col-md-6
             label.control-label Latitude:
             input.form-control(type="text", ng-model="encounter.location.latitude")
-        .form-group
+        .form-group.col-md-6
             label.control-label Longitude:
             input.form-control(type="text", ng-model="encounter.location.longitude")
-        .form-group
-            labe.control-labell Location ID:
+        .form-group.col-md-6
+            labe.control-label Location ID:
             input.form-control(type="text", ng-model="encounter.location.locationid")
-        .form-group
+        .form-group.col-md-6
             label.control-label Verbatim Location:
             input.form-control(type="text", ng-model="encounter.location.verbatimLocation")
     .form-row
