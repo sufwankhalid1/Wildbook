@@ -1,4 +1,6 @@
-legend Location
+.row
+    .col-md-12
+        legend Location
 .row
     .col-md-4
         .form-group
@@ -13,6 +15,7 @@ legend Location
             label.control-label Longitude:
             input.form-control(type="text", ng-model="location.longitude")
 .row
-    .form-group
-        label.control-label Verbatim Location:
-        input.form-control(type="textarea", rows="4", ng-model="location.verbatimLocation")
+    .col-md-12
+        .form-group
+            label.control-label Verbatim Location:
+            input.form-control(type="textarea", rows="4", ng-model="location.verbatimLocation")

@@ -1,6 +1,6 @@
 form.form.form-horizontal.ng-cloak(novalidate, ng-controller="SurveySearchController")
     legend Search Survey
-    .container-fluid
+    .row
         .col-md-4
             .form-group
                 label.control-label Organization:
@@ -25,7 +25,8 @@ form.form.form-horizontal.ng-cloak(novalidate, ng-controller="SurveySearchContro
                 input.form-control(type="date", ng-model="surveysearch.date")
 
             input(type="submit", ng-click="search()", value="Search")
-    .ng-cloak(ng-show="gotresults")
-        legend Results
-        .ag-fresh(ag-grid="surveyGridOptions", style="height: 400px;")
+    .row
+        .ng-cloak(ng-show="gotresults")
+            legend Results
+            .ag-fresh(ag-grid="surveyGridOptions", style="height: 400px;")
 script(src="javascript/controllers/survey_search.js")
