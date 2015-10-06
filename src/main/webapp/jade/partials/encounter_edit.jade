@@ -1,23 +1,25 @@
-form.form.ng-cloak(novalidate, ng-controller="EncounterFormController")
+form.form.ng-cloak(novalidate, ng-controller="EncounterEditController")
     .form-row
-        legend.form-group Encounter
-        input(type="hidden", ng-model="encounter.encounterid")
-        input(type="hidden", ng-model="encounter.individualid")
+        legend.form-group Edit Encounter
     .form-row
-        .form-group.col-md-6
-            label.control-label Name:
-            input.form-control(type="date", ng-model="encounter.encdate")
-        .form-group.col-md-6
-            label.control-label Latitude:
-            input.form-control(type="text", ng-model="encounter.location.latitude")
-        .form-group.col-md-6
-            label.control-label Longitude:
-            input.form-control(type="text", ng-model="encounter.location.longitude")
-        .form-group.col-md-6
-            labe.control-label Location ID:
-            input.form-control(type="text", ng-model="encounter.location.locationid")
-        .form-group.col-md-6
-            label.control-label Verbatim Location:
-            input.form-control(type="text", ng-model="encounter.location.verbatimLocation")
+        .form-group.col-md-4
+            label.control-label Individual:
+            label(ng-show="encounter.individual.id") {{encounter.individual.displayName}}
+            select.form-control(ng-shaw="!encounter.individual.id"
+                                ng-options="species.name for species in config.species track by species.code"
+                                ng-model="encounter.individual.species")
     .form-row
-        input(type="submit", ng-click="update(encounter)", value="Save")
+        fieldset(location="encounter.location", location-edit)
+        //location-edit(location="encounter.location")
+    .form-row
+        .form-group.col-md-4
+            label.control-label Date:
+            date-input.form-control(ng-model="encounter.encDate")
+        .form-group.col-md-4
+            label.control-label Start Time:
+            time-input.form-control(ng-model="encounter.starttime")
+        .form-group.col-md-4
+            label.control-label End Time:
+            time-input.form-control(ng-model="encounter.endtime")
+    .form-row
+        input(type="submit", ng-click="save()", value="Save")

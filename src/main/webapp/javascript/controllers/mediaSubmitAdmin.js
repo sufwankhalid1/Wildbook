@@ -24,11 +24,29 @@ wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q
         $scope.surveys.push(survey);
     });
 
+    $scope.$on('encounter_edit_done', function(event, encounter) {
+        $scope.showPanel(null);
+        $scope.encounters.push(encounter);
+    });
+
+    $scope.$on('encounter_search_done', function(event, encounter) {
+        $scope.showPanel(null);
+        $scope.encounters.push(encounter);
+    });
+
     $scope.showPanel = function(panel) {
         panels.forEach(function(value) {
             $scope.panel[value] = (panel == value);
         });
     };
+
+    $scope.addEncounter = function() {
+        //
+        // TODO: Should this broadcast the encounter to the form?
+        //
+        $scope.encounter = {individual: {species: $scope.config.species[0].code}};
+        $scope.showPanel('encounter_edit');
+    }
 
 //    $scope.editEncounter = function(encounter) {
 //        $scope.zoomimage = null;
@@ -178,7 +196,4 @@ wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q
     .then(function(result) {
         $scope.msGridOptions.api.setRowData(result.data);
     }, $exceptionHandler);
-});
-
-wildbook.app.controller("EncounterFormController", function($scope) {
 });

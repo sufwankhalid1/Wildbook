@@ -1,27 +1,30 @@
-package org.ecocean.rest;
+package org.ecocean;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.WordUtils;
-import org.ecocean.Individual;
+import org.ecocean.rest.SimpleIndividual;
 
 
-public class SimpleIndividual implements SimpleBeing
-{
+public class Individual {
     private Integer id;
     private String alternateId;
     private String species;
     private String nickname;
     private String sex;
+    private Integer avatarid;
+    //
+    // Not persisted. Only for generating SimpleUsers.
+    //
     private String avatar;
 
 
-    public SimpleIndividual()
+    public Individual()
     {
         // for deserialization
     }
 
-    public SimpleIndividual(final Integer id,
-                            final String nickname)
+    public Individual(final Integer id,
+                      final String nickname)
     {
         this.id = id;
         this.setNickname(nickname);
@@ -55,19 +58,14 @@ public class SimpleIndividual implements SimpleBeing
         this.nickname = nickname;
     }
 
-
     public void setSpecies(final String species) {
         this.species = species;
     }
 
-
-    @Override
     public String getDisplayName() {
-        return Individual.getDisplayName(nickname, alternateId);
+        return getDisplayName(nickname, alternateId);
     }
 
-
-    @Override
     public String getAvatar() {
         return avatar;
     }
@@ -76,7 +74,6 @@ public class SimpleIndividual implements SimpleBeing
         this.avatar = avatar;
     }
 
-    @Override
     public String getSpecies() {
         return species;
     }
@@ -95,5 +92,38 @@ public class SimpleIndividual implements SimpleBeing
 
     public void setAlternateId(final String alternateId) {
         this.alternateId = alternateId;
+    }
+
+    public Integer getAvatarid() {
+        return avatarid;
+    }
+
+    public void setAvatarid(final Integer avatarid) {
+        this.avatarid = avatarid;
+    }
+
+    public static String getDisplayName(final String nickname, final String alternateId) {
+        String name;
+        if (StringUtils.isBlank(nickname)) {
+            name = Global.INST.getAppResources().getString("individuals.unnamed.nickname", "[Unnamed]");
+        } else {
+            name = nickname;
+        }
+
+        if (StringUtils.isBlank(alternateId)) {
+            return name;
+        }
+
+        return name + " (" + alternateId + ")";
+    }
+
+    public SimpleIndividual toSimple()
+    {
+        SimpleIndividual simple = new SimpleIndividual(id, nickname);
+        simple.setAlternateId(alternateId);
+        simple.setAvatar(avatar);
+        simple.setSex(sex);
+        simple.setSpecies(species);
+        return simple;
     }
 }
