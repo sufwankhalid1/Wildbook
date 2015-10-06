@@ -6,7 +6,7 @@ form.form.ng-cloak(novalidate, ng-controller="SurveyEditController")
             legend.form-group Survey
             .form-group.col-md-6
                 label.control-label Organization:
-                select.form-control(ng-options="org.displayName for org in maindata.organizations track by org.orgId"
+                select.form-control(ng-options="org.displayName for org in config.orgs track by org.orgId"
                                     ng-model="survey.organization", ng-change="orgChange()")
                     option(value="") --- select one ---
             .form-group.col-md-6
