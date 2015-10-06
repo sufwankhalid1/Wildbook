@@ -1,31 +1,30 @@
-form.form.form-horizontal.ng-cloak(novalidate, ng-controller="SurveySearchController")
-    legend Search Survey
-    .container-fluid
-        .col-md-4
-            .form-group
-                label.control-label Organization:
-                select.form-control(ng-options="org.displayName for org in config.orgs track by org.orgId"
-                                    ng-model="search.organization", ng-change="orgChange()")
-                    option(value="") --- select one ---
-            .form-group
-                label.control-label Vessel:
-                select.form-control(ng-model="surveysearch.vesselid")
-                    option(value="") --- select one ---
-                    option(ng-repeat="vessel in data.vessels", value="{{vessel.vesselId}}"){{vessel.displayName}}
-        .col-md-4
-            .form-group
-                label.control-label Survey Number:
-                input.form-control(type="text", ng-model="surveysearch.surveynumber")
-            .form-group
-                label.control-label Code:
-                input.form-control(type="text", ng-model="surveysearch.code")
-        .col-md-4
-            .form-group
-                label.control-label Date:
-                input.form-control(type="date", ng-model="surveysearch.date")
-
+form.form.ng-cloak(novalidate, ng-controller="SurveySearchController")
+    .form-row
+        legend.form-group Search Survey
+    .form-row
+        .form-group.col-md-6
+            label.control-label Organization:
+            select.form-control(ng-options="org.displayName for org in config.orgs track by org.orgId"
+                                ng-model="search.organization", ng-change="orgChange()")
+                option(value="") --- select one ---
+        .form-group.col-md-6
+            label.control-label Vessel:
+            select.form-control(ng-model="surveysearch.vesselid")
+                option(value="") --- select one ---
+                option(ng-repeat="vessel in data.vessels", value="{{vessel.vesselId}}"){{vessel.displayName}}
+        .form-group.col-md-6
+            label.control-label Survey Number:
+            input.form-control(type="text", ng-model="surveysearch.surveynumber")
+        .form-group.col-md-6
+            label.control-label Code:
+            input.form-control(type="text", ng-model="surveysearch.code")
+        .form-group.col-md-6
+            label.control-label Date:
+            input.form-control(type="date", ng-model="surveysearch.date")
+        .form-group.col-md-12
             input(type="submit", ng-click="search()", value="Search")
-    .ng-cloak(ng-show="gotresults")
-        legend Results
-        .ag-fresh(ag-grid="surveyGridOptions", style="height: 400px;")
+    .form-row
+        .ng-cloak(ng-show="gotresults")
+            legend Results
+            .ag-fresh(ag-grid="surveyGridOptions", style="height: 400px;")
 script(src="javascript/controllers/survey_search.js")

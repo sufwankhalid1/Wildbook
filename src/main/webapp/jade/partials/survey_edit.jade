@@ -1,52 +1,44 @@
-form.form.form-horizontal.ng-cloak(novalidate, ng-controller="SurveyEditController")
-    legend Edit Survey
-    .container-fluid
-        .row
-            fieldset
-                legend Survey
-                .col-md-4
-                    .form-group
-                        label.control-label Organization:
-                        select.form-control(ng-options="org.displayName for org in config.orgs track by org.orgId"
-                                            ng-model="survey.organization", ng-change="orgChange()")
-                            option(value="") --- select one ---
-                .col-md-4
-                    .form-group
-                        label.control-label Survey Number:
-                        input.form-control(type="text", ng-model="survey.surveyNumber")
-        .row(ng-repeat="track in survey.tracks")
-            fieldset
-                legend Track
-                .row
-                    .col-md-4
-                        .form-group
-                            label.control-label Vessel:
-                            select.form-control(ng-options="vessel.displayName for vessel in data.vessels track by vessel.vesselId"
-                                                ng-model="track.vessel")
-                                option(value="") --- select one ---
-                    .col-md-4
-                        .form-group
-                            label.control-label Code:
-                            input.form-control(type="text", ng-model="track.code")
-                .row
-                    .col-md-4
-                        .form-group
-                            label.control-label Date:
-                            date-input.form-control(ng-model="track.partDate")
-                    .col-md-4
-                        .form-group
-                            label.control-label Start Time:
-                            time-input.form-control(ng-model="track.starttime")
-                    .col-md-4
-                        .form-group
-                            label.control-label End Time:
-                            time-input.form-control(ng-model="track.endtime")
-                .row
-                    location-edit(location="track.location")
-                .row
-                    .form-group
-                        label.control-label Comments:
-                        input.form-control(type="textarea", rows="4", ng-model="track.comments")
-
-    input(type="submit", ng-click="save()", value="Save")
+form.form.ng-cloak(novalidate, ng-controller="SurveyEditController")
+    .form-row
+        legend.form-group Edit Survey
+    .form-row
+        fieldset
+            legend.form-group Survey
+            .form-group.col-md-6
+                label.control-label Organization:
+                select.form-control(ng-options="org.displayName for org in config.orgs track by org.orgId"
+                                    ng-model="survey.organization", ng-change="orgChange()")
+                    option(value="") --- select one ---
+            .form-group.col-md-6
+                label.control-label Survey Number:
+                input.form-control(type="text", ng-model="survey.surveyNumber")
+    .form-row(ng-repeat="track in survey.tracks")
+        fieldset
+            legend.form-group Track
+            .form-group.col-md-6
+                label.control-label Vessel:
+                select.form-control(ng-options="vessel.displayName for vessel in data.vessels track by vessel.vesselId"
+                                    ng-model="track.vessel")
+                    option(value="") --- select one ---
+            .form-group.col-md-6
+                label.control-label Code:
+                input.form-control(type="text", ng-model="track.code")
+            .form-group.col-md-4
+                label.control-label Date:
+                date-input.form-control(ng-model="track.partDate")
+            .form-group.col-md-4
+                label.control-label Start Time:
+                time-input.form-control(ng-model="track.starttime", ng-disabled="true")
+            .form-group.col-md-4
+                label.control-label End Time:
+                time-input.form-control(ng-model="track.endtime", ng-disabled="true")
+    .form-row
+        fieldset(location="track.location", location-edit)
+    .form-row
+        fieldset
+            .form-group.col-md-12
+                label.control-label Comments:
+                input.form-control(type="textarea", rows="4", ng-model="track.comments")
+    .form-row
+        input(type="submit", ng-click="save()", value="Save")
 script(src="javascript/controllers/survey_edit.js")

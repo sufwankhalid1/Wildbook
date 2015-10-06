@@ -1,5 +1,5 @@
 wildbook.app.directive('locationEdit', function() {
-    return {restrict: 'E',
+    return {restrict: 'A',
         scope: {
             location: '='
         },
