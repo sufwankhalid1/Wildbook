@@ -36,11 +36,11 @@ form.form.form-horizontal.ng-cloak(novalidate, ng-controller="SurveyEditControll
                     .col-md-4
                         .form-group
                             label.control-label Start Time:
-                            time-input.form-control(ng-model="track.starttime", ng-disabled="true")
+                            time-input.form-control(ng-model="track.starttime")
                     .col-md-4
                         .form-group
                             label.control-label End Time:
-                            time-input.form-control(ng-model="track.endtime", ng-disabled="true")
+                            time-input.form-control(ng-model="track.endtime")
                 .row
                     location-edit(location="track.location")
                 .row
