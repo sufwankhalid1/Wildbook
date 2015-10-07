@@ -94,7 +94,7 @@ wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q
             $scope.submission = submission;
             $scope.photos = results[0].data;
 
-            $scope.encounters = results[1].encounters;
+            $scope.encounters = results[1].encounters || [];
         }, $exceptionHandler);
     }
 

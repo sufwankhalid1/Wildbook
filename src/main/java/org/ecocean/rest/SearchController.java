@@ -1,5 +1,6 @@
 package org.ecocean.rest;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,16 +43,13 @@ public class SearchController
             return individuals;
         }
 
-        String searchTerm = "%" + term.toLowerCase() + "%";
-
         RecordSet rs;
         SqlStatement sql = EncounterFactory.getIndividualStatement();
 
+        SqlTable table = sql.findTable(EncounterFactory.ALIAS_INDIVIDUALS);
         GroupedSqlCondition cond = GroupedSqlCondition.orGroup();
-        cond.addCondition(sql.findTable("i"), "alternateid", SqlRelationType.LIKE, searchTerm)
-            .setFunction("lower");
-        cond.addCondition(sql.findTable("i"), "nickname", SqlRelationType.LIKE, searchTerm)
-            .setFunction("lower");
+        cond.addContainsCondition(table, "alternateid", term);
+        cond.addContainsCondition(table, "nickname", term);
         sql.addCondition(cond);
 
         rs = db.getRecordSet(sql);
@@ -113,18 +111,16 @@ public class SearchController
 
     @RequestMapping(value = "/encounter", method = RequestMethod.GET)
     public List<SimpleEncounter> searchEncounter(final HttpServletRequest request,
-                                                 @RequestParam
-                                                 final String encdate,
-                                                 @RequestParam
-                                                 final String individualid) throws DatabaseException
+                                                 final EncounterSearch search) throws DatabaseException
     {
         SqlStatement sql = EncounterFactory.getEncounterStatement();
 
-        if (! StringUtils.isBlank(encdate)) {
-            sql.addCondition("e", "encdate", SqlRelationType.EQUAL, encdate);
+        if (search.encdate != null) {
+            sql.addCondition(EncounterFactory.ALIAS_ENCOUNTERS, "encdate", SqlRelationType.EQUAL, search.encdate.toString());
         }
-        if (! StringUtils.isBlank(individualid)) {
-            sql.addCondition("i", "individualid", SqlRelationType.EQUAL, individualid);
+
+        if (! StringUtils.isBlank(search.locationid)) {
+            sql.addContainsCondition(EncounterFactory.ALIAS_ENCOUNTERS, "locationid", search.locationid);
         }
 
         try (Database db = ServletUtilities.getDb(request)) {
@@ -199,6 +195,25 @@ public class SearchController
         public String species;
         public String speciesdisplay;
         public String avatar;
+    }
+
+    static class EncounterSearch
+    {
+        private LocalDate encdate;
+        private String locationid;
+
+        public LocalDate getEncdate() {
+            return encdate;
+        }
+        public void setEncdate(final LocalDate encdate) {
+            this.encdate = encdate;
+        }
+        public String getLocationid() {
+            return locationid;
+        }
+        public void setLocationid(final String locationid) {
+            this.locationid = locationid;
+        }
     }
 
     static class SurveySearch

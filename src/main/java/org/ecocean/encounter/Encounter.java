@@ -6,6 +6,7 @@ import java.time.OffsetTime;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.ecocean.Individual;
 import org.ecocean.Location;
+import org.ecocean.util.DateUtils;
 
 public class Encounter
 {
@@ -77,6 +78,10 @@ public class Encounter
 
     public void setLocation(final Location location) {
         this.location = location;
+    }
+
+    public String getFormattedTime() {
+        return DateUtils.format(encdate, starttime, endtime);
     }
 
     public SimpleEncounter toSimple() {

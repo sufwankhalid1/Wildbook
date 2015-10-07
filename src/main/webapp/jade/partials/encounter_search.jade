@@ -1,1 +1,17 @@
-TBD
+form.form.ng-cloak(novalidate, ng-controller="EncounterSearchController")
+    .form-row
+        legend.form-group Search Encounter
+    .form-row
+        .form-group.col-md-6
+            label.control-label Date:
+            input.form-control(type="date", ng-model="searchdata.encdate")
+        .form-group.col-md-6
+            label.control-label Location:
+            input.form-control(type="text", ng-model="searchdata.locationid")
+        .form-group.col-md-12
+            input(type="submit", ng-click="search()", value="Search")
+    .form-row
+        .ng-cloak(ng-show="gotresults")
+            legend Results
+            .ag-fresh(ag-grid="gridOptions", style="height: 400px;")
+script(src="javascript/controllers/encounter_search.js")
