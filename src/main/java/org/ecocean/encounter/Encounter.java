@@ -4,10 +4,10 @@ import java.time.LocalDate;
 import java.time.OffsetTime;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.ecocean.Individual;
 import org.ecocean.Location;
-import org.ecocean.rest.SimpleIndividual;
 
-public class SimpleEncounter
+public class Encounter
 {
     private Integer id;
 
@@ -17,15 +17,15 @@ public class SimpleEncounter
 
     private Location location;
 
-    private SimpleIndividual individual;
+    private Individual individual;
 
-    public SimpleEncounter()
+    public Encounter()
     {
-        // for deserialization
+        // deserialization
     }
 
-    public SimpleEncounter(final Integer id,
-                           final LocalDate encdate)
+    public Encounter(final Integer id,
+                     final LocalDate encdate)
     {
         this.id = id;
         this.encdate = encdate;
@@ -47,11 +47,11 @@ public class SimpleEncounter
         this.encdate = encdate;
     }
 
-    public SimpleIndividual getIndividual() {
+    public Individual getIndividual() {
         return individual;
     }
 
-    public void setIndividual(final SimpleIndividual individual) {
+    public void setIndividual(final Individual individual) {
         this.individual = individual;
     }
 
@@ -77,6 +77,16 @@ public class SimpleEncounter
 
     public void setLocation(final Location location) {
         this.location = location;
+    }
+
+    public SimpleEncounter toSimple() {
+        SimpleEncounter simple = new SimpleEncounter(id, encdate);
+        simple.setStarttime(starttime);
+        simple.setEndtime(endtime);
+        simple.setIndividual(individual.toSimple());
+        simple.setLocation(location);
+
+        return simple;
     }
 
     @Override
