@@ -3,8 +3,11 @@ package org.ecocean.rest;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.ecocean.Species;
 
 public class SimpleUser implements SimpleBeing {
+    private static final Species homo_sapien = new Species("homo_sapien", "Homo Sapien");
+
     private Integer id;
     private String username;
     private String fullName;
@@ -90,8 +93,8 @@ public class SimpleUser implements SimpleBeing {
     }
 
     @Override
-    public String getSpecies() {
-        return "human";
+    public Species getSpecies() {
+        return homo_sapien;
     }
 
 

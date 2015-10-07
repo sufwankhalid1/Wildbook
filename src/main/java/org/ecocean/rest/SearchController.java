@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.ecocean.Species;
 import org.ecocean.encounter.EncounterFactory;
 import org.ecocean.encounter.SimpleEncounter;
 import org.ecocean.security.UserFactory;
@@ -17,6 +18,7 @@ import org.ecocean.survey.SurveyPartObj;
 import org.ecocean.util.LogBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -79,7 +81,6 @@ public class SearchController
                 result.value = String.valueOf(individual.getId());
                 result.type = "individual";
                 result.species = individual.getSpecies();
-                result.speciesdisplay = individual.getSpeciesDisplayName();
                 result.avatar = individual.getAvatar();
                 results.add(result);
             }
@@ -109,9 +110,9 @@ public class SearchController
     }
 
 
-    @RequestMapping(value = "/encounter", method = RequestMethod.GET)
+    @RequestMapping(value = "/encounter", method = RequestMethod.POST)
     public List<SimpleEncounter> searchEncounter(final HttpServletRequest request,
-                                                 final EncounterSearch search) throws DatabaseException
+                                                 @RequestBody final EncounterSearch search) throws DatabaseException
     {
         SqlStatement sql = EncounterFactory.getEncounterStatement();
 
@@ -146,9 +147,9 @@ public class SearchController
     }
 
 
-    @RequestMapping(value = "/survey", method = RequestMethod.GET)
+    @RequestMapping(value = "/survey", method = RequestMethod.POST)
     public List<SurveyPartObj> searchSurvey(final HttpServletRequest request,
-                                            final SurveySearch search) throws DatabaseException
+                                            @RequestBody final SurveySearch search) throws DatabaseException
     {
         if (logger.isDebugEnabled()) {
             logger.debug(LogBuilder.quickLog("search", ToStringBuilder.reflectionToString(search)));
@@ -186,13 +187,12 @@ public class SearchController
         }
     }
 
-
     static class SiteSearchResult
     {
         public String label;
         public String value;
         public String type;
-        public String species;
+        public Species species;
         public String speciesdisplay;
         public String avatar;
     }

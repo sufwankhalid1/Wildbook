@@ -1,14 +1,13 @@
 package org.ecocean;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.text.WordUtils;
 import org.ecocean.rest.SimpleIndividual;
 
 
 public class Individual {
     private Integer id;
     private String alternateId;
-    private String species;
+    private Species species;
     private String nickname;
     private String sex;
     private Integer avatarid;
@@ -58,7 +57,7 @@ public class Individual {
         this.nickname = nickname;
     }
 
-    public void setSpecies(final String species) {
+    public void setSpecies(final Species species) {
         this.species = species;
     }
 
@@ -74,16 +73,8 @@ public class Individual {
         this.avatar = avatar;
     }
 
-    public String getSpecies() {
+    public Species getSpecies() {
         return species;
-    }
-
-    public String getSpeciesDisplayName() {
-        if (StringUtils.isBlank(species)) {
-            return "Individual";
-        }
-
-        return WordUtils.capitalize(species.replace("_", " "));
     }
 
     public String getAlternateId() {

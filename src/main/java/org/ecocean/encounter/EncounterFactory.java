@@ -3,6 +3,7 @@ package org.ecocean.encounter;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.ecocean.Global;
 import org.ecocean.Individual;
 import org.ecocean.LocationFactory;
 import org.ecocean.media.MediaAsset;
@@ -83,7 +84,7 @@ public class EncounterFactory {
 
         SimpleIndividual ind = new SimpleIndividual(indid, rs.getString("nickname"));
         ind.setSex(rs.getString("sex"));
-        ind.setSpecies(rs.getString("species"));
+        ind.setSpecies(Global.INST.getSpecies(rs.getString("species")));
         ind.setAlternateId(rs.getString("alternateid"));
 
         SimplePhoto photo = MediaAssetFactory.readPhoto(rs);
@@ -103,7 +104,7 @@ public class EncounterFactory {
 
         Individual ind = new Individual(indid, rs.getString("nickname"));
         ind.setSex(rs.getString("sex"));
-        ind.setSpecies(rs.getString("species"));
+        ind.setSpecies(Global.INST.getSpecies(rs.getString("species")));
         ind.setAlternateId(rs.getString("alternateid"));
 
         MediaAsset ma = MediaAssetFactory.valueOf(rs);
@@ -238,7 +239,11 @@ public class EncounterFactory {
 
     private static void fillIndividualFormatter(final SqlFormatter formatter, final Individual individual) {
         formatter.append("alternateId", individual.getAlternateId());
-        formatter.append("species", individual.getSpecies());
+        if (individual.getSpecies() == null) {
+            formatter.appendNull("species");
+        } else {
+            formatter.append("species", individual.getSpecies().getCode());
+        }
         formatter.append("nickname", individual.getNickname());
         formatter.append("sex", individual.getSex());
         formatter.append("avatarid", individual.getAvatarid());

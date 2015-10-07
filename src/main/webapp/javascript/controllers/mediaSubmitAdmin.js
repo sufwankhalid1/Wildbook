@@ -44,8 +44,8 @@ wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q
         //
         // TODO: Should this broadcast the encounter to the form?
         //
-        $scope.encounter = {individual: {species: $scope.config.species[0].code}};
-        $scope.showPanel('encounter_edit');
+        this.encounter = {individual: {species: this.main.config.species[0].code}};
+        this.showPanel('encounter_edit');
     }
 
 //    $scope.editEncounter = function(encounter) {

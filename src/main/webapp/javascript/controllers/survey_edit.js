@@ -19,7 +19,7 @@ wildbook.app.controller("SurveyEditController", function($scope, $http, $excepti
             return;
         }
 
-        $scope.getVessels(org)
+        $scope.main.getVessels(org)
         .then(function(vessels) {
             $scope.data.vessels = vessels;
         });

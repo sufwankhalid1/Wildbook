@@ -26,7 +26,8 @@ public enum Global {
     private ResourceReader appResources;
 
     private Emailer emailer;
-    private List<Species> species = new ArrayList<Species>();
+    private Map<String, Species> species = new HashMap<>();
+    private List<Species> speciesList;
 
     public void init(final ResourceReader resources) {
         appResources = resources;
@@ -41,9 +42,13 @@ public enum Global {
             AssetStore.init(AssetStoreFactory.getStores(db));
 
             db.getTable("species").select((rs) -> {
-                species.add(new Species(rs.getString("code"), rs.getString("name")));
+                String code = rs.getString("code");
+                species.put(code, new Species(code, rs.getString("name")));
             });
-
+            speciesList = new ArrayList<Species>(species.values());
+            speciesList.sort((s1, s2) -> {
+                return s1.getName().compareTo(s2.getName());
+            });
         } catch (Throwable ex) {
             logger.error("Trouble initializing the app.", ex);
         }
@@ -101,6 +106,10 @@ public enum Global {
     }
 
     public List<Species> getSpecies() {
-        return species;
+        return speciesList;
+    }
+
+    public Species getSpecies(final String code) {
+        return species.get(code);
     }
 }

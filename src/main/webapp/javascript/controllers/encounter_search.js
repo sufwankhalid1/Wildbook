@@ -2,7 +2,7 @@ wildbook.app.controller("EncounterSearchController", function($scope, $http, $ex
     $scope.searchdata = {};
 
     $scope.search = function() {
-        $http({url: "search/encounter", params: $scope.searchdata})
+        $http.post("search/encounter", $scope.searchdata)
         .then(function(result) {
             $scope.gotresults = true;
             $scope.gridOptions.api.setRowData(result.data);

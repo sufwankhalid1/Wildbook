@@ -6,7 +6,7 @@ form.form.ng-cloak(novalidate, ng-controller="EncounterEditController")
             label.control-label Individual:
             label(ng-show="encounter.individual.id") {{encounter.individual.displayName}}
             select.form-control(ng-shaw="!encounter.individual.id"
-                                ng-options="species.name for species in config.species track by species.code"
+                                ng-options="species.name for species in main.config.species track by species.code"
                                 ng-model="encounter.individual.species")
     .form-row
         fieldset(location="encounter.location", location-edit)

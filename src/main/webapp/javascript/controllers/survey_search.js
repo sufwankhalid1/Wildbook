@@ -18,14 +18,14 @@ wildbook.app.controller("SurveySearchController", function($scope, $http, $excep
 
         $scope.surveysearch.orgid = org.orgId;
 
-        $scope.getVessels(org)
+        $scope.main.getVessels(org)
         .then(function(vessels) {
             $scope.data.vessels = vessels;
         });
     }
 
     $scope.search = function() {
-        $http({url: "search/survey", params: $scope.surveysearch})
+        $http.post("search/survey", $scope.surveysearch)
         .then(function(result) {
             $scope.gotresults = true;
             $scope.surveyGridOptions.api.setRowData(result.data);

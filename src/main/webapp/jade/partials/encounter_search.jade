@@ -4,7 +4,7 @@ form.form.ng-cloak(novalidate, ng-controller="EncounterSearchController")
     .form-row
         .form-group.col-md-6
             label.control-label Date:
-            input.form-control(type="date", ng-model="searchdata.encdate")
+            date-input.form-control(ng-model="searchdata.encdate")
         .form-group.col-md-6
             label.control-label Location:
             input.form-control(type="text", ng-model="searchdata.locationid")

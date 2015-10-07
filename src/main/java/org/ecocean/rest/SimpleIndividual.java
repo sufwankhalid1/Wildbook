@@ -1,15 +1,14 @@
 package org.ecocean.rest;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.text.WordUtils;
 import org.ecocean.Individual;
+import org.ecocean.Species;
 
 
 public class SimpleIndividual implements SimpleBeing
 {
     private Integer id;
     private String alternateId;
-    private String species;
+    private Species species;
     private String nickname;
     private String sex;
     private String avatar;
@@ -56,7 +55,7 @@ public class SimpleIndividual implements SimpleBeing
     }
 
 
-    public void setSpecies(final String species) {
+    public void setSpecies(final Species species) {
         this.species = species;
     }
 
@@ -77,16 +76,8 @@ public class SimpleIndividual implements SimpleBeing
     }
 
     @Override
-    public String getSpecies() {
+    public Species getSpecies() {
         return species;
-    }
-
-    public String getSpeciesDisplayName() {
-        if (StringUtils.isBlank(species)) {
-            return "Individual";
-        }
-
-        return WordUtils.capitalize(species.replace("_", " "));
     }
 
     public String getAlternateId() {

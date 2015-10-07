@@ -10,15 +10,13 @@ wildbook.app.factory('$exceptionHandler', function() {
 });
 
 wildbook.app.controller("MainController", function($scope, $http, $q, $exceptionHandler) {
-    $scope.config = null;
-
-    $scope.getVessels = function(org) {
+    function getVessels(orgs, org) {
         //
         // Let's find our master organization so that we can add the vessels to
         // it and thus cache the results for future occerences of the user picking
         // this organization again in the list.
         //
-        var orgfilter = $scope.config.orgs.filter(function(value) {
+        var orgfilter = orgs.filter(function(value) {
             return (value.orgId == org.orgId);
         });
 
@@ -35,18 +33,40 @@ wildbook.app.controller("MainController", function($scope, $http, $q, $exception
 
         if (orgmaster.vessels) {
             return $q.resolve(orgmaster.vessels);
-        } else {
-            return $http({url: "obj/survey/vessels/get", params: {orgid: org.orgId}})
-            .then(function(results) {
-                orgmaster.vessels = results.data;
-                return results.data;
-            });
         }
-    };
 
+        return $http({url: "obj/survey/vessels/get", params: {orgid: org.orgId}})
+        .then(function(results) {
+            //
+            // Set it here so that next time we ask for this org's vessels we
+            // get the cached values.
+            //
+            orgmaster.vessels = results.data;
+            return results.data;
+        });
+    }
+
+    $scope.main = {config: null,
+                   getVessels: function(org) {
+                       return getVessels(this.config.orgs, org);
+                   },
+                   dateToRest: function(date) {
+                       if (! date) {
+                           return null;
+                       }
+                       var mdate = moment(date);
+                       //
+                       // For some reason the month is zero-based and nothing else is. Sigh.
+                       //
+                       return [mdate.year(), mdate.month() + 1, mdate.date()];
+                   }};
+
+    //
+    // Initialize app by returning the promise used to kick us off.
+    //
     return $http({url:"util/init"})
     .then(function(result) {
-        $scope.config = result.data;
+        $scope.main.config = result.data;
     }, $exceptionHandler);
 });
 
@@ -75,15 +95,7 @@ wildbook.app.directive(
                     });
 
                     ngModelCtrl.$parsers.push(function(viewValue) {
-                        if (! viewValue) {
-                            return null;
-                        }
-
-                        var mdate = moment(viewValue);
-                        //
-                        // For some reason the month is zero-based and nothing else is. Sigh.
-                        //
-                        return [mdate.year(), mdate.month() + 1, mdate.date()];
+                        return scope.main.dateToRest(viewValue);
                     });
                 },
             };
