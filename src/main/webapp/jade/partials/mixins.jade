@@ -1,4 +1,0 @@
-mixin encounter_listitems(encounters)
-    .list-group
-        a.list-group-item(href="javascript;:", ng-repeat="encounter in encounters", ng-click="editEncounter(encounter)")
-            span {{encounter.individual.displayName}} - {{encounter.encdate}}

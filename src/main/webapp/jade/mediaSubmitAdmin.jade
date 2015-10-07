@@ -36,14 +36,19 @@ block content
                             .list-group
                                 a.list-group-item(href="javascript;:", ng-repeat="survey in surveys", ng-click="todo_maybe()")
                                     span {{survey.organization.displayName}} - {{survey.surveyNumber}}
-                                    +encounter_listitems(survey.encounters)
+                                    .list-group
+                                        a.list-group-item(href="javascript;:", ng-repeat="encounter in survey.encounters", ng-click="editEncounter(encounter)")
+                                            span {{encounter.individual.displayName}} - {{encounter.encdate}}
                         div.media-admin-nav
                             span.media-admin-nav-label Encounters
                             a(href="javascript:;", ng-click="showPanel('encounter_search')", title="Search for an Encounter", data-toggle="tooltip")
                                 i.glyphicon.glyphicon-search
                             a(href="javascript:;", ng-click="showPanel('encounter_edit')", title="Add a new Encounter for this Submission", data-toggle="tooltip")
                                 i.glyphicon.glyphicon-plus
-                            +encounter_listitems(encounters)
+                            .list-group
+                                a.list-group-item(href="javascript;:", ng-repeat="encounter in encounters", ng-click="editEncounter(encounter)")
+                                    span {{encounter.individual.displayName}} - {{encounter.encdate}}
+                            
                     .col-md-10
                         .container-fluid
                             .row
