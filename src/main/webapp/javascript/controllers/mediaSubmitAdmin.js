@@ -177,6 +177,8 @@ wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q
     return $http({url:"obj/mediasubmission/get/status"})
     .then(function(result) {
         $scope.msGridOptions.api.setRowData(result.data);
+        // When everything is ready, initialize tooltips on the page
+        $('[data-toggle="tooltip"]').tooltip();
     }, $exceptionHandler);
 });
 

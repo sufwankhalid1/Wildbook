@@ -15,20 +15,23 @@ block content
             .container-fluid
                 .row
                     .col-md-12
-                        h3 Edit Media Submission
-                        span.media-admin-edit-icon
-                            button.btn.btn-primary(ng-click="doneEditing()")
-                                i.glyphicon.glyphicon-check
-                        span.media-admin-edit-icon
-                            button.btn.btn-danger(ng-click="deleteSubmission()")
-                                i.glyphicon.glyphicon-trash
+                        .row
+                            .col-md-8.col-sm-6
+                                h3 Edit Media Submission
+                            .col-md-4.col-sm-6
+                                span.media-admin-edit-icon
+                                    button.btn.btn-primary(ng-click="doneEditing()", title="Done Editing", data-toggle="tooltip")
+                                        i.glyphicon.glyphicon-check
+                                span.media-admin-edit-icon
+                                    button.btn.btn-danger(ng-click="deleteSubmission()", title="Delete Submission", data-toggle="tooltip")
+                                        i.glyphicon.glyphicon-trash
                 .row
                     .col-md-2
                         div.media-admin-nav
                             span.media-admin-nav-label Surveys
-                            a(href="javascript:;", ng-click="showPanel('survey_search')")
+                            a(href="javascript:;", ng-click="showPanel('survey_search')", title="Search for a Survey", data-toggle="tooltip")
                                 i.glyphicon.glyphicon-search
-                            a(href="javascript:;", ng-click="showPanel('survey_edit')")
+                            a(href="javascript:;", ng-click="showPanel('survey_edit')", title="Add a new Survery to this Submission", data-toggle="tooltip")
                                 i.glyphicon.glyphicon-plus
                             .list-group
                                 a.list-group-item(href="javascript;:", ng-repeat="survey in surveys", ng-click="todo_maybe()")
@@ -36,9 +39,9 @@ block content
                                     +encounter_listitems(survey.encounters)
                         div.media-admin-nav
                             span.media-admin-nav-label Encounters
-                            a(href="javascript:;", ng-click="showPanel('encounter_search')")
+                            a(href="javascript:;", ng-click="showPanel('encounter_search')", title="Search for an Encounter", data-toggle="tooltip")
                                 i.glyphicon.glyphicon-search
-                            a(href="javascript:;", ng-click="showPanel('encounter_edit')")
+                            a(href="javascript:;", ng-click="showPanel('encounter_edit')", title="Add a new Encounter for this Submission", data-toggle="tooltip")
                                 i.glyphicon.glyphicon-plus
                             +encounter_listitems(encounters)
                     .col-md-10

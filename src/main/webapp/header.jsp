@@ -54,12 +54,11 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
         <meta name="Author" content="<%=CommonConfiguration.getHTMLAuthor(context) %>"/>
         <link rel="shortcut icon"
               href="<%=CommonConfiguration.getHTMLShortcutIcon(context) %>"/>
-              
         <link rel="stylesheet" href='http://fonts.googleapis.com/css?family=Oswald:400,300,700' type='text/css'/>
-        <link rel="stylesheet" href="<%=urlLoc%>/css/wildbook.css" />
         <link rel="stylesheet" href="<%=urlLoc%>/bcomponents/jquery-ui/jquery-ui.min.css" type="text/css"/>
         <link rel="stylesheet" href="<%=urlLoc%>/bcomponents/jquery-ui/theme.css" type="text/css" />
         <link rel="stylesheet" href="<%=urlLoc%>/tools/alertplus/css/alertplus.css">
+        <link rel="stylesheet" href="<%=urlLoc%>/css/wildbook.css" />
 
         <script src="<%=urlLoc%>/bcomponents/jquery/jquery.min.js"></script>
         <script src="<%=urlLoc%>/tools/bootstrap/js/bootstrap.min.js"></script>
