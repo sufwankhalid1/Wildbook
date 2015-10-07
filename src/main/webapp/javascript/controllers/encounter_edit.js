@@ -1,4 +1,4 @@
-wildbook.app.controller("EncounterEditController", function($scope, $exceptionHandler) {
+wildbook.app.controller("EncounterEditController", function($scope, $http, $exceptionHandler) {
     //
     // Empty encounter for when creating a new encounter.
     //

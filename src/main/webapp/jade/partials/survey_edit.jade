@@ -28,10 +28,10 @@ form.form.ng-cloak(novalidate, ng-controller="SurveyEditController")
                 date-input.form-control(ng-model="track.partDate")
             .form-group.col-md-4
                 label.control-label Start Time:
-                time-input.form-control(ng-model="track.starttime", ng-disabled="true")
+                time-input.form-control(ng-model="track.starttime")
             .form-group.col-md-4
                 label.control-label End Time:
-                time-input.form-control(ng-model="track.endtime", ng-disabled="true")
+                time-input.form-control(ng-model="track.endtime")
     .form-row
         fieldset(location="track.location", location-edit)
     .form-row
