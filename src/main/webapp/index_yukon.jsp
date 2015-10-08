@@ -15,14 +15,23 @@ String context=ServletUtilities.getContext(request);
 Shepherd littleShepherd=new Shepherd(context);
 littleShepherd.beginDBTransaction();
 %>
+<style>
+h1 {
+ 	background: -webkit-linear-gradient(transparent, transparent),
+             url(cust/oceansanctuaries/img/hero_yukon.jpg) repeat;
+ 	
+	}
+.hero, .data-section {
+    background-image: url("cust/oceansanctuaries/img/hero_yukon.jpg");
+}
+</style>
 
 
 <section class="hero container-fluid main-section relative">
     <div class="container relative">
         <div class="col-xs-12 col-sm-10 col-md-8 col-lg-6">
-            <h1 class="hidden">Wildbook</h1>
-            <h2>Wildbook helps you study, <br/> identify and protect wildlife populations!</h2>
-            <!--
+           <h1 class="hidden">Wreck of the Yukon</h1>
+            <h2>Wreck of the Yukon<br/> <i>Help us identify and protect the species that call it home!</i></h2> <!--
             <button id="watch-movie" class="large light">
 				Watch the movie 
 				<span class="button-icon" aria-hidden="true">

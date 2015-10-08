@@ -15,7 +15,15 @@ String context=ServletUtilities.getContext(request);
 Shepherd littleShepherd=new Shepherd(context);
 littleShepherd.beginDBTransaction();
 %>
-
+<style>
+h1 {
+ 	background: -webkit-linear-gradient(transparent, transparent),
+             url(cust/oceansanctuaries/img/hero_sevengill.jpg) repeat;
+	}
+.hero, .data-section {
+    background-image: url("cust/oceansanctuaries/img/hero_sevengill.jpg");
+}
+</style>
 
 <section class="hero container-fluid main-section relative">
     <div class="container relative">
