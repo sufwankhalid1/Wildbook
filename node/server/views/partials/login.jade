@@ -21,8 +21,9 @@ div.login-modal.ng-cloak(ng-show="showlogin && !user")
                         h1!= t('login.resetFormTitle')
                         div.form-group
                             label(for="reset-email")!= t('login.labelUsername')
-                            input#reset-email.reset-email.form-control(ng-model="resetForm.email", required="required", focus-me="$parent.showlogin && reset.on", ng-keyup="sendreset($event)")
-                            p.help-block!= t('login.resetHelper')
+                            input#reset-email.reset-email.form-control(type="email", ng-model="resetForm.email", required="required", focus-me="$parent.showlogin && reset.on", ng-keyup="sendreset($event)")
+                            p.help-block(ng-hide="reset.error")!= t('login.resetHelper')
+                            p.help-block {{ reset.error }}
                         div.form-group
                             button.btn.btn-medium.btn-warning(ng-click="sendreset()", ng-class="resetValidClass()")!= t('login.resetButton')
                     div(ng-show="$parent.showlogin && reset.sent")

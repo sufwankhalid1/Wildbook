@@ -176,10 +176,10 @@ angular.module('nodeApp.controllers', ['nodeApp.config'])
         username: null,
         password: null,
         error: null
-    }
+    };
     $scope.resetForm = {
         email: null
-    }
+    };
     $scope.reset = {
         on: false,
         sent: false
@@ -201,8 +201,17 @@ angular.module('nodeApp.controllers', ['nodeApp.config'])
         .then(function(res) {
             $scope.$parent.user = res.data;
             $scope.$parent.showlogin = false;
-        }, function() {
-            $scope.loginForm.error = "Invalid Username or Password.";
+        }, function(err) {
+            var message = "Invalid Username or Password.";
+            if(err.data.message) {
+                if(err.data.message.indexOf('username') > 0) {
+                    message = 'We do not have an account for email ' + $scope.loginForm.username + '. To create an account, please submit media.';
+                }
+                if(err.data.message.indexOf('credentials') > 0) {
+                    message = "Please retype your password.";
+                }
+            }
+            $scope.loginForm.error = message;
         });
     };
     $scope.sendreset = function(event) {
@@ -215,6 +224,10 @@ angular.module('nodeApp.controllers', ['nodeApp.config'])
         .then(function() {
             $scope.reset.on = false;
             $scope.reset.sent = true;
+        }, function(err){
+            if(err.data.message) {
+                $scope.reset.error = "The email address doesn't exist. To create an account please upload some images.";
+            }
         });
     }
     $scope.loginValidClass = function() {
@@ -239,6 +252,8 @@ angular.module('nodeApp.controllers', ['nodeApp.config'])
         $scope.loginForm.username = data.username;
         $scope.reset.on = false;
         $scope.reset.sent = false;
+        $scope.loginForm.error = '';
+        $scope.reset.error = '';
     });
 }])
 .controller("IndividualController", ['$scope', '$http', 'configFactory', function(scope, http, config) {
