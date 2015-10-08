@@ -6,13 +6,19 @@ wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q
 
     $scope.panels = {};
 
-//    $scope.viewImage = function(url) {
-//        $scope.zoomimage = url;
-//        $scope.encounter = null;
-//    }
-
     function deleteRows(gridOptions, filter) {
         gridOptions.api.setRowData(gridOptions.rowData.filter(filter));
+    }
+
+    function attachEncounter(survey) {
+        if (! $scope.survey) {
+            $scope.encounters.push(encounter);
+            return;
+        }
+
+        // Call to add encounter to survey.
+        $scope.survey;
+        $http.post();
     }
 
     $scope.$on('survey_edit_done', function(event, survey) {
@@ -25,12 +31,12 @@ wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q
     });
 
     $scope.$on('encounter_edit_done', function(event, encounter) {
-        $scope.encounters.push(encounter);
+        attachEncounter();
     });
 
     $scope.$on('encounter_search_select', function(event, encounter) {
         $scope.panels["encounter_search"] = false;
-        $scope.encounters.push(encounter);
+        attachEncounter();
     });
 
     $scope.showPanel = function(panel, data) {
@@ -40,40 +46,22 @@ wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q
             } else {
                 $scope.$broadcast(value, false);
             }
-//            $scope.panels[value] = (panel == value);
         });
     };
 
-    $scope.addEncounter = function() {
-//        $scope.$broadcast('encounter_edit');
+    $scope.searchEncounter = function(survey) {
+        $scope.survey = survey;
+        this.showPanel('encounter_search');
+    }
+
+    $scope.addEncounter = function(survey) {
+        $scope.survey = survey;
         this.showPanel('encounter_edit');
     }
 
     $scope.addSurvey = function() {
-//        $scope.$broadcast('survey_edit');
         this.showPanel('survey_edit');
     }
-
-//    $scope.editEncounter = function(encounter) {
-//        $scope.zoomimage = null;
-//        $scope.encounter = encounter;
-//    }
-//
-//    $scope.createEncounter = function() {
-//        //
-//        // TODO: Before willy-nilly creating an encounter from this data we should first
-//        // see if there are any other encounters for this individual, date, and location
-//        // and use this one instead.
-//        //
-//        var encounter = {
-//                verbatimLocation: $scope.submission.verbatimLocation,
-//                encdate: $scope.submission.startTime,
-//                latitude: $scope.submission.latitude,
-//                longitude: $scope.submission.longitude
-//                };
-//        $scope.encounters.push(encounter);
-//        editEncounter(encounter);
-//    }
 
     $scope.deleteImage = function(id) {
         return alertplus.confirm('Are you sure you want to delete this image?', "Delete Image", true)

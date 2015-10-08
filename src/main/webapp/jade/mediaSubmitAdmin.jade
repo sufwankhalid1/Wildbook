@@ -38,19 +38,25 @@ block content
                             .list-group
                                 a.list-group-item(href="javascript;:", ng-repeat="survey in surveys", ng-click="todo_maybe()")
                                     span {{survey.organization.displayName}} - {{survey.surveyNumber}}
+                                    a(href="javascript:;", ng-click="searchEncounter(survey)",
+                                      title="Search for an Encounter", data-toggle="tooltip")
+                                        i.glyphicon.glyphicon-search
+                                    a(href="javascript:;", ng-click="addEncounter(survey)",
+                                      title="Add a new Encounter for this Submission", data-toggle="tooltip")
                                     .list-group
                                         a.list-group-item(href="javascript;:", ng-repeat="encounter in survey.encounters", ng-click="editEncounter(encounter)")
                                             span {{encounter.individual.displayName}} - {{main.dateStringFromRest(encounter.encDate)}}
                         div.media-admin-nav
                             span.media-admin-nav-label Encounters
-                            a(href="javascript:;", ng-click="showPanel('encounter_search')", title="Search for an Encounter", data-toggle="tooltip")
+                            a(href="javascript:;", ng-click="searchEncounter()",
+                              title="Search for an Encounter", data-toggle="tooltip")
                                 i.glyphicon.glyphicon-search
-                            a(href="javascript:;", ng-click="addEncounter()", title="Add a new Encounter for this Submission", data-toggle="tooltip")
+                            a(href="javascript:;", ng-click="addEncounter()",
+                              title="Add a new Encounter for this Submission", data-toggle="tooltip")
                                 i.glyphicon.glyphicon-plus
                             .list-group
                                 a.list-group-item(href="javascript;:", ng-repeat="encounter in encounters", ng-click="editEncounter(encounter)")
                                     span {{encounter.individual.displayName}} - {{main.dateStringFromRest(encounter.encDate)}}
-                            
                     .col-md-10
                         .container-fluid
                             .row
