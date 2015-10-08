@@ -4,8 +4,6 @@ block adminScripts
     script(src="javascript/controllers/mediaSubmitAdmin.js")
 
 block content
-    include partials/mixins
-
     div(ng-controller="MediaSubmissionController")
         div(ng-show="!submission")
             h1 Media Submissions
