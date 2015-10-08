@@ -18,11 +18,13 @@ block content
                                 h3 Edit Media Submission
                             .col-md-4.col-sm-6
                                 span.media-admin-edit-icon
-                                    button.btn.btn-primary(ng-click="doneEditing()", title="Done Editing", data-toggle="tooltip")
+                                    button.btn.btn-primary(ng-click="doneEditing()")
                                         i.glyphicon.glyphicon-check
+                                        |  Save
                                 span.media-admin-edit-icon
-                                    button.btn.btn-danger(ng-click="deleteSubmission()", title="Delete Submission", data-toggle="tooltip")
+                                    button.btn.btn-danger(ng-click="deleteSubmission()")
                                         i.glyphicon.glyphicon-trash
+                                        |  Delete
                 .row
                     .col-md-2
                         div.media-admin-nav

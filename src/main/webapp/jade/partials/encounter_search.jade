@@ -13,5 +13,6 @@ form.form.ng-cloak(novalidate, ng-controller="EncounterSearchController", ng-sho
     .form-row
         .ng-cloak(ng-show="gotresults")
             legend Results
+            p.help-block Click a Survey to attach it to this Submission
             .ag-fresh(ag-grid="gridOptions", style="height: 400px;")
 script(src="javascript/controllers/encounter_search.js")
