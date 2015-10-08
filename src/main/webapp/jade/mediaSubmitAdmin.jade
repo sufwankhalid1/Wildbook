@@ -38,7 +38,7 @@ block content
                                     span {{survey.organization.displayName}} - {{survey.surveyNumber}}
                                     .list-group
                                         a.list-group-item(href="javascript;:", ng-repeat="encounter in survey.encounters", ng-click="editEncounter(encounter)")
-                                            span {{encounter.individual.displayName}} - {{encounter.encdate}}
+                                            span {{encounter.individual.displayName}} - {{main.dateStringFromRest(encounter.encDate)}}
                         div.media-admin-nav
                             span.media-admin-nav-label Encounters
                             a(href="javascript:;", ng-click="showPanel('encounter_search')", title="Search for an Encounter", data-toggle="tooltip")
@@ -47,7 +47,7 @@ block content
                                 i.glyphicon.glyphicon-plus
                             .list-group
                                 a.list-group-item(href="javascript;:", ng-repeat="encounter in encounters", ng-click="editEncounter(encounter)")
-                                    span {{encounter.individual.displayName}} - {{encounter.encdate}}
+                                    span {{encounter.individual.displayName}} - {{main.dateStringFromRest(encounter.encDate)}}
                             
                     .col-md-10
                         .container-fluid

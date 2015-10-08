@@ -46,6 +46,20 @@ wildbook.app.controller("MainController", function($scope, $http, $q, $exception
         });
     }
 
+    function restToMoment(rest) {
+        if (! rest) {
+            return null;
+        }
+
+        if (rest.constructor === Array) {
+            //
+            // For some reason the month is zero-based and nothing else is. Sigh.
+            //
+            return moment({year: rest[0], month: rest[1] - 1, date: rest[2]});
+        }
+        return null;
+    }
+
     $scope.main = {config: null,
                    getVessels: function(org) {
                        return getVessels(this.config.orgs, org);
@@ -59,6 +73,20 @@ wildbook.app.controller("MainController", function($scope, $http, $q, $exception
                        // For some reason the month is zero-based and nothing else is. Sigh.
                        //
                        return [mdate.year(), mdate.month() + 1, mdate.date()];
+                   },
+                   dateFromRest: function(rest) {
+                       var moment = restToMoment(rest);
+                       if (moment) {
+                           return moment.toDate();
+                       }
+                       return null;
+                   },
+                   dateStringFromRest: function(rest) {
+                       var moment = restToMoment(rest);
+                       if (moment) {
+                           return moment.format("YYYY-MM-DD");
+                       }
+                       return null;
                    }};
 
     //
@@ -79,19 +107,7 @@ wildbook.app.directive(
                 replace: true,
                 link: function(scope, elm, attrs, ngModelCtrl) {
                     ngModelCtrl.$formatters.push(function (modelValue) {
-                        if (! modelValue) {
-                            return null;
-                        }
-
-                        if (modelValue.constructor === Array) {
-                            //
-                            // For some reason the month is zero-based and nothing else is. Sigh.
-                            //
-                            return moment({year: modelValue[0],
-                                           month: modelValue[1] - 1,
-                                           date: modelValue[2]}).format();
-                        }
-                        return null;
+                        return scope.main.dateFromRest(modelValue);
                     });
 
                     ngModelCtrl.$parsers.push(function(viewValue) {
