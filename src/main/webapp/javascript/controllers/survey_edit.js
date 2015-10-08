@@ -1,9 +1,23 @@
 wildbook.app.controller("SurveyEditController", function($scope, $http, $exceptionHandler) {
+    var panelName = "survey_edit";
+    $scope.panelList.push(panelName);
+
     $scope.data = {};
-    //
-    // New empty survey with one empty track. This is for new surveys.
-    //
-    $scope.survey = {tracks: [{}]};
+
+    $scope.$on(panelName, function(event, data) {
+        if (typeof data === "boolean") {
+            $scope.panels[panelName] = false;
+            return;
+        }
+
+        $scope.panels[panelName] = true;
+        if (data) {
+            $scope.survey = data;
+        } else {
+            // create empty new survey
+            $scope.survey = {tracks: [{}]};
+        }
+    });
 
     $scope.orgChange = function() {
         //
@@ -28,7 +42,8 @@ wildbook.app.controller("SurveyEditController", function($scope, $http, $excepti
     $scope.save = function() {
         $http.post('obj/survey/save', $scope.survey)
         .then(function() {
-            $scope.$emit('survey_edit_done', $scope.survey);
+            $scope.panels[panelName] = false;
+            $scope.$emit(panelName + "_done", $scope.survey);
         }, $exceptionHandler);
     };
 });

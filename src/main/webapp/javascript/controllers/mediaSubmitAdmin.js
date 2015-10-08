@@ -1,9 +1,10 @@
 wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q, $compile, $exceptionHandler) {
-    var panels = ['survey_search', 'survey_edit', 'encounter_search', 'encounter_edit', 'encounter_view'];
+    $scope.panelList = [];
 
     $scope.encounters = [];
     $scope.surveys = [];
-    $scope.panel = {};
+
+    $scope.panels = {};
 
 //    $scope.viewImage = function(url) {
 //        $scope.zoomimage = url;
@@ -15,37 +16,42 @@ wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q
     }
 
     $scope.$on('survey_edit_done', function(event, survey) {
-        $scope.showPanel(null);
         $scope.surveys.push(survey);
     });
 
-    $scope.$on('survey_search_done', function(event, survey) {
-        $scope.showPanel(null);
+    $scope.$on('survey_search_select', function(event, survey) {
+        $scope.panels["survey_search"] = false;
         $scope.surveys.push(survey);
     });
 
     $scope.$on('encounter_edit_done', function(event, encounter) {
-        $scope.showPanel(null);
         $scope.encounters.push(encounter);
     });
 
-    $scope.$on('encounter_search_done', function(event, encounter) {
-        $scope.showPanel(null);
+    $scope.$on('encounter_search_select', function(event, encounter) {
+        $scope.panels["encounter_search"] = false;
         $scope.encounters.push(encounter);
     });
 
-    $scope.showPanel = function(panel) {
-        panels.forEach(function(value) {
-            $scope.panel[value] = (panel == value);
+    $scope.showPanel = function(panel, data) {
+        this.panelList.forEach(function(value) {
+            if (panel === value) {
+                $scope.$broadcast(value, data);
+            } else {
+                $scope.$broadcast(value, false);
+            }
+//            $scope.panels[value] = (panel == value);
         });
     };
 
     $scope.addEncounter = function() {
-        //
-        // TODO: Should this broadcast the encounter to the form?
-        //
-        this.encounter = {individual: {species: this.main.config.species[0].code}};
+//        $scope.$broadcast('encounter_edit');
         this.showPanel('encounter_edit');
+    }
+
+    $scope.addSurvey = function() {
+//        $scope.$broadcast('survey_edit');
+        this.showPanel('survey_edit');
     }
 
 //    $scope.editEncounter = function(encounter) {

@@ -1,4 +1,16 @@
 wildbook.app.controller("EncounterSearchController", function($scope, $http, $exceptionHandler) {
+    var panelName = "encounter_search";
+    $scope.panelList.push(panelName);
+
+    $scope.$on(panelName, function(event, data) {
+        if (typeof data === "boolean") {
+            $scope.panels[panelName] = false;
+            return;
+        }
+
+        $scope.panels[panelName] = true;
+    });
+
     $scope.searchdata = {};
 
     $scope.search = function() {
@@ -11,7 +23,7 @@ wildbook.app.controller("EncounterSearchController", function($scope, $http, $ex
     };
 
     function rowSelectedFunc(event) {
-        $scope.$emit('encounter_search_done', event.node.data);
+        $scope.$emit(panelName + "_select", event.node.data);
     }
 
     $scope.gridOptions = {

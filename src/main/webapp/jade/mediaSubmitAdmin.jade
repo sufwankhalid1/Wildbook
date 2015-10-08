@@ -29,9 +29,11 @@ block content
                     .col-md-2
                         div.media-admin-nav
                             span.media-admin-nav-label Surveys
-                            a(href="javascript:;", ng-click="showPanel('survey_search')", title="Search for a Survey", data-toggle="tooltip")
+                            a(href="javascript:;", ng-click="showPanel('survey_search')"
+                              title="Search for a Survey", data-toggle="tooltip")
                                 i.glyphicon.glyphicon-search
-                            a(href="javascript:;", ng-click="showPanel('survey_edit')", title="Add a new Survery to this Submission", data-toggle="tooltip")
+                            a(href="javascript:;", ng-click="addSurvey()"
+                              title="Add a new Survey to this Submission", data-toggle="tooltip")
                                 i.glyphicon.glyphicon-plus
                             .list-group
                                 a.list-group-item(href="javascript;:", ng-repeat="survey in surveys", ng-click="todo_maybe()")
@@ -43,7 +45,7 @@ block content
                             span.media-admin-nav-label Encounters
                             a(href="javascript:;", ng-click="showPanel('encounter_search')", title="Search for an Encounter", data-toggle="tooltip")
                                 i.glyphicon.glyphicon-search
-                            a(href="javascript:;", ng-click="showPanel('encounter_edit')", title="Add a new Encounter for this Submission", data-toggle="tooltip")
+                            a(href="javascript:;", ng-click="addEncounter()", title="Add a new Encounter for this Submission", data-toggle="tooltip")
                                 i.glyphicon.glyphicon-plus
                             .list-group
                                 a.list-group-item(href="javascript;:", ng-repeat="encounter in encounters", ng-click="editEncounter(encounter)")
@@ -61,14 +63,9 @@ block content
                                             img(ng-src="{{photo.thumbUrl}}", style="padding: 2px; max-width: 100%")
                             .row
                                 .col-md-12
-                                    .ng-cloak(ng-show="panel['encounter_view']")
-                                        include partials/encounter_view
                                     //img.ng-cloak(ng-src="{{zoomimage}}", ng-show="zoomimage", style="max-height: 100%; max-width: 100%;")
-                                    .ng-cloak(ng-show="panel['survey_search']")
-                                        include partials/survey_search
-                                    .ng-cloak(ng-show="panel['survey_edit']")
-                                        include partials/survey_edit
-                                    .ng-cloak(ng-show="panel['encounter_search']")
-                                        include partials/encounter_search
-                                    .ng-cloak(ng-show="panel['encounter_edit']")
-                                        include partials/encounter_edit
+                                    include partials/encounter_view
+                                    include partials/survey_search
+                                    include partials/survey_edit
+                                    include partials/encounter_search
+                                    include partials/encounter_edit

@@ -1,4 +1,16 @@
 wildbook.app.controller("SurveySearchController", function($scope, $http, $exceptionHandler) {
+    var panelName = "survey_search";
+    $scope.panelList.push(panelName);
+
+    $scope.$on(panelName, function(event, data) {
+        if (typeof data === "boolean") {
+            $scope.panels[panelName] = false;
+            return;
+        }
+
+        $scope.panels[panelName] = true;
+    });
+
     $scope.data = {};
     $scope.surveysearch = {};
 
@@ -36,7 +48,7 @@ wildbook.app.controller("SurveySearchController", function($scope, $http, $excep
     function rowSelectedFunc(event) {
         var survey = event.node.data.survey;
         survey.tracks = [event.node.data.part];
-        $scope.$emit('survey_search_done', survey);
+        $scope.$emit(panelName + "_select", survey);
     }
 
     $scope.surveyGridOptions = {
