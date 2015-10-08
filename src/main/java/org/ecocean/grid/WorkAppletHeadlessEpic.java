@@ -44,7 +44,7 @@ public class WorkAppletHeadlessEpic {
   //thread pool handling comparison threads
   ThreadPoolExecutor threadHandler;
 
-  public static final String thisURLRoot = "sevengill.oceansanctuaries.org";
+  public static final String thisURLRoot = "www.whaleshark.org";
 
   //polling heartbeat thread
   AppletHeartbeatThread hb;
@@ -75,28 +75,7 @@ public class WorkAppletHeadlessEpic {
   }
     */
 
-  /*
-  *Send serialized content to the server.
-  */
-  private void sendObject(ObjectOutputStream con, Object obj) throws IOException {
-    System.out.println("     : Sending returned results...");
-    //new modification
-    ObjectOutputStream out=null;
-    try{
-      out = con;
-      out.reset();
-      if (obj != null) {
-        out.writeObject(obj);
-      }
-      out.close();
-     }
-    catch(Exception e){
-      if(out!=null)out.close();
-      System.out.println("     : Transmission exception in sendObject.");
-      e.printStackTrace();
-    }
-    System.out.println("     : Transmission complete. Waiting for response...");
-  }
+
 
 
   public static void main(String args[]) {
@@ -200,7 +179,7 @@ public class WorkAppletHeadlessEpic {
             //con = getConnection("getWorkItemGroup", holdEncNumber, groupSize, nodeID, numProcessors);
             String encNumParam = "&newEncounterNumber=" + holdEncNumber;
            
-            URL u = new URL("http://" + thisURLRoot + "/ScanAppletSupport?version=" + version + "&nodeIdentifier=" + nodeID + "&action=" + "getWorkItemGroup" + encNumParam + "&groupSize=" + groupSize + "&numProcessors=" + numProcessors);
+            URL u = new URL("http://" + thisURLRoot + "/scanAppletSupport?version=" + version + "&nodeIdentifier=" + nodeID + "&action=" + "getWorkItemGroup" + encNumParam + "&groupSize=" + groupSize + "&numProcessors=" + numProcessors);
             System.out.println("...Using nodeIdentifier: " + nodeID + "...with URL: "+u.toString());
            
             con = u.openConnection();
@@ -217,7 +196,7 @@ public class WorkAppletHeadlessEpic {
             inputFromServlet = new ObjectInputStream(con.getInputStream());
             workItems = (Vector) inputFromServlet.readObject();
             
-            if(workItems.size()>0){
+            if((workItems!=null)&&(workItems.size()>0)){
               swi = (ScanWorkItem) workItems.get(0);
               successfulConnect = true;
             }
@@ -244,7 +223,7 @@ public class WorkAppletHeadlessEpic {
           } 
           catch (Exception ioe) {
             if(inputFromServlet!=null)inputFromServlet.close();
-            //ioe.printStackTrace();
+            ioe.printStackTrace();
             successfulConnect = false;
             //Thread.sleep(60000);
             //System.exit(0);
@@ -362,7 +341,24 @@ public class WorkAppletHeadlessEpic {
                   // send the results Vector to the servlet using serialization
                   outputToFinalServlet = new ObjectOutputStream(finishConnection.getOutputStream());
 
-                  sendObject(outputToFinalServlet, workItemResults);
+                  //sendObject(outputToFinalServlet, workItemResults);
+                  System.out.println("     : Sending returned results...");
+                  //new modification
+                  ObjectOutputStream out=null;
+                  try{
+                    //out = con;
+                    outputToFinalServlet.reset();
+                    if (workItemResults != null) {
+                      outputToFinalServlet.writeObject(workItemResults);
+                    }
+                    outputToFinalServlet.close();
+                   }
+                  catch(Exception e){
+                    if(out!=null)out.close();
+                    System.out.println("     : Transmission exception in sendObject.");
+                    e.printStackTrace();
+                  }
+                  System.out.println("     : Transmission complete. Waiting for response...");
 
                   outputToFinalServlet.close();
                   outputToFinalServlet = null;
@@ -426,7 +422,7 @@ public class WorkAppletHeadlessEpic {
       System.exit(0);
 
     }
-
+    System.exit(0);
   }        //end getGoing method
 
 
