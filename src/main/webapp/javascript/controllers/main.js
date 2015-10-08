@@ -95,6 +95,11 @@ wildbook.app.controller("MainController", function($scope, $http, $q, $exception
     return $http({url:"util/init"})
     .then(function(result) {
         $scope.main.config = result.data;
+        //
+        // When everything is ready, initialize tooltips on the page
+        //
+        $('[data-toggle="tooltip"]').tooltip();
+
     }, $exceptionHandler);
 });
 
