@@ -1,10 +1,12 @@
 package org.ecocean;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.ecocean.email.Emailer;
 import org.ecocean.media.AssetStore;
@@ -24,13 +26,36 @@ public enum Global {
 
     private Map<String,ConnectionInfo> connectionInfo = new HashMap<>();
     private ResourceReader appResources;
+    private Properties webappClientProps = new Properties();
 
     private Emailer emailer;
     private Map<String, Species> species = new HashMap<>();
     private List<Species> speciesList;
+    private String cust;
 
-    public void init(final ResourceReader resources) {
+    private void loadWebappProps(final String file) {
+        try (InputStream input = Global.class.getResourceAsStream(file)) {
+            if (input == null) {
+                logger.warn("No file [" + file + "] found.");
+            } else {
+                webappClientProps.load(input);
+            }
+        } catch (Throwable ex) {
+            logger.error("Trouble reading [" + file + "]", ex);
+        }
+    }
+
+    public void init(final String cust, final ResourceReader resources) {
+        this.cust = cust;
         appResources = resources;
+
+        loadWebappProps("/webappclient.properties");
+        if (cust != null) {
+            //
+            // Load any overriding props for the cust.
+            //
+            loadWebappProps("/cust/" + cust + "/webappclient.properties");
+        }
 
         //
         // Initialize other parts of the app.
@@ -111,5 +136,13 @@ public enum Global {
 
     public Species getSpecies(final String code) {
         return species.get(code);
+    }
+
+    public Properties getWebappClientProps() {
+        return webappClientProps;
+    }
+
+    public String getCust() {
+        return cust;
     }
 }

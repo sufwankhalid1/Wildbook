@@ -110,7 +110,7 @@ public class RestApplication extends SpringBootServletInitializer {
         //
         // Now set this on the global so that we can use it elsewhere.
         //
-        Global.INST.init(appResources);
+        Global.INST.init(cust, appResources);
 
         //
         // Old code to initialize stormpath. If, for some reason we decide to make it

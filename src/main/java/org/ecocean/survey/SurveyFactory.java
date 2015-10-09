@@ -99,7 +99,7 @@ public class SurveyFactory {
         SurveyPartObj part = new SurveyPartObj();
 
         part.survey = readSurvey(rs);
-        part.part = readSurveyPart(rs);
+        part.track = readSurveyPart(rs);
 
         return part;
     }

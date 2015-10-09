@@ -83,12 +83,12 @@ wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q
     $scope.editSubmission = function(submission) {
         return $q.all([$http({url:"obj/mediasubmission/photos/" + submission.id}),
                        $http({url:"obj/mediasubmission/encounters/" + submission.id})])
-//                       $q.resolve({encounters: [{individual: {displayName: 'test'}, encdate: '2009-12-13'}]})])
         .then(function(results) {
             $scope.submission = submission;
             $scope.photos = results[0].data;
 
-            $scope.encounters = results[1].encounters || [];
+            $scope.encounters = results[1].data.encounters || [];
+            $scope.surveys = results[1].data.surveys || [];
         }, $exceptionHandler);
     }
 

@@ -60,6 +60,13 @@ wildbook.app.controller("MainController", function($scope, $http, $q, $exception
         return null;
     }
 
+    function formatMoment(moment) {
+        if (momment) {
+            return moment.format(this.main.config.props["moment.date.format"]);// || "YYYY-MM-DD");
+        }
+        return null;
+    }
+
     $scope.main = {config: null,
                    getVessels: function(org) {
                        return getVessels(this.config.orgs, org);
@@ -82,11 +89,7 @@ wildbook.app.controller("MainController", function($scope, $http, $q, $exception
                        return null;
                    },
                    dateStringFromRest: function(rest) {
-                       var moment = restToMoment(rest);
-                       if (moment) {
-                           return moment.format("YYYY-MM-DD");
-                       }
-                       return null;
+                       formatMoment(restToMoment(rest));
                    }};
 
     //

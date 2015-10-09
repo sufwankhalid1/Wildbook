@@ -1,6 +1,7 @@
 package org.ecocean.rest;
 
 import java.util.List;
+import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -33,17 +34,17 @@ public class UtilController {
         try (Database db = ServletUtilities.getDb(request)) {
             GlobalConfig config = new GlobalConfig();
             config.orgs = UserFactory.getOrganizations(db);
-
+            config.props = Global.INST.getWebappClientProps();
             config.species = Global.INST.getSpecies();
             return config;
         }
     }
 
+    @SuppressWarnings("unused")
     private static class GlobalConfig
     {
-        @SuppressWarnings("unused")
+        public Properties props;
         public List<Organization> orgs;
-        @SuppressWarnings("unused")
         public List<Species> species;
     }
 }
