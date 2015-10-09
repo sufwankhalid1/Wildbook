@@ -47,7 +47,7 @@ wildbook.app.controller("SurveySearchController", function($scope, $http, $excep
 
     function rowSelectedFunc(event) {
         var survey = event.node.data.survey;
-        survey.tracks = [event.node.data.part];
+        survey.tracks = [event.node.data.track];
         $scope.$emit(panelName + "_select", survey);
     }
 
@@ -69,7 +69,7 @@ wildbook.app.controller("SurveySearchController", function($scope, $http, $excep
                  }
              },
              {headerName: "Vessel",
-                 field: "part",
+                 field: "track",
                  cellRenderer: function(params) {
                      if (params.value.vessel) {
                          return params.value.vessel.displayName;
@@ -78,19 +78,19 @@ wildbook.app.controller("SurveySearchController", function($scope, $http, $excep
                  }
              },
              {headerName: "Date",
-                 field: "part",
+                 field: "track",
                  cellRenderer: function(params) {
                      return params.value.formattedTime;
                  }
              },
              {headerName: "Code",
-                 field: "part",
+                 field: "track",
                  cellRenderer: function(params) {
                      return params.value.code;
                  }
              },
              {headerName: "Location",
-                field: "part",
+                field: "track",
                  cellRenderer: function(params) {
                      if (params.value.location) {
                          return params.value.location.locationid;
