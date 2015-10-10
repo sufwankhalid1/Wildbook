@@ -9,7 +9,6 @@ import org.ecocean.LocationFactory;
 import org.ecocean.media.MediaAsset;
 import org.ecocean.media.MediaAssetFactory;
 import org.ecocean.rest.SimpleIndividual;
-import org.ecocean.rest.SimplePhoto;
 import org.ecocean.rest.SimpleUser;
 import org.ecocean.security.UserFactory;
 
@@ -40,6 +39,18 @@ public class EncounterFactory {
         // prevent instantiation
     }
 
+    public static List<SimpleEncounter> toSimple(final List<Encounter> encounters) {
+        if (encounters == null) {
+            return null;
+        }
+
+        List<SimpleEncounter> simples = new ArrayList<>(encounters.size());
+        for (Encounter encounter : encounters) {
+            simples.add(encounter.toSimple());
+        }
+        return simples;
+    }
+
     public static SqlStatement getIndividualStatement()
     {
         SqlStatement sql = new SqlStatement(TABLENAME_INDIVIDUALS, ALIAS_INDIVIDUALS);
@@ -51,21 +62,25 @@ public class EncounterFactory {
         return sql;
     }
 
-    public static List<SimpleEncounter> getIndividualEncounters(final Database db, final SimpleIndividual individual) throws DatabaseException
+    public static List<Encounter> getIndividualEncounters(final Database db, final Individual individual) throws DatabaseException
     {
-        List<SimpleEncounter> encounters = new ArrayList<SimpleEncounter>();
+        List<Encounter> encounters = new ArrayList<>();
 
-        db.getTable(TABLENAME_ENCOUNTERS).select((rs) -> {
-            encounters.add(readSimpleEncounter(individual, rs));
-        }, PK_INDIVIDUALS + " = " + individual.getId());
+        db.getTable(EncounterFactory.TABLENAME_ENCOUNTERS).select((rs) -> {
+            encounters.add(EncounterFactory.readEncounter(individual, rs));
+        }, EncounterFactory.PK_INDIVIDUALS + " = " + individual.getId());
 
         return encounters;
     }
 
-    public static SimpleEncounter readSimpleEncounter(final SimpleIndividual individual,
-                                                      final RecordSet rs) throws DatabaseException
+    public static Encounter readEncounter(final RecordSet rs) throws DatabaseException {
+        return readEncounter(readIndividual(rs), rs);
+    }
+
+    public static Encounter readEncounter(final Individual individual,
+                                          final RecordSet rs) throws DatabaseException
     {
-        SimpleEncounter encounter = new SimpleEncounter(rs.getInt(PK_ENCOUNTERS), rs.getLocalDate("encdate"));
+        Encounter encounter = new Encounter(rs.getInt(PK_ENCOUNTERS), rs.getLocalDate("encdate"));
 
         encounter.setStarttime(rs.getOffsetTime("starttime"));
         encounter.setEndtime(rs.getOffsetTime("endtime"));
@@ -74,25 +89,34 @@ public class EncounterFactory {
 
         return encounter;
     }
+//
+//    public static SimpleIndividual readSimpleIndividual(final RecordSet rs) throws DatabaseException
+//    {
+//        Integer indid = rs.getInteger(PK_INDIVIDUALS);
+//        if (indid == null) {
+//            return null;
+//        }
+//
+//        SimpleIndividual ind = new SimpleIndividual(indid, rs.getString("nickname"));
+//        ind.setSex(rs.getString("sex"));
+//        ind.setSpecies(Global.INST.getSpecies(rs.getString("species")));
+//        ind.setAlternateId(rs.getString("alternateid"));
+//
+//        SimplePhoto photo = MediaAssetFactory.readPhoto(rs);
+//        if (photo != null) {
+//            ind.setAvatar(photo.getThumbUrl());
+//        }
+//
+//        return ind;
+//    }
 
     public static SimpleIndividual readSimpleIndividual(final RecordSet rs) throws DatabaseException
     {
-        Integer indid = rs.getInteger(PK_INDIVIDUALS);
-        if (indid == null) {
+        Individual ind = readIndividual(rs);
+        if (ind == null) {
             return null;
         }
-
-        SimpleIndividual ind = new SimpleIndividual(indid, rs.getString("nickname"));
-        ind.setSex(rs.getString("sex"));
-        ind.setSpecies(Global.INST.getSpecies(rs.getString("species")));
-        ind.setAlternateId(rs.getString("alternateid"));
-
-        SimplePhoto photo = MediaAssetFactory.readPhoto(rs);
-        if (photo != null) {
-            ind.setAvatar(photo.getThumbUrl());
-        }
-
-        return ind;
+        return ind.toSimple();
     }
 
     public static Individual readIndividual(final RecordSet rs) throws DatabaseException
@@ -119,20 +143,16 @@ public class EncounterFactory {
 
     public static SimpleEncounter readSimpleEncounter(final RecordSet rs) throws DatabaseException
     {
-        return readSimpleEncounter(readSimpleIndividual(rs), rs);
+        return readEncounter(rs).toSimple();
     }
 
-    public static SimpleIndividual getIndividual(final Database db, final int individualId) throws DatabaseException
+    public static Individual getIndividual(final Database db, final int individualId) throws DatabaseException
     {
-        RecordSet rs;
         SqlStatement sql = getIndividualStatement();
         sql.addCondition(ALIAS_INDIVIDUALS, PK_INDIVIDUALS, SqlRelationType.EQUAL, individualId);
-        rs = db.getRecordSet(sql);
-        if (rs.next()) {
-            return readSimpleIndividual(rs);
-        }
-
-        return null;
+        return db.selectFirst(sql, (rs) -> {
+            return readIndividual(rs);
+        });
     }
 
     public static SqlStatement getEncounterStatement()

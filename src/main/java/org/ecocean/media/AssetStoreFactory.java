@@ -1,6 +1,5 @@
 package org.ecocean.media;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -8,7 +7,6 @@ import org.slf4j.LoggerFactory;
 
 import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
-import com.samsix.database.RecordSet;
 import com.samsix.database.SqlFormatter;
 import com.samsix.database.SqlInsertFormatter;
 import com.samsix.database.SqlUpdateFormatter;
@@ -25,23 +23,14 @@ public class AssetStoreFactory {
     }
 
     public static List<AssetStore> getStores(final Database db) throws DatabaseException {
-        List<AssetStore> stores = new ArrayList<>();
-
         Table table = db.getTable(TABLENAME_ASSETSTORE);
-        RecordSet rs = table.getRecordSet();
-        while (rs.next()) {
-            AssetStore store;
-            store = buildAssetStore(rs.getInteger("id"),
-                                    rs.getString("name"),
-                                    AssetStoreType.valueOf(rs.getString("type")),
-                                    new AssetStoreConfig(rs.getString("config")),
-                                    rs.getBoolean("writable"));
-            if (store != null) {
-                stores.add(store);
-            }
-        }
-
-        return stores;
+        return table.selectList((rs) -> {
+            return buildAssetStore(rs.getInteger("id"),
+                                   rs.getString("name"),
+                                   AssetStoreType.valueOf(rs.getString("type")),
+                                   new AssetStoreConfig(rs.getString("config")),
+                                   rs.getBoolean("writable"));
+        });
     }
 
     private static AssetStore buildAssetStore(final Integer id,

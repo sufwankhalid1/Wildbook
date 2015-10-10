@@ -2,6 +2,7 @@ package org.ecocean.rest;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -27,7 +28,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
 import com.samsix.database.GroupedSqlCondition;
-import com.samsix.database.RecordSet;
 import com.samsix.database.SqlRelationType;
 import com.samsix.database.SqlStatement;
 import com.samsix.database.SqlTable;
@@ -39,13 +39,10 @@ public class SearchController
     Logger logger = LoggerFactory.getLogger(SearchController.class);
 
     private List<SimpleIndividual> searchIndividuals(final Database db, final String term) throws DatabaseException {
-        List<SimpleIndividual> individuals = new ArrayList<>();
-
         if (StringUtils.isBlank(term)) {
-            return individuals;
+            return Collections.emptyList();
         }
 
-        RecordSet rs;
         SqlStatement sql = EncounterFactory.getIndividualStatement();
 
         SqlTable table = sql.findTable(EncounterFactory.ALIAS_INDIVIDUALS);
@@ -54,12 +51,9 @@ public class SearchController
         cond.addContainsCondition(table, "nickname", term);
         sql.addCondition(cond);
 
-        rs = db.getRecordSet(sql);
-        while (rs.next()) {
-            individuals.add(EncounterFactory.readSimpleIndividual(rs));
-        }
-
-        return individuals;
+        return db.selectList(sql, (rs) -> {
+            return EncounterFactory.readSimpleIndividual(rs);
+        });
     }
 
 
@@ -93,8 +87,7 @@ public class SearchController
             cond.addContainsCondition(users, "username", term);
             sql.addCondition(cond);
 
-            RecordSet rs = db.getRecordSet(sql);
-            while (rs.next()) {
+            results.addAll(db.selectList(sql, (rs) -> {
                 SimpleUser user = UserFactory.readSimpleUser(rs);
 
                 SiteSearchResult result = new SiteSearchResult();
@@ -102,8 +95,8 @@ public class SearchController
                 result.value = String.valueOf(user.getId());
                 result.type = "user";
                 result.avatar = user.getAvatar();
-                results.add(result);
-            }
+                return result;
+            }));
 
             return results;
         }
@@ -125,13 +118,9 @@ public class SearchController
         }
 
         try (Database db = ServletUtilities.getDb(request)) {
-            List<SimpleEncounter> encounters = new ArrayList<>();
-            RecordSet rs = db.getRecordSet(sql);
-            while (rs.next()) {
-                encounters.add(EncounterFactory.readSimpleEncounter(rs));
-            }
-
-            return encounters;
+            return db.selectList(sql, (rs) -> {
+                return EncounterFactory.readSimpleEncounter(rs);
+            });
         }
     }
 

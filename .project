@@ -46,7 +46,7 @@
 	</natures>
 	<filteredResources>
 		<filter>
-			<id>1439500632542</id>
+			<id>1444416293456</id>
 			<name></name>
 			<type>30</type>
 			<matcher>
@@ -55,7 +55,7 @@
 			</matcher>
 		</filter>
 		<filter>
-			<id>1439500632546</id>
+			<id>1444416293477</id>
 			<name></name>
 			<type>26</type>
 			<matcher>
@@ -64,12 +64,21 @@
 			</matcher>
 		</filter>
 		<filter>
-			<id>1439500632566</id>
+			<id>1444416293489</id>
 			<name></name>
 			<type>26</type>
 			<matcher>
 				<id>org.eclipse.ui.ide.multiFilter</id>
 				<arguments>1.0-name-matches-false-false-bower_components</arguments>
+			</matcher>
+		</filter>
+		<filter>
+			<id>1444416293504</id>
+			<name></name>
+			<type>10</type>
+			<matcher>
+				<id>org.eclipse.ui.ide.multiFilter</id>
+				<arguments>1.0-name-matches-false-false-.git</arguments>
 			</matcher>
 		</filter>
 	</filteredResources>

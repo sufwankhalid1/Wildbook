@@ -115,6 +115,13 @@ wildbook.app.directive(
                 replace: true,
                 link: function(scope, elm, attrs, ngModelCtrl) {
                     ngModelCtrl.$formatters.push(function (modelValue) {
+                        if (!scope.main) {
+                            //
+                            // This happens if this control is used in another directive
+                            // template when the directive is loaded (but not yet used).
+                            //
+                            return null;
+                        }
                         return scope.main.dateFromRest(modelValue);
                     });
 

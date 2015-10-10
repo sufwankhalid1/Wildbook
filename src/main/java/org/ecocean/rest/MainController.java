@@ -10,6 +10,9 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.ecocean.Individual;
+import org.ecocean.Util;
+import org.ecocean.encounter.Encounter;
 import org.ecocean.encounter.EncounterFactory;
 import org.ecocean.encounter.SimpleEncounter;
 import org.ecocean.media.MediaAssetFactory;
@@ -62,20 +65,14 @@ public class MainController
         SqlStatement sql = UserFactory.getUserStatement();
         sql.addInnerJoin(UserFactory.AlIAS_USERS, UserFactory.PK_USERS, table, "c", "submitterid");
         try (Database db = ServletUtilities.getDb(request)) {
-            List<Contributor> contribs = new ArrayList<>();
-
-            RecordSet rs = db.getRecordSet(sql);
-            while (rs.next()) {
+            return db.selectList(sql, (rs) -> {
                 Contributor contrib = new Contributor();
                 contrib.user = UserFactory.readSimpleUser(rs);
                 contrib.numEncs = rs.getInt("numEncs");
-                contribs.add(contrib);
-            }
-
-            return contribs;
+                return contrib;
+            });
         }
     }
-
 
     @RequestMapping(value = "/individual/get/{id}", method = RequestMethod.GET)
     public IndividualInfo getIndividual(final HttpServletRequest request,
@@ -85,13 +82,16 @@ public class MainController
         try (Database db = ServletUtilities.getDb(request)) {
             IndividualInfo indinfo = new IndividualInfo();
 
-            indinfo.individual = EncounterFactory.getIndividual(db, id);
-            if (indinfo.individual == null) {
+            Individual ind = EncounterFactory.getIndividual(db, id);
+            if (ind == null) {
                 return null;
             }
 
+            List<Encounter> encounters = EncounterFactory.getIndividualEncounters(db, ind);
+
+            indinfo.individual = ind.toSimple();
             indinfo.photos = MainController.getIndividualPhotos(db, id);
-            indinfo.encounters = EncounterFactory.getIndividualEncounters(db, indinfo.individual);
+            indinfo.encounters = Util.convertList(encounters, encounter -> encounter.toSimple());
             indinfo.submitters = EncounterFactory.getIndividualSubmitters(db, id);
 
             return indinfo;
@@ -181,12 +181,11 @@ public class MainController
             // 5) Voyages on
             //
             String sqlRoot = "SELECT ma.* FROM mediaasset ma";
-            String whereRoot = " WHERE ma.submitterid = " + userid
-                + " AND ma.type = " + MediaAssetType.IMAGE.getCode();
+            String criteria = "ma.submitterid = " + userid
+                    + " AND ma.type = " + MediaAssetType.IMAGE.getCode();
+            String whereRoot = " WHERE " + criteria;
 
             String sql;
-            RecordSet rs;
-
             //
             // 1) Highlighted Photos (including any avatar photos)
             //
@@ -197,20 +196,18 @@ public class MainController
             sql = sqlRoot
                     + " INNER JOIN individuals i ON ma.id = i.avatarid"
                     + whereRoot;
-            rs = db.getRecordSet(sql);
-            while (rs.next()) {
+            db.select(sql, (rs) -> {
                 userinfo.addPhoto(MediaAssetFactory.readPhoto(rs));
-            }
+            });
 
             //
             // Highlighted photos
             //
             sql = sqlRoot + whereRoot + " AND 'highlight' = ANY (ma.tags)";
 
-            rs = db.getRecordSet(sql);
-            while (rs.next()) {
+            db.select(sql, (rs) -> {
                 userinfo.addPhoto(MediaAssetFactory.readPhoto(rs));
-            }
+            });
 
             //
             // If we are not at our minimum number of photos go ahead
@@ -222,24 +219,17 @@ public class MainController
             if (userinfo.getPhotos().size() < MIN_PHOTOS) {
                 sql = sqlRoot + whereRoot + " LIMIT " + MIN_PHOTOS;
 
-                rs = db.getRecordSet(sql);
-                while (rs.next()) {
-                    if (userinfo.getPhotos().size() >= MIN_PHOTOS) {
-                        break;
+                db.select(sql, (rs) -> {
+                    if (userinfo.getPhotos().size() < MIN_PHOTOS) {
+                        userinfo.addPhoto(MediaAssetFactory.readPhoto(rs));
                     }
-
-                    userinfo.addPhoto(MediaAssetFactory.readPhoto(rs));
-                }
+                });
             }
 
             //
             // 2) Total Number of photos
             //
-            sql = "SELECT count(*) AS count FROM mediaasset ma" + whereRoot;
-            rs = db.getRecordSet(sql);
-            if (rs.next()) {
-                userinfo.setTotalPhotoCount(rs.getInt("count"));
-            }
+            userinfo.setTotalPhotoCount(db.getTable(MediaAssetFactory.TABLENAME_MEDIAASSET).getCount(criteria));
 
             //
             // 3) Encounters/Individuals
@@ -253,23 +243,22 @@ public class MainController
                     + whereRoot
                     + " and em.encounterid = e.encounterid)"));
 
-            Map<Integer, SimpleIndividual> inds = new HashMap<>();
-            rs = db.getRecordSet(ss);
-            while (rs.next()) {
+            Map<Integer, Individual> inds = new HashMap<>();
+            db.select(sql, (rs) -> {
                 Integer indid = rs.getInteger("individualid");
 
-                SimpleIndividual ind = inds.get(indid);
+                Individual ind = inds.get(indid);
                 if (ind == null) {
-                    ind = EncounterFactory.readSimpleIndividual(rs);
+                    ind = EncounterFactory.readIndividual(rs);
                     if (ind != null) {
                         inds.put(ind.getId(), ind);
                     }
                 }
 
-                SimpleEncounter encounter = EncounterFactory.readSimpleEncounter(ind, rs);
-                userinfo.addEncounter(encounter);
-            }
-            userinfo.setIndividuals(new ArrayList<SimpleIndividual>(inds.values()));
+                Encounter encounter = EncounterFactory.readEncounter(ind, rs);
+                userinfo.addEncounter(encounter.toSimple());
+            });
+            userinfo.setIndividuals(Util.convertList(new ArrayList<Individual>(inds.values()), (ind) -> ind.toSimple()));
 
             //
             // TODO: Fix this so that it works with new file types. Don't think we need to convert the tiny

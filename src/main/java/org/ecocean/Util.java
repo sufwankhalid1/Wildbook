@@ -11,6 +11,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 //import javax.jdo.JDOException;
 //import javax.jdo.JDOHelper;
@@ -322,4 +324,7 @@ public class Util {
         return false;
     }
 
+    public static <T, U> List<U> convertList(final List<T> from, final Function<T, U> func){
+        return from.stream().map(func).collect(Collectors.toList());
+    }
 }

@@ -2,7 +2,7 @@ wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q
     $scope.panelList = [];
 
     $scope.encounters = [];
-    $scope.surveys = [];
+    $scope.surveyEncs = [];
 
     $scope.panels = {};
 
@@ -21,13 +21,23 @@ wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q
         $http.post();
     }
 
-    $scope.$on('survey_edit_done', function(event, survey) {
-        $scope.surveys.push(survey);
+    function getSurveyEncounter(surveypart, encounters) {
+        return {surveypart: surveypart, encounters: encounters};
+    }
+
+    $scope.$on('survey_edit_done', function(event, surveypart) {
+        $scope.surveyEncs.push(getSurveyEncounter(surveypart));
     });
 
-    $scope.$on('survey_search_select', function(event, survey) {
+    $scope.$on('survey_search_select', function(event, surveypart) {
         $scope.panels["survey_search"] = false;
-        $scope.surveys.push(survey);
+        //
+        // Look for any encounters attached to this survey already
+        //
+        $http("obj/survey/encounters/" + surveypart.track.surveyPartId)
+        .then(function(result) {
+            $scope.surveyEncs.push(getSurveyEncounter(surveypart, result.data));
+        }, $exceptionHandler)
     });
 
     $scope.$on('encounter_edit_done', function(event, encounter) {
@@ -88,7 +98,7 @@ wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q
             $scope.photos = results[0].data;
 
             $scope.encounters = results[1].data.encounters || [];
-            $scope.surveys = results[1].data.surveys || [];
+            $scope.surveyEncs = results[1].data.surveyEncounters || [];
         }, $exceptionHandler);
     }
 

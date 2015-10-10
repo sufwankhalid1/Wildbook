@@ -12,8 +12,8 @@ import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
 
 import org.ecocean.email.EmailUtils;
+import org.ecocean.encounter.Encounter;
 import org.ecocean.encounter.EncounterFactory;
-import org.ecocean.encounter.SimpleEncounter;
 import org.ecocean.media.LocalAssetStore;
 import org.ecocean.media.MediaAsset;
 import org.ecocean.media.MediaAssetFactory;
@@ -41,7 +41,6 @@ import com.drew.metadata.exif.ExifSubIFDDirectory;
 import com.drew.metadata.exif.GpsDirectory;
 import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
-import com.samsix.database.RecordSet;
 import com.samsix.database.SqlRelationType;
 import com.samsix.database.SqlStatement;
 import com.samsix.database.Table;
@@ -80,7 +79,6 @@ public class MediaSubmissionController
                                                      final String submissionid) throws DatabaseException
     {
         try (Database db = ServletUtilities.getDb(request)) {
-            SubmissionEncounters se = new SubmissionEncounters();
             //
             // Get the encounters from the encounter_media and any survey parts they
             // are part of.
@@ -96,43 +94,71 @@ public class MediaSubmissionController
                              MediaSubmissionFactory.TABLENAME_MEDIASUB_MEDIA,
                              MediaSubmissionFactory.ALIAS_MEDIASUB_MEDIA,
                              "mediaid");
+            sql.addLeftOuterJoin(EncounterFactory.ALIAS_ENCOUNTERS,
+                                 EncounterFactory.PK_ENCOUNTERS,
+                                 "surveypart_encounters",
+                                 "spe",
+                                 EncounterFactory.PK_ENCOUNTERS);
+            sql.appendSelectString("spe." + SurveyFactory.PK_SURVEYPART);
             sql.addCondition(MediaSubmissionFactory.ALIAS_MEDIASUB_MEDIA,
                              "mediasubmissionid",
                              SqlRelationType.EQUAL,
                              submissionid);
 
-            List<SimpleEncounter> encounters = new ArrayList<>();
+//            List<Encounter> encounters;
+//            encounters = db.selectList(sql, (rs) -> {
+//                return
+//            });
+
+            SubmissionEncounters subEncs = new SubmissionEncounters();
+
+            SqlStatement sql2;
+            sql2 = SurveyFactory.getSurveyStatement(true);
+            sql2.addInnerJoin(SurveyFactory.ALIAS_SURVEYPART,
+                              SurveyFactory.PK_SURVEYPART,
+                              "surveypart_encounters",
+                              "spe",
+                              SurveyFactory.PK_SURVEYPART);
+            sql2.addCondition(SurveyFactory.ALIAS_SURVEYPART, SurveyFactory.PK_SURVEYPART, SqlRelationType.EQUAL, "?");
+
+            SqlStatement sql3;
+            sql3 = EncounterFactory.getEncounterStatement();
+            sql3.addInnerJoin(EncounterFactory.ALIAS_ENCOUNTERS,
+                              EncounterFactory.PK_ENCOUNTERS,
+                              "surveypart_encounters",
+                              "spe",
+                              EncounterFactory.PK_ENCOUNTERS);
+            sql2.addCondition("spe", SurveyFactory.PK_SURVEYPART, SqlRelationType.EQUAL, "?");
+
             db.select(sql, (rs) -> {
-                encounters.add(EncounterFactory.readSimpleEncounter(rs));
-            });
+                Encounter encounter = EncounterFactory.readEncounter(rs);
 
-            sql = SurveyFactory.getSurveyStatement(true);
-            sql.addInnerJoin(SurveyFactory.ALIAS_SURVEYPART,
-                             SurveyFactory.PK_SURVEYPART,
-                             "surveypart_encounters",
-                             "spe",
-                             SurveyFactory.PK_SURVEYPART);
-            sql.addCondition("spe", EncounterFactory.PK_ENCOUNTERS, SqlRelationType.EQUAL, "?");
-            for (SimpleEncounter encounter : encounters) {
-                SurveyPartObj spo = db.selectFirst(sql, (rs) -> {
-                    return SurveyFactory.readSurveyPartObj(rs);
-                }, encounter.getId());
+                Integer spi = rs.getInteger(SurveyFactory.PK_SURVEYPART);
 
-                //
-                // If we didn't have a survey part for this encounter than just add it to the
-                // generic encounters, otherwise add it to the survey encounters.
-                //
-                if (spo == null) {
-                    se.encounters.add(encounter);
+                if (spi == null) {
+                    subEncs.encounters.add(encounter);
                 } else {
                     SurveyEncounters ses = new SurveyEncounters();
-                    ses.survey = spo;
-                    ses.encounters.add(encounter);
-                    se.surveyEncounters.add(ses);
-                }
-            }
+                    ses.surveypart = db.selectFirst(sql2, (rs2) -> {
+                        return SurveyFactory.readSurveyPartObj(rs);
+                    }, spi);
 
-            return se;
+                    //
+                    // Something went horribly wrong, this should not happen, but just in case...
+                    //
+                    if (ses.surveypart == null) {
+                        subEncs.encounters.add(encounter);
+                    }
+
+                    ses.encounters = db.selectList(sql3, (rs3) -> {
+                        return EncounterFactory.readEncounter(rs3);
+                    }, spi);
+
+                    subEncs.surveyEncounters.add(ses);
+                }
+            });
+
+            return subEncs;
         }
     }
 
@@ -254,11 +280,10 @@ public class MediaSubmissionController
             String sql = "SELECT ma.* FROM mediaasset ma"
                     + " INNER JOIN mediasubmission_media msm ON msm.mediaid = ma.id"
                     + " WHERE " + mWhere;
-            List<MediaAsset> media = new ArrayList<>();
-            RecordSet rs = db.getRecordSet(sql);
-            while (rs.next()) {
-                media.add(MediaAssetFactory.valueOf(rs));
-            }
+            List<MediaAsset> media;
+            media = db.selectList(sql, (rs) -> {
+                return MediaAssetFactory.valueOf(rs);
+            });
 
             db.performTransaction(() -> {
                 //
@@ -628,12 +653,12 @@ public class MediaSubmissionController
 
     public static class SubmissionEncounters
     {
-        public List<SimpleEncounter> encounters = new ArrayList<>();
+        public List<Encounter> encounters = new ArrayList<>();
         public List<SurveyEncounters> surveyEncounters = new ArrayList<>();
     }
 
     public static class SurveyEncounters {
-        public SurveyPartObj survey;
-        public List<SimpleEncounter> encounters = new ArrayList<>();
+        public SurveyPartObj surveypart;
+        public List<Encounter> encounters;
     }
 }

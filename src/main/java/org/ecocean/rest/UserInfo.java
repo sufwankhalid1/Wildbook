@@ -8,7 +8,7 @@ import org.ecocean.survey.SurveyPart;
 
 public class UserInfo {
     private final SimpleBeing user;
-    private int totalPhotoCount = 0;
+    private long totalPhotoCount = 0;
     private final List<SimpleEncounter> encounters = new ArrayList<SimpleEncounter>();
     private final List<SimplePhoto> photos = new ArrayList<SimplePhoto>();
     private List<SimpleIndividual> individuals;
@@ -53,11 +53,11 @@ public class UserInfo {
         photos.add(photo);
     }
 
-    public int getTotalPhotoCount() {
+    public long getTotalPhotoCount() {
         return totalPhotoCount;
     }
 
-    public void setTotalPhotoCount(final int totalPhotoCount) {
+    public void setTotalPhotoCount(final long totalPhotoCount) {
         this.totalPhotoCount = totalPhotoCount;
     }
 

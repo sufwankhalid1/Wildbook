@@ -55,6 +55,15 @@ public class SurveyFactory {
         }
         return sql;
     }
+//
+//    public static SqlStatement getSurveyPartStatement() {
+//        SqlStatement sql = new SqlStatement(TABLENAME_SURVEYPART, ALIAS_SURVEYPART);
+//        sql.addInnerJoin(ALIAS_SURVEYPART, PK_SURVEYPART, TABLENAME_SURVEY, ALIAS_SURVEY, PK_SURVEYPART);
+//        sql.addLeftOuterJoin(ALIAS_SURVEYPART, PK_VESSEL, TABLENAME_VESSEL, ALIAS_VESSEL, PK_VESSEL);
+//        sql.addLeftOuterJoin(ALIAS_SURVEY, "orgid", UserFactory.TABLENAME_ORG, UserFactory.ALIAS_ORG, "orgid");
+//
+//        return sql;
+//    }
 
     public static SqlStatement getVesselStatement() {
         SqlStatement sql = new SqlStatement(TABLENAME_VESSEL, ALIAS_VESSEL);

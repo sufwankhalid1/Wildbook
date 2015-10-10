@@ -33,9 +33,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
-import com.samsix.database.RecordSet;
-import com.samsix.database.SqlWhereFormatter;
-import com.samsix.database.Table;
 
 import de.neuland.jade4j.exceptions.JadeCompilerException;
 import de.neuland.jade4j.exceptions.JadeException;
@@ -126,18 +123,12 @@ public class UserController {
         }
 
         try (Database db = ServletUtilities.getDb(request)) {
-            Table users = db.getTable(UserFactory.TABLENAME_ROLES);
-            SqlWhereFormatter where = new SqlWhereFormatter();
-            where.append("userid", userid);
-            RecordSet rs = users.getRecordSet(where.getWhereClause());
-
-            String rolesFound = "";
-            while (rs.next()) {
+            StringBuilder rolesFound = new StringBuilder();
+            db.getTable(UserFactory.TABLENAME_ROLES).select((rs) -> {
                 String contextName = ContextConfiguration.getNameForContext(rs.getString("context"));
-                rolesFound += contextName+":" + rs.getString("rolename") + "\r";
-            }
-
-            return rolesFound;
+                rolesFound.append(contextName+":" + rs.getString("rolename") + "\r");
+            }, "userid = " + userid);
+            return rolesFound.toString();
         }
     }
 

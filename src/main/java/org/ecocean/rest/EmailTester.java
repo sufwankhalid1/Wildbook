@@ -7,6 +7,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.ecocean.Individual;
 import org.ecocean.email.EmailUtils;
 import org.ecocean.encounter.EncounterFactory;
 import org.ecocean.security.User;
@@ -40,9 +41,9 @@ public class EmailTester {
         try (Database db = ServletUtilities.getDb(request)) {
             String individualId = request.getParameter("individualid");
             if (individualId != null) {
-                SimpleIndividual ind = EncounterFactory.getIndividual(db, Integer.parseInt(individualId));
+                Individual ind = EncounterFactory.getIndividual(db, Integer.parseInt(individualId));
                 if (ind != null) {
-                    model.put(EmailUtils.TAG_INDIVIDUAL, ind);
+                    model.put(EmailUtils.TAG_INDIVIDUAL, ind.toSimple());
                 }
             }
 

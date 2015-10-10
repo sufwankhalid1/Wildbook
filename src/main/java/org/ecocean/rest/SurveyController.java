@@ -7,8 +7,6 @@ import javax.validation.Valid;
 
 import org.ecocean.servlet.ServletUtilities;
 import org.ecocean.survey.SurveyFactory;
-import org.ecocean.survey.SurveyObj;
-import org.ecocean.survey.SurveyPart;
 import org.ecocean.survey.SurveyPartObj;
 import org.ecocean.survey.Vessel;
 import org.ecocean.util.LogBuilder;
@@ -58,25 +56,21 @@ public class SurveyController {
         }
     }
 
-    @RequestMapping(value = "save", method = RequestMethod.POST)
+    @RequestMapping(value = "savetrack", method = RequestMethod.POST)
     public void savePart(final HttpServletRequest request,
-                         @RequestBody @Valid final SurveyObj survey) throws DatabaseException {
-        if (survey == null) {
+                         @RequestBody @Valid final SurveyPartObj sp) throws DatabaseException {
+        if (sp == null) {
             return;
         }
 
         try (Database db = ServletUtilities.getDb(request)) {
             db.performTransaction(() -> {
-              SurveyFactory.saveSurvey(db, survey);
-              if (survey.tracks != null) {
-                  for (SurveyPart track : survey.tracks) {
-                      if (logger.isDebugEnabled()) {
-                          LogBuilder.debug(logger, "track", track);
-                      }
-                      track.setSurveyId(survey.getSurveyId());
-                      SurveyFactory.saveSurveyPart(db, track);
-                  }
+              SurveyFactory.saveSurvey(db, sp.survey);
+              if (logger.isDebugEnabled()) {
+                  LogBuilder.debug(logger, "track", sp.track);
               }
+              sp.track.setSurveyId(sp.survey.getSurveyId());
+              SurveyFactory.saveSurveyPart(db, sp.track);
             });
         }
     }

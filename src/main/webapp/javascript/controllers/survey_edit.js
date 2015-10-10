@@ -2,7 +2,7 @@ wildbook.app.controller("SurveyEditController", function($scope, $http, $excepti
     var panelName = "survey_edit";
     $scope.panelList.push(panelName);
 
-    $scope.data = {};
+    $scope.info = {};
 
     $scope.$on(panelName, function(event, data) {
         if (typeof data === "boolean") {
@@ -12,10 +12,11 @@ wildbook.app.controller("SurveyEditController", function($scope, $http, $excepti
 
         $scope.panels[panelName] = true;
         if (data) {
-            $scope.survey = data;
+            $scope.data = data;
         } else {
-            // create empty new survey
-            $scope.survey = {tracks: [{}]};
+//            // create empty new survey with one track.
+//            $scope.data = {tracks: [{}]};
+            $scope.data = {};
         }
     });
 
@@ -25,25 +26,34 @@ wildbook.app.controller("SurveyEditController", function($scope, $http, $excepti
         // setting anything on this is not preserved from one selection
         // to the next. So we have to adjust the original collection.
         //
-        var org = $scope.survey.organization;
+        var org = $scope.data.survey.organization;
 
         if (org == null) {
-            $scope.data.vessels = null;
-            delete $scope.survey.organization;
+            $scope.info.vessels = null;
+            delete $scope.data.survey.organization;
             return;
         }
 
         $scope.main.getVessels(org)
         .then(function(vessels) {
-            $scope.data.vessels = vessels;
+            $scope.info.vessels = vessels;
         });
     };
 
     $scope.save = function() {
-        $http.post('obj/survey/save', $scope.survey)
+        $http.post('obj/survey/savetrack', $scope.data)
         .then(function() {
             $scope.panels[panelName] = false;
-            $scope.$emit(panelName + "_done", $scope.survey);
+            $scope.$emit(panelName + "_done", $scope.data);
         }, $exceptionHandler);
     };
 });
+//
+//wildbook.app.directive('surveyTrackEdit', function() {
+//    return {restrict: 'E',
+//        scope: {
+//            location: '='
+//        },
+//        templateUrl: 'util/render?j=partials/survey-track-edit.jade'
+//    };
+//});
