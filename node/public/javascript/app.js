@@ -57,7 +57,7 @@ app.beingDiv = function(being) {
 
     var href;
     if (being.species == "human") {
-        href = "/user/" + being.username;
+        href = "/user/" + being.id;
     } else {
         href = "/individual/" + being.id;
     }

@@ -2,7 +2,7 @@ div.being-info
     div.being-avatar(data-toggle="tooltip" title="#{being.displayName}")
         - var href
         if (being.species == "human")
-            - href = "/user/" + being.username;
+            - href = "/user/" + being.id;
         else
             - href = "/individual/" + being.id;
 
