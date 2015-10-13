@@ -1,13 +1,13 @@
 div.being-info
     div.being-avatar(data-toggle="tooltip" title="#{being.displayName}")
         - var href
-        if (being.species == "human")
+        if (being.species.code == "homo_sapien")
             - href = "/user/" + being.id;
         else
             - href = "/individual/" + being.id;
 
         a(href="#{href}")
-            - var defaultImage = "/images/species/" + being.species + ".svg";
+            - var defaultImage = "/images/species/" + being.species.code + ".svg";
             if being.avatar
                 img(src="#{being.avatar}" onError="this.onerror=null;this.src='#{defaultImage}'")
             else

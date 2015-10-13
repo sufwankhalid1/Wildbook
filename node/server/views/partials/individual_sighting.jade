@@ -9,7 +9,7 @@
         .sighting-name
             //@todo: data should come formatted like this, move out of template
             - var gender = !being.gender || being.gender == 'unknown' ? '(Gender Unknown)' : being.gender
-            span.sighting-name-label()= being.speciesDisplayName + ': '
+            span.sighting-name-label()= being.species.name + ': '
             span.sighting-name-value()= being.displayName + ' : ' + gender
         //.sighting-your-encounters
             //span.sighting-your-label()= "First Spotted: "

@@ -11,7 +11,7 @@ block content
             h5 Here is some information about the sighting:
             +submission(subinfo.photo, subinfo.date, submission.verbatimLocation, subinfo.number)
         p
-            span The #{individual.speciesDisplayName} was sighted by #{cust.displayname} user
+            span The #{individual.species.name} was sighted by #{cust.displayname} user
                 a(href=cust.info.website + '/user/' + submission.user.id)
                     | #{submission.user.displayName}
                 | . Click the link below to see all of #{individual.displayName}'s sightings over the years, including yours. 

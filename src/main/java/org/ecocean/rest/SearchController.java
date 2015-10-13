@@ -182,7 +182,6 @@ public class SearchController
         public String value;
         public String type;
         public Species species;
-        public String speciesdisplay;
         public String avatar;
     }
 
