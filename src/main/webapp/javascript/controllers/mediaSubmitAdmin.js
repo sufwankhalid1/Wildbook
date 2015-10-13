@@ -6,10 +6,6 @@ wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q
 
     $scope.panels = {};
 
-    function deleteRows(gridOptions, filter) {
-        gridOptions.api.setRowData(gridOptions.rowData.filter(filter));
-    }
-
     function attachEncounter(survey) {
         if (! $scope.survey) {
             $scope.encounters.push(encounter);
@@ -102,21 +98,18 @@ wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q
         }, $exceptionHandler);
     }
 
-    $scope.deleteSubmission = function() {
-        return alertplus.confirm('Are you sure you want to delete the <b>entire</b> submission?', "Delete Submission", true)
+    $scope.deleteSubmission = function(submission) {
+        return alertplus.confirm('Are you sure you want to delete the <b>entire</b> submission '+ submission.id +'?', "Delete Submission", true)
         .then(function() {
             $.ajax({
                 url: "obj/mediasubmission/delete",
                 type: "POST",
-                data: JSON.stringify({submissionid: $scope.submission.id}),
+                data: JSON.stringify({submissionid: submission.id}),
                 contentType: "application/json"
             })
             .then(function() {
                 $scope.$apply(function() {
-                    deleteRows($scope.msGridOptions, function(value) {
-                        return (value.id !== $scope.submission.id);
-                    });
-
+                    updateSubmissionData();
                     $scope.submission = null;
                 })
             }, $exceptionHandler);
@@ -131,14 +124,15 @@ wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q
         columnDefs:
             [{headerName: "",
               field: "id",
-              width: 24,
-              template: '<a href="javascript:;" ng-click="editSubmission(data)"><i class="glyphicon glyphicon-edit"></i></a>'
+              width: 48,
+              template: '<a href="javascript:;" ng-click="editSubmission(data)"><i class="glyphicon glyphicon-edit"></i></a>&nbsp;<a href="javascript:;" ng-click="deleteSubmission(data)"><i class="glyphicon glyphicon-trash"></i></a>'
              },
              {headerName: "Submitted",
               field: "timeSubmitted",
               cellRenderer: function(params) {
                   return $scope.timeToDate(params.value);
-              }
+              },
+              sort: 'desc'
              },
              {headerName: "Submitted By",
               field: "user",
@@ -154,7 +148,8 @@ wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q
              {headerName: "Location", field: "verbatimLocation"},
              {headerName: "Status", field: "status"}],
         rowData: null,
-        enableSorting: true,
+        enableServerSideSorting: true,
+        enableSorting: false,
         pinnedColumnCount: 3,
         angularCompileRows: true
     };
@@ -189,15 +184,65 @@ wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q
 
 
     $scope.doneEditing = function() {
-//        $scope.zoomimage = null;
+        updateSubmissionData();
         $scope.submission = null;
     };
+
+    var dataSource = {
+        pageSize: 25,
+        getRows: function(args) {
+            if(args.sortModel) {
+                $scope.rowData = sortSubmissionData(args.sortModel, $scope.rowData);
+            }
+            setTimeout(function() {
+                args.successCallback($scope.rowData.slice(args.startRow, args.endRow), $scope.rowData.length);
+            }, 100);
+        }
+    }
+
+    function setDataSource() {
+        $scope.msGridOptions.api.setDatasource(dataSource);
+    }
+
+    function updateSubmissionData() {
+        $http({url:"obj/mediasubmission/get/status"})
+        .then(function(result) {
+            $scope.rowData = result.data;
+            $scope.msGridOptions.api.setDatasource(dataSource);
+        }, $exceptionHandler);
+    }
+
+    // Source: http://www.ag-grid.com/angular-grid-pagination/index.php
+    function sortSubmissionData(sortModel, data) {
+        // do an in memory sort of the data, across all the fields
+        var resultOfSort = data.slice();
+        resultOfSort.sort(function(a,b) {
+            for (var k = 0; k<sortModel.length; k++) {
+                var sortColModel = sortModel[k];
+                var valueA = a[sortColModel.colId];
+                var valueB = b[sortColModel.colId];
+
+                // this filter didn't find a difference, move onto the next one
+                if (valueA==valueB) {
+                    continue;
+                }
+
+                var sortDirection = sortColModel.sort === 'asc' ? 1 : -1;
+                if (valueA > valueB) {
+                    return sortDirection;
+                }
+                else {
+                    return sortDirection * -1;
+                }
+            }
+            // no filters found a difference
+            return 0;
+        });
+        return resultOfSort;
+    }
 
     //
     // Finally, kick us off.
     //
-    return $http({url:"obj/mediasubmission/get/status"})
-    .then(function(result) {
-        $scope.msGridOptions.api.setRowData(result.data);
-    }, $exceptionHandler);
+    updateSubmissionData();
 });

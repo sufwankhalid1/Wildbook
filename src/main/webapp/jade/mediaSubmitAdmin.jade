@@ -7,7 +7,7 @@ block content
     div(ng-controller="MediaSubmissionController")
         div(ng-show="!submission")
             h1 Media Submissions
-            .ag-fresh(ag-grid="msGridOptions", style="height: 400px;")
+            .ag-fresh(ag-grid="msGridOptions", style="height: 500px")
 
         div.ng-cloak(ng-show="submission")
             .container-fluid
@@ -22,7 +22,7 @@ block content
                                         i.glyphicon.glyphicon-check
                                         |  Save
                                 span.media-admin-edit-icon
-                                    button.btn.btn-danger(ng-click="deleteSubmission()")
+                                    button.btn.btn-danger(ng-click="deleteSubmission(submission)")
                                         i.glyphicon.glyphicon-trash
                                         |  Delete
                 .row
