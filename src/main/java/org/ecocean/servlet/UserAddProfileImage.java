@@ -183,7 +183,7 @@ public class UserAddProfileImage extends HttpServlet {
 
         log.debug("Import user image: " + fileName);
 
-        if (MediaUtilities.isAcceptableImageFile(fileName)) {
+        if (MediaUtilities.isWebImageFile(fileName)) {
             File temp = File.createTempFile(fileName, null);
             temp.deleteOnExit();
             part.writeTo(temp);

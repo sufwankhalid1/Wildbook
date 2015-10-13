@@ -45,7 +45,7 @@ context=ServletUtilities.getContext(request);
               
               myShepherd.beginDBTransaction();
               addText = (String) enc.getAdditionalImageNames().get((imageNum - 1));
-              if (myShepherd.isAcceptableVideoFile(addText)) {
+              if (MediaUtilities.isVideoFile(addText)) {
                 addText = getServletContext().getRealPath("/")+"/images/video_thumb.jpg";
               } else {
                 addText = encountersDir.getAbsolutePath()+"/"+ Encounter.subdir(request.getParameter("number")) + "/" + addText;

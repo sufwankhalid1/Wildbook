@@ -216,7 +216,7 @@ margin-bottom: 8px !important;
 						SinglePhotoVideo match = null;
 
 						for (SinglePhotoVideo s : spvs) {
-							if (myShepherd.isAcceptableImageFile(s.getFilename())) {
+							if (MediaUtilities.isImageFile(s.getFilename())) {
 								if (s.getFilename().equals(filename)) match = s;
 							}
 						}

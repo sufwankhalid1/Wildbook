@@ -58,7 +58,7 @@ try {
     List<SinglePhotoVideo> photos = enc.getSinglePhotoVideo();
     for (int t = 0; t < photos.size(); t++) {
       SinglePhotoVideo spv = photos.get(t);
-      if (!MediaUtilities.isAcceptableImageFile(spv.getFile()))
+      if (!MediaUtilities.isWebImageFile(spv.getFile()))
         continue;
       Map<String, File> mmFiles = MantaMatcherUtilities.getMatcherFilesMap(spv);
       File matchOutputRegional = mmFiles.get("TXT-REGIONAL");

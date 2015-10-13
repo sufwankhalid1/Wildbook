@@ -20,13 +20,20 @@
 package org.ecocean.servlet;
 
 
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.ecocean.Adoption;
-import org.ecocean.CommonConfiguration;
-import org.ecocean.Shepherd;
-import org.ecocean.SinglePhotoVideo;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Random;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -35,29 +42,28 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import java.io.*;
-import java.text.CharacterIterator;
-import java.text.StringCharacterIterator;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Random;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.ecocean.Adoption;
+import org.ecocean.CommonConfiguration;
+import org.ecocean.Shepherd;
+import org.ecocean.SinglePhotoVideo;
+import org.ecocean.mmutil.MediaUtilities;
 
 
 public class AdoptionAction extends HttpServlet {
-  
-  
+
+
 
   String mailList = "no";
 
   Random ran = new Random();
-  
+
   private final String UPLOAD_DIRECTORY = "/tmp";
-  
+
   //little helper function for pulling values as strings even if null (not set via form)
-  private String getVal(HashMap fv, String key) {
+  private String getVal(final HashMap fv, final String key) {
     if (fv.get(key) == null) {
       return "";
     }
@@ -68,18 +74,21 @@ public class AdoptionAction extends HttpServlet {
 
 
 
-  public void init(ServletConfig config) throws ServletException {
+  @Override
+public void init(final ServletConfig config) throws ServletException {
     super.init(config);
   }
 
 
-public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException,IOException {
+@Override
+public void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException,IOException {
     doPost(request, response);
 }
-  
 
-public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
- 
+
+@Override
+public void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException{
+
 
   String adopterName = "";
   String adopterAddress = "";
@@ -98,7 +107,7 @@ public void doPost(HttpServletRequest request, HttpServletResponse response) thr
 
   boolean adoptionSuccess = true;
   String failureMessage = "";
-    
+
   //set UTF-8
   request.setCharacterEncoding("UTF-8");
 
@@ -111,27 +120,27 @@ public void doPost(HttpServletRequest request, HttpServletResponse response) thr
     //request.getSession()getServlet().getServletContext().getRealPath("/"));
     String rootDir = getServletContext().getRealPath("/");
     System.out.println("rootDir=" + rootDir);
-      
+
       //setup data dir
       String rootWebappPath = getServletContext().getRealPath("/");
       File webappsDir = new File(rootWebappPath).getParentFile();
       File shepherdDataDir = new File(webappsDir, CommonConfiguration.getDataDirectoryName(context));
       //if(!shepherdDataDir.exists()){shepherdDataDir.mkdirs();}
       File adoptionsDir=new File(shepherdDataDir.getAbsolutePath()+"/adoptions");
-      if(!adoptionsDir.exists()){adoptionsDir.mkdirs();}  
+      if(!adoptionsDir.exists()){adoptionsDir.mkdirs();}
 
       //get the form to read data from
      // AdoptionForm theForm = (AdoptionForm) form;
-      
+
     //set up for response
       response.setContentType("text/html");
       PrintWriter out = response.getWriter();
       boolean locked = false;
-      
+
       String fileName = "None";
       String username = "None";
       String fullPathFilename="";
-      
+
       String id = "";
 
       boolean fileSuccess = false;  //kinda pointless now as we just build sentFiles list now at this point (do file work at end)
@@ -145,24 +154,24 @@ public void doPost(HttpServletRequest request, HttpServletResponse response) thr
 
       long maxSizeMB = CommonConfiguration.getMaxMediaSizeInMegabytes(context);
       long maxSizeBytes = maxSizeMB * 1048576;
-      
-      
+
+
       //set form value hashmap
       HashMap fv = new HashMap();
-      
 
-      
+
+
        //else {
         id = "adpt" + (new Integer(date.get(Calendar.DAY_OF_MONTH))).toString() + (new Integer(date.get(Calendar.MONTH) + 1)).toString() + (new Integer(date.get(Calendar.YEAR))).toString() + (new Integer(date.get(Calendar.HOUR_OF_DAY))).toString() + (new Integer(date.get(Calendar.MINUTE))).toString() + (new Integer(date.get(Calendar.SECOND))).toString();
       //}
-      
+
 
 
 
       System.out.println("Starting an adoption submission...");
       Calendar todayDate = Calendar.getInstance();
-      
-      
+
+
       if (ServletFileUpload.isMultipartContent(request)) {
         try {
           ServletFileUpload upload = new ServletFileUpload(new DiskFileItemFactory());
@@ -179,13 +188,13 @@ public void doPost(HttpServletRequest request, HttpServletResponse response) thr
   //System.out.println("content type???? " + item.getContentType());   TODO note, the helpers only check extension
               if (item.getSize() > maxSizeBytes) {
                 filesBad.put(item.getName(), "file is larger than " + maxSizeMB + "MB");
-              } else if (myShepherd.isAcceptableImageFile(item.getName()) || myShepherd.isAcceptableVideoFile(item.getName()) ) {
+              } else if (MediaUtilities.isImageFile(item.getName()) || MediaUtilities.isVideoFile(item.getName()) ) {
                 formFiles.add(item);
                 filesOK.add(item.getName());
-                
-  
-                
-                
+
+
+
+
               } else {
                 filesBad.put(item.getName(), "invalid type of file");
               }
@@ -202,7 +211,7 @@ public void doPost(HttpServletRequest request, HttpServletResponse response) thr
       } else {
         doneMessage = "Sorry this Servlet only handles file upload request";
       }
-      
+
       session.setAttribute("filesOKMessage", (filesOK.isEmpty() ? "none" : Arrays.toString(filesOK.toArray())));
       String badmsg = "";
       for (String key : filesBad.keySet()) {
@@ -210,24 +219,24 @@ public void doPost(HttpServletRequest request, HttpServletResponse response) thr
       }
       if (badmsg.equals("")) { badmsg = "none"; }
       session.setAttribute("filesBadMessage", badmsg);
-      
+
       boolean isEdit = false;
-      
+
       if (fileSuccess) {
-        
+
         if ((fv.get("number") != null) && !fv.get("number").toString().equals("")) {
-          
+
           //handle adoption number processing
           number = fv.get("number").toString();
           if ((number != null) && (!number.equals(""))) {
             isEdit = true;
             //myShepherd.beginDBTransaction();
           }
-          
+
 
           //end adoption number/id processing
         }
-          
+
           if ((fv.get("adopterName") != null) && !fv.get("adopterName").toString().equals("")) {
             adopterName = fv.get("adopterName").toString().trim();
           }
@@ -237,55 +246,55 @@ public void doPost(HttpServletRequest request, HttpServletResponse response) thr
           if ((fv.get("adopterEmail") != null) && !fv.get("adopterEmail").toString().equals("")) {
             adopterEmail = fv.get("adopterEmail").toString().trim();
           }
-          
+
           if ((fv.get("adoptionStartDate") != null) && !fv.get("adoptionStartDate").toString().equals("")) {
             adoptionStartDate = fv.get("adoptionStartDate").toString().trim();
           }
-          
+
           if ((fv.get("adoptionEndDate") != null) && !fv.get("adoptionEndDate").toString().equals("")) {
             adoptionEndDate = fv.get("adoptionEndDate").toString().trim();
           }
-          
+
           if ((fv.get("adopterQuote") != null) && !fv.get("adopterQuote").toString().equals("")) {
             adopterQuote = fv.get("adopterQuote").toString().trim();
           }
-           
+
           if ((fv.get("adoptionManager") != null) && !fv.get("adoptionManager").toString().equals("")) {
             adoptionManager = fv.get("adoptionManager").toString().trim();
           }
-          
+
           if ((fv.get("shark") != null) && !fv.get("shark").toString().equals("")) {
             shark = fv.get("shark").toString().trim();
           }
-          
+
           if ((fv.get("encounter") != null) && !fv.get("encounter").toString().equals("")) {
             encounter = fv.get("encounter").toString().trim();
           }
-          
+
 
           if ((fv.get("notes") != null) && !fv.get("notes").toString().equals("")) {
             notes = fv.get("notes").toString().trim();
           }
-          
+
           if ((fv.get("adoptionType") != null) && !fv.get("adoptionType").toString().equals("")) {
             adoptionType = fv.get("adoptionType").toString().trim();
           }
 
-     
+
 
 
           if ((fv.get("text") != null) && !fv.get("text").toString().equals("")) {
             text = fv.get("text").toString().trim();
           }
-          
+
           if (isEdit) {
             id = number;
           }
-          
+
           File thisAdoptionDir = new File(adoptionsDir.getAbsolutePath() + "/" + id);
           if(!thisAdoptionDir.exists()){thisAdoptionDir.mkdirs();}
-          
-          
+
+
           String baseDir = ServletUtilities.dataDir(context, rootDir).getAbsolutePath();
           ArrayList<SinglePhotoVideo> images = new ArrayList<SinglePhotoVideo>();
           for (FileItem item : formFiles) {
@@ -294,7 +303,7 @@ public void doPost(HttpServletRequest request, HttpServletResponse response) thr
             //try {
               //SinglePhotoVideo spv = new SinglePhotoVideo(encID, item, context, encDataDir);
               //SinglePhotoVideo spv = new SinglePhotoVideo(enc, item, context, baseDir);
-              
+
             try {
 
               //retrieve the file data
@@ -312,8 +321,8 @@ public void doPost(HttpServletRequest request, HttpServletResponse response) thr
                 //  writeName = writeName.replaceFirst("\\.", "_");
                // }
                 //System.out.println(writeName);
-                
-                
+
+
                 OutputStream bos = new FileOutputStream(new File(thisAdoptionDir, writeName));
                 int bytesRead = 0;
                 byte[] buffer = new byte[8192];
@@ -327,7 +336,7 @@ public void doPost(HttpServletRequest request, HttpServletResponse response) thr
               //close the stream
               stream.close();
               baos.close();
-            } 
+            }
             catch (FileNotFoundException fnfe) {
               System.out.println("File not found exception.\n");
               fnfe.printStackTrace();
@@ -337,15 +346,15 @@ public void doPost(HttpServletRequest request, HttpServletResponse response) thr
               ioe.printStackTrace();
               //return null;
             }
-            
-            
-          }
-          
 
-        
-          
-          
-          
+
+          }
+
+
+
+
+
+
           Adoption ad = new Adoption(id, adopterName, adopterEmail, adoptionStartDate, adoptionEndDate);
           if (isEdit) {
             ad = myShepherd.getAdoption(number);
@@ -356,7 +365,7 @@ public void doPost(HttpServletRequest request, HttpServletResponse response) thr
           }
 
 
-          
+
           ad.setAdopterQuote(adopterQuote);
           ad.setAdoptionManager(adoptionManager);
           ad.setIndividual(shark);
@@ -364,42 +373,42 @@ public void doPost(HttpServletRequest request, HttpServletResponse response) thr
           ad.setNotes(notes);
           ad.setAdoptionType(adoptionType);
           ad.setAdopterAddress(adopterAddress);
-          
-          
+
+
           if((filesOK!=null)&&(filesOK.size()>0)){
             ad.setAdopterImage(filesOK.get(0));
           }
-          
-          
+
+
           myShepherd.beginDBTransaction();
 
-          
+
           if (adoptionSuccess && !isEdit) {
             try {
               myShepherd.storeNewAdoption(ad, id);
-            } 
+            }
             catch (Exception e) {
               adoptionSuccess = false;
               failureMessage += "Failed to presist the new adoption.<br>";
             }
-          } 
+          }
           else if (adoptionSuccess && isEdit) {
             myShepherd.commitDBTransaction();
 
           }
 
-          
-        
-        
+
+
+
       }
-   
 
 
 
 
-    
 
-     
+
+
+
 
 
 
@@ -415,9 +424,9 @@ public void doPost(HttpServletRequest request, HttpServletResponse response) thr
     //}
 
     myShepherd.closeDBTransaction();
-  
-    
-    
+
+
+
   } //end doPOST
 
 /*

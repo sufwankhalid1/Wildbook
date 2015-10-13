@@ -1,6 +1,6 @@
 package org.ecocean.media;
 
-import org.ecocean.Shepherd;
+import org.ecocean.mmutil.MediaUtilities;
 
 public enum MediaAssetType {
     UNKNOWN(0),
@@ -32,15 +32,15 @@ public enum MediaAssetType {
             return UNKNOWN;
         }
 
-        if (Shepherd.isAcceptableImageFile(path)) {
+        if (MediaUtilities.isImageFile(path)) {
             return IMAGE;
         }
 
-        if (Shepherd.isAcceptableVideoFile(path)) {
+        if (MediaUtilities.isVideoFile(path)) {
             return VIDEO;
         }
 
-        if (Shepherd.isAcceptableGpsFile(path)) {
+        if (MediaUtilities.isGpsFile(path)) {
             return GPS;
         }
 

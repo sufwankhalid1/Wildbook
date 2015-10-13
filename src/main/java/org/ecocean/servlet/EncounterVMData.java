@@ -37,6 +37,7 @@ import org.ecocean.Encounter;
 import org.ecocean.MarkedIndividual;
 import org.ecocean.Shepherd;
 import org.ecocean.SinglePhotoVideo;
+import org.ecocean.mmutil.MediaUtilities;
 
 import com.google.gson.Gson;
 
@@ -136,7 +137,7 @@ public void doPost(final HttpServletRequest request, final HttpServletResponse r
 					ArrayList images = new ArrayList();
 					String dataDir = CommonConfiguration.getDataDirectoryName(context);
 					for (SinglePhotoVideo s : spvs) {
-						if (myShepherd.isAcceptableImageFile(s.getFilename())) {
+						if (MediaUtilities.isImageFile(s.getFilename())) {
 							HashMap i = new HashMap();
 							i.put("fullsizeUrl", "/" + dataDir + cand.dir("") + "/" + s.getFilename());
  							i.put("url", "/" + dataDir + cand.dir("") + "/" + s.getDataCollectionEventID() + "-mid.jpg");
@@ -157,7 +158,7 @@ public void doPost(final HttpServletRequest request, final HttpServletResponse r
 
 				ArrayList images = new ArrayList();
 				for (SinglePhotoVideo s : spvs) {
-					if (myShepherd.isAcceptableImageFile(s.getFilename())) {
+					if (MediaUtilities.isImageFile(s.getFilename())) {
 						HashMap i = new HashMap();
 						i.put("fullsizeUrl", "/" + dataDir + "/" + s.getFilename());
  						i.put("url", "/" + dataDir + "/" + s.getDataCollectionEventID() + "-mid.jpg");

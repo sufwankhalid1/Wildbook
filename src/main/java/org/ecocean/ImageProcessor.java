@@ -27,6 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.samsix.util.OsUtils;
 import com.samsix.util.string.StringUtilities;
 
 /**
@@ -35,7 +36,7 @@ import com.samsix.util.string.StringUtilities;
  * @author Jon Van Oast
  */
 public final class ImageProcessor implements Runnable {
-    private static Logger log = LoggerFactory.getLogger(ImageProcessor.class);
+    private static Logger logger = LoggerFactory.getLogger(ImageProcessor.class);
 
 //  /** Enumeration representing possible status values for the batch processor. */
 //  public enum Status { WAITING, INIT, RUNNING, FINISHED, ERROR };
@@ -56,22 +57,36 @@ public final class ImageProcessor implements Runnable {
     private int height = 0;
 
 
-  public ImageProcessor(String context,
-                        String action,
-                        int width,
-                        int height,
-                        String imageSourcePath,
-                        String imageTargetPath,
-                        String arg) {
+  public ImageProcessor(final String action,
+                        final int width,
+                        final int height,
+                        final String imageSourcePath,
+                        final String imageTargetPath,
+                        final String arg) {
         this.width = width;
         this.height = height;
         this.imageSourcePath = imageSourcePath;
         this.imageTargetPath = imageTargetPath;
         this.arg = arg;
-        if ((action != null) && action.equals("watermark")) {
-            this.command = CommonConfiguration.getProperty("imageWatermarkCommand", context);
-        } else {
-            this.command = CommonConfiguration.getProperty("imageResizeCommand", context);
+
+        String propKey = "command.image." + action;
+        String ext = OsUtils.getFileExtension(imageTargetPath);
+        //
+        // look for any special commands for this type of file. Otherwise fallback to standard one.
+        //
+        if (! StringUtils.isBlank(ext)) {
+            String propKey2 = propKey + "." + ext.toLowerCase();
+            if (logger.isDebugEnabled()) {
+                logger.debug("Checking for property [" + propKey2 + "]");
+            }
+            this.command = Global.INST.getAppResources().getString(propKey2, null);
+        }
+
+        if (this.command == null) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Checking for property [" + propKey + "]");
+            }
+            this.command = Global.INST.getAppResources().getString(propKey, null);
         }
     }
 
@@ -80,17 +95,17 @@ public final class ImageProcessor implements Runnable {
     public void run()
     {
         if (StringUtils.isBlank(this.command)) {
-            log.warn("Can't run processor due to empty command");
+            logger.warn("Can't run processor due to empty command");
             return;
         }
 
         if (StringUtils.isBlank(this.imageSourcePath)) {
-            log.warn("Can't run processor due to empty source path");
+            logger.warn("Can't run processor due to empty source path");
             return;
         }
 
         if (StringUtils.isBlank(this.imageTargetPath)) {
-            log.warn("Can't run processor due to empty target path");
+            logger.warn("Can't run processor due to empty target path");
             return;
         }
 
@@ -108,8 +123,8 @@ public final class ImageProcessor implements Runnable {
             if (command[i].equals("%imagetarget")) command[i] = this.imageTargetPath;
         }
 
-        if (log.isDebugEnabled()) {
-            log.debug(StringUtilities.arrayToString(command, " "));
+        if (logger.isDebugEnabled()) {
+            logger.debug(StringUtilities.arrayToString(command, " "));
         }
 
         ProcessBuilder pb = new ProcessBuilder();
@@ -132,7 +147,7 @@ public final class ImageProcessor implements Runnable {
             proc.waitFor();
             ////int returnCode = p.exitValue();
         } catch (Exception ioe) {
-            log.error("Trouble running processor [" + command + "]", ioe);
+            logger.error("Trouble running processor [" + command + "]", ioe);
         }
     }
 }

@@ -131,7 +131,7 @@ int imageCount = 0;
 System.out.println("urlDir = " + encUrlDir);
     
     try {
-      if ((imageShepherd.isAcceptableImageFile(addTextFile)) || (imageShepherd.isAcceptableVideoFile(addTextFile))) {
+      if ((MediaUtilities.isImageFile(addTextFile)) || (MediaUtilities.isVideoFile(addTextFile))) {
         String addText = imageEncNum + "/" + addTextFile;
 %>
 <tr>
@@ -308,7 +308,7 @@ if(CommonConfiguration.useSpotPatternRecognition(context)){
       if (addTextFile.toLowerCase().indexOf(".bmp") != -1) {
         isBMP = true;
       }
-      if (imageShepherd.isAcceptableVideoFile(addTextFile)) {
+      if (MediaUtilities.isVideoFile(addTextFile)) {
         isVideo = true;
       }
       if (request.getParameter("isOwner").equals("true") && (!isBMP) && (!isVideo)) {

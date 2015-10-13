@@ -20,9 +20,13 @@
 package org.ecocean.mmutil;
 
 import java.io.File;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import javax.jdo.Extent;
 import javax.jdo.Query;
+
 import org.ecocean.Encounter;
 import org.ecocean.Shepherd;
 import org.ecocean.SinglePhotoVideo;
@@ -60,7 +64,7 @@ public final class MantaMatcherUtilities {
    * @param spv {@code SinglePhotoVideo} instance denoting base reference image
    * @return Map of string to file for each MantaMatcher algorithm feature.
    */
-  public static Map<String, File> getMatcherFilesMap(SinglePhotoVideo spv) {
+  public static Map<String, File> getMatcherFilesMap(final SinglePhotoVideo spv) {
     if (spv == null)
       throw new NullPointerException("Invalid file specified: null");
     Map<String, File> map = getMatcherFilesMap(spv.getFile());
@@ -99,12 +103,12 @@ public final class MantaMatcherUtilities {
    *     // ...do something ...
    * }
    * </pre>
-   * 
+   *
    * The functionality is centralized here to reduce naming errors/conflicts.
    * @param f base image file from which to reference other algorithm files
    * @return Map of string to file for each MantaMatcher algorithm feature.
    */
-  public static Map<String, File> getMatcherFilesMap(File f) {
+  public static Map<String, File> getMatcherFilesMap(final File f) {
     if (f == null)
       throw new NullPointerException("Invalid file specified: null");
     String name = f.getName();
@@ -128,7 +132,7 @@ public final class MantaMatcherUtilities {
     File eh = ehOpts.isEmpty() ? new File(pf, name.replaceFirst(regex, "_EH." + crExt)) : ehOpts.get(0);
     File ft = ftOpts.isEmpty() ? new File(pf, name.replaceFirst(regex, "_FT." + crExt)) : ftOpts.get(0);
     File feat = new File(pf, name.replaceFirst(regex, ".FEAT"));
-    
+
     Map<String, File> map = new HashMap<String, File>(11);
     map.put("O", f);
     map.put("CR", cr);
@@ -145,7 +149,7 @@ public final class MantaMatcherUtilities {
    * @param f base image file from which to reference other algorithm files
    * @return true if all MantaMatcher files exist (O/CR/EH/FT/FEAT), false otherwise
    */
-  public static boolean checkMatcherFilesExist(File f) {
+  public static boolean checkMatcherFilesExist(final File f) {
     Map<String, File> mmFiles = getMatcherFilesMap(f);
     return mmFiles.get("O").exists() &&
             mmFiles.get("CR").exists() &&
@@ -161,9 +165,9 @@ public final class MantaMatcherUtilities {
    * @param dataDir data folder
    * @return true if any CR images are found, false otherwise
    */
-  public static boolean checkEncounterHasMatcherFiles(Encounter enc, File dataDir) {
+  public static boolean checkEncounterHasMatcherFiles(final Encounter enc, final File dataDir) {
     for (SinglePhotoVideo spv : enc.getSinglePhotoVideo()) {
-      if (MediaUtilities.isAcceptableImageFile(spv.getFile()) && checkMatcherFilesExist(spv.getFile())) {
+      if (MediaUtilities.isWebImageFile(spv.getFile()) && checkMatcherFilesExist(spv.getFile())) {
         return true;
       }
     }
@@ -175,7 +179,7 @@ public final class MantaMatcherUtilities {
    * base image file.
    * @param spv {@code SinglePhotoVideo} instance denoting base reference image
    */
-  public static void removeMatcherFiles(SinglePhotoVideo spv) {
+  public static void removeMatcherFiles(final SinglePhotoVideo spv) {
     Map<String, File> mmFiles = MantaMatcherUtilities.getMatcherFilesMap(spv);
     mmFiles.get("CR").delete();
     mmFiles.get("EH").delete();
@@ -200,7 +204,7 @@ public final class MantaMatcherUtilities {
    * @return text suitable for MantaMatcher algorithm input file
    */
   @SuppressWarnings("unchecked")
-  public static String collateAlgorithmInput(Shepherd shep, File encDir, Encounter enc, SinglePhotoVideo spv) {
+  public static String collateAlgorithmInput(final Shepherd shep, final File encDir, final Encounter enc, final SinglePhotoVideo spv) {
     // Validate input.
     if (enc.getLocationID() == null)
       throw new IllegalArgumentException("Invalid location ID specified");
@@ -270,7 +274,7 @@ public final class MantaMatcherUtilities {
    * @return text suitable for MantaMatcher algorithm input file
    */
   @SuppressWarnings("unchecked")
-  public static String collateAlgorithmInputRegional(Shepherd shep, File encDir, Encounter enc, SinglePhotoVideo spv) {
+  public static String collateAlgorithmInputRegional(final Shepherd shep, final File encDir, final Encounter enc, final SinglePhotoVideo spv) {
     // Validate input.
     if (enc.getLocationID() == null)
       throw new IllegalArgumentException("Invalid location ID specified");
@@ -339,7 +343,7 @@ public final class MantaMatcherUtilities {
    * fields are changed (e.g. species/patterningCode/locationID).
    * @param enc encounter for which to remove algorithm match results
    */
-  public static void removeAlgorithmMatchResults(Encounter enc) {
+  public static void removeAlgorithmMatchResults(final Encounter enc) {
     for (SinglePhotoVideo spv : enc.getSinglePhotoVideo()) {
       Map<String, File> mmFiles = MantaMatcherUtilities.getMatcherFilesMap(spv);
       mmFiles.get("TXT").delete();

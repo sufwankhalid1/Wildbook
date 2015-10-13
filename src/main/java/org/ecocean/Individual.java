@@ -23,9 +23,11 @@ public class Individual {
     }
 
     public Individual(final Integer id,
+                      final Species species,
                       final String nickname)
     {
         this.id = id;
+        this.species = species;
         this.setNickname(nickname);
     }
 

@@ -47,6 +47,7 @@ import org.ecocean.genetics.SexAnalysis;
 import org.ecocean.genetics.TissueSample;
 import org.ecocean.grid.ScanTask;
 import org.ecocean.grid.ScanWorkItem;
+import org.ecocean.mmutil.MediaUtilities;
 import org.ecocean.security.Collaboration;
 import org.ecocean.security.User;
 import org.ecocean.servlet.ServletUtilities;
@@ -2339,12 +2340,12 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(final Class<T> clazz, f
 					String nameString=ServletUtilities.cleanFileName(ServletUtilities.preventCrossSiteScriptingAttacks(request.getParameter("filenameField").trim()));
 					if(!nameString.equals(imageName)){hasKeyword=false;}
 			}
-      if (hasKeyword && isAcceptableVideoFile(imageName)) {
+      if (hasKeyword && MediaUtilities.isVideoFile(imageName)) {
               m_thumb = "http://" + CommonConfiguration.getURLLocation(request) + "/images/video.jpg" + "BREAK" + enc.getEncounterNumber() + "BREAK" + imageName;
               //thumbs.add(m_thumb);
               thumbs.add(images.get(i));
       }
-      else if (hasKeyword && isAcceptableImageFile(imageName)) {
+      else if (hasKeyword && MediaUtilities.isImageFile(imageName)) {
               m_thumb = enc.getEncounterNumber() + "/" + (i + 1) + ".jpg" + "BREAK" + enc.getEncounterNumber() + "BREAK" + imageName;
               //thumbs.add(m_thumb);
               thumbs.add(images.get(i));
@@ -2417,12 +2418,12 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(final Class<T> clazz, f
             String nameString=ServletUtilities.cleanFileName(ServletUtilities.preventCrossSiteScriptingAttacks(request.getParameter("filenameField").trim()));
             if(!nameString.equals(imageName)){hasKeyword=false;}
         }
-        if (hasKeyword && isAcceptableVideoFile(imageName)) {
+        if (hasKeyword && MediaUtilities.isVideoFile(imageName)) {
                 m_thumb = "http://" + CommonConfiguration.getURLLocation(request) + "/images/video.jpg" + "BREAK" + enc.getEncounterNumber() + "BREAK" + imageName;
                 //thumbs.add(m_thumb);
                 thumbs.add(images.get(i));
         }
-        else if (hasKeyword && isAcceptableImageFile(imageName)) {
+        else if (hasKeyword && MediaUtilities.isImageFile(imageName)) {
                 m_thumb = enc.getEncounterNumber() + "/" + (i + 1) + ".jpg" + "BREAK" + enc.getEncounterNumber() + "BREAK" + imageName;
                 //thumbs.add(m_thumb);
                 thumbs.add(images.get(i));
@@ -2483,10 +2484,10 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(final Class<T> clazz, f
 
         }
 
-        if (hasKeyword && isAcceptableVideoFile(imageName)) {
+        if (hasKeyword && MediaUtilities.isVideoFile(imageName)) {
           //m_thumb="http://"+CommonConfiguration.getURLLocation()+"/images/video.jpg"+"BREAK"+enc.getEncounterNumber()+"BREAK"+imageName;
           //thumbs.add(m_thumb);
-        } else if (hasKeyword && isAcceptableImageFile(imageName)) {
+        } else if (hasKeyword && MediaUtilities.isImageFile(imageName)) {
           //m_thumb=enc.getEncounterNumber()+"/"+(i+1)+".jpg"+"BREAK"+enc.getEncounterNumber()+"BREAK"+imageName;
           //thumbs.add(m_thumb);
         } else {
@@ -2537,10 +2538,10 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(final Class<T> clazz, f
 
           }
 
-          if (hasKeyword && isAcceptableVideoFile(imageName)) {
+          if (hasKeyword && MediaUtilities.isVideoFile(imageName)) {
             //m_thumb="http://"+CommonConfiguration.getURLLocation()+"/images/video.jpg"+"BREAK"+enc.getEncounterNumber()+"BREAK"+imageName;
             //thumbs.add(m_thumb);
-          } else if (hasKeyword && isAcceptableImageFile(imageName)) {
+          } else if (hasKeyword && MediaUtilities.isImageFile(imageName)) {
             //m_thumb=enc.getEncounterNumber()+"/"+(i+1)+".jpg"+"BREAK"+enc.getEncounterNumber()+"BREAK"+imageName;
             //thumbs.add(m_thumb);
           } else {
@@ -2571,7 +2572,7 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(final Class<T> clazz, f
 
         //check for video or image
         String addTextFile = enc.getAdditionalImageNames().get(i);
-        if ((!isAcceptableImageFile(addTextFile)) && (!isAcceptableVideoFile(addTextFile))) {
+        if ((!MediaUtilities.isImageFile(addTextFile)) && (!MediaUtilities.isVideoFile(addTextFile))) {
           count--;
         }
       }
@@ -2579,43 +2580,7 @@ public <T extends GeneticAnalysis> T findGeneticAnalysis(final Class<T> clazz, f
     return count;
   }
 
-    public static boolean isAcceptableImageFile(final String fileName)
-    {
-        String lower = fileName.toLowerCase();
-        if ((lower.indexOf(".jpg") != -1)
-            || (lower.indexOf(".gif") != -1)
-            || (lower.indexOf(".jpeg") != -1)
-            || (lower.indexOf(".jpe") != -1)
-            || (lower.indexOf(".bmp") != -1)
-            || (lower.indexOf(".png") != -1)) {
-            return true;
-        }
-        return false;
-    }
-
-    public static boolean isAcceptableVideoFile(final String fileName) {
-        if ((fileName.toLowerCase().indexOf(".mov") != -1)
-             || (fileName.toLowerCase().indexOf(".avi") != -1)
-             || (fileName.toLowerCase().indexOf("mpg") != -1)
-             || (fileName.toLowerCase().indexOf(".wmv") != -1)
-             || (fileName.toLowerCase().indexOf(".mp4") != -1)
-             || (fileName.toLowerCase().indexOf(".flv") != -1)) {
-            return true;
-        }
-        return false;
-    }
-
-    public static boolean isAcceptableGpsFile(final String fileName) {
-        if ((fileName.toLowerCase().indexOf(".kmz") != -1)
-             || (fileName.toLowerCase().indexOf(".kml") != -1)
-             || (fileName.toLowerCase().indexOf(".gpx") != -1)) {
-            return true;
-        }
-        return false;
-    }
-
-
-  public Adoption getRandomAdoption() {
+    public Adoption getRandomAdoption() {
 
     //get the random number
     int numAdoptions = getNumAdoptions();
