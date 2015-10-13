@@ -1,6 +1,6 @@
 {
     "app": {
-        "title": "Happy Whale"
+        "title": "Happywhale"
     },
     "header": {
         "menu": {
@@ -13,7 +13,7 @@
             "searchHelpNone": "No matching whales",
             "welcomeBack": "Welcome Back",
             "signin": "Sign in",
-            "welcomeSignIn": "Welcome to Happy Whale!",
+            "welcomeSignIn": "Welcome to Happywhale!",
             "alreadyMember": "Already a user?",
             "gotomy": "Go to My Whales",
             "signout": "Sign Out"
@@ -49,7 +49,7 @@
         "btnAddMedia": "Add Media +"
     },
     "login": {
-        "title": "Login to Happy Whale",
+        "title": "Login to Happywhale",
         "labelUsername": "Username / Email Address",
         "labelPassword": "Password",
         "forgotPassword": "Forgot your password?",

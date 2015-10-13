@@ -1,8 +1,8 @@
-##Happy Whale
-Share with us your whale photos, and if we are able to recognize individuals, we will tell you what we know about them. Our initial focus is on the whales of the California coastline, in particular the Humpback Whales of Monterey Bay. We know the whales here best, and have a good chance of recognizing any Humpback with a patterned fluke (tail). With every recognizable individual, we’ll share a story of a whale and will allow scientists to know more about the movements and populations of our most magnificent ocean neighbors.
+##Happywhale
+Share with us your whale photos, and if we are able to recognize individuals, we will tell you what we know about them. We are initially focusing on the Humpback Whales of Monterey Bay, California, and marine mammals of the Antarctic region where expedition cruise vessels travel. For California, we know these whales well, and have a good chance of recognizing any Humpback with a patterned fluke (tail). For Antarctica, we know some of the animals but there are *so* many unanswered questions about populations, recovery from whaling and habitat use. With every recognizable individual, we’ll share any story we know of the animal, and the data from your sighting will contribute to the science of our most magnificent ocean neighbors.
 
 ##The Team
-Happywhale.com is the first project by Animal.us, a Public Benefits Corporation with the mission of enabling people to recognize, connect with and follow individual animals to further science and create a rich understanding of wild species. We use <a href="http://www.wildme.org" target="_blank">wildbook</a>, an open source software framework for managing wildlife information and sightings. Happy Whale depends on a collaboration between Animal.us and the Cascadia Research Collective.
+<a href="/">Happywhale.com</a> is a project of Animal.us, a Public Benefits Corporation (i.e. B-corp) with the mission of enabling people to recognize, connect with and follow individual animals to further science and create a rich understanding of wild species. We use <a href="http://www.wildme.org" target="_blank">wildbook</a>, an open source software framework for managing wildlife information and sightings. Happywhale depends on a collaboration between Animal.us and Cascadia Research Collective of Olympia, Washington, USA.
 
 Cascadia Research Collective is a tax-exempt non-profit research organization founded in 1979 that has coordinated the long term photo-ID efforts on blue, humpback, and gray whales on the US West Coast since the mid 1980s. More recently, photo-ID efforts have expanded to include fin whales, Risso’s dolphins and Cuvier’s beaked whales. See <a href="http://www.cascadiaresearch.org" target="_blank">cascadiaresearch.org</a> for more information.
 
@@ -14,6 +14,6 @@ Understanding the whales requires analyzing this data, a time intensive process 
 Humpbacks are considered one of the easier whale species to individually identify by eye. They are identified by both the markings on the underside of their tail flukes and the overall shape, and while this provides a great deal of information for most whales that a human brain can efficiently process, most computer systems can't quickly and reliably converge on a metric that works for all types of flukes in a population, regardless of marking types. Thus we still rely heavily on manual labor to process these images; with this project we are developing a reliable and efficient computer-based identification system.
 
 ##The Site
-Happywhale.com allows you to share photos of whales with scientists. We will compare your images against catalogs of known whales, and notify you of what we find.
+<a href="/">Happywhale.com</a> allows you to share photos of whales with scientists. We will compare your images against catalogs of known whales, and notify you of what we find.
 
 Please [contact us](mailto:info@happywhale.com) if you have any questions or problems.
