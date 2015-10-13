@@ -135,7 +135,7 @@ public class EncounterFactory {
 
         if (ma != null) {
             ind.setAvatarid(rs.getInteger("avatarid"));
-            ind.setAvatar(UserFactory.getAvatar(ma.webPathString(), rs.getString("email")));
+            ind.setAvatar(ma.webPathString());
         }
 
         return ind;
@@ -150,6 +150,19 @@ public class EncounterFactory {
     {
         SqlStatement sql = getIndividualStatement();
         sql.addCondition(ALIAS_INDIVIDUALS, PK_INDIVIDUALS, SqlRelationType.EQUAL, individualId);
+        return db.selectFirst(sql, (rs) -> {
+            return readIndividual(rs);
+        });
+    }
+
+    public static Individual getIndividualByAltId(final Database db, final String alternateId) throws DatabaseException
+    {
+        SqlStatement sql = EncounterFactory.getIndividualStatement();
+
+        sql.addCondition(EncounterFactory.ALIAS_INDIVIDUALS,
+                         "alternateid",
+                         SqlRelationType.EQUAL,
+                         alternateId);
         return db.selectFirst(sql, (rs) -> {
             return readIndividual(rs);
         });

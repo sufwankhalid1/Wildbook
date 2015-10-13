@@ -5,7 +5,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashSet;
 
-import org.ecocean.rest.MediaUploadServlet;
+import org.ecocean.mmutil.MediaUtilities;
 import org.ecocean.rest.SimplePhoto;
 import org.ecocean.util.LogBuilder;
 import org.slf4j.Logger;
@@ -182,11 +182,11 @@ public class MediaAssetFactory {
 
 
     public static String getThumbnail(final String url) {
-        return getScaledImage(url, MediaUploadServlet.THUMB_DIR);
+        return getScaledImage(url, MediaUtilities.THUMB_DIR);
     }
 
     public static String getMidsizeFile(final String url) {
-        return getScaledImage(url, MediaUploadServlet.MID_DIR);
+        return getScaledImage(url, MediaUtilities.MID_DIR);
     }
 
     public static String getScaledImage(final String url, final String subdir) {

@@ -19,10 +19,6 @@
 
 package org.ecocean.mmutil;
 
-import com.drew.imaging.ImageMetadataReader;
-import com.drew.imaging.ImageProcessingException;
-import com.drew.metadata.*;
-import com.drew.metadata.exif.ExifIFD0Directory;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
@@ -41,6 +37,7 @@ import java.awt.image.ColorModel;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -48,13 +45,28 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Locale;
+
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
+
+import org.ecocean.GeoFileProcessor;
+import org.ecocean.ImageProcessor;
+import org.ecocean.media.LocalAssetStore;
+import org.ecocean.media.MediaAsset;
+import org.ecocean.util.LogBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.drew.imaging.ImageMetadataReader;
+import com.drew.imaging.ImageProcessingException;
+import com.drew.metadata.Directory;
+import com.drew.metadata.Metadata;
+import com.drew.metadata.MetadataException;
+import com.drew.metadata.Tag;
+import com.drew.metadata.exif.ExifIFD0Directory;
 
 /**
  * Class providing centralized image-related services, such as image rescaling,
@@ -64,7 +76,7 @@ import org.slf4j.LoggerFactory;
  */
 public final class MediaUtilities {
   /** SLF4J logger instance for writing log entries. */
-  private static Logger log = LoggerFactory.getLogger(MediaUtilities.class);
+  private static Logger logger = LoggerFactory.getLogger(MediaUtilities.class);
   /** ColorSpace for sRGB images (used for conversions). */
   private static final ICC_ColorSpace CS_sRGB = new ICC_ColorSpace(ICC_Profile.getInstance(ColorSpace.CS_sRGB));
   /** Regex pattern string suffix for matching image filenames (case-insensitive, capturing group). */
@@ -73,6 +85,9 @@ public final class MediaUtilities {
   public static final String REGEX_SUFFIX_FOR_WEB_IMAGES = "(?i:(jpe?g?|png|gif))$";
   /** Regex pattern string suffix for matching video filenames (case-insensitive, capturing group). */
   public static final String REGEX_SUFFIX_FOR_MOVIES = "(?i:(mp4|mpg|mov|wmv|avi|flv))$";
+
+  public static final String THUMB_DIR = "thumb";
+  public static final String MID_DIR = "mid";
 
   /**
    * Gets a JPEG {@code ImageWriter} instance.
@@ -97,7 +112,7 @@ public final class MediaUtilities {
    * @param filename filename of file to check
    * @return true if filename is supported, false otherwise
    */
-  public static boolean isAcceptableImageFile(String filename) {
+  public static boolean isAcceptableImageFile(final String filename) {
     return (filename == null) ? false : filename.matches("^.+\\." + REGEX_SUFFIX_FOR_WEB_IMAGES);
   }
 
@@ -108,7 +123,7 @@ public final class MediaUtilities {
    * @param filename filename of file to check
    * @return true if filename is supported, false otherwise
    */
-  public static boolean isAcceptableVideoFile(String filename) {
+  public static boolean isAcceptableVideoFile(final String filename) {
     return (filename == null) ? false : filename.matches("^.+\\." + REGEX_SUFFIX_FOR_MOVIES);
   }
 
@@ -117,7 +132,7 @@ public final class MediaUtilities {
    * @param file file to check
    * @return true if filename is supported, false otherwise
    */
-  public static boolean isAcceptableImageFile(File file) {
+  public static boolean isAcceptableImageFile(final File file) {
     return (file == null) ? false : isAcceptableImageFile(file.getName());
   }
 
@@ -126,7 +141,7 @@ public final class MediaUtilities {
    * @param file file to check
    * @return true if filename is supported, false otherwise
    */
-  public static boolean isAcceptableVideoFile(File file) {
+  public static boolean isAcceptableVideoFile(final File file) {
     return (file == null) ? false : isAcceptableVideoFile(file.getName());
   }
 
@@ -135,7 +150,7 @@ public final class MediaUtilities {
    * @param filename filename of file to check
    * @return true if filename is supported, false otherwise
    */
-  public static boolean isAcceptableMediaFile(String filename) {
+  public static boolean isAcceptableMediaFile(final String filename) {
     return isAcceptableImageFile(filename) || isAcceptableVideoFile(filename);
   }
 
@@ -144,7 +159,7 @@ public final class MediaUtilities {
    * @param file file to check
    * @return true if filename is supported, false otherwise
    */
-  public static boolean isAcceptableMediaFile(File file) {
+  public static boolean isAcceptableMediaFile(final File file) {
     return isAcceptableImageFile(file) || isAcceptableVideoFile(file);
   }
 
@@ -153,7 +168,7 @@ public final class MediaUtilities {
    * @param file file to check
    * @return true if filename is the correct format, false otherwise
    */
-  public static boolean isFileType_JPEG(File file) {
+  public static boolean isFileType_JPEG(final File file) {
     return file.getName().matches("(?i:\\.(jpe?g))$");
   }
 
@@ -162,7 +177,7 @@ public final class MediaUtilities {
    * @param file file to check
    * @return true if filename is the correct format, false otherwise
    */
-  public static boolean isFileType_PNG(File file) {
+  public static boolean isFileType_PNG(final File file) {
     return file.getName().matches("(?i:\\.(png))$");
   }
 
@@ -171,7 +186,7 @@ public final class MediaUtilities {
    * @param file file to check
    * @return true if filename is the correct format, false otherwise
    */
-  public static boolean isFileType_TIFF(File file) {
+  public static boolean isFileType_TIFF(final File file) {
     return file.getName().matches("(?i:\\.(tiff?))$");
   }
 
@@ -180,7 +195,7 @@ public final class MediaUtilities {
    * @param file file to check
    * @return true if filename is the correct format, false otherwise
    */
-  public static boolean isFileType_BMP(File file) {
+  public static boolean isFileType_BMP(final File file) {
     return file.getName().matches("(?i:\\.(bmp))$");
   }
 
@@ -190,7 +205,7 @@ public final class MediaUtilities {
    * @param baseName base name of web-compatible images for which to search
    * @return list of files
    */
-  public static List<File> listWebImageFiles(File dir, String baseName) {
+  public static List<File> listWebImageFiles(final File dir, final String baseName) {
     RegexFilenameFilter ff = WebImageFilenameFilter.instance();
     List<File> list = new LinkedList<File>();
     File[] fileList = dir.listFiles(ff);
@@ -212,7 +227,7 @@ public final class MediaUtilities {
    * @param baseNameRegex base name regex of web-compatible images for which to search
    * @return list of files
    */
-  public static List<File> listWebImageFilesRegex(File dir, String baseNameRegex) {
+  public static List<File> listWebImageFilesRegex(final File dir, final String baseNameRegex) {
     RegexFilenameFilter ff = WebImageFilenameFilter.instance();
     List<File> list = new LinkedList<File>(Arrays.asList(dir.listFiles(ff)));
     for (ListIterator<File> it = list.listIterator(); it.hasNext();) {
@@ -230,7 +245,7 @@ public final class MediaUtilities {
    * @return {@code BufferedImage} instance
    * @throws IOException if an I/O problem occurs
    */
-  public static BufferedImage loadImage(File f) throws IOException {
+  public static BufferedImage loadImage(final File f) throws IOException {
     if (f == null)
       throw new NullPointerException("Invalid (null) file specified");
     else if (!f.exists())
@@ -262,10 +277,10 @@ public final class MediaUtilities {
       }
     } catch (ImageProcessingException ex) {
       // Warn, and return original.
-      log.warn("Unable to read metadata for image: " + f.getAbsolutePath(), ex);
+      logger.warn("Unable to read metadata for image: " + f.getAbsolutePath(), ex);
     } catch (MetadataException ex) {
       // Warn, and return original.
-      log.warn("Unable to read metadata for image: " + f.getAbsolutePath(), ex);
+      logger.warn("Unable to read metadata for image: " + f.getAbsolutePath(), ex);
     }
     // Return image.
     return img;
@@ -278,7 +293,7 @@ public final class MediaUtilities {
    * @return {@code BufferedImage} instance (converted to sRGB color profile)
    * @throws IOException if an I/O problem occurs
    */
-  public static BufferedImage loadImageAsSRGB(File f) throws IOException {
+  public static BufferedImage loadImageAsSRGB(final File f) throws IOException {
     BufferedImage bi = loadImage(f);
     BufferedImage img = convertToSRGB(bi);
     if (img != bi)
@@ -294,7 +309,7 @@ public final class MediaUtilities {
    * @param orientation EXIF orientation identifier
    * @return {@code AffineTransform} instance
    */
-  private static AffineTransform getOrientationTransform(BufferedImage img, int orientation) {
+  private static AffineTransform getOrientationTransform(final BufferedImage img, final int orientation) {
     AffineTransform tx = null;
     int w = img.getWidth();
     int h = img.getHeight();
@@ -345,7 +360,7 @@ public final class MediaUtilities {
    * @param transform affine transform to apply
    * @return {@code BufferedImage} instance
    */
-  private static BufferedImage transformImage(BufferedImage image, AffineTransform transform) {
+  private static BufferedImage transformImage(final BufferedImage image, final AffineTransform transform) {
     AffineTransformOp op = new AffineTransformOp(transform, AffineTransformOp.TYPE_BICUBIC);
     BufferedImage img = op.createCompatibleDestImage(image, (image.getType() == BufferedImage.TYPE_BYTE_GRAY) ? image.getColorModel() : null);
     img = op.filter(image, img);
@@ -360,7 +375,7 @@ public final class MediaUtilities {
    * @param quality JPEG quality (0-1)
    * @param progressive whether to save as a progressive JPEG
    */
-  public static void saveImageJPEG(BufferedImage img, File f, boolean overwrite, float quality, boolean progressive) throws IOException {
+  public static void saveImageJPEG(final BufferedImage img, final File f, final boolean overwrite, final float quality, final boolean progressive) throws IOException {
     if (img == null)
       throw new NullPointerException("Invalid (null) image specified");
     if (f == null)
@@ -414,7 +429,7 @@ public final class MediaUtilities {
    * @param image image to convert (if necessary)
    * @return A {@code BufferedImage} instance in sRGB color space
    */
-  public static BufferedImage convertToSRGB(BufferedImage image) {
+  public static BufferedImage convertToSRGB(final BufferedImage image) {
     if (image == null)
       throw new NullPointerException("Invalid (null) image specified");
     final ColorModel cm = image.getColorModel();
@@ -444,7 +459,7 @@ public final class MediaUtilities {
    *    {@link java.awt.RenderingHints.VALUE_INTERPOLATION_BICUBIC})
    * @return a scaled version of the original {@code BufferedImage}
    */
-  public static BufferedImage rescaleImage(BufferedImage img, int targetWidth, int targetHeight, Object hint) {
+  public static BufferedImage rescaleImage(final BufferedImage img, final int targetWidth, final int targetHeight, final Object hint) {
     if (img == null)
       throw new NullPointerException("Invalid (null) image specified");
     BufferedImage tmp = new BufferedImage(targetWidth, targetHeight, BufferedImage.TYPE_INT_RGB);
@@ -464,7 +479,7 @@ public final class MediaUtilities {
    * of reproducing thumbnail images with a copyright message overlay,
    * as done by the deprecated Sunwest Technologies Dynamic Images library.
    */
-  public static BufferedImage rescaleImageWithTextOverlay(BufferedImage img, int tw, int th, String text) {
+  public static BufferedImage rescaleImageWithTextOverlay(final BufferedImage img, final int tw, final int th, final String text) {
     if (img == null)
       throw new NullPointerException("Invalid (null) image specified");
     BufferedImage tmp = new BufferedImage(tw, th, BufferedImage.TYPE_INT_RGB);
@@ -489,7 +504,7 @@ public final class MediaUtilities {
     Rectangle2D rectStrip = new Rectangle2D.Float(0, yPos, tw, 13);
     Rectangle2D textBounds = fm.getStringBounds(text, g2);
     if (textBounds.getWidth() > tw)
-      log.warn("Text overlay too long for image width.");
+      logger.warn("Text overlay too long for image width.");
 
     g2.drawImage(img, 0, 0, tw, th, null);
     g2.setPaint(paintWash);
@@ -510,7 +525,7 @@ public final class MediaUtilities {
    * @param md {@code Metadata} instance from image file
    * @return list of {@code Tag} instances
    */
-  public static List<Tag> extractMetadataTags(Metadata md) {
+  public static List<Tag> extractMetadataTags(final Metadata md) {
     List<Tag> list = new ArrayList<Tag>();
     for (Directory dir : md.getDirectories()) {
       for (Tag tag : dir.getTags()) {
@@ -519,5 +534,85 @@ public final class MediaUtilities {
       }
     }
     return list;
+  }
+
+  private static File getThumbnailDir(final File baseDir)
+  {
+      return new File(baseDir, THUMB_DIR);
+  }
+
+  private static File getMidsizeDir(final File baseDir)
+  {
+      return new File(baseDir, MID_DIR);
+  }
+
+  public static MediaAsset importMedia(final String context,
+                                       final File baseDir,
+                                       final LocalAssetStore store,
+                                       final String fileName,
+                                       final InputStream content,
+                                       final Integer submitterId,
+                                       final boolean keepStreamOpen) throws IOException
+  {
+      File relFile = new File(baseDir, fileName);
+
+      File fullPath = store.getFile(relFile.toPath());
+      fullPath.getParentFile().mkdirs();
+
+      MediaAsset ma = new MediaAsset(store, relFile.toPath());
+
+      if (logger.isDebugEnabled()) {
+          logger.debug(LogBuilder.quickLog("fullPath", fullPath.toString()));
+      }
+      FileUtilities.saveStreamToFile(content, fullPath, keepStreamOpen);
+
+      //
+      // Make Thumbnail
+      //
+      switch (ma.getType()) {
+      case IMAGE: {
+          File relThumb = new File(getThumbnailDir(baseDir), fileName);
+
+          File thumbFile = store.getFile(relThumb.toPath());
+          thumbFile.getParentFile().mkdirs();
+
+          ma.setThumb(store, relThumb.toPath());
+
+          ImageProcessor iproc;
+          iproc = new ImageProcessor(context,
+                                     "resize",
+                                     100,
+                                     75,
+                                     fullPath.getAbsolutePath(),
+                                     thumbFile.getAbsolutePath(),
+                                     null);
+          iproc.run();
+
+          File midDir = getMidsizeDir(baseDir);
+          midDir.mkdirs();
+
+          File midFile = new File(midDir, fileName);
+          iproc = new ImageProcessor(context,
+                                     "resize",
+                                     800,
+                                     600,
+                                     fullPath.getAbsolutePath(),
+                                     midFile.getAbsolutePath(),
+                                     null);
+          iproc.run();
+          break;
+      }
+      case VIDEO: {
+          GeoFileProcessor gproc;
+          gproc = new GeoFileProcessor(fullPath.getAbsolutePath());
+          gproc.run();
+          break;
+      }
+      default:
+          break;
+      }
+      ma.setSubmitterId(submitterId);
+
+      return ma;
   }
 }

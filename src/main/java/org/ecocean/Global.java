@@ -1,5 +1,6 @@
 package org.ecocean;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import com.samsix.database.ConnectionInfo;
 import com.samsix.database.Database;
+import com.samsix.util.UtilException;
 import com.samsix.util.io.ResourceReader;
 import com.samsix.util.io.ResourceReaderImpl;
 
@@ -45,8 +47,50 @@ public enum Global {
         }
     }
 
-    public void init(final String cust, final ResourceReader resources) {
-        this.cust = cust;
+    public void init(final File overridingProps) {
+        //
+        // Load up resources
+        //
+        ResourceReaderImpl resources = new ResourceReaderImpl();
+
+        try {
+            resources.addSource("wildbook");
+        } catch (IOException ex) {
+            logger.warn("Problem reading from application properties", ex);
+        }
+
+        try {
+            cust = resources.getString("cust.name");
+        } catch (UtilException ex) {
+            logger.warn("Could not read customer name to configure application.", ex);
+            cust = null;
+        }
+
+        try {
+            resources.addSource("cust/" + cust + "/wildbook");
+        } catch (IOException ex) {
+            logger.warn("Trouble reading from customer configuration file" , ex);
+        }
+
+        if (overridingProps != null) {
+            try {
+                resources.addSource(overridingProps);
+            } catch (Throwable ex) {
+                //
+                // This is really just here to preserve the old way. If you just add the file above
+                // and add the config.dir property in there then we don't need this anymore. Just
+                // have it here until we can transition our servers and dev machines. As soon as we need
+                // anything else in the <webapp>_init.properties file we might as well get rid of this
+                // else statement as we will have the prop file by then anyway.
+                //
+                logger.warn("Can't read init property file, building simple props from init params.", ex);
+    //            Properties props = new Properties();
+    //            props.put("config.dir", servletContext.getInitParameter("config.dir"));
+    //
+    //            initResources.addSource(props);
+            }
+        }
+
         appResources = resources;
 
         loadWebappProps("/webappclient.properties");

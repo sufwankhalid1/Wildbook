@@ -27,14 +27,12 @@ import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.ecocean.GeoFileProcessor;
-import org.ecocean.ImageProcessor;
 import org.ecocean.Shepherd;
 import org.ecocean.media.AssetStore;
 import org.ecocean.media.LocalAssetStore;
 import org.ecocean.media.MediaAsset;
 import org.ecocean.media.MediaAssetFactory;
-import org.ecocean.mmutil.FileUtilities;
+import org.ecocean.mmutil.MediaUtilities;
 import org.ecocean.servlet.ServletUtilities;
 import org.ecocean.util.LogBuilder;
 import org.slf4j.Logger;
@@ -55,8 +53,6 @@ public class MediaUploadServlet
     private static final Logger logger = LoggerFactory.getLogger(MediaUploadServlet.class);
 
     private static final String FILES_MAP = "filesMap";
-    public static final String THUMB_DIR = "thumb";
-    public static final String MID_DIR = "mid";
 
     private static ExecutorService executor = Executors.newFixedThreadPool(5);
     //
@@ -225,20 +221,10 @@ public class MediaUploadServlet
         return new File("/mediasubmission", msid);
     }
 
-    private static File getThumbnailDir(final File baseDir)
-    {
-        return new File(baseDir, THUMB_DIR);
-    }
-
 //    private static File getThumbnailFile(final File baseDir,
 //                                         final String fileName)
 //    {
 //        return new File(getThumbnailDir(baseDir), fileName);
-//    }
-
-//    private static File getMidsizeDir(final File baseDir)
-//    {
-//        return new File(baseDir, MID_DIR);
 //    }
 
 //    private static File getRootDir(final HttpServletRequest request)
@@ -336,11 +322,16 @@ public class MediaUploadServlet
                     // yet by the time the user gets the results back from this servlet.
                     // If so, they will get a broken link image.
                     //
+                    Integer submitterId = null;
+                    if (! StringUtils.isBlank(fileset.getSubmitter())) {
+                        submitterId = Integer.parseInt(fileset.getSubmitter());
+                    }
+
                     executor.execute(new SaveMedia(ServletUtilities.getContext(request),
                                                    ServletUtilities.getConnectionInfo(request),
                                                    store,
                                                    id,
-                                                   fileset.getSubmitter(),
+                                                   submitterId,
                                                    baseDir,
                                                    file));
                 }
@@ -491,7 +482,7 @@ public class MediaUploadServlet
         private final ConnectionInfo ci;
         private final LocalAssetStore store;
         private final int submissionId;
-        private final String submitter;
+        private final Integer submitterId;
         private final File baseDir;
         private final FileMeta file;
 
@@ -499,7 +490,7 @@ public class MediaUploadServlet
                          final ConnectionInfo ci,
                          final LocalAssetStore store,
                          final int submissionId,
-                         final String submitter,
+                         final Integer submitterId,
                          final File baseDir,
                          final FileMeta file)
         {
@@ -507,7 +498,7 @@ public class MediaUploadServlet
             this.ci = ci;
             this.store = store;
             this.submissionId = submissionId;
-            this.submitter = submitter;
+            this.submitterId = submitterId;
             this.baseDir = baseDir;
             this.file = file;
         }
@@ -565,95 +556,35 @@ public class MediaUploadServlet
                                  final InputStream content,
                                  final boolean fromZip)
         {
-            File relFile = new File(baseDir, fileName);
-
-            File fullPath = store.getFile(relFile.toPath());
-            fullPath.getParentFile().mkdirs();
-
-            MediaAsset ma = new MediaAsset(store, relFile.toPath());
-
             try {
-                if (logger.isDebugEnabled()) {
-                    logger.debug(LogBuilder.quickLog("fullPath", fullPath.toString()));
-                }
-                FileUtilities.saveStreamToFile(content, fullPath, fromZip);
-
-                //
-                // Make Thumbnail
-                //
-                switch (ma.getType()) {
-                case IMAGE: {
-                    File relThumb = new File(getThumbnailDir(baseDir), fileName);
-
-                    File thumbFile = store.getFile(relThumb.toPath());
-                    thumbFile.getParentFile().mkdirs();
-
-                    ma.setThumb(store, relThumb.toPath());
-
-                    ImageProcessor iproc;
-                    iproc = new ImageProcessor(context,
-                                               "resize",
-                                               100,
-                                               75,
-                                               fullPath.getAbsolutePath(),
-                                               thumbFile.getAbsolutePath(),
-                                               null);
-                    iproc.run();
-
-//                    File midDir = getMidsizeDir(baseDir);
-//                    midDir.mkdirs();
-//
-//                    File midFile = new File(midDir, fileName);
-//                    iproc = new ImageProcessor(context,
-//                                               "resize",
-//                                               800,
-//                                               600,
-//                                               fullPath.getAbsolutePath(),
-//                                               midFile.getAbsolutePath(),
-//                                               null);
-//                    iproc.run();
-                    break;
-                }
-                case VIDEO: {
-                    GeoFileProcessor gproc;
-                    gproc = new GeoFileProcessor(fullPath.getAbsolutePath());
-                    gproc.run();
-                    break;
-                }
-                default:
-                    break;
-                }
-
-                if (logger.isDebugEnabled()) {
-                    logger.debug("About to save media asset...");
-                }
-
-                try (Database db = new Database(ci)) {
-                    if (! StringUtils.isBlank(submitter)) {
-                        ma.setSubmitterId(Integer.parseInt(submitter));
-                    }
-                    MediaAssetFactory.save(db, ma);
-
-                    if (! fromZip) {
-                        //
-                        // In case the user decides to delete the file they just uploaded
-                        // (provided this has been called by then). If it's a zip file they
-                        // won't be able to delete it.
-                        //
-                        file.setId(ma.getID());
-                    }
-                    SqlInsertFormatter formatter = new SqlInsertFormatter();
-                    formatter.append("mediasubmissionid", submissionId);
-                    formatter.append("mediaid", ma.getID());
-
-                    if (logger.isDebugEnabled()) {
-                        logger.debug(LogBuilder.quickLog("About to save link to media", ma.getID()));
-                    }
-
-                    db.getTable("mediasubmission_media").insertRow(formatter);
-                }
+                MediaAsset ma = MediaUtilities.importMedia(context, baseDir, store, fileName, content, submitterId, fromZip);
+                postProcess(ma, fromZip);
             } catch (Exception ex) {
-                logger.error("Trouble saving media file [" + fullPath.getAbsolutePath() + "]", ex);
+                logger.error("Trouble saving media file [" + fileName + "]", ex);
+            }
+        }
+
+        private void postProcess(final MediaAsset ma, final boolean fromZip) throws DatabaseException {
+            try (Database db = new Database(ci)) {
+                MediaAssetFactory.save(db, ma);
+
+                if (! fromZip) {
+                    //
+                    // In case the user decides to delete the file they just uploaded
+                    // (provided this has been called by then). If it's a zip file they
+                    // won't be able to delete it.
+                    //
+                    file.setId(ma.getID());
+                }
+                SqlInsertFormatter formatter = new SqlInsertFormatter();
+                formatter.append("mediasubmissionid", submissionId);
+                formatter.append("mediaid", ma.getID());
+
+                if (logger.isDebugEnabled()) {
+                    logger.debug(LogBuilder.quickLog("About to save link to media", ma.getID()));
+                }
+
+                db.getTable("mediasubmission_media").insertRow(formatter);
             }
         }
     }
