@@ -23,8 +23,8 @@ block content
                         h1!= t('verify.errorTitle')
                         p!= t('verify.errorMessage')
                         a.btn.btn-medium.btn-success(href="/")!= t('verify.errorButton')
-                div(ng-show="done")
+                div.ng-cloak(ng-show="done")
                     h1!= t('verify.verifySuccessTitle')
                     p!= t('verify.verifySuccessMessage')
                     div.form-group
-                        a.btn.btn-medium.btn-success(ng-click="$parent.showlogin = true", focus-me="done")!= t('verify.verifyLogIn')
+                        a.btn.btn-medium.btn-success(ng-click="$parent.showloginmodal()", focus-me="done")!= t('verify.verifyLogIn')
