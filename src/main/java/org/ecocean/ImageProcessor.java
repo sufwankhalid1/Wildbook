@@ -129,23 +129,24 @@ public final class ImageProcessor implements Runnable {
 
         ProcessBuilder pb = new ProcessBuilder();
         pb.command(command);
-/*
-        Map<String, String> env = pb.environment();
-        env.put("LD_LIBRARY_PATH", "/home/jon/opencv2.4.7");
-*/
         try {
             Process proc = pb.start();
             BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
             BufferedReader stdError = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
             String line;
             while ((line = stdInput.readLine()) != null) {
-                System.out.println(">>>> " + line);
+                logger.info(line);
             }
             while ((line = stdError.readLine()) != null) {
-                System.out.println("!!!! " + line);
+                //
+                // I am going to make the error stream go to warn because one of the things I was seeing here
+                // was the following example...
+                //     convert: profile 'icc': 'RGB ': RGB color space not permitted on grayscale PNG `/tmp/media/import/cascadia/mid/PStap110626fr5661_Mn_ID_S#_W4.png' @ warning/png.c/MagickPNGWarningHandler/1656.
+                // ...which is just a warning actually. The resulting PNG is fine.
+                //
+                logger.warn(line);
             }
             proc.waitFor();
-            ////int returnCode = p.exitValue();
         } catch (Exception ioe) {
             logger.error("Trouble running processor [" + command + "]", ioe);
         }
