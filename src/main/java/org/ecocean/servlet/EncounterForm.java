@@ -46,13 +46,12 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.ecocean.CommonConfiguration;
-import org.ecocean.CommonConfiguration;
 import org.ecocean.Encounter;
 import org.ecocean.Measurement;
 import org.ecocean.Shepherd;
-import org.ecocean.Shepherd;
 import org.ecocean.ShepherdProperties;
 import org.ecocean.SinglePhotoVideo;
+import org.ecocean.mmutil.MediaUtilities;
 import org.ecocean.tag.AcousticTag;
 import org.ecocean.tag.MetalTag;
 import org.ecocean.tag.SatelliteTag;
@@ -328,7 +327,7 @@ System.out.println("*** trying redirect?");
 //System.out.println("content type???? " + item.getContentType());   TODO note, the helpers only check extension
                         if (item.getSize() > maxSizeBytes) {
                             filesBad.put(item.getName(), "file is larger than " + maxSizeMB + "MB");
-                        } else if (myShepherd.isAcceptableImageFile(item.getName()) || myShepherd.isAcceptableVideoFile(item.getName()) ) {
+                        } else if (MediaUtilities.isImageFile(item.getName()) || MediaUtilities.isVideoFile(item.getName()) ) {
                             formFiles.add(item);
                             filesOK.add(item.getName());
                         } else {

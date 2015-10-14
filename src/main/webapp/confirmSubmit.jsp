@@ -134,10 +134,10 @@ new_message.append("<html><body>");
   }
 
   String thumbLocation = "file-"+thisEncounterDir.getAbsolutePath() + "/thumb.jpg";
-  if (myShepherd.isAcceptableVideoFile(addText)) {
+  if (MediaUtilities.isVideoFile(addText)) {
     addText = rootWebappPath+"/images/video_thumb.jpg";
   } 
-  else if(myShepherd.isAcceptableImageFile(addText)){
+  else if (MediaUtilities.isImageFile(addText)){
     addText = thisEncounterDir.getAbsolutePath() + "/" + addText;
   }
   else if(addText.equals("")){
@@ -151,7 +151,7 @@ new_message.append("<html><body>");
 	File thumbFile = new File(thumbLocation.substring(5));
 
 
-  if(file2process.exists() && myShepherd.isAcceptableImageFile(file2process.getName())){
+  if(file2process.exists() && MediaUtilities.isImageFile(file2process.getName())){
   	int intWidth = 100;
   	int intHeight = 75;
   	int thumbnailHeight = 75;

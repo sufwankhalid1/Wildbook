@@ -592,7 +592,7 @@ if(enc.getSex()!=null){sexValue=enc.getSex();}
 							//for(int columns=0;columns<numColumns;columns++){
 								if(countMe<numThumbs) {
 									//String combined ="";
-									//if(myShepherd.isAcceptableVideoFile(thumbLocs.get(countMe).getFilename())){
+									//if(MediaUtilities.isVideoFile(thumbLocs.get(countMe).getFilename())){
 									//	combined = "http://" + CommonConfiguration.getURLLocation(request) + "/images/video.jpg" + "BREAK" + thumbLocs.get(countMe).getCorrespondingEncounterNumber() + "BREAK" + thumbLocs.get(countMe).getFilename();
 									//}
 									//else{
@@ -607,7 +607,7 @@ if(enc.getSex()!=null){sexValue=enc.getSex();}
 									//String fileName=combined.substring(fileNamePos).replaceAll("%20"," ");
 									String thumbLink="";
 									boolean video=true;
-									if(!myShepherd.isAcceptableVideoFile(thumbLocs.get(countMe).getFilename())){
+									if(!MediaUtilities.isVideoFile(thumbLocs.get(countMe).getFilename())){
 										thumbLink="/"+CommonConfiguration.getDataDirectoryName(context)+"/encounters/"+Encounter.subdir(thumbLocs.get(countMe).getCorrespondingEncounterNumber())+"/"+thumbLocs.get(countMe).getDataCollectionEventID()+".jpg";
 										video=false;
 									}

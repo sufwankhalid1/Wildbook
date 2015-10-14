@@ -67,6 +67,7 @@ import com.drew.metadata.Metadata;
 import com.drew.metadata.MetadataException;
 import com.drew.metadata.Tag;
 import com.drew.metadata.exif.ExifIFD0Directory;
+import com.samsix.util.OsUtils;
 
 /**
  * Class providing centralized image-related services, such as image rescaling,
@@ -80,7 +81,7 @@ public final class MediaUtilities {
   /** ColorSpace for sRGB images (used for conversions). */
   private static final ICC_ColorSpace CS_sRGB = new ICC_ColorSpace(ICC_Profile.getInstance(ColorSpace.CS_sRGB));
   /** Regex pattern string suffix for matching image filenames (case-insensitive, capturing group). */
-  public static final String REGEX_SUFFIX_FOR_IMAGES = "(?i:(jpe?g?|png|gif|tiff?|bmp))$";
+  public static final String REGEX_SUFFIX_FOR_OTHER_IMAGES = "(?i:(tiff?|bmp))$";
   /** Regex pattern string suffix for matching image filenames (case-insensitive, capturing group). */
   public static final String REGEX_SUFFIX_FOR_WEB_IMAGES = "(?i:(jpe?g?|png|gif))$";
   /** Regex pattern string suffix for matching video filenames (case-insensitive, capturing group). */
@@ -112,8 +113,16 @@ public final class MediaUtilities {
    * @param filename filename of file to check
    * @return true if filename is supported, false otherwise
    */
-  public static boolean isAcceptableImageFile(final String filename) {
+  public static boolean isWebImageFile(final String filename) {
     return (filename == null) ? false : filename.matches("^.+\\." + REGEX_SUFFIX_FOR_WEB_IMAGES);
+  }
+
+  public static boolean isImageFile(final String filename) {
+      if (isWebImageFile(filename)) {
+          return true;
+      }
+
+      return (filename == null) ? false : filename.matches("^.+\\." + REGEX_SUFFIX_FOR_OTHER_IMAGES);
   }
 
   /**
@@ -123,8 +132,17 @@ public final class MediaUtilities {
    * @param filename filename of file to check
    * @return true if filename is supported, false otherwise
    */
-  public static boolean isAcceptableVideoFile(final String filename) {
+  public static boolean isVideoFile(final String filename) {
     return (filename == null) ? false : filename.matches("^.+\\." + REGEX_SUFFIX_FOR_MOVIES);
+  }
+
+  public static boolean isGpsFile(final String fileName) {
+      if ((fileName.toLowerCase().indexOf(".kmz") != -1)
+           || (fileName.toLowerCase().indexOf(".kml") != -1)
+           || (fileName.toLowerCase().indexOf(".gpx") != -1)) {
+          return true;
+      }
+      return false;
   }
 
   /**
@@ -132,8 +150,12 @@ public final class MediaUtilities {
    * @param file file to check
    * @return true if filename is supported, false otherwise
    */
-  public static boolean isAcceptableImageFile(final File file) {
-    return (file == null) ? false : isAcceptableImageFile(file.getName());
+  public static boolean isWebImageFile(final File file) {
+    return (file == null) ? false : isWebImageFile(file.getName());
+  }
+
+  public static boolean isImageFile(final File file) {
+      return (file == null) ? false : isImageFile(file.getName());
   }
 
   /**
@@ -141,26 +163,8 @@ public final class MediaUtilities {
    * @param file file to check
    * @return true if filename is supported, false otherwise
    */
-  public static boolean isAcceptableVideoFile(final File file) {
-    return (file == null) ? false : isAcceptableVideoFile(file.getName());
-  }
-
-  /**
-   * Checks filename extension for supported media (photo/video) type.
-   * @param filename filename of file to check
-   * @return true if filename is supported, false otherwise
-   */
-  public static boolean isAcceptableMediaFile(final String filename) {
-    return isAcceptableImageFile(filename) || isAcceptableVideoFile(filename);
-  }
-
-  /**
-   * Checks filename extension for supported media (photo/video) type.
-   * @param file file to check
-   * @return true if filename is supported, false otherwise
-   */
-  public static boolean isAcceptableMediaFile(final File file) {
-    return isAcceptableImageFile(file) || isAcceptableVideoFile(file);
+  public static boolean isVideoFile(final File file) {
+    return (file == null) ? false : isVideoFile(file.getName());
   }
 
   /**
@@ -546,8 +550,7 @@ public final class MediaUtilities {
       return new File(baseDir, MID_DIR);
   }
 
-  public static MediaAsset importMedia(final String context,
-                                       final File baseDir,
+  public static MediaAsset importMedia(final File baseDir,
                                        final LocalAssetStore store,
                                        final String fileName,
                                        final InputStream content,
@@ -568,10 +571,15 @@ public final class MediaUtilities {
 
       //
       // Make Thumbnail
-      //
       switch (ma.getType()) {
       case IMAGE: {
-          File relThumb = new File(getThumbnailDir(baseDir), fileName);
+          //
+          // Using PNG's for thumbs and mids so that I can get transparent background on
+          // the parts of the image we don't use and still have exact, controlled sized images.
+          //
+          String resizedFileName = OsUtils.getFileRoot(fileName) + ".png";
+
+          File relThumb = new File(getThumbnailDir(baseDir), resizedFileName);
 
           File thumbFile = store.getFile(relThumb.toPath());
           thumbFile.getParentFile().mkdirs();
@@ -579,8 +587,7 @@ public final class MediaUtilities {
           ma.setThumb(store, relThumb.toPath());
 
           ImageProcessor iproc;
-          iproc = new ImageProcessor(context,
-                                     "resize",
+          iproc = new ImageProcessor("resize",
                                      100,
                                      75,
                                      fullPath.getAbsolutePath(),
@@ -588,12 +595,16 @@ public final class MediaUtilities {
                                      null);
           iproc.run();
 
-          File midDir = getMidsizeDir(baseDir);
-          midDir.mkdirs();
+          File midFile = store.getFile(new File(getMidsizeDir(baseDir), resizedFileName).toPath());
+          midFile.getParentFile().mkdirs();
 
-          File midFile = new File(midDir, fileName);
-          iproc = new ImageProcessor(context,
-                                     "resize",
+          //
+          // TODO: Make a way for the media asset to be linked easily to this version as
+          // this is the version we want to give to the web clients when the ask for larger files.
+          // We only want to download the full image upon very special request.
+          //
+
+          iproc = new ImageProcessor("resize",
                                      800,
                                      600,
                                      fullPath.getAbsolutePath(),

@@ -181,9 +181,8 @@ public class MainController
             // 5) Voyages on
             //
             String sqlRoot = "SELECT ma.* FROM mediaasset ma";
-            String criteria = "ma.submitterid = " + userid
+            String whereRoot = " WHERE ma.submitterid = " + userid
                     + " AND ma.type = " + MediaAssetType.IMAGE.getCode();
-            String whereRoot = " WHERE " + criteria;
 
             String sql;
             //
@@ -229,6 +228,8 @@ public class MainController
             //
             // 2) Total Number of photos
             //
+            String criteria = "submitterid = " + userid
+                    + " AND type = " + MediaAssetType.IMAGE.getCode();
             userinfo.setTotalPhotoCount(db.getTable(MediaAssetFactory.TABLENAME_MEDIAASSET).getCount(criteria));
 
             //
@@ -244,7 +245,7 @@ public class MainController
                     + " and em.encounterid = e.encounterid)"));
 
             Map<Integer, Individual> inds = new HashMap<>();
-            db.select(sql, (rs) -> {
+            db.select(ss, (rs) -> {
                 Integer indid = rs.getInteger("individualid");
 
                 Individual ind = inds.get(indid);

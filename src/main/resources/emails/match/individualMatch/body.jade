@@ -13,7 +13,7 @@ block title
 block content
     include ../../partials/message-header.jade
     +container()
-        p One of your submissions has been matched to a known #{individual.speciesDisplayName}. Thank you for providing us information that will help scientists track the health and wellbeing of wildlife.
+        p One of your submissions has been matched to a known #{individual.species.name}. Thank you for providing us information that will help scientists track the health and wellbeing of wildlife.
         p
             h5 Here are the details:
             +match(subinfo.photo, photos[0].url, individual.displayName)

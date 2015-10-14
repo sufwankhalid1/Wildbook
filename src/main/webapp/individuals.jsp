@@ -1290,7 +1290,7 @@ System.out.println(henc);
 							//for(int columns=0;columns<numColumns;columns++){
 								if(countMe<numThumbs) {
 									//String combined ="";
-									//if(myShepherd.isAcceptableVideoFile(thumbLocs.get(countMe).getFilename())){
+									//if(MediaUtilities.isVideoFile(thumbLocs.get(countMe).getFilename())){
 									//	combined = "http://" + CommonConfiguration.getURLLocation(request) + "/images/video.jpg" + "BREAK" + thumbLocs.get(countMe).getCorrespondingEncounterNumber() + "BREAK" + thumbLocs.get(countMe).getFilename();
 									//}
 									//else{
@@ -1310,7 +1310,7 @@ System.out.println(henc);
 
 									String thumbLink="";
 									boolean video=true;
-									if(!myShepherd.isAcceptableVideoFile(thumbLocs.get(countMe).getFilename())){
+									if(!MediaUtilities.isVideoFile(thumbLocs.get(countMe).getFilename())){
 										thumbLink="/"+CommonConfiguration.getDataDirectoryName(context)+"/encounters/"+ encSubdir +"/"+thumbLocs.get(countMe).getDataCollectionEventID()+".jpg";
 										video=false;
 									}

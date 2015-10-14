@@ -88,7 +88,9 @@ public class Encounter
         SimpleEncounter simple = new SimpleEncounter(id, encdate);
         simple.setStarttime(starttime);
         simple.setEndtime(endtime);
-        simple.setIndividual(individual.toSimple());
+        if (individual != null) {
+            simple.setIndividual(individual.toSimple());
+        }
         simple.setLocation(location);
 
         return simple;

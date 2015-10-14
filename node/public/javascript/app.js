@@ -46,7 +46,7 @@ app.beingDiv = function(being) {
             .attr("data-original-title", being.displayName).tooltip();
     div.append(avatar);
 
-    var defaultImage = "/images/species/" + being.species + ".svg";
+    var defaultImage = "/images/species/" + being.species.code + ".svg";
     var image;
     if (being.avatar) {
         image = $('<img>').attr("src", being.avatar)
@@ -56,7 +56,7 @@ app.beingDiv = function(being) {
     }
 
     var href;
-    if (being.species == "human") {
+    if (being.species.code == "homo_sapien") {
         href = "/user/" + being.id;
     } else {
         href = "/individual/" + being.id;
@@ -107,7 +107,7 @@ function configSearchBox() {
                     var res = $.map(data, function(item) {
                         var label;
                         if (item.type == "individual") {
-                            label = item.speciesdisplay + ": ";
+                            label = item.species.name + ": ";
                         } else if (item.type == "user") {
                             label = "User: ";
                         } else {

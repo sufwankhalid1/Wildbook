@@ -433,7 +433,7 @@ module.exports = function(app, config, secrets, debug) {
 
             res.render("individual", makeVars({
                 page: {
-                    title: data.individual.displayName + " (" + data.individual.speciesDisplayName + ")"
+                    title: data.individual.displayName + " (" + data.individual.species.name + ")"
                 },
                 data: {
                     info: data,

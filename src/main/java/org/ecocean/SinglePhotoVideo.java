@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.lang3.StringUtils;
+import org.ecocean.mmutil.MediaUtilities;
 import org.ecocean.servlet.ServletUtilities;
 
 public class SinglePhotoVideo extends DataCollectionEvent {
@@ -226,11 +227,11 @@ public class SinglePhotoVideo extends DataCollectionEvent {
         }
 
         String sourcePath = this.getFullFileSystemPath();
-        if (!Shepherd.isAcceptableImageFile(sourcePath)) {
+        if (!MediaUtilities.isImageFile(sourcePath)) {
             return false;
         }
 
-        ImageProcessor iproc = new ImageProcessor(context, "resize", width, height, sourcePath, targetPath, null);
+        ImageProcessor iproc = new ImageProcessor("resize", width, height, sourcePath, targetPath, null);
         Thread t = new Thread(iproc);
         t.start();
         return true;
@@ -243,11 +244,11 @@ public class SinglePhotoVideo extends DataCollectionEvent {
         }
 
         String sourcePath = this.getFullFileSystemPath();
-        if (!Shepherd.isAcceptableImageFile(sourcePath)) {
+        if (!MediaUtilities.isImageFile(sourcePath)) {
             return false;
         }
 
-        ImageProcessor iproc = new ImageProcessor(context, "watermark", width, height, sourcePath, targetPath, watermark);
+        ImageProcessor iproc = new ImageProcessor("watermark", width, height, sourcePath, targetPath, watermark);
         Thread t = new Thread(iproc);
         t.start();
         return true;

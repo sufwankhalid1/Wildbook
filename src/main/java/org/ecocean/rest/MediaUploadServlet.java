@@ -27,7 +27,6 @@ import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.ecocean.Shepherd;
 import org.ecocean.media.AssetStore;
 import org.ecocean.media.LocalAssetStore;
 import org.ecocean.media.MediaAsset;
@@ -305,12 +304,12 @@ public class MediaUploadServlet
                 for (FileMeta file : fileset.getFiles()) {
                     file.setUrl(store.webPath(new File(baseDir, file.getName()).toPath()).toExternalForm());
 
-                    if (Shepherd.isAcceptableImageFile(file.getName())) {
+                    if (MediaUtilities.isImageFile(file.getName())) {
 //                        file.setThumbnailUrl("/" + getThumbnailFile(baseDir, file.getName()));
                         file.setThumbnailUrl("/images/upload_small.png");
-                    } else if (Shepherd.isAcceptableGpsFile(file.getName())) {
+                    } else if (MediaUtilities.isGpsFile(file.getName())) {
                         file.setThumbnailUrl("/images/map-icon.png");
-                    } else if (Shepherd.isAcceptableVideoFile(file.getName())) {
+                    } else if (MediaUtilities.isVideoFile(file.getName())) {
                         file.setThumbnailUrl("/images/video_thumb.jpg");
                     } else {
                         file.setThumbnailUrl("/images/upload_small.png");
@@ -327,8 +326,7 @@ public class MediaUploadServlet
                         submitterId = Integer.parseInt(fileset.getSubmitter());
                     }
 
-                    executor.execute(new SaveMedia(ServletUtilities.getContext(request),
-                                                   ServletUtilities.getConnectionInfo(request),
+                    executor.execute(new SaveMedia(ServletUtilities.getConnectionInfo(request),
                                                    store,
                                                    id,
                                                    submitterId,
@@ -478,7 +476,6 @@ public class MediaUploadServlet
     private static class SaveMedia
         implements Runnable
     {
-        private final String context;
         private final ConnectionInfo ci;
         private final LocalAssetStore store;
         private final int submissionId;
@@ -486,15 +483,13 @@ public class MediaUploadServlet
         private final File baseDir;
         private final FileMeta file;
 
-        public SaveMedia(final String context,
-                         final ConnectionInfo ci,
+        public SaveMedia(final ConnectionInfo ci,
                          final LocalAssetStore store,
                          final int submissionId,
                          final Integer submitterId,
                          final File baseDir,
                          final FileMeta file)
         {
-            this.context = context;
             this.ci = ci;
             this.store = store;
             this.submissionId = submissionId;
@@ -557,7 +552,7 @@ public class MediaUploadServlet
                                  final boolean fromZip)
         {
             try {
-                MediaAsset ma = MediaUtilities.importMedia(context, baseDir, store, fileName, content, submitterId, fromZip);
+                MediaAsset ma = MediaUtilities.importMedia(baseDir, store, fileName, content, submitterId, fromZip);
                 postProcess(ma, fromZip);
             } catch (Exception ex) {
                 logger.error("Trouble saving media file [" + fileName + "]", ex);

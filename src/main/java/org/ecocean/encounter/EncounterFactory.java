@@ -126,9 +126,10 @@ public class EncounterFactory {
             return null;
         }
 
-        Individual ind = new Individual(indid, rs.getString("nickname"));
+        Individual ind = new Individual(indid,
+                                        Global.INST.getSpecies(rs.getString("species")),
+                                        rs.getString("nickname"));
         ind.setSex(rs.getString("sex"));
-        ind.setSpecies(Global.INST.getSpecies(rs.getString("species")));
         ind.setAlternateId(rs.getString("alternateid"));
 
         MediaAsset ma = MediaAssetFactory.valueOf(rs);
@@ -239,7 +240,10 @@ public class EncounterFactory {
 
 
     private static void fillEncounterFormatter(final SqlFormatter formatter, final Encounter encounter) {
-        formatter.append("individualid", encounter.getIndividual().getId());
+        if (encounter.getIndividual() != null) {
+            formatter.append("individualid", encounter.getIndividual().getId());
+        }
+
         formatter.append("encdate", encounter.getEncDate());
         formatter.append("starttime", encounter.getStarttime());
         formatter.append("endtime", encounter.getEndtime());
