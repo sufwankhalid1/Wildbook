@@ -31,7 +31,7 @@ block content
                             span.media-admin-nav-label Surveys
                             a(href="javascript:;", ng-click="showPanel('survey_search')"
                               title="Search for a Survey", data-toggle="tooltip")
-                                i.glyphicon.glyphicon-search
+                                i.glyphicon.glyphicon-globe
                             a(href="javascript:;", ng-click="addSurvey()"
                               title="Add a new Survey to this Submission", data-toggle="tooltip")
                                 i.glyphicon.glyphicon-plus
@@ -40,9 +40,10 @@ block content
                                     span {{survey.organization.displayName}} - {{survey.surveyNumber}}
                                     a(href="javascript:;", ng-click="searchEncounter(survey)",
                                       title="Search for an Encounter", data-toggle="tooltip")
-                                        i.glyphicon.glyphicon-search
+                                        i.glyphicon.glyphicon-eye-open
                                     a(href="javascript:;", ng-click="addEncounter(survey)",
                                       title="Add a new Encounter for this Submission", data-toggle="tooltip")
+                                        i.glyphicon.glyphicon-plus
                                     .list-group
                                         a.list-group-item(href="javascript;:", ng-repeat="encounter in survey.encounters", ng-click="editEncounter(encounter)")
                                             span {{encounter.individual.displayName}} - {{main.dateStringFromRest(encounter.encDate)}}
@@ -50,7 +51,7 @@ block content
                             span.media-admin-nav-label Encounters
                             a(href="javascript:;", ng-click="searchEncounter()",
                               title="Search for an Encounter", data-toggle="tooltip")
-                                i.glyphicon.glyphicon-search
+                                i.glyphicon.glyphicon-eye-open
                             a(href="javascript:;", ng-click="addEncounter()",
                               title="Add a new Encounter for this Submission", data-toggle="tooltip")
                                 i.glyphicon.glyphicon-plus

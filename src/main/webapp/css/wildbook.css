@@ -8589,3 +8589,10 @@ div.state-approved span.state {
 .ag_row:hover {
   background-color: rgba(0, 0, 0, 0.5);
 }
+.ag-paging-page-summary-panel button {
+  line-height: 25px;
+  margin-top: 0;
+}
+.ag-paging-panel {
+  margin-top: 10px;
+}
