@@ -69,7 +69,7 @@ var i18n = require('i18next');
 // This does work if you put a cust.json file in your locales
 // directories and then address it as cust:blah.blah. But I'm trying to
 // get this done quick and so I'm not going to use that functionality at the
-// moment as trying to figure out what is Happy Whale vs. generic is something
+// moment as trying to figure out what is Happywhale vs. generic is something
 // we will have to do later.
 //
 var options = {
