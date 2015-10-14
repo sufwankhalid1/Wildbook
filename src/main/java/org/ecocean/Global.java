@@ -28,7 +28,7 @@ public enum Global {
 
     private Map<String,ConnectionInfo> connectionInfo = new HashMap<>();
     private ResourceReader appResources;
-    private Properties webappClientProps = new Properties();
+    private Properties webappClientProps;
 
     private Emailer emailer;
     private Map<String, Species> species = new HashMap<>();
@@ -97,14 +97,6 @@ public enum Global {
         }
 
         appResources = resources;
-
-        loadWebappProps("/webappclient.properties");
-        if (cust != null) {
-            //
-            // Load any overriding props for the cust.
-            //
-            loadWebappProps("/cust/" + cust + "/webappclient.properties");
-        }
 
         //
         // Initialize other parts of the app.
@@ -183,6 +175,18 @@ public enum Global {
     }
 
     public Properties getWebappClientProps() {
+        if (webappClientProps == null) {
+            webappClientProps = new Properties();
+
+            loadWebappProps("/webappclient.properties");
+            if (cust != null) {
+                //
+                // Load any overriding props for the cust.
+                //
+                loadWebappProps("/cust/" + cust + "/webappclient.properties");
+            }
+        }
+
         return webappClientProps;
     }
 
