@@ -240,7 +240,10 @@ public class EncounterFactory {
 
 
     private static void fillEncounterFormatter(final SqlFormatter formatter, final Encounter encounter) {
-        formatter.append("individualid", encounter.getIndividual().getId());
+        if (encounter.getIndividual() != null) {
+            formatter.append("individualid", encounter.getIndividual().getId());
+        }
+
         formatter.append("encdate", encounter.getEncDate());
         formatter.append("starttime", encounter.getStarttime());
         formatter.append("endtime", encounter.getEndtime());
