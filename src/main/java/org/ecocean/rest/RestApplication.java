@@ -62,7 +62,12 @@ public class RestApplication extends SpringBootServletInitializer {
         File overridingProps = new File(new File(System.getProperty("catalina.base"), "conf"),
                 servletContext.getContextPath() + "_init.properties");
 
-        Global.INST.init(overridingProps);
+        //
+        // TODO: Figure out how to allow overridingPropVars here. Can we instead just use props?
+        // I did this for the db issue. But you can just override the entire property
+        // of Database.Primary.Url instead.
+        //
+        Global.INST.init(overridingProps, null);
 
         //
         // Old code to initialize stormpath. If, for some reason we decide to make it

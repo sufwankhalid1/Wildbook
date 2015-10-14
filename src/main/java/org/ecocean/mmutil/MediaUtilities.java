@@ -52,6 +52,7 @@ import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
 
+import org.apache.commons.lang3.StringUtils;
 import org.ecocean.GeoFileProcessor;
 import org.ecocean.ImageProcessor;
 import org.ecocean.media.LocalAssetStore;
@@ -550,6 +551,15 @@ public final class MediaUtilities {
       return new File(baseDir, MID_DIR);
   }
 
+  private static File getOutputFile(final LocalAssetStore store, final String altOutputDir, final File relFile) {
+      if (StringUtils.isBlank(altOutputDir)) {
+          return store.getFile(relFile.toPath());
+      }
+
+      return new File(altOutputDir, relFile.toString());
+  }
+
+
   public static MediaAsset importMedia(final File baseDir,
                                        final LocalAssetStore store,
                                        final String fileName,
@@ -557,9 +567,36 @@ public final class MediaUtilities {
                                        final Integer submitterId,
                                        final boolean keepStreamOpen) throws IOException
   {
+      return importMedia(baseDir, store, fileName, content, submitterId, keepStreamOpen, null);
+  }
+
+  /**
+   *
+   * @param baseDir
+   * @param store
+   * @param fileName
+   * @param content
+   * @param submitterId
+   * @param keepStreamOpen
+   * @param altOutputDir just for importing on a server that is not the final server. Allows
+   *                     you to redirect the file output to another place where you can then tar
+   *                     it up and copy up to the main server and untar in the correct
+   *                     place as pointed to by the LocalAssetStore
+   *
+   * @return the resulting MediaAsset
+   * @throws IOException
+   */
+  public static MediaAsset importMedia(final File baseDir,
+                                       final LocalAssetStore store,
+                                       final String fileName,
+                                       final InputStream content,
+                                       final Integer submitterId,
+                                       final boolean keepStreamOpen,
+                                       final String altOutputDir) throws IOException
+  {
       File relFile = new File(baseDir, fileName);
 
-      File fullPath = store.getFile(relFile.toPath());
+      File fullPath = getOutputFile(store, altOutputDir, relFile);
       fullPath.getParentFile().mkdirs();
 
       MediaAsset ma = new MediaAsset(store, relFile.toPath());
@@ -581,7 +618,7 @@ public final class MediaUtilities {
 
           File relThumb = new File(getThumbnailDir(baseDir), resizedFileName);
 
-          File thumbFile = store.getFile(relThumb.toPath());
+          File thumbFile = getOutputFile(store, altOutputDir, relThumb);
           thumbFile.getParentFile().mkdirs();
 
           ma.setThumb(store, relThumb.toPath());
@@ -595,7 +632,7 @@ public final class MediaUtilities {
                                      null);
           iproc.run();
 
-          File midFile = store.getFile(new File(getMidsizeDir(baseDir), resizedFileName).toPath());
+          File midFile = getOutputFile(store, altOutputDir, new File(getMidsizeDir(baseDir), resizedFileName));
           midFile.getParentFile().mkdirs();
 
           //

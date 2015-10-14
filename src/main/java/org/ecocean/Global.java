@@ -47,11 +47,16 @@ public enum Global {
         }
     }
 
-    public void init(final File overridingProps) {
+    public void init(final File overridingProps, final Map<String, String> overridingPropVars) {
         //
         // Load up resources
         //
         ResourceReaderImpl resources = new ResourceReaderImpl();
+        resources.addVariable("wildbook.db.server", "localhost");
+        resources.addVariable("wildbook.db.name", "wildbook");
+        if (overridingPropVars != null) {
+            resources.addVariables(overridingPropVars);
+        }
 
         try {
             resources.addSource("wildbook");
@@ -146,12 +151,7 @@ public enum Global {
 
     public ConnectionInfo getConnectionInfo(final String connectionName) {
       if (connectionInfo.get(connectionName) == null) {
-          try {
-              ResourceReader reader = new ResourceReaderImpl("bundles/s6db.properties");
-              connectionInfo.put(connectionName, ConnectionInfo.valueOf(reader, connectionName));
-          } catch (IOException ex) {
-              logger.warn("Can't find properties [bundles/s6db]", ex);
-          }
+          connectionInfo.put(connectionName, ConnectionInfo.valueOf(appResources, connectionName));
       }
 
       return connectionInfo.get(connectionName);
