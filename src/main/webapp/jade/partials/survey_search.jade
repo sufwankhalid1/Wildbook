@@ -24,7 +24,7 @@ form.form.ng-cloak(novalidate, ng-controller="SurveySearchController", ng-show="
         .form-group.col-md-12
             input(type="submit", ng-click="search()", value="Search")
     .form-row
-        .ng-cloak(ng-show="gotresults")
+        .ng-cloak.col-md-12(ng-show="gotresults")
             legend Results
             p.help-block Click a Survey to attach it to this Submission
             .ag-fresh(ag-grid="surveyGridOptions", style="height: 400px;")
