@@ -134,23 +134,16 @@ wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q
               },
               sort: 'desc'
              },
-             {headerName: "Submitted By",
-              field: "user",
-              cellRenderer: function(params) {
-                  if (params.value) {
-                      return params.value.displayName;
-                  }
-                  return null;
-              }
-             },
+             {headerName: "Submitted By", field: "email"},
              {headerName: "Survey ID", field: "submissionid"},
              {headerName: "Description", field: "description"},
              {headerName: "Location", field: "verbatimLocation"},
              {headerName: "Status", field: "status"}],
         rowData: null,
         enableServerSideSorting: true,
-        enableSorting: false,
+        //enableSorting: false,
         pinnedColumnCount: 3,
+        sortingOrder: ['desc', 'asc'],
         angularCompileRows: true
     };
 
@@ -189,7 +182,7 @@ wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q
     };
 
     var dataSource = {
-        pageSize: 25,
+        pageSize: 20,
         getRows: function(args) {
             if(args.sortModel) {
                 $scope.rowData = sortSubmissionData(args.sortModel, $scope.rowData);
