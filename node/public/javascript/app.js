@@ -175,20 +175,23 @@ angular.module('nodeApp.controllers', ['nodeApp.config'])
     $scope.loginForm = {
         username: null,
         password: null,
-        error: null
+        error: null,
+        loading: false
     };
     $scope.resetForm = {
         email: null
     };
     $scope.reset = {
         on: false,
-        sent: false
+        sent: false,
+        loading: false
     };
     $scope.login = function(event) {
         if((event && event.keyCode != 13)
             || !$scope.loginForm.username) {
             return;
         }
+        $scope.loginForm.loading = true;
         $http.post(app.config.wildbook.url + '/obj/user/login',
         {
             username: $scope.loginForm.username,
@@ -201,8 +204,10 @@ angular.module('nodeApp.controllers', ['nodeApp.config'])
         .then(function(res) {
             $scope.$parent.user = res.data;
             $scope.$parent.showlogin = false;
+            $scope.loginForm.loading = false;
         }, function(err) {
             var message = "Invalid Username or Password.";
+            $scope.loginForm.loading = false;
             if(err.data.message) {
                 if(err.data.message.indexOf('username') > 0) {
                     message = 'We do not have an account for email ' + $scope.loginForm.username + '. To create an account, please submit media.';
@@ -220,26 +225,30 @@ angular.module('nodeApp.controllers', ['nodeApp.config'])
             || !$scope.reset.on) {
             return;
         }
+        $scope.reset.loading = true;
         $http.post(app.config.wildbook.url + '/obj/user/sendpassreset', $scope.resetForm.email, { contentType: 'text/plain' })
         .then(function() {
             $scope.reset.on = false;
             $scope.reset.sent = true;
+            $scope.reset.loading = false;
         }, function(err){
             if(err.data.message) {
                 $scope.reset.error = "The email address doesn't exist. To create an account please upload some images.";
+                $scope.reset.loading = false;
             }
         });
     }
     $scope.loginValidClass = function() {
-        return $scope.loginForm.username && $scope.loginForm.password ? '' : 'disabled';
+        return $scope.loginForm.username && $scope.loginForm.password && !$scope.loginForm.loading ? '' : 'disabled';
     }
     $scope.resetValidClass = function() {
-        return $scope.resetForm.email ? '' : 'disabled';
+        return $scope.resetForm.email && !$scope.reset.loading ? '' : 'disabled';
     }
     $scope.closemodal = function() {
         $scope.$parent.showlogin = false;
         $scope.reset.on = false;
         $scope.reset.sent = false;
+        $scope.reset.loading = false;
     }
     $scope.closemodalDone = function() {
         if($scope.reset.sent) {
@@ -253,7 +262,9 @@ angular.module('nodeApp.controllers', ['nodeApp.config'])
         $scope.reset.on = false;
         $scope.reset.sent = false;
         $scope.loginForm.error = '';
+        $scope.loginForm.loading = false;
         $scope.reset.error = '';
+        $scope.reset.loading = false;
     });
 }])
 .controller("IndividualController", ['$scope', '$http', 'configFactory', function(scope, http, config) {
@@ -265,7 +276,8 @@ angular.module('nodeApp.controllers', ['nodeApp.config'])
     $scope.form = {
         password: null,
         password2: null,
-        token: attrs.token
+        token: attrs.token,
+        loading: false
     }
     $scope.passwordError = null;
     $scope.reset = function(event) {
@@ -273,18 +285,21 @@ angular.module('nodeApp.controllers', ['nodeApp.config'])
             return;
         }
         if($scope.form.password && $scope.form.password2 && $scope.form.token) {
+            $scope.form.loading = true;
             http.post(app.config.wildbook.url + '/obj/user/resetpass',
                 { token: $scope.form.token, password: $scope.form.password },
                 { contentType: 'application/json'})
             .then(function() {
                 $scope.done = true;
+                $scope.form.loading = false;
             }, function(res) {
                 $scope.passwordError = 'Something went wrong. Please try again.';
+                $scope.form.loading = false;
             });
         }
     };
     $scope.verifyPasswordForm = function() {
-        return !!$scope.form.password && $scope.form.password === $scope.form.password2 ? '' : 'disabled';
+        return !!$scope.form.password && !$scope.form.loading && $scope.form.password === $scope.form.password2 ? '' : 'disabled';
     }
 }]);
 

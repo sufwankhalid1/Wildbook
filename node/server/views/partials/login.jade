@@ -31,5 +31,5 @@ div.login-modal.ng-cloak(ng-show="showlogin && !user")
                         p.help-block!= t('login.resetSuccessMessage')
                         div.form-group
                             button.btn.btn-medium.btn-success(ng-click="closemodal()", focus-me="$parent.showlogin && reset.sent")!= t('login.resetSuccessButton')
-            div.close-modal 
+            div.close-modal
                 a(ng-click="closemodal()") X
