@@ -594,7 +594,11 @@ public final class MediaUtilities {
                                        final boolean keepStreamOpen,
                                        final String altOutputDir) throws IOException
   {
-      File relFile = new File(baseDir, fileName);
+      //
+      // Get rid of spaces in filenames.
+      //
+      String fileName2 = fileName.replace(" ", "_");
+      File relFile = new File(baseDir, fileName2);
 
       File fullPath = getOutputFile(store, altOutputDir, relFile);
       fullPath.getParentFile().mkdirs();
@@ -614,7 +618,7 @@ public final class MediaUtilities {
           // Using PNG's for thumbs and mids so that I can get transparent background on
           // the parts of the image we don't use and still have exact, controlled sized images.
           //
-          String resizedFileName = OsUtils.getFileRoot(fileName) + ".png";
+          String resizedFileName = OsUtils.getFileRoot(fileName2) + ".png";
 
           File relThumb = new File(getThumbnailDir(baseDir), resizedFileName);
 
