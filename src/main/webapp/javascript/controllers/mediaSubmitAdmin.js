@@ -150,7 +150,9 @@ wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q
         rowData: null,
         enableServerSideSorting: true,
         //enableSorting: false,
-        pinnedColumnCount: 3,
+        // this pins it such that you can't scroll the page in that spot too
+        // which when you have no scroll bar in the page is annoying because then no scrolling either way
+        //pinnedColumnCount: 3,
         sortingOrder: ['desc', 'asc'],
         angularCompileRows: true
     };

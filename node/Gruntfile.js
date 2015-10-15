@@ -51,6 +51,5 @@ module.exports = function(grunt) {
   });
 
   grunt.registerTask('default', ['sass', 'concat']);
-  grunt.registerTask('devwatch', ['watch']);
   grunt.registerTask('concat', ['concat_css']);
 };
