@@ -134,7 +134,15 @@ wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q
               },
               sort: 'desc'
              },
-             {headerName: "Submitted By", field: "email"},
+             {headerName: "Submitted By",
+                 field: "user",
+                 cellRenderer: function(params) {
+                     if (params.value) {
+                         return params.value.displayName;
+                     }
+                     return null;
+                 }
+                },
              {headerName: "Survey ID", field: "submissionid"},
              {headerName: "Description", field: "description"},
              {headerName: "Location", field: "verbatimLocation"},
