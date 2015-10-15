@@ -595,9 +595,11 @@ public final class MediaUtilities {
                                        final String altOutputDir) throws IOException
   {
       //
-      // Get rid of spaces in filenames.
+      // Get rid of spaces and numbers in filenames.
       //
       String fileName2 = fileName.replace(" ", "_");
+      fileName2 = fileName.replace("#", "_");
+
       File relFile = new File(baseDir, fileName2);
 
       File fullPath = getOutputFile(store, altOutputDir, relFile);
