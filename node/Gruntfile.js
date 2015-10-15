@@ -25,6 +25,10 @@ module.exports = function(grunt) {
           assetBaseUrl: '',
           baseDir: 'public',
         },
+        //
+        // Bootstrap and jquery-ui are not included here because of the
+        // icon encoding. When we added it here we lost all of the icons.
+        //
         src: ['public/vendor/leaflet/leaflet.css',
              'public/vendor/leaflet.markercluster/MarkerCluster.css',
              'public/bcomponents/Leaflet.EasyButton/easy-button.css',
@@ -45,7 +49,7 @@ module.exports = function(grunt) {
       },
     },
   });
-  
+
   grunt.registerTask('default', ['sass', 'concat']);
   grunt.registerTask('devwatch', ['watch']);
   grunt.registerTask('concat', ['concat_css']);
