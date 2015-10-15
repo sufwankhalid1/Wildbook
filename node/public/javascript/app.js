@@ -72,7 +72,7 @@ app.beingDiv = function(being) {
 app.toMoment = function(date) {
 //    var dateString = date.year + '-' + date.monthValue + '-' + date.dayOfMonth;
 //    return moment(dateString, 'YYYY-M-D');
-    return moment({year: date[0], month: date[1], day: date[2]});
+    return moment({year: date[0], month: date[1] - 1, day: date[2]});
 }
 
 function configSearchBox() {

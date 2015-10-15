@@ -74,7 +74,7 @@ function instagramFeed(config, secrets) {
 function toMoment(date) {
 //    var dateString = date.year + '-' + date.monthValue + '-' + date.dayOfMonth;
 //    return moment(dateString, 'YYYY-M-D');
-    return moment({year: date[0], month: date[1], day: date[2]});
+    return moment({year: date[0], month: date[1] - 1, day: date[2]});
 }
 
 var Codebird = require("codebird");
@@ -416,6 +416,9 @@ module.exports = function(app, config, secrets, debug) {
             var first;
             var last;
             for (encounter of data.encounters) {
+                if (encounter.encDate == null) {
+                    continue;
+                }
                 theDate = toMoment(encounter.encDate);
                 if (!first && !last) {
                     first = theDate;
@@ -438,7 +441,7 @@ module.exports = function(app, config, secrets, debug) {
                 data: {
                     info: data,
                     firstSeen: first,
-                    lastSeend: last
+                    lastSeen: last
                 }
             }));
         })
