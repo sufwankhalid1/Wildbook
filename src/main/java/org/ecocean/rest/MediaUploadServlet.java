@@ -214,24 +214,6 @@ public class MediaUploadServlet
          }
     }
 
-
-    private static File getRelBaseDir(final String msid)
-    {
-        return new File("/mediasubmission", msid);
-    }
-
-//    private static File getThumbnailFile(final File baseDir,
-//                                         final String fileName)
-//    {
-//        return new File(getThumbnailDir(baseDir), fileName);
-//    }
-
-//    private static File getRootDir(final HttpServletRequest request)
-//    {
-////        return ServletUtilities.dataDir(context, request.getServletContext().getRealPath("/"));
-//        return new File(request.getServletContext().getRealPath("/")).getParentFile();
-//    }
-
     private static FileSet uploadByApacheFileUpload(final HttpServletRequest request)
         throws IOException, ServletException
     {
@@ -285,7 +267,7 @@ public class MediaUploadServlet
                     }
                 }
 
-                File baseDir = getRelBaseDir(fileset.getID());
+//                File baseDir = new File("/mediasubmission", fileset.getID());
 
                 //
                 // TODO: Have a way to specify the asset store for media submissions
@@ -302,7 +284,7 @@ public class MediaUploadServlet
                 }
 
                 for (FileMeta file : fileset.getFiles()) {
-                    file.setUrl(store.webPath(new File(baseDir, file.getName()).toPath()).toExternalForm());
+//                    file.setUrl(store.webPath(new File(baseDir, file.getName()).toPath()).toExternalForm());
 
                     if (MediaUtilities.isImageFile(file.getName())) {
 //                        file.setThumbnailUrl("/" + getThumbnailFile(baseDir, file.getName()));
@@ -330,7 +312,6 @@ public class MediaUploadServlet
                                                    store,
                                                    id,
                                                    submitterId,
-                                                   baseDir,
                                                    file));
                 }
             } catch (FileUploadException ex) {
@@ -480,21 +461,18 @@ public class MediaUploadServlet
         private final LocalAssetStore store;
         private final int submissionId;
         private final Integer submitterId;
-        private final File baseDir;
         private final FileMeta file;
 
         public SaveMedia(final ConnectionInfo ci,
                          final LocalAssetStore store,
                          final int submissionId,
                          final Integer submitterId,
-                         final File baseDir,
                          final FileMeta file)
         {
             this.ci = ci;
             this.store = store;
             this.submissionId = submissionId;
             this.submitterId = submitterId;
-            this.baseDir = baseDir;
             this.file = file;
         }
 
@@ -552,7 +530,7 @@ public class MediaUploadServlet
                                  final boolean fromZip)
         {
             try {
-                MediaAsset ma = MediaUtilities.importMedia(baseDir, store, fileName, content, submitterId, fromZip);
+                MediaAsset ma = MediaUtilities.importMedia(store, fileName, content, submitterId, fromZip);
                 postProcess(ma, fromZip);
             } catch (Exception ex) {
                 logger.error("Trouble saving media file [" + fileName + "]", ex);

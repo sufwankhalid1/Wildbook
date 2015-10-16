@@ -5,7 +5,6 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashSet;
 
-import org.ecocean.mmutil.MediaUtilities;
 import org.ecocean.rest.SimplePhoto;
 import org.ecocean.util.LogBuilder;
 import org.slf4j.Logger;
@@ -90,6 +89,7 @@ public class MediaAssetFactory {
         }
         ma.thumbStore = AssetStore.get(rs.getInteger("thumbstore"));
         ma.thumbPath = createPath(rs.getString("thumbpath"));
+        ma.midPath = createPath(rs.getString("midpath"));
         ma.submitterid = rs.getInteger("submitterid");
 
         return ma;
@@ -128,7 +128,16 @@ public class MediaAssetFactory {
         formatter.append("parent", ma.parentId);
         formatter.append("root", ma.rootId);
         formatter.append("thumbstore", ma.thumbStore.id);
-        formatter.append("thumbpath", ma.thumbPath.toString());
+        if (ma.thumbPath != null) {
+            formatter.append("thumbpath", ma.thumbPath.toString());
+        } else {
+            formatter.appendNull("thumbpath");
+        }
+        if (ma.midPath != null) {
+            formatter.append("midpath", ma.midPath.toString());
+        } else {
+            formatter.appendNull("midpath");
+        }
         String tags;
         if (ma.tags == null) {
             tags = null;
@@ -164,6 +173,7 @@ public class MediaAssetFactory {
     public static void deleteFromStore(final MediaAsset ma) {
         if (ma.thumbStore != null) {
             ma.thumbStore.deleteFrom(ma.thumbPath);
+            ma.thumbStore.deleteFrom(ma.midPath);
         }
         ma.store.deleteFrom(ma.path);
     }
@@ -177,20 +187,6 @@ public class MediaAssetFactory {
             return null;
         }
 
-        return new SimplePhoto(ma.getID(), ma.webPathString(), ma.thumbWebPathString());
-    }
-
-
-    public static String getThumbnail(final String url) {
-        return getScaledImage(url, MediaUtilities.THUMB_DIR);
-    }
-
-    public static String getMidsizeFile(final String url) {
-        return getScaledImage(url, MediaUtilities.MID_DIR);
-    }
-
-    public static String getScaledImage(final String url, final String subdir) {
-        int index = url.lastIndexOf( File.separatorChar );
-        return url.substring(0, index) + "/" + subdir + url.substring(index);
+        return new SimplePhoto(ma.getID(), ma.webPathString(), ma.thumbWebPathString(), ma.midWebPathString());
     }
 }

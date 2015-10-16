@@ -301,7 +301,7 @@ public class MainController
         sql.addCondition("e", "individualid", SqlRelationType.EQUAL, individualId);
 
         RecordSet rs;
-        List<SimplePhoto> photos = new ArrayList<SimplePhoto>();
+        List<SimplePhoto> photos = new ArrayList<>();
 
         //
         // Find the highlight images for this individual.

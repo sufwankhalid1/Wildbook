@@ -204,6 +204,10 @@ public class LocalAssetStore extends AssetStore {
     @Override
     public void deleteFrom(final Path path)
     {
+        if (path == null) {
+            return;
+        }
+
         File file = getFile(path);
         if (!file.exists()) {
             return;

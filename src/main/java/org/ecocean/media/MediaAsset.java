@@ -41,6 +41,7 @@ public class MediaAsset {
 
     protected AssetStore thumbStore;
     protected Path thumbPath;
+    protected Path midPath;
     protected Integer submitterid;
 
 
@@ -105,6 +106,16 @@ public class MediaAsset {
         return path;
     }
 
+    public Path getThumbPath()
+    {
+        return thumbPath;
+    }
+
+    public Path getMidPath()
+    {
+        return midPath;
+    }
+
     public MediaAssetType getType() {
         return type;
     }
@@ -125,6 +136,10 @@ public class MediaAsset {
         return getUrlString(thumbWebPath());
     }
 
+    public String midWebPathString() {
+        return getUrlString(midWebPath());
+    }
+
 
     /**
      * Return a full web-accessible url to the asset, or null if the
@@ -140,11 +155,31 @@ public class MediaAsset {
         thumbPath = path;
     }
 
+    public AssetStore getThumbstore() {
+        return thumbStore;
+    }
+
+    public URL midWebPath() {
+        if (midPath == null) {
+            return webPath();
+        }
+
+        //
+        // Just use thumb store for now.
+        //
+        return getUrl(thumbStore, midPath);
+    }
+
+    public void setMid(final Path path) {
+        //
+        // Just use thumb store for now.
+        //
+        this.midPath = path;
+    }
 
     public Integer getSubmitterId() {
         return submitterid;
     }
-
 
     public void setSubmitterId(final Integer submitterid) {
         this.submitterid = submitterid;

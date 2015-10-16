@@ -45,6 +45,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Locale;
+import java.util.UUID;
 
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
@@ -54,6 +55,7 @@ import javax.imageio.stream.ImageOutputStream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ecocean.GeoFileProcessor;
+import org.ecocean.Global;
 import org.ecocean.ImageProcessor;
 import org.ecocean.media.LocalAssetStore;
 import org.ecocean.media.MediaAsset;
@@ -69,6 +71,7 @@ import com.drew.metadata.MetadataException;
 import com.drew.metadata.Tag;
 import com.drew.metadata.exif.ExifIFD0Directory;
 import com.samsix.util.OsUtils;
+import com.samsix.util.io.ResourceReader;
 
 /**
  * Class providing centralized image-related services, such as image rescaling,
@@ -88,8 +91,8 @@ public final class MediaUtilities {
   /** Regex pattern string suffix for matching video filenames (case-insensitive, capturing group). */
   public static final String REGEX_SUFFIX_FOR_MOVIES = "(?i:(mp4|mpg|mov|wmv|avi|flv))$";
 
-  public static final String THUMB_DIR = "thumb";
-  public static final String MID_DIR = "mid";
+  public static final String IMAGE_TYPE_THUMB = "thumb";
+  public static final String IMAGE_TYPE_MID = "mid";
 
   /**
    * Gets a JPEG {@code ImageWriter} instance.
@@ -541,16 +544,6 @@ public final class MediaUtilities {
     return list;
   }
 
-  private static File getThumbnailDir(final File baseDir)
-  {
-      return new File(baseDir, THUMB_DIR);
-  }
-
-  private static File getMidsizeDir(final File baseDir)
-  {
-      return new File(baseDir, MID_DIR);
-  }
-
   private static File getOutputFile(final LocalAssetStore store, final String altOutputDir, final File relFile) {
       if (StringUtils.isBlank(altOutputDir)) {
           return store.getFile(relFile.toPath());
@@ -560,19 +553,42 @@ public final class MediaUtilities {
   }
 
 
-  public static MediaAsset importMedia(final File baseDir,
-                                       final LocalAssetStore store,
+  public static MediaAsset importMedia(final LocalAssetStore store,
                                        final String fileName,
                                        final InputStream content,
                                        final Integer submitterId,
                                        final boolean keepStreamOpen) throws IOException
   {
-      return importMedia(baseDir, store, fileName, content, submitterId, keepStreamOpen, null);
+      return importMedia(store, fileName, content, submitterId, keepStreamOpen, null);
+  }
+
+  public static MediaAsset importMedia(final LocalAssetStore store,
+                                       final String fileName,
+                                       final InputStream content,
+                                       final Integer submitterId,
+                                       final boolean keepStreamOpen,
+                                       final String altOutputDir) throws IOException
+  {
+      String ext = OsUtils.getFileExtension(fileName);
+
+      String uuid = UUID.randomUUID().toString();
+      File baseDir = null;
+      for (int ii = 0; ii < 6; ii++) {
+          baseDir = new File(baseDir, String.valueOf(uuid.charAt(ii)));
+      }
+
+      String fileName2;
+      if (ext != null) {
+          fileName2 = uuid + "." + ext.toLowerCase();
+      } else {
+          fileName2 = uuid;
+      }
+
+      return importMedia(store, fileName2, content, submitterId, keepStreamOpen, altOutputDir);
   }
 
   /**
    *
-   * @param baseDir
    * @param store
    * @param fileName
    * @param content
@@ -586,79 +602,42 @@ public final class MediaUtilities {
    * @return the resulting MediaAsset
    * @throws IOException
    */
-  public static MediaAsset importMedia(final File baseDir,
-                                       final LocalAssetStore store,
+  public static MediaAsset importMedia(final LocalAssetStore store,
+                                       final File baseDir,
                                        final String fileName,
                                        final InputStream content,
                                        final Integer submitterId,
                                        final boolean keepStreamOpen,
                                        final String altOutputDir) throws IOException
   {
-      //
-      // Get rid of spaces and numbers in filenames.
-      //
-      String fileName2 = fileName.replace(" ", "_");
-      fileName2 = fileName.replace("#", "_");
-
-      File relFile = new File(baseDir, fileName2);
-
-      File fullPath = getOutputFile(store, altOutputDir, relFile);
-      fullPath.getParentFile().mkdirs();
-
+      File relFile = new File(baseDir, fileName);
+      File file = getOutputFile(store, altOutputDir, relFile);
+      file.getParentFile().mkdirs();
       MediaAsset ma = new MediaAsset(store, relFile.toPath());
 
       if (logger.isDebugEnabled()) {
-          logger.debug(LogBuilder.quickLog("fullPath", fullPath.toString()));
+          logger.debug(LogBuilder.quickLog("fullPath", file.toString()));
       }
-      FileUtilities.saveStreamToFile(content, fullPath, keepStreamOpen);
+      FileUtilities.saveStreamToFile(content, file, keepStreamOpen);
 
       //
       // Make Thumbnail
       switch (ma.getType()) {
       case IMAGE: {
           //
-          // Using PNG's for thumbs and mids so that I can get transparent background on
-          // the parts of the image we don't use and still have exact, controlled sized images.
+          // TODO: For now I'm assuming thumbstore will be same as the main file store. Feel
+          // free to change later but allow for a "null" thumbstore to default to main store.
           //
-          String resizedFileName = OsUtils.getFileRoot(fileName2) + ".png";
-
-          File relThumb = new File(getThumbnailDir(baseDir), resizedFileName);
-
-          File thumbFile = getOutputFile(store, altOutputDir, relThumb);
-          thumbFile.getParentFile().mkdirs();
-
+          File relThumb = createThumbnail(file, store, baseDir, fileName, altOutputDir);
           ma.setThumb(store, relThumb.toPath());
 
-          ImageProcessor iproc;
-          iproc = new ImageProcessor("resize",
-                                     100,
-                                     75,
-                                     fullPath.getAbsolutePath(),
-                                     thumbFile.getAbsolutePath(),
-                                     null);
-          iproc.run();
-
-          File midFile = getOutputFile(store, altOutputDir, new File(getMidsizeDir(baseDir), resizedFileName));
-          midFile.getParentFile().mkdirs();
-
-          //
-          // TODO: Make a way for the media asset to be linked easily to this version as
-          // this is the version we want to give to the web clients when the ask for larger files.
-          // We only want to download the full image upon very special request.
-          //
-
-          iproc = new ImageProcessor("resize",
-                                     800,
-                                     600,
-                                     fullPath.getAbsolutePath(),
-                                     midFile.getAbsolutePath(),
-                                     null);
-          iproc.run();
+          File relMid = createMidSize(file, store, baseDir, fileName, altOutputDir);
+          ma.setMid(relMid.toPath());
           break;
       }
       case VIDEO: {
           GeoFileProcessor gproc;
-          gproc = new GeoFileProcessor(fullPath.getAbsolutePath());
+          gproc = new GeoFileProcessor(file.getAbsolutePath());
           gproc.run();
           break;
       }
@@ -668,5 +647,70 @@ public final class MediaUtilities {
       ma.setSubmitterId(submitterId);
 
       return ma;
+  }
+
+  public static File createThumbnail(final File file,
+                                     final LocalAssetStore store,
+                                     final File baseDir,
+                                     final String fileName,
+                                     final String altOutputDir) throws IOException {
+      return createResized(IMAGE_TYPE_THUMB,
+                           file,
+                           store,
+                           baseDir,
+                           fileName,
+                           altOutputDir,
+                           100,
+                           75);
+  }
+
+  public static File createMidSize(final File file,
+                                   final LocalAssetStore store,
+                                   final File baseDir,
+                                   final String fileName,
+                                   final String altOutputDir) throws IOException {
+      return createResized(IMAGE_TYPE_MID,
+                           file,
+                           store,
+                           baseDir,
+                           fileName,
+                           altOutputDir,
+                           800,
+                           600);
+  }
+
+  private static File createResized(final String type,
+                                    final File file,
+                                    final LocalAssetStore store,
+                                    final File baseDir,
+                                    final String fileName,
+                                    final String altOutputDir,
+                                    final int defaultWidth,
+                                    final int defaultHeight) throws IOException {
+      ResourceReader resources = Global.INST.getAppResources();
+      String keyBase = "images." + type + ".";
+      String ext = resources.getString(keyBase + "type", "jpg");
+      int width = resources.getInt(keyBase + "width", defaultWidth);
+      int height = resources.getInt(keyBase + "height", defaultHeight);
+
+      String resizedFileName = OsUtils.getFileRoot(fileName) + "." + ext;
+      File relMid = new File(new File(baseDir, type), resizedFileName);
+      File midFile = getOutputFile(store, altOutputDir, relMid);
+      midFile.getParentFile().mkdirs();
+
+      ImageProcessor iproc;
+      iproc = new ImageProcessor("resize",
+                                 width,
+                                 height,
+                                 file.getAbsolutePath(),
+                                 midFile.getAbsolutePath(),
+                                 null);
+      iproc.run();
+
+      if (iproc.getException() != null) {
+          throw iproc.getException();
+      }
+
+      return relMid;
   }
 }

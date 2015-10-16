@@ -21,6 +21,7 @@ package org.ecocean;
 
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 
 import org.apache.commons.lang3.StringUtils;
@@ -38,31 +39,20 @@ import com.samsix.util.string.StringUtilities;
 public final class ImageProcessor implements Runnable {
     private static Logger logger = LoggerFactory.getLogger(ImageProcessor.class);
 
-//  /** Enumeration representing possible status values for the batch processor. */
-//  public enum Status { WAITING, INIT, RUNNING, FINISHED, ERROR };
-//  /** Enumeration representing possible processing phases. */
-//  public enum Phase { NONE, MEDIA_DOWNLOAD, PERSISTENCE, THUMBNAILS, PLUGIN, DONE };
-//  /** Current status of the batch processor. */
-//  private Status status = Status.WAITING;
-//  /** Current phase of the batch processor. */
-//  private Phase phase = Phase.NONE;
-//  /** Throwable instance produced by the batch processor (if any). */
-//  private Throwable thrown;
-
     private String command = null;
     private String imageSourcePath = null;
     private String imageTargetPath = null;
     private String arg = null;
     private int width = 0;
     private int height = 0;
+    private IOException exception;
 
-
-  public ImageProcessor(final String action,
-                        final int width,
-                        final int height,
-                        final String imageSourcePath,
-                        final String imageTargetPath,
-                        final String arg) {
+    public ImageProcessor(final String action,
+                          final int width,
+                          final int height,
+                          final String imageSourcePath,
+                          final String imageTargetPath,
+                          final String arg) {
         this.width = width;
         this.height = height;
         this.imageSourcePath = imageSourcePath;
@@ -88,6 +78,10 @@ public final class ImageProcessor implements Runnable {
             }
             this.command = Global.INST.getAppResources().getString(propKey, null);
         }
+    }
+
+    public IOException getException() {
+        return exception;
     }
 
 
@@ -147,8 +141,10 @@ public final class ImageProcessor implements Runnable {
                 logger.warn(line);
             }
             proc.waitFor();
-        } catch (Exception ioe) {
-            logger.error("Trouble running processor [" + command + "]", ioe);
+        } catch (IOException|InterruptedException ex) {
+            String msg = "Trouble running image processor command [" + StringUtilities.arrayToString(command, " ") + "]";
+            exception = new IOException(msg, ex);
+            logger.error(msg, ex);
         }
     }
 }

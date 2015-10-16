@@ -1,11 +1,12 @@
 package db.migration;
 
+import java.io.File;
 import java.sql.Connection;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.ecocean.SinglePhotoVideo;
-import org.ecocean.media.MediaAssetFactory;
+import org.ecocean.mmutil.MediaUtilities;
 import org.flywaydb.core.api.migration.jdbc.JdbcMigration;
 
 import com.samsix.database.Database;
@@ -19,6 +20,23 @@ public class V2015_08_23_17_21_50__convert_media implements JdbcMigration {
     private String getUUID(final RecordSet rs) throws DatabaseException
     {
         return rs.getString("DATACOLLECTIONEVENTID");
+    }
+
+    //
+    // TODO: This needs to be rewritten with the new media import routines
+    // I think.
+    //
+    private static String getThumbnail(final String url) {
+        return getScaledImage(url, MediaUtilities.IMAGE_TYPE_THUMB);
+    }
+
+//    private static String getMidsizeFile(final String url) {
+//        return getScaledImage(url, MediaUtilities.MID_DIR);
+//    }
+
+    private static String getScaledImage(final String url, final String subdir) {
+        int index = url.lastIndexOf( File.separatorChar );
+        return url.substring(0, index) + "/" + subdir + url.substring(index);
     }
 
     private int insertMediaAsset(final Database db, final String uuid, final RecordSet rs) throws DatabaseException {
@@ -39,7 +57,7 @@ public class V2015_08_23_17_21_50__convert_media implements JdbcMigration {
         formatter.append("store", 1);
         formatter.append("path", url);
         formatter.append("thumbstore", 1);
-        formatter.append("thumbpath", MediaAssetFactory.getThumbnail(url));
+        formatter.append("thumbpath", getThumbnail(url));
 
         int mediaid = tablema.insertSequencedRow(formatter, "id");
 

@@ -2,14 +2,14 @@
     if photos && photos[0]
         .row
             .col-md-12
-                #main-photo.photo-thumbnail-main(style="background-image:url(#{photos[0].url})")
+                #main-photo.photo-thumbnail-main(style="background-image:url(#{photos[0].midUrl})")
             .visible-xs-block.col-md-12
                 span.more-images-mobile()="More images:"
             .col-md-12
                 if photos && photos.length > 3
-                    .photo-thumbnail.col-sm-4#sub-photo1(style="background-image:url(#{photos[1].url})")
-                    .photo-thumbnail.col-sm-4#sub-photo2(style="background-image:url(#{photos[2].url})")
-                    .photo-thumbnail.col-sm-4#sub-photo3(style="background-image:url(#{photos[3].url})")
+                    .photo-thumbnail.col-sm-4#sub-photo1(style="background-image:url(#{photos[1].midUrl})")
+                    .photo-thumbnail.col-sm-4#sub-photo2(style="background-image:url(#{photos[2].midUrl})")
+                    .photo-thumbnail.col-sm-4#sub-photo3(style="background-image:url(#{photos[3].midUrl})")
 //
 // The photoswipe elements
 //

@@ -104,6 +104,9 @@ public class RestApplication extends SpringBootServletInitializer {
         // but people complain of getting errors using this. Since I can't see the added benefit
         // of "repairing" and since it is apparently error prone itself, I am choosing to ignore them
         // by setting ValidateOnMigrate to false.
+        // UPDATE: I also need this to be false because if, for instance, I am refactoring code and
+        // it is code that is used in one of the java migrations, then that class file has to be updated
+        // to match the refactor. This causes a checksum issue.
         //
         flyway.setValidateOnMigrate(false);
 

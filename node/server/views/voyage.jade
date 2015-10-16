@@ -14,10 +14,10 @@ block content
                 p!= t("voyage.thanksForFeedback", {indLink: voyage.match.link, escapeInterpolation: false})
                 .match-pair
                     .image
-                        img(src="#{voyage.match.testImage.url}")
+                        img(src="#{voyage.match.testImage.midUrl}")
                         .caption #{voyage.match.testCaption}
                     .image.image-right
-                        img(src="#{voyage.match.matchImage.url}")
+                        img(src="#{voyage.match.matchImage.midUrl}")
                         .caption #{voyage.match.matchCaption}
                 a.btn.btn-primary.btn-oversize(href='/individual/#{voyage.match.individualID}')= t("voyage.btnMeetWhale")
                 a.btn.btn-primary.btn-oversize(href='/submitMedia')= t("voyage.btnIDPhotos")
@@ -37,7 +37,7 @@ block content
                 .voyage-sightings
                     for img in voyage.mediaParsed.featured
                         .voyage-sighting.center-cropped
-                            img(src="#{img.image.url}")
+                            img(src="#{img.image.midUrl}")
             if (voyage.mediaParsed && voyage.mediaParsed.recent)
                 h2= t("activity.h2RecentActivity")
                 hr
@@ -50,7 +50,7 @@ block content
                             .media
                                 for img in msub.media
                                     .voyage-recent.center-cropped
-                                        img(src="#{img.image.url}")
+                                        img(src="#{img.image.midUrl}")
             h2= t("voyage.h2Contributions")
             a.btn.btn-primary.btn-oversize(href='/submitMedia')= t("voyage.btnAddMedia")
             p= t("voyage.contributionsIntro")
