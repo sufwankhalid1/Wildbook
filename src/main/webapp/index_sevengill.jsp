@@ -56,7 +56,7 @@ h1 {
 
 	<div id="howtocarousel" class="carousel slide" data-ride="carousel">
 		<ol class="list-inline carousel-indicators slide-nav">
-	        <li data-target="#howtocarousel" data-slide-to="0" class="active">1. Photograph an animal<span class="caret"></span></li>
+	        <li data-target="#howtocarousel" data-slide-to="0" class="active">1. Photograph a Sevengill<span class="caret"></span></li>
 	        <li data-target="#howtocarousel" data-slide-to="1" class="">2. Submit photo/video<span class="caret"></span></li>
 	        <li data-target="#howtocarousel" data-slide-to="2" class="">3. Researcher verification<span class="caret"></span></li>
 	        <li data-target="#howtocarousel" data-slide-to="3" class="">4. Matching process<span class="caret"></span></li>
@@ -67,14 +67,14 @@ h1 {
 				<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
 					<h3>Photograph the ID area</h3>
 					<p class="lead">
-						Each animal should have an individual fingerprint: the pattern of spots or other markings. Get an image or video of their &ldquo;print&rdquo; and we can match that pattern to others already in the database, or your animal might be completely new to the database.
+						Each animal has an individual fingerprint: its unique pattern of spots behind the eyes. Get an image or video of their &ldquo;spots&rdquo;, and we can match that pattern to others already in the database, or your shark might be completely new to the database.
 					</p>
 					<p class="lead">
 						<a href="photographing.jsp" title="">See the photography guide</a>
 					</p>
 				</div>
 				<div class="col-xs-12 col-sm-4 col-sm-offset-2 col-md-4 col-md-offset-2 col-lg-4 col-lg-offset-2">
-					<img class="pull-right" src="images/how_it_works_bellyshot_of_manta.jpg" alt=""  />
+					<img class="pull-right" src="images/how_it_works_sevengill.jpg" alt=""  />
 				</div>
 			</div>
 			<div class="item">

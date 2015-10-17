@@ -89,8 +89,7 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
             <nav class="navbar navbar-default navbar-fixed-top">
               <div class="header-top-wrapper">
                 <div class="container">
-                <a href="http://www.wildme.org" id="wild-me-badge">A Wild me project</a>
-                  <div class="search-and-secondary-wrapper">
+                <div class="search-and-secondary-wrapper">
                     <ul class="secondary-nav hor-ul no-bullets">
                     
                    
@@ -390,9 +389,7 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
                             if(request.isUserInRole("admin")) { %>
                               <li><a href="<%=urlLoc %>/appadmin/admin.jsp"><%=props.getProperty("general")%></a></li>
                               <li><a href="<%=urlLoc %>/appadmin/logs.jsp"><%=props.getProperty("logs")%></a></li>
-                                <% if(CommonConfiguration.useSpotPatternRecognition(context)) { %>
-                                 <li><a href="<%=urlLoc %>/software/software.jsp"><%=props.getProperty("gridSoftware")%></a></li>
-                                <% } %>
+                               
                                 <li><a href="<%=urlLoc %>/appadmin/users.jsp?context=context0"><%=props.getProperty("userManagement")%></a></li>
                                 <% if (CommonConfiguration.getTapirLinkURL(context) != null) { %>
                                   <li><a href="<%=CommonConfiguration.getTapirLinkURL(context) %>"><%=props.getProperty("tapirLink")%></a></li>
@@ -414,6 +411,18 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
                                   <li class="divider"></li>
                                   <li><a href="<%=urlLoc %>/appadmin/import.jsp"><%=props.getProperty("dataImport")%></a></li>
                                 <% }
+                                %>
+                                 <li class="divider"></li>
+                                 <%
+                                 if(CommonConfiguration.useSpotPatternRecognition(context)) {
+                                 %>
+	                                  <li class="dropdown-header"><%=props.getProperty("grid")%></li>
+	                                  
+	                                <li><a href="<%=urlLoc %>/appadmin/scanTaskAdmin.jsp?context=context0">Grid Administration</a></li>
+	                                <li><a href="<%=urlLoc %>/software/software.jsp"><%=props.getProperty("gridSoftware")%></a></li>
+	                                <%
+                                 }
+                                
                             } //end if admin %>
                         </ul>
                       </li>
