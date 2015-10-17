@@ -21,7 +21,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <%@ page contentType="text/html; charset=iso-8859-1" language="java"
          import="org.ecocean.servlet.ServletUtilities,org.dom4j.Document, org.dom4j.Element,org.dom4j.io.SAXReader, org.ecocean.*, org.ecocean.grid.MatchComparator, org.ecocean.grid.MatchObject, java.io.File, java.util.Arrays, java.util.Iterator, java.util.List, java.util.Vector" %>
-<html>
+
 <%
 
 String context="context0";
@@ -56,23 +56,6 @@ File encountersDir=new File(shepherdDataDir.getAbsolutePath()+"/encounters");
   String side2 = "";
 %>
 
-<head>
-  <title><%=CommonConfiguration.getHTMLTitle(context) %>
-  </title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-  <meta name="Description"
-        content="<%=CommonConfiguration.getHTMLDescription(context) %>"/>
-  <meta name="Keywords"
-        content="<%=CommonConfiguration.getHTMLKeywords(context) %>"/>
-  <meta name="Author" content="<%=CommonConfiguration.getHTMLAuthor(context) %>"/>
-  <link href="<%=CommonConfiguration.getCSSURLLocation(request,context) %>"
-        rel="stylesheet" type="text/css"/>
-  <link rel="shortcut icon"
-        href="<%=CommonConfiguration.getHTMLShortcutIcon(context) %>"/>
-          <link href="../css/pageableTable.css" rel="stylesheet" type="text/css"/>
-<link rel="stylesheet" href="../javascript/tablesorter/themes/blue/style.css" type="text/css" media="print, projection, screen" />
-      
-</head>
 
 <style type="text/css">
  
@@ -124,16 +107,8 @@ File encountersDir=new File(shepherdDataDir.getAbsolutePath()+"/encounters");
   
 </style>
 
-<body>
-<div id="wrapper">
-<div id="page">
-<jsp:include page="../header.jsp" flush="true">
-  <jsp:param name="isAdmin" value="<%=request.isUserInRole(\"admin\")%>" />
-</jsp:include>
-<div id="page">
-
-
-<div id="main">
+<jsp:include page="../header.jsp" flush="true" />
+  <div class="container maincontent">
 
 <ul id="tabmenu">
   <li><a
@@ -500,10 +475,8 @@ if ((request.getParameter("epsilon") != null) && (request.getParameter("R") != n
         <li>Max. Triangle Rotation (<%=maxTriangleRotation%>)</li>
 
       </ul>
+      
+      </div>
 <jsp:include page="../footer.jsp" flush="true"/>
-</div>
-</div>
-<!-- end page --></div>
-<!--end wrapper -->
-</body>
-</html>
+
+

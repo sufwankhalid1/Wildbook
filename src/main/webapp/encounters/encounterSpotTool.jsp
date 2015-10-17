@@ -21,9 +21,6 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <%@ page contentType="text/html; charset=utf-8" language="java"
          import="org.joda.time.format.DateTimeFormat,org.joda.time.format.DateTimeFormatter,org.joda.time.LocalDateTime ,org.ecocean.servlet.ServletUtilities,com.drew.imaging.jpeg.JpegMetadataReader, com.drew.metadata.Directory, com.drew.metadata.Metadata, com.drew.metadata.Tag, org.ecocean.*,org.ecocean.servlet.ServletUtilities,org.ecocean.Util,org.ecocean.Measurement, org.ecocean.Util.*, org.ecocean.genetics.*, org.ecocean.tag.*, java.awt.Dimension, javax.jdo.Extent, javax.jdo.Query, java.io.File, java.text.DecimalFormat, java.util.*,org.ecocean.security.Collaboration" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>         
-
 
 
 <%
@@ -85,41 +82,7 @@ String langCode=ServletUtilities.getLanguageCode(request);
   //pageContext.setAttribute("set", encprops.getProperty("set"));
 %>
 
-<html>
 
-<head prefix="og:http://ogp.me/ns#">
-  <title><%=CommonConfiguration.getHTMLTitle(context) %> - <%=encprops.getProperty("encounter") %> <%=num%>
-  </title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-  <meta name="Description"
-        content="<%=CommonConfiguration.getHTMLDescription(context) %>"/>
-  <meta name="Keywords"
-        content="<%=CommonConfiguration.getHTMLKeywords(context) %>"/>
-  <meta name="Author" content="<%=CommonConfiguration.getHTMLAuthor(context) %>"/>
-  
-  
-<!-- social meta start -->
-<meta property="og:site_name" content="<%=CommonConfiguration.getHTMLTitle(context) %> - <%=encprops.getProperty("encounter") %> <%=request.getParameter("number") %>" />
-
-<link rel="canonical" href="http://<%=CommonConfiguration.getURLLocation(request) %>/encounters/encounter.jsp?number=<%=request.getParameter("number") %>" />
-
-<meta itemprop="name" content="<%=encprops.getProperty("encounter")%> <%=request.getParameter("number")%>" />
-<meta itemprop="description" content="<%=CommonConfiguration.getHTMLDescription(context)%>" />
-<meta property="og:title" content="<%=CommonConfiguration.getHTMLTitle(context) %> - <%=encprops.getProperty("encounter") %> <%=request.getParameter("number") %>" />
-<meta property="og:description" content="<%=CommonConfiguration.getHTMLDescription(context)%>" />
-
-<meta property="og:url" content="http://<%=CommonConfiguration.getURLLocation(request) %>/encounters/encounter.jsp?number=<%=request.getParameter("number") %>" />
-
-
-<meta property="og:type" content="website" />
-
-<!-- social meta end -->
-
-  
-  <link href="<%=CommonConfiguration.getCSSURLLocation(request,context) %>"
-        rel="stylesheet" type="text/css"/>
-  <link rel="shortcut icon"
-        href="<%=CommonConfiguration.getHTMLShortcutIcon(context) %>"/>
   <style type="text/css">
     <!--
 
@@ -637,37 +600,10 @@ function allGood(d) {
 
 
 
-<!--  FACEBOOK LIKE BUTTON -->
-<div id="fb-root"></div>
-<script>(function(d, s, id) {
-  var js, fjs = d.getElementsByTagName(s)[0];
-  if (d.getElementById(id)) return;
-  js = d.createElement(s); js.id = id;
-  js.src = "//connect.facebook.net/en_US/all.js#xfbml=1";
-  fjs.parentNode.insertBefore(js, fjs);
-}(document, 'script', 'facebook-jssdk'));</script>
-
-<!-- GOOGLE PLUS-ONE BUTTON -->
-<script type="text/javascript">
-  (function() {
-    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
-    po.src = 'https://apis.google.com/js/plusone.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
-  })();
-</script>
-</head>
-
-
-
-<body <%if (request.getParameter("noscript") == null) {%>
-  xonload="initialize()" <%}%>>
-
-	<div id="wrapper">
-		<div id="page">
-			<jsp:include page="../header.jsp" flush="true">
-  				<jsp:param name="isAdmin" value="<%=request.isUserInRole(\"admin\")%>" />
-			</jsp:include>
-			
+	
+			<jsp:include page="../header.jsp" flush="true" />
+  	
+  	<div class="container maincontent">
 			
 			<script src="http://maps.google.com/maps/api/js?sensor=false&language=<%=langCode%>"></script>
 
@@ -683,8 +619,7 @@ $(document).ready(function() {
 });
 </script>
 
-			
-			<div id="main">
+		
 <div id="imageTools-wrapper">
 	<div id="imageTools-wl-wrapper">
 		<div class="instruction">Place spots here</div>
@@ -712,24 +647,14 @@ $(document).ready(function() {
 
 </div>
 
-
-
 </div>
 
 
 
-<jsp:include page="../footer.jsp" flush="true"/>
-
-</div>
-<!-- end page -->
-
-</div>
-
-<!--end wrapper -->
 
 
 
-</body>
-</html>
+
+
 
 

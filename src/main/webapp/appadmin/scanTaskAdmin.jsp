@@ -64,6 +64,8 @@ String langCode=ServletUtilities.getLanguageCode(request);
 %>
 
 <jsp:include page="../header.jsp" flush="true" />
+
+
      <div class="container maincontent">
 <h1>Grid Administration
   <a href="<%=CommonConfiguration.getWikiLocation(context)%>sharkgrid" target="_blank"><img
@@ -77,9 +79,9 @@ String showContext="My ";
 
 if(request.getParameter("showAll")==null){
 %>
-<p class="caption">Your scanTasks are shown below. Click <b>Show All scanTasks</b> to see all of the tasks in the grid for all users.</p>
+<p>Your scanTasks are shown below. Click <b>Show All scanTasks</b> to see all of the tasks in the grid for all users.</p>
 
-<p class="caption">Refreshing results in <span id="countdown"></span> seconds.</p>
+<p>Refreshing results in <span id="countdown"></span> seconds.</p>
   <script type="text/javascript">
   (function countdown(remaining) {
 	    if(remaining === 0)
@@ -107,7 +109,7 @@ else{
 %>
 
 <h3><%=showContext %>Pending scanTasks</h3>
-<table class="tablesorter">
+<table class="table">
 <thead>
   <tr>
     <th><strong>Identifier</strong></th>
@@ -468,5 +470,5 @@ single scan are allowed to exceed the total.</span>
 </div>
 
 
-<jsp:include page="../footer.jsp" flush="true">
+<jsp:include page="../footer.jsp" flush="true" />
 
