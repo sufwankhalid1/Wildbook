@@ -284,7 +284,15 @@ public class MediaUploadServlet
                 }
 
                 for (FileMeta file : fileset.getFiles()) {
-//                    file.setUrl(store.webPath(new File(baseDir, file.getName()).toPath()).toExternalForm());
+                    //
+                    // TODO: Fix this. We have to set the URL to *something* or else the button on the submission
+                    // form does not turn to Delete but rather stays Cancel. So for now, I'm just putting a dummy
+                    // value here for the url. I had changed this because we no longer know the filename of the
+                    // saved file anyway. We need the delete to be the id or some such of the resulting media.
+                    // Requires sockets to interact properly.
+                    //
+//                  file.setUrl(store.webPath(new File(baseDir, file.getName()).toPath()).toExternalForm());
+                    file.setUrl("/nothing.jpg");
 
                     if (MediaUtilities.isImageFile(file.getName())) {
 //                        file.setThumbnailUrl("/" + getThumbnailFile(baseDir, file.getName()));
@@ -308,6 +316,9 @@ public class MediaUploadServlet
                         submitterId = Integer.parseInt(fileset.getSubmitter());
                     }
 
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("About to save file [" + file.getName() + "]");
+                    }
                     executor.execute(new SaveMedia(ServletUtilities.getConnectionInfo(request),
                                                    store,
                                                    id,
@@ -484,7 +495,7 @@ public class MediaUploadServlet
                                            .appendVar("file.getName()", file.getName()).toString());
                 }
 
-                if (file.getName().toLowerCase().indexOf(".zip") == -1) {
+                if (! file.getName().toLowerCase().endsWith(".zip")) {
                     processFile(file.getName(), file.getContent(), false);
                     return;
                 }

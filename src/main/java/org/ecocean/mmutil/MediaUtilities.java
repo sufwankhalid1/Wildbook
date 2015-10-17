@@ -584,7 +584,7 @@ public final class MediaUtilities {
           fileName2 = uuid;
       }
 
-      return importMedia(store, fileName2, content, submitterId, keepStreamOpen, altOutputDir);
+      return importMedia(store, baseDir, fileName2, content, submitterId, keepStreamOpen, altOutputDir);
   }
 
   /**
