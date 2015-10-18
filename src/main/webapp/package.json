@@ -1,0 +1,24 @@
+{
+  "name": "wildbook_setup",
+  "version": "0.0.1",
+  "description": "Wildbook Less Setup",
+  "author": {
+    "name": "Ken Southerland",
+    "email": "crowmagnumb@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/holmbergius/Wildbook.git"
+  },
+  "private": true,
+  "dependencies": {},
+  "engines": {
+    "node": "0.12.0",
+    "npm": "2.7.3"
+  },
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-contrib-less": "^1.0.1",
+    "grunt-contrib-watch": "^0.6.1"
+  }
+}
