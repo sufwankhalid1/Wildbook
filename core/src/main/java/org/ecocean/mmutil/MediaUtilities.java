@@ -59,6 +59,7 @@ import org.ecocean.Global;
 import org.ecocean.ImageProcessor;
 import org.ecocean.media.LocalAssetStore;
 import org.ecocean.media.MediaAsset;
+import org.ecocean.util.FileUtilities;
 import org.ecocean.util.LogBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

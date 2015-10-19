@@ -31,7 +31,7 @@ import java.util.Objects;
 import org.ecocean.Global;
 import org.ecocean.email.EmailUtils;
 import org.ecocean.email.Emailer;
-import org.ecocean.servlet.ServletUtilities;
+import org.ecocean.util.FileUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -383,10 +383,10 @@ public final class NotificationMailer implements Runnable {
     Objects.requireNonNull(baseName);
 
     String s = baseName + ".txt";
-    File f = ServletUtilities.findResourceOnFileSystem(String.format("%s/%s/%s", SEARCH_PATH, langCode, s));
+    File f = FileUtilities.findResourceOnFileSystem(String.format("%s/%s/%s", SEARCH_PATH, langCode, s));
     if (f == null) {
       s = baseName + ".TXT";
-      f = ServletUtilities.findResourceOnFileSystem(String.format("%s/%s/%s", SEARCH_PATH, langCode, s));
+      f = FileUtilities.findResourceOnFileSystem(String.format("%s/%s/%s", SEARCH_PATH, langCode, s));
     }
     if (f == null)
       throw new FileNotFoundException(String.format("Failed to find plain text email template: %s.txt", baseName));

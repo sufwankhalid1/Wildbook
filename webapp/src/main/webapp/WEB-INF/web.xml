@@ -231,7 +231,7 @@
     </filter-mapping>
 
 
-  <filter>
+  <!-- <filter>
     <description>Dynamic Image Filter</description>
     <filter-name>ImgFilter</filter-name>
     <filter-class>com.sunwesttek.image.servlet.ImgFilter</filter-class>
@@ -244,7 +244,7 @@
   <filter-mapping>
     <filter-name>ImgFilter</filter-name>
     <url-pattern>/di/ImgFilter/*</url-pattern>
-  </filter-mapping>
+  </filter-mapping> -->
 
   <filter>
     <filter-name>CorsFilter</filter-name>
@@ -523,9 +523,6 @@
           <servlet-class>org.ecocean.servlet.SocialConnect</servlet-class>
    </servlet>
   
->>>>>>> origin/master
-  <!-- end Shiro filters -->
-
     <servlet>
         <servlet-name>PasswordReset</servlet-name>
         <servlet-class>org.ecocean.rest.PasswordReset</servlet-class>

@@ -1,9 +1,9 @@
 package org.ecocean.security;
 
 import java.util.HashMap;
+import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
-import org.ecocean.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -245,7 +245,7 @@ public class Stormpath {
 
     //satisfies Stormcloud requirements, and is sufficiently unguessable
     public static String randomInitialPassword() {
-        return "X" + Util.generateUUID() + "X";
+        return "X" + UUID.randomUUID().toString() + "X";
     }
 
     //note: "username" can also be email, apparently

@@ -1,7 +1,7 @@
 <%@ page contentType="text/html; charset=utf-8" language="java"
          import="
          org.ecocean.ShepherdProperties,
-         org.ecocean.servlet.ServletUtilities,
+         org.ecocean.servlet.ServletUtils,
          org.ecocean.rest.SimpleUser,
          org.ecocean.rest.UserController,
          java.util.Properties,
@@ -10,7 +10,7 @@
          org.apache.commons.lang3.StringEscapeUtils" %>
 
 <%
-String context = ServletUtilities.getContext(request);
+String context = ServletUtils.getContext(request);
 
 
   //handle some cache-related security
@@ -22,7 +22,7 @@ String context = ServletUtilities.getContext(request);
 
   //setup our Properties object to hold all properties
   //String langCode = "en";
-  String langCode=ServletUtilities.getLanguageCode(request);
+  String langCode=ServletUtils.getLanguageCode(request);
 
   //set up the file input stream
   Properties props = new Properties();
@@ -40,7 +40,7 @@ String context = ServletUtilities.getContext(request);
       logger.info(request.getRemoteUser() + " logged in from IP address " + request.getRemoteAddr() + ".");
    }
    
-   SimpleUser user = ServletUtilities.getUser(request);
+   SimpleUser user = ServletUtils.getUser(request);
 %>
 <jsp:include page="header.jsp" flush="true"/>
 

@@ -9,7 +9,7 @@ import="org.ecocean.Adoption,
         org.ecocean.rest.SimpleUser,
         org.ecocean.security.User,
         org.ecocean.security.UserFactory,
-        org.ecocean.servlet.ServletUtilities,
+        org.ecocean.servlet.ServletUtils,
         java.util.ArrayList,
         java.util.List,
         java.util.Map,
@@ -26,7 +26,7 @@ import="org.ecocean.Adoption,
 <script src="cust/mantamatcher/js/behaviour.js"></script>
 
 <%
-String context=ServletUtilities.getContext(request);
+String context=ServletUtils.getContext(request);
 
 //set up our Shepherd
 
@@ -312,7 +312,7 @@ margin-bottom: 8px !important;
         e.printStackTrace();
     }
 
-    try (Database db = ServletUtilities.getDb(request)) {
+    try (Database db = ServletUtils.getDb(request)) {
         numDataContributors = UserFactory.getNumUsers(db);
     }
 %>
@@ -425,7 +425,7 @@ margin-bottom: 8px !important;
             <!-- Random user profile to select -->
             <%
             SimpleUser featuredUser = null;
-            try (Database db = ServletUtilities.getDb(request)) {
+            try (Database db = ServletUtils.getDb(request)) {
                 featuredUser = UserFactory.getProfiledUser(db);
             } catch (DatabaseException ex) {
                 ex.printStackTrace();

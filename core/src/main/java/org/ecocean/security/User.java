@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 
 import org.ecocean.Organization;
 import org.ecocean.rest.SimpleUser;
-import org.ecocean.servlet.ServletUtilities;
+import org.ecocean.util.WildbookUtils;
 import org.joda.time.DateTime;
 
 public class User {
@@ -114,12 +114,12 @@ public class User {
     }
 
     public void initPassword(final String password) {
-        salt = ServletUtilities.getSalt().toHex();
+        salt = WildbookUtils.getSalt().toHex();
         resetPassword(password);
     }
 
     public void resetPassword(final String password) {
-        this.hashedPass = ServletUtilities.hashAndSaltPassword(password, salt);
+        this.hashedPass = WildbookUtils.hashAndSaltPassword(password, salt);
     }
 
     public String getSalt() {
