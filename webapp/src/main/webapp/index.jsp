@@ -31,8 +31,6 @@ String context=ServletUtils.getContext(request);
 //set up our Shepherd
 
 Shepherd myShepherd = new Shepherd(context);
-ServletUtils.getDataDir(request);
-
 %>
 
 <style type="text/css">
