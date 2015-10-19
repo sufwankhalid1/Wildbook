@@ -26,12 +26,12 @@ public enum Global {
 
     private static Logger logger = LoggerFactory.getLogger(Global.class);
 
-    private Map<String,ConnectionInfo> connectionInfo = new HashMap<>();
+    private final Map<String,ConnectionInfo> connectionInfo = new HashMap<>();
     private ResourceReader appResources;
     private Properties webappClientProps;
 
     private Emailer emailer;
-    private Map<String, Species> species = new HashMap<>();
+    private final Map<String, Species> species = new HashMap<>();
     private List<Species> speciesList;
     private String cust;
 
@@ -143,7 +143,7 @@ public enum Global {
 
     public ConnectionInfo getConnectionInfo(final String connectionName) {
       if (connectionInfo.get(connectionName) == null) {
-          connectionInfo.put(connectionName, ConnectionInfo.valueOf(appResources, connectionName));
+          connectionInfo.put(connectionName, ConnectionInfo.valueOf(getAppResources(), connectionName));
       }
 
       return connectionInfo.get(connectionName);

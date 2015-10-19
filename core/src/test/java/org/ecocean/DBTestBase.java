@@ -33,7 +33,7 @@ import com.samsix.database.DatabaseException;
  * DBTestBase is a base class for tests that use the s6 test db.  It
  * ensures each test is run in an clean database.
  */
-public class DBTestBase {
+public class DBTestBase extends TestBase {
     private static Logger log = LoggerFactory.getLogger(DBTestBase.class);
     protected ConnectionInfo ci;
 
