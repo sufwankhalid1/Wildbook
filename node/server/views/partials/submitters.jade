@@ -1,9 +1,0 @@
-div.being-info
-    div.being-avatar(data-toggle="tooltip" title="#{human.displayName}")
-        - var href = "/user/" + human.id;
-        a(href="#{href}")
-            - var defaultImage = "/images/species/human.svg"
-            if human.avatar
-                img(src="#{human.avatar}" onError="this.onerror=null;this.src='#{defaultImage}'")
-            else
-                img(src="#{defaultImage}")
