@@ -1,5 +1,6 @@
 package org.ecocean.servlet;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -187,5 +188,11 @@ public class ServletUtils {
         } catch (Throwable ex) {
             return renderError(request, ex);
         }
+    }
+
+    public static String getDataDir(final HttpServletRequest request) {
+        System.out.println("*****************");
+        System.out.println(request.getServletContext().getRealPath(File.separator));
+        return request.getServletContext().getRealPath(File.separator);
     }
 }
