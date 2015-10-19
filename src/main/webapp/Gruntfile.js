@@ -1,12 +1,10 @@
 module.exports = function(grunt) {
-
+  /*
+  * Run 'grunt -v' to generate the css assets and watch
+  */
   grunt.loadNpmTasks('grunt-contrib-less');
   grunt.loadNpmTasks('grunt-contrib-watch');
 
-  /*
-  * Deploy from a different cust scss:
-  * $ grunt sass -target='<custName>'
-  */
   var target = grunt.option('target') || 'happywhale';
 
   grunt.initConfig({

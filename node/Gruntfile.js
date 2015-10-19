@@ -1,4 +1,10 @@
 module.exports = function(grunt) {
+  /*
+  * 1. Run 'grunt -v' to generate app.css, cust.css, and vendors.css.
+  * 2. Run 'grunt watch' to auto generate css files when changes are
+  *    made to scss files.
+  */
+
 
   grunt.loadNpmTasks('grunt-contrib-sass');
   grunt.loadNpmTasks('grunt-contrib-watch');
