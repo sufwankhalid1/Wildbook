@@ -391,6 +391,14 @@ tr.enc-row:hover {
 						} catch (Exception ex) {
 							System.out.println(methodName + " -> " + ex.toString());
 						}
+						//special case: we save the sex on the individual as well, if none is set there
+						if (methodName.equals("setSex") && (value != null) && !value.equals("") && !value.equals("unknown") && (enc.getIndividualID() != null)) {
+							MarkedIndividual ind = myShepherd.getMarkedIndividual(enc.getIndividualID());
+							if ((ind != null) && ((ind.getSex() == null) || ind.getSex().equals("") || ind.getSex().equals("unknown"))) {
+								ind.setSex(value);
+								System.out.println("setting sex=" + value + " on indiv " + ind.getIndividualID());
+							}
+						}
 					}
 				}
 			}
