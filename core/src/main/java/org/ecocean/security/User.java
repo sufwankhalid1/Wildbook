@@ -5,8 +5,8 @@ import java.time.LocalDateTime;
 
 import org.ecocean.Organization;
 import org.ecocean.rest.SimpleUser;
+import org.ecocean.util.DateUtils;
 import org.ecocean.util.WildbookUtils;
-import org.joda.time.DateTime;
 
 public class User {
     private Integer id;
@@ -163,8 +163,7 @@ public class User {
         if (lastLogin == 0) {
             return null;
         }
-
-        return (new DateTime(this.lastLogin)).toString();
+        return DateUtils.epochMilliSecToString(this.lastLogin);
     }
 
     public void setLastLogin(final long lastLogin) {
