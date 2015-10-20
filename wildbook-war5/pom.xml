@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>org.ecocean</groupId>
-  <artifactId>wildbook-war</artifactId>
+  <artifactId>wildbook-war5</artifactId>
   <version>6.0.0-SNAPSHOT</version>
   <packaging>war</packaging>
 
@@ -15,13 +15,13 @@
         <artifactId>wildbook-http</artifactId>
         <version>6.0.0-SNAPSHOT</version>
     </dependency>
-    
+
     <dependency>
         <groupId>org.ecocean</groupId>
         <artifactId>wildbook-core5</artifactId>
         <version>5.9.0-SNAPSHOT</version>
     </dependency>
-    
+
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>javax.servlet-api</artifactId>
@@ -41,50 +41,14 @@
       <artifactId>shiro-web</artifactId>
       <version>1.2.1</version>
     </dependency>
-    <dependency>
-      <groupId>postgresql</groupId>
-      <artifactId>postgresql</artifactId>
-      <version>9.1-901.jdbc4</version>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-core</artifactId>
-      <version>4.2.1.RELEASE</version>
-    </dependency>
 
     <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
-      <version>2.6.2</version>
+      <groupId>jstl</groupId>
+      <artifactId>jstl</artifactId>
+      <version>1.2</version>
     </dependency>
 
-    <dependency>
-      <groupId>com.fasterxml.jackson.datatype</groupId>
-      <artifactId>jackson-datatype-joda</artifactId>
-      <version>2.6.2</version>
-    </dependency>
-
-    <dependency>
-         <groupId>com.fasterxml.jackson.datatype</groupId>
-         <artifactId>jackson-datatype-jsr310</artifactId>
-         <version>2.6.3</version>
-     </dependency>
-
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-web</artifactId>
-      <version>1.2.6.RELEASE</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-tomcat</artifactId>
-      <version>1.2.6.RELEASE</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <!-- wildbook local jars, not in public maven repos 
+    <!-- wildbook local jars, not in public maven repos
           UPDATE: Don't seem to be used anywhere -->
     <!-- <dependency>
       <groupId>dilib</groupId>
@@ -137,7 +101,7 @@
         </executions>
 
       </plugin>
-      
+
       <!-- <plugin>
         <groupId>org.mortbay.jetty</groupId>
         <artifactId>maven-jetty-plugin</artifactId>
@@ -220,7 +184,7 @@
           </execution>
         </executions>
       </plugin>
-      
+
         <!-- <plugin>
             <artifactId>maven-assembly-plugin</artifactId>
             <version>2.5.5</version>
@@ -237,7 +201,7 @@
               </execution>
             </executions>
         </plugin>  -->
-        
+
         <plugin>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-maven-plugin</artifactId>
@@ -300,5 +264,5 @@
     </pluginManagement>
 
   </build>
-  
+
 </project>
