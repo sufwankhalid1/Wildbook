@@ -1,0 +1,14 @@
+<project>
+   <modelVersion>4.0.0</modelVersion>
+   <groupId>org.ecocean</groupId>
+   <artifactId>wildbook</artifactId>
+   <version>6.0.0-SNAPSHOT</version>
+   <packaging>pom</packaging>
+   <name>wildbook</name>
+   <modules>
+      <module>wildbook-core</module>
+      <module>wildbook-http</module>
+      <module>wildbook-core5</module>
+      <module>wildbook-war</module>
+   </modules>
+</project>
