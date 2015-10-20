@@ -62,20 +62,6 @@
     </taglib>
   </jsp-config-->
 
-
-
-  <filter>
-    <filter-name>UTF8Filter</filter-name>
-    <filter-class>org.ecocean.servlet.StrutsUTF8Filter</filter-class>
-  </filter>
-
-  <!-- Define filter mappings for the defined filters -->
-  <filter-mapping>
-    <filter-name>UTF8Filter</filter-name>
-    <url-pattern>/*</url-pattern>
-  </filter-mapping>
-
-
   <filter>
         <filter-name>ShiroFilter</filter-name>
         <filter-class>org.apache.shiro.web.servlet.IniShiroFilter</filter-class>
@@ -105,116 +91,8 @@
                 #and admin areas
                 [urls]
                 
-                /DeleteAllDataPermanently = authc, roles[destroyer]
-                
-                /appadmin/** = authc, roles[admin]
-                /logs/** = authc, roles[admin]
-             
-                /rest/** = authcBasicWildbook, roles[rest]
-             
-                /RelationshipCreate  = authc, roles[admin]
-                /RelationshipDelete  = authc, roles[admin]
-             
-                /MassSetInformOthers = authc, roles[admin]
-                /MassExposeGBIF = authc, roles[admin]
-                /MassSetLocationCodeFromLocationString = authc, roles[admin]
-                /MassSwapLocationCode = authc, roles[admin]
-                /UserCreate = authc, roles[admin]
-                /UserDelete = authc, roles[admin]
-                /ResetCommonConfiguration = authc, roles[admin]
-                /ResurrectDeletedEncounter = authc, roles[admin]
-                /UserResetAcceptedUserAgreement = authc, roles[admin]
-                /InterconnectSubmitSpots = authc, roles[admin]
-                /interconnectSubmitSpots= authc, roles[admin]
-                /ImportSRGD = authc, roles[admin]
-                /appadmin/scanTaskAdmin.jsp = authc, roles[admin]
-                /encounters/encounterSpotVisualizer.jsp = authc, roles[admin]
-                /interconnect/mac/Interconnect.jar = authc, roles[admin]
-                /UpdateEmailAddress = authc, roles[admin]
-                
-                /EncounterSetSubmitterID = authc, roles[admin]
-                 
-                /EncounterSetTapirLinkExposure = authc, roles[admin]
-                /GenePopExport = authc, roles[admin]
-                /individualSearchResultsExport.jsp = authc, roles[admin]
-                /encounters/exportSearchResults.jsp = authc, roles[admin]
-                /encounters/searchComparison.jsp = authc, roles[admin]
-                /encounters/searchComparisonResults.jsp = authc, roles[admin]
-                /IndividualSetAlternateID = authc, roles[admin]
-                /EncounterSetScarring = authc, roles[admin]
-                /EncounterSetVerbatimEventDate = authc, roles[admin]
-                /EncounterSetLifeStage = authc, roles[admin]
-                /EncounterSetCountry = authc, roles[admin]
-                /EncounterSetTissueSample = authc, roles[admin]
-                /TissueSampleSetHaplotype = authc, roles[admin]
-                /TissueSampleSetMeasurement = authc, roles[admin]
-                /TissueSampleRemoveHaplotype = authc, roles[admin]
-                /TissueSampleRemoveBiologicalMeasurement = authc, roles[admin]
-                /IndividualCreate = authc, roles[admin]
-                /OccurrenceCreate = authc, roles[admin]
-                /OccurrenceRemoveEncounter = authc, roles[admin]
-                /IndividualRemoveEncounter = authc, roles[admin]
-                /OccurrenceAddEncounter = authc, roles[admin]
-                /IndividualAddEncounter = authc, roles[admin]
-                /TissueSampleSetSexAnalysis = authc, roles[admin]
-                /TissueSampleRemoveSexAnalysis = authc, roles[admin]
-                /EncounterRemoveTissueSample = authc, roles[admin]
-                /EncounterSearchExportGeneGISFormat = authc, roles[admin]
-                /EncounterSearchExportKML = authc, roles[admin]
-                /EncounterSearchExportExcelFile = authc, roles[admin]
-                /EncounterSearchExportShapefile = authc, roles[admin]
-                /EncounterSearchExportEmailAddresses = authc, roles[admin]
-                /OccurrenceSetIndividualCount = authc, roles[admin]
-                /IndividualAddComment = authc, roles[admin]
-                /SimpleCMROutput = authc, roles[admin]
-                /GenalexExportCodominantMSDataBySize = authc, roles[admin]
-                /SOCPROGExport = authc, roles[admin]
-                /OccurrenceSetGroupBehavior = authc, roles[admin]
-                /EncounterSetBehavior = authc, roles[admin]
-                /CJS = authc, roles[admin]
-                /software.jsp = authc, roles[admin]
-
-                /SinglePhotoVideoRemoveKeyword = authc, roles[admin]
-                /SinglePhotoVideoAddKeyword = authc, roles[admin]
-                /EncounterRemoveImage = authc, roles[admin]
-                /EncounterAddImage = authc, roles[admin]
-                /KeywordHandler = authc, roles[admin]
-                        
-                /AdoptionAction = authc, roles[admin]
-                /AdoptionForm = authc, roles[admin]
-                /DeleteAdoption = authc, roles[admin]
-                /ResurrectDeletedAdoption = authc, roles[admin]
-                /EncounterSetState = authc, roles[approve]
-                /EncounterDelete = authc, roles[approve]
-
-                /xcalendar/** = authc, roles[admin]
-                /individualSearch.jsp = authc, roles[admin]
-                /individualSearchResultsAnalysis.jsp = authc, roles[admin]
-                /individualMappedSearchResults.jsp = authc, roles[admin]
-                /individualThumbnailSearchResults.jsp = authc, roles[admin]
-                /encounters/encounterSearch.jsp = authc, roles[admin]
-                /encounters/searchResults.jsp = authc, roles[admin]
-                /encounters/searchResultsAnalysis.jsp = authc, roles[admin]
-                /encounters/mappedSearchResults.jsp = authc, roles[admin]
-                /encounters/mappedSearchResultsSex.jsp = authc, roles[admin]
-                /encounters/mappedSearchResultsHaplotype.jsp = authc, roles[admin]
-                /googleSearch.jsp = authc, roles[admin]
-                /googleSearchResults.jsp = authc, roles[admin]
-                /EncounterAddComment = authc, roles[admin]
-                /OccurrenceAddComment = authc, roles[admin]
-                /CalendarXMLServer = authc, roles[admin]
-                /CalendarXMLServer2 = authc, roles[admin]
                 /welcome.jsp = authc
-                /admin.jsp = authc
-                /UserAddProfileImage = authc
-                /UserRemoveProfileImage = authc
-                /IndividualSetYearOfBirth = authc, roles[admin]
-                /IndividualSetYearOfDeath = authc, roles[admin]
-                /KinalyzerExport = authc, roles[admin]
-                /myAccount.jsp = authc
-                /UserSelfUpdate = authc
-                /MyAccountAddProfileImage = authc
-                /MyAccountRemoveProfileImage = authc
+                /admin.jsp = authc, roles[admin]
       </param-value>
     </init-param>
   </filter>

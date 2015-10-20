@@ -15,13 +15,7 @@
         <artifactId>wildbook-http</artifactId>
         <version>6.0.0-SNAPSHOT</version>
     </dependency>
-    
-    <dependency>
-        <groupId>org.ecocean</groupId>
-        <artifactId>wildbook-core5</artifactId>
-        <version>5.9.0-SNAPSHOT</version>
-    </dependency>
-    
+
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>javax.servlet-api</artifactId>

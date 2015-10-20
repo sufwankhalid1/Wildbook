@@ -21,21 +21,19 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <%@ page contentType="text/html; charset=utf-8" language="java"
      import="org.ecocean.ShepherdProperties,
-             org.ecocean.servlet.ServletUtilities,
+             org.ecocean.servlet.ServletUtils,
              org.ecocean.CommonConfiguration,
-             org.ecocean.Shepherd,
              org.ecocean.rest.SimpleUser,
              java.util.ArrayList,
              java.util.Properties,
              org.apache.commons.lang.WordUtils,
              org.ecocean.rest.UserController,
-             org.ecocean.security.Collaboration,
              org.ecocean.ContextConfiguration"
 %>
 
 <%
-String context = ServletUtilities.getContext(request);
-String langCode = ServletUtilities.getLanguageCode(request);
+String context = ServletUtils.getContext(request);
+String langCode = ServletUtils.getLanguageCode(request);
 Properties props = new Properties();
 props = ShepherdProperties.getProperties("header.properties", langCode, context);
 
@@ -63,9 +61,9 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
         <script src="<%=urlLoc%>/bcomponents/jquery/jquery.min.js"></script>
         <script src="<%=urlLoc%>/tools/bootstrap/js/bootstrap.min.js"></script>
         <script src="<%=urlLoc%>/tools/alertplus/javascript/alertplus.js"></script>
-        <script src="<%=urlLoc%>/javascript/core.js"></script>
+        <!-- <script src="<%=urlLoc%>/javascript/core.js"></script> -->
         <script src="<%=urlLoc%>/bcomponents/jquery-ui/jquery-ui.min.js"></script>
-        <script src="<%=urlLoc%>/javascript/jquery.blockUI.js"></script>
+        <!-- <script src="<%=urlLoc%>/javascript/jquery.blockUI.js"></script> -->
         <script src="<%=urlLoc%>/javascript/jquery.cookie.js"></script>
     </head>
     
@@ -116,7 +114,7 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
                                         <%
                                         for (int h=0; h<numContexts; h++) {
                                             String selected="";
-                                            if (ServletUtilities.getContext(request).equals(("context"+h))) {
+                                            if (ServletUtils.getContext(request).equals(("context"+h))) {
                                                 selected="selected=\"selected\"";
                                             }
                                         %>
@@ -153,7 +151,7 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
                                 <%
                                 for (int h=0;h<numSupportedLanguages;h++) {
                                     String selected="";
-                                    if (ServletUtilities.getLanguageCode(request).equals(supportedLanguages.get(h))) {
+                                    if (ServletUtils.getLanguageCode(request).equals(supportedLanguages.get(h))) {
                                         selected="selected=\"selected\"";
                                     }
                                     String myLang=supportedLanguages.get(h);
@@ -208,7 +206,12 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
                          </div>
                   
                   <div id="navbar" class="navbar-collapse collapse">
-                  <div id="notifications"><%= Collaboration.getNotificationsWidgetHtml(request) %></div>
+                  
+                  <!-- TODO: Figure out what this does and how to make it work with the new system -->
+                  <!-- <div id="notifications">
+                    <percent_equal Collaboration.getNotificationsWidgetHtml(request) percent>
+                  </div>  -->
+                  
                     <ul class="nav navbar-nav">
                                   <!--                -->
                       <li class="active home text-hide"><a href="<%=urlLoc %>"><%=props.getProperty("home")%></a></li>

@@ -125,7 +125,7 @@ import com.samsix.database.Database;
                 userToken.getUser().setAcceptedUserAgreement(true);
             }
 
-            String context = ServletUtilities.getContext(request);
+            String context = ServletUtils.getContext(request);
 
             if (UserController.notAcceptedTerms(context, userToken.getUser())) {
                 subject.logout();
