@@ -15,8 +15,8 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
-import org.ecocean.CommonConfiguration;
 import org.ecocean.ContextConfiguration;
+import org.ecocean.Global;
 import org.ecocean.email.EmailUtils;
 import org.ecocean.security.User;
 import org.ecocean.security.UserFactory;
@@ -44,11 +44,10 @@ public class UserController {
 
     private static Logger logger = LoggerFactory.getLogger(MediaSubmissionController.class);
 
-    public static boolean notAcceptedTerms(final String context, final User user) {
-        return (CommonConfiguration.getProperty("showUserAgreement",context) != null)
-                && (CommonConfiguration.getProperty("userAgreementURL",context) != null)
-                && (CommonConfiguration.getProperty("showUserAgreement",context).equals("true"))
-                && (!user.getAcceptedUserAgreement());
+    public static boolean notAcceptedTerms(final User user) {
+        return (Global.INST.getAppResources().getBoolean("user.agreement.show", false)
+                && (Global.INST.getAppResources().getString("user.agreement.url", null) != null)
+                && ! user.getAcceptedUserAgreement());
     }
 
 

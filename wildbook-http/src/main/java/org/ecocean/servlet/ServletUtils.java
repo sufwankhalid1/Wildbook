@@ -1,7 +1,9 @@
 package org.ecocean.servlet;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -11,7 +13,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.ecocean.CommonConfiguration;
 import org.ecocean.ContextConfiguration;
 import org.ecocean.Global;
 import org.ecocean.ShepherdProperties;
@@ -103,18 +104,11 @@ public class ServletUtils {
 
 
     public static String getLanguageCode(final HttpServletRequest request) {
-        String context = getContext(request);
-
-        ArrayList<String> supportedLanguages;
-        if (CommonConfiguration.getSequentialPropertyValues("language", context) != null) {
-            supportedLanguages = CommonConfiguration.getSequentialPropertyValues("language", context);
-        } else {
-            supportedLanguages = new ArrayList<String>();
-        }
+        List<String> languages = Global.INST.getAppResources().getStringList("languages", Collections.emptyList());
 
         //if specified directly, always accept the override
         String langCode = request.getParameter("langCode");
-        if (langCode != null && supportedLanguages.contains(langCode)) {
+        if (langCode != null && languages.contains(langCode)) {
             return langCode;
         }
 
@@ -123,7 +117,7 @@ public class ServletUtils {
         if (cookies != null) {
             for (Cookie cookie : cookies){
                 if ("wildbookLangCode".equals(cookie.getName())) {
-                    if (supportedLanguages.contains(cookie.getValue())) {
+                    if (languages.contains(cookie.getValue())) {
                         return cookie.getValue();
                     }
                 }
@@ -134,12 +128,7 @@ public class ServletUtils {
         // TODO: finally, we will check the URL vs values defined in context.properties to see if we can set the right context
         // - future - detect browser supported language codes and locale from the HTTPServletRequest object
 
-        //try to detect a default if defined
-        if (CommonConfiguration.getProperty("defaultLanguage", context) != null) {
-            return CommonConfiguration.getProperty("defaultLanguage", context);
-        }
-
-        return DEFAULT_LANG_CODE;
+        return Global.INST.getAppResources().getString("language.default", DEFAULT_LANG_CODE);
     }
 
 
@@ -188,4 +177,8 @@ public class ServletUtils {
             return renderError(request, ex);
         }
     }
+
+    public static String getURLLocation(final HttpServletRequest request) {
+        return request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
+      }
 }

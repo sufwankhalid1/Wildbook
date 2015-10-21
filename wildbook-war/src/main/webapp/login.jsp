@@ -1,13 +1,14 @@
 <%@ page contentType="text/html; charset=utf-8" 
          language="java"
          import="org.ecocean.servlet.ServletUtils,
+                 org.ecocean.Global,
                  org.ecocean.ShepherdProperties,
-                 org.ecocean.CommonConfiguration,
+                 com.samsix.util.io.ResourceReader,
                  java.util.Properties" %>
 <%
 String context = ServletUtils.getContext(request);
 String langCode = ServletUtils.getLanguageCode(request);
-
+ResourceReader resources = Global.INST.getAppResources();
 Properties props = ShepherdProperties.getProperties("login.properties", langCode,context);
 %>
 
@@ -48,28 +49,25 @@ Properties props = ShepherdProperties.getProperties("login.properties", langCode
             </tr>
             <tr><td>&nbsp;</td></tr>
             <%
-            if (CommonConfiguration.getProperty("allowSocialMediaLogin", "context0") != null
-                  && CommonConfiguration.getProperty("allowSocialMediaLogin", "context0").equals("true")) {
+            if (resources.getBoolean("user.social.login", false)) {
             %>
             <tr>
                 <td colspan="2">
                     <strong><%=props.getProperty("socialMediaLogin") %></strong><br/>
                     <%=props.getProperty("ifYouHaveSocialMedia") %><br /><br/>
                     <%
-                    if (CommonConfiguration.getProperty("allowFacebookLogin", "context0") != null
-                         && CommonConfiguration.getProperty("allowFacebookLogin", "context0").equals("true")) {
+                    if (resources.getBoolean("user.social.facebook.login", false)) {
                     %>
                     <img alt="Facebook" title="Facebook" src="images/facebookLogin.png"
                          onClick="window.location.href='LoginUserSocial?type=facebook';"
                          width="50px" height="50px" style="cursor: pointer;" />
                     <%
                     }
-                    if (CommonConfiguration.getProperty("allowFlickrLogin", "context0") != null
-                        && CommonConfiguration.getProperty("allowFlickrLogin", "context0").equals("true")) {
+                    if (resources.getBoolean("user.social.flickr.login", false)) {
                     %>
-                            <img alt="Flickr" title="Flickr" src="images/flickrLogin.png"
-                                 onClick="window.location.href='LoginUserSocial?type=flickr';"
-                                 width="50px" height="50px" style="cursor: pointer;"/>
+                    <img alt="Flickr" title="Flickr" src="images/flickrLogin.png"
+                         onClick="window.location.href='LoginUserSocial?type=flickr';"
+                         width="50px" height="50px" style="cursor: pointer;"/>
                     <%
                     }
                     %>
@@ -79,14 +77,23 @@ Properties props = ShepherdProperties.getProperties("login.properties", langCode
     
             <%
             }
-            if (CommonConfiguration.getProperty("allowSocialMediaAccountCreation", "context0") != null
-                && CommonConfiguration.getProperty("allowSocialMediaAccountCreation", "context0").equals("true")) {
+            if (resources.getBoolean("user.social.create", false)) {
             %>
             <tr>
                 <td colspan="2">
                     <%=props.getProperty("createSocialMedia") %><br/>
-                        <input type="button" value="<%=props.getProperty("createUserFacebook")%>" onClick="window.location.href='UserCreateSocial?type=facebook';" />
-                        <input type="button" value="<%=props.getProperty("createUserFlickr")%>" onClick="window.location.href='UserCreateSocial?type=flickr';" />
+                    <%
+                    if (resources.getBoolean("user.social.facebook.login", false)) {
+                    %>
+                    <input type="button" value="<%=props.getProperty("createUserFacebook")%>" onClick="window.location.href='UserCreateSocial?type=facebook';" />
+                    <%
+                    }
+                    if (resources.getBoolean("user.social.flickr.login", false)) {
+                    %>
+                    <input type="button" value="<%=props.getProperty("createUserFlickr")%>" onClick="window.location.href='UserCreateSocial?type=flickr';" />
+                    <%
+                    }
+                    %>
                     <br/><br/>
                 </td>
             </tr>

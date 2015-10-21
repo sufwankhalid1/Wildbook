@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.web.util.WebUtils;
-import org.ecocean.CommonConfiguration;
+import org.ecocean.Global;
 import org.ecocean.rest.UserController;
 import org.ecocean.security.UserFactory;
 import org.ecocean.security.UserToken;
@@ -125,14 +125,12 @@ import com.samsix.database.Database;
                 userToken.getUser().setAcceptedUserAgreement(true);
             }
 
-            String context = ServletUtils.getContext(request);
-
-            if (UserController.notAcceptedTerms(context, userToken.getUser())) {
+            if (UserController.notAcceptedTerms(userToken.getUser())) {
                 subject.logout();
 
                 // redirect to the user agreement
                 // forward the request and response to the view
-                String url = CommonConfiguration.getProperty("userAgreementURL",context);
+                String url = Global.INST.getAppResources().getString("user.agreement.url", null);
                 RequestDispatcher dispatcher = getServletContext().getRequestDispatcher(url);
 
                 dispatcher.forward(request, response);

@@ -96,20 +96,20 @@
   </dependencies>
 
   <build>
-    <!-- <resources>
+    <resources>
       <resource>
         <directory>src/main/resources</directory>
         <filtering>true</filtering>
       </resource>
-      <resource>
+      <!-- <resource>
         <directory>cust/${wildbook.cust}/src/main/resources</directory>
         <filtering>true</filtering>
       </resource>
       <resource>
         <directory>../cust/${wildbook.cust}/wildbook/config</directory>
         <filtering>true</filtering>
-      </resource>
-    </resources> -->
+      </resource> -->
+    </resources>
 
     <plugins>
       <plugin>

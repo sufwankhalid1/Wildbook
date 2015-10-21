@@ -11,12 +11,12 @@ public class ShepherdProperties {
   public static Properties getProperties(String fileName){
     return getProperties(fileName, "en");
   }
-  
-  
+
+
   public static Properties getProperties(String fileName, String langCode){
-    
+
     return getProperties(fileName, langCode, "context0");
-    
+
   }
 
   public static Properties getProperties(String fileName, String langCode, String context){
@@ -26,20 +26,12 @@ public class ShepherdProperties {
     if(!langCode.equals("")){
       langCode=langCode+"/";
     }
-    
-    //if((CommonConfiguration.getProperty("dataDirectoryName",context)!=null)&&(!CommonConfiguration.getProperty("dataDirectoryName",context).trim().equals(""))){
-    //  shepherdDataDir=CommonConfiguration.getProperty("dataDirectoryName",context);
-    //}
-    
+
     Properties contextsProps=getContextsProperties();
-    if(contextsProps.getProperty(context+"DataDir")!=null){
-      shepherdDataDir=contextsProps.getProperty(context+"DataDir");
-      
+    if (contextsProps.getProperty(context + "DataDir") != null){
+        shepherdDataDir=contextsProps.getProperty(context+"DataDir");
     }
-    
-    //context change here!
-    
-    
+
     Properties overrideProps=loadOverrideProps(shepherdDataDir, fileName, langCode);
     //System.out.println(overrideProps);
 
@@ -59,7 +51,7 @@ public class ShepherdProperties {
 
     return props;
   }
-  
+
   public static Properties getContextsProperties(){
     Properties props=new Properties();
       try {
@@ -70,7 +62,7 @@ public class ShepherdProperties {
       catch (IOException ioe) {
         ioe.printStackTrace();
       }
-    
+
 
     return props;
   }

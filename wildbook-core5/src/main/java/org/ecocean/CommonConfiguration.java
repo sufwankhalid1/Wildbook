@@ -37,6 +37,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
 import org.ecocean.mmutil.StringUtilities;
+import org.ecocean.servlet.ServletUtils;
 
 public class CommonConfiguration {
 
@@ -71,7 +72,7 @@ public class CommonConfiguration {
 
   //start getter methods
   public static String getURLLocation(final HttpServletRequest request) {
-    return request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
+      return ServletUtils.getURLLocation(request);
   }
 
 
@@ -190,14 +191,6 @@ public class CommonConfiguration {
     return "http://" + CommonConfiguration.getURLLocation(request) + prop;
   }
 
-  public static String getTapirLinkURL(final String context) {
-    return getProperty("tapirLinkURL",context);
-  }
-
-  public static String getIPTURL(final String context) {
-    return getProperty("iptURL",context);
-  }
-
   public static String getURLToFooterGraphic(final String context) {
     return getProperty("urlToFooterGraphic",context);
   }
@@ -251,37 +244,6 @@ public class CommonConfiguration {
   }
 
   /**
-   * This configuration option defines whether adoptions of MarkedIndividual or encounter objects are allowed. Generally adoptions are used as a fundraising or public awareness tool.
-   *
-   * @return true if adoption functionality should be displayed. False if adoptions are not supported in this catalog.
-   */
-  public static boolean allowAdoptions(final String context) {
-    get(context);
-    boolean canAdopt = true;
-    if ((getProperty("allowAdoptions",context) != null) && (getProperty("allowAdoptions", context).equals("false"))) {
-      canAdopt = false;
-    }
-    return canAdopt;
-  }
-
-
-  /**
-   * Helper method to parse boolean from string.
-   * @param s string to parse
-   * @param def default value
-   * @return true if s is one of { true, yes, ok, 1 }
-   */
-  private static boolean parseBoolean(final String s, final boolean def) {
-    if (s == null)
-      return def;
-    String prop = s.trim().toLowerCase(Locale.US);
-    if ("true".equals(prop) || "yes".equals(prop) || "ok".equals(prop) || "1".equals(prop)) {
-      return true;
-    }
-    return false;
-  }
-
-  /**
    * This configuration option defines whether nicknames are allowed for MarkedIndividual entries.
    *
    * @return true if nicknames are displayed for MarkedIndividual entries. False otherwise.
@@ -293,34 +255,6 @@ public class CommonConfiguration {
       canNickname = false;
     }
     return canNickname;
-  }
-
-  /**
-   * This configuration option defines whether the spot pattern recognition software embedded in the framework is used for the species under study.
-   *
-   * @return true if this catalog is for a species for which the spot pattern recognition software component can be used. False otherwise.
-   */
-  public static boolean useSpotPatternRecognition(final String context) {
-    get(context);
-    boolean useSpotPatternRecognition = true;
-    if ((getProperty("useSpotPatternRecognition",context) != null) && (getProperty("useSpotPatternRecognition",context).equals("false"))) {
-      useSpotPatternRecognition = false;
-    }
-    return useSpotPatternRecognition;
-  }
-
-  /**
-   * This configuration option defines whether users can edit this catalog. Some studies may wish to use the framework only for data display.
-   *
-   * @return true if edits are allows. False otherwise.
-   */
-  public static boolean isCatalogEditable(final String context) {
-    get(context);
-    boolean isCatalogEditable = true;
-    if ((getProperty("isCatalogEditable", context) != null) && (getProperty("isCatalogEditable", context).equals("false"))) {
-      isCatalogEditable = false;
-    }
-    return isCatalogEditable;
   }
 
   /**
@@ -544,4 +478,62 @@ public class CommonConfiguration {
   }
 
 
+  /**
+   * This configuration option defines whether the spot pattern recognition software embedded in the framework is used for the species under study.
+   *
+   * @return true if this catalog is for a species for which the spot pattern recognition software component can be used. False otherwise.
+   */
+  public static boolean useSpotPatternRecognition(final String context) {
+//    CommonConfiguration.get(context);
+    boolean useSpotPatternRecognition = true;
+    if ((getProperty("useSpotPatternRecognition",context) != null)
+          && (getProperty("useSpotPatternRecognition",context).equals("false"))) {
+      useSpotPatternRecognition = false;
+    }
+    return useSpotPatternRecognition;
+  }
+
+
+  /**
+   * This configuration option defines whether adoptions of MarkedIndividual or encounter objects are allowed. Generally adoptions are used as a fundraising or public awareness tool.
+   *
+   * @return true if adoption functionality should be displayed. False if adoptions are not supported in this catalog.
+   */
+  public static boolean allowAdoptions(final String context) {
+    boolean canAdopt = true;
+    if ((getProperty("allowAdoptions",context) != null) && (getProperty("allowAdoptions", context).equals("false"))) {
+      canAdopt = false;
+    }
+    return canAdopt;
+  }
+
+  /**
+   * This configuration option defines whether users can edit this catalog. Some studies may wish to use the framework only for data display.
+   *
+   * @return true if edits are allows. False otherwise.
+   */
+  public static boolean isCatalogEditable(final String context) {
+    boolean isCatalogEditable = true;
+    if ((getProperty("isCatalogEditable", context) != null) && (getProperty("isCatalogEditable", context).equals("false"))) {
+      isCatalogEditable = false;
+    }
+    return isCatalogEditable;
+  }
+
+
+  /**
+   * Helper method to parse boolean from string.
+   * @param s string to parse
+   * @param def default value
+   * @return true if s is one of { true, yes, ok, 1 }
+   */
+  private static boolean parseBoolean(final String s, final boolean def) {
+    if (s == null)
+      return def;
+    String prop = s.trim().toLowerCase(Locale.US);
+    if ("true".equals(prop) || "yes".equals(prop) || "ok".equals(prop) || "1".equals(prop)) {
+      return true;
+    }
+    return false;
+  }
 }

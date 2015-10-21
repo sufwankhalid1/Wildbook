@@ -22,11 +22,13 @@
 <%@ page contentType="text/html; charset=utf-8" language="java"
      import="org.ecocean.ShepherdProperties,
              org.ecocean.servlet.ServletUtils,
-             org.ecocean.CommonConfiguration,
              org.ecocean.rest.SimpleUser,
+             org.ecocean.Global,
              java.util.ArrayList,
+             java.util.Collections,
+             java.util.List,
              java.util.Properties,
-             org.apache.commons.lang.WordUtils,
+             org.apache.commons.lang3.StringUtils,
              org.ecocean.rest.UserController,
              org.ecocean.ContextConfiguration"
 %>
@@ -34,24 +36,25 @@
 <%
 String context = ServletUtils.getContext(request);
 String langCode = ServletUtils.getLanguageCode(request);
-Properties props = new Properties();
-props = ShepherdProperties.getProperties("header.properties", langCode, context);
+Properties props = ShepherdProperties.getProperties("header.properties", langCode, context);
 
-String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
+String urlLoc = "http://" + ServletUtils.getURLLocation(request);
+
+Properties webAppProps = Global.INST.getWebappClientProps();
 %>
 
 <html ng-app="appWildbook">
     <head>
-        <title><%=CommonConfiguration.getHTMLTitle(context)%></title>
+        <title><%=webAppProps.getProperty("html.title")%></title>
         <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
         <meta name="Description"
-              content="<%=CommonConfiguration.getHTMLDescription(context) %>"/>
+              content="<%=webAppProps.getProperty("html.description") %>"/>
         <meta name="Keywords"
-              content="<%=CommonConfiguration.getHTMLKeywords(context) %>"/>
-        <meta name="Author" content="<%=CommonConfiguration.getHTMLAuthor(context) %>"/>
+              content="<%=webAppProps.getProperty("html.keywords")%>"/>
+        <meta name="Author" content="<%=webAppProps.getProperty("html.author") %>"/>
         <link rel="shortcut icon"
-              href="<%=CommonConfiguration.getHTMLShortcutIcon(context) %>"/>
+              href="<%=webAppProps.getProperty("html.shortcutIcon") %>"/>
         <link rel="stylesheet" href='http://fonts.googleapis.com/css?family=Oswald:400,300,700' type='text/css'/>
         <link rel="stylesheet" href="<%=urlLoc%>/bcomponents/jquery-ui/jquery-ui.min.css" type="text/css"/>
         <link rel="stylesheet" href="<%=urlLoc%>/bcomponents/jquery-ui/theme.css" type="text/css" />
@@ -97,9 +100,9 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
                                 <li><a href="<%=urlLoc %>/welcome.jsp" title=""><%=props.getProperty("login") %></a></li>
                                 <%
                                 }
-                                if (CommonConfiguration.getWikiLocation(context) != null) {
+                                if (! StringUtils.isBlank(webAppProps.getProperty("wiki.location"))) {
                                 %>
-                                <li><a target="_blank" href="<%=CommonConfiguration.getWikiLocation(context) %>"><%=props.getProperty("userWiki")%></a></li>
+                                <li><a target="_blank" href="<%=webAppProps.getProperty("wiki.location") %>"><%=props.getProperty("userWiki")%></a></li>
                                 <%
                                 }
                               
@@ -142,7 +145,7 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
                                 <%
                                 }
                                 
-                                ArrayList<String> supportedLanguages = CommonConfiguration.getSequentialPropertyValues("language", context);
+                                List<String> supportedLanguages = Global.INST.getAppResources().getStringList("languages", Collections.<String>emptyList());
                                 int numSupportedLanguages=supportedLanguages.size();
                             
                                 if(numSupportedLanguages>1){
@@ -156,7 +159,7 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
                                     }
                                     String myLang=supportedLanguages.get(h);
                                 %>
-                                    <img style="cursor: pointer" id="flag_<%=myLang %>" title="<%=CommonConfiguration.getProperty(myLang, context) %>" src="http://<%=CommonConfiguration.getURLLocation(request) %>/images/flag_<%=myLang %>.gif" />
+                                    <img style="cursor: pointer" id="flag_<%=myLang %>" title="<%=Global.INST.getAppResources().getString("language." + myLang + ".label", myLang) %>" src="<%=urlLoc%>/images/flag_<%=myLang %>.gif" />
                                     <script type="text/javascript">
                                         $( "#flag_<%=myLang%>" ).click(function() {
                                             //alert( "Handler for .change() called with new value: "+$( "#langCode option:selected" ).text() +" with value "+ $( "#langCode option:selected").val());
@@ -213,17 +216,75 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
                   </div>  -->
                   
                     <ul class="nav navbar-nav">
-                                  <!--                -->
+                    
+                    
+                      <!--  pseudo-code (mix of javascript and java mostly) for how to create
+                            the nav menu from the webapp-config.yaml navbar element when I get around to that -->
+                      <!--
+                      function createmenu(menu) {
+                        if (menu.login && request.getUserPrincipal() == null) {
+                            return null;
+                        }
+                        
+                        if (menu.role && ! request.isUserInRole(menu.role)) {
+                            return null;
+                        }
+                        
+                        if (menu.submenus) {
+                            return createmenulist(menu.submenus);
+                        }
+                        
+                        if (menu.type == 'divider') {
+                            return '<li class="divider"></li>';
+                        }
+                        
+                        var start;
+                        if (menu.name == "home") {
+                            start = '<li class="active home text-hide">';
+                        } else if (! menu.type) {
+                            start = '<li>';
+                        } else if (menu.type == 'header') {
+                            start = '<li class="dropdown-header">';
+                        } else {
+                            start = '<li>';
+                        }
+                        
+                        start += "<a href=\"";
+                        if (menu.url.startswith("http:")) {
+                            start += menu.url;
+                        } else {
+                            start + = urlLoc + menu.url;
+                        }
+                        if (menu.target) {
+                           start += " target=\" + menu.target + "\"";
+                        }
+                        return start + "\>" + props.getProperty(menu.name) + "</a></li>";
+                      }
+                      
+                      function createmenulist(menulist) {
+                        var val = "<li class=\"dropdown\">"
+                         + "<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">"
+                         + props.getProperty(menulist.name) + "<span class="caret"></span></a>"
+                         + "<ul class="dropdown-menu" role="menu">";
+                        
+                        for each(menu in menulist) {
+                            val += createmenu(menu);
+                        }
+                        
+                        return val + '</ul></li>';
+                      }
+                       -->
+                      
                       <li class="active home text-hide"><a href="<%=urlLoc %>"><%=props.getProperty("home")%></a></li>
+                      
                       <li><a href="<%=urlLoc %>/submit.jsp"><%=props.getProperty("report")%></a></li>
                    
                       <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><%=props.getProperty("learn")%> <span class="caret"></span></a>
                         <ul class="dropdown-menu" role="menu">
                             <li class="dropdown"><a href="<%=urlLoc %>/overview.jsp"><%=props.getProperty("aboutYourProject")%></a></li>
-                              <li><a href="<%=urlLoc %>/photographing.jsp"><%=props.getProperty("howToPhotograph")%></a></li>
-                                 
-                              <li><a target="_blank" href="http://www.wildme.org/wildbook"><%=props.getProperty("learnAboutShepherd")%></a></li>
+                            <li><a href="<%=urlLoc %>/photographing.jsp"><%=props.getProperty("howToPhotograph")%></a></li>
+                            <li><a target="_blank" href="http://www.wildme.org/wildbook"><%=props.getProperty("learnAboutShepherd")%></a></li>
                         </ul>
                       </li>
                       
@@ -249,21 +310,6 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
                       <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><%=props.getProperty("encounters")%> <span class="caret"></span></a>
                         <ul class="dropdown-menu" role="menu">
-                          <li class="dropdown-header"><%=props.getProperty("states")%></li>
-                        
-                        <!-- list encounters by state -->
-                          <% boolean moreStates=true;
-                             int cNum=0;
-                             while(moreStates) {
-                                 String currentLifeState = "encounterState"+cNum;
-                                 if (CommonConfiguration.getProperty(currentLifeState,context)!=null) { %>
-                                   <li><a href="<%=urlLoc %>/encounters/searchResults.jsp?state=<%=CommonConfiguration.getProperty(currentLifeState,context) %>"><%=props.getProperty("viewEncounters").trim().replaceAll(" ",(" "+WordUtils.capitalize(CommonConfiguration.getProperty(currentLifeState,context))+" "))%></a></li>
-                                 <% cNum++;
-                                 } else {
-                                     moreStates=false;
-                                 }
-                            } //end while %>
-                          <li class="divider"></li>
                           <li><a href="<%=urlLoc %>/encounters/thumbnailSearchResults.jsp?noQuery=true"><%=props.getProperty("viewImages")%></a></li>
                           <li><a href="<%=urlLoc %>/xcalendar/calendar.jsp"><%=props.getProperty("encounterCalendar")%></a></li>
                           <% if(request.getUserPrincipal()!=null) { %>
@@ -272,29 +318,6 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
                         </ul>
                       </li>
                       
-                      <!-- start locationID sites -->
-                       <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><%=props.getProperty("sites") %> <span class="caret"></span></a>
-                        <ul class="dropdown-menu" role="menu">
-                         
-                        
-                        <!-- list sites by locationID -->
-                          <% boolean moreLocationIDs=true;
-                             int siteNum=0;
-                             while(moreLocationIDs) {
-                                 String currentLocationID = "locationID"+siteNum;
-                                 if (CommonConfiguration.getProperty(currentLocationID,context)!=null) { %>
-                                   <li><a href="<%=urlLoc %>/encounters/searchResultsAnalysis.jsp?locationCodeField=<%=CommonConfiguration.getProperty(currentLocationID,context) %>"><%=WordUtils.capitalize(CommonConfiguration.getProperty(currentLocationID,context)) %></a></li>
-                                 <% siteNum++;
-                                 } else {
-                                     moreLocationIDs=false;
-                                 }
-                            } //end while %>
-                        
-                        </ul>
-                      </li>
-                      <!-- end locationID sites -->
-                     
                       <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><%=props.getProperty("search")%> <span class="caret"></span></a>
                         <ul class="dropdown-menu" role="menu">
@@ -317,35 +340,22 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
                             <% if (request.isUserInRole("admin")) { %>
                               <li><a href="<%=urlLoc %>/appadmin/admin.jsp"><%=props.getProperty("general")%></a></li>
                               <li><a href="<%=urlLoc %>/appadmin/logs.jsp"><%=props.getProperty("logs")%></a></li>
-                                <% if(CommonConfiguration.useSpotPatternRecognition(context)) { %>
-                                 <li><a href="<%=urlLoc %>/software/software.jsp"><%=props.getProperty("gridSoftware")%></a></li>
-                                <% } %>
-                                <li><a href="<%=urlLoc %>/appadmin/users.jsp?context=context0"><%=props.getProperty("userManagement")%></a></li>
-                                <li><a href="<%=urlLoc %>/admin.jsp?j=mediaSubmitAdmin"><%=props.getProperty("mediaSubmissionManagement")%></a></li>
-                                <% if (CommonConfiguration.getTapirLinkURL(context) != null) { %>
-                                  <li><a href="<%=CommonConfiguration.getTapirLinkURL(context) %>"><%=props.getProperty("tapirLink")%></a></li>
-                                <% } 
-                                if (CommonConfiguration.getIPTURL(context) != null) { %>
-                                  <li><a href="<%=CommonConfiguration.getIPTURL(context) %>"><%=props.getProperty("iptLink")%></a></li>
-                                <% } %>
-                                <li><a href="<%=urlLoc %>/appadmin/kwAdmin.jsp"><%=props.getProperty("photoKeywords")%></a></li>
-                                <% if (CommonConfiguration.allowAdoptions(context)) { %>
-                                  <li class="divider"></li>
-                                  <li class="dropdown-header"><%=props.getProperty("adoptions")%></li>
-                                  <li><a href="<%=urlLoc %>/adoptions/adoption.jsp"><%=props.getProperty("createEditAdoption")%></a></li>
-                                  <li><a href="<%=urlLoc %>/adoptions/allAdoptions.jsp"><%=props.getProperty("viewAllAdoptions")%></a></li>
-                                  <li class="divider"></li>
-                                <% } %>
-                                <li><a target="_blank" href="http://www.wildme.org/wildbook"><%=props.getProperty("shepherdDoc")%></a></li>
-                                <li><a href="<%=urlLoc %>/javadoc/index.html">Javadoc</a></li>
-                                <% if(CommonConfiguration.isCatalogEditable(context)) { %>
-                                  <li class="divider"></li>
-                                  <li><a href="<%=urlLoc %>/appadmin/import.jsp"><%=props.getProperty("dataImport")%></a></li>
-                                <% }
-                            } //end if admin %>
+                              <li><a href="<%=urlLoc %>/software/software.jsp"><%=props.getProperty("gridSoftware")%></a></li>
+                              <li><a href="<%=urlLoc %>/appadmin/users.jsp?context=context0"><%=props.getProperty("userManagement")%></a></li>
+                              <li><a href="<%=urlLoc %>/admin.jsp?j=mediaSubmitAdmin"><%=props.getProperty("mediaSubmissionManagement")%></a></li>
+                              <li><a href="<%=urlLoc %>/appadmin/kwAdmin.jsp"><%=props.getProperty("photoKeywords")%></a></li>
+                              <li><a target="_blank" href="http://www.wildme.org/wildbook"><%=props.getProperty("shepherdDoc")%></a></li>
+                              <li><a href="<%=urlLoc %>/javadoc/index.html">Javadoc</a></li>
+                             <% } //end if admin %>
                         </ul>
                       </li>
                       <% } %>
+                      
+                      
+                      
+                      
+                      
+                      
                     </ul>
                   </div>
                   
@@ -366,10 +376,10 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
             },
             select: function(ev, ui) {
                 if (ui.item.type == "individual") {
-                    window.location.replace("<%=("http://" + CommonConfiguration.getURLLocation(request)+"/individuals.jsp?number=") %>" + ui.item.value);
+                    window.location.replace("<%= urlLoc + "/individuals.jsp?number=" %>" + ui.item.value);
                 } 
                 else if (ui.item.type == "locationID") {
-                    window.location.replace("<%=("http://" + CommonConfiguration.getURLLocation(request)+"/encounters/searchResultsAnalysis.jsp?locationCodeField=") %>" + ui.item.value);
+                    window.location.replace("<%= urlLoc + "/encounters/searchResultsAnalysis.jsp?locationCodeField=" %>" + ui.item.value);
                 } 
                 /*
                 //restore user later
@@ -385,7 +395,7 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
             //source: app.config.wildbook.proxyUrl + "/search"
             source: function( request, response ) {
                 $.ajax({
-                    url: '<%=("http://" + CommonConfiguration.getURLLocation(request)) %>/search/site',
+                    url: '<%= urlLoc %>/search/site',
                     dataType: "json",
                     data: {
                         term: request.term

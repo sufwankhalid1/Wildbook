@@ -1,10 +1,9 @@
-<%@ page 
-		contentType="text/html; charset=utf-8" 
-		language="java"
-     	import="org.ecocean.CommonConfiguration,org.ecocean.ContextConfiguration"
+<%@ page contentType="text/html; charset=utf-8" 
+         language="java"
+         import="org.ecocean.servlet.ServletUtils, org.ecocean.ContextConfiguration"
 %>
         <%
-        String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
+        String urlLoc = "http://" + ServletUtils.getURLLocation(request);
         %>
         
         <!-- footer -->
