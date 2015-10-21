@@ -231,15 +231,6 @@
               </execution>
             </executions>
         </plugin>  -->
-        
-        <plugin>
-            <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-maven-plugin</artifactId>
-            <version>3.2.1</version>
-            <configuration>
-                ....
-            </configuration>
-        </plugin>
         <!-- This is for packaging spring as an executable jar.  I think we would need to get
              rid of all the web.xml defined servlets though. -->
         <!--

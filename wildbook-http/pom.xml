@@ -103,12 +103,6 @@
         <artifactId>jade4j</artifactId>
         <version>0.4.3</version>
     </dependency>
-
-    <dependency>
-        <groupId>org.flywaydb</groupId>
-        <artifactId>flyway-core</artifactId>
-        <version>3.2.1</version>
-    </dependency>
   </dependencies>
 
   <build>
@@ -122,22 +116,6 @@
               <target>1.8</target>
             </configuration>
           </plugin>
-
-        <plugin>
-            <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-maven-plugin</artifactId>
-            <version>3.2.1</version>
-            <configuration>
-            </configuration>
-        </plugin>
-        <!-- This is for packaging spring as an executable jar.  I think we would need to get
-             rid of all the web.xml defined servlets though. -->
-        <!--
-        <plugin>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-maven-plugin</artifactId>
-        </plugin>
-        -->
     </plugins>
 
     <pluginManagement>
