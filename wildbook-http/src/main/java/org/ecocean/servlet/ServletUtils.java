@@ -1,5 +1,8 @@
 package org.ecocean.servlet;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -16,11 +19,15 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.ecocean.ContextConfiguration;
 import org.ecocean.Global;
 import org.ecocean.ShepherdProperties;
+import org.ecocean.html.HtmlConfig;
 import org.ecocean.rest.SimpleUser;
 import org.ecocean.security.UserFactory;
 import org.ecocean.util.Jade4JUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.ResourceUtils;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
 
 import com.samsix.database.ConnectionInfo;
 import com.samsix.database.Database;
@@ -161,7 +168,6 @@ public class ServletUtils {
         return renderJade(request, jadeFile, null);
     }
 
-
     /**
      *
      * @param request
@@ -181,4 +187,11 @@ public class ServletUtils {
     public static String getURLLocation(final HttpServletRequest request) {
         return request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
       }
+
+    public static HtmlConfig getHtmlConfig() throws FileNotFoundException {
+        File file = ResourceUtils.getFile("classpath:webapp_config.yml");
+
+        Yaml yaml = new Yaml(new Constructor(HtmlConfig.class));
+        return (HtmlConfig) yaml.load(new FileReader(file));
+    }
 }

@@ -1,0 +1,107 @@
+navbar:
+    menus:
+        - name: home
+          url: /
+        - name: report
+          url: /submit.jsp
+        - name: learn
+          submenus:
+            - name: aboutYourProject
+              url: /overview.jsp
+            - name: howToPhotograph
+              url: /photographing.jsp
+            - name: learnAboutShepherd
+              url: http://www.wildme.org/wildbook
+              target: _blank
+        - name: participate
+          submenus:
+            - name: adoptions
+              url: /adoptananimal.jsp
+            - name: userAgreement
+              url: /userAgreement.jsp
+        - name: individuals
+          submenus:
+            - name: viewAll
+              url: /individualSearchResults.jsp
+        - name: encounters
+          submenus:
+            - name: states
+              type: header
+            - name: encounterstate.unapproved
+              url: /encounters/searchResults.jsp?state=unapproved
+            - name: encounterstate.approved
+              url: /encounters/searchResults.jsp?state=approved
+            - name: encounterstate.unidentifiable
+              url: /encounters/searchResults.jsp?state=unidentifiable
+            - type: divider
+            - name: viewImages
+              url: /encounters/thumbnailSearchResults.jsp?noQuery=true
+            - name: encounterCalendar
+              url: /xcalendar/calendar.jsp
+            - name: viewMySubmissions
+              url: /encounters/searchResults.jsp?username=<%=request.getRemoteUser()%> #This should be able to get user name inside the searchResults.jsp, can use username=current
+              login: true
+        - name: sites
+          submenus:
+            - name: locationID0
+              url: /encounters/searchResultsAnalysis.jsp?locationCodeField=locationID0
+            - name: locationID1
+              url: /encounters/searchResultsAnalysis.jsp?locationCodeField=locationID1
+            - name: locationID2
+              url: /encounters/searchResultsAnalysis.jsp?locationCodeField=locationID2
+        - name: search
+          submenus: 
+            - name: encounterSearch
+              url: /encounters/encounterSearch.jsp
+            - name: individualSearch
+              url: /individualSearch.jsp
+            - name: locationSearch
+              url: /encounters/searchComparison.jsp
+        - name: contactUs
+          url: /contactus.jsp
+        - name: administer
+          login: true
+          submenus:
+            - name: myAccount
+              url: /myAccount.jsp
+            - name: general
+              url: /appadmin/admin.jsp
+              role: admin
+            - name: logs
+              url: /appadmin/logs.jsp
+              role: admin
+            - name: gridSoftware
+              url: /software/software.jsp
+              role: admin
+            - name: userManagement
+              url: /appadmin/users.jsp?context=context0
+              role: admin
+            - name: mediaSubmissionManagement
+              url: /admin.jsp?j=mediaSubmitAdmin
+              role: admin
+            - name: photoKeywords
+              url: /appadmin/kwAdmin.jsp
+              role: admin
+            - type: divider
+              role: admin
+            - name: adoptions
+              type: header
+              role: admin
+            - name: createEditAdoption
+              url: /adoptions/adoption.jsp
+              role: admin
+            - name: viewAllAdoptions
+              url: /adoptions/allAdoptions.jsp
+              role: admin
+            - name: shepherdDoc
+              url: http://www.wildme.org/wildbook
+              target: _blank
+              role: admin
+            - name: Javadoc
+              url: /javadoc/index.html
+              role: admin
+            - type: divider
+              role: admin
+            - name: dataImport
+              url: /appadmin/import.jsp
+              role: admin

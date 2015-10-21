@@ -1,0 +1,29 @@
+navbar:
+    menus:
+        - name: home
+          url: /
+        - name: learn
+          submenus:
+            - name: aboutYourProject
+              url: /overview.jsp
+            - name: learnAboutShepherd
+              url: http://www.wildme.org/wildbook
+              target: _blank
+        - name: encounters
+          submenus:
+            - name: states
+              type: header
+            - type: divider
+            - name: viewMySubmissions
+              url: /encounters/searchResults.jsp?username=current #This should be ignored in the file result
+              login: true
+        - name: contactUs
+          url: /contactus.jsp
+        - name: administer
+          login: true
+          submenus:
+            - name: myAccount
+              url: /myAccount.jsp
+            - name: general
+              url: /appadmin/admin.jsp
+              role: admin

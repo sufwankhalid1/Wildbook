@@ -30,6 +30,9 @@
              java.util.Properties,
              org.apache.commons.lang3.StringUtils,
              org.ecocean.rest.UserController,
+             org.ecocean.html.HtmlConfig,
+             org.ecocean.html.HtmlNavBar,
+             org.ecocean.html.HtmlMenu,
              org.ecocean.ContextConfiguration"
 %>
 
@@ -41,6 +44,98 @@ Properties props = ShepherdProperties.getProperties("header.properties", langCod
 String urlLoc = "http://" + ServletUtils.getURLLocation(request);
 
 Properties webAppProps = Global.INST.getWebappClientProps();
+HtmlConfig htmlConfig = ServletUtils.getHtmlConfig();
+%>
+
+<%!
+public String getMenuLabel(final Properties props, final String name) {
+    if (StringUtils.isBlank(name)) {
+        return "NULL";
+    }
+    
+    String label = props.getProperty(name);
+    if (StringUtils.isBlank(label)) {
+        return name;
+    }
+    return label;
+}
+
+public void appendMenu(final HttpServletRequest request,
+                       final Properties props,
+                       final String urlLoc,
+                       final StringBuilder builder,
+                       final HtmlMenu menu) {
+    if (menu.login && request.getUserPrincipal() == null) {
+        return;
+    }
+    
+    if (menu.role != null && ! request.isUserInRole(menu.role)) {
+        return;
+    }
+    
+    if (menu.submenus != null) {
+        builder.append("<li class=\"dropdown\">")
+               .append("<a href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\" role=\"button\" aria-expanded=\"false\">")
+               .append(getMenuLabel(props, menu.name))
+               .append("<span class=\"caret\"></span></a>")
+               .append("<ul class=\"dropdown-menu\" role=\"menu\">");
+        
+        for (HtmlMenu submenu : menu.submenus) {
+            appendMenu(request, props, urlLoc, builder, submenu);
+        }
+        
+        builder.append("</ul></li>");
+        return;
+    }
+    
+    if ("divider".equals(menu.type)) {
+        builder.append("<li class=\"divider\"></li>");
+        return;
+    }
+    
+    if ("home".equals(menu.name)) {
+        System.out.println("yup, home");
+        builder.append("<li class=\"active home text-hide\">");
+        System.out.println(builder.toString());
+    } else if (menu.type != null) {
+        if ("header".equals(menu.type)) {
+            builder.append("<li class=\"dropdown-header\">")
+                   .append(getMenuLabel(props, menu.name))
+                   .append("</li>");
+            return;
+        } else {
+            builder.append("<li>");
+        }
+    } else {
+        builder.append("<li>");
+    }
+    
+
+    builder.append("<a href=\"");
+    if (menu.url != null && ! menu.url.startsWith("http:")) {
+        builder.append(urlLoc);
+    }
+    builder.append(menu.url);
+    
+    if (menu.target != null) {
+       builder.append(" target=\"").append(menu.target).append("\"");
+    }
+    
+    builder.append("\">").append(getMenuLabel(props, menu.name)).append("</a></li>");
+}
+
+public String createNavBar(final HttpServletRequest request,
+                           final Properties props,
+                           final String urlLoc,
+                           final HtmlNavBar navbar) {
+    StringBuilder builder = new StringBuilder();
+    
+    for (HtmlMenu menu : navbar.menus) {
+        appendMenu(request, props, urlLoc, builder, menu);
+    }
+    
+    return builder.toString();
+}
 %>
 
 <html ng-app="appWildbook">
@@ -210,155 +305,15 @@ Properties webAppProps = Global.INST.getWebappClientProps();
                   
                   <div id="navbar" class="navbar-collapse collapse">
                   
-                  <!-- TODO: Figure out what this does and how to make it work with the new system -->
-                  <!-- <div id="notifications">
-                    <percent_equal Collaboration.getNotificationsWidgetHtml(request) percent>
-                  </div>  -->
+                    <!-- TODO: Figure out what this does and how to make it work with the new system -->
+                    <!-- <div id="notifications">
+                             <percent_equal Collaboration.getNotificationsWidgetHtml(request) percent>
+                         </div>  -->
                   
                     <ul class="nav navbar-nav">
-                    
-                    
-                      <!--  pseudo-code (mix of javascript and java mostly) for how to create
-                            the nav menu from the webapp-config.yaml navbar element when I get around to that -->
-                      <!--
-                      function createmenu(menu) {
-                        if (menu.login && request.getUserPrincipal() == null) {
-                            return null;
-                        }
-                        
-                        if (menu.role && ! request.isUserInRole(menu.role)) {
-                            return null;
-                        }
-                        
-                        if (menu.submenus) {
-                            return createmenulist(menu.submenus);
-                        }
-                        
-                        if (menu.type == 'divider') {
-                            return '<li class="divider"></li>';
-                        }
-                        
-                        var start;
-                        if (menu.name == "home") {
-                            start = '<li class="active home text-hide">';
-                        } else if (! menu.type) {
-                            start = '<li>';
-                        } else if (menu.type == 'header') {
-                            start = '<li class="dropdown-header">';
-                        } else {
-                            start = '<li>';
-                        }
-                        
-                        start += "<a href=\"";
-                        if (menu.url.startswith("http:")) {
-                            start += menu.url;
-                        } else {
-                            start + = urlLoc + menu.url;
-                        }
-                        if (menu.target) {
-                           start += " target=\" + menu.target + "\"";
-                        }
-                        return start + "\>" + props.getProperty(menu.name) + "</a></li>";
-                      }
-                      
-                      function createmenulist(menulist) {
-                        var val = "<li class=\"dropdown\">"
-                         + "<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">"
-                         + props.getProperty(menulist.name) + "<span class="caret"></span></a>"
-                         + "<ul class="dropdown-menu" role="menu">";
-                        
-                        for each(menu in menulist) {
-                            val += createmenu(menu);
-                        }
-                        
-                        return val + '</ul></li>';
-                      }
-                       -->
-                      
-                      <li class="active home text-hide"><a href="<%=urlLoc %>"><%=props.getProperty("home")%></a></li>
-                      
-                      <li><a href="<%=urlLoc %>/submit.jsp"><%=props.getProperty("report")%></a></li>
-                   
-                      <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><%=props.getProperty("learn")%> <span class="caret"></span></a>
-                        <ul class="dropdown-menu" role="menu">
-                            <li class="dropdown"><a href="<%=urlLoc %>/overview.jsp"><%=props.getProperty("aboutYourProject")%></a></li>
-                            <li><a href="<%=urlLoc %>/photographing.jsp"><%=props.getProperty("howToPhotograph")%></a></li>
-                            <li><a target="_blank" href="http://www.wildme.org/wildbook"><%=props.getProperty("learnAboutShepherd")%></a></li>
-                        </ul>
-                      </li>
-                      
-                      <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><%=props.getProperty("participate")%> <span class="caret"></span></a>
-                        <ul class="dropdown-menu" role="menu">
-                          <li><a href="<%=urlLoc %>/adoptananimal.jsp"><%=props.getProperty("adoptions")%></a></li>
-                          <li><a href="<%=urlLoc %>/userAgreement.jsp"><%=props.getProperty("userAgreement")%></a></li>
-                          
-                          <!--  examples of navigation dividers
-                          <li class="divider"></li>
-                          <li class="dropdown-header">Nav header</li>
-                           -->
-                          
-                        </ul>
-                      </li>
-                      <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Individuals <span class="caret"></span></a>
-                        <ul class="dropdown-menu" role="menu">
-                          <li><a href="<%=urlLoc %>/individualSearchResults.jsp"><%=props.getProperty("viewAll")%></a></li>
-                        </ul>
-                      </li>
-                      <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><%=props.getProperty("encounters")%> <span class="caret"></span></a>
-                        <ul class="dropdown-menu" role="menu">
-                          <li><a href="<%=urlLoc %>/encounters/thumbnailSearchResults.jsp?noQuery=true"><%=props.getProperty("viewImages")%></a></li>
-                          <li><a href="<%=urlLoc %>/xcalendar/calendar.jsp"><%=props.getProperty("encounterCalendar")%></a></li>
-                          <% if(request.getUserPrincipal()!=null) { %>
-                            <li><a href="<%=urlLoc %>/encounters/searchResults.jsp?username=<%=request.getRemoteUser()%>"><%=props.getProperty("viewMySubmissions")%></a></li>
-                          <% } %>
-                        </ul>
-                      </li>
-                      
-                      <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><%=props.getProperty("search")%> <span class="caret"></span></a>
-                        <ul class="dropdown-menu" role="menu">
-                              <li><a href="<%=urlLoc %>/encounters/encounterSearch.jsp"><%=props.getProperty("encounterSearch")%></a></li>
-                              <li><a href="<%=urlLoc %>/individualSearch.jsp"><%=props.getProperty("individualSearch")%></a></li>
-                              <li><a href="<%=urlLoc %>/encounters/searchComparison.jsp"><%=props.getProperty("locationSearch")%></a></li>
-                           </ul>
-                      </li>
-               
-                      <li>
-                        <a href="<%=urlLoc %>/contactus.jsp"><%=props.getProperty("contactUs")%> </a>
-                      </li>
-                      <%
-                      if (request.getUserPrincipal() != null) {
-                      %>
-                      <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><%=props.getProperty("administer")%> <span class="caret"></span></a>
-                        <ul class="dropdown-menu" role="menu">
-                              <li><a href="<%=urlLoc %>/myAccount.jsp"><%=props.getProperty("myAccount")%></a></li>
-                            <% if (request.isUserInRole("admin")) { %>
-                              <li><a href="<%=urlLoc %>/appadmin/admin.jsp"><%=props.getProperty("general")%></a></li>
-                              <li><a href="<%=urlLoc %>/appadmin/logs.jsp"><%=props.getProperty("logs")%></a></li>
-                              <li><a href="<%=urlLoc %>/software/software.jsp"><%=props.getProperty("gridSoftware")%></a></li>
-                              <li><a href="<%=urlLoc %>/appadmin/users.jsp?context=context0"><%=props.getProperty("userManagement")%></a></li>
-                              <li><a href="<%=urlLoc %>/admin.jsp?j=mediaSubmitAdmin"><%=props.getProperty("mediaSubmissionManagement")%></a></li>
-                              <li><a href="<%=urlLoc %>/appadmin/kwAdmin.jsp"><%=props.getProperty("photoKeywords")%></a></li>
-                              <li><a target="_blank" href="http://www.wildme.org/wildbook"><%=props.getProperty("shepherdDoc")%></a></li>
-                              <li><a href="<%=urlLoc %>/javadoc/index.html">Javadoc</a></li>
-                             <% } //end if admin %>
-                        </ul>
-                      </li>
-                      <% } %>
-                      
-                      
-                      
-                      
-                      
-                      
+                        <%= createNavBar(request, props, urlLoc, htmlConfig.navbar)%>
                     </ul>
                   </div>
-                  
                 </div>
               </div>
             </nav>
