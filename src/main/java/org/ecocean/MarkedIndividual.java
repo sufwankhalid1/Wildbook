@@ -1772,5 +1772,26 @@ public Float getMinDistanceBetweenTwoMarkedIndividuals(MarkedIndividual otherInd
 		this.refreshThumbnailUrl(context);
 	}
 
+        // note: it assumes "first identified" and "first sighting" are congruent, which may or may not be the case... hmmmm.
+        public Double calculatedAge() {
+	    Double aafs = this.getAgeAtFirstSighting();
+            Double ysfs = this.calculatedYearsSinceFirstSighting();
+            if ((aafs == null) || (ysfs == null)) return null;
+            return aafs + ysfs;
+        }
+
+        public Double calculatedYearsSinceFirstSighting() {
+	    Encounter[] sorted = this.getDateSortedEncounters(true);
+            if (sorted.length < 1) return null;
+            Calendar today = Calendar.getInstance();
+            Calendar cal = Calendar.getInstance();
+            cal.clear();
+            cal.set(Calendar.MILLISECOND, 0);
+            if (sorted[0].getMonth() > 0) cal.set(Calendar.MONTH, sorted[0].getMonth() - 1);
+            if (sorted[0].getDay() > 0) cal.set(Calendar.DAY_OF_MONTH, sorted[0].getDay());
+            if (sorted[0].getYear() > 0) cal.set(Calendar.YEAR, sorted[0].getYear());
+            return (today.getTimeInMillis() - cal.getTimeInMillis()) / (365.25 * 24 * 60 * 60 * 1000);
+        }
+
 
 }

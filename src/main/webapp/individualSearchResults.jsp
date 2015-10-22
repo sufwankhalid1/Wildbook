@@ -20,7 +20,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <%@ page contentType="text/html; charset=utf-8" language="java"
-         import="org.ecocean.servlet.ServletUtilities,org.ecocean.*, java.util.Properties, java.util.Collection, java.util.Vector,java.util.ArrayList, org.datanucleus.api.rest.orgjson.JSONArray, org.json.JSONObject, org.datanucleus.api.rest.RESTUtils, org.datanucleus.api.jdo.JDOPersistenceManager" %>
+         import="org.ecocean.servlet.ServletUtilities,org.ecocean.*, java.util.Properties, java.util.Collection, java.util.Vector,java.util.ArrayList, org.datanucleus.api.rest.orgjson.JSONArray, org.datanucleus.api.rest.orgjson.JSONObject, org.datanucleus.api.rest.RESTUtils, org.datanucleus.api.jdo.JDOPersistenceManager" %>
 <%@ taglib uri="http://www.sunwesttek.com/di" prefix="di" %>
 
 
@@ -245,8 +245,14 @@
 
 
 	JDOPersistenceManager jdopm = (JDOPersistenceManager)myShepherd.getPM();
-	JSONArray jsonobj = RESTUtils.getJSONArrayFromCollection((Collection)rIndividuals, jdopm.getExecutionContext());
-	String indsJson = jsonobj.toString();
+	//JSONArray jsonobj = RESTUtils.getJSONArrayFromCollection((Collection)rIndividuals, jdopm.getExecutionContext());
+	String indsJson = "[\n";
+	for (MarkedIndividual ind : rIndividuals) {
+		JSONObject jsonobj = RESTUtils.getJSONObjectFromPOJO(ind, jdopm.getExecutionContext());
+		jsonobj.put("age", ind.calculatedAge());
+		indsJson += jsonobj.toString() + ",\n";
+	}
+	indsJson += "\n]\n";
 
 %>
 
@@ -307,6 +313,14 @@ var colDefn = [
 		label: 'Individual',
 		value: _colIndividual,
 		sortValue: function(o) { return o.individualID.toLowerCase(); },
+		//sortFunction: function(a,b) {},
+	},
+
+	{
+		key: 'age',
+		label: 'Age',
+		value: _colAge,
+		sortValue: function(o) { return (o.age || 999); },  //sorts unknown to bottom
 		//sortFunction: function(a,b) {},
 	},
 
@@ -624,6 +638,11 @@ function _colIndividual(o) {
 	var fi = o.dateFirstIdentified;
 	if (fi) i += '<br /><%=props.getProperty("firstIdentified") %> ' + fi;
 	return i;
+}
+
+function _colAge(o) {
+	if (o.age) return Math.floor(o.age * 100) / 100;
+	return '';
 }
 
 
