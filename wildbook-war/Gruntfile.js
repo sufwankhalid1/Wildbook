@@ -1,6 +1,6 @@
 module.exports = function(grunt) {
   /*
-  * Run 'grunt -v' to generate the css assets and watch
+  * Run 'grunt -v' to generate the css assets
   */
   grunt.loadNpmTasks('grunt-contrib-less');
   grunt.loadNpmTasks('grunt-contrib-watch');
@@ -11,7 +11,7 @@ module.exports = function(grunt) {
     less: {
       dist: {
         files: {
-          'css/wildbook.css': 'less/wildbook.less'
+          'src/main/webapp/css/wildbook.css': 'src/main/webapp/less/wildbook.less'
         },
       },
     },
@@ -23,5 +23,6 @@ module.exports = function(grunt) {
     },
   });
 
-  grunt.registerTask('default', ['less', 'watch']);
+  grunt.registerTask('default', ['less']);
+  grunt.registerTask('lesswatch', ['less', 'watch']);
 };

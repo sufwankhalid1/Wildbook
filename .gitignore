@@ -24,3 +24,4 @@ src/main/webapp/encounters/*20*
 /m2_repo/
 /logs/
 bower_components
+node_modules

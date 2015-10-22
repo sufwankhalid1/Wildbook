@@ -124,8 +124,8 @@ wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q
         columnDefs:
             [{headerName: "",
               field: "id",
-              width: 48,
-              template: '<a href="javascript:;" ng-click="editSubmission(data)"><i class="glyphicon glyphicon-edit"></i></a>&nbsp;<a href="javascript:;" ng-click="deleteSubmission(data)"><i class="glyphicon glyphicon-trash"></i></a>'
+              width: 24,
+              template: '<a href="javascript:;" ng-click="editSubmission(data)"><i class="glyphicon glyphicon-edit"></i></a>'
              },
              {headerName: "Submitted",
               field: "timeSubmitted",

@@ -20,11 +20,9 @@ block content
                                 span.media-admin-edit-icon
                                     button.btn.btn-primary(ng-click="doneEditing()")
                                         i.glyphicon.glyphicon-check
-                                        |  Save
                                 span.media-admin-edit-icon
                                     button.btn.btn-danger(ng-click="deleteSubmission(submission)")
                                         i.glyphicon.glyphicon-trash
-                                        |  Delete
                 .row
                     .col-md-2
                         div.media-admin-nav
@@ -62,8 +60,10 @@ block content
                         .container-fluid
                             .row
                                 .col-md-12
-                                    span.text-primary Submitted by: {{submission.user.displayName}}
-                                    span on: {{timeToDate(submission.timeSubmitted)}}
+                                    span.text-primary Submitted by:
+                                    | &nbsp{{submission.user.displayName}}
+                                    span.text-primary &nbspon:
+                                    | &nbsp{{timeToDate(submission.timeSubmitted)}}
                                 .col-md-12
                                     span(ng-repeat="photo in photos")
                                         a(href="javascript:;", ng-click="viewImage(photo.midUrl)")
