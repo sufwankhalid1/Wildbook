@@ -72,14 +72,10 @@ wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q
     $scope.deleteImage = function(id) {
         return alertplus.confirm('Are you sure you want to delete this image?', "Delete Image", true)
         .then(function() {
-            $.ajax({
-                url: "obj/mediasubmission/deletemedia",
-                type: "POST",
-                data: JSON.stringify({submissionid: $scope.submission.id, mediaid: id}),
-                contentType: "application/json"
-            })
+            $http.post("obj/mediasubmission/deletemedia", {submissionid: $scope.submission.id, mediaid: id})
             .then(function() {
-                $scope.photos = photos.filter(function(photo) {
+                $scope.zoomimage = null;
+                $scope.photos = $scope.photos.filter(function(photo) {
                     return (photo.id !== id);
                 });
             }, $exceptionHandler);
@@ -92,6 +88,7 @@ wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q
         .then(function(results) {
             $scope.submission = submission;
             $scope.photos = results[0].data;
+            $scope.zoomimage = null;
 
             $scope.encounters = results[1].data.encounters || [];
             $scope.surveyEncs = results[1].data.surveyEncounters || [];
@@ -101,17 +98,10 @@ wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q
     $scope.deleteSubmission = function(submission) {
         return alertplus.confirm('Are you sure you want to delete the <b>entire</b> submission '+ submission.id +'?', "Delete Submission", true)
         .then(function() {
-            $.ajax({
-                url: "obj/mediasubmission/delete",
-                type: "POST",
-                data: JSON.stringify({submissionid: submission.id}),
-                contentType: "application/json"
-            })
+            $.http.post("obj/mediasubmission/delete", {submissionid: submission.id})
             .then(function() {
-                $scope.$apply(function() {
-                    updateSubmissionData();
-                    $scope.submission = null;
-                })
+                updateSubmissionData();
+                $scope.submission = null;
             }, $exceptionHandler);
         });
     };
@@ -185,9 +175,13 @@ wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q
 //             angularCompileRows: true
 //    };
 
+    $scope.viewImage = function(photo) {
+        $scope.zoomimage = photo;
+    }
 
     $scope.doneEditing = function() {
-        updateSubmissionData();
+        // Why do we need to update here?
+        //updateSubmissionData();
         $scope.submission = null;
     };
 
