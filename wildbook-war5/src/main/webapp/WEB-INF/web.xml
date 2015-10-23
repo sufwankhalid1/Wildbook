@@ -492,26 +492,6 @@
           <servlet-class>
           org.ecocean.servlet.LoginUserSocial</servlet-class>
    </servlet>
-
-    <servlet>
-          <description>
-          Log in user using username and password provided</description>
-          <display-name>
-          LoginUser</display-name>
-          <servlet-name>LoginUser</servlet-name>
-          <servlet-class>
-          org.ecocean.servlet.LoginUser</servlet-class>
-   </servlet>
-      
-   <servlet>
-          <description>
-          Logs user out</description>
-          <display-name>
-          LogoutUser</display-name>
-          <servlet-name>LogoutUser</servlet-name>
-          <servlet-class>
-          org.ecocean.servlet.LogoutUser</servlet-class>
-  </servlet>
   
     <servlet>
           <servlet-name>SocialGrabFiles</servlet-name>
@@ -1369,17 +1349,9 @@
   
   
     <servlet-mapping>
-        <servlet-name>LoginUser</servlet-name>
-        <url-pattern>/LoginUser</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
         <servlet-name>LoginUserSocial</servlet-name>
         <url-pattern>/LoginUserSocial</url-pattern>
     </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>LogoutUser</servlet-name>
-        <url-pattern>/LogoutUser</url-pattern>
-  </servlet-mapping>
     <servlet-mapping>
         <servlet-name>SocialConnect</servlet-name>
         <url-pattern>/SocialConnect</url-pattern>

@@ -109,10 +109,25 @@
         <servlet-name>LoginUser</servlet-name>
         <servlet-class> org.ecocean.servlet.LoginUser</servlet-class>
     </servlet>
-   
+
     <servlet-mapping>
         <servlet-name>LoginUser</servlet-name>
         <url-pattern>/LoginUser</url-pattern>
+    </servlet-mapping>
+
+   <servlet>
+          <description>
+          Logs user out</description>
+          <display-name>
+          LogoutUser</display-name>
+          <servlet-name>LogoutUser</servlet-name>
+          <servlet-class>
+          org.ecocean.servlet.LogoutUser</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>LogoutUser</servlet-name>
+        <url-pattern>/LogoutUser</url-pattern>
     </servlet-mapping>
 
     <servlet>

@@ -98,7 +98,7 @@ wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q
     $scope.deleteSubmission = function(submission) {
         return alertplus.confirm('Are you sure you want to delete the <b>entire</b> submission '+ submission.id +'?', "Delete Submission", true)
         .then(function() {
-            $.http.post("obj/mediasubmission/delete", {submissionid: submission.id})
+            $http.post("obj/mediasubmission/delete", {submissionid: submission.id})
             .then(function() {
                 updateSubmissionData();
                 $scope.submission = null;
@@ -109,6 +109,18 @@ wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q
     $scope.timeToDate = function(time) {
         return moment(time).format('lll');
     };
+    
+    $scope.esc_key = function() {
+        if ($scope.zoomimage) {
+            $scope.zoomimage = null;
+            return;
+        }
+        
+        if ($scope.submission) {
+            $scope.doneEditing();
+            return;
+        }
+    }
 
     $scope.msGridOptions = {
         columnDefs:

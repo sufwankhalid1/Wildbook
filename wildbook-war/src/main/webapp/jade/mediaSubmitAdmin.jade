@@ -74,13 +74,17 @@ block content
                                     span(ng-repeat="photo in photos", ng-show="! zoomimage")
                                         a(href="javascript:;", ng-click="viewImage(photo)")
                                             img(ng-src="{{photo.thumbUrl}}", style="padding: 2px; max-width: 100%")
-                                    div(ng-show="zoomimage", style="position: relative; width: 800px; height: 600px;")
+                                    div.ng-cloak(ng-show="zoomimage", style="position: relative; width: 800px; height: 600px;")
                                         div
                                             img.ng-cloak(ng-src="{{zoomimage.midUrl}}")
                                         div(style="position: absolute; top: 0px; right: 5px; width: 24px; height: 24px")
                                             button.btn.btn-primary(ng-click="viewImage(null)")
                                                 i.glyphicon.glyphicon-check
                                         div(style="position: absolute; top: 0px; right: 50px; width: 24px; height: 24px")
+                                            button.btn.btn-primary
+                                                a(target="_self", href="{{zoomimage.url}}", download="{{zoomimage.url.substring(zoomimage.url.lastIndexOf('/')+1)}}")
+                                                    i.glyphicon.glyphicon-download
+                                        div(style="position: absolute; top: 0px; right: 95px; width: 24px; height: 24px")
                                             button.btn.btn-danger(ng-click="deleteImage(zoomimage.id)")
                                                 i.glyphicon.glyphicon-trash
                             .row

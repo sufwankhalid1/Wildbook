@@ -93,7 +93,7 @@ wildbook.app.controller("MainController", function($scope, $http, $q, $exception
                    dateStringFromRest: function(rest) {
                        formatMoment(restToMoment(rest));
                    }};
-
+    
     //
     // Initialize app by returning the promise used to kick us off.
     //
@@ -109,63 +109,81 @@ wildbook.app.controller("MainController", function($scope, $http, $q, $exception
 });
 
 wildbook.app.directive(
-        'dateInput',
-        function() {
-            return {
-                require: 'ngModel',
-                template: '<input type="date"></input>',
-                replace: true,
-                link: function(scope, elm, attrs, ngModelCtrl) {
-                    ngModelCtrl.$formatters.push(function (modelValue) {
-                        if (!scope.main) {
-                            //
-                            // This happens if this control is used in another directive
-                            // template when the directive is loaded (but not yet used).
-                            //
-                            return null;
-                        }
-                        return scope.main.dateFromRest(modelValue);
-                    });
+    'dateInput',
+    function() {
+        return {
+            require: 'ngModel',
+            template: '<input type="date"></input>',
+            replace: true,
+            link: function(scope, elm, attrs, ngModelCtrl) {
+                ngModelCtrl.$formatters.push(function (modelValue) {
+                    if (!scope.main) {
+                        //
+                        // This happens if this control is used in another directive
+                        // template when the directive is loaded (but not yet used).
+                        //
+                        return null;
+                    }
+                    return scope.main.dateFromRest(modelValue);
+                });
 
-                    ngModelCtrl.$parsers.push(function(viewValue) {
-                        return scope.main.dateToRest(viewValue);
-                    });
-                },
-            };
-    });
+                ngModelCtrl.$parsers.push(function(viewValue) {
+                    return scope.main.dateToRest(viewValue);
+                });
+            },
+        };
+});
 
 wildbook.app.directive(
-        'timeInput',
-        function() {
-            return {
-                require: 'ngModel',
-                template: '<input type="time"></input>',
-                replace: true,
-                link: function(scope, elm, attrs, ngModelCtrl) {
-                    ngModelCtrl.$formatters.push(function (modelValue) {
-                        if (! modelValue) {
-                            return null;
-                        }
-
-                        if (modelValue.constructor === Array) {
-                            return moment({hour: modelValue[0],
-                                           minute: modelValue[1],
-                                           second: modelValue[2]}).format("hh:mm:ss a");
-                        }
+    'timeInput',
+    function() {
+        return {
+            require: 'ngModel',
+            template: '<input type="time"></input>',
+            replace: true,
+            link: function(scope, elm, attrs, ngModelCtrl) {
+                ngModelCtrl.$formatters.push(function (modelValue) {
+                    if (! modelValue) {
                         return null;
-                    });
+                    }
 
-                    ngModelCtrl.$parsers.push(function(viewValue) {
-                        if (! viewValue) {
-                            return null;
-                        }
+                    if (modelValue.constructor === Array) {
+                        return moment({hour: modelValue[0],
+                                       minute: modelValue[1],
+                                       second: modelValue[2]}).format("hh:mm:ss a");
+                    }
+                    return null;
+                });
 
-                        var mdate = moment(viewValue);
-                        //
-                        // TODO: Deal with timezone
-                        //
-                        return [mdate.hour(), mdate.minute(), mdate.second(), "+0"];
-                    });
-                },
-            };
-    });
+                ngModelCtrl.$parsers.push(function(viewValue) {
+                    if (! viewValue) {
+                        return null;
+                    }
+
+                    var mdate = moment(viewValue);
+                    //
+                    // TODO: Deal with timezone
+                    //
+                    return [mdate.hour(), mdate.minute(), mdate.second(), "+0"];
+                });
+            },
+        };
+});
+
+//
+// Can't get this to work for sub-controllers. Plus you should be able to
+// use the built-in ng-keypress directive anyway and check for escape in there.
+//
+//wildbook.app.directive('escKey', function () {
+//    return function (scope, element, attrs) {
+//        element.bind("keydown keypress", function (event) {
+//            if ((event.which || event.keyCode) === 27) {
+//                scope.$apply(function (){
+//                    scope.$eval(attrs.escKey);
+//                });
+//
+//                event.preventDefault();
+//            }
+//        });
+//    };
+//});

@@ -94,9 +94,7 @@ public void appendMenu(final HttpServletRequest request,
     }
     
     if ("home".equals(menu.name)) {
-        System.out.println("yup, home");
         builder.append("<li class=\"active home text-hide\">");
-        System.out.println(builder.toString());
     } else if (menu.type != null) {
         if ("header".equals(menu.type)) {
             builder.append("<li class=\"dropdown-header\">")
@@ -170,7 +168,7 @@ public String createNavBar(final HttpServletRequest request,
             <nav class="navbar navbar-default navbar-fixed-top">
                 <div class="header-top-wrapper">
                     <div class="container">
-                        <a href="http://www.wildme.org" id="wild-me-badge">A Wild me project</a>
+                        <a target="_blank" href="http://www.wildme.org" id="wild-me-badge">A Wild me project</a>
                         <div class="search-and-secondary-wrapper">
                             <ul class="secondary-nav hor-ul no-bullets">
                                 <%
