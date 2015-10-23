@@ -173,6 +173,8 @@ wildbook.app.directive(
 //
 // Can't get this to work for sub-controllers. Plus you should be able to
 // use the built-in ng-keypress directive anyway and check for escape in there.
+// Problem though is that, even if you put ng-keypress on <body> element or on document,
+// the main controller picks it up
 //
 //wildbook.app.directive('escKey', function () {
 //    return function (scope, element, attrs) {

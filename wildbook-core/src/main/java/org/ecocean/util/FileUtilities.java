@@ -30,9 +30,19 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
+import java.util.Collection;
+import java.util.Date;
 
+import org.ecocean.media.ImageMeta;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.drew.imaging.ImageMetadataReader;
+import com.drew.imaging.ImageProcessingException;
+import com.drew.lang.GeoLocation;
+import com.drew.metadata.Metadata;
+import com.drew.metadata.exif.ExifSubIFDDirectory;
+import com.drew.metadata.exif.GpsDirectory;
 
 /**
  *
@@ -206,5 +216,70 @@ public class FileUtilities {
         }
 
         return null;
+    }
+
+    public static ImageMeta getImageMetaData(File file) throws ImageProcessingException, IOException {
+        int index = file.getAbsolutePath().lastIndexOf('.');
+        if (index < 0) {
+            return null;
+        }
+
+        ImageMeta meta = null;
+
+        switch (file.getAbsolutePath().substring(index+1).toLowerCase()) {
+            case "jpg":
+            case "jpeg":
+            case "png":
+            case "tiff":
+            case "arw":
+            case "nef":
+            case "cr2":
+            case "orf":
+            case "rw2":
+            case "rwl":
+            case "srw":
+            {
+                if (file.exists()) {
+                    meta = new ImageMeta();
+                    Metadata metadata = ImageMetadataReader.readMetadata(file);
+                    // obtain the Exif directory
+                    ExifSubIFDDirectory directory = null;
+                    directory = metadata.getFirstDirectoryOfType(ExifSubIFDDirectory.class);
+                    // query the tag's value
+                    Date date = null;
+                    if (directory != null) date = directory.getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL);
+                    if (date != null) {
+                        meta.setTimestamp(DateUtils.dateToLDT(date));
+                    }
+
+                    // See whether it has GPS data
+                    Collection<GpsDirectory> gpsDirectories = metadata.getDirectoriesOfType(GpsDirectory.class);
+                    if (gpsDirectories != null) {
+                        for (GpsDirectory gpsDirectory : gpsDirectories) {
+                            // Try to read out the location, making sure it's non-zero
+                            GeoLocation geoLocation = gpsDirectory.getGeoLocation();
+                            if (geoLocation != null && !geoLocation.isZero()) {
+                                meta.setLatitude(geoLocation.getLatitude());
+                                meta.setLongitude(geoLocation.getLongitude());
+                            }
+                        }
+                    }
+
+//                    // iterate through metadata directories
+//                    List<Tag> list = new ArrayList<Tag>();
+//                    for (Directory dir : metadata.getDirectories()) {
+//                        if ("exif".equals(dir.getName().toLowerCase()) {
+//                            dir.
+//                        }
+//
+//                        for (Tag tag : dir.getTags()) {
+//                            if (!tag.getTagName().toUpperCase(Locale.US).startsWith("GPS"))
+//                                list.add(tag);
+//                        }
+//                    }
+                }
+            }
+        }
+        return meta;
     }
 }

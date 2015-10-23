@@ -91,7 +91,9 @@ public class MediaAssetFactory {
         ma.thumbPath = createPath(rs.getString("thumbpath"));
         ma.midPath = createPath(rs.getString("midpath"));
         ma.submitterid = rs.getInteger("submitterid");
-
+        ma.setMetaTimestamp(rs.getLocalDateTime("metatimestamp"));
+        ma.setMetaLatitude(rs.getDoubleObj("metalat"));
+        ma.setMetaLongitude(rs.getDoubleObj("metalong"));
         return ma;
     }
 
@@ -156,6 +158,9 @@ public class MediaAssetFactory {
         }
         formatter.append("tags", tags);
         formatter.append("submitterid", ma.getSubmitterId());
+        formatter.append("metatimestamp", ma.getMetaTimestamp());
+        formatter.append("metalatitude", ma.getMetaLatitude());
+        formatter.append("metalongitude", ma.getMetaLongitude());
     }
 
     /**
@@ -178,15 +183,21 @@ public class MediaAssetFactory {
         ma.store.deleteFrom(ma.path);
     }
 
-
-    public static SimplePhoto readPhoto(final RecordSet rs) throws DatabaseException
-    {
-        MediaAsset ma = valueOf(rs);
-
+    public static SimplePhoto toSimplePhoto(final MediaAsset ma) {
         if (ma == null) {
             return null;
         }
 
-        return new SimplePhoto(ma.getID(), ma.webPathString(), ma.thumbWebPathString(), ma.midWebPathString());
+        SimplePhoto photo = new SimplePhoto(ma.getID(), ma.webPathString(), ma.thumbWebPathString(), ma.midWebPathString());
+        photo.setTimestamp(ma.getMetaTimestamp());
+        photo.setLatitude(ma.getMetaLatitude());
+        photo.setLongitude(ma.getMetaLongitude());
+        return photo;
+    }
+
+
+    public static SimplePhoto readPhoto(final RecordSet rs) throws DatabaseException
+    {
+        return toSimplePhoto(valueOf(rs));
     }
 }

@@ -57,6 +57,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.ecocean.GeoFileProcessor;
 import org.ecocean.Global;
 import org.ecocean.ImageProcessor;
+import org.ecocean.media.ImageMeta;
 import org.ecocean.media.LocalAssetStore;
 import org.ecocean.media.MediaAsset;
 import org.ecocean.util.FileUtilities;
@@ -621,8 +622,18 @@ public final class MediaUtilities {
       }
       FileUtilities.saveStreamToFile(content, file, keepStreamOpen);
 
+      try {
+        ImageMeta meta = FileUtilities.getImageMetaData(file);
+        ma.setMetaTimestamp(meta.getTimestamp());
+        ma.setMetaLatitude(meta.getLatitude());
+        ma.setMetaLongitude(meta.getLongitude());
+    } catch (ImageProcessingException ex) {
+        logger.error("Problem reading metadata from [" + file.getAbsolutePath() + "]", ex);
+    }
+
       //
-      // Make Thumbnail
+      // Make Thumbnail and midsize
+      //
       switch (ma.getType()) {
       case IMAGE: {
           //

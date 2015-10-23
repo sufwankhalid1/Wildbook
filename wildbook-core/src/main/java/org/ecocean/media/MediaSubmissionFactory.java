@@ -1,6 +1,5 @@
 package org.ecocean.media;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.ecocean.security.UserFactory;
@@ -102,12 +101,9 @@ public class MediaSubmissionFactory {
         sql.addSelectTable(MediaAssetFactory.ALIAS_MEDIAASSET);
         sql.addCondition(ALIAS_MEDIASUB_MEDIA, "mediasubmissionid", SqlRelationType.EQUAL, msid);
 
-        List<MediaAsset> media = new ArrayList<>();
-        db.select(sql, (rs) -> {
-            media.add(MediaAssetFactory.valueOf(rs));
+        return db.selectList(sql, (rs) -> {
+            return MediaAssetFactory.valueOf(rs);
         });
-
-        return media;
     }
 
 

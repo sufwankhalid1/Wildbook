@@ -4,10 +4,11 @@ import java.io.File;
 
 import org.ecocean.Global;
 import org.ecocean.media.AssetStore;
+import org.ecocean.media.ImageMeta;
 import org.ecocean.media.LocalAssetStore;
 import org.ecocean.media.MediaAsset;
 import org.ecocean.media.MediaAssetFactory;
-import org.ecocean.mmutil.MediaUtilities;
+import org.ecocean.util.FileUtilities;
 
 import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
@@ -16,18 +17,18 @@ import com.samsix.database.Table;
 import com.samsix.util.UtilException;
 import com.samsix.util.app.AbstractApplication;
 
-public class RecreateResized extends AbstractApplication {
+public class ReadMissingExifData extends AbstractApplication {
     private int storeid;
-    private boolean nullOnly;
     private long total;
     private long count = 0;
+    private boolean all;
 
     @Override
     protected void addOptions() {
         super.addOptions();
 
         addRequiredOption("s", "storeid", "id of local asset store to use");
-        addFlagOption("nullOnly", "create only missing entries in the thumb and midsize");
+        addFlagOption("all", "all", "Re read exif data for all images, not just missing ones");
     }
 
 
@@ -36,7 +37,7 @@ public class RecreateResized extends AbstractApplication {
         super.checkOptions();
 
         storeid = Integer.parseInt(getOptionValue("s"));
-        nullOnly = hasOption("nullOnly");
+        all = hasOption("all");
     }
 
     @Override
@@ -60,8 +61,8 @@ public class RecreateResized extends AbstractApplication {
 
         try (Database db = Global.INST.getDb()) {
             String criteria = "type = 1 and store = " + storeid;
-            if (nullOnly) {
-                criteria += " midpath is null or thumbpath is null";
+            if (! all) {
+                criteria += " and metatimestamp is null and metalat is null and metalong is null";
             }
 
             Table table = db.getTable(MediaAssetFactory.TABLENAME_MEDIAASSET);
@@ -72,34 +73,31 @@ public class RecreateResized extends AbstractApplication {
 
                 reportProgress(ma);
 
-                SqlUpdateFormatter formatter = new SqlUpdateFormatter();
+                final File file = store.getFile(ma.getPath());
+                ImageMeta meta;
                 try {
-                    final File file = store.getFile(ma.getPath());
-                    final File baseDir = new File(ma.getPath().getParent().toString());
-                    final String fileName = ma.getPath().getFileName().toString();
-
-                    if (! nullOnly || (nullOnly && ma.getThumbPath() == null)) {
-                        store.deleteFrom(ma.getThumbPath());
-                        File thumb = MediaUtilities.createThumbnail(file, store, baseDir, fileName, null);
-                        formatter.append("thumbpath", thumb.toPath().toString());
-                    }
-
-                    if (! nullOnly || (nullOnly && ma.getMidPath() == null)) {
-                        store.deleteFrom(ma.getMidPath());
-                        File mid = MediaUtilities.createMidSize(file, store, baseDir, fileName, null);
-                        formatter.append("midpath", mid.toPath().toString());
-                    }
+                    meta = FileUtilities.getImageMetaData(file);
                 } catch (Exception ex) {
-                    throw new DatabaseException("Can't create resized images", ex);
+                    logger.error("Can't read metadata for [" + file + "]", ex);
+                    return;
                 }
+
+                if (meta == null) {
+                    return;
+                }
+
+                SqlUpdateFormatter formatter = new SqlUpdateFormatter();
+                formatter.append("metatimestamp", meta.getTimestamp());
+                formatter.append("metalat", meta.getLatitude());
+                formatter.append("metalong", meta.getLongitude());
 
                 table.updateRow(formatter.getUpdateClause(), "id = " + ma.getID());
             }, criteria);
 
             System.out.println("\nFinished!\n");
-
+            exit();
         } catch (DatabaseException ex) {
-            throw new UtilException("Trouble creating mid size images", ex);
+            throw new UtilException("Trouble reading exif data.", ex);
         }
     }
 
@@ -109,6 +107,6 @@ public class RecreateResized extends AbstractApplication {
 
     public static void main(final String args[])
     {
-        launch(new RecreateResized(), args);
+        launch(new ReadMissingExifData(), args);
     }
 }

@@ -1,10 +1,7 @@
 package org.ecocean.rest;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -14,7 +11,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.ecocean.email.EmailUtils;
 import org.ecocean.encounter.Encounter;
 import org.ecocean.encounter.EncounterFactory;
-import org.ecocean.media.LocalAssetStore;
 import org.ecocean.media.MediaAsset;
 import org.ecocean.media.MediaAssetFactory;
 import org.ecocean.media.MediaAssetType;
@@ -34,11 +30,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.drew.imaging.ImageMetadataReader;
-import com.drew.lang.GeoLocation;
-import com.drew.metadata.Metadata;
-import com.drew.metadata.exif.ExifSubIFDDirectory;
-import com.drew.metadata.exif.GpsDirectory;
 import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
 import com.samsix.database.SqlRelationType;
@@ -60,9 +51,10 @@ public class MediaSubmissionController
                                               final String submissionid) throws DatabaseException
     {
         try (Database db = ServletUtils.getDb(request)) {
-            String sql = "SELECT ma.* FROM mediasubmission_media m"
-                    + " INNER JOIN mediaasset ma ON ma.id = m.mediaid"
-                    + " WHERE m.mediasubmissionid = " + submissionid;
+            String sql = "SELECT ma.* FROM mediasubmission_media msm"
+                    + " INNER JOIN mediaasset ma ON ma.id = msm.mediaid"
+                    + " WHERE msm.mediasubmissionid = " + submissionid
+                    + " ORDER BY ma.metatimestamp, ma.id";
             List<SimplePhoto> photos = new ArrayList<SimplePhoto>();
             db.select(sql, (rs) -> {
                 photos.add(MediaAssetFactory.readPhoto(rs));
@@ -503,7 +495,7 @@ public class MediaSubmissionController
                             final long msid)
         throws DatabaseException
     {
-        List<MediaAsset> media = null;
+        List<MediaAsset> media;
         try (Database db = ServletUtils.getDb(request)) {
             media = MediaSubmissionFactory.getMedia(db, msid);
         }
@@ -511,112 +503,49 @@ public class MediaSubmissionController
         ExifData data = new ExifData();
         ExifAvg avg = data.avg;
 
-        double latitude = 0;
+        double latSum = 0;
         int latCount = 0;
-        double longitude = 0;
+        double longSum = 0;
         int longCount = 0;
 
         for (MediaAsset ma : media) {
-            if (! (ma.getStore() instanceof LocalAssetStore)) {
-                continue;
-            }
+            ExifItem item = new ExifItem();
+            item.mediaid = ma.getID();
+            data.items.add(item);
 
-            LocalAssetStore store = (LocalAssetStore) ma.getStore();
+            if (ma.getMetaTimestamp() != null) {
+                item.time = DateUtils.ldtToMillis(ma.getMetaTimestamp());
 
-            File file = store.getFile(ma.getPath());
-            int index = file.getAbsolutePath().lastIndexOf('.');
-            if (index < 0) {
-                continue;
-            }
-
-            switch (file.getAbsolutePath().substring(index+1).toLowerCase()) {
-                case "jpg":
-                case "jpeg":
-                case "png":
-                case "tiff":
-                case "arw":
-                case "nef":
-                case "cr2":
-                case "orf":
-                case "rw2":
-                case "rwl":
-                case "srw":
-                {
-                    if (file.exists()) {
-                        Metadata metadata;
-                        try {
-                            ExifItem item = new ExifItem();
-                            item.mediaid = ma.getID();
-                            data.items.add(item);
-
-                            metadata = ImageMetadataReader.readMetadata(file);
-                         // obtain the Exif directory
-                            ExifSubIFDDirectory directory = null;
-                            directory = metadata.getFirstDirectoryOfType(ExifSubIFDDirectory.class);
-                            // query the tag's value
-                            Date date = null;
-                            if (directory != null) date = directory.getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL);
-                            if (date != null) {
-                                item.time = date.getTime();
-
-                                if (avg.minTime == null) {
-                                    avg.minTime = date.getTime();
-                                } else {
-                                    if (date.getTime() < avg.minTime) {
-                                        avg.minTime = date.getTime();
-                                    }
-                                }
-                                if (avg.maxTime == null) {
-                                    avg.maxTime = date.getTime();
-                                } else {
-                                    if (date.getTime() > avg.maxTime) {
-                                        avg.maxTime = date.getTime();
-                                    }
-                                }
-                            }
-
-                            // See whether it has GPS data
-                            Collection<GpsDirectory> gpsDirectories = metadata.getDirectoriesOfType(GpsDirectory.class);
-                            if (gpsDirectories == null) {
-                                continue;
-                            }
-                            for (GpsDirectory gpsDirectory : gpsDirectories) {
-                                // Try to read out the location, making sure it's non-zero
-                                GeoLocation geoLocation = gpsDirectory.getGeoLocation();
-                                if (geoLocation != null && !geoLocation.isZero()) {
-                                    item.latitude = geoLocation.getLatitude();
-                                    item.longitude = geoLocation.getLongitude();
-
-                                    latitude += geoLocation.getLatitude();
-                                    latCount += 1;
-                                    longitude += geoLocation.getLongitude();
-                                    longCount += 1;
-                                }
-                            }
-
-//                            // iterate through metadata directories
-//                            List<Tag> list = new ArrayList<Tag>();
-//                            for (Directory dir : metadata.getDirectories()) {
-//                                if ("exif".equals(dir.getName().toLowerCase()) {
-//                                    dir.
-//                                }
-//
-//                                for (Tag tag : dir.getTags()) {
-//                                    if (!tag.getTagName().toUpperCase(Locale.US).startsWith("GPS"))
-//                                        list.add(tag);
-//                                }
-//                            }
-                        } catch (Exception ex) {
-                            ex.printStackTrace();
-                        }
+                if (avg.minTime == null) {
+                    avg.minTime = item.time;
+                } else {
+                    if (item.time < avg.minTime) {
+                        avg.minTime = item.time;
                     }
                 }
+                if (avg.maxTime == null) {
+                    avg.maxTime = item.time;
+                } else {
+                    if (item.time > avg.maxTime) {
+                        avg.maxTime = item.time;
+                    }
+                }
+            }
+
+            item.latitude = ma.getMetaLatitude();
+            item.longitude = ma.getMetaLongitude();
+
+            if (item.latitude != null) {
+                latSum += item.latitude;
+                latCount += 1;
+                longSum += item.longitude;
+                longCount += 1;
             }
         }
 
         if (latCount > 0) {
-            avg.latitude = latitude / latCount;
-            avg.longitude = longitude / longCount;
+            avg.latitude = latSum / latCount;
+            avg.longitude = longSum / longCount;
         }
 
         return data;

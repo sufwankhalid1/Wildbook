@@ -20,6 +20,7 @@ package org.ecocean.media;
 
 import java.net.URL;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
 import java.util.Set;
 
 /**
@@ -43,6 +44,10 @@ public class MediaAsset {
     protected Path thumbPath;
     protected Path midPath;
     protected Integer submitterid;
+
+    private LocalDateTime metaTimestamp;
+    private Double metaLatitude;
+    private Double metaLongitude;
 
 
     /**
@@ -183,5 +188,35 @@ public class MediaAsset {
 
     public void setSubmitterId(final Integer submitterid) {
         this.submitterid = submitterid;
+    }
+
+
+    public LocalDateTime getMetaTimestamp() {
+        return metaTimestamp;
+    }
+
+
+    public void setMetaTimestamp(LocalDateTime metaTimestamp) {
+        this.metaTimestamp = metaTimestamp;
+    }
+
+
+    public Double getMetaLatitude() {
+        return metaLatitude;
+    }
+
+
+    public void setMetaLatitude(Double metaLatitude) {
+        this.metaLatitude = metaLatitude;
+    }
+
+
+    public Double getMetaLongitude() {
+        return metaLongitude;
+    }
+
+
+    public void setMetaLongitude(Double metaLongitude) {
+        this.metaLongitude = metaLongitude;
     }
 }

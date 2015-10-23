@@ -1,5 +1,6 @@
 package org.ecocean.rest;
 
+import java.time.LocalDateTime;
 
 public class SimplePhoto
 {
@@ -7,6 +8,9 @@ public class SimplePhoto
     private String url;
     private String thumbUrl;
     private String midUrl;
+    private LocalDateTime timestamp;
+    private Double latitude;
+    private Double longitude;
 
     public SimplePhoto()
     {
@@ -62,5 +66,29 @@ public class SimplePhoto
 
     public void setMidUrl(final String url) {
         this.midUrl = url;
+    }
+
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(LocalDateTime timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public Double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+
+    public Double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
     }
 }
