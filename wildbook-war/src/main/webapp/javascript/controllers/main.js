@@ -55,16 +55,29 @@ wildbook.app.controller("MainController", function($scope, $http, $q, $exception
 
         if (rest.constructor === Array) {
             //
-            // For some reason the month is zero-based and nothing else is. Sigh.
+            // The month is zero-based in moment because javascript Date is also apparently. Sheeesh.
+            // Sooo, because of that we can't just use the array constructor on moment
+            //   e.g. moment(rest)
+            // and therefore we have to do the following.
             //
-            return moment({year: rest[0], month: rest[1] - 1, date: rest[2]});
+//            return moment(rest);
+            var mobj = {year: rest[0], month: rest[1] - 1, date: rest[2]};
+            if (rest.length > 3) {
+                mobj.hour = rest[3];
+                mobj.minute = rest[4];
+                mobj.second = rest[5];
+            }
+            return moment(mobj);
         }
         return null;
     }
 
     function formatMoment(moment) {
-        if (momment) {
-            return moment.format(this.main.config.props["moment.date.format"]);// || "YYYY-MM-DD");
+        if (moment) {
+            if (moment.hour() === 0 && moment.minute() === 0 && moment.second() === 0) {
+                return moment.format($scope.main.config.props["moment.date.format"]);// || "YYYY-MM-DD");
+            }
+            return moment.format($scope.main.config.props["moment.datetime.format"] || "YYYY-MM-DD hh:mm:ss");
         }
         return null;
     }
@@ -91,7 +104,7 @@ wildbook.app.controller("MainController", function($scope, $http, $q, $exception
                        return null;
                    },
                    dateStringFromRest: function(rest) {
-                       formatMoment(restToMoment(rest));
+                       return formatMoment(restToMoment(rest));
                    }};
     
     //

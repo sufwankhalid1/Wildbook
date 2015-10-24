@@ -15,7 +15,7 @@ block content
                     .col-md-12
                         .row
                             .col-md-8.col-sm-6
-                                h3 Edit Media Submission
+                                h3 Edit Media Submission [{{submission.id}}]
                             .col-md-4.col-sm-6
                                 span.media-admin-edit-icon
                                     button.btn.btn-primary(ng-click="doneEditing()")
@@ -71,9 +71,16 @@ block content
                                     span {{submission.verbatimLocation}}
                             .row
                                 .col-md-12
-                                    span(ng-repeat="photo in photos", ng-show="! zoomimage")
-                                        a(href="javascript:;", ng-click="viewImage(photo)")
-                                            img(ng-src="{{photo.thumbUrl}}", style="padding: 2px; max-width: 100%")
+                                    //.row(ng-show="! zoomimage", ng-repeat="photo in photos", ng-if="$index % 6 == 0")
+                                    //    .col-md-2(ng-repeat="idx in [0,1,2,3,4,5]", style="padding-left: 0px; padding-right: 0px")
+                                    //        a(href="javascript:;", ng-click="viewImage(photos[idx + $parent.$index])")
+                                    //            img(ng-src="{{photos[idx + $parent.$index].thumbUrl}}", style="padding: 2px; max-width: 100%")
+                                    //        span {{main.dateStringFromRest(photos[idx + $parent.$index].timestamp)}}
+                                    div(ng-show="! zoomimage", style="display: flex; flex-wrap: wrap")
+                                        div(ng-repeat="photo in photos")
+                                            a(href="javascript:;", ng-click="viewImage(photo)")
+                                                img(ng-src="{{photo.thumbUrl}}", style="padding: 2px; max-width: 100%")
+                                            div(style="font-size: 12px") {{main.dateStringFromRest(photo.timestamp)}}
                                     div.ng-cloak(ng-show="zoomimage", style="position: relative; width: 800px; height: 600px;")
                                         div
                                             img.ng-cloak(ng-src="{{zoomimage.midUrl}}")
