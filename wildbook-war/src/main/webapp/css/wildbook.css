@@ -8608,3 +8608,6 @@ div.state-approved span.state {
 .ag-fresh .ag-header-cell-label {
   padding: 0 !important;
 }
+.display-name {
+  color: #005589;
+}

@@ -6,7 +6,7 @@ wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q
 
     $scope.panels = {};
 
-    function attachEncounter(survey) {
+    function attachEncounter(encounter) {
         if (! $scope.survey) {
             $scope.encounters.push(encounter);
             return;
@@ -37,12 +37,12 @@ wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q
     });
 
     $scope.$on('encounter_edit_done', function(event, encounter) {
-        attachEncounter();
+        attachEncounter(encounter);
     });
 
     $scope.$on('encounter_search_select', function(event, encounter) {
         $scope.panels["encounter_search"] = false;
-        attachEncounter();
+        attachEncounter(encounter);
     });
 
     $scope.showPanel = function(panel, data) {
@@ -55,8 +55,7 @@ wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q
         });
     };
 
-    $scope.searchEncounter = function(survey) {
-        $scope.survey = survey;
+    $scope.searchEncounter = function() {
         this.showPanel('encounter_search');
     }
 
