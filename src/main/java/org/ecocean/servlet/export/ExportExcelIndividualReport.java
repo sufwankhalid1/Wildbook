@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat;
 
 import org.ecocean.*;
 import org.ecocean.genetics.*;
+import org.ecocean.social.Relationship;
 import org.ecocean.servlet.ServletUtilities;
 
 import javax.jdo.*;
@@ -69,7 +70,7 @@ public class ExportExcelIndividualReport extends HttpServlet{
 
     int sheetRow = 0;
 
-    String[] headers = new String[] {"ID", "Date", "Area", "GPS x", "GPS y", "sex", "age", "class", "group size", "image file", "enc ID"};
+    String[] headers = new String[] {"ID", "Date", "Area", "GPS x", "GPS y", "sex", "age", "class", "foal", "group size", "image file", "enc ID"};
     int col = 0;
     for (int i = 0 ; i < headers.length ; i++) {
        Label l = new Label(col, sheetRow, headers[i]);
@@ -88,10 +89,24 @@ public class ExportExcelIndividualReport extends HttpServlet{
     while (all.hasNext()) {
         enc = (Encounter) all.next();
         if (!enc.hasMarkedIndividual()) continue;
+        MarkedIndividual indiv = myShepherd.getMarkedIndividual(enc.getIndividualID());
 
         Occurrence occ = null;
         if (enc.getOccurrenceID() != null) occ = myShepherd.getOccurrence(enc.getOccurrenceID());
-        
+
+        //this is the date of the encounter, to compute age at time of encounter
+        Calendar encCal = null;
+        if (enc.getYear() > 0) {
+            encCal = Calendar.getInstance();
+            encCal.clear();
+            encCal.set(Calendar.MILLISECOND, 0);
+            encCal.set(Calendar.YEAR, enc.getYear());
+            if (enc.getMonth() > 0) encCal.set(Calendar.MONTH, enc.getMonth() - 1);
+            if (enc.getDay() > 0) encCal.set(Calendar.DAY_OF_MONTH, enc.getDay());
+        }
+        Double age = null;
+        if (encCal != null) age = indiv.calculatedAge(encCal);
+
         Vector<Label> cols =  new Vector<Label>();
         cols.add(new Label(0, sheetRow, enc.getIndividualID()));
         cols.add(new Label(1, sheetRow, enc.getShortDate()));
@@ -99,22 +114,38 @@ public class ExportExcelIndividualReport extends HttpServlet{
         cols.add(new Label(3, sheetRow, enc.getDecimalLatitude()));
         cols.add(new Label(4, sheetRow, enc.getDecimalLongitude()));
         cols.add(new Label(5, sheetRow, enc.getSex()));
-        cols.add(new Label(6, sheetRow, enc.getLifeStage()));
+        if (age != null) cols.add(new Label(6, sheetRow, String.valueOf(Math.round(age.doubleValue() * 100) / 100)));
+        //cols.add(new Label(6, sheetRow, enc.getLifeStage()));
         cols.add(new Label(7, sheetRow, enc.getZebraClass()));
 
+        String foals = "";
+        ArrayList<Relationship> rels = indiv.getAllRelationships(myShepherd);
+        ///TODO should we really look for *co-occurring* offspring for this Encounter?
+//System.out.println(indiv.getIndividualID() + ": ");
+        for (Relationship rel : rels) {
+            if ("familial".equals(rel.getType())) {
+                if ("calf".equals(rel.getMarkedIndividualRole1()) && indiv.getIndividualID().equals(rel.getMarkedIndividualName2())) {
+                    foals += rel.getMarkedIndividualName1() + " ";
+                } else if ("calf".equals(rel.getMarkedIndividualRole2()) && indiv.getIndividualID().equals(rel.getMarkedIndividualName1())) {
+                    foals += rel.getMarkedIndividualName2() + " ";
+                }
+            }
+        }
+        cols.add(new Label(8, sheetRow, foals));
+
         if (occ == null) {
-            cols.add(new Label(8, sheetRow, "-"));
+            cols.add(new Label(9, sheetRow, "-"));
         } else {
             Integer gs = occ.getGroupSize();
             if (gs == null) {
-                cols.add(new Label(8, sheetRow, "-"));
+                cols.add(new Label(9, sheetRow, "-"));
             } else {
-                cols.add(new Label(8, sheetRow, gs.toString()));
+                cols.add(new Label(9, sheetRow, gs.toString()));
             }
         }
 
-        cols.add(new Label(9, sheetRow, enc.getImageOriginalName()));
-        cols.add(new Label(10, sheetRow, enc.getCatalogNumber()));
+        cols.add(new Label(10, sheetRow, enc.getImageOriginalName()));
+        cols.add(new Label(11, sheetRow, enc.getCatalogNumber()));
 
         for (Label l : cols) {
             try {
