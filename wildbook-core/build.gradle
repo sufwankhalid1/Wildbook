@@ -5,6 +5,7 @@ version = "6.0.0-SNAPSHOT"
 group = "org.ecocean"
 
 repositories {
+    mavenLocal()
     mavenCentral()
     maven {
         // This is to get the snapshots of s6-db. Snapshots don't make it to maven central.
@@ -15,7 +16,7 @@ repositories {
 dependencies {
     compile 'org.apache.shiro:shiro-core:1.2.1'
     compile 'de.neuland-bfi:jade4j:0.4.3'
-    compile 'com.samsix:s6-db:1.0.8-SNAPSHOT'
+    compile 'com.samsix:s6-db:1.0.8'
     compile 'org.flywaydb:flyway-core:3.2.1'
     compile 'javax.mail:mail:1.4.7'
     compile 'com.drewnoakes:metadata-extractor:2.8.1'
