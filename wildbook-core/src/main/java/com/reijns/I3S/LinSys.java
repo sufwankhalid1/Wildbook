@@ -29,14 +29,13 @@ package com.reijns.I3S;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.IOException;
 import java.util.Scanner;
 
 public class LinSys {
-  private int n;          // Number of variables
-  private int m;          // Number of equations
-  private MatRow[] augMat;     // Augmented matrix of system
-  private double[] x;          // Solution to system
+  private final int n;          // Number of variables
+  private final int m;          // Number of equations
+  private final MatRow[] augMat;     // Augmented matrix of system
+  private final double[] x;          // Solution to system
 
   public final static double THRESHOLD = 1.0e-12;
   // Absolute values less
@@ -89,8 +88,6 @@ public class LinSys {
         augMat[i].vals[n] = sysSc.nextDouble();
     } catch (FileNotFoundException exception) {
       System.out.println(filename + " wasn't found.");
-    } catch (IOException exception) {
-      System.out.println(exception);
     }
   }  // readInSystem
 
@@ -343,6 +340,7 @@ public class LinSys {
     ////////////////////////////////////////////////////////////////
     // Method
     //    toString
+    @Override
     public String toString() {
       String s = "";
       for (int i = 0; i <= n; i++)
