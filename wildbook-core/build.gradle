@@ -36,7 +36,7 @@ task execute(type:JavaExec) {
        main = mainClass
        
        if (project.hasProperty('arguments')) {
-          args(arguments.split(','))
+          args(arguments.split(' '))
        }
        
        classpath = sourceSets.main.runtimeClasspath
