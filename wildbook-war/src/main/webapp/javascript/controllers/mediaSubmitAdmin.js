@@ -30,7 +30,7 @@ wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q
         //
         // Look for any encounters attached to this survey already
         //
-        $http("obj/survey/encounters/" + surveypart.track.surveyPartId)
+        $http.get("obj/survey/encounters/" + surveypart.track.surveyPartId)
         .then(function(result) {
             $scope.surveyEncs.push(getSurveyEncounter(surveypart, result.data));
         }, $exceptionHandler)

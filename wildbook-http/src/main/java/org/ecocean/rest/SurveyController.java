@@ -5,6 +5,8 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import org.ecocean.encounter.Encounter;
+import org.ecocean.encounter.EncounterFactory;
 import org.ecocean.servlet.ServletUtils;
 import org.ecocean.survey.SurveyFactory;
 import org.ecocean.survey.SurveyPartObj;
@@ -74,5 +76,28 @@ public class SurveyController {
             });
         }
     }
+
+    @RequestMapping(value = "/encounters/{partid}", method = RequestMethod.GET)
+    public List<Encounter> getPartEncounters(final HttpServletRequest request,
+                                           @PathVariable("partid")
+                                           final int surveypartid) throws DatabaseException {
+        try (Database db = ServletUtils.getDb(request)) {
+            SqlStatement sql = EncounterFactory.getEncounterStatement();
+            sql.addInnerJoin(EncounterFactory.ALIAS_ENCOUNTERS,
+                             EncounterFactory.PK_ENCOUNTERS,
+                             "surveypart_encounters",
+                             "spe",
+                             EncounterFactory.PK_ENCOUNTERS);
+            sql.addCondition("spe",
+                             SurveyFactory.PK_SURVEYPART,
+                             SqlRelationType.EQUAL,
+                             surveypartid);
+
+            return db.selectList(sql, (rs) -> {
+                return EncounterFactory.readEncounter(rs);
+            });
+        }
+    }
+
 }
 

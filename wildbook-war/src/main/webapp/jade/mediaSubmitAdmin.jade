@@ -35,7 +35,7 @@ block content
                                 i.glyphicon.glyphicon-plus
                             ul.list-group
                                 li.list-group-item(ng-repeat="surveyEnc in surveyEncs")
-                                    span {{surveyEnc.surveypart.organization.displayName}} - {{surveyEnc.surveypart.surveyNumber}}
+                                    span {{surveyEnc.surveypart.survey.organization.displayName}} - {{surveyEnc.surveypart.survey.surveyNumber}}
                                     a(href="javascript:;", ng-click="addEncounter(surveyEnc.surveypart)", title="Add a new Encounter", data-toggle="tooltip")
                                         i.glyphicon.glyphicon-plus
                                     .list-group
