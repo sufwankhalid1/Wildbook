@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ControllerAdvice
 public class ExceptionHandlerController {
-    private Logger logger = LoggerFactory.getLogger(ExceptionHandlerController.class);
+    private final Logger logger = LoggerFactory.getLogger(ExceptionHandlerController.class);
 
 //    public static final String DEFAULT_ERROR_VIEW = "error";
 
@@ -47,10 +47,9 @@ public class ExceptionHandlerController {
 
         ErrorInfo info = new ErrorInfo();
         info.message = ex.getMessage();
-        info.stack = ExceptionUtils.getFullStackTrace(ex);
+        info.stack = ExceptionUtils.getStackTrace(ex);
         return info;
     }
-
 
     static class ErrorInfo
     {
