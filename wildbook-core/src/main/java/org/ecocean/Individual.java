@@ -7,6 +7,7 @@ import org.ecocean.rest.SimpleIndividual;
 public class Individual {
     private Integer id;
     private String alternateId;
+    private boolean identified = false;
     private Species species;
     private String nickname;
     private String sex;
@@ -118,5 +119,13 @@ public class Individual {
         simple.setSex(sex);
         simple.setSpecies(species);
         return simple;
+    }
+
+    public boolean isIdentified() {
+        return identified;
+    }
+
+    public void setIdentified(boolean identified) {
+        this.identified = identified;
     }
 }

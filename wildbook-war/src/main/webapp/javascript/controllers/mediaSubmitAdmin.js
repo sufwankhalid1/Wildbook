@@ -7,22 +7,25 @@ wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q
     $scope.panels = {};
 
     function attachEncounter(encounter) {
-        if (! $scope.survey) {
+        if (! $scope.surveypart) {
             $scope.encounters.push(encounter);
             return;
         }
 
         // Call to add encounter to survey.
-        $scope.survey;
-        $http.post();
+        $http.post("obj/survey/addencounter",
+                   {surveypartid: $scope.surveypart.track.surveyPartId, encounterid: encounter.id})
+        .then(function() {
+            addSurveyEncounters($scope.surveypart, [encounter]);
+        });
     }
 
-    function getSurveyEncounter(surveypart, encounters) {
-        return {surveypart: surveypart, encounters: encounters};
+    function addSurveyEncounters(surveypart, encounters) {
+        $scope.surveyEncs.push({surveypart: surveypart, encounters: encounters});
     }
 
     $scope.$on('survey_edit_done', function(event, surveypart) {
-        $scope.surveyEncs.push(getSurveyEncounter(surveypart));
+        addSurveyEncounters(surveypart);
     });
 
     $scope.$on('survey_search_select', function(event, surveypart) {
@@ -32,7 +35,7 @@ wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q
         //
         $http.get("obj/survey/encounters/" + surveypart.track.surveyPartId)
         .then(function(result) {
-            $scope.surveyEncs.push(getSurveyEncounter(surveypart, result.data));
+            addSurveyEncounters(surveypart, result.data);
         }, $exceptionHandler)
     });
 
@@ -59,8 +62,8 @@ wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q
         this.showPanel('encounter_search');
     }
 
-    $scope.addEncounter = function(survey) {
-        $scope.survey = survey;
+    $scope.addEncounter = function(surveypart) {
+        $scope.surveypart = surveypart;
         this.showPanel('encounter_edit');
     }
 

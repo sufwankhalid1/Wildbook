@@ -8,7 +8,7 @@
    <modules>
       <module>wildbook-core</module>
       <module>wildbook-http</module>
-      <module>wildbook-core5</module>
+      <!--<module>wildbook-core5</module>-->
       <module>wildbook-war</module>
    </modules>
 </project>

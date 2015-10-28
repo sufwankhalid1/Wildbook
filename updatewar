@@ -34,6 +34,7 @@ if [ -z ${webapp+x} ]; then
     webapp=wildbook
 fi
 
+cd wildbook-war
 rsync -rv $VENDORS --exclude=WEB-INF --exclude=xcalendar --exclude=onlinehelp --exclude=images --exclude=software src/main/webapp/ $TOMCAT_HOME/webapps/${webapp}
 
 if [ "$classes" = true ] ; then

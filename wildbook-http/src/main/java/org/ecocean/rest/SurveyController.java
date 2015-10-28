@@ -23,8 +23,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
+import com.samsix.database.SqlInsertFormatter;
 import com.samsix.database.SqlRelationType;
 import com.samsix.database.SqlStatement;
+import com.samsix.database.Table;
 
 @RestController
 @RequestMapping(value = "/obj/survey")
@@ -79,8 +81,8 @@ public class SurveyController {
 
     @RequestMapping(value = "/encounters/{partid}", method = RequestMethod.GET)
     public List<Encounter> getPartEncounters(final HttpServletRequest request,
-                                           @PathVariable("partid")
-                                           final int surveypartid) throws DatabaseException {
+                                             @PathVariable("partid")
+                                             final int surveypartid) throws DatabaseException {
         try (Database db = ServletUtils.getDb(request)) {
             SqlStatement sql = EncounterFactory.getEncounterStatement();
             sql.addInnerJoin(EncounterFactory.ALIAS_ENCOUNTERS,
@@ -99,5 +101,21 @@ public class SurveyController {
         }
     }
 
-}
+    @RequestMapping(value = "addencounter", method = RequestMethod.POST)
+    public void addEncounter(final HttpServletRequest request,
+                             @RequestBody @Valid final EncounterPart encounterPart) throws DatabaseException {
+        try (Database db = ServletUtils.getDb(request)) {
+            SqlInsertFormatter formatter = new SqlInsertFormatter();
+            formatter.append(SurveyFactory.PK_SURVEYPART, encounterPart.surveypartid);
+            formatter.append(EncounterFactory.PK_ENCOUNTERS, encounterPart.encounterid);
 
+            Table table = db.getTable("surveypart_encounters");
+            table.insertRow(formatter);
+        }
+    }
+
+    private static class EncounterPart {
+        public int surveypartid;
+        public int encounterid;
+    }
+}

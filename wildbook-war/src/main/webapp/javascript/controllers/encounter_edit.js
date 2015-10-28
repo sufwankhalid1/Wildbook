@@ -18,7 +18,8 @@ wildbook.app.controller("EncounterEditController", function($scope, $http, $exce
 
     $scope.save = function() {
         $http.post('obj/encounter/save', $scope.encounter)
-        .then(function() {
+        .then(function(result) {
+            $scope.encounter.id = result.data;
             $scope.panels[panelName] = false;
             $scope.$emit(panelName + "_done", $scope.encounter);
         }, $exceptionHandler);

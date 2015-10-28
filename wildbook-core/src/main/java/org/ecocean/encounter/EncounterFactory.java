@@ -131,6 +131,7 @@ public class EncounterFactory {
                                         rs.getString("nickname"));
         ind.setSex(rs.getString("sex"));
         ind.setAlternateId(rs.getString("alternateid"));
+        ind.setIdentified(rs.getBoolean("identified"));
 
         MediaAsset ma = MediaAssetFactory.valueOf(rs);
 
@@ -276,6 +277,7 @@ public class EncounterFactory {
 
     private static void fillIndividualFormatter(final SqlFormatter formatter, final Individual individual) {
         formatter.append("alternateId", individual.getAlternateId());
+        formatter.append("identified", individual.isIdentified());
         if (individual.getSpecies() == null) {
             formatter.appendNull("species");
         } else {

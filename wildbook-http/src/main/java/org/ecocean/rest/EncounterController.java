@@ -19,16 +19,17 @@ import com.samsix.database.DatabaseException;
 public class EncounterController
 {
     @RequestMapping(value = "save", method = RequestMethod.POST)
-    public void saveEncounter(final HttpServletRequest request,
-                              @RequestBody @Valid final Encounter encounter) throws DatabaseException {
+    public Integer saveEncounter(final HttpServletRequest request,
+                                 @RequestBody @Valid final Encounter encounter) throws DatabaseException {
         if (encounter == null) {
-            return;
+            return null;
         }
 
         try (Database db = ServletUtils.getDb(request)) {
             db.performTransaction(() -> {
                 EncounterFactory.saveEncounter(db, encounter);
             });
+            return encounter.getId();
         }
     }
 }

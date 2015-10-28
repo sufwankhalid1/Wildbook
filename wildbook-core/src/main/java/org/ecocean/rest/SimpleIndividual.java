@@ -8,6 +8,7 @@ public class SimpleIndividual implements SimpleBeing
 {
     private Integer id;
     private String alternateId;
+    private boolean identified = false;
     private Species species;
     private String nickname;
     private String sex;
@@ -86,5 +87,13 @@ public class SimpleIndividual implements SimpleBeing
 
     public void setAlternateId(final String alternateId) {
         this.alternateId = alternateId;
+    }
+
+    public boolean isIdentified() {
+        return identified;
+    }
+
+    public void setIdentified(boolean identified) {
+        this.identified = identified;
     }
 }
