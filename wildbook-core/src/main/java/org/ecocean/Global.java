@@ -12,6 +12,8 @@ import java.util.Properties;
 import org.ecocean.email.Emailer;
 import org.ecocean.media.AssetStore;
 import org.ecocean.media.AssetStoreFactory;
+import org.ecocean.security.DbUserService;
+import org.ecocean.security.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +36,8 @@ public enum Global {
     private final Map<String, Species> species = new HashMap<>();
     private List<Species> speciesList;
     private String cust;
+
+    private UserService userService;
 
     private void loadWebappProps(final String file) {
         try (InputStream input = Global.class.getResourceAsStream(file)) {
@@ -130,6 +134,18 @@ public enum Global {
         }
 
         return appResources;
+    }
+
+    public UserService getUserService() {
+        if (userService == null) {
+            //
+            // TODO: Check for overriding property to use a different UserService
+            // if you don't want to use the default wildbook database variant.
+            //
+            userService = new DbUserService(getConnectionInfo());
+        }
+
+        return userService;
     }
 
 

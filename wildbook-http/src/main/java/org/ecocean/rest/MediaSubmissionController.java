@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
 
+import org.ecocean.Global;
 import org.ecocean.email.EmailUtils;
 import org.ecocean.encounter.Encounter;
 import org.ecocean.encounter.EncounterFactory;
@@ -18,6 +19,7 @@ import org.ecocean.media.MediaSubmission;
 import org.ecocean.media.MediaSubmissionFactory;
 import org.ecocean.security.User;
 import org.ecocean.security.UserFactory;
+import org.ecocean.security.UserService;
 import org.ecocean.servlet.ServletUtils;
 import org.ecocean.survey.SurveyFactory;
 import org.ecocean.survey.SurveyPartObj;
@@ -313,22 +315,24 @@ public class MediaSubmissionController
                          @RequestBody final MediaSubmission media)
         throws DatabaseException
     {
-        try (Database db = ServletUtils.getDb(request)) {
-            User user;
-            if (media.getUser() != null) {
-                user = UserFactory.getUserById(db, media.getUser().getId());
-            } else {
-                user = UserFactory.getUserByEmail(db, media.getEmail());
-                //
-                // The user was added to the database, let's make sure the
-                // media submission has this info so that when we save it
-                // it will be with the user.
-                //
-                if (user != null) {
-                    media.setUser(user.toSimple());
-                }
-            }
+        UserService service = Global.INST.getUserService();
 
+        User user;
+        if (media.getUser() != null) {
+            user = service.getUserById(media.getUser().getId().toString());
+        } else {
+            user = service.getUserByEmail(media.getEmail());
+            //
+            // The user was added to the database, let's make sure the
+            // media submission has this info so that when we save it
+            // it will be with the user.
+            //
+            if (user != null) {
+                media.setUser(user.toSimple());
+            }
+        }
+
+        try (Database db = ServletUtils.getDb(request)) {
             MediaSubmissionFactory.save(db, media);
 
             //

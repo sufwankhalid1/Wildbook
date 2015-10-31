@@ -13,13 +13,10 @@ import org.apache.shiro.subject.Subject;
 import org.apache.shiro.web.util.WebUtils;
 import org.ecocean.Global;
 import org.ecocean.rest.UserController;
-import org.ecocean.security.UserFactory;
 import org.ecocean.security.UserToken;
 import org.ecocean.util.LogBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.samsix.database.Database;
 
 
 /**
@@ -137,13 +134,11 @@ import com.samsix.database.Database;
             } else {
                 userToken.getUser().setLastLogin((new Date()).getTime());
 
-                try (Database db = ServletUtils.getDb(request)) {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("Saving user...");
-                    }
-                    UserFactory.saveUser(db, userToken.getUser());
-                    WebUtils.redirectToSavedRequest(request, response, "/welcome.jsp");
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Saving user...");
                 }
+                Global.INST.getUserService().saveUser(userToken.getUser());
+                WebUtils.redirectToSavedRequest(request, response, "/welcome.jsp");
             }
         } catch (Exception ex) {
             logger.error("Can't login.", ex);

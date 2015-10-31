@@ -15,26 +15,22 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.ecocean.ContextConfiguration;
 import org.ecocean.Global;
 import org.ecocean.ShepherdProperties;
 import org.ecocean.html.HtmlConfig;
 import org.ecocean.rest.SimpleUser;
-import org.ecocean.security.UserFactory;
+import org.ecocean.security.User;
 import org.ecocean.util.Jade4JUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.util.ResourceUtils;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
 import com.samsix.database.ConnectionInfo;
 import com.samsix.database.Database;
-import com.samsix.database.DatabaseException;
 
 public class ServletUtils {
-    private static Logger logger = LoggerFactory.getLogger(ServletUtils.class);
+//    private static Logger logger = LoggerFactory.getLogger(ServletUtils.class);
 
     private static final String DEFAULT_LANG_CODE = "en";
 
@@ -43,18 +39,13 @@ public class ServletUtils {
     }
 
     public static SimpleUser getUser(final HttpServletRequest request) {
-          //
-          // I decided to swallow the error here because I didn't want to bother
-          // catching errors in the jsp files which lead me to write this method.
-          // Not critical if you want to change it.
-          //
-          try (Database db = getDb(request)) {
-              return UserFactory.getUser(db, NumberUtils.createInteger(request.getRemoteUser()));
-          } catch (DatabaseException ex) {
-              logger.error("Can't get user from idstring [" + request.getRemoteUser() + "]", ex);
-              return null;
-          }
-      }
+        User user = Global.INST.getUserService().getUserById(request.getRemoteUser());
+        if (user == null) {
+            return null;
+        }
+
+        return user.toSimple();
+    }
 
     /**
      * At present this just returns our one db connection. I'm wrapping it in this class

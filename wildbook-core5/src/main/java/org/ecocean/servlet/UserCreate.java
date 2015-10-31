@@ -32,13 +32,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.ecocean.CommonConfiguration;
 import org.ecocean.ContextConfiguration;
+import org.ecocean.Global;
 import org.ecocean.security.User;
-import org.ecocean.security.UserFactory;
-
-import com.samsix.database.Database;
+import org.ecocean.security.UserService;
 
 
 public class UserCreate extends HttpServlet {
@@ -80,10 +78,12 @@ public class UserCreate extends HttpServlet {
     //      isEdit=true;
     //    }
 
-        try (Database db = ServletUtils.getDb(request)) {
-            Integer userid = NumberUtils.createInteger(request.getParameter("userid"));
+        try {
+            String userid = request.getParameter("userid");
 
-            User user = UserFactory.getUserById(db, userid);
+            UserService userService = Global.INST.getUserService();
+
+            User user = userService.getUserById(userid);
             boolean createThisUser;
             if (user == null) {
                 createThisUser = true;
@@ -93,18 +93,17 @@ public class UserCreate extends HttpServlet {
                 //
                 // if this is not a new user, we need to blow away all old roles
                 //
-                UserFactory.deleteRoles(db, userid);
+                userService.deleteRoles(userid);
             }
 
             UserSelfUpdate.updateUserFromRequest(request, user);
-            UserFactory.saveUser(db, user);
-
+            userService.saveUser(user);
 
             String addedRoles="";
             ArrayList<String> contexts=ContextConfiguration.getContextNames();
             for (int contextNum = 0; contextNum < contexts.size(); contextNum++) {
                 String ctxt = "context" + contextNum;
-                Set<String> existingRoles = UserFactory.getAllRolesForUserInContext(db, userid, ctxt);
+                Set<String> existingRoles = userService.getAllRolesForUserInContext(userid, ctxt);
 
                 String[] roles = request.getParameterValues(context + "rolename");
                 if (roles != null) {
@@ -112,7 +111,7 @@ public class UserCreate extends HttpServlet {
                     for (int i=0; i < numRoles; i++) {
                         String thisRole = roles[i].trim();
                         if (! StringUtils.isBlank(thisRole) && ! existingRoles.contains(thisRole)) {
-                            UserFactory.addRole(db, userid, ctxt, thisRole);
+                            userService.addRole(userid, ctxt, thisRole);
                             addedRoles += "SEPARATORSTART"
                                     + ContextConfiguration.getNameForContext(ctxt)
                                     + ":"

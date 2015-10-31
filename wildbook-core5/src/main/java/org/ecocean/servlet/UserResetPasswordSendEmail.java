@@ -33,15 +33,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.ecocean.CommonConfiguration;
+import org.ecocean.Global;
 import org.ecocean.email.old.MailThreadExecutorService;
 import org.ecocean.email.old.NotificationMailer;
 import org.ecocean.security.User;
-import org.ecocean.security.UserFactory;
 import org.ecocean.util.WildbookUtils;
 import org.joda.time.LocalDateTime;
-
-import com.samsix.database.Database;
-import com.samsix.database.DatabaseException;
 
 
 public class UserResetPasswordSendEmail extends HttpServlet {
@@ -85,13 +82,7 @@ public void doPost(final HttpServletRequest request, final HttpServletResponse r
       out.println(ServletUtilities.getHeader(request));
 
       String username=request.getParameter("username").trim();
-        User myUser;
-        try (Database db = ServletUtils.getDb(request)){
-            myUser = UserFactory.getUserByNameOrEmail(db, username);
-        } catch (DatabaseException ex) {
-            ex.printStackTrace();
-            myUser = null;
-        }
+        User myUser = Global.INST.getUserService().getUserByNameOrEmail(username);
 
         if (myUser != null && myUser.getEmail() != null) {
 

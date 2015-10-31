@@ -202,3 +202,7 @@ wildbook.app.directive(
 //        });
 //    };
 //});
+
+if (KeyEventHandler) {
+    KeyEventHandler.attach(wildbook.app);
+}

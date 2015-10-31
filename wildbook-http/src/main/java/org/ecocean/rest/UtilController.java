@@ -8,7 +8,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.ecocean.Global;
 import org.ecocean.Organization;
 import org.ecocean.Species;
-import org.ecocean.security.UserFactory;
 import org.ecocean.servlet.ServletUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -33,7 +32,7 @@ public class UtilController {
     public GlobalConfig init(final HttpServletRequest request) throws DatabaseException {
         try (Database db = ServletUtils.getDb(request)) {
             GlobalConfig config = new GlobalConfig();
-            config.orgs = UserFactory.getOrganizations(db);
+            config.orgs = Global.INST.getUserService().getOrganizations();
             config.props = Global.INST.getWebappClientProps();
             config.species = Global.INST.getSpecies();
             return config;

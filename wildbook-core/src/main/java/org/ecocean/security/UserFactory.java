@@ -4,9 +4,7 @@ import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ecocean.Organization;
@@ -241,22 +239,22 @@ public class UserFactory {
     //======================================
     // Role stuff
     //======================================
-
-    public static Set<String> getAllRolesForUserInContext(final Database db,
-                                                          final int userid,
-                                                          final String context) throws DatabaseException {
-        Table users = db.getTable(TABLENAME_ROLES);
-        SqlWhereFormatter where = new SqlWhereFormatter();
-        where.append(PK_USERS, userid);
-        where.append("context", context);
-
-        Set<String> roles = new HashSet<>();
-        users.select((rs) -> {
-            roles.add(rs.getString("rolename"));
-        }, where.getWhereClause());
-
-        return roles;
-    }
+//
+//    public static Set<String> getAllRolesForUserInContext(final Database db,
+//                                                          final int userid,
+//                                                          final String context) throws DatabaseException {
+//        Table users = db.getTable(TABLENAME_ROLES);
+//        SqlWhereFormatter where = new SqlWhereFormatter();
+//        where.append(PK_USERS, userid);
+//        where.append("context", context);
+//
+//        Set<String> roles = new HashSet<>();
+//        users.select((rs) -> {
+//            roles.add(rs.getString("rolename"));
+//        }, where.getWhereClause());
+//
+//        return roles;
+//    }
 
 
     public static void deleteRoles(final Database db, final int userid) throws DatabaseException {
@@ -274,20 +272,20 @@ public class UserFactory {
         users.insertRow(formatter.getColumnClause(), formatter.getValueClause());
     }
 
-    public static boolean doesUserHaveRole(final Database db, final Integer userid, final String role, final String context)
-            throws DatabaseException {
-        if (userid == null) {
-            return false;
-        }
-
-        Table users = db.getTable(TABLENAME_ROLES);
-        SqlWhereFormatter where = new SqlWhereFormatter();
-        where.append(PK_USERS, userid);
-        where.append("context", context);
-        where.append("rolename", role);
-
-        return (users.getCount(where.getWhereClause()) > 0);
-    }
+//    public static boolean doesUserHaveRole(final Database db, final Integer userid, final String role, final String context)
+//            throws DatabaseException {
+//        if (userid == null) {
+//            return false;
+//        }
+//
+//        Table users = db.getTable(TABLENAME_ROLES);
+//        SqlWhereFormatter where = new SqlWhereFormatter();
+//        where.append(PK_USERS, userid);
+//        where.append("context", context);
+//        where.append("rolename", role);
+//
+//        return (users.getCount(where.getWhereClause()) > 0);
+//    }
 
 
     //===================================
@@ -334,19 +332,6 @@ public class UserFactory {
         });
 
         return users;
-    }
-
-    public static SimpleUser getUser(final Database db, final Integer userid) throws DatabaseException
-    {
-        if (userid == null) {
-            return null;
-        }
-
-        SqlStatement sql = getUserStatement();
-        sql.addCondition(AlIAS_USERS, "userid",SqlRelationType.EQUAL, userid);
-        return db.selectFirst(sql, (rs) -> {
-            return readSimpleUser(rs);
-        });
     }
 
     public static SimpleUser getProfiledUser(final Database db) throws DatabaseException {

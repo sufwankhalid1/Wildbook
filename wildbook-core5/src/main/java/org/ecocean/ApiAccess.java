@@ -32,15 +32,12 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.lang3.math.NumberUtils;
 import org.datanucleus.api.rest.orgjson.JSONObject;
-import org.ecocean.security.UserFactory;
 import org.ecocean.servlet.ServletUtilities;
-import org.ecocean.servlet.ServletUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
 
 
@@ -119,9 +116,7 @@ public class ApiAccess {
         }
 
         String context = ServletUtilities.getContext(request);
-        try (Database db = ServletUtils.getDb(request)) {
-            roles = UserFactory.getAllRolesForUserInContext(db, userid, context);
-        }
+        roles = Global.INST.getUserService().getAllRolesForUserInContext(userid, context);
 
         HashMap<String, String> perm = new HashMap<String, String>();
         NodeList nlist = this.configDoc.getDocumentElement().getElementsByTagName("class");

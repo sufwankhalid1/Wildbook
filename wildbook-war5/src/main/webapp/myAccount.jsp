@@ -159,11 +159,10 @@ if (session.getAttribute("message") != null) {
             <%
             Integer userid = NumberUtils.createInteger(request.getUserPrincipal().getName());
             if (userid != null) {
-                ArrayList<String> contexts=ContextConfiguration.getContextNames();
+                ArrayList<String> contexts = ContextConfiguration.getContextNames();
                 int numContexts=contexts.size();
-                try (Database db = ShepherdPMF.getDb()) {
-                    for(int d=0; d < numContexts; d++){
-                        if (UserFactory.getAllRolesForUserInContext(db, userid, context).size() > 0) {
+                for(int d=0; d < numContexts; d++) {
+                    if (Global.INST.getUserService().getAllRolesForUserInContext(userid, context).size() > 0) {
             %>
             <tr>
             <td>
@@ -174,11 +173,10 @@ if (session.getAttribute("message") != null) {
             <%
                     for (String role : roles) {
                         //String selected="";
-                        if (UserFactory.doesUserHaveRole(userid, role, "context"+d)) {
+                        if (Global.INST.getUserService().doesUserHaveRole(userid, role, "context"+d)) {
             %>
                             <option value="<%=role%>"><%=role%></option>
             <% 
-                            }
                         }
                     }
                 }

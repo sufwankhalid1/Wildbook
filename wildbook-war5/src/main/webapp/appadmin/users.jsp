@@ -273,7 +273,7 @@ String context="context0";
 								for(int q=0;q<numRoles;q++){
 									String selected="";
 									if((request.getParameter("isEdit")!=null)&&(myShepherd.getUser(request.getParameter("username").trim())!=null)){
-										if(myShepherd.doesUserHaveRole(request.getParameter("username").trim(),roles.get(q),("context"+d))){
+										if(Global.INST.getUserService().doesUserHaveRole(request.getParameter("username").trim(),roles.get(q),("context"+d))){
 											selected="selected=\"true\"";
 										}
 									}

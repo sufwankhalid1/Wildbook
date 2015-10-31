@@ -116,6 +116,8 @@ public class RestApplication extends SpringBootServletInitializer {
         flyway.migrate();
 
         //check for and inject a default user 'tomcat' if none exists
+        // TODO: Fix to use UserService
+        //
         try (Database db = Global.INST.getDb()) {
             String sql = "SELECT count(*) as numusers FROM users";
             RecordSet rs = db.getRecordSet(sql);

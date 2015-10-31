@@ -11,17 +11,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
-import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
 import org.ecocean.ContextConfiguration;
 import org.ecocean.Global;
 import org.ecocean.email.EmailUtils;
+import org.ecocean.security.SecurityInfo;
 import org.ecocean.security.User;
-import org.ecocean.security.UserFactory;
+import org.ecocean.security.UserService;
 import org.ecocean.security.UserToken;
-import org.ecocean.servlet.ServletUtils;
 import org.ecocean.util.LogBuilder;
 import org.ecocean.util.WildbookUtils;
 import org.slf4j.Logger;
@@ -32,7 +31,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
 
 import de.neuland.jade4j.exceptions.JadeCompilerException;
@@ -103,16 +101,14 @@ public class UserController {
     public static UserToken getUserToken(final HttpServletRequest request,
                                          final String username,
                                          final String password) throws DatabaseException {
-        try (Database db = ServletUtils.getDb(request)) {
-            User user = UserFactory.getUserByNameOrEmail(db, username);
+        User user = Global.INST.getUserService().getUserByNameOrEmail(username);
 
-            if (user == null) {
-                return null;
-            }
-
-            String hashedPass = WildbookUtils.hashAndSaltPassword(password, user.getSalt());
-            return new UserToken(user, new UsernamePasswordToken(user.getUserId().toString(), hashedPass));
+        if (user == null) {
+            return null;
         }
+
+        String hashedPass = WildbookUtils.hashAndSaltPassword(password, user.getSalt());
+        return new UserToken(user, new UsernamePasswordToken(user.getUserId().toString(), hashedPass));
     }
 
 
@@ -122,14 +118,17 @@ public class UserController {
             return "";
         }
 
-        try (Database db = ServletUtils.getDb(request)) {
-            StringBuilder rolesFound = new StringBuilder();
-            db.getTable(UserFactory.TABLENAME_ROLES).select((rs) -> {
-                String contextName = ContextConfiguration.getNameForContext(rs.getString("context"));
-                rolesFound.append(contextName+":" + rs.getString("rolename") + "\r");
-            }, "userid = " + userid);
-            return rolesFound.toString();
+        SecurityInfo info = Global.INST.getUserService().getSecurityInfo(userid.toString());
+
+        StringBuilder rolesFound = new StringBuilder();
+        for (String context : info.getContextRoleKeys()) {
+            String contextLabel = ContextConfiguration.getNameForContext(context);
+
+            for(String role : info.getContextRoles(context)) {
+                rolesFound.append(contextLabel + ":" + role + "\r");
+            }
         }
+        return rolesFound.toString();
     }
 
 
@@ -139,11 +138,13 @@ public class UserController {
             return null;
         }
 
-        Integer userid = NumberUtils.createInteger(request.getUserPrincipal().getName());
+        User user = Global.INST.getUserService().getUserById(request.getUserPrincipal().getName());
 
-        try (Database db = ServletUtils.getDb(request)) {
-            return UserFactory.getUser(db, userid);
+        if (user == null) {
+            return null;
         }
+
+        return user.toSimple();
     }
 
 
@@ -163,9 +164,7 @@ public class UserController {
             subject.login(userToken.getToken());
 
             userToken.getUser().setLastLogin(System.currentTimeMillis());
-            try (Database db = ServletUtils.getDb(request)) {
-                UserFactory.saveUser(db, userToken.getUser());
-            }
+            Global.INST.getUserService().saveUser(userToken.getUser());
 
             return userToken.getUser().toSimple();
         } finally {
@@ -212,28 +211,26 @@ public class UserController {
 
         UserVerify verify = new UserVerify();
 
-        try (Database db = ServletUtils.getDb(request)) {
-            User user = UserFactory.getUserByEmail(db, userInfo.email);
-            verify.newlyCreated = (user == null);
+        User user = Global.INST.getUserService().getUserByEmail(userInfo.email);
+        verify.newlyCreated = (user == null);
 
-            if (user == null) {
-                user = new User(null, null, userInfo.fullName, userInfo.email);
-                user.initPassword(UUID.randomUUID().toString());
-                //
-                // Let's assume that new people have accepted the
-                // user agreement. They should be saying yes to this as they log in anyway. Shouldn't
-                // be a separate thing.
-                //
-                user.setAcceptedUserAgreement(true);
+        if (user == null) {
+            user = new User(null, null, userInfo.fullName, userInfo.email);
+            user.initPassword(UUID.randomUUID().toString());
+            //
+            // Let's assume that new people have accepted the
+            // user agreement. They should be saying yes to this as they log in anyway. Shouldn't
+            // be a separate thing.
+            //
+            user.setAcceptedUserAgreement(true);
 
-                UserFactory.saveUser(db, user);
-            }
-
-            verify.user = user.toSimple();
-            verify.verified = user.isVerified();
-
-            return verify;
+            Global.INST.getUserService().saveUser(user);
         }
+
+        verify.user = user.toSimple();
+        verify.verified = user.isVerified();
+
+        return verify;
     }
 
 
@@ -244,22 +241,21 @@ public class UserController {
             logger.debug("Sending reset email for address [" + userameOrEmail + "]");
         }
 
-        try (Database db = ServletUtils.getDb(request)) {
-            User user = UserFactory.getUserByNameOrEmail(db, userameOrEmail);
-            if (user == null) {
-                throw new IllegalAccessException("No user found with this email.");
-            }
-
-            String token = UserFactory.createPWResetToken(db, user.getUserId());
-
-            Map<String, Object> model = EmailUtils.createModel();
-            model.put(EmailUtils.TAG_USER, user.toSimple());
-            model.put(EmailUtils.TAG_TOKEN, token);
-            EmailUtils.sendJadeTemplate(EmailUtils.getAdminSender(),
-                    user.getEmail(),
-                    "account/passwordReset",
-                    model);
+        UserService userService = Global.INST.getUserService();
+        User user = userService.getUserByNameOrEmail(userameOrEmail);
+        if (user == null) {
+            throw new IllegalAccessException("No user found with this email.");
         }
+
+        String token = userService.createPWResetToken(user.getUserId().toString());
+
+        Map<String, Object> model = EmailUtils.createModel();
+        model.put(EmailUtils.TAG_USER, user.toSimple());
+        model.put(EmailUtils.TAG_TOKEN, token);
+        EmailUtils.sendJadeTemplate(EmailUtils.getAdminSender(),
+                                    user.getEmail(),
+                                    "account/passwordReset",
+                                    model);
     }
 
 
@@ -271,21 +267,18 @@ public class UserController {
             logger.debug(LogBuilder.quickLog("password", reset.password));
         }
 
-        try (Database db = ServletUtils.getDb(request)) {
-            User user = UserFactory.verifyPRToken(db, reset.token);
+        UserService userService = Global.INST.getUserService();
+        User user = userService.verifyPRToken(reset.token);
 
-            user.resetPassword(reset.password);
-            user.setVerified(true);
-            UserFactory.saveUser(db, user);
-        }
+        user.resetPassword(reset.password);
+        user.setVerified(true);
+        userService.saveUser(user);
     }
 
     @RequestMapping(value = "verifypasstoken", method = RequestMethod.POST)
     public void verifyPassToken(final HttpServletRequest request,
                                 @RequestBody @Valid final String token) throws IllegalAccessException, DatabaseException {
-        try (Database db = ServletUtils.getDb(request)) {
-            UserFactory.verifyPRToken(db, token);
-        }
+        Global.INST.getUserService().verifyPRToken(token);
     }
 
 

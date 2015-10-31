@@ -40,7 +40,9 @@ wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q
     });
 
     $scope.$on('encounter_edit_done', function(event, encounter) {
-        attachEncounter(encounter);
+        if (encounter) {
+            attachEncounter(encounter);
+        }
     });
 
     $scope.$on('encounter_search_select', function(event, encounter) {

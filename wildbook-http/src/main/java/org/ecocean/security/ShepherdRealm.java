@@ -4,7 +4,6 @@ package org.ecocean.security;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AccountException;
 import org.apache.shiro.authc.AuthenticationException;
@@ -20,9 +19,6 @@ import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.web.util.WebUtils;
 import org.ecocean.Global;
 import org.ecocean.servlet.ServletUtils;
-
-import com.samsix.database.Database;
-import com.samsix.database.DatabaseException;
 
 public class ShepherdRealm extends AuthorizingRealm {
 
@@ -41,16 +37,7 @@ public class ShepherdRealm extends AuthorizingRealm {
             throw new AccountException("Null usernames are not allowed by this realm.");
         }
 
-        //
-        // TODO: Can we get the db from the request object? Can we get the request object
-        // like we do for doGetAuthorizationInfo below?
-        //
-        User user = null;
-        try (Database db = Global.INST.getDb()) {
-            user = UserFactory.getUserById(db, Integer.parseInt(userid));
-        } catch (DatabaseException ex) {
-            throw new AuthenticationException("Trouble authenticating user [" + userid + "]", ex);
-        }
+        User user = Global.INST.getUserService().getUserById(userid);
 
         if (user == null) {
             throw new UnknownAccountException("No account found for user [" + userid + "]");
@@ -72,24 +59,13 @@ public class ShepherdRealm extends AuthorizingRealm {
     protected AuthorizationInfo doGetAuthorizationInfo(final PrincipalCollection principals) {
         HttpServletRequest request = WebUtils.getHttpRequest(SecurityUtils.getSubject());
 
-        Integer userid = NumberUtils.createInteger((String) principals.getPrimaryPrincipal());
+        String userid = (String) principals.getPrimaryPrincipal();
 
         if (userid == null) {
             return new SimpleAuthorizationInfo();
         }
 
         String context = ServletUtils.getContext(request);
-        //
-        // WARN: always use context0 to get the user roles as all users are stored there
-        // TODO: Need to make the samsix connection info be context sensitive and then
-        // we can get a context0 db connection. Right now it will be getting the one and only
-        // connection for the db.
-        //
-        try (Database db = ServletUtils.getDb(request)) {
-            return new SimpleAuthorizationInfo(UserFactory.getAllRolesForUserInContext(db, userid, context));
-        } catch (DatabaseException ex) {
-            ex.printStackTrace();
-            return new SimpleAuthorizationInfo();
-        }
+        return new SimpleAuthorizationInfo(Global.INST.getUserService().getAllRolesForUserInContext(userid, context));
     }
 }

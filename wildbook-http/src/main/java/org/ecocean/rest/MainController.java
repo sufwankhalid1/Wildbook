@@ -10,12 +10,14 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.ecocean.Global;
 import org.ecocean.Individual;
 import org.ecocean.encounter.Encounter;
 import org.ecocean.encounter.EncounterFactory;
 import org.ecocean.encounter.SimpleEncounter;
 import org.ecocean.media.MediaAssetFactory;
 import org.ecocean.media.MediaAssetType;
+import org.ecocean.security.User;
 import org.ecocean.security.UserFactory;
 import org.ecocean.servlet.ServletUtils;
 import org.ecocean.survey.SurveyPart;
@@ -166,14 +168,14 @@ public class MainController
 
     public static UserInfo getUserInfo(final Database db, final int userid) throws DatabaseException
         {
-            SimpleUser user = UserFactory.getUser(db, userid);
+            User user = Global.INST.getUserService().getUserById(String.valueOf(userid));
 
             if (user == null) {
                 return null;
             }
 
             UserInfo userinfo;
-            userinfo = new UserInfo(user);
+            userinfo = new UserInfo(user.toSimple());
 
             //
             // Add:

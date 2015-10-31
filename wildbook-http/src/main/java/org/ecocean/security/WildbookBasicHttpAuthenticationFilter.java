@@ -5,11 +5,8 @@ import javax.servlet.ServletResponse;
 
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.web.filter.authc.BasicHttpAuthenticationFilter;
-import org.ecocean.servlet.ServletUtils;
+import org.ecocean.Global;
 import org.ecocean.util.WildbookUtils;
-
-import com.samsix.database.Database;
-import com.samsix.database.DatabaseException;
 
 public class WildbookBasicHttpAuthenticationFilter
         extends BasicHttpAuthenticationFilter {
@@ -33,9 +30,10 @@ public class WildbookBasicHttpAuthenticationFilter
         String username = prinCred[0];
         String password = prinCred[1];
 
-        try (Database db = ServletUtils.getDb(request)) {
-            User user = UserFactory.getUserByNameOrEmail(db, username);
-            if (user != null) {
+        try {
+            UserService userService = Global.INST.getUserService();
+            User user = userService.getUserByNameOrEmail(username);
+            if (user == null) {
                 //
                 // What is going on here?
                 // Refactored but just preserved the functionality that was there.
@@ -45,13 +43,13 @@ public class WildbookBasicHttpAuthenticationFilter
 
             if (request.getParameter("acceptUserAgreement") != null){
                 user.setAcceptedUserAgreement(true);
-                UserFactory.saveUser(db, user);
+                userService.saveUser(user);
             }
             return createToken(username,
                                WildbookUtils.hashAndSaltPassword(password, user.getSalt()),
                                request,
                                response);
-        } catch (DatabaseException ex) {
+        } catch (Throwable ex) {
             //
             // Again, not sure about this. See above.
             //
