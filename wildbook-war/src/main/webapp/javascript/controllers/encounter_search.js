@@ -51,4 +51,15 @@ wildbook.app.controller("EncounterSearchController", function($scope, $http, $ex
         rowSelection: 'single',
         onRowSelected: rowSelectedFunc
     };
+    
+    //
+    // wb-key-handler-form
+    //
+    $scope.cancel = function() {
+        $scope.panels[panelName] = false;
+    }
+    
+    $scope.cmdEnter = function() {
+        $scope.search();
+    }
 });

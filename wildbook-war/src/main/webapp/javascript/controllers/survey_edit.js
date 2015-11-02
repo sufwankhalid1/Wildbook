@@ -47,7 +47,19 @@ wildbook.app.controller("SurveyEditController", function($scope, $http, $excepti
             $scope.$emit(panelName + "_done", $scope.data);
         }, $exceptionHandler);
     };
-});
+    
+    //
+    // wb-key-handler-form
+    //
+    $scope.cancel = function() {
+        $scope.data = null;
+        $scope.panels[panelName] = false;
+    }
+    
+    $scope.cmdEnter = function() {
+        $scope.save();
+    }
+}); 
 //
 //wildbook.app.directive('surveyTrackEdit', function() {
 //    return {restrict: 'E',

@@ -113,18 +113,6 @@ wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q
     $scope.timeToDate = function(time) {
         return moment(time).format('lll');
     };
-    
-    $scope.esc_key = function() {
-        if ($scope.zoomimage) {
-            $scope.zoomimage = null;
-            return;
-        }
-        
-        if ($scope.submission) {
-            $scope.doneEditing();
-            return;
-        }
-    }
 
     $scope.msGridOptions = {
         columnDefs:
@@ -252,6 +240,22 @@ wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q
             return 0;
         });
         return resultOfSort;
+    }
+    
+    //
+    // wb-key-handler-form
+    //
+    $scope.cancel = function() {
+        if ($scope.zoomimage) {
+            $scope.zoomimage = null;
+            return;
+        }
+        $scope.doneEditing();
+    }
+    
+    $scope.cmdEnter = function() {
+        // do nothing
+        // want this here to override any parent scope cmdEnter event though.
     }
 
     //
