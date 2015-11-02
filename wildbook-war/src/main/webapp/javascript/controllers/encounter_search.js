@@ -1,16 +1,5 @@
 wildbook.app.controller("EncounterSearchController", function($scope, $http, $exceptionHandler) {
     var panelName = "encounter_search";
-    $scope.panelList.push(panelName);
-
-    $scope.$on(panelName, function(event, data) {
-        if (typeof data === "boolean") {
-            $scope.panels[panelName] = false;
-            return;
-        }
-
-        $scope.panels[panelName] = true;
-    });
-
     $scope.searchdata = {};
 
     $scope.search = function() {

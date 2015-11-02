@@ -1,5 +1,9 @@
 wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q, $compile, $exceptionHandler) {
     $scope.panelList = [];
+    $scope.panelList.push("encounter_edit");
+    $scope.panelList.push("encounter_search");
+    $scope.panelList.push("survey_edit");
+    $scope.panelList.push("survey_search");
 
     $scope.encounters = [];
     $scope.surveyEncs = [];
@@ -53,9 +57,10 @@ wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q
     $scope.showPanel = function(panel, data) {
         this.panelList.forEach(function(value) {
             if (panel === value) {
+                $scope.panels[value] = true;
                 $scope.$broadcast(value, data);
             } else {
-                $scope.$broadcast(value, false);
+                $scope.panels[value] = false;
             }
         });
     };

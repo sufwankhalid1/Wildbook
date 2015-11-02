@@ -1,14 +1,7 @@
 wildbook.app.controller("EncounterEditController", function($scope, $http, $exceptionHandler) {
     var panelName = "encounter_edit";
-    $scope.panelList.push(panelName);
 
     $scope.$on(panelName, function(event, data) {
-        if (typeof data === "boolean") {
-            $scope.panels[panelName] = false;
-            return;
-        }
-
-        $scope.panels[panelName] = true;
         if (data) {
             $scope.encounter = data;
         } else {

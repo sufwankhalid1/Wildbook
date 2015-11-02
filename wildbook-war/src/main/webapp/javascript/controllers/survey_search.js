@@ -1,15 +1,5 @@
 wildbook.app.controller("SurveySearchController", function($scope, $http, $exceptionHandler) {
     var panelName = "survey_search";
-    $scope.panelList.push(panelName);
-
-    $scope.$on(panelName, function(event, data) {
-        if (typeof data === "boolean") {
-            $scope.panels[panelName] = false;
-            return;
-        }
-
-        $scope.panels[panelName] = true;
-    });
 
     $scope.data = {};
     $scope.surveysearch = {};

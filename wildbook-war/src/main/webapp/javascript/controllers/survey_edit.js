@@ -1,16 +1,8 @@
 wildbook.app.controller("SurveyEditController", function($scope, $http, $exceptionHandler) {
     var panelName = "survey_edit";
-    $scope.panelList.push(panelName);
-
     $scope.info = {};
 
     $scope.$on(panelName, function(event, data) {
-        if (typeof data === "boolean") {
-            $scope.panels[panelName] = false;
-            return;
-        }
-
-        $scope.panels[panelName] = true;
         if (data) {
             $scope.data = data;
         } else {

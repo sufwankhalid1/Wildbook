@@ -271,33 +271,40 @@ if (KeyEventHandler) {
             // I bind the JavaScript events to the local scope.
             function link(scope, element, attrs) {
                 var keyHandler;
-                scope.$watch(attrs.ngShow, function(val) {
-                    //
-                    // If the variable we are watching is undefined then this is
-                    // a false call. Not sure what triggers that.
-                    if (val === undefined) {
-                        return;
-                    }
-                    if (val) {
-                        keyHandler = setup(scope, element);
-                    } else {
-                        if (keyHandler) {
+                // Handle this differently whether we are using ng-if or ng-show
+                if (attrs.ngIf) {
+                    keyHandler = setup(scope, element);
+                    // teardown the key handler when the element is destroyed
+                    scope.$on(
+                        "$destroy",
+                        function() {
                             keyHandler.teardown();
-                            keyHandler == null;
                         }
-                    }
-                });
-
-                // Since we are listening for key events on a service (ie, not on
-                // the current Element), we have to be sure to teardown the bindings
-                // so that we don't get rogue event handlers persisting in the
-                // application.
-//                scope.$on(
-//                    "$destroy",
-//                    function() {
-//                        keyHandler.teardown();
-//                    }
-//                );
+                    );
+                } else {
+                    // Setup a watch so that as the element is shown or hidden
+                    // we either recreate the keyhandler or tear it down.
+                    scope.$watch(attrs.ngShow, function(val) {
+                        //
+                        // If the variable we are watching is undefined then this is
+                        // a false call. Not sure what triggers that.
+                        if (val === undefined) {
+                            return;
+                        }
+                        if (val) {
+                            keyHandler = setup(scope, element);
+                        } else {
+                            // Since we are listening for key events on a service (ie, not on
+                            // the current Element), we have to be sure to teardown the bindings
+                            // so that we don't get rogue event handlers persisting in the
+                            // application.
+                            if (keyHandler) {
+                                keyHandler.teardown();
+                                keyHandler == null;
+                            }
+                        }
+                    });
+                }
             }
         }
     );
