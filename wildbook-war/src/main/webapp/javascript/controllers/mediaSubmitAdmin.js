@@ -73,6 +73,10 @@ wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q
         $scope.surveypart = surveypart;
         this.showPanel('encounter_edit');
     }
+    
+    $scope.editEncounter = function(encounter) {
+        this.showPanel('encounter_edit', encounter);
+    }
 
     $scope.addSurvey = function() {
         this.showPanel('survey_edit');

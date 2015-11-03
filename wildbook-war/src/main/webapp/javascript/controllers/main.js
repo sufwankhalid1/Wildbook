@@ -161,9 +161,16 @@ wildbook.app.directive(
                     }
 
                     if (modelValue.constructor === Array) {
-                        return moment({hour: modelValue[0],
-                                       minute: modelValue[1],
-                                       second: modelValue[2]}).format("hh:mm:ss a");
+                        //
+                        // Angular requires it to be a date object (even though it displays
+                        // it as a time. So we turn it into a date.
+                        //
+                        var mdate = {hour: modelValue[0], minute: modelValue[1]};
+                        if (modelValue[2] && typeof modelValue[2] === "number") {
+                            mdate.seconds = modelValue[2];
+                        }
+                        //return moment(mdate).format("hh:mm:ss");
+                        return moment(mdate).toDate();
                     }
                     return null;
                 });
