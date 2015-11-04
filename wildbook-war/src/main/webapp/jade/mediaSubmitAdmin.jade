@@ -42,7 +42,7 @@ block content
                                         a.list-group-item(href="javascript:;", ng-repeat="encounter in surveyEnc.encounters", ng-click="editEncounter(encounter)")
                                             .encounter-item
                                                 .display-name {{encounter.individual.displayName}}
-                                                .display-date {{main.dateStringFromRest(encounter.encDate)}}
+                                                .display-date {{wbDateUtils.dateStringFromRest(encounter.encDate)}}
                                                 .display-location {{encounter.location.locationid}}
                         div.media-admin-nav
                             span.media-admin-nav-label Encounters
@@ -56,7 +56,7 @@ block content
                                 a.list-group-item(href="javascript:;", ng-repeat="encounter in encounters", ng-click="editEncounter(encounter)")
                                     .encounter-item
                                         .display-name {{encounter.individual.displayName}}
-                                        .display-date {{main.dateStringFromRest(encounter.encDate)}}
+                                        .display-date {{wbDateUtils.dateStringFromRest(encounter.encDate)}}
                                         .display-location {{encounter.location.locationid}}
                     .col-md-10
                         .container-fluid
@@ -73,24 +73,7 @@ block content
                                     span {{submission.verbatimLocation}}
                             .row
                                 .col-md-12
-                                    div(ng-show="! zoomimage", style="display: flex; flex-wrap: wrap")
-                                        div(ng-repeat="photo in photos")
-                                            a(href="javascript:;", ng-click="viewImage(photo)")
-                                                img(ng-src="{{photo.thumbUrl}}", style="padding: 2px; max-width: 100%")
-                                            div(style="font-size: 12px") {{main.dateStringFromRest(photo.timestamp)}}
-                                    div.ng-cloak(ng-show="zoomimage", style="position: relative; width: 800px; height: 600px;")
-                                        div
-                                            img.ng-cloak(ng-src="{{zoomimage.midUrl}}")
-                                        div(style="position: absolute; top: 0px; right: 5px; width: 24px; height: 24px")
-                                            button.btn.btn-primary(ng-click="viewImage(null)")
-                                                i.glyphicon.glyphicon-check
-                                        div(style="position: absolute; top: 0px; right: 50px; width: 24px; height: 24px")
-                                            button.btn.btn-primary
-                                                a(target="_self", href="{{zoomimage.url}}", download="{{zoomimage.url.substring(zoomimage.url.lastIndexOf('/')+1)}}")
-                                                    i.glyphicon.glyphicon-download
-                                        div(style="position: absolute; top: 0px; right: 95px; width: 24px; height: 24px")
-                                            button.btn.btn-danger(ng-click="deleteImage(zoomimage.id)")
-                                                i.glyphicon.glyphicon-trash
+                                    wb-thumb-box(photos="photos", delphoto="deletePhoto(id)")
                             .row
                                 .col-md-12
                                     include partials/encounter_view

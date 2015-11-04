@@ -11,7 +11,9 @@ wildbook.app.factory('$exceptionHandler', function() {
       };
 });
 
-wildbook.app.controller("MainController", function($scope, $http, $q, $exceptionHandler) {
+wildbook.app.factory("wbConfig", function($http) {
+    var config;
+    
     function getVessels(orgs, org) {
         //
         // Let's find our master organization so that we can add the vessels to
@@ -47,7 +49,41 @@ wildbook.app.controller("MainController", function($scope, $http, $q, $exception
             return results.data;
         });
     }
+    
+    function getConfig() {
+        return config;
+    }
+    
+    return {
+        init: function() {
+            return $http({url:"util/init"})
+            .then(function(result) {
+                config = result.data;
+            });
+        },
+        config: getConfig,
+        getVessels: function(org) {
+            return getVessels(config.orgs, org);
+        },
+        getSpecies: function() {
+            return 
+        }
+    };
+});
 
+wildbook.app.controller("MainController", function($scope, $http, $q, $exceptionHandler, wbConfig) {
+    //
+    // Initialize app by returning the promise used to kick us off.
+    //
+    return wbConfig.init().then(function() {
+        //
+        // When everything is ready, initialize tooltips on the page
+        //
+        $('[data-toggle="tooltip"]').tooltip();
+    }, $exceptionHandler);
+});
+
+wildbook.app.factory("wbDateUtils", ["wbConfig", function(wbConfig) {
     function restToMoment(rest) {
         if (! rest) {
             return null;
@@ -75,77 +111,59 @@ wildbook.app.controller("MainController", function($scope, $http, $q, $exception
     function formatMoment(moment) {
         if (moment) {
             if (moment.hour() === 0 && moment.minute() === 0 && moment.second() === 0) {
-                return moment.format($scope.main.config.props["moment.date.format"]);// || "YYYY-MM-DD");
+                return moment.format(wbConfig.config().props["moment.date.format"]);// || "YYYY-MM-DD");
             }
-            return moment.format($scope.main.config.props["moment.datetime.format"] || "YYYY-MM-DD hh:mm:ss");
+            return moment.format(wbConfig.config().props["moment.datetime.format"] || "YYYY-MM-DD hh:mm:ss");
         }
         return null;
     }
 
-    $scope.main = {config: null,
-                   getVessels: function(org) {
-                       return getVessels(this.config.orgs, org);
-                   },
-                   dateToRest: function(date) {
-                       if (! date) {
-                           return null;
-                       }
-                       var mdate = moment(date);
-                       //
-                       // For some reason the month is zero-based and nothing else is. Sigh.
-                       //
-                       return [mdate.year(), mdate.month() + 1, mdate.date()];
-                   },
-                   dateFromRest: function(rest) {
-                       var moment = restToMoment(rest);
-                       if (moment) {
-                           return moment.toDate();
-                       }
-                       return null;
-                   },
-                   dateStringFromRest: function(rest) {
-                       return formatMoment(restToMoment(rest));
-                   }};
-    
-    //
-    // Initialize app by returning the promise used to kick us off.
-    //
-    return $http({url:"util/init"})
-    .then(function(result) {
-        $scope.main.config = result.data;
-        //
-        // When everything is ready, initialize tooltips on the page
-        //
-        $('[data-toggle="tooltip"]').tooltip();
-
-    }, $exceptionHandler);
-});
+    return {
+        dateToRest: function(date) {
+            if (! date) {
+                return null;
+            }
+            var mdate = moment(date);
+            //
+            // For some reason the month is zero-based and nothing else is. Sigh.
+            //
+            return [mdate.year(), mdate.month() + 1, mdate.date()];
+        },
+        dateFromRest: function(rest) {
+            var moment = restToMoment(rest);
+            if (moment) {
+                return moment.toDate();
+            }
+            return null;
+        },
+        dateStringFromRest: function(rest) {
+            return formatMoment(restToMoment(rest));
+        },
+        test: function() {
+            alertplus.alert("hello");
+        }
+    };
+}]);
 
 wildbook.app.directive(
     'dateInput',
-    function() {
+    ['wbDateUtils', function(wbDateUtils) {
         return {
             require: 'ngModel',
             template: '<input type="date"></input>',
             replace: true,
             link: function(scope, elm, attrs, ngModelCtrl) {
                 ngModelCtrl.$formatters.push(function (modelValue) {
-                    if (!scope.main) {
-                        //
-                        // This happens if this control is used in another directive
-                        // template when the directive is loaded (but not yet used).
-                        //
-                        return null;
-                    }
-                    return scope.main.dateFromRest(modelValue);
+                    return wbDateUtils.dateFromRest(modelValue);
                 });
 
                 ngModelCtrl.$parsers.push(function(viewValue) {
-                    return scope.main.dateToRest(viewValue);
+                    return wbDateUtils.dateToRest(viewValue);
                 });
-            },
+            }
         };
-});
+    }]
+);
 
 wildbook.app.directive(
     'timeInput',
@@ -186,29 +204,100 @@ wildbook.app.directive(
                     //
                     return [mdate.hour(), mdate.minute(), mdate.second(), "+0"];
                 });
-            },
+            }
         };
 });
 
-//
-// Can't get this to work for sub-controllers. Plus you should be able to
-// use the built-in ng-keypress directive anyway and check for escape in there.
-// Problem though is that, even if you put ng-keypress on <body> element or on document,
-// the main controller picks it up
-//
-//wildbook.app.directive('escKey', function () {
-//    return function (scope, element, attrs) {
-//        element.bind("keydown keypress", function (event) {
-//            if ((event.which || event.keyCode) === 27) {
-//                scope.$apply(function (){
-//                    scope.$eval(attrs.escKey);
-//                });
-//
-//                event.preventDefault();
-//            }
-//        });
-//    };
-//});
+wildbook.app.directive(
+    'wbThumbBox',
+    ["wbDateUtils", function(wbDateUtils) {
+        return {
+            restrict: 'E',
+            scope: {
+                photos: "=",
+                delphoto: "&",
+                numphotos: "@"
+            },
+            templateUrl: 'util/render?j=partials/wb_thumb_box',
+            replace: true,
+            controller($scope) {
+                var idx = 0;
+                var startIdx = 0;
+                if (! $scope.numPhotos) {
+                    $scope.numPhotos = 18;
+                }
+
+                $scope.getTimestamp = function(photo) {
+                    return wbDateUtils.dateStringFromRest(photo.timestamp);
+                }
+                
+                $scope.pageLeft = function() {
+                    startIdx = startIdx - $scope.numPhotos;
+                    if (startIdx < 0) {
+                        startIdx = 0;
+                    }
+                }
+
+                $scope.pageRight = function() {
+                    if (! $scope.photos) {
+                        return;
+                    }
+                    startIdx = startIdx + $scope.numPhotos;
+                    if (startIdx + $scope.numPhotos > $scope.photos.length) {
+                        startIdx = $scope.photos.length - $scope.numPhotos;
+                    }
+                }
+                
+                $scope.isLeftDisabled = function() {
+                    return (startIdx <= 0);
+                }
+                
+                $scope.isRightDisabled = function() {
+                    if (! $scope.photos) {
+                        return true;
+                    }
+                    return (startIdx >= $scope.photos.length - $scope.numPhotos);
+                }
+                
+                $scope.viewImage = function(photo) {
+                    $scope.zoomimage = photo;
+                }
+                
+                $scope.getVisPhotos = function() {
+                    if (! $scope.photos) {
+                        return [];
+                    }
+                    return $scope.photos.slice(startIdx, startIdx + $scope.numPhotos);
+                }
+                
+                $scope.removePhoto = function(id) {
+                    return alertplus.confirm('Are you sure you want to delete this image?', "Delete Image", true)
+                    .then(function() {
+                        $scope.delPhoto({id: id})
+                        .then(function() {
+                            $scope.zoomimage = null;
+                            $scope.photos = $scope.photos.filter(function(photo) {
+                                return (photo.id !== id);
+                            });
+                        });
+                    });
+                }
+                
+                //
+                // wb-key-handler-form
+                //
+                $scope.cancel = function() {
+                    $scope.zoomimage = null;
+                }
+                
+                $scope.cmdEnter = function() {
+                    // do nothing
+                    // want this here to override any parent scope cmdEnter event though.
+                }
+            }
+        };
+    }]
+);
 
 if (KeyEventHandler) {
     KeyEventHandler.attach(wildbook.app);
@@ -224,10 +313,13 @@ if (KeyEventHandler) {
                 link: link,
                 restrict: "A"
             });
-            
+
             function setup(scope, element) {
                 // Focus the input so the user can start typing right-away.
-                element[0].querySelectorAll("input[ng-model]")[0].focus();
+                var element = element[0].querySelectorAll("input[ng-model]")[0];
+                if (element) {
+                    element.focus();
+                }
 
                 // Create a new key-handler with priority (100) - this means that
                 // this handler's methods will be invoked before the the root

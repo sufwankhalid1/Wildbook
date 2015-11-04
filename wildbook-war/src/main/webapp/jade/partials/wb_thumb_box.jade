@@ -1,0 +1,24 @@
+// Need this parent div because as an angular directive it must have a single parent element
+div
+    .button.btn.btn-primary(ng-click="pageLeft()", ng-disabled="isLeftDisabled()")
+        i.glyphicon.glyphicon-chevron-left
+    .button.btn.btn-primary(ng-click="pageRight()", ng-disabled="isRightDisabled()")
+        i.glyphicon.glyphicon-chevron-right
+    div(ng-show="! zoomimage", style="display: flex; flex-wrap: wrap")
+        div(ng-repeat="photo in getVisPhotos()")
+            a(href="javascript:;", ng-click="viewImage(photo)")
+                img(ng-src="{{photo.thumbUrl}}", style="padding: 2px; max-width: 100%")
+            div(style="font-size: 12px") {{getTimestamp(photo)}}
+    .ng-cloak(ng-show="zoomimage", style="position: relative; width: 800px; height: 600px;", wb-key-handler-form)
+        div
+            img.ng-cloak(ng-src="{{zoomimage.midUrl}}")
+        div(style="position: absolute; top: 0px; right: 5px; width: 24px; height: 24px")
+            button.btn.btn-primary(ng-click="viewImage(null)")
+                i.glyphicon.glyphicon-check
+        div(style="position: absolute; top: 0px; right: 50px; width: 24px; height: 24px")
+            button.btn.btn-primary
+                a(target="_self", href="{{zoomimage.url}}", download="{{zoomimage.url.substring(zoomimage.url.lastIndexOf('/')+1)}}")
+                    i.glyphicon.glyphicon-download
+        div(style="position: absolute; top: 0px; right: 95px; width: 24px; height: 24px")
+            button.btn.btn-danger(ng-click="removePhoto(zoomimage.id)")
+                i.glyphicon.glyphicon-trash

@@ -1,4 +1,4 @@
-wildbook.app.controller("SurveyEditController", function($scope, $http, $exceptionHandler) {
+wildbook.app.controller("SurveyEditController", function($scope, $http, $exceptionHandler, wbConfig) {
     var panelName = "survey_edit";
     $scope.info = {};
 
@@ -26,7 +26,7 @@ wildbook.app.controller("SurveyEditController", function($scope, $http, $excepti
             return;
         }
 
-        $scope.main.getVessels(org)
+        wbConfig.getVessels(org)
         .then(function(vessels) {
             $scope.info.vessels = vessels;
         });

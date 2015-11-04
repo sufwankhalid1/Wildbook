@@ -1,4 +1,4 @@
-wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q, $compile, $exceptionHandler) {
+wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q, $compile, $exceptionHandler, wbDateUtils) {
     $scope.panelList = [];
     $scope.panelList.push("encounter_edit");
     $scope.panelList.push("encounter_search");
@@ -82,17 +82,9 @@ wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q
         this.showPanel('survey_edit');
     }
 
-    $scope.deleteImage = function(id) {
-        return alertplus.confirm('Are you sure you want to delete this image?', "Delete Image", true)
-        .then(function() {
-            $http.post("obj/mediasubmission/deletemedia", {submissionid: $scope.submission.id, mediaid: id})
-            .then(function() {
-                $scope.zoomimage = null;
-                $scope.photos = $scope.photos.filter(function(photo) {
-                    return (photo.id !== id);
-                });
-            }, $exceptionHandler);
-        });
+    $scope.deletePhoto= function(id) {
+        return $http.post("obj/mediasubmission/deletemedia", {submissionid: $scope.submission.id, mediaid: id})
+                    .catch($exceptionHandler);
     }
 
     $scope.editSubmission = function(submission) {
@@ -101,7 +93,6 @@ wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q
         .then(function(results) {
             $scope.submission = submission;
             $scope.photos = results[0].data;
-            $scope.zoomimage = null;
 
             $scope.encounters = results[1].data.encounters || [];
             $scope.surveyEncs = results[1].data.surveyEncounters || [];
@@ -159,38 +150,6 @@ wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q
         sortingOrder: ['desc', 'asc'],
         angularCompileRows: true
     };
-
-//    $scope.imageGridOptions = {
-//        columnDefs:
-//            [
-//             {
-//                 field: 'id',
-//                 headerName: '',
-//                 template: '<a href="javascript:;" ng-click="deleteImage(data.id)"><i class="glyphicon glyphicon-trash"></i></a>',
-//                 width: 24
-//             },
-//             {
-//                 field: 'id',
-//                 headerName: '',
-//                 template: '<a href="javascript:;" ng-click="sendForID(data.id)"><i class="glyphicon glyphicon-send"></i></a>',
-//                 width: 24
-//             },
-//             {
-//                 field: 'thumbUrl',
-//                 headerName: 'Image',
-//                 template: '<a href="javascript:;" ng-click="viewImage(data.url)"><img width="50px" src="{{data.thumbUrl}}"></a>',
-//                 width: 60
-//             }
-//             ],
-//             rowData: null,
-//             rowHeight: 50,
-//             enableSorting: true,
-//             angularCompileRows: true
-//    };
-
-    $scope.viewImage = function(photo) {
-        $scope.zoomimage = photo;
-    }
 
     $scope.doneEditing = function() {
         // Why do we need to update here?
@@ -255,10 +214,6 @@ wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q
     // wb-key-handler-form
     //
     $scope.cancel = function() {
-        if ($scope.zoomimage) {
-            $scope.zoomimage = null;
-            return;
-        }
         $scope.doneEditing();
     }
     

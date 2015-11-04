@@ -1,16 +1,18 @@
-form.form.ng-cloak(novalidate, ng-controller="EncounterEditController", ng-show="panels['encounter_edit']", wb-key-handler-form)
+form.form.ng-cloak(novalidate, ng-controller="EncounterEditController", ng-if="panels['encounter_edit']", wb-key-handler-form)
     .form-row
         legend.form-group Edit Encounter
     .form-row
-        .form-group.col-md-4
+        .form-group.col-md-6
             label.control-label Individual:
-            label(ng-show="encounter.individual.id") {{encounter.individual.displayName}}
-            select.form-control(ng-shaw="!encounter.individual.id"
-                                ng-options="species.name for species in main.config.species track by species.code"
+            input.form-control(type="text", disabled="true", ng-value="encounter.individual.id ? encounter.individual.displayName : 'New Individual'")
+        .form-group.col-md-6
+            label.control-label Species:
+            select.form-control(ng-show="!encounter.individual.id"
+                                ng-options="species.name for species in getSpecies() track by species.code"
                                 ng-model="encounter.individual.species")
+                option(value="") --- select one ---
     .form-row
-        fieldset(location="encounter.location", location-edit)
-        //location-edit(location="encounter.location")
+        fieldset.col-md-12(location="encounter.location", location-edit)
     .form-row
         .form-group.col-md-4
             label.control-label Date:

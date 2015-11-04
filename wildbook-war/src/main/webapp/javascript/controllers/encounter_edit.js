@@ -1,11 +1,11 @@
-wildbook.app.controller("EncounterEditController", function($scope, $http, $exceptionHandler) {
+wildbook.app.controller("EncounterEditController", function($scope, $http, $exceptionHandler, wbConfig) {
     var panelName = "encounter_edit";
 
     $scope.$on(panelName, function(event, data) {
         if (data) {
             $scope.encounter = data;
         } else {
-            $scope.encounter = {individual: {species: $scope.main.config.species[0]}};
+            $scope.encounter = {individual: {species: wbConfig.config().species[0]}};
         }
     });
     
@@ -14,6 +14,10 @@ wildbook.app.controller("EncounterEditController", function($scope, $http, $exce
         $scope.$emit(panelName + "_done", $scope.encounter);
     }
 
+    $scope.getSpecies = function() {
+        return wbConfig.config().species;
+    }
+    
     $scope.save = function() {
         $http.post('obj/encounter/save', $scope.encounter)
         .then(function(result) {

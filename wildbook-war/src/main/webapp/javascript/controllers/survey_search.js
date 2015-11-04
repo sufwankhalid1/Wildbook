@@ -1,4 +1,4 @@
-wildbook.app.controller("SurveySearchController", function($scope, $http, $exceptionHandler) {
+wildbook.app.controller("SurveySearchController", function($scope, $http, $exceptionHandler, wbConfig) {
     var panelName = "survey_search";
 
     $scope.data = {};
@@ -20,7 +20,7 @@ wildbook.app.controller("SurveySearchController", function($scope, $http, $excep
 
         $scope.surveysearch.orgid = org.orgId;
 
-        $scope.main.getVessels(org)
+        wbConfig.getVessels(org)
         .then(function(vessels) {
             $scope.data.vessels = vessels;
         });
