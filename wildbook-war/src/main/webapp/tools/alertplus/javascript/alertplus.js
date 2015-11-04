@@ -181,6 +181,10 @@ var alertplus = (function () {
             detailsContent.html(details);
 
             dialog.modal('show');
+
+            dialog.on('shown.bs.modal', function(){
+                okButton.focus();
+            });
         })
     }
 

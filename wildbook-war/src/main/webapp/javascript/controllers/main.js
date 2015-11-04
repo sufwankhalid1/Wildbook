@@ -231,14 +231,14 @@ wildbook.app.directive(
                     return wbDateUtils.dateStringFromRest(photo.timestamp);
                 }
                 
-                $scope.pageLeft = function() {
+                $scope.panLeft = function() {
                     startIdx = startIdx - $scope.numPhotos;
                     if (startIdx < 0) {
                         startIdx = 0;
                     }
                 }
 
-                $scope.pageRight = function() {
+                $scope.panRight = function() {
                     if (! $scope.photos) {
                         return;
                     }
@@ -299,24 +299,54 @@ wildbook.app.directive(
     }]
 );
 
+//
+// Just put this here in case someone doesn't add the KeyEventHandler by attaching the javascript.
+// At least it won't error out, keyboard shortcuts just won't work.
+//
 if (KeyEventHandler) {
     KeyEventHandler.attach(wildbook.app);
 
-    //
-    // Create "generic" key handling form directive.
-    //
+    wildbook.app.directive(
+        "wbKeyHandlerNavig",
+        function(keyEvents) {
+            return({
+                link: function(scope, element, attrs) {
+                    KeyEventHandler.link(setup, scope, element, attrs);
+                },
+                restrict: "A"
+            });
+
+            function setup(scope, element) {
+                return keyEvents.handler(100)
+                .keydown(
+                    function handleKeyDown(event) {
+                        if (event.is.leftarrow) {
+                            scope.$applyAsync(scope.panLeft);
+                            return false;
+                        }
+                        if ( event.is.rightarrow ) {
+                            scope.$applyAsync(scope.panRight);
+                            return false;
+                        }
+                    }
+                );
+            }
+        }
+    );
+
     wildbook.app.directive(
         "wbKeyHandlerForm",
-        function( keyEvents ) {
-            // Return the directive configuration object.
+        function(keyEvents) {
             return({
-                link: link,
+                link: function(scope, element, attrs) {
+                    KeyEventHandler.link(setup, scope, element, attrs);
+                },
                 restrict: "A"
             });
 
             function setup(scope, element) {
                 // Focus the input so the user can start typing right-away.
-                var element = element[0].querySelectorAll("input[ng-model]")[0];
+                var element = element[0].querySelector("input[ng-model], select[ng-model]");
                 if (element) {
                     element.focus();
                 }
@@ -351,6 +381,14 @@ if (KeyEventHandler) {
                             // Change the view-model inside a digest.
                             scope.$applyAsync(scope.cmdEnter);
                         }
+//                        if (event.is.leftarrow) {
+//                            scope.$applyAsync(scope.panLeft);
+//                            return false;
+//                        }
+//                        if ( event.is.rightarrow ) {
+//                            scope.$applyAsync(scope.panRight);
+//                            return false;
+//                        }
                     }
                 )
                 .keypress(
@@ -365,45 +403,6 @@ if (KeyEventHandler) {
                         }
                     }
                 );
-            }
-            
-            // I bind the JavaScript events to the local scope.
-            function link(scope, element, attrs) {
-                var keyHandler;
-                // Handle this differently whether we are using ng-if or ng-show
-                if (attrs.ngIf) {
-                    keyHandler = setup(scope, element);
-                    // teardown the key handler when the element is destroyed
-                    scope.$on(
-                        "$destroy",
-                        function() {
-                            keyHandler.teardown();
-                        }
-                    );
-                } else {
-                    // Setup a watch so that as the element is shown or hidden
-                    // we either recreate the keyhandler or tear it down.
-                    scope.$watch(attrs.ngShow, function(val) {
-                        //
-                        // If the variable we are watching is undefined then this is
-                        // a false call. Not sure what triggers that.
-                        if (val === undefined) {
-                            return;
-                        }
-                        if (val) {
-                            keyHandler = setup(scope, element);
-                        } else {
-                            // Since we are listening for key events on a service (ie, not on
-                            // the current Element), we have to be sure to teardown the bindings
-                            // so that we don't get rogue event handlers persisting in the
-                            // application.
-                            if (keyHandler) {
-                                keyHandler.teardown();
-                                keyHandler == null;
-                            }
-                        }
-                    });
-                }
             }
         }
     );

@@ -1,8 +1,8 @@
 // Need this parent div because as an angular directive it must have a single parent element
-div
-    .button.btn.btn-primary(ng-click="pageLeft()", ng-disabled="isLeftDisabled()")
+div(wb-key-handler-navig, watch-scope="parent")
+    .button.btn.btn-primary(ng-click="panLeft()", ng-disabled="isLeftDisabled()")
         i.glyphicon.glyphicon-chevron-left
-    .button.btn.btn-primary(ng-click="pageRight()", ng-disabled="isRightDisabled()")
+    .button.btn.btn-primary(ng-click="panRight()", ng-disabled="isRightDisabled()")
         i.glyphicon.glyphicon-chevron-right
     div(ng-show="! zoomimage", style="display: flex; flex-wrap: wrap")
         div(ng-repeat="photo in getVisPhotos()")
