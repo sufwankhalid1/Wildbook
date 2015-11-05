@@ -11,7 +11,7 @@ wildbook.app.factory('$exceptionHandler', function() {
       };
 });
 
-wildbook.app.factory("wbConfig", function($http) {
+wildbook.app.factory("wbConfig", ["$http", "$exceptionHandler", function($http, $exceptionHandler) {
     var config;
     
     function getVessels(orgs, org) {
@@ -54,34 +54,22 @@ wildbook.app.factory("wbConfig", function($http) {
         return config;
     }
     
-    return {
-        init: function() {
-            return $http({url:"util/init"})
-            .then(function(result) {
-                config = result.data;
-            });
-        },
-        config: getConfig,
-        getVessels: function(org) {
-            return getVessels(config.orgs, org);
-        },
-        getSpecies: function() {
-            return 
-        }
-    };
-});
-
-wildbook.app.controller("MainController", function($scope, $http, $q, $exceptionHandler, wbConfig) {
-    //
-    // Initialize app by returning the promise used to kick us off.
-    //
-    return wbConfig.init().then(function() {
+    $http({url:"util/init"})
+    .then(function(result) {
+        config = result.data;
         //
         // When everything is ready, initialize tooltips on the page
         //
         $('[data-toggle="tooltip"]').tooltip();
     }, $exceptionHandler);
-});
+
+    return {
+        config: getConfig,
+        getVessels: function(org) {
+            return getVessels(config.orgs, org);
+        }
+    };
+}]);
 
 wildbook.app.factory("wbDateUtils", ["wbConfig", function(wbConfig) {
     function restToMoment(rest) {

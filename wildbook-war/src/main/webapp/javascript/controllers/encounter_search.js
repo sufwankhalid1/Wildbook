@@ -1,6 +1,6 @@
 wildbook.app.directive(
     'wbEncounterSearch',
-    function() {
+    ["$http", "$exceptionHandler", function($http, $exceptionHandler) {
         return {
             restrict: 'E',
             scope: {
@@ -8,7 +8,7 @@ wildbook.app.directive(
             },
             templateUrl: 'util/render?j=partials/encounter_search',
             replace: true,
-            controller($scope, $http, $exceptionHandler) {
+            controller($scope) {
                 $scope.searchdata = {};
             
                 $scope.search = function() {
@@ -62,5 +62,5 @@ wildbook.app.directive(
                 }
             }
         }
-    }
+    }]
 );

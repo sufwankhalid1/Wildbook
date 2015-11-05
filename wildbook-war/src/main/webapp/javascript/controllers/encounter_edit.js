@@ -1,6 +1,6 @@
 wildbook.app.directive(
     'wbEncounterEdit',
-    function() {
+    ["$http", "$exceptionHandler", "wbConfig", function($http, $exceptionHandler, wbConfig) {
         return {
             restrict: 'E',
             scope: {
@@ -9,7 +9,7 @@ wildbook.app.directive(
             },
             templateUrl: 'util/render?j=partials/encounter_edit',
             replace: true,
-            controller($scope, $http, $exceptionHandler, wbConfig) {
+            controller($scope) {
                 if ($scope.encounter === "new") {
                     $scope.encounter = {individual: {species: wbConfig.config().species[0]}};
                 }
@@ -43,5 +43,5 @@ wildbook.app.directive(
                 }
             }
         };
-    }
+    }]
 );
