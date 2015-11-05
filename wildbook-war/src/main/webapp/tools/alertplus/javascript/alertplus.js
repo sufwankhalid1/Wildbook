@@ -1,5 +1,5 @@
 /*!
- * AlertPlus v0.1.9 (https://github.com/crowmagnumb/alertplus)
+ * AlertPlus v0.2.0 (https://github.com/crowmagnumb/alertplus)
  * Copyright 2015 CrowMagnumb
  * Licensed under MIT (https://github.com/crowmagnumb/alertplus/blob/master/LICENSE)
  */
@@ -121,6 +121,10 @@ var alertplus = (function () {
             
             cancelButton.show();
             dialog.modal('show');
+
+            dialog.on('shown.bs.modal', function(){
+                cancelButton.focus();
+            });
             
             return deferred;
         });
