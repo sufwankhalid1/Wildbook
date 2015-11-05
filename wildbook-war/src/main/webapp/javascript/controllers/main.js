@@ -221,7 +221,6 @@ wildbook.app.directive(
             templateUrl: 'util/render?j=partials/wb_thumb_box',
             replace: true,
             controller($scope) {
-                var idx = 0;
                 var startIdx = 0;
                 if (! $scope.numPhotos) {
                     $scope.numPhotos = 18;
