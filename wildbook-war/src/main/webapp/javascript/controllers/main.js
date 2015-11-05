@@ -273,7 +273,7 @@ wildbook.app.directive(
                 $scope.removePhoto = function(id) {
                     return alertplus.confirm('Are you sure you want to delete this image?', "Delete Image", true)
                     .then(function() {
-                        $scope.delPhoto({id: id})
+                        $scope.delphoto({id: id})
                         .then(function() {
                             $scope.zoomimage = null;
                             $scope.photos = $scope.photos.filter(function(photo) {
