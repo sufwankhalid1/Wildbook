@@ -222,8 +222,11 @@ wildbook.app.directive(
             replace: true,
             controller($scope) {
                 var startIdx = 0;
+                var numPhotos;
                 if (! $scope.numPhotos) {
-                    $scope.numPhotos = 18;
+                    numPhotos = 18;
+                } else {
+                    numPhotos = parseInt($scope.numPhotos);
                 }
 
                 $scope.getTimestamp = function(photo) {
@@ -231,7 +234,7 @@ wildbook.app.directive(
                 }
                 
                 $scope.panLeft = function() {
-                    startIdx = startIdx - $scope.numPhotos;
+                    startIdx = startIdx - numPhotos;
                     if (startIdx < 0) {
                         startIdx = 0;
                     }
@@ -241,9 +244,9 @@ wildbook.app.directive(
                     if (! $scope.photos) {
                         return;
                     }
-                    startIdx = startIdx + $scope.numPhotos;
-                    if (startIdx + $scope.numPhotos > $scope.photos.length) {
-                        startIdx = $scope.photos.length - $scope.numPhotos;
+                    startIdx = startIdx + numPhotos;
+                    if (startIdx + numPhotos > $scope.photos.length) {
+                        startIdx = $scope.photos.length - numPhotos;
                         if (startIdx < 0) {
                             startIdx = 0;
                         }
@@ -258,7 +261,7 @@ wildbook.app.directive(
                     if (! $scope.photos) {
                         return true;
                     }
-                    return (startIdx >= $scope.photos.length - $scope.numPhotos);
+                    return (startIdx >= $scope.photos.length - numPhotos);
                 }
                 
                 $scope.viewImage = function(photo) {
@@ -269,7 +272,7 @@ wildbook.app.directive(
                     if (! $scope.photos) {
                         return [];
                     }
-                    return $scope.photos.slice(startIdx, startIdx + $scope.numPhotos);
+                    return $scope.photos.slice(startIdx, startIdx + numPhotos);
                 }
                 
                 $scope.removePhoto = function(id) {
