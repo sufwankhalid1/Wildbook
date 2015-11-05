@@ -21,7 +21,7 @@ div
                 .col-md-2
                     div.media-admin-nav
                         span.media-admin-nav-label Surveys
-                        a(href="javascript:;", ng-click="showPanel('survey_search')"
+                        a(href="javascript:;", ng-click="searchSurvey()"
                           title="Search for a Survey", data-toggle="tooltip")
                             i.glyphicon.glyphicon-search
                         a(href="javascript:;", ng-click="addSurvey()"
@@ -70,7 +70,7 @@ div
                                 wb-thumb-box(ng-show="submission", photos="photos", delphoto="deletePhoto(id)", num-photos="18")
                         .row
                             .col-md-12
-                                include survey_search
-                                include survey_edit
+                                wb-survey-search(ng-if="surveySearch", search-survey-done="searchSurveyDone(surveypart)")
+                                wb-survey-edit(ng-if="surveyToEdit", survey-to-edit="surveyToEdit", edit-survey-done="editSurveyDone(surveypart)")
                                 wb-encounter-search(ng-if="encounterSearch", search-encounter-done="searchEncounterDone(encounter)")
                                 wb-encounter-edit(ng-if="encounterToEdit", encounter-to-edit="encounterToEdit", edit-encounter-done="editEncounterDone(encounter)")

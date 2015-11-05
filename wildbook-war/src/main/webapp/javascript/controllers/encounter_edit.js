@@ -13,10 +13,6 @@ wildbook.app.directive(
                 if ($scope.encounter === "new") {
                     $scope.encounter = {individual: {species: wbConfig.config().species[0]}};
                 }
-                
-                function closePanel() {
-                    $scope.editEncounterDone({encounter: $scope.encounter});
-                }
 
                 $scope.getSpecies = function() {
                     return wbConfig.config().species;
@@ -26,7 +22,7 @@ wildbook.app.directive(
                     $http.post('obj/encounter/save', $scope.encounter)
                     .then(function(result) {
                         $scope.encounter.id = result.data;
-                        closePanel();
+                        $scope.editEncounterDone({encounter: $scope.encounter});
                     }, $exceptionHandler);
                 };
                 
@@ -34,8 +30,7 @@ wildbook.app.directive(
                 // wb-key-handler-form
                 //
                 $scope.cancel = function() {
-                    $scope.encounter = null;
-                    closePanel();
+                    $scope.editEncounterDone(null);
                 }
                 
                 $scope.cmdEnter = function() {
