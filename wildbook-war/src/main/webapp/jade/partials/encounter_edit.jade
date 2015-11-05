@@ -7,8 +7,7 @@ form.form.ng-cloak(novalidate, wb-key-handler-form)
             input.form-control(type="text", disabled="true", ng-value="encounter.individual.id ? encounter.individual.displayName : 'New Individual'")
         .form-group.col-md-6
             label.control-label Species:
-            select.form-control(ng-show="!encounter.individual.id"
-                                ng-options="species.name for species in getSpecies() track by species.code"
+            select.form-control(ng-options="species.name for species in getSpecies() track by species.code"
                                 ng-model="encounter.individual.species")
                 option(value="") --- select one ---
     .form-row
