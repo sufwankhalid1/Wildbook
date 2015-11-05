@@ -52,12 +52,3 @@ wildbook.app.controller("SurveyEditController", function($scope, $http, $excepti
         $scope.save();
     }
 }); 
-//
-//wildbook.app.directive('surveyTrackEdit', function() {
-//    return {restrict: 'E',
-//        scope: {
-//            location: '='
-//        },
-//        templateUrl: 'util/render?j=partials/survey-track-edit.jade'
-//    };
-//});

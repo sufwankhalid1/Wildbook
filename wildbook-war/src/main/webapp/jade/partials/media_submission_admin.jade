@@ -1,0 +1,76 @@
+div
+    div(ng-show="!submission")
+        h1 Media Submissions
+        .ag-fresh(ag-grid="msGridOptions", style="height: 590px")
+
+    div.ng-cloak(ng-show="submission", wb-key-handler-form)
+        .container-fluid
+            .row
+                .col-md-12
+                    .row
+                        .col-md-8.col-sm-6
+                            h3 Edit Media Submission [{{submission.id}}]
+                        .col-md-4.col-sm-6
+                            span.media-admin-edit-icon
+                                button.btn.btn-primary(ng-click="doneEditing()")
+                                    i.glyphicon.glyphicon-check
+                            span.media-admin-edit-icon
+                                button.btn.btn-danger(ng-click="deleteSubmission(submission)")
+                                    i.glyphicon.glyphicon-trash
+            .row
+                .col-md-2
+                    div.media-admin-nav
+                        span.media-admin-nav-label Surveys
+                        a(href="javascript:;", ng-click="showPanel('survey_search')"
+                          title="Search for a Survey", data-toggle="tooltip")
+                            i.glyphicon.glyphicon-search
+                        a(href="javascript:;", ng-click="addSurvey()"
+                          title="Add a new Survey", data-toggle="tooltip")
+                            i.glyphicon.glyphicon-plus
+                        ul.list-group
+                            li.list-group-item(ng-repeat="surveyEnc in surveyEncs")
+                                span {{surveyEnc.surveypart.survey.organization.displayName}} - {{surveyEnc.surveypart.survey.surveyNumber}}
+                                a(href="javascript:;", ng-click="addEncounter(surveyEnc.surveypart)", title="Add a new Encounter", data-toggle="tooltip")
+                                    i.glyphicon.glyphicon-plus
+                                .list-group
+                                    a.list-group-item(href="javascript:;", ng-repeat="encounter in surveyEnc.encounters", ng-click="editEncounter(encounter)")
+                                        .encounter-item
+                                            .display-name {{encounter.individual.displayName}}
+                                            .display-date {{dateStringFromRest(encounter.encDate)}}
+                                            .display-location {{encounter.location.locationid}}
+                    div.media-admin-nav
+                        span.media-admin-nav-label Encounters
+                        a(href="javascript:;", ng-click="searchEncounter()",
+                          title="Search for an Encounter", data-toggle="tooltip")
+                            i.glyphicon.glyphicon-search
+                        a(href="javascript:;", ng-click="addEncounter()",
+                          title="Add a new Encounter", data-toggle="tooltip")
+                            i.glyphicon.glyphicon-plus
+                        .list-group
+                            a.list-group-item(href="javascript:;", ng-repeat="encounter in encounters", ng-click="editEncounter(encounter)")
+                                .encounter-item
+                                    .display-name {{encounter.individual.displayName}}
+                                    .display-date {{dateStringFromRest(encounter.encDate)}}
+                                    .display-location {{encounter.location.locationid}}
+                .col-md-10
+                    .container-fluid
+                        .row
+                            .col-md-12
+                                span.text-primary Submitted by:
+                                | &nbsp{{submission.user.displayName}}
+                                span.text-primary &nbspon:
+                                | &nbsp{{timeToDate(submission.timeSubmitted)}}
+                        .row
+                            .col-md-6
+                                span {{submission.description}}
+                            .col-md-6
+                                span {{submission.verbatimLocation}}
+                        .row
+                            .col-md-12
+                                wb-thumb-box(ng-show="submission", photos="photos", delphoto="deletePhoto(id)", num-photos="18")
+                        .row
+                            .col-md-12
+                                include survey_search
+                                include survey_edit
+                                wb-encounter-search(ng-if="encounterSearch", search-encounter-done="searchEncounterDone(encounter)")
+                                wb-encounter-edit(ng-if="encounterToEdit", encounter-to-edit="encounterToEdit", edit-encounter-done="editEncounterDone(encounter)")
