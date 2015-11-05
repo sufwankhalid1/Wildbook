@@ -216,7 +216,7 @@ wildbook.app.directive(
             scope: {
                 photos: "=",
                 delphoto: "&",
-                numphotos: "@"
+                numPhotos: "@"
             },
             templateUrl: 'util/render?j=partials/wb_thumb_box',
             replace: true,
@@ -245,6 +245,9 @@ wildbook.app.directive(
                     startIdx = startIdx + $scope.numPhotos;
                     if (startIdx + $scope.numPhotos > $scope.photos.length) {
                         startIdx = $scope.photos.length - $scope.numPhotos;
+                        if (startIdx < 0) {
+                            startIdx = 0;
+                        }
                     }
                 }
                 

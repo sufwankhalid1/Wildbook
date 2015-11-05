@@ -1,6 +1,8 @@
 extends admin
 
 block adminScripts
+    script(src="javascript/controllers/encounter_edit.js")
+    script(src="javascript/controllers/encounter_search.js")
     script(src="javascript/controllers/mediaSubmitAdmin.js")
 
 block content
@@ -42,7 +44,7 @@ block content
                                         a.list-group-item(href="javascript:;", ng-repeat="encounter in surveyEnc.encounters", ng-click="editEncounter(encounter)")
                                             .encounter-item
                                                 .display-name {{encounter.individual.displayName}}
-                                                .display-date {{wbDateUtils.dateStringFromRest(encounter.encDate)}}
+                                                .display-date {{dateStringFromRest(encounter.encDate)}}
                                                 .display-location {{encounter.location.locationid}}
                         div.media-admin-nav
                             span.media-admin-nav-label Encounters
@@ -56,7 +58,7 @@ block content
                                 a.list-group-item(href="javascript:;", ng-repeat="encounter in encounters", ng-click="editEncounter(encounter)")
                                     .encounter-item
                                         .display-name {{encounter.individual.displayName}}
-                                        .display-date {{wbDateUtils.dateStringFromRest(encounter.encDate)}}
+                                        .display-date {{dateStringFromRest(encounter.encDate)}}
                                         .display-location {{encounter.location.locationid}}
                     .col-md-10
                         .container-fluid
@@ -79,5 +81,5 @@ block content
                                     include partials/encounter_view
                                     include partials/survey_search
                                     include partials/survey_edit
-                                    include partials/encounter_search
-                                    include partials/encounter_edit
+                                    wb-encounter-search(ng-if="encounterSearch", search-encounter-done="searchEncounterDone(encounter)")
+                                    wb-encounter-edit(ng-if="encounterToEdit", encounter-to-edit="encounterToEdit", edit-encounter-done="editEncounterDone(encounter)")

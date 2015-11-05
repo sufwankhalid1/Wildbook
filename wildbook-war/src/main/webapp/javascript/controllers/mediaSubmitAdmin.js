@@ -1,7 +1,5 @@
 wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q, $compile, $exceptionHandler, wbDateUtils) {
     $scope.panelList = [];
-    $scope.panelList.push("encounter_edit");
-    $scope.panelList.push("encounter_search");
     $scope.panelList.push("survey_edit");
     $scope.panelList.push("survey_search");
 
@@ -11,6 +9,10 @@ wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q
     $scope.panels = {};
 
     function attachEncounter(encounter) {
+        if (! encounter) {
+            return;
+        }
+        
         if (! $scope.surveypart) {
             $scope.encounters.push(encounter);
             return;
@@ -28,6 +30,10 @@ wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q
         $scope.surveyEncs.push({surveypart: surveypart, encounters: encounters});
     }
 
+    $scope.dateStringFromRest = function(date) {
+        return wbDateUtils.dateStringFromRest(date);
+    }
+    
     $scope.$on('survey_edit_done', function(event, surveypart) {
         addSurveyEncounters(surveypart);
     });
@@ -43,16 +49,11 @@ wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q
         }, $exceptionHandler)
     });
 
-    $scope.$on('encounter_edit_done', function(event, encounter) {
-        if (encounter) {
-            attachEncounter(encounter);
-        }
-    });
-
-    $scope.$on('encounter_search_select', function(event, encounter) {
-        $scope.panels["encounter_search"] = false;
-        attachEncounter(encounter);
-    });
+//    $scope.$on('encounter_edit_done', function(event, encounter) {
+//        if (encounter) {
+//            attachEncounter(encounter);
+//        }
+//    });
 
     $scope.showPanel = function(panel, data) {
         this.panelList.forEach(function(value) {
@@ -65,17 +66,29 @@ wildbook.app.controller("MediaSubmissionController", function ($scope, $http, $q
         });
     };
 
-    $scope.searchEncounter = function() {
-        this.showPanel('encounter_search');
+    $scope.editEncounterDone = function(encounter) {
+        $scope.encounterToEdit = null;
+        if (encounter) {
+            attachEncounter(encounter);
+        }
     }
 
+    $scope.searchEncounter = function() {
+        $scope.encounterSearch = true;
+    }
+    
+    $scope.searchEncounterDone = function(encounter) {
+        $scope.encounterSearch = false;
+        attachEncounter(encounter);
+    }
+    
     $scope.addEncounter = function(surveypart) {
         $scope.surveypart = surveypart;
-        this.showPanel('encounter_edit');
+        $scope.encounterToEdit = "new";
     }
     
     $scope.editEncounter = function(encounter) {
-        this.showPanel('encounter_edit', encounter);
+        $scope.encounterToEdit = encounter;
     }
 
     $scope.addSurvey = function() {

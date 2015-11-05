@@ -1,4 +1,4 @@
-form.form.ng-cloak(novalidate, ng-controller="EncounterEditController", ng-if="panels['encounter_edit']", wb-key-handler-form)
+form.form.ng-cloak(novalidate, wb-key-handler-form)
     .form-row
         legend.form-group Edit Encounter
     .form-row
@@ -25,4 +25,3 @@ form.form.ng-cloak(novalidate, ng-controller="EncounterEditController", ng-if="p
             time-input.form-control(ng-model="encounter.endtime")
     .form-row
         input(type="submit", ng-click="save()", value="Save")
-script(src="javascript/controllers/encounter_edit.js")
