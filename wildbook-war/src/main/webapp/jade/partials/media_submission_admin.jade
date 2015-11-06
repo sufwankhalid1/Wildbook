@@ -33,11 +33,11 @@ div
                                 a(href="javascript:;", ng-click="addEncounter(surveyEnc.surveypart)", title="Add a new Encounter", data-toggle="tooltip")
                                     i.glyphicon.glyphicon-plus
                                 .list-group
-                                    a.list-group-item(href="javascript:;", ng-repeat="encounter in surveyEnc.encounters", ng-click="editEncounter(encounter)")
+                                    a.list-group-item(href="javascript:;", ng-repeat="encounter in surveyEnc.encounters", ng-click="selectEncounter(encounter)", ng-class="{active: encounter.id === activeEncounter.id}")
                                         .encounter-item
-                                            .display-name {{encounter.individual.displayName}}
-                                            .display-date {{dateStringFromRest(encounter.encDate)}}
-                                            .display-location {{encounter.location.locationid}}
+                                            div {{encounter.individual.displayName}}
+                                            div {{dateStringFromRest(encounter.encDate)}}
+                                            div {{encounter.location.locationid}}
                     div.media-admin-nav
                         span.media-admin-nav-label Encounters
                         a(href="javascript:;", ng-click="searchEncounter()",
@@ -47,11 +47,11 @@ div
                           title="Add a new Encounter", data-toggle="tooltip")
                             i.glyphicon.glyphicon-plus
                         .list-group
-                            a.list-group-item(href="javascript:;", ng-repeat="encounter in encounters", ng-click="editEncounter(encounter)")
+                            a.list-group-item(href="javascript:;", ng-repeat="encounter in encounters", ng-click="selectEncounter(encounter)", ng-class="{active: encounter.id === activeEncounter.id}")
                                 .encounter-item
-                                    .display-name {{encounter.individual.displayName}}
-                                    .display-date {{dateStringFromRest(encounter.encDate)}}
-                                    .display-location {{encounter.location.locationid}}
+                                    div {{encounter.individual.displayName}}
+                                    div {{dateStringFromRest(encounter.encDate)}}
+                                    div {{encounter.location.locationid}}
                 .col-md-10
                     .container-fluid
                         .row

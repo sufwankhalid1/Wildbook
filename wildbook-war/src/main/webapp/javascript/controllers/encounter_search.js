@@ -8,7 +8,7 @@ wildbook.app.directive(
             },
             templateUrl: 'util/render?j=partials/encounter_search',
             replace: true,
-            controller($scope) {
+            controller: function($scope) {
                 $scope.searchdata = {};
             
                 $scope.search = function() {

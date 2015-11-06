@@ -1,5 +1,5 @@
 // Need this parent div because as an angular directive it must have a single parent element
-div(wb-key-handler-navig, watch-scope="parent")
+div(wb-key-handler-watch-scope="parent")
     .button.btn.btn-primary(ng-click="panLeft()", ng-disabled="isLeftDisabled()")
         i.glyphicon.glyphicon-chevron-left
     .button.btn.btn-primary(ng-click="panRight()", ng-disabled="isRightDisabled()")

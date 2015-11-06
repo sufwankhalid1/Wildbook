@@ -8,7 +8,7 @@ wildbook.app.directive(
             },
             templateUrl: 'util/render?j=partials/survey_search',
             replace: true,
-            controller($scope) {
+            controller: function($scope) {
                 $scope.data = {};
                 $scope.surveysearch = {};
             

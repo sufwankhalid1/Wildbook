@@ -196,206 +196,20 @@ wildbook.app.directive(
         };
 });
 
+KeyEventHandler.attach(wildbook.app);
+
 wildbook.app.directive(
-    'wbThumbBox',
-    ["wbDateUtils", function(wbDateUtils) {
-        return {
-            restrict: 'E',
-            scope: {
-                photos: "=",
-                delphoto: "&",
-                numPhotos: "@"
+    "wbKeyHandlerForm",
+    ["keyEvents", function(keyEvents) {
+        return({
+            link: function(scope, element, attrs) {
+                KeyEventHandler.link(getKeySetup(attrs.wbKeyHandlerPriority), scope, element, attrs);
             },
-            templateUrl: 'util/render?j=partials/wb_thumb_box',
-            replace: true,
-            controller($scope) {
-                var startIdx = 0;
-                var idx;
-                
-                var numPhotos;
-                if (! $scope.numPhotos) {
-                    numPhotos = 18;
-                } else {
-                    numPhotos = parseInt($scope.numPhotos);
-                }
+            restrict: "A"
+        });
 
-                $scope.getTimestamp = function(photo) {
-                    return wbDateUtils.dateStringFromRest(photo.timestamp);
-                }
-                
-                function pageLeft() {
-                    startIdx = startIdx - numPhotos;
-                    if (startIdx < 0) {
-                        startIdx = 0;
-                    }
-                }
-                
-                $scope.panLeft = function() {
-                    if (! $scope.photos) {
-                        return;
-                    }
-                    if ($scope.zoomimage) {
-                        if (idx <= 0) {
-                            return;
-                        }
-                        idx--;
-                        $scope.zoomimage = $scope.photos[idx];
-                        
-                        //
-                        // If we have panned far enough such that we are now on the next
-                        // "page" of thumbnails, let's reflect that.
-                        //
-                        if (idx < startIdx) {
-                            pageLeft();
-                        }
-                    } else {
-                        pageLeft();
-                    }
-                }
-
-                function pageRight() {
-                    startIdx = startIdx + numPhotos;
-                    if (startIdx + numPhotos > $scope.photos.length) {
-                        startIdx = $scope.photos.length - numPhotos;
-                        if (startIdx < 0) {
-                            startIdx = 0;
-                        }
-                    }
-                }
-                
-                $scope.panRight = function() {
-                    if (! $scope.photos) {
-                        return;
-                    }
-                    if ($scope.zoomimage) {
-                        if (idx >= $scope.photos.length - 1) {
-                            return;
-                        }
-                        idx++;
-                        $scope.zoomimage = $scope.photos[idx];
-                        
-                        //
-                        // If we have panned far enough such that we are now on the next
-                        // "page" of thumbnails, let's reflect that.
-                        //
-                        if (idx >= startIdx + numPhotos) {
-                            pageRight();
-                        }
-                    } else {
-                        pageRight();
-                    }
-                }
-                
-                $scope.isLeftDisabled = function() {
-                    if ($scope.zoomimage) {
-                        return (idx <= 0);
-                    }
-                    return (startIdx <= 0);
-                }
-                
-                $scope.isRightDisabled = function() {
-                    if ($scope.zoomimage) {
-                        return (idx >= $scope.photos.length - 1);
-                    }
-                    
-                    if (! $scope.photos) {
-                        return true;
-                    }
-                    return (startIdx >= $scope.photos.length - numPhotos);
-                }
-                
-                $scope.viewImage = function(photo) {
-                    $scope.zoomimage = photo;
-                    
-                    $scope.photos.forEach(function(value, index) {
-                        if (value.id === photo.id) {
-                            idx = index;
-                        }
-                    });
-                }
-                
-                $scope.getVisPhotos = function() {
-                    if (! $scope.photos) {
-                        return [];
-                    }
-                    return $scope.photos.slice(startIdx, startIdx + numPhotos);
-                }
-                
-                $scope.removePhoto = function(id) {
-                    return alertplus.confirm('Are you sure you want to delete this image?', "Delete Image", true)
-                    .then(function() {
-                        $scope.delphoto({id: id})
-                        .then(function() {
-                            $scope.zoomimage = null;
-                            $scope.photos = $scope.photos.filter(function(photo) {
-                                return (photo.id !== id);
-                            });
-                        });
-                    });
-                }
-                
-                //
-                // wb-key-handler-form
-                //
-                $scope.cancel = function() {
-                    $scope.zoomimage = null;
-                }
-                
-                $scope.cmdEnter = function() {
-                    // do nothing
-                    // want this here to override any parent scope cmdEnter event though.
-                }
-            }
-        };
-    }]
-);
-
-//
-// Just put this here in case someone doesn't add the KeyEventHandler by attaching the javascript.
-// At least it won't error out, keyboard shortcuts just won't work.
-//
-if (KeyEventHandler) {
-    KeyEventHandler.attach(wildbook.app);
-
-    wildbook.app.directive(
-        "wbKeyHandlerNavig",
-        function(keyEvents) {
-            return({
-                link: function(scope, element, attrs) {
-                    KeyEventHandler.link(setup, scope, element, attrs);
-                },
-                restrict: "A"
-            });
-
-            function setup(scope, element) {
-                return keyEvents.handler(100)
-                .keydown(
-                    function handleKeyDown(event) {
-                        if (event.is.leftarrow) {
-                            scope.$applyAsync(scope.panLeft);
-                            return false;
-                        }
-                        if ( event.is.rightarrow ) {
-                            scope.$applyAsync(scope.panRight);
-                            return false;
-                        }
-                    }
-                );
-            }
-        }
-    );
-
-    wildbook.app.directive(
-        "wbKeyHandlerForm",
-        function(keyEvents) {
-            return({
-                link: function(scope, element, attrs) {
-                    KeyEventHandler.link(setup, scope, element, attrs);
-                },
-                restrict: "A"
-            });
-
-            function setup(scope, element) {
+        function getKeySetup(priority) {
+            return function(scope, element) {
                 // Focus the input so the user can start typing right-away.
                 var element = element[0].querySelector("input[ng-model], select[ng-model]");
                 if (element) {
@@ -406,7 +220,7 @@ if (KeyEventHandler) {
                 // this handler's methods will be invoked before the the root
                 // controller. This gives the form an opportunity to intercept events
                 // and stop them from propagating.
-                return keyEvents.handler(100)
+                return keyEvents.handler(priority ? parseInt(priority) : 100)
                 // NOTE: Some key-combinations, like the ESC key are more
                 // consistently reported across browsers in the keydown event.
                 .keydown(
@@ -432,14 +246,14 @@ if (KeyEventHandler) {
                             // Change the view-model inside a digest.
                             scope.$applyAsync(scope.cmdEnter);
                         }
-//                        if (event.is.leftarrow) {
-//                            scope.$applyAsync(scope.panLeft);
-//                            return false;
-//                        }
-//                        if ( event.is.rightarrow ) {
-//                            scope.$applyAsync(scope.panRight);
-//                            return false;
-//                        }
+//                            if (event.is.leftarrow) {
+//                                scope.$applyAsync(scope.panLeft);
+//                                return false;
+//                            }
+//                            if ( event.is.rightarrow ) {
+//                                scope.$applyAsync(scope.panRight);
+//                                return false;
+//                            }
                     }
                 )
                 .keypress(
@@ -454,7 +268,7 @@ if (KeyEventHandler) {
                         }
                     }
                 );
-            }
+            };
         }
-    );
-}
+    }]
+);

@@ -8,7 +8,7 @@ var KeyEventHandler = (function() {
     // I bind the JavaScript events to the local scope.
     function link(setup, scope, element, attrs) {
         var watchScope;
-        if (attrs.watchScope === "parent") {
+        if (attrs.wbKeyHandlerWatchScope === "parent") {
             watchScope = scope.$parent;
         } else {
             watchScope = scope;

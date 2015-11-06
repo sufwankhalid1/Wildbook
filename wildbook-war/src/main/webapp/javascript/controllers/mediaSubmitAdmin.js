@@ -5,9 +5,10 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
             scope: {},
             templateUrl: 'util/render?j=partials/media_submission_admin',
             replace: true,
-            controller($scope) {
+            controller: function($scope) {
                 $scope.encounters = [];
                 $scope.surveyEncs = [];
+                $scope.activeEncounter = null;
             
                 function attachEncounter(encounter) {
                     if (! encounter) {
@@ -64,12 +65,17 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
                     $scope.surveySearch = false;
                 }
                 
-                $scope.editEncounter = function(encounter) {
+                function editEncounter(encounter) {
                     // This one
                     $scope.encounterToEdit = encounter;
                     $scope.encounterSearch = false;
                     $scope.surveyToEdit = null;
                     $scope.surveySearch = false;
+                }
+                
+                $scope.selectEncounter = function(encounter) {
+                    $scope.activeEncounter = encounter;
+                    editEncounter(encounter);
                 }
                 
                 $scope.searchSurvey = function() {

@@ -9,7 +9,7 @@ wildbook.app.directive(
             },
             templateUrl: 'util/render?j=partials/encounter_edit',
             replace: true,
-            controller($scope) {
+            controller: function($scope) {
                 if ($scope.encounter === "new") {
                     $scope.encounter = {individual: {species: wbConfig.config().species[0]}};
                 }

@@ -9,7 +9,7 @@ wildbook.app.directive(
             },
             templateUrl: 'util/render?j=partials/survey_edit',
             replace: true,
-            controller($scope) {
+            controller: function($scope) {
                 $scope.info = {};
                 
                 if ($scope.data === "new") {
