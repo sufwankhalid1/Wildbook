@@ -14,6 +14,25 @@ wildbook.app.directive(
                             scope.$applyAsync(scope.panRight);
                             return false;
                         }
+                        switch (event.which) {
+                        case 68: //d (delete key is consumed by chrome)
+                            scope.$applyAsync(scope.deleteIt);
+                            break;
+                            // Maybe make a generic function for other events. But then how
+                            // to handle interacting with these special things? Like filtering by completed
+                            // pictures. So control will need to have some things. Maybe complete is just
+                            // something the control knows about?
+                            //
+//                        case 65: //a
+//                            scope.$applyAsync(scope.addPhotos);
+//                            break;
+//                        case 65: //c
+//                            scope.$applyAsync(scope.complete);
+//                            break;
+//                        case 65: //i
+//                            scope.$applyAsync(scope.idService);
+//                            break;
+                        }
                     }
                 );
             };
@@ -144,15 +163,33 @@ wildbook.app.directive(
                     return $scope.photos.slice(startIdx, startIdx + numPhotos);
                 }
                 
+                $scope.deleteIt = function() {
+                    if ($scope.zoomimage) {
+                        $scope.removePhoto($scope.zoomimage.id);
+                    }
+                }
+                
                 $scope.removePhoto = function(id) {
                     return alertplus.confirm('Are you sure you want to delete this image?', "Delete Image", true)
                     .then(function() {
                         $scope.delphoto({id: id})
                         .then(function() {
-                            $scope.zoomimage = null;
                             $scope.photos = $scope.photos.filter(function(photo) {
                                 return (photo.id !== id);
                             });
+                            if ($scope.photos.length === 0) {
+                                $scope.zoomimage = null;
+                            }
+                            
+                            //
+                            // If this was our last image then we need to backup
+                            // the index. Otherwise we keep the index the same which
+                            // will effectively pan us to the next photo.
+                            //
+                            if (idx >= $scope.photos.length - 1) {
+                                idx--;
+                            }
+                            $scope.zoomimage = $scope.photos[idx];
                         });
                     });
                 }
