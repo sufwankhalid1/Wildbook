@@ -6,6 +6,13 @@ wildbook.app.directive(
                 return keyEvents.handler(priority ? parseInt(priority) : 100)
                 .keydown(
                     function handleKeyDown(event) {
+                        //
+                        // Ignore any keystrokes here that are coming from an input box.
+                        //
+                        if (event.is.input) {
+                            return;
+                        }
+                        
                         if (event.is.leftarrow) {
                             scope.$applyAsync(scope.panLeft);
                             return false;
