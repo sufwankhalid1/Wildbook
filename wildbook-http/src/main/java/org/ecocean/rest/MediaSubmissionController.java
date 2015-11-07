@@ -57,12 +57,9 @@ public class MediaSubmissionController
                     + " INNER JOIN mediaasset ma ON ma.id = msm.mediaid"
                     + " WHERE msm.mediasubmissionid = " + submissionid
                     + " ORDER BY ma.metatimestamp, ma.id";
-            List<SimplePhoto> photos = new ArrayList<SimplePhoto>();
-            db.select(sql, (rs) -> {
-                photos.add(MediaAssetFactory.readPhoto(rs));
+            return db.selectList(sql, (rs) -> {
+                return MediaAssetFactory.readPhoto(rs);
             });
-
-            return photos;
         }
     }
 

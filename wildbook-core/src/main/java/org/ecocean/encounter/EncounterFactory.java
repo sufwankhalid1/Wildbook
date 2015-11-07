@@ -9,6 +9,7 @@ import org.ecocean.LocationFactory;
 import org.ecocean.media.MediaAsset;
 import org.ecocean.media.MediaAssetFactory;
 import org.ecocean.rest.SimpleIndividual;
+import org.ecocean.rest.SimplePhoto;
 import org.ecocean.rest.SimpleUser;
 import org.ecocean.security.UserFactory;
 
@@ -109,6 +110,26 @@ public class EncounterFactory {
 //
 //        return ind;
 //    }
+
+    public static void addMedia(final Database db, final int encounterid, final int mediaid) throws DatabaseException {
+        Table table = db.getTable(TABLENAME_ENCOUNTER_MEDIA);
+        SqlInsertFormatter formatter = new SqlInsertFormatter();
+        formatter.append(PK_ENCOUNTERS, encounterid);
+        formatter.append("mediaid", mediaid);
+        table.insertRow(formatter);
+    }
+
+    public static List<SimplePhoto> getMedia(final Database db, final int encounterid) throws DatabaseException {
+        SqlStatement sql = new SqlStatement(MediaAssetFactory.TABLENAME_MEDIAASSET,
+                                            MediaAssetFactory.ALIAS_MEDIAASSET,
+                                            MediaAssetFactory.ALIAS_MEDIAASSET + ".*");
+        sql.addInnerJoin(MediaAssetFactory.ALIAS_MEDIAASSET, MediaAssetFactory.PK_MEDIAASSET, "encounter_media", "em", "mediaid");
+        sql.addCondition("em", PK_ENCOUNTERS, SqlRelationType.EQUAL, encounterid);
+
+        return db.selectList(sql, (rs) -> {
+            return MediaAssetFactory.readPhoto(rs);
+        });
+    }
 
     public static SimpleIndividual readSimpleIndividual(final RecordSet rs) throws DatabaseException
     {

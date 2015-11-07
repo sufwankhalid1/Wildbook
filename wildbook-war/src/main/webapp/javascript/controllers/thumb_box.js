@@ -30,9 +30,9 @@ wildbook.app.directive(
                             // pictures. So control will need to have some things. Maybe complete is just
                             // something the control knows about?
                             //
-//                        case 65: //a
-//                            scope.$applyAsync(scope.addPhotos);
-//                            break;
+                        case 65: //a
+                            scope.$applyAsync(scope.addPhotos);
+                            break;
 //                        case 65: //c
 //                            scope.$applyAsync(scope.complete);
 //                            break;
@@ -49,7 +49,8 @@ wildbook.app.directive(
             restrict: 'E',
             scope: {
                 photos: "=",
-                delphoto: "&",
+                cbDelphoto: "&",
+                cbAddphotos: "&",
                 numPhotos: "@"
             },
             link: function(scope, element, attrs) {
@@ -135,6 +136,15 @@ wildbook.app.directive(
                     }
                 }
                 
+                $scope.addPhotos = function() {
+                    if ($scope.zoomimage) {
+                        $scope.cbAddphotos({photos: [$scope.zoomimage]});
+                        return;
+                    }
+                    //TODO: Once we allow multiple selection of thumbs then
+                    // we can send selected images to be deleted
+                }
+                
                 $scope.isLeftDisabled = function() {
                     if ($scope.zoomimage) {
                         return (idx <= 0);
@@ -179,7 +189,7 @@ wildbook.app.directive(
                 $scope.removePhoto = function(id) {
                     return alertplus.confirm('Are you sure you want to delete this image?', "Delete Image", true)
                     .then(function() {
-                        $scope.delphoto({id: id})
+                        $scope.cbDelphoto({id: id})
                         .then(function() {
                             $scope.photos = $scope.photos.filter(function(photo) {
                                 return (photo.id !== id);

@@ -67,7 +67,11 @@ div
                                 span {{submission.verbatimLocation}}
                         .row
                             .col-md-12
-                                wb-thumb-box(ng-if="submission", photos="photos", delphoto="deletePhoto(id)", num-photos="18")
+                                wb-thumb-box(ng-if="submission"
+                                             photos="photos"
+                                             cb-delphoto="deletePhoto(id)"
+                                             cb-addphotos="addPhotos(photos)"
+                                             num-photos="18")
                         .row
                             .col-md-12
                                 wb-survey-search(ng-if="surveySearch", search-survey-done="searchSurveyDone(surveypart)")

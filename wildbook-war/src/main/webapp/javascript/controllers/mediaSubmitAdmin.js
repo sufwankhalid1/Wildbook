@@ -113,9 +113,29 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
                     }, $exceptionHandler)
                 }
 
-                $scope.deletePhoto= function(id) {
+                $scope.deletePhoto = function(id) {
                     return $http.post("obj/mediasubmission/deletemedia", {submissionid: $scope.submission.id, mediaid: id})
                                 .catch($exceptionHandler);
+                }
+                
+                $scope.addPhotos = function(photos) {
+                    if (!$scope.activeEncounter) {
+                        alertplus.alert("No active encounter selected.");
+                        return;
+                    }
+                    
+                    $http.post("obj/encounter/addmedia/" + $scope.activeEncounter.id, photoids)
+                    .then(function() {
+                        if (! $scope.activeEncounter.photos) {
+                            $http.get("obj/encounter/getmedia/" + $scope.activeEncounter.id)
+                            .then(function(data) {
+                                $scope.activeEncounter.photos = data;
+                                $scope.activeEncounter.photos.push(photos);
+                            });
+                        } else {
+                            $scope.activeEncounter.photos.push(photos);
+                        }
+                    });
                 }
             
                 $scope.editSubmission = function(submission) {
