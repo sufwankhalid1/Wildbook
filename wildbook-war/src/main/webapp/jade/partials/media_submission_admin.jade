@@ -1,21 +1,21 @@
 div
-    div(ng-show="!submission")
+    div(ng-show="!data.submission")
         h1 Media Submissions
         .ag-fresh(ag-grid="msGridOptions", style="height: 590px")
 
-    div.ng-cloak(ng-show="submission", wb-key-handler-form)
+    div.ng-cloak(ng-show="data.submission", wb-key-handler-form)
         .container-fluid
             .row
                 .col-md-12
                     .row
                         .col-md-8.col-sm-6
-                            h3 Edit Media Submission [{{submission.id}}]
+                            h3 Edit Media Submission [{{data.submission.id}}]
                         .col-md-4.col-sm-6
                             span.media-admin-edit-icon
                                 button.btn.btn-primary(ng-click="doneEditing()")
                                     i.glyphicon.glyphicon-check
                             span.media-admin-edit-icon
-                                button.btn.btn-danger(ng-click="deleteSubmission(submission)")
+                                button.btn.btn-danger(ng-click="deleteSubmission(data.submission)")
                                     i.glyphicon.glyphicon-trash
             .row
                 .col-md-2
@@ -28,12 +28,12 @@ div
                           title="Add a new Survey", data-toggle="tooltip")
                             i.glyphicon.glyphicon-plus
                         ul.list-group
-                            li.list-group-item(ng-repeat="surveyEnc in surveyEncs")
+                            li.list-group-item(ng-repeat="surveyEnc in data.surveyEncs")
                                 span {{surveyEnc.surveypart.survey.organization.displayName}} - {{surveyEnc.surveypart.survey.surveyNumber}}
                                 a(href="javascript:;", ng-click="addEncounter(surveyEnc.surveypart)", title="Add a new Encounter", data-toggle="tooltip")
                                     i.glyphicon.glyphicon-plus
                                 .list-group
-                                    a.list-group-item(href="javascript:;", ng-repeat="encounter in surveyEnc.encounters", ng-click="selectEncounter(encounter)", ng-class="{active: encounter.id === activeEncounter.id}")
+                                    a.list-group-item(href="javascript:;", ng-repeat="encounter in surveyEnc.encounters", ng-click="selectEncounter(encounter)", ng-class="{active: encounter.id === data.activeEncounter.id}")
                                         .encounter-item
                                             div {{encounter.individual.displayName}}
                                             div {{dateStringFromRest(encounter.encDate)}}
@@ -47,7 +47,7 @@ div
                           title="Add a new Encounter", data-toggle="tooltip")
                             i.glyphicon.glyphicon-plus
                         .list-group
-                            a.list-group-item(href="javascript:;", ng-repeat="encounter in encounters", ng-click="selectEncounter(encounter)", ng-class="{active: encounter.id === activeEncounter.id}")
+                            a.list-group-item(href="javascript:;", ng-repeat="encounter in data.encounters", ng-click="selectEncounter(encounter)", ng-class="{active: encounter.id === data.activeEncounter.id}")
                                 .encounter-item
                                     div {{encounter.individual.displayName}}
                                     div {{dateStringFromRest(encounter.encDate)}}
@@ -57,24 +57,24 @@ div
                         .row
                             .col-md-12
                                 span.text-primary Submitted by:
-                                | &nbsp{{submission.user.displayName}}
+                                | &nbsp{{data.submission.user.displayName}}
                                 span.text-primary &nbspon:
-                                | &nbsp{{timeToDate(submission.timeSubmitted)}}
+                                | &nbsp{{timeToDate(data.submission.timeSubmitted)}}
                         .row
                             .col-md-6
-                                span {{submission.description}}
+                                span {{data.submission.description}}
                             .col-md-6
-                                span {{submission.verbatimLocation}}
+                                span {{data.submission.verbatimLocation}}
                         .row
                             .col-md-12
-                                wb-thumb-box(ng-if="submission"
-                                             photos="photos"
+                                wb-thumb-box(ng-if="data.submission"
+                                             photos="data.photos"
                                              cb-delphoto="deletePhoto(id)"
                                              cb-addphotos="addPhotos(photos)"
                                              num-photos="18")
                         .row
                             .col-md-12
-                                wb-survey-search(ng-if="surveySearch", search-survey-done="searchSurveyDone(surveypart)")
-                                wb-survey-edit(ng-if="surveyToEdit", survey-to-edit="surveyToEdit", edit-survey-done="editSurveyDone(surveypart)")
-                                wb-encounter-search(ng-if="encounterSearch", search-encounter-done="searchEncounterDone(encounter)")
-                                wb-encounter-edit(ng-if="encounterToEdit", encounter-to-edit="encounterToEdit", edit-encounter-done="editEncounterDone(encounter)")
+                                wb-survey-search(ng-if="data.module.surveySearch", search-survey-done="searchSurveyDone(surveypart)")
+                                wb-survey-edit(ng-if="data.module.surveyEdit", survey-to-edit="data.module.surveyEdit", edit-survey-done="editSurveyDone(surveypart)")
+                                wb-encounter-search(ng-if="data.module.encounterSearch", search-encounter-done="searchEncounterDone(encounter)")
+                                wb-encounter-edit(ng-if="data.module.encounterEdit", encounter-to-edit="data.module.encounterEdit", edit-encounter-done="editEncounterDone(encounter)")

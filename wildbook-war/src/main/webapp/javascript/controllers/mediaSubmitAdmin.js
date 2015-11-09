@@ -6,9 +6,19 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
             templateUrl: 'util/render?j=partials/media_submission_admin',
             replace: true,
             controller: function($scope) {
-                $scope.encounters = [];
-                $scope.surveyEncs = [];
-                $scope.activeEncounter = null;
+                $scope.data = {
+                    submission: null,
+                    photos: null,
+                    encounters: [],
+                    surveyEncs: [],
+                    activeEncounter: null,
+                    module: {
+                        encounterEdit: null,
+                        encounterSearch: false,
+                        surveyEdit: null,
+                        surveySearch: false
+                    }
+                };
             
                 function attachEncounter(encounter) {
                     if (! encounter) {
@@ -16,7 +26,7 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
                     }
                     
                     if (! $scope.surveypart) {
-                        $scope.encounters.push(encounter);
+                        $scope.data.encounters.push(encounter);
                         return;
                     }
             
@@ -29,7 +39,7 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
                 }
             
                 function addSurveyEncounters(surveypart, encounters) {
-                    $scope.surveyEncs.push({surveypart: surveypart, encounters: encounters});
+                    $scope.data.surveyEncs.push({surveypart: surveypart, encounters: encounters});
                 }
             
                 $scope.dateStringFromRest = function(date) {
@@ -37,70 +47,70 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
                 }
             
                 $scope.editEncounterDone = function(encounter) {
-                    $scope.encounterToEdit = null;
+                    $scope.data.module.encounterEdit = null;
                     if (encounter) {
                         attachEncounter(encounter);
                     }
                 }
                 
                 $scope.searchEncounter = function() {
-                    $scope.encounterToEdit = null;
+                    $scope.data.module.encounterEdit = null;
                     // This one
-                    $scope.encounterSearch = true;
-                    $scope.surveyToEdit = null;
-                    $scope.surveySearch = false;
+                    $scope.data.module.encounterSearch = true;
+                    $scope.data.module.surveyEdit = null;
+                    $scope.data.module.surveySearch = false;
               }
                 
                 $scope.searchEncounterDone = function(encounter) {
-                    $scope.encounterSearch = false;
+                    $scope.data.module.encounterSearch = false;
                     attachEncounter(encounter);
                 }
                 
                 $scope.addEncounter = function(surveypart) {
                     $scope.surveypart = surveypart;
                     // This one
-                    $scope.encounterToEdit = "new";
-                    $scope.encounterSearch = false;
-                    $scope.surveyToEdit = null;
-                    $scope.surveySearch = false;
+                    $scope.data.module.encounterEdit = "new";
+                    $scope.data.module.encounterSearch = false;
+                    $scope.data.module.surveyEdit = null;
+                    $scope.data.module.surveySearch = false;
                 }
                 
                 function editEncounter(encounter) {
                     // This one
-                    $scope.encounterToEdit = encounter;
-                    $scope.encounterSearch = false;
-                    $scope.surveyToEdit = null;
-                    $scope.surveySearch = false;
+                    $scope.data.module.encounterEdit = encounter;
+                    $scope.data.module.encounterSearch = false;
+                    $scope.data.module.surveyEdit = null;
+                    $scope.data.module.surveySearch = false;
                 }
                 
                 $scope.selectEncounter = function(encounter) {
-                    $scope.activeEncounter = encounter;
+                    $scope.data.activeEncounter = encounter;
                     editEncounter(encounter);
                 }
                 
                 $scope.searchSurvey = function() {
-                    $scope.encounterToEdit = null;
-                    $scope.encounterSearch = false;
-                    $scope.surveyToEdit = null;
+                    $scope.data.module.encounterEdit = null;
+                    $scope.data.module.encounterSearch = false;
+                    $scope.data.module.surveyEdit = null;
                     // This one
-                    $scope.surveySearch = true;
+                    $scope.data.module.surveySearch = true;
                 }
 
                 $scope.addSurvey = function() {
-                    $scope.encounterToEdit = null;
-                    $scope.encounterSearch = false;
+                    $scope.data.module.encounterEdit = null;
+                    $scope.data.module.encounterSearch = false;
                     // This one
-                    $scope.surveyToEdit = "new";
-                    $scope.surveySearch = false;
+                    $scope.data.module.surveyEdit = "new";
+                    $scope.data.module.surveySearch = false;
                 }
                 
                 $scope.editSurveyDone = function(surveypart) {
-                    $scope.surveyToEdit = null;
+                    $scope.data.module.surveyEdit = null;
                     addSurveyEncounters(surveypart);
                 }
                 
                 $scope.searchSurveyDone = function(surveypart) {
-                    $scope.surveySearch = false;
+                    $scope.data.module.surveySearch = false;
                     if (! surveypart) {
                         return;
                     }
@@ -114,26 +124,26 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
                 }
 
                 $scope.deletePhoto = function(id) {
-                    return $http.post("obj/mediasubmission/deletemedia", {submissionid: $scope.submission.id, mediaid: id})
+                    return $http.post("obj/mediasubmission/deletemedia", {submissionid: $scope.data.submission.id, mediaid: id})
                                 .catch($exceptionHandler);
                 }
                 
                 $scope.addPhotos = function(photos) {
-                    if (!$scope.activeEncounter) {
+                    if (!$scope.data.activeEncounter) {
                         alertplus.alert("No active encounter selected.");
                         return;
                     }
                     
-                    $http.post("obj/encounter/addmedia/" + $scope.activeEncounter.id, photoids)
+                    $http.post("obj/encounter/addmedia/" + $scope.data.activeEncounter.id, photoids)
                     .then(function() {
-                        if (! $scope.activeEncounter.photos) {
-                            $http.get("obj/encounter/getmedia/" + $scope.activeEncounter.id)
+                        if (! $scope.data.activeEncounter.photos) {
+                            $http.get("obj/encounter/getmedia/" + $scope.data.activeEncounter.id)
                             .then(function(data) {
-                                $scope.activeEncounter.photos = data;
-                                $scope.activeEncounter.photos.push(photos);
+                                $scope.data.activeEncounter.photos = data;
+                                $scope.data.activeEncounter.photos.push(photos);
                             });
                         } else {
-                            $scope.activeEncounter.photos.push(photos);
+                            $scope.data.activeEncounter.photos.push(photos);
                         }
                     });
                 }
@@ -142,11 +152,11 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
                     return $q.all([$http({url:"obj/mediasubmission/photos/" + submission.id}),
                                    $http({url:"obj/mediasubmission/encounters/" + submission.id})])
                     .then(function(results) {
-                        $scope.submission = submission;
-                        $scope.photos = results[0].data;
+                        $scope.data.submission = submission;
+                        $scope.data.photos = results[0].data;
             
-                        $scope.encounters = results[1].data.encounters || [];
-                        $scope.surveyEncs = results[1].data.surveyEncounters || [];
+                        $scope.data.encounters = results[1].data.encounters || [];
+                        $scope.data.surveyEncs = results[1].data.surveyEncounters || [];
                     }, $exceptionHandler);
                 }
             
@@ -156,7 +166,7 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
                         $http.post("obj/mediasubmission/delete", {submissionid: submission.id})
                         .then(function() {
                             updateSubmissionData();
-                            $scope.submission = null;
+                            $scope.data.submission = null;
                         }, $exceptionHandler);
                     });
                 };
@@ -205,7 +215,7 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
                 $scope.doneEditing = function() {
                     // Why do we need to update here?
                     //updateSubmissionData();
-                    $scope.submission = null;
+                    $scope.data.submission = null;
                 };
             
                 var dataSource = {
