@@ -15,7 +15,7 @@ repositories {
 
 dependencies {
     compile 'org.apache.shiro:shiro-core:1.2.1'
-    compile 'de.neuland-bfi:jade4j:0.4.3'
+    compile 'de.neuland-bfi:jade4j:1.0.0'
     compile 'com.samsix:s6-db:1.0.8'
     compile 'org.flywaydb:flyway-core:3.2.1'
     compile 'javax.mail:mail:1.4.7'

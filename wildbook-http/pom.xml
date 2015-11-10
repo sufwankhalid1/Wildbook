@@ -104,11 +104,10 @@
     <!-- scope = provided, build a war file that is both executable and deployable into an external container -->
     <!-- END Rest Service -->
 
-
     <dependency>
         <groupId>de.neuland-bfi</groupId>
         <artifactId>jade4j</artifactId>
-        <version>0.4.3</version>
+        <version>1.0.0</version>
     </dependency>
     
     <dependency>

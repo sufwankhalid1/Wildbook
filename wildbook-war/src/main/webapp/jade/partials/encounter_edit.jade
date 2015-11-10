@@ -4,14 +4,14 @@ form.form.ng-cloak(novalidate, wb-key-handler-form)
     .form-row
         .form-group.col-md-6
             label.control-label Individual:
-            input.form-control(type="text", disabled="true", ng-value="encounter.individual.id ? encounter.individual.displayName : '-- New Individual --'")
+            input.form-control(type="text" disabled="true" ng-value="encounter.individual.id ? encounter.individual.displayName : '-- New Individual --'")
         .form-group.col-md-5
             label.control-label Species:
             select.form-control(ng-options="species.name for species in getSpecies() track by species.code"
                                 ng-model="encounter.individual.species")
                 option(value="") --- select one ---
         .form-group.col-md-1
-            input(type="submit", ng-click="save()", value="Save")
+            input(type="submit" ng-click="save()" value="Save")
     .form-row
         .form-group.col-md-4
             label.control-label Date:
@@ -25,14 +25,14 @@ form.form.ng-cloak(novalidate, wb-key-handler-form)
     .form-row
         ul.nav.nav-tabs(data-tabs="tabs")
             li
-                a(href="javascript:;", data-toggle="tab", ng-click="selectedTab = 1") Data
+                a(href="javascript:;" data-toggle="tab" ng-click="selectedTab = 1") Data
             li
-                a(href="javascript:;", data-toggle="tab", ng-click="selectedTab = 2") Images
-        fieldset.col-md-12(location="encounter.location", location-edit, ng-show="selectedTab === 1 || selectedTab === undefined")
+                a(href="javascript:;" data-toggle="tab" ng-click="selectedTab = 2") Images
+        fieldset.col-md-12(location="encounter.location" location-edit, ng-show="selectedTab === 1 || selectedTab === undefined")
         wb-thumb-box(ng-show="selectedTab === 2"
                      photos="encounter.photos"
                      actions="tbActions"
                      cb-delphoto="deletePhoto(id)"
                      cb-action="performAction(code, photos)")
     .form-row
-        input(type="submit", ng-click="save()", value="Save")
+        input(type="submit" ng-click="save()" value="Save")
