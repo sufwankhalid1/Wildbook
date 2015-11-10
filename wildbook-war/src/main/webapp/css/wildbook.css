@@ -8171,6 +8171,16 @@ form table th {
   height: 100%;
   overflow-y: auto;
 }
+/* Hack to solve a problem with angular-tooltips until they fix it.
+   Can't click on the screen where the tooltips would pop up.
+   This was in version 0.1.24 */
+._720kb-tooltip {
+  visibility: hidden !important;
+}
+._720kb-tooltip._720kb-tooltip-open {
+  visibility: visible !important;
+}
+/* End hack */
 .maincontent {
   padding-top: 5px;
 }

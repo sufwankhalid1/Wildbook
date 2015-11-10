@@ -21,7 +21,16 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
                     },
                     tbActions: [{
                         code: "add",
-                        shortcutKeyCode: 65
+                        shortcutKeyCode: 65,
+                        tooltip: "Add to active encounter"
+                    },
+                    {
+                        code: "del",
+                        shortcutKeyCode: 68,
+                        type: "danger",
+                        buttonIcon: "trash",
+                        tooltip: "Delete",
+                        confirm: { message: "Are you sure you want to delete this image?"}
                     }]
                 };
             
@@ -131,25 +140,21 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
                 //=================================
                 // START wb-thumb-box
                 //=================================
-                $scope.deletePhoto = function(id) {
-                    return $http.post("obj/mediasubmission/deletemedia", {submissionid: $scope.data.submission.id, mediaid: id})
-                                .catch($exceptionHandler);
-                }
-                
                 $scope.performAction = function(code, photos) {
                     if (!photos) {
                         return;
                     }
-                    if (!$scope.data.activeEncounter) {
-                        alertplus.alert("No active encounter selected.");
-                        return;
-                    }
+                    
+                    var photoids = photos.map(function(photo) {
+                        return photo.id;
+                    });
                     
                     switch (code) {
                     case "add": {
-                        var photoids = photos.map(function(photo) {
-                            return photo.id;
-                        })
+                        if (!$scope.data.activeEncounter) {
+                            alertplus.alert("No active encounter selected.");
+                            return;
+                        }
                         wbEncounterUtils.getMedia($scope.data.activeEncounter)
                         .then(function() {
                             $http.post("obj/encounter/addmedia/" + $scope.data.activeEncounter.id, photoids)
@@ -158,6 +163,10 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
                             });
                         });
                         break;
+                    }
+                    case "del": {
+                        return $http.post("obj/mediasubmission/deletemedia", {submissionid: $scope.data.submission.id, mediaids: photoids})
+                        .catch($exceptionHandler);
                     }}
                 }
                 //=================================

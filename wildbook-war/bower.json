@@ -1,12 +1,13 @@
 {
   "name": "wildbook",
-  "version": "5.3.0-RELEASE",
+  "version": "6.0.0-SNAPSHOT",
   "dependencies" : {
     "jquery": "2.1.4",
     "jquery-ui" : "1.11.4",
     "tablesorter": "latest",
     "moment": "2.10.6",
     "angular": "1.4.4",
+    "angular-tooltips": "0.1.24",
     "angular-bootstrap": "0.13.3",
     "ag-grid": "2.2.0"
   },

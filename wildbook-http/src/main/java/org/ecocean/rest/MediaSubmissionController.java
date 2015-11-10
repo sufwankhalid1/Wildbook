@@ -255,7 +255,11 @@ public class MediaSubmissionController
         throws DatabaseException
     {
         try (Database db = ServletUtils.getDb(request)) {
-            deleteMedia(db, msm.submissionid, msm.mediaid);
+            db.performTransaction(() -> {
+                for (int mediaid : msm.mediaids) {
+                    deleteMedia(db, msm.submissionid, mediaid);
+                }
+            });
         }
     }
 
@@ -556,7 +560,7 @@ public class MediaSubmissionController
     public static class MSMEntry
     {
         public int submissionid;
-        public int mediaid;
+        public List<Integer> mediaids;
     }
 
     public static class ExifItem

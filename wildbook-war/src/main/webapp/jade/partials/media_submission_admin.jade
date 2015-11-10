@@ -22,15 +22,15 @@ div
                     div.media-admin-nav
                         span.media-admin-nav-label Surveys
                         a(href="javascript:;", ng-click="searchSurvey()"
-                          title="Search for a Survey", data-toggle="tooltip")
+                          tooltips title="Search for a Survey")
                             i.glyphicon.glyphicon-search
                         a(href="javascript:;", ng-click="addSurvey()"
-                          title="Add a new Survey", data-toggle="tooltip")
+                          tooltips title="Add a new Survey")
                             i.glyphicon.glyphicon-plus
                         ul.list-group
                             li.list-group-item(ng-repeat="surveyEnc in data.surveyEncs")
                                 span {{surveyEnc.surveypart.survey.organization.displayName}} - {{surveyEnc.surveypart.survey.surveyNumber}}
-                                a(href="javascript:;", ng-click="addEncounter(surveyEnc.surveypart)", title="Add a new Encounter", data-toggle="tooltip")
+                                a(href="javascript:;", ng-click="addEncounter(surveyEnc.surveypart)" tooltips title="Add a new Encounter")
                                     i.glyphicon.glyphicon-plus
                                 .list-group
                                     a.list-group-item(href="javascript:;", ng-repeat="encounter in surveyEnc.encounters", ng-click="selectEncounter(encounter)", ng-class="{active: encounter.id === data.activeEncounter.id}")
@@ -41,10 +41,10 @@ div
                     div.media-admin-nav
                         span.media-admin-nav-label Encounters
                         a(href="javascript:;", ng-click="searchEncounter()",
-                          title="Search for an Encounter", data-toggle="tooltip")
+                          tooltips title="Search for an Encounter")
                             i.glyphicon.glyphicon-search
                         a(href="javascript:;", ng-click="addEncounter()",
-                          title="Add a new Encounter", data-toggle="tooltip")
+                          tooltips title="Add a new Encounter")
                             i.glyphicon.glyphicon-plus
                         .list-group
                             a.list-group-item(href="javascript:;", ng-repeat="encounter in data.encounters", ng-click="selectEncounter(encounter)", ng-class="{active: encounter.id === data.activeEncounter.id}")
@@ -70,7 +70,6 @@ div
                                 wb-thumb-box(ng-if="data.submission"
                                              photos="data.photos"
                                              actions="data.tbActions"
-                                             cb-delphoto="deletePhoto(id)"
                                              cb-action="performAction(code, photos)"
                                              num-photos="18")
                         .row

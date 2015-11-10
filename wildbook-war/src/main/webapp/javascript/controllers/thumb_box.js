@@ -21,14 +21,7 @@ wildbook.app.directive(
                             scope.$applyAsync(scope.panRight);
                             return false;
                         }
-                        switch (event.which) {
-                        case 68: //d (delete key is consumed by chrome)
-                            scope.$applyAsync(scope.deleteIt);
-                            break;
-                        default:
-                            scope.$applyAsync(scope.performKeyCode(event.which));
-                            break;
-                        }
+                        scope.$applyAsync(scope.performKeyCode(event.which));
                     }
                 );
             };
@@ -39,7 +32,6 @@ wildbook.app.directive(
             scope: {
                 photos: "=",
                 actions: "=",
-                cbDelphoto: "&",
                 cbAction: "&",
                 numPhotos: "@"
             },
@@ -126,6 +118,64 @@ wildbook.app.directive(
                     }
                 }
                 
+                function doAction(action, images) {
+                    var result = $scope.cbAction({code: action.code, photos: images});
+                    if (result && result.then) {
+                        result.then(function() {
+                            postPerformAction(action, images);
+                        });
+                    } else {
+                        postPerformAction(action, images);
+                    }
+                }
+                
+                function postPerformAction(action, images) {
+                    switch (action.code) {
+                    case "del": {
+                        $scope.photos = $scope.photos.filter(function(photo) {
+                            for (var ii = 0; ii < images.length; ii++) {
+                                if (images[ii].id === photo.id) {
+                                    return false;
+                                }
+                                return true;
+                            }
+                        });
+                        
+                        if ($scope.photos.length === 0) {
+                            $scope.zoomimage = null;
+                        }
+                        
+                        //
+                        // Check that our idx is still in range, if not
+                        // set it to the last image.
+                        //
+                        if (idx > $scope.photos.length - 1) {
+                            idx = $scope.photos.length - 1;
+                        }
+                        $scope.zoomimage = $scope.photos[idx];
+                    }}
+                }
+                
+                $scope.performAction = function(action) {
+                    var images;
+                    if ($scope.zoomimage) {
+                        images = [$scope.zoomimage];
+                    } else {
+                        //TODO: Once we allow multiple selection of thumbs then
+                        // we can send selected images to be acted upon
+                        //images = $scope.selected;
+                    }
+                    
+                    if (action.confirm) {
+                        return alertplus.confirm(action.confirm.message, action.tooltip, true)
+                        .then(function() {
+                            doAction(action, images);
+                        });
+                    } else {
+                        doAction(action, images);
+                    }
+                }
+                
                 $scope.performKeyCode = function(keyCode) {
                     //
                     // Look for an action with this keyCode
@@ -143,20 +193,11 @@ wildbook.app.directive(
                         }
                     });
                     
-                    if (! action) {
-                        return;
+                    if (action) {
+                        performAction(action);
                     }
-                    
-                    var actOn;
-                    if ($scope.zoomimage) {
-                        actOn = [$scope.zoomimage];
-                    } else {
-                        //TODO: Once we allow multiple selection of thumbs then
-                        // we can send selected images to be acted upon
-                    }
-                    $scope.cbAction({code: action.code, photos: actOn});
                 }
-                
+                    
                 $scope.isLeftDisabled = function() {
                     if ($scope.zoomimage) {
                         return (idx <= 0);
@@ -197,37 +238,6 @@ wildbook.app.directive(
                         return [];
                     }
                     return $scope.photos.slice(startIdx, startIdx + numPhotos);
-                }
-                
-                $scope.deleteIt = function() {
-                    if ($scope.zoomimage) {
-                        $scope.removePhoto($scope.zoomimage.id);
-                    }
-                }
-                
-                $scope.removePhoto = function(id) {
-                    return alertplus.confirm('Are you sure you want to delete this image?', "Delete Image", true)
-                    .then(function() {
-                        $scope.cbDelphoto({id: id})
-                        .then(function() {
-                            $scope.photos = $scope.photos.filter(function(photo) {
-                                return (photo.id !== id);
-                            });
-                            if ($scope.photos.length === 0) {
-                                $scope.zoomimage = null;
-                            }
-                            
-                            //
-                            // If this was our last image then we need to backup
-                            // the index. Otherwise we keep the index the same which
-                            // will effectively pan us to the next photo.
-                            //
-                            if (idx >= $scope.photos.length - 1) {
-                                idx--;
-                            }
-                            $scope.zoomimage = $scope.photos[idx];
-                        });
-                    });
                 }
                 
                 //

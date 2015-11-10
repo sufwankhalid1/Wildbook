@@ -1,6 +1,6 @@
 wildbook = {};
 
-wildbook.app = angular.module('appWildbook', ["agGrid"]);
+wildbook.app = angular.module('appWildbook', ["agGrid", "720kb.tooltips"]);
 wildbook.app.factory('$exceptionHandler', function() {
     return function(ex, cause) {
         //
@@ -57,10 +57,6 @@ wildbook.app.factory("wbConfig", ["$http", "$exceptionHandler", function($http, 
     $http({url:"util/init"})
     .then(function(result) {
         config = result.data;
-        //
-        // When everything is ready, initialize tooltips on the page
-        //
-        $('[data-toggle="tooltip"]').tooltip();
     }, $exceptionHandler);
 
     return {
