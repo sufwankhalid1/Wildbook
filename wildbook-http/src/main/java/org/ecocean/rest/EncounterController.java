@@ -39,11 +39,24 @@ public class EncounterController
     @RequestMapping(value = "addmedia/{id}", method = RequestMethod.POST)
     public void addMedia(final HttpServletRequest request,
                          @PathVariable("id") final int encounterid,
-                         @RequestBody @Valid final List<Integer> mediaids) throws DatabaseException {
+                         @RequestBody @Valid final Integer[] mediaids) throws DatabaseException {
         try (Database db = ServletUtils.getDb(request)) {
             db.performTransaction(() -> {
-                for (Integer mediaid : mediaids) {
-                    EncounterFactory.addMedia(db, encounterid, mediaid);
+                for (int ii=0; ii < mediaids.length; ii++) {
+                    EncounterFactory.addMedia(db, encounterid, mediaids[ii]);
+                }
+            });
+        }
+    }
+
+    @RequestMapping(value = "detachmedia/{id}", method = RequestMethod.POST)
+    public void detacchMedia(final HttpServletRequest request,
+                             @PathVariable("id") final int encounterid,
+                             @RequestBody @Valid final Integer[] mediaids) throws DatabaseException {
+        try (Database db = ServletUtils.getDb(request)) {
+            db.performTransaction(() -> {
+                for (int ii=0; ii < mediaids.length; ii++) {
+                    EncounterFactory.detachMedia(db, encounterid, mediaids[ii]);
                 }
             });
         }

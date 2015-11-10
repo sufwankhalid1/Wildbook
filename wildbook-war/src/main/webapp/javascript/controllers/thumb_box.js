@@ -25,20 +25,9 @@ wildbook.app.directive(
                         case 68: //d (delete key is consumed by chrome)
                             scope.$applyAsync(scope.deleteIt);
                             break;
-                            // Maybe make a generic function for other events. But then how
-                            // to handle interacting with these special things? Like filtering by completed
-                            // pictures. So control will need to have some things. Maybe complete is just
-                            // something the control knows about?
-                            //
-                        case 65: //a
-                            scope.$applyAsync(scope.addPhotos);
+                        default:
+                            scope.$applyAsync(scope.performKeyCode(event.which));
                             break;
-//                        case 65: //c
-//                            scope.$applyAsync(scope.complete);
-//                            break;
-//                        case 65: //i
-//                            scope.$applyAsync(scope.idService);
-//                            break;
                         }
                     }
                 );
@@ -49,8 +38,9 @@ wildbook.app.directive(
             restrict: 'E',
             scope: {
                 photos: "=",
+                actions: "=",
                 cbDelphoto: "&",
-                cbAddphotos: "&",
+                cbAction: "&",
                 numPhotos: "@"
             },
             link: function(scope, element, attrs) {
@@ -136,13 +126,35 @@ wildbook.app.directive(
                     }
                 }
                 
-                $scope.addPhotos = function() {
-                    if ($scope.zoomimage) {
-                        $scope.cbAddphotos({photos: [$scope.zoomimage]});
+                $scope.performKeyCode = function(keyCode) {
+                    //
+                    // Look for an action with this keyCode
+                    //
+                    if (!$scope.actions) {
                         return;
                     }
-                    //TODO: Once we allow multiple selection of thumbs then
-                    // we can send selected images to be deleted
+                    var action;
+                    $scope.actions.every(function(item) {
+                        if (item.shortcutKeyCode === keyCode) {
+                            action = item;
+                            return false;
+                        } else {
+                            return true;
+                        }
+                    });
+                    
+                    if (! action) {
+                        return;
+                    }
+                    
+                    var actOn;
+                    if ($scope.zoomimage) {
+                        actOn = [$scope.zoomimage];
+                    } else {
+                        //TODO: Once we allow multiple selection of thumbs then
+                        // we can send selected images to be acted upon
+                    }
+                    $scope.cbAction({code: action.code, photos: actOn});
                 }
                 
                 $scope.isLeftDisabled = function() {
@@ -166,9 +178,16 @@ wildbook.app.directive(
                 $scope.viewImage = function(photo) {
                     $scope.zoomimage = photo;
                     
-                    $scope.photos.forEach(function(value, index) {
-                        if (value.id === photo.id) {
+                    if (!photo) {
+                        return;
+                    }
+                    
+                    $scope.photos.every(function(item, index) {
+                        if (item.id === photo.id) {
                             idx = index;
+                            return false;
+                        } else {
+                            return true;
                         }
                     });
                 }

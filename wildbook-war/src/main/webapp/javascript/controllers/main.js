@@ -133,6 +133,20 @@ wildbook.app.factory("wbDateUtils", ["wbConfig", function(wbConfig) {
     };
 }]);
 
+wildbook.app.factory("wbEncounterUtils", ["$http", "$q", function($http, $q) {
+    return {
+        getMedia: function(encounter) {
+            if (! encounter.photos) {
+                return $http.get("obj/encounter/getmedia/" + encounter.id)
+                .then(function(result) {
+                    encounter.photos = result.data;
+                });
+            }
+            return $q.resolve();
+        }
+    };
+}]);
+
 wildbook.app.directive(
     'dateInput',
     ['wbDateUtils', function(wbDateUtils) {

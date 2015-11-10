@@ -1,5 +1,6 @@
 wildbook.app.directive("wbMediaSubmissionAdmin",
-    ["$http", "$q", "$exceptionHandler", "wbDateUtils", function ($http, $q, $exceptionHandler, wbDateUtils) {
+    ["$http", "$q", "$exceptionHandler", "wbDateUtils", "wbEncounterUtils",
+     function ($http, $q, $exceptionHandler, wbDateUtils, wbEncounterUtils) {
         return {
             restrict: 'E',
             scope: {},
@@ -17,7 +18,11 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
                         encounterSearch: false,
                         surveyEdit: null,
                         surveySearch: false
-                    }
+                    },
+                    tbActions: [{
+                        code: "add",
+                        shortcutKeyCode: 65
+                    }]
                 };
             
                 function attachEncounter(encounter) {
@@ -123,30 +128,41 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
                     }, $exceptionHandler)
                 }
 
+                //=================================
+                // START wb-thumb-box
+                //=================================
                 $scope.deletePhoto = function(id) {
                     return $http.post("obj/mediasubmission/deletemedia", {submissionid: $scope.data.submission.id, mediaid: id})
                                 .catch($exceptionHandler);
                 }
                 
-                $scope.addPhotos = function(photos) {
+                $scope.performAction = function(code, photos) {
+                    if (!photos) {
+                        return;
+                    }
                     if (!$scope.data.activeEncounter) {
                         alertplus.alert("No active encounter selected.");
                         return;
                     }
                     
-                    $http.post("obj/encounter/addmedia/" + $scope.data.activeEncounter.id, photoids)
-                    .then(function() {
-                        if (! $scope.data.activeEncounter.photos) {
-                            $http.get("obj/encounter/getmedia/" + $scope.data.activeEncounter.id)
-                            .then(function(data) {
-                                $scope.data.activeEncounter.photos = data;
-                                $scope.data.activeEncounter.photos.push(photos);
+                    switch (code) {
+                    case "add": {
+                        var photoids = photos.map(function(photo) {
+                            return photo.id;
+                        })
+                        wbEncounterUtils.getMedia($scope.data.activeEncounter)
+                        .then(function() {
+                            $http.post("obj/encounter/addmedia/" + $scope.data.activeEncounter.id, photoids)
+                            .then(function() {
+                                $scope.data.activeEncounter.photos = $scope.data.activeEncounter.photos.concat(photos);
                             });
-                        } else {
-                            $scope.data.activeEncounter.photos.push(photos);
-                        }
-                    });
+                        });
+                        break;
+                    }}
                 }
+                //=================================
+                // END wb-thumb-box
+                //=================================
             
                 $scope.editSubmission = function(submission) {
                     return $q.all([$http({url:"obj/mediasubmission/photos/" + submission.id}),

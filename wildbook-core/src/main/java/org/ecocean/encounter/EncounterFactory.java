@@ -119,6 +119,14 @@ public class EncounterFactory {
         table.insertRow(formatter);
     }
 
+    public static void detachMedia(final Database db, final int encounterid, final int mediaid) throws DatabaseException {
+        Table table = db.getTable(TABLENAME_ENCOUNTER_MEDIA);
+        SqlWhereFormatter formatter = new SqlWhereFormatter();
+        formatter.append(PK_ENCOUNTERS, encounterid);
+        formatter.append("mediaid", mediaid);
+        table.deleteRows(formatter.getWhereClause());
+    }
+
     public static List<SimplePhoto> getMedia(final Database db, final int encounterid) throws DatabaseException {
         SqlStatement sql = new SqlStatement(MediaAssetFactory.TABLENAME_MEDIAASSET,
                                             MediaAssetFactory.ALIAS_MEDIAASSET,
