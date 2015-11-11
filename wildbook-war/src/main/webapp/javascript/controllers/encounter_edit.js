@@ -71,21 +71,8 @@ wildbook.app.directive(
                     
                     switch (code) {
                     case "del": {
-                        $http.post("obj/encounter/detachmedia/" + $scope.encounter.id, photoids)
-                        .then(function() {
-                            //
-                            // TODO: Do we need to do a filter like this?
-                            // Might just be auto-filtered from thumb box.
-                            //
-//                            $scope.photos = $scope.photos.filter(function(photo) {
-//                                for (var ii = 0; ii < images.length; ii++) {
-//                                    if (images[ii].id === photo.id) {
-//                                        return false;
-//                                    }
-//                                    return true;
-//                                }
-//                            });
-                        }, $exceptionHandler);
+                        $http.post("obj/encounter/detachmdia/" + $scope.encounter.id, photoids)
+                        .catch($exceptionHandler);
                     }}
                 }
                 //=================================

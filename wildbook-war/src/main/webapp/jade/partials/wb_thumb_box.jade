@@ -12,16 +12,16 @@ div(wb-key-handler-watch-scope="parent")
     .ng-cloak(ng-show="zoomimage", style="position: relative; width: 800px; height: 600px;", wb-key-handler-form)
         div
             img.ng-cloak(ng-src="{{zoomimage.midUrl}}")
-        div(style="position: absolute; top: 0px; right: 5px; width: 24px; height: 24px" tooltips title="Close")
+        div(style="position: absolute; top: 0px; right: 5px; width: 24px; height: 24px" uib-tooltip="Close")
             button.btn.btn-success(ng-click="viewImage(null)")
                 i.glyphicon.glyphicon-check
-        div(style="position: absolute; top: 0px; right: 50px; width: 24px; height: 24px" tooltips title="Download")
+        div(style="position: absolute; top: 0px; right: 50px; width: 24px; height: 24px" uib-tooltip="Download")
             button.btn.btn-info
                 a(target="_self", href="{{zoomimage.url}}", download="{{zoomimage.url.substring(zoomimage.url.lastIndexOf('/')+1)}}")
                     i.glyphicon.glyphicon-download
         div(ng-repeat="action in actions"
             ng-style="{'position': 'absolute', 'top': '0px', 'right': '{{95 + (45 * $index)}}px', 'width': '24px', 'height': '24px'}"
-            tooltips title="{{action.tooltip}}")
+            uib-tooltip="{{action.tooltip}}")
             button.btn(ng-class="'btn-' + (action.type || 'default')" ng-click="performAction(action)")
                 i.glyphicon(ng-class="'glyphicon-' + (action.buttonIcon || 'check')")
             

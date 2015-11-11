@@ -1,6 +1,6 @@
 wildbook = {};
 
-wildbook.app = angular.module('appWildbook', ["agGrid", "720kb.tooltips"]);
+wildbook.app = angular.module('appWildbook', ["agGrid", "ui.bootstrap"]);
 wildbook.app.factory('$exceptionHandler', function() {
     return function(ex, cause) {
         //
