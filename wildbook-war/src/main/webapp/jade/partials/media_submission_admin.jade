@@ -11,12 +11,11 @@ div
                         .col-md-8.col-sm-6
                             h3 Edit Media Submission [{{data.submission.id}}]
                         .col-md-4.col-sm-6
-                            span.media-admin-edit-icon
-                                button.btn.btn-success(ng-click="doneEditing()")
-                                    i.glyphicon.glyphicon-check
-                            span.media-admin-edit-icon
-                                button.btn.btn-danger(ng-click="deleteSubmission(data.submission)")
+                            .flexy.action-icon-box
+                                button.btn.btn-danger.action-icon(ng-click="deleteSubmission(data.submission)")
                                     i.glyphicon.glyphicon-trash
+                                button.btn.btn-success.action-icon(ng-click="doneEditing()")
+                                    i.glyphicon.glyphicon-check
             .row
                 .col-md-2
                     div.media-admin-nav

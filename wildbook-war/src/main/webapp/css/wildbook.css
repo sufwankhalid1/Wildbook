@@ -8172,6 +8172,15 @@ form table th {
   margin-top: 5px;
   margin-right: 5px;
 }
+.action-icon-box {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+}
+.flexy {
+  display: flex;
+  flex-wrap: wrap;
+}
 .maincontent {
   padding-top: 5px;
 }
@@ -8583,12 +8592,13 @@ div.state-approved span.state {
   margin: 4px 5px 0;
   float: right;
 }
+/*
 .media-admin-edit-icon {
-  position: relative;
-  top: 15px;
-  margin: 2px;
-  float: right;
-}
+    position: relative;
+    top: 15px;
+    margin: 2px;
+    float: right;
+}*/
 .ui-tooltip {
   font-size: 0.8em;
   padding: 5px;
