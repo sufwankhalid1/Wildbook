@@ -11,7 +11,14 @@ wildbook.app.directive(
             templateUrl: 'util/render?j=partials/encounter_edit',
             replace: true,
             controller: function($scope) {
-                $scope.tbActions = [];
+                $scope.tbActions = [{
+                    code: "del",
+                    shortcutKeyCode: 68,
+                    type: "danger",
+                    buttonIcon: "trash",
+                    tooltip: "Remove/Detach",
+                    confirm: { message: "Are you sure you want to detach selected images from this encounter?"}
+                }];
                 
                 if ($scope.encounter === "new") {
                     $scope.encounter = {
@@ -53,16 +60,33 @@ wildbook.app.directive(
                 //=================================
                 // START wb-thumb-box
                 //=================================
-                $scope.deletePhoto = function(id) {
-                    return $http.post("obj/encounter/detachmedia", {submissionid: $scope.encounter.id, mediaid: id})
-                           .catch($exceptionHandler);
-                }
-                
                 $scope.performAction = function(code, photos) {
-//                    switch (code) {
-//                    case "blah": {
-//                        
-//                    }}
+                    if (!photos) {
+                        return;
+                    }
+                    
+                    var photoids = photos.map(function(photo) {
+                        return photo.id;
+                    });
+                    
+                    switch (code) {
+                    case "del": {
+                        $http.post("obj/encounter/detachmedia/" + $scope.encounter.id, photoids)
+                        .then(function() {
+                            //
+                            // TODO: Do we need to do a filter like this?
+                            // Might just be auto-filtered from thumb box.
+                            //
+//                            $scope.photos = $scope.photos.filter(function(photo) {
+//                                for (var ii = 0; ii < images.length; ii++) {
+//                                    if (images[ii].id === photo.id) {
+//                                        return false;
+//                                    }
+//                                    return true;
+//                                }
+//                            });
+                        }, $exceptionHandler);
+                    }}
                 }
                 //=================================
                 // END wb-thumb-box

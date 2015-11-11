@@ -122,10 +122,10 @@ wildbook.app.directive(
                     var result = $scope.cbAction({code: action.code, photos: images});
                     if (result && result.then) {
                         result.then(function() {
-                            postPerformAction(action, images);
+                            $scope.$applyAsync(postPerformAction(action, images));
                         });
                     } else {
-                        postPerformAction(action, images);
+                        $scope.$applyAsync(postPerformAction(action, images));
                     }
                 }
                 

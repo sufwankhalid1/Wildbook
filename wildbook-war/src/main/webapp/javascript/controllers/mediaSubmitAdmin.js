@@ -22,6 +22,7 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
                     tbActions: [{
                         code: "add",
                         shortcutKeyCode: 65,
+                        buttonIcon: "plus",
                         tooltip: "Add to active encounter"
                     },
                     {
@@ -30,7 +31,7 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
                         type: "danger",
                         buttonIcon: "trash",
                         tooltip: "Delete",
-                        confirm: { message: "Are you sure you want to delete this image?"}
+                        confirm: { message: "Are you sure you want to delete selected images?"}
                     }]
                 };
             

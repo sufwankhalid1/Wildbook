@@ -1,8 +1,8 @@
 // Need this parent div because as an angular directive it must have a single parent element
 div(wb-key-handler-watch-scope="parent")
-    .button.btn.btn-primary(ng-click="panLeft()", ng-disabled="isLeftDisabled()")
+    .button.btn.btn-success(ng-click="panLeft()", ng-disabled="isLeftDisabled()")
         i.glyphicon.glyphicon-chevron-left
-    .button.btn.btn-primary(ng-click="panRight()", ng-disabled="isRightDisabled()")
+    .button.btn.btn-success(ng-click="panRight()", ng-disabled="isRightDisabled()")
         i.glyphicon.glyphicon-chevron-right
     div(ng-show="! zoomimage", style="display: flex; flex-wrap: wrap")
         div(ng-repeat="photo in getVisPhotos()")
@@ -13,10 +13,10 @@ div(wb-key-handler-watch-scope="parent")
         div
             img.ng-cloak(ng-src="{{zoomimage.midUrl}}")
         div(style="position: absolute; top: 0px; right: 5px; width: 24px; height: 24px" tooltips title="Close")
-            button.btn.btn-primary(ng-click="viewImage(null)")
+            button.btn.btn-success(ng-click="viewImage(null)")
                 i.glyphicon.glyphicon-check
         div(style="position: absolute; top: 0px; right: 50px; width: 24px; height: 24px" tooltips title="Download")
-            button.btn.btn-primary
+            button.btn.btn-info
                 a(target="_self", href="{{zoomimage.url}}", download="{{zoomimage.url.substring(zoomimage.url.lastIndexOf('/')+1)}}")
                     i.glyphicon.glyphicon-download
         div(ng-repeat="action in actions"
