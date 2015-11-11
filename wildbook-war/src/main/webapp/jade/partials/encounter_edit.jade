@@ -23,16 +23,13 @@ form.form.ng-cloak(novalidate, wb-key-handler-form)
             label.control-label End Time:
             time-input.form-control(ng-model="encounter.endtime")
     .form-row
-        ul.nav.nav-tabs(data-tabs="tabs")
-            li
-                a(href="javascript:;" data-toggle="tab" ng-click="selectedTab = 1") Data
-            li
-                a(href="javascript:;" data-toggle="tab" ng-click="selectedTab = 2") Images
-        fieldset.col-md-12(location="encounter.location" location-edit, ng-show="selectedTab === 1 || selectedTab === undefined")
-        wb-thumb-box(ng-show="selectedTab === 2"
-                     photos="encounter.photos"
-                     actions="tbActions"
-                     cb-delphoto="deletePhoto(id)"
-                     cb-action="performAction(code, photos)")
+        uib-tabset
+            uib-tab(heading="Data")
+                fieldset.col-md-12(location="encounter.location" location-edit)
+            uib-tab(heading="Images")
+                wb-thumb-box(photos="encounter.photos"
+                             actions="tbActions"
+                             cb-delphoto="deletePhoto(id)"
+                             cb-action="performAction(code, photos)")
     .form-row
         input(type="submit" ng-click="save()" value="Save")
