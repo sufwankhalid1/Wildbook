@@ -15,7 +15,7 @@ wildbook.app.directive(
                     code: "del",
                     shortcutKeyCode: 68,
                     type: "danger",
-                    buttonIcon: "trash",
+                    glyphicon: "remove",
                     tooltip: "Remove/Detach",
                     confirm: { message: "Are you sure you want to detach selected images from this encounter?"}
                 }];

@@ -8165,6 +8165,13 @@ form table th {
   height: 100%;
   overflow-y: auto;
 }
+.btn.action-icon {
+  padding: 0px;
+  width: 30px;
+  height: 30px;
+  margin-top: 5px;
+  margin-right: 5px;
+}
 .maincontent {
   padding-top: 5px;
 }
