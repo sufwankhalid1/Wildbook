@@ -74,7 +74,7 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
                     $scope.data.module.encounterSearch = true;
                     $scope.data.module.surveyEdit = null;
                     $scope.data.module.surveySearch = false;
-              }
+                }
                 
                 $scope.searchEncounterDone = function(encounter) {
                     $scope.data.module.encounterSearch = false;
@@ -192,7 +192,7 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
                         $http.post("obj/mediasubmission/delete", {submissionid: submission.id})
                         .then(function() {
                             updateSubmissionData();
-                            $scope.data.submission = null;
+                            $scope.doneEditing();
                         }, $exceptionHandler);
                     });
                 };
@@ -242,6 +242,11 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
                     // Why do we need to update here?
                     //updateSubmissionData();
                     $scope.data.submission = null;
+                    
+                    $scope.data.module.encounterEdit = null;
+                    $scope.data.module.encounterSearch = false;
+                    $scope.data.module.surveyEdit = null;
+                    $scope.data.module.surveySearch = false;
                 };
             
                 var dataSource = {

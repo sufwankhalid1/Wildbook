@@ -71,8 +71,16 @@ wildbook.app.directive(
                     
                     switch (code) {
                     case "del": {
-                        $http.post("obj/encounter/detachmdia/" + $scope.encounter.id, photoids)
-                        .catch($exceptionHandler);
+                        //
+                        // Have to handle the error this way because catch() returns a *new* promise (whose
+                        // state is pending, and thus any then's called on the return object will happen as
+                        // soon as that is resolved which appears to happen rather than being rejected).
+                        // So instead we return the original promise from the post and call catch on that
+                        // same promise.
+                        //
+                        var promise = $http.post("obj/encounter/detachmedia/" + $scope.encounter.id, photoids);
+                        promise.catch($exceptionHandler);
+                        return promise;
                     }}
                 }
                 //=================================
