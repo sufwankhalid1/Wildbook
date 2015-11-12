@@ -132,7 +132,9 @@ wildbook.app.directive(
                 function postPerformAction(action, images) {
                     switch (action.code) {
                     case "del": {
-                        $scope.photos = wbLangUtils.filterByArrayProp($scope.photos, images, "id");
+                        $scope.photos = wbLangUtils.filterByArrayProp($scope.photos, images, function(targetItem, filterItem) {
+                            return (targetItem.id === filterItem.id);
+                        });
                         
                         if ($scope.photos.length === 0) {
                             $scope.zoomimage = null;
@@ -210,7 +212,9 @@ wildbook.app.directive(
                         return;
                     }
                     
-                    idx = wbLangUtils.findIndexInArray($scope.photos, photo, "id");
+                    idx = wbLangUtils.findIndexInArray($scope.photos, function(item) {
+                        return (item.id === photo.id);
+                    });
                 }
                 
                 $scope.getVisPhotos = function() {

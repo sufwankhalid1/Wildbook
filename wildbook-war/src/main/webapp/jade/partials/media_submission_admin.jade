@@ -26,8 +26,9 @@ div
                           uib-tooltip="Add a new Survey")
                             i.glyphicon.glyphicon-plus
                         ul.list-group
-                            li.list-group-item.media-admin-nav(ng-repeat="surveyEnc in data.surveyEncs")
-                                // ng-click="selectSurvey(surveyEnc)" ng-class="{active: surveyEnc.surveypart.id === data.activeSurveyEnc.surveypart.id}")
+                            li.list-group-item.media-admin-nav(ng-repeat="surveyEnc in data.surveyEncs"
+                                                               ng-click="selectSurvey(surveyEnc)"
+                                                               ng-class="{active: surveyEnc.surveypart.track.surveyPartId === data.activeSurveyEnc.surveypart.track.surveyPartId}")
                                 span {{surveyEnc.surveypart.survey.organization.displayName}} - {{surveyEnc.surveypart.survey.surveyNumber}}
                                 a(href="javascript:;", ng-click="addEncounter(surveyEnc)" tooltip-placement="right" uib-tooltip="Add a new Encounter")
                                     i.glyphicon.glyphicon-plus

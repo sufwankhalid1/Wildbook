@@ -69,7 +69,7 @@ wildbook.app.factory("wbConfig", ["$http", "$exceptionHandler", function($http, 
 
 wildbook.app.factory("wbLangUtils", function() {
     return {
-        filterByArrayProp: function(targetArray, filterArray, prop) {
+        filterByArrayProp: function(targetArray, filterArray, compare) {
             //
             // target array is filtered by matching elements in the filter array. i.e.
             // the matching elements are removed from the target array. matching is done
@@ -77,7 +77,7 @@ wildbook.app.factory("wbLangUtils", function() {
             //
             return targetArray.filter(function(item) {
                 for (var ii = 0; ii < filterArray.length; ii++) {
-                    if (filterArray[ii][prop] === item[prop]) {
+                    if (compare(item, filterArray[ii])) {
                         return false;
                     }
                     return true;
@@ -108,8 +108,8 @@ wildbook.app.factory("wbLangUtils", function() {
             });
             return idx;
         },
-        existsInArray: function(array, element, prop) {
-            return(this.findIndexInArray(array, element, prop) !== null);
+        existsInArray: function(array, compare) {
+            return(this.findIndexInArray(array, compare) !== null);
         }
     }
 });

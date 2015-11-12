@@ -100,27 +100,25 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
                     attachEncounter(encounter);
                 }
                 
-                $scope.addEncounter = function(surveyEnc) {
+                function editEncounter(encounter, surveyEnc) {
+                    $scope.data.module.encounterEdit = encounter;
+                    $scope.data.activeEncounter = encounter;
                     $scope.data.activeSurveyEnc = surveyEnc;
-                    // This one
-                    $scope.data.module.encounterEdit = wbEncounterUtils.createNewEncounter();
+                    
                     $scope.data.module.encounterSearch = false;
                     $scope.data.module.surveyEdit = null;
                     $scope.data.module.surveySearch = false;
                 }
                 
-                function editEncounter(encounter) {
-                    // This one
-                    $scope.data.module.encounterEdit = encounter;
-                    $scope.data.module.encounterSearch = false;
-                    $scope.data.module.surveyEdit = null;
-                    $scope.data.module.surveySearch = false;
+                $scope.addEncounter = function(surveyEnc) {
+                    editEncounter(wbEncounterUtils.createNewEncounter(), surveyEnc);
                 }
                 
                 $scope.selectEncounter = function(encounter, surveyEnc) {
-                    $scope.data.activeEncounter = encounter;
-                    $scope.data.activeSurveyEnc = surveyEnc;
-                    editEncounter(encounter);
+                    wbEncounterUtils.getMedia(encounter)
+                    .then(function() {
+                        editEncounter(encounter, surveyEnc);
+                    });
                 }
                 
                 $scope.searchSurvey = function() {
