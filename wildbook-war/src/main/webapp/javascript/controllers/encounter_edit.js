@@ -20,15 +20,8 @@ wildbook.app.directive(
                     confirm: { message: "Are you sure you want to detach selected images from this encounter?"}
                 }];
                 
-                if ($scope.encounter === "new") {
-                    $scope.encounter = {
-                        individual: {species: wbConfig.config().species[0]},
-                        photos: []
-                    };
-                } else {
-                    if (! $scope.encounter.photos) {
-                        wbEncounterUtils.getMedia($scope.encounter);
-                    }
+                if (! $scope.encounter.photos) {
+                    wbEncounterUtils.getMedia($scope.encounter);
                 }
 
                 $scope.getSpecies = function() {

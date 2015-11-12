@@ -11,10 +11,6 @@ wildbook.app.directive(
             replace: true,
             controller: function($scope) {
                 $scope.info = {};
-                
-                if ($scope.data === "new") {
-                    $scope.data = {};
-                }
             
                 $scope.orgChange = function() {
                     //

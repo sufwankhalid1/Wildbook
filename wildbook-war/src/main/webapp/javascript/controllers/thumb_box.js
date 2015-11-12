@@ -176,7 +176,9 @@ wildbook.app.directive(
                     if (!$scope.actions) {
                         return;
                     }
-                    var action = wbLangUtils.findInArray($scope.actions, "shortcutKeyCode", keyCode);
+                    var action = wbLangUtils.findInArray($scope.actions, function(item) {
+                        return (item.shortcutKeyCode === keyCode);
+                    });
                     
                     if (action) {
                         performAction(action);

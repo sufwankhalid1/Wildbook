@@ -84,10 +84,10 @@ wildbook.app.factory("wbLangUtils", function() {
                 }
             });
         },
-        findInArray: function(array, prop, value) {
+        findInArray: function(array, compare) {
             var element = null;
             array.every(function(item) {
-                if (item[prop] === value) {
+                if (compare(item)) {
                     element = item;
                     return false;
                 } else {
@@ -96,10 +96,10 @@ wildbook.app.factory("wbLangUtils", function() {
             });
             return element;
         },
-        findIndexInArray: function(array, element, prop) {
+        findIndexInArray: function(array, compare) {
             var idx = null;
             array.every(function(item, index) {
-                if (item[prop] === element[prop]) {
+                if (compare(item)) {
                     idx = index;
                     return false;
                 } else {
@@ -176,7 +176,7 @@ wildbook.app.factory("wbDateUtils", ["wbConfig", function(wbConfig) {
     };
 }]);
 
-wildbook.app.factory("wbEncounterUtils", ["$http", "$q", function($http, $q) {
+wildbook.app.factory("wbEncounterUtils", ["$http", "$q", "wbConfig", function($http, $q, wbConfig) {
     return {
         getMedia: function(encounter) {
             if (! encounter.photos) {
@@ -186,6 +186,12 @@ wildbook.app.factory("wbEncounterUtils", ["$http", "$q", function($http, $q) {
                 });
             }
             return $q.resolve();
+        },
+        createNewEncounter: function() {
+            return {
+                individual: {species: wbConfig.config().species[0]},
+                photos: []
+            };
         }
     };
 }]);

@@ -35,28 +35,40 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
                     }]
                 };
             
-                function attachEncounter(encounter) {
+                function attachEncounter(encounter, surveyEnc) {
                     if (! encounter) {
                         return;
                     }
                     
-                    if (! $scope.surveypart) {
-                        if (! wbLangUtils.existsInArray($scope.data.encounters, encounter, "id")) {
+                    if (surveyEnc) {
+                        if (surveyEnc.encounters) {
+                            if (wbLangUtils.existsInArray(surveyEnc.encounters, function(item) {
+                                return item.id === encounter.id
+                            })) {
+                                //
+                                // Just return as we already have this encounter attached to this survey.
+                                //
+                                return;
+                            };
+                        } else {
+                            //
+                            // Create empty array for encounters so that we can add one below.
+                            //
+                            surveyEnc.encounters = [];
+                        }
+                        // Call to add encounter to survey.
+                        $http.post("obj/survey/addencounter",
+                                   {surveypartid: surveyEnc.surveypart.track.surveyPartId, encounterid: encounter.id})
+                        .then(function() {
+                            surveyEnc.encounters.push(encounter);
+                        });
+                    } else {
+                        if (! wbLangUtils.existsInArray($scope.data.encounters, function(item) {
+                            return (item.id === encounter.id);
+                        })) {
                             $scope.data.encounters.push(encounter);
                         };
-                        return;
                     }
-            
-                    // Call to add encounter to survey.
-                    $http.post("obj/survey/addencounter",
-                               {surveypartid: $scope.surveypart.track.surveyPartId, encounterid: encounter.id})
-                    .then(function() {
-                        //
-                        // TODO: Add a second encounter to a survey. This is assuming there are
-                        // no encounters on a survey at the moment, right?
-                        //
-                        addSurveyEncounters($scope.surveypart, [encounter]);
-                    });
                 }
             
                 function addSurveyEncounters(surveypart, encounters) {
@@ -68,10 +80,11 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
                 }
             
                 $scope.editEncounterDone = function(encounter) {
-                    $scope.data.module.encounterEdit = null;
                     if (encounter) {
-                        attachEncounter(encounter);
+                        attachEncounter(encounter, $scope.data.activeSurveyEnc);
                     }
+                    $scope.data.module.encounterEdit = null;
+                    $scope.data.activeSurveyEnc = null;
                 }
                 
                 $scope.searchEncounter = function() {
@@ -87,10 +100,10 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
                     attachEncounter(encounter);
                 }
                 
-                $scope.addEncounter = function(surveypart) {
-                    $scope.surveypart = surveypart;
+                $scope.addEncounter = function(surveyEnc) {
+                    $scope.data.activeSurveyEnc = surveyEnc;
                     // This one
-                    $scope.data.module.encounterEdit = "new";
+                    $scope.data.module.encounterEdit = wbEncounterUtils.createNewEncounter();
                     $scope.data.module.encounterSearch = false;
                     $scope.data.module.surveyEdit = null;
                     $scope.data.module.surveySearch = false;
@@ -104,8 +117,9 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
                     $scope.data.module.surveySearch = false;
                 }
                 
-                $scope.selectEncounter = function(encounter) {
+                $scope.selectEncounter = function(encounter, surveyEnc) {
                     $scope.data.activeEncounter = encounter;
+                    $scope.data.activeSurveyEnc = surveyEnc;
                     editEncounter(encounter);
                 }
                 
@@ -121,13 +135,27 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
                     $scope.data.module.encounterEdit = null;
                     $scope.data.module.encounterSearch = false;
                     // This one
-                    $scope.data.module.surveyEdit = "new";
+                    $scope.data.module.surveyEdit = {};
                     $scope.data.module.surveySearch = false;
+                }
+                
+                function findSurveyEnc(surveypart) {
+                    return wbLangUtils.findInArray($scope.data.surveyEncs, function(item) {
+                        return (item.surveypart.track.surveyPartId === surveypart.track.surveyPartId);
+                    });
                 }
                 
                 $scope.editSurveyDone = function(surveypart) {
                     $scope.data.module.surveyEdit = null;
-                    addSurveyEncounters(surveypart);
+
+                    if (!surveypart) {
+                        return;
+                    }
+                    
+                    var surveyEnc = findSurveyEnc(surveypart);
+                    if (! surveyEnc) {
+                        addSurveyEncounters(surveypart);
+                    }
                 }
                 
                 $scope.searchSurveyDone = function(surveypart) {
@@ -135,6 +163,16 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
                     if (! surveypart) {
                         return;
                     }
+                    
+                    var surveyEnc = findSurveyEnc(surveypart);
+                    //
+                    // If already in the list then there is nothing to do,
+                    // the user simply searched for a surveypart they already have.
+                    //
+                    if (surveyEnc) {
+                        return;
+                    }
+                    
                     //
                     // Look for any encounters attached to this survey already
                     //

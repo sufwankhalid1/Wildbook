@@ -19,25 +19,26 @@ div
             .row
                 .col-md-2
                     div.media-admin-nav
-                        span.media-admin-nav-label Surveys
+                        span Surveys
                         a(href="javascript:;" ng-click="searchSurvey()" tooltip-placement="right" uib-tooltip="Search for a Survey")
                             i.glyphicon.glyphicon-search
                         a(href="javascript:;", ng-click="addSurvey()"
                           uib-tooltip="Add a new Survey")
                             i.glyphicon.glyphicon-plus
                         ul.list-group
-                            li.list-group-item(ng-repeat="surveyEnc in data.surveyEncs")
+                            li.list-group-item.media-admin-nav(ng-repeat="surveyEnc in data.surveyEncs")
+                                // ng-click="selectSurvey(surveyEnc)" ng-class="{active: surveyEnc.surveypart.id === data.activeSurveyEnc.surveypart.id}")
                                 span {{surveyEnc.surveypart.survey.organization.displayName}} - {{surveyEnc.surveypart.survey.surveyNumber}}
-                                a(href="javascript:;", ng-click="addEncounter(surveyEnc.surveypart)" uib-tooltip="Add a new Encounter")
+                                a(href="javascript:;", ng-click="addEncounter(surveyEnc)" tooltip-placement="right" uib-tooltip="Add a new Encounter")
                                     i.glyphicon.glyphicon-plus
                                 .list-group
-                                    a.list-group-item(href="javascript:;", ng-repeat="encounter in surveyEnc.encounters", ng-click="selectEncounter(encounter)", ng-class="{active: encounter.id === data.activeEncounter.id}")
+                                    a.list-group-item(href="javascript:;" ng-repeat="encounter in surveyEnc.encounters" ng-click="selectEncounter(encounter, surveyEnc)" ng-class="{active: encounter.id === data.activeEncounter.id}")
                                         .encounter-item
                                             div {{encounter.individual.displayName}}
                                             div {{dateStringFromRest(encounter.encDate)}}
                                             div {{encounter.location.locationid}}
                     div.media-admin-nav
-                        span.media-admin-nav-label Encounters
+                        span Encounters
                         a(href="javascript:;" ng-click="searchEncounter()"
                           tooltip-placement="bottom" uib-tooltip="Search for an Encounter")
                             i.glyphicon.glyphicon-search
