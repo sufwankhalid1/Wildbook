@@ -27,9 +27,6 @@ wildbook.app.directive(
                     };
                 } else {
                     if (! $scope.encounter.photos) {
-                        //
-                        // TODO: Do we need to have a .then($apply) here?
-                        //
                         wbEncounterUtils.getMedia($scope.encounter);
                     }
                 }

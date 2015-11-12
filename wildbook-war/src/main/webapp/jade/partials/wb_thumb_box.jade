@@ -12,7 +12,7 @@ div(wb-key-handler-watch-scope="parent")
     .ng-cloak(ng-show="zoomimage", style="position: relative; width: 800px; height: 600px;", wb-key-handler-form)
         div
             img.ng-cloak(ng-src="{{zoomimage.midUrl}}")
-        div.flexy.action-icon-box
+        .action-icon-box
             button.btn.action-icon(ng-repeat="action in actions" ng-class="'btn-' + (action.type || 'default')"
                                    ng-click="performAction(action)" uib-tooltip="{{action.tooltip}}")
                 i.glyphicon(ng-class="'glyphicon-' + (action.glyphicon || 'check')")

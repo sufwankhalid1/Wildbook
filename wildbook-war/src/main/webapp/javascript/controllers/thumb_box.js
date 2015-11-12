@@ -1,6 +1,6 @@
 wildbook.app.directive(
     'wbThumbBox',
-    ["wbDateUtils", "keyEvents", function(wbDateUtils, keyEvents) {
+    ["wbDateUtils", "keyEvents", "wbLangUtils", function(wbDateUtils, keyEvents, wbLangUtils) {
         function getKeySetup(priority) {
             return function(scope, element) {
                 return keyEvents.handler(priority ? parseInt(priority) : 100)
@@ -132,14 +132,7 @@ wildbook.app.directive(
                 function postPerformAction(action, images) {
                     switch (action.code) {
                     case "del": {
-                        $scope.photos = $scope.photos.filter(function(photo) {
-                            for (var ii = 0; ii < images.length; ii++) {
-                                if (images[ii].id === photo.id) {
-                                    return false;
-                                }
-                                return true;
-                            }
-                        });
+                        $scope.photos = wbLangUtils.filterByArrayProp($scope.photos, images, "id");
                         
                         if ($scope.photos.length === 0) {
                             $scope.zoomimage = null;
@@ -183,15 +176,7 @@ wildbook.app.directive(
                     if (!$scope.actions) {
                         return;
                     }
-                    var action;
-                    $scope.actions.every(function(item) {
-                        if (item.shortcutKeyCode === keyCode) {
-                            action = item;
-                            return false;
-                        } else {
-                            return true;
-                        }
-                    });
+                    var action = wbLangUtils.findInArray($scope.actions, "shortcutKeyCode", keyCode);
                     
                     if (action) {
                         performAction(action);
@@ -223,14 +208,7 @@ wildbook.app.directive(
                         return;
                     }
                     
-                    $scope.photos.every(function(item, index) {
-                        if (item.id === photo.id) {
-                            idx = index;
-                            return false;
-                        } else {
-                            return true;
-                        }
-                    });
+                    idx = wbLangUtils.findIndexInArray($scope.photos, photo, "id");
                 }
                 
                 $scope.getVisPhotos = function() {

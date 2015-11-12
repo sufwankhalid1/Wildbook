@@ -67,6 +67,53 @@ wildbook.app.factory("wbConfig", ["$http", "$exceptionHandler", function($http, 
     };
 }]);
 
+wildbook.app.factory("wbLangUtils", function() {
+    return {
+        filterByArrayProp: function(targetArray, filterArray, prop) {
+            //
+            // target array is filtered by matching elements in the filter array. i.e.
+            // the matching elements are removed from the target array. matching is done
+            // on the passed in property value.
+            //
+            return targetArray.filter(function(item) {
+                for (var ii = 0; ii < filterArray.length; ii++) {
+                    if (filterArray[ii][prop] === item[prop]) {
+                        return false;
+                    }
+                    return true;
+                }
+            });
+        },
+        findInArray: function(array, prop, value) {
+            var element = null;
+            array.every(function(item) {
+                if (item[prop] === value) {
+                    element = item;
+                    return false;
+                } else {
+                    return true;
+                }
+            });
+            return element;
+        },
+        findIndexInArray: function(array, element, prop) {
+            var idx = null;
+            array.every(function(item, index) {
+                if (item[prop] === element[prop]) {
+                    idx = index;
+                    return false;
+                } else {
+                    return true;
+                }
+            });
+            return idx;
+        },
+        existsInArray: function(array, element, prop) {
+            return(this.findIndexInArray(array, element, prop) !== null);
+        }
+    }
+});
+
 wildbook.app.factory("wbDateUtils", ["wbConfig", function(wbConfig) {
     function restToMoment(rest) {
         if (! rest) {

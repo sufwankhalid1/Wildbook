@@ -1,6 +1,6 @@
 wildbook.app.directive("wbMediaSubmissionAdmin",
-    ["$http", "$q", "$exceptionHandler", "wbDateUtils", "wbEncounterUtils",
-     function ($http, $q, $exceptionHandler, wbDateUtils, wbEncounterUtils) {
+    ["$http", "$q", "$exceptionHandler", "wbDateUtils", "wbLangUtils", "wbEncounterUtils",
+     function ($http, $q, $exceptionHandler, wbDateUtils, wbLangUtils, wbEncounterUtils) {
         return {
             restrict: 'E',
             scope: {},
@@ -41,7 +41,9 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
                     }
                     
                     if (! $scope.surveypart) {
-                        $scope.data.encounters.push(encounter);
+                        if (! wbLangUtils.existsInArray($scope.data.encounters, encounter, "id")) {
+                            $scope.data.encounters.push(encounter);
+                        };
                         return;
                     }
             
@@ -49,6 +51,10 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
                     $http.post("obj/survey/addencounter",
                                {surveypartid: $scope.surveypart.track.surveyPartId, encounterid: encounter.id})
                     .then(function() {
+                        //
+                        // TODO: Add a second encounter to a survey. This is assuming there are
+                        // no encounters on a survey at the moment, right?
+                        //
                         addSurveyEncounters($scope.surveypart, [encounter]);
                     });
                 }
@@ -247,6 +253,11 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
                     $scope.data.module.encounterSearch = false;
                     $scope.data.module.surveyEdit = null;
                     $scope.data.module.surveySearch = false;
+                    
+                    $scope.data.photos = null;
+                    $scope.data.encounters = [];
+                    $scope.data.surveyEncs = [];
+                    $scope.data.activeEncounter = null;
                 };
             
                 var dataSource = {
