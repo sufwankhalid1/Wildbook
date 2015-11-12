@@ -119,7 +119,7 @@ public class MediaSubmissionController
                               "surveypart_encounters",
                               "spe",
                               EncounterFactory.PK_ENCOUNTERS);
-            sql2.addCondition("spe", SurveyFactory.PK_SURVEYPART, SqlRelationType.EQUAL, "?");
+            sql3.addCondition("spe", SurveyFactory.PK_SURVEYPART, SqlRelationType.EQUAL, "?");
 
             db.select(sql, (rs) -> {
                 Encounter encounter = EncounterFactory.readEncounter(rs);
@@ -131,7 +131,7 @@ public class MediaSubmissionController
                 } else {
                     SurveyEncounters ses = new SurveyEncounters();
                     ses.surveypart = db.selectFirst(sql2, (rs2) -> {
-                        return SurveyFactory.readSurveyPartObj(rs);
+                        return SurveyFactory.readSurveyPartObj(rs2);
                     }, spi);
 
                     //
