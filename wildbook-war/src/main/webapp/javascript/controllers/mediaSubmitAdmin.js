@@ -307,6 +307,7 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
                     $scope.data.encounters = [];
                     $scope.data.surveyEncs = [];
                     $scope.data.activeEncounter = null;
+                    $scope.data.activeSurveyEnc = null;
                 };
             
                 var dataSource = {
