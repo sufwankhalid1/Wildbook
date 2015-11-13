@@ -33,7 +33,8 @@ wildbook.app.directive(
                 photos: "=",
                 actions: "=",
                 cbAction: "&",
-                numPhotos: "@"
+                blockSize: "@",
+                defaultBlockCount: "@"
             },
             link: function(scope, element, attrs) {
                 KeyEventHandler.link(getKeySetup(attrs.wbKeyHandlerPriority), scope, element, attrs);
@@ -44,19 +45,24 @@ wildbook.app.directive(
                 var startIdx = 0;
                 var idx;
                 
-                var numPhotos;
-                if (! $scope.numPhotos) {
-                    numPhotos = 18;
-                } else {
-                    numPhotos = parseInt($scope.numPhotos);
+                $scope.slider = {value: 18, step: 9};
+                if ($scope.blockSize) {
+                    $scope.slider.step = parseInt($scope.blockSize);
+                }
+                if ($scope.defaultBlockCount) {
+                    $scope.slider.value = parseInt($scope.defaultBlockCount) * $scope.slider.step;
                 }
 
+                $scope.sliderMax = function() {
+                    return Math.ceil($scope.photos.length / $scope.slider.step) * $scope.slider.step;
+                }
+                
                 $scope.getTimestamp = function(photo) {
                     return wbDateUtils.dateStringFromRest(photo.timestamp);
                 }
                 
                 function pageLeft() {
-                    startIdx = startIdx - numPhotos;
+                    startIdx = startIdx - $scope.slider.value;
                     if (startIdx < 0) {
                         startIdx = 0;
                     }
@@ -86,9 +92,9 @@ wildbook.app.directive(
                 }
 
                 function pageRight() {
-                    startIdx = startIdx + numPhotos;
-                    if (startIdx + numPhotos > $scope.photos.length) {
-                        startIdx = $scope.photos.length - numPhotos;
+                    startIdx = startIdx + $scope.slider.value;
+                    if (startIdx + $scope.slider.value > $scope.photos.length) {
+                        startIdx = $scope.photos.length - $scope.slider.value;
                         if (startIdx < 0) {
                             startIdx = 0;
                         }
@@ -110,7 +116,7 @@ wildbook.app.directive(
                         // If we have panned far enough such that we are now on the next
                         // "page" of thumbnails, let's reflect that.
                         //
-                        if (idx >= startIdx + numPhotos) {
+                        if (idx >= startIdx + $scope.slider.value) {
                             pageRight();
                         }
                     } else {
@@ -202,7 +208,7 @@ wildbook.app.directive(
                     if (! $scope.photos) {
                         return true;
                     }
-                    return (startIdx >= $scope.photos.length - numPhotos);
+                    return (startIdx >= $scope.photos.length - $scope.slider.value);
                 }
                 
                 $scope.viewImage = function(photo) {
@@ -221,7 +227,7 @@ wildbook.app.directive(
                     if (! $scope.photos) {
                         return [];
                     }
-                    return $scope.photos.slice(startIdx, startIdx + numPhotos);
+                    return $scope.photos.slice(startIdx, startIdx + $scope.slider.value);
                 }
                 
                 //

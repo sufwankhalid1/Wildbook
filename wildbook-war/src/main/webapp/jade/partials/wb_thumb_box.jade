@@ -1,23 +1,28 @@
 // Need this parent div because as an angular directive it must have a single parent element
 div(wb-key-handler-watch-scope="parent")
-    .button.btn.btn-success(ng-click="panLeft()", ng-disabled="isLeftDisabled()")
-        i.glyphicon.glyphicon-chevron-left
-    .button.btn.btn-success(ng-click="panRight()", ng-disabled="isRightDisabled()")
-        i.glyphicon.glyphicon-chevron-right
-    div.flexy(ng-show="! zoomimage")
-        div(ng-repeat="photo in getVisPhotos()")
-            a(href="javascript:;", ng-click="viewImage(photo)")
-                img(ng-src="{{photo.thumbUrl}}", style="padding: 2px; max-width: 100%")
-            div(style="font-size: 12px") {{getTimestamp(photo)}}
-    .ng-cloak(ng-show="zoomimage", style="position: relative; width: 800px; height: 600px;", wb-key-handler-form)
-        div
-            img.ng-cloak(ng-src="{{zoomimage.midUrl}}")
-        .action-icon-box
-            button.btn.action-icon(ng-repeat="action in actions" ng-class="'btn-' + (action.type || 'default')"
-                                   ng-click="performAction(action)" uib-tooltip="{{action.tooltip}}")
-                i.glyphicon(ng-class="'glyphicon-' + (action.glyphicon || 'check')")
-            button.btn.btn-info.action-icon(uib-tooltip="Download")
-                a(target="_self", href="{{zoomimage.url}}", download="{{zoomimage.url.substring(zoomimage.url.lastIndexOf('/')+1)}}")
-                    i.glyphicon.glyphicon-download
-            button.btn.btn-success.action-icon(uib-tooltip="Close" ng-click="viewImage(null)")
-                i.glyphicon.glyphicon-check
+    .row
+        .col-md-6
+            .button.btn.btn-success(ng-click="panLeft()", ng-disabled="isLeftDisabled()")
+                i.glyphicon.glyphicon-chevron-left
+            .button.btn.btn-success(ng-click="panRight()", ng-disabled="isRightDisabled()")
+                i.glyphicon.glyphicon-chevron-right
+        .col-md-6
+            slider(ng-model="slider.value" min="slider.step" step="slider.step" max="sliderMax()" value="slider.value")
+    .row
+        .flexy(ng-show="! zoomimage")
+            div(ng-repeat="photo in getVisPhotos()")
+                a(href="javascript:;", ng-click="viewImage(photo)")
+                    img(ng-src="{{photo.thumbUrl}}", style="padding: 2px; max-width: 100%")
+                div(style="font-size: 12px") {{getTimestamp(photo)}}
+        .ng-cloak(ng-show="zoomimage", style="position: relative; width: 800px; height: 600px;", wb-key-handler-form)
+            div
+                img.ng-cloak(ng-src="{{zoomimage.midUrl}}")
+            .action-icon-box
+                button.btn.action-icon(ng-repeat="action in actions" ng-class="'btn-' + (action.type || 'default')"
+                                       ng-click="performAction(action)" uib-tooltip="{{action.tooltip}}")
+                    i.glyphicon(ng-class="'glyphicon-' + (action.glyphicon || 'check')")
+                button.btn.btn-info.action-icon(uib-tooltip="Download")
+                    a(target="_self", href="{{zoomimage.url}}", download="{{zoomimage.url.substring(zoomimage.url.lastIndexOf('/')+1)}}")
+                        i.glyphicon.glyphicon-download
+                button.btn.btn-success.action-icon(uib-tooltip="Close" ng-click="viewImage(null)")
+                    i.glyphicon.glyphicon-check
