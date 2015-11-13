@@ -114,11 +114,28 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
                     editEncounter(wbEncounterUtils.createNewEncounter(), surveyEnc);
                 }
                 
-                $scope.selectEncounter = function(encounter, surveyEnc) {
+                $scope.selectEncounter = function($event, encounter, surveyEnc) {
                     wbEncounterUtils.getMedia(encounter)
                     .then(function() {
                         editEncounter(encounter, surveyEnc);
                     });
+                    //
+                    // Need to keep it from clicking through to the containing survey.
+                    //
+                    $event.stopPropagation();
+                }
+                
+                function editSurvey(surveypart) {
+                    $scope.data.module.encounterEdit = null;
+                    $scope.data.module.encounterSearch = false;
+                    // This one
+                    $scope.data.module.surveyEdit = surveypart;
+                    $scope.data.module.surveySearch = false;
+                }
+                
+                $scope.selectSurvey = function(surveyEnc) {
+                    $scope.data.activeSurveyEnc = surveyEnc;
+                    editSurvey(surveyEnc.surveypart);
                 }
                 
                 $scope.searchSurvey = function() {
@@ -130,11 +147,7 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
                 }
 
                 $scope.addSurvey = function() {
-                    $scope.data.module.encounterEdit = null;
-                    $scope.data.module.encounterSearch = false;
-                    // This one
-                    $scope.data.module.surveyEdit = {};
-                    $scope.data.module.surveySearch = false;
+                    editSurvey({});
                 }
                 
                 function findSurveyEnc(surveypart) {

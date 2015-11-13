@@ -33,7 +33,7 @@ div
                                 a(href="javascript:;", ng-click="addEncounter(surveyEnc)" tooltip-placement="right" uib-tooltip="Add a new Encounter")
                                     i.glyphicon.glyphicon-plus
                                 .list-group
-                                    a.list-group-item(href="javascript:;" ng-repeat="encounter in surveyEnc.encounters" ng-click="selectEncounter(encounter, surveyEnc)" ng-class="{active: encounter.id === data.activeEncounter.id}")
+                                    a.list-group-item(href="javascript:;" ng-repeat="encounter in surveyEnc.encounters" ng-click="selectEncounter($event, encounter, surveyEnc)" ng-class="{active: encounter.id === data.activeEncounter.id}")
                                         .encounter-item
                                             div {{encounter.individual.displayName}}
                                             div {{dateStringFromRest(encounter.encDate)}}
@@ -47,7 +47,7 @@ div
                           tooltip-placement="bottom" uib-tooltip="Add a new Encounter")
                             i.glyphicon.glyphicon-plus
                         .list-group
-                            a.list-group-item(href="javascript:;", ng-repeat="encounter in data.encounters", ng-click="selectEncounter(encounter)", ng-class="{active: encounter.id === data.activeEncounter.id}")
+                            a.list-group-item(href="javascript:;", ng-repeat="encounter in data.encounters", ng-click="selectEncounter($event, encounter)", ng-class="{active: encounter.id === data.activeEncounter.id}")
                                 .encounter-item
                                     div {{encounter.individual.displayName}}
                                     div {{dateStringFromRest(encounter.encDate)}}
