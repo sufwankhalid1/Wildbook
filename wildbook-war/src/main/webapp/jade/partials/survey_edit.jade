@@ -16,30 +16,30 @@ form.form.ng-cloak(novalidate, wb-key-handler-form)
                 input.form-control(type="text", ng-model="data.survey.surveyNumber")
     .form-row
         fieldset
-            legend.form-group Track
+            legend.form-group Part
             .form-group.col-md-6
                 label.control-label Vessel:
                 select.form-control(ng-options="vessel.displayName for vessel in info.vessels track by vessel.vesselId"
-                                    ng-model="data.track.vessel")
+                                    ng-model="data.part.vessel")
                     option(value="") --- select one ---
             .form-group.col-md-6
                 label.control-label Code:
-                input.form-control(type="text", ng-model="data.track.code")
+                input.form-control(type="text", ng-model="data.part.code")
             .form-group.col-md-4
                 label.control-label Date:
-                date-input.form-control(ng-model="data.track.partDate")
+                date-input.form-control(ng-model="data.part.partDate")
             .form-group.col-md-4
                 label.control-label Start Time:
-                time-input.form-control(ng-model="data.track.starttime")
+                time-input.form-control(ng-model="data.part.starttime")
             .form-group.col-md-4
                 label.control-label End Time:
-                time-input.form-control(ng-model="data.track.endtime")
+                time-input.form-control(ng-model="data.part.endtime")
     .form-row
-        fieldset(location="data.track.location", location-edit)
+        fieldset(location="data.part.location", location-edit)
     .form-row
         fieldset
             .form-group.col-md-12
                 label.control-label Comments:
-                input.form-control(type="textarea", rows="4", ng-model="data.track.comments")
+                input.form-control(type="textarea", rows="4", ng-model="data.part.comments")
     .form-row
         input(type="submit", ng-click="save()", value="Save")

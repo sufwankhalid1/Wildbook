@@ -58,7 +58,7 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
                         }
                         // Call to add encounter to survey.
                         $http.post("obj/survey/addencounter",
-                                   {surveypartid: surveyEnc.surveypart.track.surveyPartId, encounterid: encounter.id})
+                                   {surveypartid: surveyEnc.surveypart.part.surveyPartId, encounterid: encounter.id})
                         .then(function() {
                             surveyEnc.encounters.push(encounter);
                         });
@@ -152,7 +152,7 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
                 
                 function findSurveyEnc(surveypart) {
                     return wbLangUtils.findInArray($scope.data.surveyEncs, function(item) {
-                        return (item.surveypart.track.surveyPartId === surveypart.track.surveyPartId);
+                        return (item.surveypart.part.surveyPartId === surveypart.part.surveyPartId);
                     });
                 }
                 
@@ -187,7 +187,7 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
                     //
                     // Look for any encounters attached to this survey already
                     //
-                    $http.get("obj/survey/encounters/" + surveypart.track.surveyPartId)
+                    $http.get("obj/survey/encounters/" + surveypart.part.surveyPartId)
                     .then(function(result) {
                         addSurveyEncounters(surveypart, result.data);
                     }, $exceptionHandler)

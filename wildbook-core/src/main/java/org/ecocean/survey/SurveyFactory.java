@@ -105,12 +105,12 @@ public class SurveyFactory {
     }
 
     public static SurveyPartObj readSurveyPartObj(final RecordSet rs) throws DatabaseException {
-        SurveyPartObj part = new SurveyPartObj();
+        SurveyPartObj surveypart = new SurveyPartObj();
 
-        part.survey = readSurvey(rs);
-        part.track = readSurveyPart(rs);
+        surveypart.survey = readSurvey(rs);
+        surveypart.part = readSurveyPart(rs);
 
-        return part;
+        return surveypart;
     }
 
 

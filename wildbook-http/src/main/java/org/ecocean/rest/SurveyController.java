@@ -71,10 +71,10 @@ public class SurveyController {
             db.performTransaction(() -> {
               SurveyFactory.saveSurvey(db, sp.survey);
               if (logger.isDebugEnabled()) {
-                  LogBuilder.debug(logger, "track", sp.track);
+                  LogBuilder.debug(logger, "part", sp.part);
               }
-              sp.track.setSurveyId(sp.survey.getSurveyId());
-              SurveyFactory.saveSurveyPart(db, sp.track);
+              sp.part.setSurveyId(sp.survey.getSurveyId());
+              SurveyFactory.saveSurveyPart(db, sp.part);
             });
         }
     }

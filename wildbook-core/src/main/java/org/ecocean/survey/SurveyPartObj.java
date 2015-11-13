@@ -6,5 +6,5 @@ package org.ecocean.survey;
  */
 public class SurveyPartObj {
     public Survey survey;
-    public SurveyPart track;
+    public SurveyPart part;
 }
