@@ -200,11 +200,7 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
                     if (!photos) {
                         return;
                     }
-                    
-                    var photoids = photos.map(function(photo) {
-                        return photo.id;
-                    });
-                    
+
                     switch (code) {
                     case "add": {
                         if (!$scope.data.activeEncounter) {
@@ -213,14 +209,33 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
                         }
                         wbEncounterUtils.getMedia($scope.data.activeEncounter)
                         .then(function() {
-                            $http.post("obj/encounter/addmedia/" + $scope.data.activeEncounter.id, photoids)
+                            //
+                            // Filter photos based on one's that are already attached to this encounter.
+                            //
+                            var newphotos = photos.filter(function(item) {
+                                for (var ii = 0; ii < $scope.data.activeEncounter.photos.length; ii++) {
+                                    if (item.id === $scope.data.activeEncounter.photos[ii].id) {
+                                        return false;
+                                    }
+                                }
+                                return true;
+                            });
+
+                            var newphotoids = newphotos.map(function(photo) {
+                                return photo.id;
+                            });
+                            
+                            $http.post("obj/encounter/addmedia/" + $scope.data.activeEncounter.id, newphotoids)
                             .then(function() {
-                                $scope.data.activeEncounter.photos = $scope.data.activeEncounter.photos.concat(photos);
+                                $scope.data.activeEncounter.photos = $scope.data.activeEncounter.photos.concat(newphotos);
                             });
                         });
                         break;
                     }
                     case "del": {
+                        var photoids = photos.map(function(photo) {
+                            return photo.id;
+                        });
                         return $http.post("obj/mediasubmission/deletemedia", {submissionid: $scope.data.submission.id, mediaids: photoids})
                         .catch($exceptionHandler);
                     }}

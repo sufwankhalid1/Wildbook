@@ -69,21 +69,6 @@ wildbook.app.factory("wbConfig", ["$http", "$exceptionHandler", function($http, 
 
 wildbook.app.factory("wbLangUtils", function() {
     return {
-        filterByArrayProp: function(targetArray, filterArray, compare) {
-            //
-            // target array is filtered by matching elements in the filter array. i.e.
-            // the matching elements are removed from the target array. matching is done
-            // on the passed in property value.
-            //
-            return targetArray.filter(function(item) {
-                for (var ii = 0; ii < filterArray.length; ii++) {
-                    if (compare(item, filterArray[ii])) {
-                        return false;
-                    }
-                    return true;
-                }
-            });
-        },
         findInArray: function(array, compare) {
             var element = null;
             array.every(function(item) {

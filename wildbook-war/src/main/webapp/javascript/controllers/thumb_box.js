@@ -44,6 +44,29 @@ wildbook.app.directive(
             controller: function($scope) {
                 var startIdx = 0;
                 var idx;
+                //
+                // Keep both a selected array and a selected value on thumbbox metadata
+                // for different reasons. Sometimes we want to loop through just the selected,
+                // and sometimes we want to know from a photo that it is selected. Angular dirty
+                // I think would be super busy running filter functions like crazy to update the view
+                // if we didn't store this in two different ways.
+                //
+                $scope.selected = [];
+                $scope.thumbbox = {};
+                
+                //
+                // This is not the photo's metadata in the file but rather
+                // metadata for thumbbox to use for display purposes.
+                // We make it an object on the photo called thumbbox to clearly
+                // identify its origin.
+                //
+                function meta(photo) {
+                    if (! $scope.thumbbox[photo.id]) {
+                        $scope.thumbbox[photo.id] = {selected: false};
+                    }
+                    
+                    return $scope.thumbbox[photo.id];
+                }
                 
                 $scope.slider = {value: 18, step: 9};
                 if ($scope.blockSize) {
@@ -138,8 +161,14 @@ wildbook.app.directive(
                 function postPerformAction(action, images) {
                     switch (action.code) {
                     case "del": {
-                        $scope.photos = wbLangUtils.filterByArrayProp($scope.photos, images, function(targetItem, filterItem) {
-                            return (targetItem.id === filterItem.id);
+                        $scope.photos = $scope.photos.filter(function(item) {
+                            for (var ii = 0; ii < images.length; ii++) {
+                                if (item.id === images[ii].id) {
+                                    delete $scope.thumbbox[images[ii].id];
+                                    return false;
+                                }
+                            }
+                            return true;
                         });
                         
                         if ($scope.photos.length === 0) {
@@ -162,9 +191,7 @@ wildbook.app.directive(
                     if ($scope.zoomimage) {
                         images = [$scope.zoomimage];
                     } else {
-                        //TODO: Once we allow multiple selection of thumbs then
-                        // we can send selected images to be acted upon
-                        //images = $scope.selected;
+                        images = $scope.selected;
                     }
                     
                     if (action.confirm) {
@@ -211,7 +238,24 @@ wildbook.app.directive(
                     return (startIdx >= $scope.photos.length - $scope.slider.value);
                 }
                 
-                $scope.viewImage = function(photo) {
+                $scope.selectImage = function($event, photo) {
+                    if ($event.altKey) {
+                        if (!photo) {
+                            return;
+                        }
+                        
+                        var md = meta(photo);
+                        if (md.selected) {
+                            $scope.selected = $scope.selected.filter(function(item) {
+                                return (item.id === photo.id);
+                            });
+                        } else {
+                            $scope.selected.push(photo);
+                        }
+                        md.selected = ! md.selected;
+                        return;
+                    }
+                    
                     $scope.zoomimage = photo;
                     
                     if (!photo) {
@@ -220,6 +264,15 @@ wildbook.app.directive(
                     
                     idx = wbLangUtils.findIndexInArray($scope.photos, function(item) {
                         return (item.id === photo.id);
+                    });
+                }
+                
+                $scope.clearSelection = function() {
+                    $scope.selected = [];
+                    $scope.photos.forEach(function(photo) {
+                        if ($scope.thumbbox[photo.id]) {
+                            $scope.thumbbox[photo.id].selected = false;
+                        }
                     });
                 }
                 

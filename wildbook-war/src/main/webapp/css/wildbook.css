@@ -8169,7 +8169,7 @@ form table th {
   padding: 0px;
   width: 30px;
   height: 30px;
-  margin-top: 5px;
+  margin-top: 0px;
   margin-right: 5px;
 }
 .action-icon-box {
@@ -8620,4 +8620,7 @@ div.state-approved span.state {
 }
 .ag-fresh .ag-header-cell-label {
   padding: 0 !important;
+}
+.thumbbox-item.selected {
+  background-color: #ffbf00;
 }
