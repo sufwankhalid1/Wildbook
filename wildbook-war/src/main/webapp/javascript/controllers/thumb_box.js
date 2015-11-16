@@ -43,6 +43,7 @@ wildbook.app.directive(
             replace: true,
             controller: function($scope) {
                 var startIdx = 0;
+                var shiftStart = null;
                 var idx;
                 //
                 // Keep both a selected array and a selected value on thumbbox metadata
@@ -52,8 +53,7 @@ wildbook.app.directive(
                 // if we didn't store this in two different ways.
                 //
                 $scope.thumbbox = {meta:{},
-                                   selected: [],
-                                   shiftStart: null};
+                                   selected: []};
                 
                 //
                 // This is not the photo's metadata in the file but rather
@@ -262,20 +262,20 @@ wildbook.app.directive(
                             $scope.thumbbox.selected.push(photo);
                         }
                         md.selected = ! md.selected;
-                        $scope.thumbbox.shiftStart = null;
+                        shiftStart = null;
                     } else if ($event.shiftKey) {
                         var shiftIdx = wbLangUtils.findIndexInArray($scope.photos, function(item) {
                             return (item.id === photo.id);
                         });
-                        if ($scope.thumbbox.shiftStart !== null) {
+                        if (shiftStart !== null) {
                             var startIdx;
                             var endIdx;
-                            if (shiftIdx > $scope.thumbbox.shiftStart) {
-                                startIdx = $scope.thumbbox.shiftStart;
+                            if (shiftIdx > shiftStart) {
+                                startIdx = shiftStart;
                                 endIdx = shiftIdx;
                             } else {
                                 startIdx = shiftIdx;
-                                endIdx = $scope.thumbbox.shiftStart;
+                                endIdx = shiftStart;
                             }
                             
                             for (var ii = startIdx; ii <= endIdx; ii++) {
@@ -285,9 +285,9 @@ wildbook.app.directive(
                                     mdi.selected = true;
                                 }
                             }
-                            $scope.thumbbox.shiftStart = null;
+                            shiftStart = null;
                         } else {
-                            $scope.thumbbox.shiftStart = shiftIdx;
+                            shiftStart = shiftIdx;
                             if (! md.selected) {
                                 $scope.thumbbox.selected.push(photo);
                                 md.selected = true;
@@ -299,7 +299,7 @@ wildbook.app.directive(
                         idx = wbLangUtils.findIndexInArray($scope.photos, function(item) {
                             return (item.id === photo.id);
                         });
-                        $scope.thumbbox.shiftStart = null;
+                        shiftStart = null;
                     }
                 }
                 
