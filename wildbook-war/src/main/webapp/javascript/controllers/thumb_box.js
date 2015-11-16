@@ -51,8 +51,9 @@ wildbook.app.directive(
                 // I think would be super busy running filter functions like crazy to update the view
                 // if we didn't store this in two different ways.
                 //
-                $scope.selected = [];
-                $scope.thumbbox = {};
+                $scope.thumbbox = {meta:{},
+                                   selected: [],
+                                   shiftStart: null};
                 
                 //
                 // This is not the photo's metadata in the file but rather
@@ -61,11 +62,11 @@ wildbook.app.directive(
                 // identify its origin.
                 //
                 function meta(photo) {
-                    if (! $scope.thumbbox[photo.id]) {
-                        $scope.thumbbox[photo.id] = {selected: false};
+                    if (! $scope.thumbbox.meta[photo.id]) {
+                        $scope.thumbbox.meta[photo.id] = {selected: false};
                     }
                     
-                    return $scope.thumbbox[photo.id];
+                    return $scope.thumbbox.meta[photo.id];
                 }
                 
                 $scope.slider = {value: 18, step: 9};
@@ -164,7 +165,7 @@ wildbook.app.directive(
                         $scope.photos = $scope.photos.filter(function(item) {
                             for (var ii = 0; ii < images.length; ii++) {
                                 if (item.id === images[ii].id) {
-                                    delete $scope.thumbbox[images[ii].id];
+                                    delete $scope.thumbbox.meta[images[ii].id];
                                     return false;
                                 }
                             }
@@ -191,7 +192,7 @@ wildbook.app.directive(
                     if ($scope.zoomimage) {
                         images = [$scope.zoomimage];
                     } else {
-                        images = $scope.selected;
+                        images = $scope.thumbbox.selected;
                     }
                     
                     if (action.confirm) {
@@ -238,40 +239,75 @@ wildbook.app.directive(
                     return (startIdx >= $scope.photos.length - $scope.slider.value);
                 }
                 
+                $scope.cancelZoom = function() {
+                    $scope.zoomimage = null;
+                }
+                
                 $scope.selectImage = function($event, photo) {
-                    if ($event.altKey) {
-                        if (!photo) {
-                            return;
-                        }
-                        
-                        var md = meta(photo);
-                        if (md.selected) {
-                            $scope.selected = $scope.selected.filter(function(item) {
-                                return (item.id === photo.id);
-                            });
-                        } else {
-                            $scope.selected.push(photo);
-                        }
-                        md.selected = ! md.selected;
-                        return;
-                    }
-                    
-                    $scope.zoomimage = photo;
-                    
                     if (!photo) {
                         return;
                     }
-                    
-                    idx = wbLangUtils.findIndexInArray($scope.photos, function(item) {
-                        return (item.id === photo.id);
-                    });
+
+                    var md = meta(photo);
+
+                    if ($event.altKey) {
+                        if (md.selected) {
+                            //
+                            // unselect it by filtering
+                            //
+                            $scope.thumbbox.selected = $scope.thumbbox.selected.filter(function(item) {
+                                return (item.id != photo.id);
+                            });
+                        } else {
+                            $scope.thumbbox.selected.push(photo);
+                        }
+                        md.selected = ! md.selected;
+                        $scope.thumbbox.shiftStart = null;
+                    } else if ($event.shiftKey) {
+                        var shiftIdx = wbLangUtils.findIndexInArray($scope.photos, function(item) {
+                            return (item.id === photo.id);
+                        });
+                        if ($scope.thumbbox.shiftStart !== null) {
+                            var startIdx;
+                            var endIdx;
+                            if (shiftIdx > $scope.thumbbox.shiftStart) {
+                                startIdx = $scope.thumbbox.shiftStart;
+                                endIdx = shiftIdx;
+                            } else {
+                                startIdx = shiftIdx;
+                                endIdx = $scope.thumbbox.shiftStart;
+                            }
+                            
+                            for (var ii = startIdx; ii <= endIdx; ii++) {
+                                var mdi = meta($scope.photos[ii]);
+                                if (! mdi.selected) {
+                                    $scope.thumbbox.selected.push($scope.photos[ii]);
+                                    mdi.selected = true;
+                                }
+                            }
+                            $scope.thumbbox.shiftStart = null;
+                        } else {
+                            $scope.thumbbox.shiftStart = shiftIdx;
+                            if (! md.selected) {
+                                $scope.thumbbox.selected.push(photo);
+                                md.selected = true;
+                            }
+                        }
+                    } else {
+                        $scope.zoomimage = photo;
+                        
+                        idx = wbLangUtils.findIndexInArray($scope.photos, function(item) {
+                            return (item.id === photo.id);
+                        });
+                        $scope.thumbbox.shiftStart = null;
+                    }
                 }
                 
                 $scope.clearSelection = function() {
-                    $scope.selected = [];
+                    $scope.thumbbox.selected = [];
                     $scope.photos.forEach(function(photo) {
-                        if ($scope.thumbbox[photo.id]) {
-                            $scope.thumbbox[photo.id].selected = false;
+                        if ($scope.thumbbox.meta[photo.id]) {
+                            $scope.thumbbox.meta[photo.id].selected = false;
                         }
                     });
                 }

@@ -10,15 +10,15 @@ div(wb-key-handler-watch-scope="parent")
             .action-icon-box
                 button.btn.action-icon(ng-repeat="action in actions" ng-class="'btn-' + (action.type || 'default')"
                                        ng-click="performAction(action)" uib-tooltip="{{action.tooltip}}"
-                                       ng-disabled="! zoomimage && selected.length === 0")
+                                       ng-disabled="! zoomimage && thumbbox.selected.length === 0")
                     i.glyphicon(ng-class="'glyphicon-' + (action.glyphicon || 'check')")
-                button.btn.btn-success.action-icon(uib-tooltip="Clear Selection" ng-click="clearSelection()" ng-disabled="zoomimage || selected.length === 0")
+                button.btn.btn-success.action-icon(uib-tooltip="Clear Selection" ng-click="clearSelection()" ng-disabled="zoomimage || thumbbox.selected.length === 0")
                     i.glyphicon.glyphicon-erase
         .col-md-4
             slider(ng-model="slider.value" min="slider.step" step="slider.step" max="sliderMax()" value="slider.value")
     .row
         .flexy(ng-show="! zoomimage")
-            .thumbbox-item(ng-repeat="photo in getVisPhotos()" ng-class="{'selected': thumbbox[photo.id].selected}")
+            .thumbbox-item(ng-repeat="photo in getVisPhotos()" ng-class="{'selected': thumbbox.meta[photo.id].selected}")
                 a(href="javascript:;", ng-click="selectImage($event, photo)")
                     img(ng-src="{{photo.thumbUrl}}", style="padding: 2px; max-width: 100%")
                 div(style="font-size: 12px") {{getTimestamp(photo)}}
@@ -29,5 +29,5 @@ div(wb-key-handler-watch-scope="parent")
                     button.btn.btn-info.action-icon(uib-tooltip="Download")
                         a(target="_self", href="{{zoomimage.url}}", download="{{zoomimage.url.substring(zoomimage.url.lastIndexOf('/')+1)}}")
                             i.glyphicon.glyphicon-download
-                    button.btn.btn-success.action-icon(uib-tooltip="Close" ng-click="selectImage($event, null)")
+                    button.btn.btn-success.action-icon(uib-tooltip="Close" ng-click="cancelZoom()")
                         i.glyphicon.glyphicon-check
