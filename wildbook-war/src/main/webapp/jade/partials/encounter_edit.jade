@@ -1,4 +1,4 @@
-form.form.ng-cloak(novalidate, wb-key-handler-form)
+form.form.ng-cloak(name="encounterForm" novalidate, wb-key-handler-form)
     .form-row
         legend.form-group Edit Encounter
             a(href="javascript:;" ng-click="cancel()" uib-tooltip="Cancel")
@@ -15,9 +15,9 @@ form.form.ng-cloak(novalidate, wb-key-handler-form)
         .form-group.col-md-1
             input(type="submit" ng-click="save()" value="Save")
     .form-row
-        .form-group.col-md-4
+        .form-group.col-md-4(ng-class="{'has-error': encounterForm.date.$invalid}")
             label.control-label Date:
-            date-input.form-control(ng-model="data.encounter.encDate")
+            date-input.form-control(name="date" ng-model="data.encounter.encDate" required)
         .form-group.col-md-4
             label.control-label Start Time:
             time-input.form-control(ng-model="data.encounter.starttime")

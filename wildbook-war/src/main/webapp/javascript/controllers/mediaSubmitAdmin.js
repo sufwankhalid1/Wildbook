@@ -38,15 +38,15 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
                                   values: $scope.numencs}]
                 };
             
-                function attachEncounter(encounter, surveyEnc) {
-                    if (! encounter) {
+                function attachEncounter(encdata, surveyEnc) {
+                    if (! encdata) {
                         return;
                     }
                     
                     if (surveyEnc) {
-                        if (surveyEnc.encounters) {
-                            if (wbLangUtils.existsInArray(surveyEnc.encounters, function(item) {
-                                return item.id === encounter.id
+                        if (surveyEnc.encs) {
+                            if (wbLangUtils.existsInArray(surveyEnc.encs, function(item) {
+                                return item.encounter.id === encdata.encounter.id
                             })) {
                                 //
                                 // Just return as we already have this encounter attached to this survey.
@@ -57,19 +57,19 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
                             //
                             // Create empty array for encounters so that we can add one below.
                             //
-                            surveyEnc.encounters = [];
+                            surveyEnc.encs = [];
                         }
                         // Call to add encounter to survey.
                         $http.post("obj/survey/addencounter",
-                                   {surveypartid: surveyEnc.surveypart.part.surveyPartId, encounterid: encounter.id})
+                                   {surveypartid: surveyEnc.surveypart.part.surveyPartId, encounterid: encdata.encounter.id})
                         .then(function() {
-                            surveyEnc.encounters.push(encounter);
+                            surveyEnc.encs.push(encdata);
                         });
                     } else {
                         if (! wbLangUtils.existsInArray($scope.data.encs, function(item) {
-                            return (item.id === encounter.id);
+                            return (item.encounter.id === encdata.encounter.id);
                         })) {
-                            $scope.data.encs.push(encounter);
+                            $scope.data.encs.push(encdata);
                         };
                     }
                 }
@@ -82,9 +82,9 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
                     return wbDateUtils.dateStringFromRest(date);
                 }
             
-                $scope.editEncounterDone = function(encounter) {
-                    if (encounter) {
-                        attachEncounter(encounter, $scope.data.activeSurveyEnc);
+                $scope.editEncounterDone = function(encdata) {
+                    if (encdata) {
+                        attachEncounter(encdata, $scope.data.activeSurveyEnc);
                     }
                     $scope.data.module.encounterEdit = null;
                     $scope.data.activeSurveyEnc = null;
@@ -112,7 +112,11 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
                 
                 $scope.searchEncounterDone = function(encounter) {
                     $scope.data.module.encounterSearch = false;
-                    attachEncounter(encounter);
+                    var encdata = {encounter: encounter};
+                    wbEncounterUtils.getMedia(encdata)
+                    .then(function() {
+                        attachEncounter(encdata);
+                    });
                 }
                 
                 function editEncounter(encdata, surveyEnc) {

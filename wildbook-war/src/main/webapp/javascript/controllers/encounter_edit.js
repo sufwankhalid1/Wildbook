@@ -30,10 +30,15 @@ wildbook.app.directive(
                 }
                 
                 $scope.save = function() {
+                    if ($scope.encounterForm.$invalid) {
+                        alertplus.alert("There are errors on the form.");
+                        return;
+                    }
+                    
                     $http.post('obj/encounter/save', $scope.data.encounter)
                     .then(function(result) {
                         $scope.data.encounter.id = result.data;
-                        $scope.editEncounterDone({encounter: $scope.data.encounter});
+                        $scope.editEncounterDone({encdata: $scope.data});
                     }, $exceptionHandler);
                 };
                 
