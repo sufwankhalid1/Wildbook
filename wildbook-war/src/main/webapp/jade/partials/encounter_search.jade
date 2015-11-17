@@ -1,17 +1,15 @@
 form.form.ng-cloak(novalidate, wb-key-handler-form)
     .form-row
         legend.form-group Search Encounter
-    .form-row
-        .form-group.col-md-6
-            label.control-label Date:
-            date-input.form-control(ng-model="searchdata.encdate")
-        .form-group.col-md-6
-            label.control-label Location:
-            input.form-control(type="text", ng-model="searchdata.locationid")
-        .form-group.col-md-12
-            input(type="submit", ng-click="search()", value="Search")
-    .form-row
-        .ng-cloak(ng-show="gotresults")
-            legend Results
-            p.help-block Click an Encounter to attach it to this Submission
+    uib-tabset
+        uib-tab(heading="Data" active="tabs[0].active")
+            .form-group.col-md-6
+                label.control-label Date:
+                date-input.form-control(ng-model="searchdata.encdate")
+            .form-group.col-md-6
+                label.control-label Location:
+                input.form-control(type="text", ng-model="searchdata.locationid")
+            .form-group.col-md-12
+                input(type="submit", ng-click="search()", value="Search")
+        uib-tab(heading="Results" active="tabs[1].active")
             .ag-fresh(ag-grid="gridOptions", style="height: 400px;")

@@ -9,13 +9,14 @@ wildbook.app.directive(
             templateUrl: 'util/render?j=partials/encounter_search',
             replace: true,
             controller: function($scope) {
+                $scope.tabs = [{}, {}];
                 $scope.searchdata = {};
             
                 $scope.search = function() {
                     $http.post("search/encounter", $scope.searchdata)
                     .then(function(result) {
-                        $scope.gotresults = true;
                         $scope.gridOptions.api.setRowData(result.data);
+                        $scope.tabs[1].active = true;
                     },
                     $exceptionHandler);
                 };

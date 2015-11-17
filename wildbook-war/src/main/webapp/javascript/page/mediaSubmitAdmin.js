@@ -4,7 +4,7 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
         return {
             restrict: 'E',
             scope: {},
-            templateUrl: 'util/render?j=partials/media_submission_admin',
+            templateUrl: 'util/render?j=directive/mediaSubmitAdmin',
             replace: true,
             controller: function($scope) {
                 $scope.numencs = {};
@@ -88,8 +88,6 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
                     }
                     $scope.data.module.encounterEdit = null;
                     $scope.data.activeSurveyEnc = null;
-                    
-                    calcEncCounts();
                 }
                 
                 $scope.encounterPhotosDetached = function(photos) {
@@ -112,9 +110,9 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
                 
                 $scope.searchEncounterDone = function(encounter) {
                     $scope.data.module.encounterSearch = false;
-                    var encdata = {encounter: encounter};
-                    wbEncounterUtils.getMedia(encdata)
-                    .then(function() {
+                    
+                    wbEncounterUtils.getEncData(encounter)
+                    .then(function(encdata) {
                         attachEncounter(encdata);
                     });
                 }

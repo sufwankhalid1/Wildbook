@@ -168,6 +168,7 @@ wildbook.app.factory("wbEncounterUtils", ["$http", "$q", "wbConfig", function($h
                 return $http.get("obj/encounter/getmedia/" + encdata.encounter.id)
                 .then(function(result) {
                     encdata.photos = result.data;
+                    return encdata;
                 });
             }
             return $q.resolve();
@@ -177,6 +178,13 @@ wildbook.app.factory("wbEncounterUtils", ["$http", "$q", "wbConfig", function($h
                 encounter: {individual: {species: wbConfig.config().species[0]}},
                 photos: []
             };
+        },
+        getEncData: function(encounter) {
+            return this.getMedia({encounter: encounter})
+            .then(function(encdata) {
+                return encdata;
+            });
+
         }
     };
 }]);

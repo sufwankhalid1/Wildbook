@@ -50,9 +50,9 @@ navbar:
             - name: locationID2
               url: /encounters/searchResultsAnalysis.jsp?locationCodeField=locationID2
         - name: search
-          submenus: 
+          submenus:
             - name: encounterSearch
-              url: /encounters/encounterSearch.jsp
+              url: /admin.jsp?j=page/encounterSearch
             - name: individualSearch
               url: /individualSearch.jsp
             - name: locationSearch
@@ -77,7 +77,7 @@ navbar:
               url: /appadmin/users.jsp?context=context0
               role: admin
             - name: mediaSubmissionManagement
-              url: /admin.jsp?j=mediaSubmitAdmin
+              url: /admin.jsp?j=page/mediaSubmitAdmin
               role: admin
             - name: photoKeywords
               url: /appadmin/kwAdmin.jsp

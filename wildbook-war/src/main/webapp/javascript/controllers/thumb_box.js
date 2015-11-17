@@ -55,6 +55,7 @@ wildbook.app.directive(
                 //
                 $scope.thumbbox = {meta:{},
                                    selected: []};
+                $scope.tabs = [{}, {}];
                 
                 //
                 // This is not the photo's metadata in the file but rather

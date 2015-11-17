@@ -28,8 +28,9 @@ form.form.ng-cloak(name="encounterForm" novalidate, wb-key-handler-form)
         uib-tabset
             uib-tab(heading="Data")
                 fieldset.col-md-12(location="data.encounter.location" location-edit)
-            uib-tab(heading="Images")
-                wb-thumb-box(photos="data.photos"
+            uib-tab(heading="Images" active="tabs[1].active")
+                wb-thumb-box(ng-if="tabs[1].active"
+                             photos="data.photos"
                              actions="tbActions"
                              cb-delphoto="deletePhoto(id)"
                              cb-action="performAction(code, photos)")
