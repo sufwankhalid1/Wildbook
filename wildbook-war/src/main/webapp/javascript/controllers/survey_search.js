@@ -11,6 +11,7 @@ wildbook.app.directive(
             controller: function($scope) {
                 $scope.data = {};
                 $scope.surveysearch = {};
+                $scope.tabs = [{}, {}];
             
                 $scope.orgChange = function() {
                     //
@@ -37,15 +38,13 @@ wildbook.app.directive(
                 $scope.search = function() {
                     $http.post("search/survey", $scope.surveysearch)
                     .then(function(result) {
-                        $scope.gotresults = true;
                         $scope.surveyGridOptions.api.setRowData(result.data);
+                        $scope.tabs[1].active = true;
                     },
                     $exceptionHandler);
                 };
             
                 function rowSelectedFunc(event) {
-            //        var survey = event.node.data.survey;
-            //        survey.tracks = [event.node.data.track];
                     $scope.searchSurveyDone({surveypart: event.node.data});
                 }
             
@@ -67,7 +66,7 @@ wildbook.app.directive(
                              }
                          },
                          {headerName: "Vessel",
-                             field: "track",
+                             field: "part",
                              cellRenderer: function(params) {
                                  if (params.value.vessel) {
                                      return params.value.vessel.displayName;
@@ -76,19 +75,19 @@ wildbook.app.directive(
                              }
                          },
                          {headerName: "Date",
-                             field: "track",
+                             field: "part",
                              cellRenderer: function(params) {
                                  return params.value.formattedTime;
                              }
                          },
                          {headerName: "Code",
-                             field: "track",
+                             field: "part",
                              cellRenderer: function(params) {
                                  return params.value.code;
                              }
                          },
                          {headerName: "Location",
-                            field: "track",
+                            field: "part",
                              cellRenderer: function(params) {
                                  if (params.value.location) {
                                      return params.value.location.locationid;
