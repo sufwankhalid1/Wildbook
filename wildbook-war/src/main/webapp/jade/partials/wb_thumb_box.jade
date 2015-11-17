@@ -25,7 +25,7 @@ div(wb-key-handler-watch-scope="parent")
                     div(ng-repeat="indicator in indicators" class="indicator {{indicator.def.type}} {{indicator.def.displayClass}}")
                         div(ng-class="{zero: (indicator.values[photo.id] === 0)}") {{indicator.values[photo.id]}}
                 div(style="font-size: 12px") {{getTimestamp(photo)}}
-        .ng-cloak(ng-show="zoomimage", style="position: relative; width: 800px; height: 600px;", wb-key-handler-form)
+        .ng-cloak(ng-if="zoomimage", style="position: relative; width: 800px; height: 600px;", wb-key-handler-form)
             div
                 img.ng-cloak(ng-src="{{zoomimage.midUrl}}")
                 .action-icon-box
@@ -34,3 +34,10 @@ div(wb-key-handler-watch-scope="parent")
                             i.glyphicon.glyphicon-download
                     button.btn.btn-success.action-icon(uib-tooltip="Close" ng-click="cancelZoom()")
                         i.glyphicon.glyphicon-check
+                .col-md-6
+                    .flexy
+                        div(ng-repeat="indicator in indicators" class="indicator {{indicator.def.type}} {{indicator.def.displayClass}}")
+                            div(ng-class="{zero: (indicator.values[zoomimage.id] === 0)}") {{indicator.values[zoomimage.id]}}
+                .col-md-6
+                    div(style="font-size: 16px") {{getTimestamp(zoomimage)}}
+                        
