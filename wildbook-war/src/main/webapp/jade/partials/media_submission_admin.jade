@@ -33,11 +33,11 @@ div
                                 a(href="javascript:;", ng-click="addEncounter(surveyEnc)" tooltip-placement="right" uib-tooltip="Add a new Encounter")
                                     i.glyphicon.glyphicon-plus
                                 .list-group
-                                    a.list-group-item(href="javascript:;" ng-repeat="encounter in surveyEnc.encounters" ng-click="selectEncounter($event, encounter, surveyEnc)" ng-class="{active: encounter.id === data.activeEncounter.id}")
+                                    a.list-group-item(href="javascript:;" ng-repeat="encdata in surveyEnc.encs" ng-click="selectEncounter($event, encdata, surveyEnc)" ng-class="{active: encdata.encounter.id === data.activeEncData.encounter.id}")
                                         .encounter-item
-                                            div {{encounter.individual.displayName}}
-                                            div {{dateStringFromRest(encounter.encDate)}}
-                                            div {{encounter.location.locationid}}
+                                            div {{encdata.encounter.individual.displayName}}
+                                            div {{dateStringFromRest(encdata.encounter.encDate)}}
+                                            div {{encdata.encounter.location.locationid}}
                     div.media-admin-nav
                         span Encounters
                         a(href="javascript:;" ng-click="searchEncounter()"
@@ -47,11 +47,11 @@ div
                           tooltip-placement="bottom" uib-tooltip="Add a new Encounter")
                             i.glyphicon.glyphicon-plus
                         .list-group
-                            a.list-group-item(href="javascript:;", ng-repeat="encounter in data.encounters", ng-click="selectEncounter($event, encounter)", ng-class="{active: encounter.id === data.activeEncounter.id}")
+                            a.list-group-item(href="javascript:;", ng-repeat="encdata in data.encs", ng-click="selectEncounter($event, encdata)", ng-class="{active: encdata.encounter.id === data.activeEncData.encounter.id}")
                                 .encounter-item
-                                    div {{encounter.individual.displayName}}
-                                    div {{dateStringFromRest(encounter.encDate)}}
-                                    div {{encounter.location.locationid}}
+                                    div {{encdata.encounter.individual.displayName}}
+                                    div {{dateStringFromRest(encdata.encounter.encDate)}}
+                                    div {{encdata.encounter.location.locationid}}
                 .col-md-10
                     .container-fluid
                         .row
@@ -69,6 +69,7 @@ div
                             .col-md-12
                                 wb-thumb-box(ng-if="data.submission"
                                              photos="data.photos"
+                                             indicators="data.indicators"
                                              actions="data.tbActions"
                                              cb-action="performAction(code, photos)")
                         .row
@@ -76,4 +77,7 @@ div
                                 wb-survey-search(ng-if="data.module.surveySearch", search-survey-done="searchSurveyDone(surveypart)")
                                 wb-survey-edit(ng-if="data.module.surveyEdit", survey-to-edit="data.module.surveyEdit", edit-survey-done="editSurveyDone(surveypart)")
                                 wb-encounter-search(ng-if="data.module.encounterSearch", search-encounter-done="searchEncounterDone(encounter)")
-                                wb-encounter-edit(ng-if="data.module.encounterEdit", encounter-to-edit="data.module.encounterEdit", edit-encounter-done="editEncounterDone(encounter)")
+                                wb-encounter-edit(ng-if="data.module.encounterEdit"
+                                                  enc-data="data.module.encounterEdit"
+                                                  edit-encounter-done="editEncounterDone(encounter)"
+                                                  photos-detached="encounterPhotosDetached(photos)")

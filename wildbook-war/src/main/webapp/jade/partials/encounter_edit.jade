@@ -6,30 +6,30 @@ form.form.ng-cloak(novalidate, wb-key-handler-form)
     .form-row
         .form-group.col-md-6
             label.control-label Individual:
-            input.form-control(type="text" disabled="true" ng-value="encounter.individual.id ? encounter.individual.displayName : '-- New Individual --'")
+            input.form-control(type="text" disabled="true" ng-value="data.encounter.individual.id ? data.encounter.individual.displayName : '-- New Individual --'")
         .form-group.col-md-5
             label.control-label Species:
             select.form-control(ng-options="species.name for species in getSpecies() track by species.code"
-                                ng-model="encounter.individual.species")
+                                ng-model="data.encounter.individual.species")
                 option(value="") --- select one ---
         .form-group.col-md-1
             input(type="submit" ng-click="save()" value="Save")
     .form-row
         .form-group.col-md-4
             label.control-label Date:
-            date-input.form-control(ng-model="encounter.encDate")
+            date-input.form-control(ng-model="data.encounter.encDate")
         .form-group.col-md-4
             label.control-label Start Time:
-            time-input.form-control(ng-model="encounter.starttime")
+            time-input.form-control(ng-model="data.encounter.starttime")
         .form-group.col-md-4
             label.control-label End Time:
-            time-input.form-control(ng-model="encounter.endtime")
+            time-input.form-control(ng-model="data.encounter.endtime")
     .form-row
         uib-tabset
             uib-tab(heading="Data")
-                fieldset.col-md-12(location="encounter.location" location-edit)
+                fieldset.col-md-12(location="data.encounter.location" location-edit)
             uib-tab(heading="Images")
-                wb-thumb-box(photos="encounter.photos"
+                wb-thumb-box(photos="data.photos"
                              actions="tbActions"
                              cb-delphoto="deletePhoto(id)"
                              cb-action="performAction(code, photos)")

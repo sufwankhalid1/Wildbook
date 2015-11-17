@@ -12,6 +12,7 @@ import org.ecocean.Global;
 import org.ecocean.email.EmailUtils;
 import org.ecocean.encounter.Encounter;
 import org.ecocean.encounter.EncounterFactory;
+import org.ecocean.encounter.EncounterObj;
 import org.ecocean.media.MediaAsset;
 import org.ecocean.media.MediaAssetFactory;
 import org.ecocean.media.MediaAssetType;
@@ -63,7 +64,6 @@ public class MediaSubmissionController
         }
     }
 
-
     @RequestMapping(value = "/encounters/{submissionid}", method = RequestMethod.GET)
     public static SubmissionEncounters getEncounters(final HttpServletRequest request,
                                                      @PathVariable("submissionid")
@@ -96,10 +96,6 @@ public class MediaSubmissionController
                              SqlRelationType.EQUAL,
                              submissionid);
 
-//            List<Encounter> encounters;
-//            encounters = db.selectList(sql, (rs) -> {
-//                return
-//            });
 
             SubmissionEncounters subEncs = new SubmissionEncounters();
 
@@ -127,8 +123,11 @@ public class MediaSubmissionController
                 Integer spi = rs.getInteger(SurveyFactory.PK_SURVEYPART);
 
                 if (spi == null) {
-                    subEncs.encounters.add(encounter);
+                    subEncs.encs.add(EncounterFactory.getEncounterObj(db, encounter));
                 } else {
+                    //
+                    // If we were part of a survey then go ahead and read that survey info in.
+                    //
                     SurveyEncounters ses = new SurveyEncounters();
                     ses.surveypart = db.selectFirst(sql2, (rs2) -> {
                         return SurveyFactory.readSurveyPartObj(rs2);
@@ -138,12 +137,19 @@ public class MediaSubmissionController
                     // Something went horribly wrong, this should not happen, but just in case...
                     //
                     if (ses.surveypart == null) {
-                        subEncs.encounters.add(encounter);
+                        subEncs.encs.add(EncounterFactory.getEncounterObj(db, encounter));
                     }
 
-                    ses.encounters = db.selectList(sql3, (rs3) -> {
+                    //
+                    // Now read in the encounters that were attached to this survey part.
+                    //
+                    List<Encounter> ecs = db.selectList(sql3, (rs3) -> {
                         return EncounterFactory.readEncounter(rs3);
                     }, spi);
+
+                    for (Encounter ec : ecs) {
+                        ses.encs.add(EncounterFactory.getEncounterObj(db, ec));
+                    }
 
                     subEncs.surveyEncounters.add(ses);
                 }
@@ -587,12 +593,12 @@ public class MediaSubmissionController
 
     public static class SubmissionEncounters
     {
-        public List<Encounter> encounters = new ArrayList<>();
+        public List<EncounterObj> encs = new ArrayList<>();
         public List<SurveyEncounters> surveyEncounters = new ArrayList<>();
     }
 
     public static class SurveyEncounters {
         public SurveyPartObj surveypart;
-        public List<Encounter> encounters;
+        public List<EncounterObj> encs = new ArrayList<>();
     }
 }

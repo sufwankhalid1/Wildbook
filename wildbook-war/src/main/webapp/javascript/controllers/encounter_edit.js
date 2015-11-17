@@ -5,8 +5,9 @@ wildbook.app.directive(
         return {
             restrict: 'E',
             scope: {
-                encounter: "=encounterToEdit",
-                editEncounterDone: "&"
+                data: "=encData",
+                editEncounterDone: "&",
+                photosDetached: "&"
             },
             templateUrl: 'util/render?j=partials/encounter_edit',
             replace: true,
@@ -20,8 +21,8 @@ wildbook.app.directive(
                     confirm: { message: "Are you sure you want to detach selected images from this encounter?"}
                 }];
                 
-                if (! $scope.encounter.photos) {
-                    wbEncounterUtils.getMedia($scope.encounter);
+                if (! $scope.data.photos) {
+                    wbEncounterUtils.getMedia($scope.data.encounter);
                 }
 
                 $scope.getSpecies = function() {
@@ -29,10 +30,10 @@ wildbook.app.directive(
                 }
                 
                 $scope.save = function() {
-                    $http.post('obj/encounter/save', $scope.encounter)
+                    $http.post('obj/encounter/save', $scope.data.encounter)
                     .then(function(result) {
-                        $scope.encounter.id = result.data;
-                        $scope.editEncounterDone({encounter: $scope.encounter});
+                        $scope.data.encounter.id = result.data;
+                        $scope.editEncounterDone({encounter: $scope.data.encounter});
                     }, $exceptionHandler);
                 };
                 
@@ -68,7 +69,10 @@ wildbook.app.directive(
                         // So instead we return the original promise from the post and call catch on that
                         // same promise.
                         //
-                        var promise = $http.post("obj/encounter/detachmedia/" + $scope.encounter.id, photoids);
+                        var promise = $http.post("obj/encounter/detachmedia/" + $scope.data.encounter.id, photoids)
+                        .then(function() {
+                            $scope.photosDetached({photos: photos});
+                        });
                         promise.catch($exceptionHandler);
                         return promise;
                     }}

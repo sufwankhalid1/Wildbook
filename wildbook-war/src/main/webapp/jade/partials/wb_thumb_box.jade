@@ -21,6 +21,9 @@ div(wb-key-handler-watch-scope="parent")
             .thumbbox-item(ng-repeat="photo in getVisPhotos()" ng-class="{'selected': thumbbox.meta[photo.id].selected}")
                 a(href="javascript:;", ng-click="selectImage($event, photo)")
                     img(ng-src="{{photo.thumbUrl}}", style="padding: 2px; max-width: 100%")
+                .flexy
+                    div(ng-repeat="indicator in indicators" class="indicator {{indicator.def.type}} {{indicator.def.displayClass}}")
+                        div(ng-class="{zero: (indicator.values[photo.id] === 0)}") {{indicator.values[photo.id]}}
                 div(style="font-size: 12px") {{getTimestamp(photo)}}
         .ng-cloak(ng-show="zoomimage", style="position: relative; width: 800px; height: 600px;", wb-key-handler-form)
             div

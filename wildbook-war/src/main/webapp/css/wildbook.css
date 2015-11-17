@@ -8183,6 +8183,29 @@ form table th {
   display: flex;
   flex-wrap: wrap;
 }
+.indicator {
+  width: 18px;
+  height: 18px;
+  padding: 0px;
+}
+.indicator.number {
+  border-radius: 50%;
+  border-width: 2px;
+  border-style: solid;
+  text-align: center;
+  font: 14px Arial, sans-serif;
+}
+.indicator.number.encounter .zero {
+  color: #666;
+}
+.indicator.number.encounter {
+  color: #ffbf00;
+  background: #666;
+  border-color: #666;
+}
+.thumbbox-item.selected {
+  background-color: #ffbf00;
+}
 .maincontent {
   padding-top: 5px;
 }
@@ -8620,7 +8643,4 @@ div.state-approved span.state {
 }
 .ag-fresh .ag-header-cell-label {
   padding: 0 !important;
-}
-.thumbbox-item.selected {
-  background-color: #ffbf00;
 }

@@ -31,6 +31,7 @@ wildbook.app.directive(
             restrict: 'E',
             scope: {
                 photos: "=",
+                indicators: "=",
                 actions: "=",
                 cbAction: "&",
                 blockSize: "@",

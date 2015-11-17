@@ -7,12 +7,13 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
             templateUrl: 'util/render?j=partials/media_submission_admin',
             replace: true,
             controller: function($scope) {
+                $scope.numencs = {};
                 $scope.data = {
                     submission: null,
                     photos: null,
                     encounters: [],
                     surveyEncs: [],
-                    activeEncounter: null,
+                    activeEncData: null,
                     module: {
                         encounterEdit: null,
                         encounterSearch: false,
@@ -32,7 +33,9 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
                         glyphicon: "trash",
                         tooltip: "Delete",
                         confirm: { message: "Are you sure you want to delete selected images?"}
-                    }]
+                    }],
+                    indicators: [{def: {displayClass: "encounter", type: "number"},
+                                  values: $scope.numencs}]
                 };
             
                 function attachEncounter(encounter, surveyEnc) {
@@ -63,10 +66,10 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
                             surveyEnc.encounters.push(encounter);
                         });
                     } else {
-                        if (! wbLangUtils.existsInArray($scope.data.encounters, function(item) {
+                        if (! wbLangUtils.existsInArray($scope.data.encs, function(item) {
                             return (item.id === encounter.id);
                         })) {
-                            $scope.data.encounters.push(encounter);
+                            $scope.data.encs.push(encounter);
                         };
                     }
                 }
@@ -85,6 +88,18 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
                     }
                     $scope.data.module.encounterEdit = null;
                     $scope.data.activeSurveyEnc = null;
+                    
+                    calcEncCounts();
+                }
+                
+                $scope.encounterPhotosDetached = function(photos) {
+                    //
+                    // Now decrease the numencs for these photos by one.
+                    //
+                    photos.forEach(function(item) {
+                        $scope.numencs[item.id]--;
+                    });
+
                 }
                 
                 $scope.searchEncounter = function() {
@@ -100,9 +115,9 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
                     attachEncounter(encounter);
                 }
                 
-                function editEncounter(encounter, surveyEnc) {
-                    $scope.data.module.encounterEdit = encounter;
-                    $scope.data.activeEncounter = encounter;
+                function editEncounter(encdata, surveyEnc) {
+                    $scope.data.module.encounterEdit = encdata;
+                    $scope.data.activeEncData = encdata;
                     $scope.data.activeSurveyEnc = surveyEnc;
                     
                     $scope.data.module.encounterSearch = false;
@@ -111,13 +126,13 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
                 }
                 
                 $scope.addEncounter = function(surveyEnc) {
-                    editEncounter(wbEncounterUtils.createNewEncounter(), surveyEnc);
+                    editEncounter(wbEncounterUtils.createNewEncData(), surveyEnc);
                 }
                 
-                $scope.selectEncounter = function($event, encounter, surveyEnc) {
-                    wbEncounterUtils.getMedia(encounter)
+                $scope.selectEncounter = function($event, encdata, surveyEnc) {
+                    wbEncounterUtils.getMedia(encdata)
                     .then(function() {
-                        editEncounter(encounter, surveyEnc);
+                        editEncounter(encdata, surveyEnc);
                     });
                     //
                     // Need to keep it from clicking through to the containing survey.
@@ -203,18 +218,18 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
 
                     switch (code) {
                     case "add": {
-                        if (!$scope.data.activeEncounter) {
+                        if (!$scope.data.activeEncData) {
                             alertplus.alert("No active encounter selected.");
                             return;
                         }
-                        wbEncounterUtils.getMedia($scope.data.activeEncounter)
+                        wbEncounterUtils.getMedia($scope.data.activeEncData)
                         .then(function() {
                             //
                             // Filter photos based on one's that are already attached to this encounter.
                             //
                             var newphotos = photos.filter(function(item) {
-                                for (var ii = 0; ii < $scope.data.activeEncounter.photos.length; ii++) {
-                                    if (item.id === $scope.data.activeEncounter.photos[ii].id) {
+                                for (var ii = 0; ii < $scope.data.activeEncData.photos.length; ii++) {
+                                    if (item.id === $scope.data.activeEncData.photos[ii].id) {
                                         return false;
                                     }
                                 }
@@ -225,9 +240,15 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
                                 return photo.id;
                             });
                             
-                            $http.post("obj/encounter/addmedia/" + $scope.data.activeEncounter.id, newphotoids)
+                            $http.post("obj/encounter/addmedia/" + $scope.data.activeEncData.encounter.id, newphotoids)
                             .then(function() {
-                                $scope.data.activeEncounter.photos = $scope.data.activeEncounter.photos.concat(newphotos);
+                                $scope.data.activeEncData.photos = $scope.data.activeEncData.photos.concat(newphotos);
+                                //
+                                // Now increase the numencs for these photos by one.
+                                //
+                                newphotos.forEach(function(item) {
+                                    $scope.numencs[item.id]++;
+                                });
                             });
                         });
                         break;
@@ -236,14 +257,49 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
                         var photoids = photos.map(function(photo) {
                             return photo.id;
                         });
-                        return $http.post("obj/mediasubmission/deletemedia", {submissionid: $scope.data.submission.id, mediaids: photoids})
-                        .catch($exceptionHandler);
+                        var promise = $http.post("obj/mediasubmission/deletemedia", {submissionid: $scope.data.submission.id, mediaids: photoids})
+                        .then(function() {
+                            //
+                            // Remove the numencs for these photos.
+                            //
+                            photos.forEach(function(item) {
+                                delete $scope.numencs[item.id];
+                            });
+                        });
+                        promise.catch($exceptionHandler);
+                        return promise;
                     }}
                 }
                 //=================================
                 // END wb-thumb-box
                 //=================================
             
+                function photoInNumEncs(encs, photo) {
+                    var sum = 0;
+                    for (var ii = 0; ii < encs.length; ii++) {
+                        if (wbLangUtils.existsInArray(encs[ii].photos, function(item) {
+                            return (item.id === photo.id);
+                        })) {
+                            sum++;
+                        }
+                    }
+                    return sum;
+                }
+                
+                function calcEncCounts() {
+                    for (var ii = 0; ii < $scope.data.photos.length; ii++) {
+                        var photo = $scope.data.photos[ii];
+                        sum = 0;
+                        sum += photoInNumEncs($scope.data.encs, photo);
+                        
+                        for (var jj = 0; jj < $scope.data.surveyEncs.length; jj++) {
+                            sum += photoInNumEncs($scope.data.surveyEncs[jj].encs, photo);
+                        }
+                        
+                        $scope.numencs[photo.id] = sum;
+                    }
+                }
+                
                 $scope.editSubmission = function(submission) {
                     return $q.all([$http({url:"obj/mediasubmission/photos/" + submission.id}),
                                    $http({url:"obj/mediasubmission/encounters/" + submission.id})])
@@ -251,8 +307,10 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
                         $scope.data.submission = submission;
                         $scope.data.photos = results[0].data;
             
-                        $scope.data.encounters = results[1].data.encounters || [];
+                        $scope.data.encs = results[1].data.encs || [];
                         $scope.data.surveyEncs = results[1].data.surveyEncounters || [];
+                        
+                        calcEncCounts();
                     }, $exceptionHandler);
                 }
             
@@ -319,9 +377,9 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
                     $scope.data.module.surveySearch = false;
                     
                     $scope.data.photos = null;
-                    $scope.data.encounters = [];
+                    $scope.data.encs = [];
                     $scope.data.surveyEncs = [];
-                    $scope.data.activeEncounter = null;
+                    $scope.data.activeEncData = null;
                     $scope.data.activeSurveyEnc = null;
                 };
             

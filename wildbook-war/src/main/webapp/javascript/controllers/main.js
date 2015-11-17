@@ -163,18 +163,18 @@ wildbook.app.factory("wbDateUtils", ["wbConfig", function(wbConfig) {
 
 wildbook.app.factory("wbEncounterUtils", ["$http", "$q", "wbConfig", function($http, $q, wbConfig) {
     return {
-        getMedia: function(encounter) {
-            if (! encounter.photos) {
-                return $http.get("obj/encounter/getmedia/" + encounter.id)
+        getMedia: function(encdata) {
+            if (! encdata.photos) {
+                return $http.get("obj/encounter/getmedia/" + encdata.encounter.id)
                 .then(function(result) {
-                    encounter.photos = result.data;
+                    encdata.photos = result.data;
                 });
             }
             return $q.resolve();
         },
-        createNewEncounter: function() {
+        createNewEncData: function() {
             return {
-                individual: {species: wbConfig.config().species[0]},
+                encounter: {individual: {species: wbConfig.config().species[0]}},
                 photos: []
             };
         }

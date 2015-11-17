@@ -316,4 +316,11 @@ public class EncounterFactory {
         formatter.append("sex", individual.getSex());
         formatter.append("avatarid", individual.getAvatarid());
     }
+
+    public static EncounterObj getEncounterObj(final Database db, final Encounter encounter) throws DatabaseException {
+        EncounterObj result = new EncounterObj();
+        result.encounter = encounter;
+        result.photos = getMedia(db, encounter.getId());
+        return result;
+    }
 }
