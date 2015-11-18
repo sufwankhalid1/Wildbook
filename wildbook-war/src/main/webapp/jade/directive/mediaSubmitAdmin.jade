@@ -74,9 +74,13 @@ div
                                              cb-action="performAction(code, photos)")
                         .row
                             .col-md-12
-                                cancel-button(ng-if="data.module.encounterEdit || data.module.encounterSearch")
-                                wb-survey-search(ng-if="data.module.surveySearch", search-survey-done="searchSurveyDone(surveypart)")
-                                wb-survey-edit(ng-if="data.module.surveyEdit", survey-to-edit="data.module.surveyEdit", edit-survey-done="editSurveyDone(surveypart)")
+                                cancel-button(ng-if="data.module.encounterEdit || data.module.encounterSearch || data.module.surveySearch || data.module.surveyEdit")
+                                div(ng-if="data.module.surveySearch")
+                                    legend Search Survey
+                                    wb-survey-search(search-survey-done="searchSurveyDone(surveypart)")
+                                div(ng-if="data.module.surveyEdit")
+                                    legend Edit Survey
+                                    wb-survey-edit(survey-to-edit="data.module.surveyEdit" edit-survey-done="editSurveyDone(surveypart)")
                                 div(ng-if="data.module.encounterSearch")
                                     legend Search Encounter
                                     wb-encounter-search(search-encounter-done="searchEncounterDone(encounter)")

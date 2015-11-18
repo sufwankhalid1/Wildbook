@@ -448,6 +448,10 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
                         $scope.data.module.encounterEdit = null;
                     } else if ($scope.data.module.encounterSearch) {
                         $scope.data.module.encounterSearch = false;
+                    } else if ($scope.data.module.surveyEdit) {
+                        $scope.data.module.surveyEdit = null;
+                    } else if ($scope.data.module.surveySearch) {
+                        $scope.data.module.surveySearch = false;
                     } else {
                         $scope.doneEditing();
                     }
