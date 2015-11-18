@@ -95,7 +95,7 @@ function reportMonthly() {
 	var mname = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 	var filename = $('#monthly-filename').val() || 'report.xls';
 
-	var url = 'ExportExcelFile?query=SELECT FROM org.ecocean.MarkedIndividual&filename=' + filename + '&columns=individualID&columns=sexOrGuess&headers=ID&headers=Sex';
+	var url = 'ExportExcelFile?query=SELECT FROM org.ecocean.MarkedIndividual&filename=' + filename + '&columns=individualID&columns=sexOrGuess&headers=ID&headers=Sex&_ibeisHack';
 	var y = now.getFullYear() - 1; 
 	var m = now.getMonth();
 	for (var i = 0 ; i < 12 ; i++) {

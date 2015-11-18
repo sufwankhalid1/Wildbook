@@ -47,6 +47,8 @@ public class ExportExcelFile extends HttpServlet{
     String query = request.getParameter("query");
     String[] headers = request.getParameterValues("headers");
     String[] columns = request.getParameterValues("columns");
+    boolean _ibeisHack = (request.getParameter("_ibeisHack") != null);
+
     Collection c = (Collection) myShepherd.getPM().newQuery(query).execute();
     Vector v = new Vector(c);
     //Class cls = v.get(0).getClass();
@@ -85,6 +87,7 @@ public class ExportExcelFile extends HttpServlet{
     }
 
     for (Object obj : v) {
+        int totalSightings = 0;  //specifically for _ibeisHack
         int col = 0;
         for (int i = 0 ; i < columns.length ; i++) {
             Method prop = null;
@@ -124,8 +127,22 @@ System.out.println("no such method for column " + mname + " (" + columns[i] + ")
             } catch (Exception addex) {
                 System.out.println("exception adding cell: " + addex.toString());
             }
+
+            if (_ibeisHack && mname.equals("getSightedForMonth")) {
+                try {
+                    totalSightings += Integer.parseInt(val);
+                } catch (NumberFormatException ex) {
+                }
+            }
             col++;
         }
+
+        if (_ibeisHack && (totalSightings < 1)) {
+//System.out.println("dropping row " + sheetRow + " for lack of sightings");
+            sheet.removeRow(sheetRow);
+            sheetRow--;
+        }
+
         sheetRow++;
     }
 
