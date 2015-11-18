@@ -74,10 +74,14 @@ div
                                              cb-action="performAction(code, photos)")
                         .row
                             .col-md-12
+                                cancel-button(ng-if="data.module.encounterEdit || data.module.encounterSearch")
                                 wb-survey-search(ng-if="data.module.surveySearch", search-survey-done="searchSurveyDone(surveypart)")
                                 wb-survey-edit(ng-if="data.module.surveyEdit", survey-to-edit="data.module.surveyEdit", edit-survey-done="editSurveyDone(surveypart)")
-                                wb-encounter-search(ng-if="data.module.encounterSearch", search-encounter-done="searchEncounterDone(encounter)")
-                                wb-encounter-edit(ng-if="data.module.encounterEdit"
-                                                  enc-data="data.module.encounterEdit"
-                                                  edit-encounter-done="editEncounterDone(encdata)"
-                                                  photos-detached="encounterPhotosDetached(photos)")
+                                div(ng-if="data.module.encounterSearch")
+                                    legend Search Encounter
+                                    wb-encounter-search(search-encounter-done="searchEncounterDone(encounter)")
+                                div(ng-if="data.module.encounterEdit")
+                                    legend Edit Encounter
+                                    wb-encounter-edit(enc-data="data.module.encounterEdit"
+                                                      edit-encounter-done="editEncounterDone(encdata)"
+                                                      photos-detached="encounterPhotosDetached(photos)")

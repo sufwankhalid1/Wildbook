@@ -1,4 +1,18 @@
 wildbook.app.directive(
+    'wbEncounterView',
+    [function() {
+        return {
+            restrict: 'E',
+            scope: {
+                data: "=encData"
+            },
+            templateUrl: 'util/render?j=partials/encounter_view',
+            replace: true
+        };
+    }]
+);
+
+wildbook.app.directive(
     'wbEncounterEdit',
     ["$http", "$exceptionHandler", "wbConfig", "wbEncounterUtils",
      function($http, $exceptionHandler, wbConfig, wbEncounterUtils) {

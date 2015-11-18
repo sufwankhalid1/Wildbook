@@ -1,9 +1,5 @@
 form.form.ng-cloak(name="encounterForm" novalidate, wb-key-handler-form)
     .form-row
-        legend.form-group Edit Encounter
-            a(href="javascript:;" ng-click="cancel()" uib-tooltip="Cancel")
-                i.glyphicon.glyphicon-remove
-    .form-row
         .form-group.col-md-6
             label.control-label Individual:
             input.form-control(type="text" disabled="true" ng-value="data.encounter.individual.id ? data.encounter.individual.displayName : '-- New Individual --'")

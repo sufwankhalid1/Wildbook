@@ -111,10 +111,12 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
                 $scope.searchEncounterDone = function(encounter) {
                     $scope.data.module.encounterSearch = false;
                     
-                    wbEncounterUtils.getEncData(encounter)
-                    .then(function(encdata) {
-                        attachEncounter(encdata);
-                    });
+                    if (encounter) {
+                        wbEncounterUtils.getEncData(encounter)
+                        .then(function(encdata) {
+                            attachEncounter(encdata);
+                        });
+                    }
                 }
                 
                 function editEncounter(encdata, surveyEnc) {
@@ -442,7 +444,13 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
                 // wb-key-handler-form
                 //
                 $scope.cancel = function() {
-                    $scope.doneEditing();
+                    if ($scope.data.module.encounterEdit) {
+                        $scope.data.module.encounterEdit = null;
+                    } else if ($scope.data.module.encounterSearch) {
+                        $scope.data.module.encounterSearch = false;
+                    } else {
+                        $scope.doneEditing();
+                    }
                 }
                 
                 $scope.cmdEnter = function() {

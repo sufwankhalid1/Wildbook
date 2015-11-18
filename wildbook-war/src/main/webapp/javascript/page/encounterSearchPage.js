@@ -6,6 +6,8 @@ wildbook.app.directive("wbEncounterSearchPage",
             templateUrl: 'util/render?j=directive/encounterSearchPage',
             replace: true,
             controller: function($scope) {
+                $scope.mode_edit = false;
+                
                 $scope.searchEncounterDone = function(encounter) {
                     wbEncounterUtils.getEncData(encounter)
                     .then(function(encdata) {
@@ -14,7 +16,19 @@ wildbook.app.directive("wbEncounterSearchPage",
                 }
                 
                 $scope.editEncounterDone = function(encdata) {
-                    $scope.encdata = null;
+                    $scope.mode_edit = false;
+                }
+                
+                $scope.edit = function() {
+                    $scope.mode_edit = true;
+                }
+                
+                $scope.cancel = function() {
+                    if ($scope.mode_edit) {
+                        $scope.mode_edit = false;
+                    } else {
+                        $scope.encdata = null;
+                    }
                 }
             }
         }

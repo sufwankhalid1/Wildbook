@@ -189,6 +189,14 @@ wildbook.app.factory("wbEncounterUtils", ["$http", "$q", "wbConfig", function($h
     };
 }]);
 
+wildbook.app.directive('cancelButton', [function() {
+    return {
+        restrict: 'E',
+        template: '<a href="javascript:;" ng-click="cancel()" uib-tooltip="Cancel"><i class="glyphicon glyphicon-remove"></i></a>',
+        replace: true
+    }
+}]);
+
 wildbook.app.directive(
     'dateInput',
     ['wbDateUtils', function(wbDateUtils) {
