@@ -1,0 +1,34 @@
+{
+  "name": "wildbook-war",
+  "description": "Wildlife tracking",
+  "version": "6.0.0-SNAPSHOT",
+  "contributors": [
+    {
+      "name": "Jason Holmberg",
+      "email": "holmbergius@gmail.com"
+    },
+    {
+      "name": "Jon Van Oast",
+      "email": "sito.org@gmail.com"
+    },
+    {
+      "name": "Ken Southerland",
+      "email": "crowmagnumb@gmail.com"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:holmbergius/Wildbook.git"
+  },
+  "devDependencies": {
+    "gulp": "^3.9.0",
+    "gulp-angular-templatecache": "^1.8.0",
+    "gulp-debug": "^2.1.2",
+    "gulp-jade": "^1.1.0",
+    "gulp-less": "^3.0.5",
+    "gulp-rsync": "0.0.5",
+    "gulp-run": "^1.6.11",
+    "rsyncwrapper": "^0.4.3",
+    "yargs": "^3.30.0"
+  }
+}

@@ -2,7 +2,9 @@
 
 #Angular Jade Templates
 ##Setup
-    npm install --global gulp
+Should be nothing to do as all the appropriate dev dependencies should be in package.json. To get them in there I ran the following commands (but again you shouldn't have to do this).
+
+    npm install -g gulp
     npm install gulp --save-dev
     npm install gulp-jade --save-dev
     npm install gulp-angular-templatecache --save-dev
