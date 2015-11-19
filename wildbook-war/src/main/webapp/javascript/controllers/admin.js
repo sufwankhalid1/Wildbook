@@ -3,6 +3,6 @@ wildbook.app.directive('locationEdit', function() {
         scope: {
             location: '='
         },
-        templateUrl: 'util/render?j=partials/location_edit.jade'
+        templateUrl: 'partials/location_edit.html'
     };
 });

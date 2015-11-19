@@ -7558,13 +7558,13 @@ label {
 }
 .navbar-default .navbar-nav > li > a:hover,
 .navbar-default .navbar-nav > li > a:focus {
-  color: #ffffff;
+  color: #fff;
   background-color: #005589;
 }
 .navbar-default .navbar-nav > .active > a,
 .navbar-default .navbar-nav > .active > a:hover,
 .navbar-default .navbar-nav > .active > a:focus {
-  color: #ffffff;
+  color: #fff;
   background-color: #005589;
 }
 .navbar-default .navbar-nav > .open > a,
@@ -7600,7 +7600,7 @@ label {
   cursor: pointer;
   background-color: transparent;
   border: 0;
-  border-bottom: 4px solid #ffffff;
+  border-bottom: 4px solid #fff;
   border-radius: 0;
   font-weight: 300;
   font-size: .8em;
@@ -7739,7 +7739,7 @@ input[type="reset"],
 input[type="submit"] {
   background: #005589;
   border: 0;
-  color: #ffffff;
+  color: #fff;
   line-height: 2em;
   padding: 7px 13px;
   font-weight: 300;
@@ -7775,7 +7775,7 @@ input[type="reset"]:hover,
 input[type="submit"]:hover { background-color: @brand-contrast; }
 */
 .button-icon {
-  border-left: 1px solid #ffffff;
+  border-left: 1px solid #fff;
   width: 45px;
   min-height: 45px;
   margin-left: 10px;
@@ -7796,7 +7796,7 @@ input[type="submit"]:hover { background-color: @brand-contrast; }
   font-weight: 300;
 }
 .accordion a {
-  color: #ffffff;
+  color: #fff;
 }
 /* Positioning */
 .relative {
@@ -7923,7 +7923,7 @@ form table th {
 }
 .focusbox,
 .focusbox h2 {
-  color: #ffffff;
+  color: #fff;
 }
 .focusbox h2 {
   font-weight: 400;
@@ -7946,11 +7946,11 @@ form table th {
 }
 /* Header */
 .page-header {
-  color: #ffffff;
+  color: #fff;
   padding-top: 20px;
 }
 .page-header a {
-  color: #ffffff;
+  color: #fff;
 }
 .header-top-wrapper {
   background: #333333;
@@ -7962,7 +7962,7 @@ form table th {
 .navbar-default .navbar-nav > .report-encounter.active > a,
 .navbar-default .navbar-nav > .report-encounter > a {
   background-color: #005589;
-  color: #ffffff;
+  color: #fff;
 }
 @media (max-width: 992px) {
   .navbar-fixed-top {
@@ -8029,9 +8029,9 @@ form table th {
   width: auto;
 }
 .search-field-header input {
-  border: 1px solid #ffffff;
+  border: 1px solid #fff;
   background: #333333;
-  color: #ffffff;
+  color: #fff;
   font-style: italic;
   font-size: 0.8em;
   line-height: 1.3em;
@@ -8105,7 +8105,7 @@ form table th {
   margin-top: 10%;
 }
 .hero h2 {
-  color: #ffffff;
+  color: #fff;
   font-weight: 300;
   font-size: 1.6em;
   text-shadow: 1px 2px 2px #333;
@@ -8143,7 +8143,7 @@ form table th {
 }
 .adopter-badge h2 small {
   display: block;
-  color: #ffffff;
+  color: #fff;
 }
 .adopter-badge blockquote {
   border-left: 0;

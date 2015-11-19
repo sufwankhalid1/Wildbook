@@ -3,13 +3,11 @@ form.form.ng-cloak(name="encounterForm" novalidate, wb-key-handler-form)
         .form-group.col-md-6
             label.control-label Individual:
             input.form-control(type="text" disabled="true" ng-value="data.encounter.individual.id ? data.encounter.individual.displayName : '-- New Individual --'")
-        .form-group.col-md-5
+        .form-group.col-md-6
             label.control-label Species:
             select.form-control(ng-options="species.name for species in getSpecies() track by species.code"
                                 ng-model="data.encounter.individual.species")
                 option(value="") --- select one ---
-        .form-group.col-md-1
-            input(type="submit" ng-click="save()" value="Save")
     .form-row
         .form-group.col-md-4(ng-class="{'has-error': encounterForm.date.$invalid}")
             label.control-label Date:

@@ -1,6 +1,13 @@
+//
+// This is where our jade templates are magically compiled into html and munged into a javascript file
+// (called templates.js) which allows angular to look here for the templates rather than having to make
+// an actual http call to get the template.
+//
+angular.module('templates', []);
+
 wildbook = {};
 
-wildbook.app = angular.module('appWildbook', ["agGrid", "ui.bootstrap", "ui.bootstrap-slider"]);
+wildbook.app = angular.module('appWildbook', ["agGrid", "ui.bootstrap", "ui.bootstrap-slider", "templates"]);
 wildbook.app.factory('$exceptionHandler', function() {
     return function(ex, cause) {
         //

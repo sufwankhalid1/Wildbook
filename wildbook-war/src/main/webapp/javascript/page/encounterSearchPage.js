@@ -3,7 +3,7 @@ wildbook.app.directive("wbEncounterSearchPage",
         return {
             restrict: 'E',
             scope: {},
-            templateUrl: 'util/render?j=directive/encounterSearchPage',
+            templateUrl: 'directive/encounterSearchPage.html',
             replace: true,
             controller: function($scope) {
                 $scope.mode_edit = false;

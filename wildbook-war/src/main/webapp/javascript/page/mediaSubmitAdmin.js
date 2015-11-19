@@ -4,7 +4,7 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
         return {
             restrict: 'E',
             scope: {},
-            templateUrl: 'util/render?j=directive/mediaSubmitAdmin',
+            templateUrl: 'directive/mediaSubmitAdmin.html',
             replace: true,
             controller: function($scope) {
                 $scope.numencs = {};

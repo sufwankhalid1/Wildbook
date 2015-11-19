@@ -40,7 +40,7 @@ wildbook.app.directive(
             link: function(scope, element, attrs) {
                 KeyEventHandler.link(getKeySetup(attrs.wbKeyHandlerPriority), scope, element, attrs);
             },
-            templateUrl: 'util/render?j=partials/wb_thumb_box',
+            templateUrl: 'partials/wb_thumb_box.html',
             replace: true,
             controller: function($scope) {
                 var startIdx = 0;

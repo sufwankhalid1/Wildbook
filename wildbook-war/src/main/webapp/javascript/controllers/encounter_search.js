@@ -6,7 +6,7 @@ wildbook.app.directive(
             scope: {
                 searchEncounterDone: "&"
             },
-            templateUrl: 'util/render?j=partials/encounter_search',
+            templateUrl: 'partials/encounter_search.html',
             replace: true,
             controller: function($scope) {
                 $scope.tabs = [{}, {}];

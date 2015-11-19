@@ -10,7 +10,7 @@ form.form.ng-cloak(novalidate, wb-key-handler-form)
                 label.control-label Vessel:
                 select.form-control(ng-model="surveysearch.vesselid")
                     option(value="") --- select one ---
-                    option(ng-repeat="vessel in data.vessels", value="{{vessel.vesselId}}"){{vessel.displayName}}
+                    option(ng-repeat="vessel in data.vessels", value="{{vessel.vesselId}}") {{vessel.displayName}}
             .form-group.col-md-6
                 label.control-label Survey Number:
                 input.form-control(type="text", ng-model="surveysearch.surveynumber")

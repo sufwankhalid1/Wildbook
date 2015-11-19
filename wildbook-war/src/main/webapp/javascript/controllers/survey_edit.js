@@ -7,7 +7,7 @@ wildbook.app.directive(
                 data: "=surveyToEdit",
                 editSurveyDone: "&"
             },
-            templateUrl: 'util/render?j=partials/survey_edit',
+            templateUrl: 'partials/survey_edit.html',
             replace: true,
             controller: function($scope) {
                 $scope.info = {};

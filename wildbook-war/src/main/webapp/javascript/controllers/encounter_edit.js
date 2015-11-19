@@ -6,7 +6,7 @@ wildbook.app.directive(
             scope: {
                 data: "=encData"
             },
-            templateUrl: 'util/render?j=partials/encounter_view',
+            templateUrl: 'partials/encounter_view.html',
             replace: true
         };
     }]
@@ -23,7 +23,7 @@ wildbook.app.directive(
                 editEncounterDone: "&",
                 photosDetached: "&"
             },
-            templateUrl: 'util/render?j=partials/encounter_edit',
+            templateUrl: 'partials/encounter_edit.html',
             replace: true,
             controller: function($scope) {
                 $scope.tbActions = [{

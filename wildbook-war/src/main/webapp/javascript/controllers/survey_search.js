@@ -6,7 +6,7 @@ wildbook.app.directive(
             scope: {
                 searchSurveyDone: "&"
             },
-            templateUrl: 'util/render?j=partials/survey_search',
+            templateUrl: 'partials/survey_search.html',
             replace: true,
             controller: function($scope) {
                 $scope.data = {};
