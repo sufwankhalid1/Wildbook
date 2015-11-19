@@ -1,32 +1,5 @@
-<%--
-  ~ The Shepherd Project - A Mark-Recapture Framework
-  ~ Copyright (C) 2011 Jason Holmberg
-  ~
-  ~ This program is free software; you can redistribute it and/or
-  ~ modify it under the terms of the GNU General Public License
-  ~ as published by the Free Software Foundation; either version 2
-  ~ of the License, or (at your option) any later version.
-  ~
-  ~ This program is distributed in the hope that it will be useful,
-  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  ~ GNU General Public License for more details.
-  ~
-  ~ You should have received a copy of the GNU General Public License
-  ~ along with this program; if not, write to the Free Software
-  ~ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-  --%>
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 <%@ page contentType="text/html; charset=utf-8" language="java"
          import="org.ecocean.servlet.ServletUtilities,java.text.DecimalFormat,javax.jdo.*,org.ecocean.genetics.*,java.util.*,java.net.URI, org.ecocean.*,org.ecocean.Util.MeasurementDesc,org.apache.commons.math.stat.descriptive.SynchronizedSummaryStatistics" %>
-
-
-
-<html>
-<head>
-
 
 
   <%
@@ -218,7 +191,7 @@
 					}
 					
 					//first sights vs resights analysis
-					 if(thisEnc.getEarliestSightingTime()<(new GregorianCalendar(year1,month1,day1)).getTimeInMillis()){
+					 if(thisEnc.getEarliestSightingTime()<(new GregorianCalendar(year1,(month1-1),day1)).getTimeInMillis()){
 						 measurementValuesResights[b].addValue(thisEnc.getAverageMeasurementInPeriod(year1, month1, year2, month2, measurementTypes.get(b).getType()).doubleValue());
 							
 				 		   
@@ -258,7 +231,7 @@
 					}
 					
 					//first sights vs resights analysis
-					 if(thisEnc.getEarliestSightingTime()<(new GregorianCalendar(year1,month1,day1)).getTimeInMillis()){
+					 if(thisEnc.getEarliestSightingTime()<(new GregorianCalendar(year1,(month1-1),day1)).getTimeInMillis()){
 						 bioMeasurementValuesResights[b].addValue(val);
 							
 				 		   
@@ -310,7 +283,7 @@
 		 resightingYearsArray[thisEnc.getMaxNumYearsBetweenSightings()]++;
 		 
 		 //firstSightings distribution
-		 if(thisEnc.getEarliestSightingTime()<(new GregorianCalendar(year1,month1,day1)).getTimeInMillis()){
+		 if(thisEnc.getEarliestSightingTime()<(new GregorianCalendar(year1,(month1-1),day1)).getTimeInMillis()){
 	 		   Integer thisInt = firstSightingsHashtable.get("Previously sighted")+1;
 	  		   firstSightingsHashtable.put("Previously sighted", thisInt);
 	 		   
@@ -329,26 +302,9 @@
  	 
   %>
 
-  <title><%=CommonConfiguration.getHTMLTitle(context)%>
-  </title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-  <meta name="Description" content="<%=CommonConfiguration.getHTMLDescription(context)%>"/>
-  <meta name="Keywords" content="<%=CommonConfiguration.getHTMLKeywords(context)%>"/>
-  <meta name="Author" content="<%=CommonConfiguration.getHTMLAuthor(context)%>"/>
-  <link href="<%=CommonConfiguration.getCSSURLLocation(request,context)%>" rel="stylesheet" type="text/css"/>
-  <link rel="shortcut icon" href="<%=CommonConfiguration.getHTMLShortcutIcon(context)%>"/>
-
 
     <style type="text/css">
-      body {
-        margin: 0;
-        padding: 10px 20px 20px;
-        font-family: Arial;
-        font-size: 16px;
-      }
-
-
-
+     
       #map {
         width: 600px;
         height: 400px;
@@ -360,7 +316,7 @@
 <style type="text/css">
   #tabmenu {
     color: #000;
-    border-bottom: 2px solid black;
+    border-bottom: 1px solid #CDCDCD;
     margin: 12px 0px 0px 0px;
     padding: 0px;
     z-index: 1;
@@ -374,10 +330,10 @@
   }
 
   #tabmenu a, a.active {
-    color: #DEDECF;
-    background: #000;
-    font: bold 1em "Trebuchet MS", Arial, sans-serif;
-    border: 2px solid black;
+    color: #000;
+    background: #E6EEEE;
+    font: 0.5em "Arial, sans-serif;
+    border: 1px solid #CDCDCD;
     padding: 2px 5px 0px 5px;
     margin: 0;
     text-decoration: none;
@@ -385,28 +341,31 @@
   }
 
   #tabmenu a.active {
-    background: #FFFFFF;
+    background: #8DBDD8;
     color: #000000;
-    border-bottom: 2px solid #FFFFFF;
+    border-bottom: 1px solid #8DBDD8;
   }
 
   #tabmenu a:hover {
-    color: #ffffff;
-    background: #7484ad;
+    color: #000;
+    background: #8DBDD8;
   }
 
   #tabmenu a:visited {
-    color: #E8E9BE;
+    
   }
 
   #tabmenu a.active:hover {
-    background: #7484ad;
-    color: #DEDECF;
-    border-bottom: 2px solid #000000;
+    color: #000;
+    border-bottom: 1px solid #8DBDD8;
   }
   
   
+  
 </style>
+
+  <jsp:include page="header.jsp" flush="true"/>
+ 
   
       <script>
         function getQueryParameter(name) {
@@ -585,16 +544,10 @@
 </script>
 
     
-  </head>
- <body onunload="GUnload()">
- <div id="wrapper">
- <div id="page">
-<jsp:include page="header.jsp" flush="true">
+<div class="container maincontent">
 
-  <jsp:param name="isAdmin" value="<%=request.isUserInRole(\"admin\")%>" />
-</jsp:include>
- <div id="main">
- 
+ <h1 class="intro"><%=encprops.getProperty("title")%></h1>
+
  <ul id="tabmenu">
  <%
 String queryString = "";
@@ -615,16 +568,7 @@ if (request.getQueryString() != null) {
   </a></li>
  
  </ul>
- <table width="810px" border="0" cellspacing="0" cellpadding="0">
-   <tr>
-     <td>
-       <br/>
- 
-       <h1 class="intro"><%=encprops.getProperty("title")%>
-       </h1>
-     </td>
-   </tr>
-</table>
+
 
 <p><%=encprops.getProperty("numberMarkedIndividuals") %> <%=resultSize %>
 <ul>
@@ -785,11 +729,9 @@ if(numYearsCoverage>0){
   </tr>
 </table>
  
+ </div>
+ 
+ 
  <jsp:include page="footer.jsp" flush="true"/>
-</div>
-</div>
-<!-- end page --></div>
-<!--end wrapper -->
 
-</body>
-</html>
+

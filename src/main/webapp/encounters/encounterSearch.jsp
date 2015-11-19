@@ -1,23 +1,3 @@
-<%--gen
-  ~ The Shepherd Project - A Mark-Recapture Framework
-  ~ Copyright (C) 2011 Jason Holmberg
-  ~
-  ~ This program is free software; you can redistribute it and/or
-  ~ modify it under the terms of the GNU General Public License
-  ~ as published by the Free Software Foundation; either version 2
-  ~ of the License, or (at your option) any later version.
-  ~
-  ~ This program is distributed in the hope that it will be useful,
-  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  ~ GNU General Public License for more details.
-  ~
-  ~ You should have received a copy of the GNU General Public License
-  ~ along with this program; if not, write to the Free Software
-  ~ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-  --%>
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <%@ page contentType="text/html; charset=utf-8" language="java"
          import="org.ecocean.servlet.ServletUtilities,org.ecocean.*,javax.jdo.Extent, javax.jdo.Query, java.util.ArrayList, com.reijns.I3S.Point2D" %>
 <%@ page import="java.util.GregorianCalendar" %>
@@ -32,24 +12,10 @@ String langCode=ServletUtilities.getLanguageCode(request);
 
 
 %>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml">
 
-<head>
-  <title><%=CommonConfiguration.getHTMLTitle(context) %>
-  </title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-  <meta name="Description"
-        content="<%=CommonConfiguration.getHTMLDescription(context) %>"/>
-  <meta name="Keywords"
-        content="<%=CommonConfiguration.getHTMLKeywords(context) %>"/>
-  <meta name="Author" content="<%=CommonConfiguration.getHTMLAuthor(context) %>"/>
-  <link href="<%=CommonConfiguration.getCSSURLLocation(request,context) %>"
-        rel="stylesheet" type="text/css"/>
-  <link rel="shortcut icon"
-        href="<%=CommonConfiguration.getHTMLShortcutIcon(context) %>"/>
+<jsp:include page="../header.jsp" flush="true"/>
 
   <!-- Sliding div content: STEP1 Place inside the head section -->
-  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js"></script>
   <script type="text/javascript" src="../javascript/animatedcollapse.js"></script>
   <!-- /STEP1 Place inside the head section -->
   <!-- STEP2 Place inside the head section -->
@@ -63,6 +29,7 @@ String langCode=ServletUtilities.getLanguageCode(request);
     animatedcollapse.addDiv('metadata', 'fade=1')
     animatedcollapse.addDiv('export', 'fade=1')
     animatedcollapse.addDiv('genetics', 'fade=1')
+    animatedcollapse.addDiv('patternrecognition', 'fade=1')
 
     animatedcollapse.ontoggle = function($, divobj, state) { //fires each time a DIV is expanded/contracted
       //$: Access to jQuery
@@ -118,6 +85,7 @@ margin-bottom: 8px !important;
   GregorianCalendar cal = new GregorianCalendar();
   int nowYear = cal.get(1);
   int firstYear = 1980;
+  int firstSubmissionYear=1980;
 
   Shepherd myShepherd = new Shepherd(context);
   Extent allKeywords = myShepherd.getPM().getExtent(Keyword.class, true);
@@ -126,6 +94,7 @@ margin-bottom: 8px !important;
   try {
     firstYear = myShepherd.getEarliestSightingYear();
     nowYear = myShepherd.getLastSightingYear();
+    firstSubmissionYear=myShepherd.getFirstSubmissionYear();
   } catch (Exception e) {
     e.printStackTrace();
   }
@@ -140,13 +109,7 @@ margin-bottom: 8px !important;
   
 %>
 
-
-<div id="wrapper">
-<div id="page">
-<jsp:include page="../header.jsp" flush="true">
-  <jsp:param name="isAdmin" value="<%=request.isUserInRole(\"admin\")%>" />
-</jsp:include>
-<div id="main">
+<div class="container maincontent">
 <table width="810">
 <tr>
 <td>
@@ -165,6 +128,14 @@ margin-bottom: 8px !important;
 
   <%
 		if(request.getParameter("referenceImageName")!=null){
+			
+			if(myShepherd.isSinglePhotoVideo(request.getParameter("referenceImageName"))){
+				SinglePhotoVideo mySPV=myShepherd.getSinglePhotoVideo(request.getParameter("referenceImageName"));
+				//int slashPosition=request.getParameter("referenceImageName").indexOf("/");
+				String encNum=mySPV.getCorrespondingEncounterNumber();
+				Encounter thisEnc = myShepherd.getEncounter(encNum);
+				
+				
 		%>
 <p><strong><%=encprops.getProperty("referenceImage") %></strong></p>
 
@@ -172,20 +143,26 @@ margin-bottom: 8px !important;
 <input name="referenceImageName" type="hidden"
        value="<%=request.getParameter("referenceImageName") %>"/>
 
-<p><img width="810px" src="/<%=CommonConfiguration.getDataDirectoryName(context) %>/encounters/<%=request.getParameter("referenceImageName") %>"/></p>
+<p><img width="810px" src="/<%=CommonConfiguration.getDataDirectoryName(context) %>/encounters/<%=thisEnc.subdir(thisEnc.getCatalogNumber()) %>/<%=mySPV.getFilename() %>"/></p>
 <table>
 											<tr>
 												<td align="left" valign="top">
 										
 												<table>
 										<%
-										int slashPosition=request.getParameter("referenceImageName").indexOf("/");
-										String encNum=request.getParameter("referenceImageName").substring(0,slashPosition);
-										Encounter thisEnc = myShepherd.getEncounter(encNum);
+										
+										//prep the params
+										if(thisEnc.getLocation()!=null){
 										%>
-								
 										<tr><td><span class="caption"><%=encprops.getProperty("location") %> <%=thisEnc.getLocation() %></span></td></tr>
+										<%
+										}
+										if(thisEnc.getLocationID()!=null){
+										%>
 										<tr><td><span class="caption"><%=encprops.getProperty("locationID") %> <%=thisEnc.getLocationID() %></span></td></tr>
+										<%
+										}
+										%>
 										<tr><td><span class="caption"><%=encprops.getProperty("date") %> <%=thisEnc.getDate() %></span></td></tr>
 										<%
 										if(thisEnc.getIndividualID()!=null){
@@ -229,6 +206,7 @@ margin-bottom: 8px !important;
 										</table>
   <%
 		}
+}
 		%>
 
 <table>
@@ -470,7 +448,7 @@ function FSControl(controlDiv, map) {
         </em>
       </p>
 
-      <p><strong><%=encprops.getProperty("locationID")%>:</strong> <span class="para"><a
+      <p><strong><%=encprops.getProperty("locationID")%></strong> <span class="para"><a
         href="<%=CommonConfiguration.getWikiLocation(context)%>locationID"
         target="_blank"><img src="../images/information_icon_svg.gif"
                              alt="Help" border="0" align="absmiddle"/></a></span> <br>
@@ -484,7 +462,7 @@ function FSControl(controlDiv, map) {
         if (totalLocIDs >= 1) {
       %>
 
-      <select multiple size="<%=(totalLocIDs+1) %>" name="locationCodeField" id="locationCodeField">
+      <select multiple name="locationCodeField" id="locationCodeField" size="10">
         <option value="None"></option>
         <%
           for (int n = 0; n < totalLocIDs; n++) {
@@ -573,6 +551,9 @@ if(CommonConfiguration.showProperty("showCountry",context)){
     <div id="date" style="display:none;">
       <p><%=encprops.getProperty("dateInstructions") %></p>
       <strong><%=encprops.getProperty("sightingDates")%></strong><br/>
+      
+
+      
       <table width="720">
         <tr>
           <td width="670"><label><em>
@@ -709,7 +690,7 @@ if(CommonConfiguration.showProperty("showCountry",context)){
         </tr>
       </table>
 
-      <p><strong><%=encprops.getProperty("verbatimEventDate")%>:</strong> <span class="para"><a
+      <p><strong><%=encprops.getProperty("verbatimEventDate")%></strong> <span class="para"><a
         href="<%=CommonConfiguration.getWikiLocation(context)%>verbatimEventDate"
         target="_blank"><img src="../images/information_icon_svg.gif"
                              alt="Help" border="0" align="absmiddle"/></a></span></p>
@@ -722,8 +703,7 @@ if(CommonConfiguration.showProperty("showCountry",context)){
         if (totalVBDs > 1) {
       %>
 
-      <select multiple size="<%=(totalVBDs+1) %>" name="verbatimEventDateField"
-              id="verbatimEventDateField">
+      <select multiple name="verbatimEventDateField" id="verbatimEventDateField" size="5">
         <option value="None"></option>
         <%
           for (int f = 0; f < totalVBDs; f++) {
@@ -755,9 +735,155 @@ if(CommonConfiguration.showProperty("showCountry",context)){
         <p><strong><%= encprops.getProperty("releaseDate") %></strong></p>
         <p>From: <input name="releaseDateFrom"/> to <input name="releaseDateTo"/> <%=encprops.getProperty("releaseDateFormat") %></p>
       </c:if>
-    </div>
-  </td>
+   
+     
+      <p><strong><%=encprops.getProperty("addedsightingDates")%></strong></p>
+
+      <table width="720">
+        <tr>
+          <td width="670"><label><em>
+          
+          
+          
+            &nbsp;<%=encprops.getProperty("day")%>
+          </em> <em> <select name="addedday1" id="addedday1">
+            <option value="1" selected>1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+            <option value="11">11</option>
+            <option value="12">12</option>
+            <option value="13">13</option>
+            <option value="14">14</option>
+            <option value="15">15</option>
+            <option value="16">16</option>
+            <option value="17">17</option>
+            <option value="18">18</option>
+            <option value="19">19</option>
+            <option value="20">20</option>
+            <option value="21">21</option>
+            <option value="22">22</option>
+            <option value="23">23</option>
+            <option value="24">24</option>
+            <option value="25">25</option>
+            <option value="26">26</option>
+            <option value="27">27</option>
+            <option value="28">28</option>
+            <option value="29">29</option>
+            <option value="30">30</option>
+            <option value="31">31</option>
+          </select> <%=encprops.getProperty("month")%>
+          </em> <em> <select name="addedmonth1" id="addedmonth1">
+            <option value="1" selected>1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+            <option value="11">11</option>
+            <option value="12">12</option>
+          </select> <%=encprops.getProperty("year")%>
+          </em> <select name="addedyear1" id="addedyear1">
+            <% 
+            
+            int currentYear=cal.get(1);
+            for (int q = firstSubmissionYear; q <= currentYear; q++) { %>
+            <option value="<%=q%>"
+
+              <%
+                if (q == firstSubmissionYear) {
+              %>
+                    selected
+              <%
+                }
+              %>
+              ><%=q%>
+            </option>
+
+            <% } %>
+          </select> &nbsp;to <em>&nbsp;<%=encprops.getProperty("day")%>
+          </em> <em> <select name="addedday2"
+                             id="addedday2">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+            <option value="11">11</option>
+            <option value="12">12</option>
+            <option value="13">13</option>
+            <option value="14">14</option>
+            <option value="15">15</option>
+            <option value="16">16</option>
+            <option value="17">17</option>
+            <option value="18">18</option>
+            <option value="19">19</option>
+            <option value="20">20</option>
+            <option value="21">21</option>
+            <option value="22">22</option>
+            <option value="23">23</option>
+            <option value="24">24</option>
+            <option value="25">25</option>
+            <option value="26">26</option>
+            <option value="27">27</option>
+            <option value="28">28</option>
+            <option value="29">29</option>
+            <option value="30">30</option>
+            <option value="31" selected>31</option>
+          </select> <%=encprops.getProperty("month")%>
+          </em> <em> <select name="addedmonth2" id="addedmonth2">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+            <option value="11">11</option>
+            <option value="12" selected>12</option>
+          </select> <%=encprops.getProperty("year")%>
+          </em>
+            <select name="addedyear2" id="addedyear2">
+              <% for (int q = currentYear; q >= firstSubmissionYear; q--) { %>
+              <option value="<%=q%>"
+
+                <%
+                  if (q == nowYear) {
+                %>
+                      selected
+                <%
+                  }
+                %>
+                ><%=q%>
+              </option>
+
+              <% } %>
+            </select>
+          </label></td>
+        </tr>
+		</table>
+		</div>
+		</td>
 </tr>
+
 
 <tr>
   <td>
@@ -1002,7 +1128,7 @@ if(CommonConfiguration.showProperty("showPatterningCode",context)){
       if (totalKeywords > 0) {
     %>
 
-    <select multiple size="<%=(totalKeywords+1) %>" name="keyword" id="keyword">
+    <select multiple size="10" name="keyword" id="keyword" >
       <option value="None"></option>
       <%
 
@@ -1207,7 +1333,7 @@ if(CommonConfiguration.showProperty("showPatterningCode",context)){
         if (totalHaplos >= 1) {
       %>
 
-      <select multiple size="<%=(totalHaplos+1) %>" name="haplotypeField" id="haplotypeField">
+      <select multiple size="10" name="haplotypeField" id="haplotypeField">
         <option value="None" ></option>
         <%
           for (int n = 0; n < totalHaplos; n++) {
@@ -1245,7 +1371,7 @@ if(CommonConfiguration.showProperty("showPatterningCode",context)){
         if (totalSexes >= 1) {
       %>
 
-      <select multiple size="<%=(totalSexes+1) %>" name="geneticSexField" id="geneticSexField">
+      <select multiple size="10" name="geneticSexField" id="geneticSexField">
         <option value="None" ></option>
         <%
           for (int n = 0; n < totalSexes; n++) {
@@ -1400,15 +1526,22 @@ else {
         </tr>
 		
 		<tr>
-  <td><br /><strong><%=encprops.getProperty("submitterName")%>:</strong>
+  <td><br /><strong><%=encprops.getProperty("submitterName")%></strong>
     <input name="nameField" type="text" size="60"> <br> <em><%=encprops.getProperty("namesBlank")%>
     </em>
   </td>
 </tr>
 
 <tr>
-  <td><br /><strong><%=encprops.getProperty("filenameField")%>:</strong>
+  <td><br /><strong><%=encprops.getProperty("filenameField")%></strong>
     <input name="filenameField" type="text" size="60"> <br /> <em><%=encprops.getProperty("filenamesBlank")%>
+    </em>
+  </td>
+</tr>
+
+		<tr>
+  <td><br /><strong><%=encprops.getProperty("additionalComments")%></strong>
+    <input name="additionalCommentsField" type="text" size="60"> <br> <em><%=encprops.getProperty("commentsBlank")%>
     </em>
   </td>
 </tr>
@@ -1417,7 +1550,8 @@ else {
 <td>
 
       <%
-        ArrayList<User> users = myShepherd.getAllUsers();
+      	Shepherd inShepherd=new Shepherd("context0");
+        ArrayList<User> users = inShepherd.getAllUsers();
         int numUsers = users.size();
 
       %>
@@ -1438,16 +1572,56 @@ else {
           }
         %>
       </select>
+<%
+inShepherd.rollbackDBTransaction();
+inShepherd.closeDBTransaction();
 
+%>
 
 </td>
 </tr>
-
-		
-      </table>
+    </table>
     </div>
   </td>
 </tr>
+
+<%
+if((CommonConfiguration.getProperty("useSpotPatternRecognition", context)!=null)&&(CommonConfiguration.getProperty("useSpotPatternRecognition", context).equals("true"))){
+%>
+<tr>
+  <td>
+
+    <h4 class="intro" style="background-color: #cccccc; padding:3px; border: 1px solid #000066; "><a
+      href="javascript:animatedcollapse.toggle('patternrecognition')" style="text-decoration:none"><img
+      src="../images/Black_Arrow_down.png" width="14" height="14" border="0" align="absmiddle"/>
+      <font color="#000000">Pattern Recognition</font></a></h4>
+  </td>
+</tr>
+<tr>
+  <td>
+    <div id="patternrecognition" style="display:none; ">
+      
+      <table width="720px" align="left">
+        <tr>
+          <td>
+            <label><input name="hasSpots" type="checkbox" id="hasSpots" value="hasSpots">&nbsp;Has mapped fluke.</label>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <label><input name="hasNoSpots" type="checkbox" id="hasNoSpots" value="hasNoSpots">&nbsp;Has NO mapped fluke patterning.</label>
+          </td>
+        </tr>
+      </table>
+   </div>
+  </td>
+</tr>          
+
+<%
+}
+%>
+		
+
 
 
 <%
@@ -1468,16 +1642,9 @@ else {
 </td>
 </tr>
 </table>
-<br>
+<br />
+</div>
 <jsp:include page="../footer.jsp" flush="true"/>
-</div>
-</div>
-<!-- end page --></div>
-<!--end wrapper -->
 
-
-
-</body>
-</html>
 
 

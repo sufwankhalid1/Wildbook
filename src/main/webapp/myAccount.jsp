@@ -1,26 +1,8 @@
-<%--
-  ~ Wildbook - A Mark-Recapture Framework
-  ~ Copyright (C) 2014 Jason Holmberg
-  ~
-  ~ This program is free software; you can redistribute it and/or
-  ~ modify it under the terms of the GNU General Public License
-  ~ as published by the Free Software Foundation; either version 2
-  ~ of the License, or (at your option) any later version.
-  ~
-  ~ This program is distributed in the hope that it will be useful,
-  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  ~ GNU General Public License for more details.
-  ~
-  ~ You should have received a copy of the GNU General Public License
-  ~ along with this program; if not, write to the Free Software
-  ~ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-  --%>
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <%@ page contentType="text/html; charset=iso-8859-1" language="java" import="java.util.ArrayList" %>
-<%@ page import="org.ecocean.*,org.ecocean.servlet.ServletUtilities,java.util.Properties" %>
+<%@ page import="org.ecocean.*,org.ecocean.servlet.ServletUtilities, org.ecocean.security.Collaboration, java.util.Properties, java.util.Date, java.text.SimpleDateFormat,
+javax.servlet.http.HttpSession,
+java.io.*" %>
 
 
 <%
@@ -34,6 +16,19 @@ String langCode = ServletUtilities.getLanguageCode(request);
 //load user props
 Properties props=ShepherdProperties.getProperties("users.properties", langCode,context);
 
+if (session.getAttribute("error") != null) {
+	%><script>var errorMessage = '<%=session.getAttribute("error").toString().replaceAll("'", "\\'")%>';</script><%
+	session.removeAttribute("error");
+} else {
+	%><script>var errorMessage = false;</script><%
+}
+
+if (session.getAttribute("message") != null) {
+	%><script>var message = '<%=session.getAttribute("message").toString().replaceAll("'", "\\'")%>';</script><%
+	session.removeAttribute("message");
+} else {
+	%><script>var message = false;</script><%
+}
 
 
   	
@@ -52,45 +47,12 @@ Properties props=ShepherdProperties.getProperties("users.properties", langCode,c
   response.setHeader("Pragma", "no-cache"); //HTTP 1.0 backward compatibility
 %>
 
-<html>
-<head>
-  <title><%=CommonConfiguration.getHTMLTitle(context) %>
-  </title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-  <meta name="Description"
-        content="<%=CommonConfiguration.getHTMLDescription(context) %>"/>
-  <meta name="Keywords"
-        content="<%=CommonConfiguration.getHTMLKeywords(context) %>"/>
-  <meta name="Author" content="<%=CommonConfiguration.getHTMLAuthor(context) %>"/>
-  <link href="<%=CommonConfiguration.getCSSURLLocation(request,context) %>"
-        rel="stylesheet" type="text/css"/>
-  <link rel="shortcut icon"
-        href="<%=CommonConfiguration.getHTMLShortcutIcon(context) %>"/>
+<jsp:include page="header.jsp" flush="true"/>
 
-  <style type="text/css">
-    <!--
-    .style1 {
-      color: #FF0000
-    }
+<div class="container maincontent">
 
-    -->
-  </style>
-</head>
+	<h1 class="intro"><%=(props.getProperty("userAccount")+" "+request.getUserPrincipal()) %></h1>
 
-<body>
-<div id="wrapper">
-  <div id="page">
-    <jsp:include page="header.jsp" flush="true">
-
-      <jsp:param name="isAdmin" value="<%=request.isUserInRole(\"admin\")%>" />
-    </jsp:include>
-    <div id="main">
-     
-  
-
-      <h1 class="intro"><%=(props.getProperty("userAccount")+" "+request.getUserPrincipal()) %></h1>
-   
-    
 	<p>
 
     	
@@ -242,19 +204,136 @@ Properties props=ShepherdProperties.getProperties("users.properties", langCode,c
             </form>
             </tr>
             </table>
+<br ></br>
+<h2><%=props.getProperty("socialMediaConnections") %></h2>
+<div style="padding-bottom: 10px;">
+<%
+	String types[] = new String[] {"facebook", "flickr"};
+
+if((CommonConfiguration.getProperty("allowFacebookLogin", "context0")!=null)&&(CommonConfiguration.getProperty("allowFacebookLogin", "context0").equals("true"))){
+
+		String socialType="facebook";
+		if (thisUser.getSocial(socialType) == null) {
+			out.println("<div class=\"social-disconnected\"><input type=\"button\" onClick=\"return socialConnect('" + socialType + "');\" value=\"connect to " + socialType + "\" /></div>");
+		} else {
+			out.println("<div class=\"social-connected\">" +props.getProperty("connectedTo") +" "+ socialType + " <input type=\"button\" class=\"social-connect\" onClick=\"return socialDisconnect('" + socialType + "');\" value=\"disconnect\" /></div>");
+		}
+}
+if((CommonConfiguration.getProperty("allowFlickrLogin", "context0")!=null)&&(CommonConfiguration.getProperty("allowFlickrLogin", "context0").equals("true"))){
+
+	String socialType="flickr";
+	if (thisUser.getSocial(socialType) == null) {
+		out.println("<div class=\"social-disconnected\"><input type=\"button\" onClick=\"return socialConnect('" + socialType + "');\" value=\"connect to " + socialType + "\" /></div>");
+	} else {
+		out.println("<div class=\"social-connected\">" +props.getProperty("connectedTo") +" "+ socialType + " <input type=\"button\" class=\"social-connect\" onClick=\"return socialDisconnect('" + socialType + "');\" value=\"disconnect\" /></div>");
+	}
+}
+%>
+</div>
+
+<%
+	if((CommonConfiguration.getProperty("collaborationSecurityEnabled", context)!=null)&&(CommonConfiguration.getProperty("collaborationSecurityEnabled", context).equals("true"))){
+
+		Properties collabProps = new Properties();
+ 		collabProps = ShepherdProperties.getProperties("collaboration.properties", langCode, context);
+		ArrayList<Collaboration> collabs = Collaboration.collaborationsForCurrentUser(request);
+		String me = request.getUserPrincipal().getName();
+		String h = "";
+		for (Collaboration c : collabs) {
+			String cls = "state-" + c.getState();
+			String msg = "state_" + c.getState();
+			String click = "";
+
+			if (c.getUsername1().equals(me)) {
+				h += "<div class=\"mine " + cls + "\"><span class=\"who\">to <b>" + c.getUsername2() + "</b></span><span class=\"state\">" + collabProps.getProperty(msg) + "</span></div>";
+			} else {
+				if (msg.equals("state_initialized")) {
+					msg = "state_initialized_me";
+					click = " <span class=\"invite-response-buttons\" data-username=\"" + c.getUsername1() + "\"><input type=\"button\" class=\"yes\" value=\"" + collabProps.getProperty("buttonApprove") + "\">";
+					click += "<input type=\"button\" class=\"no\" value=\"" + collabProps.getProperty("buttonDeny") + "\"></span>";
+					click += "<script>$('.invite-response-buttons input').click(function(ev) { clickApproveDeny(ev); });</script>";
+				}
+				h += "<div class=\"notmine " + cls + "\"><span class=\"who\">from <b>" + c.getUsername1() + "</b></span><span class=\"state\">" + collabProps.getProperty(msg) + "</span>" + click + "</div>";
+			}
+		}
+		if (h.equals("")) h = "<p>none</p>";
+		out.println("<div class=\"collab-list\"><h1>" + collabProps.getProperty("collaborationTitle") + "</h1>" + h + "</div>");
+
+		String rootWebappPath = getServletContext().getRealPath("/");
+		File webappsDir = new File(rootWebappPath).getParentFile();
+		File shepherdDataDir = new File(webappsDir, CommonConfiguration.getDataDirectoryName(context));
+		File collabLogFile = new File(shepherdDataDir, "/users/" + thisUser.getUsername() + "/collaboration.log");
+		if (collabLogFile.exists()) {
+			long since = new Date().getTime() - (14 * 24*60*60*1000);
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			h = "";
+			BufferedReader br = new BufferedReader(new FileReader(collabLogFile));
+			boolean hasOther = false;
+			try {
+				StringBuilder sb = new StringBuilder();
+				String line = br.readLine();
+				while (line != null) {
+					String[] fields = line.split("\\t");
+					long msec = Long.parseLong(fields[0]);
+					if (msec > since) {
+//12345	test3	ff95c37a-d08a-4460-a43e-2ee9155ba81d	http://wildme.org/batchupload/encounters/searchResults.jsp?state=unapproved	State is one of the following: unapproved <br />
+						h += "<div class=\"logrow\"><span>" + sdf.format(new Date(msec)) + "</span><span>user: <b>" + fields[1] + "</b></span>";
+						h += "<span>Encounter: <a href=\"encounters/encounter.jsp?number=" + fields[2] + "\">" + fields[2] + "</a></span>";
+						h += "<span class=\"details\">Query: <a href=\"" + fields[3] + "\">" + fields[4] + "</a></div>";
+					} else {
+						hasOther = true;
+					}
+					line = br.readLine();
+				}
+			} finally {
+				br.close();
+			}
+			out.println("<div class=\"collab-log\"><h1>Queries by collaborators</h1><div class=\"scrollbox\">" + h + "</div></div>");
+			if (hasOther) out.println("<a href=\"myCollabLog.jsp\">See entire log of queries</a>");
+		}
+	}
+
+%>
     	
     </p>
+    
+    <h2><%=props.getProperty("myData") %></h2>
+    
 
-      <jsp:include page="footer.jsp" flush="true"/>
-    </div>
-  </div>
-  <!-- end page --></div>
-<!--end wrapper -->
+<%
+String jdoqlString="SELECT FROM org.ecocean.Encounter where submitterID == '"+thisUser.getUsername()+"'";
+%>
+    <jsp:include page="encounters/encounterSearchResultsAnalysisEmbed.jsp" flush="true">
+    	<jsp:param name="jdoqlString" value="<%=jdoqlString %>" />
+    </jsp:include>
+    
+    <p><strong>Links to My Data</strong></p>
+        <p class="caption"><a href="individualSearchResultsAnalysis.jsp?username=<%=localUsername%>"><%=props.getProperty("individualsAssociated") %></a></p>
+    
+    <p class="caption"><a href="encounters/searchResultsAnalysis.jsp?username=<%=localUsername%>"><%=props.getProperty("encountersAssociated") %></a></p>
+    
+
 <%
 myShepherd.rollbackDBTransaction();
 myShepherd.closeDBTransaction();
 %>
-</body>
-</html>
+<script>
+if (errorMessage) wildbook.showAlert(errorMessage, '', 'Error');
+if (message) wildbook.showAlert(message);
+
+function socialDisconnect(svc) {
+//console.info('disconnect %s', svc);
+	window.location.href = 'SocialConnect?disconnect=1&type=' + svc;
+}
+
+function socialConnect(svc) {
+//console.info('connect %s', svc);
+	window.location.href = 'SocialConnect?type=' + svc;
+}
+
+</script>
+</div>
+
+<jsp:include page="footer.jsp" flush="true"/>
 
 

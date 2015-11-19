@@ -1,31 +1,4 @@
-<%--
-  ~ The Shepherd Project - A Mark-Recapture Framework
-  ~ Copyright (C) 2011 Jason Holmberg
-  ~
-  ~ This program is free software; you can redistribute it and/or
-  ~ modify it under the terms of the GNU General Public License
-  ~ as published by the Free Software Foundation; either version 2
-  ~ of the License, or (at your option) any later version.
-  ~
-  ~ This program is distributed in the hope that it will be useful,
-  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  ~ GNU General Public License for more details.
-  ~
-  ~ You should have received a copy of the GNU General Public License
-  ~ along with this program; if not, write to the Free Software
-  ~ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-  --%>
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 <%@ page contentType="text/html; charset=utf-8" language="java" import="org.ecocean.servlet.ServletUtilities,org.ecocean.genetics.*,java.util.*,java.net.URI, org.ecocean.*,java.util.Random" %>
-
-
-
-<html>
-<head>
-
 
 
   <%
@@ -87,25 +60,10 @@
     int numSpeciesColors=allSpeciesColors.size();
 %>
 
-  <title><%=CommonConfiguration.getHTMLTitle(context)%>
-  </title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-  <meta name="Description" content="<%=CommonConfiguration.getHTMLDescription(context)%>"/>
-  <meta name="Keywords" content="<%=CommonConfiguration.getHTMLKeywords(context)%>"/>
-  <meta name="Author" content="<%=CommonConfiguration.getHTMLAuthor(context)%>"/>
-  <link href="<%=CommonConfiguration.getCSSURLLocation(request,context)%>" rel="stylesheet" type="text/css"/>
-  <link rel="shortcut icon" href="<%=CommonConfiguration.getHTMLShortcutIcon(context)%>"/>
-
 
     <style type="text/css">
 
-      body {
-        margin: 0;
-        padding: 10px 20px 20px;
-        font-family: Arial;
-        font-size: 16px;
-      }
-
+   
 
 .full_screen_map {
 position: absolute !important;
@@ -122,7 +80,7 @@ margin-bottom: 8px !important;
 <style type="text/css">
   #tabmenu {
     color: #000;
-    border-bottom: 2px solid black;
+    border-bottom: 1px solid #CDCDCD;
     margin: 12px 0px 0px 0px;
     padding: 0px;
     z-index: 1;
@@ -136,10 +94,10 @@ margin-bottom: 8px !important;
   }
 
   #tabmenu a, a.active {
-    color: #DEDECF;
-    background: #000;
-    font: bold 1em "Trebuchet MS", Arial, sans-serif;
-    border: 2px solid black;
+    color: #000;
+    background: #E6EEEE;
+    font: 0.5em "Arial, sans-serif;
+    border: 1px solid #CDCDCD;
     padding: 2px 5px 0px 5px;
     margin: 0;
     text-decoration: none;
@@ -147,25 +105,25 @@ margin-bottom: 8px !important;
   }
 
   #tabmenu a.active {
-    background: #FFFFFF;
+    background: #8DBDD8;
     color: #000000;
-    border-bottom: 2px solid #FFFFFF;
+    border-bottom: 1px solid #8DBDD8;
   }
 
   #tabmenu a:hover {
-    color: #ffffff;
-    background: #7484ad;
+    color: #000;
+    background: #8DBDD8;
   }
 
   #tabmenu a:visited {
-    color: #E8E9BE;
+    
   }
 
   #tabmenu a.active:hover {
-    background: #7484ad;
-    color: #DEDECF;
-    border-bottom: 2px solid #000000;
+    color: #000;
+    border-bottom: 1px solid #8DBDD8;
   }
+  
   
   
 </style>
@@ -185,6 +143,8 @@ margin-bottom: 8px !important;
         //test comment
   </script>
   
+  
+  <jsp:include page="header.jsp" flush="true"/>
   
 
 <script src="http://maps.google.com/maps/api/js?sensor=false&v=3.9&language=<%=langCode %>"></script>
@@ -528,21 +488,32 @@ function setOverlays() {
     	if(!geoJSONResults){
 			//read in the GeoJSON 
 			//alert("Reading GeoJSON...");
-			var xhr = new XMLHttpRequest();
-			//alert("Filename is: "+filename);
-			xhr.open('GET', filename, true);
-			//alert("xhr is open...");
-			xhr.onload = function() {
-				//alert(this.responseText);
-				iw.close();
-				geoJSONResults=this.responseText;
-				loadIndividualMapData(geoJSONResults,aspect);
-				
-				
-				
-  				
-			};
-			xhr.send();
+			
+			//old way
+			//var xhr = new XMLHttpRequest();
+			//xhr.open('GET', filename, true);
+			//alert("Accessing: "+filename);
+			$.ajax({
+				dataType: "text",
+				url:filename,
+				success:function(result){
+					iw.close();
+					geoJSONResults=result;
+					//alert(geoJSONResults);
+					loadIndividualMapData(geoJSONResults,aspect);
+				}
+			}
+			);
+			
+			//OLD way
+			//xhr.onload = function() {
+			//	iw.close();
+			//	geoJSONResults=this.responseText;
+			//	loadIndividualMapData(geoJSONResults,aspect);
+			//};
+			//xhr.send();
+			
+			
 	  	}
     	else{
     		loadIndividualMapData(geoJSONResults,aspect);
@@ -563,18 +534,13 @@ function setOverlays() {
 
 </script>
 
-    
-  </head>
- <body>
- <div id="wrapper">
- <div id="page">
 
-<jsp:include page="header.jsp" flush="true">
 
-  <jsp:param name="isAdmin" value="<%=request.isUserInRole(\"admin\")%>" />
-</jsp:include>
+<div class="container maincontent">
+ 
 
- <div id="main">
+       <h1 class="intro"><%=map_props.getProperty("title")%></h1>
+     
  
 <ul id="tabmenu">
 <%
@@ -596,18 +562,7 @@ if (request.getQueryString() != null) {
     <li><a href="individualSearchResultsExport.jsp?<%=queryString.replaceAll("startNum","uselessNum").replaceAll("endNum","uselessNum") %>"><%=map_props.getProperty("export")%>
   </a></li>
 </ul>
- <table width="810px" border="0" cellspacing="0" cellpadding="0">
-   <tr>
-     <td>
-       <br/>
- 
-       <h1 class="intro"><%=map_props.getProperty("title")%>
-       </h1>
-     </td>
-   </tr>
-</table>
 
- <br />
 
 
 
@@ -731,11 +686,11 @@ if (request.getQueryString() != null) {
  
 %>
 
+</div>
+
+
 <jsp:include page="footer.jsp" flush="true"/>
-</div>
-</div>
-<!-- end page --></div>
-<!--end wrapper -->
+
 
 <script>
 
@@ -748,5 +703,3 @@ $( window ).load(function() {
 
 </script>
 
-</body>
-</html>

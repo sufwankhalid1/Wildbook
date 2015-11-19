@@ -1,23 +1,3 @@
-<%--
-  ~ The Shepherd Project - A Mark-Recapture Framework
-  ~ Copyright (C) 2011 Jason Holmberg
-  ~
-  ~ This program is free software; you can redistribute it and/or
-  ~ modify it under the terms of the GNU General Public License
-  ~ as published by the Free Software Foundation; either version 2
-  ~ of the License, or (at your option) any later version.
-  ~
-  ~ This program is distributed in the hope that it will be useful,
-  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  ~ GNU General Public License for more details.
-  ~
-  ~ You should have received a copy of the GNU General Public License
-  ~ along with this program; if not, write to the Free Software
-  ~ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-  --%>
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <%@ page contentType="text/html; charset=utf-8" language="java"
          import="org.ecocean.servlet.ServletUtilities,org.ecocean.*,org.ecocean.grid.*, java.util.ArrayList,java.util.Iterator, java.util.Properties, java.util.concurrent.ThreadPoolExecutor" %>
 <%
@@ -83,48 +63,9 @@ String langCode=ServletUtilities.getLanguageCode(request);
 
 %>
 
-<html>
-<head>
-  <title><%=CommonConfiguration.getHTMLTitle(context) %>
-  </title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-  <meta name="Description"
-        content="<%=CommonConfiguration.getHTMLDescription(context) %>"/>
-  <meta name="Keywords"
-        content="<%=CommonConfiguration.getHTMLKeywords(context) %>"/>
-  <meta name="Author" content="<%=CommonConfiguration.getHTMLAuthor(context) %>"/>
-  <link href="<%=CommonConfiguration.getCSSURLLocation(request,context) %>"
-        rel="stylesheet" type="text/css"/>
-  <link rel="shortcut icon"
-        href="<%=CommonConfiguration.getHTMLShortcutIcon(context) %>"/>
-
-  <style type="text/css">
-    <!--
-    .style1 {
-      font-size: x-small;
-      font-weight: bold;
-    }
-
-    .style2 {
-      font-size: x-small;
-    }
-
-    -->
-  </style>
-</head>
-
-<body>
-<div id="wrapper">
-<div id="page">
-<jsp:include page="../header.jsp" flush="true">
-  <jsp:param name="isAdmin" value="<%=request.isUserInRole(\"admin\")%>" />
-</jsp:include>
-<div id="main">
-
-<div id="maincol-wide-solo">
-
-<div id="maintext">
-<h1 class="intro">Grid Administration
+<jsp:include page="../header.jsp" flush="true" />
+     <div class="container maincontent">
+<h1>Grid Administration
   <a href="<%=CommonConfiguration.getWikiLocation(context)%>sharkgrid" target="_blank"><img
     src="../images/information_icon_svg.gif" alt="Help" border="0" align="absmiddle"></a></h1>
 
@@ -132,25 +73,60 @@ String langCode=ServletUtilities.getLanguageCode(request);
   myShepherd.beginDBTransaction();
   try {
 
-%>
-<p class="caption">Your scanTasks are shown below. Click <b>Expand All scanTasks</b> to see all of the tasks in the grid for all users.</p>
-<p>
-	<a style="cursor:pointer;color: blue" class="caption" id="clickExpandButton">[+] Expand All scanTasks</a>
-	<a style="cursor:pointer;color: blue;display:none;" class="caption" id="clickCollapseButton">[-] Collapse All scanTasks</a>
-</p>
+String showContext="My ";
 
-<h3>Pending scanTasks</h3>
-<table border="1" cellpadding="2" class="scanTaskAdmin">
-  <tr class="<%=request.getUserPrincipal().toString() %>">
-    <td bgcolor="#CCCCCC"><strong>Identifier</strong></td>
-    <td bgcolor="#CCCCCC"><strong>User</strong></td>
-    <td bgcolor="#CCCCCC"><strong>Completion</strong></td>
-    <td bgcolor="#CCCCCC"><strong>Actions</strong></td>
+if(request.getParameter("showAll")==null){
+%>
+<p class="caption">Your scanTasks are shown below. Click <b>Show All scanTasks</b> to see all of the tasks in the grid for all users.</p>
+
+<p class="caption">Refreshing results in <span id="countdown"></span> seconds.</p>
+  <script type="text/javascript">
+  (function countdown(remaining) {
+	    if(remaining === 0)
+	        location.reload(true);
+	    document.getElementById('countdown').innerHTML = remaining;
+	    setTimeout(function(){ countdown(remaining - 1); }, 1000);
+	})(30);
+  </script>
+
+<p>
+	<a style="cursor:pointer;color: blue" class="caption" href="scanTaskAdmin.jsp?showAll=true">Show All scanTasks</a>
+</p>
+<%
+}
+else{
+	showContext="All ";
+%>
+<p class="caption">All scanTasks are shown below. Click <b>Show My scanTasks</b> to see only your tasks below.</p>
+
+<p>
+	<a style="cursor:pointer;color: blue" class="caption" href="scanTaskAdmin.jsp">Show My scanTasks</a>
+</p>
+<%
+}
+%>
+
+<h3><%=showContext %>Pending scanTasks</h3>
+<table class="tablesorter">
+<thead>
+  <tr>
+    <th><strong>Identifier</strong></th>
+    <th><strong>User</strong></th>
+    <th><strong>Completion</strong></th>
+    <th><strong>Actions</strong></th>
   </tr>
+  </thead>
+  <tbody>
   <%
-    Iterator it = myShepherd.getAllScanTasksNoQuery();
+  Iterator it = null;
+  if(request.getParameter("showAll")!=null){it=myShepherd.getAllScanTasksNoQuery();}
+  else{it=myShepherd.getAllScanTasksForUser(request.getUserPrincipal().toString());}
+  	
+    
+    
+    
     int scanNum = 0;
-    while (it.hasNext()) {
+    while ((it!=null)&&(it.hasNext())) {
       ScanTask st = (ScanTask) it.next();
       if (!st.hasFinished()) {
         scanNum++;
@@ -161,23 +137,16 @@ String langCode=ServletUtilities.getLanguageCode(request);
         int numGenerated = gm.getNumWorkItemsIncompleteForTask(st.getUniqueNumber());
 
         int numTaskTot = numComplete + numGenerated;
-        if ((st.getUniqueNumber().equals("TuningTask")) || (st.getUniqueNumber().equals("FalseMatchTask"))) {
-          numTaskTot = numGenerated;
-        }
 
-        String trClassname="";
-        String styleString="";
-        if(st.getSubmitter().equals(request.getUserPrincipal().toString())){
-        	trClassname="class=\""+request.getUserPrincipal().toString()+"\"";
-        	styleString="style=\"display:none;\"";
-        }
+
         
         
-   
+   String styleString="";
+   if((request.getParameter("task")!=null)&&(st.getUniqueNumber().equals(request.getParameter("task")))){styleString="background-color: #66CCFF;border-collapse:collapse;";}
         
   %>
-  <tr <%=trClassname %> <%=styleString %>>
-    <td><%=scanNum%>. <%=st.getUniqueNumber()%>
+  <tr id="<%=st.getUniqueNumber()%>" >
+    <td style="<%=styleString %>"><%=scanNum%>. <%=st.getUniqueNumber()%>
     </td>
     <td><%=st.getSubmitter()%>
     </td>
@@ -188,12 +157,7 @@ String langCode=ServletUtilities.getLanguageCode(request);
       <form name="scanNum<%=scanNum%>_writeOut" method="post"
             action="../WriteOutScanTask"><input name="number" type="hidden"
                                                 id="number" value="<%=st.getUniqueNumber()%>"> <%
-        if (st.getUniqueNumber().equals("TuningTask")) {
-      %> Boost weight for failed matches<br/>
-        (default is 1): <input name="boostWeight" type="text" id="boostWeight"
-                               size="5" maxlength="10"/> <br/>
-        <%
-          }
+
         %> <input name="scanNum<%=scanNum%>_WriteResult" type="submit"
                   id="scanNum<%=scanNum%>_WriteResult" value="Write Result"></form>
       <br> <%
@@ -213,7 +177,28 @@ String langCode=ServletUtilities.getLanguageCode(request);
                                                                                      value="<%=st.getUniqueNumber()%>"><input
         name="delete" type="submit" id="delete" value="Delete"></form>
         <br />
-
+        <%
+        if(request.isUserInRole("admin")){
+        %>
+              <form name="scanNum<%=scanNum%>" method="post" action="../ScanTaskHandler">
+              	<input name="action" type="hidden" id="action" value="addTask" />
+              	<input name="restart" type="hidden" id="restart" value="true" />
+              	<input name="encounterNumber" type="hidden" id="encounterNumber" value="<%=st.getUniqueNumber().replaceAll("scanL", "").replaceAll("scanR", "") %>" />
+              	<input name="taskID" type="hidden" id="taskID" value="<%=st.getUniqueNumber()%>" />
+              	
+              	<%
+              	if(st.getUniqueNumber().startsWith("scanR")){
+              	%>
+              		<input name="rightSide" type="hidden" id="restart" value="true" />
+              	<%
+              	}
+              	%>
+              	
+              		<input name="restart" type="submit" id="restart" value="Restart" />
+              </form>
+        <%
+        }
+        %>
         
       <%
         }
@@ -225,23 +210,31 @@ String langCode=ServletUtilities.getLanguageCode(request);
       }
     }
   %>
+  </tbody>
 </table>
 
 
-<h3>Completed scanTasks</h3>
+<h3><%=showContext %>Completed scanTasks</h3>
 
-  <table border="1" cellpadding="2" class="scanTaskAdmin">
-  <tr class="<%=request.getUserPrincipal().toString() %>">
-    <td width="62" bgcolor="#CCCCCC"><strong>Identifier</strong></td>
-    <td width="32" bgcolor="#CCCCCC"><strong>User</strong></td>
-    <td bgcolor="#CCCCCC"><strong>Results</strong></td>
-    <td bgcolor="#CCCCCC"><strong>Actions</strong></td>
-	<td bgcolor="#CCCCCC"><strong>ID</strong></td>
+  <table class="tablesorter">
+  <thead>
+  <tr>
+    <th width="62" class="ptcol"><strong>Identifier</strong></th>
+    <th width="32"><strong>User</strong></th>
+    <th><strong>Results</strong></th>
+    <th><strong>Actions</strong></th>
+	<th><strong>Individual ID</strong></th>
+	<th><strong>Enc. State</strong></th>
   </tr>
+  </thead>
+  <tbody>
   <%
-    Iterator it2 = myShepherd.getAllScanTasksNoQuery();
+    Iterator it2 = null;
+  if(request.getParameter("showAll")!=null){it2=myShepherd.getAllScanTasksNoQuery();}
+  else{it2=myShepherd.getAllScanTasksForUser(request.getUserPrincipal().toString());}	
+  
     scanNum = 0;
-    while (it2.hasNext()) {
+    while ((it2!=null)&&(it2.hasNext())) {
       ScanTask st = (ScanTask) it2.next();
       Encounter scanEnc=new Encounter();
       if(myShepherd.isEncounter(st.getUniqueNumber().replaceAll("scanL", "").replaceAll("scanR", ""))){
@@ -258,16 +251,14 @@ String langCode=ServletUtilities.getLanguageCode(request);
         }
 
         scanNum++;
-        String trClassname="";
+        
         String styleString="";
-        if(st.getSubmitter().equals(request.getUserPrincipal().toString())){
-        	trClassname="class=\""+request.getUserPrincipal().toString()+"\"";
-        	styleString="style=\"display:none;\"";
-        }
-  %>
-  <tr <%=trClassname %> <%=styleString %>>
+        if((request.getParameter("task")!=null)&&(st.getUniqueNumber().equals(request.getParameter("task")))){styleString="background-color: #66CCFF;border-collapse:collapse;";}
+             
+       %>
+       <tr id="<%=st.getUniqueNumber()%>" >
 
-    <td><%=st.getUniqueNumber()%>
+    <td style="<%=styleString %>"><%=st.getUniqueNumber()%>
     </td>
     <td><%=st.getSubmitter()%>
     </td>
@@ -326,36 +317,18 @@ String langCode=ServletUtilities.getLanguageCode(request);
 						%>
 				
 						</td>
+						<td><%=scanEnc.getState() %></td>
 
   </tr>
   <%
       }
     }
   %>
+  </tbody>
 </table>
 
-<script>
-var rows = $('table.scanTaskAdmin tr');
-
-var thisUsersRows=$('table.scanTaskAdmin tr.<%=request.getUserPrincipal().toString() %>').show();
-rows.not( thisUsersRows ).hide();
-
-$('#clickExpandButton').click(function() {
-    var mine = rows.filter('.<%=request.getUserPrincipal().toString() %>');
-    rows.not( mine ).show();
-    $('#clickExpandButton').hide();
-    $('#clickCollapseButton').show();
-});
-
-$('#clickCollapseButton').click(function() {
-	var mine = rows.filter('.<%=request.getUserPrincipal().toString() %>');
-    rows.not( mine ).hide();
-    $('#clickExpandButton').show();
-    $('#clickCollapseButton').hide();
-});
 
 
-</script>
 
 <h3>gridManager statistics</h3>
 
@@ -366,19 +339,21 @@ single scan are allowed to exceed the total.</span>
 <%
   if (gm.getNumNodes() > 0) {
 %>
-<table border="1">
+<table class="tablesorter">
+<thead>
   <tr>
-    <td width="18" bgcolor="#CCCCCC"><span class="style1">IP</span></td>
-    <td width="38" bgcolor="#CCCCCC"><span class="style1">NodeID</span></td>
-    <td width="30" bgcolor="#CCCCCC"><span class="style1">#CPU</span></td>
-    <td width="51" bgcolor="#CCCCCC"><span class="style1">Targeted?</span></td>
-    <td width="62" bgcolor="#CCCCCC"><span class="style1">#
-		Finished</span></td>
-    <td width="71" bgcolor="#CCCCCC">
+    <th width="18"><span>IP</span></th>
+    <th width="38"><span>NodeID</span></th>
+    <th width="30"  ><span>#CPU</span></th>
+
+
+    <th width="71"  >
       <div align="left"><span class="style1">Chunk size</span></div>
-    </td>
+    </th>
 
   </tr>
+  </thead>
+  <tbody>
   <%
     ArrayList nodes = gm.getNodes();
     int numNodes = nodes.size();
@@ -392,8 +367,7 @@ single scan are allowed to exceed the total.</span>
     <td><span class="style2"><%=nd.ipAddress()%></span></td>
     <td><span class="style2"><%=nd.getNodeIdentifier()%></span></td>
     <td><span class="style2"><%=nd.numProcessors%></span></td>
-    <td><span class="style2"><%=nd.isTargeted()%></span></td>
-    <td><span class="style2"><%=nd.getNumComparisons()%></span></td>
+    
     <td><span class="style2"><%=nd.groupSize%></span></td>
 
 
@@ -403,6 +377,7 @@ single scan are allowed to exceed the total.</span>
       } //end if
     } //end for
   %>
+  </tbody>
 </table>
 <%}%>
 <p>% inefficent collisions (nodes checking in duplicate work) since
@@ -491,13 +466,7 @@ single scan are allowed to exceed the total.</span>
 
 %>
 </div>
-<!-- end maintext --></div>
-<!-- end maincol -->
+
+
 <jsp:include page="../footer.jsp" flush="true">
-  <jsp:param name="noscript" value="noscript"/>
-</jsp:include>
-</div>
-<!-- end page --></div>
-<!--end wrapper -->
-</body>
-</html>
+

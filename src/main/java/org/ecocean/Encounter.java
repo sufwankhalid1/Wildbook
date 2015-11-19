@@ -27,13 +27,32 @@ import java.util.List;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.Vector;
+import java.util.HashMap;
 import java.util.GregorianCalendar;
 import java.io.*;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.ecocean.genetics.*;
 import org.ecocean.tag.AcousticTag;
 import org.ecocean.tag.MetalTag;
 import org.ecocean.tag.SatelliteTag;
 import org.ecocean.Util;
+import org.ecocean.servlet.ServletUtilities;
+
+import javax.servlet.http.HttpServletRequest;
+
+
+
+import org.joda.time.LocalDateTime;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
+import org.json.JSONObject;
+import org.ecocean.security.Collaboration;
+import org.ecocean.servlet.ServletUtilities;
+
+import javax.servlet.http.HttpServletRequest;
+
 
 
 /**
@@ -61,7 +80,7 @@ public class Encounter implements java.io.Serializable {
   private String catalogNumber = "";
   private String individualID;
   private int day = 0;
-  private int month = 0;
+  private int month = -1;
   private int year = 0;
   private Double decimalLatitude;
   private Double decimalLongitude;
@@ -97,6 +116,7 @@ public class Encounter implements java.io.Serializable {
 
   //Date the encounter was added to the library.
   private String dwcDateAdded;
+  private Long dwcDateAddedLong;
   
   // If Encounter spanned more than one day, date of release
   private Date releaseDate;
@@ -134,7 +154,7 @@ public class Encounter implements java.io.Serializable {
   //the globally unique identifier (GUID) for this Encounter
   private String guid;
 
-  private long dateInMilliseconds=0;
+  private Long dateInMilliseconds;
   //describes how the shark was measured
   private String size_guess = "none provided";
   //String reported GPS values for lat and long of the encounter
@@ -199,6 +219,8 @@ public class Encounter implements java.io.Serializable {
   private List<MetalTag> metalTags;
   private AcousticTag acousticTag;
   private SatelliteTag satelliteTag;
+
+  private Boolean mmaCompatible = false;
   
   //start constructors
 
@@ -379,6 +401,13 @@ public class Encounter implements java.io.Serializable {
    *
    * @return any comments regarding observed scarring on the shark's body
    */
+
+	public boolean getMmaCompatible() {
+		return mmaCompatible;
+	}
+	public void setMmaCompatible(boolean b) {
+		mmaCompatible = b;
+	}
 
   public String getComments() {
     return occurrenceRemarks;
@@ -702,8 +731,12 @@ public class Encounter implements java.io.Serializable {
 
     if (day > 0) {
       date = String.format("%04d-%02d-%02d %s", year, month, day, time);
-    } else {
+    } 
+    else if(month>-1) {
       date = String.format("%04d-%02d %s", year, month, time);
+    }
+    else {
+      date = String.format("%04d %s", year, month, time);
     }
 
     return date;
@@ -1177,11 +1210,23 @@ public class Encounter implements java.io.Serializable {
   public String getDWCDateAdded() {
     return dwcDateAdded;
   }
+  
+  public Long getDWCDateAddedLong(){
+    return dwcDateAddedLong;
+  }
 
   public void setDWCDateAdded(String m_dateAdded) {
     dwcDateAdded = m_dateAdded;
   }
   
+  
+ public void setDWCDateAdded(Long m_dateAdded) {
+    dwcDateAddedLong = m_dateAdded;
+    //org.joda.time.DateTime dt=new org.joda.time.DateTime(dwcDateAddedLong.longValue());
+    //DateTimeFormatter parser1 = ISODateTimeFormat.dateOptionalTimeParser();
+    //setDWCDateAdded(dt.toString(parser1));
+    //System.out.println("     Encounter.detDWCDateAded(Long): "+dt.toString(parser1)+" which is also "+m_dateAdded.longValue());
+  }
   //public void setDateAdded(long date){dateAdded=date;}
   //public long getDateAdded(){return dateAdded;}
 
@@ -1523,16 +1568,19 @@ public class Encounter implements java.io.Serializable {
       if(month>0){localMonth=month-1;}
       int localDay=1;
       if(day>0){localDay=day;}
+      int localHour=0;
+      if(hour>-1){localHour=hour;}
       int myMinutes=0;
       try{myMinutes = Integer.parseInt(minutes);}catch(Exception e){}
-      GregorianCalendar gc=new GregorianCalendar(year, localMonth, localDay,hour,myMinutes);
+      GregorianCalendar gc=new GregorianCalendar(year, localMonth, localDay,localHour,myMinutes);
 
-      dateInMilliseconds = gc.getTimeInMillis();
+      dateInMilliseconds = new Long(gc.getTimeInMillis());
     }
-    else{dateInMilliseconds=0;}
+    else{dateInMilliseconds=null;}
   }
 
-  public long getDateInMilliseconds(){return dateInMilliseconds;}
+  public java.lang.Long getDateInMilliseconds(){return dateInMilliseconds;}
+  
 
   public String getDecimalLatitude(){
     if(decimalLatitude!=null){return Double.toString(decimalLatitude);}
@@ -1624,11 +1672,39 @@ public class Encounter implements java.io.Serializable {
     public List<SinglePhotoVideo> getSinglePhotoVideo(){return images;}
     public void removeSinglePhotoVideo(SinglePhotoVideo num){images.remove(num);}
     
-    
-    
-    public void addMeasurement(Measurement measurement){
+
+    public void setMeasurement(Measurement measurement, Shepherd myShepherd){
+      
+      //if measurements are null, set the empty list
       if(measurements==null){measurements=new ArrayList<Measurement>();}
-      if(!measurements.contains(measurement)){measurements.add(measurement);}
+      
+      //now start checking for existence of a previous measurement
+      
+      //if we have it but the new value is null, remove the measurement
+      if((this.hasMeasurement(measurement.getType()))&&(measurement.getValue()==null)){
+        Measurement m=this.getMeasurement(measurement.getType());
+        measurements.remove(m);
+        myShepherd.getPM().deletePersistent(m);
+        myShepherd.commitDBTransaction();
+        myShepherd.beginDBTransaction();
+      }
+      
+      //just add the measurement it if we did not have it before
+      else if(!this.hasMeasurement(measurement.getType())){
+        measurements.add(measurement);
+        myShepherd.commitDBTransaction();
+        myShepherd.beginDBTransaction();
+      }
+      
+      //if we had it before then just update the value
+      else if((this.hasMeasurement(measurement.getType()))&&(measurement!=null)){
+        Measurement m=this.getMeasurement(measurement.getType());
+        m.setValue(measurement.getValue());
+        m.setSamplingProtocol(measurement.getSamplingProtocol());
+        myShepherd.commitDBTransaction();
+        myShepherd.beginDBTransaction();
+      }
+      
     }
     public void removeMeasurement(int num){measurements.remove(num);}
     public List<Measurement> getMeasurements(){return measurements;}
@@ -1871,7 +1947,116 @@ public class Encounter implements java.io.Serializable {
         }
         return false;
     }
-    
-    
+
+
+	//convenience function to Collaboration permissions
+	public boolean canUserAccess(HttpServletRequest request) {
+		return Collaboration.canUserAccessEncounter(this, request);
+	}
+
+
+	//this simple version makes some assumptions: you already have list of collabs, and it is not visible
+	public String collaborationLockHtml(ArrayList<Collaboration> collabs) {
+		Collaboration c = Collaboration.findCollaborationWithUser(this.getAssignedUsername(), collabs);
+		String collabClass = "pending";
+		if ((c == null) || (c.getState() == null)) {
+			collabClass = "new";
+		} else if (c.getState().equals(Collaboration.STATE_REJECTED)) {
+			collabClass = "blocked";
+		}
+		return "<div class=\"row-lock " + collabClass + " collaboration-button\" data-collabowner=\"" + this.getAssignedUsername() + "\" data-collabownername=\"" + this.getSubmitterName() + "\">&nbsp;</div>";
+	}
+
+
+	//pass in a Vector of Encounters, get out a list that the user can NOT see
+	public static Vector blocked(Vector encs, HttpServletRequest request) {
+		Vector blk = new Vector();
+		for (int i = 0; i < encs.size() ; i++) {
+			Encounter e = (Encounter) encs.get(i);
+			if (!e.canUserAccess(request)) blk.add(e);
+		}
+		return blk;
+	}
+
+
+/*
+in short, this rebuilds (or builds for the first time) ALL *derived* images (etc?) for this encounter.
+it is a baby step into the future of MediaAssets that hopefully will provide a smooth(er) transition to that.
+right now its primary purpose is to create derived formats upon encounter creation; but that is obviously subject to change.
+it should be considered an asyncronous action that happens in the background magickally
+*/
+/////other possiblity: only pass basedir??? do we need context if we do that?
+
+/*
+NOTE on "thumb.jpg" ... we only get one of these per encounter; and we do not have stored (i dont think?) which SPV it came from!
+this is a problem, as we cant make a thumb in refreshAssetFormats(req, spv) since we dont know if that is the "right" spv.
+thus, we have to treat it as a special case.
+*/
+		public boolean refreshAssetFormats(String context, String baseDir) {
+			boolean ok = true;
+			//List<SinglePhotoVideo> allSPV = this.getImages();
+			boolean thumb = true;
+			for (SinglePhotoVideo spv : this.getImages()) {
+				ok &= this.refreshAssetFormats(context, baseDir, spv, thumb);
+				thumb = false;
+			}
+			return ok;
+		}
+
+		//as above, but for specific SinglePhotoVideo
+		public boolean refreshAssetFormats(String context, String baseDir, SinglePhotoVideo spv, boolean doThumb) {
+			if (spv == null) return false;
+			String encDir = this.dir(baseDir);
+
+			boolean ok = true;
+			if (doThumb) ok &= spv.scaleTo(context, 100, 75, encDir + File.separator + "thumb.jpg");
+			//TODO some day this will be a structure/definition that lives in a config file or on MediaAsset, etc.  for now, ya get hard-coded
+
+			//this will first try watermark version, then regular
+			ok &= (spv.scaleToWatermark(context, 250, 200, encDir + File.separator + spv.getDataCollectionEventID() + ".jpg", "") || spv.scaleTo(context, 250, 200, encDir + File.separator + spv.getDataCollectionEventID() + ".jpg"));
+
+			ok &= spv.scaleTo(context, 1024, 768, encDir + File.separator + spv.getDataCollectionEventID() + "-mid.jpg");  //for use in VM tool etc. (bandwidth friendly?)
+			return ok;
+		}
+
+
+	//see also: future, MediaAssets
+	public String getThumbnailUrl(String context) {
+		List<SinglePhotoVideo> spvs = this.images;
+		if (spvs == null || spvs.size() < 1) return null;
+		return "/" + CommonConfiguration.getDataDirectoryName(context) + "/encounters/" + this.subdir() + "/thumb.jpg";
+	}
+
+	public boolean restAccess(HttpServletRequest request, JSONObject jsonobj) throws Exception {
+		ApiAccess access = new ApiAccess();
+System.out.println("hello i am in restAccess() on Encounter");
+
+		String fail = access.checkRequest(this, request, jsonobj);
+System.out.println("fail -----> " + fail);
+		if (fail != null) throw new Exception(fail);
+
+		//HashMap<String, String> perm = access.permissions(this, request);
+//System.out.println(perm);
+
+/*
+System.out.println("!!!----------------------------------------");
+System.out.println(request.getMethod());
+throw new Exception();
+*/
+		return true;
+	}
+
+
+/*  not really sure we need this now/yet
+
+	public void refreshDependentProperties() {
+		this.resetDateInMilliseconds();
+//TODO could possibly do integrity check, re: individuals/occurrences linking?
+	}
+
+*/
+
+
+
 }
 

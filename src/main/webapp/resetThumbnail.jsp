@@ -1,25 +1,5 @@
-<%--
-  ~ The Shepherd Project - A Mark-Recapture Framework
-  ~ Copyright (C) 2011 Jason Holmberg
-  ~
-  ~ This program is free software; you can redistribute it and/or
-  ~ modify it under the terms of the GNU General Public License
-  ~ as published by the Free Software Foundation; either version 2
-  ~ of the License, or (at your option) any later version.
-  ~
-  ~ This program is distributed in the hope that it will be useful,
-  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  ~ GNU General Public License for more details.
-  ~
-  ~ You should have received a copy of the GNU General Public License
-  ~ along with this program; if not, write to the Free Software
-  ~ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-  --%>
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <%@ page contentType="text/html; charset=utf-8" language="java"
-         import="org.ecocean.servlet.ServletUtilities,org.ecocean.CommonConfiguration, org.ecocean.Encounter, org.ecocean.Shepherd, java.awt.*, java.io.File" %>
+         import="org.ecocean.servlet.ServletUtilities,org.ecocean.CommonConfiguration, org.ecocean.Encounter, org.ecocean.Shepherd, java.awt.*, java.io.File, org.ecocean.SinglePhotoVideo" %>
 <%@ taglib uri="http://www.sunwesttek.com/di" prefix="di" %>
 
 <%
@@ -28,40 +8,18 @@ context=ServletUtilities.getContext(request);
  
 %>
 
-<html>
-<head>
-  <title><%=CommonConfiguration.getHTMLTitle(context) %>
-  </title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-  <meta name="Description"
-        content="<%=CommonConfiguration.getHTMLDescription(context) %>"/>
-  <meta name="Keywords"
-        content="<%=CommonConfiguration.getHTMLKeywords(context) %>"/>
-  <meta name="Author" content="<%=CommonConfiguration.getHTMLAuthor(context) %>"/>
-  <link href="<%=CommonConfiguration.getCSSURLLocation(request,context) %>"
-        rel="stylesheet" type="text/css"/>
-  <link rel="shortcut icon"
-        href="<%=CommonConfiguration.getHTMLShortcutIcon(context) %>"/>
-
-</head>
-
-<body>
-<div id="wrapper">
-  <div id="page">
-    <jsp:include page="header.jsp" flush="true">
+    <jsp:include page="header.jsp" flush="true" />
       
-      <jsp:param name="isAdmin" value="<%=request.isUserInRole(\"admin\")%>" />
-    </jsp:include>
-    <div id="main">
-
-      <div id="maincol-wide">
-
-        <div id="maintext">
+        <div class="container maincontent">
           <%
           Shepherd myShepherd = new Shepherd(context);
+					
           try {
         	  
         	  String number = request.getParameter("number").trim();
+			  
+			  Encounter enc = myShepherd.getEncounter(number);
+			  
         	  int imageNum = 1;
         	  try {
         	    imageNum = (new Integer(request.getParameter("imageNum"))).intValue();
@@ -86,7 +44,6 @@ context=ServletUtilities.getContext(request);
             else {
               
               myShepherd.beginDBTransaction();
-              Encounter enc = myShepherd.getEncounter(number);
               addText = (String) enc.getAdditionalImageNames().get((imageNum - 1));
               if (myShepherd.isAcceptableVideoFile(addText)) {
                 addText = getServletContext().getRealPath("/")+"/images/video_thumb.jpg";
@@ -94,7 +51,7 @@ context=ServletUtilities.getContext(request);
                 addText = encountersDir.getAbsolutePath()+"/"+ Encounter.subdir(request.getParameter("number")) + "/" + addText;
               }
               myShepherd.rollbackDBTransaction();
-              myShepherd.closeDBTransaction();
+              //myShepherd.closeDBTransaction();
             }
 
             int intWidth = 100;
@@ -104,12 +61,20 @@ context=ServletUtilities.getContext(request);
 
 
             File file2process = new File(addText);
+            String thumbPath = encountersDir.getAbsolutePath()+"/" + Encounter.subdir(number) + "/thumb.jpg";
+            String thumbLocation = "file-" + thumbPath;
 
-            
+						//first try the new (optional) background method
+						SinglePhotoVideo spv = null;
+						if ((imageNum > 0) && (enc.getImages() != null)) spv = enc.getImages().get(imageNum - 1);
+						if ((spv != null) && spv.scaleTo(context, thumbnailWidth, thumbnailHeight, thumbPath)) {
+							System.out.println("attempting to create " + thumbPath + " in background.");
 
+
+						///// if that fails (not configured, etc) then use existing method:
 
               //ImageInfo iInfo=new ImageInfo();
-              if ((file2process.exists()) && (file2process.length() > 0)) {
+             } else if ((file2process.exists()) && (file2process.length() > 0)) {
                 //iInfo.setInput(new FileInputStream(file2process));
                 String height = "";
                 String width = "";
@@ -143,8 +108,6 @@ context=ServletUtilities.getContext(request);
             
 
 
-            String thumbLocation = "file-"+encountersDir.getAbsolutePath()+"/" + Encounter.subdir(number) + "/thumb.jpg";
-
             //generate the thumbnail image
           %>
           <di:img width="<%=thumbnailWidth %>" height="<%=thumbnailHeight %>" border="0"
@@ -162,14 +125,15 @@ context=ServletUtilities.getContext(request);
             href="http://<%=CommonConfiguration.getURLLocation(request)%>/encounters/encounter.jsp?number=<%=number%>">View encounter <%=number%>.</a></p>
 
 
-        </div>
+       
+        
         <%
         } catch (Exception e) {
               //e.printStackTrace();
           %>
 
           <p>Hit an error trying to generate the thumbnail. Either the specified encounter or image does not exist.</p>
-	</div>
+
 	
           <%
             }
@@ -180,11 +144,7 @@ context=ServletUtilities.getContext(request);
           
          myShepherd=null;
           %>
-        <!-- end maintext --></div>
-      <!-- end maincol -->
+       </div>
+     
       <jsp:include page="footer.jsp" flush="true"/>
-    </div>
-    <!-- end page --></div>
-  <!--end wrapper -->
-</body>
-</html>
+  

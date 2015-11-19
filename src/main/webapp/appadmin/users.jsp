@@ -1,26 +1,7 @@
-<%--
-  ~ The Shepherd Project - A Mark-Recapture Framework
-  ~ Copyright (C) 2013 Jason Holmberg
-  ~
-  ~ This program is free software; you can redistribute it and/or
-  ~ modify it under the terms of the GNU General Public License
-  ~ as published by the Free Software Foundation; either version 2
-  ~ of the License, or (at your option) any later version.
-  ~
-  ~ This program is distributed in the hope that it will be useful,
-  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  ~ GNU General Public License for more details.
-  ~
-  ~ You should have received a copy of the GNU General Public License
-  ~ along with this program; if not, write to the Free Software
-  ~ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-  --%>
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<%@ page contentType="text/html; charset=iso-8859-1" language="java" import="java.util.ArrayList" %>
-<%@ page import="org.ecocean.*,org.ecocean.servlet.ServletUtilities,java.util.Properties" %>
+<%@ page contentType="text/html; charset=utf-8" language="java" %>
+<%@ page import="org.ecocean.*" %>
+<%@ page import="java.util.ArrayList" %>
+<%@ page import="org.apache.commons.lang3.StringEscapeUtils" %>
 
 
 <%
@@ -43,39 +24,13 @@ String context="context0";
   response.setHeader("Pragma", "no-cache"); //HTTP 1.0 backward compatibility
 %>
 
-<html>
-<head>
-  <title><%=CommonConfiguration.getHTMLTitle(context) %>
-  </title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-  <meta name="Description"
-        content="<%=CommonConfiguration.getHTMLDescription(context) %>"/>
-  <meta name="Keywords"
-        content="<%=CommonConfiguration.getHTMLKeywords(context) %>"/>
-  <meta name="Author" content="<%=CommonConfiguration.getHTMLAuthor(context) %>"/>
-  <link href="<%=CommonConfiguration.getCSSURLLocation(request,context) %>"
-        rel="stylesheet" type="text/css"/>
-  <link rel="shortcut icon"
-        href="<%=CommonConfiguration.getHTMLShortcutIcon(context) %>"/>
+    <jsp:include page="../header.jsp" flush="true" />
 
-  <style type="text/css">
-    <!--
-    .style1 {
-      color: #FF0000
-    }
-
-    -->
-  </style>
-</head>
-
-<body>
-<div id="wrapper">
-  <div id="page">
-    <jsp:include page="../header.jsp" flush="true">
-
-      <jsp:param name="isAdmin" value="<%=request.isUserInRole(\"admin\")%>" />
-    </jsp:include>
-    <div id="main">
+   
+   
+   
+ <div class="container maincontent">
+ 
      
      <%
      
@@ -87,7 +42,7 @@ String context="context0";
 
       <h1 class="intro">User Management</h1>
       <h4 class="intro">Existing Users (<%=numUsers %>)</h4>
-      <table width="810px" class="tissueSample">
+      <table class="tissueSample">
       	<tr>
       		<th>&nbsp;</th>
       		<th><strong>Username</strong></th>
@@ -127,8 +82,8 @@ String context="context0";
       		}
       		%>
       		</td>
-      		<td style="font-size:small"><%=user.getUsername()%></td>
-      		<td style="font-size:small"><%=fullName%></td>
+      		<td style="font-size:small"><%=StringEscapeUtils.escapeHtml4(user.getUsername())%></td>
+      		<td style="font-size:small"><%=StringEscapeUtils.escapeHtml4(fullName)%></td>
       		<td style="font-size:small"><a href="mailto:<%=emailAddress%>"><img height="20px" width="20px" src="../images/Crystal_Clear_app_email.png" /></a></td>
       		<td style="font-size:small"><%=affiliation%></td>
       		<td style="font-size:x-small"><em><%=myShepherd.getAllRolesForUserAsString(user.getUsername()).replaceAll("\r","<br />") %></em></td>
@@ -187,7 +142,7 @@ String context="context0";
 	if(request.getParameter("isEdit")!=null){isEditAddition="&isEdit=true";}
 	%>
     	
-    		    <table width="100%" class="tissueSample">
+    		    <table class="tissueSample">
     		    
 
     		    
@@ -235,10 +190,10 @@ String context="context0";
     		    %>
     		    
     		        		    <tr>
-		        		    	<td>
-		        		    		<table border="0">
+		        		    	<td style="width: 200px;">
+		        		    		<table style="border: solid 0;">
 		        		    			<tr>
-		        		    				<td style="border: solid 0">
+		        		    				<td style="border: solid 0;border-spacing: 0;width: 200px;">
 		        		    					<img src="<%=profilePhotoURL%>" width="200px" height="*" />
 		        		    				</td>
 		        		    			</tr>
@@ -246,10 +201,11 @@ String context="context0";
 		        		    			if(request.getParameter("isEdit")!=null){
 		        		    			%>
 		        		    			<tr>
-		        		    					<td style="border: solid 0"><form action="../UserAddProfileImage?context=context0" method="post" enctype="multipart/form-data" name="UserAddProfileImage">
+		        		    					<td style="border: solid 0">
+		        		    						<form action="../UserAddProfileImage?context=context0" method="post" enctype="multipart/form-data" name="UserAddProfileImage">
         												<img src="../images/upload_small.gif" align="absmiddle" />&nbsp;Upload photo:<br /> 
 		        		    						 <input name="username" type="hidden" value="<%=localUsername%>" id="profileUploadUsernameField" />
-        												<input name="file2add" type="file" size="20" />
+        												<input name="file2add" type="file" style="width: 200px"/>
         												<input name="addtlFile" type="submit" id="addtlFile" value="Upload" />
         											</form>
 		        		    					</td>
@@ -368,16 +324,15 @@ String context="context0";
 	<%
 	}
 	%>
+	
+	</div>
+
       <jsp:include page="../footer.jsp" flush="true"/>
-    </div>
-  </div>
-  <!-- end page --></div>
-<!--end wrapper -->
+    
 <%
 myShepherd.rollbackDBTransaction();
 myShepherd.closeDBTransaction();
 %>
-</body>
-</html>
+
 
 

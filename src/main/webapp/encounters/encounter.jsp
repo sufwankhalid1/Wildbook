@@ -1,26 +1,5 @@
-
-<%--
-  ~ Wildbook - A Mark-Recapture Framework
-  ~ Copyright (C) 2008-2014 Jason Holmberg
-  ~
-  ~ This program is free software; you can redistribute it and/or
-  ~ modify it under the terms of the GNU General Public License
-  ~ as published by the Free Software Foundation; either version 2
-  ~ of the License, or (at your option) any later version.
-  ~
-  ~ This program is distributed in the hope that it will be useful,
-  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  ~ GNU General Public License for more details.
-  ~
-  ~ You should have received a copy of the GNU General Public License
-  ~ along with this program; if not, write to the Free Software
-  ~ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-  --%>
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <%@ page contentType="text/html; charset=utf-8" language="java"
-         import="org.joda.time.format.DateTimeFormat,org.joda.time.format.DateTimeFormatter,org.joda.time.DateTime ,org.ecocean.servlet.ServletUtilities,com.drew.imaging.jpeg.JpegMetadataReader, com.drew.metadata.Directory, com.drew.metadata.Metadata, com.drew.metadata.Tag, org.ecocean.*,org.ecocean.servlet.ServletUtilities,org.ecocean.Util,org.ecocean.Measurement, org.ecocean.Util.*, org.ecocean.genetics.*, org.ecocean.tag.*, java.awt.Dimension, javax.jdo.Extent, javax.jdo.Query, java.io.File, java.text.DecimalFormat, java.util.*" %>
+         import="org.joda.time.format.DateTimeFormat,org.joda.time.format.DateTimeFormatter,org.joda.time.LocalDateTime ,org.ecocean.servlet.ServletUtilities,com.drew.imaging.jpeg.JpegMetadataReader, com.drew.metadata.Directory, com.drew.metadata.Metadata, com.drew.metadata.Tag, org.ecocean.*,org.ecocean.servlet.ServletUtilities,org.ecocean.Util,org.ecocean.Measurement, org.ecocean.Util.*, org.ecocean.genetics.*, org.ecocean.tag.*, java.awt.Dimension, javax.jdo.Extent, javax.jdo.Query, java.io.File, java.text.DecimalFormat, java.util.*,org.ecocean.security.Collaboration" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>         
 
@@ -38,7 +17,6 @@
         //set up the file input stream
         //props.load(getClass().getResourceAsStream("/bundles/newIndividualNumbers.properties"));
         props=ShepherdProperties.getProperties("newIndividualNumbers.properties", "",context);
-
 
         //let's see if the property is defined
         if (props.getProperty(lcode) != null) {
@@ -123,6 +101,10 @@ String langCode=ServletUtilities.getLanguageCode(request);
 
   Properties encprops = ShepherdProperties.getProperties("encounter.properties", langCode, context);
 
+	Properties collabProps = new Properties();
+ 	collabProps=ShepherdProperties.getProperties("collaboration.properties", langCode, context);
+
+
 
   pageContext.setAttribute("num", num);
 
@@ -130,68 +112,39 @@ String langCode=ServletUtilities.getLanguageCode(request);
   Shepherd myShepherd = new Shepherd(context);
   Extent allKeywords = myShepherd.getPM().getExtent(Keyword.class, true);
   Query kwQuery = myShepherd.getPM().newQuery(allKeywords);
+//System.out.println("???? query=" + kwQuery);
   boolean proceed = true;
   boolean haveRendered = false;
 
   pageContext.setAttribute("set", encprops.getProperty("set"));
 %>
 
-<html>
-
-<head prefix="og:http://ogp.me/ns#">
-  <title><%=CommonConfiguration.getHTMLTitle(context) %> - <%=encprops.getProperty("encounter") %> <%=num%>
-  </title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-  <meta name="Description"
-        content="<%=CommonConfiguration.getHTMLDescription(context) %>"/>
-  <meta name="Keywords"
-        content="<%=CommonConfiguration.getHTMLKeywords(context) %>"/>
-  <meta name="Author" content="<%=CommonConfiguration.getHTMLAuthor(context) %>"/>
-  
-  
-<!-- social meta start -->
-<meta property="og:site_name" content="<%=CommonConfiguration.getHTMLTitle(context) %> - <%=encprops.getProperty("encounter") %> <%=request.getParameter("number") %>" />
-
-<link rel="canonical" href="http://<%=CommonConfiguration.getURLLocation(request) %>/encounters/encounter.jsp?number=<%=request.getParameter("number") %>" />
-
-<meta itemprop="name" content="<%=encprops.getProperty("encounter")%> <%=request.getParameter("number")%>" />
-<meta itemprop="description" content="<%=CommonConfiguration.getHTMLDescription(context)%>" />
-<%
-if (request.getParameter("number")!=null) {
-	
-		if(myShepherd.isEncounter(num)){
-			Encounter metaEnc = myShepherd.getEncounter(num);
-			int numImgs=metaEnc.getImages().size();
-			if((metaEnc.getImages()!=null)&&(numImgs>0)){
-				for(int b=0;b<numImgs;b++){
-				SinglePhotoVideo metaSPV=metaEnc.getImages().get(b);
-%>
-<meta property="og:image" content="http://<%=CommonConfiguration.getURLLocation(request) %>/<%=CommonConfiguration.getDataDirectoryName(context) %>/encounters/<%=(request.getParameter("number")+"/"+metaSPV.getFilename())%>" />
-<link rel="image_src" href="http://<%=CommonConfiguration.getURLLocation(request) %>/<%=CommonConfiguration.getDataDirectoryName(context) %>/encounters/<%=(request.getParameter("number")+"/"+metaSPV.getFilename())%>" / >
-<%
-			}
-		}
-		}
-}
-%>
-
-<meta property="og:title" content="<%=CommonConfiguration.getHTMLTitle(context) %> - <%=encprops.getProperty("encounter") %> <%=request.getParameter("number") %>" />
-<meta property="og:description" content="<%=CommonConfiguration.getHTMLDescription(context)%>" />
-
-<meta property="og:url" content="http://<%=CommonConfiguration.getURLLocation(request) %>/encounters/encounter.jsp?number=<%=request.getParameter("number") %>" />
 
 
-<meta property="og:type" content="website" />
+<jsp:include page="../header.jsp" flush="true"/>
 
-<!-- social meta end -->
-
-  
-  <link href="<%=CommonConfiguration.getCSSURLLocation(request,context) %>"
-        rel="stylesheet" type="text/css"/>
-  <link rel="shortcut icon"
-        href="<%=CommonConfiguration.getHTMLShortcutIcon(context) %>"/>
   <style type="text/css">
     <!--
+
+	#spot-image-wrapper-left,
+	#spot-image-wrapper-right
+	{
+		position: relative;
+		height: 510px;
+	}
+	#spot-image-left, #spot-image-canvas-left,
+	#spot-image-right, #spot-image-canvas-right
+	{
+		position: absolute;
+		left: 0;
+		top: 0;
+		max-width: 600px;
+		max-height: 500px;
+	}
+
+	.spot-td {
+		display: table;	
+	}
 
     .style2 {
       color: #000000;
@@ -303,49 +256,7 @@ td.measurement{
 	}
 	</script>
 
-  <script type="text/javascript">
-  
-
-  
-      hs.graphicsDir = '../highslide/highslide/graphics/';
-      hs.align = 'center';
-      hs.transitions = ['expand', 'crossfade'];
-      hs.outlineType = 'rounded-white';
-      hs.fadeInOut = true;
-
-
-    //block right-click user copying if no permissions available
-    <%
-    if(request.getUserPrincipal()!=null){
-    %>
-    hs.blockRightClick = false;
-    <%
-    }
-    else{
-    %>
-    hs.blockRightClick = true;
-	<%
-    }
-	%>
-    // Add the controlbar
-    hs.addSlideshow({
-      //slideshowGroup: 'group1',
-      interval: 5000,
-      repeat: false,
-      useControls: true,
-      fixedControls: 'fit',
-      overlayOptions: {
-        opacity: 0.75,
-        position: 'bottom center',
-        hideOnMouseOut: true
-      }
-    });
-    
-    //test comment
-    
-
-
-  </script>
+ 
   
   <script>
             function initialize() {
@@ -384,6 +295,12 @@ td.measurement{
 		  
         
         }
+
+
+
+
+var encounterNumber = '<%=num%>';
+
   </script>
 
 <style type="text/css">
@@ -401,11 +318,6 @@ margin-bottom: 8px !important;
   code { font-size: 2em; }
 
 </style>
-
-
-
-
-<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.4/themes/base/jquery-ui.css" rel="stylesheet" type="text/css" />
 
 
 <!--added below for improved map selection -->
@@ -463,33 +375,24 @@ margin-bottom: 8px !important;
 .ui_tpicker_minute_label {margin-bottom:5px !important;}
 
 
-
 </style>
 
-
-<body <%if (request.getParameter("noscript") == null) {%>
-  onload="initialize()" <%}%>>
-
-	<div id="wrapper">
-		<div id="page">
-			<jsp:include page="../header.jsp" flush="true">
-  				<jsp:param name="isAdmin" value="<%=request.isUserInRole(\"admin\")%>" />
-			</jsp:include>
 			
 			
-			<script src="http://maps.google.com/maps/api/js?sensor=false&language=<%=langCode%>"></script>
+<script src="http://maps.google.com/maps/api/js?sensor=false&language=<%=langCode%>"></script>
+<script type="text/javascript" src="http://geoxml3.googlecode.com/svn/branches/polys/geoxml3.js"></script>
 
-<script src="http://code.jquery.com/ui/1.10.2/jquery-ui.js"></script>
-
- <script type="text/javascript" src="http://geoxml3.googlecode.com/svn/branches/polys/geoxml3.js"></script>
-  <link rel="stylesheet" href="//code.jquery.com/ui/1.11.1/themes/smoothness/jquery-ui.css">
- <script src="//code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
  
   <script src="../javascript/timepicker/jquery-ui-timepicker-addon.js"></script>
  
+<script src="../javascript/imageTools.js"></script>
 
 			
-			<div id="main">
+
+
+<div class="container maincontent">
+
+
 			<%
   			myShepherd.beginDBTransaction();
 
@@ -497,6 +400,38 @@ margin-bottom: 8px !important;
     			try {
 
       			Encounter enc = myShepherd.getEncounter(num);
+						boolean visible = enc.canUserAccess(request);
+
+						if (!visible) {
+							String blocker = "";
+							ArrayList collabs = Collaboration.collaborationsForCurrentUser(request);
+							Collaboration c = Collaboration.findCollaborationWithUser(enc.getAssignedUsername(), collabs);
+							String cmsg = "<p>" + collabProps.getProperty("deniedMessage") + "</p>";
+							String uid = null;
+							String name = null;
+							if (request.getUserPrincipal() == null) {
+								cmsg = "<p>Your submission is saved.</p>";
+							} if ((c == null) || (c.getState() == null)) {
+								uid = enc.getAssignedUsername();
+								name = enc.getSubmitterName();
+								if ((name == null) || name.equals("N/A")) name = enc.getAssignedUsername();
+							} else if (c.getState().equals(Collaboration.STATE_INITIALIZED)) {
+								cmsg += "<p>" + collabProps.getProperty("deniedMessagePending") + "</p>";
+							} else if (c.getState().equals(Collaboration.STATE_REJECTED)) {
+								cmsg += "<p>" + collabProps.getProperty("deniedMessageRejected") + "</p>";
+							}
+
+							cmsg = cmsg.replace("'", "\\'");
+							if (!User.isUsernameAnonymous(uid)) {
+								blocker = "<script>$(document).ready(function() { $.blockUI({ message: '" + cmsg + "' + _collaborateHtml('" + uid + "', '" + name.replace("'", "\\'") + "') }) });</script>";
+							} else {
+								cmsg += "<p><input type=\"button\" onClick=\"window.history.back()\" value=\"BACK\" /></p>";
+								blocker = "<script>$(document).ready(function() { $.blockUI({ message: '" + cmsg + "' }) });</script>";
+							}
+							out.println(blocker);
+						}
+
+
       			pageContext.setAttribute("enc", enc);
       			String livingStatus = "";
       			if ((enc.getLivingStatus()!=null)&&(enc.getLivingStatus().equals("dead"))) {
@@ -505,6 +440,12 @@ margin-bottom: 8px !important;
       			//int numImages = enc.getAdditionalImageNames().size();
 				int numImages=myShepherd.getAllSinglePhotoVideosForEncounter(enc.getCatalogNumber()).size();
       
+if (request.getParameter("refreshImages") != null) {
+	System.out.println("refreshing images!!! ==========");
+	enc.refreshAssetFormats(context, ServletUtilities.dataDir(context, rootWebappPath));
+	System.out.println("============ out ==============");
+}
+
 				//let's see if this user has ownership and can make edits
       			boolean isOwner = ServletUtilities.isUserAuthorizedForEncounter(enc, request);
       			pageContext.setAttribute("editable", isOwner && CommonConfiguration.isCatalogEditable(context));
@@ -530,13 +471,16 @@ $(function() {
       
       <%
       //set a default date if we cann
-      if(enc.getDateInMilliseconds()>0){
+      if(enc.getDateInMilliseconds()!=null){
     	  
-    	  DateTime jodaTime = new DateTime(enc.getDateInMilliseconds());
-          DateTimeFormatter parser1 = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
-          
+    	  //LocalDateTime jodaTime = new LocalDateTime(enc.getDateInMilliseconds());
+    	  
+    	    
+          //DateTimeFormatter parser1 = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
+          LocalDateTime jodaTime=new LocalDateTime(enc.getDateInMilliseconds());
+			
       %>
-      defaultDate: '<%=parser1.print(jodaTime) %>',
+      defaultDate: '<%=jodaTime.toString("yyyy-MM-dd HH:mm") %>',
       hour: <%=jodaTime.getHourOfDay() %>,
       minute: <%=jodaTime.getMinuteOfHour() %>,
       <%
@@ -570,7 +514,7 @@ $(function() {
       //set a default date if we cann
       if((enc.getReleaseDateLong()!=null)&&(enc.getReleaseDateLong()>0)){
     	  
-    	  DateTime jodaTime = new DateTime(enc.getReleaseDateLong().longValue());
+    	  LocalDateTime jodaTime = new LocalDateTime(enc.getReleaseDateLong().longValue());
           DateTimeFormatter parser1 = DateTimeFormat.forPattern("yyyy-MM-dd");
           
       %>
@@ -618,8 +562,10 @@ $(function() {
     						%>
     						
     						
-    							<p class="<%=classColor%>"><img align="absmiddle" src="../images/Crystal_Clear_action_find.png" width="50px" height="50px" /> 
-    						 <strong><%=encprops.getProperty("title") %></strong>: <%=num%><%=livingStatus %></p>
+    						<h1 class="<%=classColor%>"> 
+    						 	<%=encprops.getProperty("title") %><%=livingStatus %>
+    						 </h1>
+    					
     						
     					</td>
     				</tr>
@@ -628,7 +574,7 @@ $(function() {
 				
      
     			<p class="caption"><em><%=encprops.getProperty("description") %></em></p>
- 					<table>
+ 					<table style="border-spacing: 10px;border-collapse: inherit;">
  						<tr valign="middle">  
   							<td>
     							<!-- Google PLUS-ONE button -->
@@ -652,8 +598,13 @@ $(function() {
 
 <!-- START IDENTITY ATTRIBUTE -->								
 
-  <p><img align="absmiddle" src="../images/wild-me-logo-only-100-100.png" width="40px" height="40px" /> <strong><%=encprops.getProperty("identity") %></strong></p>
+  <h2><img align="absmiddle" src="../images/wild-me-logo-only-100-100.png" width="40px" height="40px" /> <%=encprops.getProperty("identity") %></h2>
       
+<% if (isOwner && CommonConfiguration.isCatalogEditable(context)) { %>
+<div class="encounter-vm-button">
+	<a href="encounterVM.jsp?number=<%=num%>">[Visual Matcher]</a>
+</div>
+<% } %>
       
 								
     							<%
@@ -1061,13 +1012,23 @@ $("a#occurrence").click(function() {
 <tr>
 <td width="560px" style="vertical-align:top; background-color: #E8E8E8">
 
-<p><img align="absmiddle" src="../images/calendar.png" width="40px" height="40px" /> <strong><%=encprops.getProperty("date") %>
-</strong><br/><br/>
+<h2><img align="absmiddle" src="../images/calendar.png" width="40px" height="40px" /><%=encprops.getProperty("date") %>
+</h2>
+<p>
+<%if(enc.getDateInMilliseconds()!=null){ %>
   <a
     href="http://<%=CommonConfiguration.getURLLocation(request)%>/xcalendar/calendar.jsp?scDate=<%=enc.getMonth()%>/1/<%=enc.getYear()%>">
     <%=enc.getDate()%>
   </a>
     <%
+}
+else{
+%>	
+<%=encprops.getProperty("unknown") %>
+<%
+}
+    
+    
 				if(isOwner&&CommonConfiguration.isCatalogEditable(context)) {
  					%><font size="-1"><a id="date" class="launchPopup"><img align="absmiddle" width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" /></a></font> <%
         		}
@@ -1247,9 +1208,9 @@ $("a#date").click(function() {
 
 
 <br />
-<p>
-	<img src="../images/2globe_128.gif" width="40px" height="40px" align="absmiddle"/> <strong><%=encprops.getProperty("location") %> </strong>
-</p>	 
+<h2>
+	<img src="../images/2globe_128.gif" width="40px" height="40px" align="absmiddle"/> <%=encprops.getProperty("location") %>
+</h2>	 
 <%
 if(enc.getLocation()!=null){
 %>
@@ -1541,7 +1502,7 @@ $("a#elev").click(function() {
     </script>
     
  	<%
- 	if((request.getUserPrincipal()!=null) || ((enc.getLatitudeAsDouble()!=null)&&(enc.getLongitudeAsDouble()!=null))){
+ 	if((request.getUserPrincipal()!=null) && ((enc.getLatitudeAsDouble()!=null)&&(enc.getLongitudeAsDouble()!=null))){
  	%>
  		<p><%=encprops.getProperty("map_note") %></p>
  		<div id="map_canvas" style="width: 510px; height: 350px; "></div>
@@ -1777,7 +1738,7 @@ $("a#country").click(function() {
 <tr>
 <td width="560px" style="vertical-align:top; background-color: #E8E8E8">
 
-<p><img align="absmiddle" src="../images/Crystal_Clear_kuser2.png" width="40px" height="42px" /> <strong><%=encprops.getProperty("contactInformation") %></strong></p>
+<h2><img align="absmiddle" src="../images/Crystal_Clear_kuser2.png" width="40px" height="42px" /> <%=encprops.getProperty("contactInformation") %></h2>
 
 <table>
 	<tr>
@@ -2150,7 +2111,7 @@ $("a#country").click(function() {
   </table>
   
   <br />
-  <p><img align="absmiddle" src="../images/Note-Book-icon.png" width="40px" height="40px" /> <strong><%=encprops.getProperty("observationAttributes") %></strong></p>
+  <h2><img align="absmiddle" src="../images/Note-Book-icon.png" width="40px" height="40px" /> <%=encprops.getProperty("observationAttributes") %></h2>
 <!-- START TAXONOMY ATTRIBUTE -->    
 <%
     if(CommonConfiguration.showProperty("showTaxonomy",context)){
@@ -2725,9 +2686,15 @@ $("a#comments").click(function() {
 <tr>
 <td width="560px" style="vertical-align:top; background-color: #E8E8E8">
 
-<p><img align="absmiddle" width="40px" height="40px" style="border-style: none;" src="../images/workflow_icon.gif" /> <strong><%=encprops.getProperty("metadata") %></strong></p>
+<h2><img align="absmiddle" width="40px" height="40px" style="border-style: none;" src="../images/workflow_icon.gif" /> <%=encprops.getProperty("metadata") %></h2>
 								
+								
+								<p class="para">
+									Number: <%=num%>
+								</p>
 								<!-- START WORKFLOW ATTRIBUTE -->
+								
+								
  								<%
         						
 									String state="";
@@ -2823,16 +2790,17 @@ $("a#comments").click(function() {
                          				if(enc.getAssignedUsername()!=null){
 
                         	 				String username=enc.getAssignedUsername();
-                         					if(myShepherd.getUser(username)!=null){
+                        	 				Shepherd aUserShepherd=new Shepherd("context0");
+                         					if(aUserShepherd.getUser(username)!=null){
                          					%>
                                 			<table>
                                 			<%
                          	
-                         					User thisUser=myShepherd.getUser(username);
+                         					User thisUser=aUserShepherd.getUser(username);
                                 			String profilePhotoURL="../images/empty_profile.jpg";
                     		    
                          					if(thisUser.getUserImage()!=null){
-                         						profilePhotoURL="/"+CommonConfiguration.getDataDirectoryName(context)+"/users/"+thisUser.getUsername()+"/"+thisUser.getUserImage().getFilename();
+                         						profilePhotoURL="/"+CommonConfiguration.getDataDirectoryName("context0")+"/users/"+thisUser.getUsername()+"/"+thisUser.getUserImage().getFilename();
                          					}
                          					%>
                      						<tr>
@@ -2933,7 +2901,10 @@ $("a#username").click(function() {
                       	&nbsp;
                       	<%	
                       	}
-                      	} //end if show users to general public
+                        aUserShepherd.rollbackDBTransaction();
+                        aUserShepherd.closeDBTransaction();
+                      	} 
+                         				//insert here
                          	if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
 %>
 
@@ -2955,17 +2926,25 @@ $("a#username").click(function() {
           <select name="submitter" id="submitter">
         	<option value=""></option>
         	<%
-        	ArrayList<String> usernames=myShepherd.getAllUsernames();
+        	
+        	Shepherd userShepherd=new Shepherd("context0");
+        	userShepherd.beginDBTransaction();
+        	ArrayList<String> usernames=userShepherd.getAllUsernames();
+        	
+        	
+        	
         	int numUsers=usernames.size();
         	for(int i=0;i<numUsers;i++){
         		String thisUsername=usernames.get(i);
-        		User thisUser2=myShepherd.getUser(thisUsername);
+        		User thisUser2=userShepherd.getUser(thisUsername);
         		String thisUserFullname=thisUsername;
         		if(thisUser2.getFullName()!=null){thisUserFullname=thisUser2.getFullName();}
         	%>
         	<option value="<%=thisUsername%>"><%=thisUserFullname%></option>
         	<%
 			}
+        	userShepherd.rollbackDBTransaction();
+        	userShepherd.closeDBTransaction();
         	%>
       	</select> 
               
@@ -3130,7 +3109,7 @@ $("a#autocomments").click(function() {
   pageContext.setAttribute("measurementTitle", encprops.getProperty("measurements"));
   pageContext.setAttribute("measurements", Util.findMeasurementDescs(langCode,context));
 %>
-<p><img align="absmiddle" width="40px" height="40px" style="border-style: none;" src="../images/ruler.png" /> <strong><c:out value="${measurementTitle}"></c:out></strong>
+<h2><img align="absmiddle" width="40px" height="40px" style="border-style: none;" src="../images/ruler.png" /> <c:out value="${measurementTitle}"></c:out></h2>
 <c:if test="${editable and !empty measurements}">
   <a id="measure" class="launchPopup"><img align="absmiddle" width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" /></a></font>
 </c:if>
@@ -3141,7 +3120,8 @@ $("a#autocomments").click(function() {
 <c:forEach var="item" items="${measurements}">
  <% 
     MeasurementDesc measurementDesc = (MeasurementDesc) pageContext.getAttribute("item");
-    Measurement event =  enc.findMeasurementOfType(measurementDesc.getType());
+    //Measurement event =  enc.findMeasurementOfType(measurementDesc.getType());
+    Measurement event=myShepherd.getMeasurementOfTypeForEncounter(measurementDesc.getType(), num);
     if (event != null) {
         pageContext.setAttribute("measurementValue", event.getValue());
         pageContext.setAttribute("samplingProtocol", Util.getLocalizedSamplingProtocol(event.getSamplingProtocol(), langCode,context));
@@ -3241,7 +3221,7 @@ $("a#measure").click(function() {
 
 <c:if test="${showMetalTags}">
 
-<p><img align="absmiddle" src="../images/Crystal_Clear_app_starthere.png" width="40px" height="40px" /> <strong><%=encprops.getProperty("tracking") %></strong></p>
+<h2><img align="absmiddle" src="../images/Crystal_Clear_app_starthere.png" width="40px" height="40px" /> <%=encprops.getProperty("tracking") %></h2>
 <%
   pageContext.setAttribute("metalTagTitle", encprops.getProperty("metalTags"));
   pageContext.setAttribute("metalTags", Util.findMetalTagDescs(langCode,context));
@@ -3495,9 +3475,7 @@ $("a#sat").click(function() {
 </tr>
 </table>
 
-
-<br />
-<p><img align="absmiddle" src="../images/lightning_dynamic_props.gif" /> <strong><%=encprops.getProperty("dynamicProperties") %></strong>
+<h2><img align="absmiddle" src="../images/lightning_dynamic_props.gif" /> <%=encprops.getProperty("dynamicProperties") %></h2>
 <%
 if(isOwner){
 %>
@@ -3506,11 +3484,7 @@ if(isOwner){
 	</a>
 <%
 }
-%>
- 
-</p>
- 
-<%
+
 
   if (enc.getDynamicProperties() != null) {
     //let's create a TreeMap of the properties
@@ -3633,7 +3607,7 @@ $("a#dynamicPropertyAdd").click(function() {
 
 </td>
 
-  <td style="vertical-align: top">
+  <td style="vertical-align: top;padding-left: 10px;">
     <jsp:include page="encounterImagesEmbed.jsp" flush="true">
     	<jsp:param name="encounterNumber" value="<%=num%>" />
     	<jsp:param name="isOwner" value="<%=isOwner %>" />
@@ -3918,11 +3892,13 @@ dlgSample.dialog("open");
 
 <p>
 <%
-List<TissueSample> tissueSamples=enc.getTissueSamples();
-//List<TissueSample> tissueSamples=myShepherd.getAllTissueSamplesForEncounter(enc.getCatalogNumber());
+//List<TissueSample> tissueSamples=enc.getTissueSamples();
+List<TissueSample> tissueSamples=myShepherd.getAllTissueSamplesForEncounter(enc.getCatalogNumber());
 
-int numTissueSamples=tissueSamples.size();
-if(numTissueSamples>0){
+if((tissueSamples!=null)&&(tissueSamples.size()>0)){
+	
+	int numTissueSamples=tissueSamples.size();
+
 %>
 <table width="100%" class="tissueSample">
 <tr><th><strong><%=encprops.getProperty("sampleID") %></strong></th><th><strong><%=encprops.getProperty("values") %></strong></th><th><strong><%=encprops.getProperty("analyses") %></strong></th><th><strong><%=encprops.getProperty("editTissueSample") %></strong></th><th><strong><%=encprops.getProperty("removeTissueSample") %></strong></th></tr>
@@ -5121,8 +5097,7 @@ catch(Exception e){
 	%>
 	<p>Hit an error.<br /> <%=e.toString()%></p>
 
-</body>
-</html>
+
 <%
 }
 
@@ -5151,16 +5126,6 @@ catch(Exception e){
 
 <jsp:include page="../footer.jsp" flush="true"/>
 
-</div>
-<!-- end page -->
 
-</div>
-
-<!--end wrapper -->
-
-
-
-</body>
-</html>
 
 

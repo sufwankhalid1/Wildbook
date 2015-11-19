@@ -608,6 +608,35 @@ public class IndividualQueryProcessor {
     }
     //end hasPhoto filters-----------------------------------------------
 
+    
+    //------------------------------------------------------------------
+    //hasSpots filters-------------------------------------------------
+    if(request.getParameter("hasSpots")!=null){
+          prettyPrint.append("Has patterning spots.");
+
+            if(filter.equals(SELECT_FROM_ORG_ECOCEAN_INDIVIDUAL_WHERE)){filter+="encounters.contains(enc413) && enc413.spots != null";}
+            else if (filter.indexOf("enc413.spots != null")==-1){filter+=(" && encounters.contains(enc413) && enc413.spots != null ");}
+
+            prettyPrint.append("<br />");
+            if(!jdoqlVariableDeclaration.contains("org.ecocean.Encounter enc413")){jdoqlVariableDeclaration+=";org.ecocean.Encounter enc413";}
+            
+    }
+    //end hasSpots filters-----------------------------------------------
+
+    
+    //------------------------------------------------------------------
+    //hasNoSpots filters-------------------------------------------------
+    if(request.getParameter("hasNoSpots")!=null){
+          prettyPrint.append("Has no patterning spots.");
+
+            if(filter.equals(SELECT_FROM_ORG_ECOCEAN_INDIVIDUAL_WHERE)){filter+="!encounters.contains(enc414) && enc414.spots != null";}
+            else if (filter.indexOf("enc414.spots != null")==-1){filter+=(" && !encounters.contains(enc414) && enc414.spots != null ");}
+
+            prettyPrint.append("<br />");
+            if(!jdoqlVariableDeclaration.contains("org.ecocean.Encounter enc414")){jdoqlVariableDeclaration+=";org.ecocean.Encounter enc414";}
+            
+    }
+    //end hasNoSpots filters-----------------------------------------------
 
 
 
@@ -784,6 +813,16 @@ public class IndividualQueryProcessor {
       if(!jdoqlVariableDeclaration.contains("org.ecocean.Encounter enc99")){jdoqlVariableDeclaration+=";org.ecocean.Encounter enc99";}
 
       prettyPrint.append("alternateID field contains \""+altID+"\".<br />");
+    }
+
+
+
+    //filter for nick name------------------------------------------
+    if((request.getParameter("nickNameField")!=null)&&(!request.getParameter("nickNameField").equals(""))) {
+      String nickName=request.getParameter("nickNameField").replaceAll("%20", " ").trim().toLowerCase();
+      if(filter.equals(SELECT_FROM_ORG_ECOCEAN_INDIVIDUAL_WHERE)){filter+="(nickName.toLowerCase().indexOf('"+nickName+"') != -1)";}
+
+      prettyPrint.append("nickName field contains \""+nickName+"\".<br />");
     }
     
 
@@ -1069,13 +1108,23 @@ public class IndividualQueryProcessor {
       }
     }
 
-    GregorianCalendar gcMin=new GregorianCalendar(minYear, (minMonth-1), minDay, 0, 0);
-    GregorianCalendar gcMax=new GregorianCalendar(maxYear, (maxMonth-1), maxDay, 23, 59);
-
+    //GregorianCalendar gcMin=new GregorianCalendar(minYear, (minMonth-1), minDay, 0, 0);
+    //GregorianCalendar gcMax=new GregorianCalendar(maxYear, (maxMonth-1), maxDay, 23, 59);
+    
+    //let's do some month and day checking to avoid exceptions
+    org.joda.time.DateTime testMonth1=new org.joda.time.DateTime(minYear,minMonth,1,0,0);
+    if(testMonth1.dayOfMonth().getMaximumValue()<minDay) minDay=testMonth1.dayOfMonth().getMaximumValue();    
+    org.joda.time.DateTime testMonth2=new org.joda.time.DateTime(maxYear,maxMonth,1,0,0);
+    if(testMonth2.dayOfMonth().getMaximumValue()<maxDay) maxDay=testMonth2.dayOfMonth().getMaximumValue();
+    
+    org.joda.time.DateTime gcMin =new org.joda.time.DateTime(minYear, (minMonth), minDay, 0, 0);
+    org.joda.time.DateTime gcMax =new org.joda.time.DateTime(maxYear, (maxMonth), maxDay, 23, 59);
+    
+    
     if(filter.equals(SELECT_FROM_ORG_ECOCEAN_INDIVIDUAL_WHERE)){
-      filter+="((enc.dateInMilliseconds >= "+gcMin.getTimeInMillis()+") && (enc.dateInMilliseconds <= "+gcMax.getTimeInMillis()+"))";
+      filter+="((enc.dateInMilliseconds >= "+gcMin.getMillis()+") && (enc.dateInMilliseconds <= "+gcMax.getMillis()+"))";
     }
-    else{filter+=" && ((enc.dateInMilliseconds >= "+gcMin.getTimeInMillis()+") && (enc.dateInMilliseconds <= "+gcMax.getTimeInMillis()+"))";
+    else{filter+=" && ((enc.dateInMilliseconds >= "+gcMin.getMillis()+") && (enc.dateInMilliseconds <= "+gcMax.getMillis()+"))";
     }
 
 

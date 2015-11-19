@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8" language="java"
-         import="org.ecocean.servlet.ServletUtilities, org.ecocean.*,org.ecocean.servlet.ServletUtilities,org.ecocean.Util,org.ecocean.Measurement, org.ecocean.Util.*, org.ecocean.genetics.*, org.ecocean.tag.*, java.awt.Dimension, javax.jdo.Extent, javax.jdo.Query, java.io.File, java.text.DecimalFormat, java.util.*" %>
+         import="org.ecocean.servlet.ServletUtilities, org.ecocean.*,org.ecocean.servlet.ServletUtilities,org.ecocean.Util,org.ecocean.Measurement, org.ecocean.Util.*, org.ecocean.genetics.*, org.ecocean.tag.*, java.awt.Dimension, javax.jdo.Extent, javax.jdo.Query, java.io.File, java.io.FileInputStream,java.text.DecimalFormat, java.util.*" %>
 <%@ taglib uri="http://www.sunwesttek.com/di" prefix="di" %>
 <%--
   ~ The Shepherd Project - A Mark-Recapture Framework
@@ -61,10 +61,56 @@ String encUrlDir = "/" + CommonConfiguration.getDataDirectoryName(context) + ima
 
 %>
 
+ <script type="text/javascript">
+  
 
-<p><img align="absmiddle" src="../images/Crystal_Clear_device_camera.gif" width="37px"
-                     height="25px"><strong>&nbsp;<%=encprops.getProperty("images")%>
-</strong><br/> <%
+  
+      hs.graphicsDir = '../highslide/highslide/graphics/';
+      hs.align = 'auto';
+      hs.transitions = ['expand', 'crossfade'];
+      hs.outlineType = 'rounded-white';
+      hs.fadeInOut = true;
+      hs.anchor = 'top';
+
+
+    //block right-click user copying if no permissions available
+    <%
+    if(request.getUserPrincipal()!=null){
+    %>
+    hs.blockRightClick = false;
+    <%
+    }
+    else{
+    %>
+    hs.blockRightClick = true;
+	<%
+    }
+	%>
+    // Add the controlbar
+    hs.addSlideshow({
+      //slideshowGroup: 'group1',
+      interval: 5000,
+      repeat: false,
+      useControls: true,
+      fixedControls: 'fit',
+      overlayOptions: {
+        opacity: 0.75,
+        position: 'bottom center',
+        hideOnMouseOut: true
+      }
+    });
+    
+  
+
+
+  </script>
+
+
+
+
+<h2><img align="absmiddle" src="../images/Crystal_Clear_device_camera.gif" width="37px"
+                     height="25px">&nbsp;<%=encprops.getProperty("images")%></h2>
+<p> <%
   if (session.getAttribute("logged") != null) {
 %> <em><%=encprops.getProperty("click2view")%>
 </em>
@@ -105,10 +151,23 @@ int imageCount = 0;
   	<img align="absmiddle" src="../images/Crystal_Clear_app_xmag.png" width="30px" height="30px" />
     <em>
     	<%=encprops.getProperty("image_commands") %>
-    </em>:<br/> <font size="-1">
-      [<a
-      href="encounterSearch.jsp?referenceImageName=<%=(imageEncNum+"/"+(addTextFile.replaceAll(" ","%20")))%>"><%=encprops.getProperty("look4photos") %>
-    </a>] </font></td>
+    </em>:<br/>
+<ul class="image-commands">
+
+<%
+if(CommonConfiguration.useSpotPatternRecognition(context)){
+%>
+<li>
+	<a href="encounterSpotTool.jsp?imageID=<%=images.get(myImage).getDataCollectionEventID()%>"><%=encprops.getProperty("doImageSpots") %></a>
+</li>
+<%
+}
+%>
+
+<li>
+	<a href="encounterSearch.jsp?referenceImageName=<%=images.get(myImage).getDataCollectionEventID() %>"><%=encprops.getProperty("look4photos") %></a>
+</li>
+</td>
 </tr>
 
 <%
@@ -275,11 +334,7 @@ int imageCount = 0;
         String thumbPath = thisEncounterDir.getAbsolutePath() + "/" + images.get(myImage).getDataCollectionEventID() + ".jpg";
         String thumbLocation = "file-" + thumbPath;
         String srcurl = images.get(myImage).getFullFileSystemPath();
-        //String thumbLocation = "file-" + images.get(myImage).getFullFileSystemPath();// + File.separator + images.get(myImage).getFilename();
-//System.out.println(">>>>>>>>>>>>>>>>>>>>>> thumbLocation = " + thumbLocation);
-        //File processedImage = new File(thisEncounterDir.getAbsolutePath() + "/" + images.get(myImage).getDataCollectionEventID() + ".jpg");
         File processedImage = new File(thumbPath);
-//System.out.println(">>>>>>>>____________>> processedImage = " + processedImage.getAbsolutePath());
 
 
         int intWidth = 250;
@@ -324,7 +379,16 @@ int imageCount = 0;
 
 
       } else if ((!processedImage.exists()) && (!haveRendered)) {
-        haveRendered = true;
+
+				//thanks to magic of short-circuiting boolean, this will try watermark first then regular if not available
+				if (images.get(myImage).scaleToWatermark(context, thumbnailWidth, thumbnailHeight, thumbPath, "") ||
+						images.get(myImage).scaleTo(context, thumbnailWidth, thumbnailHeight, thumbPath)) {
+					//work forks off in background, so we use this placeholder for now:
+System.out.println("trying to fork/create " + thumbPath);
+      %> <img width="250" height="200" alt="in progress" src="../images/processed.gif" align="left" /> <%
+
+				} else {  //fallback to old dynamic ways:
+        	haveRendered = true;
         //System.out.println("Using DynamicImage to render thumbnail: "+imageEncNum);
         //System.gc();
 //System.out.println("srcurl="+srcurl + " --> thumbLocation=" + thumbLocation);
@@ -343,8 +407,10 @@ int imageCount = 0;
                  fillPaint="#000000"><%=encprops.getProperty("nocopying") %>
         </di:text>
       </di:img>
-      <img width="<%=thumbnailWidth %>" alt="photo <%=imageEnc.getLocation()%>"
+      <img width="<%=thumbnailWidth %>" class="enc-photo" alt="photo <%=imageEnc.getLocation()%>"
            src="<%=encUrlDir%>/<%=(images.get(myImage).getDataCollectionEventID()+".jpg")%>" border="0" align="left" valign="left"> <%
+				}
+
       if (request.getParameter("isOwner").equals("true")) {
     %>
     </a>
@@ -352,7 +418,7 @@ int imageCount = 0;
       }
     %> <%
   } else if ((!processedImage.exists()) && (haveRendered)) {
-  %> <img width="250" height="200" alt="photo <%=imageEnc.getLocation()%>"
+  %> <img width="250" height="200" class="enc-photo" alt="photo <%=imageEnc.getLocation()%>"
           src="../images/processed.gif" border="0" align="left" valign="left">
       <%
 		if (session.getAttribute("logged")!=null) {
@@ -362,9 +428,13 @@ int imageCount = 0;
       }
     %> <%
   } else {
-  %> <img id="img<%=images.get(myImage).getDataCollectionEventID()%> " width="<%=thumbnailWidth %>" alt="photo <%=imageEnc.getLocation()%>"
+			String wmDiv = "";
+			String wmText = encprops.getProperty("imgWatermark");
+			if ((wmText != null) && !wmText.equals("")) wmDiv = "<div class=\"img-watermark\">" + wmText + "</div>";
+  %> <div style="position: relative"><img id="img<%=images.get(myImage).getDataCollectionEventID()%> " width="<%=thumbnailWidth %>" class="enc-photo" alt="photo <%=imageEnc.getLocation()%>"
           src="<%=encUrlDir%>/<%=(images.get(myImage).getDataCollectionEventID()+".jpg")%>" border="0" align="left"
-          valign="left"> <%
+          valign="left"><%=wmDiv%> <%
+
 	if (session.getAttribute("logged")!=null) {
 				%></a>
                 <div 
@@ -451,9 +521,10 @@ int imageCount = 0;
 
             <%
               if (CommonConfiguration.showEXIFData(context)&&!isVideo) {
-            	  
+            	  FileInputStream jin=null;
+            	  try{
             	  File exifImage = new File(Encounter.dir(shepherdDataDir, imageEnc.getCatalogNumber()) + "/" + addTextFile);
-              	
+              	jin=new FileInputStream(exifImage);
             %>
 
 
@@ -477,6 +548,9 @@ int imageCount = 0;
    								</span>
           </td>
           <%
+              }
+            	  catch(Exception e){e.printStackTrace();}
+            	  finally{if(jin!=null){jin.close();}}
             }
           %>
 
@@ -495,6 +569,8 @@ int imageCount = 0;
 </tr>
 
 </table>
+
+
 
   <%
 						}
