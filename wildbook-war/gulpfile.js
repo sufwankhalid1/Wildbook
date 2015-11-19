@@ -5,8 +5,8 @@ var less = require('gulp-less');
 var watch = require('gulp-watch');
 
 gulp.task('templates', function() {
-    gulp.src('src/main/templates/**/*.jade').pipe(jade()).pipe(gulp.dest('target/templates'));
-    return gulp.src('target/templates/**/*.html').pipe(templateCache()).pipe(gulp.dest('src/main/webapp/javascript'));
+    return gulp.src('src/main/templates/**/*.jade').pipe(jade())
+        .pipe(templateCache()).pipe(gulp.dest('src/main/webapp/javascript'));
 });
 
 gulp.task('less', function() {
