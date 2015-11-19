@@ -305,7 +305,7 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
                 }
                 
                 $scope.editSubmission = function(submission) {
-                    return $q.all([$http({url:"obj/mediasubmission/photos/" + submission.id}),
+                    $scope.busy = $q.all([$http({url:"obj/mediasubmission/photos/" + submission.id}),
                                    $http({url:"obj/mediasubmission/encounters/" + submission.id})])
                     .then(function(results) {
                         $scope.data.submission = submission;

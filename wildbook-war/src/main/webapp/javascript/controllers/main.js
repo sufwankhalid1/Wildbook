@@ -7,7 +7,7 @@ angular.module('templates', []);
 
 wildbook = {};
 
-wildbook.app = angular.module('appWildbook', ["agGrid", "ui.bootstrap", "ui.bootstrap-slider", "templates"]);
+wildbook.app = angular.module('appWildbook', ["agGrid", "ui.bootstrap", "ui.bootstrap-slider", "templates", "cgBusy"]);
 wildbook.app.factory('$exceptionHandler', function() {
     return function(ex, cause) {
         //
