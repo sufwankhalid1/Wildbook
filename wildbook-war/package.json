@@ -17,15 +17,15 @@
     }
   ],
   "dependencies": {
+    "ag-grid": "2.2.0",
+    "angular": "1.4.4",
+    "angular-busy": "4.1.0",
+    "angular-material": "0.11.4",
+    "angular-ui-bootstrap": "0.14.3",
+    "bootstrap": "3.3.5",
     "jquery": "2.1.4",
     "jquery-ui": "1.10.5",
-    "moment": "2.10.6",
-    "bootstrap": "3.3.5",
-    "angular": "1.4.4",
-    "angular-ui-bootstrap": "0.14.3",
-    "ag-grid": "2.2.0",
-    "angular-busy": "4.1.0",
-    "angular-material": "0.11.4"
+    "moment": "2.10.6"
   },
   "repository": {
     "type": "git",
@@ -34,6 +34,7 @@
   "devDependencies": {
     "browserify": "^12.0.1",
     "browserify-css": "^0.8.1",
+    "del": "^2.1.0",
     "fs": "0.0.2",
     "gulp": "^3.9.0",
     "gulp-angular-templatecache": "^1.8.0",
@@ -46,6 +47,7 @@
     "gulp-util": "^3.0.7",
     "minifyify": "^7.1.0",
     "rsyncwrapper": "^0.4.3",
+    "run-sequence": "^1.1.5",
     "vinyl-source-stream": "^1.1.0",
     "watchify": "^3.6.1",
     "yargs": "^3.30.0"

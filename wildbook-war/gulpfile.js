@@ -12,15 +12,21 @@ var less = require('gulp-less');
 var rsync = require('rsyncwrapper').rsync;
 var argv = require('yargs').argv;
 var debug = require('gulp-debug');
-var run = require('gulp-run');
 var fs = require('fs');
 var browserify = require('browserify');
 var source = require("vinyl-source-stream");
 var watchify = require("watchify");
 var path = require("path");
 var concat = require('gulp-concat');
+var del = require('del');
+var runSequence = require('run-sequence');
+var exec = require('child_process').exec;
 
 var webapp = argv.w || argv.webapp || "wildbook";
+
+//===============================
+// Build paths to use
+//===============================
 
 var paths = {
     src: path.join('src', 'main'),
@@ -41,6 +47,24 @@ paths.distjs = path.join(paths.dist, 'javascript');
 
 paths.devdeploy = path.join(process.env.TOMCAT_HOME, 'webapps', webapp);
 paths.mainjs = path.join(paths.srcjs, 'main.js');
+
+//===============================
+// END Build paths to use
+//===============================
+
+function execute(cmd, callback) {
+    return exec(cmd, function(err, stdout, stderr) {
+        console.log(stdout);
+        console.log(stderr);
+        if (err) {
+            reportError(err);
+        } else {
+            if (callback) {
+                callback();
+            }
+        }
+    });
+}
 
 function doRsync(opts) {
     opts.recursive = true;
@@ -71,7 +95,7 @@ gulp.task('watch', function() {
 
 
 //'node_modules/jquery-ui/themes/base/minified/jquery-ui.min.css'
-gulp.task('concattools', function() {
+gulp.task('concat-tools', function() {
     gulp.src(['node_modules/ag-grid/dist/ag-grid.min.css',
               'node_modules/ag-grid/dist/theme-fresh.min.css',
               'node_modules/angular-busy/dist/angular-busy.min.css',
@@ -94,15 +118,6 @@ function updatewar() {
     if (!process.env.TOMCAT_HOME) {
         throw "Must have TOMCAT_HOME env variable set.";
     }
-    
-//    doRsync({
-//        src: [paths.css,
-//              path.join(paths.webapp, 'images'),
-//              path.join(paths.webapp, 'jade'),
-//              paths.js],
-//        dest: paths.devdeploy
-//    });
-    
     //
     // Not sure I want the overhead of copying the images every time. unncessary for me since
     // I'm not usually changing those. Move this to another task if you want to have an easy way to
@@ -126,18 +141,20 @@ gulp.task('updatewar', ['less', 'templates'], function() {
     updatewar();
 });
 
-gulp.task('updatewarclasses', function() {
+gulp.task('updatewar-classes', function() {
     var cmd = 'mvn compile -o';
     var cust = argv.c || argv.cust;
     if (cust) {
         cmd += ' -Dwildbook.cust=' + cust;
     }
-    run(cmd);
     
-    doRsync({
-        src: [path.join(paths.target, 'classes')],
-        dest: path.join(paths.devdeploy, 'WEB-INF', 'classes')
-    });
+    execute(cmd, function(err) {
+            doRsync({
+                src: [path.join(paths.target, 'classes')],
+                dest: path.join(paths.devdeploy, 'WEB-INF', 'classes')
+            });
+        }
+    );
 });
 
 gulp.task('updatewartools', function() {
@@ -146,6 +163,23 @@ gulp.task('updatewartools', function() {
         src: [path.join(paths.webapp, 'tools')],
         dest: paths.devdeploy
     });
+});
+
+gulp.task('clean', function() {
+    return del('target');
+});
+
+gulp.task('build', function() {
+    //
+    // TODO: Once gulp 4.0 is out you can replace this with the native series task capability
+    //
+    runSequence(
+        'clean',
+        ['less', 'templates', 'browserify-tools', 'concat-tools', 'browserify'],
+        function() {
+            execute('mvn install');
+        }
+    );
 });
 
 function getBundler(files, output, nominify) {
@@ -181,12 +215,12 @@ function getMainBundler() {
 
 function doBundling(bundler, output) {
     return bundler.bundle()
-        .on('error', handleBrowserifyError)
+        .on('error', reportError)
         .pipe(source(output))
         .pipe(gulp.dest(paths.distjs));
 }
 
-function handleBrowserifyError(ex) {
+function reportError(ex) {
     gutil.log(gutil.colors.yellow.bgRed('Error: '), ex.message);
 }
 

@@ -155,7 +155,6 @@ public String createNavBar(final HttpServletRequest request,
 
         <script src="<%=urlLoc%>/javascript/jquery.min.js"></script>
         <script src="<%=urlLoc%>/tools/alertplus/javascript/alertplus.js"></script>
-        <script src="<%=urlLoc%>/javascript/jquery.cookie.js"></script>
         <script src="<%=urlLoc%>/javascript/tools-bundle.js"></script>
         <script src="<%=urlLoc%>/javascript/bundle.js"></script>
         <script src="<%=urlLoc%>/javascript/templates.js"></script>
@@ -219,9 +218,11 @@ public String createNavBar(final HttpServletRequest request,
                                         </select>
                                     </form>
                                 </li>
+                                <!-- TODO: Commenting this out so that I can get rid of jQuery as this and alertplus
+                                     are the only things relying on it. This will be rewritten in angular using
+                                     angular cookies. It's super easy.
                                 <script type="text/javascript">
                                     $("#context").change(function() {
-                                        //alert( "Handler for .change() called with new value: "+$( "#context option:selected" ).text() +" with value "+ $( "#context option:selected").val());
                                         $.cookie("wildbookContext", $( "#context option:selected").val(), {
                                             path    : '/',          //The value of the path attribute of the cookie 
                                                                     //(default: path of page that created the cookie).
@@ -233,6 +234,7 @@ public String createNavBar(final HttpServletRequest request,
                                         location.reload(true);
                                     });
                                 </script>
+                                 -->
                                 <%
                                 }
                                 
@@ -251,6 +253,9 @@ public String createNavBar(final HttpServletRequest request,
                                     String myLang=supportedLanguages.get(h);
                                 %>
                                     <img style="cursor: pointer" id="flag_<%=myLang %>" title="<%=Global.INST.getAppResources().getString("language." + myLang + ".label", myLang) %>" src="<%=urlLoc%>/images/flag_<%=myLang %>.gif" />
+                                <!-- TODO: Commenting this out so that I can get rid of jQuery as this and alertplus
+                                     are the only things relying on it. This will be rewritten in angular using
+                                     angular cookies. It's super easy.
                                     <script type="text/javascript">
                                         $( "#flag_<%=myLang%>" ).click(function() {
                                             //alert( "Handler for .change() called with new value: "+$( "#langCode option:selected" ).text() +" with value "+ $( "#langCode option:selected").val());
@@ -265,6 +270,7 @@ public String createNavBar(final HttpServletRequest request,
                                             location.reload(true);
                                         });
                                     </script>
+                                 -->
                                 <%
                                 }
                                 %>
