@@ -29,10 +29,13 @@ var paths = {
 
 paths.srcjs = path.join(paths.src, 'javascript');
 paths.webapp = path.join(paths.src, 'webapp');
+paths.less = path.join(paths.src, 'less');
+
 paths.js = path.join(paths.webapp, 'javascript');
-paths.less = path.join(paths.webapp, 'less');
 paths.css = path.join(paths.webapp, 'css');
+
 paths.dist = path.join(paths.target, 'dist');
+
 paths.distcss = path.join(paths.dist, 'css');
 paths.distjs = path.join(paths.dist, 'javascript');
 
@@ -58,7 +61,7 @@ gulp.task('templates', function() {
 
 gulp.task('less', function() {
     return gulp.src(path.join(paths.less, 'wildbook.less'))
-        .pipe(less()).pipe(gulp.dest(paths.css));
+        .pipe(less()).pipe(gulp.dest(paths.distcss));
 });
     
 gulp.task('watch', function() {
