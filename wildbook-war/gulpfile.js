@@ -80,6 +80,7 @@ gulp.task('concattools', function() {
          .pipe(gulp.dest(paths.distcss));
     gulp.src('node_modules/jquery/dist/jquery.min.js', {base: 'node_modules/jquery/dist'})
     .pipe(gulp.dest(paths.distjs));
+
 //    gulp.src(['node_modules/jquery-ui/autocomplete.js', 'node_modules/jquery-ui/core.js'])
 //    .pipe(concat('jquery-ui.js'))
 //    .pipe(gulp.dest(paths.distjs));
