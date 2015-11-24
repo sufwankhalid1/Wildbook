@@ -3248,6 +3248,23 @@ public class Shepherd {
     return null;
   }
 
+  public ArrayList<Encounter> getAllEncountersForSpecies(String genus, String specificEpithet) { 
+    String keywordQueryString="SELECT FROM org.ecocean.Encounter WHERE genus == '"+genus+"' && specificEpithet == '"+specificEpithet+"'";
+      Query samples = pm.newQuery(keywordQueryString);
+    Collection c = (Collection) (samples.execute());
+      ArrayList<Encounter> myArray=new ArrayList<Encounter>(c);
+      samples.closeAll();
+      return myArray;
+    }
+  
+  public ArrayList<Encounter> getAllEncountersForSpeciesWithSpots(String genus, String specificEpithet) { 
+    String keywordQueryString="SELECT FROM org.ecocean.Encounter WHERE genus == '"+genus+"' && specificEpithet == '"+specificEpithet+"' && spots != null";
+      Query samples = pm.newQuery(keywordQueryString);
+    Collection c = (Collection) (samples.execute());
+      ArrayList<Encounter> myArray=new ArrayList<Encounter>(c);
+      samples.closeAll();
+      return myArray;
+    }
   
 
 } //end Shepherd class

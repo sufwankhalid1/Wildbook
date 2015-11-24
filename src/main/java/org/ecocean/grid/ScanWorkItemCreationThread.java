@@ -23,6 +23,7 @@ import org.ecocean.Encounter;
 import org.ecocean.Shepherd;
 
 import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.Vector;
 
 
@@ -97,24 +98,27 @@ public class ScanWorkItemCreationThread implements Runnable, ISharkGridThread {
     //now, add the workItems
     myShepherd.beginDBTransaction();
     try {
-      Iterator encounters = myShepherd.getAllEncountersNoQuery();
+      //Iterator encounters = myShepherd.getAllEncountersNoQuery();
+      ArrayList<Encounter> speciesEncs=myShepherd.getAllEncountersForSpeciesWithSpots("Acinonyx","jubatus");
       int count = 0;
+      
+      Iterator encounters=speciesEncs.iterator();
 
       while (encounters.hasNext()) {
-        //System.out.println("Iterating encounters to create scanWorkItems...");
+        System.out.println("Iterating encounters to create scanWorkItems...");
         Encounter enc = (Encounter) encounters.next();
         if (!enc.getEncounterNumber().equals(encounterNumber)) {
           String wiIdentifier = taskID + "_" + (new Integer(count)).toString();
-          if (rightSide && (enc.getRightSpots() != null) && (enc.getRightSpots().size() > 0)) {
+          if (rightSide) {
             //add the workItem
             ScanWorkItem swi = new ScanWorkItem(myShepherd.getEncounter(encounterNumber), enc, wiIdentifier, taskID, props2);
             String uniqueNum = swi.getUniqueNumber();
 
             gm.addWorkItem(swi);
 
-            //System.out.println("Added a new right-side scan task!");
+            System.out.println("Added a new right-side scan task!");
             count++;
-          } else if (!rightSide && (enc.getSpots() != null) && (enc.getSpots().size() > 0)) {
+          } else {
             //add the workItem
             ScanWorkItem swi = new ScanWorkItem(myShepherd.getEncounter(encounterNumber), enc, wiIdentifier, taskID, props2);
 
@@ -122,12 +126,15 @@ public class ScanWorkItemCreationThread implements Runnable, ISharkGridThread {
 
 
             gm.addWorkItem(swi);
-            //System.out.println("Added a new left-side scan task: " + count);
+            System.out.println("Added a new left-side scan task: " + count);
             count++;
           }
         }
 
       }
+      
+      ScanTask st=myShepherd.getScanTask(taskID);
+      st.setNumComparisons(count);
 
 
       //System.out.println("Trying to commit the add of the scanWorkItems after leaving loop");
