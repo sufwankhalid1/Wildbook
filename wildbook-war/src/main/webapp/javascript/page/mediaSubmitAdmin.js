@@ -5,7 +5,7 @@ angular.module('wildbook.admin').directive(
         return {
             restrict: 'E',
             scope: {},
-            templateUrl: 'directive/mediaSubmitAdmin.html',
+            templateUrl: 'pages/mediaSubmitAdmin.html',
             replace: true,
             controller: function($scope) {
                 $scope.numencs = {};

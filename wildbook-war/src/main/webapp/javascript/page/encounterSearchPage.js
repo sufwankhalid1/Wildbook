@@ -4,7 +4,7 @@ angular.module('wildbook.admin').directive(
         return {
             restrict: 'E',
             scope: {},
-            templateUrl: 'directive/encounterSearchPage.html',
+            templateUrl: 'pages/encounterSearchPage.html',
             replace: true,
             controller: function($scope) {
                 $scope.mode_edit = false;

@@ -1,6 +1,6 @@
 var KeyEventHandler = require("../util/keyevent_handler.js");
 
-angular.module('wildbook.admin').directive(
+angular.module('wildbook.util').directive(
     'wbThumbBox',
     ["wbDateUtils", "keyEvents", "wbLangUtils", function(wbDateUtils, keyEvents, wbLangUtils) {
         function getKeySetup(priority) {
@@ -42,7 +42,7 @@ angular.module('wildbook.admin').directive(
             link: function(scope, element, attrs) {
                 KeyEventHandler.link(getKeySetup(attrs.wbKeyHandlerPriority), scope, element, attrs);
             },
-            templateUrl: 'partials/wb_thumb_box.html',
+            templateUrl: 'util/wb_thumb_box.html',
             replace: true,
             controller: function($scope) {
                 var startIdx = 0;
