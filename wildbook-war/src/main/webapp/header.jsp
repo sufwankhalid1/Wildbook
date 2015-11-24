@@ -149,18 +149,15 @@ public String createNavBar(final HttpServletRequest request,
         <link rel="shortcut icon"
               href="<%=webAppProps.getProperty("html.shortcutIcon") %>"/>
         <link rel="stylesheet" href='http://fonts.googleapis.com/css?family=Oswald:400,300,700' type='text/css'/>
-        <link rel="stylesheet" href="<%=urlLoc%>/bcomponents/jquery-ui/jquery-ui.min.css" type="text/css"/>
-        <link rel="stylesheet" href="<%=urlLoc%>/bcomponents/jquery-ui/theme.css" type="text/css" />
-        <link rel="stylesheet" href="<%=urlLoc%>/tools/alertplus/css/alertplus.css">
-        <link rel="stylesheet" href="<%=urlLoc%>/css/wildbook.css" />
+        <link rel="stylesheet" href="<%=urlLoc%>/tools/alertplus/css/alertplus.css"/>
+        <link rel="stylesheet" href="<%=urlLoc%>/css/wildbook.css"/>
+        <link rel="stylesheet" href="<%=urlLoc%>/css/tools.css"/>
 
-        <script src="<%=urlLoc%>/bcomponents/jquery/jquery.min.js"></script>
-        <script src="<%=urlLoc%>/tools/bootstrap/js/bootstrap.min.js"></script>
+        <script src="<%=urlLoc%>/javascript/jquery.min.js"></script>
         <script src="<%=urlLoc%>/tools/alertplus/javascript/alertplus.js"></script>
-        <!-- <script src="<%=urlLoc%>/javascript/core.js"></script> -->
-        <script src="<%=urlLoc%>/bcomponents/jquery-ui/jquery-ui.min.js"></script>
-        <!-- <script src="<%=urlLoc%>/javascript/jquery.blockUI.js"></script> -->
         <script src="<%=urlLoc%>/javascript/jquery.cookie.js"></script>
+        <script src="<%=urlLoc%>/javascript/bundle.js"></script>
+        <script src="<%=urlLoc%>/javascript/templates.js"></script>
     </head>
     
     <body role="document">
@@ -275,16 +272,7 @@ public String createNavBar(final HttpServletRequest request,
                             }
                             %>
                             </ul>
-                    
-                            <div class="search-wrapper">
-                                <label class="search-field-header">
-                                    <form name="form2" method="get" action="<%=urlLoc %>/individuals.jsp">
-                                        <input type="text" id="search-site" placeholder="nickname, id, site, encounter nr., etc." class="search-query form-control navbar-search ui-autocomplete-input" autocomplete="off" name="number" />
-                                        <input type="hidden" name="langCode" value="<%=langCode%>"/>
-                                        <input type="submit" value="search" />
-                                    </form>
-                                </label>
-                            </div>
+                            <wb-site-search></wb-site-search>
                         </div>
                         <a class="navbar-brand" target="_blank" href="<%=urlLoc %>">Wildbook for Mark-Recapture Studies</a>
                     </div>
@@ -316,64 +304,4 @@ public String createNavBar(final HttpServletRequest request,
               </div>
             </nav>
         </header>
-        
-        <script>
-        $('#search-site').autocomplete({
-            appendTo: $('#navbar-top'),
-            response: function(ev, ui) {
-                if (ui.content.length < 1) {
-                    $('#search-help').show();
-                } else {
-                    $('#search-help').hide();
-                }
-            },
-            select: function(ev, ui) {
-                if (ui.item.type == "individual") {
-                    window.location.replace("<%= urlLoc + "/individuals.jsp?number=" %>" + ui.item.value);
-                } 
-                else if (ui.item.type == "locationID") {
-                    window.location.replace("<%= urlLoc + "/encounters/searchResultsAnalysis.jsp?locationCodeField=" %>" + ui.item.value);
-                } 
-                /*
-                //restore user later
-                else if (ui.item.type == "user") {
-                    window.location.replace("/user/" + ui.item.value);
-                } 
-                else {
-                    alertplus.alert("Unknown result [" + ui.item.value + "] of type [" + ui.item.type + "]");
-                }
-                */
-                return false;
-            },
-            //source: app.config.wildbook.proxyUrl + "/search"
-            source: function( request, response ) {
-                $.ajax({
-                    url: '<%= urlLoc %>/search/site',
-                    dataType: "json",
-                    data: {
-                        term: request.term
-                    },
-                    success: function( data ) {
-                        var res = $.map(data, function(item) {
-                            var label;
-                            if ((item.type == "individual")&&(item.species!=null)) {
-//                                label = item.species + ": ";
-                            } 
-                            else if (item.type == "user") {
-                                label = "User: ";
-                            } else {
-                                label = "";
-                            }
-                            return {label: label + item.label,
-                                    value: item.value,
-                                    type: item.type};
-                            });
-
-                        response(res);
-                    }
-                });
-            }
-        });
-        </script>
-        
         <!-- ****/header**** -->

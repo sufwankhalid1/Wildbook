@@ -215,22 +215,20 @@
         </executions>
       </plugin>
       
-        <!-- <plugin>
-            <artifactId>maven-assembly-plugin</artifactId>
-            <version>2.5.5</version>
-            <configuration>
-                <descriptor>dep.xml</descriptor>
-            </configuration>
-            <executions>
-              <execution>
-                <id>create-archive</id>
-                <phase>package</phase>
-                <goals>
-                  <goal>single</goal>
-                </goals>
-              </execution>
-            </executions>
-        </plugin>  -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-war-plugin</artifactId>
+        <version>2.6</version>
+        <configuration>
+          <webResources>
+            <resource>
+              <!-- this is relative to the pom.xml directory -->
+              <directory>target/dist</directory>
+            </resource>
+          </webResources>
+        </configuration>
+      </plugin>
+
         <!-- This is for packaging spring as an executable jar.  I think we would need to get
              rid of all the web.xml defined servlets though. -->
         <!--

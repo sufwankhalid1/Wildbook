@@ -2,9 +2,9 @@
 div(wb-key-handler-watch-scope="parent")
     .row
         .col-md-4
-            .button.btn.btn-success(ng-click="panLeft()", ng-disabled="isLeftDisabled()")
+            .button.btn.btn-success(ng-click="panLeft()" ng-disabled="isLeftDisabled()")
                 i.glyphicon.glyphicon-chevron-left
-            .button.btn.btn-success(ng-click="panRight()", ng-disabled="isRightDisabled()")
+            .button.btn.btn-success(ng-click="panRight()" ng-disabled="isRightDisabled()")
                 i.glyphicon.glyphicon-chevron-right
         .col-md-4
             .action-icon-box
@@ -15,7 +15,9 @@ div(wb-key-handler-watch-scope="parent")
                 button.btn.btn-success.action-icon(uib-tooltip="Clear Selection" ng-click="clearSelection()" ng-disabled="zoomimage || thumbbox.selected.length === 0")
                     i.glyphicon.glyphicon-erase
         .col-md-4
-            slider(ng-model="slider.value" min="slider.step" step="slider.step" max="sliderMax()" value="slider.value")
+            md-slider(md-discrete ng-show="sliderMax() != 0 && slider.step != sliderMax()"
+                      ng-model="slider.value" min="{{slider.step}}" step="{{slider.step}}"
+                      max="{{sliderMax()}}" aria-label="Image Count")
     .row
         .flexy(ng-show="! zoomimage")
             .thumbbox-item(ng-repeat="photo in getVisPhotos()" ng-class="{'selected': thumbbox.meta[photo.id].selected}")

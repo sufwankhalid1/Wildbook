@@ -1,4 +1,5 @@
-wildbook.app.directive("wbEncounterSearchPage",
+angular.module('wildbook.admin').directive(
+    "wbEncounterSearchPage",
     ["wbEncounterUtils", function (wbEncounterUtils) {
         return {
             restrict: 'E',

@@ -1,4 +1,5 @@
-wildbook.app.directive("wbMediaSubmissionAdmin",
+angular.module('wildbook.admin').directive(
+    "wbMediaSubmissionAdmin",
     ["$http", "$q", "$exceptionHandler", "wbDateUtils", "wbLangUtils", "wbEncounterUtils",
      function ($http, $q, $exceptionHandler, wbDateUtils, wbLangUtils, wbEncounterUtils) {
         return {
@@ -330,7 +331,7 @@ wildbook.app.directive("wbMediaSubmissionAdmin",
                 };
             
                 $scope.timeToDate = function(time) {
-                    return moment(time).format('lll');
+                    return wbDateUtils.timeToDateString(time);
                 };
             
                 $scope.msGridOptions = {

@@ -50,7 +50,6 @@ var alertplus = (function () {
         .append(okButton)
         .appendTo(content);
 
-    detailsButton.button();
     detailsButton.click(function(evt) {
         detailsContainer.toggle();
         leftChev.toggle();
