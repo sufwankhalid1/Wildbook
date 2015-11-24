@@ -148,10 +148,10 @@ gulp.task('updatewartools', function() {
     });
 });
 
-function getBundler() {
+function getBundler(files, output, nominify) {
     var bundler;
     
-    if (argv.nominify) {
+    if (nominify) {
         bundler = new browserify();
     } else {
         let debugable = ! (argv.nomap);
@@ -162,23 +162,27 @@ function getBundler() {
         
         if (debugable) {
             bundler.plugin('minifyify', {
-                output: path.join(paths.distjs, 'bundle.js.map'),
-                map: 'bundle.js.map'
+                output: path.join(paths.distjs, output + '.map'),
+                map: output + '.map'
             });
         } else {
             bundler.plugin('minifyify', {map: false});
         }
     }
 
-    bundler.add(paths.mainjs);
+    bundler.add(files);
 
     return bundler;
 }
 
-function doBundling(bundler) {
+function getMainBundler() {
+    return getBundler(paths.mainjs, 'bundle.js', argv.nominify);
+}
+
+function doBundling(bundler, output) {
     return bundler.bundle()
         .on('error', handleBrowserifyError)
-        .pipe(source('bundle.js'))
+        .pipe(source(output))
         .pipe(gulp.dest(paths.distjs));
 }
 
@@ -186,15 +190,19 @@ function handleBrowserifyError(ex) {
     gutil.log(gutil.colors.yellow.bgRed('Error: '), ex.message);
 }
 
+gulp.task('browserify-tools', function() {
+    return doBundling(getBundler(path.join(paths.srcjs, 'tools.js'), 'tools-bundle.js'), 'tools-bundle.js', false);
+});
+
 gulp.task('browserify', function() {
-    return doBundling(getBundler());
+    return doBundling(getMainBundler(), 'bundle.js');
 });
 
 gulp.task('watchify', function() {
-    let watcher = watchify(getBundler());
+    let watcher = watchify(getMainBundler());
 
     function bundle() {
-        return doBundling(watcher).on('end', updatewar);
+        return doBundling(watcher, 'bundle.js').on('end', updatewar);
     }
 
     // Listen for changes to paths.mainjs or any of its dependencies

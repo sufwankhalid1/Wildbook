@@ -1,12 +1,4 @@
 var moment = require("moment");
-require("bootstrap");
-require("angular");
-require("angular-ui-bootstrap");
-require("angular-material");
-require("ag-grid");
-//require("node_modules/ag-grid/dist/ag-grid.css");
-//require("node_modules/ag-grid/dist/theme-fresh.css");
-require("angular-busy");
 
 require("./util/util.js");
 var KeyEventHandler = require("./util/keyevent_handler.js");

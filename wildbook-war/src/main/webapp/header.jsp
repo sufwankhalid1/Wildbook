@@ -156,6 +156,7 @@ public String createNavBar(final HttpServletRequest request,
         <script src="<%=urlLoc%>/javascript/jquery.min.js"></script>
         <script src="<%=urlLoc%>/tools/alertplus/javascript/alertplus.js"></script>
         <script src="<%=urlLoc%>/javascript/jquery.cookie.js"></script>
+        <script src="<%=urlLoc%>/javascript/tools-bundle.js"></script>
         <script src="<%=urlLoc%>/javascript/bundle.js"></script>
         <script src="<%=urlLoc%>/javascript/templates.js"></script>
     </head>
