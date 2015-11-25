@@ -4,7 +4,8 @@ require("./encounter_edit.js");
 require("./encounter_search.js");
 require("./survey_edit.js");
 require("./survey_search.js");
-require("./thumb_box.js");
+require("../pages/encounterSearchPage.js");
+require("../pages/mediaSubmitAdmin.js");
 
 angular.module('wildbook.admin').directive(
     'locationEdit',

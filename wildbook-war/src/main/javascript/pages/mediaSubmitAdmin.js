@@ -38,7 +38,7 @@ angular.module('wildbook.admin').directive(
                     indicators: [{def: {displayClass: "encounter", type: "number"},
                                   values: $scope.numencs}]
                 };
-            
+
                 function attachEncounter(encdata, surveyEnc) {
                     if (! encdata) {
                         return;

@@ -89,8 +89,27 @@ gulp.task('less', function() {
 });
     
 gulp.task('watch', function() {
+    //
+    // Set up a watch for our less and jade templates.
+    //
     gulp.watch([subdirs(path.join(paths.webapp, 'less'), '*.less'),
                 subdirs(path.join(paths.src, 'templates'), '*.jade')], ['updatewar']);
+    
+    //
+    // Set up watchify for our javascript code.
+    //
+    let watcher = watchify(getMainBundler(true));
+
+    function bundle() {
+        return doBundling(watcher, 'bundle.js').on('end', updatewar);
+    }
+
+    // Listen for changes to paths.mainjs or any of its dependencies
+    watcher.on('update', bundle)
+           .on('time', function(time) {gutil.log('Compiled JS in', time);});
+
+    // Run it right away.
+    return bundle();
 });
 
 
@@ -137,7 +156,7 @@ function updatewar() {
         .pipe(gulp.dest(paths.devdeploy));
 }
 
-gulp.task('updatewar', function() {
+gulp.task('updatewar', ['less', 'templates'], function() {
     updatewar();
 });
 
@@ -209,8 +228,8 @@ function getBundler(files, output, nominify) {
     return bundler;
 }
 
-function getMainBundler() {
-    return getBundler(paths.mainjs, 'bundle.js', argv.nominify);
+function getMainBundler(nominify) {
+    return getBundler(paths.mainjs, 'bundle.js', nominify);
 }
 
 function doBundling(bundler, output) {
@@ -229,20 +248,5 @@ gulp.task('browserify-tools', function() {
 });
 
 gulp.task('browserify', function() {
-    return doBundling(getMainBundler(), 'bundle.js');
-});
-
-gulp.task('watchify', function() {
-    let watcher = watchify(getMainBundler());
-
-    function bundle() {
-        return doBundling(watcher, 'bundle.js').on('end', updatewar);
-    }
-
-    // Listen for changes to paths.mainjs or any of its dependencies
-    watcher.on('update', bundle)
-           .on('time', function(time) {gutil.log('Compiled JS in', time);});
-
-    // Run it right away.
-    return bundle();
+    return doBundling(getMainBundler(argv.nominify), 'bundle.js');
 });
