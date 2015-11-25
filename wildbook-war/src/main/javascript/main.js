@@ -1,5 +1,3 @@
-var moment = require("moment");
-
 require("./util/util.js");
 var KeyEventHandler = require("./util/keyevent_handler.js");
 require("./admin/admin.js");
@@ -14,6 +12,14 @@ angular.module('templates', []);
 
 var app = angular.module('appWildbook',
         ["agGrid", "ui.bootstrap", "ngMaterial", "templates", "cgBusy", "wildbook.util", "wildbook.admin"]);
+
+//
+// TODO: angular-moment is not quite ready for prime time. It doesn't play well with browserify. I don't really
+//       need the directives they added and I can get the injection through a constant as such. It does mean that
+//       I have to package up moment with wildbook code for browserify. So the TODO is for to check back
+//       at later dates to see if the situation is improved.
+//
+app.constant("moment", require("moment"));
 
 app.factory('$exceptionHandler', function() {
     return function(ex, cause) {
@@ -113,7 +119,7 @@ app.factory("wbLangUtils", function() {
     }
 });
 
-app.factory("wbDateUtils", ["wbConfig", function(wbConfig) {
+app.factory("wbDateUtils", ["wbConfig", "moment", function(wbConfig, moment) {
     function restToMoment(rest) {
         if (! rest) {
             return null;
@@ -236,7 +242,7 @@ app.directive(
 
 app.directive(
     'timeInput',
-    function() {
+    ["moment", function(moment) {
         return {
             require: 'ngModel',
             template: '<input type="time"></input>',
@@ -275,7 +281,7 @@ app.directive(
                 });
             }
         };
-});
+}]);
 
 KeyEventHandler.attach(app);
 

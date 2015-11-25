@@ -137,7 +137,7 @@ function updatewar() {
         .pipe(gulp.dest(paths.devdeploy));
 }
 
-gulp.task('updatewar', ['less', 'templates'], function() {
+gulp.task('updatewar', function() {
     updatewar();
 });
 
