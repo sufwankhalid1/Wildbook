@@ -1,14 +1,15 @@
-.form-group.col-md-4
-    label.control-label Location ID:
-    input.form-control(type="text", ng-model="location.locationid")
-
-.form-group.col-md-4
-    label.control-label Latitude:
-    input.form-control(type="text", ng-model="location.latitude")
-
-.form-group.col-md-4
-    label.control-label Longitude:
-    input.form-control(type="text", ng-model="location.longitude")
-.form-group.col-md-12
-    label.control-label Verbatim Location:
-    input.form-control(type="textarea", rows="4", ng-model="location.verbatimLocation")
+div
+    md-content(layout="row" layout-align="center center")
+        md-input-container(flex="33")
+            label Location ID:
+            input(type="text", ng-model="location.locationid")
+        md-input-container(flex="33")
+            label Latitude:
+            input(type="text", ng-model="location.latitude")
+        md-input-container(flex="33")
+            label Longitude:
+            input(type="text", ng-model="location.longitude")
+    md-content
+        md-input-container
+            label Verbatim Location:
+            textarea(ng-model="location.verbatimLocation")

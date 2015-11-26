@@ -92,8 +92,9 @@ gulp.task('watch', function() {
     //
     // Set up a watch for our less and jade templates.
     //
-    gulp.watch([subdirs(path.join(paths.webapp, 'less'), '*.less'),
+    gulp.watch([subdirs(paths.less, '*.less'),
                 subdirs(path.join(paths.src, 'templates'), '*.jade')], ['updatewar']);
+    gulp.watch(subdirs(paths.webapp, '*.jsp'), ['updatewar']);
     
     //
     // Set up watchify for our javascript code.
@@ -106,7 +107,9 @@ gulp.task('watch', function() {
 
     // Listen for changes to paths.mainjs or any of its dependencies
     watcher.on('update', bundle)
-           .on('time', function(time) {gutil.log('Compiled JS in', time);});
+           .on('time', function(time) {
+               gutil.log('Browserified js in', gutil.colors.magenta(time + " ms"));
+            });
 
     // Run it right away.
     return bundle();
@@ -118,9 +121,12 @@ gulp.task('concat-tools', function() {
     gulp.src(['node_modules/ag-grid/dist/ag-grid.min.css',
               'node_modules/ag-grid/dist/theme-fresh.min.css',
               'node_modules/angular-busy/dist/angular-busy.min.css',
-              'node_modules/angular-material/angular-material.min.css'])
+              'node_modules/angular-material/angular-material.min.css',
+              'node_modules/angular-material/angular-material.layouts.min.css'])
+    //gulp.src(['node_modules/angular-material/angular-material.min.css'])
          .pipe(concat('tools.css'))
          .pipe(gulp.dest(paths.distcss));
+    
     gulp.src('node_modules/jquery/dist/jquery.min.js', {base: 'node_modules/jquery/dist'})
     .pipe(gulp.dest(paths.distjs));
 

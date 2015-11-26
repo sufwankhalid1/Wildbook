@@ -1,3 +1,6 @@
+require('../admin/encounter_search.js');
+require('../admin/encounter_edit.js');
+
 angular.module('wildbook.admin').directive(
     "wbEncounterSearchPage",
     ["wbEncounterUtils", function (wbEncounterUtils) {

@@ -3,7 +3,6 @@ package org.ecocean;
 import org.apache.commons.lang3.StringUtils;
 import org.ecocean.rest.SimpleIndividual;
 
-
 public class Individual {
     private Integer id;
     private String alternateId;

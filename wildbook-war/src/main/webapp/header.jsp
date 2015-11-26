@@ -150,8 +150,8 @@ public String createNavBar(final HttpServletRequest request,
               href="<%=webAppProps.getProperty("html.shortcutIcon") %>"/>
         <link rel="stylesheet" href='http://fonts.googleapis.com/css?family=Oswald:400,300,700' type='text/css'/>
         <link rel="stylesheet" href="<%=urlLoc%>/tools/alertplus/css/alertplus.css"/>
-        <link rel="stylesheet" href="<%=urlLoc%>/css/wildbook.css"/>
         <link rel="stylesheet" href="<%=urlLoc%>/css/tools.css"/>
+        <link rel="stylesheet" href="<%=urlLoc%>/css/wildbook.css"/>
 
         <script src="<%=urlLoc%>/javascript/jquery.min.js"></script>
         <script src="<%=urlLoc%>/tools/alertplus/javascript/alertplus.js"></script>

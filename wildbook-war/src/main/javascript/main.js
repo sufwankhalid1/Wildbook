@@ -12,6 +12,10 @@ angular.module('templates', []);
 
 var app = angular.module('appWildbook',
         ["agGrid", "ui.bootstrap", "ngMaterial", "templates", "cgBusy", "wildbook.util", "wildbook.admin"]);
+//        .config(['$mdThemingProvider', function($mdThemingProvider) {
+//            $mdThemingProvider.theme('default')
+//                .backgroundPalette('blue-grey');
+//        }]);
 
 //
 // TODO: angular-moment is not quite ready for prime time. It doesn't play well with browserify. I don't really

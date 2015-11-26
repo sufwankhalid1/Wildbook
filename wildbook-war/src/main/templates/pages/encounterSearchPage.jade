@@ -7,6 +7,6 @@ div
                 i.glyphicon.glyphicon-edit
             cancel-button
         wb-encounter-view(ng-if="encdata && ! mode_edit" enc-data="encdata")
-        wb-encounter-edit(ng-if="encdata && mode_edit"
+        wb-encounter-edit(ng-if="encdata && ! mode_edit"
                           enc-data="encdata"
                           edit-encounter-done="editEncounterDone(encdata)")
