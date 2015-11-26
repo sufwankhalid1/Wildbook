@@ -29,7 +29,7 @@ angular.module('wildbook.admin').directive(
                 $scope.tbActions = [{
                     code: "del",
                     shortcutKeyCode: 68,
-                    type: "danger",
+                    type: "warn",
                     glyphicon: "remove",
                     tooltip: "Remove/Detach",
                     confirm: { message: "Are you sure you want to detach selected images from this encounter?"}

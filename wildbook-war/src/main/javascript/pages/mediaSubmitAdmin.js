@@ -30,7 +30,7 @@ angular.module('wildbook.admin').directive(
                     {
                         code: "del",
                         shortcutKeyCode: 68,
-                        type: "danger",
+                        type: "warn",
                         glyphicon: "trash",
                         tooltip: "Delete",
                         confirm: { message: "Are you sure you want to delete selected images?"}
