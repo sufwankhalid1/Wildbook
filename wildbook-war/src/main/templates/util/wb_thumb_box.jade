@@ -23,7 +23,7 @@ div(wb-key-handler-watch-scope="parent")
             md-slider(md-discrete ng-show="sliderMax() != 0 && slider.step != sliderMax()"
                       ng-model="slider.value" min="{{slider.step}}" step="{{slider.step}}"
                       max="{{sliderMax()}}" aria-label="Image Count")
-    md-content(layout="row" layout-align="center center")
+    md-content(layout="row" layout-align="left center")
         .flexy(ng-show="! zoomimage")
             .thumbbox-item(ng-repeat="photo in getVisPhotos()" ng-class="{'selected': thumbbox.meta[photo.id].selected}")
                 a(href="javascript:;", ng-click="selectImage($event, photo)")
