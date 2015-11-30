@@ -28,8 +28,13 @@ import org.ecocean.security.Collaboration;
 
 import javax.jdo.*;
 import javax.servlet.http.HttpServletRequest;
+
 import java.util.*;
 import java.io.File;
+
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
 
 /**
  * <code>Shepherd</code>	is the main	information	retrieval, processing, and persistence class to	be used	for	all	shepherd project applications.
@@ -1484,7 +1489,47 @@ public class Shepherd {
       query.closeAll();
       return occur;
     }
+    query.closeAll();
     return null;
+  }
+  
+  public User getUserByEmailAddress(String email){
+    String filter="SELECT FROM org.ecocean.User WHERE emailAddress == \""+email+"\"";
+    Query query=getPM().newQuery(filter);
+    Collection c = (Collection) (query.execute());
+    Iterator it = c.iterator();
+
+    while(it.hasNext()){
+      User myUser=(User)it.next();
+      query.closeAll();
+      return myUser;
+    }
+    query.closeAll();
+    return null;
+  }
+
+  public User getUserBySocialId(String service, String id) {
+        if ((id == null) || (service == null)) return null;
+        ArrayList<User> users = getAllUsers();
+        for (int i = 0 ; i < users.size() ; i++) {
+            if (id.equals(users.get(i).getSocial(service))) return users.get(i);
+        }
+        return null;
+
+/*   TODO figure out how to query on HashMaps within fields 
+    String filter="SELECT FROM org.ecocean.User WHERE social_" + service + " == \"" + id + "\"";
+    Query query=getPM().newQuery(filter);
+    Collection c = (Collection) (query.execute());
+    Iterator it = c.iterator();
+
+    while(it.hasNext()){
+      User myUser=(User)it.next();
+      query.closeAll();
+      return myUser;
+    }
+    query.closeAll();
+    return null;
+*/
   }
 
   public ArrayList<Map.Entry> getAllOtherIndividualsOccurringWithMarkedIndividual(String indie){
@@ -1542,14 +1587,54 @@ public class Shepherd {
     Collection c = (Collection) (samples.execute());
     return (new ArrayList<TissueSample>(c));
   }
+  
+  public ArrayList<TissueSample> getAllTissueSamplesForMarkedIndividual(MarkedIndividual indy) {
+    ArrayList<TissueSample> al = new ArrayList<TissueSample>();
+    if(indy.getEncounters()!=null){
+      int numEncounters = indy.getEncounters().size();
+      for (int i = 0; i < numEncounters; i++) {
+        Encounter enc = (Encounter) indy.getEncounters().get(i);
+        if(getAllTissueSamplesForEncounter(enc.getCatalogNumber())!=null){
+          List<TissueSample> list = getAllTissueSamplesForEncounter(enc.getCatalogNumber());
+          if(list.size()>0){
+            al.addAll(list);
+          }
+        }
+      }
+    return al;
+    }
+    return null;
+  }
+  
 
   public ArrayList<SinglePhotoVideo> getAllSinglePhotoVideosForEncounter(String encNum) {
     String filter = "correspondingEncounterNumber == \""+encNum+"\"";
     Extent encClass = pm.getExtent(SinglePhotoVideo.class, true);
     Query samples = pm.newQuery(encClass, filter);
     Collection c = (Collection) (samples.execute());
-    return (new ArrayList<SinglePhotoVideo>(c));
+    ArrayList<SinglePhotoVideo> myArray=new ArrayList<SinglePhotoVideo>(c);
+    samples.closeAll();
+    return myArray;
   }
+  
+  public ArrayList<SinglePhotoVideo> getAllSinglePhotoVideosWithKeyword(Keyword word) {
+	  String keywordQueryString="SELECT FROM org.ecocean.SinglePhotoVideo WHERE keywords.contains(word0) && ( word0.indexname == \""+word.getIndexname()+"\" ) VARIABLES org.ecocean.Keyword word0";
+      Query samples = pm.newQuery(keywordQueryString);
+	  Collection c = (Collection) (samples.execute());
+	    ArrayList<SinglePhotoVideo> myArray=new ArrayList<SinglePhotoVideo>(c);
+	    samples.closeAll();
+	    return myArray;
+	  }
+  
+  public int getNumSinglePhotoVideosForEncounter(String encNum) {
+	    String filter = "correspondingEncounterNumber == \""+encNum+"\"";
+	    Extent encClass = pm.getExtent(SinglePhotoVideo.class, true);
+	    Query samples = pm.newQuery(encClass, filter);
+	    Collection c = (Collection) (samples.execute());
+	    int numResults=c.size();
+	    samples.closeAll();
+	    return numResults;
+	  }
 
   public Iterator getAllEncountersNoFilter(String order, String filter2use) {
     String filter = filter2use;
@@ -2203,6 +2288,7 @@ public class Shepherd {
     ArrayList<User> list = new ArrayList<User>();
     Extent userClass = pm.getExtent(User.class, true);
     Query users = pm.newQuery(userClass);
+    users.setOrdering("fullName ascending");
     try {
       c = (Collection) (users.execute());
       if(c!=null){
@@ -2210,7 +2296,8 @@ public class Shepherd {
       }
       users.closeAll();
       return list;
-    } catch (Exception npe) {
+    } 
+    catch (Exception npe) {
       //System.out.println("Error encountered when trying to execute Shepherd.getAllUsers. Returning a null collection because I didn't have a transaction to use.");
       npe.printStackTrace();
       return null;
@@ -2294,15 +2381,22 @@ public class Shepherd {
   }
 
 
-  public ArrayList<SinglePhotoVideo> getThumbnails(HttpServletRequest request, Iterator it, int startNum, int endNum, String[] keywords) {
+  public ArrayList<SinglePhotoVideo> getThumbnails(Shepherd myShepherd,HttpServletRequest request, ArrayList<String> encList, int startNum, int endNum, String[] keywords) {
     ArrayList<SinglePhotoVideo> thumbs = new ArrayList<SinglePhotoVideo>();
     boolean stopMe = false;
+    int encIter=0;
     int count = 0;
-    while (it.hasNext()) {
-      Encounter enc = (Encounter) it.next();
-      ArrayList<SinglePhotoVideo> images=getAllSinglePhotoVideosForEncounter(enc.getCatalogNumber());
+    int numEncs=encList.size();
+    //while (it.hasNext()) {
+    while((count<=endNum)&&(encIter<numEncs)){
+      
+      String nextCatalogNumber=encList.get(encIter);	
+      int numImages=getNumSinglePhotoVideosForEncounter(nextCatalogNumber);
+      
 
-      if ((count + images.size()) >= startNum) {
+      if ((count + numImages) >= startNum) {
+    	  Encounter enc = myShepherd.getEncounter(nextCatalogNumber);
+    	  ArrayList<SinglePhotoVideo> images=getAllSinglePhotoVideosForEncounter(enc.getCatalogNumber());
         for (int i = 0; i < images.size(); i++) {
           count++;
           if ((count <= endNum) && (count >= startNum)) {
@@ -2361,9 +2455,9 @@ public class Shepherd {
         }
       } //end if
       else {
-        count += images.size();
+        count += numImages;
       }
-
+      encIter++;
     }//end while
     return thumbs;
   }
@@ -2676,6 +2770,21 @@ public class Shepherd {
       return value;
     }
     catch(Exception e){return -1;}
+  }
+  
+  public int getFirstSubmissionYear() {
+    //System.out.println("Starting getFirstSubmissionYear");
+    try{
+      Query q = pm.newQuery("SELECT min(dwcDateAddedLong) FROM org.ecocean.Encounter");
+      //System.out.println("     I have a query");
+      long value=((Long) q.execute()).longValue();
+      //System.out.println("     I have a value of: "+value);
+      q.closeAll();
+      org.joda.time.DateTime lcd = new org.joda.time.DateTime(value);
+      return lcd.getYear();
+      //return value;
+    }
+    catch(Exception e){e.printStackTrace();System.out.println("Why can't I find a min dwcDateAddedLong?");return -1;}
   }
 
   public int getLastSightingYear() {
@@ -3006,6 +3115,138 @@ public class Shepherd {
     return occurrenceIDs;
   }
   
+
+  
+  public Measurement getMeasurementOfTypeForEncounter(String type, String encNum) {
+    String filter = "type == \""+type+"\" && correspondingEncounterNumber == \""+encNum+"\"";
+    Extent encClass = pm.getExtent(Measurement.class, true);
+    Query samples = pm.newQuery(encClass, filter);
+    Collection c = (Collection) (samples.execute());
+    if((c!=null)&&(c.size()>0)){return (new ArrayList<Measurement>(c)).get(0);}
+    else{return null;}
+  }
+  
+  public ArrayList<Measurement> getMeasurementsForEncounter(String encNum) {
+    String filter = "correspondingEncounterNumber == \""+encNum+"\"";
+    Extent encClass = pm.getExtent(Measurement.class, true);
+    Query samples = pm.newQuery(encClass, filter);
+    Collection c = (Collection) (samples.execute());
+    if((c!=null)&&(c.size()>0)){return (new ArrayList<Measurement>(c));}
+    else{return null;}
+  }
+  
+  public Iterator<ScanTask> getAllScanTasksForUser(String user) {
+    String filter = "submitter == \""+user+"\"";
+    Extent encClass = pm.getExtent(ScanTask.class, true);
+    Query samples = pm.newQuery(encClass, filter);
+    Collection c = (Collection) (samples.execute());
+    if((c!=null)&&(c.size()>0)){return c.iterator();}
+    else{return null;}
+  }
+  
+  public User getRandomUserWithPhotoAndStatement(){
+    //(username.toLowerCase().indexOf('demo') == -1)
+    String filter = "fullName != null && userImage != null && userStatement != null && (username.toLowerCase().indexOf('demo') == -1) && (username.toLowerCase().indexOf('test') == -1)";
+    Extent encClass = pm.getExtent(User.class, true);
+    Query q = pm.newQuery(encClass, filter);
+    Collection c = (Collection) (q.execute());
+    if((c!=null)&&(c.size()>0)){
+      ArrayList<User> matchingUsers=new ArrayList<>(c);
+      q.closeAll();
+      int numUsers=matchingUsers.size();
+      Random rn = new Random();
+      int userNumber = rn.nextInt(numUsers);
+      return matchingUsers.get(userNumber);
+    }
+    q.closeAll();
+    return null;
+  }
+  
+  public ArrayList<Encounter> getMostRecentIdentifiedEncountersByDate(int numToReturn){
+    ArrayList<Encounter> matchingEncounters = new ArrayList<Encounter>();
+    String filter = "individualID != null";
+    Extent encClass = pm.getExtent(Encounter.class, true);
+    Query q = pm.newQuery(encClass, filter);
+    q.setOrdering("dwcDateAddedLong descending");
+    Collection c = (Collection) (q.execute());
+    if((c!=null)&&(c.size()>0)){
+      
+      int numAdded=0;
+      while(numAdded<numToReturn){
+        ArrayList<Encounter> results=new ArrayList<Encounter>(c); 
+        matchingEncounters.add(results.get(numAdded));
+        numAdded++;
+      }
+      
+    }
+    
+    q.closeAll();
+    return matchingEncounters;
+  }
+  
+  public Map<String,Integer> getTopUsersSubmittingEncountersSinceTimeInDescendingOrder(long startTime){
+
+    
+    Map<String,Integer> matchingUsers=new HashMap<String,Integer>();
+    
+    
+    String filter = "submitterID != null && dwcDateAddedLong >= "+startTime;
+    System.out.println("     My filter is: "+filter);
+    Extent encClass = pm.getExtent(Encounter.class, true);
+    Query q = pm.newQuery(encClass, filter);
+    q.setResult("distinct submitterID");
+    Collection c = (Collection) (q.execute());
+    ArrayList<String> allUsers = new ArrayList<String>(c);
+    q.closeAll();
+    int numAllUsers=allUsers.size();
+    //System.out.println("     All users: "+numAllUsers);
+    for(int i=0;i<numAllUsers;i++){
+      String thisUser=allUsers.get(i);
+      if((!thisUser.trim().equals(""))&&(getUser(thisUser)!=null)){
+        
+        String userFilter = "submitterID == \"" + thisUser + "\" && dwcDateAddedLong >= "+startTime;
+        Extent userClass = pm.getExtent(Encounter.class, true);
+        Query subq = pm.newQuery(userClass, userFilter);
+        Collection userC = (Collection) (subq.execute());
+        matchingUsers.put(thisUser, (new Integer(userC.size())));
+        //System.out.println("     Adding user:"+thisUser+" with "+userC.size());
+        subq.closeAll();
+      }
+    }
+    
+    return sortByValues(matchingUsers);
+  }
+  
+  public static <K, V extends Comparable<V>> Map<K, V> sortByValues(final Map<K, V> map) {
+    Comparator<K> valueComparator =  new Comparator<K>() {
+        public int compare(K k1, K k2) {
+            int compare = map.get(k2).compareTo(map.get(k1));
+            if (compare == 0) return 1;
+            else return compare;
+        }
+    };
+    Map<K, V> sortedByValues = new TreeMap<K, V>(valueComparator);
+    sortedByValues.putAll(map);
+    return sortedByValues;
+}
+  
+  
+  public Adoption getRandomAdoptionWithPhotoAndStatement(){
+    String filter = "adopterName != null && adopterImage != null && adopterQuote != null";
+    Extent encClass = pm.getExtent(Adoption.class, true);
+    Query q = pm.newQuery(encClass, filter);
+    Collection c = (Collection) (q.execute());
+    if((c!=null)&&(c.size()>0)){
+      ArrayList<Adoption> matchingAdoptions=new ArrayList<>(c);
+      q.closeAll();
+      int numUsers=matchingAdoptions.size();
+      Random rn = new Random();
+      int adoptNumber = rn.nextInt(numUsers);
+      return matchingAdoptions.get(adoptNumber);
+    }
+    q.closeAll();
+    return null;
+  }
 
   
 

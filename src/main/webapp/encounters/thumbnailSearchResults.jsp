@@ -1,29 +1,6 @@
-<%--
-  ~ The Shepherd Project - A Mark-Recapture Framework
-  ~ Copyright (C) 2011 Jason Holmberg
-  ~
-  ~ This program is free software; you can redistribute it and/or
-  ~ modify it under the terms of the GNU General Public License
-  ~ as published by the Free Software Foundation; either version 2
-  ~ of the License, or (at your option) any later version.
-  ~
-  ~ This program is distributed in the hope that it will be useful,
-  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  ~ GNU General Public License for more details.
-  ~
-  ~ You should have received a copy of the GNU General Public License
-  ~ along with this program; if not, write to the Free Software
-  ~ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-  --%>
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<%@ page contentType="text/html; charset=utf-8" language="java"
-         import="java.io.InputStream,java.io.FileInputStream,org.ecocean.servlet.ServletUtilities,javax.jdo.Query,org.ecocean.*,java.io.File, java.util.*, org.ecocean.security.Collaboration " %>
-
-<html>
-<head>
+<%@ page contentType="text/html; charset=utf-8" 
+		language="java"
+ 		import="org.ecocean.servlet.ServletUtilities,javax.jdo.Query,com.drew.imaging.jpeg.JpegMetadataReader,com.drew.metadata.Metadata, com.drew.metadata.Tag, org.ecocean.mmutil.MediaUtilities,org.ecocean.*,java.io.File, java.util.*,org.ecocean.security.Collaboration, java.io.FileInputStream, javax.jdo.Extent" %>
 
 
   <%
@@ -72,7 +49,7 @@
     ArrayList<SinglePhotoVideo> rEncounters = new ArrayList<SinglePhotoVideo>();
 
     myShepherd.beginDBTransaction();
-    EncounterQueryResult queryResult = new EncounterQueryResult(new Vector<Encounter>(), "", "");
+    //EncounterQueryResult queryResult = new EncounterQueryResult(new Vector<Encounter>(), "", "");
 	
   	StringBuffer prettyPrint=new StringBuffer("");
   	Map<String,Object> paramMap = new HashMap<String, Object>();
@@ -98,9 +75,20 @@
 
 
     if (request.getParameter("noQuery") == null) {
-	  queryResult = EncounterQueryProcessor.processQuery(myShepherd, request, "year descending, month descending, day descending");
+    	
+    	
+    	String jdoqlQueryString=EncounterQueryProcessor.queryStringBuilder(request, prettyPrint, paramMap);
+    	Extent encClass = myShepherd.getPM().getExtent(Encounter.class, true);
+        Query query = myShepherd.getPM().newQuery(jdoqlQueryString);
+        //query.setFilter("SELECT "+jdoqlQueryString);
+        query.setResult("catalogNumber");
+        Collection c = (Collection) (query.execute());
+        ArrayList<String> enclist = new ArrayList<String>(c);
+        query.closeAll();
+    	
+	  //queryResult = EncounterQueryProcessor.processQuery(myShepherd, request, "year descending, month descending, day descending");
 	
-    rEncounters=myShepherd.getThumbnails(request, queryResult.getResult().iterator(), startNum, endNum, keywords);
+    rEncounters=myShepherd.getThumbnails(myShepherd, request, enclist, startNum, endNum, keywords);
     }
     else{
     	Query allQuery=myShepherd.getPM().newQuery("SELECT from org.ecocean.SinglePhotoVideo WHERE correspondingEncounterNumber != null");    	
@@ -109,19 +97,7 @@
    }
 
   %>
-  <title><%=CommonConfiguration.getHTMLTitle(context) %>
-  </title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-  <meta name="Description"
-        content="<%=CommonConfiguration.getHTMLDescription(context) %>"/>
-  <meta name="Keywords"
-        content="<%=CommonConfiguration.getHTMLKeywords(context) %>"/>
-  <meta name="Author" content="<%=CommonConfiguration.getHTMLAuthor(context) %>"/>
-  <link href="<%=CommonConfiguration.getCSSURLLocation(request,context) %>"
-        rel="stylesheet" type="text/css"/>
-  <link rel="shortcut icon"
-        href="<%=CommonConfiguration.getHTMLShortcutIcon(context) %>"/>
-
+ <jsp:include page="../header.jsp" flush="true"/>
 
   <!--
     1 ) Reference to the files containing the JavaScript and CSS.
@@ -138,8 +114,9 @@
 
   <script type="text/javascript">
   hs.graphicsDir = '../highslide/highslide/graphics/';
-  hs.align = 'center';
+  hs.align = 'auto';
   hs.showCredits = false;
+  hs.anchor = 'top';
 
   //transition behavior
   hs.transitions = ['expand', 'crossfade'];
@@ -154,7 +131,7 @@
   // define the restraining box
   hs.useBox = true;
   hs.width = 810;
-  hs.height=500;
+  hs.height=250;
 
     //block right-click user copying if no permissions available
     <%
@@ -182,9 +159,10 @@
   </script>
 </head>
 <style type="text/css">
+
   #tabmenu {
     color: #000;
-    border-bottom: 2px solid black;
+    border-bottom: 1px solid #CDCDCD;
     margin: 12px 0px 0px 0px;
     padding: 0px;
     z-index: 1;
@@ -198,10 +176,10 @@
   }
 
   #tabmenu a, a.active {
-    color: #DEDECF;
-    background: #000;
-    font: bold 1em "Trebuchet MS", Arial, sans-serif;
-    border: 2px solid black;
+    color: #000;
+    background: #E6EEEE;
+    font: 0.5em "Arial, sans-serif;
+    border: 1px solid #CDCDCD;
     padding: 2px 5px 0px 5px;
     margin: 0;
     text-decoration: none;
@@ -209,24 +187,23 @@
   }
 
   #tabmenu a.active {
-    background: #FFFFFF;
+    background: #8DBDD8;
     color: #000000;
-    border-bottom: 2px solid #FFFFFF;
+    border-bottom: 1px solid #8DBDD8;
   }
 
   #tabmenu a:hover {
-    color: #ffffff;
-    background: #7484ad;
+    color: #000;
+    background: #8DBDD8;
   }
 
   #tabmenu a:visited {
-    color: #E8E9BE;
+    
   }
 
   #tabmenu a.active:hover {
-    background: #7484ad;
-    color: #DEDECF;
-    border-bottom: 2px solid #000000;
+    color: #000;
+    border-bottom: 1px solid #8DBDD8;
   }
 
   div.scroll {
@@ -237,13 +214,9 @@
     padding: 8px;
   }
 </style>
-<body>
-<div id="wrapper">
-<div id="page">
-<jsp:include page="../header.jsp" flush="true">
-  <jsp:param name="isAdmin" value="<%=request.isUserInRole(\"admin\")%>" />
-</jsp:include>
-<div id="main">
+
+
+<div class="container maincontent">
 
 <%
   String rq = "";
@@ -252,6 +225,19 @@
   }
   if (request.getParameter("noQuery") == null) {
 %>
+
+<table width="810px" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td>
+      <p>
+
+      <h1 class="intro"><%=encprops.getProperty("title")%>
+      </h1>
+      </p>    
+    
+    </td>
+  </tr>
+</table>
 
 <ul id="tabmenu">
 
@@ -277,22 +263,9 @@
   }
 %>
 
-<table width="810" border="0" cellspacing="0" cellpadding="0">
-  <tr>
-    <td>
-      <p>
-
-      <h1 class="intro"><%=encprops.getProperty("title")%>
-      </h1>
-      </p>
-
-
-      <p><%=encprops.getProperty("belowMatches")%> <%=startNum%>
+<p><%=encprops.getProperty("belowMatches")%> <%=startNum%>
         - <%=endNum%> <%=encprops.getProperty("thatMatched")%>
       </p>
-    </td>
-  </tr>
-</table>
 
 <%
   String qString = rq;
@@ -396,16 +369,16 @@
             }
             %>
             >
-			<%
-            if(!thumbLink.endsWith("video.jpg")){
-            	%>
-              <h3><%=(countMe + startNum) %></h3>
-            <%
-            }
-            %>
+			
               <%
                 if ((request.getParameter("referenceImageName") != null)&&(!thumbLink.endsWith("video.jpg"))) {
-              %>
+                	if(myShepherd.isSinglePhotoVideo(request.getParameter("referenceImageName"))){
+        				
+                	SinglePhotoVideo mySPV=myShepherd.getSinglePhotoVideo(request.getParameter("referenceImageName"));
+    				//int slashPosition=request.getParameter("referenceImageName").indexOf("/");
+    				String encNum=mySPV.getCorrespondingEncounterNumber();
+    				Encounter refImageEnc = myShepherd.getEncounter(encNum);
+               %>
               <h4>Reference Image</h4>
               <table id="table<%=(countMe+startNum) %>">
                 <tr>
@@ -422,12 +395,13 @@
                     %>
                     
                     id="refImage<%=(countMe+startNum) %>"
-                         src="/<%=CommonConfiguration.getDataDirectoryName(context) %>/encounters/<%=request.getParameter("referenceImageName") %>"/>
+                         src="/<%=CommonConfiguration.getDataDirectoryName(context) %>/encounters/<%=refImageEnc.subdir(refImageEnc.getCatalogNumber()) %>/<%=mySPV.getFilename() %>"/>
 
                   </td>
                 </tr>
               </table>
               <%
+                }
                 }
               %>
               
@@ -515,7 +489,7 @@
                         	try{
                         	if((thisEnc.getIndividualID()!=null)&&(!thisEnc.getIndividualID().equals("Unassigned"))){
                         	%>
-                        	<a href="../individuals.jsp?number=<%=thisEnc.getIndividualID() %>">
+                        	<a href="../individuals.jsp?number=<%=thisEnc.getIndividualID() %>" target="_blank">
                         	
                         	<%=thisEnc.getIndividualID() %>
                         	
@@ -560,7 +534,7 @@
                         try{
                         if(thisEnc.getCatalogNumber()!=null){
                         %>
-                        <a href="encounter.jsp?number=<%=thisEnc.getCatalogNumber() %>">
+                        <a href="encounter.jsp?number=<%=thisEnc.getCatalogNumber() %>" target="_blank">
                           <%=thisEnc.getCatalogNumber() %>
                         </a>
                         <%
@@ -650,10 +624,37 @@
 						<span class="caption">
 					<%
             if ((thumbLocs.get(countMe).getFilename().toLowerCase().endsWith("jpg")) || (thumbLocs.get(countMe).getFilename().toLowerCase().endsWith("jpeg"))) {
-            	File exifImage = new File(Encounter.dir(shepherdDataDir, thisEnc.getCatalogNumber()) + "/" + thumbLocs.get(countMe).getFilename());
-            	%>
-            	<%=Util.getEXIFDataFromJPEGAsHTML(exifImage) %>
-            	<%
+            	FileInputStream jin=null;
+            	try{
+              		//File exifImage = new File(encountersDir.getAbsolutePath() + "/" + thisEnc.getCatalogNumber() + "/" + thumbLocs.get(countMe).getFilename());
+              		File exifImage = new File(encountersDir.getAbsolutePath() + "/" + thisEnc.subdir() + "/" + thumbLocs.get(countMe).getFilename());
+              		jin=new FileInputStream(exifImage);
+              	
+              		if(exifImage.exists()){
+              			Metadata metadata = JpegMetadataReader.readMetadata(jin);
+              			// iterate through metadata directories
+                  		for (Tag tag : MediaUtilities.extractMetadataTags(metadata)) {
+                    		%>
+                    		<%=tag.toString() %><br/>
+                    		<%
+                  		}
+              		} //end if
+              		else{
+            	 	%>
+		            	<p>File not found on file system. No EXIF data available.</p>
+		            	<p>I looked for the file at: <%=exifImage.getAbsolutePath()%></p>
+          			<%  
+              		}
+              	} //end try
+              	catch(Exception e){
+              	%>
+              	<p>Cannot read metadata for this file.</p>
+              	<%
+              	e.printStackTrace();
+              	}
+              	finally{
+              		if(jin!=null){jin.close();}
+              	}
              }
                 %>
    									</span>
@@ -731,7 +732,7 @@
       						try{
                         	if((thisEnc.getIndividualID()!=null)&&(!thisEnc.getIndividualID().equals("Unassigned"))){
                         	%>
-                        	<a href="../individuals.jsp?number=<%=thisEnc.getIndividualID() %>">
+                        	<a href="../individuals.jsp?number=<%=thisEnc.getIndividualID() %>" target="_blank">
                         	
                         	<%=thisEnc.getIndividualID() %>
                         	
@@ -767,7 +768,7 @@
   try{
   if(thisEnc.getCatalogNumber()!=null){
   %>
-  <a href="encounter.jsp?number=<%=thisEnc.getCatalogNumber() %>"><%=thisEnc.getCatalogNumber() %>
+  <a href="encounter.jsp?number=<%=thisEnc.getCatalogNumber() %>" target="_blank"><%=thisEnc.getCatalogNumber() %>
   </a>
   <%
   }
@@ -878,39 +879,11 @@
   myShepherd.rollbackDBTransaction();
   myShepherd.closeDBTransaction();
 
-  if (request.getParameter("noQuery") == null) {
-%>
-<table>
-  <tr>
-    <td align="left">
-
-
-
-      <p><strong><%=encprops.getProperty("queryDetails")%>
-      </strong></p>
-
-      <p class="caption"><strong><%=encprops.getProperty("prettyPrintResults") %>
-      </strong><br/>
-        <%=queryResult.getQueryPrettyPrint().replaceAll("locationField", encprops.getProperty("location")).replaceAll("locationCodeField", encprops.getProperty("locationID")).replaceAll("verbatimEventDateField", encprops.getProperty("verbatimEventDate")).replaceAll("alternateIDField", encprops.getProperty("alternateID")).replaceAll("behaviorField", encprops.getProperty("behavior")).replaceAll("Sex", encprops.getProperty("sex")).replaceAll("nameField", encprops.getProperty("nameField")).replaceAll("selectLength", encprops.getProperty("selectLength")).replaceAll("numResights", encprops.getProperty("numResights")).replaceAll("vesselField", encprops.getProperty("vesselField"))%>
-      </p>
-      
-
-
-    </td>
-  </tr>
-</table>
-<%
-  }
+ 
 %>
 
-<br/>
+</div>
 <jsp:include page="../footer.jsp" flush="true"/>
-</div>
-</div>
-<!-- end page --></div>
-<!--end wrapper -->
 
-</body>
-</html>
 
 

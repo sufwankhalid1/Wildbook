@@ -28,9 +28,14 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import java.lang.reflect.Field;
+
 import java.io.*;
 import java.util.*;
 
+import org.ecocean.security.SocialAuth;
+
+import org.w3c.dom.Document;
 import com.google.gson.Gson;
 
 public class JavascriptGlobals extends HttpServlet {
@@ -61,14 +66,54 @@ public class JavascriptGlobals extends HttpServlet {
 		rtn.put("username", username);
 		rtn.put("langCode", langCode);
 		rtn.put("baseUrl", request.getContextPath());
+		rtn.put("rootDir", (new File(getServletContext().getRealPath("/")).getParentFile()).toString());
+		rtn.put("dataUrl", "/" + CommonConfiguration.getDataDirectoryName(context));
 
 		HashMap props = new HashMap();
 		HashMap lang = new HashMap();
 
+
+		//lang.put("collaboration", ShepherdProperties.getProperties("collaboration.properties", langCode, context));
+		lang.put("visualMatcher", ShepherdProperties.getProperties("visualMatcher.properties", langCode, context));
+
 		lang.put("collaboration", ShepherdProperties.getProperties("collaboration.properties", langCode, context));
+
 
 		props.put("lang", lang);
 		rtn.put("properties", props);
+
+		HashMap classDefn = new HashMap();
+
+		// add all classes we want to access info about in the javascript world
+		Class[] classes = new Class[3];
+		classes[0] = org.ecocean.Encounter.class;
+		classes[1] = org.ecocean.MarkedIndividual.class;
+		classes[2] = org.ecocean.SinglePhotoVideo.class;
+
+		ApiAccess access = new ApiAccess();
+
+		for (Class cls : classes) {
+			HashMap defn = new HashMap();
+			Field[] fields = cls.getDeclaredFields();
+			HashMap fhm = new HashMap();
+			for (Field f : fields) {
+				fhm.put(f.getName(), f.getType().getName());
+			}
+			defn.put("fields", fhm);
+			//HashMap ap = access.permissions(cls.getName(), request);
+			//defn.put("permissions", ap);
+			defn.put("permissions", access.permissions(cls.getName(), request));
+			classDefn.put(cls.getName(), defn);
+		}
+		rtn.put("classDefinitions", classDefn);
+
+    //TODO we could do this for all sorts of property files too?
+    Properties authprops = SocialAuth.authProps(context);
+    if (authprops != null) {
+        for (String pn : authprops.stringPropertyNames()) {
+            propvalToHashMap(pn, authprops.getProperty(pn), rtn);
+        }
+    }
 
     response.setContentType("text/javascript");
     response.setCharacterEncoding("UTF-8");
@@ -80,6 +125,26 @@ public class JavascriptGlobals extends HttpServlet {
 
 
 //wildbookGlobals.properties.lang.collaboration.invitePromptOne
+
+
+
+    public void propvalToHashMap(String name, String val, HashMap h) {
+//System.out.println("name->" + name);
+        if (name.equals("secret")) return;  //TODO **totally** hactacular, but we dont want social secret keys sent out -- maybe pass in optional blacklist???
+        if (h == null) h = new HashMap();
+        int i = name.indexOf(".");
+        if (i < 0) {
+            h.put(name, val);
+            return;
+        }
+        String key = name.substring(0,i);
+//System.out.println("HASH key="+key);
+        if (h.get(key) == null) h.put(key, new HashMap());
+/* TODO handle case where prop file might have foo.bar = 1 and then foo.bar.baz = 2 */
+        HashMap sub = (HashMap)h.get(key);
+        propvalToHashMap(name.substring(i+1), val, sub);
+    }
+
 
 }
   
