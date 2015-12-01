@@ -3,9 +3,9 @@ div(wb-key-handler-watch-scope="parent")
     md-content.overflow-visible(layout="row" layout-align="center center")
         div(flex="33")
             md-button.md-icon-button.action-icon(ng-click="panLeft()" ng-disabled="isLeftDisabled()" aria-label="Pan Left")
-                md-icon.glyphicon.glyphicon-chevron-left
+                md-icon(md-svg-icon="chevron-left")
             md-button.md-icon-button.action-icon(ng-click="panRight()" ng-disabled="isRightDisabled()" aria-label="Pan Right")
-                md-icon.glyphicon.glyphicon-chevron-right
+                md-icon(md-svg-icon="chevron-right")
         div(flex="33")
             div(flex)
                 md-button.md-icon-button.action-icon(ng-repeat="action in actions" ng-class="'md-' + (action.type || 'default')"
@@ -13,12 +13,12 @@ div(wb-key-handler-watch-scope="parent")
                                          ng-disabled="! zoomimage && thumbbox.selected.length === 0"
                                          aria-label="{{action.tooltip}}")
                     md-tooltip {{action.tooltip}}
-                    md-icon.glyphicon(ng-class="'glyphicon-' + (action.glyphicon || 'check')")
+                    md-icon(md-svg-icon="{{action.icon || 'check'}}")
                 md-button.md-icon-button.action-icon(ng-click="clearSelection()"
                                          ng-disabled="zoomimage || thumbbox.selected.length === 0"
                                          aria-label="Clear Selection")
                     md-tooltip Clear Selection
-                    md-icon.glyphicon.glyphicon-erase
+                    md-icon(md-svg-icon="eraser")
         div(flex="33")
             md-slider(md-discrete ng-show="sliderMax() != 0 && slider.step != sliderMax()"
                       ng-model="slider.value" min="{{slider.step}}" step="{{slider.step}}"
@@ -37,14 +37,14 @@ div(wb-key-handler-watch-scope="parent")
                 img.ng-cloak(ng-src="{{zoomimage.midUrl}}")
                 .action-icon-box
                     .action-icon-wrapper
-                        md-button.md-icon-button.md-accent.action-icon
+                        md-button.md-icon-button.action-icon
                             md-tooltip Download
                             a(target="_self", href="{{zoomimage.url}}", download="{{zoomimage.url.substring(zoomimage.url.lastIndexOf('/')+1)}}")
-                                i.glyphicon.glyphicon-download
+                                md-icon(md-svg-icon="download")
                     .action-icon-wrapper
                         md-button.md-icon-button.md-primary.action-icon(ng-click="cancelZoom()")
                             md-tooltip Close
-                            i.glyphicon.glyphicon-check
+                            md-icon(md-svg-icon="check")
                 div(flex="50")
                     .flexy
                         div(ng-repeat="indicator in indicators" class="indicator {{indicator.def.type}} {{indicator.def.displayClass}}")

@@ -24,14 +24,14 @@ angular.module('wildbook.admin').directive(
                     tbActions: [{
                         code: "add",
                         shortcutKeyCode: 65,
-                        glyphicon: "plus",
+                        icon: "bookmark-plus",
                         tooltip: "Add to active encounter"
                     },
                     {
                         code: "del",
                         shortcutKeyCode: 68,
                         type: "warn",
-                        glyphicon: "trash",
+                        icon: "delete",
                         tooltip: "Delete",
                         confirm: { message: "Are you sure you want to delete selected images?"}
                     }],
@@ -339,7 +339,7 @@ angular.module('wildbook.admin').directive(
                         [{headerName: "",
                           field: "id",
                           width: 24,
-                          template: '<a href="javascript:;" ng-click="editSubmission(data)"><i class="glyphicon glyphicon-edit"></i></a>'
+                          template: '<a href="javascript:;" ng-click="editSubmission(data)"><i class="mdi mdi-table-edit"></i></a>'
                          },
                          {headerName: "Submitted",
                           field: "timeSubmitted",

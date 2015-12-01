@@ -25,6 +25,11 @@ var app = angular.module('appWildbook',
 //
 app.constant("moment", require("moment"));
 
+app.config(function($mdIconProvider) {
+    $mdIconProvider
+      .defaultIconSet('icons/mdi.svg')
+  });
+
 app.factory('$exceptionHandler', function() {
     return function(ex, cause) {
         //
@@ -219,7 +224,7 @@ app.factory("wbEncounterUtils", ["$http", "$q", "wbConfig", function($http, $q, 
 app.directive('cancelButton', [function() {
     return {
         restrict: 'E',
-        template: '<a href="javascript:;" ng-click="cancel()" uib-tooltip="Cancel"><i class="glyphicon glyphicon-remove"></i></a>',
+        template: '<a href="javascript:;" ng-click="cancel()" uib-tooltip="Cancel"><i class="mdi mdi-delete"></i></a>',
         replace: true
     }
 }]);

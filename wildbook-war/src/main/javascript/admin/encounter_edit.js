@@ -30,7 +30,7 @@ angular.module('wildbook.admin').directive(
                     code: "del",
                     shortcutKeyCode: 68,
                     type: "warn",
-                    glyphicon: "remove",
+                    icon: "bookmark-remove",
                     tooltip: "Remove/Detach",
                     confirm: { message: "Are you sure you want to detach selected images from this encounter?"}
                 }];

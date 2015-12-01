@@ -17,7 +17,7 @@ var browserify = require('browserify');
 var source = require("vinyl-source-stream");
 var watchify = require("watchify");
 var path = require("path");
-var concat = require('gulp-concat');
+var concatCss = require('gulp-concat-css');
 var del = require('del');
 var runSequence = require('run-sequence');
 var exec = require('child_process').exec;
@@ -45,7 +45,6 @@ paths.dist = path.join(paths.target, 'dist');
 paths.distcss = path.join(paths.dist, 'css');
 paths.distjs = path.join(paths.dist, 'javascript');
 
-paths.devdeploy = path.join(process.env.TOMCAT_HOME, 'webapps', webapp);
 paths.mainjs = path.join(paths.srcjs, 'main.js');
 
 //===============================
@@ -122,21 +121,28 @@ gulp.task('concat-tools', function() {
               'node_modules/ag-grid/dist/theme-fresh.min.css',
               'node_modules/angular-busy/dist/angular-busy.min.css',
               'node_modules/angular-material/angular-material.min.css',
-              'node_modules/angular-material/angular-material.layouts.min.css'])
-    //gulp.src(['node_modules/angular-material/angular-material.min.css'])
-         .pipe(concat('tools.css'))
+              'node_modules/angular-material/angular-material.layouts.min.css',
+              'node_modules/mdi/css/materialdesignicons.min.css'], {base:'node_modules' })
+         .pipe(concatCss('tools.css'))
          .pipe(gulp.dest(paths.distcss));
     
     gulp.src('node_modules/jquery/dist/jquery.min.js', {base: 'node_modules/jquery/dist'})
     .pipe(gulp.dest(paths.distjs));
-
-//    gulp.src(['node_modules/jquery-ui/autocomplete.js', 'node_modules/jquery-ui/core.js'])
-//    .pipe(concat('jquery-ui.js'))
-//    .pipe(gulp.dest(paths.distjs));
+    
+    gulp.src('node_modules/mdi/fonts/*', {base: 'node_modules'})
+    .pipe(gulp.dest(paths.distcss));
 });
 
 function subdirs(filepath, filter) {
     return path.join(filepath, "**", filter || "*");
+}
+
+//
+//  Putting this in a function so that people not using the watch functions
+//  don't have to have TOMCAT_HOME set. This throws an error if it's not set.
+//
+function getDevDir() {
+    return path.join(process.env.TOMCAT_HOME, 'webapps', webapp);
 }
 
 function updatewar() {
@@ -149,17 +155,17 @@ function updatewar() {
     // just update those?
     //
 //    gulp.src(subdirs(path.join(paths.webapp, 'images')), {base: paths.webapp})
-//         .pipe(gulp.dest(paths.devdeploy));
+//         .pipe(gulp.dest(getDevDir()));
     
     gulp.src([subdirs(paths.css),
               subdirs(path.join(paths.webapp, 'jade')),
               subdirs(paths.js)], {base: paths.webapp})
-         .pipe(gulp.dest(paths.devdeploy));
+         .pipe(gulp.dest(getDevDir()));
 
-    gulp.src(path.join(paths.webapp, '*.jsp')).pipe(gulp.dest(paths.devdeploy));
+    gulp.src(path.join(paths.webapp, '*.jsp')).pipe(gulp.dest(getDevDir()));
     
     gulp.src(subdirs(paths.dist), {base: paths.dist})
-        .pipe(gulp.dest(paths.devdeploy));
+        .pipe(gulp.dest(getDevDir()));
 }
 
 gulp.task('updatewar', ['less', 'templates'], function() {
@@ -176,7 +182,7 @@ gulp.task('updatewar-classes', function() {
     execute(cmd, function(err) {
             doRsync({
                 src: [path.join(paths.target, 'classes')],
-                dest: path.join(paths.devdeploy, 'WEB-INF', 'classes')
+                dest: path.join(getDevDir(), 'WEB-INF', 'classes')
             });
         }
     );
@@ -186,7 +192,7 @@ gulp.task('updatewartools', function() {
     doRsync({
 //        src: [path.join(paths.webapp, 'tools'), path.join(paths.webapp, 'bcomponents')],
         src: [path.join(paths.webapp, 'tools')],
-        dest: paths.devdeploy
+        dest: getDevDir()
     });
 });
 
