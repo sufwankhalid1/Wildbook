@@ -339,7 +339,7 @@ angular.module('wildbook.admin').directive(
                         [{headerName: "",
                           field: "id",
                           width: 24,
-                          template: '<a href="javascript:;" ng-click="editSubmission(data)"><i class="mdi mdi-table-edit"></i></a>'
+                          template: '<a href="javascript:;" ng-click="editSubmission(data)"><md-icon md-svg-icon="table-edit"></md-icon></a>'
                          },
                          {headerName: "Submitted",
                           field: "timeSubmitted",
