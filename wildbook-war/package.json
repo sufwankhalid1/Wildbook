@@ -33,7 +33,6 @@
   },
   "devDependencies": {
     "browserify": "^12.0.1",
-    "browserify-css": "^0.8.1",
     "del": "^2.1.0",
     "fs": "0.0.2",
     "gulp": "^3.9.0",
