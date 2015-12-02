@@ -11,16 +11,16 @@ angular.module('wildbook.admin').directive(
             controller: function($scope) {
                 $scope.tabs = [{}, {}];
                 $scope.searchdata = {};
-            
+                
                 $scope.search = function() {
                     $http.post("search/encounter", $scope.searchdata)
                     .then(function(result) {
                         $scope.gridOptions.api.setRowData(result.data);
-                        $scope.tabs[1].active = true;
+                        $scope.resultsTab = true;
                     },
                     $exceptionHandler);
                 };
-            
+                
                 function rowSelectedFunc(event) {
                     $scope.searchEncounterDone({encounter: event.node.data});
                 }

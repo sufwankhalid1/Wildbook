@@ -14,10 +14,10 @@ div
                 div.media-admin-nav
                     span Surveys
                     a(href="javascript:;" ng-click="searchSurvey()")
-                        i.glyphicon.glyphicon-search
+                        md-icon(md-svg-icon="magnify")
                             md-tooltip(md-direction="right") Search for a Survey
                     a(href="javascript:;", ng-click="addSurvey()")
-                        i.glyphicon.glyphicon-plus
+                        md-icon(md-svg-icon="plus")
                             md-tooltip(md-direction="top") Add a new Survey
                     ul.list-group
                         li.list-group-item.media-admin-nav(ng-repeat="surveyEnc in data.surveyEncs"
@@ -25,7 +25,7 @@ div
                                                            ng-class="{active: surveyEnc.surveypart.part.surveyPartId === data.activeSurveyEnc.surveypart.part.surveyPartId}")
                             span {{surveyEnc.surveypart.survey.organization.displayName}} - {{surveyEnc.surveypart.survey.surveyNumber}}
                             a(href="javascript:;", ng-click="addEncounter(surveyEnc)" tooltip-placement="right" uib-tooltip="Add a new Encounter")
-                                i.glyphicon.glyphicon-plus
+                                md-icon(md-svg-icon="plus")
                                     md-tooltip(md-direction="top") Add a new Encounter
                             .list-group
                                 a.list-group-item(href="javascript:;" ng-repeat="encdata in surveyEnc.encs" ng-click="selectEncounter($event, encdata, surveyEnc)" ng-class="{active: encdata.encounter.id === data.activeEncData.encounter.id}")
@@ -36,10 +36,10 @@ div
                 div.media-admin-nav
                     span Encounters
                     a(href="javascript:;" ng-click="searchEncounter()")
-                        i.glyphicon.glyphicon-search
+                        md-icon(md-svg-icon="magnify")
                             md-tooltip(md-direction="right") Search for an Encounter
                     a(href="javascript:;" ng-click="addEncounter()")
-                        i.glyphicon.glyphicon-plus
+                        md-icon(md-svg-icon="plus")
                             md-tooltip(md-direction="top") Add a new Encounter
                     .list-group
                         a.list-group-item(href="javascript:;", ng-repeat="encdata in data.encs", ng-click="selectEncounter($event, encdata)", ng-class="{active: encdata.encounter.id === data.activeEncData.encounter.id}")
@@ -49,9 +49,9 @@ div
                                 div {{encdata.encounter.location.locationid}}
             div(flex="80" layout-wrap flex-offset="5")
                 div(layout="row" layout-fill)
-                    span.text-primary Submitted by:
+                    span.brand-primary Submitted by:
                     | &nbsp{{data.submission.user.displayName}}
-                    span.text-primary &nbspon:
+                    span.brand-primary &nbspon:
                     | &nbsp{{timeToDate(data.submission.timeSubmitted)}}
                 div(layout="row" layout-fill)
                     div(flex="50")

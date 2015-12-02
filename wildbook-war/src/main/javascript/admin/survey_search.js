@@ -11,7 +11,7 @@ angular.module('wildbook.admin').directive(
             controller: function($scope) {
                 $scope.data = {};
                 $scope.surveysearch = {};
-                $scope.tabs = [{}, {}];
+                $scope.selectedTabIndex = 0;
             
                 $scope.orgChange = function() {
                     //
@@ -39,7 +39,7 @@ angular.module('wildbook.admin').directive(
                     $http.post("search/survey", $scope.surveysearch)
                     .then(function(result) {
                         $scope.surveyGridOptions.api.setRowData(result.data);
-                        $scope.tabs[1].active = true;
+                        $scope.selectedTabIndex = 1;
                     },
                     $exceptionHandler);
                 };
