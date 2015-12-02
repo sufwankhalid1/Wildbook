@@ -38,6 +38,14 @@ public class SearchController
 {
     Logger logger = LoggerFactory.getLogger(SearchController.class);
 
+    private void addIndividualNameCondition(final SqlStatement sql, final String name) {
+        SqlTable table = sql.findTable(EncounterFactory.ALIAS_INDIVIDUALS);
+        GroupedSqlCondition cond = GroupedSqlCondition.orGroup();
+        cond.addContainsCondition(table, "alternateid", name);
+        cond.addContainsCondition(table, "nickname", name);
+        sql.addCondition(cond);
+    }
+
     private List<SimpleIndividual> searchIndividuals(final Database db, final String term) throws DatabaseException {
         if (StringUtils.isBlank(term)) {
             return Collections.emptyList();
@@ -45,11 +53,7 @@ public class SearchController
 
         SqlStatement sql = EncounterFactory.getIndividualStatement();
 
-        SqlTable table = sql.findTable(EncounterFactory.ALIAS_INDIVIDUALS);
-        GroupedSqlCondition cond = GroupedSqlCondition.orGroup();
-        cond.addContainsCondition(table, "alternateid", term);
-        cond.addContainsCondition(table, "nickname", term);
-        sql.addCondition(cond);
+        addIndividualNameCondition(sql, term);
 
         return db.selectList(sql, (rs) -> {
             return EncounterFactory.readSimpleIndividual(rs);
@@ -125,13 +129,25 @@ public class SearchController
     }
 
 
-    @RequestMapping(value = "/individual", method = RequestMethod.GET)
+    @RequestMapping(value = "/individual", method = RequestMethod.POST)
     public List<SimpleIndividual> searchIndividual(final HttpServletRequest request,
-                                                   @RequestParam
-                                                   final String name) throws DatabaseException
+                                                   @RequestBody
+                                                   final IndividualSearch search) throws DatabaseException
     {
+        SqlStatement sql = EncounterFactory.getIndividualStatement();
+
+        if (search.nameid != null) {
+            addIndividualNameCondition(sql, search.nameid);
+        }
+
+        if (search.species != null) {
+            sql.addCondition(EncounterFactory.ALIAS_INDIVIDUALS, "species", SqlRelationType.EQUAL, search.species);
+        }
+
         try (Database db = ServletUtils.getDb(request)) {
-            return searchIndividuals(db, name);
+            return db.selectList(sql, (rs) -> {
+                return EncounterFactory.readSimpleIndividual(rs);
+            });
         }
     }
 
@@ -242,5 +258,11 @@ public class SearchController
         public void setDate(final String date) {
             this.date = date;
         }
+    }
+
+    static class IndividualSearch
+    {
+        public String nameid;
+        public String species;
     }
 }

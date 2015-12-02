@@ -1,3 +1,6 @@
+require('./individual_search');
+require('./individual_edit');
+
 angular.module('wildbook.admin').directive(
     'wbEncounterView',
     [function() {
@@ -26,6 +29,7 @@ angular.module('wildbook.admin').directive(
             templateUrl: 'partials/encounter_edit.html',
             replace: true,
             controller: function($scope) {
+                $scope.module = {};
                 $scope.tbActions = [{
                     code: "del",
                     shortcutKeyCode: 68,
@@ -65,6 +69,17 @@ angular.module('wildbook.admin').directive(
                 
                 $scope.cmdEnter = function() {
                     $scope.save();
+                }
+                
+                $scope.findIndividual = function() {
+                    $scope.module.individualSearch = true;
+                }
+                
+                $scope.searchIndividualDone = function(individual) {
+                    $scope.module.individualSearch = false;
+                    if (individual) {
+                        $scope.data.encounter.individual = individual;
+                    }
                 }
 
                 //=================================
