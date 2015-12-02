@@ -1,8 +1,8 @@
 form.form.ng-cloak(name="encounterForm" novalidate, wb-key-handler-form)
     md-content(layout="row" layout-fill layout-align="start center")
         label(layout-padding) Individual:
-        input(flex="50" ng-if="data.encounter.individual.id" type="text" disabled="true" ng-value="data.encounter.individual.displayName")
-        div(flex="50" layout="row" layout-align="start center" ng-if="! data.encounter.individual.id")
+        input(flex="50" ng-show="data.encounter.individual.id" type="text" disabled="true" ng-value="data.encounter.individual.displayName")
+        div(flex="50" layout="row" layout-align="start center" ng-show="! data.encounter.individual.id")
             span.brand-primary(flex="10") New
             md-select(flex="" ng-model="data.encounter.individual.species" ng-model-options="{trackBy: '$value.code'}" placeholder="Species")
                 md-option(ng-value="species" ng-repeat="species in getSpecies()") {{species.name}}
@@ -24,7 +24,7 @@ form.form.ng-cloak(name="encounterForm" novalidate, wb-key-handler-form)
             md-tab(label="Data")
                 location-edit(location="data.encounter.location")
             md-tab(label="Images")
-                wb-thumb-box(ng-if="selectedIndex == 1"
+                wb-thumb-box(ng-show="selectedIndex == 1"
                              photos="data.photos"
                              actions="tbActions"
                              cb-delphoto="deletePhoto(id)"
