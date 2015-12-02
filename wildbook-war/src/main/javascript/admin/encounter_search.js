@@ -9,14 +9,14 @@ angular.module('wildbook.admin').directive(
             templateUrl: 'partials/encounter_search.html',
             replace: true,
             controller: function($scope) {
-                $scope.tabs = [{}, {}];
                 $scope.searchdata = {};
-                
+                $scope.selectedTabIndex = 0;
+
                 $scope.search = function() {
                     $http.post("search/encounter", $scope.searchdata)
                     .then(function(result) {
                         $scope.gridOptions.api.setRowData(result.data);
-                        $scope.resultsTab = true;
+                        $scope.selectedTabIndex = 1;
                     },
                     $exceptionHandler);
                 };
