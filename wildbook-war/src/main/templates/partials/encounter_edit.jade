@@ -1,11 +1,14 @@
 form.form.ng-cloak(name="encounterForm" novalidate, wb-key-handler-form)
-    md-content(layout="row" layout-align="center center")
-        md-input-container(flex="50")
-            label Individual:
-            input(type="text" disabled="true" ng-value="data.encounter.individual.id ? data.encounter.individual.displayName : '-- New Individual --'")
-        md-input-container(flex="50")
-            md-select(ng-model="data.encounter.individual.species" ng-model-options="{trackBy: '$value.code'}" placeholder="Species")
+    md-content(layout="row" layout-fill layout-align="start center")
+        label(layout-padding) Individual:
+        input(flex="50" ng-if="data.encounter.individual.id" type="text" disabled="true" ng-value="data.encounter.individual.displayName")
+        div(flex="50" layout="row" layout-align="start center" ng-if="! data.encounter.individual.id")
+            span.brand-primary(flex="10") New
+            md-select(flex="90" ng-model="data.encounter.individual.species" ng-model-options="{trackBy: '$value.code'}" placeholder="Species")
                 md-option(ng-value="species" ng-repeat="species in getSpecies()") {{species.name}}
+        md-icon(md-svg-icon="pencil" layout-margin ng-click="editIndividual()")
+        md-icon(md-svg-icon="magnify" layout-margin ng-click="findIndividual()")
+        div(flex="")
     md-content(layout="row" layout-align="center center")
         md-input-container(flex="33" ng-class="{'has-error': encounterForm.date.$invalid}")
             label Date:
