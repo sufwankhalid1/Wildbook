@@ -1,13 +1,18 @@
 form.form.ng-cloak(novalidate, wb-key-handler-form)
-    uib-tabset
-        uib-tab(heading="Data" active="tabs[0].active")
-            .form-group.col-md-6
-                label.control-label Date:
-                date-input.form-control(ng-model="searchdata.encdate")
-            .form-group.col-md-6
-                label.control-label Location:
-                input.form-control(type="text", ng-model="searchdata.locationid")
-            .form-group.col-md-12
-                input(type="submit", ng-click="search()", value="Search")
-        uib-tab(heading="Results" active="tabs[1].active")
-            .ag-fresh(ag-grid="gridOptions", style="height: 400px;")
+    md-content
+        md-tabs(md-border-bottom md-dynamic-height)
+            md-tab(label="Data")
+                div(layout="row")
+                    md-input-container(flex="50")
+                        md-input-container
+                            label Date:
+                            date-input(ng-model="searchdata.encdate")
+                    md-input-container(flex="50")
+                        md-input-container
+                            label Location:
+                            input(type="text", ng-model="searchdata.locationid")
+                div(layout="row")
+                    md-input-container
+                        input(type="submit", ng-click="search()", value="Search")
+            md-tab(label="Results")
+                .ag-fresh(ag-grid="gridOptions", style="height: 400px;")

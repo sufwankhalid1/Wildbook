@@ -1,26 +1,28 @@
 form.form.ng-cloak(novalidate, wb-key-handler-form)
-    uib-tabset
-        uib-tab(heading="Data" active="tabs[0].active")
-            .form-group.col-md-6
-                label.control-label Organization:
-                select.form-control(ng-options="org.displayName for org in main.config.orgs track by org.orgId"
-                                    ng-model="search.organization", ng-change="orgChange()")
-                    option(value="") --- select one ---
-            .form-group.col-md-6
-                label.control-label Vessel:
-                select.form-control(ng-model="surveysearch.vesselid")
-                    option(value="") --- select one ---
-                    option(ng-repeat="vessel in data.vessels", value="{{vessel.vesselId}}") {{vessel.displayName}}
-            .form-group.col-md-6
-                label.control-label Survey Number:
-                input.form-control(type="text", ng-model="surveysearch.surveynumber")
-            .form-group.col-md-6
-                label.control-label Code:
-                input.form-control(type="text", ng-model="surveysearch.code")
-            .form-group.col-md-6
-                label.control-label Date:
-                input.form-control(type="date", ng-model="surveysearch.date")
-            .form-group.col-md-12
-                input(type="submit", ng-click="search()", value="Search")
-        uib-tab(heading="Results" active="tabs[1].active")
-            .ag-fresh(ag-grid="surveyGridOptions", style="height: 400px;")
+    md-content
+        md-tabs(md-border-bottom md-dynamic-height)
+            md-tab(label="Data")
+                div(layout="row")
+                    md-input-container(flex="50")
+                        label Organization:
+                        md-select(md-option="org.displayName for org in main.config.orgs track by org.orgId"
+                                        ng-model="search.organization", ng-change="orgChange()")
+                    md-input-container(flex="50")
+                        label Vessel:
+                        md-select(ng-model="surveysearch.vesselid")
+                            md-option(ng-repeat="vessel in data.vessels", value="{{vessel.vesselId}}") {{vessel.displayName}}
+                div(layout="row")
+                    md-input-container(flex="50")
+                        label Survey Number:
+                        input(type="text", ng-model="surveysearch.surveynumber")
+                    md-input-container(flex="50")
+                        label Code:
+                        input(type="text", ng-model="surveysearch.code")
+                div(layout="row")
+                    md-input-container(flex="33")
+                        label Date:
+                        date-input(type="date", ng-model="surveysearch.date")
+                div(layout="row")
+                    md-button.md-whiteframe-1dp(type="submit", ng-click="search()") Search
+            md-tab(label="Results")
+                .ag-fresh(ag-grid="surveyGridOptions", style="height: 400px;")

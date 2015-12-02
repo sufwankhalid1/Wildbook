@@ -1,15 +1,13 @@
-div
-    md-content(layout="row" layout-align="center center")
-        md-input-container(flex="33")
-            label Location ID:
-            input(type="text", ng-model="location.locationid")
-        md-input-container(flex="33")
-            label Latitude:
-            input(type="text", ng-model="location.latitude")
-        md-input-container(flex="33")
-            label Longitude:
-            input(type="text", ng-model="location.longitude")
-    md-content
-        md-input-container
-            label Verbatim Location:
-            textarea(ng-model="location.verbatimLocation")
+div(layout="row" layout-align="center center" layout-fill layout-wrap)
+    md-input-container(flex="33")
+        label Location ID:
+        input(type="text", ng-model="location.locationid")
+    md-input-container(flex="33")
+        label Latitude:
+        input(type="text", ng-model="location.latitude")
+    md-input-container(flex="33")
+        label Longitude:
+        input(type="text", ng-model="location.longitude")
+md-input-container
+    label Verbatim Location:
+    textarea(ng-model="location.verbatimLocation")

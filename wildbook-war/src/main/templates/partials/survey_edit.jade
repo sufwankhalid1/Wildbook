@@ -1,41 +1,38 @@
 form.form.ng-cloak(novalidate, wb-key-handler-form)
-    .form-row
-        fieldset
-            legend.form-group Survey
-            .form-group.col-md-6
-                label.control-label Organization:
-                select.form-control(ng-options="org.displayName for org in main.config.orgs track by org.orgId"
-                                    ng-model="data.survey.organization", ng-change="orgChange()")
-                    option(value="") --- select one ---
-            .form-group.col-md-6
-                label.control-label Survey Number:
-                input.form-control(type="text", ng-model="data.survey.surveyNumber")
-    .form-row
-        fieldset
-            legend.form-group Part
-            .form-group.col-md-6
-                label.control-label Vessel:
-                select.form-control(ng-options="vessel.displayName for vessel in info.vessels track by vessel.vesselId"
-                                    ng-model="data.part.vessel")
-                    option(value="") --- select one ---
-            .form-group.col-md-6
-                label.control-label Code:
-                input.form-control(type="text", ng-model="data.part.code")
-            .form-group.col-md-4
-                label.control-label Date:
-                date-input.form-control(ng-model="data.part.partDate")
-            .form-group.col-md-4
-                label.control-label Start Time:
-                time-input.form-control(ng-model="data.part.starttime")
-            .form-group.col-md-4
-                label.control-label End Time:
-                time-input.form-control(ng-model="data.part.endtime")
-    .form-row
-        fieldset(location="data.part.location", location-edit)
-    .form-row
-        fieldset
-            .form-group.col-md-12
-                label.control-label Comments:
-                input.form-control(type="textarea", rows="4", ng-model="data.part.comments")
-    .form-row
-        input(type="submit", ng-click="save()", value="Save")
+    h2 Survey
+    md-divider
+    md-content(layout="row" layout-align="center center")
+        md-input-container(flex="50")
+            label Organization
+            md-select(ng-model="data.survey.organization", ng-change="orgChange()")
+                md-option(value="org.displayName for org in main.config.orgs track by org.orgId")
+        md-input-container(flex="50")
+            label Survey Number:
+            input(ng-model="data.survey.surveyNumber")
+    h2 Part
+    md-divider
+    md-content(layout="row" layout-align="center center" layout-wrap)
+        md-input-container(flex="50")
+            label Vessel:
+            md-select(ng-model="data.part.vessel")
+                md-option("vessel.displayName for vessel in info.vessels track by vessel.vesselId")
+        md-input-container(flex="50")
+            label Code:
+            input(type="text", ng-model="data.part.code")
+        md-input-container(flex="33")
+            label Date:
+            date-input(ng-model="data.part.partDate")
+        md-input-container(flex="33")
+            label Start Time:
+            time-input(ng-model="data.part.starttime")
+        md-input-container(flex="33")
+            label End Time:
+            time-input(ng-model="data.part.endtime")
+        div(layout="row" layout-fill)
+            location-edit(location="data.part.location" location-edit layout-fill)
+        div(layout="row" layout-fill)
+            md-input-container
+                label Comments:
+                textarea(type="textarea", rows="4", ng-model="data.part.comments")
+    div(flex)
+        md-button.md-whiteframe-1dp(type="submit" ng-click="save()" aria-label="Save") Save

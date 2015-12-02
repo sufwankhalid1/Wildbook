@@ -4,14 +4,11 @@ div
         .ag-fresh(ag-grid="msGridOptions" style="height: 590px")
 
     div.ng-cloak(ng-show="data.submission", wb-key-handler-form)
-        div(layout="row")
+        div(layout="row" layout-align="center center")
             h3 Edit Media Submission [{{data.submission.id}}]
             div(flex="")
-            div(layout-align="end center")
-                button.btn.btn-danger.action-icon(ng-click="deleteSubmission(data.submission)")
-                    i.glyphicon.glyphicon-trash
-                button.btn.btn-success.action-icon(ng-click="doneEditing()")
-                    i.glyphicon.glyphicon-check
+            md-icon.md-warn(md-svg-icon="delete" layout-margin ng-click="deleteSubmission(data.submission)")
+            md-icon(md-svg-icon="close-circle" layout-margin ng-click="doneEditing()")
         div(layout="row")
             div(flex="15")
                 div.media-admin-nav
@@ -50,7 +47,7 @@ div
                                 div {{encdata.encounter.individual.displayName}}
                                 div {{dateStringFromRest(encdata.encounter.encDate)}}
                                 div {{encdata.encounter.location.locationid}}
-            div(flex="80" layout-wrap layout-margin)
+            div(flex="80" layout-wrap flex-offset="5")
                 div(layout="row" layout-fill)
                     span.text-primary Submitted by:
                     | &nbsp{{data.submission.user.displayName}}
@@ -67,18 +64,20 @@ div
                                  indicators="data.indicators"
                                  actions="data.tbActions"
                                  cb-action="performAction(code, photos)")
-                div(layout="row" layout-fill)
-                    cancel-button(ng-if="data.module.encounterEdit || data.module.encounterSearch || data.module.surveySearch || data.module.surveyEdit")
-                    div(ng-if="data.module.surveySearch")
+                div(layout="row" layout-fill layout-wrap)
+                    div(layout="row" layout-fill layout-align="end end")
+                        <div flex=""></div>
+                        cancel-button(layout-margin ng-if="data.module.encounterEdit || data.module.encounterSearch || data.module.surveySearch || data.module.surveyEdit")
+                    div(ng-if="data.module.surveySearch" layout-fill)
                         legend Search Survey
                         wb-survey-search(search-survey-done="searchSurveyDone(surveypart)")
-                    div(ng-if="data.module.surveyEdit")
+                    div(ng-if="data.module.surveyEdit" layout-fill)
                         legend Edit Survey
                         wb-survey-edit(survey-to-edit="data.module.surveyEdit" edit-survey-done="editSurveyDone(surveypart)")
-                    div(ng-if="data.module.encounterSearch")
+                    div(ng-if="data.module.encounterSearch" layout-fill)
                         legend Search Encounter
                         wb-encounter-search(search-encounter-done="searchEncounterDone(encounter)")
-                    div(ng-if="data.module.encounterEdit")
+                    div(ng-if="data.module.encounterEdit" layout-fill)
                         legend Edit Encounter
                         wb-encounter-edit(enc-data="data.module.encounterEdit"
                                           edit-encounter-done="editEncounterDone(encdata)"

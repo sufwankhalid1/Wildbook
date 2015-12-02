@@ -224,7 +224,9 @@ app.factory("wbEncounterUtils", ["$http", "$q", "wbConfig", function($http, $q, 
 app.directive('cancelButton', [function() {
     return {
         restrict: 'E',
-        template: '<a href="javascript:;" ng-click="cancel()" uib-tooltip="Cancel"><i class="mdi mdi-delete"></i></a>',
+        template: ' <a href="javascript:;" ng-click="cancel()">'+
+                  '     <md-icon md-svg-icon="close-circle"><md-tooltip>Cancel</md-tooltip></md-icon>'+
+                  ' </a>',
         replace: true
     }
 }]);

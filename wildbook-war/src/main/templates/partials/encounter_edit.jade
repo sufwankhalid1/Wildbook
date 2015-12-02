@@ -19,7 +19,7 @@ form.form.ng-cloak(name="encounterForm" novalidate, wb-key-handler-form)
     md-content
         md-tabs(md-selected="selectedIndex" md-dynamic-height md-border-bottom)
             md-tab(label="Data")
-                fieldset(location="data.encounter.location" location-edit)
+                location-edit(location="data.encounter.location")
             md-tab(label="Images")
                 wb-thumb-box(ng-if="selectedIndex == 1"
                              photos="data.photos"

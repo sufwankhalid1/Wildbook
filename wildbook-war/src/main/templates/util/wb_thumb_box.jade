@@ -1,5 +1,5 @@
 // Need this parent div because as an angular directive it must have a single parent element
-div(wb-key-handler-watch-scope="parent")
+div(wb-key-handler-watch-scope="parent" layout-fill)
     md-content.overflow-visible(layout="row" layout-align="center center")
         div(flex="33")
             md-button.md-icon-button.action-icon(ng-click="panLeft()" ng-disabled="isLeftDisabled()" aria-label="Pan Left")

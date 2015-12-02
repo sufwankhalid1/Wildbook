@@ -11,7 +11,7 @@ angular.module('wildbook.admin').directive(
     'locationEdit',
     function() {
         return {
-            restrict: 'A',
+            restrict: 'E',
             scope: {
                 location: '='
             },
