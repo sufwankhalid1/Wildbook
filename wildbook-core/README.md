@@ -4,10 +4,13 @@ To compile classes do
 
     gradle build
    
-    
 To do a clean install which will also build and install the resulting jar file into your local maven repo do
     
     gradle clean install
+    
+... or you can use maven ...
+
+    mvn clean install
 
 ##Run
 If you want to run a particular runnable class you can follow the example below
