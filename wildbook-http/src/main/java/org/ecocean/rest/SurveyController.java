@@ -61,10 +61,11 @@ public class SurveyController {
     }
 
     @RequestMapping(value = "savetrack", method = RequestMethod.POST)
-    public void savePart(final HttpServletRequest request,
-                         @RequestBody @Valid final SurveyPartObj sp) throws DatabaseException {
+    public SurveyPartObj savePart(final HttpServletRequest request,
+                                  @RequestBody @Valid
+                                  final SurveyPartObj sp) throws DatabaseException {
         if (sp == null) {
-            return;
+            return null;
         }
 
         try (Database db = ServletUtils.getDb(request)) {
@@ -76,6 +77,8 @@ public class SurveyController {
               sp.part.setSurveyId(sp.survey.getSurveyId());
               SurveyFactory.saveSurveyPart(db, sp.part);
             });
+
+            return sp;
         }
     }
 

@@ -34,8 +34,8 @@ angular.module('wildbook.admin').directive(
             
                 $scope.save = function() {
                     $http.post('obj/survey/savetrack', $scope.data)
-                    .then(function() {
-                        $scope.editSurveyDone({surveypart: $scope.data});
+                    .then(function(result) {
+                        $scope.editSurveyDone({surveypart: result.data});
                     }, $exceptionHandler);
                 };
                 
