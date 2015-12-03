@@ -31,3 +31,10 @@ If the **logdir** parameter is excluded it will default to the environment varia
 So that command-line apps (e.g. ReadMissingExifData) can be run you can build a jar with all of it's depencies.
 
     mvn clean compile assembly:single
+    
+##Test email template example
+
+To test the template found in **src/main/resources/emails/media/anotherSubmission.jade** you would run the following. Parameters such as **individualid** or **userid**, while maybe not applicable to the email template here, are examples of passing parameters to the test for which queries may be run to get the apprpriate data to pass to the template.
+
+    http://localhost:8080/wildbook/test/email/get?template=media/anotherSubmission&individualid=7&userid=2
+
