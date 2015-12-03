@@ -86,6 +86,7 @@ public class EncounterFactory {
         encounter.setStarttime(rs.getOffsetTime("starttime"));
         encounter.setEndtime(rs.getOffsetTime("endtime"));
         encounter.setLocation(LocationFactory.readLocation(rs));
+        encounter.setComments(rs.getString("comments"));
         encounter.setIndividual(individual);
 
         return encounter;
@@ -161,6 +162,7 @@ public class EncounterFactory {
         ind.setSex(rs.getString("sex"));
         ind.setAlternateId(rs.getString("alternateid"));
         ind.setIdentified(rs.getBoolean("identified"));
+        ind.setComments(rs.getString("comments"));
 
         MediaAsset ma = MediaAssetFactory.valueOf(rs);
 
@@ -277,6 +279,7 @@ public class EncounterFactory {
         formatter.append("encdate", encounter.getEncDate());
         formatter.append("starttime", encounter.getStarttime());
         formatter.append("endtime", encounter.getEndtime());
+        formatter.append("comments", encounter.getComments());
         LocationFactory.fillFormatterWithLoc(formatter, encounter.getLocation());
     }
 
@@ -315,6 +318,7 @@ public class EncounterFactory {
         formatter.append("nickname", individual.getNickname());
         formatter.append("sex", individual.getSex());
         formatter.append("avatarid", individual.getAvatarid());
+        formatter.append("comments", individual.getComments());
     }
 
     public static EncounterObj getEncounterObj(final Database db, final Encounter encounter) throws DatabaseException {

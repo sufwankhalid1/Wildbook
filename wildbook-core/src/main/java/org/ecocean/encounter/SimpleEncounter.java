@@ -20,6 +20,8 @@ public class SimpleEncounter
 
     private SimpleIndividual individual;
 
+    private String comments;
+
     public SimpleEncounter()
     {
         // for deserialization
@@ -78,6 +80,14 @@ public class SimpleEncounter
 
     public void setLocation(final Location location) {
         this.location = location;
+    }
+
+    public String getComments() {
+        return comments;
+    }
+
+    public void setComments(String comments) {
+        this.comments = comments;
     }
 
     public String getFormattedTime() {

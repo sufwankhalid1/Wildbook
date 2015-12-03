@@ -20,6 +20,10 @@ If you want to run a particular runnable class you can follow the example below
 
 If the **logdir** parameter is excluded it will default to the environment variable $WILDBOOK_LOGDIR. If this is not set, or there is no logback.xml there, it will default to the default logging which will log chattily to the console.
 
+##Flyway
+
+    mvn -Dflyway.configFile=/opt/wildbook/flyway.conf compile flyway:migrate
+    
 ##Build jar with all dependencies
 So that command-line apps (e.g. ReadMissingExifData) can be run you can build a jar with all of it's depencies.
 

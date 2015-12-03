@@ -354,7 +354,7 @@ public class MainController
         public List<SimpleUser> submitters;
     }
 
-    public static class Contributor {
+    static class Contributor {
         public SimpleUser user;
         public int numEncs;
     }

@@ -13,6 +13,7 @@ public class SimpleIndividual implements SimpleBeing
     private String nickname;
     private String sex;
     private String avatar;
+    private String comments;
 
 
     public SimpleIndividual()
@@ -95,5 +96,13 @@ public class SimpleIndividual implements SimpleBeing
 
     public void setIdentified(boolean identified) {
         this.identified = identified;
+    }
+
+    public String getComments() {
+        return comments;
+    }
+
+    public void setComments(String comments) {
+        this.comments = comments;
     }
 }

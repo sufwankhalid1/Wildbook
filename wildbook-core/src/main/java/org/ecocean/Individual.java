@@ -15,6 +15,7 @@ public class Individual {
     // Not persisted. Only for generating SimpleUsers.
     //
     private String avatar;
+    private String comments;
 
 
     public Individual()
@@ -126,5 +127,13 @@ public class Individual {
 
     public void setIdentified(boolean identified) {
         this.identified = identified;
+    }
+
+    public String getComments() {
+        return comments;
+    }
+
+    public void setComments(String comments) {
+        this.comments = comments;
     }
 }

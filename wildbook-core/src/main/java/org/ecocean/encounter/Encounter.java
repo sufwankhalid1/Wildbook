@@ -19,6 +19,7 @@ public class Encounter
     private Location location;
 
     private Individual individual;
+    private String comments;
 
     public Encounter()
     {
@@ -78,6 +79,14 @@ public class Encounter
 
     public void setLocation(final Location location) {
         this.location = location;
+    }
+
+    public String getComments() {
+        return comments;
+    }
+
+    public void setComments(String comments) {
+        this.comments = comments;
     }
 
     public String getFormattedTime() {

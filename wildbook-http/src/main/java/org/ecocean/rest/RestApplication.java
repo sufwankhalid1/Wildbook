@@ -23,11 +23,7 @@ import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
 import com.samsix.database.RecordSet;
 
-//@Configuration
-//@EnableAutoConfiguration
-//@ComponentScan
 @SpringBootApplication // same as @Configuration @EnableAutoConfiguration @ComponentScan
-//@EnableAdminServer
 public class RestApplication extends SpringBootServletInitializer {
     private static Logger logger = LoggerFactory.getLogger(RestApplication.class);
 
