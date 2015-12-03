@@ -53,11 +53,21 @@ public enum Global {
 
     public void init(final File overridingProps, final Map<String, String> overridingPropVars) {
         //
-        // Load up resources
+        // Load up resources and set default variables for database connections.
+        // These variables can be overridden by passing them into overridingPropVars. In addition,
+        // you can override the entire property in your overridingProps file for things like the
+        // Database.Primary.Url which defaults to...
+        //
+        //    Database.Primary.Url = jdbc:postgresql://${wildbook.db.server}/${wildbook.db.name}
+        //
+        // ... but you might, for instance, want to change the whole property in which case you
+        // can put the new value of the property in the overridingProps file you pass in here.
         //
         ResourceReaderImpl resources = new ResourceReaderImpl();
         resources.addVariable("wildbook.db.server", "localhost");
         resources.addVariable("wildbook.db.name", "wildbook");
+        resources.addVariable("wildbook.db.user", "shepherd");
+        resources.addVariable("wildbook.db.password", "shepherd");
         if (overridingPropVars != null) {
             resources.addVariables(overridingPropVars);
         }

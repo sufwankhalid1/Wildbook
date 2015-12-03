@@ -19,6 +19,8 @@
   "dependencies": {
     "ag-grid": "2.2.0",
     "angular": "1.4.4",
+    "angular-animate": "^1.4.8",
+    "angular-aria": "^1.4.8",
     "angular-busy": "4.1.0",
     "angular-material": "0.11.3",
     "angular-ui-bootstrap": "0.14.3",
