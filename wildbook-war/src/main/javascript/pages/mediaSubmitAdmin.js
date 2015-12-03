@@ -9,6 +9,7 @@ angular.module('wildbook.admin').directive(
             replace: true,
             controller: function($scope) {
                 $scope.numencs = {};
+                $scope.encOpen = [];
                 $scope.data = {
                     submission: null,
                     photos: null,
@@ -38,11 +39,13 @@ angular.module('wildbook.admin').directive(
                     indicators: [{def: {displayClass: "encounter", type: "number"},
                                   values: $scope.numencs}]
                 };
-
                 function attachEncounter(encdata, surveyEnc) {
                     if (! encdata) {
                         return;
                     }
+                    
+                    //close side nav if open and clear actives
+                    $scope.encOpen = [false];
                     
                     if (surveyEnc) {
                         if (surveyEnc.encs) {
@@ -120,6 +123,27 @@ angular.module('wildbook.admin').directive(
                     }
                 }
                 
+                $scope.activeEle = function(ele){
+                    $scope.active = {
+                            survey: false,
+                            surveyEnc: false,
+                            encounter: false
+                        };
+                    switch(ele){
+                        case 'survey': $scope.active.survey = true;
+                            break;
+                        case 'surveyEnc': $scope.active.surveyEnc = true;
+                            break;
+                        case 'encounter': $scope.active.encounter = true;
+                            break;
+                    }
+                    if($scope.active.encounter){
+                        angular.forEach($scope.encOpen, function(item, key){
+                           $scope.encOpen[key] = false; 
+                        });
+                    }
+                }
+                
                 function editEncounter(encdata, surveyEnc) {
                     $scope.data.module.encounterEdit = encdata;
                     $scope.data.activeEncData = encdata;
@@ -153,8 +177,12 @@ angular.module('wildbook.admin').directive(
                     $scope.data.module.surveySearch = false;
                 }
                 
-                $scope.selectSurvey = function(surveyEnc) {
+                $scope.selectSurvey = function(surveyEnc, noEdit, index) {
                     $scope.data.activeSurveyEnc = surveyEnc;
+                    angular.forEach($scope.encOpen, function(val, key){
+                        if(key != index) $scope.encOpen[key] = false;
+                    });
+                    if(noEdit) return;
                     editSurvey(surveyEnc.surveypart);
                 }
                 
@@ -178,7 +206,6 @@ angular.module('wildbook.admin').directive(
                 
                 $scope.editSurveyDone = function(surveypart) {
                     $scope.data.module.surveyEdit = null;
-
                     if (!surveypart) {
                         return;
                     }
@@ -225,6 +252,9 @@ angular.module('wildbook.admin').directive(
                     case "add": {
                         if (!$scope.data.activeEncData) {
                             alertplus.alert("No active encounter selected.");
+                            return;
+                        } else if(!$scope.data.activeEncData.encounter.id){
+                            alertplus.alert("Please save your current encounter before adding images.");
                             return;
                         }
                         wbEncounterUtils.getMedia($scope.data.activeEncData)

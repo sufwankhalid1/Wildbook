@@ -19,21 +19,30 @@ div
                     a(href="javascript:;", ng-click="addSurvey()")
                         md-icon(md-svg-icon="plus")
                             md-tooltip(md-direction="top") Add a new Survey
-                    ul.list-group
-                        li.list-group-item.media-admin-nav(ng-repeat="surveyEnc in data.surveyEncs"
-                                                           ng-click="selectSurvey(surveyEnc)"
-                                                           ng-class="{active: surveyEnc.surveypart.part.surveyPartId === data.activeSurveyEnc.surveypart.part.surveyPartId}")
-                            span {{surveyEnc.surveypart.survey.organization.displayName}} - {{surveyEnc.surveypart.survey.surveyNumber}}
-                            a(href="javascript:;", ng-click="addEncounter(surveyEnc)" tooltip-placement="right" uib-tooltip="Add a new Encounter")
-                                md-icon(md-svg-icon="plus")
-                                    md-tooltip(md-direction="top") Add a new Encounter
-                            .list-group
-                                a.list-group-item(href="javascript:;" ng-repeat="encdata in surveyEnc.encs" ng-click="selectEncounter($event, encdata, surveyEnc)" ng-class="{active: encdata.encounter.id === data.activeEncData.encounter.id}")
-                                    .encounter-item
-                                        div {{encdata.encounter.individual.displayName}}
-                                        div {{dateStringFromRest(encdata.encounter.encDate)}}
-                                        div {{encdata.encounter.location.locationid}}
-                div.media-admin-nav
+                    md-divider
+                    div(ng-repeat="surveyEnc in data.surveyEncs" layout-fill layout="row" layout-wrap)
+                        md-icon(md-svg-icon="chevron-right" 
+                                ng-show="!encOpen[$index]" 
+                                ng-click="encOpen[$index] = true; selectSurvey(surveyEnc, true, $index)")
+                        md-icon(md-svg-icon="chevron-down" 
+                                ng-show="encOpen[$index]" 
+                                ng-click="encOpen[$index] = false; selectSurvey(surveyEnc, true, $index)")
+                        span(ng-click="selectSurvey(surveyEnc); activeEle('survey')"
+                                ng-class="{active: surveyEnc.surveypart.part.surveyPartId === data.activeSurveyEnc.surveypart.part.surveyPartId && active.survey}")
+                                    | {{surveyEnc.surveypart.survey.organization.displayName}} - {{surveyEnc.surveypart.survey.surveyNumber}}
+                        div(flex="")
+                        md-icon(md-svg-icon="plus" ng-click="addEncounter(surveyEnc); activeEle('survey')")
+                            md-tooltip(md-direction="right") Add an encounter to this survey
+                        div(ng-show="data.activeSurveyEnc.encs && encOpen[$index] === true" layout-fill)
+                            div.media-admin-nav-list(layout="row" layout-align="end end" 
+                                ng-repeat="encdata in data.activeSurveyEnc.encs" 
+                                ng-click="selectEncounter($event, encdata, surveyEnc); activeEle('surveyEnc')" 
+                                ng-class="{active: encdata.encounter.id === data.activeEncData.encounter.id && active.surveyEnc}")
+                                .encounter-item
+                                    div {{encdata.encounter.individual.displayName}}
+                                    div {{dateStringFromRest(encdata.encounter.encDate)}}
+                                    div {{encdata.encounter.location.locationid}}
+                div.media-admin-nav.mt-10
                     span Encounters
                     a(href="javascript:;" ng-click="searchEncounter()")
                         md-icon(md-svg-icon="magnify")
@@ -41,12 +50,13 @@ div
                     a(href="javascript:;" ng-click="addEncounter()")
                         md-icon(md-svg-icon="plus")
                             md-tooltip(md-direction="top") Add a new Encounter
-                    .list-group
-                        a.list-group-item(href="javascript:;", ng-repeat="encdata in data.encs", ng-click="selectEncounter($event, encdata)", ng-class="{active: encdata.encounter.id === data.activeEncData.encounter.id}")
-                            .encounter-item
-                                div {{encdata.encounter.individual.displayName}}
-                                div {{dateStringFromRest(encdata.encounter.encDate)}}
-                                div {{encdata.encounter.location.locationid}}
+                    .media-admin-nav-list(href="javascript:;", ng-repeat="encdata in data.encs",
+                                             ng-click="activeEle('encounter'); selectEncounter($event, encdata);", 
+                                             ng-class="{active: encdata.encounter.id === data.activeEncData.encounter.id && active.encounter}")
+                        .encounter-item
+                            div {{encdata.encounter.individual.displayName}}
+                            div {{dateStringFromRest(encdata.encounter.encDate)}}
+                            div {{encdata.encounter.location.locationid}}
             div(flex="80" layout-wrap flex-offset="5")
                 div(layout="row" layout-fill)
                     span.brand-primary Submitted by:
