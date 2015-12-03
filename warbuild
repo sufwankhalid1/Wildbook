@@ -1,3 +1,11 @@
 #!/bin/bash
-export MAVEN_OPTS=-Xmx512m
-mvn clean compile package -DskipTests -Dmaven.javadoc.skip=true -Dwildbook.cust=$1 $2
+#export MAVEN_OPTS=-Xmx512m
+#mvn clean compile package -DskipTests -Dmaven.javadoc.skip=true -Dwildbook.cust=$1 $2
+
+cd wildbook-core
+mvn clean install -Dwildbook.cust=$1
+cd ../wildbook-http
+mvn clean install
+cd ../wildbook-war
+gulp build
+

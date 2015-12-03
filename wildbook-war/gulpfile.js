@@ -98,7 +98,7 @@ gulp.task('watch', function() {
     //
     // Set up watchify for our javascript code.
     //
-    let watcher = watchify(getMainBundler(true));
+    let watcher = watchify(getMainBundler(false));
 
     function bundle() {
         return doBundling(watcher, 'bundle.js').on('end', updatewar);
@@ -209,14 +209,12 @@ gulp.task('build', function() {
     );
 });
 
-function getBundler(files, output, nominify) {
+function getBundler(files, output, minify) {
     var bundler;
     
-    if (nominify) {
-        bundler = new browserify();
-    } else {
+    if (minify) {
         let debugable = ! (argv.nomap);
-    
+        
         bundler = new browserify({debug: debugable});
         
         //bundler.transform('browserify-css', {global: true});
@@ -229,6 +227,8 @@ function getBundler(files, output, nominify) {
         } else {
             bundler.plugin('minifyify', {map: false});
         }
+    } else {
+        bundler = new browserify();
     }
 
     bundler.add(files);
@@ -236,8 +236,8 @@ function getBundler(files, output, nominify) {
     return bundler;
 }
 
-function getMainBundler(nominify) {
-    return getBundler(paths.mainjs, 'bundle.js', nominify);
+function getMainBundler(minify) {
+    return getBundler(paths.mainjs, 'bundle.js', minify);
 }
 
 function doBundling(bundler, output) {
@@ -252,9 +252,23 @@ function reportError(ex) {
 }
 
 gulp.task('browserify-tools', function() {
-    return doBundling(getBundler(path.join(paths.srcjs, 'tools.js'), 'tools-bundle.js'), 'tools-bundle.js', false);
+    return doBundling(getBundler(path.join(paths.srcjs, 'tools.js'), 'tools-bundle.js'), 'tools-bundle.js', true);
 });
 
 gulp.task('browserify', function() {
-    return doBundling(getMainBundler(argv.nominify), 'bundle.js');
+    //
+    // TODO: For now default to not minifying our code because there is a problem with angular.
+    // I think we are defining one of our directives/functions without the list of variables but
+    // can't spot it right off.  Until then we default to not minifying. If we fix we can go back
+    // to defaulting to minifying.
+    //
+    var minify;
+//    if (argv.nominify) {
+//        minify = false;
+//    } else {
+//        minify = true;
+//    }
+    minify = argv.minify;
+    
+    return doBundling(getMainBundler(minify), 'bundle.js');
 });
