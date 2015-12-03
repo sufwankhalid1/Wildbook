@@ -63,11 +63,20 @@ public enum Global {
         // ... but you might, for instance, want to change the whole property in which case you
         // can put the new value of the property in the overridingProps file you pass in here.
         //
+        // To connect to a remote database that you don't want to expose directly to the internet
+        // you can use an ssh tunnel by running (and leaving open) in a shell the following e.g.
+        //
+        //    ssh -L5433:localhost:5432 <remote-server>
+        //
+        // And then you would override the port variable to be 5433 and localhost calls to 5432 would
+        // be piped through 5433 to the remote server.
+        //
         ResourceReaderImpl resources = new ResourceReaderImpl();
         resources.addVariable("wildbook.db.server", "localhost");
         resources.addVariable("wildbook.db.name", "wildbook");
         resources.addVariable("wildbook.db.user", "shepherd");
         resources.addVariable("wildbook.db.password", "shepherd");
+        resources.addVariable("wildbook.db.port", "5432");
         if (overridingPropVars != null) {
             resources.addVariables(overridingPropVars);
         }
