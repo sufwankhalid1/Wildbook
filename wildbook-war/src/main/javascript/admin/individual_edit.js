@@ -16,11 +16,19 @@ angular.module('wildbook.admin').directive(
                     return wbConfig.config().species;
                 }
                 
+                function getDisplayName(individual) {
+                    var name = individual.nickname || "[Unnamed]";
+                    if (! individual.alternateId) {
+                        return name;
+                    }
+                    
+                    return name + " (" + individual.alternateId + ")";
+                }
+                
                 $scope.save = function() {
                     $http.post('obj/encounter/save', $scope.data)
                     .then(function(result) {
-                        //set display name for now
-                        $scope.data.individual.displayName = $scope.data.individual.nickname;
+                        $scope.data.individual.displayName = getDisplayName($scope.data.individual);
                         $scope.editIndividualDone({individual: $scope.data.individual});
                     }, $exceptionHandler);
                 };
