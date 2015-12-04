@@ -221,7 +221,7 @@ angular.module('wildbook.util').directive(
                     });
                     
                     if (action) {
-                        performAction(action);
+                        $scope.performAction(action);
                     }
                 }
                     
