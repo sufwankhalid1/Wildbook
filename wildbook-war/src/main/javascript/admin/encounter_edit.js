@@ -28,8 +28,9 @@ angular.module('wildbook.admin').directive(
             },
             templateUrl: 'partials/encounter_edit.html',
             replace: true,
-            controller: function($scope) {
+            link: function($scope, ele, attr) {
                 $scope.module = {};
+                //$scope.data = angular.copy($scope.originalData);
                 $scope.tbActions = [{
                     code: "del",
                     shortcutKeyCode: 68,
@@ -39,10 +40,9 @@ angular.module('wildbook.admin').directive(
                     confirm: { message: "Are you sure you want to detach selected images from this encounter?"}
                 }];
                 
-                if (! $scope.data.photos) {
+                if (!$scope.data.photos) {
                     wbEncounterUtils.getMedia($scope.data.encounter);
                 }
-
                 $scope.getSpecies = function() {
                     return wbConfig.config().species;
                 }
@@ -56,6 +56,7 @@ angular.module('wildbook.admin').directive(
                     $http.post('obj/encounter/save', $scope.data.encounter)
                     .then(function(result) {
                         $scope.data.encounter.id = result.data;
+                        //angular.copy($scope.data, $scope.originalData);
                         $scope.editEncounterDone({encdata: $scope.data});
                     }, $exceptionHandler);
                 };
@@ -73,6 +74,17 @@ angular.module('wildbook.admin').directive(
                 
                 $scope.findIndividual = function() {
                     $scope.module.individualSearch = true;
+                }
+                
+                $scope.editIndividual = function() {
+                    $scope.module.individualEdit = true;
+                }
+                
+                $scope.editIndividualDone = function(individual){
+                    $scope.module.individualEdit = false;
+                    if(individual){
+                    	$scope.data.encounter.individual = individual;
+                    }
                 }
                 
                 $scope.searchIndividualDone = function(individual) {

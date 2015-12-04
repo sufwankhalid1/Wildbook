@@ -1,8 +1,10 @@
 div(layout="row" layout-wrap)
     wb-individual-search(ng-show="module.individualSearch" layout-fill search-individual-done="searchIndividualDone(individual)")
-    wb-individual-edit(ng-show="module.individualEdit" layout-fill)
+    wb-individual-edit(ng-show="module.individualEdit" edit-individual-done="editIndividualDone(individual)" ind-data="data.encounter" layout-fill)
     form.form.ng-cloak(ng-show="! module.individualSearch && ! module.individualEdit"
                        name="encounterForm" novalidate, wb-key-handler-form layout-fill)
+        div(layout="row" layout-fill layout-align="start center")
+            cancel-button(layout-margin)
         md-content(layout="row" layout-fill layout-align="start center")
             label(layout-padding) Individual:
             input(flex="50" ng-show="data.encounter.individual.id" type="text" disabled="true" ng-value="data.encounter.individual.displayName")

@@ -157,7 +157,11 @@ angular.module('wildbook.admin').directive(
                 $scope.addEncounter = function(surveyEnc) {
                     editEncounter(wbEncounterUtils.createNewEncData(), surveyEnc);
                 }
-                
+                /*
+                $scope.showDialog = function(msg){
+                    alertplus.alert(msg);
+                }
+                */
                 $scope.selectEncounter = function($event, encdata, surveyEnc) {
                     wbEncounterUtils.getMedia(encdata)
                     .then(function() {
@@ -251,12 +255,13 @@ angular.module('wildbook.admin').directive(
                     switch (code) {
                     case "add": {
                         if (!$scope.data.activeEncData) {
-                            alertplus.alert("No active encounter selected.");
+                            alertplus.alert("please choose an encounter to add these to.");
                             return;
                         } else if(!$scope.data.activeEncData.encounter.id){
                             alertplus.alert("Please save your current encounter before adding images.");
                             return;
                         }
+                        
                         wbEncounterUtils.getMedia($scope.data.activeEncData)
                         .then(function() {
                             //
