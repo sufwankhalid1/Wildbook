@@ -159,8 +159,8 @@ public class MediaAssetFactory {
         formatter.append("tags", tags);
         formatter.append("submitterid", ma.getSubmitterId());
         formatter.append("metatimestamp", ma.getMetaTimestamp());
-        formatter.append("metalatitude", ma.getMetaLatitude());
-        formatter.append("metalongitude", ma.getMetaLongitude());
+        formatter.append("metalat", ma.getMetaLatitude());
+        formatter.append("metalong", ma.getMetaLongitude());
     }
 
     /**

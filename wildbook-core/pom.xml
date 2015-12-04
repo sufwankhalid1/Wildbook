@@ -11,6 +11,11 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <!--
+        Skipping javadoc by default. If you want to run the javadoc run...
+            mvn -Dmaven.javadoc.skip=false javadoc:javadoc
+    -->
+    <maven.javadoc.skip>true</maven.javadoc.skip>
   </properties>
 
   <repositories>
