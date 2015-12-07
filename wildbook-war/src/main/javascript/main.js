@@ -178,9 +178,6 @@ app.factory("wbDateUtils", ["wbConfig", "moment", function(wbConfig, moment) {
         dateStringFromRest: function(rest) {
             return formatMoment(restToMoment(rest));
         },
-        test: function() {
-            alertplus.alert("hello");
-        },
         timeToDateString: function(time) {
             return moment(time).format('lll');
         }
