@@ -61,8 +61,13 @@ div
                 div(layout="row" layout-fill)
                     span.brand-primary Submitted by:
                     | &nbsp{{data.submission.user.displayName}}
+                    a(href="javascript:;" ng-click="searchSubmitter()")
+                        md-icon(md-svg-icon="magnify")
+                            md-tooltip Reassign Submitter
                     span.brand-primary &nbspon:
                     | &nbsp{{timeToDate(data.submission.timeSubmitted)}}
+                div(layout="row" layout-fill ng-show="searchingSubmitter")
+                    wb-user-search(search-user-done="searchUserDone(user)")
                 div(layout="row" layout-fill)
                     div(flex="50")
                         span {{data.submission.description}}

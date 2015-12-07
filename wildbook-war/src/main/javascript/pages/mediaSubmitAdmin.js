@@ -1,3 +1,9 @@
+require('../admin/encounter_edit.js');
+require('../admin/encounter_search.js');
+require('../admin/survey_edit.js');
+require('../admin/survey_search.js');
+require('../admin/user_search.js');
+
 angular.module('wildbook.admin').directive(
     "wbMediaSubmissionAdmin",
     ["$http", "$q", "$exceptionHandler", "wbDateUtils", "wbLangUtils", "wbEncounterUtils",
@@ -16,6 +22,7 @@ angular.module('wildbook.admin').directive(
                     encounters: [],
                     surveyEncs: [],
                     activeEncData: null,
+                    searchingSubmitter: false,
                     module: {
                         encounterEdit: null,
                         encounterSearch: false,
@@ -39,6 +46,7 @@ angular.module('wildbook.admin').directive(
                     indicators: [{def: {displayClass: "encounter", type: "number"},
                                   values: $scope.numencs}]
                 };
+                
                 function attachEncounter(encdata, surveyEnc) {
                     if (! encdata) {
                         return;
@@ -82,6 +90,25 @@ angular.module('wildbook.admin').directive(
                     $scope.data.surveyEncs.push({surveypart: surveypart, encounters: encounters});
                 }
             
+                $scope.searchSubmitter = function() {
+                    $scope.searchingSubmitter = true;
+                }
+                
+                $scope.searchUserDone = function(user) {
+                    if (user) {
+                        $http.post("obj/mediasubmission/reassign", {msid: $scope.data.submission.id, userid: user.id})
+                        .then(function() {
+                            $scope.data.submission.user = user;
+                            //
+                            // TODO: Now loop through all the photos and reassign the user.
+                            //
+                            $scope.searchingSubmitter = false;
+                        }, $exceptionHandler);
+                    } else {
+                        $scope.searchingSubmitter = false;
+                    }
+                }
+                
                 $scope.dateStringFromRest = function(date) {
                     return wbDateUtils.dateStringFromRest(date);
                 }
