@@ -64,6 +64,9 @@ div
                     a(href="javascript:;" ng-click="searchSubmitter()")
                         md-icon(md-svg-icon="magnify")
                             md-tooltip Reassign Submitter
+                    a(href="javascript:;" ng-click="emailSubmitter()")
+                        md-icon(md-svg-icon="email")
+                            md-tooltip Email Submitter
                     span.brand-primary &nbspon:
                     | &nbsp{{timeToDate(data.submission.timeSubmitted)}}
                 div(layout="row" layout-fill ng-show="searchingSubmitter")

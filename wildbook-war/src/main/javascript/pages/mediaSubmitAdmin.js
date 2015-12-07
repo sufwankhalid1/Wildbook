@@ -6,8 +6,8 @@ require('../admin/user_search.js');
 
 angular.module('wildbook.admin').directive(
     "wbMediaSubmissionAdmin",
-    ["$http", "$q", "$exceptionHandler", "wbDateUtils", "wbLangUtils", "wbEncounterUtils",
-     function ($http, $q, $exceptionHandler, wbDateUtils, wbLangUtils, wbEncounterUtils) {
+    ["$http", "$q", "$exceptionHandler", "wbDateUtils", "wbLangUtils", "wbEncounterUtils", "$window",
+     function ($http, $q, $exceptionHandler, wbDateUtils, wbLangUtils, wbEncounterUtils, $window) {
         return {
             restrict: 'E',
             scope: {},
@@ -92,6 +92,13 @@ angular.module('wildbook.admin').directive(
             
                 $scope.searchSubmitter = function() {
                     $scope.searchingSubmitter = true;
+                }
+                
+                $scope.emailSubmitter = function() {
+                    $http.get("useradmin/user/" + $scope.data.submission.user.id)
+                    .then(function(result) {
+                        $window.location = "mailto:" + result.data.email;
+                    }, $exceptionHandler);
                 }
                 
                 $scope.searchUserDone = function(user) {
