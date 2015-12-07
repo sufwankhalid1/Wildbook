@@ -89,6 +89,18 @@ angular.module('wildbook.util').directive(
                     return wbDateUtils.dateStringFromRest(photo.timestamp);
                 }
                 
+                $scope.metaTooltip = function(photo) {
+                    var tooltip = {};
+                    if (photo.meta) {
+                        angular.copy(photo.meta, tooltip);
+                    }
+                    
+                    tooltip.latitude = photo.latitude;
+                    tooltip.longitude = photo.longitude;
+                    
+                    return JSON.stringify(tooltip, undefined, 2);
+                }
+                
                 function pageLeft() {
                     startIdx = startIdx - $scope.slider.value;
                     if (startIdx < 0) {

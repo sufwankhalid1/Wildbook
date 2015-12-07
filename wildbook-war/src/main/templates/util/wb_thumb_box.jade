@@ -31,7 +31,7 @@ div(wb-key-handler-watch-scope="parent" layout-fill)
                 .flexy
                     div(ng-repeat="indicator in indicators" class="indicator {{indicator.def.type}} {{indicator.def.displayClass}}")
                         div(ng-class="{zero: (indicator.values[photo.id] === 0)}") {{indicator.values[photo.id]}}
-                div(style="font-size: 12px") {{getTimestamp(photo)}}
+                div(style="font-size: 12px" tooltip="{{metaTooltip(photo)}}") {{getTimestamp(photo)}}
         .ng-cloak(ng-if="zoomimage", style="position: relative; width: 800px; height: 600px;", wb-key-handler-form)
             div
                 img.ng-cloak(ng-src="{{zoomimage.midUrl}}")
@@ -49,5 +49,4 @@ div(wb-key-handler-watch-scope="parent" layout-fill)
                     .flexy
                         div(ng-repeat="indicator in indicators" class="indicator {{indicator.def.type}} {{indicator.def.displayClass}}")
                             div(ng-class="{zero: (indicator.values[zoomimage.id] === 0)}") {{indicator.values[zoomimage.id]}}
-                        div(style="font-size: 16px") {{getTimestamp(zoomimage)}}
-                        
+                        div(style="font-size: 16px" tooltip="{{metaTooltip(zoomimage)}}") {{getTimestamp(zoomimage)}}

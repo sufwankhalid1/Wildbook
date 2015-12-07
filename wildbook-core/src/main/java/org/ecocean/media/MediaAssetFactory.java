@@ -94,6 +94,7 @@ public class MediaAssetFactory {
         ma.setMetaTimestamp(rs.getLocalDateTime("metatimestamp"));
         ma.setMetaLatitude(rs.getDoubleObj("metalat"));
         ma.setMetaLongitude(rs.getDoubleObj("metalong"));
+        ma.setMeta(rs.getString("meta"));
         return ma;
     }
 
@@ -161,6 +162,7 @@ public class MediaAssetFactory {
         formatter.append("metatimestamp", ma.getMetaTimestamp());
         formatter.append("metalat", ma.getMetaLatitude());
         formatter.append("metalong", ma.getMetaLongitude());
+        formatter.append("meta", ma.getMeta());
     }
 
     /**
@@ -192,6 +194,7 @@ public class MediaAssetFactory {
         photo.setTimestamp(ma.getMetaTimestamp());
         photo.setLatitude(ma.getMetaLatitude());
         photo.setLongitude(ma.getMetaLongitude());
+        photo.setMeta(ma.getMeta());
         return photo;
     }
 

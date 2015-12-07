@@ -48,6 +48,7 @@ public class MediaAsset {
     private LocalDateTime metaTimestamp;
     private Double metaLatitude;
     private Double metaLongitude;
+    private String meta;
 
 
     /**
@@ -218,5 +219,15 @@ public class MediaAsset {
 
     public void setMetaLongitude(Double metaLongitude) {
         this.metaLongitude = metaLongitude;
+    }
+
+
+    public String getMeta() {
+        return meta;
+    }
+
+
+    public void setMeta(String meta) {
+        this.meta = meta;
     }
 }
