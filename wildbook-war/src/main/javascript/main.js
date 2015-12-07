@@ -137,18 +137,12 @@ app.factory("wbDateUtils", ["wbConfig", "moment", function(wbConfig, moment) {
         if (rest.constructor === Array) {
             //
             // The month is zero-based in moment because javascript Date is also apparently. Sheeesh.
-            // Sooo, because of that we can't just use the array constructor on moment
-            //   e.g. moment(rest)
-            // and therefore we have to do the following.
+            // Therefore we have to do the following which involves copying the array so that we
+            // don't affect the data passed in.
             //
-//            return moment(rest);
-            var mobj = {year: rest[0], month: rest[1] - 1, date: rest[2]};
-            if (rest.length > 3) {
-                mobj.hour = rest[3];
-                mobj.minute = rest[4];
-                mobj.second = rest[5];
-            }
-            return moment(mobj);
+            var datearray = rest.slice();
+            datearray[1]--;
+            return moment(datearray);
         }
         return null;
     }
