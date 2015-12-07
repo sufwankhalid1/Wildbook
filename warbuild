@@ -4,8 +4,13 @@
 
 cd wildbook-core
 mvn clean install -Dwildbook.cust=$1
+if [ $? -ne 0 ]; then
+    exit $?
+fi
 cd ../wildbook-http
 mvn clean install
+if [ $? -ne 0 ]; then
+    exit $?
+fi
 cd ../wildbook-war
 gulp build
-
