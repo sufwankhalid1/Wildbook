@@ -9,6 +9,11 @@ public class Species {
         // deserialization
     }
 
+
+    public Species(final String code, final String name) {
+        this(code, name, null);
+    }
+
     public Species(final String code, final String name, final String icon) {
         this.code = code;
         this.name = name;
