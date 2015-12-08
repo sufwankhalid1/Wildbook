@@ -47,7 +47,7 @@ div
                     a(href="javascript:;" ng-click="searchEncounter()")
                         md-icon(md-svg-icon="magnify")
                             md-tooltip(md-direction="right") Search for an Encounter
-                    a(href="javascript:;" ng-click="addEncounter()")
+                    a(href="javascript:;" ng-click="data.selectedimgs.selected.length ? addEncounter() : showDialog('Please select some images before creating an encounter!')")
                         md-icon(md-svg-icon="plus")
                             md-tooltip(md-direction="top") Add a new Encounter
                     .media-admin-nav-list(href="javascript:;", ng-repeat="encdata in data.encs",
@@ -73,6 +73,7 @@ div
                                  photos="data.photos"
                                  indicators="data.indicators"
                                  actions="data.tbActions"
+                                 thumbbox="data.selectedimgs"
                                  cb-action="performAction(code, photos)"
                                  block-size="8")
                 div(layout="row" layout-fill layout-wrap)

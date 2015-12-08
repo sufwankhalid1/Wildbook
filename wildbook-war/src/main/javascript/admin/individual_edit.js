@@ -15,7 +15,6 @@ angular.module('wildbook.admin').directive(
                 $scope.getSpecies = function() {
                     return wbConfig.config().species;
                 }
-                
                 $scope.save = function() {
                     $http.post('obj/encounter/save', $scope.data)
                     .then(function(result) {

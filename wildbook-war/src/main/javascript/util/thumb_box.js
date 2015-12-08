@@ -35,9 +35,10 @@ angular.module('wildbook.util').directive(
                 photos: "=",
                 indicators: "=",
                 actions: "=",
+                thumbbox: "=",
                 cbAction: "&",
                 blockSize: "@",
-                defaultBlockCount: "@"
+                defaultBlockCount: "@",
             },
             link: function(scope, element, attrs) {
                 KeyEventHandler.link(getKeySetup(attrs.wbKeyHandlerPriority), scope, element, attrs);
@@ -251,7 +252,7 @@ angular.module('wildbook.util').directive(
                     if (!photo) {
                         return;
                     }
-
+                    
                     var md = meta(photo);
 
                     if ($event.altKey) {

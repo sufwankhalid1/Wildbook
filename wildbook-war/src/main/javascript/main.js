@@ -141,7 +141,7 @@ app.factory("wbDateUtils", ["wbConfig", "moment", function(wbConfig, moment) {
             //   e.g. moment(rest)
             // and therefore we have to do the following.
             //
-//            return moment(rest);
+            //return moment(rest);
             var mobj = {year: rest[0], month: rest[1] - 1, date: rest[2]};
             if (rest.length > 3) {
                 mobj.hour = rest[3];
@@ -174,7 +174,7 @@ app.factory("wbDateUtils", ["wbConfig", "moment", function(wbConfig, moment) {
             //
             return [mdate.year(), mdate.month() + 1, mdate.date()];
         },
-        dateFromRest: function(rest) {
+        dateFromRest: function(rest){
             var moment = restToMoment(rest);
             if (moment) {
                 return moment.toDate();
@@ -184,16 +184,96 @@ app.factory("wbDateUtils", ["wbConfig", "moment", function(wbConfig, moment) {
         dateStringFromRest: function(rest) {
             return formatMoment(restToMoment(rest));
         },
-        test: function() {
-            alertplus.alert("hello");
-        },
         timeToDateString: function(time) {
             return moment(time).format('lll');
+        },
+        sameDay: function(dates){
+            //array of dates
+            if (dates.length){
+                photoTimeline = {oldest: dates[0]};
+                for(ii=0; ii < dates.length; ii++){
+                    if(! moment(dates[ii]).isSame(photoTimeline.oldest, 'day')) return false;
+                } 
+            }
+
+            //obj with dates
+            if (typeof dates == 'object' && !dates.length){
+                photoTimeline = {};
+                angular.forEach(dates, function(date, key){
+                    //initialize (doesnt really matter which dates, theyll probably change)
+                    if (!photoTimeline.compareDates){
+                        photoTimeline.compareDates = date;
+                    }
+
+                    for (ii=0; ii < dates.length; ii++){
+                        if (! moment(date).isSame(photoTimeline.compareDates, 'day')) return false;
+                    }
+                });
+            }
+
+            return true;
+        },
+        compareTimes: function(dates){
+            //array of dates
+            var oldestTime = null;
+
+            if (dates.length){
+                oldestTime = dates[0];
+                for(ii=0; ii < dates.length; ii++){
+                    if(! moment(dates[ii]).isAfter(oldestTime, 'second')) oldestTime = dates[ii];
+                }
+                return oldestTime;
+            }
+
+            //obj with dates
+            if (typeof dates == 'object' && !dates.length){
+                angular.forEach(dates, function(date, key){
+                    //initialize (doesnt really matter which dates, theyll probably change)
+                    if (!oldestTime){
+                        oldestTime = date;
+                    }
+
+                    if (! moment(date).isAfter(oldestTime, 'second')) oldestTime = dates;
+                });
+                return oldestTime;
+            }
+        },
+        compareDates: function(dates){
+            photoTimeline = {};
+            if (typeof dates == 'array'){
+                //initialize (doesnt really matter which dates, theyll probably change)
+                photoTimeline.oldest = dates[0];
+                photoTimeline.newest = dates[dates.length];
+
+                for (ii=0; ii < dates.length; ii++){
+                    if (moment(dates[ii]).isBefore(photoTimeline.oldest, 'second')) photoTimeline.oldest = dates[ii];
+                    if (moment(dates[ii]).isAfter(photoTimeline.newest, 'second')) photoTimeline.newest = dates[ii];
+                }
+
+                return photoTimeline;
+            }
+
+            if (typeof dates == 'object'){
+                angular.forEach(dates, function(date, key){
+                    //initialize (doesnt really matter which dates, theyll probably change)
+                    if (!photoTimeline.oldest){
+                        photoTimeline.oldest = date;
+                        photoTimeline.newest = date;
+                    }
+
+                    for (ii=0; ii < dates.length; ii++){
+                        if (moment(date).isBefore(photoTimeline.oldest, 'second')) photoTimeline.oldest = date;
+                        if (moment(date).isAfter(photoTimeline.newest, 'second')) photoTimeline.newest = date;
+                    }
+                });
+
+                return photoTimeline;
+            }
         }
     };
 }]);
 
-app.factory("wbEncounterUtils", ["$http", "$q", "wbConfig", function($http, $q, wbConfig) {
+app.factory("wbEncounterUtils", ["$http", "$q", "wbConfig", "wbDateUtils", "$exceptionHandler", function($http, $q, wbConfig, wbDateUtils, $exceptionHandler) {
     return {
         getMedia: function(encdata) {
             if (! encdata.photos) {
@@ -205,11 +285,59 @@ app.factory("wbEncounterUtils", ["$http", "$q", "wbConfig", function($http, $q, 
             }
             return $q.resolve();
         },
-        createNewEncData: function() {
-            return {
-                encounter: {individual: {species: wbConfig.config().species[0]}},
-                photos: []
-            };
+        createNewEncData: function(selectedPhotos) {
+            //if photos are selected add them to the new encounter
+            if (selectedPhotos && selectedPhotos.length){
+                var platitude = null;
+                var plongitude = null;
+                var dates = [];
+
+                angular.forEach(selectedPhotos, function(photo, key){
+                    if (photo.latitude){
+                        platitude = photo.latitude;
+                    }
+                    if (photo.longitude){
+                        plongitude = photo.longitude;
+                    }
+
+                    //create date array for wbDateUtils
+                    if(photo.timestamp.length === 6){
+                        dates.push(photo.timestamp);
+                    }
+                });
+
+                //check if same day, if so, compare
+                if(!wbDateUtils.sameDay(dates)){
+                    return $q.reject("These photos were taken on different days!<br/> Please choose images that occured during the same encounter.");
+                };
+
+                dates = wbDateUtils.compareDates(dates);
+                dates.oldestTime = wbDateUtils.compareTimes(dates);
+
+                //format dates for encounter inputs
+                dates.oldestDate = dates.oldest.slice(0, 3);
+                dates.oldestTime = dates.oldest.slice(3, dates.oldest.length);
+                dates.newestTime = dates.newest.slice(3, dates.newest.length);
+                dates.oldestTime.push("Z");
+                dates.newestTime.push("Z");
+
+                return $q.resolve({
+                    encounter: {
+                                individual: {species: wbConfig.config().species[0]},
+                                encDate : dates.oldestDate,
+                                starttime: dates.oldestTime,
+                                endtime: dates.newestTime,
+                                location: {latitude:platitude, longitude:plongitude}
+                                },
+                    photos: selectedPhotos
+                });
+            } 
+            else {
+                return $q.resolve({
+                    encounter: {individual: {species: wbConfig.config().species[0]}},
+                    photos: []
+                });
+            }
         },
         getEncData: function(encounter) {
             return this.getMedia({encounter: encounter})
@@ -217,6 +345,13 @@ app.factory("wbEncounterUtils", ["$http", "$q", "wbConfig", function($http, $q, 
                 return encdata;
             });
 
+        },
+        saveEnc: function(enc){
+            return  $http.post('obj/encounter/save', enc)
+            .then(function(result) {
+                enc.id = result.data;
+                return enc;
+            });
         }
     };
 }]);

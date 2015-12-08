@@ -53,10 +53,8 @@ angular.module('wildbook.admin').directive(
                         return;
                     }
                     
-                    $http.post('obj/encounter/save', $scope.data.encounter)
+                    wbEncounterUtils.saveEnc($scope.data.encounter)
                     .then(function(result) {
-                        $scope.data.encounter.id = result.data;
-                        //angular.copy($scope.data, $scope.originalData);
                         $scope.editEncounterDone({encdata: $scope.data});
                     }, $exceptionHandler);
                 };

@@ -4,8 +4,8 @@ angular.module('wildbook.admin').directive(
      function ($http, $q, $exceptionHandler, wbDateUtils, wbLangUtils, wbEncounterUtils) {
         return {
             restrict: 'E',
-            scope: {},
             templateUrl: 'pages/mediaSubmitAdmin.html',
+            scope:{},
             replace: true,
             controller: function($scope) {
                 $scope.numencs = {};
@@ -14,6 +14,7 @@ angular.module('wildbook.admin').directive(
                     submission: null,
                     photos: null,
                     encounters: [],
+                    selectedimgs: null,
                     surveyEncs: [],
                     activeEncData: null,
                     module: {
@@ -101,7 +102,6 @@ angular.module('wildbook.admin').directive(
                     photos.forEach(function(item) {
                         $scope.numencs[item.id]--;
                     });
-
                 }
                 
                 $scope.searchEncounter = function() {
@@ -130,7 +130,7 @@ angular.module('wildbook.admin').directive(
                             encounter: false
                         };
                     switch(ele){
-                        case 'survey': $scope.active.survey = true;
+                        case 'survey': $scope.active.survey = true; 
                             break;
                         case 'surveyEnc': $scope.active.surveyEnc = true;
                             break;
@@ -147,6 +147,7 @@ angular.module('wildbook.admin').directive(
                 function editEncounter(encdata, surveyEnc) {
                     $scope.data.module.encounterEdit = encdata;
                     $scope.data.activeEncData = encdata;
+
                     $scope.data.activeSurveyEnc = surveyEnc;
                     
                     $scope.data.module.encounterSearch = false;
@@ -155,13 +156,22 @@ angular.module('wildbook.admin').directive(
                 }
                 
                 $scope.addEncounter = function(surveyEnc) {
-                    editEncounter(wbEncounterUtils.createNewEncData(), surveyEnc);
+                    wbEncounterUtils.createNewEncData($scope.data.selectedimgs.selected)
+                    .then(function(encdata) {
+                        wbEncounterUtils.saveEnc(encdata.encounter)
+                        .then(function() {
+                            addPhotos(encdata.encounter, encdata.photos)
+                            .then(function() {
+                                editEncounter(encdata);
+                            })
+                        });
+                    }, $exceptionHandler);
                 }
-                /*
+
                 $scope.showDialog = function(msg){
                     alertplus.alert(msg);
                 }
-                */
+                
                 $scope.selectEncounter = function($event, encdata, surveyEnc) {
                     wbEncounterUtils.getMedia(encdata)
                     .then(function() {
@@ -244,6 +254,22 @@ angular.module('wildbook.admin').directive(
                     }, $exceptionHandler)
                 }
 
+                function addPhotos(encounter, newphotos) {
+                    var newphotoids = newphotos.map(function(photo) {
+                        return photo.id;
+                    });
+                    
+                    return $http.post("obj/encounter/addmedia/" + encounter.id, newphotoids)
+                    .then(function() {
+                        //
+                        // Now increase the numencs for these photos by one.
+                        //
+                        newphotos.forEach(function(item) {
+                            $scope.numencs[item.id]++;
+                        });
+                    });
+                }
+
                 //=================================
                 // START wb-thumb-box
                 //=================================
@@ -261,34 +287,25 @@ angular.module('wildbook.admin').directive(
                             alertplus.alert("Please save your current encounter before adding images.");
                             return;
                         }
-                        
+
                         wbEncounterUtils.getMedia($scope.data.activeEncData)
                         .then(function() {
                             //
                             // Filter photos based on one's that are already attached to this encounter.
                             //
+                            var photos = $scope.data.activeEncData.photos;
                             var newphotos = photos.filter(function(item) {
-                                for (var ii = 0; ii < $scope.data.activeEncData.photos.length; ii++) {
-                                    if (item.id === $scope.data.activeEncData.photos[ii].id) {
+                                for (var ii = 0; ii < photos.length; ii++) {
+                                    if (item.id === photos[ii].id) {
                                         return false;
                                     }
                                 }
                                 return true;
                             });
 
-                            var newphotoids = newphotos.map(function(photo) {
-                                return photo.id;
-                            });
-                            
-                            $http.post("obj/encounter/addmedia/" + $scope.data.activeEncData.encounter.id, newphotoids)
-                            .then(function() {
-                                $scope.data.activeEncData.photos = $scope.data.activeEncData.photos.concat(newphotos);
-                                //
-                                // Now increase the numencs for these photos by one.
-                                //
-                                newphotos.forEach(function(item) {
-                                    $scope.numencs[item.id]++;
-                                });
+                            addPhotos($scope.data.activeEncData.encounter, newphotos)
+                            .then(function(){
+                                photos = photos.concat(newphotos);
                             });
                         });
                         break;
