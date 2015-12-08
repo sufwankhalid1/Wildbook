@@ -90,6 +90,18 @@ angular.module('wildbook.util').directive(
                     return wbDateUtils.dateStringFromRest(photo.timestamp);
                 }
                 
+                $scope.metaTooltip = function(photo) {
+                    var tooltip = {};
+                    if (photo.meta) {
+                        angular.copy(photo.meta, tooltip);
+                    }
+                    
+                    tooltip.latitude = photo.latitude;
+                    tooltip.longitude = photo.longitude;
+                    
+                    return JSON.stringify(tooltip, undefined, 2);
+                }
+                
                 function pageLeft() {
                     startIdx = startIdx - $scope.slider.value;
                     if (startIdx < 0) {
@@ -246,6 +258,17 @@ angular.module('wildbook.util').directive(
                 
                 $scope.cancelZoom = function() {
                     $scope.zoomimage = null;
+                }
+                
+                $scope.downloadFile = function(photo) {
+                    var filename = wbDateUtils.toFileStringFromRest(photo.timestamp);
+                    filename += "-" + photo.submitterid + "-" + photo.id;
+                    
+                    if (filename) {
+                        return filename;
+                    }
+                    
+                    return zoomimage.url.substring(zoomimage.url.lastIndexOf('/') + 1);
                 }
                 
                 $scope.selectImage = function($event, photo) {

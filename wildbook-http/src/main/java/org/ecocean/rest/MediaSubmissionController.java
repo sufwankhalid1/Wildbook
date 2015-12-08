@@ -7,6 +7,7 @@ import java.util.Map;
 
 import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 
 import org.ecocean.Global;
 import org.ecocean.email.EmailUtils;
@@ -490,6 +491,38 @@ public class MediaSubmissionController
     }
 
 
+    @RequestMapping(value = "reassign", method = RequestMethod.POST)
+    public void addEncounter(final HttpServletRequest request,
+                             @RequestBody @Valid final MSReassign reassign) throws DatabaseException {
+        //
+        // update all of the photos to point to this new user and then update the mediasubmission itself.
+        //
+        try (Database db = ServletUtils.getDb(request)) {
+            db.performTransaction(() -> {
+                SqlStatement subquery = new SqlStatement(MediaAssetFactory.TABLENAME_MEDIAASSET,
+                                                         MediaAssetFactory.ALIAS_MEDIAASSET);
+                subquery.setSelectString(MediaAssetFactory.PK_MEDIAASSET);
+                subquery.addInnerJoin(MediaAssetFactory.ALIAS_MEDIAASSET,
+                                      MediaAssetFactory.PK_MEDIAASSET,
+                                      "mediasubmission_media",
+                                      "msm",
+                                      "mediaid");
+                subquery.addCondition("msm", "mediasubmissionid", SqlRelationType.EQUAL, reassign.msid);
+
+                String sql = "update " + MediaAssetFactory.TABLENAME_MEDIAASSET
+                        + " set submitterid = " + reassign.userid
+                        + " where id in (" + subquery.toString() + ")";
+                db.executeUpdate(sql);
+
+                sql = "update " + MediaSubmissionFactory.TABLENAME_MEDIASUBMISSION
+                        + " set userid = " + reassign.userid
+                        + " where id = " + reassign.msid;
+                db.executeUpdate(sql);
+            });
+        }
+    }
+
+
     @RequestMapping(value = "/delfile/{msid}", method = RequestMethod.POST)
     public void delFile(final HttpServletRequest request,
                         @PathVariable("msid")
@@ -600,5 +633,10 @@ public class MediaSubmissionController
     public static class SurveyEncounters {
         public SurveyPartObj surveypart;
         public List<EncounterObj> encs = new ArrayList<>();
+    }
+
+    static class MSReassign {
+        public int msid;
+        public int userid;
     }
 }

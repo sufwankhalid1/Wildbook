@@ -107,6 +107,29 @@ public class SearchController
     }
 
 
+    @RequestMapping(value = "/user", method = RequestMethod.POST)
+    public List<SimpleUser> searchUser(final HttpServletRequest request,
+                                       @RequestBody
+                                       final UserSearch search) throws DatabaseException
+    {
+        try (Database db = ServletUtils.getDb(request)) {
+            SqlStatement sql = UserFactory.getUserStatement();
+
+            SqlTable users = sql.findTable(UserFactory.AlIAS_USERS);
+            if (! StringUtils.isBlank(search.name)) {
+                GroupedSqlCondition cond = GroupedSqlCondition.orGroup();
+                cond.addContainsCondition(users, "fullname", search.name);
+                cond.addContainsCondition(users, "username", search.name);
+                sql.addCondition(cond);
+            }
+
+            return db.selectList(sql, (rs) -> {
+                return UserFactory.readSimpleUser(rs);
+            });
+        }
+    }
+
+
     @RequestMapping(value = "/encounter", method = RequestMethod.POST)
     public List<SimpleEncounter> searchEncounter(final HttpServletRequest request,
                                                  @RequestBody final EncounterSearch search) throws DatabaseException
@@ -264,5 +287,11 @@ public class SearchController
     {
         public String nameid;
         public String species;
+    }
+
+
+    static class UserSearch
+    {
+        public String name;
     }
 }

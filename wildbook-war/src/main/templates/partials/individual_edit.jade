@@ -4,21 +4,24 @@ form.form.ng-cloak(novalidate, wb-key-handler-form)
         div
     md-content(layout="row" layout-align="start center" layout-wrap)
         div(layout="row" layout-fill)
-            md-input-container(flex="50")
+            md-input-container(flex="33")
                 label Nickname
-                input(ng-model="data.individual.nickname")
-            md-select(flex="" ng-model="data.individual.species" placeholder="Species")
+                input(ng-model="data.nickname")
+            md-select(flex="" ng-model="data.species" placeholder="Species")
                 md-option(ng-value="species" ng-repeat="species in getSpecies()") {{species.name}}
         div(layout="row" layout-fill layout-align="start center")
             md-input-container(flex="33")
+                label Alternate ID
+                input(ng-model="data.alternateId")
+            md-input-container(flex="33")
                 label Sex
-                input(ng-model="data.individual.sex")
+                input(ng-model="data.sex")
             md-input-container.padding-0.ml-10(flex="10")
-                md-checkbox(ng-model="data.individual.identified") Identified
+                md-checkbox(ng-model="data.identified") Identified
         div(layout="row" layout-fill)
             md-input-container(layout-fill)
                 label Comments
-                textarea(ng-model="data.individual.comments")
+                textarea(ng-model="data.comments")
         div(layout="row")
             md-button.md-whiteframe-1dp(type="submit" ng-click="save()" aria-label="Save") Save
 

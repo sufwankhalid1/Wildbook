@@ -2,6 +2,8 @@ package org.ecocean.rest;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonRawValue;
+
 public class SimplePhoto
 {
     private int id;
@@ -11,6 +13,9 @@ public class SimplePhoto
     private LocalDateTime timestamp;
     private Double latitude;
     private Double longitude;
+    @JsonRawValue
+    private String meta;
+    private int submitterid;
 
     public SimplePhoto()
     {
@@ -90,5 +95,21 @@ public class SimplePhoto
 
     public void setLongitude(Double longitude) {
         this.longitude = longitude;
+    }
+
+    public String getMeta() {
+        return meta;
+    }
+
+    public void setMeta(String meta) {
+        this.meta = meta;
+    }
+
+    public int getSubmitterid() {
+        return submitterid;
+    }
+
+    public void setSubmitterid(int submitterid) {
+        this.submitterid = submitterid;
     }
 }

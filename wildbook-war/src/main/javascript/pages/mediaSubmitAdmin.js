@@ -1,7 +1,13 @@
+require('../admin/encounter_edit.js');
+require('../admin/encounter_search.js');
+require('../admin/survey_edit.js');
+require('../admin/survey_search.js');
+require('../admin/user_search.js');
+
 angular.module('wildbook.admin').directive(
     "wbMediaSubmissionAdmin",
-    ["$http", "$q", "$exceptionHandler", "wbDateUtils", "wbLangUtils", "wbEncounterUtils",
-     function ($http, $q, $exceptionHandler, wbDateUtils, wbLangUtils, wbEncounterUtils) {
+    ["$http", "$q", "$exceptionHandler", "wbDateUtils", "wbLangUtils", "wbEncounterUtils", "$window",
+     function ($http, $q, $exceptionHandler, wbDateUtils, wbLangUtils, wbEncounterUtils, $window) {
         return {
             restrict: 'E',
             templateUrl: 'pages/mediaSubmitAdmin.html',
@@ -17,6 +23,7 @@ angular.module('wildbook.admin').directive(
                     selectedimgs: null,
                     surveyEncs: [],
                     activeEncData: null,
+                    searchingSubmitter: false,
                     module: {
                         encounterEdit: null,
                         encounterSearch: false,
@@ -40,6 +47,7 @@ angular.module('wildbook.admin').directive(
                     indicators: [{def: {displayClass: "encounter", type: "number"},
                                   values: $scope.numencs}]
                 };
+                
                 function attachEncounter(encdata, surveyEnc) {
                     if (! encdata) {
                         return;
@@ -83,6 +91,32 @@ angular.module('wildbook.admin').directive(
                     $scope.data.surveyEncs.push({surveypart: surveypart, encounters: encounters});
                 }
             
+                $scope.searchSubmitter = function() {
+                    $scope.searchingSubmitter = true;
+                }
+                
+                $scope.emailSubmitter = function() {
+                    $http.get("useradmin/user/" + $scope.data.submission.user.id)
+                    .then(function(result) {
+                        $window.location = "mailto:" + result.data.email;
+                    }, $exceptionHandler);
+                }
+                
+                $scope.searchUserDone = function(user) {
+                    if (user) {
+                        $http.post("obj/mediasubmission/reassign", {msid: $scope.data.submission.id, userid: user.id})
+                        .then(function() {
+                            $scope.data.submission.user = user;
+                            //
+                            // TODO: Now loop through all the photos and reassign the user.
+                            //
+                            $scope.searchingSubmitter = false;
+                        }, $exceptionHandler);
+                    } else {
+                        $scope.searchingSubmitter = false;
+                    }
+                }
+                
                 $scope.dateStringFromRest = function(date) {
                     return wbDateUtils.dateStringFromRest(date);
                 }

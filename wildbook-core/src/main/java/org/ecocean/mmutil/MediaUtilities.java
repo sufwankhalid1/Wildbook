@@ -586,7 +586,7 @@ public final class MediaUtilities {
           fileName2 = uuid;
       }
 
-      return importMedia(store, baseDir, fileName2, content, submitterId, keepStreamOpen, altOutputDir);
+      return importMedia(store, baseDir, fileName2, content, submitterId, keepStreamOpen, altOutputDir, fileName);
   }
 
   /**
@@ -604,13 +604,14 @@ public final class MediaUtilities {
    * @return the resulting MediaAsset
    * @throws IOException
    */
-  public static MediaAsset importMedia(final LocalAssetStore store,
-                                       final File baseDir,
-                                       final String fileName,
-                                       final InputStream content,
-                                       final Integer submitterId,
-                                       final boolean keepStreamOpen,
-                                       final String altOutputDir) throws IOException
+  private static MediaAsset importMedia(final LocalAssetStore store,
+                                        final File baseDir,
+                                        final String fileName,
+                                        final InputStream content,
+                                        final Integer submitterId,
+                                        final boolean keepStreamOpen,
+                                        final String altOutputDir,
+                                        final String origFilename) throws IOException
   {
       File relFile = new File(baseDir, fileName);
       File file = getOutputFile(store, altOutputDir, relFile);
@@ -627,6 +628,7 @@ public final class MediaUtilities {
         ma.setMetaTimestamp(meta.getTimestamp());
         ma.setMetaLatitude(meta.getLatitude());
         ma.setMetaLongitude(meta.getLongitude());
+        ma.setMeta("{\"origFilename\": \"" + origFilename + "\"}");
     } catch (ImageProcessingException ex) {
         logger.error("Problem reading metadata from [" + file.getAbsolutePath() + "]", ex);
     }
