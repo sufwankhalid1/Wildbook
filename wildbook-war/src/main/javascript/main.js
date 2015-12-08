@@ -135,14 +135,7 @@ app.factory("wbDateUtils", ["wbConfig", "moment", function(wbConfig, moment) {
         }
 
         if (rest.constructor === Array) {
-            //
-            // The month is zero-based in moment because javascript Date is also apparently. Sheeesh.
-            // Therefore we have to do the following which involves copying the array so that we
-            // don't affect the data passed in.
-            //
-            var datearray = rest.slice();
-            datearray[1]--;
-            return moment(datearray);
+            return moment(fixMonth(rest));
         }
         return null;
     }
@@ -155,6 +148,17 @@ app.factory("wbDateUtils", ["wbConfig", "moment", function(wbConfig, moment) {
             return moment.format(wbConfig.config().props["moment.datetime.format"] || "YYYY-MM-DD hh:mm:ss");
         }
         return null;
+    }
+    
+    function fixMonth(rest) {
+        //
+        // The month is zero-based in moment because javascript Date is also apparently. Sheeesh.
+        // Therefore we have to do the following which involves copying the array so that we
+        // don't affect the data passed in.
+        //
+        var datearray = rest.slice();
+        datearray[1]--;
+        return datearray;
     }
 
     return {
@@ -181,88 +185,43 @@ app.factory("wbDateUtils", ["wbConfig", "moment", function(wbConfig, moment) {
         timeToDateString: function(time) {
             return moment(time).format('lll');
         },
-        sameDay: function(dates){
+        sameDay: function(dates) {
             //array of dates
-            if (dates.length){
-                photoTimeline = {oldest: dates[0]};
-                for(ii=0; ii < dates.length; ii++){
-                    if(! moment(dates[ii]).isSame(photoTimeline.oldest, 'day')) return false;
-                } 
-            }
-
-            //obj with dates
-            if (typeof dates == 'object' && !dates.length){
-                photoTimeline = {};
-                angular.forEach(dates, function(date, key){
-                    //initialize (doesnt really matter which dates, theyll probably change)
-                    if (!photoTimeline.compareDates){
-                        photoTimeline.compareDates = date;
+            if (dates.length) {
+                var first = dates[0];
+                for (var ii=0; ii < dates.length; ii++) {
+                    //
+                    // This is not working for some damn reason all the time.
+                    // I had 01/30/2015 == 02/02/2015 using this method!
+                    //
+//                    if (!moment(dates[ii]).isSame(first, 'day')) {
+//                        return false;
+//                    }
+                    var current = dates[ii];
+                    if (current[0] !== first[0] || current[1] !== first[1] || current[2] !== first[2]) {
+                        return false;
                     }
-
-                    for (ii=0; ii < dates.length; ii++){
-                        if (! moment(date).isSame(photoTimeline.compareDates, 'day')) return false;
-                    }
-                });
-            }
-
-            return true;
-        },
-        compareTimes: function(dates){
-            //array of dates
-            var oldestTime = null;
-
-            if (dates.length){
-                oldestTime = dates[0];
-                for(ii=0; ii < dates.length; ii++){
-                    if(! moment(dates[ii]).isAfter(oldestTime, 'second')) oldestTime = dates[ii];
                 }
-                return oldestTime;
+                return true;
             }
 
-            //obj with dates
-            if (typeof dates == 'object' && !dates.length){
-                angular.forEach(dates, function(date, key){
-                    //initialize (doesnt really matter which dates, theyll probably change)
-                    if (!oldestTime){
-                        oldestTime = date;
-                    }
-
-                    if (! moment(date).isAfter(oldestTime, 'second')) oldestTime = dates;
-                });
-                return oldestTime;
-            }
+            return false;
         },
-        compareDates: function(dates){
-            photoTimeline = {};
-            if (typeof dates == 'array'){
-                //initialize (doesnt really matter which dates, theyll probably change)
-                photoTimeline.oldest = dates[0];
-                photoTimeline.newest = dates[dates.length];
-
-                for (ii=0; ii < dates.length; ii++){
-                    if (moment(dates[ii]).isBefore(photoTimeline.oldest, 'second')) photoTimeline.oldest = dates[ii];
-                    if (moment(dates[ii]).isAfter(photoTimeline.newest, 'second')) photoTimeline.newest = dates[ii];
+        compareDates: function(dates) {
+            //initialize (doesnt really matter which dates, theyll probably change)
+            var newest = dates[0];
+            var oldest = dates[dates.length];
+            for (ii=0; ii < dates.length; ii++) {
+                var fixedDate = moment(dates[ii]);
+                if (fixedDate.isBefore(oldest, 'second')) {
+                    oldest = dates[ii];
                 }
-
-                return photoTimeline;
+                if (fixedDate.isAfter(newest, 'second')) {
+                    newest = dates[ii];
+                }
             }
 
-            if (typeof dates == 'object'){
-                angular.forEach(dates, function(date, key){
-                    //initialize (doesnt really matter which dates, theyll probably change)
-                    if (!photoTimeline.oldest){
-                        photoTimeline.oldest = date;
-                        photoTimeline.newest = date;
-                    }
-
-                    for (ii=0; ii < dates.length; ii++){
-                        if (moment(date).isBefore(photoTimeline.oldest, 'second')) photoTimeline.oldest = date;
-                        if (moment(date).isAfter(photoTimeline.newest, 'second')) photoTimeline.newest = date;
-                    }
-                });
-
-                return photoTimeline;
-            }
+            return {newest: newest, oldest: oldest};
         },
         toFileStringFromRest: function(rest) {
             var thing = restToMoment(rest);
@@ -294,16 +253,16 @@ app.factory("wbEncounterUtils", ["$http", "$q", "wbConfig", "wbDateUtils", "$exc
                 var plongitude = null;
                 var dates = [];
 
-                angular.forEach(selectedPhotos, function(photo, key){
-                    if (photo.latitude){
+                selectedPhotos.forEach(function(photo){
+                    if (photo.latitude) {
                         platitude = photo.latitude;
                     }
-                    if (photo.longitude){
+                    if (photo.longitude) {
                         plongitude = photo.longitude;
                     }
 
                     //create date array for wbDateUtils
-                    if(photo.timestamp.length === 6){
+                    if (photo.timestamp.length === 6) {
                         dates.push(photo.timestamp);
                     }
                 });
@@ -313,22 +272,20 @@ app.factory("wbEncounterUtils", ["$http", "$q", "wbConfig", "wbDateUtils", "$exc
                     return $q.reject("These photos were taken on different days!<br/> Please choose images that occured during the same encounter.");
                 };
 
-                dates = wbDateUtils.compareDates(dates);
-                dates.oldestTime = wbDateUtils.compareTimes(dates);
+                var timeline = wbDateUtils.compareDates(dates);
 
                 //format dates for encounter inputs
-                dates.oldestDate = dates.oldest.slice(0, 3);
-                dates.oldestTime = dates.oldest.slice(3, dates.oldest.length);
-                dates.newestTime = dates.newest.slice(3, dates.newest.length);
-                dates.oldestTime.push("Z");
-                dates.newestTime.push("Z");
+                var oldest = timeline.oldest.slice(3, timeline.oldest.length);
+                oldest.push("Z");
+                var newest = timeline.newest.slice(3, timeline.newest.length);
+                newest.push("Z");;
 
                 return $q.resolve({
                     encounter: {
                                 individual: {species: wbConfig.config().species[0]},
-                                encDate : dates.oldestDate,
-                                starttime: dates.oldestTime,
-                                endtime: dates.newestTime,
+                                encDate : timeline.newest.slice(0, 3),
+                                starttime: oldest,
+                                endtime: newest,
                                 location: {latitude:platitude, longitude:plongitude}
                                 },
                     photos: selectedPhotos
