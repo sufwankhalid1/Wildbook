@@ -180,6 +180,14 @@ app.factory("wbDateUtils", ["wbConfig", "moment", function(wbConfig, moment) {
         },
         timeToDateString: function(time) {
             return moment(time).format('lll');
+        },
+        toFileStringFromRest: function(rest) {
+            var thing = restToMoment(rest);
+            if (! thing) {
+                thing = moment();
+            }
+            
+            return thing.format("YYYYMMDD");
         }
     };
 }]);

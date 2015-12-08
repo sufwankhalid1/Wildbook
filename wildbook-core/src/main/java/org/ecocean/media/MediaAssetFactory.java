@@ -195,6 +195,7 @@ public class MediaAssetFactory {
         photo.setLatitude(ma.getMetaLatitude());
         photo.setLongitude(ma.getMetaLongitude());
         photo.setMeta(ma.getMeta());
+        photo.setSubmitterid(ma.getSubmitterId());
         return photo;
     }
 

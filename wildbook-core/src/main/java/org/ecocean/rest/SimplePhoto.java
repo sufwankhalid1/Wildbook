@@ -15,6 +15,7 @@ public class SimplePhoto
     private Double longitude;
     @JsonRawValue
     private String meta;
+    private int submitterid;
 
     public SimplePhoto()
     {
@@ -102,5 +103,13 @@ public class SimplePhoto
 
     public void setMeta(String meta) {
         this.meta = meta;
+    }
+
+    public int getSubmitterid() {
+        return submitterid;
+    }
+
+    public void setSubmitterid(int submitterid) {
+        this.submitterid = submitterid;
     }
 }

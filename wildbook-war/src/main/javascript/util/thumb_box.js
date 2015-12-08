@@ -259,6 +259,17 @@ angular.module('wildbook.util').directive(
                     $scope.zoomimage = null;
                 }
                 
+                $scope.downloadFile = function(photo) {
+                    var filename = wbDateUtils.toFileStringFromRest(photo.timestamp);
+                    filename += "-" + photo.submitterid + "-" + photo.id;
+                    
+                    if (filename) {
+                        return filename;
+                    }
+                    
+                    return zoomimage.url.substring(zoomimage.url.lastIndexOf('/') + 1);
+                }
+                
                 $scope.selectImage = function($event, photo) {
                     if (!photo) {
                         return;
