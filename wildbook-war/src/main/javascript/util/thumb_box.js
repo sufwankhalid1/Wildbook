@@ -92,6 +92,7 @@ angular.module('wildbook.util').directive(
                 
                 $scope.metaTooltip = function(photo) {
                     var tooltip = {};
+                    var tooltipStr = "";
                     if (photo.meta) {
                         angular.copy(photo.meta, tooltip);
                     }
@@ -99,7 +100,17 @@ angular.module('wildbook.util').directive(
                     tooltip.latitude = photo.latitude;
                     tooltip.longitude = photo.longitude;
                     
-                    return JSON.stringify(tooltip, undefined, 2);
+                    angular.forEach(tooltip, function(item, key){
+                        if(item){
+                            tooltipStr = tooltipStr+key+": "+item+"\n";
+                        }
+                    });
+
+                    if(!tooltipStr){
+                        tooltipStr = "There is no meta data currently for this image."
+                    }
+
+                    return tooltipStr;
                 }
                 
                 function pageLeft() {
