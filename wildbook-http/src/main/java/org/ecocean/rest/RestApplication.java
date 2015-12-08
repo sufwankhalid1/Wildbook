@@ -136,4 +136,15 @@ public class RestApplication extends SpringBootServletInitializer {
     public ServletRegistrationBean servletRegistrationBean(){
         return new ServletRegistrationBean(new MediaUploadServlet(),"/mediaupload");
     }
+//
+//    @Bean
+//    @Primary
+//    public ObjectMapper objectMapper() {
+//        ObjectMapper mapper = new ObjectMapper();
+//        mapper.registerModule(new JavaTimeModule());
+//        mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+////        mapper.configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS
+//        logger.error("Hey, here I am!");
+//        return mapper;
+//    }
 }
