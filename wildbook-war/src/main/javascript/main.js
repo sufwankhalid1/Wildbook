@@ -262,7 +262,7 @@ app.factory("wbEncounterUtils", ["$http", "$q", "wbConfig", "wbDateUtils", "$exc
                     }
 
                     //create date array for wbDateUtils
-                    if (photo.timestamp.length === 6) {
+                    if (photo.timestamp) {
                         dates.push(photo.timestamp);
                     }
                 });
