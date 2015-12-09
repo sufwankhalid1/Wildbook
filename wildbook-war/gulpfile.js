@@ -133,7 +133,7 @@ gulp.task('concat-tools', function() {
     .pipe(gulp.dest(paths.distjs));
 
     gulp.src('node_modules/leaflet/dist/images/**', {base:'node_modules'})
-    .pipe(gulp.dest(paths.css));
+    .pipe(gulp.dest(paths.distcss));
 });
 
 function subdirs(filepath, filter) {
