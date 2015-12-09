@@ -255,7 +255,8 @@ app.factory("wbEncounterUtils", ["$http", "$q", "wbConfig", "wbDateUtils", "$exc
         },
         createNewEncData: function(selectedPhotos) {
             //if photos are selected add them to the new encounter
-            var encounter = {individual: {species: wbConfig.config().species[0]}};
+            var config = wbConfig.config();
+            var encounter = {individual: {species: config.defaultSpecies || config.species[0]}};
 
             if (!selectedPhotos || !selectedPhotos.length) {
                 return $q.resolve({
