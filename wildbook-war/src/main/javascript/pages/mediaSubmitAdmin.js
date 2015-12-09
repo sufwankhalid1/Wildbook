@@ -19,7 +19,7 @@ angular.module('wildbook.admin').directive(
                 $scope.data = {
                     submission: null,
                     photos: null,
-                    encounters: [],
+                    encs: [],
                     selectedimgs: null,
                     surveyEncs: [],
                     activeEncData: null,
@@ -88,7 +88,7 @@ angular.module('wildbook.admin').directive(
                 }
             
                 function addSurveyEncounters(surveypart, encounters) {
-                    $scope.data.surveyEncs.push({surveypart: surveypart, encounters: encounters});
+                    $scope.data.surveyEncs.push({surveypart: surveypart, encs: encounters});
                 }
             
                 $scope.searchSubmitter = function() {
@@ -129,13 +129,39 @@ angular.module('wildbook.admin').directive(
                     $scope.data.activeSurveyEnc = null;
                 }
                 
-                $scope.encounterPhotosDetached = function(photos) {
+                function photosRemovedFromEncounter(photos) {
                     //
-                    // Now decrease the numencs for these photos by one.
+                    // Decrease the numencs for these photos by one.
                     //
                     photos.forEach(function(item) {
                         $scope.numencs[item.id]--;
                     });
+                }
+                
+                $scope.encounterDeleted = function(encdata) {
+                    //
+                    // Remove photos from our number counters.
+                    //
+                    photosRemovedFromEncounter(encdata.photos);
+                    
+                    //
+                    // Then remove the encounter from the lists.
+                    //
+                    $scope.data.encs = $scope.data.encs.filter(function(item) {
+                        return (item.encounter.id !== encdata.encounter.id);
+                    });
+
+                    $scope.data.surveyEncs.forEach(function(surveyEnc) {
+                        surveyEnc.encs = surveyEnc.encs.filter(function(item) {
+                            return (item.encounter.id !== encdata.encounter.id);
+                        });
+                    });
+                    
+                    $scope.data.module.encounterEdit = null;
+                }
+                
+                $scope.encounterPhotosDetached = function(photos) {
+                    photosRemovedFromEncounter(photos);
                 }
                 
                 $scope.searchEncounter = function() {

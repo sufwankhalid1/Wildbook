@@ -24,11 +24,12 @@ angular.module('wildbook.admin').directive(
             scope: {
                 data: "=encData",
                 editEncounterDone: "&",
-                photosDetached: "&"
+                photosDetached: "&",
+                deleted: "&"
             },
             templateUrl: 'partials/encounter_edit.html',
             replace: true,
-            link: function($scope, ele, attr) {
+            link: function($scope, elem, attr) {
                 $scope.module = {};
 
                 $scope.tbActions = [{
@@ -91,15 +92,16 @@ angular.module('wildbook.admin').directive(
                         $scope.data.encounter.individual = individual;
                     }
                 }
+
                 //=================================
                 // START leaflet
                 //=================================
                 $scope.mapTile = {
-                                    url: "http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                                    options: {
-                                        attribution: '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                                    }
-                                };
+                    url: "http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                    options: {
+                        attribution: '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    }
+                };
 
                 //create map on encounter change
                 $scope.$watch('data', function(newVal, oldVal){
@@ -112,43 +114,52 @@ angular.module('wildbook.admin').directive(
                         mainMaker:{
                             lat: $scope.data.encounter.location.latitude,
                             lng: $scope.data.encounter.location.longitude,
-                            icon: {
-                            },
+                            icon: {},
                             draggable: false
                         }
                     };
 
                     $scope.data.photos.forEach(function (photo){
                         $scope.markers['p' + photo.id] = {
-                                                            lat: photo.latitude,
-                                                            lng: photo.longitude,
-                                                            group: 'markercluster',
-                                                            draggable: false
-                                                        };
+                            lat: photo.latitude,
+                            lng: photo.longitude,
+                            group: 'markercluster',
+                            draggable: false
+                        };
                     });
 
                     //set  lat/long center and scopes
                     $scope.mapData = {
-                                        activeLatLng: {
-                                            lat: $scope.data.encounter.location.latitude,
-                                            lng: $scope.data.encounter.location.longitude,
-                                            zoom: 15
-                                        },
-                                        layers: {
-                                            overlays: {
-                                                clusterGroup: {
-                                                    name: 'markercluster',
-                                                    type: 'markercluster',
-                                                    visible: true,
-                                                    layerOptions: {
-                                                        showCoverageOnHover: false,
-                                                        maxClusterRadius: 50
-                                                    }
-                                                }
-                                            }
-                                        }
+                        activeLatLng: {
+                            lat: $scope.data.encounter.location.latitude,
+                            lng: $scope.data.encounter.location.longitude,
+                            zoom: 15
+                        },
+                        layers: {
+                            overlays: {
+                                clusterGroup: {
+                                    name: 'markercluster',
+                                    type: 'markercluster',
+                                    visible: true,
+                                    layerOptions: {
+                                        showCoverageOnHover: false,
+                                        maxClusterRadius: 50
                                     }
-                }
+                                }
+                            }
+                        }
+                    };
+                };
+
+                $scope.deleteEncounter = function() {
+                    return alertplus.confirm('Are you sure you want to delete this encounter?', "Delete Encounter", true)
+                    .then(function() {
+                        $http.post("obj/encounter/delete", $scope.data.encounter)
+                        .then(function() {
+                            $scope.deleted({encdata: $scope.data});
+                        }, $exceptionHandler);
+                    });
+                };
 
                 //=================================
                 // START wb-thumb-box

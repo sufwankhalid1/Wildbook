@@ -5,6 +5,9 @@ div(layout="row" layout-wrap)
                        name="encounterForm" novalidate, wb-key-handler-form layout-fill)
         div(layout="row" layout-fill layout-align="start center")
             cancel-button(layout-margin)
+            div(flex="")
+            md-icon.md-warn(md-svg-icon="delete" layout-margin ng-click="deleteEncounter()")
+            
         md-content(layout="row" layout-fill layout-align="start center")
             label(layout-padding) Individual:
             input(flex="70" ng-show="data.encounter.individual.id" type="text" disabled="true" ng-value="data.encounter.individual.displayName + ' -- ' + data.encounter.individual.species.name")
