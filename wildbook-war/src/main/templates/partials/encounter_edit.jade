@@ -25,6 +25,8 @@ div(layout="row" layout-wrap)
             md-input-container(flex="33")
                 label End Time:
                 time-input(ng-model="data.encounter.endtime")
+        md-content(ng-if="mapData.activeLatLng")
+            leaflet(lf-center="mapData.activeLatLng" layers="mapData.layers" markers="markers" tiles="mapTile" height="300")
         md-content
             md-tabs(md-selected="selectedIndex" md-dynamic-height="false" md-border-bottom)
                 md-tab(label="Data")

@@ -30,7 +30,7 @@ angular.module('wildbook.admin').directive(
             replace: true,
             link: function($scope, ele, attr) {
                 $scope.module = {};
-                //$scope.data = angular.copy($scope.originalData);
+
                 $scope.tbActions = [{
                     code: "del",
                     shortcutKeyCode: 68,
@@ -91,6 +91,64 @@ angular.module('wildbook.admin').directive(
                         $scope.data.encounter.individual = individual;
                     }
                 }
+                //=================================
+                // START leaflet
+                //=================================
+                $scope.mapTile = {
+                                    url: "http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                                    options: {
+                                        attribution: '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                                    }
+                                };
+
+                //create map on encounter change
+                $scope.$watch('data', function(newVal, oldVal){
+                    $scope.buildMap();
+                }, true);
+
+                $scope.buildMap = function(){
+                    //build marker object
+                    $scope.markers = {
+                        mainMaker:{
+                            lat: $scope.data.encounter.location.latitude,
+                            lng: $scope.data.encounter.location.longitude,
+                            icon: {
+                            },
+                            draggable: false
+                        }
+                    };
+
+                    $scope.data.photos.forEach(function (photo){
+                        $scope.markers['p' + photo.id] = {
+                                                            lat: photo.latitude,
+                                                            lng: photo.longitude,
+                                                            group: 'markercluster',
+                                                            draggable: false
+                                                        };
+                    });
+
+                    //set  lat/long center and scopes
+                    $scope.mapData = {
+                                        activeLatLng: {
+                                            lat: $scope.data.encounter.location.latitude,
+                                            lng: $scope.data.encounter.location.longitude,
+                                            zoom: 15
+                                        },
+                                        layers: {
+                                            overlays: {
+                                                clusterGroup: {
+                                                    name: 'markercluster',
+                                                    type: 'markercluster',
+                                                    visible: true,
+                                                    layerOptions: {
+                                                        showCoverageOnHover: false,
+                                                        maxClusterRadius: 50
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                }
 
                 //=================================
                 // START wb-thumb-box
@@ -116,7 +174,8 @@ angular.module('wildbook.admin').directive(
                         var promise = $http.post("obj/encounter/detachmedia/" + $scope.data.encounter.id, photoids)
                         .then(function() {
                             $scope.photosDetached({photos: photos});
-                        });
+                            delete $scope.markers['p'+photoids];
+                        }); 
                         promise.catch($exceptionHandler);
                         return promise;
                     }}
