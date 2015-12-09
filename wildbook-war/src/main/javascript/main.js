@@ -186,31 +186,38 @@ app.factory("wbDateUtils", ["wbConfig", "moment", function(wbConfig, moment) {
             return moment(time).format('lll');
         },
         sameDay: function(dates) {
-            //array of dates
-            if (dates.length) {
-                var first = dates[0];
-                for (var ii=0; ii < dates.length; ii++) {
-                    //
-                    // This is not working for some damn reason all the time.
-                    // I had 01/30/2015 == 02/02/2015 using this method!
-                    //
+            if (!dates) {
+                return false;
+            }
+            
+            if (dates.length <= 1) {
+                return true;
+            }
+            
+            var first = dates[0];
+            for (var ii=1; ii < dates.length; ii++) {
+                //
+                // This is not working for some damn reason all the time.
+                // I had 01/30/2015 == 02/02/2015 using this method!
+                //
 //                    if (!moment(dates[ii]).isSame(first, 'day')) {
 //                        return false;
 //                    }
-                    var current = dates[ii];
-                    if (current[0] !== first[0] || current[1] !== first[1] || current[2] !== first[2]) {
-                        return false;
-                    }
+                var current = dates[ii];
+                if (current[0] !== first[0] || current[1] !== first[1] || current[2] !== first[2]) {
+                    return false;
                 }
-                return true;
             }
-
-            return false;
+            return true;
         },
         compareDates: function(dates) {
+            if (!dates || !dates.length) {
+                return null;
+            }
+            
             //initialize (doesnt really matter which dates, theyll probably change)
             var newest = dates[0];
-            var oldest = dates[dates.length];
+            var oldest = dates[dates.length-1];
             for (ii=0; ii < dates.length; ii++) {
                 var fixedDate = moment(dates[ii]);
                 if (fixedDate.isBefore(oldest, 'second')) {
@@ -248,55 +255,55 @@ app.factory("wbEncounterUtils", ["$http", "$q", "wbConfig", "wbDateUtils", "$exc
         },
         createNewEncData: function(selectedPhotos) {
             //if photos are selected add them to the new encounter
-            if (selectedPhotos && selectedPhotos.length){
-                var platitude = null;
-                var plongitude = null;
-                var dates = [];
+            var encounter = {individual: {species: wbConfig.config().species[0]}};
 
-                selectedPhotos.forEach(function(photo){
-                    if (photo.latitude) {
-                        platitude = photo.latitude;
-                    }
-                    if (photo.longitude) {
-                        plongitude = photo.longitude;
-                    }
-
-                    //create date array for wbDateUtils
-                    if (photo.timestamp) {
-                        dates.push(photo.timestamp);
-                    }
-                });
-
-                //check if same day, if so, compare
-                if(!wbDateUtils.sameDay(dates)){
-                    return $q.reject("These photos were taken on different days!<br/> Please choose images that occured during the same encounter.");
-                };
-
-                var timeline = wbDateUtils.compareDates(dates);
-
-                //format dates for encounter inputs
-                var oldest = timeline.oldest.slice(3, timeline.oldest.length);
-                oldest.push("Z");
-                var newest = timeline.newest.slice(3, timeline.newest.length);
-                newest.push("Z");;
-
+            if (!selectedPhotos || !selectedPhotos.length) {
                 return $q.resolve({
-                    encounter: {
-                                individual: {species: wbConfig.config().species[0]},
-                                encDate : timeline.newest.slice(0, 3),
-                                starttime: oldest,
-                                endtime: newest,
-                                location: {latitude:platitude, longitude:plongitude}
-                                },
-                    photos: selectedPhotos
-                });
-            } 
-            else {
-                return $q.resolve({
-                    encounter: {individual: {species: wbConfig.config().species[0]}},
+                    encounter: encounter,
                     photos: []
                 });
             }
+            
+            var platitude = null;
+            var plongitude = null;
+            var dates = [];
+
+            selectedPhotos.forEach(function(photo){
+                if (photo.latitude) {
+                    platitude = photo.latitude;
+                }
+                if (photo.longitude) {
+                    plongitude = photo.longitude;
+                }
+
+                //create date array for wbDateUtils
+                if (photo.timestamp) {
+                    dates.push(photo.timestamp);
+                }
+            });
+
+            //check if same day, if so, compare
+            if(!wbDateUtils.sameDay(dates)){
+                return $q.reject("These photos were taken on different days!<br/> Please choose images that occured during the same encounter.");
+            };
+
+            var timeline = wbDateUtils.compareDates(dates);
+
+            if (timeline) {
+                encounter.encDate = timeline.newest.slice(0, 3);
+                encounter.starttime = timeline.oldest.slice(3, timeline.oldest.length);
+                encounter.starttime.push("Z");
+                encounter.endtime = timeline.newest.slice(3, timeline.newest.length);
+                encounter.endtime.push("Z");
+            }
+            
+            if (platitude && plongitude) {
+                encounter.location = {latitude:platitude, longitude:plongitude};
+            }
+            return $q.resolve({
+                encounter: encounter,
+                photos: selectedPhotos
+            });
         },
         getEncData: function(encounter) {
             return this.getMedia({encounter: encounter})
