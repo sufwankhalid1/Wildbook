@@ -35,6 +35,7 @@ public class UtilController {
             config.orgs = Global.INST.getUserService().getOrganizations();
             config.props = Global.INST.getWebappClientProps();
             config.species = Global.INST.getSpecies();
+            config.defaultSpecies = Global.INST.getSpecies(Global.INST.getAppResources().getString("species.default", null));
             return config;
         }
     }
@@ -45,5 +46,6 @@ public class UtilController {
         public Properties props;
         public List<Organization> orgs;
         public List<Species> species;
+        public Species defaultSpecies;
     }
 }

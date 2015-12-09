@@ -29,7 +29,7 @@ angular.module('wildbook.admin').directive(
             },
             templateUrl: 'partials/encounter_edit.html',
             replace: true,
-            link: function($scope, ele, attr) {
+            link: function($scope, elem, attr) {
                 $scope.module = {};
                 //$scope.data = angular.copy($scope.originalData);
                 $scope.tbActions = [{
