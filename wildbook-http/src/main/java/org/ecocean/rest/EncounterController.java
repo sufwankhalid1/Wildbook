@@ -70,4 +70,12 @@ public class EncounterController
             return EncounterFactory.getMedia(db, encounterid);
         }
     }
+
+    @RequestMapping(value = "delete", method = RequestMethod.POST)
+    public void deleteEncounter(final HttpServletRequest request,
+                                @RequestBody final Encounter encounter) throws DatabaseException {
+        try (Database db = ServletUtils.getDb(request)) {
+            EncounterFactory.deleteEncounter(db, encounter.getId());
+        }
+    }
 }

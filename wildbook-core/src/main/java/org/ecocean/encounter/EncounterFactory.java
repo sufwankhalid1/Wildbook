@@ -271,6 +271,18 @@ public class EncounterFactory {
     }
 
 
+    public static void deleteEncounter(final Database db, final int id) throws DatabaseException {
+        db.performTransaction(() -> {
+            String whereClause = "encounterid = " + id;
+            Table table;
+            table = db.getTable(TABLENAME_ENCOUNTER_MEDIA);
+            table.deleteRows(whereClause);
+            table = db.getTable(TABLENAME_ENCOUNTERS);
+            table.deleteRows(whereClause);
+        });
+    }
+
+
     private static void fillEncounterFormatter(final SqlFormatter formatter, final Encounter encounter) {
         if (encounter.getIndividual() != null) {
             formatter.append("individualid", encounter.getIndividual().getId());

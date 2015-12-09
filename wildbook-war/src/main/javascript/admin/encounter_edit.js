@@ -24,7 +24,8 @@ angular.module('wildbook.admin').directive(
             scope: {
                 data: "=encData",
                 editEncounterDone: "&",
-                photosDetached: "&"
+                photosDetached: "&",
+                deleted: "&"
             },
             templateUrl: 'partials/encounter_edit.html',
             replace: true,
@@ -91,6 +92,16 @@ angular.module('wildbook.admin').directive(
                         $scope.data.encounter.individual = individual;
                     }
                 }
+                
+                $scope.deleteEncounter = function() {
+                    return alertplus.confirm('Are you sure you want to delete this encounter?', "Delete Encounter", true)
+                    .then(function() {
+                        $http.post("obj/encounter/delete", $scope.data.encounter)
+                        .then(function() {
+                            $scope.deleted({encdata: $scope.data});
+                        }, $exceptionHandler);
+                    });
+                };
 
                 //=================================
                 // START wb-thumb-box
