@@ -484,8 +484,7 @@ angular.module('wildbook.admin').directive(
                 };
             
                 $scope.doneEditing = function() {
-                    // Why do we need to update here?
-                    //updateSubmissionData();
+                    $scope.msGridOptions.api.refreshView();
                     $scope.data.submission = null;
                     
                     $scope.data.module.encounterEdit = null;
