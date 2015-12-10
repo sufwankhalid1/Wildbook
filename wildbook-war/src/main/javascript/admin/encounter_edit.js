@@ -105,7 +105,7 @@ angular.module('wildbook.admin').directive(
 
                 //create map on encounter change
                 $scope.$watch('data', function(newVal, oldVal){
-                    $scope.buildMap();
+                    $scope.mapBuilt = $scope.buildMap();
                 }, true);
 
                 $scope.buildMap = function(){
@@ -120,12 +120,14 @@ angular.module('wildbook.admin').directive(
                     };
 
                     $scope.data.photos.forEach(function (photo){
-                        $scope.markers['p' + photo.id] = {
-                            lat: photo.latitude,
-                            lng: photo.longitude,
-                            group: 'markercluster',
-                            draggable: false
-                        };
+                        if(photo.latitude && photo.longitude){
+                            $scope.markers['p' + photo.id] = {
+                                lat: photo.latitude,
+                                lng: photo.longitude,
+                                group: 'markercluster',
+                                draggable: false
+                            };
+                        }
                     });
 
                     //set  lat/long center and scopes
@@ -149,6 +151,8 @@ angular.module('wildbook.admin').directive(
                             }
                         }
                     };
+
+                    return true;
                 };
 
                 $scope.deleteEncounter = function() {

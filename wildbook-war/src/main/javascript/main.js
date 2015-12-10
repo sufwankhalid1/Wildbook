@@ -298,7 +298,10 @@ app.factory("wbEncounterUtils", ["$http", "$q", "wbConfig", "wbDateUtils", "$exc
             
             if (platitude && plongitude) {
                 encounter.location = {latitude:platitude, longitude:plongitude};
+            } else {
+                encounter.location = {latitude:null, longitude:null};
             }
+
             return $q.resolve({
                 encounter: encounter,
                 photos: selectedPhotos
