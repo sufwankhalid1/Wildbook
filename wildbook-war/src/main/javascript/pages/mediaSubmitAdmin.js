@@ -516,7 +516,7 @@ angular.module('wildbook.admin').directive(
                 }
             
                 function updateSubmissionData() {
-                    $http({url:"obj/mediasubmission/get/status"})
+                    $http({url:"obj/mediasubmission/get/uncompleted"})
                     .then(function(result) {
                         $scope.rowData = result.data;
                         $scope.msGridOptions.api.setDatasource(dataSource);

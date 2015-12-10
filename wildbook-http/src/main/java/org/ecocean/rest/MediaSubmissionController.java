@@ -36,8 +36,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
+import com.samsix.database.GroupedSqlCondition;
 import com.samsix.database.SqlRelationType;
 import com.samsix.database.SqlStatement;
+import com.samsix.database.SqlTable;
 import com.samsix.database.Table;
 
 import de.neuland.jade4j.exceptions.JadeException;
@@ -170,12 +172,35 @@ public class MediaSubmissionController
 //        return getMediaSubmission(mediaid);
 //    }
 
+    private List<MediaSubmission> getMediaSubmissions(final Database db,
+                                                      final SqlStatement sql) throws DatabaseException {
+        sql.setOrderBy("timesubmitted desc");
 
-    @RequestMapping(value = "/get/status", method = RequestMethod.GET)
+        List<MediaSubmission> mss = new ArrayList<MediaSubmission>();
+
+        db.select(sql, (rs) -> {
+            mss.add(MediaSubmissionFactory.readMediaSubmission(rs));
+        });
+
+        return mss;
+
+    }
+
+    @RequestMapping(value = "/get/uncompleted", method = RequestMethod.GET)
     public List<MediaSubmission> getStatus(final HttpServletRequest request)
         throws DatabaseException
     {
-        return getStatus(request, null);
+        try (Database db = ServletUtils.getDb(request)) {
+            SqlStatement sql = MediaSubmissionFactory.getStatement();
+
+            GroupedSqlCondition cond = GroupedSqlCondition.orGroup();
+            SqlTable table = sql.findTable(MediaSubmissionFactory.ALIAS_MEDIASUBMISSION);
+            cond.addCondition(table, "status", SqlRelationType.NOT_EQUAL, "completed");
+            cond.addCondition(table, "status", SqlRelationType.EQUAL, null);
+            sql.addCondition(cond);
+
+            return getMediaSubmissions(db, sql);
+        }
     }
 
 
@@ -191,18 +216,16 @@ public class MediaSubmissionController
             // we want all other values, included null, to pass to the append method
             //
             SqlStatement sql = MediaSubmissionFactory.getStatement();
+
+            //
+            // Use relationType null to mean don't search on anything, not even null.
+            // Smelly, but that's why I put this comment here.
+            //
             if (! "*".equals(status)) {
                 sql.addCondition(MediaSubmissionFactory.ALIAS_MEDIASUBMISSION, "status", SqlRelationType.EQUAL, status);
             }
-            sql.setOrderBy("timesubmitted desc");
 
-            List<MediaSubmission> mss = new ArrayList<MediaSubmission>();
-
-            db.select(sql, (rs) -> {
-                mss.add(MediaSubmissionFactory.readMediaSubmission(rs));
-            });
-
-            return mss;
+            return getMediaSubmissions(db, sql);
         }
     }
 
