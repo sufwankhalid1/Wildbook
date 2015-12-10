@@ -353,10 +353,10 @@ angular.module('wildbook.admin').directive(
                             //
                             // Filter photos based on one's that are already attached to this encounter.
                             //
-                            var currentPhotos = $scope.data.activeEncData.photos;
+                            var photos = $scope.data.activeEncData.photos;
                             var newphotos = photos.filter(function(item) {
-                                for (var ii = 0; ii < currentPhotos.length; ii++) {
-                                    if (item.id === currentPhotos[ii].id) {
+                                for (var ii = 0; ii < photos.length; ii++) {
+                                    if (item.id === photos[ii].id) {
                                         return false;
                                     }
                                 }
@@ -364,8 +364,8 @@ angular.module('wildbook.admin').directive(
                             });
 
                             addPhotos($scope.data.activeEncData.encounter, newphotos)
-                            .then(function(){
-                                currentPhotos = currentPhotos.concat(newphotos);
+                            .then(function() {
+                                $scope.data.activeEncData.photos = photos.concat(newphotos);
                             });
                         });
                         break;
