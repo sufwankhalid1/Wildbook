@@ -211,7 +211,9 @@ angular.module('wildbook.util').directive(
                         if (idx > $scope.photos.length - 1) {
                             idx = $scope.photos.length - 1;
                         }
-                        $scope.zoomimage = $scope.photos[idx];
+                        if ($scope.zoomimage) {
+                            $scope.zoomimage = $scope.photos[idx];
+                        }
                     }}
                 }
                 
