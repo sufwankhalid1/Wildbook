@@ -25,8 +25,13 @@ div(layout="row" layout-wrap)
             md-input-container(flex="33")
                 label End Time:
                 time-input(ng-model="data.encounter.endtime")
-        md-content(ng-if="mapBuilt")
+        md-content(ng-if="mapBuilt" ng-class="{'crosshair':locationPickerState}")
             leaflet(lf-center="mapData.activeLatLng" layers="mapData.layers" markers="markers" tiles="mapTile" height="300")
+        md-content.mheight-5
+            div(layout="row" layout-fill)
+                div(flex="")
+                div
+                    md-icon(md-svg-icon="crosshairs-gps" ng-click="pickLocation($event)" ng-class="{'green-svg':locationPickerState}")
         md-content
             md-tabs(md-selected="selectedIndex" md-dynamic-height="true" md-border-bottom)
                 md-tab(label="Data")

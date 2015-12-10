@@ -17,8 +17,8 @@ angular.module('wildbook.admin').directive(
 
 angular.module('wildbook.admin').directive(
     'wbEncounterEdit',
-    ["$http", "$exceptionHandler", "wbConfig", "wbEncounterUtils",
-     function($http, $exceptionHandler, wbConfig, wbEncounterUtils) {
+    ["$http", "$exceptionHandler", "wbConfig", "wbEncounterUtils", "leafletMapEvents", "leafletData",
+     function($http, $exceptionHandler, wbConfig, wbEncounterUtils, leafletMapEvents, leafletData) {
         return {
             restrict: 'E',
             scope: {
@@ -31,6 +31,7 @@ angular.module('wildbook.admin').directive(
             replace: true,
             link: function($scope, elem, attr) {
                 $scope.module = {};
+                var unbindHandler = null;
 
                 $scope.tbActions = [{
                     code: "del",
@@ -154,6 +155,29 @@ angular.module('wildbook.admin').directive(
 
                     return true;
                 };
+
+                //enable location picker
+                $scope.locationPickerState = false;
+
+                $scope.pickLocation = function() {
+                    $scope.locationPickerState = true;
+                    var mapEvents = leafletMapEvents.getAvailableMapEvents();
+                    unbindHandler = $scope.$on('leafletDirectiveMap.click', function(e,  args){
+                        $scope.data.encounter.location.latitude = args.leafletEvent.latlng.lat;
+                        $scope.data.encounter.location.longitude = args.leafletEvent.latlng.lng;
+                        $scope.locationPickerState = false;
+                        unbindHandler();
+                        unbindHandler = null;
+                    });
+                };
+
+                $scope.latLngListener = function() {
+                    unbindHandler = $scope.$on('leafletDirectiveMap.click', function(e,  args){
+                        $scope.data.encounter.location.latitude = args.leafletEvent.latlng.lat;
+                        $scope.data.encounter.location.longitude = args.leafletEvent.latlng.lng;
+                    });
+                }
+
 
                 $scope.deleteEncounter = function() {
                     return alertplus.confirm('Are you sure you want to delete this encounter?', "Delete Encounter", true)
