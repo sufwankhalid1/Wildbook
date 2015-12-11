@@ -97,19 +97,16 @@ angular.module('wildbook.util').directive(
                         angular.copy(photo.meta, tooltip);
                     }
                     
+                    tooltip.timestamp = $scope.getTimestamp(photo);
                     tooltip.latitude = photo.latitude;
                     tooltip.longitude = photo.longitude;
                     
                     angular.forEach(tooltip, function(item, key){
-                        if(item){
+                        if(item) {
                             tooltipStr = tooltipStr+key+": "+item+"\n";
                         }
                     });
-
-                    if(!tooltipStr){
-                        tooltipStr = "There is no meta data currently for this image."
-                    }
-
+                    
                     return tooltipStr;
                 }
                 

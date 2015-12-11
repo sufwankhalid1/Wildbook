@@ -27,11 +27,15 @@ div(wb-key-handler-watch-scope="parent" layout-fill)
         .flexy(ng-show="! zoomimage")
             .thumbbox-item(ng-repeat="photo in getVisPhotos()" ng-class="{'selected': thumbbox.meta[photo.id].selected}")
                 a(href="javascript:;", ng-click="selectImage($event, photo)")
-                    img(ng-src="{{photo.thumbUrl}}", style="padding: 2px; max-width: 100%")
-                .flexy
-                    div(ng-repeat="indicator in indicators" class="indicator {{indicator.def.type}} {{indicator.def.displayClass}}")
-                        div(ng-class="{zero: (indicator.values[photo.id] === 0)}") {{indicator.values[photo.id]}}
-                div(style="font-size: 12px" title="{{metaTooltip(photo)}}") {{getTimestamp(photo)}}
+                    img(ng-src="{{photo.thumbUrl}}" style="padding: 2px; max-width: 100%")
+                div(layout="row" layout-fill layout-align="start center")
+                    .flexy
+                        div(ng-repeat="indicator in indicators" class="indicator {{indicator.def.type}} {{indicator.def.displayClass}}")
+                            div(ng-class="{zero: (indicator.values[photo.id] === 0)}") {{indicator.values[photo.id]}}
+                    div(flex="")
+                    md-icon(ng-show="metaTooltip(photo)" md-svg-icon="information-outline" title="{{metaTooltip(photo)}}")
+                div(layout="row" layout-fill)
+                    div(style="font-size: 12px") {{getTimestamp(photo)}}
         .ng-cloak(ng-if="zoomimage", style="position: relative; width: 800px; height: 600px;", wb-key-handler-form)
             div
                 img.ng-cloak(ng-src="{{zoomimage.midUrl}}")
