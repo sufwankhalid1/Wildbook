@@ -114,6 +114,24 @@ angular.module('wildbook.admin').directive(
                                 visible: true,
                                 layerOptions: {
                                     showCoverageOnHover: false
+                                    // TODO: Add in a cluster icon something like this. Probably
+                                    // no need for different sizes but...
+                                    //
+//                                    ,
+//                                    iconCreateFunction: function (cluster) {
+//                                        var childCount = cluster.getChildCount();
+//
+//                                        var c = ' marker-cluster-';
+//                                        if (childCount < 10) {
+//                                            c += 'small';
+//                                        } else if (childCount < 100) {
+//                                            c += 'medium';
+//                                        } else {
+//                                            c += 'large';
+//                                        }
+//
+//                                        return new L.DivIcon({ html: '<div><span>' + "CUSTOM" + '</span></div>', className: 'marker-cluster' + c, iconSize: new L.Point(40, 40) });
+//                                    }
                                 }
                             }
                         }
