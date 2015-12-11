@@ -80,11 +80,11 @@ div
                     | &nbsp{{timeToDate(data.submission.timeSubmitted)}}
                     div(flex="")
                     md-input-container.padding-0
-                        md-select(ng-model="data.submission.status" 
-                                  ng-change="setStatus(data.submission.status)"
-                                  placeholder="Encounter Status")
-                            md-option(ng-value="")
-                            md-option(ng-value="'completed'") Completed
+                        md-checkbox(ng-model="data.submission.status" 
+                                      ng-change="setStatus(data.submission.status)"
+                                      placeholder="Encounter Status"
+                                      ng-false-value=""
+                                      ng-true-value="'completed'") {{data.submission.status ? 'Submission Completed' : 'Submission Complete?'}}
                 div(layout="row" layout-fill ng-show="searchingSubmitter")
                     wb-user-search(search-user-done="searchUserDone(user)")
                 div(layout="row" layout-fill)
