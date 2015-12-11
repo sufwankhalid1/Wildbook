@@ -106,6 +106,18 @@ angular.module('wildbook.admin').directive(
                         options: {
                             attribution: '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                         }
+                    },
+                    layers: {
+                        overlays: {
+                            clusterGroup: {
+                                name: 'markercluster',
+                                type: 'markercluster',
+                                visible: true,
+                                layerOptions: {
+                                    showCoverageOnHover: false
+                                }
+                            }
+                        }
                     }
                 };
 
@@ -152,19 +164,6 @@ angular.module('wildbook.admin').directive(
                     }
                     
                     $scope.mapData.center = center;
-
-                    $scope.mapData.layers = {
-                        overlays: {
-                            clusterGroup: {
-                                name: 'markercluster',
-                                type: 'markercluster',
-                                visible: true,
-                                layerOptions: {
-                                    showCoverageOnHover: false
-                                }
-                            }
-                        }
-                    };
 
                     return true;
                 };
@@ -218,7 +217,7 @@ angular.module('wildbook.admin').directive(
                         var promise = $http.post("obj/encounter/detachmedia/" + $scope.data.encounter.id, photoids)
                         .then(function() {
                             $scope.photosDetached({photos: photos});
-                            delete $scope.markers['p'+photoids];
+                            delete $scope.mapData.markers['p'+photoids];
                         }); 
                         promise.catch($exceptionHandler);
                         return promise;
