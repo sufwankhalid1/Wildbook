@@ -31,7 +31,6 @@ angular.module('wildbook.admin').directive(
             replace: true,
             link: function($scope, elem, attr) {
                 $scope.module = {};
-                var unbindHandler = null;
 
                 $scope.tbActions = [{
                     code: "del",
@@ -171,16 +170,38 @@ angular.module('wildbook.admin').directive(
                 //enable location picker
                 $scope.locationPickerState = false;
 
+                var unbindHandler;
                 $scope.pickLocation = function() {
-                    $scope.locationPickerState = true;
-                    var mapEvents = leafletMapEvents.getAvailableMapEvents();
-                    unbindHandler = $scope.$on('leafletDirectiveMap.click', function(e,  args){
-                        $scope.data.encounter.location.latitude = args.leafletEvent.latlng.lat;
-                        $scope.data.encounter.location.longitude = args.leafletEvent.latlng.lng;
-                        $scope.locationPickerState = false;
+                    function unbind() {
                         unbindHandler();
                         unbindHandler = null;
-                    });
+                    }
+                    
+                    if ($scope.locationPickerState) {
+                        $scope.locationPickerState = false;
+                        if (unbindHandler) {
+                            unbind();
+                        }
+                    } else {
+                        $scope.locationPickerState = true;
+                        var mapEvents = leafletMapEvents.getAvailableMapEvents();
+                        unbindHandler = $scope.$on('leafletDirectiveMap.click', function(e,  args) {
+                            $scope.data.encounter.location.latitude = args.leafletEvent.latlng.lat;
+                            $scope.data.encounter.location.longitude = args.leafletEvent.latlng.lng;
+                            $scope.locationPickerState = false;
+                            //
+                            // Hit race condition once in which this was called before the $on returned
+                            // the unbindHandler function value. This will hopefully prevent that again.
+                            //
+                            if (! unbindHandler) {
+                                $timeout(function() {
+                                    unbind();
+                                }, 2000)
+                            } else {
+                                unbind();
+                            }
+                        });
+                    }
                 };
 
                 $scope.deleteEncounter = function() {
