@@ -44,6 +44,7 @@ public class MediaAsset {
     protected Path thumbPath;
     protected Path midPath;
     protected Integer submitterid;
+    protected LocalDateTime submittedOn;
 
     private LocalDateTime metaTimestamp;
     private Double metaLatitude;
@@ -189,6 +190,16 @@ public class MediaAsset {
 
     public void setSubmitterId(final Integer submitterid) {
         this.submitterid = submitterid;
+    }
+
+
+    public LocalDateTime getSubmittedOn() {
+        return submittedOn;
+    }
+
+
+    public void setSubmittedOn(LocalDateTime submittedOn) {
+        this.submittedOn = submittedOn;
     }
 
 

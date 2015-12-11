@@ -38,6 +38,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -78,8 +79,6 @@ import com.samsix.util.io.ResourceReader;
 /**
  * Class providing centralized image-related services, such as image rescaling,
  * JPEG saving, thumbnail generation, etc.
- *
- * @author Giles Winstanley
  */
 public final class MediaUtilities {
   /** SLF4J logger instance for writing log entries. */
@@ -659,6 +658,7 @@ public final class MediaUtilities {
           break;
       }
       ma.setSubmitterId(submitterId);
+      ma.setSubmittedOn(LocalDateTime.now());
 
       return ma;
   }
