@@ -159,6 +159,7 @@ public class MediaAssetFactory {
         }
         formatter.append("tags", tags);
         formatter.append("submitterid", ma.getSubmitterId());
+        formatter.append("submittedon", ma.getSubmittedOn());
         formatter.append("metatimestamp", ma.getMetaTimestamp());
         formatter.append("metalat", ma.getMetaLatitude());
         formatter.append("metalong", ma.getMetaLongitude());
@@ -196,6 +197,7 @@ public class MediaAssetFactory {
         photo.setLongitude(ma.getMetaLongitude());
         photo.setMeta(ma.getMeta());
         photo.setSubmitterid(ma.getSubmitterId());
+        photo.setSubmittedOn(ma.getSubmittedOn());
         return photo;
     }
 

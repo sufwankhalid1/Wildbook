@@ -15,7 +15,8 @@ public class SimplePhoto
     private Double longitude;
     @JsonRawValue
     private String meta;
-    private int submitterid;
+    private Integer submitterid;
+    private LocalDateTime submittedOn;
 
     public SimplePhoto()
     {
@@ -77,7 +78,7 @@ public class SimplePhoto
         return timestamp;
     }
 
-    public void setTimestamp(LocalDateTime timestamp) {
+    public void setTimestamp(final LocalDateTime timestamp) {
         this.timestamp = timestamp;
     }
 
@@ -85,7 +86,7 @@ public class SimplePhoto
         return latitude;
     }
 
-    public void setLatitude(Double latitude) {
+    public void setLatitude(final Double latitude) {
         this.latitude = latitude;
     }
 
@@ -93,7 +94,7 @@ public class SimplePhoto
         return longitude;
     }
 
-    public void setLongitude(Double longitude) {
+    public void setLongitude(final Double longitude) {
         this.longitude = longitude;
     }
 
@@ -105,11 +106,19 @@ public class SimplePhoto
         this.meta = meta;
     }
 
-    public int getSubmitterid() {
+    public Integer getSubmitterid() {
         return submitterid;
     }
 
-    public void setSubmitterid(int submitterid) {
+    public void setSubmitterid(final Integer submitterid) {
         this.submitterid = submitterid;
+    }
+
+    public LocalDateTime getSubmittedOn() {
+        return submittedOn;
+    }
+
+    public void setSubmittedOn(LocalDateTime submittedOn) {
+        this.submittedOn = submittedOn;
     }
 }

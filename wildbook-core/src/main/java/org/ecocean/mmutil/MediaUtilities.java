@@ -38,6 +38,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -659,6 +660,7 @@ public final class MediaUtilities {
           break;
       }
       ma.setSubmitterId(submitterId);
+      ma.setSubmittedOn(LocalDateTime.now());
 
       return ma;
   }
