@@ -97,32 +97,48 @@ angular.module('wildbook.admin').directive(
                 //=================================
                 // START leaflet
                 //=================================
-                $scope.mapTile = {
-                    url: "http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                    options: {
-                        attribution: '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                $scope.mapData = {
+                    defaults: {
+                        scrollWheelZoom: false
+                    },
+                    tiles: {
+                        url: "http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                        options: {
+                            attribution: '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                        }
                     }
                 };
 
                 //create map on encounter change
-                $scope.$watch('data', function(newVal, oldVal){
-                    $scope.mapBuilt = $scope.buildMap();
+                $scope.$watch('data', function(newVal, oldVal) {
+                    $scope.mapBuilt = buildMap();
                 }, true);
 
-                $scope.buildMap = function(){
+                function buildMap() {
                     //build marker object
-                    $scope.markers = {
-                        mainMaker:{
+                    var center = {zoom: 8};
+                    
+                    $scope.mapData.markers = {};
+                    
+                    if ($scope.data.encounter.location && $scope.data.encounter.location.latitude) {
+                        $scope.mapData.markers.mainMaker = {
                             lat: $scope.data.encounter.location.latitude,
                             lng: $scope.data.encounter.location.longitude,
-                            icon: {},
                             draggable: false
-                        }
-                    };
+                        };
 
-                    $scope.data.photos.forEach(function (photo){
-                        if(photo.latitude && photo.longitude){
-                            $scope.markers['p' + photo.id] = {
+                        center.lat = $scope.data.encounter.location.latitude;
+                        center.lng = $scope.data.encounter.location.longitude;
+                    }
+                    
+                    $scope.data.photos.forEach(function (photo) {
+                        if (photo.latitude && photo.longitude) {
+                            if (!center.lat) {
+                                center.lat = photo.latitude;
+                                center.lng = photo.longitude;
+                            }
+                            
+                            $scope.mapData.markers['p' + photo.id] = {
                                 lat: photo.latitude,
                                 lng: photo.longitude,
                                 group: 'markercluster',
@@ -130,24 +146,21 @@ angular.module('wildbook.admin').directive(
                             };
                         }
                     });
+                    
+                    if (!center.lat) {
+                        center = {lat: 0, lng: 0, zoom: 1};
+                    }
+                    
+                    $scope.mapData.center = center;
 
-                    //set  lat/long center and scopes
-                    $scope.mapData = {
-                        activeLatLng: {
-                            lat: $scope.data.encounter.location.latitude,
-                            lng: $scope.data.encounter.location.longitude,
-                            zoom: 15
-                        },
-                        layers: {
-                            overlays: {
-                                clusterGroup: {
-                                    name: 'markercluster',
-                                    type: 'markercluster',
-                                    visible: true,
-                                    layerOptions: {
-                                        showCoverageOnHover: false,
-                                        maxClusterRadius: 50
-                                    }
+                    $scope.mapData.layers = {
+                        overlays: {
+                            clusterGroup: {
+                                name: 'markercluster',
+                                type: 'markercluster',
+                                visible: true,
+                                layerOptions: {
+                                    showCoverageOnHover: false
                                 }
                             }
                         }
@@ -170,14 +183,6 @@ angular.module('wildbook.admin').directive(
                         unbindHandler = null;
                     });
                 };
-
-                $scope.latLngListener = function() {
-                    unbindHandler = $scope.$on('leafletDirectiveMap.click', function(e,  args){
-                        $scope.data.encounter.location.latitude = args.leafletEvent.latlng.lat;
-                        $scope.data.encounter.location.longitude = args.leafletEvent.latlng.lng;
-                    });
-                }
-
 
                 $scope.deleteEncounter = function() {
                     return alertplus.confirm('Are you sure you want to delete this encounter?', "Delete Encounter", true)

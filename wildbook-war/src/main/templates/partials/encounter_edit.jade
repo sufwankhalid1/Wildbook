@@ -26,7 +26,7 @@ div(layout="row" layout-wrap)
                 label End Time:
                 time-input(ng-model="data.encounter.endtime")
         md-content(ng-if="mapBuilt" ng-class="{'crosshair':locationPickerState}")
-            leaflet(lf-center="mapData.activeLatLng" layers="mapData.layers" markers="markers" tiles="mapTile" height="300")
+            leaflet(lf-center="mapData.center" layers="mapData.layers" markers="mapData.markers" tiles="mapData.tiles" height="300" defaults="mapData.defaults")
         md-content.mheight-5
             div(layout="row" layout-fill)
                 div(flex="")
