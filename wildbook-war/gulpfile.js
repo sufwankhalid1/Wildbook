@@ -121,12 +121,19 @@ gulp.task('concat-tools', function() {
               'node_modules/ag-grid/dist/theme-fresh.min.css',
               'node_modules/angular-busy/dist/angular-busy.min.css',
               'node_modules/angular-material/angular-material.min.css',
-              'node_modules/angular-material/angular-material.layouts.min.css'], {base:'node_modules' })
+              'node_modules/angular-material/angular-material.layouts.min.css',
+              'node_modules/leaflet/dist/leaflet.css',
+              'node_modules/leaflet.markercluser/dist/MarkerCluster.Default.css',
+              'node_modules/leaflet.markercluser/dist/MarkerCluster.css'],
+               {base:'node_modules' })
          .pipe(concatCss('tools.css'))
          .pipe(gulp.dest(paths.distcss));
     
     gulp.src('node_modules/jquery/dist/jquery.min.js', {base: 'node_modules/jquery/dist'})
     .pipe(gulp.dest(paths.distjs));
+
+    gulp.src('node_modules/leaflet/dist/images/**', {base:'node_modules'})
+    .pipe(gulp.dest(paths.distcss));
 });
 
 function subdirs(filepath, filter) {
