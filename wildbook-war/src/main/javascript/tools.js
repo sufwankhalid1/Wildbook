@@ -4,3 +4,6 @@ require("angular-ui-bootstrap");
 require("angular-material");
 require("ag-grid");
 require("angular-busy");
+require("leaflet");
+require("leaflet.markercluster");
+require("angular-leaflet-directive");

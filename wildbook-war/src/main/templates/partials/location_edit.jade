@@ -4,10 +4,10 @@ div(layout="row" layout-align="center center" layout-fill layout-wrap)
         input(type="text", ng-model="location.locationid")
     md-input-container(flex="33")
         label Latitude:
-        input(type="text", ng-model="location.latitude")
+        input(type="number", ng-model="location.latitude")
     md-input-container(flex="33")
         label Longitude:
-        input(type="text", ng-model="location.longitude")
+        input(type="number", ng-model="location.longitude")
 md-input-container
     label Verbatim Location:
     textarea(ng-model="location.verbatimLocation")

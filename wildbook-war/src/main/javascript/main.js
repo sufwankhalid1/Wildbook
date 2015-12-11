@@ -1,7 +1,6 @@
 require("./util/util.js");
 var KeyEventHandler = require("./util/keyevent_handler.js");
 require("./admin/admin.js");
-
 //
 // This is where our jade templates are magically compiled into html and munged into a javascript file
 // (called templates.js) which allows angular to look here for the templates rather than having to make
@@ -11,11 +10,10 @@ angular.module('templates', []);
 //require("./templates.js");
 
 var app = angular.module('appWildbook',
-        ["agGrid", "ui.bootstrap", "ngMaterial", "templates", "cgBusy", "wildbook.util", "wildbook.admin"]);
-//        .config(['$mdThemingProvider', function($mdThemingProvider) {
-//            $mdThemingProvider.theme('default')
-//                .backgroundPalette('blue-grey');
-//        }]);
+        ["agGrid", "ui.bootstrap", "ngMaterial", "templates", "cgBusy", "wildbook.util", "wildbook.admin", "leaflet-directive"])
+       .config(['$mdThemingProvider', '$logProvider', function($mdThemingProvider, $logProvider) {
+            $logProvider.debugEnabled(false);
+       }]);
 
 //
 // TODO: angular-moment is not quite ready for prime time. It doesn't play well with browserify. I don't really
@@ -300,7 +298,10 @@ app.factory("wbEncounterUtils", ["$http", "$q", "wbConfig", "wbDateUtils", "$exc
             
             if (platitude && plongitude) {
                 encounter.location = {latitude:platitude, longitude:plongitude};
+            } else {
+                encounter.location = {latitude:null, longitude:null};
             }
+
             return $q.resolve({
                 encounter: encounter,
                 photos: selectedPhotos

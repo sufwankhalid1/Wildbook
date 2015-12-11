@@ -17,8 +17,8 @@ angular.module('wildbook.admin').directive(
 
 angular.module('wildbook.admin').directive(
     'wbEncounterEdit',
-    ["$http", "$exceptionHandler", "wbConfig", "wbEncounterUtils",
-     function($http, $exceptionHandler, wbConfig, wbEncounterUtils) {
+    ["$http", "$exceptionHandler", "wbConfig", "wbEncounterUtils", "leafletMapEvents", "leafletData",
+     function($http, $exceptionHandler, wbConfig, wbEncounterUtils, leafletMapEvents, leafletData) {
         return {
             restrict: 'E',
             scope: {
@@ -31,7 +31,7 @@ angular.module('wildbook.admin').directive(
             replace: true,
             link: function($scope, elem, attr) {
                 $scope.module = {};
-                //$scope.data = angular.copy($scope.originalData);
+
                 $scope.tbActions = [{
                     code: "del",
                     shortcutKeyCode: 68,
@@ -92,7 +92,136 @@ angular.module('wildbook.admin').directive(
                         $scope.data.encounter.individual = individual;
                     }
                 }
-                
+
+                //=================================
+                // START leaflet
+                //=================================
+                $scope.mapData = {
+                    defaults: {
+                        scrollWheelZoom: false
+                    },
+                    tiles: {
+                        url: "http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                        options: {
+                            attribution: '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                        }
+                    },
+                    layers: {
+                        overlays: {
+                            clusterGroup: {
+                                name: 'markercluster',
+                                type: 'markercluster',
+                                visible: true,
+                                layerOptions: {
+                                    showCoverageOnHover: false
+                                    // TODO: Add in a cluster icon something like this. Probably
+                                    // no need for different sizes but...
+                                    //
+//                                    ,
+//                                    iconCreateFunction: function (cluster) {
+//                                        var childCount = cluster.getChildCount();
+//
+//                                        var c = ' marker-cluster-';
+//                                        if (childCount < 10) {
+//                                            c += 'small';
+//                                        } else if (childCount < 100) {
+//                                            c += 'medium';
+//                                        } else {
+//                                            c += 'large';
+//                                        }
+//
+//                                        return new L.DivIcon({ html: '<div><span>' + "CUSTOM" + '</span></div>', className: 'marker-cluster' + c, iconSize: new L.Point(40, 40) });
+//                                    }
+                                }
+                            }
+                        }
+                    }
+                };
+
+                //create map on encounter change
+                $scope.$watch('data', function(newVal, oldVal) {
+                    $scope.mapBuilt = buildMap();
+                }, true);
+
+                function buildMap() {
+                    //build marker object
+                    var center = {zoom: 8};
+                    
+                    $scope.mapData.markers = {};
+                    
+                    if ($scope.data.encounter.location && $scope.data.encounter.location.latitude) {
+                        $scope.mapData.markers.mainMaker = {
+                            lat: $scope.data.encounter.location.latitude,
+                            lng: $scope.data.encounter.location.longitude,
+                            draggable: false
+                        };
+
+                        center.lat = $scope.data.encounter.location.latitude;
+                        center.lng = $scope.data.encounter.location.longitude;
+                    }
+                    
+                    $scope.data.photos.forEach(function (photo) {
+                        if (photo.latitude && photo.longitude) {
+                            if (!center.lat) {
+                                center.lat = photo.latitude;
+                                center.lng = photo.longitude;
+                            }
+                            
+                            $scope.mapData.markers['p' + photo.id] = {
+                                lat: photo.latitude,
+                                lng: photo.longitude,
+                                group: 'markercluster',
+                                draggable: false
+                            };
+                        }
+                    });
+                    
+                    if (!center.lat) {
+                        center = {lat: 0, lng: 0, zoom: 1};
+                    }
+                    
+                    $scope.mapData.center = center;
+
+                    return true;
+                };
+
+                //enable location picker
+                $scope.locationPickerState = false;
+
+                var unbindHandler;
+                $scope.pickLocation = function() {
+                    function unbind() {
+                        unbindHandler();
+                        unbindHandler = null;
+                    }
+                    
+                    if ($scope.locationPickerState) {
+                        $scope.locationPickerState = false;
+                        if (unbindHandler) {
+                            unbind();
+                        }
+                    } else {
+                        $scope.locationPickerState = true;
+                        var mapEvents = leafletMapEvents.getAvailableMapEvents();
+                        unbindHandler = $scope.$on('leafletDirectiveMap.click', function(e,  args) {
+                            $scope.data.encounter.location.latitude = args.leafletEvent.latlng.lat;
+                            $scope.data.encounter.location.longitude = args.leafletEvent.latlng.lng;
+                            $scope.locationPickerState = false;
+                            //
+                            // Hit race condition once in which this was called before the $on returned
+                            // the unbindHandler function value. This will hopefully prevent that again.
+                            //
+                            if (! unbindHandler) {
+                                $timeout(function() {
+                                    unbind();
+                                }, 2000)
+                            } else {
+                                unbind();
+                            }
+                        });
+                    }
+                };
+
                 $scope.deleteEncounter = function() {
                     return alertplus.confirm('Are you sure you want to delete this encounter?', "Delete Encounter", true)
                     .then(function() {
@@ -127,7 +256,8 @@ angular.module('wildbook.admin').directive(
                         var promise = $http.post("obj/encounter/detachmedia/" + $scope.data.encounter.id, photoids)
                         .then(function() {
                             $scope.photosDetached({photos: photos});
-                        });
+                            delete $scope.mapData.markers['p'+photoids];
+                        }); 
                         promise.catch($exceptionHandler);
                         return promise;
                     }}
