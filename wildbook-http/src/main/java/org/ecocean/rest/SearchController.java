@@ -122,6 +122,7 @@ public class SearchController
                 cond.addContainsCondition(users, "username", search.name);
                 sql.addCondition(cond);
             }
+            sql.setOrderBy("fullname");
 
             return db.selectList(sql, (rs) -> {
                 return UserFactory.readSimpleUser(rs);
