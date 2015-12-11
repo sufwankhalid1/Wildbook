@@ -516,8 +516,8 @@ public class MediaSubmissionController
 
 
     @RequestMapping(value = "reassign", method = RequestMethod.POST)
-    public void reassign(final HttpServletRequest request,
-                         @RequestBody @Valid final MSReassign reassign) throws DatabaseException {
+    public void addEncounter(final HttpServletRequest request,
+                             @RequestBody @Valid final MSReassign reassign) throws DatabaseException {
         //
         // update all of the photos to point to this new user and then update the mediasubmission itself.
         //
@@ -555,7 +555,7 @@ public class MediaSubmissionController
         try (Database db = ServletUtils.getDb(request)) {
             String saveStatus;
 
-            if ("null".equals(saveStatus)) {
+            if ("null".equals(status)) {
                 saveStatus = null;
             } else {
                 saveStatus = status;
