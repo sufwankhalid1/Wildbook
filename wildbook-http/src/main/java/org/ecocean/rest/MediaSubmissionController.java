@@ -40,8 +40,8 @@ import com.samsix.database.GroupedSqlCondition;
 import com.samsix.database.SqlRelationType;
 import com.samsix.database.SqlStatement;
 import com.samsix.database.SqlTable;
+import com.samsix.database.SqlUpdateFormatter;
 import com.samsix.database.Table;
-import com.samsix.util.string.StringUtilities;
 
 import de.neuland.jade4j.exceptions.JadeException;
 
@@ -555,16 +555,16 @@ public class MediaSubmissionController
         try (Database db = ServletUtils.getDb(request)) {
             String saveStatus;
 
-            if ("null".equals(saveStatus)) {
+            if ("null".equals(status)) {
                 saveStatus = null;
             } else {
                 saveStatus = status;
             }
 
-            String sql = "update " + MediaSubmissionFactory.TABLENAME_MEDIASUBMISSION
-                    + " set status = " + StringUtilities.wrapQuotes(saveStatus)
-                    + " where id = " + msid;
-            db.executeUpdate(sql);
+            SqlUpdateFormatter formatter = new SqlUpdateFormatter();
+            formatter.append("status", saveStatus);
+            Table table = db.getTable(MediaSubmissionFactory.TABLENAME_MEDIASUBMISSION);
+            table.updateRow(formatter.getUpdateClause(), "id = " + msid);
         };
     }
 
