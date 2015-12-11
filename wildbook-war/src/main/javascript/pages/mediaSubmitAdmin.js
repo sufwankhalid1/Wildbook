@@ -16,6 +16,7 @@ angular.module('wildbook.admin').directive(
             controller: function($scope) {
                 $scope.numencs = {};
                 $scope.encOpen = [];
+                $scope.searchStatus = null;
                 $scope.data = {
                     submission: null,
                     photos: null,
@@ -436,7 +437,7 @@ angular.module('wildbook.admin').directive(
                     .then(function() {
                         $http.post("obj/mediasubmission/delete", {submissionid: submission.id})
                         .then(function() {
-                            updateSubmissionData();
+                            $scope.updateSubmissionData();
                             $scope.doneEditing();
                         }, $exceptionHandler);
                     });
@@ -515,12 +516,29 @@ angular.module('wildbook.admin').directive(
                     $scope.msGridOptions.api.setDatasource(dataSource);
                 }
             
-                function updateSubmissionData() {
-                    $http({url:"obj/mediasubmission/get/uncompleted"})
+                $scope.updateSubmissionData = function(status) {
+                    var statusUrl;
+
+                    if(status) {
+                        statusUrl = "obj/mediasubmission/get/status/" + status;
+                    } else {
+                        statusUrl = "obj/mediasubmission/get/uncompleted";
+                    }
+
+                    $http({url: statusUrl})
                     .then(function(result) {
                         $scope.rowData = result.data;
                         $scope.msGridOptions.api.setDatasource(dataSource);
                     }, $exceptionHandler);
+                }
+
+                $scope.setStatus = function(status) {
+                    if(!status){
+                        status = "null";
+                    }
+                    $http.post("obj/mediasubmission/setstatus/"+$scope.data.submission.id, status)
+                        .then(function(result) {
+                        });
                 }
             
                 // Source: http://www.ag-grid.com/angular-grid-pagination/index.php
@@ -577,7 +595,7 @@ angular.module('wildbook.admin').directive(
                 //
                 // Finally, kick us off.
                 //
-                updateSubmissionData();
+                $scope.updateSubmissionData();
             }
         }
     }]

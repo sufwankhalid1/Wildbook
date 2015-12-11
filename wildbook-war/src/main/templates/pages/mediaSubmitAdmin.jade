@@ -1,6 +1,15 @@
 div
     div(ng-show="!data.submission")
-        h1 Media Submissions
+        div(layout="row" layout-fill layout-align="start center")
+            h1 Media Submissions
+            div(flex="")
+            md-input-container.padding-0
+                md-select(ng-model="searchStatus" 
+                                    ng-change="updateSubmissionData(searchStatus)" 
+                                    placeholder="Encounter Status")
+                    md-option(ng-value="''") New
+                    md-option(ng-value="'completed'") Completed
+                    md-option(ng-value="'*'") All
         .ag-fresh(ag-grid="msGridOptions" style="height: 590px")
 
     div.ng-cloak(ng-show="data.submission", wb-key-handler-form)
@@ -69,6 +78,13 @@ div
                             md-tooltip Email Submitter
                     span.brand-primary &nbspon:
                     | &nbsp{{timeToDate(data.submission.timeSubmitted)}}
+                    div(flex="")
+                    md-input-container.padding-0
+                        md-select(ng-model="data.submission.status" 
+                                  ng-change="setStatus(data.submission.status)"
+                                  placeholder="Encounter Status")
+                            md-option(ng-value="")
+                            md-option(ng-value="'completed'") Completed
                 div(layout="row" layout-fill ng-show="searchingSubmitter")
                     wb-user-search(search-user-done="searchUserDone(user)")
                 div(layout="row" layout-fill)
@@ -98,5 +114,4 @@ div
                         legend Edit Encounter
                         wb-encounter-edit(enc-data="data.module.encounterEdit"
                                           edit-encounter-done="editEncounterDone(encdata)"
-                                          photos-detached="encounterPhotosDetached(photos)",
-                                          deleted="encounterDeleted(encdata)")
+                                          photos-detached="encounterPhotosDetached(photos)")

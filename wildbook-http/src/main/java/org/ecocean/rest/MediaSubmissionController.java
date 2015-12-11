@@ -41,6 +41,7 @@ import com.samsix.database.SqlRelationType;
 import com.samsix.database.SqlStatement;
 import com.samsix.database.SqlTable;
 import com.samsix.database.Table;
+import com.samsix.util.string.StringUtilities;
 
 import de.neuland.jade4j.exceptions.JadeException;
 
@@ -545,6 +546,27 @@ public class MediaSubmissionController
         }
     }
 
+    @RequestMapping(value = "/setstatus/{msid}", method = RequestMethod.POST)
+    public void setStatus(final HttpServletRequest request,
+                        @PathVariable("msid")
+                        final int msid,
+                        @RequestBody final String status) throws DatabaseException
+    {
+        try (Database db = ServletUtils.getDb(request)) {
+            String saveStatus;
+
+            if ("null".equals(saveStatus)) {
+                saveStatus = null;
+            } else {
+                saveStatus = status;
+            }
+
+            String sql = "update " + MediaSubmissionFactory.TABLENAME_MEDIASUBMISSION
+                    + " set status = " + StringUtilities.wrapQuotes(saveStatus)
+                    + " where id = " + msid;
+            db.executeUpdate(sql);
+        };
+    }
 
     @RequestMapping(value = "/delfile/{msid}", method = RequestMethod.POST)
     public void delFile(final HttpServletRequest request,
