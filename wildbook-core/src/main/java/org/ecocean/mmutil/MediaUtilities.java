@@ -79,8 +79,6 @@ import com.samsix.util.io.ResourceReader;
 /**
  * Class providing centralized image-related services, such as image rescaling,
  * JPEG saving, thumbnail generation, etc.
- *
- * @author Giles Winstanley
  */
 public final class MediaUtilities {
   /** SLF4J logger instance for writing log entries. */
