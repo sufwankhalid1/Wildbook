@@ -335,19 +335,30 @@ form table td, form table th {
 				}
 		}
 
-		#wild-me-badge { display: none; }
+		#wild-me-badge-container { display: none; }
+
 
 		@media (min-width: @screen-md) { 
-			#wild-me-badge {
+			#wild-me-badge-container{
 				display: block;
-				width: 130px;
-				height: 130px;
-				background: url(../img/logo_wildmeproject.svg) center no-repeat;
-				position: absolute;
-				bottom: -88px;
-		  		right: -28px;
-		  		text-indent: -999em;
-				}
+			    position: absolute;
+			    bottom: -78px;
+			    background-color: white;
+			    right: -28px;
+			    width: 123px;
+			    height: 116px;
+			    border-radius: 95px;
+			}
+			#wild-me-badge {
+			    display: block;
+			    width: 117px;
+			    height: 100%;
+			    background: url(../img/logo_wildmeproject_headerlogo.svg) center no-repeat;
+			    right: 4px;
+			    background-size: cover;
+			    text-indent: -999em;
+			    margin: 3px;
+			}
 		}
 
 		.search-and-secondary-wrapper {
@@ -656,14 +667,4 @@ span.active {
 
 .padding-0{
     padding: 0px;
-}
-
-/* svg colors and modifications */
-.green-svg svg{
-	fill: green;
-}
-
-/* custom cursors */
-.crosshair .leaflet-container{
-	cursor: crosshair !important;
 }

@@ -165,7 +165,9 @@ public String createNavBar(final HttpServletRequest request,
             <nav class="navbar navbar-default navbar-fixed-top">
                 <div class="header-top-wrapper">
                     <div class="container">
-                        <a target="_blank" href="http://www.wildme.org" id="wild-me-badge">A Wild me project</a>
+                        <div id="wild-me-badge-container">
+                          <a target="_blank" href="http://www.wildme.org" id="wild-me-badge">A Wild me project</a>
+                        </div>
                         <div class="search-and-secondary-wrapper">
                             <ul class="secondary-nav hor-ul no-bullets">
                                 <%
