@@ -16,7 +16,7 @@ angular.module('wildbook.admin').directive(
             controller: function($scope) {
                 $scope.numencs = {};
                 $scope.encOpen = [];
-                $scope.searchStatus = null;
+                $scope.searchStatus = '';
                 $scope.data = {
                     submission: null,
                     photos: null,
@@ -512,7 +512,7 @@ angular.module('wildbook.admin').directive(
                     }
                 }
             
-                function setDataSource() {
+                function setDataSource(dataSource) {
                     $scope.msGridOptions.api.setDatasource(dataSource);
                 }
             
@@ -528,7 +528,7 @@ angular.module('wildbook.admin').directive(
                     $http({url: statusUrl})
                     .then(function(result) {
                         $scope.rowData = result.data;
-                        $scope.msGridOptions.api.setDatasource(dataSource);
+                        setDataSource(dataSource);
                     }, $exceptionHandler);
                 }
 
@@ -537,8 +537,18 @@ angular.module('wildbook.admin').directive(
                         status = "null";
                     }
                     $http.post("obj/mediasubmission/setstatus/"+$scope.data.submission.id, status)
-                        .then(function(result) {
-                        });
+                    .then(function(){
+                        //filter out changed status from current grid that isnt set to status = all
+                        if($scope.searchStatus != '*'){
+                            for(var nn = 0; nn < $scope.rowData.length; nn++) {
+                                if($scope.rowData[nn].id === $scope.data.submission.id) {
+                                    $scope.rowData.splice(nn,1);
+                                    setDataSource(dataSource);
+                                    $scope.msGridOptions.api.refreshView();
+                                }
+                            }
+                        }
+                    });
                 }
             
                 // Source: http://www.ag-grid.com/angular-grid-pagination/index.php
