@@ -19,8 +19,12 @@ import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.web.util.WebUtils;
 import org.ecocean.Global;
 import org.ecocean.servlet.ServletUtils;
+import org.ecocean.util.LogBuilder;
+import org.ecocean.util.WildbookUtils;
+import org.slf4j.Logger;
 
 public class ShepherdRealm extends AuthorizingRealm {
+    private static Logger logger = UserService.logger;
 
     public ShepherdRealm() {
         super();
@@ -51,7 +55,19 @@ public class ShepherdRealm extends AuthorizingRealm {
         if (realmName == null) {
             realmName = "";
         }
-        return new SimpleAuthenticationInfo(userid, user.getHashedPass().toCharArray(), realmName);
+
+        if (logger.isDebugEnabled()) {
+            LogBuilder.get("Authenticating...").appendVar("userid", userid)
+                .appendVar("hashedpassword", user.getHashedPass())
+                .appendVar("password", upToken.getPassword())
+                .appendVar("hashedAndSaltedPass", WildbookUtils.hashAndSaltPassword(upToken.getPassword().toString(), user.getSalt()))
+                .appendVar("realmName",  realmName)
+                .debug(logger);
+        }
+
+        SimpleAuthenticationInfo info;
+        info = new SimpleAuthenticationInfo(userid, user.getHashedPass().toCharArray(), realmName);
+        return info;
     }
 
 

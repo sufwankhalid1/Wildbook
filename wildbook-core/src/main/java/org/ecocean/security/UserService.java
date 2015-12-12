@@ -4,8 +4,12 @@ import java.util.List;
 import java.util.Set;
 
 import org.ecocean.Organization;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public interface UserService {
+    public static Logger logger = LoggerFactory.getLogger("UserService");
+
     public User getUserById(final String id);
     public Set<String> getAllRolesForUserInContext(final String id, final String context);
     public List<Organization> getOrganizations();
