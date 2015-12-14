@@ -24,7 +24,6 @@ import org.ecocean.security.UserToken;
 import org.ecocean.util.LogBuilder;
 import org.ecocean.util.WildbookUtils;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,8 +38,7 @@ import de.neuland.jade4j.exceptions.JadeException;
 @RestController
 @RequestMapping(value = "/obj/user")
 public class UserController {
-
-    private static Logger logger = LoggerFactory.getLogger(MediaSubmissionController.class);
+    private static Logger logger = UserService.logger;
 
     public static boolean notAcceptedTerms(final User user) {
         return (Global.INST.getAppResources().getBoolean("user.agreement.show", false)
@@ -108,7 +106,15 @@ public class UserController {
         }
 
         String hashedPass = WildbookUtils.hashAndSaltPassword(password, user.getSalt());
-        return new UserToken(user, new UsernamePasswordToken(user.getUserId().toString(), hashedPass));
+        UsernamePasswordToken token = new UsernamePasswordToken(user.getUserId().toString(), hashedPass);
+
+        //
+        // TODO: Built in support for remember me. Should we have the user pass this in so as
+        // to not assume true?
+        //
+//        token.setRememberMe(true);
+
+        return new UserToken(user, token);
     }
 
 
@@ -153,6 +159,11 @@ public class UserController {
                                 @RequestBody
                                 final LoginAttempt loginAttempt) throws DatabaseException
     {
+        if (logger.isDebugEnabled()) {
+            LogBuilder.get("login attempt").appendVar("username", loginAttempt.username)
+                .appendVar("password", loginAttempt.password).debug(logger);;
+        };
+
         UserToken userToken = getUserToken(request, loginAttempt.username, loginAttempt.password);
 
         if (userToken == null) {

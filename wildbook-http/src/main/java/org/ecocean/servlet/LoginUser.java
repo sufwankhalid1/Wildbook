@@ -13,10 +13,10 @@ import org.apache.shiro.subject.Subject;
 import org.apache.shiro.web.util.WebUtils;
 import org.ecocean.Global;
 import org.ecocean.rest.UserController;
+import org.ecocean.security.UserService;
 import org.ecocean.security.UserToken;
 import org.ecocean.util.LogBuilder;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  public class LoginUser extends javax.servlet.http.HttpServlet implements javax.servlet.Servlet {
    static final long serialVersionUID = 1L;
 
-   private static final Logger logger = LoggerFactory.getLogger(LoginUser.class);
+   private static Logger logger = UserService.logger;
 
     /* (non-Java-doc)
      * @see javax.servlet.http.HttpServlet#HttpServlet()
@@ -63,6 +63,10 @@ import org.slf4j.LoggerFactory;
         //see /login.jsp for these form fields
         String username = request.getParameter("username").trim();
         String password = request.getParameter("password").trim();
+
+        if (logger.isDebugEnabled()) {
+            LogBuilder.get().appendVar("username", username).appendVar("password", password).debug(logger);;
+        };
 
         UserToken userToken = null;
         try {

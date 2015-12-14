@@ -9,14 +9,13 @@ import java.util.Set;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.ecocean.Organization;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.samsix.database.ConnectionInfo;
 import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
 
 public class DbUserService implements UserService {
-    private final static Logger logger = LoggerFactory.getLogger(DbUserService.class);
+    private static Logger logger = UserService.logger;
 
     private final ConnectionInfo ci;
     private final Map<Integer, SecurityInfo> mapUserId = new HashMap<>();
@@ -198,7 +197,18 @@ public class DbUserService implements UserService {
     @Override
     public User verifyPRToken(final String token) {
         try (Database db = new Database(ci)) {
-            return UserFactory.verifyPRToken(db, token);
+            User user = UserFactory.verifyPRToken(db, token);
+            //
+            // Return the user that is in our cache so that the new password
+            // gets set on that user or else the user can't log in again with
+            // their new password.
+            //
+            User cached = getUserById(user.getUserId().toString());
+            if (cached != null) {
+                return cached;
+            }
+
+            return user;
         } catch (DatabaseException | IllegalAccessException ex) {
             throw new SecurityException("Can't find user for token [" + token + "]");
         }
