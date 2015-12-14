@@ -9,6 +9,7 @@ div(layout="row" layout-wrap)
             md-icon.md-warn(md-svg-icon="delete" layout-margin ng-click="deleteEncounter()")
         md-content(layout="row" layout-fill layout-align="start center")
             label(layout-padding) Individual:
+            img.avatar-icon.mr-5(ng-if="data.encounter.individual.avatarid" ng-src="{{data.encounter.individual.avatar}}")
             input(flex="70" ng-show="data.encounter.individual.id" type="text" disabled="true" ng-value="data.encounter.individual.displayName + ' -- ' + data.encounter.individual.species.name")
             div(flex="70" layout="row" layout-align="start center" ng-show="! data.encounter.individual.id")
                 span.brand-primary(flex="10") New
@@ -27,12 +28,6 @@ div(layout="row" layout-wrap)
             md-input-container(flex="33")
                 label End Time:
                 time-input(ng-model="data.encounter.endtime")
-        md-content(ng-if="mapBuilt" ng-class="{'crosshair':locationPickerState}")
-            leaflet(lf-center="mapData.center" layers="mapData.layers" markers="mapData.markers" tiles="mapData.tiles" height="300" defaults="mapData.defaults")
-        md-content.mheight-5
-            div(layout="row" layout-fill)
-                div(flex="")
-                md-icon(md-svg-icon="crosshairs-gps" ng-click="pickLocation($event)" ng-class="{'green-svg':locationPickerState}")
         md-content
             md-tabs(md-selected="selectedIndex" md-dynamic-height="true" md-border-bottom)
                 md-tab(label="Data")
