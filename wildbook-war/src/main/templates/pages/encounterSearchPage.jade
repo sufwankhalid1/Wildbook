@@ -2,11 +2,14 @@ div
     legend Encounter Search
     wb-encounter-search(search-encounter-done="searchEncounterDone(encounter)")
     div(ng-if="encdata")
-        legend Encounter
-            a(href="javascript:;" ng-click="edit()" uib-tooltip="Edit" ng-disabled="mode_edit")
-                i.glyphicon.glyphicon-edit
+        div(layout="row" layout-margin layout-align="start center")
+            div 
+                h4 Encounter
+            md-icon.ml-10.mr-10(md-svg-icon="pencil" ng-click="edit()" ng-disabled="mode_edit")
+                md-tooltip(md-direction="bottom") Edit
             cancel-button
+        md-divider
         wb-encounter-view(ng-if="encdata && ! mode_edit" enc-data="encdata")
-        wb-encounter-edit(ng-if="encdata && ! mode_edit"
+        wb-encounter-edit(ng-if="encdata && mode_edit"
                           enc-data="encdata"
                           edit-encounter-done="editEncounterDone(encdata)")

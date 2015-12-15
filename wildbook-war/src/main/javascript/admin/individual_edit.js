@@ -60,7 +60,7 @@ angular.module('wildbook.admin').directive(
                     $scope.active = [];
 
                     $http.get("obj/individual/photos/"+individual.id)
-                    .then(function(photos){
+                    .then(function(photos) {
                         $scope.photos = photos.data;
                     });
 
