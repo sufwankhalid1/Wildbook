@@ -100,7 +100,7 @@ public class DbUserService implements UserService {
 
     @Override
     public Organization getOrganization(final String name) {
-        for (Organization org : orgs) {
+        for (Organization org : getOrganizations()) {
             if (org.getName().equalsIgnoreCase(name)) {
                 return org;
             }
