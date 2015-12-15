@@ -141,6 +141,20 @@ public class UserFactory {
     }
 
 
+    public static User getUserByFullname(final Database db, final String fullname) throws DatabaseException {
+        if (fullname == null) {
+            return null;
+        }
+
+        SqlStatement sql = getUserStatement();
+        sql.addCondition(AlIAS_USERS, "fullname", SqlRelationType.LIKE, fullname.toLowerCase()).setFunction("lower");
+
+        return db.selectFirst(sql, (rs) -> {
+            return readUser(rs);
+        });
+    }
+
+
     public static User readUser(final RecordSet rs) throws DatabaseException {
         Integer id = rs.getInteger(PK_USERS);
         if (id == null) {
@@ -387,7 +401,7 @@ public class UserFactory {
         List<Organization> orgs = new ArrayList<>();
         db.getTable(TABLENAME_ORG).select((rs) -> {
             orgs.add(readOrganization(rs));
-        });
+        }, null, "orgname");
         return orgs;
     }
 }

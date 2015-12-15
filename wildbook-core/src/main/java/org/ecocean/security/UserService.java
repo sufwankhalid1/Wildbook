@@ -22,4 +22,7 @@ public interface UserService {
     public void addRole(final String userid, final String context, final String role);
     public User verifyPRToken(final String token);
     public boolean doesUserHaveRole(final String userid, final String context, final String role);
+    public Organization getOrganization(String name);
+    public void addOrganization(Organization org);
+    public User getUserByFullname(String fullname);
 }

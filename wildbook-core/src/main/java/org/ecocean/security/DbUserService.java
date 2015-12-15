@@ -1,5 +1,6 @@
 package org.ecocean.security;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -94,7 +95,33 @@ public class DbUserService implements UserService {
             }
         }
 
-        return orgs;
+        return new ArrayList<Organization>(orgs);
+    }
+
+    @Override
+    public Organization getOrganization(final String name) {
+        for (Organization org : orgs) {
+            if (org.getName().equalsIgnoreCase(name)) {
+                return org;
+            }
+        }
+
+        return null;
+    }
+
+    @Override
+    public void addOrganization(final Organization org) {
+        try (Database db = new Database(ci)) {
+            UserFactory.saveOrganization(db, org);
+        } catch (DatabaseException ex) {
+            throw new SecurityException("Can't add new organization.", ex);
+        }
+
+        //
+        // TODO: Need to add a sorting method so that the new org is properly sorted
+        // within the list.
+        //
+        orgs.add(org);
     }
 
     @Override
@@ -156,6 +183,17 @@ public class DbUserService implements UserService {
         }
 
         return info.getUser();
+    }
+
+    @Override
+    public User getUserByFullname(final String fullname) {
+        try (Database db = new Database(ci)) {
+            try {
+                return UserFactory.getUserByFullname(db, fullname);
+            } catch (DatabaseException ex) {
+                throw new SecurityException("Can't read user.", ex);
+            }
+        }
     }
 
     @Override
