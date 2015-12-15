@@ -79,7 +79,11 @@ public class LogBuilder {
     public LogBuilder appendVar(final String variable,
                                 final String value)
     {
-        builder.append(variable).append(" [").append(value).append("]");
+        if (builder.length() != 0) {
+            builder.append("; ");
+        }
+
+        builder.append(variable).append(": [").append(value).append("]");
 
         return this;
     }
