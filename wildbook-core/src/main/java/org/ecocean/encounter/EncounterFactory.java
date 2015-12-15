@@ -320,7 +320,7 @@ public class EncounterFactory {
 
 
     private static void fillIndividualFormatter(final SqlFormatter formatter, final Individual individual) {
-        formatter.append("alternateId", individual.getAlternateId());
+        formatter.append("alternateid", individual.getAlternateId());
         formatter.append("identified", individual.isIdentified());
         if (individual.getSpecies() == null) {
             formatter.appendNull("species");
