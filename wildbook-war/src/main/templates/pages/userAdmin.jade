@@ -23,16 +23,19 @@ div
                         md-input-container(flex="33")
                             label Phone
                             input(ng-model="user.phoneNumber")
-                    div(layout="row" flex-offset="10" flex="90")
-                        md-input-container(flex="66")
+                    div(layout="row" flex-offset="10" flex="90" layout-align="start center")
+                        md-input-container(flex="60")
                             label Address
                             input(ng-model="user.physicalAddress")
-                        md-input-container(flex="33")
+                        md-input-container(flex="30")
                             label Organization
-                            input(autocomplete="off" ng-model="user.organization")
+                            input(autocomplete="off" ng-model="user.organization.displayName" disabled)
+                        md-button.md-whiteframe-1dp.height-36(type="submit" ng-click="editOrg($event)" aria-label="Edit Organization") Edit Org
                     //- div(layout="row" flex-offset="10" flex="90")
                     //-     md-input-container(flex="33")
                     //-         label Password
                     //-         input(autocomplete="off" type="password" ng-model="password")
-                div(layout="row" layout-fill layout-align="end center")
+                div.mt-15(layout="row" flex-offset="10" flex="90" layout-align="start center")
+                    md-button.md-whiteframe-1dp.md-warn(type="submit" ng-click="changeUserPassword()" aria-label="Save") Change User Password
+                    div(flex="")
                     md-button.md-whiteframe-1dp(type="submit" ng-click="save()" aria-label="Save") Save
