@@ -69,7 +69,9 @@ div
             div(flex="80" layout-wrap flex-offset="5")
                 div(layout="row" layout-fill)
                     span.brand-primary Submitted by:
-                    | &nbsp{{data.submission.user.displayName}}
+                    | &nbsp
+                    span(ng-show="data.submission.user") {{data.submission.user.displayName}}
+                    span(ng-show="!data.submission.user" style="color: red") {{data.submission.name}}/{{data.submission.email}}
                     a(href="javascript:;" ng-click="searchSubmitter()")
                         md-icon(md-svg-icon="magnify")
                             md-tooltip Reassign Submitter
