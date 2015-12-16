@@ -13,4 +13,5 @@ if [ $? -ne 0 ]; then
     exit $?
 fi
 cd ../wildbook-war
+npm install
 gulp build
