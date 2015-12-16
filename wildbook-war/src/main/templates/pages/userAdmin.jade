@@ -1,0 +1,38 @@
+div
+    div(ng-show="!data.submission")
+        md-content(layout="row" layout-fill layout-align="start center")
+            h1 User Admin
+            div(flex="")
+        md-content(layout="row" layout-fill layout-align="end center")
+            md-button.md-whiteframe-1dp(type="button" ng-click="newUser()" aria-label="New User") New User
+        wb-user-search(ng-show="!user" search-user-done="setUser(user)" show-close="false")
+        md-content.mt-10(ng-show="user")
+            div(layout="row" layout-fill)
+                md-icon.margin-0.mb-10(md-svg-icon="close-circle" ng-click="clearUser()")
+            div(layout="row" layout-align="start center" layout-wrap)
+                div(layout="row" layout-fill layout-wrap)
+                    div(layout="row" flex="10")
+                        img(ng-src="{{user.avatar}}")
+                    div(layout="row" flex="90")
+                        md-input-container(flex="33")
+                            label Full Name
+                            input(ng-model="user.fullName")
+                        md-input-container(flex="33")
+                            label Email
+                            input(ng-model="user.email")
+                        md-input-container(flex="33")
+                            label Phone
+                            input(ng-model="user.phoneNumber")
+                    div(layout="row" flex-offset="10" flex="90")
+                        md-input-container(flex="66")
+                            label Address
+                            input(ng-model="user.physicalAddress")
+                        md-input-container(flex="33")
+                            label Organization
+                            input(autocomplete="off" ng-model="user.organization")
+                    //- div(layout="row" flex-offset="10" flex="90")
+                    //-     md-input-container(flex="33")
+                    //-         label Password
+                    //-         input(autocomplete="off" type="password" ng-model="password")
+                div(layout="row" layout-fill layout-align="end center")
+                    md-button.md-whiteframe-1dp(type="submit" ng-click="save()" aria-label="Save") Save

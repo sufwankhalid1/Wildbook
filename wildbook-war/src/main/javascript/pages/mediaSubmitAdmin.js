@@ -1,8 +1,8 @@
-require('../admin/encounter_edit.js');
-require('../admin/encounter_search.js');
-require('../admin/survey_edit.js');
-require('../admin/survey_search.js');
-require('../admin/user_search.js');
+require('../encounters/encounter_edit.js');
+require('../encounters/encounter_search.js');
+require('../survey/survey_edit.js');
+require('../survey/survey_search.js');
+require('../user/user_search.js');
 
 angular.module('wildbook.admin').directive(
     "wbMediaSubmissionAdmin",

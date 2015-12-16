@@ -74,7 +74,7 @@ navbar:
               url: /software/software.jsp
               role: admin
             - name: userManagement
-              url: /appadmin/users.jsp?context=context0
+              url: /admin.jsp?j=page/userAdmin
               role: admin
             - name: mediaSubmissionManagement
               url: /admin.jsp?j=page/mediaSubmitAdmin

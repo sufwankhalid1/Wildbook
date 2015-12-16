@@ -1,0 +1,42 @@
+div(layout="row" layout-wrap)
+    wb-individual-search(ng-show="module.individualSearch" layout-fill search-individual-done="searchIndividualDone(individual)")
+    wb-individual-edit(ng-show="module.individualEdit" edit-individual-done="editIndividualDone(individual)" ind-data="data.encounter.individual" layout-fill)
+    form.form.ng-cloak(ng-show="! module.individualSearch && ! module.individualEdit"
+                       name="encounterForm" novalidate, wb-key-handler-form layout-fill)
+        div(layout="row" layout-fill layout-align="start center")
+            cancel-button(layout-margin)
+            div(flex="")
+            md-icon.md-warn(md-svg-icon="delete" layout-margin ng-click="deleteEncounter()")
+        md-content(layout="row" layout-fill layout-align="start center")
+            label(layout-padding) Individual:
+            img.avatar-icon.mr-5(ng-if="data.encounter.individual.avatarid" ng-src="{{data.encounter.individual.avatar}}")
+            input(flex="70" ng-show="data.encounter.individual.id" type="text" disabled="true" ng-value="data.encounter.individual.displayName + ' -- ' + data.encounter.individual.species.name")
+            div(flex="70" layout="row" layout-align="start center" ng-show="! data.encounter.individual.id")
+                span.brand-primary(flex="10") New
+                md-select(flex="" ng-model="data.encounter.individual.species" ng-model-options="{trackBy: '$value.code'}" placeholder="Species")
+                    md-option(ng-value="species" ng-repeat="species in getSpecies()") {{species.name}}
+            md-icon(md-svg-icon="pencil" layout-margin ng-click="editIndividual()")
+            md-icon(md-svg-icon="magnify" layout-margin ng-click="findIndividual()")
+            div(flex="")
+        md-content(layout="row" layout-align="center center")
+            md-input-container(flex="33" ng-class="{'has-error': encounterForm.date.$invalid}")
+                label Date:
+                date-input(name="date" ng-model="data.encounter.encDate" required)
+            md-input-container(flex="33")
+                label Start Time:
+                time-input(ng-model="data.encounter.starttime")
+            md-input-container(flex="33")
+                label End Time:
+                time-input(ng-model="data.encounter.endtime")
+        md-content
+            md-tabs(md-selected="selectedIndex" md-dynamic-height="true" md-border-bottom)
+                md-tab(label="Data")
+                    location-edit(location="data.encounter.location")
+                md-tab(label="Images")
+                    wb-thumb-box(ng-show="selectedIndex == 1"
+                                 photos="data.photos"
+                                 actions="tbActions"
+                                 cb-delphoto="deletePhoto(id)"
+                                 cb-action="performAction(code, photos)")
+        md-button.md-whiteframe-1dp(type="submit" ng-click="save()" aria-label="Save") Save
+        

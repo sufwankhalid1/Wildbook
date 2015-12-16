@@ -1,0 +1,28 @@
+form.form.ng-cloak(novalidate, wb-key-handler-form)
+    md-content
+        md-tabs(md-border-bottom md-dynamic-height md-selected="selectedTabIndex")
+            md-tab(label="Data")
+                div(layout="row")
+                    md-input-container(flex="50")
+                        label Organization:
+                        md-select(md-option="org.displayName for org in main.config.orgs track by org.orgId"
+                                        ng-model="search.organization", ng-change="orgChange()")
+                    md-input-container(flex="50")
+                        label Vessel:
+                        md-select(ng-model="surveysearch.vesselid")
+                            md-option(ng-repeat="vessel in data.vessels", value="{{vessel.vesselId}}") {{vessel.displayName}}
+                div(layout="row")
+                    md-input-container(flex="50")
+                        label Survey Number:
+                        input(type="text", ng-model="surveysearch.surveynumber")
+                    md-input-container(flex="50")
+                        label Code:
+                        input(type="text", ng-model="surveysearch.code")
+                div(layout="row")
+                    md-input-container(flex="33")
+                        label Date:
+                        date-input(type="date", ng-model="surveysearch.date")
+                div(layout="row")
+                    md-button.md-whiteframe-1dp(type="submit", ng-click="search()") Search
+            md-tab(label="Results")
+                .ag-fresh(ag-grid="surveyGridOptions", style="height: 400px;")

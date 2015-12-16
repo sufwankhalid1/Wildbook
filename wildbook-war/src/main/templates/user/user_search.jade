@@ -1,0 +1,12 @@
+form.form(novalidate, wb-key-handler-form layout-fill)
+    md-content
+        cancel-button(hide="showClose")
+        md-tabs(md-border-bottom md-dynamic-height md-selected="selectedTabIndex")
+            md-tab(label="Data")
+                div(layout="row")
+                    md-input-container(flex="50")
+                        label Name/Username:
+                        input(ng-model="searchdata.name")
+                md-button.md-whiteframe-1dp(type="submit" ng-click="search()" aria-label="Search") Search
+            md-tab(label="Results")
+                .ag-fresh(ag-grid="gridOptions", style="height: 400px;")

@@ -327,7 +327,10 @@ app.factory("wbEncounterUtils", ["$http", "$q", "wbConfig", "wbDateUtils", "$exc
 app.directive('cancelButton', [function() {
     return {
         restrict: 'E',
-        template: ' <a href="javascript:;" ng-click="cancel()">'+
+        scope: {
+                hide: '@'
+                },
+        template: ' <a href="javascript:;" ng-show="hide" ng-click="cancel()">'+
                   '     <md-icon md-svg-icon="close-circle"><md-tooltip>Cancel</md-tooltip></md-icon>'+
                   ' </a>',
         replace: true

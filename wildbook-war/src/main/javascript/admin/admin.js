@@ -2,6 +2,7 @@ angular.module('wildbook.admin', []);
 
 require("../pages/encounterSearchPage.js");
 require("../pages/mediaSubmitAdmin.js");
+require("../pages/userAdmin.js");
 
 angular.module('wildbook.admin').directive(
     'locationEdit',
@@ -11,7 +12,7 @@ angular.module('wildbook.admin').directive(
             scope: {
                 location: '='
             },
-            templateUrl: 'partials/location_edit.html'
+            templateUrl: 'util/location_edit.html'
         };
     }
 );
