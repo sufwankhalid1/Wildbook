@@ -195,8 +195,6 @@ public class DbUserService implements UserService {
             }
         }
     }
-
-    //test
     
     @Override
     public String createPWResetToken(final String userid) {
