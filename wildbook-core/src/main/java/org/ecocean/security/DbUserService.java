@@ -209,6 +209,10 @@ public class DbUserService implements UserService {
     public void saveUser(final User user) {
         try (Database db = new Database(ci)) {
             UserFactory.saveUser(db, user);
+            //
+            // Need to reupdate the maps with the new user info.
+            //
+            addNewSecurityInfo(user);
         } catch (DatabaseException ex) {
             throw new SecurityException("Can't save user [" + user.getUserId() + "]");
         }
