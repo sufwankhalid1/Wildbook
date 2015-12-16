@@ -20,7 +20,8 @@ public interface UserService {
     public void saveUser(final User user);
     public void deleteRoles(final String userid);
     public void addRole(final String userid, final String context, final String role);
-    public User verifyPRToken(final String token);
+    public void resetPass(final String userid, final String password);
+    public void resetPassWithToken(final String token, String password);
     public boolean doesUserHaveRole(final String userid, final String context, final String role);
     public Organization getOrganization(String name);
     public void addOrganization(Organization org);

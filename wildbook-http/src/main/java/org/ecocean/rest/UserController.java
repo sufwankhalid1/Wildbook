@@ -279,17 +279,7 @@ public class UserController {
         }
 
         UserService userService = Global.INST.getUserService();
-        User user = userService.verifyPRToken(reset.token);
-
-        user.resetPassword(reset.password);
-        user.setVerified(true);
-        userService.saveUser(user);
-    }
-
-    @RequestMapping(value = "verifypasstoken", method = RequestMethod.POST)
-    public void verifyPassToken(final HttpServletRequest request,
-                                @RequestBody @Valid final String token) throws IllegalAccessException, DatabaseException {
-        Global.INST.getUserService().verifyPRToken(token);
+        userService.resetPassWithToken(reset.token, reset.password);
     }
 
 

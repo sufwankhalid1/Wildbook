@@ -53,6 +53,13 @@ public class DbUserService implements UserService {
         return info;
     }
 
+    private void resetPassword(final User user, final String password) {
+        user.resetPassword(password);
+        user.setVerified(true);
+
+        saveUser(user);
+    }
+
     @Override
     public SecurityInfo getSecurityInfo(final String userIdString) {
         Integer userid = NumberUtils.createInteger(userIdString);
@@ -237,20 +244,18 @@ public class DbUserService implements UserService {
     }
 
     @Override
-    public User verifyPRToken(final String token) {
+    public void resetPass(final String userid, final String password) {
+        User user = getUserById(userid);
+        if (user != null) {
+            resetPassword(user, password);
+        }
+    }
+
+    @Override
+    public void resetPassWithToken(final String token, final String password) {
         try (Database db = new Database(ci)) {
             User user = UserFactory.verifyPRToken(db, token);
-            //
-            // Return the user that is in our cache so that the new password
-            // gets set on that user or else the user can't log in again with
-            // their new password.
-            //
-            User cached = getUserById(user.getUserId().toString());
-            if (cached != null) {
-                return cached;
-            }
-
-            return user;
+            resetPassword(user, password);
         } catch (DatabaseException | IllegalAccessException ex) {
             throw new SecurityException("Can't find user for token [" + token + "]");
         }
