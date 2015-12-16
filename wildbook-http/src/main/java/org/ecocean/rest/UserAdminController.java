@@ -1,17 +1,15 @@
 package org.ecocean.rest;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 
+import org.ecocean.Global;
 import org.ecocean.security.User;
-import org.ecocean.security.UserFactory;
-import org.ecocean.servlet.ServletUtils;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.samsix.database.Database;
-import com.samsix.database.DatabaseException;
 
 @RestController
 @RequestMapping(value = "/useradmin")
@@ -21,9 +19,15 @@ public class UserAdminController {
 
     @RequestMapping(value = "user/{userid}", method = RequestMethod.GET)
     public User getUser(final HttpServletRequest request,
-                        @PathVariable("userid") final int userid) throws DatabaseException {
-        try (Database db = ServletUtils.getDb(request)) {
-            return UserFactory.getUserById(db, userid);
-        }
+                        @PathVariable("userid") final int userid) {
+        return Global.INST.getUserService().getUserById(String.valueOf(userid));
     }
+    
+    @RequestMapping(value = "usersave", method = RequestMethod.POST)
+    public int saveUser(final HttpServletRequest request,
+                        @RequestBody @Valid final User user) {
+        Global.INST.getUserService().saveUser(user);
+        return user.getUserId();
+    }
+    
 }
