@@ -282,33 +282,9 @@ public class UserController {
         userService.resetPassWithToken(reset.token, reset.password);
     }
 
-
-    //
-    // LEAVE: This is just a test url that allows us to see if we have the correct
-    // setting in our dispatcher-servlet.xml that forces Spring to not make assumptions
-    // about a file type of the return value if there is a dot in the path param.
-    //
-    @RequestMapping(value = "test/{email:.+}", method = RequestMethod.GET)
-    public UserVerifyInfo test(final HttpServletRequest request,
-                               @PathVariable("email") final String email) {
-        UserVerifyInfo info = new UserVerifyInfo();
-        info.email = email + " - test";
-        return info;
-    }
-
-
     static class UserInfo {
         public String email;
         public String fullName;
-    }
-
-    static class UserVerifyInfo {
-        public String email;
-        public UserVerifyInfo() {
-        }
-        public String getEmail() {
-            return email;
-        }
     }
 
     static class LoginAttempt {
@@ -326,5 +302,30 @@ public class UserController {
         public String token;
         public String password;
     }
+
+    //
+    // LEAVE: This is just a test url that allows us to see if we have the correct
+    // setting in our dispatcher-servlet.xml that forces Spring to not make assumptions
+    // about a file type of the return value if there is a dot in the path param.
+    //
+    @RequestMapping(value = "test/{email:.+}", method = RequestMethod.GET)
+    public TestInfo test(final HttpServletRequest request,
+                               @PathVariable("email") final String email) {
+        TestInfo info = new TestInfo();
+        info.email = email + " - test";
+        return info;
+    }
+
+    static class TestInfo {
+        public String email;
+        public TestInfo() {
+        }
+        public String getEmail() {
+            return email;
+        }
+    }
+    //
+    // ===== DONE LEAVE =======
+    //
 }
 
