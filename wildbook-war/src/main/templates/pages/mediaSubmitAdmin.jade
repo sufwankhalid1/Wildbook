@@ -1,6 +1,6 @@
 div
     div(ng-show="!data.submission")
-        div(layout="row" layout-fill layout-align="start center")
+        div(layout="row" flex="100" layout-align="start center")
             h1 Media Submissions
             div(flex="")
             md-input-container.padding-0
@@ -29,7 +29,7 @@ div
                         md-icon(md-svg-icon="plus")
                             md-tooltip(md-direction="top") Add a new Survey
                     md-divider
-                    div(ng-repeat="surveyEnc in data.surveyEncs" layout-fill layout="row" layout-wrap)
+                    div(ng-repeat="surveyEnc in data.surveyEncs" flex="100" layout="row" layout-wrap)
                         md-icon(md-svg-icon="chevron-right" 
                                 ng-show="!encOpen[$index]" 
                                 ng-click="encOpen[$index] = true; selectSurvey(surveyEnc, true, $index)")
@@ -42,7 +42,7 @@ div
                         div(flex="")
                         md-icon(md-svg-icon="plus" ng-click="addEncounter(surveyEnc); activeEle('survey')")
                             md-tooltip(md-direction="right") Add an encounter to this survey
-                        div(ng-show="data.activeSurveyEnc.encs && encOpen[$index] === true" layout-fill)
+                        div(ng-show="data.activeSurveyEnc.encs && encOpen[$index] === true" flex="100")
                             div.media-admin-nav-list(layout="row" layout-align="end end" 
                                 ng-repeat="encdata in data.activeSurveyEnc.encs" 
                                 ng-click="selectEncounter($event, encdata, surveyEnc); activeEle('surveyEnc')" 
@@ -67,7 +67,7 @@ div
                             div {{dateStringFromRest(encdata.encounter.encDate)}}
                             div {{encdata.encounter.location.locationid}}
             div(flex="80" layout-wrap flex-offset="5")
-                div(layout="row" layout-fill)
+                div(layout="row" flex="100")
                     span.brand-primary Submitted by:
                     | &nbsp
                     span(ng-show="data.submission.user") {{data.submission.user.displayName}}
@@ -87,14 +87,14 @@ div
                                       placeholder="Encounter Status"
                                       ng-false-value=""
                                       ng-true-value="'completed'") {{data.submission.status ? 'Submission Completed' : 'Submission Complete?'}}
-                div(layout="row" layout-fill ng-show="searchingSubmitter")
+                div(layout="row" flex="100" ng-show="searchingSubmitter")
                     wb-user-search(search-user-done="searchUserDone(user)")
-                div(layout="row" layout-fill)
+                div(layout="row" flex="100")
                     div(flex="50")
                         span {{data.submission.description}}
                     div(flex="50")
                         span {{data.submission.verbatimLocation}}
-                div(layout="row" layout-fill)
+                div(layout="row" flex="100")
                     wb-thumb-box(ng-if="data.submission"
                                  photos="data.photos"
                                  indicators="data.indicators"
@@ -102,17 +102,17 @@ div
                                  thumbbox="data.selectedimgs"
                                  cb-action="performAction(code, photos)"
                                  block-size="8")
-                div(layout="row" layout-fill layout-wrap)
-                    div(ng-if="data.module.surveySearch" layout-fill)
+                div(layout="row" flex="100" layout-wrap)
+                    div(ng-if="data.module.surveySearch" flex="100")
                         legend Search Survey
                         wb-survey-search(search-survey-done="searchSurveyDone(surveypart)")
-                    div(ng-if="data.module.surveyEdit" layout-fill)
+                    div(ng-if="data.module.surveyEdit" flex="100")
                         legend Edit Survey
                         wb-survey-edit(survey-to-edit="data.module.surveyEdit" edit-survey-done="editSurveyDone(surveypart)")
-                    div(ng-if="data.module.encounterSearch" layout-fill)
+                    div(ng-if="data.module.encounterSearch" flex="100")
                         legend Search Encounter
                         wb-encounter-search(search-encounter-done="searchEncounterDone(encounter)")
-                    div(ng-if="data.module.encounterEdit" layout-fill)
+                    div(ng-if="data.module.encounterEdit" flex="100")
                         legend Edit Encounter
                         wb-encounter-edit(enc-data="data.module.encounterEdit"
                                           edit-encounter-done="editEncounterDone(encdata)"

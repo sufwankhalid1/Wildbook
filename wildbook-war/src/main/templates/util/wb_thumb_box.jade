@@ -23,18 +23,17 @@ div(wb-key-handler-watch-scope="parent" layout-fill)
             md-slider(md-discrete ng-show="sliderMax() != 0 && slider.step != sliderMax()"
                       ng-model="slider.value" min="{{slider.step}}" step="{{slider.step}}"
                       max="{{sliderMax()}}" aria-label="Image Count")
-    md-content.overflow-visible(layout="row" layout-align="left center")
-        .flexy(ng-show="! zoomimage")
+    md-content.overflow-visible(layout="row" flex="100" layout-align="left center")
+        div(layout-wrap ng-show="! zoomimage" layout="row")
             .thumbbox-item(ng-repeat="photo in getVisPhotos()" ng-class="{'selected': thumbbox.meta[photo.id].selected}")
                 a(href="javascript:;", ng-click="selectImage($event, photo)")
                     img(ng-src="{{photo.thumbUrl}}" style="padding: 2px; max-width: 100%")
-                div(layout="row" layout-fill layout-align="start center")
-                    .flexy
-                        div(ng-repeat="indicator in indicators" class="indicator {{indicator.def.type}} {{indicator.def.displayClass}}")
-                            div(ng-class="{zero: (indicator.values[photo.id] === 0)}") {{indicator.values[photo.id]}}
+                div(layout="row" flex="100" layout-align="start center")
+                    div(ng-repeat="indicator in indicators" class="indicator {{indicator.def.type}} {{indicator.def.displayClass}}")
+                        div(ng-class="{zero: (indicator.values[photo.id] === 0)}") {{indicator.values[photo.id]}}
                     div(flex="")
                     md-icon(ng-show="metaTooltip(photo)" md-svg-icon="information-outline" title="{{metaTooltip(photo)}}")
-                div(layout="row" layout-fill)
+                div(layout="row" flex="100")
                     div(style="font-size: 12px") {{getTimestamp(photo)}}
         .ng-cloak(ng-if="zoomimage", style="position: relative; width: 800px; height: 600px;", wb-key-handler-form)
             div
@@ -50,7 +49,6 @@ div(wb-key-handler-watch-scope="parent" layout-fill)
                             md-tooltip Close
                             md-icon(md-svg-icon="check")
                 div(layout="row" layout-align="start center" flex="50")
-                    .flexy
                         div(ng-repeat="indicator in indicators" class="indicator {{indicator.def.type}} {{indicator.def.displayClass}}")
                             div(ng-class="{zero: (indicator.values[zoomimage.id] === 0)}") {{indicator.values[zoomimage.id]}}
                         div(style="font-size: 16px" title="{{metaTooltip(zoomimage)}}") {{getTimestamp(zoomimage)}}

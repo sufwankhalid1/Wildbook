@@ -28,9 +28,9 @@ form.form.ng-cloak(novalidate, wb-key-handler-form)
         md-input-container(flex="33")
             label End Time:
             time-input(ng-model="data.part.endtime")
-        div(layout="row" layout-fill)
-            location-edit(location="data.part.location" location-edit layout-fill)
-        div(layout="row" layout-fill)
+        div(layout="row" flex="100")
+            location-edit(location="data.part.location" location-edit flex="100")
+        div(layout="row" flex="100")
             md-input-container
                 label Comments:
                 textarea(type="textarea", rows="4", ng-model="data.part.comments")

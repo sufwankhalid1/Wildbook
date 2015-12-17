@@ -1,5 +1,6 @@
 require('../encounters/encounter_search.js');
 require('../encounters/encounter_edit.js');
+require('../util/location_edit.js');
 
 angular.module('wildbook.admin').directive(
     "wbEncounterSearchPage",

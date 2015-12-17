@@ -1,13 +1,13 @@
 div(layout="row" layout-wrap)
-    wb-individual-search(ng-show="module.individualSearch" layout-fill search-individual-done="searchIndividualDone(individual)")
-    wb-individual-edit(ng-show="module.individualEdit" edit-individual-done="editIndividualDone(individual)" ind-data="data.encounter.individual" layout-fill)
+    wb-individual-search(ng-show="module.individualSearch" flex="100" search-individual-done="searchIndividualDone(individual)")
+    wb-individual-edit(ng-show="module.individualEdit" edit-individual-done="editIndividualDone(individual)" ind-data="data.encounter.individual" flex="100")
     form.form.ng-cloak(ng-show="! module.individualSearch && ! module.individualEdit"
-                       name="encounterForm" novalidate, wb-key-handler-form layout-fill)
-        div(layout="row" layout-fill layout-align="start center")
+                       name="encounterForm" novalidate, wb-key-handler-form flex="100")
+        div(layout="row" flex="100" layout-align="start center")
             cancel-button(layout-margin)
             div(flex="")
             md-icon.md-warn(md-svg-icon="delete" layout-margin ng-click="deleteEncounter()")
-        md-content(layout="row" layout-fill layout-align="start center")
+        md-content(layout="row" flex="100" layout-align="start center")
             label(layout-padding) Individual:
             img.avatar-icon.mr-5(ng-if="data.encounter.individual.avatarid" ng-src="{{data.encounter.individual.avatar}}")
             input(flex="70" ng-show="data.encounter.individual.id" type="text" disabled="true" ng-value="data.encounter.individual.displayName + ' -- ' + data.encounter.individual.species.name")
