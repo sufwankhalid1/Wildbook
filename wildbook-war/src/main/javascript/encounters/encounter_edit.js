@@ -45,9 +45,11 @@ angular.module('wildbook.admin').directive(
                 if (!$scope.data.photos) {
                     wbEncounterUtils.getMedia($scope.data.encounter);
                 }
-                $scope.getSpecies = function() {
-                    return wbConfig.config().species;
-                }
+                
+                wbConfig.config()
+                .then(function(config) {
+                    $scope.allSpecies = config.species;
+                });
                 
                 $scope.save = function() {
                     if ($scope.encounterForm.$invalid) {

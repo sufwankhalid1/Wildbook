@@ -10,8 +10,10 @@ angular.module('wildbook.admin').directive(
             templateUrl: 'organizations/org_admin.html',
             replace: true,
             link: function($scope, element, attr) {
-                $timeout(function(){console.log(wbConfig.config());},1000)
-                //$scope.orgs = wbConfig.config().orgs;
+                wbConfig.config()
+                        .then(function(config) {
+                            $scope.species = config.species;
+                        });
             }
         }
     }]

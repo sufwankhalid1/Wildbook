@@ -38,7 +38,7 @@ app.factory('$exceptionHandler', function() {
       };
 });
 
-app.factory("wbConfig", ["$http", "$exceptionHandler", function($http, $exceptionHandler) {
+app.factory("wbConfig", ["$http", "$exceptionHandler", "$q", function($http, $exceptionHandler, $q) {
     var config;
     
     function getVessels(orgs, org) {
@@ -78,13 +78,20 @@ app.factory("wbConfig", ["$http", "$exceptionHandler", function($http, $exceptio
     }
     
     function getConfig() {
+        if (config) {
+            return config;
+        }
+
+        config = $http({url:"util/init"})
+            .then(function(result) {
+                return result.data;
+            }, $exceptionHandler);
+
         return config;
     }
-    
-    $http({url:"util/init"})
-    .then(function(result) {
-        config = result.data;
-    }, $exceptionHandler);
+
+    //running this to kick it off incase it was never initialized when we need it
+    getConfig();
 
     return {
         config: getConfig,
@@ -127,6 +134,14 @@ app.factory("wbLangUtils", function() {
 });
 
 app.factory("wbDateUtils", ["wbConfig", "moment", function(wbConfig, moment) {
+    var dateFormat;
+    var datetimeFormat;
+   
+    wbConfig.config().then(function(config) {
+        dateFormat = config.props["moment.date.format"];
+        datetimeFormat = config.props["moment.datetime.format"];
+    });
+
     function restToMoment(rest) {
         if (! rest) {
             return null;
@@ -141,9 +156,9 @@ app.factory("wbDateUtils", ["wbConfig", "moment", function(wbConfig, moment) {
     function formatMoment(moment) {
         if (moment) {
             if (moment.hour() === 0 && moment.minute() === 0 && moment.second() === 0) {
-                return moment.format(wbConfig.config().props["moment.date.format"]);// || "YYYY-MM-DD");
+                return moment.format(dateFormat || "YYYY-MM-DD");
             }
-            return moment.format(wbConfig.config().props["moment.datetime.format"] || "YYYY-MM-DD hh:mm:ss");
+            return moment.format(datetimeFormat || "YYYY-MM-DD hh:mm:ss");
         }
         return null;
     }
@@ -253,7 +268,10 @@ app.factory("wbEncounterUtils", ["$http", "$q", "wbConfig", "wbDateUtils", "$exc
         },
         createNewEncData: function(selectedPhotos) {
             //if photos are selected add them to the new encounter
-            var config = wbConfig.config();
+            var config = wbConfig.config()
+                        .then(function(config) {
+                            return config;
+                        });
             var encounter = {individual: {species: config.defaultSpecies || config.species[0]}};
 
             if (!selectedPhotos || !selectedPhotos.length) {

@@ -34,7 +34,10 @@ angular.module('wildbook.admin').directive(
 
                 $scope.editOrg = function($e) {
                     if(!$scope.orgs){
-                        $scope.orgs = wbConfig.config().orgs;
+                        $scope.orgs = wbConfig.config()
+                        .then(function(config) {
+                            return config.orgs;
+                        });;
                     }
                     pickOrganization($e);
                 }

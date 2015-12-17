@@ -24,10 +24,11 @@ angular.module('wildbook.admin').directive(
                 function rowSelectedFunc(event) {
                     $scope.searchIndividualDone({individual: event.node.data});
                 }
-
-                $scope.getSpecies = function() {
-                    return wbConfig.config().species;
-                }
+                
+                wbConfig.config()
+                .then(function(config) {
+                    $scope.allSpecies = config.species;
+                });
                 
                 $scope.clearSpecies = function() {
                     $scope.searchdata.species = undefined;

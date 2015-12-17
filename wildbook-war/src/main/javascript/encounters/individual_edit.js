@@ -12,9 +12,11 @@ angular.module('wildbook.admin').directive(
             replace: true,
             controller: function($scope) {
                 $scope.module = {};
-                $scope.getSpecies = function() {
-                    return wbConfig.config().species;
-                };
+
+                wbConfig.config()
+                .then(function(config) {
+                    $scope.allSpecies = config.species;
+                });
                 
 //                function getDisplayName(individual) {
 //                    var name = individual.nickname || "[Unnamed]";
