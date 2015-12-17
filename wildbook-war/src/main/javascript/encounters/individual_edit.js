@@ -8,7 +8,7 @@ angular.module('wildbook.admin').directive(
                 data: "=indData",
                 editIndividualDone: "&"
             },
-            templateUrl: 'partials/individual_edit.html',
+            templateUrl: 'encounters/individual_edit.html',
             replace: true,
             controller: function($scope) {
                 $scope.module = {};

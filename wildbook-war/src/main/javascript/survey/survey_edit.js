@@ -7,7 +7,7 @@ angular.module('wildbook.admin').directive(
                 data: "=surveyToEdit",
                 editSurveyDone: "&"
             },
-            templateUrl: 'partials/survey_edit.html',
+            templateUrl: 'survey/survey_edit.html',
             replace: true,
             controller: function($scope) {
                 $scope.info = {};

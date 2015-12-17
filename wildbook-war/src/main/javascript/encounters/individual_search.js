@@ -6,7 +6,7 @@ angular.module('wildbook.admin').directive(
             scope: {
                 searchIndividualDone: "&"
             },
-            templateUrl: 'partials/individual_search.html',
+            templateUrl: 'encounters/individual_search.html',
             replace: true,
             controller: function($scope) {
                 $scope.searchdata = {};

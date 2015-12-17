@@ -9,7 +9,7 @@ angular.module('wildbook.admin').directive(
             scope: {
                 data: "=encData"
             },
-            templateUrl: 'partials/encounter_view.html',
+            templateUrl: 'encounters/encounter_view.html',
             replace: true
         };
     }]
@@ -27,7 +27,7 @@ angular.module('wildbook.admin').directive(
                 photosDetached: "&",
                 deleted: "&"
             },
-            templateUrl: 'partials/encounter_edit.html',
+            templateUrl: 'encounters/encounter_edit.html',
             replace: true,
             link: function($scope, elem, attr) {
                 $scope.module = {};

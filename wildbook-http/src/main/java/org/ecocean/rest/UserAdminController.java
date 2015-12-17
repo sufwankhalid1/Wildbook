@@ -30,4 +30,10 @@ public class UserAdminController {
         return user.getUserId();
     }
     
+    @RequestMapping(value = "editpw/{userid}", method = RequestMethod.POST)
+    public void editPw(final HttpServletRequest request,
+                      @PathVariable("userid") final int userid,
+                      @RequestBody @Valid final String password) {
+        Global.INST.getUserService().resetPass(String.valueOf(userid), password);
+    }
 }
