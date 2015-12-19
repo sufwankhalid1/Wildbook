@@ -216,6 +216,14 @@ public class UserFactory {
     public static void saveUser(final Database db, final User user) throws DatabaseException {
         Table table = db.getTable(TABLENAME_USERS);
 
+        //
+        // We have a unique key on email address so we have to make sure to turn
+        // empty strings into nulls.
+        //
+        if ("".equals(user.getEmail())) {
+            user.setEmail(null);
+        }
+
         if (user.getUserId() == null) {
             SqlInsertFormatter formatter = new SqlInsertFormatter();
             fillUserFormatter(formatter, user);

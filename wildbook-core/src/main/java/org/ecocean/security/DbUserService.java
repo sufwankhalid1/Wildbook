@@ -34,7 +34,9 @@ public class DbUserService implements UserService {
         if (user.getUsername() != null) {
             mapUserName.put(user.getUsername().toLowerCase(), info);
         }
-        mapUserEmail.put(user.getEmail().toLowerCase(), info);
+        if (user.getEmail() != null) {
+            mapUserEmail.put(user.getEmail().toLowerCase(), info);
+        }
 
         try (Database db = new Database(ci)) {
             db.getTable(UserFactory.TABLENAME_ROLES).select((rs) -> {
