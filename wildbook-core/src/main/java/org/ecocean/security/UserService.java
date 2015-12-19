@@ -24,6 +24,6 @@ public interface UserService {
     public void resetPassWithToken(final String token, String password);
     public boolean doesUserHaveRole(final String userid, final String context, final String role);
     public Organization getOrganization(String name);
-    public void addOrganization(Organization org);
+    public void saveOrganization(Organization org);
     public User getUserByFullname(String fullname);
 }

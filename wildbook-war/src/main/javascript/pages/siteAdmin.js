@@ -1,5 +1,5 @@
-require('../species/species_admin.js');
-require('../organizations/org_admin.js');
+require('../admin/species_admin.js');
+require('../admin/org_admin.js');
 
 angular.module('wildbook.admin').directive(
     "wbSiteAdmin",

@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import com.samsix.database.ConnectionInfo;
 import com.samsix.database.Database;
+import com.samsix.database.DatabaseException;
 import com.samsix.util.UtilException;
 import com.samsix.util.io.ResourceReader;
 import com.samsix.util.io.ResourceReaderImpl;
@@ -33,7 +34,7 @@ public enum Global {
     private Properties webappClientProps;
 
     private Emailer emailer;
-    private final Map<String, Species> species = new HashMap<>();
+    private Map<String, Species> species;
     private List<Species> speciesList;
     private String cust;
 
@@ -49,6 +50,19 @@ public enum Global {
         } catch (Throwable ex) {
             logger.error("Trouble reading [" + file + "]", ex);
         }
+    }
+    
+    private void initSpecies(final Database db) throws DatabaseException {
+        species = new HashMap<>();
+        
+        db.getTable("species").select((rs) -> {
+            String code = rs.getString("code");
+            species.put(code, new Species(code, rs.getString("name")));
+        });
+        speciesList = new ArrayList<Species>(species.values());
+        speciesList.sort((s1, s2) -> {
+            return s1.getName().compareTo(s2.getName());
+        });
     }
 
     public void init(final File overridingProps, final Map<String, String> overridingPropVars) {
@@ -130,19 +144,19 @@ public enum Global {
             //
             AssetStore.init(AssetStoreFactory.getStores(db));
 
-            db.getTable("species").select((rs) -> {
-                String code = rs.getString("code");
-                species.put(code, new Species(code, rs.getString("name")));
-            });
-            speciesList = new ArrayList<Species>(species.values());
-            speciesList.sort((s1, s2) -> {
-                return s1.getName().compareTo(s2.getName());
-            });
+            initSpecies(db);
+            
         } catch (Throwable ex) {
             logger.error("Trouble initializing the app.", ex);
         }
     }
 
+    public void refreshSpecies() throws DatabaseException {
+        try (Database db = Global.INST.getDb()) {
+            initSpecies(db);
+        }
+    }
+    
     public ResourceReader getAppResources() {
         if (appResources == null) {
             //
@@ -206,6 +220,9 @@ public enum Global {
     }
 
     public Species getSpecies(final String code) {
+        if (species == null) {
+            return null;
+        }
         return species.get(code);
     }
 

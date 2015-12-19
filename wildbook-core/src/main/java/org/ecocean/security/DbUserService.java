@@ -117,7 +117,7 @@ public class DbUserService implements UserService {
     }
 
     @Override
-    public void addOrganization(final Organization org) {
+    public void saveOrganization(Organization org) {
         try (Database db = new Database(ci)) {
             UserFactory.saveOrganization(db, org);
         } catch (DatabaseException ex) {
@@ -128,7 +128,11 @@ public class DbUserService implements UserService {
         // TODO: Need to add a sorting method so that the new org is properly sorted
         // within the list.
         //
-        orgs.add(org);
+        // Nulling orgs then calling getOrganizations to clear cache
+        // to distinguish between an edit and an insert
+        //
+        orgs = null;
+        getOrganizations();
     }
 
     @Override
