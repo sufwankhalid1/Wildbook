@@ -6,6 +6,7 @@
 
 var gulp = require('gulp');
 var gutil = require('gulp-util');
+
 var jade = require('gulp-jade');
 var templateCache = require('gulp-angular-templatecache');
 var less = require('gulp-less');
@@ -259,7 +260,7 @@ function reportError(ex) {
 }
 
 gulp.task('browserify-tools', function() {
-    return doBundling(getBundler(path.join(paths.srcjs, 'tools.js'), 'tools-bundle.js'), 'tools-bundle.js', true);
+    return doBundling(getBundler(path.join(paths.srcjs, 'tools.js'), 'tools-bundle.js'), 'tools-bundle.js');
 });
 
 gulp.task('browserify', function() {
