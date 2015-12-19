@@ -63,13 +63,13 @@ angular.module('wildbook.admin').directive(
                        +'   </md-toolbar>'
                        +'   <md-dialog-content class="md-dialog-content">'
                        +'       <md-autocomplete md-floating-label="Search Organizations" md-selected-item="user.organization" md-search-text="orgSearch"'
-                       +'        md-items="org in organizations" md-item-text="org.displayName">'
+                       +'        md-items="org in organizations|filter: {displayName: orgSearch}" md-item-text="org.displayName">'
                        +'           <span md-highlight-text="searchText">{{org.displayName}}</span>'
                        +'       </md-autocomplete>'
                        +'       <md-select ng-model="user.organization" aria-label="select organization"'
                        +'        ng-change="clearSearch()" placeholder="Select Organization">'
                        +'           <md-option ng-value="null"> None </md-option>'
-                       +'           <md-option ng-value="org" ng-repeat="org in organizations|filter:{displayName: orgSearch} "> {{org.displayName}}'
+                       +'           <md-option ng-value="org" ng-repeat="org in organizations"> {{org.displayName}}'
                        +'       </md-select>'
                        +'       <md-dialog-actions layout="row" layout-align="end center">'
                        +'           <md-button class="md-icon-button" ng-click="closeDialog()">'
@@ -86,13 +86,21 @@ angular.module('wildbook.admin').directive(
                   });
 
                   function DialogController($scope, $mdDialog, user, organizations) {
-                    $scope.orgSearch = "";
-                    $scope.user = user;
-                    $scope.organizations = organizations;
+                      $scope.orgSearch = "";
+                      $scope.user = user;
+                      $scope.organizations = organizations;
 
-                    $scope.closeDialog = function() {
-                      $mdDialog.hide();
-                    }
+                      $scope.clearSearch = function() {
+                          if($scope.user.organization) {
+                              $scope.orgSearch = $scope.user.organization.displayName;
+                          } else {
+                              $scope.orgSearch = null;
+                          }
+                      }
+
+                      $scope.closeDialog = function() {
+                          $mdDialog.hide();
+                      }
                   }
                 }
                 //change password dialog
