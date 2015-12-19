@@ -260,7 +260,7 @@ function reportError(ex) {
 }
 
 gulp.task('browserify-tools', function() {
-    return doBundling(getBundler(path.join(paths.srcjs, 'tools.js'), 'tools-bundle.js'), 'tools-bundle.js');
+    return doBundling(getBundler(path.join(paths.srcjs, 'tools.js'), 'tools-bundle.js', true), 'tools-bundle.js');
 });
 
 gulp.task('browserify', function() {
