@@ -206,18 +206,22 @@ public class DbUserService implements UserService {
             }
         }
     }
-    
+
     @Override
     public String createPWResetToken(final String userid) {
         try (Database db = new Database(ci)) {
             return UserFactory.createPWResetToken(db, NumberUtils.createInteger(userid));
         } catch (DatabaseException ex) {
-            throw new SecurityException("Can't reset password token for user [" + userid + "]");
+            throw new SecurityException("Can't reset password token for user [" + userid + "]", ex);
         }
     }
 
     @Override
     public void saveUser(final User user) {
+        if (user == null) {
+            return;
+        }
+
         try (Database db = new Database(ci)) {
             UserFactory.saveUser(db, user);
             //
@@ -225,7 +229,7 @@ public class DbUserService implements UserService {
             //
             addNewSecurityInfo(user);
         } catch (DatabaseException ex) {
-            throw new SecurityException("Can't save user [" + user.getUserId() + "]");
+            throw new SecurityException("Can't save user [" + user.getUserId() + "]", ex);
         }
     }
 
@@ -234,7 +238,7 @@ public class DbUserService implements UserService {
         try (Database db = new Database(ci)) {
             UserFactory.deleteRoles(db, NumberUtils.createInteger(userid));
         } catch (DatabaseException ex) {
-            throw new SecurityException("Can't delete roles from user [" + userid + "]");
+            throw new SecurityException("Can't delete roles from user [" + userid + "]", ex);
         }
     }
 
@@ -243,7 +247,7 @@ public class DbUserService implements UserService {
         try (Database db = new Database(ci)) {
             UserFactory.addRole(db, NumberUtils.createInteger(userid), context, role);
         } catch (DatabaseException ex) {
-            throw new SecurityException("Can't delete roles from user [" + userid + "]");
+            throw new SecurityException("Can't delete roles from user [" + userid + "]", ex);
         }
     }
 
