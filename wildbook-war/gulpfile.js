@@ -116,7 +116,6 @@ gulp.task('watch', function() {
 });
 
 
-//'node_modules/jquery-ui/themes/base/minified/jquery-ui.min.css'
 gulp.task('concat-tools', function() {
     gulp.src(['node_modules/ag-grid/dist/ag-grid.min.css',
               'node_modules/ag-grid/dist/theme-fresh.min.css',
