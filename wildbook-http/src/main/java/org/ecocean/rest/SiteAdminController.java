@@ -20,23 +20,19 @@ import com.samsix.database.DatabaseException;
 @RestController
 @RequestMapping(value = "/siteadmin")
 public class SiteAdminController {
-
-    //save org
     @RequestMapping(value = "saveorg", method = RequestMethod.POST)
     public int saveOrg(final HttpServletRequest request,
-            @RequestBody @Valid final Organization org) {
+                       @RequestBody @Valid final Organization org) {
          Global.INST.getUserService().saveOrganization(org);
          return org.getOrgId();
     }
-    
-    //save species
+
     @RequestMapping(value = "savespecies/{code}", method = RequestMethod.POST)
-    public void setSpecies(final HttpServletRequest request,
-            @RequestBody @Valid final Species species,
-            @PathVariable("code") final String oldCode) throws DatabaseException {
+    public void saveSpecies(final HttpServletRequest request,
+                            @RequestBody @Valid final Species species,
+                            @PathVariable("code") final String oldCode) throws DatabaseException {
         try (Database db = ServletUtils.getDb(request)) {
             AdminFactory.saveSpecies(db, oldCode, species);
         }
     }
-    
 }
