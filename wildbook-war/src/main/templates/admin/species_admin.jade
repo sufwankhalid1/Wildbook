@@ -3,7 +3,7 @@ div(layout="row" flex="100" class="site-admin-orgs" layout-align="start center" 
         md-input-container.mr-10(ng-show="!showSearch")
             label Species
             md-select(ng-model="species" placeholder="Species" ng-change="setOriginal()")
-                md-option(ng-value="species" ng-repeat="species in allSpecies") {{species.name == originalName ? originalName : species.name}}
+                md-option(ng-value="species" ng-repeat="species in allSpecies") {{species.name}}
         md-icon.mwidth-10.pointer(md-svg-icon="magnify" 
                                   ng-init="showSearch = false" 
                                   ng-show="!showSearch" 

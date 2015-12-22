@@ -21,14 +21,12 @@ angular.module('wildbook.admin').directive(
                     $scope.species = null;
                     $scope.speciesInput = null;
                     $scope.speciesSearch = "";
-                    $scope.originalName = null;
                     $scope.showEdit = false;
                 }
 
                 $scope.setOriginal = function() {
                     if ($scope.species && 'code' in $scope.species) {
                         originalCode = $scope.species.code;
-                        $scope.originalName = angular.copy($scope.species.name);
                         $scope.speciesInput = angular.copy($scope.species);
                     }
                 }
