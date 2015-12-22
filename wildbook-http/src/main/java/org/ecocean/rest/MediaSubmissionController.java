@@ -453,10 +453,10 @@ public class MediaSubmissionController
             }
 
             //
-            // Now finally remove the files from the users session object so that
-            // they can submit again with a fresh set.
+            // Now finally do some cleaning up. Note, the file set is saved in a WeakHashMap
+            // but we might as well help the garbage collector out.
             //
-            MediaUploadServlet.clearFileSet(request.getSession(), media.getSubmissionid());
+            MediaUploadServlet.clearFileSet(media.getSubmissionid());
         }
     }
 

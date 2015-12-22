@@ -6,9 +6,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.zip.ZipEntry;
@@ -19,7 +18,6 @@ import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
@@ -51,17 +49,12 @@ public class MediaUploadServlet
     private static final long serialVersionUID = 1L;
     private static final Logger logger = LoggerFactory.getLogger(MediaUploadServlet.class);
 
-    private static final String FILES_MAP = "filesMap";
+    private static WeakHashMap<String, FileSet> filesMap = new WeakHashMap<>();
 
     private static ExecutorService executor = Executors.newFixedThreadPool(5);
-    //
-    // this will store uploaded files
-    // Let's put them in the user's session object so they don't hang around forever.
-    //
-    public static void clearFileSet(final HttpSession session,
-                                    final String msid)
+
+    public static void clearFileSet(final String msid)
     {
-        Map<String, FileSet> filesMap = getFilesMap(session);
         filesMap.remove(String.valueOf(msid));
     }
 
@@ -69,42 +62,43 @@ public class MediaUploadServlet
                                          final int msid,
                                          final String filename) throws DatabaseException
     {
-        Map<String, FileSet> filesMap = getFilesMap(request.getSession());
+        if (logger.isDebugEnabled()) {
+            logger.debug("About to delete [" + filename + "] from submission [" + msid + "]");
+        }
+
         FileSet fileSet = filesMap.get(String.valueOf(msid));
 
         if (fileSet == null) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Fileset not found in [" + filesMap.values()+ "]");
+            }
             return;
         }
 
         try (Database db = ServletUtils.getDb(request)) {
             for (FileMeta file : new ArrayList<FileMeta>(fileSet.files)) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Checking against [" + file.name + "]...");
+                }
                 if (file.name.equalsIgnoreCase(filename)) {
                     //
-                    // If the file has been saved (the thread actually got run) then
+                    // WARNING: If the file has been saved (the thread actually got run) then
                     // we can delete the file. If not, we will remove it from the user's
                     // browser list but the mediasubmission will still contain this.
                     //
                     if (file.getId() != null) {
+                        if (logger.isDebugEnabled()) {
+                            logger.debug("Deleting from file system.");
+                        }
                         MediaSubmissionController.deleteMedia(db, msid, file.getId());
+                    }
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Removing from fileset.");
                     }
                     fileSet.files.remove(file);
                 }
             }
         }
-    }
-
-
-    @SuppressWarnings("unchecked")
-    private static Map<String, FileSet> getFilesMap(final HttpSession session)
-    {
-        Map<String, FileSet> filesMap;
-        filesMap = (Map<String, FileSet>) session.getAttribute(FILES_MAP);
-        if (filesMap == null) {
-            filesMap = new HashMap<String, FileSet>();
-            session.setAttribute(FILES_MAP, filesMap);
-        }
-
-        return filesMap;
     }
 
 
@@ -123,10 +117,12 @@ public class MediaUploadServlet
         if (logger.isDebugEnabled()) {
             logger.debug(LogBuilder.quickLog("upload", upload.toString()));
         }
-        Map<String, FileSet> filesMap = getFilesMap(request.getSession());
         FileSet fileset = filesMap.get(upload.getID());
 
         if (fileset == null) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Adding new fileset...");
+            }
             fileset = upload;
             filesMap.put(upload.getID(), fileset);
         } else {
@@ -181,7 +177,6 @@ public class MediaUploadServlet
              return;
          }
 
-         Map<String, FileSet> filesMap = getFilesMap(request.getSession());
          FileSet fileset = filesMap.get(id);
 
          // 2. Get the file of index "f" from the list "files"
@@ -196,7 +191,7 @@ public class MediaUploadServlet
              response.setContentType(getFile.getType());
 
              // 4. Set header Content-disposition
-             response.setHeader("Content-disposition", "attachment; filename=\""+getFile.getName()+"\"");
+             response.setHeader("Content-disposition", "attachment; filename=\"" + getFile.getName() + "\"");
 
              // 5. Copy file inputstream to response outputstream
              InputStream input = getFile.getContent();
