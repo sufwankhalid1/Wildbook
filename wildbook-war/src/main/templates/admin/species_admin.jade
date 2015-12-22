@@ -2,7 +2,7 @@ div(layout="row" flex="100" class="site-admin-orgs" layout-align="start center" 
     div(layout="row" flex="100" layout-align="start center")
         md-input-container.mr-10(ng-show="!showSearch")
             label Species
-            md-select(ng-model="species" placeholder="Species" ng-change="setOriginal()")
+            md-select(ng-model="species" placeholder="Species" ng-change="edit(species)")
                 md-option(ng-value="species" ng-repeat="species in allSpecies") {{species.name}}
         md-icon.mwidth-10.pointer(md-svg-icon="magnify" 
                                   ng-init="showSearch = false" 
@@ -13,7 +13,7 @@ div(layout="row" flex="100" class="site-admin-orgs" layout-align="start center" 
                               md-selected-item="species" 
                               md-search-text="speciesSearch" 
                               md-items="species in allSpecies  | filter:{name: speciesSearch}"
-                              md-selected-item-change="!showSearch; setOriginal();"
+                              md-selected-item-change="!showSearch; edit(species);"
                               md-item-text="species.name")
             <span md-highlight-text="searchText"> {{species.name}}
         md-icon.mwidth-10.pointer(md-svg-icon="close" ng-show="showSearch" ng-click="showSearch = false")

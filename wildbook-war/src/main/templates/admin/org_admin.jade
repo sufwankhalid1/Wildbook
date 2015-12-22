@@ -2,15 +2,15 @@ div(layout="row" flex="100" class="site-admin-orgs" layout-align="start center" 
     div(layout="row" flex="100" layout-align="start center")
         md-input-container.mr-10(ng-show="!showSearch")
             label Organizations
-            md-select(ng-model="org" placeholder="Organizations" ng-change="setOriginal()")
+            md-select(ng-model="org" placeholder="Organizations" ng-change="edit(org)")
                 md-option(ng-value="org" ng-repeat="org in orgs track by $index") {{org.name}}
         md-icon.mwidth-10.pointer(md-svg-icon="magnify" ng-init="showSearch = false" ng-show="!showSearch" ng-click="showSearch = true")
         md-autocomplete.mr-10(ng-show="showSearch"
-                              md-floating-label="Search Orgs" 
-                              md-selected-item="org" 
+                              md-floating-label="Search Orgs"
+                              md-selected-item="org"
                               md-search-text="orgSearch"
                               md-items="org in orgs | filter:{name: orgSearch}"
-                              md-selected-item-change="showSearch = false; setOriginal();"
+                              md-selected-item-change="showSearch = false; edit(org);"
                               md-item-text="org.name")
             <span md-highlight-text="searchText"> {{org.name}}
         md-icon.mwidth-10.pointer(md-svg-icon="close" ng-show="showSearch" ng-click="showSearch = false")
