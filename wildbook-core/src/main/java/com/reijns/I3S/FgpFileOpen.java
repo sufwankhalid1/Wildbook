@@ -20,8 +20,13 @@
 package com.reijns.I3S;
 
 //
-
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collection;
 
 
@@ -37,7 +42,7 @@ public class FgpFileOpen {
    * @param fp       Collection : The collection which to add the FingerPring object
    */
   // Collection should be Collection<FingerPrint> fp for Java 1.5
-  public void read(String PathName, Collection fp) {
+  public void read(String PathName, Collection<FingerPrint> fp) {
     if (fp == null) {
       throw new NullPointerException("FingerPrint collection is not initialized.");
     }
@@ -55,7 +60,7 @@ public class FgpFileOpen {
    * @param fp Collection : The collection which to add the FingerPring object
    */
   // Collection should be Collection<FingerPrint> fpa for Java 1.5
-  private void processFile(File f, Collection fp) {
+  private void processFile(File f, Collection<FingerPrint> fp) {
     //
     if (f.exists()) {
       if (f.isFile()) {
@@ -76,7 +81,7 @@ public class FgpFileOpen {
    *           that will be created and filled with spots if the file is a FGP file.
    */
   // Collection should be Collection<FingerPrint> fpa for Java 1.5
-  private void GetFgpFiles(File f, Collection fp) {
+  private void GetFgpFiles(File f, Collection<FingerPrint> fp) {
     File[] fa = f.listFiles();
     for (int i = 0; i < fa.length; i++) {
       processFile(fa[i], fp);
@@ -92,8 +97,7 @@ public class FgpFileOpen {
    *           that will be created and filled with spots if the file is a FGP file.
    */
   // Collection should be Collection<FingerPrint> fp for Java 1.5
-  @SuppressWarnings("unchecked")
-  private void OpenFgpFile(File f, Collection fp) {
+  private void OpenFgpFile(File f, Collection<FingerPrint> fp) {
     if (f.canRead()) {
       try {
         FileInputStream fileStream = new FileInputStream(f);
@@ -149,8 +153,7 @@ public class FgpFileOpen {
    * @throws IOException
    */
   // Collection should be Collection<FingerPrint> fp for Java 1.5
-  @SuppressWarnings("unchecked")
-  private void getPoints(Collection fpa, DataInputStream data, String fname) throws IOException {
+  private void getPoints(Collection<FingerPrint> fpa, DataInputStream data, String fname) throws IOException {
     // TODO do Endian check to all numbers.
     // read in three control points (dorsal and pelvic fins).
     Point2D[] controlPoints = new Point2D[3];

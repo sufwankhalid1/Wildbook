@@ -28,12 +28,16 @@ package com.reijns.I3S;
 
 */
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class Compare {
 
   //private StringList  allFiles;
-  private FingerPrint[] fpa;
+  private final FingerPrint[] fpa;
   private int cnt;
   private int realcnt;
   private FingerPrint best;
@@ -49,7 +53,7 @@ public class Compare {
 //Changed Jan 23, 2007
 // Old : deleted System.arraycopy code and replaced it with for loop
 //		System.arraycopy(fpa, 0, this.fpa, 0, fpa.length);
-// New :		
+// New :
     for (int i = 0; i < fpa.length; i++) {
       this.fpa[i] = new FingerPrint(fpa[i]);
     }
@@ -99,7 +103,7 @@ public class Compare {
    *      int encounterIndex, Point2D[] orig, Point2D[] tf, Pair[] pairs,
    *      int paircnt, boolean exhaustive)
    */
-  public boolean compareTwo(FingerPrint unknown, FingerPrint encountered, Map pairs, boolean exhaustive) {
+  public boolean compareTwo(FingerPrint unknown, FingerPrint encountered, Map<Integer, Pair> pairs, boolean exhaustive) {
     if (unknown == null || encountered == null || pairs == null) {
       throw new NullPointerException("Parameter error in Compare.compareTwo, null parameter.");
     }
@@ -134,11 +138,11 @@ public class Compare {
   // SupressWarnings for Java 1.5 where collection parameters are not
   // specified to make them Java 1.4x compatable.
   //@SuppressWarnings("unchecked")
-  public boolean find(FingerPrint unknown, FingerPrint[] best, int bestnr, boolean exhaustive, TreeMap pairs) {
+  public boolean find(FingerPrint unknown, FingerPrint[] best, int bestnr, boolean exhaustive, TreeMap<Integer, Pair> pairs) {
     //System.out.println("entering the Compare.find method, pairs size is: "+pairs.size()+" and cnt is "+cnt );
     // Java 1.5 constructor:
     // ArrayList<FingerPrint> results = new SortedMap<FingerPrint>[];
-    ArrayList results = new ArrayList();
+    ArrayList<FingerPrint> results = new ArrayList<>();
 
 
     for (int i = 0; i < cnt; i++) {
@@ -156,7 +160,7 @@ public class Compare {
 
       if (exhaustive) {
         //System.out.println("Going into Compare.exhaustiveSearch with pairs: "+pairs.size());
-        this.best = (FingerPrint) results.get(results.size() - 1);
+        this.best = results.get(results.size() - 1);
         exhaustiveSearch(unknown, pairs);
         results.set(results.size() - 1, this.best);
 
@@ -189,12 +193,12 @@ public class Compare {
   // SupressWarnings for Java 1.5 where collection parameters are not
   // specified to make them Java 1.4x compatable.
   //@SuppressWarnings("unchecked")
-  private void exhaustiveSearch(FingerPrint unknown, Map pairs) {
+  private void exhaustiveSearch(FingerPrint unknown, Map<Integer, Pair> pairs) {
     //System.out.println("     Doing an exhaustive scan!");
     int paircnt = pairs.size();
     double[] matrix = new double[6];
 
-    TreeMap bestPairs = new TreeMap();
+    TreeMap<Integer, Pair> bestPairs = new TreeMap<>();
     Pair[] arrayPairs = new Pair[pairs.values().size()];
 //Changed Jan 23, 2007
 // Old : deleted System.arraycopy code and replaced it with for loop
@@ -209,8 +213,6 @@ public class Compare {
       arrayPairs[i].m2 = aPair.getM2();
     }
 //End change
-
-    int bestPairCnt = 0;
 
     for (int j = 0; j < paircnt - 2; j++)
       for (int k = j + 1; k < paircnt - 1; k++)
@@ -238,7 +240,7 @@ public class Compare {
             matrix);
 
           test.doAffine(matrix);
-          TreeMap tmppairs = new TreeMap();
+          TreeMap<Integer, Pair> tmppairs = new TreeMap<>();
           test.distance(unknown, tmppairs, -3);
 
           //pairs=tmppairs;
@@ -246,7 +248,6 @@ public class Compare {
             //bestPairs.put((new Integer(bestPairCnt)), tmppairs.clone());
             pairs = bestPairs;
             best = test;
-            bestPairCnt++;
           }
         }
 
@@ -271,10 +272,11 @@ public class Compare {
   /**
    * The Comparator method class for sorting in the find method.
    */
-  private final static Comparator FPCMP = new Comparator() {
-    public int compare(Object p1, Object p2) {
-      FingerPrint f1 = (FingerPrint) p1;
-      FingerPrint f2 = (FingerPrint) p2;
+  private final static Comparator<FingerPrint> FPCMP = new Comparator<FingerPrint>() {
+    @Override
+    public int compare(FingerPrint p1, FingerPrint p2) {
+      FingerPrint f1 = p1;
+      FingerPrint f2 = p2;
       if (p1 == null && p2 == null) {
         return 0;
       } else if (p1 == null) {

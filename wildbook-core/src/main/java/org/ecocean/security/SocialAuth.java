@@ -1,4 +1,4 @@
-/* 
+/*
 
 https://github.com/pac4j/pac4j/wiki/Authenticate-with-Facebook,-Twitter-or-Google,-with-the-pac4j-library,-in-5-minutes
 
@@ -8,18 +8,12 @@ package org.ecocean.security;
 
 import java.util.Properties;
 
-import org.pac4j.core.client.*;
-import org.pac4j.oauth.client.*;
 import org.ecocean.ShepherdProperties;
-
+import org.pac4j.oauth.client.FacebookClient;
 //for flickr
-import org.scribe.builder.*;
-import org.scribe.builder.api.*;
-import org.scribe.model.*;
-import org.scribe.oauth.*;
-
-import java.util.*;
-
+import org.scribe.builder.ServiceBuilder;
+import org.scribe.builder.api.FlickrApi;
+import org.scribe.oauth.OAuthService;
 
 public class SocialAuth {
 

@@ -36,13 +36,13 @@ public class FingerPrint {
   public Point2D[] fpp;
   public Point2D[] orig;
   // cnt = number of Point2D objects in the list
-  private int cnt;
+  private final int cnt;
   // score is a cumulative distance score for all cnt Point2D objects
   private double score;
   private int paircnt;
   //Changed Jan 23, 2007
 // Added protected property name for file open testing.
-// Added protected property 
+// Added protected property
   public String name;
   public Point2D[] control;
 //End change
@@ -70,7 +70,7 @@ public class FingerPrint {
     //Point2D[] control=new Point2D[origin.length];
     //System.arraycopy(origin, 0, control, 0, origin.length);
 //Changed Jan 23, 2007
-//  Old : deleted System.arraycopy code and replaced it with setSpots method 
+//  Old : deleted System.arraycopy code and replaced it with setSpots method
 //  New :
     setSpots(origin, pnts, control);
 //End change
@@ -135,7 +135,7 @@ public class FingerPrint {
     this.score = f.score;
     this.paircnt = f.paircnt;
 //Changed Jan 23, 2007
-// Old : deleted System.arraycopy code and replaced it with setSpots method 
+// Old : deleted System.arraycopy code and replaced it with setSpots method
 // New :
     setSpots(f.orig, f.fpp, f.control);
     name = f.name;
@@ -157,7 +157,7 @@ public class FingerPrint {
   // SupressWarnings for Java 1.5 where collection parameters are not
   // specified to make them Java 1.4x compatable.
   //@SuppressWarnings("unchecked")
-  public double distance(FingerPrint f, Map pairs, int affine_corr) {
+  public double distance(FingerPrint f, Map<Integer, Pair> pairs, int affine_corr) {
 
     //System.out.println("Starting the distance method...");
 
@@ -224,7 +224,7 @@ public class FingerPrint {
    * @return totaldist double : Returns the new calculated total distance.
    */
   //@SuppressWarnings("unchecked")
-  private double addPair(Map pairs, int i, double mindist, int j, Pair aPair) {
+  private double addPair(Map<Integer, Pair> pairs, int i, double mindist, int j, Pair aPair) {
     double sqrtDist = Math.sqrt(mindist);
     aPair.m1 = i;
     aPair.m2 = j;
@@ -242,10 +242,10 @@ public class FingerPrint {
    * @param i     int : The point array index value to check as a match
    * @return Pair : Returns the matching pair, or null if none was found.
    */
-  private double findPair(Map pairs, double dist, int i) {
+  private double findPair(Map<Integer, Pair> pairs, double dist, int i) {
     double result = -1;
-    for (Iterator iter = pairs.values().iterator(); iter.hasNext();) {
-      Pair aPair = (Pair) iter.next();
+    for (Iterator<Pair> iter = pairs.values().iterator(); iter.hasNext();) {
+      Pair aPair = iter.next();
       if (aPair.m2 == i && aPair.dist > dist) {
         result = aPair.dist;
         iter.remove();

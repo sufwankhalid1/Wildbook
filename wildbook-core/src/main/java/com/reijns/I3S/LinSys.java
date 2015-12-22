@@ -70,24 +70,23 @@ public class LinSys {
   //       3 2
   public void readInSystem() {
     System.out.println("What's the name of the file storing the system?");
-    Scanner sc = new Scanner(System.in);
-    String filename = sc.next();
 
-    try {
-      FileReader sysFile = new FileReader(filename);
-      // System.out.println("Created FileReader");
-      Scanner sysSc = new Scanner(sysFile);
-      // System.out.println("Created Scanner");
+    try (Scanner sc = new Scanner(System.in)) {
+        String filename = sc.next();
+        FileReader sysFile = new FileReader(filename);
+        try (Scanner sysSc = new Scanner(sysFile)) {
+            for (int i = 0; i < m; i++) {
+                for (int j = 0; j < n; j++) {
+                    augMat[i].vals[j] = sysSc.nextDouble();
+                }
+            }
 
-      for (int i = 0; i < m; i++)
-        for (int j = 0; j < n; j++) {
-          augMat[i].vals[j] = sysSc.nextDouble();
+            for (int i = 0; i < m; i++) {
+                augMat[i].vals[n] = sysSc.nextDouble();
+            }
         }
-
-      for (int i = 0; i < m; i++)
-        augMat[i].vals[n] = sysSc.nextDouble();
-    } catch (FileNotFoundException exception) {
-      System.out.println(filename + " wasn't found.");
+    } catch (FileNotFoundException ex) {
+        ex.printStackTrace();
     }
   }  // readInSystem
 
@@ -239,10 +238,10 @@ public class LinSys {
   //    multiply
   // Purpose
   //    Multiply a row of the matrix by a constant
-  private void multiply(double factor, int row) {
-    for (int j = 0; j <= n; j++)
-      augMat[row].vals[j] *= factor;
-  }  // multiply
+//  private void multiply(double factor, int row) {
+//    for (int j = 0; j <= n; j++)
+//      augMat[row].vals[j] *= factor;
+//  }  // multiply
 
 
   ///////////////////////////////////////////////////////////////////

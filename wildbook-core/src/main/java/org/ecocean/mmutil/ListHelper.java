@@ -20,7 +20,6 @@
 package org.ecocean.mmutil;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -43,11 +42,11 @@ public final class ListHelper<E> {
    * Creates an instance using the specified list implementation.
    * @param c {@code Class} type to use for list implementation
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   private <T extends List> ListHelper(Class<T> c) {
     try {
       if (List.class.isAssignableFrom(c))
-        this.list = (List<E>)c.newInstance();
+        this.list = c.newInstance();
       else
         throw new IllegalArgumentException("Invalid class type specified; not a List implementation");
     } catch (Exception ex) {
@@ -79,7 +78,8 @@ public final class ListHelper<E> {
    * @param o initial item in list
    * @return {@code ListHelper} instance ready for further use.
    */
-  public static <T extends List, E> ListHelper<E> create(Class<T> c, E o) {
+  @SuppressWarnings("rawtypes")
+public static <T extends List, E> ListHelper<E> create(Class<T> c, E o) {
     return new ListHelper<E>(c).add(o);
   }
 
@@ -91,7 +91,8 @@ public final class ListHelper<E> {
    * @param c {@code Class} of {@code List} implementation to use
    * @return {@code ListHelper} instance ready for further use.
    */
-  public static <T extends List, E> ListHelper<E> create(Class<T> c) {
+  @SuppressWarnings("rawtypes")
+public static <T extends List, E> ListHelper<E> create(Class<T> c) {
     return new ListHelper<E>(c);
   }
 
@@ -181,7 +182,8 @@ public final class ListHelper<E> {
    * @param delim string delimiter to use between list items
    * @return String comprising list contents sequentially concatenated with specified delimiter
    */
-  public <E> String toDelimitedString(String delim) {
+  @SuppressWarnings("hiding")
+public <E> String toDelimitedString(String delim) {
     return toDelimitedString(this.asList(), delim);
   }
 

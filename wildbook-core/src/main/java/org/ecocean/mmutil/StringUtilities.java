@@ -19,8 +19,6 @@
 package org.ecocean.mmutil;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
 import java.util.StringTokenizer;
 
 import org.apache.commons.codec.digest.DigestUtils;
@@ -31,107 +29,6 @@ import org.apache.commons.codec.digest.DigestUtils;
  */
 public class StringUtilities
 {
-    /**
-     * Return true if the given String is null or "".
-     */
-    public static boolean isEmpty (String s)
-    {
-        return null == s || "".equals(s);
-    }
-
-    /**
-     * Return true if the given String is null or "".
-     */
-    public static boolean isEmptyOrZero (String s)
-    {
-        return null == s || "".equals(s) || "0".equals(s);
-    }
-
-    /**
-     * Return true if the given collection is null or has no elements.
-     */
-    public static boolean isEmpty (Collection c)
-    {
-        return null == c || c.size() < 1;
-    }
-
-    /**
-     * Return true if the given map is null or has no elements.
-     */
-    public static boolean isEmpty (Map m)
-    {
-        return null == m || m.size() < 1;
-
-    }
-
-    /**
-     * Return true if the given array is null or has no elements.
-     */
-    public static boolean isEmpty (Object[] a)
-    {
-        return null == a || a.length < 1;
-    }
-
-    /**
-     * Return true if the given array is null or has no elements.
-     */
-    public static boolean isEmpty (int[] a)
-    {
-        return null == a || a.length < 1;
-    }
-
-    /**
-     * Return true if the given array is null or has no elements.
-     */
-    public static boolean isEmpty (float[] a)
-    {
-        return null == a || a.length < 1;
-    }
-
-    /**
-     * Return true if the given array is null or has no elements.
-     */
-    public static boolean isEmpty (double[] a)
-    {
-        return null == a || a.length < 1;
-    }
-
-    /**
-     * Compare two strings, returning true if they are both equal or
-     * both null.
-     */
-    public static boolean equals (String a, String b)
-    {
-        return StringUtilities.compareTo (a, b) == 0;
-    }
-
-    /**
-     * Compare two strings.  They are considered equal if both are
-     * null.  Null sorts after any non-null value.
-     */
-    public static int compareTo (String a, String b)
-    {
-        if (a == null && b == null) return 0;
-
-        if (a == null)
-        {
-            if (b == null)
-            {
-                return 0;
-            }
-            else
-            {
-                return 1;
-            }
-        }
-        else if (b == null)
-        {
-            return -1;
-        }
-
-        return a.compareTo (b);
-    }
-
     /**
      *  The amount two floating point numbers can differ and still
      *  be considered equal.  Used in roughlyEqual().

@@ -151,14 +151,12 @@ public final class NotificationMailer implements Runnable {
   public static final String EMAIL_NOTRACK = "@EMAIL_NOTRACK@";
   /** Tag to replace with email hash when specifying for REMOVEME section. */
   public static final String EMAIL_HASH_TAG = "@EMAIL_HASH@";
-  /** Web application context. */
-  private String context;
   /** SMTP host. */
-  private String host;
+  private final String host;
   /** Email address of sender. */
-  private String sender;
+  private final String sender;
   /** Email addresses of recipients. */
-  private Collection<String> recipients;
+  private final Collection<String> recipients;
   /** Email template processor. */
   private EmailTemplate mailer;
   /** Flag indicating whether setup failed. */
