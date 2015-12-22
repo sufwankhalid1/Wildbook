@@ -19,12 +19,15 @@ div(layout="row" flex="100" class="site-admin-orgs" layout-align="start center" 
         md-icon.mwidth-10.pointer(md-svg-icon="close" ng-show="showSearch" ng-click="showSearch = false")
         md-button.md-whiteframe-1dp.height-36(aria-label="New Species"  ng-click="newSpecies()") New Species
     div(ng-show="species" layout="row" flex="100" layout-align="start end")
-        md-input-container.mr-10.padding-0
-            label Name
-            input(type="text" ng-model="speciesInput.name")
         md-input-container.padding-0
             label Code
             input(type="text" ng-model="speciesInput.code")
+        md-input-container.mr-10.padding-0
+            label Name
+            input(type="text" ng-model="speciesInput.name")
+        md-input-container.mr-10.padding-0
+            label Icon Code (leave blank if equal to Code)
+            input(type="text" ng-model="speciesInput.icon")
         md-button.md-whiteframe-1dp.height-36(aria-label="Save Species"  ng-click="save()") Save
         md-button.md-whiteframe-1dp.height-36(aria-label="Cancel"  ng-click="cancel()") Cancel
 
