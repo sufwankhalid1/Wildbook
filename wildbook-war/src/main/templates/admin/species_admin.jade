@@ -7,18 +7,18 @@ div(layout="row" flex="100" class="site-admin-orgs" layout-align="start center" 
         md-icon.mwidth-10.pointer(md-svg-icon="magnify" 
                                   ng-init="showSearch = false" 
                                   ng-show="!showSearch" 
-                                  ng-click="showSearch = true")
+                                  ng-click="search()")
         md-autocomplete.mr-10(ng-show="showSearch"
                               md-floating-label="Search Species" 
                               md-selected-item="species" 
                               md-search-text="speciesSearch" 
                               md-items="species in allSpecies  | filter:{name: speciesSearch}"
-                              md-selected-item-change="showSearch = false; setOriginal();"
+                              md-selected-item-change="!showSearch; setOriginal();"
                               md-item-text="species.name")
             <span md-highlight-text="searchText"> {{species.name}}
         md-icon.mwidth-10.pointer(md-svg-icon="close" ng-show="showSearch" ng-click="showSearch = false")
         md-button.md-whiteframe-1dp.height-36(aria-label="New Species"  ng-click="newSpecies()") New Species
-    div(ng-show="showEdit || species" layout="row" flex="100" layout-align="start end")
+    div(ng-show="species" layout="row" flex="100" layout-align="start end")
         md-input-container.mr-10.padding-0
             label Name
             input(type="text" ng-model="speciesInput.name")

@@ -16,26 +16,32 @@ angular.module('wildbook.admin').directive(
                     $scope.allSpecies = config.species;
                 });
 
+                $scope.search = function() {
+                    $scope.cancel();
+                    
+                    $scope.showSearch = true;
+                    $scope.speciesSearch = "";
+                }
+                
                 $scope.cancel = function() {
                     originalCode = null;
                     $scope.species = null;
                     $scope.speciesInput = null;
-                    $scope.speciesSearch = "";
-                    $scope.showEdit = false;
-                }
+                    $scope.showSearch = false;
+                };
 
                 $scope.setOriginal = function() {
-                    if ($scope.species && 'code' in $scope.species) {
+                    if ($scope.species && $scope.species.code) {
                         originalCode = $scope.species.code;
                         $scope.speciesInput = angular.copy($scope.species);
                     }
-                }
+                };
 
                 $scope.newSpecies = function() {
                     $scope.cancel();
-                    $scope.speciesInput = {name: null, code: null, icon: null};
-                    $scope.showEdit = true;
-                }
+                    $scope.species = {name: null, code: null, icon: null};
+                    $scope.setOriginal();
+                };
 
                 $scope.save = function() {
                     if(!$scope.speciesInput.name && !$scope.speciesInput.code) {
@@ -57,7 +63,7 @@ angular.module('wildbook.admin').directive(
 
                         $scope.cancel();
                     });
-                }
+                };
             }
         }
     }]
