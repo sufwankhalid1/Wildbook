@@ -6,7 +6,7 @@ angular.module('wildbook.admin').directive(
             restrict: 'E',
             scope: {
             },
-            templateUrl: 'organizations/org_admin.html',
+            templateUrl: 'admin/org_admin.html',
             replace: true,
             link: function($scope, element, attr) {
 
