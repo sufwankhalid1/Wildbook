@@ -9,13 +9,11 @@ angular.module('wildbook.admin').directive(
             replace: true,
             link: function($scope, element, attr) {
 
-                var cacheSpecies;
                 var originalCode = null;
 
                 wbConfig.config()
                 .then(function(config) {
-                    cacheSpecies = config.species;
-                    $scope.allSpecies = angular.copy(cacheSpecies);
+                    $scope.allSpecies = config.species;
                 });
 
                 $scope.cancel = function() {
@@ -23,7 +21,6 @@ angular.module('wildbook.admin').directive(
                     $scope.species = null;
                     $scope.speciesInput = null;
                     $scope.speciesSearch = "";
-                    $scope.allSpecies = angular.copy(cacheSpecies);
                     $scope.originalName = null;
                     $scope.showEdit = false;
                 }
@@ -60,7 +57,6 @@ angular.module('wildbook.admin').directive(
                             $scope.allSpecies.push($scope.speciesInput);
                         }
 
-                        cacheSpecies = angular.copy($scope.allSpecies);
                         $scope.cancel();
                     });
                 }
