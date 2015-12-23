@@ -43,6 +43,14 @@ public class EncounterController
         }
     }
 
+    @RequestMapping(value = "/search", method = RequestMethod.POST)
+    public List<Encounter> searchIndividual(final HttpServletRequest request,
+                                             @RequestBody
+                                             final EncounterSearch search) throws DatabaseException
+    {
+        return searchEncounters(request, search);
+    }
+
     @RequestMapping(value = "save", method = RequestMethod.POST)
     public Integer saveEncounter(final HttpServletRequest request,
                                  @RequestBody @Valid final Encounter encounter) throws DatabaseException {
