@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.ecocean.Individual;
 import org.ecocean.Species;
 import org.ecocean.encounter.EncounterFactory;
 import org.ecocean.encounter.SimpleEncounter;
@@ -38,14 +39,6 @@ public class SearchController
 {
     Logger logger = LoggerFactory.getLogger(SearchController.class);
 
-    private void addIndividualNameCondition(final SqlStatement sql, final String name) {
-        SqlTable table = sql.findTable(EncounterFactory.ALIAS_INDIVIDUALS);
-        GroupedSqlCondition cond = GroupedSqlCondition.orGroup();
-        cond.addContainsCondition(table, "alternateid", name);
-        cond.addContainsCondition(table, "nickname", name);
-        sql.addCondition(cond);
-    }
-
     private List<SimpleIndividual> searchIndividuals(final Database db, final String term) throws DatabaseException {
         if (StringUtils.isBlank(term)) {
             return Collections.emptyList();
@@ -53,7 +46,7 @@ public class SearchController
 
         SqlStatement sql = EncounterFactory.getIndividualStatement();
 
-        addIndividualNameCondition(sql, term);
+        IndividualController.addIndividualNameCondition(sql, term);
 
         return db.selectList(sql, (rs) -> {
             return EncounterFactory.readSimpleIndividual(rs);
@@ -158,21 +151,14 @@ public class SearchController
                                                    @RequestBody
                                                    final IndividualSearch search) throws DatabaseException
     {
-        SqlStatement sql = EncounterFactory.getIndividualStatement();
+        List<Individual> individuals = IndividualController.searchIndividuals(request, search);
 
-        if (search.nameid != null) {
-            addIndividualNameCondition(sql, search.nameid);
+        List<SimpleIndividual> simples = new ArrayList<>(individuals.size());
+        for (Individual individual : individuals) {
+            simples.add(individual.toSimple());
         }
 
-        if (search.species != null) {
-            sql.addCondition(EncounterFactory.ALIAS_INDIVIDUALS, "species", SqlRelationType.EQUAL, search.species);
-        }
-
-        try (Database db = ServletUtils.getDb(request)) {
-            return db.selectList(sql, (rs) -> {
-                return EncounterFactory.readSimpleIndividual(rs);
-            });
-        }
+        return simples;
     }
 
 
@@ -283,13 +269,6 @@ public class SearchController
             this.date = date;
         }
     }
-
-    static class IndividualSearch
-    {
-        public String nameid;
-        public String species;
-    }
-
 
     static class UserSearch
     {
