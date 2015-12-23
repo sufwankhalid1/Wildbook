@@ -9,7 +9,7 @@ div(layout="row" layout-wrap id="encounter-edit")
             md-icon.md-warn(md-svg-icon="delete" layout-margin ng-click="deleteEncounter()")
         md-content(layout="row" flex="100" layout-align="start center")
             label(layout-padding) Individual:
-            img.avatar-icon.mr-5(ng-if="data.encounter.individual.avatarid" ng-src="{{data.encounter.individual.avatar}}")
+            img.avatar-icon.mr-5(ng-if="data.encounter.individual.avatar" ng-src="{{data.encounter.individual.avatar}}")
             input(flex="70" ng-show="data.encounter.individual.id" type="text" disabled="true" ng-value="data.encounter.individual.displayName + ' -- ' + data.encounter.individual.species.name")
             div(flex="70" layout="row" layout-align="start center" ng-show="! data.encounter.individual.id")
                 span.brand-primary(flex="10") New

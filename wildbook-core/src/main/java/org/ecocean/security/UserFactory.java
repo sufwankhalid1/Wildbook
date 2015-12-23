@@ -6,11 +6,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
 import org.ecocean.Organization;
-import org.ecocean.media.MediaAsset;
 import org.ecocean.media.MediaAssetFactory;
-import org.ecocean.mmutil.StringUtilities;
 import org.ecocean.rest.SimpleUser;
 
 import com.samsix.database.Database;
@@ -163,12 +160,7 @@ public class UserFactory {
 
         User user = new User(id, rs.getString("username"), rs.getString("fullname"), rs.getString("email"));
 
-        MediaAsset ma = MediaAssetFactory.valueOf(rs);
-
-        if (ma != null) {
-            user.setAvatarid(rs.getInteger("avatarid"));
-            user.setAvatar(getAvatar(ma.webPathString(), rs.getString("email")));
-        }
+        user.setAvatarFull(MediaAssetFactory.readPhoto(rs));
         user.setStatement(rs.getString("statement"));
         user.setOrganization(readOrganization(rs));
 
@@ -193,24 +185,6 @@ public class UserFactory {
         }
 
         return user.toSimple();
-    }
-
-    public static String getAvatar(final String avatar, final String email) {
-        if (StringUtils.isBlank(avatar) && ! StringUtils.isBlank(email)) {
-            //
-            // Return 80x80 sized gravatar. They default to 80x80 but can be requested up to 2048x2048.
-            // Though most users will have used a small image.
-            // Feel free to change if you want it bigger as all the code on the browser side should
-            // be sized to fit it's use anyway.
-            // NOTE: d=identicon makes default (when not set by user) be those crazy (unique) geometric shapes, rather than the gravatar logo
-            //         - https://en.wikipedia.org/wiki/Identicon
-            //
-            return "http://www.gravatar.com/avatar/"
-                    + StringUtilities.getHashOf(email.trim().toLowerCase())
-                    + "?s=80&d=identicon";
-        }
-
-        return avatar;
     }
 
     public static void saveUser(final Database db, final User user) throws DatabaseException {
@@ -249,7 +223,11 @@ public class UserFactory {
         formatter.append("salt", user.getSalt());
         formatter.append("phonenumber", user.getPhoneNumber());
         formatter.append("physicaladdress", user.getPhysicalAddress());
-        formatter.append("avatarid", user.getAvatarid());
+        if (user.getAvatarFull() != null) {
+            formatter.append("avatarid", user.getAvatarFull().getId());
+        } else {
+            formatter.appendNull("avatarid");
+        }
         formatter.append("acceptedua", user.getAcceptedUserAgreement());
         formatter.append("statement", user.getStatement());
         formatter.append("verified", user.isVerified());

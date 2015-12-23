@@ -12,8 +12,8 @@ public class SimpleIndividual implements SimpleBeing
     private Species species;
     private String nickname;
     private String sex;
-    private String avatar;
     private String comments;
+    private SimplePhoto avatarFull;
 
 
     public SimpleIndividual()
@@ -70,17 +70,20 @@ public class SimpleIndividual implements SimpleBeing
 
     @Override
     public String getAvatar() {
-        return avatar;
-    }
-
-    public void setAvatar(final String avatar) {
-        this.avatar = avatar;
+        if (avatarFull != null) {
+            return avatarFull.getThumbUrl();
+        }
+        return null;
     }
 
     @Override
     public Species getSpecies() {
         return species;
     }
+//
+//    public void setAvatar(final String avatar) {
+//        // ignore. simply so jackson doesn't barf when tryng to deserialize
+//    }
 
     public String getAlternateId() {
         return alternateId;
@@ -104,5 +107,13 @@ public class SimpleIndividual implements SimpleBeing
 
     public void setComments(String comments) {
         this.comments = comments;
+    }
+
+    public SimplePhoto getAvatarFull() {
+        return avatarFull;
+    }
+
+    public void setAvatarFull(final SimplePhoto photo) {
+        avatarFull = photo;
     }
 }

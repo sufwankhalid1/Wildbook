@@ -6,7 +6,6 @@ import java.util.List;
 import org.ecocean.Global;
 import org.ecocean.Individual;
 import org.ecocean.LocationFactory;
-import org.ecocean.media.MediaAsset;
 import org.ecocean.media.MediaAssetFactory;
 import org.ecocean.rest.SimpleIndividual;
 import org.ecocean.rest.SimplePhoto;
@@ -163,13 +162,7 @@ public class EncounterFactory {
         ind.setAlternateId(rs.getString("alternateid"));
         ind.setIdentified(rs.getBoolean("identified"));
         ind.setComments(rs.getString("comments"));
-
-        MediaAsset ma = MediaAssetFactory.valueOf(rs);
-
-        if (ma != null) {
-            ind.setAvatarid(rs.getInteger("avatarid"));
-            ind.setAvatar(ma.webPathString());
-        }
+        ind.setAvatarFull(MediaAssetFactory.readPhoto(rs));
 
         return ind;
     }
@@ -329,7 +322,9 @@ public class EncounterFactory {
         }
         formatter.append("nickname", individual.getNickname());
         formatter.append("sex", individual.getSex());
-        formatter.append("avatarid", individual.getAvatarid());
+        if (individual.getAvatarFull() != null) {
+            formatter.append("avatarid", individual.getAvatarFull().getId());
+        }
         formatter.append("comments", individual.getComments());
     }
 

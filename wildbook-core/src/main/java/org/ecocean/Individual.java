@@ -2,6 +2,7 @@ package org.ecocean;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ecocean.rest.SimpleIndividual;
+import org.ecocean.rest.SimplePhoto;
 
 public class Individual {
     private Integer id;
@@ -10,11 +11,7 @@ public class Individual {
     private Species species;
     private String nickname;
     private String sex;
-    private Integer avatarid;
-    //
-    // Not persisted. Only for generating SimpleUsers.
-    //
-    private String avatar;
+    private SimplePhoto avatarFull;
     private String comments;
 
 
@@ -68,12 +65,23 @@ public class Individual {
         return getDisplayName(nickname, alternateId);
     }
 
+    //
+    // Need this to be like SimpleIndividual so that we can
+    // pass the values back and forth.
+    //
     public String getAvatar() {
-        return avatar;
+        if (avatarFull != null) {
+            return avatarFull.getThumbUrl();
+        }
+        return null;
     }
 
-    public void setAvatar(final String avatar) {
-        this.avatar = avatar;
+    public SimplePhoto getAvatarFull() {
+        return avatarFull;
+    }
+
+    public void setAvatarFull(final SimplePhoto avatar) {
+        this.avatarFull = avatar;
     }
 
     public Species getSpecies() {
@@ -86,14 +94,6 @@ public class Individual {
 
     public void setAlternateId(final String alternateId) {
         this.alternateId = alternateId;
-    }
-
-    public Integer getAvatarid() {
-        return avatarid;
-    }
-
-    public void setAvatarid(final Integer avatarid) {
-        this.avatarid = avatarid;
     }
 
     public static String getDisplayName(final String nickname, final String alternateId) {
@@ -115,7 +115,7 @@ public class Individual {
     {
         SimpleIndividual simple = new SimpleIndividual(id, nickname);
         simple.setAlternateId(alternateId);
-        simple.setAvatar(avatar);
+        simple.setAvatarFull(avatarFull);
         simple.setSex(sex);
         simple.setSpecies(species);
         return simple;

@@ -68,7 +68,7 @@ angular.module('wildbook.admin').directive(
 
                     $scope.selected = function(avatar) {
                         parentScope.data.avatar = avatar.thumbUrl;
-                        parentScope.data.avatarid = avatar.id;
+                        parentScope.data.avatarFull = avatar;
 
                         $scope.closeDialog();
                     };

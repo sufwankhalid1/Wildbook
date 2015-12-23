@@ -26,7 +26,7 @@ import com.samsix.database.SqlStatement;
 public class IndividualController {
     @RequestMapping(value = "save", method = RequestMethod.POST)
     public Individual saveEncounter(final HttpServletRequest request,
-                                 @RequestBody @Valid final Individual individual) throws DatabaseException {
+                                    @RequestBody @Valid final Individual individual) throws DatabaseException {
         if (individual == null) {
             return null;
         }
@@ -38,7 +38,7 @@ public class IndividualController {
             return individual;
         }
     }
-    
+
     @RequestMapping(value = "photos/{id}", method = RequestMethod.GET)
     public List<SimplePhoto> getPhotos(final HttpServletRequest request,
                                 @PathVariable("id")

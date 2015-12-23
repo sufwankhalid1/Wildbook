@@ -71,6 +71,12 @@ public class MediaAssetFactory {
             return null;
         }
 
+        Integer id = rs.getInteger(PK_MEDIAASSET);
+
+        if (id == null) {
+            return null;
+        }
+
         if (logger.isDebugEnabled()) {
             logger.debug(LogBuilder.quickLog("storeid", rs.getInteger("store")));
             logger.debug(LogBuilder.quickLog("store", AssetStore.get(rs.getInteger("store"))));

@@ -3,7 +3,10 @@ package org.ecocean.security;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import org.apache.commons.lang3.StringUtils;
 import org.ecocean.Organization;
+import org.ecocean.mmutil.StringUtilities;
+import org.ecocean.rest.SimplePhoto;
 import org.ecocean.rest.SimpleUser;
 import org.ecocean.util.DateUtils;
 import org.ecocean.util.WildbookUtils;
@@ -15,11 +18,6 @@ public class User {
 
     private Organization organization;
 
-    //
-    // Not persisted. Only for generating SimpleUsers.
-    //
-    private String avatar;
-
     private String email;
     private String physicalAddress;
     private String phoneNumber;
@@ -29,7 +27,6 @@ public class User {
 
     private String hashedPass;
     private String salt;
-    private Integer avatarid;
     private String statement;
 
     private boolean verified = false;
@@ -37,6 +34,8 @@ public class User {
 
     private String prtoken;
     private LocalDateTime prtimestamp;
+
+    private SimplePhoto avatarFull;
 
     public User() {
         // blank constructor for when creating a new user.
@@ -192,24 +191,30 @@ public class User {
         if (organization != null) {
             user.setAffiliation(organization.getName());
         }
-        user.setAvatar(avatar);
+        user.setAvatar(getAvatar());
         return user;
     }
 
-    public Integer getAvatarid() {
-        return avatarid;
-    }
-
-    public void setAvatarid(final Integer avatarid) {
-        this.avatarid = avatarid;
-    }
-
     public String getAvatar() {
-        return avatar;
-    }
+        if (avatarFull != null) {
+            return avatarFull.getThumbUrl();
+        }
 
-    public void setAvatar(final String avatar) {
-        this.avatar = avatar;
+        if (! StringUtils.isBlank(email)) {
+            //
+            // Return 80x80 sized gravatar. They default to 80x80 but can be requested up to 2048x2048.
+            // Though most users will have used a small image.
+            // Feel free to change if you want it bigger as all the code on the browser side should
+            // be sized to fit it's use anyway.
+            // NOTE: d=identicon makes default (when not set by user) be those crazy (unique) geometric shapes, rather than the gravatar logo
+            //         - https://en.wikipedia.org/wiki/Identicon
+            //
+            return "http://www.gravatar.com/avatar/"
+                    + StringUtilities.getHashOf(email.trim().toLowerCase())
+                    + "?s=80&d=identicon";
+        }
+
+        return null;
     }
 
     public String getStatement() {
@@ -250,5 +255,13 @@ public class User {
 
     public void setPrtimestamp(LocalDateTime prtimestamp) {
         this.prtimestamp = prtimestamp;
+    }
+
+    public SimplePhoto getAvatarFull() {
+        return avatarFull;
+    }
+
+    public void setAvatarFull(final SimplePhoto avatarFull) {
+        this.avatarFull = avatarFull;
     }
 }

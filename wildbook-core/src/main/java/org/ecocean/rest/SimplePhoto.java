@@ -64,7 +64,7 @@ public class SimplePhoto
 
     public String getMidUrl() {
         if (midUrl == null) {
-            return getMidUrl();
+            return url;
         }
 
         return midUrl;

@@ -36,7 +36,18 @@ angular.module('wildbook.admin').directive(
 
                 $scope.gridOptions = {
                     columnDefs:
-                        [{headerName: "Name/ID",
+                        [{
+                            headerName: "Avatar",
+                            field: "avatar",
+                            cellRenderer: function(params) {
+                                if (params.value) {
+                                    return '<img width="*" height="32px" src="' + params.value + '"/>';
+                                }
+                                return null;
+                            },
+                            width: 32
+                         },
+                         {headerName: "Name/ID",
                             field: "displayName"
                          },
                          {headerName: "Species",
@@ -52,6 +63,7 @@ angular.module('wildbook.admin').directive(
                              field: "sex"
                          }],
                     rowData: null,
+                    rowHeight: 32,
                     enableSorting: true,
                     rowSelection: 'single',
                     onRowSelected: rowSelectedFunc

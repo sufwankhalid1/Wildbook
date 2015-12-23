@@ -27,15 +27,25 @@ angular.module('wildbook.admin').directive(
             
                 $scope.gridOptions = {
                     columnDefs:
-                        [{headerName: "Individual",
+                        [{headerName: "",
                             field: "individual",
                             cellRenderer: function(params) {
-                                if (params.value) {
-                                    return params.value.displayName;
+                                if (params.value && params.value.avatar) {
+                                    return '<img width="*" height="32px" src="' + params.value.avatar + '"/>';
                                 }
                                 return null;
-                            }
+                            },
+                            width: 32
                          },
+                         {headerName: "Individual",
+                             field: "individual",
+                             cellRenderer: function(params) {
+                                 if (params.value) {
+                                     return params.value.displayName;
+                                 }
+                                 return null;
+                             }
+                          },
                          {headerName: "Date",
                              field: "formattedTime"
                          },
@@ -46,6 +56,7 @@ angular.module('wildbook.admin').directive(
                              }
                          }],
                     rowData: null,
+                    rowHeight: 32,
                     enableSorting: true,
                     rowSelection: 'single',
                     onRowSelected: rowSelectedFunc
