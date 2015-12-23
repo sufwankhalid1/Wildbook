@@ -9,12 +9,12 @@ angular.module('wildbook.admin').directive(
             templateUrl: 'pages/individualSearchPage.html',
             replace: true,
             controller: function($scope) {
+
                $scope.searchIndividualDone = function(individual) {
                     $scope.indData = individual;
                }
 
                $scope.editIndividualDone = function() {
-                    console.log('test')
                     $scope.indData = null;
                }
             }

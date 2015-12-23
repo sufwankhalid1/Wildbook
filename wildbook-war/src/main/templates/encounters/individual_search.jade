@@ -1,6 +1,7 @@
 form.form.ng-cloak(novalidate, wb-key-handler-form)
     md-content
-        cancel-button
+        div {{individualSearchCancelButtonHide}}
+        cancel-button(hide="individualSearchCancelButtonHide")
         md-tabs(md-border-bottom md-dynamic-height md-selected="selectedTabIndex")
             md-tab(label="Data")
                 div(layout="row" layout-align="start end")

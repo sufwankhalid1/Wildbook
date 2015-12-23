@@ -347,11 +347,18 @@ app.directive('cancelButton', [function() {
     return {
         restrict: 'E',
         scope: {
-                hide: '@?',
+                hide: '=?',
                 cancel: '&'
                 },
         template: '<md-icon md-svg-icon="close-circle" ng-show="!hide" ng-click="cancel()"><md-tooltip>Cancel</md-tooltip></md-icon>',
-        transclude: true
+        transclude: false,
+        link: function($scope, ele, attr){
+            console.log($scope.individualSearchCancelButtonHide, $scope.hide);
+
+            $scope.$watch('hide', function(newVal, oldVal) {
+                console.log(oldVal, newVal);
+            });
+        }
     }
 }]);
 
