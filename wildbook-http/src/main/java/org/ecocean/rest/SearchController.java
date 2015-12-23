@@ -1,6 +1,5 @@
 package org.ecocean.rest;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -11,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.ecocean.Individual;
 import org.ecocean.Species;
+import org.ecocean.encounter.Encounter;
 import org.ecocean.encounter.EncounterFactory;
 import org.ecocean.encounter.SimpleEncounter;
 import org.ecocean.security.UserFactory;
@@ -128,21 +128,14 @@ public class SearchController
     public List<SimpleEncounter> searchEncounter(final HttpServletRequest request,
                                                  @RequestBody final EncounterSearch search) throws DatabaseException
     {
-        SqlStatement sql = EncounterFactory.getEncounterStatement();
+        List<Encounter> encounters = EncounterController.searchEncounters(request, search);
 
-        if (search.encdate != null) {
-            sql.addCondition(EncounterFactory.ALIAS_ENCOUNTERS, "encdate", SqlRelationType.EQUAL, search.encdate.toString());
+        List<SimpleEncounter> simples = new ArrayList<>(encounters.size());
+        for (Encounter encounter : encounters) {
+            simples.add(encounter.toSimple());
         }
 
-        if (! StringUtils.isBlank(search.locationid)) {
-            sql.addContainsCondition(EncounterFactory.ALIAS_ENCOUNTERS, "locationid", search.locationid);
-        }
-
-        try (Database db = ServletUtils.getDb(request)) {
-            return db.selectList(sql, (rs) -> {
-                return EncounterFactory.readSimpleEncounter(rs);
-            });
-        }
+        return simples;
     }
 
 
@@ -209,25 +202,6 @@ public class SearchController
         public String type;
         public Species species;
         public String avatar;
-    }
-
-    static class EncounterSearch
-    {
-        private LocalDate encdate;
-        private String locationid;
-
-        public LocalDate getEncdate() {
-            return encdate;
-        }
-        public void setEncdate(final LocalDate encdate) {
-            this.encdate = encdate;
-        }
-        public String getLocationid() {
-            return locationid;
-        }
-        public void setLocationid(final String locationid) {
-            this.locationid = locationid;
-        }
     }
 
     static class SurveySearch
