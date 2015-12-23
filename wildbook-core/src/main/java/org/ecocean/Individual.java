@@ -118,6 +118,8 @@ public class Individual {
         simple.setAvatarFull(avatarFull);
         simple.setSex(sex);
         simple.setSpecies(species);
+        simple.setComments(comments);
+        simple.setIdentified(identified);
         return simple;
     }
 
