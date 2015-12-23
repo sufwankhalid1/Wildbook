@@ -9,10 +9,6 @@ angular.module('wildbook.admin').directive(
             templateUrl: 'pages/userAdmin.html',
             replace: true,
             controller: function($scope) {
-
-                //hide the close button on the search view
-                $scope.showClose = false;
-
                 $scope.setUser = function(user) {
                     $http.get("useradmin/user/"+user.id)
                     .then(function(result) {

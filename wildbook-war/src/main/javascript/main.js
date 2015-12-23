@@ -347,9 +347,9 @@ app.directive('cancelButton', [function() {
     return {
         restrict: 'E',
         scope: {
-                hide: '@'
+                hide: '@?'
                 },
-        template: ' <a href="javascript:;" ng-show="hide" ng-click="cancel()">'+
+        template: ' <a href="javascript:;" ng-show="!hide" ng-click="cancel()">'+
                   '     <md-icon md-svg-icon="close-circle"><md-tooltip>Cancel</md-tooltip></md-icon>'+
                   ' </a>',
         replace: true
