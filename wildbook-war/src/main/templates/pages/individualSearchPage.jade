@@ -1,0 +1,16 @@
+form.form.ng-cloak(novalidate, wb-key-handler-form)
+    md-content
+        cancel-button
+        md-tabs(md-border-bottom md-dynamic-height md-selected="selectedTabIndex")
+            md-tab(label="Data")
+                div(layout="row")
+                    md-input-container(flex="50")
+                        label Name/ID:
+                        input(ng-model="searchdata.nameid")
+                    md-select(flex="45" ng-model="searchdata.species" placeholder="Species")
+                        md-option(ng-value="species.code" ng-repeat="species in allSpecies") {{species.name}}
+                    md-icon(flex="" md-svg-icon="close-circle-outline" ng-click="clearSpecies()")
+                        md-tooltip Clear Species
+                md-button.md-whiteframe-1dp(type="submit" ng-click="search()" aria-label="Search") Search
+            md-tab(label="Results")
+                .ag-fresh(ag-grid="gridOptions", style="height: 400px;")

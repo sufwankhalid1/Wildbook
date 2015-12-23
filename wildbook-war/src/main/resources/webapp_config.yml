@@ -54,7 +54,7 @@ navbar:
             - name: encounterSearch
               url: /admin.jsp?j=page/encounterSearch
             - name: individualSearch
-              url: /individualSearch.jsp
+              url: /admin.jsp?j=page/individualSearch
             - name: locationSearch
               url: /encounters/searchComparison.jsp
         - name: contactUs
