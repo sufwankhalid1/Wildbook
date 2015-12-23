@@ -1,4 +1,4 @@
-div(layout="row" layout-wrap)
+div(layout="row" layout-wrap id="encounter-edit") 
     wb-individual-search(ng-show="module.individualSearch" flex="100" search-individual-done="searchIndividualDone(individual)")
     wb-individual-edit(ng-show="module.individualEdit" edit-individual-done="editIndividualDone(individual)" ind-data="data.encounter.individual" flex="100")
     form.form.ng-cloak(ng-show="! module.individualSearch && ! module.individualEdit"
@@ -18,16 +18,10 @@ div(layout="row" layout-wrap)
             md-icon(md-svg-icon="pencil" layout-margin ng-click="editIndividual()")
             md-icon(md-svg-icon="magnify" layout-margin ng-click="findIndividual()")
             div(flex="")
-        md-content(layout="row" layout-align="center center")
-            md-input-container(flex="33" ng-class="{'has-error': encounterForm.date.$invalid}")
-                label Date:
-                date-input(name="date" ng-model="data.encounter.encDate" required)
-            md-input-container(flex="33")
-                label Start Time:
-                time-input(ng-model="data.encounter.starttime")
-            md-input-container(flex="33")
-                label End Time:
-                time-input(ng-model="data.encounter.endtime")
+        md-content.material-datepicker(layout="row" layout-align="center center")
+            md-datepicker(ng-model="dateObj" required md-placeholder="Date:" flex="33" ng-class="{'has-error': encounterForm.date.$invalid}")
+            time-input(placeholder="Start Time" time="data.encounter.starttime" flex="33")
+            time-input(placeholder="End Time" time="data.encounter.endtime" flex="33")
         md-content(ng-if="mapBuilt" ng-class="{'crosshair':locationPickerState}")
             leaflet(lf-center="mapData.center" layers="mapData.layers" markers="mapData.markers" tiles="mapData.tiles" height="300" defaults="mapData.defaults")
         md-content.mheight-5

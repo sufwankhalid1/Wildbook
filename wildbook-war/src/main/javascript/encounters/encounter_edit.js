@@ -18,8 +18,8 @@ angular.module('wildbook.admin').directive(
 
 angular.module('wildbook.admin').directive(
     'wbEncounterEdit',
-    ["$http", "$exceptionHandler", "wbConfig", "wbEncounterUtils", "leafletMapEvents", "leafletData",
-     function($http, $exceptionHandler, wbConfig, wbEncounterUtils, leafletMapEvents, leafletData) {
+    ["$http", "$exceptionHandler", "wbConfig", "wbEncounterUtils", "leafletMapEvents", "leafletData", "wbDateUtils",
+     function($http, $exceptionHandler, wbConfig, wbEncounterUtils, leafletMapEvents, leafletData, wbDateUtils) {
         return {
             restrict: 'E',
             scope: {
@@ -46,12 +46,34 @@ angular.module('wildbook.admin').directive(
                     wbEncounterUtils.getMedia($scope.data.encounter);
                 }
                 
+                $scope.dateObj = new Date($scope.data.encounter.encDate);
+                
                 wbConfig.config()
                 .then(function(config) {
                     $scope.allSpecies = config.species;
                 });
                 
                 $scope.save = function() {
+                    //md-datetime needs a date obj, so convert to date obj for use, convert back for save
+                    $scope.data.encounter.encDate = wbDateUtils.dateToRest($scope.dateObj);
+
+                    //need to make sure we send either a time or nothing
+                    if ($scope.data.encounter.endtime) {
+                        angular.forEach($scope.data.encounter.endtime, function(val){
+                            if (val == null) {
+                                $scope.data.encounter.endtime = null;
+                            }
+                        });
+                    }
+
+                    if ($scope.data.encounter.starttime) {
+                        angular.forEach($scope.data.encounter.starttime, function(val){
+                            if (val == null) {
+                                $scope.data.encounter.starttime = null;
+                            }
+                        });
+                    }
+
                     if ($scope.encounterForm.$invalid) {
                         alertplus.alert("There are errors on the form.");
                         return;

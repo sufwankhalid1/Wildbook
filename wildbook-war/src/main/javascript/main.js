@@ -255,6 +255,11 @@ app.factory("wbDateUtils", ["wbConfig", "moment", function(wbConfig, moment) {
 }]);
 
 app.factory("wbEncounterUtils", ["$http", "$q", "wbConfig", "wbDateUtils", "$exceptionHandler", function($http, $q, wbConfig, wbDateUtils, $exceptionHandler) {
+    var config;
+    wbConfig.config()
+    .then(function(theConfig) {
+        config = theConfig;
+    });
     return {
         getMedia: function(encdata) {
             if (! encdata.photos) {
@@ -268,11 +273,7 @@ app.factory("wbEncounterUtils", ["$http", "$q", "wbConfig", "wbDateUtils", "$exc
         },
         createNewEncData: function(selectedPhotos) {
             //if photos are selected add them to the new encounter
-            var config = wbConfig.config()
-                        .then(function(config) {
-                            return config;
-                        });
-            var encounter = {individual: {species: config.defaultSpecies || config.species[0]}};
+            var encounter = {individual: {species: config.defaultSpecies || config.species[0] }};
 
             if (!selectedPhotos || !selectedPhotos.length) {
                 return $q.resolve({
@@ -377,43 +378,243 @@ app.directive(
 
 app.directive(
     'timeInput',
-    ["moment", function(moment) {
+    ["moment", "$timeout", function(moment, $timeout) {
         return {
-            require: 'ngModel',
-            template: '<input type="time"></input>',
-            replace: true,
-            link: function(scope, elm, attrs, ngModelCtrl) {
-                ngModelCtrl.$formatters.push(function (modelValue) {
-                    if (! modelValue) {
-                        return null;
-                    }
+            scope: {
+                time:'=',
+                placeholder:'@'
+            },
+            template: '<div class="customTime">'
+                            +'  <div class="{{hourFocused || minuteFocused ||  secondFocused ? \'blue-border\'  : \'gray-border\'}} height-50 overflow-hidden" layout="row" layout-align="start center">'
+                            +'      <span class="timePlaceholder">{{placeholder}}: </span>'
+                            +'      <div timeedit>'
+                            +'          <input ng-class="{\'blue-background\': hourFocused}" ng-focus="hourFocused = true; selectTime($event);" ng-blur="hourFocused = false;  padZero(\'hour\');" '
+                            +'          class="customTimeInput" ng-model="hour" ng-show="showHour" />'
+                            +'          <div ng-focus="hourFocused = true; focus(\'hour\', $event)" ng-blur="hourFocused = false;" ng-click="showHour && !hour ? showHour = true : showHour = false;"'
+                            +'          ng-show="hour == null">--</div>'
+                            +'      </div>'
+                            +'      <div>:</div>'
+                            +'      <div timeedit>'
+                            +'          <input ng-class="{\'blue-background\': minuteFocused}" ng-focus="minuteFocused = true; selectTime($event);" ng-blur="minuteFocused = false;  padZero(\'minute\');" '
+                            +'          class="customTimeInput" ng-model="minute" ng-show="showMinute" />'
+                            +'          <div ng-focus="minuteFocused = true; focus(\'minute\', $event)" ng-blur="minuteFocused = false;" ng-click="showMinute && !hour ? showMinute = true : showMinute = false;"'
+                            +'          ng-show="minute == null">--</div>'
+                            +'      </div>'
+                            +'      <div>:</div>'
+                            +'      <div timeedit>'
+                            +'          <input ng-class="{\'blue-background\': secondFocused}" ng-focus="secondFocused = true; selectTime($event);" ng-blur="secondFocused = false; padZero(\'second\');" '
+                            +'          class="customTimeInput" ng-model="second" ng-show="showSecond" />'
+                            +'          <div ng-focus="secondFocused = true; focus(\'second\', $event)" ng-blur="secondFocused = false;" ng-click="showSecond && !hour ? showSecond = true : showSecond = false;"'
+                            +'          ng-show="second == null">--</div>'
+                            +'      </div>'
+                            +'      <md-select ng-model="ampm" ng-change="changeAmPm()" placeholder="am/pm"class="border-bottom-0 ml-10">'
+                            +'          <md-option ng-value="\'am\'">AM</md-option>'
+                            +'          <md-option ng-value="\'pm\'">PM</md-option>'
+                            +'      </md-select>'                            
+                            +'  </div>'
+                            +'</div>',
+            replace: false,
+            link: function($scope, elm, attrs) {
 
-                    if (modelValue.constructor === Array) {
-                        //
-                        // Angular requires it to be a date object (even though it displays
-                        // it as a time. So we turn it into a date.
-                        //
-                        var mdate = {hour: modelValue[0], minute: modelValue[1]};
-                        if (modelValue[2] && typeof modelValue[2] === "number") {
-                            mdate.seconds = modelValue[2];
+                    $scope.hashes = "--";
+                    $scope.hour = null;
+                    $scope.minute = null;
+                    $scope.second = null;
+                    $scope.showSecond = null;
+                    $scope.showMinute = null;
+                    $scope.showHour = null;
+
+                    $scope.focus = function(type, $e) {
+                        if (!$scope.time) {
+                            $scope.time = [null, null, null];
                         }
-                        //return moment(mdate).format("hh:mm:ss");
-                        return moment(mdate).toDate();
-                    }
-                    return null;
-                });
 
-                ngModelCtrl.$parsers.push(function(viewValue) {
-                    if (! viewValue) {
-                        return null;
+                        switch(type) {
+                            case 'hour': $scope.hour = $scope.hour || "00";
+                                                $scope.showHour = true;
+                                break;
+                            case 'minute': $scope.minute = $scope.minute || "00";
+                                                $scope.showMinute = true;
+                                break;
+                            case 'second': $scope.second = $scope.second || "00";
+                                                $scope.showSecond = true;
+                                break;
+                        }
+
+                        $scope.time[3] = "Z";
+
+                        $timeout(function() {
+                            $e.target.previousElementSibling.focus(function() { 
+                                $scope.selectTime($e, $(this));
+                            });
+                        },100);
                     }
 
-                    var mdate = moment(viewValue);
-                    //
-                    // TODO: Deal with timezone
-                    //
-                    return [mdate.hour(), mdate.minute(), mdate.second(), "+0"];
-                });
+                    $scope.selectTime = function($e) {
+                        $e.target.select(); 
+                    }
+/*
+                    var $nn = 0;
+                    $scope.progress = function($e) {
+                        if ($nn == 1) {
+                            $timeout(function() {
+                                $($e).parent().nextAll().children("input").eq(0).focus(function() { 
+                                    $scope.selectTime($e, $(this));
+                                });
+                            },100);
+
+                            $nn = 0;
+                        }
+
+                        $nn++;
+                    }
+*/
+                    $scope.$watch('hour', function(newVal, oldVal) {
+                        if (newVal == oldVal) {
+                            return false;
+                        }
+
+                        if (newVal.length > 2) {
+                            $scope.hour = oldVal;
+                        } else if (!newVal.length) {
+                            $scope.hour = '';
+                        } else if (! /^(0|1)[1-9]*/.test(newVal)){
+                            $scope.hour = oldVal;
+                        } else if (parseInt(newVal) > 12) {
+                            $scope.hour = oldVal;
+                        } else {
+                            $scope.time[0] = parseInt(newVal);
+                        }
+
+                        $scope.changeAmPm();
+                    });
+
+                    $scope.$watch('minute', function(newVal, oldVal) {
+                        if (newVal == oldVal) {
+                            return false;
+                        }
+                        
+                        if (newVal.length > 2) {
+                            $scope.minute = oldVal;
+                        } else if  (newVal.length == 1 && newVal != 0) {
+
+                        } else if (!newVal.length) {
+                            $scope.minute = '';
+                        } else if (! /^[0-5]\d*/.test(newVal)){
+                            $scope.minute = oldVal;
+                        } else if (parseInt(newVal) > 59) {
+                            $scope.minute = oldVal;
+                        }  else {
+                            $scope.time[1] = parseInt(newVal);
+                        }
+                    });
+
+                    $scope.$watch('second', function(newVal, oldVal) {
+                        if (newVal == oldVal) {
+                            return false;
+                        }
+                        
+                        if (newVal.length > 2) {
+                            $scope.second = oldVal;
+                        } else if  (newVal.length == 1 && newVal != 0) {
+
+                        } else if (!newVal.length) {
+                            $scope.second = '';
+                        } else if (! /^[0-5]\d*/.test(newVal)){
+                            $scope.second = oldVal;
+                        } else if (parseInt(newVal) > 59) {
+                            $scope.second = oldVal;
+                        } else {
+                            $scope.time[2] = parseInt(newVal);
+                        }
+                    });
+
+                    $scope.changeAmPm = function() {
+                        if ($scope.ampm == "am") {
+                            if ($scope.hour) {
+                                if (parseInt($scope.hour) == 12) {
+                                    $scope.time[0] = 0;
+                                }
+                            }
+                        } else {
+                            if ($scope.hour) {
+                                if (parseInt($scope.hour) == 0) {
+                                    $scope.time[0] = 12;
+                                } else if (parseInt($scope.hour) != 12 ){
+                                    $scope.time[0] = parseInt($scope.hour)+12;
+                                }
+                            }
+                        }
+                    }
+
+                    $scope.padZero = function(type) {
+                        switch(type) {
+                            case 'hour' : if ($scope.hour && $scope.hour.length == 1) {
+                               $scope.hour = "0"+$scope.hour; 
+                               $scope.time[0] = parseInt($scope.hour);
+                            }
+                                break;
+                            case 'minute': if ($scope.minute && $scope.minute.length == 1) {
+                               $scope.minute = "0"+$scope.minute; 
+                               $scope.time[1] = parseInt($scope.minute);
+                            }
+                                break;
+                            case 'second' : if ($scope.second && $scope.second.length == 1) {
+                               $scope.second = "0"+$scope.second; 
+                               $scope.time[2] = parseInt($scope.second);
+                            }
+                                break;
+                        }
+                    }
+
+                    $scope.$watch('time', function(newVal, oldVal) {
+                        init();
+                    });
+
+                    var init = function() {
+                        if (!$scope.time) {
+                            $scope.time = [];
+                            return;
+                        } else if ($scope.time && $scope.time.length) {
+                            if ($scope.time[0]  < 12 && $scope.time[0] != 0) {
+                                $scope.hour = $scope.time[0].toString();
+                                $scope.ampm = "am";
+                            } else if ($scope.time[0] == 0) {
+                                $scope.hour = 12;
+                                $scope.ampm = "am";
+                            } else if ($scope.time[0] == 12) {
+                                $scope.hour = $scope.time[0].toString();
+                                $scope.ampm = "pm";
+                            } else if ($scope.time[0] > 12) {
+                                $scope.hour = $scope.time[0] - 12;
+                                $scope.hour = $scope.hour.toString();
+                                $scope.ampm = "pm";
+                            }
+
+                            if ($scope.time.length == 3) {
+                                $scope.time[2] = 0;
+                                $scope.time[3] = "Z"; 
+                            } else if ($scope.time.length == 2) {
+                                $scope.time[1] = 0;
+                                $scope.time[2] = 0;
+                                $scope.time[3] = "Z";
+                            }
+
+                            $scope.minute = $scope.time[1].toString();
+                            $scope.second = $scope.time[2].toString();
+
+                            $scope.padZero('hour');
+                            $scope.padZero('minute');
+                            $scope.padZero('second');
+
+                            $scope.showHour = true;
+                            $scope.showMinute = true;
+                            $scope.showSecond = true;
+                        }
+                }
+
+                init();
+
             }
         };
 }]);
