@@ -5,9 +5,8 @@ div
         div(layout="row" layout-margin layout-align="start center")
             div 
                 h4 Encounter
-            md-icon.ml-10.mr-10(md-svg-icon="pencil" ng-click="edit()" ng-disabled="mode_edit")
+            md-icon.ml-10.mr-10(md-svg-icon="pencil" ng-if="encdata && ! mode_edit" ng-click="edit()" ng-disabled="mode_edit")
                 md-tooltip(md-direction="bottom") Edit
-            cancel-button
         md-divider
         wb-encounter-view(ng-if="encdata && ! mode_edit" enc-data="encdata")
         wb-encounter-edit(ng-if="encdata && mode_edit"

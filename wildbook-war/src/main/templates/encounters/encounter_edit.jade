@@ -4,7 +4,7 @@ div(layout="row" layout-wrap id="encounter-edit")
     form.form.ng-cloak(ng-show="! module.individualSearch && ! module.individualEdit"
                        name="encounterForm" novalidate, wb-key-handler-form flex="100")
         div(layout="row" flex="100" layout-align="start center")
-            cancel-button(layout-margin)
+            cancel-button(layout-margin cancel="cancel()")
             div(flex="")
             md-icon.md-warn(md-svg-icon="delete" layout-margin ng-click="deleteEncounter()")
         md-content(layout="row" flex="100" layout-align="start center")

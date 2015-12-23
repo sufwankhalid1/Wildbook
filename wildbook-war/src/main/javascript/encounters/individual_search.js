@@ -20,7 +20,7 @@ angular.module('wildbook.admin').directive(
                     },
                     $exceptionHandler);
                 };
-            
+
                 function rowSelectedFunc(event) {
                     $scope.searchIndividualDone({individual: event.node.data});
                 }

@@ -347,12 +347,11 @@ app.directive('cancelButton', [function() {
     return {
         restrict: 'E',
         scope: {
-                hide: '@?'
+                hide: '@?',
+                cancel: '&'
                 },
-        template: ' <a href="javascript:;" ng-show="!hide" ng-click="cancel()">'+
-                  '     <md-icon md-svg-icon="close-circle"><md-tooltip>Cancel</md-tooltip></md-icon>'+
-                  ' </a>',
-        replace: true
+        template: '<md-icon md-svg-icon="close-circle" ng-show="!hide" ng-click="cancel()"><md-tooltip>Cancel</md-tooltip></md-icon>',
+        transclude: true
     }
 }]);
 

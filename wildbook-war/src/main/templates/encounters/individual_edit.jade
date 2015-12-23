@@ -1,8 +1,8 @@
 form.form.ng-cloak(novalidate, wb-key-handler-form)
     md-content(layout="row")
-        cancel-button
+        cancel-button(cancel="cancel()")
         div
-    md-content(layout="row" layout-align="start center" layout-wrap)
+    md-content(layout="row" layout-align="start center" layout-wrap class="indEditPage")
         div(layout="row" flex="20")
             div(layout="row" layout-align="center center" flex="100" layout-wrap)
                 div.indiv-avatar-container(layout="row" flex="90" layout-align="center center" ng-class="{'black-background': data.avatar}")
@@ -14,7 +14,7 @@ form.form.ng-cloak(novalidate, wb-key-handler-form)
                 md-input-container(flex="33")
                     label Nickname
                     input(ng-model="data.nickname")
-                md-select(flex="" ng-model="data.species" placeholder="Species")
+                md-select(flex="" ng-model="data.species" placeholder="Species" ng-model-options="{trackBy: '$value.name'}")
                     md-option(ng-value="species" ng-repeat="species in allSpecies") {{species.name}}
             div(layout="row" flex="100" layout-align="start center")
                 md-input-container(flex="33")

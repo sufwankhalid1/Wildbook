@@ -3,7 +3,7 @@ form.form.ng-cloak(novalidate, wb-key-handler-form)
         cancel-button
         md-tabs(md-border-bottom md-dynamic-height md-selected="selectedTabIndex")
             md-tab(label="Data")
-                div(layout="row")
+                div(layout="row" layout-align="start end")
                     md-input-container(flex="50")
                         label Name/ID:
                         input(ng-model="searchdata.nameid")
