@@ -1,8 +1,8 @@
-package org.ecocean.rest;
+package org.ecocean.rest.search;
 
 import java.time.LocalDate;
 
-class EncounterSearch
+public class EncounterSearch
 {
     private LocalDate encdate;
     private String locationid;
@@ -18,5 +18,9 @@ class EncounterSearch
     }
     public void setLocationid(final String locationid) {
         this.locationid = locationid;
+    }
+
+    public boolean hasData() {
+        return (encdate != null || locationid != null);
     }
 }

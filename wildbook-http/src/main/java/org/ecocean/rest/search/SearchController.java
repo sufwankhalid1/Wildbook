@@ -1,4 +1,4 @@
-package org.ecocean.rest;
+package org.ecocean.rest.search;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -8,11 +8,10 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.ecocean.Individual;
 import org.ecocean.Species;
-import org.ecocean.encounter.Encounter;
 import org.ecocean.encounter.EncounterFactory;
-import org.ecocean.encounter.SimpleEncounter;
+import org.ecocean.rest.SimpleIndividual;
+import org.ecocean.rest.SimpleUser;
 import org.ecocean.security.UserFactory;
 import org.ecocean.servlet.ServletUtils;
 import org.ecocean.survey.SurveyFactory;
@@ -46,7 +45,11 @@ public class SearchController
 
         SqlStatement sql = EncounterFactory.getIndividualStatement();
 
-        IndividualController.addIndividualNameCondition(sql, term);
+        SqlTable table = sql.findTable(EncounterFactory.ALIAS_INDIVIDUALS);
+        GroupedSqlCondition cond = GroupedSqlCondition.orGroup();
+        cond.addContainsCondition(table, "alternateid", term);
+        cond.addContainsCondition(table, "nickname", term);
+        sql.addCondition(cond);
 
         return db.selectList(sql, (rs) -> {
             return EncounterFactory.readSimpleIndividual(rs);
@@ -122,37 +125,37 @@ public class SearchController
             });
         }
     }
-
-
-    @RequestMapping(value = "/encounter", method = RequestMethod.POST)
-    public List<SimpleEncounter> searchEncounter(final HttpServletRequest request,
-                                                 @RequestBody final EncounterSearch search) throws DatabaseException
-    {
-        List<Encounter> encounters = EncounterController.searchEncounters(request, search);
-
-        List<SimpleEncounter> simples = new ArrayList<>(encounters.size());
-        for (Encounter encounter : encounters) {
-            simples.add(encounter.toSimple());
-        }
-
-        return simples;
-    }
-
-
-    @RequestMapping(value = "/individual", method = RequestMethod.POST)
-    public List<SimpleIndividual> searchIndividual(final HttpServletRequest request,
-                                                   @RequestBody
-                                                   final IndividualSearch search) throws DatabaseException
-    {
-        List<Individual> individuals = IndividualController.searchIndividuals(request, search);
-
-        List<SimpleIndividual> simples = new ArrayList<>(individuals.size());
-        for (Individual individual : individuals) {
-            simples.add(individual.toSimple());
-        }
-
-        return simples;
-    }
+//
+//
+//    @RequestMapping(value = "/encounter", method = RequestMethod.POST)
+//    public List<SimpleEncounter> searchEncounter(final HttpServletRequest request,
+//                                                 @RequestBody final EncounterSearch search) throws DatabaseException
+//    {
+//        List<Encounter> encounters = EncounterController.searchEncounters(request, search);
+//
+//        List<SimpleEncounter> simples = new ArrayList<>(encounters.size());
+//        for (Encounter encounter : encounters) {
+//            simples.add(encounter.toSimple());
+//        }
+//
+//        return simples;
+//    }
+//
+//
+//    @RequestMapping(value = "/individual", method = RequestMethod.POST)
+//    public List<SimpleIndividual> searchIndividual(final HttpServletRequest request,
+//                                                   @RequestBody
+//                                                   final IndividualSearch search) throws DatabaseException
+//    {
+//        List<Individual> individuals = IndividualController.searchIndividuals(request, search);
+//
+//        List<SimpleIndividual> simples = new ArrayList<>(individuals.size());
+//        for (Individual individual : individuals) {
+//            simples.add(individual.toSimple());
+//        }
+//
+//        return simples;
+//    }
 
 
     @RequestMapping(value = "/survey", method = RequestMethod.POST)
@@ -242,10 +245,5 @@ public class SearchController
         public void setDate(final String date) {
             this.date = date;
         }
-    }
-
-    static class UserSearch
-    {
-        public String name;
     }
 }
