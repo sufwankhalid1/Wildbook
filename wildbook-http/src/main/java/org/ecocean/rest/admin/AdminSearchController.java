@@ -77,7 +77,7 @@ public class AdminSearchController {
     }
 
     private static void addIndividualData(final SqlStatement sql, final IndividualSearch search) {
-        if (search.nameid != null) {
+        if (!StringUtils.isBlank(search.nameid)) {
             SqlTable table = sql.findTable(EncounterFactory.ALIAS_INDIVIDUALS);
             GroupedSqlCondition cond = GroupedSqlCondition.orGroup();
             cond.addContainsCondition(table, "alternateid", search.nameid);
@@ -85,8 +85,20 @@ public class AdminSearchController {
             sql.addCondition(cond);
         }
 
-        if (search.species != null) {
+        if (!StringUtils.isBlank(search.species)) {
             sql.addCondition(EncounterFactory.ALIAS_INDIVIDUALS, "species", SqlRelationType.EQUAL, search.species);
+        }
+
+        if (!StringUtils.isBlank(search.comments)) {
+            sql.addContainsCondition(EncounterFactory.ALIAS_INDIVIDUALS, "comments", search.comments);
+        }
+
+        if (!StringUtils.isBlank(search.sex)) {
+            sql.addContainsCondition(EncounterFactory.ALIAS_INDIVIDUALS, "sex", search.sex);
+        }
+
+        if (search.identified != null) {
+            sql.addCondition(EncounterFactory.ALIAS_INDIVIDUALS, "identified", search.identified);
         }
     }
 
