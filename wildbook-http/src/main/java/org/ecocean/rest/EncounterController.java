@@ -5,7 +5,6 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
-import org.apache.commons.lang3.StringUtils;
 import org.ecocean.encounter.Encounter;
 import org.ecocean.encounter.EncounterFactory;
 import org.ecocean.servlet.ServletUtils;
@@ -17,40 +16,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
-import com.samsix.database.SqlRelationType;
-import com.samsix.database.SqlStatement;
 
 @RestController
 @RequestMapping(value = "/obj/encounter")
-public class EncounterController
-{
-    public static List<Encounter> searchEncounters(final HttpServletRequest request,
-                                                   final EncounterSearch search) throws DatabaseException {
-        SqlStatement sql = EncounterFactory.getEncounterStatement();
-
-        if (search.getEncdate() != null) {
-            sql.addCondition(EncounterFactory.ALIAS_ENCOUNTERS, "encdate", SqlRelationType.EQUAL, search.getEncdate().toString());
-        }
-
-        if (! StringUtils.isBlank(search.getLocationid())) {
-            sql.addContainsCondition(EncounterFactory.ALIAS_ENCOUNTERS, "locationid", search.getLocationid());
-        }
-
-        try (Database db = ServletUtils.getDb(request)) {
-            return db.selectList(sql, (rs) -> {
-                return EncounterFactory.readEncounter(rs);
-            });
-        }
-    }
-
-    @RequestMapping(value = "/search", method = RequestMethod.POST)
-    public List<Encounter> searchIndividual(final HttpServletRequest request,
-                                             @RequestBody
-                                             final EncounterSearch search) throws DatabaseException
-    {
-        return searchEncounters(request, search);
-    }
-
+public class EncounterController {
     @RequestMapping(value = "save", method = RequestMethod.POST)
     public Integer saveEncounter(final HttpServletRequest request,
                                  @RequestBody @Valid final Encounter encounter) throws DatabaseException {

@@ -1,8 +1,8 @@
-package org.ecocean.rest;
+package org.ecocean.rest.search;
 
 import java.time.LocalDate;
 
-class EncounterSearch
+public class EncounterSearch
 {
     private LocalDate encdate;
     private String locationid;
