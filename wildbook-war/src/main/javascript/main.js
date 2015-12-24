@@ -162,6 +162,28 @@ app.factory("wbDateUtils", ["wbConfig", "moment", function(wbConfig, moment) {
         }
         return null;
     }
+
+    function formatTimeArrayToString(array) {
+        if (!array) {
+            return;
+        }
+
+        array.forEach(function(val) {
+            if (typeof val != 'number') {
+                delete array[val];
+            }
+        });
+
+        if (array.length == 1) {
+            array.push(00);
+            array.push(00);
+        } else if (aray.length == 2) {
+            array.push(00);
+        }
+
+        var time = array.join(':') + " Z";
+        return time;
+    }
     
     function fixMonth(rest) {
         //
@@ -175,6 +197,27 @@ app.factory("wbDateUtils", ["wbConfig", "moment", function(wbConfig, moment) {
     }
 
     return {
+        formatTimeArrayToString: function(array) {
+            if (!array || typeof array != 'object' || !array.length) {
+                return;
+            }
+
+            array.forEach(function(val, index) {
+                if (typeof val != 'number') {
+                     array.splice(index,1);
+                }
+            });
+
+            if (array.length == 1) {
+                array.push("00");
+                array.push("00");
+            } else if (array.length == 2) {
+                array.push("00");
+            }
+
+            var time = array.join(':') + " Z";
+            return time;
+        },
         dateToRest: function(date) {
             if (! date) {
                 return null;

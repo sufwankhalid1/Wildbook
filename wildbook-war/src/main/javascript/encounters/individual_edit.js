@@ -1,4 +1,19 @@
 angular.module('wildbook.admin').directive(
+    'wbIndividualView',
+    ["wbDateUtils", function(wbDateUtils) {
+        return {
+            restrict: 'E',
+            scope: {
+                data: "=indData"
+            },
+            templateUrl: 'encounters/individual_view.html',
+            replace: true
+        };
+    }]
+);
+
+
+angular.module('wildbook.admin').directive(
     'wbIndividualEdit',
     ["$http", "$exceptionHandler", "wbConfig", "wbEncounterUtils", "$mdDialog",
      function($http, $exceptionHandler, wbConfig, wbEncounterUtils, $mdDialog) {
