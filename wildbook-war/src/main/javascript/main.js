@@ -163,7 +163,9 @@ app.factory("wbDateUtils", ["wbConfig", "moment", function(wbConfig, moment) {
         return null;
     }
 
-    function formatTimeArrayToString(array) {
+    function formatTimeArrayToString(time) {
+        var array = time;
+        
         if (!array) {
             return;
         }
@@ -205,6 +207,10 @@ app.factory("wbDateUtils", ["wbConfig", "moment", function(wbConfig, moment) {
             array.forEach(function(val, index) {
                 if (typeof val != 'number') {
                      array.splice(index,1);
+                } else {
+                    if (val < 10) {
+                        array[index] = "0"+val;
+                    }
                 }
             });
 
@@ -215,8 +221,7 @@ app.factory("wbDateUtils", ["wbConfig", "moment", function(wbConfig, moment) {
                 array.push("00");
             }
 
-            var time = array.join(':') + " Z";
-            return time;
+            return array.join(':');
         },
         dateToRest: function(date) {
             if (! date) {

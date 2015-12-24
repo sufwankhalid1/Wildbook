@@ -13,9 +13,7 @@ angular.module('wildbook.admin').directive(
             templateUrl: 'encounters/encounter_view.html',
             replace: true,
             link: function($scope, elem, attr) {
-                $scope.date = wbDateUtils.dateStringFromRest($scope.data.encounter.encDate);
-                $scope.starttime = wbDateUtils.formatTimeArrayToString($scope.data.encounter.starttime);
-                $scope.endtime = wbDateUtils.formatTimeArrayToString($scope.data.encounter.endtime);
+                $scope.wbDateUtils = wbDateUtils;
             }
         };
     }]
