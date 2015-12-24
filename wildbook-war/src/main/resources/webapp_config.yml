@@ -57,7 +57,7 @@ navbar:
               url: /admin.jsp?j=page/individualSearch
             - name: locationSearch
               url: /encounters/searchComparison.jsp
-              login: true
+          role: admin
         - name: contactUs
           url: /contactus.jsp
         - name: administer

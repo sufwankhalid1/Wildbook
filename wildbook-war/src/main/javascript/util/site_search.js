@@ -32,7 +32,7 @@ angular.module('wildbook.util').directive(
                 }
 
                 function searchTextChange(text) {
-                    console.log('Text changed to ' + text);
+/*                    console.log('Text changed to ' + text);*/
                 }
 
                 function selectedItemChange(item) {
