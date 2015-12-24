@@ -49,7 +49,16 @@ angular.module('wildbook.admin').directive(
                                  }
                                  return null;
                              }
-                          },
+                         },
+                         {headerName: "Species",
+                             field: "individual",
+                             cellRenderer: function(params) {
+                                 if (params.value && params.value.species) {
+                                     return params.value.species.name;
+                                 }
+                                 return null;
+                             }
+                         },
                          {headerName: "Date",
                              field: "formattedTime"
                          },
