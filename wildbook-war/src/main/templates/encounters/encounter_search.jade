@@ -11,6 +11,9 @@ form.form.ng-cloak(novalidate, wb-key-handler-form)
                 label.mt-10 Contributor
                 div(layout="row" flex="100")
                     wb-contributor-search-fields(contributor="searchdata.contributor")
-                md-button.md-whiteframe-1dp(type="submit" ng-click="search()" aria-label="Search") Search
+                div(layout="row" flex="100")
+                    md-button.md-whiteframe-1dp(type="submit" ng-click="search()" aria-label="Search") Search
+                    div(flex="")
+                    md-button.md-whiteframe-1dp(type="button" ng-click="reset()" aria-label="reset") Reset
             md-tab(label="Results")
                 .ag-fresh(ag-grid="gridOptions", style="height: 400px;")

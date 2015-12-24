@@ -16,6 +16,15 @@ angular.module('wildbook.admin').directive(
                     individual: {},
                     contributor: {}
                 }
+
+                $scope.reset = function() {
+                    $scope.searchdata =  { 
+                        encounter: {},
+                        individual: {},
+                        contributor: {}
+                    }
+                }
+
                 $scope.selectedTabIndex = 0;
             
                 $scope.search = function() {
