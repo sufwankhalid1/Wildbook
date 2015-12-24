@@ -2,6 +2,8 @@ package org.ecocean.rest.search;
 
 import java.time.LocalDate;
 
+import org.apache.commons.lang3.StringUtils;
+
 public class EncounterSearch
 {
     private LocalDate encdate;
@@ -21,6 +23,6 @@ public class EncounterSearch
     }
 
     public boolean hasData() {
-        return (encdate != null || locationid != null);
+        return (encdate != null || !StringUtils.isBlank(locationid));
     }
 }

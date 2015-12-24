@@ -101,30 +101,6 @@ public class SearchController
             return results;
         }
     }
-
-
-    @RequestMapping(value = "/user", method = RequestMethod.POST)
-    public List<SimpleUser> searchUser(final HttpServletRequest request,
-                                       @RequestBody
-                                       final UserSearch search) throws DatabaseException
-    {
-        try (Database db = ServletUtils.getDb(request)) {
-            SqlStatement sql = UserFactory.getUserStatement();
-
-            SqlTable users = sql.findTable(UserFactory.AlIAS_USERS);
-            if (! StringUtils.isBlank(search.name)) {
-                GroupedSqlCondition cond = GroupedSqlCondition.orGroup();
-                cond.addContainsCondition(users, "fullname", search.name);
-                cond.addContainsCondition(users, "username", search.name);
-                sql.addCondition(cond);
-            }
-            sql.setOrderBy("fullname");
-
-            return db.selectList(sql, (rs) -> {
-                return UserFactory.readSimpleUser(rs);
-            });
-        }
-    }
 //
 //
 //    @RequestMapping(value = "/encounter", method = RequestMethod.POST)

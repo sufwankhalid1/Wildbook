@@ -28,7 +28,7 @@ angular.module('wildbook.admin').directive(
 
                 function rowSelectedFunc(event) {
                     $scope.searchIndividualDone({individual: event.node.data});
-               s }
+                }
 
                 $scope.gridOptions = {
                     columnDefs:
