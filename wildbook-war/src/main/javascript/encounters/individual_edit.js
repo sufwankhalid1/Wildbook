@@ -1,13 +1,19 @@
 angular.module('wildbook.admin').directive(
     'wbIndividualView',
-    ["wbDateUtils", function(wbDateUtils) {
+    ["wbDateUtils",  "$http", function(wbDateUtils, $http) {
         return {
             restrict: 'E',
             scope: {
                 data: "=indData"
             },
             templateUrl: 'encounters/individual_view.html',
-            replace: true
+            replace: true,
+            link: function($scope, ele, attr) {
+              $http.get("obj/individual/photos/"+$scope.data.id)
+              .then(function(photos) {
+                  $scope.photos = photos.data;
+              });
+            }
         };
     }]
 );
