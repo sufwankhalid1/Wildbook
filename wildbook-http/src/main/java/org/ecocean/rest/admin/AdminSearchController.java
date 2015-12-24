@@ -37,15 +37,15 @@ public class AdminSearchController {
     Logger logger = LoggerFactory.getLogger(SearchController.class);
 
     private static void addEncounterData(final SqlStatement sql, final EncounterSearch search) {
-        if (search.getEncdate() != null) {
-            sql.addCondition(EncounterFactory.ALIAS_ENCOUNTERS, "encdate", SqlRelationType.EQUAL, search.getEncdate().toString());
+        if (search.encdate != null) {
+            sql.addCondition(EncounterFactory.ALIAS_ENCOUNTERS, "encdate", SqlRelationType.EQUAL, search.encdate.toString());
         }
 
-        if (! StringUtils.isBlank(search.getLocation())) {
+        if (! StringUtils.isBlank(search.location)) {
             SqlTable table = sql.findTable(EncounterFactory.ALIAS_ENCOUNTERS);
             GroupedSqlCondition cond = GroupedSqlCondition.orGroup();
-            cond.addContainsCondition(table, "locationid", search.getLocation());
-            cond.addContainsCondition(table, "verbatimlocation", search.getLocation());
+            cond.addContainsCondition(table, "locationid", search.location);
+            cond.addContainsCondition(table, "verbatimlocation", search.location);
             sql.addCondition(cond);
         }
     }
