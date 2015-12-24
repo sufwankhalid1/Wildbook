@@ -21,6 +21,6 @@ public class EncounterSearch
     }
 
     public boolean hasData() {
-        return (encdate != null && locationid != null);
+        return (encdate != null || locationid != null);
     }
 }
