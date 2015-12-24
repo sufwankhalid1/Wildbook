@@ -41,8 +41,12 @@ public class AdminSearchController {
             sql.addCondition(EncounterFactory.ALIAS_ENCOUNTERS, "encdate", SqlRelationType.EQUAL, search.getEncdate().toString());
         }
 
-        if (! StringUtils.isBlank(search.getLocationid())) {
-            sql.addContainsCondition(EncounterFactory.ALIAS_ENCOUNTERS, "locationid", search.getLocationid());
+        if (! StringUtils.isBlank(search.getLocation())) {
+            SqlTable table = sql.findTable(EncounterFactory.ALIAS_ENCOUNTERS);
+            GroupedSqlCondition cond = GroupedSqlCondition.orGroup();
+            cond.addContainsCondition(table, "locationid", search.getLocation());
+            cond.addContainsCondition(table, "verbatimlocation", search.getLocation());
+            sql.addCondition(cond);
         }
     }
 
