@@ -624,10 +624,12 @@ public final class MediaUtilities {
 
       try {
         ImageMeta meta = FileUtilities.getImageMetaData(file);
-        ma.setMetaTimestamp(meta.getTimestamp());
-        ma.setMetaLatitude(meta.getLatitude());
-        ma.setMetaLongitude(meta.getLongitude());
-        ma.setMeta("{\"origFilename\": \"" + origFilename + "\"}");
+        if (meta != null) {
+            ma.setMetaTimestamp(meta.getTimestamp());
+            ma.setMetaLatitude(meta.getLatitude());
+            ma.setMetaLongitude(meta.getLongitude());
+            ma.setMeta("{\"origFilename\": \"" + origFilename + "\"}");
+        }
     } catch (ImageProcessingException ex) {
         logger.error("Problem reading metadata from [" + file.getAbsolutePath() + "]", ex);
     }
