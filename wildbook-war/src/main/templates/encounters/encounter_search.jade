@@ -2,8 +2,10 @@ form.form.ng-cloak(novalidate, wb-key-handler-form)
     md-content
         md-tabs(md-border-bottom md-dynamic-height md-selected="selectedTabIndex")
             md-tab(label="Data")
-                div(layout="row" flex="100")
+                label.mt-20 Encounter
+                div.mb-20(layout="row" flex="100")
                     wb-encounter-search-fields(encounter="searchdata.encounter")
+                label.mt-10 Individual
                 div(layout="row" flex="100")
                     wb-individual-search-fields(individual="searchdata.individual")
                 md-button.md-whiteframe-1dp(type="submit" ng-click="search()" aria-label="Search") Search
