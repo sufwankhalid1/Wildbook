@@ -25,7 +25,7 @@ div(layout="row" layout-wrap id="encounter-edit")
         md-content(ng-if="mapBuilt" ng-class="{'crosshair':locationPickerState}")
             leaflet(lf-center="mapData.center" layers="mapData.layers" markers="mapData.markers" tiles="mapData.tiles" height="300" defaults="mapData.defaults")
         md-content.mheight-5
-            div(layout="row" layout-fill)
+            div(layout="row" flex="100")
                 div(flex="")
                 md-icon(md-svg-icon="crosshairs-gps" ng-click="pickLocation($event)" ng-class="{'green-svg':locationPickerState}")
         md-content
@@ -38,5 +38,10 @@ div(layout="row" layout-wrap id="encounter-edit")
                                  actions="tbActions"
                                  cb-delphoto="deletePhoto(id)"
                                  cb-action="performAction(code, photos)")
+        md-content
+            div(layout="row" flex="100")
+                md-input-container(flex="100")
+                    label Comments
+                    textarea(ng-model="data.encounter.comments")
         md-button.md-whiteframe-1dp(type="submit" ng-click="save()" aria-label="Save") Save
         
