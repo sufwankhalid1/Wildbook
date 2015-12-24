@@ -48,6 +48,9 @@ public class AdminSearchController {
         SqlStatement sql = EncounterFactory.getEncounterStatement();
 
         addEncounterData(sql, search.encounter);
+        //
+        // Individual table is already in the basic encounter statement.
+        //
         addIndividualData(sql, search.individual);
 
         try (Database db = ServletUtils.getDb(request)) {
@@ -77,7 +80,14 @@ public class AdminSearchController {
         SqlStatement sql = EncounterFactory.getIndividualStatement();
 
         addIndividualData(sql, search.individual);
-        addEncounterData(sql, search.encounter);
+        if (search.encounter.hasData()) {
+            sql.addLeftOuterJoin(EncounterFactory.ALIAS_INDIVIDUALS,
+                                 EncounterFactory.PK_INDIVIDUALS,
+                                 EncounterFactory.TABLENAME_ENCOUNTERS,
+                                 EncounterFactory.ALIAS_ENCOUNTERS,
+                                 EncounterFactory.PK_ENCOUNTERS);
+            addEncounterData(sql, search.encounter);
+        }
 
         try (Database db = ServletUtils.getDb(request)) {
             return db.selectList(sql, (rs) -> {

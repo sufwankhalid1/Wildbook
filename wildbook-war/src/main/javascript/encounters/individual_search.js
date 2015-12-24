@@ -17,7 +17,7 @@ angular.module('wildbook.admin').directive(
                 $scope.selectedTabIndex = 0;
             
                 $scope.search = function() {
-                    $http.post("obj/individual/search", $scope.searchdata)
+                    $http.post("admin/search/individual", $scope.searchdata)
                     .then(function(result) {
                         $scope.gridOptions.api.setRowData(result.data);
                         $scope.selectedTabIndex = 1;
