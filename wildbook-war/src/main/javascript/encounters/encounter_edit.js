@@ -23,8 +23,8 @@ angular.module('wildbook.admin').directive(
 
 angular.module('wildbook.admin').directive(
     'wbEncounterEdit',
-    ["$http", "$exceptionHandler", "wbConfig", "wbEncounterUtils", "leafletMapEvents", "leafletData", "wbDateUtils",
-     function($http, $exceptionHandler, wbConfig, wbEncounterUtils, leafletMapEvents, leafletData, wbDateUtils) {
+    ["$http", "$exceptionHandler", "wbConfig", "wbEncounterUtils", "leafletMapEvents", "wbDateUtils",
+     function($http, $exceptionHandler, wbConfig, wbEncounterUtils, leafletMapEvents, wbDateUtils) {
         return {
             restrict: 'E',
             scope: {

@@ -3,7 +3,7 @@ require('../encounters/individual_edit.js');
 
 angular.module('wildbook.admin').directive(
     'wbIndividualSearchPage',
-    ["$http", "$exceptionHandler", "wbConfig", function($http, $exceptionHandler, wbConfig) {
+    [function() {
         return {
             restrict: 'E',
             templateUrl: 'pages/individualSearchPage.html',

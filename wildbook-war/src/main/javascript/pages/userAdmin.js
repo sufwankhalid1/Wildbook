@@ -2,8 +2,8 @@ require('../user/user_search.js');
 
 angular.module('wildbook.admin').directive(
     "wbUserAdmin",
-    ["$http", "$q", "$exceptionHandler", "wbConfig", "$mdDialog",
-     function ($http, $q, $exceptionHandler, wbConfig, $mdDialog) {
+    ["$http", "wbConfig", "$mdDialog",
+     function ($http, wbConfig, $mdDialog) {
         return {
             restrict: 'E',
             templateUrl: 'pages/userAdmin.html',

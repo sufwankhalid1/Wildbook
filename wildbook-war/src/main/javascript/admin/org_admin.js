@@ -1,7 +1,6 @@
 angular.module('wildbook.admin').directive(
     'wbOrgAdmin',
-    ["$http", "$exceptionHandler", "wbConfig", "$timeout",
-    function($http, $exceptionHandler, wbConfig, $timeout) {
+    ["$http", "wbConfig", function($http, wbConfig) {
         return {
             restrict: 'E',
             scope: {

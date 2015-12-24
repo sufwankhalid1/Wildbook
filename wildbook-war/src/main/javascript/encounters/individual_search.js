@@ -1,6 +1,6 @@
 angular.module('wildbook.admin').directive(
     'wbIndividualSearch',
-    ["$http", "$exceptionHandler", "wbConfig", function($http, $exceptionHandler, wbConfig) {
+    ["$http", "$exceptionHandler", function($http, $exceptionHandler) {
         return {
             restrict: 'E',
             scope: {

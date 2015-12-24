@@ -1,6 +1,6 @@
 angular.module('wildbook.admin').directive(
     'wbEncounterSearchFields',
-    ["$http", "$exceptionHandler", function($http, $exceptionHandler) {
+    [function() {
         return {
             restrict: 'E',
             templateUrl: 'encounters/encounter_search_fields.html',

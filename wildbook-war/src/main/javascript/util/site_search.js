@@ -6,7 +6,7 @@ angular.module('wildbook.util').directive(
             scope: {},
             templateUrl: 'util/site_search.html',
             replace: true,
-            controller: function($scope, $http) {
+            controller: function($scope) {
                 $scope.querySearch   = querySearch;
                 $scope.selectedItemChange = selectedItemChange;
                 $scope.searchTextChange   = searchTextChange;

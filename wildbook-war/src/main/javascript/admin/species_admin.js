@@ -1,6 +1,6 @@
 angular.module('wildbook.admin').directive(
     'wbSpeciesAdmin',
-    ["$http", "$exceptionHandler", "wbConfig", function($http, $exceptionHandler, wbConfig) {
+    ["$http", "wbConfig", function($http, wbConfig) {
         return {
             restrict: 'E',
             scope: {

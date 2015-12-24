@@ -1,6 +1,6 @@
 angular.module('wildbook.admin').directive(
     'wbIndividualView',
-    ["wbDateUtils",  "$http", function(wbDateUtils, $http) {
+    ["$http", function($http) {
         return {
             restrict: 'E',
             scope: {
@@ -21,8 +21,8 @@ angular.module('wildbook.admin').directive(
 
 angular.module('wildbook.admin').directive(
     'wbIndividualEdit',
-    ["$http", "$exceptionHandler", "wbConfig", "wbEncounterUtils", "$mdDialog",
-     function($http, $exceptionHandler, wbConfig, wbEncounterUtils, $mdDialog) {
+    ["$http", "$exceptionHandler", "wbConfig", "$mdDialog",
+     function($http, $exceptionHandler, wbConfig, $mdDialog) {
         return {
             restrict: 'E',
             scope: {
