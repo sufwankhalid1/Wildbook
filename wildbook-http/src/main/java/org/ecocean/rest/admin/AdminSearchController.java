@@ -57,6 +57,10 @@ public class AdminSearchController {
         //
         addIndividualData(sql, search.individual);
 
+        if (search.contributor.hasData()) {
+            addContributorData(sql, search.contributor);
+        }
+
         try (Database db = ServletUtils.getDb(request)) {
             return db.selectList(sql, (rs) -> {
                 return EncounterFactory.readEncounter(rs);
@@ -88,6 +92,25 @@ public class AdminSearchController {
     }
 
 
+    private static void addContributorData(final SqlStatement sql, final UserSearch search) {
+        sql.addInnerJoin(EncounterFactory.ALIAS_ENCOUNTERS,
+                EncounterFactory.PK_ENCOUNTERS,
+                EncounterFactory.TABLENAME_ENCOUNTER_MEDIA,
+                EncounterFactory.ALIAS_ENCOUNTER_MEDIA,
+                EncounterFactory.PK_ENCOUNTERS);
+        sql.addInnerJoin(EncounterFactory.ALIAS_ENCOUNTER_MEDIA,
+                         "mediaid",
+                         MediaAssetFactory.TABLENAME_MEDIAASSET,
+                         "masearch",
+                         MediaAssetFactory.PK_MEDIAASSET);
+        SqlTable contributors = new SqlTable(UserFactory.TABLENAME_USERS, "contrib");
+        SqlTable masearch = sql.findTable("masearch");
+        sql.addInnerJoin(masearch, contributors, "submitterid", UserFactory.PK_USERS);
+
+        addUserData(sql, contributors, search);
+    }
+
+
     public static List<Individual> searchIndividuals(final HttpServletRequest request,
                                                      final SearchData search)
             throws DatabaseException {
@@ -104,21 +127,7 @@ public class AdminSearchController {
             addEncounterData(sql, search.encounter);
 
             if (search.contributor.hasData()) {
-                sql.addInnerJoin(EncounterFactory.ALIAS_ENCOUNTERS,
-                                 EncounterFactory.PK_ENCOUNTERS,
-                                 EncounterFactory.TABLENAME_ENCOUNTER_MEDIA,
-                                 EncounterFactory.ALIAS_ENCOUNTER_MEDIA,
-                                 EncounterFactory.PK_ENCOUNTERS);
-                sql.addInnerJoin(EncounterFactory.ALIAS_ENCOUNTER_MEDIA,
-                                 "mediaid",
-                                 MediaAssetFactory.TABLENAME_MEDIAASSET,
-                                 "masearch",
-                                 MediaAssetFactory.PK_MEDIAASSET);
-                SqlTable contributors = new SqlTable(UserFactory.TABLENAME_USERS, "contrib");
-                SqlTable masearch = sql.findTable("masearch");
-                sql.addInnerJoin(masearch, contributors, "submitterid", UserFactory.PK_USERS);
-
-                addUserData(sql, contributors, search.contributor);
+                addContributorData(sql, search.contributor);
             }
         }
 
