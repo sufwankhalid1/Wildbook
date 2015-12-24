@@ -1,8 +1,23 @@
-div(layout="row" flex="100")
-    md-input-container(flex="50")
-        label Name/ID:
-        input(ng-model="individual.nameid")
-    md-select(flex="45" ng-model="individual.species" placeholder="Species")
-        md-option(ng-value="species.code" ng-repeat="species in allSpecies") {{species.name}}
-    md-icon(flex="" md-svg-icon="close-circle-outline" ng-click="clearSpecies()")
-        md-tooltip Clear Species
+div(layout="row" flex="100" layout-wrap)
+    div(layout="row" flex="100" layout-align="start end")
+        md-input-container(flex="50")
+            label Name/ID:
+            input(ng-model="individual.nameid")
+        md-input-container(flex="45" )
+            md-select(ng-model="individual.species" placeholder="Species")
+                md-option(ng-value="species.code" ng-repeat="species in allSpecies") {{species.name}}
+        md-icon(flex="" md-svg-icon="close-circle-outline" ng-click="clearSpecies()")
+            md-tooltip Clear Species
+    div(layout="row" flex="100" layout-align="start end")
+        md-input-container(flex="50")
+            label Sex:
+            input(ng-model="individual.sex")
+        md-input-container(flex="50")
+            md-select(ng-model="individual.identified" placeholder="Is Identified")
+                md-option(ng-value="null")
+                md-option(ng-value="true") Identified
+                md-option(ng-value="false") Not Identified
+    div(layout="row" flex="100")
+        md-input-container(flex="100")
+            label Comments:
+            input(ng-model="individual.comments")

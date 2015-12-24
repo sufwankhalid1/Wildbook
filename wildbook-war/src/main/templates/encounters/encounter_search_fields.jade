@@ -1,7 +1,12 @@
-div(layout="row" flex="100")
-    md-input-container(flex="50")
-        label Date:
-        date-input(ng-model="encounter.encdate")
-    md-input-container(flex="50")
-        label Location:
-        input(type="text" ng-model="encounter.location")
+div(layout="row" flex="100" layout-wrap)
+    div(layout="row" flex="100" layout-align="start end")
+        md-input-container(flex="50")
+            label Date:
+            date-input(ng-model="encounter.encdate")
+        md-input-container(flex="50")
+            label Location:
+            input(type="text" ng-model="encounter.location")
+    div(layout="row" flex="100")
+        md-input-container(flex="100")
+            label Comments:
+            input(ng-model="encounter.comments")
