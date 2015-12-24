@@ -76,14 +76,38 @@ angular.module('wildbook.admin').directive(
                          {headerName: "Location",
                              field: "location",
                              cellRenderer: function(params) {
-                                 return params.value ?  params.value.locationid : null;
+                                 if (!params.value) {
+                                     return null;
+                                 }
+                                 var value;
+                                 
+                                 if (params.value.locationid) {
+                                     value = params.value.locationid
+                                 }
+                                 
+                                 if (params.value.verbatimLocation) {
+                                     if (value) {
+                                         value += ' - ';
+                                     } else {
+                                         value = '';
+                                     }
+                                     value += params.value.verbatimLocation;
+                                     
+                                     value = '<md-icon md-svg-icon="information-outline" title="'
+                                         + params.value.verbatimLocation
+                                         + '"></md-icon>&nbsp;'
+                                         + value;
+                                 }
+                                 
+                                 return value;
                              }
                          }],
                     rowData: null,
                     rowHeight: 32,
                     enableSorting: true,
                     rowSelection: 'single',
-                    onRowSelected: rowSelectedFunc
+                    onRowSelected: rowSelectedFunc,
+                    angularCompileRows: true
                 };
                 
                 //
