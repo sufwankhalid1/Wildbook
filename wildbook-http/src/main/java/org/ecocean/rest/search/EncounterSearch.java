@@ -8,8 +8,9 @@ public class EncounterSearch
 {
     public LocalDate encdate;
     public String location;
+    public String comments;
 
     public boolean hasData() {
-        return (encdate != null || !StringUtils.isBlank(location));
+        return (encdate != null || !StringUtils.isBlank(location) || !StringUtils.isBlank(comments));
     }
 }
