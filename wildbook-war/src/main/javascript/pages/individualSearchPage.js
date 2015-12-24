@@ -23,6 +23,12 @@ angular.module('wildbook.admin').directive(
                    $scope.mode_edit = true;
                }
                 
+
+                $scope.reset = function() {
+                    $scope.indData = null;
+                    $scope.mode_edit = false;
+                }
+                
                $scope.cancel = function() {
                    if ($scope.mode_edit) {
                        $scope.mode_edit = false;

@@ -12,6 +12,16 @@ angular.module('templates', []);
 var app = angular.module('appWildbook',
         ["agGrid", "ui.bootstrap", "ngMaterial", "templates", "cgBusy", "wildbook.util", "wildbook.admin", "leaflet-directive"])
        .config(['$mdThemingProvider', '$logProvider', function($mdThemingProvider, $logProvider) {
+/*            $mdThemingProvider.theme('blueInput')
+                .dark()
+                .primaryPalette('blue', {
+                    'hue-1'   : '700',
+                    'hue-2'   : '600',
+                    'hue-3'   : '500'
+                })
+                .accentPalette('pink');
+*/
+
             $logProvider.debugEnabled(false);
        }]);
 

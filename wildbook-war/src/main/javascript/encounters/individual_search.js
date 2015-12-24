@@ -5,7 +5,8 @@ angular.module('wildbook.admin').directive(
             restrict: 'E',
             scope: {
                 searchIndividualDone: "&",
-                individualSearchCancelButtonHide: "@"
+                individualSearchCancelButtonHide: "@",
+                resetSelectedResult:"&"
             },
             templateUrl: 'encounters/individual_search.html',
             replace: true,
@@ -18,6 +19,7 @@ angular.module('wildbook.admin').directive(
                 $scope.selectedTabIndex = 0;
             
                 $scope.search = function() {
+                    $scope.resetSelectedResult({val: null});
                     $http.post("admin/search/individual", $scope.searchdata)
                     .then(function(result) {
                         $scope.gridOptions.api.setRowData(result.data);

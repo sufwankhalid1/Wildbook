@@ -19,8 +19,13 @@ angular.module('wildbook.admin').directive(
                         $scope.encdata = encdata;
                     });
                 }
-                
+
                 $scope.editEncounterDone = function(encdata) {
+                    $scope.mode_edit = false;
+                }
+
+                $scope.reset = function() {
+                    $scope.encdata = null;
                     $scope.mode_edit = false;
                 }
                 
