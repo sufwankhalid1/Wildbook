@@ -3,9 +3,9 @@ form.form.ng-cloak(novalidate, wb-key-handler-form)
         md-tabs(md-border-bottom md-dynamic-height md-selected="selectedTabIndex")
             md-tab(label="Data")
                 div(layout="row" flex="100")
-                    wb-encounter-search-fields
+                    wb-encounter-search-fields(encounter="searchdata.encounter")
                 div(layout="row" flex="100")
-                    wb-individual-search-fields
+                    wb-individual-search-fields(individual="searchdata.individual")
                 md-button.md-whiteframe-1dp(type="submit" ng-click="search()" aria-label="Search") Search
             md-tab(label="Results")
                 .ag-fresh(ag-grid="gridOptions", style="height: 400px;")

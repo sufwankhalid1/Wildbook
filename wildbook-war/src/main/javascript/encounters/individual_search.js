@@ -10,7 +10,10 @@ angular.module('wildbook.admin').directive(
             templateUrl: 'encounters/individual_search.html',
             replace: true,
             controller: function($scope) {
-                $scope.searchdata = {};
+                $scope.searchdata =  { 
+                    encounter: {},
+                    individual: {}
+                }
                 $scope.selectedTabIndex = 0;
             
                 $scope.search = function() {
@@ -24,15 +27,6 @@ angular.module('wildbook.admin').directive(
 
                 function rowSelectedFunc(event) {
                     $scope.searchIndividualDone({individual: event.node.data});
-                }
-                
-                wbConfig.config()
-                .then(function(config) {
-                    $scope.allSpecies = config.species;
-                });
-                
-                $scope.clearSpecies = function() {
-                    $scope.searchdata.species = undefined;
                 }
 
                 $scope.gridOptions = {

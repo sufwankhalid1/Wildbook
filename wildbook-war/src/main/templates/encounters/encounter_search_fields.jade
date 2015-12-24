@@ -1,9 +1,7 @@
 div(layout="row" flex="100")
     md-input-container(flex="50")
-        md-input-container
-            label Date:
-            date-input(ng-model="searchdata.encdate")
+        label Date:
+        date-input(ng-model="encounter.encdate")
     md-input-container(flex="50")
-        md-input-container
-            label Location:
-            input(type="text", ng-model="searchdata.locationid")
+        label Location:
+        input(type="text" ng-model="encounter.locationid")

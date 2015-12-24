@@ -4,9 +4,11 @@ angular.module('wildbook.admin').directive(
         return {
             restrict: 'E',
             templateUrl: 'encounters/encounter_search_fields.html',
+            scope: {
+                encounter: '='
+            },
             replace: true,
             link: function($scope, ele, attr) {
-            
             }
         }
     }]
