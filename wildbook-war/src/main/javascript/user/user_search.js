@@ -9,7 +9,11 @@ angular.module('wildbook.admin').directive(
             templateUrl: 'user/user_search.html',
             replace: true,
             link: function($scope, element, attr) {
-                $scope.searchdata = {};
+                $scope.searchdata =  { 
+                    encounter: {},
+                    individual: {},
+                    contributor: {}
+                }
                 $scope.selectedTabIndex = 0;
             
                 $scope.search = function() {

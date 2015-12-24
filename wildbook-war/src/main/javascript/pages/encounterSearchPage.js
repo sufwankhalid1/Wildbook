@@ -1,7 +1,5 @@
 require('../encounters/encounter_search.js');
 require('../encounters/encounter_edit.js');
-require('../encounters/encounter_search_fields.js');
-require('../encounters/individual_search_fields.js');
 require('../util/location_edit.js');
 
 angular.module('wildbook.admin').directive(

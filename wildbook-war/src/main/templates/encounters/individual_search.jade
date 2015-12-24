@@ -7,8 +7,11 @@ form.form.ng-cloak(novalidate, wb-key-handler-form)
                 div.mb-20(layout="row" flex="100")
                     wb-individual-search-fields(individual="searchdata.individual")
                 label.mt-10 Encounter
-                div(layout="row" flex="100")
+                div.mb-20(layout="row" flex="100")
                     wb-encounter-search-fields(encounter="searchdata.encounter")
+                label.mt-10 Contributor
+                div(layout="row" flex="100")
+                    wb-contributor-search-fields(contributor="searchdata.contributor")
                 md-button.md-whiteframe-1dp(type="submit" ng-click="search()" aria-label="Search") Search
             md-tab(label="Results")
                 .ag-fresh(ag-grid="gridOptions", style="height: 400px;")

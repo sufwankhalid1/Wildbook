@@ -12,7 +12,8 @@ angular.module('wildbook.admin').directive(
             controller: function($scope) {
                 $scope.searchdata =  { 
                     encounter: {},
-                    individual: {}
+                    individual: {},
+                    contributor: {}
                 }
                 $scope.selectedTabIndex = 0;
             
@@ -27,7 +28,7 @@ angular.module('wildbook.admin').directive(
 
                 function rowSelectedFunc(event) {
                     $scope.searchIndividualDone({individual: event.node.data});
-                }
+               s }
 
                 $scope.gridOptions = {
                     columnDefs:

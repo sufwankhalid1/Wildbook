@@ -11,7 +11,8 @@ angular.module('wildbook.admin').directive(
             controller: function($scope) {
                 $scope.searchdata =  { 
                     encounter: {},
-                    individual: {}
+                    individual: {},
+                    contributor: {}
                 }
                 $scope.selectedTabIndex = 0;
 
