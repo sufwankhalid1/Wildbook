@@ -109,14 +109,9 @@
     <dependency>
       <groupId>com.samsix</groupId>
       <artifactId>s6-db</artifactId>
-      <version>1.0.9-SNAPSHOT</version>
+      <version>1.0.9</version>
     </dependency>
 
-    <dependency>
-      <groupId>com.samsix</groupId>
-      <artifactId>s6-util</artifactId>
-      <version>1.0.6</version>
-    </dependency>
 
     <dependency>
       <groupId>com.stormpath.sdk</groupId>
