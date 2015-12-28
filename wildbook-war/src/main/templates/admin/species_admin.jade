@@ -18,7 +18,7 @@ div(layout="row" flex="100" class="site-admin-orgs" layout-align="start center" 
             <span md-highlight-text="searchText"> {{species.name}}
         md-icon.mwidth-10.pointer(md-svg-icon="close" ng-show="showSearch" ng-click="showSearch = false")
         md-button.md-whiteframe-1dp.height-36(aria-label="New Species"  ng-click="newSpecies()") New Species
-    div(ng-show="species" layout="row" flex="100" layout-align="start end")
+    div(ng-show="speciesInput" layout="row" flex="100" layout-align="start end")
         md-input-container.padding-0
             label Code
             input(type="text" ng-model="speciesInput.code")
