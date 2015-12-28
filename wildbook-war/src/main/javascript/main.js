@@ -13,6 +13,9 @@ var app = angular.module('appWildbook',
         ["agGrid", "ui.bootstrap", "ngMaterial", "templates", "cgBusy", "wildbook.util", "wildbook.admin", "leaflet-directive"])
        .config(['$mdThemingProvider', '$logProvider','moment', '$mdDateLocaleProvider', function($mdThemingProvider, $logProvider, moment, $mdDateLocaleProvider) {
             $mdDateLocaleProvider.formatDate = function (date) {
+                if (!date) {
+                    return null;
+                }
                 return moment(date).format('YYYY-MM-DD');
             };
             $logProvider.debugEnabled(false);

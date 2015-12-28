@@ -49,7 +49,13 @@ angular.module('wildbook.admin').directive(
                     wbEncounterUtils.getMedia($scope.data.encounter);
                 }
                 
-                $scope.dateObj = new Date($scope.data.encounter.encDate[0], $scope.data.encounter.encDate[1] - 1, $scope.data.encounter.encDate[2]);
+                if ($scope.data.encounter.encDate) {
+                    if ($scope.data.encounter.encDate.length == 3) {
+                        $scope.dateObj = new Date($scope.data.encounter.encDate[0], $scope.data.encounter.encDate[1] - 1, $scope.data.encounter.encDate[2]);
+                    } else if ($scope.data.encounter.encDate.length == 2) {
+                        $scope.dateObj = new Date($scope.data.encounter.encDate[0], $scope.data.encounter.encDate[1] - 1);
+                    }
+                }
                 
                 wbConfig.config()
                 .then(function(config) {
