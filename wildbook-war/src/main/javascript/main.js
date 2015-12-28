@@ -11,7 +11,10 @@ angular.module('templates', []);
 
 var app = angular.module('appWildbook',
         ["agGrid", "ui.bootstrap", "ngMaterial", "templates", "cgBusy", "wildbook.util", "wildbook.admin", "leaflet-directive"])
-       .config(['$mdThemingProvider', '$logProvider', function($mdThemingProvider, $logProvider) {
+       .config(['$mdThemingProvider', '$logProvider','moment', '$mdDateLocaleProvider', function($mdThemingProvider, $logProvider, moment, $mdDateLocaleProvider) {
+            $mdDateLocaleProvider.formatDate = function (date) {
+                return moment(date).format('YYYY-MM-DD');
+            };
             $logProvider.debugEnabled(false);
        }]);
 

@@ -49,7 +49,7 @@ angular.module('wildbook.admin').directive(
                     wbEncounterUtils.getMedia($scope.data.encounter);
                 }
                 
-                $scope.dateObj = new Date($scope.data.encounter.encDate);
+                $scope.dateObj = new Date($scope.data.encounter.encDate[0], $scope.data.encounter.encDate[1], $scope.data.encounter.encDate[2]);
                 
                 wbConfig.config()
                 .then(function(config) {
