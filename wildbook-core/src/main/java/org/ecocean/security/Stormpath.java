@@ -147,8 +147,7 @@ public class Stormpath {
         }
 
         // so non-international of us!
-        User user = new User(null, uname, acc.getGivenName() + " " + acc.getSurname(), acc.getEmail());
-        user.initPassword(password);
+        User user = User.create(uname, acc.getGivenName() + " " + acc.getSurname(), acc.getEmail(), password);
 
         //
         // Let's assume that new stormpath people have accepted the

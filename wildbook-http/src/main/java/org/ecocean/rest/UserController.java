@@ -2,7 +2,6 @@ package org.ecocean.rest;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.UUID;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.AddressException;
@@ -226,8 +225,8 @@ public class UserController {
         verify.newlyCreated = (user == null);
 
         if (user == null) {
-            user = new User(null, null, userInfo.fullName, userInfo.email);
-            user.initPassword(UUID.randomUUID().toString());
+            user = User.create(null, userInfo.fullName, userInfo.email);
+
             //
             // Let's assume that new people have accepted the
             // user agreement. They should be saying yes to this as they log in anyway. Shouldn't

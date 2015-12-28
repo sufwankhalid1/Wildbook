@@ -2,6 +2,7 @@ package org.ecocean.security;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ecocean.Organization;
@@ -50,6 +51,25 @@ public class User {
         this.username = username;
         this.fullName = fullName;
         this.email = email;
+    }
+
+    public static User create(final String username,
+                              final String fullName,
+                              final String email) {
+        return create(username, fullName, email, randomPass());
+    }
+
+    public static User create(final String username,
+                              final String fullName,
+                              final String email,
+                              final String password) {
+        User user = new User(null, username, fullName, email);
+        user.initPassword(password);
+        return user;
+    }
+
+    private static String randomPass() {
+        return UUID.randomUUID().toString();
     }
 
     public Integer getUserId() {
@@ -112,7 +132,11 @@ public class User {
         this.hashedPass = hashedPass;
     }
 
-    public void initPassword(final String password) {
+    public void initPassword() {
+        initPassword(randomPass());
+    }
+
+    private void initPassword(final String password) {
         salt = WildbookUtils.getSalt().toHex();
         resetPassword(password);
     }

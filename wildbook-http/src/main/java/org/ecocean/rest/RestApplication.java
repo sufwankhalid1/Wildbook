@@ -118,9 +118,9 @@ public class RestApplication extends SpringBootServletInitializer {
             String sql = "SELECT count(*) as numusers FROM users";
             RecordSet rs = db.getRecordSet(sql);
             if (rs.next() && rs.getInt("numusers") == 0) {
-                User newUser = new User(null, "tomcat", "Tomcat User", "tomcat123");
+                User newUser = User.create("tomcat", "Tomcat User", "tomcat@localhost", "tomcat123");
 
-                logger.info("Creating tomcat user account...");
+                logger.warn("Creating tomcat user account since no user account exists...");
 
                 UserFactory.saveUser(db, newUser);
                 UserFactory.addRole(db, newUser.getUserId(), "context0", "admin");

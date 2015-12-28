@@ -4,6 +4,7 @@ package org.ecocean.security;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AccountException;
 import org.apache.shiro.authc.AuthenticationException;
@@ -37,7 +38,7 @@ public class ShepherdRealm extends AuthorizingRealm {
         String userid = upToken.getUsername();
 
         // Null username is invalid
-        if (userid == null) {
+        if (StringUtils.isBlank(userid)) {
             throw new AccountException("Null usernames are not allowed by this realm.");
         }
 
@@ -45,6 +46,10 @@ public class ShepherdRealm extends AuthorizingRealm {
 
         if (user == null) {
             throw new UnknownAccountException("No account found for user [" + userid + "]");
+        }
+
+        if (StringUtils.isBlank(user.getHashedPass())) {
+            throw new AccountException("Null passwords are not allowed by this realm.");
         }
 
         //
@@ -59,7 +64,7 @@ public class ShepherdRealm extends AuthorizingRealm {
         if (logger.isDebugEnabled()) {
             LogBuilder.get("Authenticating...").appendVar("userid", userid)
                 .appendVar("hashedpassword", user.getHashedPass())
-                .appendVar("password", upToken.getPassword())
+                .appendVar("password", upToken.getPassword().toString())
                 .appendVar("hashedAndSaltedPass", WildbookUtils.hashAndSaltPassword(upToken.getPassword().toString(), user.getSalt()))
                 .appendVar("realmName",  realmName)
                 .debug(logger);

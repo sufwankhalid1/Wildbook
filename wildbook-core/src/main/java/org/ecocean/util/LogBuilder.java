@@ -80,7 +80,7 @@ public class LogBuilder {
                                 final String value)
     {
         if (builder.length() != 0) {
-            builder.append("; ");
+            builder.append("\n\t");
         }
 
         builder.append(variable).append(": [").append(value).append("]");

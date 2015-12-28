@@ -199,6 +199,8 @@ public class UserFactory {
         }
 
         if (user.getUserId() == null) {
+            user.initPassword();
+
             SqlInsertFormatter formatter = new SqlInsertFormatter();
             fillUserFormatter(formatter, user);
 
