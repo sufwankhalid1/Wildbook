@@ -9,6 +9,7 @@ angular.module('wildbook.admin').directive(
             templateUrl: 'pages/userAdmin.html',
             replace: true,
             controller: function($scope) {
+
                 $scope.setUser = function(user) {
                     $http.get("useradmin/user/"+user.id)
                     .then(function(result) {
@@ -25,15 +26,18 @@ angular.module('wildbook.admin').directive(
                 };
 
                 $scope.save = function() {
-                    $http.post("useradmin/usersave", $scope.user);
+                    $http.post("useradmin/usersave", $scope.user)
+                    .then(function(response){
+                        delete $scope.user;
+                    });
                 };
 
                 $scope.editOrg = function($e) {
-                    if(!$scope.orgs){
+                    if(!$scope.orgs) {
                         $scope.orgs = wbConfig.config()
                         .then(function(config) {
                             return config.orgs;
-                        });;
+                        });
                     }
                     pickOrganization($e);
                 }
