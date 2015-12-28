@@ -17,6 +17,7 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +27,7 @@ public class Emailer {
     private static Logger logger = LoggerFactory.getLogger(Emailer.class);
     private static ExecutorService executorService = Executors.newFixedThreadPool(10);
 
-    private String host;
+    private final String host;
     private String username;
     private String password;
 
@@ -68,6 +69,13 @@ public class Emailer {
                      final String sendTo,
                      final String subject,
                      final String htmlMessage) throws AddressException, MessagingException {
+        if (StringUtils.isBlank(from)) {
+            throw new MessagingException("From address is blank, cannot send");
+        }
+        if (StringUtils.isBlank(sendTo)) {
+            throw new MessagingException("Send To address is blank, cannot send");
+        }
+
         Properties props = new Properties();
         String protocol;
         int port;
