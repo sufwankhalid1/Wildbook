@@ -36,6 +36,7 @@ div
                     //-         label Password
                     //-         input(autocomplete="off" type="password" ng-model="password")
                 div.mt-15(layout="row" flex-offset="10" flex="90" layout-align="start center")
-                    md-button.md-whiteframe-1dp.md-warn(type="submit" ng-click="changeUserPassword()" aria-label="Save") Change User Password
+                    md-icon.md-warn(md-svg-icon="delete" layout-margin ng-click="deleteUser()")
                     div(flex="")
+                    md-button.md-whiteframe-1dp.md-warn(type="submit" ng-click="changeUserPassword()" aria-label="Save") Change User Password
                     md-button.md-whiteframe-1dp(type="submit" ng-click="save()" aria-label="Save") Save

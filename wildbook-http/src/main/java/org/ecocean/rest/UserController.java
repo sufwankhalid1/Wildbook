@@ -105,7 +105,7 @@ public class UserController {
         }
 
         String hashedPass = WildbookUtils.hashAndSaltPassword(password, user.getSalt());
-        UsernamePasswordToken token = new UsernamePasswordToken(user.getUserId().toString(), hashedPass);
+        UsernamePasswordToken token = new UsernamePasswordToken(user.getId().toString(), hashedPass);
 
         //
         // TODO: Built in support for remember me. Should we have the user pass this in so as
@@ -257,7 +257,7 @@ public class UserController {
             throw new IllegalAccessException("No user found with this email.");
         }
 
-        String token = userService.createPWResetToken(user.getUserId().toString());
+        String token = userService.createPWResetToken(user.getId().toString());
 
         Map<String, Object> model = EmailUtils.createModel();
         model.put(EmailUtils.TAG_USER, user.toSimple());

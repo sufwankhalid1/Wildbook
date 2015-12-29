@@ -26,4 +26,5 @@ public interface UserService {
     public Organization getOrganization(String name);
     public void saveOrganization(Organization org);
     public User getUserByFullname(String fullname);
+    public void deleteUser(final User user);
 }

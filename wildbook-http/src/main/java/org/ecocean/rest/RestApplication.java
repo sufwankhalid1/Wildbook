@@ -123,9 +123,9 @@ public class RestApplication extends SpringBootServletInitializer {
                 logger.warn("Creating tomcat user account since no user account exists...");
 
                 UserFactory.saveUser(db, newUser);
-                UserFactory.addRole(db, newUser.getUserId(), "context0", "admin");
-                UserFactory.addRole(db, newUser.getUserId(), "context0", "destroyer");
-                UserFactory.addRole(db, newUser.getUserId(), "context0", "rest");
+                UserFactory.addRole(db, newUser.getId(), "context0", "admin");
+                UserFactory.addRole(db, newUser.getId(), "context0", "destroyer");
+                UserFactory.addRole(db, newUser.getId(), "context0", "rest");
             }
         } catch (DatabaseException ex) {
            logger.error("Can't create bootstrap user tomcat.", ex);

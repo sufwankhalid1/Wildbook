@@ -383,7 +383,7 @@ public class MediaSubmissionController
                 //
                 if (! user.isVerified()) {
                     try {
-                        model.put(EmailUtils.TAG_TOKEN, UserFactory.createPWResetToken(db, user.getUserId()));
+                        model.put(EmailUtils.TAG_TOKEN, UserFactory.createPWResetToken(db, user.getId()));
                     } catch (DatabaseException ex) {
                         logger.error("Can't create password reset token to send to user for verification.", ex);
                     }
@@ -426,7 +426,7 @@ public class MediaSubmissionController
             //
             if (user != null) {
                 Table table = db.getTable(MediaSubmissionFactory.TABLENAME_MEDIASUBMISSION);
-                long count = table.getCount("id != " + media.getId() + " AND userid = " + user.getUserId());
+                long count = table.getCount("id != " + media.getId() + " AND userid = " + user.getId());
 
                 String template;
                 if (count == 0) {

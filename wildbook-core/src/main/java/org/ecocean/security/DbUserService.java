@@ -30,7 +30,7 @@ public class DbUserService implements UserService {
 
     private SecurityInfo addNewSecurityInfo(final User user) {
         SecurityInfo info = new SecurityInfo(user);
-        mapUserId.put(user.getUserId(), info);
+        mapUserId.put(user.getId(), info);
         if (user.getUsername() != null) {
             mapUserName.put(user.getUsername().toLowerCase(), info);
         }
@@ -47,7 +47,7 @@ public class DbUserService implements UserService {
                     info.setContextRoles(aContext, someRoles);
                 }
                 someRoles.add(rs.getString("rolename"));
-            }, "userid = " + user.getUserId());
+            }, "userid = " + user.getId());
         } catch(DatabaseException ex){
             logger.error("Can't read roles", ex);
         }
@@ -231,7 +231,7 @@ public class DbUserService implements UserService {
             //
             addNewSecurityInfo(user);
         } catch (DatabaseException ex) {
-            throw new SecurityException("Can't save user [" + user.getUserId() + "]", ex);
+            throw new SecurityException("Can't save user [" + user.getId() + "]", ex);
         }
     }
 
@@ -282,5 +282,22 @@ public class DbUserService implements UserService {
             return false;
         }
         return roles.contains(role);
+    }
+
+    @Override
+    public void deleteUser(final User user) {
+        try (Database db = new Database(ci)) {
+            UserFactory.deleteUser(db, user.getId());
+
+            mapUserId.remove(user.getId());
+            if (user.getUsername() != null) {
+                mapUserName.remove(user.getUsername().toLowerCase());
+            }
+            if (user.getEmail() != null) {
+                mapUserEmail.remove(user.getEmail().toLowerCase());
+            }
+        } catch (DatabaseException ex) {
+            throw new SecurityException("Can't delete user [" + user.getId() + "]");
+        }
     }
 }

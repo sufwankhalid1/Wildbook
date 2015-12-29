@@ -22,18 +22,24 @@ public class UserAdminController {
                         @PathVariable("userid") final int userid) {
         return Global.INST.getUserService().getUserById(String.valueOf(userid));
     }
-    
+
     @RequestMapping(value = "usersave", method = RequestMethod.POST)
     public int saveUser(final HttpServletRequest request,
                         @RequestBody @Valid final User user) {
         Global.INST.getUserService().saveUser(user);
-        return user.getUserId();
+        return user.getId();
     }
-    
+
     @RequestMapping(value = "editpw/{userid}", method = RequestMethod.POST)
     public void editPw(final HttpServletRequest request,
                       @PathVariable("userid") final int userid,
                       @RequestBody @Valid final String password) {
         Global.INST.getUserService().resetPass(String.valueOf(userid), password);
+    }
+
+    @RequestMapping(value = "userdelete", method = RequestMethod.POST)
+    public void deleteUser(final HttpServletRequest request,
+                           @RequestBody @Valid final User user) {
+        Global.INST.getUserService().deleteUser(user);
     }
 }

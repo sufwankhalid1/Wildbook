@@ -72,13 +72,13 @@ public class User {
         return UUID.randomUUID().toString();
     }
 
-    public Integer getUserId() {
+    public Integer getId() {
         return id;
     }
 
 
-    public void setUserId(final Integer userid) {
-        this.id = userid;
+    public void setId(final Integer id) {
+        this.id = id;
     }
 
     public String getUsername() {

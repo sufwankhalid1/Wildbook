@@ -198,19 +198,19 @@ public class UserFactory {
             user.setEmail(null);
         }
 
-        if (user.getUserId() == null) {
+        if (user.getId() == null) {
             user.initPassword();
 
             SqlInsertFormatter formatter = new SqlInsertFormatter();
             fillUserFormatter(formatter, user);
 
-            user.setUserId(table.insertSequencedRow(formatter, PK_USERS));
+            user.setId(table.insertSequencedRow(formatter, PK_USERS));
         } else {
             SqlUpdateFormatter formatter = new SqlUpdateFormatter();
             fillUserFormatter(formatter, user);
 
             SqlWhereFormatter where = new SqlWhereFormatter();
-            where.append(PK_USERS, user.getUserId());
+            where.append(PK_USERS, user.getId());
             table.updateRow(formatter.getUpdateClause(), where.getWhereClause());
         }
     }
@@ -235,6 +235,11 @@ public class UserFactory {
         formatter.append("verified", user.isVerified());
         formatter.append("prtoken", user.getPrtoken());
         formatter.append("prtimestamp", user.getPrtimestamp());
+    }
+
+
+    public static void deleteUser(final Database db, final int userid) throws DatabaseException {
+        db.getTable(TABLENAME_USERS).deleteRows("userid = " + userid);
     }
 
 

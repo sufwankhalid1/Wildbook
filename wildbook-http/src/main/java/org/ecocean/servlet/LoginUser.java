@@ -115,7 +115,7 @@ import org.slf4j.Logger;
             // get the user (aka subject) associated with this request.
             //
             if (logger.isDebugEnabled()) {
-                LogBuilder.get().appendVar("userid", userToken.getUser().getUserId())
+                LogBuilder.get().appendVar("userid", userToken.getUser().getId())
                     .appendVar("token.username", userToken.getToken().getUsername()).debug(logger);
             }
 
