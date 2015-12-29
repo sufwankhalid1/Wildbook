@@ -1,12 +1,12 @@
 angular.module('wildbook.admin').directive(
-    'wbContributorSearchFields',
+    'wbUserSearchFields',
     ["$http", "$exceptionHandler",  function($http, $exceptionHandler) {
         return {
             restrict: 'E',
             scope: {
-                contributor: '='
+                user: '='
             },
-            templateUrl: 'user/contributor_search_fields.html',
+            templateUrl: 'user/user_search_fields.html',
             replace: true,
             link: function($scope, ele, attr) {
 
