@@ -1,6 +1,6 @@
 angular.module('wildbook.admin').directive(
     'wbSurveyEdit',
-    ["$http", "$exceptionHandler", "wbConfig", function($http, $exceptionHandler, wbConfig) {
+    ["$http", "$exceptionHandler", "wbConfig", "wbDateUtils", function($http, $exceptionHandler, wbConfig, wbDateUtils) {
         return {
             restrict: 'E',
             scope: {
@@ -31,8 +31,19 @@ angular.module('wildbook.admin').directive(
                         $scope.info.vessels = vessels;
                     });
                 };
+
+                if ($scope.data.part && $scope.data.part.partDate) {
+                    if ($scope.data.part.partDate.length == 3) {
+                        $scope.dateObj = new Date($scope.data.part.partDate[0], $scope.data.part.partDate[1] - 1, $scope.data.part.partDate[2]);
+                    } else if ($scope.data.part.partDate.length == 2) {
+                        $scope.dateObj = new Date($scope.data.part.partDate[0], $scope.data.part.partDate[1] - 1);
+                    }
+                }
             
                 $scope.save = function() {
+                    //md-datetime needs a date obj, so convert to date obj for use, convert back for save
+                    $scope.data.part.partDate = wbDateUtils.dateToRest($scope.dateObj);
+
                     $http.post('obj/survey/savetrack', $scope.data)
                     .then(function(result) {
                         $scope.editSurveyDone({surveypart: result.data});

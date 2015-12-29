@@ -29,7 +29,7 @@ div
                         md-icon(md-svg-icon="plus")
                             md-tooltip(md-direction="top") Add a new Survey
                     md-divider
-                    div(ng-repeat="surveyEnc in data.surveyEncs" flex="100" layout="row" layout-wrap)
+                    div(ng-repeat="surveyEnc in data.surveyEncs" layout-fill layout="row" layout-wrap)
                         md-icon(md-svg-icon="chevron-right" 
                                 ng-show="!encOpen[$index]" 
                                 ng-click="encOpen[$index] = true; selectSurvey(surveyEnc, true, $index)")
@@ -42,8 +42,8 @@ div
                         div(flex="")
                         md-icon(md-svg-icon="plus" ng-click="addEncounter(surveyEnc); activeEle('survey')")
                             md-tooltip(md-direction="right") Add an encounter to this survey
-                        div(ng-show="data.activeSurveyEnc.encs && encOpen[$index] === true" flex="100")
-                            div.media-admin-nav-list(layout="row" layout-align="end end" 
+                        div(ng-show="data.activeSurveyEnc.encs && encOpen[$index] === true" layout="row" flex="100" layout-wrap)
+                            div.media-admin-nav-list.text-center(layout="row" layout-align="end end"  flex="100"
                                 ng-repeat="encdata in data.activeSurveyEnc.encs" 
                                 ng-click="selectEncounter($event, encdata, surveyEnc); activeEle('surveyEnc')" 
                                 ng-class="{active: encdata.encounter.id === data.activeEncData.encounter.id && active.surveyEnc}")
