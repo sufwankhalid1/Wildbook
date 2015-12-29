@@ -397,4 +397,14 @@ public class UserFactory {
         }, null, "orgname");
         return orgs;
     }
+
+    public static void setLastLogin(final Database db, final User user) throws DatabaseException {
+        SqlUpdateFormatter formatter = new SqlUpdateFormatter();
+        formatter.append("lastlogin", System.currentTimeMillis());
+
+        SqlWhereFormatter where = new SqlWhereFormatter();
+        where.append(PK_USERS, user.getId());
+
+        db.getTable(TABLENAME_USERS).updateRow(formatter.getUpdateClause(), where.getWhereClause());
+    }
 }

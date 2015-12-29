@@ -65,10 +65,13 @@ public class WildbookBasicHttpAuthenticationFilter
                 return createToken(username, WildbookUtils.hashAndSaltPassword(password, ""), request, response);
             }
 
-            if (request.getParameter("acceptUserAgreement") != null){
-                user.setAcceptedUserAgreement(true);
-                userService.saveUser(user);
-            }
+            //
+            // Commenting out for now until we better implement the user agreement.
+            //
+//            if (request.getParameter("acceptUserAgreement") != null){
+//                user.setAcceptedUserAgreement(true);
+//                userService.saveUser(user);
+//            }
             return createToken(username,
                                WildbookUtils.hashAndSaltPassword(password, user.getSalt()),
                                request,

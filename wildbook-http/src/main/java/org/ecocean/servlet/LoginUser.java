@@ -1,9 +1,7 @@
 package org.ecocean.servlet;
 
 import java.io.IOException;
-import java.util.Date;
 
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -122,31 +120,38 @@ import org.slf4j.Logger;
             Subject subject = SecurityUtils.getSubject();
             subject.login(userToken.getToken());
 
-            if (request.getParameter("acceptUserAgreement") != null) {
-                userToken.getUser().setAcceptedUserAgreement(true);
-            }
-
-            if (UserController.notAcceptedTerms(userToken.getUser())) {
-                subject.logout();
-
-                // redirect to the user agreement
-                // forward the request and response to the view
-                String url = Global.INST.getAppResources().getString("user.agreement.url", null);
-                RequestDispatcher dispatcher = getServletContext().getRequestDispatcher(url);
-
-                dispatcher.forward(request, response);
-            } else {
-                userToken.getUser().setLastLogin((new Date()).getTime());
-
+            //
+            // Commenting out until we better implement the acceptUserAgreement. This should just
+            // be a rest call.
+            //
+//            if (request.getParameter("acceptUserAgreement") != null) {
+//                userToken.getUser().setAcceptedUserAgreement(true);
+//            }
+//
+//            if (UserController.notAcceptedTerms(userToken.getUser())) {
+//                subject.logout();
+//
+//                // redirect to the user agreement
+//                // forward the request and response to the view
+//                String url = Global.INST.getAppResources().getString("user.agreement.url", null);
+//                RequestDispatcher dispatcher = getServletContext().getRequestDispatcher(url);
+//
+//                dispatcher.forward(request, response);
+//            } else {
                 if (logger.isDebugEnabled()) {
-                    logger.debug("Saving user...");
+                    logger.debug("Setting last login...");
                 }
-                Global.INST.getUserService().saveUser(userToken.getUser());
+                Global.INST.getUserService().setLastLogin(userToken.getUser());
+
                 WebUtils.redirectToSavedRequest(request, response, "/welcome.jsp");
-            }
+//            }
         } catch (Exception ex) {
             logger.error("Can't login.", ex);
-            request.setAttribute("error", ex.getMessage() );
+
+            //
+            // TODO: FIX. This seems like a terrible way to pass the error up to the client.
+            //
+            request.getSession().setAttribute("error", ex.getMessage() );
             WebUtils.redirectToSavedRequest(request, response, "/login.jsp");
         } finally {
             if (userToken != null) {

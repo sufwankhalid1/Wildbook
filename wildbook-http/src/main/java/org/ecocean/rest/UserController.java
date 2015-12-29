@@ -173,8 +173,7 @@ public class UserController {
             Subject subject = SecurityUtils.getSubject();
             subject.login(userToken.getToken());
 
-            userToken.getUser().setLastLogin(System.currentTimeMillis());
-            Global.INST.getUserService().saveUser(userToken.getUser());
+            Global.INST.getUserService().setLastLogin(userToken.getUser());
 
             return userToken.getUser().toSimple();
         } finally {

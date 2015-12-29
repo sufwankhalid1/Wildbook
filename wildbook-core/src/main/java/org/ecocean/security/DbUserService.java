@@ -300,4 +300,13 @@ public class DbUserService implements UserService {
             throw new SecurityException("Can't delete user [" + user.getId() + "]");
         }
     }
+
+    @Override
+    public void setLastLogin(final User user) {
+        try (Database db = new Database(ci)) {
+            UserFactory.setLastLogin(db, user);
+        } catch (DatabaseException ex) {
+            throw new SecurityException("Can't set last login for user [" + user.getId() + "]");
+        }
+    }
 }
