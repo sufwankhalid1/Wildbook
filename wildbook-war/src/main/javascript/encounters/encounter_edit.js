@@ -49,13 +49,11 @@ angular.module('wildbook.admin').directive(
                     wbEncounterUtils.getMedia($scope.data.encounter);
                 }
                 
-                if ($scope.data.encounter.encDate) {
-                    if ($scope.data.encounter.encDate.length == 3) {
-                        $scope.dateObj = new Date($scope.data.encounter.encDate[0], $scope.data.encounter.encDate[1] - 1, $scope.data.encounter.encDate[2]);
-                    } else if ($scope.data.encounter.encDate.length == 2) {
-                        $scope.dateObj = new Date($scope.data.encounter.encDate[0], $scope.data.encounter.encDate[1] - 1);
-                    }
-                }
+                $scope.dateObj = wbDateUtils.dateFromRest($scope.data.encounter.encDate);
+                
+                $scope.$watch("data.encounter.encDate", function(newVal, oldVal) {
+                    $scope.dateObj = wbDateUtils.dateFromRest(newVal);
+                });
                 
                 wbConfig.config()
                 .then(function(config) {
@@ -68,7 +66,7 @@ angular.module('wildbook.admin').directive(
 
                     //need to make sure we send either a time or nothing
                     if ($scope.data.encounter.endtime) {
-                        angular.forEach($scope.data.encounter.endtime, function(val){
+                        angular.forEach($scope.data.encounter.endtime, function(val) {
                             if (val == null) {
                                 $scope.data.encounter.endtime = null;
                             }
@@ -115,8 +113,8 @@ angular.module('wildbook.admin').directive(
                 
                 $scope.editIndividualDone = function(individual){
                     $scope.module.individualEdit = false;
-                    if(individual){
-                    	$scope.data.encounter.individual = individual;
+                    if (individual) {
+                        $scope.data.encounter.individual = individual;
                     }
                 }
                 
