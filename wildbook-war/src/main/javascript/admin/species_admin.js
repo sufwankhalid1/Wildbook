@@ -42,6 +42,7 @@ angular.module('wildbook.admin').directive(
                 $scope.newSpecies = function() {
                     $scope.cancel();
                     $scope.edit({code: '', name: '', icon: ''});
+                    originalCode = null;
                 };
 
                 $scope.save = function() {
