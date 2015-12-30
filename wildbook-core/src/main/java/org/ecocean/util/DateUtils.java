@@ -9,16 +9,18 @@ import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 public class DateUtils {
+    private static ZoneId UTC = ZoneId.of("Z");
+
     private DateUtils() {
         // prevent instantiation
     }
 
     public static LocalDateTime dateToLDT(final Date date) {
-        return LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
+        return LocalDateTime.ofInstant(date.toInstant(), UTC);
     }
 
     public static long ldtToMillis(final LocalDateTime ldt) {
-        return ldt.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        return ldt.atZone(UTC).toInstant().toEpochMilli();
     }
 
     /**
@@ -26,12 +28,12 @@ public class DateUtils {
      * here it is.
      */
     public static Date ldtToDate(final LocalDateTime ldt) {
-        return Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
+        return Date.from(ldt.atZone(UTC).toInstant());
     }
 
 
     public static LocalDateTime epochMilliSecToLDT(final long epochMilliSecond) {
-        return LocalDateTime.ofInstant(Instant.ofEpochSecond(epochMilliSecond/1000), ZoneId.systemDefault());
+        return LocalDateTime.ofInstant(Instant.ofEpochSecond(epochMilliSecond/1000), UTC);
     }
 
     /**
@@ -44,7 +46,7 @@ public class DateUtils {
     }
 
 //    public static long nowEpochSec() {
-//        return LocalDateTime.now().atZone(ZoneId.systemDefault()).toEpochSecond();
+//        return LocalDateTime.now().atZone(UTC).toEpochSecond();
 //    }
 
     public static String format(final LocalDate date, final OffsetTime start, final OffsetTime end) {
