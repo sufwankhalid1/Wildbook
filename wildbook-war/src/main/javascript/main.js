@@ -464,7 +464,7 @@ app.directive(
                             +'              <md-option ng-value="\'am\'">AM</md-option>'
                             +'              <md-option ng-value="\'pm\'">PM</md-option>'
                             +'          </md-select>'
-                            +'      </div>'                            
+                            +'      </div>'
                             +'    </div>'
                             +'</div>',
             replace: false,

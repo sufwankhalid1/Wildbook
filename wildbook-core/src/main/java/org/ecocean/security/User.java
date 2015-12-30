@@ -216,6 +216,7 @@ public class User {
             user.setAffiliation(organization.getName());
         }
         user.setAvatar(getAvatar());
+        user.setStatement(getStatement());
         return user;
     }
 
