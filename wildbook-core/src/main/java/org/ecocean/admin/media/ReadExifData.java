@@ -32,18 +32,25 @@ public class ReadExifData extends AbstractApplication {
 
 
         File file = new File(filename);
-        ImageMeta meta;
+        if (!file.exists()) {
+            System.out.println("File [" + filename + "] does not exist!");
+            exit(1);
+        }
+
+        ImageMeta meta = null;
         try {
             meta = FileUtilities.getImageMetaData(file);
         } catch (Exception ex) {
-            logger.error("Can't read metadata for [" + file + "]", ex);
-            return;
-        }
-        if (meta == null) {
-            return;
+            ex.printStackTrace();
+            exit(1);
         }
 
-        System.out.println(meta);
+        System.out.println("--");
+        if (meta == null) {
+            System.out.println("No metadata found.");
+        } else {
+            System.out.println(meta);
+        }
     }
 
     public static void main(final String args[])

@@ -102,11 +102,11 @@ angular.module('wildbook.util').directive(
                     tooltip.longitude = photo.longitude;
                     
                     angular.forEach(tooltip, function(item, key){
-                        if(item) {
-                            tooltipStr = tooltipStr+key+": "+item+"\n";
+                        if (item) {
+                            tooltipStr += key + ": " + item + "\n";
                         }
                     });
-                    
+                    tooltipStr += "id: " + photo.id;
                     return tooltipStr;
                 }
                 

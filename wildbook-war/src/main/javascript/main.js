@@ -159,12 +159,12 @@ app.factory("wbDateUtils", ["wbConfig", "moment", function(wbConfig, moment) {
         return null;
     }
 
-    function formatMoment(moment) {
-        if (moment) {
-            if (moment.hour() === 0 && moment.minute() === 0 && moment.second() === 0) {
-                return moment.format(dateFormat || "YYYY-MM-DD");
+    function formatMoment(aMoment) {
+        if (aMoment) {
+            if (aMoment.hour() === 0 && aMoment.minute() === 0 && aMoment.second() === 0) {
+                return aMoment.format(dateFormat || "YYYY-MM-DD");
             }
-            return moment.format(datetimeFormat || "YYYY-MM-DD hh:mm:ss");
+            return aMoment.format(datetimeFormat || "YYYY-MM-DD HH:mm:ss");
         }
         return null;
     }
