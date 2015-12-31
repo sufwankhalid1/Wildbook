@@ -30,7 +30,7 @@ String context = ServletUtils.getContext(request);
   props = ShepherdProperties.getProperties("welcome.properties", langCode, context);
 
   session = request.getSession(true);
-  session.putValue("logged", "true");
+  session.setAttribute("logged", "true");
   if ((request.getParameter("reflect") != null)) {
     response.sendRedirect(request.getParameter("reflect"));
   }
