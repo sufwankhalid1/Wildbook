@@ -469,8 +469,6 @@ app.directive(
                             +'</div>',
             replace: false,
             link: function($scope, elm, attrs) {
-
-                    $scope.hashes = "--";
                     $scope.hour = null;
                     $scope.minute = null;
                     $scope.second = null;
@@ -484,14 +482,17 @@ app.directive(
                         }
 
                         switch(type) {
-                            case 'hour': $scope.hour = $scope.hour || "00";
-                                                $scope.showHour = true;
+                            case 'hour':
+                            	$scope.hour = $scope.hour || "00";
+                            	$scope.showHour = true;
                                 break;
-                            case 'minute': $scope.minute = $scope.minute || "00";
-                                                $scope.showMinute = true;
+                            case 'minute':
+                            	$scope.minute = $scope.minute || "00";
+                            	$scope.showMinute = true;
                                 break;
-                            case 'second': $scope.second = $scope.second || "00";
-                                                $scope.showSecond = true;
+                            case 'second':
+                            	$scope.second = $scope.second || "00";
+                            	$scope.showSecond = true;
                                 break;
                         }
 
@@ -507,37 +508,18 @@ app.directive(
                     $scope.selectTime = function($e) {
                         $e.target.select(); 
                     }
-/*
-                    var $nn = 0;
-                    $scope.progress = function($e) {
-                        if ($nn == 1) {
-                            $timeout(function() {
-                                $($e).parent().nextAll().children("input").eq(0).focus(function() { 
-                                    $scope.selectTime($e, $(this));
-                                });
-                            },100);
 
-                            $nn = 0;
-                        }
-
-                        $nn++;
-                    }
-*/
                     $scope.$watch('hour', function(newVal, oldVal) {
                         if (newVal == oldVal) {
                             return false;
                         }
 
-                        if (newVal.length > 2) {
-                            $scope.hour = oldVal;
-                        } else if (!newVal.length) {
+                        if (!newVal.length) {
                             $scope.hour = '';
-                        } else if (! /^(0|1)[1-9]*/.test(newVal)){
-                            $scope.hour = oldVal;
-                        } else if (parseInt(newVal) > 12) {
+                        } else if (newVal.length > 2 || ! /^(0|1)[1-9]*/.test(newVal) || parseInt(newVal) > 12) {
                             $scope.hour = oldVal;
                         } else {
-                            $scope.time[0] = parseInt(newVal);
+                        	$scope.time[0] = parseInt(newVal);
                         }
 
                         $scope.changeAmPm();
@@ -594,8 +576,8 @@ app.directive(
                             if ($scope.hour) {
                                 if (parseInt($scope.hour) == 0) {
                                     $scope.time[0] = 12;
-                                } else if (parseInt($scope.hour) != 12 ){
-                                    $scope.time[0] = parseInt($scope.hour)+12;
+                                } else if (parseInt($scope.hour) != 12 ) {
+                                    $scope.time[0] = parseInt($scope.hour) + 12;
                                 }
                             }
                         }
@@ -603,20 +585,23 @@ app.directive(
 
                     $scope.padZero = function(type) {
                         switch(type) {
-                            case 'hour' : if ($scope.hour && $scope.hour.length == 1) {
-                               $scope.hour = "0"+$scope.hour; 
-                               $scope.time[0] = parseInt($scope.hour);
-                            }
+                            case 'hour' :
+                            	if ($scope.hour && $scope.hour.length == 1) {
+                            		$scope.hour = "0" + $scope.hour; 
+                            		$scope.time[0] = parseInt($scope.hour);
+                            	}
                                 break;
-                            case 'minute': if ($scope.minute && $scope.minute.length == 1) {
-                               $scope.minute = "0"+$scope.minute; 
-                               $scope.time[1] = parseInt($scope.minute);
-                            }
+                            case 'minute':
+                            	if ($scope.minute && $scope.minute.length == 1) {
+                            		$scope.minute = "0" + $scope.minute; 
+                            		$scope.time[1] = parseInt($scope.minute);
+                            	}
                                 break;
-                            case 'second' : if ($scope.second && $scope.second.length == 1) {
-                               $scope.second = "0"+$scope.second; 
-                               $scope.time[2] = parseInt($scope.second);
-                            }
+                            case 'second' :
+                            	if ($scope.second && $scope.second.length == 1) {
+                            		$scope.second = "0" + $scope.second; 
+                            		$scope.time[2] = parseInt($scope.second);
+                            	}
                                 break;
                         }
                     }
@@ -634,7 +619,7 @@ app.directive(
                                 $scope.hour = $scope.time[0].toString();
                                 $scope.ampm = "am";
                             } else if ($scope.time[0] == 0) {
-                                $scope.hour = 12;
+                                $scope.hour = "12";
                                 $scope.ampm = "am";
                             } else if ($scope.time[0] == 12) {
                                 $scope.hour = $scope.time[0].toString();
