@@ -55,7 +55,7 @@ public class AdminSearchController {
     }
 
 
-    public static List<Encounter> searchEncounters(final HttpServletRequest request,
+    public static List<Encounter> searchEncounters(final Database db,
                                                    final SearchData search) throws DatabaseException {
         SqlStatement sql = EncounterFactory.getEncounterStatement();
 
@@ -69,11 +69,9 @@ public class AdminSearchController {
             addContributorData(sql, search.contributor);
         }
 
-        try (Database db = ServletUtils.getDb(request)) {
-            return db.selectList(sql, (rs) -> {
-                return EncounterFactory.readEncounter(rs);
-            });
-        }
+        return db.selectList(sql, (rs) -> {
+            return EncounterFactory.readEncounter(rs);
+        });
     }
 
     private static void addIndividualData(final SqlStatement sql, final IndividualSearch search) {
@@ -163,7 +161,9 @@ public class AdminSearchController {
     public List<Encounter> searchEncounter(final HttpServletRequest request,
                                            @RequestBody final SearchData search) throws DatabaseException
     {
-        return searchEncounters(request, search);
+        try (Database db = ServletUtils.getDb(request)) {
+            return searchEncounters(db, search);
+        }
     }
 
 

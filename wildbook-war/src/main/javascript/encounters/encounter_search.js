@@ -117,6 +117,10 @@ angular.module('wildbook.admin').directive(
                     $scope.searchEncounterDone(null);
                 }
                 
+                $scope.export = function() {
+                    $http.post("/", $scope.searchdata)
+                }
+
                 $scope.cmdEnter = function() {
                     $scope.search();
                 }
