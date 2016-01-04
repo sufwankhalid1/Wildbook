@@ -5,6 +5,9 @@ public class Location {
     private String verbatimLocation;
     private Double latitude;
     private Double longitude;
+    private LocAccuracy accuracy;
+    private LocPrecisionSource precisionSource;
+
 
     public Location() {
         // deserialization
@@ -51,5 +54,21 @@ public class Location {
 
     public void setLongitude(final Double longitude) {
         this.longitude = longitude;
+    }
+
+    public LocAccuracy getAccuracy() {
+        return accuracy;
+    }
+
+    public void setAccuracy(final LocAccuracy accuracy) {
+        this.accuracy = accuracy;
+    }
+
+    public LocPrecisionSource getPrecisionSource() {
+        return precisionSource;
+    }
+
+    public void setPrecisionSource(final LocPrecisionSource precisionSource) {
+        this.precisionSource = precisionSource;
     }
 }
