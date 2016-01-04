@@ -128,15 +128,18 @@ public class EncounterFactory {
     }
 
     public static List<SimplePhoto> getMedia(final Database db, final int encounterid) throws DatabaseException {
+        return db.selectList(getMediaStatement(encounterid), (rs) -> {
+            return MediaAssetFactory.readPhoto(rs);
+        });
+    }
+
+    public static SqlStatement getMediaStatement(final int encounterid) {
         SqlStatement sql = new SqlStatement(MediaAssetFactory.TABLENAME_MEDIAASSET,
                                             MediaAssetFactory.ALIAS_MEDIAASSET,
                                             MediaAssetFactory.ALIAS_MEDIAASSET + ".*");
         sql.addInnerJoin(MediaAssetFactory.ALIAS_MEDIAASSET, MediaAssetFactory.PK_MEDIAASSET, "encounter_media", "em", "mediaid");
         sql.addCondition("em", PK_ENCOUNTERS, SqlRelationType.EQUAL, encounterid);
-
-        return db.selectList(sql, (rs) -> {
-            return MediaAssetFactory.readPhoto(rs);
-        });
+        return sql;
     }
 
     public static SimpleIndividual readSimpleIndividual(final RecordSet rs) throws DatabaseException
