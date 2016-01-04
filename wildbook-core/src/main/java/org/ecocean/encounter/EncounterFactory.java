@@ -244,6 +244,17 @@ public class EncounterFactory {
             return;
         }
 
+        //
+        // Can't have this here since we have to be able to create an encounter automatically from
+        // a set of images and attach those images and we might not have a lat/long that we obtained
+        // from those images.
+        //
+//        if (encounter.getLocation() == null
+//            || encounter.getLocation().getLatitude() == null
+//            || encounter.getLocation().getLongitude() == null) {
+//            throw new DatabaseException("Latitude and Longitude are required for an encounter.");
+//        }
+
         saveIndividual(db, encounter.getIndividual());
 
         Table table = db.getTable(TABLENAME_ENCOUNTERS);

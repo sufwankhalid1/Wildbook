@@ -61,6 +61,12 @@ angular.module('wildbook.admin').directive(
                 });
                 
                 $scope.save = function() {
+                    var location = $scope.data.encounter.location;
+                    if (!location || !location.latitude || !location.longitude) {
+                        alertplus.alert("Must specify a lat/long.");
+                        return;
+                    }
+                    
                     //md-datetime needs a date obj, so convert to date obj for use, convert back for save
                     $scope.data.encounter.encDate = wbDateUtils.dateToRest($scope.dateObj);
 

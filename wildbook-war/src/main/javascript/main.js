@@ -325,7 +325,7 @@ app.factory("wbEncounterUtils", ["$http", "$q", "wbConfig", "wbDateUtils", "$exc
             }
             return $q.resolve();
         },
-        createNewEncData: function(selectedPhotos) {
+        createNewEncData: function(selectedPhotos, submission) {
             //if photos are selected add them to the new encounter
             var encounter = {individual: {species: config.defaultSpecies || config.species[0] }};
 
@@ -370,9 +370,11 @@ app.factory("wbEncounterUtils", ["$http", "$q", "wbConfig", "wbDateUtils", "$exc
             }
             
             if (platitude && plongitude) {
-                encounter.location = {latitude:platitude, longitude:plongitude};
+                encounter.location = {latitude: platitude, longitude: plongitude};
+            } else if (submission) {
+                encounter.location = {latitude: submission.latitude, longitude: submission.longitude};
             } else {
-                encounter.location = {latitude:null, longitude:null};
+                encounter.location = {latitude: null, longitude: null};
             }
 
             return $q.resolve({

@@ -217,7 +217,7 @@ angular.module('wildbook.admin').directive(
                 }
                 
                 $scope.addEncounter = function(surveyEnc) {
-                    wbEncounterUtils.createNewEncData($scope.data.selectedimgs.selected)
+                    wbEncounterUtils.createNewEncData($scope.data.selectedimgs.selected, $scope.data.submission)
                     .then(function(encdata) {
                         wbEncounterUtils.saveEnc(encdata.encounter)
                         .then(function() {
