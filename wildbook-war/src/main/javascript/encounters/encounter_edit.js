@@ -66,19 +66,21 @@ angular.module('wildbook.admin').directive(
 
                     //need to make sure we send either a time or nothing
                     if ($scope.data.encounter.endtime) {
-                        angular.forEach($scope.data.encounter.endtime, function(val) {
-                            if (val == null) {
+                        var endlength = $scope.data.encounter.endtime.length;
+                        for (var nn = 0; nn < endlength; nn++) {
+                            if ($scope.data.encounter.endtime && $scope.data.encounter.endtime[nn] == null ) {
                                 $scope.data.encounter.endtime = null;
                             }
-                        });
+                        }
                     }
 
                     if ($scope.data.encounter.starttime) {
-                        angular.forEach($scope.data.encounter.starttime, function(val){
-                            if (val == null) {
+                        var startlength = $scope.data.encounter.starttime.length;
+                        for (var nn = 0; nn < startlength; nn++) {
+                            if ($scope.data.encounter.starttime && $scope.data.encounter.starttime[nn] == null ) {
                                 $scope.data.encounter.starttime = null;
                             }
-                        });
+                        }
                     }
 
                     if ($scope.encounterForm.$invalid) {
