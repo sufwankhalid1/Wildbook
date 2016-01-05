@@ -19,7 +19,7 @@ If you want to run a particular runnable class you can follow the example below
     
 or a worse way but if the above doesn't work...
 
-    mvn exec:java -DmainClass=org.ecocean.admin.media.ReadMissingExifData -Dexec.args='-s 1 --all' -Plogdir='<dir_containig_logback.xml>'
+    mvn exec:java -Dexec.mainClass=org.ecocean.admin.media.ReadMissingExifData -Dexec.args='-s 1 --all' -Plogdir='<dir_containig_logback.xml>'
 
 ...which is equivalent to running this at the command-line where the classpath is supplied by gradle...
 

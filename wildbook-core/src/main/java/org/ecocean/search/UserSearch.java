@@ -1,4 +1,4 @@
-package org.ecocean.rest.search;
+package org.ecocean.search;
 
 import org.apache.commons.lang3.StringUtils;
 

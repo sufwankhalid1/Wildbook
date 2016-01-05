@@ -1,4 +1,4 @@
-package org.ecocean.rest.search;
+package org.ecocean.search;
 
 public class SearchData {
     public EncounterSearch encounter;
