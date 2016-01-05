@@ -23,7 +23,14 @@ import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
 import com.samsix.database.RecordSet;
 
-@SpringBootApplication // same as @Configuration @EnableAutoConfiguration @ComponentScan
+//
+// TODO: How can this be configurable? I can't figure that out. Seems like it's not possible.
+// Hard-coding our animalus search path here. Also pom.xml has hard-coded path to our extra jar
+// file since I couldn't figure out how to make that configurable on the command-line at build time.
+// There are some things about Spring I hate.
+//
+// same as @Configuration @EnableAutoConfiguration @ComponentScan
+@SpringBootApplication(scanBasePackages="org.ecocean.rest, com.animalus.wildbook.rest")
 public class RestApplication extends SpringBootServletInitializer {
     private static Logger logger = LoggerFactory.getLogger(RestApplication.class);
 
