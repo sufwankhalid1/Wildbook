@@ -21,8 +21,8 @@ import com.samsix.database.DatabaseException;
 @RequestMapping(value = "/obj/encounter")
 public class EncounterController {
     @RequestMapping(value = "save", method = RequestMethod.POST)
-    public Integer saveEncounter(final HttpServletRequest request,
-                                 @RequestBody @Valid final Encounter encounter) throws DatabaseException {
+    public EncounterSaveResult saveEncounter(final HttpServletRequest request,
+                                             @RequestBody @Valid final Encounter encounter) throws DatabaseException {
         if (encounter == null) {
             return null;
         }
@@ -31,7 +31,10 @@ public class EncounterController {
             db.performTransaction(() -> {
                 EncounterFactory.saveEncounter(db, encounter);
             });
-            return encounter.getId();
+            EncounterSaveResult results = new EncounterSaveResult();
+            results.encounterid = encounter.getId();
+            results.individualid = encounter.getIndividual().getId();
+            return results;
         }
     }
 
@@ -76,5 +79,10 @@ public class EncounterController {
         try (Database db = ServletUtils.getDb(request)) {
             EncounterFactory.deleteEncounter(db, encounter.getId());
         }
+    }
+
+    static class EncounterSaveResult {
+        public int individualid;
+        public int encounterid;
     }
 }
