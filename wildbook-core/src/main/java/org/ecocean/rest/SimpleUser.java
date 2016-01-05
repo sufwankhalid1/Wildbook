@@ -6,7 +6,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.ecocean.Species;
 
 public class SimpleUser implements SimpleBeing {
-    private static final Species homo_sapien = new Species("homo_sapien", "Homo Sapien");
+    private static final Species homo_sapien = new Species("homo_sapien", "Homo sapiens");
 
     private Integer id;
     private String username;
