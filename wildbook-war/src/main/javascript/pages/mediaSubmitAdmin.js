@@ -36,17 +36,7 @@ angular.module('wildbook.admin').directive(
                         shortcutKeyCode: 65,
                         icon: "bookmark-plus",
                         tooltip: "Add to active encounter"
-                    },
-                    {
-                        code: "del",
-                        shortcutKeyCode: 68,
-                        type: "warn",
-                        icon: "delete",
-                        tooltip: "Delete",
-                        confirm: { message: "Are you sure you want to delete selected images?"}
-                    }],
-                    indicators: [{def: {displayClass: "encounter", type: "number"},
-                                  values: $scope.numencs}]
+                    }]
                 };
                 
                 function attachEncounter(encdata, surveyEnc) {
