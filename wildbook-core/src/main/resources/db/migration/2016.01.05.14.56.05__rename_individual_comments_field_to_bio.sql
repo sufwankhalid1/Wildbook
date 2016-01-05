@@ -1,0 +1,1 @@
+alter table individuals rename comments to bio;

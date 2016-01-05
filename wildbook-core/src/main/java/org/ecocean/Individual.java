@@ -12,7 +12,7 @@ public class Individual {
     private String nickname;
     private String sex;
     private SimplePhoto avatarFull;
-    private String comments;
+    private String bio;
 
 
     public Individual()
@@ -118,7 +118,7 @@ public class Individual {
         simple.setAvatarFull(avatarFull);
         simple.setSex(sex);
         simple.setSpecies(species);
-        simple.setComments(comments);
+        simple.setBio(bio);
         simple.setIdentified(identified);
         return simple;
     }
@@ -131,11 +131,11 @@ public class Individual {
         this.identified = identified;
     }
 
-    public String getComments() {
-        return comments;
+    public String getBio() {
+        return bio;
     }
 
-    public void setComments(String comments) {
-        this.comments = comments;
+    public void setBio(String bio) {
+        this.bio = bio;
     }
 }

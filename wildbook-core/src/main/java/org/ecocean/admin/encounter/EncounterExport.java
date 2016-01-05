@@ -43,7 +43,6 @@ public class EncounterExport {
     public void export(final Database db, final SearchData search) throws DatabaseException, IOException {
         Path outputDir = Paths.get(outputBaseDir.toString(), LocalDateTime.now().toString());
         Files.createDirectories(outputDir);
-
         List<Encounter> encounters = SearchFactory.searchEncounters(db, search);
         createCSV(db, outputDir, encounters);
     }
@@ -103,7 +102,7 @@ public class EncounterExport {
             encArray[16] = individual.getSpecies().getName();
             encArray[17] = individual.getId().toString();
             encArray[18] = individual.getAlternateId();
-            encArray[19] = individual.getComments();
+            encArray[19] = individual.getBio();
 
             rows.add(encArray);
         });

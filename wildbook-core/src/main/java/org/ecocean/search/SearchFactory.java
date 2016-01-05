@@ -48,9 +48,11 @@ public class SearchFactory {
         //
         // Individual table is already in the basic encounter statement.
         //
-        addIndividualData(sql, search.individual);
+        if (search.individual != null) {
+            addIndividualData(sql, search.individual);
+        }
 
-        if (search.contributor.hasData()) {
+        if (search.contributor != null && search.contributor.hasData()) {
             addContributorData(sql, search.contributor);
         }
 
@@ -72,8 +74,8 @@ public class SearchFactory {
             sql.addCondition(EncounterFactory.ALIAS_INDIVIDUALS, "species", SqlRelationType.EQUAL, search.species);
         }
 
-        if (!StringUtils.isBlank(search.comments)) {
-            sql.addContainsCondition(EncounterFactory.ALIAS_INDIVIDUALS, "comments", search.comments);
+        if (!StringUtils.isBlank(search.bio)) {
+            sql.addContainsCondition(EncounterFactory.ALIAS_INDIVIDUALS, "bio", search.bio);
         }
 
         if (!StringUtils.isBlank(search.sex)) {

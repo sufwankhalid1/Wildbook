@@ -12,7 +12,7 @@ public class SimpleIndividual implements SimpleBeing
     private Species species;
     private String nickname;
     private String sex;
-    private String comments;
+    private String bio;
     private SimplePhoto avatarFull;
 
 
@@ -101,12 +101,12 @@ public class SimpleIndividual implements SimpleBeing
         this.identified = identified;
     }
 
-    public String getComments() {
-        return comments;
+    public String getBio() {
+        return bio;
     }
 
-    public void setComments(String comments) {
-        this.comments = comments;
+    public void setBio(String bio) {
+        this.bio = bio;
     }
 
     public SimplePhoto getAvatarFull() {

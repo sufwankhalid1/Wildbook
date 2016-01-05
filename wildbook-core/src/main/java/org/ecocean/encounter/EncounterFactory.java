@@ -164,7 +164,7 @@ public class EncounterFactory {
         ind.setSex(rs.getString("sex"));
         ind.setAlternateId(rs.getString("alternateid"));
         ind.setIdentified(rs.getBoolean("identified"));
-        ind.setComments(rs.getString("comments"));
+        ind.setBio(rs.getString("bio"));
         ind.setAvatarFull(MediaAssetFactory.readPhoto(rs));
 
         return ind;
@@ -339,7 +339,7 @@ public class EncounterFactory {
         if (individual.getAvatarFull() != null) {
             formatter.append("avatarid", individual.getAvatarFull().getId());
         }
-        formatter.append("comments", individual.getComments());
+        formatter.append("bio", individual.getBio());
     }
 
     public static EncounterObj getEncounterObj(final Database db, final Encounter encounter) throws DatabaseException {
