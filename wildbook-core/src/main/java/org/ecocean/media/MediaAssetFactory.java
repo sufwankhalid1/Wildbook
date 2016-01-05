@@ -1,8 +1,10 @@
 package org.ecocean.media;
 
 import java.io.File;
+import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 
 import org.ecocean.rest.SimplePhoto;
@@ -10,6 +12,8 @@ import org.ecocean.util.LogBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
 import com.samsix.database.RecordSet;
@@ -100,7 +104,13 @@ public class MediaAssetFactory {
         ma.setMetaTimestamp(rs.getLocalDateTime("metatimestamp"));
         ma.setMetaLatitude(rs.getDoubleObj("metalat"));
         ma.setMetaLongitude(rs.getDoubleObj("metalong"));
-        ma.setMeta(rs.getString("meta"));
+
+        String meta = rs.getString("meta");
+        if (meta != null) {
+            Type type = new TypeToken<HashMap<String, String>>() {}.getType();
+            ma.setMeta(new Gson().fromJson(meta, type));
+        }
+
         return ma;
     }
 
@@ -169,7 +179,11 @@ public class MediaAssetFactory {
         formatter.append("metatimestamp", ma.getMetaTimestamp());
         formatter.append("metalat", ma.getMetaLatitude());
         formatter.append("metalong", ma.getMetaLongitude());
-        formatter.append("meta", ma.getMeta());
+        if (ma.getMeta() == null) {
+            formatter.appendNull("meta");
+        } else {
+            formatter.append("meta", new Gson().toJson(ma.getMeta()));
+        }
     }
 
     /**

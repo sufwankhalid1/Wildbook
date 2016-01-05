@@ -628,7 +628,7 @@ public final class MediaUtilities {
             ma.setMetaTimestamp(meta.getTimestamp());
             ma.setMetaLatitude(meta.getLatitude());
             ma.setMetaLongitude(meta.getLongitude());
-            ma.setMeta("{\"origFilename\": \"" + origFilename + "\"}");
+            ma.addMeta("origFilename", origFilename);
         }
     } catch (ImageProcessingException ex) {
         logger.error("Problem reading metadata from [" + file.getAbsolutePath() + "]", ex);

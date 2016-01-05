@@ -1,8 +1,7 @@
 package org.ecocean.rest;
 
 import java.time.LocalDateTime;
-
-import com.fasterxml.jackson.annotation.JsonRawValue;
+import java.util.Map;
 
 public class SimplePhoto
 {
@@ -13,8 +12,7 @@ public class SimplePhoto
     private LocalDateTime timestamp;
     private Double latitude;
     private Double longitude;
-    @JsonRawValue
-    private String meta;
+    private Map<String, String> meta;
     private Integer submitterid;
     private LocalDateTime submittedOn;
 
@@ -98,11 +96,11 @@ public class SimplePhoto
         this.longitude = longitude;
     }
 
-    public String getMeta() {
+    public Map<String, String> getMeta() {
         return meta;
     }
 
-    public void setMeta(String meta) {
+    public void setMeta(final Map<String, String> meta) {
         this.meta = meta;
     }
 
@@ -118,7 +116,7 @@ public class SimplePhoto
         return submittedOn;
     }
 
-    public void setSubmittedOn(LocalDateTime submittedOn) {
+    public void setSubmittedOn(final LocalDateTime submittedOn) {
         this.submittedOn = submittedOn;
     }
 }

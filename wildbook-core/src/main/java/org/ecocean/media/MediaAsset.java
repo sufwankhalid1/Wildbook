@@ -21,6 +21,8 @@ package org.ecocean.media;
 import java.net.URL;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -49,7 +51,7 @@ public class MediaAsset {
     private LocalDateTime metaTimestamp;
     private Double metaLatitude;
     private Double metaLongitude;
-    private String meta;
+    private Map<String, String> meta;
 
 
     /**
@@ -198,7 +200,7 @@ public class MediaAsset {
     }
 
 
-    public void setSubmittedOn(LocalDateTime submittedOn) {
+    public void setSubmittedOn(final LocalDateTime submittedOn) {
         this.submittedOn = submittedOn;
     }
 
@@ -208,7 +210,7 @@ public class MediaAsset {
     }
 
 
-    public void setMetaTimestamp(LocalDateTime metaTimestamp) {
+    public void setMetaTimestamp(final LocalDateTime metaTimestamp) {
         this.metaTimestamp = metaTimestamp;
     }
 
@@ -218,7 +220,7 @@ public class MediaAsset {
     }
 
 
-    public void setMetaLatitude(Double metaLatitude) {
+    public void setMetaLatitude(final Double metaLatitude) {
         this.metaLatitude = metaLatitude;
     }
 
@@ -228,17 +230,23 @@ public class MediaAsset {
     }
 
 
-    public void setMetaLongitude(Double metaLongitude) {
+    public void setMetaLongitude(final Double metaLongitude) {
         this.metaLongitude = metaLongitude;
     }
 
 
-    public String getMeta() {
+    public Map<String, String> getMeta() {
         return meta;
     }
 
-
-    public void setMeta(String meta) {
+    public void setMeta(final Map<String, String> meta) {
         this.meta = meta;
+    }
+
+    public void addMeta(final String key, final String value) {
+        if (meta == null) {
+            meta = new HashMap<>();
+        }
+        meta.put(key, value);
     }
 }

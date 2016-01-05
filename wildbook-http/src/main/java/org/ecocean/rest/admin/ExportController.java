@@ -1,6 +1,7 @@
 package org.ecocean.rest.admin;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -21,7 +22,7 @@ public class ExportController {
     public void searchEncounters(final HttpServletRequest request,
             final SearchData search) throws DatabaseException, IOException {
         try (Database db = ServletUtils.getDb(request)) {
-            EncounterExport exporter = new EncounterExport();
+            EncounterExport exporter = new EncounterExport(Paths.get("/var/tmp"));
             exporter.export(db, search);
         }
     }
