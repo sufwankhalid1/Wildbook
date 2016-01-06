@@ -1,6 +1,6 @@
 angular.module('wildbook.admin').directive(
     'wbEncounterSearch',
-    ["$http", "$exceptionHandler", function($http, $exceptionHandler) {
+    ["$http", "$exceptionHandler", "$mdDialog", function($http, $exceptionHandler, $mdDialog) {
         return {
             restrict: 'E',
             scope: {
@@ -31,6 +31,7 @@ angular.module('wildbook.admin').directive(
                     $http.post("admin/search/encounter", $scope.searchdata)
                     .then(function(result) {
                         $scope.gridOptions.api.setRowData(result.data);
+                        $scope.numResults = result.data.length;
                         $scope.selectedTabIndex = 1;
                     },
                     $exceptionHandler);
@@ -117,8 +118,57 @@ angular.module('wildbook.admin').directive(
                     $scope.searchEncounterDone(null);
                 }
                 
-                $scope.export = function() {
-                    $http.post("/", $scope.searchdata)
+                $scope.exportDialog = function($event) {
+                    var parentEl = angular.element(document.body);
+                   $mdDialog.show({
+                         parent: parentEl,
+                         targetEvent: $event,
+                         clickOutsideToClose:true,
+                         template:
+                           '<md-dialog class="export-dialog" aria-label="List dialog">' 
+                           +'    <md-toolbar>' 
+                           +'        <div class="md-toolbar-tools">' 
+                           +'            <h2>Export Encounter</h2>' 
+                           +'            <span flex></span>' 
+                           +'            <md-button class="md-icon-button" ng-click="closeDialog()">' 
+                           +'                <md-icon md-svg-icon="close" aria-label="Close dialog"></md-icon>' 
+                           +'            </md-button>' 
+                           +'        </div>' 
+                           +'    </md-toolbar>' 
+                           +'    <md-dialog-content layout-align="center center"  layout="row" layout-wrap>' 
+                           +'       <div layout="row" flex="100" class="mb-20" layout-align="center center">'
+                           +'           <div ng-show="!exportid && numResults" class="mt-10">You are about to export {{numResults}} encounters</div>'
+                           +'           <div ng-show="!numResults" class="mt-10">There are no encounters to export. <br/> Please check to make sure your search parameters are correct.</div>'
+                           +'           <div ng-show="exportid" class="mt-10">Your export id is {{exportid}}</div>'
+                           +'       </div>'
+                           +'       <md-dialog-actions layout="row" layout-align="end center">'
+                           +'           <md-button ng-disabled="!numResults" class="md-whiteframe-1dp" ng-click="exportEncounter()">'
+                           +'               Export'
+                           +'           </md-button>'
+                           +'       </md-dialog-actions>'
+                           +'    </md-dialog-content>' 
+                           +'</md-dialog>',
+                         locals: {
+                            numResults: $scope.numResults
+                         },
+                         controller: exportDialogController 
+                    })
+
+                    function exportDialogController($scope, $mdDialog, numResults) {
+
+                        numResults ? $scope.numResults = numResults : 0;
+
+                        $scope.exportEncounter = function() {
+                            $http.post("/", $scope.searchdata)
+                            .then(function(response) {
+                                $scope.exportid = response.data;
+                            });
+                        }
+
+                        $scope.closeDialog = function() {
+                            $mdDialog.hide();
+                        }
+                    }
                 }
 
                 $scope.cmdEnter = function() {

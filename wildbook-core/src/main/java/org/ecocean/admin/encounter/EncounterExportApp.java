@@ -1,6 +1,7 @@
 package org.ecocean.admin.encounter;
 
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 
 import org.ecocean.Global;
 import org.ecocean.search.EncounterSearch;
@@ -26,6 +27,8 @@ public class EncounterExportApp extends AbstractApplication {
     public void run() throws UtilException {
         super.run();
 
+        String timestamp = LocalDateTime.now().toString();
+
         Global.INST.init(null, null);
 
         SearchData search = new SearchData();
@@ -34,7 +37,7 @@ public class EncounterExportApp extends AbstractApplication {
 
         try (Database db = Global.INST.getDb()) {
             EncounterExport exporter = new EncounterExport(Paths.get("/var/tmp"));
-            exporter.export(db, search);
+            exporter.export(db, search, timestamp);
 
             exit();
         } catch (Throwable ex) {

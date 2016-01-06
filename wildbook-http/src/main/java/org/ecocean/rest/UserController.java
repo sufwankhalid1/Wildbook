@@ -157,7 +157,7 @@ public class UserController {
     {
         if (logger.isDebugEnabled()) {
             LogBuilder.get("login attempt").appendVar("username", loginAttempt.username)
-                .appendVar("password", loginAttempt.password).debug(logger);;
+                .appendVar("password", loginAttempt.password).debug(logger);
         };
 
         UserToken userToken = getUserToken(request, loginAttempt.username, loginAttempt.password);

@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,11 +40,11 @@ public class EncounterExport {
         this.outputBaseDir = outputBaseDir;
     }
 
-    public void export(final Database db, final SearchData search) throws DatabaseException, IOException {
-        Path outputDir = Paths.get(outputBaseDir.toString(), LocalDateTime.now().toString());
-        Files.createDirectories(outputDir);
+    public void export(final Database db, final SearchData search, final String outputDir) throws DatabaseException, IOException {
+        Path outputPath = Paths.get(outputBaseDir.toString(), outputDir);
+        Files.createDirectories(outputPath);
         List<Encounter> encounters = SearchFactory.searchEncounters(db, search);
-        createCSV(db, outputDir, encounters);
+        createCSV(db, outputPath, encounters);
     }
 
 
@@ -90,7 +89,7 @@ public class EncounterExport {
             encArray[0] = filename;
             encArray[1] = Integer.toString(ma.getID());
 
-            if (user  == null) {
+            if (user == null) {
                 encArray[2] = null;
                 encArray[3] = null;
                 encArray[4] = null;
@@ -104,19 +103,80 @@ public class EncounterExport {
                 }
             }
 
-            encArray[5] = ma.getSubmittedOn().toString();
+            if (ma.getSubmittedOn() == null) {
+                encArray[5] = null;
+            } else {
+                encArray[5] = ma.getSubmittedOn().toString();
+            }
 
-            encArray[6] = encounter.getEncDate().toString();
-            encArray[7] = encounter.getStarttime().toString();
-            encArray[8] = encounter.getEndtime().toString();
-            encArray[9] = encounter.getLocation().getLatitude().toString();
-            encArray[10] = encounter.getLocation().getLongitude().toString();
-            encArray[11] = encounter.getLocation().getLocationid();
-            encArray[12] = encounter.getLocation().getVerbatimLocation();
-            encArray[13] = encounter.getLocation().getAccuracy().toString();
-            encArray[14] = encounter.getLocation().getPrecisionSource().toString();
-            encArray[15] = encounter.getComments();
+            if (encounter.getEncDate() == null) {
+                encArray[6] = null;
+            } else {
+                encArray[6] = encounter.getEncDate().toString();
+            }
 
+            if (encounter.getStarttime() == null) {
+                encArray[7] = null;
+            } else {
+                encArray[7] = encounter.getStarttime().toString();
+            }
+
+            if (encounter.getEndtime() == null) {
+                encArray[8] = null;
+            } else {
+                encArray[8] = encounter.getEndtime().toString();
+            }
+
+            if (encounter.getLocation() == null) {
+                encArray[9] = null;
+                encArray[10] = null;
+                encArray[11] = null;
+                encArray[12] = null;
+                encArray[13] = null;
+                encArray[14] = null;
+            } else {
+                if (encounter.getLocation().getLatitude() == null) {
+                    encArray[9] = null;
+                } else {
+                    encArray[9] = encounter.getLocation().getLatitude().toString();
+                }
+
+                if (encounter.getLocation().getLongitude() == null) {
+                    encArray[10] = null;
+                } else {
+                    encArray[10] = encounter.getLocation().getLongitude().toString();
+                }
+
+                if (encounter.getLocation().getLocationid() == null) {
+                    encArray[11] = null;
+                } else {
+                    encArray[11] = encounter.getLocation().getLocationid();
+                }
+
+                if (encounter.getLocation().getVerbatimLocation() == null) {
+                    encArray[12] = null;
+                } else {
+                    encArray[12] = encounter.getLocation().getVerbatimLocation();
+                }
+
+                if (encounter.getLocation().getAccuracy() == null) {
+                    encArray[13] = null;
+                } else {
+                    encArray[13] = encounter.getLocation().getAccuracy().toString();
+                }
+
+                if (encounter.getLocation().getPrecisionSource() == null) {
+                    encArray[14] = null;
+                } else {
+                    encArray[14] = encounter.getLocation().getPrecisionSource().toString();
+                }
+            }
+
+            if (encounter.getComments() == null) {
+                encArray[15] = null;
+            } else {
+                encArray[16] = encounter.getComments();
+            }
 
             if (individual == null) {
                 encArray[16] = null;
