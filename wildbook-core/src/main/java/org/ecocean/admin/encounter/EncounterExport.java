@@ -22,6 +22,7 @@ import org.ecocean.security.UserFactory;
 import com.opencsv.CSVWriter;
 import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
+import com.samsix.database.SqlStatement;
 
 public class EncounterExport {
     private final Path outputBaseDir;
@@ -68,7 +69,13 @@ public class EncounterExport {
 
         List<String[]> rows = new ArrayList<>();
 
-        db.select(EncounterFactory.getMediaStatement(encounter.getId()), (rs) -> {
+        SqlStatement sql = EncounterFactory.getMediaStatement(encounter.getId());
+        sql.addLeftOuterJoin(MediaAssetFactory.ALIAS_MEDIAASSET,
+                             "submitterid",
+                             UserFactory.TABLENAME_USERS,
+                             UserFactory.AlIAS_USERS,
+                             UserFactory.PK_USERS);
+        db.select(sql, (rs) -> {
             MediaAsset ma = MediaAssetFactory.valueOf(rs);
             User user = UserFactory.readUser(rs);
 
@@ -83,9 +90,15 @@ public class EncounterExport {
             String[] encArray = new String[cols.length];
             encArray[0] = filename;
             encArray[1] = Integer.toString(ma.getID());
-            encArray[2] = user.getFullName();
-            encArray[3] = user.getEmail();
-            encArray[4] = user.getOrganization().toString();
+            if (user  == null) {
+                encArray[2] = null;
+                encArray[3] = null;
+                encArray[4] = null;
+            } else {
+                encArray[2] = user.getFullName();
+                encArray[3] = user.getEmail();
+                encArray[4] = user.getOrganization().toString();
+            }
             encArray[5] = ma.getSubmittedOn().toString();
 
             encArray[6] = encounter.getEncDate().toString();
