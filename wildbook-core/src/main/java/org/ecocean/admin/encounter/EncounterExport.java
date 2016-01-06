@@ -90,6 +90,7 @@ public class EncounterExport {
             String[] encArray = new String[cols.length];
             encArray[0] = filename;
             encArray[1] = Integer.toString(ma.getID());
+
             if (user  == null) {
                 encArray[2] = null;
                 encArray[3] = null;
@@ -99,6 +100,7 @@ public class EncounterExport {
                 encArray[3] = user.getEmail();
                 encArray[4] = user.getOrganization().toString();
             }
+
             encArray[5] = ma.getSubmittedOn().toString();
 
             encArray[6] = encounter.getEncDate().toString();
@@ -112,10 +114,19 @@ public class EncounterExport {
             encArray[14] = encounter.getLocation().getPrecisionSource().toString();
             encArray[15] = encounter.getComments();
 
-            encArray[16] = individual.getSpecies().getName();
-            encArray[17] = individual.getId().toString();
-            encArray[18] = individual.getAlternateId();
-            encArray[19] = individual.getBio();
+
+            if (individual == null) {
+                encArray[16] = null;
+                encArray[17] = null;
+                encArray[18] = null;
+                encArray[19] = null;
+            } else {
+                encArray[16] = individual.getSpecies().getName();
+                encArray[17] = individual.getId().toString();
+                encArray[18] = individual.getAlternateId();
+                encArray[19] = individual.getBio();
+
+            }
 
             rows.add(encArray);
         });

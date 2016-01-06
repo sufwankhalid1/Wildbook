@@ -135,8 +135,7 @@ public class EncounterFactory {
 
     public static SqlStatement getMediaStatement(final int encounterid) {
         SqlStatement sql = new SqlStatement(MediaAssetFactory.TABLENAME_MEDIAASSET,
-                                            MediaAssetFactory.ALIAS_MEDIAASSET,
-                                            MediaAssetFactory.ALIAS_MEDIAASSET + ".*");
+                                            MediaAssetFactory.ALIAS_MEDIAASSET);
         sql.addInnerJoin(MediaAssetFactory.ALIAS_MEDIAASSET, MediaAssetFactory.PK_MEDIAASSET, "encounter_media", "em", "mediaid");
         sql.addCondition("em", PK_ENCOUNTERS, SqlRelationType.EQUAL, encounterid);
         return sql;
