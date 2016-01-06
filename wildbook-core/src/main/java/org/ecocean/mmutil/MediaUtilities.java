@@ -614,7 +614,9 @@ public final class MediaUtilities {
   {
       File relFile = new File(baseDir, fileName);
       File file = getOutputFile(store, altOutputDir, relFile);
+
       file.getParentFile().mkdirs();
+
       MediaAsset ma = new MediaAsset(store, relFile.toPath());
 
       if (logger.isDebugEnabled()) {
