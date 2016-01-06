@@ -57,8 +57,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.ecocean.GeoFileProcessor;
 import org.ecocean.Global;
 import org.ecocean.ImageProcessor;
+import org.ecocean.media.AssetStore;
 import org.ecocean.media.ImageMeta;
-import org.ecocean.media.LocalAssetStore;
 import org.ecocean.media.MediaAsset;
 import org.ecocean.util.FileUtilities;
 import org.ecocean.util.LogBuilder;
@@ -537,7 +537,7 @@ public final class MediaUtilities {
     return list;
   }
 
-  private static Path getOutputFile(final LocalAssetStore store, final String altOutputDir, final Path relFile) {
+  private static Path getOutputFile(final AssetStore store, final String altOutputDir, final Path relFile) {
       if (StringUtils.isBlank(altOutputDir)) {
           return store.getFullPath(relFile);
       }
@@ -546,7 +546,7 @@ public final class MediaUtilities {
   }
 
 
-  public static MediaAsset importMedia(final LocalAssetStore store,
+  public static MediaAsset importMedia(final AssetStore store,
                                        final String fileName,
                                        final InputStream content,
                                        final Integer submitterId,
@@ -555,7 +555,7 @@ public final class MediaUtilities {
       return importMedia(store, fileName, content, submitterId, keepStreamOpen, null);
   }
 
-  public static MediaAsset importMedia(final LocalAssetStore store,
+  public static MediaAsset importMedia(final AssetStore store,
                                        final String fileName,
                                        final InputStream content,
                                        final Integer submitterId,
@@ -590,12 +590,12 @@ public final class MediaUtilities {
    * @param altOutputDir just for importing on a server that is not the final server. Allows
    *                     you to redirect the file output to another place where you can then tar
    *                     it up and copy up to the main server and untar in the correct
-   *                     place as pointed to by the LocalAssetStore
+   *                     place as pointed to by the AssetStore
    *
    * @return the resulting MediaAsset
    * @throws IOException
    */
-  private static MediaAsset importMedia(final LocalAssetStore store,
+  private static MediaAsset importMedia(final AssetStore store,
                                         final Path baseDir,
                                         final String fileName,
                                         final InputStream content,
@@ -661,7 +661,7 @@ public final class MediaUtilities {
   }
 
   public static Path createThumbnail(final Path file,
-                                     final LocalAssetStore store,
+                                     final AssetStore store,
                                      final Path baseDir,
                                      final String fileName,
                                      final String altOutputDir) throws IOException {
@@ -676,7 +676,7 @@ public final class MediaUtilities {
   }
 
   public static Path createMidSize(final Path file,
-                                   final LocalAssetStore store,
+                                   final AssetStore store,
                                    final Path baseDir,
                                    final String fileName,
                                    final String altOutputDir) throws IOException {
@@ -692,7 +692,7 @@ public final class MediaUtilities {
 
   private static Path createResized(final String type,
                                     final Path file,
-                                    final LocalAssetStore store,
+                                    final AssetStore store,
                                     final Path baseDir,
                                     final String fileName,
                                     final String altOutputDir,

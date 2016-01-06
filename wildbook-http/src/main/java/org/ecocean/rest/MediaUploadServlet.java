@@ -27,7 +27,6 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.ecocean.media.AssetStore;
-import org.ecocean.media.LocalAssetStore;
 import org.ecocean.media.MediaAsset;
 import org.ecocean.media.MediaAssetFactory;
 import org.ecocean.mmutil.MediaUtilities;
@@ -269,7 +268,7 @@ public class MediaUploadServlet
                 // TODO: Have a way to specify the asset store for media submissions
                 // For now I will assume the first one.
                 //
-                LocalAssetStore store = (LocalAssetStore) AssetStore.get(1);
+                AssetStore store = AssetStore.get(1);
 
                 int id;
                 try {
@@ -465,13 +464,13 @@ public class MediaUploadServlet
         implements Runnable
     {
         private final ConnectionInfo ci;
-        private final LocalAssetStore store;
+        private final AssetStore store;
         private final int submissionId;
         private final Integer submitterId;
         private final FileMeta file;
 
         public SaveMedia(final ConnectionInfo ci,
-                         final LocalAssetStore store,
+                         final AssetStore store,
                          final int submissionId,
                          final Integer submitterId,
                          final FileMeta file)

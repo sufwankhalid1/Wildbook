@@ -4,7 +4,6 @@ import java.nio.file.Path;
 
 import org.ecocean.Global;
 import org.ecocean.media.AssetStore;
-import org.ecocean.media.LocalAssetStore;
 import org.ecocean.media.MediaAsset;
 import org.ecocean.media.MediaAssetFactory;
 import org.ecocean.mmutil.MediaUtilities;
@@ -45,18 +44,13 @@ public class RecreateResized extends AbstractApplication {
 
         Global.INST.init(null, null);
 
-        AssetStore aStore = AssetStore.get(storeid);
-        if (! (aStore instanceof LocalAssetStore)) {
-            throw new UtilException("Store [" + storeid + "] is not a local asset store.");
-        }
-
         //
         // TODO: Deal with different thumb and mid asset stores?
         // For now we are storing the mid in the thumb asset store which is
         // assumed to be the main asset store. Weird yes. Just trying to get this
         // working.
         //
-        LocalAssetStore store = (LocalAssetStore) aStore;
+        AssetStore store = AssetStore.get(storeid);
 
         try (Database db = Global.INST.getDb()) {
             String criteria = "type = 1 and store = " + storeid;
