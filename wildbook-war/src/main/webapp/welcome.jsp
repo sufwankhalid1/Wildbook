@@ -2,7 +2,7 @@
          import="
          org.ecocean.ShepherdProperties,
          org.ecocean.servlet.ServletUtils,
-         org.ecocean.rest.SimpleUser,
+         org.ecocean.security.User,
          org.ecocean.rest.UserController,
          java.util.Properties,
          org.slf4j.Logger,
@@ -40,7 +40,7 @@ String context = ServletUtils.getContext(request);
       logger.info(request.getRemoteUser() + " logged in from IP address " + request.getRemoteAddr() + ".");
    }
    
-   SimpleUser user = ServletUtils.getUser(request);
+   User user = ServletUtils.getUser(request);
 %>
 <jsp:include page="header.jsp" flush="true"/>
 
@@ -48,7 +48,7 @@ String context = ServletUtils.getContext(request);
     <h1 class="intro"><%=props.getProperty("loginSuccess")%></h1>
 
     <p><%=props.getProperty("loggedInAs")%>
-        <strong><%=user.getDisplayName()%></strong>.
+        <strong><%=user.toSimple().getDisplayName()%></strong>.
     </p>
 
     <p><%=props.getProperty("grantedRole")%><br/>

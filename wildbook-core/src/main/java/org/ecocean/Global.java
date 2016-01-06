@@ -1,8 +1,8 @@
 package org.ecocean;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -51,10 +51,10 @@ public enum Global {
             logger.error("Trouble reading [" + file + "]", ex);
         }
     }
-    
+
     private void initSpecies(final Database db) throws DatabaseException {
         species = new HashMap<>();
-        
+
         db.getTable("species").select((rs) -> {
             String code = rs.getString("code");
             species.put(code, new Species(code, rs.getString("name")));
@@ -65,7 +65,7 @@ public enum Global {
         });
     }
 
-    public void init(final File overridingProps, final Map<String, String> overridingPropVars) {
+    public void init(final Path overridingProps, final Map<String, String> overridingPropVars) {
         //
         // Load up resources and set default variables for database connections.
         // These variables can be overridden by passing them into overridingPropVars. In addition,
@@ -116,7 +116,7 @@ public enum Global {
 
         if (overridingProps != null) {
             try {
-                resources.addSource(overridingProps);
+                resources.addSource(overridingProps.toFile());
             } catch (Throwable ex) {
                 //
                 // This is really just here to preserve the old way. If you just add the file above
@@ -145,7 +145,7 @@ public enum Global {
             AssetStore.init(AssetStoreFactory.getStores(db));
 
             initSpecies(db);
-            
+
         } catch (Throwable ex) {
             logger.error("Trouble initializing the app.", ex);
         }
@@ -156,7 +156,7 @@ public enum Global {
             initSpecies(db);
         }
     }
-    
+
     public ResourceReader getAppResources() {
         if (appResources == null) {
             //

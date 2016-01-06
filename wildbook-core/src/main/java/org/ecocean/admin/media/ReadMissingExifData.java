@@ -1,6 +1,6 @@
 package org.ecocean.admin.media;
 
-import java.io.File;
+import java.nio.file.Path;
 
 import org.ecocean.Global;
 import org.ecocean.media.AssetStore;
@@ -73,7 +73,7 @@ public class ReadMissingExifData extends AbstractApplication {
 
                 reportProgress(ma);
 
-                final File file = store.getFile(ma.getPath());
+                final Path file = store.getFullPath(ma.getPath());
                 ImageMeta meta;
                 try {
                     meta = FileUtilities.getImageMetaData(file);

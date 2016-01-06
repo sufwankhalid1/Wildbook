@@ -257,7 +257,7 @@ public class MediaSubmissionController
 
     public static void deleteMedia(final Database db,
                                    final int submissionid,
-                                   final int mediaid) throws DatabaseException
+                                   final int mediaid) throws DatabaseException, IOException
     {
         if (logger.isDebugEnabled()) {
             logger.debug("Deleting mediaid [" + mediaid + "] from submission [" + submissionid + "]");
@@ -288,7 +288,11 @@ public class MediaSubmissionController
         try (Database db = ServletUtils.getDb(request)) {
             db.performTransaction(() -> {
                 for (int mediaid : msm.mediaids) {
-                    deleteMedia(db, msm.submissionid, mediaid);
+                    try {
+                        deleteMedia(db, msm.submissionid, mediaid);
+                    } catch (Exception ex) {
+                        throw new DatabaseException("Can't delete media.", ex);
+                    }
                 }
             });
         }
@@ -572,7 +576,7 @@ public class MediaSubmissionController
     public void delFile(final HttpServletRequest request,
                         @PathVariable("msid")
                         final int msid,
-                        @RequestBody final String filename) throws DatabaseException
+                        @RequestBody final String filename) throws DatabaseException, IOException
     {
         MediaUploadServlet.deleteFileFromSet(request, msid, filename);
     }

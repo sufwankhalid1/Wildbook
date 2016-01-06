@@ -34,17 +34,16 @@ import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorConvertOp;
 import java.awt.image.ColorModel;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Locale;
 import java.util.UUID;
 
@@ -155,12 +154,12 @@ public final class MediaUtilities {
    * @param file file to check
    * @return true if filename is supported, false otherwise
    */
-  public static boolean isWebImageFile(final File file) {
-    return (file == null) ? false : isWebImageFile(file.getName());
+  public static boolean isWebImageFile(final Path path) {
+    return (path == null) ? false : isWebImageFile(path.getFileName());
   }
 
-  public static boolean isImageFile(final File file) {
-      return (file == null) ? false : isImageFile(file.getName());
+  public static boolean isImageFile(final Path path) {
+      return (path == null) ? false : isImageFile(path.getFileName());
   }
 
   /**
@@ -168,8 +167,8 @@ public final class MediaUtilities {
    * @param file file to check
    * @return true if filename is supported, false otherwise
    */
-  public static boolean isVideoFile(final File file) {
-    return (file == null) ? false : isVideoFile(file.getName());
+  public static boolean isVideoFile(final Path path) {
+    return (path == null) ? false : isVideoFile(path.getFileName());
   }
 
   /**
@@ -177,8 +176,8 @@ public final class MediaUtilities {
    * @param file file to check
    * @return true if filename is the correct format, false otherwise
    */
-  public static boolean isFileType_JPEG(final File file) {
-    return file.getName().matches("(?i:\\.(jpe?g))$");
+  public static boolean isFileType_JPEG(final Path path) {
+    return path.getFileName().toString().matches("(?i:\\.(jpe?g))$");
   }
 
   /**
@@ -186,8 +185,8 @@ public final class MediaUtilities {
    * @param file file to check
    * @return true if filename is the correct format, false otherwise
    */
-  public static boolean isFileType_PNG(final File file) {
-    return file.getName().matches("(?i:\\.(png))$");
+  public static boolean isFileType_PNG(final Path path) {
+    return path.getFileName().toString().matches("(?i:\\.(png))$");
   }
 
   /**
@@ -195,8 +194,8 @@ public final class MediaUtilities {
    * @param file file to check
    * @return true if filename is the correct format, false otherwise
    */
-  public static boolean isFileType_TIFF(final File file) {
-    return file.getName().matches("(?i:\\.(tiff?))$");
+  public static boolean isFileType_TIFF(final Path path) {
+    return path.getFileName().toString().matches("(?i:\\.(tiff?))$");
   }
 
   /**
@@ -204,49 +203,49 @@ public final class MediaUtilities {
    * @param file file to check
    * @return true if filename is the correct format, false otherwise
    */
-  public static boolean isFileType_BMP(final File file) {
-    return file.getName().matches("(?i:\\.(bmp))$");
+  public static boolean isFileType_BMP(final Path path) {
+    return path.getFileName().toString().matches("(?i:\\.(bmp))$");
   }
 
-  /**
-   * Lists all web-compatible image files in a folder matching the specified base name.
-   * @param dir folder in which to search
-   * @param baseName base name of web-compatible images for which to search
-   * @return list of files
-   */
-  public static List<File> listWebImageFiles(final File dir, final String baseName) {
-    RegexFilenameFilter ff = WebImageFilenameFilter.instance();
-    List<File> list = new LinkedList<File>();
-    File[] fileList = dir.listFiles(ff);
-    if (fileList != null) {
-      list.addAll(Arrays.asList(fileList));
-      for (ListIterator<File> it = list.listIterator(); it.hasNext();) {
-        File f = it.next();
-        String s = f.getName();
-        if (!s.substring(0, s.lastIndexOf(".")).equals(baseName))
-          it.remove();
-      }
-    }
-    return list;
-  }
+//  /**
+//   * Lists all web-compatible image files in a folder matching the specified base name.
+//   * @param dir folder in which to search
+//   * @param baseName base name of web-compatible images for which to search
+//   * @return list of files
+//   */
+//  public static List<File> listWebImageFiles(final File dir, final String baseName) {
+//    RegexFilenameFilter ff = WebImageFilenameFilter.instance();
+//    List<File> list = new LinkedList<File>();
+//    File[] fileList = dir.listFiles(ff);
+//    if (fileList != null) {
+//      list.addAll(Arrays.asList(fileList));
+//      for (ListIterator<File> it = list.listIterator(); it.hasNext();) {
+//        File f = it.next();
+//        String s = f.getName();
+//        if (!s.substring(0, s.lastIndexOf(".")).equals(baseName))
+//          it.remove();
+//      }
+//    }
+//    return list;
+//  }
 
-  /**
-   * Lists all web-compatible image files in a folder matching the specified base name regex.
-   * @param dir folder in which to search
-   * @param baseNameRegex base name regex of web-compatible images for which to search
-   * @return list of files
-   */
-  public static List<File> listWebImageFilesRegex(final File dir, final String baseNameRegex) {
-    RegexFilenameFilter ff = WebImageFilenameFilter.instance();
-    List<File> list = new LinkedList<File>(Arrays.asList(dir.listFiles(ff)));
-    for (ListIterator<File> it = list.listIterator(); it.hasNext();) {
-      File f = it.next();
-      String s = f.getName();
-      if (!s.substring(0, s.lastIndexOf(".")).matches(baseNameRegex))
-        it.remove();
-    }
-    return list;
-  }
+//  /**
+//   * Lists all web-compatible image files in a folder matching the specified base name regex.
+//   * @param dir folder in which to search
+//   * @param baseNameRegex base name regex of web-compatible images for which to search
+//   * @return list of files
+//   */
+//  public static List<File> listWebImageFilesRegex(final File dir, final String baseNameRegex) {
+//    RegexFilenameFilter ff = WebImageFilenameFilter.instance();
+//    List<File> list = new LinkedList<File>(Arrays.asList(dir.listFiles(ff)));
+//    for (ListIterator<File> it = list.listIterator(); it.hasNext();) {
+//      File f = it.next();
+//      String s = f.getName();
+//      if (!s.substring(0, s.lastIndexOf(".")).matches(baseNameRegex))
+//        it.remove();
+//    }
+//    return list;
+//  }
 
   /**
    * Loads the specified image from the specified file.
@@ -254,20 +253,20 @@ public final class MediaUtilities {
    * @return {@code BufferedImage} instance
    * @throws IOException if an I/O problem occurs
    */
-  public static BufferedImage loadImage(final File f) throws IOException {
-    if (f == null)
+  public static BufferedImage loadImage(final Path path) throws IOException {
+    if (path == null)
       throw new NullPointerException("Invalid (null) file specified");
-    else if (!f.exists())
-      throw new FileNotFoundException(String.format("File %s doesn't exist", f.getAbsolutePath()));
-    else if (f.isDirectory())
-      throw new FileNotFoundException(String.format("%s is a folder", f.getAbsolutePath()));
+    else if (!Files.exists(path))
+      throw new FileNotFoundException(String.format("File %s doesn't exist", path));
+    else if (Files.isDirectory(path))
+      throw new FileNotFoundException(String.format("%s is a folder", path));
 
     // Read image file.
-    BufferedImage img = ImageIO.read(f);
+    BufferedImage img = ImageIO.read(path.toFile());
 
     // Search metadata for orientation change to apply.
     try {
-      Metadata md = ImageMetadataReader.readMetadata(f);
+      Metadata md = ImageMetadataReader.readMetadata(path.toFile());
       Directory dir = md.getFirstDirectoryOfType(ExifIFD0Directory.class);
       if (dir == null) {
         return img;
@@ -286,10 +285,10 @@ public final class MediaUtilities {
       }
     } catch (ImageProcessingException ex) {
       // Warn, and return original.
-      logger.warn("Unable to read metadata for image: " + f.getAbsolutePath(), ex);
+      logger.warn("Unable to read metadata for image: " + path, ex);
     } catch (MetadataException ex) {
       // Warn, and return original.
-      logger.warn("Unable to read metadata for image: " + f.getAbsolutePath(), ex);
+      logger.warn("Unable to read metadata for image: " + path, ex);
     }
     // Return image.
     return img;
@@ -302,8 +301,8 @@ public final class MediaUtilities {
    * @return {@code BufferedImage} instance (converted to sRGB color profile)
    * @throws IOException if an I/O problem occurs
    */
-  public static BufferedImage loadImageAsSRGB(final File f) throws IOException {
-    BufferedImage bi = loadImage(f);
+  public static BufferedImage loadImageAsSRGB(final Path path) throws IOException {
+    BufferedImage bi = loadImage(path);
     BufferedImage img = convertToSRGB(bi);
     if (img != bi)
       bi.flush();
@@ -376,61 +375,54 @@ public final class MediaUtilities {
     return img;
   }
 
-  /**
-   * Saves the specified image to the specified file.
-   * @param img image to save in JPEG format
-   * @param f file to which to save image
-   * @param overwrite whether to overwrite file if it already exists
-   * @param quality JPEG quality (0-1)
-   * @param progressive whether to save as a progressive JPEG
-   */
-  public static void saveImageJPEG(final BufferedImage img, final File f, final boolean overwrite, final float quality, final boolean progressive) throws IOException {
-    if (img == null)
-      throw new NullPointerException("Invalid (null) image specified");
-    if (f == null)
-      throw new NullPointerException("Invalid (null) file specified");
-    else if (f.exists())
-      throw new IllegalArgumentException(String.format("File %s already exists", f.getAbsolutePath()));
-    if (quality < 0f || quality > 1f) {
-      throw new IllegalArgumentException("Invalid JPEG quality specified (0 <= quality <= 1)");
-    }
-    if (f.exists()) {
-      if (overwrite) {
-        if (!f.delete()) {
-          throw new IOException("Unable to delete existing file");
-        }
-      } else {
-        throw new IOException("File already exists");
-      }
-    }
-    ImageWriter iw = getImageWriter_JPEG();
-    ImageWriteParam iwp = iw.getDefaultWriteParam();
-    if (iwp.canWriteCompressed()) {
-      iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-      iwp.setCompressionQuality(quality);
-    }
-    if (iwp.canWriteProgressive()) {
-      iwp.setProgressiveMode(progressive ? ImageWriteParam.MODE_DEFAULT : ImageWriteParam.MODE_DISABLED);
-    }
+    /**
+     * Saves the specified image to the specified file.
+     * @param img image to save in JPEG format
+     * @param f file to which to save image
+     * @param overwrite whether to overwrite file if it already exists
+     * @param quality JPEG quality (0-1)
+     * @param progressive whether to save as a progressive JPEG
+     */
+      public static void saveImageJPEG(final BufferedImage img, final Path path, final boolean overwrite, final float quality, final boolean progressive) throws IOException {
+          if (img == null) {
+              throw new NullPointerException("Invalid (null) image specified");
+          }
 
-    ImageOutputStream ios = null;
-    try {
-      ios = ImageIO.createImageOutputStream(f);
-      iw.setOutput(ios);
-      iw.write(null, new IIOImage(img, null, null), iwp);
-      iw.reset();
-    } finally {
-      iw.dispose();
-      try {
-        if (ios != null) {
-          ios.flush();
-          ios.close();
-        }
-      } catch (Exception ex) {
-        ex.printStackTrace();
+          if (path == null) {
+              throw new NullPointerException("Invalid (null) file specified");
+          }
+
+          if (quality < 0f || quality > 1f) {
+              throw new IllegalArgumentException("Invalid JPEG quality specified (0 <= quality <= 1)");
+          }
+
+          if (Files.exists(path)) {
+              if (overwrite) {
+                  Files.delete(path);
+              } else {
+                  throw new IOException(String.format("File %s already exists", path));
+              }
+          }
+
+          ImageWriter iw = getImageWriter_JPEG();
+          ImageWriteParam iwp = iw.getDefaultWriteParam();
+          if (iwp.canWriteCompressed()) {
+              iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+              iwp.setCompressionQuality(quality);
+          }
+
+          if (iwp.canWriteProgressive()) {
+              iwp.setProgressiveMode(progressive ? ImageWriteParam.MODE_DEFAULT : ImageWriteParam.MODE_DISABLED);
+          }
+
+          try (ImageOutputStream ios = ImageIO.createImageOutputStream(path.toFile())) {
+              iw.setOutput(ios);
+              iw.write(null, new IIOImage(img, null, null), iwp);
+              iw.reset();
+          } finally {
+              iw.dispose();
+          }
       }
-    }
-  }
 
   /**
    * Convenience method to convert a {@code BufferedImage} to the sRGB
@@ -545,12 +537,12 @@ public final class MediaUtilities {
     return list;
   }
 
-  private static File getOutputFile(final LocalAssetStore store, final String altOutputDir, final File relFile) {
+  private static Path getOutputFile(final LocalAssetStore store, final String altOutputDir, final Path relFile) {
       if (StringUtils.isBlank(altOutputDir)) {
-          return store.getFile(relFile.toPath());
+          return store.getFullPath(relFile);
       }
 
-      return new File(altOutputDir, relFile.toString());
+      return Paths.get(altOutputDir, relFile.toString());
   }
 
 
@@ -573,9 +565,9 @@ public final class MediaUtilities {
       String ext = OsUtils.getFileExtension(fileName);
 
       String uuid = UUID.randomUUID().toString();
-      File baseDir = null;
-      for (int ii = 0; ii < 6; ii++) {
-          baseDir = new File(baseDir, String.valueOf(uuid.charAt(ii)));
+      Path baseDir = Paths.get(String.valueOf(uuid.charAt(0)));
+      for (int ii = 1; ii < 6; ii++) {
+          baseDir = Paths.get(baseDir.toString(), String.valueOf(uuid.charAt(ii)));
       }
 
       String fileName2;
@@ -604,7 +596,7 @@ public final class MediaUtilities {
    * @throws IOException
    */
   private static MediaAsset importMedia(final LocalAssetStore store,
-                                        final File baseDir,
+                                        final Path baseDir,
                                         final String fileName,
                                         final InputStream content,
                                         final Integer submitterId,
@@ -612,16 +604,17 @@ public final class MediaUtilities {
                                         final String altOutputDir,
                                         final String origFilename) throws IOException
   {
-      File relFile = new File(baseDir, fileName);
-      File file = getOutputFile(store, altOutputDir, relFile);
+      Path relFile = Paths.get(baseDir.toString(), fileName);
+      Path file = getOutputFile(store, altOutputDir, relFile);
 
-      file.getParentFile().mkdirs();
+      Files.createDirectories(file.getParent());
 
-      MediaAsset ma = new MediaAsset(store, relFile.toPath());
+      MediaAsset ma = new MediaAsset(store, relFile);
 
       if (logger.isDebugEnabled()) {
           logger.debug(LogBuilder.quickLog("fullPath", file.toString()));
       }
+
       FileUtilities.saveStreamToFile(content, file, keepStreamOpen);
 
       try {
@@ -633,7 +626,7 @@ public final class MediaUtilities {
             ma.addMeta("origFilename", origFilename);
         }
     } catch (ImageProcessingException ex) {
-        logger.error("Problem reading metadata from [" + file.getAbsolutePath() + "]", ex);
+        logger.error("Problem reading metadata from [" + file + "]", ex);
     }
 
       //
@@ -645,16 +638,16 @@ public final class MediaUtilities {
           // TODO: For now I'm assuming thumbstore will be same as the main file store. Feel
           // free to change later but allow for a "null" thumbstore to default to main store.
           //
-          File relThumb = createThumbnail(file, store, baseDir, fileName, altOutputDir);
-          ma.setThumb(store, relThumb.toPath());
+          Path relThumb = createThumbnail(file, store, baseDir, fileName, altOutputDir);
+          ma.setThumb(store, relThumb);
 
-          File relMid = createMidSize(file, store, baseDir, fileName, altOutputDir);
-          ma.setMid(relMid.toPath());
+          Path relMid = createMidSize(file, store, baseDir, fileName, altOutputDir);
+          ma.setMid(relMid);
           break;
       }
       case VIDEO: {
           GeoFileProcessor gproc;
-          gproc = new GeoFileProcessor(file.getAbsolutePath());
+          gproc = new GeoFileProcessor(file.toString());
           gproc.run();
           break;
       }
@@ -667,9 +660,9 @@ public final class MediaUtilities {
       return ma;
   }
 
-  public static File createThumbnail(final File file,
+  public static Path createThumbnail(final Path file,
                                      final LocalAssetStore store,
-                                     final File baseDir,
+                                     final Path baseDir,
                                      final String fileName,
                                      final String altOutputDir) throws IOException {
       return createResized(IMAGE_TYPE_THUMB,
@@ -682,9 +675,9 @@ public final class MediaUtilities {
                            75);
   }
 
-  public static File createMidSize(final File file,
+  public static Path createMidSize(final Path file,
                                    final LocalAssetStore store,
-                                   final File baseDir,
+                                   final Path baseDir,
                                    final String fileName,
                                    final String altOutputDir) throws IOException {
       return createResized(IMAGE_TYPE_MID,
@@ -697,10 +690,10 @@ public final class MediaUtilities {
                            600);
   }
 
-  private static File createResized(final String type,
-                                    final File file,
+  private static Path createResized(final String type,
+                                    final Path file,
                                     final LocalAssetStore store,
-                                    final File baseDir,
+                                    final Path baseDir,
                                     final String fileName,
                                     final String altOutputDir,
                                     final int defaultWidth,
@@ -712,16 +705,16 @@ public final class MediaUtilities {
       int height = resources.getInt(keyBase + "height", defaultHeight);
 
       String resizedFileName = OsUtils.getFileRoot(fileName) + "." + ext;
-      File relMid = new File(new File(baseDir, type), resizedFileName);
-      File midFile = getOutputFile(store, altOutputDir, relMid);
-      midFile.getParentFile().mkdirs();
+      Path relMid = Paths.get(baseDir.toString(), type, resizedFileName);
+      Path midFile = getOutputFile(store, altOutputDir, relMid);
+      Files.createDirectories(midFile.getParent());
 
       ImageProcessor iproc;
       iproc = new ImageProcessor("resize",
                                  width,
                                  height,
-                                 file.getAbsolutePath(),
-                                 midFile.getAbsolutePath(),
+                                 file.toString(),
+                                 midFile.toString(),
                                  null);
       iproc.run();
 

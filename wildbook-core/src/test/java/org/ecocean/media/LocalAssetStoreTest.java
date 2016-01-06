@@ -28,6 +28,7 @@ import java.io.File;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import org.junit.Test;
 
@@ -39,7 +40,7 @@ public class LocalAssetStoreTest {
     /** Subdir of resources dir that contains our test resource files. */
     private final static String TEST_DIR = "media";
     private final static String TEST_FILE = "test.txt";
-    private final static String TEST_SUBPATH = TEST_DIR + File.separator + TEST_FILE;
+    private final static Path TEST_SUBPATH = Paths.get(TEST_DIR, TEST_FILE);
 
 
     /**
@@ -91,10 +92,10 @@ public class LocalAssetStoreTest {
         Path result = LocalAssetStore.checkPath(root, path);
 
         assertNotNull(result);
-        assertEquals(new File(TEST_SUBPATH).toPath(), result);
+        assertEquals(TEST_SUBPATH, result);
 
         // make sure we fail if file missing
-        path = new File("nonexistent").toPath();
+        path = Paths.get("nonexistent");
         try {
             result = LocalAssetStore.ensurePath(root, path);
             fail("Didn't throw IllegalArgumentException");
@@ -115,10 +116,10 @@ public class LocalAssetStoreTest {
         Path result = LocalAssetStore.checkPath(root, path);
 
         assertNotNull(result);
-        assertEquals(new File(TEST_SUBPATH).toPath(), result);
+        assertEquals(TEST_SUBPATH, result);
 
         // abs path outside root (should fail)
-        path = new File("/tmp/blahblah.txt").toPath();
+        path = Paths.get("/tmp/blahblah.txt");
         try {
             result = LocalAssetStore.checkPath(root, path);
             fail("Didn't throw IllegalArgumentException");
@@ -143,7 +144,7 @@ public class LocalAssetStoreTest {
             String path = File.separator + TEST_SUBPATH;
             URL url = getClass().getResource(path);
             assertNotNull(url);
-            return new File(url.toURI()).toPath();
+            return Paths.get(url.toURI());
         } catch (URISyntaxException e) {
             System.out.println("Error " + e.getMessage());
             e.printStackTrace();

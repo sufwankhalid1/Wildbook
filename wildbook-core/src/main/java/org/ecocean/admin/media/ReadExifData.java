@@ -1,6 +1,8 @@
 package org.ecocean.admin.media;
 
-import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import org.ecocean.media.ImageMeta;
 import org.ecocean.util.FileUtilities;
@@ -31,8 +33,8 @@ public class ReadExifData extends AbstractApplication {
         super.run();
 
 
-        File file = new File(filename);
-        if (!file.exists()) {
+        Path file = Paths.get(filename);
+        if (!Files.exists(file)) {
             System.out.println("File [" + filename + "] does not exist!");
             exit(1);
         }

@@ -18,7 +18,6 @@
 
 package org.ecocean.media;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
@@ -133,12 +132,12 @@ public abstract class AssetStore {
      *
      * @param category Probably AssetType.ORIGINAL.
      */
-    public abstract MediaAsset copyIn(final File file,
+    public abstract MediaAsset copyIn(final Path file,
                                       final String path,
                                       final String category)
                                               throws IOException;
 
-    public abstract void deleteFrom(final Path path);
+    public abstract void deleteFrom(final Path path) throws IOException;
 
     public static AssetStore getDefault()
     {

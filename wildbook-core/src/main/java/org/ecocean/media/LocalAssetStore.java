@@ -20,7 +20,6 @@ package org.ecocean.media;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -28,6 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.ecocean.util.FileUtilities;
 import org.ecocean.util.LogBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -158,20 +158,14 @@ public class LocalAssetStore extends AssetStore {
      */
     @Override
     public MediaAsset create(final String path, final String type) {
-        try {
-            Path p = new File(path).toPath();
-            return new MediaAsset(this, ensurePath(root(), p), type);
-        } catch (IllegalArgumentException e) {
-            logger.warn("Bad path", e);
-            return null;
-        }
+        return new MediaAsset(this, ensurePath(root(), Paths.get(path)), type);
     }
 
     /**
      * Create a new asset from the given form submission part.  The
      * file is copied in to the store as part of this process.
      *
-     * @param file File to copy in.
+     * @param path Path to copy in.
      *
      * @param path The (optional) subdirectory and (required) filename
      * relative to the asset store root in which to store the file.
@@ -180,53 +174,47 @@ public class LocalAssetStore extends AssetStore {
      * @throws DatabaseException
      */
     @Override
-    public MediaAsset copyIn(final File file,
+    public MediaAsset copyIn(final Path file,
                              final String path,
                              final String category)
         throws IOException
     {
         Path root = root();
-        Path subpath = checkPath(root, new File(path).toPath());
+        Path subpath = checkPath(root, file);
 
         Path fullpath = root.resolve(subpath);
 
-        fullpath.getParent().toFile().mkdirs();
+        Files.createDirectories(fullpath.getParent());
 
         if (logger.isDebugEnabled()) {
             logger.debug("copying from " + file + " to " + fullpath);
         }
 
-        Files.copy(file.toPath(), fullpath, REPLACE_EXISTING);
+        Files.copy(file, fullpath, REPLACE_EXISTING);
 
         return new MediaAsset(this, subpath, category);
     }
 
 
     @Override
-    public void deleteFrom(final Path path)
+    public void deleteFrom(final Path path) throws IOException
     {
         if (path == null) {
             return;
         }
 
-        File file = getFile(path);
-        if (!file.exists()) {
-            return;
-        }
-
-        file.delete();
-
-        File parentDir = file.getParentFile();
-
-        File[] files = parentDir.listFiles();
-        if (files == null || files.length == 0) { //some JVMs return null for empty dirs
-            parentDir.delete();
-        }
+        //
+        //  TODO: This needs to be genericised because we
+        //  currently have midsize and thumbnail on the mediaasset instead
+        //  of as child mediaassets as originally planned. That proved to be problematic query-wise.
+        //  So, bottom line, this does not handle the other sizes at present.
+        //
+        FileUtilities.cascadeDelete(getFullPath(path));
     }
 
-
-    public File getFile(final Path path) {
-        return new File(root().toString(), path.toString());
+    @Override
+    public Path getFullPath(final Path path) {
+        return Paths.get(root().toString(), path.toString());
     }
 
 
@@ -296,10 +284,5 @@ public class LocalAssetStore extends AssetStore {
             logger.warn("Can't construct web path", e);
             return null;
         }
-    }
-
-    @Override
-    public Path getFullPath(final Path path) {
-        return Paths.get(root().toString(), path.toString());
     }
 }

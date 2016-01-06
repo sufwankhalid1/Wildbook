@@ -22,7 +22,6 @@ package org.ecocean.util;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -30,6 +29,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Date;
 
@@ -49,79 +52,74 @@ import com.drew.metadata.exif.GpsDirectory;
  * @author Giles Winstanley
  */
 public class FileUtilities {
-  /** SLF4J logger instance for writing log entries. */
-  private static final Logger logger = LoggerFactory.getLogger(FileUtilities.class);
+    private static final Logger logger = LoggerFactory.getLogger(FileUtilities.class);
 
-  private FileUtilities() {}
+     private FileUtilities() {}
 
-  /**
-   * Loads the contents of a specified file.
-   * @param f File to load
-   * @return A byte array containing the contents of the specified {@code File}.
-   */
-  public static byte[] loadFile(File f) throws IOException {
-    if (!f.exists()) {
-      throw new FileNotFoundException();
-    }
-    FileInputStream fis = null;
-    try {
-      ByteArrayOutputStream bao = new ByteArrayOutputStream();
-      fis = new FileInputStream(f);
-      byte[] b = new byte[4096];
-      int n;
-      while ((n = fis.read(b)) != -1) {
-        bao.write(b, 0, n);
-      }
-      return bao.toByteArray();
-    } finally {
-      if (fis != null) {
-        try {
-          fis.close();
-        } catch (IOException iox) {
-          logger.warn(iox.getMessage(), iox);
-        }
-      }
-    }
-  }
+     /**
+      * Loads the contents of a specified file.
+      * @param f File to load
+      * @return A byte array containing the contents of the specified {@code File}.
+      */
+     public static byte[] loadFile(final Path f) throws IOException {
+         if (!Files.exists(f)) {
+             throw new FileNotFoundException();
+         }
 
-  /**
-   * Copies a file to another location.
-   * @param src source file
-   * @param dst destination file
-   * @throws IOException if there is a problem copying the file
-   */
-    public static void copyFile(File src, File dst) throws IOException {
-        if (src == null) {
-            throw new NullPointerException("Invalid source file specified: null");
-        }
+         FileInputStream fis = null;
+         try {
+             ByteArrayOutputStream bao = new ByteArrayOutputStream();
+             fis = new FileInputStream(f.toFile());
+             byte[] b = new byte[4096];
+             int n;
+             while ((n = fis.read(b)) != -1) {
+                 bao.write(b, 0, n);
+             }
+             return bao.toByteArray();
+         } finally {
+             if (fis != null) {
+                 try {
+                     fis.close();
+                 } catch (IOException iox) {
+                     logger.warn(iox.getMessage(), iox);
+                 }
+             }
+         }
+     }
 
-        if (dst == null) {
-            throw new NullPointerException("Invalid destination file specified: null");
-        }
-
-        if (!src.exists()) {
-            throw new IOException("Invalid source file specified: " + src.getAbsolutePath());
-        }
-
-        if (dst.exists()) {
-            throw new IOException("Destination file already exists: " + dst.getAbsolutePath());
-        }
-
-        saveStreamToFile(new FileInputStream(src), dst);
-    }
-
-
-    public static void saveStreamToFile(final InputStream input, final File file)
+    public static void saveStreamToFile(final InputStream input, final Path path)
         throws IOException
     {
-        redirectStream(input, new FileOutputStream(file), false);
+        redirectStream(input, new FileOutputStream(path.toFile()), false);
     }
 
 
-    public static void saveStreamToFile(final InputStream input, final File file, final boolean keepOpen)
+    public static void saveStreamToFile(final InputStream input, final Path path, final boolean keepOpen)
         throws IOException
     {
-        redirectStream(input, new FileOutputStream(file), keepOpen);
+        redirectStream(input, new FileOutputStream(path.toFile()), keepOpen);
+    }
+
+
+    public static void cascadeDelete(final Path path) throws IOException {
+        boolean deleted = false;
+
+        if (Files.isDirectory(path)) {
+            //
+            // Delete if directory is empty
+            //
+            try (DirectoryStream<Path> stream = Files.newDirectoryStream(path)) {
+                if (! stream.iterator().hasNext()) {
+                    deleted = Files.deleteIfExists(path);
+                }
+            }
+        } else {
+            deleted = Files.deleteIfExists(path);
+        }
+
+        if (deleted) {
+            cascadeDelete(path.getParent());
+        }
     }
 
 
@@ -155,32 +153,35 @@ public class FileUtilities {
     }
 
 
-  /**
-   * Downloads the byte contents of a URL to a specified file.
-   * @param url URL to download
-   * @param file File to which to write downloaded data
-   * @throws IOException
-   */
-  public static void downloadUrlToFile(URL url, File file) throws IOException {
-    BufferedInputStream is = null;
-    BufferedOutputStream os = null;
-    try {
-      is = new BufferedInputStream(url.openStream());
-      os = new BufferedOutputStream(new FileOutputStream(file));
-      byte[] b = new byte[4096];
-      int len = -1;
-      while ((len = is.read(b)) != -1)
-        os.write(b, 0, len);
-      os.flush();
-    } finally {
-      if (os != null)
-        os.close();
-      if (is != null)
-        is.close();
+    /**
+     * Downloads the byte contents of a URL to a specified file.
+     * @param url URL to download
+     * @param file File to which to write downloaded data
+     * @throws IOException
+     */
+    public static void downloadUrlToFile(final URL url, final Path path) throws IOException {
+        BufferedInputStream is = null;
+        BufferedOutputStream os = null;
+        try {
+            is = new BufferedInputStream(url.openStream());
+            os = new BufferedOutputStream(new FileOutputStream(path.toFile()));
+            byte[] b = new byte[4096];
+            int len = -1;
+            while ((len = is.read(b)) != -1) {
+                os.write(b, 0, len);
+            }
+            os.flush();
+        } finally {
+            if (os != null) {
+                os.close();
+            }
+            if (is != null) {
+                is.close();
+            }
+        }
     }
-  }
 
-    public static File findResourceOnFileSystem(final String resourceName) {
+    public static Path findResourceOnFileSystem(final String resourceName) {
         if (logger.isDebugEnabled()) {
             logger.debug("Looking for resource [" + resourceName + "]");
         }
@@ -206,8 +207,8 @@ public class FileUtilities {
             return null;
         }
 
-        File tmp = new File(resourcePath);
-        if (tmp.exists()) {
+        Path tmp = Paths.get(resourcePath);
+        if (Files.exists(tmp)) {
             return tmp;
         }
 
@@ -218,15 +219,15 @@ public class FileUtilities {
         return null;
     }
 
-    public static ImageMeta getImageMetaData(File file) throws ImageProcessingException, IOException {
-        int index = file.getAbsolutePath().lastIndexOf('.');
+    public static ImageMeta getImageMetaData(final Path path) throws ImageProcessingException, IOException {
+        int index = path.toString().lastIndexOf('.');
         if (index < 0) {
             return null;
         }
 
         ImageMeta meta = null;
 
-        switch (file.getAbsolutePath().substring(index+1).toLowerCase()) {
+        switch (path.toString().substring(index+1).toLowerCase()) {
             case "jpg":
             case "jpeg":
             case "png":
@@ -239,9 +240,9 @@ public class FileUtilities {
             case "rwl":
             case "srw":
             {
-                if (file.exists()) {
+                if (Files.exists(path)) {
                     meta = new ImageMeta();
-                    Metadata metadata = ImageMetadataReader.readMetadata(file);
+                    Metadata metadata = ImageMetadataReader.readMetadata(path.toFile());
                     // obtain the Exif directory
                     ExifSubIFDDirectory directory = null;
                     directory = metadata.getFirstDirectoryOfType(ExifSubIFDDirectory.class);

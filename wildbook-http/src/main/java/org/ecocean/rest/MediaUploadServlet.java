@@ -1,10 +1,11 @@
 package org.ecocean.rest;
 
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.WeakHashMap;
@@ -60,7 +61,7 @@ public class MediaUploadServlet
 
     public static void deleteFileFromSet(final HttpServletRequest request,
                                          final int msid,
-                                         final String filename) throws DatabaseException
+                                         final String filename) throws DatabaseException, IOException
     {
         if (logger.isDebugEnabled()) {
             logger.debug("About to delete [" + filename + "] from submission [" + msid + "]");
@@ -519,10 +520,10 @@ public class MediaUploadServlet
                         // image? If so, would we need a thumb and mid directory in each subdir?
                         // For now, let's just expand all files into base dir.
                         //
-                        // By using the File class we will strip out any "/"'s in the name.
+                        // By using the Path class we will strip out any "/"'s in the name.
                         //
-                        File zipfile = new File(zipEntry.getName());
-                        processFile(zipfile.getName(), zis, true);
+                        Path zipfile = Paths.get(zipEntry.getName());
+                        processFile(zipfile.getFileName().toString(), zis, true);
                         zis.closeEntry();
                     }
                 }

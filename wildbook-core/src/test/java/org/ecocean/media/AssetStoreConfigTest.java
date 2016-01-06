@@ -21,10 +21,10 @@ package org.ecocean.media;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import org.junit.Test;
 
@@ -39,7 +39,7 @@ public class AssetStoreConfigTest {
 
 		assertEquals("Empty config", "{}", config.configString());
 
-        config.put("root", new File("/tmp").toPath());
+        config.put("root", Paths.get("/tmp"));
 		assertEquals("Simple config", "{\"root\":\"/tmp\"}", config.configString());
     }
 
@@ -48,7 +48,7 @@ public class AssetStoreConfigTest {
         try {
             AssetStoreConfig config = new AssetStoreConfig();
 
-            Path path = new File("/tmp").toPath();
+            Path path = Paths.get("/tmp");
             URL url = new URL("http://example.com/assets");
 
             config.put("root", path);
@@ -66,7 +66,7 @@ public class AssetStoreConfigTest {
         AssetStoreConfig config = new AssetStoreConfig();
 
         String string = "/tmp";
-        Path path = new File(string).toPath();
+        Path path = Paths.get(string);
 
         config.put("root", path);
 

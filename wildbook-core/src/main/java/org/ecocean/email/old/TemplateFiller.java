@@ -1,9 +1,10 @@
 package org.ecocean.email.old;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,7 +31,7 @@ public class TemplateFiller {
    *
    * @param text text to use as template
    */
-  public TemplateFiller(String text) {
+  public TemplateFiller(final String text) {
     if (text == null) {
       throw new NullPointerException();
     }
@@ -43,7 +44,7 @@ public class TemplateFiller {
    * @param file filename of the text file to use as template
    * @throws IOException if the template file cannot be loaded
    */
-  public TemplateFiller(File file) throws IOException {
+  public TemplateFiller(final Path file) throws IOException {
     this(loadTextFromFile(file));
   }
 
@@ -52,8 +53,8 @@ public class TemplateFiller {
    * @param filename name of {@code File} from which to load text
    * @throws IOException if the template file cannot be loaded
    */
-  public static String loadTextFromFile(String filename) throws IOException {
-    return loadTextFromFile(new File(filename));
+  public static String loadTextFromFile(final String filename) throws IOException {
+    return loadTextFromFile(Paths.get(filename));
   }
 
   /**
@@ -61,11 +62,11 @@ public class TemplateFiller {
    * @param file {@code File} instance from which to load text
    * @throws IOException if the template file cannot be loaded
    */
-  public static String loadTextFromFile(File file) throws IOException {
-    if (!file.exists()) {
-      throw new FileNotFoundException("Unable to find file: " + file.getAbsolutePath());
+  public static String loadTextFromFile(final Path file) throws IOException {
+    if (!Files.exists(file)) {
+      throw new FileNotFoundException("Unable to find file: " + file);
     }
-    return new String(Files.readAllBytes(file.toPath()));
+    return new String(Files.readAllBytes(file));
   }
 
   /**
@@ -76,7 +77,7 @@ public class TemplateFiller {
    * @param flags regex flags
    * @see java.util.regex.Pattern
    */
-  public boolean containsRegex(String search, int flags) {
+  public boolean containsRegex(final String search, final int flags) {
     pattern = Pattern.compile(search, flags);
     matcher = pattern.matcher(template);
     return matcher.find();
@@ -87,7 +88,7 @@ public class TemplateFiller {
    * This is useful for conditional replacement (e.g. optimisation).
    * @param search regex search term
    */
-  public boolean containsRegex(String search) {
+  public boolean containsRegex(final String search) {
     return containsRegex(search, 0);
   }
 
@@ -100,7 +101,7 @@ public class TemplateFiller {
    * @param flags regex flags (defined in {@link Pattern})
    * @param all whether to replace all occurrences or just the first
    */
-  public void replaceRegex(String search, String replace, int flags, boolean all) {
+  public void replaceRegex(final String search, final String replace, final int flags, final boolean all) {
     String x = null;
     pattern = Pattern.compile(search, flags);
     matcher = pattern.matcher(template);
@@ -120,7 +121,7 @@ public class TemplateFiller {
    * @param replace regex replacement term
    * @param all whether to replace all occurrences or just the first
    */
-  public void replaceRegex(String search, String replace, boolean all) {
+  public void replaceRegex(final String search, final String replace, final boolean all) {
     replaceRegex(search, replace, 0, all);
   }
 
@@ -131,7 +132,7 @@ public class TemplateFiller {
    * @param replace the string with which to replace the occurrences found
    * @param all whether to replace all occurrences or just the first
    */
-  public void replace(String search, String replace, boolean all) {
+  public void replace(final String search, final String replace, final boolean all) {
     if (template == null || template.length() == 0) {
       return;
     }
@@ -164,7 +165,7 @@ public class TemplateFiller {
    * @param replace the text file to use as replacement text
    * @throws IOException if the replacement text file cannot be loaded
    */
-  public void replace(String search, File replace) throws IOException {
+  public void replace(final String search, final Path replace) throws IOException {
     if (template == null || template.length() == 0) {
       return;
     }
@@ -191,7 +192,7 @@ public class TemplateFiller {
    *
    * @param s string to use as template
    */
-  public void setText(String s) {
+  public void setText(final String s) {
     template = s;
   }
 

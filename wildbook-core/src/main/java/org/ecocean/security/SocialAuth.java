@@ -6,6 +6,7 @@ https://github.com/pac4j/pac4j/wiki/Authenticate-with-Facebook,-Twitter-or-Googl
 
 package org.ecocean.security;
 
+import java.io.IOException;
 import java.util.Properties;
 
 import org.ecocean.ShepherdProperties;
@@ -22,13 +23,13 @@ public class SocialAuth {
     //public SocialAuth() {}
 
     //TODO cache these for each context
-    public static Properties authProps(String context) {
+    public static Properties authProps(final String context) throws IOException {
         Properties props = new Properties();
         props = ShepherdProperties.getProperties("socialAuth.properties", "", context);
         return props;
     }
 
-    public static FacebookClient getFacebookClient(String context) throws Exception {
+    public static FacebookClient getFacebookClient(final String context) throws Exception {
         Properties props = authProps(context);
         if ((props == null) || (props.getProperty("social.facebook.auth.appid") == null) || (props.getProperty("social.facebook.auth.secret") == null)) {
             //throw new Exception("facebookAppId or facebookSecret not set in socialAuth.properties");
@@ -39,7 +40,7 @@ public class SocialAuth {
 
 
 
-    public static OAuthService getFlickrOauth(String context, String callbackUrl) throws Exception {
+    public static OAuthService getFlickrOauth(final String context, final String callbackUrl) throws Exception {
         Properties props = authProps(context);
         if ((props == null) || (props.getProperty("social.flickr.auth.key") == null) || (props.getProperty("social.flickr.auth.secret") == null)) {
             //throw new Exception("facebookAppId or facebookSecret not set in socialAuth.properties");

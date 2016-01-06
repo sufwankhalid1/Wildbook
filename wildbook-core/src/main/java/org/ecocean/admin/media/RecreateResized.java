@@ -1,6 +1,6 @@
 package org.ecocean.admin.media;
 
-import java.io.File;
+import java.nio.file.Path;
 
 import org.ecocean.Global;
 import org.ecocean.media.AssetStore;
@@ -74,20 +74,20 @@ public class RecreateResized extends AbstractApplication {
 
                 SqlUpdateFormatter formatter = new SqlUpdateFormatter();
                 try {
-                    final File file = store.getFile(ma.getPath());
-                    final File baseDir = new File(ma.getPath().getParent().toString());
+                    final Path file = store.getFullPath(ma.getPath());
+                    final Path baseDir = ma.getPath().getParent();
                     final String fileName = ma.getPath().getFileName().toString();
 
                     if (! nullOnly || (nullOnly && ma.getThumbPath() == null)) {
                         store.deleteFrom(ma.getThumbPath());
-                        File thumb = MediaUtilities.createThumbnail(file, store, baseDir, fileName, null);
-                        formatter.append("thumbpath", thumb.toPath().toString());
+                        Path thumb = MediaUtilities.createThumbnail(file, store, baseDir, fileName, null);
+                        formatter.append("thumbpath", thumb.toString());
                     }
 
                     if (! nullOnly || (nullOnly && ma.getMidPath() == null)) {
                         store.deleteFrom(ma.getMidPath());
-                        File mid = MediaUtilities.createMidSize(file, store, baseDir, fileName, null);
-                        formatter.append("midpath", mid.toPath().toString());
+                        Path mid = MediaUtilities.createMidSize(file, store, baseDir, fileName, null);
+                        formatter.append("midpath", mid.toString());
                     }
                 } catch (Exception ex) {
                     throw new DatabaseException("Can't create resized images", ex);

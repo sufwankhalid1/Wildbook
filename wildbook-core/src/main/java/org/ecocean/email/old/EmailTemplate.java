@@ -1,11 +1,12 @@
 package org.ecocean.email.old;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -56,7 +57,7 @@ public final class EmailTemplate {
   /** Default character set encoding for email body texts. */
   private static final Charset DEFAULT_CHARSET = Charset.forName("ISO-8859-1");
   /** Template for message subject. */
-  private TemplateFiller subj;
+  private final TemplateFiller subj;
   /** Template for plain text message body. */
   private TemplateFiller plainBody;
   /** Template for HTML message body. */
@@ -87,7 +88,7 @@ public final class EmailTemplate {
    * @param useSSL whether to use SMTP over SSL
    * @throws IOException if any of the input files cannot be loaded
    */
-  public EmailTemplate(final String subj, final File plain, final File html, final Charset csP, final Charset csH, final String host, final int port, final boolean useSSL) throws IOException {
+  public EmailTemplate(final String subj, final Path plain, final Path html, final Charset csP, final Charset csH, final String host, final int port, final boolean useSSL) throws IOException {
     this.subj = new TemplateFiller(subj);
     this.plainBody = new TemplateFiller(plain);
     if (html != null)
@@ -112,7 +113,7 @@ public final class EmailTemplate {
    * @param html file containing body text for HTML email
    * @throws IOException if any of the input files cannot be loaded
    */
-  public EmailTemplate(final String subj, final File plain, final File html) throws IOException {
+  public EmailTemplate(final String subj, final Path plain, final Path html) throws IOException {
     this.subj = new TemplateFiller(subj);
     this.plainBody = new TemplateFiller(plain);
     if (html != null)
@@ -167,7 +168,7 @@ public final class EmailTemplate {
    * @param replace the text file to use as replacement text
    * @throws IOException if the replacement text file cannot be loaded
    */
-  public void replace(final String search, final File replace) throws IOException {
+  public void replace(final String search, final Path replace) throws IOException {
     replace(search, TemplateFiller.loadTextFromFile(replace));
   }
 
@@ -502,12 +503,12 @@ public final class EmailTemplate {
    * @return pair (as 2-element array) of files (plain text, HTML text)
    * @throws IOException if a problem occurs in locating the template files
    */
-  public static File[] resolveTemplatesFromRoot(final File path, final String baseName) throws IOException {
+  public static Path[] resolveTemplatesFromRoot(final Path path, final String baseName) throws IOException {
     Objects.requireNonNull(path);
     Objects.requireNonNull(baseName);
-    File fP = getTemplateFile(path, baseName, new String[]{".txt",".TXT",""});
-    File fH = getTemplateFile(path, baseName, new String[]{".html",".HTML",".htm",".HTM"});
-    return new File[]{fP, fH};
+    Path fP = getTemplateFile(path, baseName, new String[]{".txt",".TXT",""});
+    Path fH = getTemplateFile(path, baseName, new String[]{".html",".HTML",".htm",".HTM"});
+    return new Path[]{fP, fH};
   }
 
   /**
@@ -523,8 +524,8 @@ public final class EmailTemplate {
    * @return pair of files (plain text, HTML text)
    * @throws IOException if a problem occurs in locating the template files
    */
-  public static File[] resolveTemplatesFromRoot(final String path, final String baseName) throws IOException {
-    return resolveTemplatesFromRoot(new File(path), baseName);
+  public static Path[] resolveTemplatesFromRoot(final String path, final String baseName) throws IOException {
+    return resolveTemplatesFromRoot(Paths.get(path), baseName);
   }
 
   /**
@@ -538,20 +539,20 @@ public final class EmailTemplate {
    * @return EmailTemplate instance ready for use
    * @throws IOException if a problem occurs in loading the template
    */
-  public static EmailTemplate load(final File fP, final File fH, final Charset csP, final Charset csH) throws IOException {
+  public static EmailTemplate load(final Path fP, final Path fH, final Charset csP, final Charset csH) throws IOException {
     Objects.requireNonNull(fP);
-    if (!fP.exists())
-      throw new IllegalArgumentException("Invalid file specified: " + fP.getCanonicalPath());
+    if (!Files.exists(fP))
+      throw new IllegalArgumentException("Invalid file specified: " + fP);
 
     // Process plain text file for subject line.
-    String pt = join("\n", Files.readAllLines(fP.toPath(), csP));
+    String pt = join("\n", Files.readAllLines(fP, csP));
     String[] subjAndBody = extractSubjectLine(pt);
     EmailTemplate x = new EmailTemplate(subjAndBody[0], subjAndBody[1], csP);
 
     if (fH != null) {
-      if (!fH.exists())
-        throw new IllegalArgumentException("Invalid file specified: " + fH.getCanonicalPath());
-      List<String> ht = Files.readAllLines(fH.toPath(), csH);
+      if (!Files.exists(fH))
+        throw new IllegalArgumentException("Invalid file specified: " + fH);
+      List<String> ht = Files.readAllLines(fH, csH);
 
       // Perform quick check for matching HTML page charset definition.
       Pattern pat = Pattern.compile("[<\\s]meta\\s.*\\scharset\\s*=\\s*\"?([^\"]+)\"?", Pattern.CASE_INSENSITIVE);
@@ -561,7 +562,7 @@ public final class EmailTemplate {
           if (m.find()) {
             String cs = m.group(1).trim();
             if (!cs.equalsIgnoreCase(csH.name())) {
-              log.warn(String.format("Found HTML charset mismatch; %s (page specifies: %s): %s", csH.name(), cs, fH.getCanonicalPath()));
+              log.warn(String.format("Found HTML charset mismatch; %s (page specifies: %s): %s", csH.name(), cs, fH));
             }
           }
         }
@@ -615,7 +616,7 @@ public final class EmailTemplate {
    * @return EmailTemplate instance ready for use
    * @throws IOException if a problem occurs in loading the template
    */
-  public static EmailTemplate load(final File fP, final File fH, final Charset cs) throws IOException {
+  public static EmailTemplate load(final Path fP, final Path fH, final Charset cs) throws IOException {
     return load(fP, fH, cs, cs);
   }
 
@@ -634,8 +635,8 @@ public final class EmailTemplate {
    * @return EmailTemplate instance ready for use
    * @throws IOException if a problem occurs in loading the template
    */
-  public static EmailTemplate load(final File path, final String baseName, final Charset csP, final Charset csH) throws IOException {
-    File[] f = resolveTemplatesFromRoot(path, baseName);
+  public static EmailTemplate load(final Path path, final String baseName, final Charset csP, final Charset csH) throws IOException {
+    Path[] f = resolveTemplatesFromRoot(path, baseName);
     return load(f[0], f[1], csP, csH);
   }
 
@@ -653,8 +654,8 @@ public final class EmailTemplate {
    * @return EmailTemplate instance ready for use
    * @throws IOException if a problem occurs in loading the template
    */
-  public static EmailTemplate load(final File path, final String baseName, final Charset cs) throws IOException {
-    File[] f = resolveTemplatesFromRoot(path, baseName);
+  public static EmailTemplate load(final Path path, final String baseName, final Charset cs) throws IOException {
+    Path[] f = resolveTemplatesFromRoot(path, baseName);
     return load(f[0], f[1], cs, cs);
   }
 
@@ -668,7 +669,7 @@ public final class EmailTemplate {
    * @throws IOException if a problem occurs in loading the template
    */
   public static EmailTemplate load(final String path, final String baseName, final Charset cs) throws IOException {
-    return load(new File(path), baseName, cs, cs);
+    return load(Paths.get(path), baseName, cs, cs);
   }
 
   /**
@@ -679,10 +680,10 @@ public final class EmailTemplate {
    * @param suffix file suffixes to use to find template
    * @return File instance representing existing template file, or null
    */
-  private static File getTemplateFile(final File path, final String name, final String[] suffix) {
+  private static Path getTemplateFile(final Path path, final String name, final String[] suffix) {
     for (String s : suffix) {
-      File f = new File(path, name + s);
-      if (f.exists())
+      Path f = Paths.get(path.toString(), name + s);
+      if (Files.exists(f))
         return f;
     }
     return null;

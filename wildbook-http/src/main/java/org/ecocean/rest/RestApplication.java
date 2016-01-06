@@ -1,6 +1,7 @@
 package org.ecocean.rest;
 
-import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -63,8 +64,9 @@ public class RestApplication extends SpringBootServletInitializer {
         // to loading it by direct file input.
         //
 //      initResources = new ResourceReaderImpl(servletContext.getContextPath() + "_init");
-        File overridingProps = new File(new File(System.getProperty("catalina.base"), "conf"),
-                servletContext.getContextPath() + "_init.properties");
+        Path overridingProps = Paths.get(System.getProperty("catalina.base"),
+                               "conf",
+                               servletContext.getContextPath() + "_init.properties");
 
         //
         // TODO: Figure out how to allow overridingPropVars here. Can we instead just use props?

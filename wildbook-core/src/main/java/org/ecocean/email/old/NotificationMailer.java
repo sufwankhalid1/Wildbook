@@ -18,10 +18,11 @@
  */
 package org.ecocean.email.old;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -319,10 +320,10 @@ public final class NotificationMailer implements Runnable {
    */
   private EmailTemplate loadEmailTemplate(final String langCode, final String type) throws IOException {
     // Load generic email template for context.
-    File[] fBase = resolveTemplatesFromRoot(langCode, BASE_TEMPLATE_ROOT);
-    if (fBase[0] == null || !fBase[0].isFile())
+    Path[] fBase = resolveTemplatesFromRoot(langCode, BASE_TEMPLATE_ROOT);
+    if (fBase[0] == null || !Files.isRegularFile(fBase[0]))
       throw new FileNotFoundException(String.format("Failed to find core plain text email template: %s.txt", BASE_TEMPLATE_ROOT));
-    if (fBase[1] == null || !fBase[1].isFile()) {
+    if (fBase[1] == null || !Files.isRegularFile(fBase[1])) {
       log.trace(String.format("Failed to find core HTML text email template: %s.html", BASE_TEMPLATE_ROOT));
       fBase[1] = null;
     }
@@ -331,10 +332,10 @@ public final class NotificationMailer implements Runnable {
 
     // Load content relating to specified email type.
     if (type != null) {
-      File[] fCont = resolveTemplatesFromRoot(langCode, type);
-      if (fCont[0] == null || !fCont[0].isFile())
+      Path[] fCont = resolveTemplatesFromRoot(langCode, type);
+      if (fCont[0] == null || !Files.isRegularFile(fCont[0]))
         throw new FileNotFoundException(String.format("Failed to find plain text email template: %s.txt", type));
-      if (fCont[1] == null || !fCont[1].isFile()) {
+      if (fCont[1] == null || !Files.isRegularFile(fCont[1])) {
         log.trace(String.format("Failed to find HTML text email template: %s.html", type));
         fCont[1] = null;
         template.removeHtmlText();
@@ -376,19 +377,19 @@ public final class NotificationMailer implements Runnable {
    * @return pair (as 2-element array) of files (plain text, HTML text)
    * @throws IOException if a problem occurs in locating the template files
    */
-  private File[] resolveTemplatesFromRoot(final String langCode, final String baseName) throws IOException {
+  private Path[] resolveTemplatesFromRoot(final String langCode, final String baseName) throws IOException {
     Objects.requireNonNull(langCode);
     Objects.requireNonNull(baseName);
 
     String s = baseName + ".txt";
-    File f = FileUtilities.findResourceOnFileSystem(String.format("%s/%s/%s", SEARCH_PATH, langCode, s));
-    if (f == null) {
+    Path path = FileUtilities.findResourceOnFileSystem(String.format("%s/%s/%s", SEARCH_PATH, langCode, s));
+    if (path == null) {
       s = baseName + ".TXT";
-      f = FileUtilities.findResourceOnFileSystem(String.format("%s/%s/%s", SEARCH_PATH, langCode, s));
+      path = FileUtilities.findResourceOnFileSystem(String.format("%s/%s/%s", SEARCH_PATH, langCode, s));
     }
-    if (f == null)
+    if (path == null)
       throw new FileNotFoundException(String.format("Failed to find plain text email template: %s.txt", baseName));
-    return EmailTemplate.resolveTemplatesFromRoot(f.getParentFile(), baseName);
+    return EmailTemplate.resolveTemplatesFromRoot(path.getParent(), baseName);
   }
 
   public void appendToSubject(final String text) {

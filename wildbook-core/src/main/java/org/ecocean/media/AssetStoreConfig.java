@@ -18,11 +18,11 @@
 
 package org.ecocean.media;
 
-import java.io.File;
 import java.lang.reflect.Type;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,7 +38,7 @@ import com.google.gson.reflect.TypeToken;
  */
 public class AssetStoreConfig {
     private static Logger log = LoggerFactory.getLogger(AssetStoreConfig.class);
-    private Map<String, String> config;
+    private final Map<String, String> config;
 
 
     /**
@@ -85,7 +85,7 @@ public class AssetStoreConfig {
      * Return a config variable of the Path type.
      */
     public Path getPath(final String key) {
-        return new File(config.get(key)).toPath();
+        return Paths.get(config.get(key));
     }
 
     /**

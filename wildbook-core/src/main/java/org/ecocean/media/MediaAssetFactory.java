@@ -1,8 +1,9 @@
 package org.ecocean.media;
 
-import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -62,7 +63,7 @@ public class MediaAssetFactory {
             return null;
         }
 
-        return new File(pathstr).toPath();
+        return Paths.get(pathstr);
     }
 
 
@@ -198,7 +199,7 @@ public class MediaAssetFactory {
     }
 
 
-    public static void deleteFromStore(final MediaAsset ma) {
+    public static void deleteFromStore(final MediaAsset ma) throws IOException {
         if (ma.thumbStore != null) {
             ma.thumbStore.deleteFrom(ma.thumbPath);
             ma.thumbStore.deleteFrom(ma.midPath);
