@@ -17,16 +17,6 @@ public class ExportFactory {
         // prevent instantiation
     }
 
-    public static Export addExport(final Database db, final int userid, final String outputdir) throws DatabaseException {
-        Export export = new Export();
-        export.setUserId(userid);
-        export.setOutputdir(outputdir);
-
-        save(db, export);
-
-        return export;
-    }
-
     public static void save(final Database db, final Export export) throws DatabaseException {
         if (export == null) {
             return;

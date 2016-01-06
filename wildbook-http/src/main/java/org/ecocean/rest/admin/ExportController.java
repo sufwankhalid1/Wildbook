@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.google.gson.Gson;
 import com.samsix.database.ConnectionInfo;
 import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
@@ -39,9 +40,14 @@ public class ExportController {
 
         int userid = ServletUtils.getUser(request).getId();
 
-        Export export;
+        Export export = new Export();
+        export.setUserId(userid);
+        export.setOutputdir(LocalDateTime.now().toString());
+        export.setType("encounter");
+        export.setParamters(new Gson().toJson(search));
+
         try (Database db = ServletUtils.getDb(request)) {
-            export = ExportFactory.addExport(db, userid, LocalDateTime.now().toString());
+            ExportFactory.save(db, export);
         }
 
         Path outputBaseDir = Paths.get(Global.INST.getAppResources().getString("export.outputdir", "/var/tmp/exports"), "encounters");
@@ -70,17 +76,24 @@ public class ExportController {
                 try {
                     export.setStatus(1);
                     ExportFactory.save(db, export);
-                    EncounterExport exporter;
-                    exporter = new EncounterExport(outputBaseDir);
+                } catch (Throwable ex) {
+                    logger.error("Cannot set status to running, aborting export...", ex);
+                    return;
+                }
+
+                try {
+                    EncounterExport exporter = new EncounterExport(outputBaseDir);
                     exporter.export(db, search, export.getOutputdir());
                 } catch (Throwable ex) {
                     export.setError(ex.toString());
                 }
 
-                export.setStatus(2);
-                ExportFactory.save(db, export);
-            } catch (DatabaseException ex) {
-                logger.error("Cannot save export", ex);
+                try {
+                    export.setStatus(2);
+                    ExportFactory.save(db, export);
+                } catch (DatabaseException ex) {
+                    logger.error("Cannot save export upon completion", ex);
+                }
             }
         }
     }
