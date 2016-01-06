@@ -115,6 +115,10 @@ public class MediaAsset {
         return path;
     }
 
+    public Path getFullPath() {
+        return store.getFullPath(path);
+    }
+
     public Path getThumbPath()
     {
         return thumbPath;

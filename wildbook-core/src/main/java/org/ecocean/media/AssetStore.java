@@ -120,6 +120,8 @@ public abstract class AssetStore {
 
     public abstract MediaAsset create(String path, String type);
 
+    public abstract Path getFullPath(Path path);
+
     /**
      * Create a new asset from the given form submission part.  The
      * file is copied in to the store as part of this process.

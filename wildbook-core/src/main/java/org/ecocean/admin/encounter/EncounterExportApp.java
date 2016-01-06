@@ -30,10 +30,10 @@ public class EncounterExportApp extends AbstractApplication {
 
         SearchData search = new SearchData();
         search.encounter = new EncounterSearch();
-        search.encounter.comments = "test";
+        search.encounter.comments = "e";
 
         try (Database db = Global.INST.getDb()) {
-            EncounterExport exporter = new EncounterExport(Paths.get("."));
+            EncounterExport exporter = new EncounterExport(Paths.get("/var/tmp"));
             exporter.export(db, search);
 
             exit();

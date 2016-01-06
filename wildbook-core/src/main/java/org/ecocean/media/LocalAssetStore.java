@@ -26,6 +26,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import org.ecocean.util.LogBuilder;
 import org.slf4j.Logger;
@@ -295,5 +296,10 @@ public class LocalAssetStore extends AssetStore {
             logger.warn("Can't construct web path", e);
             return null;
         }
+    }
+
+    @Override
+    public Path getFullPath(final Path path) {
+        return Paths.get(root().toString(), path.toString());
     }
 }

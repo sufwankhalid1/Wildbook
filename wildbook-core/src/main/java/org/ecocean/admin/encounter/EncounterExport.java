@@ -80,9 +80,8 @@ public class EncounterExport {
             User user = UserFactory.readUser(rs);
 
             String filename = ma.getPath().getFileName().toString();
-
             try {
-                Files.copy(ma.getPath(), Paths.get(outputDir.toString(), filename));
+                Files.copy(ma.getFullPath(), Paths.get(outputDir.toString(), filename));
             } catch (Exception ex) {
                 throw new DatabaseException("Can't copy file.", ex);
             }
@@ -98,7 +97,11 @@ public class EncounterExport {
             } else {
                 encArray[2] = user.getFullName();
                 encArray[3] = user.getEmail();
-                encArray[4] = user.getOrganization().toString();
+                if (user.getOrganization() == null) {
+                    encArray[4] = null;
+                } else {
+                    encArray[4] = user.getOrganization().toString();
+                }
             }
 
             encArray[5] = ma.getSubmittedOn().toString();
