@@ -19,7 +19,6 @@ import org.ecocean.ContextConfiguration;
 import org.ecocean.Global;
 import org.ecocean.ShepherdProperties;
 import org.ecocean.html.HtmlConfig;
-import org.ecocean.rest.SimpleUser;
 import org.ecocean.security.User;
 import org.ecocean.util.Jade4JUtils;
 import org.springframework.util.ResourceUtils;
@@ -38,13 +37,12 @@ public class ServletUtils {
         // prevent instantiation
     }
 
-    public static SimpleUser getUser(final HttpServletRequest request) {
-        User user = Global.INST.getUserService().getUserById(request.getRemoteUser());
-        if (user == null) {
+    public static User getUser(final HttpServletRequest request) {
+        if (request.getUserPrincipal() == null) {
             return null;
         }
 
-        return user.toSimple();
+        return Global.INST.getUserService().getUserById(request.getUserPrincipal().getName());
     }
 
     /**

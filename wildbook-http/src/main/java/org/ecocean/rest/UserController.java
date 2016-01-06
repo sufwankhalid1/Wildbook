@@ -20,6 +20,7 @@ import org.ecocean.security.SecurityInfo;
 import org.ecocean.security.User;
 import org.ecocean.security.UserService;
 import org.ecocean.security.UserToken;
+import org.ecocean.servlet.ServletUtils;
 import org.ecocean.util.LogBuilder;
 import org.ecocean.util.WildbookUtils;
 import org.slf4j.Logger;
@@ -139,11 +140,7 @@ public class UserController {
 
     @RequestMapping(value = "isloggedin", method = RequestMethod.GET)
     public static SimpleUser isLoggedIn(final HttpServletRequest request) throws DatabaseException {
-        if (request.getUserPrincipal() == null) {
-            return null;
-        }
-
-        User user = Global.INST.getUserService().getUserById(request.getUserPrincipal().getName());
+        User user = ServletUtils.getUser(request);
 
         if (user == null) {
             return null;
