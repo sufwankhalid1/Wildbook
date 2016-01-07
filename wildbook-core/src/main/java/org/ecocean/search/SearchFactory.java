@@ -39,7 +39,6 @@ public class SearchFactory {
         }
     }
 
-
     public static List<Encounter> searchEncounters(final Database db,
                                                    final SearchData search) throws DatabaseException {
         SqlStatement sql = EncounterFactory.getEncounterStatement();
@@ -98,6 +97,11 @@ public class SearchFactory {
 
 
     private static void addContributorData(final SqlStatement sql, final UserSearch search) {
+
+        if (search == null) {
+            return;
+        }
+
         sql.addInnerJoin(EncounterFactory.ALIAS_ENCOUNTERS,
                 EncounterFactory.PK_ENCOUNTERS,
                 EncounterFactory.TABLENAME_ENCOUNTER_MEDIA,
@@ -119,6 +123,7 @@ public class SearchFactory {
     public static List<Individual> searchIndividuals(final Database db,
                                                      final SearchData search)
             throws DatabaseException {
+
         SqlStatement sql = EncounterFactory.getIndividualStatement();
 
         addIndividualData(sql, search.individual);

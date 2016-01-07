@@ -142,24 +142,28 @@ angular.module('wildbook.admin').directive(
                            +'           <div ng-show="exportid" class="mt-10">Your export id is {{exportid}}</div>'
                            +'       </div>'
                            +'       <md-dialog-actions layout="row" layout-align="end center">'
-                           +'           <md-button ng-disabled="!numResults" class="md-whiteframe-1dp" ng-click="exportEncounter()">'
+                           +'           <md-button ng-show="!exportid" ng-disabled="!numResults" class="md-whiteframe-1dp" ng-click="exportEncounter()">'
                            +'               Export'
+                           +'           </md-button>'
+                           +'           <md-button ng-show="exportid" ng-disabled="!numResults" class="md-whiteframe-1dp" ng-click="closeDialog()">'
+                           +'               Close'
                            +'           </md-button>'
                            +'       </md-dialog-actions>'
                            +'    </md-dialog-content>' 
                            +'</md-dialog>',
                          locals: {
-                            numResults: $scope.numResults
+                            numResults: $scope.numResults,
+                            searchData: $scope.searchdata
                          },
                          controller: exportDialogController 
                     })
 
-                    function exportDialogController($scope, $mdDialog, numResults) {
+                    function exportDialogController($scope, $mdDialog, numResults, searchData) {
 
                         numResults ? $scope.numResults = numResults : 0;
 
                         $scope.exportEncounter = function() {
-                            $http.post("/", $scope.searchdata)
+                            $http.post("export/encounters", searchData)
                             .then(function(response) {
                                 $scope.exportid = response.data;
                             });

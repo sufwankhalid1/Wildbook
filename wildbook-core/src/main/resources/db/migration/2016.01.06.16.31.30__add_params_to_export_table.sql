@@ -1,0 +1,1 @@
+alter table exports add column parameters text;

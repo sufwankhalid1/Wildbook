@@ -17,6 +17,7 @@ import org.ecocean.search.SearchData;
 import org.ecocean.servlet.ServletUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -36,7 +37,8 @@ public class ExportController {
 
     @RequestMapping(value = "encounters", method = RequestMethod.POST)
     public int searchEncounters(final HttpServletRequest request,
-            final SearchData search) throws DatabaseException, IOException {
+                                @RequestBody final SearchData search)
+        throws DatabaseException, IOException {
 
         int userid = ServletUtils.getUser(request).getId();
 

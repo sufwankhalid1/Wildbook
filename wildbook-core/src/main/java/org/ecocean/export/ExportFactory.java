@@ -45,5 +45,6 @@ public class ExportFactory {
         formatter.append("status", export.getStatus());
         formatter.append("error", export.getError());
         formatter.append("delivered", export.isDelivered());
+        formatter.append("parameters", export.getParamters());
     }
 }
