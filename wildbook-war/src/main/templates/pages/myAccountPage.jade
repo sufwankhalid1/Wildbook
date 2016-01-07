@@ -7,3 +7,44 @@ div
             md-button.md-whiteframe-1dp(ng-click="edit = true" ng-show="!edit") Edit
     cancel-button(layout-margin cancel="cancel()" ng-show="edit")
     wb-user-edit-fields.mt-5(user="self" title="false" save="save()" ng-show="edit")
+    md-divider.mt-20
+    div(layout="row" flex="100" layout-wrap)
+        div(layout="row")
+            h4 Exports
+            md-icon.ml-10.noOutline(md-svg-icon="refresh" ng-class="{'green-svg spin': refresh}" ng-click="refresh ? refresh = false : refresh = true")
+                md-tooltip Auto Refresh
+        div(layout="row" flex="100")
+            div(flex="20")
+                label Total undelivered exports: {{exports.length - exportErrors}}
+            div(flex="20")
+                label Pending exports: {{pendingExports}}
+            div(flex="20")
+                label Finished exports: {{finishedExports}}
+            div(flex="20")
+                label Failed exports: {{exportErrors}}
+        div.mt-20(layout="row" flex="100" layout-wrap ng-show="showExports")
+            cancel-button(layout-margin cancel="hideExports()" ng-show="true")
+            div(layout="row" flex="100")
+                div(layout="row" flex="100")
+                    div(flex="20")
+                        label Export Id
+                    div(flex="20")
+                        label Start Time
+                    div(flex="20")
+                        label Type
+                    div(flex="20")
+                        label Status:
+                    div(flex="20")
+                        label Download
+            div(layout="row" flex="100" ng-repeat="export in exports" layout-wrap)
+                    div(layout="row" flex="100" layout-align="start center")
+                        div(flex="20") {{export.exportId}}
+                        div(flex="20") {{timestampToDate(export.timestamp)}}
+                        div(flex="20") {{export.type}}
+                        div(flex="20") {{export.status == 0 ? "Queued" : (export.status == 1 ? "In Progress" : "Complete")}}
+                        div(flex="20")
+                            md-button(ng-if="!export.error" ng-click="download") Download
+                            md-button(ng-if="export.error" ng-click="viewError(export.error)") Error Occured
+                    div(layout="row" flex="100")
+                        md-divider(flex="100")
+        md-button.md-whiteframe-1dp.mt-20(ng-click="showExports = true" ng-show="!showExports") Show Exports

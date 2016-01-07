@@ -1,6 +1,7 @@
 package org.ecocean.rest;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 import javax.mail.MessagingException;
@@ -16,6 +17,8 @@ import org.apache.shiro.subject.Subject;
 import org.ecocean.ContextConfiguration;
 import org.ecocean.Global;
 import org.ecocean.email.EmailUtils;
+import org.ecocean.export.Export;
+import org.ecocean.export.ExportFactory;
 import org.ecocean.security.SecurityInfo;
 import org.ecocean.security.User;
 import org.ecocean.security.UserService;
@@ -30,6 +33,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
 
 import de.neuland.jade4j.exceptions.JadeCompilerException;
@@ -296,6 +300,12 @@ public class UserController {
         return ServletUtils.getUser(request);
     }
 
+    @RequestMapping(value = "exports", method = RequestMethod.GET)
+    public List<Export> export(final HttpServletRequest request) throws DatabaseException {
+        try (Database db = ServletUtils.getDb(request)) {
+           return ExportFactory.getUserUndeliveredExports(db, ServletUtils.getUser(request).getId());
+        }
+    }
 
     static class UserInfo {
         public String email;
