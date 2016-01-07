@@ -1,0 +1,19 @@
+div(layout="row" layout-align="start center" layout-wrap)
+    div(layout="row" flex="10")
+        img(src="{{user.avatar}}")
+    div(layout="row" flex="90" layout-wrap)
+        div(layout="row" flex="100")
+                div(flex="")
+                    label Full Name: 
+                    span.ml-5 {{user.fullName}}
+                div(flex="")
+                    label Email: 
+                    span.ml-5 {{user.email}}
+                div(flex="")
+                    label Organization: 
+                    span.ml-5 {{user.organization.displayName}}
+        div(layout="row" flex="100" layout-align="start center")
+            div(flex="80") 
+                label Statement: 
+                span.ml-5 {{user.statement}}
+

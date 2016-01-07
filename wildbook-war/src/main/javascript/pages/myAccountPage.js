@@ -8,8 +8,11 @@ angular.module('wildbook.admin').directive(
             templateUrl: 'pages/myAccountPage.html',
             replace: true,
             link: function($scope, element, attr) {
+                var origSelf;
+
                 $http.get('obj/user/self').then(function(response){
                     $scope.self = response.data;
+                    origSelf = angular.copy(response.data);
                 });
 
                 $scope.save = function() {
@@ -21,8 +24,15 @@ angular.module('wildbook.admin').directive(
                                 .position('middle')
                                 .hideDelay(3000)
                         )*/
+                        $scope.edit = false;
+                        origSelf = angular.copy($scope.self);
                     });
                 };
+
+                $scope.cancel = function() {
+                    $scope.edit = false;
+                    $scope.self = angular.copy(origSelf);
+                }
             }
         }
     }]

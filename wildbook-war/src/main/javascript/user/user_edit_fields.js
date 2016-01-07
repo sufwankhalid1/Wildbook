@@ -1,4 +1,20 @@
 angular.module('wildbook.admin').directive(
+    'wbUserView',
+    function() {
+        return {
+            restrict: 'E',
+            templateUrl: 'user/user_view.html',
+            scope: {
+                user: '='
+            },
+            replace: true,
+            link: function($scope, elem, attr) {
+            }
+        };
+    }
+);
+
+angular.module('wildbook.admin').directive(
     "wbUserEditFields",
     ["$http", "wbConfig", "$mdDialog",
      function ($http, wbConfig, $mdDialog) {
