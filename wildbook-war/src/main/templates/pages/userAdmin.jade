@@ -1,6 +1,6 @@
 div
     div(ng-show="!data.submission")
-        md-content(layout="row" flex="100" layout-align="start center")
+        md-content(layout="row" flex="100" layout-align="start center" ng-show="title != 'false'")
             h1 User Admin
             div(flex="")
         md-content(layout="row" flex="100" layout-align="end center")
@@ -9,37 +9,4 @@ div
         md-content.mt-10(ng-show="user")
             div(layout="row" flex="100")
                 md-icon.margin-0.mb-10(md-svg-icon="close-circle" ng-click="clearUser()")
-            div(layout="row" layout-align="start center" layout-wrap)
-                div(layout="row" flex="100" layout-wrap)
-                    div(layout="row" flex="10")
-                        img(src="{{user.avatar}}")
-                    div(layout="row" flex="90")
-                        md-input-container(flex="33")
-                            label Full Name
-                            input(ng-model="user.fullName")
-                        md-input-container(flex="33")
-                            label Email
-                            input(ng-model="user.email")
-                        md-input-container(flex="33")
-                            label Phone
-                            input(ng-model="user.phoneNumber")
-                    div(layout="row" flex-offset="10" flex="90" layout-align="start center")
-                        md-input-container(flex="60")
-                            label Address
-                            input(ng-model="user.physicalAddress")
-                        md-input-container(flex="30")
-                            label Organization
-                            input(autocomplete="off" ng-model="user.organization.displayName" disabled)
-                        md-button.md-whiteframe-1dp.height-36(type="submit" ng-click="editOrg($event)" aria-label="Edit Organization") Edit Org
-                    div(layout="row" flex="90" flex-offset="10")
-                        md-input-container(flex="100")
-                            textarea(ng-model="user.statement")
-                    //- div(layout="row" flex-offset="10" flex="90")
-                    //-     md-input-container(flex="33")
-                    //-         label Password
-                    //-         input(autocomplete="off" type="password" ng-model="password")
-                div.mt-15(layout="row" flex-offset="10" flex="90" layout-align="start center")
-                    md-icon.md-warn(md-svg-icon="delete" layout-margin ng-click="deleteUser()")
-                    div(flex="")
-                    md-button.md-whiteframe-1dp.md-warn(type="submit" ng-click="changeUserPassword()" aria-label="Save") Change User Password
-                    md-button.md-whiteframe-1dp(type="submit" ng-click="save()" aria-label="Save") Save
+            wb-user-edit-fields(user="user" save="save()" showdelete="true")

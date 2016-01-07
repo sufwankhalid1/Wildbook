@@ -64,7 +64,7 @@ navbar:
           login: true
           submenus:
             - name: myAccount
-              url: /myAccount.jsp
+              url: /admin.jsp?j=page/myAccount
             - name: general
               url: /appadmin/admin.jsp
               role: admin

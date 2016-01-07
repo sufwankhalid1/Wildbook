@@ -291,6 +291,11 @@ public class UserController {
         return info;
     }
 
+    @RequestMapping(value = "self", method = RequestMethod.GET)
+    public User getSelf(final HttpServletRequest request) {
+        return ServletUtils.getUser(request);
+    }
+
 
     static class UserInfo {
         public String email;
