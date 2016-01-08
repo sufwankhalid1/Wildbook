@@ -9,8 +9,6 @@ import org.ecocean.LocationFactory;
 import org.ecocean.media.MediaAssetFactory;
 import org.ecocean.rest.SimpleIndividual;
 import org.ecocean.rest.SimplePhoto;
-import org.ecocean.rest.SimpleUser;
-import org.ecocean.security.UserFactory;
 
 import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
@@ -223,21 +221,6 @@ public class EncounterFactory {
         sql.addSelectTable(MediaAssetFactory.ALIAS_MEDIAASSET);
 
         return sql;
-    }
-
-    public static List<SimpleUser> getIndividualSubmitters(final Database db, final int individualid) throws DatabaseException
-    {
-        SqlStatement sql = UserFactory.getUserStatement(true);
-        sql.addInnerJoin(UserFactory.AlIAS_USERS,
-                         UserFactory.PK_USERS,
-                         MediaAssetFactory.TABLENAME_MEDIAASSET,
-                         "ma2",
-                         "submitterid");
-        sql.addInnerJoin("ma2", MediaAssetFactory.PK_MEDIAASSET, TABLENAME_ENCOUNTER_MEDIA, ALIAS_ENCOUNTER_MEDIA, "mediaid");
-        sql.addInnerJoin(ALIAS_ENCOUNTER_MEDIA, PK_ENCOUNTERS, TABLENAME_ENCOUNTERS, ALIAS_ENCOUNTERS, PK_ENCOUNTERS);
-        sql.addCondition(ALIAS_ENCOUNTERS, PK_INDIVIDUALS, SqlRelationType.EQUAL, individualid);
-
-        return UserFactory.readSimpleUsers(db, sql);
     }
 
 
