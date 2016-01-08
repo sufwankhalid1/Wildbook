@@ -17,6 +17,7 @@ import org.ecocean.search.SearchData;
 import org.ecocean.search.SearchFactory;
 import org.ecocean.security.User;
 import org.ecocean.security.UserFactory;
+import org.ecocean.util.FileUtilities;
 
 import com.opencsv.CSVWriter;
 import com.samsix.database.Database;
@@ -42,23 +43,30 @@ public class EncounterExport {
 
     public void export(final Database db, final SearchData search, final String outputDir) throws DatabaseException, IOException {
         Path outputPath = Paths.get(outputBaseDir.toString(), outputDir);
-        Files.createDirectories(outputPath);
-        List<Encounter> encounters = SearchFactory.searchEncounters(db, search);
-        createCSV(db, outputPath, encounters);
-    }
+        try {
+            Files.createDirectories(outputPath);
+            List<Encounter> encounters = SearchFactory.searchEncounters(db, search);
 
+            Path csv = Paths.get(outputPath.toString(), "encounter_images.csv");
 
-    private void createCSV(final Database db, final Path outputDir, final List<Encounter> encs) throws DatabaseException, IOException {
-        Path csv = Paths.get(outputDir.toString(), "encounter_images.csv");
+            try (FileWriter output = new FileWriter(csv.toFile())) {
+                try (CSVWriter writer = new CSVWriter(output)) {
+                    writer.writeNext(cols);
 
-        try (FileWriter output = new FileWriter(csv.toFile())) {
-            try (CSVWriter writer = new CSVWriter(output)) {
-                writer.writeNext(cols);
-
-                for (Encounter encounter : encs) {
-                    writer.writeAll(buildEnc(db, outputDir, encounter));
+                    for (Encounter encounter : encounters) {
+                        writer.writeAll(buildEnc(db, outputPath, encounter));
+                    }
                 }
             }
+
+            FileUtilities.zipDir(outputPath);
+        } finally {
+            //
+            // Delete all the files you just created. Either the export failed
+            // and we need to clear the disk or it succeeded and all the files are
+            // zipped up.
+            //
+            FileUtilities.deleteCascade(outputPath);
         }
     }
 

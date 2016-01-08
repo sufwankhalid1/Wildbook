@@ -35,6 +35,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Date;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import org.ecocean.media.ImageMeta;
 import org.slf4j.Logger;
@@ -100,25 +102,54 @@ public class FileUtilities {
         redirectStream(input, new FileOutputStream(path.toFile()), keepOpen);
     }
 
-
-    public static void cascadeDelete(final Path path) throws IOException {
-        boolean deleted = false;
-
-        if (Files.isDirectory(path)) {
-            //
-            // Delete if directory is empty
-            //
-            try (DirectoryStream<Path> stream = Files.newDirectoryStream(path)) {
-                if (! stream.iterator().hasNext()) {
-                    deleted = Files.deleteIfExists(path);
+    /**
+     * Deletes a directory and all of it's content, including sub-dirs.
+     * @throws IOException
+     *
+     */
+    public static void deleteCascade(final Path path) throws IOException {
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(path)) {
+            for (Path child : stream) {
+                if (Files.isDirectory(child)) {
+                    deleteCascade(child);
+                } else {
+                    Files.delete(child);
                 }
             }
+        }
+    }
+
+    private static boolean deleteDirIfEmpty(final Path path) throws IOException {
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(path)) {
+            if (! stream.iterator().hasNext()) {
+                Files.delete(path);
+                return true;
+            }
+            return false;
+        }
+    }
+
+
+    /**
+     * Deletes a file or *empty* directory and then deletes all parent directories
+     * recursively as long as they are empty.
+     *
+     * @param path
+     * @throws IOException
+     */
+    public static void deleteAndPrune(final Path path) throws IOException {
+        boolean deleted;
+        if (Files.isDirectory(path)) {
+            deleted = deleteDirIfEmpty(path);
         } else {
             deleted = Files.deleteIfExists(path);
         }
 
+        //
+        // prune parents
+        //
         if (deleted) {
-            cascadeDelete(path.getParent());
+            deleteAndPrune(path.getParent());
         }
     }
 
@@ -282,5 +313,40 @@ public class FileUtilities {
             }
         }
         return meta;
+    }
+
+    private static Path buildPath(final Path root, final Path child) {
+        if (root == null) {
+            return child;
+        } else {
+            return Paths.get(root.toString(), child.toString());
+        }
+    }
+
+    private static void addZipDir(final ZipOutputStream out, final Path root, final Path dir) throws IOException {
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
+            for (Path child : stream) {
+                Path entry = buildPath(root, child.getFileName());
+                if (Files.isDirectory(child)) {
+                    addZipDir(out, entry, child);
+                } else {
+                    out.putNextEntry(new ZipEntry(entry.toString()));
+                    Files.copy(child, out);
+                    out.closeEntry();
+                }
+            }
+        }
+    }
+
+    public static void zipDir(final Path path) throws IOException {
+        if (!Files.isDirectory(path)) {
+            throw new IllegalArgumentException("Path must be a directory.");
+        }
+
+        BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(path.toString() + ".zip"));
+
+        try (ZipOutputStream out = new ZipOutputStream(bos)) {
+            addZipDir(out, path.getFileName(), path);
+        }
     }
 }

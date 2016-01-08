@@ -209,7 +209,7 @@ public class LocalAssetStore extends AssetStore {
         //  of as child mediaassets as originally planned. That proved to be problematic query-wise.
         //  So, bottom line, this does not handle the other sizes at present.
         //
-        FileUtilities.cascadeDelete(getFullPath(path));
+        FileUtilities.deleteAndPrune(getFullPath(path));
     }
 
     @Override
