@@ -5,13 +5,22 @@
 cd wildbook-core
 mvn clean install -Dwildbook.cust=$1
 if [ $? -ne 0 ]; then
+    echo "***** FAIL ******"
     exit $?
 fi
 cd ../wildbook-http
 mvn clean install
 if [ $? -ne 0 ]; then
+    echo "***** FAIL ******"
     exit $?
 fi
+
+gulp build
+if [ $? -ne 0 ]; then
+    echo "***** FAIL ******"
+    exit $?
+fi
+
 cd ../wildbook-war
 npm install
 #gulp build
