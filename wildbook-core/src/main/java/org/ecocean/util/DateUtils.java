@@ -23,6 +23,12 @@ public class DateUtils {
         return ldt.atZone(UTC).toInstant().toEpochMilli();
     }
 
+
+    public static String toFileName(final LocalDateTime ldt) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss");
+        return ldt.format(formatter);
+    }
+
     /**
      * Shouldn't use this I would think but just in case you find that you absolutely need it
      * here it is.

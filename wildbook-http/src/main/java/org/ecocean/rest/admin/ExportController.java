@@ -15,6 +15,7 @@ import org.ecocean.export.Export;
 import org.ecocean.export.ExportFactory;
 import org.ecocean.search.SearchData;
 import org.ecocean.servlet.ServletUtils;
+import org.ecocean.util.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -44,7 +45,7 @@ public class ExportController {
 
         Export export = new Export();
         export.setUserId(userid);
-        export.setOutputdir(LocalDateTime.now().toString());
+        export.setOutputdir(DateUtils.toFileName(LocalDateTime.now()));
         export.setType("encounter");
         export.setParamters(new Gson().toJson(search));
 
@@ -52,7 +53,9 @@ public class ExportController {
             ExportFactory.save(db, export);
         }
 
-        Path outputBaseDir = Paths.get(Global.INST.getAppResources().getString("export.outputdir", "/var/tmp/exports"), "encounters");
+        Path outputBaseDir;
+        outputBaseDir = Paths.get(Global.INST.getAppResources().getString("export.outputdir", "/var/tmp/exports"),
+                                  export.getType());
 
         executor.execute(new ExportRunner(Global.INST.getConnectionInfo(), export, outputBaseDir, search));
 

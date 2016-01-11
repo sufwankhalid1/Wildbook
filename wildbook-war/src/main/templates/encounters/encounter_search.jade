@@ -17,5 +17,6 @@ form.form.ng-cloak(novalidate, wb-key-handler-form)
                     md-button.md-whiteframe-1dp(type="button" ng-click="reset()" aria-label="reset") Reset
             md-tab(label="Results")
                 .ag-fresh(ag-grid="gridOptions", style="height: 400px;")
-                md-input-container(ng-show="gridOptions.rowData" layout="row" layout-align="center center")
-                    md-button.md-whiteframe-1dp(type="submit" flex="10" ng-click="exportDialog($event)" aria-label="Export") Export
+                div(layout="row" flex="100")
+                    div(flex="")
+                    md-icon.mwidth-10.pointer(ng-show="gridOptions.rowData" md-svg-icon="export" ng-click="exportDialog($event)")
