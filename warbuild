@@ -15,12 +15,11 @@ if [ $? -ne 0 ]; then
     exit $?
 fi
 
-gulp build
+cd ../wildbook-war
+npm install
 if [ $? -ne 0 ]; then
     echo "***** FAIL ******"
     exit $?
 fi
 
-cd ../wildbook-war
-npm install
-#gulp build
+gulp build
