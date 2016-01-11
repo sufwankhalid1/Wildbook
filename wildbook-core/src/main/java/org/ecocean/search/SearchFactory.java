@@ -133,7 +133,7 @@ public class SearchFactory {
                                  EncounterFactory.PK_INDIVIDUALS,
                                  EncounterFactory.TABLENAME_ENCOUNTERS,
                                  EncounterFactory.ALIAS_ENCOUNTERS,
-                                 EncounterFactory.PK_ENCOUNTERS);
+                                 EncounterFactory.PK_INDIVIDUALS);
             addEncounterData(sql, search.encounter);
 
             if (search.contributor.hasData()) {

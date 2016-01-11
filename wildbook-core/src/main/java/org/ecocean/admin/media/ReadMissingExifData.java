@@ -17,7 +17,7 @@ import com.samsix.util.UtilException;
 import com.samsix.util.app.AbstractApplication;
 
 public class ReadMissingExifData extends AbstractApplication {
-    private int storeid;
+    private Integer storeid;
     private long total;
     private long count = 0;
     private boolean all;
@@ -26,7 +26,7 @@ public class ReadMissingExifData extends AbstractApplication {
     protected void addOptions() {
         super.addOptions();
 
-        addRequiredOption("s", "storeid", "id of local asset store to use");
+        addOption("s", "storeid", "id of local asset store to use", "default LOCAL store");
         addFlagOption("all", "all", "Re read exif data for all images, not just missing ones");
     }
 
@@ -35,7 +35,9 @@ public class ReadMissingExifData extends AbstractApplication {
     protected void checkOptions() {
         super.checkOptions();
 
-        storeid = Integer.parseInt(getOptionValue("s"));
+        if (hasOption("s")) {
+            storeid = Integer.parseInt(getOptionValue("s"));
+        }
         all = hasOption("all");
     }
 
@@ -51,7 +53,12 @@ public class ReadMissingExifData extends AbstractApplication {
         // assumed to be the main asset store. Weird yes. Just trying to get this
         // working.
         //
-        AssetStore store = AssetStore.get(storeid);
+        AssetStore store;
+        if (storeid != null) {
+            store = AssetStore.get(storeid);
+        } else {
+            store = AssetStore.getDefault();
+        }
 
         try (Database db = Global.INST.getDb()) {
             String criteria = "type = 1 and store = " + storeid;

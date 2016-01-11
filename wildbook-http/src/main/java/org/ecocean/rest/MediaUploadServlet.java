@@ -266,9 +266,9 @@ public class MediaUploadServlet
 
                 //
                 // TODO: Have a way to specify the asset store for media submissions
-                // For now I will assume the first one.
+                // For now I will assume the default one.
                 //
-                AssetStore store = AssetStore.get(1);
+                AssetStore store = AssetStore.getDefault();
 
                 int id;
                 try {

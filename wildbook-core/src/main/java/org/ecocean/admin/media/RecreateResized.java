@@ -16,7 +16,7 @@ import com.samsix.util.UtilException;
 import com.samsix.util.app.AbstractApplication;
 
 public class RecreateResized extends AbstractApplication {
-    private int storeid;
+    private Integer storeid;
     private boolean nullOnly;
     private long total;
     private long count = 0;
@@ -34,7 +34,9 @@ public class RecreateResized extends AbstractApplication {
     protected void checkOptions() {
         super.checkOptions();
 
-        storeid = Integer.parseInt(getOptionValue("s"));
+        if (hasOption("s")) {
+            storeid = Integer.parseInt(getOptionValue("s"));
+        }
         nullOnly = hasOption("nullOnly");
     }
 
@@ -50,7 +52,12 @@ public class RecreateResized extends AbstractApplication {
         // assumed to be the main asset store. Weird yes. Just trying to get this
         // working.
         //
-        AssetStore store = AssetStore.get(storeid);
+        AssetStore store;
+        if (storeid != null) {
+            store = AssetStore.get(storeid);
+        } else {
+            store = AssetStore.getDefault();
+        }
 
         try (Database db = Global.INST.getDb()) {
             String criteria = "type = 1 and store = " + storeid;

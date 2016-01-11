@@ -1,6 +1,10 @@
 package org.ecocean.export;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Date;
+
+import org.ecocean.media.AssetStore;
 
 public class Export {
     private Integer exportid;
@@ -86,5 +90,20 @@ public class Export {
 
     public void setOutputdir(final String outputdir) {
         this.outputdir = outputdir;
+    }
+
+    public static Path getDefaultOutputDir(final String type) {
+        //
+        // TODO: Change this to use a property when ...
+        //      a) We can properly read an install-based property file. Can't seem to figure out where to put
+        //         the damn install based properties in tomcat class path anymore. If I switch to Spring app,
+        //         like I want to, then we can just pass it in easily at start time.
+        //      b) We set it up such that Apache points to other places.
+        //
+        //  But for now, I will just put it in the LOCAL AssetStore so that I know we can direct the
+        //  user to grab it.
+        //
+//        return Paths.get(Global.INST.getAppResources().getString("export.outputdir", "/var/tmp/exports"), type);
+        return AssetStore.getDefault().getFullPath(Paths.get("exports", type));
     }
 }

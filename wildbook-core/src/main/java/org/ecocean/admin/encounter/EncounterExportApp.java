@@ -1,7 +1,6 @@
 package org.ecocean.admin.encounter;
 
 import java.nio.file.Paths;
-import java.time.LocalDateTime;
 
 import org.ecocean.Global;
 import org.ecocean.search.EncounterSearch;
@@ -12,22 +11,25 @@ import com.samsix.util.UtilException;
 import com.samsix.util.app.AbstractApplication;
 
 public class EncounterExportApp extends AbstractApplication {
+    private String outputDir;
 
     @Override
     protected void addOptions() {
         super.addOptions();
+
+        addRequiredOption("o", "Output directory");
     }
 
     @Override
     protected void checkOptions() {
         super.checkOptions();
+
+        outputDir = getOptionValue("o");
     }
 
     @Override
     public void run() throws UtilException {
         super.run();
-
-        String timestamp = LocalDateTime.now().toString();
 
         Global.INST.init(null, null);
 
@@ -37,7 +39,7 @@ public class EncounterExportApp extends AbstractApplication {
 
         try (Database db = Global.INST.getDb()) {
             EncounterExport exporter = new EncounterExport(Paths.get("/var/tmp"));
-            exporter.export(db, search, timestamp);
+            exporter.export(db, search, outputDir);
 
             exit();
         } catch (Throwable ex) {
