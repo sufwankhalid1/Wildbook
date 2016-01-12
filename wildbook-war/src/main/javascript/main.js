@@ -46,7 +46,7 @@ app.factory('$exceptionHandler', function() {
 
 app.factory("wbConfig", ["$http", "$exceptionHandler", "$q", function($http, $exceptionHandler, $q) {
     var config;
-    
+
     function getVessels(orgs, org) {
         //
         // Let's find our master organization so that we can add the vessels to
@@ -82,7 +82,7 @@ app.factory("wbConfig", ["$http", "$exceptionHandler", "$q", function($http, $ex
             return results.data;
         });
     }
-    
+
     function getConfig() {
         if (config) {
             return config;
@@ -142,7 +142,7 @@ app.factory("wbLangUtils", function() {
 app.factory("wbDateUtils", ["wbConfig", "moment", function(wbConfig, moment) {
     var dateFormat;
     var datetimeFormat;
-   
+
     wbConfig.config().then(function(config) {
         dateFormat = config.props["moment.date.format"];
         datetimeFormat = config.props["moment.datetime.format"];
@@ -171,28 +171,28 @@ app.factory("wbDateUtils", ["wbConfig", "moment", function(wbConfig, moment) {
 
     function formatTimeArrayToString(time) {
         var array = time;
-        
+
         if (!array) {
             return;
         }
 
         array.forEach(function(val) {
-            if (typeof val != 'number') {
+            if (typeof val !== 'number') {
                 delete array[val];
             }
         });
 
-        if (array.length == 1) {
+        if (array.length === 1) {
             array.push(00);
             array.push(00);
-        } else if (aray.length == 2) {
+        } else if (array.length === 2) {
             array.push(00);
         }
 
-        var time = array.join(':') + " Z";
+        time = array.join(':') + " Z";
         return time;
     }
-    
+
     function fixMonth(rest) {
         //
         // The month is zero-based in moment because javascript Date is also apparently. Sheeesh.
@@ -205,25 +205,27 @@ app.factory("wbDateUtils", ["wbConfig", "moment", function(wbConfig, moment) {
     }
 
     return {
-        formatTimeArrayToString: function(array) {
-            if (!array || typeof array != 'object' || !array.length) {
+        formatTimeArrayToString: function(time) {
+            var array = angular.copy(time);
+
+            if (!array || typeof array !== 'object' || !array.length) {
                 return;
             }
 
             array.forEach(function(val, index) {
-                if (typeof val != 'number') {
-                     array.splice(index,1);
+                if (/[A-Z]|[a-z]/.test(val)) {
+                    array.splice(index,1);
                 } else {
-                    if (val < 10) {
+                    if (parseInt(val) < 10 && val.toString().length === 1) {
                         array[index] = "0"+val;
                     }
                 }
             });
 
-            if (array.length == 1) {
+            if (array.length === 1) {
                 array.push("00");
                 array.push("00");
-            } else if (array.length == 2) {
+            } else if (array.length === 2) {
                 array.push("00");
             }
 
@@ -256,11 +258,11 @@ app.factory("wbDateUtils", ["wbConfig", "moment", function(wbConfig, moment) {
             if (!dates) {
                 return false;
             }
-            
+
             if (dates.length <= 1) {
                 return true;
             }
-            
+
             var first = dates[0];
             for (var ii=1; ii < dates.length; ii++) {
                 //
@@ -281,7 +283,7 @@ app.factory("wbDateUtils", ["wbConfig", "moment", function(wbConfig, moment) {
             if (!dates || !dates.length) {
                 return null;
             }
-            
+
             //initialize (doesnt really matter which dates, theyll probably change)
             var newest = dates[0];
             var oldest = dates[dates.length-1];
@@ -302,7 +304,7 @@ app.factory("wbDateUtils", ["wbConfig", "moment", function(wbConfig, moment) {
             if (! thing) {
                 thing = moment();
             }
-            
+
             return thing.format("YYYYMMDD");
         }
     };
@@ -335,7 +337,7 @@ app.factory("wbEncounterUtils", ["$http", "$q", "wbConfig", "wbDateUtils", "$exc
                     photos: []
                 });
             }
-            
+
             var platitude = null;
             var plongitude = null;
             var dates = [];
@@ -368,7 +370,7 @@ app.factory("wbEncounterUtils", ["$http", "$q", "wbConfig", "wbDateUtils", "$exc
                 encounter.endtime = timeline.newest.slice(3, timeline.newest.length);
                 encounter.endtime.push("Z");
             }
-            
+
             if (platitude && plongitude) {
                 encounter.location = {latitude: platitude, longitude: plongitude};
             } else if (submission) {
@@ -507,14 +509,14 @@ app.directive(
                         $scope.time[3] = "Z";
 
                         $timeout(function() {
-                            $e.target.previousElementSibling.focus(function() { 
+                            $e.target.previousElementSibling.focus(function() {
                                 $scope.selectTime($e, $(this));
                             });
                         },100);
                     }
 
                     $scope.selectTime = function($e) {
-                        $e.target.select(); 
+                        $e.target.select();
                     }
 
                     $scope.changeHour = function() {
@@ -563,35 +565,38 @@ app.directive(
                                 }
                             }
                         }
-                    }
+                    };
 
                     $scope.padZero = function(type) {
                         switch(type) {
                             case 'hour' :
-                            	if ($scope.hour && $scope.hour.length == 1) {
-                            		$scope.hour = "0" + $scope.hour; 
+                            	if ($scope.hour && $scope.hour.length === 1) {
+                            		$scope.hour = "0" + $scope.hour;
                             		$scope.time[0] = parseInt($scope.hour);
                             	}
                                 break;
                             case 'minute':
-                            	if ($scope.minute && $scope.minute.length == 1) {
-                            		$scope.minute = "0" + $scope.minute; 
-                            		$scope.time[1] = parseInt($scope.minute);
+                            	if ((typeof $scope.minute === 'string' && $scope.minute && $scope.minute.length === 1)
+                                    || (typeof $scope.minute === 'number' && $scope.minute < 10)) {
+                                		$scope.minute = "0" + $scope.minute;
+                                		$scope.time[1] = parseInt($scope.minute);
                             	}
                                 break;
                             case 'second' :
-                            	if ($scope.second && $scope.second.length == 1) {
-                            		$scope.second = "0" + $scope.second; 
-                            		$scope.time[2] = parseInt($scope.second);
+                            	if ((typeof $scope.second === 'string' && $scope.second && $scope.second.length === 1)
+                                    || (typeof $scope.second === 'number' && $scope.second < 10)) {
+                                		$scope.second = "0" + $scope.second;
+                                		$scope.time[2] = parseInt($scope.second);
                             	}
                                 break;
                         }
-                    }
+                    };
 
                     $scope.$watch('time', function(newVal, oldVal) {
                         init();
                     });
 
+                    //time init
                     var init = function() {
                         if (!$scope.time) {
                             $scope.time = [];
@@ -616,10 +621,10 @@ app.directive(
                         }
 
                         if ($scope.time.length) {
-                            if ($scope.time.length == 3) {
+                            if ($scope.time[2] === "Z") {
                                 $scope.time[2] = 0;
-                                $scope.time[3] = "Z"; 
-                            } else if ($scope.time.length == 2) {
+                                $scope.time[3] = "Z";
+                            } else if ($scope.time[1] === "Z") {
                                 $scope.time[1] = 0;
                                 $scope.time[2] = 0;
                                 $scope.time[3] = "Z";
