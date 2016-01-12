@@ -19,11 +19,11 @@ div(wb-key-handler-watch-scope="parent" layout-fill)
                                          aria-label="Clear Selection")
                     md-tooltip Clear Selection
                     md-icon(md-svg-icon="eraser")
-        div(flex="33")
-            md-slider(md-discrete ng-show="sliderMax() != 0 && slider.step != sliderMax()"
+        div(flex="30")
+            md-slider.overflow-visible(md-discrete ng-show="sliderMax() != 0 && slider.step != sliderMax()"
                       ng-model="slider.value" min="{{slider.step}}" step="{{slider.step}}"
                       max="{{sliderMax()}}" aria-label="Image Count")
-    md-content.overflow-visible(layout="row" flex="100" layout-align="left center")
+    md-content(layout="row" flex="100" layout-align="left center")
         div(layout-wrap ng-show="! zoomimage" layout="row")
             .thumbbox-item(ng-repeat="photo in getVisPhotos()" ng-class="{'selected': thumbbox.meta[photo.id].selected}")
                 a(href="javascript:;", ng-click="selectImage($event, photo)")

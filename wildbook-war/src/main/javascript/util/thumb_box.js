@@ -14,7 +14,7 @@ angular.module('wildbook.util').directive(
                         if (event.is.input) {
                             return;
                         }
-                        
+
                         if (event.is.leftarrow) {
                             scope.$applyAsync(scope.panLeft);
                             return false;
@@ -28,7 +28,7 @@ angular.module('wildbook.util').directive(
                 );
             };
         }
-        
+
         return {
             restrict: 'E',
             scope: {
@@ -59,7 +59,7 @@ angular.module('wildbook.util').directive(
                 $scope.thumbbox = {meta:{},
                                    selected: []};
                 $scope.tabs = [{}, {}];
-                
+
                 //
                 // This is not the photo's metadata in the file but rather
                 // metadata for thumbbox to use for display purposes.
@@ -70,10 +70,10 @@ angular.module('wildbook.util').directive(
                     if (! $scope.thumbbox.meta[photo.id]) {
                         $scope.thumbbox.meta[photo.id] = {selected: false};
                     }
-                    
+
                     return $scope.thumbbox.meta[photo.id];
                 }
-                
+
                 $scope.slider = {value: 18, step: 9};
                 if ($scope.blockSize) {
                     $scope.slider.step = parseInt($scope.blockSize);
@@ -85,22 +85,22 @@ angular.module('wildbook.util').directive(
                 $scope.sliderMax = function() {
                     return Math.ceil($scope.photos.length / $scope.slider.step) * $scope.slider.step;
                 }
-                
+
                 $scope.getTimestamp = function(photo) {
                     return wbDateUtils.dateStringFromRest(photo.timestamp);
                 }
-                
+
                 $scope.metaTooltip = function(photo) {
                     var tooltip = {};
                     var tooltipStr = "";
                     if (photo.meta) {
                         angular.copy(photo.meta, tooltip);
                     }
-                    
+
                     tooltip.timestamp = $scope.getTimestamp(photo);
                     tooltip.latitude = photo.latitude;
                     tooltip.longitude = photo.longitude;
-                    
+
                     angular.forEach(tooltip, function(item, key){
                         if (item) {
                             tooltipStr += key + ": " + item + "\n";
@@ -108,15 +108,15 @@ angular.module('wildbook.util').directive(
                     });
                     tooltipStr += "id: " + photo.id;
                     return tooltipStr;
-                }
-                
+                };
+
                 function pageLeft() {
                     startIdx = startIdx - $scope.slider.value;
                     if (startIdx < 0) {
                         startIdx = 0;
                     }
                 }
-                
+
                 $scope.panLeft = function() {
                     if (! $scope.photos) {
                         return;
@@ -127,7 +127,7 @@ angular.module('wildbook.util').directive(
                         }
                         idx--;
                         $scope.zoomimage = $scope.photos[idx];
-                        
+
                         //
                         // If we have panned far enough such that we are now on the next
                         // "page" of thumbnails, let's reflect that.
@@ -138,7 +138,7 @@ angular.module('wildbook.util').directive(
                     } else {
                         pageLeft();
                     }
-                }
+                };
 
                 function pageRight() {
                     startIdx = startIdx + $scope.slider.value;
@@ -149,7 +149,7 @@ angular.module('wildbook.util').directive(
                         }
                     }
                 }
-                
+
                 $scope.panRight = function() {
                     if (! $scope.photos) {
                         return;
@@ -160,7 +160,7 @@ angular.module('wildbook.util').directive(
                         }
                         idx++;
                         $scope.zoomimage = $scope.photos[idx];
-                        
+
                         //
                         // If we have panned far enough such that we are now on the next
                         // "page" of thumbnails, let's reflect that.
@@ -172,7 +172,7 @@ angular.module('wildbook.util').directive(
                         pageRight();
                     }
                 }
-                
+
                 function doAction(action, images) {
                     var result = $scope.cbAction({code: action.code, photos: images});
                     if (result && result.then) {
@@ -183,7 +183,7 @@ angular.module('wildbook.util').directive(
                         $scope.$applyAsync(postPerformAction(action, images));
                     }
                 }
-                
+
                 function postPerformAction(action, images) {
                     switch (action.code) {
                     case "del": {
@@ -196,11 +196,11 @@ angular.module('wildbook.util').directive(
                             }
                             return true;
                         });
-                        
+
                         if ($scope.photos.length === 0) {
                             $scope.zoomimage = null;
                         }
-                        
+
                         //
                         // Check that our idx is still in range, if not
                         // set it to the last image.
@@ -213,7 +213,7 @@ angular.module('wildbook.util').directive(
                         }
                     }}
                 }
-                
+
                 $scope.performAction = function(action) {
                     var images;
                     if ($scope.zoomimage) {
@@ -221,7 +221,7 @@ angular.module('wildbook.util').directive(
                     } else {
                         images = $scope.thumbbox.selected;
                     }
-                    
+
                     if (action.confirm) {
                         return alertplus.confirm(action.confirm.message, action.tooltip, true)
                         .then(function() {
@@ -231,7 +231,7 @@ angular.module('wildbook.util').directive(
                         doAction(action, images);
                     }
                 }
-                
+
                 $scope.performKeyCode = function(keyCode) {
                     //
                     // Look for an action with this keyCode
@@ -242,50 +242,50 @@ angular.module('wildbook.util').directive(
                     var action = wbLangUtils.findInArray($scope.actions, function(item) {
                         return (item.shortcutKeyCode === keyCode);
                     });
-                    
+
                     if (action) {
                         $scope.performAction(action);
                     }
                 }
-                    
+
                 $scope.isLeftDisabled = function() {
                     if ($scope.zoomimage) {
                         return (idx <= 0);
                     }
                     return (startIdx <= 0);
                 }
-                
+
                 $scope.isRightDisabled = function() {
                     if ($scope.zoomimage) {
                         return (idx >= $scope.photos.length - 1);
                     }
-                    
+
                     if (! $scope.photos) {
                         return true;
                     }
                     return (startIdx >= $scope.photos.length - $scope.slider.value);
                 }
-                
+
                 $scope.cancelZoom = function() {
                     $scope.zoomimage = null;
                 }
-                
+
                 $scope.downloadFile = function(photo) {
                     var filename = wbDateUtils.toFileStringFromRest(photo.timestamp);
                     filename += "-" + photo.submitterid + "-" + photo.id;
-                    
+
                     if (filename) {
                         return filename;
                     }
-                    
+
                     return zoomimage.url.substring(zoomimage.url.lastIndexOf('/') + 1);
                 }
-                
+
                 $scope.selectImage = function($event, photo) {
                     if (!photo) {
                         return;
                     }
-                    
+
                     var md = meta(photo);
 
                     if ($event.altKey) {
@@ -315,7 +315,7 @@ angular.module('wildbook.util').directive(
                                 startIdx = shiftIdx;
                                 endIdx = shiftStart;
                             }
-                            
+
                             for (var ii = startIdx; ii <= endIdx; ii++) {
                                 var mdi = meta($scope.photos[ii]);
                                 if (! mdi.selected) {
@@ -333,14 +333,14 @@ angular.module('wildbook.util').directive(
                         }
                     } else {
                         $scope.zoomimage = photo;
-                        
+
                         idx = wbLangUtils.findIndexInArray($scope.photos, function(item) {
                             return (item.id === photo.id);
                         });
                         shiftStart = null;
                     }
                 }
-                
+
                 $scope.clearSelection = function() {
                     $scope.thumbbox.selected = [];
                     $scope.photos.forEach(function(photo) {
@@ -349,21 +349,21 @@ angular.module('wildbook.util').directive(
                         }
                     });
                 }
-                
+
                 $scope.getVisPhotos = function() {
                     if (! $scope.photos) {
                         return [];
                     }
                     return $scope.photos.slice(startIdx, startIdx + $scope.slider.value);
                 }
-                
+
                 //
                 // wb-key-handler-form
                 //
                 $scope.cancel = function() {
                     $scope.zoomimage = null;
                 }
-                
+
                 $scope.cmdEnter = function() {
                     // do nothing
                     // want this here to override any parent scope cmdEnter event though.
