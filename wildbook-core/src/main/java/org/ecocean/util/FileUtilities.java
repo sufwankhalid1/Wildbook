@@ -108,15 +108,19 @@ public class FileUtilities {
      *
      */
     public static void deleteCascade(final Path path) throws IOException {
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(path)) {
-            for (Path child : stream) {
-                if (Files.isDirectory(child)) {
+        //
+        // If it's a directory then we have to first clean it out by deleting
+        // all of it's contents.
+        //
+        if (Files.isDirectory(path)) {
+            try (DirectoryStream<Path> stream = Files.newDirectoryStream(path)) {
+                for (Path child : stream) {
                     deleteCascade(child);
-                } else {
-                    Files.delete(child);
                 }
             }
         }
+
+        Files.delete(path);
     }
 
     private static boolean deleteDirIfEmpty(final Path path) throws IOException {
