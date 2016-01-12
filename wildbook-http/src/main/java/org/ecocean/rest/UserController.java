@@ -271,7 +271,7 @@ public class UserController {
 
     @RequestMapping(value = "resetpass", method = RequestMethod.POST)
     public void resetPassword(final HttpServletRequest request,
-                              @RequestBody final ResetPass reset) throws DatabaseException, IllegalAccessException {
+                              @RequestBody final ResetPass reset) throws DatabaseException {
         if (logger.isDebugEnabled()) {
             logger.debug(LogBuilder.quickLog("token", reset.token));
             logger.debug(LogBuilder.quickLog("password", reset.password));

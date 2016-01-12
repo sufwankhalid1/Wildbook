@@ -215,14 +215,10 @@ public class UserFactory {
         }
     }
 
-
     private static void fillUserFormatter(final SqlFormatter formatter, final User user) {
         formatter.append("username", user.getUsername());
         formatter.append("fullname", user.getFullName());
         formatter.append("email", user.getEmail());
-        formatter.append("lastlogin", user.getLastLogin());
-        formatter.append("password", user.getHashedPass());
-        formatter.append("salt", user.getSalt());
         formatter.append("phonenumber", user.getPhoneNumber());
         formatter.append("physicaladdress", user.getPhysicalAddress());
         if (user.getAvatarFull() != null) {
@@ -230,8 +226,11 @@ public class UserFactory {
         } else {
             formatter.appendNull("avatarid");
         }
-        formatter.append("acceptedua", user.getAcceptedUserAgreement());
         formatter.append("statement", user.getStatement());
+        formatter.append("lastlogin", user.getLastLogin());
+        formatter.append("password", user.getHashedPass());
+        formatter.append("salt", user.getSalt());
+        formatter.append("acceptedua", user.getAcceptedUserAgreement());
         formatter.append("verified", user.isVerified());
         formatter.append("prtoken", user.getPrtoken());
         formatter.append("prtimestamp", user.getPrtimestamp());
