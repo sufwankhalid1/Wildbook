@@ -43,8 +43,8 @@ div
                         div(flex="20") {{export.type}}
                         div(flex="20") {{export.status == 0 ? "Queued" : (export.status == 1 ? "In Progress" : "Complete")}}
                         div(flex="20")
-                            md-button(ng-if="!export.error" ng-click="download") Download
-                            md-button(ng-if="export.error" ng-click="viewError(export.error)") Error Occured
+                            md-button(ng-if="!export.error" ng-click="download(export)") Download
+                            md-button(ng-if="export.error" ng-click="viewError(export.error)") Error Occurred
                     div(layout="row" flex="100")
                         md-divider(flex="100")
         md-button.md-whiteframe-1dp.mt-20(ng-click="showExports = true" ng-show="!showExports") Show Exports

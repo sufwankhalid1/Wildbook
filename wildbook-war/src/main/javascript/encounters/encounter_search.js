@@ -1,3 +1,6 @@
+/* global angular, document */
+'use strict';
+
 angular.module('wildbook.admin').directive(
     'wbEncounterSearch',
     ["$http", "$exceptionHandler", "$mdDialog", function($http, $exceptionHandler, $mdDialog) {
@@ -10,19 +13,19 @@ angular.module('wildbook.admin').directive(
             templateUrl: 'encounters/encounter_search.html',
             replace: true,
             controller: function($scope) {
-                $scope.searchdata =  { 
+                $scope.searchdata =  {
                     encounter: {},
                     individual: {},
                     contributor: {}
-                }
+                };
 
                 $scope.reset = function() {
-                    $scope.searchdata =  { 
+                    $scope.searchdata =  {
                         encounter: {},
                         individual: {},
                         contributor: {}
-                    }
-                }
+                    };
+                };
 
                 $scope.selectedTabIndex = 0;
 
@@ -36,11 +39,11 @@ angular.module('wildbook.admin').directive(
                     },
                     $exceptionHandler);
                 };
-                
+
                 function rowSelectedFunc(event) {
                     $scope.searchEncounterDone({encounter: event.node.data});
                 }
-            
+
                 $scope.gridOptions = {
                     columnDefs:
                         [{headerName: "",
@@ -81,11 +84,11 @@ angular.module('wildbook.admin').directive(
                                      return null;
                                  }
                                  var value;
-                                 
+
                                  if (params.value.locationid) {
-                                     value = params.value.locationid
+                                     value = params.value.locationid;
                                  }
-                                 
+
                                  if (params.value.verbatimLocation) {
                                      if (value) {
                                          value += ' - ';
@@ -93,13 +96,13 @@ angular.module('wildbook.admin').directive(
                                          value = '';
                                      }
                                      value += params.value.verbatimLocation;
-                                     
+
                                      value = '<md-icon md-svg-icon="information-outline" title="'
                                          + params.value.verbatimLocation
                                          + '"></md-icon>&nbsp;'
                                          + value;
                                  }
-                                 
+
                                  return value;
                              }
                          }],
@@ -110,14 +113,33 @@ angular.module('wildbook.admin').directive(
                     onRowSelected: rowSelectedFunc,
                     angularCompileRows: true
                 };
-                
+
                 //
                 // wb-key-handler-form
                 //
                 $scope.cancel = function() {
                     $scope.searchEncounterDone(null);
+                };
+
+                function exportDialogController($scope, $mdDialog, numResults, searchData) {
+                    if (numResults) {
+                        $scope.numResults = numResults;
+                    } else {
+                        $scope.numResults = numResults = 0;
+                    }
+
+                    $scope.exportEncounter = function() {
+                        $http.post("export/encounters", searchData)
+                        .then(function(response) {
+                            $scope.exportid = response.data;
+                        });
+                    };
+
+                    $scope.closeDialog = function() {
+                        $mdDialog.hide();
+                    };
                 }
-                
+
                 $scope.exportDialog = function($event) {
                     var parentEl = angular.element(document.body);
                    $mdDialog.show({
@@ -125,17 +147,17 @@ angular.module('wildbook.admin').directive(
                          targetEvent: $event,
                          clickOutsideToClose:true,
                          template:
-                           '<md-dialog class="export-dialog" aria-label="List dialog">' 
-                           +'    <md-toolbar>' 
-                           +'        <div class="md-toolbar-tools">' 
-                           +'            <h2>Export Encounter</h2>' 
-                           +'            <span flex></span>' 
-                           +'            <md-button class="md-icon-button" ng-click="closeDialog()">' 
-                           +'                <md-icon md-svg-icon="close" aria-label="Close dialog"></md-icon>' 
-                           +'            </md-button>' 
-                           +'        </div>' 
-                           +'    </md-toolbar>' 
-                           +'    <md-dialog-content layout-align="center center"  layout="row" layout-wrap>' 
+                           '<md-dialog class="export-dialog" aria-label="List dialog">'
+                           +'    <md-toolbar>'
+                           +'        <div class="md-toolbar-tools">'
+                           +'            <h2>Export Encounter</h2>'
+                           +'            <span flex></span>'
+                           +'            <md-button class="md-icon-button" ng-click="closeDialog()">'
+                           +'                <md-icon md-svg-icon="close" aria-label="Close dialog"></md-icon>'
+                           +'            </md-button>'
+                           +'        </div>'
+                           +'    </md-toolbar>'
+                           +'    <md-dialog-content layout-align="center center"  layout="row" layout-wrap>'
                            +'       <div layout="row" flex="100" class="mb-20" layout-align="center center">'
                            +'           <div ng-show="!exportid && numResults" class="mt-10">You are about to export {{numResults}} encounters</div>'
                            +'           <div ng-show="!numResults" class="mt-10">There are no encounters to export. <br/> Please check to make sure your search parameters are correct.</div>'
@@ -149,36 +171,20 @@ angular.module('wildbook.admin').directive(
                            +'               Close'
                            +'           </md-button>'
                            +'       </md-dialog-actions>'
-                           +'    </md-dialog-content>' 
+                           +'    </md-dialog-content>'
                            +'</md-dialog>',
                          locals: {
                             numResults: $scope.numResults,
                             searchData: $scope.searchdata
                          },
-                         controller: exportDialogController 
-                    })
-
-                    function exportDialogController($scope, $mdDialog, numResults, searchData) {
-
-                        numResults ? $scope.numResults = numResults : 0;
-
-                        $scope.exportEncounter = function() {
-                            $http.post("export/encounters", searchData)
-                            .then(function(response) {
-                                $scope.exportid = response.data;
-                            });
-                        }
-
-                        $scope.closeDialog = function() {
-                            $mdDialog.hide();
-                        }
-                    }
-                }
+                         controller: exportDialogController
+                    });
+                };
 
                 $scope.cmdEnter = function() {
                     $scope.search();
-                }
+                };
             }
-        }
+        };
     }]
 );

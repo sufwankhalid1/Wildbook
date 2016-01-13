@@ -7,3 +7,4 @@ require("angular-busy");
 require("leaflet");
 require("leaflet.markercluster");
 require("angular-leaflet-directive");
+require("angular-file-saver");

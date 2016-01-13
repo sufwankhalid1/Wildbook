@@ -23,6 +23,16 @@ public class ExportFactory {
         // prevent instantiation
     }
 
+    public static Export getById(final Database db, final int id) throws DatabaseException {
+
+        SqlStatement sql = new SqlStatement(ExportFactory.TABLENAME_EXPORT,
+                                            ExportFactory.ALIAS_EXPORT);
+        sql.addCondition(ALIAS_EXPORT, PK_EXPORT, SqlRelationType.EQUAL, id);
+        return db.selectFirst(sql, (rs) -> {
+            return readExport(rs);
+        });
+    }
+
     public static void save(final Database db, final Export export) throws DatabaseException {
         if (export == null) {
             return;
@@ -59,9 +69,9 @@ public class ExportFactory {
 
         SqlStatement sql = new SqlStatement(ExportFactory.TABLENAME_EXPORT,
                                             ExportFactory.ALIAS_EXPORT);
-                sql.addCondition(ALIAS_EXPORT, "userid", SqlRelationType.EQUAL, userid);
-                sql.addCondition(ALIAS_EXPORT, "delivered", false);
-                sql.setOrderBy(ALIAS_EXPORT, "datetimestamp", true);
+        sql.addCondition(ALIAS_EXPORT, "userid", SqlRelationType.EQUAL, userid);
+        sql.addCondition(ALIAS_EXPORT, "delivered", false);
+        sql.setOrderBy(ALIAS_EXPORT, "datetimestamp", true);
 
         db.select(sql, (rs) -> {
             exports.add(readExport(rs));
@@ -79,6 +89,7 @@ public class ExportFactory {
         Export export = new Export();
 
         export.setExportId(rs.getInt("exportid"));
+        export.setUserId(rs.getInt("userid"));
         export.setTimestamp(rs.getDate("datetimestamp"));
         export.setStatus(rs.getInt("status"));
         export.setError(rs.getString("error"));

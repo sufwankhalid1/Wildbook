@@ -1,10 +1,5 @@
 package org.ecocean.rest;
 
-import java.io.IOException;
-
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -40,20 +35,10 @@ public class ExceptionHandlerController {
 
     @ExceptionHandler({Exception.class, RuntimeException.class})
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
-    @ResponseBody
-    public ErrorInfo handleException5(final Exception ex, final HttpServletResponse response) throws IOException
+    @ResponseBody ErrorInfo handleException(final Exception ex)
     {
         logger.error("****Spring Handled Exception*****", ex);
 
-        ErrorInfo info = new ErrorInfo();
-        info.message = ex.getMessage();
-        info.stack = ExceptionUtils.getStackTrace(ex);
-        return info;
-    }
-
-    static class ErrorInfo
-    {
-        public String message;
-        public String stack;
+        return new ErrorInfo(ex);
     }
 }

@@ -1,3 +1,6 @@
+/* global angular, alertplus */
+'use strict';
+
 require("./util/util.js");
 var KeyEventHandler = require("./util/keyevent_handler.js");
 require("./admin/admin.js");
@@ -10,7 +13,8 @@ angular.module('templates', []);
 //require("./templates.js");
 
 var app = angular.module('appWildbook',
-        ["agGrid", "ui.bootstrap", "ngMaterial", "templates", "cgBusy", "wildbook.util", "wildbook.admin", "leaflet-directive"])
+        ["agGrid", "ui.bootstrap", "ngMaterial", "templates", "cgBusy", "wildbook.util",
+         "wildbook.admin", "leaflet-directive", "ngFileSaver"])
        .config(['$mdThemingProvider', '$logProvider','moment', '$mdDateLocaleProvider', function($mdThemingProvider, $logProvider, moment, $mdDateLocaleProvider) {
             $mdDateLocaleProvider.formatDate = function (date) {
                 if (!date) {
@@ -31,7 +35,7 @@ app.constant("moment", require("moment"));
 
 app.config(function($mdIconProvider) {
     $mdIconProvider
-      .defaultIconSet('icons/mdi.svg')
+      .defaultIconSet('icons/mdi.svg');
   });
 
 app.factory('$exceptionHandler', function() {
@@ -40,7 +44,11 @@ app.factory('$exceptionHandler', function() {
         // TODO: Make this configurable so that if on production the errors
         // are sent to the console instead of a dialog?
         //
-        alertplus.error(ex);
+        if (ex.data) {
+            alertplus.error(ex.data);
+        } else {
+            alertplus.error(ex);
+        }
       };
 });
 
@@ -54,7 +62,7 @@ app.factory("wbConfig", ["$http", "$exceptionHandler", "$q", function($http, $ex
         // this organization again in the list.
         //
         var orgfilter = orgs.filter(function(value) {
-            return (value.orgId == org.orgId);
+            return (value.orgId === org.orgId);
         });
 
         var orgmaster;
@@ -136,7 +144,7 @@ app.factory("wbLangUtils", function() {
         existsInArray: function(array, compare) {
             return(this.findIndexInArray(array, compare) !== null);
         }
-    }
+    };
 });
 
 app.factory("wbDateUtils", ["wbConfig", "moment", function(wbConfig, moment) {
@@ -167,30 +175,6 @@ app.factory("wbDateUtils", ["wbConfig", "moment", function(wbConfig, moment) {
             return aMoment.format(datetimeFormat || "YYYY-MM-DD HH:mm:ss");
         }
         return null;
-    }
-
-    function formatTimeArrayToString(time) {
-        var array = time;
-
-        if (!array) {
-            return;
-        }
-
-        array.forEach(function(val) {
-            if (typeof val !== 'number') {
-                delete array[val];
-            }
-        });
-
-        if (array.length === 1) {
-            array.push(00);
-            array.push(00);
-        } else if (array.length === 2) {
-            array.push(00);
-        }
-
-        time = array.join(':') + " Z";
-        return time;
     }
 
     function fixMonth(rest) {
@@ -287,7 +271,7 @@ app.factory("wbDateUtils", ["wbConfig", "moment", function(wbConfig, moment) {
             //initialize (doesnt really matter which dates, theyll probably change)
             var newest = dates[0];
             var oldest = dates[dates.length-1];
-            for (ii=0; ii < dates.length; ii++) {
+            for (var ii = 0; ii < dates.length; ii++) {
                 var fixedDate = moment(dates[ii]);
                 if (fixedDate.isBefore(oldest, 'second')) {
                     oldest = dates[ii];
@@ -357,9 +341,9 @@ app.factory("wbEncounterUtils", ["$http", "$q", "wbConfig", "wbDateUtils", "$exc
             });
 
             //check if same day, if so, compare
-            if(!wbDateUtils.sameDay(dates)){
+            if (!wbDateUtils.sameDay(dates)) {
                 return $q.reject("These photos were taken on different days!<br/> Please choose images that occured during the same encounter.");
-            };
+            }
 
             var timeline = wbDateUtils.compareDates(dates);
 
@@ -410,7 +394,7 @@ app.directive('cancelButton', [function() {
                 cancel: '&'
                 },
         template: '<md-icon md-svg-icon="close-circle" ng-show="!hideme" ng-click="cancel()"><md-tooltip>Cancel</md-tooltip></md-icon>'
-    }
+    };
 }]);
 
 app.directive(
@@ -483,8 +467,6 @@ app.directive(
                     $scope.showMinute = null;
                     $scope.showHour = null;
                     var hourFilter = /[1-9]/;
-                    var focus = null;
-                    var clickListener = null;
 
                     $scope.focus = function(type, $e) {
                         if (!$scope.time) {
@@ -510,25 +492,27 @@ app.directive(
 
                         $timeout(function() {
                             $e.target.previousElementSibling.focus(function() {
-                                $scope.selectTime($e, $(this));
+                                $scope.selectTime($e);
                             });
-                        },100);
-                    }
+                        }, 100);
+                    };
 
                     $scope.selectTime = function($e) {
                         $e.target.select();
-                    }
+                    };
 
                     $scope.changeHour = function() {
                         if (!$scope.hour.length) {
                             $scope.hour = '';
-                        } else if ($scope.hour.length > 2 || (!hourFilter.test($scope.hour) && $scope.hour != "0") || ($scope.format == "12" ? parseInt($scope.hour) > 12 : parseInt($scope.hour) > 24) ) {
+                        } else if ($scope.hour.length > 2
+                                   || (!hourFilter.test($scope.hour) && $scope.hour !== "0")
+                                   || ($scope.format === "12" ? parseInt($scope.hour) > 12 : parseInt($scope.hour) > 24) ) {
                             $scope.hour = "00";
                         } else {
                         	$scope.time[0] = parseInt($scope.hour);
                         }
 
-                        if ($scope.format == "12") {
+                        if ($scope.format === "12") {
                             $scope.changeAmPm();
                         }
                     };
@@ -550,17 +534,17 @@ app.directive(
                     };
 
                     $scope.changeAmPm = function() {
-                        if ($scope.ampm == "am") {
+                        if ($scope.ampm === "am") {
                             if ($scope.hour) {
-                                if (parseInt($scope.hour) == 12) {
+                                if (parseInt($scope.hour) === 12) {
                                     $scope.time[0] = 0;
                                 }
                             }
                         } else {
                             if ($scope.hour) {
-                                if (parseInt($scope.hour) == 0) {
+                                if (parseInt($scope.hour) === 0) {
                                     $scope.time[0] = 12;
-                                } else if (parseInt($scope.hour) != 12 ) {
+                                } else if (parseInt($scope.hour) !== 12 ) {
                                     $scope.time[0] = parseInt($scope.hour) + 12;
                                 }
                             }
@@ -601,16 +585,16 @@ app.directive(
                         if (!$scope.time) {
                             $scope.time = [];
                             return false;
-                        } else if ($scope.time && $scope.time.length && (!$scope.format || $scope.format == "24")){
+                        } else if ($scope.time && $scope.time.length && (!$scope.format || $scope.format === "24")){
                                 $scope.hour = $scope.time[0].toString();
-                        } else if ($scope.time && $scope.time.length && $scope.format == "12") {
-                            if ($scope.time[0]  < 12 && $scope.time[0] != 0) {
+                        } else if ($scope.time && $scope.time.length && $scope.format === "12") {
+                            if ($scope.time[0]  < 12 && $scope.time[0] !== 0) {
                                 $scope.hour = $scope.time[0].toString();
                                 $scope.ampm = "am";
-                            } else if ($scope.time[0] == 0) {
+                            } else if ($scope.time[0] === 0) {
                                 $scope.hour = "12";
                                 $scope.ampm = "am";
-                            } else if ($scope.time[0] == 12) {
+                            } else if ($scope.time[0] === 12) {
                                 $scope.hour = $scope.time[0].toString();
                                 $scope.ampm = "pm";
                             } else if ($scope.time[0] > 12) {
@@ -641,7 +625,7 @@ app.directive(
                             $scope.showMinute = true;
                             $scope.showSecond = true;
                     }
-                }
+                };
             }
         };
 }]);
@@ -651,19 +635,12 @@ KeyEventHandler.attach(app);
 app.directive(
     "wbKeyHandlerForm",
     ["keyEvents", function(keyEvents) {
-        return({
-            link: function(scope, element, attrs) {
-                KeyEventHandler.link(getKeySetup(attrs.wbKeyHandlerPriority), scope, element, attrs);
-            },
-            restrict: "A"
-        });
-
         function getKeySetup(priority) {
             return function(scope, element) {
                 // Focus the input so the user can start typing right-away.
-                var element = element[0].querySelector("input[ng-model], select[ng-model]");
-                if (element) {
-                    element.focus();
+                var elem = element[0].querySelector("input[ng-model], select[ng-model]");
+                if (elem) {
+                    elem.focus();
                 }
 
                 // Create a new key-handler with priority (100) - this means that
@@ -720,5 +697,12 @@ app.directive(
                 );
             };
         }
+
+        return({
+            link: function(scope, element, attrs) {
+                KeyEventHandler.link(getKeySetup(attrs.wbKeyHandlerPriority), scope, element, attrs);
+            },
+            restrict: "A"
+        });
     }]
 );

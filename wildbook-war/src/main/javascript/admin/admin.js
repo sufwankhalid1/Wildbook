@@ -1,3 +1,6 @@
+/* global angular */
+'use strict';
+
 angular.module('wildbook.admin', []);
 
 require("../pages/encounterSearchPage.js");
