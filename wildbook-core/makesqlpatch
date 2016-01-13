@@ -21,6 +21,11 @@ do
     shift
 done
 
+if [ -z ${message} ]; then
+        echo "Must supply a message with the -m switch."
+        exit 1
+fi
+
 if [ "$java" = true ]; then
     DATE=`date +%Y_%m_%d_%H_%M_%S`
     version=V${DATE}${message}
