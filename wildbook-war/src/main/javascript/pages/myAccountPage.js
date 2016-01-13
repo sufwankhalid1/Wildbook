@@ -1,5 +1,5 @@
-'use strict';
 /* globals angular, alertplus */
+'use strict';
 
 require('../user/user_edit_fields');
 
