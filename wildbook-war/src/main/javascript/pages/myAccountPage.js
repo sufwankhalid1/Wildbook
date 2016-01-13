@@ -105,18 +105,18 @@ angular.module('wildbook.admin').directive(
                 };
 
                 $scope.download = function(exportitem) {
-                    function printSomeOfBytes(bytes, start, length) {
-                        const LENGTH = 40;
-                        var rowend = Math.floor(length / LENGTH);
-                        for (var jj = 0; jj < rowend; jj++) {
-                            var output = "";
-                            var rowstart = start + (jj * LENGTH);
-                            for (var ii = rowstart; ii < rowstart + LENGTH; ii++) {
-                                output += bytes[ii];
-                            }
-                            console.log(output);
-                        }
-                    }
+                    // function printSomeOfBytes(bytes, start, length) {
+                    //     const LENGTH = 40;
+                    //     var rowend = Math.floor(length / LENGTH);
+                    //     for (var jj = 0; jj < rowend; jj++) {
+                    //         var output = "";
+                    //         var rowstart = start + (jj * LENGTH);
+                    //         for (var ii = rowstart; ii < rowstart + LENGTH; ii++) {
+                    //             output += bytes[ii];
+                    //         }
+                    //         console.log(output);
+                    //     }
+                    // }
 
                     $http({url: "export/download/" + exportitem.exportId, withCredentials: true})
                     .then(function(response) {
@@ -127,13 +127,13 @@ angular.module('wildbook.admin').directive(
                             }
                             return bytes;
                         }
-                        console.log(response.data.length);
+                        // console.log(response.data.length);
                         // printSomeOfBytes(response.data, 935664, 935673);
                         //printSomeOfBytes(response.data, 3135, 1000);
 
 
                         var blob = new Blob([str2bytes(response.data)], {type: 'application/octet-stream'});
-                        console.log(blob.size);
+                        // console.log(blob.size);
                         // printSomeOfBytes(str2bytes(response.data));
                         //var blob = new Blob([response.data], {type: 'application/octet-stream'});
                         //
