@@ -131,9 +131,9 @@ angular.module('wildbook.admin').directive(
                         // printSomeOfBytes(response.data, 935664, 935673);
                         //printSomeOfBytes(response.data, 3135, 1000);
 
-
+                        console.log(response.data.length);
                         var blob = new Blob([str2bytes(response.data)], {type: 'application/octet-stream'});
-                        // console.log(blob.size);
+                        console.log(blob.size);
                         // printSomeOfBytes(str2bytes(response.data));
                         //var blob = new Blob([response.data], {type: 'application/octet-stream'});
                         //
