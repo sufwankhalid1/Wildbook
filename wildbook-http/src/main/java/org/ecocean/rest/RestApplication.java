@@ -1,7 +1,14 @@
 package org.ecocean.rest;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -67,13 +74,32 @@ public class RestApplication extends SpringBootServletInitializer {
         Path overridingProps = Paths.get(System.getProperty("catalina.base"),
                                "conf",
                                servletContext.getContextPath() + "_init.properties");
+        Path overridingVars = Paths.get(System.getProperty("catalina.base"),
+                              "conf",
+                              servletContext.getContextPath() + "_vars.properties");
+        Map<String, String> vars = null;
+        if (Files.exists(overridingVars)) {
+            Properties props = new Properties();
+            try {
+                props.load(new FileInputStream(overridingVars.toFile()));
+
+                vars = new HashMap<String, String>();
+                for (String key : props.stringPropertyNames()) {
+                    vars.put(key, props.getProperty(key));
+                }
+            } catch (FileNotFoundException ex) {
+                logger.error("Can't read [" + overridingVars.toFile() + "]");
+            } catch (IOException ex) {
+                logger.error("Can't read [" + overridingVars.toFile() + "]");
+            }
+        }
 
         //
         // TODO: Figure out how to allow overridingPropVars here. Can we instead just use props?
         // I did this for the db issue. But you can just override the entire property
         // of Database.Primary.Url instead.
         //
-        Global.INST.init(overridingProps, null);
+        Global.INST.init(overridingProps, vars);
 
         //
         // Old code to initialize stormpath. If, for some reason we decide to make it
