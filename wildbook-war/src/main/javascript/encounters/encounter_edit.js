@@ -1,3 +1,5 @@
+'user strict';
+
 require('./individual_search');
 require('./individual_edit');
 require('../util/location_edit.js');
@@ -44,29 +46,31 @@ angular.module('wildbook.admin').directive(
                     tooltip: "Remove/Detach",
                     confirm: { message: "Are you sure you want to detach selected images from this encounter?"}
                 }];
-                
+
+                console.log($scope.data);
+
                 if (!$scope.data.photos) {
                     wbEncounterUtils.getMedia($scope.data.encounter);
                 }
-                
+
                 $scope.dateObj = wbDateUtils.dateFromRest($scope.data.encounter.encDate);
-                
+
                 $scope.$watch("data.encounter.encDate", function(newVal, oldVal) {
                     $scope.dateObj = wbDateUtils.dateFromRest(newVal);
                 });
-                
+
                 wbConfig.config()
                 .then(function(config) {
                     $scope.allSpecies = config.species;
                 });
-                
+
                 $scope.save = function() {
                     var location = $scope.data.encounter.location;
                     if (!location || !location.latitude || !location.longitude) {
                         alertplus.alert("Must specify a lat/long.");
                         return;
                     }
-                    
+
                     //md-datetime needs a date obj, so convert to date obj for use, convert back for save
                     $scope.data.encounter.encDate = wbDateUtils.dateToRest($scope.dateObj);
 
@@ -93,39 +97,39 @@ angular.module('wildbook.admin').directive(
                         alertplus.alert("There are errors on the form.");
                         return;
                     }
-                    
+
                     wbEncounterUtils.saveEnc($scope.data.encounter)
                     .then(function(result) {
                         $scope.editEncounterDone({encdata: $scope.data});
                     }, $exceptionHandler);
                 };
-                
+
                 //
                 // wb-key-handler-form
                 //
                 $scope.cancel = function() {
                     $scope.editEncounterDone(null);
                 }
-                
+
                 $scope.cmdEnter = function() {
                     $scope.save();
                 }
-                
+
                 $scope.findIndividual = function() {
                     $scope.module.individualSearch = true;
                 }
-                
+
                 $scope.editIndividual = function() {
                     $scope.module.individualEdit = true;
                 }
-                
+
                 $scope.editIndividualDone = function(individual){
                     $scope.module.individualEdit = false;
                     if (individual) {
                         $scope.data.encounter.individual = individual;
                     }
                 }
-                
+
                 $scope.searchIndividualDone = function(individual) {
                     $scope.module.individualSearch = false;
                     if (individual) {
@@ -186,9 +190,9 @@ angular.module('wildbook.admin').directive(
                 function buildMap() {
                     //build marker object
                     var center = {zoom: 8};
-                    
+
                     $scope.mapData.markers = {};
-                    
+
                     if ($scope.data.encounter.location && $scope.data.encounter.location.latitude) {
                         $scope.mapData.markers.mainMaker = {
                             lat: $scope.data.encounter.location.latitude,
@@ -199,14 +203,14 @@ angular.module('wildbook.admin').directive(
                         center.lat = $scope.data.encounter.location.latitude;
                         center.lng = $scope.data.encounter.location.longitude;
                     }
-                    
+
                     $scope.data.photos.forEach(function (photo) {
                         if (photo.latitude && photo.longitude) {
                             if (!center.lat) {
                                 center.lat = photo.latitude;
                                 center.lng = photo.longitude;
                             }
-                            
+
                             $scope.mapData.markers['p' + photo.id] = {
                                 lat: photo.latitude,
                                 lng: photo.longitude,
@@ -215,11 +219,11 @@ angular.module('wildbook.admin').directive(
                             };
                         }
                     });
-                    
+
                     if (!center.lat) {
                         center = {lat: 0, lng: 0, zoom: 1};
                     }
-                    
+
                     $scope.mapData.center = center;
 
                     return true;
@@ -234,7 +238,7 @@ angular.module('wildbook.admin').directive(
                         unbindHandler();
                         unbindHandler = null;
                     }
-                    
+
                     if ($scope.locationPickerState) {
                         $scope.locationPickerState = false;
                         if (unbindHandler) {
@@ -279,11 +283,11 @@ angular.module('wildbook.admin').directive(
                     if (!photos) {
                         return;
                     }
-                    
+
                     var photoids = photos.map(function(photo) {
                         return photo.id;
                     });
-                    
+
                     switch (code) {
                     case "del": {
                         //
@@ -297,7 +301,7 @@ angular.module('wildbook.admin').directive(
                         .then(function() {
                             $scope.photosDetached({photos: photos});
                             delete $scope.mapData.markers['p'+photoids];
-                        }); 
+                        });
                         promise.catch($exceptionHandler);
                         return promise;
                     }}
