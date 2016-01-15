@@ -17,7 +17,7 @@ angular.module('wildbook.admin').directive(
                     .then(function(result) {
                         $scope.user = result.data;
                     });
-                }; 
+                };
 
                 $scope.clearUser = function() {
                     delete $scope.user;
@@ -33,7 +33,14 @@ angular.module('wildbook.admin').directive(
                         delete $scope.user;
                     });
                 };
+
+                $scope.clearUserCache = function() {
+                    $http.post("useradmin/clearUserCache")
+                    .then(function(response){
+                        alertplus.alert("User cache has been cleared.");
+                    });
+                };
             }
-        }
+        };
     }]
 );

@@ -28,4 +28,5 @@ public interface UserService {
     public User getUserByFullname(String fullname);
     public void deleteUser(final User user);
     public void setLastLogin(final User user);
+    public void clearUserCache();
 }

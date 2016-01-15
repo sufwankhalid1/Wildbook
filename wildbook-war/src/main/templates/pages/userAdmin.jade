@@ -3,8 +3,11 @@ div
         md-content(layout="row" flex="100" layout-align="start center" ng-show="title != 'false'")
             h1 User Admin
             div(flex="")
-        md-content(layout="row" flex="100" layout-align="end center")
-            md-button.md-whiteframe-1dp(type="button" ng-click="newUser()" aria-label="New User") New User
+        div(layout="row" flex="100" layout-align="end center")
+            md-content(layout="column")
+                md-button.md-whiteframe-1dp(type="button" ng-click="newUser()" aria-label="New User") New User
+            md-content(layout="column")
+                md-button.md-whiteframe-1dp(type="button" ng-click="clearUserCache()" aria-label="Clear User Cache") Clear User Cache
         wb-user-search(ng-show="!user" search-user-done="setUser(user)" show-close="false")
         md-content.mt-10(ng-show="user")
             div(layout="row" flex="100")

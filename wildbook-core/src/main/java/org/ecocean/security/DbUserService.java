@@ -119,7 +119,7 @@ public class DbUserService implements UserService {
     }
 
     @Override
-    public void saveOrganization(Organization org) {
+    public void saveOrganization(final Organization org) {
         try (Database db = new Database(ci)) {
             UserFactory.saveOrganization(db, org);
         } catch (DatabaseException ex) {
@@ -307,6 +307,21 @@ public class DbUserService implements UserService {
             UserFactory.setLastLogin(db, user);
         } catch (DatabaseException ex) {
             throw new SecurityException("Can't set last login for user [" + user.getId() + "]");
+        }
+    }
+
+    @Override
+    public void clearUserCache() {
+        if (logger.isDebugEnabled()) {
+            logger.debug("user cache length before clear: " + mapUserId.size());
+        }
+
+        mapUserId.clear();
+        mapUserName.clear();
+        mapUserEmail.clear();
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("user cache length after clear: " + mapUserId.size());
         }
     }
 }

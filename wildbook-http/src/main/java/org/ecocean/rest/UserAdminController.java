@@ -42,4 +42,9 @@ public class UserAdminController {
                            @RequestBody @Valid final User user) {
         Global.INST.getUserService().deleteUser(user);
     }
+
+    @RequestMapping(value = "clearUserCache", method = RequestMethod.POST)
+    public void clearUserCache(final HttpServletRequest request) {
+        Global.INST.getUserService().clearUserCache();
+    }
 }
