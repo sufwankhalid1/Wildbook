@@ -138,6 +138,10 @@ angular.module('wildbook.admin').directive(
                     $scope.closeDialog = function() {
                         $mdDialog.hide();
                     };
+
+                    $scope.viewExports = function() {
+                        window.location = window.location.pathname + "?j=page/myAccount";
+                    }
                 }
 
                 $scope.exportDialog = function($event) {
@@ -161,11 +165,16 @@ angular.module('wildbook.admin').directive(
                            +'       <div layout="row" flex="100" class="mb-20" layout-align="center center">'
                            +'           <div ng-show="!exportid && numResults" class="mt-10">You are about to export {{numResults}} encounters</div>'
                            +'           <div ng-show="!numResults" class="mt-10">There are no encounters to export. <br/> Please check to make sure your search parameters are correct.</div>'
-                           +'           <div ng-show="exportid" class="mt-10">Your export id is {{exportid}}</div>'
+                           +'           <div ng-show="exportid" class="mt-10">'
+                           +'               <div>Your Export is being processed</div>'
+                           +'           </div>'
                            +'       </div>'
                            +'       <md-dialog-actions layout="row" layout-align="end center">'
                            +'           <md-button ng-show="!exportid" ng-disabled="!numResults" class="md-whiteframe-1dp" ng-click="exportEncounter()">'
                            +'               Export'
+                           +'           </md-button>'
+                           +'           <md-button ng-show="exportid" ng-click="viewExports()" class="md-whiteframe-1dp">'
+                           +'               View Exports'
                            +'           </md-button>'
                            +'           <md-button ng-show="exportid" ng-disabled="!numResults" class="md-whiteframe-1dp" ng-click="closeDialog()">'
                            +'               Close'
