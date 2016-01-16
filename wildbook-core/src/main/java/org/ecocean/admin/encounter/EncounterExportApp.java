@@ -38,8 +38,8 @@ public class EncounterExportApp extends AbstractApplication {
         search.encounter.comments = "e";
 
         try (Database db = Global.INST.getDb()) {
-            EncounterExport exporter = new EncounterExport(Paths.get("/var/tmp"));
-            exporter.export(db, search, outputDir);
+            EncounterExport exporter = new EncounterExport(Paths.get("."));
+            exporter.export(db, search, Paths.get(outputDir, "encounter"));
 
             exit();
         } catch (Throwable ex) {

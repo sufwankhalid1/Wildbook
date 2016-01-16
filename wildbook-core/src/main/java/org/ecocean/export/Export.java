@@ -1,6 +1,12 @@
 package org.ecocean.export;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Date;
+
+import org.ecocean.util.ErrorInfo;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class Export {
     private Integer exportid;
@@ -13,7 +19,7 @@ public class Export {
 
     private String type;
     private String paramters;
-    private String error;
+    private ErrorInfo error;
     private String outputdir;
 
     public Integer getExportId() {
@@ -72,11 +78,11 @@ public class Export {
         this.paramters = paramters;
     }
 
-    public String getError() {
+    public ErrorInfo getError() {
         return error;
     }
 
-    public void setError(final String error) {
+    public void setError(final ErrorInfo error) {
         this.error = error;
     }
 
@@ -86,5 +92,10 @@ public class Export {
 
     public void setOutputdir(final String outputdir) {
         this.outputdir = outputdir;
+    }
+
+    @JsonIgnore
+    public Path getFullOutputDir() {
+        return Paths.get(outputdir, type);
     }
 }

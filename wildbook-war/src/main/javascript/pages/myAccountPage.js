@@ -1,4 +1,4 @@
-/* globals angular, alertplus */
+/* globals angular, alertplus, XMLHttpRequest, FileReader */
 'use strict';
 
 require('../user/user_edit_fields');
@@ -118,30 +118,53 @@ angular.module('wildbook.admin').directive(
                     //     }
                     // }
 
-                    $http({url: "export/download/" + exportitem.exportId, withCredentials: true})
-                    .then(function(response) {
-                        function str2bytes(str) {
-                            var bytes = new Uint8Array(str.length);
-                            for (var i=0; i<str.length; i++) {
-                                bytes[i] = str.charCodeAt(i);
-                            }
-                            return bytes;
-                        }
-                        // console.log(response.data.length);
-                        // printSomeOfBytes(response.data, 935664, 935673);
-                        //printSomeOfBytes(response.data, 3135, 1000);
+                    var url = "export/download/" + exportitem.exportId;
+                    var filename = exportitem.type + ".zip";
 
-                        console.log(response.data.length);
-                        var blob = new Blob([str2bytes(response.data)], {type: 'application/octet-stream'});
-                        console.log(blob.size);
-                        // printSomeOfBytes(str2bytes(response.data));
-                        //var blob = new Blob([response.data], {type: 'application/octet-stream'});
-                        //
-                        // Can we read filename it from the response header?
-                        //
-                        FileSaver.saveAs(blob, "export_" + exportitem.type + "_" + exportitem.exportId + ".zip");
-                        $scope.refresh = true;
-                    }, $exceptionHandler);
+                    //
+                    // Using old school XMLHttpRequest because angular ($http) AND jquery ($.ajax)
+                    // both give the WRONG result, the number of bytes are too small. And a fix
+                    // submitted by another user for a similar issue (though his response size was too large)
+                    // in which he passed it through a Uint8Array, does not work here. I have no idea why.
+                    //
+                    var xhr = new XMLHttpRequest();
+                    xhr.open('GET', url, true);
+                    xhr.responseType = "blob";
+                    xhr.withCredentials = true;
+                    xhr.onreadystatechange = function () {
+                        if (xhr.readyState === 4) {
+                            var blob = xhr.response;
+                            if (xhr.status === 200) {
+                                FileSaver.saveAs(blob, filename);
+                                $scope.refresh = true;
+                            } else {
+                                var reader = new FileReader();
+                                reader.onload = function(){
+                                    alertplus.error(JSON.parse(reader.result));
+                                };
+                                reader.readAsText(blob);
+                            }
+                        }
+                    };
+                    xhr.send();
+
+                    // $http({url: url, withCredentials: true})
+                    // .then(function(response) {
+                    //     var data = response.data;
+                    //     function str2bytes(str) {
+                    //         var bytes = new Uint8Array(str.length);
+                    //         for (var ii = 0; ii < str.length; ii++) {
+                    //             bytes[ii] = str.charCodeAt(ii);
+                    //         }
+                    //         return bytes;
+                    //     }
+                    //     console.log(data.length);
+                    ////     var blob = new Blob(data], {type: 'application/octet-stream'});
+                    //     var blob = new Blob([str2bytes(data)], {type: 'application/octet-stream'});
+                    //     console.log(blob.size);
+                    //     FileSaver.saveAs(blob, filename);
+                    //     $scope.refresh = true;
+                    // }, $exceptionHandler);
                 };
 
                 $scope.getExports();

@@ -41,8 +41,8 @@ public class EncounterExport {
         this.outputBaseDir = outputBaseDir;
     }
 
-    public void export(final Database db, final SearchData search, final String outputDir) throws DatabaseException, IOException {
-        Path outputPath = Paths.get(outputBaseDir.toString(), outputDir);
+    public void export(final Database db, final SearchData search, final Path outputDir) throws DatabaseException, IOException {
+        Path outputPath = Paths.get(outputBaseDir.toString(), outputDir.toString());
         try {
             Files.createDirectories(outputPath);
             List<Encounter> encounters = SearchFactory.searchEncounters(db, search);
@@ -64,9 +64,10 @@ public class EncounterExport {
             //
             // Delete all the files you just created. Either the export failed
             // and we need to clear the disk or it succeeded and all the files are
-            // zipped up.
+            // zipped up. Also clean up parent directory too.
             //
             FileUtilities.deleteCascade(outputPath);
+            FileUtilities.deleteAndPrune(outputPath.getParent()); // prune any empty directories left behind.
         }
     }
 
@@ -87,10 +88,13 @@ public class EncounterExport {
             User user = UserFactory.readUser(rs);
 
             String filename = ma.getPath().getFileName().toString();
-            try {
-                Files.copy(ma.getFullPath(), Paths.get(outputDir.toString(), filename));
-            } catch (Exception ex) {
-                throw new DatabaseException("Can't copy file.", ex);
+            Path output = Paths.get(outputDir.toString(), filename);
+            if (!Files.exists(output)) {
+                try {
+                    Files.copy(ma.getFullPath(), output);
+                } catch (Exception ex) {
+                    throw new DatabaseException("Can't copy file.", ex);
+                }
             }
 
             String[] encArray = new String[cols.length];

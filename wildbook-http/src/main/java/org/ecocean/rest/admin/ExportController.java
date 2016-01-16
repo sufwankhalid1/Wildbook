@@ -18,10 +18,10 @@ import org.ecocean.Global;
 import org.ecocean.admin.encounter.EncounterExport;
 import org.ecocean.export.Export;
 import org.ecocean.export.ExportFactory;
-import org.ecocean.media.AssetStore;
 import org.ecocean.search.SearchData;
-import org.ecocean.security.User;
 import org.ecocean.servlet.ServletUtils;
+import org.ecocean.util.ErrorInfo;
+import org.ecocean.util.FileUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -44,18 +44,7 @@ public class ExportController {
     private static ExecutorService executor = Executors.newFixedThreadPool(5);
 
     private static Path getOutputBaseDir(final String type) {
-        //
-        // TODO: Change this to use a property when ...
-        //      a) We can properly read an install-based property file. Can't seem to figure out where to put
-        //         the damn install based properties in tomcat class path anymore. If I switch to Spring app,
-        //         like I want to, then we can just pass it in easily at start time.
-        //      b) We set it up such that Apache points to other places.
-        //
-        //  But for now, I will just put it in the LOCAL AssetStore so that I know we can direct the
-        //  user to grab it.
-        //
-//        return Paths.get(Global.INST.getAppResources().getString("export.outputdir", "/var/tmp/exports"), type);
-        return AssetStore.getDefault().getFullPath(Paths.get("exports", type));
+        return Paths.get(Global.INST.getAppResources().getString("export.outputdir", "/var/tmp/exports"), type);
     }
 
     @RequestMapping(value = "encounters", method = RequestMethod.POST)
@@ -155,16 +144,16 @@ public class ExportController {
                 throw new IllegalArgumentException("Download not found.");
             }
 
-            User user = ServletUtils.getUser(request);
-            if (user == null) {
-                throw new SecurityException("You are not authorized.");
-            }
+//            User user = ServletUtils.getUser(request);
+//            if (user == null) {
+//                throw new SecurityException("You are not authorized.");
+//            }
+//
+//            if ( !user.getId().equals(export.getUserId())) {
+//                throw new SecurityException("You are not the user who initiated this export.");
+//            }
 
-            if ( !user.getId().equals(export.getUserId())) {
-                throw new SecurityException("You are not the user who initiated this export.");
-            }
-
-            String fileName = export.getOutputdir() + ".zip";
+            String fileName = export.getFullOutputDir() + ".zip";
 
             Path zippath = Paths.get(getOutputBaseDir(export.getType()).toString(), fileName);
             if (!Files.exists(zippath)) {
@@ -177,14 +166,16 @@ public class ExportController {
                     } catch (DatabaseException ex) {
                         logger.error("Can't set delivered status", ex);
                     }
-                    throw new IllegalArgumentException("This export has been deleted for an unknow reason.");
+                    //
+                    // Log it to our system so that we can check on the file path.
+                    //
+                    logger.error("The export [" + zippath + "] is missing.");
+                    throw new IllegalArgumentException("The export has been deleted for an unknown reason.");
                 }
             }
 
             response.setContentType("application/zip");
-            response.setHeader("Content-Disposition",
-                               "attachment; filename=export_" + export.getType()
-                               + "_" + export.getExportId() + ".zip");
+            response.setHeader("Content-Disposition", "attachment; filename=" + fileName + ".zip");
 
             InputStream inputStream = new FileInputStream(zippath.toFile());
             IOUtils.copy(inputStream, response.getOutputStream());
@@ -197,7 +188,8 @@ public class ExportController {
             } catch (DatabaseException ex) {
                 logger.error("Can't set delivered status", ex);
             }
-            //Files.delete(zippath);
+            Files.delete(zippath);
+            FileUtilities.deleteAndPrune(zippath.getParent());
         }
     }
 
@@ -229,9 +221,9 @@ public class ExportController {
 
                 try {
                     EncounterExport exporter = new EncounterExport(outputBaseDir);
-                    exporter.export(db, search, export.getOutputdir());
+                    exporter.export(db, search, export.getFullOutputDir());
                 } catch (Throwable ex) {
-                    export.setError(ex.toString());
+                    export.setError(new ErrorInfo(ex));
                 }
 
                 try {

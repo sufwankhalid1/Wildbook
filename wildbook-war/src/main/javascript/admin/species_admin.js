@@ -1,10 +1,12 @@
+/* global angular, alertplus */
+'use strict';
+
 angular.module('wildbook.admin').directive(
     'wbSpeciesAdmin',
     ["$http", "wbConfig", function($http, wbConfig) {
         return {
             restrict: 'E',
-            scope: {
-            },
+            scope: {},
             templateUrl: 'admin/species_admin.html',
             replace: true,
             link: function($scope, element, attr) {
@@ -18,11 +20,11 @@ angular.module('wildbook.admin').directive(
 
                 $scope.search = function() {
                     $scope.cancel();
-                    
+
                     $scope.showSearch = true;
                     $scope.speciesSearch = "";
-                }
-                
+                };
+
                 $scope.cancel = function() {
                     originalCode = null;
                     $scope.species = null;
@@ -34,7 +36,7 @@ angular.module('wildbook.admin').directive(
                     if (!species) {
                         return;
                     }
-                    
+
                     originalCode = species.code;
                     $scope.speciesInput = angular.copy(species);
                 };
@@ -55,7 +57,7 @@ angular.module('wildbook.admin').directive(
                     .then(function () {
                         if (originalCode) {
                             $scope.allSpecies.forEach(function(obj, key) {
-                                if (obj.code == originalCode) {
+                                if (obj.code === originalCode) {
                                     $scope.allSpecies[key] = $scope.speciesInput;
                                 }
                             });
@@ -67,6 +69,6 @@ angular.module('wildbook.admin').directive(
                     });
                 };
             }
-        }
+        };
     }]
 );

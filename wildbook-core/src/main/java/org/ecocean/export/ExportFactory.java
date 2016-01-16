@@ -3,6 +3,10 @@ package org.ecocean.export;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.ecocean.util.ErrorInfo;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
 import com.samsix.database.RecordSet;
@@ -59,7 +63,7 @@ public class ExportFactory {
         formatter.append("type", export.getType());
         formatter.append("outputdir", export.getOutputdir());
         formatter.append("status", export.getStatus());
-        formatter.append("error", export.getError());
+        formatter.append("error", new Gson().toJson(export.getError()));
         formatter.append("delivered", export.isDelivered());
         formatter.append("parameters", export.getParamters());
     }
@@ -92,7 +96,12 @@ public class ExportFactory {
         export.setUserId(rs.getInt("userid"));
         export.setTimestamp(rs.getDate("datetimestamp"));
         export.setStatus(rs.getInt("status"));
-        export.setError(rs.getString("error"));
+        String error = rs.getString("error");
+        try {
+            export.setError(new Gson().fromJson(error, ErrorInfo.class));
+        } catch (JsonSyntaxException ex) {
+            export.setError(new ErrorInfo(error, null));
+        }
         export.setOutputdir(rs.getString("outputDir"));
         export.setType(rs.getString("type"));
 
