@@ -19,6 +19,7 @@ import org.ecocean.admin.encounter.EncounterExport;
 import org.ecocean.export.Export;
 import org.ecocean.export.ExportFactory;
 import org.ecocean.search.SearchData;
+import org.ecocean.security.User;
 import org.ecocean.servlet.ServletUtils;
 import org.ecocean.util.ErrorInfo;
 import org.ecocean.util.FileUtilities;
@@ -144,14 +145,14 @@ public class ExportController {
                 throw new IllegalArgumentException("Download not found.");
             }
 
-//            User user = ServletUtils.getUser(request);
-//            if (user == null) {
-//                throw new SecurityException("You are not authorized.");
-//            }
-//
-//            if ( !user.getId().equals(export.getUserId())) {
-//                throw new SecurityException("You are not the user who initiated this export.");
-//            }
+            User user = ServletUtils.getUser(request);
+            if (user == null) {
+                throw new SecurityException("You are not authorized.");
+            }
+
+            if ( !user.getId().equals(export.getUserId())) {
+                throw new SecurityException("You are not the user who initiated this export.");
+            }
 
             String fileName = export.getFullOutputDir() + ".zip";
 
@@ -176,6 +177,7 @@ public class ExportController {
 
             response.setContentType("application/zip");
             response.setHeader("Content-Disposition", "attachment; filename=" + fileName + ".zip");
+            response.setHeader("blobsize", String.valueOf(Files.size(zippath)));
 
             InputStream inputStream = new FileInputStream(zippath.toFile());
             IOUtils.copy(inputStream, response.getOutputStream());
