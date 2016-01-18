@@ -127,7 +127,7 @@ var KeyEventHandler = (function() {
                             return( new KeyEventHandler( api, priority, ( isTerminal || false ) ) );
                         }
 
-                        api.handlers = handler;
+                        api.handler = handler;
 
                         // I unbind the given event handler. This will unbind all matching
                         // handlers at any priority.
