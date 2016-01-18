@@ -1,3 +1,6 @@
+/* global angular */
+'use strict';
+
 angular.module('wildbook.util', []);
 
 require("./site_search.js");

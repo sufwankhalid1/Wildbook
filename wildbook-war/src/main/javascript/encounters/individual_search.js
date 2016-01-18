@@ -1,3 +1,6 @@
+/* global angular */
+'use strict';
+
 angular.module('wildbook.admin').directive(
     'wbIndividualSearch',
     ["$http", "$exceptionHandler", function($http, $exceptionHandler) {
@@ -11,22 +14,22 @@ angular.module('wildbook.admin').directive(
             templateUrl: 'encounters/individual_search.html',
             replace: true,
             controller: function($scope) {
-                $scope.searchdata =  { 
+                $scope.searchdata =  {
                     encounter: {},
                     individual: {},
                     contributor: {}
-                }
+                };
 
                 $scope.reset = function() {
-                    $scope.searchdata =  { 
+                    $scope.searchdata =  {
                         encounter: {},
                         individual: {},
                         contributor: {}
-                    }
-                }
+                    };
+                };
 
                 $scope.selectedTabIndex = 0;
-            
+
                 $scope.search = function() {
                     $scope.resetSelectedResult({val: null});
                     $http.post("admin/search/individual", $scope.searchdata)
@@ -75,18 +78,18 @@ angular.module('wildbook.admin').directive(
                     rowSelection: 'single',
                     onRowSelected: rowSelectedFunc
                 };
-                
+
                 //
                 // wb-key-handler-form
                 //
                 $scope.cancel = function() {
                     $scope.searchIndividualDone({individual: null});
-                }
-                
+                };
+
                 $scope.cmdEnter = function() {
                     $scope.search();
-                }
+                };
             }
-        }
+        };
     }]
 );

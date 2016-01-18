@@ -1,3 +1,6 @@
+/* global angular */
+'use strict';
+
 angular.module('wildbook.admin').directive(
     'wbSurveySearch',
     ["$http", "$exceptionHandler", "wbConfig", function($http, $exceptionHandler, wbConfig) {
@@ -12,7 +15,7 @@ angular.module('wildbook.admin').directive(
                 $scope.data = {};
                 $scope.surveysearch = {};
                 $scope.selectedTabIndex = 0;
-            
+
                 $scope.orgChange = function() {
                     //
                     // This is apparently a copy of the object in the collection so
@@ -20,21 +23,21 @@ angular.module('wildbook.admin').directive(
                     // to the next. So we have to adjust the original collection.
                     //
                     var org = $scope.search.organization;
-            
-                    if (org == null) {
+
+                    if (org === null) {
                         $scope.data.vessels = null;
                         delete $scope.surveysearch.orgid;
                         return;
                     }
-            
+
                     $scope.surveysearch.orgid = org.orgId;
-            
+
                     wbConfig.getVessels(org)
                     .then(function(vessels) {
                         $scope.data.vessels = vessels;
                     });
-                }
-            
+                };
+
                 $scope.search = function() {
                     $http.post("search/survey", $scope.surveysearch)
                     .then(function(result) {
@@ -43,11 +46,11 @@ angular.module('wildbook.admin').directive(
                     },
                     $exceptionHandler);
                 };
-            
+
                 function rowSelectedFunc(event) {
                     $scope.searchSurveyDone({surveypart: event.node.data});
                 }
-            
+
                 $scope.surveyGridOptions = {
                     columnDefs:
                         [{headerName: "Organization",
@@ -99,17 +102,17 @@ angular.module('wildbook.admin').directive(
                     rowSelection: 'single',
                     onRowSelected: rowSelectedFunc
                 };
-                
+
                 //
                 // wb-key-handler-form
                 //
                 $scope.cancel = function() {
                     $scope.searchSurveyDone({surveypart: null});
-                }
-                
+                };
+
                 $scope.cmdEnter = function() {
                     $scope.search();
-                }
+                };
             }
         };
     }]

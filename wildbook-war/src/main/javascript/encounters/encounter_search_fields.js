@@ -1,3 +1,6 @@
+/*global angular */
+'use strict';
+
 angular.module('wildbook.admin').directive(
     'wbEncounterSearchFields',
     [function() {
@@ -10,6 +13,6 @@ angular.module('wildbook.admin').directive(
             replace: true,
             link: function($scope, ele, attr) {
             }
-        }
+        };
     }]
 );

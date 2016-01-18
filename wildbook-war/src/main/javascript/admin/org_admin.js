@@ -1,3 +1,6 @@
+/* global angular, alertplus */
+'use strict';
+
 angular.module('wildbook.admin').directive(
     'wbOrgAdmin',
     ["$http", "wbConfig", function($http, wbConfig) {
@@ -15,30 +18,30 @@ angular.module('wildbook.admin').directive(
 
                 $scope.edit = function(org) {
                     $scope.orgInput = angular.copy(org);
-                }
+                };
 
                 $scope.newOrg = function() {
                     $scope.cancel();
                     $scope.orgInput = {};
                     $scope.showEdit = true;
-                }
+                };
 
                 $scope.cancel = function() {
                     $scope.org = null;
                     $scope.orgInput = null;
                     $scope.orgSearch = null;
                     $scope.showEdit = false;
-                }
+                };
 
                 $scope.save = function() {
                     if (!$scope.orgInput.name) {
                         alertplus.alert("Please enter an organization name.");
                         return ;
-                    };
+                    }
 
                     var exists = false;
                     $scope.orgs.forEach(function(obj) {
-                        if (obj.name == $scope.orgInput.name) {
+                        if (obj.name === $scope.orgInput.name) {
                             exists = true;
                         }
                     });
@@ -53,7 +56,7 @@ angular.module('wildbook.admin').directive(
                         .then(function (response) {
                             if ($scope.orgInput.orgId) {
                                 $scope.orgs.forEach(function(obj, key) {
-                                    if (obj.orgId == $scope.orgInput.orgId) {
+                                    if (obj.orgId === $scope.orgInput.orgId) {
                                         $scope.orgs[key] = $scope.orgInput;
                                     }
                                 });
@@ -66,6 +69,6 @@ angular.module('wildbook.admin').directive(
                     }
                 };
             }
-        }
+        };
     }]
 );

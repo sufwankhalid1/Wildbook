@@ -1,3 +1,6 @@
+/* global angular, $, window */
+'use strict';
+
 angular.module('wildbook.util').directive(
     'wbSiteSearch',
     ["$http", function($http) {
@@ -7,19 +10,16 @@ angular.module('wildbook.util').directive(
             templateUrl: 'util/site_search.html',
             replace: true,
             controller: function($scope) {
-                $scope.querySearch   = querySearch;
-                $scope.selectedItemChange = selectedItemChange;
-                $scope.searchTextChange   = searchTextChange;
-                  
+
                 function querySearch(query) {
                     return $http.get('search/site', query)
                     .then(function(data) {
                         return $.map(data, function(item) {
                             var label;
-                            if ((item.type == "individual") && (item.species != null)) {
+                            if ((item.type === "individual") && (item.species !== null)) {
                   //            label = item.species + ": ";
                             }
-                            else if (item.type == "user") {
+                            else if (item.type === "user") {
                                 label = "User: ";
                             } else {
                                 label = "";
@@ -30,18 +30,19 @@ angular.module('wildbook.util').directive(
                         });
                     });
                 }
+                $scope.querySearch   = querySearch;
 
-                function searchTextChange(text) {
+                $scope.searchTextChange = function(text) {
 /*                    console.log('Text changed to ' + text);*/
-                }
+                };
 
-                function selectedItemChange(item) {
-                    if (item.type == "individual") {
+                $scope.selectedItemChange = function(item) {
+                    if (item.type === "individual") {
                         window.location.replace("individuals.jsp?number=" + item.value);
-                    } else if (item.type == "locationID") {
+                    } else if (item.type === "locationID") {
                         window.location.replace("/encounters/searchResultsAnalysis.jsp?locationCodeField=" + item.value);
                     }
-                }
+                };
             }
         };
     }]

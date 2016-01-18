@@ -1,3 +1,5 @@
+'use strict';
+
 //
 // Code obtained from Ben Nadel from his blog
 //    http://www.bennadel.com/blog/2816-managing-user-input-key-events-across-views-in-angularjs.htm
@@ -43,7 +45,7 @@ var KeyEventHandler = (function() {
                     // application.
                     if (keyHandler) {
                         keyHandler.teardown();
-                        keyHandler == null;
+                        keyHandler = null;
                     }
                 }
             });
@@ -79,7 +81,7 @@ var KeyEventHandler = (function() {
                     );
                 }
             );
-    
+
             app.provider(
                 "keyEvents",
                 function provideKeyEvents() {
@@ -91,15 +93,7 @@ var KeyEventHandler = (function() {
                             is[ String.fromCharCode( event.which ).toLowerCase() ] = true;
                         }
                     ];
-                    // Return the provider API.
-                    return({
-                        // This is the core factory method for the service.
-                        $get: keyEventsFactory,
-                        // This is the provider-method that lets the developer add shortcut
-                        // operators.
-                        addShortcut: addShortcut
-                    });
-                    
+
                     // ---
                     // PUBLIC METHODS.
                     // ---
@@ -107,6 +101,7 @@ var KeyEventHandler = (function() {
                     function addShortcut( operator ) {
                         shortcuts.push( operator );
                     }
+
                     // ---
                     // FACTORY METHOD.
                     // ---
@@ -120,14 +115,8 @@ var KeyEventHandler = (function() {
                                 keyup: []
                         };
                         // Setup the public API.
-                        var api = {
-                            handler: handler,
-                            off: off,
-                            on: on
-                        };
-                        // Return the public API.
-                        return( api );
-                        
+                        var api = {};
+
                         // ---
                         // PUBLIC METHODS.
                         // ---
@@ -137,18 +126,25 @@ var KeyEventHandler = (function() {
                         function handler( priority, isTerminal ) {
                             return( new KeyEventHandler( api, priority, ( isTerminal || false ) ) );
                         }
+
+                        api.handlers = handler;
+
                         // I unbind the given event handler. This will unbind all matching
                         // handlers at any priority.
                         function off( eventType, handler ) {
                             deregisterHandler( eventType, handler );
                         }
+                        api.off = off;
+
                         // I bind a handler to the given event type at the given priority.
                         // If the terminal flag is set, no other handlers at a lower priority
                         // will receive the event.
                         function on( eventType, handler, priority, isTerminal ) {
                             registerHandler( eventType, handler, priority, isTerminal );
                         }
-                        
+
+                        api.on = on;
+
                         // ---
                         // PRIVATE METHODS.
                         // ---
@@ -166,19 +162,22 @@ var KeyEventHandler = (function() {
                                 stopWatchingEvent( eventType );
                             }
                         }
-                        
+
                         // I process the root key-event, passing it through queue of event
                         // handlers implemented by the directives.
                         function handleEvent( event ) {
                             var handlers = eventHandlers[ event.type ];
                             event.is = {};
+                            var i;
+                            var length;
+
                             // Pass the event through the shortcut operators.
-                            for ( var i = 0, length = shortcuts.length ; i < length ; i++ ) {
+                            for ( i = 0, length = shortcuts.length ; i < length ; i++ ) {
                                 shortcuts[ i ]( event, event.is );
                             }
                             // Since the handlers are sorted in ascending priority, we need
                             // to process the queue in reverse order.
-                            for ( var i = ( handlers.length - 1 ) ; i >= 0 ; i-- ) {
+                            for ( i = ( handlers.length - 1 ) ; i >= 0 ; i-- ) {
                                 // If a handler returns an explicit false, kill the event.
                                 if ( handlers[ i ].handler( event ) === false ) {
                                     event.stopImmediatePropagation();
@@ -226,10 +225,22 @@ var KeyEventHandler = (function() {
                         function stopWatchingEvent( eventType ) {
                             $document.off( eventType, handleEvent );
                         }
+
+                        // Return the public API.
+                        return( api );
                     }
+
+                    // Return the provider API.
+                    return({
+                        // This is the core factory method for the service.
+                        $get: keyEventsFactory,
+                        // This is the provider-method that lets the developer add shortcut
+                        // operators.
+                        addShortcut: addShortcut
+                    });
                 }
             );
-    
+
             // --------------------------------------------------------------------------- //
             // I work hand-in-hand with the keyEvents service to provide priority-specific
             // handler. This is just a convenience proxy to the keyEvents service.
@@ -237,9 +248,6 @@ var KeyEventHandler = (function() {
             app.factory(
                 "KeyEventHandler",
                 function() {
-                    // Return the constructor function.
-                    return(KeyEventHandler);
-                    
                     // I provide event-binding methods that are pre-bound to the given
                     // priority and terminal settings.
                     function KeyEventHandler(keyEvents, priority, isTerminal) {
@@ -250,41 +258,36 @@ var KeyEventHandler = (function() {
                             keyup: []
                         };
                         // Setup the public API.
-                        var api = {
-                            keydown: keydown,
-                            keypress: keypress,
-                            keyup: keyup,
-                            teardown: teardown
-                        };
-                        // Return the public API.
-                        return( api );
+                        var api = {};
+
                         // ---
                         // PUBLIC METHODS.
                         // ---
                         // I bind the given handler to the keydown event.
-                        function keydown( handler ) {
+                        api.keydown = function( handler ) {
                             eventHandlers.keydown.push( handler );
                             keyEvents.on( "keydown", handler, priority, isTerminal );
                             return( api );
-                        }
+                        };
+
                         // I bind the given handler to the keypress event.
-                        function keypress( handler ) {
+                        api.keypress = function( handler ) {
                             eventHandlers.keypress.push( handler );
                             keyEvents.on( "keypress", handler, priority, isTerminal );
                             return( api );
-                        }
+                        };
                         // I bind the given handler to the keyup event.
-                        function keyup( handler ) {
+                        api.keyup = function( handler ) {
                             eventHandlers.keyup.push( handler );
                             keyEvents.on( "keyup", handler, priority, isTerminal );
                             return( api );
-                        }
+                        };
                         // I unbind all of the event handlers bound by this proxy.
-                        function teardown() {
+                        api.teardown = function() {
                             teardownEventType( "keydown" );
                             teardownEventType( "keypress" );
                             teardownEventType( "keyup" );
-                        }
+                        };
                         // ---
                         // PRIVATE METHODS.
                         // ---
@@ -295,7 +298,13 @@ var KeyEventHandler = (function() {
                                 keyEvents.off( eventType, handlers[ i ] );
                             }
                         }
+
+                        // Return the public API.
+                        return( api );
                     }
+
+                    // Return the constructor function.
+                    return(KeyEventHandler);
                 }
             );
         },

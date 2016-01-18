@@ -1,3 +1,6 @@
+/* global angular */
+'use strict';
+
 angular.module('wildbook.admin').directive(
     'wbIndividualSearchFields',
     ["wbConfig", function(wbConfig) {
@@ -13,11 +16,11 @@ angular.module('wildbook.admin').directive(
                 .then(function(config) {
                     $scope.allSpecies = config.species;
                 });
-                
+
                 $scope.clearSpecies = function() {
                     $scope.individual.species = undefined;
-                }
+                };
             }
-        }
+        };
     }]
 );

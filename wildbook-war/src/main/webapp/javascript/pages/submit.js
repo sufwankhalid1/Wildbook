@@ -1,3 +1,6 @@
+/* global $, hello, wildbook */
+'use strict';
+
 $(function() {
     /* //Get User
     hello.on('auth.login', function(auth){
@@ -106,7 +109,7 @@ $(function() {
                     return;
                 } else if(!resp.data || resp.data.length === 0) {
                     wildbook.showAlert("There does not appear to be any photo albums in your account");
-                    return
+                    return;
                 }
 
                 // Build buttons with the albums
@@ -130,8 +133,8 @@ $(function() {
         var service = this.toString(); //comes out a String obect
         if (!wildbook.social.featureEnabled(service, 'images')) {
             return;
-        };
-        
+        }
+
         var button = $("<button>").attr("title", "Import from " + service).addClass("zocial").addClass("icon").addClass(service);
         button.click(function() {
             getAlbums(service);

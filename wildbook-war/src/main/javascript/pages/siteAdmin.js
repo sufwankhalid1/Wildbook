@@ -1,5 +1,5 @@
-'use strict';
 /* global angular */
+'use strict';
 
 require('../admin/species_admin.js');
 require('../admin/org_admin.js');

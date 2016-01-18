@@ -1,3 +1,6 @@
+/* global angular, alertplus */
+'use strict';
+
 require('../encounters/encounter_edit.js');
 require('../encounters/encounter_search.js');
 require('../survey/survey_edit.js');
@@ -53,13 +56,13 @@ angular.module('wildbook.admin').directive(
                     if (surveyEnc) {
                         if (surveyEnc.encs) {
                             if (wbLangUtils.existsInArray(surveyEnc.encs, function(item) {
-                                return item.encounter.id === encdata.encounter.id
+                                return item.encounter.id === encdata.encounter.id;
                             })) {
                                 //
                                 // Just return as we already have this encounter attached to this survey.
                                 //
                                 return;
-                            };
+                            }
                         } else {
                             //
                             // Create empty array for encounters so that we can add one below.
@@ -77,7 +80,7 @@ angular.module('wildbook.admin').directive(
                             return (item.encounter.id === encdata.encounter.id);
                         })) {
                             $scope.data.encs.push(encdata);
-                        };
+                        }
                     }
                 }
 
@@ -87,14 +90,14 @@ angular.module('wildbook.admin').directive(
 
                 $scope.searchSubmitter = function() {
                     $scope.searchingSubmitter = true;
-                }
+                };
 
                 $scope.emailSubmitter = function() {
                     $http.get("useradmin/user/" + $scope.data.submission.user.id)
                     .then(function(result) {
                         $window.location = "mailto:" + result.data.email;
                     }, $exceptionHandler);
-                }
+                };
 
                 $scope.searchUserDone = function(user) {
                     if (user) {
@@ -109,11 +112,11 @@ angular.module('wildbook.admin').directive(
                     } else {
                         $scope.searchingSubmitter = false;
                     }
-                }
+                };
 
                 $scope.dateStringFromRest = function(date) {
                     return wbDateUtils.dateStringFromRest(date);
-                }
+                };
 
                 $scope.editEncounterDone = function(encdata) {
                     if (encdata) {
@@ -121,7 +124,7 @@ angular.module('wildbook.admin').directive(
                     }
                     $scope.data.module.encounterEdit = null;
                     $scope.data.activeSurveyEnc = null;
-                }
+                };
 
                 function photosRemovedFromEncounter(photos) {
                     //
@@ -152,11 +155,11 @@ angular.module('wildbook.admin').directive(
                     });
 
                     $scope.data.module.encounterEdit = null;
-                }
+                };
 
                 $scope.encounterPhotosDetached = function(photos) {
                     photosRemovedFromEncounter(photos);
-                }
+                };
 
                 $scope.searchEncounter = function() {
                     $scope.data.module.encounterEdit = null;
@@ -164,7 +167,7 @@ angular.module('wildbook.admin').directive(
                     $scope.data.module.encounterSearch = true;
                     $scope.data.module.surveyEdit = null;
                     $scope.data.module.surveySearch = false;
-                }
+                };
 
                 $scope.searchEncounterDone = function(encounter) {
                     $scope.data.module.encounterSearch = false;
@@ -175,7 +178,7 @@ angular.module('wildbook.admin').directive(
                             attachEncounter(encdata);
                         });
                     }
-                }
+                };
 
                 $scope.activeEle = function(ele){
                     $scope.active = {
@@ -196,7 +199,7 @@ angular.module('wildbook.admin').directive(
                            $scope.encOpen[key] = false;
                         });
                     }
-                }
+                };
 
                 function editEncounter(encdata, surveyEnc) {
                     $scope.data.module.encounterEdit = encdata;
@@ -217,14 +220,14 @@ angular.module('wildbook.admin').directive(
                             addPhotos(encdata.encounter, encdata.photos)
                             .then(function() {
                                 editEncounter(encdata);
-                            })
+                            });
                         });
                     }, $exceptionHandler);
-                }
+                };
 
                 $scope.showDialog = function(msg){
                     alertplus.alert(msg);
-                }
+                };
 
                 $scope.selectEncounter = function($event, encdata, surveyEnc) {
                     wbEncounterUtils.getMedia(encdata)
@@ -235,7 +238,7 @@ angular.module('wildbook.admin').directive(
                     // Need to keep it from clicking through to the containing survey.
                     //
                     $event.stopPropagation();
-                }
+                };
 
                 function editSurvey(surveypart) {
                     $scope.data.module.encounterEdit = null;
@@ -248,11 +251,15 @@ angular.module('wildbook.admin').directive(
                 $scope.selectSurvey = function(surveyEnc, noEdit, index) {
                     $scope.data.activeSurveyEnc = surveyEnc;
                     angular.forEach($scope.encOpen, function(val, key){
-                        if(key != index) $scope.encOpen[key] = false;
+                        if (key !== index) {
+                            $scope.encOpen[key] = false;
+                        }
                     });
-                    if(noEdit) return;
+                    if (noEdit) {
+                        return;
+                    }
                     editSurvey(surveyEnc.surveypart);
-                }
+                };
 
                 $scope.searchSurvey = function() {
                     $scope.data.module.encounterEdit = null;
@@ -260,11 +267,11 @@ angular.module('wildbook.admin').directive(
                     $scope.data.module.surveyEdit = null;
                     // This one
                     $scope.data.module.surveySearch = true;
-                }
+                };
 
                 $scope.addSurvey = function() {
                     editSurvey({});
-                }
+                };
 
                 function findSurveyEnc(surveypart) {
                     return wbLangUtils.findInArray($scope.data.surveyEncs, function(item) {
@@ -282,7 +289,7 @@ angular.module('wildbook.admin').directive(
                     if (! surveyEnc) {
                         addSurveyEncounters(surveypart);
                     }
-                }
+                };
 
                 $scope.searchSurveyDone = function(surveypart) {
                     $scope.data.module.surveySearch = false;
@@ -305,8 +312,8 @@ angular.module('wildbook.admin').directive(
                     $http.get("obj/survey/encounters/" + surveypart.part.surveyPartId)
                     .then(function(result) {
                         addSurveyEncounters(surveypart, result.data);
-                    }, $exceptionHandler)
-                }
+                    }, $exceptionHandler);
+                };
 
                 function addPhotos(encounter, newphotos) {
                     var newphotoids = newphotos.map(function(photo) {
@@ -380,17 +387,18 @@ angular.module('wildbook.admin').directive(
                         promise.catch($exceptionHandler);
                         return promise;
                     }}
-                }
+                };
                 //=================================
                 // END wb-thumb-box
                 //=================================
 
                 function photoInNumEncs(encs, photo) {
                     var sum = 0;
+                    function photoCheck(item) {
+                        return (item.id === photo.id);
+                    }
                     for (var ii = 0; ii < encs.length; ii++) {
-                        if (wbLangUtils.existsInArray(encs[ii].photos, function(item) {
-                            return (item.id === photo.id);
-                        })) {
+                        if (wbLangUtils.existsInArray(encs[ii].photos, photoCheck)) {
                             sum++;
                         }
                     }
@@ -400,7 +408,7 @@ angular.module('wildbook.admin').directive(
                 function calcEncCounts() {
                     for (var ii = 0; ii < $scope.data.photos.length; ii++) {
                         var photo = $scope.data.photos[ii];
-                        sum = 0;
+                        var sum = 0;
                         sum += photoInNumEncs($scope.data.encs, photo);
 
                         for (var jj = 0; jj < $scope.data.surveyEncs.length; jj++) {
@@ -423,7 +431,7 @@ angular.module('wildbook.admin').directive(
 
                         calcEncCounts();
                     }, $exceptionHandler);
-                }
+                };
 
                 $scope.deleteSubmission = function(submission) {
                     return alertplus.confirm('Are you sure you want to delete the <b>entire</b> submission '+ submission.id +'?', "Delete Submission", true)
@@ -503,7 +511,7 @@ angular.module('wildbook.admin').directive(
                             args.successCallback($scope.rowData.slice(args.startRow, args.endRow), $scope.rowData.length);
                         }, 100);
                     }
-                }
+                };
 
                 function setDataSource(dataSource) {
                     $scope.msGridOptions.api.setDatasource(dataSource);
@@ -523,7 +531,7 @@ angular.module('wildbook.admin').directive(
                         $scope.rowData = result.data;
                         setDataSource(dataSource);
                     }, $exceptionHandler);
-                }
+                };
 
                 $scope.setStatus = function(status) {
                     if(!status){
@@ -532,7 +540,7 @@ angular.module('wildbook.admin').directive(
                     $http.post("obj/mediasubmission/setstatus/"+$scope.data.submission.id, status)
                     .then(function(){
                         //filter out changed status from current grid that isnt set to status = all
-                        if($scope.searchStatus != '*'){
+                        if($scope.searchStatus !== '*'){
                             for(var nn = 0; nn < $scope.rowData.length; nn++) {
                                 if($scope.rowData[nn].id === $scope.data.submission.id) {
                                     $scope.rowData.splice(nn,1);
@@ -542,7 +550,7 @@ angular.module('wildbook.admin').directive(
                             }
                         }
                     });
-                }
+                };
 
                 // Source: http://www.ag-grid.com/angular-grid-pagination/index.php
                 function sortSubmissionData(sortModel, data) {
@@ -555,7 +563,7 @@ angular.module('wildbook.admin').directive(
                             var valueB = b[sortColModel.colId];
 
                             // this filter didn't find a difference, move onto the next one
-                            if (valueA==valueB) {
+                            if (valueA === valueB) {
                                 continue;
                             }
 
@@ -588,18 +596,18 @@ angular.module('wildbook.admin').directive(
                     } else {
                         $scope.doneEditing();
                     }
-                }
+                };
 
                 $scope.cmdEnter = function() {
                     // do nothing
                     // want this here to override any parent scope cmdEnter event though.
-                }
+                };
 
                 //
                 // Finally, kick us off.
                 //
                 $scope.updateSubmissionData();
             }
-        }
+        };
     }]
 );

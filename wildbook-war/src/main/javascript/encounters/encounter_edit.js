@@ -1,4 +1,5 @@
-'user strict';
+/* global angular, alertplus */
+'use strict';
 
 require('./individual_search');
 require('./individual_edit');
@@ -23,8 +24,8 @@ angular.module('wildbook.admin').directive(
 
 angular.module('wildbook.admin').directive(
     'wbEncounterEdit',
-    ["$http", "$exceptionHandler", "wbConfig", "wbEncounterUtils", "leafletMapEvents", "wbDateUtils",
-     function($http, $exceptionHandler, wbConfig, wbEncounterUtils, leafletMapEvents, wbDateUtils) {
+    ["$http", "$exceptionHandler", "wbConfig", "wbEncounterUtils", "leafletMapEvents", "wbDateUtils", "$timeout",
+     function($http, $exceptionHandler, wbConfig, wbEncounterUtils, leafletMapEvents, wbDateUtils, $timeout) {
         return {
             restrict: 'E',
             scope: {
@@ -72,11 +73,12 @@ angular.module('wildbook.admin').directive(
                     //md-datetime needs a date obj, so convert to date obj for use, convert back for save
                     $scope.data.encounter.encDate = wbDateUtils.dateToRest($scope.dateObj);
 
+                    var nn;
                     //need to make sure we send either a time or nothing
                     if ($scope.data.encounter.endtime) {
                         var endlength = $scope.data.encounter.endtime.length;
-                        for (var nn = 0; nn < endlength; nn++) {
-                            if ($scope.data.encounter.endtime && $scope.data.encounter.endtime[nn] == null ) {
+                        for (nn = 0; nn < endlength; nn++) {
+                            if ($scope.data.encounter.endtime && $scope.data.encounter.endtime[nn] === null ) {
                                 $scope.data.encounter.endtime = null;
                             }
                         }
@@ -84,8 +86,8 @@ angular.module('wildbook.admin').directive(
 
                     if ($scope.data.encounter.starttime) {
                         var startlength = $scope.data.encounter.starttime.length;
-                        for (var nn = 0; nn < startlength; nn++) {
-                            if ($scope.data.encounter.starttime && $scope.data.encounter.starttime[nn] == null ) {
+                        for (nn = 0; nn < startlength; nn++) {
+                            if ($scope.data.encounter.starttime && $scope.data.encounter.starttime[nn] === null ) {
                                 $scope.data.encounter.starttime = null;
                             }
                         }
@@ -107,33 +109,33 @@ angular.module('wildbook.admin').directive(
                 //
                 $scope.cancel = function() {
                     $scope.editEncounterDone(null);
-                }
+                };
 
                 $scope.cmdEnter = function() {
                     $scope.save();
-                }
+                };
 
                 $scope.findIndividual = function() {
                     $scope.module.individualSearch = true;
-                }
+                };
 
                 $scope.editIndividual = function() {
                     $scope.module.individualEdit = true;
-                }
+                };
 
                 $scope.editIndividualDone = function(individual){
                     $scope.module.individualEdit = false;
                     if (individual) {
                         $scope.data.encounter.individual = individual;
                     }
-                }
+                };
 
                 $scope.searchIndividualDone = function(individual) {
                     $scope.module.individualSearch = false;
                     if (individual) {
                         $scope.data.encounter.individual = individual;
                     }
-                }
+                };
 
                 //=================================
                 // START leaflet
@@ -225,7 +227,7 @@ angular.module('wildbook.admin').directive(
                     $scope.mapData.center = center;
 
                     return true;
-                };
+                }
 
                 //enable location picker
                 $scope.locationPickerState = false;
@@ -244,7 +246,7 @@ angular.module('wildbook.admin').directive(
                         }
                     } else {
                         $scope.locationPickerState = true;
-                        var mapEvents = leafletMapEvents.getAvailableMapEvents();
+                        //leafletMapEvents.getAvailableMapEvents();
                         unbindHandler = $scope.$on('leafletDirectiveMap.click', function(e,  args) {
                             $scope.data.encounter.location.latitude = args.leafletEvent.latlng.lat;
                             $scope.data.encounter.location.longitude = args.leafletEvent.latlng.lng;
@@ -256,7 +258,7 @@ angular.module('wildbook.admin').directive(
                             if (! unbindHandler) {
                                 $timeout(function() {
                                     unbind();
-                                }, 2000)
+                                }, 2000);
                             } else {
                                 unbind();
                             }
@@ -303,7 +305,7 @@ angular.module('wildbook.admin').directive(
                         promise.catch($exceptionHandler);
                         return promise;
                     }}
-                }
+                };
                 //=================================
                 // END wb-thumb-box
                 //=================================

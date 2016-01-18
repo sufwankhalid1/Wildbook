@@ -1,3 +1,6 @@
+/* global angular, alertplus, document */
+'use strict';
+
 angular.module('wildbook.admin').directive(
     'wbUserView',
     function() {
@@ -40,11 +43,41 @@ angular.module('wildbook.admin').directive(
                             delete $scope.user;
                         });
                     });
-                }
+                };
 
                  //change password dialog
                 $scope.changeUserPassword = function($event) {
                     var parentEl = angular.element(document.body);
+
+                    function DialogController($scope, $mdDialog, user) {
+                        $scope.password = null;
+                        $scope.verifyPassword = "";
+                        $scope.disableSave = true;
+
+                        $scope.$watch('verifyPassword', function(newVal, oldVal) {
+                            if (newVal && newVal.length > 5 && newVal === $scope.password) {
+                                $scope.disableSave = false;
+                            } else {
+                                $scope.disableSave = true;
+                            }
+                        });
+
+                        $scope.savePassword = function() {
+                            if ($scope.password === $scope.verifyPassword && $scope.password.length >= 6) {
+                                if ($scope.password.length < 6) {
+                                    return;
+                                }
+                                $http.post('useradmin/editpw/' + user.id, $scope.password);
+                            }
+
+                            $mdDialog.hide();
+                        };
+
+                        $scope.closeDialog = function() {
+                            $mdDialog.hide();
+                        };
+                    }
+
                     $mdDialog.show({
                         parent: parentEl,
                         clickOutsideToClose: true,
@@ -94,36 +127,7 @@ angular.module('wildbook.admin').directive(
                         },
                         controller: DialogController
                     });
-
-                    function DialogController($scope, $mdDialog, user) {
-                        $scope.password = null;
-                        $scope.verifyPassword = "";
-                        $scope.disableSave = true;
-
-                        $scope.$watch('verifyPassword', function(newVal, oldVal) {
-                            if (newVal && newVal.length > 5 && newVal == $scope.password) {
-                                $scope.disableSave = false;
-                            } else {
-                                $scope.disableSave = true;
-                            }
-                        });
-
-                        $scope.savePassword = function() {
-                            if ($scope.password == $scope.verifyPassword && $scope.password.length >= 6) {
-                                if ($scope.password.length < 6) {
-                                    return; 
-                                }
-                                $http.post('useradmin/editpw/' + user.id, $scope.password);
-                            }
-
-                            $mdDialog.hide();
-                        }
-
-                        $scope.closeDialog = function() {
-                            $mdDialog.hide();
-                        }
-                    }
-                }
+                };
 
                 $scope.editOrg = function($e) {
                     if(!$scope.orgs) {
@@ -133,11 +137,30 @@ angular.module('wildbook.admin').directive(
                         });
                     }
                     pickOrganization($e);
-                }
+                };
 
                 //organization dialog
                 function pickOrganization($event) {
                     var parentEl = angular.element(document.body);
+
+                    function DialogController($scope, $mdDialog, user, organizations) {
+                        $scope.orgSearch = "";
+                        $scope.user = user;
+                        $scope.organizations = organizations;
+
+                        $scope.clearSearch = function() {
+                            if ($scope.user.organization) {
+                                $scope.orgSearch = $scope.user.organization.displayName;
+                            } else {
+                                $scope.orgSearch = null;
+                            }
+                        };
+
+                        $scope.closeDialog = function() {
+                            $mdDialog.hide();
+                        };
+                    }
+
                     $mdDialog.show({
                         parent: parentEl,
                         clickOutsideToClose: true,
@@ -176,26 +199,8 @@ angular.module('wildbook.admin').directive(
                         },
                         controller: DialogController
                     });
-
-                  function DialogController($scope, $mdDialog, user, organizations) {
-                      $scope.orgSearch = "";
-                      $scope.user = user;
-                      $scope.organizations = organizations;
-
-                      $scope.clearSearch = function() {
-                          if ($scope.user.organization) {
-                              $scope.orgSearch = $scope.user.organization.displayName;
-                          } else {
-                              $scope.orgSearch = null;
-                          }
-                      }
-
-                      $scope.closeDialog = function() {
-                          $mdDialog.hide();
-                      }
-                  }
                 }
             }
-        }
+        };
     }]
-)
+);

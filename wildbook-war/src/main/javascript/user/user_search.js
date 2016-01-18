@@ -1,3 +1,6 @@
+/* global angular */
+'use strict';
+
 angular.module('wildbook.admin').directive(
     'wbUserSearch',
     ["$http", "$exceptionHandler", function($http, $exceptionHandler) {
@@ -11,7 +14,7 @@ angular.module('wildbook.admin').directive(
             link: function($scope, element, attr) {
                 $scope.searchdata = {};
                 $scope.selectedTabIndex = 0;
-            
+
                 $scope.search = function() {
                     $http.post("admin/search/user", $scope.searchdata)
                     .then(function(result) {
@@ -20,7 +23,7 @@ angular.module('wildbook.admin').directive(
                     },
                     $exceptionHandler);
                 };
-            
+
                 function rowSelectedFunc(event) {
                     $scope.searchUserDone({user: event.node.data});
                 }
@@ -46,19 +49,19 @@ angular.module('wildbook.admin').directive(
                     onRowSelected: rowSelectedFunc,
                     rowHeight: 32
                 };
-                
-                
+
+
                 //
                 // wb-key-handler-form
                 //
                 $scope.cancel = function() {
                     $scope.searchUserDone({user: null});
-                }
-                
+                };
+
                 $scope.cmdEnter = function() {
                     $scope.search();
-                }
+                };
             }
-        }
+        };
     }]
 );

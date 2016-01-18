@@ -1,3 +1,6 @@
+/* global angular, alertplus */
+'use strict';
+
 var KeyEventHandler = require("../util/keyevent_handler.js");
 
 angular.module('wildbook.util').directive(
@@ -84,11 +87,11 @@ angular.module('wildbook.util').directive(
 
                 $scope.sliderMax = function() {
                     return Math.ceil($scope.photos.length / $scope.slider.step) * $scope.slider.step;
-                }
+                };
 
                 $scope.getTimestamp = function(photo) {
                     return wbDateUtils.dateStringFromRest(photo.timestamp);
-                }
+                };
 
                 $scope.metaTooltip = function(photo) {
                     var tooltip = {};
@@ -171,7 +174,7 @@ angular.module('wildbook.util').directive(
                     } else {
                         pageRight();
                     }
-                }
+                };
 
                 function doAction(action, images) {
                     var result = $scope.cbAction({code: action.code, photos: images});
@@ -230,7 +233,7 @@ angular.module('wildbook.util').directive(
                     } else {
                         doAction(action, images);
                     }
-                }
+                };
 
                 $scope.performKeyCode = function(keyCode) {
                     //
@@ -246,14 +249,14 @@ angular.module('wildbook.util').directive(
                     if (action) {
                         $scope.performAction(action);
                     }
-                }
+                };
 
                 $scope.isLeftDisabled = function() {
                     if ($scope.zoomimage) {
                         return (idx <= 0);
                     }
                     return (startIdx <= 0);
-                }
+                };
 
                 $scope.isRightDisabled = function() {
                     if ($scope.zoomimage) {
@@ -264,11 +267,11 @@ angular.module('wildbook.util').directive(
                         return true;
                     }
                     return (startIdx >= $scope.photos.length - $scope.slider.value);
-                }
+                };
 
                 $scope.cancelZoom = function() {
                     $scope.zoomimage = null;
-                }
+                };
 
                 $scope.downloadFile = function(photo) {
                     var filename = wbDateUtils.toFileStringFromRest(photo.timestamp);
@@ -278,8 +281,8 @@ angular.module('wildbook.util').directive(
                         return filename;
                     }
 
-                    return zoomimage.url.substring(zoomimage.url.lastIndexOf('/') + 1);
-                }
+                    return $scope.zoomimage.url.substring($scope.zoomimage.url.lastIndexOf('/') + 1);
+                };
 
                 $scope.selectImage = function($event, photo) {
                     if (!photo) {
@@ -294,7 +297,7 @@ angular.module('wildbook.util').directive(
                             // unselect it by filtering
                             //
                             $scope.thumbbox.selected = $scope.thumbbox.selected.filter(function(item) {
-                                return (item.id != photo.id);
+                                return (item.id !== photo.id);
                             });
                         } else {
                             $scope.thumbbox.selected.push(photo);
@@ -339,7 +342,7 @@ angular.module('wildbook.util').directive(
                         });
                         shiftStart = null;
                     }
-                }
+                };
 
                 $scope.clearSelection = function() {
                     $scope.thumbbox.selected = [];
@@ -348,26 +351,26 @@ angular.module('wildbook.util').directive(
                             $scope.thumbbox.meta[photo.id].selected = false;
                         }
                     });
-                }
+                };
 
                 $scope.getVisPhotos = function() {
                     if (! $scope.photos) {
                         return [];
                     }
                     return $scope.photos.slice(startIdx, startIdx + $scope.slider.value);
-                }
+                };
 
                 //
                 // wb-key-handler-form
                 //
                 $scope.cancel = function() {
                     $scope.zoomimage = null;
-                }
+                };
 
                 $scope.cmdEnter = function() {
                     // do nothing
                     // want this here to override any parent scope cmdEnter event though.
-                }
+                };
             }
         };
     }]

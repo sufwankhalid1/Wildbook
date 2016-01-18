@@ -1,4 +1,4 @@
-/* global angular, document */
+/* global angular, document, window */
 'use strict';
 
 angular.module('wildbook.admin').directive(
@@ -141,7 +141,7 @@ angular.module('wildbook.admin').directive(
 
                     $scope.viewExports = function() {
                         window.location = window.location.pathname + "?j=page/myAccount";
-                    }
+                    };
                 }
 
                 $scope.exportDialog = function($event) {

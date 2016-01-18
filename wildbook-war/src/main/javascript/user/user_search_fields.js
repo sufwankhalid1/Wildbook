@@ -1,3 +1,6 @@
+/* global angular */
+'use strict';
+
 angular.module('wildbook.admin').directive(
     'wbUserSearchFields',
     ["$http", "$exceptionHandler",  function($http, $exceptionHandler) {
@@ -11,6 +14,6 @@ angular.module('wildbook.admin').directive(
             link: function($scope, ele, attr) {
 
             }
-        }
+        };
     }]
 );

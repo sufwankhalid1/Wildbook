@@ -1,3 +1,6 @@
+/* global angular, alertplus */
+'use strict';
+
 require('../user/user_search.js');
 require('../user/user_edit_fields.js');
 
