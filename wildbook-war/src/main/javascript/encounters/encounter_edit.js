@@ -47,8 +47,6 @@ angular.module('wildbook.admin').directive(
                     confirm: { message: "Are you sure you want to detach selected images from this encounter?"}
                 }];
 
-                console.log($scope.data);
-
                 if (!$scope.data.photos) {
                     wbEncounterUtils.getMedia($scope.data.encounter);
                 }

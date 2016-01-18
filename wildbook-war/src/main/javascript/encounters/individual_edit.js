@@ -38,16 +38,16 @@ angular.module('wildbook.admin').directive(
                 .then(function(config) {
                     $scope.allSpecies = config.species;
                 });
-                
+
 //                function getDisplayName(individual) {
 //                    var name = individual.nickname || "[Unnamed]";
 //                    if (! individual.alternateId) {
 //                        return name;
 //                    }
-//                    
+//
 //                    return name + " (" + individual.alternateId + ")";
 //                }
-//                
+//
                 $scope.avatarDialog = function($event) {
                    var parentEl = angular.element(document.body);
                    $mdDialog.show({
@@ -81,7 +81,6 @@ angular.module('wildbook.admin').directive(
 
                 function avatarController($scope, $mdDialog, individual, parentScope) {
                     $scope.active = [];
-
                     $http.get("obj/individual/photos/"+individual.id)
                     .then(function(photos) {
                         $scope.photos = photos.data;
@@ -109,18 +108,18 @@ angular.module('wildbook.admin').directive(
                         //
                         //$scope.data.displayName = getDisplayName($scope.data);
                         $scope.data.displayName = result.data.displayName;
-                        
+
                         $scope.editIndividualDone({individual: $scope.data});
                     }, $exceptionHandler);
                 };
-                
+
                 //
                 // wb-key-handler-form
                 //
                 $scope.cancel = function() {
                     $scope.editIndividualDone({individual: null});
                 }
-                
+
                 $scope.cmdEnter = function() {
                     $scope.save();
                 }
