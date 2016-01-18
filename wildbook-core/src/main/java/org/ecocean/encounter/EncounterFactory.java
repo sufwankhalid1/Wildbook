@@ -57,6 +57,9 @@ public class EncounterFactory {
                              MediaAssetFactory.TABLENAME_MEDIAASSET,
                              MediaAssetFactory.ALIAS_MEDIAASSET,
                              MediaAssetFactory.PK_MEDIAASSET);
+        sql.addSelectTable(ALIAS_INDIVIDUALS);
+        sql.addSelectTable(MediaAssetFactory.ALIAS_MEDIAASSET);
+
         return sql;
     }
 
@@ -196,14 +199,7 @@ public class EncounterFactory {
 
     public static SqlStatement getEncounterStatement()
     {
-        SqlStatement sql = new SqlStatement(TABLENAME_ENCOUNTERS, ALIAS_ENCOUNTERS);
-        sql.addLeftOuterJoin(ALIAS_ENCOUNTERS, PK_INDIVIDUALS, TABLENAME_INDIVIDUALS, ALIAS_INDIVIDUALS, PK_INDIVIDUALS);
-        sql.addLeftOuterJoin(ALIAS_INDIVIDUALS,
-                             "avatarid",
-                             MediaAssetFactory.TABLENAME_MEDIAASSET,
-                             MediaAssetFactory.ALIAS_MEDIAASSET,
-                             MediaAssetFactory.PK_MEDIAASSET);
-        return sql;
+        return getEncounterStatement(false);
     }
 
     public static SqlStatement getEncounterStatement(final boolean distinct)
@@ -215,7 +211,7 @@ public class EncounterFactory {
                              MediaAssetFactory.TABLENAME_MEDIAASSET,
                              MediaAssetFactory.ALIAS_MEDIAASSET,
                              MediaAssetFactory.PK_MEDIAASSET);
-        sql.setSelectDistinct(true);
+        sql.setSelectDistinct(distinct);
         sql.addSelectTable(ALIAS_ENCOUNTERS);
         sql.addSelectTable(ALIAS_INDIVIDUALS);
         sql.addSelectTable(MediaAssetFactory.ALIAS_MEDIAASSET);

@@ -78,6 +78,8 @@ public class MediaSubmissionController
             // Get the encounters from the encounter_media and any survey parts they
             // are part of.
             //
+            final String SURVEY_PART_ENCOUNTER_ALIAS = "spe";
+
             SqlStatement sql = EncounterFactory.getEncounterStatement(true);
             sql.addInnerJoin(EncounterFactory.ALIAS_ENCOUNTERS,
                              EncounterFactory.PK_ENCOUNTERS,
@@ -92,14 +94,13 @@ public class MediaSubmissionController
             sql.addLeftOuterJoin(EncounterFactory.ALIAS_ENCOUNTERS,
                                  EncounterFactory.PK_ENCOUNTERS,
                                  "surveypart_encounters",
-                                 "spe",
+                                 SURVEY_PART_ENCOUNTER_ALIAS,
                                  EncounterFactory.PK_ENCOUNTERS);
-            sql.appendSelectString("spe." + SurveyFactory.PK_SURVEYPART);
+            sql.addSelect(SURVEY_PART_ENCOUNTER_ALIAS, SurveyFactory.PK_SURVEYPART);
             sql.addCondition(MediaSubmissionFactory.ALIAS_MEDIASUB_MEDIA,
                              "mediasubmissionid",
                              SqlRelationType.EQUAL,
                              submissionid);
-
 
             SubmissionEncounters subEncs = new SubmissionEncounters();
 
