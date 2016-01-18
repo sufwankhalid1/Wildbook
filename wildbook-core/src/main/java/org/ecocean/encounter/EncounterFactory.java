@@ -49,7 +49,7 @@ public class EncounterFactory {
         return simples;
     }
 
-    public static SqlStatement getIndividualStatement()
+    public static SqlStatement getIndividualStatement(final boolean distinct)
     {
         SqlStatement sql = new SqlStatement(TABLENAME_INDIVIDUALS, ALIAS_INDIVIDUALS);
         sql.addLeftOuterJoin(ALIAS_INDIVIDUALS,
@@ -59,8 +59,14 @@ public class EncounterFactory {
                              MediaAssetFactory.PK_MEDIAASSET);
         sql.addSelectTable(ALIAS_INDIVIDUALS);
         sql.addSelectTable(MediaAssetFactory.ALIAS_MEDIAASSET);
+        sql.setSelectDistinct(distinct);
 
         return sql;
+    }
+
+    public static SqlStatement getIndividualStatement()
+    {
+        return getIndividualStatement(false);
     }
 
     public static List<Encounter> getIndividualEncounters(final Database db, final Individual individual) throws DatabaseException
@@ -186,7 +192,7 @@ public class EncounterFactory {
 
     public static Individual getIndividualByAltId(final Database db, final String alternateId) throws DatabaseException
     {
-        SqlStatement sql = EncounterFactory.getIndividualStatement();
+        SqlStatement sql = getIndividualStatement();
 
         sql.addCondition(EncounterFactory.ALIAS_INDIVIDUALS,
                          "alternateid",

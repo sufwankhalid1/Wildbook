@@ -41,7 +41,7 @@ public class SearchFactory {
 
     public static List<Encounter> searchEncounters(final Database db,
                                                    final SearchData search) throws DatabaseException {
-        SqlStatement sql = EncounterFactory.getEncounterStatement();
+        SqlStatement sql = EncounterFactory.getEncounterStatement(true);
 
         addEncounterData(sql, search.encounter);
         //
@@ -124,7 +124,7 @@ public class SearchFactory {
                                                      final SearchData search)
             throws DatabaseException {
 
-        SqlStatement sql = EncounterFactory.getIndividualStatement();
+        SqlStatement sql = EncounterFactory.getIndividualStatement(true);
 
         addIndividualData(sql, search.individual);
 
