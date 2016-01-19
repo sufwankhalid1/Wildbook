@@ -46,8 +46,7 @@ div
                             md-button.md-whiteframe-1dp(ng-if="!export.error" ng-click="download(export, export.exportId)" ng-disabled="export.status === 1 || export.status === 0") Download
                             md-progress-linear(flex="50"
                                                 ng-repeat="download in downloadObj" 
-                                                ng-if="download.id === export.exportId"
-                                                ng-show="download.progress != 0" 
+                                                ng-if="download.id === export.exportId"                                     
                                                 md-mode="determinate" 
                                                 value="{{download.progress}}")
                             md-button.md-whiteframe-1dp(ng-if="export.error" ng-click="viewError(export.error)") Error Occurred

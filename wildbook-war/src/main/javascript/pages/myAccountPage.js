@@ -106,6 +106,19 @@ angular.module('wildbook.admin').directive(
 
                 $scope.downloadObj = [];
                 $scope.download = function(exportitem, id) {
+                    var exit = false;
+
+                    $scope.downloadObj.forEach(function(download) {
+                        if (download.id === id) {
+                            alertplus.error("You are already downloading this file.");
+                            exit = true;
+                        }
+                    });
+
+                    if (exit) {
+                        return;
+                    }
+
                     var currentDownload = {id: id, progress: 0};
                     $scope.downloadObj.push(currentDownload);
 
