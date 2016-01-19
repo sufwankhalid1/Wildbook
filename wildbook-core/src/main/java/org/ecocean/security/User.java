@@ -227,14 +227,14 @@ public class User {
 
         if (! StringUtils.isBlank(email)) {
             //
-            // Return 80x80 sized gravatar. They default to 80x80 but can be requested up to 2048x2048.
+            // Return 80x80 sized gvatar. They default to 80x80 but can be requested up to 2048x2048.
             // Though most users will have used a small image.
             // Feel free to change if you want it bigger as all the code on the browser side should
             // be sized to fit it's use anyway.
             // NOTE: d=identicon makes default (when not set by user) be those crazy (unique) geometric shapes, rather than the gravatar logo
             //         - https://en.wikipedia.org/wiki/Identicon
             //
-            return "http://www.gravatar.com/avatar/"
+            return "https://www.gravatar.com/avatar/"
                     + StringUtilities.getHashOf(email.trim().toLowerCase())
                     + "?s=80&d=identicon";
         }
@@ -270,7 +270,7 @@ public class User {
         return prtoken;
     }
 
-    public void setPrtoken(String prtoken) {
+    public void setPrtoken(final String prtoken) {
         this.prtoken = prtoken;
     }
 
@@ -278,7 +278,7 @@ public class User {
         return prtimestamp;
     }
 
-    public void setPrtimestamp(LocalDateTime prtimestamp) {
+    public void setPrtimestamp(final LocalDateTime prtimestamp) {
         this.prtimestamp = prtimestamp;
     }
 
