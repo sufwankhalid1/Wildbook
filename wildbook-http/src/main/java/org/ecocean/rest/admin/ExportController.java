@@ -154,9 +154,9 @@ public class ExportController {
                 throw new SecurityException("You are not the user who initiated this export.");
             }
 
-            String fileName = export.getFullOutputDir() + ".zip";
+            Path outputDir = export.getFullOutputDir();
 
-            Path zippath = Paths.get(getOutputBaseDir(export.getType()).toString(), fileName);
+            Path zippath = Paths.get(getOutputBaseDir(export.getType()).toString(), outputDir + ".zip");
             if (!Files.exists(zippath)) {
                 if (export.isDelivered()) {
                     throw new IllegalArgumentException("Our records show that you already downloaded this export zip.");
@@ -175,9 +175,11 @@ public class ExportController {
                 }
             }
 
+            String fileName = outputDir.getFileName() + ".zip";
             response.setContentType("application/zip");
-            response.setHeader("Content-Disposition", "attachment; filename=" + fileName + ".zip");
+            response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
             response.setHeader("blobsize", String.valueOf(Files.size(zippath)));
+            response.setHeader("filename", fileName);
 
             InputStream inputStream = new FileInputStream(zippath.toFile());
             IOUtils.copy(inputStream, response.getOutputStream());

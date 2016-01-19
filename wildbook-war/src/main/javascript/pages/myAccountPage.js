@@ -109,20 +109,20 @@ angular.module('wildbook.admin').directive(
                     var currentDownload = {id: id, progress: 0};
                     $scope.downloadObj.push(currentDownload);
 
-                    var header;
+                    var blobsize;
+                    var filename;
 
                     function updateProgress(evt) {
-                        if (header) {
+                        if (blobsize) {
                             for (var ii = 0; ii < $scope.downloadObj.length; ii++){
                                 if ($scope.downloadObj[ii].id === id) {
-                                    $scope.downloadObj[ii].progress = (evt.loaded / header)*100;
+                                    $scope.downloadObj[ii].progress = (evt.loaded / blobsize)*100;
                                 }
                             }
                         }
                     }
 
                     var url = "export/download/" + exportitem.exportId;
-                    var filename = exportitem.type + ".zip";
 
                     //
                     // Using old school XMLHttpRequest because angular ($http) AND jquery ($.ajax)
@@ -137,11 +137,15 @@ angular.module('wildbook.admin').directive(
                     xhr.onprogress = updateProgress;
                     xhr.onreadystatechange = function () {
                         if (xhr.readyState === 2) {
-                            header = xhr.getResponseHeader("blobsize");
+                            blobsize = xhr.getResponseHeader("blobsize");
+                            filename = xhr.getResponseHeader("filename");
                         }
                         if (xhr.readyState === 4) {
                             var blob = xhr.response;
                             if (xhr.status === 200) {
+                                if (!filename) {
+                                    filename = exportitem.type + "_" + exportitem.exportId + ".zip";
+                                }
                                 FileSaver.saveAs(blob, filename);
                                 $scope.refresh = true;
                             } else {

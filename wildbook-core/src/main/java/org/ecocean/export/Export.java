@@ -96,6 +96,6 @@ public class Export {
 
     @JsonIgnore
     public Path getFullOutputDir() {
-        return Paths.get(outputdir, type);
+        return Paths.get(outputdir, "export_" + type + "_" + String.valueOf(exportid));
     }
 }
