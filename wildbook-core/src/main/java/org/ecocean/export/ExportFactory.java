@@ -100,7 +100,9 @@ public class ExportFactory {
         try {
             export.setError(new Gson().fromJson(error, ErrorInfo.class));
         } catch (JsonSyntaxException ex) {
-            export.setError(new ErrorInfo(error, null));
+            if (error != null) {
+                export.setError(new ErrorInfo(error, null));
+            }
         }
         export.setOutputdir(rs.getString("outputDir"));
         export.setType(rs.getString("type"));

@@ -8,12 +8,20 @@ public class ErrorInfo
     public String stack;
 
     public ErrorInfo(final String message, final String stack) {
-        this.message = message;
+        if (message == null) {
+            this.message = "Error";
+        } else {
+            this.message = message;
+        }
         this.stack = stack;
     }
 
     public ErrorInfo(final Throwable ex) {
-        message = ex.getMessage();
+        if (ex.getMessage() == null) {
+            message = "Error";
+        } else {
+            message = ex.getMessage();
+        }
         stack = ExceptionUtils.getStackTrace(ex);
     }
 }
