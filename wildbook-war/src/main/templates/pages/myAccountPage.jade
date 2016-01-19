@@ -41,10 +41,16 @@ div
                         div(flex="20") {{export.exportId}}
                         div(flex="20") {{timestampToDate(export.timestamp)}}
                         div(flex="20") {{export.type}}
-                        div(flex="20") {{export.status == 0 ? "Queued" : (export.status == 1 ? "In Progress" : "Complete")}}
+                        div(flex="20") {{export.status === 0 ? "Queued" : (export.status == 1 ? "In Progress" : "Complete")}}
                         div(flex="20")
-                            md-button(ng-if="!export.error" ng-click="download(export)") Download
-                            md-button(ng-if="export.error" ng-click="viewError(export.error)") Error Occurred
+                            md-button.md-whiteframe-1dp(ng-if="!export.error" ng-click="download(export, export.exportId)" ng-disabled="export.status === 1 || export.status === 0") Download
+                            md-progress-linear(flex="50"
+                                                ng-repeat="download in downloadObj" 
+                                                ng-if="download.id === export.exportId"
+                                                ng-show="download.progress != 0" 
+                                                md-mode="determinate" 
+                                                value="{{download.progress}}")
+                            md-button.md-whiteframe-1dp(ng-if="export.error" ng-click="viewError(export.error)") Error Occurred
                     div(layout="row" flex="100")
                         md-divider(flex="100")
         md-button.md-whiteframe-1dp.mt-20(ng-click="showExports = true" ng-show="!showExports") Show Exports

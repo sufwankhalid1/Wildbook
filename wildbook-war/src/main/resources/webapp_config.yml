@@ -102,10 +102,12 @@ navbar:
               url: /javadoc/index.html
               role: admin
             - type: divider
+              role: admin
             - name: siteAdmin
               url: /admin.jsp?j=page/siteAdmin
               role: admin
             - type: divider
+              role: admin
             - name: dataImport
               url: /appadmin/import.jsp
               role: admin

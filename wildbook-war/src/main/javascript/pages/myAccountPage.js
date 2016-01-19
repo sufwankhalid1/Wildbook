@@ -104,19 +104,22 @@ angular.module('wildbook.admin').directive(
                     $scope.self = angular.copy(origSelf);
                 };
 
-                $scope.download = function(exportitem) {
-                    // function printSomeOfBytes(bytes, start, length) {
-                    //     const LENGTH = 40;
-                    //     var rowend = Math.floor(length / LENGTH);
-                    //     for (var jj = 0; jj < rowend; jj++) {
-                    //         var output = "";
-                    //         var rowstart = start + (jj * LENGTH);
-                    //         for (var ii = rowstart; ii < rowstart + LENGTH; ii++) {
-                    //             output += bytes[ii];
-                    //         }
-                    //         console.log(output);
-                    //     }
-                    // }
+                $scope.downloadObj = [];
+                $scope.download = function(exportitem, id) {
+                    var currentDownload = {id: id, progress: 0};
+                    $scope.downloadObj.push(currentDownload);
+
+                    var header;
+
+                    function updateProgress(evt) {
+                        if (header) {
+                            for (var ii = 0; ii < $scope.downloadObj.length; ii++){
+                                if ($scope.downloadObj[ii].id === id) {
+                                    $scope.downloadObj[ii].progress = (evt.loaded / header)*100;
+                                }
+                            }
+                        }
+                    }
 
                     var url = "export/download/" + exportitem.exportId;
                     var filename = exportitem.type + ".zip";
@@ -131,7 +134,11 @@ angular.module('wildbook.admin').directive(
                     xhr.open('GET', url, true);
                     xhr.responseType = "blob";
                     xhr.withCredentials = true;
+                    xhr.onprogress = updateProgress;
                     xhr.onreadystatechange = function () {
+                        if (xhr.readyState === 2) {
+                            header = xhr.getResponseHeader("blobsize");
+                        }
                         if (xhr.readyState === 4) {
                             var blob = xhr.response;
                             if (xhr.status === 200) {

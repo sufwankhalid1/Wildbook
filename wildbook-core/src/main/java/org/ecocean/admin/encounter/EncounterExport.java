@@ -196,7 +196,11 @@ public class EncounterExport {
                 encArray[18] = null;
                 encArray[19] = null;
             } else {
-                encArray[16] = individual.getSpecies().getName();
+                if (individual.getSpecies() != null) {
+                    encArray[16] = individual.getSpecies().getName();
+                } else {
+                    encArray[16] = null;
+                }
                 encArray[17] = individual.getId().toString();
                 encArray[18] = individual.getAlternateId();
                 encArray[19] = individual.getBio();
