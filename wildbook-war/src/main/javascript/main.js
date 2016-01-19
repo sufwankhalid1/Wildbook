@@ -341,6 +341,7 @@ app.factory("wbEncounterUtils", ["$http", "$q", "wbConfig", "wbDateUtils", "$exc
 
                 if (!encounter.individual.avatarFull) {
                     encounter.individual.avatarFull = photo;
+                    encounter.individual.avatar = photo.thumbUrl;
                 }
             });
 
@@ -383,6 +384,7 @@ app.factory("wbEncounterUtils", ["$http", "$q", "wbConfig", "wbDateUtils", "$exc
             return  $http.post('obj/encounter/save', enc)
             .then(function(result) {
                 enc.id = result.data.encounterid;
+                enc.individual.id = result.data.individualid;
                 return enc;
             });
         }
