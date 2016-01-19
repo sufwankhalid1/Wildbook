@@ -338,6 +338,10 @@ app.factory("wbEncounterUtils", ["$http", "$q", "wbConfig", "wbDateUtils", "$exc
                 if (photo.timestamp) {
                     dates.push(photo.timestamp);
                 }
+
+                if (!encounter.individual.avatarFull) {
+                    encounter.individual.avatarFull = photo;
+                }
             });
 
             //check if same day, if so, compare
