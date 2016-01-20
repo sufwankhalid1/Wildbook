@@ -30,6 +30,29 @@ public class EncounterExport {
     //
     // CSV file has these columns in this order.
     //
+
+
+    private static final int COL_FILENAME = 0;
+    private static final int COL_MEDIAID = 1;
+    private static final int COL_CONTRIBUTOR_FULLNAME = 2;
+    private static final int COL_CONTRIBUTOR_EMAIL = 3;
+    private static final int COL_CONTRIBUTOR_ORGANIZATION = 4;
+    private static final int COL_SUBMITTED_ON = 5;
+    private static final int COL_ENC_DATE = 6;
+    private static final int COL_ENC_START_TIME = 7;
+    private static final int COL_ENC_END_TIME = 8;
+    private static final int COL_ENC_LAT = 9;
+    private static final int COL_ENC_LONG = 10;
+    private static final int COL_ENC_LOC_ID = 11;
+    private static final int COL_ENC_LOC_VERBATIM = 12;
+    private static final int COL_ENC_LOC_ACCURACY = 13;
+    private static final int COL_ENC__LOC_PRECISION = 14;
+    private static final int COL_ENC_COMMENTS = 15;
+    private static final int COL_IND_SPECIES = 16;
+    private static final int COL_IND_ID = 17;
+    private static final int COL_IND_ALTERNATE_ID = 18;
+    private static final int COL_IND_COMMENTS = 19;
+
     private static final String[] cols = {"filename", "mediaid", "contributor_fullname",
                                           "contributor_email", "contributor_organization", "submitted_on",
                                           "enc_date", "enc_start_time", "enc_end_time",
@@ -98,112 +121,112 @@ public class EncounterExport {
             }
 
             String[] encArray = new String[cols.length];
-            encArray[0] = filename;
-            encArray[1] = Integer.toString(ma.getID());
+            encArray[COL_FILENAME] = filename;
+            encArray[COL_MEDIAID] = Integer.toString(ma.getID());
 
             if (user == null) {
-                encArray[2] = null;
-                encArray[3] = null;
-                encArray[4] = null;
+                encArray[COL_CONTRIBUTOR_FULLNAME] = null;
+                encArray[COL_CONTRIBUTOR_EMAIL] = null;
+                encArray[COL_CONTRIBUTOR_ORGANIZATION] = null;
             } else {
-                encArray[2] = user.getFullName();
-                encArray[3] = user.getEmail();
+                encArray[COL_CONTRIBUTOR_FULLNAME] = user.getFullName();
+                encArray[COL_CONTRIBUTOR_EMAIL] = user.getEmail();
                 if (user.getOrganization() == null) {
-                    encArray[4] = null;
+                    encArray[COL_CONTRIBUTOR_ORGANIZATION] = null;
                 } else {
-                    encArray[4] = user.getOrganization().toString();
+                    encArray[COL_CONTRIBUTOR_ORGANIZATION] = user.getOrganization().toString();
                 }
             }
 
             if (ma.getSubmittedOn() == null) {
-                encArray[5] = null;
+                encArray[COL_SUBMITTED_ON] = null;
             } else {
-                encArray[5] = ma.getSubmittedOn().toString();
+                encArray[COL_SUBMITTED_ON] = ma.getSubmittedOn().toString();
             }
 
             if (encounter.getEncDate() == null) {
-                encArray[6] = null;
+                encArray[COL_ENC_DATE] = null;
             } else {
-                encArray[6] = encounter.getEncDate().toString();
+                encArray[COL_ENC_DATE] = encounter.getEncDate().toString();
             }
 
             if (encounter.getStarttime() == null) {
-                encArray[7] = null;
+                encArray[COL_ENC_START_TIME] = null;
             } else {
-                encArray[7] = encounter.getStarttime().toString();
+                encArray[COL_ENC_START_TIME] = encounter.getStarttime().toString();
             }
 
             if (encounter.getEndtime() == null) {
-                encArray[8] = null;
+                encArray[COL_ENC_END_TIME] = null;
             } else {
-                encArray[8] = encounter.getEndtime().toString();
+                encArray[COL_ENC_END_TIME] = encounter.getEndtime().toString();
             }
 
             if (encounter.getLocation() == null) {
-                encArray[9] = null;
-                encArray[10] = null;
-                encArray[11] = null;
-                encArray[12] = null;
-                encArray[13] = null;
-                encArray[14] = null;
+                encArray[COL_ENC_LAT] = null;
+                encArray[COL_ENC_LONG] = null;
+                encArray[COL_ENC_LOC_ID] = null;
+                encArray[COL_ENC_LOC_VERBATIM] = null;
+                encArray[COL_ENC_LOC_ACCURACY] = null;
+                encArray[COL_ENC__LOC_PRECISION] = null;
             } else {
                 if (encounter.getLocation().getLatitude() == null) {
-                    encArray[9] = null;
+                    encArray[COL_ENC_LAT] = null;
                 } else {
-                    encArray[9] = encounter.getLocation().getLatitude().toString();
+                    encArray[COL_ENC_LAT] = encounter.getLocation().getLatitude().toString();
                 }
 
                 if (encounter.getLocation().getLongitude() == null) {
-                    encArray[10] = null;
+                    encArray[COL_ENC_LONG] = null;
                 } else {
-                    encArray[10] = encounter.getLocation().getLongitude().toString();
+                    encArray[COL_ENC_LONG] = encounter.getLocation().getLongitude().toString();
                 }
 
                 if (encounter.getLocation().getLocationid() == null) {
-                    encArray[11] = null;
+                    encArray[COL_ENC_LOC_ID] = null;
                 } else {
-                    encArray[11] = encounter.getLocation().getLocationid();
+                    encArray[COL_ENC_LOC_ID] = encounter.getLocation().getLocationid();
                 }
 
                 if (encounter.getLocation().getVerbatimLocation() == null) {
-                    encArray[12] = null;
+                    encArray[COL_ENC_LOC_VERBATIM] = null;
                 } else {
-                    encArray[12] = encounter.getLocation().getVerbatimLocation();
+                    encArray[COL_ENC_LOC_VERBATIM] = encounter.getLocation().getVerbatimLocation();
                 }
 
                 if (encounter.getLocation().getAccuracy() == null) {
-                    encArray[13] = null;
+                    encArray[COL_ENC_LOC_ACCURACY] = null;
                 } else {
-                    encArray[13] = encounter.getLocation().getAccuracy().toString();
+                    encArray[COL_ENC_LOC_ACCURACY] = encounter.getLocation().getAccuracy().toString();
                 }
 
                 if (encounter.getLocation().getPrecisionSource() == null) {
-                    encArray[14] = null;
+                    encArray[COL_ENC__LOC_PRECISION] = null;
                 } else {
-                    encArray[14] = encounter.getLocation().getPrecisionSource().toString();
+                    encArray[COL_ENC__LOC_PRECISION] = encounter.getLocation().getPrecisionSource().toString();
                 }
             }
 
             if (encounter.getComments() == null) {
-                encArray[15] = null;
+                encArray[COL_ENC_COMMENTS] = null;
             } else {
-                encArray[16] = encounter.getComments();
+                encArray[COL_ENC_COMMENTS] = encounter.getComments();
             }
 
             if (individual == null) {
-                encArray[16] = null;
-                encArray[17] = null;
-                encArray[18] = null;
-                encArray[19] = null;
+                encArray[COL_IND_SPECIES] = null;
+                encArray[COL_IND_ID] = null;
+                encArray[COL_IND_ALTERNATE_ID] = null;
+                encArray[COL_IND_COMMENTS] = null;
             } else {
                 if (individual.getSpecies() != null) {
-                    encArray[16] = individual.getSpecies().getName();
+                    encArray[COL_IND_SPECIES] = individual.getSpecies().getName();
                 } else {
-                    encArray[16] = null;
+                    encArray[COL_IND_SPECIES] = null;
                 }
-                encArray[17] = individual.getId().toString();
-                encArray[18] = individual.getAlternateId();
-                encArray[19] = individual.getBio();
+                encArray[COL_IND_ID] = individual.getId().toString();
+                encArray[COL_IND_ALTERNATE_ID] = individual.getAlternateId();
+                encArray[COL_IND_COMMENTS] = individual.getBio();
 
             }
 
