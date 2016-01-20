@@ -16,11 +16,8 @@ div(layout="row" flex="100" class="site-admin-orgs" layout-align="start center" 
         md-icon.mwidth-10.pointer(md-svg-icon="close" ng-show="showSearch" ng-click="showSearch = false")
         md-button.md-whiteframe-1dp.height-36(aria-label="New Species"  ng-click="newOrg()") New Organization
     div(ng-show="showEdit || org" layout="row" flex="100" layout-align="start end")
-        md-input-container.mr-10.padding-0
+        md-input-container.mr-10.padding-0(flex="25")
             label Name
             input(type="text" ng-model="orgInput.name")
         md-button.md-whiteframe-1dp.height-36(aria-label="Save Encounter"  ng-click="save()") Save
         md-button.md-whiteframe-1dp.height-36(aria-label="Cancel"  ng-click="cancel()") Cancel
-
-
-

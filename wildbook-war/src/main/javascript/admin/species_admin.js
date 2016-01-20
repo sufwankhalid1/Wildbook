@@ -48,8 +48,10 @@ angular.module('wildbook.admin').directive(
                 };
 
                 $scope.save = function() {
-                    if(!$scope.speciesInput.name && !$scope.speciesInput.code) {
-                        alertplus.alert("Please enter both a species name and a code.");
+                    if(!$scope.speciesInput.name || !$scope.speciesInput.code) {
+                        alertplus.alert("Please enter both a species name and a code."
+                                        + "<br/> The species code must be unique, lowercase, and have no spaces."
+                                        + "<br/> EXAMPLE: <br/> Code: happy_whale <br/> Name: Happy Whale <br/> Icon Code: happy_whale");
                         return;
                     }
 
