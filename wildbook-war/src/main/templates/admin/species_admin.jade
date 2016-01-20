@@ -21,10 +21,10 @@ div(layout="row" flex="100" class="site-admin-orgs" layout-align="start center" 
     div(ng-show="speciesInput" layout="row" flex="100" layout-align="start end")
         md-input-container.padding-0(flex)
             label Code
-            input(type="text" ng-model="speciesInput.code")
+            input(type="text" ng-model="speciesInput.code" required)
         md-input-container.ml-10.padding-0(flex)
             label Name
-            input(type="text" ng-model="speciesInput.name")
+            input(type="text" ng-model="speciesInput.name" required)
         md-input-container.ml-10.padding-0(flex)
             label Icon Code (leave blank if equal to Code)
             input(type="text" ng-model="speciesInput.icon")
