@@ -380,13 +380,27 @@ app.factory("wbEncounterUtils", ["$http", "$q", "wbConfig", "wbDateUtils", "$exc
             });
 
         },
-        saveEnc: function(enc){
+        saveEnc: function(enc) {
             return  $http.post('obj/encounter/save', enc)
             .then(function(result) {
                 enc.id = result.data.encounterid;
                 enc.individual.id = result.data.individualid;
                 return enc;
             });
+        },
+        delEnc: function(enc, alreadyAlerted) {
+            if (alreadyAlerted) {
+                return $http.post("obj/encounter/delete", enc)
+                .then(function() {
+                }, $exceptionHandler);
+            } else {
+                return alertplus.confirm('Are you sure you want to delete this encounter?', "Delete Encounter", true)
+                .then(function() {
+                    $http.post("obj/encounter/delete", enc)
+                    .then(function() {
+                    }, $exceptionHandler);
+                });
+            }
         }
     };
 }]);
