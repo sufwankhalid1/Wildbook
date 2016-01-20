@@ -45,7 +45,8 @@ angular.module('wildbook.admin').directive(
                     type: "warn",
                     icon: "bookmark-remove",
                     tooltip: "Remove/Detach",
-                    confirm: { message: "Are you sure you want to detach selected images from this encounter?"}
+                    confirm: { message: "Are you sure you want to detach selected images from this encounter?"},
+                    lastImg: { message: "Deleting the last image will also delete this encounter?"}
                 }];
 
                 if (!$scope.data.photos) {
@@ -267,18 +268,15 @@ angular.module('wildbook.admin').directive(
                 };
 
                 $scope.deleteEncounter = function() {
-                    return alertplus.confirm('Are you sure you want to delete this encounter?', "Delete Encounter", true)
-                    .then(function() {
-                        $http.post("obj/encounter/delete", $scope.data.encounter)
-                        .then(function() {
-                            $scope.deleted({encdata: $scope.data});
-                        }, $exceptionHandler);
+                    wbEncounterUtils.delEnc($scope.data.encounter).then(function(){
+                        $scope.deleted({encdata: $scope.data});
                     });
                 };
 
                 //=================================
                 // START wb-thumb-box
                 //=================================
+                var initialPhotoLength = $scope.data.photos.length;
                 $scope.performAction = function(code, photos) {
                     if (!photos) {
                         return;
@@ -305,6 +303,14 @@ angular.module('wildbook.admin').directive(
                         promise.catch($exceptionHandler);
                         return promise;
                     }}
+                };
+
+                $scope.checkPhotoCount = function(photos) {
+                    if (photos.length === 0) {
+                        wbEncounterUtils.delEnc($scope.data.encounter, true).then(function(){
+                            $scope.deleted({encdata: $scope.data});
+                        });
+                    }
                 };
                 //=================================
                 // END wb-thumb-box

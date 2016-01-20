@@ -42,6 +42,7 @@ angular.module('wildbook.util').directive(
                 cbAction: "&",
                 blockSize: "@",
                 defaultBlockCount: "@",
+                pcbAction: "&"
             },
             link: function(scope, element, attrs) {
                 KeyEventHandler.link(getKeySetup(attrs.wbKeyHandlerPriority), scope, element, attrs);
@@ -211,14 +212,29 @@ angular.module('wildbook.util').directive(
                         if (idx > $scope.photos.length - 1) {
                             idx = $scope.photos.length - 1;
                         }
+
                         if ($scope.zoomimage) {
                             $scope.zoomimage = $scope.photos[idx];
                         }
+
+                        if ($scope.pcbAction) {
+                            $scope.pcbAction({photos: $scope.photos});
+                        }
+
+                        $scope.clearSelection();
                     }}
                 }
 
                 $scope.performAction = function(action) {
                     var images;
+
+                    function confirm(){
+                        return alertplus.confirm(action.confirm.message, action.tooltip, true)
+                        .then(function() {
+                            doAction(action, images);
+                        });
+                    }
+
                     if ($scope.zoomimage) {
                         images = [$scope.zoomimage];
                     } else {
@@ -226,10 +242,18 @@ angular.module('wildbook.util').directive(
                     }
 
                     if (action.confirm) {
-                        return alertplus.confirm(action.confirm.message, action.tooltip, true)
-                        .then(function() {
-                            doAction(action, images);
-                        });
+                        if (action.lastImg) {
+                            if ($scope.photos.length === 1 || images.length >= $scope.photos.length) {
+                                return alertplus.confirm(action.lastImg.message, action.tooltip, true)
+                                .then(function() {
+                                    doAction(action, images);
+                                });
+                            } else {
+                                confirm();
+                            }
+                        } else {
+                            confirm();
+                        }
                     } else {
                         doAction(action, images);
                     }
