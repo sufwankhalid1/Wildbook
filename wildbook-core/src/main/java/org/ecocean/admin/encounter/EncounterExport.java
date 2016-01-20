@@ -23,6 +23,7 @@ import com.opencsv.CSVWriter;
 import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
 import com.samsix.database.SqlStatement;
+import com.samsix.util.OsUtils;
 
 public class EncounterExport {
     private final Path outputBaseDir;
@@ -110,7 +111,26 @@ public class EncounterExport {
             MediaAsset ma = MediaAssetFactory.valueOf(rs);
             User user = UserFactory.readUser(rs);
 
-            String filename = ma.getPath().getFileName().toString();
+//            String filename = ma.getPath().getFileName().toString();
+            String filename = null;
+            if (encounter.getEncDate() != null) {
+                filename = encounter.getEncDate().toString();
+            }
+            if (user != null && user.getFullName() != null) {
+                if (filename == null) {
+                    filename = "";
+                } else {
+                    filename += "_";
+                }
+                filename += user.getFullName().replace(" ", "_");
+            }
+            if (filename == null) {
+                filename = "";
+            } else {
+                filename += "_";
+            }
+            filename += ma.getID() + "." + OsUtils.getFileExtension(ma.getPath().toString());
+
             Path output = Paths.get(outputDir.toString(), filename);
             if (!Files.exists(output)) {
                 try {
