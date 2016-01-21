@@ -1,4 +1,4 @@
-<%@ page contentType="text/html; charset=utf-8" 
+<%@ page contentType="text/html; charset=utf-8"
          language="java"
          import="org.ecocean.servlet.ServletUtils,
                  org.ecocean.Global,
@@ -31,15 +31,15 @@ Properties props = ShepherdProperties.getProperties("login.properties", langCode
         <table align="left" border="0" cellspacing="0" cellpadding="3">
             <tr>
                 <td><%=props.getProperty("username") %></td>
-                <td><input type="text" name="username" maxlength="50" /></td>
+                <td><input type="text" name="username" maxlength="50" style="width: 300px;padding-left: 5px;" /></td>
             </tr>
             <tr>
                 <td><%=props.getProperty("password") %></td>
-                <td><input type="password" name="password" maxlength="50" /></td>
+                <td><input type="password" name="password" maxlength="50" style="width: 300px;padding-left: 5px;"/></td>
             </tr>
             <tr>
                 <td colspan="2" align="left">
-                    <input type="checkbox" name="rememberMe" value="true"/> <%=props.getProperty("rememberMe") %> 
+                    <input type="checkbox" name="rememberMe" value="true"/> <%=props.getProperty("rememberMe") %>
                 </td>
             </tr>
             <tr>
@@ -74,7 +74,7 @@ Properties props = ShepherdProperties.getProperties("login.properties", langCode
                     <br/><br/>
                 </td>
             </tr>
-    
+
             <%
             }
             if (resources.getBoolean("user.social.create", false)) {
@@ -100,7 +100,7 @@ Properties props = ShepherdProperties.getProperties("login.properties", langCode
             <%
             }
             %>
-    
+
             <tr>
                 <td colspan="2" align="left">
                     <strong><%=props.getProperty("passwordHelp") %></strong><br />
