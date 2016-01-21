@@ -3,6 +3,8 @@ package org.ecocean.servlet;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -19,6 +21,9 @@ import org.ecocean.Global;
 import org.ecocean.html.HtmlConfig;
 import org.ecocean.security.User;
 import org.ecocean.util.Jade4JUtils;
+import org.ecocean.util.LogBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.ResourceUtils;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
@@ -27,7 +32,7 @@ import com.samsix.database.ConnectionInfo;
 import com.samsix.database.Database;
 
 public class ServletUtils {
-//    private static Logger logger = LoggerFactory.getLogger(ServletUtils.class);
+    private static Logger logger = LoggerFactory.getLogger(ServletUtils.class);
 
     private static final String DEFAULT_LANG_CODE = "en";
 
@@ -172,9 +177,14 @@ public class ServletUtils {
         }
     }
 
-    public static String getURLLocation(final HttpServletRequest request) {
-        return request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
-      }
+    public static URL getURL(final HttpServletRequest request) throws MalformedURLException {
+        URL url = new URL(request.getScheme(), request.getServerName(), request.getServerPort(), request.getContextPath());
+        if (logger.isDebugEnabled()) {
+            LogBuilder.debug(logger, "Server Name", request.getServerName());
+            LogBuilder.debug(logger, "URL", url);
+        }
+        return url;
+    }
 
     public static HtmlConfig getHtmlConfig() throws FileNotFoundException {
         File file = ResourceUtils.getFile("classpath:webapp_config.yml");

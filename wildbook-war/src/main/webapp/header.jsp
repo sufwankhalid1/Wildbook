@@ -24,6 +24,7 @@
              org.ecocean.servlet.ServletUtils,
              org.ecocean.rest.SimpleUser,
              org.ecocean.Global,
+             java.net.URL,
              java.util.ArrayList,
              java.util.Collections,
              java.util.List,
@@ -41,7 +42,7 @@ String context = ServletUtils.getContext(request);
 String langCode = ServletUtils.getLanguageCode(request);
 Properties props = ShepherdProperties.getProperties("header.properties", langCode, context);
 
-String urlLoc = "https://" + ServletUtils.getURLLocation(request);
+URL urlLoc = ServletUtils.getURL(request);
 
 Properties webAppProps = Global.INST.getWebappClientProps();
 HtmlConfig htmlConfig = ServletUtils.getHtmlConfig();
@@ -62,7 +63,7 @@ public String getMenuLabel(final Properties props, final String name) {
 
 public void appendMenu(final HttpServletRequest request,
                        final Properties props,
-                       final String urlLoc,
+                       final URL urlLoc,
                        final StringBuilder builder,
                        final HtmlMenu menu) {
     if (menu.login && request.getUserPrincipal() == null) {
@@ -114,7 +115,7 @@ public void appendMenu(final HttpServletRequest request,
     //    builder.append(urlLoc);
     //}
     if (menu.url == null) {
-        builder.append(request.getContextPath());
+        builder.append(urlLoc.toString());
     } else {
         builder.append(menu.url);
     }
@@ -128,7 +129,7 @@ public void appendMenu(final HttpServletRequest request,
 
 public String createNavBar(final HttpServletRequest request,
                            final Properties props,
-                           final String urlLoc,
+                           final URL urlLoc,
                            final HtmlNavBar navbar) {
     StringBuilder builder = new StringBuilder();
 
@@ -193,7 +194,7 @@ public String createNavBar(final HttpServletRequest request,
                                 <%
                                 } else {
                                 %>
-                                <li><a href="welcome.jsp" title=""><%=props.getProperty("login") %></a></li>
+                                <li><a href="login.jsp" title=""><%=props.getProperty("login") %></a></li>
                                 <%
                                 }
                                 if (! StringUtils.isBlank(webAppProps.getProperty("wiki.location"))) {
