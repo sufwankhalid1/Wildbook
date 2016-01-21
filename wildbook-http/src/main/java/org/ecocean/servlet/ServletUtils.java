@@ -8,7 +8,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.Cookie;
@@ -17,7 +16,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.ecocean.ContextConfiguration;
 import org.ecocean.Global;
-import org.ecocean.ShepherdProperties;
 import org.ecocean.html.HtmlConfig;
 import org.ecocean.security.User;
 import org.ecocean.util.Jade4JUtils;
@@ -62,18 +60,19 @@ public class ServletUtils {
     }
 
     public static String getContext(final HttpServletRequest request) {
-        Properties contexts = ShepherdProperties.getContextsProperties();
+        List<String> contexts = Global.INST.getAppResources().getStringList("contexts", Collections.emptyList());
 
+        //
         //check the URL for the context attribute
         //this can be used for debugging and takes precedence
+        //
         if (request.getParameter("context") != null) {
-          //get the available contexts
-          if (contexts.containsKey((request.getParameter("context") + "DataDir"))) {
             return request.getParameter("context");
-          }
         }
 
+        //
         //the request cookie is the next thing we check. this should be the primary means of figuring context out
+        //
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
@@ -85,12 +84,12 @@ public class ServletUtils {
 
         //finally, we will check the URL vs values defined in context.properties to see if we can set the right context
         String currentURL=request.getServerName();
-        for (int q=0; q < contexts.size(); q++) {
-            String thisContext="context"+q;
+        for (int qq=0; qq < contexts.size(); qq++) {
+            String thisContext = "context" + qq;
             ArrayList<String> domainNames = ContextConfiguration.getContextDomainNames(thisContext);
             int numDomainNames=domainNames.size();
-            for (int p=0;p<numDomainNames;p++) {
-                if (currentURL.indexOf(domainNames.get(p)) != -1) {
+            for (int pp = 0; pp < numDomainNames; pp++) {
+                if (currentURL.indexOf(domainNames.get(pp)) != -1) {
                     return thisContext;
                 }
             }

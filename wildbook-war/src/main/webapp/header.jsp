@@ -41,7 +41,7 @@ String context = ServletUtils.getContext(request);
 String langCode = ServletUtils.getLanguageCode(request);
 Properties props = ShepherdProperties.getProperties("header.properties", langCode, context);
 
-String urlLoc = "http://" + ServletUtils.getURLLocation(request);
+String urlLoc = "https://" + ServletUtils.getURLLocation(request);
 
 Properties webAppProps = Global.INST.getWebappClientProps();
 HtmlConfig htmlConfig = ServletUtils.getHtmlConfig();
@@ -52,7 +52,7 @@ public String getMenuLabel(final Properties props, final String name) {
     if (StringUtils.isBlank(name)) {
         return "NULL";
     }
-    
+
     String label = props.getProperty(name);
     if (StringUtils.isBlank(label)) {
         return name;
@@ -68,31 +68,31 @@ public void appendMenu(final HttpServletRequest request,
     if (menu.login && request.getUserPrincipal() == null) {
         return;
     }
-    
+
     if (menu.role != null && ! request.isUserInRole(menu.role)) {
         return;
     }
-    
+
     if (menu.submenus != null) {
         builder.append("<li class=\"dropdown\">")
                .append("<a href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\" role=\"button\" aria-expanded=\"false\">")
                .append(getMenuLabel(props, menu.name))
                .append("<span class=\"caret\"></span></a>")
                .append("<ul class=\"dropdown-menu\" role=\"menu\">");
-        
+
         for (HtmlMenu submenu : menu.submenus) {
             appendMenu(request, props, urlLoc, builder, submenu);
         }
-        
+
         builder.append("</ul></li>");
         return;
     }
-    
+
     if ("divider".equals(menu.type)) {
         builder.append("<li class=\"divider\"></li>");
         return;
     }
-    
+
     if ("home".equals(menu.name)) {
         builder.append("<li class=\"active home text-hide\">");
     } else if (menu.type != null) {
@@ -107,18 +107,22 @@ public void appendMenu(final HttpServletRequest request,
     } else {
         builder.append("<li>");
     }
-    
+
 
     builder.append("<a href=\"");
-    if (menu.url != null && ! menu.url.startsWith("http:")) {
-        builder.append(urlLoc);
+    //if (menu.url != null && ! menu.url.startsWith("http:") && ! menu.url.startsWith("https:")) {
+    //    builder.append(urlLoc);
+    //}
+    if (menu.url == null) {
+        builder.append(request.getContextPath());
+    } else {
+        builder.append(menu.url);
     }
-    builder.append(menu.url);
-    
+
     if (menu.target != null) {
        builder.append(" target=\"").append(menu.target).append("\"");
     }
-    
+
     builder.append("\">").append(getMenuLabel(props, menu.name)).append("</a></li>");
 }
 
@@ -127,11 +131,11 @@ public String createNavBar(final HttpServletRequest request,
                            final String urlLoc,
                            final HtmlNavBar navbar) {
     StringBuilder builder = new StringBuilder();
-    
+
     for (HtmlMenu menu : navbar.menus) {
         appendMenu(request, props, urlLoc, builder, menu);
     }
-    
+
     return builder.toString();
 }
 %>
@@ -148,18 +152,18 @@ public String createNavBar(final HttpServletRequest request,
         <meta name="Author" content="<%=webAppProps.getProperty("html.author") %>"/>
         <link rel="shortcut icon"
               href="<%=webAppProps.getProperty("html.shortcutIcon") %>"/>
-        <link rel="stylesheet" href='http://fonts.googleapis.com/css?family=Oswald:400,300,700' type='text/css'/>
-        <link rel="stylesheet" href="<%=urlLoc%>/tools/alertplus/css/alertplus.css"/>
-        <link rel="stylesheet" href="<%=urlLoc%>/css/tools.css"/>
-        <link rel="stylesheet" href="<%=urlLoc%>/css/wildbook.css"/>
+        <link rel="stylesheet" href='https://fonts.googleapis.com/css?family=Oswald:400,300,700' type='text/css'/>
+        <link rel="stylesheet" href="tools/alertplus/css/alertplus.css"/>
+        <link rel="stylesheet" href="css/tools.css"/>
+        <link rel="stylesheet" href="css/wildbook.css"/>
 
-        <script src="<%=urlLoc%>/javascript/jquery.min.js"></script>
-        <script src="<%=urlLoc%>/tools/alertplus/javascript/alertplus.js"></script>
-        <script src="<%=urlLoc%>/javascript/tools-bundle.js"></script>
-        <script src="<%=urlLoc%>/javascript/bundle.js"></script>
-        <script src="<%=urlLoc%>/javascript/templates.js"></script>
+        <script src="javascript/jquery.min.js"></script>
+        <script src="tools/alertplus/javascript/alertplus.js"></script>
+        <script src="javascript/tools-bundle.js"></script>
+        <script src="javascript/bundle.js"></script>
+        <script src="javascript/templates.js"></script>
     </head>
-    
+
     <body role="document">
         <header class="page-header clearfix">
             <nav class="navbar navbar-default navbar-fixed-top">
@@ -181,15 +185,15 @@ public String createNavBar(final HttpServletRequest request,
                                 if (user != null) {
                                 %>
                                 <li>
-                                    <a href="<%=urlLoc %>/myAccount.jsp" title="">
+                                    <a href="myAccount.jsp" title="">
                                         <img align="left" title="Your Account" style="border-radius: 3px;border:1px solid #ffffff;margin-top: -7px;" width="*" height="32px" src="<%=user.getAvatar()%>" />
                                     </a>
                                 </li>
-                                <li><a href="<%=urlLoc %>/logout.jsp" ><%=props.getProperty("logout") %></a></li>
+                                <li><a href="logout.jsp" ><%=props.getProperty("logout") %></a></li>
                                 <%
                                 } else {
                                 %>
-                                <li><a href="<%=urlLoc %>/welcome.jsp" title=""><%=props.getProperty("login") %></a></li>
+                                <li><a href="welcome.jsp" title=""><%=props.getProperty("login") %></a></li>
                                 <%
                                 }
                                 if (! StringUtils.isBlank(webAppProps.getProperty("wiki.location"))) {
@@ -197,7 +201,7 @@ public String createNavBar(final HttpServletRequest request,
                                 <li><a target="_blank" href="<%=webAppProps.getProperty("wiki.location") %>"><%=props.getProperty("userWiki")%></a></li>
                                 <%
                                 }
-                              
+
                                 ArrayList<String> contextNames = ContextConfiguration.getContextNames();
                                 int numContexts = contextNames.size();
                                 if (numContexts > 1) {
@@ -226,7 +230,7 @@ public String createNavBar(final HttpServletRequest request,
                                 <script type="text/javascript">
                                     $("#context").change(function() {
                                         $.cookie("wildbookContext", $( "#context option:selected").val(), {
-                                            path    : '/',          //The value of the path attribute of the cookie 
+                                            path    : '/',          //The value of the path attribute of the cookie
                                                                     //(default: path of page that created the cookie).
                                             secure  : false         //If set to true the secure attribute of the cookie
                                                                     //will be set and the cookie transmission will
@@ -239,10 +243,10 @@ public String createNavBar(final HttpServletRequest request,
                                  -->
                                 <%
                                 }
-                                
+
                                 List<String> supportedLanguages = Global.INST.getAppResources().getStringList("languages", Collections.<String>emptyList());
                                 int numSupportedLanguages=supportedLanguages.size();
-                            
+
                                 if(numSupportedLanguages>1){
                                 %>
                                 <li>
@@ -254,7 +258,7 @@ public String createNavBar(final HttpServletRequest request,
                                     }
                                     String myLang=supportedLanguages.get(h);
                                 %>
-                                    <img style="cursor: pointer" id="flag_<%=myLang %>" title="<%=Global.INST.getAppResources().getString("language." + myLang + ".label", myLang) %>" src="<%=urlLoc%>/images/flag_<%=myLang %>.gif" />
+                                    <img style="cursor: pointer" id="flag_<%=myLang %>" title="<%=Global.INST.getAppResources().getString("language." + myLang + ".label", myLang) %>" src="/images/flag_<%=myLang %>.gif" />
                                 <!-- TODO: Commenting this out so that I can get rid of jQuery as this and alertplus
                                      are the only things relying on it. This will be rewritten in angular using
                                      angular cookies. It's super easy.
@@ -262,7 +266,7 @@ public String createNavBar(final HttpServletRequest request,
                                         $( "#flag_<%=myLang%>" ).click(function() {
                                             //alert( "Handler for .change() called with new value: "+$( "#langCode option:selected" ).text() +" with value "+ $( "#langCode option:selected").val());
                                             $.cookie("wildbookLangCode", "<%=myLang%>", {
-                                                path    : '/',          //The value of the path attribute of the cookie 
+                                                path    : '/',          //The value of the path attribute of the cookie
                                                                         //(default: path of page that created the cookie).
                                                 secure  : false          //If set to true the secure attribute of the cookie
                                                                         //will be set and the cookie transmission will
@@ -283,10 +287,10 @@ public String createNavBar(final HttpServletRequest request,
                             </ul>
                             <wb-site-search></wb-site-search>
                         </div>
-                        <a class="navbar-brand" target="_blank" href="<%=urlLoc %>">Wildbook for Mark-Recapture Studies</a>
+                        <a class="navbar-brand"></a>
                     </div>
                 </div>
-              
+
                 <div class="nav-bar-wrapper">
                      <div class="container">
                          <div class="navbar-header clearfix">
@@ -297,14 +301,14 @@ public String createNavBar(final HttpServletRequest request,
                                 <span class="icon-bar"></span>
                              </button>
                          </div>
-                  
+
                   <div id="navbar" class="navbar-collapse collapse">
-                  
+
                     <!-- TODO: Figure out what this does and how to make it work with the new system -->
                     <!-- <div id="notifications">
                              <percent_equal Collaboration.getNotificationsWidgetHtml(request) percent>
                          </div>  -->
-                  
+
                     <ul class="nav navbar-nav">
                         <%= createNavBar(request, props, urlLoc, htmlConfig.navbar)%>
                     </ul>

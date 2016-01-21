@@ -145,7 +145,7 @@ angular.module('wildbook.admin').directive(
                         scrollWheelZoom: false
                     },
                     tiles: {
-                        url: "http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                        url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
                         options: {
                             attribution: '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                         }
