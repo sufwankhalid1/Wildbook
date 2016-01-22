@@ -29,6 +29,7 @@ div(layout="row" layout-wrap id="encounter-edit")
             div(layout="row" flex="100")
                 div(flex="")
                 md-icon(md-svg-icon="crosshairs-gps" ng-click="pickLocation($event)" ng-class="{'green-svg':locationPickerState}")
+                    md-tooltip {{locationPickerState ? 'Disable Lat/Lng Picker' : 'Enable Lat/Lng Picker'}}
         md-content
             md-tabs.overflow-visible(md-selected="selectedIndex" md-dynamic-height="true" md-border-bottom)
                 md-tab(label="Data")
