@@ -318,7 +318,8 @@ app.factory("wbEncounterUtils", ["$http", "$q", "wbConfig", "wbDateUtils", "$exc
             if (!selectedPhotos || !selectedPhotos.length) {
                 return $q.resolve({
                     encounter: encounter,
-                    photos: []
+                    photos: [],
+                    autofilledFrom: null
                 });
             }
 
@@ -326,51 +327,138 @@ app.factory("wbEncounterUtils", ["$http", "$q", "wbConfig", "wbDateUtils", "$exc
             var plongitude = null;
             var dates = [];
 
-            selectedPhotos.forEach(function(photo){
-                if (photo.latitude) {
-                    platitude = photo.latitude;
-                }
-                if (photo.longitude) {
-                    plongitude = photo.longitude;
+            var photo_encounters;
+            var photo_encounter;
+
+            var encounter_used;
+
+            function encounterExist(data) {
+                //
+                //taking first photo's  first encounter and setting up encounter based on that info
+                //
+                photo_encounters = data;
+                photo_encounters.forEach(function(resencounter){
+                    if (resencounter) {
+                        photo_encounter = resencounter;
+                    }
+                });
+
+                if ((photo_encounter.location.latitude && photo_encounter.location.longitude)
+                    || photo_encounter.location.verbatimLocation || photo_encounter.location.locationid) {
+                    encounter.location = photo_encounter.location;
                 }
 
-                //create date array for wbDateUtils
-                if (photo.timestamp) {
-                    dates.push(photo.timestamp);
+                if (photo_encounter.starttime) {
+                    encounter.starttime = photo_encounter.starttime;
                 }
 
-                if (!encounter.individual.avatarFull) {
-                    encounter.individual.avatarFull = photo;
-                    encounter.individual.avatar = photo.thumbUrl;
+                if (photo_encounter.endtime) {
+                    encounter.endtime = photo_encounter.endtime;
                 }
-            });
 
-            //check if same day, if so, compare
-            if (!wbDateUtils.sameDay(dates)) {
-                return $q.reject("These photos were taken on different days!<br/> Please choose images that occured during the same encounter.");
+                if (photo_encounter.encDate) {
+                    encounter.encDate = photo_encounter.encDate;
+                } else {
+                    encounter.encDate = createDate();
+                }
+
+                if (photo_encounter.individual.avatarFull) {
+                    encounter.individual.avatarFull = photo_encounter.individual.avatarFull;
+                    encounter.individual.avatar = photo_encounter.individual.thumbUrl;
+                }
+
+                if (encounter.encDate) {
+                    encounter_used = "Autofilled from: " + photo_encounter.individual.displayName + ", " + wbDateUtils.dateStringFromRest(encounter.encDate);
+                } else {
+                    encounter_used = "Autofilled from: " + photo_encounter.individual.displayName;
+                }
+
             }
 
-            var timeline = wbDateUtils.compareDates(dates);
+            function newEncounter() {
+                selectedPhotos.forEach(function(photo){
+                    if (photo.latitude) {
+                        platitude = photo.latitude;
+                    }
+                    if (photo.longitude) {
+                        plongitude = photo.longitude;
+                    }
 
-            if (timeline) {
-                encounter.encDate = timeline.newest.slice(0, 3);
-                encounter.starttime = timeline.oldest.slice(3, timeline.oldest.length);
-                encounter.starttime.push("Z");
-                encounter.endtime = timeline.newest.slice(3, timeline.newest.length);
-                encounter.endtime.push("Z");
+                    //create date array for wbDateUtils
+                    if (photo.timestamp) {
+                        dates.push(photo.timestamp);
+                    }
+
+                    if (!encounter.individual.avatarFull) {
+                        encounter.individual.avatarFull = photo;
+                        encounter.individual.avatar = photo.thumbUrl;
+                    }
+                });
+
+                if (platitude && plongitude) {
+                    encounter.location = {latitude: platitude, longitude: plongitude};
+                } else if (submission) {
+                    encounter.location = {latitude: submission.latitude, longitude: submission.longitude};
+                } else {
+                    encounter.location = {latitude: null, longitude: null};
+                }
+
+                compareDates();
+
+                setDate();
             }
 
-            if (platitude && plongitude) {
-                encounter.location = {latitude: platitude, longitude: plongitude};
-            } else if (submission) {
-                encounter.location = {latitude: submission.latitude, longitude: submission.longitude};
-            } else {
-                encounter.location = {latitude: null, longitude: null};
+            function createDate(selectedPhotos) {
+                var found = false;
+                var timeline;
+                selectedPhotos.forEach(function(photo) {
+                    if (photo.timestamp && !found) {
+                        timeline = wbDateUtils.compareDates(dates);
+
+                        if (timeline) {
+                            found = true;
+                        }
+                    }
+                });
+
+                if (found) {
+                    return timeline.newest.slice(0, 3);
+                }
             }
 
-            return $q.resolve({
-                encounter: encounter,
-                photos: selectedPhotos
+            function setDate() {
+                var timeline = wbDateUtils.compareDates(dates);
+
+                if (timeline) {
+                    encounter.encDate = timeline.newest.slice(0, 3);
+                    encounter.starttime = timeline.oldest.slice(3, timeline.oldest.length);
+                    encounter.starttime.push("Z");
+                    encounter.endtime = timeline.newest.slice(3, timeline.newest.length);
+                    encounter.endtime.push("Z");
+                }
+            }
+
+            function compareDates() {
+                //check if same day, if so, compare
+                if (!wbDateUtils.sameDay(dates)) {
+                    return $q.reject("These photos were taken on different days!<br/> Please choose images that occured during the same encounter.");
+                }
+            }
+
+
+            return $http.post('obj/encounter/checkDuplicateImage', selectedPhotos)
+                .then(function(res){
+                    if (res.data && res.data.length && res.data[0] !== null) {
+                        encounterExist(res.data);
+                    } else {
+                        newEncounter();
+                    }
+
+                    return $q.resolve({
+                        encounter: encounter,
+                        photos: selectedPhotos,
+                        autofilledFrom: encounter_used
+                    });
             });
         },
         getEncData: function(encounter) {

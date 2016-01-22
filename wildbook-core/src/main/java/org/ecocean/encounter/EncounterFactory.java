@@ -225,6 +225,26 @@ public class EncounterFactory {
         return sql;
     }
 
+    public static Encounter getEncountersByMedia(final Database db, final int mediaid) throws DatabaseException
+    {
+        SqlStatement sql = getEncountersByMediaStatement(mediaid);
+        sql.addCondition(ALIAS_ENCOUNTER_MEDIA, "mediaid", SqlRelationType.EQUAL, mediaid);
+        return db.selectFirst(sql, (rs) -> {
+            return readEncounter(rs);
+        });
+    }
+
+    public static SqlStatement getEncountersByMediaStatement(final int mediaid) {
+        SqlStatement sql = new SqlStatement(TABLENAME_ENCOUNTERS, ALIAS_ENCOUNTERS);
+        sql.addLeftOuterJoin(ALIAS_ENCOUNTERS, "encounterid", TABLENAME_ENCOUNTER_MEDIA, ALIAS_ENCOUNTER_MEDIA, "encounterid");
+        sql.addLeftOuterJoin(ALIAS_ENCOUNTERS, PK_INDIVIDUALS, TABLENAME_INDIVIDUALS, ALIAS_INDIVIDUALS, PK_INDIVIDUALS);
+        sql.setSelectDistinct(true);
+        sql.addSelectTable(ALIAS_ENCOUNTERS);
+        sql.addSelectTable(ALIAS_ENCOUNTER_MEDIA);
+        sql.addSelectTable(ALIAS_INDIVIDUALS);
+
+        return sql;
+    }
 
     public static void saveEncounter(final Database db, final Encounter encounter) throws DatabaseException {
         if (encounter == null) {
