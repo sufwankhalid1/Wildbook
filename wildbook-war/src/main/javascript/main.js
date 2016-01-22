@@ -368,9 +368,9 @@ app.factory("wbEncounterUtils", ["$http", "$q", "wbConfig", "wbDateUtils", "$exc
                 }
 
                 if (encounter.encDate) {
-                    encounter_used = "Autofilled from: " + photo_encounter.individual.displayName + ", " + wbDateUtils.dateStringFromRest(encounter.encDate);
+                    encounter_used = "Autofilled from encounter: " + photo_encounter.individual.displayName + ", " + wbDateUtils.dateStringFromRest(encounter.encDate);
                 } else {
-                    encounter_used = "Autofilled from: " + photo_encounter.individual.displayName;
+                    encounter_used = "Autofilled from encounter: " + photo_encounter.individual.displayName;
                 }
 
             }
