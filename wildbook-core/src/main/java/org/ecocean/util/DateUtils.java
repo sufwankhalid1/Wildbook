@@ -3,7 +3,7 @@ package org.ecocean.util;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.OffsetTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
@@ -55,7 +55,7 @@ public class DateUtils {
 //        return LocalDateTime.now().atZone(UTC).toEpochSecond();
 //    }
 
-    public static String format(final LocalDate date, final OffsetTime start, final OffsetTime end) {
+    public static String format(final LocalDate date, final LocalTime start, final LocalTime end) {
         if (date == null) {
             return null;
         }

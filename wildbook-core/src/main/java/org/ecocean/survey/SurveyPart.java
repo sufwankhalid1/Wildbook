@@ -1,7 +1,7 @@
 package org.ecocean.survey;
 
 import java.time.LocalDate;
-import java.time.OffsetTime;
+import java.time.LocalTime;
 
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.ecocean.Location;
@@ -18,8 +18,8 @@ public class SurveyPart {
 
     //@JsonFormat(shape = JsonFormat.Shape.STRING, pattern="yyyy-MM-dd")
     private LocalDate partDate;
-    private OffsetTime starttime;
-    private OffsetTime endtime;
+    private LocalTime starttime;
+    private LocalTime endtime;
 
     private String code;
     private String comments;
@@ -57,19 +57,19 @@ public class SurveyPart {
         this.partDate = partDate;
     }
 
-    public OffsetTime getStarttime() {
+    public LocalTime getStarttime() {
         return starttime;
     }
 
-    public void setStarttime(final OffsetTime starttime) {
+    public void setStarttime(final LocalTime starttime) {
         this.starttime = starttime;
     }
 
-    public OffsetTime getEndtime() {
+    public LocalTime getEndtime() {
         return endtime;
     }
 
-    public void setEndtime(final OffsetTime endtime) {
+    public void setEndtime(final LocalTime endtime) {
         this.endtime = endtime;
     }
 
