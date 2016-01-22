@@ -1,5 +1,6 @@
 package org.ecocean.rest;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -79,6 +80,19 @@ public class EncounterController {
         try (Database db = ServletUtils.getDb(request)) {
             EncounterFactory.deleteEncounter(db, encounter.getId());
         }
+    }
+
+    @RequestMapping(value = "checkDuplicateImage", method = RequestMethod.POST)
+    public List<Encounter> checkDuplicateImage(final HttpServletRequest request,
+                                @RequestBody final List<SimplePhoto> photos) throws DatabaseException {
+        List<Encounter> encounters = new ArrayList<Encounter>();
+        try (Database db = ServletUtils.getDb(request)) {
+            for(SimplePhoto photo : photos) {
+                encounters.add(EncounterFactory.getEncountersByMedia(db, photo.getId()));
+            }
+        }
+
+        return encounters;
     }
 
     static class EncounterSaveResult {

@@ -49,6 +49,10 @@ angular.module('wildbook.admin').directive(
                     lastImg: { message: "Deleting the last image will also delete this encounter?"}
                 }];
 
+                if ($scope.data.autofilledFrom) {
+                    $scope.autofilled = $scope.data.autofilledFrom;
+                }
+
                 if (!$scope.data.photos) {
                     wbEncounterUtils.getMedia($scope.data.encounter);
                 }
