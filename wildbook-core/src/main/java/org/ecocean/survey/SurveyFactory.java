@@ -85,8 +85,8 @@ public class SurveyFactory {
         surveyTrack.setSurveyId(rs.getInt(PK_SURVEY));
         surveyTrack.setVessel(readVessel(rs));
         surveyTrack.setPartDate(rs.getLocalDate("partdate"));
-        surveyTrack.setStarttime(rs.getOffsetTime("starttime"));
-        surveyTrack.setEndtime(rs.getOffsetTime("endtime"));
+        surveyTrack.setStarttime(rs.getLocalTime("starttime"));
+        surveyTrack.setEndtime(rs.getLocalTime("endtime"));
 
         surveyTrack.setCode(rs.getString("code"));
         surveyTrack.setComments(rs.getString("comments"));

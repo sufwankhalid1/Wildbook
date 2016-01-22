@@ -89,8 +89,8 @@ public class EncounterFactory {
     {
         Encounter encounter = new Encounter(rs.getInt(PK_ENCOUNTERS), rs.getLocalDate("encdate"));
 
-        encounter.setStarttime(rs.getOffsetTime("starttime"));
-        encounter.setEndtime(rs.getOffsetTime("endtime"));
+        encounter.setStarttime(rs.getLocalTime("starttime"));
+        encounter.setEndtime(rs.getLocalTime("endtime"));
         encounter.setLocation(LocationFactory.readLocation(rs));
         encounter.setComments(rs.getString("comments"));
         encounter.setIndividual(individual);

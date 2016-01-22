@@ -115,7 +115,7 @@
     <dependency>
       <groupId>com.samsix</groupId>
       <artifactId>s6-db</artifactId>
-      <version>1.0.10-SNAPSHOT</version>
+      <version>1.0.10</version>
     </dependency>
 
 

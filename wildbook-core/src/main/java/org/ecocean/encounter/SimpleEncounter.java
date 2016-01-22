@@ -1,7 +1,7 @@
 package org.ecocean.encounter;
 
 import java.time.LocalDate;
-import java.time.OffsetTime;
+import java.time.LocalTime;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.ecocean.Location;
@@ -13,8 +13,8 @@ public class SimpleEncounter
     private Integer id;
 
     private LocalDate encdate;
-    private OffsetTime starttime;
-    private OffsetTime endtime;
+    private LocalTime starttime;
+    private LocalTime endtime;
 
     private Location location;
 
@@ -58,19 +58,19 @@ public class SimpleEncounter
         this.individual = individual;
     }
 
-    public OffsetTime getStarttime() {
+    public LocalTime getStarttime() {
         return starttime;
     }
 
-    public void setStarttime(final OffsetTime starttime) {
+    public void setStarttime(final LocalTime starttime) {
         this.starttime = starttime;
     }
 
-    public OffsetTime getEndtime() {
+    public LocalTime getEndtime() {
         return endtime;
     }
 
-    public void setEndtime(final OffsetTime endtime) {
+    public void setEndtime(final LocalTime endtime) {
         this.endtime = endtime;
     }
 
@@ -86,7 +86,7 @@ public class SimpleEncounter
         return comments;
     }
 
-    public void setComments(String comments) {
+    public void setComments(final String comments) {
         this.comments = comments;
     }
 
