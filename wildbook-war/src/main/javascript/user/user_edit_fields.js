@@ -8,7 +8,7 @@ angular.module('wildbook.admin').directive(
             restrict: 'E',
             templateUrl: 'user/user_view.html',
             scope: {
-                user: '='
+                user: '=',
             },
             replace: true,
             link: function($scope, elem, attr) {
@@ -27,11 +27,11 @@ angular.module('wildbook.admin').directive(
             scope: {
                 user: '=',
                 save: '&',
+                roles: '=',
                 showdelete: '@'
             },
             replace: true,
             controller: function($scope) {
-
                 $scope.deleteUser = function() {
                     return alertplus.confirm('Are you sure you want to delete this user?', "Delete User", true)
                     .then(function() {
@@ -44,6 +44,105 @@ angular.module('wildbook.admin').directive(
                         });
                     });
                 };
+
+                //modify user Roles
+                $scope.modifyUserRoles = function($event) {
+                    var parentEl = angular.element(document.body);
+
+                    function DialogController($scope, $mdDialog, user, userroles) {
+                        $scope.availableroles = ["admin", "rest"];
+                        $scope.userroles = userroles;
+                        $scope.selectedAvailableRole = [];
+                        $scope.selectedUserRoles = [];
+
+                        $scope.closeDialog = function() {
+                            $mdDialog.hide();
+                        };
+
+                        $scope.update = function(){
+                            $http.post('useradmin/roles/update/'+user.id, $scope.userroles)
+                            .then(function(res) {
+                                $scope.selectedAvailableRole = [];
+                                $scope.selectedUserRoles = [];
+
+                                $mdDialog.hide()
+                                .then(function(){
+                                    return updateRoles($scope.userroles);
+                                });
+                            });
+                        };
+
+                        $scope.selectVal = function(arr, val) {
+                            if (arr.length) {
+                                for (var ii = 0; ii < arr.length; ii++) {
+                                    if(arr[ii] === val) {
+                                        arr.splice(ii, 1);
+                                    } else {
+                                        arr.push(val);
+                                        return true;
+                                    }
+                                }
+                            } else {
+                                arr.push(val);
+                            }
+                        };
+
+                        $scope.clearSelectedUsers = function() {
+                            $scope.selectedUserRoles = [];
+                        };
+
+                        $scope.clearAvailableSelected = function() {
+                            $scope.selectedAvailableRole = [];
+                        };
+
+                        $scope.compareArrs = function(arr1, arr2) {
+                            if (arr1.length > 0) {
+                                for (var ii = 0; ii < arr1.length; ii++) {
+                                    if (arr2.indexOf(arr1[ii]) > -1) {
+                                        arr1.splice(ii, 1);
+                                        ii--;
+                                    }
+                                }
+                            }
+                        };
+
+                        $scope.updateArr = function(selected, target, from) {
+                            if (selected.length === 0) {
+                                return;
+                            }
+
+                            for (var ii = 0; ii < selected.length; ii++) {
+                                target.push(selected[ii]);
+                            }
+
+                            $scope.compareArrs(from, selected);
+
+                            $scope.selectedAvailableRole = [];
+                            $scope.selectedUserRoles = [];
+                            selected = [];
+                        };
+
+                        //init
+                        $scope.compareArrs($scope.availableroles, $scope.userroles);
+                    }
+
+                    $mdDialog.show({
+                        parent: parentEl,
+                        clickOutsideToClose: true,
+                        targetEvent: $event,
+                        templateUrl: "user/user_roles_edit.html",
+                        bindToController: true,
+                        locals: {
+                            user: $scope.user,
+                            userroles: angular.copy($scope.roles)
+                        },
+                        controller: DialogController
+                    });
+                };
+
+                function updateRoles(dialogRes) {
+                    $scope.roles = dialogRes;
+                }
 
                  //change password dialog
                 $scope.changeUserPassword = function($event) {

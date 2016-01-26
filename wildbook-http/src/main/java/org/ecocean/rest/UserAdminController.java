@@ -1,5 +1,7 @@
 package org.ecocean.rest;
 
+import java.util.Set;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
@@ -47,4 +49,37 @@ public class UserAdminController {
     public void clearUserCache(final HttpServletRequest request) {
         Global.INST.getUserService().clearUserCache();
     }
+
+    @RequestMapping(value = "roles/{userid}", method = RequestMethod.GET)
+    public Set<String> getRoles(final HttpServletRequest request,
+                         @PathVariable("userid") final Integer userid) {
+        Set<String> roles = Global.INST.getUserService().getAllRolesForUserInContext(userid.toString(), "context0");
+        return roles;
+    }
+
+    @RequestMapping(value = "roles/update/{userid}", method = RequestMethod.POST)
+    public void updateRoles(final HttpServletRequest request,
+                         @PathVariable("userid") final int userid,
+                         @RequestBody @Valid final Set<String> roles) {
+            Global.INST.getUserService().updateRoles(userid, "context0", roles);
+            Global.INST.getUserService().clearUserCache();
+    }
+
+    @RequestMapping(value = "roles/remove/{userid}", method = RequestMethod.POST)
+    public void deleteRoles(final HttpServletRequest request,
+                         @PathVariable("userid") final Integer userid) {
+            Global.INST.getUserService().deleteAllRoles(userid.toString());
+            Global.INST.getUserService().clearUserCache();
+    }
 }
+
+
+
+
+
+
+
+
+
+
+

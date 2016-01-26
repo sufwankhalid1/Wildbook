@@ -236,9 +236,18 @@ public class DbUserService implements UserService {
     }
 
     @Override
+    public void deleteAllRoles(final String userid) {
+        try (Database db = new Database(ci)) {
+            UserFactory.deleteAllRoles(db, NumberUtils.createInteger(userid));
+        } catch (DatabaseException ex) {
+            throw new SecurityException("Can't delete roles from user [" + userid + "]", ex);
+        }
+    }
+
+    @Override
     public void deleteRoles(final String userid) {
         try (Database db = new Database(ci)) {
-            UserFactory.deleteRoles(db, NumberUtils.createInteger(userid));
+            UserFactory.deleteAllRoles(db, NumberUtils.createInteger(userid));
         } catch (DatabaseException ex) {
             throw new SecurityException("Can't delete roles from user [" + userid + "]", ex);
         }
@@ -248,6 +257,15 @@ public class DbUserService implements UserService {
     public void addRole(final String userid, final String context, final String role) {
         try (Database db = new Database(ci)) {
             UserFactory.addRole(db, NumberUtils.createInteger(userid), context, role);
+        } catch (DatabaseException ex) {
+            throw new SecurityException("Can't delete roles from user [" + userid + "]", ex);
+        }
+    }
+
+    @Override
+    public void updateRoles(final int userid, final String context, final Set<String> roles) {
+        try (Database db = new Database(ci)) {
+            UserFactory.updateRoles(db, userid, context, roles);
         } catch (DatabaseException ex) {
             throw new SecurityException("Can't delete roles from user [" + userid + "]", ex);
         }

@@ -18,8 +18,10 @@ public interface UserService {
     public String createPWResetToken(final String userid);
     public SecurityInfo getSecurityInfo(final String userid);
     public void saveUser(final User user);
+    public void deleteAllRoles(final String userid);
     public void deleteRoles(final String userid);
     public void addRole(final String userid, final String context, final String role);
+    public void updateRoles(final int userid, final String context, final Set<String> role);
     public void resetPass(final String userid, final String password);
     public void resetPassWithToken(final String token, String password);
     public boolean doesUserHaveRole(final String userid, final String context, final String role);

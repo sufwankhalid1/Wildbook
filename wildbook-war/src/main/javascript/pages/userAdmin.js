@@ -19,8 +19,20 @@ angular.module('wildbook.admin').directive(
                     $http.get("useradmin/user/" + user.id)
                     .then(function(result) {
                         $scope.user = result.data;
+                        getRoles(result.data.id);
                     });
                 };
+
+                //get user Roles
+                function getRoles(id) {
+                    if (!id) {
+                        return;
+                    }
+                    $http.get('useradmin/roles/'+id)
+                    .then(function(res){
+                        $scope.userroles = res.data;
+                    });
+                }
 
                 $scope.clearUser = function() {
                     delete $scope.user;

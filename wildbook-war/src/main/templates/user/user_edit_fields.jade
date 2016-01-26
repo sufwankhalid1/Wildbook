@@ -24,12 +24,13 @@ div(layout="row" layout-align="start center" layout-wrap)
             md-input-container(flex="100")
                 label Statement
                 textarea(ng-model="user.statement" aria-label="User Statement")
-        //- div(layout="row" flex-offset="10" flex="90")
-        //-     md-input-container(flex="33")
-        //-         label Password
-        //-         input(autocomplete="off" type="password" ng-model="password")
+        div(layout="row" flex="90" flex-offset="10")
+            md-input-container(flex="100")
+                label User Roles
+                input(ng-model="roles" aria-label="User Roles" disabled)        
     div.mt-15(layout="row" flex-offset="10" flex="90" layout-align="start center")
         md-icon.md-warn(md-svg-icon="delete" layout-margin ng-click="deleteUser()" ng-if="showdelete == 'true'")
         div(flex="")
+        md-button.md-whiteframe-1dp.md-warn(type="submit" ng-click="modifyUserRoles()" aria-label="Save") Modify User Roles
         md-button.md-whiteframe-1dp.md-warn(type="submit" ng-click="changeUserPassword()" aria-label="Save") Change User Password
         md-button.md-whiteframe-1dp(type="submit" ng-click="save()" aria-label="Save") Save

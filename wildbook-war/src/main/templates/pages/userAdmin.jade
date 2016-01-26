@@ -12,4 +12,4 @@ div
         md-content.mt-10(ng-show="user")
             div(layout="row" flex="100")
                 md-icon.margin-0.mb-10(md-svg-icon="close-circle" ng-click="clearUser()")
-            wb-user-edit-fields(user="user" save="save()" showdelete="true")
+            wb-user-edit-fields(user="user" save="save()" showdelete="true" roles="userroles")

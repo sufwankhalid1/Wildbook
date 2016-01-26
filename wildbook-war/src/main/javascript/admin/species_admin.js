@@ -70,6 +70,11 @@ angular.module('wildbook.admin').directive(
                         $scope.cancel();
                     });
                 };
+
+                $scope.delete = function() {
+                    return alertplus.confirm('Are you sure you want to remove '+ $scope.speciesInput.name +'?', "Delete Species", true)
+                    .then(function(){});
+                };
             }
         };
     }]

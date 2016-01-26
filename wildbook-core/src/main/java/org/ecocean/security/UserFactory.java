@@ -5,7 +5,9 @@ import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
+import org.ecocean.Global;
 import org.ecocean.Organization;
 import org.ecocean.media.MediaAssetFactory;
 import org.ecocean.rest.SimpleUser;
@@ -23,7 +25,7 @@ import com.samsix.database.SqlWhereFormatter;
 import com.samsix.database.Table;
 
 public class UserFactory {
-//    private static Logger logger = LoggerFactory.getLogger(UserFactory.class);
+    //private static Logger logger = LoggerFactory.getLogger(UserFactory.class);
 
     private static SecureRandom random = new SecureRandom();
 
@@ -263,11 +265,18 @@ public class UserFactory {
 //    }
 
 
-    public static void deleteRoles(final Database db, final int userid) throws DatabaseException {
+    public static void deleteAllRoles(final Database db, final int userid) throws DatabaseException {
         Table users = db.getTable(TABLENAME_ROLES);
         users.deleteRows("userid = " + userid);
     }
 
+    public static void deleteRole(final Database db, final int userid, final String role) throws DatabaseException {
+        Table users = db.getTable(TABLENAME_ROLES);
+        SqlWhereFormatter formatter = new SqlWhereFormatter();
+        formatter.append("rolename", role);
+        formatter.append("userid", userid);
+        users.deleteRows(formatter.getWhereClause());
+    }
 
     public static void addRole(final Database db, final int userid, final String context, final String role) throws DatabaseException {
         Table users = db.getTable(TABLENAME_ROLES);
@@ -276,6 +285,28 @@ public class UserFactory {
             .append("context", context)
             .append("rolename", role);
         users.insertRow(formatter.getColumnClause(), formatter.getValueClause());
+    }
+
+    //deletes current roles then adds in the chosen roles
+    public static void updateRoles(final Database db, final int userid, final String context, final Set<String> roles) throws DatabaseException {
+        Table users = db.getTable(TABLENAME_ROLES);
+        Set<String> current_roles = Global.INST.getUserService().getAllRolesForUserInContext(Integer.toString(userid), "context0");
+        if (!roles.isEmpty()) {
+            if (current_roles != null && !current_roles.isEmpty()) {
+                for (String current_role : current_roles) {
+                    deleteRole(db, userid, current_role);
+                }
+            }
+            for (String role : roles) {
+                SqlInsertFormatter formatter = new SqlInsertFormatter();
+                formatter.append(PK_USERS, userid)
+                    .append("context", context)
+                    .append("rolename", role);
+                users.insertRow(formatter.getColumnClause(), formatter.getValueClause());
+            }
+        } else {
+            deleteAllRoles(db, userid);
+        }
     }
 
 //    public static boolean doesUserHaveRole(final Database db, final Integer userid, final String role, final String context)
