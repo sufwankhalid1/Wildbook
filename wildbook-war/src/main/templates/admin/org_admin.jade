@@ -4,7 +4,7 @@ div(layout="row" flex="100" class="site-admin-orgs" layout-align="start center" 
             label Organizations
             md-select(ng-model="org" placeholder="Organizations" ng-change="edit(org)")
                 md-option(ng-value="org" ng-repeat="org in orgs track by $index") {{org.name}}
-        md-icon.mwidth-10.pointer(md-svg-icon="magnify" ng-init="showSearch = false" ng-show="!showSearch" ng-click="showSearch = true")
+        md-icon.mwidth-10.pointer(md-svg-icon="magnify" ng-init="showSearch = false" ng-show="!showSearch" ng-click="showSearch = true; autofocus($event);")
         md-autocomplete.mr-10(ng-show="showSearch"
                               md-floating-label="Search Orgs"
                               md-selected-item="org"
@@ -14,7 +14,7 @@ div(layout="row" flex="100" class="site-admin-orgs" layout-align="start center" 
                               md-item-text="org.name")
             <span md-highlight-text="searchText"> {{org.name}}
         md-icon.mwidth-10.pointer(md-svg-icon="close" ng-show="showSearch" ng-click="showSearch = false")
-        md-button.md-whiteframe-1dp.height-36(aria-label="New Species"  ng-click="newOrg()") New Organization
+        md-icon.margin-0(md-svg-icon="plus" aria-label="New Species" ng-click="newOrg()")
     div(ng-show="showEdit || org" layout="row" flex="100" layout-align="start end")
         md-input-container.mr-10.padding-0(flex="25")
             label Name
