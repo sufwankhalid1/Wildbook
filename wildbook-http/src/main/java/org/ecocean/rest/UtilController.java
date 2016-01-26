@@ -36,6 +36,7 @@ public class UtilController {
             config.props = Global.INST.getWebappClientProps();
             config.species = Global.INST.getSpecies();
             config.defaultSpecies = Global.INST.getSpecies(Global.INST.getAppResources().getString("species.default", null));
+            config.imageTags = Global.INST.getAppResources().getStringList("imagetags", (List<String>) null);
             return config;
         }
     }
@@ -47,5 +48,6 @@ public class UtilController {
         public List<Organization> orgs;
         public List<Species> species;
         public Species defaultSpecies;
+        public List<String> imageTags;
     }
 }
