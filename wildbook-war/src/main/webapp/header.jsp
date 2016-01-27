@@ -115,7 +115,7 @@ public void appendMenu(final HttpServletRequest request,
     //    builder.append(urlLoc);
     //}
     if (menu.url == null) {
-        builder.append(urlLoc.toString());
+        builder.append(urlLoc.toString() + "/");
     } else {
         builder.append(menu.url);
     }
