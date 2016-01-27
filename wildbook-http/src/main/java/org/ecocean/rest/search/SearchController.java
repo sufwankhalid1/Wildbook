@@ -81,7 +81,7 @@ public class SearchController
 
             SqlStatement sql = UserFactory.getUserStatement();
 
-            SqlTable users = sql.findTable(UserFactory.AlIAS_USERS);
+            SqlTable users = sql.findTable(UserFactory.ALIAS_USERS);
             GroupedSqlCondition cond = GroupedSqlCondition.orGroup();
             cond.addContainsCondition(users, "fullname", term);
             cond.addContainsCondition(users, "username", term);
@@ -158,7 +158,7 @@ public class SearchController
             }
 
             if (search.orgid != null) {
-                sql.addCondition(SurveyFactory.ALIAS_SURVEY, "orgid", SqlRelationType.EQUAL, search.orgid);
+                sql.addCondition(SurveyFactory.ALIAS_SURVEY, UserFactory.PK_ORG, SqlRelationType.EQUAL, search.orgid);
             }
 
             if (! StringUtils.isBlank(search.date)) {

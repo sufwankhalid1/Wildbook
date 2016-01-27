@@ -44,7 +44,7 @@ public class SurveyFactory {
         SqlStatement sql = new SqlStatement(TABLENAME_SURVEY, ALIAS_SURVEY);
         sql.addInnerJoin(ALIAS_SURVEY, PK_SURVEY, TABLENAME_SURVEYPART, ALIAS_SURVEYPART, PK_SURVEY);
         sql.addLeftOuterJoin(ALIAS_SURVEYPART, PK_VESSEL, TABLENAME_VESSEL, ALIAS_VESSEL, PK_VESSEL);
-        sql.addLeftOuterJoin(ALIAS_SURVEY, "orgid", UserFactory.TABLENAME_ORG, UserFactory.ALIAS_ORG, "orgid");
+        sql.addLeftOuterJoin(ALIAS_SURVEY, UserFactory.PK_ORG, UserFactory.TABLENAME_ORG, UserFactory.ALIAS_ORG, UserFactory.PK_ORG);
 
         if (distinct) {
             sql.setSelectDistinct(true);
@@ -60,7 +60,7 @@ public class SurveyFactory {
 //        SqlStatement sql = new SqlStatement(TABLENAME_SURVEYPART, ALIAS_SURVEYPART);
 //        sql.addInnerJoin(ALIAS_SURVEYPART, PK_SURVEYPART, TABLENAME_SURVEY, ALIAS_SURVEY, PK_SURVEYPART);
 //        sql.addLeftOuterJoin(ALIAS_SURVEYPART, PK_VESSEL, TABLENAME_VESSEL, ALIAS_VESSEL, PK_VESSEL);
-//        sql.addLeftOuterJoin(ALIAS_SURVEY, "orgid", UserFactory.TABLENAME_ORG, UserFactory.ALIAS_ORG, "orgid");
+//        sql.addLeftOuterJoin(ALIAS_SURVEY, UserFactory.PK_ORG, UserFactory.TABLENAME_ORG, UserFactory.ALIAS_ORG, UserFactory.PK_ORG);
 //
 //        return sql;
 //    }
@@ -139,9 +139,9 @@ public class SurveyFactory {
 
     private static void fillSurveyFormatter(final SqlFormatter formatter, final Survey survey) {
         if (survey.getOrganization() == null) {
-            formatter.append("orgid", (Integer) null);
+            formatter.append(UserFactory.PK_ORG, (Integer) null);
         } else {
-            formatter.append("orgid", survey.getOrganization().getOrgId());
+            formatter.append(UserFactory.PK_ORG, survey.getOrganization().getOrgId());
         }
         formatter.append("surveynumber", survey.getSurveyNumber());
     }
@@ -192,12 +192,12 @@ public class SurveyFactory {
             return null;
         }
 
-        return new Vessel(vesselId, rs.getInt("orgid"), rs.getString("vesseltype"), rs.getString("vesselname"));
+        return new Vessel(vesselId, rs.getInt(UserFactory.PK_ORG), rs.getString("vesseltype"), rs.getString("vesselname"));
     }
 
     public static List<Vessel> getVesselsByOrg(final Database db, final int orgid) throws DatabaseException {
         SqlStatement sql = SurveyFactory.getVesselStatement();
-        sql.addCondition(ALIAS_VESSEL, "orgid", SqlRelationType.EQUAL, orgid);
+        sql.addCondition(ALIAS_VESSEL, UserFactory.PK_ORG, SqlRelationType.EQUAL, orgid);
 
         return db.selectList(sql, (rs) -> {
             return readVessel(rs);
@@ -224,7 +224,7 @@ public class SurveyFactory {
 
 
     private static void fillVesselFormatter(final SqlFormatter formatter, final Vessel vessel) {
-        formatter.append("orgid", vessel.getOrgId());
+        formatter.append(UserFactory.PK_ORG, vessel.getOrgId());
         formatter.append("vesseltype", vessel.getType());
         formatter.append("vesselname", vessel.getName());
     }

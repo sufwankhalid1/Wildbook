@@ -32,13 +32,14 @@ public class MediaSubmissionFactory {
         sql.addLeftOuterJoin(ALIAS_MEDIASUBMISSION,
                 UserFactory.PK_USERS,
                 UserFactory.TABLENAME_USERS,
-                UserFactory.AlIAS_USERS,
+                UserFactory.ALIAS_USERS,
                 UserFactory.PK_USERS);
-        sql.addLeftOuterJoin(UserFactory.AlIAS_USERS,
+        sql.addLeftOuterJoin(UserFactory.ALIAS_USERS,
                 "avatarid",
                 MediaAssetFactory.TABLENAME_MEDIAASSET,
                 MediaAssetFactory.ALIAS_MEDIAASSET,
                 MediaAssetFactory.PK_MEDIAASSET);
+        sql.addLeftOuterJoin(UserFactory.ALIAS_USERS, UserFactory.PK_ORG, UserFactory.TABLENAME_ORG, UserFactory.ALIAS_ORG, UserFactory.PK_ORG);
         return sql;
     }
 

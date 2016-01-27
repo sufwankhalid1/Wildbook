@@ -105,7 +105,7 @@ public class EncounterExport {
         sql.addLeftOuterJoin(MediaAssetFactory.ALIAS_MEDIAASSET,
                              "submitterid",
                              UserFactory.TABLENAME_USERS,
-                             UserFactory.AlIAS_USERS,
+                             UserFactory.ALIAS_USERS,
                              UserFactory.PK_USERS);
         db.select(sql, (rs) -> {
             MediaAsset ma = MediaAssetFactory.valueOf(rs);

@@ -62,7 +62,7 @@ public class AdminSearchController {
         try (Database db = ServletUtils.getDb(request)) {
             SqlStatement sql = UserFactory.getUserStatement();
 
-            SearchFactory.addUserData(sql, sql.findTable(UserFactory.AlIAS_USERS), search);
+            SearchFactory.addUserData(sql, sql.findTable(UserFactory.ALIAS_USERS), search);
 
             sql.setOrderBy("fullname");
 

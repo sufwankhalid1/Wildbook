@@ -36,19 +36,20 @@ public class UserFactory {
     public static String TABLENAME_SURVEY = "survey";
     public static String TABLENAME_VESSEL = "vessel";
 
-    public static String AlIAS_USERS = "u";
+    public static String ALIAS_USERS = "u";
     public static String ALIAS_ORG = "o";
 
     public static String PK_USERS = "userid";
+    public static String PK_ORG = "orgid";
 
     private UserFactory() {
         // prevent instantiation
     }
 
     public static SqlStatement getUserStatement() {
-        SqlStatement sql = new SqlStatement(TABLENAME_USERS, AlIAS_USERS);
-        sql.addLeftOuterJoin(AlIAS_USERS, "orgid", TABLENAME_ORG, ALIAS_ORG, "orgid");
-        sql.addLeftOuterJoin(AlIAS_USERS,
+        SqlStatement sql = new SqlStatement(TABLENAME_USERS, ALIAS_USERS);
+        sql.addLeftOuterJoin(ALIAS_USERS, UserFactory.PK_ORG, TABLENAME_ORG, ALIAS_ORG, UserFactory.PK_ORG);
+        sql.addLeftOuterJoin(ALIAS_USERS,
                              "avatarid",
                              MediaAssetFactory.TABLENAME_MEDIAASSET,
                              MediaAssetFactory.ALIAS_MEDIAASSET,
@@ -58,7 +59,7 @@ public class UserFactory {
 
     public static SqlStatement getUserStatement(final boolean distinct) {
         SqlStatement sql = getUserStatement();
-        sql.setSelectString(AlIAS_USERS
+        sql.setSelectString(ALIAS_USERS
                             + ".*, "
                             + ALIAS_ORG
                             + ".*, "
@@ -79,7 +80,7 @@ public class UserFactory {
         }
 
         SqlStatement sql = getUserStatement();
-        sql.addCondition(AlIAS_USERS, PK_USERS, SqlRelationType.EQUAL, id);
+        sql.addCondition(ALIAS_USERS, PK_USERS, SqlRelationType.EQUAL, id);
 
         return db.selectFirst(sql, (rs) -> {
             return readUser(rs);
@@ -89,7 +90,7 @@ public class UserFactory {
 
     public static User getUser(final Database db, final String username) throws DatabaseException {
         SqlStatement sql = getUserStatement();
-        sql.addCondition(AlIAS_USERS, "username", SqlRelationType.EQUAL, username.toLowerCase()).setFunction("lower");
+        sql.addCondition(ALIAS_USERS, "username", SqlRelationType.EQUAL, username.toLowerCase()).setFunction("lower");
         return db.selectFirst(sql, (rs) -> {
             return readUser(rs);
         });
@@ -111,7 +112,7 @@ public class UserFactory {
         }
 
         SqlStatement sql = getUserStatement();
-        sql.addCondition(AlIAS_USERS, "prtoken", SqlRelationType.EQUAL, token);
+        sql.addCondition(ALIAS_USERS, "prtoken", SqlRelationType.EQUAL, token);
         return db.selectFirst(sql, (rs) -> {
             return readUser(rs);
         });
@@ -124,7 +125,7 @@ public class UserFactory {
         }
 
         SqlStatement sql = getUserStatement();
-        sql.addCondition(AlIAS_USERS, "email", SqlRelationType.EQUAL, email.toLowerCase()).setFunction("lower");
+        sql.addCondition(ALIAS_USERS, "email", SqlRelationType.EQUAL, email.toLowerCase()).setFunction("lower");
         return db.selectFirst(sql, (rs) -> {
             return readUser(rs);
         });
@@ -149,7 +150,7 @@ public class UserFactory {
         }
 
         SqlStatement sql = getUserStatement();
-        sql.addCondition(AlIAS_USERS, "fullname", SqlRelationType.LIKE, fullname.toLowerCase()).setFunction("lower");
+        sql.addCondition(ALIAS_USERS, "fullname", SqlRelationType.LIKE, fullname.toLowerCase()).setFunction("lower");
 
         return db.selectFirst(sql, (rs) -> {
             return readUser(rs);
@@ -333,7 +334,7 @@ public class UserFactory {
     //===================================
 
     public static Organization readOrganization(final RecordSet rs) throws DatabaseException {
-        Integer orgId = rs.getInteger("orgid");
+        Integer orgId = rs.getInteger(UserFactory.PK_ORG);
         if (orgId == null) {
             return null;
         }
@@ -348,20 +349,20 @@ public class UserFactory {
             SqlInsertFormatter formatter = new SqlInsertFormatter();
             fillOrgFormatter(formatter, organization);
 
-            organization.setOrgId(table.insertSequencedRow(formatter, "orgid"));
+            organization.setOrgId(table.insertSequencedRow(formatter, UserFactory.PK_ORG));
         } else {
             SqlUpdateFormatter formatter = new SqlUpdateFormatter();
             fillOrgFormatter(formatter, organization);
 
             SqlWhereFormatter where = new SqlWhereFormatter();
-            where.append("orgid", organization.getOrgId());
+            where.append(UserFactory.PK_ORG, organization.getOrgId());
             table.updateRow(formatter.getUpdateClause(), where.getWhereClause());
         }
     }
 
     public static void deleteOrganization(final Database db, final int orgid) throws DatabaseException, Throwable {
         SqlWhereFormatter where = new SqlWhereFormatter();
-        where.append("orgid", orgid);
+        where.append(UserFactory.PK_ORG, orgid);
 
         Table organizations = db.getTable(TABLENAME_ORG);
         Table users = db.getTable(TABLENAME_USERS);
@@ -397,7 +398,7 @@ public class UserFactory {
         // can deal with that later.
         //
         SqlStatement sql = getUserStatement();
-        sql.addCondition(new SpecialSqlCondition(AlIAS_USERS + ".statement IS NOT NULL"));
+        sql.addCondition(new SpecialSqlCondition(ALIAS_USERS + ".statement IS NOT NULL"));
         sql.setOrderBy("random()");
         sql.setLimit(1);
 
