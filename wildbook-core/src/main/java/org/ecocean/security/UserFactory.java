@@ -11,6 +11,7 @@ import org.ecocean.Global;
 import org.ecocean.Organization;
 import org.ecocean.media.MediaAssetFactory;
 import org.ecocean.rest.SimpleUser;
+import org.ecocean.util.NotificationException;
 
 import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
@@ -32,6 +33,8 @@ public class UserFactory {
     public static String TABLENAME_USERS = "users";
     public static String TABLENAME_ROLES = "userroles";
     public static String TABLENAME_ORG = "organization";
+    public static String TABLENAME_SURVEY = "survey";
+    public static String TABLENAME_VESSEL = "vessel";
 
     public static String AlIAS_USERS = "u";
     public static String ALIAS_ORG = "o";
@@ -356,6 +359,23 @@ public class UserFactory {
         }
     }
 
+    public static void deleteOrganization(final Database db, final int orgid) throws DatabaseException, Throwable {
+        SqlWhereFormatter where = new SqlWhereFormatter();
+        where.append("orgid", orgid);
+
+        Table organizations = db.getTable(TABLENAME_ORG);
+        Table users = db.getTable(TABLENAME_USERS);
+        Table survey = db.getTable(TABLENAME_SURVEY);
+        Table vessel = db.getTable(TABLENAME_VESSEL);
+
+        if (users.getCount(where.getWhereClause()) > 0 ||
+            survey.getCount(where.getWhereClause()) > 0 ||
+            vessel.getCount(where.getWhereClause()) > 0) {
+                throw new NotificationException("Cannot delete. This organization is currently in use.");
+        }
+
+        organizations.deleteRows(where.getWhereClause());
+    }
 
     private static void fillOrgFormatter(final SqlFormatter formatter, final Organization organization) {
         formatter.append("orgname", organization.getName());

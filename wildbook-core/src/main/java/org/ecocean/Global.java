@@ -181,7 +181,6 @@ public enum Global {
         return userService;
     }
 
-
     public ConnectionInfo getConnectionInfo() {
       return getConnectionInfo(ConnectionInfo.DBTYPE_PRIMARY);
     }

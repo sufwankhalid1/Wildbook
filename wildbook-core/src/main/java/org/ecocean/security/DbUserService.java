@@ -9,6 +9,7 @@ import java.util.Set;
 
 import org.apache.commons.lang3.math.NumberUtils;
 import org.ecocean.Organization;
+import org.ecocean.util.NotificationException;
 import org.slf4j.Logger;
 
 import com.samsix.database.ConnectionInfo;
@@ -133,6 +134,20 @@ public class DbUserService implements UserService {
         // Nulling orgs then calling getOrganizations to clear cache
         // to distinguish between an edit and an insert
         //
+        orgs = null;
+        getOrganizations();
+    }
+
+    @Override
+    public void deleteOrganization(final int orgid) {
+        try (Database db = new Database(ci)) {
+            UserFactory.deleteOrganization(db, orgid);
+        } catch (DatabaseException ex) {
+            throw new SecurityException("Cannot delete organization", ex);
+        } catch (Throwable msg) {
+            throw new NotificationException("Cannot delete. This organization is currently in use.");
+        }
+
         orgs = null;
         getOrganizations();
     }

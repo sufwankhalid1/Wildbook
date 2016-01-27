@@ -27,6 +27,7 @@ public interface UserService {
     public boolean doesUserHaveRole(final String userid, final String context, final String role);
     public Organization getOrganization(String name);
     public void saveOrganization(Organization org);
+    public void deleteOrganization(int id);
     public User getUserByFullname(String fullname);
     public void deleteUser(final User user);
     public void setLastLogin(final User user);

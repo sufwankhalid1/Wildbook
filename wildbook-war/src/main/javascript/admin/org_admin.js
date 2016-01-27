@@ -76,8 +76,21 @@ angular.module('wildbook.admin').directive(
                 };
 
                 $scope.delete = function() {
-                    return alertplus.confirm('Are you sure you want to remove '+ $scope.orgInput.name +'?', "Delete Org", true)
-                    .then(function(){});
+                    return alertplus.confirm('Are you sure you want to remove '+ $scope.orgInput.name +'?', "Delete Organization", true)
+                    .then(function(){
+                        $http.post('siteadmin/deleteorg/' + $scope.orgInput.orgId)
+                        .success(function() {
+                            $scope.orgs.forEach(function(org, key) {
+                                if (org.orgId === $scope.orgInput.orgId) {
+                                    $scope.orgs.splice(key, 1);
+                                }
+                            });
+                            $scope.cancel();
+                        })
+                        .error(function(res){
+                            alertplus.error(res.message);
+                        });
+                    });
                 };
             }
         };

@@ -77,8 +77,12 @@ angular.module('wildbook.admin').directive(
                     return alertplus.confirm('Are you sure you want to remove '+ $scope.speciesInput.name +'?', "Delete Species", true)
                     .then(function(){
                         $http.post('siteadmin/deletespecies', $scope.speciesInput.code)
-                        .success(function(res) {
-                            $scope.allSpecies = res;
+                        .success(function() {
+                            $scope.allSpecies.forEach(function(obj, key) {
+                                if (obj.code === $scope.speciesInput.code) {
+                                    $scope.allSpecies.splice(key, 1);
+                                }
+                            });
                             $scope.cancel();
                         })
                         .error(function(res){

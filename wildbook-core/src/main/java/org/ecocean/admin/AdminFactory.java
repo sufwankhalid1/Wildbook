@@ -1,7 +1,5 @@
 package org.ecocean.admin;
 
-import java.util.List;
-
 import org.ecocean.Global;
 import org.ecocean.Species;
 import org.ecocean.util.NotificationException;
@@ -44,11 +42,11 @@ public class AdminFactory {
         Global.INST.refreshSpecies();
     }
 
-    public static List<Species> deleteSpecies(final Database db, final String code)
+    public static void deleteSpecies(final Database db, final String code)
         throws DatabaseException, Throwable {
 
             if (code == null) {
-                return null;
+                return;
             }
 
             Table species_tab = db.getTable(TABLENAME_SPECIES);
@@ -64,7 +62,6 @@ public class AdminFactory {
             where.append("code", code);
             species_tab.deleteRows(where.getWhereClause());
             Global.INST.refreshSpecies();
-            return Global.INST.getSpecies();
     }
 
 

@@ -1,7 +1,5 @@
 package org.ecocean.rest;
 
-import java.util.List;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
@@ -31,9 +29,8 @@ public class SiteAdminController {
 
     @RequestMapping(value = "deleteorg/{id}", method = RequestMethod.POST)
     public void deleteOrg(final HttpServletRequest request,
-                          @PathVariable("id") final int id) {
-
-
+                          @PathVariable("id") final int orgid) {
+        Global.INST.getUserService().deleteOrganization(orgid);
     }
 
     @RequestMapping(value = "savespecies/{code}", method = RequestMethod.POST)
@@ -46,10 +43,10 @@ public class SiteAdminController {
     }
 
     @RequestMapping(value = "deletespecies", method = RequestMethod.POST)
-    public List<Species> deleteSpecies(final HttpServletRequest request,
+    public void deleteSpecies(final HttpServletRequest request,
                               @RequestBody @Valid final String code) throws DatabaseException, Throwable {
         try (Database db = ServletUtils.getDb(request)) {
-            return AdminFactory.deleteSpecies(db, code);
+            AdminFactory.deleteSpecies(db, code);
         }
     }
 }
