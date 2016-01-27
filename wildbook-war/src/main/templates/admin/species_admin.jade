@@ -7,21 +7,23 @@ div(layout="row" flex="100" class="site-admin-orgs" layout-align="start center" 
         md-icon.mwidth-10.pointer(md-svg-icon="magnify" 
                                   ng-init="showSearch = false" 
                                   ng-show="!showSearch" 
-                                  ng-click="search()")
+                                  auto-focus
+                                  ng-click="search(); autofocus('searchSpecies')")
         md-autocomplete.mr-10(ng-show="showSearch"
                               md-floating-label="Search Species"
                               md-selected-item="species" 
+                              md-input-id="searchSpecies"
                               md-search-text="speciesSearch" 
                               md-items="species in allSpecies  | filter:{name: speciesSearch}"
-                              md-selected-item-change="!showSearch; edit(species);"
+                              md-selected-item-change="edit(species);"
                               md-item-text="species.name")
             <span md-highlight-text="searchText"> {{species.name}}
-        md-icon.mwidth-10.pointer(md-svg-icon="close" ng-show="showSearch" ng-click="showSearch = false")
-        md-icon.margin-0(md-svg-icon="plus" aria-label="New Species"  ng-click="newSpecies()")
+        md-icon.mwidth-10.pointer(md-svg-icon="close" ng-show="showSearch" ng-click="showSearch = false;")
+        md-icon.margin-0(md-svg-icon="plus" aria-label="New Species" auto-focus ng-click="newSpecies(); autofocus('newSpecies')")
     div(ng-show="speciesInput" layout="row" flex="100" layout-align="start end")
         md-input-container.padding-0(flex)
             label Code
-            input(type="text" ng-model="speciesInput.code" required)
+            input(type="text" id="newSpecies" ng-model="speciesInput.code" required)
         md-input-container.ml-10.padding-0(flex)
             label Name
             input(type="text" ng-model="speciesInput.name" required)
