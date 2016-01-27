@@ -17,7 +17,11 @@ angular.module('wildbook.admin').directive(
                 });
 
                 $scope.edit = function(org) {
+                    if (!org) {
+                        return;
+                    }
                     $scope.orgInput = angular.copy(org);
+                    $scope.existingOrg = true;
                 };
 
                 $scope.newOrg = function() {
@@ -31,6 +35,8 @@ angular.module('wildbook.admin').directive(
                     $scope.orgInput = null;
                     $scope.orgSearch = null;
                     $scope.showEdit = false;
+                    delete $scope.existingOrg;
+
                 };
 
                 $scope.save = function() {

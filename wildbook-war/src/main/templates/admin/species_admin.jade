@@ -4,11 +4,12 @@ div(layout="row" flex="100" class="site-admin-orgs" layout-align="start center" 
             label Species
             md-select(ng-model="species" placeholder="Species" ng-change="edit(species)")
                 md-option(ng-value="species" ng-repeat="species in allSpecies") {{species.name}}
-        md-icon.mwidth-10.pointer(md-svg-icon="magnify" 
+        md-icon.mwidth-10.pointer.md-primary(md-svg-icon="magnify" 
                                   ng-init="showSearch = false" 
-                                  ng-show="!showSearch" 
+                                  ng-show="!showSearch"
                                   auto-focus
                                   ng-click="search(); autofocus('searchSpecies')")
+            md-tooltip Search Species
         md-autocomplete.mr-10(ng-show="showSearch"
                               md-floating-label="Search Species"
                               md-selected-item="species" 
@@ -18,8 +19,23 @@ div(layout="row" flex="100" class="site-admin-orgs" layout-align="start center" 
                               md-selected-item-change="edit(species);"
                               md-item-text="species.name")
             <span md-highlight-text="searchText"> {{species.name}}
-        md-icon.mwidth-10.pointer(md-svg-icon="close" ng-show="showSearch" ng-click="showSearch = false;")
-        md-icon.margin-0(md-svg-icon="plus" aria-label="New Species" auto-focus ng-click="newSpecies(); autofocus('newSpecies')")
+        md-icon.mwidth-10.pointer.md-warn(md-svg-icon="close" ng-show="showSearch" ng-click="showSearch = false; cancel()")
+        md-icon.md-primary(layout-margin md-svg-icon="plus" aria-label="New Species" auto-focus ng-click="newSpecies(); autofocus('newSpecies')")
+            md-tooltip New Species
+        md-icon(layout-margin
+                ng-show="existingSpecies" 
+                md-svg-icon="delete" 
+                aria-label="Delete" 
+                ng-class="{'md-warn': existingSpecies}" 
+                ng-disabled="!existingSpecies"
+                ng-click="existingSpecies ? delete() : noop()")
+            md-tooltip Delete Species
+        md-icon(layout-margin
+                ng-show="!existingSpecies"
+                md-svg-icon="delete" 
+                aria-label="Delete" 
+                ng-disabled="!existingSpecies")
+            md-tooltip Please select a species to delete
     div(ng-show="speciesInput" layout="row" flex="100" layout-align="start end")
         md-input-container.padding-0(flex)
             label Code
@@ -32,4 +48,3 @@ div(layout="row" flex="100" class="site-admin-orgs" layout-align="start center" 
             input(type="text" ng-model="speciesInput.icon")
         md-button.md-whiteframe-1dp.height-36(aria-label="Save Species"  ng-click="save()") Save
         md-button.md-whiteframe-1dp.height-36(aria-label="Cancel"  ng-click="cancel()") Cancel
-        //md-button.md-whiteframe-1dp.height-36(aria-label="Delete" class="md-warn" ng-show="species" ng-click="delete()") Delete

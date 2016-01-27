@@ -20,7 +20,6 @@ angular.module('wildbook.util')
             $scope.autofocus = function(id) {
                 $timeout(function(){
                     var element = $window.document.getElementById(id);
-                    console.log(element);
                     if (element) {
                       element.focus();
                     }

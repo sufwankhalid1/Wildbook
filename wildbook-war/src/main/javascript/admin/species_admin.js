@@ -30,13 +30,14 @@ angular.module('wildbook.admin').directive(
                     $scope.species = null;
                     $scope.speciesInput = null;
                     $scope.showSearch = false;
+                    delete $scope.existingSpecies;
                 };
 
                 $scope.edit = function(species) {
                     if (!species) {
                         return;
                     }
-
+                    $scope.existingSpecies = true;
                     originalCode = species.code;
                     $scope.speciesInput = angular.copy(species);
                 };
@@ -45,6 +46,7 @@ angular.module('wildbook.admin').directive(
                     $scope.cancel();
                     $scope.edit({code: '', name: '', icon: ''});
                     originalCode = null;
+                    delete $scope.existingSpecies;
                 };
 
                 $scope.save = function() {
