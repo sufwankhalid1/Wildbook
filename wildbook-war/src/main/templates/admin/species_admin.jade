@@ -30,12 +30,6 @@ div(layout="row" flex="100" class="site-admin-orgs" layout-align="start center" 
                 ng-disabled="!existingSpecies"
                 ng-click="existingSpecies ? delete() : noop()")
             md-tooltip Delete Species
-        md-icon(layout-margin
-                ng-show="!existingSpecies"
-                md-svg-icon="delete" 
-                aria-label="Delete" 
-                ng-disabled="!existingSpecies")
-            md-tooltip Please select a species to delete
     div(ng-show="speciesInput" layout="row" flex="100" layout-align="start end")
         md-input-container.padding-0(flex)
             label Code
