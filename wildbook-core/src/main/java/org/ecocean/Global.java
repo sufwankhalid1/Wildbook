@@ -2,6 +2,7 @@ package org.ecocean;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -115,21 +116,21 @@ public enum Global {
         }
 
         if (overridingProps != null) {
-            try {
-                resources.addSource(overridingProps.toFile());
-            } catch (Throwable ex) {
-                //
-                // This is really just here to preserve the old way. If you just add the file above
-                // and add the config.dir property in there then we don't need this anymore. Just
-                // have it here until we can transition our servers and dev machines. As soon as we need
-                // anything else in the <webapp>_init.properties file we might as well get rid of this
-                // else statement as we will have the prop file by then anyway.
-                //
-                logger.warn("Can't read init property file, building simple props from init params.", ex);
-    //            Properties props = new Properties();
-    //            props.put("config.dir", servletContext.getInitParameter("config.dir"));
-    //
-    //            initResources.addSource(props);
+            if (Files.exists(overridingProps)) {
+                try {
+                    resources.addSource(overridingProps.toFile());
+                } catch (Throwable ex) {
+                    //
+                    // This is really just here to preserve the old way. If you just add the file above
+                    // and add the config.dir property in there then we don't need this anymore. Just
+                    // have it here until we can transition our servers and dev machines. As soon as we need
+                    // anything else in the <webapp>_init.properties file we might as well get rid of this
+                    // else statement as we will have the prop file by then anyway.
+                    //
+                    logger.error("Can't read init property file.", ex);
+                }
+            } else {
+                logger.warn("File [" + overridingProps + "] does not exist.");
             }
         }
 

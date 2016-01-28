@@ -78,7 +78,7 @@ import org.slf4j.Logger;
                     logger.debug("Did not find user.");
                 }
                 request.setAttribute("error", "No user found with username/email [" + username + "]" );
-                WebUtils.redirectToSavedRequest(request, response, "/login.jsp");
+                WebUtils.redirectToSavedRequest(request, response, "login.jsp");
                 return;
             }
 
@@ -143,7 +143,7 @@ import org.slf4j.Logger;
                 }
                 Global.INST.getUserService().setLastLogin(userToken.getUser());
 
-                WebUtils.redirectToSavedRequest(request, response, "/welcome.jsp");
+                WebUtils.redirectToSavedRequest(request, response, "welcome.jsp");
 //            }
         } catch (Exception ex) {
             logger.error("Can't login.", ex);
@@ -152,7 +152,7 @@ import org.slf4j.Logger;
             // TODO: FIX. This seems like a terrible way to pass the error up to the client.
             //
             request.getSession().setAttribute("error", ex.getMessage() );
-            WebUtils.redirectToSavedRequest(request, response, "/login.jsp");
+            WebUtils.redirectToSavedRequest(request, response, "login.jsp");
         } finally {
             if (userToken != null) {
                 //clear the information stored in the token

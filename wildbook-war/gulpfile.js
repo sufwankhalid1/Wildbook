@@ -12,8 +12,8 @@ var templateCache = require('gulp-angular-templatecache');
 var less = require('gulp-less');
 var rsync = require('rsyncwrapper').rsync;
 var argv = require('yargs').argv;
-var debug = require('gulp-debug');
-var fs = require('fs');
+//var debug = require('gulp-debug');
+//var fs = require('fs');
 var browserify = require('browserify');
 var source = require("vinyl-source-stream");
 var watchify = require("watchify");
@@ -52,6 +52,17 @@ paths.mainjs = path.join(paths.srcjs, 'main.js');
 // END Build paths to use
 //===============================
 
+function reportError(ex) {
+    gutil.log(gutil.colors.yellow.bgRed('Error: '), ex.message);
+}
+
+function doBundling(bundler, output) {
+    return bundler.bundle()
+        .on('error', reportError)
+        .pipe(source(output))
+        .pipe(gulp.dest(paths.distjs));
+}
+
 function execute(cmd, callback) {
     return exec(cmd, function(err, stdout, stderr) {
         console.log(stdout);
@@ -68,7 +79,7 @@ function execute(cmd, callback) {
 
 function doRsync(opts) {
     opts.recursive = true;
-    
+
     rsync(opts,
         function(error, stdout, stderr, cmd) {
             if (error) {
@@ -76,6 +87,72 @@ function doRsync(opts) {
             }
         }
     );
+}
+
+function getBundler(files, output, minify) {
+    var bundler;
+
+    if (minify) {
+        let debugable = ! (argv.nomap);
+
+        bundler = new browserify({debug: debugable});
+
+        //bundler.transform('browserify-css', {global: true});
+
+        if (debugable) {
+            bundler.plugin('minifyify', {
+                output: path.join(paths.distjs, output + '.map'),
+                map: output + '.map'
+            });
+        } else {
+            bundler.plugin('minifyify', {map: false});
+        }
+    } else {
+        bundler = new browserify();
+    }
+
+    bundler.add(files);
+
+    return bundler;
+}
+
+function getMainBundler(minify) {
+    return getBundler(paths.mainjs, 'bundle.js', minify);
+}
+
+function subdirs(filepath, filter) {
+    return path.join(filepath, "**", filter || "*");
+}
+
+//
+//  Putting this in a function so that people not using the watch functions
+//  don't have to have TOMCAT_HOME set. This throws an error if it's not set.
+//
+function getDevDir() {
+    return path.join(process.env.TOMCAT_HOME, 'webapps', webapp);
+}
+
+function updatewar() {
+    if (!process.env.TOMCAT_HOME) {
+        throw "Must have TOMCAT_HOME env variable set.";
+    }
+    //
+    // Not sure I want the overhead of copying the images every time. unncessary for me since
+    // I'm not usually changing those. Move this to another task if you want to have an easy way to
+    // just update those?
+    //
+//    gulp.src(subdirs(path.join(paths.webapp, 'images')), {base: paths.webapp})
+//         .pipe(gulp.dest(getDevDir()));
+
+    gulp.src([subdirs(paths.css),
+              subdirs(path.join(paths.webapp, 'jade')),
+              subdirs(paths.js)], {base: paths.webapp})
+         .pipe(gulp.dest(getDevDir()));
+
+    gulp.src(path.join(paths.webapp, '*.jsp')).pipe(gulp.dest(getDevDir()));
+
+    gulp.src(subdirs(paths.dist), {base: paths.dist})
+        .pipe(gulp.dest(getDevDir()));
 }
 
 gulp.task('templates', function() {
@@ -87,7 +164,7 @@ gulp.task('less', function() {
     return gulp.src(path.join(paths.less, 'wildbook.less'))
         .pipe(less()).pipe(gulp.dest(paths.distcss));
 });
-    
+
 gulp.task('watch', function() {
     //
     // Set up a watch for our less and jade templates.
@@ -95,7 +172,7 @@ gulp.task('watch', function() {
     gulp.watch([subdirs(paths.less, '*.less'),
                 subdirs(path.join(paths.src, 'templates'), '*.jade')], ['updatewar']);
     gulp.watch(subdirs(paths.webapp, '*.jsp'), ['updatewar']);
-    
+
     //
     // Set up watchify for our javascript code.
     //
@@ -128,48 +205,13 @@ gulp.task('concat-tools', function() {
                {base:'node_modules' })
          .pipe(concatCss('tools.css'))
          .pipe(gulp.dest(paths.distcss));
-    
+
     gulp.src('node_modules/jquery/dist/jquery.min.js', {base: 'node_modules/jquery/dist'})
     .pipe(gulp.dest(paths.distjs));
 
     gulp.src('node_modules/leaflet/dist/images/**', {base:'node_modules'})
     .pipe(gulp.dest(paths.distcss));
 });
-
-function subdirs(filepath, filter) {
-    return path.join(filepath, "**", filter || "*");
-}
-
-//
-//  Putting this in a function so that people not using the watch functions
-//  don't have to have TOMCAT_HOME set. This throws an error if it's not set.
-//
-function getDevDir() {
-    return path.join(process.env.TOMCAT_HOME, 'webapps', webapp);
-}
-
-function updatewar() {
-    if (!process.env.TOMCAT_HOME) {
-        throw "Must have TOMCAT_HOME env variable set.";
-    }
-    //
-    // Not sure I want the overhead of copying the images every time. unncessary for me since
-    // I'm not usually changing those. Move this to another task if you want to have an easy way to
-    // just update those?
-    //
-//    gulp.src(subdirs(path.join(paths.webapp, 'images')), {base: paths.webapp})
-//         .pipe(gulp.dest(getDevDir()));
-    
-    gulp.src([subdirs(paths.css),
-              subdirs(path.join(paths.webapp, 'jade')),
-              subdirs(paths.js)], {base: paths.webapp})
-         .pipe(gulp.dest(getDevDir()));
-
-    gulp.src(path.join(paths.webapp, '*.jsp')).pipe(gulp.dest(getDevDir()));
-    
-    gulp.src(subdirs(paths.dist), {base: paths.dist})
-        .pipe(gulp.dest(getDevDir()));
-}
 
 gulp.task('updatewar', ['less', 'templates'], function() {
     updatewar();
@@ -181,7 +223,7 @@ gulp.task('updatewar-classes', function() {
     if (cust) {
         cmd += ' -Dwildbook.cust=' + cust;
     }
-    
+
     execute(cmd, function(err) {
             doRsync({
                 src: [path.join(paths.target, 'classes')],
@@ -216,48 +258,6 @@ gulp.task('build', function() {
     );
 });
 
-function getBundler(files, output, minify) {
-    var bundler;
-    
-    if (minify) {
-        let debugable = ! (argv.nomap);
-        
-        bundler = new browserify({debug: debugable});
-        
-        //bundler.transform('browserify-css', {global: true});
-        
-        if (debugable) {
-            bundler.plugin('minifyify', {
-                output: path.join(paths.distjs, output + '.map'),
-                map: output + '.map'
-            });
-        } else {
-            bundler.plugin('minifyify', {map: false});
-        }
-    } else {
-        bundler = new browserify();
-    }
-
-    bundler.add(files);
-
-    return bundler;
-}
-
-function getMainBundler(minify) {
-    return getBundler(paths.mainjs, 'bundle.js', minify);
-}
-
-function doBundling(bundler, output) {
-    return bundler.bundle()
-        .on('error', reportError)
-        .pipe(source(output))
-        .pipe(gulp.dest(paths.distjs));
-}
-
-function reportError(ex) {
-    gutil.log(gutil.colors.yellow.bgRed('Error: '), ex.message);
-}
-
 gulp.task('browserify-tools', function() {
     return doBundling(getBundler(path.join(paths.srcjs, 'tools.js'), 'tools-bundle.js', true), 'tools-bundle.js');
 });
@@ -276,6 +276,6 @@ gulp.task('browserify', function() {
 //        minify = true;
 //    }
     minify = argv.minify;
-    
+
     return doBundling(getMainBundler(minify), 'bundle.js');
 });

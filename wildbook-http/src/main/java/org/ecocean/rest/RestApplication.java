@@ -94,11 +94,6 @@ public class RestApplication extends SpringBootServletInitializer {
             }
         }
 
-        //
-        // TODO: Figure out how to allow overridingPropVars here. Can we instead just use props?
-        // I did this for the db issue. But you can just override the entire property
-        // of Database.Primary.Url instead.
-        //
         Global.INST.init(overridingProps, vars);
 
         //

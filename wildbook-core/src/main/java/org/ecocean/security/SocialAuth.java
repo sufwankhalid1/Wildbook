@@ -6,10 +6,7 @@ https://github.com/pac4j/pac4j/wiki/Authenticate-with-Facebook,-Twitter-or-Googl
 
 package org.ecocean.security;
 
-import java.io.IOException;
-import java.util.Properties;
-
-import org.ecocean.ShepherdProperties;
+import org.ecocean.Global;
 import org.pac4j.oauth.client.FacebookClient;
 //for flickr
 import org.scribe.builder.ServiceBuilder;
@@ -20,33 +17,26 @@ public class SocialAuth {
 
     public static final String FLICKR_URL = "https://api.flickr.com/services/rest/";
 
-    //public SocialAuth() {}
-
-    //TODO cache these for each context
-    public static Properties authProps(final String context) throws IOException {
-        Properties props = new Properties();
-        props = ShepherdProperties.getProperties("socialAuth.properties", "", context);
-        return props;
-    }
-
     public static FacebookClient getFacebookClient(final String context) throws Exception {
-        Properties props = authProps(context);
-        if ((props == null) || (props.getProperty("social.facebook.auth.appid") == null) || (props.getProperty("social.facebook.auth.secret") == null)) {
-            //throw new Exception("facebookAppId or facebookSecret not set in socialAuth.properties");
+        String appid = Global.INST.getAppResources().getString("social.facebook.auth.appid", null);
+        String secret = Global.INST.getAppResources().getString("social.facebook.auth.secret", null);
+
+        if (appid == null || secret == null) {
             return null;
         }
-        return new FacebookClient(props.getProperty("social.facebook.auth.appid"), props.getProperty("social.facebook.auth.secret"));
+        return new FacebookClient(appid, secret);
     }
 
 
 
     public static OAuthService getFlickrOauth(final String context, final String callbackUrl) throws Exception {
-        Properties props = authProps(context);
-        if ((props == null) || (props.getProperty("social.flickr.auth.key") == null) || (props.getProperty("social.flickr.auth.secret") == null)) {
-            //throw new Exception("facebookAppId or facebookSecret not set in socialAuth.properties");
+        String key = Global.INST.getAppResources().getString("social.flickr.auth.key", null);
+        String secret = Global.INST.getAppResources().getString("social.flickr.auth.secret", null);
+
+        if (key == null || secret == null) {
             return null;
         }
-        return new ServiceBuilder().provider(FlickrApi.class).apiKey(props.getProperty("social.flickr.auth.key")).apiSecret(props.getProperty("social.flickr.auth.secret")).callback(callbackUrl).build();
+        return new ServiceBuilder().provider(FlickrApi.class).apiKey(key).apiSecret(secret).callback(callbackUrl).build();
     }
 
 

@@ -29,17 +29,17 @@ String context = ServletUtils.getContext(request);
   //props.load(getClass().getResourceAsStream("/bundles/" + langCode + "/welcome.properties"));
   props = ShepherdProperties.getProperties("welcome.properties", langCode, context);
 
-  session = request.getSession(true);
+  session = request.getSession();
   session.setAttribute("logged", "true");
   if ((request.getParameter("reflect") != null)) {
     response.sendRedirect(request.getParameter("reflect"));
   }
-  
+
    Logger logger = LoggerFactory.getLogger(getClass());
    if (logger.isInfoEnabled()) {
       logger.info(request.getRemoteUser() + " logged in from IP address " + request.getRemoteAddr() + ".");
    }
-   
+
    User user = ServletUtils.getUser(request);
 %>
 <jsp:include page="header.jsp" flush="true"/>
