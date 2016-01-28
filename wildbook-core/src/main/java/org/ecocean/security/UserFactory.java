@@ -9,7 +9,6 @@ import java.util.Set;
 
 import org.ecocean.Global;
 import org.ecocean.Organization;
-import org.ecocean.media.MediaAssetFactory;
 import org.ecocean.rest.SimpleUser;
 import org.ecocean.util.NotificationException;
 
@@ -48,23 +47,27 @@ public class UserFactory {
 
     public static SqlStatement getUserStatement() {
         SqlStatement sql = new SqlStatement(TABLENAME_USERS, ALIAS_USERS);
-        sql.addLeftOuterJoin(ALIAS_USERS, UserFactory.PK_ORG, TABLENAME_ORG, ALIAS_ORG, UserFactory.PK_ORG);
-        sql.addLeftOuterJoin(ALIAS_USERS,
-                             "avatarid",
-                             MediaAssetFactory.TABLENAME_MEDIAASSET,
-                             MediaAssetFactory.ALIAS_MEDIAASSET,
-                             MediaAssetFactory.PK_MEDIAASSET);
+        addOrganization(sql);
         return sql;
+    }
+
+    private static void addOrganization(final SqlStatement sql) {
+        sql.addLeftOuterJoin(ALIAS_USERS, UserFactory.PK_ORG, TABLENAME_ORG, ALIAS_ORG, UserFactory.PK_ORG);
+    }
+
+    public static void addAsLeftJoin(final String tableAlias, final String column, final SqlStatement sql) {
+        sql.addLeftOuterJoin(tableAlias,
+                             column,
+                             UserFactory.TABLENAME_USERS,
+                             UserFactory.ALIAS_USERS,
+                             UserFactory.PK_USERS);
+        UserFactory.addOrganization(sql);
     }
 
     public static SqlStatement getUserStatement(final boolean distinct) {
         SqlStatement sql = getUserStatement();
-        sql.setSelectString(ALIAS_USERS
-                            + ".*, "
-                            + ALIAS_ORG
-                            + ".*, "
-                            + MediaAssetFactory.ALIAS_MEDIAASSET
-                            + ".*");
+        sql.addSelectTable(ALIAS_USERS);
+        sql.addSelectTable(ALIAS_ORG);
         sql.setSelectDistinct(true);
         return sql;
     }
@@ -159,6 +162,10 @@ public class UserFactory {
 
 
     public static User readUser(final RecordSet rs) throws DatabaseException {
+        if (!rs.hasColumn(PK_USERS)) {
+            return null;
+        }
+
         Integer id = rs.getInteger(PK_USERS);
         if (id == null) {
             return null;
@@ -166,7 +173,7 @@ public class UserFactory {
 
         User user = new User(id, rs.getString("username"), rs.getString("fullname"), rs.getString("email"));
 
-        user.setAvatarFull(MediaAssetFactory.readPhoto(rs));
+        user.setAvatarPath(rs.getString("avatar"));
         user.setStatement(rs.getString("statement"));
         user.setOrganization(readOrganization(rs));
 
@@ -227,11 +234,7 @@ public class UserFactory {
         formatter.append("email", user.getEmail());
         formatter.append("phonenumber", user.getPhoneNumber());
         formatter.append("physicaladdress", user.getPhysicalAddress());
-        if (user.getAvatarFull() != null) {
-            formatter.append("avatarid", user.getAvatarFull().getId());
-        } else {
-            formatter.appendNull("avatarid");
-        }
+        formatter.append("avatar", user.getAvatarPath());
         formatter.append("statement", user.getStatement());
         formatter.append("lastlogin", user.getLastLogin());
         formatter.append("password", user.getHashedPass());

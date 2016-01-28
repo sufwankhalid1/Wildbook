@@ -14,6 +14,7 @@ public class SimplePhoto
     private Double longitude;
     private Map<String, String> meta;
     private Integer submitterid;
+    private SimpleUser submitter;
     private LocalDateTime submittedOn;
 
     public SimplePhoto()
@@ -110,6 +111,14 @@ public class SimplePhoto
 
     public void setSubmitterid(final Integer submitterid) {
         this.submitterid = submitterid;
+    }
+
+    public SimpleUser getSubmitter() {
+        return submitter;
+    }
+
+    public void setSubmitter(final SimpleUser submitter) {
+        this.submitter = submitter;
     }
 
     public LocalDateTime getSubmittedOn() {

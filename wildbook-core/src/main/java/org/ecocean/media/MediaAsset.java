@@ -25,6 +25,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.ecocean.rest.SimpleUser;
+
 /**
  * MediaAsset describes a photo or video that can be displayed or used
  * for processing and analysis.
@@ -45,7 +47,12 @@ public class MediaAsset {
     protected AssetStore thumbStore;
     protected Path thumbPath;
     protected Path midPath;
+    //
+    // Sometimes our queries only give us the submitterid and other times
+    // we are able to retrieve the entire submitter. Hence this duplication here.
+    //
     protected Integer submitterid;
+    private SimpleUser submitter;
     protected LocalDateTime submittedOn;
 
     private LocalDateTime metaTimestamp;
@@ -198,46 +205,45 @@ public class MediaAsset {
         this.submitterid = submitterid;
     }
 
+    public SimpleUser getSubmitter() {
+        return submitter;
+    }
+
+    public void setSubmitter(final SimpleUser submitter) {
+        this.submitter = submitter;
+    }
 
     public LocalDateTime getSubmittedOn() {
         return submittedOn;
     }
 
-
     public void setSubmittedOn(final LocalDateTime submittedOn) {
         this.submittedOn = submittedOn;
     }
-
 
     public LocalDateTime getMetaTimestamp() {
         return metaTimestamp;
     }
 
-
     public void setMetaTimestamp(final LocalDateTime metaTimestamp) {
         this.metaTimestamp = metaTimestamp;
     }
-
 
     public Double getMetaLatitude() {
         return metaLatitude;
     }
 
-
     public void setMetaLatitude(final Double metaLatitude) {
         this.metaLatitude = metaLatitude;
     }
-
 
     public Double getMetaLongitude() {
         return metaLongitude;
     }
 
-
     public void setMetaLongitude(final Double metaLongitude) {
         this.metaLongitude = metaLongitude;
     }
-
 
     public Map<String, String> getMeta() {
         return meta;

@@ -7,7 +7,6 @@ import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 import org.ecocean.Organization;
 import org.ecocean.mmutil.StringUtilities;
-import org.ecocean.rest.SimplePhoto;
 import org.ecocean.rest.SimpleUser;
 import org.ecocean.util.DateUtils;
 import org.ecocean.util.WildbookUtils;
@@ -32,11 +31,10 @@ public class User {
 
     private boolean verified = false;
     private boolean acceptedUserAgreement = false;
+    private String avatarPath;
 
     private String prtoken;
     private LocalDateTime prtimestamp;
-
-    private SimplePhoto avatarFull;
 
     public User() {
         // blank constructor for when creating a new user.
@@ -221,8 +219,15 @@ public class User {
     }
 
     public String getAvatar() {
-        if (avatarFull != null) {
-            return avatarFull.getThumbUrl();
+        //
+        // TODO:
+        // This will probably be a relative path. So the client will have to know if it starts
+        // with "http" to just make the request or else to tack on the static avatar path. Or
+        // should the server tack that on? Maybe the server should do it? I guess that's how
+        // we are doing mediaasset with the assetstore and all.
+        //
+        if (avatarPath != null) {
+            return avatarPath;
         }
 
         if (! StringUtils.isBlank(email)) {
@@ -240,6 +245,14 @@ public class User {
         }
 
         return null;
+    }
+
+    public void setAvatarPath(final String avatar) {
+        this.avatarPath = avatar;
+    }
+
+    public String getAvatarPath() {
+        return avatarPath;
     }
 
     public String getStatement() {
@@ -280,13 +293,5 @@ public class User {
 
     public void setPrtimestamp(final LocalDateTime prtimestamp) {
         this.prtimestamp = prtimestamp;
-    }
-
-    public SimplePhoto getAvatarFull() {
-        return avatarFull;
-    }
-
-    public void setAvatarFull(final SimplePhoto avatarFull) {
-        this.avatarFull = avatarFull;
     }
 }

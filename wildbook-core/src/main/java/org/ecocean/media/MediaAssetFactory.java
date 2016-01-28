@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import org.ecocean.rest.SimplePhoto;
+import org.ecocean.security.UserFactory;
 import org.ecocean.util.LogBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,6 +103,7 @@ public class MediaAssetFactory {
         ma.thumbPath = createPath(rs.getString("thumbpath"));
         ma.midPath = createPath(rs.getString("midpath"));
         ma.submitterid = rs.getInteger("submitterid");
+        ma.setSubmitter(UserFactory.readSimpleUser(rs));
         ma.setMetaTimestamp(rs.getLocalDateTime("metatimestamp"));
         ma.setMetaLatitude(rs.getDoubleObj("metalat"));
         ma.setMetaLongitude(rs.getDoubleObj("metalong"));
@@ -218,6 +220,7 @@ public class MediaAssetFactory {
         photo.setLongitude(ma.getMetaLongitude());
         photo.setMeta(ma.getMeta());
         photo.setSubmitterid(ma.getSubmitterId());
+        photo.setSubmitter(ma.getSubmitter());
         photo.setSubmittedOn(ma.getSubmittedOn());
         return photo;
     }
