@@ -9,6 +9,7 @@ import java.util.Set;
 
 import org.apache.commons.lang3.math.NumberUtils;
 import org.ecocean.Organization;
+import org.ecocean.rest.SimpleUser;
 import org.ecocean.util.NotificationException;
 import org.slf4j.Logger;
 
@@ -355,6 +356,15 @@ public class DbUserService implements UserService {
 
         if (logger.isDebugEnabled()) {
             logger.debug("user cache length after clear: " + mapUserId.size());
+        }
+    }
+
+    @Override
+    public List<SimpleUser> searchUsers(final String q) {
+        try (Database db = new Database(ci)) {
+            return UserFactory.searchUsers(db, q);
+        } catch (DatabaseException ex) {
+            throw new SecurityException("Could not search users, q="+q);
         }
     }
 }

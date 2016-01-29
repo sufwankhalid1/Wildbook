@@ -29,12 +29,6 @@ div(layout="row" flex="100" class="site-admin-orgs" layout-align="start center" 
                 ng-disabled="!existingOrg"
                 ng-click="existingOrg ? delete() : noop()")
             md-tooltip Delete Orgnaization {{existingOrg}}
-        md-icon(layout-margin
-                ng-if="!existingOrg"
-                md-svg-icon="delete" 
-                aria-label="Delete" 
-                ng-disabled="!existingOrg")
-            md-tooltip Please Select An Organization To Delete
     div(ng-show="showEdit || org" layout="row" flex="100" layout-align="start end")
         md-input-container.mr-10.padding-0(flex="25")
             label Name

@@ -307,6 +307,13 @@ public class UserController {
         }
     }
 
+    @RequestMapping(value = "searchusers", method = RequestMethod.POST)
+    public List<SimpleUser> getUsers(final HttpServletRequest request,
+                               @RequestBody final String q) throws DatabaseException {
+        UserService userService = Global.INST.getUserService();
+        return userService.searchUsers(q);
+    }
+
     static class UserInfo {
         public String email;
         public String fullName;

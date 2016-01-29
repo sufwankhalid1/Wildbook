@@ -79,13 +79,7 @@ public class SearchController
                 results.add(result);
             }
 
-            SqlStatement sql = UserFactory.getUserStatement();
-
-            SqlTable users = sql.findTable(UserFactory.ALIAS_USERS);
-            GroupedSqlCondition cond = GroupedSqlCondition.orGroup();
-            cond.addContainsCondition(users, "fullname", term);
-            cond.addContainsCondition(users, "username", term);
-            sql.addCondition(cond);
+            SqlStatement sql = UserFactory.userSearchStatement(term);
 
             results.addAll(db.selectList(sql, (rs) -> {
                 SimpleUser user = UserFactory.readSimpleUser(rs);

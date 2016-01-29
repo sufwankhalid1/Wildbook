@@ -27,4 +27,22 @@ angular.module('wildbook.util')
             };
         },
     };
-}]);
+}])
+//https://github.com/angular/material/issues/3906
+.directive('autocompleteBlur', function($timeout) {
+    return {
+        restrict: 'A',
+        scope: {
+            callback: '&',
+            inputid: '@'
+        },
+        link: function($scope, element, attrs) {
+            var addCallback = function addCallback() {
+                element.find('#'+$scope.inputid).bind("blur", function() {
+                    $scope.callback({blur:true});
+                });
+            };
+            $timeout(addCallback, 0);
+        }
+    };
+});

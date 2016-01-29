@@ -33,7 +33,6 @@ public class MediaSubmissionFactory {
         return sql;
     }
 
-
     public static void save(final Database db,
                             final MediaSubmission media)
         throws DatabaseException

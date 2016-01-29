@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.ecocean.Organization;
+import org.ecocean.rest.SimpleUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,4 +33,5 @@ public interface UserService {
     public void deleteUser(final User user);
     public void setLastLogin(final User user);
     public void clearUserCache();
+    public List<SimpleUser> searchUsers(final String q);
 }
