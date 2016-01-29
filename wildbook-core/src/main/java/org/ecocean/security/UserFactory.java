@@ -14,12 +14,14 @@ import org.ecocean.util.NotificationException;
 
 import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
+import com.samsix.database.GroupedSqlCondition;
 import com.samsix.database.RecordSet;
 import com.samsix.database.SpecialSqlCondition;
 import com.samsix.database.SqlFormatter;
 import com.samsix.database.SqlInsertFormatter;
 import com.samsix.database.SqlRelationType;
 import com.samsix.database.SqlStatement;
+import com.samsix.database.SqlTable;
 import com.samsix.database.SqlUpdateFormatter;
 import com.samsix.database.SqlWhereFormatter;
 import com.samsix.database.Table;
@@ -460,5 +462,22 @@ public class UserFactory {
         where.append(PK_USERS, user.getId());
 
         db.getTable(TABLENAME_USERS).updateRow(formatter.getUpdateClause(), where.getWhereClause());
+    }
+
+    public static SqlStatement userSearchStatement(final String q) {
+        SqlStatement sql = UserFactory.getUserStatement();
+
+        SqlTable users = sql.findTable(UserFactory.ALIAS_USERS);
+        GroupedSqlCondition cond = GroupedSqlCondition.orGroup();
+        cond.addContainsCondition(users, "fullname", q);
+        cond.addContainsCondition(users, "username", q);
+        sql.addCondition(cond);
+
+        return sql;
+    }
+
+    public static List<SimpleUser> searchUsers(final Database db, final String q) throws DatabaseException {
+        SqlStatement sql = userSearchStatement(q);
+        return readSimpleUsers(db, sql);
     }
 }

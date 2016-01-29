@@ -88,10 +88,6 @@ angular.module('wildbook.admin').directive(
                     $scope.data.surveyEncs.push({surveypart: surveypart, encs: encounters});
                 }
 
-                $scope.searchSubmitter = function() {
-                    $scope.searchingSubmitter = true;
-                };
-
                 $scope.emailSubmitter = function() {
                     $http.get("useradmin/user/" + $scope.data.submission.user.id)
                     .then(function(result) {

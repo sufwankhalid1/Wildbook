@@ -68,14 +68,11 @@ div
                             div {{dateStringFromRest(encdata.encounter.encDate)}}
                             div {{encdata.encounter.location.locationid}}
             div(flex="80" layout-wrap flex-offset="5")
-                div(layout="row" flex="100")
+                div(layout="row" flex="100" layout-align="start start")
                     span.brand-primary Submitted by:
                     | &nbsp
-                    span(ng-show="data.submission.user") {{data.submission.user.displayName}}
+                    user-typeahead(ng-if="data.submission.user" user="data.submission.user" search="{{data.submission.user.displayName || data.submission.name}}")
                     span(ng-show="!data.submission.user" style="color: red") {{data.submission.name}}/{{data.submission.email}}
-                    a(href="javascript:;" ng-click="searchSubmitter()")
-                        md-icon(md-svg-icon="magnify")
-                            md-tooltip Reassign Submitter
                     a(href="javascript:;" ng-click="emailSubmitter()")
                         md-icon(md-svg-icon="email")
                             md-tooltip Email Submitter

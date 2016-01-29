@@ -787,6 +787,12 @@ md-dialog-content.individual-avatar {
     border-radius: 4px;
 }
 
+.avatar-icon-xs {
+    width: 24px;
+    height: auto;
+    border-radius: 2px;
+}
+
 /* spin animation */
 
 @-webkit-keyframes spin {
@@ -834,4 +840,28 @@ md-dialog-content.individual-avatar {
 md-dialog md-dialog-content .box.dialog-col-height {
     max-height: 300px;
     overflow: auto;
+}
+
+/* user typeahead */
+.user-typeahead {
+    border: solid 1px transparent;
+    padding: 0px 0px 0px 5px;
+    line-height:1.5;
+}
+.user-typeahead:hover {
+    border: solid 1px #dddddd;
+}
+
+.user-typeahead .edit-icon {
+    border-left: solid 1px #dddddd;
+}
+
+.user-typeahead md-icon {
+    padding: 2px;
+}
+
+
+/* header dropdown font color */
+.navbar-default .navbar-nav .open .dropdown-menu > li > a:hover {
+    color:white;
 }

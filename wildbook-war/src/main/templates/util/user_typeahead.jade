@@ -1,0 +1,29 @@
+div.user-typeahead(layout="row"
+                   ng-init="showEdit = false"
+                   ng-mouseenter="showEdit = true"
+                   ng-mouseleave="showEdit = false"
+                   ng-click="focus = true; autofocus('user-typeahead-input')"
+                   auto-focus) 
+    div(ng-show="!focus")
+        div {{user.fullName}}
+        div.edit-icon.ml-10
+             md-icon.margin-0(md-svg-icon="pencil" ng-show="showEdit")
+    div(autocomplete-blur ng-show="focus" inputid="user-typeahead-input" callback="noFocus(blur)")         
+        md-autocomplete(autofocus
+                        md-selected-item-change="setUser(selectedUser)"
+                        md-selected-item="selectedUser"
+                        md-search-text-change="getUsers()"
+                        md-search-text="search" 
+                        md-items="userobj in users"
+                        md-delay="250"
+                        md-min-length="1"
+                        md-input-id="user-typeahead-input" 
+                        placeholder="Enter a name or username"
+                        aria-label="user search")
+            md-item-template
+                div(layout="row" layout-align="start center")
+                    div
+                        img.avatar-icon-xs(src="{{userobj.avatar}}")
+                    div.ml-10 {{userobj.fullName}}
+
+        
