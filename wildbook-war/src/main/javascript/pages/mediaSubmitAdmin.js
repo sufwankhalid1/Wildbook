@@ -95,6 +95,13 @@ angular.module('wildbook.admin').directive(
                     }, $exceptionHandler);
                 };
 
+                //call in function for user typeahead directive
+                $scope.getUser = function() {
+                    if ($scope.data.submission && $scope.data.submission.user) {
+                        return $scope.data.submission.user;
+                    }
+                };
+
                 $scope.searchUserDone = function(user) {
                     if (user) {
                         $http.post("obj/mediasubmission/reassign", {msid: $scope.data.submission.id, userid: user.id})

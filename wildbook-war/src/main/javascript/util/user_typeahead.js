@@ -1,41 +1,55 @@
 /* global angular */
 'use strict';
 
+/*
+@search = starting search string.
+&getuser = avoiding two way binding to prevent modifying user obj, using a getter function
+&callback = callback function with selected user obj
+*/
+
 angular.module('wildbook.util')
-.directive('userTypeahead', ['$timeout', '$http', function($timeout, $http) {
+.directive('userTypeahead', ['$timeout', '$http', '$exceptionHandler', '$q', function($timeout, $http, $exceptionHandler, $q) {
     return {
         restrict: 'E',
         templateUrl: 'util/user_typeahead.html',
         scope: {
             search: '@',
-            user: '='
+            getuser: '&',
+            callback: '&'
         },
         link: function($scope, ele, attr) {
+            $scope.focus = false;
 
-            $scope.$watch('search', function(){
-                //console.log($scope.search);
-            });
+            $scope.user = $scope.getuser();
+
+            function reset() {
+                $scope.focus = false;
+                $scope.showEdit = false;
+            }
+
+            $scope.searchUsers = function(query) {
+                if (!query) {
+                    return $q.reject();
+                }
+
+                return $http.post('obj/user/searchusers', query)
+                .then(function(res) {
+                    return res.data;
+                });
+            };
 
             $scope.setUser = function(selectedUser) {
-                $scope.user = selectedUser;
-            };
-
-            $scope.getUsers = function() {
-                $timeout(function() {
-                    searchUsers($scope.search);
-                }, 250);
-            };
-
-            var searchUsers = function(q) {
-                console.log(q);
-                if (!q) {
+                if (!selectedUser) {
                     return;
                 }
 
-                $http.post('obj/user/searchusers', q)
-                .success(function(res) {
-                    $scope.users = res;
-                });
+                $scope.user = selectedUser;
+
+                if ($scope.callback) {
+                    $scope.callback({user: $scope.user});
+                }
+
+                reset();
             };
 
             $scope.noFocus = function(blur) {
@@ -45,6 +59,7 @@ angular.module('wildbook.util')
                     });
                 }
             };
+
         }
     };
 }]);

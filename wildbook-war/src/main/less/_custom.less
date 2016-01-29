@@ -656,6 +656,10 @@ span.active {
     margin-top: 20px;
 }
 
+.ml-3 {
+    margin-left: 3px;
+}
+
 .ml-5 {
     margin-left:5px;
 }
@@ -846,10 +850,15 @@ md-dialog md-dialog-content .box.dialog-col-height {
 .user-typeahead {
     border: solid 1px transparent;
     padding: 0px 0px 0px 5px;
-    line-height:1.5;
+    line-height: 1.5;
 }
-.user-typeahead:hover {
+
+.user-typeahead-border .nofocus-border:hover {
     border: solid 1px #dddddd;
+}
+
+.user-typeahead-border .nofocus-border md-icon {
+    border-left: solid 1px #dddddd;
 }
 
 .user-typeahead .edit-icon {
@@ -860,6 +869,9 @@ md-dialog md-dialog-content .box.dialog-col-height {
     padding: 2px;
 }
 
+.nofocus-border-transparent {
+    border-top: 1px solid transparent;
+}
 
 /* header dropdown font color */
 .navbar-default .navbar-nav .open .dropdown-menu > li > a:hover {
