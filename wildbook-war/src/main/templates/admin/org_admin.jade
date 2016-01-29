@@ -1,14 +1,14 @@
 div(layout="row" flex="100" class="site-admin-orgs" layout-align="start center" layout-wrap)
-    div(layout="row" flex="100" layout-align="start center")
+    div(layout="row")
         md-input-container.mr-10(ng-show="!showSearch")
             label Organizations
             md-select(ng-model="org" placeholder="Organizations" ng-change="edit(org)")
                 md-option(ng-value="org" ng-repeat="org in orgs track by $index") {{org.name}}
-        md-icon.mwidth-10.pointer.md-primary(md-svg-icon="magnify" 
-                                  ng-init="showSearch = false" 
-                                  auto-focus 
-                                  ng-show="!showSearch" 
-                                  ng-click="cancel(); showSearch = true; autofocus('searchOrg')")
+        md-icon.pointer.ml-5.md-primary(md-svg-icon="magnify"
+                                             ng-init="showSearch = false" 
+                                             auto-focus 
+                                             ng-show="!showSearch" 
+                                             ng-click="cancel(); showSearch = true; autofocus('searchOrg')")
             md-tooltip Search Organizations
         md-autocomplete.mr-10(ng-show="showSearch"
                               md-input-id="searchOrg"
@@ -19,17 +19,16 @@ div(layout="row" flex="100" class="site-admin-orgs" layout-align="start center" 
                               md-selected-item-change="edit(org);"
                               md-item-text="org.name")
             <span md-highlight-text="searchText"> {{org.name}}
-        md-icon.mwidth-10.pointer.md-warn(md-svg-icon="close" ng-show="showSearch" ng-click="cancel(); showSearch = false;")
-        md-icon.md-primary(layout-margin md-svg-icon="plus" aria-label="New Species" auto-focus ng-click="newOrg(); autofocus('newOrg')")
-        md-icon(layout-margin
-                ng-if="existingOrg" 
+        md-icon.pointer.md-warn(md-svg-icon="close" ng-show="showSearch" ng-click="cancel(); showSearch = false;")
+        md-icon.md-primary.ml-5(md-svg-icon="plus" aria-label="New Species" auto-focus ng-click="newOrg(); autofocus('newOrg')")
+        md-icon.ml-5(ng-if="existingOrg" 
                 md-svg-icon="delete" 
                 aria-label="Delete" 
                 ng-class="{'md-warn': existingOrg}" 
                 ng-disabled="!existingOrg"
                 ng-click="existingOrg ? delete() : noop()")
             md-tooltip Delete Orgnaization {{existingOrg}}
-    div(ng-show="showEdit || org" layout="row" flex="100" layout-align="start end")
+    div(ng-show="showEdit || org" layout="row" flex="100" layout-align="start start")
         md-input-container.mr-10.padding-0(flex="25")
             label Name
             input(type="text" ng-model="orgInput.name" id="newOrg" required)
