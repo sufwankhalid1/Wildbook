@@ -29,17 +29,7 @@ public class MediaSubmissionFactory {
     public static SqlStatement getStatement()
     {
         SqlStatement sql = new SqlStatement(TABLENAME_MEDIASUBMISSION, ALIAS_MEDIASUBMISSION);
-        sql.addLeftOuterJoin(ALIAS_MEDIASUBMISSION,
-                UserFactory.PK_USERS,
-                UserFactory.TABLENAME_USERS,
-                UserFactory.ALIAS_USERS,
-                UserFactory.PK_USERS);
-        sql.addLeftOuterJoin(UserFactory.ALIAS_USERS,
-                "avatarid",
-                MediaAssetFactory.TABLENAME_MEDIAASSET,
-                MediaAssetFactory.ALIAS_MEDIAASSET,
-                MediaAssetFactory.PK_MEDIAASSET);
-        sql.addLeftOuterJoin(UserFactory.ALIAS_USERS, UserFactory.PK_ORG, UserFactory.TABLENAME_ORG, UserFactory.ALIAS_ORG, UserFactory.PK_ORG);
+        UserFactory.addAsLeftJoin(ALIAS_MEDIASUBMISSION, UserFactory.PK_USERS, sql);
         return sql;
     }
 
