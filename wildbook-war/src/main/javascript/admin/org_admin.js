@@ -7,6 +7,7 @@ angular.module('wildbook.admin').directive(
         return {
             restrict: 'E',
             scope: {
+                callback: '&'
             },
             templateUrl: 'admin/org_admin.html',
             replace: true,
@@ -20,8 +21,13 @@ angular.module('wildbook.admin').directive(
                     if (!org) {
                         return;
                     }
+
                     $scope.orgInput = angular.copy(org);
                     $scope.existingOrg = true;
+
+                    if ($scope.callback) {
+                        $scope.callback({orgId: $scope.orgInput.orgId});
+                    }
                 };
 
                 $scope.newOrg = function() {
@@ -70,6 +76,11 @@ angular.module('wildbook.admin').directive(
                                 $scope.orgInput.orgId = response.data;
                                 $scope.orgs.push($scope.orgInput);
                             }
+
+                            if ($scope.callback) {
+                                $scope.callback({orgId: $scope.orgInput.orgId});
+                            }
+
                             $scope.cancel();
                         });
                     }

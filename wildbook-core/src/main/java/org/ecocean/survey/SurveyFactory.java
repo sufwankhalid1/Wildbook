@@ -192,7 +192,7 @@ public class SurveyFactory {
             return null;
         }
 
-        return new Vessel(vesselId, rs.getInt(UserFactory.PK_ORG), rs.getString("vesseltype"), rs.getString("vesselname"));
+        return new Vessel(vesselId, rs.getInt(UserFactory.PK_ORG), rs.getInt("vesseltypeid"), rs.getString("vesselname"));
     }
 
     public static List<Vessel> getVesselsByOrg(final Database db, final int orgid) throws DatabaseException {
@@ -225,7 +225,7 @@ public class SurveyFactory {
 
     private static void fillVesselFormatter(final SqlFormatter formatter, final Vessel vessel) {
         formatter.append(UserFactory.PK_ORG, vessel.getOrgId());
-        formatter.append("vesseltype", vessel.getType());
+        formatter.append("vesseltype", vessel.getTypeId());
         formatter.append("vesselname", vessel.getName());
     }
 }

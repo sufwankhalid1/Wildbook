@@ -1,48 +1,53 @@
 package org.ecocean.survey;
 
 public class Vessel {
-    private Integer vesselId;
-    private int orgId;
-    private String type;
+    private Integer vesselid;
     private String name;
+    private Integer orgid;
+    private Integer typeid;
+    private String test;
 
     public Vessel() {
         // deserialization
     }
 
     public Vessel(final Integer vesselId,
-                  final int orgId,
-                  final String type,
+                  final Integer orgid,
+                  final Integer typeid,
                   final String name)
     {
-        this.vesselId = vesselId;
-        this.orgId = orgId;
-        this.type = type;
+        this.vesselid = vesselId;
+        this.orgid = orgid;
+        this.typeid = typeid;
         this.name = name;
     }
 
+    public String getTest() {
+        return test;
+    }
+
     public Integer getVesselId() {
-        return vesselId;
+        return vesselid;
     }
 
     public void setVesselId(final Integer vesselId) {
-        this.vesselId = vesselId;
+        this.vesselid = vesselId;
     }
 
-    public int getOrgId() {
-        return orgId;
+    public Integer getOrgId() {
+        return orgid;
     }
 
-    public void setOrgId(final int orgId) {
-        this.orgId = orgId;
+    public void setOrgId(final Integer orgid) {
+        this.orgid = orgid;
     }
 
-    public String getType() {
-        return type;
+    public Integer getTypeId() {
+        return typeid;
     }
 
-    public void setType(final String type) {
-        this.type = type;
+    public void setTypeId(final Integer typeid) {
+        this.typeid = typeid;
     }
 
     public String getName() {
@@ -53,13 +58,13 @@ public class Vessel {
         this.name = name;
     }
 
-    public String getDisplayName() {
-        StringBuilder builder = new StringBuilder();
-        if (type != null) {
-            builder.append(type).append(": ");
-        }
-
-        builder.append(name);
-        return builder.toString();
-    }
+//    public String getDisplayName() {
+//        StringBuilder builder = new StringBuilder();
+//        if (typeid != null) {
+//            builder.append(typeid).append(": ");
+//        }
+//
+//        builder.append(name);
+//        return builder.toString();
+//    }
 }
