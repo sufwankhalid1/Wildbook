@@ -58,7 +58,7 @@ angular.module('wildbook.admin').directive(
 
                     var exists = false;
                     $scope.vessels.forEach(function(obj) {
-                        if (obj.name === $scope.vesselInput.name) {
+                        if (obj === $scope.vesselInput) {
                             exists = true;
                         }
                     });

@@ -7,11 +7,25 @@ angular.module('wildbook.admin').directive(
         return {
             restrict: 'E',
             scope: {
-                callback: '&'
+                callback: '&',
+                readonly: '=',
+                orgid: '='
             },
             templateUrl: 'admin/org_admin.html',
             replace: true,
             link: function($scope, element, attr) {
+                $scope.$watch('orgid', function(newVal, oldVal) {
+                    console.log($scope.orgs);
+                    if(newVal !== oldVal && newVal !== undefined) {
+                        $scope.orgs.forEach(function(org) {
+                            if(org.orgId === $scope.orgid) {
+                                $scope.orgInput = org;
+                                $scope.org = org;
+                            }
+                        });
+                    }
+                });
+
                 wbConfig.config()
                 .then(function(config) {
                     $scope.orgs = config.orgs;
