@@ -1,4 +1,4 @@
-div(layout="row" layout-align="center center" layout-fill layout-wrap)
+div(layout="row" layout-align="start center" flex="100" layout-wrap)
     md-input-container(flex="20")
         label Location ID:
         input(type="text", ng-model="location.locationid")
@@ -16,6 +16,7 @@ div(layout="row" layout-align="center center" layout-fill layout-wrap)
         label Precision Source:
         md-select(flex="" ng-model="location.precisionSource" ng-disabled="location.accuracy !== 'PRECISE'")
             md-option(ng-value="precisionSource.value" ng-repeat="precisionSource in precisionSources") {{precisionSource.label}}
-md-input-container
-    label Verbatim Location:
-    textarea(ng-model="location.verbatimLocation")
+div(layout="row" layout-align="start center" flex="100")
+    md-input-container(flex="100")
+        label Verbatim Location:
+        textarea(ng-model="location.verbatimLocation")
