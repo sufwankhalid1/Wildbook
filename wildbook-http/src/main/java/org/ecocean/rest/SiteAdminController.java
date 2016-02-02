@@ -11,8 +11,6 @@ import org.ecocean.Species;
 import org.ecocean.admin.AdminFactory;
 import org.ecocean.servlet.ServletUtils;
 import org.ecocean.survey.Vessel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,7 +23,6 @@ import com.samsix.database.DatabaseException;
 @RestController
 @RequestMapping(value = "/siteadmin")
 public class SiteAdminController {
-    private static Logger logger = LoggerFactory.getLogger(SiteAdminController.class);
 
     @RequestMapping(value = "saveorg", method = RequestMethod.POST)
     public int saveOrg(final HttpServletRequest request,
@@ -68,7 +65,6 @@ public class SiteAdminController {
     public void saveVessel(final HttpServletRequest request,
                            @RequestBody @Valid final Vessel vessel)
        throws DatabaseException {
-            logger.debug(vessel.getName(), vessel.getOrgId(), vessel.getTypeId(), vessel.getVesselId(),vessel.getTest());
             try (Database db = ServletUtils.getDb(request)) {
                 AdminFactory.saveVessel(db, vessel);
             }
