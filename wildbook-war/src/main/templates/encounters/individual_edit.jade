@@ -10,11 +10,11 @@ form.form.ng-cloak(novalidate, wb-key-handler-form)
                     img.avatar-img(ng-if="data.avatar" ng-src="{{data.avatar}}")
                 md-button.md-primary(ng-click="avatarDialog($event)") Pick Avatar
         div(layout="row" flex="80" layout-wrap)
-            div(layout="row" flex="100")
+            div(layout="row" layout-align="start end" flex="100")
                 md-input-container(flex="33")
                     label Nickname
                     input(ng-model="data.nickname")
-                md-select(flex="" ng-model="data.species" placeholder="Species" ng-model-options="{trackBy: '$value.name'}")
+                md-select.mb-34(flex="" ng-model="data.species" placeholder="Species" ng-model-options="{trackBy: '$value.name'}")
                     md-option(ng-value="species" ng-repeat="species in allSpecies") {{species.name}}
             div(layout="row" flex="100" layout-align="start center")
                 md-input-container(flex="33")
@@ -31,4 +31,3 @@ form.form.ng-cloak(novalidate, wb-key-handler-form)
                 textarea(ng-model="data.bio")
         div(layout="row")
             md-button.md-whiteframe-1dp(type="submit" ng-click="save()" aria-label="Save") Save
-
