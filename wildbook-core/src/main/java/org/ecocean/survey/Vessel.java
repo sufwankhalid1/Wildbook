@@ -5,7 +5,6 @@ public class Vessel {
     private String name;
     private Integer orgid;
     private Integer typeid;
-    private String test;
 
     public Vessel() {
         // deserialization
@@ -20,10 +19,6 @@ public class Vessel {
         this.orgid = orgid;
         this.typeid = typeid;
         this.name = name;
-    }
-
-    public String getTest() {
-        return test;
     }
 
     public Integer getVesselId() {
