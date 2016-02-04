@@ -39,6 +39,8 @@ context=ServletUtilities.getContext(request);
   //props.load(getClass().getResourceAsStream("/bundles/" + langCode + "/submit.properties"));
   props = ShepherdProperties.getProperties("submit.properties", langCode,context);
 
+  Properties recaptchaProps=ShepherdProperties.getProperties("recaptcha.properties", "", context);
+  
 
 	long maxSizeMB = CommonConfiguration.getMaxMediaSizeInMegabytes(context);
 	long maxSizeBytes = maxSizeMB * 1048576;
@@ -110,6 +112,14 @@ context=ServletUtilities.getContext(request);
   </script>
 
 </head>
+
+<!-- add recaptcha -->
+<script src="https://www.google.com/recaptcha/api.js?render=explicit"></script>
+<script>
+function isEmpty(str) {
+    return (!str || 0 === str.length);
+}
+</script>
 
 
 <style type="text/css">
@@ -361,6 +371,35 @@ function FSControl(controlDiv, map) {
   google.maps.event.addDomListener(window, 'load', initialize);
   
   
+  function submitForm() {
+		document.forms['encounterForm'].submit();
+	}
+  
+  function sendButtonClicked() {
+		console.log('sendButtonClicked()');
+		
+	    <%
+	    if(request.getUserPrincipal()!=null){
+	    %>
+	    	$("#encounterForm").attr("action", "EncounterForm");
+	    	submitForm();
+	    <%
+	    }
+	    else{
+	    %>
+			var recaptachaResponse = grecaptcha.getResponse( captchaWidgetId );
+	   		 console.log( 'g-recaptcha-response: ' + recaptachaResponse );
+			if(!isEmpty(recaptachaResponse)) {		
+				$("#encounterForm").attr("action", "EncounterForm");
+				submitForm();
+			}
+		//alert(recaptachaResponse);
+		<%
+	    }
+		%>
+		return true;
+	}
+  
     </script>
  
  
@@ -372,7 +411,7 @@ function FSControl(controlDiv, map) {
   <h1 class="intro"><%=props.getProperty("submit_report")%>
   </h1>
 </div>
-<form xclass="dropzone" id="encounterForm" action="EncounterForm" method="post" enctype="multipart/form-data"
+<form xclass="dropzone" id="encounterForm" action="spambot.jsp" method="post" enctype="multipart/form-data"
       name="encounter_submission" target="_self" dir="ltr" lang="en"
       onsubmit="return validate();">
 <div class="dz-message"></div>
@@ -914,7 +953,22 @@ function updateList(inp) {
                                                   value="<%=request.getRemoteUser()%>"/> <%} else {%>
 <input
   name="submitterID" type="hidden" value="N/A"/> <%}%>
-<p align="center"><input type="submit" name="Submit" value="<%=props.getProperty("submit_send")%>"/>
+  
+           <div id="myCaptcha" style="width: 50%;margin: 0 auto; "></div>
+           <script>
+	           var captchaWidgetId = grecaptcha.render( 
+	        	'myCaptcha', {
+		  			'sitekey' : '<%=recaptchaProps.getProperty("siteKey") %>',  // required
+		  			'theme' : 'light'
+				});
+	           
+           </script>
+  
+<p align="center">
+<input type="submit" name="Submit" value="<%=props.getProperty("submit_send")%>" onclick="return sendButtonClicked();"/>
+
+
+
 </p>
 
 <p>&nbsp;</p>
