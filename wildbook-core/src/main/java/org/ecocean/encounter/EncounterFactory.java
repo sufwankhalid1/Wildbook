@@ -344,6 +344,11 @@ public class EncounterFactory {
         formatter.append("bio", individual.getBio());
     }
 
+    public static EncounterObj getEncounterObj(final Database db, final int id) throws DatabaseException {
+        Encounter encounter = getEncounterById(db, id);
+        return getEncounterObj(db, encounter);
+    }
+
     public static EncounterObj getEncounterObj(final Database db, final Encounter encounter) throws DatabaseException {
         EncounterObj result = new EncounterObj();
         result.encounter = encounter;
