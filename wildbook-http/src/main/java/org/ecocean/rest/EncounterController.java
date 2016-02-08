@@ -65,7 +65,6 @@ public class EncounterController {
         }
     }
 
-
     @RequestMapping(value = "getmedia/{id}", method = RequestMethod.GET)
     public List<SimplePhoto> addMedia(final HttpServletRequest request,
                                       @PathVariable("id") final int encounterid) throws DatabaseException {

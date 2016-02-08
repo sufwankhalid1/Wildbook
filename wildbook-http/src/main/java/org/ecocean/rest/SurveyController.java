@@ -8,6 +8,7 @@ import javax.validation.Valid;
 import org.ecocean.encounter.Encounter;
 import org.ecocean.encounter.EncounterFactory;
 import org.ecocean.servlet.ServletUtils;
+import org.ecocean.survey.Survey;
 import org.ecocean.survey.SurveyFactory;
 import org.ecocean.survey.SurveyPartObj;
 import org.ecocean.survey.Vessel;
@@ -116,6 +117,29 @@ public class SurveyController {
             table.insertRow(formatter);
         }
     }
+
+    @RequestMapping(value = "save", method = RequestMethod.POST)
+    public Integer saveSurvey(final HttpServletRequest request,
+                                             @RequestBody @Valid final Survey survey) throws DatabaseException {
+        if (survey == null) {
+            return null;
+        }
+
+        try (Database db = ServletUtils.getDb(request)) {
+            db.performTransaction(() -> {
+                SurveyFactory.saveSurvey(db, survey);
+            });
+        }
+
+        return survey.getSurveyId();
+    }
+
+//    @RequestMapping(value = "addcrewmember/{surveyid}", method = RequestMethod.POST)
+//    public Crew getCrew(final HttpServletRequest request,
+//                        @PathVariable("surveyid") final int surveyid) throws DatabaseException {
+//        try (Database db = ServletUtils.getDb(request)) {
+//        }
+//    }
 
     private static class EncounterPart {
         public int surveypartid;

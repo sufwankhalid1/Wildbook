@@ -9,6 +9,7 @@ import org.ecocean.LocationFactory;
 import org.ecocean.media.MediaAssetFactory;
 import org.ecocean.rest.SimpleIndividual;
 import org.ecocean.rest.SimplePhoto;
+import org.ecocean.security.UserFactory;
 
 import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
@@ -35,6 +36,14 @@ public class EncounterFactory {
 
     private EncounterFactory() {
         // prevent instantiation
+    }
+
+    public static Encounter getEncounterById(final Database db, final int id) throws DatabaseException {
+        SqlStatement sql = getEncounterStatement();
+        sql.addCondition(TABLENAME_ENCOUNTERS, PK_ENCOUNTERS, SqlRelationType.EQUAL, id);
+        return db.selectFirst(sql, (rs) -> {
+            return readEncounter(rs);
+        });
     }
 
     public static List<SimpleEncounter> toSimple(final List<Encounter> encounters) {
@@ -136,6 +145,18 @@ public class EncounterFactory {
 
     public static List<SimplePhoto> getMedia(final Database db, final int encounterid) throws DatabaseException {
         return db.selectList(getMediaStatement(encounterid), (rs) -> {
+            return MediaAssetFactory.readPhoto(rs);
+        });
+    }
+
+    public static List<SimplePhoto> getMedia(final Database db, final int encounterid, final boolean withSubmitters) throws DatabaseException {
+
+        SqlStatement sql = getMediaStatement(encounterid);
+        sql.addSelectTable(UserFactory.ALIAS_USERS);
+
+        UserFactory.addAsLeftJoin(MediaAssetFactory.ALIAS_MEDIAASSET, "submitterid", sql);
+
+        return db.selectList(sql, (rs) -> {
             return MediaAssetFactory.readPhoto(rs);
         });
     }
