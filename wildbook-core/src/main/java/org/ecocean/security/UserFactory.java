@@ -55,15 +55,19 @@ public class UserFactory {
 
     private static void addOrganization(final SqlStatement sql) {
         sql.addLeftOuterJoin(ALIAS_USERS, UserFactory.PK_ORG, TABLENAME_ORG, ALIAS_ORG, UserFactory.PK_ORG);
+        if (sql.hasSelect()) {
+            sql.addSelectTable(ALIAS_ORG);
+        }
     }
 
     public static void addAsLeftJoin(final String tableAlias, final String column, final SqlStatement sql) {
-        sql.addLeftOuterJoin(tableAlias,
-                             column,
-                             UserFactory.TABLENAME_USERS,
-                             UserFactory.ALIAS_USERS,
-                             UserFactory.PK_USERS);
+        sql.addLeftOuterJoin(tableAlias, column, TABLENAME_USERS, ALIAS_USERS, PK_USERS);
+        if (sql.hasSelect()) {
+            sql.addSelectTable(ALIAS_USERS);
+        }
+
         UserFactory.addOrganization(sql);
+
     }
 
     public static SqlStatement getUserStatement(final boolean distinct) {
