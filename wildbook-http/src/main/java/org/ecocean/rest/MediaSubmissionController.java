@@ -145,22 +145,13 @@ public class MediaSubmissionController
                     }
 
                     //
-                    // Something went horribly wrong, this should not happen, but just in case...
+                    // Something went horribly wrong if surveypart here is null,
+                    // this should not happen, but just in case...
                     //
                     if (ses.surveypart == null) {
                         subEncs.encs.add(encObj);
                     } else {
                         ses.encs.add(encObj);
-//                      //
-//                      // Now read in the encounters that were attached to this survey part.
-//                      //
-//                      List<Encounter> ecs = db.selectList(sql3, (rs3) -> {
-//                          return EncounterFactory.readEncounter(rs3);
-//                      }, spi);
-  //
-//                      for (Encounter ec : ecs) {
-//                          ses.encs.add(EncounterFactory.getEncounterObj(db, ec));
-//                      }
                     }
                 }
             });
