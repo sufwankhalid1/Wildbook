@@ -1,7 +1,8 @@
-package org.ecocean.rest;
+ package org.ecocean.rest;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -122,41 +123,45 @@ public class MediaSubmissionController
                               EncounterFactory.PK_ENCOUNTERS);
             sql3.addCondition("spe", SurveyFactory.PK_SURVEYPART, SqlRelationType.EQUAL, "?");
 
+            Map<Integer, SurveyEncounters> surveyEncMap = new HashMap<>();
             db.select(sql, (rs) -> {
                 Encounter encounter = EncounterFactory.readEncounter(rs);
 
                 Integer spi = rs.getInteger(SurveyFactory.PK_SURVEYPART);
+                EncounterObj encObj = EncounterFactory.getEncounterObj(db, encounter);
 
                 if (spi == null) {
-                    subEncs.encs.add(EncounterFactory.getEncounterObj(db, encounter));
+                    subEncs.encs.add(encObj);
                 } else {
-                    //
-                    // If we were part of a survey then go ahead and read that survey info in.
-                    //
-                    SurveyEncounters ses = new SurveyEncounters();
-                    ses.surveypart = db.selectFirst(sql2, (rs2) -> {
-                        return SurveyFactory.readSurveyPartObj(rs2);
-                    }, spi);
+                    SurveyEncounters ses = surveyEncMap.get(spi);
+
+                    if (ses == null) {
+                        ses = new SurveyEncounters();
+                        ses.surveypart = db.selectFirst(sql2, (rs2) -> {
+                            return SurveyFactory.readSurveyPartObj(rs2);
+                        }, spi);
+                        surveyEncMap.put(spi, ses);
+                        subEncs.surveyEncounters.add(ses);
+                    }
 
                     //
                     // Something went horribly wrong, this should not happen, but just in case...
                     //
                     if (ses.surveypart == null) {
-                        subEncs.encs.add(EncounterFactory.getEncounterObj(db, encounter));
+                        subEncs.encs.add(encObj);
+                    } else {
+                        ses.encs.add(encObj);
+//                      //
+//                      // Now read in the encounters that were attached to this survey part.
+//                      //
+//                      List<Encounter> ecs = db.selectList(sql3, (rs3) -> {
+//                          return EncounterFactory.readEncounter(rs3);
+//                      }, spi);
+  //
+//                      for (Encounter ec : ecs) {
+//                          ses.encs.add(EncounterFactory.getEncounterObj(db, ec));
+//                      }
                     }
-
-                    //
-                    // Now read in the encounters that were attached to this survey part.
-                    //
-                    List<Encounter> ecs = db.selectList(sql3, (rs3) -> {
-                        return EncounterFactory.readEncounter(rs3);
-                    }, spi);
-
-                    for (Encounter ec : ecs) {
-                        ses.encs.add(EncounterFactory.getEncounterObj(db, ec));
-                    }
-
-                    subEncs.surveyEncounters.add(ses);
                 }
             });
 
