@@ -2,9 +2,10 @@
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
@@ -123,7 +124,7 @@ public class MediaSubmissionController
                               EncounterFactory.PK_ENCOUNTERS);
             sql3.addCondition("spe", SurveyFactory.PK_SURVEYPART, SqlRelationType.EQUAL, "?");
 
-            Map<Integer, SurveyEncounters> surveyEncMap = new HashMap<>();
+            Set<Integer> surveyparts = new HashSet<>();
             db.select(sql, (rs) -> {
                 Encounter encounter = EncounterFactory.readEncounter(rs);
 
@@ -132,17 +133,19 @@ public class MediaSubmissionController
 
                 if (spi == null) {
                     subEncs.encs.add(encObj);
-                } else {
-                    SurveyEncounters ses = surveyEncMap.get(spi);
+                } else if (!surveyparts.contains(spi)) {
+                    //
+                    // Ignore if we already ran into this surveypart
+                    // since we loaded the surveys with a different query
+                    // to make sure we also get any encounters attached to that
+                    // survey that do not currently have images from this media submission
+                    // attached to them.
+                    //
 
-                    if (ses == null) {
-                        ses = new SurveyEncounters();
-                        ses.surveypart = db.selectFirst(sql2, (rs2) -> {
-                            return SurveyFactory.readSurveyPartObj(rs2);
-                        }, spi);
-                        surveyEncMap.put(spi, ses);
-                        subEncs.surveyEncounters.add(ses);
-                    }
+                    SurveyEncounters ses = new SurveyEncounters();
+                    ses.surveypart = db.selectFirst(sql2, (rs2) -> {
+                        return SurveyFactory.readSurveyPartObj(rs2);
+                    }, spi);
 
                     //
                     // Something went horribly wrong if surveypart here is null,
@@ -150,9 +153,30 @@ public class MediaSubmissionController
                     //
                     if (ses.surveypart == null) {
                         subEncs.encs.add(encObj);
-                    } else {
-                        ses.encs.add(encObj);
                     }
+
+                    //
+                    // Now read in the encounters that were attached to this survey part which will
+                    // include the one we just looked at plus others that might be in this recordset
+                    // but ALSO one's that won't be in this recordset because they might be part of
+                    // a different media submission. Thus the reason we need to do it this way and
+                    // use the hashset to make sure we don't revisit surveyparts more than once.
+                    //
+                    List<Encounter> ecs = db.selectList(sql3, (rs3) -> {
+                        return EncounterFactory.readEncounter(rs3);
+                    }, spi);
+
+                    for (Encounter ec : ecs) {
+                        ses.encs.add(EncounterFactory.getEncounterObj(db, ec));
+                    }
+
+                    //
+                    // Add this surveypartid to the set so that we don't
+                    // try and reprocess it again.
+                    //
+                    surveyparts.add(spi);
+
+                    subEncs.surveyEncounters.add(ses);
                 }
             });
 
