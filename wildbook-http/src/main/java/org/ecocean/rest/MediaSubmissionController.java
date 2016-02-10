@@ -618,9 +618,8 @@ public class MediaSubmissionController
         ExifAvg avg = data.avg;
 
         double latSum = 0;
-        int latCount = 0;
         double longSum = 0;
-        int longCount = 0;
+        int llCount = 0;
 
         for (MediaAsset ma : media) {
             ExifItem item = new ExifItem();
@@ -651,15 +650,14 @@ public class MediaSubmissionController
 
             if (item.latitude != null) {
                 latSum += item.latitude;
-                latCount += 1;
                 longSum += item.longitude;
-                longCount += 1;
+                llCount++;
             }
         }
 
-        if (latCount > 0) {
-            avg.latitude = latSum / latCount;
-            avg.longitude = longSum / longCount;
+        if (llCount > 0) {
+            avg.latitude = latSum / llCount;
+            avg.longitude = longSum / llCount;
         }
 
         return data;
