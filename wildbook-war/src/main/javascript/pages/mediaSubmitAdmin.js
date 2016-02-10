@@ -468,12 +468,17 @@ angular.module('wildbook.admin').directive(
                          {headerName: "Submitted By",
                              field: "user",
                              cellRenderer: function(params) {
-                                 if (params.value) {
-                                     return params.value.displayName;
+                                 if (!params.value) {
+                                     return null;
                                  }
-                                 return null;
-                             }
-                            },
+                                 if (params.value.avatar) {
+                                     return '<img width="*" height="24px" src="' + params.value.avatar + '"/><span class="ml-10">'
+                                            + params.value.displayName + "</span>";
+                                 }
+                                 return params.value.displayName;
+                             },
+                             rowHeight: 24
+                         },
                          {headerName: "Survey ID", field: "submissionid"},
                          {headerName: "Description", field: "description"},
                          {headerName: "Location", field: "verbatimLocation"},

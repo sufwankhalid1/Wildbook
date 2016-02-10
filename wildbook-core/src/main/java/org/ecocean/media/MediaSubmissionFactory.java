@@ -60,11 +60,11 @@ public class MediaSubmissionFactory {
                                       final MediaSubmission media)
     {
         formatter.append("description", media.getDescription());
-        formatter.append("email", media.getEmail());
+        formatter.append("subemail", media.getEmail());
         formatter.append("endtime", media.getEndTime());
         formatter.append("latitude", media.getLatitude());
         formatter.append("longitude", media.getLongitude());
-        formatter.append("name", media.getName());
+        formatter.append("subname", media.getName());
         formatter.append("starttime", media.getStartTime());
         formatter.append("submissionid", media.getSubmissionid());
         formatter.append("timesubmitted", media.getTimeSubmitted());
@@ -101,12 +101,12 @@ public class MediaSubmissionFactory {
     {
         MediaSubmission ms = new MediaSubmission();
         ms.setDescription(rs.getString("description"));
-        ms.setEmail(rs.getString("email"));
+        ms.setEmail(rs.getString("subemail"));
         ms.setEndTime(rs.getLongObj("endtime"));
         ms.setId(rs.getInteger("id"));
         ms.setLatitude(rs.getDoubleObj("latitude"));
         ms.setLongitude(rs.getDoubleObj("longitude"));
-        ms.setName(rs.getString("name"));
+        ms.setName(rs.getString("subname"));
         ms.setStartTime(rs.getLongObj("starttime"));
         ms.setSubmissionid(rs.getString("submissionid"));
         ms.setTimeSubmitted(rs.getLongObj("timesubmitted"));

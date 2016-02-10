@@ -140,9 +140,7 @@ angular.module('wildbook.encounters', [])
                 if (timeline) {
                     encounter.encDate = timeline.newest.slice(0, 3);
                     encounter.starttime = timeline.oldest.slice(3, timeline.oldest.length);
-                    encounter.starttime.push("Z");
                     encounter.endtime = timeline.newest.slice(3, timeline.newest.length);
-                    encounter.endtime.push("Z");
                 }
             }
 

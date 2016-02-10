@@ -7,7 +7,8 @@ div.user-typeahead(layout="row"
               auto-focus) 
     div(ng-if="!focus")
         div.nofocus-border.nofocus-border-transparent(layout="row")
-            div.ml-3 {{user.fullName}}
+            img.avatar-icon-xs(ng-src="{{user.avatar}}")
+            div.ml-10 {{user.fullName}}
             div.ml-10
                 md-icon.margin-0(md-svg-icon="pencil" ng-show="showEdit")
     div(autocomplete-blur ng-show="focus" inputid="user-typeahead-input" callback="noFocus(blur)")         
@@ -24,7 +25,7 @@ div.user-typeahead(layout="row"
             md-item-template
                 div(layout="row" layout-align="start center")
                     div
-                        img.avatar-icon-xs(src="{{userobj.avatar}}")
+                        img.avatar-icon-xs(ng-src="{{userobj.avatar}}")
                     div.ml-10 {{userobj.displayName}}
             md-not-found "{{search}}" Not Found
 
