@@ -11,6 +11,30 @@ angular.module('wildbook.util')
         datetimeFormat = config.props["moment.datetime.format"];
     });
 
+    function checkTimeInput(data) {
+        var nn;
+        //need to make sure we send either a time or nothing
+        if (data.endtime) {
+            var endlength = data.endtime.length;
+            for (nn = 0; nn < endlength; nn++) {
+                if (data.endtime && data.endtime[nn] === null ) {
+                    data.endtime = null;
+                }
+            }
+        }
+
+        if (data.starttime) {
+            var startlength = data.starttime.length;
+            for (nn = 0; nn < startlength; nn++) {
+                if (data.starttime && data.starttime[nn] === null ) {
+                    data.starttime = null;
+                }
+            }
+        }
+
+        return data;
+    }
+
     function restToMoment(rest) {
         if (! rest) {
             return null;
@@ -44,6 +68,9 @@ angular.module('wildbook.util')
     }
 
     return {
+        verifyTimeInput: function(data) {
+            return checkTimeInput(data);
+        },
         formatTimeArrayToString: function(time) {
             var array = angular.copy(time);
 
@@ -237,8 +264,6 @@ directive(
                                 break;
                         }
 
-                        $scope.time[3] = "Z";
-
                         $timeout(function() {
                             $e.target.previousElementSibling.focus(function() {
                                 $scope.selectTime($e);
@@ -354,15 +379,6 @@ directive(
                         }
 
                         if ($scope.time.length) {
-                            if ($scope.time[2] === "Z") {
-                                $scope.time[2] = 0;
-                                $scope.time[3] = "Z";
-                            } else if ($scope.time[1] === "Z") {
-                                $scope.time[1] = 0;
-                                $scope.time[2] = 0;
-                                $scope.time[3] = "Z";
-                            }
-
                             $scope.minute = $scope.time[1].toString();
                             $scope.second = $scope.time[2].toString();
 
