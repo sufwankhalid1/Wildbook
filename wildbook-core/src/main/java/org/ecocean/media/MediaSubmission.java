@@ -26,6 +26,9 @@ public class MediaSubmission {
     // TODO: Fix these dates. Use LocalDateTime and date stuff in postgres.
     // Right now start time and end time are in milliseconds since the epoch. Crazy.
     //
+    // UPDATE: Problem. Using LocalDateTime is problematic here because we might not have
+    // a Lat/Long with which to help us convert it to a timezone later on?
+    //
 //    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSSZ")
 //    private DateTime startTime;
     private Long startTime;
