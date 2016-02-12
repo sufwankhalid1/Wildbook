@@ -153,6 +153,7 @@ public class MediaSubmissionController
                     //
                     if (ses.surveypart == null) {
                         subEncs.encs.add(encObj);
+                        return;
                     }
 
                     //

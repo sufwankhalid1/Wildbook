@@ -77,26 +77,7 @@ angular.module('wildbook.admin').directive(
 
                     //md-datetime needs a date obj, so convert to date obj for use, convert back for save
                     $scope.data.encounter.encDate = wbDateUtils.dateToRest($scope.dateObj);
-
-                    var nn;
-                    //need to make sure we send either a time or nothing
-                    if ($scope.data.encounter.endtime) {
-                        var endlength = $scope.data.encounter.endtime.length;
-                        for (nn = 0; nn < endlength; nn++) {
-                            if ($scope.data.encounter.endtime && $scope.data.encounter.endtime[nn] === null ) {
-                                $scope.data.encounter.endtime = null;
-                            }
-                        }
-                    }
-
-                    if ($scope.data.encounter.starttime) {
-                        var startlength = $scope.data.encounter.starttime.length;
-                        for (nn = 0; nn < startlength; nn++) {
-                            if ($scope.data.encounter.starttime && $scope.data.encounter.starttime[nn] === null ) {
-                                $scope.data.encounter.starttime = null;
-                            }
-                        }
-                    }
+                    $scope.data.encounter = wbDateUtils.verifyTimeInput($scope.data.encounter);
 
                     if ($scope.encounterForm.$invalid) {
                         alertplus.alert("There are errors on the form.");

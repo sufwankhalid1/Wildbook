@@ -1,6 +1,15 @@
 /* global angular, alertplus */
 'use strict';
 
+//
+// &callback = returns orgid. Can get list of orgs to check against in parent from wbConfig
+// =?readonly = hides all edit functions and effectively makes this a dropdown select w/ return/callback/scope link
+// @editOnSelect = true/false string enables ng-change to open up the edit for current orgs
+// =orgid = passin org id
+// =?org = pass in full org  obj
+// =displayinline = doesnt work yet
+// attr action-icons = replaces save/cancel with icons to save space
+//
 angular.module('wildbook.admin').directive(
     'wbOrgAdmin',
     ["$http", "wbConfig", function($http, wbConfig) {
@@ -8,28 +17,42 @@ angular.module('wildbook.admin').directive(
             restrict: 'E',
             scope: {
                 callback: '&',
-                readonly: '=',
-                orgid: '='
+                readonly: '=?',
+                editOnSelect: '@',
+                orgid: '=',
+                org: '=?',
+                displayinline: '='
             },
             templateUrl: 'admin/org_admin.html',
             replace: true,
             link: function($scope, element, attr) {
                 $scope.$watch('orgid', function(newVal, oldVal) {
-                    console.log($scope.orgs);
                     if(newVal !== oldVal && newVal !== undefined) {
-                        $scope.orgs.forEach(function(org) {
-                            if(org.orgId === $scope.orgid) {
-                                $scope.orgInput = org;
-                                $scope.org = org;
-                            }
-                        });
+                        setOrgs();
                     }
                 });
 
                 wbConfig.config()
                 .then(function(config) {
                     $scope.orgs = config.orgs;
+                    setOrgs();
                 });
+
+                if (attr.actionIcons) {
+                    $scope.showAsIcons = true;
+                }
+
+                function setOrgs() {
+                    $scope.orgs.forEach(function(org) {
+                        if(org.orgId === $scope.orgid) {
+                            $scope.orgInput = org;
+                            $scope.org = org;
+                            if ($scope.editOnSelect === "true") {
+                                $scope.showEdit = true;
+                            }
+                        }
+                    });
+                }
 
                 $scope.edit = function(org) {
                     if (!org) {
@@ -42,6 +65,14 @@ angular.module('wildbook.admin').directive(
                     if ($scope.callback) {
                         $scope.callback({orgId: $scope.orgInput.orgId});
                     }
+
+                    if ($scope.editOnSelect === "true") {
+                        $scope.showEdit = true;
+                    }
+                };
+
+                $scope.showEditOrg = function() {
+                    $scope.showEdit = true;
                 };
 
                 $scope.newOrg = function() {

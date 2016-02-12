@@ -1,10 +1,10 @@
-package org.ecocean.survey;
+package org.ecocean;
 
 public class Vessel {
     private Integer vesselid;
     private String name;
     private Integer orgid;
-    private Integer typeid;
+    private Integer vesseltypeid;
 
     public Vessel() {
         // deserialization
@@ -12,12 +12,12 @@ public class Vessel {
 
     public Vessel(final Integer vesselId,
                   final Integer orgid,
-                  final Integer typeid,
+                  final Integer vesseltypeid,
                   final String name)
     {
         this.vesselid = vesselId;
         this.orgid = orgid;
-        this.typeid = typeid;
+        this.vesseltypeid = vesseltypeid;
         this.name = name;
     }
 
@@ -37,12 +37,12 @@ public class Vessel {
         this.orgid = orgid;
     }
 
-    public Integer getTypeId() {
-        return typeid;
+    public Integer getVesselTypeId() {
+        return vesseltypeid;
     }
 
-    public void setTypeId(final Integer typeid) {
-        this.typeid = typeid;
+    public void setVesselTypeId(final Integer vesseltypeid) {
+        this.vesseltypeid = vesseltypeid;
     }
 
     public String getName() {

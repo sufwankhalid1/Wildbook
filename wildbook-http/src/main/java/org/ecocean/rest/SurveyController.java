@@ -5,13 +5,14 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import org.ecocean.CrewMember;
+import org.ecocean.Vessel;
 import org.ecocean.encounter.Encounter;
 import org.ecocean.encounter.EncounterFactory;
 import org.ecocean.servlet.ServletUtils;
 import org.ecocean.survey.Survey;
 import org.ecocean.survey.SurveyFactory;
 import org.ecocean.survey.SurveyPartObj;
-import org.ecocean.survey.Vessel;
 import org.ecocean.util.LogBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,16 +40,16 @@ public class SurveyController {
                                  @PathVariable("id")
                                  final int surveypartid) throws DatabaseException {
         try (Database db = ServletUtils.getDb(request)) {
-            SqlStatement sql = SurveyFactory.getSurveyStatement();
+            return SurveyFactory.getSurveyPart(db, surveypartid);
+        }
+    }
 
-            sql.addCondition(SurveyFactory.ALIAS_SURVEYPART,
-                             SurveyFactory.PK_SURVEYPART,
-                             SqlRelationType.EQUAL,
-                             surveypartid);
-
-            return db.selectFirst(sql, (rs) -> {
-                return SurveyFactory.readSurveyPartObj(rs);
-            });
+    @RequestMapping(value = "/part/getcrew/{id}", method = RequestMethod.GET)
+    public List<CrewMember> getCrew(final HttpServletRequest request,
+                                    @PathVariable("id")
+                                    final int surveypartid) throws DatabaseException {
+        try (Database db = ServletUtils.getDb(request)) {
+            return SurveyFactory.getSurveyPartCrew(db, surveypartid);
         }
     }
 
@@ -134,7 +135,19 @@ public class SurveyController {
         return survey.getSurveyId();
     }
 
-//    @RequestMapping(value = "addcrewmember/{surveyid}", method = RequestMethod.POST)
+    @RequestMapping(value = "updatecrewmember", method = RequestMethod.POST)
+    public void updateCrewMember(final HttpServletRequest request,
+                                             @RequestBody @Valid final List <CrewMember> crewmembers) throws DatabaseException {
+        try (Database db = ServletUtils.getDb(request)) {
+            db.performTransaction(() -> {
+                SurveyFactory.updateCrewMembers(db, crewmembers);
+            });
+        }
+
+    }
+
+
+    //    @RequestMapping(value = "addcrewmember/{surveyid}", method = RequestMethod.POST)
 //    public Crew getCrew(final HttpServletRequest request,
 //                        @PathVariable("surveyid") final int surveyid) throws DatabaseException {
 //        try (Database db = ServletUtils.getDb(request)) {

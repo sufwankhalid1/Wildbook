@@ -1,0 +1,10 @@
+div(layout="row")
+    md-input-container
+        md-select(ng-model="selectedVesselTypeId" ng-change="checkNew(selectedVesselTypeId)" placeholder="Vessel Type")
+            md-option(ng-value="typeobj.vesselTypeId" ng-repeat="typeobj in vesseltypes") {{ typeobj.vesseltype }}
+            md-option(ng-value="'new'") < New Type >
+    div(ng-show="showAddNew")
+        md-input-container
+            label Vessel Type
+            input(type="text" required ng-model="vesselType")
+        md-button.md-whiteframe-1dp.height-36(ng-if="standalone" aria-label="Save Vessel Type" ng-click="save()") Save

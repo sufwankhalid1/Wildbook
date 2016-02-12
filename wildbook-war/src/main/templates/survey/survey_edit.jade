@@ -1,27 +1,28 @@
 form.form.ng-cloak(novalidate, wb-key-handler-form)
     h2 Survey
     md-divider
-    md-content(layout="row" layout-align="start end")
-        md-input-container(flex="50")
-            label Organization
-            md-select(ng-model="data.survey.organization", ng-change="orgChange()")
-                md-option(value="org.displayName for org in main.config.orgs track by org.orgId")
-        md-input-container(flex="50")
-            label Survey Number:
-            input(ng-model="data.survey.surveyNumber")
+    div.mt-40(layout="row" layout-wrap layout-align="start center")
+        div(layout="column")
+            wb-org-admin(callback="getOrgId(orgId)" org="data.survey.organization")
+        div(layout="column" flex-offset="5" flex="30")
+            md-input-container
+                label Survey Number:
+                input(ng-model="data.survey.surveyNumber")
     h2 Part
     md-divider
     md-content(layout="row" layout-align="start end" layout-wrap)
-        md-input-container(flex="50")
-            label Vessel:
-            md-select(ng-model="data.part.vessel")
-                md-option(value = "vessel.displayName for vessel in info.vessels track by vessel.vesselId")
-        md-input-container(flex="50")
-            label Code:
-            input(type="text", ng-model="data.part.code")
-        md-datepicker(ng-model="dateObj" layout="row" layout-align="start end" required md-placeholder="Date:" flex="33" ng-class="{'has-error': encounterForm.date.$invalid}")
-        time-input(flex="33" format="24" time="data.part.starttime" placeholder="Start Time")
-        time-input(flex="33" format="24" time="data.part.endtime" placeholder="End Time")
+        div.mt-40(layout="row" flex="100" layout-wrap layout-align="start center")
+            div(layout="column").mr-20
+                wb-vessels-admin(callback="getVesselId(vessel)" vesselobj="data.part.vessel")
+            md-input-container(layout="column" flex="30")
+                label Code:
+                input(type="text", ng-model="data.part.code")
+        div(layout="row" flex="100" layout-wrap)
+            wb-crew-edit(callback="addCrewMember(user)" data="data")
+        div(layout="row" flex="100")
+            md-datepicker(ng-model="dateObj" layout="row" layout-align="start end" required md-placeholder="Date:" flex="33" ng-class="{'has-error': encounterForm.date.$invalid}")
+            time-input(flex="33" format="24" time="data.part.starttime" placeholder="Start Time")
+            time-input(flex="33" format="24" time="data.part.endtime" placeholder="End Time")
         div.mt-40(layout="row" flex="100")
             location-edit(location="data.part.location" location-edit flex="100")
         div(layout="row" flex="100")

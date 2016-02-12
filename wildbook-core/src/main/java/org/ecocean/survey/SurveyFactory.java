@@ -2,8 +2,11 @@ package org.ecocean.survey;
 
 import java.util.List;
 
+import org.ecocean.CrewMember;
+import org.ecocean.CrewRole;
 import org.ecocean.LocationFactory;
 import org.ecocean.Point;
+import org.ecocean.Vessel;
 import org.ecocean.security.UserFactory;
 
 import com.samsix.database.Database;
@@ -21,14 +24,19 @@ public class SurveyFactory {
     private static String TABLENAME_SURVEY = "survey";
     private static String TABLENAME_SURVEYPART = "surveypart";
     private static String TABLENAME_VESSEL = "vessel";
+    private static String TABLENAME_SURVEYPARTCREW = "surveypartcrew";
+    private static String TABLENAME_CREWROLES = "crewroles";
 
     public static String ALIAS_SURVEY = "s";
     public static String ALIAS_SURVEYPART = "sp";
     public static String ALIAS_VESSEL = "v";
+    public static String ALIAS_SURVEYPARTCREW = "c";
+    public static String ALIAS_CREWROLES = "cr";
 
     public static String PK_SURVEY = "surveyid";
     public static String PK_SURVEYPART = "surveypartid";
     public static String PK_VESSEL = "vesselid";
+    public static String PK_CREWROLEID = "crewroleid";
 
     private SurveyFactory() {
         // prevent instantiation
@@ -165,6 +173,32 @@ public class SurveyFactory {
         }
     }
 
+    public static SurveyPartObj getSurveyPart(final Database db, final Integer surveypartid) throws DatabaseException {
+        SqlStatement sql = SurveyFactory.getSurveyStatement();
+
+        sql.addCondition(ALIAS_SURVEYPART,
+                         PK_SURVEYPART,
+                         SqlRelationType.EQUAL,
+                         surveypartid);
+
+        return db.selectFirst(sql, (rs) -> {
+            return SurveyFactory.readSurveyPartObj(rs);
+        });
+    }
+
+    public static List<CrewMember> getSurveyPartCrew(final Database db, final Integer surveypartid) throws DatabaseException {
+
+        SqlStatement sql = new SqlStatement(TABLENAME_SURVEYPARTCREW, ALIAS_SURVEYPARTCREW);
+
+        UserFactory.addAsLeftJoin(ALIAS_SURVEYPARTCREW, "userid", sql);
+        sql.addLeftOuterJoin(ALIAS_SURVEYPARTCREW, "crewroleid", TABLENAME_CREWROLES, ALIAS_CREWROLES, "crewroleid");
+
+        sql.addCondition(ALIAS_SURVEYPARTCREW, "surveypartid", SqlRelationType.EQUAL, surveypartid);
+
+        return db.selectList(sql, (rs) -> {
+           return readCrewMember(rs, surveypartid);
+        });
+    }
 
     private static void fillSurveyPartFormatter(final SqlFormatter formatter, final SurveyPart spart) {
         formatter.append(PK_SURVEY, spart.getSurveyId());
@@ -222,10 +256,49 @@ public class SurveyFactory {
         }
     }
 
+    public static void updateCrewMembers(final Database db, final List<CrewMember> crewmembers) throws DatabaseException {
+        Table table = db.getTable(TABLENAME_SURVEYPARTCREW);
+
+        if (crewmembers == null || crewmembers.size() == 0) {
+            return;
+        }
+
+        final Integer surveypartid = crewmembers.get(0).getSurveypartid();
+
+        db.performTransaction(() -> {
+
+            table.deleteRows("surveypartid ="+surveypartid);
+
+            for (CrewMember crewmember : crewmembers){
+                SqlInsertFormatter formatter = new SqlInsertFormatter();
+                fillCrewMemberFormatter(formatter, crewmember);
+
+                table.insertRow(formatter);
+            }
+        });
+    }
+
+    private static CrewMember readCrewMember(final RecordSet rs, final Integer surveypartid) throws DatabaseException {
+        return new CrewMember(UserFactory.readSimpleUser(rs),
+                              readCrewRole(rs),
+                              surveypartid);
+    }
+
+    private static CrewRole readCrewRole(final RecordSet rs) throws DatabaseException {
+        CrewRole crewrole = new CrewRole(rs.getInt("crewroleid"), rs.getString("role"));
+        return crewrole;
+    }
 
     private static void fillVesselFormatter(final SqlFormatter formatter, final Vessel vessel) {
         formatter.append(UserFactory.PK_ORG, vessel.getOrgId());
-        formatter.append("vesseltype", vessel.getTypeId());
+        formatter.append("vesseltype", vessel.getVesselTypeId());
         formatter.append("vesselname", vessel.getName());
+    }
+
+    private static void fillCrewMemberFormatter(final SqlFormatter formatter, final CrewMember crewmember) {
+        formatter.append("surveypartid", crewmember.getSurveypartid());
+        formatter.append("userid", crewmember.getUser().getId());
+        formatter.append("crewroleid", crewmember.getCrewrole().getCrewRoleId());
+
     }
 }

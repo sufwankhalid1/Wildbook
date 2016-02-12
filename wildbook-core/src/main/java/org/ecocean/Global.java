@@ -36,7 +36,11 @@ public enum Global {
 
     private Emailer emailer;
     private Map<String, Species> species;
+    private Map<Integer, CrewRole> crewroles;
+    private Map<Integer, VesselType> vesseltypes;
     private List<Species> speciesList;
+    private List<CrewRole> crewRoleList;
+    private List<VesselType> vesselTypeList;
     private String cust;
 
     private UserService userService;
@@ -65,6 +69,33 @@ public enum Global {
             return s1.getName().compareTo(s2.getName());
         });
     }
+
+    private void initVesselTypes(final Database db) throws DatabaseException {
+        vesseltypes = new HashMap<>();
+
+        db.getTable("vesseltypes").select((rs) -> {
+            Integer vesseltypeid = rs.getInt("vesseltypeid");
+            vesseltypes.put(vesseltypeid, new VesselType(vesseltypeid, rs.getString("vesseltype")));
+        });
+        vesselTypeList = new ArrayList<VesselType>(vesseltypes.values());
+        vesselTypeList.sort((s1, s2) -> {
+            return s1.getVesselType().compareTo(s2.getVesselType());
+        });
+    }
+
+    private void initCrewRoles(final Database db) throws DatabaseException {
+        crewroles = new HashMap<>();
+
+        db.getTable("crewroles").select((rs) -> {
+            Integer crewroleid = rs.getInt("crewroleid");
+            crewroles.put(crewroleid, new CrewRole(crewroleid, rs.getString("role")));
+        });
+        crewRoleList = new ArrayList<CrewRole>(crewroles.values());
+        crewRoleList.sort((s1, s2) -> {
+            return s1.getRole().compareTo(s2.getRole());
+        });
+    }
+
 
     public void init(final Path overridingProps, final Map<String, String> overridingPropVars) {
         //
@@ -146,6 +177,8 @@ public enum Global {
             AssetStore.init(AssetStoreFactory.getStores(db));
 
             initSpecies(db);
+            initVesselTypes(db);
+            initCrewRoles(db);
 
         } catch (Throwable ex) {
             logger.error("Trouble initializing the app.", ex);
@@ -155,6 +188,18 @@ public enum Global {
     public void refreshSpecies() throws DatabaseException {
         try (Database db = Global.INST.getDb()) {
             initSpecies(db);
+        }
+    }
+
+    public void refreshCrew() throws DatabaseException {
+        try (Database db = Global.INST.getDb()) {
+            initCrewRoles(db);
+        }
+    }
+
+    public void refreshVesselTypes() throws DatabaseException {
+        try (Database db = Global.INST.getDb()) {
+            initVesselTypes(db);
         }
     }
 
@@ -224,6 +269,28 @@ public enum Global {
             return null;
         }
         return species.get(code);
+    }
+
+    public List<CrewRole> getCrewRoles() {
+        return crewRoleList;
+    }
+
+    public CrewRole getCrewRoles(final Integer crewroleid) {
+        if (crewroles == null) {
+            return null;
+        }
+        return crewroles.get(crewroleid);
+    }
+
+    public List<VesselType> getVesselTypes() {
+        return vesselTypeList;
+    }
+
+    public VesselType getVesselTypes(final Integer vesseltypeid) {
+        if (vesseltypes == null) {
+            return null;
+        }
+        return vesseltypes.get(vesseltypeid);
     }
 
     public Properties getWebappClientProps() {

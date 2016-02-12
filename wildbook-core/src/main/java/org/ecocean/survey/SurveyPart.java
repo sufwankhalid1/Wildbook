@@ -5,6 +5,7 @@ import java.time.LocalTime;
 
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.ecocean.Location;
+import org.ecocean.Vessel;
 import org.ecocean.util.DateUtils;
 
 public class SurveyPart {

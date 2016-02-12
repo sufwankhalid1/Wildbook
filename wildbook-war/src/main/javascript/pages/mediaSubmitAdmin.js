@@ -5,12 +5,13 @@ require('../encounters/encounter_edit.js');
 require('../encounters/encounter_search.js');
 require('../survey/survey_edit.js');
 require('../survey/survey_search.js');
+require('../survey/crew_edit.js');
 require('../user/user_search.js');
 
 angular.module('wildbook.admin').directive(
     "wbMediaSubmissionAdmin",
-    ["$http", "$q", "$exceptionHandler", "wbDateUtils", "wbLangUtils", "wbEncounterUtils", "$window",
-     function ($http, $q, $exceptionHandler, wbDateUtils, wbLangUtils, wbEncounterUtils, $window) {
+    ["$http", "$q", "$exceptionHandler", "wbDateUtils", "wbLangUtils", "wbEncounterUtils", "$window", "wbSurveyUtils",
+     function ($http, $q, $exceptionHandler, wbDateUtils, wbLangUtils, wbEncounterUtils, $window, wbSurveyUtils) {
         return {
             restrict: 'E',
             templateUrl: 'pages/mediaSubmitAdmin.html',
@@ -28,6 +29,7 @@ angular.module('wildbook.admin').directive(
                     surveyEncs: [],
                     activeEncData: null,
                     searchingSubmitter: false,
+                    newSurveyEnc: false,
                     module: {
                         encounterEdit: null,
                         encounterSearch: false,
@@ -41,7 +43,7 @@ angular.module('wildbook.admin').directive(
                         tooltip: "Add to active encounter"
                     }],
                     indicators: [{def: {displayClass: "encounter", type: "number"},
-                                  values: $scope.numencs
+                        values: $scope.numencs
                     }]
                 };
 
@@ -56,6 +58,9 @@ angular.module('wildbook.admin').directive(
                     if (surveyEnc) {
                         if (surveyEnc.encs) {
                             if (wbLangUtils.existsInArray(surveyEnc.encs, function(item) {
+                                if (item.encounter.id === encdata.encounter.id) {
+                                    alertplus.alert("This encounter is already in this survey");
+                                }
                                 return item.encounter.id === encdata.encounter.id;
                             })) {
                                 //
@@ -74,6 +79,14 @@ angular.module('wildbook.admin').directive(
                                    {surveypartid: surveyEnc.surveypart.part.surveyPartId, encounterid: encdata.encounter.id})
                         .then(function() {
                             surveyEnc.encs.push(encdata);
+                            alertplus.alert("Added encounter to survey number: " + surveyEnc.surveypart.survey.surveyNumber);
+
+                            $scope.data.encs.forEach(function(enc, index) {
+                                if (enc.encounter.id === encdata.encounter.id) {
+                                    $scope.data.encs.splice(index, 1);
+                                }
+                            });
+                            $scope.data.newSurveyEnc = false;
                         });
                     } else {
                         if (! wbLangUtils.existsInArray($scope.data.encs, function(item) {
@@ -127,6 +140,7 @@ angular.module('wildbook.admin').directive(
                     }
                     $scope.data.module.encounterEdit = null;
                     $scope.data.activeSurveyEnc = null;
+                    $scope.data.activeEncData = null;
                 };
 
                 function photosRemovedFromEncounter(photos) {
@@ -158,13 +172,19 @@ angular.module('wildbook.admin').directive(
                     });
 
                     $scope.data.module.encounterEdit = null;
+                    $scope.data.activeEncData = null;
                 };
 
                 $scope.encounterPhotosDetached = function(photos) {
                     photosRemovedFromEncounter(photos);
                 };
 
-                $scope.searchEncounter = function() {
+                $scope.searchEncounter = function(survey) {
+                    if (survey) {
+                        $scope.searchEncForSurvey = true;
+                        $scope.data.activeSurveyEnc = survey;
+                    }
+
                     $scope.data.module.encounterEdit = null;
                     // This one
                     $scope.data.module.encounterSearch = true;
@@ -178,7 +198,12 @@ angular.module('wildbook.admin').directive(
                     if (encounter) {
                         wbEncounterUtils.getEncData(encounter)
                         .then(function(encdata) {
-                            attachEncounter(encdata);
+                            if ($scope.searchEncForSurvey) {
+                                attachEncounter(encdata, $scope.data.activeSurveyEnc);
+                                $scope.searchEncForSurvey = false;
+                            } else {
+                                attachEncounter(encdata);
+                            }
                         });
                     }
                 };
@@ -207,7 +232,6 @@ angular.module('wildbook.admin').directive(
                 function editEncounter(encdata, surveyEnc) {
                     $scope.data.module.encounterEdit = encdata;
                     $scope.data.activeEncData = encdata;
-
                     $scope.data.activeSurveyEnc = surveyEnc;
 
                     $scope.data.module.encounterSearch = false;
@@ -215,14 +239,25 @@ angular.module('wildbook.admin').directive(
                     $scope.data.module.surveySearch = false;
                 }
 
-                $scope.addEncounter = function(surveyEnc) {
+                $scope.addEncounter = function(surveyEnc, newSurveyEnc) {
+                    if (surveyEnc && $scope.data.activeEncData && !newSurveyEnc) {
+                        attachEncounter($scope.data.activeEncData, surveyEnc);
+                        $scope.data.activeEncData = null;
+                        return;
+                    }
+
+                    if (newSurveyEnc) {
+                        $scope.data.activeSurveyEnc = surveyEnc;
+                        $scope.data.newSurveyEnc = true;
+                    }
+
                     wbEncounterUtils.createNewEncData($scope.data.selectedimgs.selected, $scope.data.submission)
                     .then(function(encdata) {
                         wbEncounterUtils.saveEnc(encdata.encounter)
                         .then(function() {
                             addPhotos(encdata.encounter, encdata.photos)
                             .then(function() {
-                                editEncounter(encdata);
+                                editEncounter(encdata, surveyEnc);
                             });
                         });
                     }, $exceptionHandler);
@@ -273,7 +308,11 @@ angular.module('wildbook.admin').directive(
                 };
 
                 $scope.addSurvey = function() {
-                    editSurvey({});
+                    // wbSurveyUtils.createNewSurveyData()
+                    // .then(function(surveyid){
+                    //     editSurvey({surveyid: surveyid});
+                    // });
+                    editSurvey({surveyid:null});
                 };
 
                 function findSurveyEnc(surveypart) {
@@ -284,6 +323,9 @@ angular.module('wildbook.admin').directive(
 
                 $scope.editSurveyDone = function(surveypart) {
                     $scope.data.module.surveyEdit = null;
+
+                    $scope.active.survey = false;
+
                     if (!surveypart) {
                         return;
                     }
@@ -593,6 +635,13 @@ angular.module('wildbook.admin').directive(
                 // wb-key-handler-form
                 //
                 $scope.cancel = function() {
+
+                    $scope.active = {
+                            survey: false,
+                            surveyEnc: false,
+                            encounter: false
+                        };
+
                     if ($scope.data.module.encounterEdit) {
                         $scope.data.module.encounterEdit = null;
                     } else if ($scope.data.module.encounterSearch) {

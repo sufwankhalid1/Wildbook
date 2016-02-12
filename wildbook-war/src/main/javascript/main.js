@@ -4,6 +4,7 @@
 var KeyEventHandler = require("./util/keyevent_handler.js");
 require("./util/util.js");
 require("./admin/admin.js");
+require("./survey/survey_util.js");
 require("./encounters/encounter_util.js");
 require("./config.js");
 // This is where our jade templates are magically compiled into html and munged into a javascript file
@@ -15,7 +16,7 @@ angular.module('templates', []);
 
 var app = angular.module('appWildbook',
         ["agGrid", "ui.bootstrap", "ngMaterial", "templates", "cgBusy",
-         "wildbook.util", "wildbook.config", "wildbook.encounters",
+         "wildbook.util", "wildbook.config", "wildbook.encounters", "wildbook.survey",
          "wildbook.admin", "leaflet-directive", "ngFileSaver"])
        .config(['$mdThemingProvider', '$logProvider','moment',
                 '$mdDateLocaleProvider', function($mdThemingProvider, $logProvider, moment, $mdDateLocaleProvider) {

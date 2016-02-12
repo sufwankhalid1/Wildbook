@@ -5,12 +5,14 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import org.ecocean.CrewRole;
 import org.ecocean.Global;
 import org.ecocean.Organization;
 import org.ecocean.Species;
+import org.ecocean.Vessel;
+import org.ecocean.VesselType;
 import org.ecocean.admin.AdminFactory;
 import org.ecocean.servlet.ServletUtils;
-import org.ecocean.survey.Vessel;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -62,11 +64,29 @@ public class SiteAdminController {
     }
 
     @RequestMapping(value = "savevessel", method = RequestMethod.POST)
-    public void saveVessel(final HttpServletRequest request,
+    public Integer saveVessel(final HttpServletRequest request,
                            @RequestBody @Valid final Vessel vessel)
        throws DatabaseException {
             try (Database db = ServletUtils.getDb(request)) {
-                AdminFactory.saveVessel(db, vessel);
+                return AdminFactory.saveVessel(db, vessel);
+            }
+    }
+
+    @RequestMapping(value = "savevesseltype", method = RequestMethod.POST)
+    public int saveVesselType(final HttpServletRequest request,
+                           @RequestBody @Valid final VesselType vesseltype)
+       throws DatabaseException {
+            try (Database db = ServletUtils.getDb(request)) {
+                return AdminFactory.saveVesselType(db, vesseltype);
+            }
+    }
+
+    @RequestMapping(value = "savecrewrole", method = RequestMethod.POST)
+    public int saveCrewRole(final HttpServletRequest request,
+                           @RequestBody @Valid final CrewRole crewrole)
+       throws DatabaseException {
+            try (Database db = ServletUtils.getDb(request)) {
+                return AdminFactory.saveCrewRole(db, crewrole);
             }
     }
 

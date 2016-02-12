@@ -3,9 +3,11 @@ package org.ecocean.admin;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.ecocean.CrewRole;
 import org.ecocean.Global;
 import org.ecocean.Species;
-import org.ecocean.survey.Vessel;
+import org.ecocean.Vessel;
+import org.ecocean.VesselType;
 import org.ecocean.util.NotificationException;
 
 import com.samsix.database.Database;
@@ -21,8 +23,13 @@ public class AdminFactory {
     public final static String TABLENAME_SPECIES = "species";
     public final static String TABLENAME_INDIVIDUALS = "individuals";
     public final static String TABLENAME_VESSEL = "vessel";
+    public final static String TABLENAME_VESSELTYPES = "vesseltypes";
+    public final static String TABLENAME_CREWROLES = "crewroles";
+
 
     public final static String PK_VESSELS = "vesselid";
+    public final static String PK_VESSELTYPES = "vesseltypeid";
+    public final static String PK_CREWROLES = "crewroleid";
 
     public static void saveSpecies(final Database db,
                             final String code,
@@ -95,18 +102,18 @@ public class AdminFactory {
         return vessels;
     }
 
-    public static void saveVessel(final Database db, final Vessel vessel) throws DatabaseException {
+    public static Integer saveVessel(final Database db, final Vessel vessel) throws DatabaseException {
         Table table = db.getTable(TABLENAME_VESSEL);
 
         if (vessel.getOrgId() == null) {
-            //throw new NotificationException("Please choose an organization for this vessel.");
+            throw new NotificationException("Please choose an organization for this vessel.");
         }
 
         if (vessel.getVesselId() == null) {
             SqlInsertFormatter formatter;
             formatter = new SqlInsertFormatter();
             vesselFillFormatter(db, formatter, vessel);
-            table.insertRow(formatter);
+            vessel.setVesselId(table.insertSequencedRow(formatter, PK_VESSELS));
         } else {
             SqlUpdateFormatter formatter;
             formatter = new SqlUpdateFormatter();
@@ -115,6 +122,50 @@ public class AdminFactory {
             where.append("vesselid", vessel.getVesselId());
             table.updateRow(formatter.getUpdateClause(), where.getWhereClause());
         }
+
+        return vessel.getVesselId();
+    }
+
+    public static int saveVesselType(final Database db, final VesselType vesseltype) throws DatabaseException {
+        Table table = db.getTable(TABLENAME_VESSELTYPES);
+
+        if (vesseltype.getVesselTypeId() == null) {
+            SqlInsertFormatter formatter;
+            formatter = new SqlInsertFormatter();
+            vesselTypeFillFormatter(db, formatter, vesseltype);
+            vesseltype.setVesselTypeId(table.insertSequencedRow(formatter, PK_VESSELTYPES));
+        } else {
+            SqlUpdateFormatter formatter;
+            formatter = new SqlUpdateFormatter();
+            vesselTypeFillFormatter(db, formatter, vesseltype);
+            SqlWhereFormatter where = new SqlWhereFormatter();
+            where.append("vesseltypeid", vesseltype.getVesselTypeId());
+            table.updateRow(formatter.getUpdateClause(), where.getWhereClause());
+        }
+
+        Global.INST.refreshVesselTypes();
+        return vesseltype.getVesselTypeId();
+    }
+
+    public static int saveCrewRole(final Database db, final CrewRole crewrole) throws DatabaseException {
+        Table table = db.getTable(TABLENAME_CREWROLES);
+
+        if (crewrole.getCrewRoleId() == null) {
+            SqlInsertFormatter formatter;
+            formatter = new SqlInsertFormatter();
+            crewRoleFillFormatter(db, formatter, crewrole);
+            crewrole.setCrewRoleId(table.insertSequencedRow(formatter, PK_CREWROLES));
+        } else {
+            SqlUpdateFormatter formatter;
+            formatter = new SqlUpdateFormatter();
+            crewRoleFillFormatter(db, formatter, crewrole);
+            SqlWhereFormatter where = new SqlWhereFormatter();
+            where.append("crewrole", crewrole.getCrewRoleId());
+            table.updateRow(formatter.getUpdateClause(), where.getWhereClause());
+        }
+
+        Global.INST.refreshCrew();
+        return crewrole.getCrewRoleId();
     }
 
 //    public static void deleteVessel(final Database db, final int vesselid) throws DatabaseException, Throwable {
@@ -135,6 +186,20 @@ public class AdminFactory {
     {
         formatter.append("orgid", vessel.getOrgId());
         formatter.append("vesselname", vessel.getName());
-        formatter.append("vesseltypeid", vessel.getTypeId());
+        formatter.append("vesseltypeid", vessel.getVesselTypeId());
+    }
+
+    private static void vesselTypeFillFormatter(final Database db,
+            final SqlFormatter formatter,
+            final VesselType vesseltype)
+    {
+        formatter.append("vesseltype", vesseltype.getVesselType());
+    }
+
+    private static void crewRoleFillFormatter(final Database db,
+            final SqlFormatter formatter,
+            final CrewRole crewrole)
+    {
+        formatter.append("role", crewrole.getRole());
     }
 }

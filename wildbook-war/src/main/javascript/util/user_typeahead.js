@@ -4,7 +4,8 @@
 /*
 @search = starting search string.
 &getuser = avoiding two way binding to prevent modifying user obj, using a getter function
-&callback = callback function with selected user obj
+&?callback = callback function with selected user obj
+@inputStyle = styles the typeahead as an md-input
 */
 
 angular.module('wildbook.util')
@@ -14,13 +15,19 @@ angular.module('wildbook.util')
         templateUrl: 'util/user_typeahead.html',
         scope: {
             search: '@',
-            getuser: '&',
-            callback: '&'
+            getuser: '&?',
+            user: '=?',
+            callback: '&',
+            inputStyle: '@'
         },
         link: function($scope, ele, attr) {
             $scope.focus = false;
 
-            $scope.user = $scope.getuser();
+            if ($scope.getuser && !$scope.user) {
+                $scope.user = $scope.getuser();
+            }  else if (!$scope.user) {
+                $scope.user = {'fullName': 'Choose User'};
+            }
 
             function reset() {
                 $scope.focus = false;

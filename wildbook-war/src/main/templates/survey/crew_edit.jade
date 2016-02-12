@@ -1,0 +1,19 @@
+div(layout="row" layout-align="start center" layout-wrap)
+    div(layout="row" flex="100" ng-show="!data.part.surveyPartId")
+        h4 Crew
+        span.ml-10.mb-13.mt-15() (Please save this survey to add a crew)
+    div(layout="row" flex="100" ng-show="data.part.surveyPartId")
+        h4 Crew
+        md-icon.ml-10.md-primary(md-svg-icon="pencil" ng-click="getCrew(); editcrew = true" ng-show="!editcrew")
+        md-icon.ml-10.md-primary(md-svg-icon="plus" ng-click="addMember()" ng-show="editcrew")
+            md-tooltip Add a crew member
+    div.height-50(ng-repeat="crew in data.crew track by $index" ng-show="editcrew" flex="100" layout="row" layout-align="start center")
+        user-typeahead(user="crew.user"
+                       callback = "addCrewMember(user, $index)")
+        div(layout="row")
+            wb-crew-utils(selected-role-id="crew.crewrole.crewRoleId" callback="selectedRole(crewrole, $index)")
+        div(layout="row")
+            md-icon.md-warn.ml-10(md-svg-icon="delete" aria-label="delete member" ng-click="delete($index)")
+    div(ng-show="editcrew && data.crew.length > 0")
+        md-button.md-whiteframe-1dp.height-36(aria-label="Save Crew" ng-click="save()") Save
+        md-button.md-whiteframe-1dp.height-36(aria-label="Cancel" ng-click="cancel(); editcrew = false;") Cancel

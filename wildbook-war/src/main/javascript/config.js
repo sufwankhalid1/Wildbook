@@ -41,11 +41,19 @@ angular.module('wildbook.config', [])
         });
     }
 
-    function getConfig() {
+    function getCachedConfig() {
         if (config) {
             return config;
         }
 
+        getConfig();
+    }
+
+    function refreshConfig() {
+        getConfig();
+    }
+
+    function getConfig() {
         config = $http({url:"util/init"})
             .then(function(result) {
                 return result.data;
@@ -58,7 +66,8 @@ angular.module('wildbook.config', [])
     getConfig();
 
     return {
-        config: getConfig,
+        config: getCachedConfig,
+        refreshConfig: refreshConfig,
         getVessels: function(org) {
             return getVessels(config.orgs, org);
         }

@@ -5,9 +5,11 @@ import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.ecocean.CrewRole;
 import org.ecocean.Global;
 import org.ecocean.Organization;
 import org.ecocean.Species;
+import org.ecocean.VesselType;
 import org.ecocean.servlet.ServletUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -37,6 +39,8 @@ public class UtilController {
             config.species = Global.INST.getSpecies();
             config.defaultSpecies = Global.INST.getSpecies(Global.INST.getAppResources().getString("species.default", null));
             config.imageTags = Global.INST.getAppResources().getStringList("imagetags", (List<String>) null);
+            config.crewroles = Global.INST.getCrewRoles();
+            config.vesseltypes = Global.INST.getVesselTypes();
             return config;
         }
     }
@@ -49,5 +53,7 @@ public class UtilController {
         public List<Species> species;
         public Species defaultSpecies;
         public List<String> imageTags;
+        public List<CrewRole> crewroles;
+        public List<VesselType> vesseltypes;
     }
 }

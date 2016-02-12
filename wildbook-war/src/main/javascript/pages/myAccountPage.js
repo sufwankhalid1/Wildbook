@@ -182,10 +182,8 @@ angular.module('wildbook.admin').directive(
                     //         }
                     //         return bytes;
                     //     }
-                    //     console.log(data.length);
                     ////     var blob = new Blob(data], {type: 'application/octet-stream'});
                     //     var blob = new Blob([str2bytes(data)], {type: 'application/octet-stream'});
-                    //     console.log(blob.size);
                     //     FileSaver.saveAs(blob, filename);
                     //     $scope.refresh = true;
                     // }, $exceptionHandler);

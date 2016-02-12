@@ -1,0 +1,10 @@
+div(layout="row")
+    md-input-container
+        md-select(ng-model="selectedCrewRole" ng-change="checkNew(selectedCrewRole)" ng-model-options="{trackBy: '$value.crewRoleId'}" placeholder="Role")
+            md-option(ng-value="crewrole" ng-repeat="crewrole in crewroles") {{ crewrole.role }}
+            md-option(ng-value="crewrole") New Role
+    div(ng-show="showAddNew")
+        md-input-container
+            label Role
+            input(type="text" ng-model="selectedCrewRole.role" required)
+        md-button.md-whiteframe-1dp.height-36(aria-label="Save Crew Role" ng-click="save()") Save

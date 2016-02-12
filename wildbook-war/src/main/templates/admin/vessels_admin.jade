@@ -1,8 +1,8 @@
-div(layout="row" flex="100" class="site-admin-vessels" layout-align="start center" layout-wrap)
+div(layout="row" class="site-admin-vessels" layout-align="start center" layout-wrap)
     div(layout="row")
         md-input-container.mr-10(ng-show="!showSearch")
             label Vessels
-            md-select(ng-model="vessel" placeholder="Vessels" ng-change="edit(vessel)")
+            md-select(ng-model="vessel" placeholder="Vessels" ng-change="edit(vessel)" ng-model-options="{trackBy: '$value.vesselId'}")
                 md-option(ng-value="vessel" ng-repeat="vessel in vessels track by $index") {{vessel.name}}
         md-icon.pointer.ml-5.md-primary(md-svg-icon="magnify"
                                              ng-init="showSearch = false" 
@@ -20,21 +20,24 @@ div(layout="row" flex="100" class="site-admin-vessels" layout-align="start cente
                               md-item-text="vessel.name")
             <span md-highlight-text="searchText"> {{vessel.name}}
         md-icon.pointer.md-warn(md-svg-icon="close" ng-show="showSearch" ng-click="cancel(); showSearch = false;")
-        md-icon.md-primary.ml-5(md-svg-icon="plus" aria-label="New Vessel" auto-focus ng-click="newVessel(); autofocus('newOrg')")
-        md-icon.ml-5(ng-if="existingVessel &&  programmed" 
+        md-icon.md-primary.ml-5(md-svg-icon="pencil" ng-if="!editOnSelect && !showEdit && vessel" aria-label="Edit Organization" auto-focus ng-click="showEditVessel(); autofocus('newVessel')")
+        md-icon.md-primary.ml-5(md-svg-icon="plus" ng-if="!readonly" aria-label="New Vessel" auto-focus ng-click="newVessel(); autofocus('newVessel')")
+        md-icon.ml-5(ng-if="existingVessel && programmed && !readonly" 
                 md-svg-icon="delete" 
                 aria-label="Delete" 
                 ng-class="{'md-warn': existingVessel}" 
                 ng-disabled="!existingVessel"
                 ng-click="existingVessel ? delete() : noop()")
             md-tooltip Delete Vessel {{existingVessel}}
-    div(ng-show="showEdit || vessel" layout="row" layout-wrap flex="100" layout-align="start start")
-        div(layout="row" flex="25")
+    div(ng-if="showEdit && !readonly" layout="row" flex="100" layout-align="start start")
+        div(layout="row" flex="20")
             md-input-container.mr-10.padding-0(flex="100")
                 label Name
                 input(type="text" ng-model="vesselInput.name" id="newVessel" required)
-        div(layout="row" flex="25")
-            wb-org-admin(callback="getOrgId(orgId)" orgid="vesselInput.orgId" readonly="true")
-        div(layout="row" flex="100" layout-align="end start")
+        div(layout="row" flex="30")
+            wb-org-admin(callback="getOrgId(orgId)" orgid="vesselInput.orgId" action-icons)
+        div(layout="row" flex="25").ml-10
+            wb-vessel-type-utils(selected-vessel-type-id="vesselInput.vesselTypeId" vessel-type="vesselInput.vesselType")
+        div(layout="row" ng-if="!readonly").ml-10
             md-button.md-whiteframe-1dp.height-36(aria-label="Save Vessel" ng-click="save()") Save
             md-button.md-whiteframe-1dp.height-36(aria-label="Cancel" ng-click="cancel()") Cancel
