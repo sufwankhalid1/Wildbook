@@ -454,7 +454,7 @@ public class MediaSubmissionController
                 long count = table.getCount("id != " + media.getId() + " AND userid = " + user.getId());
 
                 String template;
-                if (count == 0) {
+                if (count == 0 && ! user.isVerified()) {
                     template = "media/firstSubmission";
                 } else {
                     template = "media/anotherSubmission";
