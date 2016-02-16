@@ -61,11 +61,11 @@ public class MediaSubmissionFactory {
     {
         formatter.append("description", media.getDescription());
         formatter.append("subemail", media.getEmail());
-        formatter.append("endtime", media.getEndTime());
+        formatter.append("msdate", media.getMsDate());
         formatter.append("latitude", media.getLatitude());
         formatter.append("longitude", media.getLongitude());
         formatter.append("subname", media.getName());
-        formatter.append("starttime", media.getStartTime());
+        formatter.append("mstime", media.getMsTime());
         formatter.append("submissionid", media.getSubmissionid());
         formatter.append("timesubmitted", media.getTimeSubmitted());
         if (media.getUser() != null) {
@@ -102,12 +102,12 @@ public class MediaSubmissionFactory {
         MediaSubmission ms = new MediaSubmission();
         ms.setDescription(rs.getString("description"));
         ms.setEmail(rs.getString("subemail"));
-        ms.setEndTime(rs.getLongObj("endtime"));
+        ms.setMsTime(rs.getLocalTime("mstime"));
         ms.setId(rs.getInteger("id"));
         ms.setLatitude(rs.getDoubleObj("latitude"));
         ms.setLongitude(rs.getDoubleObj("longitude"));
         ms.setName(rs.getString("subname"));
-        ms.setStartTime(rs.getLongObj("starttime"));
+        ms.setMsDate(rs.getLocalDate("msdate"));
         ms.setSubmissionid(rs.getString("submissionid"));
         ms.setTimeSubmitted(rs.getLongObj("timesubmitted"));
         ms.setUser(UserFactory.readSimpleUser(rs));

@@ -95,12 +95,12 @@ div
                                       ng-true-value="'completed'") {{data.submission.status ? 'Submission Completed' : 'Submission Complete?'}}
                 div(layout="row" flex="100" ng-show="searchingSubmitter")
                     wb-user-search(search-user-done="searchUserDone(user)")
-                div
-                    span.brand-primary Start:&nbsp
-                    | {{timeToDate(data.submission.startTime)}}&nbsp
-                    span.brand-primary End:&nbsp
-                    | {{timeToDate(data.submission.startTime)}}&nbsp
-                    span.brand-primary Lat/Lng:&nbsp
+                div(ng-if="data.submission" ng-init="test(data)")
+                    span.brand-primary Date:&nbsp
+                    | {{dateFromRest(data.submission.msDate) || 'Unknown'}}&nbsp
+                    span.brand-primary.ml-5 Time:&nbsp
+                    | {{timeFromRest(data.submission.msTime) || 'Unknown'}}&nbsp
+                    span.brand-primary.ml-5 Lat/Lng:&nbsp
                     | {{data.submission.latitude}}/{{data.submission.longitude}}&nbsp
                 div(layout="row" flex="100")
                     div(flex="50")

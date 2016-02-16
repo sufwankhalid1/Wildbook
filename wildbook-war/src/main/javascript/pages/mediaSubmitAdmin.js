@@ -493,6 +493,14 @@ angular.module('wildbook.admin').directive(
                     return wbDateUtils.timeToDateString(time);
                 };
 
+                $scope.timeFromRest = function(time) {
+                    return wbDateUtils.formatTimeArrayToString(time);
+                };
+
+                $scope.dateFromRest = function(date) {
+                    return wbDateUtils.dateStringFromRest(date);
+                };
+
                 $scope.msGridOptions = {
                     columnDefs:
                         [{headerName: "",

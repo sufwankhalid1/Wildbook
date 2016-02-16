@@ -1,5 +1,7 @@
 package org.ecocean.media;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Date;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -31,10 +33,9 @@ public class MediaSubmission {
     //
 //    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSSZ")
 //    private DateTime startTime;
-    private Long startTime;
-//    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSSZ")
-//    private DateTime endTime;
-    private Long endTime;
+    private LocalTime msTime;
+    private LocalDate msDate;
+
     private String description;
 //    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSSZ")
 //    private DateTime timeSubmitted = new DateTime();
@@ -107,21 +108,22 @@ public class MediaSubmission {
         this.longitude = longitude;
     }
 
-    public Long getStartTime() {
-        return startTime;
+    public void setMsTime(final LocalTime msTime) {
+        this.msTime = msTime;
     }
 
-    public void setStartTime(final Long startTime) {
-        this.startTime = startTime;
+    public LocalTime getMsTime() {
+        return msTime;
     }
 
-    public Long getEndTime() {
-        return endTime;
+    public LocalDate getMsDate() {
+        return msDate;
     }
 
-    public void setEndTime(final Long endTime) {
-        this.endTime = endTime;
+    public void setMsDate(final LocalDate msDate) {
+        this.msDate = msDate;
     }
+
 
     public String getDescription() {
         return description;
