@@ -94,7 +94,7 @@ public class RestApplication extends SpringBootServletInitializer {
             }
         }
 
-        Global.INST.init(overridingProps, vars);
+        Global.INST.initResources(overridingProps, vars);
 
         //
         // Old code to initialize stormpath. If, for some reason we decide to make it
@@ -141,6 +141,9 @@ public class RestApplication extends SpringBootServletInitializer {
         flyway.setDataSource(connectionInfo.getUrl(), connectionInfo.getUserName(), connectionInfo.getPassword());
         flyway.migrate();
 
+        Global.INST.initDBQueries();
+
+        //
         //check for and inject a default user 'tomcat' if none exists
         // TODO: Fix to use UserService
         //

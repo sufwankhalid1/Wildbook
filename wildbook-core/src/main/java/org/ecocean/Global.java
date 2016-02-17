@@ -96,8 +96,12 @@ public enum Global {
         });
     }
 
-
     public void init(final Path overridingProps, final Map<String, String> overridingPropVars) {
+        initResources(overridingProps, overridingPropVars);
+        initDBQueries();
+    }
+
+    public void initResources(final Path overridingProps, final Map<String, String> overridingPropVars) {
         //
         // Load up resources and set default variables for database connections.
         // These variables can be overridden by passing them into overridingPropVars. In addition,
@@ -166,6 +170,14 @@ public enum Global {
         }
 
         appResources = resources;
+    }
+
+    /*
+     * This has to be separated out from the main init() method because after that is called
+     * we use flyway to update the db that these calls might depend on. So these have to be done
+     * after that.
+     */
+    public void initDBQueries() {
 
         //
         // Initialize other parts of the app.
