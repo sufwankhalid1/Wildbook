@@ -149,7 +149,11 @@ public class MediaAssetFactory {
         formatter.append("category", ma.category);
         formatter.append("parent", ma.parentId);
         formatter.append("root", ma.rootId);
-        formatter.append("thumbstore", ma.thumbStore.id);
+        if (ma.thumbStore != null) {
+            formatter.append("thumbstore", ma.thumbStore.id);
+        } else {
+            formatter.appendNull("thumbstore");
+        }
         if (ma.thumbPath != null) {
             formatter.append("thumbpath", ma.thumbPath.toString());
         } else {

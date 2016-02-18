@@ -35,6 +35,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Date;
+import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -49,45 +50,62 @@ import com.drew.metadata.Metadata;
 import com.drew.metadata.exif.ExifSubIFDDirectory;
 import com.drew.metadata.exif.GpsDirectory;
 
-/**
- *
- * @author Giles Winstanley
- */
 public class FileUtilities {
     private static final Logger logger = LoggerFactory.getLogger(FileUtilities.class);
 
-     private FileUtilities() {}
+    private FileUtilities() {
+        //
+        // prevent instantiation
+        //
+    }
 
-     /**
-      * Loads the contents of a specified file.
-      * @param f File to load
-      * @return A byte array containing the contents of the specified {@code File}.
-      */
-     public static byte[] loadFile(final Path f) throws IOException {
-         if (!Files.exists(f)) {
-             throw new FileNotFoundException();
-         }
+    /**
+     * Loads the contents of a specified file.
+     * @param f File to load
+     * @return A byte array containing the contents of the specified {@code File}.
+    */
+    public static byte[] loadFile(final Path f) throws IOException {
+        if (!Files.exists(f)) {
+            throw new FileNotFoundException();
+        }
 
-         FileInputStream fis = null;
-         try {
-             ByteArrayOutputStream bao = new ByteArrayOutputStream();
-             fis = new FileInputStream(f.toFile());
-             byte[] b = new byte[4096];
-             int n;
-             while ((n = fis.read(b)) != -1) {
-                 bao.write(b, 0, n);
-             }
-             return bao.toByteArray();
-         } finally {
-             if (fis != null) {
-                 try {
-                     fis.close();
-                 } catch (IOException iox) {
-                     logger.warn(iox.getMessage(), iox);
-                 }
-             }
-         }
-     }
+        FileInputStream fis = null;
+        try {
+            ByteArrayOutputStream bao = new ByteArrayOutputStream();
+            fis = new FileInputStream(f.toFile());
+            byte[] b = new byte[4096];
+            int n;
+            while ((n = fis.read(b)) != -1) {
+                bao.write(b, 0, n);
+            }
+            return bao.toByteArray();
+        } finally {
+            if (fis != null) {
+                try {
+                    fis.close();
+                } catch (IOException iox) {
+                    logger.warn(iox.getMessage(), iox);
+                }
+            }
+        }
+    }
+
+    public static Path createUUIDRelFile(final String ext) {
+        String uuid = UUID.randomUUID().toString();
+        Path baseDir = Paths.get(String.valueOf(uuid.charAt(0)));
+        for (int ii = 1; ii < 6; ii++) {
+            baseDir = Paths.get(baseDir.toString(), String.valueOf(uuid.charAt(ii)));
+        }
+
+        String fileName2;
+        if (ext != null) {
+            fileName2 = uuid + "." + ext.toLowerCase();
+        } else {
+            fileName2 = uuid;
+        }
+
+        return Paths.get(baseDir.toString(), fileName2);
+    }
 
     public static void saveStreamToFile(final InputStream input, final Path path)
         throws IOException
@@ -254,13 +272,56 @@ public class FileUtilities {
         return null;
     }
 
+    public static ImageMeta getImageMetaData(final InputStream stream) throws ImageProcessingException, IOException {
+        return getImageMetaData(ImageMetadataReader.readMetadata(stream));
+    }
+
+    private static ImageMeta getImageMetaData(final Metadata metadata) {
+        ImageMeta meta = new ImageMeta();
+        // obtain the Exif directory
+        ExifSubIFDDirectory directory = null;
+        directory = metadata.getFirstDirectoryOfType(ExifSubIFDDirectory.class);
+        // query the tag's value
+        Date date = null;
+        if (directory != null) date = directory.getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL);
+        if (date != null) {
+            meta.setTimestamp(DateUtils.dateToLDT(date));
+        }
+
+        // See whether it has GPS data
+        Collection<GpsDirectory> gpsDirectories = metadata.getDirectoriesOfType(GpsDirectory.class);
+        if (gpsDirectories != null) {
+            for (GpsDirectory gpsDirectory : gpsDirectories) {
+                // Try to read out the location, making sure it's non-zero
+                GeoLocation geoLocation = gpsDirectory.getGeoLocation();
+                if (geoLocation != null && !geoLocation.isZero()) {
+                    meta.setLatitude(geoLocation.getLatitude());
+                    meta.setLongitude(geoLocation.getLongitude());
+                }
+            }
+        }
+
+//        // iterate through metadata directories
+//        List<Tag> list = new ArrayList<Tag>();
+//        for (Directory dir : metadata.getDirectories()) {
+//            if ("exif".equals(dir.getName().toLowerCase()) {
+//                dir.
+//            }
+//
+//            for (Tag tag : dir.getTags()) {
+//                if (!tag.getTagName().toUpperCase(Locale.US).startsWith("GPS"))
+//                    list.add(tag);
+//            }
+//        }
+
+        return meta;
+    }
+
     public static ImageMeta getImageMetaData(final Path path) throws ImageProcessingException, IOException {
         int index = path.toString().lastIndexOf('.');
         if (index < 0) {
             return null;
         }
-
-        ImageMeta meta = null;
 
         switch (path.toString().substring(index+1).toLowerCase()) {
             case "jpg":
@@ -276,47 +337,11 @@ public class FileUtilities {
             case "srw":
             {
                 if (Files.exists(path)) {
-                    meta = new ImageMeta();
-                    Metadata metadata = ImageMetadataReader.readMetadata(path.toFile());
-                    // obtain the Exif directory
-                    ExifSubIFDDirectory directory = null;
-                    directory = metadata.getFirstDirectoryOfType(ExifSubIFDDirectory.class);
-                    // query the tag's value
-                    Date date = null;
-                    if (directory != null) date = directory.getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL);
-                    if (date != null) {
-                        meta.setTimestamp(DateUtils.dateToLDT(date));
-                    }
-
-                    // See whether it has GPS data
-                    Collection<GpsDirectory> gpsDirectories = metadata.getDirectoriesOfType(GpsDirectory.class);
-                    if (gpsDirectories != null) {
-                        for (GpsDirectory gpsDirectory : gpsDirectories) {
-                            // Try to read out the location, making sure it's non-zero
-                            GeoLocation geoLocation = gpsDirectory.getGeoLocation();
-                            if (geoLocation != null && !geoLocation.isZero()) {
-                                meta.setLatitude(geoLocation.getLatitude());
-                                meta.setLongitude(geoLocation.getLongitude());
-                            }
-                        }
-                    }
-
-//                    // iterate through metadata directories
-//                    List<Tag> list = new ArrayList<Tag>();
-//                    for (Directory dir : metadata.getDirectories()) {
-//                        if ("exif".equals(dir.getName().toLowerCase()) {
-//                            dir.
-//                        }
-//
-//                        for (Tag tag : dir.getTags()) {
-//                            if (!tag.getTagName().toUpperCase(Locale.US).startsWith("GPS"))
-//                                list.add(tag);
-//                        }
-//                    }
+                    return getImageMetaData(ImageMetadataReader.readMetadata(path.toFile()));
                 }
             }
         }
-        return meta;
+        return null;
     }
 
     private static Path buildPath(final Path root, final Path child) {

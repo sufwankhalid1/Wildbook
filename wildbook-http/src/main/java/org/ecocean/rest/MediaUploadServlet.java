@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.WeakHashMap;
@@ -31,6 +32,7 @@ import org.ecocean.media.MediaAsset;
 import org.ecocean.media.MediaAssetFactory;
 import org.ecocean.mmutil.MediaUtilities;
 import org.ecocean.servlet.ServletUtils;
+import org.ecocean.util.FileUtilities;
 import org.ecocean.util.LogBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +43,7 @@ import com.samsix.database.ConnectionInfo;
 import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
 import com.samsix.database.SqlInsertFormatter;
+import com.samsix.util.OsUtils;
 
 @MultipartConfig
 public class MediaUploadServlet
@@ -209,7 +212,7 @@ public class MediaUploadServlet
          }
     }
 
-    private static FileSet uploadByApacheFileUpload(final HttpServletRequest request)
+    private FileSet uploadByApacheFileUpload(final HttpServletRequest request)
         throws IOException, ServletException
     {
         //System.out.println("calling upload");
@@ -314,11 +317,24 @@ public class MediaUploadServlet
                     if (logger.isDebugEnabled()) {
                         logger.debug("About to save file [" + file.getName() + "]");
                     }
-                    executor.execute(new SaveMedia(ServletUtils.getConnectionInfo(request),
-                                                   store,
-                                                   id,
-                                                   submitterId,
-                                                   file));
+
+                    MediaAsset ma;
+                    try {
+                        ma = saveMedia(ServletUtils.getConnectionInfo(request),
+                                       store,
+                                       id,
+                                       submitterId,
+                                       file);
+                        if (ma != null) {
+                            file.setMetaTimestamp(ma.getMetaTimestamp());
+                            file.setMetaLatitude(ma.getMetaLatitude());
+                            file.setMetaLongitude(ma.getMetaLongitude());
+                        }
+                    } catch (DatabaseException ex) {
+                        String msg = "Can't save media.";
+                        logger.error(msg, ex);
+                        throw new IOException(msg, ex);
+                    }
                 }
             } catch (FileUploadException ex) {
                 ex.printStackTrace();
@@ -340,7 +356,136 @@ public class MediaUploadServlet
 //        return null;
 //    }
 
+    private MediaAsset saveMedia(final ConnectionInfo ci,
+                                 final AssetStore store,
+                                 final int submissionId,
+                                 final Integer submitterId,
+                                 final FileMeta file) throws DatabaseException, IOException {
+        if (logger.isDebugEnabled()) {
+            logger.debug(LogBuilder.get("Saving media").appendVar("submissionid", submissionId)
+                         .appendVar("file.getName()", file.getName()).toString());
+        }
 
+        if (! file.getName().toLowerCase().endsWith(".zip")) {
+            return processFile(ci,
+                               file.getName(),
+                               store,
+                               submitterId,
+                               submissionId,
+                               file,
+                               file.getContent(),
+                               false);
+        }
+
+        //
+        // Run zip file extraction
+        //
+        try (ZipInputStream   zis = new ZipInputStream(file.content)) {
+            ZipEntry zipEntry;
+            while ( ( zipEntry = zis.getNextEntry() ) != null )
+            {
+                if (logger.isDebugEnabled()) {
+                    logger.debug(LogBuilder.get().appendVar("zipEntry.getName()",
+                                                            zipEntry.getName()).toString());
+                }
+
+                if (zipEntry.isDirectory()) {
+                    continue;
+                }
+
+                //
+                // TODO: Make it so that we preserve the zip file contents?
+                // In case they have the same file name in each subdir?
+                // But then how are thumbs and mid-size images referenced?
+                // Aren't the filenames generated from the file name of the full size
+                // image? If so, would we need a thumb and mid directory in each subdir?
+                // For now, let's just expand all files into base dir.
+                //
+                // By using the Path class we will strip out any "/"'s in the name.
+                //
+                Path zipfile = Paths.get(zipEntry.getName());
+                processFile(ci,
+                            zipfile.getFileName().toString(),
+                            store,
+                            submitterId,
+                            submissionId,
+                            file,
+                            zis,
+                            true);
+                zis.closeEntry();
+            }
+            return null;
+        }
+    }
+
+    private MediaAsset processFile(final ConnectionInfo ci,
+                                   final String fileName,
+                                   final AssetStore store,
+                                   final Integer submitterId,
+                                   final int submissionId,
+                                   final FileMeta file,
+                                   final InputStream content,
+                                   final boolean fromZip) throws IOException, DatabaseException
+    {
+        Path relFile = FileUtilities.createUUIDRelFile(OsUtils.getFileExtension(fileName));
+
+        MediaAsset ma = MediaUtilities.saveMedia(store, relFile, fileName, content, submitterId, fromZip, null);
+
+        saveToDB(ci, ma, submissionId, file, fromZip);
+
+        //
+        // Shell out the processing to a separate thread so the user doesn't have
+        // to wait on this.
+        //
+        executor.execute(new ProcessMedia(ci, ma, store, relFile));
+
+        return ma;
+    }
+
+    private void saveToDB(final ConnectionInfo ci,
+                          final MediaAsset ma,
+                          final int submissionId,
+                          final FileMeta file,
+                          final boolean fromZip) throws DatabaseException {
+        if (logger.isDebugEnabled()) {
+            logger.debug("About to saveToDB");
+        }
+        try (Database db = new Database(ci)) {
+            try {
+                MediaAssetFactory.save(db, ma);
+            } catch (Throwable ex) {
+                logger.error("Huh?", ex);
+                throw ex;
+            }
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("Done saving basic ma.");
+            }
+
+            if (! fromZip) {
+                //
+                // In case the user decides to delete the file they just uploaded
+                // (provided this has been called by then). If it's a zip file they
+                // won't be able to delete it.
+                //
+                file.setId(ma.getID());
+            }
+            SqlInsertFormatter formatter = new SqlInsertFormatter();
+            formatter.append("mediasubmissionid", submissionId);
+            formatter.append("mediaid", ma.getID());
+
+            if (logger.isDebugEnabled()) {
+                logger.debug(LogBuilder.quickLog("About to save link to media", ma.getID()));
+            }
+
+            db.getTable("mediasubmission_media").insertRow(formatter);
+        }
+    }
+
+
+    //=========================
+    // FileSet Class
+    //=========================
     public static class FileSet
     {
         private final List<FileMeta> files = new ArrayList<FileMeta>();
@@ -379,6 +524,44 @@ public class MediaUploadServlet
     }
 
 
+    //==============================
+    // ProcessMedia class
+    //==============================
+
+    private static class ProcessMedia
+        implements Runnable
+    {
+        private final MediaAsset ma;
+        private final ConnectionInfo ci;
+        private final AssetStore store;
+        private final Path relFile;
+
+        public ProcessMedia(final ConnectionInfo ci,
+                            final MediaAsset ma,
+                            final AssetStore store,
+                            final Path relFile) {
+            this.ci = ci;
+            this.ma = ma;
+            this.store = store;
+            this.relFile = relFile;
+        }
+
+        @Override
+        public void run() {
+            try {
+                MediaUtilities.processMedia(ma, store, relFile, null);
+                //
+                // UPDATE MediaAsset because we just added some thumb midsize info to it.
+                //
+                try (Database db = new Database(ci)) {
+                    MediaAssetFactory.save(db, ma);
+                }
+            } catch (Exception ex) {
+                logger.error("Trouble processing media [" + ma.getID() + "]", ex);
+            }
+        }
+    }
+
     @JsonIgnoreProperties({"content"})
     public static class FileMeta
     {
@@ -391,6 +574,9 @@ public class MediaUploadServlet
         private String type;
         private String url;
         private String thumbnailUrl;
+        private LocalDateTime metaTimestamp;
+        private Double metaLatitude;
+        private Double metaLongitude;
 
         private InputStream content;
 
@@ -457,114 +643,29 @@ public class MediaUploadServlet
         {
             return name;
         }
-    }
 
-
-    private static class SaveMedia
-        implements Runnable
-    {
-        private final ConnectionInfo ci;
-        private final AssetStore store;
-        private final int submissionId;
-        private final Integer submitterId;
-        private final FileMeta file;
-
-        public SaveMedia(final ConnectionInfo ci,
-                         final AssetStore store,
-                         final int submissionId,
-                         final Integer submitterId,
-                         final FileMeta file)
-        {
-            this.ci = ci;
-            this.store = store;
-            this.submissionId = submissionId;
-            this.submitterId = submitterId;
-            this.file = file;
+        public LocalDateTime getMetaTimestamp() {
+            return metaTimestamp;
         }
 
-        @Override
-        public void run() {
-            try {
-                if (logger.isDebugEnabled()) {
-                    logger.debug(LogBuilder.get("Saving media").appendVar("id", submissionId)
-                                           .appendVar("file.getName()", file.getName()).toString());
-                }
-
-                if (! file.getName().toLowerCase().endsWith(".zip")) {
-                    processFile(file.getName(), file.getContent(), false);
-                    return;
-                }
-
-                //
-                // Run zip file extraction
-                //
-                try (ZipInputStream   zis = new ZipInputStream(file.content)) {
-                    ZipEntry zipEntry;
-                    while ( ( zipEntry = zis.getNextEntry() ) != null )
-                    {
-                        if (logger.isDebugEnabled()) {
-                            logger.debug(LogBuilder.get().appendVar("zipEntry.getName()",
-                                                                    zipEntry.getName()).toString());
-                        }
-
-                        if (zipEntry.isDirectory()) {
-                            continue;
-                        }
-
-                        //
-                        // TODO: Make it so that we preserve the zip file contents?
-                        // In case they have the same file name in each subdir?
-                        // But then how are thumbs and mid-size images referenced?
-                        // Aren't the filenames generated from the file name of the full size
-                        // image? If so, would we need a thumb and mid directory in each subdir?
-                        // For now, let's just expand all files into base dir.
-                        //
-                        // By using the Path class we will strip out any "/"'s in the name.
-                        //
-                        Path zipfile = Paths.get(zipEntry.getName());
-                        processFile(zipfile.getFileName().toString(), zis, true);
-                        zis.closeEntry();
-                    }
-                }
-            } catch (IOException ex) {
-                logger.error("Trouble saving media file [" + file.getName() + "]", ex);
-            }
+        public void setMetaTimestamp(final LocalDateTime metaTimestamp) {
+            this.metaTimestamp = metaTimestamp;
         }
 
-        private void processFile(final String fileName,
-                                 final InputStream content,
-                                 final boolean fromZip)
-        {
-            try {
-                MediaAsset ma = MediaUtilities.importMedia(store, fileName, content, submitterId, fromZip);
-                postProcess(ma, fromZip);
-            } catch (Exception ex) {
-                logger.error("Trouble saving media file [" + fileName + "]", ex);
-            }
+        public Double getMetaLatitude() {
+            return metaLatitude;
         }
 
-        private void postProcess(final MediaAsset ma, final boolean fromZip) throws DatabaseException {
-            try (Database db = new Database(ci)) {
-                MediaAssetFactory.save(db, ma);
+        public void setMetaLatitude(final Double metaLatitude) {
+            this.metaLatitude = metaLatitude;
+        }
 
-                if (! fromZip) {
-                    //
-                    // In case the user decides to delete the file they just uploaded
-                    // (provided this has been called by then). If it's a zip file they
-                    // won't be able to delete it.
-                    //
-                    file.setId(ma.getID());
-                }
-                SqlInsertFormatter formatter = new SqlInsertFormatter();
-                formatter.append("mediasubmissionid", submissionId);
-                formatter.append("mediaid", ma.getID());
+        public Double getMetaLongitude() {
+            return metaLongitude;
+        }
 
-                if (logger.isDebugEnabled()) {
-                    logger.debug(LogBuilder.quickLog("About to save link to media", ma.getID()));
-                }
-
-                db.getTable("mediasubmission_media").insertRow(formatter);
-            }
+        public void setMetaLongitude(final Double metaLongitude) {
+            this.metaLongitude = metaLongitude;
         }
     }
 }

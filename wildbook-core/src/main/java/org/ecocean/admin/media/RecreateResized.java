@@ -76,18 +76,16 @@ public class RecreateResized extends AbstractApplication {
                 SqlUpdateFormatter formatter = new SqlUpdateFormatter();
                 try {
                     final Path file = store.getFullPath(ma.getPath());
-                    final Path baseDir = ma.getPath().getParent();
-                    final String fileName = ma.getPath().getFileName().toString();
 
                     if (! nullOnly || (nullOnly && ma.getThumbPath() == null)) {
                         store.deleteFrom(ma.getThumbPath());
-                        Path thumb = MediaUtilities.createThumbnail(file, store, baseDir, fileName, null);
+                        Path thumb = MediaUtilities.createThumbnail(file, store, ma.getPath(), null);
                         formatter.append("thumbpath", thumb.toString());
                     }
 
                     if (! nullOnly || (nullOnly && ma.getMidPath() == null)) {
                         store.deleteFrom(ma.getMidPath());
-                        Path mid = MediaUtilities.createMidSize(file, store, baseDir, fileName, null);
+                        Path mid = MediaUtilities.createMidSize(file, store, ma.getPath(), null);
                         formatter.append("midpath", mid.toString());
                     }
                 } catch (Exception ex) {
