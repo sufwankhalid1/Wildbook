@@ -36,9 +36,9 @@ angular.module('wildbook.util').directive(
             restrict: 'E',
             scope: {
                 photos: "=",
-                indicators: "=",
-                actions: "=",
-                thumbbox: "=",
+                indicators: "=?",
+                actions: "=?",
+                thumbbox: "=?",
                 cbAction: "&",
                 blockSize: "@",
                 defaultBlockCount: "@",
