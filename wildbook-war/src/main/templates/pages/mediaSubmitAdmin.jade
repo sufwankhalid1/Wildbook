@@ -101,7 +101,12 @@ div
                     span.brand-primary.ml-5 Time:&nbsp
                     | {{timeFromRest(data.submission.msTime) || 'Unknown'}}&nbsp
                     span.brand-primary.ml-5 Lat/Lng:&nbsp
-                    | {{data.submission.latitude}}/{{data.submission.longitude}}&nbsp
+                    span(ng-show="data.submission.latitude && data.submission.longitude") {{data.submission.latitude}}/{{data.submission.longitude}}&nbsp
+                    span(ng-show="!data.submission.latitude && !data.submission.longitude") not set
+                    span.brand-primary.ml-5 Acc:&nbsp
+                    | {{data.submission.location.accuracy | lowercase}}
+                    span.brand-primary.ml-5 Source:&nbsp
+                    | {{data.submission.location.precisionSource | lowercase}}
                 div(layout="row" flex="100")
                     div(flex="50")
                         span {{data.submission.description}}

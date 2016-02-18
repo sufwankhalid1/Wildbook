@@ -2,18 +2,24 @@ form.form.ng-cloak(novalidate, wb-key-handler-form)
     md-content
         md-tabs(md-border-bottom md-dynamic-height md-selected="selectedTabIndex")
             md-tab(label="Data")
-                label.mt-20 Encounter
-                div.mb-20(layout="row" flex="100")
-                    wb-encounter-search-fields(encounter="searchdata.encounter")
-                label.mt-10 Individual
-                div.mb-20(layout="row" flex="100")
-                    wb-individual-search-fields(individual="searchdata.individual")
-                label.mt-10 Contributor
+                div(layout="row" layout-wrap)
+                    div(layout="row" flex="45" layout-wrap layout-align="start start")
+                        div(layout="row" flex="100")
+                            label.mt-20 Encounter
+                        div.mb-20(layout="row" flex="100")
+                            wb-encounter-search-fields(encounter="searchdata.encounter")
+                    div(layout="row" flex="45" layout-wrap layout-align="start start" flex-offset="5")
+                        div(layout="row" flex="100")
+                            label.mt-20 Individual
+                        div.mb-20(layout="row" flex="100")
+                            wb-individual-search-fields(individual="searchdata.individual")
+                div(layout="row")
+                    div(layout="column" flex="45")
+                        label.mt-10 Contributor
+                        wb-user-search-fields(user="searchdata.contributor")
                 div(layout="row" flex="100")
-                    wb-user-search-fields(user="searchdata.contributor")
-                div(layout="row" flex="100")
-                    md-button.md-whiteframe-1dp(type="submit" ng-click="search()" aria-label="Search") Search
                     div(flex="")
+                    md-button.md-whiteframe-1dp(type="submit" ng-click="search()" aria-label="Search") Search
                     md-button.md-whiteframe-1dp(type="button" ng-click="reset()" aria-label="reset") Reset
             md-tab(label="Results")
                 .ag-fresh(ag-grid="gridOptions", style="height: 400px;")

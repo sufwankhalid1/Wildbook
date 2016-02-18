@@ -5,6 +5,7 @@ import java.time.LocalTime;
 import java.util.Date;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.ecocean.Location;
 import org.ecocean.rest.SimpleUser;
 
 public class MediaSubmission {
@@ -20,9 +21,7 @@ public class MediaSubmission {
     private String email;
 
     //description of location
-    private String verbatimLocation;
-    private Double latitude;
-    private Double longitude;
+    private Location location;
 
     //
     // TODO: Fix these dates. Use LocalDateTime and date stuff in postgres.
@@ -84,30 +83,6 @@ public class MediaSubmission {
         this.email = email;
     }
 
-    public String getVerbatimLocation() {
-        return verbatimLocation;
-    }
-
-    public void setVerbatimLocation(final String verbatimLocation) {
-        this.verbatimLocation = verbatimLocation;
-    }
-
-    public Double getLatitude() {
-        return latitude;
-    }
-
-    public void setLatitude(final Double latitude) {
-        this.latitude = latitude;
-    }
-
-    public Double getLongitude() {
-        return longitude;
-    }
-
-    public void setLongitude(final Double longitude) {
-        this.longitude = longitude;
-    }
-
     public void setMsTime(final LocalTime msTime) {
         this.msTime = msTime;
     }
@@ -124,6 +99,13 @@ public class MediaSubmission {
         this.msDate = msDate;
     }
 
+    public Location getLocation() {
+        return location;
+    }
+
+    public void setLocation(final Location location) {
+        this.location = location;
+    }
 
     public String getDescription() {
         return description;

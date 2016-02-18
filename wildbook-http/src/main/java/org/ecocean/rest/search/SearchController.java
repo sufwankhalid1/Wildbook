@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.ecocean.Individual;
 import org.ecocean.Species;
 import org.ecocean.encounter.EncounterFactory;
 import org.ecocean.rest.SimpleIndividual;
@@ -19,6 +20,7 @@ import org.ecocean.survey.SurveyPartObj;
 import org.ecocean.util.LogBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -54,6 +56,30 @@ public class SearchController
         return db.selectList(sql, (rs) -> {
             return EncounterFactory.readSimpleIndividual(rs);
         });
+    }
+
+    @RequestMapping(value = "/orphaned", method = RequestMethod.GET)
+    public List<SimpleIndividual> orphaned(final HttpServletRequest request) throws DatabaseException
+    {
+        try (Database db = ServletUtils.getDb(request)) {
+
+            SqlStatement sqls = EncounterFactory.getIndividualStatement();
+            String sql = sqls.toString() + " where not exists (select * from encounters where individualid = "
+                        + EncounterFactory.ALIAS_INDIVIDUALS + ".individualid)";
+
+            return db.selectList(sql, (rs) -> {
+                return EncounterFactory.readSimpleIndividual(rs);
+            });
+        }
+    }
+
+    @RequestMapping(value = "/individual/{id}", method = RequestMethod.GET)
+    public Individual individualById(final HttpServletRequest request,
+                                           @PathVariable("id") final int indid) throws DatabaseException
+    {
+        try (Database db = ServletUtils.getDb(request)) {
+            return EncounterFactory.getIndividual(db, indid);
+        }
     }
 
 

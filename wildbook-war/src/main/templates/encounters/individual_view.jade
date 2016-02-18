@@ -1,6 +1,9 @@
 div
-    img.avatar-icon.mr-5(ng-if="data.avatar" ng-src="{{data.avatar}}")
-    | {{data.displayName}} - {{data.species.name}}
+    div(layout="row" layout-align="start center")
+        img.avatar-icon.mr-5(ng-if="data.avatar" ng-src="{{data.avatar}}")
+        | {{data.displayName}} - {{data.species.name}}
+        div(flex="") 
+        | {{data.id}}
     div 
         span(ng-show="data.sex") Sex: {{data.sex}}, 
         span Identified: {{data.identified}}

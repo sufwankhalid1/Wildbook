@@ -50,5 +50,8 @@ div(layout="row" layout-wrap id="encounter-edit")
                 md-input-container(flex="100")
                     label Comments
                     textarea(ng-model="data.encounter.comments")
-        md-button.md-whiteframe-1dp(type="submit" ng-click="save()" aria-label="Save") Save
+        div(layout="row" layout-align="start center")
+            md-button.md-whiteframe-1dp(type="submit" ng-click="save()" aria-label="Save") Save
+            div(flex="")
+            | {{data.encounter.id}}
         

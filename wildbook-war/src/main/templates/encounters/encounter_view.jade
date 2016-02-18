@@ -1,6 +1,9 @@
 div
-    img.avatar-icon.mr-5(ng-if="data.encounter.individual.avatar" ng-src="{{data.encounter.individual.avatar}}")
-    | {{data.encounter.individual.displayName}} - {{data.encounter.individual.species.name}}
+    div(layout="row" layout-align="start center")
+        img.avatar-icon.mr-5(ng-if="data.encounter.individual.avatar" ng-src="{{data.encounter.individual.avatar}}")
+        | {{data.encounter.individual.displayName}} - {{data.encounter.individual.species.name}}
+        div(flex="")
+        | {{data.encounter.id}}
     div {{wbDateUtils.dateStringFromRest(data.encounter.encDate)}}
         span(ng-if="data.encounter.starttime.length") , {{wbDateUtils.formatTimeArrayToString(data.encounter.starttime)}} 
         span(ng-if="data.encounter.endtime.length") - {{wbDateUtils.formatTimeArrayToString(data.encounter.endtime)}}

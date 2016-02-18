@@ -18,7 +18,14 @@ public class LocationFactory {
 
     public static Location readLocation(final RecordSet rs) throws DatabaseException
     {
-        Location location = new Location(rs.getString(COL_LOCATIONID),
+        String locid;
+        if (rs.hasColumn(COL_LOCATIONID)) {
+            locid = rs.getString(COL_LOCATIONID);
+        } else {
+            locid = null;
+        }
+
+        Location location = new Location(locid,
                                          rs.getDoubleObj(COL_LATITUDE),
                                          rs.getDoubleObj(COL_LONGITUDE),
                                          rs.getString(COL_VERBATIM));
@@ -35,18 +42,16 @@ public class LocationFactory {
         return location;
     }
 
-    public static void fillFormatterWithLoc(final SqlFormatter formatter, final Location location) {
+    public static void fillFormatterWithLocNoId(final SqlFormatter formatter, final Location location)  {
         if (location == null) {
             formatter.appendNull(COL_LATITUDE);
             formatter.appendNull(COL_LONGITUDE);
-            formatter.appendNull(COL_LOCATIONID);
             formatter.appendNull(COL_VERBATIM);
             formatter.appendNull(COL_ACCURACY);
             formatter.appendNull(COL_PRECISION_SOURCE);
         } else {
             formatter.append(COL_LATITUDE, location.getLatitude());
             formatter.append(COL_LONGITUDE, location.getLongitude());
-            formatter.append(COL_LOCATIONID, location.getLocationid());
             formatter.append(COL_VERBATIM, location.getVerbatimLocation());
             if (location.getAccuracy() == null) {
                 formatter.appendNull(COL_ACCURACY);
@@ -59,5 +64,15 @@ public class LocationFactory {
                 formatter.append(COL_PRECISION_SOURCE, location.getPrecisionSource().ordinal);
             }
         }
+    }
+
+    public static void fillFormatterWithLoc(final SqlFormatter formatter, final Location location) {
+        if (location == null) {
+            formatter.appendNull(COL_LOCATIONID);
+        } else {
+            formatter.append(COL_LOCATIONID, location.getLocationid());
+        }
+
+        LocationFactory.fillFormatterWithLocNoId(formatter, location);
     }
 }

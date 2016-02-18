@@ -26,6 +26,19 @@ var app = angular.module('appWildbook',
                 }
                 return moment(date).format('YYYY-MM-DD');
             };
+
+            //change default color for primary
+            var indigo = $mdThemingProvider.extendPalette('indigo', {
+                '500': '569fd4'
+            });
+            $mdThemingProvider.definePalette('indigo', indigo);
+
+            //here you change placeholder/foreground color.
+            $mdThemingProvider.theme('default').foregroundPalette[3] = "rgba(0,0,0,0.40)";
+
+
+
+            //disable leaflet log
             $logProvider.debugEnabled(false);
        }]);
 

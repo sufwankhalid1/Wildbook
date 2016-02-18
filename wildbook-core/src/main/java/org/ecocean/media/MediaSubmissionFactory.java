@@ -2,6 +2,7 @@ package org.ecocean.media;
 
 import java.util.List;
 
+import org.ecocean.LocationFactory;
 import org.ecocean.security.UserFactory;
 
 import com.samsix.database.Database;
@@ -62,8 +63,6 @@ public class MediaSubmissionFactory {
         formatter.append("description", media.getDescription());
         formatter.append("subemail", media.getEmail());
         formatter.append("msdate", media.getMsDate());
-        formatter.append("latitude", media.getLatitude());
-        formatter.append("longitude", media.getLongitude());
         formatter.append("subname", media.getName());
         formatter.append("mstime", media.getMsTime());
         formatter.append("submissionid", media.getSubmissionid());
@@ -71,8 +70,9 @@ public class MediaSubmissionFactory {
         if (media.getUser() != null) {
             formatter.append("userid", media.getUser().getId());
         }
-        formatter.append("verbatimlocation", media.getVerbatimLocation());
         formatter.append("status", media.getStatus());
+
+        LocationFactory.fillFormatterWithLocNoId(formatter, media.getLocation());
     }
 
 
@@ -100,19 +100,19 @@ public class MediaSubmissionFactory {
     public static MediaSubmission readMediaSubmission(final RecordSet rs) throws DatabaseException
     {
         MediaSubmission ms = new MediaSubmission();
+
         ms.setDescription(rs.getString("description"));
         ms.setEmail(rs.getString("subemail"));
         ms.setMsTime(rs.getLocalTime("mstime"));
         ms.setId(rs.getInteger("id"));
-        ms.setLatitude(rs.getDoubleObj("latitude"));
-        ms.setLongitude(rs.getDoubleObj("longitude"));
         ms.setName(rs.getString("subname"));
         ms.setMsDate(rs.getLocalDate("msdate"));
         ms.setSubmissionid(rs.getString("submissionid"));
         ms.setTimeSubmitted(rs.getLongObj("timesubmitted"));
         ms.setUser(UserFactory.readSimpleUser(rs));
-        ms.setVerbatimLocation(rs.getString("verbatimlocation"));
         ms.setStatus(rs.getString("status"));
+
+        ms.setLocation(LocationFactory.readLocation(rs));
 
         return ms;
     }

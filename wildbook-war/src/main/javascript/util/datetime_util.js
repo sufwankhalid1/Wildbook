@@ -193,7 +193,8 @@ directive(
             }
         };
     }]
-).directive(
+)
+.directive(
     'timeInput',
     ["moment", "$timeout", function(moment, $timeout) {
         return {

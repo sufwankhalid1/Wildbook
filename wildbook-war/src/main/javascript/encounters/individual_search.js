@@ -26,6 +26,9 @@ angular.module('wildbook.admin').directive(
                         individual: {},
                         contributor: {}
                     };
+
+                    $scope.indid = null;
+                    $scope.searchIndividualDone({individual: null});
                 };
 
                 $scope.selectedTabIndex = 0;
@@ -38,6 +41,15 @@ angular.module('wildbook.admin').directive(
                         $scope.selectedTabIndex = 1;
                     },
                     $exceptionHandler);
+                };
+
+                $scope.orphaned = function(data) {
+                    $scope.gridOptions.api.setRowData(data);
+                    $scope.selectedTabIndex = 1;
+                };
+
+                $scope.idSearch = function(data) {
+                    $scope.searchIndividualDone({individual: data});
                 };
 
                 function rowSelectedFunc(event) {

@@ -3,6 +3,8 @@
 
 require('../encounters/individual_search.js');
 require('../encounters/individual_edit.js');
+require('../encounters/orphaned_search.js');
+require('../encounters/individual_id_search.js');
 
 angular.module('wildbook.admin').directive(
     'wbIndividualSearchPage',

@@ -29,5 +29,7 @@ form.form.ng-cloak(novalidate, wb-key-handler-form)
             md-input-container(flex="100")
                 label Comments
                 textarea(ng-model="data.bio")
-        div(layout="row")
+        div(layout="row" flex="100" layout-align="start center")
             md-button.md-whiteframe-1dp(type="submit" ng-click="save()" aria-label="Save") Save
+            div(flex="")
+            | {{data.id}}

@@ -1,6 +1,8 @@
  package org.ecocean.rest;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -623,26 +625,20 @@ public class MediaSubmissionController
 
         for (MediaAsset ma : media) {
             ExifItem item = new ExifItem();
-            item.mediaid = ma.getID();
+            long datetime = 0, compdatetime;
+            //item.mediaid = ma.getID();
             data.items.add(item);
 
             if (ma.getMetaTimestamp() != null) {
-                item.time = DateUtils.ldtToMillis(ma.getMetaTimestamp());
+                compdatetime = DateUtils.ldtToMillis(ma.getMetaTimestamp());
+                if (datetime < compdatetime || datetime == 0) {
+                     datetime = compdatetime;
+                }
+            }
 
-                if (avg.minTime == null) {
-                    avg.minTime = item.time;
-                } else {
-                    if (item.time < avg.minTime) {
-                        avg.minTime = item.time;
-                    }
-                }
-                if (avg.maxTime == null) {
-                    avg.maxTime = item.time;
-                } else {
-                    if (item.time > avg.maxTime) {
-                        avg.maxTime = item.time;
-                    }
-                }
+            if (datetime != 0) {
+                avg.minDate = DateUtils.epochMilliSecToLDT(datetime).toLocalDate();
+                avg.minTime = DateUtils.epochMilliSecToLDT(datetime).toLocalTime();
             }
 
             item.latitude = ma.getMetaLatitude();
@@ -672,16 +668,16 @@ public class MediaSubmissionController
 
     public static class ExifItem
     {
-        public Long time;
+        //public Long time;
         public Double latitude;
         public Double longitude;
-        public int mediaid;
+        //public int mediaid;
     }
 
     public static class ExifAvg
     {
-        public Long minTime;
-        public Long maxTime;
+        public LocalDate minDate;
+        public LocalTime minTime;
         public Double latitude;
         public Double longitude;
     }
