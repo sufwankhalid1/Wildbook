@@ -15,7 +15,7 @@ md-dialog(class="admin-changepassword-dialog md-raised" aria-label="List dialog"
                     label User Roles
             div(layout="row" flex="100")
                 div.box.dialog-col-height(layout="column" flex="45" layout-align="center center")
-                    md-button.mt-0.mb-0(ng-class="{'md-primary': selectedAvailableRole.indexOf(role) > -1}" 
+                    md-button.mt-0.mb-0.no-border-radius(ng-class="{'background-primary': selectedAvailableRole.indexOf(role) > -1}" 
                                         ng-repeat="role in availableroles" 
                                         layout-fill 
                                         ng-if="availableroles.length > 0"
@@ -23,10 +23,14 @@ md-dialog(class="admin-changepassword-dialog md-raised" aria-label="List dialog"
                         md-divider(flex="100" ng-show="!$last")
                     div(ng-if="availableroles.length === 0" layout-align="center center") None
                 div(layout="column" flex="10" layout-align="center center")
-                    md-icon(md-svg-icon="arrow-right" ng-click="updateArr(selectedAvailableRole, userroles, availableroles)")
-                    md-icon(md-svg-icon="arrow-left" ng-click="updateArr(selectedUserRoles, availableroles, userroles)")
+                    md-icon(md-svg-icon="arrow-right"
+                            ng-click="selectedAvailableRole.length ? updateArr(selectedAvailableRole, userroles, availableroles) : angular.noop()"
+                            ng-class="{'md-primary': selectedAvailableRole.length, 'disabled-cursor': !selectedAvailableRole.length}")
+                    md-icon(md-svg-icon="arrow-left"
+                            ng-click="selectedUserRoles.length ? updateArr(selectedUserRoles, availableroles, userroles) : angular.noop()"
+                            ng-class="{'md-primary': selectedUserRoles.length, 'disabled-cursor': !selectedUserRoles.length}")
                 div.box.dialog-col-height(layout="column" flex="45" layout-align="center center")
-                    md-button.mt-0.mb-0(ng-class="{'md-primary': selectedUserRoles.indexOf(role) > -1}" 
+                    md-button.mt-0.mb-0.no-border-radius(ng-class="{'background-primary': selectedUserRoles.indexOf(role) > -1}" 
                                         ng-repeat="role in userroles" 
                                         layout-fill 
                                         ng-if="userroles.length > 0"
@@ -35,17 +39,4 @@ md-dialog(class="admin-changepassword-dialog md-raised" aria-label="List dialog"
                     div(ng-if="userroles.length === 0" layout-align="center center") None
         md-dialog-actions.mt-20(layout="row" layout-align="end center")
             md-button.md-whiteframe-1dp(ng-click="closeDialog()") Cancel
-            md-button.md-whiteframe-1dp(ng-disabled="disableSave"  ng-click="update()") Save
-                
-                
-                
-                
-                
-                
-                
-                
-                    //- md-select(flex="85" ng-model="userroles" multiple="true" placeholder="Roles")
-                    //-     md-option(ng-value="role" ng-repeat="role in roles") {{role}}
-                    //- div(flex="5")
-                    //- md-icon.md-warn(flex="10" md-svg-icon="delete" ng-click="removeRoles()")
-                    //-     md-tooltip Remove All Roles                
+            md-button.md-whiteframe-1dp(ng-disabled="disableSave"  ng-click="update()") Save     

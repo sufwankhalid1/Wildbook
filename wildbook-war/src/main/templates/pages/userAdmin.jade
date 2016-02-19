@@ -9,7 +9,7 @@ div
             md-content(layout="column")
                 md-button.md-whiteframe-1dp(type="button" ng-click="clearUserCache()" aria-label="Clear User Cache") Clear User Cache
         wb-user-search(ng-show="!user" search-user-done="setUser(user)" show-close="false")
-        md-content.mt-10(ng-show="user")
+        div.mt-10(ng-show="user")
             div(layout="row" flex="100")
                 md-icon.margin-0.mb-10(md-svg-icon="close-circle" ng-click="clearUser()")
             wb-user-edit-fields(user="user" save="save()" showdelete="true" roles="userroles")

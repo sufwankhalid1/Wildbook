@@ -50,6 +50,11 @@ angular.module('wildbook.admin').directive(
                     var parentEl = angular.element(document.body);
 
                     function DialogController($scope, $mdDialog, user, userroles) {
+
+                        //
+                        //TODO: Need to get a list of availableroles rather than hardcode them
+                        //
+
                         $scope.availableroles = ["admin", "rest"];
                         $scope.userroles = userroles;
                         $scope.selectedAvailableRole = [];
@@ -59,7 +64,7 @@ angular.module('wildbook.admin').directive(
                             $mdDialog.hide();
                         };
 
-                        $scope.update = function(){
+                        $scope.update = function() {
                             $http.post('useradmin/roles/update/'+user.id, $scope.userroles)
                             .then(function(res) {
                                 $scope.selectedAvailableRole = [];
@@ -74,13 +79,17 @@ angular.module('wildbook.admin').directive(
 
                         $scope.selectVal = function(arr, val) {
                             if (arr.length) {
+                                var spliced = false;
                                 for (var ii = 0; ii < arr.length; ii++) {
                                     if(arr[ii] === val) {
                                         arr.splice(ii, 1);
-                                    } else {
-                                        arr.push(val);
-                                        return true;
+                                        spliced = true;
+
                                     }
+                                }
+
+                                if (!spliced) {
+                                    arr.push(val);
                                 }
                             } else {
                                 arr.push(val);

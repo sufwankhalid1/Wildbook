@@ -772,6 +772,10 @@ span.active {
    cursor: crosshair !important;
 }
 
+.disabled-cursor {
+    cursor: not-allowed;
+}
+
 /* individual avatar */
 .indiv-avatar-container {
     height: 105px;
@@ -856,6 +860,10 @@ md-dialog-content.individual-avatar {
     border: solid 1px black;
 }
 
+.no-border-radius {
+    border-radius: 0px;
+}
+
 /* text alignment */
 .text-center {
     text-align: center;
@@ -871,6 +879,11 @@ md-dialog-content.individual-avatar {
 md-dialog md-dialog-content .box.dialog-col-height {
     max-height: 300px;
     overflow: auto;
+}
+
+md-dialog md-dialog-content .box .background-primary.md-button:not([disabled]):hover {
+    background-color: #303F9F;
+    //color: rgba(0,0,0,0.87);
 }
 
 /* user typeahead */
@@ -912,4 +925,10 @@ md-dialog md-dialog-content .box.dialog-col-height {
     white-space: nowrap;
     display: block;
     -ms-text-overflow: ellipsis;
+}
+
+//primary highlight
+.background-primary {
+    background-color: rgb(86,159,212);
+    color: rgba(255,255,255,0.87);
 }

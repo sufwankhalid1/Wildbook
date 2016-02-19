@@ -1,5 +1,6 @@
 package org.ecocean.rest;
 
+import java.util.Collections;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -54,6 +55,9 @@ public class UserAdminController {
     public Set<String> getRoles(final HttpServletRequest request,
                          @PathVariable("userid") final Integer userid) {
         Set<String> roles = Global.INST.getUserService().getAllRolesForUserInContext(userid.toString(), "context0");
+        if (roles == null) {
+            return Collections.emptySet();
+        }
         return roles;
     }
 
