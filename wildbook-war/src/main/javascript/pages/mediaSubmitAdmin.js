@@ -47,6 +47,12 @@ angular.module('wildbook.admin').directive(
                     }]
                 };
 
+                $scope.active = {
+                        survey: false,
+                        surveyEnc: false,
+                        encounter: false
+                };
+
                 function attachEncounter(encdata, surveyEnc) {
                     if (! encdata) {
                         return;
@@ -213,7 +219,7 @@ angular.module('wildbook.admin').directive(
                             survey: false,
                             surveyEnc: false,
                             encounter: false
-                        };
+                    };
                     switch(ele){
                         case 'survey': $scope.active.survey = true;
                             break;
