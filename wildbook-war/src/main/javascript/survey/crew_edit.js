@@ -17,11 +17,14 @@ angular.module('wildbook.admin').directive(
                 }
 
                 $scope.originalCrew = angular.copy($scope.data.crew);
-                var newmember = {
-                                 user: {'fullName': 'Choose User'},
-                                 crewrole: {},
-                                 surveypartid: $scope.data.part.surveyPartId
-                                };
+
+                if ($scope.data.part && $scope.data.part.surveyPartId) {
+                    var newmember = {
+                                     user: {'fullName': 'Choose User'},
+                                     crewrole: {},
+                                     surveypartid: $scope.data.part.surveyPartId
+                                    };
+                }
 
                 $scope.addMember = function() {
                     $scope.data.crew.push(newmember);

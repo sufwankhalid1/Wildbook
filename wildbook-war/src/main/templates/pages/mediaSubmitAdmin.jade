@@ -30,14 +30,14 @@ div
                         md-icon(md-svg-icon="plus")
                             md-tooltip(md-direction="top") Add a new Survey
                     md-divider
-                    div(ng-repeat="surveyEnc in data.surveyEncs" layout-fill layout="row")
+                    div(ng-repeat="surveyEnc in data.surveyEncs" layout-fill layout-wrap layout="row")
                         md-icon(md-svg-icon="chevron-right" 
                                 ng-show="!encOpen[$index]" 
                                 ng-click="encOpen[$index] = true; selectSurvey(surveyEnc, true, $index)")
                         md-icon(md-svg-icon="chevron-down" 
                                 ng-show="encOpen[$index]" 
                                 ng-click="encOpen[$index] = false; selectSurvey(surveyEnc, true, $index)")
-                        span.ellipsis(ng-click="selectSurvey(surveyEnc); activeEle('survey')" flex="45"
+                        span.ellipsis(ng-click="selectSurvey(surveyEnc); activeEle('survey')" flex="40"
                                 ng-class="{active: surveyEnc.surveypart.part.surveyPartId === data.activeSurveyEnc.surveypart.part.surveyPartId && active.survey}")
                                     | {{surveyEnc.surveypart.survey.organization.displayName}} - {{surveyEnc.surveypart.survey.surveyNumber}}
                                     md-tooltip(md-direction="left") {{surveyEnc.surveypart.survey.organization.displayName}} - {{surveyEnc.surveypart.survey.surveyNumber}}
