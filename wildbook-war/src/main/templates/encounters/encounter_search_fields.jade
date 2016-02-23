@@ -1,20 +1,5 @@
 div(layout="row" flex="100" layout-wrap)
-    div(layout="row" flex="100" layout-wrap layout-align="start end")
-        div(layout="row" flex="100")
-            md-radio-group(ng-model="encounter.datesearch.range" layout="row" flex="")
-                md-radio-button(value="0") On
-                md-radio-button(value="1") Before
-                md-radio-button(value="2") After
-                md-radio-button(value="3") Between
-            md-icon(md-svg-icon="close-circle-outline" ng-click="encounter.datesearch.range = 0; encounter.datesearch.enddate = null")
-                md-tooltip Reset
-        div.mt-10(layout="row" flex="100")
-            md-input-container(flex="50")
-                label Start/On Date:
-                date-input(ng-model="encounter.datesearch.startdate")
-            md-input-container(flex="50")
-                label End Date:
-                date-input(ng-disabled="encounter.datesearch.range !== '3'" ng-model="encounter.datesearch.enddate")
+    wb-date-range-picker(flex="100" searchdata="encounter")
     div(layout="row" flex="100")
         md-input-container(flex="100")
             label Location:

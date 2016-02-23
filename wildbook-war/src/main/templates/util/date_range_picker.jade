@@ -1,0 +1,35 @@
+//- ngif when there is an obj we're attaching the date obj to
+div(ng-if="!standalone" layout="row" layout-wrap layout-align="start end")
+    div(layout="row" flex="100")
+        md-radio-group(ng-model="searchdata.datesearch.range" layout="row" flex="")
+            md-radio-button(value="0") On
+            md-radio-button(value="1") Before
+            md-radio-button(value="2") After
+            md-radio-button(value="3") Between
+        md-icon(md-svg-icon="close-circle-outline" ng-click="searchdata.datesearch.range = 0; searchdata.datesearch.enddate = null")
+            md-tooltip Reset
+    div.mt-10(layout="row" flex="100")
+        md-input-container(flex="50")
+            label Start/On Date:
+            date-input(ng-model="searchdata.datesearch.startdate")
+        md-input-container(flex="50")
+            label End Date:
+            date-input(ng-disabled="searchdata.datesearch.range !== '3'" ng-model="searchdata.datesearch.enddate")
+
+//- ngif when we want a standalone daterange picker
+div(ng-if="standalone" layout="row" layout-wrap layout-align="start end")
+    div(layout="row" flex="100")
+        md-radio-group(ng-model="datesearch.range" layout="row" flex="")
+            md-radio-button(value="0") On
+            md-radio-button(value="1") Before
+            md-radio-button(value="2") After
+            md-radio-button(value="3") Between
+        md-icon(md-svg-icon="close-circle-outline" ng-click="datesearch.range = 0; datesearch.enddate = null")
+            md-tooltip Reset
+    div.mt-10(layout="row" flex="100")
+        md-input-container(flex="50")
+            label Start/On Date:
+            date-input(ng-model="datesearch.startdate")
+        md-input-container(flex="50")
+            label End Date:
+            date-input(ng-disabled="datesearch.range !== '3'" ng-model="datesearch.enddate")
