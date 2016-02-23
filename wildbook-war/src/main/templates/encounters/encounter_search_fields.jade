@@ -1,9 +1,19 @@
 div(layout="row" flex="100" layout-wrap)
     div(layout="row" flex="100" layout-align="start end")
-        md-input-container(flex="50")
-            label Date:
-            date-input(ng-model="encounter.encdate")
-        md-input-container(flex="50")
+        md-input-container(flex="20" )
+            md-select(ng-model="encounter.datesearch.range" placeholder="Date Range")
+                md-option(ng-value="daterange.indexOf(range)" ng-repeat="range in daterange") {{range}}
+        md-icon(md-svg-icon="close-circle-outline" ng-click="encounter.datesearch.range = null; encounter.datesearch.enddate = null")
+            md-tooltip Clear
+        md-input-container(flex="35" flex-offset="5")
+            label {{encounter.datesearch.range === "between" ? "Start Date:" : "Date:"}}
+            date-input(ng-model="encounter.datesearch.startdate")
+        div(ng-if="!encounter.datesearch.range !== 3" flex="")
+        md-input-container(flex="35" ng-if="encounter.datesearch.range === 3")
+            label End Date:
+            date-input(ng-model="encounter.datesearch.enddate")
+    div(layout="row" flex="100")
+        md-input-container(flex="100")
             label Location:
             input(type="text" ng-model="encounter.location")
     div(layout="row" flex="100")

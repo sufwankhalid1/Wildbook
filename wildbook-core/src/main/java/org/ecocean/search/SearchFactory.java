@@ -8,6 +8,7 @@ import org.ecocean.encounter.Encounter;
 import org.ecocean.encounter.EncounterFactory;
 import org.ecocean.media.MediaAssetFactory;
 import org.ecocean.security.UserFactory;
+import org.ecocean.util.DateUtils;
 
 import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
@@ -22,9 +23,8 @@ public class SearchFactory {
     }
 
     private static void addEncounterData(final SqlStatement sql, final EncounterSearch search) {
-        if (search.encdate != null) {
-            sql.addCondition(EncounterFactory.ALIAS_ENCOUNTERS, "encdate", SqlRelationType.EQUAL, search.encdate.toString());
-        }
+
+        DateUtils.dateSearch(sql, search.datesearch, EncounterFactory.ALIAS_ENCOUNTERS, "encdate");
 
         if (!StringUtils.isBlank(search.location)) {
             SqlTable table = sql.findTable(EncounterFactory.ALIAS_ENCOUNTERS);

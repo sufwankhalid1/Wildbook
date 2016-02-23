@@ -8,6 +8,11 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
+import org.ecocean.search.DateSearch;
+
+import com.samsix.database.SqlRelationType;
+import com.samsix.database.SqlStatement;
+
 public class DateUtils {
     private static ZoneId UTC = ZoneId.of("Z");
 
@@ -72,5 +77,27 @@ public class DateUtils {
         }
 
         return builder.toString();
+    }
+
+    //EncounterFactory.ALIAS_ENCOUNTERS, "encdate"
+    public static SqlStatement dateSearch(final SqlStatement sql, final DateSearch datesearch, final String alias, final String column) {
+        if (datesearch != null && datesearch.startdate != null) {
+            if (datesearch.range != null) {
+                if (datesearch.range.ordinal == 0) {
+                    sql.addCondition(alias, column, SqlRelationType.EQUAL, datesearch.startdate.toString());
+                } else if (datesearch.range.ordinal == 1) {
+                    sql.addCondition(alias, column, SqlRelationType.LESS_THAN, datesearch.startdate.toString());
+                } else if (datesearch.range.ordinal == 2) {
+                    sql.addCondition(alias, column, SqlRelationType.GREATER_THAN, datesearch.startdate.toString());
+                } else if (datesearch.range.ordinal == 3) {
+                    sql.addCondition(alias, column, SqlRelationType.GREATER_THAN, datesearch.startdate.toString());
+                    sql.addCondition(alias, column, SqlRelationType.LESS_THAN, datesearch.enddate.toString());
+                }
+            } else {
+                sql.addCondition(alias, column, SqlRelationType.EQUAL, datesearch.startdate.toString());
+            }
+        }
+
+        return sql;
     }
 }

@@ -1,16 +1,14 @@
 package org.ecocean.search;
 
-import java.time.LocalDate;
-
 import org.apache.commons.lang3.StringUtils;
 
 public class EncounterSearch
 {
-    public LocalDate encdate;
+    public DateSearch datesearch;
     public String location;
     public String comments;
 
     public boolean hasData() {
-        return (encdate != null || !StringUtils.isBlank(location) || !StringUtils.isBlank(comments));
+        return ((datesearch != null && datesearch.startdate != null) || !StringUtils.isBlank(location) || !StringUtils.isBlank(comments));
     }
 }
