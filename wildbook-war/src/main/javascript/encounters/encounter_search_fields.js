@@ -12,7 +12,7 @@ angular.module('wildbook.admin').directive(
             },
             replace: true,
             link: function($scope, ele, attr) {
-                $scope.daterange = ["on", "before", "after", "between"];
+                $scope.encounter.datesearch = {range:0};
             }
         };
     }]
