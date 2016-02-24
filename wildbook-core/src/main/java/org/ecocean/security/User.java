@@ -230,6 +230,8 @@ public class User {
             return avatarPath;
         }
 
+        String emails;
+
         if (! StringUtils.isBlank(email)) {
             //
             // Return 80x80 sized gvatar. They default to 80x80 but can be requested up to 2048x2048.
@@ -239,12 +241,14 @@ public class User {
             // NOTE: d=identicon makes default (when not set by user) be those crazy (unique) geometric shapes, rather than the gravatar logo
             //         - https://en.wikipedia.org/wiki/Identicon
             //
-            return "https://www.gravatar.com/avatar/"
-                    + StringUtilities.getHashOf(email.trim().toLowerCase())
-                    + "?s=80&d=identicon";
+            emails = email.trim().toLowerCase();
+        } else {
+            emails = "thisuserneedsanemail";
         }
 
-        return null;
+        return "https://www.gravatar.com/avatar/"
+        + StringUtilities.getHashOf(emails)
+        + "?s=80&d=identicon";
     }
 
     public void setAvatarPath(final String avatar) {

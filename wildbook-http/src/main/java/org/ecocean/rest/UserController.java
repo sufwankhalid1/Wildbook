@@ -25,6 +25,7 @@ import org.ecocean.security.UserService;
 import org.ecocean.security.UserToken;
 import org.ecocean.servlet.ServletUtils;
 import org.ecocean.util.LogBuilder;
+import org.ecocean.util.NotificationException;
 import org.ecocean.util.WildbookUtils;
 import org.slf4j.Logger;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -274,7 +275,10 @@ public class UserController {
                               @RequestBody final ResetPass reset) throws DatabaseException {
         if (logger.isDebugEnabled()) {
             logger.debug(LogBuilder.quickLog("token", reset.token));
-            logger.debug(LogBuilder.quickLog("password", reset.password));
+        }
+
+        if (reset.password.length() < 8) {
+            throw new NotificationException("This password is too short!");
         }
 
         UserService userService = Global.INST.getUserService();
