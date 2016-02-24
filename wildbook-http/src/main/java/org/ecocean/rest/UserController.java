@@ -161,14 +161,13 @@ public class UserController {
                                 final LoginAttempt loginAttempt) throws DatabaseException
     {
         if (logger.isDebugEnabled()) {
-            LogBuilder.get("login attempt").appendVar("username", loginAttempt.username)
-                .appendVar("password", loginAttempt.password).debug(logger);
+            LogBuilder.get("login attempt").appendVar("username", loginAttempt.username).debug(logger);
         };
 
         UserToken userToken = getUserToken(request, loginAttempt.username, loginAttempt.password);
 
         if (userToken == null) {
-            throw new SecurityException("No user with username [" + loginAttempt.username + "] is found.");
+            throw new NotificationException("No user with username [" + loginAttempt.username + "] is found.");
         }
 
         try {
@@ -217,7 +216,7 @@ public class UserController {
     public UserVerify verifyEmail(final HttpServletRequest request,
                                   @RequestBody @Valid final UserInfo userInfo) throws DatabaseException {
         if (userInfo == null) {
-            throw new IllegalArgumentException("Null argument passed.");
+            throw new NotificationException("Please fill out the required information.");
         }
 
         UserVerify verify = new UserVerify();
@@ -227,7 +226,6 @@ public class UserController {
 
         if (user == null) {
             user = User.create(null, userInfo.fullName, userInfo.email);
-
             //
             // Let's assume that new people have accepted the
             // user agreement. They should be saying yes to this as they log in anyway. Shouldn't
