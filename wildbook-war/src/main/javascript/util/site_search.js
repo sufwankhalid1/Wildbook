@@ -12,7 +12,7 @@ angular.module('wildbook.util').directive(
             controller: function($scope) {
 
                 function querySearch(query) {
-                    return $http.get('search/site', query)
+                    return $http.get('api/search/site', query)
                     .then(function(data) {
                         return $.map(data, function(item) {
                             var label;

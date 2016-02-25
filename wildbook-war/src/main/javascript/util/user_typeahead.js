@@ -39,7 +39,7 @@ angular.module('wildbook.util')
                     return $q.reject();
                 }
 
-                return $http.post('obj/user/searchusers', query)
+                return $http.post('api/user/searchusers', query)
                 .then(function(res) {
                     return res.data;
                 });

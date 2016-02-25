@@ -24,7 +24,7 @@ import com.samsix.database.DatabaseException;
 import com.samsix.database.SqlStatement;
 
 @RestController
-@RequestMapping(value = "/admin/search")
+@RequestMapping(value = "/admin/api/search")
 public class AdminSearchController {
     Logger logger = LoggerFactory.getLogger(AdminSearchController.class);
 

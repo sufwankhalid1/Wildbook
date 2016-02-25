@@ -58,7 +58,7 @@ angular.module('wildbook.util')
                     });
                 }
 
-                $http.post('siteadmin/savecrewrole', $scope.selectedCrewRole)
+                $http.post('admin/api/site/savecrewrole', $scope.selectedCrewRole)
                 .then(function(res) {
                     wbConfig.refreshConfig();
                     getConfig().then(function() {

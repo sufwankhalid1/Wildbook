@@ -57,7 +57,7 @@ angular.module('wildbook.admin').directive(
                         return;
                     }
 
-                    $http.post("siteadmin/savespecies/"+originalCode, $scope.speciesInput)
+                    $http.post("admin/api/site/savespecies/"+originalCode, $scope.speciesInput)
                     .then(function () {
                         if (originalCode) {
                             $scope.allSpecies.forEach(function(obj, key) {
@@ -76,7 +76,7 @@ angular.module('wildbook.admin').directive(
                 $scope.delete = function() {
                     return alertplus.confirm('Are you sure you want to remove '+ $scope.speciesInput.name +'?', "Delete Species", true)
                     .then(function(){
-                        $http.post('siteadmin/deletespecies', $scope.speciesInput.code)
+                        $http.post('admin/api/site/deletespecies', $scope.speciesInput.code)
                         .success(function() {
                             $scope.allSpecies.forEach(function(obj, key) {
                                 if (obj.code === $scope.speciesInput.code) {

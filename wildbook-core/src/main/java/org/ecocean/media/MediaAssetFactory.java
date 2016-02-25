@@ -234,4 +234,30 @@ public class MediaAssetFactory {
     {
         return toSimplePhoto(valueOf(rs));
     }
+
+
+    public static void deleteMedia(final Database db,
+                                   final int submissionid,
+                                   final int mediaid) throws DatabaseException, IOException
+    {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Deleting mediaid [" + mediaid + "] from submission [" + submissionid + "]");
+        }
+
+        MediaAsset ma = load(db, mediaid);
+
+        if (ma == null) {
+            throw new IllegalArgumentException("No media with id [" + mediaid + "] found.");
+        }
+
+        Table table = db.getTable("mediasubmission_media");
+        String where = "mediasubmissionid = "
+                + submissionid
+                + " AND mediaid = "
+                + mediaid;
+        table.deleteRows(where);
+
+        delete(db, ma.getID());
+        deleteFromStore(ma);
+    }
 }

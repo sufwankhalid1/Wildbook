@@ -41,7 +41,7 @@ import de.neuland.jade4j.exceptions.JadeCompilerException;
 import de.neuland.jade4j.exceptions.JadeException;
 
 @RestController
-@RequestMapping(value = "/obj/user")
+@RequestMapping(value = "/api/user")
 public class UserController {
     private static Logger logger = UserService.logger;
 

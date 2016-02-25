@@ -93,7 +93,7 @@ public class MediaUploadServlet
                         if (logger.isDebugEnabled()) {
                             logger.debug("Deleting from file system.");
                         }
-                        MediaSubmissionController.deleteMedia(db, msid, file.getId());
+                        MediaAssetFactory.deleteMedia(db, msid, file.getId());
                     }
                     if (logger.isDebugEnabled()) {
                         logger.debug("Removing from fileset.");

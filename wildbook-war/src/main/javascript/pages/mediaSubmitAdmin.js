@@ -81,7 +81,7 @@ angular.module('wildbook.admin').directive(
                             surveyEnc.encs = [];
                         }
                         // Call to add encounter to survey.
-                        $http.post("obj/survey/addencounter",
+                        $http.post("admin/api/survey/addencounter",
                                    {surveypartid: surveyEnc.surveypart.part.surveyPartId, encounterid: encdata.encounter.id})
                         .then(function() {
                             surveyEnc.encs.push(encdata);
@@ -108,7 +108,7 @@ angular.module('wildbook.admin').directive(
                 }
 
                 $scope.emailSubmitter = function() {
-                    $http.get("useradmin/user/" + $scope.data.submission.user.id)
+                    $http.get("admin/api/user/get/" + $scope.data.submission.user.id)
                     .then(function(result) {
                         $window.location = "mailto:" + result.data.email;
                     }, $exceptionHandler);
@@ -123,7 +123,7 @@ angular.module('wildbook.admin').directive(
 
                 $scope.searchUserDone = function(user) {
                     if (user) {
-                        $http.post("obj/mediasubmission/reassign", {msid: $scope.data.submission.id, userid: user.id})
+                        $http.post("admin/api/mediasubmission/reassign", {msid: $scope.data.submission.id, userid: user.id})
                         .then(function() {
                             $scope.data.submission.user = user;
                             //
@@ -360,7 +360,7 @@ angular.module('wildbook.admin').directive(
                     //
                     // Look for any encounters attached to this survey already
                     //
-                    $http.get("obj/survey/encounters/" + surveypart.part.surveyPartId)
+                    $http.get("api/survey/encounters/" + surveypart.part.surveyPartId)
                     .then(function(result) {
                         addSurveyEncounters(surveypart, result.data);
                     }, $exceptionHandler);
@@ -371,7 +371,7 @@ angular.module('wildbook.admin').directive(
                         return photo.id;
                     });
 
-                    return $http.post("obj/encounter/addmedia/" + encounter.id, newphotoids)
+                    return $http.post("admin/api/encounter/addmedia/" + encounter.id, newphotoids)
                     .then(function() {
                         //
                         // Now increase the numencs for these photos by one.
@@ -426,7 +426,7 @@ angular.module('wildbook.admin').directive(
                         var photoids = photos.map(function(photo) {
                             return photo.id;
                         });
-                        var promise = $http.post("obj/mediasubmission/deletemedia", {submissionid: $scope.data.submission.id, mediaids: photoids})
+                        var promise = $http.post("admin/api/mediasubmission/deletemedia", {submissionid: $scope.data.submission.id, mediaids: photoids})
                         .then(function() {
                             //
                             // Remove the numencs for these photos.
@@ -471,8 +471,8 @@ angular.module('wildbook.admin').directive(
                 }
 
                 $scope.editSubmission = function(submission) {
-                    $scope.busy = $q.all([$http({url:"obj/mediasubmission/photos/" + submission.id}),
-                                   $http({url:"obj/mediasubmission/encounters/" + submission.id})])
+                    $scope.busy = $q.all([$http({url:"api/mediasubmission/photos/" + submission.id}),
+                                   $http({url:"api/mediasubmission/encounters/" + submission.id})])
                     .then(function(results) {
                         $scope.data.submission = submission;
                         $scope.data.photos = results[0].data;
@@ -487,7 +487,7 @@ angular.module('wildbook.admin').directive(
                 $scope.deleteSubmission = function(submission) {
                     return alertplus.confirm('Are you sure you want to delete the <b>entire</b> submission '+ submission.id +'?', "Delete Submission", true)
                     .then(function() {
-                        $http.post("obj/mediasubmission/delete", {submissionid: submission.id})
+                        $http.post("admin/api/mediasubmission/delete", {submissionid: submission.id})
                         .then(function() {
                             $scope.updateSubmissionData();
                             $scope.doneEditing();
@@ -585,9 +585,9 @@ angular.module('wildbook.admin').directive(
                     var statusUrl;
 
                     if(status) {
-                        statusUrl = "obj/mediasubmission/get/status/" + status;
+                        statusUrl = "api/mediasubmission/get/status/" + status;
                     } else {
-                        statusUrl = "obj/mediasubmission/get/uncompleted";
+                        statusUrl = "api/mediasubmission/get/uncompleted";
                     }
 
                     $http({url: statusUrl})
@@ -601,7 +601,7 @@ angular.module('wildbook.admin').directive(
                     if(!status){
                         status = "null";
                     }
-                    $http.post("obj/mediasubmission/setstatus/"+$scope.data.submission.id, status)
+                    $http.post("admin/api/mediasubmission/setstatus/"+$scope.data.submission.id, status)
                     .then(function(){
                         //filter out changed status from current grid that isnt set to status = all
                         if($scope.searchStatus !== '*'){

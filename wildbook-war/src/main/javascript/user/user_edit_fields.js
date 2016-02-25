@@ -35,7 +35,7 @@ angular.module('wildbook.admin').directive(
                 $scope.deleteUser = function() {
                     return alertplus.confirm('Are you sure you want to delete this user?', "Delete User", true)
                     .then(function() {
-                        $http.post("useradmin/userdelete", $scope.user)
+                        $http.post("admin/api/user/userdelete", $scope.user)
                         .then(function() {
                             //
                             // TODO: Reperform search to clear out this now deleted value.
@@ -65,7 +65,7 @@ angular.module('wildbook.admin').directive(
                         };
 
                         $scope.update = function() {
-                            $http.post('useradmin/roles/update/'+user.id, $scope.userroles)
+                            $http.post('admin/api/user/roles/update/'+user.id, $scope.userroles)
                             .then(function(res) {
                                 $scope.selectedAvailableRole = [];
                                 $scope.selectedUserRoles = [];
@@ -175,7 +175,7 @@ angular.module('wildbook.admin').directive(
                                 if ($scope.password.length < 6) {
                                     return;
                                 }
-                                $http.post('useradmin/editpw/' + user.id, $scope.password);
+                                $http.post('admin/api/user/editpw/' + user.id, $scope.password);
                             }
 
                             $mdDialog.hide();

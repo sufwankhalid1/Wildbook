@@ -18,9 +18,13 @@ angular.module('wildbook.util')
             $scope.standalone = false;
 
             if (!$scope.searchdata) {
-                $scope.searchdata = {range:0};
+                $scope.reset();
                 $scope.standalone = true;
             }
+
+            $scope.reset = function() {
+                $scope.searchdata = {range:0};
+            };
         }
     };
 }]);

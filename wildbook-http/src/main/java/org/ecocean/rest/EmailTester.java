@@ -25,7 +25,7 @@ import de.neuland.jade4j.exceptions.JadeCompilerException;
 import de.neuland.jade4j.exceptions.JadeException;
 
 @RestController
-@RequestMapping(value = "/test/email")
+@RequestMapping(value = "api/test/email")
 public class EmailTester {
     @RequestMapping(value = "/get", method = RequestMethod.GET)
     public void testEmail(final HttpServletRequest request,

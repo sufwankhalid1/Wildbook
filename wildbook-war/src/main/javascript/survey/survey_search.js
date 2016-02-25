@@ -39,7 +39,7 @@ angular.module('wildbook.admin').directive(
                 };
 
                 $scope.search = function() {
-                    $http.post("search/survey", $scope.surveysearch)
+                    $http.post("api/survey", $scope.surveysearch)
                     .then(function(result) {
                         $scope.surveyGridOptions.api.setRowData(result.data);
                         $scope.selectedTabIndex = 1;

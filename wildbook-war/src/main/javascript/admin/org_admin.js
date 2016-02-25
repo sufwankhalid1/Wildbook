@@ -109,7 +109,7 @@ angular.module('wildbook.admin').directive(
                     }
 
                     if (!exists) {
-                        $http.post("siteadmin/saveorg", $scope.orgInput)
+                        $http.post("admin/api/site/saveorg", $scope.orgInput)
                         .then(function (response) {
                             if ($scope.orgInput.orgId) {
                                 $scope.orgs.forEach(function(obj, key) {
@@ -134,7 +134,7 @@ angular.module('wildbook.admin').directive(
                 $scope.delete = function() {
                     return alertplus.confirm('Are you sure you want to remove '+ $scope.orgInput.name +'?', "Delete Organization", true)
                     .then(function(){
-                        $http.post('siteadmin/deleteorg/' + $scope.orgInput.orgId)
+                        $http.post('admin/api/site/deleteorg/' + $scope.orgInput.orgId)
                         .success(function() {
                             $scope.orgs.forEach(function(org, key) {
                                 if (org.orgId === $scope.orgInput.orgId) {

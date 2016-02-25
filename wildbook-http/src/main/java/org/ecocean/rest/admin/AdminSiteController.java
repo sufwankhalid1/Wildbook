@@ -1,4 +1,4 @@
-package org.ecocean.rest;
+package org.ecocean.rest.admin;
 
 import java.util.List;
 
@@ -23,8 +23,8 @@ import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
 
 @RestController
-@RequestMapping(value = "/siteadmin")
-public class SiteAdminController {
+@RequestMapping(value = "admin/api/site")
+public class AdminSiteController {
 
     @RequestMapping(value = "saveorg", method = RequestMethod.POST)
     public int saveOrg(final HttpServletRequest request,

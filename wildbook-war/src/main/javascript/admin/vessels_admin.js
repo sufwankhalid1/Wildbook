@@ -16,7 +16,7 @@ angular.module('wildbook.admin').directive(
             templateUrl: 'admin/vessels_admin.html',
             replace: true,
             link: function($scope, element, attr) {
-                $http.get('siteadmin/getvessels')
+                $http.get('admin/api/site/getvessels')
                 .then(function(res){
                     $scope.vessels = res.data;
                 });
@@ -109,7 +109,7 @@ angular.module('wildbook.admin').directive(
 
                         if ($scope.vesselInput.vesselTypeId === "new") {
                             $scope.vesselInput.vesselTypeId = null;
-                            $http.post("siteadmin/savevesseltype", $scope.vesselInput)
+                            $http.post("admin/api/site/savevesseltype", $scope.vesselInput)
                             .then(function(vesselTypeId) {
                                 $scope.vesselInput.vesselTypeId = vesselTypeId.data;
                                 saveVessel();
@@ -126,7 +126,7 @@ angular.module('wildbook.admin').directive(
                 };
 
                 function saveVessel() {
-                    $http.post("siteadmin/savevessel", $scope.vesselInput)
+                    $http.post("admin/api/site/savevessel", $scope.vesselInput)
                     .then(function (response) {
                         if ($scope.vesselInput.vesselId) {
                             $scope.vessels.forEach(function(obj, key) {
@@ -145,7 +145,7 @@ angular.module('wildbook.admin').directive(
                 $scope.delete = function() {
                     return alertplus.confirm('Are you sure you want to remove '+ $scope.vesselInput.name +'?', "Delete Vessel", true)
                     .then(function(){
-                        $http.post('siteadmin/deletevessel/' + $scope.vesselInput.vesselId)
+                        $http.post('admin/api/site/deletevessel/' + $scope.vesselInput.vesselId)
                         .success(function() {
                             $scope.vessels.forEach(function(vessel, key) {
                                 if (vessel.vesselId === $scope.vesselInput.vesselId) {

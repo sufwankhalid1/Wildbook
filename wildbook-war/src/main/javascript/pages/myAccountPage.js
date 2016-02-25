@@ -17,7 +17,7 @@ angular.module('wildbook.admin').directive(
                 $scope.pendingExports = 0;
                 $scope.exportErrors = 0;
 
-                $http.get('obj/user/self').then(function(response){
+                $http.get('api/user/self').then(function(response){
                     $scope.self = response.data;
                     origSelf = angular.copy(response.data);
                 });
@@ -27,7 +27,7 @@ angular.module('wildbook.admin').directive(
                     $scope.pendingExports = 0;
                     $scope.exportErrors = 0;
 
-                    $http.get('obj/user/exports').then(function(response){
+                    $http.get('api/user/exports').then(function(response){
                         $scope.exports = response.data;
 
                         $scope.exports.forEach(function(item){
@@ -82,7 +82,7 @@ angular.module('wildbook.admin').directive(
                 };
 
                 $scope.save = function() {
-                    $http.post("useradmin/usersave", $scope.self)
+                    $http.post("admin/api/user/usersave", $scope.self)
                     .then(function(response) {
 /*                        $mdToast.show(
                             $mdToast.simple()
@@ -135,7 +135,7 @@ angular.module('wildbook.admin').directive(
                         }
                     }
 
-                    var url = "export/download/" + exportitem.exportId;
+                    var url = "admin/api/export/download/" + exportitem.exportId;
 
                     //
                     // Using old school XMLHttpRequest because angular ($http) AND jquery ($.ajax)

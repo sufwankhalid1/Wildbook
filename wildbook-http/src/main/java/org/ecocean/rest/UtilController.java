@@ -20,7 +20,7 @@ import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
 
 @RestController
-@RequestMapping(value = "/util")
+@RequestMapping(value = "/api/util")
 public class UtilController {
     @RequestMapping(value = "/render", method = RequestMethod.GET)
     public String renderJade(final HttpServletRequest request,

@@ -37,10 +37,10 @@ import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
 
 @RestController
-@RequestMapping(value = "/export")
-public class ExportController {
+@RequestMapping(value = "/admin/api/export")
+public class AdminExportController {
 
-    private static final Logger logger = LoggerFactory.getLogger(ExportController.class);
+    private static final Logger logger = LoggerFactory.getLogger(AdminExportController.class);
 
     private static ExecutorService executor = Executors.newFixedThreadPool(5);
 

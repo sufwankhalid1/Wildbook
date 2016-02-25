@@ -11,7 +11,6 @@ import java.util.Set;
 
 import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
 
 import org.ecocean.Global;
 import org.ecocean.email.EmailUtils;
@@ -44,13 +43,12 @@ import com.samsix.database.GroupedSqlCondition;
 import com.samsix.database.SqlRelationType;
 import com.samsix.database.SqlStatement;
 import com.samsix.database.SqlTable;
-import com.samsix.database.SqlUpdateFormatter;
 import com.samsix.database.Table;
 
 import de.neuland.jade4j.exceptions.JadeException;
 
 @RestController
-@RequestMapping(value = "/obj/mediasubmission")
+@RequestMapping(value = "/api/mediasubmission")
 public class MediaSubmissionController
 {
     private static Logger logger = LoggerFactory.getLogger(MediaSubmissionController.class);
@@ -196,6 +194,65 @@ public class MediaSubmissionController
 //        return getMediaSubmission(mediaid);
 //    }
 
+    //
+    //TODO: split save media into an admin save and happywhale save
+    //
+
+
+    @RequestMapping(value = "/save", method = RequestMethod.POST)
+    public Integer save(final HttpServletRequest request,
+                        @RequestBody final MediaSubmission media)
+        throws DatabaseException
+    {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Calling MediaSubmission save for media [" + media + "]");
+        }
+
+        try (Database db = ServletUtils.getDb(request)){
+            //
+            // Save media submission
+            //
+//            boolean isNew = (media.getId() == null);
+            MediaSubmissionFactory.save(db, media);
+
+            //
+            // TODO: This code works as is EXCEPT due to the stupid IDX ordering column
+            // that DataNucleus put on our SURVEY_MEDIA table along with making SURVEY_ID_OID/IDX being
+            // the primary key (Why?!!!) we can't just add 0 for the IDX column. Sheesh.
+            // Recreate the SURVEY_MEDIA table the way you want it and fix this later.
+            //
+//            if (isNew) {
+//                //
+//                // Check if the media submissionId matches a survey and if so
+//                // insert into SURVEY_MEDIA table.
+//                // TODO: Add a parameter to the save method to indicate that this
+//                // media submission was intended for a survey so that we know if
+//                // we should be doing this or something else with the submissionId.
+//                //
+//                RecordSet rs;
+//                SqlWhereFormatter where = new SqlWhereFormatter();
+//                where.append(SurveyFactory.PK_SURVEY), media.getSubmissionid());
+//
+//                rs = db.getTable("SURVEY").getRecordSet(where.getWhereClause());
+//                if (rs.next()) {
+//                    SqlInsertFormatter formatter;
+//                    formatter = new SqlInsertFormatter();
+//                    formatter.append("SURVEY_ID_OID"), rs.getInteger("SURVEY_ID"));
+//                    formatter.append("ID_EID"), media.getId());
+//                    formatter.append("IDX"), 0);
+//                    db.getTable("SURVEY_MEDIA").insertRow(formatter);
+//                }
+//            }
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("Returning media submission id [" + media.getId() + "]");
+            }
+
+            return media.getId();
+        }
+    }
+
+
     private List<MediaSubmission> getMediaSubmissions(final Database db,
                                                       final SqlStatement sql) throws DatabaseException {
         sql.setOrderBy("timesubmitted desc");
@@ -277,97 +334,6 @@ public class MediaSubmissionController
 //                                            @RequestBody final List<SinglePhotoVideo> media) throws DatabaseException {
 //        return findMediaSources(media, ServletUtilities.getContext(request));
 //    }
-
-    public static void deleteMedia(final Database db,
-                                   final int submissionid,
-                                   final int mediaid) throws DatabaseException, IOException
-    {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Deleting mediaid [" + mediaid + "] from submission [" + submissionid + "]");
-        }
-
-        MediaAsset ma = MediaAssetFactory.load(db, mediaid);
-
-        if (ma == null) {
-            throw new IllegalArgumentException("No media with id [" + mediaid + "] found.");
-        }
-
-        Table table = db.getTable("mediasubmission_media");
-        String where = "mediasubmissionid = "
-                + submissionid
-                + " AND mediaid = "
-                + mediaid;
-        table.deleteRows(where);
-
-        MediaAssetFactory.delete(db, ma.getID());
-        MediaAssetFactory.deleteFromStore(ma);
-    }
-
-    @RequestMapping(value = "/deletemedia", method = RequestMethod.POST)
-    public void deleteMedia(final HttpServletRequest request,
-                            @RequestBody final MSMEntry msm)
-        throws DatabaseException
-    {
-        try (Database db = ServletUtils.getDb(request)) {
-            db.performTransaction(() -> {
-                for (int mediaid : msm.mediaids) {
-                    try {
-                        deleteMedia(db, msm.submissionid, mediaid);
-                    } catch (Exception ex) {
-                        throw new DatabaseException("Can't delete media.", ex);
-                    }
-                }
-            });
-        }
-    }
-
-
-    @RequestMapping(value = "/delete", method = RequestMethod.POST)
-    public void deleteSubmission(final HttpServletRequest request,
-                                 @RequestBody final MSMEntry msm)
-        throws DatabaseException, IOException
-    {
-        try (Database db = ServletUtils.getDb(request)) {
-            String mWhere = "mediasubmissionid = " + msm.submissionid;
-
-            String sql = "SELECT ma.* FROM mediaasset ma"
-                    + " INNER JOIN mediasubmission_media msm ON msm.mediaid = ma.id"
-                    + " WHERE " + mWhere;
-            List<MediaAsset> media;
-            media = db.selectList(sql, (rs) -> {
-                return MediaAssetFactory.valueOf(rs);
-            });
-
-            db.performTransaction(() -> {
-                //
-                // Delete all the joins
-                //
-                Table table = db.getTable("mediasubmission_media");
-                table.deleteRows(mWhere);
-
-                //
-                // Delete the media submission itself.
-                //
-                table = db.getTable("mediasubmission");
-                table.deleteRows("id = " + msm.submissionid);
-
-                //
-                // Delete all the files.
-                //
-                for (MediaAsset aMedia : media) {
-                    MediaAssetFactory.delete(db, aMedia.getID());
-                }
-            });
-
-            //
-            // Now delete the physical files.
-            //
-            for (MediaAsset aMedia : media) {
-                MediaAssetFactory.deleteFromStore(aMedia);
-            }
-        }
-    }
-
 
     @RequestMapping(value = "/complete", method = RequestMethod.POST)
     public void complete(final HttpServletRequest request,
@@ -487,124 +453,6 @@ public class MediaSubmissionController
         }
     }
 
-
-    @RequestMapping(value = "/save", method = RequestMethod.POST)
-    public Integer save(final HttpServletRequest request,
-                        @RequestBody final MediaSubmission media)
-        throws DatabaseException
-    {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Calling MediaSubmission save for media [" + media + "]");
-        }
-
-        try (Database db = ServletUtils.getDb(request)){
-            //
-            // Save media submission
-            //
-//            boolean isNew = (media.getId() == null);
-            MediaSubmissionFactory.save(db, media);
-
-            //
-            // TODO: This code works as is EXCEPT due to the stupid IDX ordering column
-            // that DataNucleus put on our SURVEY_MEDIA table along with making SURVEY_ID_OID/IDX being
-            // the primary key (Why?!!!) we can't just add 0 for the IDX column. Sheesh.
-            // Recreate the SURVEY_MEDIA table the way you want it and fix this later.
-            //
-//            if (isNew) {
-//                //
-//                // Check if the media submissionId matches a survey and if so
-//                // insert into SURVEY_MEDIA table.
-//                // TODO: Add a parameter to the save method to indicate that this
-//                // media submission was intended for a survey so that we know if
-//                // we should be doing this or something else with the submissionId.
-//                //
-//                RecordSet rs;
-//                SqlWhereFormatter where = new SqlWhereFormatter();
-//                where.append(SurveyFactory.PK_SURVEY), media.getSubmissionid());
-//
-//                rs = db.getTable("SURVEY").getRecordSet(where.getWhereClause());
-//                if (rs.next()) {
-//                    SqlInsertFormatter formatter;
-//                    formatter = new SqlInsertFormatter();
-//                    formatter.append("SURVEY_ID_OID"), rs.getInteger("SURVEY_ID"));
-//                    formatter.append("ID_EID"), media.getId());
-//                    formatter.append("IDX"), 0);
-//                    db.getTable("SURVEY_MEDIA").insertRow(formatter);
-//                }
-//            }
-
-            if (logger.isDebugEnabled()) {
-                logger.debug("Returning media submission id [" + media.getId() + "]");
-            }
-
-            return media.getId();
-        }
-    }
-
-
-    @RequestMapping(value = "reassign", method = RequestMethod.POST)
-    public void reassign(final HttpServletRequest request,
-                         @RequestBody @Valid final MSReassign reassign) throws DatabaseException {
-        //
-        // update all of the photos to point to this new user and then update the mediasubmission itself.
-        //
-        try (Database db = ServletUtils.getDb(request)) {
-            db.performTransaction(() -> {
-                SqlStatement subquery = new SqlStatement(MediaAssetFactory.TABLENAME_MEDIAASSET,
-                                                         MediaAssetFactory.ALIAS_MEDIAASSET);
-                subquery.setSelectString(MediaAssetFactory.PK_MEDIAASSET);
-                subquery.addInnerJoin(MediaAssetFactory.ALIAS_MEDIAASSET,
-                                      MediaAssetFactory.PK_MEDIAASSET,
-                                      "mediasubmission_media",
-                                      "msm",
-                                      "mediaid");
-                subquery.addCondition("msm", "mediasubmissionid", SqlRelationType.EQUAL, reassign.msid);
-
-                String sql = "update " + MediaAssetFactory.TABLENAME_MEDIAASSET
-                        + " set submitterid = " + reassign.userid
-                        + " where id in (" + subquery.toString() + ")";
-                db.executeUpdate(sql);
-
-                sql = "update " + MediaSubmissionFactory.TABLENAME_MEDIASUBMISSION
-                        + " set userid = " + reassign.userid
-                        + " where id = " + reassign.msid;
-                db.executeUpdate(sql);
-            });
-        }
-    }
-
-    @RequestMapping(value = "/setstatus/{msid}", method = RequestMethod.POST)
-    public void setStatus(final HttpServletRequest request,
-                        @PathVariable("msid")
-                        final int msid,
-                        @RequestBody final String status) throws DatabaseException
-    {
-        try (Database db = ServletUtils.getDb(request)) {
-            String saveStatus;
-
-            if ("null".equals(status)) {
-                saveStatus = null;
-            } else {
-                saveStatus = status;
-            }
-
-            SqlUpdateFormatter formatter = new SqlUpdateFormatter();
-            formatter.append("status", saveStatus);
-            Table table = db.getTable(MediaSubmissionFactory.TABLENAME_MEDIASUBMISSION);
-            table.updateRow(formatter.getUpdateClause(), "id = " + msid);
-        };
-    }
-
-    @RequestMapping(value = "/delfile/{msid}", method = RequestMethod.POST)
-    public void delFile(final HttpServletRequest request,
-                        @PathVariable("msid")
-                        final int msid,
-                        @RequestBody final String filename) throws DatabaseException, IOException
-    {
-        MediaUploadServlet.deleteFileFromSet(request, msid, filename);
-    }
-
-
     @RequestMapping(value = "/getexif/{msid}", method = RequestMethod.GET)
     public ExifData getExif(final HttpServletRequest request,
                             @PathVariable("msid")
@@ -697,10 +545,5 @@ public class MediaSubmissionController
     public static class SurveyEncounters {
         public SurveyPartObj surveypart;
         public List<EncounterObj> encs = new ArrayList<>();
-    }
-
-    static class MSReassign {
-        public int msid;
-        public int userid;
     }
 }

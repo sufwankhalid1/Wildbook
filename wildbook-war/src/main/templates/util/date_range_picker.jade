@@ -6,7 +6,7 @@ div(ng-if="!standalone" layout="row" layout-wrap layout-align="start end")
             md-radio-button(value="1") Before
             md-radio-button(value="2") After
             md-radio-button(value="3") Between
-        md-icon(md-svg-icon="close-circle-outline" ng-click="searchdata.datesearch.range = 0; searchdata.datesearch.enddate = null")
+        md-icon(md-svg-icon="close-circle-outline" ng-click="reset()")
             md-tooltip Reset
     div.mt-10(layout="row" flex="100")
         md-input-container(flex="50")

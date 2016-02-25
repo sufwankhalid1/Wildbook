@@ -15,8 +15,6 @@ angular.module('wildbook.admin').directive(
             controller: function($scope) {
                 $scope.info = {};
 
-                console.log($scope.data);
-
                 $scope.getOrgId = function(orgId) {
                     wbConfig.config()
                     .then(function(config) {
@@ -68,7 +66,7 @@ angular.module('wildbook.admin').directive(
 
                     $scope.data.part = wbDateUtils.verifyTimeInput($scope.data.part);
 
-                    $http.post('obj/survey/savetrack', $scope.data)
+                    $http.post('admin/api/survey/savetrack', $scope.data)
                     .then(function(result) {
                         $scope.editSurveyDone({surveypart: result.data});
                     }, $exceptionHandler);

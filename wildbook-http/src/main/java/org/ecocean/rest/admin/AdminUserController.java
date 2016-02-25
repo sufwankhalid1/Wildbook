@@ -1,4 +1,4 @@
-package org.ecocean.rest;
+package org.ecocean.rest.admin;
 
 import java.util.Collections;
 import java.util.Set;
@@ -15,12 +15,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(value = "/useradmin")
-public class UserAdminController {
+@RequestMapping(value = "/admin/api/user")
+public class AdminUserController {
 
 //    private static Logger logger = LoggerFactory.getLogger(MediaSubmissionController.class);
 
-    @RequestMapping(value = "user/{userid}", method = RequestMethod.GET)
+    @RequestMapping(value = "get/{userid}", method = RequestMethod.GET)
     public User getUser(final HttpServletRequest request,
                         @PathVariable("userid") final int userid) {
         return Global.INST.getUserService().getUserById(String.valueOf(userid));

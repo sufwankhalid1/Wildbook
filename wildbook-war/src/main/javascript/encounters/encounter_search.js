@@ -31,7 +31,7 @@ angular.module('wildbook.admin').directive(
 
                 $scope.search = function() {
                     $scope.resetSelectedResult({val: null});
-                    $http.post("admin/search/encounter", $scope.searchdata)
+                    $http.post("admin/api/search/encounter", $scope.searchdata)
                     .then(function(result) {
                         $scope.gridOptions.api.setRowData(result.data);
                         $scope.numResults = result.data.length;
@@ -129,7 +129,7 @@ angular.module('wildbook.admin').directive(
                     }
 
                     $scope.exportEncounter = function() {
-                        $http.post("export/encounters", searchData)
+                        $http.post("admin/api/export/encounters", searchData)
                         .then(function(response) {
                             $scope.exportid = response.data;
                         });

@@ -30,7 +30,7 @@ angular.module('wildbook.config', [])
             return $q.resolve(orgmaster.vessels);
         }
 
-        return $http({url: "obj/survey/vessels/get", params: {orgid: org.orgId}})
+        return $http({url: "api/survey/vessels/get", params: {orgid: org.orgId}})
         .then(function(results) {
             //
             // Set it here so that next time we ask for this org's vessels we
@@ -54,7 +54,7 @@ angular.module('wildbook.config', [])
     }
 
     function getConfig() {
-        config = $http({url:"util/init"})
+        config = $http({url:"api/util/init"})
             .then(function(result) {
                 return result.data;
             }, $exceptionHandler);

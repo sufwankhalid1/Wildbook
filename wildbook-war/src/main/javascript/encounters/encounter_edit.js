@@ -280,7 +280,7 @@ angular.module('wildbook.admin').directive(
                         // So instead we return the original promise from the post and call catch on that
                         // same promise.
                         //
-                        var promise = $http.post("obj/encounter/detachmedia/" + $scope.data.encounter.id, photoids)
+                        var promise = $http.post("admin/api/encounter/detachmedia/" + $scope.data.encounter.id, photoids)
                         .then(function() {
                             $scope.photosDetached({photos: photos});
                             delete $scope.mapData.markers['p'+photoids];

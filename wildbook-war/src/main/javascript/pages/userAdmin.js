@@ -16,7 +16,7 @@ angular.module('wildbook.admin').directive(
             replace: true,
             controller: function($scope) {
                 $scope.setUser = function(user) {
-                    $http.get("useradmin/user/" + user.id)
+                    $http.get("admin/api/user/get/" + user.id)
                     .then(function(result) {
                         $scope.user = result.data;
                         getRoles(result.data.id);
@@ -28,7 +28,7 @@ angular.module('wildbook.admin').directive(
                     if (!id) {
                         return;
                     }
-                    $http.get('useradmin/roles/'+id)
+                    $http.get('admin/api/user/roles/'+id)
                     .then(function(res){
                         $scope.userroles = res.data;
                     });
@@ -43,14 +43,14 @@ angular.module('wildbook.admin').directive(
                 };
 
                 $scope.save = function() {
-                    $http.post("useradmin/usersave", $scope.user)
+                    $http.post("admin/api/user/usersave", $scope.user)
                     .then(function(response){
                         delete $scope.user;
                     });
                 };
 
                 $scope.clearUserCache = function() {
-                    $http.post("useradmin/clearUserCache")
+                    $http.post("admin/api/user/clearUserCache")
                     .then(function(response){
                         alertplus.alert("User cache has been cleared.");
                     });

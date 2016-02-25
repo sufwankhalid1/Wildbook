@@ -11,7 +11,7 @@ angular.module('wildbook.encounters', [])
     return {
         getMedia: function(encdata) {
             if (! encdata.photos) {
-                return $http.get("obj/encounter/getmedia/" + encdata.encounter.id)
+                return $http.get("api/encounter/getmedia/" + encdata.encounter.id)
                 .then(function(result) {
                     encdata.photos = result.data;
                     return encdata;
@@ -152,7 +152,7 @@ angular.module('wildbook.encounters', [])
             }
 
 
-            return $http.post('obj/encounter/checkDuplicateImage', selectedPhotos)
+            return $http.post('api/encounter/checkDuplicateImage', selectedPhotos)
                 .then(function(res){
                     if (res.data && res.data.length && res.data[0] !== null) {
                         encounterExist(res.data);
@@ -175,7 +175,7 @@ angular.module('wildbook.encounters', [])
 
         },
         saveEnc: function(enc) {
-            return  $http.post('obj/encounter/save', enc)
+            return  $http.post('admin/api/encounter/save', enc)
             .then(function(result) {
                 enc.id = result.data.encounterid;
                 enc.individual.id = result.data.individualid;
@@ -184,13 +184,13 @@ angular.module('wildbook.encounters', [])
         },
         delEnc: function(enc, alreadyAlerted) {
             if (alreadyAlerted) {
-                return $http.post("obj/encounter/delete", enc)
+                return $http.post("admin/api/encounter/delete", enc)
                 .then(function() {
                 }, $exceptionHandler);
             } else {
                 return alertplus.confirm('Are you sure you want to delete this encounter?', "Delete Encounter", true)
                 .then(function() {
-                    $http.post("obj/encounter/delete", enc)
+                    $http.post("admin/api/encounter/delete", enc)
                     .then(function() {
                     }, $exceptionHandler);
                 });

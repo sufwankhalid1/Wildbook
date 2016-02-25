@@ -52,7 +52,7 @@ angular.module('wildbook.admin').directive(
                         return;
                     }
 
-                    $http.post('obj/survey/updatecrewmember', $scope.data.crew)
+                    $http.post('admin/api/survey/updatecrewmember', $scope.data.crew)
                     .then(function() {
                         alertplus.alert("Crew has been successfully saved");
                         $scope.editcrew = false;
@@ -60,7 +60,7 @@ angular.module('wildbook.admin').directive(
                 };
 
                 $scope.getCrew = function() {
-                    $http.get('obj/survey/part/getcrew/' + $scope.data.part.surveyPartId)
+                    $http.get('api/survey/part/getcrew/' + $scope.data.part.surveyPartId)
                     .then(function(res) {
                         $scope.data.crew = res.data;
                     });

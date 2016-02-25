@@ -1,3 +1,6 @@
+/* global angular */
+'use strict';
+
 angular.module('wildbook.admin').directive(
     'wbIndividualView',
     ["$http", function($http) {
@@ -9,7 +12,7 @@ angular.module('wildbook.admin').directive(
             templateUrl: 'encounters/individual_view.html',
             replace: true,
             link: function($scope, ele, attr) {
-              $http.get("obj/individual/photos/"+$scope.data.id)
+              $http.get("api/individual/photos/"+$scope.data.id)
               .then(function(photos) {
                   $scope.photos = photos.data;
               });
@@ -81,7 +84,7 @@ angular.module('wildbook.admin').directive(
 
                 function avatarController($scope, $mdDialog, individual, parentScope) {
                     $scope.active = [];
-                    $http.get("obj/individual/photos/"+individual.id)
+                    $http.get("api/individual/photos/"+individual.id)
                     .then(function(photos) {
                         $scope.photos = photos.data;
                     });
@@ -96,11 +99,11 @@ angular.module('wildbook.admin').directive(
                     $scope.closeDialog = function() {
                         $mdDialog.hide();
                     };
-                  };
-              }
+                  }
+              };
 
                 $scope.save = function() {
-                    $http.post('obj/individual/save', $scope.data)
+                    $http.post('admin/api/individual/save', $scope.data)
                     .then(function(result) {
                         $scope.data.id = result.data.id;
                         //
@@ -118,11 +121,11 @@ angular.module('wildbook.admin').directive(
                 //
                 $scope.cancel = function() {
                     $scope.editIndividualDone({individual: null});
-                }
+                };
 
                 $scope.cmdEnter = function() {
                     $scope.save();
-                }
+                };
             }
         };
     }]
