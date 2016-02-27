@@ -259,4 +259,17 @@ public class MediaAsset {
         }
         meta.put(key, value);
     }
+
+    public void setParentInfo(final Integer parentId, final Integer rootId) {
+        this.parentId = parentId;
+        this.rootId = rootId;
+    }
+
+    public Integer getParentId() {
+        return this.getParentId();
+    }
+
+    public Integer getRootId() {
+        return this.getRootId();
+    }
 }

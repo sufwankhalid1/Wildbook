@@ -10,8 +10,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.WeakHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -53,8 +51,6 @@ public class MediaUploadServlet
     private static final Logger logger = LoggerFactory.getLogger(MediaUploadServlet.class);
 
     private static WeakHashMap<String, FileSet> filesMap = new WeakHashMap<>();
-
-    private static ExecutorService executor = Executors.newFixedThreadPool(5);
 
     public static void clearFileSet(final String msid)
     {
@@ -437,7 +433,7 @@ public class MediaUploadServlet
         // Shell out the processing to a separate thread so the user doesn't have
         // to wait on this.
         //
-        executor.execute(new ProcessMedia(ci, ma, store, relFile));
+        MediaUtilities.processMediaBackground(ci, ma, store, relFile, null);
 
         return ma;
     }
@@ -520,45 +516,6 @@ public class MediaUploadServlet
 
         public void setSubmitter(final String submitter) {
             this.submitter = submitter;
-        }
-    }
-
-
-    //==============================
-    // ProcessMedia class
-    //==============================
-
-    private static class ProcessMedia
-        implements Runnable
-    {
-        private final MediaAsset ma;
-        private final ConnectionInfo ci;
-        private final AssetStore store;
-        private final Path relFile;
-
-        public ProcessMedia(final ConnectionInfo ci,
-                            final MediaAsset ma,
-                            final AssetStore store,
-                            final Path relFile) {
-            this.ci = ci;
-            this.ma = ma;
-            this.store = store;
-            this.relFile = relFile;
-        }
-
-        @Override
-        public void run() {
-            try {
-                MediaUtilities.processMedia(ma, store, relFile, null);
-                //
-                // UPDATE MediaAsset because we just added some thumb midsize info to it.
-                //
-                try (Database db = new Database(ci)) {
-                    MediaAssetFactory.save(db, ma);
-                }
-            } catch (Exception ex) {
-                logger.error("Trouble processing media [" + ma.getID() + "]", ex);
-            }
         }
     }
 

@@ -45,6 +45,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
@@ -59,6 +61,7 @@ import org.ecocean.ImageProcessor;
 import org.ecocean.media.AssetStore;
 import org.ecocean.media.ImageMeta;
 import org.ecocean.media.MediaAsset;
+import org.ecocean.media.MediaAssetFactory;
 import org.ecocean.util.FileUtilities;
 import org.ecocean.util.LogBuilder;
 import org.slf4j.Logger;
@@ -71,6 +74,8 @@ import com.drew.metadata.Metadata;
 import com.drew.metadata.MetadataException;
 import com.drew.metadata.Tag;
 import com.drew.metadata.exif.ExifIFD0Directory;
+import com.samsix.database.ConnectionInfo;
+import com.samsix.database.Database;
 import com.samsix.util.OsUtils;
 import com.samsix.util.io.ResourceReader;
 
@@ -92,6 +97,9 @@ public final class MediaUtilities {
 
     public static final String IMAGE_TYPE_THUMB = "thumb";
     public static final String IMAGE_TYPE_MID = "mid";
+
+    private final static ExecutorService executor = Executors.newFixedThreadPool(5);
+
 
     /**
      * Gets a JPEG {@code ImageWriter} instance.
@@ -713,5 +721,55 @@ public final class MediaUtilities {
         }
 
         return relMid;
+    }
+
+    public static void processMediaBackground(final ConnectionInfo ci,
+                                              final MediaAsset ma,
+                                              final AssetStore store,
+                                              final Path relFile,
+                                              final String altOutputDir) {
+        executor.execute(new ProcessMedia(ci, ma, store, relFile, altOutputDir));
+    }
+
+
+    //==============================
+    // ProcessMedia class
+    //==============================
+
+    private static class ProcessMedia
+        implements Runnable
+    {
+        private final MediaAsset ma;
+        private final ConnectionInfo ci;
+        private final AssetStore store;
+        private final Path relFile;
+        private final String altOutputDir;
+
+        public ProcessMedia(final ConnectionInfo ci,
+                            final MediaAsset ma,
+                            final AssetStore store,
+                            final Path relFile,
+                            final String altOutputDIr) {
+            this.ci = ci;
+            this.ma = ma;
+            this.store = store;
+            this.relFile = relFile;
+            this.altOutputDir = altOutputDIr;
+        }
+
+        @Override
+        public void run() {
+            try {
+                MediaUtilities.processMedia(ma, store, relFile, altOutputDir);
+                //
+                // UPDATE MediaAsset because we just added some thumb midsize info to it.
+                //
+                try (Database db = new Database(ci)) {
+                    MediaAssetFactory.save(db, ma);
+                }
+            } catch (Exception ex) {
+                logger.error("Trouble processing media [" + ma.getID() + "]", ex);
+            }
+        }
     }
 }

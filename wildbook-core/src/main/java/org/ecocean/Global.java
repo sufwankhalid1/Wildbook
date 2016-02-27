@@ -1,5 +1,7 @@
 package org.ecocean;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -96,12 +98,31 @@ public enum Global {
         });
     }
 
-    public void init(final Path overridingProps, final Map<String, String> overridingPropVars) {
-        initResources(overridingProps, overridingPropVars);
+    public void init(final Path overridingProps, final Path overridingVars) {
+        initResources(overridingProps, overridingVars);
         initDBQueries();
     }
 
-    public void initResources(final Path overridingProps, final Map<String, String> overridingPropVars) {
+    public void initResources(final Path overridingProps, final Path overridingVars) {
+        Map<String, String> overridingPropVars = null;
+        if (overridingVars != null) {
+            if (Files.exists(overridingVars)) {
+                Properties props = new Properties();
+                try {
+                    props.load(new FileInputStream(overridingVars.toFile()));
+
+                    overridingPropVars = new HashMap<String, String>();
+                    for (String key : props.stringPropertyNames()) {
+                        overridingPropVars.put(key, props.getProperty(key));
+                    }
+                } catch (FileNotFoundException ex) {
+                    logger.error("Can't read [" + overridingVars.toFile() + "]");
+                } catch (IOException ex) {
+                    logger.error("Can't read [" + overridingVars.toFile() + "]");
+                }
+            }
+        }
+
         //
         // Load up resources and set default variables for database connections.
         // These variables can be overridden by passing them into overridingPropVars. In addition,
