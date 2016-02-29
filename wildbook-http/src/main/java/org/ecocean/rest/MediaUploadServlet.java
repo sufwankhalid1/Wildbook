@@ -433,7 +433,7 @@ public class MediaUploadServlet
         // Shell out the processing to a separate thread so the user doesn't have
         // to wait on this.
         //
-        MediaUtilities.processMediaBackground(ci, ma, store, relFile, null);
+        MediaUtilities.processMediaBackground(null, ma, store, relFile, null);
 
         return ma;
     }

@@ -37,6 +37,7 @@ import java.awt.image.ColorModel;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -55,13 +56,11 @@ import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
 
 import org.apache.commons.lang3.StringUtils;
-import org.ecocean.GeoFileProcessor;
 import org.ecocean.Global;
 import org.ecocean.ImageProcessor;
 import org.ecocean.media.AssetStore;
 import org.ecocean.media.ImageMeta;
 import org.ecocean.media.MediaAsset;
-import org.ecocean.media.MediaAssetFactory;
 import org.ecocean.util.FileUtilities;
 import org.ecocean.util.LogBuilder;
 import org.slf4j.Logger;
@@ -74,8 +73,6 @@ import com.drew.metadata.Metadata;
 import com.drew.metadata.MetadataException;
 import com.drew.metadata.Tag;
 import com.drew.metadata.exif.ExifIFD0Directory;
-import com.samsix.database.ConnectionInfo;
-import com.samsix.database.Database;
 import com.samsix.util.OsUtils;
 import com.samsix.util.io.ResourceReader;
 
@@ -561,19 +558,15 @@ public final class MediaUtilities {
         return Paths.get(altOutputDir, relFile.toString());
     }
 
-    public static MediaAsset saveMedia(final AssetStore store,
-                                       final Path relFile,
-                                       final String origFilename,
-                                       final InputStream content,
-                                       final Integer submitterId,
-                                       final boolean keepStreamOpen,
-                                       final String altOutputDir) throws IOException
+    public static Path writeMedia(final AssetStore store,
+                                  final Path relFile,
+                                  final InputStream content,
+                                  final boolean keepStreamOpen,
+                                  final String altOutputDir) throws IOException
     {
         Path file = getOutputFile(store, relFile, altOutputDir);
 
         Files.createDirectories(file.getParent());
-
-        MediaAsset ma = new MediaAsset(store, relFile);
 
         if (logger.isDebugEnabled()) {
             logger.debug(LogBuilder.quickLog("fullPath", file.toString()));
@@ -584,6 +577,16 @@ public final class MediaUtilities {
         if (logger.isDebugEnabled()) {
             logger.debug("Done saving stream.");
         }
+
+        return file;
+    }
+
+    public static MediaAsset createMediaAsset(final AssetStore store,
+                                              final Path relFile,
+                                              final String origFilename,
+                                              final Path file,
+                                              final Integer submitterId) throws IOException {
+        MediaAsset ma = new MediaAsset(store, relFile);
 
         try {
             ImageMeta meta = FileUtilities.getImageMetaData(file);
@@ -599,7 +602,35 @@ public final class MediaUtilities {
         ma.setSubmitterId(submitterId);
         ma.setSubmittedOn(LocalDateTime.now());
 
+        setMediaResizes(ma, store);
+
         return ma;
+    }
+
+    public static MediaAsset saveMedia(final AssetStore store,
+                                       final Path relFile,
+                                       final String origFilename,
+                                       final InputStream content,
+                                       final Integer submitterId,
+                                       final boolean keepStreamOpen,
+                                       final String altOutputDir) throws IOException
+    {
+        Path file = writeMedia(store, relFile, content, keepStreamOpen, altOutputDir);
+        return createMediaAsset(store, relFile, origFilename, file, submitterId);
+    }
+
+
+    private static void setMediaResizes(final MediaAsset ma, final AssetStore store) {
+        switch (ma.getType()) {
+        case IMAGE: {
+            Path thumbRel = getRelResizePath(IMAGE_TYPE_THUMB, ma.getPath());
+            ma.setThumb(store, thumbRel);
+            Path midRel = getRelResizePath(IMAGE_TYPE_MID, ma.getPath());
+            ma.setMid(midRel);
+        }
+        default:
+            break;
+        }
     }
 
     public static void processMedia(final MediaAsset ma,
@@ -616,17 +647,11 @@ public final class MediaUtilities {
             // TODO: For now I'm assuming thumbstore will be same as the main file store. Feel
             // free to change later but allow for a "null" thumbstore to default to main store.
             //
-            Path relThumb = createThumbnail(file, store, relFile, altOutputDir);
-            ma.setThumb(store, relThumb);
+            Path thumbRel = getRelResizePath(IMAGE_TYPE_THUMB, ma.getPath());
+            createThumbnail(file, store, thumbRel, altOutputDir);
 
-            Path relMid = createMidSize(file, store, relFile, altOutputDir);
-            ma.setMid(relMid);
-            break;
-        }
-        case VIDEO: {
-            GeoFileProcessor gproc;
-            gproc = new GeoFileProcessor(file.toString());
-            gproc.run();
+            Path midRel = getRelResizePath(IMAGE_TYPE_MID, ma.getPath());
+            createMidSize(file, store, midRel, altOutputDir);
             break;
         }
         default:
@@ -663,72 +688,79 @@ public final class MediaUtilities {
         return ma;
     }
 
-    public static Path createThumbnail(final Path file,
+    public static void createThumbnail(final Path file,
                                        final AssetStore store,
-                                       final Path relFile,
+                                       final Path relResized,
                                        final String altOutputDir) throws IOException {
-        return createResized(IMAGE_TYPE_THUMB,
-                             file,
-                             store,
-                             relFile,
-                             altOutputDir,
-                             100,
-                             75);
+        createResized(IMAGE_TYPE_THUMB,
+                      file,
+                      store,
+                      relResized,
+                      altOutputDir,
+                      100,
+                      75);
     }
 
-    public static Path createMidSize(final Path file,
+    public static void createMidSize(final Path file,
                                      final AssetStore store,
-                                     final Path relFile,
+                                     final Path relResized,
                                      final String altOutputDir) throws IOException {
-        return createResized(IMAGE_TYPE_MID,
-                             file,
-                             store,
-                             relFile,
-                             altOutputDir,
-                             800,
-                             600);
+        createResized(IMAGE_TYPE_MID,
+                      file,
+                      store,
+                      relResized,
+                      altOutputDir,
+                      800,
+                      600);
     }
 
-    private static Path createResized(final String type,
+    private static String getResizeTypeKey(final String type) {
+        return "images." + type + ".";
+    }
+
+    public static Path getRelResizePath(final String type, final Path relFile) {
+        String ext = Global.INST.getAppResources().getString(getResizeTypeKey(type) + "ext", "jpg");
+        String resizedFileName = OsUtils.getFileRoot(relFile.getFileName().toString()) + "." + ext;
+        return Paths.get(relFile.getParent().toString(), type, resizedFileName);
+    }
+
+    private static void createResized(final String type,
                                       final Path file,
                                       final AssetStore store,
-                                      final Path relFile,
+                                      final Path relResized,
                                       final String altOutputDir,
                                       final int defaultWidth,
                                       final int defaultHeight) throws IOException {
         ResourceReader resources = Global.INST.getAppResources();
-        String keyBase = "images." + type + ".";
-        String ext = resources.getString(keyBase + "type", "jpg");
+        String keyBase = getResizeTypeKey(type);
         int width = resources.getInt(keyBase + "width", defaultWidth);
         int height = resources.getInt(keyBase + "height", defaultHeight);
 
-        String resizedFileName = OsUtils.getFileRoot(relFile.getFileName().toString()) + "." + ext;
-        Path relMid = Paths.get(relFile.getParent().toString(), type, resizedFileName);
-        Path midFile = getOutputFile(store, relMid, altOutputDir);
-        Files.createDirectories(midFile.getParent());
+        Path resized = getOutputFile(store, relResized, altOutputDir);
+
+
+        Files.createDirectories(resized.getParent());
 
         ImageProcessor iproc;
         iproc = new ImageProcessor("resize",
                                    width,
                                    height,
                                    file.toString(),
-                                   midFile.toString(),
+                                   resized.toString(),
                                    null);
         iproc.run();
 
         if (iproc.getException() != null) {
             throw iproc.getException();
         }
-
-        return relMid;
     }
 
-    public static void processMediaBackground(final ConnectionInfo ci,
+    public static void processMediaBackground(final PrintStream reporter,
                                               final MediaAsset ma,
                                               final AssetStore store,
                                               final Path relFile,
                                               final String altOutputDir) {
-        executor.execute(new ProcessMedia(ci, ma, store, relFile, altOutputDir));
+        executor.execute(new ProcessMedia(reporter, ma, store, relFile, altOutputDir));
     }
 
 
@@ -740,17 +772,17 @@ public final class MediaUtilities {
         implements Runnable
     {
         private final MediaAsset ma;
-        private final ConnectionInfo ci;
+        private final PrintStream reporter;
         private final AssetStore store;
         private final Path relFile;
         private final String altOutputDir;
 
-        public ProcessMedia(final ConnectionInfo ci,
+        public ProcessMedia(final PrintStream reporter,
                             final MediaAsset ma,
                             final AssetStore store,
                             final Path relFile,
                             final String altOutputDIr) {
-            this.ci = ci;
+            this.reporter = reporter;
             this.ma = ma;
             this.store = store;
             this.relFile = relFile;
@@ -760,13 +792,10 @@ public final class MediaUtilities {
         @Override
         public void run() {
             try {
-                MediaUtilities.processMedia(ma, store, relFile, altOutputDir);
-                //
-                // UPDATE MediaAsset because we just added some thumb midsize info to it.
-                //
-                try (Database db = new Database(ci)) {
-                    MediaAssetFactory.save(db, ma);
+                if (reporter != null) {
+                    reporter.println("Processing [" + relFile + "]...");
                 }
+                processMedia(ma, store, relFile, altOutputDir);
             } catch (Exception ex) {
                 logger.error("Trouble processing media [" + ma.getID() + "]", ex);
             }

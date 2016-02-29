@@ -79,14 +79,16 @@ public class RecreateResized extends AbstractApplication {
 
                     if (! nullOnly || (nullOnly && ma.getThumbPath() == null)) {
                         store.deleteFrom(ma.getThumbPath());
-                        Path thumb = MediaUtilities.createThumbnail(file, store, ma.getPath(), null);
-                        formatter.append("thumbpath", thumb.toString());
+                        Path thumbRel = MediaUtilities.getRelResizePath(MediaUtilities.IMAGE_TYPE_THUMB, ma.getPath());
+                        MediaUtilities.createThumbnail(file, store, thumbRel, null);
+                        formatter.append("thumbpath", thumbRel.toString());
                     }
 
                     if (! nullOnly || (nullOnly && ma.getMidPath() == null)) {
                         store.deleteFrom(ma.getMidPath());
-                        Path mid = MediaUtilities.createMidSize(file, store, ma.getPath(), null);
-                        formatter.append("midpath", mid.toString());
+                        Path midRel = MediaUtilities.getRelResizePath(MediaUtilities.IMAGE_TYPE_MID, ma.getPath());
+                        MediaUtilities.createMidSize(file, store, midRel, null);
+                        formatter.append("midpath", midRel.toString());
                     }
                 } catch (Exception ex) {
                     throw new DatabaseException("Can't create resized images", ex);

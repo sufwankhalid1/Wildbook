@@ -3,9 +3,11 @@ package org.ecocean.encounter;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.ecocean.Global;
 import org.ecocean.Individual;
 import org.ecocean.LocationFactory;
+import org.ecocean.Species;
 import org.ecocean.media.MediaAssetFactory;
 import org.ecocean.rest.SimpleIndividual;
 import org.ecocean.rest.SimplePhoto;
@@ -77,9 +79,9 @@ public class EncounterFactory {
             throws DatabaseException {
         List<Encounter> encounters = new ArrayList<>();
 
-        db.getTable(EncounterFactory.TABLENAME_ENCOUNTERS).select((rs) -> {
-            encounters.add(EncounterFactory.readEncounter(individual, rs));
-        } , EncounterFactory.PK_INDIVIDUALS + " = " + individual.getId());
+        db.getTable(TABLENAME_ENCOUNTERS).select((rs) -> {
+            encounters.add(readEncounter(individual, rs));
+        } , PK_INDIVIDUALS + " = " + individual.getId());
 
         return encounters;
     }
@@ -199,10 +201,23 @@ public class EncounterFactory {
             throws DatabaseException {
         SqlStatement sql = getIndividualStatement();
 
-        sql.addCondition(EncounterFactory.ALIAS_INDIVIDUALS, "alternateid", SqlRelationType.EQUAL, alternateId);
+        sql.addCondition(ALIAS_INDIVIDUALS, "alternateid", SqlRelationType.EQUAL, alternateId);
         return db.selectFirst(sql, (rs) -> {
             return readIndividual(rs);
         });
+    }
+
+    public static Individual getIndividualByNickname(final Database db, final Species species, final String nickname) throws DatabaseException {
+        if (StringUtils.isBlank(nickname)) {
+            return null;
+        }
+        SqlStatement sql = getIndividualStatement();
+        sql.addCondition(ALIAS_INDIVIDUALS, "nickname", SqlRelationType.EQUAL, nickname.toLowerCase()).setFunction("lower");
+        sql.addCondition(ALIAS_INDIVIDUALS, "species", SqlRelationType.EQUAL, species.getCode());
+        return db.selectFirst(sql, (rs) -> {
+            return readIndividual(rs);
+        });
+
     }
 
     public static SqlStatement getEncounterStatement() {
