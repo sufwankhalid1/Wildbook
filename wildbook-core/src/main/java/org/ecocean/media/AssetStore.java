@@ -141,6 +141,17 @@ public abstract class AssetStore {
 
     public static AssetStore getDefault()
     {
+        AssetStore storeDefault = get("main");
+
+        if (storeDefault != null) {
+            return storeDefault;
+        }
+
+        //
+        // Grab first local otherwise?
+        // TODO: May want a config param or an entry in the db table
+        // to indicate the default if "main" is not sufficient above.
+        //
         for (AssetStore store : getMap().values()) {
             if (store.type == AssetStoreType.LOCAL) {
                 return store;
