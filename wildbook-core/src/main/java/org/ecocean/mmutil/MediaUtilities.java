@@ -584,21 +584,16 @@ public final class MediaUtilities {
     public static MediaAsset createMediaAsset(final AssetStore store,
                                               final Path relFile,
                                               final String origFilename,
-                                              final Path file,
-                                              final Integer submitterId) throws IOException {
+                                              final ImageMeta meta,
+                                              final Integer submitterId) {
         MediaAsset ma = new MediaAsset(store, relFile);
 
-        try {
-            ImageMeta meta = FileUtilities.getImageMetaData(file);
-            if (meta != null) {
-                ma.setMetaTimestamp(meta.getTimestamp());
-                ma.setMetaLatitude(meta.getLatitude());
-                ma.setMetaLongitude(meta.getLongitude());
-                ma.addMeta("origFilename", origFilename);
-            }
-        } catch (ImageProcessingException ex) {
-            logger.error("Problem reading metadata from [" + file + "]", ex);
+        if (meta != null) {
+            ma.setMetaTimestamp(meta.getTimestamp());
+            ma.setMetaLatitude(meta.getLatitude());
+            ma.setMetaLongitude(meta.getLongitude());
         }
+        ma.addMeta("origFilename", origFilename);
         ma.setSubmitterId(submitterId);
         ma.setSubmittedOn(LocalDateTime.now());
 
@@ -616,7 +611,13 @@ public final class MediaUtilities {
                                        final String altOutputDir) throws IOException
     {
         Path file = writeMedia(store, relFile, content, keepStreamOpen, altOutputDir);
-        return createMediaAsset(store, relFile, origFilename, file, submitterId);
+        ImageMeta meta = null;
+        try {
+            meta = FileUtilities.getImageMetaData(file);
+        } catch (ImageProcessingException ex) {
+            logger.error("Problem reading metadata from [" + file + "]", ex);
+        }
+        return createMediaAsset(store, relFile, origFilename, meta, submitterId);
     }
 
 
