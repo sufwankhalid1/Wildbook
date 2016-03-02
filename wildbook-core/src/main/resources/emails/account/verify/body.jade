@@ -1,0 +1,22 @@
+include ../../partials/mixins.jade
+extends ../../partials/layout
+
+block customcss
+    style(type="text/css").
+        body {
+            background: #fff;
+        }
+
+block title
+    | Welcome to #{cust.displayname}! -- Please Verify Your Account
+
+block content
+    include ../../partials/message-header.jade
+    +container()
+        p
+            | Welcome to 
+            a(target="_blank", href="#{cust.info.website}") #{cust.displayname}! 
+            | An account has been created for you. You can use it to track your sightings, share them with others, and connect with people around the world!
+        p
+            b Thank you for joining our team!
+    +centeredbutton('VERIFY ACCOUNT', cust.info.website + '/verify?token=' + token)

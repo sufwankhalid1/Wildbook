@@ -28,7 +28,6 @@ import org.ecocean.util.LogBuilder;
 import org.ecocean.util.NotificationException;
 import org.ecocean.util.WildbookUtils;
 import org.slf4j.Logger;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -212,37 +211,6 @@ public class UserController {
 //    }
 
 
-    @RequestMapping(value = "verify", method = RequestMethod.POST)
-    public UserVerify verifyEmail(final HttpServletRequest request,
-                                  @RequestBody @Valid final UserInfo userInfo) throws DatabaseException {
-        if (userInfo == null) {
-            throw new NotificationException("Please fill out the required information.");
-        }
-
-        UserVerify verify = new UserVerify();
-
-        User user = Global.INST.getUserService().getUserByEmail(userInfo.email);
-        verify.newlyCreated = (user == null);
-
-        if (user == null) {
-            user = User.create(null, userInfo.fullName, userInfo.email);
-            //
-            // Let's assume that new people have accepted the
-            // user agreement. They should be saying yes to this as they log in anyway. Shouldn't
-            // be a separate thing.
-            //
-            user.setAcceptedUserAgreement(true);
-
-            Global.INST.getUserService().saveUser(user);
-        }
-
-        verify.user = user.toSimple();
-        verify.verified = user.isVerified();
-
-        return verify;
-    }
-
-
     @RequestMapping(value = "sendpassreset", method = RequestMethod.POST)
     public void sendResetEmail(final HttpServletRequest request,
                                @RequestBody @Valid final String userameOrEmail) throws DatabaseException, IllegalAccessException, JadeCompilerException, AddressException, JadeException, IOException, MessagingException {
@@ -283,20 +251,6 @@ public class UserController {
         userService.resetPassWithToken(reset.token, reset.password);
     }
 
-
-    //
-    // LEAVE: This is just a test url that allows us to see if we have the correct
-    // setting in our dispatcher-servlet.xml that forces Spring to not make assumptions
-    // about a file type of the return value if there is a dot in the path param.
-    //
-    @RequestMapping(value = "test/{email:.+}", method = RequestMethod.GET)
-    public UserVerifyInfo test(final HttpServletRequest request,
-                               @PathVariable("email") final String email) {
-        UserVerifyInfo info = new UserVerifyInfo();
-        info.email = email + " - test";
-        return info;
-    }
-
     @RequestMapping(value = "self", method = RequestMethod.GET)
     public User getSelf(final HttpServletRequest request) {
         return ServletUtils.getUser(request);
@@ -316,29 +270,9 @@ public class UserController {
         return userService.searchUsers(q);
     }
 
-    static class UserInfo {
-        public String email;
-        public String fullName;
-    }
-
-    static class UserVerifyInfo {
-        public String email;
-        public UserVerifyInfo() {
-        }
-        public String getEmail() {
-            return email;
-        }
-    }
-
     static class LoginAttempt {
         public String username;
         public String password;
-    }
-
-    static class UserVerify {
-        public SimpleUser user;
-        public boolean verified;
-        public boolean newlyCreated;
     }
 
     static class ResetPass {
