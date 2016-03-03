@@ -34,4 +34,5 @@ public interface UserService {
     public void setLastLogin(final User user);
     public void clearUserCache();
     public List<SimpleUser> searchUsers(final String q);
+    public int getNumUsers();
 }

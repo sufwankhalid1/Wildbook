@@ -8,7 +8,7 @@ import javax.servlet.ServletException;
 
 import org.ecocean.Global;
 import org.ecocean.security.User;
-import org.ecocean.security.UserFactory;
+import org.ecocean.security.UserService;
 import org.flywaydb.core.Flyway;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,9 +20,6 @@ import org.springframework.boot.context.web.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
 
 import com.samsix.database.ConnectionInfo;
-import com.samsix.database.Database;
-import com.samsix.database.DatabaseException;
-import com.samsix.database.RecordSet;
 
 //
 // TODO: How can this be configurable? I can't figure that out. Seems like it's not possible.
@@ -122,23 +119,13 @@ public class RestApplication extends SpringBootServletInitializer {
 
         //
         //check for and inject a default user 'tomcat' if none exists
-        // TODO: Fix to use UserService
         //
-        try (Database db = Global.INST.getDb()) {
-            String sql = "SELECT count(*) as numusers FROM users";
-            RecordSet rs = db.getRecordSet(sql);
-            if (rs.next() && rs.getInt("numusers") == 0) {
-                User newUser = User.create("tomcat", "Tomcat User", "tomcat@localhost", "tomcat123");
-
-                logger.warn("Creating tomcat user account since no user account exists...");
-
-                UserFactory.saveUser(db, newUser);
-                UserFactory.addRole(db, newUser.getId(), "context0", "admin");
-                UserFactory.addRole(db, newUser.getId(), "context0", "destroyer");
-                UserFactory.addRole(db, newUser.getId(), "context0", "rest");
-            }
-        } catch (DatabaseException ex) {
-           logger.error("Can't create bootstrap user tomcat.", ex);
+        UserService service = Global.INST.getUserService();
+        if (service.getNumUsers() == 0) {
+            User newUser = User.create("tomcat", "Tomcat User", "tomcat@localhost", "tomcat123");
+            logger.warn("Creating tomcat user account since no user account exists...");
+            service.saveUser(newUser);
+            service.addRole(newUser.getId().toString(), "context0", "admin");
         }
     }
 

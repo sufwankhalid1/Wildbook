@@ -7,11 +7,11 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.ecocean.Global;
 import org.ecocean.Individual;
 import org.ecocean.email.EmailUtils;
 import org.ecocean.encounter.EncounterFactory;
 import org.ecocean.security.User;
-import org.ecocean.security.UserFactory;
 import org.ecocean.servlet.ServletUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -49,7 +49,7 @@ public class EmailTester {
 
             String userId = request.getParameter("userid");
             if (userId != null) {
-                User user = UserFactory.getUserById(db, Integer.parseInt(userId));
+                User user = Global.INST.getUserService().getUserById(userId);
                 if (user != null) {
                     model.put(EmailUtils.TAG_USER, user.toSimple());
                 }

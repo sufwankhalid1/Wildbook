@@ -5,28 +5,19 @@ import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
-import org.ecocean.Global;
 import org.ecocean.Organization;
 import org.ecocean.location.LatLng;
 import org.ecocean.location.UserLocation;
 import org.ecocean.rest.SimpleUser;
-import org.ecocean.util.NotificationException;
 
 import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
 import com.samsix.database.GroupedSqlCondition;
 import com.samsix.database.RecordSet;
-import com.samsix.database.SpecialSqlCondition;
-import com.samsix.database.SqlFormatter;
-import com.samsix.database.SqlInsertFormatter;
-import com.samsix.database.SqlRelationType;
 import com.samsix.database.SqlStatement;
 import com.samsix.database.SqlTable;
 import com.samsix.database.SqlUpdateFormatter;
-import com.samsix.database.SqlWhereFormatter;
-import com.samsix.database.Table;
 
 public class UserFactory {
     //private static Logger logger = LoggerFactory.getLogger(UserFactory.class);
@@ -68,7 +59,7 @@ public class UserFactory {
             sql.addSelectTable(ALIAS_USERS);
         }
 
-        UserFactory.addOrganization(sql);
+        addOrganization(sql);
 
     }
 
@@ -79,95 +70,6 @@ public class UserFactory {
         sql.setSelectDistinct(true);
         return sql;
     }
-
-    public static long getNumUsers(final Database db) throws DatabaseException {
-        Table users = db.getTable(TABLENAME_USERS);
-        return users.getCount(null);
-    }
-
-    public static User getUserById(final Database db, final Integer id) throws DatabaseException {
-        if (id == null) {
-            return null;
-        }
-
-        SqlStatement sql = getUserStatement();
-        sql.addCondition(ALIAS_USERS, PK_USERS, SqlRelationType.EQUAL, id);
-
-        return db.selectFirst(sql, (rs) -> {
-            return readUser(rs);
-        });
-    }
-
-
-    public static User getUser(final Database db, final String username) throws DatabaseException {
-        SqlStatement sql = getUserStatement();
-        sql.addCondition(ALIAS_USERS, "username", SqlRelationType.EQUAL, username.toLowerCase()).setFunction("lower");
-        return db.selectFirst(sql, (rs) -> {
-            return readUser(rs);
-        });
-    }
-
-    public static SimpleUser getSimpleUser(final Database db, final String username) throws DatabaseException
-    {
-        User user = getUser(db, username);
-        if (user == null) {
-            return null;
-        }
-
-        return user.toSimple();
-    }
-
-    public static User getUserByPRToken(final Database db, final String token) throws DatabaseException {
-        if (token == null) {
-            return null;
-        }
-
-        SqlStatement sql = getUserStatement();
-        sql.addCondition(ALIAS_USERS, "prtoken", SqlRelationType.EQUAL, token);
-        return db.selectFirst(sql, (rs) -> {
-            return readUser(rs);
-        });
-    }
-
-
-    public static User getUserByEmail(final Database db, final String email) throws DatabaseException {
-        if (email == null) {
-            return null;
-        }
-
-        SqlStatement sql = getUserStatement();
-        sql.addCondition(ALIAS_USERS, "email", SqlRelationType.EQUAL, email.toLowerCase()).setFunction("lower");
-        return db.selectFirst(sql, (rs) -> {
-            return readUser(rs);
-        });
-    }
-
-    public static User getUserByNameOrEmail(final Database db, final String term) throws DatabaseException {
-        if (term == null) {
-            return null;
-        }
-
-        User user = getUserByEmail(db, term);
-        if (user != null) {
-            return user;
-        }
-        return getUser(db, term);
-    }
-
-
-    public static User getUserByFullname(final Database db, final String fullname) throws DatabaseException {
-        if (fullname == null) {
-            return null;
-        }
-
-        SqlStatement sql = getUserStatement();
-        sql.addCondition(ALIAS_USERS, "fullname", SqlRelationType.LIKE, fullname.toLowerCase()).setFunction("lower");
-
-        return db.selectFirst(sql, (rs) -> {
-            return readUser(rs);
-        });
-    }
-
 
     public static User readUser(final RecordSet rs) throws DatabaseException {
         if (!rs.hasColumn(PK_USERS)) {
@@ -230,150 +132,6 @@ public class UserFactory {
         return user.toSimple();
     }
 
-    public static void saveUser(final Database db, final User user) throws DatabaseException {
-        Table table = db.getTable(TABLENAME_USERS);
-
-        //
-        // We have a unique key on email address so we have to make sure to turn
-        // empty strings into nulls.
-        //
-        if ("".equals(user.getEmail())) {
-            user.setEmail(null);
-        }
-
-        if (user.getId() == null) {
-            user.initPassword();
-
-            SqlInsertFormatter formatter = new SqlInsertFormatter();
-            fillUserFormatter(formatter, user);
-
-            user.setId(table.insertSequencedRow(formatter, PK_USERS));
-        } else {
-            SqlUpdateFormatter formatter = new SqlUpdateFormatter();
-            fillUserFormatter(formatter, user);
-
-            SqlWhereFormatter where = new SqlWhereFormatter();
-            where.append(PK_USERS, user.getId());
-            table.updateRow(formatter.getUpdateClause(), where.getWhereClause());
-        }
-    }
-
-    private static void fillUserFormatter(final SqlFormatter formatter, final User user) {
-        formatter.append("username", user.getUsername());
-        formatter.append("fullname", user.getFullName());
-        formatter.append("email", user.getEmail());
-        formatter.append("phonenumber", user.getPhoneNumber());
-        formatter.append("physicaladdress", user.getPhysicalAddress());
-        formatter.append("avatar", user.getAvatarPath());
-        formatter.append("statement", user.getStatement());
-        formatter.append("lastlogin", user.getLastLogin());
-        formatter.append("password", user.getHashedPass());
-        formatter.append("salt", user.getSalt());
-        formatter.append("acceptedua", user.getAcceptedUserAgreement());
-        formatter.append("verified", user.isVerified());
-        formatter.append("prtoken", user.getPrtoken());
-        formatter.append("prtimestamp", user.getPrtimestamp());
-
-        if (user.getUserLocation() != null) {
-            formatter.append("locserviceid", user.getUserLocation().getCode());
-            formatter.append("region", user.getUserLocation().getRegion());
-            formatter.append("subregion", user.getUserLocation().getSubregion());
-            formatter.append("countrycode", user.getUserLocation().getCountrycode());
-
-            if (user.getUserLocation().getLatlng() != null) {
-                formatter.append("longitude", user.getUserLocation().getLatlng().getLongitude());
-                formatter.append("latitude", user.getUserLocation().getLatlng().getLatitude());
-            }
-        }
-    }
-
-
-    public static void deleteUser(final Database db, final int userid) throws DatabaseException {
-        db.getTable(TABLENAME_USERS).deleteRows("userid = " + userid);
-    }
-
-
-    //======================================
-    // Role stuff
-    //======================================
-//
-//    public static Set<String> getAllRolesForUserInContext(final Database db,
-//                                                          final int userid,
-//                                                          final String context) throws DatabaseException {
-//        Table users = db.getTable(TABLENAME_ROLES);
-//        SqlWhereFormatter where = new SqlWhereFormatter();
-//        where.append(PK_USERS, userid);
-//        where.append("context", context);
-//
-//        Set<String> roles = new HashSet<>();
-//        users.select((rs) -> {
-//            roles.add(rs.getString("rolename"));
-//        }, where.getWhereClause());
-//
-//        return roles;
-//    }
-
-
-    public static void deleteAllRoles(final Database db, final int userid) throws DatabaseException {
-        Table users = db.getTable(TABLENAME_ROLES);
-        users.deleteRows("userid = " + userid);
-    }
-
-    public static void deleteRole(final Database db, final int userid, final String role) throws DatabaseException {
-        Table users = db.getTable(TABLENAME_ROLES);
-        SqlWhereFormatter formatter = new SqlWhereFormatter();
-        formatter.append("rolename", role);
-        formatter.append("userid", userid);
-        users.deleteRows(formatter.getWhereClause());
-    }
-
-    public static void addRole(final Database db, final int userid, final String context, final String role) throws DatabaseException {
-        Table users = db.getTable(TABLENAME_ROLES);
-        SqlInsertFormatter formatter = new SqlInsertFormatter();
-        formatter.append(PK_USERS, userid)
-            .append("context", context)
-            .append("rolename", role);
-        users.insertRow(formatter.getColumnClause(), formatter.getValueClause());
-    }
-
-    //deletes current roles then adds in the chosen roles
-    public static void updateRoles(final Database db, final int userid, final String context, final Set<String> roles) throws DatabaseException {
-        Table users = db.getTable(TABLENAME_ROLES);
-        Set<String> current_roles = Global.INST.getUserService().getAllRolesForUserInContext(Integer.toString(userid), "context0");
-        if (!roles.isEmpty()) {
-            if (current_roles != null && !current_roles.isEmpty()) {
-                for (String current_role : current_roles) {
-                    deleteRole(db, userid, current_role);
-                }
-            }
-            for (String role : roles) {
-                SqlInsertFormatter formatter = new SqlInsertFormatter();
-                formatter.append(PK_USERS, userid)
-                    .append("context", context)
-                    .append("rolename", role);
-                users.insertRow(formatter.getColumnClause(), formatter.getValueClause());
-            }
-        } else {
-            deleteAllRoles(db, userid);
-        }
-    }
-
-//    public static boolean doesUserHaveRole(final Database db, final Integer userid, final String role, final String context)
-//            throws DatabaseException {
-//        if (userid == null) {
-//            return false;
-//        }
-//
-//        Table users = db.getTable(TABLENAME_ROLES);
-//        SqlWhereFormatter where = new SqlWhereFormatter();
-//        where.append(PK_USERS, userid);
-//        where.append("context", context);
-//        where.append("rolename", role);
-//
-//        return (users.getCount(where.getWhereClause()) > 0);
-//    }
-
-
     //===================================
     // Organization stuff
     //===================================
@@ -386,47 +144,6 @@ public class UserFactory {
         return new Organization(orgId, rs.getString("orgname"));
     }
 
-
-    public static void saveOrganization(final Database db, final Organization organization) throws DatabaseException {
-        Table table = db.getTable(TABLENAME_ORG);
-
-        if (organization.getOrgId() == null) {
-            SqlInsertFormatter formatter = new SqlInsertFormatter();
-            fillOrgFormatter(formatter, organization);
-
-            organization.setOrgId(table.insertSequencedRow(formatter, UserFactory.PK_ORG));
-        } else {
-            SqlUpdateFormatter formatter = new SqlUpdateFormatter();
-            fillOrgFormatter(formatter, organization);
-
-            SqlWhereFormatter where = new SqlWhereFormatter();
-            where.append(UserFactory.PK_ORG, organization.getOrgId());
-            table.updateRow(formatter.getUpdateClause(), where.getWhereClause());
-        }
-    }
-
-    public static void deleteOrganization(final Database db, final int orgid) throws DatabaseException, Throwable {
-        SqlWhereFormatter where = new SqlWhereFormatter();
-        where.append(UserFactory.PK_ORG, orgid);
-
-        Table organizations = db.getTable(TABLENAME_ORG);
-        Table users = db.getTable(TABLENAME_USERS);
-        Table survey = db.getTable(TABLENAME_SURVEY);
-        Table vessel = db.getTable(TABLENAME_VESSEL);
-
-        if (users.getCount(where.getWhereClause()) > 0 ||
-            survey.getCount(where.getWhereClause()) > 0 ||
-            vessel.getCount(where.getWhereClause()) > 0) {
-                throw new NotificationException("Cannot delete. This organization is currently in use.");
-        }
-
-        organizations.deleteRows(where.getWhereClause());
-    }
-
-    private static void fillOrgFormatter(final SqlFormatter formatter, final Organization organization) {
-        formatter.append("orgname", organization.getName());
-    }
-
     public static List<SimpleUser> readSimpleUsers(final Database db, final SqlStatement sql) throws DatabaseException {
         List<SimpleUser> users = new ArrayList<>();
 
@@ -436,21 +153,21 @@ public class UserFactory {
 
         return users;
     }
-
-    public static SimpleUser getProfiledUser(final Database db) throws DatabaseException {
-        //
-        // Weird (but cool) way to get random row but seems to work. Probably won't scale super well but we
-        // can deal with that later.
-        //
-        SqlStatement sql = getUserStatement();
-        sql.addCondition(new SpecialSqlCondition(ALIAS_USERS + ".statement IS NOT NULL"));
-        sql.setOrderBy("random()");
-        sql.setLimit(1);
-
-        return db.selectFirst(sql, (rs) -> {
-            return readSimpleUser(rs);
-        });
-    }
+//
+//    public static SimpleUser getProfiledUser(final Database db) throws DatabaseException {
+//        //
+//        // Weird (but cool) way to get random row but seems to work. Probably won't scale super well but we
+//        // can deal with that later.
+//        //
+//        SqlStatement sql = getUserStatement();
+//        sql.addCondition(new SpecialSqlCondition(ALIAS_USERS + ".statement IS NOT NULL"));
+//        sql.setOrderBy("random()");
+//        sql.setLimit(1);
+//
+//        return db.selectFirst(sql, (rs) -> {
+//            return readSimpleUser(rs);
+//        });
+//    }
 
     public static String createPWResetToken(final Database db, final int userid) throws DatabaseException {
         //
@@ -468,56 +185,15 @@ public class UserFactory {
         return token;
     }
 
-    public static User verifyPRToken(final Database db, final String token) throws IllegalAccessException, DatabaseException {
-        User user = UserFactory.getUserByPRToken(db, token);
-
-        if (user == null) {
-            throw new IllegalAccessException("Unknown password reset token.");
-        }
-
-        LocalDateTime aWeekAgo = LocalDateTime.now().minusWeeks(1);
-        if (user.getPrtimestamp().isBefore(aWeekAgo)) {
-            //
-            // Expired reset token.
-            //
-            throw new IllegalAccessException("Password reset token is out of date.");
-        }
-
-        return user;
-    }
-
-    public static List<Organization> getOrganizations(final Database db) throws DatabaseException {
-        List<Organization> orgs = new ArrayList<>();
-        db.getTable(TABLENAME_ORG).select((rs) -> {
-            orgs.add(readOrganization(rs));
-        }, null, "orgname");
-        return orgs;
-    }
-
-    public static void setLastLogin(final Database db, final User user) throws DatabaseException {
-        SqlUpdateFormatter formatter = new SqlUpdateFormatter();
-        formatter.append("lastlogin", System.currentTimeMillis());
-
-        SqlWhereFormatter where = new SqlWhereFormatter();
-        where.append(PK_USERS, user.getId());
-
-        db.getTable(TABLENAME_USERS).updateRow(formatter.getUpdateClause(), where.getWhereClause());
-    }
-
-    public static SqlStatement userSearchStatement(final String q) {
+    public static SqlStatement userSearchStatement(final String query) {
         SqlStatement sql = UserFactory.getUserStatement();
 
         SqlTable users = sql.findTable(UserFactory.ALIAS_USERS);
         GroupedSqlCondition cond = GroupedSqlCondition.orGroup();
-        cond.addContainsCondition(users, "fullname", q);
-        cond.addContainsCondition(users, "username", q);
+        cond.addContainsCondition(users, "fullname", query);
+        cond.addContainsCondition(users, "username", query);
         sql.addCondition(cond);
 
         return sql;
-    }
-
-    public static List<SimpleUser> searchUsers(final Database db, final String q) throws DatabaseException {
-        SqlStatement sql = userSearchStatement(q);
-        return readSimpleUsers(db, sql);
     }
 }
