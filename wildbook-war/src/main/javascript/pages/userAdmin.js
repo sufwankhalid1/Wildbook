@@ -50,7 +50,7 @@ angular.module('wildbook.admin').directive(
                 };
 
                 $scope.clearUserCache = function() {
-                    $http.post("admin/api/user/clearUserCache")
+                    $http.post("admin/api/user/cache/clear", {})
                     .then(function(response){
                         alertplus.alert("User cache has been cleared.");
                     });

@@ -17,9 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(value = "/admin/api/user")
 public class AdminUserController {
-
-//    private static Logger logger = LoggerFactory.getLogger(MediaSubmissionController.class);
-
     @RequestMapping(value = "get/{userid}", method = RequestMethod.GET)
     public User getUser(final HttpServletRequest request,
                         @PathVariable("userid") final int userid) {
@@ -46,7 +43,7 @@ public class AdminUserController {
         Global.INST.getUserService().deleteUser(user);
     }
 
-    @RequestMapping(value = "clearUserCache", method = RequestMethod.POST)
+    @RequestMapping(value = "cache/clear", method = RequestMethod.POST)
     public void clearUserCache(final HttpServletRequest request) {
         Global.INST.getUserService().clearUserCache();
     }
