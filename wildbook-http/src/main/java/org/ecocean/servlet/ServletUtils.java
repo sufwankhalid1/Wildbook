@@ -15,11 +15,13 @@ import javax.servlet.ServletRequest;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.ecocean.ContextConfiguration;
 import org.ecocean.Global;
 import org.ecocean.html.HtmlConfig;
 import org.ecocean.security.User;
+import org.ecocean.security.UserService;
 import org.ecocean.util.Jade4JUtils;
 import org.ecocean.util.LogBuilder;
 import org.slf4j.Logger;
@@ -42,6 +44,19 @@ public class ServletUtils {
 
     public static User getUser(final HttpServletRequest request) {
         if (request.getUserPrincipal() == null) {
+            if (UserService.logger.isDebugEnabled()) {
+                UserService.logger.debug("User principal is null.");
+            }
+            return null;
+        }
+
+        //
+        // In case, User Principal returns an empty string or blank on the name.
+        //
+        if (StringUtils.isBlank(request.getUserPrincipal().getName())) {
+            if (UserService.logger.isDebugEnabled()) {
+                UserService.logger.debug("User principal name is blank.");
+            }
             return null;
         }
 

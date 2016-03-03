@@ -1,12 +1,14 @@
 package org.ecocean.security;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.ecocean.Organization;
 import org.ecocean.rest.SimpleUser;
@@ -66,6 +68,10 @@ public class DbUserService implements UserService {
 
     @Override
     public SecurityInfo getSecurityInfo(final String userIdString) {
+        if (StringUtils.isBlank(userIdString)) {
+            return null;
+        }
+
         Integer userid = NumberUtils.createInteger(userIdString);
 
         SecurityInfo info = mapUserId.get(userid);
@@ -74,7 +80,7 @@ public class DbUserService implements UserService {
             try (Database db = new Database(ci)) {
                 User user = UserFactory.getUserById(db, userid);
                 if (user == null) {
-                    throw new SecurityException("No account found for user [" + userid + "]");
+                    return null;
                 }
                 info = addNewSecurityInfo(user);
             } catch (DatabaseException ex) {
@@ -87,12 +93,19 @@ public class DbUserService implements UserService {
 
     @Override
     public User getUserById(final String id) {
-        return getSecurityInfo(id).getUser();
+        SecurityInfo info = getSecurityInfo(id);
+        if (info == null) {
+            return null;
+        }
+        return info.getUser();
     }
 
     @Override
     public Set<String> getAllRolesForUserInContext(final String id, final String context) {
         SecurityInfo info = getSecurityInfo(id);
+        if (info == null) {
+            return Collections.emptySet();
+        }
         return info.getContextRoles(context);
     }
 
