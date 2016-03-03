@@ -145,11 +145,11 @@ public class UserFactory {
             return null;
         }
 
-        User user = getUser(db, term);
+        User user = getUserByEmail(db, term);
         if (user != null) {
             return user;
         }
-        return getUserByEmail(db, term);
+        return getUser(db, term);
     }
 
 
