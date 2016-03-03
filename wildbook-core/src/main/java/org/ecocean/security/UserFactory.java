@@ -9,6 +9,8 @@ import java.util.Set;
 
 import org.ecocean.Global;
 import org.ecocean.Organization;
+import org.ecocean.location.LatLng;
+import org.ecocean.location.UserLocation;
 import org.ecocean.rest.SimpleUser;
 import org.ecocean.util.NotificationException;
 
@@ -193,9 +195,31 @@ public class UserFactory {
         user.setPrtoken(rs.getString("prtoken"));
         user.setPrtimestamp(rs.getLocalDateTime("prtimestamp"));
 
+        user.setUserLocation(readUserLocation(rs));
+
         return user;
     }
 
+    private static UserLocation readUserLocation(final RecordSet rs) throws DatabaseException {
+        if (rs.getInteger("locserviceid") == null || ((Double) rs.getDouble("latitude") == null && (Double) rs.getDouble("longitude") == null)) {
+            return null;
+        }
+
+        UserLocation userlocation = new UserLocation();
+        LatLng latlng = new LatLng();
+
+        userlocation.setCode(rs.getInteger("locserviceid").toString());
+        userlocation.setCountrycode(rs.getString("countrycode"));
+        userlocation.setRegion(rs.getString("region"));
+        userlocation.setSubregion(rs.getString("subregion"));
+
+        latlng.setLatitude(rs.getDouble("latitude"));
+        latlng.setLongitude(rs.getDouble("longitude"));
+
+        userlocation.setLatlng(latlng);
+
+        return userlocation;
+    }
 
     public static SimpleUser readSimpleUser(final RecordSet rs) throws DatabaseException {
         User user = readUser(rs);
@@ -249,6 +273,18 @@ public class UserFactory {
         formatter.append("verified", user.isVerified());
         formatter.append("prtoken", user.getPrtoken());
         formatter.append("prtimestamp", user.getPrtimestamp());
+
+        if (user.getUserLocation() != null) {
+            formatter.append("locserviceid", user.getUserLocation().getCode());
+            formatter.append("region", user.getUserLocation().getRegion());
+            formatter.append("subregion", user.getUserLocation().getSubregion());
+            formatter.append("countrycode", user.getUserLocation().getCountrycode());
+
+            if (user.getUserLocation().getLatlng() != null) {
+                formatter.append("longitude", user.getUserLocation().getLatlng().getLongitude());
+                formatter.append("latitude", user.getUserLocation().getLatlng().getLatitude());
+            }
+        }
     }
 
 

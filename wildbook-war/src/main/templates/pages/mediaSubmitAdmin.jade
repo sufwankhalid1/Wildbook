@@ -101,8 +101,8 @@ div
                     span.brand-primary.ml-5 Time:&nbsp
                     | {{timeFromRest(data.submission.msTime) || 'Unknown'}}&nbsp
                     span.brand-primary.ml-5 Lat/Lng:&nbsp
-                    span(ng-show="data.submission.latitude && data.submission.longitude") {{data.submission.latitude}}/{{data.submission.longitude}}&nbsp
-                    span(ng-show="!data.submission.latitude && !data.submission.longitude") not set
+                    span(ng-show="data.submission.location.latitude && data.submission.location.longitude") {{data.submission.location.latitude}}/{{data.submission.location.longitude}}&nbsp
+                    span(ng-show="!data.submission.location.latitude && !data.submission.location.longitude") not set
                     span.brand-primary.ml-5 Acc:&nbsp
                     | {{data.submission.location.accuracy | lowercase}}
                     span.brand-primary.ml-5 Source:&nbsp

@@ -6,6 +6,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.ecocean.Individual;
 import org.ecocean.encounter.Encounter;
+import org.ecocean.encounter.EncounterFactory;
+import org.ecocean.rest.SimpleIndividual;
 import org.ecocean.rest.SimpleUser;
 import org.ecocean.search.SearchData;
 import org.ecocean.search.SearchFactory;
@@ -38,6 +40,20 @@ public class AdminSearchController {
         }
     }
 
+    @RequestMapping(value = "/orphaned", method = RequestMethod.GET)
+    public List<SimpleIndividual> orphaned(final HttpServletRequest request) throws DatabaseException
+    {
+        try (Database db = ServletUtils.getDb(request)) {
+
+            SqlStatement sqls = EncounterFactory.getIndividualStatement();
+            String sql = sqls.toString() + " where not exists (select * from encounters where individualid = "
+                        + EncounterFactory.ALIAS_INDIVIDUALS + ".individualid)";
+
+            return db.selectList(sql, (rs) -> {
+                return EncounterFactory.readSimpleIndividual(rs);
+            });
+        }
+    }
 
     @RequestMapping(value = "/individual", method = RequestMethod.POST)
     public List<Individual> searchIndividual(final HttpServletRequest request,

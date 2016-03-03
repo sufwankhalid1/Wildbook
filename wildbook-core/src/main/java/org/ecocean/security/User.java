@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ecocean.Organization;
+import org.ecocean.location.UserLocation;
 import org.ecocean.mmutil.StringUtilities;
 import org.ecocean.rest.SimpleUser;
 import org.ecocean.util.DateUtils;
@@ -17,6 +18,8 @@ public class User {
     private String fullName;
 
     private Organization organization;
+
+    private UserLocation userLocation;
 
     private String email;
     private String physicalAddress;
@@ -213,6 +216,11 @@ public class User {
         if (organization != null) {
             user.setAffiliation(organization.getName());
         }
+
+        if (userLocation != null) {
+            user.setUserlocation(getUserLocation());
+        }
+
         user.setAvatar(getAvatar());
         user.setStatement(getStatement());
         return user;
@@ -297,5 +305,13 @@ public class User {
 
     public void setPrtimestamp(final LocalDateTime prtimestamp) {
         this.prtimestamp = prtimestamp;
+    }
+
+    public UserLocation getUserLocation() {
+        return userLocation;
+    }
+
+    public void setUserLocation(final UserLocation userlocation) {
+        this.userLocation = userlocation;
     }
 }

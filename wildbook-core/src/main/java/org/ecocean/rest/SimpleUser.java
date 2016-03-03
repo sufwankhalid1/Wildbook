@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.ecocean.Species;
+import org.ecocean.location.UserLocation;
 
 public class SimpleUser implements SimpleBeing {
     private static final Species homo_sapien = new Species("homo_sapien", "Homo sapiens");
@@ -14,6 +15,8 @@ public class SimpleUser implements SimpleBeing {
     private String affiliation;
     private String statement;
     private String avatar;
+
+    private UserLocation userlocation;
 
     public SimpleUser() {
         // For deserialization.
@@ -60,6 +63,13 @@ public class SimpleUser implements SimpleBeing {
         this.statement = statement;
     }
 
+    public UserLocation getUserlocation() {
+        return userlocation;
+    }
+
+    public void setUserlocation(final UserLocation userlocation) {
+        this.userlocation = userlocation;
+    }
 
     //===========================
     //  SimpleBeing interface

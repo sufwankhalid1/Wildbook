@@ -13,6 +13,9 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.ecocean.email.Emailer;
+import org.ecocean.location.GeoNamesLocationService;
+import org.ecocean.location.LocationService;
+import org.ecocean.location.NullLocationService;
 import org.ecocean.media.AssetStore;
 import org.ecocean.media.AssetStoreFactory;
 import org.ecocean.security.DbUserService;
@@ -46,6 +49,7 @@ public enum Global {
     private String cust;
 
     private UserService userService;
+    private LocationService locationService;
 
     private void loadWebappProps(final String file) {
         try (InputStream input = Global.class.getResourceAsStream(file)) {
@@ -258,6 +262,22 @@ public enum Global {
         }
 
         return userService;
+    }
+
+    public LocationService getLocationService() {
+        //
+        //TODO: hook up to geoname db
+        //
+        if (locationService == null) {
+            String service = appResources.getString("services.location", null);
+            if ("geonames".equals(service)) {
+                locationService = new GeoNamesLocationService(getConnectionInfo("geonames"));
+            } else {
+                locationService = new NullLocationService();
+            }
+        }
+
+        return locationService;
     }
 
     public ConnectionInfo getConnectionInfo() {

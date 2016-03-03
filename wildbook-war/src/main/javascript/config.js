@@ -54,7 +54,7 @@ angular.module('wildbook.config', [])
     }
 
     function getConfig() {
-        config = $http({url:"api/util/init"})
+        config = $http({url:"admin/api/util/init"})
             .then(function(result) {
                 return result.data;
             }, $exceptionHandler);

@@ -14,7 +14,7 @@ angular.module('wildbook.admin').directive(
             link: function($scope, ele, attr) {
                 //searches for individuals without encounters
                 $scope.orphaned = function() {
-                    $http.get('admin/api/search/orphaned')
+                    $http.get('admin/search/orphaned')
                     .then(function(res) {
                         $scope.callback({inds: res.data});
                     });

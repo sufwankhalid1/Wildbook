@@ -58,21 +58,6 @@ public class SearchController
         });
     }
 
-    @RequestMapping(value = "/orphaned", method = RequestMethod.GET)
-    public List<SimpleIndividual> orphaned(final HttpServletRequest request) throws DatabaseException
-    {
-        try (Database db = ServletUtils.getDb(request)) {
-
-            SqlStatement sqls = EncounterFactory.getIndividualStatement();
-            String sql = sqls.toString() + " where not exists (select * from encounters where individualid = "
-                        + EncounterFactory.ALIAS_INDIVIDUALS + ".individualid)";
-
-            return db.selectList(sql, (rs) -> {
-                return EncounterFactory.readSimpleIndividual(rs);
-            });
-        }
-    }
-
     @RequestMapping(value = "/individual/{id}", method = RequestMethod.GET)
     public Individual individualById(final HttpServletRequest request,
                                            @PathVariable("id") final int indid) throws DatabaseException
