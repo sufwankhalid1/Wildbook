@@ -55,6 +55,8 @@ public class SearchFactory {
             addContributorData(sql, search.contributor);
         }
 
+        sql.setOrderBy(EncounterFactory.ALIAS_ENCOUNTERS, "encdate", true);
+
         return db.selectList(sql, (rs) -> {
             return EncounterFactory.readEncounter(rs);
         });
