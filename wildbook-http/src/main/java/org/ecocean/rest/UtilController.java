@@ -18,6 +18,8 @@ import com.samsix.database.DatabaseException;
 @RestController
 @RequestMapping(value = "/api/util")
 public class UtilController {
+//    private final Logger logger = LoggerFactory.getLogger(UtilController.class);
+
     @RequestMapping(value = "/render", method = RequestMethod.GET)
     public String renderJade(final HttpServletRequest request,
                              @RequestParam("j")

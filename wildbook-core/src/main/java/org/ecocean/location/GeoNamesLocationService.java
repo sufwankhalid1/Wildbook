@@ -1,7 +1,10 @@
 package org.ecocean.location;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+
+import org.slf4j.Logger;
 
 import com.samsix.database.ConnectionInfo;
 import com.samsix.database.Database;
@@ -14,7 +17,7 @@ import com.samsix.database.SqlRelationType;
 import com.samsix.database.SqlStatement;
 
 public class GeoNamesLocationService implements LocationService {
-    //private static Logger logger = LocationService.logger;
+    private static Logger logger = LocationService.logger;
 
     public static final String TABLENAME_COUNTRYINFO = "countryinfo";
     public static final String ALIAS_COUNTRYINFO = "ci";
@@ -71,8 +74,9 @@ public class GeoNamesLocationService implements LocationService {
             });
 
             return countries;
-        } catch(DatabaseException ex){
-            throw new SecurityException("Cannot get country list.", ex);
+        } catch(DatabaseException ex) {
+            logger.error("Cannot get country list.", ex);
+            return Collections.emptyList();
         }
     }
 
@@ -100,7 +104,7 @@ public class GeoNamesLocationService implements LocationService {
 
             return regions;
         } catch(DatabaseException ex){
-            throw new SecurityException("Cannot get region list.", ex);
+            throw new LocationServiceException("Cannot get region list.", ex);
         }
     }
 
@@ -152,7 +156,7 @@ public class GeoNamesLocationService implements LocationService {
 
             return subregions;
         } catch(DatabaseException ex){
-            throw new SecurityException("Cannot get subregion list.", ex);
+            throw new LocationServiceException("Cannot get subregion list.", ex);
         }
     }
 
@@ -191,7 +195,7 @@ public class GeoNamesLocationService implements LocationService {
             return geonamelocations;
 
         } catch(DatabaseException ex){
-            throw new SecurityException("Cannot get subregion list.", ex);
+            throw new LocationServiceException("Cannot get subregion list.", ex);
         }
     }
 
