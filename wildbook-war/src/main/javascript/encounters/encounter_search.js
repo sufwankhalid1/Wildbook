@@ -97,9 +97,9 @@ angular.module('wildbook.admin').directive(
                                      }
                                      value += params.value.verbatimLocation;
 
-                                     value = '<md-icon md-svg-icon="information-outline" title="'
+                                     value = '<img src="images/information_icon_svg.gif" title="'
                                          + params.value.verbatimLocation
-                                         + '"></md-icon>&nbsp;'
+                                         + '">&nbsp;'
                                          + value;
                                  }
 
