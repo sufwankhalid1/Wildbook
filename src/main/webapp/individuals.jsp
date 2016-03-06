@@ -801,12 +801,72 @@ String altID="";
 if(sharky.getAlternateID()!=null){
 	altID=sharky.getAlternateID();
 }
+	ArrayList<String> alts=sharky.getAllAlternateIDs();
+	int numAlt=alts.size();
+
+	
+
 
 %>
-<p><img align="absmiddle" src="images/alternateid.gif"> <%=alternateID %>:
-  <%=altID%> <%if (isOwner && CommonConfiguration.isCatalogEditable(context)) {%><a style="color:blue;cursor: pointer;" id="alternateID"><img align="absmiddle" width="20px" height="20px" style="border-style: none;" src="images/Crystal_Clear_action_edit.png" /></a><%}%>
 
+<p>
+<table style="font-weight: 300;">
+<tr>
+
+<td><img align="absmiddle" src="images/alternateid.gif"></td>
+<td>
+
+<%=alternateID %> <%=altID%> <%if (isOwner && CommonConfiguration.isCatalogEditable(context)) {%><a style="color:blue;cursor: pointer;" id="alternateID"><img align="absmiddle" width="20px" height="20px" style="border-style: none;" src="images/Crystal_Clear_action_edit.png" /></a><%}%>
+	
+	</td></tr>
+	<%
+	if(numAlt>0){
+		
+		%>
+		<tr><td></td><td>
+		Alternate IDs inherited from encounters:
+		<ul>
+		<%
+		for(int i=0;i<numAlt;i++){
+			%>
+			<li style="font-size: 14px;"><%=alts.get(i) %></li>
+			<%
+		}
+		%>
+		</ul>
+		</td></tr>
+	<%
+	}
+	
+	
+    if (CommonConfiguration.allowNicknames(context)) {
+
+      String myNickname = "";
+      if (sharky.getNickName() != null) {
+        myNickname = sharky.getNickName();
+      }
+      String myNicknamer = "";
+      if (sharky.getNickNamer() != null) {
+        myNicknamer = sharky.getNickNamer();
+      }
+
+  %>
+ <tr><td></td><td>
+  <%=nickname %> <%=myNickname%> <%if (isOwner && CommonConfiguration.isCatalogEditable(context)) {%><a id="nickname" style="color:blue;cursor: pointer;"><img align="absmiddle" width="20px" height="20px" style="border-style: none;" src="images/Crystal_Clear_action_edit.png" /></a><%}%></td>
+  <td>
+  </td>
+  </tr>
+  <tr><td></td><td>
   
+  <%=nicknamer %> <%=myNicknamer%>
+</td><td>&nbsp;</td>
+</tr>
+
+  <%
+    }
+
+%>
+  </table>
 </p>
 
 
@@ -855,35 +915,7 @@ $("a#alternateID").click(function() {
 }
 %>
 
-<p>
-  <%
-    if (CommonConfiguration.allowNicknames(context)) {
 
-      String myNickname = "";
-      if (sharky.getNickName() != null) {
-        myNickname = sharky.getNickName();
-      }
-      String myNicknamer = "";
-      if (sharky.getNickNamer() != null) {
-        myNicknamer = sharky.getNickNamer();
-      }
-
-  %>
-  <table border="0"><tr><td>
-  <%=nickname %>: <%=myNickname%></td>
-  <td>
-  <%if (isOwner && CommonConfiguration.isCatalogEditable(context)) {%><a id="nickname" style="color:blue;cursor: pointer;"><img align="absmiddle" width="20px" height="20px" style="border-style: none;" src="images/Crystal_Clear_action_edit.png" /></a><%}%>
-  </td>
-  </tr>
-  <tr><td>
-  <%=nicknamer %>: <%=myNicknamer%>
-</td><td>&nbsp;</td>
-</tr>
-</table>
-  <%
-    }
-
-%>
   <!-- Now prep the popup dialog -->
 <div id="dialogNickname" title="<%=setNickname %>" style="display:none">
     <table border="1" cellpadding="1" cellspacing="0" bordercolor="#FFFFFF">

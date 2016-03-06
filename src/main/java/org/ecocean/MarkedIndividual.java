@@ -1075,7 +1075,7 @@ public class MarkedIndividual implements java.io.Serializable {
 
   public String getAlternateID() {
     if (alternateid == null) {
-      return "None";
+      return "";
     }
     return alternateid;
   }
@@ -1083,7 +1083,7 @@ public class MarkedIndividual implements java.io.Serializable {
   /*
    * Returns a bracketed, comma-delimited string of all of the alternateIDs registered for this marked individual, including those only assigned at the Encounter level
    */
-   public String getAllAlternateIDs(){
+   public ArrayList<String> getAllAlternateIDs(){
      ArrayList<String> allIDs = new ArrayList<String>();
 
       //add any alt IDs for the individual itself
@@ -1096,7 +1096,7 @@ public class MarkedIndividual implements java.io.Serializable {
         if((temp.getAlternateID()!=null)&&(!temp.getAlternateID().equals("None"))&&(!allIDs.contains(temp.getAlternateID()))) {allIDs.add(temp.getAlternateID());}
       }
 
-      return allIDs.toString();
+      return allIDs;
     }
 
   public String getDynamicProperties() {
