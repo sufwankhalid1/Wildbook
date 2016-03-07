@@ -1,6 +1,7 @@
 #!/bin/bash
 
 message=""
+dir="."
 java=false
 while [[ $# > 0 ]]
 do
@@ -14,6 +15,9 @@ do
         -j)
         java=true
         ;;
+	-d)
+	dir="$1"
+	;;
         *)
         # unknown option
         ;;
@@ -29,11 +33,11 @@ fi
 if [ "$java" = true ]; then
     DATE=`date +%Y_%m_%d_%H_%M_%S`
     version=V${DATE}${message}
-    file=src/main/java/db/migration/$version.java
+    file={$dir}/src/main/java/db/migration/$version.java
     cat config/db/flyway_java.template | sed "s/\${patchname}/$version/" > ${file}
 else
     DATE=`date +%Y.%m.%d.%H.%M.%S`
-    file=src/main/resources/db/migration/${DATE}${message}.sql
+    file=${dir}/src/main/resources/db/migration/${DATE}${message}.sql
     touch ${file}
 fi
 

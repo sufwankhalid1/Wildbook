@@ -22,6 +22,8 @@ import javax.net.ssl.X509TrustManager;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ecocean.email.Emailer;
+import org.ecocean.event.EventHandler;
+import org.ecocean.event.NullEventHandler;
 import org.ecocean.location.GeoNamesLocationService;
 import org.ecocean.location.LocationService;
 import org.ecocean.location.NullLocationService;
@@ -60,6 +62,7 @@ public enum Global {
 
     private UserService userService;
     private LocationService locationService;
+    private EventHandler eventHandler;
 
     private void loadWebappProps(final String file) {
         try (InputStream input = Global.class.getResourceAsStream(file)) {
@@ -327,6 +330,20 @@ public enum Global {
         }
 
         return userService;
+    }
+
+
+    public EventHandler getEventHandler() {
+        if (eventHandler == null) {
+            try {
+                eventHandler = (EventHandler) appResources.getObject("services.event.handler", "org.ecocean.event.NullEventHandler");
+            } catch (UtilException ex) {
+                logger.error("Trouble creating EventHandler", ex);
+                eventHandler = new NullEventHandler();
+            }
+        }
+
+        return eventHandler;
     }
 
     public LocationService getLocationService() {
