@@ -9,6 +9,7 @@ import javax.servlet.ServletException;
 import org.ecocean.Global;
 import org.ecocean.security.User;
 import org.ecocean.security.UserService;
+import org.ecocean.util.LogBuilder;
 import org.flywaydb.core.Flyway;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,6 +69,10 @@ public class RestApplication extends SpringBootServletInitializer {
                               "conf",
                               servletContext.getContextPath() + "_vars.properties");
 
+        if (logger.isDebugEnabled()) {
+            new LogBuilder().appendVar("overridingProps", overridingProps)
+                .appendVar("overridingVars", overridingVars).debug(logger);
+        }
         Global.INST.initResources(overridingProps, overridingVars);
 
         //

@@ -6,6 +6,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.ecocean.Global;
+import org.ecocean.location.Country;
 import org.ecocean.location.GeoNamesLocationService.GeoNameLocation;
 import org.ecocean.location.LatLng;
 import org.ecocean.location.Region;
@@ -21,6 +22,10 @@ import com.samsix.database.DatabaseException;
 @RestController
 @RequestMapping(value = "/api/location")
 public class LocationController {
+    @RequestMapping(value="getCountries")
+    public List<Country> getCountries() {
+        return Global.INST.getLocationService().getCountries();
+    }
 
     @RequestMapping(value = "getGeoNameRegion/{code}", method = RequestMethod.GET)
     public List<Region> getRgion(final HttpServletRequest request,

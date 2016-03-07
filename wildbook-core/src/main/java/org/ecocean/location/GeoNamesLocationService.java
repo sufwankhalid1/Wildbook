@@ -35,9 +35,6 @@ public class GeoNamesLocationService implements LocationService {
 
     private final ConnectionInfo ci;
     private List<Country> countries;
-    private List<Region> regions;
-    private List<SubRegion> subregions;
-    private List<GeoNameLocation> geonamelocations;
 
     public GeoNamesLocationService(final ConnectionInfo ci) {
         setGeoNameCodes();
@@ -59,53 +56,43 @@ public class GeoNamesLocationService implements LocationService {
         return country;
     }
 
-    @Override
-    public List<Country> getCountries() {
-        if (countries != null) {
-            return countries;
-        }
-
-        try (Database db = new Database(ci)) {
-            SqlStatement sql = new SqlStatement(TABLENAME_COUNTRYINFO, ALIAS_COUNTRYINFO);
-            sql.setOrderBy(ALIAS_COUNTRYINFO, "name");
-
-            countries = db.selectList(sql, (rs) -> {
-                return readCountry(rs);
-            });
-
-            return countries;
-        } catch(DatabaseException ex) {
-            logger.error("Cannot get country list.", ex);
-            return Collections.emptyList();
-        }
+    private String latlngFormatter(final LatLng latlng) {
+       return "st_geomfromtext('POINT(" + latlng.getLongitude() + " " + latlng.getLatitude() + ")', 4326)";
     }
 
-    public Region readRegion(final RecordSet rs) throws DatabaseException {
+    private List<GeoNameLocation> getLocByLatLng(final Database db, final LatLng latlng, final double deltaDegrees)
+            throws DatabaseException {
+        SqlStatement sql = new SqlStatement(TABLENAME_GEONAME, ALIAS_GEONAME);
+
+        sql.addSelect(ALIAS_GEONAME, "geonameid");
+        sql.addSelect(ALIAS_GEONAME, "name", "subregion");
+        sql.addSelect(ALIAS_GEONAME, "admin1");
+        sql.addSelect(ALIAS_ADMIN1CODE, "name", "region");
+        sql.addSelect(ALIAS_COUNTRYINFO, "iso_alpha2", "countrycode");
+
+        sql.appendSelectString("st_y(latlng) as latitude, st_x(latlng) as longitude");
+
+        SqlJoin join = sql.addInnerJoin(ALIAS_GEONAME, "country", TABLENAME_ADMIN1CODE, ALIAS_ADMIN1CODE, "iso_alpha2");
+        join.addCondition("admin1", "admin1");
+        sql.addInnerJoin(ALIAS_GEONAME, "country", TABLENAME_COUNTRYINFO, ALIAS_COUNTRYINFO, "iso_alpha2");
+
+        sql.addCondition(TABLENAME_GEONAME, "fclass", SqlRelationType.EQUAL, GEONAME_FCLASS);
+        sql.addInCondition(sql.findTable(TABLENAME_GEONAME), "fcode", GEONAME_FCODE, SqlColumnType.TEXT);
+
+        sql.addCondition(new SpecialSqlCondition("st_dwithin(latlng," + latlngFormatter(latlng) + ", " + deltaDegrees + ")"));
+
+        sql.setOrderBy("st_distance(latlng, " + latlngFormatter(latlng) + ")");
+
+        return db.selectList(sql, (rs) -> {
+            return readGeoNameLocation(rs);
+        });
+    }
+
+    private Region readRegion(final RecordSet rs) throws DatabaseException {
         Region region = new Region();
         region.setCode(rs.getString("admin1"));
         region.setName(rs.getString("name"));
         return region;
-    }
-
-    //
-    // table admin1code has sub countries.
-    //
-    @Override
-    public List<Region> getRegions(final String code) {
-        try (Database db = new Database(ci)) {
-            SqlStatement sql = new SqlStatement(TABLENAME_ADMIN1CODE, ALIAS_ADMIN1CODE);
-            sql.setSelectDistinct(true);
-            sql.setOrderBy(ALIAS_ADMIN1CODE, "name");
-            sql.addCondition(ALIAS_ADMIN1CODE, "iso_alpha2", SqlRelationType.EQUAL, code);
-
-            regions = db.selectList(sql, (rs) -> {
-                return readRegion(rs);
-            });
-
-            return regions;
-        } catch(DatabaseException ex){
-            throw new LocationServiceException("Cannot get region list.", ex);
-        }
     }
 
     private SubRegion readSubRegion(final RecordSet rs) throws DatabaseException {
@@ -134,6 +121,49 @@ public class GeoNamesLocationService implements LocationService {
         return location;
     }
 
+    //====================================
+    // Location Service i/f
+    //====================================
+    @Override
+    public List<Country> getCountries() {
+        if (countries != null) {
+            return countries;
+        }
+
+        try (Database db = new Database(ci)) {
+            SqlStatement sql = new SqlStatement(TABLENAME_COUNTRYINFO, ALIAS_COUNTRYINFO);
+            sql.setOrderBy(ALIAS_COUNTRYINFO, "name");
+
+            countries = db.selectList(sql, (rs) -> {
+                return readCountry(rs);
+            });
+
+            return countries;
+        } catch(DatabaseException ex) {
+            logger.error("Cannot get country list.", ex);
+            return Collections.emptyList();
+        }
+    }
+
+    //
+    // table admin1code has sub countries.
+    //
+    @Override
+    public List<Region> getRegions(final String code) {
+        try (Database db = new Database(ci)) {
+            SqlStatement sql = new SqlStatement(TABLENAME_ADMIN1CODE, ALIAS_ADMIN1CODE);
+            sql.setSelectDistinct(true);
+            sql.setOrderBy(ALIAS_ADMIN1CODE, "name");
+            sql.addCondition(ALIAS_ADMIN1CODE, "iso_alpha2", SqlRelationType.EQUAL, code);
+
+            return db.selectList(sql, (rs) -> {
+                return readRegion(rs);
+            });
+        } catch(DatabaseException ex){
+            throw new LocationServiceException("Cannot get region list.", ex);
+        }
+    }
+
     @Override
     public List<SubRegion> getSubRegions(final String code, final String regioncode) {
         try (Database db = new Database(ci)) {
@@ -150,49 +180,24 @@ public class GeoNamesLocationService implements LocationService {
             sql.addCondition(TABLENAME_GEONAME, "fclass", SqlRelationType.EQUAL, GEONAME_FCLASS);
             sql.addInCondition(sql.findTable(TABLENAME_GEONAME), "fcode", GEONAME_FCODE, SqlColumnType.TEXT);
 
-            subregions = db.selectList(sql, (rs) -> {
+            return db.selectList(sql, (rs) -> {
                 return readSubRegion(rs);
             });
-
-            return subregions;
         } catch(DatabaseException ex){
             throw new LocationServiceException("Cannot get subregion list.", ex);
         }
     }
 
-    private String latlngFormatter(final LatLng latlng) {
-       return "st_geomfromtext('POINT(" + latlng.getLongitude() + " " + latlng.getLatitude() + ")', 4326)";
-    }
-
     @Override
     public List<GeoNameLocation> getLocByLatLng(final LatLng latlng) {
         try (Database db = new Database(ci)) {
-            SqlStatement sql = new SqlStatement(TABLENAME_GEONAME, ALIAS_GEONAME);
-
-            sql.addSelect(ALIAS_GEONAME, "geonameid");
-            sql.addSelect(ALIAS_GEONAME, "name", "subregion");
-            sql.addSelect(ALIAS_GEONAME, "admin1");
-            sql.addSelect(ALIAS_ADMIN1CODE, "name", "region");
-            sql.addSelect(ALIAS_COUNTRYINFO, "iso_alpha2", "countrycode");
-
-            sql.appendSelectString("st_y(latlng) as latitude, st_x(latlng) as longitude");
-
-            SqlJoin join = sql.addInnerJoin(ALIAS_GEONAME, "country", TABLENAME_ADMIN1CODE, ALIAS_ADMIN1CODE, "iso_alpha2");
-            join.addCondition("admin1", "admin1");
-            sql.addInnerJoin(ALIAS_GEONAME, "country", TABLENAME_COUNTRYINFO, ALIAS_COUNTRYINFO, "iso_alpha2");
-
-            sql.addCondition(TABLENAME_GEONAME, "fclass", SqlRelationType.EQUAL, GEONAME_FCLASS);
-            sql.addInCondition(sql.findTable(TABLENAME_GEONAME), "fcode", GEONAME_FCODE, SqlColumnType.TEXT);
-
-            sql.addCondition(new SpecialSqlCondition("st_dwithin(latlng," + latlngFormatter(latlng) + ", 0.5)"));
-
-            sql.setOrderBy("st_distance(latlng, " + latlngFormatter(latlng) + ")");
-
-            geonamelocations = db.selectList(sql, (rs) -> {
-                return readGeoNameLocation(rs);
-            });
-
-            return geonamelocations;
+            List<GeoNameLocation> locations = null;
+            double deltaDegrees = 0.5;
+            while (locations == null || locations.size() == 0) {
+                locations = getLocByLatLng(db, latlng, deltaDegrees);
+                deltaDegrees += 0.5;
+            }
+            return locations;
 
         } catch(DatabaseException ex){
             throw new LocationServiceException("Cannot get subregion list.", ex);

@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
 
 @RestController
@@ -30,12 +29,9 @@ public class UtilController {
 
     @RequestMapping(value = "/init", method = RequestMethod.GET)
     public GlobalConfig init(final HttpServletRequest request) throws DatabaseException {
-        try (Database db = ServletUtils.getDb(request)) {
-            GlobalConfig config = new GlobalConfig();
-            //config.imageTags = Global.INST.getAppResources().getStringList("imagetags", (List<String>) null);
-            config.countries = Global.INST.getLocationService().getCountries();
-            return config;
-        }
+        GlobalConfig config = new GlobalConfig();
+        config.countries = Global.INST.getLocationService().getCountries();
+        return config;
     }
 
     @SuppressWarnings("unused")

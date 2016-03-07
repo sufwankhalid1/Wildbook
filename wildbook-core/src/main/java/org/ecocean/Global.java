@@ -6,16 +6,26 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+
+import org.apache.commons.lang3.StringUtils;
 import org.ecocean.email.Emailer;
 import org.ecocean.location.GeoNamesLocationService;
 import org.ecocean.location.LocationService;
 import org.ecocean.location.NullLocationService;
+import org.ecocean.location.RemoteGeoNames;
 import org.ecocean.media.AssetStore;
 import org.ecocean.media.AssetStoreFactory;
 import org.ecocean.security.DbUserService;
@@ -107,6 +117,59 @@ public enum Global {
         initDBQueries();
     }
 
+    private void initSSL(final ResourceReaderImpl resources ) {
+        String keyBase = "network.ssl.certification";
+        String ssl = resources.getString(keyBase + ".type", null);
+        if (StringUtils.isBlank(ssl)) {
+            return;
+        }
+
+        if (ssl.equals("keystore")) {
+            try {
+                System.setProperty("javax.net.ssl.keyStore", resources.getString(keyBase + ".keystore.file"));
+                System.setProperty("javax.net.ssl.keyStorePassword", resources.getString(keyBase + ".keystore.password"));
+            } catch (UtilException ex) {
+                logger.error("Trouble setting keystore certification.", ex);
+            }
+        } else if (ssl.equals("trust")) {
+            try {
+
+                // Create a trust manager that does not validate certificate chains
+                TrustManager[] trustAllCerts = new TrustManager[] {new X509TrustManager() {
+                        @Override
+                        public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                            return null;
+                        }
+                        @Override
+                        public void checkClientTrusted(final X509Certificate[] certs, final String authType) {
+                        }
+                        @Override
+                        public void checkServerTrusted(final X509Certificate[] certs, final String authType) {
+                        }
+                    }
+                };
+
+                // Install the all-trusting trust manager
+                SSLContext sc = SSLContext.getInstance("SSL");
+                sc.init(null, trustAllCerts, new java.security.SecureRandom());
+                HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+
+                // Create all-trusting host name verifier
+                HostnameVerifier allHostsValid = new HostnameVerifier() {
+                    @Override
+                    public boolean verify(final String hostname, final SSLSession session) {
+                        return true;
+                    }
+                };
+
+                // Install the all-trusting host verifier
+                HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
+            } catch (Throwable ex) {
+                logger.error("Trouble setting up trusted connections.", ex);
+            }
+        }
+    }
+
     public void initResources(final Path overridingProps, final Path overridingVars) {
         Map<String, String> overridingPropVars = null;
         if (overridingVars != null) {
@@ -195,6 +258,8 @@ public enum Global {
         }
 
         appResources = resources;
+
+        initSSL(resources);
     }
 
     /*
@@ -265,13 +330,12 @@ public enum Global {
     }
 
     public LocationService getLocationService() {
-        //
-        //TODO: hook up to geoname db
-        //
         if (locationService == null) {
             String service = appResources.getString("services.location", null);
             if ("geonames".equals(service)) {
                 locationService = new GeoNamesLocationService(getConnectionInfo("geonames"));
+            } else if ("remotegeonames".equals(service)) {
+                locationService = new RemoteGeoNames(getAppResources().getString("services.location.url", null));
             } else {
                 locationService = new NullLocationService();
             }
