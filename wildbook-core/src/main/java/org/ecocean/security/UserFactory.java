@@ -111,7 +111,7 @@ public class UserFactory {
         LatLng latlng = new LatLng();
 
         userlocation.setCode(rs.getInteger("locserviceid").toString());
-        userlocation.setCountrycode(rs.getString("countrycode"));
+        userlocation.setCountry(rs.getString("country"));
         userlocation.setRegion(rs.getString("region"));
         userlocation.setSubregion(rs.getString("subregion"));
 

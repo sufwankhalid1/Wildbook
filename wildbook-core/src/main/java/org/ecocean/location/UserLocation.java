@@ -2,7 +2,7 @@ package org.ecocean.location;
 
 public class UserLocation {
     private String code;
-    private String countrycode;
+    private String country;
     private String region;
     private String subregion;
 
@@ -28,12 +28,12 @@ public class UserLocation {
         this.latlng = latlng;
     }
 
-    public String getCountrycode() {
-        return countrycode;
+    public String getCountry() {
+        return country;
     }
 
-    public void setCountrycode(final String countrycode) {
-        this.countrycode = countrycode;
+    public void setCountry(final String countrycode) {
+        this.country = countrycode;
     }
 
     public String getRegion() {

@@ -225,7 +225,7 @@ public class DbUserService implements UserService {
             formatter.append("locserviceid", user.getUserLocation().getCode());
             formatter.append("region", user.getUserLocation().getRegion());
             formatter.append("subregion", user.getUserLocation().getSubregion());
-            formatter.append("countrycode", user.getUserLocation().getCountrycode());
+            formatter.append("country", user.getUserLocation().getCountry());
 
             if (user.getUserLocation().getLatlng() != null) {
                 formatter.append("longitude", user.getUserLocation().getLatlng().getLongitude());
