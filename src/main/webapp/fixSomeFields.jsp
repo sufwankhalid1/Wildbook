@@ -61,83 +61,12 @@ DateTimeFormatter parser1 = ISODateTimeFormat.dateOptionalTimeParser();
 
 
 
-while(allEncs.hasNext()){
-	
-
-	Encounter sharky=(Encounter)allEncs.next();
-
-
-	
-	if((sharky.getDWCDateAdded()!=null)&&(sharky.getDWCDateAddedLong()==null)){
-		String isoTime=sharky.getDWCDateAdded();
-		
-		if(isoTime.indexOf("T")!=-1){isoTime=isoTime.substring(0,isoTime.indexOf("T"));}
-		
-	
-		
-		try{
-			org.joda.time.DateTime dt=fmt.parseDateTime(isoTime);
-			sharky.setDWCDateAdded(new Long(dt.getMillis()));
-			
-			if(sharky.getDWCDateAdded().indexOf("T")!=-1){sharky.setDWCDateAdded(isoTime);}
-			
-		    myShepherd.commitDBTransaction();
-		    myShepherd.beginDBTransaction();
-		}
-		catch(Exception e){
-			numIssues++;
-			%>
-			<%=sharky.getCatalogNumber() %> was an issue with isoDateTime: <%=sharky.getDWCDateAdded() %> <br />
-			<%
-		}
-		
-			
-	}
-	else if((sharky.getDWCDateAdded()==null)&&(sharky.getDWCDateAddedLong()!=null)){
-		org.joda.time.DateTime dt=new org.joda.time.DateTime(sharky.getDWCDateAddedLong());
-		sharky.setDWCDateAdded(dt.toString(fmt));
-		myShepherd.commitDBTransaction();
-	    myShepherd.beginDBTransaction();
-	}
-
-	
-	//check for old, incorrect dates
-	/*
-	org.joda.time.DateTime dt=new org.joda.time.DateTime(sharky.getDWCDateAddedLong());
-	
-	String encYear=Integer.toString(sharky.getYear());
-	String encSubmissionYear=Integer.toString(dt.getYear());		
-	if((sharky.getYear()>0)&&(!Util.isUUID(sharky.getCatalogNumber()))&&(sharky.getCatalogNumber().indexOf(encSubmissionYear)==-1)){
-		numIssues++;
-		int my200Index=sharky.getCatalogNumber().indexOf("200");
-		String probableYear=sharky.getCatalogNumber().substring(my200Index,(my200Index+4));
-		
-		%>
-		<p><%=sharky.getCatalogNumber() %> has a submission year of <%=encSubmissionYear %>, which I want to set to <%=probableYear %>.</p>
-		<%
-		
-		sharky.setDWCDateAdded(probableYear);
-		
-		sharky.setDWCDateAdded(parser1.parseDateTime(probableYear).getMillis());
-		myShepherd.commitDBTransaction();
-	    myShepherd.beginDBTransaction();
-	}
-	*/
-	
-	//fix for lack of assignment of Occurrence IDs to Encounter
-	
-
-
-	
-
-}
-
 
 
 while(allSharks.hasNext()){
 
 	MarkedIndividual sharky=(MarkedIndividual)allSharks.next();
-	sharky.refreshDependentProperties(context);
+	sharky.refreshThumbnailUrl(context);
 	myShepherd.commitDBTransaction();
 	myShepherd.beginDBTransaction();
 	
