@@ -1,29 +1,18 @@
 package org.ecocean.location;
 
 public class SubRegion {
-
-    public String code;
-    public String name;
-    public Double latitude;
-    public Double longitude;
+    private GeoLoc loc;
+    private String name;
 
     public SubRegion()
     {
         // deserialization
     }
 
-    public SubRegion(final String code, final String name)
+    public SubRegion(final GeoLoc loc, final String name)
     {
-        this.code = code;
+        this.setLoc(loc);
         this.name = name;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(final String code) {
-        this.code = code;
     }
 
     public String getName() {
@@ -34,20 +23,11 @@ public class SubRegion {
         this.name = name;
     }
 
-    public Double getLatitude() {
-        return latitude;
+    public GeoLoc getLoc() {
+        return loc;
     }
 
-    public void setLatitude(final Double latitude) {
-        this.latitude = latitude;
+    public void setLoc(GeoLoc loc) {
+        this.loc = loc;
     }
-
-    public Double getLongitude() {
-        return longitude;
-    }
-
-    public void setLongitude(final Double longitude) {
-        this.longitude = longitude;
-    }
-
 }

@@ -1,9 +1,9 @@
 package org.ecocean.location;
 
 public class Country {
-
-    public String code;
-    public String name;
+    private GeoLoc loc;
+    private String code;
+    private String name;
 
     public Country()
     {
@@ -32,4 +32,11 @@ public class Country {
         this.name = name;
     }
 
+    public GeoLoc getLoc() {
+        return loc;
+    }
+
+    public void setLoc(GeoLoc loc) {
+        this.loc = loc;
+    }
 }

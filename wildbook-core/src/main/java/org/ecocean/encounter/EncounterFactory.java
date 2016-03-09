@@ -81,7 +81,7 @@ public class EncounterFactory {
 
         db.getTable(TABLENAME_ENCOUNTERS).select((rs) -> {
             encounters.add(readEncounter(individual, rs));
-        } , PK_INDIVIDUALS + " = " + individual.getId());
+        }, PK_INDIVIDUALS + " = " + individual.getId());
 
         return encounters;
     }
@@ -207,12 +207,14 @@ public class EncounterFactory {
         });
     }
 
-    public static Individual getIndividualByNickname(final Database db, final Species species, final String nickname) throws DatabaseException {
+    public static Individual getIndividualByNickname(final Database db, final Species species, final String nickname)
+            throws DatabaseException {
         if (StringUtils.isBlank(nickname)) {
             return null;
         }
         SqlStatement sql = getIndividualStatement();
-        sql.addCondition(ALIAS_INDIVIDUALS, "nickname", SqlRelationType.EQUAL, nickname.toLowerCase()).setFunction("lower");
+        sql.addCondition(ALIAS_INDIVIDUALS, "nickname", SqlRelationType.EQUAL, nickname.toLowerCase())
+                .setFunction("lower");
         sql.addCondition(ALIAS_INDIVIDUALS, "species", SqlRelationType.EQUAL, species.getCode());
         return db.selectFirst(sql, (rs) -> {
             return readIndividual(rs);

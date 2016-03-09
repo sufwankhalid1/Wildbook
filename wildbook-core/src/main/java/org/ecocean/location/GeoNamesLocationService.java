@@ -2,7 +2,9 @@ package org.ecocean.location;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 
@@ -35,6 +37,7 @@ public class GeoNamesLocationService implements LocationService {
 
     private final ConnectionInfo ci;
     private List<Country> countries;
+    private Map<String, Country> countryMap;
 
     public GeoNamesLocationService(final ConnectionInfo ci) {
         setGeoNameCodes();
@@ -49,13 +52,6 @@ public class GeoNamesLocationService implements LocationService {
         GEONAME_FCODE.add("PPLA4");
     }
 
-    public Country readCountry(final RecordSet rs) throws DatabaseException {
-        Country country = new Country();
-        country.setCode(rs.getString("iso_alpha2"));
-        country.setName(rs.getString("name"));
-        return country;
-    }
-
     private String latlngFormatter(final LatLng latlng) {
        return "st_geomfromtext('POINT(" + latlng.getLongitude() + " " + latlng.getLatitude() + ")', 4326)";
     }
@@ -63,15 +59,6 @@ public class GeoNamesLocationService implements LocationService {
     private List<GeoNameLocation> getLocByLatLng(final Database db, final LatLng latlng, final double deltaDegrees)
             throws DatabaseException {
         SqlStatement sql = new SqlStatement(TABLENAME_GEONAME, ALIAS_GEONAME);
-
-        sql.addSelect(ALIAS_GEONAME, "geonameid");
-        sql.addSelect(ALIAS_GEONAME, "name", "subregion");
-        sql.addSelect(ALIAS_GEONAME, "admin1");
-        sql.addSelect(ALIAS_ADMIN1CODE, "name", "region");
-        sql.addSelect(ALIAS_COUNTRYINFO, "iso_alpha2", "countrycode");
-
-        sql.appendSelectString("st_y(latlng) as latitude, st_x(latlng) as longitude");
-
         SqlJoin join = sql.addInnerJoin(ALIAS_GEONAME, "country", TABLENAME_ADMIN1CODE, ALIAS_ADMIN1CODE, "iso_alpha2");
         join.addCondition("admin1", "admin1");
         sql.addInnerJoin(ALIAS_GEONAME, "country", TABLENAME_COUNTRYINFO, ALIAS_COUNTRYINFO, "iso_alpha2");
@@ -81,44 +68,51 @@ public class GeoNamesLocationService implements LocationService {
 
         sql.addCondition(new SpecialSqlCondition("st_dwithin(latlng," + latlngFormatter(latlng) + ", " + deltaDegrees + ")"));
 
+        sql.addSelect(ALIAS_GEONAME, "geonameid");
+        sql.appendSelectString("st_y(latlng) as latitude, st_x(latlng) as longitude");
+        sql.addSelect(ALIAS_COUNTRYINFO, "iso_alpha2", "countrycode");
+        sql.addSelect(ALIAS_ADMIN1CODE, "admin1", "regioncode");
+        sql.addSelect(ALIAS_ADMIN1CODE, "name", "regionname");
+        sql.addSelect(ALIAS_GEONAME, "name", "subregion");
+
         sql.setOrderBy("st_distance(latlng, " + latlngFormatter(latlng) + ")");
 
         return db.selectList(sql, (rs) -> {
-            return readGeoNameLocation(rs);
+            GeoNameLocation gnloc = new GeoNameLocation();
+            if (countryMap == null) {
+                gnloc.country = new Country();
+                gnloc.country.setCode(rs.getString("countrycode"));
+            } else {
+                gnloc.country = countryMap.get(rs.getString("countrycode"));
+            }
+            gnloc.region = readRegion(rs);
+            gnloc.subregion = readSubRegion(rs);
+
+            return gnloc;
         });
+    }
+
+    private GeoLoc readGeoLoc(final RecordSet rs) throws DatabaseException {
+        GeoLoc loc = new GeoLoc();
+        loc.setId(rs.getInt("geonameid"));
+        loc.setLatitude(rs.getDouble("latitude"));
+        loc.setLongitude(rs.getDouble("longitude"));
+        return loc;
     }
 
     private Region readRegion(final RecordSet rs) throws DatabaseException {
         Region region = new Region();
-        region.setCode(rs.getString("admin1"));
-        region.setName(rs.getString("name"));
+        region.setCode(rs.getString("regioncode"));
+        region.setName(rs.getString("regionname"));
         return region;
     }
 
     private SubRegion readSubRegion(final RecordSet rs) throws DatabaseException {
         SubRegion subregion = new SubRegion();
-        subregion.setCode(rs.getInteger("geonameid").toString());
-        subregion.setName(rs.getString("name"));
-        subregion.setLatitude(rs.getDouble("latitude"));
-        subregion.setLongitude(rs.getDouble("longitude"));
+        subregion.setName(rs.getString("subregion"));
+        subregion.setLoc(readGeoLoc(rs));
 
         return subregion;
-    }
-
-    private GeoNameLocation readGeoNameLocation(final RecordSet rs) throws DatabaseException {
-        GeoNameLocation location = new GeoNameLocation();
-
-        location.subregion.setLatitude(rs.getDouble("latitude"));
-        location.subregion.setLongitude(rs.getDouble("longitude"));
-        location.subregion.setCode(rs.getInteger("geonameid").toString());
-        location.subregion.setName(rs.getString("subregion"));
-
-        location.region.setCode(rs.getString("admin1"));
-        location.region.setName(rs.getString("region"));
-
-        location.country.setCode(rs.getString("countrycode"));
-
-        return location;
     }
 
     //====================================
@@ -132,12 +126,26 @@ public class GeoNamesLocationService implements LocationService {
 
         try (Database db = new Database(ci)) {
             SqlStatement sql = new SqlStatement(TABLENAME_COUNTRYINFO, ALIAS_COUNTRYINFO);
+            sql.addInnerJoin(ALIAS_COUNTRYINFO, "geonameid", TABLENAME_GEONAME, ALIAS_GEONAME, "geonameid");
+            sql.addSelect(ALIAS_GEONAME, "geonameid");
+            sql.addSelect(ALIAS_COUNTRYINFO, "iso_alpha2", "countrycode");
+            sql.addSelect(ALIAS_COUNTRYINFO, "name", "countryname");
+            sql.appendSelectString("st_y(latlng) as latitude, st_x(latlng) as longitude");
+
             sql.setOrderBy(ALIAS_COUNTRYINFO, "name");
 
             countries = db.selectList(sql, (rs) -> {
-                return readCountry(rs);
+                Country country = new Country();
+                country.setCode(rs.getString("countrycode"));
+                country.setName(rs.getString("countryname"));
+                country.setLoc(readGeoLoc(rs));
+                return country;
             });
 
+            countryMap = new HashMap<>();
+            for (Country country : countries) {
+                countryMap.put(country.getCode(), country);
+            }
             return countries;
         } catch(DatabaseException ex) {
             logger.error("Cannot get country list.", ex);
@@ -152,12 +160,19 @@ public class GeoNamesLocationService implements LocationService {
     public List<Region> getRegions(final String code) {
         try (Database db = new Database(ci)) {
             SqlStatement sql = new SqlStatement(TABLENAME_ADMIN1CODE, ALIAS_ADMIN1CODE);
+            sql.addInnerJoin(ALIAS_ADMIN1CODE, "geonameid", TABLENAME_GEONAME, ALIAS_GEONAME, "geonameid");
             sql.setSelectDistinct(true);
+            sql.addSelect(ALIAS_GEONAME, "geonameid");
+            sql.addSelect(ALIAS_ADMIN1CODE, "admin1", "regioncode");
+            sql.addSelect(ALIAS_ADMIN1CODE, "name", "regionname");
+            sql.appendSelectString("st_y(latlng) as latitude, st_x(latlng) as longitude");
             sql.setOrderBy(ALIAS_ADMIN1CODE, "name");
             sql.addCondition(ALIAS_ADMIN1CODE, "iso_alpha2", SqlRelationType.EQUAL, code);
 
             return db.selectList(sql, (rs) -> {
-                return readRegion(rs);
+                Region region = readRegion(rs);
+                region.setLoc(readGeoLoc(rs));
+                return region;
             });
         } catch(DatabaseException ex){
             throw new LocationServiceException("Cannot get region list.", ex);
@@ -171,7 +186,7 @@ public class GeoNamesLocationService implements LocationService {
             sql.setSelectDistinct(true);
 
             sql.addSelect(ALIAS_GEONAME, "geonameid");
-            sql.addSelect(ALIAS_GEONAME, "name");
+            sql.addSelect(ALIAS_GEONAME, "name", "subregion");
             sql.appendSelectString("st_y(latlng) as latitude, st_x(latlng) as longitude");
 
             sql.setOrderBy(ALIAS_GEONAME, "name");
@@ -205,9 +220,9 @@ public class GeoNamesLocationService implements LocationService {
     }
 
     public class GeoNameLocation {
-        public Country country = new Country();
-        public Region region = new Region();
-        public SubRegion subregion = new SubRegion();
+        public Country country;
+        public Region region;
+        public SubRegion subregion;
     }
 
 }
