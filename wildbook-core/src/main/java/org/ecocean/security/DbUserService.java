@@ -13,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.ecocean.Global;
 import org.ecocean.Organization;
+import org.ecocean.location.GeoLocation;
 import org.ecocean.rest.SimpleUser;
 import org.ecocean.util.NotificationException;
 import org.slf4j.Logger;
@@ -61,7 +62,7 @@ public class DbUserService implements UserService {
                 }
                 someRoles.add(rs.getString("rolename"));
             }, "userid = " + user.getId());
-        } catch(DatabaseException ex){
+        } catch (DatabaseException ex) {
             logger.error("Can't read roles", ex);
         }
 
@@ -77,7 +78,8 @@ public class DbUserService implements UserService {
 
     private User getUser(final Database db, final String username) throws DatabaseException {
         SqlStatement sql = UserFactory.getUserStatement();
-        sql.addCondition(UserFactory.ALIAS_USERS, "username", SqlRelationType.EQUAL, username.toLowerCase()).setFunction("lower");
+        sql.addCondition(UserFactory.ALIAS_USERS, "username", SqlRelationType.EQUAL, username.toLowerCase())
+                .setFunction("lower");
         return db.selectFirst(sql, (rs) -> {
             return UserFactory.readUser(rs);
         });
@@ -89,7 +91,8 @@ public class DbUserService implements UserService {
         }
 
         SqlStatement sql = UserFactory.getUserStatement();
-        sql.addCondition(UserFactory.ALIAS_USERS, "email", SqlRelationType.EQUAL, email.toLowerCase()).setFunction("lower");
+        sql.addCondition(UserFactory.ALIAS_USERS, "email", SqlRelationType.EQUAL, email.toLowerCase())
+                .setFunction("lower");
         return db.selectFirst(sql, (rs) -> {
             return UserFactory.readUser(rs);
         });
@@ -113,7 +116,8 @@ public class DbUserService implements UserService {
         }
 
         SqlStatement sql = UserFactory.getUserStatement();
-        sql.addCondition(UserFactory.ALIAS_USERS, "fullname", SqlRelationType.LIKE, fullname.toLowerCase()).setFunction("lower");
+        sql.addCondition(UserFactory.ALIAS_USERS, "fullname", SqlRelationType.LIKE, fullname.toLowerCase())
+                .setFunction("lower");
 
         return db.selectFirst(sql, (rs) -> {
             return UserFactory.readUser(rs);
@@ -125,11 +129,11 @@ public class DbUserService implements UserService {
             return null;
         }
 
-        SqlStatement sql =  UserFactory.getUserStatement();
-        sql.addCondition( UserFactory.ALIAS_USERS,  UserFactory.PK_USERS, SqlRelationType.EQUAL, id);
+        SqlStatement sql = UserFactory.getUserStatement();
+        sql.addCondition(UserFactory.ALIAS_USERS, UserFactory.PK_USERS, SqlRelationType.EQUAL, id);
 
         return db.selectFirst(sql, (rs) -> {
-            return  UserFactory.readUser(rs);
+            return UserFactory.readUser(rs);
         });
     }
 
@@ -138,10 +142,12 @@ public class DbUserService implements UserService {
         users.deleteRows("userid = " + userid);
     }
 
-    //deletes current roles then adds in the chosen roles
-    private void updateRoles(final Database db, final int userid, final String context, final Set<String> roles) throws DatabaseException {
+    // deletes current roles then adds in the chosen roles
+    private void updateRoles(final Database db, final int userid, final String context, final Set<String> roles)
+            throws DatabaseException {
         Table users = db.getTable(UserFactory.TABLENAME_ROLES);
-        Set<String> current_roles = Global.INST.getUserService().getAllRolesForUserInContext(Integer.toString(userid), "context0");
+        Set<String> current_roles = Global.INST.getUserService().getAllRolesForUserInContext(Integer.toString(userid),
+                "context0");
         if (!roles.isEmpty()) {
             if (current_roles != null && !current_roles.isEmpty()) {
                 for (String current_role : current_roles) {
@@ -150,9 +156,7 @@ public class DbUserService implements UserService {
             }
             for (String role : roles) {
                 SqlInsertFormatter formatter = new SqlInsertFormatter();
-                formatter.append(UserFactory.PK_USERS, userid)
-                    .append("context", context)
-                    .append("rolename", role);
+                formatter.append(UserFactory.PK_USERS, userid).append("context", context).append("rolename", role);
                 users.insertRow(formatter.getColumnClause(), formatter.getValueClause());
             }
         } else {
@@ -168,12 +172,11 @@ public class DbUserService implements UserService {
         users.deleteRows(formatter.getWhereClause());
     }
 
-    private void addRole(final Database db, final int userid, final String context, final String role) throws DatabaseException {
+    private void addRole(final Database db, final int userid, final String context, final String role)
+            throws DatabaseException {
         Table users = db.getTable(UserFactory.TABLENAME_ROLES);
         SqlInsertFormatter formatter = new SqlInsertFormatter();
-        formatter.append(UserFactory.PK_USERS, userid)
-            .append("context", context)
-            .append("rolename", role);
+        formatter.append(UserFactory.PK_USERS, userid).append("context", context).append("rolename", role);
         users.insertRow(formatter.getColumnClause(), formatter.getValueClause());
     }
 
@@ -221,15 +224,16 @@ public class DbUserService implements UserService {
         formatter.append("prtoken", user.getPrtoken());
         formatter.append("prtimestamp", user.getPrtimestamp());
 
-        if (user.getUserLocation() != null) {
-            formatter.append("locserviceid", user.getUserLocation().getCode());
-            formatter.append("region", user.getUserLocation().getRegion());
-            formatter.append("subregion", user.getUserLocation().getSubregion());
-            formatter.append("country", user.getUserLocation().getCountry());
+        GeoLocation geoLoc = user.getGeoLocation();
+        if (geoLoc != null) {
+            formatter.append("locserviceid", geoLoc.getCode());
+            formatter.append("region", geoLoc.getRegion());
+            formatter.append("subregion", geoLoc.getSubregion());
+            formatter.append("country", geoLoc.getCountry());
 
-            if (user.getUserLocation().getLatlng() != null) {
-                formatter.append("longitude", user.getUserLocation().getLatlng().getLongitude());
-                formatter.append("latitude", user.getUserLocation().getLatlng().getLatitude());
+            if (geoLoc.getLatlng() != null) {
+                formatter.append("longitude", geoLoc.getLatlng().getLongitude());
+                formatter.append("latitude", geoLoc.getLatlng().getLatitude());
             }
         }
     }
@@ -274,9 +278,9 @@ public class DbUserService implements UserService {
         db.getTable(UserFactory.TABLENAME_USERS).updateRow(formatter.getUpdateClause(), where.getWhereClause());
     }
 
-    //=======================================
+    // =======================================
     // Organization stuff
-    //=======================================
+    // =======================================
 
     private List<Organization> getOrganizations(final Database db) throws DatabaseException {
         List<Organization> orgs = new ArrayList<>();
@@ -313,10 +317,9 @@ public class DbUserService implements UserService {
         Table survey = db.getTable(UserFactory.TABLENAME_SURVEY);
         Table vessel = db.getTable(UserFactory.TABLENAME_VESSEL);
 
-        if (users.getCount(where.getWhereClause()) > 0 ||
-            survey.getCount(where.getWhereClause()) > 0 ||
-            vessel.getCount(where.getWhereClause()) > 0) {
-                throw new NotificationException("Cannot delete. This organization is currently in use.");
+        if (users.getCount(where.getWhereClause()) > 0 || survey.getCount(where.getWhereClause()) > 0
+                || vessel.getCount(where.getWhereClause()) > 0) {
+            throw new NotificationException("Cannot delete. This organization is currently in use.");
         }
 
         organizations.deleteRows(where.getWhereClause());
@@ -326,9 +329,9 @@ public class DbUserService implements UserService {
         formatter.append("orgname", organization.getName());
     }
 
-    //=======================================
-    //    UserService i/f
-    //=======================================
+    // =======================================
+    // UserService i/f
+    // =======================================
 
     @Override
     public SecurityInfo getSecurityInfo(final String userIdString) {
@@ -376,7 +379,7 @@ public class DbUserService implements UserService {
     @Override
     public List<Organization> getOrganizations() {
         if (orgs == null) {
-            try (Database db = new Database(ci)){
+            try (Database db = new Database(ci)) {
                 orgs = getOrganizations(db);
             } catch (DatabaseException ex) {
                 throw new SecurityException("Can't read organizations", ex);
@@ -406,7 +409,8 @@ public class DbUserService implements UserService {
         }
 
         //
-        // TODO: Need to add a sorting method so that the new org is properly sorted
+        // TODO: Need to add a sorting method so that the new org is properly
+        // sorted
         // within the list.
         //
         // Nulling orgs then calling getOrganizations to clear cache
@@ -653,7 +657,7 @@ public class DbUserService implements UserService {
     public int getNumUsers() {
         try (Database db = new Database(ci)) {
             Table users = db.getTable(UserFactory.TABLENAME_USERS);
-            return (int)users.getCount(null);
+            return (int) users.getCount(null);
         } catch (DatabaseException ex) {
             throw new SecurityException("Could not get number of users", ex);
         }

@@ -1,6 +1,6 @@
 package org.ecocean.location;
 
-public class UserLocation {
+public class GeoLocation {
     private String code;
     private String country;
     private String region;
@@ -8,7 +8,7 @@ public class UserLocation {
 
     private LatLng latlng;
 
-    public UserLocation() {
+    public GeoLocation() {
         //
     }
 

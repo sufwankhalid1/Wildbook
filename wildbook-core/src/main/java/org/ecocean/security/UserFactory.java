@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.ecocean.Organization;
+import org.ecocean.location.GeoLocation;
 import org.ecocean.location.LatLng;
-import org.ecocean.location.UserLocation;
 import org.ecocean.rest.SimpleUser;
 
 import com.samsix.database.Database;
@@ -97,17 +97,17 @@ public class UserFactory {
         user.setPrtoken(rs.getString("prtoken"));
         user.setPrtimestamp(rs.getLocalDateTime("prtimestamp"));
 
-        user.setUserLocation(readUserLocation(rs));
+        user.setGeoLocation(readGeoLocation(rs));
 
         return user;
     }
 
-    private static UserLocation readUserLocation(final RecordSet rs) throws DatabaseException {
+    private static GeoLocation readGeoLocation(final RecordSet rs) throws DatabaseException {
         if (rs.getInteger("locserviceid") == null || ((Double) rs.getDouble("latitude") == null && (Double) rs.getDouble("longitude") == null)) {
             return null;
         }
 
-        UserLocation userlocation = new UserLocation();
+        GeoLocation userlocation = new GeoLocation();
         LatLng latlng = new LatLng();
 
         userlocation.setCode(rs.getInteger("locserviceid").toString());
