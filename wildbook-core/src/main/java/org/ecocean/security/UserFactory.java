@@ -107,20 +107,20 @@ public class UserFactory {
             return null;
         }
 
-        GeoLocation userlocation = new GeoLocation();
+        GeoLocation geoLoc = new GeoLocation();
         LatLng latlng = new LatLng();
 
-        userlocation.setCode(rs.getInteger("locserviceid").toString());
-        userlocation.setCountry(rs.getString("country"));
-        userlocation.setRegion(rs.getString("region"));
-        userlocation.setSubregion(rs.getString("subregion"));
+        geoLoc.setId(rs.getInteger("locserviceid"));
+        geoLoc.setCountry(rs.getString("country"));
+        geoLoc.setRegion(rs.getString("region"));
+        geoLoc.setSubregion(rs.getString("subregion"));
 
         latlng.setLatitude(rs.getDouble("latitude"));
         latlng.setLongitude(rs.getDouble("longitude"));
 
-        userlocation.setLatlng(latlng);
+        geoLoc.setLatlng(latlng);
 
-        return userlocation;
+        return geoLoc;
     }
 
     public static SimpleUser readSimpleUser(final RecordSet rs) throws DatabaseException {

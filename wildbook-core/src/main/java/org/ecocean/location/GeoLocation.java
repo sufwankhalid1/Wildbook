@@ -1,7 +1,7 @@
 package org.ecocean.location;
 
 public class GeoLocation {
-    private String code;
+    private Integer id;
     private String country;
     private String region;
     private String subregion;
@@ -12,12 +12,12 @@ public class GeoLocation {
         //
     }
 
-    public String getCode() {
-        return code;
+    public Integer getId() {
+        return id;
     }
 
-    public void setCode(final String code) {
-        this.code = code;
+    public void setId(final Integer id) {
+        this.id = id;
     }
 
     public LatLng getLatlng() {

@@ -226,7 +226,7 @@ public class DbUserService implements UserService {
 
         GeoLocation geoLoc = user.getGeoLocation();
         if (geoLoc != null) {
-            formatter.append("locserviceid", geoLoc.getCode());
+            formatter.append("locserviceid", geoLoc.getId());
             formatter.append("region", geoLoc.getRegion());
             formatter.append("subregion", geoLoc.getSubregion());
             formatter.append("country", geoLoc.getCountry());
