@@ -70,6 +70,18 @@ public class MediaSubmissionController
         }
     }
 
+    //
+    // For deleting files from mediaupload page on happywhale
+    //
+    @RequestMapping(value = "/delfile/{msid}", method = RequestMethod.POST)
+    public void delFile(final HttpServletRequest request,
+                        @PathVariable("msid")
+                        final int msid,
+                        @RequestBody final String filename) throws DatabaseException, IOException
+    {
+        MediaUploadServlet.deleteFileFromSet(request, msid, filename);
+    }
+
     @RequestMapping(value = "/encounters/{submissionid}", method = RequestMethod.GET)
     public static SubmissionEncounters getEncounters(final HttpServletRequest request,
                                                      @PathVariable("submissionid")

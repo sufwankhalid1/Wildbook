@@ -10,7 +10,6 @@ import org.ecocean.media.MediaAsset;
 import org.ecocean.media.MediaAssetFactory;
 import org.ecocean.media.MediaSubmissionFactory;
 import org.ecocean.rest.MediaSubmissionController.MSMEntry;
-import org.ecocean.rest.MediaUploadServlet;
 import org.ecocean.servlet.ServletUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -148,15 +147,6 @@ public class AdminMediaSubmissionController {
             Table table = db.getTable(MediaSubmissionFactory.TABLENAME_MEDIASUBMISSION);
             table.updateRow(formatter.getUpdateClause(), "id = " + msid);
         };
-    }
-
-    @RequestMapping(value = "/delfile/{msid}", method = RequestMethod.POST)
-    public void delFile(final HttpServletRequest request,
-                        @PathVariable("msid")
-                        final int msid,
-                        @RequestBody final String filename) throws DatabaseException, IOException
-    {
-        MediaUploadServlet.deleteFileFromSet(request, msid, filename);
     }
 
     static class MSReassign {
