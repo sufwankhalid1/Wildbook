@@ -1,1 +1,1 @@
-Welcome to #{cust.displayname}! -- Please Verify Your Account
+Welcome to ${cust.displayname}! -- Please Verify Your Account
