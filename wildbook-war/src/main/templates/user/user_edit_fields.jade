@@ -31,6 +31,6 @@ div(layout="row" layout-align="start center" layout-wrap)
     div.mt-15(layout="row" flex-offset="10" flex="90" layout-align="start center")
         md-icon.md-warn(md-svg-icon="delete" layout-margin ng-click="deleteUser()" ng-if="showdelete == 'true'")
         div(flex="")
-        md-button.md-whiteframe-1dp.md-warn(type="submit" ng-click="modifyUserRoles()" aria-label="Save") Modify User Roles
+        md-button.md-whiteframe-1dp.md-warn(type="submit" ng-click="modifyUserRoles()" ng-show="user.id" aria-label="Save") Modify User Roles
         md-button.md-whiteframe-1dp.md-warn(type="submit" ng-click="changeUserPassword()" aria-label="Save") Change User Password
         md-button.md-whiteframe-1dp(type="submit" ng-click="save()" aria-label="Save") Save

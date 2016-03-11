@@ -57,7 +57,7 @@ angular.module('wildbook.admin').directive(
                         refreshTimeout();
                     }
 
-                    function refreshTimeout(){
+                    function refreshTimeout() {
                         $timeout(function(){
                             refreshExports();
                         }, 5000);
