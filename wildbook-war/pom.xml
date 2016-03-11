@@ -3,14 +3,14 @@
 
   <groupId>org.ecocean</groupId>
   <artifactId>wildbook-war</artifactId>
-  <version>6.0.2-SNAPSHOT</version>
+  <version>6.0.9-SNAPSHOT</version>
   <packaging>war</packaging>
 
   <dependencies>
     <dependency>
         <groupId>org.ecocean</groupId>
         <artifactId>wildbook-http</artifactId>
-        <version>6.0.2-SNAPSHOT</version>
+        <version>6.0.9-SNAPSHOT</version>
     </dependency>
 
     <dependency>
@@ -62,8 +62,8 @@
 
     <dependency>
         <groupId>com.animalus</groupId>
-        <artifactId>animalus-wildbook-core</artifactId>
-        <version>1.1-SNAPSHOT</version>
+        <artifactId>wildbook-core</artifactId>
+        <version>1.1.8-SNAPSHOT</version>
     </dependency>
 
     <!-- wildbook local jars, not in public maven repos
