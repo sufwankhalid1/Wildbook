@@ -35,6 +35,17 @@ angular.module('wildbook.util')
         return data;
     }
 
+    function fixMonth(rest) {
+        //
+        // The month is zero-based in moment because javascript Date is also apparently. Sheeesh.
+        // Therefore we have to do the following which involves copying the array so that we
+        // don't affect the data passed in.
+        //
+        var datearray = rest.slice();
+        datearray[1]--;
+        return datearray;
+    }
+
     function restToMoment(rest) {
         if (! rest) {
             return null;
@@ -54,17 +65,6 @@ angular.module('wildbook.util')
             return aMoment.format(datetimeFormat || "YYYY-MM-DD HH:mm:ss");
         }
         return null;
-    }
-
-    function fixMonth(rest) {
-        //
-        // The month is zero-based in moment because javascript Date is also apparently. Sheeesh.
-        // Therefore we have to do the following which involves copying the array so that we
-        // don't affect the data passed in.
-        //
-        var datearray = rest.slice();
-        datearray[1]--;
-        return datearray;
     }
 
     return {
@@ -237,161 +237,162 @@ directive(
                             +'</div>',
             replace: false,
             link: function($scope, elm, attrs) {
-                    $scope.hour = null;
-                    $scope.minute = null;
-                    $scope.second = null;
-                    $scope.showSecond = null;
-                    $scope.showMinute = null;
-                    $scope.showHour = null;
-                    var hourFilter = /[1-9]/;
+                $scope.hour = null;
+                $scope.minute = null;
+                $scope.second = null;
+                $scope.showSecond = null;
+                $scope.showMinute = null;
+                $scope.showHour = null;
+                var hourFilter = /[1-9]/;
 
-                    $scope.focus = function(type, $e) {
-                        if (!$scope.time) {
-                            $scope.time = [null, null, null];
-                        }
+                $scope.focus = function(type, $e) {
+                    if (!$scope.time) {
+                        $scope.time = [null, null, null];
+                    }
 
-                        switch(type) {
-                            case 'hour':
-                            	$scope.hour = $scope.hour || "00";
-                            	$scope.showHour = true;
-                                break;
-                            case 'minute':
-                            	$scope.minute = $scope.minute || "00";
-                            	$scope.showMinute = true;
-                                break;
-                            case 'second':
-                            	$scope.second = $scope.second || "00";
-                            	$scope.showSecond = true;
-                                break;
-                        }
+                    switch(type) {
+                        case 'hour':
+                        	$scope.hour = $scope.hour || "00";
+                        	$scope.showHour = true;
+                            break;
+                        case 'minute':
+                        	$scope.minute = $scope.minute || "00";
+                        	$scope.showMinute = true;
+                            break;
+                        case 'second':
+                        	$scope.second = $scope.second || "00";
+                        	$scope.showSecond = true;
+                            break;
+                    }
 
-                        $timeout(function() {
-                            $e.target.previousElementSibling.focus(function() {
-                                $scope.selectTime($e);
-                            });
-                        }, 100);
-                    };
+                    $timeout(function() {
+                        $e.target.previousElementSibling.focus(function() {
+                            $scope.selectTime($e);
+                        });
+                    }, 100);
+                };
 
-                    $scope.selectTime = function($e) {
-                        $e.target.select();
-                    };
+                $scope.selectTime = function($e) {
+                    $e.target.select();
+                };
 
-                    $scope.changeHour = function() {
-                        if (!$scope.hour.length) {
-                            $scope.hour = '';
-                        } else if ($scope.hour.length > 2
-                                   || (!hourFilter.test($scope.hour) && $scope.hour !== "0")
-                                   || ($scope.format === "12" ? parseInt($scope.hour) > 12 : parseInt($scope.hour) > 24) ) {
-                            $scope.hour = "00";
-                        } else {
-                        	$scope.time[0] = parseInt($scope.hour);
-                        }
+                $scope.changeHour = function() {
+                    if (!$scope.hour.length) {
+                        $scope.hour = '';
+                    } else if ($scope.hour.length > 2
+                               || (!hourFilter.test($scope.hour) && $scope.hour !== "0")
+                               || ($scope.format === "12" ? parseInt($scope.hour) > 12 : parseInt($scope.hour) > 24) ) {
+                        $scope.hour = "00";
+                    } else {
+                    	$scope.time[0] = parseInt($scope.hour);
+                    }
 
-                        if ($scope.format === "12") {
-                            $scope.changeAmPm();
-                        }
-                    };
-
-                    $scope.changeMinute = function() {
-                        if ($scope.minute.length > 2 || !$scope.minute.length || ! /^[0-5]\d*/.test($scope.minute) || parseInt($scope.minute) > 59) {
-                            $scope.minute = "00";
-                        } else {
-                            $scope.time[1] = parseInt($scope.minute);
-                        }
-                    };
-
-                    $scope.changeSecond = function() {
-                        if ($scope.second.length > 2 || !$scope.second.length || ! /^[0-5]\d*/.test($scope.second) || parseInt($scope.second) > 59) {
-                            $scope.second = "00";
-                        } else {
-                            $scope.time[2] = parseInt($scope.second);
-                        }
-                    };
-
-                    $scope.changeAmPm = function() {
-                        if ($scope.ampm === "am") {
-                            if ($scope.hour) {
-                                if (parseInt($scope.hour) === 12) {
-                                    $scope.time[0] = 0;
-                                }
-                            }
-                        } else {
-                            if ($scope.hour) {
-                                if (parseInt($scope.hour) === 0) {
-                                    $scope.time[0] = 12;
-                                } else if (parseInt($scope.hour) !== 12 ) {
-                                    $scope.time[0] = parseInt($scope.hour) + 12;
-                                }
-                            }
-                        }
-                    };
-
-                    $scope.padZero = function(type) {
-                        switch(type) {
-                            case 'hour' :
-                            	if ($scope.hour && $scope.hour.length === 1) {
-                            		$scope.hour = "0" + $scope.hour;
-                            		$scope.time[0] = parseInt($scope.hour);
-                            	}
-                                break;
-                            case 'minute':
-                            	if ((typeof $scope.minute === 'string' && $scope.minute && $scope.minute.length === 1)
-                                    || (typeof $scope.minute === 'number' && $scope.minute < 10)) {
-                                		$scope.minute = "0" + $scope.minute;
-                                		$scope.time[1] = parseInt($scope.minute);
-                            	}
-                                break;
-                            case 'second' :
-                            	if ((typeof $scope.second === 'string' && $scope.second && $scope.second.length === 1)
-                                    || (typeof $scope.second === 'number' && $scope.second < 10)) {
-                                		$scope.second = "0" + $scope.second;
-                                		$scope.time[2] = parseInt($scope.second);
-                            	}
-                                break;
-                        }
-                    };
-
-                    $scope.$watch('time', function(newVal, oldVal) {
-                        init();
-                    });
-
-                    //time init
-                    var init = function() {
-                        if (!$scope.time) {
-                            $scope.time = [];
-                            return false;
-                        } else if ($scope.time && $scope.time.length && (!$scope.format || $scope.format === "24")){
-                                $scope.hour = $scope.time[0].toString();
-                        } else if ($scope.time && $scope.time.length && $scope.format === "12") {
-                            if ($scope.time[0]  < 12 && $scope.time[0] !== 0) {
-                                $scope.hour = $scope.time[0].toString();
-                                $scope.ampm = "am";
-                            } else if ($scope.time[0] === 0) {
-                                $scope.hour = "12";
-                                $scope.ampm = "am";
-                            } else if ($scope.time[0] === 12) {
-                                $scope.hour = $scope.time[0].toString();
-                                $scope.ampm = "pm";
-                            } else if ($scope.time[0] > 12) {
-                                $scope.hour = $scope.time[0] - 12;
-                                $scope.hour = $scope.hour.toString();
-                                $scope.ampm = "pm";
-                            }
-                        }
-
-                        if ($scope.time.length) {
-                            $scope.minute = $scope.time[1].toString();
-                            $scope.second = $scope.time[2].toString();
-
-                            $scope.padZero('hour');
-                            $scope.padZero('minute');
-                            $scope.padZero('second');
-
-                            $scope.showHour = true;
-                            $scope.showMinute = true;
-                            $scope.showSecond = true;
+                    if ($scope.format === "12") {
+                        $scope.changeAmPm();
                     }
                 };
+
+                $scope.changeMinute = function() {
+                    if ($scope.minute.length > 2 || !$scope.minute.length || ! /^[0-5]\d*/.test($scope.minute) || parseInt($scope.minute) > 59) {
+                        $scope.minute = "00";
+                    } else {
+                        $scope.time[1] = parseInt($scope.minute);
+                    }
+                };
+
+                $scope.changeSecond = function() {
+                    if ($scope.second.length > 2 || !$scope.second.length || ! /^[0-5]\d*/.test($scope.second) || parseInt($scope.second) > 59) {
+                        $scope.second = "00";
+                    } else {
+                        $scope.time[2] = parseInt($scope.second);
+                    }
+                };
+
+                $scope.changeAmPm = function() {
+                    if ($scope.ampm === "am") {
+                        if ($scope.hour) {
+                            if (parseInt($scope.hour) === 12) {
+                                $scope.time[0] = 0;
+                            }
+                        }
+                    } else {
+                        if ($scope.hour) {
+                            if (parseInt($scope.hour) === 0) {
+                                $scope.time[0] = 12;
+                            } else if (parseInt($scope.hour) !== 12 ) {
+                                $scope.time[0] = parseInt($scope.hour) + 12;
+                            }
+                        }
+                    }
+                };
+
+                $scope.padZero = function(type) {
+                    switch(type) {
+                        case 'hour' :
+                        	if ($scope.hour && $scope.hour.length === 1) {
+                        		$scope.hour = "0" + $scope.hour;
+                        		$scope.time[0] = parseInt($scope.hour);
+                        	}
+                            break;
+                        case 'minute':
+                        	if ((typeof $scope.minute === 'string' && $scope.minute && $scope.minute.length === 1)
+                                || (typeof $scope.minute === 'number' && $scope.minute < 10)) {
+                            		$scope.minute = "0" + $scope.minute;
+                            		$scope.time[1] = parseInt($scope.minute);
+                        	}
+                            break;
+                        case 'second' :
+                        	if ((typeof $scope.second === 'string' && $scope.second && $scope.second.length === 1)
+                                || (typeof $scope.second === 'number' && $scope.second < 10)) {
+                            		$scope.second = "0" + $scope.second;
+                            		$scope.time[2] = parseInt($scope.second);
+                        	}
+                            break;
+                    }
+                };
+
+                $scope.$watch('time', function(newVal, oldVal) {
+                    if (!$scope.time) {
+                        $scope.time = [];
+                        return;
+                    }
+
+                    if (!$scope.time.length) {
+                        return;
+                    }
+
+                    if ($scope.format && $scope.format === "12"){
+                        if ($scope.time[0]  < 12 && $scope.time[0] !== 0) {
+                            $scope.hour = $scope.time[0].toString();
+                            $scope.ampm = "am";
+                        } else if ($scope.time[0] === 0) {
+                            $scope.hour = "12";
+                            $scope.ampm = "am";
+                        } else if ($scope.time[0] === 12) {
+                            $scope.hour = $scope.time[0].toString();
+                            $scope.ampm = "pm";
+                        } else if ($scope.time[0] > 12) {
+                            $scope.hour = $scope.time[0] - 12;
+                            $scope.hour = $scope.hour.toString();
+                            $scope.ampm = "pm";
+                        }
+                    } else {
+                        $scope.hour = $scope.time[0].toString();
+                    }
+
+                    $scope.minute = $scope.time[1].toString();
+                    if ($scope.time.length > 2) {
+                        $scope.second = $scope.time[2].toString();
+                    }
+
+                    $scope.padZero('hour');
+                    $scope.padZero('minute');
+                    $scope.padZero('second');
+
+                    $scope.showHour = true;
+                    $scope.showMinute = true;
+                    $scope.showSecond = true;
+                });
             }
         };
 }]);

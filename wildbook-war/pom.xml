@@ -3,14 +3,14 @@
 
   <groupId>org.ecocean</groupId>
   <artifactId>wildbook-war</artifactId>
-  <version>6.0.9-SNAPSHOT</version>
+  <version>6.0.9</version>
   <packaging>war</packaging>
 
   <dependencies>
     <dependency>
         <groupId>org.ecocean</groupId>
         <artifactId>wildbook-http</artifactId>
-        <version>6.0.9-SNAPSHOT</version>
+        <version>6.0.9</version>
     </dependency>
 
     <dependency>
