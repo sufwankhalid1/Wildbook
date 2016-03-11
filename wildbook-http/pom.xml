@@ -3,7 +3,7 @@
 
   <groupId>org.ecocean</groupId>
   <artifactId>wildbook-http</artifactId>
-  <version>6.0.9</version>
+  <version>6.0.10-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <properties>
@@ -16,7 +16,7 @@
     <dependency>
         <groupId>org.ecocean</groupId>
         <artifactId>wildbook-core</artifactId>
-        <version>6.0.9</version>
+        <version>6.0.10-SNAPSHOT</version>
     </dependency>
     
     <dependency>
