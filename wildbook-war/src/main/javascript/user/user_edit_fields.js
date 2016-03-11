@@ -36,14 +36,24 @@ angular.module('wildbook.admin').directive(
                     return alertplus.confirm('Are you sure you want to delete this user?', "Delete User", true)
                     .then(function() {
                         $http.post("admin/api/user/userdelete", $scope.user)
-                        .then(function() {
+                        .success(function(res) {
                             //
                             // TODO: Reperform search to clear out this now deleted value.
                             //
                             delete $scope.user;
+                            alertplus.confirm("User has been deleted. Changes will not reflect until your next refresh.");
+                        })
+                        .error(function(res) {
+                            if (res) {
+                                alertplus.error(res.message);
+                            }
                         });
                     });
                 };
+
+                function updateRoles(dialogRes) {
+                    $scope.roles = dialogRes;
+                }
 
                 //modify user Roles
                 $scope.modifyUserRoles = function($event) {
@@ -66,7 +76,7 @@ angular.module('wildbook.admin').directive(
 
                         $scope.update = function() {
                             $http.post('admin/api/user/roles/update/'+user.id, $scope.userroles)
-                            .then(function(res) {
+                            .then(function() {
                                 $scope.selectedAvailableRole = [];
                                 $scope.selectedUserRoles = [];
 
@@ -148,10 +158,6 @@ angular.module('wildbook.admin').directive(
                         controller: DialogController
                     });
                 };
-
-                function updateRoles(dialogRes) {
-                    $scope.roles = dialogRes;
-                }
 
                  //change password dialog
                 $scope.changeUserPassword = function($event) {

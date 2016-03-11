@@ -15,13 +15,6 @@ angular.module('wildbook.admin').directive(
             },
             replace: true,
             controller: function($scope) {
-                $scope.setUser = function(user) {
-                    $http.get("admin/api/user/get/" + user.id)
-                    .then(function(result) {
-                        $scope.user = result.data;
-                        getRoles(result.data.id);
-                    });
-                };
 
                 //get user Roles
                 function getRoles(id) {
@@ -33,6 +26,15 @@ angular.module('wildbook.admin').directive(
                         $scope.userroles = res.data;
                     });
                 }
+
+
+                $scope.setUser = function(user) {
+                    $http.get("admin/api/user/get/" + user.id)
+                    .then(function(result) {
+                        $scope.user = result.data;
+                        getRoles(result.data.id);
+                    });
+                };
 
                 $scope.clearUser = function() {
                     delete $scope.user;
