@@ -1,19 +1,16 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-                             http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>org.ecocean</groupId>
   <artifactId>wildbook-war</artifactId>
-  <version>6.0.0-SNAPSHOT</version>
+  <version>6.0.2-SNAPSHOT</version>
   <packaging>war</packaging>
 
   <dependencies>
     <dependency>
         <groupId>org.ecocean</groupId>
         <artifactId>wildbook-http</artifactId>
-        <version>6.0.0-SNAPSHOT</version>
+        <version>6.0.2-SNAPSHOT</version>
     </dependency>
 
     <dependency>
@@ -66,7 +63,7 @@
     <dependency>
         <groupId>com.animalus</groupId>
         <artifactId>animalus-wildbook-core</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.1-SNAPSHOT</version>
     </dependency>
 
     <!-- wildbook local jars, not in public maven repos
@@ -87,6 +84,7 @@
   </dependencies>
 
   <build>
+    <finalName>${project.artifactId}</finalName>
     <resources>
       <resource>
         <directory>src/main/resources</directory>
@@ -131,8 +129,7 @@
           <additionalClasspathElements>
             <additionalClasspathElement>${project.build.outputDirectory}</additionalClasspathElement>
           </additionalClasspathElements>
-          ####commented out ####jettyConfig>src/test/resources/jetty/jetty.xml</jettyConfig ####end commented out####
-          <connectors>
+          ####commented out ####jettyConfig>src/test/resources/jetty/jetty.xml</jettyConfig ####end commented out#### <connectors>
             <connector implementation="org.mortbay.jetty.nio.SelectChannelConnector">
               <port>8081</port>
               <maxIdleTime>60000</maxIdleTime>
@@ -250,7 +247,7 @@
                     </goals>
                   </pluginExecutionFilter>
                   <action>
-                    <ignore></ignore>
+                    <ignore />
                   </action>
                 </pluginExecution>
                 <pluginExecution>
@@ -263,7 +260,7 @@
                     </goals>
                   </pluginExecutionFilter>
                   <action>
-                    <ignore></ignore>
+                    <ignore />
                   </action>
                 </pluginExecution>
               </pluginExecutions>
