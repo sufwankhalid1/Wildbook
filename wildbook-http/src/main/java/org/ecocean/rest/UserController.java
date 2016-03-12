@@ -111,6 +111,7 @@ public class UserController {
 
         String hashedPass = WildbookUtils.hashAndSaltPassword(password, user.getSalt());
         UsernamePasswordToken token = new UsernamePasswordToken(user.getId().toString(), hashedPass);
+        token.setRememberMe(true);
 
         //
         // TODO: Built in support for remember me. Should we have the user pass this in so as
@@ -303,4 +304,3 @@ public class UserController {
         public SimpleUser user;
     }
 }
-
