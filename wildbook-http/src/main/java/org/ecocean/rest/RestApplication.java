@@ -29,7 +29,8 @@ import com.samsix.database.ConnectionInfo;
 // There are some things about Spring I hate.
 //
 // same as @Configuration @EnableAutoConfiguration @ComponentScan
-@SpringBootApplication(scanBasePackages="org.ecocean.rest, com.animalus.wildbook.rest")
+//@SpringBootApplication(scanBasePackages="org.ecocean.rest, com.animalus.wildbook.rest")
+@SpringBootApplication(scanBasePackages="org.ecocean.rest")
 public class RestApplication extends SpringBootServletInitializer {
     private static Logger logger = LoggerFactory.getLogger(RestApplication.class);
 
