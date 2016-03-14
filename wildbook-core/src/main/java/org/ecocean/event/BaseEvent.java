@@ -32,11 +32,11 @@ public abstract class BaseEvent {
         return timestamp;
     }
 
-    public int getRelPKId1() {
+    public Integer getRelPKId1() {
         return relPKId1;
     }
 
-    public int getRelPKId2() {
+    public Integer getRelPKId2() {
         return relPKId2;
     }
 

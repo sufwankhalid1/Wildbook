@@ -145,34 +145,6 @@ public class UserController {
         return rolesFound.toString();
     }
 
-    //
-    // WARN: Used in JSP page.
-    //
-    public static SimpleUser getLoggedInUser(final HttpServletRequest request) {
-        User user = ServletUtils.getUser(request);
-
-        if (user == null) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Checking isloggedin and getting null.");
-            }
-            return null;
-        }
-
-        return user.toSimple();
-    }
-
-
-    @RequestMapping(value = "isloggedin", method = RequestMethod.GET)
-    public static LoginStatus isLoggedIn(final HttpServletRequest request) {
-        //
-        // NOTE: using extra class here just so that an empty string is not returned. If the root object
-        // is null then you get an empty string on the client side, at least for some client code.
-        //
-        LoginStatus status = new LoginStatus();
-        status.user = getLoggedInUser(request);
-        return status;
-    }
-
 
     @RequestMapping(value = "login", method = RequestMethod.POST)
     public SimpleUser loginCall(final HttpServletRequest request,
@@ -298,9 +270,5 @@ public class UserController {
     static class ResetPass {
         public String token;
         public String password;
-    }
-
-    static class LoginStatus {
-        public SimpleUser user;
     }
 }
