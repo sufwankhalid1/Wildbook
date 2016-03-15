@@ -145,7 +145,6 @@ public class UserController {
         return rolesFound.toString();
     }
 
-
     @RequestMapping(value = "login", method = RequestMethod.POST)
     public SimpleUser loginCall(final HttpServletRequest request,
                                 @RequestBody
@@ -241,11 +240,6 @@ public class UserController {
 
         UserService userService = Global.INST.getUserService();
         userService.resetPassWithToken(reset.token, reset.password);
-    }
-
-    @RequestMapping(value = "self", method = RequestMethod.GET)
-    public User getSelf(final HttpServletRequest request) {
-        return ServletUtils.getUser(request);
     }
 
     @RequestMapping(value = "exports", method = RequestMethod.GET)
