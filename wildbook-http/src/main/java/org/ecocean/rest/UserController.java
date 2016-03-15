@@ -2,21 +2,16 @@ package org.ecocean.rest;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
-import javax.mail.MessagingException;
-import javax.mail.internet.AddressException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import javax.validation.Valid;
 
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
 import org.ecocean.ContextConfiguration;
 import org.ecocean.Global;
-import org.ecocean.email.EmailUtils;
 import org.ecocean.export.Export;
 import org.ecocean.export.ExportFactory;
 import org.ecocean.security.SecurityInfo;
@@ -35,9 +30,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
-
-import de.neuland.jade4j.exceptions.JadeCompilerException;
-import de.neuland.jade4j.exceptions.JadeException;
 
 @RestController
 @RequestMapping(value = "/api/user")
@@ -200,31 +192,6 @@ public class UserController {
 //    {
 //        logoutUser(request);
 //    }
-
-
-    @RequestMapping(value = "sendpassreset", method = RequestMethod.POST)
-    public void sendResetEmail(final HttpServletRequest request,
-                               @RequestBody @Valid final String userameOrEmail) throws DatabaseException, IllegalAccessException, JadeCompilerException, AddressException, JadeException, IOException, MessagingException {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Sending reset email for address [" + userameOrEmail + "]");
-        }
-
-        UserService userService = Global.INST.getUserService();
-        User user = userService.getUserByNameOrEmail(userameOrEmail);
-        if (user == null) {
-            throw new IllegalAccessException("No user found with this email.");
-        }
-
-        String token = userService.createPWResetToken(user.getId().toString());
-
-        Map<String, Object> model = EmailUtils.createModel();
-        model.put(EmailUtils.TAG_USER, user.toSimple());
-        model.put(EmailUtils.TAG_TOKEN, token);
-        EmailUtils.sendJadeTemplate(EmailUtils.getAdminSender(),
-                                    user.getEmail(),
-                                    "account/passwordReset",
-                                    model);
-    }
 
 
     @RequestMapping(value = "resetpass", method = RequestMethod.POST)

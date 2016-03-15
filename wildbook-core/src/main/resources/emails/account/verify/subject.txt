@@ -1,1 +1,0 @@
-Welcome to ${cust.displayname}! -- Please Verify Your Account
