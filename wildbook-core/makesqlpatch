@@ -16,6 +16,7 @@ do
         java=true
         ;;
 	-d)
+	shift
 	dir="$1"
 	;;
         *)
@@ -33,7 +34,7 @@ fi
 if [ "$java" = true ]; then
     DATE=`date +%Y_%m_%d_%H_%M_%S`
     version=V${DATE}${message}
-    file={$dir}/src/main/java/db/migration/$version.java
+    file=${dir}/src/main/java/db/migration/$version.java
     cat config/db/flyway_java.template | sed "s/\${patchname}/$version/" > ${file}
 else
     DATE=`date +%Y.%m.%d.%H.%M.%S`
