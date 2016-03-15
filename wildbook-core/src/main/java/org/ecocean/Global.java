@@ -25,7 +25,7 @@ import org.ecocean.email.Emailer;
 import org.ecocean.encounter.EncounterStore;
 import org.ecocean.encounter.IndividualStore;
 import org.ecocean.event.EventHandler;
-import org.ecocean.event.NullEventHandler;
+import org.ecocean.event.DefaultEventHandler;
 import org.ecocean.location.GeoNamesLocationService;
 import org.ecocean.location.LocationService;
 import org.ecocean.location.NullLocationService;
@@ -343,7 +343,7 @@ public enum Global {
                 eventHandler = (EventHandler) appResources.getObject("services.event.handler", "org.ecocean.event.NullEventHandler");
             } catch (UtilException ex) {
                 logger.error("Trouble creating EventHandler", ex);
-                eventHandler = new NullEventHandler();
+                eventHandler = new DefaultEventHandler();
             }
         }
 

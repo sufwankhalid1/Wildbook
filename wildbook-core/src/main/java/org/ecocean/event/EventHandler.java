@@ -1,5 +1,30 @@
 package org.ecocean.event;
 
-public interface EventHandler {
-    public void trigger(final BaseEvent event);
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+public abstract class EventHandler {
+    private Map<String, List<EventListener>> mapListeners;
+
+    private List<EventListener> getListeners(final String eventType) {
+        List<EventListener> listeners = mapListeners.get(eventType);
+        if (listeners == null) {
+            listeners = new ArrayList<>();
+            mapListeners.put(eventType, listeners);
+        }
+        return listeners;
+    }
+
+    public void registerListener(final String eventType, final EventListener listener) {
+        getListeners(eventType).add(listener);
+    }
+
+    protected void notifyListeners(final BaseEvent event) {
+        for (EventListener listener : getListeners(event.getType())) {
+            listener.eventOccurred(event);
+        }
+    }
+
+    public abstract void trigger(final BaseEvent event);
 }

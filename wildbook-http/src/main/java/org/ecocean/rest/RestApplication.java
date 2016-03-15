@@ -21,6 +21,7 @@ import org.springframework.boot.context.web.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
 
 import com.samsix.database.ConnectionInfo;
+import com.samsix.util.reflect.SimpleMethodInvoker;
 
 //
 // TODO: How can this be configurable? I can't figure that out. Seems like it's not possible.
@@ -132,6 +133,23 @@ public class RestApplication extends SpringBootServletInitializer {
             logger.warn("Creating tomcat user account since no user account exists...");
             service.saveUser(newUser);
             service.addRole(newUser.getId().toString(), "context0", "admin");
+        }
+
+        //
+        // Create a property such as ...
+        //
+        //      system.onstart.init.class = org.myorg.MyGlobal
+        // ... and add a static method called "init" (or the result of the other property below)
+        // and put any special code in there. Such as special event handling or whatever.
+        //
+        try {
+            String initClass = Global.INST.getAppResources().getString("system.onstart.init.class", null);
+            if (initClass != null) {
+                String initMethod = Global.INST.getAppResources().getString("system.onstart.init.method", "init");
+                SimpleMethodInvoker.invokeStaticMethod(initClass, initMethod, null, null);
+            }
+        } catch (Throwable ex) {
+            logger.error("Can't run special init class", ex);
         }
     }
 
