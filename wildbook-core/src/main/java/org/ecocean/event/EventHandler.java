@@ -1,11 +1,12 @@
 package org.ecocean.event;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public abstract class EventHandler {
-    private Map<String, List<EventListener>> mapListeners;
+    private final Map<String, List<EventListener>> mapListeners = new HashMap<>();
 
     private List<EventListener> getListeners(final String eventType) {
         List<EventListener> listeners = mapListeners.get(eventType);
