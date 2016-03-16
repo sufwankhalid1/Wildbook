@@ -22,6 +22,10 @@ import javax.net.ssl.X509TrustManager;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ecocean.email.Emailer;
+import org.ecocean.encounter.EncounterStore;
+import org.ecocean.encounter.IndividualStore;
+import org.ecocean.event.EventHandler;
+import org.ecocean.event.DefaultEventHandler;
 import org.ecocean.location.GeoNamesLocationService;
 import org.ecocean.location.LocationService;
 import org.ecocean.location.NullLocationService;
@@ -60,6 +64,9 @@ public enum Global {
 
     private UserService userService;
     private LocationService locationService;
+    private EventHandler eventHandler;
+    private EncounterStore encounterStore;
+    private IndividualStore individualStore;
 
     private void loadWebappProps(final String file) {
         try (InputStream input = Global.class.getResourceAsStream(file)) {
@@ -329,6 +336,20 @@ public enum Global {
         return userService;
     }
 
+
+    public EventHandler getEventHandler() {
+        if (eventHandler == null) {
+            try {
+                eventHandler = (EventHandler) appResources.getObject("services.event.handler", "org.ecocean.event.NullEventHandler");
+            } catch (UtilException ex) {
+                logger.error("Trouble creating EventHandler", ex);
+                eventHandler = new DefaultEventHandler();
+            }
+        }
+
+        return eventHandler;
+    }
+
     public LocationService getLocationService() {
         if (locationService == null) {
             String service = appResources.getString("services.location", null);
@@ -428,5 +449,21 @@ public enum Global {
 
     public String getCust() {
         return cust;
+    }
+
+    public EncounterStore getEncounterStore() {
+        if (encounterStore == null) {
+            encounterStore = new EncounterStore(getAppResources().getInt("encounter.store.lrucache.size", 5000));
+        }
+
+        return encounterStore;
+    }
+
+    public IndividualStore getIndividualStore() {
+        if (individualStore == null) {
+            individualStore = new IndividualStore(getAppResources().getInt("individual.store.lrucache.size", 5000));
+        }
+
+        return individualStore;
     }
 }

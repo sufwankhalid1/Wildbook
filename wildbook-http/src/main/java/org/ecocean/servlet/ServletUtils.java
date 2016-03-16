@@ -20,6 +20,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.ecocean.ContextConfiguration;
 import org.ecocean.Global;
 import org.ecocean.html.HtmlConfig;
+import org.ecocean.rest.SimpleUser;
 import org.ecocean.security.User;
 import org.ecocean.security.UserService;
 import org.ecocean.util.Jade4JUtils;
@@ -40,6 +41,19 @@ public class ServletUtils {
 
     private ServletUtils() {
         // prevent instantiation
+    }
+
+    public static SimpleUser getSimpleUser(final HttpServletRequest request) {
+        User user = getUser(request);
+
+        if (user == null) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Checking isloggedin and getting null.");
+            }
+            return null;
+        }
+
+        return user.toSimple();
     }
 
     public static User getUser(final HttpServletRequest request) {

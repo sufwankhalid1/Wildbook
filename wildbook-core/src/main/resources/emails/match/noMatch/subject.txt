@@ -1,1 +1,0 @@
-We're still working on matching your submission from ${submission.date}

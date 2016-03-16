@@ -2,21 +2,16 @@ package org.ecocean.rest;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
-import javax.mail.MessagingException;
-import javax.mail.internet.AddressException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import javax.validation.Valid;
 
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
 import org.ecocean.ContextConfiguration;
 import org.ecocean.Global;
-import org.ecocean.email.EmailUtils;
 import org.ecocean.export.Export;
 import org.ecocean.export.ExportFactory;
 import org.ecocean.security.SecurityInfo;
@@ -35,9 +30,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
-
-import de.neuland.jade4j.exceptions.JadeCompilerException;
-import de.neuland.jade4j.exceptions.JadeException;
 
 @RestController
 @RequestMapping(value = "/api/user")
@@ -145,35 +137,6 @@ public class UserController {
         return rolesFound.toString();
     }
 
-    //
-    // WARN: Used in JSP page.
-    //
-    public static SimpleUser getLoggedInUser(final HttpServletRequest request) {
-        User user = ServletUtils.getUser(request);
-
-        if (user == null) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Checking isloggedin and getting null.");
-            }
-            return null;
-        }
-
-        return user.toSimple();
-    }
-
-
-    @RequestMapping(value = "isloggedin", method = RequestMethod.GET)
-    public static LoginStatus isLoggedIn(final HttpServletRequest request) {
-        //
-        // NOTE: using extra class here just so that an empty string is not returned. If the root object
-        // is null then you get an empty string on the client side, at least for some client code.
-        //
-        LoginStatus status = new LoginStatus();
-        status.user = getLoggedInUser(request);
-        return status;
-    }
-
-
     @RequestMapping(value = "login", method = RequestMethod.POST)
     public SimpleUser loginCall(final HttpServletRequest request,
                                 @RequestBody
@@ -231,31 +194,6 @@ public class UserController {
 //    }
 
 
-    @RequestMapping(value = "sendpassreset", method = RequestMethod.POST)
-    public void sendResetEmail(final HttpServletRequest request,
-                               @RequestBody @Valid final String userameOrEmail) throws DatabaseException, IllegalAccessException, JadeCompilerException, AddressException, JadeException, IOException, MessagingException {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Sending reset email for address [" + userameOrEmail + "]");
-        }
-
-        UserService userService = Global.INST.getUserService();
-        User user = userService.getUserByNameOrEmail(userameOrEmail);
-        if (user == null) {
-            throw new IllegalAccessException("No user found with this email.");
-        }
-
-        String token = userService.createPWResetToken(user.getId().toString());
-
-        Map<String, Object> model = EmailUtils.createModel();
-        model.put(EmailUtils.TAG_USER, user.toSimple());
-        model.put(EmailUtils.TAG_TOKEN, token);
-        EmailUtils.sendJadeTemplate(EmailUtils.getAdminSender(),
-                                    user.getEmail(),
-                                    "account/passwordReset",
-                                    model);
-    }
-
-
     @RequestMapping(value = "resetpass", method = RequestMethod.POST)
     public void resetPassword(final HttpServletRequest request,
                               @RequestBody final ResetPass reset) throws DatabaseException {
@@ -269,11 +207,6 @@ public class UserController {
 
         UserService userService = Global.INST.getUserService();
         userService.resetPassWithToken(reset.token, reset.password);
-    }
-
-    @RequestMapping(value = "self", method = RequestMethod.GET)
-    public User getSelf(final HttpServletRequest request) {
-        return ServletUtils.getUser(request);
     }
 
     @RequestMapping(value = "exports", method = RequestMethod.GET)
@@ -298,9 +231,5 @@ public class UserController {
     static class ResetPass {
         public String token;
         public String password;
-    }
-
-    static class LoginStatus {
-        public SimpleUser user;
     }
 }

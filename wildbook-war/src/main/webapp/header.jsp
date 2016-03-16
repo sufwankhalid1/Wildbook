@@ -178,7 +178,7 @@ public String createNavBar(final HttpServletRequest request,
                                 <%
                                 SimpleUser user = null;
                                 try {
-                                    user = UserController.getLoggedInUser(request);
+                                    user = ServletUtils.getSimpleUser(request);
                                 }
                                 catch(Exception ex) {
                                     ex.printStackTrace();

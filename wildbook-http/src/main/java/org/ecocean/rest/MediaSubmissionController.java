@@ -6,24 +6,20 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
 
 import org.ecocean.Global;
-import org.ecocean.email.EmailUtils;
 import org.ecocean.encounter.Encounter;
 import org.ecocean.encounter.EncounterFactory;
 import org.ecocean.encounter.EncounterObj;
+import org.ecocean.event.type.NewSubmissionEvent;
 import org.ecocean.media.MediaAsset;
 import org.ecocean.media.MediaAssetFactory;
-import org.ecocean.media.MediaAssetType;
 import org.ecocean.media.MediaSubmission;
 import org.ecocean.media.MediaSubmissionFactory;
 import org.ecocean.security.User;
-import org.ecocean.security.UserFactory;
 import org.ecocean.security.UserService;
 import org.ecocean.servlet.ServletUtils;
 import org.ecocean.survey.SurveyFactory;
@@ -43,9 +39,6 @@ import com.samsix.database.GroupedSqlCondition;
 import com.samsix.database.SqlRelationType;
 import com.samsix.database.SqlStatement;
 import com.samsix.database.SqlTable;
-import com.samsix.database.Table;
-
-import de.neuland.jade4j.exceptions.JadeException;
 
 @RestController
 @RequestMapping(value = "/api/mediasubmission")
@@ -349,119 +342,32 @@ public class MediaSubmissionController
 
     @RequestMapping(value = "/complete", method = RequestMethod.POST)
     public void complete(final HttpServletRequest request,
-                         @RequestBody final MediaSubmission media)
+                         @RequestBody final MediaSubmission submission)
         throws DatabaseException
     {
-        UserService service = Global.INST.getUserService();
-
-        User user;
-        if (media.getUser() != null) {
-            user = service.getUserById(media.getUser().getId().toString());
-        } else {
-            user = service.getUserByEmail(media.getEmail());
-            //
-            // The user was added to the database, let's make sure the
-            // media submission has this info so that when we save it
-            // it will be with the user.
-            //
+        if (submission.getUser() == null) {
+            UserService service = Global.INST.getUserService();
+            User user = service.getUserByEmail(submission.getEmail());
             if (user != null) {
-                media.setUser(user.toSimple());
+                //
+                // The user was added to the database, let's make sure the
+                // media submission has this info so that when we save it
+                // it will be with the user.
+                //
+                submission.setUser(user.toSimple());
             }
         }
 
         try (Database db = ServletUtils.getDb(request)) {
-            MediaSubmissionFactory.save(db, media);
+            MediaSubmissionFactory.save(db, submission);
 
-            //
-            // Email notify admin of new mediasubmission in WIldbook
-            //
-            Map<String, Object> model = EmailUtils.createModel();
-            model.put(EmailUtils.TAG_SUBMISSION, media);
-            if (user != null) {
-                model.put(EmailUtils.TAG_USER, user.toSimple());
-                model.put("userverified", user.isVerified());
-
-                //
-                // Create and send new reset token and add it
-                // to the model so that the user can verify their account
-                // directly from the email.
-                //
-                if (! user.isVerified()) {
-                    try {
-                        model.put(EmailUtils.TAG_TOKEN, UserFactory.createPWResetToken(db, user.getId()));
-                    } catch (DatabaseException ex) {
-                        logger.error("Can't create password reset token to send to user for verification.", ex);
-                    }
-                }
-            }
-
-            try {
-                List<MediaAsset> mas = MediaSubmissionFactory.getMedia(db, media.getId());
-                for (MediaAsset ma : mas) {
-                    if (MediaAssetType.IMAGE.equals(ma.getType())) {
-                        model.put("subinfo.photo", ma.thumbWebPathString());
-                        break;
-                    }
-                }
-
-                model.put("subinfo.number", String.valueOf(mas.size()));
-                model.put("subinfo.date", DateUtils.epochMilliSecToString(media.getTimeSubmitted()));
-            } catch (Throwable ex) {
-                //
-                // Catch everything so that we don't bail simply because something went wrong
-                // here.
-                //
-                logger.error("Problem filling out the email model", ex);
-            }
-
-            //
-            // Send email to admin to let them know that there has been a new submission.
-            //
-            try {
-                EmailUtils.sendJadeTemplate(EmailUtils.getAdminSender(),
-                                            EmailUtils.getAdminRecipients(),
-                                            "admin/newSubmission",
-                                            model);
-            } catch (JadeException | IOException | MessagingException ex) {
-                logger.error("Trouble sending admin email", ex);
-            }
-
-            //
-            // Send email to user to thank them for their submission.
-            //
-            if (user != null) {
-                Table table = db.getTable(MediaSubmissionFactory.TABLENAME_MEDIASUBMISSION);
-                long count = table.getCount("id != " + media.getId() + " AND userid = " + user.getId());
-
-                String template;
-                if (count == 0 && ! user.isVerified()) {
-                    template = "media/firstSubmission";
-                } else {
-                    template = "media/anotherSubmission";
-                }
-
-                if (logger.isDebugEnabled()) {
-                    logger.debug("sending thankyou email to:" + user.getEmail());
-                }
-                try {
-                    EmailUtils.sendJadeTemplate(EmailUtils.getAdminSender(),
-                                                user.getEmail(),
-                                                template,
-                                                model);
-                } catch (JadeException | IOException | MessagingException ex) {
-                    logger.error("Trouble sending thank you email ["
-                            + template
-                            + "] to ["
-                            + user.getEmail()
-                            + "]", ex);
-                }
-            }
+            Global.INST.getEventHandler().trigger(new NewSubmissionEvent(submission));
 
             //
             // Now finally do some cleaning up. Note, the file set is saved in a WeakHashMap
             // but we might as well help the garbage collector out.
             //
-            MediaUploadServlet.clearFileSet(media.getSubmissionid());
+            MediaUploadServlet.clearFileSet(submission.getSubmissionid());
         }
     }
 

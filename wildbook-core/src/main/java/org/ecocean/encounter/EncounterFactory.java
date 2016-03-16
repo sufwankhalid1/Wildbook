@@ -36,16 +36,11 @@ public class EncounterFactory {
     public static final String TABLENAME_ENCOUNTER_MEDIA = "encounter_media";
     public static final String ALIAS_ENCOUNTER_MEDIA = "em";
 
+    private final static IndividualStore indStore = Global.INST.getIndividualStore();
+    private final static EncounterStore encStore = Global.INST.getEncounterStore();
+
     private EncounterFactory() {
         // prevent instantiation
-    }
-
-    public static Encounter getEncounterById(final Database db, final int id) throws DatabaseException {
-        SqlStatement sql = getEncounterStatement();
-        sql.addCondition(TABLENAME_ENCOUNTERS, PK_ENCOUNTERS, SqlRelationType.EQUAL, id);
-        return db.selectFirst(sql, (rs) -> {
-            return readEncounter(rs);
-        });
     }
 
     public static List<SimpleEncounter> toSimple(final List<Encounter> encounters) {
@@ -91,13 +86,22 @@ public class EncounterFactory {
     }
 
     public static Encounter readEncounter(final Individual individual, final RecordSet rs) throws DatabaseException {
-        Encounter encounter = new Encounter(rs.getInt(PK_ENCOUNTERS), rs.getLocalDate("encdate"));
+        int encounterId = rs.getInt(PK_ENCOUNTERS);
+
+        Encounter encounter = encStore.get(encounterId);
+        if (encounter != null) {
+            return encounter;
+        }
+
+        encounter = new Encounter(encounterId, rs.getLocalDate("encdate"));
 
         encounter.setStarttime(rs.getLocalTime("starttime"));
         encounter.setEndtime(rs.getLocalTime("endtime"));
         encounter.setLocation(LocationFactory.readLocation(rs));
         encounter.setComments(rs.getString("comments"));
         encounter.setIndividual(individual);
+
+        encStore.put(encounter);
 
         return encounter;
     }
@@ -174,14 +178,21 @@ public class EncounterFactory {
             return null;
         }
 
-        Individual ind = new Individual(indid, Global.INST.getSpecies(rs.getString("species")),
-                rs.getString("nickname"));
+        Individual ind = indStore.get(indid);
+        if (ind != null) {
+            return ind;
+        }
+
+        ind = new Individual(indid,
+                             Global.INST.getSpecies(rs.getString("species")),
+                             rs.getString("nickname"));
         ind.setSex(rs.getString("sex"));
         ind.setAlternateId(rs.getString("alternateid"));
         ind.setIdentified(rs.getBoolean("identified"));
         ind.setBio(rs.getString("bio"));
         ind.setAvatarFull(MediaAssetFactory.readPhoto(rs));
 
+        indStore.put(ind);
         return ind;
     }
 
@@ -297,6 +308,13 @@ public class EncounterFactory {
             SqlWhereFormatter where = new SqlWhereFormatter();
             where.append(PK_ENCOUNTERS, encounter.getId());
             table.updateRow(formatter.getUpdateClause(), where.getWhereClause());
+
+            //
+            // Now update the cache with the new values. We could check to see if it's there
+            // first BUT it almost assuredly is because we just edited it so it's probably near the top of the list
+            // even. If it's not for some reason then it will just get added with this call which is fine.
+            //
+            encStore.put(encounter);
         }
     }
 
@@ -309,6 +327,7 @@ public class EncounterFactory {
             table = db.getTable(TABLENAME_ENCOUNTERS);
             table.deleteRows(whereClause);
         });
+        encStore.remove(id);
     }
 
     private static void fillEncounterFormatter(final SqlFormatter formatter, final Encounter encounter) {
@@ -342,6 +361,13 @@ public class EncounterFactory {
             SqlWhereFormatter where = new SqlWhereFormatter();
             where.append(PK_INDIVIDUALS, individual.getId());
             table.updateRow(formatter.getUpdateClause(), where.getWhereClause());
+
+            //
+            // Now update the cache with the new values. We could check to see if it's there
+            // first BUT it almost assuredly is because we just edited it so it's probably near the top of the list
+            // even. If it's not for some reason then it will just get added with this call which is fine.
+            //
+            indStore.put(individual);
         }
     }
 
@@ -359,6 +385,14 @@ public class EncounterFactory {
             formatter.append("avatarid", individual.getAvatarFull().getId());
         }
         formatter.append("bio", individual.getBio());
+    }
+
+    private static Encounter getEncounterById(final Database db, final int id) throws DatabaseException {
+        SqlStatement sql = getEncounterStatement();
+        sql.addCondition(TABLENAME_ENCOUNTERS, PK_ENCOUNTERS, SqlRelationType.EQUAL, id);
+        return db.selectFirst(sql, (rs) -> {
+            return readEncounter(rs);
+        });
     }
 
     public static EncounterObj getEncounterObj(final Database db, final int id) throws DatabaseException {
