@@ -3,10 +3,8 @@ package org.ecocean.security;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -15,6 +13,7 @@ import org.ecocean.Global;
 import org.ecocean.Organization;
 import org.ecocean.location.GeoLocation;
 import org.ecocean.rest.SimpleUser;
+import org.ecocean.util.LRUCache;
 import org.ecocean.util.NotificationException;
 import org.slf4j.Logger;
 
@@ -28,18 +27,25 @@ import com.samsix.database.SqlStatement;
 import com.samsix.database.SqlUpdateFormatter;
 import com.samsix.database.SqlWhereFormatter;
 import com.samsix.database.Table;
+import com.samsix.util.io.ResourceReader;
 
 public class DbUserService implements UserService {
+    private static final String CACHE_NAME = "user.store";
     private static Logger logger = UserService.logger;
 
     private final ConnectionInfo ci;
-    private final Map<Integer, SecurityInfo> mapUserId = new HashMap<>();
-    private final Map<String, SecurityInfo> mapUserName = new HashMap<>();
-    private final Map<String, SecurityInfo> mapUserEmail = new HashMap<>();
+    private final LRUCache<Integer, SecurityInfo> mapUserId;
+    private final LRUCache<String, SecurityInfo> mapUserName;
+    private final LRUCache<String, SecurityInfo> mapUserEmail;
     private List<Organization> orgs;
 
-    public DbUserService(final ConnectionInfo ci) {
+    public DbUserService(final ResourceReader resources, final ConnectionInfo ci) {
         this.ci = ci;
+
+        int cacheSize = resources.getInt(CACHE_NAME + ".lrucache.size", 5000);
+        mapUserId = new LRUCache<>(CACHE_NAME + ".id", cacheSize);
+        mapUserName = new LRUCache<>(CACHE_NAME + ".name", cacheSize);
+        mapUserEmail = new LRUCache<>(CACHE_NAME + ".email", cacheSize);
     }
 
     private SecurityInfo addNewSecurityInfo(final User user) {

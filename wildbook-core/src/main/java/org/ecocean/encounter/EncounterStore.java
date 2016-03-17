@@ -3,10 +3,11 @@ package org.ecocean.encounter;
 import org.ecocean.util.LRUCache;
 
 public class EncounterStore {
+    public final static String CACHE_NAME = "encounter.store";
     private final LRUCache<Integer, Encounter> cache;
 
     public EncounterStore(final int cacheSize) {
-        cache = new LRUCache<>(cacheSize);
+        cache = new LRUCache<>(CACHE_NAME, cacheSize);
     }
 
     public Encounter get(final Integer id) {

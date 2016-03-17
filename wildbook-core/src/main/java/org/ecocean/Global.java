@@ -24,8 +24,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.ecocean.email.Emailer;
 import org.ecocean.encounter.EncounterStore;
 import org.ecocean.encounter.IndividualStore;
-import org.ecocean.event.EventHandler;
 import org.ecocean.event.DefaultEventHandler;
+import org.ecocean.event.EventHandler;
 import org.ecocean.location.GeoNamesLocationService;
 import org.ecocean.location.LocationService;
 import org.ecocean.location.NullLocationService;
@@ -330,7 +330,7 @@ public enum Global {
             // TODO: Check for overriding property to use a different UserService
             // if you don't want to use the default wildbook database variant.
             //
-            userService = new DbUserService(getConnectionInfo());
+            userService = new DbUserService(getAppResources(), getConnectionInfo());
         }
 
         return userService;
@@ -453,7 +453,7 @@ public enum Global {
 
     public EncounterStore getEncounterStore() {
         if (encounterStore == null) {
-            encounterStore = new EncounterStore(getAppResources().getInt("encounter.store.lrucache.size", 5000));
+            encounterStore = new EncounterStore(getAppResources().getInt(EncounterStore.CACHE_NAME + ".lrucache.size", 5000));
         }
 
         return encounterStore;
@@ -461,7 +461,7 @@ public enum Global {
 
     public IndividualStore getIndividualStore() {
         if (individualStore == null) {
-            individualStore = new IndividualStore(getAppResources().getInt("individual.store.lrucache.size", 5000));
+            individualStore = new IndividualStore(getAppResources().getInt(IndividualStore.CACHE_NAME + ".lrucache.size", 5000));
         }
 
         return individualStore;

@@ -4,10 +4,11 @@ import org.ecocean.Individual;
 import org.ecocean.util.LRUCache;
 
 public class IndividualStore {
+    public final static String CACHE_NAME = "individual.store";
     private final LRUCache<Integer, Individual> cache;
 
     public IndividualStore(final int cacheSize) {
-        cache = new LRUCache<>(cacheSize);
+        cache = new LRUCache<>(CACHE_NAME, cacheSize);
     }
 
     public Individual get(final Integer id) {
