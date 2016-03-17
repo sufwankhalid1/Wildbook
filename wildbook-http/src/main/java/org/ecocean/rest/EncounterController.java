@@ -21,7 +21,7 @@ import com.samsix.database.DatabaseException;
 @RestController
 @RequestMapping(value = "/api/encounter")
 public class EncounterController {
-    @RequestMapping(value = "/full/{id}", method = RequestMethod.POST)
+    @RequestMapping(value = "/full/{id}", method = RequestMethod.GET)
     private EncounterObj getFullEncounter(final HttpServletRequest request,
                                           @PathVariable("id")
                                           final int id) throws DatabaseException
