@@ -201,6 +201,11 @@ public class EncounterFactory {
     }
 
     public static Individual getIndividual(final Database db, final int individualId) throws DatabaseException {
+        Individual ind = indStore.get(individualId);
+        if (ind != null) {
+            return ind;
+        }
+
         SqlStatement sql = getIndividualStatement();
         sql.addCondition(ALIAS_INDIVIDUALS, PK_INDIVIDUALS, SqlRelationType.EQUAL, individualId);
         return db.selectFirst(sql, (rs) -> {
@@ -387,7 +392,12 @@ public class EncounterFactory {
         formatter.append("bio", individual.getBio());
     }
 
-    private static Encounter getEncounterById(final Database db, final int id) throws DatabaseException {
+    public static Encounter getEncounterById(final Database db, final int id) throws DatabaseException {
+        Encounter encounter = encStore.get(id);
+        if (encounter != null) {
+            return encounter;
+        }
+
         SqlStatement sql = getEncounterStatement();
         sql.addCondition(TABLENAME_ENCOUNTERS, PK_ENCOUNTERS, SqlRelationType.EQUAL, id);
         return db.selectFirst(sql, (rs) -> {

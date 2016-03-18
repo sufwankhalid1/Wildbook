@@ -7,6 +7,6 @@ public class NewSubmissionEvent extends BaseEvent {
     public final static String EVENT_NAME = "new_submission";
 
     public NewSubmissionEvent(final MediaSubmission submission) {
-        super(EVENT_NAME, submission, submission.getId(), null );
+        super(EVENT_NAME, submission, submission.getId());
     }
 }
