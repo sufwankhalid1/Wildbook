@@ -245,6 +245,22 @@ angular.module('wildbook.admin').directive(
                     $scope.data.module.surveySearch = false;
                 }
 
+                function addPhotos(encounter, newphotos) {
+                    var newphotoids = newphotos.map(function(photo) {
+                        return photo.id;
+                    });
+
+                    return $http.post("admin/api/encounter/addmedia/" + encounter.id, newphotoids)
+                    .then(function() {
+                        //
+                        // Now increase the numencs for these photos by one.
+                        //
+                        newphotos.forEach(function(item) {
+                            $scope.numencs[item.id]++;
+                        });
+                    });
+                }
+
                 $scope.addEncounter = function(surveyEnc, newSurveyEnc) {
                     if (surveyEnc && $scope.data.activeEncData && !newSurveyEnc) {
                         attachEncounter($scope.data.activeEncData, surveyEnc);
@@ -365,22 +381,6 @@ angular.module('wildbook.admin').directive(
                         addSurveyEncounters(surveypart, result.data);
                     }, $exceptionHandler);
                 };
-
-                function addPhotos(encounter, newphotos) {
-                    var newphotoids = newphotos.map(function(photo) {
-                        return photo.id;
-                    });
-
-                    return $http.post("admin/api/encounter/addmedia/" + encounter.id, newphotoids)
-                    .then(function() {
-                        //
-                        // Now increase the numencs for these photos by one.
-                        //
-                        newphotos.forEach(function(item) {
-                            $scope.numencs[item.id]++;
-                        });
-                    });
-                }
 
                 //=================================
                 // START wb-thumb-box
@@ -565,6 +565,35 @@ angular.module('wildbook.admin').directive(
                     $scope.data.activeSurveyEnc = null;
                 };
 
+                // Source: http://www.ag-grid.com/angular-grid-pagination/index.php
+                function sortSubmissionData(sortModel, data) {
+                    // do an in memory sort of the data, across all the fields
+                    var resultOfSort = data.slice();
+                    resultOfSort.sort(function(a,b) {
+                        for (var k = 0; k<sortModel.length; k++) {
+                            var sortColModel = sortModel[k];
+                            var valueA = a[sortColModel.colId];
+                            var valueB = b[sortColModel.colId];
+
+                            // this filter didn't find a difference, move onto the next one
+                            if (valueA === valueB) {
+                                continue;
+                            }
+
+                            var sortDirection = sortColModel.sort === 'asc' ? 1 : -1;
+                            if (valueA > valueB) {
+                                return sortDirection;
+                            }
+                            else {
+                                return sortDirection * -1;
+                            }
+                        }
+                        // no filters found a difference
+                        return 0;
+                    });
+                    return resultOfSort;
+                }
+
                 var dataSource = {
                     pageSize: 20,
                     getRows: function(args) {
@@ -615,35 +644,6 @@ angular.module('wildbook.admin').directive(
                         }
                     });
                 };
-
-                // Source: http://www.ag-grid.com/angular-grid-pagination/index.php
-                function sortSubmissionData(sortModel, data) {
-                    // do an in memory sort of the data, across all the fields
-                    var resultOfSort = data.slice();
-                    resultOfSort.sort(function(a,b) {
-                        for (var k = 0; k<sortModel.length; k++) {
-                            var sortColModel = sortModel[k];
-                            var valueA = a[sortColModel.colId];
-                            var valueB = b[sortColModel.colId];
-
-                            // this filter didn't find a difference, move onto the next one
-                            if (valueA === valueB) {
-                                continue;
-                            }
-
-                            var sortDirection = sortColModel.sort === 'asc' ? 1 : -1;
-                            if (valueA > valueB) {
-                                return sortDirection;
-                            }
-                            else {
-                                return sortDirection * -1;
-                            }
-                        }
-                        // no filters found a difference
-                        return 0;
-                    });
-                    return resultOfSort;
-                }
 
                 //
                 // wb-key-handler-form

@@ -40,6 +40,41 @@ angular.module('wildbook.encounters', [])
 
             var encounter_used;
 
+            function createDate(selectedPhotos) {
+                var found = false;
+                var timeline;
+                selectedPhotos.forEach(function(photo) {
+                    if (photo.timestamp && !found) {
+                        timeline = wbDateUtils.compareDates(dates);
+
+                        if (timeline) {
+                            found = true;
+                        }
+                    }
+                });
+
+                if (found) {
+                    return timeline.newest.slice(0, 3);
+                }
+            }
+
+            function setDate() {
+                var timeline = wbDateUtils.compareDates(dates);
+
+                if (timeline) {
+                    encounter.encDate = timeline.newest.slice(0, 3);
+                    encounter.starttime = timeline.oldest.slice(3, timeline.oldest.length);
+                    encounter.endtime = timeline.newest.slice(3, timeline.newest.length);
+                }
+            }
+
+            function compareDates() {
+                //check if same day, if so, compare
+                if (!wbDateUtils.sameDay(dates)) {
+                    return $q.reject("These photos were taken on different days!<br/> Please choose images that occured during the same encounter.");
+                }
+            }
+
             function encounterExist(data) {
                 //
                 //taking first photo's  first encounter and setting up encounter based on that info
@@ -80,7 +115,6 @@ angular.module('wildbook.encounters', [])
                 } else {
                     encounter_used = "Autofilled from encounter: " + photo_encounter.individual.displayName;
                 }
-
             }
 
             function newEncounter() {
@@ -115,42 +149,6 @@ angular.module('wildbook.encounters', [])
 
                 setDate();
             }
-
-            function createDate(selectedPhotos) {
-                var found = false;
-                var timeline;
-                selectedPhotos.forEach(function(photo) {
-                    if (photo.timestamp && !found) {
-                        timeline = wbDateUtils.compareDates(dates);
-
-                        if (timeline) {
-                            found = true;
-                        }
-                    }
-                });
-
-                if (found) {
-                    return timeline.newest.slice(0, 3);
-                }
-            }
-
-            function setDate() {
-                var timeline = wbDateUtils.compareDates(dates);
-
-                if (timeline) {
-                    encounter.encDate = timeline.newest.slice(0, 3);
-                    encounter.starttime = timeline.oldest.slice(3, timeline.oldest.length);
-                    encounter.endtime = timeline.newest.slice(3, timeline.newest.length);
-                }
-            }
-
-            function compareDates() {
-                //check if same day, if so, compare
-                if (!wbDateUtils.sameDay(dates)) {
-                    return $q.reject("These photos were taken on different days!<br/> Please choose images that occured during the same encounter.");
-                }
-            }
-
 
             return $http.post('api/encounter/checkDuplicateImage', selectedPhotos)
                 .then(function(res){

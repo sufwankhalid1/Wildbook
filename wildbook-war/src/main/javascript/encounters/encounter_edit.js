@@ -168,11 +168,6 @@ angular.module('wildbook.admin').directive(
                     }
                 };
 
-                //create map on encounter change
-                $scope.$watch('data', function(newVal, oldVal) {
-                    $scope.mapBuilt = buildMap();
-                }, true);
-
                 function buildMap() {
                     //build marker object
                     var center = {zoom: 8};
@@ -214,6 +209,11 @@ angular.module('wildbook.admin').directive(
 
                     return true;
                 }
+
+                //create map on encounter change
+                $scope.$watch('data', function(newVal, oldVal) {
+                    $scope.mapBuilt = buildMap();
+                }, true);
 
                 //enable location picker
                 $scope.locationPickerState = false;
@@ -261,7 +261,6 @@ angular.module('wildbook.admin').directive(
                 //=================================
                 // START wb-thumb-box
                 //=================================
-                var initialPhotoLength = $scope.data.photos.length;
                 $scope.performAction = function(code, photos) {
                     if (!photos) {
                         return;
