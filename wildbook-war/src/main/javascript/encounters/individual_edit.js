@@ -1,4 +1,4 @@
-/* global angular */
+/* global angular, document */
 'use strict';
 
 angular.module('wildbook.admin').directive(
@@ -52,6 +52,24 @@ angular.module('wildbook.admin').directive(
 //                }
 //
                 $scope.avatarDialog = function($event) {
+                    function avatarController($scope, $mdDialog, individual, parentScope) {
+                        $scope.active = [];
+                        $http.get("api/individual/photos/"+individual.id)
+                        .then(function(photos) {
+                            $scope.photos = photos.data;
+                        });
+
+                        $scope.selected = function(avatar) {
+                            parentScope.data.avatar = avatar.thumbUrl;
+                            parentScope.data.avatarFull = avatar;
+
+                            $scope.closeDialog();
+                        };
+
+                        $scope.closeDialog = function() {
+                            $mdDialog.hide();
+                        };
+                    }
                    var parentEl = angular.element(document.body);
                    $mdDialog.show({
                          parent: parentEl,
@@ -80,27 +98,8 @@ angular.module('wildbook.admin').directive(
                             individual: $scope.data
                          },
                          controller: avatarController
-                  });
-
-                function avatarController($scope, $mdDialog, individual, parentScope) {
-                    $scope.active = [];
-                    $http.get("api/individual/photos/"+individual.id)
-                    .then(function(photos) {
-                        $scope.photos = photos.data;
-                    });
-
-                    $scope.selected = function(avatar) {
-                        parentScope.data.avatar = avatar.thumbUrl;
-                        parentScope.data.avatarFull = avatar;
-
-                        $scope.closeDialog();
-                    };
-
-                    $scope.closeDialog = function() {
-                        $mdDialog.hide();
-                    };
-                  }
-              };
+                     });
+                };
 
                 $scope.save = function() {
                     $http.post('admin/api/individual/save', $scope.data)

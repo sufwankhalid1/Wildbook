@@ -72,13 +72,9 @@ public class EncounterFactory {
 
     public static List<Encounter> getIndividualEncounters(final Database db, final Individual individual)
             throws DatabaseException {
-        List<Encounter> encounters = new ArrayList<>();
-
-        db.getTable(TABLENAME_ENCOUNTERS).select((rs) -> {
-            encounters.add(readEncounter(individual, rs));
+        return db.getTable(TABLENAME_ENCOUNTERS).selectList((rs) -> {
+            return readEncounter(individual, rs);
         }, PK_INDIVIDUALS + " = " + individual.getId());
-
-        return encounters;
     }
 
     public static Encounter readEncounter(final RecordSet rs) throws DatabaseException {
@@ -333,6 +329,11 @@ public class EncounterFactory {
             table.deleteRows(whereClause);
         });
         encStore.remove(id);
+    }
+
+    public static void deleteIndividual(final Database db, final int id) throws DatabaseException {
+        db.getTable(TABLENAME_INDIVIDUALS).deleteRows("individualid = " + id);
+        indStore.remove(id);
     }
 
     private static void fillEncounterFormatter(final SqlFormatter formatter, final Encounter encounter) {

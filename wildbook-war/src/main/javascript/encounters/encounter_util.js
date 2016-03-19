@@ -188,8 +188,28 @@ angular.module('wildbook.encounters', [])
             } else {
                 return alertplus.confirm('Are you sure you want to delete this encounter?', "Delete Encounter", true)
                 .then(function() {
-                    $http.post("admin/api/encounter/delete", enc)
-                    .then(function() {
+                    return $http.post("admin/api/encounter/delete", enc)
+                    .then(function(result) {
+                        if (result.data.orphanedIndividual) {
+                            if (! enc.individual.id) {
+                                return;
+                            }
+
+                            //
+                            // If we don't have a display name defined then we are definitely just deleting a new dummy
+                            // individual so don't even ask.
+                            //
+                            if (enc.displayName === undefined) {
+                                return $http.post("admin/api/individual/delete", enc.individual);
+                            }
+
+                            return alertplus.confirm('The individual ['
+                                                     + enc.individual.displayName || enc.individual.id
+                                                     + '] would be orphaned, delete as well?', "Delete Individual", true)
+                            .then(function() {
+                                return $http.post("admin/api/individual/delete", enc.individual);
+                            });
+                        }
                     }, $exceptionHandler);
                 });
             }

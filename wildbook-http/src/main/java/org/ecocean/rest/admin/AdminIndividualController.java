@@ -31,4 +31,12 @@ public class AdminIndividualController {
             return individual;
         }
     }
+
+    @RequestMapping(value = "delete", method = RequestMethod.POST)
+    public void deleteEncounter(final HttpServletRequest request,
+                                @RequestBody final Individual individual) throws DatabaseException {
+        try (Database db = ServletUtils.getDb(request)) {
+            EncounterFactory.deleteIndividual(db, individual.getId());
+        }
+    }
 }

@@ -1,8 +1,11 @@
 package org.ecocean.rest.admin;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.ecocean.encounter.Encounter;
 import org.ecocean.encounter.EncounterFactory;
 import org.ecocean.servlet.ServletUtils;
@@ -63,15 +66,23 @@ public class AdminEncounterController {
     }
 
     @RequestMapping(value = "delete", method = RequestMethod.POST)
-    public void deleteEncounter(final HttpServletRequest request,
-                                @RequestBody final Encounter encounter) throws DatabaseException {
+    public EncounterDeleteResult deleteEncounter(final HttpServletRequest request,
+                                                 @RequestBody final Encounter encounter) throws DatabaseException {
         try (Database db = ServletUtils.getDb(request)) {
             EncounterFactory.deleteEncounter(db, encounter.getId());
+            List<Encounter> encounters = EncounterFactory.getIndividualEncounters(db, encounter.getIndividual());
+            EncounterDeleteResult result = new EncounterDeleteResult();
+            result.orphanedIndividual = CollectionUtils.isEmpty(encounters);
+            return result;
         }
     }
 
     static class EncounterSaveResult {
         public int individualid;
         public int encounterid;
+    }
+
+    static class EncounterDeleteResult {
+        public boolean orphanedIndividual;
     }
 }
