@@ -177,17 +177,6 @@ angular.module('wildbook.util').directive(
                     }
                 };
 
-                function doAction(action, images) {
-                    var result = $scope.cbAction({code: action.code, photos: images});
-                    if (result && result.then) {
-                        result.then(function() {
-                            $scope.$applyAsync(postPerformAction(action, images));
-                        });
-                    } else {
-                        $scope.$applyAsync(postPerformAction(action, images));
-                    }
-                }
-
                 function postPerformAction(action, images) {
                     switch (action.code) {
                     case "del": {
@@ -223,6 +212,17 @@ angular.module('wildbook.util').directive(
 
                         $scope.clearSelection();
                     }}
+                }
+
+                function doAction(action, images) {
+                    var result = $scope.cbAction({code: action.code, photos: images});
+                    if (result && result.then) {
+                        result.then(function() {
+                            $scope.$applyAsync(postPerformAction(action, images));
+                        });
+                    } else {
+                        $scope.$applyAsync(postPerformAction(action, images));
+                    }
                 }
 
                 $scope.performAction = function(action) {
