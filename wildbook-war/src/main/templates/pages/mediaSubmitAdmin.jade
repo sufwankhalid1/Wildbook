@@ -22,13 +22,14 @@ div
         div(layout="row")
             div(flex="15")
                 div.media-admin-nav
-                    span Surveys
-                    a(href="javascript:;" ng-click="searchSurvey()")
-                        md-icon(md-svg-icon="magnify")
-                            md-tooltip(md-direction="right") Search for a Survey
-                    a(href="javascript:;", ng-click="addSurvey()")
-                        md-icon(md-svg-icon="plus")
-                            md-tooltip(md-direction="top") Add a new Survey
+                    div(style="display: inline-block")
+                        span Surveys
+                        a(href="javascript:;", ng-click="addSurvey()")
+                            md-icon(md-svg-icon="plus")
+                                md-tooltip(md-direction="top") Add a new Survey
+                        a(href="javascript:;" ng-click="searchSurvey()")
+                            md-icon(md-svg-icon="magnify")
+                                md-tooltip(md-direction="right") Search for a Survey
                     md-divider
                     div(ng-repeat="surveyEnc in data.surveyEncs" layout-fill layout-wrap layout="row")
                         md-icon(md-svg-icon="chevron-right" 
@@ -59,13 +60,14 @@ div
                                     div {{dateStringFromRest(encdata.encounter.encDate)}}
                                     div {{encdata.encounter.location.locationid}}
                 div.media-admin-nav.mt-10
-                    span Encounters
-                    a(href="javascript:;" ng-click="searchEncounter()")
-                        md-icon(md-svg-icon="magnify")
-                            md-tooltip(md-direction="right") Search for an Encounter
-                    a(href="javascript:;" ng-click="data.selectedimgs.selected.length ? addEncounter() : showDialog('Please select some images before creating an encounter!')")
-                        md-icon(md-svg-icon="plus")
-                            md-tooltip(md-direction="top") Add a new Encounter
+                    div(style="display: inline-block")
+                        span Encounters
+                        a(href="javascript:;" ng-click="data.selectedimgs.selected.length ? addEncounter() : showDialog('Please select some images before creating an encounter!')")
+                            md-icon(md-svg-icon="plus")
+                                md-tooltip(md-direction="top") Add a new Encounter
+                        a(href="javascript:;" ng-click="searchEncounter()")
+                            md-icon(md-svg-icon="magnify")
+                                md-tooltip(md-direction="right") Search for an Encounter
                     .media-admin-nav-list(href="javascript:;", ng-repeat="encdata in data.encs",
                                              ng-click="activeEle('encounter'); selectEncounter($event, encdata);", 
                                              ng-class="{active: encdata.encounter.id === data.activeEncData.encounter.id && active.encounter}")
