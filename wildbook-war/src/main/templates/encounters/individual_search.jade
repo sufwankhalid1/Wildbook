@@ -23,8 +23,9 @@ form.form.ng-cloak(novalidate, wb-key-handler-form)
                     md-button.md-whiteframe-1dp(type="submit" ng-click="search()" aria-label="Search") Search
                     md-button.md-whiteframe-1dp(type="button" ng-click="reset()" aria-label="reset") Reset
                 legend Special
-                div.mt-20(layout="row" flex="100")
+                div.mt-20(layout="row")
                     wb-individual-id-search(callback="idSearch(ind)" id="indid" flex="25")
+                div.mt-20(layout="row")
                     wb-orphaned-enc-search(callback="orphaned(inds)")
             md-tab(label="Results")
                 .ag-fresh(ag-grid="gridOptions", style="height: 400px;")
