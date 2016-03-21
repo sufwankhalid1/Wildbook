@@ -268,13 +268,6 @@ angular.module('wildbook.admin').directive(
 
                     wbEncounterUtils.createNewEncData($scope.data.selectedimgs.selected, $scope.data.submission)
                     .then(function(encdata) {
-                        // wbEncounterUtils.saveEnc(encdata.encounter)
-                        // .then(function() {
-                        //     addPhotos(encdata.encounter, encdata.photos)
-                        //     .then(function() {
-                        //         editEncounter(encdata, surveyEnc);
-                        //     });
-                        // });
                         incPhotoNumEncs(encdata.photos);
                         editEncounter(encdata, surveyEnc);
                     }, $exceptionHandler);
