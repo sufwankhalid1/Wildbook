@@ -1,11 +1,13 @@
 package org.ecocean.util;
 
+import java.time.DayOfWeek;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
 import java.util.Date;
 
 import org.ecocean.search.DateSearch;
@@ -34,14 +36,27 @@ public class DateUtils {
         return ldt.format(formatter);
     }
 
-    /**
-     * Shouldn't use this I would think but just in case you find that you absolutely need it
-     * here it is.
-     */
     public static Date ldtToDate(final LocalDateTime ldt) {
-        return Date.from(ldt.atZone(UTC).toInstant());
+        return Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
     }
 
+    public static LocalDateTime getNext(final int hour, final int min) {
+        LocalDateTime todayAtTime = LocalDate.now().atTime(hour, min);
+        if (todayAtTime.isAfter(LocalDateTime.now())) {
+            return todayAtTime;
+        }
+        return todayAtTime.plusDays(1);
+    }
+
+    public static LocalDateTime getNext(final DayOfWeek day, final int hour, final int min) {
+        LocalDateTime todayAtTime = LocalDate.now().atTime(hour, min);
+        LocalDateTime next = todayAtTime.with(TemporalAdjusters.nextOrSame(day));
+        if (next.isAfter(LocalDateTime.now())) {
+            return next;
+        }
+
+        return todayAtTime.with(TemporalAdjusters.next(day));
+    }
 
     public static LocalDateTime epochMilliSecToLDT(final long epochMilliSecond) {
         return LocalDateTime.ofInstant(Instant.ofEpochSecond(epochMilliSecond/1000), UTC);
