@@ -8,6 +8,7 @@ import org.ecocean.Global;
 import org.ecocean.Individual;
 import org.ecocean.LocationFactory;
 import org.ecocean.Species;
+import org.ecocean.event.type.IndividualSightedEvent;
 import org.ecocean.media.MediaAssetFactory;
 import org.ecocean.rest.SimpleIndividual;
 import org.ecocean.rest.SimplePhoto;
@@ -281,17 +282,17 @@ public class EncounterFactory {
 
         //
         // Can't have this here since we have to be able to create an encounter
-        // automatically from
-        // a set of images and attach those images and we might not have a
-        // lat/long that we obtained
-        // from those images.
+        // automatically from a set of images and attach those images and we might not have a
+        // lat/long that we obtained from those images.
         //
         // if (encounter.getLocation() == null
-        // || encounter.getLocation().getLatitude() == null
-        // || encounter.getLocation().getLongitude() == null) {
-        // throw new DatabaseException("Latitude and Longitude are required for
-        // an encounter.");
+        //     || encounter.getLocation().getLatitude() == null
+        //     || encounter.getLocation().getLongitude() == null) {
+        //     throw new DatabaseException("Latitude and Longitude are required for an encounter.");
         // }
+        //
+
+        boolean isNewInd = (encounter.getIndividual().getId() == null);
 
         saveIndividual(db, encounter.getIndividual());
 
@@ -302,6 +303,15 @@ public class EncounterFactory {
             fillEncounterFormatter(formatter, encounter);
 
             encounter.setId(table.insertSequencedRow(formatter, PK_ENCOUNTERS));
+
+            //
+            // Is there any reason to raise an event for a brand new individual?
+            // No one would be aware of this individual since they don't exist and there has
+            // been no activity, so no one to notify.
+            //
+            if (isNewInd) {
+                Global.INST.getEventHandler().trigger(new IndividualSightedEvent(encounter.getIndividual().toSimple()));
+            }
         } else {
             SqlUpdateFormatter formatter = new SqlUpdateFormatter();
             fillEncounterFormatter(formatter, encounter);
