@@ -4,9 +4,6 @@ form.form.ng-cloak(novalidate, wb-key-handler-form)
         md-tabs(md-border-bottom md-dynamic-height md-selected="selectedTabIndex")
             md-tab(label="Data")
                 div(layout="row" layout-wrap)
-                    div.mt-20(layout="row" flex="100")
-                        wb-individual-id-search(callback="idSearch(ind)" id="indid" flex="25")
-                        wb-orphaned-enc-search(callback="orphaned(inds)")
                     div(layout="row" flex="45" layout-wrap layout-align="start start")
                         div(layout="row" flex="100")
                             label.mt-20 Individual
@@ -25,5 +22,9 @@ form.form.ng-cloak(novalidate, wb-key-handler-form)
                     div(flex="")
                     md-button.md-whiteframe-1dp(type="submit" ng-click="search()" aria-label="Search") Search
                     md-button.md-whiteframe-1dp(type="button" ng-click="reset()" aria-label="reset") Reset
+                legend Special
+                div.mt-20(layout="row" flex="100")
+                    wb-individual-id-search(callback="idSearch(ind)" id="indid" flex="25")
+                    wb-orphaned-enc-search(callback="orphaned(inds)")
             md-tab(label="Results")
                 .ag-fresh(ag-grid="gridOptions", style="height: 400px;")
