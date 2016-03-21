@@ -84,10 +84,24 @@ angular.module('wildbook.admin').directive(
                         return;
                     }
 
-                    wbEncounterUtils.saveEnc($scope.data.encounter)
-                    .then(function(result) {
+                    var editDone;
+                    function finallyDone() {
                         $scope.editEncounterDone({encdata: $scope.data});
-                    }, $exceptionHandler);
+                    }
+                    if (!$scope.data.encounter.id) {
+                        editDone = function() {
+                            //
+                            // If we haven't saved our encounter yet then the phoetos are not attached.
+                            //
+                            wbEncounterUtils.addPhotos($scope.data.encounter, $scope.data.photos).
+                            then(finallyDone);
+                        };
+                    } else {
+                        editDone = finallyDone;
+                    }
+
+                    wbEncounterUtils.saveEnc($scope.data.encounter)
+                    .then(editDone, $exceptionHandler);
                 };
 
                 //

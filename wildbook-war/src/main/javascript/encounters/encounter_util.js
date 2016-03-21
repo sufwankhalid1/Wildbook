@@ -19,6 +19,13 @@ angular.module('wildbook.encounters', [])
             }
             return $q.resolve();
         },
+        addPhotos: function(encounter, newphotos) {
+            var newphotoids = newphotos.map(function(photo) {
+                return photo.id;
+            });
+
+            return $http.post("admin/api/encounter/addmedia/" + encounter.id, newphotoids);
+        },
         createNewEncData: function(selectedPhotos, submission) {
             //if photos are selected add them to the new encounter
             var encounter = {individual: {species: config.defaultSpecies || config.species[0] }};

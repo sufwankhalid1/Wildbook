@@ -245,19 +245,12 @@ angular.module('wildbook.admin').directive(
                     $scope.data.module.surveySearch = false;
                 }
 
-                function addPhotos(encounter, newphotos) {
-                    var newphotoids = newphotos.map(function(photo) {
-                        return photo.id;
-                    });
-
-                    return $http.post("admin/api/encounter/addmedia/" + encounter.id, newphotoids)
-                    .then(function() {
-                        //
-                        // Now increase the numencs for these photos by one.
-                        //
-                        newphotos.forEach(function(item) {
-                            $scope.numencs[item.id]++;
-                        });
+                function incPhotoNumEncs(newphotos) {
+                    //
+                    // Now increase the numencs for these photos by one.
+                    //
+                    newphotos.forEach(function(item) {
+                        $scope.numencs[item.id]++;
                     });
                 }
 
@@ -275,13 +268,15 @@ angular.module('wildbook.admin').directive(
 
                     wbEncounterUtils.createNewEncData($scope.data.selectedimgs.selected, $scope.data.submission)
                     .then(function(encdata) {
-                        wbEncounterUtils.saveEnc(encdata.encounter)
-                        .then(function() {
-                            addPhotos(encdata.encounter, encdata.photos)
-                            .then(function() {
-                                editEncounter(encdata, surveyEnc);
-                            });
-                        });
+                        // wbEncounterUtils.saveEnc(encdata.encounter)
+                        // .then(function() {
+                        //     addPhotos(encdata.encounter, encdata.photos)
+                        //     .then(function() {
+                        //         editEncounter(encdata, surveyEnc);
+                        //     });
+                        // });
+                        incPhotoNumEncs(encdata.photos);
+                        editEncounter(encdata, surveyEnc);
                     }, $exceptionHandler);
                 };
 
@@ -415,10 +410,20 @@ angular.module('wildbook.admin').directive(
                                 return true;
                             });
 
-                            addPhotos($scope.data.activeEncData.encounter, newphotos)
-                            .then(function() {
+                            function doneAddingPhotos() {
                                 $scope.data.activeEncData.photos = currentPhotos.concat(newphotos);
-                            });
+                                incPhotoNumEncs(newphotos);
+                            }
+
+                            //
+                            // If we haven't saved the encounter yet then just set the new photos on it.
+                            //
+                            if (!$scope.data.activeEncData.encounter.id) {
+                                doneAddingPhotos();
+                            } else {
+                                wbEncounterUtils.addPhotos($scope.data.activeEncData.encounter, newphotos)
+                                .then(doneAddingPhotos);
+                            }
                         });
                         break;
                     }
