@@ -200,6 +200,16 @@ public class MediaAssetFactory {
      * @param db Database where the asset lives.
      */
     public static void delete(final Database db, final int id) throws DatabaseException {
+        //
+        // We might want to make all the foreign key checks and report them back as a message
+        // instead of letting the db throw an exception. If so, here are the keys.
+        //
+        //  TABLE "encounter_media" CONSTRAINT "encounter_media_mediaid_fkey" FOREIGN KEY (mediaid) REFERENCES mediaasset(id)
+        //  TABLE "idservice" CONSTRAINT "idservice_mediaid_fkey" FOREIGN KEY (mediaid) REFERENCES mediaasset(id)
+        //  TABLE "individuals" CONSTRAINT "individuals_avatarid_fkey" FOREIGN KEY (avatarid) REFERENCES mediaasset(id)
+        //  TABLE "mediaasset" CONSTRAINT "mediaasset_parent_fkey" FOREIGN KEY (parent) REFERENCES mediaasset(id) ON DELETE CASCADE
+        //  TABLE "mediasubmission_media" CONSTRAINT "mediasubmission_media_mediaid_fkey2" FOREIGN KEY (mediaid) REFERENCES mediaasset(id)
+        //
         Table table = db.getTable(TABLENAME_MEDIAASSET);
         table.deleteRows("id = " + id);
     }
