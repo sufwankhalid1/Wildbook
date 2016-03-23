@@ -23,7 +23,7 @@ div(layout="row" layout-wrap id="encounter-edit")
                 md-tooltip Find Individual
             div(flex="")
         md-content.material-datepicker(layout="row" layout-align="center center")
-            md-datepicker(ng-model="dateObj" required md-placeholder="Date:" flex="33" ng-class="{'has-error': encounterForm.date.$invalid}")
+            md-datepicker(ng-model="dateObj" required md-placeholder="Date:" flex="33" name="Date" ng-class="{'has-error': encounterForm.date.$invalid}" )
             time-input(placeholder="Start Time" format="24" time="data.encounter.starttime" flex="33")
             time-input(placeholder="End Time" format="24" time="data.encounter.endtime" flex="33")
         md-content(ng-if="mapBuilt" ng-class="{'crosshair':locationPickerState}")
@@ -49,7 +49,7 @@ div(layout="row" layout-wrap id="encounter-edit")
             div(layout="row" flex="100")
                 md-input-container(flex="100")
                     label Comments
-                    textarea(ng-model="data.encounter.comments")
+                    textarea(name="Comments" ng-model="data.encounter.comments")
         div(layout="row" layout-align="start center")
             md-button.md-whiteframe-1dp(type="submit" ng-click="save()" aria-label="Save") Save
             div(flex="")

@@ -80,7 +80,12 @@ angular.module('wildbook.admin').directive(
                     $scope.data.encounter = wbDateUtils.verifyTimeInput($scope.data.encounter);
 
                     if ($scope.encounterForm.$invalid) {
-                        alertplus.alert("There are errors on the form.");
+                        var fields = [];
+                        $scope.encounterForm.$error.required.forEach(function(field) {
+                            fields.push(field.$name);
+                        });
+
+                        alertplus.alert("There are errors with the following fields: " + (fields.length > 1 ? fields.join(", ") : fields.join("")));
                         return;
                     }
 
