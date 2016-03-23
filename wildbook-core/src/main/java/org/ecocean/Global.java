@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +49,14 @@ public enum Global {
     INST;
 
     private static Logger logger = LoggerFactory.getLogger(Global.class);
+
+    private final static List<String> defaultEmailModelKeys =
+            Arrays.asList(new String[]{"cust.displayname",
+                                       "cust.info.website",
+                                       "cust.info.logo",
+                                       "cust.info.social.instagram",
+                                       "cust.info.social.facebook",
+                                       "cust.info.social.twitter"});
 
     private final Map<String,ConnectionInfo> connectionInfo = new HashMap<>();
     private ResourceReader appResources;
@@ -383,11 +392,16 @@ public enum Global {
 
     public Emailer getEmailer() {
         if (emailer == null) {
-            String host = getAppResources().getString("email.host", "localhost");
-            String username = getAppResources().getString("email.username", null);
-            String password = getAppResources().getString("email.password", null);
+            ResourceReader resources = getAppResources();
+            String host = resources.getString("email.host", "localhost");
+            String username = resources.getString("email.username", null);
+            String password = resources.getString("email.password", null);
+            String defaultFrom = resources.getString("email.admin.sender", null);
 
-            emailer = new Emailer(host, username, password);
+            emailer = new Emailer(host, username, password, defaultFrom);
+            emailer.setUserIdPassFilter(resources.getStringList("email.passfilter.userids", (List<String>) null));
+
+            defaultEmailModelKeys.forEach(key -> emailer.addToDefaultModel(key, Global.INST.getAppResources().getString(key, null)));
         }
 
         return emailer;

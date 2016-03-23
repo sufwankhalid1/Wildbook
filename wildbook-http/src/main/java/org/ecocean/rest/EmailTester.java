@@ -2,6 +2,7 @@ package org.ecocean.rest;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -9,7 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.ecocean.Global;
 import org.ecocean.Individual;
-import org.ecocean.email.EmailUtils;
+import org.ecocean.email.Emailer;
 import org.ecocean.encounter.EncounterFactory;
 import org.ecocean.security.User;
 import org.ecocean.servlet.ServletUtils;
@@ -36,14 +37,14 @@ public class EmailTester {
                           final boolean inlinestyles)
         throws JadeCompilerException, JadeException, IOException, NumberFormatException, DatabaseException
     {
-        Map<String, Object> model = EmailUtils.createModel();
+        Map<String, Object> model = new HashMap<>();
 
         try (Database db = ServletUtils.getDb(request)) {
             String individualId = request.getParameter("individualid");
             if (individualId != null) {
                 Individual ind = EncounterFactory.getIndividual(db, Integer.parseInt(individualId));
                 if (ind != null) {
-                    model.put(EmailUtils.TAG_INDIVIDUAL, ind.toSimple());
+                    model.put(Emailer.TAG_INDIVIDUAL, ind.toSimple());
                 }
             }
 
@@ -51,12 +52,12 @@ public class EmailTester {
             if (userId != null) {
                 User user = Global.INST.getUserService().getUserById(userId);
                 if (user != null) {
-                    model.put(EmailUtils.TAG_USER, user.toSimple());
+                    model.put(Emailer.TAG_USER, user.toSimple());
                 }
             }
         }
 
         PrintWriter out = response.getWriter();
-        out.println(EmailUtils.getJadeEmailBody(template, model, inlinestyles));
+        out.println(Global.INST.getEmailer().getJadeEmailBody(template, model, inlinestyles));
     }
 }

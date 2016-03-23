@@ -30,7 +30,6 @@ import java.util.Map;
 import java.util.Objects;
 
 import org.ecocean.Global;
-import org.ecocean.email.EmailUtils;
 import org.ecocean.email.Emailer;
 import org.ecocean.util.FileUtilities;
 import org.slf4j.Logger;
@@ -184,7 +183,7 @@ public final class NotificationMailer implements Runnable {
       if (s == null || "".equals(s.trim()))
         throw new IllegalArgumentException("Invalid email TO address specified");
     }
-    this.sender = EmailUtils.getAdminSender();
+    this.sender = Global.INST.getAppResources().getString("email.admin.sender", null);
     this.recipients = to;
 
     //
