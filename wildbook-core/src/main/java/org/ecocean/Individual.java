@@ -65,6 +65,13 @@ public class Individual {
         return getDisplayName(nickname, alternateId);
     }
 
+    public String getLongDisplayName() {
+        if (species != null) {
+            return getDisplayName() + " - " + species.getName();
+        }
+        return getDisplayName();
+    }
+
     //
     // Need this to be like SimpleIndividual so that we can
     // pass the values back and forth.
@@ -127,7 +134,7 @@ public class Individual {
         return identified;
     }
 
-    public void setIdentified(boolean identified) {
+    public void setIdentified(final boolean identified) {
         this.identified = identified;
     }
 
@@ -135,7 +142,7 @@ public class Individual {
         return bio;
     }
 
-    public void setBio(String bio) {
+    public void setBio(final String bio) {
         this.bio = bio;
     }
 }
