@@ -67,6 +67,10 @@ public class EncounterFactory {
         return sql;
     }
 
+    public static Individual checkIndividualStore(final int id) {
+        return indStore.get(id);
+    }
+
     public static SqlStatement getIndividualStatement() {
         return getIndividualStatement(false);
     }
@@ -310,7 +314,7 @@ public class EncounterFactory {
             // been no activity, so no one to notify.
             //
             if (isNewInd) {
-                Global.INST.getEventHandler().trigger(new IndividualSightedEvent(encounter.getIndividual().toSimple()));
+                Global.INST.getEventHandler().trigger(new IndividualSightedEvent(encounter.toSimple()));
             }
         } else {
             SqlUpdateFormatter formatter = new SqlUpdateFormatter();

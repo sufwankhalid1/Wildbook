@@ -6,6 +6,7 @@ import javax.validation.Valid;
 import org.ecocean.Individual;
 import org.ecocean.encounter.EncounterFactory;
 import org.ecocean.servlet.ServletUtils;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -38,5 +39,10 @@ public class AdminIndividualController {
         try (Database db = ServletUtils.getDb(request)) {
             EncounterFactory.deleteIndividual(db, individual.getId());
         }
+    }
+
+    @RequestMapping(value = "/debug/indstore/{id}", method = RequestMethod.POST)
+    public Individual checkStore(@PathVariable final int id) {
+        return EncounterFactory.checkIndividualStore(id);
     }
 }
