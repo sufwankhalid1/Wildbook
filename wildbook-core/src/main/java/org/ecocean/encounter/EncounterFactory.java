@@ -91,6 +91,12 @@ public class EncounterFactory {
 
         Encounter encounter = encStore.get(encounterId);
         if (encounter != null) {
+            //
+            // Need to update our encounter with this individual which should have just come from
+            // the individual store and thus should be fresh. It's possible that the encounter was
+            // holding a non-fresh individual if changes were made to it.
+            //
+            encounter.setIndividual(individual);
             return encounter;
         }
 
@@ -173,6 +179,20 @@ public class EncounterFactory {
         return ind.toSimple();
     }
 
+    private static Individual readIndividualContent(final RecordSet rs, final Integer indid) throws DatabaseException {
+        Individual ind = new Individual(indid,
+                                        Global.INST.getSpecies(rs.getString("species")),
+                                        rs.getString("nickname"));
+        ind.setSex(rs.getString("sex"));
+        ind.setAlternateId(rs.getString("alternateid"));
+        ind.setIdentified(rs.getBoolean("identified"));
+        ind.setBio(rs.getString("bio"));
+        ind.setAvatarFull(MediaAssetFactory.readPhoto(rs));
+
+        indStore.put(ind);
+        return ind;
+    }
+
     public static Individual readIndividual(final RecordSet rs) throws DatabaseException {
         Integer indid = rs.getInteger(PK_INDIVIDUALS);
         if (indid == null) {
@@ -184,17 +204,7 @@ public class EncounterFactory {
             return ind;
         }
 
-        ind = new Individual(indid,
-                             Global.INST.getSpecies(rs.getString("species")),
-                             rs.getString("nickname"));
-        ind.setSex(rs.getString("sex"));
-        ind.setAlternateId(rs.getString("alternateid"));
-        ind.setIdentified(rs.getBoolean("identified"));
-        ind.setBio(rs.getString("bio"));
-        ind.setAvatarFull(MediaAssetFactory.readPhoto(rs));
-
-        indStore.put(ind);
-        return ind;
+        return readIndividualContent(rs, indid);
     }
 
     public static SimpleEncounter readSimpleEncounter(final RecordSet rs) throws DatabaseException {
@@ -408,9 +418,25 @@ public class EncounterFactory {
     }
 
     public static Encounter getEncounterById(final Database db, final int id) throws DatabaseException {
+        //
+        // ONLY return the encounter from the store IF we have BOTH the encounter
+        // and the individual in the store because we can't trust the encounter to have the
+        // most up-to-date individual on it. Otherwise, we just go off to the db to get the whole
+        // thing. no biggy.
+        //
         Encounter encounter = encStore.get(id);
         if (encounter != null) {
-            return encounter;
+            Individual ind = indStore.get(encounter.getIndividual().getId());
+            if (ind != null) {
+
+                //
+                // Need to update our encounter with this individual which should have just come from
+                // the individual store and thus should be fresh. It's possible that the encounter was
+                // holding a non-fresh individual if changes were made to it.
+                //
+                encounter.setIndividual(ind);
+                return encounter;
+            }
         }
 
         SqlStatement sql = getEncounterStatement();

@@ -18,10 +18,6 @@ public class EncounterStore {
         cache.put(obj.getId(), obj);
     }
 
-    public void remove(final Encounter obj) {
-        cache.remove(obj.getId());
-    }
-
     public void remove(final Integer id) {
         cache.remove(id);
     }
