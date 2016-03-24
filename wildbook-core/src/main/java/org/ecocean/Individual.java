@@ -65,11 +65,8 @@ public class Individual {
         return getDisplayName(nickname, alternateId);
     }
 
-    public String getLongDisplayName() {
-        if (species != null) {
-            return getDisplayName() + " - " + species.getName();
-        }
-        return getDisplayName();
+    public String getDisplayNameFull() {
+        return getDisplayNameFull(nickname, alternateId, species);
     }
 
     //
@@ -116,6 +113,14 @@ public class Individual {
         }
 
         return name + " (" + alternateId + ")";
+    }
+
+    public static String getDisplayNameFull(final String nickname, final String alternateId, final Species species) {
+        if (species != null) {
+            return getDisplayName(nickname, alternateId) + " - " + species.getName();
+        }
+        return getDisplayName(nickname, alternateId);
+
     }
 
     public SimpleIndividual toSimple()

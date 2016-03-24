@@ -62,6 +62,11 @@ public class SimpleIndividual implements SimpleBeing
     }
 
 
+    public String getDisplayNameFull() {
+        return Individual.getDisplayNameFull(nickname, alternateId, species);
+    }
+
+
     @Override
     public String getDisplayName() {
         return Individual.getDisplayName(nickname, alternateId);
@@ -97,7 +102,7 @@ public class SimpleIndividual implements SimpleBeing
         return identified;
     }
 
-    public void setIdentified(boolean identified) {
+    public void setIdentified(final boolean identified) {
         this.identified = identified;
     }
 
@@ -105,7 +110,7 @@ public class SimpleIndividual implements SimpleBeing
         return bio;
     }
 
-    public void setBio(String bio) {
+    public void setBio(final String bio) {
         this.bio = bio;
     }
 
