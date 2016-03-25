@@ -12,3 +12,4 @@ require("./user_typeahead.js");
 require("./crewrole_util.js");
 require("./vesseltype_util.js");
 require("./date_range_picker.js");
+require("./photo_dialog.js");

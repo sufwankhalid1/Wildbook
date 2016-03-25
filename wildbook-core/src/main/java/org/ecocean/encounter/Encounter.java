@@ -6,6 +6,7 @@ import java.time.LocalTime;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.ecocean.Individual;
 import org.ecocean.Location;
+import org.ecocean.rest.SimplePhoto;
 import org.ecocean.util.DateUtils;
 
 public class Encounter
@@ -20,6 +21,8 @@ public class Encounter
 
     private Individual individual;
     private String comments;
+
+    private SimplePhoto displayImage;
 
     public Encounter()
     {
@@ -109,5 +112,13 @@ public class Encounter
     public String toString()
     {
         return ToStringBuilder.reflectionToString(this);
+    }
+
+    public SimplePhoto getDisplayImage() {
+        return displayImage;
+    }
+
+    public void setDisplayImage(final SimplePhoto displayImage) {
+        this.displayImage = displayImage;
     }
 }

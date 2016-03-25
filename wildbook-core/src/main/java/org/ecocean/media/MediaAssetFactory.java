@@ -67,8 +67,12 @@ public class MediaAssetFactory {
         return Paths.get(pathstr);
     }
 
+    public static MediaAsset valueOf(final RecordSet rs) throws DatabaseException {
+        return valueOf(rs, "");
+    }
 
-    public static MediaAsset valueOf(final RecordSet rs) throws DatabaseException
+
+    public static MediaAsset valueOf(final RecordSet rs, final String prefix) throws DatabaseException
     {
         //
         // Will happen if in a left join query there is no associated media asset.
@@ -77,7 +81,7 @@ public class MediaAssetFactory {
             return null;
         }
 
-        Integer id = rs.getInteger(PK_MEDIAASSET);
+        Integer id = rs.getInteger(prefix + PK_MEDIAASSET);
 
         if (id == null) {
             return null;
@@ -89,26 +93,26 @@ public class MediaAssetFactory {
         }
 
         MediaAsset ma = new MediaAsset(rs.getInt(PK_MEDIAASSET),
-                                       AssetStore.get(rs.getInteger("store")),
-                                       createPath(rs.getString("path")),
-                                       MediaAssetType.fromCode(rs.getInt("type")),
-                                       rs.getString("category"));
-        ma.parentId = rs.getInteger("parent");
-        ma.rootId = rs.getInteger("root");
-        String[] tags =  (String[]) rs.getArray("tags");
+                                       AssetStore.get(rs.getInteger(prefix + "store")),
+                                       createPath(rs.getString(prefix + "path")),
+                                       MediaAssetType.fromCode(rs.getInt(prefix + "type")),
+                                       rs.getString(prefix + "category"));
+        ma.parentId = rs.getInteger(prefix + "parent");
+        ma.rootId = rs.getInteger(prefix + "root");
+        String[] tags =  (String[]) rs.getArray(prefix + "tags");
         if (tags != null) {
             ma.tags = new HashSet<String>(Arrays.asList(tags));
         }
-        ma.thumbStore = AssetStore.get(rs.getInteger("thumbstore"));
-        ma.thumbPath = createPath(rs.getString("thumbpath"));
-        ma.midPath = createPath(rs.getString("midpath"));
-        ma.submitterid = rs.getInteger("submitterid");
+        ma.thumbStore = AssetStore.get(rs.getInteger(prefix + "thumbstore"));
+        ma.thumbPath = createPath(rs.getString(prefix + "thumbpath"));
+        ma.midPath = createPath(rs.getString(prefix + "midpath"));
+        ma.submitterid = rs.getInteger(prefix + "submitterid");
         ma.setSubmitter(UserFactory.readSimpleUser(rs));
-        ma.setMetaTimestamp(rs.getLocalDateTime("metatimestamp"));
-        ma.setMetaLatitude(rs.getDoubleObj("metalat"));
-        ma.setMetaLongitude(rs.getDoubleObj("metalong"));
+        ma.setMetaTimestamp(rs.getLocalDateTime(prefix + "metatimestamp"));
+        ma.setMetaLatitude(rs.getDoubleObj(prefix + "metalat"));
+        ma.setMetaLongitude(rs.getDoubleObj(prefix + "metalong"));
 
-        String meta = rs.getString("meta");
+        String meta = rs.getString(prefix + "meta");
         if (meta != null) {
             Type type = new TypeToken<HashMap<String, String>>() {}.getType();
             ma.setMeta(new Gson().fromJson(meta, type));
@@ -239,10 +243,15 @@ public class MediaAssetFactory {
         return photo;
     }
 
-
     public static SimplePhoto readPhoto(final RecordSet rs) throws DatabaseException
     {
-        return toSimplePhoto(valueOf(rs));
+        return readPhoto(rs, "");
+    }
+
+
+    public static SimplePhoto readPhoto(final RecordSet rs, final String prefix) throws DatabaseException
+    {
+        return toSimplePhoto(valueOf(rs, prefix));
     }
 
 

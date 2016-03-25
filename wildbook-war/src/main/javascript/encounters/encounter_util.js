@@ -28,7 +28,7 @@ angular.module('wildbook.encounters', [])
         },
         createNewEncData: function(selectedPhotos, submission) {
             //if photos are selected add them to the new encounter
-            var encounter = {individual: {species: config.defaultSpecies || config.species[0] }};
+            var encounter = {individual: {species: config.defaultSpecies || config.species[0] }, displayImage: {}};
 
             if (!selectedPhotos || !selectedPhotos.length) {
                 return $q.resolve({
@@ -126,9 +126,14 @@ angular.module('wildbook.encounters', [])
 
             function newEncounter() {
                 selectedPhotos.forEach(function(photo){
+                    if (!encounter.displayImage.id) {
+                        encounter.displayImage = photo;
+                    }
+
                     if (photo.latitude) {
                         platitude = photo.latitude;
                     }
+
                     if (photo.longitude) {
                         plongitude = photo.longitude;
                     }
@@ -160,6 +165,7 @@ angular.module('wildbook.encounters', [])
             return $http.post('api/encounter/checkDuplicateImage', selectedPhotos)
                 .then(function(res){
                     if (res.data && res.data.length && res.data[0] !== null) {
+                        res.data.displayImage = selectedPhotos[0];
                         encounterExist(res.data);
                     } else {
                         newEncounter();
@@ -219,7 +225,7 @@ angular.module('wildbook.encounters', [])
             }
 
             if (alreadyAlerted) {
-                deleteIt();
+                return deleteIt();
             } else {
                 return alertplus.confirm('Are you sure you want to delete this encounter?', "Delete Encounter", true)
                 .then(deleteIt);

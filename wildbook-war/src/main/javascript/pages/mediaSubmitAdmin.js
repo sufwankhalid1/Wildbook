@@ -61,7 +61,7 @@ angular.module('wildbook.admin').directive(
                         encounter: false
                 };
 
-                function attachEncounter(encdata, surveyEnc) {
+                function attachEncounter(encdata, surveyEnc, skipAlert) {
                     if (! encdata) {
                         return;
                     }
@@ -72,7 +72,7 @@ angular.module('wildbook.admin').directive(
                     if (surveyEnc) {
                         if (surveyEnc.encs) {
                             if (wbLangUtils.existsInArray(surveyEnc.encs, function(item) {
-                                if (item.encounter.id === encdata.encounter.id) {
+                                if (item.encounter.id === encdata.encounter.id && !skipAlert) {
                                     alertplus.alert("This encounter is already in this survey");
                                 }
                                 return item.encounter.id === encdata.encounter.id;
@@ -150,7 +150,7 @@ angular.module('wildbook.admin').directive(
 
                 $scope.editEncounterDone = function(encdata) {
                     if (encdata) {
-                        attachEncounter(encdata, $scope.data.activeSurveyEnc);
+                        attachEncounter(encdata, $scope.data.activeSurveyEnc, true);
                     }
                     $scope.data.module.encounterEdit = null;
                     $scope.data.activeSurveyEnc = null;

@@ -53,8 +53,25 @@ angular.module('wildbook.admin').directive(
                     $scope.autofilled = $scope.data.autofilledFrom;
                 }
 
+                function setDisplayImage(images) {
+                    if (images && !$scope.data.encounter.displayImage) {
+                        $scope.data.encounter.displayImage = images[0];
+                    }
+                }
+
+                //
+                // need to update each encounter without a display image as the scope changes
+                //
+                $scope.$watch("data.encounter.id", function() {
+                    setDisplayImage($scope.data.photos);
+                });
+
                 if (!$scope.data.photos) {
-                    wbEncounterUtils.getMedia($scope.data.encounter);
+                    wbEncounterUtils.getMedia($scope.data.encounter)
+                    .then(function(encData) {
+                        $scope.data = encData;
+                        setDisplayImage($scope.data.photos);
+                    });
                 }
 
                 $scope.dateObj = wbDateUtils.dateFromRest($scope.data.encounter.encDate);
@@ -281,13 +298,20 @@ angular.module('wildbook.admin').directive(
                 // START wb-thumb-box
                 //=================================
                 $scope.performAction = function(code, photos) {
+                    var removeDisplayImg;
+                    var remainingPhotos = [];
+
                     if (!photos) {
                         return;
                     }
 
                     var photoids = photos.map(function(photo) {
+                        if (photo.id === $scope.data.encounter.displayImage.id) {
+                            removeDisplayImg = true;
+                        }
                         return photo.id;
                     });
+
 
                     switch (code) {
                     case "del": {
@@ -298,9 +322,30 @@ angular.module('wildbook.admin').directive(
                         // So instead we return the original promise from the post and call catch on that
                         // same promise.
                         //
-                        var promise = $http.post("admin/api/encounter/detachmedia/" + $scope.data.encounter.id, photoids)
+                        if (!$scope.data.encounter.id) {
+                            alertplus.alert("Cannot delete images. Have you saved this encounter before trying to remove images?");
+                            return;
+                        }
+
+                        if (removeDisplayImg) {
+                            //
+                            // need to set new display image to encounter if old is removed
+                            //
+                            $scope.data.photos.forEach(function(photo, index) {
+                                if (photoids.indexOf(photo.id) === -1) {
+                                    remainingPhotos.push(photo);
+                                }
+                            });
+                        }
+
+                        var promise = $http.post("admin/api/encounter/detachmedia/" + $scope.data.encounter.id, {mediaids: photoids, displayImageId: (remainingPhotos.length ? remainingPhotos[0].id : null)})
                         .then(function() {
                             $scope.photosDetached({photos: photos});
+
+                            if (remainingPhotos.length && removeDisplayImg) {
+                                $scope.data.encounter.displayImage = remainingPhotos[0];
+                            }
+
                             delete $scope.mapData.markers['p'+photoids];
                         });
                         promise.catch($exceptionHandler);

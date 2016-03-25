@@ -51,55 +51,6 @@ angular.module('wildbook.admin').directive(
 //                    return name + " (" + individual.alternateId + ")";
 //                }
 //
-                $scope.avatarDialog = function($event) {
-                    function avatarController($scope, $mdDialog, individual, parentScope) {
-                        $scope.active = [];
-                        $http.get("api/individual/photos/"+individual.id)
-                        .then(function(photos) {
-                            $scope.photos = photos.data;
-                        });
-
-                        $scope.selected = function(avatar) {
-                            parentScope.data.avatar = avatar.thumbUrl;
-                            parentScope.data.avatarFull = avatar;
-
-                            $scope.closeDialog();
-                        };
-
-                        $scope.closeDialog = function() {
-                            $mdDialog.hide();
-                        };
-                    }
-                   var parentEl = angular.element(document.body);
-                   $mdDialog.show({
-                         parent: parentEl,
-                         targetEvent: $event,
-                         clickOutsideToClose:true,
-                         template:
-                           '<md-dialog class="individual-avatar-container" aria-label="List dialog">' +
-                           '    <md-toolbar>' +
-                           '        <div class="md-toolbar-tools">' +
-                           '            <h2>Individual Avatar</h2>' +
-                           '            <span flex></span>' +
-                           '            <md-button class="md-icon-button" ng-click="closeDialog()">' +
-                           '                <md-icon md-svg-icon="close" aria-label="Close dialog"></md-icon>' +
-                           '            </md-button>' +
-                           '        </div>' +
-                           '    </md-toolbar>' +
-                           '    <md-dialog-content layout-align="center center" class="individual-avatar md-dialog-content" layout="row" layout-wrap>' +
-                           '        <div ng-click="selected(photo)"' +
-                           '        class="mlrb-8" ng-repeat="photo in photos">' +
-                           '            <img ng-src="{{photo.thumbUrl}}">'+
-                           '        </div>'+
-                           '    </md-dialog-content>' +
-                           '</md-dialog>',
-                         locals: {
-                            parentScope: $scope,
-                            individual: $scope.data
-                         },
-                         controller: avatarController
-                     });
-                };
 
                 $scope.save = function() {
                     $http.post('admin/api/individual/save', $scope.data)

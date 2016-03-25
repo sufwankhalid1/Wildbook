@@ -37,6 +37,8 @@ public class EncounterFactory {
     public static final String TABLENAME_ENCOUNTER_MEDIA = "encounter_media";
     public static final String ALIAS_ENCOUNTER_MEDIA = "em";
 
+    private static final String ALIAS_ENCOUNTER_DISPLAY_IMAGE = "ma2";
+
     private final static IndividualStore indStore = Global.INST.getIndividualStore();
     private final static EncounterStore encStore = Global.INST.getEncounterStore();
 
@@ -87,6 +89,7 @@ public class EncounterFactory {
     }
 
     public static Encounter readEncounter(final Individual individual, final RecordSet rs) throws DatabaseException {
+
         int encounterId = rs.getInt(PK_ENCOUNTERS);
 
         Encounter encounter = encStore.get(encounterId);
@@ -107,6 +110,7 @@ public class EncounterFactory {
         encounter.setLocation(LocationFactory.readLocation(rs));
         encounter.setComments(rs.getString("comments"));
         encounter.setIndividual(individual);
+        encounter.setDisplayImage(MediaAssetFactory.readPhoto(rs, ALIAS_ENCOUNTER_DISPLAY_IMAGE));
 
         encStore.put(encounter);
 
@@ -224,6 +228,23 @@ public class EncounterFactory {
         });
     }
 
+    public static void updateEncDisplayImage(final Database db, final int encId, final int displayImageId) throws DatabaseException {
+        Table encounters = db.getTable(TABLENAME_ENCOUNTERS);
+        SqlUpdateFormatter formatter = new SqlUpdateFormatter();
+        SqlWhereFormatter where = new SqlWhereFormatter();
+
+        where.append("encounterid", encId);
+        formatter.append("mediaid", displayImageId);
+
+        encounters.updateRow(formatter.getUpdateClause(), where.getWhereClause());
+
+        //
+        // removing from cache since we would need to pass the full simplePhoto to update it.
+        // TODO: need to come up with a better method for dealing with updating cache with just id
+        //
+        encStore.remove(encId);
+    }
+
     public static Individual getIndividualByAltId(final Database db, final String alternateId)
             throws DatabaseException {
         SqlStatement sql = getIndividualStatement();
@@ -254,15 +275,37 @@ public class EncounterFactory {
     }
 
     public static SqlStatement getEncounterStatement(final boolean distinct) {
+
         SqlStatement sql = new SqlStatement(TABLENAME_ENCOUNTERS, ALIAS_ENCOUNTERS);
         sql.addLeftOuterJoin(ALIAS_ENCOUNTERS, PK_INDIVIDUALS, TABLENAME_INDIVIDUALS, ALIAS_INDIVIDUALS,
                 PK_INDIVIDUALS);
         sql.addLeftOuterJoin(ALIAS_INDIVIDUALS, "avatarid", MediaAssetFactory.TABLENAME_MEDIAASSET,
                 MediaAssetFactory.ALIAS_MEDIAASSET, MediaAssetFactory.PK_MEDIAASSET);
+        sql.addLeftOuterJoin(ALIAS_ENCOUNTERS, "mediaid", MediaAssetFactory.TABLENAME_MEDIAASSET,
+                "ma2", MediaAssetFactory.PK_MEDIAASSET);
+
         sql.setSelectDistinct(distinct);
         sql.addSelectTable(ALIAS_ENCOUNTERS);
         sql.addSelectTable(ALIAS_INDIVIDUALS);
         sql.addSelectTable(MediaAssetFactory.ALIAS_MEDIAASSET);
+
+        sql.addSelect(ALIAS_ENCOUNTER_DISPLAY_IMAGE, "store", "ma2store");
+        sql.addSelect(ALIAS_ENCOUNTER_DISPLAY_IMAGE, "category", "ma2category");
+        sql.addSelect(ALIAS_ENCOUNTER_DISPLAY_IMAGE, "parent", "ma2parent");
+        sql.addSelect(ALIAS_ENCOUNTER_DISPLAY_IMAGE, "tags", "ma2tags");
+        sql.addSelect(ALIAS_ENCOUNTER_DISPLAY_IMAGE, "root", "ma2root");
+        sql.addSelect(ALIAS_ENCOUNTER_DISPLAY_IMAGE, "type", "ma2type");
+        sql.addSelect(ALIAS_ENCOUNTER_DISPLAY_IMAGE, "path", "ma2path");
+        sql.addSelect(ALIAS_ENCOUNTER_DISPLAY_IMAGE, "thumbstore", "ma2thumbstore");
+        sql.addSelect(ALIAS_ENCOUNTER_DISPLAY_IMAGE, "thumbpath", "ma2thumbpath");
+        sql.addSelect(ALIAS_ENCOUNTER_DISPLAY_IMAGE, "midpath", "ma2midpath");
+        sql.addSelect(ALIAS_ENCOUNTER_DISPLAY_IMAGE, "metatimestamp", "ma2metatimestamp");
+        sql.addSelect(ALIAS_ENCOUNTER_DISPLAY_IMAGE, "metalat", "ma2metalat");
+        sql.addSelect(ALIAS_ENCOUNTER_DISPLAY_IMAGE, "metalong", "ma2metalong");
+        sql.addSelect(ALIAS_ENCOUNTER_DISPLAY_IMAGE, "meta", "ma2meta");
+        sql.addSelect(ALIAS_ENCOUNTER_DISPLAY_IMAGE, "submittedon", "ma2submittedon");
+        sql.addSelect(ALIAS_ENCOUNTER_DISPLAY_IMAGE, "submitterid", "ma2submitterid");
+        sql.addSelect(ALIAS_ENCOUNTER_DISPLAY_IMAGE, "id", "ma2id");
 
         return sql;
     }
@@ -279,6 +322,8 @@ public class EncounterFactory {
         SqlStatement sql = new SqlStatement(TABLENAME_ENCOUNTERS, ALIAS_ENCOUNTERS);
         sql.addLeftOuterJoin(ALIAS_ENCOUNTERS, "encounterid", TABLENAME_ENCOUNTER_MEDIA, ALIAS_ENCOUNTER_MEDIA,
                 "encounterid");
+        sql.addLeftOuterJoin(ALIAS_ENCOUNTERS, "mediaid", MediaAssetFactory.TABLENAME_MEDIAASSET,
+                "ma2", MediaAssetFactory.PK_MEDIAASSET);
         sql.addLeftOuterJoin(ALIAS_ENCOUNTERS, PK_INDIVIDUALS, TABLENAME_INDIVIDUALS, ALIAS_INDIVIDUALS,
                 PK_INDIVIDUALS);
         sql.setSelectDistinct(true);
@@ -293,18 +338,6 @@ public class EncounterFactory {
         if (encounter == null) {
             return;
         }
-
-        //
-        // Can't have this here since we have to be able to create an encounter
-        // automatically from a set of images and attach those images and we might not have a
-        // lat/long that we obtained from those images.
-        //
-        // if (encounter.getLocation() == null
-        //     || encounter.getLocation().getLatitude() == null
-        //     || encounter.getLocation().getLongitude() == null) {
-        //     throw new DatabaseException("Latitude and Longitude are required for an encounter.");
-        // }
-        //
 
         boolean isNewInd = (encounter.getIndividual().getId() == null);
 
@@ -369,6 +402,7 @@ public class EncounterFactory {
         formatter.append("starttime", encounter.getStarttime());
         formatter.append("endtime", encounter.getEndtime());
         formatter.append("comments", encounter.getComments());
+        formatter.append("mediaid", encounter.getDisplayImage().getId());
         LocationFactory.fillFormatterWithLoc(formatter, encounter.getLocation());
     }
 

@@ -41,7 +41,7 @@ public class AdminIndividualController {
         }
     }
 
-    @RequestMapping(value = "/debug/indstore/{id}", method = RequestMethod.POST)
+    @RequestMapping(value = "/debug/indstore/{id}", method = RequestMethod.GET)
     public Individual checkStore(@PathVariable final int id) {
         return EncounterFactory.checkIndividualStore(id);
     }

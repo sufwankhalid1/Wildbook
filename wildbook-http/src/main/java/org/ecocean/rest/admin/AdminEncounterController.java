@@ -55,11 +55,15 @@ public class AdminEncounterController {
     @RequestMapping(value = "detachmedia/{id}", method = RequestMethod.POST)
     public void detacchMedia(final HttpServletRequest request,
                              @PathVariable("id") final int encounterid,
-                             @RequestBody @Valid final Integer[] mediaids) throws DatabaseException {
+                             @RequestBody @Valid final DetachMedia detachMedia) throws DatabaseException {
         try (Database db = ServletUtils.getDb(request)) {
             db.performTransaction(() -> {
-                for (int ii=0; ii < mediaids.length; ii++) {
-                    EncounterFactory.detachMedia(db, encounterid, mediaids[ii]);
+                for (int ii=0; ii < detachMedia.mediaids.length; ii++) {
+                    EncounterFactory.detachMedia(db, encounterid, detachMedia.mediaids[ii]);
+                }
+
+                if (detachMedia.displayImageId != null) {
+                    EncounterFactory.updateEncDisplayImage(db, encounterid, detachMedia.displayImageId);
                 }
             });
         }
@@ -84,5 +88,10 @@ public class AdminEncounterController {
 
     static class EncounterDeleteResult {
         public boolean orphanedIndividual;
+    }
+
+    static class DetachMedia {
+        public Integer displayImageId;
+        public Integer[] mediaids;
     }
 }
