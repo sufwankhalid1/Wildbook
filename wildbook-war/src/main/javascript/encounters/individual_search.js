@@ -9,16 +9,31 @@ angular.module('wildbook.admin').directive(
             scope: {
                 searchIndividualDone: "&",
                 individualSearchCancelButtonHide: "@",
-                resetSelectedResult:"&"
+                resetSelectedResult:"&",
+                isOrphaned: "&",
+                removed: "="
             },
             templateUrl: 'encounters/individual_search.html',
             replace: true,
             controller: function($scope) {
+                var orphaned;
+
                 $scope.searchdata =  {
                     encounter: {},
                     individual: {},
                     contributor: {}
                 };
+
+                $scope.$watch('removed', function(newVal, oldVal) {
+                    if (newVal !== oldVal) {
+                        $scope.gridOptions.rowData.forEach(function(ind, index) {
+                            if (ind.id === newVal) {
+                                $scope.gridOptions.rowData.splice(index, 1);
+                                $scope.gridOptions.api.setRowData($scope.gridOptions.rowData);
+                            }
+                        });
+                    }
+                });
 
                 $scope.reset = function() {
                     $scope.searchdata =  {
@@ -39,21 +54,26 @@ angular.module('wildbook.admin').directive(
                     .then(function(result) {
                         $scope.gridOptions.api.setRowData(result.data);
                         $scope.selectedTabIndex = 1;
+                        orphaned = null;
                     },
                     $exceptionHandler);
                 };
 
-                $scope.orphaned = function(data) {
+                $scope.orphaned = function(data, cbOrphaned) {
+                    $scope.resetSelectedResult({val: null});
                     $scope.gridOptions.api.setRowData(data);
                     $scope.selectedTabIndex = 1;
+                    orphaned = cbOrphaned;
                 };
 
                 $scope.idSearch = function(data) {
+                    $scope.resetSelectedResult({val: null});
                     $scope.searchIndividualDone({individual: data});
+                    orphaned = null;
                 };
 
                 function rowSelectedFunc(event) {
-                    $scope.searchIndividualDone({individual: event.node.data});
+                    $scope.searchIndividualDone({individual: event.node.data, isOrphaned: orphaned});
                 }
 
                 $scope.gridOptions = {

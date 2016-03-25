@@ -1,4 +1,4 @@
-/* global angular, document */
+/* global angular */
 'use strict';
 
 angular.module('wildbook.admin').directive(

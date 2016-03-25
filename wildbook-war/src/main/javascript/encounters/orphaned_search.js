@@ -16,7 +16,7 @@ angular.module('wildbook.admin').directive(
                 $scope.orphaned = function() {
                     $http.get('admin/api/search/orphaned')
                     .then(function(res) {
-                        $scope.callback({inds: res.data});
+                        $scope.callback({inds: res.data, isOrphaned: true});
                     });
                 };
             }
