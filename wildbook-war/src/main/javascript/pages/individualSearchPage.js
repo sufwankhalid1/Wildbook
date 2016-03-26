@@ -22,8 +22,8 @@ angular.module('wildbook.admin').directive(
                };
 
                //
-               // Want to delete only orphaned individuals so there is a callback in orphaned_search which calls to individual_search pasing it a true
-               // value for orphaned search. When an individual is clicked, that passes a callback of isOrphaned here. May be able to skip that middle man.
+               // Want to delete only orphaned individuals so there is a callback in orphaned_search which calls to individual_search
+               // When an individual is clicked, that passes a callback of isOrphaned here. May be able to skip that middle man?
                //
 
                $scope.editIndividualDone = function() {
