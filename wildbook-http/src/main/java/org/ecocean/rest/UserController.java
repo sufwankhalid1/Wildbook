@@ -10,11 +10,9 @@ import javax.servlet.http.HttpSession;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
-import org.ecocean.ContextConfiguration;
 import org.ecocean.Global;
 import org.ecocean.export.Export;
 import org.ecocean.export.ExportFactory;
-import org.ecocean.security.SecurityInfo;
 import org.ecocean.security.User;
 import org.ecocean.security.UserService;
 import org.ecocean.security.UserToken;
@@ -110,29 +108,6 @@ public class UserController {
         token.setRememberMe(true);
 
         return new UserToken(user, token);
-    }
-
-
-    public static String getAllRolesForUserAsString(final HttpServletRequest request,
-                                                    final Integer userid) throws DatabaseException {
-        if (userid == null) {
-            return "";
-        }
-
-        SecurityInfo info = Global.INST.getUserService().getSecurityInfo(userid.toString());
-        if (info == null) {
-            return "";
-        }
-
-        StringBuilder rolesFound = new StringBuilder();
-        for (String context : info.getContextRoleKeys()) {
-            String contextLabel = ContextConfiguration.getNameForContext(context);
-
-            for(String role : info.getContextRoles(context)) {
-                rolesFound.append(contextLabel + ":" + role + "\r");
-            }
-        }
-        return rolesFound.toString();
     }
 
     @RequestMapping(value = "login", method = RequestMethod.POST)

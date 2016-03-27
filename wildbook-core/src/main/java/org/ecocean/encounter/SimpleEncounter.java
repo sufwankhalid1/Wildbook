@@ -6,10 +6,10 @@ import java.time.LocalTime;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.ecocean.Location;
 import org.ecocean.rest.SimpleIndividual;
+import org.ecocean.rest.SimplePhoto;
 import org.ecocean.util.DateUtils;
 
-public class SimpleEncounter
-{
+public class SimpleEncounter {
     private Integer id;
 
     private LocalDate encdate;
@@ -22,14 +22,13 @@ public class SimpleEncounter
 
     private String comments;
 
-    public SimpleEncounter()
-    {
+    private SimplePhoto displayImage;
+
+    public SimpleEncounter() {
         // for deserialization
     }
 
-    public SimpleEncounter(final Integer id,
-                           final LocalDate encdate)
-    {
+    public SimpleEncounter(final Integer id, final LocalDate encdate) {
         this.id = id;
         this.encdate = encdate;
     }
@@ -94,9 +93,16 @@ public class SimpleEncounter
         return DateUtils.format(encdate, starttime, endtime);
     }
 
+    public SimplePhoto getDisplayImage() {
+        return displayImage;
+    }
+
+    public void setDisplayImage(final SimplePhoto displayImage) {
+        this.displayImage = displayImage;
+    }
+
     @Override
-    public String toString()
-    {
+    public String toString() {
         return ToStringBuilder.reflectionToString(this);
     }
 }

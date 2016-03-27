@@ -50,10 +50,6 @@ String context = ServletUtils.getContext(request);
     <p><%=props.getProperty("loggedInAs")%>
         <strong><%=user.toSimple().getDisplayName()%></strong>.
     </p>
-
-    <p><%=props.getProperty("grantedRole")%><br/>
-        <em><%=UserController.getAllRolesForUserAsString(request, user.getId()).replaceAll("\r","<br/>")%></em>
-    </p>
     <p><%=props.getProperty("pleaseChoose")%></p>
     <p>&nbsp;</p>
 </div>

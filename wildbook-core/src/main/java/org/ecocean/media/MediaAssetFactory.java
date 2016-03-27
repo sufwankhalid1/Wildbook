@@ -21,6 +21,7 @@ import com.samsix.database.DatabaseException;
 import com.samsix.database.RecordSet;
 import com.samsix.database.SqlFormatter;
 import com.samsix.database.SqlInsertFormatter;
+import com.samsix.database.SqlStatement;
 import com.samsix.database.SqlUpdateFormatter;
 import com.samsix.database.SqlWhereFormatter;
 import com.samsix.database.Table;
@@ -55,6 +56,33 @@ public class MediaAssetFactory {
             return valueOf(rs);
         }
         return null;
+    }
+
+    private static void addSelectColumn(final SqlStatement sql, final String alias, final String colName) {
+        sql.addSelect(alias, colName, alias + colName);
+    }
+
+    public static void addSelectClause(final SqlStatement sql, final String alias) {
+        addSelectColumn(sql, alias, "store");
+
+        addSelectColumn(sql, alias, "store");
+        addSelectColumn(sql, alias, "category");
+        addSelectColumn(sql, alias, "parent");
+        addSelectColumn(sql, alias, "tags");
+        addSelectColumn(sql, alias, "root");
+        addSelectColumn(sql, alias, "type");
+        addSelectColumn(sql, alias, "path");
+        addSelectColumn(sql, alias, "thumbstore");
+        addSelectColumn(sql, alias, "thumbpath");
+        addSelectColumn(sql, alias, "midpath");
+        addSelectColumn(sql, alias, "metatimestamp");
+        addSelectColumn(sql, alias, "metalat");
+        addSelectColumn(sql, alias, "metalong");
+        addSelectColumn(sql, alias, "meta");
+        addSelectColumn(sql, alias, "submittedon");
+        addSelectColumn(sql, alias, "submitterid");
+        addSelectColumn(sql, alias, "id");
+
     }
 
 

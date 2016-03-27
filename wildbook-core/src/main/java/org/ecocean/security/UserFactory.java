@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.ecocean.Global;
 import org.ecocean.Organization;
 import org.ecocean.location.GeoLocation;
 import org.ecocean.location.LatLng;
@@ -71,17 +72,24 @@ public class UserFactory {
         return sql;
     }
 
-    public static User readUser(final RecordSet rs) throws DatabaseException {
+    public static Integer readUserId(final RecordSet rs) throws DatabaseException {
         if (!rs.hasColumn(PK_USERS)) {
             return null;
         }
 
-        Integer id = rs.getInteger(PK_USERS);
-        if (id == null) {
+        return rs.getInteger(PK_USERS);
+    }
+
+    public static User readUser(final RecordSet rs) throws DatabaseException {
+        return readUser(rs, readUserId(rs));
+    }
+
+    public static User readUser(final RecordSet rs, final Integer userid) throws DatabaseException {
+        if (userid == null) {
             return null;
         }
 
-        User user = new User(id, rs.getString("username"), rs.getString("fullname"), rs.getString("email"));
+        User user = new User(userid, rs.getString("username"), rs.getString("fullname"), rs.getString("email"));
 
         user.setAvatarPath(rs.getString("avatar"));
         user.setStatement(rs.getString("statement"));
@@ -124,7 +132,7 @@ public class UserFactory {
     }
 
     public static SimpleUser readSimpleUser(final RecordSet rs) throws DatabaseException {
-        User user = readUser(rs);
+        User user = Global.INST.getUserService().readUser(rs);
         if (user == null) {
             return null;
         }

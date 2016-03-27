@@ -96,6 +96,14 @@ public class Encounter
         return DateUtils.format(encdate, starttime, endtime);
     }
 
+    public SimplePhoto getDisplayImage() {
+        return displayImage;
+    }
+
+    public void setDisplayImage(final SimplePhoto displayImage) {
+        this.displayImage = displayImage;
+    }
+
     public SimpleEncounter toSimple() {
         SimpleEncounter simple = new SimpleEncounter(id, encdate);
         simple.setStarttime(starttime);
@@ -104,6 +112,7 @@ public class Encounter
             simple.setIndividual(individual.toSimple());
         }
         simple.setLocation(location);
+        simple.setDisplayImage(displayImage);
 
         return simple;
     }
@@ -112,13 +121,5 @@ public class Encounter
     public String toString()
     {
         return ToStringBuilder.reflectionToString(this);
-    }
-
-    public SimplePhoto getDisplayImage() {
-        return displayImage;
-    }
-
-    public void setDisplayImage(final SimplePhoto displayImage) {
-        this.displayImage = displayImage;
     }
 }

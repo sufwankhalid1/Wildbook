@@ -6,6 +6,6 @@ import org.ecocean.rest.SimplePhoto;
 
 public class EncounterObj
 {
-    public Encounter encounter;
+    public SimpleEncounter encounter;
     public List<SimplePhoto> photos;
 }

@@ -35,4 +35,12 @@ public interface UserService {
     public void clearUserCache();
     public List<SimpleUser> searchUsers(final String q);
     public int getNumUsers();
+    /**
+     *  Really just a cheat method that allows you more control over the speed and utility of
+     *  your user service. Ignore if not applicable.
+     *
+     * @param obj Some sort of deserialized version of an object. e.g. RecordSet from a DB.
+     * @return user
+     */
+    public User readUser(final Object obj);
 }

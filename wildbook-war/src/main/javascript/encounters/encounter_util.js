@@ -2,7 +2,8 @@
 'use strict';
 
 angular.module('wildbook.encounters', [])
-.factory("wbEncounterUtils", ["$http", "$q", "wbConfig", "wbDateUtils", "$exceptionHandler", function($http, $q, wbConfig, wbDateUtils, $exceptionHandler) {
+.factory("wbEncounterUtils", ["$http", "$q", "wbConfig", "wbDateUtils", "$exceptionHandler", "$mdDialog",
+         function($http, $q, wbConfig, wbDateUtils, $exceptionHandler, $mdDialog) {
     var config;
     wbConfig.config()
     .then(function(theConfig) {
@@ -11,7 +12,7 @@ angular.module('wildbook.encounters', [])
     return {
         getMedia: function(encdata) {
             if (! encdata.photos) {
-                return $http.get("api/encounter/getmedia/" + encdata.encounter.id)
+                return $http.get("admin/api/encounter/getmedia/" + encdata.encounter.id)
                 .then(function(result) {
                     encdata.photos = result.data;
                     return encdata;
@@ -28,154 +29,167 @@ angular.module('wildbook.encounters', [])
         },
         createNewEncData: function(selectedPhotos, submission) {
             //if photos are selected add them to the new encounter
-            var encounter = {individual: {species: config.defaultSpecies || config.species[0] }, displayImage: {}};
+            function emptyEnc() {
+                return {individual: {species: config.defaultSpecies || config.species[0] }};
+            }
 
             if (!selectedPhotos || !selectedPhotos.length) {
                 return $q.resolve({
-                    encounter: encounter,
+                    encounter: emptyEnc(),
                     photos: [],
                     autofilledFrom: null
                 });
             }
 
-            var platitude = null;
-            var plongitude = null;
-            var dates = [];
+            var metadata = {
+                dates: []
+            };
 
-            var photo_encounters;
-            var photo_encounter;
+            selectedPhotos.forEach(function(photo){
+                if (metadata.latitude && photo.latitude) {
+                    metadata.latitude = photo.latitude;
+                }
 
-            var encounter_used;
+                if (!metadata.longitude && photo.longitude) {
+                    metadata.longitude = photo.longitude;
+                }
 
-            function createDate(selectedPhotos) {
-                var found = false;
-                var timeline;
-                selectedPhotos.forEach(function(photo) {
-                    if (photo.timestamp && !found) {
-                        timeline = wbDateUtils.compareDates(dates);
+                //create date array for wbDateUtils
+                if (photo.timestamp) {
+                    metadata.dates.push(photo.timestamp);
+                }
+            });
 
-                        if (timeline) {
-                            found = true;
-                        }
-                    }
-                });
+            if (!wbDateUtils.sameDay(metadata.dates)) {
+                return $q.reject("These photos were taken on different days!<br/> Please choose images that occured during the same encounter.");
+            }
 
-                if (found) {
-                    return timeline.newest.slice(0, 3);
+            function setEncounterImage(encounter, displayPhoto) {
+                encounter.displayImage = displayPhoto;
+                if (!encounter.individual.avatarFull) {
+                    encounter.individual.avatarFull = displayPhoto;
+                    encounter.individual.avatar = displayPhoto.thumbUrl;
                 }
             }
 
-            function setDate() {
-                var timeline = wbDateUtils.compareDates(dates);
+            function createFromExisting(existingEnc, displayPhoto) {
+                var encounter = emptyEnc();
 
-                if (timeline) {
-                    encounter.encDate = timeline.newest.slice(0, 3);
-                    encounter.starttime = timeline.oldest.slice(3, timeline.oldest.length);
-                    encounter.endtime = timeline.newest.slice(3, timeline.newest.length);
+                if ((existingEnc.location.latitude && existingEnc.location.longitude)
+                    || existingEnc.location.verbatimLocation || existingEnc.location.locationid) {
+                    encounter.location = existingEnc.location;
                 }
+
+                if (existingEnc.starttime) {
+                    encounter.starttime = existingEnc.starttime;
+                }
+
+                if (existingEnc.endtime) {
+                    encounter.endtime = existingEnc.endtime;
+                }
+
+                encounter.encDate = existingEnc.encDate;
+
+                setEncounterImage(encounter, displayPhoto);
+                return encounter;
             }
 
-            function compareDates() {
-                //check if same day, if so, compare
-                if (!wbDateUtils.sameDay(dates)) {
-                    return $q.reject("These photos were taken on different days!<br/> Please choose images that occured during the same encounter.");
-                }
-            }
-
-            function encounterExist(data) {
-                //
-                //taking first photo's  first encounter and setting up encounter based on that info
-                //
-                photo_encounters = data;
-                photo_encounters.forEach(function(resencounter){
-                    if (resencounter) {
-                        photo_encounter = resencounter;
-                    }
-                });
-
-                if ((photo_encounter.location.latitude && photo_encounter.location.longitude)
-                    || photo_encounter.location.verbatimLocation || photo_encounter.location.locationid) {
-                    encounter.location = photo_encounter.location;
-                }
-
-                if (photo_encounter.starttime) {
-                    encounter.starttime = photo_encounter.starttime;
-                }
-
-                if (photo_encounter.endtime) {
-                    encounter.endtime = photo_encounter.endtime;
-                }
-
-                if (photo_encounter.encDate) {
-                    encounter.encDate = photo_encounter.encDate;
-                } else {
-                    encounter.encDate = createDate();
-                }
-
-                if (photo_encounter.individual.avatarFull) {
-                    encounter.individual.avatarFull = photo_encounter.individual.avatarFull;
-                    encounter.individual.avatar = photo_encounter.individual.thumbUrl;
-                }
-
-                if (encounter.encDate) {
-                    encounter_used = "Autofilled from encounter: " + photo_encounter.individual.displayName + ", " + wbDateUtils.dateStringFromRest(encounter.encDate);
-                } else {
-                    encounter_used = "Autofilled from encounter: " + photo_encounter.individual.displayName;
-                }
-            }
-
-            function newEncounter() {
-                selectedPhotos.forEach(function(photo){
-                    if (!encounter.displayImage.id) {
-                        encounter.displayImage = photo;
-                    }
-
-                    if (photo.latitude) {
-                        platitude = photo.latitude;
-                    }
-
-                    if (photo.longitude) {
-                        plongitude = photo.longitude;
-                    }
-
-                    //create date array for wbDateUtils
-                    if (photo.timestamp) {
-                        dates.push(photo.timestamp);
-                    }
-
-                    if (!encounter.individual.avatarFull) {
-                        encounter.individual.avatarFull = photo;
-                        encounter.individual.avatar = photo.thumbUrl;
-                    }
-                });
-
-                if (platitude && plongitude) {
-                    encounter.location = {latitude: platitude, longitude: plongitude};
+            function newEncounter(metadata, displayPhoto) {
+                var encounter = emptyEnc();
+                if (metadata.latitude && metadata.longitude) {
+                    encounter.location = {latitude: metadata.latitude, longitude: metadata.longitude};
                 } else if (submission) {
                     encounter.location = {latitude: submission.latitude, longitude: submission.longitude};
                 } else {
                     encounter.location = {latitude: null, longitude: null};
                 }
 
-                compareDates();
+                var timeline = wbDateUtils.compareDates(metadata.dates);
 
-                setDate();
+                if (timeline) {
+                    encounter.encDate = timeline.newest.slice(0, 3);
+                    encounter.starttime = timeline.oldest.slice(3, timeline.oldest.length);
+                    encounter.endtime = timeline.newest.slice(3, timeline.newest.length);
+                }
+
+                setEncounterImage(encounter, displayPhoto);
+                return encounter;
             }
 
-            return $http.post('api/encounter/checkDuplicateImage', selectedPhotos)
-                .then(function(res){
-                    if (res.data && res.data.length && res.data[0] !== null) {
-                        res.data.displayImage = selectedPhotos[0];
-                        encounterExist(res.data);
-                    } else {
-                        newEncounter();
-                    }
+            return $http.post('admin/api/encounter/getFromMedia', selectedPhotos.map(function(photo) {return photo.id;}))
+            .then(function(res) {
+                function getEncDisplay(encounter) {
+                    return encounter.individual.displayName + " on " + wbDateUtils.dateStringFromRest(encounter.encDate);
+                }
 
+                if (res.data && res.data.length) {
+                    if (res.data.length === 1) {
+                        return $q.resolve({
+                            encounter: createFromExisting(res.data[0], selectedPhotos[0]),
+                            photos: selectedPhotos,
+                            autofilledFrom: getEncDisplay(res.data[0])
+                        });
+                    } else {
+                        return $mdDialog.show({
+                             locals: {
+                                 encounters: res.data
+                             },
+                             template:
+                               '<md-dialog aria-label="List dialog">' +
+                               '    <md-toolbar>' +
+                               '        <div class="md-toolbar-tools">' +
+                               '            <h2>Pick Encounter To Autofill From</h2>' +
+                               '            <span flex></span>' +
+                               '        </div>' +
+                               '    </md-toolbar>' +
+                               '    <md-dialog-content layout-align="center center" class="md-dialog-content" layout="row" layout-wrap>' +
+                               '        <md-button flex="100" ng-click="select(encounter)" class="not-all-caps mlrb-8" ng-repeat="encounter in encounters">' +
+                               '            <img ng-src="{{encounter.displayImage.thumbUrl}}">' +
+                               '            <span>{{label(encounter)}}</span>' +
+                               '        </md-button>' +
+                               '        <md-button class="not-all-caps" ng-click="select()" flex="100">New Encounter Not Auto-filled From Any Of These</md-button>' +
+                               '        <md-button ng-click="cancel()" flex="100">Cancel</md-button>' +
+                               '    </md-dialog-content>' +
+                               '</md-dialog>'
+                             ,
+                             controller: ['$scope', '$mdDialog', 'encounters', function($scope, $mdDialog, encounters) {
+                                 $scope.encounters = encounters;
+                                 $scope.select = function(encounter) {
+                                     $mdDialog.hide(encounter);
+                                 };
+                                 $scope.cancel = function() {
+                                     $mdDialog.cancel();
+                                 };
+                                 $scope.label = function(encounter) {
+                                     return getEncDisplay(encounter);
+                                 };
+                             }]
+                        })
+                        .then(function(encounter) {
+                            if (encounter) {
+                                return $q.resolve({
+                                    encounter: createFromExisting(encounter, selectedPhotos[0]),
+                                    photos: selectedPhotos,
+                                    autofilledFrom: getEncDisplay(encounter)
+                                });
+                            }
+
+                            return $q.resolve({
+                                encounter: newEncounter(metadata, selectedPhotos[0]),
+                                photos: selectedPhotos,
+                                autofilledFrom: null
+                            });
+                        }, function() {
+                            return $q.reject();
+                        });
+                    }
+                } else {
                     return $q.resolve({
-                        encounter: encounter,
+                        encounter: newEncounter(metadata, selectedPhotos[0]),
                         photos: selectedPhotos,
-                        autofilledFrom: encounter_used
+                        autofilledFrom: null
                     });
+                }
             });
         },
         getEncData: function(encounter) {

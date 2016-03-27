@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import com.samsix.database.ConnectionInfo;
 import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
+import com.samsix.database.RecordSet;
 import com.samsix.database.SqlFormatter;
 import com.samsix.database.SqlInsertFormatter;
 import com.samsix.database.SqlRelationType;
@@ -666,6 +667,26 @@ public class DbUserService implements UserService {
             return (int) users.getCount(null);
         } catch (DatabaseException ex) {
             throw new SecurityException("Could not get number of users", ex);
+        }
+    }
+
+    @Override
+    public User readUser(final Object obj) {
+        if (!(obj instanceof RecordSet)) {
+            return null;
+        }
+
+        RecordSet rs = (RecordSet) obj;
+        try {
+            Integer userid = UserFactory.readUserId(rs);
+            SecurityInfo info = mapUserId.get(userid);
+            if (info != null) {
+                return info.getUser();
+            }
+
+            return UserFactory.readUser(rs, userid);
+        } catch (DatabaseException ex) {
+            throw new SecurityException("Could not read user.", ex);
         }
     }
 }

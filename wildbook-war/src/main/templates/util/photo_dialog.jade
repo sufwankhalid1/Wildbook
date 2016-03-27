@@ -1,5 +1,5 @@
-div.indiv-avatar-container(layout="row" flex="90" layout-align="center center" ng-click="!showBtn ? avatarDialog($event) : angular.noop()" ng-class="{'black-background': avatar}")
+div.indiv-avatar-container(layout="row" flex="90" layout-align="center center" ng-click="avatarDialog($event)" ng-class="{'black-background': avatar}")
     md-icon(ng-show="!avatar" md-svg-icon="camera")
     img.avatar-img(ng-if="avatar" ng-src="{{avatar}}")
-div(ng-if="showBtn")
-    md-button(class="md-primary" ng-click="avatarDialog($event)") Pick Avatar
+div
+    md-button(class="md-primary" ng-click="avatarDialog($event)") Change

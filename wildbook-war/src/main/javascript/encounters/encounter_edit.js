@@ -50,7 +50,7 @@ angular.module('wildbook.admin').directive(
                 }];
 
                 if ($scope.data.autofilledFrom) {
-                    $scope.autofilled = $scope.data.autofilledFrom;
+                    $scope.autofilled = "Autofilled from encounter of " + $scope.data.autofilledFrom;
                 }
 
                 function setDisplayImage(images) {
@@ -298,17 +298,11 @@ angular.module('wildbook.admin').directive(
                 // START wb-thumb-box
                 //=================================
                 $scope.performAction = function(code, photos) {
-                    var removeDisplayImg;
-                    var remainingPhotos = [];
-
                     if (!photos) {
                         return;
                     }
 
                     var photoids = photos.map(function(photo) {
-                        if (photo.id === $scope.data.encounter.displayImage.id) {
-                            removeDisplayImg = true;
-                        }
                         return photo.id;
                     });
 
@@ -327,26 +321,38 @@ angular.module('wildbook.admin').directive(
                             return;
                         }
 
-                        if (removeDisplayImg) {
-                            //
-                            // need to set new display image to encounter if old is removed
-                            //
-                            $scope.data.photos.forEach(function(photo, index) {
-                                if (photoids.indexOf(photo.id) === -1) {
-                                    remainingPhotos.push(photo);
-                                }
+                        //
+                        // Check to see if our displayImage is one of the images being removed.
+                        // If so pick the first image of the remaining images.
+                        //
+                        var data = {
+                            mediaids: photoids
+                        };
+
+                        data.newDisplayImage = (photoids.indexOf($scope.data.encounter.displayImage.id) !== -1);
+                        var newDisplayImage;
+                        if (data.newDisplayImage) {
+                            var remainingPhotos;
+                            remainingPhotos = $scope.data.photos.filter(function(photo) {
+                                return (photoids.indexOf(photo.id) === -1);
                             });
+                            if (remainingPhotos.length) {
+                                data.newDisplayImageId = remainingPhotos[0].id;
+                                newDisplayImage = remainingPhotos[0];
+                            } else {
+                                data.newDisplayImageId = null;
+                            }
                         }
 
-                        var promise = $http.post("admin/api/encounter/detachmedia/" + $scope.data.encounter.id, {mediaids: photoids, displayImageId: (remainingPhotos.length ? remainingPhotos[0].id : null)})
+                        var promise = $http.post("admin/api/encounter/detachmedia/" + $scope.data.encounter.id, data)
                         .then(function() {
                             $scope.photosDetached({photos: photos});
 
-                            if (remainingPhotos.length && removeDisplayImg) {
-                                $scope.data.encounter.displayImage = remainingPhotos[0];
+                            if (data.newDisplayImage) {
+                                $scope.data.encounter.displayImage = newDisplayImage;
                             }
 
-                            delete $scope.mapData.markers['p'+photoids];
+                            delete $scope.mapData.markers['p' + photoids];
                         });
                         promise.catch($exceptionHandler);
                         return promise;

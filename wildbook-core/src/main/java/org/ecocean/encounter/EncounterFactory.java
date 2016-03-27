@@ -17,6 +17,7 @@ import org.ecocean.security.UserFactory;
 import com.samsix.database.Database;
 import com.samsix.database.DatabaseException;
 import com.samsix.database.RecordSet;
+import com.samsix.database.SqlColumnType;
 import com.samsix.database.SqlFormatter;
 import com.samsix.database.SqlInsertFormatter;
 import com.samsix.database.SqlRelationType;
@@ -37,7 +38,7 @@ public class EncounterFactory {
     public static final String TABLENAME_ENCOUNTER_MEDIA = "encounter_media";
     public static final String ALIAS_ENCOUNTER_MEDIA = "em";
 
-    private static final String ALIAS_ENCOUNTER_DISPLAY_IMAGE = "ma2";
+    private static final String ALIAS_ENCOUNTER_DISPLAY_IMAGE = "mae";
 
     private final static IndividualStore indStore = Global.INST.getIndividualStore();
     private final static EncounterStore encStore = Global.INST.getEncounterStore();
@@ -79,9 +80,12 @@ public class EncounterFactory {
 
     public static List<Encounter> getIndividualEncounters(final Database db, final Individual individual)
             throws DatabaseException {
-        return db.getTable(TABLENAME_ENCOUNTERS).selectList((rs) -> {
+        SqlStatement sql = getBaseEncounterStatement();
+        sql.addCondition(ALIAS_ENCOUNTERS, PK_INDIVIDUALS, SqlRelationType.EQUAL, individual.getId());
+
+        return db.selectList(sql, (rs) -> {
             return readEncounter(individual, rs);
-        }, PK_INDIVIDUALS + " = " + individual.getId());
+        });
     }
 
     public static Encounter readEncounter(final RecordSet rs) throws DatabaseException {
@@ -228,7 +232,7 @@ public class EncounterFactory {
         });
     }
 
-    public static void updateEncDisplayImage(final Database db, final int encId, final int displayImageId) throws DatabaseException {
+    public static void updateEncDisplayImage(final Database db, final int encId, final Integer displayImageId) throws DatabaseException {
         Table encounters = db.getTable(TABLENAME_ENCOUNTERS);
         SqlUpdateFormatter formatter = new SqlUpdateFormatter();
         SqlWhereFormatter where = new SqlWhereFormatter();
@@ -270,68 +274,60 @@ public class EncounterFactory {
 
     }
 
+    private static SqlStatement getBaseEncounterStatement() {
+        SqlStatement sql = new SqlStatement(TABLENAME_ENCOUNTERS, ALIAS_ENCOUNTERS);
+        sql.addLeftOuterJoin(ALIAS_ENCOUNTERS,
+                             "mediaid",
+                             MediaAssetFactory.TABLENAME_MEDIAASSET,
+                             ALIAS_ENCOUNTER_DISPLAY_IMAGE,
+                             MediaAssetFactory.PK_MEDIAASSET);
+        return sql;
+    }
+
     public static SqlStatement getEncounterStatement() {
         return getEncounterStatement(false);
     }
 
     public static SqlStatement getEncounterStatement(final boolean distinct) {
+        SqlStatement sql = getBaseEncounterStatement();
 
-        SqlStatement sql = new SqlStatement(TABLENAME_ENCOUNTERS, ALIAS_ENCOUNTERS);
-        sql.addLeftOuterJoin(ALIAS_ENCOUNTERS, PK_INDIVIDUALS, TABLENAME_INDIVIDUALS, ALIAS_INDIVIDUALS,
-                PK_INDIVIDUALS);
-        sql.addLeftOuterJoin(ALIAS_INDIVIDUALS, "avatarid", MediaAssetFactory.TABLENAME_MEDIAASSET,
-                MediaAssetFactory.ALIAS_MEDIAASSET, MediaAssetFactory.PK_MEDIAASSET);
-        sql.addLeftOuterJoin(ALIAS_ENCOUNTERS, "mediaid", MediaAssetFactory.TABLENAME_MEDIAASSET,
-                "ma2", MediaAssetFactory.PK_MEDIAASSET);
+        //
+        // Individual links
+        //
+        sql.addLeftOuterJoin(ALIAS_ENCOUNTERS,
+                             PK_INDIVIDUALS,
+                             TABLENAME_INDIVIDUALS,
+                             ALIAS_INDIVIDUALS,
+                             PK_INDIVIDUALS);
+        sql.addLeftOuterJoin(ALIAS_INDIVIDUALS,
+                             "avatarid",
+                             MediaAssetFactory.TABLENAME_MEDIAASSET,
+                             MediaAssetFactory.ALIAS_MEDIAASSET,
+                             MediaAssetFactory.PK_MEDIAASSET);
 
         sql.setSelectDistinct(distinct);
+
         sql.addSelectTable(ALIAS_ENCOUNTERS);
         sql.addSelectTable(ALIAS_INDIVIDUALS);
         sql.addSelectTable(MediaAssetFactory.ALIAS_MEDIAASSET);
-
-        sql.addSelect(ALIAS_ENCOUNTER_DISPLAY_IMAGE, "store", "ma2store");
-        sql.addSelect(ALIAS_ENCOUNTER_DISPLAY_IMAGE, "category", "ma2category");
-        sql.addSelect(ALIAS_ENCOUNTER_DISPLAY_IMAGE, "parent", "ma2parent");
-        sql.addSelect(ALIAS_ENCOUNTER_DISPLAY_IMAGE, "tags", "ma2tags");
-        sql.addSelect(ALIAS_ENCOUNTER_DISPLAY_IMAGE, "root", "ma2root");
-        sql.addSelect(ALIAS_ENCOUNTER_DISPLAY_IMAGE, "type", "ma2type");
-        sql.addSelect(ALIAS_ENCOUNTER_DISPLAY_IMAGE, "path", "ma2path");
-        sql.addSelect(ALIAS_ENCOUNTER_DISPLAY_IMAGE, "thumbstore", "ma2thumbstore");
-        sql.addSelect(ALIAS_ENCOUNTER_DISPLAY_IMAGE, "thumbpath", "ma2thumbpath");
-        sql.addSelect(ALIAS_ENCOUNTER_DISPLAY_IMAGE, "midpath", "ma2midpath");
-        sql.addSelect(ALIAS_ENCOUNTER_DISPLAY_IMAGE, "metatimestamp", "ma2metatimestamp");
-        sql.addSelect(ALIAS_ENCOUNTER_DISPLAY_IMAGE, "metalat", "ma2metalat");
-        sql.addSelect(ALIAS_ENCOUNTER_DISPLAY_IMAGE, "metalong", "ma2metalong");
-        sql.addSelect(ALIAS_ENCOUNTER_DISPLAY_IMAGE, "meta", "ma2meta");
-        sql.addSelect(ALIAS_ENCOUNTER_DISPLAY_IMAGE, "submittedon", "ma2submittedon");
-        sql.addSelect(ALIAS_ENCOUNTER_DISPLAY_IMAGE, "submitterid", "ma2submitterid");
-        sql.addSelect(ALIAS_ENCOUNTER_DISPLAY_IMAGE, "id", "ma2id");
+        MediaAssetFactory.addSelectClause(sql, ALIAS_ENCOUNTER_DISPLAY_IMAGE);
 
         return sql;
     }
 
-    public static Encounter getEncountersByMedia(final Database db, final int mediaid) throws DatabaseException {
-        SqlStatement sql = getEncountersByMediaStatement(mediaid);
-        sql.addCondition(ALIAS_ENCOUNTER_MEDIA, "mediaid", SqlRelationType.EQUAL, mediaid);
-        return db.selectFirst(sql, (rs) -> {
-            return readEncounter(rs);
+    public static List<SimpleEncounter> getEncountersByMedia(final Database db, final List<Integer> ids) throws DatabaseException {
+        SqlStatement sql = getEncounterStatement(true);
+        sql.addLeftOuterJoin(ALIAS_ENCOUNTERS,
+                             PK_ENCOUNTERS,
+                             TABLENAME_ENCOUNTER_MEDIA,
+                             ALIAS_ENCOUNTER_MEDIA,
+                             PK_ENCOUNTERS);
+
+        sql.addInCondition(sql.findTable(ALIAS_ENCOUNTER_MEDIA), "mediaid", ids, SqlColumnType.INT);
+
+        return db.selectList(sql, (rs) -> {
+            return readSimpleEncounter(rs);
         });
-    }
-
-    public static SqlStatement getEncountersByMediaStatement(final int mediaid) {
-        SqlStatement sql = new SqlStatement(TABLENAME_ENCOUNTERS, ALIAS_ENCOUNTERS);
-        sql.addLeftOuterJoin(ALIAS_ENCOUNTERS, "encounterid", TABLENAME_ENCOUNTER_MEDIA, ALIAS_ENCOUNTER_MEDIA,
-                "encounterid");
-        sql.addLeftOuterJoin(ALIAS_ENCOUNTERS, "mediaid", MediaAssetFactory.TABLENAME_MEDIAASSET,
-                "ma2", MediaAssetFactory.PK_MEDIAASSET);
-        sql.addLeftOuterJoin(ALIAS_ENCOUNTERS, PK_INDIVIDUALS, TABLENAME_INDIVIDUALS, ALIAS_INDIVIDUALS,
-                PK_INDIVIDUALS);
-        sql.setSelectDistinct(true);
-        sql.addSelectTable(ALIAS_ENCOUNTERS);
-        sql.addSelectTable(ALIAS_ENCOUNTER_MEDIA);
-        sql.addSelectTable(ALIAS_INDIVIDUALS);
-
-        return sql;
     }
 
     public static void saveEncounter(final Database db, final Encounter encounter) throws DatabaseException {
@@ -487,7 +483,7 @@ public class EncounterFactory {
 
     public static EncounterObj getEncounterObj(final Database db, final Encounter encounter) throws DatabaseException {
         EncounterObj result = new EncounterObj();
-        result.encounter = encounter;
+        result.encounter = encounter.toSimple();
         result.photos = getMedia(db, encounter.getId());
         return result;
     }

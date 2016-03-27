@@ -8,6 +8,8 @@ import javax.validation.Valid;
 import org.apache.commons.collections.CollectionUtils;
 import org.ecocean.encounter.Encounter;
 import org.ecocean.encounter.EncounterFactory;
+import org.ecocean.encounter.SimpleEncounter;
+import org.ecocean.rest.SimplePhoto;
 import org.ecocean.servlet.ServletUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -62,8 +64,8 @@ public class AdminEncounterController {
                     EncounterFactory.detachMedia(db, encounterid, detachMedia.mediaids[ii]);
                 }
 
-                if (detachMedia.displayImageId != null) {
-                    EncounterFactory.updateEncDisplayImage(db, encounterid, detachMedia.displayImageId);
+                if (detachMedia.newDisplayImage) {
+                    EncounterFactory.updateEncDisplayImage(db, encounterid, detachMedia.newDisplayImageId);
                 }
             });
         }
@@ -81,6 +83,22 @@ public class AdminEncounterController {
         }
     }
 
+    @RequestMapping(value = "getmedia/{id}", method = RequestMethod.GET)
+    public List<SimplePhoto> addMedia(final HttpServletRequest request,
+                                      @PathVariable("id") final int encounterid) throws DatabaseException {
+        try (Database db = ServletUtils.getDb(request)) {
+            return EncounterFactory.getMedia(db, encounterid);
+        }
+    }
+
+    @RequestMapping(value = "getFromMedia", method = RequestMethod.POST)
+    public List<SimpleEncounter> getFromMedia(final HttpServletRequest request,
+                                              @RequestBody final List<Integer> photos) throws DatabaseException {
+        try (Database db = ServletUtils.getDb(request)) {
+            return EncounterFactory.getEncountersByMedia(db, photos);
+        }
+    }
+
     static class EncounterSaveResult {
         public int individualid;
         public int encounterid;
@@ -90,8 +108,14 @@ public class AdminEncounterController {
         public boolean orphanedIndividual;
     }
 
+    //
+    // We need both the boolean AND the Integer here because we need
+    // to know if the new display image is NULL OR just if there is NOT a new
+    // display image. In other words, the old display image is fine.
+    //
     static class DetachMedia {
-        public Integer displayImageId;
+        public boolean newDisplayImage;
+        public Integer newDisplayImageId;
         public Integer[] mediaids;
     }
 }

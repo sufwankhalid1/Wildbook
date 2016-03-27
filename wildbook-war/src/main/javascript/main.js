@@ -63,6 +63,9 @@ app.factory('$exceptionHandler', function() {
         // TODO: Make this configurable so that if on production the errors
         // are sent to the console instead of a dialog?
         //
+        if (!ex) {
+            return;
+        }
         if (ex.data) {
             alertplus.error(ex.data);
         } else {

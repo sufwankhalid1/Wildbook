@@ -20,14 +20,10 @@ angular.module('wildbook.util').directive(
                 $scope.avatarDialog = function($event) {
 
                     function avatarController($scope, $mdDialog) {
-                        console.log($scope.data);
-
-                        var type = $scope.type.toLowerCase();
-
                         $scope.active = [];
 
-                        if (type === "individual") {
-                            $http.get("api/" + type + "/photos/" + $scope.data.id)
+                        if ($scope.type === "individual") {
+                            $http.get("api/" + $scope.type + "/photos/" + $scope.data.id)
                             .then(function(photos) {
                                 $scope.photos = photos.data;
                             });
@@ -36,7 +32,6 @@ angular.module('wildbook.util').directive(
                         $scope.selected = function(avatar) {
                             $scope.avatar = avatar.thumbUrl;
                             $scope.photo = avatar;
-                            console.log($scope.data);
                             $scope.closeDialog();
                         };
 
@@ -55,7 +50,7 @@ angular.module('wildbook.util').directive(
                            '<md-dialog class="individual-avatar-container" aria-label="List dialog">' +
                            '    <md-toolbar>' +
                            '        <div class="md-toolbar-tools">' +
-                           '            <h2>{{type}} Avatar</h2>' +
+                           '            <h2>Pick Photo</h2>' +
                            '            <span flex></span>' +
                            '            <md-button class="md-icon-button" ng-click="closeDialog()">' +
                            '                <md-icon md-svg-icon="close" aria-label="Close dialog"></md-icon>' +
