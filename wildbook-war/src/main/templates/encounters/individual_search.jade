@@ -26,6 +26,6 @@ form.form.ng-cloak(novalidate, wb-key-handler-form)
                 div.mt-20(layout="row")
                     wb-individual-id-search(callback="idSearch(ind)" id="indid" flex="25")
                 div.mt-20(layout="row")
-                    wb-orphaned-enc-search(callback="orphaned(inds, isOrphaned)")
+                    md-button.md-whiteframe-1dp(type="button" ng-click="orphaned()" aria-label="orphaned") Encounterless
             md-tab(label="Results")
                 .ag-fresh(ag-grid="gridOptions", style="height: 400px;")

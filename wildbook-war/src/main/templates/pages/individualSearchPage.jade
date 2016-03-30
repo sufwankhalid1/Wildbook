@@ -1,13 +1,14 @@
 form.form.ng-cloak(novalidate, wb-key-handler-form)
-    wb-individual-search(search-individual-done="searchIndividualDone(individual, isOrphaned)" removed="removed" individual-search-cancel-button-hide="true" reset-selected-result="reset()")
+    wb-individual-search(search-individual-done="searchIndividualDone(individual)" removed="removed" individual-search-cancel-button-hide="true" reset-selected-result="reset()")
     div(ng-show="indData")
         div(layout="row" layout-margin layout-align="start center")
             div 
                 h4 Individual
             md-icon.ml-10.mr-10(md-svg-icon="pencil" ng-if="indData && ! mode_edit" ng-click="edit()" ng-disabled="mode_edit")
                 md-tooltip(md-direction="bottom") Edit
-            md-icon.ml-10.mr-10(md-svg-icon="delete" ng-if="indData && delOrphaned" ng-click="deleteInd()")
+            md-icon.ml-10.mr-10(md-svg-icon="delete" ng-if="indData" ng-click="deleteInd()")
                 md-tooltip(md-direction="bottom") Delete
         md-divider
     wb-individual-view(ng-if="indData && ! mode_edit" ind-data="indData")
     wb-individual-edit(ng-if="indData && mode_edit" ind-data="indData" edit-individual-done="editIndividualDone()")
+    

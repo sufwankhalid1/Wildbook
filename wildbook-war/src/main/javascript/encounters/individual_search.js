@@ -10,14 +10,11 @@ angular.module('wildbook.admin').directive(
                 searchIndividualDone: "&",
                 individualSearchCancelButtonHide: "@",
                 resetSelectedResult:"&",
-                isOrphaned: "&",
                 removed: "="
             },
             templateUrl: 'encounters/individual_search.html',
             replace: true,
             controller: function($scope) {
-                var orphaned;
-
                 $scope.searchdata =  {
                     encounter: {},
                     individual: {},
@@ -54,26 +51,26 @@ angular.module('wildbook.admin').directive(
                     .then(function(result) {
                         $scope.gridOptions.api.setRowData(result.data);
                         $scope.selectedTabIndex = 1;
-                        orphaned = null;
                     },
                     $exceptionHandler);
                 };
 
-                $scope.orphaned = function(data, cbOrphaned) {
-                    $scope.resetSelectedResult({val: null});
-                    $scope.gridOptions.api.setRowData(data);
-                    $scope.selectedTabIndex = 1;
-                    orphaned = cbOrphaned;
+                $scope.orphaned = function() {
+                    $http.get('admin/api/search/orphaned')
+                    .then(function(result) {
+                        $scope.resetSelectedResult({val: null});
+                        $scope.gridOptions.api.setRowData(result.data);
+                        $scope.selectedTabIndex = 1;
+                    });
                 };
 
                 $scope.idSearch = function(data) {
                     $scope.resetSelectedResult({val: null});
                     $scope.searchIndividualDone({individual: data});
-                    orphaned = null;
                 };
 
                 function rowSelectedFunc(event) {
-                    $scope.searchIndividualDone({individual: event.node.data, isOrphaned: orphaned});
+                    $scope.searchIndividualDone({individual: event.node.data});
                 }
 
                 $scope.gridOptions = {

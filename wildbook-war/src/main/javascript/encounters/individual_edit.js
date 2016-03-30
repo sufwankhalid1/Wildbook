@@ -21,7 +21,6 @@ angular.module('wildbook.admin').directive(
     }]
 );
 
-
 angular.module('wildbook.admin').directive(
     'wbIndividualEdit',
     ["$http", "$exceptionHandler", "wbConfig", "$mdDialog",
@@ -41,16 +40,6 @@ angular.module('wildbook.admin').directive(
                 .then(function(config) {
                     $scope.allSpecies = config.species;
                 });
-
-//                function getDisplayName(individual) {
-//                    var name = individual.nickname || "[Unnamed]";
-//                    if (! individual.alternateId) {
-//                        return name;
-//                    }
-//
-//                    return name + " (" + individual.alternateId + ")";
-//                }
-//
 
                 $scope.save = function() {
                     $http.post('admin/api/individual/save', $scope.data)
