@@ -80,7 +80,7 @@ public class EncounterFactory {
 
     public static List<Encounter> getIndividualEncounters(final Database db, final Individual individual)
             throws DatabaseException {
-        SqlStatement sql = getBaseEncounterStatement();
+        SqlStatement sql = getEncounterStatement();
         sql.addCondition(ALIAS_ENCOUNTERS, PK_INDIVIDUALS, SqlRelationType.EQUAL, individual.getId());
 
         return db.selectList(sql, (rs) -> {
@@ -274,22 +274,17 @@ public class EncounterFactory {
 
     }
 
-    private static SqlStatement getBaseEncounterStatement() {
+    public static SqlStatement getEncounterStatement() {
+        return getEncounterStatement(false);
+    }
+
+    public static SqlStatement getEncounterStatement(final boolean distinct) {
         SqlStatement sql = new SqlStatement(TABLENAME_ENCOUNTERS, ALIAS_ENCOUNTERS);
         sql.addLeftOuterJoin(ALIAS_ENCOUNTERS,
                              "mediaid",
                              MediaAssetFactory.TABLENAME_MEDIAASSET,
                              ALIAS_ENCOUNTER_DISPLAY_IMAGE,
                              MediaAssetFactory.PK_MEDIAASSET);
-        return sql;
-    }
-
-    public static SqlStatement getEncounterStatement() {
-        return getEncounterStatement(false);
-    }
-
-    public static SqlStatement getEncounterStatement(final boolean distinct) {
-        SqlStatement sql = getBaseEncounterStatement();
 
         //
         // Individual links

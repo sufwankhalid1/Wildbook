@@ -105,7 +105,7 @@ public class MediaAssetFactory {
         //
         // Will happen if in a left join query there is no associated media asset.
         //
-        if (! rs.hasColumn(PK_MEDIAASSET)) {
+        if (! rs.hasColumn(prefix + PK_MEDIAASSET)) {
             return null;
         }
 
@@ -120,7 +120,7 @@ public class MediaAssetFactory {
             logger.debug(LogBuilder.quickLog("store", AssetStore.get(rs.getInteger("store"))));
         }
 
-        MediaAsset ma = new MediaAsset(rs.getInt(PK_MEDIAASSET),
+        MediaAsset ma = new MediaAsset(id,
                                        AssetStore.get(rs.getInteger(prefix + "store")),
                                        createPath(rs.getString(prefix + "path")),
                                        MediaAssetType.fromCode(rs.getInt(prefix + "type")),
