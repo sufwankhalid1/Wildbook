@@ -45,15 +45,25 @@ angular.module('wildbook.admin').directive(
                 $scope.gridOptions = {
                     columnDefs:
                         [{headerName: "",
-                            field: "individual",
+                            field: "displayImage",
                             cellRenderer: function(params) {
-                                if (params.value && params.value.avatar) {
-                                    return '<img width="*" height="32px" src="' + params.value.avatar + '"/>';
+                                if (params.value && params.value.thumbUrl) {
+                                    return '<img width="*" height="32px" src="' + params.value.thumbUrl + '"/>';
                                 }
                                 return null;
                             },
                             width: 32
                          },
+                         {headerName: "",
+                             field: "individual",
+                             cellRenderer: function(params) {
+                                 if (params.value && params.value.avatar) {
+                                     return '<img width="*" height="32px" src="' + params.value.avatar + '"/>';
+                                 }
+                                 return null;
+                             },
+                             width: 32
+                          },
                          {headerName: "Individual",
                              field: "individual",
                              cellRenderer: function(params) {
