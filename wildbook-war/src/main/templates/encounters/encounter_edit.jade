@@ -6,9 +6,11 @@ div(layout="row" layout-wrap id="encounter-edit")
         div(layout="row" flex="100" layout-align="start center")
             cancel-button(layout-margin cancel="cancel()")
             div.ml-10 {{autofilled}}
-            div(flex="")
-            md-icon.md-warn(md-svg-icon="delete" layout-margin ng-click="deleteEncounter()")
-                md-tooltip Remove Encounter
+            span(flex)
+            span {{data.encounter.id}}
+            md-icon.md-warn(md-svg-icon="delete" ng-click="deleteEncounter()")
+                md-tooltip(md-direction="bottom") Delete
+
         md-content(layout="row" flex="100" layout-align="start center")
             div(layout="column" flex="50" layout-align="end start")
                 div(photo-dialog type="encounter" data="data.encounter" photo="data.encounter.displayImage" avatar="data.encounter.displayImage.thumbUrl" photos="data.photos")
@@ -58,6 +60,4 @@ div(layout="row" layout-wrap id="encounter-edit")
                     textarea(name="Comments" ng-model="data.encounter.comments")
         div(layout="row" layout-align="start center")
             md-button.md-whiteframe-1dp(type="submit" ng-click="save()" aria-label="Save") Save
-            div(flex="")
-            | {{data.encounter.id}}
         

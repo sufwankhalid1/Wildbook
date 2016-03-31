@@ -3,7 +3,7 @@ form.form.ng-cloak(novalidate, wb-key-handler-form)
         cancel-button(cancel="cancel()")
         span(flex)
         span {{data.id}}
-        md-icon(md-svg-icon="delete" ng-click="delete()")
+        md-icon.md-warn(md-svg-icon="delete" ng-click="delete()")
             md-tooltip(md-direction="bottom") Delete
     md-content(layout="row" layout-align="start center" layout-wrap class="indEditPage")
         div(layout="row" flex="20")

@@ -7,8 +7,7 @@ angular.module('wildbook.admin').directive(
         return {
             restrict: 'E',
             scope: {
-                searchEncounterDone: "&",
-                resetSelectedResult:"&"
+                searchEncounterDone: "&"
             },
             templateUrl: 'encounters/encounter_search.html',
             replace: true,
@@ -30,7 +29,6 @@ angular.module('wildbook.admin').directive(
                 $scope.selectedTabIndex = 0;
 
                 $scope.search = function() {
-                    $scope.resetSelectedResult({val: null});
                     $http.post("admin/api/search/encounter", $scope.searchdata)
                     .then(function(result) {
                         $scope.gridOptions.api.setRowData(result.data);

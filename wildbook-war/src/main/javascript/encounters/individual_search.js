@@ -9,7 +9,6 @@ angular.module('wildbook.admin').directive(
             scope: {
                 searchIndividualDone: "&",
                 individualSearchCancelButtonHide: "@",
-                resetSelectedResult:"&",
                 removed: "="
             },
             templateUrl: 'encounters/individual_search.html',
@@ -46,7 +45,6 @@ angular.module('wildbook.admin').directive(
                 $scope.selectedTabIndex = 0;
 
                 $scope.search = function() {
-                    $scope.resetSelectedResult({val: null});
                     $http.post("admin/api/search/individual", $scope.searchdata)
                     .then(function(result) {
                         $scope.gridOptions.api.setRowData(result.data);
@@ -58,14 +56,12 @@ angular.module('wildbook.admin').directive(
                 $scope.orphaned = function() {
                     $http.get('admin/api/search/orphaned')
                     .then(function(result) {
-                        $scope.resetSelectedResult({val: null});
                         $scope.gridOptions.api.setRowData(result.data);
                         $scope.selectedTabIndex = 1;
                     });
                 };
 
                 $scope.idSearch = function(data) {
-                    $scope.resetSelectedResult({val: null});
                     $scope.searchIndividualDone({individual: data});
                 };
 
