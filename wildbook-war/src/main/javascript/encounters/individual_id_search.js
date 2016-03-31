@@ -1,4 +1,4 @@
-/*global angular, alertplus */
+/*global angular */
 'use strict';
 
 angular.module('wildbook.admin').directive(
@@ -15,13 +15,18 @@ angular.module('wildbook.admin').directive(
             link: function($scope, ele, attr) {
                 //searches for individuals by id
                 $scope.search = function() {
-                    if ($scope.id) {
-                        $http.get('search/individual/'+$scope.id)
+                    if (!isNaN(parseInt($scope.id))) {
+                        $http.get('search/individual/' + $scope.id)
                         .then(function(res) {
-                            $scope.callback({ind: res.data});
+                            if (res.data) {
+                                $scope.error = null;
+                                $scope.callback({ind: res.data});
+                            } else {
+                                $scope.error = "Nothing found with that ID.";
+                            }
                         });
                     } else {
-                        alertplus.alert("Please enter an ID");
+                        $scope.error = "Please enter a valid ID.";
                     }
                 };
             }
