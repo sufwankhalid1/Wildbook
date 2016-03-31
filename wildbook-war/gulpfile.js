@@ -201,7 +201,8 @@ gulp.task('concat-tools', function() {
               'node_modules/angular-material/angular-material.layouts.min.css',
               'node_modules/leaflet/dist/leaflet.css',
               'node_modules/leaflet.markercluser/dist/MarkerCluster.Default.css',
-              'node_modules/leaflet.markercluser/dist/MarkerCluster.css'],
+              'node_modules/leaflet.markercluser/dist/MarkerCluster.css',
+              'src/vendor/png-time-input/png-time-input.css'],
                {base:'node_modules' })
          .pipe(concatCss('tools.css'))
          .pipe(gulp.dest(paths.distcss));
@@ -239,6 +240,10 @@ gulp.task('updatewartools', function() {
         src: [path.join(paths.webapp, 'tools')],
         dest: getDevDir()
     });
+    // doRsync({
+    //     src: [path.join(paths.distjs, 'tools-bundle.*')],
+    //     dest: getDevDir()
+    // });
 });
 
 gulp.task('clean', function() {

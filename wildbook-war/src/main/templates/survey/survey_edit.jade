@@ -19,10 +19,16 @@ form.form.ng-cloak(novalidate, wb-key-handler-form)
                 input(type="text", ng-model="data.part.code")
         div(layout="row" flex="100" layout-wrap)
             wb-crew-edit(callback="addCrewMember(user)" data="data")
-        div(layout="row" flex="100")
-            md-datepicker(ng-model="dateObj" layout="row" layout-align="start end" required md-placeholder="Date:" flex="33" ng-class="{'has-error': encounterForm.date.$invalid}")
-            time-input(flex="33" format="24" time="data.part.starttime" placeholder="Start Time")
-            time-input(flex="33" format="24" time="data.part.endtime" placeholder="End Time")
+        div(layout="row" layout-wrap)
+            md-datepicker(ng-model="dateObj" layout="row" layout-align="start end" required md-placeholder="Date:" ng-class="{'has-error': encounterForm.date.$invalid}")
+            div.ml-20(layout="row")
+                label Start Time:
+                png-time-input(model="data.part.starttime" time-mode="24")
+                span.ml-10.md-primary-text 24h
+            div.ml-20(layout="row")
+                label End Time:
+                png-time-input(model="data.part.endtime" time-mode="24")
+                span.ml-10.md-primary-text 24h
         div.mt-40(layout="row" flex="100")
             location-edit(location="data.part.location" location-edit flex="100")
         div(layout="row" flex="100")
