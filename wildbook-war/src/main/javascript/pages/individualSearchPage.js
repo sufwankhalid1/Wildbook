@@ -1,4 +1,4 @@
-/* global angular, alertplus */
+/* global angular */
 'use strict';
 
 require('../encounters/individual_search.js');
@@ -19,23 +19,15 @@ angular.module('wildbook.admin').directive(
                     $scope.indData = individual;
                };
 
-               $scope.editIndividualDone = function(deleted) {
+               $scope.editIndividualDone = function(individual, deleted) {
                     $scope.mode_edit = false;
                     if (deleted) {
-                        $scope.removed = $scope.indData.id;
+                        $scope.removed = individual.id;
                     }
                };
 
                $scope.edit = function() {
                    $scope.mode_edit = true;
-               };
-
-               $scope.deleteInd = function() {
-                   return alertplus.confirm("You're about to delete this individual", "Delete Individual")
-                   .then(function() {
-                       $http.post("admin/api/individual/delete", $scope.indData);
-                       $scope.removed = $scope.indData.id;
-                   });
                };
 
                 $scope.reset = function() {

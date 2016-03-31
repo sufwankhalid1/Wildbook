@@ -145,9 +145,11 @@ angular.module('wildbook.admin').directive(
                     $scope.module.individualEdit = true;
                 };
 
-                $scope.editIndividualDone = function(individual){
+                $scope.editIndividualDone = function(individual, deleted){
                     $scope.module.individualEdit = false;
-                    if (individual) {
+                    if (deleted) {
+                        $scope.data.encounter.individual = null;
+                    } else if (individual) {
                         $scope.data.encounter.individual = individual;
                     }
                 };

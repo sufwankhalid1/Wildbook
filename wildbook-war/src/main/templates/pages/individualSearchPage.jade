@@ -6,9 +6,7 @@ form.form.ng-cloak(novalidate, wb-key-handler-form)
                 h4 Individual
             md-icon.ml-10.mr-10(md-svg-icon="pencil" ng-if="indData && ! mode_edit" ng-click="edit()" ng-disabled="mode_edit")
                 md-tooltip(md-direction="bottom") Edit
-            md-icon.ml-10.mr-10(md-svg-icon="delete" ng-if="indData" ng-click="deleteInd()")
-                md-tooltip(md-direction="bottom") Delete
         md-divider
     wb-individual-view(ng-if="indData && ! mode_edit" ind-data="indData")
-    wb-individual-edit(ng-if="indData && mode_edit" ind-data="indData" edit-individual-done="editIndividualDone()")
+    wb-individual-edit(ng-if="indData && mode_edit" ind-data="indData" edit-individual-done="editIndividualDone(individual, deleted)")
     

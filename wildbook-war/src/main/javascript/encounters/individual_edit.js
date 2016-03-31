@@ -1,4 +1,4 @@
-/* global angular */
+/* global angular, alertplus */
 'use strict';
 
 angular.module('wildbook.admin').directive(
@@ -51,15 +51,25 @@ angular.module('wildbook.admin').directive(
                         //$scope.data.displayName = getDisplayName($scope.data);
                         $scope.data.displayName = result.data.displayName;
 
-                        $scope.editIndividualDone({individual: $scope.data});
+                        $scope.editIndividualDone({individual: $scope.data, deleted: false});
                     }, $exceptionHandler);
+                };
+
+                $scope.delete = function() {
+                    return alertplus.confirm("You're about to delete this individual, are you sure?", "Delete Individual")
+                    .then(function() {
+                        $http.post("admin/api/individual/delete", $scope.data)
+                        .then(function() {
+                            $scope.editIndividualDone({individual: $scope.data, deleted: true});
+                        }, $exceptionHandler);
+                    });
                 };
 
                 //
                 // wb-key-handler-form
                 //
                 $scope.cancel = function() {
-                    $scope.editIndividualDone({individual: null});
+                    $scope.editIndividualDone({individual: null, deleted: false});
                 };
 
                 $scope.cmdEnter = function() {

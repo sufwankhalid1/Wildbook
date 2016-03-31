@@ -1,7 +1,10 @@
 form.form.ng-cloak(novalidate, wb-key-handler-form)
     md-content(layout="row")
         cancel-button(cancel="cancel()")
-        div
+        span(flex)
+        span {{data.id}}
+        md-icon(md-svg-icon="delete" ng-click="delete()")
+            md-tooltip(md-direction="bottom") Delete
     md-content(layout="row" layout-align="start center" layout-wrap class="indEditPage")
         div(layout="row" flex="20")
             div(layout="row" layout-align="center center" flex="100" layout-wrap)
@@ -28,5 +31,3 @@ form.form.ng-cloak(novalidate, wb-key-handler-form)
                 textarea(ng-model="data.bio")
         div(layout="row" flex="100" layout-align="start center")
             md-button.md-whiteframe-1dp(type="submit" ng-click="save()" aria-label="Save") Save
-            div(flex="")
-            | {{data.id}}

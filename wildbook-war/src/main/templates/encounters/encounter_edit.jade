@@ -1,6 +1,6 @@
 div(layout="row" layout-wrap id="encounter-edit") 
     wb-individual-search(ng-show="module.individualSearch" flex="100" search-individual-done="searchIndividualDone(individual)")
-    wb-individual-edit(ng-show="module.individualEdit" edit-individual-done="editIndividualDone(individual)" ind-data="data.encounter.individual" flex="100")
+    wb-individual-edit(ng-show="module.individualEdit" edit-individual-done="editIndividualDone(individual, deleted)" ind-data="data.encounter.individual" flex="100")
     form.form.ng-cloak(ng-show="! module.individualSearch && ! module.individualEdit"
                        name="encounterForm" novalidate, wb-key-handler-form flex="100")
         div(layout="row" flex="100" layout-align="start center")
