@@ -506,7 +506,7 @@ angular.module('wildbook.admin').directive(
                 };
 
                 $scope.timeFromRest = function(time) {
-                    return wbDateUtils.formatTimeArrayToString(time);
+                    return wbDateUtils.formatTimeArrayToString(time, true);
                 };
 
                 $scope.dateFromRest = function(date) {

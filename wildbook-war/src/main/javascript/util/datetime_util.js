@@ -71,7 +71,7 @@ angular.module('wildbook.util')
         verifyTimeInput: function(data) {
             return checkTimeInput(data);
         },
-        formatTimeArrayToString: function(time) {
+        formatTimeArrayToString: function(time, noSeconds) {
             var array = angular.copy(time);
 
             if (!array || typeof array !== 'object' || !array.length) {
@@ -90,9 +90,14 @@ angular.module('wildbook.util')
 
             if (array.length === 1) {
                 array.push("00");
+            }
+
+            if (array.length === 2 && !noSeconds) {
                 array.push("00");
-            } else if (array.length === 2) {
-                array.push("00");
+            }
+
+            if (array.length === 3 && noSeconds) {
+                array.slice(0, 1);
             }
 
             return array.join(':');
