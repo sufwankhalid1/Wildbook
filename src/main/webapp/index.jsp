@@ -27,7 +27,7 @@ myShepherd=new Shepherd(context);
   
   	//check usernames and passwords
 	myShepherd.beginDBTransaction();
-  	ArrayList<User> users=myShepherd.getAllUsers();
+  	List<User> users=myShepherd.getAllUsers();
   	if(users.size()==0){
   		String salt=ServletUtilities.getSalt().toHex();
         String hashedPassword=ServletUtilities.hashAndSaltPassword("tomcat123", salt);
@@ -39,7 +39,7 @@ myShepherd=new Shepherd(context);
   		System.out.println("Creating tomcat user account...");
   		myShepherd.commitDBTransaction();
 		
-  	  	ArrayList<Role> roles=myShepherd.getAllRoles();
+  	  	List<Role> roles=myShepherd.getAllRoles();
   	  	if(roles.size()==0){
   	  		
   	  		myShepherd.beginDBTransaction();
@@ -150,6 +150,7 @@ margin-bottom: 8px !important;
   
   		//map
   		var map;
+  		var bounds = new google.maps.LatLngBounds();
   
       function initialize() {
     	  
@@ -159,14 +160,18 @@ margin-bottom: 8px !important;
 
       
         var center = new google.maps.LatLng(0,0);
-        var mapZoom = 1;
+        var mapZoom = 8;
     	if($("#map_canvas").hasClass("full_screen_map")){mapZoom=3;}
-    	var bounds = new google.maps.LatLngBounds();
+    	
         
         map = new google.maps.Map(document.getElementById('map_canvas'), {
           zoom: mapZoom,
           center: center,
-          mapTypeId: google.maps.MapTypeId.HYBRID
+          mapTypeId: google.maps.MapTypeId.HYBRID,
+          zoomControl: true,
+          scaleControl: false,
+          scrollwheel: false,
+          disableDoubleClickZoom: true,
         });
 
     	  //adding the fullscreen control to exit fullscreen
@@ -202,7 +207,7 @@ margin-bottom: 8px !important;
  		
  		//let's add map points for our locationIDs
  		<%
- 		List<String> locs=CommonConfiguration.getIndexedValues("locationID", context);
+ 		List<String> locs=CommonConfiguration.getIndexedPropertyValues("locationID", context);
  		int numLocationIDs = locs.size();
  		Properties locProps=ShepherdProperties.getProperties("locationIDGPS.properties", "", context);
  		myShepherd.beginDBTransaction();
@@ -529,7 +534,7 @@ finally{
                     <ul class="encounter-list list-unstyled">
                        
                        <%
-                       ArrayList<Encounter> latestIndividuals=myShepherd.getMostRecentIdentifiedEncountersByDate(3);
+                       List<Encounter> latestIndividuals=myShepherd.getMostRecentIdentifiedEncountersByDate(3);
                        int numResults=latestIndividuals.size();
                        myShepherd.beginDBTransaction();
                        for(int i=0;i<numResults;i++){
@@ -656,7 +661,7 @@ finally{
 <div class="container-fluid main-section">
     <h2 class="section-header">Encounters around the world</h2>
     
-      <div id="map_canvas" style="width: 770px; height: 510px; margin: 0 auto;"></div>
+      <div id="map_canvas" style="width: 100% !important; height: 510px; margin: 0 auto;"></div>
    
 </div>
 
@@ -728,6 +733,14 @@ finally{
 
 
 <jsp:include page="footer.jsp" flush="true"/>
+
+<script>
+window.addEventListener("resize", function(e) { $("#map_canvas").height($("#map_canvas").width()*0.662); });
+google.maps.event.addDomListener(window, "resize", function() {
+	 google.maps.event.trigger(map, "resize");
+	 map.fitBounds(bounds);
+	});
+</script>
 
 <%
 myShepherd.closeDBTransaction();

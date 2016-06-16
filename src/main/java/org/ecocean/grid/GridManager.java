@@ -22,17 +22,11 @@ package org.ecocean.grid;
 import org.apache.commons.math.stat.descriptive.SummaryStatistics;
 import org.ecocean.CommonConfiguration;
 import org.ecocean.Shepherd;
-//import org.ecocean.neural.TrainNetwork;
 
 
 import org.ecocean.servlet.ServletUtilities;
 
-//train weka
-//import weka.core.Attribute;
-//import weka.core.FastVector;
-//import weka.core.Instances;
-//import weka.core.Instance;
-//import weka.classifiers.Evaluation;
+
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -163,8 +157,8 @@ public class GridManager {
     //int the future, we should consider removing them according
     //to an algorithm determining their potential
     //while(nodes.size()>numAllowedNodes){
-    //  int size=nodes.size();
-    //  nodes.remove(size-1);
+    //	int size=nodes.size();
+    //	nodes.remove(size-1);
     //}
   }
 
@@ -517,14 +511,14 @@ public class GridManager {
     int num = 0;
     try{
       if(toDo==null){toDo = new ArrayList<ScanWorkItem>();}
-      int iter = toDo.size();
-      for (int i = 0; i < iter; i++) {
-          if (toDo.get(i).getTaskIdentifier().equals(taskID)) {
-              num++;
-          }
-      }
-  }
-  catch(Exception e){e.printStackTrace();}
+    	int iter = toDo.size();
+    	for (int i = 0; i < iter; i++) {
+      		if (toDo.get(i).getTaskIdentifier().equals(taskID)) {
+      		  	num++;
+      		}
+    	}
+	}
+	catch(Exception e){e.printStackTrace();}
     return num;
   }
 
@@ -626,4 +620,3 @@ public class GridManager {
     
 
 }
-
