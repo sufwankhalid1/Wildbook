@@ -89,7 +89,8 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
             <nav class="navbar navbar-default navbar-fixed-top">
               <div class="header-top-wrapper">
                 <div class="container">
-                <div class="search-and-secondary-wrapper">
+                <a href="http://www.wildme.org" id="wild-me-badge">A Wild me project</a> <a href="http://www.ibeis.org" id="ibeis-badge"></a>
+                  <div class="search-and-secondary-wrapper">
                     <ul class="secondary-nav hor-ul no-bullets">
                     
                    
@@ -391,6 +392,8 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
                               <li><a href="<%=urlLoc %>/appadmin/logs.jsp"><%=props.getProperty("logs")%></a></li>
                                 <% if(CommonConfiguration.useSpotPatternRecognition(context)) { %>
                                  <li><a href="<%=urlLoc %>/software/software.jsp"><%=props.getProperty("gridSoftware")%></a></li>
+                                	<li><a href="<%=urlLoc %>/appadmin/scanTaskAdmin.jsp">Grid Management</a></li>
+                                
                                 <% } %>
                                 <li><a href="<%=urlLoc %>/appadmin/users.jsp?context=context0"><%=props.getProperty("userManagement")%></a></li>
                                 <%
