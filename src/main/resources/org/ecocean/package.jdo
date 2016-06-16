@@ -68,8 +68,8 @@
                 		<collection element-type="java.lang.String"/>
             		</field>
             	
-		        <field name="dateTimeCreated" persistence-modifier="persistent" >
-				            		<column jdbc-type="LONGVARCHAR" />
+		        <field name="dateTimeCreated" persistence-modifier="persistent" column="">
+				            		<column length="100" name="NEWDATETIMECREATED" />
 		        </field>
 		        <field name="alternateid" persistence-modifier="persistent">
 				<column length="512"/>
