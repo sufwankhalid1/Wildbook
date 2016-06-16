@@ -56,6 +56,9 @@ public class MarkedIndividual implements java.io.Serializable {
 
   //unused String that allows groups of MarkedIndividuals by optional parameters
   private String seriesCode = "None";
+  
+  //TEMP HACK
+  private int numUnidentifiableEncounters=0;
 
   //nickname for the MarkedIndividual...not used for any scientific purpose
   //also the nicknamer for credit
@@ -114,6 +117,8 @@ public class MarkedIndividual implements java.io.Serializable {
     }
     //numUnidentifiableEncounters = 0;
     maxYearsBetweenResightings=0;
+    
+    numUnidentifiableEncounters=0;
   }
 
   /**
