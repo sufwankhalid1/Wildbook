@@ -70,7 +70,7 @@ public class Occurrence implements java.io.Serializable{
 
 	private String habitat;
 	private Integer groupSize;
-	private Integer numTerMales;
+	private Integer numBreedingMales;
 	private Integer numBachMales;
 	private Integer numNonLactFemales;
 	private Integer numLactFemales;
