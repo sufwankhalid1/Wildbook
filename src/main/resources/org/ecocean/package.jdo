@@ -125,6 +125,369 @@
 
       <fetch-group name="count"/>
 
+      <field name="dateDay" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="dateMonth" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="dateYear" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="groupHabitatActivityTableRemark" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="LONGVARCHAR" allows-null="true"/>
+      </field>
+      <field name="zebraSpecies" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="LONGVARCHAR" allows-null="true"/>
+      </field>
+      <field name="ranch" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="LONGVARCHAR" allows-null="true"/>
+      </field>
+      <field name="localName" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="LONGVARCHAR" allows-null="true"/>
+      </field>
+      <field name="startGpsX" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="startGpsY" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="distanceToGroupCentre" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="directionToGroupCentre" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="groupSpread" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="LONGVARCHAR" allows-null="true"/>
+      </field>
+      <field name="allMaleId" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="LONGVARCHAR" allows-null="true"/>
+      </field>
+      <field name="allIndId" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="LONGVARCHAR" allows-null="true"/>
+      </field>
+      <field name="allAgeStructureOp" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="LONGVARCHAR" allows-null="true"/>
+      </field>
+      <field name="month" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="LONGVARCHAR" allows-null="true"/>
+      </field>
+      <field name="season" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="LONGVARCHAR" allows-null="true"/>
+      </field>
+      <field name="infs01female" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="infs03female" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="infs13female" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="infs36female" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="infs612female" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="infs01male" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="infs03male" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="infs13male" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="infs36male" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="infs612Male" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="infs01sexukn" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="infs03sexukn" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="infs13sexukn" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="infs36sexukn" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="infs612sexukn" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="yearlingFemale" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="yearlingMale" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="yearlingSexukn" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="twoYearFemale" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="twoYearMale" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="twoYearSexukn" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="threeYearMale" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="threeYearFemale" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="threeYearSexukn" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="adFemaleReprostatusukn" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="adFemalePreg" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="adFemaleLact" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="adFemaleNonlact" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="adultMaleStallion" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="adultMaleBachelor" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="yearlingMaleBachelor" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="twoYearOldMaleBachelor" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="adultMaleStatusUkn" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="territorialMale" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="adultSexUkn" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="ageSexUkn" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="infs03HybridFemale" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="infs03HybridMale" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="infs03HybridUkn" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="infs36HybridFemale" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="infs36HybridMale" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="infs36HybridUkn" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="infs612HybridFemale" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="infs612HybridMale" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="infs612HybridUkn" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="yearlingHybridFemale" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="yearlingHybridMale" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="yearlingHybridUkn" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="twoYearHybridFemale" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="twoYearHybridMale" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="twoYearHybridUkn" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="adFemaleHybridReproStatusUkn" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="adFemaleHybridPreg" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="adFemaleHybridLact" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="adFemaleHybridNonLact" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="adultMaleHybridStallion" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="adultMaleHybridBachelor" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="yearlingMaleHybridBachelor" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="twoYearOldMaleHybridBachelor" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="adultMaleHybridStatusUkn" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="adultHybridSexUkn" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="hybridAgeAndSexUnk" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="totalIndividualsCalculated" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="totalIndividuals" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="n1_OtherSpecies" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="LONGVARCHAR" allows-null="true"/>
+      </field>
+      <field name="number1stSp" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="n2_OtherSpecies" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="LONGVARCHAR" allows-null="true"/>
+      </field>
+      <field name="number2ndSp" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="n3_OtherSpecies" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="LONGVARCHAR" allows-null="true"/>
+      </field>
+      <field name="number3rdSp" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="sun" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="LONGVARCHAR" allows-null="true"/>
+      </field>
+      <field name="wind" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="LONGVARCHAR" allows-null="true"/>
+      </field>
+      <field name="soil" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="LONGVARCHAR" allows-null="true"/>
+      </field>
+      <field name="rain" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="LONGVARCHAR" allows-null="true"/>
+      </field>
+      <field name="cloudPercentage" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="habitatObscurityBitNumber" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="habitatObscurityCategory" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="LONGVARCHAR" allows-null="true"/>
+      </field>
+      <field name="dominantBushType" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="LONGVARCHAR" allows-null="true"/>
+      </field>
+      <field name="grassColor" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="LONGVARCHAR" allows-null="true"/>
+      </field>
+      <field name="grassHeight" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="LONGVARCHAR" allows-null="true"/>
+      </field>
+      <field name="dominantGrassSpecies1" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="LONGVARCHAR" allows-null="true"/>
+      </field>
+      <field name="dominantGrassSpecies2" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="LONGVARCHAR" allows-null="true"/>
+      </field>
+      <field name="dominantGrassSpecies3" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="LONGVARCHAR" allows-null="true"/>
+      </field>
+      <field name="onRoad" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="LONGVARCHAR" allows-null="true"/>
+      </field>
+      <field name="unusualEnvironment" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="LONGVARCHAR" allows-null="true"/>
+      </field>
+      <field name="numberGrazing" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="numberVigilant" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="numberStanding" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="numberWalking" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="numberSocialising" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="numberAgonism" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="numberHealthMaintenance" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="numberSexualBeh" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="numberPlay" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="numberNurseSuckle" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="numberLying" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="numberSalting" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="numberMutualGrooming" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="numberRunning" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="numberBehaviorNotVisible" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="numberDrinking" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="directionOfWalking" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="LONGVARCHAR" allows-null="true"/>
+      </field>
+      <field name="totalIndividualsActivity" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="loopNumber" persistent-modifier="persistent" default-fetch-group="true">
+      	<column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
     </class>
 
     <class name="Encounter" identity-type="application" table="ENCOUNTER">
