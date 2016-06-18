@@ -68,15 +68,6 @@ public class Occurrence implements java.io.Serializable{
 /////Lewa-specifics
   private DateTime dateTime;
 
-	private String habitat;
-	private Integer groupSize;
-	private Integer numBreedingMales;
-	private Integer numBachMales;
-	private Integer numNonLactFemales;
-	private Integer numLactFemales;
-	private Double bearing;
-
-
   //empty constructor used by the JDO enhancer
   public Occurrence(){}
 
@@ -397,11 +388,11 @@ public class Occurrence implements java.io.Serializable{
 		this.groupSize = s;
 	}
 
-	public Integer getNumTerMales() {
-		return this.numTerMales;
+	public Integer getnumBreedingMales() {
+		return this.numBreedingMales;
 	}
-	public void setNumTerMales(Integer s) {
-		this.numTerMales = s;
+	public void setnumBreedingMales(Integer s) {
+		this.numBreedingMales = s;
 	}
 
 	public Integer getNumBachMales() {
