@@ -688,19 +688,14 @@
         <column jdbc-type="INTEGER" allows-null="true"/>
       </field>
       <field name="lactatingFemale" persistent-modifier="persistent" default-fetch-group="true">
-        <column default-value="0" />
       </field>
       <field name="pregnantFemale" persistent-modifier="persistent" default-fetch-group="true">
-        <column default-value="0" />
       </field>
       <field name="is03Foal" persistent-modifier="persistent" default-fetch-group="true">
-        <column default-value="0" />
       </field>
       <field name="is36Foal" persistent-modifier="persistent" default-fetch-group="true">
-        <column default-value="0" />
       </field>
       <field name="is612Foal" persistent-modifier="persistent" default-fetch-group="true">
-        <column default-value="0" />
       </field>
       <field name="numberOfFoals" persistent-modifier="persistent" default-fetch-group="true">
         <column jdbc-type="INTEGER" allows-null="true"/>
@@ -740,7 +735,7 @@
         <column length="36"/>
       </field>
 		<field name="isExemplar">
-			<column default-value="0" />
+			<column default-value="false" />
 		</field>
 
             	<field name="features" persistence-modifier="persistent" default-fetch-group="false" recursion-depth="2" mapped-by="annotation" >
