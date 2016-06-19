@@ -161,14 +161,13 @@
       <field name="groupSpread" persistent-modifier="persistent" default-fetch-group="true">
       	<column jdbc-type="LONGVARCHAR" allows-null="true"/>
       </field>
+      <field name="totalIndividualsCounted" persistent-modifier="persistent" default-fetch-group="true">
+      </field>
       <field name="allMaleId" persistent-modifier="persistent" default-fetch-group="true">
-      	<column jdbc-type="LONGVARCHAR" allows-null="true"/>
       </field>
       <field name="allIndId" persistent-modifier="persistent" default-fetch-group="true">
-      	<column jdbc-type="LONGVARCHAR" allows-null="true"/>
       </field>
       <field name="allAgeStructureOp" persistent-modifier="persistent" default-fetch-group="true">
-      	<column jdbc-type="LONGVARCHAR" allows-null="true"/>
       </field>
       <field name="month" persistent-modifier="persistent" default-fetch-group="true">
       	<column jdbc-type="LONGVARCHAR" allows-null="true"/>
@@ -649,10 +648,76 @@
 
       <field name="satelliteTag" persistence-modifier="persistent"></field>
 
+
+      <!-- Mpala-specifics -->
+
+      <field name="ageClass" persistent-modifier="persistent" default-fetch-group="true">
+        <column jdbc-type="LONGVARCHAR" allows-null="true"/>
+      </field>
+      <field name="reproductiveStatus" persistent-modifier="persistent" default-fetch-group="true">
+        <column jdbc-type="LONGVARCHAR" allows-null="true"/>
+      </field>
+      <field name="injury" persistent-modifier="persistent" default-fetch-group="true">
+        <column jdbc-type="LONGVARCHAR" allows-null="true"/>
+      </field>
+      <field name="woundType" persistent-modifier="persistent" default-fetch-group="true">
+        <column jdbc-type="LONGVARCHAR" allows-null="true"/>
+      </field>
+      <field name="individualSightingsRemark" persistent-modifier="persistent" default-fetch-group="true">
+        <column jdbc-type="LONGVARCHAR" allows-null="true"/>
+      </field>
+      <field name="nearestNeighbourId" persistent-modifier="persistent" default-fetch-group="true">
+        <column jdbc-type="LONGVARCHAR" allows-null="true"/>
+      </field>
+      <field name="nearestNeighbourIdSecond" persistent-modifier="persistent" default-fetch-group="true">
+        <column jdbc-type="LONGVARCHAR" allows-null="true"/>
+      </field>
+      <field name="order" persistent-modifier="persistent" default-fetch-group="true">
+        <column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="heading" persistent-modifier="persistent" default-fetch-group="true">
+        <column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="stallionId" persistent-modifier="persistent" default-fetch-group="true">
+        <column jdbc-type="LONGVARCHAR" allows-null="true"/>
+      </field>
+      <field name="mother" persistent-modifier="persistent" default-fetch-group="true">
+        <column jdbc-type="LONGVARCHAR" allows-null="true"/>
+      </field>
+      <field name="haremNumber" persistent-modifier="persistent" default-fetch-group="true">
+        <column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="lactatingFemale" persistent-modifier="persistent" default-fetch-group="true">
+        <column default-value="0" />
+      </field>
+      <field name="pregnantFemale" persistent-modifier="persistent" default-fetch-group="true">
+        <column default-value="0" />
+      </field>
+      <field name="is03Foal" persistent-modifier="persistent" default-fetch-group="true">
+        <column default-value="0" />
+      </field>
+      <field name="is36Foal" persistent-modifier="persistent" default-fetch-group="true">
+        <column default-value="0" />
+      </field>
+      <field name="is612Foal" persistent-modifier="persistent" default-fetch-group="true">
+        <column default-value="0" />
+      </field>
+      <field name="numberOfFoals" persistent-modifier="persistent" default-fetch-group="true">
+        <column jdbc-type="INTEGER" allows-null="true"/>
+      </field>
+      <field name="lionWound" persistent-modifier="persistent" default-fetch-group="true">
+        <column jdbc-type="LONGVARCHAR" allows-null="true"/>
+      </field>
+
+
       <fetch-group name="allSharks_min">
         <field name="approved"/>
       </fetch-group>
       <fetch-group name="count"/>
+
+
+
+
     </class>
 
     <class name="Keyword" identity-type="application" table="KEYWORD">

@@ -236,6 +236,29 @@ public class Encounter implements java.io.Serializable {
 
   private Boolean mmaCompatible = false;
 
+
+  // Mpala-specifics
+  private String ageClass;
+  private String reproductiveStatus;
+  private String injury;
+  private String woundType;
+  private String individualSightingsRemark;
+  private String nearestNeighbourId;
+  private String nearestNeighbourIdSecond;
+  private Integer order;
+  private Integer heading;
+  private String stallionId;
+  private String mother;
+  private Integer haremNumber;
+  private Boolean lactatingFemale;
+  private Boolean pregnantFemale;
+  private Boolean is03Foal;
+  private Boolean is36Foal;
+  private Boolean is612Foal;
+  private Integer numberOfFoals;
+  private String lionWound;
+
+
   //start constructors
 
   /**
@@ -2516,5 +2539,123 @@ throw new Exception();
         }
         return new ArrayList<SuperSpot>();
     }
+
+    // Mpala-specifics
+    public String getAgeClass(){
+      return(ageClass);
+    }
+    public void setAgeClass(String ageClass){
+      this.ageClass = ageClass;
+    }
+    public String getReproductiveStatus(){
+      return(reproductiveStatus);
+    }
+    public void setReproductiveStatus(String reproductiveStatus){
+      this.reproductiveStatus = reproductiveStatus;
+    }
+    public String getInjury(){
+      return(injury);
+    }
+    public void setInjury(String injury){
+      this.injury = injury;
+    }
+    public String getWoundType(){
+      return(woundType);
+    }
+    public void setWoundType(String woundType){
+      this.woundType = woundType;
+    }
+    public String getIndividualSightingsRemark(){
+      return(individualSightingsRemark);
+    }
+    public void setIndividualSightingsRemark(String individualSightingsRemark){
+      this.individualSightingsRemark = individualSightingsRemark;
+    }
+    public String getNearestNeighbourId(){
+      return(nearestNeighbourId);
+    }
+    public void setNearestNeighbourId(String nearestNeighbourId){
+      this.nearestNeighbourId = nearestNeighbourId;
+    }
+    public String getNearestNeighbourIdSecond(){
+      return(nearestNeighbourIdSecond);
+    }
+    public void setNearestNeighbourIdSecond(String nearestNeighbourIdSecond){
+      this.nearestNeighbourIdSecond = nearestNeighbourIdSecond;
+    }
+    public Integer getOrder(){
+      return(order);
+    }
+    public void setOrder(Integer order){
+      this.order = order;
+    }
+    public Integer getHeading(){
+      return(heading);
+    }
+    public void setHeading(Integer heading){
+      this.heading = heading;
+    }
+    public String getStallionId(){
+      return(stallionId);
+    }
+    public void setStallionId(String stallionId){
+      this.stallionId = stallionId;
+    }
+    public String getMother(){
+      return(mother);
+    }
+    public void setMother(String mother){
+      this.mother = mother;
+    }
+    public Integer getHaremNumber(){
+      return(haremNumber);
+    }
+    public void setHaremNumber(Integer haremNumber){
+      this.haremNumber = haremNumber;
+    }
+    public Boolean getLactatingFemale(){
+      return(lactatingFemale);
+    }
+    public void setLactatingFemale(Boolean lactatingFemale){
+      this.lactatingFemale = lactatingFemale;
+    }
+    public Boolean getPregnantFemale(){
+      return(pregnantFemale);
+    }
+    public void setPregnantFemale(Boolean pregnantFemale){
+      this.pregnantFemale = pregnantFemale;
+    }
+    public Boolean getIs03Foal(){
+      return(is03Foal);
+    }
+    public void setIs03Foal(Boolean is03Foal){
+      this.is03Foal = is03Foal;
+    }
+    public Boolean getIs36Foal(){
+      return(is36Foal);
+    }
+    public void setIs36Foal(Boolean is36Foal){
+      this.is36Foal = is36Foal;
+    }
+    public Boolean getIs612Foal(){
+      return(is612Foal);
+    }
+    public void setIs612Foal(Boolean is612Foal){
+      this.is612Foal = is612Foal;
+    }
+    public Integer getNumberOfFoals(){
+      return(numberOfFoals);
+    }
+    public void setNumberOfFoals(Integer numberOfFoals){
+      this.numberOfFoals = numberOfFoals;
+    }
+    public String getLionWound(){
+      return(lionWound);
+    }
+    public void setLionWound(String lionWound){
+      this.lionWound = lionWound;
+    }
+
+    // TOOD: finish transfer from markedindividual to encounter
 
 }
