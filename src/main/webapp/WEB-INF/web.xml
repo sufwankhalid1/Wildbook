@@ -370,6 +370,12 @@
   </servlet>
 
   <servlet>
+    <servlet-name>ImportMpalaExcel</servlet-name>
+    <servlet-class>org.ecocean.servlet.importer.ImportMpalaExcel</servlet-class>
+  </servlet>
+
+
+  <servlet>
     <servlet-name>IndividualAddFile</servlet-name>
     <servlet-class>org.ecocean.servlet.IndividualAddFile</servlet-class>
   </servlet>
@@ -1317,6 +1323,11 @@
             <servlet-name>ImportSRGD</servlet-name>
             <url-pattern>/ImportSRGD</url-pattern>
   </servlet-mapping>
+  <servlet-mapping>
+      <servlet-name>ImportMpalaExcel</servlet-name>
+      <url-pattern>/ImportMpalaExcel</url-pattern>
+  </servlet-mapping>
+
 
 
     <servlet-mapping>
