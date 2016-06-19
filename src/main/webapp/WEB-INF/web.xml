@@ -1648,6 +1648,7 @@
   <servlet-mapping>
     <servlet-name>ScanAppletSupport</servlet-name>
     <url-pattern>/ScanAppletSupport</url-pattern>
+	<url-pattern>/scanAppletSupport</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>

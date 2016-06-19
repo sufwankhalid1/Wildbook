@@ -74,7 +74,10 @@ while(allEncs.hasNext()){
 		numIssues++;
 	}
 	
-
+	sharky.additionalImageNames=null;
+	sharky.setCatalogNumber(sharky.getComments().replaceAll("'", ""));
+	myShepherd.commitDBTransaction();
+	myShepherd.beginDBTransaction();
 
 	
 
