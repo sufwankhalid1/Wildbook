@@ -292,6 +292,15 @@ public class Encounter implements java.io.Serializable {
     resetDateInMilliseconds();
   }
 
+  /**
+   * Mpala constructor
+   */
+  public Encounter(Occurrence occ, String individualID) {
+    this.occurrenceID = occ.getOccurrenceID();
+    // TODO: copy applicable fields from occurrence to encounter
+    this.individualID = individualID;
+  }
+
 
     public Encounter(Annotation ann) {
         this(new ArrayList<Annotation>(Arrays.asList(ann)));
