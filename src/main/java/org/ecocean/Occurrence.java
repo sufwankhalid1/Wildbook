@@ -80,9 +80,15 @@ public class Occurrence implements java.io.Serializable{
   private Integer distanceToGroupCentre;
   private Integer directionToGroupCentre;
   private String groupSpread;
-  private String allMaleId;
-  private String allIndId;
-  private String allAgeStructureOp;
+  // private String allMaleId;
+  // private String allIndId;
+  // private String allAgeStructureOp;
+  // private String month;
+  // private String season;
+  private Boolean totalIndividualsCounted;
+  private Boolean allMaleId;
+  private Boolean allIndId;
+  private Boolean allAgeStructureOp;
   private String month;
   private String season;
   private Integer infs01female;
@@ -211,6 +217,15 @@ public class Occurrence implements java.io.Serializable{
     assets = new ArrayList<MediaAsset>();
 
     //if((enc.getLocationID()!=null)&&(!enc.getLocationID().equals("None"))){this.locationID=enc.getLocationID();}
+  }
+
+  /**
+   * Simple constructor for mpala
+   */
+
+  public Occurrence(String occurrenceID) {
+    this.occurrenceID=occurrenceID;
+
   }
 
   public Occurrence(List<MediaAsset> assets, Shepherd myShepherd){
@@ -635,22 +650,28 @@ public class Occurrence implements java.io.Serializable{
   public void setGroupSpread(String groupSpread){
   	this.groupSpread = groupSpread;
   }
-  public String getAllMaleId(){
+  public Boolean getTotalIndividualsCounted(){
+    return(totalIndividualsCounted);
+  }
+  public void setTotalIndividualsCounted(Boolean totalIndividualsCounted) {
+    this.totalIndividualsCounted = totalIndividualsCounted;
+  }
+  public Boolean getAllMaleId(){
   	return(allMaleId);
   }
-  public void setAllMaleId(String allMaleId){
+  public void setAllMaleId(Boolean allMaleId){
   	this.allMaleId = allMaleId;
   }
-  public String getAllIndId(){
+  public Boolean getAllIndId(){
   	return(allIndId);
   }
-  public void setAllIndId(String allIndId){
+  public void setAllIndId(Boolean allIndId){
   	this.allIndId = allIndId;
   }
-  public String getAllAgeStructureOp(){
+  public Boolean getAllAgeStructureOp(){
   	return(allAgeStructureOp);
   }
-  public void setAllAgeStructureOp(String allAgeStructureOp){
+  public void setAllAgeStructureOp(Boolean allAgeStructureOp){
   	this.allAgeStructureOp = allAgeStructureOp;
   }
   public String getMonth(){
@@ -1052,7 +1073,7 @@ public class Occurrence implements java.io.Serializable{
   public String getN1_OtherSpecies(){
   	return(n1_OtherSpecies);
   }
-  public void setn1_OtherSpecies(String n1_OtherSpecies){
+  public void setN1_OtherSpecies(String n1_OtherSpecies){
   	this.n1_OtherSpecies = n1_OtherSpecies;
   }
   public Integer getNumber1stSp(){
@@ -1064,7 +1085,7 @@ public class Occurrence implements java.io.Serializable{
   public String getN2_OtherSpecies(){
   	return(n2_OtherSpecies);
   }
-  public void setn2_OtherSpecies(String n2_OtherSpecies){
+  public void setN2_OtherSpecies(String n2_OtherSpecies){
   	this.n2_OtherSpecies = n2_OtherSpecies;
   }
   public Integer getNumber2ndSp(){
@@ -1076,7 +1097,7 @@ public class Occurrence implements java.io.Serializable{
   public String getN3_OtherSpecies(){
   	return(n3_OtherSpecies);
   }
-  public void setn3_OtherSpecies(String n3_OtherSpecies){
+  public void setN3_OtherSpecies(String n3_OtherSpecies){
   	this.n3_OtherSpecies = n3_OtherSpecies;
   }
   public Integer getNumber3rdSp(){
