@@ -21,6 +21,8 @@ package org.ecocean;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
+import java.util.Set;
+import java.util.HashSet;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -53,6 +55,7 @@ import javax.servlet.http.HttpServletRequest;
 
 
 import org.joda.time.LocalDateTime;
+import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.ecocean.security.Collaboration;
@@ -299,6 +302,9 @@ public class Encounter implements java.io.Serializable {
     this.occurrenceID = occ.getOccurrenceID();
     // TODO: copy applicable fields from occurrence to encounter
     this.individualID = individualID;
+    if (occ.getDateTime()!=null) {
+      this.dateInMilliseconds = occ.getDateTime().getMillis();
+    }
   }
 
 
@@ -308,6 +314,23 @@ public class Encounter implements java.io.Serializable {
     public Encounter(ArrayList<Annotation> anns) {
         this.catalogNumber = Util.generateUUID();
         this.annotations = anns;
+    }
+
+
+
+
+    /**
+     * Some functions for inferring base wildbook fields from mpala fields (not necessarily data duplication, e.g. sex is inferred from the more fine-grained "reproductiveStatus")
+     */
+
+    private static final String[] maleReproductiveStatusesVals = new String[]{"male","bachelor","stallion","territorial"};
+    private static final Set<String> maleReproductiveStatuses = new HashSet<String>(Arrays.asList(maleReproductiveStatusesVals));
+    private static final String[] femaleReproductiveStatusesVals = new String[]{"female","lactating","non-lactating","pregnant"};
+    private static Set<String> femaleReproductiveStatuses = new HashSet<String>(Arrays.asList(femaleReproductiveStatusesVals));
+    public void setSexFromReproStatus() {
+      if (reproductiveStatus==null || reproductiveStatus=="") return;
+      if (maleReproductiveStatuses.contains(reproductiveStatus)) setSex("male");
+      if (femaleReproductiveStatuses.contains(reproductiveStatus)) setSex("female");
     }
 
 

@@ -588,6 +588,27 @@ public class MarkedIndividual implements java.io.Serializable {
   //sorted with the most recent first
   public Encounter[] getDateSortedEncounters() {return getDateSortedEncounters(false);}
 
+  public Encounter[] getDateMillisSortedEncounters(boolean reverse) {
+    Vector final_encs = new Vector();
+    for (int c = 0; c < encounters.size(); c++) {
+      Encounter temp = (Encounter) encounters.get(c);
+      final_encs.add(temp);
+    }
+
+    int finalNum = final_encs.size();
+    Encounter[] encs2 = new Encounter[finalNum];
+    for (int q = 0; q < finalNum; q++) {
+      encs2[q] = (Encounter) final_encs.get(q);
+    }
+    EncounterMillisComparator dc = new EncounterMillisComparator(reverse);
+    Arrays.sort(encs2, dc);
+    return encs2;
+  }
+
+
+
+  ///public Encounter getEncounterClosestDate(DateTime dt)
+
 
   //preserved for legacy purposes
  /** public Encounter[] getDateSortedEncounters(boolean includeLogEncounters) {

@@ -125,6 +125,10 @@
 
       <fetch-group name="count"/>
 
+
+      <field name="dateInMilliseconds" persistence-modifier="persistent">
+        <column jdbc-type="BIGINT" allows-null="true"/>
+      </field>
       <field name="dateDay" persistent-modifier="persistent" default-fetch-group="true">
       	<column jdbc-type="INTEGER" allows-null="true"/>
       </field>

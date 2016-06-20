@@ -66,6 +66,7 @@ public class Occurrence implements java.io.Serializable{
 
 /////Lewa-specifics
   private DateTime dateTime;
+  private Long dateInMilliseconds;
 
   // Mpala-specifics
   private Integer dateDay;
@@ -501,11 +502,20 @@ public class Occurrence implements java.io.Serializable{
 */
 
   public DateTime getDateTime() {
-    return this.dateTime;
+    return new DateTime(this.dateInMilliseconds);
   }
 
   public void setDateTime(DateTime dt) {
     this.dateTime = dt;
+    this.dateInMilliseconds = dt.getMillis();
+  }
+
+  public Long getDateInMilliseconds() {
+    return dateInMilliseconds;
+  }
+  public void setDateInMilliseconds(Long dt) {
+    this.dateInMilliseconds = dt;
+    this.dateTime = new DateTime(dt);
   }
 
 
