@@ -329,10 +329,32 @@ public class Encounter implements java.io.Serializable {
     private static Set<String> femaleReproductiveStatuses = new HashSet<String>(Arrays.asList(femaleReproductiveStatusesVals));
     public void setSexFromReproStatus() {
       if (reproductiveStatus==null || reproductiveStatus=="") return;
-      if (maleReproductiveStatuses.contains(reproductiveStatus)) setSex("male");
-      if (femaleReproductiveStatuses.contains(reproductiveStatus)) setSex("female");
+      String cleanedStatus = reproductiveStatus.trim().toLowerCase();
+      if (maleReproductiveStatuses.contains(cleanedStatus)) setSex("male");
+      if (femaleReproductiveStatuses.contains(cleanedStatus)) setSex("female");
     }
 
+    public void fillDateFieldsFromDateMillis() {
+      if (dateInMilliseconds==null) return;
+      DateTime dt = new DateTime(dateInMilliseconds);
+      this.day = dt.getDayOfMonth();
+      this.month = dt.getMonthOfYear();
+      this.year = dt.getYear();
+      this.hour = dt.getHourOfDay();
+      this.minutes = String.valueOf(dt.getMinuteOfHour());
+    }
+
+    public void setDWCDateAddedNow() {
+      DateTime now = new DateTime();
+      dwcDateAddedLong = now.getMillis();
+      DateTimeFormatter fmt = ISODateTimeFormat.date();
+      dwcDateAdded = (fmt.print(now));
+      modified = dwcDateAdded;
+    }
+
+    public void setLifeStageFromMpala() {
+      
+    }
 
   /**
    * Returns an array of all of the superSpots for this encounter.

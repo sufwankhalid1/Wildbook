@@ -19,7 +19,7 @@ import java.util.Vector;
 import java.util.Iterator;
 import java.lang.NumberFormatException;
 import org.apache.poi.hssf.usermodel.*;
-import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.apache.poi.poifs.filesystem.NPOIFSFileSystem;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.commons.lang.StringUtils;
@@ -51,18 +51,20 @@ ImportMpalaExcel extends HttpServlet {
     Shepherd myShepherd = new Shepherd(context);
     PrintWriter out = response.getWriter();
 
-    String filename = "/home/ubuntu/documents/Wildbook/mpala_data_sample.xls";
+    String filename = "/home/ubuntu/documents/Wildbook/rosemary_complete.xls";
     if (request.getParameter("filename") != null) filename = request.getParameter("filename");
     File dataFile = new File(filename);
     boolean dataFound = dataFile.exists();
 
     out.println("</br><p>File found="+String.valueOf(dataFound)+" at "+dataFile.getAbsolutePath()+"</p>");
-    FileInputStream dataFIStream = new FileInputStream(dataFile);
+    //FileInputStream dataFIStream = new FileInputStream(dataFile);
     //Create Workbook instance holding reference to .xlsx file
     //XSSFWorkbook workbook = new XSSFWorkbook(dataFIStream);
 
-    POIFSFileSystem fs = new POIFSFileSystem(dataFIStream);
-    HSSFWorkbook wb = new HSSFWorkbook(fs);
+    NPOIFSFileSystem fs = new NPOIFSFileSystem(dataFile);
+    HSSFWorkbook wb = new HSSFWorkbook(fs.getRoot(), true);
+    //POIFSFileSystem fs = new POIFSFileSystem(dataFIStream);
+    //HSSFWorkbook wb = new HSSFWorkbook(fs);
     HSSFSheet sheet = wb.getSheetAt(0);
     HSSFRow row;
     HSSFCell cell;
@@ -91,6 +93,7 @@ ImportMpalaExcel extends HttpServlet {
         if (!myShepherd.isOccurrence(occ.getOccurrenceID())) myShepherd.storeNewOccurrence(occ);
         Encounter enc = parseEncounter(occ, row);
         String indID = enc.getIndividualID();
+        if (indID==null) continue;
         MarkedIndividual ind = myShepherd.getMarkedIndividual(indID);
         boolean needToAddEncToInd = false;
         if (ind==null) {
@@ -104,14 +107,18 @@ ImportMpalaExcel extends HttpServlet {
         if (!myShepherd.isMarkedIndividual(indID)) myShepherd.storeNewMarkedIndividual(ind);
         // TODO: why is it not persisted?? could fix with a fixSomeFields
         myShepherd.commitDBTransaction();
-        out.println("<p>Parsed row ("+i+"), containing Occ "+occ.getOccurrenceID()+" and Enc "+enc.getEncounterNumber()+"</p>");
+        if (i%50==0) {
+          out.println("<p>Parsed row ("+i+"), containing Occ "+occ.getOccurrenceID()+" and Enc "+enc.getEncounterNumber()+"</p>");
+        }
       }
       catch (Exception e) {
+        fs.close();
         out.println("Encountered an error while importing the file.");
         e.printStackTrace(out);
         myShepherd.rollbackDBTransaction();
       }
     }
+    fs.close();
   }
 
   public Occurrence getCurrentOccurrence(String id, Occurrence oldOcc, Shepherd myShepherd, HSSFRow row) {

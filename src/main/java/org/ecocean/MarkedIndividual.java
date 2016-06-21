@@ -605,6 +605,27 @@ public class MarkedIndividual implements java.io.Serializable {
     return encs2;
   }
 
+  public Encounter[] getDateMillisSortedEncounters() {return getDateMillisSortedEncounters(false);}
+
+  public Encounter getEncounterClosestToMillis(Long milliseconds) {
+    Encounter[] sortedEncs = getDateMillisSortedEncounters();
+    Encounter closestEnc = null;
+    long closestDistance = Long.MAX_VALUE;
+
+    for (Encounter enc : sortedEncs) {
+      if (enc.getDateInMilliseconds() == null) continue;
+      long distance = milliseconds - enc.getDateInMilliseconds().longValue();
+      if (Math.abs(distance) < closestDistance) {
+        closestEnc = enc;
+        closestDistance = distance;
+      }
+      else { // since they are sorted, no need to keep looking once you've found one farther than the current closest
+        return closestEnc;
+      }
+    }
+    return closestEnc;
+  }
+
 
 
   ///public Encounter getEncounterClosestDate(DateTime dt)
