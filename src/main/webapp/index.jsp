@@ -353,7 +353,7 @@ finally{
     <div class="container relative">
         <div class="col-xs-12 col-sm-10 col-md-8 col-lg-6">
             <h1 class="hidden">Wildbook</h1>
-            <h2>Wildbook helps you study, <br/> identify and protect marine mammal populations!</h2>
+            <h2 style="margin-bottom: 75px;">Wildbook helps you study, identify and protect sea turtle populations!</h2>
             <!--
             <button id="watch-movie" class="large light">
 				Watch the movie 
@@ -366,11 +366,7 @@ finally{
         </div>
 
 	</div>
-	 <div class="video-wrapper">
-		<div class="embed-container">
-			<iframe id="herovideo" src="http://player.vimeo.com/video/123083341?api=1&amp;player_id=herovideo" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
-		</div>
-	</div>
+
     
 </section>
 
