@@ -1,11 +1,30 @@
 
 var imageEnhancer = {
     applyTo: function(selector, opt) {
+/*
+        jQuery(selector).on('load', function(ev) {
+console.log('=============???? %o', ev);
+        });
+*/
+        if (!opt) opt = {};
+        opt._count = jQuery(selector).length;
         jQuery(selector).each(function(i, el) {
-            imageEnhancer.apply(el, opt);
+            if (el.complete) {
+                imageEnhancer.apply(el, opt);
+                opt._count--;
+                if (opt.callback && (opt._count < 1)) opt.callback();
+            } else {
+                $(el).on('load', function(ev) {
+console.log('?????????????????????????????????????????????? DELAYED IMG LOAD ?????????? %o', ev);
+                    imageEnhancer.apply(ev.target, opt);
+                    opt._count--;
+                    if (opt.callback && (opt._count < 1)) opt.callback();
+                });
+            }
         });
     },
 
+    //el is expected to be completely loaded (e.g. img) right now fwiw
     apply: function(el, opt) {
         var jel = jQuery(el);
         var mid = jel.data('enh-mediaassetid');
@@ -50,6 +69,9 @@ console.info('assigning event %s', e);
     wrapperSizeSetFromImg: function(el) {
         var img = el.find('img');
         var w = el.find('.image-enhancer-wrapper');
+console.log('img = %o / w = %o', img, w);
+console.log('img.length -----> %o', img.length);
+console.log(' .complete? %o', img.prop('complete'));
         if (!img.length || !w.length) return;
 //console.warn('img => %o', img);
 //console.warn('%d x %d', img.width(), img.height());
