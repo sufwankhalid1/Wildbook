@@ -179,8 +179,8 @@ margin-bottom: 8px !important;
   	    //var gmap_styles = [{"stylers":[{"visibility":"off"}]},{"featureType":"water","stylers":[{"visibility":"on"},{"color":"#00c0f7"}]},{"featureType":"landscape","stylers":[{"visibility":"on"},{"color":"#005589"}]},{"featureType":"administrative","elementType":"geometry.stroke","stylers":[{"visibility":"on"},{"color":"#00c0f7"},{"weight":1}]}]
 
       
-        var center = new google.maps.LatLng(0,0);
-        var mapZoom = 8;
+        var center = new google.maps.LatLng(17.2340692,-62.9618456);
+        var mapZoom = 10;
     	if($("#map_canvas").hasClass("full_screen_map")){mapZoom=3;}
     	
         
@@ -449,7 +449,7 @@ finally{
 				<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
 					<h3>Photograph the ID area</h3>
 					<p class="lead">
-						Trailing edges of flukes and dorsal fins are primarily used to ID whales and dolphins. Get an image of the flukes or fins and you can match that pattern to others already in the database. Who knows your animal might be completely new to the database!
+						Natural patterning can be used to uniquely identify individual animals. Take a picture and submit it to Wildbook. Your animal might be completely new to the database!
 					</p>
 					
 				</div>
@@ -472,7 +472,7 @@ finally{
 				<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
 					<h3>Researcher verification</h3>
 					<p class="lead">
-						When you submit an identification photo, a local researcher receives a notification. This researcher will double check that the information you submitted is correct (so don't worry if you are unsure about which species you saw!).
+						When you submit an identification photo, a local researcher receives a notification. This researcher will double check that the information you submitted is correctly categorized.
 					</p>
 				</div>
 				<div class="col-xs-12 col-sm-4 col-sm-offset-2 col-md-4 col-md-offset-2 col-lg-4 col-lg-offset-2">
@@ -483,7 +483,7 @@ finally{
 				<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
 					<h3>Matching process</h3>
 					<p class="lead">
-						Once a researcher is happy with all the data accompanying the identification photo, they will look for a photo match, using multiple computer assisted algorithms. It's like facial recognition software for whale flukes.
+						Once a researcher is happy with all the data accompanying the identification photo, they will look for a photo match, using computer assisted algorithms. It's like facial recognition software for animals.
 						</p>
 				</div>
 				<div class="col-xs-12 col-sm-4 col-sm-offset-2 col-md-4 col-md-offset-2 col-lg-4 col-lg-offset-2">
@@ -494,7 +494,7 @@ finally{
 				<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
 					<h3>Matching Results</h3>
 					<p class="lead">
-						Wildbook uses multiple algorithms to compare new IDs to the existing database. Researchers then visually confirm a match to an existing animal in the database, or create a new individual profile. 
+						Wildbook uses computer vision algorithms to compare new IDs to the existing database. Researchers then visually confirm a match to an existing animal in the database, or create a new individual profile. 
 					</p>
 				</div>
 				<div class="col-xs-12 col-sm-4 col-sm-offset-2 col-md-4 col-md-offset-2 col-lg-4 col-lg-offset-2">
