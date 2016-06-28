@@ -21,15 +21,21 @@ Shepherd myShepherd = new Shepherd(context);
   response.setDateHeader("Expires", 0); //Causes the proxy cache to see the page as "stale"
   response.setHeader("Pragma", "no-cache"); //HTTP 1.0 backward compatibility
 
+	String username = null;
+	if (request.getUserPrincipal() != null) username = request.getUserPrincipal().getName();
 
   //setup our Properties object to hold all properties
   //String langCode = "en";
   //String langCode=ServletUtilities.getLanguageCode(request);
 
 	String res = request.getParameter("results");
+	String rtrial = request.getParameter("trial");
+	if ((res != null) && (rtrial != null) && (username != null)) {
 	System.out.println("=============>\n" + res);
-	if (res != null) {
-		out.println("{\"success\": true}");
+    		CatTest c = CatTest.save(myShepherd, username, rtrial, res);
+		JSONObject rtn = new JSONObject("{\"success\": true}");
+		rtn.put("saved", c.getResultsAsJSONArray());
+		out.println(rtn.toString());
 		return;
 	}
 
@@ -66,6 +72,9 @@ Shepherd myShepherd = new Shepherd(context);
 <script src="javascript/panzoom.js"></script>
 
 <script>
+var username = <%=((username == null) ? "null" : "'" + username + "'")%>;
+var trial = '<%=CatTest.currentTrial(myShepherd)%>';
+var trialAvailable = <%=(CatTest.trialAvailableToUser(myShepherd, username))%>;
 var refKeyword = 'ReferenceImage';
 var deck = [];
 var assetRefs = [];
@@ -77,13 +86,24 @@ var results = [];
 
 var assets = <%= jall.toString() %>;
 $(document).ready(function() {
+	if (!username) {
+		$('.compare-image-wrapper').html('<div style="text-align: center; padding: 20px;"><h1>You must be logged in.</h1>Please <a href="login.jsp">login</a> to continue.');
+		return;
+	} else if (!trialAvailable) {
+		$('.compare-image-wrapper').html('<h1 style="text-align: center; padding: 20px;">You have already completed this trial.</h1>');
+		return;
+	}
+
+	$('.compare-ui').show();
 	$(document).on('keydown', function(ev) {
 		if (ev.keyCode == 89) {  //y
 			answerClick('yes');
 		} else if (ev.keyCode == 78) {  //n
 			answerClick('no');
+/*
 		} else if (ev.keyCode == 83) {  //s
 			answerClick('skip');
+*/
 		}
 	});
 
@@ -143,6 +163,11 @@ function buildDeck() {
 			deck.push([assetRefs[r], assetTests[t]]);
 		}
 	}
+<%
+	int testSize = -1;
+	if (request.getParameter("testSize") != null) testSize = Integer.parseInt(request.getParameter("testSize"));
+	if (testSize > 0) out.println("deck.splice(" + testSize + ");\n");
+%>
 }
 
 function setupForm() {
@@ -151,10 +176,11 @@ function setupForm() {
 		$.ajax({
 			url: 'compare.jsp',
 			type: 'POST',
-			data: 'results=' + JSON.stringify(results),
+			data: 'trial=' + trial + '&results=' + JSON.stringify(results),
 			success: function(d) {
 				console.log(d);
-				$('.compare-image-wrapper').html('<h1 style="text-align: center; padding: 20px;">results recorded.</h1>');
+				$('.compare-image-wrapper').html('<div style="text-align: center; padding: 20px;"><h1>results recorded.</h1>thank you!</div>');
+				$('.compare-ui').hide();
 			},
 			dataType: 'json'
 		});
@@ -235,6 +261,10 @@ function updateStatus() {
 	text-align: center;
 }
 
+.compare-ui {
+	display: none;
+}
+
 </style>
 
 <div style="height: 700px;" class="container maincontent">
@@ -255,9 +285,13 @@ function updateStatus() {
 
 			<div id="match-question">
 				Do these images represent the same cat?
-				<input type="button" value="[y]es" onClick="return answerClick('yes');" />
-				<input type="button" value="[n]o" onClick="return answerClick('no');" />
-				<input type="button" value="[s]kip" onClick="return answerClick('skip');" />
+				<div>
+					<input type="button" value="[y]es" onClick="return answerClick('yes');" />
+					<input type="button" value="[n]o" onClick="return answerClick('no');" />
+<!--
+					<input type="button" value="[s]kip" onClick="return answerClick('skip');" />
+-->
+				</div>
 			</div>
 			<div id="deck-status"></div>
 		</div>

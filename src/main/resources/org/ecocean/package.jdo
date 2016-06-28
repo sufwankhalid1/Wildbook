@@ -335,6 +335,13 @@
             <fetch-group name="count" />
         </class>
 
+	<class name="CatTest" identity-type="application">
+		<field name="id" primary-key="true" value-strategy="identity"/>
+		<field name="results">
+			<column jdbc-type="LONGVARCHAR" />
+		</field>
+	</class>
+
 
 
         <class name="SuperSpot">
