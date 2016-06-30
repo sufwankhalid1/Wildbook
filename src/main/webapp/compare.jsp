@@ -382,11 +382,25 @@ console.warn('tname=%o / tref=%o', tname, tref);
 .compare-image-div {
 	min-height: 100px;
 	position: relative;
-	width: 44%;
-	margin-right: 2%;
-	margin-left: 2%;
+	width: 40%;
 	display: inline-block;
 }
+
+.compare-image-div-right {
+	margin-right: 10px;
+	position: absolute;
+	right: 0;
+}
+.compare-image-div-left {
+	margin-left: 10px;
+}
+
+.middle-controls {
+	width: 17%;
+	display: inline-block;
+	vertical-align: top;
+}
+
 .compare-image-zoom {
 	position: absolute;
 	right: 2px;
@@ -451,12 +465,25 @@ console.warn('tname=%o / tref=%o', tname, tref);
 <div style="height: 700px;" class="container maincontent">
 	<div id="compare-wrapper">
 		<div class="compare-image-wrapper">
-			<div class="compare-image-div" id="image-ref-div">
+			<div class="compare-image-div compare-image-div-left" id="image-ref-div">
 				<div class="compare-image-label">reference</div>
 				<img id="image-ref" class="compare-image" />
 				<div class="compare-image-zoom"></div>
 			</div>
-			<div class="compare-image-div" id="image-test-div">
+
+			<div class="middle-controls" id="match-question">
+				<div style="padding: 10px; font-size: 1.3em;">Do these images represent the same cat?</div>
+				<div>
+					<input type="button" value="YES" onClick="return answerClick('yes');" />
+					<input type="button" value="NO" onClick="return answerClick('no');" />
+<!--
+					<input type="button" value="[s]kip" onClick="return answerClick('skip');" />
+-->
+				</div>
+				<div id="deck-status"></div>
+			</div>
+
+			<div class="compare-image-div compare-image-div-right" id="image-test-div">
 				<div class="compare-image-label">test</div>
 				<img id="image-test" class="compare-image" />
 				<div class="compare-image-zoom"></div>
@@ -464,19 +491,8 @@ console.warn('tname=%o / tref=%o', tname, tref);
 		</div>
 		<div class="compare-ui">
 			<div style="text-align: center; color: #AAA;"><b id="click-mode-shift-false" class="click-mode">CLICK</b> to zoom in,
-				<b id="click-mode-shift-true">SHIFT-CLICK</b> to zoom out, <b>DRAG</b> to move/pan</div>
+				<b id="click-mode-shift-true">SHIFT-CLICK</b> to zoom out, <b>DRAG</b> to move/pan - use <b>N</b> for NO and <b>Y</b> for YES.</div>
 
-			<div id="match-question">
-				<div style="padding: 20px; font-size: 2.0em;">Do these images represent the same cat?</div>
-				<div>
-					<input type="button" value="[y]es" onClick="return answerClick('yes');" />
-					<input type="button" value="[n]o" onClick="return answerClick('no');" />
-<!--
-					<input type="button" value="[s]kip" onClick="return answerClick('skip');" />
--->
-				</div>
-			</div>
-			<div id="deck-status"></div>
 		</div>
 	</div>
 </div>
