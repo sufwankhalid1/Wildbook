@@ -4,6 +4,8 @@ org.json.JSONArray,
 org.json.JSONObject,
 javax.jdo.*,
 java.util.Collection,
+java.text.SimpleDateFormat,
+java.util.Date,
 java.util.Collections,
 java.util.HashMap,
 java.util.List,
@@ -41,7 +43,6 @@ Shepherd myShepherd = new Shepherd(context);
 	String res = request.getParameter("results");
 	String rtrial = request.getParameter("trial");
 	if ((res != null) && (rtrial != null) && (username != null)) {
-	System.out.println("=============>\n" + res);
     		CatTest c = CatTest.save(myShepherd, username, rtrial, res);
 		JSONObject rtn = new JSONObject("{\"success\": true}");
 		rtn.put("saved", c.getResultsAsJSONArray());
@@ -54,6 +55,29 @@ Shepherd myShepherd = new Shepherd(context);
 		response.setHeader("Content-type", "plain/text");
 		String trial = request.getParameter("newTrial");
 		CatTest.setCurrentTrial(trial, myShepherd);
+		int mid = -1;
+		try {
+			if (request.getParameter("newRefImageMid") != null) mid = Integer.parseInt(request.getParameter("newRefImageMid"));
+		} catch (Exception ex) {}
+		if (mid > 0) {
+			MediaAsset ma = MediaAssetFactory.load(mid, myShepherd);
+			if (ma != null) {
+				String kname = "ActiveReferencePhoto";
+				Keyword kw = myShepherd.getKeyword(kname);
+				if (kw == null) throw new RuntimeException("what no " + kname + " keyword???");
+				//get old existing asset(s) with keyword and remove them...
+				Query qry = myShepherd.getPM().newQuery("SELECT FROM org.ecocean.media.MediaAsset where keywords.contains(k) && k.readableName == '" + kname + "'");
+				Collection c = (Collection) (qry.execute());
+				for (Object mobj : c) {
+					MediaAsset kma = (MediaAsset)mobj;
+System.out.println("(old) has keyword -> " + kma);
+					kma.getKeywords().remove(kw);
+					myShepherd.getPM().makePersistent(kma);
+				}
+				ma.addKeyword(kw);
+				myShepherd.getPM().makePersistent(ma);
+			}
+		}
 		out.println("{\"success\": true}");
 		return;
 	}
@@ -64,7 +88,8 @@ Shepherd myShepherd = new Shepherd(context);
 	}
 
 	if (request.getParameter("dump") != null) {
-		response.setHeader("Content-Disposition", "attachment; filename=\"test.xls\"");
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd-sS");
+		response.setHeader("Content-Disposition", "attachment; filename=\"catnip_results_" + format.format(new Date()) + ".xls\"");
 		//WritableWorkbook workbook = Workbook.createWorkbook(new File("/tmp/test.xls"));
 		WritableWorkbook workbook = Workbook.createWorkbook(response.getOutputStream());
 		WritableSheet sheet = workbook.createSheet("CatNIP Data Export", 0);
@@ -134,6 +159,7 @@ Shepherd myShepherd = new Shepherd(context);
 		if (ma == null) continue;
 		JSONObject j = new JSONObject();
 		j.put("encId", enc.getCatalogNumber());
+		j.put("encState", enc.getState());
 		j.put("individualId", enc.getIndividualID());
 		j.put("asset", Util.toggleJSONObject(ma.sanitizeJson(request, new org.datanucleus.api.rest.orgjson.JSONObject())));
 		jall.put(j);
@@ -151,7 +177,8 @@ var username = <%=((username == null) ? "null" : "'" + username + "'")%>;
 var showAdmin = <%=showAdmin%>;
 var trial = '<%=CatTest.getCurrentTrial(myShepherd)%>';
 var trialAvailable = <%=(CatTest.trialAvailableToUser(myShepherd, username))%>;
-var refKeyword = 'ReferenceImage';
+var refKeyword = 'ReferencePhoto';
+var activeKeyword = 'ActiveReferencePhoto';
 var deck = [];
 var assetRefs = [];
 var assetTests = [];
@@ -162,12 +189,26 @@ var results = [];
 
 var assets = <%= jall.toString() %>;
 $(document).ready(function() {
+	buildDeck();
+	startSize = deck.length;
+
 	if (!username) {
 		$('.compare-image-wrapper').html('<div style="text-align: center; padding: 20px;"><h1>You must be logged in.</h1>Please <a href="login.jsp">login</a> to continue.');
 		return;
 	} else if (showAdmin) {
-		var h = '<p>current Trial is <b>' + trial + '</b>. Enter a new identifier to start a new trial:</p>';
-		h += '<input onChange="return setNewTrial(this);" /><br /><input type="button" value="ok" />';
+		var h = '<img id="new-trial-ref-img" /><p>Current trial is <b><u>' + trial + '</u></b>.<br />';
+		h += 'Enter a <b>new trial identifier</b> and <b>reference photo</b> to start a new trial:</p>';
+		h += '<input id="new-trial-name" />';
+		h += '<select id="new-trial-ref" onChange="updateNewTrialImg();"><option value="-1">choose a reference photo</option>';
+		for (var i = 0 ; i < assets.length ; i++) {
+			if (hasKeyword(assets[i].asset, activeKeyword)) {
+				h += '<option selected value="' + i + '" data-url="' + assets[i].asset.url + '">ref photo ' + assets[i].individualId + '</option>';
+			} else if (hasKeyword(assets[i].asset, refKeyword)) {
+				h += '<option value="' + i + '" data-url="' + assets[i].asset.url + '">ref photo ' + assets[i].individualId + '</option>';
+			}
+		}
+		h += '</select>';
+		h += '<br /><input type="button" value="ok" onClick="return setNewTrial();" /><s' + 'cript>updateNewTrialImg();</s' + 'cript>';
 		$('.compare-image-wrapper').html('<div style="text-align: center; padding: 20px;">' + h + '</div>');
 		return;
 
@@ -198,10 +239,16 @@ $(document).ready(function() {
 		}
 	});
 
-	buildDeck();
-	startSize = deck.length;
 	setupForm();
 });
+
+
+function updateNewTrialImg() {
+	var r = $('#new-trial-ref').val();
+	if (r < 0) return;
+	$('#new-trial-ref-img').prop('src', '');
+	$('#new-trial-ref-img').prop('src', assets[r].asset.url);
+}
 
 function answerClick(a) {
 	$('#image-test').prop('src', '');
@@ -243,8 +290,11 @@ function storeResult(ans, i) {
 
 function buildDeck() {
 	for (var i = 0 ; i < assets.length ; i++) {
-		if (hasKeyword(assets[i].asset, refKeyword)) {
+		if (assets[i].encState == 'practice') continue; /// these are not used for production
+		if (hasKeyword(assets[i].asset, activeKeyword)) {
 			assetRefs.push(i);
+		} else if (hasKeyword(assets[i].asset, refKeyword)) {
+			//this is not used in either!
 		} else {
 			assetTests.push(i);
 		}
@@ -296,21 +346,24 @@ function updateStatus() {
 	if (deck.length < 1) {
 		$('#deck-status').html("<i>complete</i>");
 	} else {
-		$('#deck-status').html("<b>" + deck.length + " remaining</b> (of " + startSize + ")");
+		$('#deck-status').html("<b>" + deck.length + " remaining</b> (of " + startSize + ") in trial <b>" + trial + "</b>");
 	}
 }
 
-function setNewTrial(el) {
+function setNewTrial() {
+	var tname = $('#new-trial-name').val();
+	var tref = $('#new-trial-ref').val();
+	var mid = assets[tref].asset.id;
+console.warn('tname=%o / tref=%o', tname, tref);
 	$('.compare-image-wrapper div').html('saving...');
 	$.ajax({
-		url: 'compare.jsp?newTrial=' + el.value,
+		url: 'compare.jsp?newTrial=' + tname + '&newRefImageMid=' + mid,
 		type: 'GET',
 		complete: function() {
-			$('.compare-image-wrapper div').html('New trial <b>' + el.value + '</b> started.');
+			$('.compare-image-wrapper div').html('New trial <b>' + tname + '</b> started.');
 		},
 		dataType: 'json'
 	});
-	console.log(el.value);
 }
 
 </script>
@@ -365,14 +418,23 @@ function setNewTrial(el) {
 	color: #FFF;
 }
 
+/*
 .click-mode {
 	outline: 3px solid #BFB;
 }
+*/
 
+#new-trial-ref-img {
+	position: absolute;
+	width: 15%;
+	right: 30px;
+	top: 30px;
+}
 
 #deck-status {
+	margin-top: 20px;
 	font-size: 0.8em;
-	color: #888;
+	color: #AAA;
 	text-align: center;
 }
 
@@ -401,11 +463,11 @@ function setNewTrial(el) {
 			</div>
 		</div>
 		<div class="compare-ui">
-			<div style="text-align: center;"><b id="click-mode-shift-false" class="click-mode">CLICK</b> to zoom in,
+			<div style="text-align: center; color: #AAA;"><b id="click-mode-shift-false" class="click-mode">CLICK</b> to zoom in,
 				<b id="click-mode-shift-true">SHIFT-CLICK</b> to zoom out, <b>DRAG</b> to move/pan</div>
 
 			<div id="match-question">
-				Do these images represent the same cat?
+				<div style="padding: 20px; font-size: 2.0em;">Do these images represent the same cat?</div>
 				<div>
 					<input type="button" value="[y]es" onClick="return answerClick('yes');" />
 					<input type="button" value="[n]o" onClick="return answerClick('no');" />
