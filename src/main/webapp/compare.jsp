@@ -3,7 +3,16 @@
 org.json.JSONArray,
 org.json.JSONObject,
 javax.jdo.*,
+java.util.Collection,
+java.util.Collections,
+java.util.HashMap,
+java.util.List,
+java.util.ArrayList,
+java.util.Comparator,
 java.util.Vector,
+jxl.*,
+jxl.write.*,
+java.io.File,
 
 org.ecocean.media.MediaAsset,
 org.ecocean.media.MediaAssetFactory,
@@ -22,6 +31,7 @@ Shepherd myShepherd = new Shepherd(context);
   response.setHeader("Pragma", "no-cache"); //HTTP 1.0 backward compatibility
 
 	String username = null;
+	boolean showAdmin = false;
 	if (request.getUserPrincipal() != null) username = request.getUserPrincipal().getName();
 
   //setup our Properties object to hold all properties
@@ -40,6 +50,71 @@ Shepherd myShepherd = new Shepherd(context);
 	}
 
 
+	if (request.getParameter("newTrial") != null) {
+		response.setHeader("Content-type", "plain/text");
+		String trial = request.getParameter("newTrial");
+		CatTest.setCurrentTrial(trial, myShepherd);
+		out.println("{\"success\": true}");
+		return;
+	}
+
+	if (request.getParameter("admin") != null) {
+		showAdmin = true;
+		//return;
+	}
+
+	if (request.getParameter("dump") != null) {
+		response.setHeader("Content-Disposition", "attachment; filename=\"test.xls\"");
+		//WritableWorkbook workbook = Workbook.createWorkbook(new File("/tmp/test.xls"));
+		WritableWorkbook workbook = Workbook.createWorkbook(response.getOutputStream());
+		WritableSheet sheet = workbook.createSheet("CatNIP Data Export", 0);
+		response.setHeader("Content-type", "application/vnd.ms-excel");
+		Extent all = myShepherd.getPM().getExtent(CatTest.class, true);
+		Query qry = myShepherd.getPM().newQuery(all);
+		Collection c = (Collection) (qry.execute());
+		List<String> pairh = new ArrayList<String>();
+		sheet.addCell(new Label(0, 0, "OBSERVER"));
+		sheet.addCell(new Label(1, 0, "TRIAL"));
+		sheet.addCell(new Label(2, 0, "REF IND ID"));
+		sheet.addCell(new Label(3, 0, "LIB IND ID"));
+		sheet.addCell(new Label(4, 0, "REF IMG"));
+		sheet.addCell(new Label(5, 0, "LIB IMG"));
+		sheet.addCell(new Label(6, 0, "RESPONSE"));
+
+		int rowNum = 1;
+		for (Object r : c) {
+			CatTest row = (CatTest)r;
+			//HashMap<String,String> pr = new HashMap<String,String>();
+			for (int i = 0 ; i < row.getResultsAsJSONArray().length() ; i++) {
+				JSONObject p = row.getResultsAsJSONArray().optJSONObject(i);
+				if (p == null) continue;
+				//Encounter renc = myShepherd.getEncounter(p.getJSONObject("ref").getString("encounterId"));
+				//Encounter tenc = myShepherd.getEncounter(p.getJSONObject("test").getString("encounterId"));
+				MediaAsset ma = MediaAssetFactory.load(p.getJSONObject("ref").getInt("assetId"), myShepherd);
+				String fname = ma.getParameters().getString("path");
+				int l = fname.lastIndexOf("/");
+				if (l > 0) fname = fname.substring(l + 1);
+				fname = fname.substring(0, fname.length() - 4);
+				ma = MediaAssetFactory.load(p.getJSONObject("test").getInt("assetId"), myShepherd);
+				String tname = ma.getParameters().getString("path");
+				l = tname.lastIndexOf("/");
+				if (l > 0) tname = tname.substring(l + 1);
+				tname = tname.substring(0, tname.length() - 4);
+				//out.println(row.getUsername() + "\t" + row.getTrial() + "\t" + p.getJSONObject("ref").getString("indivId") + "\t" + p.getJSONObject("test").getString("indivId") + "\t" + fname + "\t" + tname + "\t" + p.getString("response"));
+				sheet.addCell(new Label(0, rowNum, row.getUsername()));
+				sheet.addCell(new Label(1, rowNum, row.getTrial()));
+				sheet.addCell(new Label(2, rowNum, p.getJSONObject("ref").getString("indivId")));
+				sheet.addCell(new Label(3, rowNum, p.getJSONObject("test").getString("indivId")));
+				sheet.addCell(new Label(4, rowNum, fname));
+				sheet.addCell(new Label(5, rowNum, tname));
+				sheet.addCell(new Label(6, rowNum, p.getString("response")));
+				rowNum++;
+			}
+		}
+		workbook.write();
+		workbook.close();
+		return;
+	}
 /*
   session = request.getSession(true);
   session.putValue("logged", "true");
@@ -73,7 +148,8 @@ Shepherd myShepherd = new Shepherd(context);
 
 <script>
 var username = <%=((username == null) ? "null" : "'" + username + "'")%>;
-var trial = '<%=CatTest.currentTrial(myShepherd)%>';
+var showAdmin = <%=showAdmin%>;
+var trial = '<%=CatTest.getCurrentTrial(myShepherd)%>';
 var trialAvailable = <%=(CatTest.trialAvailableToUser(myShepherd, username))%>;
 var refKeyword = 'ReferenceImage';
 var deck = [];
@@ -89,6 +165,12 @@ $(document).ready(function() {
 	if (!username) {
 		$('.compare-image-wrapper').html('<div style="text-align: center; padding: 20px;"><h1>You must be logged in.</h1>Please <a href="login.jsp">login</a> to continue.');
 		return;
+	} else if (showAdmin) {
+		var h = '<p>current Trial is <b>' + trial + '</b>. Enter a new identifier to start a new trial:</p>';
+		h += '<input onChange="return setNewTrial(this);" /><br /><input type="button" value="ok" />';
+		$('.compare-image-wrapper').html('<div style="text-align: center; padding: 20px;">' + h + '</div>');
+		return;
+
 	} else if (!trialAvailable) {
 		$('.compare-image-wrapper').html('<h1 style="text-align: center; padding: 20px;">You have already completed this trial.</h1>');
 		return;
@@ -104,6 +186,15 @@ $(document).ready(function() {
 		} else if (ev.keyCode == 83) {  //s
 			answerClick('skip');
 */
+		}
+	});
+
+	$('.compare-image-zoom').on('click', function(ev) {
+		var el = $(ev.target).parent().find('img');
+		if (ev.offsetX > 50) {
+			el.panzoom('zoom');
+		} else {
+			el.panzoom('zoom', true);
 		}
 	});
 
@@ -209,6 +300,19 @@ function updateStatus() {
 	}
 }
 
+function setNewTrial(el) {
+	$('.compare-image-wrapper div').html('saving...');
+	$.ajax({
+		url: 'compare.jsp?newTrial=' + el.value,
+		type: 'GET',
+		complete: function() {
+			$('.compare-image-wrapper div').html('New trial <b>' + el.value + '</b> started.');
+		},
+		dataType: 'json'
+	});
+	console.log(el.value);
+}
+
 </script>
 
 <style>
@@ -230,6 +334,21 @@ function updateStatus() {
 	margin-left: 2%;
 	display: inline-block;
 }
+.compare-image-zoom {
+	position: absolute;
+	right: 2px;
+	bottom: 2px;
+	width: 100px;
+	height: 50px;
+	background-image: url(images/zoomicons.png);
+	opacity: 0.4;
+	cursor: -webkit-zoom-in;
+	cursor: zoom-in;
+}
+.compare-image-zoom:hover {
+	opacity: 1.0;
+}
+
 .compare-image {
 	width: 100%;
 	heigth: auto;
@@ -273,10 +392,12 @@ function updateStatus() {
 			<div class="compare-image-div" id="image-ref-div">
 				<div class="compare-image-label">reference</div>
 				<img id="image-ref" class="compare-image" />
+				<div class="compare-image-zoom"></div>
 			</div>
 			<div class="compare-image-div" id="image-test-div">
 				<div class="compare-image-label">test</div>
 				<img id="image-test" class="compare-image" />
+				<div class="compare-image-zoom"></div>
 			</div>
 		</div>
 		<div class="compare-ui">

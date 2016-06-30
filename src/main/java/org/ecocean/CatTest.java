@@ -21,6 +21,8 @@ package org.ecocean;
 
 import org.json.JSONObject;
 import org.json.JSONArray;
+import javax.jdo.Query;
+import java.util.Collection;
 //import java.util.Vector;
 //import org.apache.commons.lang3.builder.ToStringBuilder;
 
@@ -42,16 +44,39 @@ public class CatTest {
     }
 
 
+    public int getId() {
+        return id;
+    }
+    public String getUsername() {
+        return username;
+    }
+    public String getTrial() {
+        return trial;
+    }
+    public long getTimestamp() {
+        return timestamp;
+    }
+
     public JSONArray getResultsAsJSONArray() {
         if (results == null) return null;
         return new JSONArray(results);
     }
 
 
-    public static String currentTrial(Shepherd myShepherd) {
-        return "test";
+    public static String getCurrentTrial(Shepherd myShepherd) {
+        Config conf = Config.load("currentTrial", myShepherd);
+        if ((conf == null) || (conf.getValue() == null)) return null;
+        return conf.getValue().optString("name", null);
     }
-
+    public static void setCurrentTrial(String trial, Shepherd myShepherd) {
+        Config conf = Config.load("currentTrial", myShepherd);
+        if (conf == null) conf = new Config("currentTrial", null);
+        JSONObject v = conf.getValue();
+        v.put("name", trial);
+        conf.setValue(v);
+        Config.save(conf, myShepherd);
+    }
+    
     public static CatTest save(Shepherd myShepherd, String username, String trial, String results) {
         CatTest c = new CatTest(username, trial, results);
         myShepherd.getPM().makePersistent(c);
@@ -60,11 +85,14 @@ public class CatTest {
 
 
     public static boolean trialAvailableToUser(Shepherd myShepherd, String username) {
-        return trialAvailableToUser(myShepherd, username, currentTrial(myShepherd));
+        return trialAvailableToUser(myShepherd, username, getCurrentTrial(myShepherd));
     }
     public static boolean trialAvailableToUser(Shepherd myShepherd, String username, String trialName) {
         if (username == null) return false;
-        return true;
+        Query q = myShepherd.getPM().newQuery("SELECT FROM org.ecocean.CatTest WHERE trial == '" + trialName + "' && username == '" + username + "'");
+        Collection c = (Collection)q.execute();
+System.out.println(c.size());
+        return (c.size() < 1);
     }
 
 /*

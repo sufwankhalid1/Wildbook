@@ -342,7 +342,12 @@
 		</field>
 	</class>
 
-
+	<class name="Config">
+		<field name="name" primary-key="true" />
+		<field name="value">
+			<column jdbc-type="LONGVARCHAR" />
+		</field>
+	</class>
 
         <class name="SuperSpot">
         	 <datastore-identity strategy="increment"/>
