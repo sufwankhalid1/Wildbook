@@ -472,7 +472,7 @@ console.warn('tname=%o / tref=%o', tname, tref);
 			</div>
 
 			<div class="middle-controls" id="match-question">
-				<div style="padding: 10px; font-size: 1.3em;">Do these images represent the same cat?</div>
+				<div style="padding: 10px; font-size: 1.3em;">Is this the same cat in both photos?</div>
 				<div>
 					<input type="button" value="YES" onClick="return answerClick('yes');" />
 					<input type="button" value="NO" onClick="return answerClick('no');" />
