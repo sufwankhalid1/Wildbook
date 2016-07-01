@@ -173,12 +173,15 @@ System.out.println("(old) has keyword -> " + kma);
 <script src="javascript/panzoom.js"></script>
 
 <script>
+var usePractice = true;
+
 var username = <%=((username == null) ? "null" : "'" + username + "'")%>;
 var showAdmin = <%=showAdmin%>;
 var trial = '<%=CatTest.getCurrentTrial(myShepherd)%>';
 var trialAvailable = <%=(CatTest.trialAvailableToUser(myShepherd, username))%>;
 var refKeyword = 'ReferencePhoto';
 var activeKeyword = 'ActiveReferencePhoto';
+var practiceRefKeyword = 'PracticeReferencePhoto';
 var deck = [];
 var assetRefs = [];
 var assetTests = [];
@@ -203,7 +206,7 @@ $(document).ready(function() {
 		for (var i = 0 ; i < assets.length ; i++) {
 			if (hasKeyword(assets[i].asset, activeKeyword)) {
 				h += '<option selected value="' + i + '" data-url="' + assets[i].asset.url + '">ref photo ' + assets[i].individualId + '</option>';
-			} else if (hasKeyword(assets[i].asset, refKeyword)) {
+			} else if ((!usePractice && hasKeyword(assets[i].asset, refKeyword) || (usePractice && hasKeyword(assets[i].asset, practiceRefKeyword)))) {
 				h += '<option value="' + i + '" data-url="' + assets[i].asset.url + '">ref photo ' + assets[i].individualId + '</option>';
 			}
 		}
@@ -212,7 +215,7 @@ $(document).ready(function() {
 		$('.compare-image-wrapper').html('<div style="text-align: center; padding: 20px;">' + h + '</div>');
 		return;
 
-	} else if (!trialAvailable) {
+	} else if (!usePractice && !trialAvailable) {
 		$('.compare-image-wrapper').html('<h1 style="text-align: center; padding: 20px;">You have already completed this trial.</h1>');
 		return;
 	}
@@ -290,10 +293,11 @@ function storeResult(ans, i) {
 
 function buildDeck() {
 	for (var i = 0 ; i < assets.length ; i++) {
-		if (assets[i].encState == 'practice') continue; /// these are not used for production
+		if (!usePractice && (assets[i].encState == 'practice')) continue;
+		if (usePractice && (assets[i].encState != 'practice')) continue;
 		if (hasKeyword(assets[i].asset, activeKeyword)) {
 			assetRefs.push(i);
-		} else if (hasKeyword(assets[i].asset, refKeyword)) {
+		} else if (hasKeyword(assets[i].asset, refKeyword) || hasKeyword(assets[i].asset, practiceRefKeyword)) {
 			//this is not used in either!
 		} else {
 			assetTests.push(i);
@@ -304,6 +308,7 @@ function buildDeck() {
 			deck.push([assetRefs[r], assetTests[t]]);
 		}
 	}
+	if (!assetRefs || (assetRefs.length < 1)) alert('No reference photo(s) chosen.  Please create a trial.');
 <%
 	int testSize = -1;
 	if (request.getParameter("testSize") != null) testSize = Integer.parseInt(request.getParameter("testSize"));
@@ -313,6 +318,11 @@ function buildDeck() {
 
 function setupForm() {
 	if (deck.length <= 0) {
+		if (usePractice) {
+			$('.compare-image-wrapper').html('<h1 style="text-align: center; padding: 20px;">Finished. [ Practice session - not saved. ]</h1>');
+			return;
+		}
+
 		$('.compare-image-wrapper').html('<h1 style="text-align: center; padding: 20px;">completed.... saving.... </h1>');
 		$.ajax({
 			url: 'compare.jsp',
@@ -348,6 +358,7 @@ function updateStatus() {
 	} else {
 		$('#deck-status').html("<b>" + deck.length + " remaining</b> (of " + startSize + ") in trial <b>" + trial + "</b>");
 	}
+	if (usePractice) $('#deck-status').append('<div style="font-size: 1.5em; background-color: #D55; border-radius: 8px; margin: 40px; padding: 11px; color: #FAA;">P R A C T I C E</div>');
 }
 
 function setNewTrial() {
