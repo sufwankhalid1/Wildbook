@@ -177,6 +177,8 @@
 				             /EncounterSetBehavior = authc, roles[researcher]
 				      /CJS = authc, roles[researcher]
 				      /software.jsp = authc, roles[researcher]
+					  
+					  /compare.jsp = authc, roles[participant]
 
 
 						/SinglePhotoVideoRemoveKeyword = authc, roles[researcher]
@@ -470,6 +472,12 @@
       <servlet-name>UserCreate</servlet-name>
       <servlet-class>org.ecocean.servlet.UserCreate</servlet-class>
   </servlet>
+  
+      <servlet>
+      <servlet-name>UserCreate</servlet-name>
+      <servlet-class>org.ecocean.servlet.UserCreateParticipant</servlet-class>
+  </servlet>
+  
     <servlet>
       <servlet-name>UserCreateSocial</servlet-name>
       <servlet-class>org.ecocean.servlet.UserCreateSocial</servlet-class>
@@ -1140,7 +1148,10 @@
           <servlet-name>UserCreateSocial</servlet-name>
           <url-pattern>/UserCreateSocial</url-pattern>
   </servlet-mapping>
-
+      <servlet-mapping>
+          <servlet-name>UserCreateParticipant</servlet-name>
+          <url-pattern>/UserCreateParticipant</url-pattern>
+  </servlet-mapping>
 
 
         <servlet-mapping>

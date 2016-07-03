@@ -304,6 +304,10 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
                       <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><%=props.getProperty("participate")%> <span class="caret"></span></a>
                         <ul class="dropdown-menu" role="menu">
+                        
+                        <li><a href="<%=urlLoc %>/compare.jsp">Start CatNIP Trial</a></li>
+                        
+                        
                         <%
                         if(CommonConfiguration.getProperty("allowAdoptions", context).equals("true")){
                         %>
@@ -312,11 +316,7 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
                         }
                         %>  
                           <li><a href="<%=urlLoc %>/userAgreement.jsp"><%=props.getProperty("userAgreement")%></a></li>
-                          
-                          <!--  examples of navigation dividers
-                          <li class="divider"></li>
-                          <li class="dropdown-header">Nav header</li>
-                           -->
+                   
                           
                         </ul>
                       </li>
