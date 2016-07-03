@@ -474,7 +474,7 @@
   </servlet>
   
       <servlet>
-      <servlet-name>UserCreate</servlet-name>
+      <servlet-name>UserCreateParticipant</servlet-name>
       <servlet-class>org.ecocean.servlet.UserCreateParticipant</servlet-class>
   </servlet>
   
