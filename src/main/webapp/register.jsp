@@ -58,7 +58,7 @@ if (session.getAttribute("error") != null) {
 
         <tr>
 					<td colspan="3">
-            <input type="submit" name="submit" value="<%=props.getProperty("login") %>" />
+            <input type="submit" name="submit" value="Register" />
 					</td>
         </tr>
       
