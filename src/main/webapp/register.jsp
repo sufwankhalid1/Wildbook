@@ -45,7 +45,7 @@ if (session.getAttribute("error") != null) {
 %>
 </div>
               
-              <form action="LoginUser" method="post">
+              <form action="UserCreateParticipant" method="post">
     <table align="left" border="0" cellspacing="0" cellpadding="3">
         <tr>
             <td>Your first name:</td>
@@ -53,7 +53,7 @@ if (session.getAttribute("error") != null) {
         </tr>
         <tr>
             <td>Your last name:</td>
-            <td><input type="text" name="password" maxlength="50" /></td>
+            <td><input type="text" name="lastname" maxlength="50" /></td>
         </tr>
 
         <tr>

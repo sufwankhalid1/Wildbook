@@ -209,7 +209,7 @@ public class UserCreateParticipant extends HttpServlet {
            
             out.println("<strong>Success:</strong> Study participant '" + StringEscapeUtils.escapeHtml4(username) + "' was successfully created.");
            
-            out.println("Your password is <i>changeme</i>. Click here to log in. After login, select Administer -> My Account to change your password.");
+            out.println("Your password is <i>changeme</i>. <a href=\"login.jsp\">Click here to log in.</a> After login, select Administer -> My Account to change your password.");
             
 
             out.println(ServletUtilities.getFooter(context));
