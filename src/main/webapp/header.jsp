@@ -404,7 +404,8 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
                             <% }
                             if(request.isUserInRole("admin")) { %>
 				<li><a href="<%=urlLoc%>/compare.jsp?admin">CatNIP settings</a></li>
-				<li><a href="<%=urlLoc%>/compare.jsp?dump">Export Trial Results XLS</a></li>
+				<li><a href="<%=urlLoc%>/compare.jsp?report">CatNIP user status report</a></li>
+				<li><a href="<%=urlLoc%>/compare.jsp?dump">CatNIP export results XLS</a></li>
                               <li><a href="<%=urlLoc %>/appadmin/admin.jsp"><%=props.getProperty("general")%></a></li>
                               <li><a href="<%=urlLoc %>/appadmin/logs.jsp"><%=props.getProperty("logs")%></a></li>
                                 <li><a href="<%=urlLoc %>/software/software.jsp"><%=props.getProperty("gridSoftware")%></a></li>

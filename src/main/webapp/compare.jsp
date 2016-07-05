@@ -98,6 +98,31 @@ System.out.println("(old) has keyword -> " + kma);
 		//return;
 	}
 
+	JSONArray userReport = null;
+	if (canUserAdmin && (request.getParameter("report") != null)) {
+		Extent all = myShepherd.getPM().getExtent(CatTest.class, true);
+		Query qry = myShepherd.getPM().newQuery(all);
+		qry.setOrdering("username, timestamp");
+		Collection c = (Collection) (qry.execute());
+		JSONArray rarr = new JSONArray();
+		userReport = new JSONArray();
+		String lastUsername = null;
+		for (Object r : c) {
+			CatTest row = (CatTest)r;
+			if (!row.getUsername().equals(lastUsername)) {
+				if (rarr.length() > 0) userReport.put(rarr);
+				rarr = new JSONArray();
+				lastUsername = row.getUsername();
+			}
+			JSONObject t = new JSONObject();
+			t.put("username", row.getUsername());
+			t.put("timestamp", row.getTimestamp());
+			t.put("trial", row.getTrial());
+			rarr.put(t);
+		}
+		userReport.put(rarr);
+	}
+
 	if (canUserAdmin && (request.getParameter("dump") != null)) {
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd-sS");
 		response.setHeader("Content-Disposition", "attachment; filename=\"catnip_results_" + format.format(new Date()) + ".xls\"");
@@ -201,6 +226,7 @@ var quizResults = { completed: [] };
 var startSize = 0;
 var currentOffset = -1;
 var results = [];
+var userReport = <%=userReport%>;
 
 var assets = <%= jall.toString() %>;
 $(document).ready(function() {
@@ -210,6 +236,28 @@ $(document).ready(function() {
 	if (!username) {
 		$('.compare-image-wrapper').html('<div style="text-align: center; padding: 20px;"><h1>You must be logged in.</h1>Please <a href="login.jsp">login</a> to continue.');
 		return;
+	} else if (userReport) {
+		var maxWidth = 0;
+		for (var i = 0 ; i < userReport.length ; i++) {
+			if (userReport[i].length > maxWidth) maxWidth = userReport[i].length;
+		}
+		var h = '<table class="user-report">';
+		for (var i = 0 ; i < userReport.length ; i++) {
+			h += '<tr><td class="user">' + userReport[i][0].username + '</td>';
+			for (var j = 0 ; j < maxWidth ; j++) {
+				if (j >= userReport[i].length) {
+					h += '<td class="trial-empty"></td>';
+				} else {
+					var d = new Date(userReport[i][j].timestamp);
+					h += '<td class="trial">' + userReport[i][j].trial + ' <span class="trial-date" title="' + d.toLocaleString() + '">' + d.toLocaleDateString() + '</span></td>';
+				}
+			}
+			h += '</tr>';
+		}
+		h += '</table>';
+		$('.compare-image-wrapper').html('<div style="padding: 20px;">' + h + '</div>');
+		return;
+
 	} else if (showAdmin) {
 		//var h = '<img id="new-trial-ref-img" /><p>Current trial is <b><u>' + trial + '</u></b>.<br />';
 		var h = '<div>Current mode is <b id="mode-current">' + (usePractice ? 'PRACTICE' : 'LIVE') + '</b><br /><input id="mode-toggle-button" type="button" onClick="toggleLiveMode();" value="change to ' + (usePractice ? 'LIVE' : 'PRACTICE') + '" /></div>';
@@ -429,6 +477,24 @@ console.warn('tname=%o / tref=%o', tname, tref);
 </script>
 
 <style>
+table.user-report tr {
+	border: solid 2px #777;
+}
+table.user-report td {
+	font-size: 0.9em;
+	padding: 2px 5px;
+	margin: 2px;
+}
+table.user-report td.user {
+	font-weight: bold;
+	background-color: #DDD;
+}
+td span.trial-date {
+	font-size: 0.75em;
+	color: #BBB;
+	margin-left: 3px;
+}
+
 #compare-wrapper {
 	position: absolute;
 	width: 100%;
