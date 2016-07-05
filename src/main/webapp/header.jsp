@@ -403,7 +403,7 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
                               <li><a href="<%=urlLoc %>/BatchUpload/start"><%=props.getProperty("batchUpload")%></a></li>
                             <% }
                             if(request.isUserInRole("admin")) { %>
-				<li><a href="<%=urlLoc%>/compare.jsp?admin">New Trial/RefPhoto admin</a></li>
+				<li><a href="<%=urlLoc%>/compare.jsp?admin">CatNIP settings</a></li>
 				<li><a href="<%=urlLoc%>/compare.jsp?dump">Export Trial Results XLS</a></li>
                               <li><a href="<%=urlLoc %>/appadmin/admin.jsp"><%=props.getProperty("general")%></a></li>
                               <li><a href="<%=urlLoc %>/appadmin/logs.jsp"><%=props.getProperty("logs")%></a></li>

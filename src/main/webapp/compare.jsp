@@ -190,6 +190,7 @@ var username = <%=((username == null) ? "null" : "'" + username + "'")%>;
 var showAdmin = <%=showAdmin%>;
 var trial = '<%=CatTest.getCurrentTrial(myShepherd)%>';
 var trialAvailable = <%=(CatTest.trialAvailableToUser(myShepherd, username))%>;
+var trialsTakenByUser = <%=CatTest.trialsTakenByUser(myShepherd, username).toString()%>;
 var refKeyword = 'ReferencePhoto';
 var activeKeyword = 'ActiveReferencePhoto';
 var practiceRefKeyword = 'PracticeReferencePhoto';
@@ -210,8 +211,9 @@ $(document).ready(function() {
 		$('.compare-image-wrapper').html('<div style="text-align: center; padding: 20px;"><h1>You must be logged in.</h1>Please <a href="login.jsp">login</a> to continue.');
 		return;
 	} else if (showAdmin) {
-		var h = '<img id="new-trial-ref-img" /><p>Current trial is <b><u>' + trial + '</u></b>.<br />';
-		h += '<div>Current mode is <b id="mode-current">' + (usePractice ? 'PRACTICE' : 'LIVE') + '</b>. <input id="mode-toggle-button" type="button" onClick="toggleLiveMode();" value="change to ' + (usePractice ? 'LIVE' : 'PRACTICE') + '" /></div>';
+		//var h = '<img id="new-trial-ref-img" /><p>Current trial is <b><u>' + trial + '</u></b>.<br />';
+		var h = '<div>Current mode is <b id="mode-current">' + (usePractice ? 'PRACTICE' : 'LIVE') + '</b><br /><input id="mode-toggle-button" type="button" onClick="toggleLiveMode();" value="change to ' + (usePractice ? 'LIVE' : 'PRACTICE') + '" /></div>';
+/*
 		h += 'Enter a <b>new trial identifier</b> and <b>reference photo</b> to start a new trial:</p>';
 		h += '<input id="new-trial-name" />';
 		h += '<select id="new-trial-ref" onChange="updateNewTrialImg();"><option value="-1">choose a reference photo</option>';
@@ -224,6 +226,7 @@ $(document).ready(function() {
 		}
 		h += '</select>';
 		h += '<br /><input type="button" value="ok" onClick="return setNewTrial();" /><s' + 'cript>updateNewTrialImg();</s' + 'cript>';
+*/
 		$('.compare-image-wrapper').html('<div style="text-align: center; padding: 20px;">' + h + '</div>');
 		return;
 
@@ -325,14 +328,30 @@ function buildDeck() {
 	for (var i = 0 ; i < assets.length ; i++) {
 		if (!usePractice && (assets[i].encState == 'practice')) continue;
 		if (usePractice && (assets[i].encState != 'practice')) continue;
-		if (hasKeyword(assets[i].asset, activeKeyword)) {
+		//now we have changed to allow a randomly chosen ref photo rather than a (set) active one
+		if (hasKeyword(assets[i].asset, refKeyword) || hasKeyword(assets[i].asset, practiceRefKeyword)) {
 			assetRefs.push(i);
-		} else if (hasKeyword(assets[i].asset, refKeyword) || hasKeyword(assets[i].asset, practiceRefKeyword)) {
-			//this is not used in either!
 		} else {
 			assetTests.push(i);
 		}
 	}
+
+	//here is where we figure out which ref we can use as a trial (if any)
+	var possible = [];
+	for (var r = 0 ; r < assetRefs.length ; r++) {
+		if (trialsTakenByUser.indexOf(assets[assetRefs[r]].individualId) < 0) possible.push(assetRefs[r]);
+	}
+console.warn('--------> possible %o', possible);
+	if (possible.length < 1) {
+		//alert('all trials are taken');
+		trialAvailable = false;
+		return;
+	}
+	trialAvailable = true;
+	var rnd = Math.floor(Math.random() * possible.length);
+	assetRefs = [ possible[rnd] ];
+	trial = assets[possible[rnd]].individualId;
+
 	for (var r = 0 ; r < assetRefs.length ; r++) {
 		for (var t = 0 ; t < assetTests.length ; t++) {
 			deck.push([assetRefs[r], assetTests[t]]);

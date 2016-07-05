@@ -64,9 +64,13 @@ public class CatTest {
 
 
     public static String getCurrentTrial(Shepherd myShepherd) {
+        //NOTE: behavior change: "current trial" is now one randomly chose ref image *which the user has not yet done*
+        /*
         Config conf = Config.load("currentTrial", myShepherd);
         if ((conf == null) || (conf.getValue() == null)) return null;
         return conf.getValue().optString("name", null);
+        */
+        return null;
     }
     public static void setCurrentTrial(String trial, Shepherd myShepherd) {
         Config conf = Config.load("currentTrial", myShepherd);
@@ -105,10 +109,21 @@ public class CatTest {
         if (username == null) return false;
         Query q = myShepherd.getPM().newQuery("SELECT FROM org.ecocean.CatTest WHERE trial == '" + trialName + "' && username == '" + username + "'");
         Collection c = (Collection)q.execute();
-System.out.println(c.size());
+//System.out.println(c.size());
         return (c.size() < 1);
     }
 
+    public static JSONArray trialsTakenByUser(Shepherd myShepherd, String username) {
+        JSONArray tr = new JSONArray();
+        if (username == null) return tr;
+        Query q = myShepherd.getPM().newQuery("SELECT FROM org.ecocean.CatTest WHERE username == '" + username + "'");
+        Collection c = (Collection)q.execute();
+        for (Object o : c) {
+            CatTest t = (CatTest)o;
+            tr.put(t.trial);
+        }
+        return tr;
+    }
 /*
     public String toString() {
         return new ToStringBuilder(this)
