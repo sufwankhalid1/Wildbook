@@ -38,6 +38,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 import java.util.Vector;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -97,7 +98,9 @@ public class WriteOutScanTask extends HttpServlet {
 
         Encounter newEnc = myShepherd.getEncounter(encNumber);
         newEncDate = newEnc.getDate();
-        newEncShark = newEnc.isAssignedToMarkedIndividual();
+        if(newEnc.getIndividualID()!=null){
+          newEncShark = newEnc.getIndividualID();
+        }
         if(newEnc.getSizeAsDouble()!=null){newEncSize = newEnc.getSize() + " meters";}
 
         MatchObject[] res = new MatchObject[0];
@@ -354,7 +357,7 @@ public class WriteOutScanTask extends HttpServlet {
           predictInput[7] = Integer.toString(Math.abs((encA.getYear() - encB.getYear())));
 
           //boost num matching keywords
-          ArrayList keywords = myShepherd.getKeywordsInCommon(encA.getEncounterNumber(), encB.getEncounterNumber());
+          List<String> keywords = myShepherd.getKeywordsInCommon(encA.getEncounterNumber(), encB.getEncounterNumber());
           int keywordsSize = keywords.size();
           boostString = boostString + keywordsSize + ",";
           predictInput[8] = Integer.toString(keywordsSize);
@@ -622,7 +625,7 @@ public class WriteOutScanTask extends HttpServlet {
           else{ enc.addAttribute("sex", "unknown");}
          
           
-          enc.addAttribute("assignedToShark", firstEnc.getIndividualID());
+          enc.addAttribute("assignedToShark", ServletUtilities.handleNullString(firstEnc.getIndividualID()));
           if(firstEnc.getSizeAsDouble()!=null){enc.addAttribute("size", (firstEnc.getSize() + " meters"));}
           enc.addAttribute("location", firstEnc.getLocation());
           enc.addAttribute("locationID", firstEnc.getLocationID());
@@ -646,7 +649,7 @@ public class WriteOutScanTask extends HttpServlet {
           else{ enc2.addAttribute("sex", "unknown");}
          
           
-          enc2.addAttribute("assignedToShark", secondEnc.getIndividualID());
+          enc2.addAttribute("assignedToShark", ServletUtilities.handleNullString(secondEnc.getIndividualID()));
           if(secondEnc.getSizeAsDouble()!=null){enc2.addAttribute("size", (secondEnc.getSize() + " meters"));}
           else{enc2.addAttribute("size", "unknown");}
           enc2.addAttribute("location", secondEnc.getLocation());
@@ -661,7 +664,7 @@ public class WriteOutScanTask extends HttpServlet {
           }
 
           //let's find the keywords in common
-          ArrayList keywords = myShepherd.getKeywordsInCommon(mo.getEncounterNumber(), num);
+          List<String> keywords = myShepherd.getKeywordsInCommon(mo.getEncounterNumber(), num);
           int keywordsSize = keywords.size();
           if (keywordsSize > 0) {
             Element kws = match.addElement("keywords");
@@ -957,7 +960,7 @@ public class WriteOutScanTask extends HttpServlet {
             enc2.addAttribute("size", (newEncSize + " meters"));
 
             //let's find the keywords in common
-            ArrayList keywords = myShepherd.getKeywordsInCommon(mo.getEncounterNumber(), num);
+            List<String> keywords = myShepherd.getKeywordsInCommon(mo.getEncounterNumber(), num);
             int keywordsSize = keywords.size();
             if (keywordsSize > 0) {
               Element kws = match.addElement("keywords");

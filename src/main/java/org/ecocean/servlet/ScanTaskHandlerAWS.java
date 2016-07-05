@@ -235,15 +235,19 @@ public class ScanTaskHandlerAWS extends HttpServlet {
 
 					                //check if this is a restart
 					                //if it is, delete the old work items
+					          
 					                if(request.getParameter("restart")!=null){
 					                  ThreadPoolExecutor es = SharkGridThreadExecutorService.getExecutorService();
 					                  ScanTask restartTask=myShepherd.getScanTask(taskIdentifier);
 					                  if(restartTask.getUniqueNumber().startsWith("scanR")){
 					                    isRightScan=true;
 					                    writeThis=restartTask.getWriteThis();
+					                    numComparisons=myShepherd.getNumEncountersWithSpotData(true);
 
 					                  }
+					                  else{numComparisons=myShepherd.getNumEncountersWithSpotData(false);}
 					                  st.setFinished(false);
+					                  st.setNumComparisons(numComparisons-1);
 					                  es.execute(new ScanTaskCleanupThread(taskIdentifier));
 					                  successfulStore=true;
 					                  System.out.println("I have kicked off the cleanup thread.");
@@ -254,7 +258,7 @@ public class ScanTaskHandlerAWS extends HttpServlet {
 					                }
 
 
-					                myShepherd.rollbackDBTransaction();
+					                myShepherd.commitDBTransaction();
 					                myShepherd.closeDBTransaction();
 
 
@@ -278,6 +282,11 @@ public class ScanTaskHandlerAWS extends HttpServlet {
 				if(!locked&&successfulStore) {
 
 					try{
+					  
+					  String jdoql="";
+					  if(request.getParameter("jdoql")!=null){jdoql=request.getParameter("jdoql");}
+					  
+					  System.out.println("jdoql is: "+jdoql);
 
 						//kick off the building thread
 						ThreadPoolExecutor es=SharkGridThreadExecutorService.getExecutorService();
@@ -286,7 +295,7 @@ public class ScanTaskHandlerAWS extends HttpServlet {
             es.execute(new EC2RequestThread());
 						
             //now build our jobs for the task
-						es.execute(new ScanWorkItemCreationThread(taskIdentifier, isRightScan, request.getParameter("encounterNumber"), writeThis,context));
+						es.execute(new ScanWorkItemCreationThread(taskIdentifier, isRightScan, request.getParameter("encounterNumber"), writeThis,context, jdoql));
 
 						
 
@@ -680,7 +689,7 @@ public class ScanTaskHandlerAWS extends HttpServlet {
 
 
 						ThreadPoolExecutor es=SharkGridThreadExecutorService.getExecutorService();
-						es.execute(new FalseMatchCreationThread(maxNumWorkItems,taskIdentifier,context));
+						//es.execute(new FalseMatchCreationThread(maxNumWorkItems,taskIdentifier,context));
 
 
 					}

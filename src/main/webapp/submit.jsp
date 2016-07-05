@@ -3,13 +3,21 @@
 		import="java.util.GregorianCalendar,
                  org.ecocean.servlet.ServletUtilities,
                  org.ecocean.*,
-                 java.util.Properties" %>
+                 java.util.Properties,
+                 java.util.List" %>
+
+
+<!-- Add reCAPTCHA -->
+
 
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <link href="tools/bootstrap/css/bootstrap.min.css" rel="stylesheet"/>
 
 <jsp:include page="header.jsp" flush="true"/>
+
+<!-- add recaptcha -->
+<script src="https://www.google.com/recaptcha/api.js?render=explicit&onload=onloadCallback"></script>
 
 <%
 boolean isIE = request.getHeader("user-agent").contains("MSIE ");
@@ -27,6 +35,8 @@ context=ServletUtilities.getContext(request);
     //set up the file input stream
     //props.load(getClass().getResourceAsStream("/bundles/" + langCode + "/submit.properties"));
     props = ShepherdProperties.getProperties("submit.properties", langCode, context);
+    
+    Properties recaptchaProps=ShepherdProperties.getProperties("recaptcha.properties", "", context);
     
     Properties socialProps = ShepherdProperties.getProperties("socialAuth.properties", "", context);
     
@@ -157,6 +167,12 @@ function sendSocialPhotosBackground() {
 console.log('iframeUrl %o', iframeUrl);
 	document.getElementById('social_files_iframe').src = iframeUrl;
 	return true;
+}
+</script>
+
+<script>
+function isEmpty(str) {
+    return (!str || 0 === str.length);
 }
 </script>
 
@@ -347,7 +363,7 @@ google.maps.event.addDomListener(window, 'load', initialize);
   <div class="col-xs-12 col-sm-7 col-md-7 col-lg-7">
 <iframe id="social_files_iframe" style="display: none;" ></iframe>
 <form id="encounterForm" 
-	  action="EncounterForm" 
+	  action="spambot.jsp" 
 	  method="post" 
 	  enctype="multipart/form-data"
       name="encounter_submission" 
@@ -389,15 +405,7 @@ function submitForm() {
 }
 
 
-//we need to first check here if we need to do the background social image send... in which case,
-// we cancel do not do the form submit *here* but rather let the on('load') on the iframe do the task
-function sendButtonClicked() {
-console.log('sendButtonClicked()');
-	if (sendSocialPhotosBackground()) return false;
-console.log('fell through -- must be no social!');
-	submitForm();
-	return true;
-}
+
 
 
 
@@ -524,7 +532,7 @@ if(CommonConfiguration.showReleaseDate(context)){
 //add locationID to fields selectable
 
 
-if(CommonConfiguration.getSequentialPropertyValues("locationID", context).size()>0){
+if(CommonConfiguration.getIndexedPropertyValues("locationID", context).size()>0){
 %>
     <div class="form-group required">
       <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4">
@@ -615,12 +623,12 @@ if(CommonConfiguration.showProperty("showCountry",context)){
       <div class=" form-group form-inline">
         <div class="col-xs-12 col-sm-6">
           <label class="control-label pull-left">GPS Latitude</label>
-          <input class="form-control" name="lat" type="text" id="lat"> ??
+          <input class="form-control" name="lat" type="text" id="lat"> &deg;
         </div>
 
         <div class="col-xs-12 col-sm-6">
           <label class="control-label  pull-left">GPS Longitude</label>
-          <input class="form-control" name="longitude" type="text" id="longitude"> ??
+          <input class="form-control" name="longitude" type="text" id="longitude"> &deg;
         </div>
       </div>
 
@@ -665,6 +673,7 @@ if(CommonConfiguration.showProperty("maximumElevationInMeters",context)){
     if(request.getRemoteUser()!=null){
         submitterName=request.getRemoteUser();
         Shepherd myShepherd=new Shepherd(context);
+        myShepherd.beginDBTransaction();
         if(myShepherd.getUser(submitterName)!=null){
             User user=myShepherd.getUser(submitterName);
             if(user.getFullName()!=null){submitterName=user.getFullName();}
@@ -672,6 +681,8 @@ if(CommonConfiguration.showProperty("maximumElevationInMeters",context)){
             if(user.getAffiliation()!=null){affiliation=user.getAffiliation();}
             if(user.getUserProject()!=null){project=user.getUserProject();}
         }
+        myShepherd.rollbackDBTransaction();
+        myShepherd.closeDBTransaction();
     }
     %>
  
@@ -767,7 +778,7 @@ if(CommonConfiguration.showProperty("maximumElevationInMeters",context)){
   
   <h4 class="accordion">
     <a href="javascript:animatedcollapse.toggle('advancedInformation')" style="text-decoration:none">
-      <img src="http://www.mantamatcher.org/images/Black_Arrow_down.png" width="14" height="14" border="0" align="absmiddle">
+      <img src="images/Black_Arrow_down.png" width="14" height="14" border="0" align="absmiddle">
       <%=props.getProperty("advancedInformation") %>
     </a>
   </h4>
@@ -796,12 +807,14 @@ if(CommonConfiguration.showProperty("maximumElevationInMeters",context)){
           </div>
         </div>
         </fieldset>
+        <hr>
+        <fieldset>
 <%
 
 if(CommonConfiguration.showProperty("showTaxonomy",context)){
 
 %>
-<fieldset>
+
       <div class="form-group">
           <div class="col-xs-6 col-md-4">
             <label class="control-label">Species</label>
@@ -811,20 +824,23 @@ if(CommonConfiguration.showProperty("showTaxonomy",context)){
             <select class="form-control" name="genusSpecies" id="genusSpecies">
              	<option value="" selected="selected">unknown</option>
   <%
-                     boolean hasMoreTax=true;
-                     int taxNum=0;
+                     
+  					List<String> species=CommonConfiguration.getIndexedPropertyValues("genusSpecies", context);
+  					int numGenusSpeciesProps=species.size();
+  					String selected="";
+  					if(numGenusSpeciesProps==1){selected="selected=\"selected\"";}
+
                      if(CommonConfiguration.showProperty("showTaxonomy",context)){
-                     while(hasMoreTax){
-                           String currentGenuSpecies = "genusSpecies"+taxNum;
+                     
+                    	for(int q=0;q<numGenusSpeciesProps;q++){
+                           String currentGenuSpecies = "genusSpecies"+q;
                            if(CommonConfiguration.getProperty(currentGenuSpecies,context)!=null){
                                %>
-                                 <option value="<%=CommonConfiguration.getProperty(currentGenuSpecies,context)%>"><%=CommonConfiguration.getProperty(currentGenuSpecies,context).replaceAll("_"," ")%></option>
+                                 <option value="<%=CommonConfiguration.getProperty(currentGenuSpecies,context)%>" <%=selected %>><%=CommonConfiguration.getProperty(currentGenuSpecies,context).replaceAll("_"," ")%></option>
                                <%
-                             taxNum++;
+                           
                         }
-                        else{
-                           hasMoreTax=false;
-                        }
+
                         
                    }
                    }
@@ -1058,6 +1074,73 @@ if(CommonConfiguration.showProperty("showLifestage",context)){
         <p class="help-block">Note: Multiple email addresses can be entered in email fields, using commas as separators.</p>
       </div>
       </div>
+      
+   
+         <%
+         if(request.getRemoteUser()==null){
+         %>
+         <div id="myCaptcha" style="width: 50%;margin: 0 auto; "></div>
+           <script>
+		         //we need to first check here if we need to do the background social image send... in which case,
+		        // we cancel do not do the form submit *here* but rather let the on('load') on the iframe do the task
+		        
+		       var captchaWidgetId;
+		        function onloadCallback() {
+		        	captchaWidgetId = grecaptcha.render( 
+		        	
+			        	'myCaptcha', {
+				  			'sitekey' : '<%=recaptchaProps.getProperty("siteKey") %>',  // required
+				  			'theme' : 'light'
+						});
+		        }
+		        
+
+			     
+
+			           
+           </script>
+        
+        <%
+         }
+        %>
+<script>
+
+function sendButtonClicked() {
+	console.log('sendButtonClicked()');
+	if (sendSocialPhotosBackground()) return false;
+	console.log('fell through -- must be no social!');
+
+    <%
+    if(request.getUserPrincipal()!=null){
+    %>
+    	$("#encounterForm").attr("action", "EncounterForm");
+    	submitForm();
+    <%
+    }
+    else{
+    %>
+    
+	    if(($('#myCaptcha > *').length < 1)){
+	    	$("#encounterForm").attr("action", "EncounterForm");
+			submitForm();
+	    }
+	    else{	console.log('Here!'); 	
+	    	var recaptachaResponse = grecaptcha.getResponse( captchaWidgetId );
+			
+			console.log( 'g-recaptcha-response: ' + recaptachaResponse );
+			if(!isEmpty(recaptachaResponse)) {		
+				$("#encounterForm").attr("action", "EncounterForm");
+				submitForm();
+			}
+		}
+		//alert(recaptachaResponse);
+	<%
+    }
+	%>
+	return true;
+}
+</script>
+      
 
       <p class="text-center">
         <button class="large" type="submit" onclick="return sendButtonClicked();">

@@ -46,7 +46,7 @@
 
     Shepherd myShepherd = new Shepherd(context);
 
-    ArrayList<SinglePhotoVideo> rEncounters = new ArrayList<SinglePhotoVideo>();
+    List<SinglePhotoVideo> rEncounters = new ArrayList<SinglePhotoVideo>();
 
     myShepherd.beginDBTransaction();
     //EncounterQueryResult queryResult = new EncounterQueryResult(new Vector<Encounter>(), "", "");
@@ -71,7 +71,7 @@
       keywords = new String[0];
     }
 
-		ArrayList collabs = Collaboration.collaborationsForCurrentUser(request);
+		List<Collaboration> collabs = Collaboration.collaborationsForCurrentUser(request);
 
 
     if (request.getParameter("noQuery") == null) {
@@ -94,6 +94,7 @@
     	Query allQuery=myShepherd.getPM().newQuery("SELECT from org.ecocean.SinglePhotoVideo WHERE correspondingEncounterNumber != null");    	
     	allQuery.setRange(startNum, endNum);
     	rEncounters=new ArrayList<SinglePhotoVideo>((Collection<SinglePhotoVideo>)allQuery.execute());
+    	allQuery.closeAll();
    }
 
   %>
@@ -178,7 +179,7 @@
   #tabmenu a, a.active {
     color: #000;
     background: #E6EEEE;
-    font: 0.5em "Arial, sans-serif;
+    font: 0.5em "Arial", sans-serif;
     border: 1px solid #CDCDCD;
     padding: 2px 5px 0px 5px;
     margin: 0;
@@ -309,7 +310,7 @@
 
 			
 			int countMe=0;
-			ArrayList<SinglePhotoVideo> thumbLocs=new ArrayList<SinglePhotoVideo>();
+			List<SinglePhotoVideo> thumbLocs=new ArrayList<SinglePhotoVideo>();
 			
 			try {
 				//thumbLocs=myShepherd.getThumbnails(request, rEncounters.iterator(), startNum, endNum, keywords);
@@ -568,9 +569,9 @@
                         <td><span class="caption">
 											<%=encprops.getProperty("matchingKeywords") %>
 											<%
-                        //Iterator allKeywords2 = myShepherd.getAllKeywords();
+                        //Iterator<Keyword> allKeywords2 = myShepherd.getAllKeywords();
                         //while (allKeywords2.hasNext()) {
-                          //Keyword word = (Keyword) allKeywords2.next();
+                          //Keyword word = allKeywords2.next();
                           
                           
                           //if (word.isMemberOf(encNum + "/" + fileName)) {
@@ -782,9 +783,9 @@
 											<%=encprops.getProperty("matchingKeywords") %>
 											<%
                         //int numKeywords=myShepherd.getNumKeywords();
-									          //Iterator allKeywords2 = myShepherd.getAllKeywords();
+									          //Iterator<Keyword> allKeywords2 = myShepherd.getAllKeywords();
 					                        //while (allKeywords2.hasNext()) {
-					                          //Keyword word = (Keyword) allKeywords2.next();
+					                          //Keyword word = allKeywords2.next();
 					                          
 					                          
 					                          //if (word.isMemberOf(encNum + "/" + fileName)) {
