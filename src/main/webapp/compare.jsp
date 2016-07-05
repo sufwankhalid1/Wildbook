@@ -211,6 +211,7 @@ $(document).ready(function() {
 		return;
 	} else if (showAdmin) {
 		var h = '<img id="new-trial-ref-img" /><p>Current trial is <b><u>' + trial + '</u></b>.<br />';
+		h += '<div>Current mode is <b id="mode-current">' + (usePractice ? 'PRACTICE' : 'LIVE') + '</b>. <input id="mode-toggle-button" type="button" onClick="toggleLiveMode();" value="change to ' + (usePractice ? 'LIVE' : 'PRACTICE') + '" /></div>';
 		h += 'Enter a <b>new trial identifier</b> and <b>reference photo</b> to start a new trial:</p>';
 		h += '<input id="new-trial-name" />';
 		h += '<select id="new-trial-ref" onChange="updateNewTrialImg();"><option value="-1">choose a reference photo</option>';
@@ -256,6 +257,24 @@ $(document).ready(function() {
 	setupForm();
 });
 
+
+function toggleLiveMode() {
+	$('#mode-toggle-button').hide();
+	$.ajax({
+		url: 'compare.jsp?isModeLive=' + usePractice,
+		success: function(d) {
+			if (!d.success) return;
+console.log(d);
+			usePractice = !d.setTo;  //oof, we are not live we are practice!
+			$('#mode-current').html(usePractice ? 'PRACTICE' : 'LIVE');
+			$('#mode-toggle-button').val('change to ' + (usePractice ? 'LIVE' : 'PRACTICE')).show();
+		},
+		error: function(a) { console.error(a); alert('error setting mode'); },
+		dataType: 'json',
+		type: 'GET'
+	});
+	return true;
+}
 
 function updateNewTrialImg() {
 	var r = $('#new-trial-ref').val();
