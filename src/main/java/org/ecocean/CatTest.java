@@ -76,7 +76,21 @@ public class CatTest {
         conf.setValue(v);
         Config.save(conf, myShepherd);
     }
-    
+
+    public static boolean isModeLive(Shepherd myShepherd) {
+        Config conf = Config.load("modeLive", myShepherd);
+        if ((conf == null) || (conf.getValue() == null)) return false;
+        return conf.getValue().optBoolean("isLive", false);
+    }
+    public static void setModeLive(boolean isLive, Shepherd myShepherd) {
+        Config conf = Config.load("modeLive", myShepherd);
+        if (conf == null) conf = new Config("modeLive", null);
+        JSONObject v = conf.getValue();
+        v.put("isLive", isLive);
+        conf.setValue(v);
+        Config.save(conf, myShepherd);
+    }
+
     public static CatTest save(Shepherd myShepherd, String username, String trial, String results) {
         CatTest c = new CatTest(username, trial, results);
         myShepherd.getPM().makePersistent(c);

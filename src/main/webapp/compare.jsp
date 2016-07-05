@@ -34,7 +34,10 @@ Shepherd myShepherd = new Shepherd(context);
 
 	String username = null;
 	boolean showAdmin = false;
+	boolean canUserAdmin = false;
 	if (request.getUserPrincipal() != null) username = request.getUserPrincipal().getName();
+	if (username != null) canUserAdmin = myShepherd.doesUserHaveRole(username, "admin", context);
+	boolean modeLive = CatTest.isModeLive(myShepherd);
 
   //setup our Properties object to hold all properties
   //String langCode = "en";
@@ -42,7 +45,7 @@ Shepherd myShepherd = new Shepherd(context);
 
 	String res = request.getParameter("results");
 	String rtrial = request.getParameter("trial");
-	if ((res != null) && (rtrial != null) && (username != null)) {
+	if (canUserAdmin && (res != null) && (rtrial != null) && (username != null)) {
     		CatTest c = CatTest.save(myShepherd, username, rtrial, res);
 		JSONObject rtn = new JSONObject("{\"success\": true}");
 		rtn.put("saved", c.getResultsAsJSONArray());
@@ -51,8 +54,8 @@ Shepherd myShepherd = new Shepherd(context);
 	}
 
 
-	if (request.getParameter("newTrial") != null) {
-		response.setHeader("Content-type", "plain/text");
+	if (canUserAdmin && (request.getParameter("newTrial") != null)) {
+		response.setHeader("Content-type", "text/plain");
 		String trial = request.getParameter("newTrial");
 		CatTest.setCurrentTrial(trial, myShepherd);
 		int mid = -1;
@@ -82,12 +85,20 @@ System.out.println("(old) has keyword -> " + kma);
 		return;
 	}
 
-	if (request.getParameter("admin") != null) {
+	if (canUserAdmin && (request.getParameter("isModeLive") != null)) {
+		response.setHeader("Content-type", "text/plain");
+		boolean setTo = request.getParameter("isModeLive").toLowerCase().equals("true");
+		CatTest.setModeLive(setTo, myShepherd);
+		out.println("{\"success\": true, \"setTo\": " + setTo + "}");
+		return;
+	}
+
+	if ((request.getParameter("admin") != null) && canUserAdmin) {
 		showAdmin = true;
 		//return;
 	}
 
-	if (request.getParameter("dump") != null) {
+	if (canUserAdmin && (request.getParameter("dump") != null)) {
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd-sS");
 		response.setHeader("Content-Disposition", "attachment; filename=\"catnip_results_" + format.format(new Date()) + ".xls\"");
 		//WritableWorkbook workbook = Workbook.createWorkbook(new File("/tmp/test.xls"));
@@ -173,7 +184,7 @@ System.out.println("(old) has keyword -> " + kma);
 <script src="javascript/panzoom.js"></script>
 
 <script>
-var usePractice = true;
+var usePractice = <%=!modeLive%>;
 
 var username = <%=((username == null) ? "null" : "'" + username + "'")%>;
 var showAdmin = <%=showAdmin%>;
