@@ -1018,7 +1018,7 @@
     <url-pattern>/InterconnectSubmitSpots</url-pattern>
 	 <url-pattern>/SubmitSpots</url-pattern>
     <url-pattern>/interconnectSubmitSpots</url-pattern>
-	 <url-pattern>/SubmitSpots</url-pattern>
+	 <url-pattern>/submitSpots</url-pattern>
   </servlet-mapping>
   
     <servlet-mapping>
