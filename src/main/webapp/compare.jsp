@@ -291,14 +291,14 @@ $(document).ready(function() {
 		h += '</select>';
 		h += '<br /><input type="button" value="ok" onClick="return setNewTrial();" /><s' + 'cript>updateNewTrialImg();</s' + 'cript>';
 */
-		$('.compare-image-wrapper').html('<div >' + h + '</div>');
+		$('.compare-image-wrapper').html('<div class="blocker-message">' + h + '</div>');
 		return;
 
 	} else if (!usePractice && !trialAvailable) {
 		$('.compare-image-wrapper').html('<h1 class="blocker-message">You have already completed this trial.</h1>');
 		return;
 
-	} else if (countSinceSunday >= maxThisWeek) {
+	} else if (!usePractice && (countSinceSunday >= maxThisWeek)) {
 		$('.compare-image-wrapper').html('<h1 class="blocker-message">You have taken the maximum trials this week. (' + maxThisWeek + ')</h1>');
 		return;
 	}
