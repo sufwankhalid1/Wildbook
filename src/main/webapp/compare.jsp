@@ -7,6 +7,7 @@ java.util.Collection,
 java.text.SimpleDateFormat,
 java.util.Date,
 java.util.Collections,
+java.util.Calendar,
 java.util.HashMap,
 java.util.List,
 java.util.ArrayList,
@@ -201,6 +202,19 @@ System.out.println("(old) has keyword -> " + kma);
 		jall.put(j);
 	}
 
+	int countSinceSunday = 0;
+	if (username != null) {
+		Calendar cal = Calendar.getInstance();
+		cal.set(Calendar.HOUR_OF_DAY, 0);
+		cal.clear(Calendar.MINUTE);
+		cal.clear(Calendar.SECOND);
+		cal.clear(Calendar.MILLISECOND);
+		cal.set(Calendar.DAY_OF_WEEK, cal.getFirstDayOfWeek());
+		Query qry = myShepherd.getPM().newQuery("SELECT FROM org.ecocean.CatTest WHERE username == '" + username + "' && timestamp > " + cal.getTimeInMillis());
+		Collection c = (Collection) (qry.execute());
+		countSinceSunday = c.size();
+	}
+
 
 %>
 <jsp:include page="header.jsp" flush="true"/>
@@ -212,6 +226,7 @@ System.out.println("(old) has keyword -> " + kma);
 var usePractice = <%=!modeLive%>;
 
 var username = <%=((username == null) ? "null" : "'" + username + "'")%>;
+var countSinceSunday = <%=countSinceSunday%>;
 var showAdmin = <%=showAdmin%>;
 var trial = '<%=CatTest.getCurrentTrial(myShepherd)%>';
 var trialAvailable = <%=(CatTest.trialAvailableToUser(myShepherd, username))%>;
@@ -227,6 +242,7 @@ var startSize = 0;
 var currentOffset = -1;
 var results = [];
 var userReport = <%=userReport%>;
+var maxThisWeek = 1;
 
 var assets = <%= jall.toString() %>;
 $(document).ready(function() {
@@ -234,7 +250,7 @@ $(document).ready(function() {
 	startSize = deck.length;
 
 	if (!username) {
-		$('.compare-image-wrapper').html('<div style="text-align: center; padding: 20px;"><h1>You must be logged in.</h1>Please <a href="login.jsp">login</a> to continue.');
+		$('.compare-image-wrapper').html('<div class="blocker-message"><h1>You must be logged in.</h1>Please <a href="login.jsp">login</a> to continue.');
 		return;
 	} else if (userReport) {
 		var maxWidth = 0;
@@ -275,11 +291,15 @@ $(document).ready(function() {
 		h += '</select>';
 		h += '<br /><input type="button" value="ok" onClick="return setNewTrial();" /><s' + 'cript>updateNewTrialImg();</s' + 'cript>';
 */
-		$('.compare-image-wrapper').html('<div style="text-align: center; padding: 20px;">' + h + '</div>');
+		$('.compare-image-wrapper').html('<div >' + h + '</div>');
 		return;
 
 	} else if (!usePractice && !trialAvailable) {
-		$('.compare-image-wrapper').html('<h1 style="text-align: center; padding: 20px;">You have already completed this trial.</h1>');
+		$('.compare-image-wrapper').html('<h1 class="blocker-message">You have already completed this trial.</h1>');
+		return;
+
+	} else if (countSinceSunday >= maxThisWeek) {
+		$('.compare-image-wrapper').html('<h1 class="blocker-message">You have taken the maximum trials this week. (' + maxThisWeek + ')</h1>');
 		return;
 	}
 
@@ -416,18 +436,18 @@ console.warn('--------> possible %o', possible);
 function setupForm() {
 	if (deck.length <= 0) {
 		if (usePractice) {
-			$('.compare-image-wrapper').html('<h1 style="text-align: center; padding: 20px;">Finished. [ Practice session - not saved. ]</h1>');
+			$('.compare-image-wrapper').html('<h1 class="blocker-message">Finished. [ Practice session - not saved. ]</h1>');
 			return;
 		}
 
-		$('.compare-image-wrapper').html('<h1 style="text-align: center; padding: 20px;">completed.... saving.... </h1>');
+		$('.compare-image-wrapper').html('<h1 class="blocker-message">completed.... saving.... </h1>');
 		$.ajax({
 			url: 'compare.jsp',
 			type: 'POST',
 			data: 'trial=' + trial + '&results=' + JSON.stringify(results),
 			success: function(d) {
 				console.log(d);
-				$('.compare-image-wrapper').html('<div style="text-align: center; padding: 20px;"><h1>results recorded.</h1>thank you!</div>');
+				$('.compare-image-wrapper').html('<div class="blocker-message"><h1>results recorded.</h1>thank you!</div>');
 				$('.compare-ui').hide();
 			},
 			dataType: 'json'
@@ -477,6 +497,12 @@ console.warn('tname=%o / tref=%o', tname, tref);
 </script>
 
 <style>
+
+.blocker-message {
+	text-align: center;
+	padding: 20px;
+}
+
 table.user-report tr {
 	border: solid 2px #777;
 }
