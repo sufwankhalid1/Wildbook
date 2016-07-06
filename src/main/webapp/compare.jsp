@@ -243,6 +243,7 @@ var currentOffset = -1;
 var results = [];
 var userReport = <%=userReport%>;
 var maxThisWeek = 1;
+var codeVersion = 1; //really for localStorage
 
 var assets = <%= jall.toString() %>;
 $(document).ready(function() {
@@ -325,6 +326,28 @@ $(document).ready(function() {
 		}
 	});
 
+
+	if (window.localStorage) {
+		var storedRaw = localStorage.getItem(localStorageKey());
+		if (storedRaw) {
+			$('#compare-wrapper').hide();
+//console.log('%o -> %o', localStorageKey(), storedRaw);
+			var stored = JSON.parse(storedRaw);
+//console.info(stored);
+			var d = new Date(stored.timestamp);
+			var useStored = window.confirm('You currently have a trial "' + stored.trial + '" in progress from ' + d.toLocaleString() +
+				' with ' + stored.deck.length + ' image' + (stored.deck.length == 1 ? '' : 's') + ' remaining.' +
+				'\n\nDo you want to continue with this trial?\n(CANCEL will start a new trial.)');
+
+			$('#compare-wrapper').show();
+			if (useStored) {
+				deck = stored.deck;
+				trial = stored.trial;
+				results = stored.results;
+			}
+		}
+	}
+
 	setupForm();
 });
 
@@ -361,14 +384,7 @@ function answerClick(a) {
 		setupForm();
 	} else {
 		storeResult(a, currentOffset);
-		if (deck.length > 0) {
-			deck.splice(currentOffset, 1);
-			setupForm();
-		} else {
-			//will never get here cuz setupFrom kills us
-			updateStatus();
-			console.log('finished %o', results);
-		}
+		setupForm();  //this will save if deck is empty
 	}
 	return true;
 }
@@ -390,6 +406,23 @@ function storeResult(ans, i) {
 			indivId: t.individualId
 		}
 	});
+
+	deck.splice(i, 1);  //get rid of this now before we store
+	if (window.localStorage) {
+		localStorage.setItem(localStorageKey(), JSON.stringify({
+			deck: deck,
+			trial: trial,
+			isPractice: usePractice,
+			timestamp: new Date().getTime(),
+			results: results,
+			version: codeVersion
+		}));
+	}
+}
+
+
+function localStorageKey() {
+	return 'org.wildbook.catnip.' + username + '.' + usePractice;
 }
 
 function buildDeck() {
@@ -446,6 +479,7 @@ function setupForm() {
 			type: 'POST',
 			data: 'trial=' + trial + '&results=' + JSON.stringify(results),
 			success: function(d) {
+				if (window.localStorage) localStorage.removeItem(localStorageKey());
 				console.log(d);
 				$('.compare-image-wrapper').html('<div class="blocker-message"><h1>results recorded.</h1>thank you!</div>');
 				$('.compare-ui').hide();
