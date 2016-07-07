@@ -46,7 +46,7 @@ Shepherd myShepherd = new Shepherd(context);
 
 	String res = request.getParameter("results");
 	String rtrial = request.getParameter("trial");
-	if (canUserAdmin && (res != null) && (rtrial != null) && (username != null)) {
+	if ((res != null) && (rtrial != null) && (username != null)) {
     		CatTest c = CatTest.save(myShepherd, username, rtrial, res);
 		JSONObject rtn = new JSONObject("{\"success\": true}");
 		rtn.put("saved", c.getResultsAsJSONArray());
