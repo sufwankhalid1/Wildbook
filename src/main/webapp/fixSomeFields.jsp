@@ -74,6 +74,13 @@ while(allEncs.hasNext()){
 		numIssues++;
 	}
 	
+	if(sharky.getLocation().toLowerCase().trim().equals("new york")){
+		myShepherd.getPM().deletePersistent(sharky);
+		myShepherd.commitDBTransaction();
+		myShepherd.beginDBTransaction();
+		numIssues++;
+	}
+	
 
 
 	
