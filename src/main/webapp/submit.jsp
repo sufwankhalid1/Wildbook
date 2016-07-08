@@ -1113,7 +1113,7 @@ function sendButtonClicked() {
     <%
     if(request.getUserPrincipal()!=null){
     %>
-    	$("#encounterForm").attr("action", "EncounterForm");
+    	$("#encounterForm").attr("action", "EncounterForm1789");
     	submitForm();
     <%
     }
@@ -1121,7 +1121,7 @@ function sendButtonClicked() {
     %>
     
 	    if(($('#myCaptcha > *').length < 1)){
-	    	$("#encounterForm").attr("action", "EncounterForm");
+	    	$("#encounterForm").attr("action", "EncounterForm1789");
 			submitForm();
 	    }
 	    else{	console.log('Here!'); 	

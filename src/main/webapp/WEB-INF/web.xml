@@ -1139,7 +1139,7 @@
 
   <servlet-mapping>
     <servlet-name>EncounterForm</servlet-name>
-    <url-pattern>/EncounterForm</url-pattern>
+    <url-pattern>/EncounterForm1789</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>
