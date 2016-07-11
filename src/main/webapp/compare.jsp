@@ -209,8 +209,13 @@ System.out.println("(old) has keyword -> " + kma);
 		cal.clear(Calendar.MINUTE);
 		cal.clear(Calendar.SECOND);
 		cal.clear(Calendar.MILLISECOND);
-		cal.set(Calendar.DAY_OF_WEEK, cal.getFirstDayOfWeek());
-		Query qry = myShepherd.getPM().newQuery("SELECT FROM org.ecocean.CatTest WHERE username == '" + username + "' && timestamp > " + cal.getTimeInMillis());
+		//cal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+		cal.set(Calendar.DAY_OF_WEEK, cal.getFirstDayOfWeek() + 1);
+		long cutoff = cal.getTimeInMillis() - 10 + (4 * 60 * 60 * 1000);  // 4 hr timezone diff
+		if (cutoff > System.currentTimeMillis()) cutoff -= (7 * 24 * 60 * 60 * 1000);
+System.out.println("now = " + System.currentTimeMillis());
+System.out.println("cutoff = " + cutoff);
+		Query qry = myShepherd.getPM().newQuery("SELECT FROM org.ecocean.CatTest WHERE username == '" + username + "' && timestamp > " + cutoff);
 		Collection c = (Collection) (qry.execute());
 		countSinceSunday = c.size();
 	}
@@ -242,7 +247,7 @@ var startSize = 0;
 var currentOffset = -1;
 var results = [];
 var userReport = <%=userReport%>;
-var maxThisWeek = 1;
+var maxThisWeek = 2;
 var codeVersion = 1; //really for localStorage
 
 var assets = <%= jall.toString() %>;
@@ -273,6 +278,7 @@ $(document).ready(function() {
 		}
 		h += '</table>';
 		$('.compare-image-wrapper').html('<div style="padding: 20px;">' + h + '</div>');
+		$('.maincontent').height($('.compare-image-wrapper').height())
 		return;
 
 	} else if (showAdmin) {
