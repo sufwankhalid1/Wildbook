@@ -93,7 +93,7 @@ public class MediaAssetContext extends HttpServlet {
     JSONObject anns = new JSONObject();
     ArrayList<Annotation> annotations = mAsset.getAnnotations();
     for(Annotation ann : annotations) {
-      anns.put(ann.getId(),ann.sanitizeJson(request));
+      anns.put(ann.getId(),ann.sanitizeJson(request, new org.datanucleus.api.rest.orgjson.JSONObject()));
     }
     // get attached Annotations
     res.put("Annotations", anns);

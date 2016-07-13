@@ -2313,7 +2313,7 @@ the decimal one (Double) .. half tempted to break out a class for this: lat/lon/
                 jobj.put("hasAnnotations", true);
                 JSONArray jarr = new JSONArray();
                 for (Annotation ann : this.getAnnotations()) {
-                    jarr.put(ann.sanitizeJson(request, fullAccess));
+                    jarr.put(ann.sanitizeJson(request, new org.datanucleus.api.rest.orgjson.JSONObject(), fullAccess));
                 }
                 jobj.put("annotations", jarr);
             }
