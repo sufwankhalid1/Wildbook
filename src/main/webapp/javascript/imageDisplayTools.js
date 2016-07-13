@@ -45,11 +45,20 @@ maLib.defaultCaptionFunction = function(maJson) {
 }
 
 maLib.cascadiaCaptionFunction = function(maJson) {
+    var c = [];
+    maJson.id && c.push('id='+maJson.id);
+    maJson.dateTime && c.push(maJson.dateTime);
+    maJson.userLongitude && c.push(maJson.userLongitude);
+    maJson.userLatitude && c.push(maJson.userLatitude);
+    if (maJson.features && maJson.features[0] && maJson.features[0].parameters) c.push(JSON.stringify(maJson.features[0].parameters));
+    return c.join(" | ");
+/*
   if ('url' in maJson) {
     var partArray = maJson.url.split('/');
     partArray = partArray[partArray.length-1].split('.')
     return partArray[0];
   }
+*/
   return "Test caption, do not read";
 }
 

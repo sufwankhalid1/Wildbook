@@ -195,6 +195,8 @@ public class Feature implements java.io.Serializable {
         if (this.getType() != null) jobj.put("type", this.getType().getId());
         if (this.getParameters() != null) jobj.put("parameters", Util.toggleJSONObject(getParameters()));
         if (this.getMediaAsset() != null) jobj.put("mediaAsset", this.getMediaAsset().sanitizeJson(request, new org.datanucleus.api.rest.orgjson.JSONObject(), fullAccess));  //"should never" be null anyway
+        //note: Annotation.sanitizeJson() recurses into *its* features, so we dont want to get into infinite loop here... so lets give *something* for this
+        if (this.getAnnotation() != null) jobj.put("annotationId", this.getAnnotation().getId());
         return jobj;
     }
 
