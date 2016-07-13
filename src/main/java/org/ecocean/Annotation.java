@@ -305,8 +305,7 @@ public class Annotation implements java.io.Serializable {
         //*for now* this will only(?) be called from an Encounter, which means that Encounter must be sanitized
         //  so we assume this *must* be sanitized too.
 	public org.datanucleus.api.rest.orgjson.JSONObject sanitizeJson(HttpServletRequest request,
-                                                                        boolean fullAccess) throws org.datanucleus.api.rest.orgjson.JSONException {
-            org.datanucleus.api.rest.orgjson.JSONObject jobj = new org.datanucleus.api.rest.orgjson.JSONObject();
+               org.datanucleus.api.rest.orgjson.JSONObject jobj, boolean fullAccess) throws org.datanucleus.api.rest.orgjson.JSONException {
             jobj.put("id", id);
             jobj.put("isExemplar", this.getIsExemplar());
             if (this.getFeatures() != null) {
@@ -317,12 +316,18 @@ public class Annotation implements java.io.Serializable {
                 }
                 jobj.put("features", feats);
             }
+            jobj.remove("x");
+            jobj.remove("y");
+            jobj.remove("width");
+            jobj.remove("height");
+            jobj.remove("theta");
             return jobj;
         }
 
         //default behavior is limited access
-	public org.datanucleus.api.rest.orgjson.JSONObject sanitizeJson(HttpServletRequest request) throws org.datanucleus.api.rest.orgjson.JSONException {
-            return this.sanitizeJson(request, false);
+	public org.datanucleus.api.rest.orgjson.JSONObject sanitizeJson(HttpServletRequest request,
+               org.datanucleus.api.rest.orgjson.JSONObject jobj) throws org.datanucleus.api.rest.orgjson.JSONException {
+            return this.sanitizeJson(request, jobj, false);
         }
 
 ///////////////////// TODO fix this for Feature upgrade ////////////////////////
