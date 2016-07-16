@@ -318,6 +318,12 @@
       <artifactId>xml-apis</artifactId>
       <version>1.4.01</version>
     </dependency>
+	
+	    <dependency>
+      <groupId>org.apache.derby</groupId>
+      <artifactId>derby</artifactId>
+      <version>10.11.1.1</version>
+    </dependency>
 
     <dependency>
       <groupId>org.geotools</groupId>
