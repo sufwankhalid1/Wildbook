@@ -65,6 +65,15 @@ public class Occurrence implements java.io.Serializable{
     setDateTimeCreated();
     //if((enc.getLocationID()!=null)&&(!enc.getLocationID().equals("None"))){this.locationID=enc.getLocationID();}
   }
+  
+  public Occurrence(String occurrenceID){
+    this.occurrenceID=occurrenceID;
+    encounters=new ArrayList<Encounter>();
+    assets = new ArrayList<MediaAsset>();
+    setDWCDateLastModified();
+    setDateTimeCreated();
+    //if((enc.getLocationID()!=null)&&(!enc.getLocationID().equals("None"))){this.locationID=enc.getLocationID();}
+  }
 
   public Occurrence(List<MediaAsset> assets, Shepherd myShepherd){
     this.occurrenceID = Util.generateUUID();
