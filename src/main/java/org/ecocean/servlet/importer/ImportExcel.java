@@ -57,6 +57,8 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.PrefixFileFilter;
 
+import org.ecocean.media.*;
+
 
 /**
  * Uploads an Excel file for data import
@@ -291,7 +293,16 @@ public class ImportExcel extends HttpServlet {
         if (successfullyWroteFile) {
           
           //file was written, so now we're serious and need to get some Shepherd setup work done
-          
+          String assetStorePath=dataDirName+"/encounters";
+          String rootURL="http://ewt.wildbook.org";
+          String assetStoreURL=rootURL+"/wildbook_data_dir/encounters";
+          //AssetStore work
+          ////////////////begin local //////////////
+          myShepherd.beginDBTransaction();
+          LocalAssetStore as = new LocalAssetStore("WWFSeals-Asset-Store", new File(assetStorePath).toPath(), assetStoreURL, true);
+          myShepherd.getPM().makePersistent(as);
+          myShepherd.commitDBTransaction();
+      ////////////////end local //////////////
           
 
           System.out.println("\n\n     Starting file content import...");
