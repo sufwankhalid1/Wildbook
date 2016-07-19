@@ -165,8 +165,15 @@ public class ImportExcel extends HttpServlet {
           //AssetStore work
           ////////////////begin local //////////////
           myShepherd.beginDBTransaction();
-          LocalAssetStore as = new LocalAssetStore("EWTCheetah-Asset-Store", new File(assetStorePath).toPath(), assetStoreURL, true);
-          myShepherd.getPM().makePersistent(as);
+          LocalAssetStore as = new LocalAssetStore("Local-Asset-Store", new File(assetStorePath).toPath(), assetStoreURL, true);
+          
+          if(myShepherd.getPM().getObjectById("Local-Asset-Store")!=null){
+            as=(LocalAssetStore)myShepherd.getPM().getObjectById("Local-Asset-Store");
+          }
+          else{
+            myShepherd.getPM().makePersistent(as);
+            
+          }
           myShepherd.commitDBTransaction();
       ////////////////end local //////////////
           
