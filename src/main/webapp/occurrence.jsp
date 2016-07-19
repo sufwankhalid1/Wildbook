@@ -375,16 +375,7 @@ if(sharky.getLocationID()!=null){
     <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("alternateID") %></strong></td>
 
     <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("sex") %></strong></td>
-    <%
-      if (isOwner && CommonConfiguration.useSpotPatternRecognition(context)) {
-    %>
 
-    	<td align="left" valign="top" bgcolor="#99CCFF">
-    		<strong><%=props.getProperty("spots") %></strong>
-    	</td>
-    <%
-    }
-    %>
    <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("behavior") %></td>
  <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("haplotype") %></td>
  
@@ -480,21 +471,7 @@ if(enc.getSex()!=null){sexValue=enc.getSex();}
 %>
     <td class="lineitem"><%=sexValue %></td>
 
-    <%
-      if (CommonConfiguration.useSpotPatternRecognition(context)) {
-    %>
-    <%if (((enc.getSpots().size() == 0) && (enc.getRightSpots().size() == 0)) && (isOwner)) {%>
-    <td class="lineitem">&nbsp;</td>
-    <% } else if (isOwner && (enc.getSpots().size() > 0) && (enc.getRightSpots().size() > 0)) {%>
-    <td class="lineitem">LR</td>
-    <%} else if (isOwner && (enc.getSpots().size() > 0)) {%>
-    <td class="lineitem">L</td>
-    <%} else if (isOwner && (enc.getRightSpots().size() > 0)) {%>
-    <td class="lineitem">R</td>
-    <%
-        }
-      }
-    %>
+
     
   
     <td class="lineitem">
@@ -608,14 +585,14 @@ if(enc.getSex()!=null){sexValue=enc.getSex();}
 									String thumbLink="";
 									boolean video=true;
 									if(!myShepherd.isAcceptableVideoFile(thumbLocs.get(countMe).getFilename())){
-										thumbLink="/"+CommonConfiguration.getDataDirectoryName(context)+"/encounters/"+Encounter.subdir(thumbLocs.get(countMe).getCorrespondingEncounterNumber())+"/"+thumbLocs.get(countMe).getDataCollectionEventID()+".jpg";
+										thumbLink=thumbLocs.get(countMe).getWebURL();
 										video=false;
 									}
 									else{
 										thumbLink="http://"+CommonConfiguration.getURLLocation(request)+"/images/video.jpg";
 										
 									}
-									String link="/"+CommonConfiguration.getDataDirectoryName(context)+"/encounters/"+Encounter.subdir(thumbLocs.get(countMe).getCorrespondingEncounterNumber())+"/"+thumbLocs.get(countMe).getFilename();
+									String link=thumbLocs.get(countMe).getWebURL();
 						
 							%>
 
@@ -640,7 +617,7 @@ if(enc.getSex()!=null){sexValue=enc.getSex();}
             <%
             }
              %>
-              <img src="<%=thumbLink%>" alt="photo" border="1" title="Click to enlarge"/>
+              <img class="lazyload" src="http://<%=CommonConfiguration.getURLLocation(request) %>/cust/mantamatcher/img/individual_placeholder_image.jpg" data-src="<%=thumbLink%>" alt="photo" border="1" title="Click to enlarge"/>
               <%
                 if (isOwner) {
               %>
@@ -718,72 +695,11 @@ if(enc.getSex()!=null){sexValue=enc.getSex();}
                       <%
                         }
                       %>
-                      <tr>
-                        <td><span class="caption">
-											<%=props.getProperty("matchingKeywords") %>
-											<%
-											 //while (allKeywords2.hasNext()) {
-					                          //Keyword word = (Keyword) allKeywords2.next();
-					                          
-					                          
-					                          //if (word.isMemberOf(encNum + "/" + fileName)) {
-											  //if(thumbLocs.get(countMe).getKeywords().contains(word)){
-					                        	  
-					                            //String renderMe = word.getReadableName();
-												List<Keyword> myWords = thumbLocs.get(countMe).getKeywords();
-												int myWordsSize=myWords.size();
-					                            for (int kwIter = 0; kwIter<myWordsSize; kwIter++) {
-					                              //String kwParam = keywords[kwIter];
-					                              //if (kwParam.equals(word.getIndexname())) {
-					                              //  renderMe = "<strong>" + renderMe + "</strong>";
-					                              //}
-					                      		 	%>
-					 								<br/><%= ("<strong>" + myWords.get(kwIter).getReadableName() + "</strong>")%>
-					 								<%
-					                            }
-
-
-
-
-					                          //    }
-					                       // } 
-
-                          %>
-										</span></td>
-                      </tr>
+                     
                     </table>
                     <br/>
 
-                    <%
-                      if (CommonConfiguration.showEXIFData(context)) {
-                   
-            	if(!thumbLink.endsWith("video.jpg")){
-           		 %>							
-					<span class="caption">
-						<div class="scroll">	
-						<span class="caption">
-					<%
-            if ((thumbLocs.get(countMe).getFilename().toLowerCase().endsWith("jpg")) || (thumbLocs.get(countMe).getFilename().toLowerCase().endsWith("jpeg"))) {
-              File exifImage = new File(encountersDir.getAbsolutePath() + "/" + Encounter.subdir(thisEnc.getCatalogNumber()) + "/" + thumbLocs.get(countMe).getFilename());
-              	%>
-            	<%=Util.getEXIFDataFromJPEGAsHTML(exifImage) %>
-            	<%
-               }
-                %>
-   									
-   								
-   								</span>
-            </div>
-   								</span>
-   			<%
-            	}
-   			%>
-
-
-                  </td>
-                  <%
-                    }
-                  %>
+                    
                 </tr>
               </table>
             </div>
@@ -824,40 +740,7 @@ if(enc.getSex()!=null){sexValue=enc.getSex();}
                         		</span>
                         	</td>
                       </tr>
-<tr>
-  <td><span class="caption">
-											<%=props.getProperty("matchingKeywords") %>
-											<%
-                        //int numKeywords=myShepherd.getNumKeywords();
-											 //while (allKeywords2.hasNext()) {
-					                          //Keyword word = (Keyword) allKeywords2.next();
-					                          
-					                          
-					                          //if (word.isMemberOf(encNum + "/" + fileName)) {
-											  //if(thumbLocs.get(countMe).getKeywords().contains(word)){
-					                        	  
-					                            //String renderMe = word.getReadableName();
-												//List<Keyword> myWords = thumbLocs.get(countMe).getKeywords();
-												//int myWordsSize=myWords.size();
-					                            for (int kwIter = 0; kwIter<myWordsSize; kwIter++) {
-					                              //String kwParam = keywords[kwIter];
-					                              //if (kwParam.equals(word.getIndexname())) {
-					                              //  renderMe = "<strong>" + renderMe + "</strong>";
-					                              //}
-					                      		 	%>
-					 								<br/><%= ("<strong>" + myWords.get(kwIter).getReadableName() + "</strong>")%>
-					 								<%
-					                            }
 
-
-
-
-					                          //    }
-					                       // } 
-
-                          %>
-										</span></td>
-</tr>
 <%
 
             }
@@ -968,7 +851,9 @@ if(enc.getSex()!=null){sexValue=enc.getSex();}
 
 
     
-  } catch (Exception eSharks_jsp) {
+  } 
+							
+  catch (Exception eSharks_jsp) {
     System.out.println("Caught and handled an exception in occurrence.jsp!");
     eSharks_jsp.printStackTrace();
   }
