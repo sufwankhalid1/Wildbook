@@ -3553,9 +3553,7 @@ public class Shepherd {
     return null;
   }
 
-  public ArrayList<Encounter> getAllEncountersForSpecies(String genus, String specificEpithet) { 
-    String keywordQueryString="SELECT FROM org.ecocean.Encounter WHERE genus == '"+genus+"' && specificEpithet == '"+specificEpithet+"'";
-  
+
   public int getNumAnnotationsForEncounter(String encounterID){
     ArrayList<Annotation> al=getAnnotationsForEncounter(encounterID);
     return al.size();
