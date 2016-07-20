@@ -540,11 +540,11 @@ public class ImportExcel extends HttpServlet {
               
               
               //dynamic properties
-              setDynamicProperty(enc, "Adult", row, 12);
-              setDynamicProperty(enc, "SA", row, 13);
-              setDynamicProperty(enc, "pups-cubs", row, 14);
-              setDynamicProperty(enc, "ParkSection", row, 15);
-              setDynamicProperty(enc, "Accuracy", row, 26);
+              setDynamicTextProperty(enc, "Adult", row, 12);
+              setDynamicTextProperty(enc, "SA", row, 13);
+              setDynamicTextProperty(enc, "pups-cubs", row, 14);
+              setDynamicTextProperty(enc, "ParkSection", row, 15);
+              setDynamicTextProperty(enc, "Accuracy", row, 26);
               
               //set date modified properties
               String strOutputDateTime = ServletUtilities.getDate();
@@ -823,13 +823,31 @@ public class ImportExcel extends HttpServlet {
     return true;
   }
 
-  private void setDynamicProperty(Encounter enc, String name, Row row, int cellNum){
-    if(true){
+  private void setDynamicTextProperty(Encounter enc, String name, Row row, int cellNum){
+    try{
       Cell dynamicCell = row.getCell(cellNum); 
       if(dynamicCell!=null && !dynamicCell.getStringCellValue().trim().equals("")) {
         enc.setDynamicProperty(name, dynamicCell.getStringCellValue().trim());
         }
     }
+    catch(Exception e){
+      setDynamicNumericProperty(enc, name, row, cellNum);
+    }
+    
+  }
+  
+  private void setDynamicNumericProperty(Encounter enc, String name, Row row, int cellNum){
+    try{
+      Cell dynamicCell = row.getCell(cellNum); 
+      if(dynamicCell!=null) {
+        enc.setDynamicProperty(name, (new Double(dynamicCell.getStringCellValue().trim())).toString());
+        }
+    }
+    catch(Exception e){
+      System.out.println("I hit an exception trying to set the dynamic property: "+name);
+      e.printStackTrace();
+    }
+    
   }
  
 
