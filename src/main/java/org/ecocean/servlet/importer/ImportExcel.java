@@ -306,7 +306,7 @@ public class ImportExcel extends HttpServlet {
                 myShepherd.commitDBTransaction();
                 myShepherd.beginDBTransaction();
               }
-              
+              enc.setState("unapproved");
               MarkedIndividual indy=new MarkedIndividual();
               
               String individualID = individuals.get(i);
