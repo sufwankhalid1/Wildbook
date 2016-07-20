@@ -1872,7 +1872,7 @@ public Float getMinDistanceBetweenTwoMarkedIndividuals(MarkedIndividual otherInd
               //ok, we have a viable candidate
               
               //put ProfilePhotos at the beginning
-              if(ma.hasKeyword("ProfilePhoto")){al.add(0, j);haveProfilePhoto=true;}
+              if(ma.hasKeyword("ProfilePhoto")){al.add(0, j);}
               //otherwise, just add it to the bottom of the stack
               else{
                 al.add(j);
