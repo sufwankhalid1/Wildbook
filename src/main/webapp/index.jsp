@@ -6,7 +6,9 @@
               java.util.Map,
               java.util.Iterator,
               java.util.Properties,
-              java.util.StringTokenizer
+              java.util.StringTokenizer,
+              org.ecocean.media.*,
+              java.io.File
               "
 %>
 
@@ -22,10 +24,63 @@ String context=ServletUtilities.getContext(request);
 Shepherd myShepherd=null;
 myShepherd=new Shepherd(context);
 
-
+/*
 //check for and inject a default user 'tomcat' if none exists
+		String rootDir="/var/lib/tomcat7/webapps";
+		String assetStorePath="/data/wildbook_data_dir/encounters";
+		String rootURL="http://ewt.wildbook.org";
+		String encountersDirPath=assetStorePath+"/encounters";
+		String assetStoreURL=rootURL+"/wildbook_data_dir/encounters";
+
+		//check for and inject a default user 'tomcat' if none exists
+		  
+	  	//check usernames and passwords
+		myShepherd.beginDBTransaction();
+	  	List<User> users=myShepherd.getAllUsers();
+	  	if(users.size()==0){
+	  		String salt=ServletUtilities.getSalt().toHex();
+	        String hashedPassword=ServletUtilities.hashAndSaltPassword("tomcat123", salt);
+	        //System.out.println("Creating default hashed password: "+hashedPassword+" with salt "+salt);
+	        
+	        
+	  		User newUser=new User("tomcat",hashedPassword,salt);
+	  		myShepherd.getPM().makePersistent(newUser);
+	  		System.out.println("Creating tomcat user account...");
+	  		myShepherd.commitDBTransaction();
+			
+	  	  	List<Role> roles=myShepherd.getAllRoles();
+	  	  	if(roles.size()==0){
+	  	  		
+	  	  		myShepherd.beginDBTransaction();
+	  	  		System.out.println("Creating tomcat roles...");
+	  	  		
+	  	  		Role newRole1=new Role("tomcat","admin");
+	  	  		newRole1.setContext("context0");
+	  	  		myShepherd.getPM().makePersistent(newRole1);
+		  		Role newRole4=new Role("tomcat","destroyer");
+		  		newRole4.setContext("context0");
+		  		myShepherd.getPM().makePersistent(newRole4);
+				
+				Role newRole7=new Role("tomcat","rest");
+		  		newRole7.setContext("context0");
+		  		myShepherd.getPM().makePersistent(newRole7);
+				
+				myShepherd.commitDBTransaction();
+				
+		  		
+		  		System.out.println("Creating tomcat user account...");
+	  	  	}
+	  	}
 
 
+		//AssetSyore work
+		////////////////begin local //////////////
+    myShepherd.beginDBTransaction();
+		LocalAssetStore as = new LocalAssetStore("EWT-Asset-Store", new File(assetStorePath).toPath(), assetStoreURL, true);
+		myShepherd.getPM().makePersistent(as);
+		myShepherd.commitDBTransaction();
+////////////////end local //////////////
+*/
 %>
 
 <style type="text/css">

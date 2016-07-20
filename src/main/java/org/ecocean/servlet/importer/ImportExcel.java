@@ -164,17 +164,8 @@ public class ImportExcel extends HttpServlet {
           String assetStoreURL=rootURL+"/wildbook_data_dir/encounters";
           //AssetStore work
           ////////////////begin local //////////////
-          myShepherd.beginDBTransaction();
-          LocalAssetStore as = new LocalAssetStore("Local-Asset-Store", new File(assetStorePath).toPath(), assetStoreURL, true);
+          AssetStore astore = AssetStore.getDefault(myShepherd);
           
-          if(myShepherd.getPM().getObjectById("Local-Asset-Store")!=null){
-            as=(LocalAssetStore)myShepherd.getPM().getObjectById("Local-Asset-Store");
-          }
-          else{
-            myShepherd.getPM().makePersistent(as);
-            
-          }
-          myShepherd.commitDBTransaction();
       ////////////////end local //////////////
           
 
@@ -568,9 +559,9 @@ public class ImportExcel extends HttpServlet {
                 for(int x=0;x<numChildren;x++){
                   
                   //create new MediaAssets
-                  JSONObject sp = as.createParameters(new File(enc.subdir() + File.separator + children[x].getName()));
+                  JSONObject sp = astore.createParameters(new File(enc.subdir() + File.separator + children[x].getName()));
                   sp.put("key", Util.hashDirectories(encID) + "/" + children[x].getName());
-                  MediaAsset ma = new MediaAsset(as, sp);
+                  MediaAsset ma = new MediaAsset(astore, sp);
                   File tmpFile = ma.localPath().toFile();  //conveniently(?) our local version to save ma.cacheLocal() from having to do anything?
                   File tmpDir = tmpFile.getParentFile();
                   if (!tmpDir.exists()) tmpDir.mkdirs();

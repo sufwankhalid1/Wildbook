@@ -461,9 +461,7 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
                         </ul>
                       </li>
 
-                      <li class="pull-right IBEIS-link">
-                        <a class="pull-right" href="<%=urlLoc %>/ui/#/workspace"> IBEIS Image Analysis</a>
-                      </li>
+                      
 
                     </ul>
 
