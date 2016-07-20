@@ -388,10 +388,10 @@ public class ImportExcel extends HttpServlet {
               // lat/long section
               try {
                 Cell latCell = row.getCell(23);
-                String latString = latCell.getStringCellValue();
-                if(latString!=null && !latString.equals("")) {
-                  System.out.println("\tlatitude string: "+latString);
-                  Double lat = degStrToDouble(latString);
+                //double latString = 
+                if(latCell!=null) {
+                  System.out.println("\tlatitude string: "+latCell.getNumericCellValue());
+                  Double lat = new Double(latCell.getNumericCellValue());
                   enc.setDecimalLatitude(lat);
                   System.out.println("\tlatitude double: "+lat);
                   enc.addComments("<p><em>" + request.getRemoteUser() + " on "
@@ -405,10 +405,10 @@ public class ImportExcel extends HttpServlet {
               }
               try {
                 Cell longCell = row.getCell(24);
-                String longString = longCell.getStringCellValue();
-                if(longString!=null && !longString.equals("")) {
-                  System.out.println("\tlongitude string: "+longString);
-                  Double longit = degStrToDouble(longString);
+                //String longString = longCell.getNumericCellValue();
+                if(longCell!=null) {
+                  System.out.println("\tlongitude string: "+longCell.getNumericCellValue());
+                  Double longit = new Double(longCell.getNumericCellValue());
                   enc.setDecimalLongitude(longit);
                   System.out.println("\tlongitude double: "+longit);
                   enc.addComments("<p><em>" + request.getRemoteUser() + " on "
