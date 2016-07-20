@@ -359,7 +359,7 @@ public class ImportExcel extends HttpServlet {
               }
               
               //sex
-              if((sexes.get(i)!=null)&&(!sexes.get(i).trim().equals(""))){
+              if((sexes.size()>i)&&(sexes.get(i)!=null)&&(!sexes.get(i).trim().equals(""))){
                 String sex=sexes.get(i).trim().toLowerCase();
                 if(sex.equals("m")){enc.setSex("male");}
                 else if(sex.equals("f")){enc.setSex("female");}
@@ -840,7 +840,7 @@ public class ImportExcel extends HttpServlet {
     try{
       Cell dynamicCell = row.getCell(cellNum); 
       if(dynamicCell!=null) {
-        enc.setDynamicProperty(name, (new Double(dynamicCell.getStringCellValue().trim())).toString());
+        enc.setDynamicProperty(name, (new Double(dynamicCell.getNumericCellValue())).toString());
         }
     }
     catch(Exception e){
