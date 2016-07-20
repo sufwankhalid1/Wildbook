@@ -445,14 +445,14 @@ public class ImportExcel extends HttpServlet {
               
               try {
                 Cell monthCell = row.getCell(8);
-                String monthStr = monthCell.getStringCellValue();
-                int month = (new Integer(monthStr)).intValue();
+                if(monthCell!=null){
+                  int month = (int)monthCell.getNumericCellValue();
+  
+                  enc.setMonth(month);
+                  enc.addComments("<p><em>" + request.getRemoteUser() + " on " + (new java.util.Date()).toString() + "</em><br>" + "ImportExcel process set month to " + month + ".</p>"); 
+                  System.out.println("\tmonth: "+month);
 
-                enc.setMonth(month);
-                enc.addComments("<p><em>" + request.getRemoteUser() + " on " + (new java.util.Date()).toString() + "</em><br>" + "ImportExcel process set month to " + month + ".</p>"); 
-                System.out.println("\tmonth: "+monthStr+", "+month);
-
-                
+                }
               }
               catch (Exception e) {
                 String warn = "DATA WARNING: did not successfully parse month info for encounter " + enc.getCatalogNumber();
@@ -463,14 +463,14 @@ public class ImportExcel extends HttpServlet {
               
               try {
                 Cell dayCell = row.getCell(7);
-                String dayStr = dayCell.getStringCellValue();
-                int day = (new Integer(dayStr)).intValue();
+                if(dayCell!=null){
+                  int day = (int)dayCell.getNumericCellValue();
+  
+                  enc.setDay(day);
+                  enc.addComments("<p><em>" + request.getRemoteUser() + " on " + (new java.util.Date()).toString() + "</em><br>" + "ImportExcel process set  day to " + day + ".</p>"); 
+                  System.out.println("\tday: "+day+", "+day);
 
-                enc.setDay(day);
-                enc.addComments("<p><em>" + request.getRemoteUser() + " on " + (new java.util.Date()).toString() + "</em><br>" + "ImportExcel process set  day to " + day + ".</p>"); 
-                System.out.println("\tday: "+dayStr+", "+day);
-
-                
+                }
               }
               catch (Exception e) {
                 String warn = "DATA WARNING: did not successfully parse day info for encounter " + enc.getCatalogNumber();
@@ -480,7 +480,7 @@ public class ImportExcel extends HttpServlet {
               }
               
               try {
-                Cell timeCell = row.getCell(6);
+                Cell timeCell = row.getCell(31);
                 String timeStr = timeCell.getStringCellValue();
                 StringTokenizer str=new StringTokenizer(timeStr,":");
                 if(str.countTokens()==2){
