@@ -299,10 +299,14 @@ public class ImportExcel extends HttpServlet {
             for(int i=0;i<numEncs;i++){
               String encID=occurID+"_"+(i+1);
               Encounter enc=new Encounter();
-              enc.setCatalogNumber(encID);
-              myShepherd.getPM().makePersistent(enc);
-              myShepherd.commitDBTransaction();
-              myShepherd.beginDBTransaction();
+              if(myShepherd.isEncounter(encID)){enc=myShepherd.getEncounter(encID);}
+              else{
+                enc.setCatalogNumber(encID);
+                myShepherd.getPM().makePersistent(enc);
+                myShepherd.commitDBTransaction();
+                myShepherd.beginDBTransaction();
+              }
+              
               MarkedIndividual indy=new MarkedIndividual();
               
               String individualID = individuals.get(i);
