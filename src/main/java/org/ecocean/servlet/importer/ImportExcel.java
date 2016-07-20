@@ -483,11 +483,12 @@ public class ImportExcel extends HttpServlet {
                 Cell timeCell = row.getCell(31);
                 String timeStr = timeCell.getStringCellValue();
                 StringTokenizer str=new StringTokenizer(timeStr,":");
-                if(str.countTokens()==2){
+                if(str.countTokens()>=2){
                   int hour = (new Integer(str.nextToken())).intValue();
-                  String minutes=str.nextToken();
+                  String minutes=str.nextToken().replaceAll("AM", "").replaceAll("PM", "").trim();
                   enc.setHour(hour);
                   enc.setMinutes(minutes);
+                  System.out.println("\ttime: "+hour+":"+minutes);
                 }
 
               }
@@ -556,7 +557,7 @@ public class ImportExcel extends HttpServlet {
               ArrayList<Annotation> newAnnotations = new ArrayList<Annotation>();
 
               File rootImageImportFolder=new File("/data/cheetahsForImport");
-              File encImport=new File(rootImageImportFolder,enc.getCatalogNumber());
+              File encImport=new File(rootImageImportFolder,occurID);
               if(encImport.exists()){
                 File[] children=encImport.listFiles();
                 int numChildren=children.length;
