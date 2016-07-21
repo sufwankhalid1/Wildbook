@@ -44,7 +44,7 @@ org.ecocean.media.*
 <%
 
 //////////// these are the some settings to consider... *some* can be set via url params
-File sourceDir = new File("/tmp/testSourceDir");  //TODO change this to somewhere you want to look (cannot be set from url! security breach!)
+File sourceDir = new File("/tmp/whitesharkSourceImages");  //TODO change this to somewhere you want to look (cannot be set from url! security breach!)
 boolean recurse = true;   //recurse down into subdirs of above
 if ((request.getParameter("recurse") != null) && request.getParameter("recurse").toLowerCase().equals("false")) recurse = false;
 boolean allowDuplicates = false;   //will not create if already exists
