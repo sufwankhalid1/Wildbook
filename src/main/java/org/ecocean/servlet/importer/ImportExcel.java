@@ -25,32 +25,17 @@ import com.jholmberg.*;
 
 import org.ecocean.*;
 import org.ecocean.servlet.*;
-import org.ecocean.mmutil.FileUtilities;
-
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.fileupload.FileItem;
-
 import java.io.*;
-
 import java.util.Iterator;
-
-import org.joda.time.*;
-import org.joda.time.format.*;
 import org.json.JSONObject;
-
-import java.lang.IllegalArgumentException;
-
-import org.ecocean.genetics.*;
-
 import java.util.ArrayList;
 import java.util.StringTokenizer;
-import java.util.HashMap;
-import java.nio.file.Files;
+
 
 /* imports for dealing with spreadsheets and .xlsx files */
 import org.apache.poi.ss.usermodel.Cell;
@@ -551,7 +536,7 @@ public class ImportExcel extends HttpServlet {
               String strOutputDateTime = ServletUtilities.getDate();
               enc.setDWCDateLastModified(strOutputDateTime);
               enc.setDWCDateAdded(strOutputDateTime);
-              
+
               
               //IMPORT PHOTOS TO NEW WILDBOOK
               ArrayList<Annotation> newAnnotations = new ArrayList<Annotation>();
