@@ -38,14 +38,16 @@ try{
 
 	Iterator allEncs=myShepherd.getAllEncounters();
 	
-	
+
 
 	while(allEncs.hasNext()){
 		
 		Encounter enc=(Encounter)allEncs.next();
-		enc.setDWCDateAdded((new Date()).getTime());
-		myShepherd.commitDBTransaction();
-		myShepherd.beginDBTransaction();
+		if((enc.getLocationID()!=null)&&( (enc.getLocationID().trim().toLowerCase().equals("no data"))||(enc.getLocationID().trim().toLowerCase().equals("none")) )){
+			enc.setLocationID(null);
+			myShepherd.commitDBTransaction();
+			myShepherd.beginDBTransaction();
+		}
 
 	}
 	myShepherd.rollbackDBTransaction();
