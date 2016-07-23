@@ -35,6 +35,7 @@ import java.util.*;
 
 import org.ecocean.security.SocialAuth;
 import org.ecocean.identity.IBEISIA;
+import org.ecocean.identity.BenWhiteshark;
 
 import org.w3c.dom.Document;
 import com.google.gson.Gson;
@@ -139,7 +140,10 @@ public class JavascriptGlobals extends HttpServlet {
     }
     rtn.put("keywords", kw);
 
-    rtn.put("iaStatus", IBEISIA.iaStatus(request));
+    HashMap<String,Object> ias = new HashMap<String,Object>();
+    ias.put("IBEIS", Util.JSONObjectToHashMap(IBEISIA.iaStatus(request)));
+    ias.put("BenWhiteshark", Util.JSONObjectToHashMap(BenWhiteshark.iaStatus()));
+    rtn.put("iaStatus", ias);
 
     response.setContentType("text/javascript");
     response.setCharacterEncoding("UTF-8");

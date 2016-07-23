@@ -23,6 +23,7 @@ import com.drew.metadata.Metadata;
 import com.drew.metadata.Tag;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.HashMap;
 import org.apache.commons.io.IOUtils;
 
 //import javax.jdo.JDOException;
@@ -384,6 +385,17 @@ public class Util {
             System.out.println("error parsing json string (" + s + "): " + je.toString());
         }
         return j;
+    }
+
+    public static HashMap<String,Object> JSONObjectToHashMap(JSONObject j) {
+        if (j == null) return null;
+        HashMap<String,Object> hm = new HashMap<String,Object>();
+        Iterator it = j.keys();
+        while (it.hasNext()) {
+            String k = (String)it.next();
+            hm.put(k, j.get(k));
+        }
+        return hm;
     }
 
     public static org.datanucleus.api.rest.orgjson.JSONObject stringToDatanucleusJSONObject(String s) {
