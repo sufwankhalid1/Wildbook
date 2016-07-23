@@ -83,6 +83,8 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
      <script src="http://a.vimeocdn.com/js/froogaloop2.min.js"></script>    
   	<script src="<%=urlLoc %>/cust/mantamatcher/js/___behaviour.js"></script>
  
+ 	<link rel="shortcut icon" href="http://catnip.wildbook.org/favicon.ico" />
+ 
  	<!-- Start Open Graph Tags -->
  	<meta property="og:url" content="<%=request.getRequestURI() %>?<%=request.getQueryString() %>" />
   	<!-- End Open Graph Tags -->
