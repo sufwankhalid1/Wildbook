@@ -66,9 +66,13 @@ public class BenWhiteshark {
         return new File(d);
     }
 
-    public static String startJob(MediaAsset queryMA, List<MediaAsset> targetMAs) {
+    public static String startJob(List<MediaAsset> queryMAs, List<MediaAsset> targetMAs) {
         String taskId = Util.generateUUID();
-        String contents = jobdata(queryMA);
+        String contents = "";
+        for (MediaAsset ma : queryMAs) {
+            contents += jobdata(ma);
+        }
+        contents += "-1\t-1\t-1\t-1\n";   //agreed divider between queryMA(s) and targetMA(s)
         for (MediaAsset ma : targetMAs) {
             contents += jobdata(ma);
         }
@@ -87,7 +91,13 @@ public class BenWhiteshark {
         }
         if (enc == null) return "#unable to find Encounter for " + ma.toString() + "; skipping\n";
         //yup, this assumes LocalAssetStore, but thats our magic here
-        return ma.getUUID() + "\t" + ma.localPath() + "\t" + (enc.hasMarkedIndividual() ? enc.getIndividualID() : "") + "\t" + enc.getCatalogNumber() + "\n";
+	String filePathString = ma.localPath().toString();
+        String pathReplaceRegex = CommonConfiguration.getProperty("BenWhitesharkMediaAssetPathReplaceRegex", "context0");
+        String pathReplaceValue = CommonConfiguration.getProperty("BenWhitesharkMediaAssetPathReplaceValue", "context0");
+	if ((pathReplaceRegex != null) && (pathReplaceValue != null)) {
+		filePathString = filePathString.replace(pathReplaceRegex, pathReplaceValue);
+	}
+        return ma.getUUID() + "\t" + filePathString + "\t" + (enc.hasMarkedIndividual() ? enc.getIndividualID() : "-1") + "\t" + enc.getCatalogNumber() + "\n";
     }
 
     static void writeFile(String taskId, String contents) {
