@@ -19,9 +19,6 @@ import org.ecocean.Encounter;
 import org.ecocean.Occurrence;
 import org.ecocean.MarkedIndividual;
 import org.ecocean.servlet.ServletUtilities;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import org.json.JSONArray;
@@ -37,8 +34,12 @@ import org.joda.time.DateTime;
 import org.apache.commons.lang3.StringUtils;
 import javax.servlet.http.HttpServletRequest;
 */
+import java.util.ArrayList;
+import java.util.Collection;
 import java.io.FileWriter;
 import java.io.BufferedWriter;
+import javax.jdo.Extent;
+import javax.jdo.Query;
 
 
 public class BenWhiteshark {
@@ -55,6 +56,21 @@ public class BenWhiteshark {
         return j;
     }
 
+    //right now we use .isExemplar on Annotations; but later we may shift to some other logic, including (discussed with ben):
+    //  quality keywords on image, features approved/input by manual method (e.g. end-points of fin) etc....
+    //  also: the choice to focus on Annotation vs MediaAsset feels a little arbitrary; am choosing Annotation... for now?
+    public static List<Annotation> getExemplars(Shepherd myShepherd) {
+        Extent all = myShepherd.getPM().getExtent(Annotation.class, true);
+        Query qry = myShepherd.getPM().newQuery(all, "isExemplar");
+        Collection results = (Collection)qry.execute();
+        List<Annotation> rtn = new ArrayList<Annotation>();
+        for (Object o : results) {
+            Annotation ann = (Annotation)o;
+            if (ann.getMediaAsset() != null) rtn.add(ann);
+        }
+        return rtn;
+    }
+
     public static File getJobStartDir() {
         String d = CommonConfiguration.getProperty("BenWhitesharkJobStartDirectory", "context0");
         if (d == null) return null;
@@ -66,6 +82,22 @@ public class BenWhiteshark {
         return new File(d);
     }
 
+    //TODO support taxonomy!
+    public static String startJob(List<MediaAsset> queryMAs, Shepherd myShepherd) {
+        List<Annotation> exs = getExemplars(myShepherd);
+        if ((exs == null) || (exs.size() < 1)) throw new RuntimeException("getExemplars() returned no results");
+        List<MediaAsset> tmas = new ArrayList<MediaAsset>();
+        for (Annotation ann : exs) {
+            if (!queryMAs.contains(ann.getMediaAsset())) tmas.add(ann.getMediaAsset());
+        }
+        return startJob(queryMAs, tmas);
+    }
+    //single queryMA convenience method
+    public static String startJob(MediaAsset queryMA, Shepherd myShepherd) {
+        List<MediaAsset> mas = new ArrayList<MediaAsset>();
+        mas.add(queryMA);
+        return startJob(mas, myShepherd);
+    }
     public static String startJob(List<MediaAsset> queryMAs, List<MediaAsset> targetMAs) {
         String taskId = Util.generateUUID();
         String contents = "";
