@@ -10,6 +10,9 @@ import org.ecocean.Util;
 import org.ecocean.CommonConfiguration;
 import org.ecocean.media.MediaAsset;
 import org.json.JSONObject;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import org.apache.commons.lang3.StringUtils;
 
 /*
 import org.ecocean.ImageAttributes;
@@ -46,6 +49,7 @@ public class BenWhiteshark {
 //#BenWhitesharkJobStartDirectory = /efs/job/start
 //#BenWhitesharkJobResultsDirectory = /efs/job/results
 
+    public static final String ERROR_KEY = "__ERROR__";
 
     public static boolean enabled() {
         return ((getJobStartDir() != null) && (getJobResultsDir() != null));
@@ -104,7 +108,7 @@ public class BenWhiteshark {
         for (MediaAsset ma : queryMAs) {
             contents += jobdata(ma);
         }
-        contents += "-1\t-1\t-1\t-1\n";   //agreed divider between queryMA(s) and targetMA(s)
+        contents += "-1\t-1\t-1\t-1\t-1\t-1\t-1\t-1\n";   //agreed divider between queryMA(s) and targetMA(s)
         for (MediaAsset ma : targetMAs) {
             contents += jobdata(ma);
         }
@@ -129,7 +133,8 @@ public class BenWhiteshark {
 	if ((pathReplaceRegex != null) && (pathReplaceValue != null)) {
 		filePathString = filePathString.replace(pathReplaceRegex, pathReplaceValue);
 	}
-        return ma.getUUID() + "\t" + filePathString + "\t" + (enc.hasMarkedIndividual() ? enc.getIndividualID() : "-1") + "\t" + enc.getCatalogNumber() + "\n";
+        return ma.getUUID() + "\t" + filePathString + "\t" + (enc.hasMarkedIndividual() ? enc.getIndividualID() : "-1") + "\t" + enc.getCatalogNumber() +
+            "\t-1\t-1\t-1\t-1\n";    // this is holding the place of the potential two fin end points x1,y1 x2,y2 (via user input)
     }
 
     static void writeFile(String taskId, String contents) {
@@ -145,4 +150,61 @@ public class BenWhiteshark {
             ex.printStackTrace();
         }
     }
+
+
+/*  results files look like:
+ids	scores
+59	0.242
+64	0.043
+50	0.039
+48	0.03
+40	0.024
+15	0.022
+1	0.02
+89	0.018
+*/
+    //null means we dont have any
+    // results are keyed off of MediaAsset id, which points to a LinkedHashMap of IndividualID/scores (from file)
+    // if a key __ERROR__ exists, there was an error from the IA algorithm, which take the form of .err files, with the filename prefix
+    // being either (a) the MediaAsset id [for specific error], or (b) taskId [for general]... notably this special key can exist in either map level
+    public static HashMap<String,LinkedHashMap<String,Object>> getJobResults(String taskId) {
+        File dir = new File(getJobResultsDir(), taskId);
+        if (!dir.exists()) return null;
+        HashMap<String,LinkedHashMap<String,Object>> rtn = new HashMap<String,LinkedHashMap<String,Object>>();
+        //first lets check for a general error
+        File gerr = new File(dir, taskId + ".err");
+        if (gerr.exists()) {
+            //we need to create a "results" LinkedHashMap to point to, so this is a little wonky
+            LinkedHashMap<String,Object> m = new LinkedHashMap<String,Object>();
+            m.put(ERROR_KEY, StringUtils.join(Util.readAllLines(gerr), ""));
+            rtn.put(ERROR_KEY, m);  //thus, to find error msg for general case, need to use ERROR_KEY twice
+            return rtn;  //is our work really done here?  seems like implies fail
+        }
+        for (final File f : dir.listFiles()) {
+            if (f.isDirectory()) continue;  //"should never happen"
+            LinkedHashMap<String,Object> m = new LinkedHashMap<String,Object>();
+            String id = f.getName();  //will get truncated
+            if (id.indexOf(".err") > -1) {
+                id = id.substring(0, id.length() - 4);
+                m.put(ERROR_KEY, StringUtils.join(Util.readAllLines(f), ""));
+                rtn.put(id, m);
+            } else if (id.indexOf(".txt") > -1) {
+                id = id.substring(0, id.length() - 4);
+                for (String line : Util.readAllLines(f)) {
+                    if (line.indexOf("ids\t") == 0) continue;  //skip header
+                    String[] data = StringUtils.split(line, "\t");
+                    if (data.length < 2) continue;  //no?
+                    Double score = -1.0;  //if parsing fails?
+                    try {
+                        score = Double.parseDouble(data[1]);
+                    } catch (NumberFormatException ex) { };  //meh
+                    m.put(data[0], score);
+                }
+                rtn.put(id, m);
+            }
+        }
+        return rtn;
+    }
+
+
 }
