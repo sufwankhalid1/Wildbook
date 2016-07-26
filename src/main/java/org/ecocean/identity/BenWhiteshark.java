@@ -50,6 +50,7 @@ public class BenWhiteshark {
 //#BenWhitesharkJobResultsDirectory = /efs/job/results
 
     public static final String ERROR_KEY = "__ERROR__";
+    public static final String SERVICE_NAME = "BenWhiteshark";
 
     public static boolean enabled() {
         return ((getJobStartDir() != null) && (getJobResultsDir() != null));
@@ -94,7 +95,14 @@ public class BenWhiteshark {
         for (Annotation ann : exs) {
             if (!queryMAs.contains(ann.getMediaAsset())) tmas.add(ann.getMediaAsset());
         }
-        return startJob(queryMAs, tmas);
+        String[] ids = new String[queryMAs.size()];
+        for (int i = 0 ; i < queryMAs.size() ; i++) {
+            ids[i] = Integer.toString(queryMAs.get(i).getId());
+        }
+        String taskId = startJob(queryMAs, tmas);
+        IdentityServiceLog log = new IdentityServiceLog(taskId, ids, SERVICE_NAME, null, new JSONObject("{\"_action\": \"initIdentify\"}"));
+        log.save(myShepherd);
+        return taskId;
     }
     //single queryMA convenience method
     public static String startJob(MediaAsset queryMA, Shepherd myShepherd) {
