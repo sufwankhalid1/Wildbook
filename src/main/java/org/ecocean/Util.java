@@ -15,6 +15,8 @@ import org.json.JSONException;
 
 //EXIF-related imports
 import java.io.File;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.io.InputStream;
 import java.io.FileInputStream;
 import com.drew.imaging.jpeg.JpegMetadataReader;
@@ -471,6 +473,16 @@ public class Util {
     public static String decimalLatLonToString(Double ll) {
         if (ll == null) return null;
         return ll.toString();
+    }
+
+    //will swallow errors and return null instead
+    public static List<String> readAllLines(final File file) {
+        try {
+            return Files.readAllLines(file.toPath(), Charset.forName("ISO-8859-1"));  //TODO should this be utf8 or something?
+        } catch (java.io.IOException ioe) {
+            System.out.println("WARNING: Util.readAllLines(" + file.toString() + ") got exception " + ioe.toString() + "; returning null");
+            return null;
+        }
     }
 
 
