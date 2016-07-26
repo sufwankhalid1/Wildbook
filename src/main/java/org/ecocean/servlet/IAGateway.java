@@ -394,7 +394,12 @@ System.out.println("[taskId=" + taskId + "] attempting passthru to " + url);
     String taskId = Util.generateUUID();
     res.put("taskId", taskId);
 
-    if (j.optJSONArray("detect") != null) {
+    /* proposal: for multi-algorithm support, break out all calls here into their own class (subclassed from identity class or whateve)
+        and then access by service-name as a key.  attempting to use this pattern with BenWhiteshark now....  */
+    if (j.optJSONObject("BenWhiteshark") != null) {
+        res = BenWhiteshark.iaGateway(j.getJSONObject("BenWhiteshark"), request);
+
+    } else if (j.optJSONArray("detect") != null) {
         ArrayList<MediaAsset> mas = new ArrayList<MediaAsset>();
         List<MediaAsset> needOccurrences = new ArrayList<MediaAsset>();
         JSONArray ids = j.getJSONArray("detect");

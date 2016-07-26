@@ -7,9 +7,12 @@ import org.ecocean.Shepherd;
 import org.ecocean.Encounter;
 import org.ecocean.Annotation;
 import org.ecocean.Util;
+import org.ecocean.servlet.ServletUtilities;
 import org.ecocean.CommonConfiguration;
 import org.ecocean.media.MediaAsset;
+import org.ecocean.media.MediaAssetFactory;
 import org.json.JSONObject;
+import org.json.JSONArray;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import org.apache.commons.lang3.StringUtils;
@@ -21,10 +24,8 @@ import org.ecocean.Shepherd;
 import org.ecocean.Encounter;
 import org.ecocean.Occurrence;
 import org.ecocean.MarkedIndividual;
-import org.ecocean.servlet.ServletUtilities;
 import java.util.HashMap;
 import java.util.Map;
-import org.json.JSONArray;
 import java.net.URL;
 import org.ecocean.media.*;
 import org.ecocean.RestClient;
@@ -35,8 +36,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.InvalidKeyException;
 import org.joda.time.DateTime;
 import org.apache.commons.lang3.StringUtils;
-import javax.servlet.http.HttpServletRequest;
 */
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.io.FileWriter;
@@ -212,6 +213,58 @@ ids	scores
             }
         }
         return rtn;
+    }
+
+
+    public static JSONObject iaGateway(JSONObject arg, HttpServletRequest request) {
+        JSONObject res = new JSONObject("{\"success\": false, \"error\": \"unknown\"}");
+        if (arg.optInt("identify", -1) > 0) {  //right now, start identify with {identify: maId}
+            String context = ServletUtilities.getContext(request);
+            Shepherd myShepherd = new Shepherd(context);
+            int mid = arg.getInt("identify");
+            MediaAsset ma = MediaAssetFactory.load(mid, myShepherd);
+            if (ma == null) {
+                res.put("error", "unknown MediaAsset id=" + mid);
+                return res;
+            }
+            String taskId = startJob(ma, myShepherd);
+            res.put("success", true);
+            res.remove("error");
+            res.put("taskId", taskId);
+
+        } else if (arg.optString("taskResults", null) != null) {
+            String taskId = arg.getString("taskResults");
+            HashMap<String,LinkedHashMap<String,Object>> jres = getJobResults(taskId);
+            if (jres == null) {
+                res.put("error", "no results for taskId=" + taskId);
+                return res;
+            }
+            if (jres.containsKey(ERROR_KEY)) {  //general failure!
+                res.put("error", jres.get(ERROR_KEY).get(ERROR_KEY));  //yes, we assume this will exist... cuz we set it as such
+                return res;
+            }
+            res.put("success", true);  //well, at least partially?
+            res.remove("error");
+            JSONObject matches = new JSONObject();
+            for (String mid : jres.keySet()) {
+                if (jres.get(mid).containsKey(ERROR_KEY)) {
+                    matches.put(mid, jres.get(mid).get(ERROR_KEY));
+                    continue;
+                }
+                JSONArray marr = new JSONArray();
+                for (String iid : jres.get(mid).keySet()) {
+                    JSONObject jscore = new JSONObject();
+                    jscore.put(iid, jres.get(mid).get(iid));
+                    marr.put(jscore);
+                }
+                matches.put(mid, marr);
+            }
+            res.put("matches", matches);
+
+        } else {
+            res.put("error", "unknown command");
+        }
+        return res;
     }
 
 
