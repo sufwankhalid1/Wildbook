@@ -27,8 +27,10 @@ if ((request.getParameter("number") != null) && (request.getParameter("individua
 		out.println("{\"success\": false, \"error\": \"no such encounter\"}");
 		myShepherd.rollbackDBTransaction();
 	} else {
+		String taskId = request.getParameter("taskId");
 		enc.setIndividualID(request.getParameter("individualID"));
 		enc.setState("approved");
+		enc.setMatchedBy("Fin Matching Algorithm" + ((taskId == null) ? "" : " (task " + taskId + ")"));
 		myShepherd.commitDBTransaction();
 		out.println("{\"success\": true}");
 	}
@@ -80,6 +82,10 @@ if ((request.getParameter("number") != null) && (request.getParameter("individua
 	height: 5em;
 }
 
+#approval-button {
+	margin-left: 30px;
+}
+
 #all-wrapper {
 }
 
@@ -88,6 +94,16 @@ if ((request.getParameter("number") != null) && (request.getParameter("individua
 	overflow-y: scroll;
 	display: inline-block;
 	width: 20%;
+}
+
+#results ul {
+	width: 90%;
+}
+
+#results li {
+	list-style-type: none;
+	padding: 2px 5px;
+	border-radius: 3px;
 }
 
 #results li:hover {
@@ -231,6 +247,7 @@ var taskId = '<%=taskId%>';
 var jobId = <%=((jobId == null) ? "undefined" : "'" + jobId + "'")%>;
 var qannId = <%=((qannId == null) ? "undefined" : "'" + qannId + "'")%>;
 var qMediaAsset = <%=((qMediaAssetJson == null) ? "undefined" : qMediaAssetJson)%>;
+var qencId = false;
 </script>
 
 
@@ -354,23 +371,40 @@ console.info('waiting to try again...');
 	}
 
 ////// TODO this makes the erroneous assumption we only have one query object -- but we need an overhaul of the ui to handle more than one!
+
+	if (res.queryObjects && (res.queryObjects.length > 0)) qencId = res.queryObjects[0].encounterId;
+
 	var marr = res.matches[Object.keys(res.matches)[0]];
 	updateMatch(marr[0], res.matchImages);
 	var h = '<p><b>' + marr.length + ' matches</b></p><ul>';
 	for (var i = 0 ; i < marr.length ; i++) {
-console.info(marr[i]);
+//console.info(marr[i]);
 		var indivId = marr[i][0];
-console.info(indivId);
-		h += '<li data-imgsrc="' + ((marr[i].length > 3) ? marr[i][3] : '') + '" data-i="' + i + '"><a target="_new" href="../individuals.jsp?number=' + indivId + '">indiv ' +
+//console.info(indivId);
+		h += '<li data-individ="' + marr[i][0] + '" data-imgsrc="' + ((marr[i].length > 3) ? marr[i][3] : '') + '" data-i="' + i + '"><a target="_new" href="../individuals.jsp?number=' + indivId + '">indiv ' +
 			indivId + '</a>' +
 			', score = ' +
 			marr[i][1] + '</li>';
 	}
-	h += '</ul><div>' + approvalButtons(res.queryAnnotation, res.matchAnnotations) + '</div>';
+	//h += '</ul><div>' + approvalButtons(res.queryAnnotation, res.matchAnnotations) + '</div>';
+	h += '</ul>';
 
 	$('#results').html(h);
+
+	$('#link').append('<div id="approval-buttons"><input id="approval-button" type="button" data-id="' + marr[0][0] + '" value="Approve as indiv ' + marr[0][0] + '" onClick="newApproval(this);" /></div>');
+
+	if (marr[0].length > 3) {
+		jQuery('#image-compare').html('<img src="' + marr[0][3] + '" />');
+	} else {
+		jQuery('#image-compare').html('<p>no image</p>');
+	}
+
 	$('#results li').on('mouseover', function(ev) {
 		//var i = ev.currentTarget.getAttribute('data-i');
+		var iid = ev.currentTarget.getAttribute('data-individ');
+
+		$('#approval-button').val('Approve as indiv ' + iid).attr('data-id', iid);
+
 		var imgsrc = ev.currentTarget.getAttribute('data-imgsrc');
 		if (!imgsrc) {
 			jQuery('#image-compare').html('<p>no image</p>');
@@ -416,11 +450,16 @@ console.warn(inds);
 }
 
 
+function newApproval(el) {
+	var iid = el.getAttribute('data-id');
+	approvalButtonClick(qencId, iid);
+}
+
 function approvalButtonClick(encID, indivID) {
 	console.info('approvalButtonClick(%s, %s)', encID, indivID);
 	jQuery('#approval-buttons').html('<i>sending request...</i>');
 	jQuery.ajax({
-		url: 'matchResults.jsp?number=' + encID + '&individualID=' + indivID,
+		url: 'matchResults.jsp?number=' + encID + '&individualID=' + indivID + '&taskId=' + taskId,
 		type: 'GET',
 		dataType: 'json',
 		success: function(d) {
