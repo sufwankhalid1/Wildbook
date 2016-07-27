@@ -66,20 +66,25 @@ try {
       contentType: 'application/javascript',
       success: function(d) {
         console.info('identify returned %o', d);
-        if (d.taskID) {
+        if (d.taskId) {
 		$('#image-enhancer-wrapper-' + ma.id + ' .image-enhancer-overlay-message').html('<p>sending to result page...</p>');
-          window.location.href = 'matchResults.jsp?taskId=' + d.taskID;
+          window.location.href = 'matchResults.jsp?taskId=' + d.taskId;
         } else {
-		$('#image-enhancer-wrapper-' + ma.id + ' .image-enhancer-overlay-message').html('<p>error starting identification</p>');
+		$('#image-enhancer-wrapper-' + ma.id + ' .image-enhancer-overlay-message').html('<p>error starting identification</p>' + d.error);
         }
       },
       error: function(x,y,z) {
-		$('#image-enhancer-wrapper-' + ma.id + ' .image-enhancer-overlay-message').html('<p>error starting identification</p>');
+		$('#image-enhancer-wrapper-' + ma.id + ' .image-enhancer-overlay-message').html('<p>error starting identification</p>' + x+y+z);
         console.warn('%o %o %o', x, y, z);
       },
       data: JSON.stringify({
+        BenWhiteshark: { identify: ma.id }
+      })
+/*
+      data: JSON.stringify({
         identify: { annotationIds: [ aid ] }
       })
+*/
     });
   }
 
@@ -278,7 +283,7 @@ function doImageEnhancer(sel) {
 
 	if (wildbook.iaEnabled()) {
 		opt.menu.push(['start new matching scan', function(enh) {
-      if (isGenusSpeciesSet()) {
+      if (!isGenusSpeciesSet()) {
         imageEnhancer.popup("You need full taxonomic classification to start identification!");
         return;
       }

@@ -2,6 +2,8 @@
          import="org.ecocean.servlet.ServletUtilities,
 org.ecocean.identity.IdentityServiceLog,
 java.util.ArrayList,org.ecocean.Annotation, org.ecocean.Encounter,
+org.ecocean.media.MediaAsset,
+org.ecocean.media.MediaAssetFactory,
 org.dom4j.Document, org.dom4j.Element,org.dom4j.io.SAXReader, org.ecocean.*, org.ecocean.grid.MatchComparator, org.ecocean.grid.MatchObject, java.io.File, java.util.Arrays, java.util.Iterator, java.util.List, java.util.Vector, java.nio.file.Files, java.nio.file.Paths, java.nio.file.Path" %>
 
 <%
@@ -39,25 +41,26 @@ if ((request.getParameter("number") != null) && (request.getParameter("individua
   String taskId = request.getParameter("taskId");
 
 	String jobId = null;
-	String qannId = null;
+	int qmaId = -1;
 	Shepherd myShepherd2 = new Shepherd(context);
 	myShepherd2.beginDBTransaction();
-	ArrayList<IdentityServiceLog> logs = IdentityServiceLog.loadByTaskID(taskId, "IBEISIA", myShepherd2);
+	ArrayList<IdentityServiceLog> logs = IdentityServiceLog.loadByTaskID(taskId, "BenWhiteshark", myShepherd2);
         for (IdentityServiceLog l : logs) {
             if (l.getServiceJobID() != null) jobId = l.getServiceJobID();
-            if (l.getObjectID() != null) qannId = l.getObjectID();
+	    try {
+            	if ((l.getObjectIDs() != null) && (l.getObjectIDs().length > 0)) qmaId = Integer.parseInt(l.getObjectIDs()[0]);
+		} catch (Exception ex) {}
         }
 
 	String qMediaAssetJson = null;
-       	Annotation qann = null;
+	String qannId = null;
+       	//Annotation qann = null;
+	MediaAsset ma = MediaAssetFactory.load(qmaId, myShepherd2);
 	String num = null;
 	Encounter enc = null;
-	try {
-        	qann = ((Annotation) (myShepherd2.getPM().getObjectById(myShepherd2.getPM().newObjectIdInstance(Annotation.class, qannId), true)));
-	} catch (Exception ex) {}
-	if ((qann != null) && (qann.getMediaAsset() != null)) {
-		qMediaAssetJson = qann.getMediaAsset().sanitizeJson(request, new org.datanucleus.api.rest.orgjson.JSONObject()).toString();
-        	enc = Encounter.findByAnnotation(qann, myShepherd2);
+	if (ma != null) {
+		qMediaAssetJson = ma.sanitizeJson(request, new org.datanucleus.api.rest.orgjson.JSONObject()).toString();
+        	enc = Encounter.findByMediaAsset(ma, myShepherd2);
 		num = enc.getCatalogNumber();
 	}
 	
@@ -247,7 +250,7 @@ var qMediaAsset = <%=((qMediaAssetJson == null) ? "undefined" : qMediaAssetJson)
 
 
 
-<div id="link"><%
+<div id="link" style="clear: both;"><%
 	if (num != null) out.println("<a href=\"encounter.jsp?number=" + num + "\">Return to encounter</a>");
 %></div>
 
@@ -292,7 +295,10 @@ function init2() {   //called from wildbook.init() when finished
 
 function checkForResults() {
 	jQuery.ajax({
-		url: '../ia?getJobResultFromTaskID=' + taskId,
+		url: '../ia',
+		type: 'POST',
+		contentType: 'application/javascript',
+		data: JSON.stringify({BenWhiteshark: { taskResults: taskId }}),
 		success: function(d) {
 			console.info(d);
 			processResults(d);
@@ -306,7 +312,18 @@ function checkForResults() {
 
 var countdown = 100;
 function processResults(res) {
-	if (!res || !res.queryAnnotation) {
+/*
+	if (res && res.queryObjects && (res.queryObjects.length > 0)) {  //queryObjects is actually an array cuz it could be many!  we use first. :/
+		var enc = {};
+		if (res.queryObjects[0].encounterId) {
+			enc.catalogNumber = res.queryObjects[0].encounterId;
+		}
+		jQuery('#image-main').html('');
+		addImage(fakeEncounter(enc, res.queryObjects[0].asset), jQuery('#image-main'));
+	}
+*/
+
+	if (!res || !res.matches) {
 console.info('waiting to try again...');
 		$('#results').html('Waiting for results. You may leave this page.  [countdown=' + countdown + ']');
 		countdown--;
@@ -317,61 +334,42 @@ console.info('waiting to try again...');
 		setTimeout(function() { checkForResults(); }, 3000);
 		return;
 	}
-	if (res.queryAnnotation.encounter && res.queryAnnotation.mediaAsset) {
-		jQuery('#image-main').html('');
-		addImage(fakeEncounter(res.queryAnnotation.encounter, res.queryAnnotation.mediaAsset),
-			 jQuery('#image-main'));
-	}
-	if (!res.matchAnnotations || (res.matchAnnotations.length < 1)) {
+
+	if (!res.matches || (res.matches.length < 1)) {
 		jQuery('#image-compare').html('<img style="width: 225px; margin: 20px 30%;" src="../images/image-not-found.jpg" />');
 		$('#results').html('No matches found.');
 		return;
 	}
-	if (res.matchAnnotations.length == 1) {
-    var altIDString = res.matchAnnotations[0].encounter.otherCatalogNumbers;
-    if (altIDString && altIDString.length > 0) {
-      altIDString = ', altID '+altIDString;
-    }
 
-		$('#results').html('One match found (<a target="_new" href="encounter.jsp?number=' +
-			res.matchAnnotations[0].encounter.catalogNumber +
-			'">' + res.matchAnnotations[0].encounter.catalogNumber +
-			'</a> id ' + res.matchAnnotations[0].encounter.individualID + altIDString +
-			') - score ' + res.matchAnnotations[0].score + approvalButtons(res.queryAnnotation, res.matchAnnotations));
-		updateMatch(res.matchAnnotations[0]);
-		return;
-	}
-	// more than one match
-	res.matchAnnotations.sort(function(a,b) {
-		if (!a.score || !b.score) return 0;
-		return b.score - a.score;
-	});
-	updateMatch(res.matchAnnotations[0]);
-	var h = '<p><b>' + res.matchAnnotations.length + ' matches</b></p><ul>';
-	for (var i = 0 ; i < res.matchAnnotations.length ; i++) {
-      // a little handling of the alternate ID
-      var altIDString = res.matchAnnotations[i].encounter.otherCatalogNumbers;
-      if (altIDString && altIDString.length > 0) {
-        altIDString = ' (altID: '+altIDString+')';
-      }
-		h += '<li data-i="' + i + '"><a target="_new" href="encounter.jsp?number=' +
-			res.matchAnnotations[i].encounter.catalogNumber + '">' +
-			res.matchAnnotations[i].encounter.catalogNumber + altIDString + '</a> (' +
-			res.matchAnnotations[i].encounter.individualID + '), score = ' +
-			res.matchAnnotations[i].score + '</li>';
+////// TODO this makes the erroneous assumption we only have one query object -- but we need an overhaul of the ui to handle more than one!
+	var marr = res.matches[Object.keys(res.matches)[0]];
+	updateMatch(marr[0], res.matchImages);
+	var h = '<p><b>' + marr.length + ' matches</b></p><ul>';
+	for (var i = 0 ; i < marr.length ; i++) {
+console.info(marr[i]);
+		var indivId = Object.keys(marr[i])[0];
+console.info(indivId);
+		h += '<li data-imgsrc="' + res.matchImages[indivId] + '" data-i="' + i + '"><a target="_new" href="../individuals.jsp?number=' + indivId + '">indiv ' +
+			indivId + '</a>' +
+			', score = ' +
+			marr[i][indivId] + '</li>';
 	}
 	h += '</ul><div>' + approvalButtons(res.queryAnnotation, res.matchAnnotations) + '</div>';
 
 	$('#results').html(h);
 	$('#results li').on('mouseover', function(ev) {
-		var i = ev.currentTarget.getAttribute('data-i');
-		updateMatch(res.matchAnnotations[i]);
+		//var i = ev.currentTarget.getAttribute('data-i');
+		var imgsrc = ev.currentTarget.getAttribute('data-imgsrc');
+		jQuery('#image-compare').html('<img src="' + imgsrc + '" />');
 	});
 }
 
-function updateMatch(m) {
-		jQuery('#image-compare').html('');
-		addImage(fakeEncounter(m.encounter, m.mediaAsset),jQuery('#image-compare'));
+function updateMatch(m, imgMap) {
+	var indivId = Object.keys(m)[0];
+	if (!imgMap || !imgMap[indivId]) return;
+//console.warn('updateMatch(%o)', m);
+	jQuery('#image-compare').html('<img src="' + imgMap[indivId] + '" />');
+	//addImage(fakeEncounter(m.encounter, m.mediaAsset),jQuery('#image-compare'));
 }
 
 function fakeEncounter(e, ma) {

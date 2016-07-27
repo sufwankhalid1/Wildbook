@@ -58,9 +58,13 @@ console.log('is %o', ajax);
 */
 
 
+//"iaStatus":{"BenWhiteshark":{"enabled":true},"IBEIS":{"timestamp":1469576075649,"iaEnabled":false}}
     iaEnabled: function() {
         //FIXME when IBEISIA is caught up to current
-        return (wildbookGlobals && wildbookGlobals.iaStatus && wildbookGlobals.iaStatus.map && wildbookGlobals.iaStatus.map.iaEnabled);
+        return (wildbookGlobals && wildbookGlobals.iaStatus && (
+            (wildbookGlobals.iaStatus.IBEIS && wildbookGlobals.iaStatus.IBEIS.iaEnabled) ||
+            (wildbookGlobals.iaStatus.BenWhiteshark && wildbookGlobals.iaStatus.BenWhiteshark.enabled)
+        ));
     },
 
     // h/t http://stackoverflow.com/questions/1353684/detecting-an-invalid-date-date-instance-in-javascript

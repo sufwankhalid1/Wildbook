@@ -6,6 +6,7 @@ import java.io.IOException;
 import org.ecocean.Shepherd;
 import org.ecocean.Encounter;
 import org.ecocean.Annotation;
+import org.ecocean.MarkedIndividual;
 import org.ecocean.Util;
 import org.ecocean.servlet.ServletUtilities;
 import org.ecocean.CommonConfiguration;
@@ -14,6 +15,7 @@ import org.ecocean.media.MediaAssetFactory;
 import org.json.JSONObject;
 import org.json.JSONArray;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import org.apache.commons.lang3.StringUtils;
 
@@ -23,7 +25,6 @@ import org.ecocean.Util;
 import org.ecocean.Shepherd;
 import org.ecocean.Encounter;
 import org.ecocean.Occurrence;
-import org.ecocean.MarkedIndividual;
 import java.util.HashMap;
 import java.util.Map;
 import java.net.URL;
@@ -217,7 +218,10 @@ ids	scores
 
     //grabs from ident log if we have it, otherwise it will attempt to grab raw job results
     public static JSONObject getTaskResults(String taskId, Shepherd myShepherd) {
-        ArrayList<IdentityServiceLog> logs = IdentityServiceLog.loadByTaskID(taskId, SERVICE_NAME, myShepherd);
+        return getTaskResults(taskId, IdentityServiceLog.loadByTaskID(taskId, SERVICE_NAME, myShepherd), myShepherd);
+    }
+
+    public static JSONObject getTaskResults(String taskId, ArrayList<IdentityServiceLog> logs, Shepherd myShepherd) {
         if ((logs != null) && (logs.size() > 0)) {
             for (IdentityServiceLog log : logs) {
                 if ((log.getStatusJson() != null) && (log.getStatusJson().optJSONObject("results") != null))
@@ -281,7 +285,37 @@ ids	scores
         } else if (arg.optString("taskResults", null) != null) {
             String taskId = arg.getString("taskResults");
             res.put("taskId", taskId);
-            JSONObject tres = getTaskResults(taskId, myShepherd);
+            ArrayList<IdentityServiceLog> logs = IdentityServiceLog.loadByTaskID(taskId, SERVICE_NAME, myShepherd);
+            if ((logs == null) || (logs.size() < 1)) {
+                res.put("error", "unknown taskId=" + taskId);
+                return res;
+            }
+            String[] ids = null;
+            for (IdentityServiceLog log : logs) {
+                if ((log.getObjectIDs() != null) && (log.getObjectIDs().length > 0)) {
+                    ids = log.getObjectIDs();
+                    break;
+                }
+            }
+            if (ids != null) {
+                JSONArray qobjs = new JSONArray();
+                for (int i = 0 ; i < ids.length ; i++) {
+                    JSONObject j = new JSONObject();
+                    int mid = -1;
+                    try { mid = Integer.parseInt(ids[i]); } catch (Exception ex) {}
+                    MediaAsset ma = MediaAssetFactory.load(mid, myShepherd);
+                    if (ma != null) {
+                        try {
+                            j.put("asset", Util.toggleJSONObject(ma.sanitizeJson(request, new org.datanucleus.api.rest.orgjson.JSONObject())));
+                        } catch (Exception ex) {}
+                        Encounter enc = Encounter.findByMediaAsset(ma, myShepherd);
+                        if (enc != null) j.put("encounterId", enc.getCatalogNumber());
+                        qobjs.put(j);
+                    }
+                }
+                if (qobjs.length() > 0) res.put("queryObjects", qobjs);
+            }
+            JSONObject tres = getTaskResults(taskId, logs, myShepherd);
             if (tres == null) {
                 res.put("error", "no results for taskId=" + taskId);
                 return res;
@@ -293,6 +327,30 @@ ids	scores
             res.put("success", true);  //well, at least partially?
             res.remove("error");
             res.put("matches", tres);
+
+            JSONObject tarr = new JSONObject();
+            Iterator kit = tres.keys();
+            while (kit.hasNext()) {
+                String key = (String)kit.next();
+                if (tres.optJSONArray(key) == null) continue;
+                for (int i = 0 ; i < tres.getJSONArray(key).length() ; i++) {
+                    String indivId = (String)tres.getJSONArray(key).getJSONObject(i).keys().next();
+                    if (tarr.opt(indivId) == null) {
+                        MediaAsset ma = null;
+                        MarkedIndividual indiv = myShepherd.getMarkedIndividualQuiet(indivId);
+                        if (indiv != null) {
+                            for (Object obj : indiv.getEncounters()) {
+                                Encounter enc = (Encounter)obj;
+                                for (Annotation ann : enc.getAnnotations()) {
+                                    if ((ma == null) || ann.getIsExemplar()) ma = ann.getMediaAsset();
+                                }
+                            }
+                        }
+                        if (ma != null) tarr.put(indivId, ma.webURL().toString());
+                    }
+                }
+            }
+            res.put("matchImages", tarr);
 
         } else {
             res.put("error", "unknown command");
