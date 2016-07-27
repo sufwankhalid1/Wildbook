@@ -38,6 +38,7 @@ import java.io.*;
 import java.lang.reflect.Field;
 import javax.jdo.Query;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -2529,6 +2530,11 @@ throw new Exception();
 	}
 
         public static Encounter findByMediaAsset(MediaAsset ma, Shepherd myShepherd) {
+            if (ma == null) return null;
+            List<Encounter> encs = findAllByAnnotations(ma.getAnnotations(), myShepherd);
+            if ((encs == null) || (encs.size() < 1)) return null;
+            return encs.get(0);
+/*
             String queryString = "SELECT FROM org.ecocean.Encounter WHERE annotations.contains(ann) && ann.mediaAsset.id ==" + ma.getId();
             Encounter returnEnc=null;
             Query query = myShepherd.getPM().newQuery(queryString);
@@ -2538,13 +2544,16 @@ throw new Exception();
             }
             query.closeAll();
             return returnEnc;
+*/
         }
 
         public static List<Encounter> findAllByMediaAsset(MediaAsset ma, Shepherd myShepherd) {
-            List<Encounter> returnEncs = new ArrayList<Encounter>();
+            if (ma == null) return null;
+            return findAllByAnnotations(ma.getAnnotations(), myShepherd);
+/*
             try {
-                String queryString = "SELECT FROM org.ecocean.Encounter WHERE annotations.contains(ann) && ann.mediaAsset.id ==" + ma.getId();
-                //String queryString = "SELECT FROM org.ecocean.Encounter WHERE annotations.contains(ann) && ann.features.contains(mAsset) && mAsset.id ==" + ma.getId();
+                //String queryString = "SELECT FROM org.ecocean.Encounter WHERE annotations.contains(ann) && ann.mediaAsset.id ==" + ma.getId();
+                String queryString = "SELECT FROM org.ecocean.Encounter WHERE annotations.contains(ann) && ann.features.contains(mAsset) && mAsset.id ==" + ma.getId();
                 Query query = myShepherd.getPM().newQuery(queryString);
                 Collection results = (Collection) query.execute();
                 returnEncs = new ArrayList<Encounter>(results);
@@ -2553,7 +2562,7 @@ throw new Exception();
             catch (Exception e) {
 
             }
-            return returnEncs;
+*/
         }
 
 
@@ -2568,6 +2577,23 @@ throw new Exception();
             }
             query.closeAll();
             return returnEnc;
+        }
+        public static List<Encounter> findAllByAnnotations(ArrayList<Annotation> anns, Shepherd myShepherd) {
+            List<Encounter> all = new ArrayList<Encounter>();
+            if ((anns == null) || (anns.size() < 1)) return all;
+            List<String> ids = new ArrayList<String>();
+            for (Annotation ann : anns) {
+                ids.add(ann.getId());
+            }
+            String queryString = "SELECT FROM org.ecocean.Encounter WHERE annotations.contains(ann) && (ann.id == '" + StringUtils.join(ids, "' || ann.id == '") + "')";
+System.out.println(" --------> " + queryString);
+            Query query = myShepherd.getPM().newQuery(queryString);
+            List results = (List)query.execute();
+            for (Object r : results) {
+                all.add((Encounter)r);
+            }
+            query.closeAll();
+            return all;
         }
 
         public static Encounter findByAnnotationId(String annid, Shepherd myShepherd) {
