@@ -176,7 +176,7 @@ ids	scores
     // results are keyed off of MediaAsset id, which points to a LinkedHashMap of IndividualID/scores (from file)
     // if a key __ERROR__ exists, there was an error from the IA algorithm, which take the form of .err files, with the filename prefix
     // being either (a) the MediaAsset id [for specific error], or (b) taskId [for general]... notably this special key can exist in either map level
-    public static HashMap<String,LinkedHashMap<String,Object>> getJobResults(String taskId) {
+    public static HashMap<String,LinkedHashMap<String,Object>> getJobResultsRaw(String taskId) {
         File dir = new File(getJobResultsDir(), taskId);
         if (!dir.exists()) return null;
         HashMap<String,LinkedHashMap<String,Object>> rtn = new HashMap<String,LinkedHashMap<String,Object>>();
@@ -215,12 +215,58 @@ ids	scores
         return rtn;
     }
 
+    //grabs from ident log if we have it, otherwise it will attempt to grab raw job results
+    public static JSONObject getTaskResults(String taskId, Shepherd myShepherd) {
+        ArrayList<IdentityServiceLog> logs = IdentityServiceLog.loadByTaskID(taskId, SERVICE_NAME, myShepherd);
+        if ((logs != null) && (logs.size() > 0)) {
+            for (IdentityServiceLog log : logs) {
+                if ((log.getStatusJson() != null) && (log.getStatusJson().optJSONObject("results") != null))
+                    return log.getStatusJson().getJSONObject("results");
+            }
+        }
+        System.out.println("NOTE: getTaskResults(" + taskId + ") fell thru, trying getJobResultsRaw()");
+        HashMap<String,LinkedHashMap<String,Object>> raw = getJobResultsRaw(taskId);
+        if (raw == null) return null;
+        String[] ids = null;
+        if (!raw.containsKey(ERROR_KEY)) {
+            ids = new String[raw.keySet().size()];
+            ids = raw.keySet().toArray(ids);
+        }
+        JSONObject jlog = new JSONObject();
+        jlog.put("results", resultsAsJSONObject(raw));
+        IdentityServiceLog log = new IdentityServiceLog(taskId, ids, SERVICE_NAME, null, jlog);
+        log.save(myShepherd);
+        return resultsAsJSONObject(getJobResultsRaw(taskId));
+    }
+
+    public static JSONObject resultsAsJSONObject(HashMap<String,LinkedHashMap<String,Object>> resMap) {
+        if (resMap == null) return null;
+        JSONObject matches = new JSONObject();
+        if (resMap.containsKey(ERROR_KEY)) {
+            matches.put("error", resMap.get(ERROR_KEY).get(ERROR_KEY));  //yes, we assume this will exist... cuz we set it as such
+            return matches;
+        }
+        for (String mid : resMap.keySet()) {
+            if (resMap.get(mid).containsKey(ERROR_KEY)) {
+                matches.put(mid, resMap.get(mid).get(ERROR_KEY));
+                continue;
+            }
+            JSONArray marr = new JSONArray();
+            for (String iid : resMap.get(mid).keySet()) {
+                JSONObject jscore = new JSONObject();
+                jscore.put(iid, resMap.get(mid).get(iid));
+                marr.put(jscore);
+            }
+            matches.put(mid, marr);
+        }
+        return matches;
+    }
 
     public static JSONObject iaGateway(JSONObject arg, HttpServletRequest request) {
         JSONObject res = new JSONObject("{\"success\": false, \"error\": \"unknown\"}");
+        String context = ServletUtilities.getContext(request);
+        Shepherd myShepherd = new Shepherd(context);
         if (arg.optInt("identify", -1) > 0) {  //right now, start identify with {identify: maId}
-            String context = ServletUtilities.getContext(request);
-            Shepherd myShepherd = new Shepherd(context);
             int mid = arg.getInt("identify");
             MediaAsset ma = MediaAssetFactory.load(mid, myShepherd);
             if (ma == null) {
@@ -234,32 +280,19 @@ ids	scores
 
         } else if (arg.optString("taskResults", null) != null) {
             String taskId = arg.getString("taskResults");
-            HashMap<String,LinkedHashMap<String,Object>> jres = getJobResults(taskId);
-            if (jres == null) {
+            res.put("taskId", taskId);
+            JSONObject tres = getTaskResults(taskId, myShepherd);
+            if (tres == null) {
                 res.put("error", "no results for taskId=" + taskId);
                 return res;
             }
-            if (jres.containsKey(ERROR_KEY)) {  //general failure!
-                res.put("error", jres.get(ERROR_KEY).get(ERROR_KEY));  //yes, we assume this will exist... cuz we set it as such
+            if (tres.opt("error") != null) {  //general failure!
+                res.put("error", tres.get("error"));
                 return res;
             }
             res.put("success", true);  //well, at least partially?
             res.remove("error");
-            JSONObject matches = new JSONObject();
-            for (String mid : jres.keySet()) {
-                if (jres.get(mid).containsKey(ERROR_KEY)) {
-                    matches.put(mid, jres.get(mid).get(ERROR_KEY));
-                    continue;
-                }
-                JSONArray marr = new JSONArray();
-                for (String iid : jres.get(mid).keySet()) {
-                    JSONObject jscore = new JSONObject();
-                    jscore.put(iid, jres.get(mid).get(iid));
-                    marr.put(jscore);
-                }
-                matches.put(mid, marr);
-            }
-            res.put("matches", matches);
+            res.put("matches", tres);
 
         } else {
             res.put("error", "unknown command");
