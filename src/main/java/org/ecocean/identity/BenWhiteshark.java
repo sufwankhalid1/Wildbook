@@ -17,6 +17,7 @@ import org.json.JSONArray;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.net.URL;
 import org.apache.commons.lang3.StringUtils;
 
 /*
@@ -27,7 +28,6 @@ import org.ecocean.Encounter;
 import org.ecocean.Occurrence;
 import java.util.HashMap;
 import java.util.Map;
-import java.net.URL;
 import org.ecocean.media.*;
 import org.ecocean.RestClient;
 import java.io.File;
@@ -177,38 +177,41 @@ ids	scores
     // results are keyed off of MediaAsset id, which points to a LinkedHashMap of IndividualID/scores (from file)
     // if a key __ERROR__ exists, there was an error from the IA algorithm, which take the form of .err files, with the filename prefix
     // being either (a) the MediaAsset id [for specific error], or (b) taskId [for general]... notably this special key can exist in either map level
-    public static HashMap<String,LinkedHashMap<String,Object>> getJobResultsRaw(String taskId) {
+    public static HashMap<String,List<String[]>> getJobResultsRaw(String taskId) {
         File dir = new File(getJobResultsDir(), taskId);
         if (!dir.exists()) return null;
-        HashMap<String,LinkedHashMap<String,Object>> rtn = new HashMap<String,LinkedHashMap<String,Object>>();
+        HashMap<String,List<String[]>> rtn = new HashMap<String,List<String[]>>();
         //first lets check for a general error
         File gerr = new File(dir, taskId + ".err");
         if (gerr.exists()) {
             //we need to create a "results" LinkedHashMap to point to, so this is a little wonky
-            LinkedHashMap<String,Object> m = new LinkedHashMap<String,Object>();
-            m.put(ERROR_KEY, StringUtils.join(Util.readAllLines(gerr), ""));
+            List<String[]> m = new ArrayList<String[]>();
+            m.add(new String[]{StringUtils.join(Util.readAllLines(gerr), "")});
             rtn.put(ERROR_KEY, m);  //thus, to find error msg for general case, need to use ERROR_KEY twice
             return rtn;  //is our work really done here?  seems like implies fail
         }
         for (final File f : dir.listFiles()) {
             if (f.isDirectory()) continue;  //"should never happen"
-            LinkedHashMap<String,Object> m = new LinkedHashMap<String,Object>();
+            List<String[]> m = new ArrayList<String[]>();
             String id = f.getName();  //will get truncated
             if (id.indexOf(".err") > -1) {
                 id = id.substring(0, id.length() - 4);
-                m.put(ERROR_KEY, StringUtils.join(Util.readAllLines(f), ""));
+                m.add(new String[]{ERROR_KEY, StringUtils.join(Util.readAllLines(f), ""), null});
                 rtn.put(id, m);
             } else if (id.indexOf(".txt") > -1) {
                 id = id.substring(0, id.length() - 4);
                 for (String line : Util.readAllLines(f)) {
                     if (line.indexOf("ids\t") == 0) continue;  //skip header
+/*
                     String[] data = StringUtils.split(line, "\t");
-                    if (data.length < 2) continue;  //no?
+                    if (data.length < 3) continue;  //no?
                     Double score = -1.0;  //if parsing fails?
                     try {
                         score = Double.parseDouble(data[1]);
                     } catch (NumberFormatException ex) { };  //meh
                     m.put(data[0], score);
+*/
+                    m.add(StringUtils.split(line, "\t"));
                 }
                 rtn.put(id, m);
             }
@@ -229,7 +232,7 @@ ids	scores
             }
         }
         System.out.println("NOTE: getTaskResults(" + taskId + ") fell thru, trying getJobResultsRaw()");
-        HashMap<String,LinkedHashMap<String,Object>> raw = getJobResultsRaw(taskId);
+        HashMap<String,List<String[]>> raw = getJobResultsRaw(taskId);
         if (raw == null) return null;
         String[] ids = null;
         if (!raw.containsKey(ERROR_KEY)) {
@@ -240,27 +243,32 @@ ids	scores
         jlog.put("results", resultsAsJSONObject(raw));
         IdentityServiceLog log = new IdentityServiceLog(taskId, ids, SERVICE_NAME, null, jlog);
         log.save(myShepherd);
-        return resultsAsJSONObject(getJobResultsRaw(taskId));
+        return resultsAsJSONObject(raw);
     }
 
-    public static JSONObject resultsAsJSONObject(HashMap<String,LinkedHashMap<String,Object>> resMap) {
+    public static JSONObject resultsAsJSONObject(HashMap<String,List<String[]>> resMap) {
         if (resMap == null) return null;
         JSONObject matches = new JSONObject();
         if (resMap.containsKey(ERROR_KEY)) {
-            matches.put("error", resMap.get(ERROR_KEY).get(ERROR_KEY));  //yes, we assume this will exist... cuz we set it as such
+            matches.put("error", resMap.get(ERROR_KEY).get(0)[0]);
             return matches;
         }
         for (String mid : resMap.keySet()) {
-            if (resMap.get(mid).containsKey(ERROR_KEY)) {
-                matches.put(mid, resMap.get(mid).get(ERROR_KEY));
+            if ((resMap.get(mid).size() > 0) && (resMap.get(mid).get(0).length > 0) && ERROR_KEY.equals(resMap.get(mid).get(0)[0])) {
+                matches.put(mid, resMap.get(mid).get(0)[1]);
                 continue;
             }
             JSONArray marr = new JSONArray();
+            for (int i = 0 ; i < resMap.get(mid).size() ; i++) {
+                marr.put(new JSONArray(resMap.get(mid).get(i)));
+            }
+/*
             for (String iid : resMap.get(mid).keySet()) {
                 JSONObject jscore = new JSONObject();
                 jscore.put(iid, resMap.get(mid).get(iid));
                 marr.put(jscore);
             }
+*/
             matches.put(mid, marr);
         }
         return matches;
@@ -326,15 +334,35 @@ ids	scores
             }
             res.put("success", true);  //well, at least partially?
             res.remove("error");
+            Iterator kit = tres.keys();
+            while (kit.hasNext()) {
+                String key = (String)kit.next();
+                if (tres.optJSONArray(key) == null) continue;
+                for (int i = 0 ; i < tres.getJSONArray(key).length() ; i++) {
+                    JSONArray row = tres.getJSONArray(key).optJSONArray(i);
+                    if (row == null) continue;
+                    if (row.optString(2, null) != null) {
+                        String url = getUrlForMediaAssetUUID(row.getString(2), myShepherd);
+                        if (url != null) {
+                            row.put(url);
+                            tres.getJSONArray(key).put(i, row);
+                        }
+                    }
+                }
+            }
             res.put("matches", tres);
 
+/*
             JSONObject tarr = new JSONObject();
             Iterator kit = tres.keys();
             while (kit.hasNext()) {
                 String key = (String)kit.next();
                 if (tres.optJSONArray(key) == null) continue;
                 for (int i = 0 ; i < tres.getJSONArray(key).length() ; i++) {
-                    String indivId = (String)tres.getJSONArray(key).getJSONObject(i).keys().next();
+                    //String indivId = (String)tres.getJSONArray(key).getJSONObject(i).keys().next();
+                    String indivId = tres.getJSONArray(key).getJSONArray(i).optString(0, null);
+System.out.println("[" + key + "] indivId ==> " + indivId);
+                    if ((indivId == null) || indivId.equals(ERROR_KEY)) continue;
                     if (tarr.opt(indivId) == null) {
                         MediaAsset ma = null;
                         MarkedIndividual indiv = myShepherd.getMarkedIndividualQuiet(indivId);
@@ -351,6 +379,7 @@ ids	scores
                 }
             }
             res.put("matchImages", tarr);
+*/
 
         } else {
             res.put("error", "unknown command");
@@ -358,5 +387,12 @@ ids	scores
         return res;
     }
 
+    private static String getUrlForMediaAssetUUID(String uuid, Shepherd myShepherd) {
+        MediaAsset ma = MediaAssetFactory.loadByUuid(uuid, myShepherd);
+        if (ma == null) return null;
+        URL url = ma.webURL();
+        if (url == null) return null;
+        return url.toString();
+    }
 
 }

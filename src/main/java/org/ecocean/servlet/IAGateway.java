@@ -548,6 +548,14 @@ System.out.println("anns -> " + anns);
     } else if (j.optJSONObject("resolver") != null) {
         res = Resolver.processAPIJSONObject(j.getJSONObject("resolver"), myShepherd);
 
+    } else if (j.optString("taskIds", null) != null) {  //pass annotation id
+        res.put("taskIds", IBEISIA.findTaskIDsFromObjectID(j.getString("taskIds"), myShepherd));
+        res.put("success", true);
+
+    } else if (j.optJSONArray("taskSummary") != null) {  //pass annotation ids
+        res.put("taskSummary", taskSummary(j.getJSONArray("taskSummary"), myShepherd));
+        res.put("success", true);
+
     } else {
         res.put("error", "unknown POST command");
         res.put("success", false);

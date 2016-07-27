@@ -80,11 +80,22 @@ if ((request.getParameter("number") != null) && (request.getParameter("individua
 	height: 5em;
 }
 
+#all-wrapper {
+}
+
 #results {
+	height: 300px;
+	overflow-y: scroll;
 	display: inline-block;
+	width: 20%;
+}
+
+#results li:hover {
+	background-color: #DDD;
 }
 
 #result-images {
+	display: inline;
 	margin-bottom: 100px;
 }
 
@@ -151,7 +162,7 @@ tr.clickable:hover .link-button {
 .result-image-wrapper {
 	padding: 9px;
 	border-radius: 6px;
-	width: 47%;
+	width: 30%;
 	margin: 4px;
 	float: left;
 	top: 0;
@@ -244,9 +255,10 @@ var qMediaAsset = <%=((qMediaAssetJson == null) ? "undefined" : qMediaAssetJson)
 
 
 
-<div id="results">Waiting for results....</div>
-
-<div id="result-images"></div>
+<div id="all-wrapper">
+	<div id="results">Waiting for results....</div>
+	<div id="result-images"></div>
+</div>
 
 
 
@@ -347,12 +359,12 @@ console.info('waiting to try again...');
 	var h = '<p><b>' + marr.length + ' matches</b></p><ul>';
 	for (var i = 0 ; i < marr.length ; i++) {
 console.info(marr[i]);
-		var indivId = Object.keys(marr[i])[0];
+		var indivId = marr[i][0];
 console.info(indivId);
-		h += '<li data-imgsrc="' + res.matchImages[indivId] + '" data-i="' + i + '"><a target="_new" href="../individuals.jsp?number=' + indivId + '">indiv ' +
+		h += '<li data-imgsrc="' + ((marr[i].length > 3) ? marr[i][3] : '') + '" data-i="' + i + '"><a target="_new" href="../individuals.jsp?number=' + indivId + '">indiv ' +
 			indivId + '</a>' +
 			', score = ' +
-			marr[i][indivId] + '</li>';
+			marr[i][1] + '</li>';
 	}
 	h += '</ul><div>' + approvalButtons(res.queryAnnotation, res.matchAnnotations) + '</div>';
 
@@ -360,7 +372,11 @@ console.info(indivId);
 	$('#results li').on('mouseover', function(ev) {
 		//var i = ev.currentTarget.getAttribute('data-i');
 		var imgsrc = ev.currentTarget.getAttribute('data-imgsrc');
-		jQuery('#image-compare').html('<img src="' + imgsrc + '" />');
+		if (!imgsrc) {
+			jQuery('#image-compare').html('<p>no image</p>');
+		} else {
+			jQuery('#image-compare').html('<img src="' + imgsrc + '" />');
+		}
 	});
 }
 
