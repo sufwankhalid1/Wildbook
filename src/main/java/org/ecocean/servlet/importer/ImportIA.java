@@ -123,7 +123,7 @@ System.out.println(" - - - skipping existing " + exist);
                 thisFancy.put(IBEISIA.toFancyUUID(annotUUIDs.get(acount)));
                 acount++;
             }
-System.out.println(acount + " of " + annotUUIDs.size() + " ================================================ now have a batch to fetch: " + thisBatch);
+System.out.println(acount + " of " + annotUUIDs.size() + " (thisBatch.size " + thisBatch.size() + ") ================================================ now have a batch to fetch:\n" + thisBatch);
             if (thisBatch.size() > 0) {
                 myShepherd.beginDBTransaction();
                 List<Annotation> these = IBEISIA.grabAnnotations(thisBatch, myShepherd);
@@ -140,6 +140,7 @@ System.out.println(" >>> thisNames length = " + thisNames.length());
                     e.printStackTrace();
                 }
             }
+System.out.println(" + + thisBatch grabbed and saved?");
         }
 
         //at this point we should have annots and iaNamesArray filled
@@ -197,7 +198,7 @@ System.out.println("--- sex=" + sex);
         myShepherd.storeNewEncounter(enc, Util.generateUUID());
         myShepherd.commitDBTransaction();
         myShepherd.beginDBTransaction();
-        System.out.println("IA-IMPORT: " + enc);
+        System.out.println("IA-IMPORT: " + name + " --> " + enc);
 
         if (!IBEISIA.unknownName(name)) {
             enc.setIndividualID(name);
