@@ -85,6 +85,11 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
  
  	<link rel="shortcut icon" href="http://catnip.wildbook.org/favicon.ico" />
  
+ <link rel="apple-touch-icon" sizes="57x57" href="http://catnip.wildbook.org/images/apple-icon-57x57.png" />
+<link rel="apple-touch-icon" sizes="72x72" href="http://catnip.wildbook.org/images/apple-icon-72x72.png" />
+<link rel="apple-touch-icon" sizes="114x114" href="http://catnip.wildbook.org/images/apple-icon-114x114.png" />
+<link rel="apple-touch-icon" sizes="144x144" href="http://catnip.wildbook.org/images/apple-icon-144x144.png" />
+ 
  	<!-- Start Open Graph Tags -->
  	<meta property="og:url" content="<%=request.getRequestURI() %>?<%=request.getQueryString() %>" />
   	<!-- End Open Graph Tags -->
