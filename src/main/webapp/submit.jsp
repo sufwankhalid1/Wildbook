@@ -712,7 +712,7 @@ if(CommonConfiguration.showProperty("maximumElevationInMeters",context)){
           </div>
         </div>
       </div>
-
+<!--  
       <div class="col-xs-12 col-lg-6">
         <h3>About the photographer</h3>
         <p class="help-block">
@@ -737,13 +737,15 @@ if(CommonConfiguration.showProperty("maximumElevationInMeters",context)){
           </div>
         </div>
       </div>
-
+-->
     </div>
   </fielset>
 
   <hr/>
 
   <fieldset>
+    
+    <!--  
     <div class="form-group">
       <div class="col-xs-6 col-md-4">
         <label class="control-label">Organization</label>
@@ -762,7 +764,7 @@ if(CommonConfiguration.showProperty("maximumElevationInMeters",context)){
         <input class="form-control" name="submitterProject" type="text" id="submitterProject" size="75" value="<%=project %>">
       </div>
     </div>
-
+-->
     <div class="form-group">
       <div class="col-xs-6 col-md-4">
         <label class="control-label">Additional comments</label>

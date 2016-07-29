@@ -213,7 +213,8 @@
 						 /CalendarXMLServer = authc, roles[researcher]
 				 /CalendarXMLServer2 = authc, roles[researcher]
 
-
+						/submit.jsp = authc
+				 
 						   /welcome.jsp = authc
 						   /UserAddProfileImage = authc
 						   /UserRemoveProfileImage = authc
