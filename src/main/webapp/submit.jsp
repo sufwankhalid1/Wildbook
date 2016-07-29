@@ -785,7 +785,7 @@ if(CommonConfiguration.showProperty("maximumElevationInMeters",context)){
     </a>
   </h4>
 
-    <div id="advancedInformation" fade="1" style="display: none;">
+    <div id="advancedInformation" fade="1">
 
       <h3>About the animal</h3>
 
@@ -879,7 +879,7 @@ if(CommonConfiguration.showProperty("showTaxonomy",context)){
 					</div>
 				</div>
 
-
+<!--  
         <div class="form-group">
           <div class="col-xs-6 col-md-4">
             <label class="control-label">Observed behavior</label>
@@ -900,6 +900,8 @@ if(CommonConfiguration.showProperty("showTaxonomy",context)){
             <input class="form-control" name="scars" type="text" id="scars" size="75">
           </div>
         </div>
+        
+        -->
 
 <%
 
