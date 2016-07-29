@@ -314,33 +314,8 @@ if(sharky.getIndividualCount()!=null){
 
 
 <p>
-<strong>Habitat</strong>
-<input name="occ:habitat" value="<%=sharky.getHabitat()%>" />
-</p>
-
-<p>
-<strong>Group Size</strong>
-<input name="occ:groupSize" value="<%=sharky.getGroupSize()%>" />
-</p>
-
-<p>
-<strong>Number Territorial Males</strong>
-<input name="occ:numTerMales" value="<%=sharky.getNumTerMales()%>" />
-</p>
-
-<p>
-<strong>Number Bachelor Males</strong>
-<input name="occ:numBachMales" value="<%=sharky.getNumBachMales()%>" />
-</p>
-
-<p>
-<strong>Number Lactating Females</strong>
-<input name="occ:numLactFemales" value="<%=sharky.getNumLactFemales()%>" />
-</p>
-
-<p>
-<strong>Number Non-lactating Females</strong>
-<input name="occ:numNonLactFemales" value="<%=sharky.getNumNonLactFemales()%>" />
+<strong>allMaleId</strong>
+<input name="occ:allMaleId" value="<%=sharky.getAllMaleId()%>" />
 </p>
 
 
@@ -359,13 +334,13 @@ if(sharky.getIndividualCount()!=null){
 </div>
 
 <p>
-<strong>Distance (meters)</strong>
-<input name="occ:distance" value="<%=sharky.getDistance()%>" />
+<strong>Distance to group centre (meters)</strong>
+<input name="occ:distance" value="<%=sharky.getDistanceToGroupCentre()%>" />
 </p>
 
 <p>
 <strong>Bearing (degrees from north)</strong>
-<input name="occ:bearing" value="<%=sharky.getBearing()%>" />
+<input name="occ:bearing" value="<%=sharky.getDirectionToGroupCentre()%>" />
 </p>
 
 
