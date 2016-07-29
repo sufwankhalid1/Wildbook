@@ -765,14 +765,7 @@ if(CommonConfiguration.showProperty("maximumElevationInMeters",context)){
       </div>
     </div>
 -->
-    <div class="form-group">
-      <div class="col-xs-6 col-md-4">
-        <label class="control-label">Additional comments</label>
-      </div>
-      <div class="col-xs-6 col-lg-8">
-        <textarea class="form-control" name="comments" id="comments" rows="5"></textarea>
-      </div>
-    </div>
+
   </fieldset>
 
 
@@ -871,7 +864,7 @@ if(CommonConfiguration.showProperty("showTaxonomy",context)){
 
 				<div class="form-group">
 					<div class="col-xs-6 col-md-4">
-						<label class="control-label">Alternate ID</label>
+						<label class="control-label">Name(s) used for cat:</label>
 					</div>
 
 					<div class="col-xs-6 col-lg-8">
@@ -1079,15 +1072,28 @@ if(CommonConfiguration.showProperty("showLifestage",context)){
     </div>
 </c:if>
 
+
       </fieldset>
 
+ 
 <hr/>
-
+    <div class="form-group">
+      <div class="col-xs-6 col-md-4">
+        <label class="control-label">Additional comments</label>
+      </div>
+      <div class="col-xs-6 col-lg-8">
+        <textarea class="form-control" name="comments" id="comments" rows="5"></textarea>
+      </div>
+    </div>
+<!-- 
       <div class="form-group">
         <label class="control-label">Other email addresses to inform of resightings and status</label>
         <input class="form-control" name="informothers" type="text" id="informothers" size="75">
         <p class="help-block">Note: Multiple email addresses can be entered in email fields, using commas as separators.</p>
       </div>
+      
+      -->
+      
       </div>
 
 
