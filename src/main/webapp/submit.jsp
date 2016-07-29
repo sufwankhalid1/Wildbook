@@ -218,7 +218,9 @@ $(function() {
     $( "#releasedatepicker" ).datepicker( "option", "maxDate", "+1d" );
 });
 
-var center = new google.maps.LatLng(10.8, 160.8);
+var center = new google.maps.LatLng(17.30868,-62.68867492675781);
+
+
 
 var map;
 
@@ -242,13 +244,11 @@ function placeMarker(location) {
     }
 
   function initialize() {
-    var mapZoom = 3;
+    var mapZoom = 11;
     if($("#map_canvas").hasClass("full_screen_map")){mapZoom=3;}
 
 
-    if(marker!=null){
-        center = new google.maps.LatLng(10.8, 160.8);
-    }
+
 
     map = new google.maps.Map(document.getElementById('map_canvas'), {
           zoom: mapZoom,
@@ -988,7 +988,7 @@ if(CommonConfiguration.showProperty("showLifestage",context)){
       <hr/>
 
        <fieldset>
-        <h3>Tags</h3>
+        <h3>Tags (Researchers only)</h3>
       <%
   pageContext.setAttribute("showMetalTags", CommonConfiguration.showMetalTags(context));
   pageContext.setAttribute("showAcousticTag", CommonConfiguration.showAcousticTag(context));
