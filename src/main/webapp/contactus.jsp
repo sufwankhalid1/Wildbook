@@ -23,7 +23,7 @@
 
         <p>The team welcomes your comments and questions.</p>
 
-<p>Please email us, and one of us will respond as quickly as possible.</p>
+<p>Please email us at <a href="mailto:SKCatNIP@rossvet.edu.kn">SKCatNIP@rossvet.edu.kn</a>, and one of us will respond as quickly as possible.</p>
    
       <!-- end maintext -->
       </div>
