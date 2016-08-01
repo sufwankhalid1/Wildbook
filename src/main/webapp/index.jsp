@@ -534,8 +534,7 @@ finally{
                             </p>
                             <p><%=featuredUser.getUserStatement() %></p>
                         </div>
-                        <a href="whoAreWe.jsp" title="" class="cta">Show me all the contributors</a>
-                    </div>
+                        </div>
                 </section>
             <%
             } // end if
