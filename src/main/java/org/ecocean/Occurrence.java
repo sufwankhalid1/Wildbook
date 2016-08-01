@@ -156,11 +156,11 @@ public class Occurrence implements java.io.Serializable{
   private Integer hybridAgeAndSexUnk;
   private Integer totalIndividualsCalculated;
   private Integer totalIndividuals;
-  private String n1_OtherSpecies;
+  private String otherSpecies1;
   private Integer number1stSp;
-  private String n2_OtherSpecies;
+  private String otherSpecies2;
   private Integer number2ndSp;
-  private String n3_OtherSpecies;
+  private String otherSpecies3;
   private Integer number3rdSp;
   private String sun;
   private String wind;
@@ -1080,11 +1080,11 @@ public class Occurrence implements java.io.Serializable{
   public void setTotalIndividuals(Integer totalIndividuals){
   	this.totalIndividuals = totalIndividuals;
   }
-  public String getN1_OtherSpecies(){
-  	return(n1_OtherSpecies);
+  public String getOtherSpecies1(){
+  	return(otherSpecies1);
   }
-  public void setN1_OtherSpecies(String n1_OtherSpecies){
-  	this.n1_OtherSpecies = n1_OtherSpecies;
+  public void setOtherSpecies1(String otherSpecies1){
+  	this.otherSpecies1 = otherSpecies1;
   }
   public Integer getNumber1stSp(){
   	return(number1stSp);
@@ -1092,11 +1092,11 @@ public class Occurrence implements java.io.Serializable{
   public void setNumber1stSp(Integer number1stSp){
   	this.number1stSp = number1stSp;
   }
-  public String getN2_OtherSpecies(){
-  	return(n2_OtherSpecies);
+  public String getOtherSpecies2(){
+  	return(otherSpecies2);
   }
-  public void setN2_OtherSpecies(String n2_OtherSpecies){
-  	this.n2_OtherSpecies = n2_OtherSpecies;
+  public void setOtherSpecies2(String otherSpecies2){
+  	this.otherSpecies2 = otherSpecies2;
   }
   public Integer getNumber2ndSp(){
   	return(number2ndSp);
@@ -1104,11 +1104,11 @@ public class Occurrence implements java.io.Serializable{
   public void setNumber2ndSp(Integer number2ndSp){
   	this.number2ndSp = number2ndSp;
   }
-  public String getN3_OtherSpecies(){
-  	return(n3_OtherSpecies);
+  public String getOtherSpecies3(){
+  	return(otherSpecies3);
   }
-  public void setN3_OtherSpecies(String n3_OtherSpecies){
-  	this.n3_OtherSpecies = n3_OtherSpecies;
+  public void setOtherSpecies3(String otherSpecies3){
+  	this.otherSpecies3 = otherSpecies3;
   }
   public Integer getNumber3rdSp(){
   	return(number3rdSp);

@@ -220,11 +220,11 @@ ImportMpalaExcel extends HttpServlet {
     occ.setHybridAgeAndSexUnk(getInteger(row,84));
     occ.setTotalIndividualsCalculated(getInteger(row,85));
     occ.setTotalIndividuals(getInteger(row,86));
-    occ.setN1_OtherSpecies(getString(row,87));
+    occ.setOtherSpecies1(getString(row,87));
     occ.setNumber1stSp(getInteger(row,88));
-    occ.setN2_OtherSpecies(getString(row,89));
+    occ.setOtherSpecies2(getString(row,89));
     occ.setNumber2ndSp(getInteger(row,90));
-    occ.setN3_OtherSpecies(getString(row,91));
+    occ.setOtherSpecies3(getString(row,91));
     occ.setNumber3rdSp(getInteger(row,92));
     occ.setSun(getString(row,93));
     occ.setWind(getString(row,94));

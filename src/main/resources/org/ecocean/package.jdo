@@ -371,19 +371,19 @@
       <field name="totalIndividuals" persistent-modifier="persistent" default-fetch-group="true">
       	<column jdbc-type="INTEGER" allows-null="true"/>
       </field>
-      <field name="n1_OtherSpecies" persistent-modifier="persistent" default-fetch-group="true">
+      <field name="otherSpecies1" persistent-modifier="persistent" default-fetch-group="true">
       	<column jdbc-type="LONGVARCHAR" allows-null="true"/>
       </field>
       <field name="number1stSp" persistent-modifier="persistent" default-fetch-group="true">
       	<column jdbc-type="INTEGER" allows-null="true"/>
       </field>
-      <field name="n2_OtherSpecies" persistent-modifier="persistent" default-fetch-group="true">
+      <field name="otherSpecies2" persistent-modifier="persistent" default-fetch-group="true">
       	<column jdbc-type="LONGVARCHAR" allows-null="true"/>
       </field>
       <field name="number2ndSp" persistent-modifier="persistent" default-fetch-group="true">
       	<column jdbc-type="INTEGER" allows-null="true"/>
       </field>
-      <field name="n3_OtherSpecies" persistent-modifier="persistent" default-fetch-group="true">
+      <field name="otherSpecies3" persistent-modifier="persistent" default-fetch-group="true">
       	<column jdbc-type="LONGVARCHAR" allows-null="true"/>
       </field>
       <field name="number3rdSp" persistent-modifier="persistent" default-fetch-group="true">
