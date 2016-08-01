@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8" language="java"
-         import="javax.jdo.Query,org.ecocean.*,org.ecocean.servlet.ServletUtilities,java.io.File, java.util.*, org.ecocean.genetics.*, org.ecocean.security.Collaboration, com.google.gson.Gson" %>
+         import="javax.jdo.Query,org.ecocean.*,org.ecocean.servlet.ServletUtilities,java.io.File, java.io.IOException, java.util.*, org.ecocean.genetics.*, org.ecocean.security.Collaboration, org.ecocean.social.*, com.google.gson.Gson, java.lang.reflect.Method, java.lang.reflect.InvocationTargetException" %>
 
 <%
 
@@ -152,21 +152,246 @@ context=ServletUtilities.getContext(request);
 
 <div class="container maincontent">
 
+<%!
+  static boolean newValEqualsOldVal(Occurrence occ, String getterName, int newVal) {
+    try {
+      java.lang.reflect.Method getter = occ.getClass().getMethod(getterName);
+      int oldVal = (Integer) getter.invoke(occ);
+      boolean result = (oldVal == newVal);
+      System.out.println("OCCURRENCE.JSP: "+getterName+" = "+oldVal);
+      System.out.println("              : newVal = "+newVal);
+      System.out.println("              : result = "+result);
+      return result;
+    } catch (Exception e) {
+      System.out.println("exception caught");
+    } finally {
+      return (false);
+    }
+  }
+
+  // excellent helper function by polygenelubricants on http://stackoverflow.com/a/2560017
+  static String splitCamelCase(String s) {
+     return s.replaceAll(
+        String.format("%s|%s|%s",
+           "(?<=[A-Z])(?=[A-Z][a-z])",
+           "(?<=[^A-Z])(?=[A-Z])",
+           "(?<=[A-Za-z])(?=[^A-Za-z])"
+        ),
+        " "
+     );
+  }
+
+
+  static String prettyFieldNameFromGetMethod(Method getMeth) {
+    String withoutGet = getMeth.getName().substring(3);
+    return splitCamelCase(withoutGet);
+  }
+
+  static String inputElemName(Method getMeth, String classNamePrefix) {
+    String fieldName = getMeth.getName().substring(3);
+    return ("oldValue-"+classNamePrefix+":"+fieldName);
+  }
+
+
+  static boolean isDisplayableGetter(Method method) {
+    try {
+      String methName = method.getName();
+      System.out.println("    methName = "+methName);
+      if (!methName.startsWith("get")) return false;
+      String fieldName = methName.substring(3);
+      System.out.println("    fieldName = "+fieldName);
+
+      Class fieldType = method.getReturnType();
+
+      Method setter = method.getDeclaringClass().getMethod("set"+fieldName, fieldType);
+      System.out.println("    setter = "+setter.getName());
+      System.out.println("    TRUE");
+      return true;
+    } catch (Exception e) {
+      System.out.println(e.toString());
+      return false;
+    }
+  }
+
+
+  // custom method to replicate a very specific table row format on this page
+  static void printOutClassFieldModifierRow(Object obj, Method getMethod, JspWriter out) throws IOException, IllegalAccessException, InvocationTargetException {
+    String className = obj.getClass().getSimpleName(); // e.g. "Occurrence"
+    String classNamePrefix = ""; // e.g. "occ"
+    if (className.length()>2) classNamePrefix = className.substring(0,3).toLowerCase();
+    else classNamePrefix = className.toLowerCase();
+
+    String printValue;
+    if (getMethod.invoke(obj)==null) printValue = "";
+    else printValue = getMethod.invoke(obj).toString();
+    String fieldName = prettyFieldNameFromGetMethod(getMethod);
+    String inputName = inputElemName(getMethod, classNamePrefix);
+
+    System.out.println("printOutClassFieldModifierRow on class "+classNamePrefix+": "+className+" "+printValue+" "+fieldName+" "+inputName);
+
+
+
+    out.println("\n<tr>");
+    out.println("\n\t<td>"+fieldName+"</td>");
+    out.println("\n\t<td>");
+    out.println("\n\t\t<input ");
+    out.println("name=\""+inputName+"\" ");
+    out.println("value=\""+printValue+"\"");
+    out.println("/>");
+    out.println("\t</td>");
+    out.println("</tr>");
+  }
+
+%>
+
+
 <%
   myShepherd.beginDBTransaction();
   try {
     if (myShepherd.isOccurrence(name)) {
 
 
-      Occurrence sharky = myShepherd.getOccurrence(name);
-      boolean hasAuthority = ServletUtilities.isUserAuthorizedForOccurrence(sharky, request);
+      Occurrence occ = myShepherd.getOccurrence(name);
+      boolean hasAuthority = ServletUtilities.isUserAuthorizedForOccurrence(occ, request);
 
 
 			ArrayList collabs = Collaboration.collaborationsForCurrentUser(request);
-			boolean visible = sharky.canUserAccess(request);
+			boolean visible = occ.canUserAccess(request);
+
+
+      String saving = request.getParameter("save");
+      String saveMessage = "";
+
+
+      if (saving != null) {
+
+        System.out.println("OCCURRENCE.JSP: Saving updated info...");
+
+        Encounter[] dateSortedEncs = occ.getDateSortedEncounters(false);
+        int total = dateSortedEncs.length;
+
+        HashMap<String,Encounter> encById = new HashMap<String,Encounter>();
+        for (int i = 0; i < total; i++) {
+          Encounter enc = dateSortedEncs[i];
+          encById.put(enc.getCatalogNumber(), enc);
+        }
+
+        ArrayList<Encounter> changedEncs = new ArrayList<Encounter>();
+        //myShepherd.beginDBTransaction();
+        Enumeration en = request.getParameterNames();
+        while (en.hasMoreElements()) {
+          String pname = (String)en.nextElement();
+          if (pname.indexOf("occ:") == 0) {
+            String methodName = "set" + pname.substring(4,5).toUpperCase() + pname.substring(5);
+            String getterName = "get" + methodName.substring(3);
+            String value = request.getParameter(pname);
+            //saveMessage += "<p>occ - " + methodName + "</P>";
+            java.lang.reflect.Method method;
+            if ((pname.indexOf("decimalL") > -1) || pname.equals("occ:distance") || pname.equals("occ:bearing")) {  //must call with Double value
+              Double dbl = null;
+              try {
+                dbl = Double.parseDouble(value);
+              } catch (Exception ex) {
+                System.out.println("could not parse double from " + value + ", using null");
+              }
+              try {
+                method = occ.getClass().getMethod(methodName, Double.class);
+                method.invoke(occ, dbl);
+                System.out.println("OCCURRENCE.JSP: just invoked "+methodName+" with value "+dbl);
+              } catch (Exception ex) {
+                System.out.println(methodName + " -> " + ex.toString());
+              }
+            } else if ((pname.indexOf("num") == 4) || pname.equals("occ:groupSize")) {  //int
+              Integer i = null;
+              boolean valueIsNew;
+              try {
+                i = Integer.parseInt(value);
+                System.out.println("OCCURRENCE.JSP: parsed integer value "+i+" for method "+methodName);
+                boolean newValSameAsOld = newValEqualsOldVal(occ, getterName, i);
+                System.out.println("              : newValSameAsOld = "+newValSameAsOld);
+                valueIsNew = !newValSameAsOld;
+                System.out.println("              : valueIsNew = "+valueIsNew);
+              } catch (Exception ex) {
+                System.out.println("could not parse integer from " + value + ", using null");
+              }
+              try {
+                method = occ.getClass().getMethod(methodName, Integer.class);
+                method.invoke(occ, i);
+                System.out.println("              : just invoked "+methodName+" with value "+i);
+              } catch (Exception ex) {
+                System.out.println(("caught exception on "+methodName+" -> "+ex.toString()));
+              }
+            } else {
+              try {
+                method = occ.getClass().getMethod(methodName, String.class);
+                method.invoke(occ, value);
+                System.out.println("              : just invoked "+methodName+" with value "+value);
+              } catch (Exception ex) {
+                System.out.println(methodName + " -> " + ex.toString());
+              }
+            }
+
+          } // encounter-related fields
+            else if (pname.indexOf(":") > -1) {
+            int i = pname.indexOf(":");
+            String id = pname.substring(0, i);
+            String methodName = "set" + pname.substring(i+1, i+2).toUpperCase() + pname.substring(i+2);
+            String value = request.getParameter(pname);
+            Encounter enc = encById.get(id);
+            if (enc != null) {
+              java.lang.reflect.Method method;
+              if (methodName.equals("set_relMother")) {  //special case - make relationship
+                if ((value != null) && !value.equals("") && (enc.getIndividualID() != null)) {
+                  MarkedIndividual partnerIndiv = myShepherd.getMarkedIndividual(value);
+                  if (partnerIndiv != null) {
+                    Relationship rel = new Relationship("familial", enc.getIndividualID(), value, "mother", "calf");  //TODO generalize, i guess
+                    myShepherd.getPM().makePersistent(rel);
+                  }
+                }
+
+
+              } /*else if (methodName.equals("setAgeAtFirstSighting")) {  //need a Double, sets on individual
+                Double dbl = null;
+                try {
+                  dbl = Double.parseDouble(value);
+                } catch (Exception ex) {
+                  System.out.println("could not parse double from " + value + ", using null");
+                }
+                if ((dbl != null) && (enc.getIndividualID() != null)) {
+                  MarkedIndividual ind = myShepherd.getMarkedIndividual(enc.getIndividualID());
+                  if (ind != null) {
+                    ind.setAgeAtFirstSighting(dbl);
+                  }
+                }
+
+              } */ else {  //string
+                try {
+                  method = enc.getClass().getMethod(methodName, String.class);
+                  method.invoke(enc, value);
+                  System.out.println("OCCURRENCE.JSP: just invoked "+methodName+" with value "+value);
+                  if (!changedEncs.contains(enc)) changedEncs.add(enc);
+                } catch (Exception ex) {
+                  System.out.println(methodName + " -> " + ex.toString());
+                }
+                //special case: we save the sex on the individual as well, if none is set there
+                if (methodName.equals("setSex") && (value != null) && !value.equals("") && !value.equals("unknown") && (enc.getIndividualID() != null)) {
+                  MarkedIndividual ind = myShepherd.getMarkedIndividual(enc.getIndividualID());
+                  if ((ind != null) && ((ind.getSex() == null) || ind.getSex().equals("") || ind.getSex().equals("unknown"))) {
+                    ind.setSex(value);
+                    System.out.println("setting sex=" + value + " on indiv " + ind.getIndividualID());
+                  }
+                }
+              }
+            }
+          }
+        }
+        myShepherd.commitDBTransaction();
+        System.out.println("OCCURRENCE.JSP: Transaction committed");
+      }
+
 
 			if (!visible) {
-  			ArrayList<String> uids = sharky.getAllAssignedUsers();
+  			ArrayList<String> uids = occ.getAllAssignedUsers();
 				ArrayList<String> possible = new ArrayList<String>();
 				for (String u : uids) {
 					Collaboration c = null;
@@ -196,7 +421,7 @@ context=ServletUtilities.getContext(request);
 <table><tr>
 
 <td valign="middle">
- <h1><strong><img align="absmiddle" src="images/occurrence.png" />&nbsp;<%=props.getProperty("occurrence") %></strong>: <%=sharky.getOccurrenceID()%></h1>
+ <h1><strong>&nbsp;<%=props.getProperty("occurrence") %></strong> <%=occ.getOccurrenceID()%></h1>
 <p class="caption"><em><%=props.getProperty("description") %></em></p>
  <table><tr valign="middle">
   <td>
@@ -216,9 +441,9 @@ context=ServletUtilities.getContext(request);
 
 <p><%=props.getProperty("groupBehavior") %>:
 <%
-if(sharky.getGroupBehavior()!=null){
+if(occ.getGroupBehavior()!=null){
 %>
-	<%=sharky.getGroupBehavior() %>
+	<%=occ.getGroupBehavior() %>
 <%
 }
 %>
@@ -273,7 +498,7 @@ if(sharky.getGroupBehavior()!=null){
         }
         %>
         <input name="groupBehaviorName" type="submit" id="Name" value="<%=props.getProperty("set") %>">
-        </form>
+      </form> <!-- end of setGroupBehavior form -->
     </td>
   </tr>
 </table>
@@ -294,54 +519,311 @@ $("a#groupB").click(function() {
 </script>
 
 
-<p><%=props.getProperty("numMarkedIndividuals") %>: <%=sharky.getMarkedIndividualNamesForThisOccurrence().size() %></p>
+<p><%=props.getProperty("numMarkedIndividuals") %>: <%=occ.getMarkedIndividualNamesForThisOccurrence().size() %></p>
 
-<p><%=props.getProperty("estimatedNumMarkedIndividuals") %>:
+<!--<p><%=props.getProperty("estimatedNumMarkedIndividuals") %>:
 <%
-if(sharky.getIndividualCount()!=null){
+if(occ.getIndividualCount()!=null){
 %>
-	<%=sharky.getIndividualCount() %>
+	<%=occ.getIndividualCount() %>
 <%
 }
 %>
+-->
 &nbsp; <%if (hasAuthority && CommonConfiguration.isCatalogEditable(context)) {%><a id="indies" style="color:blue;cursor: pointer;"><img align="absmiddle" width="20px" height="20px" style="border-style: none;" src="images/Crystal_Clear_action_edit.png" /></a><%}%>
 </p>
 
 
+<div class="row">
+<div class="col-sm-12">
 <form method="post" action="occurrence.jsp" id="occform">
-<input name="number" type="hidden" value="<%=sharky.getOccurrenceID()%>" />
+<input name="number" type="hidden" value="<%=occ.getOccurrenceID()%>" />
+
+<style type="text/css">
+  tr.padding-below td {
+    padding-bottom: 20px;
+  }
+
+  table.occurrence-field-edit td:first-child {
+    padding-right: 3em;
+  }
+  table.occurrence-field-edit td {
+    padding-right: 0px;
+    padding-top: 2px;
+    padding-bottom: 3px;
+  }
+
+  table.occurrence-field-edit td.undo-container {
+    display: none;
+  }
+  table.occurrence-field-edit tr.changed-row td.undo-container {
+    display: unset;
+    padding: 0px;
+    margin: 0px;
+  }
+  table.occurrence-field-edit tr.changed-row td.undo-container div {
+    color: #000;
+    background: inherit;
+    border:none;
+    margin:0px;
+    padding: 6px;
+    padding-bottom:6px;
+    padding-top:5px;
+    font: inherit;
+    /*border is optional*/
+    cursor: pointer;
+  }
+
+  table.occurrence-field-edit tr.changed-row td.undo-container div.undo-button:hover {
+    cursor: pointer;
+    font-weight: bold;
+    background: #ddd;
+  }
+
+  table.occurrence-field-edit tr.padding-below td {
+    padding-bottom: 10px;
+  }
+
+
+  table.occurrence-field-edit tr.changed-row {
+    background: #ebebeb;
+    border-radius: 5px;
+  }
 
 
 
-<p>
-<strong>allMaleId</strong>
-<input name="occ:allMaleId" value="<%=sharky.getAllMaleId()%>" />
-</p>
+</style>
+
+<table  class="occurrence-field-edit">
+  <tr>
+    <td>
+      zebraSpecies
+    </td><td>
+      <input name="oldValue-occ:zebraSpecies" value="<%=occ.getZebraSpecies()%>" />
+    </td>
+  </tr>
+
+  <tr class="padding-below">
+    <td></td>
+  </tr>
+
+<tr>
+<td>Ranch</td>
+<td><input name="oldValue-occ:ranch" value="<%=occ.getRanch()%>" />
+</tr>
 
 
-<div style="position: relative; height: 40px;">
 
-<div style="position: absolute; top: 0; left: 0;">
-<strong>Decimal Latitude</strong>
-<input name="occ:decimalLatitude" value="<%=sharky.getDecimalLatitude()%>" />
+<%
+
+String[] gettersToDisplay = new String[]{"getDateDay", "getDateMonth", "getDateYear", "getGroupHabitatActivityTableRemark", "getZebraSpecies", "getRanch", "getLocalName", "getStartGpsX", "getStartGpsY", "getDistanceToGroupCentre", "getDirectionToGroupCentre", "getGroupSpread", "getTotalIndividualsCounted", "getAllMaleId", "getAllIndId", "getAllAgeStructureOp", "getMonth", "getSeason", "getInfs01female", "getInfs03female", "getInfs13female", "getInfs36female", "getInfs612female", "getInfs01male", "getInfs03male", "getInfs13male", "getInfs36male", "getInfs612Male", "getInfs01sexukn", "getInfs03sexukn", "getInfs13sexukn", "getInfs36sexukn", "getInfs612sexukn", "getYearlingFemale", "getYearlingMale", "getYearlingSexukn", "getTwoYearFemale", "getTwoYearMale", "getTwoYearSexukn", "getThreeYearMale", "getThreeYearFemale", "getThreeYearSexukn", "getAdFemaleReprostatusukn", "getAdFemalePreg", "getAdFemaleLact", "getAdFemaleNonlact", "getAdultMaleStallion", "getAdultMaleBachelor", "getYearlingMaleBachelor", "getTwoYearOldMaleBachelor", "getAdultMaleStatusUkn", "getTerritorialMale", "getAdultSexUkn", "getAgeSexUkn", "getInfs03HybridFemale", "getInfs03HybridMale", "getInfs03HybridUkn", "getInfs36HybridFemale", "getInfs36HybridMale", "getInfs36HybridUkn", "getInfs612HybridFemale", "getInfs612HybridMale", "getInfs612HybridUkn", "getYearlingHybridFemale", "getYearlingHybridMale", "getYearlingHybridUkn", "getTwoYearHybridFemale", "getTwoYearHybridMale", "getTwoYearHybridUkn", "getAdFemaleHybridReproStatusUkn", "getAdFemaleHybridPreg", "getAdFemaleHybridLact", "getAdFemaleHybridNonLact", "getAdultMaleHybridStallion", "getAdultMaleHybridBachelor", "getYearlingMaleHybridBachelor", "getTwoYearOldMaleHybridBachelor", "getAdultMaleHybridStatusUkn", "getAdultHybridSexUkn", "getHybridAgeAndSexUnk", "getTotalIndividualsCalculated", "getTotalIndividuals", "getN1_OtherSpecies", "getNumber1stSp", "getN2_OtherSpecies", "getNumber2ndSp", "getN3_OtherSpecies", "getNumber3rdSp", "getSun", "getWind", "getSoil", "getRain", "getCloudPercentage", "getHabitatObscurityBitNumber", "getHabitatObscurityCategory", "getDominantBushType", "getGrassColor", "getGrassHeight", "getDominantGrassSpecies1", "getDominantGrassSpecies2", "getDominantGrassSpecies3", "getOnRoad", "getUnusualEnvironment", "getNumberGrazing", "getNumberVigilant", "getNumberStanding", "getNumberWalking", "getNumberSocialising", "getNumberAgonism", "getNumberHealthMaintenance", "getNumberSexualBeh", "getNumberPlay", "getNumberNurseSuckle", "getNumberLying", "getNumberSalting", "getNumberMutualGrooming", "getNumberRunning", "getNumberBehaviorNotVisible", "getNumberDrinking", "getDirectionOfWalking", "getTotalIndividualsActivity", "getLoopNumber"};
+
+
+
+  for (String getterName : gettersToDisplay) {
+    Method occMeth = occ.getClass().getMethod(getterName);
+    System.out.println("Printing row for Method "+occMeth.getName());
+    if (isDisplayableGetter(occMeth)) {
+      System.out.println("isDisplayableGetter!");
+      printOutClassFieldModifierRow((Object) occ, occMeth, out);
+    }
+  }
+
+ %>
+
+
+
+<tr>
+
+<tr>
+<td>Local Name</td>
+<td><input name="oldValue-occ:localName" value="<%=occ.getLocalName()%>" /></td>
+</tr>
+
+<tr>
+<td>Total Individuals Counted</td>
+<td><input name="oldValue-occ:totalIndividualsCounted" value="<%=occ.getTotalIndividualsCounted()%>" /></td>
+</tr>
+
+
+</table>
+
+
+<div class="submit" style="position:relative">
+<input type="submit" name="save" value="Save" />
+<span class="note" style="position:absolute;bottom:9"></span>
 </div>
 
-<div style="position: absolute; top: 0; right: 0;">
-<strong>Decimal Longitude</strong>
-<input name="occ:decimalLongitude" value="<%=sharky.getDecimalLongitude()%>" />
+</form>
 </div>
+</div> <!--row -->
 
-</div>
+<script type="text/javascript">
 
-<p>
-<strong>Distance to group centre (meters)</strong>
-<input name="occ:distance" value="<%=sharky.getDistanceToGroupCentre()%>" />
-</p>
+var occFuncs = {};
+occFuncs.checkIfOldFormValue = function(changedElem) {
+  return ($(changedElem).attr("name").startsWith("oldValue-"));
+}
+occFuncs.checkIfOldFormValue$ = function($changedElem) {
+  return (changedElem.attr("name").startsWith("oldValue-"));
+}
 
-<p>
-<strong>Bearing (degrees from north)</strong>
-<input name="occ:bearing" value="<%=sharky.getDirectionToGroupCentre()%>" />
-</p>
+occFuncs.markFormFieldNotOld = function(changedElem) {
+  if (occFuncs.checkIfOldFormValue(changedElem)) {
+    $(changedElem).attr("name",$(changedElem).attr("name").substring(9));
+    $(changedElem).closest('tr').addClass("changed-row");
+  }
+}
+occFuncs.markFormFieldOld$ = function($inputElem) {
+  if (!occFuncs.checkIfOldFormValue($inputElem)){
+    $inputElem.attr("name","oldValue-"+$inputElem.attr("name"));
+  }
+
+}
+
+$(document).ready(function() {
+
+  var changedFields = {};
+
+  $("td.undo-container div.undo-button").click(function(event) {
+    event.stopPropagation();
+    var changedRow = $(this).closest('tr.changed-row');
+    changedRow.removeClass('changed-row');
+    var original = changedRow.attr('data-original-value');
+    var correspondingInput = changedRow.find('td input');
+    correspondingInput.val(original);
+    occFuncs.markFormFieldOld$(correspondingInput);
+  });
+
+	$('#occform input,#occform select').change(function() {
+    occFuncs.markFormFieldNotOld(this);
+    var str = $(this).val();
+    console.log('Change handler called on elem' + $(this).attr("name") + " to new val " + str);
+    changedFields[$(this).attr("name")] = str;
+		$('.submit').addClass('changes-made');
+		$('.submit .note').html('changes made. please save.');
+    console.log('changedFields = '+JSON.stringify(changedFields));
+    <%  /*out.println("WHOAH WE HAVE A CHANGE HERE");*/
+        System.out.println("OCCURRENCE.JSP: change detected in form (JS)");
+    %>
+	});
+	$('span.relationship').hover(function(ev) {
+//$('tr[data-indiv="07_091"]').hide();
+console.log(ev);
+		var jel = $(ev.target);
+		if (ev.type == 'mouseenter') {
+			var p = jel.data('partner');
+			$('tr[data-indiv="' + p + '"]').addClass('rel-partner');
+		} else {
+			$('.rel-partner').removeClass('rel-partner');
+		}
+	});
+	$('.enc-row').each(function(i, el) {
+		var eid = el.getAttribute('data-id');
+		el.setAttribute('title', 'click for: ' + eid);
+	});
+	$('.enc-row').click(function(el) {
+		var eid = el.currentTarget.getAttribute('data-id');
+		var w = window.open('encounters/encounter.jsp?number=' + eid, '_blank');
+		w.focus();
+		return false;
+	});
+
+	$('.col-sex').each(function(i, el) {
+		var p = $('<select><option value="">select sex</option><option>unknown</option><option>male</option><option>female</option></select>');
+		p.click( function(ev) { ev.stopPropagation(); } );
+		p.change(function() {
+			columnChange(this);
+		});
+		p.val($(el).html());
+		$(el).html(p);
+		//console.log('%o: %o', i, el);
+	});
+
+	$('.col-ageAtFirstSighting').each(function(i, el) {
+		if (!$(el).parent().data('indiv')) return;
+		var p = $('<input style="width: 30px;" placeholder="yrs" />');
+		p.click( function(ev) { ev.stopPropagation(); } );
+		p.change(function() {
+			columnChange(this);
+		});
+		p.val($(el).html());
+		$(el).html(p);
+	});
+
+	$('.col-zebraClass').each(function(i, el) {
+		var p = $('<select><option value="Unknown">Unknown</option><option>LF</option><option>NLF</option><option>TM</option><option>BM</option><option>JUV</option><option>FOAL</option></select>');
+		p.click( function(ev) { ev.stopPropagation(); } );
+		p.change(function() {
+			columnChange(this);
+		});
+		p.val($(el).html());
+		$(el).html(p);
+	});
+
+
+});
+
+
+function columnChange(el) {
+	var jel = $(el);
+	var prop = jel.parent().data('prop');
+	var eid = jel.parent().parent().data('id');
+	$('[name="' + eid + ':' + prop + '"]').remove();  //clear exisiting
+	$('<input>').attr({
+		name: eid + ':' + prop,
+		type: 'hidden',
+		value: jel.val(),
+	}).appendTo($('#occform'));
+
+	$('.submit').addClass('changes-made');
+	$('.submit .note').html('changes made. please save.');
+
+}
+
+
+var relEid = false;
+function relAdd(ev) {
+console.log(ev);
+	var jel = $(ev.target);
+	var eid = jel.parent().parent().data('id');
+	relEid = eid;
+	ev.stopPropagation();
+	$('#relationships-form input[type="text"]').val(undefined);
+	$('#relationships-form select').val(undefined);
+	$('#relationships-form').appendTo(ev.target).show();
+	$('#relationships-form input[type="text"]').focus();
+}
+
+function relSave(ev) {
+	ev.stopPropagation();
+	if (!relEid) return;
+
+	var partner = $('#rel-child-id').val();
+
+	$('<input>').attr({
+		name: relEid + ':_relMother',
+		type: 'hidden',
+		value: partner,
+	}).appendTo($('#occform'));
+	//$('#rel-child-id').val('');
+
+	$('#row-enc-' + relEid + ' .col-relationships').prepend('<span data-partner="' + partner + '" class="relationship relType-familial relRole-mother">' + partner + '</span>');
+
+	relEid = false;
+	$('#relationships-form').hide();
+	$('.submit').addClass('changes-made');
+	$('.submit .note').html('changes made. please save.');
+}
+
+function relCancel(ev) {
+	ev.stopPropagation();
+	relEid = false;
+	$('#relationships-form').hide();
+}
+
+</script>
+
 
 
 
@@ -382,9 +864,9 @@ $("a#indies").click(function() {
 
 <p><%=props.getProperty("locationID") %>:
 <%
-if(sharky.getLocationID()!=null){
+if(occ.getLocationID()!=null){
 %>
-	<%=sharky.getLocationID() %>
+	<%=occ.getLocationID() %>
 <%
 }
 %>
@@ -394,14 +876,14 @@ if(sharky.getLocationID()!=null){
 
 <td align="left" valign="top">
 
-<p><strong><%=sharky.getNumberEncounters()%>
+<p><strong><%=occ.getNumberEncounters()%>
 </strong>
   <%=props.getProperty("numencounters") %>
 </p>
 
 <table id="results" width="100%">
   <tr class="lineitem">
-      <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("date") %></strong></td>
+    <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("date") %></strong></td>
     <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("individualID") %></strong></td>
 
     <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("location") %></strong></td>
@@ -425,7 +907,7 @@ if(sharky.getLocationID()!=null){
 
   </tr>
   <%
-    Encounter[] dateSortedEncs = sharky.getDateSortedEncounters(false);
+    Encounter[] dateSortedEncs = occ.getDateSortedEncounters(false);
 
     int total = dateSortedEncs.length;
     for (int i = 0; i < total; i++) {
@@ -581,7 +1063,7 @@ if(enc.getSex()!=null){sexValue=enc.getSex();}
 
     <%
     String[] keywords=keywords=new String[0];
-		int numThumbnails = myShepherd.getNumThumbnails(sharky.getEncounters().iterator(), keywords);
+		int numThumbnails = myShepherd.getNumThumbnails(occ.getEncounters().iterator(), keywords);
 		if(numThumbnails>0){
 		%>
 
@@ -606,7 +1088,7 @@ if(enc.getSex()!=null){sexValue=enc.getSex();}
 			try {
 
 
-			    Query query = myShepherd.getPM().newQuery("SELECT from org.ecocean.Encounter WHERE occurrenceID == \""+sharky.getOccurrenceID()+"\"");
+			    Query query = myShepherd.getPM().newQuery("SELECT from org.ecocean.Encounter WHERE occurrenceID == \""+occ.getOccurrenceID()+"\"");
 		        //query.setFilter("SELECT "+jdoqlQueryString);
 		        query.setResult("catalogNumber");
 		        Collection c = (Collection) (query.execute());
@@ -960,7 +1442,7 @@ if(enc.getSex()!=null){sexValue=enc.getSex();}
 
 <div style="text-align:left;border:1px solid black;width:100%;height:400px;overflow-y:scroll;overflow-x:scroll;">
 
-<p><%=sharky.getComments().replaceAll("\n", "<br>")%>
+<p><%=occ.getComments().replaceAll("\n", "<br>")%>
 </p>
 </div>
 <%
@@ -970,7 +1452,7 @@ if(enc.getSex()!=null){sexValue=enc.getSex();}
 
 <form action="OccurrenceAddComment" method="post" name="addComments">
   <input name="user" type="hidden" value="<%=request.getRemoteUser()%>" id="user">
-  <input name="number" type="hidden" value="<%=sharky.getOccurrenceID()%>" id="number">
+  <input name="number" type="hidden" value="<%=occ.getOccurrenceID()%>" id="number">
   <input name="action" type="hidden" value="comments" id="action">
 
   <p><textarea name="comments" cols="60" id="comments"></textarea> <br>
