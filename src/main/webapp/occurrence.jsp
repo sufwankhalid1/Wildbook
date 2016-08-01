@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8" language="java"
-         import="javax.jdo.Query,org.ecocean.*,org.ecocean.servlet.ServletUtilities,java.io.File, java.io.IOException, java.util.*, org.ecocean.genetics.*, org.ecocean.security.Collaboration, org.ecocean.social.*, com.google.gson.Gson, java.lang.reflect.Method, java.lang.reflect.InvocationTargetException" %>
+         import="javax.jdo.Query,org.ecocean.*,org.ecocean.servlet.ServletUtilities,java.io.File, java.io.IOException, java.util.*, org.ecocean.genetics.*, org.ecocean.security.Collaboration, org.ecocean.social.*, com.google.gson.Gson, java.lang.reflect.Method, java.lang.reflect.InvocationTargetException, org.joda.time.DateTime" %>
 
 <%
 
@@ -153,6 +153,67 @@ context=ServletUtilities.getContext(request);
 <div class="container maincontent">
 
 <%!
+
+  static void updateFieldOnOccurrence(Occurrence occ, String setterName, String valueAsString) throws NoSuchMethodException {
+    try {
+      Class c = findTypeOfField(occ.getClass(), setterName);
+
+      if (c == Double.class){
+        Double dbl = Double.parseDouble(valueAsString);
+        Method setter = occ.getClass().getMethod(setterName, Double.class);
+        setter.invoke(occ, dbl);
+        System.out.println("OCCURRENCE.JSP: just invoked "+setterName+" with value "+dbl);
+      }
+
+      if (c == Integer.class){
+        Integer in = Integer.parseInt(valueAsString);
+        Method setter = occ.getClass().getMethod(setterName, Integer.class);
+        setter.invoke(occ, in);
+        System.out.println("OCCURRENCE.JSP: just invoked "+setterName+" with value "+in);
+      }
+
+      if (c == Boolean.class){
+        Boolean bo = Boolean.parseBoolean(valueAsString);
+        Method setter = occ.getClass().getMethod(setterName, Boolean.class);
+        setter.invoke(occ, bo);
+        System.out.println("OCCURRENCE.JSP: just invoked "+setterName+" with value "+bo);
+      }
+
+      if (c == String.class){
+        Method setter = occ.getClass().getMethod(setterName, String.class);
+        setter.invoke(occ, valueAsString);
+        System.out.println("OCCURRENCE.JSP: just invoked "+setterName+" with value "+valueAsString);
+      }
+
+      if (c == DateTime.class){
+        DateTime dt = DateTime.parse(valueAsString);
+        Method setter = occ.getClass().getMethod(setterName, DateTime.class);
+        setter.invoke(occ, dt);
+        System.out.println("OCCURRENCE.JSP: just invoked "+setterName+" with value "+dt);
+
+      }
+    } catch (Exception e) {
+      System.out.println("OCCURRENCE.JSP: was not able to invoke "+setterName+" with value "+valueAsString);
+      e.printStackTrace();
+    }
+  }
+
+  static Class findTypeOfField(Class parentClass, String fieldSetterName) throws NoSuchMethodException {
+    String fieldGetterName = "get"+fieldSetterName.substring(3);
+    Method fieldGetter = parentClass.getMethod(fieldGetterName);
+    return fieldGetter.getReturnType();
+  }
+
+  static boolean fieldHasType(Class parentClass, String fieldSetterName, Class candidateType) {
+    try {
+      Method m = parentClass.getMethod(fieldSetterName, candidateType);
+      return true;
+    }
+    catch (NoSuchMethodException e) {
+      return false;
+    }
+  }
+
   static boolean newValEqualsOldVal(Occurrence occ, String getterName, int newVal) {
     try {
       java.lang.reflect.Method getter = occ.getClass().getMethod(getterName);
@@ -196,16 +257,12 @@ context=ServletUtilities.getContext(request);
   static boolean isDisplayableGetter(Method method) {
     try {
       String methName = method.getName();
-      System.out.println("    methName = "+methName);
       if (!methName.startsWith("get")) return false;
       String fieldName = methName.substring(3);
-      System.out.println("    fieldName = "+fieldName);
 
       Class fieldType = method.getReturnType();
 
       Method setter = method.getDeclaringClass().getMethod("set"+fieldName, fieldType);
-      System.out.println("    setter = "+setter.getName());
-      System.out.println("    TRUE");
       return true;
     } catch (Exception e) {
       System.out.println(e.toString());
@@ -227,20 +284,52 @@ context=ServletUtilities.getContext(request);
     String fieldName = prettyFieldNameFromGetMethod(getMethod);
     String inputName = inputElemName(getMethod, classNamePrefix);
 
-    System.out.println("printOutClassFieldModifierRow on class "+classNamePrefix+": "+className+" "+printValue+" "+fieldName+" "+inputName);
+    //System.out.println("printOutClassFieldModifierRow on class "+classNamePrefix+": "+className+" "+printValue+" "+fieldName+" "+inputName);
+
+
+
+    out.println("<tr data-original-value=\""+printValue+"\">");
+    out.println("\t<td>"+fieldName+"</td>");
+    out.println("\t<td>");
+    out.println("\t\t<input ");
+    out.println("name=\""+inputName+"\" ");
+    out.println("value=\""+printValue+"\"");
+    out.println("/>");
+    out.println("\t</td>");
+
+
+
+    out.println("<td class=\"undo-container\">");
+    out.println("<div title=\"undo this change\" class=\"undo-button\">&#8635;</div>");
+    out.println("</td>");
+
+
+
+    out.println("\n</tr>");
+  }
+
+  static void printUnmodifiableField(Object obj, Method getMethod, JspWriter out) throws IOException, IllegalAccessException, InvocationTargetException {
+    String className = obj.getClass().getSimpleName(); // e.g. "Occurrence"
+    String classNamePrefix = ""; // e.g. "occ"
+    if (className.length()>2) classNamePrefix = className.substring(0,3).toLowerCase();
+    else classNamePrefix = className.toLowerCase();
+
+    String printValue;
+    if (getMethod.invoke(obj)==null) printValue = "";
+    else printValue = getMethod.invoke(obj).toString();
+    String fieldName = prettyFieldNameFromGetMethod(getMethod);
+
+    System.out.println("printUnmodifiableField on class "+className+" "+printValue+" "+fieldName);
 
 
 
     out.println("\n<tr>");
     out.println("\n\t<td>"+fieldName+"</td>");
-    out.println("\n\t<td>");
-    out.println("\n\t\t<input ");
-    out.println("name=\""+inputName+"\" ");
-    out.println("value=\""+printValue+"\"");
-    out.println("/>");
-    out.println("\t</td>");
-    out.println("</tr>");
+    out.println("\n\t<td><p>"+printValue+"</p></td>");
+    out.println("\n</tr>");
   }
+
+
 
 %>
 
@@ -285,8 +374,15 @@ context=ServletUtilities.getContext(request);
             String methodName = "set" + pname.substring(4,5).toUpperCase() + pname.substring(5);
             String getterName = "get" + methodName.substring(3);
             String value = request.getParameter(pname);
+
+            updateFieldOnOccurrence(occ, methodName, value);
+
+            /*
             //saveMessage += "<p>occ - " + methodName + "</P>";
             java.lang.reflect.Method method;
+
+
+
             if ((pname.indexOf("decimalL") > -1) || pname.equals("occ:distance") || pname.equals("occ:bearing")) {  //must call with Double value
               Double dbl = null;
               try {
@@ -330,6 +426,7 @@ context=ServletUtilities.getContext(request);
                 System.out.println(methodName + " -> " + ex.toString());
               }
             }
+            */
 
           } // encounter-related fields
             else if (pname.indexOf(":") > -1) {
@@ -382,6 +479,7 @@ context=ServletUtilities.getContext(request);
                   }
                 }
               }
+
             }
           }
         }
@@ -426,7 +524,7 @@ context=ServletUtilities.getContext(request);
  <table><tr valign="middle">
   <td>
     <!-- Google PLUS-ONE button -->
-<g:plusone size="small" annotation="none"></g:plusone>
+<g:plusone size="medium" annotation="none"></g:plusone>
 </td>
 <td>
 <!--  Twitter TWEET THIS button -->
@@ -439,14 +537,6 @@ context=ServletUtilities.getContext(request);
 </td>
 </tr></table> </td></tr></table>
 
-<p><%=props.getProperty("groupBehavior") %>:
-<%
-if(occ.getGroupBehavior()!=null){
-%>
-	<%=occ.getGroupBehavior() %>
-<%
-}
-%>
 &nbsp; <%if (hasAuthority && CommonConfiguration.isCatalogEditable(context)) {%><a id="groupB" style="color:blue;cursor: pointer;"><img align="absmiddle" width="20px" height="20px" style="border-style: none;" src="images/Crystal_Clear_action_edit.png" /></a><%}%>
 </p>
 
@@ -534,9 +624,10 @@ if(occ.getIndividualCount()!=null){
 </p>
 
 
-<div class="row">
-<div class="col-sm-12">
-<form method="post" action="occurrence.jsp" id="occform">
+<form method="post" action="occurrence.jsp?number=<%=name%>" id="occform">
+  <div class="row">
+  <div class="col-md-6">
+
 <input name="number" type="hidden" value="<%=occ.getOccurrenceID()%>" />
 
 <style type="text/css">
@@ -594,40 +685,42 @@ if(occ.getIndividualCount()!=null){
 
 </style>
 
+
+<
 <table  class="occurrence-field-edit">
-  <tr>
-    <td>
-      zebraSpecies
-    </td><td>
-      <input name="oldValue-occ:zebraSpecies" value="<%=occ.getZebraSpecies()%>" />
-    </td>
-  </tr>
-
-  <tr class="padding-below">
-    <td></td>
-  </tr>
-
-<tr>
-<td>Ranch</td>
-<td><input name="oldValue-occ:ranch" value="<%=occ.getRanch()%>" />
-</tr>
-
-
 
 <%
 
+String[] gettersForTimeplaceInfo = new String[]{"getRanch", "getDateDay","getDateMonth","getDateYear","getStartGpsX","getStartGpsY",
+};
+
+String[] gettersFromRosemarysForm = new String[]{ "getGroupHabitatActivityTableRemark", "getLocalName","getSun","getWind","getRain","getCloudPercentage","getGrassHeight","getGrassColor","getDominantGrassSpecies1","getDominantGrassSpecies2", "getDominantGrassSpecies3", "getDominantBushType","getHabitatObscurityBitNumber"};
+
+
 String[] gettersToDisplay = new String[]{"getDateDay", "getDateMonth", "getDateYear", "getGroupHabitatActivityTableRemark", "getZebraSpecies", "getRanch", "getLocalName", "getStartGpsX", "getStartGpsY", "getDistanceToGroupCentre", "getDirectionToGroupCentre", "getGroupSpread", "getTotalIndividualsCounted", "getAllMaleId", "getAllIndId", "getAllAgeStructureOp", "getMonth", "getSeason", "getInfs01female", "getInfs03female", "getInfs13female", "getInfs36female", "getInfs612female", "getInfs01male", "getInfs03male", "getInfs13male", "getInfs36male", "getInfs612Male", "getInfs01sexukn", "getInfs03sexukn", "getInfs13sexukn", "getInfs36sexukn", "getInfs612sexukn", "getYearlingFemale", "getYearlingMale", "getYearlingSexukn", "getTwoYearFemale", "getTwoYearMale", "getTwoYearSexukn", "getThreeYearMale", "getThreeYearFemale", "getThreeYearSexukn", "getAdFemaleReprostatusukn", "getAdFemalePreg", "getAdFemaleLact", "getAdFemaleNonlact", "getAdultMaleStallion", "getAdultMaleBachelor", "getYearlingMaleBachelor", "getTwoYearOldMaleBachelor", "getAdultMaleStatusUkn", "getTerritorialMale", "getAdultSexUkn", "getAgeSexUkn", "getInfs03HybridFemale", "getInfs03HybridMale", "getInfs03HybridUkn", "getInfs36HybridFemale", "getInfs36HybridMale", "getInfs36HybridUkn", "getInfs612HybridFemale", "getInfs612HybridMale", "getInfs612HybridUkn", "getYearlingHybridFemale", "getYearlingHybridMale", "getYearlingHybridUkn", "getTwoYearHybridFemale", "getTwoYearHybridMale", "getTwoYearHybridUkn", "getAdFemaleHybridReproStatusUkn", "getAdFemaleHybridPreg", "getAdFemaleHybridLact", "getAdFemaleHybridNonLact", "getAdultMaleHybridStallion", "getAdultMaleHybridBachelor", "getYearlingMaleHybridBachelor", "getTwoYearOldMaleHybridBachelor", "getAdultMaleHybridStatusUkn", "getAdultHybridSexUkn", "getHybridAgeAndSexUnk", "getTotalIndividualsCalculated", "getTotalIndividuals", "getN1_OtherSpecies", "getNumber1stSp", "getN2_OtherSpecies", "getNumber2ndSp", "getN3_OtherSpecies", "getNumber3rdSp", "getSun", "getWind", "getSoil", "getRain", "getCloudPercentage", "getHabitatObscurityBitNumber", "getHabitatObscurityCategory", "getDominantBushType", "getGrassColor", "getGrassHeight", "getDominantGrassSpecies1", "getDominantGrassSpecies2", "getDominantGrassSpecies3", "getOnRoad", "getUnusualEnvironment", "getNumberGrazing", "getNumberVigilant", "getNumberStanding", "getNumberWalking", "getNumberSocialising", "getNumberAgonism", "getNumberHealthMaintenance", "getNumberSexualBeh", "getNumberPlay", "getNumberNurseSuckle", "getNumberLying", "getNumberSalting", "getNumberMutualGrooming", "getNumberRunning", "getNumberBehaviorNotVisible", "getNumberDrinking", "getDirectionOfWalking", "getTotalIndividualsActivity", "getLoopNumber"};
 
+%>
+<tr><td><strong>Zebra Project Datasheet</strong></td></tr>
+<%
 
-
-  for (String getterName : gettersToDisplay) {
+  for (String getterName : gettersForTimeplaceInfo) {
     Method occMeth = occ.getClass().getMethod(getterName);
-    System.out.println("Printing row for Method "+occMeth.getName());
     if (isDisplayableGetter(occMeth)) {
-      System.out.println("isDisplayableGetter!");
+      printUnmodifiableField((Object) occ, occMeth, out);
+    }
+  }
+%>
+
+
+  <tr class="padding-below"><td></td></tr>
+<%
+  for (String getterName : gettersFromRosemarysForm) {
+    Method occMeth = occ.getClass().getMethod(getterName);
+    if (isDisplayableGetter(occMeth)) {
       printOutClassFieldModifierRow((Object) occ, occMeth, out);
     }
   }
+
 
  %>
 
@@ -653,10 +746,10 @@ String[] gettersToDisplay = new String[]{"getDateDay", "getDateMonth", "getDateY
 <input type="submit" name="save" value="Save" />
 <span class="note" style="position:absolute;bottom:9"></span>
 </div>
-
-</form>
 </div>
 </div> <!--row -->
+
+</form>
 
 <script type="text/javascript">
 
@@ -1479,11 +1572,13 @@ if(enc.getSex()!=null){sexValue=enc.getSex();}
 </td>
 </tr>
 </table>
-</div><!-- end maintext -->
-</div><!-- end main-wide -->
 
 
 <br />
+
+
+<div class="row">
+  <div class="col-sm-12">
 <table>
 <tr>
 <td>
@@ -1494,6 +1589,11 @@ if(enc.getSex()!=null){sexValue=enc.getSex();}
 </td>
 </tr>
 </table>
+</div>
+</div>
+</div><!-- end maintext -->
+</div><!-- end main-wide -->
+
 <%
 
 }
