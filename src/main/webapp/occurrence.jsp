@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8" language="java"
-         import="javax.jdo.Query,org.ecocean.*,org.ecocean.servlet.ServletUtilities,java.io.File, java.io.IOException, java.util.*, org.ecocean.genetics.*, org.ecocean.security.Collaboration, org.ecocean.social.*, com.google.gson.Gson, java.lang.reflect.Method, java.lang.reflect.InvocationTargetException, org.joda.time.DateTime" %>
+         import="javax.jdo.Query,org.ecocean.*,org.ecocean.servlet.ServletUtilities,java.io.File, java.io.IOException, java.util.*, org.ecocean.genetics.*, org.ecocean.security.Collaboration, org.ecocean.social.*, com.google.gson.Gson, java.lang.reflect.Method, java.lang.reflect.InvocationTargetException, org.joda.time.DateTime, org.joda.time.LocalDateTime" %>
 
 <%
 
@@ -83,6 +83,9 @@ context=ServletUtilities.getContext(request);
 
   <script type="text/javascript" src="highslide/highslide/highslide-with-gallery.js"></script>
   <link rel="stylesheet" type="text/css" href="highslide/highslide/highslide.css"/>
+
+  <script src="javascript/timepicker/jquery-ui-timepicker-addon.js"></script>
+
 
   <!--
     2) Optionally override the settings defined at the top
@@ -270,6 +273,37 @@ context=ServletUtilities.getContext(request);
     }
   }
 
+  static void printDateTimeSetterRow(Object obj, JspWriter out) throws NoSuchMethodException, IOException, IllegalAccessException, InvocationTargetException {
+    Method getDateTime = obj.getClass().getMethod("getDateTime");
+    String className = obj.getClass().getSimpleName(); // e.g. "Occurrence"
+    String classNamePrefix = ""; // e.g. "occ"
+    if (className.length()>2) classNamePrefix = className.substring(0,3).toLowerCase();
+    else classNamePrefix = className.toLowerCase();
+
+    String printValue;
+    if (getDateTime.invoke(obj)==null) printValue = "";
+    else {
+      DateTime dt = (DateTime) getDateTime.invoke(obj);
+      LocalDateTime lt = dt.toLocalDateTime();
+      System.out.println("DateTime "+dt+" converted to LocalDateTime "+lt);
+      printValue = dt.toString("MM-dd-yyyy HH:mm");
+    }
+    String fieldName = prettyFieldNameFromGetMethod(getDateTime);
+    String inputName = inputElemName(getDateTime, classNamePrefix);
+
+    out.println("<tr data-original-value=\""+printValue+"\">");
+    out.println("\t<td>"+fieldName+"</td>");
+    out.println("\t<td>");
+    // hidden input for setting default va a la http://stackoverflow.com/a/11904956
+    //out.println("\t\t<input type=\"hidden\" id=\"datepicker\" />");
+    out.println("<input class=\"form-control\" type=\"text\" id=\"datepicker\"");
+    out.println("name=\""+inputName+"\" ");
+    out.println("value=\""+printValue+"\"");
+    out.println("/>");
+    out.println("\t</td>");
+
+
+  }
 
   // custom method to replicate a very specific table row format on this page
   static void printOutClassFieldModifierRow(Object obj, Method getMethod, JspWriter out) throws IOException, IllegalAccessException, InvocationTargetException {
@@ -319,13 +353,13 @@ context=ServletUtilities.getContext(request);
     else printValue = getMethod.invoke(obj).toString();
     String fieldName = prettyFieldNameFromGetMethod(getMethod);
 
-    System.out.println("printUnmodifiableField on class "+className+" "+printValue+" "+fieldName);
+    //System.out.println("printUnmodifiableField on class "+className+" "+printValue+" "+fieldName);
 
 
 
     out.println("\n<tr>");
     out.println("\n\t<td>"+fieldName+"</td>");
-    out.println("\n\t<td><p>"+printValue+"</p></td>");
+    out.println("\n\t<td>"+printValue+"</td>");
     out.println("\n</tr>");
   }
 
@@ -608,9 +642,6 @@ $("a#groupB").click(function() {
 });
 </script>
 
-
-<p><%=props.getProperty("numMarkedIndividuals") %>: <%=occ.getMarkedIndividualNamesForThisOccurrence().size() %></p>
-
 <!--<p><%=props.getProperty("estimatedNumMarkedIndividuals") %>:
 <%
 if(occ.getIndividualCount()!=null){
@@ -623,36 +654,33 @@ if(occ.getIndividualCount()!=null){
 &nbsp; <%if (hasAuthority && CommonConfiguration.isCatalogEditable(context)) {%><a id="indies" style="color:blue;cursor: pointer;"><img align="absmiddle" width="20px" height="20px" style="border-style: none;" src="images/Crystal_Clear_action_edit.png" /></a><%}%>
 </p>
 
-
-<form method="post" action="occurrence.jsp?number=<%=name%>" id="occform">
-  <div class="row">
-  <div class="col-md-6">
-
-<input name="number" type="hidden" value="<%=occ.getOccurrenceID()%>" />
-
 <style type="text/css">
   tr.padding-below td {
     padding-bottom: 20px;
   }
 
-  table.occurrence-field-edit td:first-child {
+  tr.header-tr td {
+    padding-top: 20px;
+  }
+
+  table.edit-table td:first-child {
     padding-right: 3em;
   }
-  table.occurrence-field-edit td {
+  table.occurrence-field-table td, {
     padding-right: 0px;
     padding-top: 2px;
     padding-bottom: 3px;
   }
 
-  table.occurrence-field-edit td.undo-container {
+  table.edit-table td.undo-container {
     display: none;
   }
-  table.occurrence-field-edit tr.changed-row td.undo-container {
+  table.edit-table tr.changed-row td.undo-container {
     display: unset;
     padding: 0px;
     margin: 0px;
   }
-  table.occurrence-field-edit tr.changed-row td.undo-container div {
+  table.edit-table tr.changed-row td.undo-container div {
     color: #000;
     background: inherit;
     border:none;
@@ -665,18 +693,18 @@ if(occ.getIndividualCount()!=null){
     cursor: pointer;
   }
 
-  table.occurrence-field-edit tr.changed-row td.undo-container div.undo-button:hover {
+  table.edit-table tr.changed-row td.undo-container div.undo-button:hover {
     cursor: pointer;
     font-weight: bold;
     background: #ddd;
   }
 
-  table.occurrence-field-edit tr.padding-below td {
+  table tr.padding-below {
     padding-bottom: 10px;
   }
 
 
-  table.occurrence-field-edit tr.changed-row {
+  table.edit-table tr.changed-row {
     background: #ebebeb;
     border-radius: 5px;
   }
@@ -684,72 +712,99 @@ if(occ.getIndividualCount()!=null){
 
 
 </style>
-
-
-<
-<table  class="occurrence-field-edit">
-
 <%
 
-String[] gettersForTimeplaceInfo = new String[]{"getRanch", "getDateDay","getDateMonth","getDateYear","getStartGpsX","getStartGpsY",
+String[] gettersForTimeplaceInfo = new String[]{"getRanch", "getDateDay","getDateMonth","getDateYear","getStartGpsX","getStartGpsY","getDistanceToGroupCentre", "getDirectionToGroupCentre"
 };
 
 String[] gettersFromRosemarysForm = new String[]{ "getGroupHabitatActivityTableRemark", "getLocalName","getSun","getWind","getRain","getCloudPercentage","getGrassHeight","getGrassColor","getDominantGrassSpecies1","getDominantGrassSpecies2", "getDominantGrassSpecies3", "getDominantBushType","getHabitatObscurityBitNumber"};
 
+String[] gettersForImportedFields = new String[]{ "getSeason", "getSoil", "getHabitatObscurityCategory", "getGroupSpread", "getDirectionOfWalking", "getOnRoad", "getUnusualEnvironment"
+};
 
-String[] gettersToDisplay = new String[]{"getDateDay", "getDateMonth", "getDateYear", "getGroupHabitatActivityTableRemark", "getZebraSpecies", "getRanch", "getLocalName", "getStartGpsX", "getStartGpsY", "getDistanceToGroupCentre", "getDirectionToGroupCentre", "getGroupSpread", "getTotalIndividualsCounted", "getAllMaleId", "getAllIndId", "getAllAgeStructureOp", "getMonth", "getSeason", "getInfs01female", "getInfs03female", "getInfs13female", "getInfs36female", "getInfs612female", "getInfs01male", "getInfs03male", "getInfs13male", "getInfs36male", "getInfs612Male", "getInfs01sexukn", "getInfs03sexukn", "getInfs13sexukn", "getInfs36sexukn", "getInfs612sexukn", "getYearlingFemale", "getYearlingMale", "getYearlingSexukn", "getTwoYearFemale", "getTwoYearMale", "getTwoYearSexukn", "getThreeYearMale", "getThreeYearFemale", "getThreeYearSexukn", "getAdFemaleReprostatusukn", "getAdFemalePreg", "getAdFemaleLact", "getAdFemaleNonlact", "getAdultMaleStallion", "getAdultMaleBachelor", "getYearlingMaleBachelor", "getTwoYearOldMaleBachelor", "getAdultMaleStatusUkn", "getTerritorialMale", "getAdultSexUkn", "getAgeSexUkn", "getInfs03HybridFemale", "getInfs03HybridMale", "getInfs03HybridUkn", "getInfs36HybridFemale", "getInfs36HybridMale", "getInfs36HybridUkn", "getInfs612HybridFemale", "getInfs612HybridMale", "getInfs612HybridUkn", "getYearlingHybridFemale", "getYearlingHybridMale", "getYearlingHybridUkn", "getTwoYearHybridFemale", "getTwoYearHybridMale", "getTwoYearHybridUkn", "getAdFemaleHybridReproStatusUkn", "getAdFemaleHybridPreg", "getAdFemaleHybridLact", "getAdFemaleHybridNonLact", "getAdultMaleHybridStallion", "getAdultMaleHybridBachelor", "getYearlingMaleHybridBachelor", "getTwoYearOldMaleHybridBachelor", "getAdultMaleHybridStatusUkn", "getAdultHybridSexUkn", "getHybridAgeAndSexUnk", "getTotalIndividualsCalculated", "getTotalIndividuals", "getN1_OtherSpecies", "getNumber1stSp", "getN2_OtherSpecies", "getNumber2ndSp", "getN3_OtherSpecies", "getNumber3rdSp", "getSun", "getWind", "getSoil", "getRain", "getCloudPercentage", "getHabitatObscurityBitNumber", "getHabitatObscurityCategory", "getDominantBushType", "getGrassColor", "getGrassHeight", "getDominantGrassSpecies1", "getDominantGrassSpecies2", "getDominantGrassSpecies3", "getOnRoad", "getUnusualEnvironment", "getNumberGrazing", "getNumberVigilant", "getNumberStanding", "getNumberWalking", "getNumberSocialising", "getNumberAgonism", "getNumberHealthMaintenance", "getNumberSexualBeh", "getNumberPlay", "getNumberNurseSuckle", "getNumberLying", "getNumberSalting", "getNumberMutualGrooming", "getNumberRunning", "getNumberBehaviorNotVisible", "getNumberDrinking", "getDirectionOfWalking", "getTotalIndividualsActivity", "getLoopNumber"};
+String[] gettersForOtherSpeciesFields = new String[]{ "getOtherSpecies1", "getNumber1stSp", "getOtherSpecies2", "getNumber2ndSp", "getOtherSpecies3", "getNumber3rdSp"};
 
-%>
-<tr><td><strong>Zebra Project Datasheet</strong></td></tr>
-<%
+String[] gettersForCountFields = new String[]{ "getTotalIndividualsCounted", "getAllMaleId", "getAllIndId", "getAllAgeStructureOp", "getInfs01female", "getInfs03female", "getInfs13female", "getInfs36female", "getInfs612female", "getInfs01male", "getInfs03male", "getInfs13male", "getInfs36male", "getInfs612Male", "getInfs01sexukn", "getInfs03sexukn", "getInfs13sexukn", "getInfs36sexukn", "getInfs612sexukn", "getYearlingFemale", "getYearlingMale", "getYearlingSexukn", "getTwoYearFemale", "getTwoYearMale", "getTwoYearSexukn", "getThreeYearMale", "getThreeYearFemale", "getThreeYearSexukn", "getAdFemaleReprostatusukn", "getAdFemalePreg", "getAdFemaleLact", "getAdFemaleNonlact", "getAdultMaleStallion", "getAdultMaleBachelor", "getYearlingMaleBachelor", "getTwoYearOldMaleBachelor", "getAdultMaleStatusUkn", "getTerritorialMale", "getAdultSexUkn", "getAgeSexUkn", "getInfs03HybridFemale", "getInfs03HybridMale", "getInfs03HybridUkn", "getInfs36HybridFemale", "getInfs36HybridMale", "getInfs36HybridUkn", "getInfs612HybridFemale", "getInfs612HybridMale", "getInfs612HybridUkn", "getYearlingHybridFemale", "getYearlingHybridMale", "getYearlingHybridUkn", "getTwoYearHybridFemale", "getTwoYearHybridMale", "getTwoYearHybridUkn", "getAdFemaleHybridReproStatusUkn", "getAdFemaleHybridPreg", "getAdFemaleHybridLact", "getAdFemaleHybridNonLact", "getAdultMaleHybridStallion", "getAdultMaleHybridBachelor", "getYearlingMaleHybridBachelor", "getTwoYearOldMaleHybridBachelor", "getAdultMaleHybridStatusUkn", "getAdultHybridSexUkn", "getHybridAgeAndSexUnk", "getTotalIndividualsCalculated", "getTotalIndividuals", "getNumberGrazing", "getNumberVigilant", "getNumberStanding", "getNumberWalking", "getNumberSocialising", "getNumberAgonism", "getNumberHealthMaintenance", "getNumberSexualBeh", "getNumberPlay", "getNumberNurseSuckle", "getNumberLying", "getNumberSalting", "getNumberMutualGrooming", "getNumberRunning", "getNumberBehaviorNotVisible", "getNumberDrinking", "getTotalIndividualsActivity"
+};
 
-  for (String getterName : gettersForTimeplaceInfo) {
-    Method occMeth = occ.getClass().getMethod(getterName);
-    if (isDisplayableGetter(occMeth)) {
-      printUnmodifiableField((Object) occ, occMeth, out);
-    }
-  }
+
+String[] allMpalaGetters = new String[]{"getDateDay", "getDateMonth", "getDateYear", "getGroupHabitatActivityTableRemark", "getZebraSpecies", "getRanch", "getLocalName", "getStartGpsX", "getStartGpsY", "getDistanceToGroupCentre", "getDirectionToGroupCentre", "getGroupSpread", "getTotalIndividualsCounted", "getAllMaleId", "getAllIndId", "getAllAgeStructureOp", "getMonth", "getSeason", "getInfs01female", "getInfs03female", "getInfs13female", "getInfs36female", "getInfs612female", "getInfs01male", "getInfs03male", "getInfs13male", "getInfs36male", "getInfs612Male", "getInfs01sexukn", "getInfs03sexukn", "getInfs13sexukn", "getInfs36sexukn", "getInfs612sexukn", "getYearlingFemale", "getYearlingMale", "getYearlingSexukn", "getTwoYearFemale", "getTwoYearMale", "getTwoYearSexukn", "getThreeYearMale", "getThreeYearFemale", "getThreeYearSexukn", "getAdFemaleReprostatusukn", "getAdFemalePreg", "getAdFemaleLact", "getAdFemaleNonlact", "getAdultMaleStallion", "getAdultMaleBachelor", "getYearlingMaleBachelor", "getTwoYearOldMaleBachelor", "getAdultMaleStatusUkn", "getTerritorialMale", "getAdultSexUkn", "getAgeSexUkn", "getInfs03HybridFemale", "getInfs03HybridMale", "getInfs03HybridUkn", "getInfs36HybridFemale", "getInfs36HybridMale", "getInfs36HybridUkn", "getInfs612HybridFemale", "getInfs612HybridMale", "getInfs612HybridUkn", "getYearlingHybridFemale", "getYearlingHybridMale", "getYearlingHybridUkn", "getTwoYearHybridFemale", "getTwoYearHybridMale", "getTwoYearHybridUkn", "getAdFemaleHybridReproStatusUkn", "getAdFemaleHybridPreg", "getAdFemaleHybridLact", "getAdFemaleHybridNonLact", "getAdultMaleHybridStallion", "getAdultMaleHybridBachelor", "getYearlingMaleHybridBachelor", "getTwoYearOldMaleHybridBachelor", "getAdultMaleHybridStatusUkn", "getAdultHybridSexUkn", "getHybridAgeAndSexUnk", "getTotalIndividualsCalculated", "getTotalIndividuals", "getOtherSpecies1", "getNumber1stSp", "getOtherSpecies2", "getNumber2ndSp", "getOtherSpecies3", "getNumber3rdSp", "getSun", "getWind", "getSoil", "getRain", "getCloudPercentage", "getHabitatObscurityBitNumber", "getHabitatObscurityCategory", "getDominantBushType", "getGrassColor", "getGrassHeight", "getDominantGrassSpecies1", "getDominantGrassSpecies2", "getDominantGrassSpecies3", "getOnRoad", "getUnusualEnvironment", "getNumberGrazing", "getNumberVigilant", "getNumberStanding", "getNumberWalking", "getNumberSocialising", "getNumberAgonism", "getNumberHealthMaintenance", "getNumberSexualBeh", "getNumberPlay", "getNumberNurseSuckle", "getNumberLying", "getNumberSalting", "getNumberMutualGrooming", "getNumberRunning", "getNumberBehaviorNotVisible", "getNumberDrinking", "getDirectionOfWalking", "getTotalIndividualsActivity", "getLoopNumber"};
+
 %>
 
 
-  <tr class="padding-below"><td></td></tr>
-<%
-  for (String getterName : gettersFromRosemarysForm) {
-    Method occMeth = occ.getClass().getMethod(getterName);
-    if (isDisplayableGetter(occMeth)) {
-      printOutClassFieldModifierRow((Object) occ, occMeth, out);
-    }
-  }
+  <h2>Zebra Project Datasheet</h2>
+  <div class="row">
+    <form method="post" action="occurrence.jsp?number=<%=name%>" id="occform">
+    <div class="col-md-6">
+
+      <input name="number" type="hidden" value="<%=occ.getOccurrenceID()%>" />
+
+      <table  class="occurrence-field-table edit-table">
 
 
- %>
+        <%
+        printDateTimeSetterRow(occ, out);
+
+        for (String getterName : gettersForTimeplaceInfo) {
+          Method occMeth = occ.getClass().getMethod(getterName);
+          if (isDisplayableGetter(occMeth)) {
+            printOutClassFieldModifierRow((Object) occ, occMeth, out);
+          }
+        }
+        %>
+        <tr colspan="2" class="header-tr"><td><strong> </strong><span style="font-weight:lighter"></span></td></tr>
+        <%
+        for (String getterName : gettersForOtherSpeciesFields) {
+          Method occMeth = occ.getClass().getMethod(getterName);
+          if (isDisplayableGetter(occMeth)) {
+            printOutClassFieldModifierRow((Object) occ, occMeth, out);
+          }
+        }
+        %>
+        <tr colspan="2" class="header-tr"><td><strong>Imported Fields </strong><span style="font-weight:lighter">(zebra counts below Encounter list)</span></td></tr>
+        <%
+
+          for (String getterName : gettersForImportedFields) {
+            Method occMeth = occ.getClass().getMethod(getterName);
+            if (isDisplayableGetter(occMeth)) {
+              printUnmodifiableField((Object) occ, occMeth, out);
+            }
+          }
+        %>
+      </table>
+
+    </div>
 
 
 
-<tr>
+    <div class="col-md-6">
+      <table  class="occurrence-field-table edit-table">
+      <%
+      for (String getterName : gettersFromRosemarysForm) {
+        Method occMeth = occ.getClass().getMethod(getterName);
+        if (isDisplayableGetter(occMeth)) {
+          printOutClassFieldModifierRow((Object) occ, occMeth, out);
+        }
+      }
+      %>
+      </table>
 
-<tr>
-<td>Local Name</td>
-<td><input name="oldValue-occ:localName" value="<%=occ.getLocalName()%>" /></td>
-</tr>
+      <div class="submit" style="position:relative">
+        <input type="submit" name="save" value="Save" />
+        <span class="note" style="position:absolute;bottom:9"></span>
+      </div>
 
-<tr>
-<td>Total Individuals Counted</td>
-<td><input name="oldValue-occ:totalIndividualsCounted" value="<%=occ.getTotalIndividualsCounted()%>" /></td>
-</tr>
+    </div>
 
-
-</table>
-
-
-<div class="submit" style="position:relative">
-<input type="submit" name="save" value="Save" />
-<span class="note" style="position:absolute;bottom:9"></span>
-</div>
-</div>
-</div> <!--row -->
 
 </form>
+
+</div> <!--row -->
+
+
+
+
 
 <script type="text/javascript">
 
@@ -775,6 +830,13 @@ occFuncs.markFormFieldOld$ = function($inputElem) {
 }
 
 $(document).ready(function() {
+
+  $(function () {
+    var dateNow = new Date();
+    $('#datetimepicker').datetimepicker({
+        //defaultDate:dateNow
+    });
+  });
 
   var changedFields = {};
 
@@ -855,6 +917,39 @@ console.log(ev);
 	});
 
 
+  $( "#datepicker" ).datetimepicker({
+    changeMonth: true,
+    changeYear: true,
+    dateFormat: 'MM-dd-yyyy',
+    maxDate: '+1d',
+    controlType: 'select',
+    alwaysSetTime: false,
+    showSecond:    false,
+    showMillisec:  false,
+    showMicrosec:  false
+  });
+  $( "#datepicker" ).datetimepicker( $.timepicker.regional[ "<%=langCode %>" ] );
+
+
+
+  $( "#releasedatepicker" ).datepicker({
+      changeMonth: true,
+      changeYear: true,
+      //dateFormat: 'dd-mm-yy'
+  });
+  $( "#releasedatepicker" ).datepicker( $.datepicker.regional[ "<%=langCode %>" ] );
+  $( "#releasedatepicker" ).datepicker( "option", "maxDate", "+1d" );
+
+  console.log("$('#datepicker').val() = " + $('#datepicker').val())
+  var datetime = new Date(
+            Date.parse($('#datepicker').val())
+        );
+  console.log("parsed date = "+datetime);
+  $('#datetime').datetimepicker('setDate', datetime);
+  console.log($('#datetime').datetimepicker('getDate'));
+
+
+
 });
 
 
@@ -920,6 +1015,10 @@ function relCancel(ev) {
 
 
 
+</br>
+
+<div class="row">
+  <div class="col-sm-12">
 <div id="dialogIndies" title="<%=props.getProperty("setIndividualCount") %>" style="display:none">
 
 <table border="1" cellpadding="1" cellspacing="0" bordercolor="#FFFFFF" >
@@ -936,8 +1035,10 @@ function relCancel(ev) {
     </td>
   </tr>
 </table>
+</div>
 
-                         		</div>
+</div>
+</div>
                          		<!-- popup dialog script -->
 <script>
 var dlgIndies = $("#dialogIndies").dialog({
@@ -953,17 +1054,11 @@ $("a#indies").click(function() {
 </script>
 
 
+</br>
 
-
-<p><%=props.getProperty("locationID") %>:
-<%
-if(occ.getLocationID()!=null){
-%>
-	<%=occ.getLocationID() %>
-<%
-}
-%>
-</p>
+<h2>Encounter List</h2>
+<div class="row">
+  <div class="col-sm-12">
 <table id="encounter_report" width="100%">
 <tr>
 
@@ -971,8 +1066,10 @@ if(occ.getLocationID()!=null){
 
 <p><strong><%=occ.getNumberEncounters()%>
 </strong>
-  <%=props.getProperty("numencounters") %>
-</p>
+  <%=props.getProperty("numencounters") %> covering <%=occ.getMarkedIndividualNamesForThisOccurrence().size() %> Marked Individuals.</p>
+</td>
+</table>
+
 
 <table id="results" width="100%">
   <tr class="lineitem">
@@ -1145,8 +1242,47 @@ if(enc.getSex()!=null){sexValue=enc.getSex();}
 
 
 </table>
+</div>
+</div>
+<br />
 
 
+
+<h2>Zebra Counts</h2>
+<p class="caption"><em>Numbers extracted from original data import</em></p>
+<div class="row">
+<%
+// there are too many count fields to nicely display all at once,
+// so I break them up into chunks
+int fieldDisplayChunkSize = 15;
+double nChunks = gettersForCountFields.length/fieldDisplayChunkSize + 1;
+for (int chunkN=0; chunkN<nChunks; chunkN++) {
+  int startIndex = fieldDisplayChunkSize * chunkN;
+  int endIndex = Math.min(gettersForCountFields.length, startIndex+fieldDisplayChunkSize);
+  %>
+  <div class="col-md-4">
+    <table class = "occurrence-field-table count-table table">
+  <%
+  for (int fieldN=startIndex; fieldN < endIndex; fieldN++) {
+    String getterName = gettersForCountFields[fieldN];
+    Method occMeth = occ.getClass().getMethod(getterName);
+    if (isDisplayableGetter(occMeth)) {
+      printUnmodifiableField((Object) occ, occMeth, out);
+    }
+  }
+  %>
+    </table>
+  </br>
+  </div>
+  <%
+}
+
+%>
+</div>
+</br>
+
+<div class="row">
+<div class="col-md-12">
 <!-- Start thumbnail gallery -->
 
 <br />
@@ -1515,6 +1651,8 @@ if(enc.getSex()!=null){sexValue=enc.getSex();}
 
 </table>
 <!-- end thumbnail gallery -->
+</div>
+</div>
 
 
 
@@ -1591,6 +1729,8 @@ if(enc.getSex()!=null){sexValue=enc.getSex();}
 </table>
 </div>
 </div>
+
+
 </div><!-- end maintext -->
 </div><!-- end main-wide -->
 
@@ -1637,4 +1777,5 @@ else {
 
 %>
 </div>
+
 <jsp:include page="footer.jsp" flush="true"/>
