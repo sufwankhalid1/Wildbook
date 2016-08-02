@@ -184,7 +184,7 @@ public class Encounter implements java.io.Serializable {
   //Indicates whether this record can be exposed via TapirLink
   private boolean okExposeViaTapirLink = false;
   //whether this encounter has been approved for public display
-  //private boolean approved = true;
+  private Boolean approved = true;
   //integers of the latitude and longitude degrees
   //private int lat=-1000, longitude=-1000;
   //name of the stored file from which the left-side spots were extracted
@@ -353,7 +353,7 @@ public class Encounter implements java.io.Serializable {
     }
 
     public void setLifeStageFromMpala() {
-      
+
     }
 
   /**
@@ -1238,11 +1238,11 @@ System.out.println("did not find MediaAsset for params=" + sp + "; creating one?
     interestedResearchers.add(email);
   }
 
- /*
-  public boolean isApproved() {
+
+  public Boolean isApproved() {
     return approved;
   }
-  */
+
 
   public void removeInterestedResearcher(String email) {
     for (int i = 0; i < interestedResearchers.size(); i++) {

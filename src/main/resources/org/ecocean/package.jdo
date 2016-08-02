@@ -707,6 +707,9 @@
       <field name="lionWound" persistent-modifier="persistent" default-fetch-group="true">
         <column jdbc-type="LONGVARCHAR" allows-null="true"/>
       </field>
+      <field name="approved" persistent-modifier="persistent" default-fetch-group="true">
+      </field>
+
 
 
       <fetch-group name="allSharks_min">
