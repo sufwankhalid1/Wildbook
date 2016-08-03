@@ -42,7 +42,7 @@ myShepherd.beginDBTransaction();
 //build queries
 
 int numFixes=0;
-String indID = "02_051";
+//String indID = "02_051";
 Extent encClass=myShepherd.getPM().getExtent(Encounter.class, true);
 Query encQuery=myShepherd.getPM().newQuery(encClass);
 Iterator allEncs;
@@ -56,12 +56,16 @@ try {
   int current = 0;
 
   while (allEncs.hasNext() && current < total) {
+    if ((current % 100) == 0) out.println("On encounter "+current);
+
     myShepherd.beginDBTransaction();
     Encounter enc = (Encounter) allEncs.next();
-    enc.setSexFromReproStatus();
-    enc.fillDateFieldsFromDateMillis();
-    enc.setDWCDateAddedNow();
-    out.println("I just cleaned up Encounter "+enc.getCatalogNumber());
+    String occID = enc.getOccurrenceID();
+    if (!myShepherd.isOccurrence(occID)) continue;
+
+    Occurrence occ = myShepherd.getOccurrence(occID);
+    enc.setLocationID(occ.getRanch());
+    enc.
 
     myShepherd.commitDBTransaction();
     current++;
