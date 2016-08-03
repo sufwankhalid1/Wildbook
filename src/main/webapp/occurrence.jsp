@@ -1,6 +1,9 @@
 <%@ page contentType="text/html; charset=utf-8" language="java"
          import="javax.jdo.Query,org.ecocean.*,org.ecocean.servlet.ServletUtilities,java.io.File, java.io.IOException, java.util.*, org.ecocean.genetics.*, org.ecocean.security.Collaboration, org.ecocean.social.*, com.google.gson.Gson, java.lang.reflect.Method, java.lang.reflect.InvocationTargetException, org.joda.time.DateTime, org.joda.time.LocalDateTime" %>
 
+
+
+
 <%
 
 String blocker = "";
@@ -26,6 +29,8 @@ context=ServletUtilities.getContext(request);
   Properties props = new Properties();
   //String langCode = "en";
   String langCode=ServletUtilities.getLanguageCode(request);
+
+  System.out.println("out class = " + out.getClass().getCanonicalName());
 
 
 
@@ -74,6 +79,11 @@ context=ServletUtilities.getContext(request);
 
 
   <jsp:include page="header.jsp" flush="true"/>
+
+  <!-- IMPORTANT style import for table printed by ClassEditTemplate.java -->
+  <link rel="stylesheet" href="css/classEditTemplate.css" />
+  <script type="text/javascript" src="javascript/classEditTemplate.js"></script>
+
 
 
   <!--
@@ -155,219 +165,6 @@ context=ServletUtilities.getContext(request);
 
 <div class="container maincontent">
 
-<%!
-
-  static void updateFieldOnOccurrence(Occurrence occ, String setterName, String valueAsString) throws NoSuchMethodException {
-    try {
-      Class c = findTypeOfField(occ.getClass(), setterName);
-
-      if (c == Double.class){
-        Double dbl = Double.parseDouble(valueAsString);
-        Method setter = occ.getClass().getMethod(setterName, Double.class);
-        setter.invoke(occ, dbl);
-        System.out.println("OCCURRENCE.JSP: just invoked "+setterName+" with value "+dbl);
-      }
-
-      if (c == Integer.class){
-        Integer in = Integer.parseInt(valueAsString);
-        Method setter = occ.getClass().getMethod(setterName, Integer.class);
-        setter.invoke(occ, in);
-        System.out.println("OCCURRENCE.JSP: just invoked "+setterName+" with value "+in);
-      }
-
-      if (c == Boolean.class){
-        Boolean bo = Boolean.parseBoolean(valueAsString);
-        Method setter = occ.getClass().getMethod(setterName, Boolean.class);
-        setter.invoke(occ, bo);
-        System.out.println("OCCURRENCE.JSP: just invoked "+setterName+" with value "+bo);
-      }
-
-      if (c == String.class){
-        Method setter = occ.getClass().getMethod(setterName, String.class);
-        setter.invoke(occ, valueAsString);
-        System.out.println("OCCURRENCE.JSP: just invoked "+setterName+" with value "+valueAsString);
-      }
-
-      if (c == DateTime.class){
-        DateTime dt = DateTime.parse(valueAsString);
-        Method setter = occ.getClass().getMethod(setterName, DateTime.class);
-        setter.invoke(occ, dt);
-        System.out.println("OCCURRENCE.JSP: just invoked "+setterName+" with value "+dt);
-
-      }
-    } catch (Exception e) {
-      System.out.println("OCCURRENCE.JSP: was not able to invoke "+setterName+" with value "+valueAsString);
-      e.printStackTrace();
-    }
-  }
-
-  static Class findTypeOfField(Class parentClass, String fieldSetterName) throws NoSuchMethodException {
-    String fieldGetterName = "get"+fieldSetterName.substring(3);
-    Method fieldGetter = parentClass.getMethod(fieldGetterName);
-    return fieldGetter.getReturnType();
-  }
-
-  static boolean fieldHasType(Class parentClass, String fieldSetterName, Class candidateType) {
-    try {
-      Method m = parentClass.getMethod(fieldSetterName, candidateType);
-      return true;
-    }
-    catch (NoSuchMethodException e) {
-      return false;
-    }
-  }
-
-  static boolean newValEqualsOldVal(Occurrence occ, String getterName, int newVal) {
-    try {
-      java.lang.reflect.Method getter = occ.getClass().getMethod(getterName);
-      int oldVal = (Integer) getter.invoke(occ);
-      boolean result = (oldVal == newVal);
-      System.out.println("OCCURRENCE.JSP: "+getterName+" = "+oldVal);
-      System.out.println("              : newVal = "+newVal);
-      System.out.println("              : result = "+result);
-      return result;
-    } catch (Exception e) {
-      System.out.println("exception caught");
-    } finally {
-      return (false);
-    }
-  }
-
-  // excellent helper function by polygenelubricants on http://stackoverflow.com/a/2560017
-  static String splitCamelCase(String s) {
-     return s.replaceAll(
-        String.format("%s|%s|%s",
-           "(?<=[A-Z])(?=[A-Z][a-z])",
-           "(?<=[^A-Z])(?=[A-Z])",
-           "(?<=[A-Za-z])(?=[^A-Za-z])"
-        ),
-        " "
-     );
-  }
-
-
-  static String prettyFieldNameFromGetMethod(Method getMeth) {
-    String withoutGet = getMeth.getName().substring(3);
-    return splitCamelCase(withoutGet);
-  }
-
-  static String inputElemName(Method getMeth, String classNamePrefix) {
-    String fieldName = getMeth.getName().substring(3);
-    return ("oldValue-"+classNamePrefix+":"+fieldName);
-  }
-
-
-  static boolean isDisplayableGetter(Method method) {
-    try {
-      String methName = method.getName();
-      if (!methName.startsWith("get")) return false;
-      String fieldName = methName.substring(3);
-
-      Class fieldType = method.getReturnType();
-
-      Method setter = method.getDeclaringClass().getMethod("set"+fieldName, fieldType);
-      return true;
-    } catch (Exception e) {
-      System.out.println(e.toString());
-      return false;
-    }
-  }
-
-  static void printDateTimeSetterRow(Object obj, JspWriter out) throws NoSuchMethodException, IOException, IllegalAccessException, InvocationTargetException {
-    Method getDateTime = obj.getClass().getMethod("getDateTime");
-    String className = obj.getClass().getSimpleName(); // e.g. "Occurrence"
-    String classNamePrefix = ""; // e.g. "occ"
-    if (className.length()>2) classNamePrefix = className.substring(0,3).toLowerCase();
-    else classNamePrefix = className.toLowerCase();
-
-    String printValue;
-    if (getDateTime.invoke(obj)==null) printValue = "";
-    else {
-      DateTime dt = (DateTime) getDateTime.invoke(obj);
-      LocalDateTime lt = dt.toLocalDateTime();
-      System.out.println("DateTime "+dt+" converted to LocalDateTime "+lt);
-      printValue = dt.toString("MM-dd-yyyy HH:mm");
-    }
-    String fieldName = prettyFieldNameFromGetMethod(getDateTime);
-    String inputName = inputElemName(getDateTime, classNamePrefix);
-
-    out.println("<tr data-original-value=\""+printValue+"\">");
-    out.println("\t<td>"+fieldName+"</td>");
-    out.println("\t<td>");
-    // hidden input for setting default va a la http://stackoverflow.com/a/11904956
-    //out.println("\t\t<input type=\"hidden\" id=\"datepicker\" />");
-    out.println("<input class=\"form-control\" type=\"text\" id=\"datepicker\"");
-    out.println("name=\""+inputName+"\" ");
-    out.println("value=\""+printValue+"\"");
-    out.println("/>");
-    out.println("\t</td>");
-
-
-  }
-
-  // custom method to replicate a very specific table row format on this page
-  static void printOutClassFieldModifierRow(Object obj, Method getMethod, JspWriter out) throws IOException, IllegalAccessException, InvocationTargetException {
-    String className = obj.getClass().getSimpleName(); // e.g. "Occurrence"
-    String classNamePrefix = ""; // e.g. "occ"
-    if (className.length()>2) classNamePrefix = className.substring(0,3).toLowerCase();
-    else classNamePrefix = className.toLowerCase();
-
-    String printValue;
-    if (getMethod.invoke(obj)==null) printValue = "";
-    else printValue = getMethod.invoke(obj).toString();
-    String fieldName = prettyFieldNameFromGetMethod(getMethod);
-    String inputName = inputElemName(getMethod, classNamePrefix);
-
-    //System.out.println("printOutClassFieldModifierRow on class "+classNamePrefix+": "+className+" "+printValue+" "+fieldName+" "+inputName);
-
-
-
-    out.println("<tr data-original-value=\""+printValue+"\">");
-    out.println("\t<td>"+fieldName+"</td>");
-    out.println("\t<td>");
-    out.println("\t\t<input ");
-    out.println("name=\""+inputName+"\" ");
-    out.println("value=\""+printValue+"\"");
-    out.println("/>");
-    out.println("\t</td>");
-
-
-
-    out.println("<td class=\"undo-container\">");
-    out.println("<div title=\"undo this change\" class=\"undo-button\">&#8635;</div>");
-    out.println("</td>");
-
-
-
-    out.println("\n</tr>");
-  }
-
-  static void printUnmodifiableField(Object obj, Method getMethod, JspWriter out) throws IOException, IllegalAccessException, InvocationTargetException {
-    String className = obj.getClass().getSimpleName(); // e.g. "Occurrence"
-    String classNamePrefix = ""; // e.g. "occ"
-    if (className.length()>2) classNamePrefix = className.substring(0,3).toLowerCase();
-    else classNamePrefix = className.toLowerCase();
-
-    String printValue;
-    if (getMethod.invoke(obj)==null) printValue = "";
-    else printValue = getMethod.invoke(obj).toString();
-    String fieldName = prettyFieldNameFromGetMethod(getMethod);
-
-    //System.out.println("printUnmodifiableField on class "+className+" "+printValue+" "+fieldName);
-
-
-
-    out.println("\n<tr>");
-    out.println("\n\t<td>"+fieldName+"</td>");
-    out.println("\n\t<td>"+printValue+"</td>");
-    out.println("\n</tr>");
-  }
-
-
-
-%>
-
-
 <%
   myShepherd.beginDBTransaction();
   try {
@@ -409,7 +206,7 @@ context=ServletUtilities.getContext(request);
             String getterName = "get" + methodName.substring(3);
             String value = request.getParameter(pname);
 
-            updateFieldOnOccurrence(occ, methodName, value);
+            ClassEditTemplate.updateObjectField(occ, methodName, value);
 
             /*
             //saveMessage += "<p>occ - " + methodName + "</P>";
@@ -654,64 +451,6 @@ if(occ.getIndividualCount()!=null){
 &nbsp; <%if (hasAuthority && CommonConfiguration.isCatalogEditable(context)) {%><a id="indies" style="color:blue;cursor: pointer;"><img align="absmiddle" width="20px" height="20px" style="border-style: none;" src="images/Crystal_Clear_action_edit.png" /></a><%}%>
 </p>
 
-<style type="text/css">
-  tr.padding-below td {
-    padding-bottom: 20px;
-  }
-
-  tr.header-tr td {
-    padding-top: 20px;
-  }
-
-  table.edit-table td:first-child {
-    padding-right: 3em;
-  }
-  table.occurrence-field-table td, {
-    padding-right: 0px;
-    padding-top: 2px;
-    padding-bottom: 3px;
-  }
-
-  table.edit-table td.undo-container {
-    display: none;
-  }
-  table.edit-table tr.changed-row td.undo-container {
-    display: unset;
-    padding: 0px;
-    margin: 0px;
-  }
-  table.edit-table tr.changed-row td.undo-container div {
-    color: #000;
-    background: inherit;
-    border:none;
-    margin:0px;
-    padding: 6px;
-    padding-bottom:6px;
-    padding-top:5px;
-    font: inherit;
-    /*border is optional*/
-    cursor: pointer;
-  }
-
-  table.edit-table tr.changed-row td.undo-container div.undo-button:hover {
-    cursor: pointer;
-    font-weight: bold;
-    background: #ddd;
-  }
-
-  table tr.padding-below {
-    padding-bottom: 10px;
-  }
-
-
-  table.edit-table tr.changed-row {
-    background: #ebebeb;
-    border-radius: 5px;
-  }
-
-
-
-</style>
 <%
 
 String[] gettersForTimeplaceInfo = new String[]{"getRanch", "getDateDay","getDateMonth","getDateYear","getStartGpsX","getStartGpsY","getDistanceToGroupCentre", "getDirectionToGroupCentre"
@@ -750,8 +489,8 @@ String[] allMpalaGetters = new String[]{"getDateDay", "getDateMonth", "getDateYe
 
         for (String getterName : gettersForTimeplaceInfo) {
           Method occMeth = occ.getClass().getMethod(getterName);
-          if (isDisplayableGetter(occMeth)) {
-            printOutClassFieldModifierRow((Object) occ, occMeth, out);
+          if (ClassEditTemplate.isDisplayableGetter(occMeth)) {
+            ClassEditTemplate.printOutClassFieldModifierRow((Object) occ, occMeth, out);
           }
         }
         %>
@@ -759,8 +498,8 @@ String[] allMpalaGetters = new String[]{"getDateDay", "getDateMonth", "getDateYe
         <%
         for (String getterName : gettersForOtherSpeciesFields) {
           Method occMeth = occ.getClass().getMethod(getterName);
-          if (isDisplayableGetter(occMeth)) {
-            printOutClassFieldModifierRow((Object) occ, occMeth, out);
+          if (ClassEditTemplate.isDisplayableGetter(occMeth)) {
+            ClassEditTemplate.printOutClassFieldModifierRow((Object) occ, occMeth, out);
           }
         }
         %>
@@ -769,8 +508,8 @@ String[] allMpalaGetters = new String[]{"getDateDay", "getDateMonth", "getDateYe
 
           for (String getterName : gettersForImportedFields) {
             Method occMeth = occ.getClass().getMethod(getterName);
-            if (isDisplayableGetter(occMeth)) {
-              printUnmodifiableField((Object) occ, occMeth, out);
+            if (ClassEditTemplate.isDisplayableGetter(occMeth)) {
+              ClassEditTemplate.printUnmodifiableField((Object) occ, occMeth, out);
             }
           }
         %>
@@ -785,8 +524,8 @@ String[] allMpalaGetters = new String[]{"getDateDay", "getDateMonth", "getDateYe
       <%
       for (String getterName : gettersFromRosemarysForm) {
         Method occMeth = occ.getClass().getMethod(getterName);
-        if (isDisplayableGetter(occMeth)) {
-          printOutClassFieldModifierRow((Object) occ, occMeth, out);
+        if (ClassEditTemplate.isDisplayableGetter(occMeth)) {
+          ClassEditTemplate.printOutClassFieldModifierRow((Object) occ, occMeth, out);
         }
       }
       %>
@@ -810,27 +549,6 @@ String[] allMpalaGetters = new String[]{"getDateDay", "getDateMonth", "getDateYe
 
 <script type="text/javascript">
 
-var occFuncs = {};
-occFuncs.checkIfOldFormValue = function(changedElem) {
-  return ($(changedElem).attr("name").startsWith("oldValue-"));
-}
-occFuncs.checkIfOldFormValue$ = function($changedElem) {
-  return (changedElem.attr("name").startsWith("oldValue-"));
-}
-
-occFuncs.markFormFieldNotOld = function(changedElem) {
-  if (occFuncs.checkIfOldFormValue(changedElem)) {
-    $(changedElem).attr("name",$(changedElem).attr("name").substring(9));
-    $(changedElem).closest('tr').addClass("changed-row");
-  }
-}
-occFuncs.markFormFieldOld$ = function($inputElem) {
-  if (!occFuncs.checkIfOldFormValue($inputElem)){
-    $inputElem.attr("name","oldValue-"+$inputElem.attr("name"));
-  }
-
-}
-
 $(document).ready(function() {
 
   $(function () {
@@ -842,28 +560,6 @@ $(document).ready(function() {
 
   var changedFields = {};
 
-  $("td.undo-container div.undo-button").click(function(event) {
-    event.stopPropagation();
-    var changedRow = $(this).closest('tr.changed-row');
-    changedRow.removeClass('changed-row');
-    var original = changedRow.attr('data-original-value');
-    var correspondingInput = changedRow.find('td input');
-    correspondingInput.val(original);
-    occFuncs.markFormFieldOld$(correspondingInput);
-  });
-
-	$('#occform input,#occform select').change(function() {
-    occFuncs.markFormFieldNotOld(this);
-    var str = $(this).val();
-    console.log('Change handler called on elem' + $(this).attr("name") + " to new val " + str);
-    changedFields[$(this).attr("name")] = str;
-		$('.submit').addClass('changes-made');
-		$('.submit .note').html('changes made. please save.');
-    console.log('changedFields = '+JSON.stringify(changedFields));
-    <%  /*out.println("WHOAH WE HAVE A CHANGE HERE");*/
-        System.out.println("OCCURRENCE.JSP: change detected in form (JS)");
-    %>
-	});
 	$('span.relationship').hover(function(ev) {
 //$('tr[data-indiv="07_091"]').hide();
 console.log(ev);
@@ -1268,8 +964,8 @@ for (int chunkN=0; chunkN<nChunks; chunkN++) {
   for (int fieldN=startIndex; fieldN < endIndex; fieldN++) {
     String getterName = gettersForCountFields[fieldN];
     Method occMeth = occ.getClass().getMethod(getterName);
-    if (isDisplayableGetter(occMeth)) {
-      printUnmodifiableField((Object) occ, occMeth, out);
+    if (ClassEditTemplate.isDisplayableGetter(occMeth)) {
+      ClassEditTemplate.printUnmodifiableField((Object) occ, occMeth, out);
     }
   }
   %>
