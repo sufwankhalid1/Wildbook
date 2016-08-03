@@ -744,7 +744,9 @@ String[] allMpalaGetters = new String[]{"getDateDay", "getDateMonth", "getDateYe
 
 
         <%
+        /* TODO: get datetime setter working.
         printDateTimeSetterRow(occ, out);
+        */
 
         for (String getterName : gettersForTimeplaceInfo) {
           Method occMeth = occ.getClass().getMethod(getterName);
