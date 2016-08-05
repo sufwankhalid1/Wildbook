@@ -116,6 +116,8 @@ public class Encounter implements java.io.Serializable {
   public String lifeStage;
   public String country;
 
+  private Double age;
+
 
   /*
     * The following fields are specific to this mark-recapture project and do not have an easy to map Darwin Core equivalent.
@@ -2623,6 +2625,20 @@ throw new Exception();
         }
         return new ArrayList<SuperSpot>();
     }
+
+    public void setAge(Double a) {
+      age = a;
+    }
+    public Double getAge() {
+      return age;
+    }
+
+    public Encounter cloneWithoutAnnotations() {
+      Encounter enc = new Encounter(this.day, this.month, this.year, this.hour, this.minutes, this.size_guess, this.verbatimLocality, this.recordedBy, this.submitterEmail, null);
+      enc.setCatalogNumber(Util.generateUUID());
+      return enc;
+    }
+
 
     // Mpala-specifics
     public String getAgeClass(){
