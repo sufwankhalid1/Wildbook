@@ -114,6 +114,7 @@ public class MarkedIndividual implements java.io.Serializable {
 
   private long timeOfDeath=0;
 
+
   public MarkedIndividual(String individualID, Encounter enc) {
 
     this.individualID = individualID;
@@ -589,7 +590,7 @@ public class MarkedIndividual implements java.io.Serializable {
   }
 
     //you can choose the order of the EncounterDateComparator
-    public Encounter[] getDateSortedEncounters(boolean reverse) {
+  public Encounter[] getDateSortedEncounters(boolean reverse) {
     Vector final_encs = new Vector();
     for (int c = 0; c < encounters.size(); c++) {
       Encounter temp = (Encounter) encounters.get(c);
@@ -608,6 +609,48 @@ public class MarkedIndividual implements java.io.Serializable {
 
   //sorted with the most recent first
   public Encounter[] getDateSortedEncounters() {return getDateSortedEncounters(false);}
+
+  public Encounter[] getDateMillisSortedEncounters(boolean reverse) {
+    Vector final_encs = new Vector();
+    for (int c = 0; c < encounters.size(); c++) {
+      Encounter temp = (Encounter) encounters.get(c);
+      final_encs.add(temp);
+    }
+
+    int finalNum = final_encs.size();
+    Encounter[] encs2 = new Encounter[finalNum];
+    for (int q = 0; q < finalNum; q++) {
+      encs2[q] = (Encounter) final_encs.get(q);
+    }
+    EncounterMillisComparator dc = new EncounterMillisComparator(reverse);
+    Arrays.sort(encs2, dc);
+    return encs2;
+  }
+
+  public Encounter[] getDateMillisSortedEncounters() {return getDateMillisSortedEncounters(false);}
+
+  public Encounter getEncounterClosestToMillis(Long milliseconds) {
+    Encounter[] sortedEncs = getDateMillisSortedEncounters();
+    Encounter closestEnc = null;
+    long closestDistance = Long.MAX_VALUE;
+
+    for (Encounter enc : sortedEncs) {
+      if (enc.getDateInMilliseconds() == null) continue;
+      long distance = milliseconds - enc.getDateInMilliseconds().longValue();
+      if (Math.abs(distance) < closestDistance) {
+        closestEnc = enc;
+        closestDistance = distance;
+      }
+      else { // since they are sorted, no need to keep looking once you've found one farther than the current closest
+        return closestEnc;
+      }
+    }
+    return closestEnc;
+  }
+
+
+
+  ///public Encounter getEncounterClosestDate(DateTime dt)
 
 
   //preserved for legacy purposes

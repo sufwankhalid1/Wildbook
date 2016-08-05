@@ -1,5 +1,8 @@
 <%@ page contentType="text/html; charset=utf-8" language="java"
-         import="javax.jdo.Query,org.ecocean.*,org.ecocean.servlet.ServletUtilities,java.io.File, java.util.*, org.ecocean.genetics.*, org.ecocean.security.Collaboration, org.ecocean.social.*, com.google.gson.Gson" %>
+         import="javax.jdo.Query,org.ecocean.*,org.ecocean.servlet.ServletUtilities,java.io.File, java.io.IOException, java.util.*, org.ecocean.genetics.*, org.ecocean.security.Collaboration, org.ecocean.social.*, com.google.gson.Gson, java.lang.reflect.Method, java.lang.reflect.InvocationTargetException, org.joda.time.DateTime, org.joda.time.LocalDateTime" %>
+
+
+
 
 <%
 
@@ -26,6 +29,8 @@ context=ServletUtilities.getContext(request);
   Properties props = new Properties();
   //String langCode = "en";
   String langCode=ServletUtilities.getLanguageCode(request);
+
+  System.out.println("out class = " + out.getClass().getCanonicalName());
 
 
 
@@ -75,6 +80,11 @@ context=ServletUtilities.getContext(request);
 
   <jsp:include page="header.jsp" flush="true"/>
 
+  <!-- IMPORTANT style import for table printed by ClassEditTemplate.java -->
+  <link rel="stylesheet" href="css/classEditTemplate.css" />
+  <script type="text/javascript" src="javascript/classEditTemplate.js"></script>
+
+
 
   <!--
     1 ) Reference to the files containing the JavaScript and CSS.
@@ -83,6 +93,9 @@ context=ServletUtilities.getContext(request);
 
   <script type="text/javascript" src="highslide/highslide/highslide-with-gallery.js"></script>
   <link rel="stylesheet" type="text/css" href="highslide/highslide/highslide.css"/>
+
+  <script src="javascript/timepicker/jquery-ui-timepicker-addon.js"></script>
+
 
   <!--
     2) Optionally override the settings defined at the top
@@ -152,25 +165,6 @@ context=ServletUtilities.getContext(request);
 
 <div class="container maincontent">
 
-<%!
-  static boolean newValEqualsOldVal(Occurrence occ, String getterName, int newVal) {
-    try {
-      java.lang.reflect.Method getter = occ.getClass().getMethod(getterName);
-      int oldVal = (Integer) getter.invoke(occ);
-      boolean result = (oldVal == newVal);
-      System.out.println("OCCURRENCE.JSP: "+getterName+" = "+oldVal);
-      System.out.println("              : newVal = "+newVal);
-      System.out.println("              : result = "+result);
-      return result;
-    } catch (Exception e) {
-      System.out.println("exception caught");
-    } finally {
-      return (false);
-    }
-  }
-%>
-
-
 <%
   myShepherd.beginDBTransaction();
   try {
@@ -181,7 +175,7 @@ context=ServletUtilities.getContext(request);
       boolean hasAuthority = ServletUtilities.isUserAuthorizedForOccurrence(occ, request);
 
 
-			List collabs = Collaboration.collaborationsForCurrentUser(request);
+			ArrayList collabs = Collaboration.collaborationsForCurrentUser(request);
 			boolean visible = occ.canUserAccess(request);
 
 
@@ -191,9 +185,6 @@ context=ServletUtilities.getContext(request);
 
       if (saving != null) {
 
-        ClassEditTemplate.saveUpdatedFields((Object) occ, request, myShepherd);
-
-        /*
         System.out.println("OCCURRENCE.JSP: Saving updated info...");
 
         Encounter[] dateSortedEncs = occ.getDateSortedEncounters(false);
@@ -217,9 +208,12 @@ context=ServletUtilities.getContext(request);
 
             ClassEditTemplate.updateObjectField(occ, methodName, value);
 
-
+            /*
             //saveMessage += "<p>occ - " + methodName + "</P>";
             java.lang.reflect.Method method;
+
+
+
             if ((pname.indexOf("decimalL") > -1) || pname.equals("occ:distance") || pname.equals("occ:bearing")) {  //must call with Double value
               Double dbl = null;
               try {
@@ -263,6 +257,7 @@ context=ServletUtilities.getContext(request);
                 System.out.println(methodName + " -> " + ex.toString());
               }
             }
+            */
 
           } // encounter-related fields
             else if (pname.indexOf(":") > -1) {
@@ -297,7 +292,7 @@ context=ServletUtilities.getContext(request);
                   }
                 }
 
-              }  else {  //string
+              } */ else {  //string
                 try {
                   method = enc.getClass().getMethod(methodName, String.class);
                   method.invoke(enc, value);
@@ -315,14 +310,12 @@ context=ServletUtilities.getContext(request);
                   }
                 }
               }
+
             }
           }
         }
-
-
         myShepherd.commitDBTransaction();
         System.out.println("OCCURRENCE.JSP: Transaction committed");
-        */
       }
 
 
@@ -362,7 +355,7 @@ context=ServletUtilities.getContext(request);
  <table><tr valign="middle">
   <td>
     <!-- Google PLUS-ONE button -->
-<g:plusone size="small" annotation="none"></g:plusone>
+<g:plusone size="medium" annotation="none"></g:plusone>
 </td>
 <td>
 <!--  Twitter TWEET THIS button -->
@@ -375,9 +368,76 @@ context=ServletUtilities.getContext(request);
 </td>
 </tr></table> </td></tr></table>
 
+&nbsp; <%if (hasAuthority && CommonConfiguration.isCatalogEditable(context)) {%><a id="groupB" style="color:blue;cursor: pointer;"><img align="absmiddle" width="20px" height="20px" style="border-style: none;" src="images/Crystal_Clear_action_edit.png" /></a><%}%>
+</p>
 
 
-<p><%=props.getProperty("numMarkedIndividuals") %>: <%=occ.getMarkedIndividualNamesForThisOccurrence().size() %></p>
+<div id="dialogGroupB" title="<%=props.getProperty("setGroupBehavior") %>" style="display:none">
+
+<table border="1" cellpadding="1" cellspacing="0" bordercolor="#FFFFFF">
+
+  <tr>
+    <td align="left" valign="top">
+      <form name="set_groupBhevaior" method="post" action="OccurrenceSetGroupBehavior">
+            <input name="number" type="hidden" value="<%=request.getParameter("number")%>" />
+            <%=props.getProperty("groupBehavior") %>:
+
+        <%
+        if(CommonConfiguration.getProperty("occurrenceGroupBehavior0",context)==null){
+        %>
+        <textarea name="behaviorComment" type="text" id="behaviorComment" maxlength="500"></textarea>
+        <%
+        }
+        else{
+        %>
+
+        	<select name="behaviorComment" id="behaviorComment">
+        		<option value=""></option>
+
+   				<%
+   				boolean hasMoreStages=true;
+   				int taxNum=0;
+   				while(hasMoreStages){
+   	  				String currentLifeStage = "occurrenceGroupBehavior"+taxNum;
+   	  				if(CommonConfiguration.getProperty(currentLifeStage,context)!=null){
+   	  				%>
+
+   	  	  			<option value="<%=CommonConfiguration.getProperty(currentLifeStage,context)%>"><%=CommonConfiguration.getProperty(currentLifeStage,context)%></option>
+   	  				<%
+   					taxNum++;
+      				}
+      				else{
+         				hasMoreStages=false;
+      				}
+
+   				}
+   			%>
+  			</select>
+
+
+        <%
+        }
+        %>
+        <input name="groupBehaviorName" type="submit" id="Name" value="<%=props.getProperty("set") %>">
+      </form> <!-- end of setGroupBehavior form -->
+    </td>
+  </tr>
+</table>
+
+                         		</div>
+                         		<!-- popup dialog script -->
+<script>
+var dlgGroupB = $("#dialogGroupB").dialog({
+  autoOpen: false,
+  draggable: false,
+  resizable: false,
+  width: 600
+});
+
+$("a#groupB").click(function() {
+  dlgGroupB.dialog("open");
+});
+</script>
 
 <!--<p><%=props.getProperty("estimatedNumMarkedIndividuals") %>:
 <%
@@ -391,154 +451,115 @@ if(occ.getIndividualCount()!=null){
 &nbsp; <%if (hasAuthority && CommonConfiguration.isCatalogEditable(context)) {%><a id="indies" style="color:blue;cursor: pointer;"><img align="absmiddle" width="20px" height="20px" style="border-style: none;" src="images/Crystal_Clear_action_edit.png" /></a><%}%>
 </p>
 
+<%
 
-<div class="row">
-<div class="col-sm-12">
-<form method="post" action="occurrence.jsp?number=<%=occ.getOccurrenceID()%>" id="occform">
-<input name="number" type="hidden" value="<%=occ.getOccurrenceID()%>" />
+String[] gettersForTimeplaceInfo = new String[]{"getRanch", "getDateDay","getDateMonth","getDateYear","getStartGpsX","getStartGpsY","getDistanceToGroupCentre", "getDirectionToGroupCentre"
+};
 
-<style type="text/css">
-  tr.padding-below td {
-    padding-bottom: 20px;
-  }
+String[] gettersFromRosemarysForm = new String[]{ "getGroupHabitatActivityTableRemark", "getLocalName","getSun","getWind","getRain","getCloudPercentage","getGrassHeight","getGrassColor","getDominantGrassSpecies1","getDominantGrassSpecies2", "getDominantGrassSpecies3", "getDominantBushType","getHabitatObscurityBitNumber"};
 
-  table.occurrence-field-edit td:first-child {
-    padding-right: 3em;
-  }
-  table.occurrence-field-edit td {
-    padding-right: 0px;
-    padding-top: 2px;
-    padding-bottom: 3px;
-  }
+String[] gettersForImportedFields = new String[]{ "getSeason", "getSoil", "getHabitatObscurityCategory", "getGroupSpread", "getDirectionOfWalking", "getOnRoad", "getUnusualEnvironment"
+};
 
-  table.occurrence-field-edit td.undo-container {
-    display: none;
-  }
-  table.occurrence-field-edit tr.changed-row td.undo-container {
-    display: unset;
-    padding: 0px;
-    margin: 0px;
-  }
-  table.occurrence-field-edit tr.changed-row td.undo-container div {
-    color: #000;
-    background: inherit;
-    border:none;
-    margin:0px;
-    padding: 6px;
-    padding-bottom:6px;
-    padding-top:5px;
-    font: inherit;
-    /*border is optional*/
-    cursor: pointer;
-  }
+String[] gettersForOtherSpeciesFields = new String[]{ "getOtherSpecies1", "getNumber1stSp", "getOtherSpecies2", "getNumber2ndSp", "getOtherSpecies3", "getNumber3rdSp"};
 
-  table.occurrence-field-edit tr.changed-row td.undo-container div.undo-button:hover {
-    cursor: pointer;
-    font-weight: bold;
-    background: #ddd;
-  }
-
-  table.occurrence-field-edit tr.padding-below td {
-    padding-bottom: 10px;
-  }
+String[] gettersForCountFields = new String[]{ "getTotalIndividualsCounted", "getAllMaleId", "getAllIndId", "getAllAgeStructureOp", "getInfs01female", "getInfs03female", "getInfs13female", "getInfs36female", "getInfs612female", "getInfs01male", "getInfs03male", "getInfs13male", "getInfs36male", "getInfs612Male", "getInfs01sexukn", "getInfs03sexukn", "getInfs13sexukn", "getInfs36sexukn", "getInfs612sexukn", "getYearlingFemale", "getYearlingMale", "getYearlingSexukn", "getTwoYearFemale", "getTwoYearMale", "getTwoYearSexukn", "getThreeYearMale", "getThreeYearFemale", "getThreeYearSexukn", "getAdFemaleReprostatusukn", "getAdFemalePreg", "getAdFemaleLact", "getAdFemaleNonlact", "getAdultMaleStallion", "getAdultMaleBachelor", "getYearlingMaleBachelor", "getTwoYearOldMaleBachelor", "getAdultMaleStatusUkn", "getTerritorialMale", "getAdultSexUkn", "getAgeSexUkn", "getInfs03HybridFemale", "getInfs03HybridMale", "getInfs03HybridUkn", "getInfs36HybridFemale", "getInfs36HybridMale", "getInfs36HybridUkn", "getInfs612HybridFemale", "getInfs612HybridMale", "getInfs612HybridUkn", "getYearlingHybridFemale", "getYearlingHybridMale", "getYearlingHybridUkn", "getTwoYearHybridFemale", "getTwoYearHybridMale", "getTwoYearHybridUkn", "getAdFemaleHybridReproStatusUkn", "getAdFemaleHybridPreg", "getAdFemaleHybridLact", "getAdFemaleHybridNonLact", "getAdultMaleHybridStallion", "getAdultMaleHybridBachelor", "getYearlingMaleHybridBachelor", "getTwoYearOldMaleHybridBachelor", "getAdultMaleHybridStatusUkn", "getAdultHybridSexUkn", "getHybridAgeAndSexUnk", "getTotalIndividualsCalculated", "getTotalIndividuals", "getNumberGrazing", "getNumberVigilant", "getNumberStanding", "getNumberWalking", "getNumberSocialising", "getNumberAgonism", "getNumberHealthMaintenance", "getNumberSexualBeh", "getNumberPlay", "getNumberNurseSuckle", "getNumberLying", "getNumberSalting", "getNumberMutualGrooming", "getNumberRunning", "getNumberBehaviorNotVisible", "getNumberDrinking", "getTotalIndividualsActivity"
+};
 
 
-  table.occurrence-field-edit tr.changed-row {
-    background: #ebebeb;
-    border-radius: 5px;
-  }
+String[] allMpalaGetters = new String[]{"getDateDay", "getDateMonth", "getDateYear", "getGroupHabitatActivityTableRemark", "getZebraSpecies", "getRanch", "getLocalName", "getStartGpsX", "getStartGpsY", "getDistanceToGroupCentre", "getDirectionToGroupCentre", "getGroupSpread", "getTotalIndividualsCounted", "getAllMaleId", "getAllIndId", "getAllAgeStructureOp", "getMonth", "getSeason", "getInfs01female", "getInfs03female", "getInfs13female", "getInfs36female", "getInfs612female", "getInfs01male", "getInfs03male", "getInfs13male", "getInfs36male", "getInfs612Male", "getInfs01sexukn", "getInfs03sexukn", "getInfs13sexukn", "getInfs36sexukn", "getInfs612sexukn", "getYearlingFemale", "getYearlingMale", "getYearlingSexukn", "getTwoYearFemale", "getTwoYearMale", "getTwoYearSexukn", "getThreeYearMale", "getThreeYearFemale", "getThreeYearSexukn", "getAdFemaleReprostatusukn", "getAdFemalePreg", "getAdFemaleLact", "getAdFemaleNonlact", "getAdultMaleStallion", "getAdultMaleBachelor", "getYearlingMaleBachelor", "getTwoYearOldMaleBachelor", "getAdultMaleStatusUkn", "getTerritorialMale", "getAdultSexUkn", "getAgeSexUkn", "getInfs03HybridFemale", "getInfs03HybridMale", "getInfs03HybridUkn", "getInfs36HybridFemale", "getInfs36HybridMale", "getInfs36HybridUkn", "getInfs612HybridFemale", "getInfs612HybridMale", "getInfs612HybridUkn", "getYearlingHybridFemale", "getYearlingHybridMale", "getYearlingHybridUkn", "getTwoYearHybridFemale", "getTwoYearHybridMale", "getTwoYearHybridUkn", "getAdFemaleHybridReproStatusUkn", "getAdFemaleHybridPreg", "getAdFemaleHybridLact", "getAdFemaleHybridNonLact", "getAdultMaleHybridStallion", "getAdultMaleHybridBachelor", "getYearlingMaleHybridBachelor", "getTwoYearOldMaleHybridBachelor", "getAdultMaleHybridStatusUkn", "getAdultHybridSexUkn", "getHybridAgeAndSexUnk", "getTotalIndividualsCalculated", "getTotalIndividuals", "getOtherSpecies1", "getNumber1stSp", "getOtherSpecies2", "getNumber2ndSp", "getOtherSpecies3", "getNumber3rdSp", "getSun", "getWind", "getSoil", "getRain", "getCloudPercentage", "getHabitatObscurityBitNumber", "getHabitatObscurityCategory", "getDominantBushType", "getGrassColor", "getGrassHeight", "getDominantGrassSpecies1", "getDominantGrassSpecies2", "getDominantGrassSpecies3", "getOnRoad", "getUnusualEnvironment", "getNumberGrazing", "getNumberVigilant", "getNumberStanding", "getNumberWalking", "getNumberSocialising", "getNumberAgonism", "getNumberHealthMaintenance", "getNumberSexualBeh", "getNumberPlay", "getNumberNurseSuckle", "getNumberLying", "getNumberSalting", "getNumberMutualGrooming", "getNumberRunning", "getNumberBehaviorNotVisible", "getNumberDrinking", "getDirectionOfWalking", "getTotalIndividualsActivity", "getLoopNumber"};
+
+%>
+
+
+  <h2>Zebra Project Datasheet</h2>
+  <div class="row">
+    <form method="post" action="occurrence.jsp?number=<%=name%>" id="occform">
+    <div class="col-md-6">
+
+      <input name="number" type="hidden" value="<%=occ.getOccurrenceID()%>" />
+
+      <table  class="occurrence-field-table edit-table">
+
+
+        <%
+        /* TODO: get datetime setter working.
+        printDateTimeSetterRow(occ, out);
+        */
+
+        for (String getterName : gettersForTimeplaceInfo) {
+          Method occMeth = occ.getClass().getMethod(getterName);
+          if (ClassEditTemplate.isDisplayableGetter(occMeth)) {
+            ClassEditTemplate.printOutClassFieldModifierRow((Object) occ, occMeth, out);
+          }
+        }
+        %>
+        <tr colspan="2" class="header-tr"><td><strong> </strong><span style="font-weight:lighter"></span></td></tr>
+        <%
+        for (String getterName : gettersForOtherSpeciesFields) {
+          Method occMeth = occ.getClass().getMethod(getterName);
+          if (ClassEditTemplate.isDisplayableGetter(occMeth)) {
+            ClassEditTemplate.printOutClassFieldModifierRow((Object) occ, occMeth, out);
+          }
+        }
+        %>
+        <tr colspan="2" class="header-tr"><td><strong>Imported Fields </strong><span style="font-weight:lighter">(zebra counts below Encounter list)</span></td></tr>
+        <%
+
+          for (String getterName : gettersForImportedFields) {
+            Method occMeth = occ.getClass().getMethod(getterName);
+            if (ClassEditTemplate.isDisplayableGetter(occMeth)) {
+              ClassEditTemplate.printUnmodifiableField((Object) occ, occMeth, out);
+            }
+          }
+        %>
+      </table>
+
+    </div>
 
 
 
-</style>
+    <div class="col-md-6">
+      <table  class="occurrence-field-table edit-table">
+      <%
+      for (String getterName : gettersFromRosemarysForm) {
+        Method occMeth = occ.getClass().getMethod(getterName);
+        if (ClassEditTemplate.isDisplayableGetter(occMeth)) {
+          ClassEditTemplate.printOutClassFieldModifierRow((Object) occ, occMeth, out);
+        }
+      }
+      %>
+      </table>
 
-<table  class="occurrence-field-edit">
+      <div class="submit" style="position:relative">
+        <input type="submit" name="save" value="Save" />
+        <span class="note" style="position:absolute;bottom:9"></span>
+      </div>
 
-  <%
-  ClassEditTemplate.writeEditableFieldRow((Object) occ, "habitat", out);
-  %>
+    </div>
 
-  <tr class="padding-below"><td></td></tr>
-
-  <%
-  String[] groupFields = {"groupSize", "groupBehavior", "numTerMales", "numBachMales", "numLactFemales", "numNonLactFemales"};
-  ClassEditTemplate.writeEditableFieldRows((Object) occ, groupFields, out);
-  %>
-
-  <tr class="padding-below"><td></td></tr>
-
-  <%
-  String[] locationFields = {"locationID", "decimalLatitude", "decimalLongitude"};
-  ClassEditTemplate.writeEditableFieldRows((Object) occ, locationFields, out);
-  %>
-
-  <tr class="padding-below"><td></td></tr>
-
-  <%
-  ClassEditTemplate.writeEditableFieldRows((Object) occ, new String[]{"distance", "bearing"}, out);
-  %>
-
-</table>
-
-
-<div class="submit" style="position:relative">
-<input type="submit" name="save" value="Save" />
-<span class="note" style="position:absolute;bottom:9"></span>
-</div>
 
 </form>
-</div>
+
 </div> <!--row -->
+
+
+
+
 
 <script type="text/javascript">
 
-var occFuncs = {};
-occFuncs.checkIfOldFormValue = function(changedElem) {
-  return ($(changedElem).attr("name").startsWith("oldValue-"));
-}
-occFuncs.checkIfOldFormValue$ = function($changedElem) {
-  return (changedElem.attr("name").startsWith("oldValue-"));
-}
-
-occFuncs.markFormFieldNotOld = function(changedElem) {
-  if (occFuncs.checkIfOldFormValue(changedElem)) {
-    $(changedElem).attr("name",$(changedElem).attr("name").substring(9));
-    $(changedElem).closest('tr').addClass("changed-row");
-  }
-}
-occFuncs.markFormFieldOld$ = function($inputElem) {
-  if (!occFuncs.checkIfOldFormValue($inputElem)){
-    $inputElem.attr("name","oldValue-"+$inputElem.attr("name"));
-  }
-
-}
-
 $(document).ready(function() {
+
+  $(function () {
+    var dateNow = new Date();
+    $('#datetimepicker').datetimepicker({
+        //defaultDate:dateNow
+    });
+  });
 
   var changedFields = {};
 
-  $("td.undo-container div.undo-button").click(function(event) {
-    event.stopPropagation();
-    var changedRow = $(this).closest('tr.changed-row');
-    changedRow.removeClass('changed-row');
-    var original = changedRow.attr('data-original-value');
-    var correspondingInput = changedRow.find('td input');
-    correspondingInput.val(original);
-    occFuncs.markFormFieldOld$(correspondingInput);
-  });
-
-	$('#occform input,#occform select').change(function() {
-    occFuncs.markFormFieldNotOld(this);
-    var str = $(this).val();
-    console.log('Change handler called on elem' + $(this).attr("name") + " to new val " + str);
-    changedFields[$(this).attr("name")] = str;
-		$('.submit').addClass('changes-made');
-		$('.submit .note').html('changes made. please save.');
-    console.log('changedFields = '+JSON.stringify(changedFields));
-    <%  /*out.println("WHOAH WE HAVE A CHANGE HERE");*/
-        System.out.println("OCCURRENCE.JSP: change detected in form (JS)");
-    %>
-	});
 	$('span.relationship').hover(function(ev) {
 //$('tr[data-indiv="07_091"]').hide();
 console.log(ev);
@@ -592,6 +613,39 @@ console.log(ev);
 		p.val($(el).html());
 		$(el).html(p);
 	});
+
+
+  $( "#datepicker" ).datetimepicker({
+    changeMonth: true,
+    changeYear: true,
+    dateFormat: 'MM-dd-yyyy',
+    maxDate: '+1d',
+    controlType: 'select',
+    alwaysSetTime: false,
+    showSecond:    false,
+    showMillisec:  false,
+    showMicrosec:  false
+  });
+  $( "#datepicker" ).datetimepicker( $.timepicker.regional[ "<%=langCode %>" ] );
+
+
+
+  $( "#releasedatepicker" ).datepicker({
+      changeMonth: true,
+      changeYear: true,
+      //dateFormat: 'dd-mm-yy'
+  });
+  $( "#releasedatepicker" ).datepicker( $.datepicker.regional[ "<%=langCode %>" ] );
+  $( "#releasedatepicker" ).datepicker( "option", "maxDate", "+1d" );
+
+  console.log("$('#datepicker').val() = " + $('#datepicker').val())
+  var datetime = new Date(
+            Date.parse($('#datepicker').val())
+        );
+  console.log("parsed date = "+datetime);
+  $('#datetime').datetimepicker('setDate', datetime);
+  console.log($('#datetime').datetimepicker('getDate'));
+
 
 
 });
@@ -659,6 +713,10 @@ function relCancel(ev) {
 
 
 
+</br>
+
+<div class="row">
+  <div class="col-sm-12">
 <div id="dialogIndies" title="<%=props.getProperty("setIndividualCount") %>" style="display:none">
 
 <table border="1" cellpadding="1" cellspacing="0" bordercolor="#FFFFFF" >
@@ -675,8 +733,10 @@ function relCancel(ev) {
     </td>
   </tr>
 </table>
+</div>
 
-                         		</div>
+</div>
+</div>
                          		<!-- popup dialog script -->
 <script>
 var dlgIndies = $("#dialogIndies").dialog({
@@ -692,7 +752,11 @@ $("a#indies").click(function() {
 </script>
 
 
-</p>
+</br>
+
+<h2>Encounter List</h2>
+<div class="row">
+  <div class="col-sm-12">
 <table id="encounter_report" width="100%">
 <tr>
 
@@ -700,8 +764,10 @@ $("a#indies").click(function() {
 
 <p><strong><%=occ.getNumberEncounters()%>
 </strong>
-  <%=props.getProperty("numencounters") %>
-</p>
+  <%=props.getProperty("numencounters") %> covering <%=occ.getMarkedIndividualNamesForThisOccurrence().size() %> Marked Individuals.</p>
+</td>
+</table>
+
 
 <table id="results" width="100%">
   <tr class="lineitem">
@@ -874,8 +940,47 @@ if(enc.getSex()!=null){sexValue=enc.getSex();}
 
 
 </table>
+</div>
+</div>
+<br />
 
 
+
+<h2>Zebra Counts</h2>
+<p class="caption"><em>Numbers extracted from original data import</em></p>
+<div class="row">
+<%
+// there are too many count fields to nicely display all at once,
+// so I break them up into chunks
+int fieldDisplayChunkSize = 15;
+double nChunks = gettersForCountFields.length/fieldDisplayChunkSize + 1;
+for (int chunkN=0; chunkN<nChunks; chunkN++) {
+  int startIndex = fieldDisplayChunkSize * chunkN;
+  int endIndex = Math.min(gettersForCountFields.length, startIndex+fieldDisplayChunkSize);
+  %>
+  <div class="col-md-4">
+    <table class = "occurrence-field-table count-table table">
+  <%
+  for (int fieldN=startIndex; fieldN < endIndex; fieldN++) {
+    String getterName = gettersForCountFields[fieldN];
+    Method occMeth = occ.getClass().getMethod(getterName);
+    if (ClassEditTemplate.isDisplayableGetter(occMeth)) {
+      ClassEditTemplate.printUnmodifiableField((Object) occ, occMeth, out);
+    }
+  }
+  %>
+    </table>
+  </br>
+  </div>
+  <%
+}
+
+%>
+</div>
+</br>
+
+<div class="row">
+<div class="col-md-12">
 <!-- Start thumbnail gallery -->
 
 <br />
@@ -895,12 +1000,12 @@ if(enc.getSex()!=null){sexValue=enc.getSex();}
 
 			int countMe=0;
 			//Vector thumbLocs=new Vector();
-			List<SinglePhotoVideo> thumbLocs=new ArrayList<SinglePhotoVideo>();
+			ArrayList<SinglePhotoVideo> thumbLocs=new ArrayList<SinglePhotoVideo>();
 
 			int  numColumns=3;
 			int numThumbs=0;
 			  if (CommonConfiguration.allowAdoptions(context)) {
-				  List adoptions = myShepherd.getAllAdoptionsForMarkedIndividual(name,context);
+				  ArrayList adoptions = myShepherd.getAllAdoptionsForMarkedIndividual(name,context);
 				  int numAdoptions = adoptions.size();
 				  if(numAdoptions>0){
 					  numColumns=2;
@@ -911,14 +1016,14 @@ if(enc.getSex()!=null){sexValue=enc.getSex();}
 
 
 			    Query query = myShepherd.getPM().newQuery("SELECT from org.ecocean.Encounter WHERE occurrenceID == \""+occ.getOccurrenceID()+"\"");
-	        //query.setFilter("SELECT "+jdoqlQueryString);
-	        query.setResult("catalogNumber");
-	        Collection c = (Collection) (query.execute());
-	        ArrayList<String> enclist = new ArrayList<String>(c);
-	        query.closeAll();
-		      thumbLocs=myShepherd.getThumbnails(myShepherd,request, enclist, 1, 99999, keywords);
-			    numThumbs=thumbLocs.size();
+		        //query.setFilter("SELECT "+jdoqlQueryString);
+		        query.setResult("catalogNumber");
+		        Collection c = (Collection) (query.execute());
+		        ArrayList<String> enclist = new ArrayList<String>(c);
+		        query.closeAll();
 
+			    thumbLocs=myShepherd.getThumbnails(myShepherd,request, enclist, 1, 99999, keywords);
+				numThumbs=thumbLocs.size();
 			%>
 
   <tr valign="top">
@@ -1070,7 +1175,7 @@ if(enc.getSex()!=null){sexValue=enc.getSex();}
 
 					                            //String renderMe = word.getReadableName();
 												List<Keyword> myWords = thumbLocs.get(countMe).getKeywords();
-												int myWordsSize = (myWords != null) ? myWords.size() : 0;
+												int myWordsSize=myWords.size();
 					                            for (int kwIter = 0; kwIter<myWordsSize; kwIter++) {
 					                              //String kwParam = keywords[kwIter];
 					                              //if (kwParam.equals(word.getIndexname())) {
@@ -1244,6 +1349,8 @@ if(enc.getSex()!=null){sexValue=enc.getSex();}
 
 </table>
 <!-- end thumbnail gallery -->
+</div>
+</div>
 
 
 
@@ -1304,6 +1411,10 @@ if(enc.getSex()!=null){sexValue=enc.getSex();}
 
 
 <br />
+
+
+<div class="row">
+  <div class="col-sm-12">
 <table>
 <tr>
 <td>
@@ -1314,6 +1425,13 @@ if(enc.getSex()!=null){sexValue=enc.getSex();}
 </td>
 </tr>
 </table>
+</div>
+</div>
+
+
+</div><!-- end maintext -->
+</div><!-- end main-wide -->
+
 <%
 
 }
@@ -1356,8 +1474,6 @@ else {
   myShepherd.closeDBTransaction();
 
 %>
-</div><!-- end maintext -->
-</div><!-- end main-wide -->
-
 </div>
+
 <jsp:include page="footer.jsp" flush="true"/>

@@ -21,14 +21,14 @@ package org.ecocean;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
+import java.util.Set;
+import java.util.HashSet;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import java.util.Calendar;
 import java.util.StringTokenizer;
-import java.text.SimpleDateFormat;
 import java.util.TreeMap;
 import java.util.Vector;
 import java.util.HashMap;
@@ -37,7 +37,6 @@ import java.lang.Math;
 import java.io.*;
 import java.lang.reflect.Field;
 import javax.jdo.Query;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -47,7 +46,7 @@ import org.ecocean.tag.MetalTag;
 import org.ecocean.tag.SatelliteTag;
 import org.ecocean.Util;
 import org.ecocean.servlet.ServletUtilities;
-import org.ecocean.identity.IBEISIA;
+
 import org.ecocean.media.*;
 
 
@@ -55,8 +54,8 @@ import javax.servlet.http.HttpServletRequest;
 
 
 
-import org.joda.time.DateTime;
 import org.joda.time.LocalDateTime;
+import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.ecocean.security.Collaboration;
@@ -117,7 +116,6 @@ public class Encounter implements java.io.Serializable {
   public String lifeStage;
   public String country;
 
-    private static HashMap<String,ArrayList<Encounter>> _matchEncounterCache = new HashMap<String,ArrayList<Encounter>>();
 
   /*
     * The following fields are specific to this mark-recapture project and do not have an easy to map Darwin Core equivalent.
@@ -130,9 +128,6 @@ public class Encounter implements java.io.Serializable {
   //Defines whether the sighting represents a living or deceased individual.
   //Currently supported values are: "alive" and "dead".
   private String livingStatus;
-
-    //observed age (if any) via IBEIS zebra projects
-    private Double age;
 
   //Date the encounter was added to the library.
   private String dwcDateAdded;
@@ -189,7 +184,7 @@ public class Encounter implements java.io.Serializable {
   //Indicates whether this record can be exposed via TapirLink
   private boolean okExposeViaTapirLink = false;
   //whether this encounter has been approved for public display
-  //private boolean approved = true;
+  private Boolean approved = true;
   //integers of the latitude and longitude degrees
   //private int lat=-1000, longitude=-1000;
   //name of the stored file from which the left-side spots were extracted
@@ -244,6 +239,29 @@ public class Encounter implements java.io.Serializable {
 
   private Boolean mmaCompatible = false;
 
+
+  // Mpala-specifics
+  private String ageClass;
+  private String reproductiveStatus;
+  private String injury;
+  private String woundType;
+  private String individualSightingsRemark;
+  private String nearestNeighbourId;
+  private String nearestNeighbourIdSecond;
+  private Integer order;
+  private Integer heading;
+  private String stallionId;
+  private String mother;
+  private Integer haremNumber;
+  private Boolean lactatingFemale;
+  private Boolean pregnantFemale;
+  private Boolean is03Foal;
+  private Boolean is36Foal;
+  private Boolean is612Foal;
+  private Integer numberOfFoals;
+  private String lionWound;
+
+
   //start constructors
 
   /**
@@ -256,10 +274,8 @@ public class Encounter implements java.io.Serializable {
    * Use this constructor to add the minimum level of information for a new encounter
    * The Vector <code>additionalImages</code> must be a Vector of Blob objects
    *
-   * NOTE: technically this is DEPRECATED cuz, SinglePhotoVideos? really?
    */
   public Encounter(int day, int month, int year, int hour, String minutes, String size_guess, String location, String submitterName, String submitterEmail, List<SinglePhotoVideo> images) {
-    System.out.println("WARNING: danger! deprecated SinglePhotoVideo-based Encounter constructor used!");
     this.verbatimLocality = location;
     this.recordedBy = submitterName;
     this.submitterEmail = submitterEmail;
@@ -274,27 +290,71 @@ public class Encounter implements java.io.Serializable {
     this.hour = hour;
     this.minutes = minutes;
     this.size_guess = size_guess;
+    this.individualID = "Unassigned";
 
-    this.setDWCDateAdded();
-    this.setDWCDateLastModified();
-    this.resetDateInMilliseconds();
+    resetDateInMilliseconds();
   }
+
+  /**
+   * Mpala constructor
+   */
+  public Encounter(Occurrence occ, String individualID) {
+    this.occurrenceID = occ.getOccurrenceID();
+    // TODO: copy applicable fields from occurrence to encounter
+    this.individualID = individualID;
+    if (occ.getDateTime()!=null) {
+      this.dateInMilliseconds = occ.getDateTime().getMillis();
+    }
+  }
+
 
     public Encounter(Annotation ann) {
         this(new ArrayList<Annotation>(Arrays.asList(ann)));
     }
-
     public Encounter(ArrayList<Annotation> anns) {
         this.catalogNumber = Util.generateUUID();
         this.annotations = anns;
-        this.setDateFromAssets();
-        this.setSpeciesFromAssets();
-        this.setLatLonFromAssets();
-        this.setDWCDateAdded();
-        this.setDWCDateLastModified();
-        this.resetDateInMilliseconds();
     }
 
+
+
+
+    /**
+     * Some functions for inferring base wildbook fields from mpala fields (not necessarily data duplication, e.g. sex is inferred from the more fine-grained "reproductiveStatus")
+     */
+
+    private static final String[] maleReproductiveStatusesVals = new String[]{"male","bachelor","stallion","territorial"};
+    private static final Set<String> maleReproductiveStatuses = new HashSet<String>(Arrays.asList(maleReproductiveStatusesVals));
+    private static final String[] femaleReproductiveStatusesVals = new String[]{"female","lactating","non-lactating","pregnant"};
+    private static Set<String> femaleReproductiveStatuses = new HashSet<String>(Arrays.asList(femaleReproductiveStatusesVals));
+    public void setSexFromReproStatus() {
+      if (reproductiveStatus==null || reproductiveStatus=="") return;
+      String cleanedStatus = reproductiveStatus.trim().toLowerCase();
+      if (maleReproductiveStatuses.contains(cleanedStatus)) setSex("male");
+      if (femaleReproductiveStatuses.contains(cleanedStatus)) setSex("female");
+    }
+
+    public void fillDateFieldsFromDateMillis() {
+      if (dateInMilliseconds==null) return;
+      DateTime dt = new DateTime(dateInMilliseconds);
+      this.day = dt.getDayOfMonth();
+      this.month = dt.getMonthOfYear();
+      this.year = dt.getYear();
+      this.hour = dt.getHourOfDay();
+      this.minutes = String.valueOf(dt.getMinuteOfHour());
+    }
+
+    public void setDWCDateAddedNow() {
+      DateTime now = new DateTime();
+      dwcDateAddedLong = now.getMillis();
+      DateTimeFormatter fmt = ISODateTimeFormat.date();
+      dwcDateAdded = (fmt.print(now));
+      modified = dwcDateAdded;
+    }
+
+    public void setLifeStageFromMpala() {
+
+    }
 
   /**
    * Returns an array of all of the superSpots for this encounter.
@@ -937,7 +997,11 @@ public class Encounter implements java.io.Serializable {
     catalogNumber = num;
   }
 
+  public String isAssignedToMarkedIndividual() {
 
+    return individualID;
+
+  }
 
     //this is probably what you wanted above to do.  :/
     public boolean hasMarkedIndividual() {
@@ -1174,11 +1238,11 @@ System.out.println("did not find MediaAsset for params=" + sp + "; creating one?
     interestedResearchers.add(email);
   }
 
- /*
-  public boolean isApproved() {
+
+  public Boolean isApproved() {
     return approved;
   }
-  */
+
 
   public void removeInterestedResearcher(String email) {
     for (int i = 0; i < interestedResearchers.size(); i++) {
@@ -1403,9 +1467,6 @@ System.out.println("did not find MediaAsset for params=" + sp + "; creating one?
   public void setDWCDateLastModified(String lastModified) {
     modified = lastModified;
   }
-    public void setDWCDateLastModified() {
-        modified = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
-    }
 
   public String getDWCDateAdded() {
     return dwcDateAdded;
@@ -1418,9 +1479,6 @@ System.out.println("did not find MediaAsset for params=" + sp + "; creating one?
   public void setDWCDateAdded(String m_dateAdded) {
     dwcDateAdded = m_dateAdded;
   }
-    public void setDWCDateAdded() {
-        dwcDateAdded = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
-    }
 
 
  public void setDWCDateAdded(Long m_dateAdded) {
@@ -1561,29 +1619,14 @@ System.out.println("did not find MediaAsset for params=" + sp + "; creating one?
   }
 
   public void setIndividualID(String indy) {
-    if(indy==null){
-      individualID=null;
-      return;
-    }
     this.individualID = indy;
   }
 
-/* i cant for the life of me figure out why/how gps stuff is stored on encounters, cuz we have
-some strings and decimal (double, er Double?) values -- so i am doing my best to standardize on
-the decimal one (Double) .. half tempted to break out a class for this: lat/lon/alt/bearing etc */
   public double getDecimalLatitudeAsDouble(){return decimalLatitude.doubleValue();}
-
-    public void setDecimalLatitude(Double lat){
-        this.decimalLatitude = lat;
-        gpsLatitude = Util.decimalLatLonToString(lat);
-     }
+  public void setDecimalLatitude(Double lat){this.decimalLatitude=lat;}
 
   public double getDecimalLongitudeAsDouble(){return decimalLongitude.doubleValue();}
-
-    public void setDecimalLongitude(Double lon) {
-        this.decimalLongitude = lon;
-        gpsLongitude = Util.decimalLatLonToString(lon);
-    }
+  public void setDecimalLongitude(Double longy){this.decimalLongitude=longy;}
 
 
   public String getOccurrenceRemarks() {
@@ -1618,12 +1661,6 @@ the decimal one (Double) .. half tempted to break out a class for this: lat/lon/
     this.livingStatus = status;
   }
 
-    public void setAge(Double a) {
-        age = a;
-    }
-    public Double getAge() {
-        return age;
-    }
 
   public String getBehavior() {
     return behavior;
@@ -1790,45 +1827,6 @@ the decimal one (Double) .. half tempted to break out a class for this: lat/lon/
   public String getPatterningCode(){ return patterningCode;}
   public void setPatterningCode(String newCode){this.patterningCode=newCode;}
 
-
-    //crawls thru assets and sets date.. in an ideal world would do some kinda avg or whatever if more than one  TODO?
-    public void setDateFromAssets() {
-        //FIXME if you dare.  i can *promise you* there are some timezone problems here.  ymmv.
-        if ((annotations == null) || (annotations.size() < 1)) return;
-        DateTime dt = null;
-        for (Annotation ann : annotations) {
-            MediaAsset ma = ann.getMediaAsset();
-            if (ma == null) continue;
-            dt = ma.getDateTime();
-            if (dt != null) break;  //we just take the first one
-        }
-        if (dt != null) setDateInMilliseconds(dt.getMillis());
-    }
-
-    public void setSpeciesFromAssets() {
-        if ((annotations == null) || (annotations.size() < 1)) return;
-        String[] sp = IBEISIA.convertSpecies(annotations.get(0).getSpecies());
-        if (sp.length > 0) this.setGenus(sp[0]);
-        if (sp.length > 1) this.setSpecificEpithet(sp[1]);
-    }
-
-    //find the first one(s) we can
-    public void setLatLonFromAssets() {
-        if ((annotations == null) || (annotations.size() < 1)) return;
-        Double lat = null;
-        Double lon = null;
-        for (Annotation ann : annotations) {
-            MediaAsset ma = ann.getMediaAsset();
-            if (ma == null) continue;
-            if (lat == null) lat = ma.getLatitude();
-            if (lon == null) lon = ma.getLongitude();
-            if ((lat != null) && (lon != null)) break;
-        }
-        if (lat != null) this.setDecimalLatitude(lat);
-        if (lon != null) this.setDecimalLongitude(lon);
-    }
-
-
   public void resetDateInMilliseconds(){
     if(year>0){
       int localMonth=0;
@@ -1847,19 +1845,6 @@ the decimal one (Double) .. half tempted to break out a class for this: lat/lon/
   }
 
   public java.lang.Long getDateInMilliseconds(){return dateInMilliseconds;}
-
-    // this will set all date stuff based on ms since epoch
-    public void setDateInMilliseconds(long ms) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTimeInMillis(ms);
-        this.year = cal.get(Calendar.YEAR);
-        this.month = cal.get(Calendar.MONTH) + 1;
-        this.day = cal.get(Calendar.DAY_OF_MONTH);
-        this.hour = cal.get(Calendar.HOUR);
-        this.minutes = Integer.toString(cal.get(Calendar.MINUTE));
-        if (this.minutes.length() == 1) this.minutes = "0" + this.minutes;
-        this.dateInMilliseconds = ms;
-    }
 
 
   public String getDecimalLatitude(){
@@ -2130,36 +2115,6 @@ the decimal one (Double) .. half tempted to break out a class for this: lat/lon/
         return m;
     }
 
-    // only checks top-level MediaAssets, not children or resized images
-    public boolean hasTopLevelMediaAsset(int id) {
-      return (indexOfMediaAsset(id)>=0);
-    }
-
-    // finds the index of the MA we're looking for
-    public int indexOfMediaAsset(int id) {
-      if (annotations == null) return -1;
-      for (int i=0; i < annotations.size(); i++) {
-        MediaAsset ma = annotations.get(i).getMediaAsset();
-        if (ma == null) continue;
-        if (ma.getId() == id) return i;
-      }
-      return -1;
-    }
-
-    // creates a new annotation and attaches the asset
-    public void addMediaAsset(MediaAsset ma) {
-      Annotation ann = new Annotation(getTaxonomyString(), ma);
-      annotations.add(ann);
-    }
-
-    public void removeAnnotation(int index) {
-      annotations.remove(index);
-    }
-
-    public void removeMediaAsset(MediaAsset ma) {
-      removeAnnotation(indexOfMediaAsset(ma.getId()));
-    }
-
     //this is a kinda hacky way to find media ... really used by encounter.jsp now but likely should go away?
     public ArrayList<MediaAsset> findAllMediaByFeatureId(Shepherd myShepherd, String[] featureIds) {
         ArrayList<MediaAsset> mas = new ArrayList<MediaAsset>();
@@ -2416,7 +2371,7 @@ the decimal one (Double) .. half tempted to break out a class for this: lat/lon/
 
 
 	//this simple version makes some assumptions: you already have list of collabs, and it is not visible
-	public String collaborationLockHtml(List<Collaboration> collabs) {
+	public String collaborationLockHtml(ArrayList<Collaboration> collabs) {
 		Collaboration c = Collaboration.findCollaborationWithUser(this.getAssignedUsername(), collabs);
 		String collabClass = "pending";
 		if ((c == null) || (c.getState() == null)) {
@@ -2492,22 +2447,12 @@ thus, we have to treat it as a special case.
 */
 	//see also: future, MediaAssets
 	public String getThumbnailUrl(String context) {
-                MediaAsset ma = getPrimaryMediaAsset();
-                if (ma == null) return null;
-                Shepherd myShepherd = new Shepherd(context);
-                ArrayList<MediaAsset> kids = ma.findChildrenByLabel(myShepherd, "_thumb");
-                if ((kids != null) && (kids.size() > 0)) ma = kids.get(0);
-                return ma.webURL().toString();
-	}
+		List<SinglePhotoVideo> spvs = this.images;
 
-        //this probably needs a better name and should allow for something more like an ordered list; that said,
-        //  knowing we can always try to get THE ONE is probably useful too
-        public MediaAsset getPrimaryMediaAsset() {
-            ArrayList<MediaAsset> mas = getMedia();
-            if (mas.size() < 1) return null;
-            //here we could walk thru and find keywords, for example
-            return mas.get(0);
-        }
+		if (spvs == null || spvs.size() < 1) return null;
+
+		return "/" + CommonConfiguration.getDataDirectoryName(context) + "/encounters/" + this.subdir() + "/thumb.jpg";
+	}
 
 	public boolean restAccess(HttpServletRequest request, org.json.JSONObject jsonobj) throws Exception {
 		ApiAccess access = new ApiAccess();
@@ -2562,9 +2507,8 @@ throw new Exception();
             Encounter returnEnc=null;
             Query query = myShepherd.getPM().newQuery(queryString);
             List results = (List)query.execute();
-            if ((results!=null) && (results.size() >= 1)) {
-                if (results.size() > 1) System.out.println("WARNING: Encounter.findByAnnotation() found " + results.size() + " Encounters that contain Annotation " + annot.getId());
-                returnEnc = (Encounter)results.get(0);
+            if ((results!=null)&&(results.size() >= 1)) {
+              returnEnc=(Encounter)results.get(0);
             }
             query.closeAll();
             return returnEnc;
@@ -2587,7 +2531,6 @@ throw new Exception();
 */
 
     public static ArrayList<Encounter> getEncountersForMatching(String taxonomyString, Shepherd myShepherd) {
-        if (_matchEncounterCache.get(taxonomyString) != null) return _matchEncounterCache.get(taxonomyString);
         ArrayList<Encounter> encs = new ArrayList<Encounter>();
         String queryString = "SELECT FROM org.ecocean.media.MediaAsset WHERE !features.isEmpty()";
         Query query = myShepherd.getPM().newQuery(queryString);
@@ -2600,10 +2543,9 @@ throw new Exception();
             if (enc == null) System.out.println("could not find enc for ma " + ma);
             if (enc == null) continue;
             if (!enc.getTaxonomyString().equals(taxonomyString)) continue;
-            if (!encs.contains(enc)) encs.add(enc);
+            encs.add(enc);
         }
         query.closeAll();
-        _matchEncounterCache.put(taxonomyString, encs);
         return encs;
     }
 
@@ -2652,22 +2594,122 @@ throw new Exception();
         return new ArrayList<SuperSpot>();
     }
 
-
-    public Encounter cloneWithoutAnnotations() {
-        Encounter enc = new Encounter(this.day, this.month, this.year, this.hour, this.minutes, this.size_guess, this.verbatimLocality, this.recordedBy, this.submitterEmail, null);
-        enc.setCatalogNumber(Util.generateUUID());
-        return enc;
+    // Mpala-specifics
+    public String getAgeClass(){
+      return(ageClass);
+    }
+    public void setAgeClass(String ageClass){
+      this.ageClass = ageClass;
+    }
+    public String getReproductiveStatus(){
+      return(reproductiveStatus);
+    }
+    public void setReproductiveStatus(String reproductiveStatus){
+      this.reproductiveStatus = reproductiveStatus;
+    }
+    public String getInjury(){
+      return(injury);
+    }
+    public void setInjury(String injury){
+      this.injury = injury;
+    }
+    public String getWoundType(){
+      return(woundType);
+    }
+    public void setWoundType(String woundType){
+      this.woundType = woundType;
+    }
+    public String getIndividualSightingsRemark(){
+      return(individualSightingsRemark);
+    }
+    public void setIndividualSightingsRemark(String individualSightingsRemark){
+      this.individualSightingsRemark = individualSightingsRemark;
+    }
+    public String getNearestNeighbourId(){
+      return(nearestNeighbourId);
+    }
+    public void setNearestNeighbourId(String nearestNeighbourId){
+      this.nearestNeighbourId = nearestNeighbourId;
+    }
+    public String getNearestNeighbourIdSecond(){
+      return(nearestNeighbourIdSecond);
+    }
+    public void setNearestNeighbourIdSecond(String nearestNeighbourIdSecond){
+      this.nearestNeighbourIdSecond = nearestNeighbourIdSecond;
+    }
+    public Integer getOrder(){
+      return(order);
+    }
+    public void setOrder(Integer order){
+      this.order = order;
+    }
+    public Integer getHeading(){
+      return(heading);
+    }
+    public void setHeading(Integer heading){
+      this.heading = heading;
+    }
+    public String getStallionId(){
+      return(stallionId);
+    }
+    public void setStallionId(String stallionId){
+      this.stallionId = stallionId;
+    }
+    public String getMother(){
+      return(mother);
+    }
+    public void setMother(String mother){
+      this.mother = mother;
+    }
+    public Integer getHaremNumber(){
+      return(haremNumber);
+    }
+    public void setHaremNumber(Integer haremNumber){
+      this.haremNumber = haremNumber;
+    }
+    public Boolean getLactatingFemale(){
+      return(lactatingFemale);
+    }
+    public void setLactatingFemale(Boolean lactatingFemale){
+      this.lactatingFemale = lactatingFemale;
+    }
+    public Boolean getPregnantFemale(){
+      return(pregnantFemale);
+    }
+    public void setPregnantFemale(Boolean pregnantFemale){
+      this.pregnantFemale = pregnantFemale;
+    }
+    public Boolean getIs03Foal(){
+      return(is03Foal);
+    }
+    public void setIs03Foal(Boolean is03Foal){
+      this.is03Foal = is03Foal;
+    }
+    public Boolean getIs36Foal(){
+      return(is36Foal);
+    }
+    public void setIs36Foal(Boolean is36Foal){
+      this.is36Foal = is36Foal;
+    }
+    public Boolean getIs612Foal(){
+      return(is612Foal);
+    }
+    public void setIs612Foal(Boolean is612Foal){
+      this.is612Foal = is612Foal;
+    }
+    public Integer getNumberOfFoals(){
+      return(numberOfFoals);
+    }
+    public void setNumberOfFoals(Integer numberOfFoals){
+      this.numberOfFoals = numberOfFoals;
+    }
+    public String getLionWound(){
+      return(lionWound);
+    }
+    public void setLionWound(String lionWound){
+      this.lionWound = lionWound;
     }
 
-    public String toString() {
-        return new ToStringBuilder(this)
-                .append("catalogNumber", catalogNumber)
-                .append("individualID", (hasMarkedIndividual() ? individualID : null))
-                .append("species", getTaxonomyString())
-                .append("sex", getSex())
-                .append("shortDate", getShortDate())
-                .append("numAnnotations", ((annotations == null) ? 0 : annotations.size()))
-                .toString();
-    }
+    // TOOD: finish transfer from markedindividual to encounter
 
 }
