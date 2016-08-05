@@ -2115,6 +2115,36 @@ System.out.println("did not find MediaAsset for params=" + sp + "; creating one?
         return m;
     }
 
+    // only checks top-level MediaAssets, not children or resized images
+    public boolean hasTopLevelMediaAsset(int id) {
+      return (indexOfMediaAsset(id)>=0);
+    }
+
+    // finds the index of the MA we're looking for
+    public int indexOfMediaAsset(int id) {
+      if (annotations == null) return -1;
+      for (int i=0; i < annotations.size(); i++) {
+        MediaAsset ma = annotations.get(i).getMediaAsset();
+        if (ma == null) continue;
+        if (ma.getId() == id) return i;
+      }
+      return -1;
+    }
+
+    // creates a new annotation and attaches the asset
+    public void addMediaAsset(MediaAsset ma) {
+      Annotation ann = new Annotation(getTaxonomyString(), ma);
+      annotations.add(ann);
+    }
+
+    public void removeAnnotation(int index) {
+      annotations.remove(index);
+    }
+
+    public void removeMediaAsset(MediaAsset ma) {
+      removeAnnotation(indexOfMediaAsset(ma.getId()));
+    }
+
     //this is a kinda hacky way to find media ... really used by encounter.jsp now but likely should go away?
     public ArrayList<MediaAsset> findAllMediaByFeatureId(Shepherd myShepherd, String[] featureIds) {
         ArrayList<MediaAsset> mas = new ArrayList<MediaAsset>();
