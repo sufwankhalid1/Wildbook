@@ -22,7 +22,7 @@ maLib.maJsonToFigureElem = function(maJson, intoElem) {
     w = maJson.metadata.width;
     h = maJson.metadata.height;
   }
-  if (!url || !w || !h) {
+  if (!url) {
     console.log('failed to parse into html this MediaAsset: '+JSON.stringify(maJson));
     return;
   }
@@ -61,9 +61,7 @@ maLib.startIdentify = function(el) {
   			console.warn('%o %o %o', x, y, z);
   		},
   		data: JSON.stringify({
-  			identify: aid,
-  			genus: '<%=imageEnc.getGenus()%>',
-  			species: '<%=imageEnc.getSpecificEpithet()%>'
+  			identify: { annotationIds: [ aid ] }
   		})
   	});
   }
@@ -115,7 +113,7 @@ maLib.maJsonToFigureElemCaption = function(maJson, intoElem, caption, maCaptionF
     w = maJson.metadata.width;
     h = maJson.metadata.height;
   }
-  if (!url || !w || !h) {
+  if (!url) {
     console.log('failed to parse into html this MediaAsset: '+JSON.stringify(maJson));
     return;
   }
@@ -158,7 +156,7 @@ maLib.maJsonToFigureElemColCaption = function(maJson, intoElem, colSize, maCapti
     w = maJson.metadata.width;
     h = maJson.metadata.height;
   }
-  if (!url || !w || !h) {
+  if (!url) {
     console.log('failed to parse into html this MediaAsset: '+JSON.stringify(maJson));
     return;
   }
@@ -239,7 +237,7 @@ maLib.maJsonToFigureElemDisplayChild = function(maJson, intoElem, childLabel) {
     w = maJson.metadata.width;
     h = maJson.metadata.height;
   }
-  if (!url || !w || !h) {
+  if (!url) {
     console.log('failed to parse into html this MediaAsset: '+JSON.stringify(maJson));
     return;
   }
@@ -332,8 +330,13 @@ maLib.initPhotoSwipeFromDOM = function(gallerySelector) {
 
           linkEl = figureEl.children[0]; // <a> element
 
-          size = linkEl.getAttribute('data-size').split('x');
-
+          //size = linkEl.getAttribute('data-size').split('x');
+        size = [800,600];  //fallback that hopefully we never see
+        var imgEl = linkEl.children[0];
+        if (imgEl && imgEl.naturalWidth && imgEl.naturalHeight) {
+            size = [imgEl.naturalWidth, imgEl.naturalHeight];
+        }
+ 
           // create slide object
           item = {
               src: linkEl.getAttribute('href'),
@@ -508,7 +511,7 @@ maLib.initPhotoSwipeFromDOM = function(gallerySelector) {
 
 function mkImg(maJson) {
     var url = wildbook.cleanUrl(maJson.url);
-    return '<img id="figure-img-' + maJson.id + '" data-enh-mediaAssetId="' + maJson.id + '" src="' + url + '" itemprop="contentUrl" alt="Image description"/>';
+    return '<img class="lazyload" id="figure-img-' + maJson.id + '" data-enh-mediaAssetId="' + maJson.id + '" src="/cust/mantamatcher/img/individual_placeholder_image.jpg" data-src="' + url + '" itemprop="contentUrl" alt="Image description"/>';
 }
 
 // execute above function
