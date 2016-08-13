@@ -516,58 +516,7 @@ if(CommonConfiguration.showReleaseDate(context)){
 <hr />
 
 <fieldset>
-    <h3><%=props.getProperty("submit_location")%></h3>
-
-    <div class="form-group required">
-      <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4">
-        <label class="control-label text-danger"><%=props.getProperty("where") %></label>
-      </div>
-      <div class="col-xs-6 col-sm-6 col-md-6 col-lg-8">
-        <input name="location" type="text" id="location" size="40" class="form-control">
-      </div>
-    </div>
-
-
 <%
-//add locationID to fields selectable
-
-
-if(CommonConfiguration.getIndexedPropertyValues("locationID", context).size()>0){
-%>
-    <div class="form-group required">
-      <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4">
-        <label class="control-label">Was this one of our study sites?</label>
-      </div>
-
-      <div class="col-xs-6 col-sm-6 col-md-6 col-lg-8">
-        <select name="locationID" id="locationID" class="form-control">
-            <option value="" selected="selected"></option>
-                  <%
-                         boolean hasMoreLocationsIDs=true;
-                         int locNum=0;
-
-                         while(hasMoreLocationsIDs){
-                               String currentLocationID = "locationID"+locNum;
-                               if(CommonConfiguration.getProperty(currentLocationID,context)!=null){
-                                   %>
-
-                                     <option value="<%=CommonConfiguration.getProperty(currentLocationID,context)%>"><%=CommonConfiguration.getProperty(currentLocationID,context)%></option>
-                                   <%
-                                 locNum++;
-                            }
-                            else{
-                               hasMoreLocationsIDs=false;
-                            }
-
-                       }
-
-     %>
-      </select>
-      </div>
-    </div>
-<%
-}
-
 if(CommonConfiguration.showProperty("showCountry",context)){
 
 %>
