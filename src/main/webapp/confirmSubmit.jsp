@@ -236,6 +236,7 @@ if(CommonConfiguration.sendEmailNotifications(context)){
   // Add encounter dont-track tag for remaining notifications (still needs email-hash assigned).
   tagMap.put(NotificationMailer.EMAIL_NOTRACK, "number=" + enc.getCatalogNumber());
 
+/*
   // Email submitter and photographer
   if (submitter != null) {
     List<String> cOther = NotificationMailer.splitEmails(submitter);
@@ -253,6 +254,7 @@ if(CommonConfiguration.sendEmailNotifications(context)){
       es.execute(new NotificationMailer(context, null, emailTo, "newSubmission", tagMap));
     }
   }
+  */
 
   // Email interested others
   if (informOthers != null) {
