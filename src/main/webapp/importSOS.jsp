@@ -40,6 +40,7 @@ org.ecocean.media.*
 
 	File sourceFile = new File("/efs/import/data.txt");
 	String grouping = "A";
+	boolean reuseMediaAssets = true;  //probably want false
 %>
 
 <html><head>
@@ -51,7 +52,8 @@ org.ecocean.media.*
 
 
 	Shepherd myShepherd=null;
-	myShepherd = new Shepherd("context0");
+	String context = "context0";
+	myShepherd = new Shepherd(context);
         AssetStore astore = AssetStore.getDefault(myShepherd);
 	FeatureType.initAll(myShepherd);
 
@@ -70,8 +72,12 @@ org.ecocean.media.*
 System.out.println(f.toString() + " --> " + sp.toString());
         		MediaAsset ma = astore.find(sp, myShepherd);
 			if (ma != null) {
-				existed = true;
-				i = fields.length + 1;
+				if (reuseMediaAssets) {
+					mas.add(ma);
+				} else {
+					existed = true;
+					i = fields.length + 1;
+				}
 			} else {
         			try {
             				ma = astore.copyIn(f, sp);
@@ -87,10 +93,11 @@ System.out.println(f.toString() + " --> " + sp.toString());
 		if (existed) {
 			out.println("<p>MediaAsset(s) already existed for this row, so skipping. <br /><pre>" + row + "</pre></p>");
 		} else {
+			myShepherd.beginDBTransaction();
 			//process and save these
+			ArrayList<Annotation> anns = new ArrayList<Annotation>();
 			for (MediaAsset ma : mas) {
 				out.println("<p>" + ma.toString() + "</p>");
-/*
         			try {
             				ma.updateMetadata();
         			} catch (IOException ioe) {
@@ -98,57 +105,45 @@ System.out.println(f.toString() + " --> " + sp.toString());
 					System.out.println("could not updateMetadata() on " + ma);
         			}
 
-	myShepherd.beginDBTransaction();
-        MediaAssetFactory.save(ma, myShepherd);
-	ma.updateStandardChildren(myShepherd);
-	myShepherd.commitDBTransaction();
-	out.println("<p>created <a target=\"_new\" title=\"" + ma.toString() + "\" href=\"obrowse.jsp?type=MediaAsset&id=" + ma.getId() + "\">" + ma.getId() + "</a></p>");
-	System.out.println("localFilesToMediaAssets: " + f.toString() + " --> " + ma.getId());
-*/
-
+        			MediaAssetFactory.save(ma, myShepherd);
+				ma.updateStandardChildren(myShepherd);
+				out.println("<p>created <a target=\"_new\" title=\"" + ma.toString() + "\" href=\"obrowse.jsp?type=MediaAsset&id=" + ma.getId() + "\">" + ma.getId() + "</a></p>");
+				Annotation ann = new Annotation("Carcharodon carcharias", ma);
+				anns.add(ann);
 			}
+			Encounter enc = new Encounter(anns);
+			enc.setYear(Integer.parseInt(fields[0].substring(0,4)));
+			enc.setMonth(Integer.parseInt(fields[0].substring(4,6)));
+			enc.setDay(Integer.parseInt(fields[0].substring(6,8)));
+			enc.setHour(0);
+			enc.setMinutes("00");
+			String sex = null;
+			if (!fields[1].equals("NA")) sex = fields[1].toLowerCase();
+			enc.setSex(sex);
+			enc.setRecordedBy(fields[2]);
+			enc.setVerbatimLocality(fields[3]);
+			enc.setDecimalLatitude(Double.parseDouble(fields[6]));
+			enc.setDecimalLongitude(Double.parseDouble(fields[7]));
+			enc.setState("approved");
+
+			String indivId = fields[5];
+			MarkedIndividual indiv = myShepherd.getMarkedIndividualQuiet(indivId);
+			if (indiv == null) {
+				indiv = new MarkedIndividual(indivId, enc);
+				myShepherd.storeNewMarkedIndividual(indiv);
+				System.out.println("+ created new " + indiv);
+			} else {
+				indiv.addEncounter(enc, context);
+			}
+			enc.setIndividualID(indivId);
+			myShepherd.storeNewEncounter(enc, enc.getCatalogNumber());
+			System.out.println("+ created " + enc);
+			out.println("<p>created <a target=\"_new\" title=\"" + enc.toString() + "\" href=\"obrowse.jsp?type=Encounter&id=" + enc.getCatalogNumber() + "\">" + enc.getCatalogNumber() + "</a></p>");
+			myShepherd.commitDBTransaction();
 		}
 break;
 	}
 
-
-/*
-for (File f : files) {
-        JSONObject sp = astore.createParameters(f, grouping);
-	sp.put("_localDirect", f.toString());
-        MediaAsset ma = astore.find(sp, myShepherd);
-	if (ma != null) {
-		if (allowDuplicates) {
-			System.out.println("NOTE: " + ma.toString() + " already exists matching " + sp.toString() + " but duplicates are being allowed");
-		} else {
-			out.println("<p><a target=\"_new\" title=\"" + ma.toString() + "\" href=\"obrowse.jsp?type=MediaAsset&id=" + ma.getId() + "\">[" + ma.getId() + "]</a> already exists for " + sp.toString() + "; skipping</p>");
-			continue;
-		}
-	}
-
-System.out.println("trying to create MediaAsset with sp = " + sp);
-        try {
-            ma = astore.copyIn(f, sp);
-        } catch (IOException ioe) {
-            out.println("<p>could not create MediaAsset for " + sp.toString() + ": " + ioe.toString() + "</p>");
-            continue;
-        }
-        try {
-            ma.updateMetadata();
-        } catch (IOException ioe) {
-            	//we dont care (well sorta) ... since IOException usually means we couldnt open file or some nonsense that we cant recover from
-		System.out.println("could not updateMetadata() on " + ma);
-        }
-        ma.addLabel("_original");
-	myShepherd.beginDBTransaction();
-        MediaAssetFactory.save(ma, myShepherd);
-	ma.updateStandardChildren(myShepherd);
-	myShepherd.commitDBTransaction();
-	out.println("<p>created <a target=\"_new\" title=\"" + ma.toString() + "\" href=\"obrowse.jsp?type=MediaAsset&id=" + ma.getId() + "\">" + ma.getId() + "</a></p>");
-	System.out.println("localFilesToMediaAssets: " + f.toString() + " --> " + ma.getId());
-
-}
-*/
 
 
 ///////myShepherd.commitDBTransaction();
