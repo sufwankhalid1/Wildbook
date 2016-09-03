@@ -38,7 +38,7 @@ org.ecocean.media.*
 
 <%
 
-	File sourceFile = new File("/efs/import/data.txt");
+	File sourceFile = new File("/efs/import/data2.txt");
 	String grouping = "A";
 	boolean reuseMediaAssets = true;  //probably want false
 %>
@@ -60,9 +60,28 @@ org.ecocean.media.*
 	List<String> dataIn = Util.readAllLines(sourceFile);
 	for (String row : dataIn) {
 		String[] fields = row.split("\t");
+/*
+for (int i = 0 ; i < fields.length ; i++) {
+	out.println("<p><b>(" + i + ")</b>[" + fields[i] + "]</p>");
+}
+out.println("<hr />");
+*/
+
+
 		boolean existed = false;
 		List<MediaAsset> mas = new ArrayList<MediaAsset>();
-		for (int i = 8 ; i < fields.length ; i++) {
+		String comments = "";
+		boolean inComments = false;
+		for (int i = 9 ; i < fields.length ; i++) {
+			if (fields[i].equals("comments")) {
+				inComments = true;
+				continue;
+			}
+			if (inComments) {
+				comments += "<li>" + fields[i] + "</li>";
+				continue;
+			}
+
 			File f = new File(fields[i]);
 			if (!f.exists()) {
 				System.out.print(f.toString() + " does not exists; skipping");
@@ -115,18 +134,20 @@ System.out.println(f.toString() + " --> " + sp.toString());
 			enc.setYear(Integer.parseInt(fields[0].substring(0,4)));
 			enc.setMonth(Integer.parseInt(fields[0].substring(4,6)));
 			enc.setDay(Integer.parseInt(fields[0].substring(6,8)));
-			enc.setHour(0);
-			enc.setMinutes("00");
+			enc.setHour(Integer.parseInt(fields[1].substring(0,2)));
+			enc.setMinutes(fields[1].substring(2,4));
 			String sex = null;
-			if (!fields[1].equals("NA")) sex = fields[1].toLowerCase();
+			if (!fields[2].equals("NA")) sex = fields[2].toLowerCase();
 			enc.setSex(sex);
-			enc.setRecordedBy(fields[2]);
-			enc.setVerbatimLocality(fields[3]);
-			enc.setDecimalLatitude(Double.parseDouble(fields[6]));
-			enc.setDecimalLongitude(Double.parseDouble(fields[7]));
+			enc.setRecordedBy(fields[3]);
+			enc.setVerbatimLocality(fields[4]);
+			enc.setMatchedBy(fields[5]);
+			enc.setDecimalLatitude(Double.parseDouble(fields[7]));
+			enc.setDecimalLongitude(Double.parseDouble(fields[8]));
 			enc.setState("approved");
+			if (!comments.equals("")) enc.setComments("<ul>" + comments + "</ul>");
 
-			String indivId = fields[5];
+			String indivId = fields[6];
 			MarkedIndividual indiv = myShepherd.getMarkedIndividualQuiet(indivId);
 			if (indiv == null) {
 				indiv = new MarkedIndividual(indivId, enc);
