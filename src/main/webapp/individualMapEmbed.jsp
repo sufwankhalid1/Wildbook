@@ -134,7 +134,11 @@ margin-bottom: 8px !important;
         var map = new google.maps.Map(document.getElementById('map_canvas'), {
           zoom: mapZoom,
           center: center,
-          mapTypeId: google.maps.MapTypeId.HYBRID
+          mapTypeId: google.maps.MapTypeId.HYBRID,
+          zoomControl: true,
+          scaleControl: false,
+          scrollwheel: false,
+          disableDoubleClickZoom: true
         });
 
     	  //adding the fullscreen control to exit fullscreen
@@ -223,7 +227,7 @@ String lastLatLong="";
 											String encSubdir = indieEnc.subdir();
 					           %>
 					             google.maps.event.addListener(marker,'click', function() {
-					                 (new google.maps.InfoWindow({content: '<strong><a target=\"_blank\" href=\"http://<%=CommonConfiguration.getURLLocation(request)%>/individuals.jsp?number=<%=indieEnc.isAssignedToMarkedIndividual()%>\"><%=indieEnc.isAssignedToMarkedIndividual()%></a></strong><br /><table><tr><td><img align=\"top\" border=\"1\" src=\"/<%=CommonConfiguration.getDataDirectoryName(context)%>/encounters/<%=indieEnc.subdir()%>/thumb.jpg\"></td><td><%=props.getProperty("date")%> <%=indieEnc.getDate()%><%if(indieEnc.getSex()!=null){%><br /><%=props.getProperty("sex") %> <%=indieEnc.getSex()%><%}%><%if(indieEnc.getSizeAsDouble()!=null){%><br />Size: <%=indieEnc.getSize()%> m<%}%><br /><br /><a target=\"_blank\" href=\"http://<%=CommonConfiguration.getURLLocation(request)%>/encounters/encounter.jsp?number=<%=indieEnc.getEncounterNumber()%>\" ><%=props.getProperty("gotoEncounter") %></a></td></tr></table>'})).open(map, this);
+					                 (new google.maps.InfoWindow({content: '<strong><a target=\"_blank\" href=\"http://<%=CommonConfiguration.getURLLocation(request)%>/individuals.jsp?number=<%=indieEnc.getIndividualID()%>\"><%=indieEnc.getIndividualID()%></a></strong><br /><table><tr><td><img align=\"top\" border=\"1\" src=\"/<%=CommonConfiguration.getDataDirectoryName(context)%>/encounters/<%=indieEnc.subdir()%>/thumb.jpg\"></td><td><%=props.getProperty("date")%> <%=indieEnc.getDate()%><%if(indieEnc.getSex()!=null){%><br /><%=props.getProperty("sex") %> <%=indieEnc.getSex()%><%}%><%if(indieEnc.getSizeAsDouble()!=null){%><br />Size: <%=indieEnc.getSize()%> m<%}%><br /><br /><a target=\"_blank\" href=\"http://<%=CommonConfiguration.getURLLocation(request)%>/encounters/encounter.jsp?number=<%=indieEnc.getEncounterNumber()%>\" ><%=props.getProperty("gotoEncounter") %></a></td></tr></table>'})).open(map, this);
 					              });
 					 
 						
@@ -315,7 +319,7 @@ String lastLatLong="";
 						String encSubdir = thisEnc.subdir();
 			%>
             google.maps.event.addListener(marker,'click', function() {
-                 (new google.maps.InfoWindow({content: '<strong><a target=\"_blank\" href=\"http://<%=CommonConfiguration.getURLLocation(request)%>/individuals.jsp?number=<%=thisEnc.isAssignedToMarkedIndividual()%>\"><%=thisEnc.isAssignedToMarkedIndividual()%></a></strong><br /><table><tr><td><img align=\"top\" border=\"1\" src=\"/<%=CommonConfiguration.getDataDirectoryName(context)%>/encounters/<%=thisEnc.subdir()%>/thumb.jpg\"></td><td><%=props.getProperty("date") %> <%=thisEnc.getDate()%><%if(thisEnc.getSex()!=null){%><br /><%=props.getProperty("sex") %> <%=thisEnc.getSex()%><%}%><%if(thisEnc.getSizeAsDouble()!=null){%><br />Size: <%=thisEnc.getSize()%> m<%}%><br /><br /><a target=\"_blank\" href=\"http://<%=CommonConfiguration.getURLLocation(request)%>/encounters/encounter.jsp?number=<%=thisEnc.getEncounterNumber()%>\" ><%=props.getProperty("gotoEncounter") %></a></td></tr></table>'})).open(map, this);
+                 (new google.maps.InfoWindow({content: '<strong><a target=\"_blank\" href=\"http://<%=CommonConfiguration.getURLLocation(request)%>/individuals.jsp?number=<%=thisEnc.getIndividualID()%>\"><%=thisEnc.getIndividualID()%></a></strong><br /><table><tr><td><img align=\"top\" border=\"1\" src=\"/<%=CommonConfiguration.getDataDirectoryName(context)%>/encounters/<%=thisEnc.subdir()%>/thumb.jpg\"></td><td><%=props.getProperty("date") %> <%=thisEnc.getDate()%><%if(thisEnc.getSex()!=null){%><br /><%=props.getProperty("sex") %> <%=thisEnc.getSex()%><%}%><%if(thisEnc.getSizeAsDouble()!=null){%><br />Size: <%=thisEnc.getSize()%> m<%}%><br /><br /><a target=\"_blank\" href=\"http://<%=CommonConfiguration.getURLLocation(request)%>/encounters/encounter.jsp?number=<%=thisEnc.getEncounterNumber()%>\" ><%=props.getProperty("gotoEncounter") %></a></td></tr></table>'})).open(map, this);
              });
  
 	

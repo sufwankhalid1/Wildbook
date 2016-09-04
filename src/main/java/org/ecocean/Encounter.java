@@ -250,7 +250,7 @@ public class Encounter implements java.io.Serializable {
     this.hour = hour;
     this.minutes = minutes;
     this.size_guess = size_guess;
-    this.individualID = "Unassigned";
+    
 
     resetDateInMilliseconds();
   }
@@ -883,11 +883,7 @@ public class Encounter implements java.io.Serializable {
     catalogNumber = num;
   }
 
-  public String isAssignedToMarkedIndividual() {
 
-    return individualID;
-
-  }
 
   public void assignToMarkedIndividual(String sharky) {
     individualID = sharky;
@@ -1363,6 +1359,10 @@ public class Encounter implements java.io.Serializable {
   }
 
   public void setIndividualID(String indy) {
+    if(indy==null){
+      individualID=null;
+      return;
+    }
     this.individualID = indy;
   }
 
@@ -1961,7 +1961,7 @@ public class Encounter implements java.io.Serializable {
 
 
 	//this simple version makes some assumptions: you already have list of collabs, and it is not visible
-	public String collaborationLockHtml(ArrayList<Collaboration> collabs) {
+	public String collaborationLockHtml(List<Collaboration> collabs) {
 		Collaboration c = Collaboration.findCollaborationWithUser(this.getAssignedUsername(), collabs);
 		String collabClass = "pending";
 		if ((c == null) || (c.getState() == null)) {

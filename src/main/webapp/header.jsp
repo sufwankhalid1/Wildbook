@@ -26,6 +26,7 @@
              org.ecocean.Shepherd,
              org.ecocean.User,
              java.util.ArrayList,
+             java.util.List,
              java.util.Properties,
              org.apache.commons.lang.WordUtils,
              org.ecocean.security.Collaboration,
@@ -76,8 +77,7 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
       <script type="text/javascript"  src="<%=urlLoc %>/JavascriptGlobals.js"></script>
       <script type="text/javascript"  src="<%=urlLoc %>/javascript/collaboration.js"></script>
       
-     <script src="http://a.vimeocdn.com/js/froogaloop2.min.js"></script>    
-  	<script src="<%=urlLoc %>/cust/mantamatcher/js/behaviour.js"></script>
+
  
   
     </head>
@@ -89,7 +89,7 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
             <nav class="navbar navbar-default navbar-fixed-top">
               <div class="header-top-wrapper">
                 <div class="container">
-                <a href="http://www.wildme.org" id="wild-me-badge">A Wild me project</a>
+                <a href="http://www.wildme.org" id="wild-me-badge">A Wild me project</a> <a href="http://www.ibeis.org" id="ibeis-badge"></a>
                   <div class="search-and-secondary-wrapper">
                     <ul class="secondary-nav hor-ul no-bullets">
                     
@@ -148,7 +148,7 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
                      	
                       
                       
-                      ArrayList<String> contextNames=ContextConfiguration.getContextNames();
+                      List<String> contextNames=ContextConfiguration.getContextNames();
                 		int numContexts=contextNames.size();
                 		if(numContexts>1){
                 		%>
@@ -196,7 +196,7 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
                 		   <!-- Can we inject language functionality here? -->
                     <%
                     
-            		ArrayList<String> supportedLanguages=CommonConfiguration.getSequentialPropertyValues("language", context);
+            		List<String> supportedLanguages=CommonConfiguration.getIndexedPropertyValues("language", context);
             		int numSupportedLanguages=supportedLanguages.size();
             		
             		if(numSupportedLanguages>1){
@@ -394,9 +394,7 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
                                  <li><a href="<%=urlLoc %>/software/software.jsp"><%=props.getProperty("gridSoftware")%></a></li>
                                 <% } %>
                                 <li><a href="<%=urlLoc %>/appadmin/users.jsp?context=context0"><%=props.getProperty("userManagement")%></a></li>
-                                <% if (CommonConfiguration.getTapirLinkURL(context) != null) { %>
-                                  <li><a href="<%=CommonConfiguration.getTapirLinkURL(context) %>"><%=props.getProperty("tapirLink")%></a></li>
-                                <% } 
+                                <%
                                 if (CommonConfiguration.getIPTURL(context) != null) { %>
                                   <li><a href="<%=CommonConfiguration.getIPTURL(context) %>"><%=props.getProperty("iptLink")%></a></li>
                                 <% } %>
