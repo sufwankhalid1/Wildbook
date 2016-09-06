@@ -82,14 +82,16 @@ fig.append(
 */
 
 
-maLib.cascadiaCaptionFunction = function(maJson) {
+maLib.catnipCaptionFunction = function(maJson) {
   if ('url' in maJson) {
     var partArray = maJson.url.split('/');
     partArray = partArray[partArray.length-1].split('.');
-    return encodeURI(partArray[0]);
+    var caption = partArray[0];
+    if (maJson.metadata && maJson.metadata.latitude && maJson.metadata.longitude) {  //yes, this would fail when lat/lon == 0 but is that on st.kitts? no. #latitudeattitude
+        caption += ' [lat/long ' + new String(maJson.metadata.latitude).substr(0,6) + ' ' + new String(maJson.metadata.longitude).substr(0,6) + ']';
+    }
+    return caption;
   }
-  return "Test caption, do not read";
-
 }
 
 /**
@@ -101,7 +103,7 @@ maLib.cascadiaCaptionFunction = function(maJson) {
 maLib.maJsonToFigureElemCaption = function(maJson, intoElem, caption, maCaptionFunction) {
   //var maCaptionFunction = typeof maCaptionFunction !== 'undefined' ?  b : ma.defaultCaptionFunction;
   caption = caption || "";
-  maCaptionFunction = maCaptionFunction || maLib.cascadiaCaptionFunction;
+  maCaptionFunction = maCaptionFunction || maLib.catnipCaptionFunction;
   caption = caption || '';
 
   // TODO: copy into html figure element
@@ -144,7 +146,7 @@ maLib.maJsonToFigureElemCaption = function(maJson, intoElem, caption, maCaptionF
 maLib.maJsonToFigureElemColCaption = function(maJson, intoElem, colSize, maCaptionFunction) {
   //var maCaptionFunction = typeof maCaptionFunction !== 'undefined' ?  b : ma.defaultCaptionFunction;
   // TODO: genericize caption
-  maCaptionFunction = maCaptionFunction || maLib.cascadiaCaptionFunction;
+  maCaptionFunction = maCaptionFunction || maLib.catnipCaptionFunction;
 
   colSize = colSize || 6;
 

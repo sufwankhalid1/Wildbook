@@ -749,7 +749,11 @@ System.out.println("hashCode on " + this + " = " + this.hashCode);
             jobj.put("url", webURLString());
             if ((getMetadata() != null) && (getMetadata().getData() != null) && (getMetadata().getData().opt("attributes") != null)) {
                 //jobj.put("metadata", new org.datanucleus.api.rest.orgjson.JSONObject(getMetadata().getData().getJSONObject("attributes").toString()));
-                jobj.put("metadata", Util.toggleJSONObject(getMetadata().getData().getJSONObject("attributes")));
+                org.datanucleus.api.rest.orgjson.JSONObject md = Util.toggleJSONObject(getMetadata().getData().getJSONObject("attributes"));
+                //NOTE! exposing these two lines should only be in the catnip branch.  FIXME
+                if (getMetadata().getLatitude() != null) md.put("latitude", getMetadata().getLatitude());
+                if (getMetadata().getLongitude() != null) md.put("longitude", getMetadata().getLongitude());
+                jobj.put("metadata", md);
             }
             DateTime dt = getDateTime();
             if (dt != null) jobj.put("dateTime", dt.toString());  //DateTime.toString() gives iso8601, noice!
