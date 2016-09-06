@@ -23,8 +23,11 @@
 
         <p>The team welcomes your comments and questions.</p>
 
-<p>Please email us, and one of us will respond as quickly as possible.</p>
-   
+<p>University of Manitoba Polar Bear Whiskerprint Project<br />
+Dept. of Biological Sciences<br />
+University of Manitoba<br />
+whiskerprint@gmail.com</p>
+
       <!-- end maintext -->
       </div>
 
