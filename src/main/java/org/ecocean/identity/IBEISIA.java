@@ -2128,6 +2128,15 @@ System.out.println(">>>>>>>> age -> " + rtn);
         return (Double)null;
     }
 
+    public static boolean iaEnabled(HttpServletRequest request) {
+        String context = ServletUtilities.getContext(request);
+        return (CommonConfiguration.getProperty("IBEISIARestUrlAddAnnotations", context) != null);
+    }
+    public static boolean iaEnabled() {
+        return (CommonConfiguration.getProperty("IBEISIARestUrlAddAnnotations", "context0") != null);
+    }
+
+
     public static JSONObject iaStatus(HttpServletRequest request) {
         String context = ServletUtilities.getContext(request);
         JSONObject rtn = new JSONObject();
@@ -2252,6 +2261,7 @@ System.out.println("beginIdentify() unsuccessful on sendIdentify(): " + identRtn
 
     public static void primeIA() {
         iaPrimed = false;
+        if (!iaEnabled()) return;
 System.out.println("<<<<< BEFORE");
         Runnable r = new Runnable() {
             public void run() {
