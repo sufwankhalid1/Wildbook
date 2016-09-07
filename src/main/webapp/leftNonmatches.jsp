@@ -42,13 +42,11 @@ props2.setProperty("rightScan", rightScan);
 //check the number of processors
 Runtime rt = Runtime.getRuntime();
 int numProcessors = rt.availableProcessors();
-
-//set up our thread processor for each comparison thread
 int numAllowedComparisons=99999999;
 if(request.getParameter("numAllowedComparisons")!=null){
 	numAllowedComparisons=(new Integer(request.getParameter("numAllowedComparisons"))).intValue();
 }
-int numComparisons=0;
+//set up our thread processor for each comparison thread
 ArrayBlockingQueue abq = new ArrayBlockingQueue(numAllowedComparisons);
 //thread pool handling comparison threads
 ThreadPoolExecutor threadHandler = new ThreadPoolExecutor(numProcessors, numProcessors, 0, TimeUnit.SECONDS, abq);
@@ -72,27 +70,36 @@ Vector workItemResults = new Vector();
 myShepherd.beginDBTransaction();
 
 
+int numComparisons=0;
 
 try{
 
-	Vector allSharks=myShepherd.getPossibleTrainingIndividuals();
-	
 
+	
+	Vector allSharks=myShepherd.getPossibleTrainingIndividuals();
 	int numSharks=allSharks.size();
-	for(int i=0;i<numSharks;i++){
+	for(int i=0;i<(numSharks-1);i++){
 		
 		MarkedIndividual indy=(MarkedIndividual)allSharks.get(i);
+		MarkedIndividual indy2=(MarkedIndividual)allSharks.get(i+1);
 		String indyName=indy.getIndividualID();
+		String indyName2=indy2.getIndividualID();
 		Vector encs=indy.getTrainableEncounters();
+		Vector encs2=indy2.getTrainableEncounters();
 		int numEncs=encs.size();
-		for(int j=0;j<(numEncs-1);j++){
-			if(numComparisons<numAllowedComparisons){
+		int numEncs2=encs2.size();
+		for(int j=0;j<numEncs;j++){
+			
 				Encounter enc=(Encounter)encs.get(j);
-				Encounter enc2=(Encounter)encs.get(j+1);
-				ScanWorkItem swi = new ScanWorkItem(enc, enc2, (enc.getEncounterNumber()), (enc2.getEncounterNumber()), props2);
-				threadHandler.submit(new AppletWorkItemThread(swi, workItemResults));
-				numComparisons++;
-			}
+				for(int k=0;k<(numEncs2);k++){
+					if(numComparisons<numAllowedComparisons){
+						Encounter enc2=(Encounter)encs2.get(k);
+						ScanWorkItem swi = new ScanWorkItem(enc, enc2, (enc.getEncounterNumber()), (indyName+"TTTTTT"+enc2.getEncounterNumber()), props2);
+						threadHandler.submit(new AppletWorkItemThread(swi, workItemResults));
+						numComparisons++;
+					}
+				}
+			
 		}
 
  	}
@@ -123,9 +130,13 @@ MarkedIndividual1,MarkedIndividual2,Encounter1,Encounter2,ModifiedGrothScore<br>
                 }
                 ScanWorkItemResult swir = (ScanWorkItemResult) workItemResults.get(d);
                 MatchObject thisResult = swir.getResult();
+                StringTokenizer str=new StringTokenizer(swir.getUniqueNumberTask(),"TTTTTT");
+                String indy2=str.nextToken();
+                String enc2=str.nextToken();
+                
                 if ((thisResult.getMatchValue() * thisResult.getAdjustedMatchValue()) >= 0) {
                   %>
-                  <%=thisResult.individualName %>,<%=thisResult.individualName %>,<%=swir.getUniqueNumberWorkItem() %>,<%=swir.getUniqueNumberTask() %>,<%=((thisResult.getMatchValue() * thisResult.getAdjustedMatchValue())) %><br>
+                  <%=thisResult.individualName %>,<%=indy2 %>,<%=enc2 %>,<%=swir.getUniqueNumberWorkItem() %>,<%=((thisResult.getMatchValue() * thisResult.getAdjustedMatchValue())) %><br>
                   <%
                 }
               }
