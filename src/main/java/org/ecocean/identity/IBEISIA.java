@@ -2251,6 +2251,7 @@ System.out.println("beginIdentify() unsuccessful on sendIdentify(): " + identRtn
     
 
     public static void primeIA() {
+/*
         iaPrimed = false;
 System.out.println("<<<<< BEFORE");
         Runnable r = new Runnable() {
@@ -2280,6 +2281,7 @@ System.out.println("-- priming IBEISIA **complete**");
         };
         new Thread(r).start();
 System.out.println(">>>>>> AFTER");
+*/
     }
 
     public static boolean isIAPrimed() {
