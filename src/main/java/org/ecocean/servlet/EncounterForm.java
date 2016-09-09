@@ -329,6 +329,8 @@ System.out.println("*** trying redirect?");
         long maxSizeMB = CommonConfiguration.getMaxMediaSizeInMegabytes(context);
         long maxSizeBytes = maxSizeMB * 1048576;
 
+        List<String> majorColors = new ArrayList<String>();
+
         if (ServletFileUpload.isMultipartContent(request)) {
             try {
                 ServletFileUpload upload = new ServletFileUpload(new DiskFileItemFactory());
@@ -338,7 +340,11 @@ System.out.println("*** trying redirect?");
 
                 for(FileItem item : multiparts){
                     if (item.isFormField()) {  //plain field
-                        fv.put(item.getFieldName(), ServletUtilities.preventCrossSiteScriptingAttacks(item.getString("UTF-8").trim()));  //TODO do we want trim() here??? -jon
+                        if (item.getFieldName().equals("majorColors")) {
+                            majorColors.add(ServletUtilities.preventCrossSiteScriptingAttacks(item.getString("UTF-8").trim()));
+                        } else {
+                            fv.put(item.getFieldName(), ServletUtilities.preventCrossSiteScriptingAttacks(item.getString("UTF-8").trim()));  //TODO do we want trim() here??? -jon
+                        }
 //System.out.println("got regular field (" + item.getFieldName() + ")=(" + item.getString("UTF-8") + ")");
                     } else if (item.getName().startsWith("socialphoto_")) {
                         System.out.println(item.getName() + ": " + item.getString("UTF-8"));
@@ -612,6 +618,8 @@ System.out.println("enc ?= " + enc.toString());
 
             enc.setAnnotations(newAnnotations);
 
+            if (majorColors.size() > 0) enc.majorColors = majorColors.toArray(new String[0]);
+            enc.earTipping = getVal(fv, "earTipping");
 
             enc.setGenus(genus);
             enc.setSpecificEpithet(specificEpithet);
@@ -666,7 +674,6 @@ System.out.println("socialFile copy: " + sf.toString() + " ---> " + targetFile.t
       if (fv.get("lifeStage") != null && fv.get("lifeStage").toString().length() > 0) {
               enc.setLifeStage(fv.get("lifeStage").toString());
           }
-
 
 
       List<MetalTag> metalTags = getMetalTags(fv);
