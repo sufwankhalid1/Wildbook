@@ -21,5 +21,6 @@ src/main/webapp/encounters/*20*
 /buildOut.txt
 /src/main/shepherd_data_dir
 src/main/caribwhale_data_dir
+src/main/webapp/javascript/git-info.json
 /webapps
 
