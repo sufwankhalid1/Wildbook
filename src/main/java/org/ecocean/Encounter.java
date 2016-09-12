@@ -201,6 +201,9 @@ public class Encounter implements java.io.Serializable {
   public String distinguishingScar = "None";
   //describes how this encounter was matched to an existing shark - by eye, by pattern recognition algorithm etc.
 
+    public String[] majorColors;
+    public String earTipping;
+
   private int numSpotsLeft = 0;
   private int numSpotsRight = 0;
 
@@ -2050,6 +2053,10 @@ the decimal one (Double) .. half tempted to break out a class for this: lat/lon/
       else{lifeStage=null;}
     }
 
+    public String getEarTipping() { return earTipping; }
+    public void setEarTipping(String t) { earTipping = t; }
+    public String[] getMajorColors() { return majorColors; }
+    public void setMajorColors(String[] mc) { majorColors = mc; }
 
     /**
      * A convenience method that returns the first haplotype found in the TissueSamples for this Encounter.

@@ -855,7 +855,7 @@ if(CommonConfiguration.showProperty("showLifestage",context)){
             <label class="control-label"><%=props.getProperty("lifeStage") %></label>
           </div>
           <div class="col-xs-6 col-lg-8">
-  <select name="lifeStage" id="lifeStage">
+  <select name="lifeStage" id="lifeStage" class="form-control">
       <option value="" selected="selected"></option>
   <%
                      boolean hasMoreStages=true;
@@ -881,7 +881,37 @@ if(CommonConfiguration.showProperty("showLifestage",context)){
   </div>
         </div>
 
+  <div class="form-group">
+          <div class="col-xs-6 col-md-4">
+            <label class="control-label">Ear tipping</label>
+          </div>
 
+          <div class="col-xs-6 col-lg-8">
+            <select class="form-control" name="earTipping" id="earTipping">
+              <option value="Unknown" selected="selected">Unknown</option>
+              <option value="Left ear tipped">Left ear tipped</option>
+              <option value="Right ear tipped">Right ear tipped</option>
+              <option value="Neither">Neither</option>
+            </select>
+          </div>
+        </div>
+
+  <div class="form-group">
+          <div class="col-xs-6 col-md-4">
+            <label class="control-label">Major colours</label>
+		<br />Pick up to 3
+          </div>
+
+          <div class="col-xs-6 col-lg-8">
+            <select class="form-control" name="majorColors" id="majorColors" multiple size="5" style="overflow-y: auto;">
+              <option>Black</option>
+		<option>White</option>
+		<option>Grey</option>
+		<option>Orange</option>
+		<option>Brown</option>
+            </select>
+          </div>
+        </div>
 <%
 }
 %>

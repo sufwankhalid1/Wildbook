@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=utf-8" language="java"
          import="org.joda.time.format.DateTimeFormat,
          org.joda.time.format.DateTimeFormatter,
+	org.apache.commons.lang3.StringUtils,
          org.joda.time.LocalDateTime,
          java.util.Locale,
          org.ecocean.servlet.ServletUtilities,
@@ -2691,7 +2692,15 @@ $("a#LifeStage").click(function() {
   %>
 <!--  END LIFESTAGE SECTION -->
 
+<p class="para">
+Major colours:
+<%=((enc.getMajorColors() == null) ? "" : StringUtils.join(enc.getMajorColors(), ", "))%>
+</p>
 
+<p class="para">
+Ear tipping:
+<%=enc.getEarTipping()%>
+</p>
 <!-- START ADDITIONAL COMMENTS -->
 <p class="para"><%=encprops.getProperty("comments") %>
   <%
