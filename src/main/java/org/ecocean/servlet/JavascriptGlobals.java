@@ -55,6 +55,8 @@ public class JavascriptGlobals extends HttpServlet {
     String context="context0";
     context = ServletUtilities.getContext(request);
     Shepherd myShepherd = new Shepherd(context);
+    myShepherd.setAction("JavascriptGlobals.class1");
+    
 		String username = ((request.getUserPrincipal() == null) ? "" : request.getUserPrincipal().getName());
 
 		String langCode = ServletUtilities.getLanguageCode(request);
@@ -138,9 +140,9 @@ public class JavascriptGlobals extends HttpServlet {
         Keyword k = keywords.next();
         kw.put(k.getIndexname(), k.getReadableName());
     }
-    rtn.put("keywords", kw);
     myShepherd.rollbackDBTransaction();
     myShepherd.closeDBTransaction();
+    rtn.put("keywords", kw);
 
     rtn.put("iaStatus", IBEISIA.iaStatus(request));
 

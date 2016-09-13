@@ -1805,7 +1805,7 @@ public Float getMinDistanceBetweenTwoMarkedIndividuals(MarkedIndividual otherInd
             jobj.remove("timeOfDeath");
             jobj.remove("timeOfBirth");
             jobj.remove("maxYearsBetweenResightings");
-            jobj.remove("numUnidentifiableEncounters");
+            //jobj.remove("numUnidentifiableEncounters");
             jobj.remove("nickName");
             jobj.remove("nickNamer");
             jobj.put("_sanitized", true);
@@ -1866,7 +1866,7 @@ public Float getMinDistanceBetweenTwoMarkedIndividuals(MarkedIndividual otherInd
             
             
             
-            if (j!=null) {
+            if ((j!=null)&&(ma.getMimeTypeMajor()!=null)&&(ma.getMimeTypeMajor().equals("image"))) {
               
               
               //ok, we have a viable candidate
@@ -1917,6 +1917,8 @@ public Float getMinDistanceBetweenTwoMarkedIndividuals(MarkedIndividual otherInd
 		String context = "context0";
 		context = ServletUtilities.getContext(request);
 		Shepherd myShepherd = new Shepherd(context);
+		myShepherd.setAction("MarkedIndividual.class");
+		myShepherd.beginDBTransaction();
 
 		List<Collaboration> collabs = Collaboration.collaborationsForCurrentUser(request);
   	ArrayList<String> uids = this.getAllAssignedUsers();
@@ -1938,6 +1940,8 @@ public Float getMinDistanceBetweenTwoMarkedIndividuals(MarkedIndividual otherInd
 			collabClass = "new";
 			data = data.substring(1);
 		}
+		myShepherd.rollbackDBTransaction();
+		myShepherd.closeDBTransaction();
 		return "<div class=\"row-lock " + collabClass + " collaboration-button\" data-multiuser=\"" + data + "\">&nbsp;</div>";
 	}
 

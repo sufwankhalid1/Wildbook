@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import org.ecocean.ShepherdPMF;
+import org.ecocean.Util;
 
 import java.lang.reflect.Method;
 
@@ -205,6 +206,7 @@ public class RestServlet extends HttpServlet
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
     throws ServletException, IOException
     {
+      resp.setHeader("Access-Control-Allow-Origin", "*");
       getPMF(req);
         // Retrieve any fetch group that needs applying to the fetch
         String fetchParam = req.getParameter("fetch");
@@ -220,9 +222,15 @@ public class RestServlet extends HttpServlet
                 // GET "/query?the_query_details" or GET "/jdoql?the_query_details" where "the_query_details" is "SELECT FROM ... WHERE ... ORDER BY ..."
                 String queryString = URLDecoder.decode(req.getQueryString(), "UTF-8");
                 PersistenceManager pm = pmf.getPersistenceManager();
+                String servletID=Util.generateUUID();
+                ShepherdPMF.setShepherdState("RestServlet.class"+"_"+servletID, "new");
+                
+                
                 try
                 {
                     pm.currentTransaction().begin();
+                    ShepherdPMF.setShepherdState("RestServlet.class"+"_"+servletID, "begin");
+                    
 
                     Query query = pm.newQuery("JDOQL", queryString);
                     if (fetchParam != null)
@@ -248,14 +256,22 @@ public class RestServlet extends HttpServlet
                     resp.setHeader("Content-Type", "application/json");
                     resp.setStatus(200);
                     pm.currentTransaction().commit();
+                    ShepherdPMF.setShepherdState("RestServlet.class"+"_"+servletID, "commit");
+                    
                 }
                 finally
                 {
                     if (pm.currentTransaction().isActive())
                     {
                         pm.currentTransaction().rollback();
+                        ShepherdPMF.setShepherdState("RestServlet.class"+"_"+servletID, "rollback");
+                        
                     }
                     pm.close();
+                    //ShepherdPMF.setShepherdState("RestServlet.class"+"_"+servletID, "close");
+                    ShepherdPMF.removeShepherdState("RestServlet.class"+"_"+servletID);
+                    
+                    
                 }
                 return;
             }
@@ -465,14 +481,13 @@ public class RestServlet extends HttpServlet
 
     protected void doOptions(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
     {
-        resp.addHeader("Allow", " GET, HEAD, POST, PUT, TRACE, OPTIONS");
-        resp.setContentLength(0);
+        ServletUtilities.doOptions(req, resp);
     }
 
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
     throws ServletException, IOException
     {
-
+        resp.setHeader("Access-Control-Allow-Origin", "*");
         getPMF(req);
         if (req.getContentLength() < 1)
         {
@@ -856,7 +871,7 @@ System.out.println("got Exception trying to invoke restAccess: " + ex.toString()
                           //nothing to do
                       }
                       if (restAccess == null) return true;  //if method doesnt exist, counts as good
-          
+
           System.out.println("<<<<<<<<<< we have restAccess() on our object.... invoking!\n");
                       //when .restAccess() is called, it should throw an exception to signal not allowed
                       try {

@@ -57,9 +57,10 @@ public class ImportIA extends HttpServlet {
     }
 
     out.println("\n\nStarting ImportIA servlet...");
+    myShepherd.beginDBTransaction();
 
     System.out.println("IA-IMPORT: started.....");
-    JSONObject imageSetRes = getFromIA("/api/imageset/json/", context, out);
+    JSONObject imageSetRes = getFromIA("/api/imageset/json/?is_special=False", context, out);
     JSONArray fancyImageSetUUIDS = imageSetRes.optJSONArray("response");
     int testingLimit = -1;
     if (request.getParameter("testingLimit") != null) {
@@ -69,27 +70,90 @@ public class ImportIA extends HttpServlet {
         if (testingLimit > 0) System.out.println("IA-IMPORT: testingLimit=" + testingLimit);
     }
 
+       if (request.getParameter("doOnly") != null) {
+               String onlyOcc = request.getParameter("doOnly");
+               System.out.println("IA-IMPORT: doing only Occurrence " + onlyOcc);
+               fancyImageSetUUIDS = new JSONArray();
+               fancyImageSetUUIDS.put(IBEISIA.toFancyUUID(onlyOcc));
+       }
+
+
+
     for (int i = 0; i < fancyImageSetUUIDS.length(); i++) {
         if ((testingLimit > 0) && (i >= testingLimit)) continue;
-        myShepherd.beginDBTransaction();
         JSONObject fancyID = fancyImageSetUUIDS.getJSONObject(i);
         Occurrence occ = null;
         String occID = IBEISIA.fromFancyUUID(fancyID);
 
         System.out.println("IA-IMPORT: ImageSet " + occID);
       JSONObject annotRes = getFromIA("/api/imageset/annot/uuid/json/?imageset_uuid_list=[" + fancyID + "]", context, out);
-System.out.println("annotRes -----> " + annotRes);
+/////System.out.println("annotRes -----> " + annotRes);
       // it's a singleton list, hence [0]
       JSONArray annotFancyUUIDs = annotRes.getJSONArray("response").getJSONArray(0);
+
+/*
+if (annotFancyUUIDs.length() > 10) {
+    JSONArray x = new JSONArray();
+    for (int j = 0 ; j < 10 ; j++) {
+        x.put(annotFancyUUIDs.getJSONObject(j));
+    }
+    annotFancyUUIDs = x;
+System.out.println("truncated to\n" + x);
+}
+*/
       List<String> annotUUIDs = fromFancyUUIDList(annotFancyUUIDs);
-      out.println("occID: " + occID + " has annotUUIDs " + annotUUIDs);
-      List<Annotation> annots = IBEISIA.grabAnnotations(annotUUIDs, myShepherd);
-System.out.println("annots -----> " + annots);
-      JSONArray iaNamesArray = null;
-      try {
-        iaNamesArray = IBEISIA.iaNamesFromAnnotUUIDs(annotFancyUUIDs);
-      } catch (Exception e) {        e.printStackTrace(out);
-      }
+      //out.println("occID: " + occID + " has annotUUIDs " + annotUUIDs);
+      System.out.println("occID: " + occID + " has " + annotUUIDs.size() + " annotUUIDs");
+
+
+        //now we have to break this up a little since there are some pretty gigantic sets of annotations, it turns out.  :(
+        // but ultimately we want to fill iaNamesArray and annots
+        JSONArray iaNamesArray = new JSONArray();
+        List<Annotation> annots = new ArrayList<Annotation>();
+        int annotBatchSize = 100;
+
+        int acount = 0;
+        while (acount < annotUUIDs.size()) {
+
+            //we also only *import* NEW Annotations, cuz sorry this is importing
+            List<String> thisBatch = new ArrayList<String>();
+            JSONArray thisFancy = new JSONArray();
+            while ((thisBatch.size() < annotBatchSize) && (acount < annotUUIDs.size())) {
+/*
+                Annotation exist = null;
+                try {
+                    exist = ((Annotation) (myShepherd.getPM().getObjectById(myShepherd.getPM().newObjectIdInstance(Annotation.class, annotUUIDs.get(acount)), true)));
+                } catch (Exception ex) {}
+                if (exist != null) {
+System.out.println(" - - - skipping existing " + exist);
+                    acount++;
+                    continue;
+                }
+*/
+                thisBatch.add(annotUUIDs.get(acount));
+                thisFancy.put(IBEISIA.toFancyUUID(annotUUIDs.get(acount)));
+                acount++;
+            }
+System.out.println(acount + " of " + annotUUIDs.size() + " ================================================ now have a batch to fetch: " + thisBatch);
+            if (thisBatch.size() > 0) {
+                myShepherd.beginDBTransaction();
+                List<Annotation> these = IBEISIA.grabAnnotations(thisBatch, myShepherd);
+                myShepherd.commitDBTransaction();
+                annots.addAll(these);
+
+                try {
+                    JSONArray thisNames = IBEISIA.iaNamesFromAnnotUUIDs(thisFancy);
+System.out.println(" >>> thisNames length = " + thisNames.length());
+                    for (int ti = 0 ; ti < thisNames.length() ; ti++) {
+                        iaNamesArray.put(thisNames.get(ti));
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        //at this point we should have annots and iaNamesArray filled
 System.out.println("iaNamesArray ----> " + iaNamesArray);
 
       List<String> uniqueNames = new ArrayList<String>();
@@ -107,13 +171,36 @@ System.out.println("iaNamesArray ----> " + iaNamesArray);
       }
 
       for (String uName : uniqueNames) {
-        out.println("Number Annotations with "+uName+": "+annotGroups.get(uName).size());
+        System.out.println("Number Annotations with "+uName+": "+annotGroups.get(uName).size());
       }
 
       for (String name : uniqueNames) {
+        if (IBEISIA.unknownName(name)) {   // we need one encounter per annot for unknown!
+            for (Annotation ann : annotGroups.get(name)) {
+                Encounter enc = new Encounter(ann);
+                enc.setMatchedBy("IBEIS IA");
+                myShepherd.beginDBTransaction();
+                myShepherd.storeNewEncounter(enc, Util.generateUUID());
+                myShepherd.storeNewAnnotation(ann);
+                myShepherd.commitDBTransaction();
+                myShepherd.beginDBTransaction();
+                System.out.println("IA-IMPORT: " + enc);
+                if (occ == null) {
+                    occ = myShepherd.getOccurrence(occID);
+                    if (occ == null) occ = new Occurrence(occID, enc);
+System.out.println("NEW OCC created (via unnamed) " + occ);
+                } else {
+                    occ.addEncounter(enc);
+System.out.println("using old OCC (via unnamed) " + occ);
+                }
+                myShepherd.getPM().makePersistent(occ);
+                System.out.println("IA-IMPORT: " + occ);
+                myShepherd.commitDBTransaction();
+            }
 
-        Encounter enc = new Encounter(annotGroups.get(name));
-        enc.setMatchedBy("IBEIS IA");
+        } else {
+            Encounter enc = new Encounter(annotGroups.get(name));
+            enc.setMatchedBy("IBEIS IA");
         /*
             note: this constructor will set the date/time on the Encounter "based upon the Annotations"
             (which currently means the .getDateTime() of the first MediaAsset -- but this algorithm may change).
@@ -129,21 +216,23 @@ System.out.println("iaNamesArray ----> " + iaNamesArray);
 
             note also that adding encounters to individuals should(!) gracefully adjust the individual accordingly (set sex/taxonomy *if unset*)
         */
-        String sex = null;
-        try {
-          sex = IBEISIA.iaSexFromAnnotUUID(annotGroups.get(name).get(0).getId());
+            String sex = null;
+            try {
+            sex = IBEISIA.iaSexFromAnnotUUID(annotGroups.get(name).get(0).getId());
 System.out.println("--- sex=" + sex);
-        } catch (Exception ex) {}
-        Double age = null;
-        try {
-            //guess this assumes we have at least one annot and it has age; could walk thru if not?
-            age = IBEISIA.iaAgeFromAnnotUUID(annotGroups.get(name).get(0).getId());
-        } catch (Exception ex) {}
-        if (age != null) enc.setAge(age);
-        myShepherd.storeNewEncounter(enc, Util.generateUUID());
-        System.out.println("IA-IMPORT: " + enc);
+            } catch (Exception ex) {}
+            Double age = null;
+            try {
+                //guess this assumes we have at least one annot and it has age; could walk thru if not?
+                age = IBEISIA.iaAgeFromAnnotUUID(annotGroups.get(name).get(0).getId());
+            } catch (Exception ex) {}
+            if (age != null) enc.setAge(age);
+            myShepherd.beginDBTransaction();
+            myShepherd.storeNewEncounter(enc, Util.generateUUID());
+            myShepherd.commitDBTransaction();
+            myShepherd.beginDBTransaction();
+            System.out.println("IA-IMPORT: " + enc);
 
-        if (!IBEISIA.unknownName(name)) {
             enc.setIndividualID(name);
             if (myShepherd.isMarkedIndividual(name)) {
                 MarkedIndividual ind = myShepherd.getMarkedIndividual(name);
@@ -155,28 +244,36 @@ System.out.println("--- sex=" + sex);
                 myShepherd.storeNewMarkedIndividual(ind);
                 System.out.println("IA-IMPORT: new indiv " + ind);
             }
-        }
-        for (Annotation ann: annotGroups.get(name)) {
-            myShepherd.storeNewAnnotation(ann);
-        }
-        if (occ == null) {
-            occ = myShepherd.getOccurrence(occID);
-            if (occ == null) occ = new Occurrence(occID, enc);
-        } else {
-            occ.addEncounter(enc);
-        }
-        System.out.println("IA-IMPORT: " + occ);
 
-        myShepherd.commitDBTransaction();
+            for (Annotation ann: annotGroups.get(name)) {
+                myShepherd.storeNewAnnotation(ann);
+            }
+            myShepherd.commitDBTransaction();
+            myShepherd.beginDBTransaction();
+            if (occ == null) {
+                occ = myShepherd.getOccurrence(occID);
+                if (occ == null) occ = new Occurrence(occID, enc);
+System.out.println("NEW OCC created " + occ);
+            } else {
+                occ.addEncounter(enc);
+System.out.println("using old OCC " + occ);
+            }
+            myShepherd.getPM().makePersistent(occ);
+            System.out.println("IA-IMPORT: " + occ);
+            myShepherd.commitDBTransaction();
+        }
 
       }
 
+System.out.println("zzzzzzzzzzzzzzzzzz " + occ);
         myShepherd.getPM().makePersistent(occ);
         myShepherd.commitDBTransaction();
     }
 
     //myShepherd.closeDBTransaction();
 
+System.out.println(". . . . . . IMPORT COMPLETE . . . . . .");
+out.println("complete");
 
   }
 

@@ -383,6 +383,7 @@ public class Occurrence implements java.io.Serializable{
 
   }
 
+/*  this was messing up the co-occur js, so lets kill for now?
   public org.datanucleus.api.rest.orgjson.JSONObject sanitizeJson(HttpServletRequest request,
                 org.datanucleus.api.rest.orgjson.JSONObject jobj) throws org.datanucleus.api.rest.orgjson.JSONException {
             return sanitizeJson(request, jobj, true);
@@ -400,6 +401,7 @@ public class Occurrence implements java.io.Serializable{
 
   }
 
+*/
 
     public String toString() {
         return new ToStringBuilder(this)

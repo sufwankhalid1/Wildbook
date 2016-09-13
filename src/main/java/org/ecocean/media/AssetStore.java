@@ -262,6 +262,11 @@ public abstract class AssetStore implements java.io.Serializable {
     //subclass can override, but this should work for AssetStores which can handle making a local cached copy of file
     public MediaAsset updateChild(MediaAsset parent, String type, HashMap<String,Object> opts) throws IOException {
         if (parent == null) return null;
+        //right now we strictly bail on non-images. in the future we *should* let various methods try to do whatever this means for their type  TODO
+        if (!parent.isMimeTypeMajor("image")) {
+            System.out.println("NOTICE: updateChild(" + parent + ") aborted due to non-image; major mime type = " + parent.getMimeTypeMajor());
+            return null;
+        }
         try {
             parent.cacheLocal();
         } catch (Exception ex) {
@@ -456,6 +461,7 @@ System.out.println("AssetStore.updateChild(): " + sourceFile + " --> " + targetF
      *  should create the ("base") set of parameters for the specific store-type based on file.
      *  note this can take into account store-specific config settings (like bucket for S3)
      *   (optional) "grouping" acts sort of like a common subdir to put it under (**if** available for that store!)
+     *  can (should?) just return null for read-only stores?
      */
     public abstract JSONObject createParameters(final File file, final String grouping);
     public JSONObject createParameters(final File file) {
@@ -624,17 +630,18 @@ if ((ann != null) && !ann.isTrivial()) return "<!-- skipping non-trivial annotat
     //these can be used by subclasses who can access files, for within .extractMetadata()
 
     public static JSONObject extractMetadataAttributes(File file) throws IOException {  //some "generic attributes" (i.e. not from specific sources like exif)
+        JSONObject j = new JSONObject();
+        j.put("contentType", Files.probeContentType(file.toPath()));  //hopefully we can always/atleast get this
+
+        //we only kinda care about bimg failure -- see: non-images
         BufferedImage bimg = null;
         try {
             bimg = ImageIO.read(file);
-        } catch (javax.imageio.IIOException ex) {
-            throw new IOException(ex.toString());
+        } catch (javax.imageio.IIOException ex) { }
+        if (bimg != null) {
+            j.put("width", (double)bimg.getWidth());
+            j.put("height", (double)bimg.getHeight());
         }
-        if (bimg == null) return null;
-        JSONObject j = new JSONObject();
-        j.put("width", (double)bimg.getWidth());
-        j.put("height", (double)bimg.getHeight());
-        j.put("contentType", Files.probeContentType(file.toPath()));
         return j;
     }
 
