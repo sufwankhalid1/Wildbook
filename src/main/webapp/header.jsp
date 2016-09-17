@@ -383,7 +383,9 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
                             if(request.getUserPrincipal()!=null) {
                             %>
                               <li><a href="<%=urlLoc %>/myAccount.jsp"><%=props.getProperty("myAccount")%></a></li>
-                            <% }
+                            <% 
+                            }
+                            
                             if(CommonConfiguration.allowBatchUpload(context) && (request.isUserInRole("admin"))) { %>
                               <li><a href="<%=urlLoc %>/BatchUpload/start"><%=props.getProperty("batchUpload")%></a></li>
                             <% }
@@ -399,6 +401,13 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
                                   <li><a href="<%=CommonConfiguration.getIPTURL(context) %>"><%=props.getProperty("iptLink")%></a></li>
                                 <% } %>
                                 <li><a href="<%=urlLoc %>/appadmin/kwAdmin.jsp"><%=props.getProperty("photoKeywords")%></a></li>
+                               
+                            <li class="dropdown-header">SharkGrid</li>
+                            
+                            <li><a href="<%=urlLoc %>/appadmin/scanTaskAdmin.jsp">Check SharkGrid</a></li>
+                            
+                            
+                                
                                 <% if (CommonConfiguration.allowAdoptions(context)) { %>
                                   <li class="divider"></li>
                                   <li class="dropdown-header"><%=props.getProperty("adoptions")%></li>
