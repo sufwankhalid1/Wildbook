@@ -606,6 +606,8 @@ if(CommonConfiguration.showProperty("showCountry",context)){
 <%
 }  //end if showCountry
 
+
+if(context.equals("context0")){
 %>
 
 <div>
@@ -636,7 +638,9 @@ if(CommonConfiguration.showProperty("showCountry",context)){
         GPS coordinates are in the decimal degrees format. Do you have GPS coordinates in a different format? <a href="http://www.csgnetwork.com/gpscoordconv.html" target="_blank">Click here to find a converter.</a>
       </p> 
     </div>
-    
+    <%
+    }
+    %>
     
 <%
 if(CommonConfiguration.showProperty("maximumDepthInMeters",context)){
@@ -814,43 +818,83 @@ if(CommonConfiguration.showProperty("maximumElevationInMeters",context)){
 if(CommonConfiguration.showProperty("showTaxonomy",context)){
 
 %>
-
-      <div class="form-group">
+<div class="form-group">
           <div class="col-xs-6 col-md-4">
-            <label class="control-label">Species</label>
-          </div>
+            <label class="control-label">
+            	<%=props.getProperty("species")%>
+            </label>
+ </div>
 
           <div class="col-xs-6 col-lg-8">
-            <select class="form-control" name="genusSpecies" id="genusSpecies">
-             	<option value="" selected="selected">unknown</option>
+  <select name="genusSpecies" id="genusSpecies">
+  	<option value="" selected="selected"><%=props.getProperty("submit_unsure")%></option>
   <%
-                     
-  					List<String> species=CommonConfiguration.getIndexedPropertyValues("genusSpecies", context);
-  					int numGenusSpeciesProps=species.size();
-  					String selected="";
-  					if(numGenusSpeciesProps==1){selected="selected=\"selected\"";}
+  			       String currentOptGroup="";
+  				   boolean hasMoreTax=true;
+  			       int taxNum=0;			       
+  			       
+			       while(hasMoreTax){
+  			        	
+  			        	String optGroupString="";
+  				       String endOptGroupString="";
+  			       	  String currentGenuSpecies = "genusSpecies"+taxNum;
+  			       	String currentGenuSpeciesOptGroup = "genusSpeciesOptGroup"+taxNum;
+  			       	  if(CommonConfiguration.getProperty(currentGenuSpecies,context)!=null){
+  			       		  
+  			       	  	String commonName=CommonConfiguration.getProperty(currentGenuSpecies,context);
+  			       		String currentGenuSpeciesCommonName = "genusSpeciesCommonName"+taxNum;
+  			       		if(CommonConfiguration.getProperty(currentGenuSpeciesCommonName,context)!=null){
+  			       			commonName=CommonConfiguration.getProperty(currentGenuSpeciesCommonName,context);
+  			       		}
+  			       		
 
-                     if(CommonConfiguration.showProperty("showTaxonomy",context)){
-                     
-                    	for(int q=0;q<numGenusSpeciesProps;q++){
-                           String currentGenuSpecies = "genusSpecies"+q;
-                           if(CommonConfiguration.getProperty(currentGenuSpecies,context)!=null){
-                               %>
-                                 <option value="<%=CommonConfiguration.getProperty(currentGenuSpecies,context)%>" <%=selected %>><%=CommonConfiguration.getProperty(currentGenuSpecies,context).replaceAll("_"," ")%></option>
-                               <%
-                           
-                        }
+			       		
+  			       		
+  			       		if(CommonConfiguration.getProperty(currentGenuSpeciesOptGroup,context)!=null){
+  			       			
+  			       			if(!currentOptGroup.equals(CommonConfiguration.getProperty(currentGenuSpeciesOptGroup,context))){
+  			       				if(currentOptGroup.equals("")){
+  			       					optGroupString="<optgroup label=\""+CommonConfiguration.getProperty(currentGenuSpeciesOptGroup,context)+"\">";
+  			       					currentOptGroup=CommonConfiguration.getProperty(currentGenuSpeciesOptGroup,context);
+  			       				
+  			       				}
+  			       				else if(!currentOptGroup.equals(CommonConfiguration.getProperty(currentGenuSpeciesOptGroup,context))){
+  			       					System.out.println("    !!!!@@@@Switch optGroup to: "+CommonConfiguration.getProperty(currentGenuSpeciesOptGroup,context));
+  			       					optGroupString="<optgroup label=\""+CommonConfiguration.getProperty(currentGenuSpeciesOptGroup,context)+"\">";
+  			       					endOptGroupString="</optgroup>";
+  			       					currentOptGroup=CommonConfiguration.getProperty(currentGenuSpeciesOptGroup,context);
+  			       				}
+  			       				
+  			       			}
+  			       			
+  			       		}
+  			       	%>
+			       	  	<%=endOptGroupString %>
+			       	  	 <%=optGroupString %>
+			       	  	  <option value="<%=CommonConfiguration.getProperty(currentGenuSpecies,context)%>"><%=commonName.replaceAll("_"," ")%></option>
+			       	  		
+			       	  	<%
+  			       			
+  			       		}
+  			       	  else{hasMoreTax=false;}
 
-                        
-                   }
-                   }
+  			       	  	
+  			       		taxNum++;
+  			          }
+
+  			  if(!currentOptGroup.equals("")){
+  				  %>
+  				  </optgroup>
+  				  <%
+  			  }
+			       
  %>
-  </select>
-    </div>
-        </div>
-     
-        <%
+  </select></div>
+  </div>
+<%
+ 
 }
+//test comment
 
 %>
 
@@ -877,7 +921,9 @@ if(CommonConfiguration.showProperty("showTaxonomy",context)){
           </div>
         </div>
         
-        
+ <%
+if(context.equals("context0")){
+%>       
            <div class="form-group">
           <div class="col-xs-6 col-md-4">
             <label class="control-label">Noticeable scarring</label>
@@ -889,7 +935,7 @@ if(CommonConfiguration.showProperty("showTaxonomy",context)){
         </div>
         
 <%
-
+}
 if(CommonConfiguration.showProperty("showLifestage",context)){
 
 %>
