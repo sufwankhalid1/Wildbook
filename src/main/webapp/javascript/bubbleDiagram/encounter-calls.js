@@ -71,8 +71,10 @@ var makeCooccurrenceChart = function(items) {
 
 var getIndividualIDFromEncounterToString = function(encToString) {
   // return everything between "individualID=" and the next comma after that
-  var id = encToString.split("individualID=")[1].split(",")[0];
-  if (id == '<null>') return false;
+console.log('encToString = %o', encToString);
+  //var id = encToString.split("individualID=")[1].split(",")[0];
+    var id = encToString.individualID;
+    if (!id) return false;
   return id;
 }
 
@@ -93,6 +95,7 @@ var getData = function(individualID) {
         var encounterSize = thisOcc.encounters.length;
         // make encounterArray, containing the individualIDs of every encounter in thisOcc;
         for(var j=0; j < encounterSize; j++) {
+//console.info('[%d] %o %o', j, thisOcc.encounters, thisOcc.encounters[j]);
           var thisEncIndID = getIndividualIDFromEncounterToString(thisOcc.encounters[j]);
           //var thisEncIndID = jsonData[i].encounters[j].individualID;   ///only when we fix thisOcc.encounters to be real json   :(
 //console.info('i=%d, j=%d, -> %o', i, j, thisEncIndID);
@@ -150,13 +153,13 @@ var getSexHaploData = function(individualID, items) {
       result.haplotype = jsonData[i].localHaplotypeReflection;
     }
     makeCooccurrenceChart(items);
-    makeTable(items, "#coHead", "#coBody");
+    makeTable(items, "#coHead", "#coBody",null);
   });
 };
 
-var makeTable = function(items, tableHeadLocation, tableBodyLocation) {
+var makeTable = function(items, tableHeadLocation, tableBodyLocation, sortOn) {
   var previousSort = null;
-  refreshTable(null);
+  refreshTable(sortOn);
 
   function refreshTable(sortOn) {
     var thead = d3.select(tableHeadLocation).selectAll("th")
@@ -244,6 +247,7 @@ var makeTable = function(items, tableHeadLocation, tableBodyLocation) {
     });
 
     if(sortOn !== null) {
+		console.log("sorting on: "+sortOn);
       if(sortOn != previousSort){
         tr.sort(function(a,b){return sort(a[sortOn], b[sortOn]);});
         previousSort = sortOn;
@@ -275,7 +279,7 @@ var makeTable = function(items, tableHeadLocation, tableBodyLocation) {
       if(parseA) {
         var whaleA = parseA;
         var whaleB = parseInt(b);
-        return whaleA > whaleB ? 1 : whaleA == whaleB ? 0 : -1;
+        return whaleA < whaleB ? 1 : whaleA == whaleB ? 0 : -1;
       } else
         return a.localeCompare(b);
     } else if(typeof a == "number") {
@@ -341,7 +345,7 @@ var getEncounterTableData = function(occurrenceObjectArray, individualID) {
         encounter = {catalogNumber: catalogNumber, date: date, location: location, dataTypes: dataTypes, alternateID: alternateID, sex: sex, occurringWith: occurringWith, behavior: behavior};
         encounterData.push(encounter);
       }
-      makeTable(encounterData, "#encountHead", "#encountBody");
+      makeTable(encounterData, "#encountHead", "#encountBody", "date");
     });
   }
 
@@ -467,7 +471,7 @@ var getIndividualData = function(relationshipArray) {
             relationshipArray[j].relationshipWith[4] = jsonData.localHaplotypeReflection;
           }
         }
-        makeTable(relationshipArray, "#relationshipHead", "#relationshipBody");
+        makeTable(relationshipArray, "#relationshipHead", "#relationshipBody",null);
       }
     });
   }
