@@ -25,6 +25,7 @@
     background-size: 100% auto;
     opacity: 0.4;
     cursor: pointer;
+    z-index: 10;
 }
 
 .image-enhancer-wrapper:hover .image-enhancer-menu {
@@ -39,6 +40,7 @@
     border: solid black 2px;
     border-radius: 2px;
     background-color: white;
+    z-index: 11;
 }
 
 .image-enhancer-menu-open .menu-item {

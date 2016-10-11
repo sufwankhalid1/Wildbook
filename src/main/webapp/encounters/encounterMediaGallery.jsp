@@ -129,7 +129,7 @@ JSONObject iaTasks = new JSONObject();
 					JSONObject jf = new JSONObject();
 					jf.put("id", f.getId());
 					jf.put("type", f.getType());
-					jf.put("parameters", f.getParameters());
+					jf.put("parameters", Util.toggleJSONObject(f.getParameters()));
 					feats.put(jf);
 				}
 				jann.put("features", feats);
@@ -280,6 +280,19 @@ jQuery(document).ready(function() {
 });
 
 function doImageEnhancer(sel) {
+	imagesLoading = false;
+	$(sel).each(function(i, el) {
+		if (!el.complete) {
+			imagesLoading = true;
+			console.log('= = = = waiting on %d -> %o', i, el.complete);
+		}
+	});
+	if (imagesLoading) {  //wait (async); bail and repeat
+console.info('waiting to try again...........................');
+		setTimeout(function() { doImageEnhancer(sel); }, 700);
+		return;
+	}
+
     var loggedIn = wildbookGlobals.username && (wildbookGlobals.username != "");
     var opt = {
     };
@@ -563,28 +576,30 @@ function getFocusFeature(mid) {
 }
 
 function drawFeature(mid) {
+	var asset = assetById(mid);
+	if (!asset) return;
 	var ft = getFocusFeature(mid);
-ft = false;
-	//if (!ft) return;
-	if (!ft) ft = {
-		type: 'org.ecocean.boundingBox',
-		parameters: { x: 20, y: 20, width: 100, height: 100 }
-	};
+	if (!ft) return;
 	//console.warn('%o => %o', mid, ft);
-	var canvas = $('<canvas class="canvas-feature imageenh-canvas" width="' + $('#image-enhancer-wrapper-' + mid).width() +
-		'" height="' + $('#image-enhancer-wrapper-' + mid).height() + '"></canvas>');
+	var cw = $('#image-enhancer-wrapper-' + mid).width();
+	var ch = $('#image-enhancer-wrapper-' + mid).height();
+	console.warn('w=%d, h=%d', cw, ch);
+	var canvas = $('<canvas class="canvas-feature imageenh-canvas" width="' + cw + '" height="' + ch + '"></canvas>');
 	$('#image-enhancer-wrapper-' + mid).append(canvas);
 
+	var scale = 1;
+	if (asset.metadata && asset.metadata.width) scale = cw / asset.metadata.width;
+console.warn('scale = %f', scale);
 	var ctx = canvas[0].getContext('2d');
 	ctx.beginPath();
-	ctx.lineWidth = '2';
-	ctx.strokeStyle = 'rgba(0,200,255,0.7)';
-	ctx.rect(ft.parameters.x, ft.parameters.y, ft.parameters.width, ft.parameters.height);
+	ctx.lineWidth = '3';
+	ctx.strokeStyle = 'rgba(200,255,0,0.7)';
+	ctx.rect(ft.parameters.x * scale, ft.parameters.y * scale, ft.parameters.width * scale, ft.parameters.height * scale);
 	ctx.stroke();
 
 	canvas.on('mousemove click', function(ev) {
-		if ((ev.offsetX < ft.parameters.x) || (ev.offsetX > (ft.parameters.x + ft.parameters.width)) ||
-		    (ev.offsetY < ft.parameters.y) || (ev.offsetY > (ft.parameters.y + ft.parameters.height))) {
+		if ((ev.offsetX < ft.parameters.x * scale) || (ev.offsetX > scale * (ft.parameters.x + ft.parameters.width)) ||
+		    (ev.offsetY < ft.parameters.y * scale) || (ev.offsetY > scale * (ft.parameters.y + ft.parameters.height))) {
 			ev.target.style.cursor = 'inherit';
 			ev.target.title = "";
 			return;
