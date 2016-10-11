@@ -37,13 +37,14 @@ String encNum = request.getParameter("encounterNumber");
 
 // collect every MediaAsset as JSON into the 'all' array
 JSONArray all = new JSONArray();
+Encounter enc = null;
 List<String[]> captionLinks = new ArrayList<String[]>();
 try {
 
   String langCode=ServletUtilities.getLanguageCode(request);
   Properties encprops = new Properties();
   encprops = ShepherdProperties.getProperties("encounter.properties", langCode,context);
-  Encounter enc = imageShepherd.getEncounter(encNum);
+  enc = imageShepherd.getEncounter(encNum);
   ArrayList<Annotation> anns = enc.getAnnotations();
   %>
   <script>
@@ -121,6 +122,18 @@ JSONObject iaTasks = new JSONObject();
   			JSONObject j = ma.sanitizeJson(request, new JSONObject());
   			if (j != null) {
 				j.put("annotationId", ann.getId());
+				JSONObject jann = new JSONObject();
+				jann.put("id", ann.getId());
+				JSONArray feats = new JSONArray();
+				for (Feature f : ann.getFeatures()) {
+					JSONObject jf = new JSONObject();
+					jf.put("id", f.getId());
+					jf.put("type", f.getType());
+					jf.put("parameters", f.getParameters());
+					feats.put(jf);
+				}
+				jann.put("features", feats);
+				j.put("annotation", jann);
 				all.put(j);
 			}
   		}
@@ -197,6 +210,13 @@ for (int i=0; i<captionLinks.size(); i++) {
   // so here we load .my-gallery with all of the MediaAssets --- done with maJsonToFigureElem.
   var assets = <%=all.toString()%>;
   var captions = <%=captions.toString()%>
+  var encounterAnnotationIds = <%
+	JSONArray ea = new JSONArray();
+	for (Annotation ann : enc.getAnnotations()) {
+		ea.put(ann.getId());
+	}
+	out.println(ea.toString());
+%>
   captions.forEach( function(elem) {
     console.log("caption here: "+elem);
   })
@@ -270,10 +290,12 @@ function doImageEnhancer(sel) {
             ['remove this image', function(enh) {
 		removeAsset(enh.imgEl.prop('id').substring(11));
             }],
-/*
-            ['replace this image', function(enh) {
+            ['alter focus cat', function(enh) {
+		selectAnnotation(enh.imgEl.prop('id').substring(11));
             }],
-*/
+	    ['rotate image', function(enh) {
+		rotationUI(enh.imgEl.prop('id').substring(11));
+	    }]
 	];
 
 	if (wildbook.iaEnabled()) {
@@ -324,6 +346,7 @@ function doImageEnhancer(sel) {
 console.info(' ===========>   %o %o', el, enh);
 		imageLayerKeywords(el, enh);
             },
+            function(el, enh) { drawFeature(el.prop('id').substring(23)); }
         ];
 
     }
@@ -532,8 +555,113 @@ function assetById(mid) {
 	return false;
 }
 
+function getFocusFeature(mid) {
+	if (!assetById(mid) || !assetById(mid).annotation || !assetById(mid).annotation.features || (assetById(mid).annotation.features.length < 1)) return false;
+	//do we know for sure there will be only one????
+	console.info(assetById(mid).annotation.features[0]);
+	return assetById(mid).annotation.features[0];
+}
+
+function drawFeature(mid) {
+	var ft = getFocusFeature(mid);
+ft = false;
+	//if (!ft) return;
+	if (!ft) ft = {
+		type: 'org.ecocean.boundingBox',
+		parameters: { x: 20, y: 20, width: 100, height: 100 }
+	};
+	//console.warn('%o => %o', mid, ft);
+	var canvas = $('<canvas class="canvas-feature imageenh-canvas" width="' + $('#image-enhancer-wrapper-' + mid).width() +
+		'" height="' + $('#image-enhancer-wrapper-' + mid).height() + '"></canvas>');
+	$('#image-enhancer-wrapper-' + mid).append(canvas);
+
+	var ctx = canvas[0].getContext('2d');
+	ctx.beginPath();
+	ctx.lineWidth = '2';
+	ctx.strokeStyle = 'rgba(0,200,255,0.7)';
+	ctx.rect(ft.parameters.x, ft.parameters.y, ft.parameters.width, ft.parameters.height);
+	ctx.stroke();
+
+	canvas.on('mousemove click', function(ev) {
+		if ((ev.offsetX < ft.parameters.x) || (ev.offsetX > (ft.parameters.x + ft.parameters.width)) ||
+		    (ev.offsetY < ft.parameters.y) || (ev.offsetY > (ft.parameters.y + ft.parameters.height))) {
+			ev.target.style.cursor = 'inherit';
+			ev.target.title = "";
+			return;
+		}
+		ev.target.style.cursor = 'pointer';
+		ev.target.title = "this is the cat!";
+		ev.stopPropagation();
+if (ev.type == 'click') console.warn(ft);
+	});
+}
+
+var selectAnnotationStart = false;
+function selectAnnotation(mid) {
+	var ft = getFocusFeature(mid);
+	if (!ft) ft = {
+		type: 'org.ecocean.boundingBox',
+		parameters: { x: 20, y: 20, w: 100, h: 100 }
+	};
+	console.warn('%o => %o', mid, ft);
+	var canvas = $('<canvas class="canvas-annot-select imageenh-canvas" width="' + $('#image-enhancer-wrapper-' + mid).width() +
+		'" height="' + $('#image-enhancer-wrapper-' + mid).height() + '"></canvas>');
+	$('#image-enhancer-wrapper-' + mid).append(canvas);
+	canvas.on('mouseup mousedown mousemove click', function(ev) { selectAnnotationMouse(ev); });
+/*
+	canvas.on('mousedown', function(ev) { selectAnnotationMouse(ev); });
+	canvas.on('mousemove', function(ev) { selectAnnotationMouse(ev); });
+	canvas.on('click', function(ev) { selectAnnotationMouse(ev); });
+*/
+}
+
+function selectAnnotationMouse(ev) {
+	ev.stopPropagation();
+	ev.preventDefault();
+	if (ev.type == 'click') return;
+	if (ev.type == 'mousedown') {
+		selectAnnotationStart = [ev.offsetX, ev.offsetY];
+		return;
+	}
+	if (ev.type == 'mouseup') {
+		var rect = [selectAnnotationStart[0], selectAnnotationStart[1], ev.offsetX, ev.offsetY];
+		selectAnnotationStart = false;
+		console.info(rect);
+	}
+	if (selectAnnotationStart && (ev.type == 'mousemove')) {
+		//console.warn(ev);
+		var ctx = ev.target.getContext('2d');
+		ctx.clearRect(0, 0, ev.target.width, ev.target.height);
+		ctx.beginPath();
+		ctx.lineWidth = '3';
+		ctx.strokeStyle = 'rgba(255,255,0,0.7)';
+		ctx.rect(
+			Math.min(selectAnnotationStart[0], ev.offsetX),
+			Math.min(selectAnnotationStart[1], ev.offsetY),
+			Math.abs(selectAnnotationStart[0] - ev.offsetX),
+			Math.abs(selectAnnotationStart[1] - ev.offsetY)
+		);
+		ctx.stroke();
+	}
+}
+
+
+function rotationUI(mid) {
+	console.warn(mid);
+}
+
 </script>
 <style>
+	.imageenh-canvas {
+		position: absolute;
+	}
+	.canvas-annot-select {
+		cursor: crosshair;
+	}
+	.canvas-feature {
+		//cursor: pointer;
+	}
+
 	#match-tools {
 		padding: 5px 15px;
 		display: inline-block;
