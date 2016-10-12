@@ -638,6 +638,7 @@ function selectAnnotationMouse(ev, mid) {
 	ev.preventDefault();
 	if (ev.type == 'click') return;
 	if (ev.type == 'mousedown') {
+		$('#image-enhancer-wrapper-' + mid + ' .quick-tools').remove();
 		selectAnnotationStart = [ev.offsetX, ev.offsetY];
 		return;
 	}
@@ -685,6 +686,16 @@ function selectAnnotationSave(ev, mid, x1, y1, x2, y2) {
 			'&fwidth=' + Math.round((x2 - x1) * scale) + '&fheight=' + Math.round((y2 - y1) * scale),
 		complete: function(x, s) {
 console.info('x=%o s=%o', x, s);
+			$('#image-enhancer-wrapper-' + mid + ' canvas').remove();
+			if (x.status == 200) {
+				$('#image-enhancer-wrapper-' + mid + ' .quick-tools').remove();
+///////process new Feature from json return -- add to appropriate asset!
+				drawFeature(mid);
+			} else {
+				$('.quick-tools-button').remove();
+				$('#image-enhancer-wrapper-' + mid + ' .quick-tools').append('<div title="close error" class="quick-tools-button" onClick="event.stopPropagation(); $(this).parent().remove();">FAILED: '
+					+ x.status + ' ' + x.statusText + '</div>');
+			}
 		},
 		dataType: 'json'
 	});
@@ -756,7 +767,7 @@ console.log('x=%o, s=%o', x, s);
 					$('#image-enhancer-wrapper-' + mid + ' .quick-tools').append('<div class="quick-tools-button">reloading...</div>');
 					window.location.reload();
 				} else {
-					$('#image-enhancer-wrapper-' + mid + ' .quick-tools').append('<div class="quick-tools-button">FAILED: '
+					$('#image-enhancer-wrapper-' + mid + ' .quick-tools').append('<div title="close error" class="quick-tools-button" onClick="event.stopPropagation(); $(this).parent().remove();">FAILED: '
 						+ x.status + ' ' + x.statusText + '</div>');
 					$('#figure-img-' + mid).css('transform', 'rotate(0deg)');
 				}
@@ -804,6 +815,8 @@ console.log('x=%o, s=%o', x, s);
 	}
 	.canvas-annot-select {
 		cursor: crosshair;
+		cursor: cell;
+		cursor: move;
 	}
 	.canvas-feature {
 		/* cursor: pointer; */
