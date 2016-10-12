@@ -671,7 +671,23 @@ function selectAnnotationMouse(ev, mid) {
 
 function selectAnnotationSave(ev, mid, x1, y1, x2, y2) {
 	ev.stopPropagation();
-	console.log('mid=%d [%d,%d,%d,%d]', mid, x1,y1,x2,y2);
+	if (!assetById(mid) || !assetById(mid).metadata || !assetById(mid).metadata.width || !assetById(mid).annotation) {
+		alert('could not determine image width or annotation');
+		console.warn('could not determine image metadata width or annotation for mid=%o', mid);
+		return false;
+	}
+	var scale = assetById(mid).metadata.width / $('#image-enhancer-wrapper-' + mid).width();
+	console.log('mid=%d scale=%.1f [%d,%d,%d,%d]', mid, scale, x1,y1,x2,y2);
+	$.ajax({
+		url: '../MediaAssetModify___',
+		type: 'POST',
+		data: 'id=' + mid + '&annotationId=' + assetById(mid).annotation.id + '&fx=' + Math.round(x1 * scale) + '&fy=' + Math.round(y1 * scale) +
+			'&fwidth=' + Math.round((x2 - x1) * scale) + '&fheight=' + Math.round((y2 - y1) * scale),
+		complete: function(x, s) {
+console.info('x=%o s=%o', x, s);
+		},
+		dataType: 'json'
+	});
 	return true;
 }
 function selectAnnotationCancel(ev, mid) {
@@ -726,8 +742,27 @@ function rotationClick(mid, deg, ev) {
 	}
 	$('.my-gallery figure').css('overflow', '');
 	if (deg == -2) {
-		//save here.....
-		$('.quick-tools').remove();
+		$('.quick-tools-button').remove();
+		$('#image-enhancer-wrapper-' + mid + ' .quick-tools').append('<div class="quick-tools-button">saving...</div>');
+		$.ajax({
+			url: '../MediaAssetModify___',
+			type: 'POST',
+//application/x-www-form-urlencoded
+			data: 'id=' + mid + '&rotation=' + deg,
+			complete: function(x, s) {
+console.log('x=%o, s=%o', x, s);
+				$('.quick-tools-button').remove();
+				if (x.status == 200) {
+					$('#image-enhancer-wrapper-' + mid + ' .quick-tools').append('<div class="quick-tools-button">reloading...</div>');
+					window.location.reload();
+				} else {
+					$('#image-enhancer-wrapper-' + mid + ' .quick-tools').append('<div class="quick-tools-button">FAILED: '
+						+ x.status + ' ' + x.statusText + '</div>');
+					$('#figure-img-' + mid).css('transform', 'rotate(0deg)');
+				}
+			},
+			dataType: 'json'
+		});
 		rotationDeg = 0;
 		return;
 	}
