@@ -9,16 +9,17 @@ console.log('=============???? %o', ev);
         if (!opt) opt = {};
         opt._count = jQuery(selector).length;
         jQuery(selector).each(function(i, el) {
+console.warn('%d >>>>>>>>>>>>>>>>>> %o complete=%o %o', i, el, el.complete, opt._count);
             if (el.complete) {
                 imageEnhancer.apply(el, opt);
                 opt._count--;
-                if (opt.callback && (opt._count < 1)) opt.callback();
+                //if (opt.callback && (opt._count < 1)) opt.callback();
             } else {
                 $(el).on('load', function(ev) {
 console.log('?????????????????????????????????????????????? DELAYED IMG LOAD ?????????? %o', ev);
                     imageEnhancer.apply(ev.target, opt);
                     opt._count--;
-                    if (opt.callback && (opt._count < 1)) opt.callback();
+                    //if (opt.callback && (opt._count < 1)) opt.callback();
                 });
             }
         });
@@ -64,6 +65,8 @@ console.info('assigning event %s', e);
 
         //now we store opt on the actual dom element
         wrapper[0].enhancer = { opt: opt, imgEl: jel };
+console.warn(' ---------- out? ------------ ');
+        return true;
     },
 
     wrapperSizeSetFromImg: function(el) {

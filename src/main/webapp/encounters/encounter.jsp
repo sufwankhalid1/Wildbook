@@ -271,11 +271,80 @@ td.measurement{
           	    ne_lat_element.value = location.lat();
           	    ne_long_element.value = location.lng();
 	}
-	</script>
 
 
+	function cloneToolOpen() {
+		$('#clone-instructions').hide();
+		var h = '<div id="clone-widget">Clone encounter <input id="clone-count" value="1" onKeyUp="return cloneToolUpdate()" style="width: 1.5em; padding: 0 4px; margin: 0 4px;" /> time<span id="clone-s"></span>';
+		if (assets && assets.length > 0) {
+			h += ' using <b id="clone-image-count">all images</b> marked below';
+		}
+		h += '. <input id="clone-do-button" style="margin-top: -5px;" type="button" value="Clone" onClick="return cloneDo()" /> <input style="margin-top: -5px;" type="button" value="Cancel" onClick="return cloneCancel()" /></div>';
+		$('#clone-tool').append(h);
+		for (var i = 0 ; i < assets.length ; i++) {
+			$('#image-enhancer-wrapper-' + assets[i].id).append('<div class="quick-tools" style="right: 4px; top: 4px;"><div class="quick-tools-button" id="clone-ma-' + assets[i].id + '" onClick="return cloneImageClick(this, event);"><input type="checkbox" checked /> include this image in <b>clone</b></div></div>');
+		}
+	}
 
-  <script>
+	function cloneImageClick(el, ev) {
+console.info('%o %o', el, ev);
+		ev.stopPropagation();
+		var ch = $(el).find('input');
+		if (ev.target.tagName != 'INPUT') ch.prop('checked', !ch.prop('checked'));
+		cloneToolUpdate();
+		return true;
+	}
+
+	function cloneToolUpdate() {
+		if ($('#clone-count').val() == '') return;
+		var ct = parseInt($('#clone-count').val());
+		if (isNaN(ct) || (ct < 1) || (ct > 20)) {
+			$('#clone-count').val(1);
+			ct = 1;
+		}
+		if (ct == 1) {
+			$('#clone-s').html('');
+		} else {
+			$('#clone-s').html('s');
+		}
+		var imgUsed = $('.quick-tools-button input:checked').length;
+		if (imgUsed == assets.length) {
+			$('#clone-image-count').text('all images');
+		} else if (imgUsed == 1) {
+			$('#clone-image-count').text('the one image');
+		} else {
+			$('#clone-image-count').text('the ' + imgUsed + ' images');
+		}
+		if (imgUsed < 1) {
+			$('#clone-do-button').hide().after('<span id="clone-error">You must have at least one image selected.</span>');
+		} else {
+			$('#clone-do-button').show();
+			$('#zero-error').remove();
+		}
+	}
+	function cloneDo() {
+		$('#clone-progress').remove();
+		$('#clone-widget').hide();
+		$('.quick-tools').remove();
+		$('#clone-tool').append('<div id="clone-progress"><img src="../images/throbber.gif" /> Cloning....</div>');
+		$.ajax({
+			url: '../EncounterClone',
+			type: 'POST',
+			complete: function(a,b,c) {
+console.warn('%o %o %o', a, b, c);
+				$('#clone-progress').html('<div id="clone-error">error</div>');
+				$('#clone-widget').show();
+			},
+			dataType: 'json'
+		});
+	}
+	function cloneCancel() {
+		$('#clone-progress').remove();
+		$('#clone-widget').remove();
+		$('.quick-tools').remove();
+		$('#clone-instructions').show();
+	}
+
             function initialize() {
             //alert("Initializing map!");
               var mapZoom = 1;
@@ -595,7 +664,20 @@ $(function() {
 
 
 
-    			<p class="caption"><em><%=encprops.getProperty("description") %></em></p>
+<!--
+    			<p class="caption"><em><%=encprops.getProperty("description") %></em>
+-->
+
+<% if (AccessControl.simpleUserString(request) != null) { %>
+	<div id="clone-tool">
+		<div id="clone-instructions">
+			Multiple cats in photo(s)?
+			<input style="margin: -5px 0 0 10px;" id="clone-button-open" type="button" value="Clone encounter" onClick="return cloneToolOpen()" />
+		</div>
+	</div>
+<% } %>
+
+			</p>
  					<table style="border-spacing: 10px;margin-left:-10px;border-collapse: inherit;">
  						<tr valign="middle">
   							<td>
@@ -3691,6 +3773,13 @@ $("a#dynamicPropertyAdd").click(function() {
 
 <script src="../tools/flow.min.js"></script>
 <style>
+
+#clone-error {
+	font-size: 0.9em;
+	padding: 2px 7px;
+	background-color: #F88;
+	margin: 3px 10px;
+}
 
 div#add-image-zone {
   background-color: #e8e8e8;

@@ -282,6 +282,7 @@ jQuery(document).ready(function() {
 function doImageEnhancer(sel) {
 	imagesLoading = false;
 	$(sel).each(function(i, el) {
+console.log('%d >>>>> %o ?%o', i, el, el.complete);
 		if (!el.complete) {
 			imagesLoading = true;
 			console.log('= = = = waiting on %d -> %o', i, el.complete);
@@ -300,10 +301,12 @@ console.info('waiting to try again...........................');
     if (loggedIn) {
         opt.debug = false;
         opt.menu = [
+/*
             ['remove this image', function(enh) {
 		removeAsset(enh.imgEl.prop('id').substring(11));
             }],
-            ['alter focus cat', function(enh) {
+*/
+            ['select focus cat', function(enh) {
 		selectAnnotation(enh.imgEl.prop('id').substring(11));
             }],
 	    ['rotate image', function(enh) {
@@ -340,6 +343,7 @@ console.info('waiting to try again...........................');
 		]);
 	}
 
+/*
 	opt.menu.push(
             [
 		function(enh) { return imagePopupInfoMenuItem(enh); },
@@ -347,7 +351,6 @@ console.info('waiting to try again...........................');
             ]
 	);
 
-/*
         if (true) {
             opt.menu.push(['set image as encounter thumbnail', function(enh) {
             }]);
@@ -579,8 +582,8 @@ function drawFeature(mid) {
 	var asset = assetById(mid);
 	if (!asset) return;
 	var ft = getFocusFeature(mid);
-	if (!ft) return;
-	//console.warn('%o => %o', mid, ft);
+	if (!ft || !ft.type || (ft.type != 'org.ecocean.boundingBox')) return;
+	console.warn('%o => %o', mid, ft);
 	var cw = $('#image-enhancer-wrapper-' + mid).width();
 	var ch = $('#image-enhancer-wrapper-' + mid).height();
 	console.warn('w=%d, h=%d', cw, ch);
@@ -662,11 +665,57 @@ function selectAnnotationMouse(ev) {
 
 
 function rotationUI(mid) {
-	console.warn(mid);
+	$('#image-enhancer-wrapper-' + mid + ' canvas').hide();
+	var rtools = $('<div class="quick-tools" style="right: 4px; bottom: 4px;"></div>');
+	rtools.append('<div id="rotate-button-ok" style="background-color: #AFC; display: none;" class="quick-tools-button" onClick="rotationClick(' + mid + ', -1, event)">save</div>');
+	rtools.append('<div class="quick-tools-button" onClick="rotationClick(' + mid + ', 90, event)">CW</div>');
+	rtools.append('<div class="quick-tools-button" onClick="rotationClick(' + mid + ', 270, event)">CCW</div>');
+	rtools.append('<div class="quick-tools-button" onClick="rotationClick(' + mid + ', 180, event)">180</div>');
+	rtools.append('<div class="quick-tools-button" onClick="rotationClick(' + mid + ', 0, event)">cancel</div>');
+	$('#image-enhancer-wrapper-' + mid).append(rtools);
+}
+
+function rotationClick(mid, deg, ev) {
+//console.info('%d, %d, %o', mid, deg, ev);
+	ev.stopPropagation();
+	if (deg > 1) {
+		$('#rotate-button-ok').show();
+		$('#figure-img-' + mid).css('transform', 'rotate(' + deg + 'deg)');
+		return;
+	}
+	if (deg < 0) {
+		//save here.....
+		$('.quick-tools').remove();
+		return;
+	}
+	$('#figure-img-' + mid).css('transform', 'rotate(0deg)');
+	$('#image-enhancer-wrapper-' + mid + ' canvas').show();
+	$('.quick-tools').remove();
 }
 
 </script>
 <style>
+	.my-gallery figure {
+		/*overflow: hidden;   to hide rotated image */
+	}
+	.quick-tools {
+		position: absolute;
+		z-index: 20;
+	}
+	.quick-tools-button {
+		margin: 3px 0;
+		padding: 0 5px;
+		background-color: white;
+		border: solid 2px #444;
+		cursor: pointer !important;
+		border-radius: 4px;
+		color: #AAA;
+	}
+	.quick-tools-button:hover {
+		color: #333;
+		background-color: #FF8;
+	}
+
 	.imageenh-canvas {
 		position: absolute;
 	}
@@ -674,7 +723,7 @@ function rotationUI(mid) {
 		cursor: crosshair;
 	}
 	.canvas-feature {
-		//cursor: pointer;
+		/* cursor: pointer; */
 	}
 
 	#match-tools {
