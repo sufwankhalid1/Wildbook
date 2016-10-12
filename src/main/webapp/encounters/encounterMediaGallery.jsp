@@ -625,7 +625,7 @@ function selectAnnotation(mid) {
 	var canvas = $('<canvas class="canvas-annot-select imageenh-canvas" width="' + $('#image-enhancer-wrapper-' + mid).width() +
 		'" height="' + $('#image-enhancer-wrapper-' + mid).height() + '"></canvas>');
 	$('#image-enhancer-wrapper-' + mid).append(canvas);
-	canvas.on('mouseup mousedown mousemove click', function(ev) { selectAnnotationMouse(ev); });
+	canvas.on('mouseup mousedown mousemove click', function(ev) { selectAnnotationMouse(ev, mid); });
 /*
 	canvas.on('mousedown', function(ev) { selectAnnotationMouse(ev); });
 	canvas.on('mousemove', function(ev) { selectAnnotationMouse(ev); });
@@ -633,7 +633,7 @@ function selectAnnotation(mid) {
 */
 }
 
-function selectAnnotationMouse(ev) {
+function selectAnnotationMouse(ev, mid) {
 	ev.stopPropagation();
 	ev.preventDefault();
 	if (ev.type == 'click') return;
@@ -642,9 +642,15 @@ function selectAnnotationMouse(ev) {
 		return;
 	}
 	if (ev.type == 'mouseup') {
-		var rect = [selectAnnotationStart[0], selectAnnotationStart[1], ev.offsetX, ev.offsetY];
+		//var rect = [selectAnnotationStart[0], selectAnnotationStart[1], ev.offsetX, ev.offsetY];
+		$('#image-enhancer-wrapper-' + mid).append('<div class="quick-tools" style="left: ' + (ev.offsetX + 10) + 'px; top: ' + (ev.offsetY + 10) + 'px">' +
+			'<div class="quick-tools-button" onClick="return selectAnnotationSave(event, ' +
+				[mid, selectAnnotationStart[0], selectAnnotationStart[1], ev.offsetX, ev.offsetY].join(', ') + ');">save</div>' +
+			'<div class="quick-tools-button" onClick="return selectAnnotationCancel(event, ' + mid + ');">cancel</div>' +
+			'</div>'
+		);
 		selectAnnotationStart = false;
-		console.info(rect);
+		//console.info(rect);
 	}
 	if (selectAnnotationStart && (ev.type == 'mousemove')) {
 		//console.warn(ev);
@@ -663,31 +669,69 @@ function selectAnnotationMouse(ev) {
 	}
 }
 
+function selectAnnotationSave(ev, mid, x1, y1, x2, y2) {
+	ev.stopPropagation();
+	console.log('mid=%d [%d,%d,%d,%d]', mid, x1,y1,x2,y2);
+	return true;
+}
+function selectAnnotationCancel(ev, mid) {
+	$('#image-enhancer-wrapper-' + mid + ' canvas').remove();
+	$('#image-enhancer-wrapper-' + mid + ' .quick-tools').remove();
+	ev.stopPropagation();
+}
 
+
+
+var rotationDeg = 0;
 function rotationUI(mid) {
+	$('.my-gallery figure').css('overflow', 'hidden');
 	$('#image-enhancer-wrapper-' + mid + ' canvas').hide();
 	var rtools = $('<div class="quick-tools" style="right: 4px; bottom: 4px;"></div>');
-	rtools.append('<div id="rotate-button-ok" style="background-color: #AFC; display: none;" class="quick-tools-button" onClick="rotationClick(' + mid + ', -1, event)">save</div>');
+	rtools.append('<div id="rotate-button-ok" style="background-color: #AFC; display: none;" class="quick-tools-button" onClick="rotationClick2(' + mid + ', -2, event)">save</div>');
+	rtools.append('<div class="quick-tools-button" onClick="rotationClick2(' + mid + ', +1, event)"><img class="quick-tools-icon" src="../images/rotate_right.svg" /></div>');
+	rtools.append('<div class="quick-tools-button" onClick="rotationClick2(' + mid + ', -1, event)"><img class="quick-tools-icon" src="../images/rotate_left.svg" /></div>');
+	rtools.append('<div class="quick-tools-button" onClick="rotationClick2(' + mid + ', -3, event)">cancel</div>');
+
+/*
+	rtools.append('<div id="rotate-button-ok" style="background-color: #AFC; display: none;" class="quick-tools-button" onClick="rotationClick(' + mid + ', -2, event)">save</div>');
 	rtools.append('<div class="quick-tools-button" onClick="rotationClick(' + mid + ', 90, event)">CW</div>');
 	rtools.append('<div class="quick-tools-button" onClick="rotationClick(' + mid + ', 270, event)">CCW</div>');
 	rtools.append('<div class="quick-tools-button" onClick="rotationClick(' + mid + ', 180, event)">180</div>');
-	rtools.append('<div class="quick-tools-button" onClick="rotationClick(' + mid + ', 0, event)">cancel</div>');
+	rtools.append('<div class="quick-tools-button" onClick="rotationClick(' + mid + ', -3, event)">cancel</div>');
+*/
 	$('#image-enhancer-wrapper-' + mid).append(rtools);
+}
+
+function rotationClick2(mid, n, ev) {
+	if (n == -2) return rotationClick(mid, -2, ev);  //save
+	if (n == -3) return rotationClick(mid, -3, ev);  //cancel
+	rotationDeg = rotationDeg + (n * 90);
+	if (rotationDeg < 0) rotationDeg += 360;
+	rotationDeg = rotationDeg % 360;
+console.log('rotationDeg=%o', rotationDeg);
+	return rotationClick(mid, rotationDeg, ev);
 }
 
 function rotationClick(mid, deg, ev) {
 //console.info('%d, %d, %o', mid, deg, ev);
 	ev.stopPropagation();
-	if (deg > 1) {
-		$('#rotate-button-ok').show();
+	if (deg >= 0) {
+		if (deg == 0) {
+			$('#rotate-button-ok').hide();
+		} else {
+			$('#rotate-button-ok').show();
+		}
 		$('#figure-img-' + mid).css('transform', 'rotate(' + deg + 'deg)');
 		return;
 	}
-	if (deg < 0) {
+	$('.my-gallery figure').css('overflow', '');
+	if (deg == -2) {
 		//save here.....
 		$('.quick-tools').remove();
+		rotationDeg = 0;
 		return;
 	}
+	rotationDeg = 0;
 	$('#figure-img-' + mid).css('transform', 'rotate(0deg)');
 	$('#image-enhancer-wrapper-' + mid + ' canvas').show();
 	$('.quick-tools').remove();
@@ -714,6 +758,10 @@ function rotationClick(mid, deg, ev) {
 	.quick-tools-button:hover {
 		color: #333;
 		background-color: #FF8;
+	}
+	.quick-tools-icon {
+		height: 25px;
+		margin-left: 15%;
 	}
 
 	.imageenh-canvas {
