@@ -89,22 +89,47 @@ public class MediaAssetModify extends HttpServlet {
             locked = !res.optBoolean("success", false);
         }
 
+        //this supports only the 90 variations: 90,180,270
+        if ((request.getParameter("rotation") != null) && request.getParameter("rotation").matches("^(90|180|270)$")) {
+            int rot = Integer.parseInt(request.getParameter("rotation"));
+            res.put("rotationPassed", rot);
+            ArrayList<String> labels = new ArrayList<String>();
+            //find previous rotation and adjust with this one -- there should(!) only be one
+            if ((ma.getLabels() != null) && (ma.getLabels().size() > 0)) {
+                for (String l : ma.getLabels()) {
+                    if (l.matches("^rotate\\d+")) {
+                        int prev = Integer.parseInt(l.substring(6));
+                        res.put("rotationPrevious", prev);
+                        rot += prev;
+                        if (rot > 360) rot -= 360;
+                        continue;  //dont add this label
+                    }
+                    labels.add(l);
+                }
+            }
+            if (rot > 0) labels.add("rotate" + rot);
+System.out.println(" -----> " + labels);
+            ma.setLabels(labels);
+            res.put("rotationFinal", rot);
+            res.put("success", true);
+        }
+
         if (request.getParameter("lat")!=null) {
           ma.setUserLatitude(Double.valueOf(request.getParameter("lat")));
           res.put("setLatitude",Double.valueOf(request.getParameter("lat")));
-            res.put("success","true");
+            res.put("success", true);
         }
 
         if (request.getParameter("long")!=null) {
           ma.setUserLongitude(Double.valueOf(request.getParameter("long")));
           res.put("setLongitude",Double.valueOf(request.getParameter("long")));
-            res.put("success","true");
+            res.put("success", true);
         }
 
         if (request.getParameter("datetime")!=null) {
           ma.setUserDateTime(DateTime.parse(request.getParameter("datetime")));
           res.put("setDateTime",DateTime.parse(request.getParameter("datetime")).toString());
-            res.put("success","true");
+            res.put("success", true);
         }
 
       }

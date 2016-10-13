@@ -756,29 +756,38 @@ function rotationClick(mid, deg, ev) {
 		} else {
 			$('#rotate-button-ok').show();
 		}
-		$('#figure-img-' + mid).css('transform', 'rotate(' + deg + 'deg)');
+		$('#figure-img-' + mid).css('transform', 'rotate(' + deg + 'deg)').data('rotation', deg);
 		return;
 	}
 	$('.my-gallery figure').css('overflow', '');
 	if (deg == -2) {
+		var rot = $('#figure-img-' + mid).data('rotation') - 0;
+console.log('rot -> %o', rot);
 		$('.quick-tools-button').remove();
 		$('#image-enhancer-wrapper-' + mid + ' .quick-tools').append('<div class="quick-tools-button">saving...</div>');
 		$.ajax({
 			url: '../MediaAssetModify',
 			type: 'POST',
 //application/x-www-form-urlencoded
-			data: 'id=' + mid + '&rotation=' + deg,
+			data: 'id=' + mid + '&rotation=' + rot,
 			complete: function(x, s) {
 console.log('x=%o, s=%o', x, s);
 				$('.quick-tools-button').remove();
 				if (x.status == 200) {
-					$('#image-enhancer-wrapper-' + mid + ' .quick-tools').append('<div class="quick-tools-button">reloading...</div>');
-					window.location.reload();
+					if (!x.responseJSON || !x.responseJSON.success || !x.responseJSON.rotationFinal) {
+						var errmsg = (x.responseJSON ? (x.responseJSON.error || 'unknown error') : 'error rotating');
+						$('#image-enhancer-wrapper-' + mid + ' .quick-tools').append('<div title="close error" class="quick-tools-button" onClick="event.stopPropagation(); $(this).parent().remove();">' + errmsg + '</div>');
+					$('#figure-img-' + mid).css('transform', 'rotate(0deg)').data('rotation', 0);
+					} else {
+						$('#image-enhancer-wrapper-' + mid + ' .quick-tools').append('<div class="quick-tools-button">reloading...</div>');
+						///////////window.location.reload();
+					}
 				} else {
 					$('#image-enhancer-wrapper-' + mid + ' .quick-tools').append('<div title="close error" class="quick-tools-button" onClick="event.stopPropagation(); $(this).parent().remove();">FAILED: '
 						+ x.status + ' ' + x.statusText + '</div>');
-					$('#figure-img-' + mid).css('transform', 'rotate(0deg)');
+					$('#figure-img-' + mid).css('transform', 'rotate(0deg)').data('rotation', 0);
 				}
+				rotationDeg = 0;
 			},
 			dataType: 'json'
 		});
@@ -786,7 +795,7 @@ console.log('x=%o, s=%o', x, s);
 		return;
 	}
 	rotationDeg = 0;
-	$('#figure-img-' + mid).css('transform', 'rotate(0deg)');
+	$('#figure-img-' + mid).css('transform', 'rotate(0deg)').data('rotation', 0);
 	$('#image-enhancer-wrapper-' + mid + ' canvas').show();
 	$('.quick-tools').remove();
 }
