@@ -129,6 +129,7 @@ public class Feature implements java.io.Serializable {
 
     public void setParameters(JSONObject p) {
 //System.out.println("setParameters(" + p + ") called");
+        if (p != null) setParametersAsString(p.toString());
         parameters = p;
     }
 
