@@ -582,7 +582,7 @@ function drawFeature(mid) {
 	var asset = assetById(mid);
 	if (!asset) return;
 	var ft = getFocusFeature(mid);
-	if (!ft || !ft.type || (ft.type != 'org.ecocean.boundingBox')) return;
+	if (!ft || !ft.type || (ft.type != 'org.ecocean.boundingBox') || !ft.parameters) return;
 	console.warn('%o => %o', mid, ft);
 	var cw = $('#image-enhancer-wrapper-' + mid).width();
 	var ch = $('#image-enhancer-wrapper-' + mid).height();
@@ -680,16 +680,24 @@ function selectAnnotationSave(ev, mid, x1, y1, x2, y2) {
 	var scale = assetById(mid).metadata.width / $('#image-enhancer-wrapper-' + mid).width();
 	console.log('mid=%d scale=%.1f [%d,%d,%d,%d]', mid, scale, x1,y1,x2,y2);
 	$.ajax({
-		url: '../MediaAssetModify___',
+		url: '../MediaAssetModify',
 		type: 'POST',
-		data: 'id=' + mid + '&annotationId=' + assetById(mid).annotation.id + '&fx=' + Math.round(x1 * scale) + '&fy=' + Math.round(y1 * scale) +
-			'&fwidth=' + Math.round((x2 - x1) * scale) + '&fheight=' + Math.round((y2 - y1) * scale),
+		data: 'id=' + mid + '&annotationId=' + assetById(mid).annotation.id +
+			'&fx=' + Math.round(Math.min(x1, x2) * scale) +
+			'&fy=' + Math.round(Math.min(y1,y2) * scale) +
+			'&fwidth=' + Math.abs(Math.round((x2 - x1) * scale)) +
+			'&fheight=' + Math.abs(Math.round((y2 - y1) * scale)),
 		complete: function(x, s) {
 console.info('x=%o s=%o', x, s);
 			$('#image-enhancer-wrapper-' + mid + ' canvas').remove();
 			if (x.status == 200) {
 				$('#image-enhancer-wrapper-' + mid + ' .quick-tools').remove();
-///////process new Feature from json return -- add to appropriate asset!
+				if (!x.responseJSON || !x.responseJSON.success || !x.responseJSON.feature) {
+					console.warn("invalid response");
+					return;
+				}
+				assetById(mid).features = [ x.responseJSON.feature ];
+				assetById(mid).annotation.features = [ x.responseJSON.feature ];
 				drawFeature(mid);
 			} else {
 				$('.quick-tools-button').remove();
@@ -702,7 +710,7 @@ console.info('x=%o s=%o', x, s);
 	return true;
 }
 function selectAnnotationCancel(ev, mid) {
-	$('#image-enhancer-wrapper-' + mid + ' canvas').remove();
+	$('#image-enhancer-wrapper-' + mid + ' canvas.canvas-annot-select').remove();
 	$('#image-enhancer-wrapper-' + mid + ' .quick-tools').remove();
 	ev.stopPropagation();
 }
@@ -756,7 +764,7 @@ function rotationClick(mid, deg, ev) {
 		$('.quick-tools-button').remove();
 		$('#image-enhancer-wrapper-' + mid + ' .quick-tools').append('<div class="quick-tools-button">saving...</div>');
 		$.ajax({
-			url: '../MediaAssetModify___',
+			url: '../MediaAssetModify',
 			type: 'POST',
 //application/x-www-form-urlencoded
 			data: 'id=' + mid + '&rotation=' + deg,

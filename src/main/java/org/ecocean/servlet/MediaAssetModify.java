@@ -83,24 +83,32 @@ public class MediaAssetModify extends HttpServlet {
         throw new IOException("No MediaAsset in database with id "+request.getParameter("id"));
       } else {
 
+        if ((request.getParameter("annotationId") != null) && (request.getParameter("fx") != null)) {
+            FeatureType.initAll(myShepherd);
+            res = updateFeature(myShepherd, ma, request);
+            locked = !res.optBoolean("success", false);
+        }
+
         if (request.getParameter("lat")!=null) {
           ma.setUserLatitude(Double.valueOf(request.getParameter("lat")));
           res.put("setLatitude",Double.valueOf(request.getParameter("lat")));
+            res.put("success","true");
         }
 
         if (request.getParameter("long")!=null) {
           ma.setUserLongitude(Double.valueOf(request.getParameter("long")));
           res.put("setLongitude",Double.valueOf(request.getParameter("long")));
+            res.put("success","true");
         }
 
         if (request.getParameter("datetime")!=null) {
           ma.setUserDateTime(DateTime.parse(request.getParameter("datetime")));
           res.put("setDateTime",DateTime.parse(request.getParameter("datetime")).toString());
+            res.put("success","true");
         }
 
       }
 
-      res.put("success","true");
     } catch (Exception edel) {
       locked = true;
       log.warn("Failed to modify MediaAsset: " + request.getParameter("id"), edel);
@@ -117,4 +125,64 @@ public class MediaAssetModify extends HttpServlet {
     out.close();
     myShepherd.closeDBTransaction();
   }
+
+    private JSONObject updateFeature(Shepherd myShepherd, MediaAsset ma, HttpServletRequest request) {
+        JSONObject res = new JSONObject("{\"success\": \"false\"}");
+        Annotation ann = null;
+        try {
+            ann = (Annotation) (myShepherd.getPM().getObjectById(myShepherd.getPM().newObjectIdInstance(Annotation.class, request.getParameter("annotationId")), true));
+        } catch (Exception ex) {
+            res.put("error", "could not load Annotation for " + request.getParameter("annotationId"));
+            res.put("exception", ex.toString());
+            return res;
+        }
+
+        JSONObject params = new JSONObject();
+        params.put("_MediaAssetModify", System.currentTimeMillis());
+        try {
+            params.put("x", Integer.parseInt(request.getParameter("fx")));
+            params.put("y", Integer.parseInt(request.getParameter("fy")));
+            params.put("width", Integer.parseInt(request.getParameter("fwidth")));
+            params.put("height", Integer.parseInt(request.getParameter("fheight")));
+        } catch (NumberFormatException nfe) {
+            res.put("error", "could not parse parameters");
+            res.put("exception", nfe.toString());
+            return res;
+        }
+
+        //TODO philosophical dilemma: do we replace *any* Feature that already connects this Annotation to MediaAsset ??  not sure!
+        //  what if the annot rectangle has moved (we probably dont want both)...  going to [for now] decide to replace: (a) Unity or (b) boundingBox
+        Feature ft = null;
+        if (ann.getFeatures() != null) {
+            for (Feature af : ann.getFeatures()) {
+                if (af.isUnity() || af.isType("org.ecocean.boundingBox")) {  //only grab first one. oh well sorry-not-sorry
+                    ft = af;
+                    break;
+                }
+            }
+        }
+
+        if (ft == null) {
+            ft = new Feature("org.ecocean.boundingBox", params);
+            ma.addFeature(ft);
+            ann.addFeature(ft);
+        } else {
+            ft.setType(FeatureType.load("org.ecocean.boundingBox"));
+            ft.setParameters(params);
+            ft.setRevision();
+        }
+        myShepherd.getPM().makePersistent(ft);
+        myShepherd.getPM().makePersistent(ann);
+        myShepherd.getPM().makePersistent(ma);
+
+        JSONObject jft = new JSONObject();
+        jft.put("id", ft.getId());
+        jft.put("type", ft.getType().getId());
+        jft.put("parameters", params);
+        res.put("feature", jft);
+        res.put("success", true);
+        return res;
+    }
+
 }
+
