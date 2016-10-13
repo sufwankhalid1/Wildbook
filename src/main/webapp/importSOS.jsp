@@ -38,7 +38,7 @@ org.ecocean.media.*
 
 <%
 
-	File sourceFile = new File("/efs/import/data2.txt");
+	File sourceFile = new File("/efs/import/dataNA.txt");
 	String grouping = "A";
 	boolean reuseMediaAssets = true;  //probably want false
 %>
@@ -54,17 +54,26 @@ org.ecocean.media.*
 	Shepherd myShepherd=null;
 	String context = "context0";
 	myShepherd = new Shepherd(context);
+
+	myShepherd.beginDBTransaction();
+
         AssetStore astore = AssetStore.getDefault(myShepherd);
 	FeatureType.initAll(myShepherd);
 
 	List<String> dataIn = Util.readAllLines(sourceFile);
 	for (String row : dataIn) {
 		String[] fields = row.split("\t");
+		Encounter encExists = myShepherd.getEncounter(fields[0]);
+		if (encExists != null) {
+			out.println("<p>" + fields[0] + " already exists; skipping</p>");
+			continue;
+		}
 /*
 for (int i = 0 ; i < fields.length ; i++) {
 	out.println("<p><b>(" + i + ")</b>[" + fields[i] + "]</p>");
 }
 out.println("<hr />");
+if (fields.length > 0) continue;
 */
 
 
@@ -72,13 +81,15 @@ out.println("<hr />");
 		List<MediaAsset> mas = new ArrayList<MediaAsset>();
 		String comments = "";
 		boolean inComments = false;
-		for (int i = 9 ; i < fields.length ; i++) {
+		for (int i = 11 ; i < fields.length ; i++) {
 			if (fields[i].equals("comments")) {
 				inComments = true;
 				continue;
 			}
 			if (inComments) {
-				comments += "<li>" + fields[i] + "</li>";
+				if (!fields[i].equals("NA")) {
+					comments += "<li>" + fields[i] + "</li>";
+				}
 				continue;
 			}
 
@@ -131,23 +142,29 @@ System.out.println(f.toString() + " --> " + sp.toString());
 				anns.add(ann);
 			}
 			Encounter enc = new Encounter(anns);
-			enc.setYear(Integer.parseInt(fields[0].substring(0,4)));
-			enc.setMonth(Integer.parseInt(fields[0].substring(4,6)));
-			enc.setDay(Integer.parseInt(fields[0].substring(6,8)));
-			enc.setHour(Integer.parseInt(fields[1].substring(0,2)));
-			enc.setMinutes(fields[1].substring(2,4));
+			enc.setCatalogNumber(fields[0]);
+			if (!fields[1].equals("NA")) {
+				enc.setYear(Integer.parseInt(fields[1].substring(0,4)));
+				enc.setMonth(Integer.parseInt(fields[1].substring(4,6)));
+				enc.setDay(Integer.parseInt(fields[1].substring(6,8)));
+			}
+			if (!fields[2].equals("NA")) {
+				enc.setHour(Integer.parseInt(fields[2].substring(0,2)));
+				enc.setMinutes(fields[2].substring(2,4));
+			}
 			String sex = null;
-			if (!fields[2].equals("NA")) sex = fields[2].toLowerCase();
+			if (!fields[3].equals("NA")) sex = fields[3].toLowerCase();
 			enc.setSex(sex);
-			enc.setRecordedBy(fields[3]);
-			enc.setVerbatimLocality(fields[4]);
-			enc.setMatchedBy(fields[5]);
-			enc.setDecimalLatitude(Double.parseDouble(fields[7]));
-			enc.setDecimalLongitude(Double.parseDouble(fields[8]));
+			if (!fields[4].equals("NA")) enc.setRecordedBy(fields[4]);
+			if (!fields[5].equals("NA")) enc.setPhotographerName(fields[5]);
+			if (!fields[6].equals("NA"))enc.setVerbatimLocality(fields[6]);
+			if (!fields[7].equals("NA")) enc.setMatchedBy(fields[7]);
+			if (!fields[9].equals("NA")) enc.setDecimalLatitude(Double.parseDouble(fields[9]));
+			if (!fields[10].equals("NA")) enc.setDecimalLongitude(Double.parseDouble(fields[10]));
 			enc.setState("approved");
 			if (!comments.equals("")) enc.setComments("<ul>" + comments + "</ul>");
 
-			String indivId = fields[6];
+			String indivId = fields[8];
 			MarkedIndividual indiv = myShepherd.getMarkedIndividualQuiet(indivId);
 			if (indiv == null) {
 				indiv = new MarkedIndividual(indivId, enc);
@@ -167,8 +184,8 @@ break;
 
 
 
-///////myShepherd.commitDBTransaction();
-//myShepherd.closeDBTransaction();
+myShepherd.commitDBTransaction();
+myShepherd.closeDBTransaction();
 
 
 

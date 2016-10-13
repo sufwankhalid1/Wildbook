@@ -2,6 +2,7 @@
          import="com.drew.imaging.jpeg.JpegMetadataReader,com.drew.metadata.Metadata,com.drew.metadata.Tag,org.ecocean.mmutil.MediaUtilities,
 javax.jdo.datastore.DataStoreCache, org.datanucleus.jdo.*,javax.jdo.Query,
 org.datanucleus.api.rest.orgjson.JSONObject,
+org.ecocean.media.*,
 org.datanucleus.ExecutionContext,
 		 org.joda.time.DateTime,org.ecocean.*,org.ecocean.social.*,org.ecocean.servlet.ServletUtilities,java.io.File, java.util.*, org.ecocean.genetics.*,org.ecocean.security.Collaboration, com.google.gson.Gson,
 org.datanucleus.api.rest.RESTUtils, org.datanucleus.api.jdo.JDOPersistenceManager" %>
@@ -646,7 +647,9 @@ if (request.getParameter("number")!=null) {
         JSONObject newMaJson = new JSONObject();
         newMaJson = photoObjectArray.get(extraImgNo);
         String newimgUrl = newMaJson.optString("url", imgurlLoc+"/cust/mantamatcher/img/hero_manta.jpg");
-
+	MediaAsset ma = MediaAssetFactory.load(newMaJson.optInt("id", -1), myShepherd);
+	ArrayList<MediaAsset> mids = ma.findChildrenByLabel(myShepherd, "_mid");
+	if ((mids != null) && (mids.size() > 0)) newimgUrl = mids.get(0).webURL().toString();
         %>
         <div class="crop-outer">
           <div class="crop">

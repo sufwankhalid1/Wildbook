@@ -281,6 +281,7 @@ function doImageEnhancer(sel) {
 */
 	];
 
+/*
 	if (wildbook.iaEnabled()) {
 		opt.menu.push(['start new matching scan', function(enh) {
       if (!isGenusSpeciesSet()) {
@@ -294,6 +295,7 @@ function doImageEnhancer(sel) {
 			startIdentify(assetById(mid), enh.imgEl);
 		}]);
 	}
+*/
 
 	var ct = 1;
 	for (var annId in iaTasks) {
