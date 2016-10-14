@@ -91,27 +91,8 @@ public class MediaAssetModify extends HttpServlet {
 
         //this supports only the 90 variations: 90,180,270
         if ((request.getParameter("rotation") != null) && request.getParameter("rotation").matches("^(90|180|270)$")) {
-            int rot = Integer.parseInt(request.getParameter("rotation"));
-            res.put("rotationPassed", rot);
-            ArrayList<String> labels = new ArrayList<String>();
-            //find previous rotation and adjust with this one -- there should(!) only be one
-            if ((ma.getLabels() != null) && (ma.getLabels().size() > 0)) {
-                for (String l : ma.getLabels()) {
-                    if (l.matches("^rotate\\d+")) {
-                        int prev = Integer.parseInt(l.substring(6));
-                        res.put("rotationPrevious", prev);
-                        rot += prev;
-                        if (rot > 360) rot -= 360;
-                        continue;  //dont add this label
-                    }
-                    labels.add(l);
-                }
-            }
-            if (rot > 0) labels.add("rotate" + rot);
-System.out.println(" -----> " + labels);
-            ma.setLabels(labels);
-            res.put("rotationFinal", rot);
-            res.put("success", true);
+            res = rotateImage90(myShepherd, ma, Integer.parseInt(request.getParameter("rotation")));
+            locked = !res.optBoolean("success", false);
         }
 
         if (request.getParameter("lat")!=null) {
@@ -205,6 +186,49 @@ System.out.println(" -----> " + labels);
         jft.put("type", ft.getType().getId());
         jft.put("parameters", params);
         res.put("feature", jft);
+        res.put("success", true);
+        return res;
+    }
+
+    private JSONObject rotateImage90(Shepherd myShepherd, MediaAsset ma, int rot) {
+        JSONObject res = new JSONObject();
+        res.put("rotationPassed", rot);
+        ArrayList<String> labels = new ArrayList<String>();
+        //find previous rotation and adjust with this one -- there should(!) only be one
+        if ((ma.getLabels() != null) && (ma.getLabels().size() > 0)) {
+            for (String l : ma.getLabels()) {
+                if (l.matches("^rotate\\d+")) {
+                    int prev = Integer.parseInt(l.substring(6));
+                    res.put("rotationPrevious", prev);
+                    rot += prev;
+                    if (rot >= 360) rot -= 360;
+                    continue;  //dont add this label
+                }
+                labels.add(l);
+            }
+        }
+        if (rot > 0) labels.add("rotate" + rot);
+System.out.println(" -----> " + labels);
+        ma.setLabels(labels);
+
+        //now we have to generate the rotated images for each kid -- which is kinda done automagically by ImageProcessor using the label
+        ArrayList<MediaAsset> kids = ma.findChildren(myShepherd);
+        if ((kids != null) && (kids.size() > 0)) {  //but first we have to orphan the existing ones! sorrynotsorry
+            //TODO but how to we handle "non-standard" children, like derived -- we would need to rotate features etc... :( blah boooohoooo
+            ///    probably best to keep features based on coordinates of original; then rotate upon displaying etc.  big TODO
+            for (MediaAsset kma : kids) {
+                kma.setParentId(null);
+                kma.addDerivationMethod("detachedFrom", ma.getId());
+                System.out.println("INFO: detached child " + kma + " from " + ma);
+                myShepherd.getPM().makePersistent(kma);
+            }
+        }
+        ArrayList<MediaAsset> newKids = ma.updateStandardChildren(myShepherd);
+        for (MediaAsset kma : newKids) {
+            res.put("asset_" + kma.getId(), kma.webURL());
+        }
+
+        res.put("rotationFinal", rot);
         res.put("success", true);
         return res;
     }

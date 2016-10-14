@@ -774,13 +774,13 @@ console.log('rot -> %o', rot);
 console.log('x=%o, s=%o', x, s);
 				$('.quick-tools-button').remove();
 				if (x.status == 200) {
-					if (!x.responseJSON || !x.responseJSON.success || !x.responseJSON.rotationFinal) {
+					if (!x.responseJSON || !x.responseJSON.success || (x.responseJSON.rotationFinal == undefined)) {
 						var errmsg = (x.responseJSON ? (x.responseJSON.error || 'unknown error') : 'error rotating');
 						$('#image-enhancer-wrapper-' + mid + ' .quick-tools').append('<div title="close error" class="quick-tools-button" onClick="event.stopPropagation(); $(this).parent().remove();">' + errmsg + '</div>');
 					$('#figure-img-' + mid).css('transform', 'rotate(0deg)').data('rotation', 0);
 					} else {
 						$('#image-enhancer-wrapper-' + mid + ' .quick-tools').append('<div class="quick-tools-button">reloading...</div>');
-						///////////window.location.reload();
+						window.location.reload();
 					}
 				} else {
 					$('#image-enhancer-wrapper-' + mid + ' .quick-tools').append('<div title="close error" class="quick-tools-button" onClick="event.stopPropagation(); $(this).parent().remove();">FAILED: '

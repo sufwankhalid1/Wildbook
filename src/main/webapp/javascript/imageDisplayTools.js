@@ -511,6 +511,8 @@ maLib.initPhotoSwipeFromDOM = function(gallerySelector) {
 
 function mkImg(maJson) {
     var url = wildbook.cleanUrl(maJson.url);
+    var umid = maLib.getChildUrl(maJson, '_mid');
+    if (umid) url = umid;
     return '<img id="figure-img-' + maJson.id + '" data-enh-mediaAssetId="' + maJson.id + '" src="' + url + '" itemprop="contentUrl" alt=""/>';
     //return '<img class="lazyload" id="figure-img-' + maJson.id + '" data-enh-mediaAssetId="' + maJson.id + '" src="/cust/mantamatcher/img/individual_placeholder_image.jpg" data-src="' + url + '" itemprop="contentUrl" alt="Image description"/>';
 }
