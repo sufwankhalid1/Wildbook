@@ -999,9 +999,8 @@ public class Encounter implements java.io.Serializable {
     try {
       tempEnc = (Encounter) this.clone();
     } catch (java.lang.CloneNotSupportedException e) {
-      e.printStackTrace();
+      //e.printStackTrace();
     }
-
     return tempEnc;
   }
 

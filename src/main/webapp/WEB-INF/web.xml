@@ -867,6 +867,11 @@
     <servlet-class>org.ecocean.servlet.EncounterDelete</servlet-class>
   </servlet>
 
+  <servlet>
+    <servlet-name>EncounterClone</servlet-name>
+    <servlet-class>org.ecocean.servlet.EncounterClone</servlet-class>
+  </servlet>
+
     <servlet>
       <servlet-name>EncounterSetGenusSpecies</servlet-name>
       <servlet-class>org.ecocean.servlet.EncounterSetGenusSpecies</servlet-class>
@@ -1657,6 +1662,11 @@
   <servlet-mapping>
     <servlet-name>EncounterDelete</servlet-name>
     <url-pattern>/EncounterDelete</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>EncounterClone</servlet-name>
+    <url-pattern>/EncounterClone</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>
