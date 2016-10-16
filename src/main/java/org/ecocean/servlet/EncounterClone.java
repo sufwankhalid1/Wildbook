@@ -10,6 +10,7 @@ import java.io.PrintWriter;
 import org.json.JSONObject;
 import org.json.JSONArray;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.ecocean.media.MediaAsset;
 import org.ecocean.media.MediaAssetFactory;
@@ -41,29 +42,39 @@ public class EncounterClone extends HttpServlet {
         if (enc == null) {
             res.put("error", "unknown Encounter id " + id);
         } else {
-            //Encounter newEnc = enc.cloneWithoutAnnotations();
-            //newEnc.setIndividualID(enc.getIndividualID);  //TODO shouldnt some of this stuff be in .clone ?
-            Encounter newEnc = enc.getClone();
-            newEnc.setCatalogNumber(Util.generateUUID());
-            newEnc.setComments("cloned from Encounter " + enc.getCatalogNumber());
-            newEnc.setDWCDateLastModified();
-
-            ArrayList<Annotation> anns = new ArrayList<Annotation>();
+            //get the MediaAssets once
+            List<MediaAsset> mas = new ArrayList<MediaAsset>();
             JSONArray jarr = jreq.optJSONArray("assets");
-            String species = enc.getTaxonomyString();
             if ((jarr != null) && (jarr.length() > 0)) {
                 for (int i = 0 ; i < jarr.length() ; i++) {
                     MediaAsset ma = MediaAssetFactory.load(jarr.optInt(i, -1), myShepherd);
-                    if (ma == null) continue;
-                    anns.add(new Annotation(species, ma));
+                    if (ma != null) mas.add(ma);
                 }
             }
-            if (anns.size() > 0) newEnc.setAnnotations(anns);
-            myShepherd.getPM().makePersistent(newEnc);
+
+            String species = enc.getTaxonomyString();
+            int number = jreq.optInt("number", 1);  //how many clones to make
+            JSONArray encsMade = new JSONArray();
+
+            for (int i = 0 ; i < number ; i++) {
+                Encounter newEnc = enc.cloneWithoutAnnotations();
+                newEnc.setComments((i+1) + " of " + number + " cloned from Encounter " + enc.getCatalogNumber());
+
+                ArrayList<Annotation> anns = new ArrayList<Annotation>();
+                for (MediaAsset ma : mas) {
+                    anns.add(new Annotation(species, ma));
+                }
+                if (anns.size() > 0) newEnc.setAnnotations(anns);
+
+                System.out.println("INFO: cloned " + newEnc.getCatalogNumber() + " (" + (i+1) + " of " + number + ") from " + enc + " including: " + anns);
+                myShepherd.getPM().makePersistent(newEnc);
+                encsMade.put(newEnc.getCatalogNumber());
+            }
             myShepherd.commitDBTransaction();
+
             res.remove("error");
             res.put("success", true);
-            res.put("newEncounterId", newEnc.getCatalogNumber());
+            res.put("encounterIds", encsMade);
         }
     }
     PrintWriter out = response.getWriter();
