@@ -318,22 +318,48 @@ console.info('%o %o', el, ev);
 		if (imgUsed < 1) {
 			$('#clone-do-button').hide().after('<span id="clone-error">You must have at least one image selected.</span>');
 		} else {
+			$('#clone-error').remove();
 			$('#clone-do-button').show();
 			$('#zero-error').remove();
 		}
 	}
 	function cloneDo() {
+		var cdata = {
+			id: encounterNumber,
+			number: $('#clone-count').val(),
+			assets: []
+		};
+		$('.quick-tools-button input:checked').each(function(i,el) {
+			cdata.assets.push($(el).parent().attr('id').substr(9));
+		});
 		$('#clone-progress').remove();
 		$('#clone-widget').hide();
 		$('.quick-tools').remove();
 		$('#clone-tool').append('<div id="clone-progress"><img src="../images/throbber.gif" /> Cloning....</div>');
+//console.info(cdata);
 		$.ajax({
 			url: '../EncounterClone',
 			type: 'POST',
-			complete: function(a,b,c) {
-console.warn('%o %o %o', a, b, c);
-				$('#clone-progress').html('<div id="clone-error">error</div>');
-				$('#clone-widget').show();
+			data: JSON.stringify(cdata),
+			complete: function(x, s) {
+				if (x.status == 200) {
+					if (!x.responseJSON || !x.responseJSON.success || !x.responseJSON.encounterIds) {
+						$('#clone-progress').html('<div id="clone-error">' +
+						((x.responseJSON && x.responseJSON.error) || 'unknown error') + '</div>');
+						$('#clone-widget').show();
+					} else {
+						var h = '';
+						for (var i = 0 ; i < x.responseJSON.encounterIds.length ; i++) {
+							h += ' <a target="_new" href="encounter.jsp?number=' + x.responseJSON.encounterIds[i] +
+							'" title="' + x.responseJSON.encounterIds[i] + '">[enc ' + (i+1) + ']</a>';
+						}
+						$('#clone-progress').html('<div>Successfully created:<b>' + h + '</b> ' +
+						'<input style="margin: -5px 0 0 25px;" type="button" value="OK" onClick="return cloneCancel()" /></div>');
+					}
+				} else {
+					$('#clone-progress').html('<div id="clone-error">' + x.status + ' ' + x.statusText + '</div>');
+					$('#clone-widget').show();
+				}
 			},
 			dataType: 'json'
 		});
