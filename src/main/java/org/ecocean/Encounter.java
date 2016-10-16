@@ -999,9 +999,8 @@ public class Encounter implements java.io.Serializable {
     try {
       tempEnc = (Encounter) this.clone();
     } catch (java.lang.CloneNotSupportedException e) {
-      e.printStackTrace();
+      //e.printStackTrace();
     }
-
     return tempEnc;
   }
 
@@ -2663,6 +2662,15 @@ throw new Exception();
     public Encounter cloneWithoutAnnotations() {
         Encounter enc = new Encounter(this.day, this.month, this.year, this.hour, this.minutes, this.size_guess, this.verbatimLocality, this.recordedBy, this.submitterEmail, null);
         enc.setCatalogNumber(Util.generateUUID());
+        enc.setDecimalLatitude(this.decimalLatitude);
+        enc.setDecimalLongitude(this.decimalLongitude);
+        enc.setOccurrenceID(this.occurrenceID);
+        enc.setGenus(this.genus);
+        enc.setSpecificEpithet(this.specificEpithet);
+        // i think these would not be duplicated for another animal in the same photo?
+        //enc.setLifeStage(this.lifeStage);
+        //enc.setIndividualID(this.individualID);
+        //enc.setSex(this.sex);
         return enc;
     }
 

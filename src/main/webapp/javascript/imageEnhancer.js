@@ -9,16 +9,17 @@ console.log('=============???? %o', ev);
         if (!opt) opt = {};
         opt._count = jQuery(selector).length;
         jQuery(selector).each(function(i, el) {
+console.warn('%d >>>>>>>>>>>>>>>>>> %o complete=%o %o', i, el, el.complete, opt._count);
             if (el.complete) {
                 imageEnhancer.apply(el, opt);
                 opt._count--;
-                if (opt.callback && (opt._count < 1)) opt.callback();
+                //if (opt.callback && (opt._count < 1)) opt.callback();
             } else {
                 $(el).on('load', function(ev) {
 console.log('?????????????????????????????????????????????? DELAYED IMG LOAD ?????????? %o', ev);
                     imageEnhancer.apply(ev.target, opt);
                     opt._count--;
-                    if (opt.callback && (opt._count < 1)) opt.callback();
+                    //if (opt.callback && (opt._count < 1)) opt.callback();
                 });
             }
         });
@@ -30,7 +31,7 @@ console.log('?????????????????????????????????????????????? DELAYED IMG LOAD ???
         var mid = jel.data('enh-mediaassetid');
         var parEl = jel.parent();  //TODO what if there is none... oops???
         if (parEl.prop('tagName') == 'A') parEl = parEl.parent();
-console.info('imageEnhancer.apply to %o with opt %o (parEl=%o)', el, opt, parEl);
+console.info('imageEnhancer.apply to %o with opt %o (parEl=%o) el.complete=%o', el, opt, parEl, el.complete);
         if (typeof opt != 'object') opt = {};
 
         if (parEl.css('position') == 'static') parEl.css('position', 'relative');
@@ -64,24 +65,56 @@ console.info('assigning event %s', e);
 
         //now we store opt on the actual dom element
         wrapper[0].enhancer = { opt: opt, imgEl: jel };
+console.warn(' ---------- out? ------------ ');
+        return true;
     },
 
     wrapperSizeSetFromImg: function(el) {
         var img = el.find('img');
+        if (img.prop('complete')) {
+console.warn('============================ complete!!!! ===========================');
+            imageEnhancer._wrapperReady(img, el, {target: img[0]});
+        } else {
+console.warn('============================ WAITING ===========================');
+            img.on('load', function(ev) {
+console.warn(' ????????? LOADED ???????????? ');
+                imageEnhancer._wrapperReady(img, el, ev);
+            });
+        }
+
+/*
         img.on('load', function(ev) {
             var ji = $(ev.target);
 console.log(' ><<<<<<<<>>>>>>>>>>>>> %o', ji);
             var id = ji.data('enh-mediaassetid');
             var w = el.find('#image-enhancer-wrapper-' + id);
-//console.log('img = %o / w = %o', img, w);
-//console.log('img.length -----> %o', img.length);
-//console.log(' .complete? %o', img.prop('complete'));
-//console.warn('img => %o', img);
-//console.warn('%d x %d', img.width(), img.height());
+console.log('img = %o / w = %o', img, w);
+console.log('img.length -----> %o', img.length);
+console.log(' .complete? %o', img.prop('complete'));
+console.warn('img => %o', img);
+console.warn('%d x %d', img.width(), img.height());
             w.css('width', ji.width());
             w.css('height', ji.height());
         });
+*/
+
     },
+
+
+    _wrapperReady: function(img, el, ev) {
+        var ji = $(ev.target);
+console.log(' ><<<<<<<<>>>>>>>>>>>>> %o', ji);
+        var id = ji.data('enh-mediaassetid');
+        var w = el.find('#image-enhancer-wrapper-' + id);
+console.log('img = %o / w = %o', img, w);
+console.log('img.length -----> %o', img.length);
+console.log(' .complete? %o', img.prop('complete'));
+console.warn('img => %o', img);
+console.warn('%d x %d', img.width(), img.height());
+        w.css('width', ji.width());
+        w.css('height', ji.height());
+    },
+
 
     squareElement: function(el) {
       el.css('height', el.css('width'));

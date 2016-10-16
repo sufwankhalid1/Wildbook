@@ -37,13 +37,14 @@ String encNum = request.getParameter("encounterNumber");
 
 // collect every MediaAsset as JSON into the 'all' array
 JSONArray all = new JSONArray();
+Encounter enc = null;
 List<String[]> captionLinks = new ArrayList<String[]>();
 try {
 
   String langCode=ServletUtilities.getLanguageCode(request);
   Properties encprops = new Properties();
   encprops = ShepherdProperties.getProperties("encounter.properties", langCode,context);
-  Encounter enc = imageShepherd.getEncounter(encNum);
+  enc = imageShepherd.getEncounter(encNum);
   ArrayList<Annotation> anns = enc.getAnnotations();
   %>
   <script>
@@ -121,6 +122,18 @@ JSONObject iaTasks = new JSONObject();
   			JSONObject j = ma.sanitizeJson(request, new JSONObject());
   			if (j != null) {
 				j.put("annotationId", ann.getId());
+				JSONObject jann = new JSONObject();
+				jann.put("id", ann.getId());
+				JSONArray feats = new JSONArray();
+				for (Feature f : ann.getFeatures()) {
+					JSONObject jf = new JSONObject();
+					jf.put("id", f.getId());
+					jf.put("type", f.getType());
+					jf.put("parameters", Util.toggleJSONObject(f.getParameters()));
+					feats.put(jf);
+				}
+				jann.put("features", feats);
+				j.put("annotation", jann);
 				all.put(j);
 			}
   		}
@@ -197,6 +210,13 @@ for (int i=0; i<captionLinks.size(); i++) {
   // so here we load .my-gallery with all of the MediaAssets --- done with maJsonToFigureElem.
   var assets = <%=all.toString()%>;
   var captions = <%=captions.toString()%>
+  var encounterAnnotationIds = <%
+	JSONArray ea = new JSONArray();
+	for (Annotation ann : enc.getAnnotations()) {
+		ea.put(ann.getId());
+	}
+	out.println(ea.toString());
+%>
   captions.forEach( function(elem) {
     console.log("caption here: "+elem);
   })
@@ -260,6 +280,20 @@ jQuery(document).ready(function() {
 });
 
 function doImageEnhancer(sel) {
+	imagesLoading = false;
+	$(sel).each(function(i, el) {
+console.log('%d >>>>> %o ?%o', i, el, el.complete);
+		if (!el.complete) {
+			imagesLoading = true;
+			console.log('= = = = waiting on %d -> %o', i, el.complete);
+		}
+	});
+	if (imagesLoading) {  //wait (async); bail and repeat
+console.info('waiting to try again...........................');
+		setTimeout(function() { doImageEnhancer(sel); }, 700);
+		return;
+	}
+
     var loggedIn = wildbookGlobals.username && (wildbookGlobals.username != "");
     var opt = {
     };
@@ -267,13 +301,17 @@ function doImageEnhancer(sel) {
     if (loggedIn) {
         opt.debug = false;
         opt.menu = [
+/*
             ['remove this image', function(enh) {
 		removeAsset(enh.imgEl.prop('id').substring(11));
             }],
-/*
-            ['replace this image', function(enh) {
-            }],
 */
+            ['select focus cat', function(enh) {
+		selectAnnotation(enh.imgEl.prop('id').substring(11));
+            }],
+	    ['rotate image', function(enh) {
+		rotationUI(enh.imgEl.prop('id').substring(11));
+	    }]
 	];
 
 	if (wildbook.iaEnabled()) {
@@ -305,6 +343,7 @@ function doImageEnhancer(sel) {
 		]);
 	}
 
+/*
 	opt.menu.push(
             [
 		function(enh) { return imagePopupInfoMenuItem(enh); },
@@ -312,7 +351,6 @@ function doImageEnhancer(sel) {
             ]
 	);
 
-/*
         if (true) {
             opt.menu.push(['set image as encounter thumbnail', function(enh) {
             }]);
@@ -324,6 +362,7 @@ function doImageEnhancer(sel) {
 console.info(' ===========>   %o %o', el, enh);
 		imageLayerKeywords(el, enh);
             },
+            function(el, enh) { drawFeature(el.prop('id').substring(23)); }
         ];
 
     }
@@ -532,8 +571,274 @@ function assetById(mid) {
 	return false;
 }
 
+function getFocusFeature(mid) {
+	if (!assetById(mid) || !assetById(mid).annotation || !assetById(mid).annotation.features || (assetById(mid).annotation.features.length < 1)) return false;
+	//do we know for sure there will be only one????
+	console.info(assetById(mid).annotation.features[0]);
+	return assetById(mid).annotation.features[0];
+}
+
+function drawFeature(mid) {
+	var asset = assetById(mid);
+	if (!asset) return;
+	var ft = getFocusFeature(mid);
+	if (!ft || !ft.type || (ft.type != 'org.ecocean.boundingBox') || !ft.parameters) return;
+	console.warn('%o => %o', mid, ft);
+	var cw = $('#image-enhancer-wrapper-' + mid).width();
+	var ch = $('#image-enhancer-wrapper-' + mid).height();
+	console.warn('w=%d, h=%d', cw, ch);
+	var canvas = $('<canvas class="canvas-feature imageenh-canvas" width="' + cw + '" height="' + ch + '"></canvas>');
+	$('#image-enhancer-wrapper-' + mid).append(canvas);
+
+	var scale = 1;
+	if (asset.metadata && asset.metadata.width) scale = cw / asset.metadata.width;
+console.warn('scale = %f', scale);
+	var ctx = canvas[0].getContext('2d');
+	ctx.beginPath();
+	ctx.lineWidth = '3';
+	ctx.strokeStyle = 'rgba(200,255,0,0.7)';
+	ctx.rect(ft.parameters.x * scale, ft.parameters.y * scale, ft.parameters.width * scale, ft.parameters.height * scale);
+	ctx.stroke();
+
+	canvas.on('mousemove click', function(ev) {
+		if ((ev.offsetX < ft.parameters.x * scale) || (ev.offsetX > scale * (ft.parameters.x + ft.parameters.width)) ||
+		    (ev.offsetY < ft.parameters.y * scale) || (ev.offsetY > scale * (ft.parameters.y + ft.parameters.height))) {
+			ev.target.style.cursor = 'inherit';
+			ev.target.title = "";
+			return;
+		}
+		ev.target.style.cursor = 'pointer';
+		ev.target.title = "this is the cat!";
+		ev.stopPropagation();
+if (ev.type == 'click') console.warn(ft);
+	});
+}
+
+var selectAnnotationStart = false;
+function selectAnnotation(mid) {
+	var ft = getFocusFeature(mid);
+	if (!ft) ft = {
+		type: 'org.ecocean.boundingBox',
+		parameters: { x: 20, y: 20, w: 100, h: 100 }
+	};
+	console.warn('%o => %o', mid, ft);
+	var canvas = $('<canvas class="canvas-annot-select imageenh-canvas" width="' + $('#image-enhancer-wrapper-' + mid).width() +
+		'" height="' + $('#image-enhancer-wrapper-' + mid).height() + '"></canvas>');
+	$('#image-enhancer-wrapper-' + mid).append(canvas);
+	canvas.on('mouseup mousedown mousemove click', function(ev) { selectAnnotationMouse(ev, mid); });
+/*
+	canvas.on('mousedown', function(ev) { selectAnnotationMouse(ev); });
+	canvas.on('mousemove', function(ev) { selectAnnotationMouse(ev); });
+	canvas.on('click', function(ev) { selectAnnotationMouse(ev); });
+*/
+}
+
+function selectAnnotationMouse(ev, mid) {
+	ev.stopPropagation();
+	ev.preventDefault();
+	if (ev.type == 'click') return;
+	if (ev.type == 'mousedown') {
+		$('#image-enhancer-wrapper-' + mid + ' .quick-tools').remove();
+		selectAnnotationStart = [ev.offsetX, ev.offsetY];
+		return;
+	}
+	if (ev.type == 'mouseup') {
+		//var rect = [selectAnnotationStart[0], selectAnnotationStart[1], ev.offsetX, ev.offsetY];
+		$('#image-enhancer-wrapper-' + mid).append('<div class="quick-tools" style="left: ' + (ev.offsetX + 10) + 'px; top: ' + (ev.offsetY + 10) + 'px">' +
+			'<div class="quick-tools-button" onClick="return selectAnnotationSave(event, ' +
+				[mid, selectAnnotationStart[0], selectAnnotationStart[1], ev.offsetX, ev.offsetY].join(', ') + ');">save</div>' +
+			'<div class="quick-tools-button" onClick="return selectAnnotationCancel(event, ' + mid + ');">cancel</div>' +
+			'</div>'
+		);
+		selectAnnotationStart = false;
+		//console.info(rect);
+	}
+	if (selectAnnotationStart && (ev.type == 'mousemove')) {
+		//console.warn(ev);
+		var ctx = ev.target.getContext('2d');
+		ctx.clearRect(0, 0, ev.target.width, ev.target.height);
+		ctx.beginPath();
+		ctx.lineWidth = '3';
+		ctx.strokeStyle = 'rgba(255,255,0,0.7)';
+		ctx.rect(
+			Math.min(selectAnnotationStart[0], ev.offsetX),
+			Math.min(selectAnnotationStart[1], ev.offsetY),
+			Math.abs(selectAnnotationStart[0] - ev.offsetX),
+			Math.abs(selectAnnotationStart[1] - ev.offsetY)
+		);
+		ctx.stroke();
+	}
+}
+
+function selectAnnotationSave(ev, mid, x1, y1, x2, y2) {
+	ev.stopPropagation();
+	if (!assetById(mid) || !assetById(mid).metadata || !assetById(mid).metadata.width || !assetById(mid).annotation) {
+		alert('could not determine image width or annotation');
+		console.warn('could not determine image metadata width or annotation for mid=%o', mid);
+		return false;
+	}
+	var scale = assetById(mid).metadata.width / $('#image-enhancer-wrapper-' + mid).width();
+	console.log('mid=%d scale=%.1f [%d,%d,%d,%d]', mid, scale, x1,y1,x2,y2);
+	$.ajax({
+		url: '../MediaAssetModify',
+		type: 'POST',
+		data: 'id=' + mid + '&annotationId=' + assetById(mid).annotation.id +
+			'&fx=' + Math.round(Math.min(x1, x2) * scale) +
+			'&fy=' + Math.round(Math.min(y1,y2) * scale) +
+			'&fwidth=' + Math.abs(Math.round((x2 - x1) * scale)) +
+			'&fheight=' + Math.abs(Math.round((y2 - y1) * scale)),
+		complete: function(x, s) {
+console.info('x=%o s=%o', x, s);
+			$('#image-enhancer-wrapper-' + mid + ' canvas').remove();
+			if (x.status == 200) {
+				$('#image-enhancer-wrapper-' + mid + ' .quick-tools').remove();
+				if (!x.responseJSON || !x.responseJSON.success || !x.responseJSON.feature) {
+					console.warn("invalid response");
+					return;
+				}
+				assetById(mid).features = [ x.responseJSON.feature ];
+				assetById(mid).annotation.features = [ x.responseJSON.feature ];
+				drawFeature(mid);
+			} else {
+				$('.quick-tools-button').remove();
+				$('#image-enhancer-wrapper-' + mid + ' .quick-tools').append('<div title="close error" class="quick-tools-button" onClick="event.stopPropagation(); $(this).parent().remove();">FAILED: '
+					+ x.status + ' ' + x.statusText + '</div>');
+			}
+		},
+		dataType: 'json'
+	});
+	return true;
+}
+function selectAnnotationCancel(ev, mid) {
+	$('#image-enhancer-wrapper-' + mid + ' canvas.canvas-annot-select').remove();
+	$('#image-enhancer-wrapper-' + mid + ' .quick-tools').remove();
+	ev.stopPropagation();
+}
+
+
+
+var rotationDeg = 0;
+function rotationUI(mid) {
+	$('.my-gallery figure').css('overflow', 'hidden');
+	$('#image-enhancer-wrapper-' + mid + ' canvas').hide();
+	var rtools = $('<div class="quick-tools" style="right: 4px; bottom: 4px;"></div>');
+	rtools.append('<div id="rotate-button-ok" style="background-color: #AFC; display: none;" class="quick-tools-button" onClick="rotationClick2(' + mid + ', -2, event)">save</div>');
+	rtools.append('<div class="quick-tools-button" onClick="rotationClick2(' + mid + ', +1, event)"><img class="quick-tools-icon" src="../images/rotate_right.svg" /></div>');
+	rtools.append('<div class="quick-tools-button" onClick="rotationClick2(' + mid + ', -1, event)"><img class="quick-tools-icon" src="../images/rotate_left.svg" /></div>');
+	rtools.append('<div class="quick-tools-button" onClick="rotationClick2(' + mid + ', -3, event)">cancel</div>');
+
+/*
+	rtools.append('<div id="rotate-button-ok" style="background-color: #AFC; display: none;" class="quick-tools-button" onClick="rotationClick(' + mid + ', -2, event)">save</div>');
+	rtools.append('<div class="quick-tools-button" onClick="rotationClick(' + mid + ', 90, event)">CW</div>');
+	rtools.append('<div class="quick-tools-button" onClick="rotationClick(' + mid + ', 270, event)">CCW</div>');
+	rtools.append('<div class="quick-tools-button" onClick="rotationClick(' + mid + ', 180, event)">180</div>');
+	rtools.append('<div class="quick-tools-button" onClick="rotationClick(' + mid + ', -3, event)">cancel</div>');
+*/
+	$('#image-enhancer-wrapper-' + mid).append(rtools);
+}
+
+function rotationClick2(mid, n, ev) {
+	if (n == -2) return rotationClick(mid, -2, ev);  //save
+	if (n == -3) return rotationClick(mid, -3, ev);  //cancel
+	rotationDeg = rotationDeg + (n * 90);
+	if (rotationDeg < 0) rotationDeg += 360;
+	rotationDeg = rotationDeg % 360;
+console.log('rotationDeg=%o', rotationDeg);
+	return rotationClick(mid, rotationDeg, ev);
+}
+
+function rotationClick(mid, deg, ev) {
+//console.info('%d, %d, %o', mid, deg, ev);
+	ev.stopPropagation();
+	if (deg >= 0) {
+		if (deg == 0) {
+			$('#rotate-button-ok').hide();
+		} else {
+			$('#rotate-button-ok').show();
+		}
+		$('#figure-img-' + mid).css('transform', 'rotate(' + deg + 'deg)').data('rotation', deg);
+		return;
+	}
+	$('.my-gallery figure').css('overflow', '');
+	if (deg == -2) {
+		var rot = $('#figure-img-' + mid).data('rotation') - 0;
+console.log('rot -> %o', rot);
+		$('.quick-tools-button').remove();
+		$('#image-enhancer-wrapper-' + mid + ' .quick-tools').append('<div class="quick-tools-button">saving...</div>');
+		$.ajax({
+			url: '../MediaAssetModify',
+			type: 'POST',
+//application/x-www-form-urlencoded
+			data: 'id=' + mid + '&rotation=' + rot,
+			complete: function(x, s) {
+console.log('x=%o, s=%o', x, s);
+				$('.quick-tools-button').remove();
+				if (x.status == 200) {
+					if (!x.responseJSON || !x.responseJSON.success || (x.responseJSON.rotationFinal == undefined)) {
+						var errmsg = (x.responseJSON ? (x.responseJSON.error || 'unknown error') : 'error rotating');
+						$('#image-enhancer-wrapper-' + mid + ' .quick-tools').append('<div title="close error" class="quick-tools-button" onClick="event.stopPropagation(); $(this).parent().remove();">' + errmsg + '</div>');
+					$('#figure-img-' + mid).css('transform', 'rotate(0deg)').data('rotation', 0);
+					} else {
+						$('#image-enhancer-wrapper-' + mid + ' .quick-tools').append('<div class="quick-tools-button">reloading...</div>');
+						window.location.reload();
+					}
+				} else {
+					$('#image-enhancer-wrapper-' + mid + ' .quick-tools').append('<div title="close error" class="quick-tools-button" onClick="event.stopPropagation(); $(this).parent().remove();">FAILED: '
+						+ x.status + ' ' + x.statusText + '</div>');
+					$('#figure-img-' + mid).css('transform', 'rotate(0deg)').data('rotation', 0);
+				}
+				rotationDeg = 0;
+			},
+			dataType: 'json'
+		});
+		rotationDeg = 0;
+		return;
+	}
+	rotationDeg = 0;
+	$('#figure-img-' + mid).css('transform', 'rotate(0deg)').data('rotation', 0);
+	$('#image-enhancer-wrapper-' + mid + ' canvas').show();
+	$('.quick-tools').remove();
+}
+
 </script>
 <style>
+	.my-gallery figure {
+		/*overflow: hidden;   to hide rotated image */
+	}
+	.quick-tools {
+		position: absolute;
+		z-index: 20;
+	}
+	.quick-tools-button {
+		margin: 3px 0;
+		padding: 0 5px;
+		background-color: white;
+		border: solid 2px #444;
+		cursor: pointer !important;
+		border-radius: 4px;
+		color: #AAA;
+	}
+	.quick-tools-button:hover {
+		color: #333;
+		background-color: #FF8;
+	}
+	.quick-tools-icon {
+		height: 25px;
+		margin-left: 15%;
+	}
+
+	.imageenh-canvas {
+		position: absolute;
+	}
+	.canvas-annot-select {
+		cursor: crosshair;
+		cursor: cell;
+		cursor: move;
+	}
+	.canvas-feature {
+		/* cursor: pointer; */
+	}
+
 	#match-tools {
 		padding: 5px 15px;
 		display: inline-block;
