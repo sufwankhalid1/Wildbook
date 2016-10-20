@@ -59,6 +59,7 @@ public class EncounterClone extends HttpServlet {
             for (int i = 0 ; i < number ; i++) {
                 Encounter newEnc = enc.cloneWithoutAnnotations();
                 newEnc.setComments((i+1) + " of " + number + " cloned from Encounter " + enc.getCatalogNumber());
+                newEnc.setState("unapproved");
 
                 ArrayList<Annotation> anns = new ArrayList<Annotation>();
                 for (MediaAsset ma : mas) {
@@ -66,6 +67,14 @@ public class EncounterClone extends HttpServlet {
                 }
                 if (anns.size() > 0) newEnc.setAnnotations(anns);
 
+                String cto = enc.getDynamicPropertyValue("clonedTo");
+                if (cto == null) {
+                    cto = newEnc.getCatalogNumber();
+                } else {
+                    cto += ":" + newEnc.getCatalogNumber();
+                }
+                enc.setDynamicProperty("clonedTo", cto);
+                newEnc.setDynamicProperty("clonedFrom", enc.getEncounterNumber());
                 System.out.println("INFO: cloned " + newEnc.getCatalogNumber() + " (" + (i+1) + " of " + number + ") from " + enc + " including: " + anns);
                 myShepherd.getPM().makePersistent(newEnc);
                 encsMade.put(newEnc.getCatalogNumber());

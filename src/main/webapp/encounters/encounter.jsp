@@ -143,6 +143,32 @@ String langCode=ServletUtilities.getLanguageCode(request);
   <style type="text/css">
     <!--
 
+#clone-tree {
+	margin: 15px 0 0 20px;
+}
+
+#clone-tree a {
+	padding: 0 5px;
+	background-color: #DDD;
+	border: solid 1px #222;
+	border-radius: 5px;
+	margin: 0 5px;
+}
+#clone-tree a:hover {
+	background-color: #FF4;
+	text-decoration: none;
+}
+a.clone-just-added {
+	background-color: #5F0 !important;
+}
+
+#clone-error {
+	font-size: 0.9em;
+	padding: 2px 7px;
+	background-color: #F88;
+	margin: 3px 10px;
+}
+
 	#spot-image-wrapper-left,
 	#spot-image-wrapper-right
 	{
@@ -349,12 +375,21 @@ console.info('%o %o', el, ev);
 						$('#clone-widget').show();
 					} else {
 						var h = '';
-						for (var i = 0 ; i < x.responseJSON.encounterIds.length ; i++) {
-							h += ' <a target="_new" href="encounter.jsp?number=' + x.responseJSON.encounterIds[i] +
-							'" title="' + x.responseJSON.encounterIds[i] + '">[enc ' + (i+1) + ']</a>';
+						var clist = $('#clone-list');
+						if (!clist.length) {
+							$('#clone-tree').append('<b>Cloned to:</b> <span id="clone-list"></span>');
+							clist = $('#clone-list');
 						}
-						$('#clone-progress').html('<div>Successfully created:<b>' + h + '</b> ' +
+						var numAlready = clist.find('a').length;
+						for (var i = 0 ; i < x.responseJSON.encounterIds.length ; i++) {
+							h += ' <a class="clone-just-added" target="_new" href="encounter.jsp?number=' + x.responseJSON.encounterIds[i] +
+							'" title="' + x.responseJSON.encounterIds[i] + '">' + (i + numAlready + 1) + '</a>';
+						}
+						clist.append(h);
+						$('#clone-progress').html('<div class="clone-tree">Successfully cloned.' +
 						'<input style="margin: -5px 0 0 25px;" type="button" value="OK" onClick="return cloneCancel()" /></div>');
+						//$('#clone-progress').html('<div class="clone-tree">Successfully created:<b>' + h + '</b> ' +
+						//'<input style="margin: -5px 0 0 25px;" type="button" value="OK" onClick="return cloneCancel()" /></div>');
 					}
 				} else {
 					$('#clone-progress').html('<div id="clone-error">' + x.status + ' ' + x.statusText + '</div>');
@@ -701,6 +736,22 @@ $(function() {
 			<input style="margin: -5px 0 0 10px;" id="clone-button-open" type="button" value="Clone encounter" onClick="return cloneToolOpen()" />
 		</div>
 	</div>
+	<div id="clone-tree">
+<%
+	String cto = enc.getDynamicPropertyValue("clonedTo");
+	String cfrom = enc.getDynamicPropertyValue("clonedFrom");
+	if (cfrom != null) out.println("<a target=\"_new\" href=\"encounter.jsp?number=" + cfrom + "\" title=\"" + cfrom + "\">clone source</a>");
+	if (cto != null) {
+		out.println("<b>Cloned to:</b> <span id=\"clone-list\">");
+		String[] toIds = cto.split(":");
+		for (int ci = 0 ; ci < toIds.length ; ci++) {
+			out.println("<a target=\"_new\" href=\"encounter.jsp?number=" + toIds[ci] + "\" title=\"" + toIds[ci] + "\">" + (ci + 1) + "</a>");
+		}
+		out.println("</span>");
+	}
+%>
+	</div>
+
 <% } %>
 
 			</p>
@@ -3799,13 +3850,6 @@ $("a#dynamicPropertyAdd").click(function() {
 
 <script src="../tools/flow.min.js"></script>
 <style>
-
-#clone-error {
-	font-size: 0.9em;
-	padding: 2px 7px;
-	background-color: #F88;
-	margin: 3px 10px;
-}
 
 div#add-image-zone {
   background-color: #e8e8e8;
