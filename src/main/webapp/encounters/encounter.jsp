@@ -143,6 +143,10 @@ String langCode=ServletUtilities.getLanguageCode(request);
   <style type="text/css">
     <!--
 
+a.launchPopup {
+	cursor: pointer;
+}
+
 .disputed-identity {
 	padding: 0 5px;
 	background-color: #D20;
@@ -933,7 +937,7 @@ Identity is <b>partially approved</b>
       										<td align="left" valign="top">
         										<form name="add2shark" action="../IndividualAddEncounter" method="post">
         											<%=encprops.getProperty("individual")%>:
-              											<input name="individual" type="text" size="10" maxlength="50" /><br /> <%=encprops.getProperty("matchedBy")%>:<br />
+              											<input name="individual" class="individual-autocomplete search-query ui-autocomplete-input" autocomplete="off" type="text" size="10" maxlength="50" /><br /> <%=encprops.getProperty("matchedBy")%>:<br />
           												<select name="matchType" id="matchType">
             												<option value="Unmatched first encounter"><%=encprops.getProperty("unmatchedFirstEncounter")%></option>
             												<option value="Visual inspection"><%=encprops.getProperty("visualInspection")%></option>
@@ -5652,5 +5656,36 @@ String pswipedir = urlLoc+"/photoswipe";
 <script src='<%=pswipedir%>/photoswipe.js'></script>
 <script src='<%=pswipedir%>/photoswipe-ui-default.js'></script>
 
+
+<script type="text/javascript">
+$(document).ready(function() {
+	$('.individual-autocomplete').autocomplete({
+		appendTo: $('form[name="add2shark"]'),
+		response: function(ev, ui) {
+			//console.info('response: %o %o', ev, ui);
+		},
+		select: function(ev, ui) {
+			//console.info('select: %o %o', ev, ui);
+			ev.target.value = ui.item.value;
+			return false;
+		},
+		source: function(request, response) {
+			//console.info('source: %o %o', request, response);
+			$.ajax({
+				url: '<%=("http://" + CommonConfiguration.getURLLocation(request)) %>/SiteSearch',
+				dataType: 'json',
+				data: { term: request.term },
+				success: function(d) {
+					var res = $.map(d, function(item) {
+						if (item.type != 'individual') return undefined;  //only care about individual ids
+						return d;
+					});
+					response(res);
+				}
+			});
+		}
+	});
+});
+</script>
 
 <jsp:include page="../footer.jsp" flush="true"/>
