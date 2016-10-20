@@ -373,8 +373,8 @@ console.info('%o %o', el, ev);
 
             function initialize() {
             //alert("Initializing map!");
-              var mapZoom = 1;
-          	if($("#map_canvas").hasClass("full_screen_map")){mapZoom=3;}
+              var mapZoom = 12;
+          	//if($("#map_canvas").hasClass("full_screen_map")){mapZoom=3;}
 
 
               var center = new google.maps.LatLng(10.8, 160.8);
