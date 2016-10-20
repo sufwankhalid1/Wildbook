@@ -118,6 +118,8 @@ public class IndividualCreate extends HttpServlet {
             ok2add=myShepherd.addMarkedIndividual(newShark);
             
             enc2make.addComments("<p><em>" + request.getRemoteUser() + " on " + (new java.util.Date()).toString() + "</em><br>" + "Added to newly marked individual " + newIndividualID + ".</p>");
+            enc2make.setState("partial approval");  //this is catnip-specific workflow
+
           } 
           catch (Exception le) {
             locked = true;
