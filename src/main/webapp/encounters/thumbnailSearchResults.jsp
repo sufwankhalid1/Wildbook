@@ -1,6 +1,9 @@
 <%@ page contentType="text/html; charset=utf-8" 
 		language="java"
- 		import="org.ecocean.servlet.ServletUtilities,javax.jdo.Query,com.drew.imaging.jpeg.JpegMetadataReader,com.drew.metadata.Metadata, com.drew.metadata.Tag, org.ecocean.mmutil.MediaUtilities,org.ecocean.*,java.io.File, java.util.*,org.ecocean.security.Collaboration, java.io.FileInputStream, javax.jdo.Extent" %>
+ 		import="org.ecocean.servlet.ServletUtilities,javax.jdo.Query,com.drew.imaging.jpeg.JpegMetadataReader,com.drew.metadata.Metadata,
+java.util.Arrays,
+java.util.List,
+com.drew.metadata.Tag, org.ecocean.mmutil.MediaUtilities,org.ecocean.*,java.io.File, java.util.*,org.ecocean.security.Collaboration, java.io.FileInputStream, javax.jdo.Extent" %>
 
 
   <%
@@ -74,16 +77,32 @@
 		List<Collaboration> collabs = Collaboration.collaborationsForCurrentUser(request);
 
 
+	String[] colorsToMatch = request.getParameterValues("color");
+
     //if (request.getParameter("noQuery") == null) {
-    	
-    	
     	String jdoqlQueryString=EncounterQueryProcessor.queryStringBuilder(request, prettyPrint, paramMap);
     	Extent encClass = myShepherd.getPM().getExtent(Encounter.class, true);
         Query query = myShepherd.getPM().newQuery(jdoqlQueryString);
+/*
         //query.setFilter("SELECT "+jdoqlQueryString);
         query.setResult("catalogNumber");
         Collection c = (Collection) (query.execute());
         ArrayList<String> enclist = new ArrayList<String>(c);
+*/
+        Collection c = (Collection) (query.execute());
+        ArrayList<String> enclist = new ArrayList<String>();
+	for (Object obj : c) {
+		Encounter enc = (Encounter)obj;
+		if ((colorsToMatch != null) && (enc.getMajorColors() != null)) {
+			List clist = Arrays.asList(enc.getMajorColors());
+			boolean skip = true;
+			for (int ci = 0 ; ci < colorsToMatch.length ; ci++) {
+				if (clist.contains(colorsToMatch[ci])) skip = false;
+			}
+			if (skip) continue;
+		}
+		enclist.add(enc.getCatalogNumber());
+	}
         query.closeAll();
     	
 	  //queryResult = EncounterQueryProcessor.processQuery(myShepherd, request, "year descending, month descending, day descending");

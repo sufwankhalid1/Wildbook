@@ -827,6 +827,13 @@ $(function() {
         							}
       								%>
     							</p>
+
+<% if (enc.getMajorColors() != null) { %>
+<div style="margin: -8px 0 20px 20px;">
+	<a target="_new" href="thumbnailSearchResults.jsp?color=<%= StringUtils.join(enc.getMajorColors(), "&color=") %>">Search for similar cats</a>
+	based on color (<%= StringUtils.join(enc.getMajorColors(), ", ") %>)
+</div>
+<% } %>
     							<%
     							}
     							else {
