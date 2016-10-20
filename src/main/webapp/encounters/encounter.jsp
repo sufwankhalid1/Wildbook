@@ -143,6 +143,47 @@ String langCode=ServletUtilities.getLanguageCode(request);
   <style type="text/css">
     <!--
 
+a.launchPopup {
+	cursor: pointer;
+}
+
+.disputed-identity {
+	padding: 0 5px;
+	background-color: #D20;
+	border: solid 1px #000;
+	border-radius: 5px;
+	font-weight: bold;
+	font-size: 1.1em;
+	color: #FFF;
+	margin: 0 15px;
+}
+
+#clone-tree {
+	margin: 15px 0 0 20px;
+}
+
+#clone-tree a {
+	padding: 0 5px;
+	background-color: #DDD;
+	border: solid 1px #222;
+	border-radius: 5px;
+	margin: 0 5px;
+}
+#clone-tree a:hover {
+	background-color: #FF4;
+	text-decoration: none;
+}
+a.clone-just-added {
+	background-color: #5F0 !important;
+}
+
+#clone-error {
+	font-size: 0.9em;
+	padding: 2px 7px;
+	background-color: #F88;
+	margin: 3px 10px;
+}
+
 	#spot-image-wrapper-left,
 	#spot-image-wrapper-right
 	{
@@ -349,12 +390,21 @@ console.info('%o %o', el, ev);
 						$('#clone-widget').show();
 					} else {
 						var h = '';
-						for (var i = 0 ; i < x.responseJSON.encounterIds.length ; i++) {
-							h += ' <a target="_new" href="encounter.jsp?number=' + x.responseJSON.encounterIds[i] +
-							'" title="' + x.responseJSON.encounterIds[i] + '">[enc ' + (i+1) + ']</a>';
+						var clist = $('#clone-list');
+						if (!clist.length) {
+							$('#clone-tree').append('<b>Cloned to:</b> <span id="clone-list"></span>');
+							clist = $('#clone-list');
 						}
-						$('#clone-progress').html('<div>Successfully created:<b>' + h + '</b> ' +
+						var numAlready = clist.find('a').length;
+						for (var i = 0 ; i < x.responseJSON.encounterIds.length ; i++) {
+							h += ' <a class="clone-just-added" target="_new" href="encounter.jsp?number=' + x.responseJSON.encounterIds[i] +
+							'" title="' + x.responseJSON.encounterIds[i] + '">' + (i + numAlready + 1) + '</a>';
+						}
+						clist.append(h);
+						$('#clone-progress').html('<div class="clone-tree">Successfully cloned.' +
 						'<input style="margin: -5px 0 0 25px;" type="button" value="OK" onClick="return cloneCancel()" /></div>');
+						//$('#clone-progress').html('<div class="clone-tree">Successfully created:<b>' + h + '</b> ' +
+						//'<input style="margin: -5px 0 0 25px;" type="button" value="OK" onClick="return cloneCancel()" /></div>');
 					}
 				} else {
 					$('#clone-progress').html('<div id="clone-error">' + x.status + ' ' + x.statusText + '</div>');
@@ -701,6 +751,22 @@ $(function() {
 			<input style="margin: -5px 0 0 10px;" id="clone-button-open" type="button" value="Clone encounter" onClick="return cloneToolOpen()" />
 		</div>
 	</div>
+	<div id="clone-tree">
+<%
+	String cto = enc.getDynamicPropertyValue("clonedTo");
+	String cfrom = enc.getDynamicPropertyValue("clonedFrom");
+	if (cfrom != null) out.println("<a target=\"_new\" href=\"encounter.jsp?number=" + cfrom + "\" title=\"" + cfrom + "\">clone source</a>");
+	if (cto != null) {
+		out.println("<b>Cloned to:</b> <span id=\"clone-list\">");
+		String[] toIds = cto.split(":");
+		for (int ci = 0 ; ci < toIds.length ; ci++) {
+			out.println("<a target=\"_new\" href=\"encounter.jsp?number=" + toIds[ci] + "\" title=\"" + toIds[ci] + "\">" + (ci + 1) + "</a>");
+		}
+		out.println("</span>");
+	}
+%>
+	</div>
+
 <% } %>
 
 			</p>
@@ -761,6 +827,13 @@ $(function() {
         							}
       								%>
     							</p>
+
+<% if (enc.getMajorColors() != null) { %>
+<div style="margin: -8px 0 20px 20px;">
+	<a target="_new" href="thumbnailSearchResults.jsp?color=<%= StringUtils.join(enc.getMajorColors(), "&color=") %>">Search for similar cats</a>
+	based on color (<%= StringUtils.join(enc.getMajorColors(), ", ") %>)
+</div>
+<% } %>
     							<%
     							}
     							else {
@@ -769,6 +842,11 @@ $(function() {
 
       								<%=encprops.getProperty("identified_as") %> <a href="../individuals.jsp?langCode=<%=langCode%>&number=<%=enc.getIndividualID()%><%if(request.getParameter("noscript")!=null){%>&noscript=true<%}%>"><%=enc.getIndividualID()%></a>
 
+<%
+if ("disputed".equals(enc.getState())) {
+	out.println("<span class=\"disputed-identity\">disputed</span>");
+}
+%>
       								<%
         							if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
       								%>
@@ -777,6 +855,30 @@ $(function() {
         							}
       								%>
       								<br />
+<% 
+if ("partial approval".equals(enc.getState())) {
+%>
+<script>
+function finalApproval() {
+	$('#final-approval-widget').html('<img src="../images/throbber.gif" /> saving....');
+	$('form[name="stateForm"] select').val('approved');
+	$('form[name="stateForm"]').submit();
+}
+function disputeIdentity() {
+	$('#final-approval-widget').html('<img src="../images/throbber.gif" /> saving....');
+	$('form[name="stateForm"] select').val('disputed');
+	$('form[name="stateForm"]').submit();
+}
+</script>
+
+<div id="final-approval-widget">
+Identity is <b>partially approved</b>
+	<input type="button" value="Final approval" style="margin: -8px 0 0 20px;" onClick="return finalApproval()" />
+	<input type="button" value="Dispute identity" style="margin: -8px 0 0 5px;" onClick="return disputeIdentity()" />
+</div>
+<%
+}
+%>
       								<br />
       								<img align="absmiddle" src="../images/Crystal_Clear_app_matchedBy.gif"> <%=encprops.getProperty("matched_by") %>: <%=enc.getMatchedBy()%>
       								<%
@@ -842,7 +944,7 @@ $(function() {
       										<td align="left" valign="top">
         										<form name="add2shark" action="../IndividualAddEncounter" method="post">
         											<%=encprops.getProperty("individual")%>:
-              											<input name="individual" type="text" size="10" maxlength="50" /><br /> <%=encprops.getProperty("matchedBy")%>:<br />
+              											<input name="individual" class="individual-autocomplete search-query ui-autocomplete-input" autocomplete="off" type="text" size="10" maxlength="50" /><br /> <%=encprops.getProperty("matchedBy")%>:<br />
           												<select name="matchType" id="matchType">
             												<option value="Unmatched first encounter"><%=encprops.getProperty("unmatchedFirstEncounter")%></option>
             												<option value="Visual inspection"><%=encprops.getProperty("visualInspection")%></option>
@@ -2902,7 +3004,7 @@ $("a#comments").click(function() {
   										<table class="popupForm">
 						  					<tr>
 						    					<td align="left" valign="top">
-						      						<form name="countryForm" action="../EncounterSetState" method="post">
+						      						<form name="stateForm" action="../EncounterSetState" method="post">
 						            					<select name="state" id="state">
 															<%
 						       								boolean hasMoreStates=true;
@@ -3799,13 +3901,6 @@ $("a#dynamicPropertyAdd").click(function() {
 
 <script src="../tools/flow.min.js"></script>
 <style>
-
-#clone-error {
-	font-size: 0.9em;
-	padding: 2px 7px;
-	background-color: #F88;
-	margin: 3px 10px;
-}
 
 div#add-image-zone {
   background-color: #e8e8e8;
@@ -5568,5 +5663,36 @@ String pswipedir = urlLoc+"/photoswipe";
 <script src='<%=pswipedir%>/photoswipe.js'></script>
 <script src='<%=pswipedir%>/photoswipe-ui-default.js'></script>
 
+
+<script type="text/javascript">
+$(document).ready(function() {
+	$('.individual-autocomplete').autocomplete({
+		appendTo: $('form[name="add2shark"]'),
+		response: function(ev, ui) {
+			//console.info('response: %o %o', ev, ui);
+		},
+		select: function(ev, ui) {
+			//console.info('select: %o %o', ev, ui);
+			ev.target.value = ui.item.value;
+			return false;
+		},
+		source: function(request, response) {
+			//console.info('source: %o %o', request, response);
+			$.ajax({
+				url: '<%=("http://" + CommonConfiguration.getURLLocation(request)) %>/SiteSearch',
+				dataType: 'json',
+				data: { term: request.term },
+				success: function(d) {
+					var res = $.map(d, function(item) {
+						if (item.type != 'individual') return undefined;  //only care about individual ids
+						return d;
+					});
+					response(res);
+				}
+			});
+		}
+	});
+});
+</script>
 
 <jsp:include page="../footer.jsp" flush="true"/>

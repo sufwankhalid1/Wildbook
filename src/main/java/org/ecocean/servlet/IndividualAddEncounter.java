@@ -123,6 +123,10 @@ public class IndividualAddEncounter extends HttpServlet {
 
           if (!locked) {
 
+            if ((enc2add.getState() == null) || enc2add.getState().equals("") || enc2add.getState().equals("unapproved")) {
+                enc2add.setState("partial approval");
+            }
+
             myShepherd.commitDBTransaction();
 
             // Retrieve background service for processing emails
