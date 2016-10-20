@@ -143,6 +143,17 @@ String langCode=ServletUtilities.getLanguageCode(request);
   <style type="text/css">
     <!--
 
+.disputed-identity {
+	padding: 0 5px;
+	background-color: #D20;
+	border: solid 1px #000;
+	border-radius: 5px;
+	font-weight: bold;
+	font-size: 1.1em;
+	color: #FFF;
+	margin: 0 15px;
+}
+
 #clone-tree {
 	margin: 15px 0 0 20px;
 }
@@ -820,6 +831,11 @@ $(function() {
 
       								<%=encprops.getProperty("identified_as") %> <a href="../individuals.jsp?langCode=<%=langCode%>&number=<%=enc.getIndividualID()%><%if(request.getParameter("noscript")!=null){%>&noscript=true<%}%>"><%=enc.getIndividualID()%></a>
 
+<%
+if ("disputed".equals(enc.getState())) {
+	out.println("<span class=\"disputed-identity\">disputed</span>");
+}
+%>
       								<%
         							if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
       								%>
@@ -828,6 +844,30 @@ $(function() {
         							}
       								%>
       								<br />
+<% 
+if ("partial approval".equals(enc.getState())) {
+%>
+<script>
+function finalApproval() {
+	$('#final-approval-widget').html('<img src="../images/throbber.gif" /> saving....');
+	$('form[name="stateForm"] select').val('approved');
+	$('form[name="stateForm"]').submit();
+}
+function disputeIdentity() {
+	$('#final-approval-widget').html('<img src="../images/throbber.gif" /> saving....');
+	$('form[name="stateForm"] select').val('disputed');
+	$('form[name="stateForm"]').submit();
+}
+</script>
+
+<div id="final-approval-widget">
+Identity is <b>partially approved</b>
+	<input type="button" value="Final approval" style="margin: -8px 0 0 20px;" onClick="return finalApproval()" />
+	<input type="button" value="Dispute identity" style="margin: -8px 0 0 5px;" onClick="return disputeIdentity()" />
+</div>
+<%
+}
+%>
       								<br />
       								<img align="absmiddle" src="../images/Crystal_Clear_app_matchedBy.gif"> <%=encprops.getProperty("matched_by") %>: <%=enc.getMatchedBy()%>
       								<%
@@ -2953,7 +2993,7 @@ $("a#comments").click(function() {
   										<table class="popupForm">
 						  					<tr>
 						    					<td align="left" valign="top">
-						      						<form name="countryForm" action="../EncounterSetState" method="post">
+						      						<form name="stateForm" action="../EncounterSetState" method="post">
 						            					<select name="state" id="state">
 															<%
 						       								boolean hasMoreStates=true;
