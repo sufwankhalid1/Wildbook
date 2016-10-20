@@ -333,6 +333,7 @@
 									boolean video=true;
 									if(!myShepherd.isAcceptableVideoFile(thumbLocs.get(countMe).getFilename())){
 										thumbLink="/"+CommonConfiguration.getDataDirectoryName(context)+"/encounters/"+ encSubdir +"/"+thumbLocs.get(countMe).getFilename();
+										if (thumbLocs.get(countMe).getCopyrightStatement() != null) thumbLink = thumbLocs.get(countMe).getCopyrightStatement();
 										video=false;
 									}
 									else{

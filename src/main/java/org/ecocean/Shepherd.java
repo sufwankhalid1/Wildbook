@@ -1849,14 +1849,18 @@ public class Shepherd {
     ArrayList<SinglePhotoVideo> myArray=new ArrayList<SinglePhotoVideo>();
     for(int i=0;i<numAnnots;i++){
       MediaAsset ma=al.get(i).getMediaAsset();
-      AssetStore as=ma.getStore();
-      String fullFileSystemPath=as.localPath(ma).toString();
+      String fullFileSystemPath=ma.localPath().toString();
       String webURL=ma.webURLString();
       int lastIndex=webURL.lastIndexOf("/")+1;
       String filename=webURL.substring(lastIndex);
       SinglePhotoVideo spv=new SinglePhotoVideo(encNum, filename, fullFileSystemPath);
       spv.setWebURL(webURL);
       spv.setDataCollectionEventID(ma.getUUID());
+
+        //look out, hacky is about to get hackier!
+        ArrayList<MediaAsset> kids = ma.findChildrenByLabel(this, "_mid");
+        if ((kids != null) && (kids.size() > 0)) spv.setCopyrightStatement(kids.get(0).webURL().toString());
+
       myArray.add(spv);
     }
     return myArray;
