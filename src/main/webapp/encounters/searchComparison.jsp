@@ -164,7 +164,7 @@ if(request.getParameter("day1")==null){gotoPage="searchComparison.jsp";}
     
 <script type="text/javascript">
 //alert("Prepping map functions.");
-var center = new google.maps.LatLng(0, 0);
+var center = new google.maps.LatLng(17.30868,-62.68867492675781);
 
 var map;
 
@@ -185,8 +185,8 @@ var filename="http://<%=CommonConfiguration.getURLLocation(request)%>/EncounterS
   function initialize() {
 	//alert("initializing map!");
 	//overlaysSet=false;
-	var mapZoom = 1;
-	if($("#map_canvas").hasClass("full_screen_map")){mapZoom=3;}
+	var mapZoom = 11;
+	if($("#map_canvas").hasClass("full_screen_map")){mapZoom=11;}
 
 	  map = new google.maps.Map(document.getElementById('map_canvas'), {
 		  zoom: mapZoom,

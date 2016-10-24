@@ -456,7 +456,7 @@
 
 //let's build some maps
 
-var center = new google.maps.LatLng(0, 0);
+var center = new google.maps.LatLng(17.30868,-62.68867492675781);
 var map1;
 var map2;
 
@@ -466,7 +466,7 @@ var selectedRectangle2;
   function initialize() {
 	//alert("initializing map!");
 	//overlaysSet=false;
-	var mapZoom = 1;
+	var mapZoom = 11;
 
 
 

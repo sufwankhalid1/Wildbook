@@ -114,8 +114,8 @@ context=ServletUtilities.getContext(request);
 
     <script type="text/javascript">
       function initialize() {
-        var center = new google.maps.LatLng(0,0);
-        var mapZoom = 1;
+        var center = new google.maps.LatLng(17.30868,-62.68867492675781);
+        var mapZoom = 11;
     	  var bounds = new google.maps.LatLngBounds();
 
         var map = new google.maps.Map(document.getElementById('map_canvas'), {
