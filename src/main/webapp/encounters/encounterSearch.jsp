@@ -414,7 +414,7 @@ function FSControl(controlDiv, map) {
   
     </script>
 
-    <div id="map">
+    <div id="map" style="display:none">
       <p><%=encprops.get("useTheArrow") %></p>
 
       <div id="map_canvas" style="width: 770px; height: 510px; "></div>
@@ -886,7 +886,7 @@ if(CommonConfiguration.showProperty("showCountry",context)){
 </tr>
 
 
-<tr>
+<tr class="fubarrr">
   <td>
     <h4 class="intro" style="background-color: #cccccc; padding:3px; border: 1px solid #000066; "><a
       href="javascript:animatedcollapse.toggle('observation')" style="text-decoration:none"><img
@@ -897,7 +897,7 @@ if(CommonConfiguration.showProperty("showCountry",context)){
 
 <tr>
   <td>
-    <div id="observation" style="display:none; ">
+    <div id="observation" xstyle="display:none; ">
       <p><%=encprops.getProperty("observationInstructions") %></p>
 
       <p>
@@ -953,7 +953,7 @@ if(CommonConfiguration.showProperty("showCountry",context)){
 	}
 	%>
 
-        <tr>
+        <tr style="display: none">
           <td><strong><%=encprops.getProperty("status")%>: </strong><label>
             <input name="alive" type="checkbox" id="alive" value="alive"
                    checked> <%=encprops.getProperty("alive")%>
@@ -966,7 +966,7 @@ if(CommonConfiguration.showProperty("showCountry",context)){
         
 
 
-        <tr>
+        <tr style="display: none">
           <td valign="top"><strong><%=encprops.getProperty("behavior")%>:</strong>
             <em> <span class="para">
 								<a href="<%=CommonConfiguration.getWikiLocation(context)%>behavior" target="_blank">
@@ -1112,7 +1112,7 @@ if(CommonConfiguration.showProperty("showPatterningCode",context)){
 </c:forEach>
 <tr><td></td></tr>
 </c:if>
-<tr><td>
+<tr><td style="display: none;">
       <p><strong><%=encprops.getProperty("hasPhoto")%> </strong>
             <label> 
             	<input name="hasPhoto" type="checkbox" id="hasPhoto" value="hasPhoto" />
@@ -1137,6 +1137,7 @@ if(CommonConfiguration.showProperty("showPatterningCode",context)){
         Iterator<Keyword> keys = myShepherd.getAllKeywords(kwQuery);
         for (int n = 0; n < totalKeywords; n++) {
           Keyword word = keys.next();
+		if (word.getReadableName().contains("Reference")) continue;
       %>
       <option value="<%=word.getIndexname()%>"><%=word.getReadableName()%>
       </option>
@@ -1151,7 +1152,7 @@ if(CommonConfiguration.showProperty("showPatterningCode",context)){
            <tr><td>
       <p>
             <label> 
-            	<input name="photoKeywordOperator" type="checkbox" id="photoKeywordOperator" value="_OR_" />
+            	<input name="photoKeywordOperator" type="checkbox" id="photoKeywordOperator" value="_OR_" checked />
             </label> <%=encprops.getProperty("orPhotoKeywords")%> 
       </p>
       </td></tr>
