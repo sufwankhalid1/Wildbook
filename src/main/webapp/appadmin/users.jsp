@@ -1,9 +1,33 @@
 <%@ page contentType="text/html; charset=utf-8" language="java" %>
 <%@ page import="org.ecocean.*" %>
 <%@ page import="java.util.ArrayList" %>
-<%@ page import="java.util.List" %>
+<%@ page import="java.util.List, java.util.Collection, javax.jdo.Extent, javax.jdo.Query" %>
 <%@ page import="org.apache.commons.lang3.StringEscapeUtils" %>
 
+
+<%!
+  public List<User> getAllUsersSorted(Shepherd myShepherd) {
+    Collection c;
+    ArrayList<User> list = new ArrayList<User>();
+    Extent userClass = myShepherd.getPM().getExtent(User.class, true);
+    Query users = myShepherd.getPM().newQuery(userClass);
+    users.setOrdering("username");
+    try {
+      c = (Collection) (users.execute());
+      if(c!=null){
+        list = new ArrayList<User>(c);
+      }
+      users.closeAll();
+      return list;
+    }
+    catch (Exception npe) {
+      //System.out.println("Error encountered when trying to execute Shepherd.getAllUsers. Returning a null collection because I didn't have a transaction to use.");
+      npe.printStackTrace();
+      return null;
+    }
+  }
+
+%>
 
 <%
 
@@ -36,7 +60,7 @@ String context="context0";
      <%
      
      myShepherd.beginDBTransaction();
-     List<User> allUsers=myShepherd.getAllUsers();
+     List<User> allUsers = getAllUsersSorted(myShepherd);
      int numUsers=allUsers.size();
      
      %>
@@ -62,7 +86,7 @@ String context="context0";
       	User user=allUsers.get(i);
       	String affiliation="&nbsp;";
       	if(user.getAffiliation()!=null){affiliation=user.getAffiliation();}
-      	String fullName="&nbsp;";
+      	String fullName=" ";
       	if(user.getFullName()!=null){fullName=user.getFullName();}
       	String emailAddress="&nbsp;";
       	if(user.getEmailAddress()!=null){emailAddress=user.getEmailAddress();}
