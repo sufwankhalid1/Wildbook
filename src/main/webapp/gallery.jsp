@@ -82,7 +82,6 @@ myShepherd=new Shepherd(context);
 int numResults = 0;
 
 
-Vector<MarkedIndividual> rIndividuals = new Vector<MarkedIndividual>();
 myShepherd.beginDBTransaction();
 String order ="nickName ASC NULLS LAST";
 
@@ -90,9 +89,19 @@ request.setAttribute("rangeStart", startNum);
 request.setAttribute("rangeEnd", endNum);
 MarkedIndividualQueryResult result = IndividualQueryProcessor.processQuery(myShepherd, request, order);
 
-rIndividuals = result.getResult();
-
-
+Vector<MarkedIndividual> rIndividualsUnfiltered = result.getResult();
+Vector<MarkedIndividual> rIndividuals = new Vector<MarkedIndividual>();
+for (MarkedIndividual ind : rIndividualsUnfiltered) {
+	if ((ind.getEncounters() == null) || (ind.getEncounters().size() < 1)) continue;
+	boolean valid = true;
+	for (Object obj : ind.getEncounters()) {
+		Encounter enc = (Encounter)obj;
+//System.out.println("ind " + ind.getIndividualID() + ": " + enc.getState());
+		if ((enc.getState() != null) && enc.getState().equals("practice")) valid = false;
+	}
+	if (!valid) continue;
+	rIndividuals.add(ind);
+}
 
 
 //handle any null errors better
