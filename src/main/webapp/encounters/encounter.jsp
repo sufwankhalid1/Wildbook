@@ -407,7 +407,7 @@ console.info('%o %o', el, ev);
 						}
 						var numAlready = clist.find('a').length;
 						for (var i = 0 ; i < x.responseJSON.encounterIds.length ; i++) {
-							h += ' <a class="clone-just-added" target="_new" href="encounter.jsp?number=' + x.responseJSON.encounterIds[i] +
+							h += ' <a class="clone-just-added" target="_blank" href="encounter.jsp?number=' + x.responseJSON.encounterIds[i] +
 							'" title="' + x.responseJSON.encounterIds[i] + '">' + (i + numAlready + 1) + '</a>';
 						}
 						clist.append(h);
@@ -765,12 +765,12 @@ $(function() {
 <%
 	String cto = enc.getDynamicPropertyValue("clonedTo");
 	String cfrom = enc.getDynamicPropertyValue("clonedFrom");
-	if (cfrom != null) out.println("<a target=\"_new\" href=\"encounter.jsp?number=" + cfrom + "\" title=\"" + cfrom + "\">clone source</a>");
+	if (cfrom != null) out.println("<a target=\"_blank\" href=\"encounter.jsp?number=" + cfrom + "\" title=\"" + cfrom + "\">clone source</a>");
 	if (cto != null) {
 		out.println("<b>Cloned to:</b> <span id=\"clone-list\">");
 		String[] toIds = cto.split(":");
 		for (int ci = 0 ; ci < toIds.length ; ci++) {
-			out.println("<a target=\"_new\" href=\"encounter.jsp?number=" + toIds[ci] + "\" title=\"" + toIds[ci] + "\">" + (ci + 1) + "</a>");
+			out.println("<a target=\"_blank\" href=\"encounter.jsp?number=" + toIds[ci] + "\" title=\"" + toIds[ci] + "\">" + (ci + 1) + "</a>");
 		}
 		out.println("</span>");
 	}
@@ -840,7 +840,7 @@ $(function() {
 
 <% if (enc.getMajorColors() != null) { %>
 <div style="margin: -8px 0 20px 20px;">
-	<a target="_new" href="thumbnailSearchResults.jsp?state=approved&state=partial%20approval&color=<%= StringUtils.join(enc.getMajorColors(), "&color=") %>">Search for similar cats</a>
+	<a target="_blank" href="thumbnailSearchResults.jsp?state=approved&state=partial%20approval&color=<%= StringUtils.join(enc.getMajorColors(), "&color=") %>">Search for similar cats</a>
 	based on color (<%= StringUtils.join(enc.getMajorColors(), ", ") %>)
 </div>
 <% } %>
@@ -2915,7 +2915,7 @@ $("a#LifeStage").click(function() {
 <p class="para">
 Major colours:
 
-<%=((enc.getMajorColors() == null) ? "" : StringUtils.join(enc.getMajorColors(), ", "))%>
+<%=((enc.getMajorColors() == null) ? "<i>none specified</i>" : StringUtils.join(enc.getMajorColors(), ", "))%>
 
 <% if (isOwner && CommonConfiguration.isCatalogEditable(context)) { %>
 	<a id="majorColors" class="launchPopup"><img align="absmiddle" width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" /></a>
@@ -2962,7 +2962,7 @@ $("a#majorColors").click(function() {
 
 <p class="para">
 Ear tipping:
-<%=enc.getEarTipping()%>
+<%= ((enc.getEarTipping() == null) ? "Unknown" : enc.getEarTipping()) %>
 
 <% if (isOwner && CommonConfiguration.isCatalogEditable(context)) { %>
 	<a id="earTipping" class="launchPopup"><img align="absmiddle" width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" /></a>
