@@ -357,15 +357,15 @@ console.info('waiting to try again...........................');
         }
 */
 
-/*
         opt.init = [
+/*  no keywords for catnip!
             function(el, enh) {
 console.info(' ===========>   %o %o', el, enh);
 		imageLayerKeywords(el, enh);
             },
+*/
             function(el, enh) { drawFeature(el.prop('id').substring(23)); }
         ];
-*/
 
     }
 
