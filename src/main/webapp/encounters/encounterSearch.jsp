@@ -1055,7 +1055,7 @@ if(CommonConfiguration.showProperty("showLifestage",context)){
 if(CommonConfiguration.showProperty("showPatterningCode",context)){
 
 %>
-<tr valign="top">
+<tr valign="top" style="display: none;">
   <td><strong><%=encprops.getProperty("patterningCode")%></strong>
   
   <select name="patterningCodeField" id="patterningCodeField">
@@ -1121,6 +1121,7 @@ if(CommonConfiguration.showProperty("showPatterningCode",context)){
 		<option>White</option>
 		<option>Grey</option>
 		<option>Orange</option>
+		<option>Beige</option>
 		<option>Brown</option>
 </select>
 

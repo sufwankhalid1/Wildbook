@@ -858,7 +858,7 @@ if(CommonConfiguration.showProperty("showLifestage",context)){
         if(CommonConfiguration.showProperty("showPatterningCode",context)){
 
         	%>
-        	<tr valign="top">
+        	<tr valign="top" style="display: none;">
         	  <td><strong><%=props.getProperty("patterningCode")%></strong>
 
         	  <select name="patterningCodeField" id="patterningCodeField">
@@ -964,7 +964,7 @@ if(CommonConfiguration.showProperty("showLifestage",context)){
         <%
           int totalKeywords = myShepherd.getNumKeywords();
         %>
-        <tr>
+        <tr style="display: none;">
           <td><p><%=props.getProperty("hasKeywordPhotos")%>
           </p>
             <%

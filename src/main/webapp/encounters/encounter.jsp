@@ -2931,6 +2931,7 @@ Major colours:
 		<option <%=colorSelected(enc, "White")%>>White</option>
 		<option <%=colorSelected(enc, "Grey")%>>Grey</option>
 		<option <%=colorSelected(enc, "Orange")%>>Orange</option>
+		<option <%=colorSelected(enc, "Beige")%>>Beige</option>
 		<option <%=colorSelected(enc, "Brown")%>>Brown</option>
 </select>
           <input name="number" type="hidden" value="<%=num%>" />

@@ -908,6 +908,7 @@ if(CommonConfiguration.showProperty("showLifestage",context)){
 		<option>White</option>
 		<option>Grey</option>
 		<option>Orange</option>
+		<option>Beige</option>
 		<option>Brown</option>
             </select>
           </div>
