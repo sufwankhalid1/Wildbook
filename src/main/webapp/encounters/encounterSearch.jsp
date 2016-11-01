@@ -1127,6 +1127,18 @@ if(CommonConfiguration.showProperty("showPatterningCode",context)){
 
 </td></tr>
 
+<tr><td>
+<b>Ear tipping:</b><br />
+<select style="width: 10em;" name="earTipping" id="earTipping" >
+		<option selected value="">any</option>
+		<option>Right ear tipped</option>
+		<option>Left ear tipped</option>
+              	<option>Neither</option>
+</select>
+
+</td></tr>
+
+
 <tr><td style="display: none;">
       <p><strong><%=encprops.getProperty("hasPhoto")%> </strong>
             <label> 

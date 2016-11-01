@@ -78,6 +78,13 @@ public class IndividualQueryProcessor {
     }
     //end location filter--------------------------------------------------------------------------------------
 
+    if ((request.getParameter("earTipping") != null) && !request.getParameter("earTipping").equals("")) {
+      if(filter.equals(SELECT_FROM_ORG_ECOCEAN_INDIVIDUAL_WHERE)){
+        filter += "(enc.earTipping == '" + request.getParameter("earTipping") + "')";
+      }
+      else{filter+=" && (enc.earTipping == '" + request.getParameter("earTipping") + "')";}
+      prettyPrint.append("Ear tipping is <i>" + request.getParameter("earTipping") + "</i><br />");
+    }
 
 
     //------------------------------------------------------------------

@@ -915,6 +915,32 @@ if(CommonConfiguration.showProperty("showLifestage",context)){
 </c:forEach>
 </c:if>
 
+
+<tr><td>
+<b>Major Colours include:</b><br />
+<select multiple size="5" style="width: 10em;" name="color" id="color" >
+              <option>Black</option>
+		<option>White</option>
+		<option>Grey</option>
+		<option>Orange</option>
+		<option>Beige</option>
+		<option>Brown</option>
+</select>
+
+</td></tr>
+
+<tr><td>
+<b>Ear tipping:</b><br />
+<select style="width: 10em;" name="earTipping" id="earTipping" >
+		<option selected value="">any</option>
+		<option>Right ear tipped</option>
+		<option>Left ear tipped</option>
+              	<option>Neither</option>
+</select>
+
+</td></tr>
+
+
 <tr><td>
       <p><strong><%=props.getProperty("hasPhoto")%> </strong>
             <label>

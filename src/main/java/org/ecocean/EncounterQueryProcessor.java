@@ -104,6 +104,13 @@ public class EncounterQueryProcessor {
     }
     //end unassigned filter--------------------------------------------------------------------------------------
 
+    if ((request.getParameter("earTipping") != null) && !request.getParameter("earTipping").equals("")) {
+      if(filter.equals(SELECT_FROM_ORG_ECOCEAN_ENCOUNTER_WHERE)){
+        filter += "(earTipping == '" + request.getParameter("earTipping") + "')";
+      }
+      else{filter+=" && (earTipping == '" + request.getParameter("earTipping") + "')";}
+      prettyPrint.append("Ear tipping is <i>" + request.getParameter("earTipping") + "</i><br />");
+    }
 
 
 /**
