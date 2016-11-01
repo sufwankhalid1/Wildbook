@@ -2343,6 +2343,7 @@ the decimal one (Double) .. half tempted to break out a class for this: lat/lon/
             if ((myShepherd.getMeasurementsForEncounter(this.getCatalogNumber())!=null) && (myShepherd.getMeasurementsForEncounter(this.getCatalogNumber()).size()>0)) jobj.put("hasMeasurements", true);
 */
 
+            if (this.majorColors != null) jobj.put("majorColors", new JSONArray(this.majorColors));
             jobj.put("_imagesNote", ".images have been deprecated!  long live MediaAssets!  (see: .annotations)");
             //jobj.remove("images");  //TODO uncomment after debugging
 /*

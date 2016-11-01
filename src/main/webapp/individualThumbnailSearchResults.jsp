@@ -44,12 +44,21 @@
     Shepherd myShepherd = new Shepherd(context);
 
     //Iterator allIndividuals;
-    Vector<MarkedIndividual> rIndividuals = new Vector<MarkedIndividual>();
+    //Vector<MarkedIndividual> rIndividuals = new Vector<MarkedIndividual>();
 
     myShepherd.beginDBTransaction();
 
     MarkedIndividualQueryResult queryResult = IndividualQueryProcessor.processQuery(myShepherd, request, "individualID ascending");
-    rIndividuals = queryResult.getResult();
+    Vector<MarkedIndividual> rIndividualsUnfiltered = queryResult.getResult();
+    Vector<MarkedIndividual> rIndividuals = new Vector<MarkedIndividual>();
+	for (MarkedIndividual ind : rIndividualsUnfiltered) {
+		boolean skip = false;
+		for (Object obj : ind.getEncounters()) {
+			Encounter enc = (Encounter)obj;
+			if ("study".equals(enc.getState()) || "practice".equals(enc.getState())) skip = true;
+		}
+		if (!skip) rIndividuals.add(ind);
+	}
 
     String[] keywords = request.getParameterValues("keyword");
     if (keywords == null) {

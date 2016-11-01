@@ -339,8 +339,8 @@ String lastLatLong="";
 		    
  zoomChangeBoundsListener = 
 	    google.maps.event.addListenerOnce(map, 'bounds_changed', function(event) {
-	        if ((this.getZoom())&&(this.getZoom()>7)){
-	            this.setZoom(7);
+	        if ((this.getZoom())&&(this.getZoom()>11)){
+	            this.setZoom(11);
 	        }
 	});
 setTimeout(function(){google.maps.event.removeListener(zoomChangeBoundsListener)}, 2000);

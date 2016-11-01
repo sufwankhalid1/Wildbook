@@ -296,6 +296,11 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
                     <ul class="nav navbar-nav">
                                   <!--                -->
                       <li class="active home text-hide"><a href="<%=urlLoc %>"><%=props.getProperty("home")%></a></li>
+
+<%	if (request.getUserPrincipal() == null) { %>
+                      <li><a href="<%=urlLoc %>/register.jsp">Register</a></li>
+<%	} %>
+
                       <li><a href="<%=urlLoc %>/submit.jsp"><%=props.getProperty("report")%></a></li>
 
                       <li class="dropdown">
@@ -314,7 +319,7 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
                         </ul>
                       </li>
 
-                      <li class="dropdown">
+                      <li style="display: none;" class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><%=props.getProperty("participate")%> <span class="caret"></span></a>
                         <ul class="dropdown-menu" role="menu">
                         
@@ -372,7 +377,7 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
                       </li>
 
                       <!-- start locationID sites -->
-                       <li class="dropdown">
+                       <li style="display: none;" class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><%=props.getProperty("sites") %> <span class="caret"></span></a>
                         <ul class="dropdown-menu" role="menu">
 

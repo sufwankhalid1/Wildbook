@@ -1,5 +1,7 @@
 <%@ page contentType="text/html; charset=utf-8" language="java"
-         import="org.ecocean.servlet.ServletUtilities,org.ecocean.*, org.ecocean.servlet.ServletUtilities, java.io.File, java.io.FileOutputStream, java.io.OutputStreamWriter, java.util.*, org.datanucleus.api.rest.orgjson.JSONArray, org.json.JSONObject, org.datanucleus.api.rest.RESTUtils, org.datanucleus.api.jdo.JDOPersistenceManager " %>
+         import="org.ecocean.servlet.ServletUtilities,org.ecocean.*, org.ecocean.servlet.ServletUtilities, java.io.File, java.io.FileOutputStream, java.io.OutputStreamWriter,
+org.apache.commons.lang3.StringUtils,
+java.util.*, org.datanucleus.api.rest.orgjson.JSONArray, org.json.JSONObject, org.datanucleus.api.rest.RESTUtils, org.datanucleus.api.jdo.JDOPersistenceManager " %>
 
 
 <%
@@ -262,7 +264,7 @@ td.tdw:hover div {
 </style>
 
 <script type="text/javascript">
-
+	var colors = [<%= ((request.getParameterValues("color") == null) ? "" : "'" + StringUtils.join(request.getParameterValues("color"), "', '") + "'") %>];
 	var needIAStatus = false;
 /*
 
@@ -713,7 +715,22 @@ $(document).ready( function() {
 			},
 */
 			jdoql: jdoql,
-			success: function() { searchResults = encs.models; doTable(); },
+			success: function() {
+				searchResults = [];
+				for (var i = 0 ; i < encs.models.length ; i++) {
+					var skip = false;
+					if ((colors.length > 0) && encs.models[i].get('majorColors')) {
+						skip = true;
+						for (var ci = 0 ; ci < colors.length ; ci++) {
+							if (encs.models[i].get('majorColors').indexOf(colors[ci]) > -1) skip = false;
+						}
+//console.info("colors=%o majorColors=%o skip? %o", colors, encs.models[i].get('majorColors'), skip);
+					}
+					if (skip) continue;
+					searchResults.push(encs.models[i]);
+				}
+				doTable();
+			},
 		});
 	});
 });

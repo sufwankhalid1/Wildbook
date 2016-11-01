@@ -414,7 +414,7 @@ function FSControl(controlDiv, map) {
   
     </script>
 
-    <div id="map" style="display:none">
+    <div id="map" xstyle="display:none">
       <p><%=encprops.get("useTheArrow") %></p>
 
       <div id="map_canvas" style="width: 770px; height: 510px; "></div>
@@ -1112,6 +1112,20 @@ if(CommonConfiguration.showProperty("showPatterningCode",context)){
 </c:forEach>
 <tr><td></td></tr>
 </c:if>
+
+
+<tr><td>
+<b>Major Colours include:</b><br />
+<select multiple size="5" style="width: 10em;" name="color" id="color" >
+              <option>Black</option>
+		<option>White</option>
+		<option>Grey</option>
+		<option>Orange</option>
+		<option>Brown</option>
+</select>
+
+</td></tr>
+
 <tr><td style="display: none;">
       <p><strong><%=encprops.getProperty("hasPhoto")%> </strong>
             <label> 
@@ -1122,15 +1136,14 @@ if(CommonConfiguration.showProperty("showPatterningCode",context)){
 <%
   int totalKeywords = myShepherd.getNumKeywords();
 %>
-<tr>
+<tr style="display: none;">
   <td valign="top"><%=encprops.getProperty("hasKeywordPhotos")%><br/>
     <%
 
       if (totalKeywords > 0) {
     %>
 
-    <select multiple size="10" name="keyword" id="keyword" >
-      <option value="None"></option>
+    <select multiple size="4" name="keyword" id="keyword" >
       <%
 
 
@@ -1138,6 +1151,7 @@ if(CommonConfiguration.showProperty("showPatterningCode",context)){
         for (int n = 0; n < totalKeywords; n++) {
           Keyword word = keys.next();
 		if (word.getReadableName().contains("Reference")) continue;
+		if (word.getReadableName().contains("Color: ")) continue;
       %>
       <option value="<%=word.getIndexname()%>"><%=word.getReadableName()%>
       </option>

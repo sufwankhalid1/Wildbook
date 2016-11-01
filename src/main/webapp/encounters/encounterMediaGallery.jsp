@@ -357,6 +357,7 @@ console.info('waiting to try again...........................');
         }
 */
 
+/*
         opt.init = [
             function(el, enh) {
 console.info(' ===========>   %o %o', el, enh);
@@ -364,6 +365,7 @@ console.info(' ===========>   %o %o', el, enh);
             },
             function(el, enh) { drawFeature(el.prop('id').substring(23)); }
         ];
+*/
 
     }
 

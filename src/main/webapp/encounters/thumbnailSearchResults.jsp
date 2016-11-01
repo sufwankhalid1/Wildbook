@@ -93,6 +93,7 @@ com.drew.metadata.Tag, org.ecocean.mmutil.MediaUtilities,org.ecocean.*,java.io.F
         ArrayList<String> enclist = new ArrayList<String>();
 	for (Object obj : c) {
 		Encounter enc = (Encounter)obj;
+		if ((enc.getState() != null) && enc.getState().equals("study")) continue;
 		if ((colorsToMatch != null) && (enc.getMajorColors() != null)) {
 			List clist = Arrays.asList(enc.getMajorColors());
 			boolean skip = true;
