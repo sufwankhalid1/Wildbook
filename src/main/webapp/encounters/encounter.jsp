@@ -9,6 +9,7 @@
          com.drew.metadata.Directory,
          com.drew.metadata.Metadata,
          com.drew.metadata.Tag,
+	java.util.Arrays,
          org.ecocean.*,
          org.ecocean.servlet.ServletUtilities,
          org.ecocean.Util,org.ecocean.Measurement,
@@ -21,6 +22,15 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <%!
+
+	public String colorSelected(Encounter enc, String color) {
+		if ((enc.getMajorColors() == null) || (enc.getMajorColors().length < 1)) return "";
+		if (Arrays.asList(enc.getMajorColors()).contains(color)) return " selected";
+		return "";
+	}
+	public String earTippingSelected(Encounter enc, String et) {
+		return (((enc.getEarTipping() == null) || !enc.getEarTipping().equals(et)) ? "" : " selected");
+	}
 
   //shepherd must have an open trasnaction when passed in
   public String getNextIndividualNumber(Encounter enc, Shepherd myShepherd, String context) {
@@ -2904,13 +2914,96 @@ $("a#LifeStage").click(function() {
 
 <p class="para">
 Major colours:
+
 <%=((enc.getMajorColors() == null) ? "" : StringUtils.join(enc.getMajorColors(), ", "))%>
+
+<% if (isOwner && CommonConfiguration.isCatalogEditable(context)) { %>
+	<a id="majorColors" class="launchPopup"><img align="absmiddle" width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" /></a>
+
+    <!-- start set behavior popup -->
+<div id="dialogMajorColors" title="Edit Colors" style="display:none">
+			  <table cellpadding="1" cellspacing="0" bordercolor="#FFFFFF">
+    <tr>
+      <td align="left" valign="top">
+        <form name="setMajorColors" action="../EncounterSetCatnipOptions" method="post">
+<select multiple size="5" style="width: 10em;" name="majorColors" id="color" >
+              <option <%=colorSelected(enc, "Black")%>>Black</option>
+		<option <%=colorSelected(enc, "White")%>>White</option>
+		<option <%=colorSelected(enc, "Grey")%>>Grey</option>
+		<option <%=colorSelected(enc, "Orange")%>>Orange</option>
+		<option <%=colorSelected(enc, "Brown")%>>Brown</option>
+</select>
+          <input name="number" type="hidden" value="<%=num%>" />
+          <input name="EditMajorColors" type="submit" id="EditMajorColors" value="<%=encprops.getProperty("submitEdit")%>" />
+        </form>
+      </td>
+    </tr>
+  </table>
+</div>
+
+<!-- popup dialog script -->
+<script>
+var dlgMajorColors = $("#dialogMajorColors").dialog({
+  autoOpen: false,
+  draggable: false,
+  resizable: false,
+  width: 600
+});
+
+$("a#majorColors").click(function() {
+  dlgMajorColors.dialog("open");
+});
+</script>
+
+<% } %>
+
 </p>
 
 <p class="para">
 Ear tipping:
 <%=enc.getEarTipping()%>
+
+<% if (isOwner && CommonConfiguration.isCatalogEditable(context)) { %>
+	<a id="earTipping" class="launchPopup"><img align="absmiddle" width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" /></a>
+
+<div id="dialogEarTipping" title="Edit Ear Tipping" style="display:none">
+			  <table cellpadding="1" cellspacing="0" bordercolor="#FFFFFF">
+    <tr>
+      <td align="left" valign="top">
+        <form name="setEarTipping" action="../EncounterSetCatnipOptions" method="post">
+            <select name="earTipping" id="earTippingSelect">
+              <option value="Unknown" <%=earTippingSelected(enc, "Unknown")%>>Unknown</option>
+              <option value="Left ear tipped" <%=earTippingSelected(enc, "Left ear tipped")%>>Left ear tipped</option>
+              <option value="Right ear tipped" <%=earTippingSelected(enc, "Right ear tipped")%>>Right ear tipped</option>
+              <option value="Neither"<%=earTippingSelected(enc, "Neither")%>>Neither</option>
+            </select>
+          <input name="number" type="hidden" value="<%=num%>" />
+          <input name="EditEarTipping" type="submit" id="EditEarTipping" value="<%=encprops.getProperty("submitEdit")%>" />
+        </form>
+      </td>
+    </tr>
+  </table>
+</div>
+
+<!-- popup dialog script -->
+<script>
+var dlgEarTipping = $("#dialogEarTipping").dialog({
+  autoOpen: false,
+  draggable: false,
+  resizable: false,
+  width: 600
+});
+
+$("a#earTipping").click(function() {
+  dlgEarTipping.dialog("open");
+});
+</script>
+
+<% } %>
+
 </p>
+
+
 <!-- START ADDITIONAL COMMENTS -->
 <p class="para"><%=encprops.getProperty("comments") %>
   <%

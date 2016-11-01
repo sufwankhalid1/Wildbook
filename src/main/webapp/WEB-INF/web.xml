@@ -141,6 +141,7 @@
 				/BatchUpload/** = authc, roles[admin]
 				/appadmin/batch* = authc, roles[admin]
 				/EncounterSetSubmitterID = authc, roles[admin]
+				/EncounterSetCatnipOptions = authc, roles[admin]
 
 				 /EncounterSetTapirLinkExposure = authc, roles[researcher]
 		        /GenePopExport = authc, roles[researcher]
@@ -309,6 +310,11 @@
   <servlet>
     <servlet-name>EncounterSetAlternateID</servlet-name>
     <servlet-class>org.ecocean.servlet.EncounterSetAlternateID</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>EncounterSetCatnipOptions</servlet-name>
+    <servlet-class>org.ecocean.servlet.EncounterSetCatnipOptions</servlet-class>
   </servlet>
 
     <servlet>
@@ -1789,6 +1795,11 @@
   <servlet-mapping>
     <servlet-name>EncounterSetAlternateID</servlet-name>
     <url-pattern>/EncounterSetAlternateID</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>EncounterSetCatnipOptions</servlet-name>
+    <url-pattern>/EncounterSetCatnipOptions</url-pattern>
   </servlet-mapping>
 
     <servlet-mapping>
