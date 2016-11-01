@@ -2,10 +2,41 @@
 		language="java"
  		import="org.ecocean.servlet.ServletUtilities,javax.jdo.Query,com.drew.imaging.jpeg.JpegMetadataReader,com.drew.metadata.Metadata,
 java.util.Arrays,
+java.util.Collections,
+java.util.Comparator,
 java.util.List,
 com.drew.metadata.Tag, org.ecocean.mmutil.MediaUtilities,org.ecocean.*,java.io.File, java.util.*,org.ecocean.security.Collaboration, java.io.FileInputStream, javax.jdo.Extent" %>
 
 
+<%!
+	public static String[] colorsToMatch = null;
+        //List<Encounter> actualEncs = new ArrayList<Encounter>();
+    private static List<Encounter> sortedEncounters(final List<Encounter> encs) {
+	if ((colorsToMatch == null) || (colorsToMatch.length < 1)) return encs;
+        Collections.sort(encs, new Comparator<Encounter>() {
+            public int compare(Encounter e1, Encounter e2) {
+                if ((e1 == null) || (e2 == null)) return 0;
+		List<String> cmatch = Arrays.asList(colorsToMatch);
+		Integer c1 = 0;
+		Integer c2 = 0;
+		if (e1.getMajorColors() != null) {
+			for (String col : e1.getMajorColors()) {
+				if (cmatch.contains(col)) c1++;
+			}
+		}
+		if (e2.getMajorColors() != null) {
+			for (String col : e2.getMajorColors()) {
+				if (cmatch.contains(col)) c2++;
+			}
+		}
+System.out.println(colorsToMatch + "] c1, c2 = " + c1 + ", " + c2);
+                return c2.compareTo(c1);
+            }
+        });
+        return encs;
+    }
+
+%>
   <%
   
   String context="context0";
@@ -77,7 +108,7 @@ com.drew.metadata.Tag, org.ecocean.mmutil.MediaUtilities,org.ecocean.*,java.io.F
 		List<Collaboration> collabs = Collaboration.collaborationsForCurrentUser(request);
 
 
-	String[] colorsToMatch = request.getParameterValues("color");
+	colorsToMatch = request.getParameterValues("color");
 
     //if (request.getParameter("noQuery") == null) {
     	String jdoqlQueryString=EncounterQueryProcessor.queryStringBuilder(request, prettyPrint, paramMap);
@@ -90,7 +121,7 @@ com.drew.metadata.Tag, org.ecocean.mmutil.MediaUtilities,org.ecocean.*,java.io.F
         ArrayList<String> enclist = new ArrayList<String>(c);
 */
         Collection c = (Collection) (query.execute());
-        ArrayList<String> enclist = new ArrayList<String>();
+        List<Encounter> actualEncs = new ArrayList<Encounter>();
 	for (Object obj : c) {
 		Encounter enc = (Encounter)obj;
 		if ((enc.getState() != null) && enc.getState().equals("study")) continue;
@@ -102,9 +133,14 @@ com.drew.metadata.Tag, org.ecocean.mmutil.MediaUtilities,org.ecocean.*,java.io.F
 			}
 			if (skip) continue;
 		}
-		enclist.add(enc.getCatalogNumber());
+		actualEncs.add(enc);
 	}
         query.closeAll();
+
+        ArrayList<String> enclist = new ArrayList<String>();
+	for (Encounter enc : sortedEncounters(actualEncs)) {
+		enclist.add(enc.getCatalogNumber());
+	}
     	
 	  //queryResult = EncounterQueryProcessor.processQuery(myShepherd, request, "year descending, month descending, day descending");
 	
