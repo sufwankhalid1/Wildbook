@@ -105,10 +105,11 @@ public class EncounterQueryProcessor {
     //end unassigned filter--------------------------------------------------------------------------------------
 
     if ((request.getParameter("earTipping") != null) && !request.getParameter("earTipping").equals("")) {
+        String e = "(earTipping == null || earTipping == 'Unknown' || earTipping == '" + request.getParameter("earTipping") + "')";
       if(filter.equals(SELECT_FROM_ORG_ECOCEAN_ENCOUNTER_WHERE)){
-        filter += "(earTipping == '" + request.getParameter("earTipping") + "')";
+        filter += e;
       }
-      else{filter+=" && (earTipping == '" + request.getParameter("earTipping") + "')";}
+      else{filter += " && " + e; }
       prettyPrint.append("Ear tipping is <i>" + request.getParameter("earTipping") + "</i><br />");
     }
 
