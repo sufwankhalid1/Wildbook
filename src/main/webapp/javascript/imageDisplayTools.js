@@ -101,6 +101,11 @@ maLib.catnipCaptionFunction = function(maJson) {
  * @param {@function {@param {string} maJSON @returns {string}}} maCaptionFunction - a function that takes a jsonified MediaAsset and returns a caption string. This makes it convenient to have custom caption protocols for each Wildbook.
  */
 maLib.maJsonToFigureElemCaption = function(maJson, intoElem, caption, maCaptionFunction) {
+    var badType = _badContentType(maJson);
+    if (badType) {
+        intoElem.append(badType);
+        return;
+    }
   //var maCaptionFunction = typeof maCaptionFunction !== 'undefined' ?  b : ma.defaultCaptionFunction;
   caption = caption || "";
   maCaptionFunction = maCaptionFunction || maLib.catnipCaptionFunction;
@@ -517,6 +522,21 @@ function mkImg(maJson) {
     if (umid) url = umid;
     return '<img id="figure-img-' + maJson.id + '" data-enh-mediaAssetId="' + maJson.id + '" src="' + url + '" itemprop="contentUrl" alt=""/>';
     //return '<img class="lazyload" id="figure-img-' + maJson.id + '" data-enh-mediaAssetId="' + maJson.id + '" src="/cust/mantamatcher/img/individual_placeholder_image.jpg" data-src="' + url + '" itemprop="contentUrl" alt="Image description"/>';
+}
+
+function _badContentType(maJson) {
+    if (maJson && maJson.metadata && maJson.metadata.contentType &&
+        ((maJson.metadata.contentType.indexOf("image/") == 0) || (maJson.metdata.contentType.indexOf("video/") == 0))) return false;
+    console.warn('invalid contentType for %o', maJson);
+    if (!wildbookGlobals.username) return '<!-- invalid content: maId=' + maJson.id + ', url=' + maJson.url + ' -->';
+    var url = maJson.url || '(no url set)';
+    var filename = url;
+    var i = filename.lastIndexOf("/");
+    if (i > -1) filename = filename.substring(i + 1);
+    var h = '<div class="error error-bad-content-type">Invalid content type for <b title="' + url + '">' + filename + '</b>';
+    if (maJson.id) h += '<a href="#" style="float: right;" title="remove this MediaAsset (' + maJson.id + ') from this Encounter" onClick="removeAsset(' + maJson.id + '); return false;">[remove]</a>';
+    h += '</div>';
+    return h;
 }
 
 // execute above function

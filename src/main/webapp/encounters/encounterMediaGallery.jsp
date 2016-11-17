@@ -852,6 +852,14 @@ console.log('x=%o, s=%o', x, s);
 		cursor: pointer;
 		display: block;
 	}
+
+	.error-bad-content-type {
+		padding: 10px;
+		background-color: #FDD;
+		border-radius: 10px;
+		margin: 10px;
+	}
+
 </style>
 
 <jsp:include page="../photoswipe/photoswipeTemplate.jsp" flush="true"/>
