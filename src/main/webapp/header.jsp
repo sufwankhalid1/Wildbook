@@ -297,11 +297,19 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
                                   <!--                -->
                       <li class="active home text-hide"><a href="<%=urlLoc %>"><%=props.getProperty("home")%></a></li>
 
+                      <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Participate <span class="caret"></span></a>
+                        <ul class="dropdown-menu" role="menu">
 <%	if (request.getUserPrincipal() == null) { %>
-                      <li><a href="<%=urlLoc %>/register.jsp">Register</a></li>
+                      		<li><a href="<%=urlLoc %>/register.jsp">Register to Submit Photos</a></li>
+                      		<li><a href="<%=urlLoc %>/registerProcess.jsp">Register to Process Photos</a></li>
 <%	} %>
 
-                      <li><a href="<%=urlLoc %>/submit.jsp"><%=props.getProperty("report")%></a></li>
+                      		<li><a href="<%=urlLoc %>/howToSubmit.jsp">How to Submit Photos</a></li>
+                      		<li><a href="<%=urlLoc %>/howToProcess.jsp">How to Process Photos</a></li>
+                      		<li><a href="<%=urlLoc %>/submit.jsp"><%=props.getProperty("report")%></a></li>
+			</ul>
+			</li>
 
                       <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><%=props.getProperty("learn")%> <span class="caret"></span></a>
