@@ -53,6 +53,7 @@ public class BenWhiteshark {
 
     public static final String ERROR_KEY = "__ERROR__";
     public static final String SERVICE_NAME = "BenWhiteshark";
+    public static final HashMap<Integer,String> JOB_DATA_CACHE = new HashMap<Integer,String>();
 
     public static boolean enabled() {
         return ((getJobStartDir() != null) && (getJobResultsDir() != null));
@@ -91,12 +92,19 @@ public class BenWhiteshark {
 
     //TODO support taxonomy!
     public static String startJob(List<MediaAsset> queryMAs, Shepherd myShepherd) {
+////NOTE: per discussion with ben on 2016/10/24 we now will not pass *any* target MAs... whole set will be assumed to be known by CV
+System.out.println("WARNING: currently not passing target MA (exemplar) data to job start file! per discussion on 2016/10/24");
+List<MediaAsset> tmas = new ArrayList<MediaAsset>();
+/*
         List<Annotation> exs = getExemplars(myShepherd);
         if ((exs == null) || (exs.size() < 1)) throw new RuntimeException("getExemplars() returned no results");
+System.out.println("startJob() exemplars size=" + exs.size());
         List<MediaAsset> tmas = new ArrayList<MediaAsset>();
         for (Annotation ann : exs) {
             if (!queryMAs.contains(ann.getMediaAsset())) tmas.add(ann.getMediaAsset());
         }
+*/
+System.out.println("queryMAs.size = " + queryMAs.size());
         String[] ids = new String[queryMAs.size()];
         for (int i = 0 ; i < queryMAs.size() ; i++) {
             ids[i] = Integer.toString(queryMAs.get(i).getId());
@@ -114,20 +122,28 @@ public class BenWhiteshark {
     }
     public static String startJob(List<MediaAsset> queryMAs, List<MediaAsset> targetMAs) {
         String taskId = Util.generateUUID();
+System.out.println("startJob() taskId="+taskId);
         String contents = "";
+int count = 0;
         for (MediaAsset ma : queryMAs) {
+count++;  System.out.println(count + "/" + queryMAs.size() + ": " + ma.getId());
             contents += jobdata(ma);
         }
+/*
         contents += "-1\t-1\t-1\t-1\t-1\t-1\t-1\t-1\n";   //agreed divider between queryMA(s) and targetMA(s)
+count = 0;
         for (MediaAsset ma : targetMAs) {
+count++;  System.out.println(count + "/" + targetMAs.size() + ": " + ma.getId());
             contents += jobdata(ma);
         }
+*/
         writeFile(taskId, contents);
         return taskId;
     }
 
     static String jobdata(MediaAsset ma) {
         if (ma == null) return "# null MediaAsset passed\n";
+        if (JOB_DATA_CACHE.get(ma.getId()) != null) return JOB_DATA_CACHE.get(ma.getId());
         Shepherd myShepherd = new Shepherd("context0");
         //i guess technically we only need encounter to get individual... which maybe we dont need?
         Encounter enc = null;
@@ -143,8 +159,10 @@ public class BenWhiteshark {
 	if ((pathReplaceRegex != null) && (pathReplaceValue != null)) {
 		filePathString = filePathString.replace(pathReplaceRegex, pathReplaceValue);
 	}
-        return ma.getUUID() + "\t" + filePathString + "\t" + (enc.hasMarkedIndividual() ? enc.getIndividualID() : "-1") + "\t" + enc.getCatalogNumber() +
-            "\t-1\t-1\t-1\t-1\n";    // this is holding the place of the potential two fin end points x1,y1 x2,y2 (via user input)
+        String jd = ma.getUUID() + "\t" + filePathString + "\t" + (enc.hasMarkedIndividual() ? enc.getIndividualID() : "-1") + "\t" + enc.getCatalogNumber() +
+                    "\t-1\t-1\t-1\t-1\n";    // this is holding the place of the potential two fin end points x1,y1 x2,y2 (via user input)
+        JOB_DATA_CACHE.put(ma.getId(), jd);
+        return jd;
     }
 
     static void writeFile(String taskId, String contents) {
