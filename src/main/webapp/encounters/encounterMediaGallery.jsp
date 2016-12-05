@@ -58,7 +58,7 @@ try {
 	var aid = ma.annotationId;
     //var aid = el.getAttribute('data-id');
     //el.parentElement.innerHTML = '<i>starting identification</i>';
-//console.warn('aid=%o, el=%o', aid, el); return;
+//console.warn('aid=%o, ma=%o', aid, ma); return;
     jQuery.ajax({
       url: '../ia',
       type: 'POST',
@@ -281,7 +281,6 @@ function doImageEnhancer(sel) {
 */
 	];
 
-/*
 	if (wildbook.iaEnabled()) {
 		opt.menu.push(['start new matching scan', function(enh) {
       if (!isGenusSpeciesSet()) {
@@ -295,7 +294,6 @@ function doImageEnhancer(sel) {
 			startIdentify(assetById(mid), enh.imgEl);
 		}]);
 	}
-*/
 
 	var ct = 1;
 	for (var annId in iaTasks) {
