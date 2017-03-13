@@ -164,9 +164,22 @@ public class ImportExcel extends HttpServlet {
       }
       if (committing && isValid == true) {
         try {
+          out.println("++++ Persisting Media Asset ++++");
+          ma = new MediaAsset(assetStore, params);
+          myShepherd.beginDBTransaction();
+          myShepherd.getPM().makePersistent(ma);
+          myShepherd.commitDBTransaction();
+          //myShepherd.beginDBTransaction();
+        } catch (Exception e) {
+          myShepherd.rollbackDBTransaction();
+          out.println("!!!! Error persisting media asset !!!!");
+          e.printStackTrace(); 
+        }
+      }
+      if (committing && isValid == true) {
+        try {
           out.println("++++ Creating Media Asset ++++");
           photoId = (photoNumber+photoFileName.substring(photoFileName.length()-5).charAt(0)); 
-          ma = new MediaAsset(assetStore, params);
           ma.addDerivationMethod("createEncounter", System.currentTimeMillis());
           ma.addLabel("_original");
           ma.copyIn(photo);
@@ -181,19 +194,6 @@ public class ImportExcel extends HttpServlet {
         }
       }
       
-      if (committing && isValid == true) {
-        try {
-          out.println("++++ Persisting Media Asset ++++");
-          myShepherd.beginDBTransaction();
-          myShepherd.getPM().makePersistent(ma);
-          myShepherd.commitDBTransaction();
-          //myShepherd.beginDBTransaction();
-        } catch (Exception e) {
-          myShepherd.rollbackDBTransaction();
-          out.println("!!!! Error persisting media asset !!!!");
-          e.printStackTrace(); 
-        }
-      }
       
       //Annotation ann = new Annotation("Psammobates geometricus", ma);
       //if (committing && isValid == true) {
