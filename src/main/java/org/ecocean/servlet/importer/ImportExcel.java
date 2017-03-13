@@ -64,18 +64,6 @@ public class ImportExcel extends HttpServlet {
     myShepherd.beginDBTransaction();
     AssetStore assetStore = AssetStore.getDefault(myShepherd);
     myShepherd.commitDBTransaction();
-    //try {
-    //  if (assetStore.toString() == null || assetStore.toString() == "") {
-    //myShepherd.beginDBTransaction();
-    //AssetStore assetStore = new LocalAssetStore("Turtle-Asset-Store", new File(assetStorePath).toPath(), assetStoreURL, true);
-    //myShepherd.getPM().makePersistent(assetStore);
-    //myShepherd.commitDBTransaction();        
-    //  }
-    //} catch (Exception e) {
-    //  out.println("!!!! Failed to find or create a local asset store at "+assetStoreURL+" !!!!");
-    //  e.printStackTrace();      
-    //}    
-    
     
     boolean committing = (request.getParameter("commit")!=null && !request.getParameter("commit").toLowerCase().equals("false")); //false by default
     
@@ -120,9 +108,6 @@ public class ImportExcel extends HttpServlet {
     // NPOIFSFileSystem fs = new NPOIFSFileSystem(dataFile);  
     // HSSFWorkbook wb = new HSSFWorkbook(fs.getRoot(), true);
 
-    // persist images in asset store, then associate with encounter
-    // be careful of committing one and not the other, if you do it will contain a reference to 
-    // that object in RAM, but not the persisted one if at all. 
     myShepherd.closeDBTransaction();
     out.close();
   }
@@ -314,6 +299,7 @@ public class ImportExcel extends HttpServlet {
             MediaAsset mac = assetIds.get(encIdS + "c");
             MediaAsset map = assetIds.get(encIdS + "p");
             try {
+              myShepherd.beginDBTransaction();
               if (mal != null) {
                 enc.addMediaAsset(mal);                
               }
@@ -326,6 +312,7 @@ public class ImportExcel extends HttpServlet {
               if (mar != null) {
                 enc.addMediaAsset(mar);                
               }
+              myShepherd.commitDBTransaction();
             } catch (Exception npe) {
               npe.printStackTrace();
               out.println("!!! Failed to Add Media asset to Encounter  !!!");

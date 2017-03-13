@@ -174,7 +174,7 @@ public class ImportHumpback extends HttpServlet {
     }
     
     
-    if (imf == null && dataFile.getName() != null) {
+    if (myShepherd.getKeyword(dataFile.getName()) == null) {
       imf = new Keyword(dataFile.getName().toUpperCase()); 
       myShepherd.beginDBTransaction();
       myShepherd.getPM().makePersistent(imf);
@@ -350,7 +350,7 @@ public class ImportHumpback extends HttpServlet {
     if (mi != null && !indyId.equals("0")) {
       try {
         myShepherd.beginDBTransaction();
-        mi.addEncounter(enc, indyId);
+        mi.addEncounter(enc, context);
         myShepherd.commitDBTransaction();      
       } catch (Exception e) {
         e.printStackTrace(out);
