@@ -1,37 +1,21 @@
 package org.ecocean.servlet.importer;
 
-import org.joda.time.LocalDateTime;
-import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.ISODateTimeFormat;
 import org.json.JSONObject;
 
-import java.net.*;
-import java.sql.Time;
-import java.text.Normalizer;
-
-import org.ecocean.grid.*;
 import java.io.*;
 import java.util.*;
 import java.io.FileInputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import org.ecocean.*;
 import org.ecocean.servlet.*;
 import org.ecocean.media.*;
-import javax.jdo.*;
-import java.lang.StringBuffer;
-import java.lang.NumberFormatException;
 //import org.apache.poi.hssf.usermodel.*;
 //import org.apache.poi.poifs.filesystem.NPOIFSFileSystem;
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -201,9 +185,10 @@ public class ImportExcel extends HttpServlet {
           ma.addDerivationMethod("createEncounter", System.currentTimeMillis());
           ma.addLabel("_original");
           ma.copyIn(photo);
-          ma.setAccessControl(request);
           ma.updateMetadata();
+          myShepherd.beginDBTransaction();
           ma.updateStandardChildren(myShepherd);
+          myShepherd.commitDBTransaction();
           ma.generateUUIDFromId();
         } catch (Exception e) {
           out.println("!!!! Error creating media asset for image ID "+photoId+" !!!!");
@@ -303,6 +288,7 @@ public class ImportExcel extends HttpServlet {
         Encounter enc = null;
         if (committing && isValid == true) {
           enc = parseEncounter(row, myShepherd);
+          
           String indID = enc.getIndividualID();
           MarkedIndividual ind = null;
           boolean needToAddEncToInd = false;
@@ -317,7 +303,11 @@ public class ImportExcel extends HttpServlet {
           try {
             out.println("Adding media asset : "+encId);
             enc.setState("approved");
+            
+            myShepherd.beginDBTransaction();
             if (committing && isValid == true) myShepherd.storeNewEncounter(enc, enc.getCatalogNumber());
+            myShepherd.commitDBTransaction();
+            
             String encIdS = String.valueOf(encId);
             MediaAsset mal = assetIds.get(encIdS + "l");
             MediaAsset mar = assetIds.get(encIdS + "r");
@@ -346,8 +336,15 @@ public class ImportExcel extends HttpServlet {
           }
           
           if (needToAddEncToInd) ind.addEncounter(enc, context);
+          myShepherd.beginDBTransaction();
           if (committing && indID!=null && isValid == true && !myShepherd.isMarkedIndividual(indID)) myShepherd.storeNewMarkedIndividual(ind);
-          if (committing && isValid == true) myShepherd.commitDBTransaction();
+          
+          if (committing && isValid == true) {
+            myShepherd.commitDBTransaction();
+          } else {
+            myShepherd.rollbackDBTransaction();
+          }
+            
           // New Close it.
           if (i%printPeriod==0) {
             out.println("Parsed row ("+i+"), containing Enc "+enc.getEncounterNumber()
@@ -405,7 +402,6 @@ public class ImportExcel extends HttpServlet {
     String scheme = request.getScheme() + "://";
     String name = request.getServerName();
     String port = (request.getServerPort() == 80) ? "" : ":" + request.getServerPort();
-    String path = request.getContextPath();
     return scheme + name + port;
   }
   
@@ -444,8 +440,14 @@ public class ImportExcel extends HttpServlet {
     
     Measurement weight = new Measurement(encNumString,"Weight", weightD, "Gram", "directly measured");
     Measurement length = new Measurement(encNumString,"Length", lengthD, "Millimeter", "directly measured");
+    
+    myShepherd.beginDBTransaction();
     enc.setMeasurement(weight, myShepherd);
+    myShepherd.commitDBTransaction();
+    
+    myShepherd.beginDBTransaction();
     enc.setMeasurement(length, myShepherd);
+    myShepherd.commitDBTransaction();
 
     Date encDate = resolveDate(rossDate, vickiDate);
     DateTime dt = new DateTime(encDate);
