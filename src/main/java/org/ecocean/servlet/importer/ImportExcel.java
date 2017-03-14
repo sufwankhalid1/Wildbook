@@ -57,10 +57,7 @@ public class ImportExcel extends HttpServlet {
       StartupWildbook.initializeWildbook(request, myShepherd);
       myShepherd.commitDBTransaction();
     }
-    String assetStorePath="/data/wildbook_data_dir";
-     
-    String assetStoreURL= dataURL + "/wildbook_data_dir";
-    
+
     myShepherd.beginDBTransaction();
     AssetStore assetStore = AssetStore.getDefault(myShepherd);
     myShepherd.commitDBTransaction();
@@ -426,7 +423,14 @@ public class ImportExcel extends HttpServlet {
     Double lengthD = getDouble(row, 11);
     
     Measurement weight = new Measurement(encNumString,"Weight", weightD, "Gram", "directly measured");
+    myShepherd.beginDBTransaction();
+    myShepherd.getPM().makePersistent(weight);
+    myShepherd.commitDBTransaction();
+    
     Measurement length = new Measurement(encNumString,"Length", lengthD, "Millimeter", "directly measured");
+    myShepherd.beginDBTransaction();
+    myShepherd.getPM().makePersistent(length);
+    myShepherd.commitDBTransaction();
     
     myShepherd.beginDBTransaction();
     enc.setMeasurement(weight, myShepherd);
@@ -457,16 +461,6 @@ public class ImportExcel extends HttpServlet {
     return enc;
   }
 
-  //private String stripAccents(String s) {
-  //      try {
-  //    s = Normalizer.normalize(s, Normalizer.Form.NFD);
-  //    s = s.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
-  //    return s;
-  //  } catch (Exception e) {
-  //    e.printStackTrace();
-  //    return null;
-  //  }
-  //}
   
   private void parseDynProp(Encounter enc, String name, XSSFRow row, int i) {
     String val = getString(row, i);
