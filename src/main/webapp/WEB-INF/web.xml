@@ -133,7 +133,8 @@
 				/index.jsp = authc, roles[admin]
 				/individuals.jsp = authc, roles[admin]
 				/gallery.jsp = authc, roles[admin]
-				/encounters/encounter.jsp = authc, roles[admin]
+				/encounters/** = authc, roles[admin]
+				
 
                 /appadmin/** = authc, roles[admin]
                 /MassSetInformOthers = authc, roles[admin]
