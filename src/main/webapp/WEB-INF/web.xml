@@ -134,7 +134,7 @@
 				/individuals.jsp = authc, roles[admin]
 				/gallery.jsp = authc, roles[admin]
 				/encounters/** = authc, roles[admin]
-				
+				/encounters/encounterSearch.jsp = authc, roles[admin]
 
                 /appadmin/** = authc, roles[admin]
                 /MassSetInformOthers = authc, roles[admin]

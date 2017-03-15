@@ -257,8 +257,13 @@ public class ImportExcel extends HttpServlet {
         Encounter enc = null;
         if (committing && isValid == true) {
           enc = parseEncounter(row, myShepherd);
+          String indID = null;
+          try {
+            indID = getStringOrIntString(row, 12);
+          } catch (Exception e) {
+            out.println("Not a valid indy for this row!");
+          }
           
-          String indID = enc.getIndividualID();
           MarkedIndividual ind = null;
           boolean needToAddEncToInd = false;
           if (indID!=null) {
@@ -305,7 +310,7 @@ public class ImportExcel extends HttpServlet {
             e.printStackTrace();
             out.println("!!! Failed to Store New Encounter  !!!");
           }
-          if (committing && ind != null && !myShepherd.isMarkedIndividual(indID)) {
+          if (committing && ind != null) {
             myShepherd.beginDBTransaction();
             myShepherd.storeNewMarkedIndividual(ind);
             myShepherd.commitDBTransaction();
@@ -382,7 +387,7 @@ public class ImportExcel extends HttpServlet {
     Integer encNum = getInteger(row, 7);
     String encNumString = String.valueOf(encNum);
     String indID = null;
-    if (getString(row, 12) != null) {
+    if (getStringOrIntString(row, 12) != null) {
       indID = getStringOrIntString(row, 12);
       enc.setIndividualID(indID);
       out.println("Set Individual ID :"+enc.getIndividualID());

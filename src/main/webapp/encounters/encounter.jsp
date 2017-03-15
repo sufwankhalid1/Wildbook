@@ -137,7 +137,7 @@ String langCode=ServletUtilities.getLanguageCode(request);
 
   Properties encprops = ShepherdProperties.getProperties("encounter.properties", langCode, context);
 
-	Properties collabProps = new Properties();
+	Properties collabProps 	= new Properties();
  	collabProps=ShepherdProperties.getProperties("collaboration.properties", langCode, context);
 
 
@@ -160,7 +160,7 @@ String langCode=ServletUtilities.getLanguageCode(request);
 
 <jsp:include page="../header.jsp" flush="true"/>
 
-<script src="//maps.google.com/maps/api/js?key=<%=props.getProperty(googleSearchKey)%>&language=<%=langCode%>"></script>
+<script src="//maps.google.com/maps/api/js?key=AIzaSyDF6j-dV6UGLwygmi-NLDbxd2WzKXxbasQ&language=<%=langCode%>"></script>
 
 
   <style type="text/css">
