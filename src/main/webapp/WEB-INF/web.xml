@@ -130,8 +130,12 @@
 
                 /appadmin/scanTaskAdmin.jsp = authc, roles[researcher]
 
+				/index.jsp = authc, roles[admin]
+				/individuals.jsp = authc, roles[admin]
+				/gallery.jsp = authc, roles[admin]
+				/encounters/encounter.jsp = authc, roles[admin]
 
-                /** = authc, roles[admin]
+                /appadmin/** = authc, roles[admin]
                 /MassSetInformOthers = authc, roles[admin]
                 /MassExposeGBIF = authc, roles[admin]
                 /MassSetLocationCodeFromLocationString = authc, roles[admin]

@@ -383,8 +383,9 @@ public class ImportExcel extends HttpServlet {
     String encNumString = String.valueOf(encNum);
     String indID = null;
     if (getString(row, 12) != null) {
-      indID = getString(row, 12);
+      indID = getStringOrIntString(row, 12);
       enc.setIndividualID(indID);
+      out.println("Set Individual ID :"+enc.getIndividualID());
     }
     
     out.println("Processing encounter : "+encNumString);
