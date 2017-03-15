@@ -35,6 +35,10 @@
         //set up the file input stream
         //props.load(getClass().getResourceAsStream("/bundles/newIndividualNumbers.properties"));
         props=ShepherdProperties.getProperties("newIndividualNumbers.properties", "",context);
+        
+        Properties googleKey = new Properties();
+        
+        googleKey=ShepherdProperties.getProperties("commonConfiguration.properties", "",context); 
 
         //let's see if the property is defined
         if (props.getProperty(lcode) != null) {
@@ -156,7 +160,7 @@ String langCode=ServletUtilities.getLanguageCode(request);
 
 <jsp:include page="../header.jsp" flush="true"/>
 
-<script src="//maps.google.com/maps/api/js?sensor=false&language=<%=langCode%>"></script>
+<script src="//maps.google.com/maps/api/js?key=<%=props.getProperty(googleSearchKey)%>&language=<%=langCode%>"></script>
 
 
   <style type="text/css">
