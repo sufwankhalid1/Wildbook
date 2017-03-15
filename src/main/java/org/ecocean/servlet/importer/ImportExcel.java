@@ -191,19 +191,6 @@ public class ImportExcel extends HttpServlet {
         }
       }
       
-      
-      //Annotation ann = new Annotation("Psammobates geometricus", ma);
-      //if (committing && isValid == true) {
-      //  try {
-      //    myShepherd.storeNewAnnotation(ann);
-      //    myShepherd.getPM().makePersistent(ann);
-      //    myShepherd.commitDBTransaction();
-      //  } catch (Exception e) {
-      //    out.println("!!!! Error storing new annotation for media asset !!!!");
-      //    e.printStackTrace(); 
-      //  }
-      //}
-      // enc.addAnnotations  
     }
     // You are trying to create media assets for each image file. Each image has a photo number
     // at the 4-6 character of it's file name.
@@ -318,17 +305,16 @@ public class ImportExcel extends HttpServlet {
             e.printStackTrace();
             out.println("!!! Failed to Store New Encounter  !!!");
           }
-          
-          if (needToAddEncToInd) ind.addEncounter(enc, context);
-          myShepherd.beginDBTransaction();
-          if (committing && indID!=null && isValid == true && !myShepherd.isMarkedIndividual(indID)) myShepherd.storeNewMarkedIndividual(ind);
-          
-          if (committing && isValid == true) {
+          if (committing && ind != null && !myShepherd.isMarkedIndividual(indID)) {
+            myShepherd.beginDBTransaction();
+            myShepherd.storeNewMarkedIndividual(ind);
             myShepherd.commitDBTransaction();
-          } else {
-            myShepherd.rollbackDBTransaction();
+            out.println("=== CREATED INDIVIDUAL "+ind.getName()+" ===");
           }
-            
+          myShepherd.beginDBTransaction();
+          if (ind != null) ind.addEncounter(enc, context);
+          myShepherd.commitDBTransaction();
+               
           // New Close it.
           if (i%printPeriod==0) {
             out.println("Parsed row ("+i+"), containing Enc "+enc.getEncounterNumber()
