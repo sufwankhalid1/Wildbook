@@ -36,9 +36,6 @@
         //props.load(getClass().getResourceAsStream("/bundles/newIndividualNumbers.properties"));
         props=ShepherdProperties.getProperties("newIndividualNumbers.properties", "",context);
         
-        Properties googleKey = new Properties();
-        
-        googleKey=ShepherdProperties.getProperties("commonConfiguration.properties", "",context); 
 
         //let's see if the property is defined
         if (props.getProperty(lcode) != null) {
@@ -110,7 +107,7 @@ File shepherdDataDir = new File(webappsDir, CommonConfiguration.getDataDirectory
 File encountersDir=new File(shepherdDataDir.getAbsolutePath()+"/encounters");
 File encounterDir = new File(encountersDir, num);
 
-
+String mapKey = CommonConfiguration.getGoogleSearchKey(context);
   GregorianCalendar cal = new GregorianCalendar();
   int nowYear = cal.get(1);
 
@@ -160,7 +157,7 @@ String langCode=ServletUtilities.getLanguageCode(request);
 
 <jsp:include page="../header.jsp" flush="true"/>
 
-<script src="//maps.google.com/maps/api/js?key=AIzaSyDF6j-dV6UGLwygmi-NLDbxd2WzKXxbasQ&language=<%=langCode%>"></script>
+<script src="//maps.google.com/maps/api/js?key=<%=mapKey%>&language=<%=langCode%>"></script>
 
 
   <style type="text/css">
