@@ -58,7 +58,6 @@ public class ImportHumpback extends HttpServlet {
     initShepherd.commitDBTransaction();
     initShepherd.closeDBTransaction();
     
-    
     boolean committing = (request.getParameter("commit")!=null && !request.getParameter("commit").toLowerCase().equals("false"));
     
     String exceldir = "/opt/excel_humpback/";
@@ -83,7 +82,6 @@ public class ImportHumpback extends HttpServlet {
     out.close();
   }
   
-  
   public void processExcel(File dataFile, HttpServletResponse response, HttpServletRequest request, boolean committing) throws IOException { 
     FileInputStream fs = new FileInputStream(dataFile);
     XSSFWorkbook wb = new XSSFWorkbook(fs);
@@ -106,8 +104,9 @@ public class ImportHumpback extends HttpServlet {
     out.println("Num Columns = "+cols);
     out.println("Committing ? = "+String.valueOf(committing));
     
-    if (dataFile.getName().equals("CRC XRefCat.xlsx")) {
-      out.println("HACK: File is Reference Catalog. ID Column = 1, Color Column = 2");
+    // Hacking the hack to get the latest files to import! Yay!
+    if (dataFile.getName() != null) {
+      out.println("HACK: Latest file import. ID Column = 1, Color Column = 2");
       idColumn = 1;
       colorColumn = 2;
     } else {
@@ -130,13 +129,10 @@ public class ImportHumpback extends HttpServlet {
       
       enc = parseEncounter(row, myShepherd);  
       
-      
       ArrayList<Keyword> keywords = generateKeywords(row, dataFile, myShepherd);    
       attachAsset(enc, imageFile, request, myShepherd, assetStore, keywords);
     }
-    
-    
-    
+       
     // Lets just pull out the encounter/individual association to try to get this gnarly thread pile-up fixed.
     // This is totally a hack. Associating in the main loop overloaded postgres connections.
     Iterator<Encounter> allEncs = myShepherd.getAllEncounters();
