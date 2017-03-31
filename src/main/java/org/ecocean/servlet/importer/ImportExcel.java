@@ -417,6 +417,7 @@ public class ImportExcel extends HttpServlet {
     
     Double weightD = getDouble(row, 10);
     Double lengthD = getDouble(row, 11);
+    out.println("Weight : "+weightD.toString()+"Length : "+lengthD.toString());
     
     Measurement weight = new Measurement(encNumString,"Weight", weightD, "Gram", "directly measured");
     myShepherd.beginDBTransaction();
