@@ -283,6 +283,7 @@ String urlLoc = "//" + CommonConfiguration.getURLLocation(request);
                     </div>
                   </div>
                   <a class="navbar-brand" target="_blank" href="<%=urlLoc %>">Wildbook for Mark-Recapture Studies</a>
+                  <h4>The world's most endangered tortoise.</h4>
                 </div>
               </div>
 

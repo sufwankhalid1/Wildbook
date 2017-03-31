@@ -246,8 +246,10 @@ public class ImportExcel extends HttpServlet {
       try {
         if (committing) myShepherd.beginDBTransaction();
         row = sheet.getRow(i);
-        if (getInteger(row, 7) != null) {
+        if (getStringOrIntString(row, 7) != null) {
           encId = String.valueOf(getInteger(row, 7));          
+        } else {
+          isValid = false;
         }
         out.println("---- CURRENT ID: "+encId+" ----");
         if (assetIds.get(encId + "l") == null && assetIds.get(encId + "r") == null && assetIds.get(encId + "c") == null && assetIds.get(encId + "p") == null) {
@@ -259,7 +261,7 @@ public class ImportExcel extends HttpServlet {
           enc = parseEncounter(row, myShepherd);
           String indID = null;
           try {
-            indID = getStringOrIntString(row, 12);
+            indID = getStringOrIntString(row, 7);
           } catch (Exception e) {
             out.println("Not a valid indy for this row!");
           }
@@ -279,7 +281,7 @@ public class ImportExcel extends HttpServlet {
             enc.setState("approved");
             
             myShepherd.beginDBTransaction();
-            if (committing && isValid == true) myShepherd.storeNewEncounter(enc, enc.getCatalogNumber());
+            if (committing && isValid == true) myShepherd.storeNewEncounter(enc, Util.generateUUID());
             myShepherd.commitDBTransaction();
             
             String encIdS = String.valueOf(encId);
@@ -387,8 +389,8 @@ public class ImportExcel extends HttpServlet {
     Integer encNum = getInteger(row, 7);
     String encNumString = String.valueOf(encNum);
     String indID = null;
-    if (getStringOrIntString(row, 12) != null) {
-      indID = getStringOrIntString(row, 12);
+    if (getStringOrIntString(row, 7) != null) {
+      indID = getStringOrIntString(row, 7);
       enc.setIndividualID(indID);
       out.println("Set Individual ID :"+enc.getIndividualID());
     }
@@ -404,7 +406,9 @@ public class ImportExcel extends HttpServlet {
    
     enc.setDecimalLatitude(getDouble(row,4));
     enc.setDecimalLongitude(getDouble(row,5));
-    enc.setSex(parseSex(getString(row, 9)));
+    if (getString(row, 9) != null) {
+      enc.setSex(parseSex(getString(row, 9)));      
+    }
     enc.setCountry("South Africa");
     enc.setVerbatimLocality("South Africa");
     
@@ -441,13 +445,14 @@ public class ImportExcel extends HttpServlet {
     enc.setLivingStatus(getLiving(notes));
     enc.setIdentificationRemarks(notes);
  
-    parseDynProp(enc, "encounterTime", row, 3);
+    parseDynProp(enc, "Encounter Time", row, 3);
+    parseDynProp(enc, "Mismarked As :", row, 12);
     // Constructor for encounter takes annotation list - maybe useful
     // setAnnotations takes array list
     enc.setDWCDateAdded();
     enc.setDWCDateLastModified();
     enc.setSubmitterID("Bulk Import");
-    enc.setGenus("Psammobates geometricus");
+    enc.setGenus("Psammobates");
     enc.setSpecificEpithet("geometricus");
 
     return enc;
