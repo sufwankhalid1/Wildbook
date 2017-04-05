@@ -268,11 +268,12 @@ console.log(imgEl);
 }
 
 
-var spotTypes = [ 'ref1', 'ref2', 'ref3', 'spot' ];
+var spotTypes = [ 'ref1', 'ref2', 'ref3','ref4', 'spot' ];
 var spotTypeNames = {
-	ref1: '5th gill top',
-	ref2: 'posterior pectoral',
-	ref3: '5th gill bottom',
+	ref1: 'posterior left',
+	ref2: 'anterior left',
+	ref3: 'posterior right',
+	ref4: 'anterior right',
 	spot: 'spot',
 };
 var side = false;
@@ -380,7 +381,7 @@ console.log('spot click results: %o', sc);
 function nextAvailableSpotType(old) {
 	var foundIt = false;
 	for (var i = 0 ; i < spotTypes.length ; i++) {
-		if (foundIt && spotTypeAvailable(spotTypes[i])) return spotTypes[i];
+		if (foundIt && spotTypeAvailable(																																																				[i])) return spotTypes[i];
 		if (spotTypes[i] == old) foundIt = true;
 		if (spotTypeAvailable(old)) return old;  //still can do more of these
 	}
@@ -642,7 +643,7 @@ $(document).ready(function() {
 		</div>
 
 		<div id="imageTools-spot-type-picker"></div>
-
+		<h4>Choose left and right sides as if facing the tortoise.</h4>
 	</div>
 
 
