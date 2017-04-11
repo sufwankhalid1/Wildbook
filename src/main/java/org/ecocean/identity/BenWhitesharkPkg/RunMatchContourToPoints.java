@@ -1,11 +1,11 @@
-package org.ecocean.identity.BenWhiteshark;
+package org.ecocean.identity.BenWhitesharkPkg;
 
 public class RunMatchContourToPoints {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		double[] regionContourx, regionContoury, finDetectionx, finDetectiony;
-		double tipx, tipy, tex, tey, lex, ley;
+		double tipx = 0.0, tipy = 0.0, tex = 0.0, tey = 0.0, lex = 0.0, ley = 0.0;
 		
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

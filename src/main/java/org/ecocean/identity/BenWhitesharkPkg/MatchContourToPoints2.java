@@ -1,4 +1,4 @@
-package org.ecocean.identity.BenWhiteshark;
+package org.ecocean.identity.BenWhitesharkPkg;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
