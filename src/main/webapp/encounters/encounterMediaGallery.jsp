@@ -264,7 +264,22 @@ jQuery(document).ready(function() {
 	doImageEnhancer('figure img');
 });
 
+var imagesLoading = false;
 function doImageEnhancer(sel) {
+	imagesLoading = false;
+	$(sel).each(function(i, el) {
+console.log('%d >>>>> %o ?%o', i, el, el.complete);
+		if (!el.complete) {
+			imagesLoading = true;
+			console.log('= = = = waiting on %d -> %o', i, el.complete);
+		}
+	});
+	if (imagesLoading) {  //wait (async); bail and repeat
+console.info('waiting to try again...........................');
+		setTimeout(function() { doImageEnhancer(sel); }, 700);
+		return;
+	}
+
     var loggedIn = wildbookGlobals.username && (wildbookGlobals.username != "");
     var opt = {
     };
@@ -329,6 +344,7 @@ function doImageEnhancer(sel) {
 console.info(' ===========>   %o %o', el, enh);
 		imageLayerKeywords(el, enh);
             },
+            function(el, enh) { drawFeature(el.prop('id').substring(23)); }
         ];
 
     }
@@ -535,6 +551,69 @@ function assetById(mid) {
 		if (assets[i].id == mid) return assets[i];
 	}
 	return false;
+}
+
+function getFinFeature(mid) {
+	if (!assetById(mid) || !assetById(mid).features || (assetById(mid).features.length < 1)) return false;
+	console.info('getFinFeature: features = %o', assetById(mid).features);
+	for (var i = 0 ; i < assetById(mid).features.length ; i++) {
+		if (assetById(mid).features[i].type == 'com.saveourseas.dorsalEdge') return assetById(mid).features[i];
+	}
+	return false;
+}
+
+function drawFeature(mid) {
+	var asset = assetById(mid);
+	if (!asset) return;
+	var ft = getFinFeature(mid);
+	if (!ft || !ft.parameters) return;
+	console.warn('%o => %o', mid, ft);
+	var cw = $('#image-enhancer-wrapper-' + mid).width();
+	var ch = $('#image-enhancer-wrapper-' + mid).height();
+	console.warn('w=%d, h=%d', cw, ch);
+	var canvas = $('<canvas class="canvas-feature imageenh-canvas" width="' + cw + '" height="' + ch + '"></canvas>');
+	$('#image-enhancer-wrapper-' + mid).append(canvas);
+
+	var scale = 1;
+	//here we use the size that the feature knows to get relative scale
+	//if (asset.metadata && asset.metadata.width) scale = cw / asset.metadata.width;  //nope not this
+	if (ft.parameters.imsizeyx && ft.parameters.imsizeyx[0]) scale = cw / ft.parameters.imsizeyx[1];
+console.warn('scale = %f', scale);
+	var ctx = canvas[0].getContext('2d');
+
+	drawPointSet(ft.parameters, 'autofincontour', scale, ctx, [255, 255, 0, 255])
+/*
+	canvas.on('mousemove click', function(ev) {
+		if ((ev.offsetX < ft.parameters.x * scale) || (ev.offsetX > scale * (ft.parameters.x + ft.parameters.width)) ||
+		    (ev.offsetY < ft.parameters.y * scale) || (ev.offsetY > scale * (ft.parameters.y + ft.parameters.height))) {
+			ev.target.style.cursor = 'inherit';
+			ev.target.title = "";
+			return;
+		}
+		ev.target.style.cursor = 'pointer';
+		ev.target.title = "this is the cat!";
+		ev.stopPropagation();
+if (ev.type == 'click') console.warn(ft);
+	});
+*/
+}
+
+//this is pretty whiteshark specific, as "prefix" is the part before 'x' and 'y' in attributes like "autofincontourx"....
+//   also note: closedregionboundariesx/y is array *of arrays*
+function drawPointSet(fparams, prefix, scale, ctx, rgba) {
+	if (!fparams[prefix + 'x'] || !fparams[prefix + 'y']) return;
+	var idata = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
+	//TODO sanity check on x/y array content (same lengths etc)
+	for (var i = 0 ; i < fparams[prefix + 'x'].length ; i++) {
+		var x = Math.round(fparams[prefix + 'x'][i] * scale);
+		var y = Math.round(fparams[prefix + 'y'][i] * scale);
+		var offset = (x + y * ctx.canvas.width) * 4;
+//console.log('(%d,%d) -> %d', x, y, offset);
+		for (var c = 0 ; c < 4 ; c++) {
+			idata.data[offset + c] = rgba[c];
+		}
+	}
+	ctx.putImageData(idata, 0, 0);
 }
 
 </script>
