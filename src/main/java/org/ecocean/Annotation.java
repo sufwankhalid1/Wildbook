@@ -197,8 +197,8 @@ public class Annotation implements java.io.Serializable {
         ArrayList<Feature> fts = getFeatures();
         if ((fts == null) || (fts.size() < 1) || (fts.get(0) == null)) {
             System.out.println("WARNING: annotation " + this.getId() + " is featureless, falling back to deprecated __getMediaAsset().  please fix!");
-            return null;
-            //return __getMediaAsset();
+            //return null;
+            return __getMediaAsset();
         }
         return fts.get(0).getMediaAsset();  //should this instead return first feature *that has a MediaAsset* ??
     }
