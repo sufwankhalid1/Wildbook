@@ -21,29 +21,29 @@ import jxl.Workbook;
 
 
 public class ExportExcelIndividualReport extends HttpServlet{
-  
+
   private static final int BYTES_DOWNLOAD = 1024;
 
-  
+
   public void init(ServletConfig config) throws ServletException {
       super.init(config);
     }
 
-  
+
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException,IOException {
       doPost(request, response);
   }
-    
+
 
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
-    
+
     //set the response
-    
+
     String context="context0";
     context=ServletUtilities.getContext(request);
     Shepherd myShepherd = new Shepherd(context);
-    
+
     //String query = request.getParameter("query");
     //String[] headers = request.getParameterValues("headers");
     //String[] columns = request.getParameterValues("columns");
@@ -70,7 +70,7 @@ public class ExportExcelIndividualReport extends HttpServlet{
 
     int sheetRow = 0;
 
-    String[] headers = new String[] {"ID", "Date", "Area", "GPS x", "GPS y", "sex", "age", "class", "foal", "group size", "image file", "enc ID"};
+    String[] headers = new String[] {"ID", "Date", "Area", "GPS x", "GPS y", "sex", "age first sighted", "status", "class", "foal", "group size", "habitat", "bearing", "distance", "image file", "enc ID"};
     int col = 0;
     for (int i = 0 ; i < headers.length ; i++) {
        Label l = new Label(col, sheetRow, headers[i]);
@@ -104,8 +104,13 @@ public class ExportExcelIndividualReport extends HttpServlet{
             if (enc.getMonth() > 0) encCal.set(Calendar.MONTH, enc.getMonth() - 1);
             if (enc.getDay() > 0) encCal.set(Calendar.DAY_OF_MONTH, enc.getDay());
         }
-        Double age = null;
-        if (encCal != null) age = indiv.calculatedAge(encCal);
+
+        Double ageFirstSighted = indiv.getAgeAtFirstSighting();
+        String ageFirstSightedString = "";
+        if (ageFirstSighted!=null) {
+          ageFirstSightedString = String.valueOf(ageFirstSighted);
+        }
+
 
         Vector<Label> cols =  new Vector<Label>();
         cols.add(new Label(0, sheetRow, enc.getIndividualID()));
@@ -114,9 +119,10 @@ public class ExportExcelIndividualReport extends HttpServlet{
         cols.add(new Label(3, sheetRow, enc.getDecimalLatitude()));
         cols.add(new Label(4, sheetRow, enc.getDecimalLongitude()));
         cols.add(new Label(5, sheetRow, enc.getSex()));
-        if (age != null) cols.add(new Label(6, sheetRow, String.valueOf(Math.round(age.doubleValue() * 100) / 100)));
+        cols.add(new Label(6, sheetRow, ageFirstSightedString));
+        cols.add(new Label(7, sheetRow, (indiv.isDeceased() ? "dead" : "alive") ));
         //cols.add(new Label(6, sheetRow, enc.getLifeStage()));
-        cols.add(new Label(7, sheetRow, enc.getZebraClass()));
+        cols.add(new Label(8, sheetRow, enc.getZebraClass()));
 
         String foals = "";
         List<Relationship> rels = indiv.getAllRelationships(myShepherd);
@@ -131,21 +137,42 @@ public class ExportExcelIndividualReport extends HttpServlet{
                 }
             }
         }
-        cols.add(new Label(8, sheetRow, foals));
+        cols.add(new Label(9, sheetRow, foals));
 
         if (occ == null) {
-            cols.add(new Label(9, sheetRow, "-"));
+            cols.add(new Label(10, sheetRow, "-"));
+            cols.add(new Label(11, sheetRow, "-"));
+            cols.add(new Label(12, sheetRow, "-"));
+            cols.add(new Label(13, sheetRow, "-"));
         } else {
             Integer gs = occ.getGroupSize();
             if (gs == null) {
-                cols.add(new Label(9, sheetRow, "-"));
+                cols.add(new Label(10, sheetRow, "-"));
             } else {
-                cols.add(new Label(9, sheetRow, gs.toString()));
+                cols.add(new Label(10, sheetRow, gs.toString()));
+            }
+						String ht = occ.getHabitat();
+            if (ht == null) {
+                cols.add(new Label(11, sheetRow, "-"));
+            } else {
+                cols.add(new Label(11, sheetRow, ht));
+            }
+            Double br = occ.getBearing();
+            if (br == null) {
+                cols.add(new Label(12, sheetRow, "-"));
+            } else {
+                cols.add(new Label(12, sheetRow, br.toString()));
+            }
+            Double ds = occ.getDistance();
+            if (ds == null) {
+                cols.add(new Label(13, sheetRow, "-"));
+            } else {
+                cols.add(new Label(13, sheetRow, ds.toString()));
             }
         }
 
-        cols.add(new Label(10, sheetRow, enc.getImageOriginalName()));
-        cols.add(new Label(11, sheetRow, enc.getCatalogNumber()));
+        cols.add(new Label(14, sheetRow, enc.getImageOriginalName()));
+        cols.add(new Label(15, sheetRow, enc.getCatalogNumber()));
 
         for (Label l : cols) {
             try {
@@ -168,7 +195,7 @@ public class ExportExcelIndividualReport extends HttpServlet{
     response.setContentType("application/octet-stream");
     response.setHeader("Content-Transfer-Encoding", "binary");
     response.setHeader("Content-Disposition", "filename=" + filename);
- 
+
     InputStream is = new FileInputStream(excelFile);
     OutputStream os = response.getOutputStream();
     byte[] buf = new byte[1000];
