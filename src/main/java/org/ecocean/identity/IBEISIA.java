@@ -143,7 +143,9 @@ System.out.println("sendMediaAssets(): sending " + ct);
         map.put("annot_uuid_list", new ArrayList<String>());
         map.put("annot_species_list", new ArrayList<String>());
         map.put("annot_bbox_list", new ArrayList<int[]>());
+        map.put("annot_name_list", new ArrayList<String>());
 
+        Shepherd myShepherd = new Shepherd("context0");
         for (Annotation ann : anns) {
             if (!needToSend(ann)) continue;
             int[] bbox = ann.getBbox();
@@ -152,6 +154,7 @@ System.out.println("sendMediaAssets(): sending " + ct);
             map.get("image_uuid_list").add(toFancyUUID(ann.getMediaAsset().getUUID()));
             map.get("annot_uuid_list").add(toFancyUUID(ann.getUUID()));
             map.get("annot_species_list").add(ann.getSpecies());
+            map.get("annot_name_list").add(ann.findIndividualId(myShepherd));
             markSent(ann);
             ct++;
         }
