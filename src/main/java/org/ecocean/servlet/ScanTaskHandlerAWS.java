@@ -2,7 +2,7 @@ package org.ecocean.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Vector;
+//import java.util.Vector;
 
 import javax.jdo.FetchPlan;
 import javax.servlet.ServletConfig;
@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import java.util.Properties;
+//import java.util.Properties;
 
 import org.ecocean.*;
 import org.ecocean.grid.*;
@@ -52,6 +52,7 @@ public class ScanTaskHandlerAWS extends HttpServlet {
     
 	  
 	  Shepherd myShepherd=new Shepherd(context);
+	  myShepherd.setAction("ScanTaskHandlerAWS.class");
 		GridManager gm=GridManagerFactory.getGridManager();
 		//set up for response
 		response.setContentType("text/html");
@@ -180,10 +181,12 @@ public class ScanTaskHandlerAWS extends HttpServlet {
 					int numComparisons=0;
 					if(rightScan.equals("true")){
 						//sideIdentifier="R";
-						numComparisons=myShepherd.getNumEncountersWithSpotData(true);
+						//numComparisons=myShepherd.getNumEncountersWithSpotData(true);
+					  numComparisons=gm.getNumRightPatterns();
 					}
 					else{
-						numComparisons=myShepherd.getNumEncountersWithSpotData(false);
+						//numComparisons=myShepherd.getNumEncountersWithSpotData(false);
+					  numComparisons=gm.getNumLeftPatterns();
 					}
 					myShepherd.getPM().getFetchPlan().setGroup(FetchPlan.DEFAULT);
 
@@ -203,7 +206,9 @@ public class ScanTaskHandlerAWS extends HttpServlet {
 
 
 							st=new ScanTask(myShepherd, taskIdentifier, props2, request.getParameter("encounterNumber"), writeThis);
+							
 							st.setNumComparisons(numComparisons-1);
+							
 							if(request.getRemoteUser()!=null){st.setSubmitter(request.getRemoteUser());}
 							System.out.println("scanTaskHandler: About to create a scanTask...");
 							successfulStore=myShepherd.storeNewTask(st);
@@ -221,6 +226,11 @@ public class ScanTaskHandlerAWS extends HttpServlet {
 								myShepherd.commitDBTransaction();
 								myShepherd.closeDBTransaction();
 								myShepherd=new Shepherd(context);
+								
+								//let the GridManager know the size
+								System.out.println("Setting GM scanTaskSize: "+taskIdentifier+": "+numComparisons);
+								gm.addScanTaskSize(taskIdentifier, (numComparisons-1));
+								
 							}
 						}
 						else {
@@ -242,16 +252,24 @@ public class ScanTaskHandlerAWS extends HttpServlet {
 					                  if(restartTask.getUniqueNumber().startsWith("scanR")){
 					                    isRightScan=true;
 					                    writeThis=restartTask.getWriteThis();
-					                    numComparisons=myShepherd.getNumEncountersWithSpotData(true);
-
+					                    //numComparisons=myShepherd.getNumEncountersWithSpotData(true);
+					                    numComparisons=gm.getNumRightPatterns();
 					                  }
-					                  else{numComparisons=myShepherd.getNumEncountersWithSpotData(false);}
+					                  else{
+					                    //numComparisons=myShepherd.getNumEncountersWithSpotData(false);
+					                    numComparisons=gm.getNumLeftPatterns();
+					                  }
 					                  st.setFinished(false);
 					                  st.setNumComparisons(numComparisons-1);
 					                  es.execute(new ScanTaskCleanupThread(taskIdentifier));
 					                  successfulStore=true;
 					                  System.out.println("I have kicked off the cleanup thread.");
 
+					                //let the GridManager know the size
+					                  System.out.println("Setting GM scanTaskSize: "+taskIdentifier+": "+numComparisons);
+					                  gm.addScanTaskSize(taskIdentifier, (numComparisons-1));
+					                  
+					                  
 					                }
 					                else{
 					                  locked = true;
@@ -352,7 +370,8 @@ public class ScanTaskHandlerAWS extends HttpServlet {
 				}
 			}
 
-
+			
+			 /*
 			else if (action.equals("addTuningTask")) {
 
 				//myShepherd.getPM().setIgnoreCache(true);
@@ -565,10 +584,10 @@ public class ScanTaskHandlerAWS extends HttpServlet {
 							out.println("<p><a href=\"http://"+CommonConfiguration.getURLLocation(request)+"/appadmin/scanTaskAdmin.jsp\">Go to sharkGrid administration.</a></p>\n");
 							out.println(ServletUtilities.getFooter(context));
 				}
-			}
+			}*/
 
 
-
+			/*
 			else if (action.equals("addFalseMatchTask")) {
 
 				boolean locked=false;
@@ -741,6 +760,7 @@ public class ScanTaskHandlerAWS extends HttpServlet {
 							out.println(ServletUtilities.getFooter(context));
 				}
 			}
+			*/
 
 
 			//delete all scan-related items

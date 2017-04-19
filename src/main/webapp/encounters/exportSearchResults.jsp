@@ -19,6 +19,7 @@
     
     //get our Shepherd
     Shepherd myShepherd = new Shepherd(context);
+    myShepherd.setAction("exportSearchResults.jsp");
 
     //set up the vector for matching encounters
     Vector rEncounters = new Vector();
@@ -72,7 +73,7 @@
 		  #tabmenu a, a.active {
 		    color: #000;
 		    background: #E6EEEE;
-		    font: 0.5em "Arial", sans-serif;
+		     
 		    border: 1px solid #CDCDCD;
 		    padding: 2px 5px 0px 5px;
 		    margin: 0;
@@ -136,29 +137,33 @@
 		<% if (blocked.size() < 1) { %>
 		 
 		 <p><strong><%=map_props.getProperty("exportOptions")%></strong></p>
-		<p><%=map_props.getProperty("exportedOBIS")%>: <a href="http://<%=CommonConfiguration.getURLLocation(request)%>/EncounterSearchExportExcelFile?<%=request.getQueryString()%>"><%=map_props.getProperty("clickHere")%></a><br />
-		<%=map_props.getProperty("exportedOBISLocales")%>: <a href="http://<%=CommonConfiguration.getURLLocation(request)%>/EncounterSearchExportExcelFile?<%=request.getQueryString()%>&locales=trues"><%=map_props.getProperty("clickHere")%></a>
+		
+		<p>CRC Excel Matching Summary <a href="//<%=CommonConfiguration.getURLLocation(request)%>/CRCExportReport?<%=request.getQueryString()%>"><%=map_props.getProperty("clickHere")%></a>
+		</p>
+		
+		<p><%=map_props.getProperty("exportedOBIS")%>: <a href="//<%=CommonConfiguration.getURLLocation(request)%>/EncounterSearchExportExcelFile?<%=request.getQueryString()%>"><%=map_props.getProperty("clickHere")%></a><br />
+		<%=map_props.getProperty("exportedOBISLocales")%>: <a href="//<%=CommonConfiguration.getURLLocation(request)%>/EncounterSearchExportExcelFile?<%=request.getQueryString()%>&locales=trues"><%=map_props.getProperty("clickHere")%></a>
 		</p>
 		
 		<p><%=map_props.getProperty("exportedEmail")%>: <a
-		  href="http://<%=CommonConfiguration.getURLLocation(request)%>/EncounterSearchExportEmailAddresses?<%=request.getQueryString()%>"><%=map_props.getProperty("clickHere")%>
+		  href="//<%=CommonConfiguration.getURLLocation(request)%>/EncounterSearchExportEmailAddresses?<%=request.getQueryString()%>"><%=map_props.getProperty("clickHere")%>
 		</a>
 		</p>
 		
-		<p><%=map_props.getProperty("exportedGeneGIS")%>: <a href="http://<%=CommonConfiguration.getURLLocation(request)%>/EncounterSearchExportGeneGISFormat?<%=request.getQueryString()%>">
+		<p><%=map_props.getProperty("exportedGeneGIS")%>: <a href="//<%=CommonConfiguration.getURLLocation(request)%>/EncounterSearchExportGeneGISFormat?<%=request.getQueryString()%>">
 		<%=map_props.getProperty("clickHere")%></a>
 		</p>
 		 
 		  <p><strong><%=map_props.getProperty("gisExportOptions")%></strong></p>
 		
 		<p><%=map_props.getProperty("exportedKML")%>: <a
-		  href="http://<%=CommonConfiguration.getURLLocation(request)%>/EncounterSearchExportKML?<%=request.getQueryString() %>"><%=map_props.getProperty("clickHere")%></a><br />
+		  href="//<%=CommonConfiguration.getURLLocation(request)%>/EncounterSearchExportKML?<%=request.getQueryString() %>"><%=map_props.getProperty("clickHere")%></a><br />
 		  <%=map_props.getProperty("exportedKMLTimeline")%>: <a
-		  href="http://<%=CommonConfiguration.getURLLocation(request)%>/EncounterSearchExportKML?<%=request.getQueryString() %>&addTimeStamp=true"><%=map_props.getProperty("clickHere")%></a>
+		  href="//<%=CommonConfiguration.getURLLocation(request)%>/EncounterSearchExportKML?<%=request.getQueryString() %>&addTimeStamp=true"><%=map_props.getProperty("clickHere")%></a>
 		</p>
 		
 		<p><%=map_props.getProperty("exportedShapefile")%>: <a
-		  href="http://<%=CommonConfiguration.getURLLocation(request)%>/EncounterSearchExportShapefile?<%=request.getQueryString() %>"><%=map_props.getProperty("clickHere")%></a>
+		  href="//<%=CommonConfiguration.getURLLocation(request)%>/EncounterSearchExportShapefile?<%=request.getQueryString() %>"><%=map_props.getProperty("clickHere")%></a>
 		</p>
 		
 		<% } else { // dont have access to ALL records, so:  %>
