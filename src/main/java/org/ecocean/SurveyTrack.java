@@ -28,7 +28,7 @@ public class SurveyTrack implements java.io.Serializable{
   
   private Measurement distance;
   
-  private Path path;
+  //private Path path;
   
   private String dateTimeCreated;
   private String dateTimeModified;
