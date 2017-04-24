@@ -3,6 +3,8 @@ package org.ecocean;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import org.ecocean.movement.SurveyTrack;
+
 /**
 * This is an object that contains occurences. It also has several tracks, with specific
 * geographic points that were traversed. It is intended to be a measure of the work 
