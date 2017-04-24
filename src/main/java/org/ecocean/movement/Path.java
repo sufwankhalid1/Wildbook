@@ -27,4 +27,20 @@ public class Path implements java.io.Serializable {
   
   private ArrayList<Point> points;
   
+  public Path(){};
+  
+  public Path(Point pnt) {
+    // if does not contain one with this id
+    points.add(pnt);
+  }
+  
+  
+  
+  
 }
+
+
+
+
+
+

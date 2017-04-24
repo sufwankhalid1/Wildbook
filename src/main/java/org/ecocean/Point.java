@@ -120,6 +120,19 @@ public class Point implements java.io.Serializable {
       correspondingOccurrenceID = id;
     }
   }
+  
+  public String getPathID() {
+    if (correspondingPathID != null) {
+      return correspondingPathID;
+    }
+    return null;
+  }
+  
+  public void setPathID(String id) {
+    if (id != null && !id.equals("")) {
+      correspondingPathID = id;
+    }
+  } 
 }
 
 
