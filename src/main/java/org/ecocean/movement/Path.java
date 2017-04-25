@@ -8,10 +8,10 @@ import org.ecocean.*;
 /**
 * @author Colin Kingen
 * 
-* A path is a collection of location objects. Each of these locations contains
+* A path is a collection of pointLocation objects. Each of these pointLocations contains
 * GPS coordinent data, and a group of them for a particular survey 
 * gives you the path or paths that a team or individual followed during 
-* a specific location in time. 
+* a specific pointLocation in time. 
 *
 *
 */
@@ -23,21 +23,21 @@ public class Path implements java.io.Serializable {
    */
   private static final long serialVersionUID = -8130232817853279715L;
   
-  public UUID pathID = null;
+  private UUID pathID = null;
   
-  public ArrayList<Location> locations;
+  private ArrayList<PointLocation> pointLocations;
   
   public Path(){};
   
-  public Path(Location pnt) {
-    locations.add(pnt);
+  public Path(PointLocation pnt) {
+    this.pointLocations.add(pnt);
     generateUUID();
   }
   
-  public Path(ArrayList<Location> pts) {
+  public Path(ArrayList<PointLocation> pts) {
     if (pts.size() >= 1) {
       for (int i=0; i<pts.size(); i++ ) {
-        locations.add(pts.get(i));
+        this.pointLocations.add(pts.get(i));
       }
       generateUUID();
     }
@@ -47,28 +47,28 @@ public class Path implements java.io.Serializable {
     return pathID;
   }
   
-  public Location getLocation(UUID id) {
+  public PointLocation getLocation(UUID id) {
     if (id !=null) {
-      for (int i=0; i <= locations.size(); i++) {
-        if (locations.get(i).getID() == id) {
-          return locations.get(i);
+      for (int i=0; i <= pointLocations.size(); i++) {
+        if (pointLocations.get(i).getID() == id) {
+          return pointLocations.get(i);
         }
       }
     }
     return null;
   }
   
-  public void addLocation(Location p) {
+  public void addLocation(PointLocation p) {
     if (this.getLocation(p.getID()) == null) {
-      locations.add(p);
+      pointLocations.add(p);
     }
   }
   
-  public void addLocationsArray(ArrayList<Location> pts) {
+  public void addLocationsArray(ArrayList<PointLocation> pts) {
     if (pts.size() >= 1) {
       for (int i=0; i<pts.size(); i++ ) {
         if (this.getLocation(pts.get(i).getID()) == null) {
-          locations.add(pts.get(i));
+          pointLocations.add(pts.get(i));
         }
       }
     }
@@ -77,11 +77,6 @@ public class Path implements java.io.Serializable {
   private void generateUUID() {
     this.pathID = UUID.randomUUID();
   }
-  
-  
-  
-  
-  
   
 }
 

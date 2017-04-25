@@ -6,7 +6,7 @@ import java.util.UUID;
 import org.ecocean.*;
 
 /**
-* Each location is a specific spot on Earth defined by latitude, longitude
+* Each pointLocation is a specific spot on Earth defined by latitude, longitude
 * elevation above (or below) sea level and a time. 
 * 
 * The Path object is made up of an array of these, and a group over time 
@@ -16,14 +16,14 @@ import org.ecocean.*;
 *
 */
 
-public class Location implements java.io.Serializable {
+public class PointLocation implements java.io.Serializable {
   
   /**
    * 
    */
   private static final long serialVersionUID = -3758129925666366058L;
   
-  public UUID locationID = null;
+  public UUID pointLocationID = null;
   
   
   private long latitude = -1;
@@ -39,9 +39,9 @@ public class Location implements java.io.Serializable {
   private String correspondingEncounterID = null; 
   private String correspondingOccurrenceID = null; 
   
-  public Location(){};
+  public PointLocation(){};
   
-  public Location(long lat, long lon) {
+  public PointLocation(long lat, long lon) {
     if (latLonCheck(lat, lon)) {
       longitude = lon;
       latitude = lat;
@@ -49,7 +49,7 @@ public class Location implements java.io.Serializable {
     generateUUID();
   }
   
-  public Location(long lat, long lon, long date) {
+  public PointLocation(long lat, long lon, long date) {
     if (latLonCheck(lat,lon) && date > 0) {
       longitude = lon;
       latitude = lat;
@@ -58,7 +58,7 @@ public class Location implements java.io.Serializable {
     generateUUID();
   }
   
-  public Location(long lat, long lon, long date, Measurement el) {
+  public PointLocation(long lat, long lon, long date, Measurement el) {
     if (latLonCheck(lat,lon) && date > 0 && elevation != null ) {
       longitude = lon;
       latitude = lat;
@@ -69,7 +69,7 @@ public class Location implements java.io.Serializable {
   }
   
   public UUID getID() {
-    return locationID;
+    return pointLocationID;
   }
   
   public long getDateTimeInMilli() {
@@ -77,7 +77,7 @@ public class Location implements java.io.Serializable {
   }
   
   public void setDateTimeInMilli(long dt) {  
-    if (dt > 9999999) {
+    if (dt > 9132014) {
       dateTime = dt;
     }
   } 
@@ -161,7 +161,7 @@ public class Location implements java.io.Serializable {
   } 
   
   private void generateUUID() {
-    this.locationID = UUID.randomUUID();
+    this.pointLocationID = UUID.randomUUID();
   }
   
   private boolean latLonCheck(long lat, long lon) {
