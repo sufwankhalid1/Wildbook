@@ -1487,7 +1487,7 @@ System.out.println("did not find MediaAsset for params=" + sp + "; creating one?
   
   public void setSurveyTrackID(String id) {
     if (id != null && !id.equals("")) {
-      correspondingSurveyTrackID = id;
+      this.correspondingSurveyTrackID = id;
     }
   }
 
@@ -1520,7 +1520,7 @@ System.out.println("did not find MediaAsset for params=" + sp + "; creating one?
   
   public void setSurveyID(String id) {
     if (id != null && !id.equals("")) {
-      correspondingSurveyID = id;
+      this.correspondingSurveyID = id;
     }
   }
   
