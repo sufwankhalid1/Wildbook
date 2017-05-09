@@ -341,6 +341,11 @@
     <servlet-name>IndividualSetAlternateID</servlet-name>
     <servlet-class>org.ecocean.servlet.IndividualSetAlternateID</servlet-class>
   </servlet>
+  
+  <servlet>
+    <servlet-name>EncounterSetSurveyAndTrack</servlet-name>
+    <servlet-class>org.ecocean.servlet.EncounterSetSurveyAndTrack</servlet-class>
+  </servlet>
 
   <servlet>
     <servlet-name>EncounterSetAlternateID</servlet-name>
@@ -1400,6 +1405,11 @@
         <servlet-mapping>
           <servlet-name>TissueSampleRemoveMicrosatelliteMarkers</servlet-name>
           <url-pattern>/TissueSampleRemoveMicrosatelliteMarkers</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+      <servlet-name>EncounterSetSurveyAndTrack</servlet-name>
+      <url-pattern>/EncounterSetSurveyAndTrack</url-pattern>
   </servlet-mapping>
 
     <servlet-mapping>
