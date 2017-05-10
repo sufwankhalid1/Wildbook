@@ -4899,7 +4899,8 @@ $(document).ready(function() {
 				<%
 					if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
 				%>
-				<h2>
+				<h2 style="margin-top: 70px;">
+					<img align="absmiddle" src="../images/survey_icon_boat.png" />
 					<%=encprops.getProperty("surveyInfo")%>
 					<button class="btn btn-md" type="button" name="button"
 						id="editSurvey">Edit</button>
