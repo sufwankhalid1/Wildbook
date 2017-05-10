@@ -4896,8 +4896,6 @@ $(document).ready(function() {
 					
 				%>
 				<!-- Start Survey Information -->
-
-
 				<%
 					if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
 				%>
@@ -4909,18 +4907,15 @@ $(document).ready(function() {
 						id="closeEditSurvey" style="display: none;">Close Edit</button>
 				</h2>
 
-
-
 				<script type="text/javascript">
 $(document).ready(function() {
+  $(".editFormSurvey").hide();
   var buttons = $("#editSurvey, #closeEditSurvey").on("click", function(){
     buttons.toggle();
   });
   $("#editSurvey").click(function() {
     $(".editFormSurvey").show();
-
   });
-
   $("#closeEditSurvey").click(function() {
     $(".editFormSurvey, .editTextSurvey, .resultMessageDiv").hide();
   });
@@ -4963,6 +4958,17 @@ $(document).ready(function() {
 				<p><%=encprops.getProperty("none")%></p>
 				<%
 				}
+				if (surveyTrackID != null) {
+				%>
+				<p><%=encprops.getProperty("surveyTrackID").trim()%>:<%=surveyTrackID%></p>
+				<%
+				}					
+				if (surveyID != null) {
+				%>
+				<p><%=encprops.getProperty("surveyID").trim()%>:<%=surveyID%></p>
+				<%
+				}
+				
 				%>
 				
 				<div id="dialogDPAdd"
@@ -4976,7 +4982,7 @@ $(document).ready(function() {
 						<input name="encID" type="hidden" value="<%=num%>" />
 						<div class="form-group row">
 							<div class="col-sm-3">
-								<label><%=encprops.getProperty("surveyID")%>:</label>
+								<label><%=encprops.getProperty("surveyID")%></label>
 							</div>
 							<div class="col-sm-5">
 								<input name="surveyID" type="text" class="form-control"
@@ -4985,7 +4991,7 @@ $(document).ready(function() {
 						</div>
 						<div class="form-group row">
 							<div class="col-sm-3">
-								<label><%=encprops.getProperty("surveyTrackID")%>:</label>
+								<label><%=encprops.getProperty("surveyTrackID")%></label>
 							</div>
 							<div class="col-sm-5">
 								<input name="surveyTrackID" type="text" class="form-control"
