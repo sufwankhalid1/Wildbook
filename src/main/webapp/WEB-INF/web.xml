@@ -171,6 +171,7 @@
 				         /EncounterSearchExportExcelFile = authc, roles[researcher]
                  /EncounterSearchExportMetadataExcel = authc, roles[researcher]
                  /OccurrenceSearchExportMetadataExcel = authc, roles[researcher]
+                 /OccurrenceSearchExportGtm = authc, roles[researcher]
 				         /EncounterSearchExportShapefile = authc, roles[researcher]
 				         /EncounterSearchExportEmailAddresses = authc, roles[researcher]
 						/OccurrenceSetIndividualCount = authc, roles[researcher]
@@ -694,6 +695,10 @@
   <servlet>
     <servlet-name>OccurrenceSearchExportMetadataExcel</servlet-name>
     <servlet-class>org.ecocean.servlet.export.OccurrenceSearchExportMetadataExcel</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>OccurrenceSearchExportGtm</servlet-name>
+    <servlet-class>org.ecocean.servlet.export.OccurrenceSearchExportGtm</servlet-class>
   </servlet>
 
 
@@ -1522,6 +1527,11 @@
   <servlet-mapping>
     <servlet-name>EncounterSearchExportMetadataExcel</servlet-name>
     <url-pattern>/EncounterSearchExportMetadataExcel</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>OccurrenceSearchExportGtm</servlet-name>
+    <url-pattern>/OccurrenceSearchExportGtm</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>
