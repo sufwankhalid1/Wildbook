@@ -1426,7 +1426,7 @@
 
   <servlet-mapping>
     <servlet-name>EncounterForm</servlet-name>
-    <url-pattern>/EncounterForm1789</url-pattern>
+    <url-pattern>/EncounterForm</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>
