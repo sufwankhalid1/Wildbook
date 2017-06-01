@@ -1,9 +1,8 @@
 SUBJECT: Encounter update: @ENCOUNTER_ID@
 Hello!
 
-Just a quick email to let you know that the whale shark encounter that you
-submitted has been matched to an identified whale shark in the Wildbook for Whale Sharks
-photo-identification library.
+Just a quick email to let you know that the sevengill shark encounter that you
+submitted has been matched to an identified sevengill shark in the Sevngill Shark Identification Project photo-identification library.
 Follow these links to find out more:
 
 Previously identified record: @INDIVIDUAL_ID@ (Alternate ID: @INDIVIDUAL_ALT_ID@)
