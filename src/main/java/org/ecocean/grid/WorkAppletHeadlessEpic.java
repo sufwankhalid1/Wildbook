@@ -87,10 +87,8 @@ public class WorkAppletHeadlessEpic {
 
   public static void main(String args[]) {
 
-    urlArray.add("https://www.whaleshark.org");
-    urlArray.add("http://www.spotashark.com");
-    // IP for Bass Server
-    urlArray.add("http://34.209.17.78");
+    urlArray.add("http://sevengill.oceansanctuaries.org");
+
 
     WorkAppletHeadlessEpic a = new WorkAppletHeadlessEpic();
     if(args[0]!=null)urlArray.add(args[0]);
