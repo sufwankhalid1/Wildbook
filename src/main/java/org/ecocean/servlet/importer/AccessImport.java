@@ -179,7 +179,7 @@ public class AccessImport extends HttpServlet {
         e.printStackTrace();
       }
       
-      //get the Location
+      //get the Project
       try {
         String project = null;
         if (thisRow.get("Project").toString() != null && !thisRow.get("Project").toString().equals("")) {
