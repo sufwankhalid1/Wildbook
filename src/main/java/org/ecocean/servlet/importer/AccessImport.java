@@ -149,8 +149,9 @@ public class AccessImport extends HttpServlet {
       }
       // Get the date. 
       try {
-        String date = thisRow.get("DATE").toString();
-        if (!date.equals(null)) {
+        String date = null;
+        if (thisRow.containsKey("DATE")) {
+          date = thisRow.get("DATE").toString();
           out.println("---------------- Date : "+date);    
           newEnc.setVerbatimEventDate(date);          
           DateTime dateTime = dateStringToDateTime(date);
@@ -166,7 +167,7 @@ public class AccessImport extends HttpServlet {
       //get the Location
       try {
         String location = null;
-        if (thisRow.get("Location").toString() != null && !thisRow.get("Location").toString().equals("")) {
+        if (!thisRow.containsKey("Location")) {
           location = thisRow.get("Location").toString();          
         }
         if (!location.equals(null)) {
@@ -182,7 +183,7 @@ public class AccessImport extends HttpServlet {
       //get the Project
       try {
         String project = null;
-        if (thisRow.get("Project").toString() != null && !thisRow.get("Project").toString().equals("")) {
+        if (!thisRow.containsKey("Project")) {
           project = thisRow.get("Project").toString();          
         }
         if (!project.equals(null)) {
