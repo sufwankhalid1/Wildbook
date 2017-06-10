@@ -29,6 +29,7 @@ import java.util.HashMap;
 
 import org.json.JSONObject;
 
+import com.healthmarketscience.jackcess.Column;
 import com.healthmarketscience.jackcess.Database;
 import com.healthmarketscience.jackcess.DatabaseBuilder;
 import com.healthmarketscience.jackcess.Row;
@@ -143,7 +144,15 @@ public class AccessImport extends HttpServlet {
     int projects = 0;
     int speciesIds = 0;
     int behaviors = 0;
+    int depths = 0;
     
+    // This is a list of column names. We are gonna take them out as we process them so we know if we missed any at the end. 
+    ArrayList<String> columnMasterList = new ArrayList<String>();
+    List<? extends Column> columns = table.getColumns();
+    for (int i=0;i<columns.size();i++) {
+      columnMasterList.add(columns.get(i).getName());
+    }
+       
     Row thisRow = null;
     Encounter newEnc = null;
     for (int i=0;i<table.getRowCount();i++) {
@@ -234,7 +243,7 @@ public class AccessImport extends HttpServlet {
           behavior = thisRow.get("SPECIES_ID").toString();          
           out.println("---------------- Behavior : "+behavior);
           newEnc.setGenus(behavior);    
-          speciesIds += 1;
+          behaviors += 1;
         }
       } catch (Exception e) {
         out.println("!!!!!!!!!!!!!! Could not process a behavior for row "+i+" in DUML");
@@ -250,7 +259,7 @@ public class AccessImport extends HttpServlet {
           out.println("---------------- Depth : "+depth);
           Double depthLong = Double.parseDouble(depth);
           newEnc.setMaximumDepthInMeters(depthLong);    
-          speciesIds += 1;
+          depths += 1;
         }
       } catch (Exception e) {
         out.println("!!!!!!!!!!!!!! Could not process a MaxDepth for row "+i+" in DUML");
@@ -261,9 +270,16 @@ public class AccessImport extends HttpServlet {
       // Let's make a method here that looks at an array of all the columns, removes them if they are processed and tells you if you missed any.
              
     }
+    out.println("************** Species ID's vs rows: "+speciesIds+"/"+table.getRowCount());
+    out.println("************** Behaviors vs rows: "+behaviors+"/"+table.getRowCount());
+    out.println("************** Depths vs rows: "+depths+"/"+table.getRowCount());
     out.println("************** Locations vs rows: "+locations+"/"+table.getRowCount());
     out.println("************** Dates vs rows: "+dates+"/"+table.getRowCount());
     out.println("************** Projects vs rows: "+projects+"/"+table.getRowCount());
+    out.println("************** Behaviors vs rows: "+behaviors+"/"+table.getRowCount());
+    if (errors > 0) {
+      out.println("!!!!!!!!!!!!!!  You got "+errors+" problems and all of them are because of your code.   !!!!!!!!!!!!!!");
+    } 
     out.println("******* !!!! TOTALLY CRUSHED IT !!!! *******");
   }
   
