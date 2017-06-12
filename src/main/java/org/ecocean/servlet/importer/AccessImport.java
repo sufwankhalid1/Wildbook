@@ -442,11 +442,11 @@ public class AccessImport extends HttpServlet {
        if (thisRow.getDouble("BEAUSCALE") != null) {
          bs = thisRow.getDouble("BEAUSCALE");
          bsm = new Measurement();
-         bsm.setCorrespondingEncounterNumber(newEnc.getCatalogNumber());
          bsm.setDatasetName("BEAUSCALE");
          bsm.setValue(bs);
          bsm.setEventStartDate(newEnc.getDate());   
          columnMasterList.remove("BEAUSCALE");
+         newEnc.setMeasurement(bsm, myShepherd);
          out.println("---------------- BEAUSCALE : "+bsm.getValue());
        } 
       } catch (Exception e) {
@@ -460,12 +460,12 @@ public class AccessImport extends HttpServlet {
         Measurement wtm = null;
         if (thisRow.getString("WATERTEMP") != null) {
           wt = Double.parseDouble(thisRow.getString("WATERTEMP"));
-          wtm = new Measurement();
-          wtm.setCorrespondingEncounterNumber(newEnc.getCatalogNumber());
+          wtm = new Measurement();          
           wtm.setDatasetName("WATERTEMP");
           wtm.setValue(wt);
           wtm.setEventStartDate(newEnc.getDate());
           columnMasterList.remove("WATERTEMP");
+          newEnc.setMeasurement(wtm, myShepherd);
           out.println("---------------- WATERTEMP : "+wtm.getValue());
         } 
       } catch (Exception e) {
