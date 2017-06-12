@@ -441,9 +441,9 @@ public class Encounter implements java.io.Serializable {
     return size;
   }
   
-  // Gets and sets SIGHTNO for Occurance cross referencing. 
+  // Gets and sets SIGHTNO for Occurance cross referencing. (Read Lab)
   public void setSightNo(String sn) {
-    if(sightNo!=null){size = sightNo;}
+    if(sightNo!=null){sightNo = sn;}
     else{sightNo=null;}
   }
 

@@ -151,6 +151,7 @@ public class AccessImport extends HttpServlet {
     int lats = 0;
     int lons = 0;
     int endTimes = 0;
+    int sightNos = 0;
     
     // This is a list of column names. We are gonna take them out as we process them so we know if we missed any at the end. 
     ArrayList<String> columnMasterList = new ArrayList<String>();
@@ -224,6 +225,25 @@ public class AccessImport extends HttpServlet {
       } catch (Exception e) {
         out.println("!!!!!!!!!!!!!! Could not process an endTime for row "+i+" in DUML");
         System.out.println("Here's the offending date : "+thisRow.get("EndTime").toString());
+        e.printStackTrace();
+        errors +=1;
+      }
+      
+      // Get SIGHTNO... 
+      
+      try {
+        String sn = null;
+        if (thisRow.get("SIGHTNO") != null) {
+          sn = thisRow.get("SIGHTNO").toString();          
+          newEnc.setSightNo(sn);    
+          sightNos += 1;
+          out.println("---------------- SIGHTNO : "+sn);
+          if (columnMasterList.contains("SIGHTNO")) {
+            columnMasterList.remove("SIGHTNO");
+          }
+        }
+      } catch (Exception e) {
+        out.println("!!!!!!!!!!!!!! Could not process a SIGHTNO for row "+i+" in DUML");
         e.printStackTrace();
         errors +=1;
       }
@@ -472,6 +492,8 @@ public class AccessImport extends HttpServlet {
     out.println("************** Locations vs rows: "+locations+"/"+table.getRowCount());
     out.println("************** Dates vs rows: "+dates+"/"+table.getRowCount());
     out.println("************** Projects vs rows: "+projects+"/"+table.getRowCount());
+    out.println("************** EndTimes vs rows: "+endTimes+"/"+table.getRowCount());
+    out.println("************** SIGHTNOS vs rows: "+sightNos+"/"+table.getRowCount());
     out.println("************** Behaviors vs rows: "+behaviors+"/"+table.getRowCount()+"\n\n");
     if (errors > 0) {
       out.println("!!!!!!!!!!!!!!  You got "+errors+" problems and all of them are because of your code.   !!!!!!!!!!!!!!\n\n");
@@ -517,7 +539,7 @@ public class AccessImport extends HttpServlet {
     // The parsing breaks on military time formatted like "745" instead of "0745"
     // Stupid timey stuff. Sometimes there are colons, sometimes not.  
     try {
-      if (mt.length() < 3 || mt.equals(null) || mt.equals("")) {
+      if (mt.length() < 3 || mt.equals(null) || mt.equals("") || Integer.parseInt(mt) > 2400) {
         mt = "0000";
       }
       if (mt.contains(":")) {
