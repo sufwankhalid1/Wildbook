@@ -519,6 +519,11 @@ public class Util {
       return "("+fieldName+".toLowerCase().indexOf('"+containsThis.toLowerCase()+"') != -1)";
     }
 
+    public static String jdoStringEqualsValue(String fieldName, String desiredVal) {
+      return "("+fieldName+" == \""+desiredVal+"\")";
+    }
+
+
     public static String undoUrlEncoding(String str) {
       return str.replaceAll("%20", " ").trim();
     }
