@@ -688,4 +688,10 @@ String rootWebappPath = "xxxxxx";
         if (request.getHeader("Access-Control-Request-Headers") != null) response.setHeader("Access-Control-Allow-Headers", request.getHeader("Access-Control-Request-Headers"));
     }
 
+    // good for checking if a request is likely to be from IA
+    public static boolean isRequestFromPythonUserAgent(HttpServletRequest request) {
+      return (request.getHeader("user-agent")!=null && request.getHeader("user-agent").indexOf("python")>=0);
+
+    }
+
 }
