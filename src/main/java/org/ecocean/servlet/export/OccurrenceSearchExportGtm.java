@@ -36,11 +36,6 @@ public class OccurrenceSearchExportGtm extends HttpServlet {
     return individualIDMap;
   }
 
-  private static String[] getSortedOccIds(Long[] sortedMillis, Map<Long, List<String>> millisToOccIdMap) {
-    List<String> sortedIds = new ArrayList<String>();
-  };
-)
-
   private static Map<String, Integer> getOccurrenceIDMap(Map<Long, List<String>> millisToOccIdMap, Long[] sortedMillis) {
     Map<String, Integer> occurrenceMap = new HashMap<String, Integer>();
     int currentOcc = 1;
