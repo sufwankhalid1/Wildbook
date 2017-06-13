@@ -130,6 +130,14 @@ public class AccessImport extends HttpServlet {
       e.printStackTrace();
       out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Could not process CATALOG table!!!");
     }
+    
+    try {
+      out.println("********************* Let's process the BiopsySamples Table!\n");
+      processBiopsySamples(db.getTable("Biopsy Samples"), myShepherd);
+    } catch (Exception e) {
+      e.printStackTrace();
+      out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Could not process BiopsySamples table!!!");
+    }
     myShepherd.commitDBTransaction();
     myShepherd.closeDBTransaction();
     // Close that db so it don't leak or something.
@@ -415,7 +423,6 @@ public class AccessImport extends HttpServlet {
         errors +=1;
       }
       
-      
       // Get the ending decimal longitude..
       try {
         String lon = null;
@@ -441,15 +448,16 @@ public class AccessImport extends HttpServlet {
        Measurement bsm = null;
        if (thisRow.getDouble("BEAUSCALE") != null) {
          bs = thisRow.getDouble("BEAUSCALE");
-         bsm = new Measurement();
+         bsm = new Measurement(newEnc.getCatalogNumber(),"BEAUSCALE",bs,"","");
          bsm.setDatasetName("BEAUSCALE");
-         bsm.setValue(bs);
-         bsm.setEventStartDate(newEnc.getDate());   
+         bsm.setEventStartDate(newEnc.getDate());
+         myShepherd.getPM().makePersistent(bsm);
          columnMasterList.remove("BEAUSCALE");
          newEnc.setMeasurement(bsm, myShepherd);
          out.println("---------------- BEAUSCALE : "+bsm.getValue());
        } 
       } catch (Exception e) {
+        errors +=1;
         e.printStackTrace();
         out.println("!!!!!!!!!!!!!! Could not process a BEAUSCALE measurement for row "+i+" in DUML");
       }
@@ -458,23 +466,22 @@ public class AccessImport extends HttpServlet {
       try {
         Double wt = null;
         Measurement wtm = null;
-        if (thisRow.getString("WATERTEMP") != null) {
-          wt = Double.parseDouble(thisRow.getString("WATERTEMP"));
-          wtm = new Measurement();          
+        if (thisRow.get("WATERTEMP") != null) {
+          wt = Double.valueOf(thisRow.get("WATERTEMP").toString());   
+          wtm = new Measurement(newEnc.getCatalogNumber(),"WATERTEMP",wt,"","");
           wtm.setDatasetName("WATERTEMP");
-          wtm.setValue(wt);
           wtm.setEventStartDate(newEnc.getDate());
+          out.println("---------------- WATERTEMP TEST STRING: "+wt.toString());
+          myShepherd.getPM().makePersistent(wtm);
           columnMasterList.remove("WATERTEMP");
           newEnc.setMeasurement(wtm, myShepherd);
-          out.println("---------------- WATERTEMP : "+wtm.getValue());
         } 
       } catch (Exception e) {
+        errors += 1;
         e.printStackTrace();
         out.println("!!!!!!!!!!!!!! Could not process a WATERTEMP measurement for row "+i+" in DUML");
       }
-      
-      
-         
+       
       // Take care of business by generating an ID for the encounter object and persisting it. 
       try {
         myShepherd.getPM().makePersistent(newEnc);        
@@ -510,6 +517,10 @@ public class AccessImport extends HttpServlet {
     out.println("Catalog Table has "+table.getRowCount()+" Rows!");
   }
   
+  private void processBiopsySamples(Table table, Shepherd myShepherd) {
+    out.println("Biopsy Samples Table has "+table.getRowCount()+" Rows!");
+  }
+  
   
   private DateTime dateStringToDateTime(String verbatim) {
     DateFormat fm = new SimpleDateFormat("EEE MMM dd hh:mm a yyyy");
@@ -539,11 +550,11 @@ public class AccessImport extends HttpServlet {
     // The parsing breaks on military time formatted like "745" instead of "0745"
     // Stupid timey stuff. Sometimes there are colons, sometimes not.  
     try {
-      if (mt.length() < 3 || mt.equals(null) || mt.equals("") || Integer.parseInt(mt) > 2400) {
-        mt = "0000";
-      }
       if (mt.contains(":")) {
         mt = mt.replace(":", "");
+      }
+      if (mt.length() < 3 || mt.equals(null) || mt.equals("") || Integer.parseInt(mt) > 2400) {
+        mt = "0000";
       }
       if (mt.length() < 4) {
         mt = "0" + mt;
