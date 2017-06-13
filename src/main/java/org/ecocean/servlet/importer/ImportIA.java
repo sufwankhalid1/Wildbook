@@ -312,6 +312,7 @@ out.println("complete");
   }
 
   private void initFeatureTypeAndAssetStore(Shepherd myShepherd, PrintWriter out) {
+    out.println("initFeatureTypeAndAssetStore calling FeatureType.initAll():");
     FeatureType.initAll(myShepherd);
     String rootDir = getServletContext().getRealPath("/");
     String context = myShepherd.getContext();
