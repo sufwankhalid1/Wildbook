@@ -1503,8 +1503,13 @@ System.out.println("did not find MediaAsset for params=" + sp + "; creating one?
   public void setDWCDateAdded(String m_dateAdded) {
     dwcDateAdded = m_dateAdded;
   }
+
     public void setDWCDateAdded() {
-        dwcDateAdded = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+      System.out.println("setDWCDateAdded");
+      Date now = new Date();
+      setDWCDateAdded(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(now));
+      setDWCDateAdded(now.getTime());
+      System.out.println("have millis now: "+getDWCDateAddedLong());
     }
 
 
