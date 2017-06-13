@@ -46,6 +46,7 @@ public class EncounterQueryProcessor extends QueryProcessor {
 
     Shepherd myShepherd=new Shepherd(context);
 
+    System.out.println("EncounterQueryProcessor working on context "+context);
     // filter for simple string fields
     for (String fieldName : SIMPLE_STRING_FIELDS) {
       System.out.println("   parsing encounter query for field "+fieldName);
