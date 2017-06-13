@@ -546,6 +546,8 @@ if(occ.getIndividualCount()!=null){
   String[] locationFields = {"locationID", "decimalLatitude", "decimalLongitude"};
   ClassEditTemplate.printOutClassFieldModifierRows((Object) occ, locationFields, out);
   %>
+  <tr><td><p><em>To convert UTM geocordinates to lat/long, us an online tool <a href="http://geocachingtoolbox.com/index.php?lang=en&page=coordinateConversion" target="_blank">like this one</a></em></p></td></tr>
+
 
   <tr class="padding-below"><td></td></tr>
 
