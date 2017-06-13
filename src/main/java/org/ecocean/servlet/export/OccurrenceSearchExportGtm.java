@@ -31,10 +31,29 @@ public class OccurrenceSearchExportGtm extends HttpServlet {
   private static Map<String, Integer> getIndividualIDMap(String[] allIndivIDs) {
     Map<String, Integer> individualIDMap = new HashMap<String, Integer>();
     for(int i=0; i<allIndivIDs.length; i++) {
-      individualIDMap.put(allIndivIDs[i], i);
+      individualIDMap.put(allIndivIDs[i], i+1);
     }
     return individualIDMap;
   }
+
+  private static String[] getSortedOccIds(Long[] sortedMillis, Map<Long, List<String>> millisToOccIdMap) {
+    List<String> sortedIds = new ArrayList<String>();
+  };
+)
+
+  private static Map<String, Integer> getOccurrenceIDMap(Map<Long, List<String>> millisToOccIdMap, Long[] sortedMillis) {
+    Map<String, Integer> occurrenceMap = new HashMap<String, Integer>();
+    int currentOcc = 1;
+    for (int i=0; i<sortedMillis.length; i++) {
+      List<String> occIds = millisToOccIdMap.get(sortedMillis[i]);
+      for (String occId : occIds) {
+        occurrenceMap.put(occId, currentOcc);
+        currentOcc++;
+      }
+    }
+    return occurrenceMap;
+  }
+
 
   private static Map<String, Occurrence> getOccurrenceMap(Vector initialOccs) {
     Map<String, Occurrence> occurrenceMap = new HashMap<String, Occurrence>();
@@ -159,6 +178,15 @@ public class OccurrenceSearchExportGtm extends HttpServlet {
         WritableWorkbook workbookOBIS = Workbook.createWorkbook(excelFile);
 
 
+
+        Map<Long, List<String>> millisToOccIdMap = getMillisToOccIdMap(rOccurrences);
+        Long[] sortedMillis = getSortedMillis(millisToOccIdMap);
+
+        Map<String, Occurrence> occurrenceMap = getOccurrenceMap(rOccurrences);
+
+        Map<String, Integer> occIDMap = getOccurrenceIDMap(millisToOccIdMap, sortedMillis);
+
+
         // =============================== START INDIVID MAP-RECORD
         WritableSheet individualsSheet = workbookOBIS.createSheet("Individual Number Reference", 0);
         individualsSheet.addCell(new Label(0, 0, "GTM member number"));
@@ -182,9 +210,24 @@ public class OccurrenceSearchExportGtm extends HttpServlet {
         Map<String, Integer> indivIDMap = getIndividualIDMap(allIndivIDsOrdered);
         // ================================= END INDIVID MAP-RECORD
 
+        // =============================== START OCCURRENCEID MAP-RECORD
+        WritableSheet occurrencesSheet = workbookOBIS.createSheet("Occurrence Number Reference", 1);
+        occurrencesSheet.addCell(new Label(0, 0, "GTM group number"));
+        occurrencesSheet.addCell(new Label(1, 0, "Wildbook Occurrence"));
+
+
+
+        for(int i=0;i<numMatchingOccurrences;i++){
+          Occurrence occ=(Occurrence)rOccurrences.get(i);
+          String occID = occ.getOccurrenceID();
+          occurrencesSheet.addCell(new Label(0, i+1, Integer.toString(occIDMap.get(occID))));
+          occurrencesSheet.addCell(new Label(1, i+1, occID));
+        } //end for loop iterating encounters
+
+        // ================================= END OCCURRENCE MAP-RECORD
 
         // =============================== START GTM SHEET
-        WritableSheet gtmSheet = workbookOBIS.createSheet("GTM", 1);
+        WritableSheet gtmSheet = workbookOBIS.createSheet("GTM", 2);
 
 
 
@@ -198,17 +241,13 @@ public class OccurrenceSearchExportGtm extends HttpServlet {
           gtmSheet.addCell(new Label(i, 0, gtmColHeaders[i]));
         }
 
-        Map<Long, List<String>> millisToOccIdMap = getMillisToOccIdMap(rOccurrences);
-        Long[] sortedMillis = getSortedMillis(millisToOccIdMap);
-        Map<String, Occurrence> occurrenceMap = getOccurrenceMap(rOccurrences);
-
 
         count = 0;
         for(int i=0;i<sortedMillis.length;i++){
           Long millis = sortedMillis[i];
           for (String occId : millisToOccIdMap.get(millis)) {
             // group
-            gtmSheet.addCell(new Label(0, i+1, occId.toString()));
+            gtmSheet.addCell(new Label(0, i+1, Integer.toString(occIDMap.get(occId)) ));
             // time
             gtmSheet.addCell(new Label(1, i+1, millis.toString()));
             // members
