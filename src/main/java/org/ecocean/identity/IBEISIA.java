@@ -24,6 +24,7 @@ import org.ecocean.RestClient;
 import java.io.IOException;
 import java.io.File;
 import java.io.PrintWriter;
+import java.util.Enumeration;
 import java.net.MalformedURLException;
 import java.security.NoSuchAlgorithmException;
 import java.security.InvalidKeyException;
@@ -75,32 +76,65 @@ public class IBEISIA {
 
     public static String getContextFromRequestFromIA(HttpServletRequest request) {
       return getContextFromRequestFromIA(request, ContextConfiguration.getDefaultContext());
+      // for testing, I'd like to send to the test context below
+      // return getContextFromRequestFromIA(request, "context11");
     }
 
 
     public static String getContextFromRequestFromIA(HttpServletRequest request, String defaultValue) {
       try {
         String dbname = request.getParameter("dbname");
-        if (dbname==null) return defaultValue;
-        return DBNAME_TO_CONTEXT.get(dbname);
+        String retVal = (dbname == null) ? defaultValue : DBNAME_TO_CONTEXT.get(dbname);
+        System.out.println("getContextFromRequestFromIA got dbname = "+dbname+" and retVal = "+retVal);
+        System.out.println("getContextFromRequestFromIA request info: ");
+        System.out.println("                   request.getPathInfo(): "+request.getPathInfo());
+        System.out.println("                request.getQueryString(): "+request.getQueryString());
+        System.out.println("                 request.getRequestURI(): "+request.getRequestURI());
+        System.out.println("                 request.getRequestURL(): "+request.getRequestURL());
+        System.out.println("          request.getHeader(\"referer\"): "+request.getHeader("referer"));
+        System.out.println("                request.getServletPath(): "+request.getServletPath());
+        System.out.println("          request.getHeaderNames: ");
+        Enumeration<String> headerNames = request.getHeaderNames();
+        while (headerNames.hasMoreElements()) {
+          String header = headerNames.nextElement();
+          System.out.println("            "+header+" = " +request.getHeader(header));
+        }
+
+        return retVal;
       } catch (Exception e) {
         return defaultValue;
       }
     }
+
+
+    // each context has a string name and a uuid name
+    // in practice jason p is sending uuid names
     private static final Map<String,String> DBNAME_TO_CONTEXT = new HashMap<String,String>();
     static {
       DBNAME_TO_CONTEXT.put("Monica","context0");
+      DBNAME_TO_CONTEXT.put("ac22c209-ee2a-44c9-a79d-29a8beed1376","context0");
       DBNAME_TO_CONTEXT.put("Laurel","context1");
+      DBNAME_TO_CONTEXT.put("e96c7da4-7e16-476d-a5ee-3c30ee608a61","context1");
       DBNAME_TO_CONTEXT.put("2015","context2");
+      DBNAME_TO_CONTEXT.put("43adf43d-4c6b-44b4-a283-fddc704c92d4","context2");
       DBNAME_TO_CONTEXT.put("_ibeis_backups","context3");
+      DBNAME_TO_CONTEXT.put("297a709e-13b3-46c5-9be8-10ecf51a86b4","context3");
       DBNAME_TO_CONTEXT.put("Kaia","context4");
+      DBNAME_TO_CONTEXT.put("c62a054a-b102-450d-9a35-6ee60aa53b5c", "context4"); // based on what is returned from IA on processing a Kaia thing
       DBNAME_TO_CONTEXT.put("LEWA","context5");
+      DBNAME_TO_CONTEXT.put("30cd782d-3842-431a-a9e9-9a5c48d7bfbc","context5");
       DBNAME_TO_CONTEXT.put("MPALA","context6");
+      DBNAME_TO_CONTEXT.put("c9a0f3fc-5a00-4ea3-b668-bdff6bfc0d01","context6");
       DBNAME_TO_CONTEXT.put("SAMBURU","context7");
+      DBNAME_TO_CONTEXT.put("2f7b2576-2e29-423c-a8fe-8e9c57543cb0","context7");
       DBNAME_TO_CONTEXT.put("Max","context8");
+      DBNAME_TO_CONTEXT.put("a40bf521-be44-4157-a556-9e7e043d9cae","context8");
       DBNAME_TO_CONTEXT.put("Monica-Max","context9");
+      DBNAME_TO_CONTEXT.put("8fc5e668-1e80-4ecc-9481-6936c8a95e08","context9");
       DBNAME_TO_CONTEXT.put("Monica-Laurel","context10");
+      DBNAME_TO_CONTEXT.put("53f6f069-f0ad-4021-bc6e-38462956e95b","context10");
       DBNAME_TO_CONTEXT.put("Test","context11");
+      DBNAME_TO_CONTEXT.put("d1b5b12e-9529-4165-9ec4-e04962d084db", "context11");
     }
 
     //other is a HashMap of additional properties to build lists out of (e.g. Encounter ids and so on), that do not live in/on MediaAsset
@@ -1086,6 +1120,7 @@ System.out.println("CALLBACK GOT: (taskID " + taskID + ") " + resp);
     7.  etc???
 */
             if ((rlist != null) && (rlist.length() > 0) && (ilist != null) && (ilist.length() == rlist.length())) {
+                System.out.println("FeatureType.initAll() calling from IBEISIA");
                 FeatureType.initAll(myShepherd);
                 JSONArray needReview = new JSONArray();
                 JSONObject amap = new JSONObject();
@@ -1362,6 +1397,7 @@ System.out.println("identification most recent action found is " + action);
     public static URL iaURL(String context, String urlSuffix) {
         if (iaBaseURL == null) {
             String u = CommonConfiguration.getProperty("IBEISIARestUrlAddAnnotations", context);
+            System.out.println("IBEISIA: got IBEISIARestUrlAddAnnotations = "+u+" in context "+context);
             if (u == null) throw new RuntimeException("configuration value IBEISIARestUrlAddAnnotations is not set");
             int i = u.indexOf("/", 9);  //9 should get us past "http://" to get to post-hostname /
             if (i < -1) throw new RuntimeException("could not parse IBEISIARestUrlAddAnnotations for iaBaseURL");
@@ -1594,6 +1630,7 @@ I think that is the general walk that needs to happen
     public static JSONObject mergeIAImageSet(String setId, Shepherd myShepherd) throws RuntimeException, MalformedURLException, IOException, NoSuchAlgorithmException, InvalidKeyException {
         Occurrence existingOccurrence = null;
         String context = myShepherd.getContext();
+        System.out.println("beginning to mergeIAImageSet in context "+context);
         try {
             existingOccurrence = ((Occurrence) (myShepherd.getPM().getObjectById(myShepherd.getPM().newObjectIdInstance(Occurrence.class, setId), true)));
         } catch (Exception ex) {}  //this just means not found... which is good!
@@ -1602,15 +1639,19 @@ I think that is the general walk that needs to happen
         //http://52.37.240.178:5000/api/imageset/annot/aids/json/?imageset_uuid_list=[%7B%22__UUID__%22:%228655a73d-749b-4f23-af92-0b07157c0455%22%7D]
         //http://52.37.240.178:5000/api/imageset/annot/uuid/json/?imageset_uuid_list=[{%22__UUID__%22:%228e0850a7-7b29-4150-aedb-8bafb5149757%22}]
         //JSONObject res = RestClient.get(iaURL("context0", "/api/imageset/annot/rowid/?imgsetid_list=[" + setId + "]"));
-        JSONObject res = RestClient.get(iaURL("myShepherd.getContext()", "/api/imageset/annot/uuid/json/?imageset_uuid_list=[" + toFancyUUID(setId) + "]"));
-        if ((res == null) || (res.optJSONArray("response") == null) || (res.getJSONArray("response").optJSONArray(0) == null)) throw new RuntimeException("could not get list of annot ids from setId=" + setId);
+        URL thisIAUrl = iaURL(context, "/api/imageset/annot/uuid/json/?imageset_uuid_list=[" + toFancyUUID(setId) + "]");
+        System.out.println("  iaURL = "+thisIAUrl);
+        JSONObject res = RestClient.get(thisIAUrl);
+        if ((res == null) || (res.optJSONArray("response") == null) || (res.getJSONArray("response").optJSONArray(0) == null)) throw new RuntimeException("could not get list of annot ids from setId=" + setId+" on context "+context);
+        System.out.println("got result "+res);
         JSONObject rtn = new JSONObject("{\"success\": false}");
 
         //String setIdUUID = iaImageSetUUIDFromId(setId);
 
         JSONArray auuids = res.getJSONArray("response").getJSONArray(0);
         System.out.println("auuids = " + auuids);
-        if ((auuids == null) || (auuids.length() < 1)) throw new RuntimeException("ImageSet id " + setId + " has no Annotations.");
+        if ((auuids == null)) throw new RuntimeException("ImageSet id " + setId + " in context "+context+" has null Annotations.");
+        else if (auuids.length()<1) throw new RuntimeException("ImageSet id " + setId + " in context "+context+" has zero Annotations.");
 
         //these will be used at the end to know what annots were original in the set (for Occurrence)
         //JSONArray oau = iaAnnotationUUIDsFromIds(aids);
