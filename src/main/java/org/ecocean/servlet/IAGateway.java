@@ -283,13 +283,23 @@ System.out.println("Next: res(" + taskId + ") -> " + res);
     response.setHeader("Access-Control-Allow-Origin", "*");  //allow us stuff from localhost
 
     String qstr = request.getQueryString();
+    String context = ServletUtilities.getContext(request);
+
+    // experimental--setting context for requests from IA
+    if (ServletUtilities.isRequestFromPythonUserAgent(request)) {
+      context = IBEISIA.getContextFromRequestFromIA(request);
+      System.out.println("IAGateway: detected that a request was from IA and set context to "+context);
+    }
+
+
     if ("detectionReviewPost".equals(qstr)) {
-        String url = CommonConfiguration.getProperty("IBEISIARestUrlDetectReview", "context0");
+        String url = CommonConfiguration.getProperty("IBEISIARestUrlDetectReview", context);
         if (url == null) throw new IOException("IBEISIARestUrlDetectReview url not set");
 System.out.println("attempting passthru to " + url);
         URL u = new URL(url);
         JSONObject rtn = new JSONObject("{\"success\": false}");
         try {
+            System.out.println("calling rest client from IAGateway.doPost - detectionReviewPost");
             rtn = RestClient.postStream(u, request.getInputStream());
         } catch (Exception ex) {
             rtn.put("error", ex.toString());
@@ -298,13 +308,13 @@ System.out.println("attempting passthru to " + url);
 System.out.println("############################ rtn -> \n" + rtn);
         //this maybe should be broken out into a method?
         if ((rtn.optJSONObject("status") != null) && rtn.getJSONObject("status").optBoolean("success", false) && (rtn.optJSONObject("response") != null)) {
-            String context = ServletUtilities.getContext(request);
             Shepherd myShepherd = new Shepherd(context);
             JSONArray slist = rtn.getJSONObject("response").optJSONArray("score_list");
             JSONArray rlist = rtn.getJSONObject("response").optJSONArray("results_list");
             JSONArray ilist = rtn.getJSONObject("response").optJSONArray("image_uuid_list");
             if ((slist != null) && (rlist != null) && (ilist != null)) {
                 JSONObject annsMade = new JSONObject();
+                System.out.println("FeatureType.initAll() calling from IAGateway");
                 FeatureType.initAll(myShepherd);
                 for (int i = 0 ; i < slist.length() ; i++) {
                     int stillNeedingReview = rlist.length();
@@ -346,17 +356,17 @@ System.out.println("i=" + i + " r[i] = " + alist.toString() + "; iuuid=" + uuid 
 
     if ((qstr != null) && (qstr.indexOf("identificationReviewPost") > -1)) {
         String taskId = qstr.substring(25);
-        String url = CommonConfiguration.getProperty("IBEISIARestUrlIdentifyReview", "context0"); //note: cant set context above, cuz getContext() messes up postStream()!
+        String url = CommonConfiguration.getProperty("IBEISIARestUrlIdentifyReview", context); //note: cant set context above, cuz getContext() messes up postStream()!
         if (url == null) throw new IOException("IBEISIARestUrlIdentifyReview url not set");
 System.out.println("[taskId=" + taskId + "] attempting passthru to " + url);
         URL u = new URL(url);
         JSONObject rtn = new JSONObject("{\"success\": false}");
         try {
+          System.out.println("calling rest client from IAGateway.doPost - identificationReviewPost");
             rtn = RestClient.postStream(u, request.getInputStream());
         } catch (Exception ex) {
             rtn.put("error", ex.toString());
         }
-        String context = ServletUtilities.getContext(request);
         if ((rtn.optJSONObject("status") != null) && rtn.getJSONObject("status").optBoolean("success", false)) {
             JSONArray match = rtn.optJSONArray("response");
             if ((match != null) && (match.optJSONObject(0) != null) && (match.optJSONObject(1) != null)) {
@@ -379,7 +389,17 @@ System.out.println("[taskId=" + taskId + "] attempting passthru to " + url);
     }
 
 
-    String context = ServletUtilities.getContext(request);  //note! this *must* be run after postStream stuff above
+    context = ServletUtilities.getContext(request);  //note! this *must* be run after postStream stuff above
+    // note from Drew: I would have deleted the above line if it weren't for the comment, which I don't understand the reasoning behind.
+    context = IBEISIA.getContextFromRequestFromIA(request);
+    System.out.println("context = "+context);
+    if (ServletUtilities.isRequestFromPythonUserAgent(request)) {
+      System.out.println("ServletUtilities.isRequestFromPythonUserAgent(request)");
+      // context = IBEISIA.getContextFromRequestFromIA(request);
+      // for debugging
+
+    }
+
     Shepherd myShepherd = new Shepherd(context);
 
     response.setContentType("text/plain");
@@ -556,6 +576,7 @@ System.out.println("anns -> " + anns);
 
 
     } else if (j.optJSONObject("resolver") != null) {
+        System.out.println("IAGateway about to call Resolver.processAPIJSONObject");
         res = Resolver.processAPIJSONObject(j.getJSONObject("resolver"), myShepherd);
 
     } else {
@@ -665,6 +686,7 @@ System.out.println("anns -> " + anns);
                 url += "callback_url=" + CommonConfiguration.getServerURL(request, request.getContextPath()) + "/ia%3FdetectionReviewPost&callback_method=POST";
 System.out.println("url --> " + url);
                 URL u = new URL(url);
+                System.out.println("calling rest client from IAGateway._detectionHtmlFromResult");
                 JSONObject rtn = RestClient.get(u);
                 if ((rtn.optString("response", null) == null) || (rtn.optJSONObject("status") == null) ||
                     !rtn.getJSONObject("status").optBoolean("success", false)) {
