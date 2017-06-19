@@ -266,7 +266,7 @@ public class Encounter implements java.io.Serializable {
   private PointLocation pointLocation;
   
   // This is the number used to cross reference with dates to find occurances. (Read Lab)
-  private String sightNo;
+  private String sightNo = "";
   
   //start constructors
 

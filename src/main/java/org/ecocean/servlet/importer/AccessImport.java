@@ -1,6 +1,9 @@
 package org.ecocean.servlet.importer;
 
 import org.ecocean.*;
+import org.ecocean.genetics.BiologicalMeasurement;
+import org.ecocean.genetics.SexAnalysis;
+import org.ecocean.genetics.TissueSample;
 import org.ecocean.servlet.*;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -13,18 +16,10 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.security.InvalidKeyException;
-
-import java.net.MalformedURLException;
-import java.util.List;
-import java.util.Set;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
+import java.util.*;
 
 
 import org.json.JSONObject;
@@ -107,14 +102,27 @@ public class AccessImport extends HttpServlet {
     
     
     myShepherd.beginDBTransaction();
-    try {
-      out.println("********************* Let's process the DUML Table!\n");
-      processDUML(db.getTable("DUML"), myShepherd);
-    } catch (Exception e) {
-      e.printStackTrace();
-      out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Could not process DUML table!!!");
-    }
     
+    //All this just to get a number? Yup.
+    Iterator<Encounter> encs = myShepherd.getAllEncountersNoQuery();
+    int numEncs = 0;
+    while (encs.hasNext()) {
+      numEncs +=1;
+      encs.next();
+    } 
+    
+    out.println("\nI already have "+numEncs+" encounters in tha database.\n");
+    // This if stops the encounter creation if we have to many. Can remove later.
+    if (numEncs < 2000) {    
+      try {
+        out.println("********************* Let's process the DUML Table!\n");
+        processDUML(db.getTable("DUML"), myShepherd);
+      } catch (Exception e) {
+        e.printStackTrace();
+        out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Could not process DUML table!!!");
+      }
+    }  
+        
     try {
       out.println("********************* Let's process the SIGHTINGS Table!\n");
       processSightings(db.getTable("SIGHTINGS"), myShepherd);
@@ -196,12 +204,13 @@ public class AccessImport extends HttpServlet {
           date = thisRow.get("DATE").toString();   
           String verbatimDate = processDateString(date, startTime);
           
-          DateTime dateTime = dateStringToDateTime(verbatimDate);
+          DateTime dateTime = dateStringToDateTime(verbatimDate, "EEE MMM dd hh:mm a yyyy");
           
           newEnc.setVerbatimEventDate(dateTime.toString());          
           newEnc.setDateInMilliseconds(dateTime.getMillis());  
           dates += 1;
           out.println("--------------------------------------------- Stored Date : "+dateTime.toString()+" Stored startTime : "+startTime);
+          out.println("--------------------------------------- .getDate() produces....  "+newEnc.getDate());
           if (columnMasterList.contains("DATE") || columnMasterList.contains("StartTime")) {
             columnMasterList.remove("DATE");
             columnMasterList.remove("StartTime");
@@ -222,7 +231,7 @@ public class AccessImport extends HttpServlet {
           date = thisRow.get("DATE").toString();
           et = thisRow.get("EndTime").toString();
           String dateString = processDateString(date, et);
-          DateTime dateTime = dateStringToDateTime(dateString);
+          DateTime dateTime = dateStringToDateTime(dateString, "EEE MMM dd hh:mm:ss a yyyy");
           newEnc.setEndDateInMilliseconds(dateTime.getMillis());
           endTimes += 1;
           out.println("---------------- End Time : "+et);
@@ -484,7 +493,9 @@ public class AccessImport extends HttpServlet {
        
       // Take care of business by generating an ID for the encounter object and persisting it. 
       try {
-        myShepherd.getPM().makePersistent(newEnc);        
+        myShepherd.getPM().makePersistent(newEnc);  
+        myShepherd.commitDBTransaction();
+        myShepherd.beginDBTransaction();
       } catch (Exception e) {
         System.out.println("Failed to store new Encounter with catalog number : "+newEnc.getCatalogNumber());
         e.printStackTrace();
@@ -519,17 +530,151 @@ public class AccessImport extends HttpServlet {
   
   private void processBiopsySamples(Table table, Shepherd myShepherd) {
     out.println("Biopsy Samples Table has "+table.getRowCount()+" Rows!");
+    
+    Row thisRow = null;
+    Encounter thisEnc = null;
+    int success = 0;
+      
+    // We need to link this sample to an Encounter using the date and sighting no.
+    for (int i=0;i<table.getRowCount();i++) {
+      try {
+        thisRow = table.getNextRow();
+      } catch (IOException io) {
+        io.printStackTrace();
+        out.println("\n!!!!!!!!!!!!!! Could not get next Row in Biopsy Sample table...\n");
+      }
+      // Make sure we can get the date and sightNo to link this to an encounter. 
+      String date = null;
+      String time = null;
+      String sightNo = null;
+      String sampleId = null;
+      try {
+        if (thisRow.get("DateCreated") != null && thisRow.get("SightNo") != null) {
+          date = thisRow.get("DateCreated").toString(); 
+          time = thisRow.get("Time").toString();
+          sightNo = thisRow.get("SightNo").toString(); 
+          sampleId = thisRow.get("Sample_ID").toString();
+          
+          //So we have to compare the dates, not the times, then compare the times afterwards but store complete date/times. Ugh.
+          
+          String verbatimDate = date.substring(0, 11) + time.substring(11, time.length() - 5) + date.substring(date.length() - 5);
+          DateTime dateTime = dateStringToDateTime(verbatimDate, "EEE MMM dd hh:mm:ss z yyyy");
+          date = dateTime.toString().substring(0,10);
+          //longDate = dateTime.getMillis();
+          //System.out.println("\nDATE FROM CONSTRUCTED DATETIME : "+date);
+          
+          //out.println("\n---- Got Biopsy Table values DATE :"+date+" and SIGHTNO : "+sightNo+" and SAMPLE_ID :"+sampleId);
+          
+        } else {
+          continue;
+        }
+      } catch (Exception e) {
+        e.printStackTrace();
+        out.println("Barfed while grabbing date/sightNo to retrieve linked encounter.");
+      }
+      //Now we need to Iterate through all the encounters 
+      
+      //TODO Try your new shepherd retrieve by date method to try and make this take less than a billion hours!
+      Iterator<Encounter> encs = myShepherd.getAllEncountersNoQuery();
+      String encNo = null;
+      TissueSample ts = null;
+      String encDate = null;
+      String encSightNo = null;
+      
+      try {
+        while (encs.hasNext()) {
+          thisEnc = encs.next();  
+          if (sightNo != null && date != null) {            
+            encDate = thisEnc.getDate().substring(0,10);
+            System.out.println("\nVERBATIM DATE FROM ENC : "+encDate);
+            encSightNo = thisEnc.getSightNo();   
+          }
+          System.out.println("\n---- DATE :"+date+" and SIGHTNO : "+sightNo+" and ENSIGHTNO :"+encSightNo+" and ENCDATE :"+encDate);
+          if (date.equals(encDate) && encSightNo.equals(sightNo)) {
+            encNo = thisEnc.getCatalogNumber();
+            System.out.println("\n-------------- MATCH!!! DATE : "+date+"="+encDate+" SIGHTNO : "+sightNo+"="+encSightNo);
+            continue;
+          }
+        }        
+      } catch (Exception e) {
+        e.printStackTrace();
+        out.println("\nError finding and encounter match.");
+      }
+      
+      
+      // Now let's actually make the Tissue sample.
+      try {
+        if (encNo != null && sampleId != null) { 
+          try {
+            ts = new TissueSample(encNo, sampleId );
+            
+            // And load it up.
+            try {
+              //String comments = "";
+
+              String permit = null;
+              String sex = null;
+              String sampleID = null;
+              
+              if (!thisRow.get("Permit").equals(null)) {
+                permit = thisRow.getString("Permit").toString();
+                ts.setPermit(permit);
+              }
+              if (thisRow.get("Sample_ID") != null) {
+                sampleID = thisRow.get("Sample_ID").toString();
+                if (sampleID.toLowerCase().contains("miss")) {
+                  ts.setState("MISS");
+                }
+                if (sampleID.toLowerCase().contains("hit no sample")) {
+                  ts.setState("Hit no sample");
+                } else {
+                  ts.setState("Sampled");
+                }
+ 
+              }
+              if (!thisRow.get("Conf_sex").equals(null)) {
+                sex = thisRow.getString("Conf_sex").toString();
+                SexAnalysis sexAnalysis = new SexAnalysis(Util.generateUUID(), sex,thisEnc.getCatalogNumber(),sampleID);
+                myShepherd.getPM().makePersistent(sexAnalysis);
+                myShepherd.commitDBTransaction();
+                myShepherd.beginDBTransaction();
+                ts.addGeneticAnalysis(sexAnalysis);
+              }
+              myShepherd.getPM().makePersistent(ts);
+              myShepherd.commitDBTransaction();
+              myShepherd.beginDBTransaction();
+              thisEnc.addTissueSample(ts);
+            } catch (Exception e) {
+              
+            }
+                       
+            myShepherd.commitDBTransaction();
+            myShepherd.beginDBTransaction();
+            success += 1;
+            System.out.println("Created a Tissue Sample for "+encNo);
+          } catch (Exception e) {
+            e.printStackTrace();
+            out.println("\nFailed to make the tissue sample.");
+          }        
+        }        
+      } catch (Exception e) {
+        out.println("\nFailed to validate encNo : "+encNo+" and sampleID : "+sampleId+" for TissueSample creation.");
+      }
+      
+    }
+    out.println("Successfully created "+success+" tissue samples.");
   }
   
-  
-  private DateTime dateStringToDateTime(String verbatim) {
-    DateFormat fm = new SimpleDateFormat("EEE MMM dd hh:mm a yyyy");
+  private DateTime dateStringToDateTime(String verbatim, String format) {
+    DateFormat fm = new SimpleDateFormat(format);
     Date d = null;
     try {
       d = (Date)fm.parse(verbatim);    
     } catch (ParseException pe) {
+      
       pe.printStackTrace();
-      out.println("Barfed Parsing a Datestring...");
+      System.out.println("Barfed Parsing a Datestring... Format : "+format);
+      
     }
     DateTime dt = new DateTime(d);
     
@@ -560,9 +705,10 @@ public class AccessImport extends HttpServlet {
         mt = "0" + mt;
       }      
     } catch (Exception e) {
+      // Is it weird and malformed? Let just auto set it. 
       System.out.println("BARFED ON THE startTime : "+mt);
       mt = "0000";
-      e.printStackTrace();
+      //e.printStackTrace();
     }
     DateTimeFormatter in = DateTimeFormat.forPattern("HHmm"); 
     DateTimeFormatter out = DateTimeFormat.forPattern("hh:mm a"); 
