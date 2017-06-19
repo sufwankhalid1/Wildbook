@@ -575,91 +575,110 @@ public class AccessImport extends HttpServlet {
       //Now we need to Iterate through all the encounters 
       
       //TODO Try your new shepherd retrieve by date method to try and make this take less than a billion hours!
-      Iterator<Encounter> encs = myShepherd.getAllEncountersNoQuery();
+      ArrayList<Encounter> encArr = myShepherd.getEncounterArrayWithShortDate(date);
+      
+      
+      //Iterator<Encounter> encs = myShepherd.getAllEncountersNoQuery();
       String encNo = null;
       TissueSample ts = null;
       String encDate = null;
       String encSightNo = null;
       
-      try {
-        while (encs.hasNext()) {
-          thisEnc = encs.next();  
-          if (sightNo != null && date != null) {            
-            encDate = thisEnc.getDate().substring(0,10);
-            System.out.println("\nVERBATIM DATE FROM ENC : "+encDate);
-            encSightNo = thisEnc.getSightNo();   
-          }
-          System.out.println("\n---- DATE :"+date+" and SIGHTNO : "+sightNo+" and ENSIGHTNO :"+encSightNo+" and ENCDATE :"+encDate);
-          if (date.equals(encDate) && encSightNo.equals(sightNo)) {
-            encNo = thisEnc.getCatalogNumber();
-            System.out.println("\n-------------- MATCH!!! DATE : "+date+"="+encDate+" SIGHTNO : "+sightNo+"="+encSightNo);
-            continue;
-          }
-        }        
-      } catch (Exception e) {
-        e.printStackTrace();
-        out.println("\nError finding and encounter match.");
-      }
-      
-      
-      // Now let's actually make the Tissue sample.
-      try {
-        if (encNo != null && sampleId != null) { 
-          try {
-            ts = new TissueSample(encNo, sampleId );
-            
-            // And load it up.
+      //try {
+      //  while (encs.hasNext()) {
+      //    thisEnc = encs.next();  
+      //    if (sightNo != null && date != null) {            
+      //      encDate = thisEnc.getDate().substring(0,10);
+      //      System.out.println("\nVERBATIM DATE FROM ENC : "+encDate);
+      //      encSightNo = thisEnc.getSightNo();   
+      //    }
+      //    System.out.println("\n---- DATE :"+date+" and SIGHTNO : "+sightNo+" and ENSIGHTNO :"+encSightNo+" and ENCDATE :"+encDate);
+      //    if (date.equals(encDate) && encSightNo.equals(sightNo)) {
+      //      encNo = thisEnc.getCatalogNumber();
+      //      System.out.println("\n-------------- MATCH!!! DATE : "+date+"="+encDate+" SIGHTNO : "+sightNo+"="+encSightNo);
+      //      continue;
+      //    }
+      //  }        
+      //} catch (Exception e) {
+      //  e.printStackTrace();
+      //  out.println("\nError finding and encounter match.");
+      //}
+      for (int j=0;j<encArr.size();j++) {
+        
+        thisEnc = encArr.get(j);
+        if (sightNo != null && date != null) {            
+           encDate = thisEnc.getDate().substring(0,10);
+           System.out.println("\nVERBATIM DATE FROM ENC : "+encDate);
+           encSightNo = thisEnc.getSightNo();   
+        }
+           System.out.println("\n---- DATE :"+date+" and SIGHTNO : "+sightNo+" and ENSIGHTNO :"+encSightNo+" and ENCDATE :"+encDate);
+        if (date.equals(encDate) && encSightNo.equals(sightNo)) {
+           encNo = thisEnc.getCatalogNumber();
+           System.out.println("\n-------------- MATCH!!! DATE : "+date+"="+encDate+" SIGHTNO : "+sightNo+"="+encSightNo);
+        } else {
+          continue;
+        }
+        
+        // Now let's actually make the Tissue sample.
+        try {
+          if (encNo != null && sampleId != null) { 
             try {
-              //String comments = "";
-
-              String permit = null;
-              String sex = null;
-              String sampleID = null;
+              ts = new TissueSample(encNo, sampleId );
               
-              if (!thisRow.get("Permit").equals(null)) {
-                permit = thisRow.getString("Permit").toString();
-                ts.setPermit(permit);
-              }
-              if (thisRow.get("Sample_ID") != null) {
-                sampleID = thisRow.get("Sample_ID").toString();
-                if (sampleID.toLowerCase().contains("miss")) {
-                  ts.setState("MISS");
+              // And load it up.
+              try {
+                //String comments = "";
+                
+                String permit = null;
+                String sex = null;
+                String sampleID = null;
+                
+                if (!thisRow.get("Permit").equals(null)) {
+                  permit = thisRow.getString("Permit").toString();
+                  ts.setPermit(permit);
                 }
-                if (sampleID.toLowerCase().contains("hit no sample")) {
-                  ts.setState("Hit no sample");
-                } else {
-                  ts.setState("Sampled");
+                if (thisRow.get("Sample_ID") != null) {
+                  sampleID = thisRow.get("Sample_ID").toString();
+                  if (sampleID.toLowerCase().contains("miss")) {
+                    ts.setState("MISS");
+                  }
+                  if (sampleID.toLowerCase().contains("hit no sample")) {
+                    ts.setState("Hit no sample");
+                  } else {
+                    ts.setState("Sampled");
+                  }
+                  
                 }
- 
-              }
-              if (!thisRow.get("Conf_sex").equals(null)) {
-                sex = thisRow.getString("Conf_sex").toString();
-                SexAnalysis sexAnalysis = new SexAnalysis(Util.generateUUID(), sex,thisEnc.getCatalogNumber(),sampleID);
-                myShepherd.getPM().makePersistent(sexAnalysis);
+                if (!thisRow.get("Conf_sex").equals(null)) {
+                  sex = thisRow.getString("Conf_sex").toString();
+                  SexAnalysis sexAnalysis = new SexAnalysis(Util.generateUUID(), sex,thisEnc.getCatalogNumber(),sampleID);
+                  myShepherd.getPM().makePersistent(sexAnalysis);
+                  myShepherd.commitDBTransaction();
+                  myShepherd.beginDBTransaction();
+                  ts.addGeneticAnalysis(sexAnalysis);
+                }
+                myShepherd.getPM().makePersistent(ts);
                 myShepherd.commitDBTransaction();
                 myShepherd.beginDBTransaction();
-                ts.addGeneticAnalysis(sexAnalysis);
+                thisEnc.addTissueSample(ts);
+              } catch (Exception e) {
+                
               }
-              myShepherd.getPM().makePersistent(ts);
+              
               myShepherd.commitDBTransaction();
               myShepherd.beginDBTransaction();
-              thisEnc.addTissueSample(ts);
+              success += 1;
+              System.out.println("Created a Tissue Sample for "+encNo);
             } catch (Exception e) {
-              
-            }
-                       
-            myShepherd.commitDBTransaction();
-            myShepherd.beginDBTransaction();
-            success += 1;
-            System.out.println("Created a Tissue Sample for "+encNo);
-          } catch (Exception e) {
-            e.printStackTrace();
-            out.println("\nFailed to make the tissue sample.");
+              e.printStackTrace();
+              out.println("\nFailed to make the tissue sample.");
+            }        
           }        
-        }        
-      } catch (Exception e) {
-        out.println("\nFailed to validate encNo : "+encNo+" and sampleID : "+sampleId+" for TissueSample creation.");
+        } catch (Exception e) {
+          out.println("\nFailed to validate encNo : "+encNo+" and sampleID : "+sampleId+" for TissueSample creation.");
+        }
       }
+      
       
     }
     out.println("Successfully created "+success+" tissue samples.");
