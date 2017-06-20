@@ -122,14 +122,6 @@ public class AccessImport extends HttpServlet {
         out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Could not process DUML table!!!");
       }
     }  
-        
-    try {
-      out.println("********************* Let's process the SIGHTINGS Table!\n");
-      processSightings(db.getTable("SIGHTINGS"), myShepherd);
-    } catch (Exception e) {
-      e.printStackTrace();
-      out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Could not process SIGHTINGS table!!!");
-    }
     
     try {
       out.println("********************* Let's process the CATALOG Table!\n");
@@ -146,6 +138,15 @@ public class AccessImport extends HttpServlet {
       e.printStackTrace();
       out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Could not process BiopsySamples table!!!");
     }
+    
+    try {
+      out.println("********************* Let's process the SIGHTINGS Table!\n");
+      processSightings(db.getTable("SIGHTINGS"), myShepherd);
+    } catch (Exception e) {
+      e.printStackTrace();
+      out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Could not process SIGHTINGS table!!!");
+    }
+    
     myShepherd.commitDBTransaction();
     myShepherd.closeDBTransaction();
     // Close that db so it don't leak or something.
@@ -157,6 +158,9 @@ public class AccessImport extends HttpServlet {
     
     // We're gonna keep a counter of everything. I mean Everything. Deal with it.
     int errors = 0;
+    
+    int newOccs = 0;
+    int newEncs = 0;
     
     int locations = 0;
     int dates = 0;
@@ -251,7 +255,13 @@ public class AccessImport extends HttpServlet {
       try {
         String sn = null;
         if (thisRow.get("SIGHTNO") != null) {
-          sn = thisRow.get("SIGHTNO").toString();          
+          sn = thisRow.get("SIGHTNO").toString();
+          out.println("SN ---------------- "+sn);
+          if (sn.contains("-") && sn.contains("0")) {
+            out.println("SN2 ---------------- "+sn);
+            sn = sn.replace("0", "");
+            sn = sn.replace("-", "");
+          }
           newEnc.setSightNo(sn);    
           sightNos += 1;
           out.println("---------------- SIGHTNO : "+sn);
@@ -451,7 +461,7 @@ public class AccessImport extends HttpServlet {
         errors +=1;
       }
       
-      //Beuscale Measurement
+      //Beauscale Measurement
       try {
        Double bs = null;
        Measurement bsm = null;
@@ -496,10 +506,33 @@ public class AccessImport extends HttpServlet {
         myShepherd.getPM().makePersistent(newEnc);  
         myShepherd.commitDBTransaction();
         myShepherd.beginDBTransaction();
+        newEncs += 1;
       } catch (Exception e) {
-        System.out.println("Failed to store new Encounter with catalog number : "+newEnc.getCatalogNumber());
+        out.println("Failed to store new Encounter with catalog number : "+newEnc.getCatalogNumber());
         e.printStackTrace();
       }
+      // Gonna need an occurrence for all this stuff too. Each of these sighting is technically a group sighting. 
+      Occurrence occ = null;
+      try {
+        occ = new Occurrence(Util.generateUUID(), newEnc);
+        myShepherd.getPM().makePersistent(occ);  
+        myShepherd.commitDBTransaction();
+        myShepherd.beginDBTransaction();
+        newOccs +=1;
+      } catch (Exception e) {
+        e.printStackTrace();
+        out.println("Failed to create and store an occurrence for this sighting number.");
+      }
+      // Okay, lets associate the two. Damn this method is getting long. 
+      try {
+        newEnc.setOccurrenceID(occ.getOccurrenceID());
+        myShepherd.commitDBTransaction();
+        myShepherd.beginDBTransaction();
+      } catch (Exception e) {
+        e.printStackTrace();
+        out.println("Failed to associate the Encounter "+newEnc.getCatalogNumber()+" with the Occurrence "+occ.getOccurrenceID()+".");
+      }
+      out.println("Created "+newEncs+" new Encounters and "+newOccs+" new Occurrences.");
              
     }
     out.println("\n\n************** LAT's vs rows: "+lats+"/"+table.getRowCount());
@@ -521,7 +554,59 @@ public class AccessImport extends HttpServlet {
   }
   
   private void processSightings(Table table, Shepherd myShepherd) {
-    out.println("Sightings Table has "+table.getRowCount()+" Rows!");
+    out.println("Sightings Table has "+table.getRowCount()+" Rows!");    
+    String date = null;
+    String sightNo = null;
+    String idCode = null;
+    String newStatus = null;
+    String quality = null;
+    String distinctiveness = null;
+    String tempId = null;
+    
+    MarkedIndividual indy = null;
+    
+    
+    Row thisRow = null;
+    for (int i=0;i<table.getRowCount();i++) {
+      indy = new MarkedIndividual();
+      try {
+        thisRow = table.getNextRow();
+      } catch (IOException io) {
+        io.printStackTrace();
+        out.println("!!!!!!!!!!!!!! Could not get next Row in SIGHTINGS table...");
+      }
+      
+      try {
+        if (thisRow.get("DATE") != null) {
+          date = thisRow.get("DATE").toString();          
+          
+          String verbatimDate = date.substring(0, 11) + date.substring(date.length() - 5);
+          DateTime dateTime = dateStringToDateTime(verbatimDate, "EEE MMM dd yyyy");
+          date = dateTime.toString().substring(0,10);
+          out.println("---------------- DATE : "+date);
+        }
+      } catch (Exception e) {
+        out.println("!!!!!!!!!!!!!! Could not process a DATE for row "+i+" in SIGHTINGS");
+        e.printStackTrace();
+      }
+      
+      try {
+        if (thisRow.get("SIGHTNO") != null) {
+          sightNo = thisRow.get("SIGHTNO").toString();          
+          out.println("---------------- SIGHTNO : "+sightNo);          
+        }
+      } catch (Exception e) {
+        out.println("!!!!!!!!!!!!!! Could not process a SIGHTNO for row "+i+" in SIGHTINGS");
+        e.printStackTrace();
+      }
+      
+      ArrayList<Encounter> encs = myShepherd.getEncounterArrayWithShortDateAndSightingID(date, sightNo);
+      System.out.println("Encs for this Sighting : "+encs.toString());
+      for () {
+        
+      }
+      
+    }
   }
   
   private void processCatalog(Table table, Shepherd myShepherd) {
@@ -535,7 +620,6 @@ public class AccessImport extends HttpServlet {
     Encounter thisEnc = null;
     int success = 0;
     int numRows = 0;
-    int tsAttempts = 0;
     
     ArrayList<ArrayList<String>> testArr = new ArrayList<ArrayList<String>>();
          
@@ -584,9 +668,8 @@ public class AccessImport extends HttpServlet {
         e.printStackTrace();
         out.println("Barfed while grabbing date/sightNo to retrieve linked encounter.");
       }
-      //Now we need to Iterate through all the encounters 
       
-      //TODO Try your new shepherd retrieve by date method to try and make this take less than a billion hours!
+      //New Shepherd method to return all encounters that occurred between 12AM on a specific date and 12AM the next day.
       ArrayList<Encounter> encArr = myShepherd.getEncounterArrayWithShortDate(date);
       
       
@@ -596,7 +679,6 @@ public class AccessImport extends HttpServlet {
       String encSightNo = null;
       
       for (int j=0;j<encArr.size();j++) {
-        System.out.println("Here's J!!! : "+j);
         thisEnc = encArr.get(j);
         if (sightNo != null && date != null) {            
            encDate = thisEnc.getDate().substring(0,10).trim();
@@ -611,8 +693,7 @@ public class AccessImport extends HttpServlet {
               testArr.remove(m);
             }
           }
-           //tsAttempts += 1;            
-           //System.out.println("TSATTEMPTS : "+tsAttempts);
+           // All the bits match up? Grab this encounter number and use it to create your samples/biopsy's.
            encNo = thisEnc.getCatalogNumber();
            
            System.out.println("\n-------------- MATCH!!! DATE : "+date+"="+encDate+" SIGHTNO : "+sightNo+"="+encSightNo);
@@ -649,6 +730,7 @@ public class AccessImport extends HttpServlet {
                   
                 }
                 if (thisRow.get("Conf_sex") != null) {
+                  // One of the fields will be a SexAnalysis/BiologicalMeasurement stored on the tissue sample.
                   sex = thisRow.getString("Conf_sex").toString();
                   SexAnalysis sexAnalysis = new SexAnalysis(Util.generateUUID(), sex,thisEnc.getCatalogNumber(),sampleID);
                   myShepherd.getPM().makePersistent(sexAnalysis);
@@ -692,10 +774,8 @@ public class AccessImport extends HttpServlet {
     try {
       d = (Date)fm.parse(verbatim);    
     } catch (ParseException pe) {
-      
       pe.printStackTrace();
-      System.out.println("Barfed Parsing a Datestring... Format : "+format);
-      
+      out.println("Barfed Parsing a Datestring... Format : "+format);
     }
     DateTime dt = new DateTime(d);
     
@@ -714,7 +794,7 @@ public class AccessImport extends HttpServlet {
   private String formatMilitaryTime(String mt) {
     
     // The parsing breaks on military time formatted like "745" instead of "0745"
-    // Stupid timey stuff. Sometimes there are colons, sometimes not.  
+    // Stupid timey stuff. Sometimes there are colons, sometimes not. Hence all the if's.
     try {
       if (mt.contains(":")) {
         mt = mt.replace(":", "");
@@ -738,6 +818,22 @@ public class AccessImport extends HttpServlet {
     
     return standard;
   } 
+  
+  private static Encounter deepCloneEncounter(Encounter enc) {  
+    try {
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      ObjectOutputStream oos = new ObjectOutputStream(baos);
+      oos.writeObject(enc);
+      ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+      ObjectInputStream ois = new ObjectInputStream(bais);
+      Encounter newClone = (Encounter) ois.readObject();
+      return newClone;
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+      return null;
+    }
+  }
 }
   
   
