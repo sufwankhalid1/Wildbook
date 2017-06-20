@@ -534,7 +534,11 @@ public class AccessImport extends HttpServlet {
     Row thisRow = null;
     Encounter thisEnc = null;
     int success = 0;
-      
+    int numRows = 0;
+    int tsAttempts = 0;
+    
+    ArrayList<ArrayList<String>> testArr = new ArrayList<ArrayList<String>>();
+         
     // We need to link this sample to an Encounter using the date and sighting no.
     for (int i=0;i<table.getRowCount();i++) {
       try {
@@ -552,9 +556,13 @@ public class AccessImport extends HttpServlet {
         if (thisRow.get("DateCreated") != null && thisRow.get("SightNo") != null) {
           date = thisRow.get("DateCreated").toString(); 
           time = thisRow.get("Time").toString();
-          sightNo = thisRow.get("SightNo").toString(); 
+          sightNo = thisRow.get("SightNo").toString().trim(); 
           sampleId = thisRow.get("Sample_ID").toString();
           
+          ArrayList<String> thisRowValues = new ArrayList<String>(3);
+          
+          numRows += 1;
+          System.out.println("Successful Rows : "+numRows);
           //So we have to compare the dates, not the times, then compare the times afterwards but store complete date/times. Ugh.
           
           String verbatimDate = date.substring(0, 11) + time.substring(11, time.length() - 5) + date.substring(date.length() - 5);
@@ -563,6 +571,10 @@ public class AccessImport extends HttpServlet {
           //longDate = dateTime.getMillis();
           //System.out.println("\nDATE FROM CONSTRUCTED DATETIME : "+date);
           
+          thisRowValues.add(date);
+          thisRowValues.add(sightNo);
+          thisRowValues.add(sampleId);
+          testArr.add(thisRowValues);
           //out.println("\n---- Got Biopsy Table values DATE :"+date+" and SIGHTNO : "+sightNo+" and SAMPLE_ID :"+sampleId);
           
         } else {
@@ -578,42 +590,31 @@ public class AccessImport extends HttpServlet {
       ArrayList<Encounter> encArr = myShepherd.getEncounterArrayWithShortDate(date);
       
       
-      //Iterator<Encounter> encs = myShepherd.getAllEncountersNoQuery();
       String encNo = null;
       TissueSample ts = null;
       String encDate = null;
       String encSightNo = null;
       
-      //try {
-      //  while (encs.hasNext()) {
-      //    thisEnc = encs.next();  
-      //    if (sightNo != null && date != null) {            
-      //      encDate = thisEnc.getDate().substring(0,10);
-      //      System.out.println("\nVERBATIM DATE FROM ENC : "+encDate);
-      //      encSightNo = thisEnc.getSightNo();   
-      //    }
-      //    System.out.println("\n---- DATE :"+date+" and SIGHTNO : "+sightNo+" and ENSIGHTNO :"+encSightNo+" and ENCDATE :"+encDate);
-      //    if (date.equals(encDate) && encSightNo.equals(sightNo)) {
-      //      encNo = thisEnc.getCatalogNumber();
-      //      System.out.println("\n-------------- MATCH!!! DATE : "+date+"="+encDate+" SIGHTNO : "+sightNo+"="+encSightNo);
-      //      continue;
-      //    }
-      //  }        
-      //} catch (Exception e) {
-      //  e.printStackTrace();
-      //  out.println("\nError finding and encounter match.");
-      //}
       for (int j=0;j<encArr.size();j++) {
-        
+        System.out.println("Here's J!!! : "+j);
         thisEnc = encArr.get(j);
         if (sightNo != null && date != null) {            
-           encDate = thisEnc.getDate().substring(0,10);
+           encDate = thisEnc.getDate().substring(0,10).trim();
            System.out.println("\nVERBATIM DATE FROM ENC : "+encDate);
-           encSightNo = thisEnc.getSightNo();   
+           encSightNo = thisEnc.getSightNo().trim().toUpperCase();   
         }
            System.out.println("\n---- DATE :"+date+" and SIGHTNO : "+sightNo+" and ENSIGHTNO :"+encSightNo+" and ENCDATE :"+encDate);
-        if (date.equals(encDate) && encSightNo.equals(sightNo)) {
+        if (date.equals(encDate) && sightNo.equals(encSightNo)) {
+          
+          for (int m=0;m<testArr.size();m++) {
+            if (testArr.get(m).contains(date) && testArr.get(m).contains(sightNo) ) {
+              testArr.remove(m);
+            }
+          }
+           //tsAttempts += 1;            
+           //System.out.println("TSATTEMPTS : "+tsAttempts);
            encNo = thisEnc.getCatalogNumber();
+           
            System.out.println("\n-------------- MATCH!!! DATE : "+date+"="+encDate+" SIGHTNO : "+sightNo+"="+encSightNo);
         } else {
           continue;
@@ -624,16 +625,14 @@ public class AccessImport extends HttpServlet {
           if (encNo != null && sampleId != null) { 
             try {
               ts = new TissueSample(encNo, sampleId );
-              
               // And load it up.
               try {
-                //String comments = "";
                 
                 String permit = null;
                 String sex = null;
                 String sampleID = null;
                 
-                if (!thisRow.get("Permit").equals(null)) {
+                if (thisRow.get("Permit") != null) {
                   permit = thisRow.getString("Permit").toString();
                   ts.setPermit(permit);
                 }
@@ -649,7 +648,7 @@ public class AccessImport extends HttpServlet {
                   }
                   
                 }
-                if (!thisRow.get("Conf_sex").equals(null)) {
+                if (thisRow.get("Conf_sex") != null) {
                   sex = thisRow.getString("Conf_sex").toString();
                   SexAnalysis sexAnalysis = new SexAnalysis(Util.generateUUID(), sex,thisEnc.getCatalogNumber(),sampleID);
                   myShepherd.getPM().makePersistent(sexAnalysis);
@@ -662,7 +661,7 @@ public class AccessImport extends HttpServlet {
                 myShepherd.beginDBTransaction();
                 thisEnc.addTissueSample(ts);
               } catch (Exception e) {
-                
+                e.printStackTrace();
               }
               
               myShepherd.commitDBTransaction();
@@ -677,11 +676,14 @@ public class AccessImport extends HttpServlet {
         } catch (Exception e) {
           out.println("\nFailed to validate encNo : "+encNo+" and sampleID : "+sampleId+" for TissueSample creation.");
         }
-      }
-      
-      
+      }   
     }
     out.println("Successfully created "+success+" tissue samples.");
+    
+    for (int i=0;i<testArr.size();i++) {
+      out.println("\n Date : "+testArr.get(i).get(0)+" Sighting Number : "+testArr.get(i).get(1)+" Sample_ID : "+testArr.get(i).get(2));
+    }
+    out.println("UNMATCHED BIOPSY ENTRIES : "+testArr.size());
   }
   
   private DateTime dateStringToDateTime(String verbatim, String format) {
