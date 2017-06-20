@@ -120,6 +120,47 @@ public class Encounter implements java.io.Serializable {
   public String specificEpithet;
   public String lifeStage;
   public String country;
+  public String zebraClass ="";  //via lewa: lactating female, territorial male, etc etc
+
+  // fields from Dan's sample csv
+  private String imageSet;
+  private String soil;
+
+  private String reproductiveStage;
+  private Double bodyCondition;
+  private Double parasiteLoad;
+  private Double immunoglobin;
+  private Boolean sampleTakenForDiet;
+  private Boolean injured;
+
+  public String getSoil() {return soil;}
+  public void setSoil(String soil) {this.soil = soil;}
+
+  public String getReproductiveStage() {return reproductiveStage;}
+  public void setReproductiveStage(String reproductiveStage) {this.reproductiveStage = reproductiveStage;}
+
+  public Double getBodyCondition() {return bodyCondition;}
+  public void setBodyCondition(Double bodyCondition) {this.bodyCondition = bodyCondition;}
+
+  public Double getParasiteLoad() {return parasiteLoad;}
+  public void setParasiteLoad(Double parasiteLoad) {this.parasiteLoad = parasiteLoad;}
+
+  public Double getImmunoglobin() {return immunoglobin;}
+  public void setImmunoglobin(Double immunoglobin) {this.immunoglobin = immunoglobin;}
+
+  public Boolean getSampleTakenForDiet() {return sampleTakenForDiet;}
+  public void setSampleTakenForDiet(Boolean sampleTakenForDiet) {this.sampleTakenForDiet = sampleTakenForDiet;}
+
+  public Boolean getInjured() {return injured;}
+  public void setInjured(Boolean injured) {this.injured = injured;}
+
+
+
+
+
+  // for searchability
+  private String imageNames;
+
 
     private static HashMap<String,ArrayList<Encounter>> _matchEncounterCache = new HashMap<String,ArrayList<Encounter>>();
 
@@ -250,6 +291,9 @@ public class Encounter implements java.io.Serializable {
 
   private Boolean mmaCompatible = false;
 
+//
+
+
   //start constructors
 
   /**
@@ -300,6 +344,41 @@ public class Encounter implements java.io.Serializable {
         this.setDWCDateLastModified();
         this.resetDateInMilliseconds();
     }
+
+
+    public String getZebraClass() {
+        return zebraClass;
+    }
+    public void setZebraClass(String c) {
+        zebraClass = c;
+    }
+
+    public String getImageNames() {
+        return imageNames;
+    }
+    public void addImageName(String name) {
+      if  (imageNames==null) imageNames = name;
+      else if (name != null) imageNames += (", "+name);
+    }
+    public String addAllImageNamesFromAnnots(boolean overwrite) {
+      if (overwrite) imageNames = null;
+      return addAllImageNamesFromAnnots();
+    }
+    public String addAllImageNamesFromAnnots() {
+      for (Annotation ann : getAnnotations()) {
+        for (Feature feat : ann.getFeatures()) {
+          try {
+            MediaAsset ma = feat.getMediaAsset();
+            addImageName(ma.getFilename());
+          }
+          catch (Exception e) {
+            System.out.println("exception parsing image name from feature "+feat);
+          }
+        }
+      }
+      return imageNames;
+    }
+
 
 
   /**
@@ -687,6 +766,12 @@ public class Encounter implements java.io.Serializable {
       }
     }
     return imageNamesOnly;
+  }
+
+  public String getImageOriginalName() {
+    MediaAsset ma = getPrimaryMediaAsset();
+    if (ma == null) return null;
+    return ma.getFilename();
   }
 
   /**
@@ -1442,7 +1527,9 @@ System.out.println("did not find MediaAsset for params=" + sp + "; creating one?
     dwcDateAdded = m_dateAdded;
   }
     public void setDWCDateAdded() {
-        dwcDateAdded = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+        Date myDate=new Date();
+        dwcDateAddedLong=new Long(myDate.getTime());
+        dwcDateAdded = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(myDate);
     }
 
 
@@ -1864,6 +1951,15 @@ the decimal one (Double) .. half tempted to break out a class for this: lat/lon/
         if (lon != null) this.setDecimalLongitude(lon);
     }
 
+    //sets date to the closes we have to "not set" :)
+    public void zeroOutDate() {
+        year = 0;
+        month = 0;
+        day = 0;
+        hour = -1;
+        minutes = "00";
+        resetDateInMilliseconds();  //should set that to null as well
+    }
 
   public void resetDateInMilliseconds(){
     if(year>0){
@@ -2202,22 +2298,7 @@ System.out.println("   -->>> offset = " + offset);
         ArrayList<Annotation> tmpAnns = new ArrayList<Annotation>();
         for (Integer i : ordered.keySet()) {
             if ((prevOffset > -1) && ((i - prevOffset) >= minGapSize)) {
-                Encounter newEnc = new Encounter(tmpAnns);
-                newEnc.setState(STATE_AUTO_SOURCED);
-                if (parentRoot == null) {
-                    newEnc.setSubmitterName("Unknown video source");
-                    newEnc.addComments("<i>unable to determine video source - possibly YouTube error?</i>");
-                } else {
-                    newEnc.addComments("<p>YouTube ID: <b>" + parentRoot.getParameters().optString("id") + "</b></p>");
-                    DateTime dt = parentRoot.getDateTime();
-                    if (dt != null) newEnc.setDateInMilliseconds(dt.getMillis());
-                    if ((parentRoot.getMetadata() != null) && (parentRoot.getMetadata().getData() != null)) {
-                        if (parentRoot.getMetadata().getData().optJSONObject("basic") != null) {
-                            newEnc.setSubmitterName(parentRoot.getMetadata().getData().getJSONObject("basic").optString("author_name", "[unknown]") + " (by way of YouTube)");
-                            newEnc.addComments("<p>From YouTube video: <i>" + parentRoot.getMetadata().getData().getJSONObject("basic").optString("title", "[unknown]") + "</i></p>");
-                        }
-                    }
-                }
+                Encounter newEnc = __encForCollate(tmpAnns, parentRoot);
                 newEnc.setDynamicProperty("frameSplitNumber", Integer.toString(groupsMade + 1));
                 newEncs.add(newEnc);
 System.out.println(" cluster [" + (groupsMade) + "] -> " + newEnc);
@@ -2229,7 +2310,7 @@ System.out.println(" cluster [" + (groupsMade) + "] -> " + newEnc);
         }
         //deal with dangling tmpAnns content
         if (tmpAnns.size() > 0) {
-            Encounter newEnc = new Encounter(tmpAnns);
+            Encounter newEnc = __encForCollate(tmpAnns, parentRoot);
             newEnc.setDynamicProperty("frameSplitNumber", Integer.toString(groupsMade + 1));
             //newEnc.setDynamicProperty("frameSplitSourceEncounter", this.getCatalogNumber());
             newEncs.add(newEnc);
@@ -2237,6 +2318,40 @@ System.out.println(" (final)cluster [" + groupsMade + "] -> " + newEnc);
             groupsMade++;
         }
         return newEncs;
+    }
+
+    //this is really only for above method
+    private static Encounter __encForCollate(ArrayList<Annotation> tmpAnns, MediaAsset parentRoot) {
+        if ((tmpAnns == null) || (tmpAnns.size() < 1)) return null;
+        Encounter newEnc = new Encounter(tmpAnns);
+        newEnc.setState(STATE_AUTO_SOURCED);
+        newEnc.zeroOutDate();  //do *not* want it using the video source date
+        if (parentRoot == null) {
+            newEnc.setSubmitterName("Unknown video source");
+            newEnc.addComments("<i>unable to determine video source - possibly YouTube error?</i>");
+        } else {
+            newEnc.addComments("<p>YouTube ID: <b>" + parentRoot.getParameters().optString("id") + "</b></p>");
+            String consolidatedRemarks="<p>Auto-sourced from YouTube Parent Video: <a href=\"https://www.youtube.com/watch?v="+parentRoot.getParameters().optString("id")+"\">"+parentRoot.getParameters().optString("id")+"</a></p>";
+            if ((parentRoot.getMetadata() != null) && (parentRoot.getMetadata().getData() != null)) {
+                
+                if (parentRoot.getMetadata().getData().optJSONObject("basic") != null) {
+                    newEnc.setSubmitterName(parentRoot.getMetadata().getData().getJSONObject("basic").optString("author_name", "[unknown]") + " (by way of YouTube)");
+                    consolidatedRemarks+="<p>From YouTube video: <i>" + parentRoot.getMetadata().getData().getJSONObject("basic").optString("title", "[unknown]") + "</i></p>";
+                    newEnc.addComments(consolidatedRemarks);
+                    //add a dynamic property to make a quick link to the video
+                }
+                if (parentRoot.getMetadata().getData().optJSONObject("detailed") != null) {
+                    String desc = "<p>" + parentRoot.getMetadata().getData().getJSONObject("detailed").optString("description", "[no description]") + "</p>";
+                    if (parentRoot.getMetadata().getData().getJSONObject("detailed").optJSONArray("tags") != null) {
+                        desc += "<p><b>tags:</b> " + parentRoot.getMetadata().getData().getJSONObject("detailed").getJSONArray("tags").toString() + "</p>";
+                    }
+                    consolidatedRemarks+=desc;
+                    
+                }
+            }
+            newEnc.setOccurrenceRemarks(consolidatedRemarks);
+        }
+        return newEnc;
     }
 
 
@@ -2811,6 +2926,7 @@ throw new Exception();
     }
 
     //ann is the Annotation that was created after IA detection.  mostly this is just to notify... someone
+    //  note: this is for singly-made encounters; see also Occurrence.fromDetection()
     public void detectedAnnotation(Shepherd myShepherd, HttpServletRequest request, Annotation ann) {
 System.out.println(">>>>> detectedAnnotation() on " + this);
     }
