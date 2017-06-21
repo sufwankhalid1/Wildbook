@@ -298,9 +298,7 @@ h1 {
 
 <div class="container-fluid main-section">
     <h2 class="section-header">Encounters around the world</h2>
-    
-      <div id="map_canvas" style="width: 770px; height: 510px; margin: 0 auto;"></div>
-   
+      <div id="map_canvas" style="width: 100% !important; height: 510px; margin: 0 auto;"></div>
 </div>
 
 <div class="container-fluid">
