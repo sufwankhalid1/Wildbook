@@ -78,7 +78,7 @@ margin-top: 0px !important;
 margin-bottom: 8px !important;
 </style>
 
-<script src="http://maps.google.com/maps/api/js?sensor=false"></script>
+<script src="//maps.google.com/maps/api/js?sensor=false"></script>
 
 
 <script src="cust/mantamatcher/js/google_maps_style_vars.js"></script>
@@ -234,7 +234,7 @@ margin-bottom: 8px !important;
  		         var latLng = new google.maps.LatLng(<%=thisLatLong%>);
 		          bounds.extend(latLng);
  		          
- 		          var divString<%=i%> = "<div style=\"font-weight:bold;text-align: center;line-height: 45px;vertical-align: middle;width:60px;height:49px;padding: 2px; background-image: url('http://www.flukebook.org/cust/mantamatcher/img/manta-silhouette.png');background-size: cover\"><a href=\"http://www.mantamatcher.org/encounters/searchResults.jsp?locationCodeField=<%=locID %>\"><%=numSightingsInteger.toString() %></a></div>";
+ 		          var divString<%=i%> = "<div style=\"font-weight:bold;text-align: center;line-height: 45px;vertical-align: middle;width:60px;height:49px;padding: 2px; background-image: url('https://sevengill.oceansanctuaries.org/cust/mantamatcher/img/manta-silhouette.png');background-size: cover\"><a href=\"https://sevengill.oceansanctuaries.org/encounters/searchResults.jsp?locationCodeField=<%=locID %>\"><%=numSightingsInteger.toString() %></a></div>";
  		          //http://www.flukebook.org/cust/mantamatcher/img/manta-silhouette.png
  		         
  		         var marker<%=i%> = new RichMarker({
