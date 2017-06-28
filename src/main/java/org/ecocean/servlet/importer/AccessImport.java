@@ -29,6 +29,7 @@ import com.healthmarketscience.jackcess.Cursor;
 import com.healthmarketscience.jackcess.CursorBuilder;
 import com.healthmarketscience.jackcess.Database;
 import com.healthmarketscience.jackcess.DatabaseBuilder;
+import com.healthmarketscience.jackcess.IndexCursor;
 import com.healthmarketscience.jackcess.Row;
 import com.healthmarketscience.jackcess.Table;
 
@@ -153,7 +154,7 @@ public class AccessImport extends HttpServlet {
     
     try {
       out.println("********************* Let's process the BiopsySamples Table!\n");
-      processBiopsySamples(db.getTable("Biopsy Samples"), myShepherd);
+      processBiopsySamples(db.getTable("Biopsy Samples"), myShepherd  );
     } catch (Exception e) {
       out.println(e);
       e.printStackTrace();
@@ -164,7 +165,7 @@ public class AccessImport extends HttpServlet {
     myShepherd.commitDBTransaction();
     myShepherd.closeDBTransaction();
     // Close that db so it don't leak or something.
-    db.close();
+    db.close(); 
   }  
   
   private void processDUML(Table table, Shepherd myShepherd) {
@@ -766,6 +767,72 @@ public class AccessImport extends HttpServlet {
     out.println("Catalog Table has "+table.getRowCount()+" Rows!");
   }
   
+  
+  
+  // Okey, lets try this again.
+  private void processBiopsyTable(Table table,Shepherd myShepherd,Table tableDUML) {
+    out.println("Biopsy Samples Table has "+table.getRowCount()+" Rows!");
+    Row thisRow = null;
+    
+    int success = 0;
+    int failed = 0;
+    int rowsProcessed = 0;
+    
+    for (int i=0;i<table.getRowCount();i++) {
+      try {
+        thisRow = table.getNextRow();
+      } catch (IOException io) {
+        io.printStackTrace();
+        out.println("\n!!!!!!!!!!!!!! Could not get next Row in Biopsy Sample table...\n");
+      }
+      Long milliTime = null;
+      
+      String date = null;
+      String time = null;
+      String sightNo = null;
+      String sampleId = null;
+      try {
+        if (thisRow.get("DateCreated") != null && thisRow.get("SightNo") != null && thisRow.get("Time") != null) {
+          date = thisRow.get("DateCreated").toString(); 
+          time = thisRow.get("Time").toString();
+          sightNo = thisRow.get("SightNo").toString().trim(); 
+          sampleId = thisRow.get("Sample_ID").toString().trim();
+          
+          String verbatimDate = date.substring(0, 11) + time.substring(11, time.length() - 5) + date.substring(date.length() - 5);
+          System.out.println("Verbatim Date : "+verbatimDate);
+          DateTime dateTime = dateStringToDateTime(verbatimDate, "EEE MMM dd hh:mm:ss z yyyy");
+          milliTime = dateTime.getMillis();
+          date = dateTime.toString().substring(0,10);
+          
+        }
+      } catch (Exception e) {
+        e.printStackTrace(out);
+        System.out.println("**********  Failed to grab date and time info from table.");
+      }
+     
+      IndexCursor cursor = null;
+      try {
+        cursor = CursorBuilder.createCursor(tableDUML.getIndex("DATE"));
+      } catch (IOException e) {
+        System.out.println("Could not create index cursor for the DUML table.");
+        e.printStackTrace();
+      }
+      int numRows = 0;
+      for (Row row : cursor.newEntryIterable(date)) {
+        numRows += 1;
+        System.out.println("Here's the date from this DUML entry : "+row.get("DATE").toString());
+        
+        if (row.get("DATE").toString().equals(date)) {
+          
+        }
+        
+      } 
+      System.out.println("Found "+numRows+" rows in DUML with the applicable Biopsy Date.");
+      
+    }
+    
+  }
+  
   private void processBiopsySamples(Table table, Shepherd myShepherd) {
     out.println("Biopsy Samples Table has "+table.getRowCount()+" Rows!");
     
@@ -812,7 +879,7 @@ public class AccessImport extends HttpServlet {
           date = dateTime.toString().substring(0,10);
           //System.out.println("\nDATE FROM CONSTRUCTED DATETIME : "+date);
           
-          thisRowValues.add(String.valueOf(milliTime));
+          thisRowValues.add(date);
           thisRowValues.add(sightNo);
           thisRowValues.add(sampleId);
           testArr.add(thisRowValues);
@@ -829,37 +896,36 @@ public class AccessImport extends HttpServlet {
       //New Shepherd method to return all encounters that occurred between 12AM on a specific date and 12AM the next day.
       
       //Here's where we are. Not getting an array of encs back because the milliTime is too fine grained most likely.
-      ArrayList<Encounter> encArr = myShepherd.getEncountersArrayWithMillis(milliTime);
+      ArrayList<Encounter> encArr = myShepherd.getEncounterArrayWithShortDate(date);
       System.out.println("Here's the array I got from this Milli! : "+encArr.toString());
       String encNo = null;
       TissueSample ts = null;
-      Long encMilli = null;
+      String encDate = null;
       String encSightNo = null;
       
       for (int j=0;j<encArr.size();j++) {
         myShepherd.beginDBTransaction();
         thisEnc = encArr.get(j);
         if (sightNo != null && milliTime != null) {            
-           encMilli = thisEnc.getDateInMilliseconds();
-           System.out.println("\nVERBATIM MILI FROM ENC : "+encMilli);
+           encDate = thisEnc.getDate().toString().substring(0,10);
+           System.out.println("\nVERBATIM MILI FROM ENC : "+encDate);
            encSightNo = thisEnc.getSightNo().trim().toUpperCase();   
         }
-        System.out.println("\n---- ENCMILLI :"+encMilli+" and MILLITIME : "+milliTime+" and ENSIGHTNO :"+encSightNo+" and ENCDATE :"+sightNo);
-        if (milliTime.toString().substring(0,7).equals(encMilli.toString().substring(0,7)) && sightNo.equals(encSightNo)) {
+        System.out.println("\n----DATE :"+date+" and MILLITIME : "+milliTime+" and ENSIGHTNO :"+encSightNo+" and ENCDATE :"+sightNo);
+        if (milliTime.toString().substring(0,7).equals(encDate.toString().substring(0,7)) && sightNo.equals(encSightNo)) {
           
           for (int m=0;m<testArr.size();m++) {
-            if (testArr.get(m).contains(String.valueOf(milliTime)) && testArr.get(m).contains(sightNo) ) {
+            if (testArr.get(m).contains(date) && testArr.get(m).contains(sightNo) ) {
               testArr.remove(m);
             }
           }
            // All the bits match up? Grab this encounter number and use it to create your samples/biopsy's.
            encNo = thisEnc.getCatalogNumber();
            
-           System.out.println("\n-------------- MATCH!!! DATE : "+milliTime+"="+encMilli+" SIGHTNO : "+sightNo+"="+encSightNo);
+           System.out.println("\n-------------- MATCH!!! DATE : "+date+"="+encDate+" SIGHTNO : "+sightNo+"="+encSightNo);
         } else {
           continue;
         }
-        
         // Now let's actually make the Tissue sample.
         try {
           if (encNo != null && sampleId != null) { 
@@ -913,7 +979,7 @@ public class AccessImport extends HttpServlet {
               out.println("\nFailed to make the tissue sample.");
             }        
           }        
-        } catch (Exception e) {
+        } catch (Exception e) {  
           out.println("\nFailed to validate encNo : "+encNo+" and sampleID : "+sampleId+" for TissueSample creation.");
         }
         myShepherd.commitDBTransaction();
