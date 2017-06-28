@@ -531,6 +531,31 @@
 	  <field name="webURL" persistence-modifier="none"></field>
 
     </class>
+    
+    <class name="FoundationalPropertiesBase" identity-type="application">
+      <inheritance strategy="new-table"/>     
+      
+      <field name="foundationalPropertiesBaseID" primary-key="true" value-strategy="native">
+        <column name="foundationalPropertiesBaseID"/>
+      </field>
+       
+      <field name="measurements" persistence-modifier="persistent" default-fetch-group="true">
+        <collection element-type="org.ecocean.Measurement"/>
+        <join/>
+      </field>
+      <field name="keywords" persistence-modifier="persistent" default-fetch-group="true">
+        <collection element-type="org.ecocean.Keyword"/>
+        <join/>
+      </field>
+      <field name="tissueSamples" persistence-modifier="persistent" default-fetch-group="true">
+        <collection element-type="org.ecocean.genetics.TissueSample"/>
+        <join/>
+      </field>
+      <field name="biologicalMeasurements" persistence-modifier="persistent" default-fetch-group="true">
+        <collection element-type="org.ecocean.genetics.BiologicalMeasurement"/>
+        <join/>
+      </field>
+    </class>
 
     <class name="Measurement" identity-type="application">
       <inheritance strategy="new-table"/>
