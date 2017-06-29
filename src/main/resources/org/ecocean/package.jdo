@@ -187,6 +187,7 @@
     </class>
 
     <class name="Occurrence" identity-type="application" table="OCCURRENCE">
+      <inheritance strategy="new-table"/>
       <field name="occurrenceID" primary-key="true">
         <column length="100"/>
       </field>
@@ -529,24 +530,49 @@
       <field name="patterningPassport" persistence-modifier="persistent" element-type="org.ecocean.PatterningPassport"/>
 	  
 	  <field name="webURL" persistence-modifier="none"></field>
-
     </class>
     
     <class name="FoundationalPropertiesBase" identity-type="application">    
+      <inheritance strategy="new-table"/>      
       <field name="foundationalPropertiesBaseID" primary-key="true" value-strategy="native">
         <column name="foundationalPropertiesBaseID"/>
-      </field>     
-      <field name="baseMeasurements" persistence-modifier="persistent" default-fetch-group="true">
+      </field>
+      <field name="baseMeasurements" persistence-modifier="persistent">
         <collection element-type="org.ecocean.Measurement"/>
         <join/>
       </field>
-      <field name="baseTissueSamples" persistence-modifier="persistent" default-fetch-group="true">
+      <field name="baseTissueSamples" persistence-modifier="persistent">
         <collection element-type="org.ecocean.genetics.TissueSample"/>
         <join/>
       </field>
-      <field name="baseBiologicalMeasurements" persistence-modifier="persistent" default-fetch-group="true">
+      <field name="baseBiologicalMeasurements" persistence-modifier="persistent">
         <collection element-type="org.ecocean.genetics.BiologicalMeasurement"/>
         <join/>
+      </field>
+    </class>
+    
+    <class name="Observation" identity-type="application">
+      <inheritance strategy="new-table"/>
+      <field name="observationID" primary-key="true">
+        <column length="100"/>
+      </field>
+      <field name="value">
+        <column name="VALUE"/>
+      </field>
+      <field name="name">
+        <column name="NAME"/>
+      </field>
+      <field name="dateAddedMilli">
+        <column jdbc-type="BIGINT" allows-null="true"/>
+      </field>
+      <field name="dateModifiedMilli">
+        <column jdbc-type="BIGINT" allows-null="true"/>
+      </field>
+      <field name="parentObjectClass">
+        <column name="PARENTOBJECTCLASS"/>
+      </field>
+      <field name="parentObjectID">
+        <column name="PARENTOBJECTID"/>
       </field>
     </class>
 

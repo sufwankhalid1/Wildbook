@@ -2,8 +2,6 @@ package org.ecocean;
 
 import java.util.ArrayList;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.ecocean.genetics.BiologicalMeasurement;
 import org.ecocean.genetics.TissueSample;
 
@@ -30,6 +28,7 @@ public abstract class FoundationalPropertiesBase implements java.io.Serializable
   
   private String foundationalPropertiesBaseID;
   
+  private ArrayList<Observation> baseObservationss = new ArrayList<Observation>();
   private ArrayList<Measurement> baseMeasurements = new ArrayList<Measurement>();
   private ArrayList<TissueSample> baseTissueSamples = new ArrayList<TissueSample>();
   private ArrayList<BiologicalMeasurement> baseBiologicalMeasurements = new ArrayList<BiologicalMeasurement>();
@@ -47,6 +46,13 @@ public abstract class FoundationalPropertiesBase implements java.io.Serializable
     foundationalPropertiesBaseID=id;
   }
   
+  public ArrayList<Observation> getBaseObservationArrayList() {
+    return baseObservationss;
+  }
+  public void addBaseObservationArrayList(ArrayList<Observation> arr) {
+    baseObservationss=arr;
+  }
+  
   public ArrayList<Measurement> getBaseMeasurementArrayList() {
     return baseMeasurements;
   }
@@ -61,11 +67,11 @@ public abstract class FoundationalPropertiesBase implements java.io.Serializable
     baseTissueSamples=arr;
   }
   
-  public ArrayList<TissueSample> getBaseBiologicalMeasurementsArrayList() {
-    return baseTissueSamples;
+  public ArrayList<BiologicalMeasurement> getBaseBiologicalMeasurementsArrayList() {
+    return baseBiologicalMeasurements;
   }
-  public void addBaseBiologicalMeasurementsArrayList(ArrayList<TissueSample> arr) {
-    baseTissueSamples=arr;
+  public void addBaseBiologicalMeasurementsArrayList(ArrayList<BiologicalMeasurement> arr) {
+    baseBiologicalMeasurements=arr;
   }
   
 }
