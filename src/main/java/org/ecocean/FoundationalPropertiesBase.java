@@ -31,24 +31,20 @@ public abstract class FoundationalPropertiesBase implements java.io.Serializable
   private String foundationalPropertiesBaseID;
   
   private ArrayList<Measurement> baseMeasurements = new ArrayList<Measurement>();
-  private ArrayList<Keyword> baseKeywords = new ArrayList<Keyword>();
   private ArrayList<TissueSample> baseTissueSamples = new ArrayList<TissueSample>();
   private ArrayList<BiologicalMeasurement> baseBiologicalMeasurements = new ArrayList<BiologicalMeasurement>();
   
-  public FoundationalPropertiesBase(){};
+  public FoundationalPropertiesBase(){
+    foundationalPropertiesBaseID = Util.generateUUID();
+  };
+
+  
   
   public String getBaseFoundationalPropertiesBaseID() {
     return foundationalPropertiesBaseID;
   }
   public void setFoundationalProperiesBaseID(String id) {
     foundationalPropertiesBaseID=id;
-  }
-  
-  public ArrayList<Keyword> getBaseKeywordArrayList() {
-    return baseKeywords;
-  }
-  public void addBaseKeywordArrayList(ArrayList<Keyword> arr) {
-    baseKeywords=arr;
   }
   
   public ArrayList<Measurement> getBaseMeasurementArrayList() {
@@ -65,5 +61,13 @@ public abstract class FoundationalPropertiesBase implements java.io.Serializable
     baseTissueSamples=arr;
   }
   
+  public ArrayList<TissueSample> getBaseBiologicalMeasurementsArrayList() {
+    return baseTissueSamples;
+  }
+  public void addBaseBiologicalMeasurementsArrayList(ArrayList<TissueSample> arr) {
+    baseTissueSamples=arr;
+  }
   
 }
+
+

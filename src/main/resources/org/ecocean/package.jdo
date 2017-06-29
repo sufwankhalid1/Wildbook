@@ -533,17 +533,11 @@
     </class>
     
     <class name="FoundationalPropertiesBase" identity-type="application">    
-      
       <field name="foundationalPropertiesBaseID" primary-key="true" value-strategy="native">
         <column name="foundationalPropertiesBaseID"/>
-      </field>
-       
+      </field>     
       <field name="baseMeasurements" persistence-modifier="persistent" default-fetch-group="true">
         <collection element-type="org.ecocean.Measurement"/>
-        <join/>
-      </field>
-      <field name="baseKeywords" persistence-modifier="persistent" default-fetch-group="true">
-        <collection element-type="org.ecocean.Keyword"/>
         <join/>
       </field>
       <field name="baseTissueSamples" persistence-modifier="persistent" default-fetch-group="true">
