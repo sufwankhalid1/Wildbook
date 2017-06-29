@@ -30,32 +30,39 @@ public abstract class FoundationalPropertiesBase implements java.io.Serializable
   
   private String foundationalPropertiesBaseID;
   
-  private ArrayList<Measurement> measurements = new ArrayList<Measurement>();
-  private ArrayList<Keyword> keywords = new ArrayList<Keyword>();
-  private ArrayList<TissueSample> tissueSamples = new ArrayList<TissueSample>();
-  private ArrayList<BiologicalMeasurement> biologicalMeasurements = new ArrayList<BiologicalMeasurement>();
+  private ArrayList<Measurement> baseMeasurements = new ArrayList<Measurement>();
+  private ArrayList<Keyword> baseKeywords = new ArrayList<Keyword>();
+  private ArrayList<TissueSample> baseTissueSamples = new ArrayList<TissueSample>();
+  private ArrayList<BiologicalMeasurement> baseBiologicalMeasurements = new ArrayList<BiologicalMeasurement>();
   
   public FoundationalPropertiesBase(){};
   
-  public String getFoundationalPropertiesBaseID() {
+  public String getBaseFoundationalPropertiesBaseID() {
     return foundationalPropertiesBaseID;
   }
   public void setFoundationalProperiesBaseID(String id) {
     foundationalPropertiesBaseID=id;
   }
   
-  public ArrayList<Keyword> getKeywordArrayList() {
-    return keywords;
+  public ArrayList<Keyword> getBaseKeywordArrayList() {
+    return baseKeywords;
   }
-  public void addKeywordArrayList(ArrayList<Keyword> arr) {
-    keywords=arr;
+  public void addBaseKeywordArrayList(ArrayList<Keyword> arr) {
+    baseKeywords=arr;
   }
   
-  public ArrayList<Measurement> getMeasurementArrayList() {
-    return measurements;
+  public ArrayList<Measurement> getBaseMeasurementArrayList() {
+    return baseMeasurements;
   }
-  public void addMeasurementArrayList(ArrayList<Measurement> arr) {
-    measurements=arr;
+  public void addBaseMeasurementArrayList(ArrayList<Measurement> arr) {
+    baseMeasurements=arr;
+  }
+  
+  public ArrayList<TissueSample> getBaseTissueSampleArrayList() {
+    return baseTissueSamples;
+  }
+  public void addBaseTissueSampleArrayList(ArrayList<TissueSample> arr) {
+    baseTissueSamples=arr;
   }
   
   
