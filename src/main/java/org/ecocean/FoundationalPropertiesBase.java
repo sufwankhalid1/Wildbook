@@ -26,31 +26,30 @@ public abstract class FoundationalPropertiesBase implements java.io.Serializable
    * 
    */
   
-  private String foundationalPropertiesBaseID;
+  private String primaryKeyID;
   
-  private ArrayList<Observation> baseObservationss = new ArrayList<Observation>();
+  private ArrayList<Observation> baseObservations = new ArrayList<Observation>();
   private ArrayList<Measurement> baseMeasurements = new ArrayList<Measurement>();
   private ArrayList<TissueSample> baseTissueSamples = new ArrayList<TissueSample>();
-  private ArrayList<BiologicalMeasurement> baseBiologicalMeasurements = new ArrayList<BiologicalMeasurement>();
   
   public FoundationalPropertiesBase(){
-    foundationalPropertiesBaseID = Util.generateUUID();
+    primaryKeyID = Util.generateUUID();
   };
 
   
   
   public String getBaseFoundationalPropertiesBaseID() {
-    return foundationalPropertiesBaseID;
+    return primaryKeyID;
   }
   public void setFoundationalProperiesBaseID(String id) {
-    foundationalPropertiesBaseID=id;
+    primaryKeyID=id;
   }
   
   public ArrayList<Observation> getBaseObservationArrayList() {
-    return baseObservationss;
+    return baseObservations;
   }
   public void addBaseObservationArrayList(ArrayList<Observation> arr) {
-    baseObservationss=arr;
+    baseObservations=arr;
   }
   
   public ArrayList<Measurement> getBaseMeasurementArrayList() {
@@ -65,13 +64,6 @@ public abstract class FoundationalPropertiesBase implements java.io.Serializable
   }
   public void addBaseTissueSampleArrayList(ArrayList<TissueSample> arr) {
     baseTissueSamples=arr;
-  }
-  
-  public ArrayList<BiologicalMeasurement> getBaseBiologicalMeasurementsArrayList() {
-    return baseBiologicalMeasurements;
-  }
-  public void addBaseBiologicalMeasurementsArrayList(ArrayList<BiologicalMeasurement> arr) {
-    baseBiologicalMeasurements=arr;
   }
   
 }

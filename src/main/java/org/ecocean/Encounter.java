@@ -82,7 +82,7 @@ import org.datanucleus.api.rest.orgjson.JSONException;
  * @author Jason Holmberg
  * @version 2.0
  */
-public class Encounter implements java.io.Serializable {
+public class Encounter extends FoundationalPropertiesBase {
   static final long serialVersionUID = -146404246317385604L;
 
     public static final String STATE_MATCHING_ONLY = "matching_only";
