@@ -117,6 +117,8 @@ public class IBEISIA {
       DBNAME_TO_CONTEXT.put("e96c7da4-7e16-476d-a5ee-3c30ee608a61","context1");
       DBNAME_TO_CONTEXT.put("2015","context2");
       DBNAME_TO_CONTEXT.put("43adf43d-4c6b-44b4-a283-fddc704c92d4","context2");
+      DBNAME_TO_CONTEXT.put("Mpala_OlJogi_Loops","context2");
+      DBNAME_TO_CONTEXT.put("b4750891-a92d-4618-97b6-921ae03d1031","context2");
       DBNAME_TO_CONTEXT.put("_ibeis_backups","context3");
       DBNAME_TO_CONTEXT.put("297a709e-13b3-46c5-9be8-10ecf51a86b4","context3");
       DBNAME_TO_CONTEXT.put("Kaia","context4");
