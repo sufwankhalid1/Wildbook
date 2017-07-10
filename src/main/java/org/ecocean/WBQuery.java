@@ -69,7 +69,7 @@ public class WBQuery implements java.io.Serializable {
 
     private static String defaultSortOrdering(String className) {
       switch (className) {
-        case "org.ecocean.Encounter" : return "catalogNumber descending";
+        case "org.ecocean.Encounter" : return "primaryKeyID descending";
 
         case "org.ecocean.Annotation" : return "id descending";
 

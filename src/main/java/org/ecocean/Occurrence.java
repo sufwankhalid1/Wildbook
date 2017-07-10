@@ -37,7 +37,9 @@ public class Occurrence extends FoundationalPropertiesBase {
   private static final long serialVersionUID = -7545783883959073726L;
   private ArrayList<Encounter> encounters;
   private List<MediaAsset> assets;
-  private String occurrenceID;
+  
+  // Old ID. Getters and setters now use primaryKeyID from base class.
+  //private String occurrenceID;
   private Integer individualCount;
   private String groupBehavior;
   //additional comments added by researchers
@@ -59,11 +61,11 @@ public class Occurrence extends FoundationalPropertiesBase {
    * Class constructor.
    *
    *
-   * @param occurrenceID A unique identifier for this occurrence that will become its primary key in the database.
+   * @param primaryKeyID A unique identifier for this occurrence that will become its primary key in the database.
    * @param enc The first encounter to add to this occurrence.
    */
   public Occurrence(String occurrenceID, Encounter enc){
-    this.occurrenceID=occurrenceID;
+    super.primaryKeyID=occurrenceID;
     encounters=new ArrayList<Encounter>();
     encounters.add(enc);
     assets = new ArrayList<MediaAsset>();
@@ -73,7 +75,7 @@ public class Occurrence extends FoundationalPropertiesBase {
   }
 
   public Occurrence(List<MediaAsset> assets, Shepherd myShepherd){
-    this.occurrenceID = Util.generateUUID();
+    super.primaryKeyID = Util.generateUUID();
 
     this.encounters = new ArrayList<Encounter>();
     this.assets = assets;
@@ -164,10 +166,12 @@ public class Occurrence extends FoundationalPropertiesBase {
   }
 
     public void setOccurrenceID(String id) {
-        occurrenceID = id;
+        super.primaryKeyID = id;
     }
 
-  public String getOccurrenceID(){return occurrenceID;}
+  public String getOccurrenceID(){
+    return super.primaryKeyID;
+  }
 
 
   public Integer getIndividualCount(){return individualCount;}
@@ -447,7 +451,7 @@ public class Occurrence extends FoundationalPropertiesBase {
 
     public String toString() {
         return new ToStringBuilder(this)
-                .append("id", occurrenceID)
+                .append("id", primaryKeyID)
                 .toString();
     }
     

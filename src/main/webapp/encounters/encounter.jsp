@@ -3833,7 +3833,7 @@ $(document).ready(function() {
 					</tr>
 				</table>
 				<%
-					String queryString = "SELECT FROM org.ecocean.Encounter WHERE catalogNumber == \"" + num + "\"";
+					String queryString = "SELECT FROM org.ecocean.Encounter WHERE primaryKeyID == \"" + num + "\"";
 				%>
 				<%-- START IMAGES --%>
 				<jsp:include page="encounterMediaGallery.jsp" flush="true">

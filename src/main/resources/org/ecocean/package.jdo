@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <!DOCTYPE jdo PUBLIC "-//Sun Microsystems, Inc.//DTD Java Data Objects Metadata 2.0//EN" "http://java.sun.com/dtd/jdo_2_0.dtd">
 
 <jdo>
@@ -187,8 +188,15 @@
     </class>
 
     <class name="Occurrence" identity-type="application" table="OCCURRENCE">
+      <inheritance strategy="new-table"/>
+      
+      <field name="FoundationalPropertiesBase.primaryKeyID">
+        <column name="PRIMARYKEYID"/>
+      </field>
+
 
       <field name="encounters" persistence-modifier="persistent" default-fetch-group="true">
+     
         <collection element-type="org.ecocean.Encounter"/>
         <join/>
       </field>
@@ -216,8 +224,14 @@
     
     
 
-    <class name="Encounter" table="ENCOUNTER">
-  
+    <class name="Encounter" identity-type="application" table="ENCOUNTER">
+    
+      <inheritance strategy="new-table"/>
+      
+      <field name="FoundationalPropertiesBase.primaryKeyID">
+        <column name="PRIMARYKEYID"/>
+      </field>
+
       <field name="otherCatalogNumbers" persistence-modifier="persistent" default-fetch-group="true">
         <column length="1024" allows-null="true"/>
       </field>
@@ -530,18 +544,18 @@
     
     <class name="FoundationalPropertiesBase" identity-type="application">    
       <inheritance strategy="subclass-table"/>      
-      <field name="primaryKeyID" primary-key="true" value-strategy="native">
-        <column name="primaryKeyID"/>
+      <field name="primaryKeyID" primary-key="true" value-strategy="increment">
+        <column name="PRIMARYKEYID"/>
       </field>
-      <field name="baseMeasurements" persistence-modifier="persistent">
+      <field name="baseMeasurements" persistence-modifier="persistent" default-fetch-group="true">
         <collection element-type="org.ecocean.Measurement"/>
         <join/>
       </field>
-      <field name="baseTissueSamples" persistence-modifier="persistent">
+      <field name="baseTissueSamples" persistence-modifier="persistent" default-fetch-group="true">
         <collection element-type="org.ecocean.genetics.TissueSample"/>
         <join/>
       </field>
-      <field name="baseObservations" persistence-modifier="persistent">
+      <field name="baseObservations" persistence-modifier="persistent" default-fetch-group="true">
         <collection element-type="org.ecocean.Observation"/>
         <join/>
       </field>
