@@ -23,14 +23,19 @@ if ((request.getParameter("number") != null) && (request.getParameter("individua
 	Shepherd myShepherd = new Shepherd(context);
 	myShepherd.beginDBTransaction();
 	Encounter enc = myShepherd.getEncounter(request.getParameter("number"));
+	MarkedIndividual indiv = myShepherd.getMarkedIndividual(request.getParameter("individualID"));
 	if (enc == null) {
 		out.println("{\"success\": false, \"error\": \"no such encounter\"}");
+		myShepherd.rollbackDBTransaction();
+	} else if (indiv == null) {
+		out.println("{\"success\": false, \"error\": \"no such individual\"}");
 		myShepherd.rollbackDBTransaction();
 	} else {
 		String taskId = request.getParameter("taskId");
 		enc.setIndividualID(request.getParameter("individualID"));
 		enc.setState("approved");
 		enc.setMatchedBy("Fin Matching Algorithm" + ((taskId == null) ? "" : " (task " + taskId + ")"));
+		indiv.addEncounter(enc, context);  //this might make enc.setIndividualID() redundant?
 		myShepherd.commitDBTransaction();
 		out.println("{\"success\": true}");
 	}
