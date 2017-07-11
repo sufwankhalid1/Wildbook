@@ -40,7 +40,8 @@ margin-top: 0px !important;
 margin-bottom: 8px !important;
 </style>
 
-<script src="http://maps.google.com/maps/api/js?sensor=false"></script>
+<jsp:include page="gmaps.jsp" flush="false"/>
+
 
 
 <script src="cust/mantamatcher/js/google_maps_style_vars.js"></script>

@@ -448,7 +448,7 @@
   
 
 
-<script src="http://maps.google.com/maps/api/js?sensor=false"></script>
+<jsp:include page="../gmaps.jsp" flush="false"/>
     
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
 

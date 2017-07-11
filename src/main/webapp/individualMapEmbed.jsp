@@ -101,7 +101,7 @@ context=ServletUtilities.getContext(request);
   try {
 %>
 
-<script src="http://maps.google.com/maps/api/js?sensor=false"></script>
+<jsp:include page="gmaps.jsp" flush="false"/>
 
 
 <p><strong><img src="images/2globe_128.gif" width="64" height="64" align="absmiddle"/><%=mapping %></strong></p>

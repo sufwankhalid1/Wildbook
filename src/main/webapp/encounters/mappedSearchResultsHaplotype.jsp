@@ -142,7 +142,7 @@ margin-bottom: 8px !important;
   
   <jsp:include page="../header.jsp" flush="true"/>
 
-    <script src="http://maps.google.com/maps/api/js?sensor=false"></script>
+<jsp:include page="../gmaps.jsp" flush="false"/>
  
 
 
