@@ -50,6 +50,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 //import java.io.FileInputStream;
 import javax.jdo.Query;
+import java.util.Iterator;
 
 /*
 import java.awt.image.BufferedImage;
@@ -385,6 +386,19 @@ System.out.println("hashCode on " + this + " = " + this.hashCode);
             features.add(f);
             f.asset = this;
         }
+    }
+
+    public int removeFeaturesOfType(String type) {
+        if (features == null) return 0;
+        Iterator<Feature> it = features.iterator();
+        int numRemoved = 0;
+        while (it.hasNext()) {
+            if (it.next().isType(type)) {
+                it.remove();
+                numRemoved++;
+            }
+        }
+        return numRemoved;
     }
 
     //kinda sorta really only for Encounter.findAllMediaByFeatureId()

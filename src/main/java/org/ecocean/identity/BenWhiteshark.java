@@ -12,6 +12,8 @@ import org.ecocean.servlet.ServletUtilities;
 import org.ecocean.CommonConfiguration;
 import org.ecocean.media.MediaAsset;
 import org.ecocean.media.MediaAssetFactory;
+import org.ecocean.media.Feature;
+import org.ecocean.media.FeatureType;
 import org.json.JSONObject;
 import org.json.JSONArray;
 import java.util.HashMap;
@@ -398,6 +400,23 @@ System.out.println("[" + key + "] indivId ==> " + indivId);
             }
             res.put("matchImages", tarr);
 */
+
+        //TODO should we have "add" vs "create" ?   for now we are assuming always only one.  replace-if-exists-else-create
+        } else if ((arg.optJSONObject("createFeature") != null) && (arg.getJSONObject("createFeature").optJSONObject("parameters") != null)) {
+            MediaAsset ma = MediaAssetFactory.load(arg.getJSONObject("createFeature").optInt("mediaAssetId", -1), myShepherd);
+            if (ma == null) {
+                res.put("error", "invalid or unknown mediaAssetId passed");
+            } else {
+                FeatureType.initAll(myShepherd);
+                String tstring = "com.saveourseas.dorsalEdge";
+                Feature ft = new Feature(tstring, arg.getJSONObject("createFeature").getJSONObject("parameters"));
+                ma.removeFeaturesOfType(tstring);
+                ma.addFeature(ft);
+                MediaAssetFactory.save(ma, myShepherd);
+                res.put("success", true);
+                res.remove("error");
+                res.put("featureId", ft.getId());
+            }
 
         } else {
             res.put("error", "unknown command");
