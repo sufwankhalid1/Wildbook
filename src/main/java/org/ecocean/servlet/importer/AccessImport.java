@@ -36,6 +36,7 @@ import com.healthmarketscience.jackcess.Table;
 import org.json.JSONArray;
 
 import java.io.*;
+import java.math.BigDecimal;
 
 
 public class AccessImport extends HttpServlet {
@@ -414,8 +415,11 @@ public class AccessImport extends HttpServlet {
         if (thisRow.get("LAT") != null) {
           lat = thisRow.get("LAT").toString();          
           //out.println("---------------- Lat : "+lat);
-          Double latDouble = Double.parseDouble(lat);
-          newEnc.setDecimalLatitude(latDouble);    
+          //Double latDouble = Double.parseDouble(lat);
+          BigDecimal bd = new BigDecimal(lat);
+          Double db = bd.doubleValue();
+          
+          newEnc.setDecimalLatitude(db);    
           lats += 1;
           if (columnMasterList.contains("LAT")) {
             columnMasterList.remove("LAT");
@@ -433,8 +437,11 @@ public class AccessImport extends HttpServlet {
         if (thisRow.get("LONG") != null) {
           lon = thisRow.get("LONG").toString();          
           //out.println("---------------- Lon : "+lon);
-          Double lonDouble = Double.parseDouble(lon);
-          newEnc.setDecimalLongitude(lonDouble);    
+          //Double lonDouble = Double.parseDouble(lon);
+          BigDecimal bd = new BigDecimal(lon);
+          Double db = bd.doubleValue();
+          
+          newEnc.setDecimalLongitude(db);    
           lons += 1;
           if (columnMasterList.contains("LONG")) {
             columnMasterList.remove("LONG");
@@ -454,8 +461,12 @@ public class AccessImport extends HttpServlet {
           //out.println("---------------- END LAT : "+lat);
           
           if (lat != null && !lat.equals("null") && !lat.equals("")) {
-            Double latDouble = Double.parseDouble(lat);
-            newEnc.setEndDecimalLatitude(latDouble);    
+            //Double latDouble = Double.parseDouble(lat);
+            
+            BigDecimal bd = new BigDecimal(lat);
+            Double db = bd.doubleValue();
+            
+            newEnc.setEndDecimalLatitude(db);    
           }
           
           if (columnMasterList.contains("END LAT")) {
@@ -476,8 +487,11 @@ public class AccessImport extends HttpServlet {
           //out.println("---------------- END LON : "+lon);
           
           if (lon != null && !lon.equals("null") && !lon.equals("")) {
-            Double lonDouble = Double.parseDouble(lon);
-            newEnc.setEndDecimalLongitude(lonDouble);               
+            //Double lonDouble = Double.parseDouble(lon);
+            BigDecimal bd = new BigDecimal(lon);
+            Double db = bd.doubleValue();
+            
+            newEnc.setEndDecimalLongitude(db);               
           }
           
           if (columnMasterList.contains("END LONG")) {
@@ -647,26 +661,44 @@ public class AccessImport extends HttpServlet {
     out.println("******* !!!! TOTALLY CRUSHED IT !!!! *******\n\n");
   }
   
-  private void processRemainingColumnsAsObservations(Occurrence occ, ArrayList<String> columnMasterList, Row thisRow) {
+  private void processRemainingColumnsAsObservations(Object obj, ArrayList<String> columnMasterList, Row thisRow) {
     //Lets grab every other little thing in the Column master list and try to process it without the whole thing blowing up.
+    // Takes an Encounter, or an Occurrence! Whoa! 
+    Encounter enc = null;
+    Occurrence occ = null;
+    String id = null;
+    if (obj.getClass().getSimpleName().equals("Encounter")) {
+      enc = (Encounter) obj;
+      id = ((Encounter) obj).getPrimaryKeyID();
+    }
+    if (obj.getClass().getSimpleName().equals("Occurrence")) {
+      occ = (Occurrence) obj;
+      id = ((Occurrence) obj).getPrimaryKeyID();
+    }
+    
     ArrayList<Observation> newObs = new ArrayList<Observation>();
     for (String column : columnMasterList) {
       String value = null;
       try {
         if (thisRow.get(column) != null) {
          value = thisRow.get(column.trim()).toString();
-         Observation ob = new Observation(column.toString(), value, occ, occ.getOccurrenceID());
+         Observation ob = new Observation(column.toString(), value, obj, id);
          newObs.add(ob);
         }
       } catch (Exception e) {
         e.printStackTrace();
-        out.println("Failed to create and store Observation "+column+" with value "+value+" for encounter "+occ.getOccurrenceID());
+        out.println("Failed to create and store Observation "+column+" with value "+value+" for encounter "+id);
       }
     }
     if (newObs.size() > 0) {
       try {
-        occ.addBaseObservationArrayList(newObs);
-        out.println("YEAH!!! added these observations to Encounter "+occ.getOccurrenceID()+" : "+newObs);
+        if (enc != null) {
+          enc.addBaseObservationArrayList(newObs);          
+        }
+        if (occ != null) {
+          occ.addBaseObservationArrayList(newObs);          
+        }
+        out.println("YEAH!!! added these observations to Encounter "+id+" : "+newObs);
       } catch (Exception e) {
         e.printStackTrace();
         out.println("Failed to add the array of observations to this encounter.");
