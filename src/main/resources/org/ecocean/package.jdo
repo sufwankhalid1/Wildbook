@@ -544,7 +544,7 @@
     
     <class name="FoundationalPropertiesBase" identity-type="application">    
       <inheritance strategy="subclass-table"/>      
-      <field name="primaryKeyID" primary-key="true" value-strategy="increment">
+      <field name="primaryKeyID" primary-key="true" value-strategy="native">
         <column name="PRIMARYKEYID"/>
       </field>
       <field name="baseMeasurements" persistence-modifier="persistent" default-fetch-group="true">
