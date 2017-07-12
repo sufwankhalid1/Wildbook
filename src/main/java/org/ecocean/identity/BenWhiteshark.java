@@ -410,6 +410,12 @@ System.out.println("[" + key + "] indivId ==> " + indivId);
         if (ma == null) return null;
         URL url = ma.webURL();
         if (url == null) return null;
+        if (url.toString().endsWith(".tif")) {  //no tiffs plz
+            ArrayList<MediaAsset> mids = ma.findChildrenByLabel(myShepherd, "_mid");
+            if ((mids == null) || (mids.size() < 1)) return null;
+            url = mids.get(0).webURL();
+            if (url == null) return null;
+        }
         return url.toString();
     }
 
