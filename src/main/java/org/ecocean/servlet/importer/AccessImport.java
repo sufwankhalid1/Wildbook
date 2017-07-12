@@ -588,7 +588,6 @@ public class AccessImport extends HttpServlet {
           for (Encounter dups : duplicateEncs) {
             try {
               // What the heck, where did this come from? It's the method that add all the remaining columns as observations, of course!
-              processRemainingColumnsAsObservations(newEnc,columnMasterList,thisRow);
               myShepherd.getPM().makePersistent(dups);  
               myShepherd.commitDBTransaction();
               myShepherd.beginDBTransaction();
@@ -602,6 +601,7 @@ public class AccessImport extends HttpServlet {
           try {
             occ = new Occurrence(Util.generateUUID(), duplicateEncs.get(0));
             myShepherd.getPM().makePersistent(occ);  
+            processRemainingColumnsAsObservations(occ,columnMasterList,thisRow);
             duplicateEncs.get(0).setOccurrenceID(occ.getOccurrenceID());
             myShepherd.commitDBTransaction();
             myShepherd.beginDBTransaction();
@@ -647,7 +647,7 @@ public class AccessImport extends HttpServlet {
     out.println("******* !!!! TOTALLY CRUSHED IT !!!! *******\n\n");
   }
   
-  private void processRemainingColumnsAsObservations(Encounter newEnc, ArrayList<String> columnMasterList, Row thisRow) {
+  private void processRemainingColumnsAsObservations(Occurrence occ, ArrayList<String> columnMasterList, Row thisRow) {
     //Lets grab every other little thing in the Column master list and try to process it without the whole thing blowing up.
     ArrayList<Observation> newObs = new ArrayList<Observation>();
     for (String column : columnMasterList) {
@@ -655,18 +655,18 @@ public class AccessImport extends HttpServlet {
       try {
         if (thisRow.get(column) != null) {
          value = thisRow.get(column.trim()).toString();
-         Observation ob = new Observation(column.toString(), value, newEnc, newEnc.getCatalogNumber());
+         Observation ob = new Observation(column.toString(), value, occ, occ.getOccurrenceID());
          newObs.add(ob);
         }
       } catch (Exception e) {
         e.printStackTrace();
-        out.println("Failed to create and store Observation "+column+" with value "+value+" for encounter "+newEnc.getCatalogNumber());
+        out.println("Failed to create and store Observation "+column+" with value "+value+" for encounter "+occ.getOccurrenceID());
       }
     }
     if (newObs.size() > 0) {
       try {
-        newEnc.addBaseObservationArrayList(newObs);
-        out.println("YEAH!!! added these observations to Encounter "+newEnc.getCatalogNumber()+" : "+newObs);
+        occ.addBaseObservationArrayList(newObs);
+        out.println("YEAH!!! added these observations to Encounter "+occ.getOccurrenceID()+" : "+newObs);
       } catch (Exception e) {
         e.printStackTrace();
         out.println("Failed to add the array of observations to this encounter.");
