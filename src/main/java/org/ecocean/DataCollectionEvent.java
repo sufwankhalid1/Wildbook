@@ -19,6 +19,8 @@
 
 package org.ecocean;
 
+import java.util.ArrayList;
+
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -40,9 +42,6 @@ public abstract class DataCollectionEvent implements java.io.Serializable {
 *   -MeasurementCollectionEvent for morphometric data (e.g., length, width, height)
 */
 
-/**
- * correspondingEncounterNumber species which Encounter instance this data collection even corresponds with
- */
 private String correspondingEncounterNumber;
 private String type;
 private String dataCollectionEventID;
@@ -60,6 +59,8 @@ private String datasetID;
 private String institutionCode;
 private String collectionCode;
 private String datasetName;
+
+private ArrayList<Observation> observations = new ArrayList<Observation>();  
 
 
 /*
@@ -101,6 +102,41 @@ public void setCorrespondingEncounterNumber(String encounterNumber){
     this.correspondingEncounterNumber=null;
   }
 }
+public ArrayList<Observation> getBaseObservationArrayList() {
+  return observations;
+}
+
+public void addBaseObservationArrayList(ArrayList<Observation> arr) {
+  if (observations.isEmpty()) {
+    observations=arr;      
+  } else {
+   observations.addAll(arr); 
+  }
+}
+public void addObservation(Observation obs) {
+  observations.add(obs);
+}
+public Observation getObservationByName(String obName) {
+  if (observations != null && observations.size() > 0) {
+    for (Observation ob : observations) {
+      if (ob.getName() != null && ob.getName().equals(obName)) {
+        return ob;
+      }
+    }
+  }
+  return null;
+}
+public Observation getObservationByID(String obId) {
+  if (observations != null && observations.size() > 0) {
+    for (Observation ob : observations) {
+      if (ob.getID() != null && ob.getID().equals(obId)) {
+        return ob;
+      }
+    }
+  }
+  return null;
+}
+
 
 public String getDataCollectionEventID(){return dataCollectionEventID;}
 public void setDataCollectionEventID(String id){this.dataCollectionEventID=id;}
@@ -160,7 +196,6 @@ public void resetAbstractClassParameters(HttpServletRequest request){
   if(((request.getParameter("institutionCode"))!=null)&&(!request.getParameter("institutionCode").equals(""))){this.institutionCode=request.getParameter("institutionCode");}
   if(((request.getParameter("collectionCode"))!=null)&&(!request.getParameter("collectionCode").equals(""))){this.collectionCode=request.getParameter("collectionCode");}
   if(((request.getParameter("datasetName"))!=null)&&(!request.getParameter("datasetName").equals(""))){this.datasetName=request.getParameter("datasetName");}
-
 
 }
 

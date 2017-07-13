@@ -47,7 +47,14 @@ public abstract class FoundationalPropertiesBase implements java.io.Serializable
     return baseObservations;
   }
   public void addBaseObservationArrayList(ArrayList<Observation> arr) {
-    baseObservations=arr;
+    if (baseObservations.isEmpty()) {
+      baseObservations=arr;      
+    } else {
+     baseObservations.addAll(arr); 
+    }
+  }
+  public void addObservation(Observation obs) {
+    baseObservations.add(obs);
   }
   public Observation getObservationByName(String obName) {
     if (baseObservations != null && baseObservations.size() > 0) {
@@ -74,7 +81,14 @@ public abstract class FoundationalPropertiesBase implements java.io.Serializable
     return baseMeasurements;
   }
   public void addBaseMeasurementArrayList(ArrayList<Measurement> arr) {
-    baseMeasurements=arr;
+    if (baseMeasurements.isEmpty()) {
+      baseMeasurements=arr;      
+    } else {
+      baseMeasurements.addAll(arr);
+    }
+  }
+  public void addBaseMeasurement(Measurement ms) {
+    baseMeasurements.add(ms);
   }
   public Measurement getMeasurementByType(String mesName) {
     if (baseMeasurements != null && baseMeasurements.size() > 0) {
@@ -91,7 +105,14 @@ public abstract class FoundationalPropertiesBase implements java.io.Serializable
     return baseTissueSamples;
   }
   public void addBaseTissueSampleArrayList(ArrayList<TissueSample> arr) {
-    baseTissueSamples=arr;
+    if (baseTissueSamples.isEmpty()) {
+      baseTissueSamples=arr;
+    } else {
+      baseTissueSamples.addAll(arr);
+    }
+  }
+  public void addBaseTissueSample(TissueSample ts) {
+    baseTissueSamples.add(ts);
   }
   public TissueSample getTissueSampleByName(String tsName) {
     if (baseTissueSamples != null && baseTissueSamples.size() > 0) {

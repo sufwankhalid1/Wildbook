@@ -155,7 +155,7 @@ public class AccessImport extends HttpServlet {
     
     try {
       out.println("********************* Let's process the BiopsySamples Table!\n");
-      //processBiopsySamples(db.getTable("Biopsy Samples"), myShepherd  );
+      processBiopsyTable(db.getTable("Biopsy Samples"), myShepherd, db.getTable("DUML"));
     } catch (Exception e) {
       out.println(e);
       e.printStackTrace();
@@ -232,11 +232,11 @@ public class AccessImport extends HttpServlet {
           newEnc.setVerbatimEventDate(dateTime.toString());          
           newEnc.setDateInMilliseconds(dateTime.getMillis());  
           dates += 1;
-          //.println("--------------------------------------------- DateTime String : "+dateTime.toString()+" Stored startTime : "+startTime);
+          //out.println("--------------------------------------------- DateTime String : "+dateTime.toString()+" Stored startTime : "+startTime);
           //out.println("--------------------------------------- .getDate() produces....  "+newEnc.getDate());
           out.println("--- ++++++++ ENTIRE ROW STRING :"+thisRow.toString()+"\n\n");
           if (columnMasterList.contains("DATE") || columnMasterList.contains("StartTime")) {
-            columnMasterList.remove("DATE");
+            columnMasterList.remove("DATE");  
             columnMasterList.remove("StartTime");
           }
         } 
@@ -601,7 +601,6 @@ public class AccessImport extends HttpServlet {
         if (duplicateEncs.size() > 0) {
           for (Encounter dups : duplicateEncs) {
             try {
-              // What the heck, where did this come from? It's the method that add all the remaining columns as observations, of course!
               myShepherd.getPM().makePersistent(dups);  
               myShepherd.commitDBTransaction();
               myShepherd.beginDBTransaction();
@@ -615,6 +614,7 @@ public class AccessImport extends HttpServlet {
           try {
             occ = new Occurrence(Util.generateUUID(), duplicateEncs.get(0));
             myShepherd.getPM().makePersistent(occ);  
+            // What the heck, where did this come from? It's the method that add all the remaining columns as observations, of course!
             processRemainingColumnsAsObservations(occ,columnMasterList,thisRow);
             duplicateEncs.get(0).setOccurrenceID(occ.getOccurrenceID());
             myShepherd.commitDBTransaction();
@@ -664,13 +664,15 @@ public class AccessImport extends HttpServlet {
   private void processRemainingColumnsAsObservations(Object obj, ArrayList<String> columnMasterList, Row thisRow) {
     //Lets grab every other little thing in the Column master list and try to process it without the whole thing blowing up.
     // Takes an Encounter, or an Occurrence! Whoa! 
+    
+    // Lets make this work for the new obs added to the DataCollectionEvent...
     Encounter enc = null;
     Occurrence occ = null;
     String id = null;
     if (obj.getClass().getSimpleName().equals("Encounter")) {
       enc = (Encounter) obj;
       id = ((Encounter) obj).getPrimaryKeyID();
-    }
+    } 
     if (obj.getClass().getSimpleName().equals("Occurrence")) {
       occ = (Occurrence) obj;
       id = ((Occurrence) obj).getPrimaryKeyID();
@@ -693,10 +695,12 @@ public class AccessImport extends HttpServlet {
     if (newObs.size() > 0) {
       try {
         if (enc != null) {
-          enc.addBaseObservationArrayList(newObs);          
+          enc.addBaseObservationArrayList(newObs);
+          enc.getBaseObservationArrayList().toString();
         }
         if (occ != null) {
-          occ.addBaseObservationArrayList(newObs);          
+          occ.addBaseObservationArrayList(newObs); 
+          occ.getBaseObservationArrayList().toString();
         }
         out.println("YEAH!!! added these observations to Encounter "+id+" : "+newObs);
       } catch (Exception e) {
@@ -845,9 +849,7 @@ public class AccessImport extends HttpServlet {
     out.println("Biopsy Samples Table has "+table.getRowCount()+" Rows!");
     Row thisRow = null;
     
-    int success = 0;
-    int failed = 0;
-    int rowsProcessed = 0;
+    int savedBiopsys = 0;
     
     for (int i=0;i<table.getRowCount();i++) {
       try {
@@ -856,7 +858,6 @@ public class AccessImport extends HttpServlet {
         io.printStackTrace();
         out.println("\n!!!!!!!!!!!!!! Could not get next Row in Biopsy Sample table...\n");
       }
-      Long milliTime = null;
       
       String date = null;
       String time = null;
@@ -870,197 +871,114 @@ public class AccessImport extends HttpServlet {
           sampleId = thisRow.get("Sample_ID").toString().trim();
           
           String verbatimDate = date.substring(0, 11) + time.substring(11, time.length() - 5) + date.substring(date.length() - 5);
-          System.out.println("Verbatim Date : "+verbatimDate);
           DateTime dateTime = dateStringToDateTime(verbatimDate, "EEE MMM dd hh:mm:ss z yyyy");
-          milliTime = dateTime.getMillis();
-          date = dateTime.toString().substring(0,10);
-          
+          date = dateTime.toString().substring(0,10);      
+          out.println("Simple Date for this biopsy : "+date);
         }
       } catch (Exception e) {
         e.printStackTrace(out);
-        System.out.println("**********  Failed to grab date and time info from table.");
+        out.println("**********  Failed to grab date and time info from biopsy table.");
+      }
+      Occurrence occ = null;
+      try {
+        ArrayList<Encounter> encArr = myShepherd.getEncounterArrayWithShortDate(date);
+        if (!encArr.isEmpty()) {
+          out.println("Iterating through array of "+encArr.size()+" encounterss to find a  match...");
+          for (Encounter enc : encArr) {
+            if (enc.getSightNo().equals(sightNo)) {
+              occ = myShepherd.getOccurrence(enc.getOccurrenceID());
+              out.println("------ MATCH! "+sightNo+" = "+enc.getSightNo()+" Breaking the loop. ------");
+              break;
+            }
+          }
+        }
+      } catch (Exception e) {
+        e.printStackTrace();
+        out.println("Failed to retrieve Occurrence for this encounter.");
+      }
+      if (occ != null) {
+        out.println("Found a date match for this biopsy! Occurrence:"+occ.getPrimaryKeyID()+". Processing Biopsy...");
+        processBiopsyRow(thisRow, occ, myShepherd); 
       }
      
-      IndexCursor cursor = null;
-      try {
-        cursor = CursorBuilder.createCursor(tableDUML.getIndex("DATE"));
-      } catch (IOException e) {
-        System.out.println("Could not create index cursor for the DUML table.");
-        e.printStackTrace();
-      }
-      int numRows = 0;
-      for (Row row : cursor.newEntryIterable(date)) {
-        numRows += 1;
-        System.out.println("Here's the date from this DUML entry : "+row.get("DATE").toString());
-        
-        if (row.get("DATE").toString().equals(date)) {
-          
-        }
-        
-      } 
-      System.out.println("Found "+numRows+" rows in DUML with the applicable Biopsy Date.");
       
     } 
   }
   
-  private void processBiopsySamples(Table table, Shepherd myShepherd) {
-    out.println("Biopsy Samples Table has "+table.getRowCount()+" Rows!");
+  private void processBiopsyRow(Row thisRow, Occurrence occ, Shepherd myShepherd) {
     
-    Row thisRow = null;
-    Encounter thisEnc = null;
     int success = 0;
-    int numRows = 0;
-    
-    ArrayList<ArrayList<String>> testArr = new ArrayList<ArrayList<String>>();
-         
     // We need to link this sample to an Encounter using the date and sighting no.
-    for (int i=0;i<table.getRowCount();i++) {
-      try {
-        thisRow = table.getNextRow();
-      } catch (IOException io) {
-        io.printStackTrace();
-        out.println("\n!!!!!!!!!!!!!! Could not get next Row in Biopsy Sample table...\n");
-      } 
-      String date = null;
-      String time = null;
-      Long milliTime = null;
-      String sightNo = null;
-      String sampleId = null;
-      try {
-        if (thisRow.get("DateCreated") != null && thisRow.get("SightNo") != null && thisRow.get("Time") != null) {
-          date = thisRow.get("DateCreated").toString(); 
-          time = thisRow.get("Time").toString();
-          sightNo = thisRow.get("SightNo").toString().trim(); 
-          sampleId = thisRow.get("Sample_ID").toString().trim();
-          
-          ArrayList<String> thisRowValues = new ArrayList<String>(3);
-          
-          numRows += 1;
-          System.out.println("Processing Row : "+numRows);
-          
-          //So we have to compare the dates and times to get the appropriate enc to attach this biopsy to.
-          // Previously we were just doing time, and attaching all the biopsys for a certain encounter to all the encounters
-          // generated for that line in DUML.
-          
-          String verbatimDate = date.substring(0, 11) + time.substring(11, time.length() - 5) + date.substring(date.length() - 5);
-          System.out.println("Verbatim Date : "+verbatimDate);
-          DateTime dateTime = dateStringToDateTime(verbatimDate, "EEE MMM dd hh:mm:ss z yyyy");
-          milliTime = dateTime.getMillis();
-          date = dateTime.toString().substring(0,10);
-          //System.out.println("\nDATE FROM CONSTRUCTED DATETIME : "+date);
-          
-          thisRowValues.add(date);
-          thisRowValues.add(sightNo);
-          thisRowValues.add(sampleId);
-          testArr.add(thisRowValues);
-          //out.println("\n---- Got Biopsy Table values DATE :"+date+" and SIGHTNO : "+sightNo+" and SAMPLE_ID :"+sampleId);
-          
-        } else {
-          continue;
-        }
-      } catch (Exception e) {
-        e.printStackTrace();
-        out.println("Barfed while grabbing date/sightNo to retrieve linked encounter.");
-      }
-      
-      //New Shepherd method to return all encounters that occurred between 12AM on a specific date and 12AM the next day.
-      
-      //Here's where we are. Not getting an array of encs back because the milliTime is too fine grained most likely.
-      ArrayList<Encounter> encArr = myShepherd.getEncounterArrayWithShortDate(date);
-      System.out.println("Here's the array I got from this Milli! : "+encArr.toString());
-      String encNo = null;
-      TissueSample ts = null;
-      String encDate = null;
-      String encSightNo = null;
-      
-      for (int j=0;j<encArr.size();j++) {
-        myShepherd.beginDBTransaction();
-        thisEnc = encArr.get(j);
-        if (sightNo != null && milliTime != null) {            
-           encDate = thisEnc.getDate().toString().substring(0,10);
-           System.out.println("\nVERBATIM MILI FROM ENC : "+encDate);
-           encSightNo = thisEnc.getSightNo().trim().toUpperCase();   
-        }
-        System.out.println("\n----DATE :"+date+" and MILLITIME : "+milliTime+" and ENSIGHTNO :"+encSightNo+" and ENCDATE :"+sightNo);
-        if (milliTime.toString().substring(0,7).equals(encDate.toString().substring(0,7)) && sightNo.equals(encSightNo)) {
-          
-          for (int m=0;m<testArr.size();m++) {
-            if (testArr.get(m).contains(date) && testArr.get(m).contains(sightNo) ) {
-              testArr.remove(m);
-            }
-          }
-           // All the bits match up? Grab this encounter number and use it to create your samples/biopsy's.
-           encNo = thisEnc.getCatalogNumber();
-           
-           System.out.println("\n-------------- MATCH!!! DATE : "+date+"="+encDate+" SIGHTNO : "+sightNo+"="+encSightNo);
-        } else {
-          continue;
-        }
-        // Now let's actually make the Tissue sample.
+    String date = null;
+    String time = null;
+    Long milliTime = null;
+    String sightNo = null;
+    String sampleId = null;
+  
+    // The name ID is kinda deceptive for internal wildbook purposes. This ID is only unique for successful biopsy attempts..
+    // Unsuccessful biopsys are still recorded as a TissueSample object, as requested. 
+    
+    TissueSample ts = null;
+  
+    try {
+      if (occ != null) { 
         try {
-          if (encNo != null && sampleId != null) { 
-            try {
-              ts = new TissueSample(encNo, sampleId );
-              // And load it up.
-              try {
-                
-                String permit = null;
-                String sex = null;
-                String sampleID = null;
-                
-                if (thisRow.get("Permit") != null) {
-                  permit = thisRow.getString("Permit").toString();
-                  ts.setPermit(permit);
-                }
-                if (thisRow.get("Sample_ID") != null) {
-                  sampleID = thisRow.get("Sample_ID").toString();
-                  if (sampleID.toLowerCase().contains("miss")) {
-                    ts.setState("MISS");
-                  }
-                  if (sampleID.toLowerCase().contains("hit no sample")) {
-                    ts.setState("Hit no sample");
-                  } else {
-                    ts.setState("Sampled");
-                  }
-                  
-                }
-                if (thisRow.get("Conf_sex") != null) {
-                  // One of the fields will be a SexAnalysis/BiologicalMeasurement stored on the tissue sample.
-                  sex = thisRow.getString("Conf_sex").toString();
-                  SexAnalysis sexAnalysis = new SexAnalysis(Util.generateUUID(), sex,thisEnc.getCatalogNumber(),sampleID);
-                  myShepherd.getPM().makePersistent(sexAnalysis);
-                  myShepherd.commitDBTransaction();
-                  myShepherd.beginDBTransaction();
-                  ts.addGeneticAnalysis(sexAnalysis);
-                }
-                myShepherd.getPM().makePersistent(ts);
-                myShepherd.commitDBTransaction();
-                myShepherd.beginDBTransaction();
-                thisEnc.addTissueSample(ts);
-              } catch (Exception e) {
-                e.printStackTrace();
+          ts = new TissueSample("", sampleId );
+          // And load it up.
+          try {
+            
+            String permit = null;
+            String sex = null;
+            String sampleID = null;
+            
+            if (thisRow.get("Permit") != null) {
+              permit = thisRow.getString("Permit").toString();
+              ts.setPermit(permit);
+            }
+            if (thisRow.get("Sample_ID") != null) {
+              sampleID = thisRow.get("Sample_ID").toString();
+              if (sampleID.toLowerCase().contains("miss")) {
+                ts.setState("MISS");
+              }
+              if (sampleID.toLowerCase().contains("hit no sample")) {
+                ts.setState("Hit no sample");
+              } else {
+                ts.setState("Sampled");
               }
               
+            }
+            if (thisRow.get("Conf_sex") != null) {
+              // One of the fields will be a SexAnalysis/BiologicalMeasurement stored on the tissue sample.
+              sex = thisRow.getString("Conf_sex").toString();
+              SexAnalysis sexAnalysis = new SexAnalysis(Util.generateUUID(), sex,occ.getPrimaryKeyID(),sampleID);
+              myShepherd.getPM().makePersistent(sexAnalysis);
               myShepherd.commitDBTransaction();
-              success += 1;
-              System.out.println("Created a Tissue Sample for "+encNo);
-            } catch (Exception e) {
-              e.printStackTrace();
-              out.println("\nFailed to make the tissue sample.");
-            }        
-          }        
-        } catch (Exception e) {  
-          out.println("\nFailed to validate encNo : "+encNo+" and sampleID : "+sampleId+" for TissueSample creation.");
-        }
-        myShepherd.commitDBTransaction();
-      }   
+              myShepherd.beginDBTransaction();
+              ts.addGeneticAnalysis(sexAnalysis);
+            }
+            myShepherd.getPM().makePersistent(ts);
+            myShepherd.commitDBTransaction();
+            myShepherd.beginDBTransaction();
+            occ.addBaseTissueSample(ts);
+          } catch (Exception e) {
+            e.printStackTrace();
+            out.println("\n Failed to save created tissue sample to occurrence.");
+          }
+          
+          myShepherd.commitDBTransaction();
+          success += 1;
+          System.out.println("Created a Tissue Sample for Occ"+occ.getPrimaryKeyID());
+        } catch (Exception e) {
+          e.printStackTrace();
+          out.println("\nFailed to make the tissue sample.");
+        }        
+      }        
+    } catch (Exception e) {  
+      out.println("\nFailed to validate Occ ID : "+occ.getPrimaryKeyID()+" and sampleID : "+sampleId+" for TissueSample creation.");
     }
-    out.println("Successfully created "+success+" tissue samples.");
-    
-    for (int i=0;i<testArr.size();i++) {
-      out.println("\n Date : "+testArr.get(i).get(0)+" Sighting Number : "+testArr.get(i).get(1)+" Sample_ID : "+testArr.get(i).get(2));
-    }
-    out.println("UNMATCHED BIOPSY ENTRIES : "+testArr.size());
+     
+    out.println("Successfully created "+success+" tissue samples."); 
+    occ.getBaseTissueSampleArrayList().toString();
   }
   
   private void buildEncounterDuplicationMap(Table table, Shepherd myShepherd) {
