@@ -5,6 +5,7 @@ import org.ecocean.genetics.BiologicalMeasurement;
 import org.ecocean.genetics.SexAnalysis;
 import org.ecocean.genetics.TissueSample;
 import org.ecocean.servlet.*;
+import org.ecocean.tag.DigitalArchiveTag;
 import org.ecocean.tag.SatelliteTag;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -904,6 +905,7 @@ public class AccessImport extends HttpServlet {
         out.println("**********  Failed to grab date and time info from biopsy table.");
       }
       Occurrence occ = null;
+      Encounter thisEnc = null;
       try {
         ArrayList<Encounter> encArr = myShepherd.getEncounterArrayWithShortDate(date);
         if (!encArr.isEmpty()) {
@@ -911,6 +913,7 @@ public class AccessImport extends HttpServlet {
           for (Encounter enc : encArr) {
             if (enc.getSightNo().equals(sightNo)) {
               occ = myShepherd.getOccurrence(enc.getOccurrenceID());
+              thisEnc = enc;
               out.println("------ MATCH! "+sightNo+" = "+enc.getSightNo()+" Breaking the loop. ------");
               break;
             }
@@ -922,14 +925,14 @@ public class AccessImport extends HttpServlet {
       }
       if (occ != null) {
         out.println("Found a date match for this biopsy! Occurrence:"+occ.getPrimaryKeyID()+". Processing Biopsy...");
-        processBiopsyRow(thisRow, occ, myShepherd); 
+        processBiopsyRow(thisRow, occ, myShepherd, thisEnc); 
       }
      
       
     } 
   }
   
-  private void processBiopsyRow(Row thisRow, Occurrence occ, Shepherd myShepherd) {
+  private void processBiopsyRow(Row thisRow, Occurrence occ, Shepherd myShepherd, Encounter thisEnc) {
     
     int success = 0;
     // We need to link this sample to an Encounter using the date and sighting no.
@@ -975,7 +978,7 @@ public class AccessImport extends HttpServlet {
             }
             
             // This should grab physical and satellite tags. Separated for clarity.
-            processTags(thisRow, myShepherd, ts);
+            processTags(thisRow, myShepherd, ts, thisEnc);
             
             if (thisRow.get("Conf_sex") != null) {
               // One of the fields will be a SexAnalysis/BiologicalMeasurement stored on the tissue sample.
@@ -1011,14 +1014,34 @@ public class AccessImport extends HttpServlet {
     occ.getBaseTissueSampleArrayList().toString();
   }
   
-  private void processTags(Row thisRow, Shepherd myShepherd, TissueSample ts) {
+  private void processTags(Row thisRow, Shepherd myShepherd, TissueSample ts, Encounter enc) {
     String satTagID = null;
-    if (thisRow.get("SatTag_ID") != null) {
-      satTagID = thisRow.get("SatTag_ID").toString();
-      SatelliteTag st = new SatelliteTag();
-      st.setName(satTagID);
-      st.setId(Util.generateUUID());
-    }  
+    String dTagID = null;
+    MarkedIndividual mi = null;
+    if (thisRow.get("Photo-ID_Code") != null) {
+      mi = myShepherd.getMarkedIndividual(thisRow.get("Photo-ID_Code").toString()); 
+    }
+    try {
+      if (thisRow.get("SatTag_ID") != null) {
+        satTagID = thisRow.get("SatTag_ID").toString();
+        SatelliteTag st = new SatelliteTag();
+        st.setName(satTagID);
+        st.setId(Util.generateUUID());
+        enc.setSatelliteTag(st);
+        
+      }
+      if (thisRow.get("DTAG_ID") != null) {
+        dTagID = thisRow.get("DTAG_ID").toString();
+        DigitalArchiveTag dt = new DigitalArchiveTag();
+        dt.setDTagID(dTagID);
+        dt.setId(Util.generateUUID());
+        
+      }       
+    } catch (Exception e) {
+      e.printStackTrace();
+      out.println("Caught exception while creating tags for biopsy.");
+    }
+    
   }
   
   private void buildEncounterDuplicationMap(Table table, Shepherd myShepherd) {
@@ -1060,16 +1083,6 @@ public class AccessImport extends HttpServlet {
       } catch (Exception e) {
         out.println("!!!!!!!!!!!!!! Could not process a SIGHTNO for row "+i+" in SIGHTINGS");
         e.printStackTrace();
-      }
-      
-      try {
-        if (thisRow.get("ID CODE") != null) {
-          idCode = thisRow.get("ID CODE").toString();          
-          //out.println("---------------- ID CODE : "+idCode);          
-        }
-      } catch (Exception e) {
-        out.println("!!!!!!!!!!!!!! Could not process a ID CODE for row "+i+" in SIGHTINGS");
-        e.printStackTrace();  
       }
       
       String pairKey = sightNo+date;
