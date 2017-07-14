@@ -5,6 +5,7 @@ import org.ecocean.genetics.BiologicalMeasurement;
 import org.ecocean.genetics.SexAnalysis;
 import org.ecocean.genetics.TissueSample;
 import org.ecocean.servlet.*;
+import org.ecocean.tag.SatelliteTag;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -169,6 +170,17 @@ public class AccessImport extends HttpServlet {
     db.close(); 
   }  
   
+  private ArrayList<String> getColumnMasterList(Table table) {
+    // This is a list of column names. We are gonna take them out as we process them so we know if we missed any at the end. 
+    ArrayList<String> columnMasterList = new ArrayList<String>();
+    List<? extends Column> columns = table.getColumns();
+    for (int i=0;i<columns.size();i++) {
+      columnMasterList.add(columns.get(i).getName());
+    }
+    out.println("All of the columns in this Table : "+columnMasterList.toString()+"\n");
+    return columnMasterList;
+  }
+  
   private void processDUML(Table table, Shepherd myShepherd) {
     
   
@@ -191,13 +203,7 @@ public class AccessImport extends HttpServlet {
     int endTimes = 0;
     int sightNos = 0;
     
-    // This is a list of column names. We are gonna take them out as we process them so we know if we missed any at the end. 
-    ArrayList<String> columnMasterList = new ArrayList<String>();
-    List<? extends Column> columns = table.getColumns();
-    for (int i=0;i<columns.size();i++) {
-      columnMasterList.add(columns.get(i).getName());
-    }
-    out.println("All of the columns in this Table : "+columnMasterList.toString()+"\n");
+    ArrayList<String> columnMasterList = getColumnMasterList(table);
        
     Row thisRow = null;
     Encounter newEnc = null;
@@ -668,6 +674,7 @@ public class AccessImport extends HttpServlet {
     // Lets make this work for the new obs added to the DataCollectionEvent...
     Encounter enc = null;
     Occurrence occ = null;
+    TissueSample ts = null;
     String id = null;
     if (obj.getClass().getSimpleName().equals("Encounter")) {
       enc = (Encounter) obj;
@@ -677,15 +684,21 @@ public class AccessImport extends HttpServlet {
       occ = (Occurrence) obj;
       id = ((Occurrence) obj).getPrimaryKeyID();
     }
+    if (obj.getClass().getSimpleName().equals("TissueSample")) {
+      ts = (TissueSample) obj;
+      id = ((TissueSample) obj).getDataCollectionEventID();
+    }
     
     ArrayList<Observation> newObs = new ArrayList<Observation>();
     for (String column : columnMasterList) {
       String value = null;
       try {
         if (thisRow.get(column) != null) {
-         value = thisRow.get(column.trim()).toString();
-         Observation ob = new Observation(column.toString(), value, obj, id);
-         newObs.add(ob);
+          value = thisRow.get(column.trim()).toString().trim();
+          if (value.length() > 0) {
+            Observation ob = new Observation(column.toString(), value, obj, id);
+            newObs.add(ob);           
+          }
         }
       } catch (Exception e) {
         e.printStackTrace();
@@ -701,6 +714,10 @@ public class AccessImport extends HttpServlet {
         if (occ != null) {
           occ.addBaseObservationArrayList(newObs); 
           occ.getBaseObservationArrayList().toString();
+        }
+        if (ts != null) {
+          ts.addBaseObservationArrayList(newObs); 
+          ts.getBaseObservationArrayList().toString();
         }
         out.println("YEAH!!! added these observations to Encounter "+id+" : "+newObs);
       } catch (Exception e) {
@@ -846,6 +863,9 @@ public class AccessImport extends HttpServlet {
   
   // Okay, lets try this again.
   private void processBiopsyTable(Table table,Shepherd myShepherd,Table tableDUML) {
+    
+    ArrayList<String> columnMasterList = getColumnMasterList(table);
+    
     out.println("Biopsy Samples Table has "+table.getRowCount()+" Rows!");
     Row thisRow = null;
     
@@ -869,6 +889,10 @@ public class AccessImport extends HttpServlet {
           time = thisRow.get("Time").toString();
           sightNo = thisRow.get("SightNo").toString().trim(); 
           sampleId = thisRow.get("Sample_ID").toString().trim();
+          columnMasterList.remove("DateCreated");
+          columnMasterList.remove("Time");
+          columnMasterList.remove("SightNo");
+          columnMasterList.remove("Sample_ID");
           
           String verbatimDate = date.substring(0, 11) + time.substring(11, time.length() - 5) + date.substring(date.length() - 5);
           DateTime dateTime = dateStringToDateTime(verbatimDate, "EEE MMM dd hh:mm:ss z yyyy");
@@ -915,8 +939,8 @@ public class AccessImport extends HttpServlet {
     String sightNo = null;
     String sampleId = null;
   
-    // The name ID is kinda deceptive for internal wildbook purposes. This ID is only unique for successful biopsy attempts..
-    // Unsuccessful biopsys are still recorded as a TissueSample object, as requested. 
+    // The name sampleID is kinda deceptive for internal wildbook purposes. This ID is only unique for successful biopsy attempts..
+    // Unsuccessful biopsys are still recorded as a TissueSample object, as requested. It belongs in the STATE column of the sample.
     
     TissueSample ts = null;
   
@@ -931,6 +955,8 @@ public class AccessImport extends HttpServlet {
             String sex = null;
             String sampleID = null;
             
+            
+            // These fields are the anchors for the tissue sample. Minimum data needed for an entry.
             if (thisRow.get("Permit") != null) {
               permit = thisRow.getString("Permit").toString();
               ts.setPermit(permit);
@@ -941,12 +967,16 @@ public class AccessImport extends HttpServlet {
                 ts.setState("MISS");
               }
               if (sampleID.toLowerCase().contains("hit no sample")) {
-                ts.setState("Hit no sample");
+                ts.setState("HIT - NO SAMPLE");
               } else {
-                ts.setState("Sampled");
+                ts.setState("SAMPLED");
               }
               
             }
+            
+            // This should grab physical and satellite tags. Separated for clarity.
+            processTags(thisRow, myShepherd, ts);
+            
             if (thisRow.get("Conf_sex") != null) {
               // One of the fields will be a SexAnalysis/BiologicalMeasurement stored on the tissue sample.
               sex = thisRow.getString("Conf_sex").toString();
@@ -981,13 +1011,20 @@ public class AccessImport extends HttpServlet {
     occ.getBaseTissueSampleArrayList().toString();
   }
   
+  private void processTags(Row thisRow, Shepherd myShepherd, TissueSample ts) {
+    String satTagID = null;
+    if (thisRow.get("SatTag_ID") != null) {
+      satTagID = thisRow.get("SatTag_ID").toString();
+      SatelliteTag st = new SatelliteTag();
+      st.setName(satTagID);
+      st.setId(Util.generateUUID());
+    }  
+  }
+  
   private void buildEncounterDuplicationMap(Table table, Shepherd myShepherd) {
     out.println("Building map of duplicate encounters...");
-    
-    
     String sightNo = null;
     String date = null;
-    String idCode = null;
     
     int sumOfValues = 0;
     int rowsProcessed = 0;
