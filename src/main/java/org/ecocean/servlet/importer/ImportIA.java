@@ -376,7 +376,7 @@ out.println("complete");
   private JSONObject getFromIAPrincetonPort(String urlSuffix, String context, String port, PrintWriter outForErrors) throws IOException {
     JSONObject res = new JSONObject();
     URL restGetString = IBEISIA.iaURLPrincetonPort(context, urlSuffix, port);
-    System.out.println("getFromIA about to call "+restGetString);
+    System.out.println("getFromIAPrincetonPort about to call "+restGetString);
     try {
       res = RestClient.get(restGetString);
     }
