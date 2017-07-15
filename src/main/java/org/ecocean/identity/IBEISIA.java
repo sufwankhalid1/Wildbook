@@ -117,8 +117,18 @@ public class IBEISIA {
       DBNAME_TO_CONTEXT.put("e96c7da4-7e16-476d-a5ee-3c30ee608a61","context1");
       DBNAME_TO_CONTEXT.put("2015","context2");
       DBNAME_TO_CONTEXT.put("43adf43d-4c6b-44b4-a283-fddc704c92d4","context2");
+
+      // block of contexts used by Dan in Kenya
       DBNAME_TO_CONTEXT.put("Mpala_OlJogi_Loops","context2");
       DBNAME_TO_CONTEXT.put("b4750891-a92d-4618-97b6-921ae03d1031","context2");
+      DBNAME_TO_CONTEXT.put("PZ_Rosemary0","context2");
+      DBNAME_TO_CONTEXT.put("ce54c8cb-b2c9-4afa-a042-2237b6ae6fdd","context2");
+      DBNAME_TO_CONTEXT.put("PZ_Rosemary1","context2");
+      DBNAME_TO_CONTEXT.put("1258c04c-cc80-4465-b890-80b9eaed595a","context2");
+      DBNAME_TO_CONTEXT.put("PZ_Rosemary2","context2");
+      DBNAME_TO_CONTEXT.put("6bcddd91-b364-467d-9264-d00d5ae9a34a","context2");
+
+
       DBNAME_TO_CONTEXT.put("_ibeis_backups","context3");
       DBNAME_TO_CONTEXT.put("297a709e-13b3-46c5-9be8-10ecf51a86b4","context3");
       DBNAME_TO_CONTEXT.put("Kaia","context4");
