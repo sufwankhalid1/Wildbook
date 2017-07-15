@@ -56,6 +56,7 @@ public class ImportIA extends HttpServlet {
     PrintWriter out = response.getWriter();
 
     out.println("Context grabbed = "+context);
+    out.println("forced port = "+port);
 
 
 
