@@ -1428,6 +1428,33 @@ System.out.println("identification most recent action found is " + action);
         }
     }
 
+        //builds urls for IA, based on just one.  kinda hacky (as opposed to per-endpoint setting in CommonConfiguration); but can be useful
+    public static URL iaURLPrincetonPort(String context, String urlSuffix, String port) {
+        if (iaBaseURL == null) {
+            String u = CommonConfiguration.getProperty("IBEISIARestUrlAddAnnotations", context);
+            // hack out the .edu:5000 to replace with .edu:xxxx
+            int j = u.indexOf(".edu");
+            String u2 = u.substring(0,j) + ".edu:" + port + u.substring(j+9);
+            System.out.println("***IBEISIA: iaURLPrincetonPort got url "+u2+" in context "+context);
+            if (u2 == null) throw new RuntimeException("configuration value IBEISIARestUrlAddAnnotations is not set");
+            int i = u2.indexOf("/", 9);  //9 should get us past "http://" to get to post-hostname /
+            if (i < -1) throw new RuntimeException("could not parse IBEISIARestUrlAddAnnotations for iaBaseURL");
+            iaBaseURL = u2.substring(0,i+1);  //will include trailing slash
+            System.out.println("INFO: setting iaBaseURL=" + iaBaseURL);
+        }
+        String ustr = iaBaseURL;
+        if (urlSuffix != null) {
+            if (urlSuffix.indexOf("/") == 0) urlSuffix = urlSuffix.substring(1);  //get rid of leading /
+            ustr += urlSuffix;
+        }
+        try {
+            return new URL(ustr);
+        } catch (Exception ex) {
+            throw new RuntimeException("iaURL() could not parse URL");
+        }
+    }
+
+
     ////note: we *could* try to grab these as lists from IA, but that is more complicated so lets iterate for now...
     public static List<Annotation> grabAnnotations(List<String> annIds, Shepherd myShepherd) {
         List<Annotation> anns = new ArrayList<Annotation>();
