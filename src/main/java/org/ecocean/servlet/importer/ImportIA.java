@@ -118,7 +118,7 @@ public class ImportIA extends HttpServlet {
         String occID = IBEISIA.fromFancyUUID(fancyID);
 
         //System.out.println("IA-IMPORT: ImageSet " + occID);
-        String annotResUrlSuffix = "/api/imageset/annot/uuid/json/?imageset_uuid_list=[" + fancyID + "]"
+        String annotResUrlSuffix = "/api/imageset/annot/uuid/json/?imageset_uuid_list=[" + fancyID + "]";
       JSONObject annotRes = (port==null) ? getFromIA(annotResUrlSuffix, context, out) : getFromIAPrincetonPort(annotResUrlSuffix, context, port, out);
 /////System.out.println("annotRes -----> " + annotRes);
       // it's a singleton list, hence [0]
