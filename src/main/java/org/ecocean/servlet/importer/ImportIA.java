@@ -47,6 +47,10 @@ public class ImportIA extends HttpServlet {
     // a "context=context1" in the URL should be enough
     context=ServletUtilities.getContext(request);
 
+    // allows us to force a port on import
+    String port = request.getParameter("port");
+
+
     Shepherd myShepherd = new Shepherd(context);
     FeatureType.initAll(myShepherd);
     PrintWriter out = response.getWriter();
@@ -74,7 +78,8 @@ public class ImportIA extends HttpServlet {
     String urlSuffix = "/api/imageset/json/?is_special=False";
     System.out.println("    urlSuffix = "+urlSuffix);
     System.out.println("    context = "+context);
-    JSONObject imageSetRes = getFromIA(urlSuffix, context, out);
+    JSONObject imageSetRes = (port==null) ? getFromIA(urlSuffix, context, out) : getFromIAPrincetonPort(urlSuffix, context, port, out);
+    System.out.println("    imageSetRes = "+imageSetRes);
     JSONArray fancyImageSetUUIDS = imageSetRes.optJSONArray("response");
     System.out.println("IA-IMPORT: got "+fancyImageSetUUIDS.length()+" UUIDs back from IA");
 
@@ -113,7 +118,8 @@ public class ImportIA extends HttpServlet {
         String occID = IBEISIA.fromFancyUUID(fancyID);
 
         //System.out.println("IA-IMPORT: ImageSet " + occID);
-      JSONObject annotRes = getFromIA("/api/imageset/annot/uuid/json/?imageset_uuid_list=[" + fancyID + "]", context, out);
+        String annotResUrlSuffix = "/api/imageset/annot/uuid/json/?imageset_uuid_list=[" + fancyID + "]"
+      JSONObject annotRes = (port==null) ? getFromIA(annotResUrlSuffix, context, out) : getFromIAPrincetonPort(annotResUrlSuffix, context, port, out);
 /////System.out.println("annotRes -----> " + annotRes);
       // it's a singleton list, hence [0]
       JSONArray annotFancyUUIDs = annotRes.getJSONArray("response").getJSONArray(0);
@@ -358,10 +364,39 @@ out.println("complete");
     catch (IOException e) {
       outForErrors.println("IOException on getFromIA()"+urlSuffix+"), which tried to GET "+restGetString);
       e.printStackTrace(outForErrors);
+    } 
+    if (res==null) throw new IOException("Could not get "+urlSuffix+"from server");
+    return res;
+  } 
+
+  // lets you force a port (like "5002") to look at IA-side
+  private JSONObject getFromIAPrincetonPort(String urlSuffix, String context, String port, PrintWriter outForErrors) throws IOException {
+    JSONObject res = new JSONObject();
+    URL restGetString = IBEISIA.iaURLPrincetonPort(context, urlSuffix, port);
+    System.out.println("getFromIA about to call "+restGetString);
+    try {
+      res = RestClient.get(restGetString);
+    }
+    catch (MalformedURLException e) {
+      outForErrors.println("MalformedURLException on getFromIA()"+urlSuffix+"), which tried to GET "+restGetString);
+      e.printStackTrace(outForErrors);
+    }
+    catch (NoSuchAlgorithmException e) {
+      outForErrors.println("NoSuchAlgorithmException on getFromIA()"+urlSuffix+"), which tried to GET "+restGetString);
+      e.printStackTrace(outForErrors);
+    }
+    catch (InvalidKeyException e) {
+      outForErrors.println("InvalidKeyException on getFromIA()"+urlSuffix+"), which tried to GET "+restGetString);
+      e.printStackTrace(outForErrors);
+    }
+    catch (IOException e) {
+      outForErrors.println("IOException on getFromIA()"+urlSuffix+"), which tried to GET "+restGetString);
+      e.printStackTrace(outForErrors);
     }
     if (res==null) throw new IOException("Could not get "+urlSuffix+"from server");
     return res;
   }
+
 
   private List<String> fromFancyUUIDList(JSONArray fancyUUIDs) {
     List<String> ids = new ArrayList<String>();
