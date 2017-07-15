@@ -78,6 +78,8 @@ public class ImportIA extends HttpServlet {
     String urlSuffix = "/api/imageset/json/?is_special=False";
     System.out.println("    urlSuffix = "+urlSuffix);
     System.out.println("    context = "+context);
+    System.out.println("    port = "+port);
+
     JSONObject imageSetRes = (port==null) ? getFromIA(urlSuffix, context, out) : getFromIAPrincetonPort(urlSuffix, context, port, out);
     System.out.println("    imageSetRes = "+imageSetRes);
     JSONArray fancyImageSetUUIDS = imageSetRes.optJSONArray("response");
