@@ -12,6 +12,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.ecocean.identity.*;
 import org.ecocean.media.*;
+import org.ecocean.movement.SurveyTrack;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -27,11 +28,8 @@ import java.util.*;
 import org.json.JSONObject;
 
 import com.healthmarketscience.jackcess.Column;
-import com.healthmarketscience.jackcess.Cursor;
-import com.healthmarketscience.jackcess.CursorBuilder;
 import com.healthmarketscience.jackcess.Database;
 import com.healthmarketscience.jackcess.DatabaseBuilder;
-import com.healthmarketscience.jackcess.IndexCursor;
 import com.healthmarketscience.jackcess.Row;
 import com.healthmarketscience.jackcess.Table;
 
@@ -121,10 +119,10 @@ public class AccessImport extends HttpServlet {
       numEncs +=1;
       encs.next();
     } 
-    
     out.println("\nI already have "+numEncs+" encounters in tha database.\n");
     // This if stops the encounter creation if we have to many. Can remove later.
-    if (numEncs < 2000) {    
+    boolean dumlTableSwitch = false;
+    if (dumlTableSwitch) {    
       try {
         out.println("********************* Let's process the DUML Table!\n");
         // Hit the SIGHTINGS table to find out whether we need to create multiple encounters for a given occurrence.
@@ -137,41 +135,42 @@ public class AccessImport extends HttpServlet {
       }
     }  
     
-    try {
-      out.println("********************* Let's process the CATALOG Table!\n");
-      processCatalog(db.getTable("CATALOG"), myShepherd);
-    } catch (Exception e) {
-      out.println(e);
-      e.printStackTrace();
-      out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Could not process CATALOG table!!!");
+    boolean sightingsTableSwitch = false;
+    if (sightingsTableSwitch) {
+      try {
+        out.println("********************* Let's process the SIGHTINGS Table!\n");
+        processSightings(db.getTable("SIGHTINGS"), myShepherd);
+      } catch (Exception e) {
+        out.println(e);
+        e.printStackTrace();
+        out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Could not process SIGHTINGS table!!!");
+      }      
     }
     
-    try {
-      out.println("********************* Let's process the SIGHTINGS Table!\n");
-      processSightings(db.getTable("SIGHTINGS"), myShepherd);
-    } catch (Exception e) {
-      out.println(e);
-      e.printStackTrace();
-      out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Could not process SIGHTINGS table!!!");
+    boolean biopsyTableSwitch = true;
+    if (biopsyTableSwitch) {
+      try {
+        out.println("********************* Let's process the BiopsySamples Table!\n");
+        processBiopsyTable(db.getTable("Biopsy Samples"), myShepherd, db.getTable("DUML"));
+      } catch (Exception e) {
+        out.println(e);
+        e.printStackTrace();
+        out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Could not process BiopsySamples table!!!");
+      }      
     }
     
-    try {
-      out.println("********************* Let's process the BiopsySamples Table!\n");
-      processBiopsyTable(db.getTable("Biopsy Samples"), myShepherd, db.getTable("DUML"));
-    } catch (Exception e) {
-      out.println(e);
-      e.printStackTrace();
-      out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Could not process BiopsySamples table!!!");
+    boolean effortTableSwitch = false;
+    if (effortTableSwitch) {
+      try {
+        out.println("********************* Let's process the EFFORT Table!\n");
+        processEffortTable(db.getTable("EFFORT"), myShepherd);
+      } catch (Exception e) {
+        out.println(e);
+        e.printStackTrace();
+        out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Could not process Effort table!!!");
+      }      
     }
     
-    try {
-      out.println("********************* Let's process the EFFORT Table!\n");
-      processBiopsyTable(db.getTable("EFFORT"), myShepherd, db.getTable("EFFORT"));
-    } catch (Exception e) {
-      out.println(e);
-      e.printStackTrace();
-      out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Could not process Effort table!!!");
-    }
     
     
     myShepherd.commitDBTransaction();
@@ -737,15 +736,76 @@ public class AccessImport extends HttpServlet {
     }
   }
   
+  private void processEffortTable(Table table, Shepherd myShepherd) {
+    
+    if (!myShepherd.getPM().currentTransaction().isActive()) {
+      myShepherd.beginDBTransaction();
+    }
+    
+    Row thisRow = null;
+    
+    for (int i=0;i<table.getRowCount();i++) {
+      Survey sv = null;
+      SurveyTrack st = null;
+      try {
+        thisRow = table.getNextRow();
+      } catch (IOException io) {
+        io.printStackTrace();
+        out.println("!!!!!!!!!!!!!! Could not get next Row in SIGHTINGS table...");
+      }
+      
+      try {
+        if (thisRow.get("DATE") != null) {
+          String date = thisRow.get("DATE").toString();          
+          String verbatimDate = date.substring(0, 11) + date.substring(date.length() - 5);
+          DateTime dateTime = dateStringToDateTime(verbatimDate, "EEE MMM dd yyyy");
+          date = dateTime.toString().substring(0,10);
+          sv = new Survey(date);
+          myShepherd.getPM().makePersistent(sv);
+          myShepherd.commitDBTransaction();
+          myShepherd.beginDBTransaction();
+          
+          st = new SurveyTrack(sv);
+        }
+      } catch (Exception e) {
+        out.println("!!!!!!!!!!!!!! Could not process a DATE for row "+i+" in EFFORT");
+        e.printStackTrace();
+      }
+      
+      try {
+        if (thisRow.get("SurveyHrs") != null) {
+          Double effort = thisRow.getDouble("SurveyHrs");
+          Measurement effortMeasurement = new Measurement();
+          effortMeasurement.setUnits("Hours");
+          effortMeasurement.setValue(effort);
+          myShepherd.getPM().makePersistent(effortMeasurement);
+          myShepherd.commitDBTransaction();
+          myShepherd.beginDBTransaction();
+          sv.setEffort(effortMeasurement);
+        }
+      } catch (Exception e) {
+        out.println("!!!!!!!!!!!!!! Could not process SurveyHrs and create a measurement for row "+i+" in EFFORT");
+        e.printStackTrace();
+      }
+      
+      try {
+        if (thisRow.get("Vessel") != null) {
+          String effort = thisRow.getString("Vessel");
+          st.setVesselID(effort);
+        }
+      } catch (Exception e) {
+        out.println("!!!!!!!!!!!!!! Could not process SurveyHrs and create a measurement for row "+i+" in EFFORT");
+        e.printStackTrace();
+      }
+      
+    }
+  }
+  
   private void processSightings(Table table, Shepherd myShepherd) {
     out.println("Sightings Table has "+table.getRowCount()+" Rows!");    
     String date = null;
     String sightNo = null;
     String idCode = null;
-    String newStatus = null;
-    String quality = null;
-    String distinctiveness = null;
-    String tempId = null;
     
     MarkedIndividual indy = null;
     
@@ -864,13 +924,7 @@ public class AccessImport extends HttpServlet {
     System.out.println("Existing Indy's added to encounters from lists retrieved by date  : "+addedToExisting);
     System.out.println("Rows Processed : "+rowsProcessed);
   }
-  
-  private void processCatalog(Table table, Shepherd myShepherd) {
-    out.println("Catalog Table has "+table.getRowCount()+" Rows!");
-  }
-  
-  
-  
+    
   // Okay, lets try this again.
   private void processBiopsyTable(Table table,Shepherd myShepherd,Table tableDUML) {
     
@@ -878,8 +932,6 @@ public class AccessImport extends HttpServlet {
     
     out.println("Biopsy Samples Table has "+table.getRowCount()+" Rows!");
     Row thisRow = null;
-    
-    int savedBiopsys = 0;
     
     for (int i=0;i<table.getRowCount();i++) {
       try {
@@ -892,17 +944,14 @@ public class AccessImport extends HttpServlet {
       String date = null;
       String time = null;
       String sightNo = null;
-      String sampleId = null;
       try {
         if (thisRow.get("DateCreated") != null && thisRow.get("SightNo") != null && thisRow.get("Time") != null) {
           date = thisRow.get("DateCreated").toString(); 
           time = thisRow.get("Time").toString();
           sightNo = thisRow.get("SightNo").toString().trim(); 
-          sampleId = thisRow.get("Sample_ID").toString().trim();
           columnMasterList.remove("DateCreated");
           columnMasterList.remove("Time");
           columnMasterList.remove("SightNo");
-          columnMasterList.remove("Sample_ID");
           
           String verbatimDate = date.substring(0, 11) + time.substring(11, time.length() - 5) + date.substring(date.length() - 5);
           DateTime dateTime = dateStringToDateTime(verbatimDate, "EEE MMM dd hh:mm:ss z yyyy");
@@ -914,7 +963,7 @@ public class AccessImport extends HttpServlet {
         out.println("**********  Failed to grab date and time info from biopsy table.");
       }
       Occurrence occ = null;
-      Encounter thisEnc = null;
+      //Encounter thisEnc = null;
       try {
         ArrayList<Encounter> encArr = myShepherd.getEncounterArrayWithShortDate(date);
         if (!encArr.isEmpty()) {
@@ -922,7 +971,7 @@ public class AccessImport extends HttpServlet {
           for (Encounter enc : encArr) {
             if (enc.getSightNo().equals(sightNo)) {
               occ = myShepherd.getOccurrence(enc.getOccurrenceID());
-              thisEnc = enc;
+              //thisEnc = enc;
               out.println("------ MATCH! "+sightNo+" = "+enc.getSightNo()+" Breaking the loop. ------");
               break;
             }
@@ -934,21 +983,21 @@ public class AccessImport extends HttpServlet {
       }
       if (occ != null) {
         out.println("Found a date match for this biopsy! Occurrence:"+occ.getPrimaryKeyID()+". Processing Biopsy...");
-        processBiopsyRow(thisRow, occ, myShepherd); 
+        processBiopsyRow(thisRow, occ, myShepherd, columnMasterList); 
       }
      
       
     } 
   }
   
-  private void processBiopsyRow(Row thisRow, Occurrence occ, Shepherd myShepherd) {
+  private void processBiopsyRow(Row thisRow, Occurrence occ, Shepherd myShepherd, ArrayList<String> columnMasterList) {
     
     int success = 0;
     // We need to link this sample to an Encounter using the date and sighting no.
-    String date = null;
-    String time = null;
-    Long milliTime = null;
-    String sightNo = null;
+    //String date = null;
+    //String time = null;
+    //Long milliTime = null;
+    //String sightNo = null;
     String sampleId = null;
   
     // The name sampleID is kinda deceptive for internal wildbook purposes. This ID is only unique for successful biopsy attempts..
@@ -962,6 +1011,9 @@ public class AccessImport extends HttpServlet {
           ts = new TissueSample("", sampleId );
           // And load it up.
           try {
+            if (!myShepherd.getPM().currentTransaction().isActive()) {
+              myShepherd.beginDBTransaction();
+            }
             
             String permit = null;
             String sex = null;
@@ -969,10 +1021,12 @@ public class AccessImport extends HttpServlet {
             
             
             // These fields are the anchors for the tissue sample. Minimum data needed for an entry.
+            columnMasterList.remove("Permit");
             if (thisRow.get("Permit") != null) {
               permit = thisRow.getString("Permit").toString();
               ts.setPermit(permit);
             }
+            columnMasterList.remove("Sample_ID");
             if (thisRow.get("Sample_ID") != null) {
               sampleID = thisRow.get("Sample_ID").toString();
               if (sampleID.toLowerCase().contains("miss")) {
@@ -983,11 +1037,19 @@ public class AccessImport extends HttpServlet {
               } else {
                 ts.setState("SAMPLED");
               }
-              
             }
-            
+            columnMasterList.remove("Vessel");
+            if (thisRow.get("Vessel") != null) {
+              String vessel = null;
+              vessel = thisRow.getString("Vessel").toString();
+              //TODO there really isn't much we can do with this until we get a survey associated. 
+              // I guess we better process the EFFORT table before this. 
+            }
+              
             // This should grab physical and satellite tags. Separated for clarity.
-            processTags(thisRow, myShepherd, ts, occ);
+            processTags(thisRow, myShepherd, occ);
+            columnMasterList.remove("DTAG_ID");
+            columnMasterList.remove("SatTag_ID");
             
             if (thisRow.get("Conf_sex") != null) {
               // One of the fields will be a SexAnalysis/BiologicalMeasurement stored on the tissue sample.
@@ -998,6 +1060,7 @@ public class AccessImport extends HttpServlet {
               myShepherd.beginDBTransaction();
               ts.addGeneticAnalysis(sexAnalysis);
             }
+            columnMasterList.remove("Conf_sex");
             myShepherd.getPM().makePersistent(ts);
             myShepherd.commitDBTransaction();
             myShepherd.beginDBTransaction();
@@ -1023,39 +1086,56 @@ public class AccessImport extends HttpServlet {
     occ.getBaseTissueSampleArrayList().toString();
   }
   
-  private void processTags(Row thisRow, Shepherd myShepherd, TissueSample ts, Occurrence occ) {
+  private void processTags(Row thisRow, Shepherd myShepherd, Occurrence occ) {
     String satTagID = null;
     String dTagID = null;
     
     Encounter enc = null;
     ArrayList<Encounter> encArr = occ.getEncounters();
     
-    for (Encounter thisEnc : encArr) {
-      if (thisEnc.getPrimaryKeyID().equals(thisRow.getString("Photo-ID_Code"))) {
-        enc = thisEnc;
-      }
-    }
-    if (enc.getPrimaryKeyID() != null && !enc.getPrimaryKeyID().equals("")) {
-      try {
-        if (thisRow.get("SatTag_ID") != null) {
-          satTagID = thisRow.get("SatTag_ID").toString();
-          SatelliteTag st = new SatelliteTag();
-          st.setName(satTagID);
-          st.setId(Util.generateUUID());
-          enc.setSatelliteTag(st);
+    if (thisRow.get("SatTag_ID") != null || thisRow.get("DTAG_ID") != null) {
+      if (thisRow.containsKey("Photo-ID_Code") && thisRow.get("Photo-ID_Code") != null) {
+        for (Encounter thisEnc : encArr) {
+          System.out.println("Looking for ID match to store tags... "+thisEnc.getIndividualID()+" = "+thisRow.getString("Photo-ID_Code")+" ...?");
+          if (thisEnc.hasMarkedIndividual()) {
+            // I guess this is pretty safe? They just seem to have arbitrary location suffix/prefix sometimes. 
+            if (thisEnc.getIndividualID().contains(thisRow.getString("Photo-ID_Code"))||thisRow.getString("Photo-ID_Code").contains(thisEnc.getIndividualID())) {
+              enc = thisEnc;
+              System.out.println("Match!!!");
+            }            
+          }
         }
-        if (thisRow.get("DTAG_ID") != null) {
-          dTagID = thisRow.get("DTAG_ID").toString();
-          DigitalArchiveTag dt = new DigitalArchiveTag();
-          dt.setDTagID(dTagID);
-          dt.setId(Util.generateUUID());
-          enc.setDTag(dt);
-        }       
-      } catch (Exception e) {
-        e.printStackTrace();
-        out.println("Caught exception while creating tags for biopsy.");
-      }       
+        if (enc != null) {
+          try {
+            System.out.println("Gonna try to make a tag for this Enc.");
+            if (thisRow.get("SatTag_ID") != null) {
+              satTagID = thisRow.get("SatTag_ID").toString();
+              SatelliteTag st = new SatelliteTag();
+              st.setName(satTagID);
+              st.setId(Util.generateUUID());
+              enc.setSatelliteTag(st);
+              System.out.println("Created a SatTag for encounter "+enc.getPrimaryKeyID());
+            }
+            if (thisRow.get("DTAG_ID") != null) {
+              dTagID = thisRow.get("DTAG_ID").toString();
+              DigitalArchiveTag dt = new DigitalArchiveTag();
+              dt.setDTagID(dTagID);
+              dt.setId(Util.generateUUID());
+              enc.setDTag(dt);
+              System.out.println("Created a DTag for encounter "+enc.getPrimaryKeyID());
+            }       
+          } catch (Exception e) {
+            e.printStackTrace();
+            out.println("Caught exception while creating tags for biopsy.");
+          }       
+        } else {
+          System.out.println("Didn't find an encounter to add this tag ");
+        }      
+      } else {
+        System.out.println("No Photo ID present for this row.");
+      }      
     }
+    
   }
   
   private void buildEncounterDuplicationMap(Table table, Shepherd myShepherd) {
