@@ -164,6 +164,15 @@ public class AccessImport extends HttpServlet {
       out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Could not process BiopsySamples table!!!");
     }
     
+    try {
+      out.println("********************* Let's process the EFFORT Table!\n");
+      processBiopsyTable(db.getTable("EFFORT"), myShepherd, db.getTable("EFFORT"));
+    } catch (Exception e) {
+      out.println(e);
+      e.printStackTrace();
+      out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Could not process Effort table!!!");
+    }
+    
     
     myShepherd.commitDBTransaction();
     myShepherd.closeDBTransaction();
@@ -925,14 +934,14 @@ public class AccessImport extends HttpServlet {
       }
       if (occ != null) {
         out.println("Found a date match for this biopsy! Occurrence:"+occ.getPrimaryKeyID()+". Processing Biopsy...");
-        processBiopsyRow(thisRow, occ, myShepherd, thisEnc); 
+        processBiopsyRow(thisRow, occ, myShepherd); 
       }
      
       
     } 
   }
   
-  private void processBiopsyRow(Row thisRow, Occurrence occ, Shepherd myShepherd, Encounter thisEnc) {
+  private void processBiopsyRow(Row thisRow, Occurrence occ, Shepherd myShepherd) {
     
     int success = 0;
     // We need to link this sample to an Encounter using the date and sighting no.
@@ -978,7 +987,7 @@ public class AccessImport extends HttpServlet {
             }
             
             // This should grab physical and satellite tags. Separated for clarity.
-            processTags(thisRow, myShepherd, ts, thisEnc);
+            processTags(thisRow, myShepherd, ts, occ);
             
             if (thisRow.get("Conf_sex") != null) {
               // One of the fields will be a SexAnalysis/BiologicalMeasurement stored on the tissue sample.
@@ -1014,34 +1023,39 @@ public class AccessImport extends HttpServlet {
     occ.getBaseTissueSampleArrayList().toString();
   }
   
-  private void processTags(Row thisRow, Shepherd myShepherd, TissueSample ts, Encounter enc) {
+  private void processTags(Row thisRow, Shepherd myShepherd, TissueSample ts, Occurrence occ) {
     String satTagID = null;
     String dTagID = null;
-    MarkedIndividual mi = null;
-    if (thisRow.get("Photo-ID_Code") != null) {
-      mi = myShepherd.getMarkedIndividual(thisRow.get("Photo-ID_Code").toString()); 
-    }
-    try {
-      if (thisRow.get("SatTag_ID") != null) {
-        satTagID = thisRow.get("SatTag_ID").toString();
-        SatelliteTag st = new SatelliteTag();
-        st.setName(satTagID);
-        st.setId(Util.generateUUID());
-        enc.setSatelliteTag(st);
-        
-      }
-      if (thisRow.get("DTAG_ID") != null) {
-        dTagID = thisRow.get("DTAG_ID").toString();
-        DigitalArchiveTag dt = new DigitalArchiveTag();
-        dt.setDTagID(dTagID);
-        dt.setId(Util.generateUUID());
-        
-      }       
-    } catch (Exception e) {
-      e.printStackTrace();
-      out.println("Caught exception while creating tags for biopsy.");
-    }
     
+    Encounter enc = null;
+    ArrayList<Encounter> encArr = occ.getEncounters();
+    
+    for (Encounter thisEnc : encArr) {
+      if (thisEnc.getPrimaryKeyID().equals(thisRow.getString("Photo-ID_Code"))) {
+        enc = thisEnc;
+      }
+    }
+    if (enc.getPrimaryKeyID() != null && !enc.getPrimaryKeyID().equals("")) {
+      try {
+        if (thisRow.get("SatTag_ID") != null) {
+          satTagID = thisRow.get("SatTag_ID").toString();
+          SatelliteTag st = new SatelliteTag();
+          st.setName(satTagID);
+          st.setId(Util.generateUUID());
+          enc.setSatelliteTag(st);
+        }
+        if (thisRow.get("DTAG_ID") != null) {
+          dTagID = thisRow.get("DTAG_ID").toString();
+          DigitalArchiveTag dt = new DigitalArchiveTag();
+          dt.setDTagID(dTagID);
+          dt.setId(Util.generateUUID());
+          enc.setDTag(dt);
+        }       
+      } catch (Exception e) {
+        e.printStackTrace();
+        out.println("Caught exception while creating tags for biopsy.");
+      }       
+    }
   }
   
   private void buildEncounterDuplicationMap(Table table, Shepherd myShepherd) {
