@@ -16,7 +16,7 @@
       </field>
 
       <field name="project" persistence-modifier="persistent">
-        <column length="100" allows-null="true" />
+        <column length="256" allows-null="true" />
       </field>
 
       <field name="organization" persistence-modifier="persistent">
@@ -51,6 +51,11 @@
       
       <field name="date" persistence-modifier="persistent">
         <column jdbc-type="String" allows-null="true"/>
+      </field>
+      
+      <field name="observations" persistence-modifier="persistent" default-fetch-group="true">
+        <collection element-type="org.ecocean.Observation"/>
+        <join/>
       </field>
 
       <fetch-group name="count"/>
@@ -561,6 +566,24 @@
         <collection element-type="org.ecocean.Observation"/>
         <join/>
       </field>
+      
+      <field name="baseMetalTags" persistence-modifier="persistent" default-fetch-group="true">
+        <collection element-type="org.ecocean.tag.MetalTag" dependent-element="true"/>
+        <join/>
+      </field>
+      <field name="baseAcousticTags" persistence-modifier="persistent" default-fetch-group="true">
+        <collection element-type="org.ecocean.tag.AcousticTag" dependent-element="true"/>
+        <join/>
+      </field>
+      <field name="baseDigitalArchiveTags" persistence-modifier="persistent" default-fetch-group="true">
+        <collection element-type="org.ecocean.tag.DigitalArchiveTag" dependent-element="true"/>
+        <join/>
+      </field>
+      <field name="baseSatelliteTags" persistence-modifier="persistent" default-fetch-group="true">
+        <collection element-type="org.ecocean.tag.SatelliteTag" dependent-element="true"/>
+        <join/>
+      </field>
+      
     </class>
     
     <class name="Observation" identity-type="application">

@@ -120,8 +120,9 @@ public class AccessImport extends HttpServlet {
       encs.next();
     } 
     out.println("\nI already have "+numEncs+" encounters in tha database.\n");
-    // This if stops the encounter creation if we have to many. Can remove later.
-    boolean dumlTableSwitch = false;
+    
+    // These switches allow you to work on different tables without doing the whole import a bunch iof times.
+    boolean dumlTableSwitch = true;
     if (dumlTableSwitch) {    
       try {
         out.println("********************* Let's process the DUML Table!\n");
@@ -135,7 +136,7 @@ public class AccessImport extends HttpServlet {
       }
     }  
     
-    boolean sightingsTableSwitch = false;
+    boolean sightingsTableSwitch = true;
     if (sightingsTableSwitch) {
       try {
         out.println("********************* Let's process the SIGHTINGS Table!\n");
@@ -159,7 +160,7 @@ public class AccessImport extends HttpServlet {
       }      
     }
     
-    boolean effortTableSwitch = false;
+    boolean effortTableSwitch = true;
     if (effortTableSwitch) {
       try {
         out.println("********************* Let's process the EFFORT Table!\n");
@@ -316,6 +317,8 @@ public class AccessImport extends HttpServlet {
         if (thisRow.get("Location") != null) {
           location = thisRow.get("Location").toString();          
           newEnc.setVerbatimLocality(location);    
+          newEnc.setLocationID(location);
+          newEnc.setLocation(location);
           locations += 1;
           //out.println("---------------- Location : "+location);
           if (columnMasterList.contains("Location")) {
@@ -742,6 +745,8 @@ public class AccessImport extends HttpServlet {
       myShepherd.beginDBTransaction();
     }
     
+    out.println("Effort Table has "+table.getRowCount()+" Rows!\n");
+    
     Row thisRow = null;
     
     for (int i=0;i<table.getRowCount();i++) {
@@ -754,9 +759,10 @@ public class AccessImport extends HttpServlet {
         out.println("!!!!!!!!!!!!!! Could not get next Row in SIGHTINGS table...");
       }
       
+      String date = null;
       try {
         if (thisRow.get("DATE") != null) {
-          String date = thisRow.get("DATE").toString();          
+          date = thisRow.get("DATE").toString();          
           String verbatimDate = date.substring(0, 11) + date.substring(date.length() - 5);
           DateTime dateTime = dateStringToDateTime(verbatimDate, "EEE MMM dd yyyy");
           date = dateTime.toString().substring(0,10);
@@ -774,17 +780,23 @@ public class AccessImport extends HttpServlet {
       
       try {
         if (thisRow.get("SurveyHrs") != null) {
-          Double effort = thisRow.getDouble("SurveyHrs");
-          Measurement effortMeasurement = new Measurement();
-          effortMeasurement.setUnits("Hours");
-          effortMeasurement.setValue(effort);
-          myShepherd.getPM().makePersistent(effortMeasurement);
-          myShepherd.commitDBTransaction();
-          myShepherd.beginDBTransaction();
-          sv.setEffort(effortMeasurement);
+          String es = thisRow.getString("SurveyHrs");
+          es = es.replace("/","").toUpperCase();
+          if (!es.equals("NA")) {
+            System.out.println("SurveyHrs resulting string : "+es);
+            Double effort = Double.valueOf(es);
+            Measurement effortMeasurement = new Measurement();
+            effortMeasurement.setUnits("Hours");
+            effortMeasurement.setValue(effort);
+            myShepherd.getPM().makePersistent(effortMeasurement);
+            myShepherd.commitDBTransaction();
+            myShepherd.beginDBTransaction();
+            sv.setEffort(effortMeasurement);            
+          }
         }
       } catch (Exception e) {
         out.println("!!!!!!!!!!!!!! Could not process SurveyHrs and create a measurement for row "+i+" in EFFORT");
+        out.println(thisRow.toString());
         e.printStackTrace();
       }
       
@@ -794,7 +806,55 @@ public class AccessImport extends HttpServlet {
           st.setVesselID(effort);
         }
       } catch (Exception e) {
-        out.println("!!!!!!!!!!!!!! Could not process SurveyHrs and create a measurement for row "+i+" in EFFORT");
+        out.println("!!!!!!!!!!!!!! Could not process Vessel for row "+i+" in EFFORT");
+        e.printStackTrace();
+      }
+      
+      try {
+        if (thisRow.get("PROJECT") != null) {
+          String project = thisRow.getString("PROJECT");
+          sv.setProjectName(project);
+        }
+      } catch (Exception e) {
+        out.println("!!!!!!!!!!!!!! Could not process PROJECT for row "+i+" in EFFORT");
+        e.printStackTrace();
+      }
+      
+      try {
+        if (thisRow.get("COMMENTS") != null) {
+          String comments = thisRow.getString("COMMENTS");
+          sv.setProjectName(comments);
+        }
+      } catch (Exception e) {
+        out.println("!!!!!!!!!!!!!! Could not process PROJECT for row "+i+" in EFFORT");
+        e.printStackTrace();
+      }
+      
+      ArrayList<Encounter> encsOnThisDate = null;
+      try {
+        if (thisRow.get("SURVEY AREA") != null) {
+          String surveyArea = thisRow.getString("SURVEY AREA");
+          // Set this on associated encounters too.  
+          st.setLocationID(surveyArea);
+          
+          encsOnThisDate = myShepherd.getEncounterArrayWithShortDate(date);
+          
+          System.out.println("Can we find an enc for this Survey and Track? We have "+encsOnThisDate+" encs to check.");
+          for (Encounter enc : encsOnThisDate) {
+            
+            if (enc.getLocationID() != null ) {
+              System.out.println("(enc:surveyTrack) Location : "+enc.getLocationID()+" = "+st.getLocationID()+" Project : "+enc.getSubmitterProject()+" = "+sv.getProjectName());
+              if (enc.getLocationID().contains(surveyArea) || surveyArea.contains(enc.getLocationID())) {
+                System.out.println("MATCH!!! At least on location ID... ");
+                st.addOccurence(myShepherd.getOccurrence(enc.getOccurrenceID()));
+                sv.addSurveyTrack(st);
+              }
+            }
+          }
+        }
+      } catch (Exception e) {
+        out.println("!!!!!!!!!!!!!! Could not process SURVEY AREA for row "+i+" in EFFORT");
+        out.println(thisRow.toString());
         e.printStackTrace();
       }
       
@@ -929,7 +989,7 @@ public class AccessImport extends HttpServlet {
   private void processBiopsyTable(Table table,Shepherd myShepherd,Table tableDUML) {
     
     ArrayList<String> columnMasterList = getColumnMasterList(table);
-    
+    int success = 0;
     out.println("Biopsy Samples Table has "+table.getRowCount()+" Rows!");
     Row thisRow = null;
     
@@ -983,16 +1043,19 @@ public class AccessImport extends HttpServlet {
       }
       if (occ != null) {
         out.println("Found a date match for this biopsy! Occurrence:"+occ.getPrimaryKeyID()+". Processing Biopsy...");
-        processBiopsyRow(thisRow, occ, myShepherd, columnMasterList); 
+        boolean created = processBiopsyRow(thisRow, occ, myShepherd, columnMasterList); 
+        if (created) {
+          success += 1;          
+        }
       }
      
       
     } 
+    out.println("Successfully created "+success+" tissue samples."); 
   }
   
-  private void processBiopsyRow(Row thisRow, Occurrence occ, Shepherd myShepherd, ArrayList<String> columnMasterList) {
+  private boolean processBiopsyRow(Row thisRow, Occurrence occ, Shepherd myShepherd, ArrayList<String> columnMasterList) {
     
-    int success = 0;
     // We need to link this sample to an Encounter using the date and sighting no.
     //String date = null;
     //String time = null;
@@ -1071,8 +1134,8 @@ public class AccessImport extends HttpServlet {
           }
           
           myShepherd.commitDBTransaction();
-          success += 1;
           System.out.println("Created a Tissue Sample for Occ"+occ.getPrimaryKeyID());
+          return true;
         } catch (Exception e) {
           e.printStackTrace();
           out.println("\nFailed to make the tissue sample.");
@@ -1080,32 +1143,20 @@ public class AccessImport extends HttpServlet {
       }        
     } catch (Exception e) {  
       out.println("\nFailed to validate Occ ID : "+occ.getPrimaryKeyID()+" and sampleID : "+sampleId+" for TissueSample creation.");
+      
     }
      
-    out.println("Successfully created "+success+" tissue samples."); 
     occ.getBaseTissueSampleArrayList().toString();
+    return false;
   }
   
   private void processTags(Row thisRow, Shepherd myShepherd, Occurrence occ) {
     String satTagID = null;
     String dTagID = null;
     
-    Encounter enc = null;
-    ArrayList<Encounter> encArr = occ.getEncounters();
-    
     if (thisRow.get("SatTag_ID") != null || thisRow.get("DTAG_ID") != null) {
       if (thisRow.containsKey("Photo-ID_Code") && thisRow.get("Photo-ID_Code") != null) {
-        for (Encounter thisEnc : encArr) {
-          System.out.println("Looking for ID match to store tags... "+thisEnc.getIndividualID()+" = "+thisRow.getString("Photo-ID_Code")+" ...?");
-          if (thisEnc.hasMarkedIndividual()) {
-            // I guess this is pretty safe? They just seem to have arbitrary location suffix/prefix sometimes. 
-            if (thisEnc.getIndividualID().contains(thisRow.getString("Photo-ID_Code"))||thisRow.getString("Photo-ID_Code").contains(thisEnc.getIndividualID())) {
-              enc = thisEnc;
-              System.out.println("Match!!!");
-            }            
-          }
-        }
-        if (enc != null) {
+        if (occ != null) {
           try {
             System.out.println("Gonna try to make a tag for this Enc.");
             if (thisRow.get("SatTag_ID") != null) {
@@ -1113,16 +1164,16 @@ public class AccessImport extends HttpServlet {
               SatelliteTag st = new SatelliteTag();
               st.setName(satTagID);
               st.setId(Util.generateUUID());
-              enc.setSatelliteTag(st);
-              System.out.println("Created a SatTag for encounter "+enc.getPrimaryKeyID());
+              occ.addBaseSatelliteTag(st);
+              System.out.println("Created a SatTag for occurrence "+occ.getPrimaryKeyID());
             }
             if (thisRow.get("DTAG_ID") != null) {
               dTagID = thisRow.get("DTAG_ID").toString();
               DigitalArchiveTag dt = new DigitalArchiveTag();
               dt.setDTagID(dTagID);
               dt.setId(Util.generateUUID());
-              enc.setDTag(dt);
-              System.out.println("Created a DTag for encounter "+enc.getPrimaryKeyID());
+              occ.addBaseDigitalArchiveTag(dt);
+              System.out.println("Created a DTag for occurrence "+occ.getPrimaryKeyID());
             }       
           } catch (Exception e) {
             e.printStackTrace();

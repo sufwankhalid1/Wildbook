@@ -6,6 +6,10 @@ import javax.persistence.MappedSuperclass;
 
 import org.ecocean.genetics.BiologicalMeasurement;
 import org.ecocean.genetics.TissueSample;
+import org.ecocean.tag.AcousticTag;
+import org.ecocean.tag.DigitalArchiveTag;
+import org.ecocean.tag.MetalTag;
+import org.ecocean.tag.SatelliteTag;
 
 public abstract class FoundationalPropertiesBase implements java.io.Serializable {
 
@@ -33,6 +37,11 @@ public abstract class FoundationalPropertiesBase implements java.io.Serializable
   private ArrayList<Observation> baseObservations = new ArrayList<Observation>();
   private ArrayList<Measurement> baseMeasurements = new ArrayList<Measurement>();
   private ArrayList<TissueSample> baseTissueSamples = new ArrayList<TissueSample>();
+  protected ArrayList<MetalTag> baseMetalTags = new ArrayList<MetalTag>();
+  protected ArrayList<SatelliteTag> baseSatelliteTags = new ArrayList<SatelliteTag>();
+  protected ArrayList<DigitalArchiveTag> baseDigitalArchiveTags = new ArrayList<DigitalArchiveTag>();
+  protected ArrayList<AcousticTag> baseAcousticTags = new ArrayList<AcousticTag>();
+  
   
   public FoundationalPropertiesBase(){};
 
@@ -124,6 +133,104 @@ public abstract class FoundationalPropertiesBase implements java.io.Serializable
     }
     return null;
   }
+  
+  public ArrayList<MetalTag> getBaseMetalTagArrayList() {
+    return baseMetalTags;
+  }
+  public void addBaseMetalTagArrayList(ArrayList<MetalTag> arr) {
+    if (baseMetalTags.isEmpty()) {
+      baseMetalTags=arr;      
+    } else {
+     baseMetalTags.addAll(arr); 
+    }
+  }
+  public void addBaseMetalTag(MetalTag mt) {
+    baseMetalTags.add(mt);
+  }
+  public MetalTag getBaseMetalTagByID(String mtName) {
+    if (baseMetalTags != null && baseMetalTags.size() > 0) {
+      for (MetalTag mt : baseMetalTags) {
+        if (mt.getId() != null && mt.getId().equals(mtName)) {
+          return mt;
+        }
+      }
+    }
+    return null;
+  }
+  
+  public ArrayList<AcousticTag> getBaseAcousticTagArrayList() {
+    return baseAcousticTags;
+  }
+  public void addBaseAcousticTagArrayList(ArrayList<AcousticTag> arr) {
+    if (baseAcousticTags.isEmpty()) {
+      baseAcousticTags=arr;      
+    } else {
+     baseAcousticTags.addAll(arr); 
+    }
+  }
+  public void addBaseAcousticTag(AcousticTag obs) {
+    baseAcousticTags.add(obs);
+  }
+  public AcousticTag getBaseAcousticTagByID(String mtName) {
+    if (baseAcousticTags != null && baseAcousticTags.size() > 0) {
+      for (AcousticTag mt : baseAcousticTags) {
+        if (mt.getId() != null && mt.getId().equals(mtName)) {
+          return mt;
+        }
+      }
+    }
+    return null;
+  }
+  
+  public ArrayList<DigitalArchiveTag> getBaseDigitalArchiveTagArrayList() {
+    return baseDigitalArchiveTags;
+  }
+  public void addBaseDigitalArchiveTagArrayList(ArrayList<DigitalArchiveTag> arr) {
+    if (baseDigitalArchiveTags.isEmpty()) {
+      baseDigitalArchiveTags=arr;      
+    } else {
+     baseDigitalArchiveTags.addAll(arr); 
+    }
+  }
+  public void addBaseDigitalArchiveTag(DigitalArchiveTag dat) {
+    baseDigitalArchiveTags.add(dat);
+  }
+  public DigitalArchiveTag getBaseDigitalArchiveTagByID(String mtName) {
+    if (baseDigitalArchiveTags != null && baseDigitalArchiveTags.size() > 0) {
+      for (DigitalArchiveTag mt : baseDigitalArchiveTags) {
+        if (mt.getId() != null && mt.getId().equals(mtName)) {
+          return mt;
+        }
+      }
+    }
+    return null;
+  }
+  
+  public ArrayList<SatelliteTag> getBaseSatelliteTagArrayList() {
+    return baseSatelliteTags;
+  }
+  public void addBaseSatelliteTagArrayList(ArrayList<SatelliteTag> arr) {
+    if (baseSatelliteTags.isEmpty()) {
+      baseSatelliteTags=arr;      
+    } else {
+     baseSatelliteTags.addAll(arr); 
+    }
+  }
+  public void addBaseSatelliteTag(SatelliteTag st) {
+    baseSatelliteTags.add(st);
+  }
+  public SatelliteTag getBaseSatelliteTagByID(String mtName) {
+    if (baseSatelliteTags != null && baseSatelliteTags.size() > 0) {
+      for (SatelliteTag mt : baseSatelliteTags) {
+        if (mt.getId() != null && mt.getId().equals(mtName)) {
+          return mt;
+        }
+      }
+    }
+    return null;
+  }
+  
+  
   
 }
 

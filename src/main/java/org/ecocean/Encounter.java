@@ -2152,22 +2152,23 @@ the decimal one (Double) .. half tempted to break out a class for this: lat/lon/
     }
 
     public void addMetalTag(MetalTag metalTag) {
-      if (metalTags == null) {
-        metalTags = new ArrayList<MetalTag>();
+      if (super.baseMetalTags == null) {
+        baseMetalTags = new ArrayList<MetalTag>();
       }
       metalTags.add(metalTag);
     }
 
     public void removeMetalTag(MetalTag metalTag) {
-      metalTags.remove(metalTag);
+      baseMetalTags.remove(metalTag);
     }
 
     public List<MetalTag> getMetalTags() {
-      return metalTags;
+      List<MetalTag> metalTagList = super.getBaseMetalTagArrayList().subList(0,super.baseMetalTags.size());
+      return metalTagList;
     }
 
     public MetalTag findMetalTagForLocation(String location) {
-      List<MetalTag> metalTags = getMetalTags();
+      List<MetalTag> metalTags = super.getBaseMetalTagArrayList().subList(0,super.baseMetalTags.size());
       if (metalTags != null) {
         for (MetalTag metalTag : metalTags) {
           if (location.equals(metalTag.getLocation())) {
@@ -2179,27 +2180,60 @@ the decimal one (Double) .. half tempted to break out a class for this: lat/lon/
     }
 
     public AcousticTag getAcousticTag() {
-      return acousticTag;
+      ArrayList<AcousticTag> atgs = this.getBaseAcousticTagArrayList();
+      if (atgs.isEmpty()) {
+        return atgs.get(0);        
+      } else {
+        return null;
+      }
     }
 
     public void setAcousticTag(AcousticTag acousticTag) {
-      this.acousticTag = acousticTag;
+      ArrayList<AcousticTag> atgs = this.getBaseAcousticTagArrayList();
+      if (atgs.size() < 1) {
+        super.addBaseAcousticTag(acousticTag);        
+      } else {
+        super.baseAcousticTags.clear();
+        super.baseAcousticTags.add(acousticTag);
+      }
     }
 
     public SatelliteTag getSatelliteTag() {
-      return satelliteTag;
+      ArrayList<SatelliteTag> stgs = this.getBaseSatelliteTagArrayList();
+      if (stgs.size() > 0) {
+        return stgs.get(0);        
+      } else {
+        return null;
+      }
     }
 
     public void setSatelliteTag(SatelliteTag satelliteTag) {
-      this.satelliteTag = satelliteTag;
+      ArrayList<SatelliteTag> stgs = this.getBaseSatelliteTagArrayList();
+      if (stgs.isEmpty()) {
+        super.addBaseSatelliteTag(satelliteTag);        
+      } else {
+        super.baseSatelliteTags.clear();
+        super.baseSatelliteTags.add(satelliteTag);
+      }
     }
     
     public DigitalArchiveTag getDTag() {
-      return digitalArchiveTag;
+      ArrayList<DigitalArchiveTag> dtgs = this.getBaseDigitalArchiveTagArrayList();
+      if (dtgs.isEmpty()) {
+        return dtgs.get(0);        
+      } else {
+        return null;
+      }
     }
 
     public void setDTag(DigitalArchiveTag dt) {
-      this.digitalArchiveTag = dt;
+      ArrayList<DigitalArchiveTag> dtgs = this.getBaseDigitalArchiveTagArrayList();
+      if (dtgs.isEmpty()) {
+        super.addBaseDigitalArchiveTag(dt);        
+      } else {
+        super.baseDigitalArchiveTags.clear();
+        super.baseDigitalArchiveTags.add(dt);
+      }
     }
 
     public String getLifeStage(){return lifeStage;}

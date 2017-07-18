@@ -47,7 +47,6 @@ public class Occurrence extends FoundationalPropertiesBase {
   private String modified;
   //private String locationID;
   private String dateTimeCreated;
-
   
   // Variables used in the Survey, SurveyTrack, Path, Location model
   
