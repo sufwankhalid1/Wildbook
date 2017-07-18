@@ -268,11 +268,21 @@ console.log(imgEl);
 }
 
 
-var spotTypes = [ 'ref1', 'ref2', 'ref3', 'spot' ];
+//var spotTypes = [ 'ref1', 'ref2', 'ref3', 'spot' ];
+//var spotTypeNames = {
+//	ref1: '5th gill top',
+//	ref2: 'posterior pectoral',
+//	ref3: '5th gill bottom',
+//	spot: 'spot',
+//};
+
+
+var spotTypes = [ 'ref1', 'ref2', 'ref3', 'ref4', 'spot' ];
 var spotTypeNames = {
-	ref1: '5th gill top',
-	ref2: 'posterior pectoral',
-	ref3: '5th gill bottom',
+	ref1: '1st gill (top or upper)',
+	ref2: 'Eye (Top)',
+	ref3: 'Nostril (lower corner)',
+	ref4: 'Mount (lower corner)',
 	spot: 'spot',
 };
 var side = false;
