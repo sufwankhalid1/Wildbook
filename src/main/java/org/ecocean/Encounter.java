@@ -255,9 +255,11 @@ public class Encounter extends FoundationalPropertiesBase {
   private ArrayList<Annotation> annotations;
   private List<Measurement> measurements;
   private List<MetalTag> metalTags;
-  private AcousticTag acousticTag;
-  private SatelliteTag satelliteTag;
-  private DigitalArchiveTag digitalArchiveTag;
+  
+  // These old tag refs have been moved to the bas class! The standard getters and setters should work just fine for single tags.
+  //private AcousticTag acousticTag;
+  //private SatelliteTag satelliteTag;
+  //private DigitalArchiveTag digitalArchiveTag;
 
   private Boolean mmaCompatible = false;
   
@@ -2163,8 +2165,12 @@ the decimal one (Double) .. half tempted to break out a class for this: lat/lon/
     }
 
     public List<MetalTag> getMetalTags() {
-      List<MetalTag> metalTagList = super.getBaseMetalTagArrayList().subList(0,super.baseMetalTags.size());
-      return metalTagList;
+      if (!super.getBaseMetalTagArrayList().isEmpty()) {
+        List<MetalTag> metalTagList = super.getBaseMetalTagArrayList().subList(0,super.baseMetalTags.size());
+        return metalTagList;        
+      } else {
+        return null;
+      }
     }
 
     public MetalTag findMetalTagForLocation(String location) {
@@ -2180,12 +2186,15 @@ the decimal one (Double) .. half tempted to break out a class for this: lat/lon/
     }
 
     public AcousticTag getAcousticTag() {
-      ArrayList<AcousticTag> atgs = this.getBaseAcousticTagArrayList();
-      if (atgs.isEmpty()) {
-        return atgs.get(0);        
-      } else {
-        return null;
+      if (!this.baseAcousticTags.isEmpty()) {
+        ArrayList<AcousticTag> atgs = this.getBaseAcousticTagArrayList();        
+        if (atgs.isEmpty()) {
+          return atgs.get(0);        
+        } else {
+          return null;
+        }
       }
+      return null;
     }
 
     public void setAcousticTag(AcousticTag acousticTag) {
@@ -2199,12 +2208,13 @@ the decimal one (Double) .. half tempted to break out a class for this: lat/lon/
     }
 
     public SatelliteTag getSatelliteTag() {
-      ArrayList<SatelliteTag> stgs = this.getBaseSatelliteTagArrayList();
-      if (stgs.size() > 0) {
-        return stgs.get(0);        
-      } else {
-        return null;
-      }
+      if (!super.baseSatelliteTags.isEmpty()) {
+        ArrayList<SatelliteTag> stgs = this.getBaseSatelliteTagArrayList();
+        if (stgs.size() > 0) {
+          return stgs.get(0);        
+        }   
+      } 
+      return null;
     }
 
     public void setSatelliteTag(SatelliteTag satelliteTag) {

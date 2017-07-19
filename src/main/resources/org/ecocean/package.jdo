@@ -407,17 +407,6 @@
         <join/>
       </field>
 
-      <field name="metalTags" persistence-modifier="persistent" default-fetch-group="true">
-        <collection element-type="org.ecocean.tag.MetalTag" dependent-element="true"/>
-        <join/>
-      </field>
-
-      <field name="acousticTag" persistence-modifier="persistent"></field>
-
-      <field name="satelliteTag" persistence-modifier="persistent"></field>
-      
-      <field name="digitalArchiveTag" persistence-modifier="persistent"></field>
-
       <fetch-group name="allSharks_min">
         <field name="approved"/>
       </fetch-group>
