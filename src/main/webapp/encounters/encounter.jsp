@@ -4785,9 +4785,10 @@ $(document).ready(function() {
 								int numObservations = enc.getBaseObservationArrayList().size();
 								for (Observation ob : obs) {
 									
-									
 									String nm = ob.getName();
 									String vl = ob.getValue();
+									System.out.println("Name ??? : "+nm);
+									System.out.println("Value ??? : "+vl);
 				%>
 				<p class="para">
 					<em><%=nm%></em>:
@@ -4810,7 +4811,9 @@ $(document).ready(function() {
 
 					<form name="addDynProp" action="../BaseClassSetObservation"
 						method="post" class="editFormDynamic">
-						<input name="name" type="hidden" size="10" value="<%=nm%>" /> 
+						<%System.out.println("Naaaammmeee ???? "+nm);%>
+						<%System.out.println("Naaaammmeee ???? "+vl);%>
+						<input name="name" type="hidden" value="<%=nm%>" /> 
 						<input name="number" type="hidden" value="<%=num%>" />
 						<!-- This servlet can handle encounters or occurrences, so you have to pass it the Type!  -->
 						<input name="type" type="hidden" value="Encounter" />
@@ -4820,7 +4823,7 @@ $(document).ready(function() {
 							</div>
 							<div class="col-sm-5">
 								<input name="value" type="text" class="form-control"
-									id="dynInput" value="<%=vl%>" />
+									id="dynInput" value="<%=vl%>"/>
 							</div>
 							<div class="col-sm-4">
 								<input name="Set" type="submit" id="dynEdit"

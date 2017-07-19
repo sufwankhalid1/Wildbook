@@ -106,13 +106,16 @@ public abstract class FoundationalPropertiesBase implements java.io.Serializable
   public void removeObservation(String name) {
     int counter = 0;
     if (baseObservations != null && baseObservations.size() > 0) {
+      System.out.println("Looking for the Observation to delete...");
       for (Observation ob : baseObservations) {
-        counter++;
         if (ob.getName() != null) {
           if (ob.getName().toLowerCase().trim().equals(name.toLowerCase().trim())) {
+             System.out.println("Match! Trying to delete Observation "+name+" at index "+counter);
              baseObservations.remove(counter);
+             break;
           }
         }
+        counter++;
       }
     }  
   } 
