@@ -2188,7 +2188,7 @@ the decimal one (Double) .. half tempted to break out a class for this: lat/lon/
     public AcousticTag getAcousticTag() {
       if (!this.baseAcousticTags.isEmpty()) {
         ArrayList<AcousticTag> atgs = this.getBaseAcousticTagArrayList();        
-        if (atgs.isEmpty()) {
+        if (!atgs.isEmpty()) {
           return atgs.get(0);        
         } else {
           return null;
@@ -2199,7 +2199,7 @@ the decimal one (Double) .. half tempted to break out a class for this: lat/lon/
 
     public void setAcousticTag(AcousticTag acousticTag) {
       ArrayList<AcousticTag> atgs = this.getBaseAcousticTagArrayList();
-      if (atgs.size() < 1) {
+      if (atgs.isEmpty()) {
         super.addBaseAcousticTag(acousticTag);        
       } else {
         super.baseAcousticTags.clear();
@@ -2210,7 +2210,7 @@ the decimal one (Double) .. half tempted to break out a class for this: lat/lon/
     public SatelliteTag getSatelliteTag() {
       if (!super.baseSatelliteTags.isEmpty()) {
         ArrayList<SatelliteTag> stgs = this.getBaseSatelliteTagArrayList();
-        if (stgs.size() > 0) {
+        if (!stgs.isEmpty()) {
           return stgs.get(0);        
         }   
       } 
@@ -2229,7 +2229,7 @@ the decimal one (Double) .. half tempted to break out a class for this: lat/lon/
     
     public DigitalArchiveTag getDTag() {
       ArrayList<DigitalArchiveTag> dtgs = this.getBaseDigitalArchiveTagArrayList();
-      if (dtgs.isEmpty()) {
+      if (!dtgs.isEmpty()) {
         return dtgs.get(0);        
       } else {
         return null;

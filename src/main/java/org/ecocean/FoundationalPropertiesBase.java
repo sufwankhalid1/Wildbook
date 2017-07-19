@@ -63,13 +63,31 @@ public abstract class FoundationalPropertiesBase implements java.io.Serializable
     }
   }
   public void addObservation(Observation obs) {
-    baseObservations.add(obs);
+    boolean found = false;
+    System.out.println("Adding Observation in Base Class... : "+obs.toString());
+    if (baseObservations != null && baseObservations.size() > 0) {
+      for (Observation ob : baseObservations) {
+        if (ob.getName() != null) {
+          if (ob.getName().toLowerCase().trim().equals(obs.getName().toLowerCase().trim())) {
+             found = true;
+             break;
+          }
+        }
+      } 
+      if (!found) {
+        baseObservations.add(obs);        
+      }
+    } else {
+      baseObservations.add(obs);
+    }
   }
   public Observation getObservationByName(String obName) {
     if (baseObservations != null && baseObservations.size() > 0) {
       for (Observation ob : baseObservations) {
-        if (ob.getName() != null && ob.getName().equals(obName)) {
-          return ob;
+        if (ob.getName() != null) {
+          if (ob.getName().toLowerCase().trim().equals(obName.toLowerCase().trim())) {
+            return ob;            
+          }
         }
       }
     }
@@ -85,6 +103,19 @@ public abstract class FoundationalPropertiesBase implements java.io.Serializable
     }
     return null;
   }
+  public void removeObservation(String name) {
+    int counter = 0;
+    if (baseObservations != null && baseObservations.size() > 0) {
+      for (Observation ob : baseObservations) {
+        counter++;
+        if (ob.getName() != null) {
+          if (ob.getName().toLowerCase().trim().equals(name.toLowerCase().trim())) {
+             baseObservations.remove(counter);
+          }
+        }
+      }
+    }  
+  } 
 
   public ArrayList<Measurement> getBaseMeasurementArrayList() {
     return baseMeasurements;

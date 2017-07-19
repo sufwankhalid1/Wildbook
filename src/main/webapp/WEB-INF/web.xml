@@ -937,18 +937,6 @@
     <servlet-class>org.ecocean.servlet.importer.AccessImport</servlet-class>
   </servlet>
 
-
-  <servlet>
-    <servlet-name>TissueSampleSetMicrosatelliteMarkers</servlet-name>
-    <servlet-class>org.ecocean.servlet.TissueSampleSetMicrosatelliteMarkers</servlet-class>
-  </servlet>
-
-    <servlet>
-      <servlet-name>TissueSampleSetSexAnalysis</servlet-name>
-      <servlet-class>org.ecocean.servlet.TissueSampleSetSexAnalysis</servlet-class>
-  </servlet>
-
-
       <servlet>
         <servlet-name>GenalexExportCodominantMSDataBySize</servlet-name>
         <servlet-class>org.ecocean.servlet.export.GenalexExportCodominantMSDataBySize</servlet-class>
@@ -958,13 +946,6 @@
     <servlet-name>EncounterSetGPS</servlet-name>
     <servlet-class>org.ecocean.servlet.EncounterSetGPS</servlet-class>
   </servlet>
-
-  <servlet>
-    <servlet-name>EncounterDelete</servlet-name>
-    <servlet-class>org.ecocean.servlet.EncounterDelete</servlet-class>
-  </servlet>
-
-
 
   <servlet>
     <servlet-name>EncounterAddComment</servlet-name>
@@ -1240,6 +1221,11 @@
   <servlet>
     <servlet-name>OccurrenceClusterMASet</servlet-name>
     <servlet-class>org.ecocean.servlet.OccurrenceClusterMASet</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>BaseClassSetObservation</servlet-name>
+    <servlet-class>org.ecocean.servlet.BaseClassSetObservation</servlet-class>
   </servlet>
 
 
@@ -2028,11 +2014,6 @@
   </servlet-mapping>
 
       <servlet>
-      <servlet-name>UserCreateSocial</servlet-name>
-      <servlet-class>org.ecocean.servlet.UserCreateSocial</servlet-class>
-  </servlet>
-
-      <servlet>
       	<servlet-name>LoginUserSocial</servlet-name>
       	<servlet-class>org.ecocean.servlet.LoginUserSocial</servlet-class>
    </servlet>
@@ -2042,5 +2023,9 @@
     <url-pattern>/LoginUserSocial</url-pattern>
   </servlet-mapping>
 
+ <servlet-mapping>
+    <servlet-name>BaseClassSetObservation</servlet-name>
+    <url-pattern>/BaseClassSetObservation</url-pattern>
+  </servlet-mapping>
 
 </web-app>
