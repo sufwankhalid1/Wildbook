@@ -35,7 +35,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 public class StartupWildbook implements ServletContextListener {
 
-  
   ScheduledExecutorService schedExec = null;
   ScheduledFuture schedFuture = null;
   // this function is automatically run on webapp init
