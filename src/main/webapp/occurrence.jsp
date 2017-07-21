@@ -1,6 +1,8 @@
 <%@ page contentType="text/html; charset=utf-8" language="java"
          import="javax.jdo.Query,org.ecocean.*,org.ecocean.servlet.ServletUtilities,java.io.File, java.util.*, org.ecocean.genetics.*, org.ecocean.security.Collaboration, 
          com.google.gson.Gson,
+         org.ecocean.*,
+         org.ecocean.tag.*,
          org.datanucleus.api.rest.orgjson.JSONObject
          " %>
 
@@ -665,8 +667,122 @@ $(document).ready(function() {
 				
 	</div>			
 	<div class="col-md-6">
-	  <!-- Biopsy's -->
-		<h2>Biopsy Table...</h2>
+	  <!-- Tags's -->
+		<h2>Tags Table</h2>
+		<%
+		ArrayList<MetalTag> metalTags = null;
+		ArrayList<AcousticTag> acousticTags = null;
+		ArrayList<DigitalArchiveTag> dTags = null;
+		ArrayList<SatelliteTag> satTags = null;
+		
+		if (sharky.getBaseMetalTagArrayList() != null) {
+			metalTags = sharky.getBaseMetalTagArrayList();	
+		} 
+		if (sharky.getBaseAcousticTagArrayList() != null) {
+			acousticTags = sharky.getBaseAcousticTagArrayList();	
+		} 
+		if (sharky.getBaseDigitalArchiveTagArrayList() != null) {
+			dTags = sharky.getBaseDigitalArchiveTagArrayList();	
+		} 
+		if (sharky.getBaseSatelliteTagArrayList() != null) {
+			satTags = sharky.getBaseSatelliteTagArrayList();	
+		} 
+		%>
+		<ul>
+			<% if (metalTags != null) { %>
+				<h3>Metal Tags</h3>
+			<% 	
+				for (MetalTag mt : metalTags) {
+			%>
+					<li>
+						<p><label>ID :</label></p>
+						<p><%=mt.getId()%></p>
+						<p><label>Location :</label></p>
+						<p><%=mt.getLocation()%></p>
+						<p><label>Name :</label></p>
+						<p><%=mt.getTagNumber()%></p>
+					</li>
+			<% 	
+				}
+			} else {
+			%>	
+				<label>None</label>
+			<% 	
+			}
+			%>		
+		</ul>
+		
+		<ul>
+			<% if (acousticTags != null) { %>
+				<h3>Acoustic Tags</h3>
+			<% 
+				for (AcousticTag at : acousticTags) {
+			%>
+					<li>
+						<p><label>ID :</label></p>
+						<p><%=at.getId()%></p>
+						<p><label>Serial Number :</label></p>
+						<p><%=at.getSerialNumber()%></p>
+
+					</li>
+			<% 	
+				}
+			} else {
+			%>	
+				<label>None</label>
+			<% 	
+			}
+			%>			
+		</ul>
+		
+		<ul>
+			<% if (dTags != null) { %>
+				<h3>Digital Archive Tags</h3>
+			<% 
+				for (DigitalArchiveTag dat : dTags) {
+			%>
+					<li>
+						<p><label>ID :</label></p>
+						<p><%=dat.getId()%></p>
+						<p><label>SerialNumber :</label></p>
+						<p><%=dat.getSerialNumber()%></p>
+					</li>
+			<% 	
+				}
+			} else {
+			%>	
+				<label>None</label>
+			<% 	
+			}
+			%>		
+		</ul>
+		
+		<ul>
+			<% if (satTags != null) { %>
+				<h3>Satellite Tags</h3>
+			<% 
+				for (SatelliteTag st : satTags) {
+			%>
+					<li>
+						<p><label>ID :</label></p>
+						<p><%=st.getId()%></p>
+						<p><label>Name :</label></p>
+						<p><%=st.getName()%></p>
+						<p><label>Serial Number :</label></p>
+						<p><%=st.getSerialNumber()%></p>
+						<p><label>Argos Ptt Number :</label></p>
+						<p><%=st.getArgosPttNumber()%></p>
+
+					</li>
+			<% 	
+				}
+			} else {
+			%>	
+				<label>None</label>
+			<% 	
+			}
+			%>		
+		</ul>
 
 	</div>
 </div>
