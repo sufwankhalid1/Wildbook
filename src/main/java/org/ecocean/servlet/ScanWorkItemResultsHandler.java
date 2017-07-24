@@ -244,7 +244,7 @@ private void finishScanTask(String scanTaskID, HttpServletRequest request) {
     URL u=null;
     //InputStream inputStreamFromServlet=null;
     //BufferedReader in=null;
-    HttpURLConnection finishConnection=null;
+    URLConnection finishConnection=null;
     DataOutputStream wr=null;
     
     try {
