@@ -1,10 +1,6 @@
 package org.ecocean;
 
 import java.util.ArrayList;
-
-import javax.persistence.MappedSuperclass;
-
-import org.ecocean.genetics.BiologicalMeasurement;
 import org.ecocean.genetics.TissueSample;
 import org.ecocean.tag.AcousticTag;
 import org.ecocean.tag.DigitalArchiveTag;
@@ -40,7 +36,7 @@ public abstract class FoundationalPropertiesBase implements java.io.Serializable
   protected ArrayList<MetalTag> baseMetalTags = new ArrayList<MetalTag>();
   protected ArrayList<SatelliteTag> baseSatelliteTags = new ArrayList<SatelliteTag>();
   protected ArrayList<DigitalArchiveTag> baseDigitalArchiveTags = new ArrayList<DigitalArchiveTag>();
-  protected ArrayList<AcousticTag> baseAcousticTags = new ArrayList<AcousticTag>();
+  protected ArrayList<AcousticTag> baseAcousticTags = new ArrayList<AcousticTag>();  
   
   
   public FoundationalPropertiesBase(){};
@@ -263,8 +259,6 @@ public abstract class FoundationalPropertiesBase implements java.io.Serializable
     }
     return null;
   }
-  
-  
   
 }
 

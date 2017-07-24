@@ -122,7 +122,7 @@ public class AccessImport extends HttpServlet {
     out.println("\nI already have "+numEncs+" encounters in tha database.\n");
     
     // These switches allow you to work on different tables without doing the whole import a bunch iof times.
-    boolean dumlTableSwitch = true;
+    boolean dumlTableSwitch = false;
     if (dumlTableSwitch) {    
       try {
         out.println("********************* Let's process the DUML Table!\n");
@@ -136,7 +136,7 @@ public class AccessImport extends HttpServlet {
       }
     }  
     
-    boolean sightingsTableSwitch = true;
+    boolean sightingsTableSwitch = false;
     if (sightingsTableSwitch) {
       try {
         out.println("********************* Let's process the SIGHTINGS Table!\n");
@@ -160,7 +160,7 @@ public class AccessImport extends HttpServlet {
       }      
     }
     
-    boolean effortTableSwitch = true;
+    boolean effortTableSwitch = false;
     if (effortTableSwitch) {
       try {
         out.println("********************* Let's process the EFFORT Table!\n");
@@ -171,8 +171,6 @@ public class AccessImport extends HttpServlet {
         out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Could not process Effort table!!!");
       }      
     }
-    
-    
     
     myShepherd.commitDBTransaction();
     myShepherd.closeDBTransaction();
@@ -772,6 +770,11 @@ public class AccessImport extends HttpServlet {
           myShepherd.beginDBTransaction();
           
           st = new SurveyTrack(sv);
+          myShepherd.getPM().makePersistent(st);
+          myShepherd.commitDBTransaction();
+          myShepherd.beginDBTransaction();
+          
+          sv.addSurveyTrack(st);
         }
       } catch (Exception e) {
         out.println("!!!!!!!!!!!!!! Could not process a DATE for row "+i+" in EFFORT");
@@ -823,7 +826,7 @@ public class AccessImport extends HttpServlet {
       try {
         if (thisRow.get("COMMENTS") != null) {
           String comments = thisRow.getString("COMMENTS");
-          sv.setProjectName(comments);
+          sv.addComments(comments);
         }
       } catch (Exception e) {
         out.println("!!!!!!!!!!!!!! Could not process PROJECT for row "+i+" in EFFORT");
@@ -839,17 +842,22 @@ public class AccessImport extends HttpServlet {
           
           encsOnThisDate = myShepherd.getEncounterArrayWithShortDate(date);
           
-          System.out.println("Can we find an enc for this Survey and Track? We have "+encsOnThisDate+" encs to check.");
+          //System.out.println("Can we find an enc for this Survey and Track? We have "+encsOnThisDate+" encs to check.");
+          boolean valid = false;
           for (Encounter enc : encsOnThisDate) {
             
             if (enc.getLocationID() != null ) {
-              System.out.println("(enc:surveyTrack) Location : "+enc.getLocationID()+" = "+st.getLocationID()+" Project : "+enc.getSubmitterProject()+" = "+sv.getProjectName());
+              //System.out.println("(enc:surveyTrack) Location : "+enc.getLocationID()+" = "+st.getLocationID()+" Project : "+enc.getSubmitterProject()+" = "+sv.getProjectName());
               if (enc.getLocationID().contains(surveyArea) || surveyArea.contains(enc.getLocationID())) {
-                System.out.println("MATCH!!! At least on location ID... ");
+                System.out.println("MATCH!!! At least on location ID... (enc:surveyTrack) Location : "+enc.getLocationID()+" = "+st.getLocationID()+" Project : "+enc.getSubmitterProject()+" = "+sv.getProjectName());
                 st.addOccurence(myShepherd.getOccurrence(enc.getOccurrenceID()));
                 sv.addSurveyTrack(st);
+                valid = true;
               }
             }
+          }
+          if (!valid) {
+            System.out.println("There was no encounter to associate with this survey. You should handle that.");
           }
         }
       } catch (Exception e) {
@@ -1048,26 +1056,17 @@ public class AccessImport extends HttpServlet {
           success += 1;          
         }
       }
-     
-      
+       
     } 
     out.println("Successfully created "+success+" tissue samples."); 
   }
   
   private boolean processBiopsyRow(Row thisRow, Occurrence occ, Shepherd myShepherd, ArrayList<String> columnMasterList) {
     
-    // We need to link this sample to an Encounter using the date and sighting no.
-    //String date = null;
-    //String time = null;
-    //Long milliTime = null;
-    //String sightNo = null;
     String sampleId = null;
-  
     // The name sampleID is kinda deceptive for internal wildbook purposes. This ID is only unique for successful biopsy attempts..
     // Unsuccessful biopsys are still recorded as a TissueSample object, as requested. It belongs in the STATE column of the sample.
-    
     TissueSample ts = null;
-  
     try {
       if (occ != null) { 
         try {
@@ -1081,7 +1080,6 @@ public class AccessImport extends HttpServlet {
             String permit = null;
             String sex = null;
             String sampleID = null;
-            
             
             // These fields are the anchors for the tissue sample. Minimum data needed for an entry.
             columnMasterList.remove("Permit");
@@ -1154,39 +1152,34 @@ public class AccessImport extends HttpServlet {
     String satTagID = null;
     String dTagID = null;
     
-    if (thisRow.get("SatTag_ID") != null || thisRow.get("DTAG_ID") != null) {
-      if (thisRow.containsKey("Photo-ID_Code") && thisRow.get("Photo-ID_Code") != null) {
-        if (occ != null) {
-          try {
-            System.out.println("Gonna try to make a tag for this Enc.");
-            if (thisRow.get("SatTag_ID") != null) {
-              satTagID = thisRow.get("SatTag_ID").toString();
-              SatelliteTag st = new SatelliteTag();
-              st.setName(satTagID);
-              st.setId(Util.generateUUID());
-              occ.addBaseSatelliteTag(st);
-              System.out.println("Created a SatTag for occurrence "+occ.getPrimaryKeyID());
-            }
-            if (thisRow.get("DTAG_ID") != null) {
-              dTagID = thisRow.get("DTAG_ID").toString();
-              DigitalArchiveTag dt = new DigitalArchiveTag();
-              dt.setDTagID(dTagID);
-              dt.setId(Util.generateUUID());
-              occ.addBaseDigitalArchiveTag(dt);
-              System.out.println("Created a DTag for occurrence "+occ.getPrimaryKeyID());
-            }       
-          } catch (Exception e) {
-            e.printStackTrace();
-            out.println("Caught exception while creating tags for biopsy.");
+    if (thisRow.get("SatTag_ID") != null || thisRow.get("DTAG_ID") != null) { 
+      if (occ != null) {
+        try {
+          System.out.println("Gonna try to make a tag for this Enc.");
+          if (thisRow.get("SatTag_ID") != null) {
+            satTagID = thisRow.get("SatTag_ID").toString();
+            SatelliteTag st = new SatelliteTag();
+            st.setName(satTagID);
+            st.setId(Util.generateUUID());
+            occ.addBaseSatelliteTag(st);
+            System.out.println("Created a SatTag for occurrence "+occ.getPrimaryKeyID());
+          }
+          if (thisRow.get("DTAG_ID") != null) {
+            dTagID = thisRow.get("DTAG_ID").toString();
+            DigitalArchiveTag dt = new DigitalArchiveTag();
+            dt.setDTagID(dTagID);
+            dt.setId(Util.generateUUID());
+            occ.addBaseDigitalArchiveTag(dt);
+            System.out.println("Created a DTag for occurrence "+occ.getPrimaryKeyID());
           }       
-        } else {
-          System.out.println("Didn't find an encounter to add this tag ");
-        }      
+        } catch (Exception e) {
+          e.printStackTrace();
+          out.println("Caught exception while creating tags for biopsy.");
+        }       
       } else {
-        System.out.println("No Photo ID present for this row.");
-      }      
+        System.out.println("Didn't find an encounter to add this tag ");
+      }           
     }
-    
   }
   
   private void buildEncounterDuplicationMap(Table table, Shepherd myShepherd) {

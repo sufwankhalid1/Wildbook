@@ -667,8 +667,8 @@ $(document).ready(function() {
 				
 	</div>			
 	<div class="col-md-6">
-	  <!-- Tags's -->
-		<h2>Tags Table</h2>
+	  <!-- Tags's! All sorts! -->
+		<h2><img align="absmiddle" src="../images/Crystal_Clear_app_starthere.png" width="40px" height="40px" />Tags Table</h2>
 		<%
 		ArrayList<MetalTag> metalTags = null;
 		ArrayList<AcousticTag> acousticTags = null;
@@ -689,8 +689,8 @@ $(document).ready(function() {
 		} 
 		%>
 		<ul>
-			<% if (metalTags != null) { %>
-				<h3>Metal Tags</h3>
+			<h3>Metal Tags</h3>
+			<% if (metalTags.size() > 0 ) { %>
 			<% 	
 				for (MetalTag mt : metalTags) {
 			%>
@@ -706,15 +706,15 @@ $(document).ready(function() {
 				}
 			} else {
 			%>	
-				<label>None</label>
+				<p><label>None</label></p>
 			<% 	
 			}
 			%>		
 		</ul>
 		
 		<ul>
-			<% if (acousticTags != null) { %>
-				<h3>Acoustic Tags</h3>
+			<h4>Acoustic Tags</h4>
+			<% if (acousticTags.size() > 0) { %>
 			<% 
 				for (AcousticTag at : acousticTags) {
 			%>
@@ -729,15 +729,15 @@ $(document).ready(function() {
 				}
 			} else {
 			%>	
-				<label>None</label>
+				<p><label>None</label></p>
 			<% 	
 			}
 			%>			
 		</ul>
 		
 		<ul>
-			<% if (dTags != null) { %>
-				<h3>Digital Archive Tags</h3>
+			<h4>Digital Archive Tags</h4>
+			<% if (dTags.size() > 0) { %>
 			<% 
 				for (DigitalArchiveTag dat : dTags) {
 			%>
@@ -751,15 +751,15 @@ $(document).ready(function() {
 				}
 			} else {
 			%>	
-				<label>None</label>
+				<p><label>None</label></p>
 			<% 	
 			}
 			%>		
 		</ul>
 		
 		<ul>
-			<% if (satTags != null) { %>
-				<h3>Satellite Tags</h3>
+			<h4>Satellite Tags</h4>
+			<% if (satTags.size() > 0) { %>
 			<% 
 				for (SatelliteTag st : satTags) {
 			%>
@@ -778,7 +778,7 @@ $(document).ready(function() {
 				}
 			} else {
 			%>	
-				<label>None</label>
+				<p><label>None</label></p>
 			<% 	
 			}
 			%>		
@@ -790,6 +790,86 @@ $(document).ready(function() {
 
 
 <br/>
+
+<div class="row">
+	<div class="col-xs-12">
+		<br>
+		<br>
+		<div>
+			<h2>Biopsies</h2>
+				<table id="results" width="100%">
+  					<tr class="lineitem">
+     					<td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("date") %></strong></td>
+    					<td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("individualID") %></strong></td>
+    					<td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("permit") %></strong></td>
+    					<td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("state") %></strong></td>
+    					<td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("sampleID") %></strong></td>
+   						<td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("sex") %></td>
+						<h2><%=sharky.getBaseTissueSampleArrayList().size()%></h2>
+					</tr>
+						<%for (TissueSample biopsy : sharky.getBaseTissueSampleArrayList()) {%>
+						<tr>
+	  					    <td class="lineitem">
+							    <%if(biopsy.getObservationByName("DATE")!=null){%>
+							    <%=biopsy.getObservationByName("DATE").getValue() %>
+							    <%}else{%>
+							    &nbsp;
+							    <%}%>
+						    </td>
+						    
+						    <td class="lineitem">
+							    <%if(biopsy.getObservationByName("Photo-ID_Code")!=null){
+							    String url = rootWebappPath + "/individuals.jsp" + biopsy.getObservationByName("Photo-ID_Code").getValue();
+							    %>
+							    <a href="<%=url%>" ><%=biopsy.getObservationByName("Photo-ID_Code").getValue()%></a>
+							    
+							    <%}else{%>
+							    &nbsp;
+							    <%}%>
+						    </td>
+						    
+						    <td class="lineitem">
+							    <%if(biopsy.getPermit()!=null){%>
+							    <%=biopsy.getPermit()%>
+							    <%}else{%>
+							    &nbsp;
+							    <%}%>
+						    </td>
+						    
+						    <td class="lineitem">
+							    <%if(biopsy.getState()!=null){%>
+							    <%=biopsy.getState()%>
+							    <%}else{%>
+							    &nbsp;
+							    <%}%>
+						    </td>
+						    
+						    <td class="lineitem">
+							    <%if(biopsy.getSampleID()!=null){%>
+							    <%=biopsy.getSampleID()%>
+							    <%}else{%>
+							    &nbsp;
+							    <%}%>
+						    </td>
+						    
+						    <td class="lineitem">
+							    <%if(biopsy.getObservationByName("Conf_sex")!=null){%>
+							    <%=biopsy.getObservationByName("Conf_sex").getValue()%>
+							    <%}else{%>
+							    &nbsp;
+							    <%}%>
+						    </td>
+						<%}%>
+		  		 		</tr>
+  				</table>				
+		</div>
+		<br>
+		<br>
+	</div>
+
+</div>
+
+
 
 <!-- Here's the map table...  -->
 <table>
