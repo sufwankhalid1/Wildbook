@@ -313,7 +313,7 @@ if(request.getParameter("encounterNumber")!=null){
 %>
 
 <div class="my-gallery" id="enc-gallery" itemscope itemtype="http://schema.org/ImageGallery"> </div>
-<script src='//<%=CommonConfiguration.getURLLocation(request) %>/javascript/imageDisplayTools.js'></script>
+<script src='//<%=CommonConfiguration.getURLLocation(request) %>/javascript/imageDisplayTools.js?random=1234'></script>
 
 
 
