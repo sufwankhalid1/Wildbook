@@ -41,6 +41,7 @@ import java.io.ObjectInputStream;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.net.HttpURLConnection;
 import javax.net.ssl.HttpsURLConnection;
 import java.io.DataOutputStream;
@@ -262,6 +263,7 @@ private void finishScanTask(String scanTaskID, HttpServletRequest request) {
       
       if(request.getScheme().equals("https")){
         finishConnection = (HttpsURLConnection)u.openConnection();
+        
       }
       else{
         finishConnection = (HttpURLConnection)u.openConnection();
@@ -269,8 +271,7 @@ private void finishScanTask(String scanTaskID, HttpServletRequest request) {
       
       finishConnection.setDoOutput( true );
       finishConnection.setDoInput ( true );
-      finishConnection.setInstanceFollowRedirects( false );
-      finishConnection.setRequestMethod( "POST" );
+
       finishConnection.setRequestProperty( "Content-Type", "application/x-www-form-urlencoded"); 
       finishConnection.setRequestProperty( "charset", "utf-8");
       finishConnection.setRequestProperty( "Content-Length", Integer.toString( postDataLength ));
@@ -281,7 +282,7 @@ private void finishScanTask(String scanTaskID, HttpServletRequest request) {
       wr.flush();
       //wr.close();
    
-      int responseCode = finishConnection.getResponseCode();
+      int responseCode = ((HttpURLConnection)finishConnection).getResponseCode();
 
       //System.out.println("     Post parameters : " + urlParameters);
       System.out.println("     Response Code : " + responseCode);
@@ -320,7 +321,7 @@ private void finishScanTask(String scanTaskID, HttpServletRequest request) {
     finally{
       try{
         wr.close();
-        finishConnection.disconnect();
+        ((HttpURLConnection)finishConnection).disconnect();
         finishConnection=null;
         wr=null;
         //inputStreamFromServlet.close();
