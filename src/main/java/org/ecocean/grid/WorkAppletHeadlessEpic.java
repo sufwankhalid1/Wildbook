@@ -87,7 +87,7 @@ public class WorkAppletHeadlessEpic {
 
   public static void main(String args[]) {
 
-    urlArray.add("http://sevengill.oceansanctuaries.org");
+    urlArray.add("https://sevengill.oceansanctuaries.org");
 
 
     WorkAppletHeadlessEpic a = new WorkAppletHeadlessEpic();
