@@ -122,7 +122,7 @@ public class AccessImport extends HttpServlet {
     out.println("\nI already have "+numEncs+" encounters in tha database.\n");
     
     // These switches allow you to work on different tables without doing the whole import a bunch iof times.
-    boolean dumlTableSwitch = false;
+    boolean dumlTableSwitch = true;
     if (dumlTableSwitch) {    
       try {
         out.println("********************* Let's process the DUML Table!\n");
@@ -136,7 +136,7 @@ public class AccessImport extends HttpServlet {
       }
     }  
     
-    boolean sightingsTableSwitch = false;
+    boolean sightingsTableSwitch = true;
     if (sightingsTableSwitch) {
       try {
         out.println("********************* Let's process the SIGHTINGS Table!\n");
@@ -145,6 +145,18 @@ public class AccessImport extends HttpServlet {
         out.println(e);
         e.printStackTrace();
         out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Could not process SIGHTINGS table!!!");
+      }      
+    }
+    
+    boolean effortTableSwitch = true;
+    if (effortTableSwitch) {
+      try {
+        out.println("********************* Let's process the EFFORT Table!\n");
+        processEffortTable(db.getTable("EFFORT"), myShepherd);
+      } catch (Exception e) {
+        out.println(e);
+        e.printStackTrace();
+        out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Could not process Effort table!!!");
       }      
     }
     
@@ -160,17 +172,6 @@ public class AccessImport extends HttpServlet {
       }      
     }
     
-    boolean effortTableSwitch = false;
-    if (effortTableSwitch) {
-      try {
-        out.println("********************* Let's process the EFFORT Table!\n");
-        processEffortTable(db.getTable("EFFORT"), myShepherd);
-      } catch (Exception e) {
-        out.println(e);
-        e.printStackTrace();
-        out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Could not process Effort table!!!");
-      }      
-    }
     
     myShepherd.commitDBTransaction();
     myShepherd.closeDBTransaction();
@@ -679,7 +680,7 @@ public class AccessImport extends HttpServlet {
   
   private void processRemainingColumnsAsObservations(Object obj, ArrayList<String> columnMasterList, Row thisRow) {
     //Lets grab every other little thing in the Column master list and try to process it without the whole thing blowing up.
-    // Takes an Encounter, or an Occurrence! Whoa! 
+    // Takes an Encounter, or an Occurrence! Whoa! Even a TissueSample! 
     
     // Lets make this work for the new obs added to the DataCollectionEvent...
     Encounter enc = null;
@@ -732,7 +733,7 @@ public class AccessImport extends HttpServlet {
         out.println("YEAH!!! added these observations to Encounter "+id+" : "+newObs);
       } catch (Exception e) {
         e.printStackTrace();
-        out.println("Failed to add the array of observations to this encounter.");
+        out.println("Failed to add the array of observations to this object.");
       }        
     }
   }
@@ -1090,13 +1091,14 @@ public class AccessImport extends HttpServlet {
             columnMasterList.remove("Sample_ID");
             if (thisRow.get("Sample_ID") != null) {
               sampleID = thisRow.get("Sample_ID").toString();
+              
               if (sampleID.toLowerCase().contains("miss")) {
-                ts.setState("MISS");
+                ts.setState("Miss");
               }
               if (sampleID.toLowerCase().contains("hit no sample")) {
-                ts.setState("HIT - NO SAMPLE");
+                ts.setState("Hit - No Sample");
               } else {
-                ts.setState("SAMPLED");
+                ts.setState("Sampled");
               }
             }
             columnMasterList.remove("Vessel");
@@ -1104,13 +1106,16 @@ public class AccessImport extends HttpServlet {
               String vessel = null;
               vessel = thisRow.getString("Vessel").toString();
               //TODO there really isn't much we can do with this until we get a survey associated. 
-              // I guess we better process the EFFORT table before this. 
+              // I guess we better process the EFFORT table before the biopsy table. 
             }
               
             // This should grab physical and satellite tags. Separated for clarity.
             processTags(thisRow, myShepherd, occ);
             columnMasterList.remove("DTAG_ID");
             columnMasterList.remove("SatTag_ID");
+            
+            // This does exactly what it sounds like it does.
+            processRemainingColumnsAsObservations(ts, columnMasterList, thisRow);
             
             if (thisRow.get("Conf_sex") != null) {
               // One of the fields will be a SexAnalysis/BiologicalMeasurement stored on the tissue sample.
@@ -1121,7 +1126,6 @@ public class AccessImport extends HttpServlet {
               myShepherd.beginDBTransaction();
               ts.addGeneticAnalysis(sexAnalysis);
             }
-            columnMasterList.remove("Conf_sex");
             myShepherd.getPM().makePersistent(ts);
             myShepherd.commitDBTransaction();
             myShepherd.beginDBTransaction();
@@ -1289,8 +1293,7 @@ public class AccessImport extends HttpServlet {
     
     return standard;
   }
-  
-  
+    
   public static Object deepCopy(Object orig) {
     Object obj = null;
     try {

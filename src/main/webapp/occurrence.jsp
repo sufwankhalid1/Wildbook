@@ -803,6 +803,7 @@ $(document).ready(function() {
     					<td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("individualID") %></strong></td>
     					<td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("permit") %></strong></td>
     					<td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("state") %></strong></td>
+    					<td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("numObservations") %></strong></td>
     					<td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("sampleID") %></strong></td>
    						<td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("sex") %></td>
 						<h2><%=sharky.getBaseTissueSampleArrayList().size()%></h2>
@@ -819,7 +820,8 @@ $(document).ready(function() {
 						    
 						    <td class="lineitem">
 							    <%if(biopsy.getObservationByName("Photo-ID_Code")!=null){
-							    String url = rootWebappPath + "/individuals.jsp" + biopsy.getObservationByName("Photo-ID_Code").getValue();
+							    	String idCode = biopsy.getObservationByName("Photo-ID_Code").getValue();
+							    	String url = "individuals.jsp?number=" + idCode;
 							    %>
 							    <a href="<%=url%>" ><%=biopsy.getObservationByName("Photo-ID_Code").getValue()%></a>
 							    
@@ -845,15 +847,26 @@ $(document).ready(function() {
 						    </td>
 						    
 						    <td class="lineitem">
-							    <%if(biopsy.getSampleID()!=null){%>
-							    <%=biopsy.getSampleID()%>
+							    <%
+							    int obsList = biopsy.getBaseObservationArrayList().size();
+							    if(obsList > 0){%>
+							    <%=String.valueOf(obsList)%>
 							    <%}else{%>
 							    &nbsp;
 							    <%}%>
 						    </td>
 						    
 						    <td class="lineitem">
-							    <%if(biopsy.getObservationByName("Conf_sex")!=null){%>
+							    <%if(biopsy.getObservationByName("Sample_ID") != null){%>
+							    <%=biopsy.getObservationByName("Sample_ID").getValue()%>
+							    <%}else{%>
+							    &nbsp;
+							    <%}%>
+						    </td>
+						    
+						    <td class="lineitem">
+							    <%
+							    if(biopsy.getObservationByName("Conf_sex").getValue() != null){%>
 							    <%=biopsy.getObservationByName("Conf_sex").getValue()%>
 							    <%}else{%>
 							    &nbsp;
