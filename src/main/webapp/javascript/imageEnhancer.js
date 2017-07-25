@@ -54,7 +54,8 @@ console.info('assigning event %s', e);
 
         //.menu is a sort of shortcut
         if ((typeof opt.menu != 'undefined') && Array.isArray(opt.menu)) {
-            imageEnhancer.initMenu(wrapper);
+            //imageEnhancer.initMenu(wrapper);
+            setTimeout(function() { console.info('MENU DEBUG: %o', wrapper); imageEnhancer.initMenu(wrapper); }, 1500);
         }
 
         for (var i = 0 ; i < opt.init.length ; i++) {

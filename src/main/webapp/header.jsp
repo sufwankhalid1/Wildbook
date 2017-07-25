@@ -82,7 +82,7 @@ String urlLoc = "//" + CommonConfiguration.getURLLocation(request);
       <script type="text/javascript"  src="<%=urlLoc %>/JavascriptGlobals.js"></script>
       <script type="text/javascript"  src="<%=urlLoc %>/javascript/collaboration.js"></script>
 
-      <script type="text/javascript"  src="<%=urlLoc %>/javascript/imageEnhancer.js"></script>
+      <script type="text/javascript"  src="<%=urlLoc %>/javascript/imageEnhancer.js?432"></script>
       <link type="text/css" href="<%=urlLoc %>/css/imageEnhancer.css" rel="stylesheet" />
 
       <script src="<%=urlLoc %>/javascript/lazysizes.min.js"></script>
