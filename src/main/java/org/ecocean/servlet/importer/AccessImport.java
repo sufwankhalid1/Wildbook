@@ -85,7 +85,7 @@ public class AccessImport extends HttpServlet {
       dbName = request.getParameter("file");
     }
     
-    String dbLocation = "/opt/reed_duml/";
+    String dbLocation = "/opt/dukeImport/DUML Files to Jason-Dream Database/REVISED DATA for JASON-USE THESE!/";
     if (request.getParameter("location") != null) {
       dbLocation = request.getParameter("location");
     }
@@ -746,6 +746,7 @@ public class AccessImport extends HttpServlet {
     
     out.println("Effort Table has "+table.getRowCount()+" Rows!\n");
     
+    int success = 0;
     Row thisRow = null;
     
     for (int i=0;i<table.getRowCount();i++) {
@@ -814,9 +815,10 @@ public class AccessImport extends HttpServlet {
         e.printStackTrace();
       }
       
+      String project = null;
       try {
         if (thisRow.get("PROJECT") != null) {
-          String project = thisRow.getString("PROJECT");
+          project = thisRow.getString("PROJECT");
           sv.setProjectName(project);
         }
       } catch (Exception e) {
@@ -843,22 +845,25 @@ public class AccessImport extends HttpServlet {
           
           encsOnThisDate = myShepherd.getEncounterArrayWithShortDate(date);
           
-          //System.out.println("Can we find an enc for this Survey and Track? We have "+encsOnThisDate+" encs to check.");
-          boolean valid = false;
+          System.out.println("Can we find an enc for this Survey and Track? We have "+encsOnThisDate.size()+" encs to check.");
           for (Encounter enc : encsOnThisDate) {
-            
-            if (enc.getLocationID() != null ) {
-              //System.out.println("(enc:surveyTrack) Location : "+enc.getLocationID()+" = "+st.getLocationID()+" Project : "+enc.getSubmitterProject()+" = "+sv.getProjectName());
-              if (enc.getLocationID().contains(surveyArea) || surveyArea.contains(enc.getLocationID())) {
+
+            if (enc.getLocationID() != null || enc.getObservationByName("Project") != null) {
+              System.out.println("(enc:surveyTrack) Location : "+enc.getLocationID()+" = "+st.getLocationID()+" Project : "+enc.getSubmitterProject()+" = "+sv.getProjectName());
+              if (enc.getObservationByName("Project").getValue().contains(project) || project.contains(enc.getObservationByName("Project").getValue()))  {
+                System.out.println("MATCH!!! At least on project name... (enc:surveyTrack) Project : "+enc.getObservationByName("Project").getValue()+" = "+project);
+                st.addOccurence(myShepherd.getOccurrence(enc.getOccurrenceID()));
+                sv.addSurveyTrack(st);
+                success++;
+              } else if (enc.getLocationID().contains(surveyArea) || surveyArea.contains(enc.getLocationID())) {
                 System.out.println("MATCH!!! At least on location ID... (enc:surveyTrack) Location : "+enc.getLocationID()+" = "+st.getLocationID()+" Project : "+enc.getSubmitterProject()+" = "+sv.getProjectName());
                 st.addOccurence(myShepherd.getOccurrence(enc.getOccurrenceID()));
                 sv.addSurveyTrack(st);
-                valid = true;
-              }
-            }
-          }
-          if (!valid) {
-            System.out.println("There was no encounter to associate with this survey. You should handle that.");
+                success++;
+              } 
+            } else {
+              System.out.println("Location ID for this enc is null!");
+            }    
           }
         }
       } catch (Exception e) {
@@ -868,6 +873,7 @@ public class AccessImport extends HttpServlet {
       }
       
     }
+    System.out.println("+++++++++++++ I created surveys and tracks for "+success+" lines out of "+table.getRowCount()+" lines in the EFFORT table. +++++++++++++");
   }
   
   private void processSightings(Table table, Shepherd myShepherd) {
@@ -1063,7 +1069,6 @@ public class AccessImport extends HttpServlet {
   }
   
   private boolean processBiopsyRow(Row thisRow, Occurrence occ, Shepherd myShepherd, ArrayList<String> columnMasterList) {
-    
     String sampleId = null;
     // The name sampleID is kinda deceptive for internal wildbook purposes. This ID is only unique for successful biopsy attempts..
     // Unsuccessful biopsys are still recorded as a TissueSample object, as requested. It belongs in the STATE column of the sample.
@@ -1101,12 +1106,15 @@ public class AccessImport extends HttpServlet {
                 ts.setState("Sampled");
               }
             }
-            columnMasterList.remove("Vessel");
             if (thisRow.get("Vessel") != null) {
               String vessel = null;
               vessel = thisRow.getString("Vessel").toString();
-              //TODO there really isn't much we can do with this until we get a survey associated. 
-              // I guess we better process the EFFORT table before the biopsy table. 
+              // Lets store this on the occurrence. It needs to be part of the process connecting Surveys-->Tracks-->Occurrences
+              Observation v = new Observation("Vessel",vessel,occ,occ.getPrimaryKeyID());
+              myShepherd.getPM().makePersistent(v);
+              myShepherd.commitDBTransaction();
+              myShepherd.beginDBTransaction();
+              occ.addObservation(v);
             }
               
             // This should grab physical and satellite tags. Separated for clarity.

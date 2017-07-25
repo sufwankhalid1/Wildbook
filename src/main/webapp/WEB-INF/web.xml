@@ -567,6 +567,16 @@
     <servlet-name>IAGateway</servlet-name>
     <url-pattern>/ia</url-pattern>
   </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>ImportReadImages</servlet-name>
+    <url-pattern>/ImportReadImages</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+      <servlet-name>ImportReadImages</servlet-name>
+      <servlet-class>org.ecocean.servlet.importer.ImportReadImages</servlet-class>
+  </servlet>
 
     <servlet>
       <servlet-name>UserCreate</servlet-name>

@@ -662,9 +662,7 @@ $(document).ready(function() {
 							value="<%=props.getProperty("initCapsSet")%>"
 							class="btn btn-sm editFormBtn" />
 					</form>
-				</div>
-				
-				
+				</div>		
 	</div>			
 	<div class="col-md-6">
 	  <!-- Tags's! All sorts! -->
@@ -772,7 +770,6 @@ $(document).ready(function() {
 						<p><%=st.getSerialNumber()%></p>
 						<p><label>Argos Ptt Number :</label></p>
 						<p><%=st.getArgosPttNumber()%></p>
-
 					</li>
 			<% 	
 				}
@@ -824,7 +821,6 @@ $(document).ready(function() {
 							    	String url = "individuals.jsp?number=" + idCode;
 							    %>
 							    <a href="<%=url%>" ><%=biopsy.getObservationByName("Photo-ID_Code").getValue()%></a>
-							    
 							    <%}else{%>
 							    &nbsp;
 							    <%}%>
