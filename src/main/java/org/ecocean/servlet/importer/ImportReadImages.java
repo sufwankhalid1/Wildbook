@@ -61,7 +61,7 @@ public class ImportReadImages extends HttpServlet {
       out.println("Doesn't Exist.");
     }
     
-    getFiles(rootFile);
+    getFiles(rootFile, myShepherd);
     
     
       
@@ -69,26 +69,65 @@ public class ImportReadImages extends HttpServlet {
       
   }
   
-  public void getFiles(File path) {
+  public void getFiles(File path, Shepherd myShepherd) {
     try {
       if (path.isDirectory()) {
         String[] subDirs = path.list();
-        for (int i=0;subDirs!=null&&subDirs.length>0;i++ ) {
-          getFiles(new File(path, subDirs[i]));
+        System.out.println("There are "+subDirs.length+" files in the folder"+path.getAbsolutePath());
+        for (int i=0;subDirs!=null&&i<subDirs.length;i++ ) {
+          getFiles(new File(path, subDirs[i]), myShepherd);
         }
       }
       if (path.isFile()) {
         out.println("Found file: "+path.getName());
+        processImage(path, myShepherd);
       }
       if (path.isDirectory()) {
         out.println("Found Directory: "+path.getAbsolutePath());
       }
     } catch (Exception e) {
       e.printStackTrace();
-      out.println("Failed to traverse Image and excel files.");
+      out.println("Failed to traverse Image and excel files at path "+path.getAbsolutePath()); 
     }
   }
   
+  public void processImage(File image, Shepherd myShepherd) {
+    int totalAssets = 0;
+    AssetStore assetStore = AssetStore.getDefault(myShepherd);
+    JSONObject params = new JSONObject();
+    MediaAsset ma = null;
+    File photo = null;
+    try {
+      photo = new File(image.getPath(),image.getName());
+      ma = new MediaAsset(assetStore, params);
+      ma.copyIn(photo);
+    } catch (Exception e) {
+      e.printStackTrace();
+      out.println("!!!! Error Trying to Create Media Asset!!!!");
+    }
+    if (ma!=null) {
+      try {
+        myShepherd.beginDBTransaction();
+        myShepherd.getPM().makePersistent(ma);
+        myShepherd.commitDBTransaction();
+        ma.updateStandardChildren(myShepherd);
+        totalAssets++;
+      } catch (Exception e) {
+        myShepherd.rollbackDBTransaction();
+        e.printStackTrace();
+        out.println("!!!! Could not Persist Media Asset !!!!");
+      }      
+    }
+    out.println("Created "+totalAssets+" new MediaAssets.");
+  }
   
-  
+  public void proessExcel(File file) {
+    
+  }
+    
 }
+
+
+
+
+
