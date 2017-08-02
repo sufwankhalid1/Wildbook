@@ -4,11 +4,16 @@ import org.json.JSONObject;
 
 import java.io.*;
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
 import org.ecocean.*;
 import org.ecocean.servlet.*;
+import org.ecocean.tag.DigitalArchiveTag;
+import org.ecocean.tag.SatelliteTag;
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.ecocean.media.*;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.ss.usermodel.DataFormatter;
@@ -59,6 +64,11 @@ public class ImportReadImages extends HttpServlet {
     myShepherd.commitDBTransaction();
     
     String imageDir = "/opt/dukeImport/DUML Files to Jason-Dream Database/REVISED DATA for JASON-USE THESE!/NEW-species photo-id catalog files/";
+    
+    if (request.getParameter("test") != null) {
+      imageDir = "/opt/dukeTest/";
+    }
+    
     File rootFile = new File(imageDir);
     out.println(rootFile.getAbsolutePath());
     if (rootFile.exists()) {
@@ -66,12 +76,16 @@ public class ImportReadImages extends HttpServlet {
     } else {
       out.println("The Specified Directory Doesn't Exist.");
     }
+    
+    // Side function that processes the AllTags excel file. Those just get associated with the Occurrences. 
+    processAllTags(myShepherd);
+    
     //Grabs images and created media assets.
-    // Also runs throught all excel files and stores data for each image in an array
+    // Also runs through all excel files and stores data for each image in an array
     //with the image name as the key.
     getExcelFiles(rootFile, myShepherd); 
     
-    getImageFiles(rootFile, myShepherd); 
+    getImageFiles(rootFile, myShepherd);       
     
     associateAssetsAndData(myShepherd);
     
@@ -79,6 +93,7 @@ public class ImportReadImages extends HttpServlet {
     out.println(failedAssets+" assets failed to be created.");
     
     myShepherd.closeDBTransaction();
+    out.close();
   }
   
   public void getImageFiles(File path, Shepherd myShepherd) {
@@ -93,7 +108,7 @@ public class ImportReadImages extends HttpServlet {
       if (path.isFile()&&!path.getName().endsWith("xlsx")) {
         out.println("Found file: "+path.getName());
         boolean success = processImage(path, myShepherd);
-        // boolean success = true;
+        //boolean success = true;
         if (success) {
           assetsCreated++;
         } else {
@@ -105,7 +120,7 @@ public class ImportReadImages extends HttpServlet {
       }
     } catch (Exception e) {
       e.printStackTrace();
-      out.println("Failed to traverse Image and excel files at path "+path.getAbsolutePath()); 
+      out.println("Failed to traverse Image files at path "+path.getAbsolutePath()); 
     }
   }
   
@@ -126,7 +141,7 @@ public class ImportReadImages extends HttpServlet {
       }
     } catch (Exception e) {
       e.printStackTrace();
-      out.println("Failed to traverse Image and excel files at path "+path.getAbsolutePath()); 
+      out.println("Failed to traverse Excel files at path "+path.getAbsolutePath()); 
     }
   }
   
@@ -137,12 +152,14 @@ public class ImportReadImages extends HttpServlet {
     File photo = null;
     //out.println("Image Path? : /"+FilenameUtils.getPath(image.getAbsolutePath()));
     //out.println("Image Name? : "+image.getName());
+    
+    // Just a switch for testing purposes.     
     try {
       photo = new File("/"+FilenameUtils.getPath(image.getAbsolutePath()),image.getName());
       params = assetStore.createParameters(photo);
       
       ma = new MediaAsset(assetStore, params);
-      ma.addDerivationMethod("Bass Importer", System.currentTimeMillis());
+      ma.addDerivationMethod("Initial Bulk Import", System.currentTimeMillis());
       ma.addLabel("_original");
       ma.copyIn(photo);
     } catch (Exception e) {
@@ -156,7 +173,8 @@ public class ImportReadImages extends HttpServlet {
         myShepherd.getPM().makePersistent(ma);
         myShepherd.commitDBTransaction();
         
-        filenames.put(photo.getName(), ma);
+        out.println("Adding this MA and image file to filename Map : "+ma.getFilename() +"Media Asset ID : "+ ma.getId());
+        filenames.put(image.getName(), ma);
         
         ma.updateMetadata();
         ma.updateStandardChildren(myShepherd);
@@ -165,8 +183,8 @@ public class ImportReadImages extends HttpServlet {
         e.printStackTrace();
         out.println("!!!! Could not Persist Media Asset !!!!");
         return false;
-      }
-    }      
+      }      
+    }
     out.println("Created a new MediaAsset. Filename : "+assetStore.getFilename(ma));
     return true;
   }
@@ -202,6 +220,7 @@ public class ImportReadImages extends HttpServlet {
       rowData = new HashMap<String,String>(19);
       for (int j=0;j<cols-1;j++) {
         XSSFCell cell = row.getCell(j);
+        out.println("\n\nThis Cell: \n"+cell.toString());
         //out.println("RAW CELL : "+cell.toString());
         String cellKey = formatter.formatCellValue(cell.getSheet().getRow(0).getCell(j));
         String cellValue = formatter.formatCellValue(cell);
@@ -220,45 +239,71 @@ public class ImportReadImages extends HttpServlet {
       //out.println("Rows in this Excel file : "+rows);
       cols = sheet.getRow(0).getLastCellNum();
       //out.println("Columns in sheet 1: "+cols);
-      row = sheet.getRow(i);
-      //out.println("Current Row : "+i);
-      for (int k=0;k<cols-1;k++) {
-        XSSFCell cell = row.getCell(k);
-        String cellKey = formatter.formatCellValue(cell.getSheet().getRow(0).getCell(k));
-        String cellValue = formatter.formatCellValue(cell);
-        out.println("Current Column : "+k);
-        out.println("Cell Value : "+cellValue);
-        if (cellValue!=null&&!cellValue.equals(cellKey)) {
-          rowData.put(cellKey, cellValue);
-          out.println("Adding Key : "+cellKey+" Value : "+cellValue);
-        } else {
-          rowData.put(cellKey, "");
-          out.println("Adding Key : "+cellKey+" Value : "+cellValue);
+      for (int l=0;l<rows;l++) {
+        if (sheet.getRow(l).getCell(0).toString().equals(rowData.get("id_code"))){
+          row = sheet.getRow(l);          
+          out.println("Current Row : "+l+" Current id_codes:  ROWDATA : "+rowData.get("id_code")+" SHEET2 : "+sheet.getRow(l).getCell(0).toString());
+          for (int k=0;k<cols-1;k++) {
+            XSSFCell cell = row.getCell(k);
+            String cellKey = formatter.formatCellValue(cell.getSheet().getRow(0).getCell(k));
+            String cellValue = formatter.formatCellValue(cell);
+            out.println("Current Column : "+k);
+            out.println("Cell Value : "+cellValue);
+            if (cellValue!=null&&!cellValue.equals(cellKey)) {
+              rowData.put(cellKey +"-"+l, cellValue);
+              out.println("Adding Key : "+cellKey+" Value : "+cellValue);
+            } else {
+              rowData.put(cellKey, "");
+              out.println("Adding Key : "+cellKey+" Value : "+cellValue);
+            }
+          }
+          out.println(rowData.toString()+"\n\n");
+          data.put(rowData.get("image_file"), rowData);
         }
       }
-      out.println(rowData.toString()+"\n\n");
-      data.put(rowData.get("image_file"), rowData);
     }
     wb.close();
-    out.println(data.toString());
-  }
-  
+    out.println("DATA to String at end of Excel process"+data.toString());
+  }  
   private void associateAssetsAndData(Shepherd myShepherd) {
-    
-    for (String key : filenames.keySet()) {
+    out.println("Filenames??? : "+!filenames.isEmpty());
+    out.println("Filenames Array Size? : "+filenames.size());
+    out.println("What the heck is in here ? "+filenames.toString());
+    Object[] keys = filenames.entrySet().toArray();
+    out.println(keys.toString());
+    for (Object key : keys) {
+      out.println(key.toString());
       HashMap <String,String> excelData = data.get(key);
+      
       MediaAsset ma = filenames.get(key);
       
       String indyID = excelData.get("id_code");
       String date = excelData.get("date");
+      String sightNo = excelData.get("sight_no");
       
       out.println("Date : "+date+" IndyID : "+indyID);
-      
       processDate(date);
-    }
-    
-    
-    
+      
+      MarkedIndividual indy = myShepherd.getMarkedIndividualCaseInsensitive(indyID);
+      
+      ArrayList<Encounter> encs = myShepherd.getEncounterArrayWithShortDate(date);
+      out.println("Trying to find a matching Encounter for this image and data...");
+      if (indy!=null) {
+        for (Encounter enc : encs) {
+          try {
+            if (enc.getSightNo().equals(sightNo)) {
+              out.println("MATCH! EncNo : "+enc.getCatalogNumber());
+              enc.addMediaAsset(ma);
+              Occurrence occ = myShepherd.getOccurrence(enc.getOccurrenceID());
+              ma.setOccurrence(occ);
+            }            
+          } catch (Exception e) {
+            e.printStackTrace(out);
+            out.println("Failed to add MA to OCC and ENC");
+          }
+        } 
+      }
+    }  
   }
   
   private String processDate(String date) {
@@ -267,7 +312,160 @@ public class ImportReadImages extends HttpServlet {
     out.println("\n NEW DATE :"+date+"\n");
     return date;
   }
-
+  
+  private void processAllTags(Shepherd myShepherd) {
+    
+    ArrayList<String> failed = new ArrayList<String>();
+    if (!myShepherd.getPM().currentTransaction().isActive()) {
+      myShepherd.beginDBTransaction();
+    }
+    
+    File dir = new File("/opt/dukeImport/DUML Files to Jason-Dream Database/REVISED DATA for JASON-USE THESE!/AllTagSummary.xlsx");
+    FileInputStream fs = null;
+    try {
+      fs = new FileInputStream(dir);
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+    }  
+    XSSFWorkbook wb = null;
+    try {
+      wb = new XSSFWorkbook(fs);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    wb.setMissingCellPolicy(XSSFRow.CREATE_NULL_AS_BLANK);
+    XSSFRow row = null;
+    DataFormatter formatter = new DataFormatter(); 
+    //Hardcoded to the first sheet...
+    XSSFSheet sheet = wb.getSheetAt(0);
+    int rows = sheet.getPhysicalNumberOfRows();
+    
+    out.println("Rows in AllTags Excel : "+rows);
+    
+    for (int i=1;i<rows;i++) {
+      row = sheet.getRow(i);
+      out.println("ROW??? : "+i);
+      out.println("ROW??? : "+row.getRowNum()+" Style??? : "+row.getRowStyle());
+      String date = null;
+      XSSFCell tagCell = null;
+      try {
+        date = row.getCell(0).toString();
+        out.println("INPUT DATE : "+date);
+        DateTimeFormatter input = DateTimeFormat.forPattern("d-MMM-yy"); 
+        DateTimeFormatter output = DateTimeFormat.forPattern("yyyy-MM-dd"); 
+        DateTime dt = input.parseDateTime(date); 
+        date = output.print(dt.getMillis()); 
+        out.println("OUTPUT DATE : "+date);
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+      
+      String sightNo = getFormattedStringFromCell(row.getCell(1));
+      out.println("SightNo??? : "+sightNo);
+      Encounter targetEnc = null;
+      Occurrence occ = null;
+      ArrayList<Encounter> encs = null;
+      try {
+        encs = myShepherd.getEncounterArrayWithShortDate(date);
+        out.println("Got a list of encs ! No: "+encs.size());
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+      if (sightNo!=null) {
+        for (Encounter enc : encs) {
+          if (enc.getSightNo().equals(sightNo)) {
+            out.println("Enc SightNo : "+enc.getSightNo()+" Excel SightNo : "+sightNo);
+            targetEnc = enc;
+            break;
+          }
+        }        
+      }
+      String id = null;
+      if (targetEnc == null) {
+        try {
+          id = getFormattedStringFromCell(row.getCell(4)).trim();
+          out.println("Okay, id_code for this row? : "+id);
+          for (Encounter enc : encs) {
+            if (enc.getIndividualID()!=null) {
+              if (enc.getIndividualID().contains(id)||id.contains(enc.getIndividualID())) {
+                targetEnc = enc;
+              }              
+            }
+          } 
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+      }
+      if (targetEnc == null ) {
+        failed.add("Row : "+row.getRowNum()+"Could not find a match for Indy ID "+id+" SightNo "+sightNo+" Date "+date);
+        continue;
+      }
+      occ = myShepherd.getOccurrence(targetEnc.getOccurrenceID());
+      tagCell = row.getCell(2);
+      String tagValue = formatter.formatCellValue(tagCell);
+      out.println("Trying to create a tag for occ "+occ.getOccurrenceID()+" and "+tagValue);
+      
+      if (tagValue.equals("DTag")) {
+        DigitalArchiveTag dTag = new DigitalArchiveTag();
+        
+        XSSFCell cell = null;
+        String value = null;
+        
+        value = getFormattedStringFromCell(row.getCell(3));
+        dTag.setDTagID(value);
+        dTag.setId(value);
+        
+        value = getFormattedStringFromCell(row.getCell(3));
+        dTag.setDTagID(value);
+        dTag.setId(value);
+        myShepherd.getPM().makePersistent(dTag);
+        myShepherd.commitDBTransaction();
+        out.println("Created a DTag!");
+        occ.addBaseDigitalArchiveTag(dTag);
+          
+      } else if (tagValue.toLowerCase().contains("satellite")) {
+        SatelliteTag sTag = new SatelliteTag();
+        
+        XSSFCell cell = null;
+        String value = null;
+        
+        value = getFormattedStringFromCell(row.getCell(3));
+        sTag.setId(value);
+        
+        value = getFormattedStringFromCell(row.getCell(3));
+        sTag.setId(value);
+        myShepherd.getPM().makePersistent(sTag);
+        myShepherd.commitDBTransaction();
+        out.println("Created a Sat Tag!");
+        occ.addBaseSatelliteTag(sTag);
+      }
+    }
+    out.println(failed.toString());
+  }
+  
+  private String getFormattedStringFromCell(XSSFCell cell) {
+    String cellValue = null;
+    try {
+      DataFormatter formatter = new DataFormatter();
+      cellValue = formatter.formatCellValue(cell);
+      if (cellValue == null || cellValue.equals("")) {
+        try {
+          out.println(" Trying to grab cell value with .toString()...");
+          cellValue = cell.toString();
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return cellValue;      
+  }
+  
+  private Occurrence getOccurrenceFromDateAndSightNo(String date, String sightNo) {
+    Occurrence occ = null;
+    return occ;
+  }
 }
 
 
