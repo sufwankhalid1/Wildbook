@@ -344,8 +344,6 @@ public class ImportReadImages extends HttpServlet {
     
     for (int i=1;i<rows;i++) {
       row = sheet.getRow(i);
-      out.println("ROW??? : "+i);
-      out.println("ROW??? : "+row.getRowNum()+" Style??? : "+row.getRowStyle());
       String date = null;
       XSSFCell tagCell = null;
       try {
@@ -361,7 +359,6 @@ public class ImportReadImages extends HttpServlet {
       }
       
       String sightNo = getFormattedStringFromCell(row.getCell(1));
-      out.println("SightNo??? : "+sightNo);
       Encounter targetEnc = null;
       Occurrence occ = null;
       ArrayList<Encounter> encs = null;
@@ -371,7 +368,23 @@ public class ImportReadImages extends HttpServlet {
       } catch (Exception e) {
         e.printStackTrace();
       }
-      if (sightNo!=null) {
+      String id = null;
+      if (row.getCell(4)!=null&&!row.getCell(4).equals("")) {
+        try {
+          id = getFormattedStringFromCell(row.getCell(4));
+          for (Encounter enc : encs) {
+            if (enc.getIndividualID()!=null) {
+              if (enc.getIndividualID().contains(id)||id.contains(enc.getIndividualID())) {
+                targetEnc = enc;
+                break;
+              }              
+            }
+          } 
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+      }
+      if (targetEnc == null) {
         for (Encounter enc : encs) {
           if (enc.getSightNo().equals(sightNo)) {
             out.println("Enc SightNo : "+enc.getSightNo()+" Excel SightNo : "+sightNo);
@@ -379,22 +392,6 @@ public class ImportReadImages extends HttpServlet {
             break;
           }
         }        
-      }
-      String id = null;
-      if (targetEnc == null) {
-        try {
-          id = getFormattedStringFromCell(row.getCell(4)).trim();
-          out.println("Okay, id_code for this row? : "+id);
-          for (Encounter enc : encs) {
-            if (enc.getIndividualID()!=null) {
-              if (enc.getIndividualID().contains(id)||id.contains(enc.getIndividualID())) {
-                targetEnc = enc;
-              }              
-            }
-          } 
-        } catch (Exception e) {
-          e.printStackTrace();
-        }
       }
       if (targetEnc == null ) {
         failed.add("Could not find a match for Indy ID "+id+" SightNo "+sightNo+" Date "+date+" Excel Sheet Row : "+row.getRowNum());
@@ -405,6 +402,8 @@ public class ImportReadImages extends HttpServlet {
       String tagValue = formatter.formatCellValue(tagCell);
       out.println("Trying to create a tag for occ "+occ.getOccurrenceID()+" and "+tagValue);
       
+      ArrayList<Observation> obs = new ArrayList<Observation>();
+      
       if (tagValue.equals("DTag")) {
         DigitalArchiveTag dTag = new DigitalArchiveTag();
         
@@ -412,15 +411,28 @@ public class ImportReadImages extends HttpServlet {
         String value = null;
         
         value = getFormattedStringFromCell(row.getCell(3));
-        dTag.setDTagID(value);
         dTag.setId(value);
         
         value = getFormattedStringFromCell(row.getCell(3));
         dTag.setDTagID(value);
-        dTag.setId(value);
+        
         myShepherd.getPM().makePersistent(dTag);
         myShepherd.commitDBTransaction();
         out.println("Created a DTag!");
+        
+        for (int col=0;col<row.getPhysicalNumberOfCells();col++) {
+          if (row.getCell(col)!=null) {
+            if (!row.getCell(col).equals("")) {
+              String val = getFormattedStringFromCell(row.getCell(col));
+              String name = getFormattedStringFromCell(row.getCell(col).getSheet().getRow(0).getCell(col));
+              Observation ob = new Observation(name,val,dTag,dTag.getId());
+              myShepherd.getPM().makePersistent(ob);
+              myShepherd.commitDBTransaction();
+              obs.add(ob);
+            }
+          }
+        }
+         
         occ.addBaseDigitalArchiveTag(dTag);
           
       } else if (tagValue.toLowerCase().contains("satellite")) {
@@ -429,11 +441,23 @@ public class ImportReadImages extends HttpServlet {
         XSSFCell cell = null;
         String value = null;
         
-        value = getFormattedStringFromCell(row.getCell(3));
-        sTag.setId(value);
         
         value = getFormattedStringFromCell(row.getCell(3));
         sTag.setId(value);
+
+        for (int col=0;col<row.getPhysicalNumberOfCells();col++) {
+          if (row.getCell(col)!=null) {
+            if (!row.getCell(col).equals("")) {
+              String val = getFormattedStringFromCell(row.getCell(col));
+              String name = getFormattedStringFromCell(row.getCell(col).getSheet().getRow(0).getCell(col));
+              Observation ob = new Observation(name,val,sTag,sTag.getId());
+              myShepherd.getPM().makePersistent(ob);
+              myShepherd.commitDBTransaction();
+              obs.add(ob);
+            }
+          }
+        }
+             
         myShepherd.getPM().makePersistent(sTag);
         myShepherd.commitDBTransaction();
         out.println("Created a Sat Tag!");
@@ -454,7 +478,7 @@ public class ImportReadImages extends HttpServlet {
       cellValue = formatter.formatCellValue(cell);
       if (cellValue == null || cellValue.equals("")) {
         try {
-          out.println(" Trying to grab cell value with .toString()...");
+          //out.println(" Trying to grab cell value with .toString()...");
           cellValue = cell.toString();
         } catch (Exception e) {
           e.printStackTrace();
@@ -466,10 +490,6 @@ public class ImportReadImages extends HttpServlet {
     return cellValue;      
   }
   
-  private Occurrence getOccurrenceFromDateAndSightNo(String date, String sightNo) {
-    Occurrence occ = null;
-    return occ;
-  }
 }
 
 

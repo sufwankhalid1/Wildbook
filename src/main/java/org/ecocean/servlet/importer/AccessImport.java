@@ -355,7 +355,7 @@ public class AccessImport extends HttpServlet {
           speciesId = thisRow.get("SPECIES_ID").toString();          
           //out.println("---------------- Species_ID : "+speciesId);
           newEnc.setGenus(speciesId);
-          newEnc.setSpecificEpithet(speciesId);
+          //newEnc.setSpecificEpithet(speciesId);
           speciesIds += 1;
           if (columnMasterList.contains("SPECIES_ID")) {
             columnMasterList.remove("SPECIES_ID");
