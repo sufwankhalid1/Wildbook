@@ -397,7 +397,7 @@ public class ImportReadImages extends HttpServlet {
         }
       }
       if (targetEnc == null ) {
-        failed.add("Row : "+row.getRowNum()+"Could not find a match for Indy ID "+id+" SightNo "+sightNo+" Date "+date);
+        failed.add("Could not find a match for Indy ID "+id+" SightNo "+sightNo+" Date "+date+" Excel Sheet Row : "+row.getRowNum());
         continue;
       }
       occ = myShepherd.getOccurrence(targetEnc.getOccurrenceID());
@@ -440,7 +440,11 @@ public class ImportReadImages extends HttpServlet {
         occ.addBaseSatelliteTag(sTag);
       }
     }
-    out.println(failed.toString());
+    out.println("\nList of missed dates in AllTagSummary.xlsx : \n");
+    for (int m=0;m<failed.size();m++) {
+      out.println(failed.get(m)+"\n");
+    }
+    out.println("Total of "+failed.size()+" misses.");
   }
   
   private String getFormattedStringFromCell(XSSFCell cell) {
