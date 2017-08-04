@@ -416,23 +416,24 @@ public class ImportReadImages extends HttpServlet {
         value = getFormattedStringFromCell(row.getCell(3));
         dTag.setDTagID(value);
         
-        myShepherd.getPM().makePersistent(dTag);
-        myShepherd.commitDBTransaction();
-        out.println("Created a DTag!");
-        
         for (int col=0;col<row.getPhysicalNumberOfCells();col++) {
           if (row.getCell(col)!=null) {
-            if (!row.getCell(col).equals("")) {
+            if (!row.getCell(col).toString().trim().equals("")) {
               String val = getFormattedStringFromCell(row.getCell(col));
               String name = getFormattedStringFromCell(row.getCell(col).getSheet().getRow(0).getCell(col));
               Observation ob = new Observation(name,val,dTag,dTag.getId());
               myShepherd.getPM().makePersistent(ob);
               myShepherd.commitDBTransaction();
               obs.add(ob);
+              out.println("Made Ob : "+name+" Value : "+val);
             }
           }
         }
-         
+        
+        myShepherd.getPM().makePersistent(dTag);
+        myShepherd.commitDBTransaction();
+        out.println("Created a DTag!");
+        dTag.setAllObservations(obs);        
         occ.addBaseDigitalArchiveTag(dTag);
           
       } else if (tagValue.toLowerCase().contains("satellite")) {
@@ -441,19 +442,19 @@ public class ImportReadImages extends HttpServlet {
         XSSFCell cell = null;
         String value = null;
         
-        
         value = getFormattedStringFromCell(row.getCell(3));
         sTag.setId(value);
 
         for (int col=0;col<row.getPhysicalNumberOfCells();col++) {
           if (row.getCell(col)!=null) {
-            if (!row.getCell(col).equals("")) {
+            if (!row.getCell(col).toString().trim().equals("")) {
               String val = getFormattedStringFromCell(row.getCell(col));
               String name = getFormattedStringFromCell(row.getCell(col).getSheet().getRow(0).getCell(col));
               Observation ob = new Observation(name,val,sTag,sTag.getId());
               myShepherd.getPM().makePersistent(ob);
               myShepherd.commitDBTransaction();
               obs.add(ob);
+              out.println("Made Ob : "+name+" Value : "+val);
             }
           }
         }
@@ -461,6 +462,7 @@ public class ImportReadImages extends HttpServlet {
         myShepherd.getPM().makePersistent(sTag);
         myShepherd.commitDBTransaction();
         out.println("Created a Sat Tag!");
+        sTag.setAllObservations(obs);
         occ.addBaseSatelliteTag(sTag);
       }
     }
