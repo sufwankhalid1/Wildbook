@@ -197,8 +197,6 @@ public class ImportReadImages extends HttpServlet {
     out.println("\nHey! It's an excel file! Nom Nom."+file.getName());
     // We are going to make a huge Map of all the metadata we need from Excel, and store 
     // it to process later after all images are in. The key will be the image filename.
-
-    HashMap<String,HashMap<String,String>> data = new HashMap<String,HashMap<String,String>>();
     FileInputStream fs = new FileInputStream(file);
     XSSFWorkbook wb = new XSSFWorkbook(fs);
     wb.setMissingCellPolicy(XSSFRow.CREATE_NULL_AS_BLANK);
@@ -221,15 +219,14 @@ public class ImportReadImages extends HttpServlet {
       cols = sheet.getRow(0).getLastCellNum();
       //out.println("Columns in sheet 0: "+cols);
       row = sheet.getRow(i);
-      rowData = new HashMap<String,String>(19);
+      rowData = new HashMap<String,String>();
       for (int j=0;j<cols-1;j++) {
         XSSFCell cell = row.getCell(j);
-        out.println("\n\nThis Cell: \n"+cell.toString());
         //out.println("RAW CELL : "+cell.toString());
         String cellKey = formatter.formatCellValue(cell.getSheet().getRow(0).getCell(j));
         String cellValue = formatter.formatCellValue(cell);
         out.println("Current Column : "+j);
-        out.println("Cell Value : "+cellValue);
+        //out.println("Cell Value : "+cellValue);
         if (cellValue!=null&&!cellValue.equals(cellKey)) {
           rowData.put(cellKey, cellValue);
           out.println("Adding Key : "+cellKey+" Value : "+cellValue);
@@ -240,9 +237,7 @@ public class ImportReadImages extends HttpServlet {
       }
       sheet = wb.getSheetAt(1);
       rows = sheet.getPhysicalNumberOfRows();
-      //out.println("Rows in this Excel file : "+rows);
       cols = sheet.getRow(0).getLastCellNum();
-      //out.println("Columns in sheet 1: "+cols);
       for (int l=0;l<rows;l++) {
         if (sheet.getRow(l).getCell(0).toString().equals(rowData.get("id_code"))){
           row = sheet.getRow(l);          
@@ -254,7 +249,7 @@ public class ImportReadImages extends HttpServlet {
             out.println("Current Column : "+k);
             out.println("Cell Value : "+cellValue);
             if (cellValue!=null&&!cellValue.equals(cellKey)) {
-              rowData.put(cellKey +"-"+k, cellValue);
+              rowData.put(cellKey, cellValue);
               out.println("Adding Key : "+cellKey+" Value : "+cellValue);
             } else {
               rowData.put(cellKey, "");
@@ -262,7 +257,10 @@ public class ImportReadImages extends HttpServlet {
             }
           }
           out.println(rowData.toString()+"\n");
-          data.put(rowData.get("image_file"), rowData);
+          data.put(row.getCell(3).toString(), rowData);
+          out.println("Excel has image_file? "+row.getCell(3).toString());
+          out.println("image_file from rowData? "+rowData.get("image_file"));
+          out.println("Data Length ? "+data.size());
         }
       }
     }
@@ -270,28 +268,58 @@ public class ImportReadImages extends HttpServlet {
     out.println("DATA to String at end of Excel process"+data.toString());
   }  
   private void associateAssetsAndData(Shepherd myShepherd) {
-    out.println("Filenames??? : "+!filenames.isEmpty());
-    out.println("Filenames Array Size? : "+filenames.size());
-    out.println("NameList Size??? : "+nameList.size());
-    //out.println("What the heck is in here ? "+filenames.toString());
-    for (String key : nameList) {
-      out.println(key);
-      HashMap <String,String> excelData = data.get(key);
+    out.println("Filenames Exist? "+!filenames.isEmpty()+" NameList Exist? "+!nameList.isEmpty()+" Data Exists? "+!data.isEmpty());
+    out.println("Filenames Size? "+filenames.size()+" NameList Size? "+nameList.size()+" Data Size? "+data.size());
+
+    for (int i=0;i<nameList.size();i++) {
+      out.println("\n--------------------------");
+      out.println("Current Index : "+i);
+      HashMap <String,String> excelData = null;
+      MediaAsset ma = null;
+      try {
+        String name = nameList.get(i);
+        System.out.println("Get name from nameList?"+name);
+        excelData = data.get(name);
+        System.out.println("Get Entry from Excel data?"+excelData.toString());
+        ma = filenames.get(name);
+        System.out.println("Get MA from filenames?"+ma.getFilename());
+      } catch (Exception e) {
+        e.printStackTrace();
+        out.println("Choked trying to retrive a media asset and data to associate.");
+      }
       
-      MediaAsset ma = filenames.get(key);
+      System.out.println(excelData.toString());
       
-      String indyID = excelData.get("id_code");
-      String date = excelData.get("date");
-      String sightNo = excelData.get("sight_no");
+      String indyID = null;
+      String date = null;
+      String sightNo = null;
       
-      out.println("Date : "+date+" IndyID : "+indyID);
-      processDate(date);
+      if (excelData!=null) {
+        indyID = excelData.get("id_code");
+        date = excelData.get("date");
+        sightNo = excelData.get("sight_no");        
+      }
       
-      MarkedIndividual indy = myShepherd.getMarkedIndividualCaseInsensitive(indyID);
+      System.out.println("Date : "+date+" IndyID : "+indyID);
+      date = processDate(date);
       
+      MarkedIndividual indy = null;
+      MarkedIndividual nextIndy = null;
+      Iterator<MarkedIndividual> allIndys = myShepherd.getAllMarkedIndividuals();
+
+      while (allIndys.hasNext()) {
+        nextIndy = allIndys.next();
+        if (indyID.contains(nextIndy.getIndividualID())||nextIndy.getIndividualID().contains(indyID)) {
+          indy = nextIndy;
+        }
+      }        
+     
       ArrayList<Encounter> encs = myShepherd.getEncounterArrayWithShortDate(date);
+      
+      
       out.println("Trying to find a matching Encounter for this image and data...");
       if (indy!=null) {
+        out.println("Finding an enc on "+date+" for this indy...");
         for (Encounter enc : encs) {
           try {
             if (enc.getSightNo().equals(sightNo)) {
@@ -305,14 +333,20 @@ public class ImportReadImages extends HttpServlet {
             out.println("Failed to add MA to OCC and ENC");
           }
         } 
+      } else {
+        out.println("Failed to find an indy.  ");
       }
     }  
   }
   
   private String processDate(String date) {
-    out.println("\nDATE :"+date+"\n");
-    date = date.substring(0,5) +"/"+ date.substring(5,7) +"/"+ date.substring(7,10);
-    out.println("\n NEW DATE :"+date+"\n");
+    out.println("DATE :"+date);
+    
+    DateTimeFormatter input = DateTimeFormat.forPattern("yyyyMMdd"); 
+    DateTimeFormatter output = DateTimeFormat.forPattern("yyyy-MM-dd"); 
+    DateTime dt = input.parseDateTime(date); 
+    date = output.print(dt.getMillis());
+    out.println("NEW DATE :"+date);
     return date;
   }
   
