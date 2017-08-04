@@ -270,7 +270,8 @@ public class ImportReadImages extends HttpServlet {
   private void associateAssetsAndData(Shepherd myShepherd) {
     out.println("Filenames Exist? "+!filenames.isEmpty()+" NameList Exist? "+!nameList.isEmpty()+" Data Exists? "+!data.isEmpty());
     out.println("Filenames Size? "+filenames.size()+" NameList Size? "+nameList.size()+" Data Size? "+data.size());
-
+    ArrayList<String> errors = new ArrayList<String>();
+    
     for (int i=0;i<nameList.size();i++) {
       out.println("\n--------------------------");
       out.println("Current Index : "+i);
@@ -279,7 +280,14 @@ public class ImportReadImages extends HttpServlet {
       try {
         String name = nameList.get(i);
         System.out.println("Get name from nameList?"+name);
-        excelData = data.get(name);
+        // Fails to get a body of data from the excel.
+        if (data.get(name)!=null) {
+          excelData = data.get(name);          
+        } else {
+          errors.add("File name : "+name+" data not available.");
+          continue;
+        }
+        
         System.out.println("Get Entry from Excel data?"+excelData.toString());
         ma = filenames.get(name);
         System.out.println("Get MA from filenames?"+ma.getFilename());
@@ -316,7 +324,6 @@ public class ImportReadImages extends HttpServlet {
      
       ArrayList<Encounter> encs = myShepherd.getEncounterArrayWithShortDate(date);
       
-      
       out.println("Trying to find a matching Encounter for this image and data...");
       if (indy!=null) {
         out.println("Finding an enc on "+date+" for this indy...");
@@ -336,7 +343,10 @@ public class ImportReadImages extends HttpServlet {
       } else {
         out.println("Failed to find an indy.  ");
       }
-    }  
+    }
+    for (String error : errors) {
+      out.println(error);
+    }
   }
   
   private String processDate(String date) {

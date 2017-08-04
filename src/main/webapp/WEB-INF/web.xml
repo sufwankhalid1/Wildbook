@@ -573,6 +573,11 @@
     <url-pattern>/ImportReadImages</url-pattern>
   </servlet-mapping>
   
+  <servlet-mapping>
+    <servlet-name>ImportBento</servlet-name>
+    <url-pattern>/ImportBento</url-pattern>
+  </servlet-mapping>
+  
   <servlet>
       <servlet-name>ImportReadImages</servlet-name>
       <servlet-class>org.ecocean.servlet.importer.ImportReadImages</servlet-class>
@@ -947,6 +952,11 @@
   <servlet>
     <servlet-name>AccessImport</servlet-name>
     <servlet-class>org.ecocean.servlet.importer.AccessImport</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>ImportBento</servlet-name>
+    <servlet-class>org.ecocean.servlet.importer.ImportBento</servlet-class>
   </servlet>
 
       <servlet>
