@@ -36,6 +36,8 @@ public class ImportReadImages extends HttpServlet {
    */
   private HashMap<String,HashMap<String,String>> data = new HashMap<String,HashMap<String,String>>();
   private HashMap<String,MediaAsset> filenames = new HashMap<String,MediaAsset>();
+  private ArrayList<String> nameList = new ArrayList<String>();
+  
   private static final long serialVersionUID = 1L;
   private static PrintWriter out;
   private static String context; 
@@ -153,7 +155,7 @@ public class ImportReadImages extends HttpServlet {
     //out.println("Image Path? : /"+FilenameUtils.getPath(image.getAbsolutePath()));
     //out.println("Image Name? : "+image.getName());
     
-    // Just a switch for testing purposes.     
+    // Just a switch for testing purposes.  
     try {
       photo = new File("/"+FilenameUtils.getPath(image.getAbsolutePath()),image.getName());
       params = assetStore.createParameters(photo);
@@ -172,6 +174,8 @@ public class ImportReadImages extends HttpServlet {
         myShepherd.beginDBTransaction();
         myShepherd.getPM().makePersistent(ma);
         myShepherd.commitDBTransaction();
+
+        nameList.add(image.getName());
         
         out.println("Adding this MA and image file to filename Map : "+ma.getFilename() +"Media Asset ID : "+ ma.getId());
         filenames.put(image.getName(), ma);
@@ -250,14 +254,14 @@ public class ImportReadImages extends HttpServlet {
             out.println("Current Column : "+k);
             out.println("Cell Value : "+cellValue);
             if (cellValue!=null&&!cellValue.equals(cellKey)) {
-              rowData.put(cellKey +"-"+l, cellValue);
+              rowData.put(cellKey +"-"+k, cellValue);
               out.println("Adding Key : "+cellKey+" Value : "+cellValue);
             } else {
               rowData.put(cellKey, "");
               out.println("Adding Key : "+cellKey+" Value : "+cellValue);
             }
           }
-          out.println(rowData.toString()+"\n\n");
+          out.println(rowData.toString()+"\n");
           data.put(rowData.get("image_file"), rowData);
         }
       }
@@ -271,7 +275,7 @@ public class ImportReadImages extends HttpServlet {
     out.println("What the heck is in here ? "+filenames.toString());
     Object[] keys = filenames.entrySet().toArray();
     out.println(keys.toString());
-    for (Object key : keys) {
+    for (String key : nameList) {
       out.println(key.toString());
       HashMap <String,String> excelData = data.get(key);
       
