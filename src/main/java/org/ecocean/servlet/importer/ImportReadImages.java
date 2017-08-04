@@ -272,11 +272,10 @@ public class ImportReadImages extends HttpServlet {
   private void associateAssetsAndData(Shepherd myShepherd) {
     out.println("Filenames??? : "+!filenames.isEmpty());
     out.println("Filenames Array Size? : "+filenames.size());
-    out.println("What the heck is in here ? "+filenames.toString());
-    Object[] keys = filenames.entrySet().toArray();
-    out.println(keys.toString());
+    out.println("NameList Size??? : "+nameList.size());
+    //out.println("What the heck is in here ? "+filenames.toString());
     for (String key : nameList) {
-      out.println(key.toString());
+      out.println(key);
       HashMap <String,String> excelData = data.get(key);
       
       MediaAsset ma = filenames.get(key);
