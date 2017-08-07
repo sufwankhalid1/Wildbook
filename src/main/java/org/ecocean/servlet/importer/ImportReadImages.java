@@ -247,7 +247,7 @@ public class ImportReadImages extends HttpServlet {
             String cellKey = formatter.formatCellValue(cell.getSheet().getRow(0).getCell(k));
             String cellValue = formatter.formatCellValue(cell);
             out.println("Current Column : "+k);
-            out.println("Cell Value : "+cellValue);
+            //out.println("Cell Value : "+cellValue);
             if (cellValue!=null&&!cellValue.equals(cellKey)) {
               rowData.put(cellKey, cellValue);
               out.println("Adding Key : "+cellKey+" Value : "+cellValue);
@@ -271,6 +271,7 @@ public class ImportReadImages extends HttpServlet {
     out.println("Filenames Exist? "+!filenames.isEmpty()+" NameList Exist? "+!nameList.isEmpty()+" Data Exists? "+!data.isEmpty());
     out.println("Filenames Size? "+filenames.size()+" NameList Size? "+nameList.size()+" Data Size? "+data.size());
     ArrayList<String> errors = new ArrayList<String>();
+    ArrayList<String> unmatched = new ArrayList<String>(); 
     
     for (int i=0;i<nameList.size();i++) {
       out.println("\n--------------------------");
@@ -305,14 +306,17 @@ public class ImportReadImages extends HttpServlet {
       if (excelData!=null) {
         indyID = excelData.get("id_code");
         date = excelData.get("date");
-        sightNo = excelData.get("sight_no");        
+        sightNo = excelData.get("sight_no").toUpperCase(); 
+        if (sightNo.contains("S")) {
+          sightNo = sightNo.replace("S", "");
+        }
       }
       
       System.out.println("Date : "+date+" IndyID : "+indyID);
       date = processDate(date);
       
       MarkedIndividual indy = null;
-      MarkedIndividual nextIndy = null;
+      MarkedIndividual nextIndy = null; 
       Iterator<MarkedIndividual> allIndys = myShepherd.getAllMarkedIndividuals();
 
       while (allIndys.hasNext()) {
@@ -321,31 +325,48 @@ public class ImportReadImages extends HttpServlet {
           indy = nextIndy;
         }
       }        
-     
+      boolean matched = false;
       ArrayList<Encounter> encs = myShepherd.getEncounterArrayWithShortDate(date);
-      
       out.println("Trying to find a matching Encounter for this image and data...");
       if (indy!=null) {
         out.println("Finding an enc on "+date+" for this indy...");
         for (Encounter enc : encs) {
           try {
+            out.println("Looking for a match... Enc SightNo= "+enc.getSightNo()+" MA SightNo= "+sightNo);
             if (enc.getSightNo().equals(sightNo)) {
-              out.println("MATCH! EncNo : "+enc.getCatalogNumber());
-              enc.addMediaAsset(ma);
-              Occurrence occ = myShepherd.getOccurrence(enc.getOccurrenceID());
-              ma.setOccurrence(occ);
+              out.println("Match! EncNo : "+enc.getCatalogNumber()+" Checking Indy ID Code...");
+              // Check if any encs share the Indy
+              // If not Create a new one for the MA? It must have an encounter...
+              if (indyID.equals(enc.getIndividualID())) {
+                out.println("MATCH!!!! adding this MA to a proper Encounter! "+indyID+"="+enc.getIndividualID());
+                enc.addMediaAsset(ma);
+                Occurrence occ = myShepherd.getOccurrence(enc.getOccurrenceID());
+                ma.setOccurrence(occ);
+                matched = true;
+                break;
+              } else {
+                out.println("No Match... "+indyID+" != "+enc.getIndividualID());
+              }
             }            
           } catch (Exception e) {
             e.printStackTrace(out);
             out.println("Failed to add MA to OCC and ENC");
           }
-        } 
+        }
+        if (matched == false) {
+          unmatched.add("No matching encounter was found for this MediaAsset! Date : "+date+" SightNo : "+sightNo+" id_code : "+indyID);
+        }
       } else {
         out.println("Failed to find an indy.  ");
       }
     }
     for (String error : errors) {
       out.println(error);
+    }
+    out.println("\nHere are the "+unmatched.size()+" unmatched Media Assets out of "+nameList.size()+" : \n");
+    
+    for (String ma : unmatched) {
+      out.println(ma);
     }
   }
   
