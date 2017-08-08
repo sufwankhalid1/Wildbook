@@ -249,7 +249,12 @@ public class ImportReadImages extends HttpServlet {
             out.println("Current Column : "+k);
             //out.println("Cell Value : "+cellValue);
             if (cellValue!=null&&!cellValue.equals(cellKey)) {
-              rowData.put(cellKey, cellValue);
+              if (cellKey.equals("sight_no")) {
+                String newSightNo = processMediaAssetSightNo(cellValue);
+                rowData.put(cellKey, newSightNo);
+              } else {
+                rowData.put(cellKey, cellValue);                
+              }
               out.println("Adding Key : "+cellKey+" Value : "+cellValue);
             } else {
               rowData.put(cellKey, "");
@@ -267,6 +272,17 @@ public class ImportReadImages extends HttpServlet {
     wb.close();
     out.println("DATA to String at end of Excel process"+data.toString());
   }  
+  
+  private String processMediaAssetSightNo(String sightNo) {
+    String newSightNo = null;
+    if (newSightNo.contains("-") && newSightNo.contains("0")) {
+      newSightNo = newSightNo.replaceAll("0", "");
+    }
+    newSightNo = newSightNo.replace("-", "");
+    newSightNo = newSightNo.toUpperCase();
+    return newSightNo;
+  }
+  
   private void associateAssetsAndData(Shepherd myShepherd) {
     out.println("Filenames Exist? "+!filenames.isEmpty()+" NameList Exist? "+!nameList.isEmpty()+" Data Exists? "+!data.isEmpty());
     out.println("Filenames Size? "+filenames.size()+" NameList Size? "+nameList.size()+" Data Size? "+data.size());
