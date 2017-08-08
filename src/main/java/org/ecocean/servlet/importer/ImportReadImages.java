@@ -274,11 +274,12 @@ public class ImportReadImages extends HttpServlet {
   }  
   
   private String processMediaAssetSightNo(String sightNo) {
-    String newSightNo = null;
-    if (newSightNo.contains("-") && newSightNo.contains("0")) {
+    String newSightNo = sightNo;
+    if (sightNo.contains("-") && sightNo.contains("0")) {
       newSightNo = newSightNo.replaceAll("0", "");
     }
     newSightNo = newSightNo.replace("-", "");
+    
     newSightNo = newSightNo.toUpperCase();
     return newSightNo;
   }

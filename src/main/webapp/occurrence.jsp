@@ -592,8 +592,6 @@ $(document).ready(function() {
 
 					<form name="addDynProp" action="../BaseClassSetObservation"
 						method="post" class="editFormDynamic">
-						<%System.out.println("Naaaammmeee ???? "+nm);%>
-						<%System.out.println("Naaaammmeee ???? "+vl);%>
 						<input name="name" type="hidden" value="<%=nm%>" /> 
 						<input name="number" type="hidden" value="<%=num%>" />
 						<!-- This servlet can handle encounters or occurrences, so you have to pass it the Type!  -->
@@ -667,6 +665,7 @@ $(document).ready(function() {
 	<div class="col-md-6">
 	  <!-- Tags's! All sorts! -->
 		<h2><img align="absmiddle" src="../images/Crystal_Clear_app_starthere.png" width="40px" height="40px" />Tags Table</h2>
+		
 		<%
 		ArrayList<MetalTag> metalTags = null;
 		ArrayList<AcousticTag> acousticTags = null;
