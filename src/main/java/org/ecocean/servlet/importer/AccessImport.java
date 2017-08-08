@@ -249,7 +249,7 @@ public class AccessImport extends HttpServlet {
           dates += 1;
           //out.println("--------------------------------------------- DateTime String : "+dateTime.toString()+" Stored startTime : "+startTime);
           //out.println("--------------------------------------- .getDate() produces....  "+newEnc.getDate());
-          out.println("--- ++++++++ ENTIRE ROW STRING :"+thisRow.toString()+"\n\n");
+          //out.println("--- ++++++++ ENTIRE ROW STRING :"+thisRow.toString()+"\n\n");
           if (columnMasterList.contains("DATE") || columnMasterList.contains("StartTime")) {
             columnMasterList.remove("DATE");  
             columnMasterList.remove("StartTime");
@@ -316,7 +316,7 @@ public class AccessImport extends HttpServlet {
         if (thisRow.get("Location") != null) {
           location = thisRow.get("Location").toString();          
           newEnc.setVerbatimLocality(location);    
-          newEnc.setLocationID(location);
+          // newEnc.setLocationID(location);
           newEnc.setLocation(location);
           locations += 1;
           //out.println("---------------- Location : "+location);

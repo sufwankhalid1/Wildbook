@@ -221,12 +221,19 @@ public class ImportReadImages extends HttpServlet {
       row = sheet.getRow(i);
       rowData = new HashMap<String,String>();
       for (int j=0;j<cols-1;j++) {
-        XSSFCell cell = row.getCell(j);
+        XSSFCell cell = null;
+        try {
+          cell = row.getCell(j);          
+        } catch (Exception e) {
+         e.printStackTrace(out);
+         System.out.println("Failed to grab this value from excel.");
+        }
         //out.println("RAW CELL : "+cell.toString());
         String cellKey = formatter.formatCellValue(cell.getSheet().getRow(0).getCell(j));
         String cellValue = formatter.formatCellValue(cell);
         out.println("Current Column : "+j);
-        //out.println("Cell Value : "+cellValue);
+        out.println("Cell Value : "+cellValue+" Cell Key :"+cellKey);
+        
         if (cellValue!=null&&!cellValue.equals(cellKey)) {
           rowData.put(cellKey, cellValue);
           out.println("Adding Key : "+cellKey+" Value : "+cellValue);
@@ -281,6 +288,7 @@ public class ImportReadImages extends HttpServlet {
     newSightNo = newSightNo.replace("-", "");
     
     newSightNo = newSightNo.toUpperCase();
+    newSightNo.replace("S","");
     return newSightNo;
   }
   
@@ -347,6 +355,8 @@ public class ImportReadImages extends HttpServlet {
       out.println("Trying to find a matching Encounter for this image and data...");
       if (indy!=null) {
         out.println("Finding an enc on "+date+" for this indy...");
+        int nulls = 0;
+        Encounter nullEnc = null;
         for (Encounter enc : encs) {
           try {
             out.println("Looking for a match... Enc SightNo= "+enc.getSightNo()+" MA SightNo= "+sightNo);
@@ -364,14 +374,23 @@ public class ImportReadImages extends HttpServlet {
               } else {
                 out.println("No Match... "+indyID+" != "+enc.getIndividualID());
               }
+              if (enc.getIndividualID()==null) {
+                nulls+=1;
+                nullEnc = enc;
+              }
             }            
           } catch (Exception e) {
             e.printStackTrace(out);
             out.println("Failed to add MA to OCC and ENC");
           }
         }
-        if (matched == false) {
+        if (matched == false&&nulls == 0) {
           unmatched.add("No matching encounter was found for this MediaAsset! Date : "+date+" SightNo : "+sightNo+" id_code : "+indyID);
+        } else if (matched == false&&nulls == 1) {
+          nullEnc.addMediaAsset(ma);
+          Occurrence occ = myShepherd.getOccurrence(nullEnc.getOccurrenceID());
+          ma.setOccurrence(occ);
+          out.println("There was only one encounter without an Indy in this Occurrence, and no other matches so that has to be the one.");
         }
       } else {
         out.println("Failed to find an indy.  ");
