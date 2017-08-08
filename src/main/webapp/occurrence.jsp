@@ -667,6 +667,23 @@ $(document).ready(function() {
 	</div>			
 	<div class="col-md-6">
 	  <!-- Tags's! All sorts! -->
+	  
+<script type="text/javascript">
+	$(document).ready(function() {
+	  $(".editFormTag, .editTextTag, .resultMessageDiv").hide();
+	  var buttons = $("#editTag, #closeEditTag").on("click", function(){
+	    buttons.toggle();
+	  });
+	  $("#editTag").click(function() {
+	    $(".editFormTag").show();
+	
+	  });
+	
+	  $("#closeEditTag").click(function() {
+	    $(".editFormTag, .editTextTag, .resultMessageDiv").hide();
+	  });
+	});
+</script>
 		<h2><img align="absmiddle" src="../images/Crystal_Clear_app_starthere.png" width="40px" height="40px" />Tags Table</h2>
 		
 		<%
@@ -702,6 +719,7 @@ $(document).ready(function() {
 						<p><label>Name :</label></p>
 						<p><%=mt.getTagNumber()%></p>
 					</li>
+					
 			<% 	
 				}
 			} else {
@@ -782,7 +800,54 @@ $(document).ready(function() {
 			}
 			%>		
 		</ul>
-
+		<ul>
+			<div id="dialogTagAdd" title="<%=props.getProperty("addTag")%>" class="editFormTag">
+				<p class="editTextTag">
+					<strong><%=props.getProperty("addTag")%></strong>
+				</p>
+				<form name="addTag" action="../BaseClassSetTag"
+					method="post" class="editFormTag">
+					<input name="number" type="hidden" value="<%=num%>" />
+					<input name="type" type="hidden" value="Occurrence" />
+					<select name="tagType">
+					  <option value="metal">Metal</option>
+					  <option value="satellite">Satellite</option>
+					  <option value="acoustic">Acoustic</option>
+					  <option value="dtag">Digital Archive</option>
+					</select>
+					<div class="form-group row">
+						<div class="col-sm-3">
+							<label><%=props.getProperty("tagID")%></label>
+						</div>
+						<div class="col-sm-5">
+							<input name="tagID" type="text" class="form-control" id="addTagInput" />
+						</div>
+					</div>
+					<div class="form-group row">
+						<div class="col-sm-12">		
+							<small><%=props.getProperty("addNewTag")%></small>
+						</div>
+						<div class="col-sm-3">		
+							<label><%=props.getProperty("setSerialNumber")%></label>
+						</div>
+						<div class="col-sm-5">
+							<input name="serialNumber" type="text" class="form-control"
+								id="addTagInput2" />
+						</div>
+						<div class="col-sm-3">		
+							<label><%=props.getProperty("setTagLocation")%></label>
+						</div>
+						<div class="col-sm-5">
+							<input name="tagLocation" type="text" class="form-control"
+								id="addTagInput3" />
+						</div>
+						<div class="col-sm-4">
+							<input name="Set" type="submit" id="addTagBtn" value="<%=props.getProperty("initCapsSet")%>" class="btn btn-sm editFormBtn" />
+						</div>
+					</div>
+				</form>
+			</div>			
+		</ul>
 	</div>
 </div>
 
