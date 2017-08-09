@@ -676,13 +676,20 @@ $(document).ready(function() {
 	  });
 	  $("#editTag").click(function() {
 	    $(".editFormTag").show();
-	
 	  });
 	
 	  $("#closeEditTag").click(function() {
 	    $(".editFormTag, .editTextTag, .resultMessageDiv").hide();
 	  });
 	});
+	$("#tagType").click(function() {
+		if($("tagType").value=="satellite"){
+			$("#argosInput").show(); 
+		} else {
+			$("#argosInput").hide();
+		}
+	});
+	
 </script>
 		<h2><img align="absmiddle" src="../images/Crystal_Clear_app_starthere.png" width="40px" height="40px" />Tags Table</h2>
 		
@@ -805,11 +812,11 @@ $(document).ready(function() {
 				<p class="editTextTag">
 					<strong><%=props.getProperty("addTag")%></strong>
 				</p>
-				<form name="addTag" action="../BaseClassSetTag"
+				<form name="addTag" action="../BaseClassAddTag"
 					method="post" class="editFormTag">
 					<input name="number" type="hidden" value="<%=num%>" />
 					<input name="parentType" type="hidden" value="Occurrence" />
-					<select name="tagType">
+					<select name="tagType" id="tagType" >
 					  <option value="metal">Metal</option>
 					  <option value="satellite">Satellite</option>
 					  <option value="acoustic">Acoustic</option>

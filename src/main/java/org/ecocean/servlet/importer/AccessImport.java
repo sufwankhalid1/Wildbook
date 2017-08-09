@@ -249,7 +249,7 @@ public class AccessImport extends HttpServlet {
           dates += 1;
           //out.println("--------------------------------------------- DateTime String : "+dateTime.toString()+" Stored startTime : "+startTime);
           //out.println("--------------------------------------- .getDate() produces....  "+newEnc.getDate());
-          //out.println("--- ++++++++ ENTIRE ROW STRING :"+thisRow.toString()+"\n\n");
+          //  out.println("--- ++++++++ ENTIRE ROW STRING :"+thisRow.toString()+"\n\n");
           if (columnMasterList.contains("DATE") || columnMasterList.contains("StartTime")) {
             columnMasterList.remove("DATE");  
             columnMasterList.remove("StartTime");
@@ -850,16 +850,20 @@ public class AccessImport extends HttpServlet {
 
             if (enc.getLocationID() != null || enc.getObservationByName("Project") != null) {
               System.out.println("(enc:surveyTrack) Location : "+enc.getLocationID()+" = "+st.getLocationID()+" Project : "+enc.getSubmitterProject()+" = "+sv.getProjectName());
-              if (enc.getObservationByName("Project").getValue().contains(project) || project.contains(enc.getObservationByName("Project").getValue()))  {
-                System.out.println("MATCH!!! At least on project name... (enc:surveyTrack) Project : "+enc.getObservationByName("Project").getValue()+" = "+project);
-                st.addOccurence(myShepherd.getOccurrence(enc.getOccurrenceID()));
-                sv.addSurveyTrack(st);
-                success++;
-              } else if (enc.getLocationID().contains(surveyArea) || surveyArea.contains(enc.getLocationID())) {
-                System.out.println("MATCH!!! At least on location ID... (enc:surveyTrack) Location : "+enc.getLocationID()+" = "+st.getLocationID()+" Project : "+enc.getSubmitterProject()+" = "+sv.getProjectName());
-                st.addOccurence(myShepherd.getOccurrence(enc.getOccurrenceID()));
-                sv.addSurveyTrack(st);
-                success++;
+              if (enc.getObservationByName("Project") != null || project != null)  {
+                if (enc.getObservationByName("Project").getValue().contains(project) || project.contains(enc.getObservationByName("Project").getValue())) {
+                  System.out.println("MATCH!!! At least on project name... (enc:surveyTrack) Project : "+enc.getObservationByName("Project").getValue()+" = "+project);
+                  st.addOccurence(myShepherd.getOccurrence(enc.getOccurrenceID()));
+                  sv.addSurveyTrack(st);
+                  success++;                  
+                }
+              } else if (enc.getLocationID() != null || surveyArea != null) {
+                if (enc.getLocationID().contains(surveyArea) || surveyArea.contains(enc.getLocationID())) {
+                  System.out.println("MATCH!!! At least on location ID... (enc:surveyTrack) Location : "+enc.getLocationID()+" = "+st.getLocationID()+" Project : "+enc.getSubmitterProject()+" = "+sv.getProjectName());
+                  st.addOccurence(myShepherd.getOccurrence(enc.getOccurrenceID()));
+                  sv.addSurveyTrack(st);
+                  success++;                  
+                }
               } 
             } else {
               System.out.println("Location ID for this enc is null!");

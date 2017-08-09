@@ -1,6 +1,8 @@
 package org.ecocean;
 
 import java.util.ArrayList;
+import java.util.List;
+
 import org.ecocean.genetics.TissueSample;
 import org.ecocean.tag.AcousticTag;
 import org.ecocean.tag.DigitalArchiveTag;
@@ -206,6 +208,18 @@ public abstract class FoundationalPropertiesBase implements java.io.Serializable
       for (AcousticTag mt : baseAcousticTags) {
         if (mt.getId() != null && mt.getId().equals(mtName)) {
           return mt;
+        }
+      }
+    }
+    return null;
+  }
+  
+  public MetalTag findBaseMetalTagForLocation(String location) {
+    List<MetalTag> metalTags = this.getBaseMetalTagArrayList().subList(0,this.baseMetalTags.size());
+    if (metalTags != null) {
+      for (MetalTag metalTag : metalTags) {
+        if (location.equals(metalTag.getLocation())) {
+          return metalTag;
         }
       }
     }
