@@ -537,10 +537,15 @@
 		<servlet-class>ec.com.mapache.ngflow.servlet.UploadServlet</servlet-class>
 	</servlet>
 	
+	<servlet>
+		<servlet-name>BaseClassAddTag</servlet-name>
+		<servlet-class>org.ecocean.servlet.BaseClassAddTag</servlet-class>
+	</servlet>
+	
 	
     <servlet-mapping>
- 		<servlet-name>EncounterCreateSurvey</servlet-name>
-		<url-pattern>/EncounterCreateSurvey</url-pattern>
+ 		<servlet-name>BaseClassAddTag</servlet-name>
+		<url-pattern>/BaseClassAddTag</url-pattern>
 	</servlet-mapping>
 	
 	

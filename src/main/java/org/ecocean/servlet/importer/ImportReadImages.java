@@ -3,6 +3,8 @@ package org.ecocean.servlet.importer;
 import org.json.JSONObject;
 
 import java.io.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
@@ -453,7 +455,17 @@ public class ImportReadImages extends HttpServlet {
       try {
         date = row.getCell(0).toString();
         out.println("INPUT DATE : "+date);
+        
+        SimpleDateFormat sdf = new SimpleDateFormat("d-MMM-yy");
+        try {
+          sdf.parse(date);
+        } catch (ParseException pe) {
+          out.println("Found an unparsable date! Skipping! "+date);
+          continue;
+        }
+        
         DateTimeFormatter input = DateTimeFormat.forPattern("d-MMM-yy"); 
+        
         DateTimeFormatter output = DateTimeFormat.forPattern("yyyy-MM-dd"); 
         DateTime dt = input.parseDateTime(date); 
         date = output.print(dt.getMillis()); 

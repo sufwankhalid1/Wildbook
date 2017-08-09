@@ -808,7 +808,7 @@ $(document).ready(function() {
 				<form name="addTag" action="../BaseClassSetTag"
 					method="post" class="editFormTag">
 					<input name="number" type="hidden" value="<%=num%>" />
-					<input name="type" type="hidden" value="Occurrence" />
+					<input name="parentType" type="hidden" value="Occurrence" />
 					<select name="tagType">
 					  <option value="metal">Metal</option>
 					  <option value="satellite">Satellite</option>

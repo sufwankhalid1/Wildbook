@@ -36,7 +36,7 @@ import org.ecocean.Observation;
 import org.ecocean.Occurrence;
 import org.ecocean.Shepherd;
 
-public class BaseClassSetObservation extends HttpServlet {
+public class BaseClassAddTag extends HttpServlet {
 
   /**
    * 
@@ -47,7 +47,7 @@ public class BaseClassSetObservation extends HttpServlet {
   public void init(ServletConfig config) throws ServletException {
     super.init(config);
   }
-  
+
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
@@ -78,8 +78,8 @@ public class BaseClassSetObservation extends HttpServlet {
     
     String context = ServletUtilities.getContext(request);
     Shepherd myShepherd = new Shepherd(context);
-    myShepherd.setAction("BaseClassSetObservation.class");
-    System.out.println("Reached Observation setting servlet...");
+    myShepherd.setAction("BaseClassAddTag.class");
+    System.out.println("Reached Tag Creation servlet...");
     //set up for response
     response.setContentType("text/html");
     PrintWriter out = response.getWriter();
@@ -116,11 +116,9 @@ public class BaseClassSetObservation extends HttpServlet {
         oldValue = changeMe.getObservationByName(name).getValue();
       } 
 
-
       if ((request.getParameter("value") != null) && (!request.getParameter("value").equals(""))) {
         newValue = request.getParameter("value");
       }
-      
       
       try {
         if (newValue.equals("null")) {
@@ -213,18 +211,3 @@ public class BaseClassSetObservation extends HttpServlet {
 
   
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
