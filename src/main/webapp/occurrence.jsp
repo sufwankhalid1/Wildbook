@@ -670,12 +670,13 @@ $(document).ready(function() {
 	  
 <script type="text/javascript">
 	$(document).ready(function() {
-	  $(".editFormTag, .editTextTag, .resultMessageDiv").hide();
+	  $(".editFormTag, .editTextTag, .resultMessageDiv, .removeTag").hide();
 	  var buttons = $("#editTag, #closeEditTag").on("click", function(){
 	    buttons.toggle();
 	  });
 	  $("#editTag").click(function() {
 	    $(".editFormTag").show();
+	    $(".removeTag").show();
 	  });
 	
 	  $("#closeEditTag").click(function() {
@@ -692,8 +693,17 @@ $(document).ready(function() {
 	
 </script>
 		<h2><img align="absmiddle" src="../images/Crystal_Clear_app_starthere.png" width="40px" height="40px" />Tags Table</h2>
-		
 		<%
+			if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
+		%>
+				<h2>
+					<button class="btn btn-md" type="button" name="button"
+						id="editTag">Edit</button>
+					<button class="btn btn-md" type="button" name="button"
+						id="closeEditTag" style="display: none;">Close Edit</button>
+				</h2>
+		<%
+			}
 		ArrayList<MetalTag> metalTags = null;
 		ArrayList<AcousticTag> acousticTags = null;
 		ArrayList<DigitalArchiveTag> dTags = null;
@@ -725,6 +735,7 @@ $(document).ready(function() {
 						<p><%=mt.getLocation()%></p>
 						<p><label>Name :</label></p>
 						<p><%=mt.getTagNumber()%></p>
+						<button onclick="removeTag(<%=mt.getId()%>)" type="button" class="removeTag btn btn-primary btn-xs">Remove</button>
 					</li>
 					
 			<% 	
@@ -748,7 +759,7 @@ $(document).ready(function() {
 						<p><%=at.getId()%></p>
 						<p><label>Serial Number :</label></p>
 						<p><%=at.getSerialNumber()%></p>
-
+						<button onclick="removeTag(<%=at.getId()%>)" type="button" class="removeTag btn btn-primary btn-xs">Remove</button>
 					</li>
 			<% 	
 				}
@@ -771,6 +782,7 @@ $(document).ready(function() {
 						<p><%=dat.getId()%></p>
 						<p><label>SerialNumber :</label></p>
 						<p><%=dat.getSerialNumber()%></p>
+						<button onclick="removeTag(<%=dat.getId()%>)" type="button" class="removeTag btn btn-primary btn-xs">Remove</button>
 					</li>
 			<% 	
 				}
@@ -797,6 +809,7 @@ $(document).ready(function() {
 						<p><%=st.getSerialNumber()%></p>
 						<p><label>Argos Ptt Number :</label></p>
 						<p><%=st.getArgosPttNumber()%></p>
+						<button onclick="removeTag(<%=st.getId()%>)" type="button" class="removeTag btn btn-primary btn-xs">Remove</button>
 					</li>
 			<% 	
 				}
@@ -805,55 +818,36 @@ $(document).ready(function() {
 				<p><label>None</label></p>
 			<% 	
 			}
-			%>		
-		</ul>
-		<ul>
-			<div id="dialogTagAdd" title="<%=props.getProperty("addTag")%>" class="editFormTag">
-				<p class="editTextTag">
-					<strong><%=props.getProperty("addTag")%></strong>
-				</p>
-				<form name="addTag" action="../BaseClassAddTag"
-					method="post" class="editFormTag">
-					<input name="number" type="hidden" value="<%=num%>" />
-					<input name="parentType" type="hidden" value="Occurrence" />
-					<select name="tagType" id="tagType" >
-					  <option value="metal">Metal</option>
-					  <option value="satellite">Satellite</option>
-					  <option value="acoustic">Acoustic</option>
-					  <option value="dtag">Digital Archive</option>
-					</select>
-					<div class="form-group row">
-						<div class="col-sm-3">
-							<label><%=props.getProperty("tagID")%></label>
-						</div>
-						<div class="col-sm-5">
-							<input name="tagID" type="text" class="form-control" id="addTagInput" />
-						</div>
+			%>	
+			<li>
+				<div id="dialogTagAdd" title="<%=props.getProperty("addTag")%>" class="editFormTag">
+					<p class="editTextTag">
+						<strong><%=props.getProperty("addTag")%></strong>
+					</p>
+					<p>
+					<form name="addTag" action="../BaseClassAddTag"
+						method="post" class="editFormTag">
+						<input name="number" type="hidden" value="<%=num%>" />
+						<input name="parentType" type="hidden" value="Occurrence" />
+						<select name="tagType" id="tagType" >
+						  <option value="metal">Metal</option>
+						  <option value="satellite">Satellite</option>
+						  <option value="acoustic">Acoustic</option>
+						  <option value="dtag">Digital Archive</option>
+						</select>
+						<label><%=props.getProperty("tagID")%></label>
+						<input name="tagID" type="text" class="form-control" id="addTagInput" />
+						<small><%=props.getProperty("addNewTag")%></small>
+						<label><%=props.getProperty("setSerialNumber")%></label>
+						<input name="serialNumber" type="text" class="form-control" id="addTagInput2" />
+						<label><%=props.getProperty("setTagLocation")%></label>
+						<input name="tagLocation" type="text" class="form-control" id="addTagInput3" />
+						<input name="Set" type="submit" id="addTagBtn" value="<%=props.getProperty("initCapsSet")%>" class="btn btn-sm editFormBtn" />
+						<div class="form-group row">
+					</form>
 					</div>
-					<div class="form-group row">
-						<div class="col-sm-12">		
-							<small><%=props.getProperty("addNewTag")%></small>
-						</div>
-						<div class="col-sm-3">		
-							<label><%=props.getProperty("setSerialNumber")%></label>
-						</div>
-						<div class="col-sm-5">
-							<input name="serialNumber" type="text" class="form-control"
-								id="addTagInput2" />
-						</div>
-						<div class="col-sm-3">		
-							<label><%=props.getProperty("setTagLocation")%></label>
-						</div>
-						<div class="col-sm-5">
-							<input name="tagLocation" type="text" class="form-control"
-								id="addTagInput3" />
-						</div>
-						<div class="col-sm-4">
-							<input name="Set" type="submit" id="addTagBtn" value="<%=props.getProperty("initCapsSet")%>" class="btn btn-sm editFormBtn" />
-						</div>
-					</div>
-				</form>
-			</div>			
+				</div>
+			</li>				
 		</ul>
 	</div>
 </div>

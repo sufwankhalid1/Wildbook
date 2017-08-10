@@ -106,12 +106,21 @@ public class ImportReadImages extends HttpServlet {
         String[] subDirs = path.list();
         System.out.println("There are "+subDirs.length+" files in the folder"+path.getAbsolutePath());
         for (int i=0;subDirs!=null&&i<subDirs.length;i++ ) {
-          getImageFiles(new File(path, subDirs[i]), myShepherd);
+          if (!subDirs[i].contains("[Originals]")||!subDirs[i].contains("NC-DUML-UNCW")) {
+            getImageFiles(new File(path, subDirs[i]), myShepherd);            
+          } else {
+            out.println("Caught an [Originals] folder (or maybe the incomplete UNCW one)!!!! Skipping...");
+          }
         }
       }
       if (path.isFile()&&!path.getName().endsWith("xlsx")) {
         out.println("Found file: "+path.getName());
-        boolean success = processImage(path, myShepherd);
+        boolean success = true;
+        if (!path.getAbsolutePath().contains("[Originals]")) {
+          success = processImage(path, myShepherd);                    
+        } else {
+          out.println("Not gonna process this one!!! "+path.getAbsolutePath());
+        }
         //boolean success = true;
         if (success) {
           assetsCreated++;
@@ -162,6 +171,7 @@ public class ImportReadImages extends HttpServlet {
       photo = new File("/"+FilenameUtils.getPath(image.getAbsolutePath()),image.getName());
       params = assetStore.createParameters(photo);
       
+      
       ma = new MediaAsset(assetStore, params);
       ma.addDerivationMethod("Initial Bulk Import", System.currentTimeMillis());
       ma.addLabel("_original");
@@ -176,7 +186,12 @@ public class ImportReadImages extends HttpServlet {
         myShepherd.beginDBTransaction();
         myShepherd.getPM().makePersistent(ma);
         myShepherd.commitDBTransaction();
-
+        
+        if (image.getName().startsWith("DU")) {
+          Keyword du = new Keyword("DU - Distinct Unknown");
+          ma.addKeyword(du);
+        }
+        
         nameList.add(image.getName());
         
         out.println("Adding this MA and image file to filename Map : "+ma.getFilename() +"Media Asset ID : "+ ma.getId());
@@ -233,7 +248,7 @@ public class ImportReadImages extends HttpServlet {
         //out.println("RAW CELL : "+cell.toString());
         String cellKey = formatter.formatCellValue(cell.getSheet().getRow(0).getCell(j));
         String cellValue = formatter.formatCellValue(cell);
-        out.println("Current Column : "+j);
+        //out.println("Current Column : "+j);
         out.println("Cell Value : "+cellValue+" Cell Key :"+cellKey);
         
         if (cellValue!=null&&!cellValue.equals(cellKey)) {
@@ -255,19 +270,26 @@ public class ImportReadImages extends HttpServlet {
             XSSFCell cell = row.getCell(k);
             String cellKey = formatter.formatCellValue(cell.getSheet().getRow(0).getCell(k));
             String cellValue = formatter.formatCellValue(cell);
+            String newSightNo = null;
             out.println("Current Column : "+k);
             //out.println("Cell Value : "+cellValue);
             if (cellValue!=null&&!cellValue.equals(cellKey)) {
               if (cellKey.equals("sight_no")) {
-                String newSightNo = processMediaAssetSightNo(cellValue);
+                newSightNo = processMediaAssetSightNo(cellValue);
                 rowData.put(cellKey, newSightNo);
+              } else if (cellKey.equals("date")) {
+                String newDate = processMediaAssetDate(cellValue);
+                rowData.put(cellKey, newDate);
               } else {
-                rowData.put(cellKey, cellValue);                
+                rowData.put(cellKey, cellValue);                                
               }
               out.println("Adding Key : "+cellKey+" Value : "+cellValue);
             } else {
               rowData.put(cellKey, "");
               out.println("Adding Key : "+cellKey+" Value : "+cellValue);
+            }
+            if (newSightNo==null||newSightNo.equals("")) {
+              out.println("Failed to get a good sightNo for this row : "+rowData.toString());
             }
           }
           out.println(rowData.toString()+"\n");
@@ -279,8 +301,28 @@ public class ImportReadImages extends HttpServlet {
       }
     }
     wb.close();
-    out.println("DATA to String at end of Excel process"+data.toString());
+    //out.println("DATA to String at end of Excel process"+data.toString());
   }  
+  
+  private String processMediaAssetDate(String date) {
+    if (date.contains("/")) {
+      out.println("Crunching mm/dd/yyyy date format..."+date);
+      String[] dateArr = date.split("/");
+      
+      String day = dateArr[1];
+      String year = dateArr[2];
+      String month = dateArr[0];
+      if (day.length()==1) {
+        day = "0"+day;
+      }
+      if (month.length()==1) {
+        month = "0"+month;
+      }
+      date = year + month + day;
+      out.println("Result : "+ date);
+    }
+    return date;
+  }
   
   private String processMediaAssetSightNo(String sightNo) {
     String newSightNo = sightNo;
@@ -290,7 +332,7 @@ public class ImportReadImages extends HttpServlet {
     newSightNo = newSightNo.replace("-", "");
     
     newSightNo = newSightNo.toUpperCase();
-    newSightNo.replace("S","");
+    newSightNo = newSightNo.replace("S","");
     return newSightNo;
   }
   
@@ -307,7 +349,7 @@ public class ImportReadImages extends HttpServlet {
       MediaAsset ma = null;
       try {
         String name = nameList.get(i);
-        System.out.println("Get name from nameList?"+name);
+        System.out.println("Get name from nameList? "+name);
         // Fails to get a body of data from the excel.
         if (data.get(name)!=null) {
           excelData = data.get(name);          
@@ -324,7 +366,7 @@ public class ImportReadImages extends HttpServlet {
         out.println("Choked trying to retrive a media asset and data to associate.");
       }
       
-      System.out.println(excelData.toString());
+      //System.out.println(excelData.toString());
       
       String indyID = null;
       String date = null;
@@ -334,6 +376,9 @@ public class ImportReadImages extends HttpServlet {
         indyID = excelData.get("id_code");
         date = excelData.get("date");
         sightNo = excelData.get("sight_no").toUpperCase(); 
+        if (sightNo==null||sightNo.equals("")) {
+          out.println("The excelData sighting number is null or empty : "+excelData.toString());
+        }
         if (sightNo.contains("S")) {
           sightNo = sightNo.replace("S", "");
         }
@@ -396,6 +441,8 @@ public class ImportReadImages extends HttpServlet {
         }
       } else {
         out.println("Failed to find an indy.  ");
+        errors.add("Failed to find an indy for ID : "+indyID+" Date : "+date+" SightNo : "+sightNo);
+        
       }
     }
     for (String error : errors) {
@@ -409,8 +456,8 @@ public class ImportReadImages extends HttpServlet {
   }
   
   private String processDate(String date) {
-    out.println("DATE :"+date);
-    
+    out.println("DATE :"+date);  
+
     DateTimeFormatter input = DateTimeFormat.forPattern("yyyyMMdd"); 
     DateTimeFormatter output = DateTimeFormat.forPattern("yyyy-MM-dd"); 
     DateTime dt = input.parseDateTime(date); 
@@ -458,7 +505,8 @@ public class ImportReadImages extends HttpServlet {
         
         DateTimeFormatter input = null; 
         if (date.contains("/")) {
-          input = DateTimeFormat.forPattern("M/d/yyyy");
+          out.println("Caught a wack date!");
+          input = DateTimeFormat.forPattern("MM/dd/yyyy");
         } else {
           input = DateTimeFormat.forPattern("d-MMM-yy");
         }
