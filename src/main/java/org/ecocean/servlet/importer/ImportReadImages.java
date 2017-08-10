@@ -106,7 +106,7 @@ public class ImportReadImages extends HttpServlet {
         String[] subDirs = path.list();
         System.out.println("There are "+subDirs.length+" files in the folder"+path.getAbsolutePath());
         for (int i=0;subDirs!=null&&i<subDirs.length;i++ ) {
-          if (!subDirs[i].contains("[Originals]")||!subDirs[i].contains("NC-DUML-UNCW")) {
+          if (!subDirs[i].contains("[Originals]")&&!subDirs[i].contains("NC-DUML-UNCW")) {
             getImageFiles(new File(path, subDirs[i]), myShepherd);            
           } else {
             out.println("Caught an [Originals] folder (or maybe the incomplete UNCW one)!!!! Skipping...");
@@ -365,9 +365,7 @@ public class ImportReadImages extends HttpServlet {
         e.printStackTrace();
         out.println("Choked trying to retrive a media asset and data to associate.");
       }
-      
-      //System.out.println(excelData.toString());
-      
+        
       String indyID = null;
       String date = null;
       String sightNo = null;
@@ -382,6 +380,14 @@ public class ImportReadImages extends HttpServlet {
         if (sightNo.contains("S")) {
           sightNo = sightNo.replace("S", "");
         }
+      }
+      
+      if (date==null) {
+        unmatched.add("Skipping unmatched because lacking date : "+excelData.toString()+"\n");
+        continue;
+      } else if (date.length()<8) {
+        unmatched.add("Skipping unmatched because improper date : "+excelData.toString()+"\n");
+        continue;
       }
       
       System.out.println("Date : "+date+" IndyID : "+indyID);

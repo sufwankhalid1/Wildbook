@@ -670,40 +670,41 @@ $(document).ready(function() {
 	  
 <script type="text/javascript">
 	$(document).ready(function() {
-	  $(".editFormTag, .editTextTag, .resultMessageDiv, .removeTag").hide();
+	  $(".editFormTag, .editTextTag, .dialogTagAdd, .resultMessageDiv, .removeTag").hide();
 	  var buttons = $("#editTag, #closeEditTag").on("click", function(){
 	    buttons.toggle();
 	  });
 	  $("#editTag").click(function() {
-	    $(".editFormTag").show();
-	    $(".removeTag").show();
+	    $(".editFormTag, .addTagBtn, .removeTag").show();
 	  });
-	
 	  $("#closeEditTag").click(function() {
-	    $(".editFormTag, .editTextTag, .resultMessageDiv").hide();
+	    $(".editFormTag, .editTextTag, .resultMessageDiv, #addTagBtn, .removeTag").hide();
 	  });
 	});
-	$("#tagType").click(function() {
-		if($("tagType").value=="satellite"){
+	$("#satTag").click(function() {
+		console.log("Satellite tag! Expanding input...")
 			$("#argosInput").show(); 
-		} else {
-			$("#argosInput").hide();
-		}
+	});
+	$(".notSat").click(function() {
+		console.log("Not Satellite tag...")
+			$("#argosInput").hide(); 
 	});
 	
 </script>
-		<h2><img align="absmiddle" src="../images/Crystal_Clear_app_starthere.png" width="40px" height="40px" />Tags Table</h2>
+		<h2>
+		<img align="absmiddle" src="../images/Crystal_Clear_app_starthere.png" width="40px" height="40px" />Tags Table
 		<%
 			if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
 		%>
-				<h2>
 					<button class="btn btn-md" type="button" name="button"
 						id="editTag">Edit</button>
 					<button class="btn btn-md" type="button" name="button"
 						id="closeEditTag" style="display: none;">Close Edit</button>
-				</h2>
 		<%
 			}
+		%>
+		</h2>
+		<% 
 		ArrayList<MetalTag> metalTags = null;
 		ArrayList<AcousticTag> acousticTags = null;
 		ArrayList<DigitalArchiveTag> dTags = null;
@@ -819,21 +820,19 @@ $(document).ready(function() {
 			<% 	
 			}
 			%>	
-			<li>
+		</ul>
+		<ul>
+		
+			<li style="list-style: none;">
 				<div id="dialogTagAdd" title="<%=props.getProperty("addTag")%>" class="editFormTag">
-					<p class="editTextTag">
-						<strong><%=props.getProperty("addTag")%></strong>
-					</p>
-					<p>
-					<form name="addTag" action="../BaseClassAddTag"
-						method="post" class="editFormTag">
+					 <form name="addTag" action="../BaseClassAddTag" method="post" class="editFormTag">
 						<input name="number" type="hidden" value="<%=num%>" />
 						<input name="parentType" type="hidden" value="Occurrence" />
 						<select name="tagType" id="tagType" >
-						  <option value="metal">Metal</option>
-						  <option value="satellite">Satellite</option>
-						  <option value="acoustic">Acoustic</option>
-						  <option value="dtag">Digital Archive</option>
+						  <option class="notSat" value="metal">Metal</option>
+						  <option id="satTag" value="satellite">Satellite</option>
+						  <option class="notSat" value="acoustic">Acoustic</option>
+						  <option class="notSat" value="dtag">Digital Archive</option>
 						</select>
 						<label><%=props.getProperty("tagID")%></label>
 						<input name="tagID" type="text" class="form-control" id="addTagInput" />
@@ -843,9 +842,7 @@ $(document).ready(function() {
 						<label><%=props.getProperty("setTagLocation")%></label>
 						<input name="tagLocation" type="text" class="form-control" id="addTagInput3" />
 						<input name="Set" type="submit" id="addTagBtn" value="<%=props.getProperty("initCapsSet")%>" class="btn btn-sm editFormBtn" />
-						<div class="form-group row">
-					</form>
-					</div>
+				     </form>
 				</div>
 			</li>				
 		</ul>
@@ -871,11 +868,11 @@ $(document).ready(function() {
     					<td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("numObservations") %></strong></td>
     					<td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("sampleID") %></strong></td>
    						<td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("sex") %></td>
-						<h2><%=sharky.getBaseTissueSampleArrayList().size()%></h2>
+						<h3><%=sharky.getBaseTissueSampleArrayList().size()%></h3>
 					</tr>
 						<%for (TissueSample biopsy : sharky.getBaseTissueSampleArrayList()) {%>
 						<tr>
-	  					    <td class="lineitem">
+	  					    <td class="lineitem" align="left" valign="top">
 							    <%if(biopsy.getObservationByName("DATE")!=null){%>
 							    <%=biopsy.getObservationByName("DATE").getValue() %>
 							    <%}else{%>
@@ -883,7 +880,7 @@ $(document).ready(function() {
 							    <%}%>
 						    </td>
 						    
-						    <td class="lineitem">
+						    <td class="lineitem" align="left" valign="top">
 							    <%if(biopsy.getObservationByName("Photo-ID_Code")!=null){
 							    	String idCode = biopsy.getObservationByName("Photo-ID_Code").getValue();
 							    	String url = "individuals.jsp?number=" + idCode;
@@ -894,7 +891,7 @@ $(document).ready(function() {
 							    <%}%>
 						    </td>
 						    
-						    <td class="lineitem">
+						    <td class="lineitem" align="left" valign="top">
 							    <%if(biopsy.getPermit()!=null){%>
 							    <%=biopsy.getPermit()%>
 							    <%}else{%>
@@ -902,7 +899,7 @@ $(document).ready(function() {
 							    <%}%>
 						    </td>
 						    
-						    <td class="lineitem">
+						    <td class="lineitem" align="left" valign="top">
 							    <%if(biopsy.getState()!=null){%>
 							    <%=biopsy.getState()%>
 							    <%}else{%>
@@ -910,7 +907,7 @@ $(document).ready(function() {
 							    <%}%>
 						    </td>
 						    
-						    <td class="lineitem">
+						    <td class="lineitem" align="left" valign="top">
 							    <%
 							    int obsList = biopsy.getBaseObservationArrayList().size();
 							    if(obsList > 0){%>
@@ -920,7 +917,7 @@ $(document).ready(function() {
 							    <%}%>
 						    </td>
 						    
-						    <td class="lineitem">
+						    <td class="lineitem" align="left" valign="top">
 							    <%if(biopsy.getObservationByName("Sample_ID") != null){%>
 							    <%=biopsy.getObservationByName("Sample_ID").getValue()%>
 							    <%}else{%>
@@ -928,7 +925,7 @@ $(document).ready(function() {
 							    <%}%>
 						    </td>
 						    
-						    <td class="lineitem">
+						    <td class="lineitem" align="left" valign="top">
 							    <%
 							    if(biopsy.getObservationByName("Conf_sex").getValue() != null){%>
 							    <%=biopsy.getObservationByName("Conf_sex").getValue()%>
@@ -938,7 +935,8 @@ $(document).ready(function() {
 						    </td>
 						<%}%>
 		  		 		</tr>
-  				</table>				
+  				</table>
+  				&nbsp;&nbsp;				
 		</div>
 		<br>
 		<br>
