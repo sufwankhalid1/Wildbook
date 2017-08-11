@@ -84,6 +84,8 @@ public class ImportReadImages extends HttpServlet {
     // Side function that processes the AllTags excel file. Those just get associated with the Occurrences. 
     processAllTags(myShepherd);
     
+    generateKeywords(myShepherd);
+    
     //Grabs images and created media assets.
     // Also runs through all excel files and stores data for each image in an array
     //with the image name as the key.
@@ -188,14 +190,14 @@ public class ImportReadImages extends HttpServlet {
         myShepherd.commitDBTransaction();
         
         if (image.getName().startsWith("DU")) {
-          Keyword du = new Keyword("DU - Distinct Unknown");
+          Keyword du = myShepherd.getKeyword("DU - Distinct Unknown");
           ma.addKeyword(du);
         }
         
-        nameList.add(image.getName());
+        nameList.add(image.getName().toUpperCase());
         
         out.println("Adding this MA and image file to filename Map : "+ma.getFilename() +"Media Asset ID : "+ ma.getId());
-        filenames.put(image.getName(), ma);
+        filenames.put(image.getName().toUpperCase(), ma);
         
         ma.updateMetadata();
         ma.updateStandardChildren(myShepherd);
@@ -208,6 +210,13 @@ public class ImportReadImages extends HttpServlet {
     }
     out.println("Created a new MediaAsset. Filename : "+assetStore.getFilename(ma));
     return true;
+  }
+  
+  public void generateKeywords(Shepherd myShepherd) {
+    Keyword du = new Keyword("DU - Distinct Unknown");
+    myShepherd.beginDBTransaction();
+    myShepherd.getPM().makePersistent(du);
+    myShepherd.commitDBTransaction();
   }
   
   public void collectExcelData(File file, Shepherd myShepherd) throws IOException { 
@@ -266,6 +275,7 @@ public class ImportReadImages extends HttpServlet {
         if (sheet.getRow(l).getCell(0).toString().equals(rowData.get("id_code"))){
           row = sheet.getRow(l);          
           out.println("Current Row : "+l+" Current id_codes:  ROWDATA : "+rowData.get("id_code")+" SHEET2 : "+sheet.getRow(l).getCell(0).toString());
+          String filename = null;
           for (int k=0;k<cols-1;k++) {
             XSSFCell cell = row.getCell(k);
             String cellKey = formatter.formatCellValue(cell.getSheet().getRow(0).getCell(k));
@@ -280,7 +290,10 @@ public class ImportReadImages extends HttpServlet {
               } else if (cellKey.equals("date")) {
                 String newDate = processMediaAssetDate(cellValue);
                 rowData.put(cellKey, newDate);
-              } else {
+              } else if (cellKey.equals("image_file")) {
+                filename = cellValue.toUpperCase();
+                rowData.put(cellKey, filename);
+              } else {                
                 rowData.put(cellKey, cellValue);                                
               }
               out.println("Adding Key : "+cellKey+" Value : "+cellValue);
@@ -293,7 +306,7 @@ public class ImportReadImages extends HttpServlet {
             }
           }
           out.println(rowData.toString()+"\n");
-          data.put(row.getCell(3).toString(), rowData);
+          data.put(filename, rowData);
           out.println("Excel has image_file? "+row.getCell(3).toString());
           out.println("image_file from rowData? "+rowData.get("image_file"));
           out.println("Data Length ? "+data.size());
@@ -341,6 +354,7 @@ public class ImportReadImages extends HttpServlet {
     out.println("Filenames Size? "+filenames.size()+" NameList Size? "+nameList.size()+" Data Size? "+data.size());
     ArrayList<String> errors = new ArrayList<String>();
     ArrayList<String> unmatched = new ArrayList<String>(); 
+    int noIndys = 0;
     
     for (int i=0;i<nameList.size();i++) {
       out.println("\n--------------------------");
@@ -406,49 +420,52 @@ public class ImportReadImages extends HttpServlet {
       boolean matched = false;
       ArrayList<Encounter> encs = myShepherd.getEncounterArrayWithShortDate(date);
       out.println("Trying to find a matching Encounter for this image and data...");
-      if (indy!=null) {
-        out.println("Finding an enc on "+date+" for this indy...");
-        int nulls = 0;
-        Encounter nullEnc = null;
-        for (Encounter enc : encs) {
-          try {
-            out.println("Looking for a match... Enc SightNo= "+enc.getSightNo()+" MA SightNo= "+sightNo);
-            if (enc.getSightNo().equals(sightNo)) {
-              out.println("Match! EncNo : "+enc.getCatalogNumber()+" Checking Indy ID Code...");
-              // Check if any encs share the Indy
-              // If not Create a new one for the MA? It must have an encounter...
-              if (indyID.equals(enc.getIndividualID())) {
-                out.println("MATCH!!!! adding this MA to a proper Encounter! "+indyID+"="+enc.getIndividualID());
-                enc.addMediaAsset(ma);
-                Occurrence occ = myShepherd.getOccurrence(enc.getOccurrenceID());
-                ma.setOccurrence(occ);
-                matched = true;
-                break;
-              } else {
-                out.println("No Match... "+indyID+" != "+enc.getIndividualID());
-              }
-              if (enc.getIndividualID()==null) {
-                nulls+=1;
-                nullEnc = enc;
-              }
-            }            
-          } catch (Exception e) {
-            e.printStackTrace(out);
-            out.println("Failed to add MA to OCC and ENC");
-          }
+      Occurrence occ = null;
+      out.println("Finding an enc on "+date+" for this indy...");
+      int nulls = 0;
+      Encounter nullEnc = null;
+      for (Encounter enc : encs) {
+        try {
+          out.println("Looking for a match... Enc SightNo= "+enc.getSightNo()+" MA SightNo= "+sightNo);
+          if (enc.getSightNo().equals(sightNo)) {
+            out.println("Match! EncNo : "+enc.getCatalogNumber()+" Checking Indy ID Code...");
+            // Check if any encs share the Indy
+            // If not Create a new one for the MA? It must have an encounter...
+            if (indy==null) {
+              occ.addAsset(ma);
+              ma.setOccurrence(occ);
+              out.println("No indy was found for the name "+indyID+" so the Media Asset has been attached to a sightNo/date matching occ.");
+              noIndys++;
+              matched = true;
+              break;
+            }
+            if (indyID.equals(enc.getIndividualID())) {
+              out.println("MATCH!!!! adding this MA to a proper Encounter! "+indyID+"="+enc.getIndividualID());
+              enc.addMediaAsset(ma);
+              occ = myShepherd.getOccurrence(enc.getOccurrenceID());
+              ma.setOccurrence(occ);
+              matched = true;
+              break;
+            } else {
+              out.println("No Match... "+indyID+" != "+enc.getIndividualID());
+            }
+            if (enc.getIndividualID()==null) {
+              nulls+=1;
+              nullEnc = enc;
+            }
+          }            
+        } catch (Exception e) {
+          e.printStackTrace(out);
+          out.println("Failed to add MA to OCC and ENC");
         }
-        if (matched == false&&nulls == 0) {
-          unmatched.add("No matching encounter was found for this MediaAsset! Date : "+date+" SightNo : "+sightNo+" id_code : "+indyID);
-        } else if (matched == false&&nulls == 1) {
-          nullEnc.addMediaAsset(ma);
-          Occurrence occ = myShepherd.getOccurrence(nullEnc.getOccurrenceID());
-          ma.setOccurrence(occ);
-          out.println("There was only one encounter without an Indy in this Occurrence, and no other matches so that has to be the one.");
-        }
-      } else {
-        out.println("Failed to find an indy.  ");
-        errors.add("Failed to find an indy for ID : "+indyID+" Date : "+date+" SightNo : "+sightNo);
-        
+      }
+      if (matched == false&&nulls == 0) {
+        unmatched.add("No matching encounter or occurrence was found for this MediaAsset! Date : "+date+" SightNo : "+sightNo+" id_code : "+indyID);
+      } else if (matched == false&&nulls == 1) {
+        nullEnc.addMediaAsset(ma);
+        occ = myShepherd.getOccurrence(nullEnc.getOccurrenceID());
+        ma.setOccurrence(occ);
+        out.println("There was only one encounter without an Indy in this Occurrence, and no other matches so that has to be the one.");
       }
     }
     for (String error : errors) {
@@ -459,6 +476,8 @@ public class ImportReadImages extends HttpServlet {
     for (String ma : unmatched) {
       out.println(ma);
     }
+    out.println("There were "+noIndys+" Media Assets associated with an Individual that did not exist.");
+    out.println("Data : "+data.size()+" NameList : "+nameList.size()+" Filenames : "+filenames.size());
   }
   
   private String processDate(String date) {

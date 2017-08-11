@@ -122,7 +122,7 @@ public class AccessImport extends HttpServlet {
     out.println("\nI already have "+numEncs+" encounters in tha database.\n");
     
     // These switches allow you to work on different tables without doing the whole import a bunch iof times.
-    boolean dumlTableSwitch = true;
+    boolean dumlTableSwitch = false;
     if (dumlTableSwitch) {    
       try {
         out.println("********************* Let's process the DUML Table!\n");
@@ -136,7 +136,7 @@ public class AccessImport extends HttpServlet {
       }
     }  
     
-    boolean sightingsTableSwitch = true;
+    boolean sightingsTableSwitch = false;
     if (sightingsTableSwitch) {
       try {
         out.println("********************* Let's process the SIGHTINGS Table!\n");
@@ -160,7 +160,7 @@ public class AccessImport extends HttpServlet {
       }      
     }
     
-    boolean biopsyTableSwitch = true;
+    boolean biopsyTableSwitch = false;
     if (biopsyTableSwitch) {
       try {
         out.println("********************* Let's process the BiopsySamples Table!\n");
@@ -730,7 +730,7 @@ public class AccessImport extends HttpServlet {
           ts.addBaseObservationArrayList(newObs); 
           ts.getBaseObservationArrayList().toString();
         }
-        out.println("YEAH!!! added these observations to Encounter "+id+" : "+newObs);
+        out.println("YEAH!!! added "+newObs.size()+" observations to Encounter "+id+" : ");
       } catch (Exception e) {
         e.printStackTrace();
         out.println("Failed to add the array of observations to this object.");
@@ -873,7 +873,7 @@ public class AccessImport extends HttpServlet {
       } catch (Exception e) {
         out.println("!!!!!!!!!!!!!! Could not process SURVEY AREA for row "+i+" in EFFORT");
         out.println(thisRow.toString());
-        e.printStackTrace();
+        e.printStackTrace(out);
       }
       
     }

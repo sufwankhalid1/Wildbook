@@ -84,6 +84,7 @@ context=ServletUtilities.getContext(request);
 
 <script src="javascript/sss.js"></script>
 <link rel="stylesheet" href="css/sss.css" type="text/css" media="all">
+<link rel="stylesheet" href="css/ecocean.css" type="text/css" media="all">
 <script>
   jQuery(function($) {
     $('.slider').sss({
@@ -860,6 +861,7 @@ $(document).ready(function() {
 		<div>
 			<h2>Biopsies</h2>
 				<table id="results" width="100%">
+					<h3><%=sharky.getBaseTissueSampleArrayList().size()%></h3>
   					<tr class="lineitem">
      					<td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("date") %></strong></td>
     					<td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("individualID") %></strong></td>
@@ -868,7 +870,6 @@ $(document).ready(function() {
     					<td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("numObservations") %></strong></td>
     					<td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("sampleID") %></strong></td>
    						<td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("sex") %></td>
-						<h3><%=sharky.getBaseTissueSampleArrayList().size()%></h3>
 					</tr>
 						<%for (TissueSample biopsy : sharky.getBaseTissueSampleArrayList()) {%>
 						<tr>
@@ -941,6 +942,101 @@ $(document).ready(function() {
 		<br>
 		<br>
 	</div>
+	
+<script type="text/javascript">
+	$(document).ready(function() {
+		  $("#biopsyBuilder").hide();
+		  var buttons = $("#biopsyBuilder").on("click", function(){
+		    buttons.toggle();
+		  });	
+    }
+	
+</script>
+	
+	<!-- Begin Biopsy addition UI. -->
+	<div id="biopsyBuilder" class="col-xs-12">
+		<div class="row">
+			<form name="addTissueSample" action="../OccurrenceAddTissueSample" method="post">
+			
+			<div class="col-xs-6">
+				<tr>
+				<tr>
+					<td><%=encprops.getProperty("preservationMethod")%></td>
+					<td><input name="preservationMethod" type="text" size="20" maxlength="100" value="<%=preservationMethod%>" /></td>
+				</tr>
+
+				<tr>
+					<td><%=encprops.getProperty("storageLabID")%></td>
+					<td><input name="storageLabID" type="text" size="20" maxlength="100" value="<%=storageLabID%>" /></td>
+				</tr>
+
+				<tr>
+					<td><%=encprops.getProperty("samplingProtocol")%></td>
+					<td><input name="samplingProtocol" type="text" size="20" maxlength="100" value="<%=samplingProtocol%>" /></td>
+				</tr>
+
+				<tr>
+					<td><%=encprops.getProperty("samplingEffort")%></td>
+					<td><input name="samplingEffort" type="text" size="20" maxlength="100" value="<%=samplingEffort%>" /></td>
+				</tr>
+
+				<tr>
+					<td><%=encprops.getProperty("fieldNumber")%></td>
+					<td><input name="fieldNumber" type="text" size="20" maxlength="100" value="<%=fieldNumber%>" /></td>
+				</tr>
+				
+				<tr>
+					<td><%=encprops.getProperty("fieldNotes")%></td>
+					<td><input name="fieldNNotes" type="text" size="20" maxlength="100" value="<%=fieldNotes%>" /></td>
+				</tr>
+
+				<tr>
+			</div>
+			
+			<div class="col-xs-6">
+					<td><%=encprops.getProperty("eventRemarks")%></td>
+					<td><input name="eventRemarks" type="text" size="20" value="<%=eventRemarks%>" /></td>
+				</tr>
+
+				<tr>
+					<td><%=encprops.getProperty("institutionID")%></td>
+					<td><input name="institutionID" type="text" size="20" maxlength="100" value="<%=institutionID%>" /></td>
+				</tr>
+
+
+				<tr>
+					<td><%=encprops.getProperty("collectionID")%></td>
+					<td><input name="collectionID" type="text" size="20" maxlength="100" value="<%=collectionID%>" /></td>
+				</tr>
+
+				<tr>
+					<td><%=encprops.getProperty("collectionCode")%></td>
+					<td><input name="collectionCode" type="text" size="20" maxlength="100" value="<%=collectionCode%>" /></td>
+				</tr>
+
+				<tr>
+					<td><%=encprops.getProperty("datasetID")%></td>
+					<td><input name="datasetID" type="text" size="20" maxlength="100" value="<%=datasetID%>" /></td>
+				</tr>
+
+
+				<tr>
+					<td><%=encprops.getProperty("datasetName")%></td>
+					<td><input name="datasetName" type="text" size="20" maxlength="100" value="<%=datasetName%>" /></td>
+				</tr>
+
+				<tr>
+					<td colspan="2"><input name="occurrence" type="hidden" value="<%=num%>" /> 
+						<input name="action" type="hidden"
+						value="setTissueSample" /> <input name="AddTissueSample"
+						type="submit" id="AddTissueSample"
+						value="<%=encprops.getProperty("set")%>"
+						class="btn btn-sm editFormBtn" /></td>
+				</tr>
+			</div>
+			</form>
+		</div>
+	</div>
 
 </div>
 
@@ -997,27 +1093,18 @@ $(document).ready(function() {
 <%
     } //if isEditable
 
-
   } //if isOwner
 %>
-
 
 <br />
 
 <%
 } 
-
-
-
     
-  } 
-							
-  catch (Exception eSharks_jsp) {
+  } catch (Exception eSharks_jsp) {
     System.out.println("Caught and handled an exception in occurrence.jsp!");
     eSharks_jsp.printStackTrace();
   }
-
-
 
   myShepherd.rollbackDBTransaction();
   myShepherd.closeDBTransaction();
