@@ -629,7 +629,7 @@ $(document).ready(function() {
 				<%
 					}
 				%>
-				<div id="dialogDPAdd"
+				<div style="display: none;" id="dialogDPAdd"
 					title="<%=props.getProperty("addDynamicProperty")%>"
 					class="editFormDynamic">
 					<p class="editTextDynamic">
@@ -824,7 +824,7 @@ $(document).ready(function() {
 		</ul>
 		<ul>
 		
-			<li style="list-style: none;">
+			<li style="list-style: none;display: none;">
 				<div id="dialogTagAdd" title="<%=props.getProperty("addTag")%>" class="editFormTag">
 					 <form name="addTag" action="../BaseClassAddTag" method="post" class="editFormTag">
 						<input name="number" type="hidden" value="<%=num%>" />
@@ -949,7 +949,7 @@ $(document).ready(function() {
 		  var buttons = $("#biopsyBuilder").on("click", function(){
 		    buttons.toggle();
 		  });	
-    }
+    });
 	
 </script>
 	
@@ -958,82 +958,90 @@ $(document).ready(function() {
 		<div class="row">
 			<form name="addTissueSample" action="../OccurrenceAddTissueSample" method="post">
 			
-			<div class="col-xs-6">
-				<tr>
-				<tr>
-					<td><%=encprops.getProperty("preservationMethod")%></td>
-					<td><input name="preservationMethod" type="text" size="20" maxlength="100" value="<%=preservationMethod%>" /></td>
-				</tr>
-
-				<tr>
-					<td><%=encprops.getProperty("storageLabID")%></td>
-					<td><input name="storageLabID" type="text" size="20" maxlength="100" value="<%=storageLabID%>" /></td>
-				</tr>
-
-				<tr>
-					<td><%=encprops.getProperty("samplingProtocol")%></td>
-					<td><input name="samplingProtocol" type="text" size="20" maxlength="100" value="<%=samplingProtocol%>" /></td>
-				</tr>
-
-				<tr>
-					<td><%=encprops.getProperty("samplingEffort")%></td>
-					<td><input name="samplingEffort" type="text" size="20" maxlength="100" value="<%=samplingEffort%>" /></td>
-				</tr>
-
-				<tr>
-					<td><%=encprops.getProperty("fieldNumber")%></td>
-					<td><input name="fieldNumber" type="text" size="20" maxlength="100" value="<%=fieldNumber%>" /></td>
-				</tr>
+				<div class="col-xs-6">
 				
-				<tr>
-					<td><%=encprops.getProperty("fieldNotes")%></td>
-					<td><input name="fieldNNotes" type="text" size="20" maxlength="100" value="<%=fieldNotes%>" /></td>
-				</tr>
-
-				<tr>
-			</div>
-			
-			<div class="col-xs-6">
-					<td><%=encprops.getProperty("eventRemarks")%></td>
-					<td><input name="eventRemarks" type="text" size="20" value="<%=eventRemarks%>" /></td>
-				</tr>
-
-				<tr>
-					<td><%=encprops.getProperty("institutionID")%></td>
-					<td><input name="institutionID" type="text" size="20" maxlength="100" value="<%=institutionID%>" /></td>
-				</tr>
-
-
-				<tr>
-					<td><%=encprops.getProperty("collectionID")%></td>
-					<td><input name="collectionID" type="text" size="20" maxlength="100" value="<%=collectionID%>" /></td>
-				</tr>
-
-				<tr>
-					<td><%=encprops.getProperty("collectionCode")%></td>
-					<td><input name="collectionCode" type="text" size="20" maxlength="100" value="<%=collectionCode%>" /></td>
-				</tr>
-
-				<tr>
-					<td><%=encprops.getProperty("datasetID")%></td>
-					<td><input name="datasetID" type="text" size="20" maxlength="100" value="<%=datasetID%>" /></td>
-				</tr>
-
-
-				<tr>
-					<td><%=encprops.getProperty("datasetName")%></td>
-					<td><input name="datasetName" type="text" size="20" maxlength="100" value="<%=datasetName%>" /></td>
-				</tr>
-
-				<tr>
-					<td colspan="2"><input name="occurrence" type="hidden" value="<%=num%>" /> 
-						<input name="action" type="hidden"
-						value="setTissueSample" /> <input name="AddTissueSample"
-						type="submit" id="AddTissueSample"
-						value="<%=encprops.getProperty("set")%>"
-						class="btn btn-sm editFormBtn" /></td>
-				</tr>
-			</div>
+					<tr>
+						<td><%=props.getProperty("sampleID")%><small> - Required</small></td>
+						<td><input name="sampleID" type="text" size="20" maxlength="100" /></td>
+					</tr>
+					
+					<tr>
+						<td><%=props.getProperty("preservationMethod")%></td>
+						<td><input name="preservationMethod" type="text" size="20" maxlength="100" /></td>
+					</tr>
+	
+					<tr>
+						<td><%=props.getProperty("storageLabID")%></td>
+						<td><input name="storageLabID" type="text" size="20" maxlength="100"/></td>
+					</tr>
+	
+					<tr>
+						<td><%=props.getProperty("samplingProtocol")%></td>
+						<td><input name="samplingProtocol" type="text" size="20" maxlength="100" /></td>
+					</tr>
+	
+					<tr>
+						<td><%=props.getProperty("samplingEffort")%></td>
+						<td><input name="samplingEffort" type="text" size="20" maxlength="100" /></td>
+					</tr>
+	
+					<tr>
+						<td><%=props.getProperty("fieldNumber")%></td>
+						<td><input name="fieldNumber" type="text" size="20" maxlength="100" /></td>
+					</tr>
+					
+					<tr>
+						<td><%=props.getProperty("fieldNotes")%></td>
+						<td><input name="fieldNNotes" type="text" size="20" maxlength="100" /></td>
+					</tr>
+	
+				</div>
+				
+				<div class="col-xs-6">
+					<tr>
+						<td><%=props.getProperty("eventRemarks")%></td>
+						<td><input name="eventRemarks" type="text" size="20" /></td>
+					</tr>
+	
+					<tr>
+						<td><%=props.getProperty("institutionID")%></td>
+						<td><input name="institutionID" type="text" size="20" maxlength="100" /></td>
+					</tr>
+	
+	
+					<tr>
+						<td><%=props.getProperty("collectionID")%></td>
+						<td><input name="collectionID" type="text" size="20" maxlength="100" /></td>
+					</tr>
+	
+					<tr>
+						<td><%=props.getProperty("collectionCode")%></td>
+						<td><input name="collectionCode" type="text" size="20" maxlength="100" /></td>
+					</tr>
+	
+					<tr>
+						<td><%=props.getProperty("datasetID")%></td>
+						<td><input name="datasetID" type="text" size="20" maxlength="100" /></td>
+					</tr>
+	
+	
+					<tr>
+						<td><%=props.getProperty("datasetName")%></td>
+						<td><input name="datasetName" type="text" size="20" maxlength="100" /></td>
+					</tr>
+	
+					<tr>
+						<td colspan="2"><input name="occurrence" type="hidden" value="<%=num%>" /> 
+							<input name="number" type="hidden"
+							value="<%=props.getProperty("number")%>" />
+							<input name="action" type="hidden"
+							value="setTissueSample" />
+							<input name="AddTissueSample"
+							type="submit" id="AddTissueSample"
+							value="<%=props.getProperty("set")%>"
+							class="btn btn-sm editFormBtn" /></td>
+					</tr>
+				</div>
 			</form>
 		</div>
 	</div>

@@ -492,6 +492,11 @@
       <servlet-name>OccurrenceSetGroupBehavior</servlet-name>
       <servlet-class>org.ecocean.servlet.OccurrenceSetGroupBehavior</servlet-class>
   </servlet>
+  
+  <servlet>
+      <servlet-name>OccurrenceAddTissueSample</servlet-name>
+      <servlet-class>org.ecocean.servlet.OccurrenceAddTissueSample</servlet-class>
+  </servlet>
 
   <servlet>
     <servlet-name>EncounterSetAsUnidentifiable</servlet-name>
@@ -1365,6 +1370,11 @@
       <servlet-mapping>
         <servlet-name>TissueSampleSetSexAnalysis</servlet-name>
         <url-pattern>/TissueSampleSetSexAnalysis</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+        <servlet-name>OccurrenceAddTissueSample</servlet-name>
+        <url-pattern>/OccurrenceAddTissueSample</url-pattern>
   </servlet-mapping>
 
 

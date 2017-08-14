@@ -78,7 +78,6 @@ public class AccessImport extends HttpServlet {
     myShepherd.commitDBTransaction();
     myShepherd.closeDBTransaction();
       
-    //Grab our source file.
     
     String dbName = "DUML_MASTER_20170616.mdb";
     if (request.getParameter("file") != null) {
@@ -104,12 +103,6 @@ public class AccessImport extends HttpServlet {
     Set<String> tables = db.getTableNames();
     out.println("********************* Here's the tables : "+tables.toString()+"\n");
     
-    
-    // I'm gonna be super rigid about how tables get processed. This is a complex dataset, and 
-    // I don't want to miss it if something goes subtly wrong. Exceptions galore should happen if it all isn't perfect.
-    // As a part of this, the methods for each table are pretty repetitive and very long. I'd suggest searching for any specific term you need.
-    
-    
     myShepherd.beginDBTransaction();
     
     //All this just to get a number? Yup.
@@ -122,7 +115,7 @@ public class AccessImport extends HttpServlet {
     out.println("\nI already have "+numEncs+" encounters in tha database.\n");
     
     // These switches allow you to work on different tables without doing the whole import a bunch iof times.
-    boolean dumlTableSwitch = false;
+    boolean dumlTableSwitch = true;
     if (dumlTableSwitch) {    
       try {
         out.println("********************* Let's process the DUML Table!\n");
@@ -136,7 +129,7 @@ public class AccessImport extends HttpServlet {
       }
     }  
     
-    boolean sightingsTableSwitch = false;
+    boolean sightingsTableSwitch = true;
     if (sightingsTableSwitch) {
       try {
         out.println("********************* Let's process the SIGHTINGS Table!\n");
@@ -160,7 +153,7 @@ public class AccessImport extends HttpServlet {
       }      
     }
     
-    boolean biopsyTableSwitch = false;
+    boolean biopsyTableSwitch = true;
     if (biopsyTableSwitch) {
       try {
         out.println("********************* Let's process the BiopsySamples Table!\n");
@@ -175,7 +168,6 @@ public class AccessImport extends HttpServlet {
     
     myShepherd.commitDBTransaction();
     myShepherd.closeDBTransaction();
-    // Close that db so it don't leak or something.
     db.close(); 
   }  
   
@@ -195,7 +187,6 @@ public class AccessImport extends HttpServlet {
   
     out.println("DUML Table has "+table.getRowCount()+" Rows!\n");
     
-    // We're gonna keep a counter of everything. I mean Everything. Deal with it.
     int errors = 0;
     
     int newOccs = 0;
@@ -240,6 +231,9 @@ public class AccessImport extends HttpServlet {
             startTime = thisRow.get("StartTime").toString();
           }
           date = thisRow.get("DATE").toString();   
+          if (startTime==null) {
+            out.println("No startTime found in DUML Access table for Date : "+date+" SightNo : "+thisRow.get("SIGHTNO"));
+          } 
           String verbatimDate = processDateString(date, startTime);
           
           DateTime dateTime = dateStringToDateTime(verbatimDate, "EEE MMM dd hh:mm a yyyy");
@@ -318,6 +312,7 @@ public class AccessImport extends HttpServlet {
           newEnc.setVerbatimLocality(location);    
           // newEnc.setLocationID(location);
           newEnc.setLocation(location);
+          newEnc.setLocationID(location);
           locations += 1;
           //out.println("---------------- Location : "+location);
           if (columnMasterList.contains("Location")) {
@@ -552,10 +547,10 @@ public class AccessImport extends HttpServlet {
          sl = thisRow.getDouble("SALINITY");
          if (sl < 9.99 && sl != null) {
            slm = new Measurement(newEnc.getCatalogNumber(),"SALINITY",sl,"","");
-           slm.setDatasetName("BEAUSCALE");
+           slm.setDatasetName("SALINITY");
            slm.setEventStartDate(newEnc.getDate());
            myShepherd.getPM().makePersistent(slm);
-           columnMasterList.remove("BEAUSCALE");
+           columnMasterList.remove("SALINITY");
            newEnc.setMeasurement(slm, myShepherd);           
          }
          //out.println("---------------- BEAUSCALE : "+bsm.getValue());
@@ -841,28 +836,41 @@ public class AccessImport extends HttpServlet {
         if (thisRow.get("SURVEY AREA") != null) {
           String surveyArea = thisRow.getString("SURVEY AREA");
           // Set this on associated encounters too.  
-          st.setLocationID(surveyArea);
+          st.setLocationID(surveyArea.trim());
           
           encsOnThisDate = myShepherd.getEncounterArrayWithShortDate(date);
           
-          System.out.println("Can we find an enc for this Survey and Track? We have "+encsOnThisDate.size()+" encs to check.");
+          out.println("Can we find an enc for this Survey and Track? We have "+encsOnThisDate.size()+" encs to check.");
           for (Encounter enc : encsOnThisDate) {
-
-            if (enc.getLocationID() != null || enc.getObservationByName("Project") != null) {
-              System.out.println("(enc:surveyTrack) Location : "+enc.getLocationID()+" = "+st.getLocationID()+" Project : "+enc.getSubmitterProject()+" = "+sv.getProjectName());
-              if (enc.getObservationByName("Project") != null || project != null)  {
-                if (enc.getObservationByName("Project").getValue().contains(project) || project.contains(enc.getObservationByName("Project").getValue())) {
-                  System.out.println("MATCH!!! At least on project name... (enc:surveyTrack) Project : "+enc.getObservationByName("Project").getValue()+" = "+project);
+            
+            String encLoc = null;
+            if (enc.getLocation()!=null) {
+              encLoc = enc.getLocation().trim();
+            }
+            String encProj = null;
+            if (enc.getObservationByName("Project")!=null) {
+              encProj = enc.getSubmitterProject().trim();
+            }
+             
+            if (encLoc != null || encProj != null) {
+              out.println("(enc:surveyTrack) Location : "+encLoc+" = "+st.getLocationID()+" Project : "+encProj+" = "+project);
+              if (encProj != null && project != null)  {
+                if (encProj.contains(project) || project.contains(encProj)) {
+                  out.println("MATCH!!! At least on project name... (enc:surveyTrack) Project : "+enc.getObservationByName("Project").getValue()+" = "+project);
                   st.addOccurence(myShepherd.getOccurrence(enc.getOccurrenceID()));
                   sv.addSurveyTrack(st);
                   success++;                  
-                }
-              } else if (enc.getLocationID() != null || surveyArea != null) {
+                } else {
+                  out.println("Nope...");
+                } 
+              } else if (encLoc != null && surveyArea != null) {
                 if (enc.getLocationID().contains(surveyArea) || surveyArea.contains(enc.getLocationID())) {
-                  System.out.println("MATCH!!! At least on location ID... (enc:surveyTrack) Location : "+enc.getLocationID()+" = "+st.getLocationID()+" Project : "+enc.getSubmitterProject()+" = "+sv.getProjectName());
+                  out.println("MATCH!!! At least on location ID... (enc:surveyTrack) Location : "+enc.getLocationID()+" = "+st.getLocationID()+" Project : "+enc.getSubmitterProject()+" = "+sv.getProjectName());
                   st.addOccurence(myShepherd.getOccurrence(enc.getOccurrenceID()));
                   sv.addSurveyTrack(st);
                   success++;                  
+                } else {
+                  out.println("Nope...");
                 }
               } 
             } else {
@@ -1294,7 +1302,7 @@ public class AccessImport extends HttpServlet {
       }      
     } catch (Exception e) {
       // Is it weird and malformed? Lets just auto set it. 
-      System.out.println("BARFED ON THE startTime : "+mt);
+      System.out.println("Couldn't find startTime : "+mt+", setting to midnight.");
       mt = "0000";
       //e.printStackTrace();
     }
