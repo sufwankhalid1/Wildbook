@@ -741,6 +741,7 @@ public class AccessImport extends HttpServlet {
     
     out.println("Effort Table has "+table.getRowCount()+" Rows!\n");
     
+    int matchedNum = 0;
     int success = 0;
     Row thisRow = null;
     
@@ -827,7 +828,7 @@ public class AccessImport extends HttpServlet {
           sv.addComments(comments);
         }
       } catch (Exception e) {
-        out.println("!!!!!!!!!!!!!! Could not process PROJECT for row "+i+" in EFFORT");
+        out.println("!!!!!!!!!!!!!! Could not process COMMENTS for row "+i+" in EFFORT");
         e.printStackTrace();
       }
       
@@ -841,6 +842,7 @@ public class AccessImport extends HttpServlet {
           encsOnThisDate = myShepherd.getEncounterArrayWithShortDate(date);
           
           out.println("Can we find an enc for this Survey and Track? We have "+encsOnThisDate.size()+" encs to check.");
+          boolean matched = false;
           for (Encounter enc : encsOnThisDate) {
             
             String encLoc = null;
@@ -859,7 +861,8 @@ public class AccessImport extends HttpServlet {
                   out.println("MATCH!!! At least on project name... (enc:surveyTrack) Project : "+enc.getObservationByName("Project").getValue()+" = "+project);
                   st.addOccurence(myShepherd.getOccurrence(enc.getOccurrenceID()));
                   sv.addSurveyTrack(st);
-                  success++;                  
+                  success++;
+                  matched = true;
                 } else {
                   out.println("Nope...");
                 } 
@@ -868,7 +871,8 @@ public class AccessImport extends HttpServlet {
                   out.println("MATCH!!! At least on location ID... (enc:surveyTrack) Location : "+enc.getLocationID()+" = "+st.getLocationID()+" Project : "+enc.getSubmitterProject()+" = "+sv.getProjectName());
                   st.addOccurence(myShepherd.getOccurrence(enc.getOccurrenceID()));
                   sv.addSurveyTrack(st);
-                  success++;                  
+                  success++;
+                  matched = true;
                 } else {
                   out.println("Nope...");
                 }
@@ -876,6 +880,9 @@ public class AccessImport extends HttpServlet {
             } else {
               System.out.println("Location ID for this enc is null!");
             }    
+          }
+          if (matched==true) {
+            matchedNum ++;
           }
         }
       } catch (Exception e) {
@@ -885,7 +892,8 @@ public class AccessImport extends HttpServlet {
       }
       
     }
-    System.out.println("+++++++++++++ I created surveys and tracks for "+success+" lines out of "+table.getRowCount()+" lines in the EFFORT table. +++++++++++++");
+    out.println("+++++++++++++ I created surveys and tracks for "+success+" encounters out of "+table.getRowCount()+" lines in the EFFORT table. +++++++++++++");
+    out.println("+++++++++++++ There were "+matchedNum+" out of "+table.getRowCount()+" effort table entries connected to an encounter.");
   }
   
   private void processSightings(Table table, Shepherd myShepherd) {

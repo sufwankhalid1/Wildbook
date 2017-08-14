@@ -24,7 +24,12 @@ import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import org.apache.commons.fileupload.*;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
+
 import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -55,9 +60,39 @@ public class ImportBento extends HttpServlet {
     Shepherd myShepherd = new Shepherd(context);
     myShepherd.setAction("ImportBento.class");
       
+    boolean isMultipart = ServletFileUpload.isMultipartContent(request);
+    
+    if (isMultipart==true) {
+      DiskFileItemFactory factory = new DiskFileItemFactory();
+
+      ServletContext servletContext = this.getServletConfig().getServletContext();
+      File repository = (File) servletContext.getAttribute("javax.servlet.context.tempdir");
+      factory.setRepository(repository);
+      
+      ServletFileUpload upload = new ServletFileUpload(factory);
+      
+      List<FileItem> = null;
+      try {
+        items = upload.parseRequest(request);
+      } catch (FileUploadException e) {
+        out.println("Failed to upload files. Could not parse the user's request.");
+        e.printStackTrace();
+      }
+      
+    }
     
     
     
   }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   
 }
