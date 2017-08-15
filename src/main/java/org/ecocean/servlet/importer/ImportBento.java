@@ -60,9 +60,20 @@ public class ImportBento extends HttpServlet {
     Shepherd myShepherd = new Shepherd(context);
     myShepherd.setAction("ImportBento.class");
       
+    String message = "";
     boolean isMultipart = ServletFileUpload.isMultipartContent(request);
     
     if (isMultipart==true) {
+      
+      response.setHeader("Pragma", "no-cache");
+      response.setHeader("Expires", "-1");
+      response.setHeader("Access-Control-Allow-Origin", "*");
+      response.setHeader("Access-Control-Allow-Credentials", "true");
+      response.setHeader("Access-Control-Allow-Methods", "POST");
+      response.setHeader("Access-Control-Allow-Headers", "Content-Type");
+      response.setHeader("Access-Control-Max-Age", "86400");
+      
+      
       DiskFileItemFactory factory = new DiskFileItemFactory();
 
       ServletContext servletContext = this.getServletConfig().getServletContext();
@@ -70,16 +81,39 @@ public class ImportBento extends HttpServlet {
       factory.setRepository(repository);
       
       ServletFileUpload upload = new ServletFileUpload(factory);
+      upload.setFileSizeMax(1024*1024*50);
+      upload.setSizeMax(1024*1024*50);
       
-      List<FileItem> = null;
+      List<FileItem> items = null;
       try {
         items = upload.parseRequest(request);
       } catch (FileUploadException e) {
-        out.println("Failed to upload files. Could not parse the user's request.");
+        message += "<p>Failed to upload files. Could not parse the user's request.</p>";
         e.printStackTrace();
       }
       
+      for (FileItem fileItem : items) {
+        if (!fileItem.isFormField()) {
+          File uploadedFile = null;
+          try {
+            uploadedFile = new File(System.getProperty("catalina.base")+"/webapps/wildbook_data_dir/bento_sheets");
+            if (!uploadedFile.exists()) {
+              uploadedFile.mkdir();
+            }
+            fileItem.write(uploadedFile);
+            message += "<p>The file "+uploadedFile+" was saved successfully.</p>";
+          } catch (Exception e) {
+            message += "<p>There was an error trying to save the file "+uploadedFile+".</p>";
+            e.printStackTrace();
+          }          
+        }
+
+      }
+      
     }
+    myShepherd.closeDBTransaction();
+    request.setAttribute("status", message);
+    getServletContext().getRequestDispatcher("/bentoUploadSuccess.jsp").forward(request, response);
     
     
     
