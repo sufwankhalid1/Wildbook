@@ -14,27 +14,23 @@ Shepherd myShepherd=new Shepherd(context);
 
 %>
 
-<html>
-<head>
-<title>New Object Testing</title>
 
-</head>
-<body>
+<jsp:include page="header.jsp" flush="true" />
 
 <div class="row">
 	<div class="col-md-12">
 	<h3>Upload Bento File</h3>
-		<form action="upload" method="post" enctype="multipart/form-data" name="upload">
+		<form action="ImportBento" method="post" enctype="multipart/form-data" name="ImportBento">
 		    <input id="description" type="text" name="description" />
-		    <input id="bentoFile" type="file" name="bentoFile" />
-		    <input type="submit" />
+		    <input id="bentoFile" type="file" name="bentoFile" multiple/>
+		    <input id="importButton" type="submit" />
 		</form>
 	</div>
 	<label class="response"></label>
 </div>
 <script type="text/javascript">
   $(document).ready(function() {
-    $("uploadBento").click(function(event) {
+    $("#importButton").click(function(event) {
       event.preventDefault();
       var file = document.forms['upload']['bentoFile'].files[0];
       var number = $("#addOccurNumber").val();
@@ -48,5 +44,4 @@ Shepherd myShepherd=new Shepherd(context);
   });
 </script>
 
-</body>
-</html>
+<jsp:include page="footer.jsp" flush="true" />

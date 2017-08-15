@@ -15,16 +15,13 @@
     
 	
 %>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Upload Result</title>
-</head>
-<body>
+
 <jsp:include page="header.jsp" flush="true" />
-    <center>
-        <h2>${message}</h2>
-    </center>
+
+	<div class="container maincontent">
+	    <center>
+	        <h2><%= request.getAttribute("result") %></h2>
+	    </center>
+	</div>
+	
 <jsp:include page="footer.jsp" flush="true" />
-</body>
-</html>

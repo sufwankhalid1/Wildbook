@@ -56,7 +56,7 @@ public class ImportBento extends HttpServlet {
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException,  IOException { 
     out = response.getWriter();
     context = ServletUtilities.getContext(request);
-    out.println("Preparing to import image files.");
+    System.out.println("=========== Preparing to import bento files. ===========");
     Shepherd myShepherd = new Shepherd(context);
     myShepherd.setAction("ImportBento.class");
       
@@ -72,7 +72,6 @@ public class ImportBento extends HttpServlet {
       response.setHeader("Access-Control-Allow-Methods", "POST");
       response.setHeader("Access-Control-Allow-Headers", "Content-Type");
       response.setHeader("Access-Control-Max-Age", "86400");
-      
       
       DiskFileItemFactory factory = new DiskFileItemFactory();
 
@@ -94,39 +93,43 @@ public class ImportBento extends HttpServlet {
       
       for (FileItem fileItem : items) {
         if (!fileItem.isFormField()) {
+          
+          String fieldName = fileItem.getFieldName();
+          String fileName = fileItem.getName();
+          String contentType = fileItem.getContentType();
+          boolean inMemory = fileItem.isInMemory();
+          
           File uploadedFile = null;
-          try {
-            uploadedFile = new File(System.getProperty("catalina.base")+"/webapps/wildbook_data_dir/bento_sheets");
-            if (!uploadedFile.exists()) {
-              uploadedFile.mkdir();
-            }
-            fileItem.write(uploadedFile);
-            message += "<p>The file "+uploadedFile+" was saved successfully.</p>";
-          } catch (Exception e) {
-            message += "<p>There was an error trying to save the file "+uploadedFile+".</p>";
-            e.printStackTrace();
-          }          
+          File uploadDir = null;
+          if (fileName!=null) {
+            try {
+              uploadDir = new File(System.getProperty("catalina.base")+"/webapps/wildbook_data_dir/bento_sheets/");
+              uploadedFile = new File(System.getProperty("catalina.base")+"/webapps/wildbook_data_dir/bento_sheets/"+fileName);
+              if (!uploadDir.exists()) {
+                uploadDir.mkdir();
+              }
+              if (!uploadedFile.isDirectory()) {
+                fileItem.write(uploadedFile);
+                message += "<p>The file "+uploadedFile+" was saved successfully.</p>";                
+              } else {
+                message += "<p>I cannot upload merely a directory.</p>";
+              }
+            } catch (Exception e) {
+              message += "<p>There was an error trying to save the file "+uploadedFile+".</p>";
+              e.printStackTrace();
+            }                      
+          }
         }
-
       }
-      
     }
     myShepherd.closeDBTransaction();
-    request.setAttribute("status", message);
-    getServletContext().getRequestDispatcher("/bentoUploadSuccess.jsp").forward(request, response);
-    
-    
-    
+    request.setAttribute("result", message);
+    getServletContext().getRequestDispatcher("/bentoUploadResult.jsp").forward(request, response);
   }
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
 }
+
+
+
+
+
+
