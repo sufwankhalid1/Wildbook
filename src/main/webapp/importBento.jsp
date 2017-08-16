@@ -17,31 +17,36 @@ Shepherd myShepherd=new Shepherd(context);
 
 <jsp:include page="header.jsp" flush="true" />
 
-<div class="row">
-	<div class="col-md-12">
-	<h3>Upload Bento File</h3>
-		<form action="ImportBento" method="post" enctype="multipart/form-data" name="ImportBento">
-		    <input id="description" type="text" name="description" />
-		    <input id="bentoFile" type="file" name="bentoFile" multiple/>
-		    <input id="importButton" type="submit" />
-		</form>
+<div class="container maincontent">
+	<div class="row">
+		<div class="col-md-12">
+		<h3>Upload Bento File</h3>
+			<form action="ImportBento" method="post" enctype="multipart/form-data" name="ImportBento">
+			    <input id="description" type="text" name="description" />
+			    <label>Excel and CSV files</label>
+			    <input class="fileInput" type="file" name="bentoFile" multiple/>
+			    <label>Image Files</label>
+			    <input class="fileInput" type="file" name="imageFile" multiple/>
+			    <input id="importButton" type="submit" />
+			</form>
+		</div>
+		<label class="response"></label>
 	</div>
-	<label class="response"></label>
+	<script type="text/javascript">
+	  $(document).ready(function() {
+	    $("#importButton").click(function(event) {
+	      event.preventDefault();
+	      var file = document.forms['upload']['bentoFile'].files[0];
+	      var number = $("#addOccurNumber").val();
+	      var action = $("#addOccurAction").val();
+	      $.post("../ImportBento", {"description": description, "file": file},
+	      .fail(function(response) {
+	        $("#response").test("Failed to Upload Bento file.");
+	        $("#addOccurErrorDiv").html(response.responseText);
+	      });
+	    });
+	  });
+	</script>
 </div>
-<script type="text/javascript">
-  $(document).ready(function() {
-    $("#importButton").click(function(event) {
-      event.preventDefault();
-      var file = document.forms['upload']['bentoFile'].files[0];
-      var number = $("#addOccurNumber").val();
-      var action = $("#addOccurAction").val();
-      $.post("../ImportBento", {"description": description, "file": file},
-      .fail(function(response) {
-        $("#response").test("Failed to Upload Bento file.");
-        $("#addOccurErrorDiv").html(response.responseText);
-      });
-    });
-  });
-</script>
 
 <jsp:include page="footer.jsp" flush="true" />

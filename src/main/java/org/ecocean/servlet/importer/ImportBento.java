@@ -81,7 +81,7 @@ public class ImportBento extends HttpServlet {
       
       ServletFileUpload upload = new ServletFileUpload(factory);
       upload.setFileSizeMax(1024*1024*50);
-      upload.setSizeMax(1024*1024*50);
+      upload.setSizeMax(1024*1024*150);
       
       List<FileItem> items = null;
       try {
@@ -99,26 +99,40 @@ public class ImportBento extends HttpServlet {
           String contentType = fileItem.getContentType();
           boolean inMemory = fileItem.isInMemory();
           
+          System.out.println("Fieldname "+fieldName+" Filename : "+fileName);
+          
+          String folderDate = null;
+          String folderVessel = null;
+          if (fileName.endsWith("xlsx")) {
+            fileName = fileName.replace(" ", "_");
+            fileName = fileName.replace(".xlsx","");
+            folderDate = fileName.substring(0, 9)+"/";
+            String[] folderNameArr = fileName.split("_");
+            folderVessel = folderNameArr[folderNameArr.length-1];
+          }
+          
           File uploadedFile = null;
           File uploadDir = null;
           if (fileName!=null) {
             try {
-              uploadDir = new File(System.getProperty("catalina.base")+"/webapps/wildbook_data_dir/bento_sheets/");
+              uploadDir = new File(System.getProperty("catalina.base")+"/webapps/wildbook_data_dir/bento_sheets/"+folderDate+folderVessel);
               uploadedFile = new File(System.getProperty("catalina.base")+"/webapps/wildbook_data_dir/bento_sheets/"+fileName);
               if (!uploadDir.exists()) {
                 uploadDir.mkdir();
               }
               if (!uploadedFile.isDirectory()) {
                 fileItem.write(uploadedFile);
-                message += "<p>The file "+uploadedFile+" was saved successfully.</p>";                
+                message += "<li>The file "+uploadedFile+" was saved successfully.</li>";                
               } else {
-                message += "<p>I cannot upload merely a directory.</p>";
+                message = "<li>I cannot upload merely a directory.</li>";
               }
             } catch (Exception e) {
-              message += "<p>There was an error trying to save the file "+uploadedFile+".</p>";
+              message += "<li>There was an error trying to save the file "+uploadedFile+".</li>";
               e.printStackTrace();
             }                      
           }
+          System.out.println("FileItem.toString() "+fileItem.toString()+" UploadDir : "+uploadDir);
+          //importFileJunction();
         }
       }
     }

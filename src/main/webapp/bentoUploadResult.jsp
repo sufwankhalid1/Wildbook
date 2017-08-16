@@ -20,7 +20,8 @@
 
 	<div class="container maincontent">
 	    <center>
-	        <h2><%= request.getAttribute("result") %></h2>
+	    	<h3>The following files were imported successfully:</h3>
+	        <ul><%= request.getAttribute("result") %></ul>
 	    </center>
 	</div>
 	
