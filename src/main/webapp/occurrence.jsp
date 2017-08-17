@@ -857,7 +857,10 @@ $(document).ready(function() {
 		<br>
 		<br>
 		<div>
-			<p><h2>Biopsies</h2>
+			<h2>Biopsies</h2>
+			<p>Total for Occurrence: <%=sharky.getBaseTissueSampleArrayList().size()%></p>
+			<hr>
+			<p>
 				<%
 					if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
 				%>
@@ -871,7 +874,6 @@ $(document).ready(function() {
 			</p>
 			
 				<table id="results" width="100%">
-					<h3><%=sharky.getBaseTissueSampleArrayList().size()%></h3>
   					<tr class="lineitem">
      					<td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("date") %></strong></td>
     					<td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("individualID") %></strong></td>
