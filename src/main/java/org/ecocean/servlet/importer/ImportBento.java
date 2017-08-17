@@ -63,6 +63,8 @@ public class ImportBento extends HttpServlet {
     String message = "";
     boolean isMultipart = ServletFileUpload.isMultipartContent(request);
     
+    String urlLoc = "//" + CommonConfiguration.getURLLocation(request);
+    
     if (isMultipart==true) {
       
       response.setHeader("Pragma", "no-cache");
@@ -99,46 +101,57 @@ public class ImportBento extends HttpServlet {
           String contentType = fileItem.getContentType();
           boolean inMemory = fileItem.isInMemory();
           
-          System.out.println("Fieldname "+fieldName+" Filename : "+fileName);
+          System.out.println("====== Fieldname : "+fieldName+" Filename : "+fileName+" =======");
           
           String folderDate = null;
           String folderVessel = null;
-          if (fileName.endsWith("xlsx")) {
-            fileName = fileName.replace(" ", "_");
-            fileName = fileName.replace(".xlsx","");
-            folderDate = fileName.substring(0, 9)+"/";
-            String[] folderNameArr = fileName.split("_");
-            folderVessel = folderNameArr[folderNameArr.length-1];
+          if (fileName.toUpperCase().endsWith("XLSX")||fileName.toUpperCase().endsWith("CSV")) {
+            String splitter = null;
+            splitter = fileName.replace(" ", "_");
+            splitter = fileName.replace(".xlsx",""); 
+            splitter = fileName.replace(".csv", "");
+            folderDate = splitter.substring(0, 9).replace("_", "");
+            String[] folderNameArr = splitter.split("_");
+            folderVessel = folderNameArr[folderNameArr.length-1].replace("_", "");
+          } else if (fileName.toUpperCase().endsWith("JPG")) {
+            // A bit hacky, but this really is just a short term location. 
+            folderVessel = "images";
+            folderDate = "temp";
           }
           
+          String noDots = " style=\"list-style:none;\" ";
           File uploadedFile = null;
           File uploadDir = null;
-          if (fileName!=null) {
+          if (fileName!=null&&folderDate!=null&&folderVessel!=null) {
             try {
-              uploadDir = new File(System.getProperty("catalina.base")+"/webapps/wildbook_data_dir/bento_sheets/"+folderDate+folderVessel);
-              uploadedFile = new File(System.getProperty("catalina.base")+"/webapps/wildbook_data_dir/bento_sheets/"+fileName);
-              if (!uploadDir.exists()) {
-                uploadDir.mkdir();
+              uploadDir = new File(System.getProperty("catalina.base")+"/webapps/wildbook_data_dir/bento_sheets/"+folderVessel+"/"+folderDate+"/");
+              System.out.println("Still uploadDir ? "+uploadDir.toString());
+              if (!uploadDir.exists()||!uploadDir.isDirectory()) {
+                out.println("Created Dir ? "+uploadDir.mkdirs());
               }
+              uploadedFile = new File(System.getProperty("catalina.base")+"/webapps/wildbook_data_dir/bento_sheets/"+folderVessel+"/"+folderDate+"/"+fileName);
               if (!uploadedFile.isDirectory()) {
                 fileItem.write(uploadedFile);
-                message += "<li>The file "+uploadedFile+" was saved successfully.</li>";                
+                message += "<li"+noDots+"><strong>Saved</strong> "+fileName+"</li>";                
               } else {
-                message = "<li>I cannot upload merely a directory.</li>";
+                message = "<li"+noDots+">I cannot upload merely a directory.</li>";
               }
             } catch (Exception e) {
-              message += "<li>There was an error trying to save the file "+uploadedFile+".</li>";
+              message += "<li "+noDots+"><strong>Error</strong> "+fileName+".<br><small>The filename was in the wrong format, or the file was invalid.</small></li>";
               e.printStackTrace();
             }                      
           }
-          System.out.println("FileItem.toString() "+fileItem.toString()+" UploadDir : "+uploadDir);
-          //importFileJunction();
         }
       }
     }
     myShepherd.closeDBTransaction();
     request.setAttribute("result", message);
+    request.setAttribute("returnUrl","//"+urlLoc+"/importBento.jsp");
     getServletContext().getRequestDispatcher("/bentoUploadResult.jsp").forward(request, response);
+  }
+  
+  public void createMediaAsset() {
+    
   }
 }
 

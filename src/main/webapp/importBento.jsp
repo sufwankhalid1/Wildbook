@@ -20,13 +20,17 @@ Shepherd myShepherd=new Shepherd(context);
 <div class="container maincontent">
 	<div class="row">
 		<div class="col-md-12">
-		<h3>Upload Bento File</h3>
+		<h2>Upload Bento and Image Files</h2>
+		<hr>
 			<form action="ImportBento" method="post" enctype="multipart/form-data" name="ImportBento">
-			    <input id="description" type="text" name="description" />
-			    <label>Excel and CSV files</label>
-			    <input class="fileInput" type="file" name="bentoFile" multiple/>
-			    <label>Image Files</label>
-			    <input class="fileInput" type="file" name="imageFile" multiple/>
+				<p>
+			    	<label>Excel and CSV files</label>
+			    	<input class="fileInput" type="file" name="bentoFile" multiple/>
+			    </p>
+			    <p>
+			    	<label>Image Files</label>
+			    	<input class="fileInput" type="file" name="imageFile" multiple/>
+			    </p>
 			    <input id="importButton" type="submit" />
 			</form>
 		</div>
@@ -39,7 +43,7 @@ Shepherd myShepherd=new Shepherd(context);
 	      var file = document.forms['upload']['bentoFile'].files[0];
 	      var number = $("#addOccurNumber").val();
 	      var action = $("#addOccurAction").val();
-	      $.post("../ImportBento", {"description": description, "file": file},
+	      $.post("../ImportBento", {"file": file},
 	      .fail(function(response) {
 	        $("#response").test("Failed to Upload Bento file.");
 	        $("#addOccurErrorDiv").html(response.responseText);

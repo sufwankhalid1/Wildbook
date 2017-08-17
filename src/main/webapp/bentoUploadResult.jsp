@@ -19,10 +19,18 @@
 <jsp:include page="header.jsp" flush="true" />
 
 	<div class="container maincontent">
-	    <center>
-	    	<h3>The following files were imported successfully:</h3>
-	        <ul><%= request.getAttribute("result") %></ul>
-	    </center>
+	
+	
+		<div class="row">
+		
+			<div class="col-xs-12">
+		    	<h2>File Import Results</h2>
+		    	<a href="<%= request.getAttribute("returnUrl") %>">Import More Files</a>
+		    	<hr>
+		        <ul><%= request.getAttribute("result") %></ul>		
+			</div>
+			
+		</div>
 	</div>
 	
 <jsp:include page="footer.jsp" flush="true" />
