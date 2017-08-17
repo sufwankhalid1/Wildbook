@@ -56,7 +56,7 @@ public class OccurrenceAddTissueSample extends HttpServlet {
     PrintWriter out = response.getWriter();
 
     myShepherd.beginDBTransaction();
-    
+    System.out.println("Occurrence Number From jsp : "+request.getParameter("number"));
     if (request.getParameter("number") != null && myShepherd.isOccurrence(request.getParameter("number"))) {
       
       Occurrence occ = myShepherd.getOccurrence(request.getParameter("number"));

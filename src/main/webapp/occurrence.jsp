@@ -691,7 +691,7 @@ $(document).ready(function() {
 	
 </script>
 		<h2>
-		<img align="absmiddle" src="../images/Crystal_Clear_app_starthere.png" width="40px" height="40px" />Tags Table
+		<img align="absmiddle" src="../images/Crystal_Clear_app_starthere.png" width="40px" height="40px" />Tagging
 		<%
 			if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
 		%>
@@ -983,8 +983,9 @@ $(document).ready(function() {
 	<div id="biopsyBuilder" class="col-xs-6">
 		<div class="row">
 			<form name="addTissueSample" action="../OccurrenceAddTissueSample" method="post">
-			
-				<div id="addBiopsyFields" class="col-xs-6">
+				<div id="biopsyBuilder" class="col-xs-3">
+				</div>
+				<div id="addBiopsyFields" class="col-xs-3">
 				
 					<tr>
 						<td><%=props.getProperty("sampleID")%><small> - Required</small></td>
@@ -1023,7 +1024,7 @@ $(document).ready(function() {
 	
 				</div>
 				
-				<div class="col-xs-6">
+				<div class="col-xs-3">
 					<tr>
 						<td><%=props.getProperty("eventRemarks")%></td>
 						<td><input name="eventRemarks" type="text" size="20" /></td>
@@ -1057,11 +1058,10 @@ $(document).ready(function() {
 					</tr>
 	
 					<tr>
-						<td colspan="2"><input name="occurrence" type="hidden" value="<%=num%>" /> 
-							<input name="number" type="hidden"
-							value="<%=props.getProperty("number")%>" />
-							<input name="action" type="hidden"
-							value="setTissueSample" />
+						<td colspan="2">
+							<input name="occurrence" type="hidden" value="<%=num%>" /> 
+							<input name="number" type="hidden" value="<%=sharky.getOccurrenceID()%>" />
+							<input name="action" type="hidden" value="setTissueSample" />
 							<input name="AddTissueSample"
 							type="submit" id="AddTissueSample"
 							value="<%=props.getProperty("set")%>"
