@@ -523,20 +523,6 @@ if(enc.getSex()!=null){sexValue=enc.getSex();}
 	<div class="col-xs-6">
 	  <!-- Observations Column -->
 
-				<%
-					if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
-				%>
-				<h2>
-					<img align="absmiddle" src="../images/lightning_dynamic_props.gif" />
-					<%=props.getProperty("dynamicProperties")%>
-					<button class="btn btn-md" type="button" name="button"
-						id="editDynamic">Edit</button>
-					<button class="btn btn-md" type="button" name="button"
-						id="closeEditDynamic" style="display: none;">Close Edit</button>
-				</h2>
-
-
-
 <script type="text/javascript">
 $(document).ready(function() {
   $(".editFormDynamic, .editTextDynamic, .resultMessageDiv").hide();
@@ -553,6 +539,22 @@ $(document).ready(function() {
   });
 });
 </script>
+
+				<%
+					if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
+				%>
+				<h2>
+					<img align="absmiddle" src="../images/lightning_dynamic_props.gif" />
+					<%=props.getProperty("dynamicProperties")%>
+					<button class="btn btn-md" type="button" name="button"
+						id="editDynamic">Edit</button>
+					<button class="btn btn-md" type="button" name="button"
+						id="closeEditDynamic" style="display: none;">Close Edit</button>
+				</h2>
+				
+
+
+
 				<%
 					} else {
 				%>
@@ -587,10 +589,6 @@ $(document).ready(function() {
 					<p class="editTextDynamic">
 						<strong><%=props.getProperty("set")%> <%=nm%></strong>
 					</p>
-					<p class="editTextDynamic">
-						<em><small><%=props.getProperty("setDPMessage")%></small></em>
-					</p>
-
 					<form name="addDynProp" action="../BaseClassSetObservation"
 						method="post" class="editFormDynamic">
 						<input name="name" type="hidden" value="<%=nm%>" /> 
@@ -599,7 +597,7 @@ $(document).ready(function() {
 						<input name="type" type="hidden" value="Occurrence" />
 						<div class="form-group row">
 							<div class="col-sm-3">
-								<label><%=props.getProperty("propertyValue")%>:</label>
+								<label><%=props.getProperty("propertyValue")%></label>
 							</div>
 							<div class="col-sm-5">
 								<input name="value" type="text" class="form-control"
@@ -706,10 +704,10 @@ $(document).ready(function() {
 		%>
 		</h2>
 		<% 
-		ArrayList<MetalTag> metalTags = null;
-		ArrayList<AcousticTag> acousticTags = null;
-		ArrayList<DigitalArchiveTag> dTags = null;
-		ArrayList<SatelliteTag> satTags = null;
+		ArrayList<MetalTag> metalTags = new ArrayList<MetalTag>();
+		ArrayList<AcousticTag> acousticTags = new ArrayList<AcousticTag>();
+		ArrayList<DigitalArchiveTag> dTags = new ArrayList<DigitalArchiveTag>();
+		ArrayList<SatelliteTag> satTags = new ArrayList<SatelliteTag>();
 		
 		if (sharky.getBaseMetalTagArrayList() != null) {
 			metalTags = sharky.getBaseMetalTagArrayList();	
@@ -859,7 +857,19 @@ $(document).ready(function() {
 		<br>
 		<br>
 		<div>
-			<h2>Biopsies</h2>
+			<p><h2>Biopsies</h2>
+				<%
+					if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
+				%>
+					<button class="btn btn-md" type="button" name="button"
+						id="addBiopsy">Add</button>
+					<button class="btn btn-md" type="button" name="button"
+						id="closeAddBiopsy" style="display: none;">Close Add</button>
+				<%
+					}
+				%>
+			</p>
+			
 				<table id="results" width="100%">
 					<h3><%=sharky.getBaseTissueSampleArrayList().size()%></h3>
   					<tr class="lineitem">
@@ -871,7 +881,7 @@ $(document).ready(function() {
     					<td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("sampleID") %></strong></td>
    						<td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("sex") %></td>
 					</tr>
-						<%for (TissueSample biopsy : sharky.getBaseTissueSampleArrayList()) {%>
+					<%for (TissueSample biopsy : sharky.getBaseTissueSampleArrayList()) {%>
 						<tr>
 	  					    <td class="lineitem" align="left" valign="top">
 							    <%if(biopsy.getObservationByName("DATE")!=null){%>
@@ -934,31 +944,45 @@ $(document).ready(function() {
 							    &nbsp;
 							    <%}%>
 						    </td>
-						<%}%>
 		  		 		</tr>
+					<%}%>
   				</table>
   				&nbsp;&nbsp;				
 		</div>
 		<br>
 		<br>
 	</div>
-	
 <script type="text/javascript">
 	$(document).ready(function() {
-		  $("#biopsyBuilder").hide();
+		  $("#biopsyBuilder, addBiopsyFields").hide();
 		  var buttons = $("#biopsyBuilder").on("click", function(){
 		    buttons.toggle();
 		  });	
     });
+	$("#addBiopsy").click(function() {
+		    $("#biopsyBuilder, #addBiopsyFields").show();
+	});
+	$("#closeAddBiopsy").click(function() {
+	   		$("#biopsyBuilder, #addBiopsyFields").hide();
+	});
+	
 	
 </script>
 	
+<%
+  if (isOwner&&CommonConfiguration.isCatalogEditable(context)) {
+%>	
+	
+	
 	<!-- Begin Biopsy addition UI. -->
-	<div id="biopsyBuilder" class="col-xs-12">
+	<div id="biopsyBuilder" class="col-xs-3">
+	</div>
+	
+	<div id="biopsyBuilder" class="col-xs-6">
 		<div class="row">
 			<form name="addTissueSample" action="../OccurrenceAddTissueSample" method="post">
 			
-				<div class="col-xs-6">
+				<div id="addBiopsyFields" class="col-xs-6">
 				
 					<tr>
 						<td><%=props.getProperty("sampleID")%><small> - Required</small></td>
@@ -1047,7 +1071,9 @@ $(document).ready(function() {
 	</div>
 
 </div>
-
+<%
+  }
+%>
 
 
 <!-- Here's the map table...  -->

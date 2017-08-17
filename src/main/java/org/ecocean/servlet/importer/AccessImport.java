@@ -291,6 +291,9 @@ public class AccessImport extends HttpServlet {
             sn = sn.replace("0", "");
             sn = sn.replace("-", "");
           }
+          if (sn.contains("-")) {
+            sn = sn.replace("-", "");
+          }
           newEnc.setSightNo(sn);    
           sightNos += 1;
           //out.println("---------------- SIGHTNO : "+sn);
@@ -350,7 +353,7 @@ public class AccessImport extends HttpServlet {
           speciesId = thisRow.get("SPECIES_ID").toString();          
           //out.println("---------------- Species_ID : "+speciesId);
           newEnc.setGenus(speciesId);
-          //newEnc.setSpecificEpithet(speciesId);
+          newEnc.setSpecificEpithet(speciesId);
           speciesIds += 1;
           if (columnMasterList.contains("SPECIES_ID")) {
             columnMasterList.remove("SPECIES_ID");
