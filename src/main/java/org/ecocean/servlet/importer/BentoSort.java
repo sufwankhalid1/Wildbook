@@ -25,7 +25,7 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import org.apache.commons.fileupload.*;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;  
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 
 import javax.servlet.ServletConfig;
@@ -37,6 +37,9 @@ import javax.servlet.http.HttpServletResponse;
 
 public class BentoSort extends HttpServlet {
   /**
+   * This is the beginning of a servlet used to sort all the legacy Read Bento files 
+   * in a coherant way. It's just a start, will finish if data clean up doesn't happen.
+   * 
    * 
    */
   

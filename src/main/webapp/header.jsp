@@ -311,19 +311,15 @@ String urlLoc = "//" + CommonConfiguration.getURLLocation(request);
                       <li class="active home text-hide"><a href="<%=urlLoc %>"><%=props.getProperty("home")%></a></li>
                       <li><a href="<%=urlLoc %>/submit.jsp"><%=props.getProperty("report")%></a></li>
 
+					  
                       <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><%=props.getProperty("learn")%> <span class="caret"></span></a>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><%=props.getProperty("adminReports")%> <span class="caret"></span></a>
                         <ul class="dropdown-menu" role="menu">
 
-                        	<!--
-                        	<li class="dropdown"><a href="<%=urlLoc %>/overview.jsp"><%=props.getProperty("aboutYourProject")%></a></li>
-
-                          	<li><a href="<%=urlLoc %>/citing.jsp"><%=props.getProperty("citing")%></a></li>
-
-                          	<!--
-                          	<li><a href="<%=urlLoc %>/photographing.jsp"><%=props.getProperty("howToPhotograph")%></a></li>
-                             -->
-                          	<li><a target="_blank" href="http://www.wildme.org/wildbook"><%=props.getProperty("learnAboutShepherd")%></a></li>
+                        	
+                        	<li class="dropdown"><a href="<%=urlLoc %>/searchBento.jsp"><%=props.getProperty("searchBento")%></a></li>
+                          	<li><a href="<%=urlLoc %>/bentoSearchResult.jsp?return=all"><%=props.getProperty("allBento")%></a></li>
+                             
                         </ul>
                       </li>
 

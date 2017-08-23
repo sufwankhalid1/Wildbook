@@ -4,7 +4,7 @@
 org.joda.time.format.DateTimeFormatter,
 org.joda.time.format.ISODateTimeFormat,java.net.*,
 org.ecocean.grid.*,org.ecocean.movement.*,
-java.io.*,java.util.*, java.io.FileInputStream, java.io.File, java.io.FileNotFoundException, org.ecocean.*,org.ecocean.servlet.*,javax.jdo.*, java.lang.StringBuffer, java.util.Vector, java.util.Iterator, java.lang.NumberFormatException"%>
+java.io.*,java.util.*, java.io.FileInputStream, java.util.Date, java.text.SimpleDateFormat, java.io.File, java.io.FileNotFoundException, org.ecocean.*,org.ecocean.servlet.*,javax.jdo.*, java.lang.StringBuffer, java.util.Vector, java.util.Iterator, java.lang.NumberFormatException"%>
 
 <%
 String context="context0";
@@ -45,7 +45,10 @@ while (encs.hasNext()) {
 		}		
 	}
 }
-		
+
+SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+Date todayDate = new Date();
+String today = df.format(todayDate);		
 %>
 
 
@@ -54,59 +57,100 @@ while (encs.hasNext()) {
 <div class="container maincontent">
 	<div class="row">
 		<div class="col-md-12">
-			<h2>Download Bento Files</h2>
-			<p>Vessels: <%= vessels.size() %></p>
-			<small>Enter your search criteria. No criteria will return all Bento CSV and Excel files.</small>
+			<h2>Search Bento Files</h2>
+			<small>Enter any applicable search criteria. No criteria will return all Bento CSV and Excel files.</small>
 			<hr/>
 			<form action="SearchBento" method="post" enctype="multipart/form-data" name="SearchBento">
+			    
 			    <p>
-			    	<small>You can specify year, year and month or all three.</small>
-			    </p>			    
-			    <p>
-			    	<label>Date</label>				 
+			    	<label>Date Range</label>				 
 			    </p>
-				<p>
-			    	<input class="fileInput" type="number" name="year"/>
-			    	<input class="fileInput" type="number" name="month"/>
-			    	<input class="fileInput" type="number" name="day"/>  	
-			    </p>
+			    <div class="row">
+			    	<div class="col-xs-2">
+					    <p>
+					    	<small>Start</small>				 
+					    </p>			    
+						<p>	    	
+					    	<input type="date" class="fileInput" name="date" min="1995-01-01" max="<%=today%>" value="1995-01-01">  	
+					    </p>
+			    
+			    	</div>
+			    	<div class="col-xs-2">
+					    <p>
+					    	<small>End</small>				 
+					    </p>
+					    <p>	    	
+					    	<input type="date" class="fileInput" name="date" min="1995-01-01" max="<%=today%>" value="<%=today%>">  	
+					    </p>			    
+			    	</div>
+			    </div>
+			    
+			    
+			    
 			    <p>
 				    <label>Vessel Name</label>
 			    </p>
-			    <p>
-					<select>
-						<%
-							for (String vessel : vessels) {
-						%>		
-								<option value="<%=vessel%>" name="<%=vessel%>"><%=vessel%></option>
-						<%
-							}
-						%>
-					</select>
-					<small>Other</small>
-					<input class="fileInput" type="text" name="newVessel"/>
-			    </p>
-				<p>			    
-				    <label>Location Name</label>
-				</p>
-			    <p>
-				    <select>
-				    	<%=locationOptions%>
-				    </select>
-				    <small>Other</small>
-				    <input class="fileInput" type="text" name="newLocation"/>
-			    </p>
-			    <p>
-				    <label>Bento File Type</label>			    
-			    </p>
-			    <p>
-				    <select>
-				    	
-				    </select>
-				    <small>Other</small>
-				    <input class="fileInput" type="text" name="newLocation"/>
-			    </p>
+			    <div class="row">
+			    	<div class="col-xs-2">
+					    <p>
+						    <small>Known</small>				 
+							<select>
+								<option value=""></option>
+								<%
+									for (String vessel : vessels) {
+								%>		
+										<option value="<%=vessel%>" name="<%=vessel%>"><%=vessel%></option>
+								<%
+									}
+								%>
+							</select>
+					    </p>			    
+			    	</div>
+			    	<div class="col-xs-2">
+					    <p>
+							<small>Other</small>
+							<input class="fileInput" type="text" name="newVessel"/>
+					    </p>			    
+			    	</div>
+			    </div>
 			    
+				<label>Location Name</label>
+			    <div class="row">
+			    
+			    	<div class="col-xs-6">
+					    <small>Known</small>
+				    	<select>
+					    	<option value=""></option>
+					    	<%=locationOptions%>
+					    </select>
+			    	</div>
+			    	<div class="col-xs-2">
+			    	   <small>Other</small>
+				 	   <input class="fileInput" type="text" name="newLocation"/>
+			    	</div>
+			    
+			    </div>
+			    <br/>
+			    <div class="row">
+			    	<div class="col-xs-12">
+					    <p>
+						    <label>Bento File Type</label>			    
+					    </p>
+					    <p>
+						    <select>
+						    	<option value=""></option>
+						    	<option value="dailyEffort" name="dailyEffort">Daily Effort</option>
+						    	<option value="biopsy" name="biopsy">Biopsy</option>
+						    	<option value="sightings" name="sightings">Sightings</option>
+						    	<option value="surveyLog" name="surveyLog">Survey Log</option>
+						    	<option value="dTag" name="dtag">Dtag Tag</option>
+						    	<option value="satTag" name="satTag">SatTagging Tag</option>
+						    	<option value="focalFollow" name="focalFollow">Focal Follow</option>
+						    	<option value="playback" name="playback">Playback</option>
+						    </select>
+					    </p>		    			    	
+			    	</div>
+			    </div>			    
 			    
 			    <input value="defaultValue" type="hidden" name="defaultValue"/>
 			    <input id="searchButton" type="submit" />
