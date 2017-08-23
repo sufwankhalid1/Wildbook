@@ -179,7 +179,7 @@ public class ImportReadImages extends HttpServlet {
       ma.addLabel("_original");
       ma.copyIn(photo);
     } catch (Exception e) {
-      e.printStackTrace();
+      e.printStackTrace();  
       out.println("!!!! Error Trying to Create Media Asset!!!!");
       return false;
     }

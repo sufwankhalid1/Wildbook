@@ -482,6 +482,10 @@ public class CommonConfiguration {
     return showCategory("showMeasurements",context);
   }
   
+  public static boolean showVessels(String context) {
+    return showCategory("showVessels",context);
+  }
+  
   public static boolean showMetalTags(String context) {
     return showCategory("showMetalTags",context);
   }

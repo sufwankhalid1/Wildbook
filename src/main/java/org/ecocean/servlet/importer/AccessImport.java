@@ -115,7 +115,7 @@ public class AccessImport extends HttpServlet {
     out.println("\nI already have "+numEncs+" encounters in tha database.\n");
     
     // These switches allow you to work on different tables without doing the whole import a bunch iof times.
-    boolean dumlTableSwitch = true;
+    boolean dumlTableSwitch = false;
     if (dumlTableSwitch) {    
       try {
         out.println("********************* Let's process the DUML Table!\n");
@@ -129,7 +129,7 @@ public class AccessImport extends HttpServlet {
       }
     }  
     
-    boolean sightingsTableSwitch = true;
+    boolean sightingsTableSwitch = false;
     if (sightingsTableSwitch) {
       try {
         out.println("********************* Let's process the SIGHTINGS Table!\n");
@@ -153,7 +153,7 @@ public class AccessImport extends HttpServlet {
       }      
     }
     
-    boolean biopsyTableSwitch = true;
+    boolean biopsyTableSwitch = false;
     if (biopsyTableSwitch) {
       try {
         out.println("********************* Let's process the BiopsySamples Table!\n");
@@ -728,7 +728,7 @@ public class AccessImport extends HttpServlet {
           ts.addBaseObservationArrayList(newObs); 
           ts.getBaseObservationArrayList().toString();
         }
-        out.println("YEAH!!! added "+newObs.size()+" observations to Encounter "+id+" : ");
+        out.println("YEAH!!! added "+newObs.size()+" observations to "+obj.getClass().getSimpleName()+" "+id+" : ");
       } catch (Exception e) {
         e.printStackTrace();
         out.println("Failed to add the array of observations to this object.");
@@ -743,9 +743,13 @@ public class AccessImport extends HttpServlet {
     }
     
     out.println("Effort Table has "+table.getRowCount()+" Rows!\n");
-    
+    ArrayList<String> failArray = new ArrayList<String>();
     int matchedNum = 0;
     int success = 0;
+    int numSingleEncs = 0;
+    int numNoEncs = 0;
+    int numOneOccs = 0;
+    int noProjectOrLocation = 0;
     Row thisRow = null;
     
     for (int i=0;i<table.getRowCount();i++) {
@@ -846,28 +850,39 @@ public class AccessImport extends HttpServlet {
           
           out.println("Can we find an enc for this Survey and Track? We have "+encsOnThisDate.size()+" encs to check.");
           boolean matched = false;
+          boolean singleEnc = false;
+          boolean noEnc = false;
+          if (encsOnThisDate.size()==1) {
+            singleEnc=true;
+            numSingleEncs++;
+          }
+          if (encsOnThisDate.isEmpty()) {
+            noEnc = true;
+            numNoEncs++;
+          }
           for (Encounter enc : encsOnThisDate) {
             
             String encLoc = null;
             if (enc.getLocation()!=null) {
               encLoc = enc.getLocation().trim();
             }
-            String encProj = null;
-            if (enc.getObservationByName("Project")!=null) {
-              encProj = enc.getSubmitterProject().trim();
+            String occProj = null;
+            Occurrence occ = myShepherd.getOccurrence(enc.getOccurrenceID());
+            if (occ.getObservationByName("Project")!=null) {
+              occProj = occ.getObservationByName("Project").getValue();
             }
              
-            if (encLoc != null || encProj != null) {
-              out.println("(enc:surveyTrack) Location : "+encLoc+" = "+st.getLocationID()+" Project : "+encProj+" = "+project);
-              if (encProj != null && project != null)  {
-                if (encProj.contains(project) || project.contains(encProj)) {
+            if (encLoc != null || occProj != null) {
+              //out.println("(enc:surveyTrack) Location : "+encLoc+" = "+st.getLocationID()+" Project : "+occProj+" = "+project);
+              if (occProj != null && project != null)  {
+                if (occProj.contains(project) || project.contains(occProj)) {
                   out.println("MATCH!!! At least on project name... (enc:surveyTrack) Project : "+enc.getObservationByName("Project").getValue()+" = "+project);
                   st.addOccurence(myShepherd.getOccurrence(enc.getOccurrenceID()));
                   sv.addSurveyTrack(st);
                   success++;
                   matched = true;
                 } else {
-                  out.println("Nope...");
+                  out.println("No match on project.");
                 } 
               } else if (encLoc != null && surveyArea != null) {
                 if (enc.getLocationID().contains(surveyArea) || surveyArea.contains(enc.getLocationID())) {
@@ -877,15 +892,28 @@ public class AccessImport extends HttpServlet {
                   success++;
                   matched = true;
                 } else {
-                  out.println("Nope...");
+                  out.println("No match on Location/SurveyArea.");
                 }
               } 
             } else {
-              System.out.println("Location ID for this enc is null!");
+              out.println("Location ID and Project for this enc is null!");
+              noProjectOrLocation = 0;
             }    
           }
           if (matched==true) {
             matchedNum ++;
+          } else {
+            failArray.add("\nNo match for row "+i+" with  Date : "+date+", Survey Area : "+surveyArea+", Project : "+project);
+            ArrayList<String> occIds = new ArrayList<String>(); 
+            for (Encounter enc :encsOnThisDate) {
+              String id = myShepherd.getOccurrence(enc.getOccurrenceID()).getOccurrenceID();
+              if (!occIds.contains(id)) {
+                occIds.add(id);
+              }
+            }
+            if (occIds.size()==1) {
+              numOneOccs++;              
+            }
           }
         }
       } catch (Exception e) {
@@ -895,8 +923,14 @@ public class AccessImport extends HttpServlet {
       }
       
     }
-    out.println("+++++++++++++ I created surveys and tracks for "+success+" encounters out of "+table.getRowCount()+" lines in the EFFORT table. +++++++++++++");
-    out.println("+++++++++++++ There were "+matchedNum+" out of "+table.getRowCount()+" effort table entries connected to an encounter.");
+    out.println("+++++++++++++ I created surveys and tracks for "+success+" encounters from "+table.getRowCount()+" lines in the EFFORT table. +++++++++++++");
+    out.println("+++++++++++++ There were "+matchedNum+" out of "+table.getRowCount()+" effort table entries connected to at least one encounter. ++++++++++++");
+    out.println("+++++++++++++ There were "+numSingleEncs+" lines in EFFORT that returned a single encounter/occurrence, but were not matched due to lack of project and location data.  ++++++++++++");
+    out.println("+++++++++++++ There were "+numNoEncs+" lines in EFFORT containing a date not shared by any saved encounter/occurrence. +++++++++++++");
+    out.println("+++++++++++++ There were "+numOneOccs+" lines in EFFORT containing a date with only one occurrence, but lacking project and location data. +++++++++++++");
+    for (String fail : failArray) {
+      out.println(fail);
+    }
   }
   
   private void processSightings(Table table, Shepherd myShepherd) {
@@ -1129,16 +1163,6 @@ public class AccessImport extends HttpServlet {
                 ts.setState("Sampled");
               }
             }
-            if (thisRow.get("Vessel") != null) {
-              String vessel = null;
-              vessel = thisRow.getString("Vessel").toString();
-              // Lets store this on the occurrence. It needs to be part of the process connecting Surveys-->Tracks-->Occurrences
-              Observation v = new Observation("Vessel",vessel,occ,occ.getPrimaryKeyID());
-              myShepherd.getPM().makePersistent(v);
-              myShepherd.commitDBTransaction();
-              myShepherd.beginDBTransaction();
-              occ.addObservation(v);
-            }
               
             // This should grab physical and satellite tags. Separated for clarity.
             processTags(thisRow, myShepherd, occ);
@@ -1161,6 +1185,7 @@ public class AccessImport extends HttpServlet {
             myShepherd.commitDBTransaction();
             myShepherd.beginDBTransaction();
             occ.addBaseTissueSample(ts);
+            columnMasterList.remove("Conf_sex");
           } catch (Exception e) {
             e.printStackTrace();
             out.println("\n Failed to save created tissue sample to occurrence.");

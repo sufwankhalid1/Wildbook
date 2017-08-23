@@ -368,7 +368,16 @@
   </servlet>
 
 
-
+  
+  <servlet>
+    <servlet-name>BentoSort</servlet-name>
+    <servlet-class>org.ecocean.servlet.importer.BentoSort</servlet-class>
+  </servlet>
+  
+   <servlet>
+    <servlet-name>BentoSearch</servlet-name>
+    <servlet-class>org.ecocean.servlet.BentoSearch</servlet-class>
+  </servlet>
 
   <servlet>
     <servlet-name>EncounterSetInformOthers</servlet-name>
@@ -1625,6 +1634,16 @@
   <servlet-mapping>
     <servlet-name>EncounterSetAsUnidentifiable</servlet-name>
     <url-pattern>/EncounterSetAsUnidentifiable</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>BentoSort</servlet-name>
+    <url-pattern>/BentoSort</url-pattern>
+  </servlet-mapping>
+  
+   <servlet-mapping>
+    <servlet-name>BentoSearch</servlet-name>
+    <url-pattern>/BentoSearch</url-pattern>
   </servlet-mapping>
 
     <servlet-mapping>
