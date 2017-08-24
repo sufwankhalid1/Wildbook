@@ -317,7 +317,7 @@ String urlLoc = "//" + CommonConfiguration.getURLLocation(request);
                         <ul class="dropdown-menu" role="menu">
 
                         	
-                        	<li class="dropdown"><a href="<%=urlLoc %>/searchBento.jsp"><%=props.getProperty("searchBento")%></a></li>
+                        	<li class="dropdown"><a href="<%=urlLoc %>/bentoSearch.jsp"><%=props.getProperty("searchBento")%></a></li>
                           	<li><a href="<%=urlLoc %>/bentoSearchResult.jsp?return=all"><%=props.getProperty("allBento")%></a></li>
                              
                         </ul>

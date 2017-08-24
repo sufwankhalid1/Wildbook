@@ -30,6 +30,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 
 
 public class BentoSearch extends HttpServlet {
@@ -39,6 +40,8 @@ public class BentoSearch extends HttpServlet {
    */
   private static final long serialVersionUID = 1L;
 
+  PrintWriter out = null;
+  ArrayList<String> files = new ArrayList<String>();
 
   public void init(ServletConfig config) throws ServletException {
     super.init(config);
@@ -50,82 +53,123 @@ public class BentoSearch extends HttpServlet {
   }
 
 
-  private void setDateLastModified(Occurrence enc) {
-    String strOutputDateTime = ServletUtilities.getDate();
-    enc.setDWCDateLastModified(strOutputDateTime);
-  }
-
-
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
     String context="context0";
     context=ServletUtilities.getContext(request);
     Shepherd myShepherd = new Shepherd(context);
-    myShepherd.setAction("OccurrenceAddComment.class");
+    myShepherd.beginDBTransaction();
+    myShepherd.setAction("BentoSearch.class");
+    out = response.getWriter();
+    System.out.println("Searching saved bento files...");
     //set up for response
     response.setContentType("text/html");
-    PrintWriter out = response.getWriter();
-    String urlLoc = "//" + CommonConfiguration.getURLLocation(request);
-    String message = "";
     
-    myShepherd.beginDBTransaction();
-    if ((request.getParameter("defaultValue") != null)) {
+    String urlLoc = "//" + CommonConfiguration.getURLLocation(request);
+    request.setAttribute("returnUrl","//"+urlLoc+"/bentoSearch.jsp");
+    String message = " ";
+    String criteria = "<label>Criteria: ";
+    if (request.getParameter("defaultValue") != null) {
       
-      String day = null;
-      if (request.getParameter("day")!=null) {
-        day = request.getParameter("day").toString().trim();    
+      String startDate = null;
+      if (request.getParameter("startDate")!=null) {
+        startDate = request.getParameter("startDate").toString().trim();    
+        criteria += "Start Date "+startDate+", ";
       }
       
-      String year = null;
-      if (request.getParameter("year")!=null) {
-        year = request.getParameter("year").toString().trim();    
-      }
-      
-      String month = null;
-      if (request.getParameter("month")!=null) {
-        month = request.getParameter("month").toString().trim();    
+      String endDate = null;
+      if (request.getParameter("endDate")!=null) {
+        endDate = request.getParameter("endDate").toString().trim();  
+        criteria += "End Date "+endDate+", ";
       }
       
       String vessel = null;
-      if (request.getParameter("newVessel")==null) {
-        if (request.getParameter("vessel")!=null) {
+      if (request.getParameter("newVessel")==null||request.getParameter("newVessel").equals("")) {
+        if (request.getParameter("vessel")!=null&&!request.getParameter("vessel").equals("")) {
           vessel = request.getParameter("vessel").toString().trim();
+          criteria += "Vessel "+vessel+", ";
         }
       } else {
         vessel = request.getParameter("newVessel").toString().trim();
+        criteria += "Vessel "+vessel+", ";
       }
       
       String location = null;
-      if (request.getParameter("newLocation")==null) {
-        if (request.getParameter("location")!=null) {
+      if (request.getParameter("newLocation")==null||request.getParameter("newLocation").equals("")) {
+        if (request.getParameter("location")!=null&&!request.getParameter("location").equals("")) {
           location = request.getParameter("location").toString().trim();
+          criteria += "Location "+location+", ";
         }
       } else {
         location = request.getParameter("newLocation").toString().trim();
+        criteria += "Location "+location+", ";
       }
       
+      String fileType = null;
+      if (request.getParameter("fileType")!=null&&!request.getParameter("fileType").equals("")) {
+        fileType = request.getParameter("fileType").toString().trim();
+        criteria += "File Type "+fileType+", ";
+      }
+      
+      if (criteria.length() > 20) {
+        criteria = criteria.substring(0, criteria.length()-3);
+        criteria += ".</label>";
+      } else {
+        criteria += "None.</label>";
+      }
+      request.setAttribute("criteria", criteria);
+      
           
-      File uploadDir = new File(System.getProperty("catalina.base")+"/webapps/wildbook_data_dir/bento_sheets/");
+      File bentoDir = new File(System.getProperty("catalina.base")+"/webapps/wildbook_data_dir/bento_sheets/");
+
+      ArrayList<String> files = new ArrayList<String>();
+      
+      // Retrieve all saved bento files . 
+      files = getBentoFiles(bentoDir, myShepherd);
+      
+      for (String file : files) {
+        message += file;
+      }
+      
+      System.out.println(files.size());
+      System.out.println(files.toString());
 
       
-
-
-      out.println(ServletUtilities.getHeader(request));
-      myShepherd.commitDBTransaction();
-      out.println("<strong>Success:</strong> I have successfully added your comments.");
-      out.println("<p><a href=\""+request.getScheme()+"://" + CommonConfiguration.getURLLocation(request) + "/occurrence.jsp?number=" + request.getParameter("number") + "\">Return to eoccurrence " + request.getParameter("number") + "</a></p>\n");
-
-
-      out.println(ServletUtilities.getFooter(context));
-    
-    
-    out.close();
-    myShepherd.closeDBTransaction();
-    request.setAttribute("result", message);
-    request.setAttribute("returnUrl","//"+urlLoc+"/importBento.jsp");
-    getServletContext().getRequestDispatcher("/bentoSearchResults.jsp").forward(request, response);
-  
+      if (message!=null) {
+        request.setAttribute("result", message);        
+      }
+    } else {
+      System.out.println("There was something wrong with this search request.");
     }
-    
+    myShepherd.closeDBTransaction();
+    request.setAttribute("returnUrl","//"+urlLoc+"/importBento.jsp");
+    getServletContext().getRequestDispatcher("/bentoSearchResults.jsp").forward(request, response);    
+    out.close();    
+  }
+  
+  public ArrayList<String> getBentoFiles(File path, Shepherd myShepherd) {
+    try {
+      if (path.isDirectory()) {
+        String[] subDirs = path.list();
+        System.out.println("There are "+subDirs.length+" files in the folder"+path.getAbsolutePath());
+        for (int i=0;subDirs!=null&&i<subDirs.length;i++ ) {
+          if (!path.getAbsolutePath().contains("/images")) {
+            getBentoFiles(new File(path, subDirs[i]), myShepherd);            
+          }
+        }
+      } 
+      if (path.isFile()) {
+        System.out.println("Path : "+path.getAbsolutePath());
+        files.add("<li>"+path.getAbsolutePath()+"<li/>");
+        System.out.println("Adding file to array...");
+      }
+      if (path.isDirectory()) {
+        System.out.println("Found Directory: "+path.getAbsolutePath());
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      System.out.println("Failed to traverse Excel files at path "+path.getAbsolutePath()); 
+    }
+    return files;
   }
   
 }

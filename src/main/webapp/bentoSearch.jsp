@@ -21,21 +21,6 @@ Iterator<Encounter> encs = myShepherd.getAllEncounters();
 while (encs.hasNext()) {
 	Encounter enc = encs.next();
 	String location = enc.getLocation();
-	String vessel = null;
-	try {
-		Occurrence occ = myShepherd.getOccurrence(enc.getOccurrenceID());
-		vessel = occ.getObservationByName("Vessel").getValue();		
-	} catch (Exception e) {
-		e.printStackTrace();
-		System.out.println("There was no vessel recorded for "+enc.getCatalogNumber());
-	}
-	//if (vessel!=null) {
-	//	if (!vessels.contains(vessel)) {
-	//		String option = "<option value=\""+vessel+"\" name=\"+vessel+\">"+vessel+"</option>";
-	//		vessels.add(vessel);
-	//		vesselOptions += vessel;
-	//	}	
-	//}
 	if (location!=null) {
 		if (!locations.contains(location)) {
 			
@@ -48,7 +33,8 @@ while (encs.hasNext()) {
 
 SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 Date todayDate = new Date();
-String today = df.format(todayDate);		
+String today = df.format(todayDate);
+myShepherd.closeDBTransaction();
 %>
 
 
@@ -60,7 +46,7 @@ String today = df.format(todayDate);
 			<h2>Search Bento Files</h2>
 			<small>Enter any applicable search criteria. No criteria will return all Bento CSV and Excel files.</small>
 			<hr/>
-			<form action="SearchBento" method="post" enctype="multipart/form-data" name="SearchBento">
+			<form action="../BentoSearch" method="post" name="searchBento">
 			    
 			    <p>
 			    	<label>Date Range</label>				 
@@ -71,7 +57,7 @@ String today = df.format(todayDate);
 					    	<small>Start</small>				 
 					    </p>			    
 						<p>	    	
-					    	<input type="date" class="fileInput" name="date" min="1995-01-01" max="<%=today%>" value="1995-01-01">  	
+					    	<input type="date" class="fileInput" name="startDate" min="1995-01-01" max="<%=today%>" value="1995-01-01">  	
 					    </p>
 			    
 			    	</div>
@@ -80,13 +66,11 @@ String today = df.format(todayDate);
 					    	<small>End</small>				 
 					    </p>
 					    <p>	    	
-					    	<input type="date" class="fileInput" name="date" min="1995-01-01" max="<%=today%>" value="<%=today%>">  	
+					    	<input type="date" class="fileInput" name="endDate" min="1995-01-01" max="<%=today%>" value="<%=today%>">  	
 					    </p>			    
 			    	</div>
 			    </div>
-			    
-			    
-			    
+			    	    
 			    <p>
 				    <label>Vessel Name</label>
 			    </p>
@@ -119,7 +103,7 @@ String today = df.format(todayDate);
 			    
 			    	<div class="col-xs-6">
 					    <small>Known</small>
-				    	<select>
+				    	<select name="location">
 					    	<option value=""></option>
 					    	<%=locationOptions%>
 					    </select>
@@ -137,16 +121,16 @@ String today = df.format(todayDate);
 						    <label>Bento File Type</label>			    
 					    </p>
 					    <p>
-						    <select>
+						    <select name="fileType">
 						    	<option value=""></option>
-						    	<option value="dailyEffort" name="dailyEffort">Daily Effort</option>
-						    	<option value="biopsy" name="biopsy">Biopsy</option>
-						    	<option value="sightings" name="sightings">Sightings</option>
-						    	<option value="surveyLog" name="surveyLog">Survey Log</option>
-						    	<option value="dTag" name="dtag">Dtag Tag</option>
-						    	<option value="satTag" name="satTag">SatTagging Tag</option>
-						    	<option value="focalFollow" name="focalFollow">Focal Follow</option>
-						    	<option value="playback" name="playback">Playback</option>
+						    	<option value="dailyEffort">Daily Effort</option>
+						    	<option value="biopsy">Biopsy</option>
+						    	<option value="sightings">Sightings</option>
+						    	<option value="surveyLog">Survey Log</option>
+						    	<option value="dTag">Dtag Tag</option>
+						    	<option value="satTag">SatTagging Tag</option>
+						    	<option value="focalFollow">Focal Follow</option>
+						    	<option value="playback">Playback</option>
 						    </select>
 					    </p>		    			    	
 			    	</div>
