@@ -158,9 +158,10 @@ public class BentoSearch extends HttpServlet {
         }
       } 
       if (path.isFile()) {
-        System.out.println("Path : "+path.getAbsolutePath());
-        files.add("<li>"+path.getAbsolutePath()+"<li/>");
-        System.out.println("Adding file to array...");
+        String name = path.getName();
+        String absPath = path.getAbsolutePath();
+        String servletArg = "/DownloadBento?path=";
+        files.add("<li><a href=\""+servletArg+absPath+"\""+path.getAbsolutePath()+">"+name+"</a><li/>");  
       }
       if (path.isDirectory()) {
         System.out.println("Found Directory: "+path.getAbsolutePath());
