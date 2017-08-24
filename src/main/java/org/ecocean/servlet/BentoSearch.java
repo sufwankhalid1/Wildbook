@@ -123,6 +123,8 @@ public class BentoSearch extends HttpServlet {
 
       ArrayList<String> files = new ArrayList<String>();
       
+      files = processDateCriteria(files, startDate, endDate);
+      
       // Retrieve all saved bento files . 
       files = getBentoFiles(bentoDir, myShepherd);
       
@@ -146,7 +148,7 @@ public class BentoSearch extends HttpServlet {
     out.close();    
   }
   
-  public ArrayList<String> getBentoFiles(File path, Shepherd myShepherd) {
+  private ArrayList<String> getBentoFiles(File path, Shepherd myShepherd) {
     try {
       if (path.isDirectory()) {
         String[] subDirs = path.list();
@@ -170,6 +172,15 @@ public class BentoSearch extends HttpServlet {
       e.printStackTrace();
       System.out.println("Failed to traverse Excel files at path "+path.getAbsolutePath()); 
     }
+    return files;
+  }
+  
+  private ArrayList<String> processDateCriteria(ArrayList<String> files, String start, String end) {
+    Integer startInt = Integer.valueOf(start.replace("-", ""));
+    Integer endInt = Integer.valueOf(end.replace("-", ""));
+    Integer fileDateInt = null;
+    
+    
     return files;
   }
   

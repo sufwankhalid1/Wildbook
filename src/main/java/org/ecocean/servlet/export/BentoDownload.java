@@ -64,7 +64,8 @@ public class BentoDownload extends HttpServlet {
 
     String path = null;
     if (request.getParameter("path")!= null) {
-      // This servlet should ONLY allow downloads from the bento_sheet directory.
+      // This servlet should ONLY allow downloads from the bento_sheet directory,
+      // and ONLY allow download of valid bento file types.
       if (request.getParameter("path").contains("bento_sheets")&&(request.getParameter("path").toLowerCase().endsWith("csv")||request.getParameter("path").toLowerCase().endsWith("xlsx"))) {
         path = request.getParameter("path");
         path = path.replace("/opt/tomcat", System.getProperty("catalina.base"));
@@ -98,7 +99,6 @@ public class BentoDownload extends HttpServlet {
       
       byte[] buffer = new byte[8192];
       int bytesRead = -1;
-      
       
       while ((bytesRead = is.read(buffer))!=-1) {
         os.write(buffer, 0, bytesRead);
