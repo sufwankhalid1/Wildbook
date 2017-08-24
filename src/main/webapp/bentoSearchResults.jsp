@@ -33,7 +33,7 @@ Shepherd myShepherd=new Shepherd(context);
 		<div class="col-xs-12">
 		
 			<p>
-				<a href="<%= request.getAttribute("returnUrl") %>">Import More Files</a>
+				<a href="<%= request.getAttribute("returnUrl") %>">Search Again</a>
 				<small><%= request.getAttribute("criteria") %></small>
 			</p>
 		    <hr/>

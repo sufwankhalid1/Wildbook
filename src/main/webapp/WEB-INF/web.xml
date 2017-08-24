@@ -324,13 +324,10 @@
     <servlet-class>com.sunwesttek.image.servlet.ImgSyncServlet</servlet-class>
   </servlet>
 
-
   <servlet>
     <servlet-name>EncounterCreateSurvey</servlet-name>
     <servlet-class>org.ecocean.servlet.EncounterCreateSurvey</servlet-class>
   </servlet>	
-
-
 
   <servlet>
     <servlet-name>WriteOutScanTask</servlet-name>
@@ -377,6 +374,11 @@
    <servlet>
     <servlet-name>BentoSearch</servlet-name>
     <servlet-class>org.ecocean.servlet.BentoSearch</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>BentoDownload</servlet-name>
+    <servlet-class>org.ecocean.servlet.export.BentoDownload</servlet-class>
   </servlet>
 
   <servlet>
@@ -1644,6 +1646,11 @@
    <servlet-mapping>
     <servlet-name>BentoSearch</servlet-name>
     <url-pattern>/BentoSearch</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>BentoDownload</servlet-name>
+    <url-pattern>/BentoDownload</url-pattern>
   </servlet-mapping>
 
     <servlet-mapping>

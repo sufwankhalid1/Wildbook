@@ -141,7 +141,7 @@ public class BentoSearch extends HttpServlet {
       System.out.println("There was something wrong with this search request.");
     }
     myShepherd.closeDBTransaction();
-    request.setAttribute("returnUrl","//"+urlLoc+"/importBento.jsp");
+    request.setAttribute("returnUrl","//"+urlLoc+"/bentoSearch.jsp");
     getServletContext().getRequestDispatcher("/bentoSearchResults.jsp").forward(request, response);    
     out.close();    
   }
@@ -160,7 +160,7 @@ public class BentoSearch extends HttpServlet {
       if (path.isFile()) {
         String name = path.getName();
         String absPath = path.getAbsolutePath();
-        String servletArg = "/DownloadBento?path=";
+        String servletArg = "/BentoDownload?path=";
         files.add("<li><a href=\""+servletArg+absPath+"\""+path.getAbsolutePath()+">"+name+"</a><li/>");  
       }
       if (path.isDirectory()) {
