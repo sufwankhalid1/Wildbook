@@ -91,7 +91,7 @@ public class WorkAppletHeadlessEpic {
 
 
     WorkAppletHeadlessEpic a = new WorkAppletHeadlessEpic();
-    if(args[0]!=null)urlArray.add(args[0]);
+    //if(args[0]!=null)urlArray.add(args[0]);
     a.getGoing();
   }
 
