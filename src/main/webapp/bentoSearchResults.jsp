@@ -27,13 +27,11 @@ Shepherd myShepherd=new Shepherd(context);
         
         
 	<h2>Bento Search Results</h2>
-	<small>Click a file to download.</small>
-	<hr/>
 	<div class="row">
-		<div class="col-xs-12">
-		
+		<div class="col-xs-12">	
+			<small>Click a file to download.</small>
 			<p>
-				<a href="<%= request.getAttribute("returnUrl") %>">Search Again</a>
+				<a class="btn" href="<%= request.getAttribute("returnUrl") %>">Search Again</a>
 				<small><%= request.getAttribute("criteria") %></small>
 			</p>
 		    <hr/>

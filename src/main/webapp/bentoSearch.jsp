@@ -11,7 +11,6 @@ String context="context0";
 context=ServletUtilities.getContext(request);
 String langCode=ServletUtilities.getLanguageCode(request);
 Shepherd myShepherd=new Shepherd(context);
-
 // Get the info we need for search criteria.
 ArrayList<String> vessels = Util.findVesselNames(langCode, context);
 ArrayList<String> locations = new ArrayList<String>();
