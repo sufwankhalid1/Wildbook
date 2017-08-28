@@ -7,17 +7,14 @@
          " %>
 
 <%
-
 String blocker = "";
 String context="context0";
 context=ServletUtilities.getContext(request);
-
   //handle some cache-related security
   response.setHeader("Cache-Control", "no-cache"); //Forces caches to obtain a new copy of the page from the origin server
   response.setHeader("Cache-Control", "no-store"); //Directs caches not to store the page under any circumstance
   response.setDateHeader("Expires", 0); //Causes the proxy cache to see the page as "stale"
   response.setHeader("Pragma", "no-cache"); //HTTP 1.0 backward compatibility
-
   //setup data dir
   String rootWebappPath = getServletContext().getRealPath("/");
   File webappsDir = new File(rootWebappPath).getParentFile();
@@ -26,33 +23,24 @@ context=ServletUtilities.getContext(request);
   File encountersDir=new File(shepherdDataDir.getAbsolutePath()+"/encounters");
   //if(!encountersDir.exists()){encountersDir.mkdirs();}
   //File thisEncounterDir = new File(encountersDir, number);
-
 //setup our Properties object to hold all properties
   Properties props = new Properties();
   //String langCode = "en";
   String langCode=ServletUtilities.getLanguageCode(request);
   
-
-
   //load our variables for the submit page
-
   //props.load(getClass().getResourceAsStream("/bundles/" + langCode + "/occurrence.properties"));
   props = ShepherdProperties.getProperties("occurrence.properties", langCode,context);
-
 	Properties collabProps = new Properties();
  	collabProps=ShepherdProperties.getProperties("collaboration.properties", langCode, context);
-
   String name = request.getParameter("number").trim();
   Shepherd myShepherd = new Shepherd(context);
   myShepherd.setAction("occurrence.jsp");
-
   String num = request.getParameter("number").replaceAll("\\+", "").trim();
-
   boolean isOwner = false;
   if (request.getUserPrincipal()!=null) {
     isOwner = true;
   }
-
 %>
 
  
@@ -63,9 +51,6 @@ context=ServletUtilities.getContext(request);
       color: #000000;
       font-weight: bold;
     }
-
-
-
     div.scroll {
       height: 200px;
       overflow: auto;
@@ -73,15 +58,11 @@ context=ServletUtilities.getContext(request);
       background-color: #ccc;
       padding: 8px;
     }
-
-
     -->
   </style>
   
   
   <jsp:include page="header.jsp" flush="true"/>
-
-
 <script src="javascript/sss.js"></script>
 <link rel="stylesheet" href="css/sss.css" type="text/css" media="all">
 <link rel="stylesheet" href="css/ecocean.css" type="text/css" media="all">
@@ -94,7 +75,6 @@ context=ServletUtilities.getContext(request);
       speed : 3500, // Slideshow speed in milliseconds.
       showNav : true // Set to false to hide navigation arrows.
       });
-
       $(".slider").show();
     });
 </script>
@@ -108,7 +88,6 @@ context=ServletUtilities.getContext(request);
   js.src = "//connect.facebook.net/en_US/all.js#xfbml=1";
   fjs.parentNode.insertBefore(js, fjs);
 }(document, 'script', 'facebook-jssdk'));</script>
-
 <!-- GOOGLE PLUS-ONE BUTTON -->
 <script type="text/javascript">
   (function() {
@@ -117,24 +96,15 @@ context=ServletUtilities.getContext(request);
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
   })();
 </script>
-
-
-
 <div class="container maincontent">
-
 <%
   myShepherd.beginDBTransaction();
   try {
     if (myShepherd.isOccurrence(name)) {
-
-
       Occurrence sharky = myShepherd.getOccurrence(name);
       boolean hasAuthority = ServletUtilities.isUserAuthorizedForOccurrence(sharky, request);
-
-
 			List<Collaboration> collabs = Collaboration.collaborationsForCurrentUser(request);
 			boolean visible = sharky.canUserAccess(request);
-
 			if (!visible) {
   			ArrayList<String> uids = sharky.getAllAssignedUsers();
 				ArrayList<String> possible = new ArrayList<String>();
@@ -150,7 +120,6 @@ context=ServletUtilities.getContext(request);
 				}
 				String cmsg = "<p>" + collabProps.getProperty("deniedMessage") + "</p>";
 				cmsg = cmsg.replace("'", "\\'");
-
 				if (possible.size() > 0) {
     			String arr = new Gson().toJson(possible);
 					blocker = "<script>$(document).ready(function() { $.blockUI({ message: '" + cmsg + "' + _collaborateMultiHtml(" + arr + ") }) });</script>";
@@ -160,11 +129,8 @@ context=ServletUtilities.getContext(request);
 				}
 			}
 			out.println(blocker);
-
 %>
-
 <table><tr>
-
 <td valign="middle">
  <h1><strong><img align="absmiddle" src="images/occurrence.png" />&nbsp;<%=props.getProperty("occurrence") %></strong>: <%=sharky.getOccurrenceID()%></h1>
 <p class="caption"><em><%=props.getProperty("description") %></em></p>
@@ -183,7 +149,6 @@ context=ServletUtilities.getContext(request);
 <div class="fb-like" data-send="false" data-layout="button_count" data-width="100" data-show-faces="false"></div>
 </td>
 </tr></table> </td></tr></table>
-
 <p><%=props.getProperty("groupBehavior") %>: 
 <%
 if(sharky.getGroupBehavior()!=null){
@@ -194,12 +159,9 @@ if(sharky.getGroupBehavior()!=null){
 %>
 &nbsp; <%if (hasAuthority && CommonConfiguration.isCatalogEditable(context)) {%><a id="groupB" style="color:blue;cursor: pointer;"><img align="absmiddle" width="20px" height="20px" style="border-style: none;" src="images/Crystal_Clear_action_edit.png" /></a><%}%>
 </p>
-
-
 <div id="dialogGroupB" title="<%=props.getProperty("setGroupBehavior") %>" style="display:none">
                          			
 <table border="1" cellpadding="1" cellspacing="0" bordercolor="#FFFFFF">
-
   <tr>
     <td align="left" valign="top">
       <form name="set_groupBhevaior" method="post" action="OccurrenceSetGroupBehavior">
@@ -247,7 +209,6 @@ if(sharky.getGroupBehavior()!=null){
     </td>
   </tr>
 </table>
-
                          		</div>
                          		<!-- popup dialog script -->
 <script>
@@ -257,15 +218,11 @@ var dlgGroupB = $("#dialogGroupB").dialog({
   resizable: false,
   width: 600
 });
-
 $("a#groupB").click(function() {
   dlgGroupB.dialog("open");
 });
 </script>
-
-
 <p><%=props.getProperty("numMarkedIndividuals") %>: <%=sharky.getMarkedIndividualNamesForThisOccurrence().size() %></p>
-
 <p><%=props.getProperty("estimatedNumMarkedIndividuals") %>: 
 <%
 if(sharky.getIndividualCount()!=null){
@@ -276,27 +233,20 @@ if(sharky.getIndividualCount()!=null){
 %>
 &nbsp; <%if (hasAuthority && CommonConfiguration.isCatalogEditable(context)) {%><a id="indies" style="color:blue;cursor: pointer;"><img align="absmiddle" width="20px" height="20px" style="border-style: none;" src="images/Crystal_Clear_action_edit.png" /></a><%}%>
 </p>
-
-
-
-
 <div id="dialogIndies" title="<%=props.getProperty("setIndividualCount") %>" style="display:none">
             
 <table border="1" cellpadding="1" cellspacing="0" bordercolor="#FFFFFF" >
-
   <tr>
     <td align="left" valign="top">
       <form name="set_individualCount" method="post" action="OccurrenceSetIndividualCount">
             <input name="number" type="hidden" value="<%=request.getParameter("number")%>" /> 
             <%=props.getProperty("newIndividualCount") %>:
-
         <input name="count" type="text" id="count" size="5" maxlength="7"></input> 
         <input name="individualCountButton" type="submit" id="individualCountName" value="<%=props.getProperty("set") %>">
         </form>
     </td>
   </tr>
 </table>
-
                          		</div>
                          		<!-- popup dialog script -->
 <script>
@@ -306,15 +256,10 @@ var dlgIndies = $("#dialogIndies").dialog({
   resizable: false,
   width: 600
 });
-
 $("a#indies").click(function() {
   dlgIndies.dialog("open");
 });
 </script>
-
-
-
-
 <p><%=props.getProperty("locationID") %>: 
 <%
 if(sharky.getLocationID()!=null){
@@ -326,14 +271,11 @@ if(sharky.getLocationID()!=null){
 </p>
 <table id="encounter_report" width="100%">
 <tr>
-
 <td align="left" valign="top">
-
 <p><strong><%=sharky.getNumberEncounters()%>
 </strong>
   <%=props.getProperty("numencounters") %>
 </p> 
-
 <table id="results" width="100%">
   <tr class="lineitem">
       <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("date") %></strong></td>
@@ -343,16 +285,13 @@ if(sharky.getLocationID()!=null){
     <td class="lineitem" bgcolor="#99CCFF"><strong><%=props.getProperty("dataTypes") %></strong></td>
     <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("encnum") %></strong></td>
     <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("alternateID") %></strong></td>
-
     <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("sex") %></strong></td>
-
    <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("behavior") %></td>
  <td class="lineitem" align="left" valign="top" bgcolor="#99CCFF"><strong><%=props.getProperty("haplotype") %></td>
  
   </tr>
   <%
     Encounter[] dateSortedEncs = sharky.getDateSortedEncounters(false);
-
     int total = dateSortedEncs.length;
     for (int i = 0; i < total; i++) {
       Encounter enc = dateSortedEncs[i];
@@ -413,7 +352,6 @@ if(sharky.getLocationID()!=null){
     <td class="lineitem"><a
       href="//<%=CommonConfiguration.getURLLocation(request)%>/encounters/encounter.jsp?number=<%=enc.getEncounterNumber()%><%if(request.getParameter("noscript")!=null){%>&noscript=null<%}%>"><%=enc.getEncounterNumber()%>
     </a></td>
-
     <%
       if (enc.getAlternateID() != null) {
     %>
@@ -427,15 +365,11 @@ if(sharky.getLocationID()!=null){
     <%
       }
     %>
-
-
 <%
 String sexValue="&nbsp;";
 if(enc.getSex()!=null){sexValue=enc.getSex();}
 %>
     <td class="lineitem"><%=sexValue %></td>
-
-
     
   
     <td class="lineitem">
@@ -471,21 +405,12 @@ if(enc.getSex()!=null){sexValue=enc.getSex();}
   <%
       
     } //end for
-
   %>
-
-
 </table>
-
-
 <!-- Start thumbnail gallery -->
-
 <br />
 <p><strong><%=props.getProperty("imageGallery") %></strong></p>
-
    
-
-
     <div class="slider col-sm-12 center-slider">
       <%-- Get images for slider --%>
       <%
@@ -514,15 +439,11 @@ if(enc.getSex()!=null){sexValue=enc.getSex();}
 	}
       %>
     </div>
-
 <p>&nbsp;</p>
-
 <!-- Begin Dual Column for Observations and Biopsy's?!?!?! Yup! -->
-
 <div class="row">
 	<div class="col-xs-6">
 	  <!-- Observations Column -->
-
 <script type="text/javascript">
 $(document).ready(function() {
   $(".editFormDynamic, .editTextDynamic, .resultMessageDiv").hide();
@@ -531,15 +452,12 @@ $(document).ready(function() {
   });
   $("#editDynamic").click(function() {
     $(".editFormDynamic").show();
-
   });
-
   $("#closeEditDynamic").click(function() {
     $(".editFormDynamic, .editTextDynamic, .resultMessageDiv").hide();
   });
 });
 </script>
-
 				<%
 					if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
 				%>
@@ -552,16 +470,12 @@ $(document).ready(function() {
 						id="closeEditDynamic" style="display: none;">Close Edit</button>
 				</h2>
 				
-
-
-
 				<%
 					} else {
 				%>
 				<h2>
 					<img align="absmiddle" src="../images/lightning_dynamic_props.gif" />
 					<%=props.getProperty("dynamicProperties")%></h2>
-
 				<%
 					}
 							// Let's make a list of editable Observations... Dynamically!
@@ -610,7 +524,6 @@ $(document).ready(function() {
 							</div>
 						</div>
 					</form>
-
 				</div>
 				<%
 					}
@@ -847,11 +760,7 @@ $(document).ready(function() {
 		</ul>
 	</div>
 </div>
-
-
-
 <br/>
-
 <div class="row">
 	<div class="col-xs-12">
 		<br>
@@ -1071,44 +980,29 @@ $(document).ready(function() {
 			</form>
 		</div>
 	</div>
-
 </div>
 <%
   }
 %>
-
-
 <!-- Here's the map table...  -->
 <table>
 <tr>
 <td>
-
       <jsp:include page="individualMapEmbed.jsp" flush="true">
         <jsp:param name="occurrence_number" value="<%=name%>"/>
       </jsp:include>
 </td>
 </tr>
 </table>
-
-
-
 <br/>
-
-
-
 <%
-
   if (isOwner) {
 %>
 <br />
-
-
 <br />
 <p><img align="absmiddle" src="images/Crystal_Clear_app_kaddressbook.gif"> <strong><%=props.getProperty("researcherComments") %>
 </strong></p>
-
 <div style="text-align:left;border:1px solid black;width:100%;height:400px;overflow-y:scroll;overflow-x:scroll;">
-
 <p><%=sharky.getComments().replaceAll("\n", "<br>")%>
 </p>
 </div>
@@ -1116,24 +1010,19 @@ $(document).ready(function() {
   if (CommonConfiguration.isCatalogEditable(context)) {
 %>
 <p>
-
 <form action="OccurrenceAddComment" method="post" name="addComments">
   <input name="user" type="hidden" value="<%=request.getRemoteUser()%>" id="user">
   <input name="number" type="hidden" value="<%=sharky.getOccurrenceID()%>" id="number">
   <input name="action" type="hidden" value="comments" id="action">
-
   <p><textarea name="comments" cols="60" id="comments"></textarea> <br>
     <input name="Submit" type="submit" value="<%=props.getProperty("addComments") %>"></p>
 </form>
 </p>
 <%
     } //if isEditable
-
   } //if isOwner
 %>
-
 <br />
-
 <%
 } 
     
@@ -1141,13 +1030,9 @@ $(document).ready(function() {
     System.out.println("Caught and handled an exception in occurrence.jsp!");
     eSharks_jsp.printStackTrace();
   }
-
   myShepherd.rollbackDBTransaction();
   myShepherd.closeDBTransaction();
-
 %>
 </div>
 <jsp:include page="footer.jsp" flush="true"/>
-
-
 

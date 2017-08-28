@@ -80,9 +80,6 @@ public class BentoDownload extends HttpServlet {
       if (mimeType==null) {
         mimeType = "application/octet-stream"; 
       }
-      System.out.println("MimeType: "+mimeType);
-      System.out.println("Can read? "+file.canRead());
-      System.out.println("Length? "+file.length());
       
       response.setContentType(mimeType);
       response.setContentLength((int) file.length());
