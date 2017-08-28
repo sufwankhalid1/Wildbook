@@ -468,9 +468,6 @@ context=ServletUtilities.getContext(request);
 						</div>
 					</div>
 					<div class="form-group row">
-						<div class="col-sm-12">		
-							<small><%=props.getProperty("addNewObservation")%></small>
-						</div>
 						<div class="col-sm-3">		
 							<label><%=props.getProperty("propertyValue")%></label>
 						</div>
@@ -494,10 +491,10 @@ context=ServletUtilities.getContext(request);
 		    buttons.toggle();
 		  });
 		  $("#editTag").click(function() {
-		    $(".editFormTag, .addTagBtn, .removeTag").show();
+		    $(".editFormTag, .removeTag").show();
 		  });
 		  $("#closeEditTag").click(function() {
-		    $(".editFormTag, .editTextTag, .resultMessageDiv, #addTagBtn, .removeTag").hide();
+		    $(".editFormTag, .removeTag").hide();
 		  });
 		});
 		$("#satTag").click(function() {
@@ -513,10 +510,8 @@ context=ServletUtilities.getContext(request);
 			<h2>
 			<img src="../images/Crystal_Clear_app_starthere.png" width="40px" height="40px" />Tagging
 			<%if (isOwner && CommonConfiguration.isCatalogEditable(context)) {%>
-						<button class="btn btn-md" type="button" name="button"
-							id="editTag">Edit</button>
-						<button class="btn btn-md" type="button" name="button"
-							id="closeEditTag" style="display: none;">Close Edit</button>
+						<button class="btn btn-md" type="button" name="button" id="editTag">Edit</button>
+						<button class="btn btn-md" type="button" name="button" id="closeEditTag" style="display: none;">Close Edit</button>
 			<%}%>
 				</h2>
 			<% 
@@ -613,8 +608,8 @@ context=ServletUtilities.getContext(request);
 			</ul>
 			<ul>
 			
-				<li style="list-style: none;display: none;">
-					<div id="dialogTagAdd" title="<%=props.getProperty("addTag")%>" class="editFormTag">
+				<li style="list-style: none;">
+					<div style="display:none;" id="dialogTagAdd" title="<%=props.getProperty("addTag")%>" class="editFormTag">
 						 <form name="addTag" action="../BaseClassAddTag" method="post" class="editFormTag">
 							<input name="number" type="hidden" value="<%=number%>" />
 							<input name="parentType" type="hidden" value="Occurrence" />
