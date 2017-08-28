@@ -115,7 +115,7 @@ public class AccessImport extends HttpServlet {
     out.println("\nI already have "+numEncs+" encounters in tha database.\n");
     
     // These switches allow you to work on different tables without doing the whole import a bunch iof times.
-    boolean dumlTableSwitch = false;
+    boolean dumlTableSwitch = true;
     if (dumlTableSwitch) {    
       try {
         out.println("********************* Let's process the DUML Table!\n");
@@ -129,7 +129,7 @@ public class AccessImport extends HttpServlet {
       }
     }  
     
-    boolean sightingsTableSwitch = false;
+    boolean sightingsTableSwitch = true;
     if (sightingsTableSwitch) {
       try {
         out.println("********************* Let's process the SIGHTINGS Table!\n");
@@ -153,7 +153,7 @@ public class AccessImport extends HttpServlet {
       }      
     }
     
-    boolean biopsyTableSwitch = false;
+    boolean biopsyTableSwitch = true;
     if (biopsyTableSwitch) {
       try {
         out.println("********************* Let's process the BiopsySamples Table!\n");
