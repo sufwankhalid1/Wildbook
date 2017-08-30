@@ -751,7 +751,7 @@ public class Shepherd {
     String filter = "this.sampleID == \""+sampleID+"\" && this.correspondingEncounterNumber == \""+encounterNumber+"\"";
 
     Extent encClass = pm.getExtent(TissueSample.class, true);
-      Query acceptedEncounters = pm.newQuery(encClass, filter);
+    Query acceptedEncounters = pm.newQuery(encClass, filter);
     try {
 
       Collection c = (Collection) (acceptedEncounters.execute());

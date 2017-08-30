@@ -504,8 +504,7 @@ context=ServletUtilities.getContext(request);
 		$(".notSat").click(function() {
 			console.log("Not Satellite tag...")
 				$("#argosInput").hide(); 
-		});
-		
+		});	
 	</script>
 			<h2>
 			<img src="../images/Crystal_Clear_app_starthere.png" width="40px" height="40px" />Tagging
@@ -613,6 +612,7 @@ context=ServletUtilities.getContext(request);
 						 <form name="addTag" action="../BaseClassAddTag" method="post" class="editFormTag">
 							<input name="number" type="hidden" value="<%=number%>" />
 							<input name="parentType" type="hidden" value="Occurrence" />
+							<small><%=props.getProperty("addNewTag")%></small>
 							<select name="tagType" id="tagType" >
 							  <option class="notSat" value="metal">Metal</option>
 							  <option id="satTag" value="satellite">Satellite</option>
@@ -621,7 +621,6 @@ context=ServletUtilities.getContext(request);
 							</select>
 							<label><%=props.getProperty("tagID")%></label>
 							<input name="tagID" type="text" class="form-control" id="addTagInput" />
-							<small><%=props.getProperty("addNewTag")%></small>
 							<label><%=props.getProperty("setSerialNumber")%></label>
 							<input name="serialNumber" type="text" class="form-control" id="addTagInput2" />
 							<label><%=props.getProperty("setTagLocation")%></label>
@@ -638,7 +637,7 @@ context=ServletUtilities.getContext(request);
 			<%
 		if (hasAuthority && CommonConfiguration.isCatalogEditable(context)) {
 	%>
-	<script type="text/javascript">
+<script type="text/javascript">
   $(document).ready(function() {
     $(".addBioSample").click(function() {
       $("#dialogSample").toggle();
@@ -652,105 +651,91 @@ context=ServletUtilities.getContext(request);
 		<img  src="../images/microscope.gif" /> <strong><%=props.getProperty("tissueSamples")%></strong>
 	</p>
 	<p class="para">
-		<a class="addBioSample toggleBtn" class="launchPopup"><img
-			 width="24px" style="border-style: none;"
-			src="../images/Crystal_Clear_action_edit_add.png" /></a>&nbsp;<a
-			class="addBioSample toggleBtn" class="launchPopup"><%=props.getProperty("addTissueSample")%></a>
+		<a class="addBioSample toggleBtn" class="launchPopup">
+			<img width="24px" style="border-style: none;" src="../images/Crystal_Clear_action_edit_add.png" />
+		</a>
+		&nbsp;
+		<a class="addBioSample toggleBtn" class="launchPopup"><%=props.getProperty("addTissueSample")%></a>
 	</p>
 
-	<%
-		if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
-	%>
-	<div id="dialogSample"
-		title="<%=props.getProperty("setTissueSample")%>"
-		style="display: none">
+	<%if (isOwner && CommonConfiguration.isCatalogEditable(context)) {%>
+	<div id="dialogSample" title="<%=props.getProperty("setTissueSample")%>" style="display: none">
 
-		<form id="setTissueSample" action="../EncounterSetTissueSample"
-			method="post">
-			<table  >
+		<form id="setTissueSample" action="../OccurrenceAddTissueSample" method="post">
+			<table>
 				<tr>
 
 					<td><%=props.getProperty("sampleID")%> (<%=props.getProperty("required")%>)</td>
 					<td>
 						<%
 							TissueSample thisSample = new TissueSample();
-											String sampleIDString = "";
-											if ((request.getParameter("edit") != null)
-													&& (request.getParameter("edit").equals("tissueSample"))
-													&& (request.getParameter("sampleID") != null)
-													&& (request.getParameter("function") != null)
-													&& (request.getParameter("function").equals("1"))
-													&& (myShepherd.isTissueSample(request.getParameter("sampleID"),
-															request.getParameter("number")))) {
-												sampleIDString = request.getParameter("sampleID");
-												thisSample = myShepherd.getTissueSample(sampleIDString, occ.getOccurrenceID());
-
-											}
-						%> <input name="sampleID" type="text" size="20"
-						maxlength="100" value="<%=sampleIDString%>" />
+							String sampleIDString = "";
+							if ((request.getParameter("edit") != null)
+									&& (request.getParameter("edit").equals("tissueSample"))
+									&& (request.getParameter("sampleID") != null)
+									&& (request.getParameter("function") != null)
+									&& (request.getParameter("function").equals("1"))
+									&& (myShepherd.isTissueSample(request.getParameter("sampleID"),
+									request.getParameter("number")))) {
+								sampleIDString = request.getParameter("sampleID");
+								thisSample = occ.getTissueSampleByID(sampleIDString);
+							}
+						%> 
+						<input name="sampleID" type="text" size="20" maxlength="100" value="<%=sampleIDString%>" />
 					</td>
 				</tr>
-
 				<tr>
 					<td>
 						<%
 							String alternateSampleID = "";
-											if (thisSample.getAlternateSampleID() != null) {
-												alternateSampleID = thisSample.getAlternateSampleID();
-											}
-						%> <%=props.getProperty("alternateSampleID")%></td>
-					<td><input name="alternateSampleID" type="text" size="20"
-						maxlength="100" value="<%=alternateSampleID%>" /></td>
+							if (thisSample.getAlternateSampleID() != null) {
+								alternateSampleID = thisSample.getAlternateSampleID();
+							}
+						%> 
+						<%=props.getProperty("alternateSampleID")%></td>
+					<td><input name="alternateSampleID" type="text" size="20" maxlength="100" value="<%=alternateSampleID%>" /></td>
 				</tr>
 
 				<tr>
 					<td>
 						<%
 							String tissueType = "";
-											if (thisSample.getTissueType() != null) {
-												tissueType = thisSample.getTissueType();
-											}
-						%> <%=props.getProperty("tissueType")%>
+							if (thisSample.getTissueType() != null) {
+								tissueType = thisSample.getTissueType();
+							}
+						%> 
+						<%=props.getProperty("tissueType")%>
 					</td>
 					<td>
 						<%
 							if (CommonConfiguration.getProperty("tissueType0", context) == null) {
-						%> <input name="tissueType" type="text" size="20"
-						maxlength="50" /> <%
- 	} else {
- 						//iterate and find the locationID options
- %> <select name="tissueType" id="tissueType">
+						%> <input name="tissueType" type="text" size="20" maxlength="50" /> 
+						<%} else { //iterate and find the locationID options %> 
+						<select name="tissueType" id="tissueType">
 							<option value=""></option>
 
 							<%
 								boolean hasMoreLocs = true;
-													int tissueTaxNum = 0;
-													while (hasMoreLocs) {
-														String currentLoc = "tissueType" + tissueTaxNum;
-														if (CommonConfiguration.getProperty(currentLoc, context) != null) {
+								int tissueTaxNum = 0;
+								while (hasMoreLocs) {
+									String currentLoc = "tissueType" + tissueTaxNum;
+									if (CommonConfiguration.getProperty(currentLoc, context) != null) {
 
-															String selected = "";
-															if (tissueType.equals(CommonConfiguration.getProperty(currentLoc, context))) {
-																selected = "selected=\"selected\"";
-															}
+										String selected = "";
+										if (tissueType.equals(CommonConfiguration.getProperty(currentLoc, context))) {
+											selected = "selected=\"selected\"";
+										}
+										%>
+										<option value="<%=CommonConfiguration.getProperty(currentLoc, context)%>" <%=selected%>><%=CommonConfiguration.getProperty(currentLoc, context)%></option>
+										<%
+										tissueTaxNum++;
+									} else {
+										hasMoreLocs = false;
+									}
+								}
 							%>
-
-							<option
-								value="<%=CommonConfiguration.getProperty(currentLoc, context)%>"
-								<%=selected%>><%=CommonConfiguration.getProperty(currentLoc, context)%></option>
-							<%
-								tissueTaxNum++;
-														} else {
-															hasMoreLocs = false;
-														}
-
-													}
-							%>
-
-
-					</select> <%
- 	}
- %>
+						</select> 
+					<%}%>
 					</td>
 				</tr>
 
@@ -758,9 +743,9 @@ context=ServletUtilities.getContext(request);
 					<td>
 						<%
 							String preservationMethod = "";
-											if (thisSample.getPreservationMethod() != null) {
-												preservationMethod = thisSample.getPreservationMethod();
-											}
+							if (thisSample.getPreservationMethod() != null) {
+								preservationMethod = thisSample.getPreservationMethod();
+							}
 						%> <%=props.getProperty("preservationMethod")%></td>
 					<td><input name="preservationMethod" type="text" size="20"
 						maxlength="100" value="<%=preservationMethod%>" /></td>
@@ -770,9 +755,9 @@ context=ServletUtilities.getContext(request);
 					<td>
 						<%
 							String storageLabID = "";
-											if (thisSample.getStorageLabID() != null) {
-												storageLabID = thisSample.getStorageLabID();
-											}
+							if (thisSample.getStorageLabID() != null) {
+								storageLabID = thisSample.getStorageLabID();
+							}
 						%> <%=props.getProperty("storageLabID")%></td>
 					<td><input name="storageLabID" type="text" size="20"
 						maxlength="100" value="<%=storageLabID%>" /></td>
@@ -782,9 +767,9 @@ context=ServletUtilities.getContext(request);
 					<td>
 						<%
 							String samplingProtocol = "";
-											if (thisSample.getSamplingProtocol() != null) {
-												samplingProtocol = thisSample.getSamplingProtocol();
-											}
+							if (thisSample.getSamplingProtocol() != null) {
+								samplingProtocol = thisSample.getSamplingProtocol();
+							}
 						%> <%=props.getProperty("samplingProtocol")%></td>
 					<td><input name="samplingProtocol" type="text" size="20"
 						maxlength="100" value="<%=samplingProtocol%>" /></td>
@@ -794,9 +779,9 @@ context=ServletUtilities.getContext(request);
 					<td>
 						<%
 							String samplingEffort = "";
-											if (thisSample.getSamplingEffort() != null) {
-												samplingEffort = thisSample.getSamplingEffort();
-											}
+							if (thisSample.getSamplingEffort() != null) {
+								samplingEffort = thisSample.getSamplingEffort();
+							}
 						%> <%=props.getProperty("samplingEffort")%></td>
 					<td><input name="samplingEffort" type="text" size="20"
 						maxlength="100" value="<%=samplingEffort%>" /></td>
@@ -806,9 +791,9 @@ context=ServletUtilities.getContext(request);
 					<td>
 						<%
 							String fieldNumber = "";
-											if (thisSample.getFieldNumber() != null) {
-												fieldNumber = thisSample.getFieldNumber();
-											}
+							if (thisSample.getFieldNumber() != null) {
+								fieldNumber = thisSample.getFieldNumber();
+							}
 						%> <%=props.getProperty("fieldNumber")%></td>
 					<td><input name="fieldNumber" type="text" size="20"
 						maxlength="100" value="<%=fieldNumber%>" /></td>
@@ -819,9 +804,9 @@ context=ServletUtilities.getContext(request);
 					<td>
 						<%
 							String fieldNotes = "";
-											if (thisSample.getFieldNotes() != null) {
-												fieldNotes = thisSample.getFieldNotes();
-											}
+							if (thisSample.getFieldNotes() != null) {
+								fieldNotes = thisSample.getFieldNotes();
+							}
 						%> <%=props.getProperty("fieldNotes")%></td>
 					<td><input name="fieldNNotes" type="text" size="20"
 						maxlength="100" value="<%=fieldNotes%>" /></td>
@@ -831,9 +816,9 @@ context=ServletUtilities.getContext(request);
 					<td>
 						<%
 							String eventRemarks = "";
-											if (thisSample.getEventRemarks() != null) {
-												eventRemarks = thisSample.getEventRemarks();
-											}
+							if (thisSample.getEventRemarks() != null) {
+								eventRemarks = thisSample.getEventRemarks();
+							}
 						%> <%=props.getProperty("eventRemarks")%></td>
 					<td><input name="eventRemarks" type="text" size="20"
 						value="<%=eventRemarks%>" /></td>
@@ -843,9 +828,9 @@ context=ServletUtilities.getContext(request);
 					<td>
 						<%
 							String institutionID = "";
-											if (thisSample.getInstitutionID() != null) {
-												institutionID = thisSample.getInstitutionID();
-											}
+							if (thisSample.getInstitutionID() != null) {
+								institutionID = thisSample.getInstitutionID();
+							}
 						%> <%=props.getProperty("institutionID")%></td>
 					<td><input name="institutionID" type="text" size="20"
 						maxlength="100" value="<%=institutionID%>" /></td>
@@ -856,9 +841,9 @@ context=ServletUtilities.getContext(request);
 					<td>
 						<%
 							String collectionID = "";
-											if (thisSample.getCollectionID() != null) {
-												collectionID = thisSample.getCollectionID();
-											}
+							if (thisSample.getCollectionID() != null) {
+								collectionID = thisSample.getCollectionID();
+							}
 						%> <%=props.getProperty("collectionID")%></td>
 					<td><input name="collectionID" type="text" size="20"
 						maxlength="100" value="<%=collectionID%>" /></td>
@@ -868,9 +853,9 @@ context=ServletUtilities.getContext(request);
 					<td>
 						<%
 							String collectionCode = "";
-											if (thisSample.getCollectionCode() != null) {
-												collectionCode = thisSample.getCollectionCode();
-											}
+							if (thisSample.getCollectionCode() != null) {
+								collectionCode = thisSample.getCollectionCode();
+							}
 						%> <%=props.getProperty("collectionCode")%></td>
 					<td><input name="collectionCode" type="text" size="20"
 						maxlength="100" value="<%=collectionCode%>" /></td>
@@ -880,68 +865,57 @@ context=ServletUtilities.getContext(request);
 					<td>
 						<%
 							String datasetID = "";
-											if (thisSample.getDatasetID() != null) {
-												datasetID = thisSample.getDatasetID();
-											}
+							if (thisSample.getDatasetID() != null) {
+								datasetID = thisSample.getDatasetID();
+							}
 						%> <%=props.getProperty("datasetID")%></td>
 					<td><input name="datasetID" type="text" size="20"
 						maxlength="100" value="<%=datasetID%>" /></td>
 				</tr>
 
-
 				<tr>
 					<td>
 						<%
 							String datasetName = "";
-											if (thisSample.getDatasetName() != null) {
-												datasetName = thisSample.getDatasetName();
-											}
+							if (thisSample.getDatasetName() != null) {
+								datasetName = thisSample.getDatasetName();
+							}
 						%> <%=props.getProperty("datasetName")%></td>
 					<td><input name="datasetName" type="text" size="20"
 						maxlength="100" value="<%=datasetName%>" /></td>
 				</tr>
 
-
 				<tr>
-					<td colspan="2"><input name="encounter" type="hidden"
-						value="<%=number%>" /> <input name="action" type="hidden"
-						value="setTissueSample" /> <input name="EditTissueSample"
-						type="submit" id="EditTissueSample"
-						value="<%=props.getProperty("set")%>"
-						class="btn btn-sm editFormBtn" /></td>
+					<td colspan="2">
+					<input name="number" type="hidden" value="<%=number%>" /> 
+					<input name="action" type="hidden" value="setTissueSample" /> 
+					<input name="EditTissueSample" type="submit" id="EditTissueSample" value="<%=props.getProperty("set")%>" class="btn btn-sm editFormBtn" /></td>
 				</tr>
 			</table>
 		</form>
 	</div>
-	<%
-		}
-
-					//setup the javascript to handle displaying an edit tissue sample dialog box
-					if ((request.getParameter("sampleID") != null) && (request.getParameter("edit") != null)
-							&& request.getParameter("edit").equals("tissueSample")
-							&& (myShepherd.isTissueSample(request.getParameter("sampleID"),
-									request.getParameter("number")))) {
+	<%}
+	//setup the javascript to handle displaying an edit tissue sample dialog box
+	if ((request.getParameter("sampleID") != null) && (request.getParameter("edit") != null)
+			&& request.getParameter("edit").equals("tissueSample")
+			&& (myShepherd.isTissueSample(request.getParameter("sampleID"),
+			request.getParameter("number")))) {
 	%>
-	<script>
-dlgSample.dialog("open");
+	
+<script>
+	dlgSample.dialog("open");
 </script>
 
-	<%
-		}
-	%>
-
-
+	<%}%>
 	<p>
 		<%
 			//List<TissueSample> tissueSamples=enc.getTissueSamples();
-						List<TissueSample> tissueSamples = myShepherd
-								.getAllTissueSamplesForEncounter(occ.getOccurrenceID());
+			ArrayList<TissueSample> tissueSamples = occ.getBaseTissueSampleArrayList();
 
-						if ((tissueSamples != null) && (tissueSamples.size() > 0)) {
-
-							int numTissueSamples = tissueSamples.size();
+			if ((tissueSamples != null) && (tissueSamples.size() > 0)) {
+				int numTissueSamples = tissueSamples.size();
+				System.out.println("TissueSamples for this occ : "+numTissueSamples);
 		%>
-	
 	<table style="width:100%;" class="table table-bordered table-striped tissueSampleTable">
 		<tr>
 			<th><%=props.getProperty("sampleID")%></th>
@@ -952,70 +926,69 @@ dlgSample.dialog("open");
 		</tr>
 		<%
 			for (int j = 0; j < numTissueSamples; j++) {
-								TissueSample thisSample = tissueSamples.get(j);
+				TissueSample thisSample = tissueSamples.get(j);
 		%>
 		<tr>
 			<td><span class="caption"><%=thisSample.getSampleID()%></span></td>
 			<td><span class="caption"><%=thisSample.getHTMLString()%></span></td>
-
-			<td><table>
+			<td>
+	<table>
 					<%
 						int numAnalyses = thisSample.getNumAnalyses();
-											List<GeneticAnalysis> gAnalyses = thisSample.getGeneticAnalyses();
-											for (int g = 0; g < numAnalyses; g++) {
-												GeneticAnalysis ga = gAnalyses.get(g);
-												if (ga.getAnalysisType().equals("MitochondrialDNA")) {
-													MitochondrialDNAAnalysis mito = (MitochondrialDNAAnalysis) ga;
+						List<GeneticAnalysis> gAnalyses = thisSample.getGeneticAnalyses();
+						for (int g = 0; g < numAnalyses; g++) {
+							GeneticAnalysis ga = gAnalyses.get(g);
+							if (ga.getAnalysisType().equals("MitochondrialDNA")) {
+								MitochondrialDNAAnalysis mito = (MitochondrialDNAAnalysis) ga;
 					%>
 					<tr>
 						<td style="border-style: none;">
 							<span class="caption"><%=props.getProperty("haplotype")%></span>:
-							<span class="caption"><%=mito.getHaplotype()%> <%
- 	if (!mito.getSuperHTMLString().equals("")) {
- %> <em> <br /><%=props.getProperty("analysisID")%>: <%=mito.getAnalysisID()%>
-									<br /><%=mito.getSuperHTMLString()%>
-							</em> <%
- 	}
- %> </span></td>
-						<td style="border-style: none;"><a
-							id="haplo<%=mito.getAnalysisID()%>" class="toggleBtn"><img
-								width="20px" height="20px" style="border-style: none;"
-								src="../images/Crystal_Clear_action_edit.png" /></a> <%
- 	if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
- %> <!-- start haplotype popup --> <script type="text/javascript">
+							<span class="caption"><%=mito.getHaplotype()%> 
+								 <%if (!mito.getSuperHTMLString().equals("")) {%> 	
+								 		<em> 
+								 		<br />
+								 			<%=props.getProperty("analysisID")%>: <%=mito.getAnalysisID()%>
+										<br />
+											<%=mito.getSuperHTMLString()%>
+										</em> 
+								<%}%> 
+							</span>
+						</td>
+						<td style="border-style: none;">
+							<a id="haplo<%=mito.getAnalysisID()%>" class="toggleBtn">
+								<img width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" />
+							</a>
+							 <% if (isOwner && CommonConfiguration.isCatalogEditable(context)) { %> <!-- start haplotype popup --> 
+ <script type="text/javascript">
   $(document).ready(function() {
     $("#haplo<%=mito.getAnalysisID()%>").click(function() {
       $("#dialogHaplotype<%=mito.getAnalysisID()%>").toggle();
     });
   });
 </script>
-
-							<div id="dialogHaplotype<%=mito.getAnalysisID()%>"
-								title="<%=props.getProperty("setHaplotype")%>"
-								style="display: none">
-								<form id="setHaplotype<%=mito.getAnalysisID()%>"
-									action="../TissueSampleSetHaplotype" method="post">
+							<div id="dialogHaplotype<%=mito.getAnalysisID()%>" title="<%=props.getProperty("setHaplotype")%>" style="display: none">
+								<form id="setHaplotype<%=mito.getAnalysisID()%>" action="../TissueSampleSetHaplotype" method="post">
 									<table  >
-
 										<tr>
 											<td><%=props.getProperty("analysisID")%> (<%=props.getProperty("required")%>)</td>
 											<td>
 												<%
 													MitochondrialDNAAnalysis mtDNA = new MitochondrialDNAAnalysis();
-																					mtDNA = mito;
-												%> <input name="analysisID" type="text" size="20"
-												maxlength="100" value="<%=mtDNA.getAnalysisID()%>" />
+													mtDNA = mito;
+												%> 
+												<input name="analysisID" type="text" size="20" maxlength="100" value="<%=mtDNA.getAnalysisID()%>" />
 											</td>
 										</tr>
 										<tr>
 											<%
 												String haplotypeString = "";
-																				try {
-																					if (mtDNA.getHaplotype() != null) {
-																						haplotypeString = mtDNA.getHaplotype();
-																					}
-																				} catch (NullPointerException npe34) {
-																				}
+												try {
+													if (mtDNA.getHaplotype() != null) {
+														haplotypeString = mtDNA.getHaplotype();
+													}
+												} catch (NullPointerException npe34) {
+												}
 											%>
 											<td><%=props.getProperty("haplotype")%> (<%=props.getProperty("required")%>)</td>
 											<td><input name="haplotype" type="text" size="20"
@@ -1025,9 +998,9 @@ dlgSample.dialog("open");
 										<tr>
 											<%
 												String processingLabTaskID = "";
-																				if (mtDNA.getProcessingLabTaskID() != null) {
-																					processingLabTaskID = mtDNA.getProcessingLabTaskID();
-																				}
+												if (mtDNA.getProcessingLabTaskID() != null) {
+													processingLabTaskID = mtDNA.getProcessingLabTaskID();
+												}
 											%>
 											<td><%=props.getProperty("processingLabTaskID")%></td>
 											<td><input name="processingLabTaskID" type="text"
@@ -1039,9 +1012,9 @@ dlgSample.dialog("open");
 											<td>
 												<%
 													String processingLabName = "";
-																					if (mtDNA.getProcessingLabName() != null) {
-																						processingLabName = mtDNA.getProcessingLabName();
-																					}
+													if (mtDNA.getProcessingLabName() != null) {
+														processingLabName = mtDNA.getProcessingLabName();
+													}
 												%> <%=props.getProperty("processingLabName")%></td>
 											<td><input name="processingLabName" type="text" size="20" maxlength="100" value="<%=processingLabName%>" /></td>
 										</tr>
@@ -1050,9 +1023,9 @@ dlgSample.dialog("open");
 											<td>
 												<%
 													String processingLabContactName = "";
-																					if (mtDNA.getProcessingLabContactName() != null) {
-																						processingLabContactName = mtDNA.getProcessingLabContactName();
-																					}
+													if (mtDNA.getProcessingLabContactName() != null) {
+														processingLabContactName = mtDNA.getProcessingLabContactName();
+													}
 												%> <%=props.getProperty("processingLabContactName")%></td>
 											<td><input name="processingLabContactName" type="text" size="20" maxlength="100" value="<%=processingLabContactName%>" /></td>
 										</tr>
@@ -1061,9 +1034,9 @@ dlgSample.dialog("open");
 											<td>
 												<%
 													String processingLabContactDetails = "";
-																					if (mtDNA.getProcessingLabContactDetails() != null) {
-																						processingLabContactDetails = mtDNA.getProcessingLabContactDetails();
-																					}
+													if (mtDNA.getProcessingLabContactDetails() != null) {
+														processingLabContactDetails = mtDNA.getProcessingLabContactDetails();
+													}
 												%> <%=props.getProperty("processingLabContactDetails")%></td>
 											<td>
 												<input name="processingLabContactDetails" type="text" size="20" maxlength="100" value="<%=processingLabContactDetails%>" />
@@ -1101,46 +1074,45 @@ $("a#haplo<%=mito.getAnalysisID() %>").click(function() {
 					</tr>
 					<%
 						} else if (ga.getAnalysisType().equals("SexAnalysis")) {
-													SexAnalysis mito = (SexAnalysis) ga;
+							SexAnalysis mito = (SexAnalysis) ga;
 					%>
 					<tr>
 						<td style="border-style: none;">
 							<strong><span class="caption"><%=props.getProperty("geneticSex")%></span>></strong>:
 							<span class="caption"><%=mito.getSex()%> 
-								<%
-								if (!mito.getSuperHTMLString().equals("")) {
-								%> 
+								<% if (!mito.getSuperHTMLString().equals("")) { %> 
 									<em> 
-									<br />
-										<%=props.getProperty("analysisID")%>: <%=mito.getAnalysisID()%>
-									<br />
-									<%=mito.getSuperHTMLString()%>
+										<br/>
+											<%=props.getProperty("analysisID")%>: <%=mito.getAnalysisID()%>
+										<br/>
+										<%=mito.getSuperHTMLString()%>
 									</em> 
 								<%}%> 
 							</span></td>
 						<td style="border-style: none;">
 							<a id="setSex<%=thisSample.getSampleID()%>" class="launchPopup">
-							<img width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" /> </a> <%
- 	if (isOwner && CommonConfiguration.isCatalogEditable(context)) { %> <!-- start genetic sex popup -->
+								<img width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" /> 
+							</a> 
+							<% if (isOwner && CommonConfiguration.isCatalogEditable(context)) { %> <!-- start genetic sex popup -->
   
  <script type="text/javascript">
-  $("#setSex<%=thisSample.getSampleID()%>").click(function() {
-    $("#dialogSexSet<%=thisSample.getSampleID().replaceAll("[-+.^:,]", "")%>").toggle();
-  });
+	  $("#setSex<%=thisSample.getSampleID()%>").click(function() {
+	    $("#dialogSexSet<%=thisSample.getSampleID().replaceAll("[-+.^:,]", "")%>").toggle();
+	  });
 </script>
 							<div id="dialogSexSet<%=thisSample.getSampleID().replaceAll("[-+.^:,]", "")%>" title="<%=props.getProperty("setSexAnalysis")%>" style="display: none">
-
 								<form name="setSexAnalysis" action="../TissueSampleSetSexAnalysis" method="post">
 									<table  >
 										<tr>
-											<td><%=props.getProperty("analysisID")%> (<%=props.getProperty("required")%>)<br />
+											<td>
+												<%=props.getProperty("analysisID")%> (<%=props.getProperty("required")%>)<br />
 												<%
 													SexAnalysis mtDNA = mito;
 													String analysisIDString = mtDNA.getAnalysisID();
 												%>
 												</td>
 											<td>
-												<input name="analysisID" type="text" size="20" maxlength="100" value="<%=analysisIDString%>" /><br /></td>
+											<input name="analysisID" type="text" size="20" maxlength="100" value="<%=analysisIDString%>" /><br /></td>
 										</tr>
 										<tr>
 											<td>
@@ -1245,11 +1217,13 @@ $("a#haplo<%=mito.getAnalysisID() %>").click(function() {
 						<td style="border-style: none;">
 
 							<span class="caption"><%=mito.getAllelesHTMLString()%> <%
-							 	if (!mito.getSuperHTMLString().equals("")) {
-							 %> <em> <br /><%=props.getProperty("analysisID")%>: <%=mito.getAnalysisID()%>
-								<br />
+							 	if (!mito.getSuperHTMLString().equals("")) { %> 
+								 	<em> 
+								 		<br />
+								 		<%=props.getProperty("analysisID")%>: <%=mito.getAnalysisID()%>
+										<br />
 										<%=mito.getSuperHTMLString()%>
-								</em> 
+									</em> 
 								<%}%> 
 							 </span>
 
@@ -1351,56 +1325,51 @@ $("a#haplo<%=mito.getAnalysisID() %>").click(function() {
 											<td>
 												<%
 													//begin setting up the loci and alleles
-																					int numPloids = 2; //most covered species will be diploids
-																					try {
-																						numPloids = (new Integer(
-																								CommonConfiguration.getProperty("numPloids", context)))
-																										.intValue();
-																					} catch (Exception e) {
-																						System.out.println(
-																								"numPloids configuration value did not resolve to an integer.");
-																						e.printStackTrace();
-																					}
+									int numPloids = 2; //most covered species will be diploids
+									try {
+										numPloids = (new Integer(
+												CommonConfiguration.getProperty("numPloids", context)))
+														.intValue();
+									} catch (Exception e) {
+										System.out.println(
+												"numPloids configuration value did not resolve to an integer.");
+										e.printStackTrace();
+									}
 
-																					int numLoci = 10;
-																					try {
-																						numLoci = (new Integer(
-																								CommonConfiguration.getProperty("numLoci", context)))
-																										.intValue();
-																					} catch (Exception e) {
-																						System.out.println(
-																								"numLoci configuration value did not resolve to an integer.");
-																						e.printStackTrace();
-																					}
+									int numLoci = 10;
+									try {
+										numLoci = (new Integer(
+												CommonConfiguration.getProperty("numLoci", context)))
+														.intValue();
+									} catch (Exception e) {
+										System.out.println(
+												"numLoci configuration value did not resolve to an integer.");
+										e.printStackTrace();
+									}
 
-																					for (int locus = 0; locus < numLoci; locus++) {
-																						String locusNameValue = "";
-																						if ((msDNA.getLoci() != null) && (locus < msDNA.getLoci().size())) {
-																							locusNameValue = msDNA.getLoci().get(locus).getName();
-																						}
-												%> <br /><%=props.getProperty("locus")%>: <input
-												name="locusName<%=locus%>" type="text" size="10"
-												value="<%=locusNameValue%>" /><br /> <%
- 	for (int ploid = 0; ploid < numPloids; ploid++) {
+									for (int locus = 0; locus < numLoci; locus++) {
+										String locusNameValue = "";
+										if ((msDNA.getLoci() != null) && (locus < msDNA.getLoci().size())) {
+											locusNameValue = msDNA.getLoci().get(locus).getName();
+										}
+												%> 
+										<br /><%=props.getProperty("locus")%>: <input name="locusName<%=locus%>" type="text" size="10" value="<%=locusNameValue%>" /><br /> <%
+ 										for (int ploid = 0; ploid < numPloids; ploid++) {
  											Integer ploidValue = 0;
  											if ((msDNA.getLoci() != null) && (locus < msDNA.getLoci().size())
  													&& (msDNA.getLoci().get(locus).getAllele(ploid) != null)) {
  												ploidValue = msDNA.getLoci().get(locus).getAllele(ploid);
- 											}
- %> <%=props.getProperty("allele")%>: <input
-												name="allele<%=locus%><%=ploid%>" type="text" size="10"
-												value="<%=ploidValue%>" /><br /> <%
- 	}
- %> <%
- 	} //end for loci looping
- %>
+ 											}%> 
+ 											<%=props.getProperty("allele")%>: <input name="allele<%=locus%><%=ploid%>" type="text" size="10" value="<%=ploidValue%>" /><br />
+					 					<%}%> 
+ 									<%}%>
 											
 										<tr>
-											<td colspan="2"><input name="sampleID" type="hidden"
-												value="<%=thisSample.getSampleID()%>" /> <input
-												name="number" type="hidden" value="<%=number%>" /> <input
-												name="EditTissueSample" type="submit" id="EditTissueSample"
-												value="<%=props.getProperty("set")%>" /></td>
+											<td colspan="2">
+												<input name="sampleID" type="hidden" value="<%=thisSample.getSampleID()%>" /> 
+												<input name="number" type="hidden" value="<%=number%>" /> 
+												<input name="EditTissueSample" type="submit" id="EditTissueSample" value="<%=props.getProperty("set")%>" />
+											</td>
 										</tr>
 									</table>
 								</form>
@@ -1425,87 +1394,83 @@ var dlgMSMarkersSet<%=thisSample.getSampleID().replaceAll("[-+.^:,]","")%> = $("
 													BiologicalMeasurement mito = (BiologicalMeasurement) ga;
 					%>
 					<tr>
-						<td style="border-style: none;"><strong><span
-								class="caption"><%=mito.getMeasurementType()%> <%=props.getProperty("measurement")%></span></strong><br />
+						<td style="border-style: none;">
+							<strong>
+								<span class="caption"><%=mito.getMeasurementType()%> <%=props.getProperty("measurement")%></span>
+							</strong>
+						<br />
 							<span class="caption"><%=mito.getValue().toString()%> <%=mito.getUnits()%>
 								(<%=mito.getSamplingProtocol()%>) <%
- 	if (!mito.getSuperHTMLString().equals("")) {
- %> <em> <br /><%=props.getProperty("analysisID")%>: <%=mito.getAnalysisID()%>
-									<br /><%=mito.getSuperHTMLString()%>
-							</em> <%
+ 	if (!mito.getSuperHTMLString().equals("")) {%> 
+ 		<em> 
+ 			 <br />
+ 			 <%=props.getProperty("analysisID")%>: <%=mito.getAnalysisID()%>
+			 <br /><%=mito.getSuperHTMLString()%>				
+		</em> <%
  	}
  %> </span></td>
-						<td style="border-style: none;"><a class="launchPopup"
-							id="setBioMeasure<%=thisSample.getSampleID()%>"><img
-								width="20px" height="20px" style="border-style: none;"
-								src="../images/Crystal_Clear_action_edit.png" /></a> <%
+						<td style="border-style: none;">
+							<a class="launchPopup" id="setBioMeasure<%=thisSample.getSampleID()%>">
+								<img width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" />
+							</a> <%
  	if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
  %> <!-- start biomeasure popup -->
-							<div
-								id="dialogSetBiomeasure4<%=thisSample.getSampleID().replaceAll("[-+.^:,]", "")%>"
-								title="<%=props.getProperty("setBiologicalMeasurement")%>"
-								style="display: none">
+							<div id="dialogSetBiomeasure4<%=thisSample.getSampleID().replaceAll("[-+.^:,]", "")%>" title="<%=props.getProperty("setBiologicalMeasurement")%>" style="display: none">
 								<form action="../TissueSampleSetMeasurement" method="post">
 
-									<table  >
-
-
+									<table>
 										<tr>
-											<td><%=props.getProperty("analysisID")%> (<%=props.getProperty("required")%>)<br />
+											<td><%=props.getProperty("analysisID")%> (<%=props.getProperty("required")%>)
+											<br />
 												<%
 													BiologicalMeasurement mtDNA = mito;
-																					String analysisIDString = mtDNA.getAnalysisID();
-												%></td>
-											<td><input name="analysisID" type="text" size="20"
-												maxlength="100" value="<%=analysisIDString%>" /><br /></td>
+													String analysisIDString = mtDNA.getAnalysisID();
+												%>
+											</td>
+											<td>
+												<input name="analysisID" type="text" size="20" maxlength="100" value="<%=analysisIDString%>" /><br />
+											</td>
 										</tr>
 
 										<tr>
 											<td>
 												<%
 													String type = "";
-																					if (mtDNA.getMeasurementType() != null) {
-																						type = mtDNA.getMeasurementType();
-																					}
+													if (mtDNA.getMeasurementType() != null) {
+														type = mtDNA.getMeasurementType();
+													}
 												%> <%=props.getProperty("type")%> (<%=props.getProperty("required")%>)
 											</td>
 											<td>
 												<%
-													List<String> values = CommonConfiguration
-																							.getIndexedPropertyValues("biologicalMeasurementType", context);
-																					int numProps = values.size();
-																					List<String> measurementUnits = CommonConfiguration
-																							.getIndexedPropertyValues("biologicalMeasurementUnits", context);
-																					int numUnitsProps = measurementUnits.size();
-
-																					if (numProps > 0) {
+													List<String> values = CommonConfiguration.getIndexedPropertyValues("biologicalMeasurementType", context);
+													int numProps = values.size();
+													List<String> measurementUnits = CommonConfiguration.getIndexedPropertyValues("biologicalMeasurementUnits", context);
+													int numUnitsProps = measurementUnits.size();
+													if (numProps > 0) {
 												%>
 												<p>
 													<select size="<%=(numProps + 1)%>" name="measurementType"
 														id="measurementType">
 														<%
-															for (int y = 0; y < numProps; y++) {
-																									String units = "";
-																									if (numUnitsProps > y) {
-																										units = "&nbsp;(" + measurementUnits.get(y) + ")";
-																									}
-																									String selected = "";
-																									if ((mtDNA.getMeasurementType() != null)
-																											&& (mtDNA.getMeasurementType().equals(values.get(y)))) {
-																										selected = "selected=\"selected\"";
-																									}
-														%>
-														<option value="<%=values.get(y)%>" <%=selected%>><%=values.get(y)%><%=units%></option>
-														<%
-															}
-														%>
+																for (int y = 0; y < numProps; y++) {
+																	String units = "";
+																	if (numUnitsProps > y) {
+																		units = "&nbsp;(" + measurementUnits.get(y) + ")";
+																	}
+																	String selected = "";
+																	if ((mtDNA.getMeasurementType() != null)
+																			&& (mtDNA.getMeasurementType().equals(values.get(y)))) {
+																		selected = "selected=\"selected\"";
+																	}
+																	%>
+																	<option value="<%=values.get(y)%>" <%=selected%>><%=values.get(y)%><%=units%></option>
+																<%}%>
 													</select>
-												</p> <%
- 	} else {
- %> <input name="measurementType" type="text" size="20"
-												maxlength="100" value="<%=type%>" /> <%
- 	}
- %>
+												</p> 
+													<%} else {%> 
+												 		<input name="measurementType" type="text" size="20" maxlength="100" value="<%=type%>" /> 
+												 	<%}%>
 											</td>
 										</tr>
 
@@ -1513,9 +1478,9 @@ var dlgMSMarkersSet<%=thisSample.getSampleID().replaceAll("[-+.^:,]","")%> = $("
 											<td>
 												<%
 													String thisValue = "";
-																					if (mtDNA.getValue() != null) {
-																						thisValue = mtDNA.getValue().toString();
-																					}
+													if (mtDNA.getValue() != null) {
+														thisValue = mtDNA.getValue().toString();
+													}
 												%> <%=props.getProperty("value")%> (<%=props.getProperty("required")%>)<br />
 											</td>
 											<td><input name="value" type="text" size="20"
@@ -1526,17 +1491,15 @@ var dlgMSMarkersSet<%=thisSample.getSampleID().replaceAll("[-+.^:,]","")%> = $("
 											<td>
 												<%
 													String thisSamplingProtocol = "";
-																					if (mtDNA.getSamplingProtocol() != null) {
-																						thisSamplingProtocol = mtDNA.getSamplingProtocol();
-																					}
+													if (mtDNA.getSamplingProtocol() != null) {
+														thisSamplingProtocol = mtDNA.getSamplingProtocol();
+													}
 												%> <%=props.getProperty("samplingProtocol")%>
 											</td>
 											<td>
 												<%
-													List<String> protovalues = CommonConfiguration.getIndexedPropertyValues(
-																							"biologicalMeasurementSamplingProtocols", context);
-																					int protonumProps = protovalues.size();
-
+													List<String> protovalues = CommonConfiguration.getIndexedPropertyValues("biologicalMeasurementSamplingProtocols", context);
+													int protonumProps = protovalues.size();
 																					if (protonumProps > 0) {
 												%>
 												<p>
@@ -1544,23 +1507,20 @@ var dlgMSMarkersSet<%=thisSample.getSampleID().replaceAll("[-+.^:,]","")%> = $("
 														name="samplingProtocol" id="samplingProtocol">
 														<%
 															for (int y = 0; y < protonumProps; y++) {
-																									String selected = "";
-																									if ((mtDNA.getSamplingProtocol() != null) && (mtDNA
-																											.getSamplingProtocol().equals(protovalues.get(y)))) {
-																										selected = "selected=\"selected\"";
-																									}
+																String selected = "";
+																if ((mtDNA.getSamplingProtocol() != null) && (mtDNA.getSamplingProtocol().equals(protovalues.get(y)))) {
+																	selected = "selected=\"selected\"";
+																}
 														%>
 														<option value="<%=protovalues.get(y)%>" <%=selected%>><%=protovalues.get(y)%></option>
 														<%
 															}
 														%>
 													</select>
-												</p> <%
- 	} else {
- %> <input name="samplingProtocol" type="text" size="20"
-												maxlength="100" value="<%=type%>" /> <%
- 	}
- %>
+												</p> 
+												<%} else {%> 
+												<input name="samplingProtocol" type="text" size="20" maxlength="100" value="<%=type%>" /> 
+												<%}%>
 											</td>
 										</tr>
 
@@ -1568,9 +1528,9 @@ var dlgMSMarkersSet<%=thisSample.getSampleID().replaceAll("[-+.^:,]","")%> = $("
 											<td>
 												<%
 													String processingLabTaskID = "";
-																					if (mtDNA.getProcessingLabTaskID() != null) {
-																						processingLabTaskID = mtDNA.getProcessingLabTaskID();
-																					}
+													if (mtDNA.getProcessingLabTaskID() != null) {
+														processingLabTaskID = mtDNA.getProcessingLabTaskID();
+													}
 												%> <%=props.getProperty("processingLabTaskID")%><br />
 											</td>
 											<td><input name="processingLabTaskID" type="text"
@@ -1582,9 +1542,9 @@ var dlgMSMarkersSet<%=thisSample.getSampleID().replaceAll("[-+.^:,]","")%> = $("
 											<td>
 												<%
 													String processingLabName = "";
-																					if (mtDNA.getProcessingLabName() != null) {
-																						processingLabName = mtDNA.getProcessingLabName();
-																					}
+													if (mtDNA.getProcessingLabName() != null) {
+														processingLabName = mtDNA.getProcessingLabName();
+													}
 												%> <%=props.getProperty("processingLabName")%><br />
 											</td>
 											<td><input name="processingLabName" type="text"
@@ -1597,9 +1557,9 @@ var dlgMSMarkersSet<%=thisSample.getSampleID().replaceAll("[-+.^:,]","")%> = $("
 											<td>
 												<%
 													String processingLabContactName = "";
-																					if (mtDNA.getProcessingLabContactName() != null) {
-																						processingLabContactName = mtDNA.getProcessingLabContactName();
-																					}
+													if (mtDNA.getProcessingLabContactName() != null) {
+														processingLabContactName = mtDNA.getProcessingLabContactName();
+													}
 												%> <%=props.getProperty("processingLabContactName")%><br />
 											</td>
 											<td><input name="processingLabContactName" type="text"
@@ -1611,9 +1571,9 @@ var dlgMSMarkersSet<%=thisSample.getSampleID().replaceAll("[-+.^:,]","")%> = $("
 											<td>
 												<%
 													String processingLabContactDetails = "";
-																					if (mtDNA.getProcessingLabContactDetails() != null) {
-																						processingLabContactDetails = mtDNA.getProcessingLabContactDetails();
-																					}
+													if (mtDNA.getProcessingLabContactDetails() != null) {
+														processingLabContactDetails = mtDNA.getProcessingLabContactDetails();
+													}
 												%> <%=props.getProperty("processingLabContactDetails")%><br />
 											</td>
 											<td><input name="processingLabContactDetails"
@@ -1622,48 +1582,47 @@ var dlgMSMarkersSet<%=thisSample.getSampleID().replaceAll("[-+.^:,]","")%> = $("
 										</tr>
 
 										<tr>
-											<td><input name="sampleID" type="hidden"
-												value="<%=thisSample.getSampleID()%>" /> <input
-												name="encounter" type="hidden" value="<%=number%>" /> <input
-												name="action" type="hidden" value="setBiologicalMeasurement" />
-												<input name="EditTissueSampleBiomeasurementAnalysis"
-												type="submit" id="EditTissueSampleBioMeasurementAnalysis"
-												value="<%=props.getProperty("set")%>" /></td>
+											<td>
+												<input name="sampleID" type="hidden" value="<%=thisSample.getSampleID()%>" /> 
+												<input name="number" type="hidden" value="<%=number%>" /> 
+												<input name="action" type="hidden" value="setBiologicalMeasurement" />
+												<input name="EditTissueSampleBiomeasurementAnalysis" type="submit" id="EditTissueSampleBioMeasurementAnalysis" value="<%=props.getProperty("set")%>" />
+											</td>
 										</tr>
 									</table>
 								</form>
-							</div> <script>
-var dlgSetBiomeasure<%=thisSample.getSampleID().replaceAll("[-+.^:,]", "")%> = $("#dialogSetBiomeasure4<%=thisSample.getSampleID().replaceAll("[-+.^:,]", "")%>").dialog({
-  autoOpen: false,
-  draggable: false,
-  resizable: false,
-  width: 600
-});
-
-$("a#setBioMeasure<%=thisSample.getSampleID()%>").click(function() {
-  dlgSetBiomeasure<%=thisSample.getSampleID().replaceAll("[-+.^:,]", "")%>.dialog("open");
-
-});
-</script> <!-- end biomeasure popup --> <%
- 	}
- %></td>
-						<td style="border-style: none;"><a
-							onclick="return confirm('<%=props.getProperty("deleteBio")%>');"
-							href="../TissueSampleRemoveBiologicalMeasurement?encounter=<%=occ.getOccurrenceID()%>&sampleID=<%=thisSample.getSampleID()%>&analysisID=<%=mito.getAnalysisID()%>"><img
-								width="20px" height="20px" style="border-style: none;"
-								src="../images/cancel.gif" /></a></td>
+							</div> 						
+<script>
+	var dlgSetBiomeasure<%=thisSample.getSampleID().replaceAll("[-+.^:,]", "")%> = $("#dialogSetBiomeasure4<%=thisSample.getSampleID().replaceAll("[-+.^:,]", "")%>").dialog({
+	  autoOpen: false,
+	  draggable: false,
+	  resizable: false,
+	  width: 600
+	});
+	$("a#setBioMeasure<%=thisSample.getSampleID()%>").click(function() {
+	  dlgSetBiomeasure<%=thisSample.getSampleID().replaceAll("[-+.^:,]", "")%>.dialog("open");
+	
+	});
+</script> <!-- end biomeasure popup --> 
+<%}%>
+						</td>
+						<td style="border-style: none;">
+							<a onclick="return confirm('<%=props.getProperty("deleteBio")%>');" href="../TissueSampleRemoveBiologicalMeasurement?encounter=<%=occ.getOccurrenceID()%>&sampleID=<%=thisSample.getSampleID()%>&analysisID=<%=mito.getAnalysisID()%>"><img width="20px" height="20px" style="border-style: none;" src="../images/cancel.gif" />
+							</a>
+						</td>
 					</tr>
 					<%
 						}
 											}
 					%>
-				</table> <script type="text/javascript">
+				</table>
+<script type="text/javascript">
       $(document).ready(function() {
         $(".addHaplotype<%=thisSample.getSampleID()%>").click(function() {
           $("#dialogHaplotype4<%=thisSample.getSampleID().replaceAll("[-+.^:,]", "")%>").toggle();
         });
       });
-    </script>
+</script>
 				<p>
 					<span class="caption"> <a
 						class="addHaplotype<%=thisSample.getSampleID()%> toggleBtn">
@@ -1694,11 +1653,11 @@ $("a#setBioMeasure<%=thisSample.getSampleID()%>").click(function() {
 								<td>
 									<%
 										MitochondrialDNAAnalysis mtDNA = new MitochondrialDNAAnalysis();
-																String analysisIDString = "";
-																//if((request.getParameter("function")!=null)&&(request.getParameter("function").equals("2"))&&(request.getParameter("edit")!=null) && (request.getParameter("edit").equals("haplotype")) && (request.getParameter("analysisID")!=null)&&(myShepherd.isGeneticAnalysis(request.getParameter("sampleID"),request.getParameter("number"),request.getParameter("analysisID"),"MitochondrialDNA"))){
-																//    analysisIDString=request.getParameter("analysisID");
-																//	mtDNA=myShepherd.getMitochondrialDNAAnalysis(request.getParameter("sampleID"), occ.getOccurrenceID(),analysisIDString);
-																//}
+										String analysisIDString = "";
+										//if((request.getParameter("function")!=null)&&(request.getParameter("function").equals("2"))&&(request.getParameter("edit")!=null) && (request.getParameter("edit").equals("haplotype")) && (request.getParameter("analysisID")!=null)&&(myShepherd.isGeneticAnalysis(request.getParameter("sampleID"),request.getParameter("number"),request.getParameter("analysisID"),"MitochondrialDNA"))){
+										//    analysisIDString=request.getParameter("analysisID");
+										//	mtDNA=myShepherd.getMitochondrialDNAAnalysis(request.getParameter("sampleID"), occ.getOccurrenceID(),analysisIDString);
+										//}
 									%> <input name="analysisID" type="text" size="20"
 									maxlength="100" value="<%=analysisIDString%>" />
 								</td>
@@ -1706,12 +1665,12 @@ $("a#setBioMeasure<%=thisSample.getSampleID()%>").click(function() {
 							<tr>
 								<%
 									String haplotypeString = "";
-															try {
-																if (mtDNA.getHaplotype() != null) {
-																	haplotypeString = mtDNA.getHaplotype();
-																}
-															} catch (NullPointerException npe34) {
-															}
+									try {
+										if (mtDNA.getHaplotype() != null) {
+											haplotypeString = mtDNA.getHaplotype();
+										}
+									} catch (NullPointerException npe34) {
+									}
 								%>
 								<td><%=props.getProperty("haplotype")%> (<%=props.getProperty("required")%>)</td>
 								<td><input name="haplotype" type="text" size="20"
@@ -2058,12 +2017,11 @@ $("a#setBioMeasure<%=thisSample.getSampleID()%>").click(function() {
 
 
 				<p>
-					<span class="caption"> <a
-						class="toggleBtn addBioMeasure<%=thisSample.getSampleID()%>">
-							<img  width="20px" height="20px"
-							style="border-style: none;"
-							src="../images/Crystal_Clear_action_edit_add.png" />
-					</a> <a class="toggleBtn addBioMeasure<%=thisSample.getSampleID()%>"><%=props.getProperty("addBiologicalMeasurement")%></a>
+					<span class="caption"> 
+						<a class="toggleBtn addBioMeasure<%=thisSample.getSampleID()%>">
+							<img  width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit_add.png" />
+						</a> 
+						<a class="toggleBtn addBioMeasure<%=thisSample.getSampleID()%>"><%=props.getProperty("addBiologicalMeasurement")%></a>
 					</span>
 				</p> <%
  	if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
@@ -2076,12 +2034,8 @@ $("a#setBioMeasure<%=thisSample.getSampleID()%>").click(function() {
   });
 </script>
 
-				<div
-					id="dialogBiomeasure4<%=thisSample.getSampleID().replaceAll("[-+.^:,]", "")%>"
-					title="<%=props.getProperty("setBiologicalMeasurement")%>"
-					style="display: none">
-					<form name="setBiologicalMeasurement"
-						action="../TissueSampleSetMeasurement" method="post">
+				<div id="dialogBiomeasure4<%=thisSample.getSampleID().replaceAll("[-+.^:,]", "")%>" title="<%=props.getProperty("setBiologicalMeasurement")%>" style="display: none">
+					<form name="setBiologicalMeasurement" action="../TissueSampleSetMeasurement" method="post">
 
 						<table>
 
@@ -2090,7 +2044,7 @@ $("a#setBioMeasure<%=thisSample.getSampleID()%>").click(function() {
 								<td><%=props.getProperty("analysisID")%> (<%=props.getProperty("required")%>)<br />
 									<%
 										BiologicalMeasurement mtDNA = new BiologicalMeasurement();
-																String analysisIDString = "";
+										String analysisIDString = "";
 									%></td>
 								<td><input name="analysisID" type="text" size="20"
 									maxlength="100" value="<%=analysisIDString%>" /><br /></td>
@@ -2100,48 +2054,45 @@ $("a#setBioMeasure<%=thisSample.getSampleID()%>").click(function() {
 								<td>
 									<%
 										String type = "";
-																if (mtDNA.getMeasurementType() != null) {
-																	type = mtDNA.getMeasurementType();
-																}
+										if (mtDNA.getMeasurementType() != null) {
+											type = mtDNA.getMeasurementType();
+										}
 									%> <%=props.getProperty("type")%> (<%=props.getProperty("required")%>)
 								</td>
 								<td>
 									<%
-										List<String> values = CommonConfiguration
-																		.getIndexedPropertyValues("biologicalMeasurementType", context);
-																int numProps = values.size();
-																List<String> measurementUnits = CommonConfiguration
-																		.getIndexedPropertyValues("biologicalMeasurementUnits", context);
-																int numUnitsProps = measurementUnits.size();
-
-																if (numProps > 0) {
+										List<String> values = CommonConfiguration.getIndexedPropertyValues("biologicalMeasurementType", context);
+										int numProps = values.size();
+										List<String> measurementUnits = CommonConfiguration
+												.getIndexedPropertyValues("biologicalMeasurementUnits", context);
+										int numUnitsProps = measurementUnits.size();
+	
+										if (numProps > 0) {
 									%>
 									<p>
 										<select size="<%=(numProps + 1)%>" name="measurementType"
 											id="measurementType">
 											<%
 												for (int y = 0; y < numProps; y++) {
-																				String units = "";
-																				if (numUnitsProps > y) {
-																					units = "&nbsp;(" + measurementUnits.get(y) + ")";
-																				}
-																				String selected = "";
-																				if ((mtDNA.getMeasurementType() != null)
-																						&& (mtDNA.getMeasurementType().equals(values.get(y)))) {
-																					selected = "selected=\"selected\"";
-																				}
+													String units = "";
+													if (numUnitsProps > y) {
+														units = "&nbsp;(" + measurementUnits.get(y) + ")";
+													}
+													String selected = "";
+													if ((mtDNA.getMeasurementType() != null)
+															&& (mtDNA.getMeasurementType().equals(values.get(y)))) {
+														selected = "selected=\"selected\"";
+													}
 											%>
 											<option value="<%=values.get(y)%>" <%=selected%>><%=values.get(y)%><%=units%></option>
 											<%
 												}
 											%>
 										</select>
-									</p> <%
- 	} else {
- %> <input name="measurementType" type="text" size="20"
-									maxlength="100" value="<%=type%>" /> <%
- 	}
- %>
+									</p> 
+	<%} else {%> 
+ 		<input name="measurementType" type="text" size="20" maxlength="100" value="<%=type%>" /> <%
+ 	}%>
 								</td>
 							</tr>
 
@@ -2149,9 +2100,9 @@ $("a#setBioMeasure<%=thisSample.getSampleID()%>").click(function() {
 								<td>
 									<%
 										String thisValue = "";
-																if (mtDNA.getValue() != null) {
-																	thisValue = mtDNA.getValue().toString();
-																}
+										if (mtDNA.getValue() != null) {
+											thisValue = mtDNA.getValue().toString();
+										}
 									%> <%=props.getProperty("value")%> (<%=props.getProperty("required")%>)<br />
 								</td>
 								<td><input name="value" type="text" size="20"
@@ -2162,16 +2113,15 @@ $("a#setBioMeasure<%=thisSample.getSampleID()%>").click(function() {
 								<td>
 									<%
 										String thisSamplingProtocol = "";
-																if (mtDNA.getSamplingProtocol() != null) {
-																	thisSamplingProtocol = mtDNA.getSamplingProtocol();
-																}
+										if (mtDNA.getSamplingProtocol() != null) {
+											thisSamplingProtocol = mtDNA.getSamplingProtocol();
+										}
 									%> <%=props.getProperty("samplingProtocol")%>
 								</td>
 								<td>
 									<%
-										List<String> protovalues = CommonConfiguration.getIndexedPropertyValues(
-																		"biologicalMeasurementSamplingProtocols", context);
-																int protonumProps = protovalues.size();
+										List<String> protovalues = CommonConfiguration.getIndexedPropertyValues("biologicalMeasurementSamplingProtocols", context);
+										int protonumProps = protovalues.size();
 
 																if (protonumProps > 0) {
 									%>
@@ -2180,23 +2130,21 @@ $("a#setBioMeasure<%=thisSample.getSampleID()%>").click(function() {
 											id="samplingProtocol">
 											<%
 												for (int y = 0; y < protonumProps; y++) {
-																				String selected = "";
-																				if ((mtDNA.getSamplingProtocol() != null)
-																						&& (mtDNA.getSamplingProtocol().equals(protovalues.get(y)))) {
-																					selected = "selected=\"selected\"";
-																				}
+												String selected = "";
+												if ((mtDNA.getSamplingProtocol() != null)
+														&& (mtDNA.getSamplingProtocol().equals(protovalues.get(y)))) {
+													selected = "selected=\"selected\"";
+												}
 											%>
 											<option value="<%=protovalues.get(y)%>" <%=selected%>><%=protovalues.get(y)%></option>
 											<%
 												}
 											%>
 										</select>
-									</p> <%
- 	} else {
- %> <input name="samplingProtocol" type="text" size="20"
-									maxlength="100" value="<%=type%>" /> <%
- 	}
- %>
+									</p> 
+	<%} else {%> 
+ 		<input name="samplingProtocol" type="text" size="20" maxlength="100" value="<%=type%>" /> <%
+ 	}%>
 								</td>
 							</tr>
 
@@ -2204,9 +2152,9 @@ $("a#setBioMeasure<%=thisSample.getSampleID()%>").click(function() {
 								<td>
 									<%
 										String processingLabTaskID = "";
-																if (mtDNA.getProcessingLabTaskID() != null) {
-																	processingLabTaskID = mtDNA.getProcessingLabTaskID();
-																}
+										if (mtDNA.getProcessingLabTaskID() != null) {
+											processingLabTaskID = mtDNA.getProcessingLabTaskID();
+										}
 									%> <%=props.getProperty("processingLabTaskID")%><br />
 								</td>
 								<td><input name="processingLabTaskID" type="text" size="20"
@@ -2268,8 +2216,10 @@ $("a#setBioMeasure<%=thisSample.getSampleID()%>").click(function() {
 							</tr>
 						</table>
 					</form>
-				</div> <!-- end biomeasure popup --> <%}%></td>
-
+				</div>
+				<%}%>
+			</td>
+<!-- end biomeasure popup --> 
 
 			<td>
 				<a id="sample" href="encounter.jsp?number=<%=occ.getOccurrenceID()%>&sampleID=<%=thisSample.getSampleID()%>&edit=tissueSample&function=1">
@@ -2287,7 +2237,7 @@ $("a#setBioMeasure<%=thisSample.getSampleID()%>").click(function() {
 	<%} else {%>
 	<p class="para"><%=props.getProperty("noTissueSamples")%></p>
 	<%
-		}
+	}
 
 				}		
 	%>	

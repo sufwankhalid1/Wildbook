@@ -77,7 +77,6 @@ public class AccessImport extends HttpServlet {
     }
     myShepherd.commitDBTransaction();
     myShepherd.closeDBTransaction();
-      
     
     String dbName = "DUML_MASTER_20170616.mdb";
     if (request.getParameter("file") != null) {
@@ -1133,7 +1132,7 @@ public class AccessImport extends HttpServlet {
     try {
       if (occ != null) { 
         try {
-          ts = new TissueSample("", sampleId );
+          ts = new TissueSample(occ.getOccurrenceID(), sampleId );
           // And load it up.
           try {
             if (!myShepherd.getPM().currentTransaction().isActive()) {

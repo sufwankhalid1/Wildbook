@@ -165,6 +165,16 @@ public abstract class FoundationalPropertiesBase implements java.io.Serializable
     }
     return null;
   }
+  public TissueSample getTissueSampleByID(String tsName) {
+    if (baseTissueSamples != null && baseTissueSamples.size() > 0) {
+      for (TissueSample ts : baseTissueSamples) {
+        if (ts.getSampleID() != null && ts.getSampleID().equals(tsName)) {
+          return ts;
+        }
+      }
+    }
+    return null;
+  }
   
   public ArrayList<MetalTag> getBaseMetalTagArrayList() {
     return baseMetalTags;

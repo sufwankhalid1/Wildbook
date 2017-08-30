@@ -34,6 +34,11 @@ import java.io.PrintWriter;
 
 public class OccurrenceAddTissueSample extends HttpServlet {
 
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
+
   public void init(ServletConfig config) throws ServletException {
     super.init(config);
   }
@@ -64,14 +69,15 @@ public class OccurrenceAddTissueSample extends HttpServlet {
       
       boolean noData = false;
       TissueSample ts = null;
-      
       //Required!
       String sampleID = null;
       if (request.getParameter("sampleID")!=null) {
         sampleID = request.getParameter(sampleID);
         // Typically TissueSamples are stored on encounter, working around for occ.
         // The first arg is usually a Enc ID.
-        ts = new TissueSample("", sampleID);
+        ts = new TissueSample(occ.getOccurrenceID(), sampleID);
+        
+        System.out.println("New Tissue Sample ID ? : "+sampleID);
         
         String presMethod = null;
         if (request.getParameter("preservationMethod")!=null) {
