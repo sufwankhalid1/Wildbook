@@ -287,6 +287,9 @@ console.info('waiting to try again...........................');
     if (loggedIn) {
         opt.debug = false;
         opt.menu = [
+            ['edit spots', function(enh) {
+		editSpots(enh.imgEl.prop('id').substring(11));
+            }],
             ['remove this image', function(enh) {
 		removeAsset(enh.imgEl.prop('id').substring(11));
             }],
@@ -303,8 +306,6 @@ console.info('waiting to try again...........................');
         return;
       }
 			//var mid = enh.imgEl.context.id.substring(11);
-			var mid = enh.imgEl.data('enh-mediaassetid');
-      console.log('%o ?????', mid);
 			imageEnhancer.message(jQuery('#image-enhancer-wrapper-' + mid), '<p>starting matching; please wait...</p>');
 			startIdentify(assetById(mid), enh.imgEl);
 		}]);
@@ -367,6 +368,18 @@ function checkImageEnhancerResize() {
 	if (needUpdate) doImageEnhancer('figure img');
 }
 
+
+function editSpots(mid) {
+	var ft = getFinFeature(mid);
+	if (!ft || !ft.parameters) {
+		imageEnhancer.popup('This image has no edge detected yet.');
+		return;
+	}
+	finSpots.pickPoints(
+		document.getElementById('figure-img-' + mid),
+		$('#image-enhancer-wrapper-' + mid + ' canvas')[0]
+	);
+}
 
 var popupStartTime = 0;
 function addNewKeyword(el) {

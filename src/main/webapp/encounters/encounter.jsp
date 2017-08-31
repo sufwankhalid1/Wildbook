@@ -142,6 +142,25 @@ String langCode=ServletUtilities.getLanguageCode(request);
   <style type="text/css">
     <!--
 
+	.picker-controls {
+		width: 300px;
+		height: 200px;
+		position: relative;
+		left: 20px;
+		top -10px;
+		background-color: #DDD;
+	}
+
+	.picker-label {
+		font-family: arial, sans;
+		position: absolute;
+		background-color: rgba(255,255,255,0.7);
+		padding: 2px 4px;
+		font-size: 0.7em;
+		display: inline-block;
+		border-radius: 4px;
+	}
+
 	#spot-image-wrapper-left,
 	#spot-image-wrapper-right
 	{
@@ -5426,5 +5445,6 @@ String pswipedir = urlLoc+"/photoswipe";
 <script src='<%=pswipedir%>/photoswipe.js'></script>
 <script src='<%=pswipedir%>/photoswipe-ui-default.js'></script>
 
+<script type="text/javascript" src="../javascript/fin_manual_spots.js"></script>
 
 <jsp:include page="../footer.jsp" flush="true"/>
