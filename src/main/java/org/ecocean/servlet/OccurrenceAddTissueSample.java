@@ -76,6 +76,9 @@ public class OccurrenceAddTissueSample extends HttpServlet {
         // Typically TissueSamples are stored on encounter, working around for occ.
         // The first arg is usually a Enc ID.
         ts = new TissueSample(occ.getOccurrenceID(), sampleID);
+        myShepherd.getPM().makePersistent(ts);
+        myShepherd.commitDBTransaction(); 
+        occ.addBaseTissueSample(ts); 
         
         System.out.println("New Tissue Sample ID ? : "+sampleID);
         
@@ -145,10 +148,6 @@ public class OccurrenceAddTissueSample extends HttpServlet {
 
       if (!noData) {
         try {
-          myShepherd.getPM().makePersistent(ts);
-          myShepherd.commitDBTransaction();
-          
-          occ.addBaseTissueSample(ts); 
           
           out.println(ServletUtilities.getHeader(request));
           myShepherd.commitDBTransaction();

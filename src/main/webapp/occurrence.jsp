@@ -411,8 +411,6 @@ context=ServletUtilities.getContext(request);
 							
 							String nm = ob.getName();
 							String vl = ob.getValue();
-							System.out.println("Name ??? : "+nm);
-							System.out.println("Value ??? : "+vl);
 					%>
 							
 							<p><em><%=nm%></em>:<%=vl%></p>
@@ -910,9 +908,18 @@ context=ServletUtilities.getContext(request);
 	<p>
 		<%
 			//List<TissueSample> tissueSamples=enc.getTissueSamples();
-			ArrayList<TissueSample> tissueSamples = occ.getBaseTissueSampleArrayList();
+			ArrayList<TissueSample> tissueSamples = new ArrayList<TissueSample>();
+			try {
+				tissueSamples = occ.getBaseTissueSampleArrayList();
+				if (tissueSamples==null) {
+					tissueSamples = new ArrayList<TissueSample>();
+				}
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 
-			if ((tissueSamples != null) && (tissueSamples.size() > 0)) {
+			if (tissueSamples!=null) {
 				int numTissueSamples = tissueSamples.size();
 				System.out.println("TissueSamples for this occ : "+numTissueSamples);
 		%>
@@ -927,6 +934,8 @@ context=ServletUtilities.getContext(request);
 		<%
 			for (int j = 0; j < numTissueSamples; j++) {
 				TissueSample thisSample = tissueSamples.get(j);
+				System.out.println("Print sample : "+j);
+				System.out.println("SampleID : "+thisSample.getSampleID());
 		%>
 		<tr>
 			<td><span class="caption"><%=thisSample.getSampleID()%></span></td>
@@ -959,7 +968,11 @@ context=ServletUtilities.getContext(request);
 							<a id="haplo<%=mito.getAnalysisID()%>" class="toggleBtn">
 								<img width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" />
 							</a>
-							 <% if (isOwner && CommonConfiguration.isCatalogEditable(context)) { %> <!-- start haplotype popup --> 
+							 <% 
+							 if (isOwner && CommonConfiguration.isCatalogEditable(context)) { 
+							 	System.out.println("<!-- start haplotype popup -->");
+							 %> <!-- start haplotype popup --> 
+							 
  <script type="text/javascript">
   $(document).ready(function() {
     $("#haplo<%=mito.getAnalysisID()%>").click(function() {
@@ -1237,8 +1250,7 @@ $("a#haplo<%=mito.getAnalysisID() %>").click(function() {
 								<img style="border-style: none; width: 40px; height: 40px;" src="../images/cancel.gif" />
 						</a> 
 						<% if (isOwner && CommonConfiguration.isCatalogEditable(context)) {%>
-  <!-- start ms marker popup --> 
- 
+<!-- start ms marker popup --> 
  <script type="text/javascript">
   $(document).ready(function() {
     $("#msmarkersSet<%=thisSample.getSampleID()%>").click(function() {
@@ -1391,7 +1403,7 @@ var dlgMSMarkersSet<%=thisSample.getSampleID().replaceAll("[-+.^:,]","")%> = $("
 
 					<%
 						} else if (ga.getAnalysisType().equals("BiologicalMeasurement")) {
-													BiologicalMeasurement mito = (BiologicalMeasurement) ga;
+							BiologicalMeasurement mito = (BiologicalMeasurement) ga;
 					%>
 					<tr>
 						<td style="border-style: none;">
@@ -1481,7 +1493,8 @@ var dlgMSMarkersSet<%=thisSample.getSampleID().replaceAll("[-+.^:,]","")%> = $("
 													if (mtDNA.getValue() != null) {
 														thisValue = mtDNA.getValue().toString();
 													}
-												%> <%=props.getProperty("value")%> (<%=props.getProperty("required")%>)<br />
+												%> 
+												<%=props.getProperty("value")%> (<%=props.getProperty("required")%>)<br />
 											</td>
 											<td><input name="value" type="text" size="20"
 												maxlength="100" value="<%=thisValue%>"></input></td>
@@ -1494,7 +1507,8 @@ var dlgMSMarkersSet<%=thisSample.getSampleID().replaceAll("[-+.^:,]","")%> = $("
 													if (mtDNA.getSamplingProtocol() != null) {
 														thisSamplingProtocol = mtDNA.getSamplingProtocol();
 													}
-												%> <%=props.getProperty("samplingProtocol")%>
+												%> 
+												<%=props.getProperty("samplingProtocol")%>
 											</td>
 											<td>
 												<%
@@ -1512,14 +1526,14 @@ var dlgMSMarkersSet<%=thisSample.getSampleID().replaceAll("[-+.^:,]","")%> = $("
 																	selected = "selected=\"selected\"";
 																}
 														%>
-														<option value="<%=protovalues.get(y)%>" <%=selected%>><%=protovalues.get(y)%></option>
+															<option value="<%=protovalues.get(y)%>" <%=selected%>><%=protovalues.get(y)%></option>
 														<%
 															}
 														%>
 													</select>
 												</p> 
 												<%} else {%> 
-												<input name="samplingProtocol" type="text" size="20" maxlength="100" value="<%=type%>" /> 
+													<input name="samplingProtocol" type="text" size="20" maxlength="100" value="<%=type%>" /> 
 												<%}%>
 											</td>
 										</tr>
@@ -1531,10 +1545,11 @@ var dlgMSMarkersSet<%=thisSample.getSampleID().replaceAll("[-+.^:,]","")%> = $("
 													if (mtDNA.getProcessingLabTaskID() != null) {
 														processingLabTaskID = mtDNA.getProcessingLabTaskID();
 													}
-												%> <%=props.getProperty("processingLabTaskID")%><br />
+												%> 
+												<%=props.getProperty("processingLabTaskID")%><br />
 											</td>
-											<td><input name="processingLabTaskID" type="text"
-												size="20" maxlength="100" value="<%=processingLabTaskID%>" />
+											<td>
+												<input name="processingLabTaskID" type="text" size="20" maxlength="100" value="<%=processingLabTaskID%>" />
 											</td>
 										</tr>
 
@@ -1545,11 +1560,12 @@ var dlgMSMarkersSet<%=thisSample.getSampleID().replaceAll("[-+.^:,]","")%> = $("
 													if (mtDNA.getProcessingLabName() != null) {
 														processingLabName = mtDNA.getProcessingLabName();
 													}
-												%> <%=props.getProperty("processingLabName")%><br />
+												%> 
+												<%=props.getProperty("processingLabName")%>
+												<br />
 											</td>
-											<td><input name="processingLabName" type="text"
-												size="20" maxlength="100" value="<%=processingLabName%>" />
-
+											<td>
+												<input name="processingLabName" type="text" size="20" maxlength="100" value="<%=processingLabName%>" />
 											</td>
 										</tr>
 
@@ -1560,11 +1576,13 @@ var dlgMSMarkersSet<%=thisSample.getSampleID().replaceAll("[-+.^:,]","")%> = $("
 													if (mtDNA.getProcessingLabContactName() != null) {
 														processingLabContactName = mtDNA.getProcessingLabContactName();
 													}
-												%> <%=props.getProperty("processingLabContactName")%><br />
+												%> 
+												<%=props.getProperty("processingLabContactName")%>
+												<br />
 											</td>
-											<td><input name="processingLabContactName" type="text"
-												size="20" maxlength="100"
-												value="<%=processingLabContactName%>" /></td>
+											<td>
+												<input name="processingLabContactName" type="text" size="20" maxlength="100" value="<%=processingLabContactName%>" />
+											</td>
 										</tr>
 
 										<tr>
@@ -1574,11 +1592,11 @@ var dlgMSMarkersSet<%=thisSample.getSampleID().replaceAll("[-+.^:,]","")%> = $("
 													if (mtDNA.getProcessingLabContactDetails() != null) {
 														processingLabContactDetails = mtDNA.getProcessingLabContactDetails();
 													}
-												%> <%=props.getProperty("processingLabContactDetails")%><br />
+												%> 
+												<%=props.getProperty("processingLabContactDetails")%><br />
 											</td>
-											<td><input name="processingLabContactDetails"
-												type="text" size="20" maxlength="100"
-												value="<%=processingLabContactDetails%>" /></td>
+											<td>
+												<input name="processingLabContactDetails" type="text" size="20" maxlength="100" value="<%=processingLabContactDetails%>" /></td>
 										</tr>
 
 										<tr>
@@ -1680,9 +1698,9 @@ var dlgMSMarkersSet<%=thisSample.getSampleID().replaceAll("[-+.^:,]","")%> = $("
 							<tr>
 								<%
 									String processingLabTaskID = "";
-															if (mtDNA.getProcessingLabTaskID() != null) {
-																processingLabTaskID = mtDNA.getProcessingLabTaskID();
-															}
+									if (mtDNA.getProcessingLabTaskID() != null) {
+										processingLabTaskID = mtDNA.getProcessingLabTaskID();
+									}
 								%>
 								<td><%=props.getProperty("processingLabTaskID")%></td>
 								<td><input name="processingLabTaskID" type="text" size="20"
@@ -1693,9 +1711,9 @@ var dlgMSMarkersSet<%=thisSample.getSampleID().replaceAll("[-+.^:,]","")%> = $("
 								<td>
 									<%
 										String processingLabName = "";
-																if (mtDNA.getProcessingLabName() != null) {
-																	processingLabName = mtDNA.getProcessingLabName();
-																}
+										if (mtDNA.getProcessingLabName() != null) {
+											processingLabName = mtDNA.getProcessingLabName();
+										}
 									%> <%=props.getProperty("processingLabName")%></td>
 								<td><input name="processingLabName" type="text" size="20"
 									maxlength="100" value="<%=processingLabName%>" /></td>
@@ -1705,9 +1723,9 @@ var dlgMSMarkersSet<%=thisSample.getSampleID().replaceAll("[-+.^:,]","")%> = $("
 								<td>
 									<%
 										String processingLabContactName = "";
-																if (mtDNA.getProcessingLabContactName() != null) {
-																	processingLabContactName = mtDNA.getProcessingLabContactName();
-																}
+										if (mtDNA.getProcessingLabContactName() != null) {
+											processingLabContactName = mtDNA.getProcessingLabContactName();
+										}
 									%> <%=props.getProperty("processingLabContactName")%></td>
 								<td><input name="processingLabContactName" type="text" size="20" maxlength="100"
 									value="<%=processingLabContactName%>" /></td>
@@ -1717,9 +1735,9 @@ var dlgMSMarkersSet<%=thisSample.getSampleID().replaceAll("[-+.^:,]","")%> = $("
 								<td>
 									<%
 										String processingLabContactDetails = "";
-																if (mtDNA.getProcessingLabContactDetails() != null) {
-																	processingLabContactDetails = mtDNA.getProcessingLabContactDetails();
-																}
+										if (mtDNA.getProcessingLabContactDetails() != null) {
+											processingLabContactDetails = mtDNA.getProcessingLabContactDetails();
+										}
 									%> <%=props.getProperty("processingLabContactDetails")%></td>
 								<td><input name="processingLabContactDetails" type="text" size="20" maxlength="100"
 									value="<%=processingLabContactDetails%>" /></td>
