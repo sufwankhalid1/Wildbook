@@ -144,21 +144,31 @@ String langCode=ServletUtilities.getLanguageCode(request);
 
 	.picker-controls {
 		width: 300px;
-		height: 200px;
+		height: 130px;
 		position: relative;
+		border-radius: 15px;
+		padding: 15px;
 		left: 20px;
-		top -10px;
-		background-color: #DDD;
+		top: -40px;
+		z-index: 10;
+		text-align: center;
+		font-size: 0.83em;
+		background-color: rgba(200,200,200,0.8);
 	}
 
 	.picker-label {
 		font-family: arial, sans;
 		position: absolute;
 		background-color: rgba(255,255,255,0.7);
-		padding: 2px 4px;
+		padding: 2px 5px 2px 8px;
 		font-size: 0.7em;
 		display: inline-block;
-		border-radius: 4px;
+		border-radius: 8px 0 0 8px;
+		min-width: 3em;
+	}
+
+	#picker-info {
+		margin-top: 10px;
 	}
 
 	#spot-image-wrapper-left,

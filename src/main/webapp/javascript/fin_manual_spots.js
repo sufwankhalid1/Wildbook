@@ -12,32 +12,36 @@ var finSpots = {
 	finSpots.sizeRatio = img.naturalWidth / img.width;
 	finSpots.ctrl = document.createElement('div');
 	finSpots.ctrl.className = 'picker-controls';
-	var h = '<input type="button" onClick="pickerCancel()" value="cancel" />';
-	h += '<input type="button" onClick="pickerReset()" value="reset" />';
-	h += '<input type="button" onClick="pickerSave()" value="save" />';
-	h += '<input type="button" onClick="pickerFlip()" value="&harr;" />';
-	h += '<div id="picker-info"></div>';
-	img.parentElement.appendChild(finSpots.ctrl);
+	var h = '<input type="button" onClick="finSpots.pickerCancel()" value="cancel" />';
+	h += '<input type="button" onClick="finSpots.pickerReset()" value="reset" />';
+	h += '<input type="button" onClick="finSpots.pickerSave()" value="save" />';
+	h += '<input type="button" onClick="finSpots.pickerFlip()" value="flip" title="swap front/rear spots" />';
+	h += '<div id="picker-info">click to put spots at tip, front, and rear points of fin</div>';
+	//img.parentElement.appendChild(finSpots.ctrl);
+	canv.parentElement.appendChild(finSpots.ctrl);
 	finSpots.ctrl.innerHTML = h;
 	finSpots.ctx = canv.getContext('2d');
-	img.addEventListener('click', function(ev) {
+	canv.addEventListener('click', function(ev) {
 		finSpots.pickerClick(ev);
 	});
     },
 
     pickerReset: function() {
+        event.stopPropagation();
 	finSpots.forceFlip = false;
 	finSpots.pickerPoints = [];
 	finSpots.pickerClear();
     },
 
     pickerCancel: function() {
+        event.stopPropagation();
 	finSpots.pickerReset();
 	finSpots.ctrl.remove();
-	finSpots.ctx.canvas.remove();
+        finSpots.ctx.canvas.remove();
     },
 
     pickerClick: function(ev) {
+        ev.stopPropagation();
 	if (finSpots.pickerPoints.length > 2) return;
 	finSpots.pickerPoints.push([ev.offsetX, ev.offsetY]);
 //console.log(pickerPoints);
@@ -47,6 +51,7 @@ var finSpots = {
     },
 
     pickerFlip: function() {
+        event.stopPropagation();
 	finSpots.forceFlip = !finSpots.forceFlip;
 	finSpots.pickerOrderPoints();
 	finSpots.pickerDrawPoints();
@@ -116,21 +121,31 @@ console.info('final pts: %o', newPts);
 	finSpots.ctx.beginPath();
 	finSpots.ctx.arc(xy[0], xy[1], 4, 0, 2 * Math.PI);
 	finSpots.ctx.fillStyle = 'rgba(255,255,0,0.8)';
-	//ctx.fillStyle = '#FF0';
+        finSpots.ctx.strokeStyle = '#262';
 	finSpots.ctx.fill();
+	finSpots.ctx.stroke();
     },
 
     labelAt: function(xy, txt) {
 	var l = document.createElement('div');
 	l.className = 'picker-label';
 	l.innerHTML = txt;
-	l.style.left = xy[0];
-	l.style.top = xy[1] - 15;
-	finSpots.imgEl.parentElement.appendChild(l);
+	l.style.left = xy[0] + 'px';
+	l.style.top = (xy[1] - 15) + 'px';
+	finSpots.ctx.canvas.parentElement.appendChild(l);
     },
 
-    init: function() {
-	finSpots.pickPoints(document.getElementById('img'), document.getElementById('canv'));
+    init: function(mid) {
+	var img = document.getElementById('figure-img-' + mid);
+        var canv = document.createElement('canvas');
+        canv.width = img.width;
+        canv.height = img.height;
+        canv.style.position = 'absolute';
+        canv.style.cursor = 'crosshair';
+        canv.style.top = 0;
+        canv.style.left = 0;
+        document.getElementById('image-enhancer-wrapper-' + mid).appendChild(canv);
+	finSpots.pickPoints(img, canv);
     }
 };
 

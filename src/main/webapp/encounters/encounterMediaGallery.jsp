@@ -375,10 +375,7 @@ function editSpots(mid) {
 		imageEnhancer.popup('This image has no edge detected yet.');
 		return;
 	}
-	finSpots.pickPoints(
-		document.getElementById('figure-img-' + mid),
-		$('#image-enhancer-wrapper-' + mid + ' canvas')[0]
-	);
+	finSpots.init(mid);
 }
 
 var popupStartTime = 0;
