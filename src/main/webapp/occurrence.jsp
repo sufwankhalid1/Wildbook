@@ -538,9 +538,9 @@ context=ServletUtilities.getContext(request);
 				<% if (metalTags.size() > 0 ) {
 					for (MetalTag mt : metalTags) {%>
 						<li style="list-style:none;">
-							<p><label>ID :</label> <%=mt.getId()%></p>
-							<p><label>Location :</label> <%=mt.getLocation()%></p>
-							<p><label>Name :</label> <%=mt.getTagNumber()%></p>
+							<small><p><label>ID :</label> <%=mt.getId()%></p></small>
+							<small><p><label>Location :</label> <%=mt.getLocation()%></p></small>
+							<small><p><label>Name :</label> <%=mt.getTagNumber()%></p></small>
 							<button onclick="removeTag(<%=mt.getId()%>)" type="button" class="removeTag btn btn-primary btn-xs">Remove</button>
 						</li>
 				<% }
@@ -554,8 +554,8 @@ context=ServletUtilities.getContext(request);
 				<% if (acousticTags.size() > 0) {
 					for (AcousticTag at : acousticTags) {%>
 						<li style="list-style:none;">
-							<p><label>ID :</label> <%=at.getId()%></p>
-							<p><label>Serial Number :</label> <%=at.getSerialNumber()%></p>
+							<small><p><label>ID :</label> <%=at.getId()%></p></small>
+							<small><p><label>Serial Number :</label> <%=at.getSerialNumber()%></p></small>
 							<button onclick="removeTag(<%=at.getId()%>)" type="button" class="removeTag btn btn-primary btn-xs">Remove</button>
 						</li>
 				<% 	}
@@ -569,8 +569,8 @@ context=ServletUtilities.getContext(request);
 				<% if (dTags.size() > 0) { 
 					for (DigitalArchiveTag dat : dTags) {%>
 						<li style="list-style:none;">
-							<p><label>ID :</label> <%=dat.getId()%></p>
-							<p><label>SerialNumber :</label> <%=dat.getSerialNumber()%></p>
+							<small><p><label>ID :</label> <%=dat.getId()%></p></small>
+							<small><p><label>SerialNumber :</label> <%=dat.getSerialNumber()%></p></small>
 							<button onclick="removeTag(<%=dat.getId()%>)" type="button" class="removeTag btn btn-primary btn-xs">Remove</button>
 						</li>
 				<%}
@@ -584,14 +584,10 @@ context=ServletUtilities.getContext(request);
 				<% if (satTags.size() > 0) {
 					for (SatelliteTag st : satTags) {%>
 						<li style="list-style:none;">
-							<p><label>ID :</label></p>
-							<p><%=st.getId()%></p>
-							<p><label>Name :</label></p>
-							<p><%=st.getName()%></p>
-							<p><label>Serial Number :</label></p>
-							<p><%=st.getSerialNumber()%></p>
-							<p><label>Argos Ptt Number :</label></p>
-							<p><%=st.getArgosPttNumber()%></p>
+							<small><p><label>ID :</label> <%=st.getId()%></p></small>
+							<small><p><label>Name :</label> <%=st.getName()%></p></small>
+							<small><p><label>Serial Number :</label> <%=st.getSerialNumber()%></p></small>
+							<small><p><label>Argos Ptt Number :</label> <%=st.getArgosPttNumber()%></p></small>
 							<button onclick="removeTag(<%=st.getId()%>)" type="button" class="removeTag btn btn-primary btn-xs">Remove</button>
 						</li>
 				<%}
@@ -607,12 +603,14 @@ context=ServletUtilities.getContext(request);
 							<input name="number" type="hidden" value="<%=number%>" />
 							<input name="parentType" type="hidden" value="Occurrence" />
 							<small><%=props.getProperty("addNewTag")%></small>
-							<select name="tagType" id="tagType" >
-							  <option class="notSat" value="metal">Metal</option>
-							  <option id="satTag" value="satellite">Satellite</option>
-							  <option class="notSat" value="acoustic">Acoustic</option>
-							  <option class="notSat" value="dtag">Digital Archive</option>
-							</select>
+							<p>
+								<select name="tagType" id="tagType" >
+								  <option class="notSat" value="metal">Metal</option>
+								  <option id="satTag" value="satellite">Satellite</option>
+								  <option class="notSat" value="acoustic">Acoustic</option>
+								  <option class="notSat" value="dtag">Digital Archive</option>
+								</select>
+							</p>
 							<label><%=props.getProperty("tagID")%></label>
 							<input name="tagID" type="text" class="form-control" id="addTagInput" />
 							<label><%=props.getProperty("setSerialNumber")%></label>

@@ -66,7 +66,7 @@ public class BaseClassAddTag extends HttpServlet {
     try {
       tagType = request.getParameter("tagType");
       serialNumber = request.getParameter("serialNumber");
-      location = request.getParameter("location");
+      location = request.getParameter("tagLocation");
       tagID = request.getParameter("tagID");
       if ("metal".equals(tagType)) {
         MetalTag metalTag = new MetalTag();
