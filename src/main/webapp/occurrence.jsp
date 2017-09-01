@@ -659,7 +659,7 @@ context=ServletUtilities.getContext(request);
 			<table>
 				<tr>
 
-					<td><%=props.getProperty("sampleID")%> (<%=props.getProperty("required")%>)</td>
+					<td><%=props.getProperty("sampleID")%> (<%=encProps.getProperty("required")%>)</td>
 					<td>
 						<%
 							TissueSample thisSample = new TissueSample();
@@ -686,7 +686,7 @@ context=ServletUtilities.getContext(request);
 								alternateSampleID = thisSample.getAlternateSampleID();
 							}
 						%> 
-						<%=props.getProperty("alternateSampleID")%></td>
+						<%=encProps.getProperty("alternateSampleID")%></td>
 					<td><input name="alternateSampleID" type="text" size="20" maxlength="100" value="<%=alternateSampleID%>" /></td>
 				</tr>
 
@@ -698,7 +698,7 @@ context=ServletUtilities.getContext(request);
 								tissueType = thisSample.getTissueType();
 							}
 						%> 
-						<%=props.getProperty("tissueType")%>
+						<%=encProps.getProperty("tissueType")%>
 					</td>
 					<td>
 						<%
@@ -838,7 +838,7 @@ context=ServletUtilities.getContext(request);
 							if (thisSample.getCollectionID() != null) {
 								collectionID = thisSample.getCollectionID();
 							}
-						%> <%=props.getProperty("collectionID")%></td>
+						%> <%=encProps.getProperty("collectionID")%></td>
 					<td><input name="collectionID" type="text" size="20"
 						maxlength="100" value="<%=collectionID%>" /></td>
 				</tr>
