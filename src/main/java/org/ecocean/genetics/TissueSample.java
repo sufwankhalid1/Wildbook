@@ -77,6 +77,9 @@ public class TissueSample extends DataCollectionEvent {
   public void setStorageLabID(String newLab){this.storageLabID=newLab;}
 
   public String getSampleID(){return sampleID;}
+  public String setSampleID(String id){
+    return this.sampleID = id;
+  }
 
   public String getAlternateSampleID(){return alternateSampleID;}
   public void setAlternateSampleID(String newID){this.alternateSampleID=newID;}

@@ -37,33 +37,37 @@ public class BaseClassAddTag extends HttpServlet {
     String context="context0";
     context=ServletUtilities.getContext(request);
     Shepherd myShepherd=new Shepherd(context);
-    myShepherd.setAction("EncounterSetTags.class");
+    myShepherd.setAction("BaseClassAddTag.class");
     //set up for response
     response.setContentType("text/html");
     PrintWriter out = response.getWriter();
     boolean locked=false;
 
     String objectID="None";
-
+    String parentType = request.getParameter("parentType");
     objectID=request.getParameter("number");
+    
     FoundationalPropertiesBase target = null;
     myShepherd.beginDBTransaction();
     StringBuilder sb = new StringBuilder();
-    if (myShepherd.isEncounter(objectID)) {
+    if (parentType==null||parentType.equals("Encounter")) {
       target = (Encounter) target;
       target = myShepherd.getEncounter(objectID);
-    }  else if (myShepherd.isOccurrence(objectID)) {
-      target = (Occurrence)target;
+    }  else if (myShepherd.isOccurrence(objectID)&&parentType.equals("Occurrence")) {
+      target = (Occurrence) target;
       target = myShepherd.getOccurrence(objectID);
     } else {
       out.println("Failed to retrieve and appropriate Object to store a new Tag.");
     }
-      
+    String tagType = null;
+    String serialNumber = null;
+    String location = null;
+    String tagID = null;
     try {
-      String tagType = request.getParameter("tagType");
-      String serialNumber = request.getParameter("serialNumber");
-      String location = request.getParameter("location");
-      String tagID = request.getParameter("tagID");
+      tagType = request.getParameter("tagType");
+      serialNumber = request.getParameter("serialNumber");
+      location = request.getParameter("location");
+      tagID = request.getParameter("tagID");
       if ("metal".equals(tagType)) {
         List<String> metalTagParamNames = getMetalTagParamNames(request);
         for (String metalTagParamName : metalTagParamNames) {
@@ -112,7 +116,17 @@ public class BaseClassAddTag extends HttpServlet {
       myShepherd.commitDBTransaction();
       myShepherd.closeDBTransaction();
       out.println(ServletUtilities.getHeader(request));
-      out.println("<p><strong>Success!</strong> I have successfully set the following tag values:");
+      out.println("<p><strong>Success!</strong> I have successfully set the following tag values:</p><br/>");
+      out.println("<small><strong>Type:</strong>"+tagType+"</small>");
+      if (serialNumber!=null) {
+        out.println("<small><strong>Type:</strong>"+serialNumber+"</small>");        
+      }
+      if (location!=null) {
+        out.println("<small><strong>Location:</strong>"+location+"</small>");        
+      }
+      if (tagID!=null) {
+        out.println("<small><strong>Location:</strong>"+tagID+"</small>");        
+      }
       out.println(sb.toString());
       //out.println("<p><a href=\""+request.getScheme()+"://"+CommonConfiguration.getURLLocation(request)+"/encounters/encounter.jsp?number="+encNum+"\">Return to encounter "+encNum+"</a></p>\n");
       out.println(ServletUtilities.getFooter(context));

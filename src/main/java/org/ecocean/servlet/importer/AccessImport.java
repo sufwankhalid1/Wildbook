@@ -911,6 +911,11 @@ public class AccessImport extends HttpServlet {
               }
             }
             if (occIds.size()==1) {
+              String id = occIds.get(0);
+              Occurrence onlyOcc = myShepherd.getOccurrence(id);
+              st.addOccurence(onlyOcc);
+              sv.addSurveyTrack(st);
+              success++;
               numOneOccs++;              
             }
           }
@@ -1055,7 +1060,6 @@ public class AccessImport extends HttpServlet {
     System.out.println("Existing Indy's added to encounters from lists retrieved by date  : "+addedToExisting);
     System.out.println("Rows Processed : "+rowsProcessed);
   }
-    
   // Okay, lets try this again.
   private void processBiopsyTable(Table table,Shepherd myShepherd,Table tableDUML) {
     
@@ -1076,13 +1080,14 @@ public class AccessImport extends HttpServlet {
       String time = null;
       String sightNo = null;
       try {
-        if (thisRow.get("DateCreated") != null && thisRow.get("SightNo") != null && thisRow.get("Time") != null) {
-          date = thisRow.get("DateCreated").toString(); 
+        if (thisRow.get("date") != null && thisRow.get("sight_no") != null && thisRow.get("Time") != null) {
+          
+          date = thisRow.get("date").toString(); 
           time = thisRow.get("Time").toString();
-          sightNo = thisRow.get("SightNo").toString().trim(); 
-          columnMasterList.remove("DateCreated");
+          sightNo = thisRow.get("sight_no").toString().trim(); 
+          columnMasterList.remove("date");
           columnMasterList.remove("Time");
-          columnMasterList.remove("SightNo");
+          columnMasterList.remove("sight_no");
           
           String verbatimDate = date.substring(0, 11) + time.substring(11, time.length() - 5) + date.substring(date.length() - 5);
           DateTime dateTime = dateStringToDateTime(verbatimDate, "EEE MMM dd hh:mm:ss z yyyy");
@@ -1097,7 +1102,7 @@ public class AccessImport extends HttpServlet {
       //Encounter thisEnc = null;
       try {
         ArrayList<Encounter> encArr = myShepherd.getEncounterArrayWithShortDate(date);
-        if (!encArr.isEmpty()) {
+        if (!encArr.isEmpty()&&date!=null) {
           out.println("Iterating through array of "+encArr.size()+" encounterss to find a  match...");
           for (Encounter enc : encArr) {
             if (enc.getSightNo().equals(sightNo)) {
@@ -1110,7 +1115,16 @@ public class AccessImport extends HttpServlet {
         }
       } catch (Exception e) {
         e.printStackTrace();
-        out.println("Failed to retrieve Occurrence for this encounter.");
+        out.println("Failed to retrieve Occurrence for this encounter. The date I used to retrieve the EncArr was : "+date);
+        out.println("Trying to get an occ by date alone...");
+        ArrayList<Occurrence> occArr = myShepherd.getOccurrenceArrayWithShortDate(date);
+        if (occArr!=null&&date!=null) {
+          if (occArr.size()==1) {
+            occ = occArr.get(0);
+          } else {
+            out.println("Got too many results to decide.");
+          }          
+        }
       }
       if (occ != null) {
         out.println("Found a date match for this biopsy! Occurrence:"+occ.getPrimaryKeyID()+". Processing Biopsy...");
@@ -1132,7 +1146,7 @@ public class AccessImport extends HttpServlet {
     try {
       if (occ != null) { 
         try {
-          ts = new TissueSample(occ.getOccurrenceID(), sampleId );
+          ts = new TissueSample(occ.getOccurrenceID(), Util.generateUUID() );
           // And load it up.
           try {
             if (!myShepherd.getPM().currentTransaction().isActive()) {
@@ -1149,17 +1163,17 @@ public class AccessImport extends HttpServlet {
               permit = thisRow.getString("Permit").toString();
               ts.setPermit(permit);
             }
-            columnMasterList.remove("Sample_ID");
+            columnMasterList.remove("biopsy_sample_id");
             if (thisRow.get("Sample_ID") != null) {
-              sampleID = thisRow.get("Sample_ID").toString();
+              sampleID = thisRow.get("biopsy_sample_id").toString();
               
               if (sampleID.toLowerCase().contains("miss")) {
                 ts.setState("Miss");
-              }
-              if (sampleID.toLowerCase().contains("hit no sample")) {
+              } else if (sampleID.toLowerCase().contains("hit no sample")) {
                 ts.setState("Hit - No Sample");
               } else {
                 ts.setState("Sampled");
+                ts.setSampleID(sampleID);
               }
             }
               

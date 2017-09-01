@@ -62,6 +62,7 @@ public class OccurrenceAddTissueSample extends HttpServlet {
 
     myShepherd.beginDBTransaction();
     System.out.println("Occurrence Number From jsp : "+request.getParameter("number"));
+    
     if (request.getParameter("number") != null && myShepherd.isOccurrence(request.getParameter("number"))) {
       
       Occurrence occ = myShepherd.getOccurrence(request.getParameter("number"));
@@ -72,9 +73,7 @@ public class OccurrenceAddTissueSample extends HttpServlet {
       //Required!
       String sampleID = null;
       if (request.getParameter("sampleID")!=null) {
-        sampleID = request.getParameter(sampleID);
-        // Typically TissueSamples are stored on encounter, working around for occ.
-        // The first arg is usually a Enc ID.
+        sampleID = request.getParameter("sampleID");
         ts = new TissueSample(occ.getOccurrenceID(), sampleID);
         myShepherd.getPM().makePersistent(ts);
         myShepherd.commitDBTransaction(); 
@@ -153,7 +152,6 @@ public class OccurrenceAddTissueSample extends HttpServlet {
           myShepherd.commitDBTransaction();
           out.println("<strong>Success:</strong> Tissue Sample saved to this occurrence.");
           out.println("<p><a href=\""+request.getScheme()+"://" + CommonConfiguration.getURLLocation(request) + "/occurrence.jsp?number=" + request.getParameter("number") + "\">Return to occurrence " + request.getParameter("number") + "</a></p>\n");
-          String message = "A new comment has been added to occurrence " + request.getParameter("number") + ". The new comment is: \n" + request.getParameter("comments");
           out.println(ServletUtilities.getFooter(context));          
           
         } catch (Exception e) {

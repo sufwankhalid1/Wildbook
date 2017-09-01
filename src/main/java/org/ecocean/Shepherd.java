@@ -2120,6 +2120,45 @@ public class Shepherd {
       return null;
     }
   }
+  
+  public ArrayList<Occurrence> getOccurrenceArrayWithShortDate(String sd) {
+    sd = sd.replace("/", "-");
+    sd = sd.replace(".", "-");
+    sd = sd.trim();
+    DateFormat fm = new SimpleDateFormat("yyyy-MM-dd");
+    Date d = null;
+    try {
+      d = (Date)fm.parse(sd);    
+    } catch (ParseException pe) {
+      pe.printStackTrace();
+    }
+    DateTime dt = new DateTime(d);
+    DateTime nextDay = dt.plusDays(1).toDateTime();
+    // Since the query involves a date but no time, we need to get the millis of the next day at 12:00AM as well and find all encounters that occurred in between.
+    String milliString = String.valueOf(dt.getMillis());
+    String millisNext = String.valueOf(nextDay.getMillis());
+    System.out.println("Trying to get occurrence with date in Millis : "+milliString);
+    String keywordQueryString="SELECT FROM org.ecocean.Occurrence WHERE millis >= "+milliString+" && millis <= "+millisNext+"";
+    Collection col = null;
+    Query encQuery = null; 
+    try {
+      encQuery = pm.newQuery(keywordQueryString);
+      if (encQuery.execute() != null) {
+        col = (Collection) encQuery.execute();              
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      System.out.println("Exception on query : "+keywordQueryString);    
+      return null;
+    }
+    ArrayList<Occurrence> occs = new ArrayList<Occurrence>(col);
+    encQuery.closeAll();
+    if (occs != null) {
+      return occs;
+    } else {
+      return null;
+    }
+  }
 
   public int getNumSinglePhotoVideosForEncounter(String encNum) {
 	    String filter = "correspondingEncounterNumber == \""+encNum+"\"";
