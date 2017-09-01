@@ -538,9 +538,7 @@ context=ServletUtilities.getContext(request);
 				<% if (metalTags.size() > 0 ) {
 					for (MetalTag mt : metalTags) {%>
 						<li style="list-style:none;">
-							<small><p><label>ID :</label> <%=mt.getId()%></p></small>
-							<small><p><label>Location :</label> <%=mt.getLocation()%></p></small>
-							<small><p><label>Name :</label> <%=mt.getTagNumber()%></p></small>
+							<small><p><label><strong>ID :</strong></label> <%=mt.getId()%> <label><strong> Location :</strong></label> <%=mt.getLocation()%><strong> Name :</strong></label> <%=mt.getTagNumber()%></p></small>
 							<button onclick="removeTag(<%=mt.getId()%>)" type="button" class="removeTag btn btn-primary btn-xs">Remove</button>
 						</li>
 				<% }
@@ -554,8 +552,7 @@ context=ServletUtilities.getContext(request);
 				<% if (acousticTags.size() > 0) {
 					for (AcousticTag at : acousticTags) {%>
 						<li style="list-style:none;">
-							<small><p><label>ID :</label> <%=at.getId()%></p></small>
-							<small><p><label>Serial Number :</label> <%=at.getSerialNumber()%></p></small>
+							<small><p style="margin:none;"><label><strong>ID :</strong></label> <%=at.getId()%><label><strong> Serial Number :</strong></label> <%=at.getSerialNumber()%></p></small>
 							<button onclick="removeTag(<%=at.getId()%>)" type="button" class="removeTag btn btn-primary btn-xs">Remove</button>
 						</li>
 				<% 	}
@@ -569,8 +566,7 @@ context=ServletUtilities.getContext(request);
 				<% if (dTags.size() > 0) { 
 					for (DigitalArchiveTag dat : dTags) {%>
 						<li style="list-style:none;">
-							<small><p><label>ID :</label> <%=dat.getId()%></p></small>
-							<small><p><label>SerialNumber :</label> <%=dat.getSerialNumber()%></p></small>
+							<small><p style="margin:none;"><label>ID :</strong></label> <%=dat.getId()%><label><strong> SerialNumber :</strong></label> <%=dat.getSerialNumber()%></p></small>
 							<button onclick="removeTag(<%=dat.getId()%>)" type="button" class="removeTag btn btn-primary btn-xs">Remove</button>
 						</li>
 				<%}
@@ -584,10 +580,7 @@ context=ServletUtilities.getContext(request);
 				<% if (satTags.size() > 0) {
 					for (SatelliteTag st : satTags) {%>
 						<li style="list-style:none;">
-							<small><p><label>ID :</label> <%=st.getId()%></p></small>
-							<small><p><label>Name :</label> <%=st.getName()%></p></small>
-							<small><p><label>Serial Number :</label> <%=st.getSerialNumber()%></p></small>
-							<small><p><label>Argos Ptt Number :</label> <%=st.getArgosPttNumber()%></p></small>
+							<small><p style="margin:none;"><label><strong>ID :</strong></label> <%=st.getId()%><label><strong> Name :</strong></label> <%=st.getName()%><label><strong>Serial Number :</strong></label> <%=st.getSerialNumber()%><label><strong> Argos Ptt Number :</strong></label> <%=st.getArgosPttNumber()%></p></small>
 							<button onclick="removeTag(<%=st.getId()%>)" type="button" class="removeTag btn btn-primary btn-xs">Remove</button>
 						</li>
 				<%}
@@ -932,9 +925,48 @@ context=ServletUtilities.getContext(request);
 				System.out.println("SampleID : "+thisSample.getSampleID());
 		%>
 		<tr>
-			<td><span class="caption"><%=thisSample.getSampleID()%></span></td>
-			<td><span class="caption"><%=thisSample.getHTMLString()%></span></td>
 			<td>
+				<span class="caption"><%=thisSample.getSampleID()%></span>
+				<br>
+				
+				<%
+					if (thisSample.getCorrespondingEncounterNumber()!=null) {
+						Encounter bioEnc = null;
+						if (myShepherd.isEncounter(thisSample.getCorrespondingEncounterNumber())) {
+							bioEnc = myShepherd.getEncounter(thisSample.getCorrespondingEncounterNumber());							
+							%>
+								<span class="caption"><%=encProps.getProperty("correspondingEnc")%><a href="<%=request.getScheme()%>://<%=CommonConfiguration.getURLLocation(request)%>/encounters/encounter.jsp?number=<%=bioEnc.getCatalogNumber()%>"> <%=bioEnc.getCatalogNumber()%></a></span>
+							<%
+						}
+						MarkedIndividual indy = null; 
+						if (bioEnc.getIndividualID()!=null) {
+							if (myShepherd.isMarkedIndividual(bioEnc.getIndividualID())) {
+								indy = myShepherd.getMarkedIndividual(bioEnc.getIndividualID());							
+							}
+								%>
+									<span class="caption"><%=encProps.getProperty("correspondingIndy")%><a href="<%=request.getScheme()%>://<%=CommonConfiguration.getURLLocation(request)%>/individual.jsp?number=<%=indy.getIndividualID()%>"> <%=indy.getIndividualID()%></a></span>
+								<%
+						}						
+					}
+				%>
+				<span class="caption"></span>
+			</td>
+						
+			<td>
+				<!-- Attributes, observations. -->
+				<span class="caption"><%=thisSample.getHTMLString()%></span>
+				<ul>
+				<%
+					ArrayList<Observation> obs = thisSample.getBaseObservationArrayList();
+					for (Observation ob : obs) {
+			 	%>
+						<li style="list-style:none;"><strong><%=ob.getName() %></strong> <span><%= ob.getValue() %></span></li>
+				<%
+					}
+				%>
+				</ul>
+			</td>
+					<td>
 	<table>
 					<%
 						int numAnalyses = thisSample.getNumAnalyses();

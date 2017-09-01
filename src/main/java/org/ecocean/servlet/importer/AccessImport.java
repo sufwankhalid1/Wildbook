@@ -1019,40 +1019,44 @@ public class AccessImport extends HttpServlet {
         e.printStackTrace();
         System.out.println("Failed to retrieve an encounter list for ID Number : "+idCode);
       }
-      if (encs != null) {
-        for (int j=0;j<encs.size();j++) {
-          Encounter enc = encs.get(j);
-          if (!enc.hasMarkedIndividual() && idCode != null && !idCode.equals("")) {
-            try {
-              if (!myShepherd.isMarkedIndividual(idCode)) {
-                System.out.println("Making new Indy With ID code  : "+idCode);
-                indy = new MarkedIndividual(idCode, enc);
-                enc.assignToMarkedIndividual(indy.getIndividualID());
-                myShepherd.getPM().makePersistent(indy);
-                myShepherd.commitDBTransaction();
-                myShepherd.beginDBTransaction();
-                newEnc += 1;
-                break;
-              } else {
-                indy = myShepherd.getMarkedIndividual(idCode);
-                indy.addEncounter(enc, context);
-                enc.assignToMarkedIndividual(indy.getIndividualID());
-                myShepherd.commitDBTransaction();
-                myShepherd.beginDBTransaction();
-                System.out.println("Adding this encounter to existing Indy : "+indy.getIndividualID()+" Incoming ID : "+idCode);
-                addedToExisting += 1; 
-                break;
+      try {
+        if (encs != null) {
+          for (int j=0;j<encs.size();j++) {
+            Encounter enc = encs.get(j);
+            if (!enc.hasMarkedIndividual() && idCode != null && !idCode.equals("")) {
+              try {
+                if (!myShepherd.isMarkedIndividual(idCode)) {
+                  System.out.println("Making new Indy With ID code  : "+idCode);
+                  indy = new MarkedIndividual(idCode, enc);
+                  enc.assignToMarkedIndividual(indy.getIndividualID());
+                  myShepherd.getPM().makePersistent(indy);
+                  myShepherd.commitDBTransaction();
+                  myShepherd.beginDBTransaction();
+                  newEnc += 1;
+                  break;
+                } else {
+                  indy = myShepherd.getMarkedIndividual(idCode);
+                  indy.addEncounter(enc, context);
+                  enc.assignToMarkedIndividual(indy.getIndividualID());
+                  myShepherd.commitDBTransaction();
+                  myShepherd.beginDBTransaction();
+                  System.out.println("Adding this encounter to existing Indy : "+indy.getIndividualID()+" Incoming ID : "+idCode);
+                  addedToExisting += 1; 
+                  break;
+                }
+              } catch (Exception e) {
+                e.printStackTrace();
+                System.out.println("Failed to persist a new Indy for ID Number : "+idCode +" and shortDate "+date);
               }
-            } catch (Exception e) {
-              e.printStackTrace();
-              System.out.println("Failed to persist a new Indy for ID Number : "+idCode +" and shortDate "+date);
-            }
-          }             
-        }        
-      } else {
-        myShepherd.rollbackDBTransaction();
-        continue;
-      } 
+            }             
+          }        
+        } else {
+          myShepherd.rollbackDBTransaction();
+          continue;
+        }         
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
     }
     System.out.println("Dates without attached encounters : "+failedEncs);
     System.out.println("No Encounters to retrieve for date : "+noEnc);
