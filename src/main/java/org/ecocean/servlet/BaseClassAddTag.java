@@ -69,28 +69,18 @@ public class BaseClassAddTag extends HttpServlet {
       location = request.getParameter("location");
       tagID = request.getParameter("tagID");
       if ("metal".equals(tagType)) {
-        List<String> metalTagParamNames = getMetalTagParamNames(request);
-        for (String metalTagParamName : metalTagParamNames) {
-          // Param name is of the form "metalTag(<location>)", e.g., metalTag(right). Get the value inside the parens:
-          //String location = metalTagParamName.substring(METAL_TAG_PARAM_START.length(), metalTagParamName.length() - 1);
-          MetalTag metalTag = target.findBaseMetalTagForLocation(location);
-          if (metalTag == null) {
-            metalTag = new MetalTag();
-            metalTag.setLocation(location);
-            target.addBaseMetalTag(metalTag);
-          }
-          metalTag.setTagNumber(tagID);
-          sb.append(MessageFormat.format("<br/>Metal Tag {0} set to {1}", location, getParam(request, metalTagParamName)));
-        }
+        MetalTag metalTag = new MetalTag();
+        target.addBaseMetalTag(metalTag);
+        metalTag.setLocation(location);
+        metalTag.setId(tagID);
+        metalTag.setTagNumber(tagID);
       }
       else if ("acoustic".equals(tagType)) {
-
         AcousticTag acousticTag = new AcousticTag();
         target.addBaseAcousticTag(acousticTag);
         acousticTag.setIdNumber(tagID);
+        acousticTag.setId(tagID);
         acousticTag.setSerialNumber(serialNumber);
-        sb.append(MessageFormat.format("<br/>{0} set to {1}", ACOUSTIC_TAG_ID, getParam(request, ACOUSTIC_TAG_ID)));
-        sb.append(MessageFormat.format("<br/>{0} set to {1}", ACOUSTIC_TAG_SERIAL, getParam(request, ACOUSTIC_TAG_SERIAL)));
       }
       else if ("satellite".equals(tagType)) {
         SatelliteTag satelliteTag = null;
@@ -99,13 +89,9 @@ public class BaseClassAddTag extends HttpServlet {
         satelliteTag.setArgosPttNumber(getParam(request, SATELLITE_TAG_ARGOS_PTT_NUMBER));
         satelliteTag.setSerialNumber(serialNumber);
         satelliteTag.setName(tagID);
-        sb.append(MessageFormat.format("<br/>{0} set to {1}", SATELLITE_TAG_ARGOS_PTT_NUMBER, getParam(request, SATELLITE_TAG_ARGOS_PTT_NUMBER)));
-        sb.append(MessageFormat.format("<br/>{0} set to {1}", SATELLITE_TAG_SERIAL, getParam(request, SATELLITE_TAG_SERIAL)));
-        sb.append(MessageFormat.format("<br/>{0} set to {1}", SATELLITE_TAG_NAME, getParam(request, SATELLITE_TAG_NAME)));
+        satelliteTag.setId(tagID);
       }
-      else {
-        
-      }
+      
     } catch(Exception ex) {
       ex.printStackTrace();
       locked = true;
@@ -119,16 +105,20 @@ public class BaseClassAddTag extends HttpServlet {
       out.println("<p><strong>Success!</strong> I have successfully set the following tag values:</p><br/>");
       out.println("<small><strong>Type:</strong>"+tagType+"</small>");
       if (serialNumber!=null) {
-        out.println("<small><strong>Type:</strong>"+serialNumber+"</small>");        
+        out.println("<small><strong>Serial Number:</strong>"+serialNumber+"</small>");        
       }
       if (location!=null) {
         out.println("<small><strong>Location:</strong>"+location+"</small>");        
       }
       if (tagID!=null) {
-        out.println("<small><strong>Location:</strong>"+tagID+"</small>");        
+        out.println("<small><strong>Tag ID:</strong>"+tagID+"</small>");        
       }
-      out.println(sb.toString());
-      //out.println("<p><a href=\""+request.getScheme()+"://"+CommonConfiguration.getURLLocation(request)+"/encounters/encounter.jsp?number="+encNum+"\">Return to encounter "+encNum+"</a></p>\n");
+      //out.println(sb.toString());
+      if (parentType.equals("Encounter")) {
+        out.println("<p><a href=\""+request.getScheme()+"://"+CommonConfiguration.getURLLocation(request)+"/encounters/encounter.jsp?number="+objectID+"\">Return to encounter "+objectID+"</a></p>\n");        
+      } else {
+        out.println("<p><a href=\""+request.getScheme()+"://" + CommonConfiguration.getURLLocation(request) + "/occurrence.jsp?number=" + request.getParameter("number") + "\">Return to occurrence " + request.getParameter("number") + "</a></p>\n");
+      }
       out.println(ServletUtilities.getFooter(context));
     }
     else {
@@ -152,18 +142,6 @@ public class BaseClassAddTag extends HttpServlet {
       }
     }
     return value;
-  }
-  
-  private List<String> getMetalTagParamNames(HttpServletRequest request) {
-    List<String> list = new ArrayList<String>();
-    Enumeration parameterNames = request.getParameterNames();
-    while (parameterNames.hasMoreElements()) {
-      String paramName = (String) parameterNames.nextElement();
-      if (paramName.startsWith(METAL_TAG_PARAM_START)) {
-        list.add(paramName);
-      }
-    }
-    return list;
   }
 
 }

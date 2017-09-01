@@ -537,13 +537,10 @@ context=ServletUtilities.getContext(request);
 			<ul>
 				<% if (metalTags.size() > 0 ) {
 					for (MetalTag mt : metalTags) {%>
-						<li>
-							<p><label>ID :</label></p>
-							<p><%=mt.getId()%></p>
-							<p><label>Location :</label></p>
-							<p><%=mt.getLocation()%></p>
-							<p><label>Name :</label></p>
-							<p><%=mt.getTagNumber()%></p>
+						<li style="list-style:none;">
+							<p><label>ID :</label> <%=mt.getId()%></p>
+							<p><label>Location :</label> <%=mt.getLocation()%></p>
+							<p><label>Name :</label> <%=mt.getTagNumber()%></p>
 							<button onclick="removeTag(<%=mt.getId()%>)" type="button" class="removeTag btn btn-primary btn-xs">Remove</button>
 						</li>
 				<% }
@@ -556,11 +553,9 @@ context=ServletUtilities.getContext(request);
 			<ul>
 				<% if (acousticTags.size() > 0) {
 					for (AcousticTag at : acousticTags) {%>
-						<li>
-							<p><label>ID :</label></p>
-							<p><%=at.getId()%></p>
-							<p><label>Serial Number :</label></p>
-							<p><%=at.getSerialNumber()%></p>
+						<li style="list-style:none;">
+							<p><label>ID :</label> <%=at.getId()%></p>
+							<p><label>Serial Number :</label> <%=at.getSerialNumber()%></p>
 							<button onclick="removeTag(<%=at.getId()%>)" type="button" class="removeTag btn btn-primary btn-xs">Remove</button>
 						</li>
 				<% 	}
@@ -573,11 +568,9 @@ context=ServletUtilities.getContext(request);
 			<ul>
 				<% if (dTags.size() > 0) { 
 					for (DigitalArchiveTag dat : dTags) {%>
-						<li>
-							<p><label>ID :</label></p>
-							<p><%=dat.getId()%></p>
-							<p><label>SerialNumber :</label></p>
-							<p><%=dat.getSerialNumber()%></p>
+						<li style="list-style:none;">
+							<p><label>ID :</label> <%=dat.getId()%></p>
+							<p><label>SerialNumber :</label> <%=dat.getSerialNumber()%></p>
 							<button onclick="removeTag(<%=dat.getId()%>)" type="button" class="removeTag btn btn-primary btn-xs">Remove</button>
 						</li>
 				<%}
@@ -590,7 +583,7 @@ context=ServletUtilities.getContext(request);
 			<ul>
 				<% if (satTags.size() > 0) {
 					for (SatelliteTag st : satTags) {%>
-						<li>
+						<li style="list-style:none;">
 							<p><label>ID :</label></p>
 							<p><%=st.getId()%></p>
 							<p><label>Name :</label></p>
