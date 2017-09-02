@@ -1180,8 +1180,13 @@ public class AccessImport extends HttpServlet {
                 ts.setSampleID(sampleID);
               }
             }
-              
-            // This should grab physical and satellite tags. Separated for clarity.
+            
+            String indy = null;
+            columnMasterList.remove("Photo-ID_Code");
+            if (thisRow.get("Photo-ID_Code") != null) {
+              indy = thisRow.getString("Photo-ID_Code").toString();
+              Observation indyID = new Observation("IndyID", indy, "TissueSample", ts.getSampleID());        
+            } 
             processTags(thisRow, myShepherd, occ);
             columnMasterList.remove("DTAG_ID");
             columnMasterList.remove("SatTag_ID");
@@ -1189,7 +1194,7 @@ public class AccessImport extends HttpServlet {
             // This does exactly what it sounds like it does.
             processRemainingColumnsAsObservations(ts, columnMasterList, thisRow);
             
-            if (thisRow.get("Conf_sex") != null) {
+            if (thisRow.get("Conf_sex") != null) {  
               // One of the fields will be a SexAnalysis/BiologicalMeasurement stored on the tissue sample.
               sex = thisRow.getString("Conf_sex").toString();
               SexAnalysis sexAnalysis = new SexAnalysis(Util.generateUUID(), sex,occ.getPrimaryKeyID(),sampleID);
@@ -1207,6 +1212,7 @@ public class AccessImport extends HttpServlet {
             e.printStackTrace();
             out.println("\n Failed to save created tissue sample to occurrence.");
           }
+          
           
           myShepherd.commitDBTransaction();
           System.out.println("Created a Tissue Sample for Occ"+occ.getPrimaryKeyID());

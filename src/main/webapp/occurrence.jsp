@@ -506,6 +506,18 @@ context=ServletUtilities.getContext(request);
 			console.log("Not Satellite tag...")
 				$("#argosInput").hide(); 
 		});	
+		
+		
+		<script type="text/javascript">
+        $(document).ready(function() {
+
+        // This is going to be the remove observation function!
+          function removeTag(tagID, tagType, occID) {
+            event.preventDefault();
+            $.post("../BaseClassRemoveTag", {"id": id,"tagType": tagType, "occID": occID},
+          });
+        });
+		
 	</script>
 			<h2>
 			<img src="../images/Crystal_Clear_app_starthere.png" width="40px" height="40px" />Tagging
@@ -539,7 +551,7 @@ context=ServletUtilities.getContext(request);
 					for (MetalTag mt : metalTags) {%>
 						<li style="list-style:none;">
 							<small><p><label><strong>ID :</strong></label> <%=mt.getId()%> <label><strong> Location :</strong></label> <%=mt.getLocation()%><strong> Name :</strong></label> <%=mt.getTagNumber()%></p></small>
-							<button onclick="removeTag(<%=mt.getId()%>)" type="button" class="removeTag btn btn-primary btn-xs">Remove</button>
+							<button onclick="removeTag(<%=mt.getId()%>,metal,<%=occ.getOccurrenceID()%>)" type="button" class="removeTag btn btn-primary btn-xs">Remove</button>
 						</li>
 				<% }
 				} else {%>	
@@ -553,7 +565,7 @@ context=ServletUtilities.getContext(request);
 					for (AcousticTag at : acousticTags) {%>
 						<li style="list-style:none;">
 							<small><p style="margin:none;"><label><strong>ID :</strong></label> <%=at.getId()%><label><strong> Serial Number :</strong></label> <%=at.getSerialNumber()%></p></small>
-							<button onclick="removeTag(<%=at.getId()%>)" type="button" class="removeTag btn btn-primary btn-xs">Remove</button>
+							<button onclick="removeTag(<%=at.getId()%>,acoustic,<%=occ.getOccurrenceID()%>)" type="button" class="removeTag btn btn-primary btn-xs">Remove</button>
 						</li>
 				<% 	}
 				} else {%>	
@@ -567,7 +579,7 @@ context=ServletUtilities.getContext(request);
 					for (DigitalArchiveTag dat : dTags) {%>
 						<li style="list-style:none;">
 							<small><p style="margin:none;"><label>ID :</strong></label> <%=dat.getId()%><label><strong> SerialNumber :</strong></label> <%=dat.getSerialNumber()%></p></small>
-							<button onclick="removeTag(<%=dat.getId()%>)" type="button" class="removeTag btn btn-primary btn-xs">Remove</button>
+							<button onclick="removeTag(<%=dat.getId()%>,dat,<%=occ.getOccurrenceID()%>)" type="button" class="removeTag btn btn-primary btn-xs">Remove</button>
 						</li>
 				<%}
 				} else {%>	
@@ -581,7 +593,7 @@ context=ServletUtilities.getContext(request);
 					for (SatelliteTag st : satTags) {%>
 						<li style="list-style:none;">
 							<small><p style="margin:none;"><label><strong>ID :</strong></label> <%=st.getId()%><label><strong> Name :</strong></label> <%=st.getName()%><label><strong>Serial Number :</strong></label> <%=st.getSerialNumber()%><label><strong> Argos Ptt Number :</strong></label> <%=st.getArgosPttNumber()%></p></small>
-							<button onclick="removeTag(<%=st.getId()%>)" type="button" class="removeTag btn btn-primary btn-xs">Remove</button>
+							<button onclick="removeTag(<%=st.getId()%>,sat,<%=occ.getOccurrenceID()%>)" type="button" class="removeTag btn btn-primary btn-xs">Remove</button>
 						</li>
 				<%}
 				} else {%>	
@@ -939,12 +951,12 @@ context=ServletUtilities.getContext(request);
 							<%
 						}
 						MarkedIndividual indy = null; 
-						if (bioEnc.getIndividualID()!=null) {
-							if (myShepherd.isMarkedIndividual(bioEnc.getIndividualID())) {
-								indy = myShepherd.getMarkedIndividual(bioEnc.getIndividualID());							
+						if (thisSample.getObservationByName("IndyID")!=null) {
+							if (thisSample.getObservationByName("IndyID").getValue()!=null) {
+								String indyID thisSample.getObservationByName("IndyID").getValue();							
 							}
 								%>
-									<span class="caption"><%=encProps.getProperty("correspondingIndy")%><a href="<%=request.getScheme()%>://<%=CommonConfiguration.getURLLocation(request)%>/individual.jsp?number=<%=indy.getIndividualID()%>"> <%=indy.getIndividualID()%></a></span>
+									<span class="caption"><%=encProps.getProperty("correspondingIndy")%><a href="<%=request.getScheme()%>://<%=CommonConfiguration.getURLLocation(request)%>/individual.jsp?number=<%=indyID()%>"> <%=indyID()%></a></span>
 								<%
 						}						
 					}

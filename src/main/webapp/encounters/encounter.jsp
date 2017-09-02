@@ -1549,7 +1549,7 @@ $(document).ready(function() {
 										//Remove from MarkedIndividual if not unassigned
 							%>
 
-							<script type="text/javascript">
+					<script type="text/javascript">
                     $(document).ready(function() {
 
                       $("#individualRemoveEncounterBtn").click(function(event) {
