@@ -19,6 +19,7 @@ import org.ecocean.Measurement;
 import org.ecocean.Occurrence;
 import org.ecocean.Shepherd;
 import org.ecocean.tag.AcousticTag;
+import org.ecocean.tag.DigitalArchiveTag;
 import org.ecocean.tag.MetalTag;
 import org.ecocean.tag.SatelliteTag;
 
@@ -49,7 +50,6 @@ public class BaseClassAddTag extends HttpServlet {
     
     FoundationalPropertiesBase target = null;
     myShepherd.beginDBTransaction();
-    StringBuilder sb = new StringBuilder();
     if (parentType==null||parentType.equals("Encounter")) {
       target = (Encounter) target;
       target = myShepherd.getEncounter(objectID);
@@ -74,15 +74,13 @@ public class BaseClassAddTag extends HttpServlet {
         metalTag.setLocation(location);
         metalTag.setId(tagID);
         metalTag.setTagNumber(tagID);
-      }
-      else if ("acoustic".equals(tagType)) {
+      } else if ("acoustic".equals(tagType)) {
         AcousticTag acousticTag = new AcousticTag();
         target.addBaseAcousticTag(acousticTag);
         acousticTag.setIdNumber(tagID);
         acousticTag.setId(tagID);
         acousticTag.setSerialNumber(serialNumber);
-      }
-      else if ("satellite".equals(tagType)) {
+      } else if ("satellite".equals(tagType)) {
         SatelliteTag satelliteTag = null;
         satelliteTag = new SatelliteTag();
         target.addBaseSatelliteTag(satelliteTag);
@@ -90,6 +88,12 @@ public class BaseClassAddTag extends HttpServlet {
         satelliteTag.setSerialNumber(serialNumber);
         satelliteTag.setName(tagID);
         satelliteTag.setId(tagID);
+      } else if ("dtag".equals(tagID)) {
+        DigitalArchiveTag dat = new DigitalArchiveTag();
+        target.addBaseDigitalArchiveTag(dat);
+        dat.setId(tagID);
+        dat.setSerialNumber(serialNumber);
+        dat.setDTagID(tagID);
       }
       
     } catch(Exception ex) {

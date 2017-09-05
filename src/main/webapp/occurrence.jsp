@@ -485,47 +485,41 @@ context=ServletUtilities.getContext(request);
 		<div class="col-md-6">
 		  <!-- Tags's! All sorts! -->
 		  
-	<script type="text/javascript">
-		$(document).ready(function() {
-		  $(".editFormTag, .editTextTag, .dialogTagAdd, .resultMessageDiv, .removeTag").hide();
-		  var buttons = $("#editTag, #closeEditTag").on("click", function(){
-		    buttons.toggle();
-		  });
-		  $("#editTag").click(function() {
-		    $(".editFormTag, .removeTag").show();
-		  });
-		  $("#closeEditTag").click(function() {
-		    $(".editFormTag, .removeTag").hide();
-		  });
-		});
+<script type="text/javascript">
+	$(document).ready(function() {
+	    $(".editFormTag, .editTextTag, .dialogTagAdd, .resultMessageDiv, .removeTag").hide();
+	    var buttons = $("#editTag, #closeEditTag").on("click", function(){
+  	      buttons.toggle();
+	    });
+	    $("#editTag").click(function() {
+	      $(".editFormTag, .removeTag").show();
+	    });
+	    $("#closeEditTag").click(function() {
+	      $(".editFormTag, .removeTag").hide();
+	    });
 		$("#satTag").click(function() {
 			console.log("Satellite tag! Expanding input...")
-				$("#argosInput").show(); 
+			$("#argosInput").show(); 
 		});
 		$(".notSat").click(function() {
 			console.log("Not Satellite tag...")
-				$("#argosInput").hide(); 
+			$("#argosInput").hide(); 
 		});	
-		
-		
-		<script type="text/javascript">
-        $(document).ready(function() {
-
+				
         // This is going to be the remove observation function!
-          function removeTag(tagID, tagType, occID) {
-            event.preventDefault();
-            $.post("../BaseClassRemoveTag", {"id": id,"tagType": tagType, "occID": occID},
-          });
-        });
-		
-	</script>
+	});
+    function removeTag(tagID, tagType, occID) {
+      $.post("../BaseClassRemoveTag", {"id": tagID,"tagType": tagType, "occID": occID});
+    };
+
+</script>
 			<h2>
 			<img src="../images/Crystal_Clear_app_starthere.png" width="40px" height="40px" />Tagging
-			<%if (isOwner && CommonConfiguration.isCatalogEditable(context)) {%>
-						<button class="btn btn-md" type="button" name="button" id="editTag">Edit</button>
-						<button class="btn btn-md" type="button" name="button" id="closeEditTag" style="display: none;">Close Edit</button>
-			<%}%>
-				</h2>
+				<%if (isOwner && CommonConfiguration.isCatalogEditable(context)) {%>
+							<button class="btn btn-md" type="button" name="button" id="editTag">Edit</button>
+							<button class="btn btn-md" type="button" name="button" id="closeEditTag" style="display: none;">Close Edit</button>
+				<%}%>
+			</h2>
 			<% 
 			ArrayList<MetalTag> metalTags = new ArrayList<MetalTag>();
 			ArrayList<AcousticTag> acousticTags = new ArrayList<AcousticTag>();
@@ -551,7 +545,7 @@ context=ServletUtilities.getContext(request);
 					for (MetalTag mt : metalTags) {%>
 						<li style="list-style:none;">
 							<small><p><label><strong>ID :</strong></label> <%=mt.getId()%> <label><strong> Location :</strong></label> <%=mt.getLocation()%><strong> Name :</strong></label> <%=mt.getTagNumber()%></p></small>
-							<button onclick="removeTag(<%=mt.getId()%>,metal,<%=occ.getOccurrenceID()%>)" type="button" class="removeTag btn btn-primary btn-xs">Remove</button>
+							<button onclick="removeTag('<%=mt.getId()%>','metal','<%=occ.getOccurrenceID()%>')" type="button" class="removeTag btn btn-primary btn-xs">Remove</button>
 						</li>
 				<% }
 				} else {%>	
@@ -593,7 +587,7 @@ context=ServletUtilities.getContext(request);
 					for (SatelliteTag st : satTags) {%>
 						<li style="list-style:none;">
 							<small><p style="margin:none;"><label><strong>ID :</strong></label> <%=st.getId()%><label><strong> Name :</strong></label> <%=st.getName()%><label><strong>Serial Number :</strong></label> <%=st.getSerialNumber()%><label><strong> Argos Ptt Number :</strong></label> <%=st.getArgosPttNumber()%></p></small>
-							<button onclick="removeTag(<%=st.getId()%>,sat,<%=occ.getOccurrenceID()%>)" type="button" class="removeTag btn btn-primary btn-xs">Remove</button>
+							<button onclick="removeTag(<%=st.getId()%>,satellite,<%=occ.getOccurrenceID()%>)" type="button" class="removeTag btn btn-primary btn-xs">Remove</button>
 						</li>
 				<%}
 				} else {%>	
@@ -951,13 +945,14 @@ context=ServletUtilities.getContext(request);
 							<%
 						}
 						MarkedIndividual indy = null; 
+						String indyID = null;
 						if (thisSample.getObservationByName("IndyID")!=null) {
 							if (thisSample.getObservationByName("IndyID").getValue()!=null) {
-								String indyID thisSample.getObservationByName("IndyID").getValue();							
-							}
+								indyID = thisSample.getObservationByName("IndyID").getValue();							
 								%>
-									<span class="caption"><%=encProps.getProperty("correspondingIndy")%><a href="<%=request.getScheme()%>://<%=CommonConfiguration.getURLLocation(request)%>/individual.jsp?number=<%=indyID()%>"> <%=indyID()%></a></span>
+									<span class="caption"><%=encProps.getProperty("correspondingIndy")%><a href="<%=request.getScheme()%>://<%=CommonConfiguration.getURLLocation(request)%>/individual.jsp?number=<%=indyID%>"> <%=indyID%></a></span>
 								<%
+							}
 						}						
 					}
 				%>

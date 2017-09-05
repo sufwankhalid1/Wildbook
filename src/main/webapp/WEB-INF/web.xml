@@ -558,12 +558,20 @@
 		<servlet-class>org.ecocean.servlet.BaseClassAddTag</servlet-class>
 	</servlet>
 	
-	
+	<servlet>
+		<servlet-name>BaseClassRemoveTag</servlet-name>
+		<servlet-class>org.ecocean.servlet.BaseClassRemoveTag</servlet-class>
+	</servlet>
+		
     <servlet-mapping>
  		<servlet-name>BaseClassAddTag</servlet-name>
 		<url-pattern>/BaseClassAddTag</url-pattern>
-	</servlet-mapping>
+	</servlet-mapping>	
 	
+	<servlet-mapping>
+ 		<servlet-name>BaseClassRemoveTag</servlet-name>
+		<url-pattern>/BaseClassRemoveTag</url-pattern>
+	</servlet-mapping>	
 	
 	<servlet-mapping>
  		<servlet-name>ResumableUpload</servlet-name>

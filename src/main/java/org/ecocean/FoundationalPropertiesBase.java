@@ -200,6 +200,22 @@ public abstract class FoundationalPropertiesBase implements java.io.Serializable
     return null;
   }
   
+  public void clearBaseMetalTags() {
+    baseMetalTags.clear();
+  }
+  
+  public MetalTag findBaseMetalTagForLocation(String location) {
+    List<MetalTag> metalTags = this.getBaseMetalTagArrayList().subList(0,this.baseMetalTags.size());
+    if (metalTags != null) {
+      for (MetalTag metalTag : metalTags) {
+        if (location.equals(metalTag.getLocation())) {
+          return metalTag;
+        }
+      }
+    }
+    return null;
+  }
+  
   public ArrayList<AcousticTag> getBaseAcousticTagArrayList() {
     return baseAcousticTags;
   }
@@ -224,16 +240,8 @@ public abstract class FoundationalPropertiesBase implements java.io.Serializable
     return null;
   }
   
-  public MetalTag findBaseMetalTagForLocation(String location) {
-    List<MetalTag> metalTags = this.getBaseMetalTagArrayList().subList(0,this.baseMetalTags.size());
-    if (metalTags != null) {
-      for (MetalTag metalTag : metalTags) {
-        if (location.equals(metalTag.getLocation())) {
-          return metalTag;
-        }
-      }
-    }
-    return null;
+  public void clearBaseAcousticTags() {
+    baseAcousticTags.clear();
   }
   
   public ArrayList<DigitalArchiveTag> getBaseDigitalArchiveTagArrayList() {
@@ -260,6 +268,10 @@ public abstract class FoundationalPropertiesBase implements java.io.Serializable
     return null;
   }
   
+  public void clearBaseDigitalArchiveTags() {
+    baseDigitalArchiveTags.clear();
+  }
+  
   public ArrayList<SatelliteTag> getBaseSatelliteTagArrayList() {
     return baseSatelliteTags;
   }
@@ -282,6 +294,10 @@ public abstract class FoundationalPropertiesBase implements java.io.Serializable
       }
     }
     return null;
+  }
+  
+  public void clearBaseSatelliteTags() {
+    baseSatelliteTags.clear();
   }
   
 }
