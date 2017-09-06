@@ -509,7 +509,17 @@ context=ServletUtilities.getContext(request);
         // This is going to be the remove observation function!
 	});
     function removeTag(tagID, tagType, occID) {
-      $.post("../BaseClassRemoveTag", {"id": tagID,"tagType": tagType, "occID": occID});
+      $.post("../BaseClassRemoveTag", {"id": tagID,"tagType": tagType, "occID": occID},
+	   	function(response) {
+	   	$('#tag-'+tagID).hide();
+	   	$('#removed-'+tagID).show();
+	   	$('#removed-'+tagID).html('<label><small></small>Tag removed.</label>');
+	   	setTimeout(function(){ $('#removed-'+tagID).hide(); }, 3000);
+	  })
+      .fail(function(response) { 
+  	   	$('#removed-'+tagID).html('<label><small></small>Error. Could not remove tag.</label>');
+	   	setTimeout(function(){ $('#removed-'+tagID).hide(); }, 3000);
+      });
     };
 
 </script>
@@ -543,10 +553,11 @@ context=ServletUtilities.getContext(request);
 			<ul>
 				<% if (metalTags.size() > 0 ) {
 					for (MetalTag mt : metalTags) {%>
-						<li style="list-style:none;">
+						<li id="tag-<%=mt.getId()%>" style="list-style:none;">
 							<small><p><label><strong>ID :</strong></label> <%=mt.getId()%> <label><strong> Location :</strong></label> <%=mt.getLocation()%><strong> Name :</strong></label> <%=mt.getTagNumber()%></p></small>
-							<button onclick="removeTag('<%=mt.getId()%>','metal','<%=occ.getOccurrenceID()%>')" type="button" class="removeTag btn btn-primary btn-xs">Remove</button>
+							<button onclick="removeTag('<%=mt.getId()%>','metal','<%=occ.getOccurrenceID()%>')" type="button" class="removeTag btn btn-primary btn-xs"><small>Remove</small></button>
 						</li>
+						<li id="removed-<%=mt.getId()%>" style="list-style:none;"><label><small></small></label></li>
 				<% }
 				} else {%>	
 					<li style="list-style:none;"><label>None</label></li>

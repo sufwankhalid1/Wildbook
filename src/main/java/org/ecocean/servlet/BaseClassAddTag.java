@@ -25,14 +25,6 @@ import org.ecocean.tag.SatelliteTag;
 
 public class BaseClassAddTag extends HttpServlet {
 
-  private static final String METAL_TAG_PARAM_START = "metalTag(";
-  private static final String SATELLITE_TAG_NAME = "satelliteTagName";
-  private static final String SATELLITE_TAG_SERIAL = "satelliteTagSerial";
-  private static final String SATELLITE_TAG_ARGOS_PTT_NUMBER = "satelliteTagArgosPttNumber";
-  private static final String ACOUSTIC_TAG_SERIAL = "acousticTagSerial";
-  private static final String ACOUSTIC_TAG_ID = "acousticTagId";
-
-  @Override
   protected void doPost(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
     String context="context0";
@@ -84,7 +76,6 @@ public class BaseClassAddTag extends HttpServlet {
         SatelliteTag satelliteTag = null;
         satelliteTag = new SatelliteTag();
         target.addBaseSatelliteTag(satelliteTag);
-        satelliteTag.setArgosPttNumber(getParam(request, SATELLITE_TAG_ARGOS_PTT_NUMBER));
         satelliteTag.setSerialNumber(serialNumber);
         satelliteTag.setName(tagID);
         satelliteTag.setId(tagID);
@@ -117,19 +108,15 @@ public class BaseClassAddTag extends HttpServlet {
       if (tagID!=null) {
         out.println("<small><strong>Tag ID:</strong>"+tagID+"</small>");        
       }
-      //out.println(sb.toString());
       if (parentType.equals("Encounter")) {
         out.println("<p><a href=\""+request.getScheme()+"://"+CommonConfiguration.getURLLocation(request)+"/encounters/encounter.jsp?number="+objectID+"\">Return to encounter "+objectID+"</a></p>\n");        
       } else {
         out.println("<p><a href=\""+request.getScheme()+"://" + CommonConfiguration.getURLLocation(request) + "/occurrence.jsp?number=" + request.getParameter("number") + "\">Return to occurrence " + request.getParameter("number") + "</a></p>\n");
       }
       out.println(ServletUtilities.getFooter(context));
-    }
-    else {
+    } else {
       out.println(ServletUtilities.getHeader(request));
       out.println("<strong>Failure!</strong> This encounter is currently being modified by another user, or an exception occurred. Please wait a few seconds before trying to modify this encounter again.");
-
-      //out.println("<p><a href=\""+request.getScheme()+"://"+CommonConfiguration.getURLLocation(request)+"/encounters/encounter.jsp?number="+encNum+"\">Return to encounter "+encNum+"</a></p>\n");
       out.println(ServletUtilities.getFooter(context));
     }
       
