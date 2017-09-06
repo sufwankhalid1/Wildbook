@@ -78,12 +78,12 @@ public class AccessImport extends HttpServlet {
     myShepherd.commitDBTransaction();
     myShepherd.closeDBTransaction();
     
-    String dbName = "DUML_MASTER_20170616.mdb";
+    String dbName = "DUML_MASTER_20170830.mdb";
     if (request.getParameter("file") != null) {
       dbName = request.getParameter("file");
     }
     
-    String dbLocation = "/opt/dukeImport/DUML Files to Jason-Dream Database/REVISED DATA for JASON-USE THESE!/";
+    String dbLocation = "/opt/dukeImport/DUML Files for Colin-NEW/";
     if (request.getParameter("location") != null) {
       dbLocation = request.getParameter("location");
     }

@@ -377,10 +377,10 @@ context=ServletUtilities.getContext(request);
 	    buttons.toggle();
 	  });
 	  $("#editDynamic").click(function() {
-	    $(".editFormObservation").show();
+	    $("#editInstructions, .editFormObservation").show();
 	  });
 	  $("#closeEditDynamic").click(function() {
-	    $(".editFormObservation").hide();
+	    $("#editInstructions, .editFormObservation").hide();
 	  });
 	});
 </script>
@@ -395,7 +395,7 @@ context=ServletUtilities.getContext(request);
 							<button class="btn btn-md" type="button" name="button"
 								id="closeEditDynamic" style="display: none;">Close Edit</button>
 						</h2>
-					
+						<p id="editInstructions" style="display:none;"><small>Set any value to zero to remove.</small></p>
 					<%
 					} else {
 					%>
@@ -541,7 +541,7 @@ context=ServletUtilities.getContext(request);
 			if (occ.getBaseAcousticTagArrayList() != null) {
 				acousticTags = occ.getBaseAcousticTagArrayList();	
 			} 
-			if (occ.getBaseDigitalArchiveTagArrayList() != null) {
+			if (occ.getBaseDigitalArchiveTagArrayList() != null) {	
 				dTags = occ.getBaseDigitalArchiveTagArrayList();	
 			} 
 			if (occ.getBaseSatelliteTagArrayList() != null) {
@@ -556,7 +556,7 @@ context=ServletUtilities.getContext(request);
 							<small><p><label><strong>ID :</strong></label> <%=mt.getId()%> <label><strong> Location :</strong></label> <%=mt.getLocation()%><strong> Name :</strong></label> <%=mt.getTagNumber()%></p></small>
 							<button onclick="removeTag('<%=mt.getId()%>','metal','<%=occ.getOccurrenceID()%>')" type="button" class="removeTag btn btn-primary btn-xs"><small>Remove</small></button>
 						</li>
-						<li id="removed-<%=mt.getId()%>" style="list-style:none;"><label><small></small></label></li>
+						<li id="removed-<%=mt.getId()%>" style="list-style:none;display:none;"><label><small></small></label></li>
 				<% }
 				} else {%>	
 					<li style="list-style:none;"><label>None</label></li>
@@ -571,7 +571,7 @@ context=ServletUtilities.getContext(request);
 							<small><p style="margin:none;"><label><strong>ID :</strong></label> <%=at.getId()%><label><strong> Serial Number :</strong></label> <%=at.getSerialNumber()%></p></small>
 							<button onclick="removeTag('<%=at.getId()%>','metal','<%=occ.getOccurrenceID()%>')" type="button" class="removeTag btn btn-primary btn-xs">Remove</button>
 						</li>
-						<li id="removed-<%=at.getId()%>" style="list-style:none;"><label><small></small></label></li>
+						<li id="removed-<%=at.getId()%>" style="list-style:none;display:none;"><label><small></small></label></li>
 				<% 	}
 				} else {%>	
 					<li style="list-style:none;"><label>None</label></li>
@@ -586,7 +586,7 @@ context=ServletUtilities.getContext(request);
 							<small><p style="margin:none;"><label>ID :</strong></label> <%=dat.getId()%><label><strong> SerialNumber :</strong></label> <%=dat.getSerialNumber()%></p></small>
 							<button onclick="removeTag('<%=dat.getId()%>','metal','<%=occ.getOccurrenceID()%>')" type="button" class="removeTag btn btn-primary btn-xs">Remove</button>
 						</li>
-						<li id="removed-<%=dat.getId()%>" style="list-style:none;"><label><small></small></label></li>
+						<li id="removed-<%=dat.getId()%>" style="list-style:none;display:none;"><label><small></small></label></li>
 				<%}
 				} else {%>	
 					<li style="list-style:none;"><label>None</label></li>
@@ -600,7 +600,7 @@ context=ServletUtilities.getContext(request);
 							<small><p style="margin:none;"><label><strong>ID :</strong></label> <%=st.getId()%><label><strong> Name :</strong></label> <%=st.getName()%><label><strong>Serial Number :</strong></label> <%=st.getSerialNumber()%><label><strong> Argos Ptt Number :</strong></label> <%=st.getArgosPttNumber()%></p></small>
 							<button onclick="removeTag('<%=st.getId()%>','metal','<%=occ.getOccurrenceID()%>')" type="button" class="removeTag btn btn-primary btn-xs">Remove</button>
 						</li>
-						<li id="removed-<%=st.getId()%>" style="list-style:none;"><label><small></small></label></li>
+						<li id="removed-<%=st.getId()%>" style="list-style:none;display:none;"><label><small></small></label></li>
 				<%}
 				} else {%>	
 					<li style="list-style:none;"><label>None</label></li>
