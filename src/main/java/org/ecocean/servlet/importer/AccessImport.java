@@ -1121,13 +1121,15 @@ public class AccessImport extends HttpServlet {
         e.printStackTrace();
         out.println("Failed to retrieve Occurrence for this encounter. The date I used to retrieve the EncArr was : "+date);
         out.println("Trying to get an occ by date alone...");
-        ArrayList<Occurrence> occArr = myShepherd.getOccurrenceArrayWithShortDate(date);
-        if (occArr!=null&&date!=null) {
-          if (occArr.size()==1) {
-            occ = occArr.get(0);
-          } else {
-            out.println("Got too many results to decide.");
-          }          
+        if (date!=null) {
+          ArrayList<Occurrence> occArr = myShepherd.getOccurrenceArrayWithShortDate(date);
+          if (occArr!=null) {
+            if (occArr.size()==1) {
+              occ = occArr.get(0);
+            } else {
+              out.println("Got too many results to decide.");
+            }                      
+          }
         }
       }
       if (occ != null) {
