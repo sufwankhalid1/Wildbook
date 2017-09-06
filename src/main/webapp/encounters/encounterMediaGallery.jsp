@@ -306,6 +306,8 @@ console.info('waiting to try again...........................');
         return;
       }
 			//var mid = enh.imgEl.context.id.substring(11);
+			var mid = enh.imgEl.data('enh-mediaassetid');
+      console.log('%o ?????', mid);
 			imageEnhancer.message(jQuery('#image-enhancer-wrapper-' + mid), '<p>starting matching; please wait...</p>');
 			startIdentify(assetById(mid), enh.imgEl);
 		}]);
