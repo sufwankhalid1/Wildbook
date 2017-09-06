@@ -694,7 +694,7 @@ public class AccessImport extends HttpServlet {
     }
     if (obj.getClass().getSimpleName().equals("TissueSample")) {
       ts = (TissueSample) obj;
-      id = ((TissueSample) obj).getDataCollectionEventID();
+      id = ((TissueSample) obj).getSampleID();
     }
     
     ArrayList<Observation> newObs = new ArrayList<Observation>();
@@ -809,7 +809,7 @@ public class AccessImport extends HttpServlet {
       
       try {
         if (thisRow.get("Vessel") != null) {
-          String effort = thisRow.getString("Vessel");
+          String effort = thisRow.getString("VESSEL");
           st.setVesselID(effort);
         }
       } catch (Exception e) {
@@ -1107,7 +1107,7 @@ public class AccessImport extends HttpServlet {
       try {
         ArrayList<Encounter> encArr = myShepherd.getEncounterArrayWithShortDate(date);
         if (!encArr.isEmpty()&&date!=null) {
-          out.println("Iterating through array of "+encArr.size()+" encounterss to find a  match...");
+          out.println("Iterating through array of "+encArr.size()+" encounters to find a  match...");
           for (Encounter enc : encArr) {
             if (enc.getSightNo().equals(sightNo)) {
               occ = myShepherd.getOccurrence(enc.getOccurrenceID());
