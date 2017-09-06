@@ -505,9 +505,8 @@ context=ServletUtilities.getContext(request);
 			console.log("Not Satellite tag...")
 			$("#argosInput").hide(); 
 		});	
-				
-        // This is going to be the remove observation function!
 	});
+	
     function removeTag(tagID, tagType, occID) {
       $.post("../BaseClassRemoveTag", {"id": tagID,"tagType": tagType, "occID": occID},
 	   	function(response) {
@@ -524,11 +523,11 @@ context=ServletUtilities.getContext(request);
 
 </script>
 			<h2>
-			<img src="../images/Crystal_Clear_app_starthere.png" width="40px" height="40px" />Tagging
-				<%if (isOwner && CommonConfiguration.isCatalogEditable(context)) {%>
-							<button class="btn btn-md" type="button" name="button" id="editTag">Edit</button>
-							<button class="btn btn-md" type="button" name="button" id="closeEditTag" style="display: none;">Close Edit</button>
-				<%}%>
+				<img src="../images/Crystal_Clear_app_starthere.png" width="40px" height="40px" />Tagging
+					<%if (isOwner && CommonConfiguration.isCatalogEditable(context)) {%>
+						<button class="btn btn-md" type="button" name="button" id="editTag">Edit</button>
+						<button class="btn btn-md" type="button" name="button" id="closeEditTag" style="display: none;">Close Edit</button>
+					<%}%>
 			</h2>
 			<% 
 			ArrayList<MetalTag> metalTags = new ArrayList<MetalTag>();
@@ -549,11 +548,11 @@ context=ServletUtilities.getContext(request);
 				satTags = occ.getBaseSatelliteTagArrayList();	
 			} 
 			%>
-			<h4>Metal Tags</h4>
 			<ul>
+				<li style="list-style:none;padding-left:0;"><h4>Metal Tags</h4></li>
 				<% if (metalTags.size() > 0 ) {
 					for (MetalTag mt : metalTags) {%>
-						<li id="tag-<%=mt.getId()%>" style="list-style:none;">
+						<li id="tag-<%=mt.getId()%>" style="list-style:none;padding-left:0;">
 							<small><p><label><strong>ID :</strong></label> <%=mt.getId()%> <label><strong> Location :</strong></label> <%=mt.getLocation()%><strong> Name :</strong></label> <%=mt.getTagNumber()%></p></small>
 							<button onclick="removeTag('<%=mt.getId()%>','metal','<%=occ.getOccurrenceID()%>')" type="button" class="removeTag btn btn-primary btn-xs"><small>Remove</small></button>
 						</li>
@@ -564,49 +563,50 @@ context=ServletUtilities.getContext(request);
 				<%}%>		
 			</ul>
 			
-			<h4>Acoustic Tags</h4>
 			<ul>
+				<li style="list-style:none;padding-left:0;"><h4>Acoustic Tags</h4></li>
 				<% if (acousticTags.size() > 0) {
 					for (AcousticTag at : acousticTags) {%>
-						<li style="list-style:none;">
+						<li style="list-style:none;padding-left:0;">
 							<small><p style="margin:none;"><label><strong>ID :</strong></label> <%=at.getId()%><label><strong> Serial Number :</strong></label> <%=at.getSerialNumber()%></p></small>
-							<button onclick="removeTag(<%=at.getId()%>,acoustic,<%=occ.getOccurrenceID()%>)" type="button" class="removeTag btn btn-primary btn-xs">Remove</button>
+							<button onclick="removeTag('<%=at.getId()%>','metal','<%=occ.getOccurrenceID()%>')" type="button" class="removeTag btn btn-primary btn-xs">Remove</button>
 						</li>
+						<li id="removed-<%=at.getId()%>" style="list-style:none;"><label><small></small></label></li>
 				<% 	}
 				} else {%>	
 					<li style="list-style:none;"><label>None</label></li>
 				<% }%>			
 			</ul>
 			
-			<h4>Digital Archive Tags</h4>
 			<ul>
+				<li style="list-style:none;padding-left:0;"><h4>Digital Archive Tags</h4></li>
 				<% if (dTags.size() > 0) { 
 					for (DigitalArchiveTag dat : dTags) {%>
-						<li style="list-style:none;">
+						<li style="list-style:none;padding-left:0;">
 							<small><p style="margin:none;"><label>ID :</strong></label> <%=dat.getId()%><label><strong> SerialNumber :</strong></label> <%=dat.getSerialNumber()%></p></small>
-							<button onclick="removeTag(<%=dat.getId()%>,dat,<%=occ.getOccurrenceID()%>)" type="button" class="removeTag btn btn-primary btn-xs">Remove</button>
+							<button onclick="removeTag('<%=dat.getId()%>','metal','<%=occ.getOccurrenceID()%>')" type="button" class="removeTag btn btn-primary btn-xs">Remove</button>
 						</li>
+						<li id="removed-<%=dat.getId()%>" style="list-style:none;"><label><small></small></label></li>
 				<%}
 				} else {%>	
 					<li style="list-style:none;"><label>None</label></li>
 				<%}%>		
 			</ul>
-			
-			<h4>Satellite Tags</h4>
 			<ul>
+				<li style="list-style:none;padding-left:0;"><h4>Satellite Tags</h4></li>
 				<% if (satTags.size() > 0) {
 					for (SatelliteTag st : satTags) {%>
-						<li style="list-style:none;">
+						<li style="list-style:none;padding-left:0;">
 							<small><p style="margin:none;"><label><strong>ID :</strong></label> <%=st.getId()%><label><strong> Name :</strong></label> <%=st.getName()%><label><strong>Serial Number :</strong></label> <%=st.getSerialNumber()%><label><strong> Argos Ptt Number :</strong></label> <%=st.getArgosPttNumber()%></p></small>
-							<button onclick="removeTag(<%=st.getId()%>,satellite,<%=occ.getOccurrenceID()%>)" type="button" class="removeTag btn btn-primary btn-xs">Remove</button>
+							<button onclick="removeTag('<%=st.getId()%>','metal','<%=occ.getOccurrenceID()%>')" type="button" class="removeTag btn btn-primary btn-xs">Remove</button>
 						</li>
+						<li id="removed-<%=st.getId()%>" style="list-style:none;"><label><small></small></label></li>
 				<%}
 				} else {%>	
 					<li style="list-style:none;"><label>None</label></li>
 				<% 	} %>	
 			</ul>
-			<ul>
-			
+			<ul>		
 				<li style="list-style: none;">
 					<div style="display:none;" id="dialogTagAdd" title="<%=props.getProperty("addTag")%>" class="editFormTag">
 						 <form name="addTag" action="../BaseClassAddTag" method="post" class="editFormTag">
