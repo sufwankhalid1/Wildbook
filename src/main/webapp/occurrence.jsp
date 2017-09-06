@@ -974,7 +974,13 @@ context=ServletUtilities.getContext(request);
 				<!-- Attributes, observations. -->
 				<span class="caption"><%=thisSample.getHTMLString()%></span>
 				<ul>
+					
 				<%
+					if (thisSample.getState()!=null) {
+				%>
+						<li style="list-style:none;"><strong><%=props.getProperty("biopsyState")%>: </strong> <span><%=thisSample.getState()%></span></li>
+				<%
+					}
 					ArrayList<Observation> obs = thisSample.getBaseObservationArrayList();
 					for (Observation ob : obs) {
 			 	%>

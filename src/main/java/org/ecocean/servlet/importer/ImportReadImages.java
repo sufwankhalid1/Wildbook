@@ -67,7 +67,7 @@ public class ImportReadImages extends HttpServlet {
     }
     myShepherd.commitDBTransaction();
     
-    String imageDir = "/opt/dukeImport/DUML Files to Jason-Dream Database/REVISED DATA for JASON-USE THESE!/NEW-species photo-id catalog files/";
+    String imageDir = "/opt/dukeImport/DUML Files for Colin-NEW/new-species photo-id catalog files/";
     
     if (request.getParameter("test") != null) {
       imageDir = "/opt/dukeTest/";
@@ -498,7 +498,7 @@ public class ImportReadImages extends HttpServlet {
       myShepherd.beginDBTransaction();
     }
     
-    File dir = new File("/opt/dukeImport/DUML Files to Jason-Dream Database/REVISED DATA for JASON-USE THESE!/AllTagSummary.xlsx");
+    File dir = new File("/opt/dukeImport/DUML Files for Colin-NEW/AllTagSummary.xlsx");
     FileInputStream fs = null;
     try {
       fs = new FileInputStream(dir);

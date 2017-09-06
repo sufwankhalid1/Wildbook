@@ -809,8 +809,8 @@ public class AccessImport extends HttpServlet {
       
       try {
         if (thisRow.get("Vessel") != null) {
-          String effort = thisRow.getString("VESSEL");
-          st.setVesselID(effort);
+          String vesselID = thisRow.getString("VESSEL");
+          st.setVesselID(vesselID);
         }
       } catch (Exception e) {
         out.println("!!!!!!!!!!!!!! Could not process Vessel for row "+i+" in EFFORT");
