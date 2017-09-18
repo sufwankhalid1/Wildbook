@@ -965,7 +965,7 @@ context=ServletUtilities.getContext(request);
 						if (myShepherd.isEncounter(thisSample.getCorrespondingEncounterNumber())) {
 							bioEnc = myShepherd.getEncounter(thisSample.getCorrespondingEncounterNumber());							
 							%>
-								<span class="caption"><%=props.getProperty("correspondingEnc")%><a href="<%=request.getScheme()%>://<%=CommonConfiguration.getURLLocation(request)%>/encounters/encounter.jsp?number=<%=bioEnc.getCatalogNumber()%>"> <%=bioEnc.getCatalogNumber()%></a></span>
+								<span class="caption"><%=props.getProperty("encounter")%>:<a href="<%=request.getScheme()%>://<%=CommonConfiguration.getURLLocation(request)%>/encounters/encounter.jsp?number=<%=bioEnc.getCatalogNumber()%>"> <%=bioEnc.getCatalogNumber()%></a></span>
 							<%
 						}
 						MarkedIndividual indy = null; 
@@ -974,7 +974,7 @@ context=ServletUtilities.getContext(request);
 							if (thisSample.getObservationByName("IndyID").getValue()!=null) {
 								indyID = thisSample.getObservationByName("IndyID").getValue();							
 								%>
-									<span class="caption"><%=props.getProperty("correspondingIndy")%><a href="<%=request.getScheme()%>://<%=CommonConfiguration.getURLLocation(request)%>/individual.jsp?number=<%=indyID%>"> <%=indyID%></a></span>
+									<span class="caption"><%=props.getProperty("individual")%>:<a href="<%=request.getScheme()%>://<%=CommonConfiguration.getURLLocation(request)%>/individual.jsp?number=<%=indyID%>"> <%=indyID%></a></span>
 								<%
 							}
 						}						
@@ -2304,12 +2304,12 @@ var dlgMSMarkersSet<%=thisSample.getSampleID().replaceAll("[-+.^:,]","")%> = $("
 <!-- end biomeasure popup --> 
 
 			<td>
-				<a id="sample" href="encounter.jsp?number=<%=occ.getOccurrenceID()%>&sampleID=<%=thisSample.getSampleID()%>&edit=tissueSample&function=1">
+				<a id="sample" href="occurrence.jsp?number=<%=occ.getOccurrenceID()%>&sampleID=<%=thisSample.getSampleID()%>&edit=tissueSample&function=1">
 					<img width="24px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" />
 				</a>
 			</td>
 			<td>
-				<a onclick="return confirm('<%=props.getProperty("deleteTissue")%>');" href="../EncounterRemoveTissueSample?encounter=<%=occ.getOccurrenceID()%>&sampleID=<%=thisSample.getSampleID()%>">
+				<a onclick="return confirm('<%=encProps.getProperty("deleteTissue")%>');" href="../OccurrenceRemoveTissueSample?occId=<%=occ.getOccurrenceID()%>&sampleID=<%=thisSample.getSampleID()%>">
 					<img style="border-style: none; width: 40px; height: 40px;" src="../images/cancel.gif" />
 				</a>
 			</td>

@@ -176,6 +176,21 @@ public abstract class FoundationalPropertiesBase implements java.io.Serializable
     return null;
   }
   
+  public void baseClassRemoveTissueSample(String sampleId) {
+    ArrayList<TissueSample> newSamples = new ArrayList<TissueSample>();
+    try {
+      for (TissueSample sample : baseTissueSamples) {
+        if (!sample.getSampleID().equals(sampleId)) {
+          newSamples.add(sample);
+        }
+      }
+      baseTissueSamples = newSamples;
+    } catch (Exception e) {
+      e.printStackTrace();
+      System.out.println("Failed to remove this tissue sample: "+sampleId);
+    }
+  }
+  
   public ArrayList<MetalTag> getBaseMetalTagArrayList() {
     return baseMetalTags;
   }
