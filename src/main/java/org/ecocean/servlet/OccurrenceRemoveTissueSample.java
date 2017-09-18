@@ -31,8 +31,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-
-//Set alternateID for this encounter/sighting
 public class OccurrenceRemoveTissueSample extends HttpServlet {
 
   /**

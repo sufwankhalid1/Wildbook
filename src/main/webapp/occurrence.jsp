@@ -974,6 +974,7 @@ context=ServletUtilities.getContext(request);
 							if (thisSample.getObservationByName("IndyID").getValue()!=null) {
 								indyID = thisSample.getObservationByName("IndyID").getValue();							
 								%>
+									<br/>
 									<span class="caption"><%=props.getProperty("individual")%>:<a href="<%=request.getScheme()%>://<%=CommonConfiguration.getURLLocation(request)%>/individual.jsp?number=<%=indyID%>"> <%=indyID%></a></span>
 								<%
 							}

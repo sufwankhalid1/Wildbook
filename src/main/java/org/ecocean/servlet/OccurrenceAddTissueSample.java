@@ -87,7 +87,8 @@ public class OccurrenceAddTissueSample extends HttpServlet {
           encId = request.getParameter("encId");
           ts.setCorrespondingEncounterNumber(encId);
           if (myShepherd.getEncounter(encId).getIndividualID()!=null) {
-            makeObservation(myShepherd, ts, "IndyID", indyId);            
+            indyId = myShepherd.getEncounter(encId).getIndividualID();
+            makeObservation(myShepherd, ts, "IndyID", indyId);    
           }
         }
         String presMethod = null;
