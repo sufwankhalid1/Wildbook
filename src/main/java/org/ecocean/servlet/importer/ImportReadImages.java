@@ -196,7 +196,7 @@ public class ImportReadImages extends HttpServlet {
         
         nameList.add(image.getName().toUpperCase());
         
-        out.println("Adding this MA and image file to filename Map : "+ma.getFilename() +"Media Asset ID : "+ ma.getId());
+        out.println("Adding this MA and image file to filename Map : "+ma.getFilename() +" Media Asset ID : "+ ma.getId());
         filenames.put(image.getName().toUpperCase(), ma);
         
         ma.updateMetadata();

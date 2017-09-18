@@ -788,8 +788,8 @@ public class AccessImport extends HttpServlet {
       try {
         if (thisRow.get("SurveyHrs") != null) {
           String es = thisRow.getString("SurveyHrs");
-          es = es.replace("/","").toUpperCase();
-          if (!es.equals("NA")) {
+          es = es.replaceAll("[^\\d.-]","").toUpperCase();
+          if (!es.equals("NA")&&!es.equals("")) {
             System.out.println("SurveyHrs resulting string : "+es);
             Double effort = Double.valueOf(es);
             Measurement effortMeasurement = new Measurement();
@@ -896,7 +896,7 @@ public class AccessImport extends HttpServlet {
               } 
             } else {
               out.println("Location ID and Project for this enc is null!");
-              noProjectOrLocation = 0;
+              noProjectOrLocation +=1;
             }    
           }
           if (matched==true) {
@@ -932,6 +932,7 @@ public class AccessImport extends HttpServlet {
     out.println("+++++++++++++ There were "+numSingleEncs+" lines in EFFORT that returned a single encounter/occurrence, but were not matched due to lack of project and location data.  ++++++++++++");
     out.println("+++++++++++++ There were "+numNoEncs+" lines in EFFORT containing a date not shared by any saved encounter/occurrence. +++++++++++++");
     out.println("+++++++++++++ There were "+numOneOccs+" lines in EFFORT containing a date with only one occurrence, but lacking project and location data. +++++++++++++");
+    out.println("+++++++++++++ There were "+noProjectOrLocation+" Encounters pulled up by date that contained no Project or Location data. (Could be multiple pulls of same encounter) +++++++++++++");
     for (String fail : failArray) {
       out.println(fail);
     }
@@ -985,8 +986,8 @@ public class AccessImport extends HttpServlet {
       }
       
       try {
-        if (thisRow.get("ID CODE") != null) {
-          idCode = thisRow.get("ID CODE").toString().trim();          
+        if (thisRow.get("id_code") != null) {
+          idCode = thisRow.get("id_code").toString().trim();          
           //out.println("---------------- ID CODE : "+idCode);          
         }
       } catch (Exception e) {
