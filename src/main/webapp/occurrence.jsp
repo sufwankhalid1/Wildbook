@@ -514,6 +514,7 @@ context=ServletUtilities.getContext(request);
 	   	$('#removed-'+tagID).show();
 	   	$('#removed-'+tagID).html('<label><small></small>Tag removed.</label>');
 	   	setTimeout(function(){ $('#removed-'+tagID).hide(); }, 3000);
+	   	
 	  })
       .fail(function(response) { 
   	   	$('#removed-'+tagID).html('<label><small></small>Error. Could not remove tag.</label>');
@@ -740,6 +741,18 @@ context=ServletUtilities.getContext(request);
 					<%}%>
 					</td>
 				</tr>
+				
+				<tr>
+					<td>
+						<%
+							String correspondingEncounterNumber = "";
+							if (thisSample.getCorrespondingEncounterNumber() != null) {
+								correspondingEncounterNumber = thisSample.getCorrespondingEncounterNumber();
+							}
+						%> <%=props.getProperty("correspondingEnc")%> - <%=props.getProperty("ifApplicable")%></td>
+					<td><input name="encId" type="text" size="20"
+						maxlength="100" value="<%=correspondingEncounterNumber%>" /></td>
+				</tr>
 
 				<tr>
 					<td>
@@ -952,7 +965,7 @@ context=ServletUtilities.getContext(request);
 						if (myShepherd.isEncounter(thisSample.getCorrespondingEncounterNumber())) {
 							bioEnc = myShepherd.getEncounter(thisSample.getCorrespondingEncounterNumber());							
 							%>
-								<span class="caption"><%=encProps.getProperty("correspondingEnc")%><a href="<%=request.getScheme()%>://<%=CommonConfiguration.getURLLocation(request)%>/encounters/encounter.jsp?number=<%=bioEnc.getCatalogNumber()%>"> <%=bioEnc.getCatalogNumber()%></a></span>
+								<span class="caption"><%=props.getProperty("correspondingEnc")%><a href="<%=request.getScheme()%>://<%=CommonConfiguration.getURLLocation(request)%>/encounters/encounter.jsp?number=<%=bioEnc.getCatalogNumber()%>"> <%=bioEnc.getCatalogNumber()%></a></span>
 							<%
 						}
 						MarkedIndividual indy = null; 
@@ -961,7 +974,7 @@ context=ServletUtilities.getContext(request);
 							if (thisSample.getObservationByName("IndyID").getValue()!=null) {
 								indyID = thisSample.getObservationByName("IndyID").getValue();							
 								%>
-									<span class="caption"><%=encProps.getProperty("correspondingIndy")%><a href="<%=request.getScheme()%>://<%=CommonConfiguration.getURLLocation(request)%>/individual.jsp?number=<%=indyID%>"> <%=indyID%></a></span>
+									<span class="caption"><%=props.getProperty("correspondingIndy")%><a href="<%=request.getScheme()%>://<%=CommonConfiguration.getURLLocation(request)%>/individual.jsp?number=<%=indyID%>"> <%=indyID%></a></span>
 								<%
 							}
 						}						

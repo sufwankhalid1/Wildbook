@@ -233,17 +233,15 @@ public class ImportReadImages extends HttpServlet {
     XSSFSheet sheet = wb.getSheetAt(0);
     int rows = sheet.getPhysicalNumberOfRows();;
     int cols = 0;
-
+    out.println("Rows In File : "+rows);
     HashMap<String,String> rowData = null;
 
-    // Triple for loops? Has the world gone mad?
     for (int i=1;i<rows;i++) {
       out.println("Current Row : "+i);
       sheet = wb.getSheetAt(0);
       rows = sheet.getPhysicalNumberOfRows();
-      //out.println("Rows in this Excel file : "+rows);
       cols = sheet.getRow(0).getLastCellNum();
-      //out.println("Columns in sheet 0: "+cols);
+      out.println("Columns in sheet 0: "+cols);
       row = sheet.getRow(i);
       rowData = new HashMap<String,String>();
       for (int j=0;j<cols-1;j++) {
@@ -254,10 +252,10 @@ public class ImportReadImages extends HttpServlet {
          e.printStackTrace(out);
          System.out.println("Failed to grab this value from excel.");
         }
-        //out.println("RAW CELL : "+cell.toString());
+        out.println("RAW CELL : "+cell.toString());
         String cellKey = formatter.formatCellValue(cell.getSheet().getRow(0).getCell(j));
         String cellValue = formatter.formatCellValue(cell);
-        //out.println("Current Column : "+j);
+        out.println("Current Column : "+j);
         out.println("Cell Value : "+cellValue+" Cell Key :"+cellKey);
         
         if (cellValue!=null&&!cellValue.equals(cellKey)) {
@@ -314,7 +312,7 @@ public class ImportReadImages extends HttpServlet {
       }
     }
     wb.close();
-    //out.println("DATA to String at end of Excel process"+data.toString());
+    out.println("DATA to String at end of Excel process"+data.toString());
   }  
   
   private String processMediaAssetDate(String date) {

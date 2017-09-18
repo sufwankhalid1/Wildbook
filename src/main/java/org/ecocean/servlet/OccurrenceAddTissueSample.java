@@ -81,6 +81,15 @@ public class OccurrenceAddTissueSample extends HttpServlet {
         
         System.out.println("New Tissue Sample ID ? : "+sampleID);
         
+        String encId =  null;
+        String indyId =  null;
+        if (request.getParameter("encId")!=null) {
+          encId = request.getParameter("encId");
+          ts.setCorrespondingEncounterNumber(encId);
+          if (myShepherd.getEncounter(encId).getIndividualID()!=null) {
+            makeObservation(myShepherd, ts, "IndyID", indyId);            
+          }
+        }
         String presMethod = null;
         if (request.getParameter("preservationMethod")!=null) {
           presMethod = request.getParameter("preservationMethod");
@@ -177,6 +186,17 @@ public class OccurrenceAddTissueSample extends HttpServlet {
 
     out.close();
     myShepherd.closeDBTransaction();
+  }
+  
+  public void makeObservation(Shepherd myShepherd, TissueSample ts, String name, String value) {
+    if (ts != null && name != null && value != null) {
+      Observation ob = new Observation(name, value, ts, "TissuSample");
+      myShepherd.getPM().makePersistent(ob);
+      myShepherd.commitDBTransaction();
+      myShepherd.beginDBTransaction();
+      ts.addObservation(ob);
+    }
+    
   }
 }
   
