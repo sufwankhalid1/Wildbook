@@ -951,12 +951,10 @@ context=ServletUtilities.getContext(request);
 		<%
 			for (int j = 0; j < numTissueSamples; j++) {
 				TissueSample thisSample = tissueSamples.get(j);
-				System.out.println("Print sample : "+j);
-				System.out.println("SampleID : "+thisSample.getSampleID());
 		%>
 		<tr>
 			<td>
-				<span class="caption"><%=thisSample.getSampleID()%></span>
+				<span class="caption">Stored ID: <%=thisSample.getSampleID()%></span>
 				<br>
 				
 				<%
@@ -987,22 +985,23 @@ context=ServletUtilities.getContext(request);
 			<td>
 				<!-- Attributes, observations. -->
 				<span class="caption"><%=thisSample.getHTMLString()%></span>
-				<ul>
-					
+
 				<%
-					if (thisSample.getState()!=null) {
+					ArrayList<Observation> obs = thisSample.getBaseObservationArrayList();
+					if (!obs.isEmpty()) {
 				%>
-						<li style="list-style:none;"><strong><%=props.getProperty("biopsyState")%>: </strong> <span><%=thisSample.getState()%></span></li>
+						<br/>
+						<span style="list-style:none;padding-left:0;"><strong>Observations</strong></span>
+						<br/>
 				<%
 					}
-					ArrayList<Observation> obs = thisSample.getBaseObservationArrayList();
+
 					for (Observation ob : obs) {
 			 	%>
-						<li style="list-style:none;"><strong><%=ob.getName() %></strong> <span><%= ob.getValue() %></span></li>
+						<span style="list-style:none;padding-left:0;"><small><%=ob.getName() %>: <%= ob.getValue() %></small></span><br/>
 				<%
 					}
 				%>
-				</ul>
 			</td>
 					<td>
 	<table>
@@ -1458,9 +1457,9 @@ var dlgMSMarkersSet<%=thisSample.getSampleID().replaceAll("[-+.^:,]","")%> = $("
 });
 
 
-</script> --%> <!-- end ms markers popup --> <%
- 	}
- %></td>
+</script> --%> <!-- end ms markers popup --> 
+<%}%>
+</td>
 					</tr>
 
 
@@ -1488,7 +1487,8 @@ var dlgMSMarkersSet<%=thisSample.getSampleID().replaceAll("[-+.^:,]","")%> = $("
 						<td style="border-style: none;">
 							<a class="launchPopup" id="setBioMeasure<%=thisSample.getSampleID()%>">
 								<img width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" />
-							</a> <%
+							</a> 
+ <%
  	if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
  %> <!-- start biomeasure popup -->
 							<div id="dialogSetBiomeasure4<%=thisSample.getSampleID().replaceAll("[-+.^:,]", "")%>" title="<%=props.getProperty("setBiologicalMeasurement")%>" style="display: none">

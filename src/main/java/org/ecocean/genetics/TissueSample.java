@@ -108,6 +108,8 @@ public class TissueSample extends DataCollectionEvent {
     if((this.getPreservationMethod()!=null)&&(!this.getPreservationMethod().equals(""))){paramValues+="     Preservation method: "+this.getPreservationMethod()+"<br />";}
     if((this.getStorageLabID()!=null)&&(!this.getStorageLabID().equals(""))){paramValues+="     Storage lab ID: "+this.getStorageLabID()+"<br />";}
     if((this.getTissueType()!=null)&&(!this.getTissueType().equals(""))){paramValues+="     Tissue type: "+this.getTissueType()+"<br />";}
+    if((this.getPermit()!=null)&&(!this.getPermit().equals(""))){paramValues+="     Permit : "+this.getPermit()+"<br />";}
+    if((this.getState()!=null)&&(!this.getState().equals(""))){paramValues+="     State : "+this.getState()+"<br />";}
     return paramValues;
   }
 

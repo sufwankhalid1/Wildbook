@@ -103,7 +103,7 @@ public class OccurrenceAddTissueSample extends HttpServlet {
         }
         String samplingProtocol =  null;
         if (request.getParameter("samplingProtocol")!=null) {
-          samplingProtocol = request.getParameter("storageLabID");
+          samplingProtocol = request.getParameter("samplingProtocol");
           ts.setSamplingProtocol(samplingProtocol);
         }
         String effort =  null;
@@ -114,7 +114,7 @@ public class OccurrenceAddTissueSample extends HttpServlet {
         String fieldNumber =  null;
         if (request.getParameter("fieldNumber")!=null) {
           fieldNumber = request.getParameter("fieldNumber");
-          ts.setSamplingEffort(fieldNumber);
+          ts.setFieldNumber(fieldNumber);
         }
         String fieldNotes = null;
         if (request.getParameter("fieldNotes")!=null) {
@@ -148,7 +148,7 @@ public class OccurrenceAddTissueSample extends HttpServlet {
         }
         String datasetName = null;
         if (request.getParameter("datasetName")!=null) {
-          datasetName = request.getParameter("collectionID");
+          datasetName = request.getParameter("datasetName");
           ts.setDatasetName(datasetName);
         }
       } else {
