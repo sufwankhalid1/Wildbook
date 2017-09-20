@@ -58,7 +58,7 @@ public class Cluster {
   }
 
   public static List<Occurrence> defaultCluster(List<MediaAsset> assets, Shepherd myShepherd) throws IOException {
-    return makeNOccurrences(100, assets, myShepherd);
+    return makeNOccurrences(10, assets, myShepherd);
     //return runJonsClusterer(assets, myShepherd);
   }
 
@@ -386,7 +386,8 @@ System.out.println(ael.getAttribute("attributeKey") + " -> " + aval);
       secs.append(String.valueOf(tp.getDateTimeInSeconds())).append(" ");
     }
 
-    return ("python3 /var/lib/tomcat7/webapps/wildbook/config/occurrence_blackbox.py "+lats.toString()+lons.toString()+secs.toString());
+    //suspect it should be a common config setting?
+    return ("python3 /opt/tomcat/webapps/wildbook/config/occurrence_blackbox.py "+lats.toString()+lons.toString()+secs.toString());
 
   }
 

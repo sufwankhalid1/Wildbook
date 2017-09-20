@@ -54,10 +54,7 @@ public class UploadServlet extends HttpServlet {
 
 	protected void doPost(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
-
-
-
-
+            response.setHeader("Access-Control-Allow-Origin", "*");
             if (!ServletFileUpload.isMultipartContent(request)) throw new IOException("doPost is not multipart");
             ServletFileUpload upload = new ServletFileUpload(new DiskFileItemFactory());
             //upload.setHeaderEncoding("UTF-8");
@@ -151,6 +148,7 @@ System.out.println("flowChunkNumber " + flowChunkNumber);
 	protected void doGet(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
 
+            response.setHeader("Access-Control-Allow-Origin", "*");
             if (!ServletFileUpload.isMultipartContent(request)) throw new IOException("doGet is not multipart");
             ServletFileUpload upload = new ServletFileUpload(new DiskFileItemFactory());
             //upload.setHeaderEncoding("UTF-8");

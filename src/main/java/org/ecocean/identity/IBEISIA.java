@@ -1353,11 +1353,9 @@ System.out.println("\\------ _tellEncounter enc = " + enc);
         myShepherd.beginDBTransaction();
         for (int i = 0 ; i < ids.length ; i++) {
             Annotation ann = ((Annotation) (myShepherd.getPM().getObjectById(myShepherd.getPM().newObjectIdInstance(Annotation.class, ids[i]), true)));
-System.out.println("**** " + ann);
+System.out.println("processCallbackIdentify: " + ann);
             if (ann != null) anns.put(ids[i], ann);
         }
-        myShepherd.commitDBTransaction();
-        myShepherd.closeDBTransaction();
         int numCreated = 0;
         JSONObject infDict = null;
         JSONObject j = null;
@@ -1370,6 +1368,8 @@ System.out.println("**** " + ann);
         }
         if (infDict == null) {
             rtn.put("error", "could not parse inference_dict from results");
+            myShepherd.rollbackDBTransaction();
+            myShepherd.closeDBTransaction();
             return rtn;
         }
         boolean needReview = false;  //set as a whole
@@ -1438,6 +1438,8 @@ System.out.println("**** " + ann);
         }
 
         log(taskID, null, jlog, myShepherd.getContext());
+        myShepherd.commitDBTransaction();
+        myShepherd.closeDBTransaction();
         return rtn;
     }
 

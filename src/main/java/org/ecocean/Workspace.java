@@ -135,4 +135,19 @@ public class Workspace implements java.io.Serializable {
     return (json!=null && json.optString("class").equals("org.ecocean.media.MediaAssetSet"));
   }
 
+    public WBQuery toWBQuery() throws JSONException {
+        JSONObject params = getArgJson();
+        if (params.optString("class", null) == null) throw new RuntimeException("getWBQuery() found no class in query args for " + this);
+        return new WBQuery(params);
+    }
+
+    public org.json.JSONObject toJSONObject() {
+        org.json.JSONObject me = new org.json.JSONObject();
+        me.put("modified", this.modified);
+        me.put("id", this.getID());
+        me.put("created", this.created);
+        //me.put("accessed", this.accessed);  //TODO is this even being set?
+        me.put("name", this.name);
+        return me;
+    }
 }

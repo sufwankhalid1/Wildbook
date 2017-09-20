@@ -52,8 +52,6 @@ public class WorkspacesForUser extends HttpServlet {
     Shepherd myShepherd = new Shepherd(context);
     PrintWriter out = response.getWriter();
 
-    ArrayList<String> wSpaceIDs = new ArrayList<String>();
-
     String owner = request.getUserPrincipal() != null ? request.getUserPrincipal().getName() : "testUser";
 
     try {
@@ -70,13 +68,15 @@ public class WorkspacesForUser extends HttpServlet {
       }
 
 
+        org.json.JSONArray wsOut = new org.json.JSONArray();
       int maxSpaces = 1000;
       for (int i=0;i<wSpaces.size() && i<maxSpaces;i++) {
-        wSpaceIDs.add(wSpaces.get(i).getName());
+        wsOut.put(wSpaces.get(i).toJSONObject());
+        //wSpaceIDs.add(wSpaces.get(i).getName());
       }
 
-      out.println(wSpaceIDs.toString());
-      System.out.println("WorkspacesForUser for user "+owner+" is returning workspace IDs: "+wSpaceIDs.toString());
+      out.println(wsOut.toString());
+      System.out.println("WorkspacesForUser for user "+owner+" is returning workspace IDs: " + wsOut);
 
     } catch(Exception e) {
       //throw new IOException(e.toString());
