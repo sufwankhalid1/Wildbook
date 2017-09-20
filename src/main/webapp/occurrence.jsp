@@ -521,6 +521,12 @@ context=ServletUtilities.getContext(request);
 	   	setTimeout(function(){ $('#removed-'+tagID).hide(); }, 3000);
       });
     };
+    function showObservations(id) {
+    	$('#observations-'+id).show();
+    }
+    function hideObservations() {
+    	$('#observations-'+id).hide();
+    }
 
 </script>
 			<h2>
@@ -567,11 +573,21 @@ context=ServletUtilities.getContext(request);
 			<ul>
 				<li style="list-style:none;padding-left:0;"><h4>Acoustic Tags</h4></li>
 				<% if (acousticTags.size() > 0) {
-					for (AcousticTag at : acousticTags) {%>
+					for (AcousticTag at : acousticTags) {
+						ArrayList<Observation> obs = at.getAllObservations();
+						String allObs = "";
+						for (Observation ob : obs) {
+							allObs += "<label><small>"+ob.getName()+" : "+ob.getValue()+"</small></label><br/>";
+						}
+				%>
 						<li style="list-style:none;padding-left:0;">
 							<small><p style="margin:none;"><label><strong>ID :</strong></label> <%=at.getId()%><label><strong> Serial Number :</strong></label> <%=at.getSerialNumber()%></p></small>
+							<button onclick="showObservations('<%=at.getId()%>')" type="button" class="showObservations btn btn-primary btn-xs">Show Observations</button>
+							<button onclick="hideObservations('<%=at.getId()%>')" type="button" class="hideObservations btn btn-primary btn-xs">Hide Observations</button>
 							<button onclick="removeTag('<%=at.getId()%>','metal','<%=occ.getOccurrenceID()%>')" type="button" class="removeTag btn btn-primary btn-xs">Remove</button>
+							
 						</li>
+						<li id="observations-<%=at.getId()%>" style="list-style:none;display:none;"><%=allObs%></li>
 						<li id="removed-<%=at.getId()%>" style="list-style:none;display:none;"><label><small></small></label></li>
 				<% 	}
 				} else {%>	
@@ -582,11 +598,18 @@ context=ServletUtilities.getContext(request);
 			<ul>
 				<li style="list-style:none;padding-left:0;"><h4>Digital Archive Tags</h4></li>
 				<% if (dTags.size() > 0) { 
-					for (DigitalArchiveTag dat : dTags) {%>
+					for (DigitalArchiveTag dat : dTags) {
+						ArrayList<Observation> obs = dat.getAllObservations();
+						String allObs = "";
+						for (Observation ob : obs) {
+							allObs += "<label><small>"+ob.getName()+" : "+ob.getValue()+"</small></label><br/>";
+						}
+				%>
 						<li style="list-style:none;padding-left:0;">
 							<small><p style="margin:none;"><label>ID :</strong></label> <%=dat.getId()%><label><strong> SerialNumber :</strong></label> <%=dat.getSerialNumber()%></p></small>
 							<button onclick="removeTag('<%=dat.getId()%>','metal','<%=occ.getOccurrenceID()%>')" type="button" class="removeTag btn btn-primary btn-xs">Remove</button>
 						</li>
+						<li id="observations-<%=dat.getId()%>" style="list-style:none;display:none;"><%=allObs%></li>
 						<li id="removed-<%=dat.getId()%>" style="list-style:none;display:none;"><label><small></small></label></li>
 				<%}
 				} else {%>	
@@ -596,16 +619,23 @@ context=ServletUtilities.getContext(request);
 			<ul>
 				<li style="list-style:none;padding-left:0;"><h4>Satellite Tags</h4></li>
 				<% if (satTags.size() > 0) {
-					for (SatelliteTag st : satTags) {%>
+					for (SatelliteTag st : satTags) {
+						ArrayList<Observation> obs = st.getAllObservations();
+						String allObs = "";
+						for (Observation ob : obs) {
+							allObs += "<label><small>"+ob.getName()+" : "+ob.getValue()+"</small></label><br/>";
+						}
+				%>
 						<li style="list-style:none;padding-left:0;">
 							<small><p style="margin:none;"><label><strong>ID :</strong></label> <%=st.getId()%><label><strong> Name :</strong></label> <%=st.getName()%><label><strong>Serial Number :</strong></label> <%=st.getSerialNumber()%><label><strong> Argos Ptt Number :</strong></label> <%=st.getArgosPttNumber()%></p></small>
 							<button onclick="removeTag('<%=st.getId()%>','metal','<%=occ.getOccurrenceID()%>')" type="button" class="removeTag btn btn-primary btn-xs">Remove</button>
 						</li>
+						<li id="observations-<%=st.getId()%>" style="list-style:none;display:none;"><%=allObs%></li>
 						<li id="removed-<%=st.getId()%>" style="list-style:none;display:none;"><label><small></small></label></li>
 				<%}
 				} else {%>	
 					<li style="list-style:none;"><label>None</label></li>
-				<% 	} %>	
+				<%}%>	
 			</ul>
 			<ul>		
 				<li style="list-style: none;">
@@ -954,7 +984,7 @@ context=ServletUtilities.getContext(request);
 		%>
 		<tr>
 			<td>
-				<span class="caption">Stored ID: <%=thisSample.getSampleID()%></span>
+				<span class="caption">Stored ID: e <%=thisSample.getSampleID()%></span>
 				<br>
 				
 				<%
