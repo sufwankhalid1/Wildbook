@@ -109,9 +109,23 @@ context=ServletUtilities.getContext(request);
 			<td valign="middle">
  				<h1><strong><img style="align: center;" src="images/occurrence.png" />&nbsp;<%=props.getProperty("occurrence") %></strong>: <%=occ.getOccurrenceID()%></h1>
 				<p class="caption"><em><%=props.getProperty("description") %></em></p>
-  			</td>
+  			</td>		
+  			
+  			
   		</tr>
   	</table>
+	<%
+	if (occ.getSurvey(myShepherd)!=null) {
+	%>	
+		<p><strong><%=props.getProperty("correspondingSurvey") %></strong>: <%=occ.getSurvey(myShepherd).getID()%></p>
+		<br/>  				
+	<%	
+	} else {
+	%>	
+		<p><strong><%=props.getProperty("noSurvey") %></strong></p>
+	<%
+	}
+	%>
 	<p><%=props.getProperty("groupBehavior") %>: 
 		<%if(occ.getGroupBehavior()!=null){%>
 			<%=occ.getGroupBehavior() %>

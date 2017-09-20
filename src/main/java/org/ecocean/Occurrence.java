@@ -675,6 +675,7 @@ public class Occurrence extends FoundationalPropertiesBase {
     }
   }
   
+  
   public String getCorrespondingSurveyID() {
     if (correspondingSurveyID != null) {
       return correspondingSurveyID;
@@ -682,6 +683,32 @@ public class Occurrence extends FoundationalPropertiesBase {
     return null;
   }
   
+  public Survey getSurvey(Shepherd myShepherd) {
+    Survey sv = null;
+    if (correspondingSurveyID!=null) {
+      try {
+        sv = myShepherd.getSurvey(correspondingSurveyID);
+        return sv;
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    } else {
+      try {
+        for (Encounter enc : encounters) {
+          if (enc.getSurveyID()!=null) {
+            if (enc.getSurveyID().length()>1) {
+              correspondingSurveyID = enc.getSurveyID();
+              sv = myShepherd.getSurvey(enc.getSurveyID());
+              return sv;
+            }
+          }
+        }
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+    return null;
+  }
 
   //public void setLocationID(String newLocID){this.locationID=newLocID;}
 
