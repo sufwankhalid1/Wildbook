@@ -487,24 +487,27 @@ context=ServletUtilities.getContext(request);
 		  
 <script type="text/javascript">
 	$(document).ready(function() {
-	    $(".editFormTag, .editTextTag, .dialogTagAdd, .resultMessageDiv, .removeTag").hide();
+	    $(".editFormTag, .editTextTag, .dialogTagAdd, .resultMessageDiv, .removeTag, .obsTag, .argosInput").hide();
 	    var buttons = $("#editTag, #closeEditTag").on("click", function(){
   	      buttons.toggle();
 	    });
 	    $("#editTag").click(function() {
-	      $(".editFormTag, .removeTag").show();
+	      $(".editFormTag, .removeTag, .obsTagShow").show();
+	      $(".argosInput").hide();
 	    });
 	    $("#closeEditTag").click(function() {
-	      $(".editFormTag, .removeTag").hide();
+	      $(".editFormTag, .removeTag, .obsTag").hide();
 	    });
-		$("#satTag").click(function() {
-			console.log("Satellite tag! Expanding input...")
-			$("#argosInput").show(); 
-		});
-		$(".notSat").click(function() {
-			console.log("Not Satellite tag...")
-			$("#argosInput").hide(); 
-		});	
+		
+		$('#tagType').change(function() {
+			console.log('Change detected in tagType dropdown!');
+			var type = jQuery(this).val();
+			if (type == 'satellite') {
+				$(".argosInput").show();
+			} else {
+				$(".argosInput").hide();
+			}
+		}); 
 	});
 	
     function removeTag(tagID, tagType, occID) {
@@ -516,16 +519,20 @@ context=ServletUtilities.getContext(request);
 	   	setTimeout(function(){ $('#removed-'+tagID).hide(); }, 3000);
 	   	
 	  })
-      .fail(function(response) { 
+      .fail(function(response) {
   	   	$('#removed-'+tagID).html('<label><small></small>Error. Could not remove tag.</label>');
 	   	setTimeout(function(){ $('#removed-'+tagID).hide(); }, 3000);
       });
     };
     function showObservations(id) {
     	$('#observations-'+id).show();
+    	$('#hideObservations-'+id).show();
+    	$('#showObservations-'+id).hide();
     }
-    function hideObservations() {
+    function hideObservations(id) {
     	$('#observations-'+id).hide();
+    	$('#hideObservations-'+id).hide();
+    	$('#showObservations-'+id).show();
     }
 
 </script>
@@ -558,11 +565,24 @@ context=ServletUtilities.getContext(request);
 			<ul>
 				<li style="list-style:none;padding-left:0;"><h4>Metal Tags</h4></li>
 				<% if (metalTags.size() > 0 ) {
-					for (MetalTag mt : metalTags) {%>
+					for (MetalTag mt : metalTags) {
+						ArrayList<Observation> obs = mt.getAllObservations();
+						String allObs = "";
+						if (obs.size()>0) {
+							for (Observation ob : obs) {
+								allObs += "<label><small>"+ob.getName()+" : "+ob.getValue()+"</small></label><br/>";
+							}							
+						} else {
+							allObs = "No Observations.";
+						}
+				%>
 						<li id="tag-<%=mt.getId()%>" style="list-style:none;padding-left:0;">
 							<small><p><label><strong>ID :</strong></label> <%=mt.getId()%> <label><strong> Location :</strong></label> <%=mt.getLocation()%><strong> Name :</strong></label> <%=mt.getTagNumber()%></p></small>
+							<button id="showObservations-<%=mt.getId()%>" onclick="showObservations('<%=mt.getId()%>')" type="button" class="obsTag obsTagShow btn btn-primary btn-xs"><small>Show Observations</small></button>
+							<button id="hideObservations-<%=mt.getId()%>" onclick="hideObservations('<%=mt.getId()%>')" style="display:none;" type="button" class="obsTag btn btn-primary btn-xs"><small>Hide Observations</small></button>
 							<button onclick="removeTag('<%=mt.getId()%>','metal','<%=occ.getOccurrenceID()%>')" type="button" class="removeTag btn btn-primary btn-xs"><small>Remove</small></button>
 						</li>
+						<li id="observations-<%=mt.getId()%>" style="list-style:none;display:none;"><%=allObs%></li>
 						<li id="removed-<%=mt.getId()%>" style="list-style:none;display:none;"><label><small></small></label></li>
 				<% }
 				} else {%>	
@@ -576,15 +596,19 @@ context=ServletUtilities.getContext(request);
 					for (AcousticTag at : acousticTags) {
 						ArrayList<Observation> obs = at.getAllObservations();
 						String allObs = "";
-						for (Observation ob : obs) {
-							allObs += "<label><small>"+ob.getName()+" : "+ob.getValue()+"</small></label><br/>";
+						if (obs.size()>0) {										
+							for (Observation ob : obs) {
+								allObs += "<label><small>"+ob.getName()+" : "+ob.getValue()+"</small></label><br/>";
+							}
+						} else {
+							allObs = "No Observations.";
 						}
 				%>
 						<li style="list-style:none;padding-left:0;">
 							<small><p style="margin:none;"><label><strong>ID :</strong></label> <%=at.getId()%><label><strong> Serial Number :</strong></label> <%=at.getSerialNumber()%></p></small>
-							<button onclick="showObservations('<%=at.getId()%>')" type="button" class="showObservations btn btn-primary btn-xs">Show Observations</button>
-							<button onclick="hideObservations('<%=at.getId()%>')" type="button" class="hideObservations btn btn-primary btn-xs">Hide Observations</button>
-							<button onclick="removeTag('<%=at.getId()%>','metal','<%=occ.getOccurrenceID()%>')" type="button" class="removeTag btn btn-primary btn-xs">Remove</button>
+							<button id="showObservations-<%=at.getId()%>" onclick="showObservations('<%=at.getId()%>')" type="button" class="obsTag obsTagShow btn btn-primary btn-xs"><small>Show Observations</small></button>
+							<button id="hideObservations-<%=at.getId()%>" onclick="hideObservations('<%=at.getId()%>')" style="display:none;" type="button" class="obsTag btn btn-primary btn-xs"><small>Hide Observations</small></button>
+							<button onclick="removeTag('<%=at.getId()%>','acoustic','<%=occ.getOccurrenceID()%>')" type="button" class="removeTag btn btn-primary btn-xs">Remove</button>
 							
 						</li>
 						<li id="observations-<%=at.getId()%>" style="list-style:none;display:none;"><%=allObs%></li>
@@ -601,13 +625,19 @@ context=ServletUtilities.getContext(request);
 					for (DigitalArchiveTag dat : dTags) {
 						ArrayList<Observation> obs = dat.getAllObservations();
 						String allObs = "";
-						for (Observation ob : obs) {
-							allObs += "<label><small>"+ob.getName()+" : "+ob.getValue()+"</small></label><br/>";
+						if (obs.size()>0) {									
+							for (Observation ob : obs) {
+								allObs += "<label><small>"+ob.getName()+" : "+ob.getValue()+"</small></label><br/>";
+							}
+						} else {
+							allObs = "No Observations.";
 						}
 				%>
 						<li style="list-style:none;padding-left:0;">
-							<small><p style="margin:none;"><label>ID :</strong></label> <%=dat.getId()%><label><strong> SerialNumber :</strong></label> <%=dat.getSerialNumber()%></p></small>
-							<button onclick="removeTag('<%=dat.getId()%>','metal','<%=occ.getOccurrenceID()%>')" type="button" class="removeTag btn btn-primary btn-xs">Remove</button>
+							<small><p style="margin:none;"><label><strong>ID :</strong></label> <%=dat.getId()%><label><strong> SerialNumber :</strong></label> <%=dat.getSerialNumber()%></p></small>
+							<button id="showObservations-<%=dat.getId()%>" onclick="showObservations('<%=dat.getId()%>')" type="button" class="obsTag obsTagShow btn btn-primary btn-xs"><small>Show Observations</small></button>
+							<button id="hideObservations-<%=dat.getId()%>" onclick="hideObservations('<%=dat.getId()%>')" style="display:none;" type="button" class="obsTag btn btn-primary btn-xs"><small>Hide Observations</small></button>
+							<button onclick="removeTag('<%=dat.getId()%>','dat','<%=occ.getOccurrenceID()%>')" type="button" class="removeTag btn btn-primary btn-xs">Remove</button>
 						</li>
 						<li id="observations-<%=dat.getId()%>" style="list-style:none;display:none;"><%=allObs%></li>
 						<li id="removed-<%=dat.getId()%>" style="list-style:none;display:none;"><label><small></small></label></li>
@@ -622,13 +652,19 @@ context=ServletUtilities.getContext(request);
 					for (SatelliteTag st : satTags) {
 						ArrayList<Observation> obs = st.getAllObservations();
 						String allObs = "";
-						for (Observation ob : obs) {
-							allObs += "<label><small>"+ob.getName()+" : "+ob.getValue()+"</small></label><br/>";
+						if (obs.size()>0) {
+							for (Observation ob : obs) {
+								allObs += "<label><small>"+ob.getName()+" : "+ob.getValue()+"</small></label><br/>";
+							}							
+						} else {
+							allObs = "No Observations.";
 						}
 				%>
 						<li style="list-style:none;padding-left:0;">
-							<small><p style="margin:none;"><label><strong>ID :</strong></label> <%=st.getId()%><label><strong> Name :</strong></label> <%=st.getName()%><label><strong>Serial Number :</strong></label> <%=st.getSerialNumber()%><label><strong> Argos Ptt Number :</strong></label> <%=st.getArgosPttNumber()%></p></small>
-							<button onclick="removeTag('<%=st.getId()%>','metal','<%=occ.getOccurrenceID()%>')" type="button" class="removeTag btn btn-primary btn-xs">Remove</button>
+							<small><p style="margin:none;"><label><strong>ID :</strong></label> <%=st.getId()%><label><strong>&nbsp;Name :</strong></label> <%=st.getName()%><label><strong>&nbsp;Serial Number :</strong></label> <%=st.getSerialNumber()%><label><strong>&nbsp;Argos Ptt Number :</strong></label> <%=st.getArgosPttNumber()%></p></small>
+							<button id="showObservations-<%=st.getId()%>" onclick="showObservations('<%=st.getId()%>')" type="button" class="obsTag obsTagShow btn btn-primary btn-xs"><small>Show Observations</small></button>
+							<button id="hideObservations-<%=st.getId()%>" onclick="hideObservations('<%=st.getId()%>')" style="display:none;" type="button" class="obsTag btn btn-primary btn-xs"><small>Hide Observations</small></button>
+							<button onclick="removeTag('<%=st.getId()%>','satellite','<%=occ.getOccurrenceID()%>')" type="button" class="removeTag btn btn-primary btn-xs">Remove</button>
 						</li>
 						<li id="observations-<%=st.getId()%>" style="list-style:none;display:none;"><%=allObs%></li>
 						<li id="removed-<%=st.getId()%>" style="list-style:none;display:none;"><label><small></small></label></li>
@@ -647,7 +683,7 @@ context=ServletUtilities.getContext(request);
 							<p>
 								<select name="tagType" id="tagType" >
 								  <option class="notSat" value="metal">Metal</option>
-								  <option id="satTag" value="satellite">Satellite</option>
+								  <option class="satTag" value="satellite">Satellite</option>
 								  <option class="notSat" value="acoustic">Acoustic</option>
 								  <option class="notSat" value="dtag">Digital Archive</option>
 								</select>
@@ -658,6 +694,8 @@ context=ServletUtilities.getContext(request);
 							<input name="serialNumber" type="text" class="form-control" id="addTagInput2" />
 							<label><%=props.getProperty("setTagLocation")%></label>
 							<input name="tagLocation" type="text" class="form-control" id="addTagInput3" />
+							<label class="argosInput"><%=props.getProperty("argosNumber")%>:</label>
+							<input name="tagArgos" type="text" class="argosInput form-control" id="addTagInput4" />
 							<input name="Set" type="submit" id="addTagBtn" value="<%=props.getProperty("initCapsSet")%>" class="btn btn-sm editFormBtn" />
 					     </form>
 					</div>

@@ -25,6 +25,11 @@ import org.ecocean.tag.SatelliteTag;
 
 public class BaseClassAddTag extends HttpServlet {
 
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
+
   protected void doPost(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
     String context="context0";
@@ -55,32 +60,39 @@ public class BaseClassAddTag extends HttpServlet {
     String serialNumber = null;
     String location = null;
     String tagID = null;
+    String argosNum = null;
     try {
       tagType = request.getParameter("tagType");
       serialNumber = request.getParameter("serialNumber");
       location = request.getParameter("tagLocation");
       tagID = request.getParameter("tagID");
+      argosNum = request.getParameter("tagArgos");
+      
       if ("metal".equals(tagType)) {
         MetalTag metalTag = new MetalTag();
+        myShepherd.commitDBTransaction();
         target.addBaseMetalTag(metalTag);
         metalTag.setLocation(location);
         metalTag.setId(tagID);
         metalTag.setTagNumber(tagID);
       } else if ("acoustic".equals(tagType)) {
         AcousticTag acousticTag = new AcousticTag();
+        myShepherd.commitDBTransaction();
         target.addBaseAcousticTag(acousticTag);
         acousticTag.setIdNumber(tagID);
         acousticTag.setId(tagID);
         acousticTag.setSerialNumber(serialNumber);
       } else if ("satellite".equals(tagType)) {
-        SatelliteTag satelliteTag = null;
-        satelliteTag = new SatelliteTag();
+        SatelliteTag satelliteTag = new SatelliteTag();
+        myShepherd.commitDBTransaction();
         target.addBaseSatelliteTag(satelliteTag);
         satelliteTag.setSerialNumber(serialNumber);
         satelliteTag.setName(tagID);
         satelliteTag.setId(tagID);
+        satelliteTag.setArgosPttNumber(argosNum);
       } else if ("dtag".equals(tagID)) {
         DigitalArchiveTag dat = new DigitalArchiveTag();
+        myShepherd.commitDBTransaction();
         target.addBaseDigitalArchiveTag(dat);
         dat.setId(tagID);
         dat.setSerialNumber(serialNumber);
@@ -94,7 +106,6 @@ public class BaseClassAddTag extends HttpServlet {
       myShepherd.closeDBTransaction();
     }
     if (!locked) {
-      myShepherd.commitDBTransaction();
       myShepherd.closeDBTransaction();
       out.println(ServletUtilities.getHeader(request));
       out.println("<p><strong>Success!</strong> I have successfully set the following tag values:</p><br/>");
@@ -122,17 +133,6 @@ public class BaseClassAddTag extends HttpServlet {
       
     out.close();
     myShepherd.closeDBTransaction();
-  }
-
-  private String getParam(HttpServletRequest request, String paramName) {
-    String value = request.getParameter(paramName);
-    if (value != null) {
-      value = value.trim();
-      if (value.length() == 0){
-        value = null;
-      }
-    }
-    return value;
   }
 
 }
