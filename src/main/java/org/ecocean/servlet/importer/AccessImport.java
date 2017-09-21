@@ -570,7 +570,7 @@ public class AccessImport extends HttpServlet {
         if (thisRow.get("WATERTEMP") != null) {
           wt = Double.valueOf(thisRow.get("WATERTEMP").toString());   
           if (wt < 99.9 && wt != null) {
-            wtm = new Measurement(newEnc.getCatalogNumber(),"WATERTEMP",wt,"","");
+            wtm = new Measurement(newEnc.getCatalogNumber(),"WATERTEMP",wt,"C","");
             wtm.setDatasetName("WATERTEMP");
             wtm.setEventStartDate(newEnc.getDate());
             //out.println("---------------- WATERTEMP TEST STRING: "+wt.toString());
