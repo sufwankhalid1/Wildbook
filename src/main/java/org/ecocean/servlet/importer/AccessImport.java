@@ -1,5 +1,9 @@
 package org.ecocean.servlet.importer;
 
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.ecocean.*;
 import org.ecocean.genetics.BiologicalMeasurement;
 import org.ecocean.genetics.SexAnalysis;
@@ -48,8 +52,9 @@ public class AccessImport extends HttpServlet {
   private static String context;
   
   // Okay, we might need to build a hashmap out of every line in this table, so we can create multiple encounters 
-  // for the date/sighting number pairs that occure multiple times. 
+  // for the date/sighting number pairs that occur multiple times. 
   HashMap<String,Integer> duplicatePairsMap = new HashMap<String,Integer>();
+  HashMap<String,String> simpleLocationsDUML = new HashMap<String,String>();
   ArrayList<String> failedEncs = new ArrayList<String>();
 
   public void init(ServletConfig config) throws ServletException {
@@ -104,7 +109,6 @@ public class AccessImport extends HttpServlet {
     
     myShepherd.beginDBTransaction();
     
-    //All this just to get a number? Yup.
     Iterator<Encounter> encs = myShepherd.getAllEncountersNoQuery();
     int numEncs = 0;
     while (encs.hasNext()) {
@@ -113,7 +117,8 @@ public class AccessImport extends HttpServlet {
     } 
     out.println("\nI already have "+numEncs+" encounters in tha database.\n");
     
-    // These switches allow you to work on different tables without doing the whole import a bunch iof times.
+    
+    // These switches allow you to work on different tables without doing the whole import a bunch of times.
     boolean dumlTableSwitch = true;
     if (dumlTableSwitch) {    
       try {
@@ -128,7 +133,20 @@ public class AccessImport extends HttpServlet {
       }
     }  
     
-    boolean sightingsTableSwitch = true;
+    boolean simpleLocationsDUML = true;
+    if (simpleLocationsDUML) {
+      try {
+        out.println("********************* Building a HashMap of simple location names for EFFORT/DUML matching...");
+        File locExcel = new File(dbLocation+"DUML locations.xlsx");
+        System.out.println("Loc Excel? : "+locExcel.getAbsolutePath());
+        createSimpleLocationsDUMLHashmap(myShepherd, locExcel);
+        
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+    
+    boolean sightingsTableSwitch = false;
     if (sightingsTableSwitch) {
       try {
         out.println("********************* Let's process the SIGHTINGS Table!\n");
@@ -140,7 +158,7 @@ public class AccessImport extends HttpServlet {
       }      
     }
     
-    boolean effortTableSwitch = true;
+    boolean effortTableSwitch = false;
     if (effortTableSwitch) {
       try {
         out.println("********************* Let's process the EFFORT Table!\n");
@@ -152,7 +170,7 @@ public class AccessImport extends HttpServlet {
       }      
     }
     
-    boolean biopsyTableSwitch = true;
+    boolean biopsyTableSwitch = false;
     if (biopsyTableSwitch) {
       try {
         out.println("********************* Let's process the BiopsySamples Table!\n");
@@ -221,7 +239,7 @@ public class AccessImport extends HttpServlet {
       newEnc.setDWCDateLastModified();
       newEnc.setState("approved");
       // Get the date. 
-      out.println("---------------- ROW : "+i); 
+      //out.println("---------------- ROW : "+i); 
       try {
         String date = null;
         String startTime = null;
@@ -284,7 +302,7 @@ public class AccessImport extends HttpServlet {
         String sn = null;
         if (thisRow.get("SIGHTNO") != null) {
           sn = thisRow.get("SIGHTNO").toString();
-          out.println("SN ---------------- "+sn);
+          //out.println("SN ---------------- "+sn);
           if (sn.contains("-") && sn.contains("0")) {
             //out.println("SN2 ---------------- "+sn);
             sn = sn.replace("0", "");
@@ -316,6 +334,7 @@ public class AccessImport extends HttpServlet {
           newEnc.setLocation(location);
           newEnc.setLocationID(location);
           locations += 1;
+          
           //out.println("---------------- Location : "+location);
           if (columnMasterList.contains("Location")) {
             columnMasterList.remove("Location");
@@ -808,7 +827,7 @@ public class AccessImport extends HttpServlet {
       }
       
       try {
-        if (thisRow.get("Vessel") != null) {
+        if (thisRow.get("VESSEL") != null) {
           String vesselID = thisRow.getString("VESSEL");
           st.setVesselID(vesselID);
         }
@@ -1320,7 +1339,7 @@ public class AccessImport extends HttpServlet {
       }
     }
     
-    out.println("Duplicate Pairs : "+duplicatePairsMap.toString());
+    //out.println("Duplicate Pairs : "+duplicatePairsMap.toString());
     out.println("Sum of Duplicate Pair HashMap Values : "+sumOfValues);
     out.println("Total duplicate repairs recorded : "+duplicatePairsMap.size());
     out.println("Actual rows processed : "+rowsProcessed);
@@ -1399,6 +1418,73 @@ public class AccessImport extends HttpServlet {
       cnfe.printStackTrace();
     }
     return obj;
+  }
+  
+  private void createSimpleLocationsDUMLHashmap(Shepherd myShepherd, File locExcel) throws IOException {
+    FileInputStream fs = null;
+    try {
+      fs = new FileInputStream(locExcel);      
+    } catch (FileNotFoundException fnfe) {
+      fnfe.printStackTrace();
+    }
+    int numRows = 0;
+    XSSFWorkbook wb = new XSSFWorkbook(fs);
+    XSSFRow row = null;
+    XSSFSheet sheet = null;
+    try {
+      sheet = wb.getSheetAt(0);
+      numRows = sheet.getPhysicalNumberOfRows();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    for (int i=1;i<numRows;i++) {
+      row = sheet.getRow(i);
+      try {
+        XSSFCell valueCell = row.getCell(0);
+        XSSFCell keyCell = row.getCell(1);
+        
+        String value = valueCell.getStringCellValue();
+        String key = keyCell.getStringCellValue();
+        
+        simpleLocationsDUML.put(key, value);
+        
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+    out.println("****** Location name Map from new Excel : ");
+    out.println(simpleLocationsDUML.toString());
+    
+    try {
+      Iterator<Encounter> encs = myShepherd.getAllEncountersNoQuery();
+      int hits = 0;
+      while (encs.hasNext()) {
+        Encounter enc = encs.next();
+        String location = enc.getLocation();
+        out.println("Location from Enc : "+location);
+        //Run Through and see if there is a simple locations equivalent for this entry..
+        try {
+          if (simpleLocationsDUML.containsKey(location)) {
+            hits += 1;
+            String value = simpleLocationsDUML.get(location);
+            Observation simpleLoc = new Observation("simpleLocation",value,"Encounter", enc.getCatalogNumber());
+            myShepherd.beginDBTransaction();
+            myShepherd.getPM().makePersistent(simpleLoc);
+            myShepherd.commitDBTransaction();
+            enc.addObservation(simpleLoc);
+            out.println("Added simpleLoc "+value+" to this Encounter.");
+          }
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+        
+      }
+      out.println("Encounters with a simpleLoc added: "+hits);
+      
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    
   }
 }
 

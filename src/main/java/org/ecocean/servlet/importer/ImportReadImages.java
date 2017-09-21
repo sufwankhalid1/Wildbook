@@ -67,7 +67,7 @@ public class ImportReadImages extends HttpServlet {
     }
     myShepherd.commitDBTransaction();
     
-    String imageDir = "/opt/dukeImport/DUML Files for Colin-NEW/new-species photo-id catalog files/";
+    String imageDir = "/opt/dukeImport/DUML Files for Colin-NEW/NEW-species photo-id catalog files/";
     
     if (request.getParameter("test") != null) {
       imageDir = "/opt/dukeTest/";
