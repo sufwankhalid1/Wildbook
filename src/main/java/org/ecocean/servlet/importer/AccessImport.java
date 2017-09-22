@@ -146,7 +146,7 @@ public class AccessImport extends HttpServlet {
       }
     }
     
-    boolean sightingsTableSwitch = false;
+    boolean sightingsTableSwitch = true;
     if (sightingsTableSwitch) {
       try {
         out.println("********************* Let's process the SIGHTINGS Table!\n");
@@ -158,7 +158,7 @@ public class AccessImport extends HttpServlet {
       }      
     }
     
-    boolean effortTableSwitch = false;
+    boolean effortTableSwitch = true;
     if (effortTableSwitch) {
       try {
         out.println("********************* Let's process the EFFORT Table!\n");
@@ -170,7 +170,7 @@ public class AccessImport extends HttpServlet {
       }      
     }
     
-    boolean biopsyTableSwitch = false;
+    boolean biopsyTableSwitch = true;
     if (biopsyTableSwitch) {
       try {
         out.println("********************* Let's process the BiopsySamples Table!\n");
@@ -212,13 +212,12 @@ public class AccessImport extends HttpServlet {
     int locations = 0;
     int dates = 0;
     int projects = 0;
-    int speciesIds = 0;
-    int behaviors = 0;
-    int depths = 0;
     int lats = 0;
     int lons = 0;
     int endTimes = 0;
     int sightNos = 0;
+    
+    int noLocChildren = 0;
     
     ArrayList<String> columnMasterList = getColumnMasterList(table);
        
@@ -372,7 +371,6 @@ public class AccessImport extends HttpServlet {
           //out.println("---------------- Species_ID : "+speciesId);
           newEnc.setGenus(speciesId);
           newEnc.setSpecificEpithet(speciesId);
-          speciesIds += 1;
           if (columnMasterList.contains("SPECIES_ID")) {
             columnMasterList.remove("SPECIES_ID");
           }
@@ -390,8 +388,7 @@ public class AccessImport extends HttpServlet {
           behavior = thisRow.get("BEHAV STATE").toString();          
           //out.println("---------------- Behavior : "+behavior);
           if (Double.parseDouble(behavior) < 9.99) {
-            newEnc.setBehavior(behavior);    
-            behaviors += 1;            
+            newEnc.setBehavior(behavior);            
           }
           if (columnMasterList.contains("BEHAV STATE")) {
             columnMasterList.remove("BEHAV STATE");
@@ -430,7 +427,6 @@ public class AccessImport extends HttpServlet {
           Double depthLong = Double.parseDouble(depth);
           if (depthLong < 9.99) {
             newEnc.setMaximumDepthInMeters(depthLong);                
-            depths += 1;
           }
           if (columnMasterList.contains("DEPTH")) {
             columnMasterList.remove("DEPTH");
@@ -631,8 +627,16 @@ public class AccessImport extends HttpServlet {
         
         // Take care of business by generating an ID for the encounter object(s) and persisting it (them). 
         Occurrence occ = null;
+        boolean hasLocs = true;
         if (duplicateEncs.size() > 0) {
           for (Encounter dups : duplicateEncs) {
+            if (newEnc.getLocation()==null&&hasLocs==true) {
+              out.println("This encounter did not recieve a location and has "+duplicateEncs.size()+" children.");
+              noLocChildren += duplicateEncs.size();
+              hasLocs = false;
+            } else {
+              hasLocs = true;
+            }
             try {
               myShepherd.getPM().makePersistent(dups);  
               myShepherd.commitDBTransaction();
@@ -678,15 +682,12 @@ public class AccessImport extends HttpServlet {
     out.println("Created "+newEncs+" new Encounters and "+newOccs+" new Occurrences.");
     out.println("\n\n************** LAT's vs rows: "+lats+"/"+table.getRowCount());
     out.println("************** LONG's vs rows: "+lons+"/"+table.getRowCount());
-    out.println("************** Species ID's vs rows: "+speciesIds+"/"+table.getRowCount());
-    out.println("************** Behaviors vs rows: "+behaviors+"/"+table.getRowCount());
-    out.println("************** Depths vs rows: "+depths+"/"+table.getRowCount());
     out.println("************** Locations vs rows: "+locations+"/"+table.getRowCount());
     out.println("************** Dates vs rows: "+dates+"/"+table.getRowCount());
     out.println("************** Projects vs rows: "+projects+"/"+table.getRowCount());
     out.println("************** EndTimes vs rows: "+endTimes+"/"+table.getRowCount());
     out.println("************** SIGHTNOS vs rows: "+sightNos+"/"+table.getRowCount());
-    out.println("************** Behaviors vs rows: "+behaviors+"/"+table.getRowCount()+"\n\n");
+    out.println("!!!!!!!!!!!!!! Child Encounters without location to match by: "+noLocChildren);
     if (errors > 0) {
       out.println("!!!!!!!!!!!!!!  You got "+errors+" problems and all of them are because of your code.   !!!!!!!!!!!!!!\n\n");
     } 
@@ -868,14 +869,7 @@ public class AccessImport extends HttpServlet {
           
           out.println("Can we find an enc for this Survey and Track? We have "+encsOnThisDate.size()+" encs to check.");
           boolean matched = false;
-          boolean singleEnc = false;
-          boolean noEnc = false;
-          if (encsOnThisDate.size()==1) {
-            singleEnc=true;
-            numSingleEncs++;
-          }
           if (encsOnThisDate.isEmpty()) {
-            noEnc = true;
             numNoEncs++;
           }
           for (Encounter enc : encsOnThisDate) {
@@ -884,14 +878,14 @@ public class AccessImport extends HttpServlet {
             if (enc.getLocation()!=null) {
               encLoc = enc.getLocation().trim();
             }
-            String occProj = null;
-            Occurrence occ = myShepherd.getOccurrence(enc.getOccurrenceID());
-            if (occ.getObservationByName("Project")!=null) {
-              occProj = occ.getObservationByName("Project").getValue();
+            String simpleLoc = null;
+            if (enc.getObservationByName("simpleLocation")!=null) {
+              Observation locOb = enc.getObservationByName("simpleLocation");
+              simpleLoc = locOb.getValue();
             }
+            String occProj = enc.getSubmitterProject();
              
-            if (encLoc != null || occProj != null) {
-              //out.println("(enc:surveyTrack) Location : "+encLoc+" = "+st.getLocationID()+" Project : "+occProj+" = "+project);
+            if (encLoc != null || occProj != null || simpleLoc != null) {
               if (occProj != null && project != null)  {
                 if (occProj.contains(project) || project.contains(occProj)) {
                   out.println("MATCH!!! At least on project name... (enc:surveyTrack) Project : "+enc.getObservationByName("Project").getValue()+" = "+project);
@@ -902,7 +896,9 @@ public class AccessImport extends HttpServlet {
                 } else {
                   out.println("No match on project.");
                 } 
-              } else if (encLoc != null && surveyArea != null) {
+              } 
+                
+              if (encLoc != null && surveyArea != null && matched==false) {
                 if (enc.getLocationID().contains(surveyArea) || surveyArea.contains(enc.getLocationID())) {
                   out.println("MATCH!!! At least on location ID... (enc:surveyTrack) Location : "+enc.getLocationID()+" = "+st.getLocationID()+" Project : "+enc.getSubmitterProject()+" = "+sv.getProjectName());
                   st.addOccurence(myShepherd.getOccurrence(enc.getOccurrenceID()));
@@ -913,8 +909,20 @@ public class AccessImport extends HttpServlet {
                   out.println("No match on Location/SurveyArea.");
                 }
               } 
+              
+              if (simpleLoc !=null && surveyArea !=null && matched == false) {
+                if (simpleLoc.contains(surveyArea) || surveyArea.contains(simpleLoc)) {
+                  out.println("MATCH!!! on SimpleLocation/SurveyArea : "+simpleLoc+" = "+st.getLocationID());
+                  st.addOccurence(myShepherd.getOccurrence(enc.getOccurrenceID()));
+                  sv.addSurveyTrack(st);
+                  success++;
+                  matched = true;
+                } else {
+                  out.println("No match on SimpleLocation/SurveyArea.");
+                }
+              }
             } else {
-              out.println("Location ID and Project for this enc is null!");
+              out.println("Location ID, Project and simpleLoc for this enc is null!");
               noProjectOrLocation +=1;
             }    
           }
@@ -948,7 +956,6 @@ public class AccessImport extends HttpServlet {
     }
     out.println("+++++++++++++ I created surveys and tracks for "+success+" encounters from "+table.getRowCount()+" lines in the EFFORT table. +++++++++++++");
     out.println("+++++++++++++ There were "+matchedNum+" out of "+table.getRowCount()+" effort table entries connected to at least one encounter. ++++++++++++");
-    out.println("+++++++++++++ There were "+numSingleEncs+" lines in EFFORT that returned a single encounter/occurrence, but were not matched due to lack of project and location data.  ++++++++++++");
     out.println("+++++++++++++ There were "+numNoEncs+" lines in EFFORT containing a date not shared by any saved encounter/occurrence. +++++++++++++");
     out.println("+++++++++++++ There were "+numOneOccs+" lines in EFFORT containing a date with only one occurrence, but lacking project and location data. +++++++++++++");
     out.println("+++++++++++++ There were "+noProjectOrLocation+" Encounters pulled up by date that contained no Project or Location data. (Could be multiple pulls of same encounter) +++++++++++++");
@@ -1405,8 +1412,7 @@ public class AccessImport extends HttpServlet {
         out.flush();
         out.close();
 
-        ObjectInputStream in = new ObjectInputStream(
-            new ByteArrayInputStream(bos.toByteArray()));
+        ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(bos.toByteArray()));
         obj = in.readObject();
     }
     catch(IOException e) {
