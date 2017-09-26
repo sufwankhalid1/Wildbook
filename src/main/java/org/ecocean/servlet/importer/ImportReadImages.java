@@ -45,6 +45,7 @@ public class ImportReadImages extends HttpServlet {
   private static String context; 
   private int failedAssets = 0;
   private int assetsCreated = 0;
+  private int noSightNo = 0;
   
   public void init(ServletConfig config) throws ServletException {
     super.init(config);
@@ -97,6 +98,7 @@ public class ImportReadImages extends HttpServlet {
     
     out.println("Created "+assetsCreated+" new MediaAssets.");
     out.println(failedAssets+" assets failed to be created.");
+    out.println("There were "+noSightNo+" excel rows that did not have a sighting number and caused orphaned media assets.");
     
     myShepherd.closeDBTransaction();
     out.close();
@@ -108,7 +110,7 @@ public class ImportReadImages extends HttpServlet {
         String[] subDirs = path.list();
         System.out.println("There are "+subDirs.length+" files in the folder"+path.getAbsolutePath());
         for (int i=0;subDirs!=null&&i<subDirs.length;i++ ) {
-          if (!subDirs[i].contains("[Originals]")&&!subDirs[i].contains("NC-DUML-UNCW")) {
+          if (!subDirs[i].toString().contains("[Originals]")) {
             getImageFiles(new File(path, subDirs[i]), myShepherd);            
           } else {
             out.println("Caught an [Originals] folder (or maybe the incomplete UNCW one)!!!! Skipping...");
@@ -118,7 +120,7 @@ public class ImportReadImages extends HttpServlet {
       if (path.isFile()&&!path.getName().endsWith("xlsx")) {
         out.println("Found file: "+path.getName());
         boolean success = true;
-        if (!path.getAbsolutePath().contains("[Originals]")) {
+        if (!path.getAbsolutePath().toString().contains("[Originals]")) {
           success = processImage(path, myShepherd);                    
         } else {
           out.println("Not gonna process this one!!! "+path.getAbsolutePath());
@@ -231,60 +233,70 @@ public class ImportReadImages extends HttpServlet {
 
     //Hardcoded to the first sheet...
     XSSFSheet sheet = wb.getSheetAt(0);
-    int rows = sheet.getPhysicalNumberOfRows();;
+    int firstSheetRows = sheet.getPhysicalNumberOfRows();
+    int secondSheetRows = wb.getSheetAt(1).getPhysicalNumberOfRows();
     int cols = 0;
-    out.println("Rows In File : "+rows);
     HashMap<String,String> rowData = null;
-
-    for (int i=1;i<rows;i++) {
-      out.println("Current Row : "+i);
+    out.println("Rows In First Sheet : "+firstSheetRows);
+    out.println("Rows In Second Sheet : "+secondSheetRows);
+    for (int i=1;i<firstSheetRows;i++) {
       sheet = wb.getSheetAt(0);
-      rows = sheet.getPhysicalNumberOfRows();
+      firstSheetRows = sheet.getPhysicalNumberOfRows();
       cols = sheet.getRow(0).getLastCellNum();
-      out.println("Columns in sheet 0: "+cols);
       row = sheet.getRow(i);
+      out.println("Columns in sheet 0: "+cols+" Current Row : "+i);
       rowData = new HashMap<String,String>();
       for (int j=0;j<cols-1;j++) {
         XSSFCell cell = null;
         try {
           cell = row.getCell(j);          
         } catch (Exception e) {
+         out.println("Offending Row : "+row.toString()); 
          e.printStackTrace(out);
-         System.out.println("Failed to grab this value from excel.");
+         out.println("Failed to grab this value from excel.");
         }
-        out.println("RAW CELL : "+cell.toString());
+        //out.println("RAW CELL : "+cell.toString());
         String cellKey = formatter.formatCellValue(cell.getSheet().getRow(0).getCell(j));
         String cellValue = formatter.formatCellValue(cell);
-        out.println("Current Column : "+j);
+        out.println("Current Column In Sheet 1 : "+j);
         out.println("Cell Value : "+cellValue+" Cell Key :"+cellKey);
         
         if (cellValue!=null&&!cellValue.equals(cellKey)) {
           rowData.put(cellKey, cellValue);
-          out.println("Adding Key : "+cellKey+" Value : "+cellValue);
+          //out.println("Adding Key : "+cellKey+" Value : "+cellValue);
         } else {
           rowData.put(cellKey, "");
-          out.println("Adding Key : "+cellKey+" Value : "+cellValue);
+          //out.println("Adding Key : "+cellKey+" Value : "+cellValue);
         }
       }
-      sheet = wb.getSheetAt(1);
-      rows = sheet.getPhysicalNumberOfRows();
-      cols = sheet.getRow(0).getLastCellNum();
-      for (int l=0;l<rows;l++) {
-        if (sheet.getRow(l).getCell(0).toString().equals(rowData.get("id_code"))){
+      try {
+        sheet = wb.getSheetAt(1);
+        secondSheetRows = sheet.getPhysicalNumberOfRows();
+        cols = sheet.getRow(0).getLastCellNum();        
+      } catch (Exception e) {
+        e.printStackTrace(out);
+      }
+      for (int l=0;l<secondSheetRows;l++) {
+        String sheetOneID = rowData.get("id_code");
+        String sheetTwoID = sheet.getRow(l).getCell(0).toString();
+        if (!sheetOneID.isEmpty()&&!sheetTwoID.isEmpty()&&(sheetOneID.contains(sheetTwoID)||sheetTwoID.contains(sheetOneID))){
           row = sheet.getRow(l);          
-          out.println("Current Row : "+l+" Current id_codes:  ROWDATA : "+rowData.get("id_code")+" SHEET2 : "+sheet.getRow(l).getCell(0).toString());
+          out.println("Current Row in Sheet 2 : "+l);
+          //out.println("Current Row : "+l+" Current id_codes:  ROWDATA : "+rowData.get("id_code")+" SHEET2 : "+sheet.getRow(l).getCell(0).toString());
           String filename = null;
           for (int k=0;k<cols-1;k++) {
             XSSFCell cell = row.getCell(k);
             String cellKey = formatter.formatCellValue(cell.getSheet().getRow(0).getCell(k));
             String cellValue = formatter.formatCellValue(cell);
             String newSightNo = null;
-            out.println("Current Column : "+k);
-            //out.println("Cell Value : "+cellValue);
+            
+            // We need to put an additional entry into the data Hash for every line in the second sheet, not just the first.  
+            out.println("Current Column in Sheet 2 : "+k);
             if (cellValue!=null&&!cellValue.equals(cellKey)) {
               if (cellKey.equals("sight_no")) {
                 newSightNo = processMediaAssetSightNo(cellValue);
                 rowData.put(cellKey, newSightNo);
+                out.println("Cell key : "+cellKey+" Cell value : "+cellValue+" New sightNo : "+newSightNo);
               } else if (cellKey.equals("date")) {
                 String newDate = processMediaAssetDate(cellValue);
                 rowData.put(cellKey, newDate);
@@ -294,25 +306,27 @@ public class ImportReadImages extends HttpServlet {
               } else {                
                 rowData.put(cellKey, cellValue);                                
               }
-              out.println("Adding Key : "+cellKey+" Value : "+cellValue);
+              //out.println("Adding Key : "+cellKey+" Value : "+cellValue);
             } else {
               rowData.put(cellKey, "");
-              out.println("Adding Key : "+cellKey+" Value : "+cellValue);
+              //out.println("Adding Key : "+cellKey+" Value : "+cellValue);
             }
-            if (newSightNo==null||newSightNo.equals("")) {
-              out.println("Failed to get a good sightNo for this row : "+rowData.toString());
+            if ((newSightNo==null||newSightNo.equals(""))&&cellKey.equals("sight_no")) {
+              out.println("Row doesn't have a sightNo : "+rowData.toString());
+              noSightNo += 1;
             }
           }
-          out.println(rowData.toString()+"\n");
-          data.put(filename, rowData);
+          data.put(filename, rowData);     
+          out.println("New Filename : "+filename);
+          out.println(rowData.toString());
           out.println("Excel has image_file? "+row.getCell(3).toString());
           out.println("image_file from rowData? "+rowData.get("image_file"));
-          out.println("Data Length ? "+data.size());
+          out.println("Data Length ? "+data.size()+"\n");
         }
       }
     }
     wb.close();
-    out.println("DATA to String at end of Excel process"+data.toString());
+    //out.println("DATA to String at end of Excel process"+data.toString());
   }  
   
   private String processMediaAssetDate(String date) {
@@ -437,15 +451,17 @@ public class ImportReadImages extends HttpServlet {
               matched = true;
               break;
             }
-            if (indyID.equals(enc.getIndividualID())) {
-              out.println("MATCH!!!! adding this MA to a proper Encounter! "+indyID+"="+enc.getIndividualID());
-              enc.addMediaAsset(ma);
-              occ = myShepherd.getOccurrence(enc.getOccurrenceID());
-              ma.setOccurrence(occ);
-              matched = true;
-              break;
-            } else {
-              out.println("No Match... "+indyID+" != "+enc.getIndividualID());
+            if (indyID!=null) {
+              if (indyID.equals(enc.getIndividualID())) {
+                out.println("MATCH!!!! adding this MA to a proper Encounter! "+indyID+"="+enc.getIndividualID());
+                enc.addMediaAsset(ma);
+                occ = myShepherd.getOccurrence(enc.getOccurrenceID());
+                ma.setOccurrence(occ);
+                matched = true;
+                break;
+              } else {
+                out.println("No Match... "+indyID+" != "+enc.getIndividualID());
+              }              
             }
             if (enc.getIndividualID()==null) {
               nulls+=1;

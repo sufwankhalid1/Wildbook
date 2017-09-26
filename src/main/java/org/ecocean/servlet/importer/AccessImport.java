@@ -888,7 +888,7 @@ public class AccessImport extends HttpServlet {
             if (encLoc != null || occProj != null || simpleLoc != null) {
               if (occProj != null && project != null)  {
                 if (occProj.contains(project) || project.contains(occProj)) {
-                  out.println("MATCH!!! At least on project name... (enc:surveyTrack) Project : "+enc.getObservationByName("Project").getValue()+" = "+project);
+                  out.println("MATCH!!! At least on project name... (enc:surveyTrack) Project : "+occProj+" = "+project);
                   st.addOccurence(myShepherd.getOccurrence(enc.getOccurrenceID()));
                   sv.addSurveyTrack(st);
                   success++;
@@ -1490,7 +1490,9 @@ public class AccessImport extends HttpServlet {
     } catch (Exception e) {
       e.printStackTrace();
     }
-    
+    finally {
+      fs.close();
+    }
   }
 }
 
