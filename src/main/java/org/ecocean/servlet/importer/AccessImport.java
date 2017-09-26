@@ -621,6 +621,7 @@ public class AccessImport extends HttpServlet {
         out.println("Creating "+duplicates+" encounters for the occurrence with this date/number match.");
         while (duplicateEncs.size() < duplicates ) {
           Encounter dup = (Encounter) deepCopy(newEnc);
+          out.println("Copy Location : "+dup.getLocation());
           dup.setCatalogNumber(Util.generateUUID());
           duplicateEncs.add(dup);
         }

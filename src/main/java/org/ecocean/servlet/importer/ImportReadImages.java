@@ -380,7 +380,7 @@ public class ImportReadImages extends HttpServlet {
         if (data.get(name)!=null) {
           excelData = data.get(name);          
         } else {
-          errors.add("File name : "+name+" data not available.");
+          errors.add("File name : "+name+" data array does not contain filename.");
           continue;
         }
         
@@ -437,40 +437,44 @@ public class ImportReadImages extends HttpServlet {
       int nulls = 0;
       Encounter nullEnc = null;
       for (Encounter enc : encs) {
-        try {
-          out.println("Looking for a match... Enc SightNo= "+enc.getSightNo()+" MA SightNo= "+sightNo);
-          if (enc.getSightNo().equals(sightNo)) {
-            out.println("Match! EncNo : "+enc.getCatalogNumber()+" Checking Indy ID Code...");
-            // Check if any encs share the Indy
-            // If not Create a new one for the MA? It must have an encounter...
-            if (indy==null) {
-              occ.addAsset(ma);
-              ma.setOccurrence(occ);
-              out.println("No indy was found for the name "+indyID+" so the Media Asset has been attached to a sightNo/date matching occ.");
-              noIndys++;
-              matched = true;
-              break;
-            }
-            if (indyID!=null) {
-              if (indyID.equals(enc.getIndividualID())) {
-                out.println("MATCH!!!! adding this MA to a proper Encounter! "+indyID+"="+enc.getIndividualID());
-                enc.addMediaAsset(ma);
-                occ = myShepherd.getOccurrence(enc.getOccurrenceID());
+        if (encs!=null) {
+          try {
+            out.println("Looking for a match... Enc SightNo= "+enc.getSightNo()+" MA SightNo= "+sightNo);
+            if (enc.getSightNo().equals(sightNo)) {
+              out.println("Match! EncNo : "+enc.getCatalogNumber()+" Checking Indy ID Code...");
+              // Check if any encs share the Indy
+              // If not Create a new one for the MA? It must have an encounter...
+              if (indy==null) {
+                occ.addAsset(ma);
                 ma.setOccurrence(occ);
+                out.println("No indy was found for the name "+indyID+" so the Media Asset has been attached to a sightNo/date matching occ.");
+                noIndys++;
                 matched = true;
                 break;
-              } else {
-                out.println("No Match... "+indyID+" != "+enc.getIndividualID());
-              }              
-            }
-            if (enc.getIndividualID()==null) {
-              nulls+=1;
-              nullEnc = enc;
-            }
-          }            
-        } catch (Exception e) {
-          e.printStackTrace(out);
-          out.println("Failed to add MA to OCC and ENC");
+              }
+              if (indyID!=null) {
+                if (indyID.equals(enc.getIndividualID())) {
+                  out.println("MATCH!!!! adding this MA to a proper Encounter! "+indyID+"="+enc.getIndividualID());
+                  enc.addMediaAsset(ma);
+                  occ = myShepherd.getOccurrence(enc.getOccurrenceID());
+                  ma.setOccurrence(occ);
+                  matched = true;
+                  break;
+                } else {
+                  out.println("No Match... "+indyID+" != "+enc.getIndividualID());
+                }              
+              }
+              if (enc.getIndividualID()==null) {
+                nulls+=1;
+                nullEnc = enc;
+              }
+            }            
+          } catch (Exception e) {
+            e.printStackTrace(out);
+            out.println("Failed to add MA to OCC and ENC");
+          }          
+        } else {
+          out.println("There were no encounters for this date.");
         }
       }
       if (matched == false&&nulls == 0) {
