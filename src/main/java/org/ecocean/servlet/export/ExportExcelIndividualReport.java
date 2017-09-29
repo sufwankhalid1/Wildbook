@@ -90,6 +90,7 @@ public class ExportExcelIndividualReport extends HttpServlet{
         enc = (Encounter) all.next();
         if (!enc.hasMarkedIndividual()) continue;
         MarkedIndividual indiv = myShepherd.getMarkedIndividual(enc.getIndividualID());
+        if (indiv==null) continue;
 
         Occurrence occ = null;
         if (enc.getOccurrenceID() != null) occ = myShepherd.getOccurrence(enc.getOccurrenceID());
