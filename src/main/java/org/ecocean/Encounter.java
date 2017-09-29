@@ -2139,8 +2139,12 @@ the decimal one (Double) .. half tempted to break out a class for this: lat/lon/
         ArrayList<MediaAsset> m = new ArrayList<MediaAsset>();
         if ((annotations == null) || (annotations.size() < 1)) return m;
         for (Annotation ann : annotations) {
-            MediaAsset ma = ann.getMediaAsset();
-            if (ma != null) m.add(ma);
+            try {
+              MediaAsset ma = ann.getMediaAsset();
+              if (ma != null) m.add(ma);
+            } catch (javax.jdo.JDOObjectNotFoundException e) {
+              System.out.println("ENCOUTNER ERROR: javax.jdo.JDOObjectNotFoundException on getMedia() for encounter "+getCatalogNumber());
+            }
         }
         return m;
     }
