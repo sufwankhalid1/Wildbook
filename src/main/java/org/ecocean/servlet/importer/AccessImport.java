@@ -16,6 +16,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.ecocean.identity.*;
 import org.ecocean.media.*;
+import org.ecocean.movement.Path;
 import org.ecocean.movement.SurveyTrack;
 
 import javax.servlet.ServletConfig;
@@ -120,7 +121,7 @@ public class AccessImport extends HttpServlet {
     
     
     // These switches allow you to work on different tables without doing the whole import a bunch of times.
-    boolean dumlTableSwitch = true;
+    boolean dumlTableSwitch = false;
     if (dumlTableSwitch) {    
       try {
         out.println("********************* Let's process the DUML Table!\n");
@@ -134,7 +135,7 @@ public class AccessImport extends HttpServlet {
       }
     }  
     
-    boolean simpleLocationsDUML = true;
+    boolean simpleLocationsDUML = false;
     if (simpleLocationsDUML) {
       try {
         out.println("********************* Building a HashMap of simple location names for EFFORT/DUML matching...");
@@ -147,7 +148,7 @@ public class AccessImport extends HttpServlet {
       }
     }
     
-    boolean sightingsTableSwitch = true;
+    boolean sightingsTableSwitch = false;
     if (sightingsTableSwitch) {
       try {
         out.println("********************* Let's process the SIGHTINGS Table!\n");
@@ -171,7 +172,7 @@ public class AccessImport extends HttpServlet {
       }      
     }
     
-    boolean biopsyTableSwitch = true;
+    boolean biopsyTableSwitch = false;
     if (biopsyTableSwitch) {
       try {
         out.println("********************* Let's process the BiopsySamples Table!\n");
@@ -991,11 +992,37 @@ public class AccessImport extends HttpServlet {
   }
   
   private void addSurveyAndTrackIDToOccurrence(Encounter enc, Survey sv, SurveyTrack st, Shepherd myShepherd) {
+    System.out.println("Enc No : "+enc.getCatalogNumber());
     if (enc.getOccurrenceID()!=null) {
       Occurrence occ = myShepherd.getOccurrence(enc.getOccurrenceID());
+      System.out.println("OCC ID : "+occ.getOccurrenceID());
       occ.setCorrespondingSurveyID(sv.getID());
       occ.setCorrespondingSurveyTrackID(st.getID());
+      System.out.println("SV ID, ST ID : "+sv.getID()+", "+st.getID());
+      
+      addToOrCreatePath(occ.getDecimalLatitude(),occ.getDecimalLongitude(), occ.getMillis(), myShepherd, st);
     }  
+  }
+  
+  private void addToOrCreatePath(double lat,double lon, long date, Shepherd myShepherd, SurveyTrack st) {
+    Path pth = null;
+    PointLocation pl = null;   
+    try {      
+      pl = new PointLocation(lat,lon,date);
+      myShepherd.beginDBTransaction();
+      myShepherd.getPM().makePersistent(pl);
+      myShepherd.commitDBTransaction();
+      if (st.getPathID()!=null) {
+        pth = myShepherd.getPath(st.getPathID());
+      } else {
+        pth = new Path(pl);
+        st.setPathID(pth.getID());
+      }
+      pth.addPointLocation(pl);
+    } catch (Exception e) {
+      e.printStackTrace();
+      myShepherd.rollbackDBTransaction();
+    }
   }
   
   private void processSightings(Table table, Shepherd myShepherd) {
