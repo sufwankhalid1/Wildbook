@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -201,7 +202,6 @@ public class AccessImport extends HttpServlet {
   
   private void processDUML(Table table, Shepherd myShepherd) {
     
-  
     out.println("DUML Table has "+table.getRowCount()+" Rows!\n");
     
     int errors = 0;
@@ -443,16 +443,14 @@ public class AccessImport extends HttpServlet {
         String lat = null;
         if (thisRow.get("LAT") != null) {
           lat = thisRow.get("LAT").toString();          
-          //out.println("---------------- Lat : "+lat);
+          out.println("---------------- Lat : "+lat);
           //Double latDouble = Double.parseDouble(lat);
           BigDecimal bd = new BigDecimal(lat);
           Double db = bd.doubleValue();
-          
+          DecimalFormat df = new DecimalFormat("#.######");
+          db = Double.valueOf(df.format(db));
           newEnc.setDecimalLatitude(db);    
           lats += 1;
-          if (columnMasterList.contains("LAT")) {
-            columnMasterList.remove("LAT");
-          }
         }
       } catch (Exception e) {
         out.println("!!!!!!!!!!!!!! Could not process a LAT for row "+i+" in DUML");
@@ -465,16 +463,14 @@ public class AccessImport extends HttpServlet {
         String lon = null;
         if (thisRow.get("LONG") != null) {
           lon = thisRow.get("LONG").toString();          
-          //out.println("---------------- Lon : "+lon);
+          out.println("---------------- Lon : "+lon);
           //Double lonDouble = Double.parseDouble(lon);
           BigDecimal bd = new BigDecimal(lon);
           Double db = bd.doubleValue();
-          
+          DecimalFormat df = new DecimalFormat("#.######");
+          db = Double.valueOf(df.format(db));
           newEnc.setDecimalLongitude(db);    
           lons += 1;
-          if (columnMasterList.contains("LONG")) {
-            columnMasterList.remove("LONG");
-          }
         }
       } catch (Exception e) {
         out.println("!!!!!!!!!!!!!! Could not process a LONG for row "+i+" in DUML");
@@ -648,12 +644,14 @@ public class AccessImport extends HttpServlet {
               e.printStackTrace();
             }        
           }          
-          // Gonna need an occurrence for all this stuff too. Each of these sightings is technically a group sighting. 
           try {
             occ = new Occurrence(Util.generateUUID(), duplicateEncs.get(0));
             myShepherd.getPM().makePersistent(occ);  
             // What the heck, where did this come from? It's the method that add all the remaining columns as observations, of course!
             processRemainingColumnsAsObservations(occ,columnMasterList,thisRow);
+            
+            setGpsData(occ);
+            
             duplicateEncs.get(0).setOccurrenceID(occ.getOccurrenceID());
             myShepherd.commitDBTransaction();
             myShepherd.beginDBTransaction();
@@ -673,12 +671,10 @@ public class AccessImport extends HttpServlet {
           }
         }        
       } catch (Exception e) {
-        out.println("Here's where your code Broke:\n\n");
         e.printStackTrace(out); 
       }
     }         
     out.println("There are a total of "+totalInSightingsArray+" valid sightings (have a date and sighting number) to match against.");
-    
     
     out.println("Created "+newEncs+" new Encounters and "+newOccs+" new Occurrences.");
     out.println("\n\n************** LAT's vs rows: "+lats+"/"+table.getRowCount());
@@ -694,6 +690,32 @@ public class AccessImport extends HttpServlet {
     } 
     out.println("--------------================  REMAINING COLUMNS : "+columnMasterList+"  ================--------------\n\n");
     out.println("******* !!!! TOTALLY CRUSHED IT !!!! *******\n\n");
+  }
+  
+  private void setGpsData(Occurrence occ) {
+    double lat = -999;
+    double lon = -999;
+    try {
+      Encounter enc = null;
+      ArrayList<Encounter> encs = occ.getEncounters();
+      if (!encs.isEmpty()) {
+        enc = encs.get(0);
+      }
+      if (enc.getDecimalLatitudeAsDouble()!=null&&enc.getDecimalLongitudeAsDouble()!=null) {
+        lat = enc.getDecimalLatitudeAsDouble();
+        lon = enc.getDecimalLongitudeAsDouble();        
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      out.println("Barfed getting GPS data from occ obs.");
+    }
+    if (lat!=-999&&lon!=-999) {
+      occ.setDecimalLatitude(lat);
+      occ.setDecimalLongitude(lon);
+      out.println("Set GPS data. LAT : "+lat+" LON : "+lon);
+    } else {
+      out.println("Could not set GPS data for this OCC.");
+    }   
   }
   
   private void processRemainingColumnsAsObservations(Object obj, ArrayList<String> columnMasterList, Row thisRow) {
@@ -894,30 +916,33 @@ public class AccessImport extends HttpServlet {
                   sv.addSurveyTrack(st);
                   success++;
                   matched = true;
+                  addSurveyAndTrackIDToOccurrence(enc,sv,st,myShepherd);
                 } else {
                   out.println("No match on project.");
                 } 
               } 
                 
-              if (encLoc != null && surveyArea != null && matched==false) {
+              if (encLoc != null && surveyArea != null && !matched) {
                 if (enc.getLocationID().contains(surveyArea) || surveyArea.contains(enc.getLocationID())) {
                   out.println("MATCH!!! At least on location ID... (enc:surveyTrack) Location : "+enc.getLocationID()+" = "+st.getLocationID()+" Project : "+enc.getSubmitterProject()+" = "+sv.getProjectName());
                   st.addOccurence(myShepherd.getOccurrence(enc.getOccurrenceID()));
                   sv.addSurveyTrack(st);
                   success++;
                   matched = true;
+                  addSurveyAndTrackIDToOccurrence(enc,sv,st,myShepherd);
                 } else {
                   out.println("No match on Location/SurveyArea.");
                 }
               } 
               
-              if (simpleLoc !=null && surveyArea !=null && matched == false) {
+              if (simpleLoc !=null && surveyArea !=null && !matched) {
                 if (simpleLoc.contains(surveyArea) || surveyArea.contains(simpleLoc)) {
                   out.println("MATCH!!! on SimpleLocation/SurveyArea : "+simpleLoc+" = "+st.getLocationID());
                   st.addOccurence(myShepherd.getOccurrence(enc.getOccurrenceID()));
                   sv.addSurveyTrack(st);
                   success++;
                   matched = true;
+                  addSurveyAndTrackIDToOccurrence(enc,sv,st,myShepherd);
                 } else {
                   out.println("No match on SimpleLocation/SurveyArea.");
                 }
@@ -927,7 +952,7 @@ public class AccessImport extends HttpServlet {
               noProjectOrLocation +=1;
             }    
           }
-          if (matched==true) {
+          if (matched) {
             matchedNum ++;
           } else {
             failArray.add("\nNo match for row "+i+" with  Date : "+date+", Survey Area : "+surveyArea+", Project : "+project);
@@ -963,6 +988,14 @@ public class AccessImport extends HttpServlet {
     for (String fail : failArray) {
       out.println(fail);
     }
+  }
+  
+  private void addSurveyAndTrackIDToOccurrence(Encounter enc, Survey sv, SurveyTrack st, Shepherd myShepherd) {
+    if (enc.getOccurrenceID()!=null) {
+      Occurrence occ = myShepherd.getOccurrence(enc.getOccurrenceID());
+      occ.setCorrespondingSurveyID(sv.getID());
+      occ.setCorrespondingSurveyTrackID(st.getID());
+    }  
   }
   
   private void processSightings(Table table, Shepherd myShepherd) {
