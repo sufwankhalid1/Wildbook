@@ -94,7 +94,7 @@ public class ExportExcelIndividualReport extends HttpServlet{
             System.out.println("Indiv "+enc.getIndividualID()+" is null! Skipping row of ExportExcelIndividualReport");
             continue;
         } else {
-            System.out.println("Indiv "+indiv.getIndividualID()+" is NOT null! Continuing this row of export.")
+            System.out.println("Indiv "+indiv.getIndividualID()+" is NOT null! Continuing this row of export.");
         }
 
         Occurrence occ = null;
