@@ -567,6 +567,11 @@
 		<servlet-name>OccurrenceRemoveTissueSample</servlet-name>
 		<servlet-class>org.ecocean.servlet.OccurrenceRemoveTissueSample</servlet-class>
 	</servlet>
+	
+	<servlet>
+		<servlet-name>SurveyCreate</servlet-name>
+		<servlet-class>org.ecocean.servlet.SurveyCreate</servlet-class>
+	</servlet>
 		
     <servlet-mapping>
  		<servlet-name>BaseClassAddTag</servlet-name>
@@ -2114,7 +2119,7 @@
     <url-pattern>/IndividualRemoveDataFile</url-pattern>
   </servlet-mapping>
 
-      <servlet>
+  <servlet>
       	<servlet-name>LoginUserSocial</servlet-name>
       	<servlet-class>org.ecocean.servlet.LoginUserSocial</servlet-class>
    </servlet>
@@ -2124,9 +2129,14 @@
     <url-pattern>/LoginUserSocial</url-pattern>
   </servlet-mapping>
 
- <servlet-mapping>
+  <servlet-mapping>
     <servlet-name>BaseClassSetObservation</servlet-name>
     <url-pattern>/BaseClassSetObservation</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>SurveyCreate</servlet-name>
+    <url-pattern>/SurveyCreate</url-pattern>
   </servlet-mapping>
 
 </web-app>
