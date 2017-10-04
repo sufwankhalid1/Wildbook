@@ -12,6 +12,7 @@ import org.ecocean.movement.SurveyTrack;
 * spent to collect data, and a way of relating media assets to a specific period of 
 * collection. 
 *
+* 2017
 * @author Colin Kingen
 */
 
