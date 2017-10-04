@@ -121,7 +121,7 @@ public class AccessImport extends HttpServlet {
     
     
     // These switches allow you to work on different tables without doing the whole import a bunch of times.
-    boolean dumlTableSwitch = true;
+    boolean dumlTableSwitch = false;
     if (dumlTableSwitch) {    
       try {
         out.println("********************* Let's process the DUML Table!\n");
@@ -148,7 +148,7 @@ public class AccessImport extends HttpServlet {
       }
     }
     
-    boolean sightingsTableSwitch = true;
+    boolean sightingsTableSwitch = false;
     if (sightingsTableSwitch) {
       try {
         out.println("********************* Let's process the SIGHTINGS Table!\n");
@@ -172,7 +172,7 @@ public class AccessImport extends HttpServlet {
       }      
     }
     
-    boolean biopsyTableSwitch = true;
+    boolean biopsyTableSwitch = false;
     if (biopsyTableSwitch) {
       try {
         out.println("********************* Let's process the BiopsySamples Table!\n");
@@ -702,6 +702,7 @@ public class AccessImport extends HttpServlet {
       if (!encs.isEmpty()) {
         enc = encs.get(0);
       }
+      
       if (enc.getDecimalLatitudeAsDouble()!=null&&enc.getDecimalLongitudeAsDouble()!=null) {
         lat = enc.getDecimalLatitudeAsDouble();
         lon = enc.getDecimalLongitudeAsDouble();        
@@ -715,7 +716,7 @@ public class AccessImport extends HttpServlet {
       occ.setDecimalLongitude(lon);
       out.println("Set GPS data. LAT : "+lat+" LON : "+lon);
     } else {
-      out.println("Could not set GPS data for this OCC.");
+      out.println("Gps coordinates not properly extracted from child encounter.");
     }   
   }
   
@@ -999,8 +1000,21 @@ public class AccessImport extends HttpServlet {
       occ.setCorrespondingSurveyID(sv.getID());
       occ.setCorrespondingSurveyTrackID(st.getID());
       System.out.println("SV ID, ST ID : "+sv.getID()+", "+st.getID());
-      
-      addToOrCreatePath(occ.getDecimalLatitude(),occ.getDecimalLongitude(), occ.getMillis(), myShepherd, st);
+      double lat = -999;
+      double lon = -999;
+      long millis = -999;
+      try {
+        lat = occ.getDecimalLatitude();
+        lon = occ.getDecimalLongitude();
+        millis = occ.getMillis();
+        if (lat!=-999&&lon!=-999) {
+          addToOrCreatePath(occ.getDecimalLatitude(),occ.getDecimalLongitude(), occ.getMillis(), myShepherd, st);          
+        } else {
+          out.println("No Gps for this occ? :"+occ.toString());
+        }
+      } catch (NullPointerException npe) {
+        npe.printStackTrace();
+      }
     }  
   }
   
