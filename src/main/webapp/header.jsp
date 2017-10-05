@@ -67,7 +67,7 @@ String urlLoc = "//" + CommonConfiguration.getURLLocation(request);
       <link href="<%=urlLoc %>/tools/timePicker/jquery.ptTimeSelect.css" rel="stylesheet" type="text/css"/>
 	  <link rel="stylesheet" href="<%=urlLoc %>/tools/jquery-ui/css/themes/smoothness/jquery-ui.css" type="text/css" />
 
-    <link rel="stylesheet" href="<%=urlLoc %>/css/createadoption.css">
+      <link rel="stylesheet" href="<%=urlLoc %>/css/createadoption.css">
 
 
       <script src="<%=urlLoc %>/tools/jquery/js/jquery.min.js"></script>
@@ -76,7 +76,7 @@ String urlLoc = "//" + CommonConfiguration.getURLLocation(request);
       <script type="text/javascript" src="<%=urlLoc %>/tools/jquery-ui/javascript/jquery-ui.min.js"></script>
 
      <script type="text/javascript" src="<%=urlLoc %>/javascript/jquery.blockUI.js"></script>
-	<script type="text/javascript" src="<%=urlLoc %>/javascript/jquery.cookie.js"></script>
+	 <script type="text/javascript" src="<%=urlLoc %>/javascript/jquery.cookie.js"></script>
 
 
       <script type="text/javascript" src="<%=urlLoc %>/tools/hello/javascript/hello.all.js"></script>
@@ -98,11 +98,17 @@ String urlLoc = "//" + CommonConfiguration.getURLLocation(request);
   	<!-- jQuery datepicker -->
   	
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-    <link rel="stylesheet" href="/resources/demos/style.css">
+    
+    
+    <!--  <link rel="stylesheet" href="/resources/demos/style.css"> -->
+    
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
-    <script type="text/javascript" src="<%=urlLoc %>/tools/timePicker/jquery.ptTimeSelect.js"></script>
+	<!-- Clockpicker on creatSurvey jsp -->
+    <script type="text/javascript" src="<%=urlLoc %>/tools/clockpicker/jquery-clockpicker.min.js"></script>
+    <link type="text/css" href="<%=urlLoc %>/tools/clockpicker/jquery-clockpicker.min.css" rel="stylesheet" /> 
+   
     <style>
       ul.nav.navbar-nav {
         width: 100%;
@@ -311,19 +317,20 @@ String urlLoc = "//" + CommonConfiguration.getURLLocation(request);
                   <div id="navbar" class="navbar-collapse collapse">
                   <div id="notifications"><%= Collaboration.getNotificationsWidgetHtml(request) %></div>
                     <ul class="nav navbar-nav">
-                                  <!--                -->
+                          
                       <li class="active home text-hide"><a href="<%=urlLoc %>"><%=props.getProperty("home")%></a></li>
-                      <li><a href="<%=urlLoc %>/submit.jsp"><%=props.getProperty("report")%></a></li>
 
 					  
                       <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><%=props.getProperty("adminReports")%> <span class="caret"></span></a>
                         <ul class="dropdown-menu" role="menu">
-
-                        	<li class="dropdown"><a href="<%=urlLoc %>/importBento.jsp"><%=props.getProperty("importBento")%></a></li>
+							<li class="dropdown"><a href="<%=urlLoc %>/surveys/createSurvey.jsp"><%=props.getProperty("createSurvey")%></a></li>
                         	<li class="divider"></li>
+                        	<li class="dropdown"><a href="<%=urlLoc %>/importBento.jsp"><%=props.getProperty("importBento")%></a></li>
                         	<li class="dropdown"><a href="<%=urlLoc %>/bentoSearch.jsp"><%=props.getProperty("searchBento")%></a></li>
                           	<li><a href="<%=urlLoc %>/bentoSearchResults.jsp?returnAll=true"><%=props.getProperty("allBento")%></a></li>
+                            <li class="divider"></li>
+                      		<li><a class="dropdown" href="<%=urlLoc %>/submit.jsp"><%=props.getProperty("report")%></a></li>
                              
                         </ul>
                       </li>
