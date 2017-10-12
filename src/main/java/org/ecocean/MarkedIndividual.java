@@ -2044,7 +2044,7 @@ public Float getMinDistanceBetweenTwoMarkedIndividuals(MarkedIndividual otherInd
             System.out.println("could not parse ints from args: (" + y + ", " + m + ")");
             return "?";
         }
-System.out.println("getSightedForMonth(" + yint + "/" + mint + ")");
+//System.out.println("getSightedForMonth(" + yint + "/" + mint + ")");
         if (this.wasSightedInMonth(yint, mint)) return "1";
         return "0";
     }
