@@ -908,51 +908,56 @@ public class AccessImport extends HttpServlet {
               simpleLoc = locOb.getValue();
             }
             String occProj = enc.getSubmitterProject();
-             
-            if (encLoc != null || occProj != null || simpleLoc != null) {
-              if (occProj != null && project != null)  {
-                if (occProj.contains(project) || project.contains(occProj)) {
-                  out.println("MATCH!!! At least on project name... (enc:surveyTrack) Project : "+occProj+" = "+project);
-                  st.addOccurence(myShepherd.getOccurrence(enc.getOccurrenceID()));
-                  // add check for if the survey is the same here?
-                  //sv.addSurveyTrack(st);
-                  success++;
-                  matched = true;
-                  addSurveyAndTrackIDToOccurrence(enc,sv,st,myShepherd);
-                } else {
-                  out.println("No match on project.");
+            Occurrence parentOcc = myShepherd.getOccurrence(enc.getOccurrenceID());
+            if (!st.hasOccurrence(parentOcc)) {
+              if (encLoc != null || occProj != null || simpleLoc != null) {
+                if (occProj != null && project != null)  {
+                  if (occProj.contains(project) || project.contains(occProj)) {
+                    out.println("MATCH!!! At least on project name... (enc:surveyTrack) Project : "+occProj+" = "+project);
+                                   
+                    st.addOccurence(myShepherd.getOccurrence(enc.getOccurrenceID()));
+                    // add check for if the survey is the same here?
+                    //sv.addSurveyTrack(st);
+                    success++;
+                    matched = true;
+                    addSurveyAndTrackIDToOccurrence(enc,sv,st,myShepherd);
+                  } else {
+                    out.println("No match on project.");
+                  } 
                 } 
-              } 
                 
-              if (encLoc != null && surveyArea != null && !matched) {
-                if (enc.getLocationID().contains(surveyArea) || surveyArea.contains(enc.getLocationID())) {
-                  out.println("MATCH!!! At least on location ID... (enc:surveyTrack) Location : "+enc.getLocationID()+" = "+st.getLocationID()+" Project : "+enc.getSubmitterProject()+" = "+sv.getProjectName());
-                  st.addOccurence(myShepherd.getOccurrence(enc.getOccurrenceID()));
-                  sv.addSurveyTrack(st);
-                  success++;
-                  matched = true;
-                  addSurveyAndTrackIDToOccurrence(enc,sv,st,myShepherd);
-                } else {
-                  out.println("No match on Location/SurveyArea.");
+                if (encLoc != null && surveyArea != null && !matched) {
+                  if (enc.getLocationID().contains(surveyArea) || surveyArea.contains(enc.getLocationID())) {
+                    out.println("MATCH!!! At least on location ID... (enc:surveyTrack) Location : "+enc.getLocationID()+" = "+st.getLocationID()+" Project : "+enc.getSubmitterProject()+" = "+sv.getProjectName());
+                    st.addOccurence(myShepherd.getOccurrence(enc.getOccurrenceID()));
+                    sv.addSurveyTrack(st);
+                    success++;
+                    matched = true;
+                    addSurveyAndTrackIDToOccurrence(enc,sv,st,myShepherd);
+                  } else {
+                    out.println("No match on Location/SurveyArea.");
+                  }
+                } 
+                
+                if (simpleLoc !=null && surveyArea !=null && !matched) {
+                  if (simpleLoc.contains(surveyArea) || surveyArea.contains(simpleLoc)) {
+                    out.println("MATCH!!! on SimpleLocation/SurveyArea : "+simpleLoc+" = "+st.getLocationID());
+                    st.addOccurence(myShepherd.getOccurrence(enc.getOccurrenceID()));
+                    sv.addSurveyTrack(st);
+                    success++;
+                    matched = true;
+                    addSurveyAndTrackIDToOccurrence(enc,sv,st,myShepherd);
+                  } else {
+                    out.println("No match on SimpleLocation/SurveyArea.");
+                  }
                 }
-              } 
-              
-              if (simpleLoc !=null && surveyArea !=null && !matched) {
-                if (simpleLoc.contains(surveyArea) || surveyArea.contains(simpleLoc)) {
-                  out.println("MATCH!!! on SimpleLocation/SurveyArea : "+simpleLoc+" = "+st.getLocationID());
-                  st.addOccurence(myShepherd.getOccurrence(enc.getOccurrenceID()));
-                  sv.addSurveyTrack(st);
-                  success++;
-                  matched = true;
-                  addSurveyAndTrackIDToOccurrence(enc,sv,st,myShepherd);
-                } else {
-                  out.println("No match on SimpleLocation/SurveyArea.");
-                }
-              }
+              } else {
+                out.println("Location ID, Project and simpleLoc for this enc is null!");
+                noProjectOrLocation +=1;
+              }                  
             } else {
-              out.println("Location ID, Project and simpleLoc for this enc is null!");
-              noProjectOrLocation +=1;
-            }    
+              out.println("This occ has already been added to the SurveyTrack, skipping...");
+            }
           }
           if (matched) {
             matchedNum ++;
