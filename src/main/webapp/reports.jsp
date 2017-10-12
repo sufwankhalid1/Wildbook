@@ -105,16 +105,23 @@ function reportMonthly() {
 	var filename = $('#monthly-filename').val() || 'report.xls';
 
 	var url = 'ExportExcelFile?query=SELECT FROM org.ecocean.MarkedIndividual&filename=' + filename + '&columns=individualID&columns=sexOrGuess&headers=ID&headers=Sex&_ibeisHack';
-	var y = now.getFullYear() - 1; 
-	var m = now.getMonth();
-	for (var i = 0 ; i < 12 ; i++) {
-		m++;
-		if (m > 12) {
-			m = 1;
-			y++;
-		}
-		url += '&columns=sightedForMonth:' + y + ':' + m + '&headers=' + mname[m-1] + new String(y).substr(2);
-	}
+	
+  var nMonths = Number($('#prevMonths').val());
+  if (isNaN(nMonths) || nMonths<1) {nMonths=12;}
+  nMonths = Math.ceil(nMonths);
+  var nowM = now.getMonth();
+  var nowY = now.getFullYear();
+  var y = (nowY - Math.floor(nMonths/12));
+  var m = (nowM - nMonths)%12;
+  if (m<=0) m+=12; // this line because (3-6)%12 = -3
+  while (y<nowY || m<nowM){
+    m++;
+    if (m > 12) {
+      m = 1;
+      y++;
+    }
+    url += '&columns=sightedForMonth:' + y + ':' + m + '&headers=' + mname[m-1] + new String(y).substr(2);
+  }
 	$('#shortly-wrapper').show();
 	window.location.href = url;
 	window.setTimeout(function() {
@@ -147,7 +154,7 @@ function reportIndividual() {
 
 <div class="report-section">
 
-<p><b>Monthly sighting report <span id="monthly-detail"></span></b></p>
+<p><b>Monthly sighting report for previous <input type="number" id="prevMonths" name="prevMonths" min="1" max="120" step="1" value="12" style="width:3em;">  months  <span id="monthly-detail"></span></b></p>
 
 <p><input placeholder="filename" id="monthly-filename" /></p>
 
