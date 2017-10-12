@@ -914,7 +914,8 @@ public class AccessImport extends HttpServlet {
                 if (occProj.contains(project) || project.contains(occProj)) {
                   out.println("MATCH!!! At least on project name... (enc:surveyTrack) Project : "+occProj+" = "+project);
                   st.addOccurence(myShepherd.getOccurrence(enc.getOccurrenceID()));
-                  sv.addSurveyTrack(st);
+                  // add check for if the survey is the same here?
+                  //sv.addSurveyTrack(st);
                   success++;
                   matched = true;
                   addSurveyAndTrackIDToOccurrence(enc,sv,st,myShepherd);
