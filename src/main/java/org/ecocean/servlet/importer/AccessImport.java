@@ -85,7 +85,7 @@ public class AccessImport extends HttpServlet {
     myShepherd.commitDBTransaction();
     myShepherd.closeDBTransaction();
     
-    String dbName = "DUML_MASTER_20170830.mdb";
+    String dbName = "DUML_MASTER_20171013.mdb";
     if (request.getParameter("file") != null) {
       dbName = request.getParameter("file");
     }
@@ -160,7 +160,7 @@ public class AccessImport extends HttpServlet {
       }      
     }
     
-    boolean effortTableSwitch = true;
+    boolean effortTableSwitch = false;
     if (effortTableSwitch) {
       try {
         out.println("********************* Let's process the EFFORT Table!\n");
@@ -172,7 +172,7 @@ public class AccessImport extends HttpServlet {
       }      
     }
     
-    boolean biopsyTableSwitch = true;
+    boolean biopsyTableSwitch = false;
     if (biopsyTableSwitch) {
       try {
         out.println("********************* Let's process the BiopsySamples Table!\n");
@@ -1011,9 +1011,16 @@ public class AccessImport extends HttpServlet {
       try {
         lat = occ.getDecimalLatitude();
         lon = occ.getDecimalLongitude();
-        millis = occ.getMillis();
+        if (occ.getMillis()!=null) {
+          millis = occ.getMillis();          
+        } else if (occ.getMillisRobust()!=null) {
+          millis = occ.getMillisRobust();
+        } else {
+          occ.setMillisFromEncounterAvg();
+          millis = occ.getMillis();
+        }
         if (lat!=-999&&lon!=-999) {
-          addToOrCreatePath(occ.getDecimalLatitude(),occ.getDecimalLongitude(), occ.getMillis(), myShepherd, st);          
+          addToOrCreatePath(occ.getDecimalLatitude(),occ.getDecimalLongitude(), millis, myShepherd, st);          
         } else {
           out.println("No Gps for this occ? :"+occ.toString());
         }
@@ -1026,8 +1033,12 @@ public class AccessImport extends HttpServlet {
   private void addToOrCreatePath(double lat,double lon, long date, Shepherd myShepherd, SurveyTrack st) {
     Path pth = null;
     PointLocation pl = null;   
-    try {      
-      pl = new PointLocation(lat,lon,date);
+    try {
+      if (date!=-999) {
+        pl = new PointLocation(lat,lon,date);        
+      } else {
+        pl = new PointLocation(lat,lon); 
+      }
       myShepherd.beginDBTransaction();
       myShepherd.getPM().makePersistent(pl);
       myShepherd.commitDBTransaction();
