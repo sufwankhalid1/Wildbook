@@ -58,9 +58,9 @@ public class MediaAssetModify extends HttpServlet {
     //set up for response
     response.setContentType("text/html");
     PrintWriter out = response.getWriter();
-    boolean locked = false;
+    //boolean locked = false;
 
-    JSONObject res = new JSONObject("{\"success\": \"false\"}");
+    JSONObject rtn = new JSONObject("{\"success\": \"false\"}");
 
     boolean isOwner = true;
 
@@ -68,53 +68,96 @@ public class MediaAssetModify extends HttpServlet {
     // ServletUtilities.informInterestedParties(request, request.getParameter("number"), message,context);
     myShepherd.beginDBTransaction();
 
-    String id="";
+    String[] ids = request.getParameterValues("id");
+    if ((ids == null) || (ids.length < 1)) {
+        throw new IOException("MediaAssetModify servlet requires at least one 'id' argument.");
+    }
 
-    try {
+    JSONObject all = new JSONObject();  //each result, keyed by id
+    for (int i = 0 ; i < ids.length ; i++) {
+        String id = ids[i];
+        JSONObject res = new JSONObject();
+        MediaAsset ma = myShepherd.getMediaAsset(id);
+        if (ma == null) {
+            res.put("success", false);
+            res.put("error", "could not load MediaAsset");
+            all.put(id, res);
+            continue;
+        }
 
-      id = request.getParameter("id");
-      if (id==null) {
-        throw new IOException("MediaAssetModify servlet requires an 'id' argument.");
-      }
-
-
-      MediaAsset ma = myShepherd.getMediaAsset(id);
-
-      if (ma==null) {
-        throw new IOException("No MediaAsset in database with id "+request.getParameter("id"));
-      } else {
-
+        res.put("success", true);  //just means MA loaded
         if (request.getParameter("lat")!=null) {
-          ma.setUserLatitude(Double.valueOf(request.getParameter("lat")));
-          res.put("setLatitude",Double.valueOf(request.getParameter("lat")));
+            Double d = Util.doubleFromString(request.getParameter("lat"));
+            if (d == null) {
+                res.put("lat", "error: could not convert double");
+            } else {
+                ma.setUserLatitude(d);
+                res.put("lat", d);
+            }
         }
 
         if (request.getParameter("long")!=null) {
-          ma.setUserLongitude(Double.valueOf(request.getParameter("long")));
-          res.put("setLongitude",Double.valueOf(request.getParameter("long")));
+            Double d = Util.doubleFromString(request.getParameter("long"));
+            if (d == null) {
+                res.put("long", "error: could not convert double");
+            } else {
+                ma.setUserLongitude(d);
+                res.put("long", d);
+            }
         }
 
         if (request.getParameter("datetime")!=null) {
-          ma.setUserDateTime(DateTime.parse(request.getParameter("datetime")));
-          res.put("setDateTime",DateTime.parse(request.getParameter("datetime")).toString());
+            DateTime dt = null;
+            try {
+                dt = DateTime.parse(request.getParameter("datetime"));
+            } catch (Exception ex) { };
+            if (dt == null) {
+                res.put("datetime", "error: could not parse DateTime");
+            } else {
+                ma.setUserDateTime(dt);
+                res.put("datetime", dt);
+            }
         }
 
-      }
+        //for labels, we can have more than one
+        String[] labelsToAdd = request.getParameterValues("labelAdd");
+        if ((labelsToAdd != null) && (labelsToAdd.length > 0)) {
+            String added = "";
+            for (int j = 0 ; j < labelsToAdd.length ; j++) {
+                if (labelsToAdd[j].startsWith("_")) continue;  //considered "system reserved"
+                ma.addLabel(labelsToAdd[j]);
+                added += labelsToAdd[j] + " ";
+            }
+            res.put("labelAdd", added);
+        }
 
-      res.put("success","true");
+        String[] labelsToRemove = request.getParameterValues("labelRemove");
+        if ((labelsToRemove != null) && (labelsToRemove.length > 0)) {
+            String removed = "";
+            for (int j = 0 ; j < labelsToRemove.length ; j++) {
+                if (labelsToRemove[j].startsWith("_")) continue;  //considered "system reserved"
+                ma.removeLabel(labelsToRemove[j]);
+                removed += labelsToRemove[j] + " ";
+            }
+            res.put("labelRemove", removed);
+        }
+
+        all.put(id, res);
+    }
+    rtn.put("success", true);
+    rtn.put("results", all);
+    
+/*
     } catch (Exception edel) {
       locked = true;
       log.warn("Failed to modify MediaAsset: " + request.getParameter("id"), edel);
       edel.printStackTrace();
       myShepherd.rollbackDBTransaction();
     }
+*/
 
-
-    if (!locked) {
-      myShepherd.commitDBTransaction();
-    }
-
-    out.println(res.toString());
+    myShepherd.commitDBTransaction();
+    out.println(rtn.toString());
     out.close();
     myShepherd.closeDBTransaction();
   }
