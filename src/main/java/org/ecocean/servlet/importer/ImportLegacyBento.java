@@ -287,7 +287,10 @@ public class ImportLegacyBento extends HttpServlet {
         if (names[i]!=null) {
           if (names[i].equals("Comments")&&values[i]!=null&&!values[i].equals("")) {
             try {
-              sv.addComments(values[i]);            
+              String oldComments = sv.getComments();
+              if (!oldComments.contains(values[i])) {
+                sv.addComments(values[i]);                            
+              }
               obsColumns.remove("Comments");
               out.println("Comments? "+values[i]);
             } catch (NullPointerException npe) {
@@ -309,9 +312,7 @@ public class ImportLegacyBento extends HttpServlet {
             try {
               out.println("Filename as comment? "+values[i]+" Existing? "+sv.getComments());
               sv.addComments("Comments to add..."); 
-              out.println("--1--");
               obsColumns.remove("Filename");
-              out.println("--2--");
             } catch (NullPointerException npe) {
               npe.printStackTrace();
               System.out.println(values[i]);
@@ -320,7 +321,6 @@ public class ImportLegacyBento extends HttpServlet {
         }        
       }
     }
-    out.println("--3--");
     out.println(sv.getID());
     return sv;
   }
