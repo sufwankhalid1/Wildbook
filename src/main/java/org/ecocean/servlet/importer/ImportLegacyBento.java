@@ -382,7 +382,7 @@ public class ImportLegacyBento extends HttpServlet {
         out.println("Next occ to save: "+occ.toString()+" Total number: "+totalRows);
         myShepherd.getPM().makePersistent(occ);
         myShepherd.commitDBTransaction();
-        masterSurveyArr.add(occ);
+        masterOccArr.add(occ);
         totalOccs += 1;
       } catch (Exception e) {
         myShepherd.rollbackDBTransaction();
@@ -401,7 +401,7 @@ public class ImportLegacyBento extends HttpServlet {
       occ = checkMasterArrForOccurrence(names, values);          
       if (occ==null) {
         try {
-          occ = OccurrenceInstantiate(values[38]);          
+          occ = occurrenceInstantiate(values[38]);          
         } catch (NullPointerException npe) {
           System.out.println("NPE while trying to instantiate survey.");
           npe.printStackTrace();
@@ -434,14 +434,54 @@ public class ImportLegacyBento extends HttpServlet {
     return occ;
   }
   
-  private Survey checkMasterArrForOccurrence(String[] names, String[] values) {
+  private Occurrence occurrenceInstantiate(String date) {
+    Occurrence occ = null;
+    try {
+      date = formatDate(date);           
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    if (date!=null) {
+      occ = new Occurrence();
+      // TODO Add at least one dummy encounter here for adding additional data 
+      // unsuitable for storing on an encounter?
+    } else {
+      occ = new Occurrence();
+      occ.setOccurrenceID(Util.generateUUID());
+      occ.setDWCDateLastModified();
+    }
+    return occ;
+  }
+  
+  private Occurrence checkMasterArrForOccurrence(String[] names, String[] values) {
+    
     //explicit column # for date in surveylog is 38 ("" project "" vessel)
     //The names and values are from the effort table.
     //The only surveys available in the arr should be from the survey log table. 
-    String date = formatDate(values[38]);
-    String project = values[28].trim();
-    String vessel = values[36].trim();
+    
+    // I guess we could match it against surveys with date constraints
+    // and try to match on vessel also there? Seems like that would be weird. 
+    String date = formatDate(values[34]);
+    String location = values[58].trim();
+    String vessel = values[19].trim();
+    out.println("Checking for matching Occ with Date: "+date+" Location: "+location+" Vessel: "+vessel);
     for (Occurrence arrOcc : masterOccArr) {
+      ArrayList<Encounter> encs = arrOcc.getEncounters();
+      Shepherd tempCheckShepherd = new Shepherd(context);
+      Survey arrSv = arrOcc.getSurvey(tempCheckShepherd);
+      tempCheckShepherd.closeDBTransaction();
+      for (Encounter enc : encs) {
+        String encDate = enc.getDate();
+        String encLocation = enc.getLocationID();
+        
+        if (date!=null&&date.equals(encDate)) {
+          out.println("Found a match on date! Checking location...");
+          if (location!=null&&location.equals(encLocation)) {
+            out.println("Matched on Location!");
+            return arrOcc;
+          }
+        }
+      }
       //Match occurrences, possible through enconters and date.
     }
     return null;
