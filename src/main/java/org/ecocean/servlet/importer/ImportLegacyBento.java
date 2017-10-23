@@ -393,8 +393,58 @@ public class ImportLegacyBento extends HttpServlet {
     }
   }
   
-  private void processSightingsRow(String[] columnNameArr, String[] rowString) {
+  private Occurrence processSightingsRow(String[] names, String[] values) {
+    HashMap<String,String> obsColumns = new HashMap<>();
+    Occurrence occ = null;
+    // Explicit column index for date in effort is #38.
+    if (names[38].equals("Date Created")) {
+      occ = checkMasterArrForOccurrence(names, values);          
+      if (occ==null) {
+        try {
+          occ = OccurrenceInstantiate(values[38]);          
+        } catch (NullPointerException npe) {
+          System.out.println("NPE while trying to instantiate survey.");
+          npe.printStackTrace();
+        }
+      }
+    }
+    for (int i=0;i<names.length;i++) {
+      // Make if val=N/A a precursor to all processing, not a check for each.
+      if (values[i]!=null&&!values[i].equals("N/A")&&!values[i].equals("")&&names[i]!=null) {      
+        if (names[i].equals("Comments")&&values[i]!=null&&!values[i].equals("")) {
+          try {
+            String oldComments = occ.getComments();
+            if (!oldComments.contains(values[i])) {
+              occ.addComments(values[i]);                            
+            }
+            obsColumns.remove("Comments");
+            out.println("Comments? "+values[i]);
+          } catch (NullPointerException npe) {
+            npe.printStackTrace();
+            System.out.println(values[i]);
+          }          
+        } else {
+          obsColumns.put(names[i], values[i]);
+        }
+      } 
+    }
+    processRemainingColumnsAsObservations(occ, obsColumns);        
+    out.println(occ.getOccurrenceID());
     
+    return occ;
+  }
+  
+  private Survey checkMasterArrForOccurrence(String[] names, String[] values) {
+    //explicit column # for date in surveylog is 38 ("" project "" vessel)
+    //The names and values are from the effort table.
+    //The only surveys available in the arr should be from the survey log table. 
+    String date = formatDate(values[38]);
+    String project = values[28].trim();
+    String vessel = values[36].trim();
+    for (Occurrence arrOcc : masterOccArr) {
+      //Match occurrences, possible through enconters and date.
+    }
+    return null;
   }
   
   private void processFollows(Shepherd myShepherd, CSVReader followsCSV) {
