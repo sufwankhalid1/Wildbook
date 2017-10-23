@@ -44,8 +44,10 @@ public class ImportLegacyBento extends HttpServlet {
   private static String context; 
   //private String messages;
   
-  private ArrayList<Survey> masterSurveyArr = new ArrayList<Survey>();
-  
+  private ArrayList<Survey> masterSurveyArr = new ArrayList<>();
+  private ArrayList<Occurrence> masterOccArr = new ArrayList<>();
+  private ArrayList<Encounter> masterEncArr = new ArrayList<>();
+  private ArrayList<MarkedIndividual> masterIndyArr = new ArrayList<>();
   
   public void init(ServletConfig config) throws ServletException {
     super.init(config);
@@ -65,9 +67,6 @@ public class ImportLegacyBento extends HttpServlet {
     myShepherd.setAction("ImportLegacyBento.class");
     
     out.println("Grabbing all CSV files... ");
-    // Grab each CSV file, make switches similar to access import.
-    // Stub a method for each one. 
-    // Find the DUML equivalent -or- start with surveys. 
     String dir = "/opt/dukeImport/DUML Files for Colin-NEW/Raw Data files/tables_170303/";
     File rootFile = new File(dir);
   
@@ -83,29 +82,52 @@ public class ImportLegacyBento extends HttpServlet {
       
       if (true) {
         processSurveyLogFile(myShepherd, surveyLogCSV);
-        surveyLogCSV.close();
+        try {
+          surveyLogCSV.close();          
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
       }
       if (true) {
         processEffortFile(myShepherd, effortCSV);
-        effortCSV.close();
+        try {
+          effortCSV.close();          
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
       }
       if (true) {
         processBiopsy(myShepherd, biopsyCSV);
-        biopsyCSV.close();
+        try {
+          biopsyCSV.close();          
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
       }
       if (true) {
         processFollows(myShepherd, followsCSV);
-        followsCSV.close();
+        try {
+          followsCSV.close();          
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
       }
       if (true) {
         processSightings(myShepherd, sightingsCSV);
-        sightingsCSV.close();
+        try {
+          sightingsCSV.close();          
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
       }
       if (true) {
         processTags(myShepherd, tagCSV);
-        tagCSV.close();
+        try {
+          tagCSV.close();          
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
       } 
-      
       clearMasterArrs();
     
     } else {
@@ -118,7 +140,14 @@ public class ImportLegacyBento extends HttpServlet {
   private void clearMasterArrs() {
     // We can empty these after all objects are created. 
     // Assists with multiple runs while importing.
+    out.println("***** Total Surveys created: "+masterSurveyArr.size()+" *****");
     masterSurveyArr.clear();
+    out.println("***** Total Occurrences created: "+masterOccArr.size()+" *****");
+    masterOccArr.clear();
+    out.println("***** Total Encounters created: "+masterEncArr.size()+" *****");
+    masterEncArr.clear();
+    out.println("***** Total MarkedIndividuals created: "+masterIndyArr.size()+" *****");
+    masterIndyArr.clear();
   }
  
   private CSVReader grabReader(File file) {
