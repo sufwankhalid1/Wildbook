@@ -51,10 +51,12 @@ public class ImportLegacyBento extends HttpServlet {
     super.init(config);
   }
 
+  @Override
   public void doGet(HttpServletRequest request,  HttpServletResponse response) throws ServletException,  IOException {
     doPost(request,  response);
   }
   
+  @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException,  IOException { 
     out = response.getWriter();
     context = ServletUtilities.getContext(request);
@@ -148,7 +150,6 @@ public class ImportLegacyBento extends HttpServlet {
           myShepherd.getPM().makePersistent(sv);
           myShepherd.commitDBTransaction();
           masterSurveyArr.add(sv);
-          //System.out.println(sv.getID());
           totalSurveys += 1;
         } catch (Exception e) {
           myShepherd.rollbackDBTransaction();
@@ -261,17 +262,12 @@ public class ImportLegacyBento extends HttpServlet {
   }
   
   private Survey processEffortRow(String[] names, String[] values) {
-    out.println("_________________________________________________________________________");
-    ArrayList<String> obsColumns = new ArrayList<String>();
+    out.println("_______________________________________________________________________________");
+    HashMap<String,String> obsColumns = new HashMap<>();
     Survey sv = null;
     // Explicit column index for date in effort is #38.
     if (names[38].equals("Date Created")) {
-      try {
-        sv = checkMasterArrForSurvey(names, values);          
-      } catch (Exception e) {
-        //out.println(sv.getID()+" "+sv.getDate()+" "+sv.getProjectName()+" "+sv.getComments());
-        e.printStackTrace();
-      }
+      sv = checkMasterArrForSurvey(names, values);          
       if (sv==null) {
         try {
           sv = surveyInstantiate(values[38]);          
@@ -283,44 +279,52 @@ public class ImportLegacyBento extends HttpServlet {
     }
     for (int i=0;i<names.length;i++) {
       // Make if val=N/A a precursor to all processing, not a check for each.
-      if (values[i]!=null&&!values[i].equals("N/A")&&!values[i].equals("")) {
-        if (names[i]!=null) {
-          if (names[i].equals("Comments")&&values[i]!=null&&!values[i].equals("")) {
-            try {
-              String oldComments = sv.getComments();
-              if (!oldComments.contains(values[i])) {
-                sv.addComments(values[i]);                            
-              }
-              obsColumns.remove("Comments");
-              out.println("Comments? "+values[i]);
-            } catch (NullPointerException npe) {
-              npe.printStackTrace();
-              System.out.println(values[i]);
-            }          
-          }
-          if (names[i].equals("Project")&&values[i]!=null&&!values[i].equals("")) {    
-            try {
-              sv.setProjectName(values[i]);
-              out.println("Project? "+values[i]);
-              obsColumns.remove("Project");
-            } catch (NullPointerException npe) {
-              npe.printStackTrace();
-              System.out.println(values[i]);
-            }            
-          }        
-          if (names[i].equals("Filename")&&values[i]!=null&&!values[i].equals("")) {
-            try {
-              out.println("Filename as comment? "+values[i]+" Existing? "+sv.getComments());
-              sv.addComments("Comments to add..."); 
-              obsColumns.remove("Filename");
-            } catch (NullPointerException npe) {
-              npe.printStackTrace();
-              System.out.println(values[i]);
-            }          
-          }
-        }        
-      }
+      if (values[i]!=null&&!values[i].equals("N/A")&&!values[i].equals("")&&names[i]!=null) {      
+        if (names[i].equals("Comments")&&values[i]!=null&&!values[i].equals("")) {
+          try {
+            String oldComments = sv.getComments();
+            if (!oldComments.contains(values[i])) {
+              sv.addComments(values[i]);                            
+            }
+            obsColumns.remove("Comments");
+            out.println("Comments? "+values[i]);
+          } catch (NullPointerException npe) {
+            npe.printStackTrace();
+            System.out.println(values[i]);
+          }          
+        } else if (names[i].equals("Project")&&values[i]!=null&&!values[i].equals("")) {    
+          try {
+            sv.setProjectName(values[i]);
+            out.println("Project? "+values[i]);
+            obsColumns.remove("Project");
+          } catch (NullPointerException npe) {
+            npe.printStackTrace();
+            System.out.println(values[i]);
+          }            
+        } else if (names[i].equals("Filename")&&values[i]!=null&&!values[i].equals("")) {
+          try {
+            out.println("Filename as comment? "+values[i]+" Existing? "+sv.getComments());
+            sv.addComments("Comments to add..."); 
+            obsColumns.remove("Filename");
+          } catch (NullPointerException npe) {
+            npe.printStackTrace();
+            System.out.println(values[i]);
+          }          
+        } else if (names[i].equals("OnEffort")&&values[i]!=null&&!values[i].equals("")) {
+          try {
+            out.println("Effort amont? "+values[i]);
+            sv.addComments(values[i]); 
+            obsColumns.remove("Filename");
+          } catch (NullPointerException npe) {
+            npe.printStackTrace();
+            System.out.println(values[i]);
+          }          
+        } else {
+          obsColumns.put(names[i], values[i]);
+        }
+      } 
     }
+    processRemainingColumnsAsObservations(sv, obsColumns);        
     out.println(sv.getID());
     return sv;
   }
@@ -341,7 +345,8 @@ public class ImportLegacyBento extends HttpServlet {
     System.out.println(tagCSV.verifyReader());
   }
   
-  private void processRemainingColumnsAsObservations(Object obj, ArrayList<String> columnList, Row thisRow) {
+  private void processRemainingColumnsAsObservations(Object obj, HashMap<String,String> columnList) {
+    
     Encounter enc = null;
     Occurrence occ = null;
     TissueSample ts = null;
@@ -365,23 +370,20 @@ public class ImportLegacyBento extends HttpServlet {
       id = ((Survey) obj).getID();
     }
     
-    ArrayList<Observation> newObs = new ArrayList<Observation>();
-    for (String column : columnList) {
-      String value = null;
+    ArrayList<Observation> newObs = new ArrayList<>();
+    for (String key : columnList.keySet()) {
+      String value = columnList.get(key);
       try {
-        if (thisRow.get(column) != null) {
-          value = thisRow.get(column.trim()).toString().trim();
-          if (value.length() > 0) {
-            Observation ob = new Observation(column.toString(), value, obj, id);
-            newObs.add(ob);           
-          }
+        if (value!= null&&value.length() > 0) {
+          Observation ob = new Observation(key, value, obj, id);
+          newObs.add(ob);           
         }
       } catch (Exception e) {
         e.printStackTrace();
-        out.println("Failed to create and store Observation "+column+" with value "+value+" for encounter "+id);
+        out.println("Failed to create and store Observation "+key+" with value "+value+" for encounter "+id);
       }
     }
-    if (newObs.size() > 0) {
+    if (!newObs.isEmpty()) {
       try {
         if (enc != null) {
           enc.addBaseObservationArrayList(newObs);
@@ -415,7 +417,7 @@ public class ImportLegacyBento extends HttpServlet {
       try {
         if (rawDate.endsWith("AM")||(rawDate.endsWith("PM"))){
           dt = dateStringToDateTime(rawDate,"MMM d, yyyy, h:m a");
-        } else if (String.valueOf(rawDate.charAt(3)).equals(" ")) {
+        } else if (String.valueOf(rawDate.charAt(3)).equals(" ")&&rawDate.contains(",")) {
           dt = dateStringToDateTime(rawDate,"MMM dd, yyyy, h:m");          
         } else if (String.valueOf(rawDate.charAt(4)).equals("-")) {
           dt = dateStringToDateTime(rawDate,"yyyy-MM-dd'T'kk:mm:ss"); 
