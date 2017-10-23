@@ -39,7 +39,7 @@ public class Survey implements java.io.Serializable{
   
   private String date;
   
-  private ArrayList<Observation> observations = new ArrayList<Observation>();
+  private ArrayList<Observation> observations = new ArrayList<Observation >();
   
   //empty constructor used by the JDO enhancer
   public Survey(){}

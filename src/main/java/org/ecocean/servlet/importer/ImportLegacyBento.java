@@ -128,6 +128,10 @@ public class ImportLegacyBento extends HttpServlet {
           e.printStackTrace();
         }
       } 
+      
+      // Maybe use a general method to look through all surveys and build survey 
+      // tracks/paths when appropriate?
+      
       clearMasterArrs();
     
     } else {
@@ -223,7 +227,6 @@ public class ImportLegacyBento extends HttpServlet {
   
   private void processEffortFile(Shepherd myShepherd, CSVReader effortCSV) {
     System.out.println("Processing EFFORT? "+effortCSV.verifyReader());
-    // Why stop now?
     int totalSurveys = 0;
     int totalRows = 0;
     Iterator<String[]> rows = effortCSV.iterator();
@@ -358,6 +361,42 @@ public class ImportLegacyBento extends HttpServlet {
     return sv;
   }
 
+  private void processSightings(Shepherd myShepherd, CSVReader sightingsCSV) {
+    System.out.println(sightingsCSV.verifyReader());
+    // Going to need to process GPS data entered multiple ways :(
+    System.out.println("Processing SIGHTINGS? "+sightingsCSV.verifyReader());
+    // Why stop now?
+    int totalOccs = 0;
+    int totalRows = 0;
+    Iterator<String[]> rows = sightingsCSV.iterator();
+    // Just grab the first one. It has all the column names, and theoretically the maximum length of each row. 
+    String[] columnNameArr = rows.next();
+    Occurrence occ = null;
+    while (rows.hasNext()) {
+      totalRows += 1;
+      String[] rowString = rows.next();
+      occ = processSightingsRow(columnNameArr,rowString);
+      myShepherd.beginDBTransaction();        
+      out.println("Occurrence returned to processSightings method :"+occ.getOccurrenceID());
+      try {
+        out.println("Next occ to save: "+occ.toString()+" Total number: "+totalRows);
+        myShepherd.getPM().makePersistent(occ);
+        myShepherd.commitDBTransaction();
+        masterSurveyArr.add(occ);
+        totalOccs += 1;
+      } catch (Exception e) {
+        myShepherd.rollbackDBTransaction();
+        e.printStackTrace();
+        out.println("Could not persist this Occurrence from SIGHTINGS : "+Arrays.toString(rowString));
+      }
+      out.println("Created "+totalOccs+" occurrences out of "+totalRows+" rows in SIGHTINGS file.");
+    }
+  }
+  
+  private void processSightingsRow(String[] columnNameArr, String[] rowString) {
+    
+  }
+  
   private void processFollows(Shepherd myShepherd, CSVReader followsCSV) {
     System.out.println(followsCSV.verifyReader());
     
@@ -365,10 +404,6 @@ public class ImportLegacyBento extends HttpServlet {
   private void processBiopsy(Shepherd myShepherd, CSVReader biopsyCSV) {
     System.out.println(biopsyCSV.verifyReader());
     
-  }
-  private void processSightings(Shepherd myShepherd, CSVReader sightingsCSV) {
-    System.out.println(sightingsCSV.verifyReader());
-  
   }
   private void processTags(Shepherd myShepherd, CSVReader tagCSV) {
     System.out.println(tagCSV.verifyReader());
