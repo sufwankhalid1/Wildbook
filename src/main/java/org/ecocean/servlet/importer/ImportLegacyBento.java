@@ -502,30 +502,12 @@ public class ImportLegacyBento extends HttpServlet {
   }
   
   private void processRemainingColumnsAsObservations(Object obj, HashMap<String,String> columnList) {
-    
     Encounter enc = null;
     Occurrence occ = null;
     TissueSample ts = null;
     Survey sv = null;
     
     String id = null;
-    if (obj.getClass().getSimpleName().equals("Encounter")) {
-      enc = (Encounter) obj;
-      id = ((Encounter) obj).getPrimaryKeyID();
-    } 
-    if (obj.getClass().getSimpleName().equals("Occurrence")) {
-      occ = (Occurrence) obj;
-      id = ((Occurrence) obj).getPrimaryKeyID();
-    }
-    if (obj.getClass().getSimpleName().equals("TissueSample")) {
-      ts = (TissueSample) obj;
-      id = ((TissueSample) obj).getSampleID();
-    }
-    if (obj.getClass().getSimpleName().equals("Survey")) {
-      sv = (Survey) obj;
-      id = ((Survey) obj).getID();
-    }
-    
     ArrayList<Observation> newObs = new ArrayList<>();
     for (String key : columnList.keySet()) {
       String value = columnList.get(key);
@@ -539,21 +521,30 @@ public class ImportLegacyBento extends HttpServlet {
         out.println("Failed to create and store Observation "+key+" with value "+value+" for encounter "+id);
       }
     }
+    
     if (!newObs.isEmpty()) {
       try {
-        if (enc != null) {
+        if (obj.getClass().getSimpleName().equals("Encounter")) {
+          enc = (Encounter) obj;
+          id = ((Encounter) obj).getPrimaryKeyID();
           enc.addBaseObservationArrayList(newObs);
           enc.getBaseObservationArrayList().toString();
-        }
-        if (occ != null) {
+        } 
+        if (obj.getClass().getSimpleName().equals("Occurrence")) {
+          occ = (Occurrence) obj;
+          id = ((Occurrence) obj).getPrimaryKeyID();
           occ.addBaseObservationArrayList(newObs); 
           occ.getBaseObservationArrayList().toString();
         }
-        if (ts != null) {
+        if (obj.getClass().getSimpleName().equals("TissueSample")) {
+          ts = (TissueSample) obj;
+          id = ((TissueSample) obj).getSampleID();
           ts.addBaseObservationArrayList(newObs); 
           ts.getBaseObservationArrayList().toString();
         }
-        if (ts != null) {
+        if (obj.getClass().getSimpleName().equals("Survey")) {
+          sv = (Survey) obj;
+          id = ((Survey) obj).getID();
           sv.addBaseObservationArrayList(newObs); 
           sv.getBaseObservationArrayList().toString();
         }
