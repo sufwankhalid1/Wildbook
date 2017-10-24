@@ -457,8 +457,6 @@ public class ImportLegacyBento extends HttpServlet {
   
   private Occurrence checkMasterArrForOccurrence(String[] names, String[] values) {
     
-    //explicit column # for date in surveylog is 38 ("" project "" vessel)
-    //The names and values are from the effort table.
     //The only surveys available in the arr should be from the survey log table. 
     
     // I guess we could match it against surveys with date constraints
@@ -475,7 +473,7 @@ public class ImportLegacyBento extends HttpServlet {
       for (Encounter enc : encs) {
         String encDate = enc.getDate();
         String encLocation = enc.getLocationID();
-        
+        out.println("Comparing these dates "+date+" ?= "+encDate+".");
         if (date!=null&&date.equals(encDate)) {
           out.println("Found a match on date! Checking location...");
           if (location!=null&&location.equals(encLocation)) {
@@ -509,26 +507,11 @@ public class ImportLegacyBento extends HttpServlet {
     
     String id = null;
     ArrayList<Observation> newObs = new ArrayList<>();
-    for (String key : columnList.keySet()) {
-      String value = columnList.get(key);
-      try {
-        if (value!= null&&value.length() > 0) {
-          Observation ob = new Observation(key, value, obj, id);
-          newObs.add(ob);           
-        }
-      } catch (Exception e) {
-        e.printStackTrace();
-        out.println("Failed to create and store Observation "+key+" with value "+value+" for encounter "+id);
-      }
-    }
-    
     if (!newObs.isEmpty()) {
       try {
         if (obj.getClass().getSimpleName().equals("Encounter")) {
           enc = (Encounter) obj;
           id = ((Encounter) obj).getPrimaryKeyID();
-          enc.addBaseObservationArrayList(newObs);
-          enc.getBaseObservationArrayList().toString();
         } 
         if (obj.getClass().getSimpleName().equals("Occurrence")) {
           occ = (Occurrence) obj;
@@ -554,6 +537,32 @@ public class ImportLegacyBento extends HttpServlet {
         out.println("Failed to add the array of observations to this object.");
       }        
     }
+    for (String key : columnList.keySet()) {
+      String value = columnList.get(key);
+      try {
+        if (value!= null&&value.length() > 0) {
+          Observation ob = new Observation(key, value, obj, id);
+          newObs.add(ob);           
+        }
+      } catch (Exception e) {
+        e.printStackTrace();
+        out.println("Failed to create and store Observation "+key+" with value "+value+" for encounter "+id);
+      }
+    }
+    if (enc!=null) {
+      enc.addBaseObservationArrayList(newObs);
+      enc.getBaseObservationArrayList().toString();
+    } else if (occ!=null) {
+      occ.addBaseObservationArrayList(newObs); 
+      occ.getBaseObservationArrayList().toString();
+    } else if (ts!=null) {
+      ts.addBaseObservationArrayList(newObs); 
+      ts.getBaseObservationArrayList().toString();
+    } else if (sv!=null) {
+      sv.addBaseObservationArrayList(newObs); 
+      sv.getBaseObservationArrayList().toString();
+    }
+    
   }
   
   private String formatDate(String rawDate) {
