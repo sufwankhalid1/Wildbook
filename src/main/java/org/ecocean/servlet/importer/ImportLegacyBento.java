@@ -198,28 +198,26 @@ public class ImportLegacyBento extends HttpServlet {
     ArrayList<String> obsColumns = new ArrayList<String>();
     Survey sv = null;
     // explicit column for date in surveylog is #34 
-    if (sv==null) {
-      sv = surveyInstantiate(values[34]);
-    }
-    
+    String date = formatDate(values[34]);
+    sv = surveyInstantiate(date);
+    System.out.println(date);
+
     for (int i=0;i<names.length;i++) {
       // Make if val=N/A a precursor to all processing, not a check for each.
-      if (values[i]!=null&&!values[i].equals("N/A")&&!values[i].equals("")) {
-        if (names[i]!=null) {
-          if (names[i].equals("Project")) {
-            sv.setProjectName(values[i]);
-            obsColumns.remove("Project");
-          }        
-          if (names[i].equals("Comments")) {
-            try {
-              sv.addComments(values[i]);            
-              obsColumns.remove("Comments");
-            } catch (NullPointerException npe) {
-              npe.printStackTrace();
-              System.out.println(values[i]);
-            }          
-          }        
+      if (values[i]!=null&&!values[i].equals("N/A")&&!values[i].equals("")&&names[i]!=null) {
+        if (names[i].equals("Project")) {
+          sv.setProjectName(values[i]);
+          obsColumns.remove("Project");
         }        
+        if (names[i].equals("Comments")) {
+          try {
+            sv.addComments(values[i]);            
+            obsColumns.remove("Comments");
+          } catch (NullPointerException npe) {
+            npe.printStackTrace();
+            System.out.println(values[i]);
+          }          
+        }              
       }
     }
     return sv;
@@ -375,7 +373,7 @@ public class ImportLegacyBento extends HttpServlet {
     while (rows.hasNext()) {
       totalRows += 1;
       String[] rowString = rows.next();
-      occ = processSightingsRow(columnNameArr,rowString);
+      occ = processSightingsRow(columnNameArr,rowString, myShepherd);
       myShepherd.beginDBTransaction();        
       out.println("Occurrence returned to processSightings method :"+occ.getOccurrenceID());
       try {
@@ -393,7 +391,7 @@ public class ImportLegacyBento extends HttpServlet {
     }
   }
   
-  private Occurrence processSightingsRow(String[] names, String[] values) {
+  private Occurrence processSightingsRow(String[] names, String[] values, Shepherd myShepherd) {
     HashMap<String,String> obsColumns = new HashMap<>();
     Occurrence occ = null;
     // Explicit column index for date in effort is #38.
@@ -401,7 +399,7 @@ public class ImportLegacyBento extends HttpServlet {
       occ = checkMasterArrForOccurrence(names, values);          
       if (occ==null) {
         try {
-          occ = occurrenceInstantiate(values[38]);          
+          occ = occurrenceInstantiate(values[38], myShepherd);          
         } catch (NullPointerException npe) {
           System.out.println("NPE while trying to instantiate survey.");
           npe.printStackTrace();
@@ -434,22 +432,26 @@ public class ImportLegacyBento extends HttpServlet {
     return occ;
   }
   
-  private Occurrence occurrenceInstantiate(String date) {
+  private Occurrence occurrenceInstantiate(String date, Shepherd myShepherd) {
     Occurrence occ = null;
-    try {
-      date = formatDate(date);           
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
+    Encounter enc = null;
+    occ = new Occurrence();
+    occ.setOccurrenceID(Util.generateUUID());
+    occ.setDWCDateLastModified();
+    myShepherd.beginDBTransaction();
+    myShepherd.getPM().makePersistent(occ);
+    myShepherd.commitDBTransaction();
+    
+    enc = new Encounter();
+    myShepherd.beginDBTransaction();
+    myShepherd.getPM().makePersistent(enc);
+    myShepherd.commitDBTransaction();
+    occ.addEncounter(enc);
+    
     if (date!=null) {
-      occ = new Occurrence();
-      // TODO Add at least one dummy encounter here for adding additional data 
-      // unsuitable for storing on an encounter?
-    } else {
-      occ = new Occurrence();
-      occ.setOccurrenceID(Util.generateUUID());
-      occ.setDWCDateLastModified();
-    }
+      DateTime dt = dateStringToDateTime(date, "yyyy-MM-dd");
+      enc.setDateInMilliseconds(dt.getMillis());
+    } 
     return occ;
   }
   
