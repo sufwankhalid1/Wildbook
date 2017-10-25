@@ -115,7 +115,6 @@ public class SurveySetObservation extends HttpServlet {
         locked = true;
         le.printStackTrace();
         myShepherd.rollbackDBTransaction();
-
       }
 
       if (!locked) {

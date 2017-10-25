@@ -19,6 +19,9 @@ String surveyID = request.getParameter("surveyID").trim();
 Survey sv = null;
 String errors = "";
 
+String urlLoc = "//" + CommonConfiguration.getURLLocation(request);
+String occLocation = urlLoc + "/occurrence.jsp?number=";
+
 boolean isOwner = false;
 if (request.getUserPrincipal()!=null) {
   isOwner = true;
@@ -149,9 +152,10 @@ if (sv!=null) {
 									<%
 									for (Occurrence occ : occs) {
 										String thisOccID = occ.getPrimaryKeyID();
+										String link = occLocation + thisOccID;
 									%>
 										<p>
-											<small><%=thisOccID%></small>
+											<small><%=thisOccID%><small><a href="<%=link%>"><%=thisOccID%></a></small></small>
 										</p>
 									<%
 	
@@ -281,9 +285,9 @@ if (sv!=null) {
 								</form>
 							</div>
 							
-				<%} // Enc
-						if (numObservations == 0) {%>
-							<p><%=props.getProperty("none")%></p>
+				<%} 
+				if (numObservations == 0) {%>
+					<p><%=props.getProperty("none")%></p>
 				<%}
 				} else {
 				%>
