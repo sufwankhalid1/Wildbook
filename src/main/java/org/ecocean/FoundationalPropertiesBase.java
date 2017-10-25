@@ -117,7 +117,6 @@ public abstract class FoundationalPropertiesBase implements java.io.Serializable
       }
     }  
   } 
-
   public ArrayList<Measurement> getBaseMeasurementArrayList() {
     return baseMeasurements;
   }

@@ -1304,6 +1304,11 @@
     <servlet-class>org.ecocean.servlet.BaseClassSetObservation</servlet-class>
   </servlet>
   
+  <servlet>
+    <servlet-name>SurveySetObservation</servlet-name>
+    <servlet-class>org.ecocean.servlet.SurveySetObservation</servlet-class>
+  </servlet>
+  
     <servlet>
     <servlet-name>OccurrenceSearchExportMetadataExcel</servlet-name>
     <servlet-class>org.ecocean.servlet.export.OccurrenceSearchExportMetadataExcel</servlet-class>
@@ -2142,6 +2147,11 @@
   <servlet-mapping>
     <servlet-name>BaseClassSetObservation</servlet-name>
     <url-pattern>/BaseClassSetObservation</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>SurveySetObservation</servlet-name>
+    <url-pattern>/SurveySetObservation</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

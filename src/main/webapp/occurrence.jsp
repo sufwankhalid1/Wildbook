@@ -591,7 +591,7 @@ context=ServletUtilities.getContext(request);
 						}
 				%>
 						<li id="tag-<%=mt.getId()%>" style="list-style:none;padding-left:0;">
-							<small><p><label><strong>ID :</strong></label> <%=mt.getId()%> <label><strong> Location :</strong></label> <%=mt.getLocation()%><strong> Name :</strong></label> <%=mt.getTagNumber()%></p></small>
+							<small><p><label><strong>ID :</strong></label> <%=mt.getId()%> <label><strong> Location :</strong></label><label> <%=mt.getLocation()%><strong> Name :</strong></label> <%=mt.getTagNumber()%></p></small>
 							<button id="showObservations-<%=mt.getId()%>" onclick="showObservations('<%=mt.getId()%>')" type="button" class="obsTag obsTagShow btn btn-primary btn-xs"><small>Show Observations</small></button>
 							<button id="hideObservations-<%=mt.getId()%>" onclick="hideObservations('<%=mt.getId()%>')" style="display:none;" type="button" class="obsTag btn btn-primary btn-xs"><small>Hide Observations</small></button>
 							<button onclick="removeTag('<%=mt.getId()%>','metal','<%=occ.getOccurrenceID()%>')" type="button" class="removeTag btn btn-primary btn-xs"><small>Remove</small></button>

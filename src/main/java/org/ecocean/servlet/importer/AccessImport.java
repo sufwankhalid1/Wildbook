@@ -952,11 +952,11 @@ public class AccessImport extends HttpServlet {
                   }
                 }
               } else {
-                out.println("Location ID, Project and simpleLoc for this enc is null!");
+                //out.println("Location ID, Project and simpleLoc for this enc is null!");
                 noProjectOrLocation +=1;
               }                  
             } else {
-              out.println("This occ has already been added to the SurveyTrack, skipping...");
+              //out.println("This occ has already been added to the SurveyTrack, skipping...");
             }
           }
           if (matched) {
