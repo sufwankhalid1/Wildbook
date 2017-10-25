@@ -458,7 +458,6 @@ public class ImportLegacyBento extends HttpServlet {
   private Occurrence checkMasterArrForOccurrence(String[] names, String[] values) {
     
     //The only surveys available in the arr should be from the survey log table. 
-    
     // I guess we could match it against surveys with date constraints
     // and try to match on vessel also there? Seems like that would be weird. 
     String date = formatDate(values[34]);
