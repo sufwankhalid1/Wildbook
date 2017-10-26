@@ -915,7 +915,7 @@ public class AccessImport extends HttpServlet {
                   if (occProj.contains(project) || project.contains(occProj)) {
                     out.println("MATCH!!! At least on project name... (enc:surveyTrack) Project : "+occProj+" = "+project);
                                    
-                    st.addOccurence(myShepherd.getOccurrence(enc.getOccurrenceID()));
+                    st.addOccurrence(myShepherd.getOccurrence(enc.getOccurrenceID()),myShepherd);
                     // add check for if the survey is the same here?
                     //sv.addSurveyTrack(st);
                     success++;
@@ -929,7 +929,7 @@ public class AccessImport extends HttpServlet {
                 if (encLoc != null && surveyArea != null && !matched) {
                   if (enc.getLocationID().contains(surveyArea) || surveyArea.contains(enc.getLocationID())) {
                     out.println("MATCH!!! At least on location ID... (enc:surveyTrack) Location : "+enc.getLocationID()+" = "+st.getLocationID()+" Project : "+enc.getSubmitterProject()+" = "+sv.getProjectName());
-                    st.addOccurence(myShepherd.getOccurrence(enc.getOccurrenceID()));
+                    st.addOccurrence(myShepherd.getOccurrence(enc.getOccurrenceID()),myShepherd);
                     sv.addSurveyTrack(st);
                     success++;
                     matched = true;
@@ -942,7 +942,7 @@ public class AccessImport extends HttpServlet {
                 if (simpleLoc !=null && surveyArea !=null && !matched) {
                   if (simpleLoc.contains(surveyArea) || surveyArea.contains(simpleLoc)) {
                     out.println("MATCH!!! on SimpleLocation/SurveyArea : "+simpleLoc+" = "+st.getLocationID());
-                    st.addOccurence(myShepherd.getOccurrence(enc.getOccurrenceID()));
+                    st.addOccurrence(myShepherd.getOccurrence(enc.getOccurrenceID()), myShepherd);
                     sv.addSurveyTrack(st);
                     success++;
                     matched = true;
@@ -973,7 +973,7 @@ public class AccessImport extends HttpServlet {
             if (occIds.size()==1) {
               String id = occIds.get(0);
               Occurrence onlyOcc = myShepherd.getOccurrence(id);
-              st.addOccurence(onlyOcc);
+              st.addOccurrence(onlyOcc, myShepherd);
               sv.addSurveyTrack(st);
               success++;
               numOneOccs++;              
