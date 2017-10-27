@@ -121,7 +121,7 @@ public class AccessImport extends HttpServlet {
     
     
     // These switches allow you to work on different tables without doing the whole import a bunch of times.
-    boolean dumlTableSwitch = true;
+    boolean dumlTableSwitch = false;
     if (dumlTableSwitch) {    
       try {
         out.println("********************* Let's process the DUML Table!\n");
@@ -135,7 +135,7 @@ public class AccessImport extends HttpServlet {
       }
     }  
     
-    boolean simpleLocationsDUML = true;
+    boolean simpleLocationsDUML = false;
     if (simpleLocationsDUML) {
       try {
         out.println("********************* Building a HashMap of simple location names for EFFORT/DUML matching...");
@@ -148,7 +148,7 @@ public class AccessImport extends HttpServlet {
       }
     }
     
-    boolean sightingsTableSwitch = true;
+    boolean sightingsTableSwitch = false;
     if (sightingsTableSwitch) {
       try {
         out.println("********************* Let's process the SIGHTINGS Table!\n");
@@ -172,7 +172,7 @@ public class AccessImport extends HttpServlet {
       }      
     }
     
-    boolean biopsyTableSwitch = true;
+    boolean biopsyTableSwitch = false;
     if (biopsyTableSwitch) {
       try {
         out.println("********************* Let's process the BiopsySamples Table!\n");
