@@ -487,13 +487,10 @@ public class AccessImport extends HttpServlet {
           
           if (lat != null && !lat.equals("null") && !lat.equals("")) {
             //Double latDouble = Double.parseDouble(lat);
-            
             BigDecimal bd = new BigDecimal(lat);
-            Double db = bd.doubleValue();
-            
+            Double db = bd.doubleValue(); 
             newEnc.setEndDecimalLatitude(db);    
           }
-          
           if (columnMasterList.contains("END LAT")) {
             columnMasterList.remove("END LAT");
           }
@@ -510,15 +507,12 @@ public class AccessImport extends HttpServlet {
         if (thisRow.get("END LONG") != null && !thisRow.get("END LONG").equals("null")) {
           lon = thisRow.get("END LONG").toString();          
           //out.println("---------------- END LON : "+lon);
-          
           if (lon != null && !lon.equals("null") && !lon.equals("")) {
             //Double lonDouble = Double.parseDouble(lon);
             BigDecimal bd = new BigDecimal(lon);
-            Double db = bd.doubleValue();
-            
+            Double db = bd.doubleValue();    
             newEnc.setEndDecimalLongitude(db);               
           }
-          
           if (columnMasterList.contains("END LONG")) {
             columnMasterList.remove("END LONG");
           }
@@ -622,7 +616,6 @@ public class AccessImport extends HttpServlet {
           duplicateEncs.add(dup);
         }
         
-        // Take care of business by generating an ID for the encounter object(s) and persisting it (them). 
         Occurrence occ = null;
         boolean hasLocs = true;
         if (duplicateEncs.size() > 0) {
@@ -761,15 +754,15 @@ public class AccessImport extends HttpServlet {
       try {
         if (enc != null) {
           enc.addBaseObservationArrayList(newObs);
-          enc.getBaseObservationArrayList().toString();
+          //enc.getBaseObservationArrayList().toString();
         }
         if (occ != null) {
           occ.addBaseObservationArrayList(newObs); 
-          occ.getBaseObservationArrayList().toString();
+          //occ.getBaseObservationArrayList().toString();
         }
         if (ts != null) {
           ts.addBaseObservationArrayList(newObs); 
-          ts.getBaseObservationArrayList().toString();
+          //ts.getBaseObservationArrayList().toString();
         }
         out.println("YEAH!!! added "+newObs.size()+" observations to "+obj.getClass().getSimpleName()+" "+id+" : ");
       } catch (Exception e) {
