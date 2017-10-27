@@ -121,7 +121,7 @@ public class AccessImport extends HttpServlet {
     
     
     // These switches allow you to work on different tables without doing the whole import a bunch of times.
-    boolean dumlTableSwitch = false;
+    boolean dumlTableSwitch = true;
     if (dumlTableSwitch) {    
       try {
         out.println("********************* Let's process the DUML Table!\n");
@@ -135,20 +135,19 @@ public class AccessImport extends HttpServlet {
       }
     }  
     
-    boolean simpleLocationsDUML = false;
+    boolean simpleLocationsDUML = true;
     if (simpleLocationsDUML) {
       try {
         out.println("********************* Building a HashMap of simple location names for EFFORT/DUML matching...");
         File locExcel = new File(dbLocation+"DUML locations.xlsx");
         System.out.println("Loc Excel? : "+locExcel.getAbsolutePath());
-        createSimpleLocationsDUMLHashmap(myShepherd, locExcel);
-        
+        createSimpleLocationsDUMLHashmap(myShepherd, locExcel); 
       } catch (Exception e) {
         e.printStackTrace();
       }
     }
     
-    boolean sightingsTableSwitch = false;
+    boolean sightingsTableSwitch = true;
     if (sightingsTableSwitch) {
       try {
         out.println("********************* Let's process the SIGHTINGS Table!\n");
@@ -172,7 +171,7 @@ public class AccessImport extends HttpServlet {
       }      
     }
     
-    boolean biopsyTableSwitch = false;
+    boolean biopsyTableSwitch = true;
     if (biopsyTableSwitch) {
       try {
         out.println("********************* Let's process the BiopsySamples Table!\n");
