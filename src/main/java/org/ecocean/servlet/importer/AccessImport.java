@@ -182,7 +182,6 @@ public class AccessImport extends HttpServlet {
         out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Could not process BiopsySamples table!!!");
       }      
     }
-    
     myShepherd.commitDBTransaction();
     myShepherd.closeDBTransaction();
     db.close(); 
@@ -1550,7 +1549,7 @@ public class AccessImport extends HttpServlet {
       while (encs.hasNext()) {
         Encounter enc = encs.next();
         String location = enc.getLocation();
-        out.println("Location from Enc : "+location);
+        //out.println("Location from Enc : "+location);
         //Run Through and see if there is a simple locations equivalent for this entry..
         try {
           if (simpleLocationsDUML.containsKey(location)) {
