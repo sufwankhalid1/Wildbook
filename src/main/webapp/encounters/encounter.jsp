@@ -564,12 +564,12 @@ $(function() {
       altField: '#releasedatepickerField',
 
 
-      <%//set a default date if we cann
-					if ((enc.getReleaseDateLong() != null) && (enc.getReleaseDateLong() > 0)) {
-
-						LocalDateTime jodaTime = new LocalDateTime(enc.getReleaseDateLong().longValue());
-						DateTimeFormatter parser1 = DateTimeFormat.forPattern("yyyy-MM-dd");%>
-      defaultDate: '<%=parser1.print(jodaTime)%>',
+      <%
+      if ((enc.getReleaseDateLong() != null) && (enc.getReleaseDateLong() > 0)) {
+		LocalDateTime jodaTime = new LocalDateTime(enc.getReleaseDateLong().longValue());
+		DateTimeFormatter parser1 = DateTimeFormat.forPattern("yyyy-MM-dd");
+	  %>
+      	defaultDate: '<%=parser1.print(jodaTime)%>',
       <%}%>
 
 
@@ -4813,8 +4813,6 @@ $(document).ready(function() {
 
 					<form name="addDynProp" action="../BaseClassSetObservation"
 						method="post" class="editFormDynamic">
-						<%System.out.println("Naaaammmeee ???? "+nm);%>
-						<%System.out.println("Naaaammmeee ???? "+vl);%>
 						<input name="name" type="hidden" value="<%=nm%>" /> 
 						<input name="number" type="hidden" value="<%=num%>" />
 						<!-- This servlet can handle encounters or occurrences, so you have to pass it the Type!  -->

@@ -377,7 +377,7 @@ public class Occurrence extends FoundationalPropertiesBase {
   }
 
   public Long getMillisFromEncounterAvg() {
-    Long total = 0L;
+    Long total = 1L;
     int numAveraged = 0;
     for (Encounter enc: encounters) {
       if (enc.getDateInMilliseconds()!=null) {
