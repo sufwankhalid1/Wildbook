@@ -710,6 +710,72 @@ public class AccessImport extends HttpServlet {
     }   
   }
   
+  private void processRemainingColumnsAsObservations(Object obj, HashMap<String,String> columnList) {
+    Encounter enc = null;
+    Occurrence occ = null;
+    TissueSample ts = null;
+    Survey sv = null;
+    
+    String id = null;
+    ArrayList<Observation> newObs = new ArrayList<>();
+    if (!newObs.isEmpty()) {
+      try {
+        if (obj.getClass().getSimpleName().equals("Encounter")) {
+          enc = (Encounter) obj;
+          id = ((Encounter) obj).getPrimaryKeyID();
+        } 
+        if (obj.getClass().getSimpleName().equals("Occurrence")) {
+          occ = (Occurrence) obj;
+          id = ((Occurrence) obj).getPrimaryKeyID();
+          occ.addBaseObservationArrayList(newObs); 
+          occ.getBaseObservationArrayList().toString();
+        }
+        if (obj.getClass().getSimpleName().equals("TissueSample")) {
+          ts = (TissueSample) obj;
+          id = ((TissueSample) obj).getSampleID();
+          ts.addBaseObservationArrayList(newObs); 
+          ts.getBaseObservationArrayList().toString();
+        }
+        if (obj.getClass().getSimpleName().equals("Survey")) {
+          sv = (Survey) obj;
+          id = ((Survey) obj).getID();
+          sv.addBaseObservationArrayList(newObs); 
+          sv.getBaseObservationArrayList().toString();
+        }
+        out.println("Added "+newObs.size()+" observations to "+obj.getClass().getSimpleName()+" "+id+" : ");
+      } catch (Exception e) {
+        e.printStackTrace();
+        out.println("Failed to add the array of observations to this object.");
+      }        
+    }
+    for (String key : columnList.keySet()) {
+      String value = columnList.get(key);
+      try {
+        if (value!= null&&value.length() > 0) {
+          Observation ob = new Observation(key, value, obj, id);
+          newObs.add(ob);           
+        }
+      } catch (Exception e) {
+        e.printStackTrace();
+        out.println("Failed to create and store Observation "+key+" with value "+value+" for encounter "+id);
+      }
+    }
+    if (enc!=null) {
+      enc.addBaseObservationArrayList(newObs);
+      enc.getBaseObservationArrayList().toString();
+    } else if (occ!=null) {
+      occ.addBaseObservationArrayList(newObs); 
+      occ.getBaseObservationArrayList().toString();
+    } else if (ts!=null) {
+      ts.addBaseObservationArrayList(newObs); 
+      ts.getBaseObservationArrayList().toString();
+    } else if (sv!=null) {
+      sv.addBaseObservationArrayList(newObs); 
+      sv.getBaseObservationArrayList().toString();
+    }
+    
+  }
+  
   private void processRemainingColumnsAsObservations(Object obj, ArrayList<String> columnMasterList, Row thisRow) {
     //Lets grab every other little thing in the Column master list and try to process it without the whole thing blowing up.
     // Takes an Encounter, or an Occurrence! Whoa! Even a TissueSample! 
@@ -718,6 +784,7 @@ public class AccessImport extends HttpServlet {
     Encounter enc = null;
     Occurrence occ = null;
     TissueSample ts = null;
+    Survey sv = null;
     String id = null;
     if (obj.getClass().getSimpleName().equals("Encounter")) {
       enc = (Encounter) obj;
@@ -730,6 +797,10 @@ public class AccessImport extends HttpServlet {
     if (obj.getClass().getSimpleName().equals("TissueSample")) {
       ts = (TissueSample) obj;
       id = ((TissueSample) obj).getSampleID();
+    }
+    if (obj.getClass().getSimpleName().equals("Survey")) {
+      sv = (Survey) obj;
+      id = ((Survey) obj).getID();
     }
     
     ArrayList<Observation> newObs = new ArrayList<Observation>();
@@ -760,6 +831,10 @@ public class AccessImport extends HttpServlet {
         }
         if (ts != null) {
           ts.addBaseObservationArrayList(newObs); 
+          //ts.getBaseObservationArrayList().toString();
+        }
+        if (sv != null) {
+          sv.addBaseObservationArrayList(newObs); 
           //ts.getBaseObservationArrayList().toString();
         }
         out.println("YEAH!!! added "+newObs.size()+" observations to "+obj.getClass().getSimpleName()+" "+id+" : ");
@@ -969,6 +1044,9 @@ public class AccessImport extends HttpServlet {
               success++;
               numOneOccs++;              
             }
+            if (!occIds.isEmpty()) {
+              determineSurveyStartAndEndTime(sv);
+            }
           }
         }
       } catch (Exception e) {
@@ -976,7 +1054,6 @@ public class AccessImport extends HttpServlet {
         out.println(thisRow.toString());
         e.printStackTrace(out);
       }
-      
     }
     out.println("+++++++++++++ I created surveys and tracks for "+success+" encounters from "+table.getRowCount()+" lines in the EFFORT table. +++++++++++++");
     out.println("+++++++++++++ There were "+matchedNum+" out of "+table.getRowCount()+" effort table entries connected to at least one encounter. ++++++++++++");
@@ -986,6 +1063,14 @@ public class AccessImport extends HttpServlet {
     for (String fail : failArray) {
       out.println(fail);
     }
+  }
+  
+  private void determineStartAndEndTime(Survey sv) {
+    
+    //Dive down to  Encs, look for time, then revert to occs, then add to survey with the oldest 
+    // representing the startTime. 
+    
+    ArrayList<Occurrence> occs
   }
   
   private void addSurveyAndTrackIDToOccurrence(Encounter enc, Survey sv, SurveyTrack st, Shepherd myShepherd) {
