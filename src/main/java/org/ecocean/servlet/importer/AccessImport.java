@@ -710,72 +710,6 @@ public class AccessImport extends HttpServlet {
     }   
   }
   
-  private void processRemainingColumnsAsObservations(Object obj, HashMap<String,String> columnList) {
-    Encounter enc = null;
-    Occurrence occ = null;
-    TissueSample ts = null;
-    Survey sv = null;
-    
-    String id = null;
-    ArrayList<Observation> newObs = new ArrayList<>();
-    if (!newObs.isEmpty()) {
-      try {
-        if (obj.getClass().getSimpleName().equals("Encounter")) {
-          enc = (Encounter) obj;
-          id = ((Encounter) obj).getPrimaryKeyID();
-        } 
-        if (obj.getClass().getSimpleName().equals("Occurrence")) {
-          occ = (Occurrence) obj;
-          id = ((Occurrence) obj).getPrimaryKeyID();
-          occ.addBaseObservationArrayList(newObs); 
-          occ.getBaseObservationArrayList().toString();
-        }
-        if (obj.getClass().getSimpleName().equals("TissueSample")) {
-          ts = (TissueSample) obj;
-          id = ((TissueSample) obj).getSampleID();
-          ts.addBaseObservationArrayList(newObs); 
-          ts.getBaseObservationArrayList().toString();
-        }
-        if (obj.getClass().getSimpleName().equals("Survey")) {
-          sv = (Survey) obj;
-          id = ((Survey) obj).getID();
-          sv.addBaseObservationArrayList(newObs); 
-          sv.getBaseObservationArrayList().toString();
-        }
-        out.println("Added "+newObs.size()+" observations to "+obj.getClass().getSimpleName()+" "+id+" : ");
-      } catch (Exception e) {
-        e.printStackTrace();
-        out.println("Failed to add the array of observations to this object.");
-      }        
-    }
-    for (String key : columnList.keySet()) {
-      String value = columnList.get(key);
-      try {
-        if (value!= null&&value.length() > 0) {
-          Observation ob = new Observation(key, value, obj, id);
-          newObs.add(ob);           
-        }
-      } catch (Exception e) {
-        e.printStackTrace();
-        out.println("Failed to create and store Observation "+key+" with value "+value+" for encounter "+id);
-      }
-    }
-    if (enc!=null) {
-      enc.addBaseObservationArrayList(newObs);
-      enc.getBaseObservationArrayList().toString();
-    } else if (occ!=null) {
-      occ.addBaseObservationArrayList(newObs); 
-      occ.getBaseObservationArrayList().toString();
-    } else if (ts!=null) {
-      ts.addBaseObservationArrayList(newObs); 
-      ts.getBaseObservationArrayList().toString();
-    } else if (sv!=null) {
-      sv.addBaseObservationArrayList(newObs); 
-      sv.getBaseObservationArrayList().toString();
-    }
-    
-  }
-  
   private void processRemainingColumnsAsObservations(Object obj, ArrayList<String> columnMasterList, Row thisRow) {
     //Lets grab every other little thing in the Column master list and try to process it without the whole thing blowing up.
     // Takes an Encounter, or an Occurrence! Whoa! Even a TissueSample! 
@@ -847,6 +781,8 @@ public class AccessImport extends HttpServlet {
   
   private void processEffortTable(Table table, Shepherd myShepherd) {
     
+    ArrayList<String> columnMasterList = getColumnMasterList(table);
+    
     if (!myShepherd.getPM().currentTransaction().isActive()) {
       myShepherd.beginDBTransaction();
     }
@@ -889,6 +825,7 @@ public class AccessImport extends HttpServlet {
           myShepherd.beginDBTransaction();
           
           sv.addSurveyTrack(st);
+          columnMasterList.remove("DATE");
         }
       } catch (Exception e) {
         out.println("!!!!!!!!!!!!!! Could not process a DATE for row "+i+" in EFFORT");
@@ -909,6 +846,7 @@ public class AccessImport extends HttpServlet {
             myShepherd.commitDBTransaction();
             myShepherd.beginDBTransaction();
             sv.setEffort(effortMeasurement);            
+            columnMasterList.remove("SurveyHrs");
           }
         }
       } catch (Exception e) {
@@ -921,6 +859,7 @@ public class AccessImport extends HttpServlet {
         if (thisRow.get("VESSEL") != null) {
           String vesselID = thisRow.getString("VESSEL");
           st.setVesselID(vesselID);
+          columnMasterList.remove("VESSEL");
         }
       } catch (Exception e) {
         out.println("!!!!!!!!!!!!!! Could not process Vessel for row "+i+" in EFFORT");
@@ -932,6 +871,7 @@ public class AccessImport extends HttpServlet {
         if (thisRow.get("PROJECT") != null) {
           project = thisRow.getString("PROJECT");
           sv.setProjectName(project);
+          columnMasterList.remove("PROJECT");
         }
       } catch (Exception e) {
         out.println("!!!!!!!!!!!!!! Could not process PROJECT for row "+i+" in EFFORT");
@@ -942,6 +882,7 @@ public class AccessImport extends HttpServlet {
         if (thisRow.get("COMMENTS") != null) {
           String comments = thisRow.getString("COMMENTS");
           sv.addComments(comments);
+          columnMasterList.remove("COMMENTS");
         }
       } catch (Exception e) {
         out.println("!!!!!!!!!!!!!! Could not process COMMENTS for row "+i+" in EFFORT");
@@ -954,7 +895,7 @@ public class AccessImport extends HttpServlet {
           String surveyArea = thisRow.getString("SURVEY AREA");
           // Set this on associated encounters too.  
           st.setLocationID(surveyArea.trim());
-          
+          columnMasterList.remove("SURVEY AREA");
           encsOnThisDate = myShepherd.getEncounterArrayWithShortDate(date);
           
           out.println("Can we find an enc for this Survey and Track? We have "+encsOnThisDate.size()+" encs to check.");
@@ -1045,7 +986,8 @@ public class AccessImport extends HttpServlet {
               numOneOccs++;              
             }
             if (!occIds.isEmpty()) {
-              determineSurveyStartAndEndTime(sv);
+              processRemainingColumnsAsObservations(sv, columnMasterList, thisRow);
+              determineStartAndEndTime(sv);
             }
           }
         }
@@ -1066,11 +1008,27 @@ public class AccessImport extends HttpServlet {
   }
   
   private void determineStartAndEndTime(Survey sv) {
-    
     //Dive down to  Encs, look for time, then revert to occs, then add to survey with the oldest 
     // representing the startTime. 
-    
-    ArrayList<Occurrence> occs
+    Long startTime = null;
+    Long endTime = null;
+    ArrayList<SurveyTrack> trks = sv.getAllSurveyTracks();
+    ArrayList<Occurrence> occs = new ArrayList<>();
+    for (SurveyTrack trk : trks) {
+      occs.addAll(trk.getAllOccurrences());
+    }
+    for (Occurrence occ : occs) {
+      occ.setMillisFromEncounters();
+      Long time = occ.getMillisFromEncounterAvg();
+      if (startTime==null||time<startTime) {
+        startTime = time;
+        sv.setStartTimeMilli(startTime);
+      }
+      if (endTime==null||time>endTime) {
+        endTime = time;
+        sv.setEndTimeMilli(endTime);
+      }
+    }
   }
   
   private void addSurveyAndTrackIDToOccurrence(Encounter enc, Survey sv, SurveyTrack st, Shepherd myShepherd) {
