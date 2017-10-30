@@ -234,6 +234,61 @@ if (sv!=null) {
 		</table>
 		<hr/>
 		<br/>
+		
+		<!-- Begin SurveyTrack addition form -->
+		<div id="trackAddForm">	
+			<form name="addTag" action="../AddSurveyTrackToSurvey" method="post" class="editFormSurvey">
+						
+				<label><%=props.getProperty("locationID")%></label>
+				<input name="locationID" title="Location ID" type="text" class="form-control" id="addSurveyInput1" />
+				
+				<label><%=props.getProperty("vessel")%></label>
+				<input name="vessel" title="Vessel" type="text" class="form-control" id="addSurveyInput2" />
+				
+				<label><%=props.getProperty("startTime")%></label>
+				<div class="input-group start-clockpicker">
+				    <input name="startTime" title="Start Time" type="text" class="form-control" value="12:00" id="addTagInput3"/>
+				    <span class="input-group-addon">
+				        <span class="glyphicon glyphicon-time"></span>
+				    </span>
+				</div>
+				
+				<label><%=props.getProperty("endTime")%></label>
+				<div class="input-group end-clockpicker">
+				    <input name="endTime" title="End Time" type="text" class="form-control" value="12:00" id="addTagInput4"/>
+				    <span class="input-group-addon">
+				        <span class="glyphicon glyphicon-time"></span>
+				    </span>
+				</div>
+				
+				<label><%=props.getProperty("effort")%></label>
+				<label><small>Value to be added to the parent survey.</small></label>
+				<input name="effort" title="Effort" type="number" class="form-control" id="addTagInput5" step="0.1" />
+				
+				<label><%=props.getProperty("type")%>:</label>
+				<label><small><%=props.getProperty("surveyTypes")%></small></label>
+				<input name="surveyType" title="Survey Type" type="text" class="form-control" id="addTagInput6" />
+				
+				<label><%=props.getProperty("distance")%></label>
+				<input name="distance" title="distance" type="distance" class="form-control" id="addTagInput5" step="0.1" />
+				
+				
+				<label><%=props.getProperty("comments")%>:</label>
+				<input name="comments" title="Comments" type="text" class="form-control" id="addTagInput7" />
+				
+				<input name="Add Survey Track" type="submit" id="addSurveyTrackBtn" value="<%=props.getProperty("submit")%>" class="btn btn-sm editFormBtn" /> 
+		    
+		    </form>
+   
+   			<input name="Define Survey Track" type="button" id="addSurveyTrackBtn" value="<%=props.getProperty("defineTrack")%>" class="btn btn-sm editFormBtn" />
+	   		<input name="Hide Survey Track Options" type="button" id="hideSurveyTrackBtn" value="<%=props.getProperty("hideTrack")%>" class="btn btn-sm editFormBtn" />		    
+	    
+
+		</div>
+		
+		<!-- End SurveyTrack add section. -->
+		
+		<br/>
 		</div>
 		<div class="col-md-12">
 			<p><strong><%=props.getProperty("surveyMap") %></strong></p>
@@ -247,7 +302,34 @@ if (sv!=null) {
 <div id="surveyObservations">
 			  <!-- Observations Column -->
 <script type="text/javascript">
-$(document).ready(function() {
+
+$(document).ready(function(){
+	
+	$('#hideSurveyTrackBtn').hide();
+	
+    $('.start-clockpicker').clockpicker({donetext: 'Set'});
+    $('.end-clockpicker').clockpicker({donetext: 'Set'});   
+    
+    $('.datepicker').datepicker({
+        format: 'mm/dd/yyyy',
+        startDate: '-3d'
+    });
+    
+    $('#addSurveyTrackBtn').click(function(){
+    	$('#addSurveyTrackBtn').hide();
+    	$('#hideSurveyTrackBtn').show();
+    	$('#trackAddForm').slideDown();
+    	$('#addTrackBool').val('true');
+    	var bool = $('#addTrackBool').val();
+    });
+    $('#hideSurveyTrackBtn').click(function(){
+    	$('#addSurveyTrackBtn').show();
+    	$('#hideSurveyTrackBtn').hide();
+    	$('#trackAddForm').slideUp();
+    	$('#addTrackBool').val('false');
+    	var bool = $('#addTrackBool').val();
+    });
+
   $(".editFormObservation").hide();
   var buttons = $("#editDynamic, #closeEditDynamic").on("click", function(){
     buttons.toggle();
