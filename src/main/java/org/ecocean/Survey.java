@@ -234,7 +234,7 @@ public class Survey implements java.io.Serializable{
   }
   
   public String getStartTimeMilli() {
-    if (startTime > 0 && startTime != null) {
+    if (startTime != null && startTime > 0) {
       return startTime.toString();
     }
     return null;
@@ -271,7 +271,7 @@ public class Survey implements java.io.Serializable{
   } 
   
   public String getEndTimeMilli() {
-    if (endTime > 0 && endTime != null) {
+    if (endTime != null && endTime > 0) {
       return endTime.toString();
     }
     return null;

@@ -255,7 +255,7 @@ public class AccessImport extends HttpServlet {
           newEnc.setVerbatimEventDate(dateTime.toString());          
           newEnc.setDateInMilliseconds(dateTime.getMillis());  
           dates += 1;
-          //out.println("--------------------------------------------- DateTime String : "+dateTime.toString()+" Stored startTime : "+startTime);
+          out.println("--- StartTime: "+startTime);
           //out.println("--------------------------------------- .getDate() produces....  "+newEnc.getDate());
           //  out.println("--- ++++++++ ENTIRE ROW STRING :"+thisRow.toString()+"\n\n");
           if (columnMasterList.contains("DATE") || columnMasterList.contains("StartTime")) {
@@ -281,7 +281,7 @@ public class AccessImport extends HttpServlet {
           DateTime dateTime = dateStringToDateTime(dateString, "EEE MMM dd hh:mm a yyyy");
           newEnc.setEndDateInMilliseconds(dateTime.getMillis());
           endTimes += 1;
-          //out.println("---------------- End Time : "+et);
+          out.println("---------------- End Time : "+et);
           if (columnMasterList.contains("EndTime")) {
             columnMasterList.remove("EndTime");
           }
@@ -609,7 +609,7 @@ public class AccessImport extends HttpServlet {
         out.println("Creating "+duplicates+" encounters for the occurrence with this date/number match.");
         while (duplicateEncs.size() < duplicates ) {
           Encounter dup = (Encounter) deepCopy(newEnc);
-          out.println("Copy Location : "+dup.getLocation());
+          //out.println("Copy Location : "+dup.getLocation());
           dup.setCatalogNumber(Util.generateUUID());
           duplicateEncs.add(dup);
         }
@@ -1035,11 +1035,11 @@ public class AccessImport extends HttpServlet {
       myShepherd.commitDBTransaction();
       if (st.getPathID()!=null) {
         pth = myShepherd.getPath(st.getPathID());
+        pth.addPointLocation(pl);
       } else {
         pth = new Path(pl);
         st.setPathID(pth.getID());
       }
-      pth.addPointLocation(pl);
     } catch (Exception e) {
       e.printStackTrace();
       myShepherd.rollbackDBTransaction();
