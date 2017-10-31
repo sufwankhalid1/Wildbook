@@ -2801,8 +2801,11 @@ throw new Exception();
         public static List<Encounter> findAllByMediaAsset(MediaAsset ma, Shepherd myShepherd) {
             List<Encounter> returnEncs = new ArrayList<Encounter>();
             try {
-                String queryString = "SELECT FROM org.ecocean.Encounter WHERE annotations.contains(ann) && ann.mediaAsset.id ==" + ma.getId();
-                //String queryString = "SELECT FROM org.ecocean.Encounter WHERE annotations.contains(ann) && ann.features.contains(mAsset) && mAsset.id ==" + ma.getId();
+		String queryString = "SELECT FROM org.ecocean.Encounter WHERE annotations.contains(ann) && (true";
+		for (Annotation ann : ma.getAnnotations()) {
+			queryString += " || ann.id == '" + ann.getId() + "'";
+		}
+		queryString += ")";
                 Query query = myShepherd.getPM().newQuery(queryString);
                 Collection results = (Collection) query.execute();
                 returnEncs = new ArrayList<Encounter>(results);
