@@ -48,6 +48,7 @@ import java.util.UUID;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 //import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import javax.jdo.Query;
@@ -378,6 +379,10 @@ public class MediaAsset implements java.io.Serializable {
     public void addLabel(String s) {
         if (labels == null) labels = new ArrayList<String>();
         if (!labels.contains(s)) labels.add(s);
+    }
+    public void removeLabel(String s) {
+        if (labels == null) return;
+        labels.removeAll(new ArrayList<String>(Arrays.asList(s)));
     }
     public boolean hasLabel(String s) {
         if (labels == null) return false;
