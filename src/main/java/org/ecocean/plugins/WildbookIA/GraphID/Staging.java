@@ -19,28 +19,74 @@
 
 package org.ecocean.plugins.WildbookIA;
 
-import java.util.UUID;
-//import org.apache.commons.lang3.builder.ToStringBuilder;
+//import java.util.UUID;
+import org.ecocean.Annotation;
+
+//import java.util.Collections;
+//import org.ecocean.Annotation;
+//import org.ecocean.Util;
+import java.util.HashMap;
+//import org.json.JSONObject;
+import java.util.List;
+//import java.util.ArrayList;
+
 
 public class Staging extends Annotmatch {
-    private UUID reviewUuid;
-
     //note that the following 3-tuple of (annot1, annot2, count) should be unique *regardless of review order*
         //TODO try to make this work with psql constraint + trigger??
     private long timestampServerStart;
-    private long timestampClientStart;
     private long timestampServerEnd;
+    private long timestampClientStart;
     private long timestampClientEnd;
 
     //TODO how to let count automagically incremented?
-    public Staging(UUID a1, UUID a2, int ct) {
+    public Staging(Annotation a1, Annotation a2, int ct) {
         super(a1, a2);
-        reviewUuid = Util.generateUUID();
         count = ct;
     }
 
-    public Staging(UUID a1, UUID a2) {
-        Staging(a1, a2, 0);
+    public Staging(Annotation a1, Annotation a2) {
+        super(a1, a2);
+        count = 1;
     }
+
+    public void setTimestampServerStart(long s) {
+        timestampServerStart = s;
+    }
+    public long getTimestampServerStart() {
+        return timestampServerStart;
+    }
+
+    public void setTimestampServerEnd(long s) {
+        timestampServerEnd = s;
+    }
+    public long getTimestampServerEnd() {
+        return timestampServerEnd;
+    }
+
+    public void setTimestampClientStart(long s) {
+        timestampClientStart = s;
+    }
+    public long getTimestampClientStart() {
+        return timestampClientStart;
+    }
+
+    public void setTimestampClientEnd(long s) {
+        timestampClientEnd = s;
+    }
+    public long getTimestampClientEnd() {
+        return timestampClientEnd;
+    }
+
+/*
+    private static HashMap<String,Object> adderDataHack(List<Annotmatch> list) {
+        HashMap<String,Object> map = Annotmatch.adderData((List<Annotmatch>)(List<?>) list);
+        for (Annotmatch a : list) {
+            Staging s = (Staging)a;
+        }
+        map.put("FOOOOOO", "bar");
+        return map;
+    }
+*/
 
 }
