@@ -722,7 +722,9 @@ public class Occurrence implements java.io.Serializable{
 
     JSONObject encounterInfo = new JSONObject();
     for (Encounter enc : this.encounters) {
-      encounterInfo.put(enc.getCatalogNumber(), new JSONObject("{url: "+enc.getUrl(request)+"}"));
+        JSONObject uj = new JSONObject();
+        uj.put("url", enc.getUrl(request));
+      encounterInfo.put(enc.getCatalogNumber(), uj);
     }
     jobj.put("encounters", encounterInfo);
     jobj.put("assets", this.assets);
