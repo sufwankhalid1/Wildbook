@@ -460,6 +460,18 @@ public class Util {
 
     }
 
+    //returns null if it fails to parse
+    //grrr why dont we have this yet!  :)
+    public static Double doubleFromString(String d) {
+        if (d == null) return null;
+        try {
+            return Double.valueOf(d);
+        } catch (NumberFormatException nfe) {
+            System.out.println("Util.doubleFromString() WARNING: could not parse decimal from string " + d);
+        }
+        return null;
+    }
+
 /////GPS Longitude: "-69.0° 22.0' 45.62999999998169"",
     public static Double latlonDMStoDD(String dms) {
         String[] d = dms.split(" +");
