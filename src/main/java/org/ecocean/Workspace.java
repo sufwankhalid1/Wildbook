@@ -37,6 +37,7 @@ import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.ecocean.security.Collaboration;
 import org.ecocean.servlet.ServletUtilities;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 // A workspace simply saves arguments to the TranslateQuery servlet, attaching a name to them.
 public class Workspace implements java.io.Serializable {
@@ -149,5 +150,14 @@ public class Workspace implements java.io.Serializable {
         //me.put("accessed", this.accessed);  //TODO is this even being set?
         me.put("name", this.name);
         return me;
+    }
+
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("id", id)
+                .append("name", name)
+                .append("owner", owner)
+                .append("icreated", created)
+                .toString();
     }
 }
