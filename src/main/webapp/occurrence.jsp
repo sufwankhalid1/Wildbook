@@ -112,25 +112,38 @@ context=ServletUtilities.getContext(request);
   			</td>		
   		</tr>
   	</table>
+  	<p>
 	<%
 	if (occ.getSurvey(myShepherd)!=null) {
 		String surveyID = occ.getSurvey(myShepherd).getID();
 	%>	
-		<p><strong><%=props.getProperty("correspondingSurvey") %>:</strong> 
-			<a href="//<%=CommonConfiguration.getURLLocation(request)%>/surveys/survey.jsp?occID=<%=occ.getPrimaryKeyID()%>&surveyID=<%=surveyID%>"><%=surveyID%>
-			</a>
-		</p>			
+		<strong><%=props.getProperty("correspondingSurvey") %>:</strong> 
+			<a href="//<%=CommonConfiguration.getURLLocation(request)%>/surveys/survey.jsp?occID=<%=occ.getPrimaryKeyID()%>&surveyID=<%=surveyID%>"><%=surveyID%></a>			
 	<%	
 	} else {
 	%>	
-		<p><strong><%=props.getProperty("noSurvey") %></strong></p>
+		<strong><%=props.getProperty("noSurvey") %></strong>
 	<%
 	}
 	%>
+		<a class="" type="button" name="button" id="editSurvey" style="cursor: pointer;"><strong>Edit</strong></a>
+		<a class="" type="button" name="button" id="closeEditSurvey" style="display: none;cursor: pointer;"><strong>Close Edit</strong></a> 			
+	<%
+	if (occ.getCorrespondingSurveyTrackID()!=null) {
+		String surveyTrackID = occ.getCorrespondingSurveyTrackID();
+	%>
+		<br/>	
+		<strong><%=props.getProperty("correspondingSurveyTrack") %>: <%=surveyTrackID%></strong> 									
+	<%	
+	} else {
+	%>	
+		<strong><%=props.getProperty("noSurvey") %></strong>
+	<%
+	}
+	%>		
+	</p>
+
 	<!-- Triggers edit survey and track ID form. -->
-	<button class="btn btn-md" type="button" name="button" id="editSurvey">Edit</button>
-	<button class="btn btn-md" type="button" name="button" id="closeEditSurvey" style="display: none;">Close Edit</button> 
-	
 	
 	
 	
@@ -146,13 +159,13 @@ context=ServletUtilities.getContext(request);
 	  });
 	  $("#editSurvey").click(function() {
 	    //$(".editFormSurvey, .editTextSurvey, .allEditSurvey").toggle();
-	    $("#addSurveyForm").removeClass(" hidden");
 	    $("#addSurveyForm").slideDown();
+	    //$("#addSurveyForm").show();
 	  });
 	  $("#closeEditSurvey").click(function() {
 	    //$(".editFormSurvey, .editTextSurvey, .resultMessageDiv, .allEditSurvey").toggle();
-	    $("#addSurveyForm").addClass(" hidden");
 	    $("#addSurveyForm").slideUp();
+	    //$("#addSurveyForm").hide();
 	  });
 	});
 </script>								
@@ -196,29 +209,31 @@ context=ServletUtilities.getContext(request);
                     });
                   });
                 </script>
-
-			<div id="addSurveyForm" class="hidden">
-				<div class="highlight resultMessageDiv" id="addSurveyErrorDiv"></div>
-
-				<form name="addSurveyToEncounter" class="editFormSurvey">
-					<input name="number" type="hidden" value="<%=number%>" id="addEncNumber" /> <input name="action" type="hidden" value="add" id="addSurveyAction" />
-					<div class="form-group row">
-
-						<div class="col-sm-8" id="addDiv">
-							<label><%=props.getProperty("addSurvey")%>: </label>
-							<input name="surveyID" id="surveyID" type="text" class="form-control" placeholder="<%=props.getProperty("surveyID")%>" /> 	
-							<br>
-							<label><%=props.getProperty("addSurveyTrack")%>: </label>
-							<label><small>Must be defined to link back from Survey.</small></label>
-							<input name="surveyTrackID" id="surveyTrackID" type="text" class="form-control" placeholder="<%=props.getProperty("surveyTrackID")%>" />
+			<div id="addSurveyForm" style="display:none;">
+				<div class="col-xs-6 col-lg-6">
+					<div class="highlight resultMessageDiv" id="addSurveyErrorDiv"></div>
+					<form name="addSurveyToEncounter" class="editFormSurvey">
+						<input name="number" type="hidden" value="<%=number%>" id="addEncNumber" /> <input name="action" type="hidden" value="add" id="addSurveyAction" />
+						<div class="form-group row">
+							<div class="col-sm-8" id="addDiv">
+								<label><%=props.getProperty("addSurvey")%>: </label>
+								<input name="surveyID" id="surveyID" type="text" class="form-control" placeholder="<%=props.getProperty("surveyID")%>" /> 	
+								<br/>
+								<label><%=props.getProperty("addSurveyTrack")%>: </label><br/>
+								<label><small>Must be defined to link back from Survey.</small></label>
+								<input name="surveyTrackID" id="surveyTrackID" type="text" class="form-control" placeholder="<%=props.getProperty("surveyTrackID")%>" />
+							</div>
+							<div class="col-sm-8">
+								<input name="Add" type="submit" id="addEncounter" value="<%=props.getProperty("submit")%>" class="btn btn-sm editSurveyFormBtn" />
+								<label class="form-control-feedback" id="addSurveyCheck"></label>
+								<label class="form-control-feedback" id="addSurveyError"></label>
+							</div>
 						</div>
-						<div class="col-sm-8">
-							<input name="Add" type="submit" id="addEncounter" value="<%=props.getProperty("add")%>" class="btn btn-sm editSurveyFormBtn" />
-							<label class="form-control-feedback" id="addSurveyCheck"></label>
-							<label class="form-control-feedback" id="addSurveyError"></label>
-						</div>
-					</div>
-				</form>					
+					</form>					
+				</div>
+				<div class="col-xs-6 col-lg-6">
+					<br>
+				</div>
 			</div>
 		<%
 			}
@@ -233,7 +248,8 @@ context=ServletUtilities.getContext(request);
 	
 	
 	
-	
+<div class="row">	
+	<div class="col-xs-12">
 	<br/>
 	<p><%=props.getProperty("groupBehavior") %>: 
 		<%if(occ.getGroupBehavior()!=null){%>
@@ -355,7 +371,8 @@ context=ServletUtilities.getContext(request);
 		  <%=props.getProperty("numencounters")%>
 		</p> 
 	</table>
-	
+	</div>
+</div>
 	<!-- The Encounter display Area -->
 	<table id="results" style="width: 100%">
 	  <tr class="lineitem">
@@ -1145,7 +1162,7 @@ context=ServletUtilities.getContext(request);
 		<tr>
 			<td>
 				<span class="caption">Stored ID: e <%=thisSample.getSampleID()%></span>
-				<br>
+				<br/>
 				
 				<%
 					if (thisSample.getCorrespondingEncounterNumber()!=null) {
