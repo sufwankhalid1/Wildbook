@@ -135,11 +135,7 @@ context=ServletUtilities.getContext(request);
 		<br/>	
 		<strong><%=props.getProperty("correspondingSurveyTrack") %>: <%=surveyTrackID%></strong> 									
 	<%	
-	} else {
-	%>	
-		<strong><%=props.getProperty("noSurvey") %></strong>
-	<%
-	}
+	} 
 	%>		
 	</p>
 
@@ -174,37 +170,37 @@ context=ServletUtilities.getContext(request);
 		%>
 			<script type="text/javascript">
                   $(document).ready(function() {
-                    $("#addEncounter").click(function(event) {
+                    $("#addOccurrence").click(function(event) {
                       event.preventDefault();
 
                       //$("#addSurvey").hide();
 
-                      var encID = $("#addEncNumber").val();
+                      var occID = $("#addOccNumber").val();
                       var surveyID = $("#surveyID").val();
                       var surveyTrackID = $("#surveyTrackID").val();
 
-                      $.post("../EncounterSetSurveyAndTrack", {"encID": encID, "surveyTrackID": surveyTrackID, "surveyID": surveyID},
+                      $.post("../OccurrenceSetSurveyAndTrack", {"occID": occID, "surveyTrackID": surveyTrackID, "surveyID": surveyID},
                       function() {
-                        $("#addEncErrorDiv").hide();
+                        $("#addOccErrorDiv").hide();
                         $("#addDiv").addClass("has-success");
-                        $("#createEncCheck").show();
-                        $("#addSurveyCheck").html("Success!");
-                        $("#displayEncID").html(encounter);
+                        $("#createOccCheck").show();
+                        $("#addSurveyCheck").html("Success! Refresh the page to see your changes.");
+                        $("#displayOccID").html(encounter);
                       })
                       .fail(function(response) {
                         console.log("<small>Failed to add to survey.</small>");
                         $("#addDiv").addClass("has-error");
-                        $("#addEncError, #addEncErrorDiv").show();
+                        $("#addOccError, #addOccErrorDiv").show();
                         $("#addSurveyError").html("<small>Failed to add survey and track! Invalid Input. Check to make sure the track/survey has not already been added, or that it exists.</small>");
-                        $("#addEncounter").show();
+                        $("#addOccurrence").show();
                       });
                     });
 
-                    $("#add2EncounterInput").click(function() {
-                      $("#addEncError, #addEncCheck, #addEncErrorDiv").hide()
+                    $("#add2OccurrenceInput").click(function() {
+                      $("#addOccError, #addOccCheck, #addOccErrorDiv").hide()
                       $("#addDiv").removeClass("has-success");
                       $("#addDiv").removeClass("has-error");
-                      $("#addEncounter").show();
+                      $("#addOccurrence").show();
                       $("#addEncErrorDiv").hide();
                     });
                   });
@@ -212,8 +208,8 @@ context=ServletUtilities.getContext(request);
 			<div id="addSurveyForm" style="display:none;">
 				<div class="col-xs-6 col-lg-6">
 					<div class="highlight resultMessageDiv" id="addSurveyErrorDiv"></div>
-					<form name="addSurveyToEncounter" class="editFormSurvey">
-						<input name="number" type="hidden" value="<%=number%>" id="addEncNumber" /> <input name="action" type="hidden" value="add" id="addSurveyAction" />
+					<form name="addSurveyToOccurrence" class="editFormSurvey">
+						<input name="number" type="hidden" value="<%=number%>" id="addOccNumber" />
 						<div class="form-group row">
 							<div class="col-sm-8" id="addDiv">
 								<label><%=props.getProperty("addSurvey")%>: </label>
@@ -224,7 +220,7 @@ context=ServletUtilities.getContext(request);
 								<input name="surveyTrackID" id="surveyTrackID" type="text" class="form-control" placeholder="<%=props.getProperty("surveyTrackID")%>" />
 							</div>
 							<div class="col-sm-8">
-								<input name="Add" type="submit" id="addEncounter" value="<%=props.getProperty("submit")%>" class="btn btn-sm editSurveyFormBtn" />
+								<input name="Add" type="submit" id="addOccurrence" value="<%=props.getProperty("submit")%>" class="btn btn-sm editSurveyFormBtn" />
 								<label class="form-control-feedback" id="addSurveyCheck"></label>
 								<label class="form-control-feedback" id="addSurveyError"></label>
 							</div>

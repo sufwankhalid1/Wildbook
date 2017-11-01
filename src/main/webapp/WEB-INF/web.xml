@@ -348,6 +348,11 @@
     <servlet-name>EncounterSetSurveyAndTrack</servlet-name>
     <servlet-class>org.ecocean.servlet.EncounterSetSurveyAndTrack</servlet-class>
   </servlet>
+  
+  <servlet>
+    <servlet-name>OccurrenceSetSurveyAndTrack</servlet-name>
+    <servlet-class>org.ecocean.servlet.OccurrenceSetSurveyAndTrack</servlet-class>
+  </servlet>
 
   <servlet>
     <servlet-name>EncounterSetAlternateID</servlet-name>
@@ -1519,6 +1524,11 @@
   <servlet-mapping>
       <servlet-name>EncounterSetSurveyAndTrack</servlet-name>
       <url-pattern>/EncounterSetSurveyAndTrack</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+      <servlet-name>OccurrenceSetSurveyAndTrack</servlet-name>
+      <url-pattern>/OccurrenceSetSurveyAndTrack</url-pattern>
   </servlet-mapping>
 
     <servlet-mapping>
