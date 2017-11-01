@@ -427,6 +427,7 @@ public class ImportReadImages extends HttpServlet {
         nextIndy = allIndys.next();
         if (indyID.contains(nextIndy.getIndividualID())||nextIndy.getIndividualID().contains(indyID)) {
           indy = nextIndy;
+          break;
         }
       }        
       boolean matched = false;
@@ -448,6 +449,7 @@ public class ImportReadImages extends HttpServlet {
                 occ.addAsset(ma);
                 ma.setOccurrence(occ);
                 out.println("No indy was found for the name "+indyID+" so the Media Asset has been attached to a sightNo/date matching occ.");
+                setSurveyDataFromParent(occ, ma);
                 noIndys++;
                 matched = true;
                 break;
@@ -458,6 +460,7 @@ public class ImportReadImages extends HttpServlet {
                   enc.addMediaAsset(ma);
                   occ = myShepherd.getOccurrence(enc.getOccurrenceID());
                   ma.setOccurrence(occ);
+                  setSurveyDataFromParent(occ, ma);
                   matched = true;
                   break;
                 } else {
@@ -496,6 +499,18 @@ public class ImportReadImages extends HttpServlet {
     }
     out.println("There were "+noIndys+" Media Assets associated with an Individual that did not exist.");
     out.println("Data : "+data.size()+" NameList : "+nameList.size()+" Filenames : "+filenames.size());
+  }
+  
+  private void setSurveyDataFromParent(Occurrence occ, MediaAsset ma) {
+    String svID = occ.getCorrespondingSurveyID();
+    String stID = occ.getCorrespondingSurveyTrackID();
+    if (svID!=null) {
+      ma.setCorrespondingSurveyID(svID);      
+    }
+    if (stID!=null) {
+      ma.setCorrespondingSurveyTrackID(stID);
+    }
+    
   }
   
   private String processDate(String date) {

@@ -675,7 +675,6 @@ public class Occurrence extends FoundationalPropertiesBase {
     }
   }
   
-  
   public String getCorrespondingSurveyID() {
     if (correspondingSurveyID != null) {
       return correspondingSurveyID;
