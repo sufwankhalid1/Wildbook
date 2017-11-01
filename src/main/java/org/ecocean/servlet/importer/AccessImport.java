@@ -1015,7 +1015,9 @@ public class AccessImport extends HttpServlet {
     ArrayList<SurveyTrack> trks = sv.getAllSurveyTracks();
     ArrayList<Occurrence> occs = new ArrayList<>();
     for (SurveyTrack trk : trks) {
-      occs.addAll(trk.getAllOccurrences());
+      if (trk!=null&&trk.getAllOccurrences()!=null&&!trk.getAllOccurrences().isEmpty()) {        
+        occs.addAll(trk.getAllOccurrences());
+      }
     }
     for (Occurrence occ : occs) {
       occ.setMillisFromEncounters();
