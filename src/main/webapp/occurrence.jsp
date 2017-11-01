@@ -173,8 +173,6 @@ context=ServletUtilities.getContext(request);
                     $("#addOccurrence").click(function(event) {
                       event.preventDefault();
 
-                      //$("#addSurvey").hide();
-
                       var occID = $("#addOccNumber").val();
                       var surveyID = $("#surveyID").val();
                       var surveyTrackID = $("#surveyTrackID").val();
