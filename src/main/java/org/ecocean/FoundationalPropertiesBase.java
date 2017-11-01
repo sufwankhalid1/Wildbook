@@ -30,7 +30,7 @@ public abstract class FoundationalPropertiesBase implements java.io.Serializable
    * 
    */
   
-  protected String primaryKeyID;
+  protected String ID;
   
   private ArrayList<Observation> baseObservations = new ArrayList<Observation>();
   private ArrayList<Measurement> baseMeasurements = new ArrayList<Measurement>();
@@ -44,10 +44,10 @@ public abstract class FoundationalPropertiesBase implements java.io.Serializable
   public FoundationalPropertiesBase(){};
 
   public String getPrimaryKeyID() {
-    return primaryKeyID;
+    return ID;
   }
   public void setPrimaryKeyID(String id) {
-    primaryKeyID=id;
+    ID=id;
   }
   
   public ArrayList<Observation> getBaseObservationArrayList() {

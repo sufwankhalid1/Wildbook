@@ -101,7 +101,7 @@ public class EncounterVMData extends HttpServlet {
 			} else if (request.getParameter("candidates") != null) {
 				rtn.put("_wantCandidates", true);
 				ArrayList candidates = new ArrayList();
-				String filter = "this.primaryKeyID != \"" + enc.getCatalogNumber() + "\"";
+				String filter = "this.ID != \"" + enc.getCatalogNumber() + "\"";
 				String[] fields = {"locationID", "sex", "patterningCode"};
 				for (String f : fields) {
 					String val = request.getParameter(f);

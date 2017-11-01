@@ -260,7 +260,7 @@ var colDefn = [
   {
     key: 'ID',
     label: 'ID',
-    value: _notUndefined('primaryKeyID'),
+    value: _notUndefined('ID'),
   },
   {
     key: 'groupSize',
@@ -431,7 +431,7 @@ function xxxshow() {
 	$('#results-table td').html('');
 	for (var i = 0 ; i < results.length ; i++) {
 		//$('#results-table tbody tr')[i].title = searchResults[results[i]].individualID;
-		$('#results-table tbody tr')[i].setAttribute('data-id', searchResults[results[i]].primaryKeyID);
+		$('#results-table tbody tr')[i].setAttribute('data-id', searchResults[results[i]].ID);
 		for (var c = 0 ; c < colDefn.length ; c++) {
 			$('#results-table tbody tr')[i].children[c].innerHTML = sTable.values[results[i]][c];
 		}
@@ -456,7 +456,7 @@ function show() {
 	$('#results-table tbody tr').show();
 	for (var i = 0 ; i < results.length ; i++) {
 		//$('#results-table tbody tr')[i].title = 'Encounter ' + searchResults[results[i]].id;
-		$('#results-table tbody tr')[i].setAttribute('data-id', searchResults[results[i]].primaryKeyID);
+		$('#results-table tbody tr')[i].setAttribute('data-id', searchResults[results[i]].ID);
 		for (var c = 0 ; c < colDefn.length ; c++) {
 			$('#results-table tbody tr')[i].children[c].innerHTML = '<div>' + sTable.values[results[i]][c] + '</div>';
 		}
@@ -638,7 +638,7 @@ function _colLongitude(o) {
 }
 function _colID(o) {
   if (o.ID == undefined) {
-    if (o.primaryKeyID == undefined) return '';
+    if (o.ID == undefined) return '';
     return o.DataCollectionEventID;
   }
   return o.ID;

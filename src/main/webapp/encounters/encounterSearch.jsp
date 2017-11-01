@@ -714,25 +714,30 @@ if(CommonConfiguration.showProperty("showCountry",context)){
           </td>
         </tr>
         
-
-
+        <!-- Begin search code for Observations -->
+        
+		<tr>
+			<td>
+				<br/>
+				<!-- Allow a key and value for each observation, allow user to add additional fields. -->
+				<label><%=encprops.getProperty("dead")%></label>
+				<input name="observationKey1" type="text" id="observationKey1" value="">
+				
+				
+			</td>
+		</tr>	
+		
+		<!-- End Search Code For Observations -->
+		
         <tr>
           <td valign="top"><strong><%=encprops.getProperty("behavior")%>:</strong>
-            <em> <span class="para">
-								<a href="<%=CommonConfiguration.getWikiLocation(context)%>behavior" target="_blank">
-                  <img src="../images/information_icon_svg.gif" alt="Help" border="0"
-                       align="absmiddle"/>
-                </a>
-							</span>
-            </em><br/>
+          <br/>
               <%
 				List<String> behavs = myShepherd.getAllBehaviors();
 				int totalBehavs=behavs.size();
-
 				
 				if(totalBehavs>1){
 				%>
-
             <select multiple name="behaviorField" id="behaviorField" style="width: 500px">
               <option value="None"></option>
               <%
@@ -743,7 +748,6 @@ if(CommonConfiguration.showProperty("showCountry",context)){
               <option value="<%=word%>"><%=word%>
               </option>
               <%
-
                   }
 
                 }
@@ -758,8 +762,7 @@ if(CommonConfiguration.showProperty("showCountry",context)){
             </em></p>
               <%
 				}
-				%>
-
+			  %>
       </p>
   </td>
 </tr>

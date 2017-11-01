@@ -102,7 +102,7 @@ public class Encounter extends FoundationalPropertiesBase {
   private Double maximumDepthInMeters;
   private Double maximumElevationInMeters;
   
-  // This is the old ID for encounter. Base class has primaryKeyID now.
+  // This is the old ID for encounter. Base class has ID now.
   //private String catalogNumber = "";
   private String individualID;
   private int day = 0;
@@ -362,7 +362,7 @@ public class Encounter extends FoundationalPropertiesBase {
     }
 
     public Encounter(ArrayList<Annotation> anns) {
-        super.primaryKeyID = Util.generateUUID();
+        super.ID = Util.generateUUID();
         this.annotations = anns;
         this.setDateFromAssets();
         this.setSpeciesFromAnnotations();
@@ -870,7 +870,7 @@ public class Encounter extends FoundationalPropertiesBase {
    * @return a unique integer String used to identify this encounter in the database
    */
   public String getEncounterNumber() {
-    return super.primaryKeyID;
+    return super.ID;
   }
 
 
@@ -1080,7 +1080,7 @@ public class Encounter extends FoundationalPropertiesBase {
    * @param num the unique integer to be used to uniquely identify this encoun ter in the database
    */
   public void setEncounterNumber(String num) {
-    super.primaryKeyID = num;
+    super.ID = num;
   }
 
 
@@ -1735,11 +1735,11 @@ System.out.println("did not find MediaAsset for params=" + sp + "; creating one?
 
 
   public String getCatalogNumber() {
-    return super.primaryKeyID;
+    return super.ID;
   }
 
   public void setCatalogNumber(String newNumber) {
-    super.primaryKeyID = newNumber;
+    super.ID = newNumber;
   }
 
   public String getVerbatimLocality() {
@@ -3129,7 +3129,7 @@ System.out.println(">>>>> detectedAnnotation() on " + this);
 
     public String toString() {
         return new ToStringBuilder(this)
-                .append("catalogNumber", primaryKeyID)
+                .append("catalogNumber", ID)
                 .append("individualID", (hasMarkedIndividual() ? individualID : null))
                 .append("species", getTaxonomyString())
                 .append("sex", getSex())

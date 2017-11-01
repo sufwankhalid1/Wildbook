@@ -339,7 +339,7 @@ var getEncounterTableData = function(occurrenceObjectArray, individualID) {
         }
         // This is where you get the actual key by name from the json! 
         // If anything with baseclass ID's, catalog numbers ect blows up on merge, look around here.
-        var catalogNumber = jsonData.encounters[i].primaryKeyID;
+        var catalogNumber = jsonData.encounters[i].ID;
         console.log("Here's what we are working with : "+jsonData.encounters[i]);
         if(jsonData.encounters[i].tissueSamples || jsonData.encounters[i].annotations) {
           if((jsonData.encounters[i].tissueSamples)&&(jsonData.encounters[i].tissueSamples.length > 0)) {

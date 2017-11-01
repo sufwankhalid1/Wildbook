@@ -195,7 +195,7 @@
     <class name="Occurrence" identity-type="application" table="OCCURRENCE">
       <inheritance strategy="new-table"/>
       
-      <field name="FoundationalPropertiesBase.primaryKeyID">
+      <field name="FoundationalPropertiesBase.ID">
         <column name="PRIMARYKEYID"/>
       </field>
 
@@ -233,7 +233,7 @@
     
       <inheritance strategy="new-table"/>
       
-      <field name="FoundationalPropertiesBase.primaryKeyID">
+      <field name="FoundationalPropertiesBase.ID">
         <column name="PRIMARYKEYID"/>
       </field>
 
@@ -541,7 +541,7 @@
     
     <class name="FoundationalPropertiesBase" identity-type="application">    
       <inheritance strategy="subclass-table"/>      
-      <field name="primaryKeyID" primary-key="true" value-strategy="native">
+      <field name="ID" primary-key="true" value-strategy="native">
         <column name="PRIMARYKEYID"/>
       </field>
       <field name="baseMeasurements" persistence-modifier="persistent" default-fetch-group="true">

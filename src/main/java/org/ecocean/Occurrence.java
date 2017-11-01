@@ -42,7 +42,7 @@ public class Occurrence extends FoundationalPropertiesBase {
   private ArrayList<Encounter> encounters;
   private List<MediaAsset> assets;
   
-  // Old ID. Getters and setters now use primaryKeyID from base class.
+  // Old ID. Getters and setters now use ID from base class.
   //private String occurrenceID;
   private Integer individualCount;
   private String groupBehavior;
@@ -113,11 +113,11 @@ public class Occurrence extends FoundationalPropertiesBase {
    * Class constructor.
    *
    *
-   * @param primaryKeyID A unique identifier for this occurrence that will become its primary key in the database.
+   * @param ID A unique identifier for this occurrence that will become its primary key in the database.
    * @param enc The first encounter to add to this occurrence.
    */
   public Occurrence(String occurrenceID, Encounter enc){
-    super.primaryKeyID=occurrenceID;
+    super.ID=occurrenceID;
     encounters=new ArrayList<Encounter>();
     encounters.add(enc);
     assets = new ArrayList<MediaAsset>();
@@ -127,7 +127,7 @@ public class Occurrence extends FoundationalPropertiesBase {
   }
 
   public Occurrence(List<MediaAsset> assets, Shepherd myShepherd){
-    super.primaryKeyID = Util.generateUUID();
+    super.ID = Util.generateUUID();
 
     this.encounters = new ArrayList<Encounter>();
     this.assets = assets;
@@ -254,11 +254,11 @@ public class Occurrence extends FoundationalPropertiesBase {
   }
 
     public void setOccurrenceID(String id) {
-        super.primaryKeyID = id;
+        super.ID = id;
     }
 
   public String getOccurrenceID(){
-    return super.primaryKeyID;
+    return super.ID;
   }
 
 
@@ -829,7 +829,7 @@ public class Occurrence extends FoundationalPropertiesBase {
 
     public String toString() {
         return new ToStringBuilder(this)
-                .append("id", primaryKeyID)
+                .append("id", ID)
                 .toString();
     }
     

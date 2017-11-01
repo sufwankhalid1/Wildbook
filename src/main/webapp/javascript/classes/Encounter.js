@@ -1,7 +1,7 @@
 
 wildbook.Model.Encounter = wildbook.Model.BaseClass.extend({
 
-	idAttribute: 'primaryKeyID',   //TODO put this in classDefinitions from java (somehow)
+	idAttribute: 'ID',   //TODO put this in classDefinitions from java (somehow)
 
 	refClass: {
 		measurements: 'Measurements',
