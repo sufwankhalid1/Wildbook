@@ -363,18 +363,23 @@ public class AccessImport extends HttpServlet {
       
       // Get the Species ID
       try {
-        String speciesId = null;
+        String speciesID = null;
         if (thisRow.get("SPECIES_ID") != null) {
-          speciesId = thisRow.get("SPECIES_ID").toString();          
+          speciesID = thisRow.get("SPECIES_ID").toString();          
           //out.println("---------------- Species_ID : "+speciesId);
-          newEnc.setGenus(speciesId);
-          newEnc.setSpecificEpithet(speciesId);
+          String[] binomialName = speciesID.trim().split(" ");
+          if (binomialName.length>1) {
+            newEnc.setGenus(binomialName[0]);
+            newEnc.setSpecificEpithet(binomialName[1]);            
+          } else {
+            newEnc.setSpecificEpithet(speciesID);
+          }
           if (columnMasterList.contains("SPECIES_ID")) {
             columnMasterList.remove("SPECIES_ID");
           }
         }
       } catch (Exception e) {
-        out.println("!!!!!!!!!!!!!! Could not process a speciesId for row "+i+" in DUML");
+        out.println("!!!!!!!!!!!!!! Could not process a speciesID for row "+i+" in DUML");
         e.printStackTrace();
         errors +=1;
       }
