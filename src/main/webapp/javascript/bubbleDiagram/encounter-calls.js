@@ -1,3 +1,4 @@
+
 // lang  dictionary contains all language specific text. It is loaded in individuals jsp and contains
 // all the necessary keys from individuals.properties with the same syntax.
 var dict = {}; 
@@ -79,7 +80,7 @@ var makeCooccurrenceChart = function(items) {
 
 var getIndividualIDFromEncounterToString = function(encToString) {
   // return everything between "individualID=" and the next comma after that
-console.log('encToString = %o', encToString);
+  //console.log('encToString = %o', encToString);
   //var id = encToString.split("individualID=")[1].split(",")[0];
     var id = encToString.individualID;
     if (!id) return false;
@@ -103,10 +104,10 @@ var getData = function(individualID) {
         var encounterSize = thisOcc.encounters.length;
         // make encounterArray, containing the individualIDs of every encounter in thisOcc;
         for(var j=0; j < encounterSize; j++) {
-          //console.info('[%d] %o %o', j, thisOcc.encounters, thisOcc.encounters[j]);
+//console.info('[%d] %o %o', j, thisOcc.encounters, thisOcc.encounters[j]);
           var thisEncIndID = getIndividualIDFromEncounterToString(thisOcc.encounters[j]);
           //var thisEncIndID = jsonData[i].encounters[j].individualID;   ///only when we fix thisOcc.encounters to be real json   :(
-          //console.info('i=%d, j=%d, -> %o', i, j, thisEncIndID);
+//console.info('i=%d, j=%d, -> %o', i, j, thisEncIndID);
           if (!thisEncIndID) continue;  //unknown indiv -> false
           if(encounterArray.includes(thisEncIndID)) {
           } else {
@@ -322,6 +323,7 @@ var getEncounterTableData = function(occurrenceObjectArray, individualID) {
             }
           }
         }
+
         var dateInMilliseconds = new Date(jsonData.encounters[i].dateInMilliseconds);
         if(dateInMilliseconds > 0) {
 
@@ -337,10 +339,7 @@ var getEncounterTableData = function(occurrenceObjectArray, individualID) {
         } else {
           var location = "";
         }
-        // This is where you get the actual key by name from the json! 
-        // If anything with baseclass ID's, catalog numbers ect blows up on merge, look around here.
         var catalogNumber = jsonData.encounters[i].ID;
-        console.log("Here's what we are working with : "+jsonData.encounters[i]);
         if(jsonData.encounters[i].tissueSamples || jsonData.encounters[i].annotations) {
           if((jsonData.encounters[i].tissueSamples)&&(jsonData.encounters[i].tissueSamples.length > 0)) {
             var dataTypes = jsonData.encounters[i].tissueSamples[0].type;

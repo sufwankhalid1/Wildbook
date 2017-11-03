@@ -1657,7 +1657,6 @@ var dlgMSMarkersSet<%=thisSample.getSampleID().replaceAll("[-+.^:,]","")%> = $("
   width: 600
 });
 
-
 </script> --%> <!-- end ms markers popup --> 
 <%}%>
 </td>
@@ -2040,6 +2039,7 @@ var dlgMSMarkersSet<%=thisSample.getSampleID().replaceAll("[-+.^:,]","")%> = $("
     });
   });
 </script>
+
 
 				<div
 					id="dialogMSMarkersAdd<%=thisSample.getSampleID().replaceAll("[-+.^:,]", "")%>"

@@ -733,14 +733,14 @@ if(CommonConfiguration.showProperty("showCountry",context)){
 				
 				
 				</div>
-				<input name="numSearchedObs" type="hidden" id="numSearchedObs" value="0" >
+				<input name="numSearchedObs" type="hidden" id="numSearchedObs" value="1" >
 				<input name="AddAnotherObBtn" type="button" id="addAnotherObBtn" value="<%=encprops.getProperty("addAnotherOb")%>" class="btn btn-sm" />				
 			</td>
 			<br/>
 		</tr>	
 		<script>
 			$(document).ready(function(){
-				var num = 0;
+				var num = 1;
 				$('#addAnotherObBtn').click(function(){
 					var obField = '<p><input name="observationKey"'+num+' type="text" id="observationKey'+num+'" value=""><input name="observationValue'+num+'" type="text" id="observationValue'+num+'" value=""></p>';	
 					$('#additionalObsFields').append(obField);	

@@ -1050,8 +1050,10 @@ public class AccessImport extends HttpServlet {
       double lon = -999;
       long millis = -999;
       try {
-        lat = occ.getDecimalLatitude();
-        lon = occ.getDecimalLongitude();
+        if (occ.getDecimalLatitude()!=null&&occ.getDecimalLongitude()!=null) {
+          lat = occ.getDecimalLatitude();
+          lon = occ.getDecimalLongitude();          
+        }
         if (occ.getMillis()!=null) {
           millis = occ.getMillis();          
         } else if (occ.getMillisRobust()!=null) {
@@ -1061,7 +1063,7 @@ public class AccessImport extends HttpServlet {
           millis = occ.getMillis();
         }
         if (lat!=-999&&lon!=-999) {
-          addToOrCreatePath(occ.getDecimalLatitude(),occ.getDecimalLongitude(), millis, myShepherd, st);          
+          addToOrCreatePath(lat,lon, millis, myShepherd, st);          
         } else {
           out.println("No Gps for this occ? :"+occ.toString());
         }

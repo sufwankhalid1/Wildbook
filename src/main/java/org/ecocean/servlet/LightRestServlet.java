@@ -919,6 +919,7 @@ System.out.println(thisRequest);
             boolean isEnc = (obj.getClass()==Encounter.class);
             //System.out.println("        LightRest: isEnc = "+isEnc);
 
+
             if (isEnc) {
 
                 JSONObject jobj = getEncLightJson((Encounter) obj);

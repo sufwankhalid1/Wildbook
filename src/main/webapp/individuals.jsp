@@ -278,19 +278,20 @@ if (request.getParameter("number")!=null) {
       });
 
       setTimeout(function() {
-      $('#encountTable tr').click(function() {
-        selectedWhale = ($(this).attr("class"));
-        goToEncounterURL(selectedWhale);
-      });
-
-      $('#cooccurrenceTable tr').click(function() {
-        selectedWhale = ($(this).attr("class"));
-        goToWhaleURL(selectedWhale);
-      });
-      $("#encountTable td:nth-child(1)").attr("class", "hide");
-      $("#encountTable th:nth-child(1)").attr("class", "hide");
-
-    }, 6000);
+	      $('#encountTable tr').click(function() {  
+	        selectedWhale = ($(this).attr("class"));
+	        //console.log("This is 'this' : '"+this.attributes);
+	        goToEncounterURL(selectedWhale);
+	      });
+	
+	      $('#cooccurrenceTable tr').click(function() {
+	        selectedWhale = ($(this).attr("class"));
+	        goToWhaleURL(selectedWhale);
+	      });
+	      
+		  $("#encountTable td:nth-child(1)").attr("class", "hide");
+		  $("#encountTable th:nth-child(1)").attr("class", "hide");
+	  }, 5000);
 
     var buttons = $("#edit, #closeEdit").on("click", function(){
         buttons.toggle();
@@ -571,7 +572,7 @@ $(document).ready(function() {
             </p>
             <%
               }
-              %>
+            %>
 
         </div>
 
@@ -1181,7 +1182,7 @@ for (Encounter enJ : sharky.getDateSortedEncounters()) {
             $("#relationshipTable th:nth-child(5)").attr("class", "hide");
             $("#relationshipTable td:nth-child(6)").attr("class", "hide");
             $("#relationshipTable th:nth-child(6)").attr("class", "hide");
-          }, 5000)
+          }, 4000)
         </script>
 
         <%
@@ -1252,7 +1253,7 @@ for (Encounter enJ : sharky.getDateSortedEncounters()) {
                 $("div[value='" + relationshipID + "']").hide();
                 $("#remove" + relationshipID).show();
               });
-            }, 5000);
+            }, 4000);
           });
         </script>
 
@@ -1417,7 +1418,6 @@ for (Encounter enJ : sharky.getDateSortedEncounters()) {
         </div>
 
         <div id="encountersTable" class="mygrid-wrapper-div">
-
           <table id="encountTable" class="table table-bordered table-striped table-sm table-hover">
             <thead id="encountHead"></thead>
             <tbody id="encountBody"></tbody>

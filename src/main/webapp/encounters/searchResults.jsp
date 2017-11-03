@@ -331,12 +331,6 @@ var testColumns = {
 	modified: { label: 'Edit Date', val: _colModified },
 };
 
-
-
-
-
-
-
 $(document).keydown(function(k) {
 	if ((k.which == 38) || (k.which == 40) || (k.which == 33) || (k.which == 34)) k.preventDefault();
 	if (k.which == 38) return tableDn();
@@ -560,7 +554,7 @@ function updateIAResults(d) {
 
 
 function rowClick(el) {
-	console.log(el);
+	console.log("el : "+el);
 	var w = window.open('encounter.jsp?number=' + el.getAttribute('data-id'), '_blank');
 	w.focus();
 	return false;
@@ -595,6 +589,12 @@ function show() {
 	$('#results-table tbody tr').show();
 	for (var i = 0 ; i < results.length ; i++) {
 		var privateResults = searchResults[results[i]].get('_sanitized') || false;
+		// ++++++++++++++++++
+		// Here is that troublesome area where we lose the enc ID sometimes. Look in Encounter.js also.
+		// This ID is defined as catalogNumber in LightRest, and the ID does not transfer to self.id. 
+		// ++++++++++++++++++
+		searchResults[results[i]].id = searchResults[results[i]].get('catalogNumber');
+		
 		var title = 'Encounter ' + searchResults[results[i]].id;
 		if (privateResults) {
 			title += ' [private]';
@@ -604,6 +604,10 @@ function show() {
 		}
 		$('#results-table tbody tr')[i].title = title;
 		$('#results-table tbody tr')[i].setAttribute('data-id', searchResults[results[i]].id);
+			
+		console.log("Title: "+title);
+		console.log("Result String: "+JSON.stringify(searchResults[results[i]]));
+		
 		for (var c = 0 ; c < colDefn.length ; c++) {
 			$('#results-table tbody tr')[i].children[c].innerHTML = '<div>' + sTable.values[results[i]][c] + '</div>';
 		}
