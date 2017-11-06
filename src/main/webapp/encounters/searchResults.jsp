@@ -605,8 +605,8 @@ function show() {
 		$('#results-table tbody tr')[i].title = title;
 		$('#results-table tbody tr')[i].setAttribute('data-id', searchResults[results[i]].id);
 			
-		console.log("Title: "+title);
-		console.log("Result String: "+JSON.stringify(searchResults[results[i]]));
+		//console.log("Title: "+title);
+		//console.log("Result String: "+JSON.stringify(searchResults[results[i]]));
 		
 		for (var c = 0 ; c < colDefn.length ; c++) {
 			$('#results-table tbody tr')[i].children[c].innerHTML = '<div>' + sTable.values[results[i]][c] + '</div>';
