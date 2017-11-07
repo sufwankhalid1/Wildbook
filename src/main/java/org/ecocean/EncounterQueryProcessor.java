@@ -294,9 +294,7 @@ public class EncounterQueryProcessor {
     }
     //end behavior filters-----------------------------------------------
     //------------------------------------------------------------------
-    
     //begin observation filters -----------------------------------------
-    
     int numObsSearched = 0;
     if (request.getParameter("numSearchedObs")!=null) {
       numObsSearched = Integer.valueOf(request.getParameter("numSearchedObs"));
