@@ -55,7 +55,6 @@ public class EncounterQueryProcessor {
       prettyPrint.append("locationField contains \""+locString+"\".<br />");
     }
     //end location filter--------------------------------------------------------------------------------------
-
     //------------------------------------------------------------------
     //username filters-------------------------------------------------
     String[] usernames=request.getParameterValues("username");
@@ -82,8 +81,7 @@ public class EncounterQueryProcessor {
     }
     //end username filters-----------------------------------------------
 
-
-
+    
     //filter for resighted encounter------------------------------------------
     if(request.getParameter("resightOnly")!=null) {
       //String locString=request.getParameter("locationField").toLowerCase().replaceAll("%20", " ").trim();

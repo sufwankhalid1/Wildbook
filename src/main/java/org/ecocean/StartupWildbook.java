@@ -2,6 +2,7 @@ package org.ecocean;
 
 import java.io.File;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import javax.servlet.http.HttpServletRequest;
@@ -46,8 +47,70 @@ public class StartupWildbook implements ServletContextListener {
     ensureTomcatUserExists(myShepherd);
     ensureAssetStoreExists(request, myShepherd);
     ensureProfilePhotoKeywordExists(myShepherd);
+    
+    // I just want to see if the right stuff is in wildbook after an import and save poking around time.
+    dataPresenceChecks(myShepherd);
 
 
+  }
+  
+  public static void dataPresenceChecks(Shepherd myShepherd) {
+    int encsNum = 0;
+    int occsNum = 0;
+    int indysNum = 0;
+    int surveyNum = 0;
+    
+    try {      
+      if (myShepherd.getAllEncounters()!=null) {
+        Encounter enc = null;
+        Iterator<Encounter> encs = myShepherd.getAllEncounters();
+        while (encs.hasNext()) {
+          enc = encs.next();
+          encsNum++;
+        }
+      }
+      System.out.println("Encounters in database: "+encsNum);
+    } catch (NullPointerException npe) {
+      System.out.println("No Encounters in database.");
+    }
+    
+    try {
+      if (myShepherd.getAllOccurrences()!=null) {
+        Occurrence occ = null;
+        Iterator<Occurrence> occs = myShepherd.getAllOccurrences();
+        while (occs.hasNext()) {
+          occ = occs.next();
+          occsNum++;
+        }
+      }
+      System.out.println("Occurrences in database: "+occsNum);
+    } catch (NullPointerException npe) {
+      System.out.println("No Occurrences in database.");
+    }
+    
+    try {
+      if (myShepherd.getAllMarkedIndividuals()!=null) {
+        MarkedIndividual indy = null;
+        Iterator<MarkedIndividual> indys = myShepherd.getAllMarkedIndividuals();
+        while (indys.hasNext()) {
+          indy = indys.next();
+          indysNum++;
+        }
+      }      
+      System.out.println("Marked Individual in database: "+indysNum);
+    } catch (NullPointerException npe) {
+      System.out.println("No MarkedIndividuals in database.");
+    }
+    
+    try {
+      if (myShepherd.getAllSurveys()!=null) {
+        ArrayList<Survey> svys = myShepherd.getAllSurveys();
+        surveyNum = svys.size();
+      }
+      System.out.println("Surveys in database: "+surveyNum);      
+    } catch (NullPointerException npe) {
+      System.out.println("No Surveys in database.");
+    } 
   }
 
   public static void ensureTomcatUserExists(Shepherd myShepherd) {
