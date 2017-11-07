@@ -296,12 +296,17 @@ public class EncounterQueryProcessor {
     //------------------------------------------------------------------
     //begin observation filters -----------------------------------------
     int numObsSearched = 0;
+    boolean hasValue = false;
     if (request.getParameter("numSearchedObs")!=null) {
       numObsSearched = Integer.valueOf(request.getParameter("numSearchedObs"));
       System.out.println("Num Obs Searched? "+numObsSearched);
+      if (request.getParameter("observationKey1")!=null&&!request.getParameter("observationKey1").equals("")) {
+        hasValue = true;
+      }
     }
+    
     Enumeration<String> allParams = request.getParameterNames();
-    if (allParams!=null&&numObsSearched>0) {
+    if (allParams!=null&&hasValue==true&&numObsSearched>=1) {
       String keyID = "observationKey";
       String valID = "observationValue";
       HashMap<String,String> obKeys = new HashMap<>();
@@ -323,39 +328,40 @@ public class EncounterQueryProcessor {
           obVals.put(valNum,valParam);
           System.out.println("The param: "+valParam);
         }
-        for (int i=1;i<=numObsSearched;i++) {
-          String num = String.valueOf(i);
-          System.out.println(obKeys.toString());
-          System.out.println(obVals.toString());
-          if (obKeys.get(num)!=null) {
-            obQuery.append("observation");
-            prettyPrint.append("observation ");
-            prettyPrint.append(obKeys.get(num));
-            if (obVals.get(num)!=null) {
-              prettyPrint.append(" is ");
-              prettyPrint.append(obVals.get(num));              
-            }
-            prettyPrint.append("<br/>");
-            obQuery.append("(baseObservations.contains(baseObservations"+num+") && ");
-            obQuery.append("baseObservations"+num+".name == "+Util.quote(obKeys.get(num)));
-            String jdoParam = "observationD"+num;
-            obQuery.append(" && observations"+num+".observationID == "+jdoParam+")");
-            paramMap.put(jdoParam, obKeys.get(num));
-            parameterDeclaration = updateParametersDeclaration(parameterDeclaration, "String "+jdoParam);
-          }
-        }
-        if (obQuery.length() > 0) {
-          if (!filter.equals(SELECT_FROM_ORG_ECOCEAN_ENCOUNTER_WHERE)) {
-            filter += " && ";
-          }
-          filter += obQuery.toString();
-          for (int i = 0; i < numObsSearched; i++) {
-            updateJdoqlVariableDeclaration(jdoqlVariableDeclaration, "org.ecocean.Observation observation" + i);
-          }
-          System.out.println("ObQuery: "+obQuery);
-          System.out.println("Filter? "+filter);
-        }
       }  
+      System.out.println("Keys: "+obKeys.toString());
+      System.out.println("Values: "+obVals.toString());
+      System.out.println("Num Searched: "+numObsSearched);
+      for (int i=1;i<=numObsSearched;i++) {
+        String num = String.valueOf(i);
+        if (obKeys.get(num)!=null) {
+          obQuery.append("observation");
+          prettyPrint.append("observation ");
+          prettyPrint.append(obKeys.get(num));
+          if (obVals.get(num)!=null) {
+            prettyPrint.append(" is ");
+            prettyPrint.append(obVals.get(num));              
+          }
+          prettyPrint.append("<br/>");
+          obQuery.append("(baseObservations.contains(baseObservations"+num+") && ");
+          obQuery.append("baseObservations"+num+".name == "+Util.quote(obKeys.get(num)));
+          String jdoParam = "observationD"+num;
+          obQuery.append(" && observations"+num+".observationID == "+jdoParam+")");
+          paramMap.put(jdoParam, obKeys.get(num));
+          parameterDeclaration = updateParametersDeclaration(parameterDeclaration, "String "+jdoParam);
+        }
+      }
+      if (obQuery.length() > 0) {
+        if (!filter.equals(SELECT_FROM_ORG_ECOCEAN_ENCOUNTER_WHERE)) {
+          filter += " && ";
+        }
+        filter += obQuery.toString();
+        for (int i = 0; i < numObsSearched; i++) {
+          updateJdoqlVariableDeclaration(jdoqlVariableDeclaration, "org.ecocean.Observation observation" + i);
+        }
+        System.out.println("ObQuery: "+obQuery);
+        System.out.println("Filter? "+filter);
+      }
     }
     
     // Now we gots an arrray of Observation Keys, and values. 
