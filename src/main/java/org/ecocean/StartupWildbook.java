@@ -47,19 +47,16 @@ public class StartupWildbook implements ServletContextListener {
     ensureTomcatUserExists(myShepherd);
     ensureAssetStoreExists(request, myShepherd);
     ensureProfilePhotoKeywordExists(myShepherd);
-    
-    // I just want to see if the right stuff is in wildbook after an import and save poking around time.
-    dataPresenceChecks(myShepherd);
-
 
   }
   
-  public static void dataPresenceChecks(Shepherd myShepherd) {
+  public static void dataPresenceChecks() {
     int encsNum = 0;
     int occsNum = 0;
     int indysNum = 0;
     int surveyNum = 0;
-    
+    Shepherd myShepherd = new Shepherd("context0");
+    myShepherd.beginDBTransaction();
     try {      
       if (myShepherd.getAllEncounters()!=null) {
         Encounter enc = null;
@@ -111,6 +108,7 @@ public class StartupWildbook implements ServletContextListener {
     } catch (NullPointerException npe) {
       System.out.println("No Surveys in database.");
     } 
+    myShepherd.closeDBTransaction();
   }
 
   public static void ensureTomcatUserExists(Shepherd myShepherd) {
@@ -226,6 +224,8 @@ public class StartupWildbook implements ServletContextListener {
             }
             System.out.println("==== schedExec.shutdown() called, apparently");
         }
+        // I just want to see if the right stuff is in wildbook after an import and save poking around time.
+        dataPresenceChecks();
 
     }
 

@@ -77,7 +77,7 @@ public class EncounterQueryProcessor {
             locIDFilter+=" )";
             if(filter.equals(SELECT_FROM_ORG_ECOCEAN_ENCOUNTER_WHERE)){filter+=locIDFilter;}
             else{filter+=(" && "+locIDFilter);}
-            prettyPrint.append("<br />");
+            prettyPrint.append("<br/>");
     }
     //end username filters-----------------------------------------------
 
@@ -301,8 +301,7 @@ public class EncounterQueryProcessor {
       if (request.getParameter("observationKey1")!=null&&!request.getParameter("observationKey1").equals("")) {
         hasValue = true;
       }
-    }
-    
+    }  
     Enumeration<String> allParams = request.getParameterNames();
     if (allParams!=null&&hasValue==true&&numObsSearched>=1) {
       String keyID = "observationKey";
@@ -313,40 +312,30 @@ public class EncounterQueryProcessor {
       while (allParams.hasMoreElements()) {
         String thisParam = allParams.nextElement();
         if (thisParam!=null&&thisParam.startsWith(keyID)) {
-          System.out.println("With KeyID? "+thisParam);
           String keyParam = request.getParameter(thisParam);
           String keyNum = thisParam.replace(keyID,"");
           obKeys.put(keyNum,keyParam);
-          System.out.println("The param: "+keyParam);
         }
         if (thisParam!=null&&thisParam.startsWith(valID)) {
-          System.out.println("With valID? "+thisParam);
           String valParam = request.getParameter(thisParam);
           String valNum = thisParam.replace(valID,"");
           obVals.put(valNum,valParam);
-          System.out.println("The param: "+valParam);
         }
       }  
-      System.out.println("Keys: "+obKeys.toString());
-      System.out.println("Values: "+obVals.toString());
-      System.out.println("Num Searched: "+numObsSearched);
       for (int i=1;i<=numObsSearched;i++) {
         String num = String.valueOf(i);
         if (obKeys.get(num)!=null) {
-          obQuery.append("observation");
           prettyPrint.append("observation ");
           prettyPrint.append(obKeys.get(num));
-          if (obVals.get(num)!=null) {
+          prettyPrint.append("<br/>");
+          obQuery.append("(baseObservations.contains(observation"+num+") && ");
+          obQuery.append("observation"+num+".name == "+Util.quote(obKeys.get(num).trim()));        
+          if (obVals.get(num)!=null&&!obVals.get(num).trim().equals("")) {
             prettyPrint.append(" is ");
             prettyPrint.append(obVals.get(num));              
+            obQuery.append(" && observation"+num+".value == "+Util.quote(obVals.get(num).trim())); 
           }
-          prettyPrint.append("<br/>");
-          obQuery.append("(baseObservations.contains(baseObservations"+num+") && ");
-          obQuery.append("baseObservations"+num+".name == "+Util.quote(obKeys.get(num)));
-          String jdoParam = "observationD"+num;
-          obQuery.append(" && observations"+num+".observationID == "+jdoParam+")");
-          paramMap.put(jdoParam, obKeys.get(num));
-          parameterDeclaration = updateParametersDeclaration(parameterDeclaration, "String "+jdoParam);
+          obQuery.append(")");
         }
       }
       if (obQuery.length() > 0) {
@@ -361,12 +350,6 @@ public class EncounterQueryProcessor {
         System.out.println("Filter? "+filter);
       }
     }
-    
-    // Now we gots an arrray of Observation Keys, and values. 
-    // This needs to construct a query portion for 0-n different Obs, 
-    // and some may not have a value associated with the key.
-    //Pseudo Query:
-    //SELECT from encounter.observations((observation WHERE observation.name==name&&observation.value=value)&&(observation WHERE observation.name==name)...
     
     //-------------------------------------------------------------------
 
