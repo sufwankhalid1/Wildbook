@@ -18,11 +18,11 @@ import org.joda.time.DateTime;
 
 public class OccurrenceQueryProcessor extends QueryProcessor {
 
-  private static final String BASE_FILTER = "SELECT FROM org.ecocean.Occurrence WHERE \"OCCURRENCEID\" != null && ";
+  private static final String BASE_FILTER = "SELECT FROM org.ecocean.Occurrence WHERE \"ID\" != null && ";
 
   public static final String[] SIMPLE_STRING_FIELDS = new String[]{"soil","rain","activity","habitatOpenness","grassGreenness","grassHeight","weather","wind"};
 
-
+  
 
   public static String queryStringBuilder(HttpServletRequest request, StringBuffer prettyPrint, Map<String, Object> paramMap){
 
@@ -48,7 +48,15 @@ public class OccurrenceQueryProcessor extends QueryProcessor {
 
     // GPS box
     filter = QueryProcessor.filterWithGpsBox(filter, request, prettyPrint);
-
+    
+    
+    //Observations
+    filter = QueryProcessor.filterObservations(filter, request, prettyPrint, "Occurrence");
+    int numObs = QueryProcessor.getNumberOfObservationsInQuery(request);
+    for (int i = 1;i<=numObs;i++) {
+      jdoqlVariableDeclaration = QueryProcessor.updateJdoqlVariableDeclaration(jdoqlVariableDeclaration, "org.ecocean.Observation observation" + i);      
+    }
+    
     // make sure no trailing ampersands
     filter = QueryProcessor.removeTrailingAmpersands(filter);
     filter += jdoqlVariableDeclaration;
@@ -93,4 +101,5 @@ public class OccurrenceQueryProcessor extends QueryProcessor {
     System.out.println("about to return OccurrenceQueryResult with filter "+filter+" and nOccs="+rOccurrences.size());
     return (new OccurrenceQueryResult(rOccurrences,filter,prettyPrint.toString()));
   }
+  
 }
