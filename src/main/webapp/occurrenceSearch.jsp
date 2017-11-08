@@ -543,7 +543,7 @@ function FSControl(controlDiv, map) {
 		
 <script>
 	$(document).ready(function(){
-		// Set to 2 because the first Observation is #1, and this variable will not be used until another is made.
+		// Set to 2 because the first Observation is #1, and this variable will not be used until another observation is made.
 		var num = 2;
 		$('#addAnotherObBtn').click(function(){
 			var obField = '<p><input name="observationKey'+num+'" type="text" id="observationKey'+num+'" value="" placeholder="Observation Name"><input name="observationValue'+num+'" type="text" id="observationValue'+num+'" value="" placeholder="Observation Value"></p>';	
