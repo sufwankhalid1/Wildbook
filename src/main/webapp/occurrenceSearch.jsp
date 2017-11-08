@@ -515,41 +515,45 @@ function FSControl(controlDiv, map) {
         color="#000000"><%=occProps.getProperty("observations") %></font></a></h4>
     </td>
   </tr>
-          <!-- Begin search code for Observations --> 
+	  	<!-- Begin search code for Observations --> 
 	<tr>
 		<td>
-			<br/>
-			<!-- Allow a key and value for each observation, allow user to add additional fields. -->
-			<p>
-				<label><%=props.getProperty("obSearchHeader")%></label>
-				<label><small><%=props.getProperty("obSearchDesc")%></small></label>
-				<label><%=props.getProperty("propertyName")%></label><label><%=props.getProperty("propertyValue")%></label>
-			</p>
-			<p>
-				<input name="observationKey1" type="text" id="observationKey1" value="" placeholder="Observation Name">
-				<input name="observationValue1" type="text" id="observationValue1" value="" placeholder="Observation Value">
-			</p>
-			<div id="additionalObsFields">
-			
-			
-			</div>
-			<input name="numSearchedObs" type="hidden" id="numSearchedObs" value="1" >
-			<input name="AddAnotherObBtn" type="button" id="addAnotherObBtn" value="<%=props.getProperty("addAnotherOb")%>" class="btn btn-sm" />				
+		  	<div id="tags" style="display:none;">
+				<br/>
+				<!-- Allow a key and value for each observation, allow user to add additional fields. -->
+				<p>
+					<label><%=occProps.getProperty("obSearchHeader")%></label>
+					<label><small><%=occProps.getProperty("obSearchDesc")%></small></label>
+				</p>
+				<p>
+					<input name="observationKey1" type="text" id="observationKey1" value="" placeholder="Observation Name">
+					<input name="observationValue1" type="text" id="observationValue1" value="" placeholder="Observation Value">
+				</p>
+				<div id="additionalObsFields">
+				
+				
+				</div>
+				<input name="numSearchedObs" type="hidden" id="numSearchedObs" value="1" >
+				<input name="AddAnotherObBtn" type="button" id="addAnotherObBtn" value="<%=occProps.getProperty("addAnotherOb")%>" class="btn btn-sm" />				
+				<br/>
+		  	</div>
 		</td>
-		<br/>
 	</tr>	
-	<script>
-		$(document).ready(function(){
-			// Set to 2 because the first Observation is #1, and this variable will not be used until another is made.
-			var num = 2;
-			$('#addAnotherObBtn').click(function(){
-				var obField = '<p><input name="observationKey'+num+'" type="text" id="observationKey'+num+'" value="" placeholder="Observation Name"><input name="observationValue'+num+'" type="text" id="observationValue'+num+'" value="" placeholder="Observation Value"></p>';	
-				$('#additionalObsFields').append(obField);	
-				$('#numSearchedObs').val(num); 
-				num++;		
-			});
+		
+		
+<script>
+	$(document).ready(function(){
+		// Set to 2 because the first Observation is #1, and this variable will not be used until another observation is made.
+		var num = 2;
+		$('#addAnotherObBtn').click(function(){
+			var obField = '<p><input name="observationKey'+num+'" type="text" id="observationKey'+num+'" value="" placeholder="Observation Name"><input name="observationValue'+num+'" type="text" id="observationValue'+num+'" value="" placeholder="Observation Value"></p>';	
+			$('#additionalObsFields').append(obField);	
+			$('#numSearchedObs').val(num); 
+			num++;		
 		});
-	</script>
+	});
+</script>
+  	
 
 <tr>
   <td>
