@@ -225,7 +225,7 @@ public class StartupWildbook implements ServletContextListener {
             System.out.println("==== schedExec.shutdown() called, apparently");
         }
         // I just want to see if the right stuff is in wildbook after an import and save poking around time.
-        dataPresenceChecks();
+        //dataPresenceChecks();
 
     }
 
