@@ -162,10 +162,9 @@ public class AccessImport extends HttpServlet {
     boolean effortTableSwitch = true;
     if (effortTableSwitch) {
       try {
-        out.println("********************* Let's process the EFFORT Table!\n");
+        System.out.println("********************* Let's process the EFFORT Table!\n");
         processEffortTable(db.getTable("EFFORT"), myShepherd);
       } catch (Exception e) {
-        out.println(e);
         e.printStackTrace();
         out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Could not process Effort table!!!");
       }      
@@ -786,10 +785,19 @@ public class AccessImport extends HttpServlet {
   
   private void processEffortTable(Table table, Shepherd myShepherd) {
     
-    ArrayList<String> columnMasterList = getColumnMasterList(table);
-    
-    if (!myShepherd.getPM().currentTransaction().isActive()) {
-      myShepherd.beginDBTransaction();
+    System.out.println("Made it to the method...");
+    try {
+      ArrayList<String> columnMasterList = getColumnMasterList(table);      
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
+    try {
+      if (!myShepherd.getPM().currentTransaction().isActive()) {
+        myShepherd.beginDBTransaction();
+      }      
+    } catch (Exception e) {
+      e.printStackTrace();
     }
     
     out.println("Effort Table has "+table.getRowCount()+" Rows!\n");

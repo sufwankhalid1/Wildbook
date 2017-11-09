@@ -127,6 +127,9 @@ public class Occurrence extends FoundationalPropertiesBase {
     assets = new ArrayList<MediaAsset>();
     setDWCDateLastModified();
     setDateTimeCreated();
+    if(encounters!=null){
+      updateNumberOfEncounters();
+    }
     //if((enc.getLocationID()!=null)&&(!enc.getLocationID().equals("None"))){this.locationID=enc.getLocationID();}
   }
 
@@ -155,12 +158,19 @@ public class Occurrence extends FoundationalPropertiesBase {
         isNew=false;
       }
     }
-
-    if(isNew){encounters.add(enc);}
-
+    if(isNew){
+      encounters.add(enc);
+      updateNumberOfEncounters();
+    }
     //if((locationID!=null) && (enc.getLocationID()!=null)&&(!enc.getLocationID().equals("None"))){this.locationID=enc.getLocationID();}
     return isNew;
 
+  }
+  
+  private void updateNumberOfEncounters() {
+    if (individualCount!=null) {
+      individualCount = encounters.size();      
+    }
   }
 
   public ArrayList<Encounter> getEncounters(){
@@ -197,6 +207,7 @@ public class Occurrence extends FoundationalPropertiesBase {
   public void removeEncounter(Encounter enc){
     if(encounters!=null){
       encounters.remove(enc);
+      updateNumberOfEncounters();
     }
   }
 
