@@ -786,8 +786,9 @@ public class AccessImport extends HttpServlet {
   private void processEffortTable(Table table, Shepherd myShepherd) {
     
     System.out.println("Made it to the method...");
+    ArrayList<String> columnMasterList = null;
     try {
-      ArrayList<String> columnMasterList = getColumnMasterList(table);      
+      columnMasterList = getColumnMasterList(table);      
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -1620,7 +1621,7 @@ public class AccessImport extends HttpServlet {
             myShepherd.getPM().makePersistent(simpleLoc);
             myShepherd.commitDBTransaction();
             enc.addObservation(simpleLoc);
-            out.println("Added simpleLoc "+value+" to this Encounter.");
+            //out.println("Added simpleLoc "+value+" to this Encounter.");
           }
         } catch (Exception e) {
           e.printStackTrace();
