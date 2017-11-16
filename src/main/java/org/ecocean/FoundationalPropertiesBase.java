@@ -32,7 +32,7 @@ public abstract class FoundationalPropertiesBase implements java.io.Serializable
   
   protected String ID;
   
-  private ArrayList<Observation> baseObservations = new ArrayList<Observation>();
+  private ArrayList<Observation> observations = new ArrayList<Observation>();
   private ArrayList<Measurement> baseMeasurements = new ArrayList<Measurement>();
   private ArrayList<TissueSample> baseTissueSamples = new ArrayList<TissueSample>();
   protected ArrayList<MetalTag> baseMetalTags = new ArrayList<MetalTag>();
@@ -51,20 +51,20 @@ public abstract class FoundationalPropertiesBase implements java.io.Serializable
   }
   
   public ArrayList<Observation> getBaseObservationArrayList() {
-    return baseObservations;
+    return observations;
   }
   public void addBaseObservationArrayList(ArrayList<Observation> arr) {
-    if (baseObservations.isEmpty()) {
-      baseObservations=arr;      
+    if (observations.isEmpty()) {
+      observations=arr;      
     } else {
-     baseObservations.addAll(arr); 
+     observations.addAll(arr); 
     }
   }
   public void addObservation(Observation obs) {
     boolean found = false;
     System.out.println("Adding Observation in Base Class... : "+obs.toString());
-    if (baseObservations != null && baseObservations.size() > 0) {
-      for (Observation ob : baseObservations) {
+    if (observations != null && observations.size() > 0) {
+      for (Observation ob : observations) {
         if (ob.getName() != null) {
           if (ob.getName().toLowerCase().trim().equals(obs.getName().toLowerCase().trim())) {
              found = true;
@@ -73,15 +73,15 @@ public abstract class FoundationalPropertiesBase implements java.io.Serializable
         }
       } 
       if (!found) {
-        baseObservations.add(obs);        
+        observations.add(obs);        
       }
     } else {
-      baseObservations.add(obs);
+      observations.add(obs);
     }
   }
   public Observation getObservationByName(String obName) {
-    if (baseObservations != null && baseObservations.size() > 0) {
-      for (Observation ob : baseObservations) {
+    if (observations != null && observations.size() > 0) {
+      for (Observation ob : observations) {
         if (ob.getName() != null) {
           if (ob.getName().toLowerCase().trim().equals(obName.toLowerCase().trim())) {
             return ob;            
@@ -92,8 +92,8 @@ public abstract class FoundationalPropertiesBase implements java.io.Serializable
     return null;
   }
   public Observation getObservationByID(String obId) {
-    if (baseObservations != null && baseObservations.size() > 0) {
-      for (Observation ob : baseObservations) {
+    if (observations != null && observations.size() > 0) {
+      for (Observation ob : observations) {
         if (ob.getID() != null && ob.getID().equals(obId)) {
           return ob;
         }
@@ -103,13 +103,13 @@ public abstract class FoundationalPropertiesBase implements java.io.Serializable
   }
   public void removeObservation(String name) {
     int counter = 0;
-    if (baseObservations != null && baseObservations.size() > 0) {
+    if (observations != null && observations.size() > 0) {
       System.out.println("Looking for the Observation to delete...");
-      for (Observation ob : baseObservations) {
+      for (Observation ob : observations) {
         if (ob.getName() != null) {
           if (ob.getName().toLowerCase().trim().equals(name.toLowerCase().trim())) {
              System.out.println("Match! Trying to delete Observation "+name+" at index "+counter);
-             baseObservations.remove(counter);
+             observations.remove(counter);
              break;
           }
         }

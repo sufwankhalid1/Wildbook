@@ -562,7 +562,7 @@
         <collection element-type="org.ecocean.genetics.TissueSample"/>
         <join/>
       </field>
-      <field name="baseObservations" persistence-modifier="persistent" default-fetch-group="true">
+      <field name="observations" persistence-modifier="persistent" default-fetch-group="true">
         <collection element-type="org.ecocean.Observation"/>
         <join/>
       </field>
