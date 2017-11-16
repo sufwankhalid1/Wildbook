@@ -107,6 +107,7 @@ public class ImportReadImages extends HttpServlet {
   public void getImageFiles(File path, Shepherd myShepherd) {
     try {
       if (path.isDirectory()) {
+        out.println("Found Directory: "+path.getAbsolutePath());
         String[] subDirs = path.list();
         System.out.println("There are "+subDirs.length+" files in the folder"+path.getAbsolutePath());
         for (int i=0;subDirs!=null&&i<subDirs.length;i++ ) {
@@ -132,9 +133,6 @@ public class ImportReadImages extends HttpServlet {
           failedAssets++;
         }
       } 
-      if (path.isDirectory()) {
-        out.println("Found Directory: "+path.getAbsolutePath());
-      }
     } catch (Exception e) {
       e.printStackTrace();
       out.println("Failed to traverse Image files at path "+path.getAbsolutePath()); 
@@ -163,7 +161,12 @@ public class ImportReadImages extends HttpServlet {
   }
   
   public boolean processImage(File image, Shepherd myShepherd) {
-    AssetStore assetStore = AssetStore.getDefault(myShepherd);
+    AssetStore assetStore = null;    
+    try {
+      assetStore = AssetStore.getDefault(myShepherd);  
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
     JSONObject params = new JSONObject();
     MediaAsset ma = null;
     File photo = null;
@@ -258,8 +261,8 @@ public class ImportReadImages extends HttpServlet {
         //out.println("RAW CELL : "+cell.toString());
         String cellKey = formatter.formatCellValue(cell.getSheet().getRow(0).getCell(j));
         String cellValue = formatter.formatCellValue(cell);
-        out.println("Current Column In Sheet 1 : "+j);
-        out.println("Cell Value : "+cellValue+" Cell Key :"+cellKey);
+        //out.println("Current Column In Sheet 1 : "+j);
+        //out.println("Cell Value : "+cellValue+" Cell Key :"+cellKey);
         
         if (cellValue!=null&&!cellValue.equals(cellKey)) {
           rowData.put(cellKey, cellValue);
@@ -318,10 +321,10 @@ public class ImportReadImages extends HttpServlet {
           }
           data.put(filename, rowData);     
           out.println("New Filename : "+filename);
-          out.println(rowData.toString());
+          //out.println(rowData.toString());
           out.println("Excel has image_file? "+row.getCell(3).toString());
           out.println("image_file from rowData? "+rowData.get("image_file"));
-          out.println("Data Length ? "+data.size()+"\n");
+          //out.println("Data Length ? "+data.size()+"\n");
         }
       }
     }
@@ -416,7 +419,7 @@ public class ImportReadImages extends HttpServlet {
         continue;
       }
       
-      System.out.println("Date : "+date+" IndyID : "+indyID);
+      out.println("Date : "+date+" IndyID : "+indyID);
       date = processDate(date);
       
       MarkedIndividual indy = null;
@@ -445,7 +448,8 @@ public class ImportReadImages extends HttpServlet {
               out.println("Match! EncNo : "+enc.getCatalogNumber()+" Checking Indy ID Code...");
               // Check if any encs share the Indy
               // If not Create a new one for the MA? It must have an encounter...
-              if (indy==null) {
+              if (indy==null&&enc.getOccurrenceID()!=null) {
+                occ = myShepherd.getOccurrence(enc.getOccurrenceID());
                 occ.addAsset(ma);
                 ma.setOccurrence(occ);
                 out.println("No indy was found for the name "+indyID+" so the Media Asset has been attached to a sightNo/date matching occ.");
