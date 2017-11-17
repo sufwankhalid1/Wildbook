@@ -805,11 +805,11 @@ public class AccessImport extends HttpServlet {
     } catch (Exception e) {
       e.printStackTrace();
     }
-
     try {
+      myShepherd.commitDBTransaction();
+      myShepherd.closeDBTransaction();
       if (!myShepherd.getPM().currentTransaction().isActive()) {
-        myShepherd.beginDBTransaction();
-        
+        myShepherd.beginDBTransaction();  
       }      
     } catch (Exception e) {
       e.printStackTrace();
@@ -819,7 +819,7 @@ public class AccessImport extends HttpServlet {
     ArrayList<String> failArray = new ArrayList<String>();
     int matchedNum = 0;
     int success = 0;
-    int numSingleEncs = 0;
+    int rowNum = 0;
     int numNoEncs = 0;
     int numOneOccs = 0;
     int noProjectOrLocation = 0;
@@ -828,12 +828,19 @@ public class AccessImport extends HttpServlet {
     for (int i=0;i<table.getRowCount();i++) {
       Survey sv = null;
       SurveyTrack st = null;
+      rowNum++;
       try {
         thisRow = table.getNextRow();
-      } catch (IOException io) {
-        io.printStackTrace();
+        if (thisRow!=null) {
+          System.out.println("Row isn't null at least...");
+        } else { 
+          System.out.println("Row is null!");
+        }
+      } catch (Exception e) {
+        e.printStackTrace();
         out.println("!!!!!!!!!!!!!! Could not get next Row in SIGHTINGS table...");
       }
+      System.out.println("Row Num = "+rowNum);
       
       String date = null;
       try {
