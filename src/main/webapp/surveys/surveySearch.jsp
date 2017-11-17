@@ -233,7 +233,6 @@ String formAction="surveySearchResults.jsp";
 				</p>
 				<div id="additionalObsFields">
 				
-				
 				</div>
 				<input name="numSearchedObs" type="hidden" id="numSearchedObs" value="1" >
 				<input name="AddAnotherObBtn" type="button" id="addAnotherObBtn" value="<%=occProps.getProperty("addAnotherOb")%>" class="btn btn-sm" />				
@@ -241,7 +240,6 @@ String formAction="surveySearchResults.jsp";
 		  	</div>
 		</td>
 	</tr>	
-		
 		
 <script>
 	$(document).ready(function(){
@@ -256,13 +254,11 @@ String formAction="surveySearchResults.jsp";
 	});
 </script>
   	
-
 <tr>
   <td>
-
     <h4 class="intro" style="background-color: #cccccc; padding:3px; border: 1px solid #000066; "><a
       href="javascript:animatedcollapse.toggle('metadata')" style="text-decoration:none"><img
-      src="images/Black_Arrow_down.png" width="14" height="14" border="0" align="absmiddle"/>
+      src="../images/Black_Arrow_down.png" width="14" height="14" border="0" align="absmiddle"/>
       <font color="#000000"><%=props.getProperty("metadataFilters") %></font></a></h4>
   </td>
 </tr>
@@ -300,43 +296,24 @@ String formAction="surveySearchResults.jsp";
 <%
 inShepherd.rollbackDBTransaction();
 inShepherd.closeDBTransaction();
-
 %>
+<br/>
+
+    <p><%=occProps.getProperty("fieldsInstructions") %></p>
+    <%
+    // here we'll programatically create divs that allow for searching through metadata fields
+    %>
+      <h5>Simple Search Criteria</h5>
+      <table>
+      <%
+      for (String fieldName : SurveyQueryProcessor.SIMPLE_STRING_FIELDS) {
+        printStringFieldSearchRow(fieldName, out, svyProps);
+      }
+      %>
+      </table>
 </div>
 </td>
 </tr>
-
- <tr id="FieldsTitleRow">
-   <td>
-     <h4 class="intro" style="background-color: #cccccc; padding:3px; border: 1px solid #000066; "><a
-       href="javascript:animatedcollapse.toggle('tags')" style="text-decoration:none"><img
-       src="images/Black_Arrow_down.png" width="14" height="14" border="0" align="absmiddle"/> <font
-       color="#000000"><%=occProps.getProperty("fieldsTitle") %></font></a></h4>
-   </td>
- </tr>
- <tr id="fieldsContentRow">
-   <td>
-       <div id="tags" style="display:none;">
-           <p><%=occProps.getProperty("fieldsInstructions") %></p>
-           <%
-           // here we'll programatically create divs that allow for searching through metadata fields
-           %>
-             <h5>Simple Search Criteria</h5>
-             <table>
-             <%
-             for (String fieldName : SurveyQueryProcessor.SIMPLE_STRING_FIELDS) {
-               printStringFieldSearchRow(fieldName, out, svyProps);
-             }
-             %>
-             </table>
-             </table>
-       </div>
-    </td>
- </tr>
-
-
-
-
 
 <%
   myShepherd.rollbackDBTransaction();

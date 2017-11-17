@@ -11,13 +11,14 @@
     //let's load out properties
     Properties props = new Properties();
     Properties svyProps = new Properties();
+	Properties occProps = new Properties();
     //String langCode = "en";
     String langCode=ServletUtilities.getLanguageCode(request);
 
     //props.load(getClass().getResourceAsStream("/bundles/" + langCode + "/individualSearchResults.properties"));
     props = ShepherdProperties.getProperties("individualSearchResults.properties", langCode,context);
     svyProps = ShepherdProperties.getProperties("survey.properties");
-
+	occProps = ShepherdProperties.getProperties("occurrence.properties");
 
     int startNum = 1;
     int endNum = 10;
@@ -128,30 +129,30 @@
 
 <jsp:include page="../header.jsp" flush="true"/>
 
-<script src="javascript/underscore-min.js"></script>
-<script src="javascript/backbone-min.js"></script>
-<script src="javascript/core.js"></script>
-<script src="javascript/classes/Base.js"></script>
+<script src="../javascript/underscore-min.js"></script>
+<script src="../javascript/backbone-min.js"></script>
+<script src="../javascript/core.js"></script>
+<script src="../javascript/classes/Base.js"></script>
 
-<link rel="stylesheet" href="javascript/tablesorter/themes/blue/style.css" type="text/css" media="print, projection, screen" />
+<link rel="stylesheet" href="../javascript/tablesorter/themes/blue/style.css" type="text/css" media="print, projection, screen" />
 
-<link rel="stylesheet" href="css/pageableTable.css" />
-<script src="javascript/tsrt.js"></script>
+<link rel="stylesheet" href="../css/pageableTable.css" />
+<script src="../javascript/tsrt.js"></script>
 
 
 <div class="container maincontent">
 
 
       <h1 class="intro">
-        <%=svyProps.getProperty("OccurrenceSearchResults")%>
+        <%=svyProps.getProperty("surveySearchResults")%>
       </h1>
 
       <ul id="tabmenu">
 
-        <li><a class="active"><%=svyProps.getProperty("table")%>
+        <li><a class="active"><%=occProps.getProperty("table")%>
         </a></li>
             <li><a
-           href="surveyExportSearchResults.jsp?<%=request.getQueryString() %>"><%=svyProps.getProperty("export")%>
+           href="surveyExportSearchResults.jsp?<%=request.getQueryString() %>"><%=occProps.getProperty("export")%>
          </a></li>
 
       </ul>
@@ -252,7 +253,7 @@ var colDefn = [
 
   {
     key: 'imageSet',
-    label: '<%=svyProps.getProperty("imageSet")%>',
+    label: '<%=occProps.getProperty("imageSet")%>',
     value: _notUndefined('imageSet'),
   },
   
@@ -750,11 +751,11 @@ function applyFilter() {
 <table width="810" border="0" cellspacing="0" cellpadding="0">
   <tr>
     <td align="left">
-      <p><strong><%=svyProps.getProperty("matchingOccurrences")%>
+      <p><strong><%=occProps.getProperty("matchingOccurrences")%>
       </strong>: <span id="count-total"></span>
       </p>
       <%myShepherd.beginDBTransaction();%>
-      <p><strong><%=svyProps.getProperty("totalOccurrences")%>
+      <p><strong><%=occProps.getProperty("totalOccurrences")%>
     </strong>: <%=(myShepherd.getNumOccurrences())%>
       </p>
     </td>

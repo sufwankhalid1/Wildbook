@@ -178,7 +178,6 @@ public class ImportReadImages extends HttpServlet {
       photo = new File("/"+FilenameUtils.getPath(image.getAbsolutePath()),image.getName());
       params = assetStore.createParameters(photo);
       
-      
       ma = new MediaAsset(assetStore, params);
       ma.addDerivationMethod("Initial Bulk Import", System.currentTimeMillis());
       ma.addLabel("_original");
@@ -294,12 +293,12 @@ public class ImportReadImages extends HttpServlet {
             String newSightNo = null;
             
             // We need to put an additional entry into the data Hash for every line in the second sheet, not just the first.  
-            out.println("Current Column in Sheet 2 : "+k);
+            //out.println("Current Column in Sheet 2 : "+k);
             if (cellValue!=null&&!cellValue.equals(cellKey)) {
               if (cellKey.equals("sight_no")) {
                 newSightNo = processMediaAssetSightNo(cellValue);
                 rowData.put(cellKey, newSightNo);
-                out.println("Cell key : "+cellKey+" Cell value : "+cellValue+" New sightNo : "+newSightNo);
+                //out.println("Cell key : "+cellKey+" Cell value : "+cellValue+" New sightNo : "+newSightNo);
               } else if (cellKey.equals("date")) {
                 String newDate = processMediaAssetDate(cellValue);
                 rowData.put(cellKey, newDate);
@@ -563,7 +562,7 @@ public class ImportReadImages extends HttpServlet {
       XSSFCell tagCell = null;
       try {
         date = row.getCell(0).toString();
-        out.println("INPUT DATE : "+date);
+        //out.println("INPUT DATE : "+date);
         
         DateTimeFormatter input = null; 
         if (date.contains("/")) {
@@ -575,7 +574,7 @@ public class ImportReadImages extends HttpServlet {
         DateTimeFormatter output = DateTimeFormat.forPattern("yyyy-MM-dd"); 
         DateTime dt = input.parseDateTime(date); 
         date = output.print(dt.getMillis()); 
-        out.println("OUTPUT DATE : "+date);
+        //out.println("OUTPUT DATE : "+date);
       } catch (Exception e) {
         e.printStackTrace();
       }
@@ -647,7 +646,7 @@ public class ImportReadImages extends HttpServlet {
               myShepherd.getPM().makePersistent(ob);
               myShepherd.commitDBTransaction();
               obs.add(ob);
-              out.println("Made Ob : "+name+" Value : "+val);
+              //out.println("Made Ob : "+name+" Value : "+val);
             }
           }
         }

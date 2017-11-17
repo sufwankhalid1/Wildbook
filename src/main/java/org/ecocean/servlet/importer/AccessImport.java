@@ -124,13 +124,14 @@ public class AccessImport extends HttpServlet {
     boolean dumlTableSwitch = true;
     if (dumlTableSwitch) {    
       try {
+        out.flush();
         out.println("********************* Let's process the DUML Table!\n");
         // Hit the SIGHTINGS table to find out whether we need to create multiple encounters for a given occurrence.
         buildEncounterDuplicationMap(db.getTable("SIGHTINGS"), myShepherd);
         
         processDUML(db.getTable("DUML"), myShepherd);
       } catch (Exception e) {
-        out.println(e);
+        e.printStackTrace();
         out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Could not process DUML table!!!");
       }
     }  
@@ -138,6 +139,7 @@ public class AccessImport extends HttpServlet {
     boolean simpleLocationsDUML = true;
     if (simpleLocationsDUML) {
       try {
+        out.flush();
         out.println("********************* Building a HashMap of simple location names for EFFORT/DUML matching...");
         File locExcel = new File(dbLocation+"DUML locations.xlsx");
         System.out.println("Loc Excel? : "+locExcel.getAbsolutePath());
@@ -150,6 +152,7 @@ public class AccessImport extends HttpServlet {
     boolean sightingsTableSwitch = true;
     if (sightingsTableSwitch) {
       try {
+        out.flush();
         out.println("********************* Let's process the SIGHTINGS Table!\n");
         processSightings(db.getTable("SIGHTINGS"), myShepherd);
       } catch (Exception e) {
@@ -162,7 +165,8 @@ public class AccessImport extends HttpServlet {
     boolean effortTableSwitch = true;
     if (effortTableSwitch) {
       try {
-        System.out.println("********************* Let's process the EFFORT Table!\n");
+        out.flush();
+        out.println("********************* Let's process the EFFORT Table!\n");
         processEffortTable(db.getTable("EFFORT"), myShepherd);
       } catch (Exception e) {
         e.printStackTrace();
@@ -173,6 +177,7 @@ public class AccessImport extends HttpServlet {
     boolean biopsyTableSwitch = true;
     if (biopsyTableSwitch) {
       try {
+        out.flush();
         out.println("********************* Let's process the BiopsySamples Table!\n");
         processBiopsyTable(db.getTable("Biopsy Samples"), myShepherd, db.getTable("DUML"));
       } catch (Exception e) {
@@ -183,6 +188,7 @@ public class AccessImport extends HttpServlet {
     }
     myShepherd.commitDBTransaction();
     myShepherd.closeDBTransaction();
+    out.close();
     db.close(); 
   }  
   
@@ -221,10 +227,14 @@ public class AccessImport extends HttpServlet {
     Row thisRow = null;
     Encounter newEnc = null;
     int totalInSightingsArray = 0;
-    for (int i=0;i<table.getRowCount();i++) {
+    int allRows = table.getRowCount();
+    for (int i=0;i<allRows;i++) {
       newEnc = new Encounter();
       try {
         thisRow = table.getNextRow();
+        if (thisRow==null) {
+          continue;
+        }
       } catch (IOException io) {
         io.printStackTrace();
         out.println("!!!!!!!!!!!!!! Could not get next Row in DUML table...");
@@ -254,7 +264,7 @@ public class AccessImport extends HttpServlet {
           newEnc.setVerbatimEventDate(dateTime.toString());          
           newEnc.setDateInMilliseconds(dateTime.getMillis());  
           dates += 1;
-          out.println("--- StartTime: "+startTime);
+          //out.println("--- StartTime: "+startTime);
           //out.println("--------------------------------------- .getDate() produces....  "+newEnc.getDate());
           //  out.println("--- ++++++++ ENTIRE ROW STRING :"+thisRow.toString()+"\n\n");
           if (columnMasterList.contains("DATE") || columnMasterList.contains("StartTime")) {
@@ -264,7 +274,9 @@ public class AccessImport extends HttpServlet {
         } 
         // Lets crush that into a DateTime for milli's and stuff.. 
       } catch (Exception e) {
+        out.println(thisRow.toString());
         out.println("!!!!!!!!!!!!!! Could not process a date for row "+i+" in DUML");
+        out.println("What is this horrible date? : "+thisRow.get("DATE"));
         e.printStackTrace();
         errors +=1;
       }
@@ -280,7 +292,7 @@ public class AccessImport extends HttpServlet {
           DateTime dateTime = dateStringToDateTime(dateString, "EEE MMM dd hh:mm a yyyy");
           newEnc.setEndDateInMilliseconds(dateTime.getMillis());
           endTimes += 1;
-          out.println("---------------- End Time : "+et);
+          //out.println("---------------- End Time : "+et);
           if (columnMasterList.contains("EndTime")) {
             columnMasterList.remove("EndTime");
           }
@@ -445,7 +457,7 @@ public class AccessImport extends HttpServlet {
         String lat = null;
         if (thisRow.get("LAT") != null) {
           lat = thisRow.get("LAT").toString();          
-          out.println("---------------- Lat : "+lat);
+          //out.println("---------------- Lat : "+lat);
           //Double latDouble = Double.parseDouble(lat);
           BigDecimal bd = new BigDecimal(lat);
           Double db = bd.doubleValue();
@@ -465,7 +477,7 @@ public class AccessImport extends HttpServlet {
         String lon = null;
         if (thisRow.get("LONG") != null) {
           lon = thisRow.get("LONG").toString();          
-          out.println("---------------- Lon : "+lon);
+          //out.println("---------------- Lon : "+lon);
           //Double lonDouble = Double.parseDouble(lon);
           BigDecimal bd = new BigDecimal(lon);
           Double db = bd.doubleValue();
@@ -623,7 +635,7 @@ public class AccessImport extends HttpServlet {
         if (duplicateEncs.size() > 0) {
           for (Encounter dups : duplicateEncs) {
             if (newEnc.getLocation()==null&&hasLocs==true) {
-              out.println("This encounter did not recieve a location and has "+duplicateEncs.size()+" children.");
+              //out.println("This encounter did not recieve a location and has "+duplicateEncs.size()+" children.");
               noLocChildren += duplicateEncs.size();
               hasLocs = false;
             } else {
@@ -699,7 +711,8 @@ public class AccessImport extends HttpServlet {
       
       if (enc.getDecimalLatitudeAsDouble()!=null&&enc.getDecimalLongitudeAsDouble()!=null) {
         lat = enc.getDecimalLatitudeAsDouble();
-        lon = enc.getDecimalLongitudeAsDouble();        
+        lon = enc.getDecimalLongitudeAsDouble();     
+        //out.println("Extracted GPS data. LAT : "+lat+" LON : "+lon);
       }
     } catch (Exception e) {
       e.printStackTrace();
@@ -775,7 +788,7 @@ public class AccessImport extends HttpServlet {
           sv.addBaseObservationArrayList(newObs); 
           //ts.getBaseObservationArrayList().toString();
         }
-        out.println("YEAH!!! added "+newObs.size()+" observations to "+obj.getClass().getSimpleName()+" "+id+" : ");
+        //out.println("YEAH!!! added "+newObs.size()+" observations to "+obj.getClass().getSimpleName()+" "+id+" : ");
       } catch (Exception e) {
         e.printStackTrace();
         out.println("Failed to add the array of observations to this object.");
@@ -796,12 +809,13 @@ public class AccessImport extends HttpServlet {
     try {
       if (!myShepherd.getPM().currentTransaction().isActive()) {
         myShepherd.beginDBTransaction();
+        
       }      
     } catch (Exception e) {
       e.printStackTrace();
     }
     
-    out.println("Effort Table has "+table.getRowCount()+" Rows!\n");
+    System.out.println("Effort Table has "+table.getRowCount()+" Rows!\n");
     ArrayList<String> failArray = new ArrayList<String>();
     int matchedNum = 0;
     int success = 0;
@@ -851,7 +865,7 @@ public class AccessImport extends HttpServlet {
           String es = thisRow.getString("SurveyHrs");
           es = es.replaceAll("[^\\d.-]","").toUpperCase();
           if (!es.equals("NA")&&!es.equals("")) {
-            System.out.println("SurveyHrs resulting string : "+es);
+            //System.out.println("SurveyHrs resulting string : "+es);
             Double effort = Double.valueOf(es);
             Measurement effortMeasurement = new Measurement();
             effortMeasurement.setUnits("Hours");
@@ -943,7 +957,7 @@ public class AccessImport extends HttpServlet {
                     matched = true;
                     addSurveyAndTrackIDToOccurrence(enc,sv,st,myShepherd);
                   } else {
-                    out.println("No match on project.");
+                    //out.println("No match on project.");
                   } 
                 } 
                 
@@ -983,7 +997,7 @@ public class AccessImport extends HttpServlet {
           if (matched) {
             matchedNum ++;
           } else {
-            failArray.add("\nNo match for row "+i+" with  Date : "+date+", Survey Area : "+surveyArea+", Project : "+project);
+            failArray.add("\nUnmatched row #"+i+" Date : "+date+", Survey Area : "+surveyArea+", Project : "+project);
             ArrayList<String> occIds = new ArrayList<String>(); 
             for (Encounter enc :encsOnThisDate) {
               String id = myShepherd.getOccurrence(enc.getOccurrenceID()).getOccurrenceID();
@@ -1048,13 +1062,13 @@ public class AccessImport extends HttpServlet {
   }
   
   private void addSurveyAndTrackIDToOccurrence(Encounter enc, Survey sv, SurveyTrack st, Shepherd myShepherd) {
-    System.out.println("Enc No : "+enc.getCatalogNumber());
+    //System.out.println("Enc No : "+enc.getCatalogNumber());
     if (enc.getOccurrenceID()!=null) {
       Occurrence occ = myShepherd.getOccurrence(enc.getOccurrenceID());
-      System.out.println("OCC ID : "+occ.getOccurrenceID());
+      //System.out.println("OCC ID : "+occ.getOccurrenceID());
       occ.setCorrespondingSurveyID(sv.getID());
       occ.setCorrespondingSurveyTrackID(st.getID());
-      System.out.println("SV ID, ST ID : "+sv.getID()+", "+st.getID());
+      //System.out.println("SV ID, ST ID : "+sv.getID()+", "+st.getID());
       double lat = -999;
       double lon = -999;
       long millis = -999;
@@ -1210,7 +1224,7 @@ public class AccessImport extends HttpServlet {
                   enc.assignToMarkedIndividual(indy.getIndividualID());
                   myShepherd.commitDBTransaction();
                   myShepherd.beginDBTransaction();
-                  System.out.println("Adding this encounter to existing Indy : "+indy.getIndividualID()+" Incoming ID : "+idCode);
+                  //System.out.println("Adding this encounter to existing Indy : "+indy.getIndividualID()+" Incoming ID : "+idCode);
                   addedToExisting += 1; 
                   break;
                 }

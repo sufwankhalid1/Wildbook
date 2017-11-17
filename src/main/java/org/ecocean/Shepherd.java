@@ -2154,7 +2154,7 @@ public class Shepherd {
     // Since the query involves a date but no time, we need to get the millis of the next day at 12:00AM as well and find all encounters that occurred in between.
     String milliString = String.valueOf(dt.getMillis());
     String millisNext = String.valueOf(nextDay.getMillis());
-    System.out.println("Trying to get encounter with date in Millis : "+milliString);
+    //System.out.println("Trying to get encounter with date in Millis : "+milliString);
     String keywordQueryString="SELECT FROM org.ecocean.Encounter WHERE dateInMilliseconds >= "+milliString+" && dateInMilliseconds <= "+millisNext+"";
     Collection col = null;
     Query encQuery = null; 
