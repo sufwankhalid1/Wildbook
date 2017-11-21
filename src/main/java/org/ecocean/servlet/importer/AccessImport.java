@@ -796,7 +796,7 @@ public class AccessImport extends HttpServlet {
     }
   }
   
-  private void processEffortTable(Table table, Shepherd myShepherd) {
+  private void processEffortTable(Table table, Shepherd myShepherd) throws IOException {
     
     System.out.println("Made it to the method...");
     ArrayList<String> columnMasterList = null;

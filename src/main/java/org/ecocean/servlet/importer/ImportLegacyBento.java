@@ -49,6 +49,8 @@ public class ImportLegacyBento extends HttpServlet {
   private ArrayList<Encounter> masterEncArr = new ArrayList<>();
   private ArrayList<MarkedIndividual> masterIndyArr = new ArrayList<>();
   
+  private ArrayList<String> negativeASTRows = new ArrayList<>();
+  
   public void init(ServletConfig config) throws ServletException {
     super.init(config);
   }
@@ -249,6 +251,10 @@ public class ImportLegacyBento extends HttpServlet {
         out.println("Could not persist this Survey from EFFORT : "+Arrays.toString(rowString));
       }
       out.println("Created "+totalSurveys+" surveys out of "+totalRows+" rows in EFFORT file.");
+      out.println("-------- Here's the rows with negative at sea time: --------");
+      for (String entry : negativeASTRows) {
+        out.println(entry);
+      }
     }
   }
   
@@ -296,6 +302,9 @@ public class ImportLegacyBento extends HttpServlet {
     HashMap<String,String> obsColumns = new HashMap<>();
     Survey sv = null;
     // Explicit column index for date in effort is #38.
+    if (values[0].startsWith("-")) {
+      negativeAtSeaTime(names, values);
+    }
     if (names[38].equals("Date Created")) {
       sv = checkMasterArrForSurvey(names, values);          
       if (sv==null) {
@@ -357,6 +366,40 @@ public class ImportLegacyBento extends HttpServlet {
     processRemainingColumnsAsObservations(sv, obsColumns);        
     out.println(sv.getID());
     return sv;
+  }
+  
+  private void negativeAtSeaTime(String[] names, String[] values) {
+    // date created, oneffort, offeffort, surveytime, and comments & summary of day
+    //out.println("Length of name array: "+names.length);
+    //out.println("Length of value array: "+values.length);
+    
+    StringBuilder rowString = new StringBuilder();
+    if (names[0]!=null&&!values[0].isEmpty()) {
+      String atSeaTime = values[0];
+      rowString.append("At Sea Time: "+atSeaTime+" ");
+    }
+    if (names[6]!=null&&!values[6].isEmpty()) {
+      String comments = values[6];
+      rowString.append("Comments: "+comments+" ");
+    }
+    if (names[8]!=null&&!values[8].isEmpty()) {
+      String dateCreated = values[8];
+      rowString.append("Date Created: "+dateCreated+" ");
+    }
+    if (names[20]!=null&&!values[20].isEmpty()) {
+      String offEffort = values[20];
+      rowString.append("Off Effort: "+offEffort+" ");
+    }
+    if (names[23]!=null&&!values[23].isEmpty()) {
+      String onEffort = values[23];
+      rowString.append("On Effort: "+onEffort+" ");
+    }
+    if (names[32]!=null&&!values[32].isEmpty()) {
+      String surveyTime = values[32];
+      rowString.append("Survey Time: "+surveyTime+" ");
+    }
+    negativeASTRows.add(rowString.toString());
+    
   }
 
   private void processSightings(Shepherd myShepherd, CSVReader sightingsCSV) {
