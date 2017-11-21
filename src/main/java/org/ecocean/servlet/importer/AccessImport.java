@@ -805,15 +805,15 @@ public class AccessImport extends HttpServlet {
     } catch (Exception e) {
       e.printStackTrace();
     }
-    try {
-      myShepherd.commitDBTransaction();
-      myShepherd.closeDBTransaction();
-      if (!myShepherd.getPM().currentTransaction().isActive()) {
-        myShepherd.beginDBTransaction();  
-      }      
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
+    //try {
+      //myShepherd.commitDBTransaction();
+      //myShepherd.closeDBTransaction();
+      //if (!myShepherd.getPM().currentTransaction().isActive()) {
+      //  myShepherd.beginDBTransaction();  
+      //}      
+    //} catch (Exception e) {
+    //  e.printStackTrace();
+    //}
     
     System.out.println("Effort Table has "+table.getRowCount()+" Rows!\n");
     ArrayList<String> failArray = new ArrayList<String>();
