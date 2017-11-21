@@ -260,9 +260,9 @@ var colDefn = [
 */
  
   {
-    key: 'ID',
-    label: 'ID',
-    value: _notUndefined('ID'),
+    key: 'surveyID',
+    label: 'surveyID',
+    value: _notUndefined('surveyID'),
   },
   {
     key: 'dateTimeCreated',
@@ -270,28 +270,21 @@ var colDefn = [
     value: _notUndefined('dateTimeCreated'),
   },
   {
-	    key: 'correspondingSurveyID',
-	    label: 'Corresponding Survey',
-	    value: _notUndefined('correspondingSurveyID'),
-  }, 	
+	    key: 'project',
+	    label: 'Project',
+	    value: _notUndefined('project'),
+  }, 
+  {
+	    key: 'type',
+	    label: 'Type',
+	    value: _notUndefined('type'),
+  }, 
   {
 	key: 'numberEncounters',
 	label: '<%=props.getProperty("numEncounters")%>',
 	value: _colNumberEncounters,
 	sortFunction: function(a,b) { return parseFloat(a) - parseFloat(b); }
   },
-  {
-		key: 'decimalLatitude',
-		label: 'latitude',
-    value: _notUndefined('decimalLatitude'),
-    sortFunction: function(a,b) { return parseFloat(a) - parseFloat(b); }
-	},
-  {
-		key: 'decimalLongitude',
-		label: 'longitude',
-    value: _notUndefined('decimalLongitude'),
-    sortFunction: function(a,b) { return parseFloat(a) - parseFloat(b); }
-	},
   /*
   {
     key: 'individualCount',
@@ -398,12 +391,11 @@ function doTable() {
 		var delta = Math.max(-1, Math.min(1, (event.wheelDelta || -event.detail)));
 		if (delta != 0) nudge(-delta);
 	});
-
 }
 
 function rowClick(el) {
-	console.log(el);
-	var w = window.open('occurrence.jsp?number=' + el.getAttribute('data-id'), '_blank');
+	console.log(el.surveyID);
+	var w = window.open('survey.jsp?surveyID=' + el.getAttribute('data-id'), '_blank');
 	w.focus();
 	return false;
 }
@@ -436,7 +428,7 @@ function xxxshow() {
 	$('#results-table td').html('');
 	for (var i = 0 ; i < results.length ; i++) {
 		//$('#results-table tbody tr')[i].title = searchResults[results[i]].individualID;
-		$('#results-table tbody tr')[i].setAttribute('data-id', searchResults[results[i]].ID);
+		$('#results-table tbody tr')[i].setAttribute('data-id', searchResults[results[i]].surveyID);
 		for (var c = 0 ; c < colDefn.length ; c++) {
 			$('#results-table tbody tr')[i].children[c].innerHTML = sTable.values[results[i]][c];
 		}
@@ -461,7 +453,7 @@ function show() {
 	$('#results-table tbody tr').show();
 	for (var i = 0 ; i < results.length ; i++) {
 		//$('#results-table tbody tr')[i].title = 'Encounter ' + searchResults[results[i]].id;
-		$('#results-table tbody tr')[i].setAttribute('data-id', searchResults[results[i]].ID);
+		$('#results-table tbody tr')[i].setAttribute('data-id', searchResults[results[i]].surveyID);
 		for (var c = 0 ; c < colDefn.length ; c++) {
 			$('#results-table tbody tr')[i].children[c].innerHTML = '<div>' + sTable.values[results[i]][c] + '</div>';
 		}
@@ -645,21 +637,11 @@ function _colLongitude(o) {
 	return o.longitude;
 }
 function _colID(o) {
-  if (o.ID == undefined) {
+  if (o.surveyID == undefined) {
     if (o.ID == undefined) return '';
     return o.DataCollectionEventID;
   }
-  return o.ID;
-}
-
-function _colSamplingProtocol(o) {
-  if (o.samplingProtocol == undefined) return '';
-  return o.samplingProtocol;
-}
-
-function _colTaxonomy(o) {
-	if (!o.get('genus') || !o.get('specificEpithet')) return 'n/a';
-	return o.get('genus') + ' ' + o.get('specificEpithet');
+  return o.surveyID;
 }
 
 
@@ -667,6 +649,13 @@ function _colRowNum(o) {
 	return o._rowNum;
 }
 
+function _colProject(o) {
+	return o.project;
+}
+
+function _colType(o) {
+	return o.type;
+}
 
 function _colThumb(o) {
 	var url = o.thumbnailUrl;
