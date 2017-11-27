@@ -261,8 +261,8 @@ var colDefn = [
  
   {
     key: 'surveyID',
-    label: 'surveyID',
-    value: _notUndefined('surveyID'),
+    label: 'Survey ID',
+    value: _notUndefined('surveyID'),	
   },
   {
     key: 'dateTimeCreated',
@@ -279,12 +279,12 @@ var colDefn = [
 	    label: 'Type',
 	    value: _notUndefined('type'),
   }, 
-  {
-	key: 'numberEncounters',
-	label: '<%=props.getProperty("numEncounters")%>',
-	value: _colNumberEncounters,
-	sortFunction: function(a,b) { return parseFloat(a) - parseFloat(b); }
-  },
+  //{
+  //	    key: 'effort',
+  //	    label: 'Effort',
+  //	    value: _colEffort,
+  //}, 
+
   /*
   {
     key: 'individualCount',
@@ -657,6 +657,12 @@ function _colType(o) {
 	return o.type;
 }
 
+function _colEffort(o) {
+	console.log('Effort? '+o.effort);
+	//console.log('Effoort Value? '+o.effort.value);
+	return o.effort;	
+}
+
 function _colThumb(o) {
 	var url = o.thumbnailUrl;
 	if (!url) return '';
@@ -677,7 +683,6 @@ function _colOccDate(o) {
 	var dateString = new Date(dateMillis).toString();
 	return dateString;
 }
-
 
 function _textExtraction(n) {
 	var s = $(n).text();
@@ -745,7 +750,7 @@ function applyFilter() {
       </p>
       <%myShepherd.beginDBTransaction();%>
       <p><strong><%=occProps.getProperty("totalOccurrences")%>
-    </strong>: <%=(myShepherd.getNumOccurrences())%>
+    </strong>: <%=(myShepherd.getNumSurveys())%>
       </p>
     </td>
     <%

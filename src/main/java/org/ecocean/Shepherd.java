@@ -2643,6 +2643,22 @@ public class Shepherd {
       return 0;
     }
   }
+  
+  public int getNumSurveys() {
+    pm.getFetchPlan().setGroup("count");
+    Extent svyClass = pm.getExtent(Survey.class, true);
+    Query acceptedSurveys = pm.newQuery(svyClass);
+    try {
+      Collection c = (Collection) (acceptedSurveys.execute());
+      int num = c.size();
+      acceptedSurveys.closeAll();
+      return num;
+    } catch (javax.jdo.JDOException x) {
+      x.printStackTrace();
+      acceptedSurveys.closeAll();
+      return 0;
+    }
+  }
 
   public int getNumAdoptions() {
     pm.getFetchPlan().setGroup("count");

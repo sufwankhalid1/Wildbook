@@ -1,11 +1,14 @@
 package org.ecocean;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 import java.io.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 import javax.jdo.Query;
 import javax.servlet.http.HttpServletRequest;
@@ -18,9 +21,9 @@ import org.joda.time.DateTime;
 
 public class SurveyQueryProcessor extends QueryProcessor {
 
-  private static final String BASE_FILTER = "SELECT FROM org.ecocean.Survey WHERE \"ID\" != null && ";
+  private static final String BASE_FILTER = "SELECT FROM org.ecocean.Survey WHERE \"surveyID\" != null && ";
 
-  public static final String[] SIMPLE_STRING_FIELDS = new String[]{"project","organization","type","effort"};
+  public static final String[] SIMPLE_STRING_FIELDS = new String[]{"project","organization","type"};
 
   
 
@@ -45,6 +48,9 @@ public class SurveyQueryProcessor extends QueryProcessor {
       System.out.println("           current filter = "+filter);
       filter = QueryProcessor.filterWithBasicStringField(filter, fieldName, request, prettyPrint);
     }
+    
+    // Date Parameters
+    filter = filterDateRanges(request, filter, prettyPrint);
 
     // GPS box
     filter = QueryProcessor.filterWithGpsBox(filter, request, prettyPrint);
@@ -104,33 +110,66 @@ public class SurveyQueryProcessor extends QueryProcessor {
     return (new SurveyQueryResult(rSurveys,filter,prettyPrint.toString()));
   }
   
-  public static String filterDateRanges(HttpServletRequest request, String filter) {
-    String filterAddition = "";
+  public static String filterDateRanges(HttpServletRequest request, String filter, StringBuffer prettyPrint) {
     String endTimeFrom = null;
     String endTimeTo = null;
     String startTimeFrom = null;
     String startTimeTo = null;
-    filter = prepForNext(filter);
-    if (request.getParameter("startTimeFrom")!=null) {
-      startTimeFrom = request.getParameter("startTimeFrom");
-      filter += " 'startTime' >=  "+startTimeFrom+" ";
+    System.out.println("Here's the request: "+request.getAttributeNames().toString());
+    try {
+      filter = prepForNext(filter);
+      if (request.getParameter("startTimeFrom")!=null&&request.getParameter("startTimeFrom").length()>8) {
+        startTimeFrom = monthDayYearToMilli(request.getParameter("startTimeFrom"));
+        // Crush date
+        String addition = " 'startTime' >=  "+startTimeFrom+" ";
+        prettyPrint.append(addition);
+        filter += addition;
+      }      
+    } catch (NullPointerException npe) {
+      npe.printStackTrace();
     }
-    filter = prepForNext(filter);
-    if (request.getParameter("startTimeTo")!=null) {
-      startTimeTo = request.getParameter("startTimeTo");
-      filter += " 'startTime' <=  "+startTimeFrom+" ";
+    
+    try {
+      filter = prepForNext(filter);
+      if (request.getParameter("startTimeTo")!=null&&request.getParameter("startTimeFrom").length()>8) {
+        startTimeTo = monthDayYearToMilli(request.getParameter("startTimeTo"));
+        // Crush date
+        String addition = " 'startTime' <=  "+startTimeTo+" ";
+        prettyPrint.append(addition);
+        filter += addition;
+      }      
+    } catch (NullPointerException npe) {
+      npe.printStackTrace();
     }
-    filter = prepForNext(filter);
-    if (request.getParameter("endTimeFrom")!=null) {
-      endTimeFrom = request.getParameter("endTimeFrom");
-      filter += " 'endTime' >=  "+endTimeFrom+" ";
+    
+    try {
+      filter = prepForNext(filter);
+      if (request.getParameter("endTimeFrom")!=null&&request.getParameter("startTimeFrom").length()>8) {
+        endTimeFrom = monthDayYearToMilli(request.getParameter("endTimeFrom"));
+        // Crush date
+        String addition = " 'endTime' >=  "+endTimeFrom+" ";
+        prettyPrint.append(addition);
+        filter += addition;
+      }      
+    } catch (NullPointerException npe) {
+      npe.printStackTrace();
     }
-    filter = prepForNext(filter);
-    if (request.getParameter("endTimeTo")!=null) {
-      endTimeTo = request.getParameter("endTimeTo");
-      filter += " 'endTime' >=  "+endTimeFrom+" ";
+    
+    try {
+      filter = prepForNext(filter);
+      if (request.getParameter("endTimeTo")!=null&&request.getParameter("startTimeFrom").length()>8) {
+        endTimeTo = monthDayYearToMilli(request.getParameter("endTimeTo"));
+        // Crush date
+        String addition = " 'startTime' <=  "+endTimeTo+" ";
+        prettyPrint.append(addition);
+        filter += addition;
+      }      
+    } catch (NullPointerException npe) {
+      npe.printStackTrace();
     }
+    
     filter = prepForNext(filter);
+    System.out.println("This filter: "+filter);
     return filter;
   }
   
@@ -139,6 +178,23 @@ public class SurveyQueryProcessor extends QueryProcessor {
      QueryProcessor.prepForCondition(filter);
    }
    return filter;
+ }
+ 
+ private static String monthDayYearToMilli(String newDate) {
+   System.out.println("This is the input date: "+newDate);
+   SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy");
+   String month = newDate.substring(2);
+   String day = newDate.substring(3,5);
+   String year = newDate.substring(6);
+   Date dt;
+   try {
+     dt = sdf.parse(month+"-"+day+"-"+year);
+   } catch (ParseException e) {
+     e.printStackTrace();
+     System.out.println("Failed to Parse String : "+month+"-"+day+"-"+year);
+     return null;
+   }
+   return String.valueOf(dt.getTime());
  }
 }
 
