@@ -858,7 +858,7 @@ public class AccessImport extends HttpServlet {
           myShepherd.getPM().makePersistent(st);
           myShepherd.commitDBTransaction();
           myShepherd.beginDBTransaction();
-          
+            
           sv.addSurveyTrack(st);
           columnMasterList.remove("DATE");
         }
@@ -979,20 +979,21 @@ public class AccessImport extends HttpServlet {
                   } else {
                     out.println("No match on Location/SurveyArea.");
                   }
-                } 
-                
-                if (simpleLoc !=null && surveyArea !=null && !matched) {
-                  if (simpleLoc.contains(surveyArea) || surveyArea.contains(simpleLoc)) {
-                    out.println("MATCH!!! on SimpleLocation/SurveyArea : "+simpleLoc+" = "+st.getLocationID());
-                    st.addOccurrence(myShepherd.getOccurrence(enc.getOccurrenceID()), myShepherd);
-                    sv.addSurveyTrack(st);
-                    success++;
-                    matched = true;
-                    addSurveyAndTrackIDToOccurrence(enc,sv,st,myShepherd);
-                  } else {
-                    out.println("No match on SimpleLocation/SurveyArea.");
-                  }
+                } else {
+                  if (simpleLoc !=null && surveyArea !=null && !matched) {
+                    if (simpleLoc.contains(surveyArea) || surveyArea.contains(simpleLoc)) {
+                      out.println("MATCH!!! on SimpleLocation/SurveyArea : "+simpleLoc+" = "+st.getLocationID());
+                      st.addOccurrence(myShepherd.getOccurrence(enc.getOccurrenceID()), myShepherd);
+                      sv.addSurveyTrack(st);
+                      success++;
+                      matched = true;
+                      addSurveyAndTrackIDToOccurrence(enc,sv,st,myShepherd);
+                    } else {
+                      out.println("No match on SimpleLocation/SurveyArea.");
+                    }
+                  }                  
                 }
+                
               } else {
                 //out.println("Location ID, Project and simpleLoc for this enc is null!");
                 noProjectOrLocation +=1;
@@ -1050,20 +1051,25 @@ public class AccessImport extends HttpServlet {
     ArrayList<SurveyTrack> trks = sv.getAllSurveyTracks();
     ArrayList<Occurrence> occs = new ArrayList<>();
     for (SurveyTrack trk : trks) {
-      if (trk!=null&&trk.getAllOccurrences()!=null&&!trk.getAllOccurrences().isEmpty()) {        
+      if (trk.getAllOccurrences()!=null&&!trk.getAllOccurrences().isEmpty()) {        
         occs.addAll(trk.getAllOccurrences());
       }
     }
     for (Occurrence occ : occs) {
       occ.setMillisFromEncounters();
-      Long time = occ.getMillisFromEncounterAvg();
-      if (startTime==null||time<startTime) {
-        startTime = time;
-        sv.setStartTimeMilli(startTime);
-      }
-      if (endTime==null||time>endTime) {
-        endTime = time;
-        sv.setEndTimeMilli(endTime);
+      
+      Long time = occ.getMillisRobust();
+      if (time!=null) {
+        if (startTime==null||time<startTime) {
+          startTime = time;
+          sv.setStartTimeMilli(startTime);
+        }
+        if (endTime==null||time>endTime) {
+          endTime = time;
+          sv.setEndTimeMilli(endTime);
+        }        
+      } else {
+        out.println("***** ***** Could not get any sort of date for this survey from occs-->encs!!");
       }
     }
   }

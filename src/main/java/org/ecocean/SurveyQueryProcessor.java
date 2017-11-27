@@ -1,6 +1,8 @@
 package org.ecocean;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -37,6 +39,11 @@ public class SurveyQueryProcessor extends QueryProcessor {
 
     Shepherd myShepherd=new Shepherd(context);
     //myShepherd.setAction("SurveyQueryProcessor.class");
+    
+    ArrayList<Survey> svys = myShepherd.getAllSurveys();
+    for (int i=0;i<20;i++) {
+      System.out.println("Sample #"+i+" startTime "+svys.get(i).getStartTimeMilli());
+    }
 
     //filter for id------------------------------------------
     filter = QueryProcessor.filterWithBasicStringField(filter, "id", request, prettyPrint);
@@ -115,13 +122,15 @@ public class SurveyQueryProcessor extends QueryProcessor {
     String endTimeTo = null;
     String startTimeFrom = null;
     String startTimeTo = null;
-    System.out.println("Here's the request: "+request.getAttributeNames().toString());
+    
+    Enumeration<String> atts = request.getAttributeNames();
+    
     try {
       filter = prepForNext(filter);
       if (request.getParameter("startTimeFrom")!=null&&request.getParameter("startTimeFrom").length()>8) {
         startTimeFrom = monthDayYearToMilli(request.getParameter("startTimeFrom"));
         // Crush date
-        String addition = " 'startTime' >=  "+startTimeFrom+" ";
+        String addition = " (startTime >=  "+startTimeFrom+") ";
         prettyPrint.append(addition);
         filter += addition;
       }      
@@ -131,10 +140,10 @@ public class SurveyQueryProcessor extends QueryProcessor {
     
     try {
       filter = prepForNext(filter);
-      if (request.getParameter("startTimeTo")!=null&&request.getParameter("startTimeFrom").length()>8) {
+      if (request.getParameter("startTimeTo")!=null&&request.getParameter("startTimeTo").length()>8) {
         startTimeTo = monthDayYearToMilli(request.getParameter("startTimeTo"));
         // Crush date
-        String addition = " 'startTime' <=  "+startTimeTo+" ";
+        String addition = " (startTime <=  "+startTimeTo+") ";
         prettyPrint.append(addition);
         filter += addition;
       }      
@@ -144,10 +153,10 @@ public class SurveyQueryProcessor extends QueryProcessor {
     
     try {
       filter = prepForNext(filter);
-      if (request.getParameter("endTimeFrom")!=null&&request.getParameter("startTimeFrom").length()>8) {
+      if (request.getParameter("endTimeFrom")!=null&&request.getParameter("endTimeFrom").length()>8) {
         endTimeFrom = monthDayYearToMilli(request.getParameter("endTimeFrom"));
         // Crush date
-        String addition = " 'endTime' >=  "+endTimeFrom+" ";
+        String addition = " (endTime >=  "+endTimeFrom+") ";
         prettyPrint.append(addition);
         filter += addition;
       }      
@@ -157,10 +166,10 @@ public class SurveyQueryProcessor extends QueryProcessor {
     
     try {
       filter = prepForNext(filter);
-      if (request.getParameter("endTimeTo")!=null&&request.getParameter("startTimeFrom").length()>8) {
+      if (request.getParameter("endTimeTo")!=null&&request.getParameter("endTimeFrom").length()>8) {
         endTimeTo = monthDayYearToMilli(request.getParameter("endTimeTo"));
         // Crush date
-        String addition = " 'startTime' <=  "+endTimeTo+" ";
+        String addition = " (startTime <=  "+endTimeTo+") ";
         prettyPrint.append(addition);
         filter += addition;
       }      
@@ -175,7 +184,7 @@ public class SurveyQueryProcessor extends QueryProcessor {
   
  public static String prepForNext(String filter) {
    if (!QueryProcessor.endsWithAmpersands(filter)) {
-     QueryProcessor.prepForCondition(filter);
+     filter = QueryProcessor.prepForCondition(filter);
    }
    return filter;
  }
@@ -183,9 +192,9 @@ public class SurveyQueryProcessor extends QueryProcessor {
  private static String monthDayYearToMilli(String newDate) {
    System.out.println("This is the input date: "+newDate);
    SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy");
-   String month = newDate.substring(2);
+   String month = newDate.substring(0,2);
    String day = newDate.substring(3,5);
-   String year = newDate.substring(6);
+   String year = newDate.substring(6,10);
    Date dt;
    try {
      dt = sdf.parse(month+"-"+day+"-"+year);

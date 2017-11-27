@@ -1,9 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8" language="java"
          import="org.ecocean.servlet.ServletUtilities, org.ecocean.*, java.util.Properties, java.util.Collection, java.util.Vector,java.util.ArrayList, org.datanucleus.api.rest.orgjson.JSONArray, org.json.JSONObject, org.datanucleus.api.rest.RESTUtils, org.datanucleus.api.jdo.JDOPersistenceManager" %>
-
-
-
-  <%
+<%
 
   String context="context0";
   context=ServletUtilities.getContext(request);
@@ -269,6 +266,16 @@ var colDefn = [
     label: 'Date Created',
     value: _notUndefined('dateTimeCreated'),
   },
+  {
+	    key: 'startTime',
+	    label: 'Start Time',
+	    value: _notUndefined('startTime'),
+  },
+  {
+	    key: 'endTime',
+	    label: 'End Time',
+	    value: _notUndefined('endTime'),
+},
   {
 	    key: 'project',
 	    label: 'Project',
@@ -717,10 +724,8 @@ function applyFilter() {
 	<div id="results-slider"></div>
 </div>
 
-
 <%
     boolean includeZeroYears = true;
-
     boolean subsampleMonths = false;
     if (request.getParameter("subsampleMonths") != null) {
       subsampleMonths = true;
@@ -728,7 +733,6 @@ function applyFilter() {
     numResults = count;
   %>
 </table>
-
 
 <%
   myShepherd.rollbackDBTransaction();
@@ -749,7 +753,7 @@ function applyFilter() {
       </strong>: <span id="count-total"></span>
       </p>
       <%myShepherd.beginDBTransaction();%>
-      <p><strong><%=occProps.getProperty("totalOccurrences")%>
+      <p><strong><%=svyProps.getProperty("totalSurveys")%>
     </strong>: <%=(myShepherd.getNumSurveys())%>
       </p>
     </td>
