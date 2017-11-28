@@ -25,7 +25,7 @@ public class SurveyQueryProcessor extends QueryProcessor {
 
   private static final String BASE_FILTER = "SELECT FROM org.ecocean.Survey WHERE \"surveyID\" != null && ";
 
-  public static final String[] SIMPLE_STRING_FIELDS = new String[]{"project","organization","type"};
+  public static final String[] SIMPLE_STRING_FIELDS = new String[]{"ID","project","organization","type"};
 
   
 
@@ -59,7 +59,7 @@ public class SurveyQueryProcessor extends QueryProcessor {
     }
     
     // Date Parameters
-    filter = filterDateRanges(request, filter, prettyPrint);
+    filter = QueryProcessor.filterDateRanges(request, filter, prettyPrint);
 
     // GPS box
     filter = QueryProcessor.filterWithGpsBox(filter, request, prettyPrint);
@@ -119,94 +119,6 @@ public class SurveyQueryProcessor extends QueryProcessor {
     return (new SurveyQueryResult(rSurveys,filter,prettyPrint.toString()));
   }
   
-  public static String filterDateRanges(HttpServletRequest request, String filter, StringBuffer prettyPrint) {
-    String endTimeFrom = null;
-    String endTimeTo = null;
-    String startTimeFrom = null;
-    String startTimeTo = null;
-    
-    Enumeration<String> atts = request.getAttributeNames();
-    
-    try {
-      filter = prepForNext(filter);
-      if (request.getParameter("startTimeFrom")!=null&&request.getParameter("startTimeFrom").length()>8) {
-        startTimeFrom = monthDayYearToMilli(request.getParameter("startTimeFrom"));
-        // Crush date
-        String addition = " (startTime >=  "+startTimeFrom+") ";
-        prettyPrint.append(addition);
-        filter += addition;
-      }      
-    } catch (NullPointerException npe) {
-      npe.printStackTrace();
-    }
-    
-    try {
-      filter = prepForNext(filter);
-      if (request.getParameter("startTimeTo")!=null&&request.getParameter("startTimeTo").length()>8) {
-        startTimeTo = monthDayYearToMilli(request.getParameter("startTimeTo"));
-        // Crush date
-        String addition = " (startTime <=  "+startTimeTo+") ";
-        prettyPrint.append(addition);
-        filter += addition;
-      }      
-    } catch (NullPointerException npe) {
-      npe.printStackTrace();
-    }
-    
-    try {
-      filter = prepForNext(filter);
-      if (request.getParameter("endTimeFrom")!=null&&request.getParameter("endTimeFrom").length()>8) {
-        endTimeFrom = monthDayYearToMilli(request.getParameter("endTimeFrom"));
-        // Crush date
-        String addition = " (endTime >=  "+endTimeFrom+") ";
-        prettyPrint.append(addition);
-        filter += addition;
-      }      
-    } catch (NullPointerException npe) {
-      npe.printStackTrace();
-    }
-    
-    try {
-      filter = prepForNext(filter);
-      if (request.getParameter("endTimeTo")!=null&&request.getParameter("endTimeFrom").length()>8) {
-        endTimeTo = monthDayYearToMilli(request.getParameter("endTimeTo"));
-        // Crush date
-        String addition = " (startTime <=  "+endTimeTo+") ";
-        prettyPrint.append(addition);
-        filter += addition;
-      }      
-    } catch (NullPointerException npe) {
-      npe.printStackTrace();
-    }
-    
-    filter = prepForNext(filter);
-    System.out.println("This filter: "+filter);
-    return filter;
-  }
-  
- public static String prepForNext(String filter) {
-   if (!QueryProcessor.endsWithAmpersands(filter)) {
-     filter = QueryProcessor.prepForCondition(filter);
-   }
-   return filter;
- }
- 
- private static String monthDayYearToMilli(String newDate) {
-   System.out.println("This is the input date: "+newDate);
-   SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy");
-   String month = newDate.substring(0,2);
-   String day = newDate.substring(3,5);
-   String year = newDate.substring(6,10);
-   Date dt;
-   try {
-     dt = sdf.parse(month+"-"+day+"-"+year);
-   } catch (ParseException e) {
-     e.printStackTrace();
-     System.out.println("Failed to Parse String : "+month+"-"+day+"-"+year);
-     return null;
-   }
-   return String.valueOf(dt.getTime());
- }
 }
 
 
