@@ -127,7 +127,7 @@ public class SurveyTrack implements java.io.Serializable{
   }
   
   public ArrayList<Occurrence> getAllOccurrences() {
-    if (!occurrences.isEmpty()) {
+    if (occurrences!=null&&!occurrences.isEmpty()) {
      return occurrences; 
     } else {
       return null;
@@ -170,7 +170,6 @@ public class SurveyTrack implements java.io.Serializable{
       setDWCDateLastModified();
     }
   }
-  
   
   public void addMultipleOccurrences(ArrayList<Occurrence> occArray, Shepherd myShepherd) {
     if (occArray.size() >= 1) {

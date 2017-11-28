@@ -850,6 +850,13 @@ public class AccessImport extends HttpServlet {
           DateTime dateTime = dateStringToDateTime(verbatimDate, "EEE MMM dd yyyy");
           date = dateTime.toString().substring(0,10);
           sv = new Survey(date);
+          try {
+            sv.setStartTimeWithDate(date);
+            sv.setEndTimeWithDate(date);
+          } catch (Exception e) {
+            System.out.println("Could not set survey startTime with this date:"+date);
+            e.printStackTrace();
+          }
           myShepherd.getPM().makePersistent(sv);
           myShepherd.commitDBTransaction();
           myShepherd.beginDBTransaction();
@@ -859,7 +866,9 @@ public class AccessImport extends HttpServlet {
           myShepherd.commitDBTransaction();
           myShepherd.beginDBTransaction();
             
-          sv.addSurveyTrack(st);
+          
+          // COMMENTED 11/27 because all actual associated tracks should be added on a match?
+          //sv.addSurveyTrack(st);
           columnMasterList.remove("DATE");
         }
       } catch (Exception e) {
@@ -932,14 +941,13 @@ public class AccessImport extends HttpServlet {
           st.setLocationID(surveyArea.trim());
           columnMasterList.remove("SURVEY AREA");
           encsOnThisDate = myShepherd.getEncounterArrayWithShortDate(date);
-          
+          sv.addSurveyTrack(st);
           out.println("Can we find an enc for this Survey and Track? We have "+encsOnThisDate.size()+" encs to check.");
           boolean matched = false;
           if (encsOnThisDate.isEmpty()) {
             numNoEncs++;
           }
           for (Encounter enc : encsOnThisDate) {
-            
             String encLoc = null;
             if (enc.getLocation()!=null) {
               encLoc = enc.getLocation().trim();
@@ -951,28 +959,25 @@ public class AccessImport extends HttpServlet {
             }
             String occProj = enc.getSubmitterProject();
             Occurrence parentOcc = myShepherd.getOccurrence(enc.getOccurrenceID());
-            if (!st.hasOccurrence(parentOcc)) {
-              if (encLoc != null || occProj != null || simpleLoc != null) {
-                if (occProj != null && project != null)  {
-                  if (occProj.contains(project) || project.contains(occProj)) {
-                    out.println("MATCH!!! At least on project name... (enc:surveyTrack) Project : "+occProj+" = "+project);
-                                   
-                    st.addOccurrence(myShepherd.getOccurrence(enc.getOccurrenceID()),myShepherd);
-                    // add check for if the survey is the same here?
-                    //sv.addSurveyTrack(st);
-                    success++;
-                    matched = true;
-                    addSurveyAndTrackIDToOccurrence(enc,sv,st,myShepherd);
-                  } else {
-                    //out.println("No match on project.");
-                  } 
-                } 
-                
+            ArrayList<Occurrence> currentOccs = st.getAllOccurrences();
+            if (currentOccs!=null&&currentOccs.contains(parentOcc)) {
+              continue;
+            }
+            if (encLoc != null || occProj != null || simpleLoc != null) {
+              if (occProj != null && project != null)  {
+                if (occProj.contains(project) || project.contains(occProj)) {
+                  out.println("MATCH!!! At least on project name... (enc:surveyTrack) Project : "+occProj+" = "+project);
+                  st.addOccurrence(parentOcc,myShepherd);
+                  // add check for if the survey is the same here?
+                  success++;
+                  matched = true;
+                  addSurveyAndTrackIDToOccurrence(enc,sv,st,myShepherd);
+                }
+              } else {
                 if (encLoc != null && surveyArea != null && !matched) {
                   if (enc.getLocationID().contains(surveyArea) || surveyArea.contains(enc.getLocationID())) {
                     out.println("MATCH!!! At least on location ID... (enc:surveyTrack) Location : "+enc.getLocationID()+" = "+st.getLocationID()+" Project : "+enc.getSubmitterProject()+" = "+sv.getProjectName());
-                    st.addOccurrence(myShepherd.getOccurrence(enc.getOccurrenceID()),myShepherd);
-                    sv.addSurveyTrack(st);
+                    st.addOccurrence(parentOcc,myShepherd);
                     success++;
                     matched = true;
                     addSurveyAndTrackIDToOccurrence(enc,sv,st,myShepherd);
@@ -983,8 +988,7 @@ public class AccessImport extends HttpServlet {
                   if (simpleLoc !=null && surveyArea !=null && !matched) {
                     if (simpleLoc.contains(surveyArea) || surveyArea.contains(simpleLoc)) {
                       out.println("MATCH!!! on SimpleLocation/SurveyArea : "+simpleLoc+" = "+st.getLocationID());
-                      st.addOccurrence(myShepherd.getOccurrence(enc.getOccurrenceID()), myShepherd);
-                      sv.addSurveyTrack(st);
+                      st.addOccurrence(parentOcc, myShepherd);
                       success++;
                       matched = true;
                       addSurveyAndTrackIDToOccurrence(enc,sv,st,myShepherd);
@@ -992,15 +996,12 @@ public class AccessImport extends HttpServlet {
                       out.println("No match on SimpleLocation/SurveyArea.");
                     }
                   }                  
-                }
-                
-              } else {
-                //out.println("Location ID, Project and simpleLoc for this enc is null!");
-                noProjectOrLocation +=1;
-              }                  
+                }                  
+              }
             } else {
-              //out.println("This occ has already been added to the SurveyTrack, skipping...");
-            }
+              //out.println("Location ID, Project and simpleLoc for this enc is null!");
+              noProjectOrLocation +=1;
+            }                  
           }
           if (matched) {
             matchedNum ++;
@@ -1098,11 +1099,12 @@ public class AccessImport extends HttpServlet {
           occ.setMillisFromEncounterAvg();
           millis = occ.getMillis();
         }
-        if (lat!=-999&&lon!=-999) {
-          addToOrCreatePath(lat,lon, millis, myShepherd, st);          
-        } else {
-          out.println("No Gps for this occ? :"+occ.toString());
-        }
+        // WE CREATE A POINT ON THE ST OBJECT NOW!!!
+        //if (lat!=-999&&lon!=-999) {
+        //  addToOrCreatePath(lat,lon, millis, myShepherd, st);          
+        //} else {
+        //  out.println("No Gps for this occ? :"+occ.toString());
+        //}
       } catch (NullPointerException npe) {
         npe.printStackTrace();
       }
@@ -1515,7 +1517,6 @@ public class AccessImport extends HttpServlet {
         sumOfValues +=1;
       }
     }
-    
     //out.println("Duplicate Pairs : "+duplicatePairsMap.toString());
     out.println("Sum of Duplicate Pair HashMap Values : "+sumOfValues);
     out.println("Total duplicate repairs recorded : "+duplicatePairsMap.size());
@@ -1532,7 +1533,6 @@ public class AccessImport extends HttpServlet {
       out.println("Barfed Parsing a Datestring... Format : "+format);
     }
     DateTime dt = new DateTime(d);
-    
     return dt;
   }
   
@@ -1541,13 +1541,10 @@ public class AccessImport extends HttpServlet {
     String years = date.substring(date.length() - 5);
     String formattedStartTime = formatMilitaryTime(startTime);
     String finalDateTimeString = justDate + formattedStartTime + years;
-    
     return finalDateTimeString;
   }
   
   private String formatMilitaryTime(String mt) {
-    // The parsing breaks on military time formatted like "745" instead of "0745"
-    // Stupid timey stuff. Sometimes there are colons, sometimes not. Hence all the if's.
     try {
       if (mt.contains(":")) {
         mt = mt.replace(":", "");
@@ -1558,17 +1555,14 @@ public class AccessImport extends HttpServlet {
       if (mt.length() < 4) {
         mt = "0" + mt;
       }      
-    } catch (Exception e) {
-      // Is it weird and malformed? Lets just auto set it. 
+    } catch (Exception e) { 
       System.out.println("Couldn't find startTime : "+mt+", setting to midnight.");
       mt = "0000";
-      //e.printStackTrace();
     }
     DateTimeFormatter in = DateTimeFormat.forPattern("HHmm"); 
-    DateTimeFormatter out = DateTimeFormat.forPattern("hh:mm a"); 
+    DateTimeFormatter outFormat = DateTimeFormat.forPattern("hh:mm a"); 
     DateTime mtFormatted = in.parseDateTime(mt); 
-    String standard = out.print(mtFormatted.getMillis());
-    
+    String standard = outFormat.print(mtFormatted.getMillis());
     return standard;
   }
     
@@ -1655,7 +1649,7 @@ public class AccessImport extends HttpServlet {
         }
         
       }
-      out.println("Encounters with a simpleLoc added: "+hits);
+      //out.println("Encounters with a simpleLoc added: "+hits);
       
     } catch (Exception e) {
       e.printStackTrace();
