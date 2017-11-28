@@ -721,7 +721,7 @@ public class AccessImport extends HttpServlet {
     if (lat!=-999&&lon!=-999) {
       occ.setDecimalLatitude(lat);
       occ.setDecimalLongitude(lon);
-      out.println("Set GPS data. LAT : "+lat+" LON : "+lon);
+      //out.println("Set GPS data. LAT : "+lat+" LON : "+lon);
     } else {
       out.println("Gps coordinates not properly extracted from child encounter.");
     }   
@@ -982,7 +982,7 @@ public class AccessImport extends HttpServlet {
                     matched = true;
                     addSurveyAndTrackIDToOccurrence(enc,sv,st,myShepherd);
                   } else {
-                    out.println("No match on Location/SurveyArea.");
+                    //out.println("No match on Location/SurveyArea.");
                   }
                 } else {
                   if (simpleLoc !=null && surveyArea !=null && !matched) {
@@ -993,7 +993,7 @@ public class AccessImport extends HttpServlet {
                       matched = true;
                       addSurveyAndTrackIDToOccurrence(enc,sv,st,myShepherd);
                     } else {
-                      out.println("No match on SimpleLocation/SurveyArea.");
+                      //out.println("No match on SimpleLocation/SurveyArea.");
                     }
                   }                  
                 }                  
@@ -1295,7 +1295,7 @@ public class AccessImport extends HttpServlet {
           String verbatimDate = date.substring(0, 11) + time.substring(11, time.length() - 5) + date.substring(date.length() - 5);
           DateTime dateTime = dateStringToDateTime(verbatimDate, "EEE MMM dd hh:mm:ss z yyyy");
           date = dateTime.toString().substring(0,10);      
-          out.println("Simple Date for this biopsy : "+date);
+          //out.println("Simple Date for this biopsy : "+date);
         }
       } catch (Exception e) {
         e.printStackTrace(out);
@@ -1332,7 +1332,7 @@ public class AccessImport extends HttpServlet {
         }
       }
       if (occ != null) {
-        out.println("Found a date match for this biopsy! Occurrence:"+occ.getPrimaryKeyID()+". Processing Biopsy...");
+        //out.println("Found a date match for this biopsy! Occurrence:"+occ.getPrimaryKeyID()+". Processing Biopsy...");
         boolean created = processBiopsyRow(thisRow, occ, myShepherd, columnMasterList); 
         if (created) {
           success += 1;          
