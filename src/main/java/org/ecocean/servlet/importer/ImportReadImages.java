@@ -445,8 +445,7 @@ public class ImportReadImages extends HttpServlet {
             out.println("Looking for a match... Enc SightNo= "+enc.getSightNo()+" MA SightNo= "+sightNo);
             if (enc.getSightNo().equals(sightNo)) {
               out.println("Match! EncNo : "+enc.getCatalogNumber()+" Checking Indy ID Code...");
-              // Check if any encs share the Indy
-              // If not Create a new one for the MA? It must have an encounter...
+
               if (indy==null&&enc.getOccurrenceID()!=null) {
                 occ = myShepherd.getOccurrence(enc.getOccurrenceID());
                 occ.addAsset(ma);
