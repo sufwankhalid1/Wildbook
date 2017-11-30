@@ -14,7 +14,6 @@ import java.util.*;
 */
 
 public class SurveyTrack implements java.io.Serializable{
-  
   /**
    * 
    */

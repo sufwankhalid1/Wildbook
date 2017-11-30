@@ -319,7 +319,6 @@ String urlLoc = "//" + CommonConfiguration.getURLLocation(request);
                     <ul class="nav navbar-nav">
                           
                       <li class="active home text-hide"><a href="<%=urlLoc %>"><%=props.getProperty("home")%></a></li>
-
 					  
                       <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><%=props.getProperty("adminReports")%> <span class="caret"></span></a>
@@ -330,6 +329,8 @@ String urlLoc = "//" + CommonConfiguration.getURLLocation(request);
                         	<li class="dropdown"><a href="<%=urlLoc %>/importBento.jsp"><%=props.getProperty("importBento")%></a></li>
                         	<li class="dropdown"><a href="<%=urlLoc %>/bentoSearch.jsp"><%=props.getProperty("searchBento")%></a></li>
                           	<li><a href="<%=urlLoc %>/bentoSearchResults.jsp?returnAll=true"><%=props.getProperty("allBento")%></a></li>
+                            <li class="divider"></li>
+                            <li class="dropdown"><a href="<%=urlLoc %>/reporting/generateNOAAReport.jsp"><%=props.getProperty("noaaReport")%></a></li>
                             <li class="divider"></li>
                       		<li><a class="dropdown" href="<%=urlLoc %>/submit.jsp"><%=props.getProperty("report")%></a></li>
                              
@@ -369,8 +370,6 @@ String urlLoc = "//" + CommonConfiguration.getURLLocation(request);
                         </ul>
                       </li>
 
-
-
                       <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><%=props.getProperty("search")%> <span class="caret"></span></a>
                         <ul class="dropdown-menu" role="menu">
@@ -400,7 +399,6 @@ String urlLoc = "//" + CommonConfiguration.getURLLocation(request);
                                  <li><a href="<%=urlLoc %>/software/software.jsp"><%=props.getProperty("gridSoftware")%></a></li>
                                 <li class="divider"></li>
                                 <% } %>
-
 
                             <% }
                             if(CommonConfiguration.allowBatchUpload(context) && (request.isUserInRole("admin"))) { %>

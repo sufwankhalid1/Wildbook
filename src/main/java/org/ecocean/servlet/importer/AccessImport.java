@@ -866,9 +866,6 @@ public class AccessImport extends HttpServlet {
           myShepherd.commitDBTransaction();
           myShepherd.beginDBTransaction();
             
-          
-          // COMMENTED 11/27 because all actual associated tracks should be added on a match?
-          //sv.addSurveyTrack(st);
           columnMasterList.remove("DATE");
         }
       } catch (Exception e) {
@@ -941,7 +938,6 @@ public class AccessImport extends HttpServlet {
           st.setLocationID(surveyArea.trim());
           columnMasterList.remove("SURVEY AREA");
           encsOnThisDate = myShepherd.getEncounterArrayWithShortDate(date);
-          sv.addSurveyTrack(st);
           out.println("Can we find an enc for this Survey and Track? We have "+encsOnThisDate.size()+" encs to check.");
           boolean matched = false;
           if (encsOnThisDate.isEmpty()) {
@@ -1018,11 +1014,12 @@ public class AccessImport extends HttpServlet {
               String id = occIds.get(0);
               Occurrence onlyOcc = myShepherd.getOccurrence(id);
               st.addOccurrence(onlyOcc, myShepherd);
-              sv.addSurveyTrack(st);
+              //sv.addSurveyTrack(st);
               success++;
               numOneOccs++;              
             }
             if (!occIds.isEmpty()) {
+              sv.addSurveyTrack(st);
               processRemainingColumnsAsObservations(sv, columnMasterList, thisRow);
               determineStartAndEndTime(sv);
             }
