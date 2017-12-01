@@ -14,8 +14,16 @@ Shepherd myShepherd=new Shepherd(context);
 // Get the info we need for search criteria.
 //ArrayList<String> vessels = Util.findVesselNames(langCode, context);
 ArrayList<String> permitNames = new ArrayList<String>();
-ArrayList<String> speciesNames = new ArrayList<String>();
 ArrayList<TissueSample> tissueSamples = myShepherd.getAllTissueSamplesnoQuery();
+for (TissueSample ts : tissueSamples) {
+	String permitName = ts.getPermit().trim();
+	if (!permitNames.contains(permitName)) {
+		permitNames.add(permitName);
+	}
+}
+
+
+ArrayList<String> speciesNames = new ArrayList<String>();
 try {
 	speciesNames = Util.findSpeciesNames(langCode, context);
 } catch (NullPointerException npe) {

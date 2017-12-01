@@ -1349,6 +1349,11 @@
     <servlet-class>org.ecocean.servlet.SurveySetObservation</servlet-class>
   </servlet>
   
+  <servlet>
+    <servlet-name>GenerateNOAAReport</servlet-name>
+    <servlet-class>org.ecocean.servlet.GenerateNOAAReport</servlet-class>
+  </servlet>
+  
     <servlet>
     <servlet-name>OccurrenceSearchExportMetadataExcel</servlet-name>
     <servlet-class>org.ecocean.servlet.export.OccurrenceSearchExportMetadataExcel</servlet-class>
@@ -1367,6 +1372,11 @@
   <servlet-mapping>
     <servlet-name>OccurrenceSearchExportMetadataExcel</servlet-name>
     <url-pattern>/OccurrenceSearchExportMetadataExcel</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>GenerateNOAAReport</servlet-name>
+    <url-pattern>/GenerateNOAAReport</url-pattern>
   </servlet-mapping>
 
 
