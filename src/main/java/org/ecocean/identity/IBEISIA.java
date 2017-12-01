@@ -5,8 +5,9 @@ import org.ecocean.ImageAttributes;
 import org.ecocean.Annotation;
 import org.ecocean.Util;
 import org.ecocean.YouTube;
+import org.ecocean.ParseDateLocation.ParseDateLocation;
 import org.ecocean.media.YouTubeAssetStore;
-import org.ecocean.ocr.ocr;
+//import org.ecocean.ocr.ocr;
 //import org.ecocean.youtube.PostQuestion;
 import org.ecocean.translate.DetectTranslate;
 import org.ecocean.Shepherd;
@@ -61,6 +62,8 @@ import org.joda.time.Instant;
 
 import twitter4j.Status;
 import twitter4j.*;
+
+import org.ecocean.ocr.*;
 
 
 public class IBEISIA {
@@ -1248,10 +1251,11 @@ System.out.println("+++++++++++ >>>> skipEncounters ???? " + skipEncounters);
                     for (int a = 0 ; a < janns.length() ; a++) {
                         JSONObject jann = janns.optJSONObject(a);
                         if (jann == null) continue;
-                        if (jann.optDouble("confidence", -1.0) < getDetectionCutoffValue() || !jann.optString("species", "unkown").equals("whale_fluke")) { // wasn't detected with high confidence or wasn't a identified as a whale fluke
+                        //if (jann.optDouble("confidence", -1.0) < getDetectionCutoffValue() || !jann.optString("species", "unkown").equals("whale_fluke")) { // wasn't detected with high confidence or wasn't a identified as a whale fluke
+                        if (jann.optDouble("confidence", -1.0) < getDetectionCutoffValue()) { // wasn't detected with high confidence or wasn't a identified as a whale fluke
 
                             needsReview = true;
-                            System.out.println("Detection didn't find a whale fluke");
+                            System.out.println("Detection didn't find a whale shark");
                             // TwitterUtil.sendDetectionAndIdentificationTweet(screenName, imageId, twitterInst, whaleId, false, false, ""); //TODO find a way to get screenName, imageId, etc. over here
                             continue;
                         }
@@ -1267,8 +1271,10 @@ System.out.println("+++++++++++ >>>> skipEncounters ???? " + skipEncounters);
                         newAnns.put(ann.getId());
                         try {
                             //TODO how to know *if* we should start identification
-                            if(jann.optDouble("confidence", -1.0) >= getDetectionCutoffValue() && jann.optString("species", "unkown").equals("whale_fluke")){
-                              System.out.println("Detection found a whale fluke; sending to identification");
+                            //if(jann.optDouble("confidence", -1.0) >= getDetectionCutoffValue() && jann.optString("species", "unkown").equals("whale_fluke")){
+                            if (jann.optDouble("confidence", -1.0) < getDetectionCutoffValue()) { // wasn't detected with high confidence or wasn't a identified as a whale fluke
+
+                              System.out.println("Detection found a whale shark; sending to identification");
                               ident.put(ann.getId(), IAIntake(ann, myShepherd, request));
                             }
                         } catch (Exception ex) {
@@ -2756,15 +2762,18 @@ return Util.generateUUID();
                 if(parent!=null){
                   ArrayList<MediaAsset> frames= YouTubeAssetStore.findFrames(parent, myShepherd);
                   if((frames!=null)&&(frames.size()>0)){
-                      ArrayList<File>filesFrames= ocr.makeFilesFrames(frames);
-                      //if (ocr.getTextFrames(filesFrames)!=null) {
-                        ocrRemarks = ocr.getTextFrames(filesFrames, context);
-                        if(ocrRemarks==null)ocrRemarks="";
+                      
+                      //Google OCR
+                      ArrayList<byte[]> bytesFrames= new ArrayList<byte[]>(GoogleOcr.makeBytesFrames(frames));
+                      ocrRemarks = GoogleOcr.getTextFrames(bytesFrames, context);
+                        
+                      //Tess4j OCR - requires Tesseract on the command line-DANGEROUS/CRASH PRONE
+                      //ArrayList<File> filesFrames= ocr.makeFilesFrames(frames);
+                      
+                      //ocrRemarks = ocr.getTextFrames(filesFrames, context);
+                       
+                      if(ocrRemarks==null)ocrRemarks="";
                         System.out.println("I found OCR remarks: "+ocrRemarks);
-                      //}
-                      //else {
-                      //  ocrRemarks= "";
-                      //}
                     }
                   }
                   else{
@@ -2822,12 +2831,13 @@ return Util.generateUUID();
               if(enc.getDateInMilliseconds()!=null){setDate=false;}
               //next use natural language processing for date
               if(setDate){
-                boolean NLPsuccess=false;
+                //boolean NLPsuccess=false;
                 try{
                     System.out.println(">>>>>> looking for date with NLP");
                     //call Stanford NLP function to find and select a date from ytRemarks
-                    String myDate= ServletUtilities.nlpDateParse(remarks);
-                    System.out.println("Finished nlpPrseDate");;
+                    //String myDate= ServletUtilities.nlpDateParse(remarks);
+                    String myDate=ParseDateLocation.parseDate(remarks, context);
+                    System.out.println("Finished ParseDateLocation.parseDate");;
                     //parse through the selected date to grab year, month and day separately.Remove cero from month and day with intValue.
                     if (myDate!=null) {
                         System.out.println(">>>>>> NLP found date: "+myDate);
@@ -2933,7 +2943,8 @@ return Util.generateUUID();
                 }
 
                   //NLP failure? let's try brute force detection across all languages supported by this Wildbook
-                  if(!NLPsuccess){
+                /*  
+                if(!NLPsuccess){
                     System.out.println(">>>>>> looking for date with brute force");
                     //next parse for year
                     LocalDateTime dt = new LocalDateTime();
@@ -2945,7 +2956,7 @@ return Util.generateUUID();
                         year=i;
                         System.out.println("...detected a year in comments!");
 
-                        /**
+                      
                         //check for month
                         List<String> langs=CommonConfiguration.getIndexedPropertyValues("language", context);
                         int numLangs=langs.size();
@@ -2965,11 +2976,12 @@ return Util.generateUUID();
                             }
                             catch(Exception e){e.printStackTrace();}
                           } //end for
-                        */
+                        
                         }
 
                       }
                 }
+                */
 
                 //end brute force date detection if NLP failed
 
