@@ -2896,11 +2896,15 @@ return Util.generateUUID();
                           try { month=reportedDateTime.getMonthOfYear(); } catch (Exception e) { month=-1;}
                         }
                         else{month=-1;}
-                        //see if we can get a day, because we do want to support only yyy-MM too
+                        //see if we can get a day, because we do want to support only yyyy-MM too
                         if(str.countTokens()>=3){
-                          try { day=reportedDateTime.getDayOfMonth(); } catch (Exception e) { day=0; }
+                          try { day=reportedDateTime.getDayOfMonth(); } catch (Exception e) {
+                              System.out.println("reportedDateTime.getDayOfMonth() caught an Exception, setting day=0: day="+day);
+                              day=0; }
                         }
-                        else{day=-1;}
+                        else{
+                            System.out.println("tokens <3, therefore day=-1: day="+day);
+                            day=-1;}
 
 
                     }
@@ -2993,7 +2997,13 @@ return Util.generateUUID();
                       enctemp.setYear(year);
                       if(month>-1){
                         enctemp.setMonth(month);
-                        if(day>-1){enc.setDay(day);}
+                        if(day>-1){
+                            System.out.println("In NLP/brute force, day set to "+day);
+                            enc.setDay(day);
+                        } else {
+                            System.out.println("In NLP/brute force, day not set: day="+day);
+                        }
+
                       }
                     }
 
