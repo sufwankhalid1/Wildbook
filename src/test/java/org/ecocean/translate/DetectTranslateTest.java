@@ -16,7 +16,7 @@ public class DetectTranslateTest {
     public void detectLanguageAsEnglish_true() throws Exception {
         String text = "With great power comes great responsibility";
         String context = "context";
-
+        String refreshToken = CommonConfiguration.getProperty("refresh_token", context);
         String apiKey= CommonConfiguration.getProperty("translate_key", context);
         Translate translate = TranslateOptions.newBuilder().setApiKey(apiKey).build().getService();
 
