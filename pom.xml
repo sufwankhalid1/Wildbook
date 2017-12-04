@@ -647,6 +647,7 @@
                 <compress>true</compress>
                 <includes>
                     <include>manta.less</include>
+                    <include>indocet.less</include>
                 </includes>
             </configuration>
             <executions>

@@ -42,6 +42,30 @@ Properties props = new Properties();
 props = ShepherdProperties.getProperties("header.properties", langCode, context);
 
 String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
+
+User user = null;
+boolean indocetUser = false;
+
+if(request.getUserPrincipal()!=null){
+  Shepherd myShepherd = new Shepherd(context);
+
+  try {
+    myShepherd.beginDBTransaction();
+    String username = request.getUserPrincipal().toString();
+    User user = myShepherd.getUser(username);
+    indocetUser = (user!=null && user.hasAffiliation("indocet"));
+  }
+  catch(Exception e){}
+  finally{
+    myShepherd.rollbackDBTransaction();
+    myShepherd.closeDBTransaction();
+  }
+}
+
+System.out.println("HeaderJsp done, j")
+
+
+
 %>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -59,6 +83,8 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
             href="<%=CommonConfiguration.getHTMLShortcutIcon(context) %>"/>
       <link href='http://fonts.googleapis.com/css?family=Oswald:400,300,700' rel='stylesheet' type='text/css'/>
       <link rel="stylesheet" href="<%=urlLoc %>/cust/mantamatcher/css/manta.css" />
+
+
       <link href="<%=urlLoc %>/tools/jquery-ui/css/jquery-ui.css" rel="stylesheet" type="text/css"/>
       <link href="<%=urlLoc %>/tools/hello/css/zocial.css" rel="stylesheet" type="text/css"/>
 	  <link rel="stylesheet" href="<%=urlLoc %>/tools/jquery-ui/css/themes/smoothness/jquery-ui.css" type="text/css" />
@@ -109,16 +135,11 @@ String urlLoc = "http://" + CommonConfiguration.getURLLocation(request);
 
                       <%
 
-	                      if(request.getUserPrincipal()!=null){
-	                    	  Shepherd myShepherd = new Shepherd(context);
-
-	                          try{
-	                        	  myShepherd.beginDBTransaction();
-		                    	  String username = request.getUserPrincipal().toString();
-		                    	  User user = myShepherd.getUser(username);
-		                    	  String fullname=username;
-		                    	  if(user.getFullName()!=null){fullname=user.getFullName();}
-		                    	  String profilePhotoURL=urlLoc+"/images/empty_profile.jpg";
+	                      if(user != null){
+	                          try {
+  		                    	  String fullname=request.getUserPrincipal().toString();
+                              if (user.getFullName()!=null) fullname=user.getFullName();
+                              String profilePhotoURL=urlLoc+"/images/empty_profile.jpg";
 		                          if(user.getUserImage()!=null){
 		                          	profilePhotoURL="/"+CommonConfiguration.getDataDirectoryName(context)+"/users/"+user.getUsername()+"/"+user.getUserImage().getFilename();
 		                          }
