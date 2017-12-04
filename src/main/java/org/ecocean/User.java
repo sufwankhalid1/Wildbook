@@ -143,6 +143,11 @@ public class User implements Serializable {
     else{this.affiliation=null;}
     RefreshDate();
   }
+  // I love convenience/readability methods! This lets you quickly check if a user has an affiliation, like "indocet", without dealing with stupid null cases each time.
+  public boolean hasAffiliation(String name) {
+    if (name==null) return (affiliation==null);
+    return (affiliation!=null && affiliation.toLowerCase().indexOf(name)>=0);
+  }
 
   public String getNotes ()
   {
