@@ -1,7 +1,8 @@
 package org.ecocean.translate;
 
-import com.google.api.services.translate.Translate;
+
 import com.google.cloud.translate.Detection;
+import com.google.cloud.translate.Translate;
 import com.google.cloud.translate.TranslateOptions;
 import com.google.cloud.translate.Translation;
 import org.ecocean.CommonConfiguration;
