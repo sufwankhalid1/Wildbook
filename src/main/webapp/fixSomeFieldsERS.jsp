@@ -107,6 +107,10 @@ try{
       List<String> encSetDate = new ArrayList<String>();
       List<String> loopingDates = new ArrayList<String>();
 
+
+
+
+
       String detectedLanguage="en";
       try{
         detectedLanguage= DetectTranslate.detect(ytRemarks, context);
@@ -119,6 +123,10 @@ try{
         System.out.println("I hit an exception trying to detect language.");
         e.printStackTrace();
       }
+
+
+
+
       //grab texts from yt videos through OCR (before we parse for location/ID and Date) and add it to remarks variable.
       String ocrRemarks="";
       try {

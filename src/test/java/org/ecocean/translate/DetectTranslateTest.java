@@ -1,6 +1,7 @@
 package org.ecocean.translate;
 
 
+import autovalue.shaded.com.google.common.common.collect.ImmutableList;
 import com.google.cloud.translate.Detection;
 import com.google.cloud.translate.Translate;
 import com.google.cloud.translate.TranslateOptions;
@@ -8,6 +9,10 @@ import com.google.cloud.translate.Translation;
 import org.ecocean.CommonConfiguration;
 import org.junit.Test;
 
+import java.io.PrintStream;
+import java.util.List;
+
+import static com.stripe.Stripe.apiKey;
 import static org.junit.Assert.*;
 
 public class DetectTranslateTest {
@@ -65,7 +70,8 @@ public class DetectTranslateTest {
         assert(translation.getTranslatedText().contains("With great power comes a great responsibility"));
     }
 
-    @Test public void translateFromNativeToEnglishToNative() throws Exception {
+    @Test
+    public void translateFromNativeToEnglishToNative() throws Exception {
         String text = "Mit großer Macht kommt große Verantwortung";
         String context = "context";
         System.out.println("Native input: " + text);
@@ -84,6 +90,19 @@ public class DetectTranslateTest {
         System.out.println("Translated back to Native: " + translation2.getTranslatedText());
         assert(translation.getTranslatedText().contains("With great power comes great responsibility"));
         assert(translation2.getTranslatedText().contains("Mit großer Macht kommt große Verantwortung"));
+    }
+
+    @Test
+    public void detectLanguage() throws Exception {
+        String sourceText = "test";
+        String context = "context";
+        String apiKey= CommonConfiguration.getProperty("translate_key", context);
+        Translate translate = TranslateOptions.newBuilder().setApiKey(apiKey).build().getService();
+        List<Detection> detections = translate.detect(ImmutableList.of(sourceText));
+        System.out.println("Language(s) detected:");
+        for (Detection detection : detections) {
+            System.out.printf("\t%s\n", detection);
+        }
     }
 
 }
