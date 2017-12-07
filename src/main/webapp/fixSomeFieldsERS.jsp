@@ -409,7 +409,8 @@ try{
       <li>If date found with NLP or brute force: <%=dayBruteForce %></li>
       <li>Neg day brute force: <%=negDayBruteForce %></li>
       <li>If encounters retrieved: <%=myEncounters %></li>
-      <li>Individual encounter dates caught here: <%=encSetDate %>
+      <li>Individual encounter dates caught here: <%=encSetDate %></li>
+      <li>Detected language: <%=detectedLanguage %></li>
       <%
 
 
