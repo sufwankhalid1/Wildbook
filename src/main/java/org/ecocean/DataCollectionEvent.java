@@ -94,6 +94,7 @@ public DataCollectionEvent(String correspondingEncounterNumber, String type, Htt
 }
 
 public String getCorrespondingEncounterNumber(){return correspondingEncounterNumber;}
+
 public void setCorrespondingEncounterNumber(String encounterNumber){
   if(encounterNumber!=null){
     this.correspondingEncounterNumber=encounterNumber;
@@ -104,6 +105,12 @@ public void setCorrespondingEncounterNumber(String encounterNumber){
 }
 public ArrayList<Observation> getBaseObservationArrayList() {
   return observations;
+}
+
+public String getCorrespondingOccurrenceNumber(){return correspondingEncounterNumber;}
+
+public void setCorrespondingOccurrenceNumber(String occurrenceNumber){
+  setCorrespondingEncounterNumber(occurrenceNumber);
 }
 
 public void addBaseObservationArrayList(ArrayList<Observation> arr) {
@@ -139,7 +146,6 @@ public Observation getObservationByID(String obId) {
   }
   return null;
 }
-
 
 public String getDataCollectionEventID(){return dataCollectionEventID;}
 public void setDataCollectionEventID(String id){this.dataCollectionEventID=id;}

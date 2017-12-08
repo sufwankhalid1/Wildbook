@@ -3,7 +3,7 @@
 <%@ page contentType="text/html; charset=utf-8" language="java" import="org.joda.time.LocalDateTime,
 org.joda.time.format.DateTimeFormatter,
 org.joda.time.format.ISODateTimeFormat,java.net.*,
-org.ecocean.grid.*,org.ecocean.movement.*,
+org.ecocean.grid.*,org.ecocean.movement.*, org.joda.time.DateTime, org.joda.time.format.*,  
 java.io.*,java.util.*, java.io.FileInputStream, java.util.Date, java.text.SimpleDateFormat, java.io.File, java.io.FileNotFoundException, org.ecocean.*,org.ecocean.genetics.*,org.ecocean.servlet.*,javax.jdo.*, java.lang.StringBuffer, java.util.Vector, java.util.Iterator, java.lang.NumberFormatException"%>
 
 <%
@@ -14,7 +14,7 @@ Shepherd myShepherd=new Shepherd(context);
 // Get the info we need for search criteria.
 //ArrayList<String> vessels = Util.findVesselNames(langCode, context);
 ArrayList<String> permitNames = new ArrayList<String>();
-ArrayList<TissueSample> tissueSamples = myShepherd.getAllTissueSamplesnoQuery();
+ArrayList<TissueSample> tissueSamples = myShepherd.getAllTissueSamplesNoQuery();
 for (TissueSample ts : tissueSamples) {
 	String permitName = ts.getPermit().trim();
 	if (!permitNames.contains(permitName)) {
@@ -30,11 +30,12 @@ try {
 	npe.printStackTrace();
 }
 
+DateTime todayDate = new DateTime();
+DateTime previousDate = new DateTime().minusYears(1);
+DateTimeFormatter dtfOut = DateTimeFormat.forPattern("MM/dd/yyyy");
+String today = dtfOut.print(todayDate);
+String lastYear = dtfOut.print(previousDate);
 
-
-SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-Date todayDate = new Date();
-String today = df.format(todayDate);
 myShepherd.closeDBTransaction();
 %>
 
@@ -70,7 +71,7 @@ Set date range
 					    	<small>Start</small>				 
 					    </p>			    
 						<p>	    	
-					    	<input type="date" class="fileInput" name="startDate" min="1995-01-01" max="<%=today%>" value="1995-01-01">  	
+					    	<input type="date" class="fileInput" name="startDate" min="1995-01-01" max="<%=today%>" value="<%=lastYear%>">  	
 					    </p>
 			    
 			    	</div>
@@ -90,36 +91,28 @@ Set date range
 			    	<div class="col-xs-2">
 					    <p>
 						    <small>Known</small>				 
-							<select name="permitNames">
+							<select name="permitName">
 								<option value=""></option>
 								<%
 									for (String permit : permitNames) {
 								%>		
-										<option value="<%=permit%>" name="<%=permit%>"><%=permit%></option>
+										<option value="<%=permit%>" name="permitName"><%=permit%></option>
 								<%
 									}
 								%>
 							</select>
 					    </p>			    
 			    	</div>
-			    	<div class="col-xs-2">
-					    <p>
-							<small>Other</small>
-							<input class="fileInput" type="text" name="newVessel"/>
-					    </p>			    
-			    	</div>
 			    </div>
-			    
 				<label>Species</label>
 			    <div class="row">
-			    
 			    	<div class="col-xs-6">
 				    	<select name="speciesNames">
 					    	<option value=""></option>
 					    		<%
 									for (String species : speciesNames) {
 								%>		
-										<option value="<%=species%>" name="<%=species%>"><%=species%></option>
+										<option value="<%=species%>" name="speciesName"><%=species%></option>
 								<%
 									}
 								%>
@@ -134,8 +127,12 @@ Set date range
 						    <label>Group Size</label>			    
 					    </p>
 					    <p>
-							<input class="groupSize" type="number" name="groupSize"/>
-					    </p>		    			    	
+					    	<small>Max</small>
+							<input class="groupSize" type="number" name="groupSizeMax"/>
+					    </p>	
+					    	<small>Min</small>
+							<input class="groupSize" type="number" name="groupSizeMin"/>
+					    </p>	    			    	
 			    	</div>
 			    </div>	
 			    
@@ -147,11 +144,11 @@ Set date range
 					    <small>ID for a specific survey or occurrence.</small>
 					    <p>
 					    	<select name="fileType">
-						    	<option value="Not Specified"></option>
+						    	<option value="Not Specified">Not Specified</option>
 						    	<option value="occurrence">Occurrence</option>
 						    	<option value="survey">Survey</option>
 						    </select>
-								<input class="eventID" type="number"  value="1" name="eventID"/>
+								<input class="eventID" type="text"  value="" placeholder="Enter ID" name="eventID"/>
 					    </p>		    			    	
 			    	</div>
 			    </div>			    
