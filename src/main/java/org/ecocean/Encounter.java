@@ -1627,20 +1627,6 @@ System.out.println("did not find MediaAsset for params=" + sp + "; creating one?
     return null;
   }
   
-  public String getID() {
-    if (correspondingID != null && !correspondingID.equals("")) {
-      return correspondingID;
-    }  
-    return null;
-  }
-  
-  public void setID(String id) {
-    if (id != null && !id.equals("")) {
-      this.correspondingID = id;
-    }
-  }
-  
-  
   public void setSurvey() {
     
   }
@@ -1731,15 +1717,6 @@ System.out.println("did not find MediaAsset for params=" + sp + "; creating one?
 
   public void setMaximumElevationInMeters(Double newElev) {
     this.maximumElevationInMeters = newElev;
-  }
-
-
-  public String getID() {
-    return super.ID;
-  }
-
-  public void setID(String newNumber) {
-    super.ID = newNumber;
   }
 
   public String getVerbatimLocality() {

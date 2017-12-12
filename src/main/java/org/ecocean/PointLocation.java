@@ -26,7 +26,7 @@ public class PointLocation implements java.io.Serializable {
    */
   private static final long serialVersionUID = -3758129925666366058L;
 
-  public String pointLocationID = null;
+  public String ID = null;
 
   private Double latitude = null;
   private Double longitude = null;
@@ -68,10 +68,6 @@ public class PointLocation implements java.io.Serializable {
       this.elevation = el;
     }
     generateUUID();
-  }
-
-  public String getID() {
-    return pointLocationID;
   }
 
   public Long getDateTimeInMilli() {
@@ -183,7 +179,7 @@ public class PointLocation implements java.io.Serializable {
   }
 
   private void generateUUID() {
-    this.pointLocationID = Util.generateUUID().toString();
+    this.ID = Util.generateUUID().toString();
   }
 
   private boolean latLonCheck(Double lat, Double lon) {

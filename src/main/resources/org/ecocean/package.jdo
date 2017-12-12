@@ -62,7 +62,7 @@
     </class> 
   
     <class name="PointLocation" identity-type="application" table="POINTLOCATION">
-      <field name="pointLocationID" primary-key="true">
+      <field name="ID" primary-key="true">
         <column length="100"/>
       </field>
 
