@@ -92,7 +92,7 @@ Set date range
 					    <p>
 						    <small>Known</small>				 
 							<select name="permitName">
-								<option value=""></option>
+								<option value="None Specified"></option>
 								<%
 									for (String permit : permitNames) {
 								%>		
@@ -107,17 +107,29 @@ Set date range
 				<label>Species</label>
 			    <div class="row">
 			    	<div class="col-xs-6">
-				    	<select name="speciesNames">
-					    	<option value=""></option>
-					    		<%
-									for (String species : speciesNames) {
-								%>		
-										<option value="<%=species%>" name="speciesName"><%=species%></option>
-								<%
+						<div class="row">
+							<%
+								int numSpecies = 0;
+								String oddCol = "";
+								String evenCol = "";
+								for (String species : speciesNames) {
+									if (numSpecies%2!=0) {
+										oddCol += "<input type=\"checkbox\" value=\""+species+"\" name=\"speciesName"+numSpecies+"\"><small>"+species+"</small></input><br/>";
 									}
-								%>
-					    </select>
-			    	</div>
+									if (numSpecies%2==0) {
+										evenCol += "<input type=\"checkbox\" value=\""+species+"\" name=\"speciesName"+numSpecies+"\"><small>"+species+"</small></input><br/>";
+									}
+									numSpecies++;
+								}
+							%>
+							<div class="col-xs-6">
+								<%=evenCol%>
+							</div>
+							<div class="col-xs-6">
+								<%=oddCol%>
+							</div>
+						</div>
+					</div>
 			    
 			    </div>
 			    <br/>
