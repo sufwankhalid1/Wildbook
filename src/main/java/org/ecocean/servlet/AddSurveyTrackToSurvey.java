@@ -47,17 +47,17 @@ public class AddSurveyTrackToSurvey extends HttpServlet {
       e.printStackTrace();
     }
 
-    String surveyID = null;
-    if (request.getParameter("surveyID")!=null) {
-      surveyID = request.getParameter("surveyID");
+    String ID = null;
+    if (request.getParameter("ID")!=null) {
+      ID = request.getParameter("ID");
     }
 
     myShepherd.beginDBTransaction();
     
     Survey sv = null;
-    if (surveyID!=null) {
+    if (ID!=null) {
       try {
-        sv = myShepherd.getSurvey(surveyID);
+        sv = myShepherd.getSurvey(ID);
       } catch (Exception e) {
         message += "<p><strong>Error: </strong> There was not a survey available for the ID submitted.</p>";
         e.printStackTrace();
@@ -69,7 +69,7 @@ public class AddSurveyTrackToSurvey extends HttpServlet {
     try {
       if (sv!=null) {
         
-        SurveyTrack st = new SurveyTrack(surveyID);
+        SurveyTrack st = new SurveyTrack(ID);
         myShepherd.getPM().makePersistent(st);
         myShepherd.commitDBTransaction();
         myShepherd.beginDBTransaction();
@@ -109,7 +109,7 @@ public class AddSurveyTrackToSurvey extends HttpServlet {
         }
         
         try {
-          st.setParentSurveyID(sv.getID());
+          st.setParentID(sv.getID());
           sv.addSurveyTrack(st);
         } catch (Exception e) {
           myShepherd.rollbackDBTransaction();
@@ -129,7 +129,7 @@ public class AddSurveyTrackToSurvey extends HttpServlet {
         }
         
         message += "<p>The SurveyTrack was successfully created.</p>";      
-        message += "<p><strong>Back To Survey: </strong><a href=\"/surveys/survey.jsp?surveyID="+sv.getID()+"\">Survey ID: "+sv.getID()+"</a></p>";
+        message += "<p><strong>Back To Survey: </strong><a href=\"/surveys/survey.jsp?ID="+sv.getID()+"\">Survey ID: "+sv.getID()+"</a></p>";
       }
     } catch (Exception e) {
       message += "<p><strong>Error: </strong>There was data included in the submission that the server could not process.</p>";

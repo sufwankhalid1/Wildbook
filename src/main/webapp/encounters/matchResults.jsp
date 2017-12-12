@@ -60,7 +60,7 @@ if ((request.getParameter("number") != null) && (request.getParameter("individua
 	if ((qann != null) && (qann.getMediaAsset() != null)) {
 		qMediaAssetJson = qann.getMediaAsset().sanitizeJson(request, new org.datanucleus.api.rest.orgjson.JSONObject()).toString();
         	enc = Encounter.findByAnnotation(qann, myShepherd2);
-		num = enc.getCatalogNumber();
+		num = enc.getID();
 	}
 	
 
@@ -334,14 +334,14 @@ console.info('waiting to try again...');
 		return;
 	}
 	if (res.matchAnnotations.length == 1) {
-		var altIDString = res.matchAnnotations[0].encounter.otherCatalogNumbers || '';
+		var altIDString = res.matchAnnotations[0].encounter.otherIDs || '';
 		if (altIDString && altIDString.length > 0) {
       			altIDString = ', altID '+altIDString;
     		}
 
 		$('#results').html('One match found (<a target="_new" href="encounter.jsp?number=' +
-			res.matchAnnotations[0].encounter.catalogNumber +
-			'">' + res.matchAnnotations[0].encounter.catalogNumber +
+			res.matchAnnotations[0].encounter.ID +
+			'">' + res.matchAnnotations[0].encounter.ID +
 			'</a> id ' + (res.matchAnnotations[0].encounter.individualID || 'unknown') + altIDString +
 			') - score ' + res.matchAnnotations[0].score + approvalButtons(res.queryAnnotation, res.matchAnnotations));
 		updateMatch(res.matchAnnotations[0]);
@@ -356,13 +356,13 @@ console.info('waiting to try again...');
 	var h = '<p><b>' + res.matchAnnotations.length + ' matches</b></p><ul>';
 	for (var i = 0 ; i < res.matchAnnotations.length ; i++) {
       // a little handling of the alternate ID
-      var altIDString = res.matchAnnotations[i].encounter.otherCatalogNumbers || '';
+      var altIDString = res.matchAnnotations[i].encounter.otherIDs || '';
 	if (altIDString && altIDString.length > 0) {
 		altIDString = ' (altID: '+altIDString+')';
 	}
 		h += '<li data-i="' + i + '"><a target="_new" href="encounter.jsp?number=' +
-			res.matchAnnotations[i].encounter.catalogNumber + '">' +
-			res.matchAnnotations[i].encounter.catalogNumber + altIDString + '</a> (' +
+			res.matchAnnotations[i].encounter.ID + '">' +
+			res.matchAnnotations[i].encounter.ID + altIDString + '</a> (' +
 			(res.matchAnnotations[i].encounter.individualID || 'unidentified') + '), score = ' +
 			res.matchAnnotations[i].score + '</li>';
 	}
@@ -401,7 +401,7 @@ console.warn(inds);
 	if (inds.length < 1) return '';
 	var h = ' <div id="approval-buttons">';
 	for (var i = 0 ; i < inds.length ; i++) {
-		h += '<input type="button" onClick="approvalButtonClick(\'' + qann.encounter.catalogNumber + '\', \'' +
+		h += '<input type="button" onClick="approvalButtonClick(\'' + qann.encounter.ID + '\', \'' +
 		     inds[i] + '\');" value="Approve as assigned to ' + inds[i] + '" />';
 	}
 	return h + '</div>';

@@ -889,8 +889,8 @@ public class EncounterQueryProcessor {
     //filter for alternate ID------------------------------------------
     if((request.getParameter("alternateIDField")!=null)&&(!request.getParameter("alternateIDField").equals(""))) {
       String altID=request.getParameter("alternateIDField").replaceAll("%20", " ").trim().toLowerCase();
-      if(filter.equals(SELECT_FROM_ORG_ECOCEAN_ENCOUNTER_WHERE)){filter+="otherCatalogNumbers.toLowerCase().indexOf('"+altID+"') != -1";}
-      else{filter+=" && otherCatalogNumbers.toLowerCase().indexOf('"+altID+"') != -1";}
+      if(filter.equals(SELECT_FROM_ORG_ECOCEAN_ENCOUNTER_WHERE)){filter+="otherIDs.toLowerCase().indexOf('"+altID+"') != -1";}
+      else{filter+=" && otherIDs.toLowerCase().indexOf('"+altID+"') != -1";}
       prettyPrint.append("alternateID field contains \""+altID+"\".<br />");
     }
 
@@ -1468,7 +1468,7 @@ This code is no longer necessary with Charles Overbeck's new multi-measurement f
 					Writer logw = null;
 					try {
 						logw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(userDir, "collaboration.log"), true)));
-						logw.write(now.getTime() + "\t" + currentUser + "\t" + rEnc.getCatalogNumber() + "\t" + url + "\t" + prettyPrint.toString() + "\n");
+						logw.write(now.getTime() + "\t" + currentUser + "\t" + rEnc.getID() + "\t" + url + "\t" + prettyPrint.toString() + "\n");
 					} catch (IOException ex) {
 						System.out.println(ex);
 					} finally {

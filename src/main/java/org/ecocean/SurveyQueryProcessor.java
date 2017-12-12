@@ -23,7 +23,7 @@ import org.joda.time.DateTime;
 
 public class SurveyQueryProcessor extends QueryProcessor {
 
-  private static final String BASE_FILTER = "SELECT FROM org.ecocean.Survey WHERE \"surveyID\" != null && ";
+  private static final String BASE_FILTER = "SELECT FROM org.ecocean.Survey WHERE \"ID\" != null && ";
 
   public static final String[] SIMPLE_STRING_FIELDS = new String[]{"ID","project","organization","type"};
 

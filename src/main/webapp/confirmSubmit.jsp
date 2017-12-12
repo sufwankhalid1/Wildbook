@@ -81,7 +81,7 @@ new_message.append("<html><body>");
       
       
 			thisEncounterDir = new File(enc.dir(baseDir));
-			String thisEncDirString=Encounter.dir(shepherdDataDir,enc.getCatalogNumber());
+			String thisEncDirString=Encounter.dir(shepherdDataDir,enc.getID());
 			thisEncounterDir=new File(thisEncDirString);
 			if(!thisEncounterDir.exists()){thisEncounterDir.mkdirs();System.out.println("I am making the encDir: "+thisEncDirString);}
 			
@@ -238,7 +238,7 @@ if(CommonConfiguration.sendEmailNotifications(context)){
   }
 
   // Add encounter dont-track tag for remaining notifications (still needs email-hash assigned).
-  tagMap.put(NotificationMailer.EMAIL_NOTRACK, "number=" + enc.getCatalogNumber());
+  tagMap.put(NotificationMailer.EMAIL_NOTRACK, "number=" + enc.getID());
 
   // Email submitter and photographer
   if (submitter != null) {

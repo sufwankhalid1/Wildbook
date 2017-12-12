@@ -92,14 +92,14 @@ $(document).ready(function() {
 });
 
 var xcolumns = {
-	catalogNumber: { label: 'Number' },
+	ID: { label: 'Number' },
 	verbatimLocality: { label: 'Location' },
 	dataTypes: { label: 'Data types', val: dataTypes },
 	sex: { label: 'Sex', val: cleanValue },
 };
 
 var columns = {
-	catalogNumber: { label: 'Number' },
+	ID: { label: 'Number' },
 	//verbatimLocality: { label: 'Location' },
 	//dataTypes: { label: 'Data types', val: dataTypes },
 	individualID: { label: 'Individual' },
@@ -252,7 +252,7 @@ function tableAddRow(obj) {
 	tableBody.append('<tr data-search="' + search + '" id="n' + i + '"><td>' + i + '</td>' + td + '</tr>');
 }
 
-//http://dev.wildme.org/mm/api/jdoql?select%20m%20from%20org.ecocean.Encounter%20where%20catalogNumber==%27073b9487-67ec-4705-a0fe-3fabc6525659%27%20&&%20measurements.contains(m)
+//http://dev.wildme.org/mm/api/jdoql?select%20m%20from%20org.ecocean.Encounter%20where%20ID==%27073b9487-67ec-4705-a0fe-3fabc6525659%27%20&&%20measurements.contains(m)
 
 
 function pageTable(start, howMany) {

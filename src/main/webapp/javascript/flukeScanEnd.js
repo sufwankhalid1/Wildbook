@@ -413,8 +413,8 @@ console.info('addImage(%o, %o)', enc, el);
     el.find('.note').remove();
     el.append('<img src="' + wildbook.cleanUrl(imgSrc) + '"/>');
     var inf = {
-        catalogNumber: 'Encounter ID',
-        otherCatalogNumbers: 'Alternate Encounter ID',
+        ID: 'Encounter ID',
+        otherIDs: 'Alternate Encounter ID',
         individualID: 'Assigned to',
         date: 'Date',
         sex: 'Sex',
@@ -443,7 +443,7 @@ function displayImage(encID, el) {
         }
         return;
     }
-    encounter[encID] = new wildbook.Model.Encounter({catalogNumber: encID});
+    encounter[encID] = new wildbook.Model.Encounter({ID: encID});
     encounter[encID].fetch({
         success: function() { addImage(encounter[encID], el); },
         error: function(a,b,c) {

@@ -567,10 +567,10 @@ System.out.println("-------------\n" + last.toString() + "\n----------");
                     JSONArray s = r.getJSONObject(i).getJSONArray("score_list");
                     for (int j = 0 ; j < m.length() ; j++) {
                         Encounter menc = Encounter.findByAnnotationId(m.getString(j), myShepherd);
-                        scores.put(menc.getCatalogNumber(), s.getDouble(j));
+                        scores.put(menc.getID(), s.getDouble(j));
                     }
                     Encounter enc = Encounter.findByAnnotationId(r.getJSONObject(i).getString("query_annot_uuid"), myShepherd);
-                    rout.put(enc.getCatalogNumber(), scores);
+                    rout.put(enc.getID(), scores);
                 }
             }
             myShepherd.rollbackDBTransaction();
@@ -1103,13 +1103,13 @@ System.out.println("* createAnnotationFromIAResult() CREATED " + ann + " [with n
         Encounter enc = ann.toEncounter(myShepherd);  //this does the magic of making a new Encounter if needed etc.  good luck!
         Occurrence occ = asset.getOccurrence();
         if (occ != null) {
-            enc.setOccurrenceID(occ.getOccurrenceID());
+            enc.setID(occ.getID());
             occ.addEncounter(enc);
         }
         myShepherd.getPM().makePersistent(ann);
         myShepherd.getPM().makePersistent(enc);
         if (occ != null) myShepherd.getPM().makePersistent(occ);
-System.out.println("* createAnnotationFromIAResult() CREATED " + ann + " on Encounter " + enc.getCatalogNumber());
+System.out.println("* createAnnotationFromIAResult() CREATED " + ann + " on Encounter " + enc.getID());
         return ann;
     }
 
@@ -1293,23 +1293,23 @@ System.out.println("+++++++++++ >>>> skipEncounters ???? " + skipEncounters);
                 List<Encounter> encs = Encounter.collateFrameAnnotations(allAnns, myShepherd);
                 if ((encs != null) && (encs.size() > 0)) {
                     Occurrence occ = new Occurrence();
-                    occ.setOccurrenceID(Util.generateUUID());
+                    occ.setID(Util.generateUUID());
                     occ.setDWCDateLastModified();
                     occ.setDateTimeCreated();
                     occ.addComments("<i>created during frame collation by IA</i>");
 
                     JSONArray je = new JSONArray();
                     for (Encounter enc : encs) {
-                        enc.setOccurrenceID(occ.getOccurrenceID());
+                        enc.setID(occ.getID());
                         occ.addEncounter(enc);
                         occ.setSocialMediaSourceID(enc.getEventID());
                         myShepherd.getPM().makePersistent(enc);
-                        je.put(enc.getCatalogNumber());
+                        je.put(enc.getID());
                     }
                     myShepherd.getPM().makePersistent(occ);
                     fromDetection(occ, myShepherd, request, ServletUtilities.getContext(request));
                     jlog.put("collatedEncounters", je);
-                    jlog.put("collatedOccurrence", occ.getOccurrenceID());
+                    jlog.put("collatedOccurrence", occ.getID());
                 }
 
                 jlog.put("_action", "processedCallbackDetect");
@@ -1904,7 +1904,7 @@ System.out.println("funuuids = " + funuuids);
           System.out.println(" >>>> " + enc);
           System.out.println(" --------------------------_______________________________ " + enc.getIndividualID() + " +++++++++++++++++++++++++++++");
             myShepherd.getPM().makePersistent(enc);
-            je.put(enc.getCatalogNumber());
+            je.put(enc.getID());
             boolean addToOccurrence = false;
             for (Annotation ea : enc.getAnnotations()) {
                 if (origAnnUUIDs.contains(ea.getId())) {
@@ -1933,8 +1933,8 @@ System.out.println("funuuids = " + funuuids);
 
         if (occ != null) {  //would this ever be???
             myShepherd.getPM().makePersistent(occ);
-            rtn.put("occurrenceId", occ.getOccurrenceID());
-            System.out.println(" >>>>>>> " + occ.getOccurrenceID());
+            rtn.put("ID", occ.getID());
+            System.out.println(" >>>>>>> " + occ.getID());
         }
 
         return rtn;
@@ -2069,7 +2069,7 @@ System.out.println(anns);
                     } else {
                         //staying.add(eann);
                         System.out.println("CRITICAL: assignFromIANoCreation() " + enc + " requires split; IA reports " + eann + " ident is " + iaName);
-                        throw new RuntimeException("reassigning Annotation " + ann.getId() + " to " + individualId + " would cause split on Encounter " + enc.getCatalogNumber());
+                        throw new RuntimeException("reassigning Annotation " + ann.getId() + " to " + individualId + " would cause split on Encounter " + enc.getID());
                     }
                 }
             }
@@ -2079,7 +2079,7 @@ System.out.println(anns);
                 if (!encs.contains(enc)) encs.add(enc);
             } else {  //we need to split up the encounter, with a newer one that gets the new indiv id
                 System.out.println("CRITICAL: assignFromIANoCreation() " + enc + " requires split - staying=" + staying + "; going=" + going);
-                throw new RuntimeException("reassigning Annotation " + ann.getId() + " to " + individualId + " would cause split on Encounter " + enc.getCatalogNumber());
+                throw new RuntimeException("reassigning Annotation " + ann.getId() + " to " + individualId + " would cause split on Encounter " + enc.getID());
                 Encounter newEnc = enc.cloneWithoutAnnotations();
                 System.out.println("INFO: assignFromIA() splitting " + enc + " - staying=" + staying + "; to " + newEnc + " going=" + going);
                 enc.setAnnotations(staying);
@@ -2154,7 +2154,7 @@ System.out.println("assignFromIANoCreation() okay to reassign: " + encs);
             List<Encounter> encs = (List<Encounter>)res.get("encounters");
             for (Encounter enc : encs) {
                 myShepherd.getPM().makePersistent(enc);
-                je.put(enc.getCatalogNumber());
+                je.put(enc.getID());
             }
             rtn.put("encounters", je);
         }
@@ -2768,7 +2768,7 @@ return Util.generateUUID();
                     }
                   }
                   else{
-                    System.out.println("I could not find any frames from YouTubeAssetStore.findFrames for asset:"+myAsset.getId()+" from Encounter "+myEnc.getCatalogNumber());
+                    System.out.println("I could not find any frames from YouTubeAssetStore.findFrames for asset:"+myAsset.getId()+" from Encounter "+myEnc.getID());
                   }
               }
               }

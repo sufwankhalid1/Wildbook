@@ -126,7 +126,7 @@ public class EncounterSearchExportShapefile extends HttpServlet{
             if(enc.getDateInMilliseconds()!=null){
               featureBuilder.add((new java.sql.Date(enc.getDateInMilliseconds())));
             }
-            featureBuilder.add(enc.getCatalogNumber());
+            featureBuilder.add(enc.getID());
             featureBuilder.add(ServletUtilities.handleNullString(enc.getIndividualID()));
             if(enc.getSex()!=null){
               featureBuilder.add(enc.getSex());
@@ -152,7 +152,7 @@ public class EncounterSearchExportShapefile extends HttpServlet{
             
             }
             featureBuilder.add(haploString);
-            featureBuilder.add(("http://"+CommonConfiguration.getURLLocation(request)+"/encounters/encounter.jsp?number="+enc.getCatalogNumber()));
+            featureBuilder.add(("http://"+CommonConfiguration.getURLLocation(request)+"/encounters/encounter.jsp?number="+enc.getID()));
             
             featureBuilder.add(enc.getDecimalLatitudeAsDouble());
             featureBuilder.add(enc.getDecimalLongitudeAsDouble());

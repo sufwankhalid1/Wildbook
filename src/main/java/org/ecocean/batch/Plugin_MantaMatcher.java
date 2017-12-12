@@ -204,7 +204,7 @@ public final class Plugin_MantaMatcher extends BatchProcessorPlugin {
   private Encounter findEncounterForSPV(SinglePhotoVideo spv) {
     assert spv != null;
     for (Encounter enc : getListEnc()) {
-      if (enc.getCatalogNumber().equals(spv.getCorrespondingEncounterNumber()))
+      if (enc.getID().equals(spv.getCorrespondingEncounterNumber()))
         return enc;
     }
     return null;

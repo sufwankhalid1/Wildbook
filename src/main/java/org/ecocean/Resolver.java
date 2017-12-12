@@ -189,13 +189,13 @@ public class Resolver implements java.io.Serializable {
             if (encs.contains(enc)) continue;
             if (enc == null) {  //we need an encounter to hold this annotation
                 enc = new Encounter(ann);
-                System.out.println("INFO: new encounter " + enc.getCatalogNumber());
+                System.out.println("INFO: new encounter " + enc.getID());
 
             } else if (enc.hasMarkedIndividual()) {
                 needsReview = true;
                 JSONObject iss = new JSONObject();
-                iss.put("message", "Encounter " + enc.getCatalogNumber() + " is already assigned " + enc.getIndividualID());
-                iss.put("encId", enc.getCatalogNumber());
+                iss.put("message", "Encounter " + enc.getID() + " is already assigned " + enc.getIndividualID());
+                iss.put("encId", enc.getID());
                 issues.put(iss);
             }
             encs.add(enc);

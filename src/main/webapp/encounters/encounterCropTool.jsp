@@ -213,7 +213,7 @@ String langCode=ServletUtilities.getLanguageCode(request);
 
 
 
-var encounterNumber = '<%=enc.getCatalogNumber()%>';
+var encounterNumber = '<%=enc.getID()%>';
 var imageID = '<%=imageID%>';
 var passedDorsal = <%=passedDorsal%>;
 var isDorsalFin = <%=isDorsalFin%>;
@@ -317,7 +317,7 @@ jQuery(document).ready(function() {
 	<div id="scan-tool" class="tool"><b class="tool-head">scan for matches</b>
 		<form target="_new" method="post" action="../ScanTaskHandler">
 			<input name="action" type="hidden" id="action" value="addTask" /> 
-			<input name="encounterNumber" type="hidden" value="<%=enc.getCatalogNumber()%>" />
+			<input name="encounterNumber" type="hidden" value="<%=enc.getID()%>" />
 			<!-- input name="jdoql" type="text" id="jdoql" size="80" -->
 			<input name="writeThis" type="hidden" id="writeThis" value="true" />
 			<input name="cutoff" type="hidden" value="0.02" />

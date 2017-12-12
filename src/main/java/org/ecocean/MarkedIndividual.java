@@ -1683,7 +1683,7 @@ public Float getMaxDistanceBetweenTwoSightings(){
           Float tempMaxDistance=distFrom(new Float(thisEnc.getLatitudeAsDouble()), new Float(thisEnc.getLongitudeAsDouble()), new Float(nextEnc.getLatitudeAsDouble()), new Float(nextEnc.getLongitudeAsDouble()));
           if(tempMaxDistance>maxDistance){maxDistance=tempMaxDistance;}
         }
-        catch(Exception e){e.printStackTrace();System.out.println("Hit an NPE when calculating distance between: "+thisEnc.getCatalogNumber()+" and "+nextEnc.getCatalogNumber());}
+        catch(Exception e){e.printStackTrace();System.out.println("Hit an NPE when calculating distance between: "+thisEnc.getID()+" and "+nextEnc.getID());}
       }
     }
   }
@@ -1775,7 +1775,7 @@ public Float getMinDistanceBetweenTwoMarkedIndividuals(MarkedIndividual otherInd
           Float tempMinDistance=distFrom(new Float(thisEnc.getLatitudeAsDouble()), new Float(thisEnc.getLongitudeAsDouble()), new Float(nextEnc.getLatitudeAsDouble()), new Float(nextEnc.getLongitudeAsDouble()));
           if(tempMinDistance<minDistance){minDistance=tempMinDistance;}
         }
-        catch(Exception e){e.printStackTrace();System.out.println("Hit an NPE when calculating distance between: "+thisEnc.getCatalogNumber()+" and "+nextEnc.getCatalogNumber());}
+        catch(Exception e){e.printStackTrace();System.out.println("Hit an NPE when calculating distance between: "+thisEnc.getID()+" and "+nextEnc.getID());}
       }
     }
   }
@@ -1818,7 +1818,7 @@ public Float getMinDistanceBetweenTwoMarkedIndividuals(MarkedIndividual otherInd
 
     Vector<String> encIDs = new Vector<String>();
     for (Encounter enc : this.encounters) {
-      encIDs.add(enc.getCatalogNumber());
+      encIDs.add(enc.getID());
     }
     jobj.put("encounterIDs", encIDs.toArray());
     return sanitizeJson(request, jobj);

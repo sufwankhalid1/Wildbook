@@ -148,12 +148,12 @@ public class EncounterSearchExportMetadataExcel extends HttpServlet{
 
             List<Label> rowLabels = new ArrayList<Label>();
 
-            rowLabels.add(new Label(0, count, enc.getCatalogNumber()));
+            rowLabels.add(new Label(0, count, enc.getID()));
             rowLabels.add(new Label(1, count, String.valueOf(enc.getYear())));
             rowLabels.add(new Label(2, count, String.valueOf(enc.getMonth())));
             rowLabels.add(new Label(3, count, String.valueOf(enc.getDay())));
             rowLabels.add(new Label(4, count, enc.getIndividualID()));
-            rowLabels.add(new Label(5, count, enc.getOccurrenceID()));
+            rowLabels.add(new Label(5, count, enc.getID()));
             rowLabels.add(new Label(6, count, enc.getSex()));
             rowLabels.add(new Label(7, count, enc.getDecimalLatitude()));
             rowLabels.add(new Label(8, count, enc.getDecimalLongitude()));

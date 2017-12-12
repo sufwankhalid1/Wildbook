@@ -444,7 +444,7 @@ code {
 					try {
 
 						Encounter enc = myShepherd.getEncounter(num);
-						String encNum = enc.getCatalogNumber();
+						String encNum = enc.getID();
 						boolean visible = enc.canUserAccess(request);
 						if (!visible)
 							visible = checkAccessKey(request, enc);
@@ -1776,17 +1776,17 @@ $(document).ready(function() {
 					<!-- START OCCURRENCE ATTRIBUTE -->
 					<p class="para">
 						<img width="24px" height="24px" align="absmiddle"
-							src="../images/occurrence.png" />&nbsp;<%=encprops.getProperty("occurrenceID")%>:
+							src="../images/occurrence.png" />&nbsp;<%=encprops.getProperty("ID")%>:
 						<%
-							if (myShepherd.getOccurrenceForEncounter(enc.getCatalogNumber()) != null) {
+							if (myShepherd.getOccurrenceForEncounter(enc.getID()) != null) {
 						%>
 						<a
-							href="../occurrence.jsp?number=<%=myShepherd.getOccurrenceForEncounter(enc.getCatalogNumber()).getOccurrenceID()%>"><span
-							id="displayOccurrenceID"><%=myShepherd.getOccurrenceForEncounter(enc.getCatalogNumber()).getOccurrenceID()%></span></a>
+							href="../occurrence.jsp?number=<%=myShepherd.getOccurrenceForEncounter(enc.getID()).getID()%>"><span
+							id="displayID"><%=myShepherd.getOccurrenceForEncounter(enc.getID()).getID()%></span></a>
 						<%
 							} else {
 						%>
-						<span id="displayOccurrenceID"><%=encprops.getProperty("none_assigned")%></span>
+						<span id="displayID"><%=encprops.getProperty("none_assigned")%></span>
 						<%
 							}
 						%>
@@ -1794,7 +1794,7 @@ $(document).ready(function() {
 
 					<%
 						//Remove from occurrence if assigned
-								if ((myShepherd.getOccurrenceForEncounter(enc.getCatalogNumber()) != null) && isOwner) {
+								if ((myShepherd.getOccurrenceForEncounter(enc.getID()) != null) && isOwner) {
 					%>
 					<script type="text/javascript">
                 $(document).ready(function() {
@@ -1805,7 +1805,7 @@ $(document).ready(function() {
                     $("#removeOccurrenceBtn").hide();
 
                     var number = $("#occurrenceRemoveEncounterNumber").val();
-                    var occurrence = $("#displayOccurrenceID").val();
+                    var occurrence = $("#displayID").val();
 
                     $.post("../OccurrenceRemoveEncounter", {"number": number},
                     function(response) {
@@ -1815,7 +1815,7 @@ $(document).ready(function() {
                       $("#removeOccurrenceBtn").hide();
                       $("#removeOccurLabel").hide();
                       $("#occurrenceEditMessage").hide();
-                      $("#displayOccurrenceID").html("");
+                      $("#displayID").html("");
                       $("#")
                     })
                     .fail(function(response) {
@@ -1859,7 +1859,7 @@ $(document).ready(function() {
 						}
 								//create new Occurrence with name
 
-								if (isOwner && (myShepherd.getOccurrenceForEncounter(enc.getCatalogNumber()) == null)) {
+								if (isOwner && (myShepherd.getOccurrenceForEncounter(enc.getID()) == null)) {
 					%>
 					<script type="text/javascript">
                   $(document).ready(function() {
@@ -1879,7 +1879,7 @@ $(document).ready(function() {
                         $("#createOccurErrorDiv").hide();
                         $("#occurDiv").addClass("has-success");
                         $("#createOccurCheck").show();
-                        $("#displayOccurrenceID").html(occurrence);
+                        $("#displayID").html(occurrence);
                       })
                       .fail(function(response) {
                         $("#occurDiv").addClass("has-error");
@@ -1915,7 +1915,7 @@ $(document).ready(function() {
 							<div class="col-sm-5 col-xs-10" id="occurDiv">
 								<input name="occurrence" type="text" id="createOccurrenceInput"
 									class="form-control"
-									placeholder="<%=encprops.getProperty("newOccurrenceID")%>" />
+									placeholder="<%=encprops.getProperty("newID")%>" />
 								<span class="form-control-feedback" id="createOccurCheck">&check;</span>
 								<span class="form-control-feedback" id="createOccurError">X</span>
 							</div>
@@ -1948,7 +1948,7 @@ $(document).ready(function() {
                           $("#addOccurErrorDiv").hide();
                           $("#addDiv").addClass("has-success");
                           $("#createOccurCheck").show();
-                          $("#displayOccurrenceID").html(occurrence);
+                          $("#displayID").html(occurrence);
                         })
                         .fail(function(response) {
                           $("#addDiv").addClass("has-error");
@@ -1981,7 +1981,7 @@ $(document).ready(function() {
 							<div class="col-sm-5 col-xs-10" id="addDiv">
 								<input name="occurrence" id="add2OccurrenceInput" type="text"
 									class="form-control"
-									placeholder="<%=encprops.getProperty("occurrenceID")%>" /> <span
+									placeholder="<%=encprops.getProperty("ID")%>" /> <span
 									class="form-control-feedback" id="addOccurCheck">&check;</span>
 								<span class="form-control-feedback" id="addOccurError">X</span>
 							</div>
@@ -2076,14 +2076,14 @@ $(document).ready(function() {
 						%>
 						<br />
 						<a
-							href="mailto:<%=nextie%>?subject=<%=encprops.getProperty("contactEmailMessageHeading")%><%=enc.getCatalogNumber()%>:<%=CommonConfiguration.getProperty("htmlTitle", context)%>"><%=nextie%></a>
+							href="mailto:<%=nextie%>?subject=<%=encprops.getProperty("contactEmailMessageHeading")%><%=enc.getID()%>:<%=CommonConfiguration.getProperty("htmlTitle", context)%>"><%=nextie%></a>
 						<%
 							}
 
 										} else if ((enc.getSubmitterEmail() != null) && (!enc.getSubmitterEmail().equals(""))) {
 						%>
 						<br /> <a
-							href="mailto:<%=enc.getSubmitterEmail()%>?subject=<%=encprops.getProperty("contactEmailMessageHeading")%><%=enc.getCatalogNumber()%>:<%=CommonConfiguration.getProperty("htmlTitle", context)%>"><span
+							href="mailto:<%=enc.getSubmitterEmail()%>?subject=<%=encprops.getProperty("contactEmailMessageHeading")%><%=enc.getID()%>:<%=CommonConfiguration.getProperty("htmlTitle", context)%>"><span
 							id="displaySubmitEmail"><%=enc.getSubmitterEmail()%></a></span>
 						<%
 							}
@@ -2138,7 +2138,7 @@ $(document).ready(function() {
 						%>
 						<br />
 						<a
-							href="mailto:<%=enc.getPhotographerEmail()%>?subject=<%=encprops.getProperty("contactEmailMessageHeading")%><%=enc.getCatalogNumber()%>:<%=CommonConfiguration.getProperty("htmlTitle", context)%>"><span
+							href="mailto:<%=enc.getPhotographerEmail()%>?subject=<%=encprops.getProperty("contactEmailMessageHeading")%><%=enc.getID()%>:<%=CommonConfiguration.getProperty("htmlTitle", context)%>"><span
 							id="displayPhotoEmail"><%=enc.getPhotographerEmail()%></span></a>
 						<%
 							}
@@ -4888,21 +4888,21 @@ $(document).ready(function() {
 				%>
 						<h2>
 							<img align="absmiddle" src="../images/survey_icon_boat.png" />
-							<%=encprops.getProperty("surveyID")%>
+							<%=encprops.getProperty("ID")%>
 							<button class="btn btn-md" type="button" name="button" id="editSurvey">Edit</button>
 							<button class="btn btn-md" type="button" name="button" id="closeEditSurvey" style="display: none;">Close Edit</button>    
 						</h2>
 				<%
-						if (enc.getSurveyID()!=null) {
-							String thisSurvey = enc.getSurveyID();
+						if (enc.getID()!=null) {
+							String thisSurvey = enc.getID();
 							String thisTrack = "None";
 							if (enc.getSurveyTrackID()!=null) {
 								thisTrack = enc.getSurveyTrackID();
 							}
 				%>
 							<div class="currentSurvey">
-								<strong><%=encprops.getProperty("surveyID")%></strong>
-								<strong><a href="../surveys/survey.jsp?surveyID=<%=thisSurvey%>"><span><%=thisSurvey%></span></a></strong>
+								<strong><%=encprops.getProperty("ID")%></strong>
+								<strong><a href="../surveys/survey.jsp?ID=<%=thisSurvey%>"><span><%=thisSurvey%></span></a></strong>
 							</div>
 						
 							<div class="currentSurvey">
@@ -4913,7 +4913,7 @@ $(document).ready(function() {
 						} else { 
 				  %>		
 							<div class="currentSurvey">
-								<strong><%=encprops.getProperty("surveyID")%></strong>
+								<strong><%=encprops.getProperty("ID")%></strong>
 								<strong><%=encprops.getProperty("noSurvey")%></strong>
 							</div>
 				<%			
@@ -4949,10 +4949,10 @@ $(document).ready(function() {
                         //$("#addSurvey").hide();
 
                         var encID = $("#addEncNumber").val();
-                        var surveyID = $("#surveyID").val();
+                        var ID = $("#ID").val();
                         var surveyTrackID = $("#surveyTrackID").val();
 
-                        $.post("../EncounterSetSurveyAndTrack", {"encID": encID, "surveyTrackID": surveyTrackID, "surveyID": surveyID},
+                        $.post("../EncounterSetSurveyAndTrack", {"encID": encID, "surveyTrackID": surveyTrackID, "ID": ID},
                         function() {
                           $("#addEncErrorDiv").hide();
                           $("#addDiv").addClass("has-success");
@@ -4988,7 +4988,7 @@ $(document).ready(function() {
 	
 								<div class="col-sm-8" id="addDiv">
 									<label><%=encprops.getProperty("addSurvey")%>: </label>
-									<input name="surveyID" id="surveyID" type="text" class="form-control" placeholder="<%=encprops.getProperty("surveyID")%>" /> 	
+									<input name="ID" id="ID" type="text" class="form-control" placeholder="<%=encprops.getProperty("ID")%>" /> 	
 									<br>
 									<label><%=encprops.getProperty("addSurveyTrack")%>: </label>
 									<label><small>Must be defined to link back from Survey.</small></label>
@@ -5285,7 +5285,7 @@ button#upload-button {
 		<div class="module">
 			<jsp:include page="encounterAdoptionEmbed.jsp" flush="true">
 				<jsp:param name="encounterNumber"
-					value="<%=enc.getCatalogNumber()%>" />
+					value="<%=enc.getID()%>" />
 			</jsp:include>
 		</div> <%
  	}
@@ -5342,7 +5342,7 @@ button#upload-button {
 													&& (myShepherd.isTissueSample(request.getParameter("sampleID"),
 															request.getParameter("number")))) {
 												sampleIDString = request.getParameter("sampleID");
-												thisSample = myShepherd.getTissueSample(sampleIDString, enc.getCatalogNumber());
+												thisSample = myShepherd.getTissueSample(sampleIDString, enc.getID());
 
 											}
 						%> <input name="sampleID" type="text" size="20"
@@ -5596,7 +5596,7 @@ dlgSample.dialog("open");
 		<%
 			//List<TissueSample> tissueSamples=enc.getTissueSamples();
 						List<TissueSample> tissueSamples = myShepherd
-								.getAllTissueSamplesForEncounter(enc.getCatalogNumber());
+								.getAllTissueSamplesForEncounter(enc.getID());
 
 						if ((tissueSamples != null) && (tissueSamples.size() > 0)) {
 
@@ -5763,7 +5763,7 @@ $("a#haplo<%=mito.getAnalysisID() %>").click(function() {
  %></td>
 						<td style="border-style: none;"><a
 							onclick="return confirm('<%=encprops.getProperty("deleteHaplotype")%>');"
-							href="../TissueSampleRemoveHaplotype?encounter=<%=enc.getCatalogNumber()%>&sampleID=<%=thisSample.getSampleID()%>&analysisID=<%=mito.getAnalysisID()%>"><img
+							href="../TissueSampleRemoveHaplotype?encounter=<%=enc.getID()%>&sampleID=<%=thisSample.getSampleID()%>&analysisID=<%=mito.getAnalysisID()%>"><img
 								width="20px" height="20px" style="border-style: none;"
 								src="../images/cancel.gif" /></a></td>
 					</tr>
@@ -5899,7 +5899,7 @@ $("a#haplo<%=mito.getAnalysisID() %>").click(function() {
  %></td>
 						<td style="border-style: none;"><a
 							onclick="return confirm('<%=encprops.getProperty("deleteGenetic")%>');"
-							href="../TissueSampleRemoveSexAnalysis?encounter=<%=enc.getCatalogNumber()%>&sampleID=<%=thisSample.getSampleID()%>&analysisID=<%=mito.getAnalysisID()%>"><img
+							href="../TissueSampleRemoveSexAnalysis?encounter=<%=enc.getID()%>&sampleID=<%=thisSample.getSampleID()%>&analysisID=<%=mito.getAnalysisID()%>"><img
 								style="border-style: none; width: 40px; height: 40px;"
 								src="../images/cancel.gif" /></a></td>
 					</tr>
@@ -5940,7 +5940,7 @@ $("a#haplo<%=mito.getAnalysisID() %>").click(function() {
 						</a></td>
 						<td style="border-style: none;"><a
 							onclick="return confirm('<%=encprops.getProperty("deleteMSMarkers")%>');"
-							href="../TissueSampleRemoveMicrosatelliteMarkers?encounter=<%=enc.getCatalogNumber()%>&sampleID=<%=thisSample.getSampleID()%>&analysisID=<%=mito.getAnalysisID()%>">
+							href="../TissueSampleRemoveMicrosatelliteMarkers?encounter=<%=enc.getID()%>&sampleID=<%=thisSample.getSampleID()%>&analysisID=<%=mito.getAnalysisID()%>">
 								<img style="border-style: none; width: 40px; height: 40px;"
 								src="../images/cancel.gif" />
 						</a> <%
@@ -6334,7 +6334,7 @@ $("a#setBioMeasure<%=thisSample.getSampleID()%>").click(function() {
  %></td>
 						<td style="border-style: none;"><a
 							onclick="return confirm('<%=encprops.getProperty("deleteBio")%>');"
-							href="../TissueSampleRemoveBiologicalMeasurement?encounter=<%=enc.getCatalogNumber()%>&sampleID=<%=thisSample.getSampleID()%>&analysisID=<%=mito.getAnalysisID()%>"><img
+							href="../TissueSampleRemoveBiologicalMeasurement?encounter=<%=enc.getID()%>&sampleID=<%=thisSample.getSampleID()%>&analysisID=<%=mito.getAnalysisID()%>"><img
 								width="20px" height="20px" style="border-style: none;"
 								src="../images/cancel.gif" /></a></td>
 					</tr>
@@ -6382,7 +6382,7 @@ $("a#setBioMeasure<%=thisSample.getSampleID()%>").click(function() {
 																String analysisIDString = "";
 																//if((request.getParameter("function")!=null)&&(request.getParameter("function").equals("2"))&&(request.getParameter("edit")!=null) && (request.getParameter("edit").equals("haplotype")) && (request.getParameter("analysisID")!=null)&&(myShepherd.isGeneticAnalysis(request.getParameter("sampleID"),request.getParameter("number"),request.getParameter("analysisID"),"MitochondrialDNA"))){
 																//    analysisIDString=request.getParameter("analysisID");
-																//	mtDNA=myShepherd.getMitochondrialDNAAnalysis(request.getParameter("sampleID"), enc.getCatalogNumber(),analysisIDString);
+																//	mtDNA=myShepherd.getMitochondrialDNAAnalysis(request.getParameter("sampleID"), enc.getID(),analysisIDString);
 																//}
 									%> <input name="analysisID" type="text" size="20"
 									maxlength="100" value="<%=analysisIDString%>" />
@@ -6961,12 +6961,12 @@ $("a#setBioMeasure<%=thisSample.getSampleID()%>").click(function() {
 
 
 			<td><a id="sample"
-				href="encounter.jsp?number=<%=enc.getCatalogNumber()%>&sampleID=<%=thisSample.getSampleID()%>&edit=tissueSample&function=1"><img
+				href="encounter.jsp?number=<%=enc.getID()%>&sampleID=<%=thisSample.getSampleID()%>&edit=tissueSample&function=1"><img
 					width="24px" style="border-style: none;"
 					src="../images/Crystal_Clear_action_edit.png" /></a></td>
 			<td><a
 				onclick="return confirm('<%=encprops.getProperty("deleteTissue")%>');"
-				href="../EncounterRemoveTissueSample?encounter=<%=enc.getCatalogNumber()%>&sampleID=<%=thisSample.getSampleID()%>"><img
+				href="../EncounterRemoveTissueSample?encounter=<%=enc.getID()%>&sampleID=<%=thisSample.getSampleID()%>"><img
 					style="border-style: none; width: 40px; height: 40px;"
 					src="../images/cancel.gif" /></a></td>
 		</tr>

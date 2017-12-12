@@ -126,7 +126,7 @@ public class CalendarXMLServer extends HttpServlet {
                   String individualID="-";
                   if(tempEnc.getIndividualID()!=null)individualID=tempEnc.getIndividualID();
                   
-                  String outputXML="<event id=\""+tempEnc.getCatalogNumber()+"\">";
+                  String outputXML="<event id=\""+tempEnc.getID()+"\">";
                   outputXML+="<start_date>"+tempEnc.getYear()+"-"+tempEnc.getMonth()+"-"+tempEnc.getDay()+" "+"01:00"+"</start_date>";
                   outputXML+="<end_date>"+tempEnc.getYear()+"-"+tempEnc.getMonth()+"-"+tempEnc.getDay()+" "+"01:00"+"</end_date>";
                   outputXML+="<text><![CDATA["+individualID+"("+sex+")]]></text>";
@@ -147,7 +147,7 @@ public class CalendarXMLServer extends HttpServlet {
                   }
                   
                   
-                  String outputXML="<event id=\""+tempEnc.getCatalogNumber()+"\">";
+                  String outputXML="<event id=\""+tempEnc.getID()+"\">";
                   outputXML+="<start_date>"+tempEnc.getYear()+"-"+tempEnc.getMonth()+"-"+tempEnc.getDay()+" "+"01:00"+"</start_date>";
                   outputXML+="<end_date>"+tempEnc.getYear()+"-"+tempEnc.getMonth()+"-"+tempEnc.getDay()+" "+"01:01"+"</end_date>";
                   outputXML+="<text><![CDATA[No ID ("+sex+")]]></text>";

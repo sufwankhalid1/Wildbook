@@ -188,7 +188,7 @@ public class GetIndividualSearchGoogleMapsPoints extends HttpServlet {
              JSONArray coord = new JSONArray("["+thisEncLong.toString()+","+thisEncLat.toString()+"]");
              movePathCoords[yh]=coord;
              point.put("coordinates", coord);
-             point.put("catalogNumber",enc.getCatalogNumber());
+             point.put("ID",enc.getID());
              point.put("encSubdir",enc.subdir());
              point.put("rootURL",CommonConfiguration.getURLLocation(request));
              point.put("individualID",ServletUtilities.handleNullString(enc.getIndividualID()));

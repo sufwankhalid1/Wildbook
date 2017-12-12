@@ -48,7 +48,7 @@ try{
 	Encounter enc = null;
 	for (Annotation ann : ma.getAnnotations()) {
 		enc = Encounter.findByAnnotation(ann, myShepherd);
-		encNum=enc.getCatalogNumber();
+		encNum=enc.getID();
 		if (enc != null) break;
 	}
 	if (enc == null) throw new Exception("could not find Encounter for MediaAsset id=" + imageID);

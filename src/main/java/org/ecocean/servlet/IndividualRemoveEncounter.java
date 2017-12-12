@@ -118,7 +118,7 @@ public class IndividualRemoveEncounter extends HttpServlet {
           //  removeFromMe.removeEncounter(enc2remove, context);
           //}
           enc2remove.setIndividualID(null);
-          enc2remove.setOccurrenceID(null);
+          enc2remove.setID(null);
 
           enc2remove.addComments("<p><em>" + request.getRemoteUser() + " on " + (new java.util.Date()).toString() + "</em><br>" + "Removed from " + old_name + ".</p>");
           

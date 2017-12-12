@@ -6,7 +6,7 @@
  
  
     <class name="Survey" identity-type="application" table="SURVEY">
-      <field name="surveyID" primary-key="true">
+      <field name="ID" primary-key="true">
         <column length="100" allows-null="true"/>
       </field>
 
@@ -76,7 +76,7 @@
         <column length="100" allows-null="true"/>
       </field>
       
-      <field name="correspondingOccurrenceID" persistence-modifier="persistent">
+      <field name="correspondingID" persistence-modifier="persistent">
         <column length="100" allows-null="true"/>
       </field>
 
@@ -195,7 +195,7 @@
     <class name="Occurrence" identity-type="application" table="OCCURRENCE">
       <inheritance strategy="new-table"/>
       
-      <field name="FoundationalPropertiesBase.ID">
+      <field name="EventBase.ID">
         <column name="PRIMARYKEYID"/>
       </field>
 
@@ -243,11 +243,11 @@
     
       <inheritance strategy="new-table"/>
       
-      <field name="FoundationalPropertiesBase.ID">
+      <field name="EventBase.ID">
         <column name="PRIMARYKEYID"/>
       </field>
 
-      <field name="otherCatalogNumbers" persistence-modifier="persistent" default-fetch-group="true">
+      <field name="otherIDs" persistence-modifier="persistent" default-fetch-group="true">
         <column length="1024" allows-null="true"/>
       </field>
       <field name="informothers" persistence-modifier="persistent" default-fetch-group="true">
@@ -549,7 +549,7 @@
 	  <field name="webURL" persistence-modifier="none"></field>
     </class>
     
-    <class name="FoundationalPropertiesBase" identity-type="application">    
+    <class name="EventBase" identity-type="application">    
       <inheritance strategy="subclass-table"/>      
       <field name="ID" primary-key="true" value-strategy="native">
         <column name="PRIMARYKEYID"/>
@@ -763,7 +763,7 @@
         <column length="256"/>
       </field>
 
-      <field name="correspondingOccurrenceID">
+      <field name="correspondingID">
         <column length="256"/>
       </field>
 

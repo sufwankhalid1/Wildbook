@@ -15,7 +15,7 @@ public class Story implements java.io.Serializable {
   private String storyID;
   private String correspondingEncounterNumber;
   private String correspondingMarkedIndividualID;
-  private String correspondingOccurrenceID;
+  private String correspondingID;
   private String correspondingSocialUnitName;
   private SinglePhotoVideo correspondingThumbnailSinglePhotoVideo;
 
@@ -63,13 +63,13 @@ public class Story implements java.io.Serializable {
     }
   }
   
-  public String getCorrespondingOccurrenceID(){return correspondingOccurrenceID;}
-  public void setCorrespondingOccurrenceID(String occurID){
+  public String getCorrespondingID(){return correspondingID;}
+  public void setCorrespondingID(String occurID){
     if(occurID!=null){
-      this.correspondingOccurrenceID=occurID;
+      this.correspondingID=occurID;
     }
     else{
-      this.correspondingOccurrenceID=null;
+      this.correspondingID=null;
     }
   }
   

@@ -142,10 +142,10 @@ public class ImportSRGD extends HttpServlet {
             int numRows = allLines.size();
            
             //determine the Occurrence_ID column as it is at the end
-            int occurrenceIDColumnNumber=-1;
+            int IDColumnNumber=-1;
             for(int g=0;g<numColumns;g++){
               if(headerNames[g].equals("Occurrence_ID")){
-                occurrenceIDColumnNumber=g;
+                IDColumnNumber=g;
               }
             }
             
@@ -170,7 +170,7 @@ public class ImportSRGD extends HttpServlet {
                   newEncounter=false;
                 }
                 else{
-                  enc.setCatalogNumber(encNumber);
+                  enc.setID(encNumber);
                   enc.setState("approved");
                 }
               }
@@ -211,7 +211,7 @@ public class ImportSRGD extends HttpServlet {
                   
                 }
                 catch(NumberFormatException nfe){
-                  messages.append("<li>Row "+i+" for sample ID "+enc.getCatalogNumber()+": Latitude hit a NumberFormatException in row "+i+" and could not be imported. The listed value was: "+latitude+"</li>");
+                  messages.append("<li>Row "+i+" for sample ID "+enc.getID()+": Latitude hit a NumberFormatException in row "+i+" and could not be imported. The listed value was: "+latitude+"</li>");
                 }
               }
               
@@ -229,7 +229,7 @@ public class ImportSRGD extends HttpServlet {
                 }
                 catch(NumberFormatException nfe){
                   nfe.printStackTrace();
-                  messages.append("<li>Row "+i+" for sample ID "+enc.getCatalogNumber()+": Longitude hit a NumberFormatException in row "+i+" and could not be imported. The listed value was: "+longitude+"</li>");
+                  messages.append("<li>Row "+i+" for sample ID "+enc.getID()+": Longitude hit a NumberFormatException in row "+i+" and could not be imported. The listed value was: "+longitude+"</li>");
                 }
               }
               
@@ -308,22 +308,22 @@ public class ImportSRGD extends HttpServlet {
                 
               }
               
-              //line[occurrenceIDColumnNumber] get Occurrence_ID
+              //line[IDColumnNumber] get Occurrence_ID
               Occurrence occur=new Occurrence();
-              if(occurrenceIDColumnNumber!=-1){
-                String occurID=line[occurrenceIDColumnNumber];
+              if(IDColumnNumber!=-1){
+                String occurID=line[IDColumnNumber];
                 
                 if(myShepherd.isOccurrence(occurID)){
                   occur=myShepherd.getOccurrence(occurID);
                   boolean isNew=occur.addEncounter(enc);
                   if(isNew){
-                    occur.addComments("<p><em>" + request.getRemoteUser() + " on " + (new java.util.Date()).toString() + "</em><br>" + "Import SRGD process added encounter " + enc.getCatalogNumber() + ".</p>");
+                    occur.addComments("<p><em>" + request.getRemoteUser() + " on " + (new java.util.Date()).toString() + "</em><br>" + "Import SRGD process added encounter " + enc.getID() + ".</p>");
                   }
                 
                 }
                 else{
                   occur=new Occurrence(occurID,enc);
-                  occur.addComments("<p><em>" + request.getRemoteUser() + " on " + (new java.util.Date()).toString() + "</em><br>" + "Import SRGD process added encounter " + enc.getCatalogNumber() + ".</p>");
+                  occur.addComments("<p><em>" + request.getRemoteUser() + " on " + (new java.util.Date()).toString() + "</em><br>" + "Import SRGD process added encounter " + enc.getID() + ".</p>");
                   
                   myShepherd.getPM().makePersistent(occur);
 
@@ -341,7 +341,7 @@ public class ImportSRGD extends HttpServlet {
                 
                 
                 myShepherd.commitDBTransaction();
-                if(newEncounter){myShepherd.storeNewEncounter(enc, enc.getCatalogNumber());}
+                if(newEncounter){myShepherd.storeNewEncounter(enc, enc.getID());}
                 
                 //before proceeding with haplotype and loci importing, we need to create the tissue sample
                 myShepherd.beginDBTransaction();
@@ -360,9 +360,9 @@ public class ImportSRGD extends HttpServlet {
                 
                 //let's set genetic Sex
                 if((sex!=null)&&(!sex.equals(""))){  
-                  SexAnalysis sexDNA=new SexAnalysis(("analysis_"+enc3.getCatalogNumber()+"_sex"), sex, enc3.getCatalogNumber(), ("sample_"+enc3.getCatalogNumber()));
-                  if(myShepherd.isGeneticAnalysis(ts.getSampleID(), encNumber, ("analysis_"+enc3.getCatalogNumber()+"_sex"), "SexAnalysis")){
-                    sexDNA=myShepherd.getSexAnalysis(ts.getSampleID(), encNumber, ("analysis_"+enc3.getCatalogNumber()+"_sex"));
+                  SexAnalysis sexDNA=new SexAnalysis(("analysis_"+enc3.getID()+"_sex"), sex, enc3.getID(), ("sample_"+enc3.getID()));
+                  if(myShepherd.isGeneticAnalysis(ts.getSampleID(), encNumber, ("analysis_"+enc3.getID()+"_sex"), "SexAnalysis")){
+                    sexDNA=myShepherd.getSexAnalysis(ts.getSampleID(), encNumber, ("analysis_"+enc3.getID()+"_sex"));
                     sexDNA.setSex(sex);
                   }
                   else{
@@ -382,9 +382,9 @@ public class ImportSRGD extends HttpServlet {
                   //TBD check id this analysis already exists
                   System.out.println("          Starting haplotype.");
                   
-                  MitochondrialDNAAnalysis mtDNA=new MitochondrialDNAAnalysis(("analysis_"+enc3.getCatalogNumber()), haplo, enc3.getCatalogNumber(), ("sample_"+enc3.getCatalogNumber()));
-                  if(myShepherd.isGeneticAnalysis(ts.getSampleID(), encNumber, ("analysis_"+enc3.getCatalogNumber()), "MitochondrialDNA")){
-                    mtDNA=myShepherd.getMitochondrialDNAAnalysis(ts.getSampleID(), encNumber, ("analysis_"+enc3.getCatalogNumber()));
+                  MitochondrialDNAAnalysis mtDNA=new MitochondrialDNAAnalysis(("analysis_"+enc3.getID()), haplo, enc3.getID(), ("sample_"+enc3.getID()));
+                  if(myShepherd.isGeneticAnalysis(ts.getSampleID(), encNumber, ("analysis_"+enc3.getID()), "MitochondrialDNA")){
+                    mtDNA=myShepherd.getMitochondrialDNAAnalysis(ts.getSampleID(), encNumber, ("analysis_"+enc3.getID()));
                     mtDNA.setHaplotype(haplo);
                     System.out.println("                  Haplotype reset.");
                     
@@ -440,7 +440,7 @@ public class ImportSRGD extends HttpServlet {
                 
                  System.out.println("          Found msMarkers!!!!!!!!!!!!1");
                  
-                 MicrosatelliteMarkersAnalysis microAnalysis=new MicrosatelliteMarkersAnalysis((ts.getSampleID()+"_msMarkerAnalysis"), ts.getSampleID(), enc.getCatalogNumber(), loci); 
+                 MicrosatelliteMarkersAnalysis microAnalysis=new MicrosatelliteMarkersAnalysis((ts.getSampleID()+"_msMarkerAnalysis"), ts.getSampleID(), enc.getID(), loci); 
                 
                 
                 
@@ -493,7 +493,7 @@ public class ImportSRGD extends HttpServlet {
                   }
                   
                   indie.refreshDependentProperties(context);
-                  indie.addComments("<p><em>" + request.getRemoteUser() + " on " + (new java.util.Date()).toString() + "</em><br>" + "Import SRGD process added encounter " + enc2.getCatalogNumber() + ".</p>");
+                  indie.addComments("<p><em>" + request.getRemoteUser() + " on " + (new java.util.Date()).toString() + "</em><br>" + "Import SRGD process added encounter " + enc2.getID() + ".</p>");
                   
                   myShepherd.commitDBTransaction();
                   if(newShark){myShepherd.storeNewMarkedIndividual(indie);}

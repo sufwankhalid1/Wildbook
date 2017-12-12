@@ -38,7 +38,7 @@ public class PointLocation implements java.io.Serializable {
 
   private String correspondingPathID = null;
   private String correspondingEncounterID = null;
-  private String correspondingOccurrenceID = null;
+  private String correspondingID = null;
 
   public PointLocation() {};
 
@@ -156,16 +156,16 @@ public class PointLocation implements java.io.Serializable {
     }
   }
 
-  public String getOccurrenceID() {
-    if (correspondingOccurrenceID != null) {
-      return correspondingOccurrenceID;
+  public String getID() {
+    if (correspondingID != null) {
+      return correspondingID;
     }
     return null;
   }
 
   public void setOccurenceID(String id) {
     if (id != null && !id.equals("")) {
-      correspondingOccurrenceID = id;
+      correspondingID = id;
     }
   }
 

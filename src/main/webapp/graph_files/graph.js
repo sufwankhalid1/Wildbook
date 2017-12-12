@@ -130,7 +130,7 @@ function getFlukeData(call_back_function){
 	// from the local test dataset
 	// var encounterQuery = 'testData/all_encounters_valid.json'; 
 	// get all occurrences which have encounters with non-null individual IDs
-	var encounterQuery = globals.server_url + 'rest/jpql?SELECT+en+from+org.ecocean.Encounter+en+WHERE+en.occurrenceID+IS+NOT+NULL';
+	var encounterQuery = globals.server_url + 'rest/jpql?SELECT+en+from+org.ecocean.Encounter+en+WHERE+en.ID+IS+NOT+NULL';
 	$.getJSON(encounterQuery, function(encounter_response){
 		getMarkedIndividuals(encounter_response);
 	});
@@ -149,7 +149,7 @@ function getFlukeData(call_back_function){
 function getNormalizedData(fluke_data){	
 	var encounterData = fluke_data.encounters;
 	var individualData = fluke_data.individuals;
-	// This object holds all of the occurrence objects indexed by their occurrenceID, and 
+	// This object holds all of the occurrence objects indexed by their ID, and 
 	// each object stored at the occurrence object has a list of references to individuals
 	// and to it's encounters
 	var occurrenceObject = {};
@@ -161,11 +161,11 @@ function getNormalizedData(fluke_data){
 		}
 		return obj;
 	}
-	// determine all unique occurrenceIDs present, and create a mapping between the occurrences and the encounters
+	// determine all unique IDs present, and create a mapping between the occurrences and the encounters
 	var occurrences = {};
 	$(encounterData).each(function(i, a){
 		// check if it exists, and add it if it does not 
-		var obj = check_for_object(occurrences, a.occurrenceID, {});
+		var obj = check_for_object(occurrences, a.ID, {});
 		var occ_encounters = check_for_object(obj, "encounters", []);
 		occ_encounters.push(a);
 	});

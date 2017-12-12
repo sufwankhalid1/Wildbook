@@ -225,10 +225,10 @@ NOTE: right now this is not very general-purpose; only really used for match.jsp
             }
         }
         System.out.println("INFO: created " + enc.toString() + " for " + email + " with key " + accessKey);
-        myShepherd.storeNewEncounter(enc, enc.getCatalogNumber());
+        myShepherd.storeNewEncounter(enc, enc.getID());
         myShepherd.commitDBTransaction();
         myShepherd.closeDBTransaction();
-        rtn.put("encounterId", enc.getCatalogNumber());
+        rtn.put("encounterId", enc.getID());
         rtn.put("success", true);
         return rtn;
     }
@@ -318,8 +318,8 @@ NOTE: right now this is not very general-purpose; only really used for match.jsp
                   return rtn;
               }
               ecount++;
-              encLinks += " - " + linkPrefix + "/encounters/encounter.jsp?number=" + enc.getCatalogNumber() + "&accessKey=" + accessKey + "\n";
-              encLinksHtml += "<li><a href=\"" + linkPrefix + "/encounters/encounter.jsp?number=" + enc.getCatalogNumber() + "&accessKey=" + accessKey + "\">Encounter " + ecount + "</a></li>\n";
+              encLinks += " - " + linkPrefix + "/encounters/encounter.jsp?number=" + enc.getID() + "&accessKey=" + accessKey + "\n";
+              encLinksHtml += "<li><a href=\"" + linkPrefix + "/encounters/encounter.jsp?number=" + enc.getID() + "&accessKey=" + accessKey + "\">Encounter " + ecount + "</a></li>\n";
           }
         }
         catch(Exception e){

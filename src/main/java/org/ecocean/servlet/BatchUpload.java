@@ -1055,7 +1055,7 @@ public final class BatchUpload extends DispatchServlet {
     for (Map<String, Object> map : dataEnc) {
       Encounter x = new Encounter();
 
-      x.setCatalogNumber(map.get(pre + "catalogNumber").toString());
+      x.setID(map.get(pre + "ID").toString());
       Object tempEID = map.get(pre + "eventID");
       if (tempEID != null)
         x.setEventID(map.get(pre + "eventID").toString());
@@ -1112,8 +1112,8 @@ public final class BatchUpload extends DispatchServlet {
       x.setSizeGuess((String)map.get(pre + "sizeGuess"));
       x.setPatterningCode((String)map.get(pre + "patterningCode"));
       x.setDistinguishingScar((String)map.get(pre + "distinguishingScar"));
-      x.setOtherCatalogNumbers((String)map.get(pre + "otherCatalogNumbers"));
-      x.setDWCGlobalUniqueIdentifier((String)map.get(pre + "occurrenceID"));
+      x.setOtherIDs((String)map.get(pre + "otherIDs"));
+      x.setDWCGlobalUniqueIdentifier((String)map.get(pre + "ID"));
       x.setOccurrenceRemarks((String)map.get(pre + "occurrenceRemarks"));
       x.setRecordedBy((String)map.get(pre + "recordedBy"));
       x.setBehavior((String)map.get(pre + "behavior"));

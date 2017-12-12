@@ -114,7 +114,7 @@ public class MediaAsset implements java.io.Serializable {
     // Variables used in the Survey, SurveyTrack, Path, Location model
     
     private String correspondingSurveyTrackID;
-    private String correspondingSurveyID;
+    private String correspondingID;
 
 
     //protected MediaAssetType type;
@@ -202,9 +202,9 @@ public class MediaAsset implements java.io.Serializable {
       return this.occurrence;
     }
 
-    public String getOccurrenceID() {
+    public String getID() {
       if (this.occurrence == null) return null;
-      return this.occurrence.getOccurrenceID();
+      return this.occurrence.getID();
     }
 
     public void setOccurrence(Occurrence occ) {
@@ -224,15 +224,15 @@ public class MediaAsset implements java.io.Serializable {
       return null;
     }
     
-    public void setCorrespondingSurveyID(String id) {
+    public void setCorrespondingID(String id) {
       if (id != null && !id.equals("")) {
-        correspondingSurveyID = id;
+        correspondingID = id;
       }
     }
     
-    public String getCorrespondingSurveyID() {
-      if (correspondingSurveyID != null) {
-        return correspondingSurveyID;
+    public String getCorrespondingID() {
+      if (correspondingID != null) {
+        return correspondingID;
       }
       return null;
     }
@@ -880,7 +880,7 @@ public class MediaAsset implements java.io.Serializable {
                         jf.put("annotationId", ann.getId());
                         Encounter enc = ann.findEncounter(myShepherd);
                         if (enc != null) {
-                            jf.put("encounterId", enc.getCatalogNumber());
+                            jf.put("encounterId", enc.getID());
                             if (enc.hasMarkedIndividual()) jf.put("individualId", enc.getIndividualID());
                         }
                     }
@@ -918,7 +918,7 @@ public class MediaAsset implements java.io.Serializable {
               jobj.put("filename", this.getFilename());  //this can "vary" depending on store type
             }
 
-            jobj.put("occurrenceID",this.getOccurrenceID());
+            jobj.put("ID",this.getID());
 
             if (this.getLabels() != null) jobj.put("labels", this.getLabels());
 

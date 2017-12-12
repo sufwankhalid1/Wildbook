@@ -23,7 +23,7 @@ response.setHeader("Pragma", "no-cache"); //HTTP 1.0 backward compatibility
 Properties props = new Properties();
 myShepherd.beginDBTransaction();
 props = ShepherdProperties.getProperties("survey.properties", langCode,context);
-String surveyID = request.getParameter("surveyID").trim();
+String ID = request.getParameter("ID").trim();
 Survey sv = null;
 String errors = "";
 String urlLoc = "//" + CommonConfiguration.getURLLocation(request);
@@ -35,7 +35,7 @@ if (request.getUserPrincipal()!=null) {
 }
 
 try {
-	sv = myShepherd.getSurvey(surveyID);
+	sv = myShepherd.getSurvey(ID);
 } catch (NullPointerException npe) {
 	npe.printStackTrace();
 	errors += "<p>This survey ID does not belong to an existing survey.</p><br/>";
@@ -97,7 +97,7 @@ if (sv!=null) {
 		<div class="col-md-12">
 			<h3 class="surveyHeader">
 				<img src="../images/survey_icon_boat.png" />
-				<%=props.getProperty("survey") %>: <%=surveyID %>
+				<%=props.getProperty("survey") %>: <%=ID %>
 			</h3>
 			<p>The survey contains collections of occurrences, survey tracks and points. It allows you to look at total effort and distance.</p>
 			<hr/>
@@ -255,7 +255,7 @@ if (sv!=null) {
 		<div class="col-md-12">
 			<p><strong><%=props.getProperty("surveyMap") %></strong></p>
 			<jsp:include page="surveyMapEmbed.jsp" flush="true">
-         		 <jsp:param name="surveyID" value="<%=surveyID%>"/>
+         		 <jsp:param name="ID" value="<%=ID%>"/>
         	</jsp:include>
 		</div>
 		<label class="response"></label>
@@ -318,7 +318,7 @@ if (sv!=null) {
 						</p>
 						<form name="editFormObservation" action="../BaseClassSetObservation" method="post" class="editFormDynamic">
 							<input name="name" type="hidden" value="<%=nm%>" /> 
-							<input name="number" type="hidden" value="<%=surveyID%>" />
+							<input name="number" type="hidden" value="<%=ID%>" />
 							<!-- This servlet can handle encounters or occurrences, so you have to pass it the Type!  -->
 							<input name="type" type="hidden" value="Occurrence" />
 							<div class="form-group row">
@@ -351,7 +351,7 @@ if (sv!=null) {
 			</p>
 			<form name="addDynProp" action="../SurveySetObservation"
 				method="post" class="editFormObservation">
-				<input name="number" type="hidden" value="<%=surveyID%>" />
+				<input name="number" type="hidden" value="<%=ID%>" />
 				<input name="type" type="hidden" value="Occurrence" />
 				<div class="form-group row">
 					<div class="col-sm-3">

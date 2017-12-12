@@ -44,7 +44,7 @@ while(allSharks.hasNext()){
 			Encounter enc=(Encounter)encounters.get(j);
 			%>
 
-			<encounter number="<%=enc.getCatalogNumber()%>" href="https://www.whaleshark.org/encounters/encounter.jsp?number=<%=enc.getCatalogNumber()%>">
+			<encounter number="<%=enc.getID()%>" href="https://www.whaleshark.org/encounters/encounter.jsp?number=<%=enc.getID()%>">
 
 			<%			
 			
@@ -74,7 +74,7 @@ while(allSharks.hasNext()){
 				int numSpots=spots.size();
 				%>
 					
-					<img href="https://www.whaleshark.org/<%=CommonConfiguration.getDataDirectoryName(context) %>/encounters/<%=enc.subdir() %>/extract<%=enc.getCatalogNumber() %>.jpg" type="left">
+					<img href="https://www.whaleshark.org/<%=CommonConfiguration.getDataDirectoryName(context) %>/encounters/<%=enc.subdir() %>/extract<%=enc.getID() %>.jpg" type="left">
 						<%
 						
 						if((enc.getLeftReferenceSpots()!=null)&&(enc.getLeftReferenceSpots().size()==3)){
@@ -106,7 +106,7 @@ while(allSharks.hasNext()){
 				int numSpots=spots.size();
 				%>
 					
-					<img href="https://www.whaleshark.org/<%=CommonConfiguration.getDataDirectoryName(context) %>/encounters/<%=enc.subdir() %>/extractR<%=enc.getCatalogNumber() %>.jpg" type="right">
+					<img href="https://www.whaleshark.org/<%=CommonConfiguration.getDataDirectoryName(context) %>/encounters/<%=enc.subdir() %>/extractR<%=enc.getID() %>.jpg" type="right">
 						<%
 						
 						if((enc.getRightReferenceSpots()!=null)&&(enc.getRightReferenceSpots().size()==3)){

@@ -167,12 +167,12 @@ public class TranslateQuery extends HttpServlet {
       } // end switch(queryClass)
 
 
-      // now comb all occurrenceIDs from resultArray
+      // now comb all IDs from resultArray
       JSONObject occurrences = new JSONObject();
       for (int i=0;i<resultArray.length();i++) {
         JSONObject maJson = resultArray.getJSONObject(i);
         int id = maJson.getInt("id");
-        String occId = maJson.optString("occurrenceID");
+        String occId = maJson.optString("ID");
         if (occId==null || occId.equals("")) continue;
         if (occurrences.optJSONArray(occId)==null) {
           JSONArray newArr = new JSONArray();

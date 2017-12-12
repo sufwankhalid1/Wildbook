@@ -239,7 +239,7 @@ System.out.println("(wanting to match indivId " + indivId + ")");
         	while (it.hasNext()) {
             		Encounter e = (Encounter)it.next();
 			backup = e;
-System.out.println(" -----ENC----> " + e.getCatalogNumber() + " > " + e.getIndividualID());
+System.out.println(" -----ENC----> " + e.getID() + " > " + e.getIndividualID());
 			if ((indivId == null) || indivId.equals(e.getIndividualID())) {  //if we have no indivId coming in, we are kinda outta luck so just take first?
 				enc = e;
 				break;
@@ -247,17 +247,17 @@ System.out.println(" -----ENC----> " + e.getCatalogNumber() + " > " + e.getIndiv
         	}    
         	query.closeAll();
 		if (enc != null) {
-			System.out.println("+ found encounter " + enc.getCatalogNumber() + " matching image/indivId!");
+			System.out.println("+ found encounter " + enc.getID() + " matching image/indivId!");
 		} else if (backup == null) {
 			System.out.println("* unable to find an Encounter matching image/indivId :(");
 			return null;
 		} else {
 			enc = backup;
-			System.out.println("- found image match in Encounter " + enc.getCatalogNumber() + ", but mismatch on indivId=" + indivId + " (enc has " + enc.getIndividualID() + "); using anyway");
+			System.out.println("- found image match in Encounter " + enc.getID() + ", but mismatch on indivId=" + indivId + " (enc has " + enc.getIndividualID() + "); using anyway");
 		}
 **********/
 		if (enc != null) {
-			System.out.println("+ found encounter " + enc.getCatalogNumber() + " matching image/indivId!");
+			System.out.println("+ found encounter " + enc.getID() + " matching image/indivId!");
 		} else {
 			System.out.println("* unable to find an Encounter matching annId " + annId + " :(");
 			return null;
@@ -268,7 +268,7 @@ System.out.println(" -----ENC----> " + e.getCatalogNumber() + " > " + e.getIndiv
 
 		if (((encInd != null) && (indivId == null)) || ((encInd == null) && (indivId != null)) ||
                     ((encInd != null) && (indivId != null) && !encInd.equals(indivId))) {
-			System.out.println("- found Encounter " + enc.getCatalogNumber() + ", but mismatch on indivId=" + indivId + " (enc has " + encInd + "); using anyway");
+			System.out.println("- found Encounter " + enc.getID() + ", but mismatch on indivId=" + indivId + " (enc has " + encInd + "); using anyway");
 		}
 
 		ma.addFeature(ft);

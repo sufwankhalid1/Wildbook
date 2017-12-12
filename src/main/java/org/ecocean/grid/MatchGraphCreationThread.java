@@ -89,7 +89,7 @@ public class MatchGraphCreationThread implements Runnable, ISharkGridThread {
         Encounter enc = (Encounter) encounters.next();
         if (((enc.getRightSpots() != null) && (enc.getRightSpots().size() > 0))||((enc.getSpots() != null) && (enc.getSpots().size() > 0))) {
             EncounterLite el=new EncounterLite(enc);
-            gm.addMatchGraphEntry(enc.getCatalogNumber(), el);
+            gm.addMatchGraphEntry(enc.getID(), el);
             count++;
           } 
 

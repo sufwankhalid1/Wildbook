@@ -62,7 +62,7 @@ public class OccurrenceClusterMASet extends HttpServlet {
         String[] occIDs = new String[occurrences.size()];
         for (int i=0;i<occurrences.size();i++) {
           if (occurrences.get(i)!=null) {
-            occIDs[i] = occurrences.get(i).getOccurrenceID();
+            occIDs[i] = occurrences.get(i).getID();
             n++;
           }
         }

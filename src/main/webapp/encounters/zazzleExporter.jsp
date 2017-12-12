@@ -51,7 +51,7 @@ if (myShepherd.isEncounter(num)) {
     
     //now let's build our individualID
     if(individualID.trim().equals("")){
-    	individualID=enc.getCatalogNumber();
+    	individualID=enc.getID();
     }
 
     
@@ -100,7 +100,7 @@ if (myShepherd.isEncounter(num)) {
   	}
   	//StringBuffer xmlData = new StringBuffer();
 
-  	String thumbLocation = "file-" + enc.dir(shepherdDataDir,enc.getCatalogNumber())+"/"+side+"Zazzle.jpg";
+  	String thumbLocation = "file-" + enc.dir(shepherdDataDir,enc.getID())+"/"+side+"Zazzle.jpg";
 	
 	%>
 	<di:img width="2100"

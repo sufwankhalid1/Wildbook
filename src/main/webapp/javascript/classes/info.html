@@ -51,7 +51,7 @@ These are all based upon a common <a href="Base.js">Base.js</a> class.
 <div class="example">
 creates and then fetches (using rest api) a single encounter (based on Backbone Model).
 <div class="exec">
-enc = new wildbook.Model.Encounter({catalogNumber: '4f085ee0-e16e-4a4a-ad5b-6f9e2d0ae289'});
+enc = new wildbook.Model.Encounter({ID: '4f085ee0-e16e-4a4a-ad5b-6f9e2d0ae289'});
 enc.fetch({success: function() { output( enc.get('guid') ); }});
 </div>
 </div>

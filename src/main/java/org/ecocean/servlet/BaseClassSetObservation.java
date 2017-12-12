@@ -31,7 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.ecocean.CommonConfiguration;
 import org.ecocean.Encounter;
-import org.ecocean.FoundationalPropertiesBase;
+import org.ecocean.EventBase;
 import org.ecocean.Observation;
 import org.ecocean.Occurrence;
 import org.ecocean.Shepherd;
@@ -92,7 +92,7 @@ public class BaseClassSetObservation extends HttpServlet {
       String value = request.getParameter("value");
       System.out.println("Setting Observation... Name : "+name+" ID : "+id+" Type : "+type+" Value : "+value);
       
-      FoundationalPropertiesBase changeMe = null;
+      EventBase changeMe = null;
       Observation obs = null;
       
       if (type.equals("Encounter")) {

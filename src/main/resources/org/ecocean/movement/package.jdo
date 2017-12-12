@@ -13,7 +13,7 @@
         <join/>
       </field>
 
-      <field name="parentSurveyID" persistence-modifier="persistent">
+      <field name="parentID" persistence-modifier="persistent">
         <column length="100" allows-null="true" />
       </field>
 

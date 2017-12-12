@@ -63,38 +63,38 @@ public class OccurrenceCreate extends HttpServlet {
     PrintWriter out = response.getWriter();
     boolean locked = false;
 
-    String myOccurrenceID="";
+    String myID="";
     if(request.getParameter("occurrence") != null){
-      myOccurrenceID=request.getParameter("occurrence");
+      myID=request.getParameter("occurrence");
       
       //remove special characters
-      myOccurrenceID=ServletUtilities.cleanFileName(myOccurrenceID);
+      myID=ServletUtilities.cleanFileName(myID);
       
     }
-    System.out.println("Here's a new Occurrence ID "+myOccurrenceID+" that I'm creating for "+request.getParameter("number")+".");
+    System.out.println("Here's a new Occurrence ID "+myID+" that I'm creating for "+request.getParameter("number")+".");
     //Create a new Occurrence from an encounter
 
-    if ((myOccurrenceID != null) && (request.getParameter("number") != null) &&  (!myOccurrenceID.trim().equals(""))) {
+    if ((myID != null) && (request.getParameter("number") != null) &&  (!myID.trim().equals(""))) {
       myShepherd.beginDBTransaction();
       Encounter enc2make = myShepherd.getEncounter(request.getParameter("number"));
       setDateLastModified(enc2make);
-      System.out.println("New Occ Id In Create : "+myOccurrenceID);
+      System.out.println("New Occ Id In Create : "+myID);
 
 
       boolean ok2add=true;
 
-      if (!(myShepherd.isOccurrence(myOccurrenceID))) {
+      if (!(myShepherd.isOccurrence(myID))) {
 
 
-        if ((myShepherd.getOccurrenceForEncounter(enc2make.getCatalogNumber())==null) && (myOccurrenceID != null)) {
+        if ((myShepherd.getOccurrenceForEncounter(enc2make.getID())==null) && (myID != null)) {
           try {
-            Occurrence newOccur = new Occurrence(myOccurrenceID.trim(), enc2make);
-            newOccur.addComments("<p><em>" + request.getRemoteUser() + " on " + (new java.util.Date()).toString() + "</em><br>" + "Created " + myOccurrenceID + " from encounter "+request.getParameter("number")+".</p>");
+            Occurrence newOccur = new Occurrence(myID.trim(), enc2make);
+            newOccur.addComments("<p><em>" + request.getRemoteUser() + " on " + (new java.util.Date()).toString() + "</em><br>" + "Created " + myID + " from encounter "+request.getParameter("number")+".</p>");
             newOccur.setDateTimeCreated(ServletUtilities.getDate());
             myShepherd.storeNewOccurrence(newOccur);
             
-            enc2make.addComments("<p><em>" + request.getRemoteUser() + " on " + (new java.util.Date()).toString() + "</em><br>" + "Added to new occurrence " + myOccurrenceID + ".</p>");
-            enc2make.setOccurrenceID(myOccurrenceID.trim());
+            enc2make.addComments("<p><em>" + request.getRemoteUser() + " on " + (new java.util.Date()).toString() + "</em><br>" + "Added to new occurrence " + myID + ".</p>");
+            enc2make.setID(myID.trim());
           } 
           catch (Exception le) {
             locked = true;
@@ -112,16 +112,16 @@ public class OccurrenceCreate extends HttpServlet {
             //output success statement
             //out.println(ServletUtilities.getHeader(request));
             response.setStatus(HttpServletResponse.SC_OK);
-            out.println("<strong>Success:</strong> Encounter " + request.getParameter("number") + " was successfully used to create occurrence <strong>" + myOccurrenceID + "</strong>.");
+            out.println("<strong>Success:</strong> Encounter " + request.getParameter("number") + " was successfully used to create occurrence <strong>" + myID + "</strong>.");
             //out.println("<p><a href=\"http://" + CommonConfiguration.getURLLocation(request) + "/encounters/encounter.jsp?number=" + request.getParameter("number") + "\">Return to encounter #" + request.getParameter("number") + ".</a></p>\n");
-            //out.println("<p><a href=\"http://" + CommonConfiguration.getURLLocation(request) + "/occurrence.jsp?number=" + myOccurrenceID + "\">View <strong>" + myOccurrenceID + ".</strong></a></p>\n");
+            //out.println("<p><a href=\"http://" + CommonConfiguration.getURLLocation(request) + "/occurrence.jsp?number=" + myID + "\">View <strong>" + myID + ".</strong></a></p>\n");
             //out.println(ServletUtilities.getFooter(context));
           } 
           else {
             //out.println(ServletUtilities.getHeader(request));
             out.println("<strong>Failure:</strong> Encounter " + request.getParameter("number") + " was NOT used to create a new occurrence. This encounter is currently being modified by another user. Please go back and try to create the new occurrence again in a few seconds.");
             //out.println("<p><a href=\"http://" + CommonConfiguration.getURLLocation(request) + "/encounters/encounter.jsp?number=" + request.getParameter("number") + "\">Return to encounter " + request.getParameter("number") + ".</a></p>\n");
-            //out.println("<p><a href=\"http://" + CommonConfiguration.getURLLocation(request) + "/occurrence.jsp?number=" + myOccurrenceID + "\">View <strong>" + myOccurrenceID + "</strong></a></p>\n");
+            //out.println("<p><a href=\"http://" + CommonConfiguration.getURLLocation(request) + "/occurrence.jsp?number=" + myID + "\">View <strong>" + myID + "</strong></a></p>\n");
             //out.println(ServletUtilities.getFooter(context));
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
           }
@@ -135,7 +135,7 @@ public class OccurrenceCreate extends HttpServlet {
         }
 
       } 
-      else if ((myShepherd.isOccurrence(myOccurrenceID))) {
+      else if ((myShepherd.isOccurrence(myID))) {
         myShepherd.rollbackDBTransaction();
         myShepherd.closeDBTransaction();
         //out.println(ServletUtilities.getHeader(request));

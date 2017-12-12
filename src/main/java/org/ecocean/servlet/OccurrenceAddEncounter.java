@@ -88,7 +88,7 @@ public class OccurrenceAddEncounter extends HttpServlet {
               addToMe.addEncounter(enc2add);
               
             }
-            enc2add.setOccurrenceID(request.getParameter("occurrence").trim());
+            enc2add.setID(request.getParameter("occurrence").trim());
             enc2add.addComments("<p><em>" + request.getRemoteUser() + " on " + (new java.util.Date()).toString() + "</em><br>" + "Added to occurrence " + request.getParameter("occurrence") + ".</p>");
             addToMe.addComments("<p><em>" + request.getRemoteUser() + " on " + (new java.util.Date()).toString() + "</em><br>" + "Added encounter " + request.getParameter("number") + ".</p>");
 

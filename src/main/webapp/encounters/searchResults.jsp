@@ -104,7 +104,7 @@ context=ServletUtilities.getContext(request);
 	cursor: pointer;
 }
 
-.ptcol-otherCatalogNumbers {
+.ptcol-otherIDs {
   width: 75px !important;
 }
 
@@ -287,7 +287,7 @@ td.tdw:hover div {
 	    <strong><%=encprops.getProperty("date")%>
 	    <strong><%=encprops.getProperty("location")%>
 	    <strong><%=encprops.getProperty("locationID")%>
-	    <strong><%=encprops.getProperty("occurrenceID")%>
+	    <strong><%=encprops.getProperty("ID")%>
 */
 
 
@@ -349,7 +349,7 @@ var colDefn = [
 		//sortValue: function(o) { return o.individualID.toLowerCase(); },
 	},
   {
-    key: 'otherCatalogNumbers',
+    key: 'otherIDs',
     label: '<%=encprops.getProperty("alternateID")%>'//'Alternate ID',
   },
 	{
@@ -591,9 +591,9 @@ function show() {
 		var privateResults = searchResults[results[i]].get('_sanitized') || false;
 		// ++++++++++++++++++
 		// Here is that troublesome area where we lose the enc ID sometimes. Look in Encounter.js also.
-		// This ID is defined as catalogNumber in LightRest, and the ID does not transfer to self.id. 
+		// This ID is defined as ID in LightRest, and the ID does not transfer to self.id. 
 		// ++++++++++++++++++
-		searchResults[results[i]].id = searchResults[results[i]].get('catalogNumber');
+		searchResults[results[i]].id = searchResults[results[i]].get('ID');
 		
 		var title = 'Encounter ' + searchResults[results[i]].id;
 		if (privateResults) {
@@ -934,7 +934,7 @@ function _colFileName(o) {
   return outStrings.join(',\n');
 }
 function _colAlternateID(o) {
-  if (!o.get('otherCatalogNumbers')) return '';
+  if (!o.get('otherIDs')) return '';
 }
 
 function _colRowNum(o) {

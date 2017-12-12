@@ -138,7 +138,7 @@ public class ImportBass extends HttpServlet {
       ArrayList<Keyword> keywords = generateKeywords(row, dataFile, myShepherd);    
       attachAsset(enc, imageFile, request, myShepherd, assetStore, keywords);
       
-      nicks.put(enc.getCatalogNumber(), getString(row, 2));
+      nicks.put(enc.getID(), getString(row, 2));
       //Gonna try to make a hacky nickname handover here.
     }
     
@@ -370,7 +370,7 @@ public class ImportBass extends HttpServlet {
       }
     }
     
-    enc.setCatalogNumber(Util.generateUUID());
+    enc.setID(Util.generateUUID());
     enc.setGenus("Stereolepis");
     enc.setSpecificEpithet("gigas");
     enc.setState("approved");
@@ -449,7 +449,7 @@ public class ImportBass extends HttpServlet {
       try {
         myShepherd.beginDBTransaction();
         mi.addEncounter(enc, context);
-        mi.setNickName(nicks.get(enc.getCatalogNumber()));
+        mi.setNickName(nicks.get(enc.getID()));
         //mi.setAlternateID(getString(row, 0));
         myShepherd.commitDBTransaction();      
       } catch (Exception e) {

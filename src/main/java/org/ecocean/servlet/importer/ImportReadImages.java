@@ -444,10 +444,10 @@ public class ImportReadImages extends HttpServlet {
           try {
             out.println("Looking for a match... Enc SightNo= "+enc.getSightNo()+" MA SightNo= "+sightNo);
             if (enc.getSightNo().equals(sightNo)) {
-              out.println("Match! EncNo : "+enc.getCatalogNumber()+" Checking Indy ID Code...");
+              out.println("Match! EncNo : "+enc.getID()+" Checking Indy ID Code...");
 
-              if (indy==null&&enc.getOccurrenceID()!=null) {
-                occ = myShepherd.getOccurrence(enc.getOccurrenceID());
+              if (indy==null&&enc.getID()!=null) {
+                occ = myShepherd.getOccurrence(enc.getID());
                 occ.addAsset(ma);
                 ma.setOccurrence(occ);
                 out.println("No indy was found for the name "+indyID+" so the Media Asset has been attached to a sightNo/date matching occ.");
@@ -460,7 +460,7 @@ public class ImportReadImages extends HttpServlet {
                 if (indyID.equals(enc.getIndividualID())) {
                   out.println("MATCH!!!! adding this MA to a proper Encounter! "+indyID+"="+enc.getIndividualID());
                   enc.addMediaAsset(ma);
-                  occ = myShepherd.getOccurrence(enc.getOccurrenceID());
+                  occ = myShepherd.getOccurrence(enc.getID());
                   ma.setOccurrence(occ);
                   setSurveyDataFromParent(occ, ma);
                   matched = true;
@@ -486,7 +486,7 @@ public class ImportReadImages extends HttpServlet {
         unmatched.add("No matching encounter or occurrence was found for this MediaAsset! Date : "+date+" SightNo : "+sightNo+" id_code : "+indyID);
       } else if (matched == false&&nulls == 1) {
         nullEnc.addMediaAsset(ma);
-        occ = myShepherd.getOccurrence(nullEnc.getOccurrenceID());
+        occ = myShepherd.getOccurrence(nullEnc.getID());
         ma.setOccurrence(occ);
         out.println("There was only one encounter without an Indy in this Occurrence, and no other matches so that has to be the one.");
       }
@@ -504,10 +504,10 @@ public class ImportReadImages extends HttpServlet {
   }
   
   private void setSurveyDataFromParent(Occurrence occ, MediaAsset ma) {
-    String svID = occ.getCorrespondingSurveyID();
+    String svID = occ.getCorrespondingID();
     String stID = occ.getCorrespondingSurveyTrackID();
     if (svID!=null) {
-      ma.setCorrespondingSurveyID(svID);      
+      ma.setCorrespondingID(svID);      
     }
     if (stID!=null) {
       ma.setCorrespondingSurveyTrackID(stID);
@@ -617,10 +617,10 @@ public class ImportReadImages extends HttpServlet {
         failed.add("Could not find a match for Indy ID "+id+" SightNo "+sightNo+" Date "+date+" Excel Sheet Row : "+row.getRowNum());
         continue;
       }
-      occ = myShepherd.getOccurrence(targetEnc.getOccurrenceID());
+      occ = myShepherd.getOccurrence(targetEnc.getID());
       tagCell = row.getCell(2);
       String tagValue = formatter.formatCellValue(tagCell);
-      out.println("Trying to create a tag for occ "+occ.getOccurrenceID()+" and "+tagValue);
+      out.println("Trying to create a tag for occ "+occ.getID()+" and "+tagValue);
       
       ArrayList<Observation> obs = new ArrayList<Observation>();
       

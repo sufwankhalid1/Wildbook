@@ -115,16 +115,16 @@ var getData = function(individualID) {
           }
         }
         occurrenceArray = occurrenceArray.concat(encounterArray);
-        var occurrenceID = jsonData[i].encounters[0].occurrenceID;
+        var ID = jsonData[i].encounters[0].ID;
         var index = encounterArray.indexOf(individualID.toString());
         if (~index) {
             encounterArray[index] = "";
         }
         var occurrenceObject = new Object();
         if(encounterArray.length > 0) {
-          occurrenceObject = {occurrenceID: occurrenceID, occurringWith: encounterArray.filter(function(e){return e}).join(", ")};
+          occurrenceObject = {ID: ID, occurringWith: encounterArray.filter(function(e){return e}).join(", ")};
         } else {
-          occurrenceObject = {occurrenceID: "", occurringWith: ""};
+          occurrenceObject = {ID: "", occurringWith: ""};
         }
         occurrenceObjectArray.push(occurrenceObject);
         encounterArray = [];
@@ -194,8 +194,8 @@ var makeTable = function(items, tableHeadLocation, tableBodyLocation, sortOn) {
         return dict['date'];
       } if(d === "occurringWith") {
         return dict['occurringWith'];
-      } if(d === "catalogNumber") {
-        return dict['catalogNumber'];
+      } if(d === "ID") {
+        return dict['ID'];
       } if(d === "roles") {
         return dict['roles'];
       } if(d === "relationshipWith") {
@@ -316,8 +316,8 @@ var getEncounterTableData = function(occurrenceObjectArray, individualID) {
       jsonData = json;
       for(var i=0; i < jsonData.encounters.length; i++) {
         for(var j = 0; j < occurrenceObjectArray.length; j++) {
-          if (occurrenceObjectArray[j].occurrenceID == jsonData.encounters[i].occurrenceID) {
-            if(encounterData.includes(jsonData.encounters[i].occurrenceID)) {
+          if (occurrenceObjectArray[j].ID == jsonData.encounters[i].ID) {
+            if(encounterData.includes(jsonData.encounters[i].ID)) {
             } else {
                var occurringWith = occurrenceObjectArray[j].occurringWith;
             }
@@ -339,7 +339,7 @@ var getEncounterTableData = function(occurrenceObjectArray, individualID) {
         } else {
           var location = "";
         }
-        var catalogNumber = jsonData.encounters[i].ID;
+        var ID = jsonData.encounters[i].ID;
         if(jsonData.encounters[i].tissueSamples || jsonData.encounters[i].annotations) {
           if((jsonData.encounters[i].tissueSamples)&&(jsonData.encounters[i].tissueSamples.length > 0)) {
             var dataTypes = jsonData.encounters[i].tissueSamples[0].type;
@@ -358,7 +358,7 @@ var getEncounterTableData = function(occurrenceObjectArray, individualID) {
         if(occurringWith === undefined) {
           var occurringWith = "";
         }
-        encounter = {catalogNumber: catalogNumber, date: date, location: location, dataTypes: dataTypes, alternateID: alternateID, sex: sex, occurringWith: occurringWith, behavior: behavior};
+        encounter = {ID: ID, date: date, location: location, dataTypes: dataTypes, alternateID: alternateID, sex: sex, occurringWith: occurringWith, behavior: behavior};
         encounterData.push(encounter);
       }
       makeTable(encounterData, "#encountHead", "#encountBody", "date");

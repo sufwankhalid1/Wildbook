@@ -129,7 +129,7 @@ public class SurveyCreate extends HttpServlet {
               myShepherd.beginDBTransaction();
               st = createSurveyTrack(request, sv);
               myShepherd.commitDBTransaction();
-              st.setParentSurveyID(sv.getID());
+              st.setParentID(sv.getID());
               sv.addSurveyTrack(st);
               System.out.println("Created Survey Track : "+st.getID());
               System.out.println("Did the survey get it? "+sv.getAllSurveyTracks().toString());
@@ -154,7 +154,7 @@ public class SurveyCreate extends HttpServlet {
         }
         
         message += "<p><strong>Success: </strong> A new survey on "+date+" was created.</p>";
-        message += "<p><strong>View Survey Page: </strong><a href=\"/surveys/survey.jsp?surveyID="+sv.getID()+"\">Survey ID: "+sv.getID()+"</a></p>";
+        message += "<p><strong>View Survey Page: </strong><a href=\"/surveys/survey.jsp?ID="+sv.getID()+"\">Survey ID: "+sv.getID()+"</a></p>";
         message += "<p>From the Survey home page you can add occurrences and other info.</p>";      
       }
     } catch (Exception e) {

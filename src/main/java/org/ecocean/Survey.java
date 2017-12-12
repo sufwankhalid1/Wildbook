@@ -27,7 +27,7 @@ public class Survey implements java.io.Serializable{
   private static final long serialVersionUID = -5028529439301775287L;
   private ArrayList<SurveyTrack> surveyTracks;
   
-  private String surveyID;
+  private String ID;
   private String project;
   private String organization;
   private String comments = "None";
@@ -117,21 +117,21 @@ public class Survey implements java.io.Serializable{
   }
   
   public String getID() {
-    if (surveyID != null) {
-      return surveyID;
+    if (ID != null) {
+      return ID;
     } else {
       return null;
     }
   }
   
   public void setID(String newID) {
-    surveyID = newID;
+    ID = newID;
     setDWCDateLastModified();
   }
   
   public void generateID() {
     String id = Util.generateUUID().toString();  
-    surveyID = id;
+    ID = id;
   }
   
   public ArrayList<SurveyTrack> getAllSurveyTracks() {

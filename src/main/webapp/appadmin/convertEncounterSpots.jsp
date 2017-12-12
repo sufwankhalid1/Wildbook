@@ -25,19 +25,19 @@ org.ecocean.media.*
 
 <%!
 ArrayList<SuperSpot> getOLDLeftReferenceSpots(Encounter enc, Shepherd myShepherd) {
-    String queryString = "SELECT FROM org.ecocean.SuperSpot WHERE enc.leftReferenceSpots.contains(this) && enc.catalogNumber == \"" + enc.getCatalogNumber() + "\" VARIABLES org.ecocean.Encounter enc";
+    String queryString = "SELECT FROM org.ecocean.SuperSpot WHERE enc.leftReferenceSpots.contains(this) && enc.ID == \"" + enc.getID() + "\" VARIABLES org.ecocean.Encounter enc";
 System.out.println(queryString);
     Query query = myShepherd.getPM().newQuery(queryString);
     return asSpots((List)query.execute());
 }
 ArrayList<SuperSpot> getOLDSpots(Encounter enc, Shepherd myShepherd) {
-    String queryString = "SELECT FROM org.ecocean.SuperSpot WHERE enc.spots.contains(this) && enc.catalogNumber == \"" + enc.getCatalogNumber() + "\" VARIABLES org.ecocean.Encounter enc";
+    String queryString = "SELECT FROM org.ecocean.SuperSpot WHERE enc.spots.contains(this) && enc.ID == \"" + enc.getID() + "\" VARIABLES org.ecocean.Encounter enc";
 System.out.println(queryString);
     Query query = myShepherd.getPM().newQuery(queryString);
     return asSpots((List)query.execute());
 }
 ArrayList<SuperSpot> getOLDRightSpots(Encounter enc, Shepherd myShepherd) {
-    String queryString = "SELECT FROM org.ecocean.SuperSpot WHERE enc.rightSpots.contains(this) && enc.catalogNumber == \"" + enc.getCatalogNumber() + "\" VARIABLES org.ecocean.Encounter enc";
+    String queryString = "SELECT FROM org.ecocean.SuperSpot WHERE enc.rightSpots.contains(this) && enc.ID == \"" + enc.getID() + "\" VARIABLES org.ecocean.Encounter enc";
 System.out.println(queryString);
     Query query = myShepherd.getPM().newQuery(queryString);
     return asSpots((List)query.execute());

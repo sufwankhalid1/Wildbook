@@ -138,7 +138,7 @@ public class SOCPROGExport extends HttpServlet{
         Label popLabel4a = new Label(0, 0, "ID");
         sheet2.addCell(popLabel4a);
         
-        Label popLabel7 = new Label(1, 0, "OccurrenceID");
+        Label popLabel7 = new Label(1, 0, "ID");
         sheet2.addCell(popLabel7);
         
         Label popLabel7a = new Label(2, 0, "SocialUnit");
@@ -264,9 +264,9 @@ public class SOCPROGExport extends HttpServlet{
                     }
                     
                     
-                    if(myShepherd.getOccurrenceForEncounter(enc.getCatalogNumber())!=null){
-                      Occurrence oc=myShepherd.getOccurrenceForEncounter(enc.getCatalogNumber());
-                      Label popLabel7b = new Label(1, count, oc.getOccurrenceID());
+                    if(myShepherd.getOccurrenceForEncounter(enc.getID())!=null){
+                      Occurrence oc=myShepherd.getOccurrenceForEncounter(enc.getID());
+                      Label popLabel7b = new Label(1, count, oc.getID());
                       sheet2.addCell(popLabel7b);
                       
                     }
@@ -295,7 +295,7 @@ public class SOCPROGExport extends HttpServlet{
                     }
                     
                       String cmrStatus="Resight";
-                      if(indy.getDateSortedEncounters(true)[0].getCatalogNumber().equals(enc.getCatalogNumber())){
+                      if(indy.getDateSortedEncounters(true)[0].getID().equals(enc.getID())){
                         cmrStatus = "New";
                       }
                       Label popLabel9a = new Label(6, count, cmrStatus);

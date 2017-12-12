@@ -61,7 +61,7 @@ for (Object o : allMA) {
 	Annotation ann = new Annotation(species, ma);
 	Encounter enc = new Encounter(ann);
 	myShepherd.getPM().makePersistent(enc);
-	out.println("<p>(" + count + ") " + ma + " -><br />" + ann + " -><br /><a target=\"_new\" href=\"obrowse.jsp?type=Encounter&id=" + enc.getCatalogNumber() + "\"><b>" + enc +"</a></b></p>");
+	out.println("<p>(" + count + ") " + ma + " -><br />" + ann + " -><br /><a target=\"_new\" href=\"obrowse.jsp?type=Encounter&id=" + enc.getID() + "\"><b>" + enc +"</a></b></p>");
 	System.out.println("mediaAssetsToEncounters created " + enc + " from " + ma);
 }
 

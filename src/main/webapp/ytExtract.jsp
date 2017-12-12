@@ -72,7 +72,7 @@ try{
 	if (createEncounter) {
 		Encounter enc = new Encounter(anns);
 		myShepherd.getPM().makePersistent(enc);
-		rtn.put("encounterId", enc.getCatalogNumber());
+		rtn.put("encounterId", enc.getID());
 	}
 	
 	rtn.put("success", true);

@@ -85,7 +85,7 @@ import org.datanucleus.api.rest.orgjson.JSONException;
  * @author Jason Holmberg
  * @version 2.0
  */
-public class Encounter extends FoundationalPropertiesBase {
+public class Encounter extends EventBase {
   static final long serialVersionUID = -146404246317385604L;
 
     public static final String STATE_MATCHING_ONLY = "matching_only";
@@ -103,7 +103,7 @@ public class Encounter extends FoundationalPropertiesBase {
   private Double maximumElevationInMeters;
   
   // This is the old ID for encounter. Base class has ID now.
-  //private String catalogNumber = "";
+  //private String ID = "";
   private String individualID;
   private int day = 0;
   private int month = -1;
@@ -117,9 +117,9 @@ public class Encounter extends FoundationalPropertiesBase {
   private String verbatimLocality;
   private String occurrenceRemarks = "";
   private String modified;
-  private String occurrenceID;
+  private String ID;
   private String recordedBy;
-  private String otherCatalogNumbers;
+  private String otherIDs;
   private String behavior;
   private String eventID;
   private String measurementUnit;
@@ -311,7 +311,7 @@ public class Encounter extends FoundationalPropertiesBase {
   // Variables used in the Survey, SurveyTrack, Path, Location model
   
   private String correspondingSurveyTrackID = null;
-  private String correspondingSurveyID = null;
+  private String correspondingID = null;
   
   
   // This is the eventual replacement for the old decimal lat lon and other location data.
@@ -1264,7 +1264,7 @@ System.out.println("creating new MediaAsset for key=" + key);
 //System.out.println("**** * ***** looking for spot file " + fullPath.toString());
         if (!fullPath.exists()) return null;  //note: this only technically matters if we are *creating* the MediaAsset
         if (parent == null) {
-            System.out.println("seems like we do not have a parent MediaAsset on enc " + this.getCatalogNumber() + ", so cannot add spot MediaAsset for " + fullPath.toString());
+            System.out.println("seems like we do not have a parent MediaAsset on enc " + this.getID() + ", so cannot add spot MediaAsset for " + fullPath.toString());
             return null;
         }
         AssetStore astore = AssetStore.getDefault(myShepherd);
@@ -1627,16 +1627,16 @@ System.out.println("did not find MediaAsset for params=" + sp + "; creating one?
     return null;
   }
   
-  public String getSurveyID() {
-    if (correspondingSurveyID != null && !correspondingSurveyID.equals("")) {
-      return correspondingSurveyID;
+  public String getID() {
+    if (correspondingID != null && !correspondingID.equals("")) {
+      return correspondingID;
     }  
     return null;
   }
   
-  public void setSurveyID(String id) {
+  public void setID(String id) {
     if (id != null && !id.equals("")) {
-      this.correspondingSurveyID = id;
+      this.correspondingID = id;
     }
   }
   
@@ -1687,14 +1687,14 @@ System.out.println("did not find MediaAsset for params=" + sp + "; creating one?
   }
 
   public void setAlternateID(String newID) {
-    this.otherCatalogNumbers = newID;
+    this.otherIDs = newID;
   }
 
   public String getAlternateID() {
-    if (otherCatalogNumbers == null) {
+    if (otherIDs == null) {
       return null;
     }
-    return otherCatalogNumbers;
+    return otherIDs;
   }
 
   public String getInformOthers() {
@@ -1734,11 +1734,11 @@ System.out.println("did not find MediaAsset for params=" + sp + "; creating one?
   }
 
 
-  public String getCatalogNumber() {
+  public String getID() {
     return super.ID;
   }
 
-  public void setCatalogNumber(String newNumber) {
+  public void setID(String newNumber) {
     super.ID = newNumber;
   }
 
@@ -1809,12 +1809,12 @@ the decimal one (Double) .. half tempted to break out a class for this: lat/lon/
     this.recordedBy = submitterName;
   }
 
-  public String getOtherCatalogNumbers() {
-    return otherCatalogNumbers;
+  public String getOtherIDs() {
+    return otherIDs;
   }
 
-  public void setOtherCatalogNumbers(String otherNums) {
-    this.otherCatalogNumbers = otherNums;
+  public void setOtherIDs(String otherNums) {
+    this.otherIDs = otherNums;
   }
 
   public String getLivingStatus() {
@@ -2492,7 +2492,7 @@ System.out.println(" cluster [" + (groupsMade) + "] -> " + newEnc);
         if (tmpAnns.size() > 0) {
             Encounter newEnc = __encForCollate(tmpAnns, parentRoot);
             newEnc.setDynamicProperty("frameSplitNumber", Integer.toString(groupsMade + 1));
-            //newEnc.setDynamicProperty("frameSplitSourceEncounter", this.getCatalogNumber());
+            //newEnc.setDynamicProperty("frameSplitSourceEncounter", this.getID());
             newEncs.add(newEnc);
 System.out.println(" (final)cluster [" + groupsMade + "] -> " + newEnc);
             groupsMade++;
@@ -2721,12 +2721,12 @@ System.out.println(" (final)cluster [" + groupsMade + "] -> " + newEnc);
       else{country=null;}
     }
 
-    public void setOccurrenceID(String vet) {
-      if(vet!=null){this.occurrenceID = vet;}
-      else{this.occurrenceID=null;}
+    public void setID(String vet) {
+      if(vet!=null){this.ID = vet;}
+      else{this.ID=null;}
   }
 
-    public String getOccurrenceID(){return occurrenceID;}
+    public String getID(){return ID;}
 
     public boolean hasSinglePhotoVideoByFileName(String filename){
         int numImages=images.size();
@@ -2754,8 +2754,8 @@ System.out.println(" (final)cluster [" + groupsMade + "] -> " + newEnc);
             String context="context0";
             context = ServletUtilities.getContext(request);
             Shepherd myShepherd = new Shepherd(context);
-            if ((myShepherd.getAllTissueSamplesForEncounter(this.getCatalogNumber())!=null) && (myShepherd.getAllTissueSamplesForEncounter(this.getCatalogNumber()).size()>0)) jobj.put("hasTissueSamples", true);
-            if ((myShepherd.getMeasurementsForEncounter(this.getCatalogNumber())!=null) && (myShepherd.getMeasurementsForEncounter(this.getCatalogNumber()).size()>0)) jobj.put("hasMeasurements", true);
+            if ((myShepherd.getAllTissueSamplesForEncounter(this.getID())!=null) && (myShepherd.getAllTissueSamplesForEncounter(this.getID()).size()>0)) jobj.put("hasTissueSamples", true);
+            if ((myShepherd.getMeasurementsForEncounter(this.getID())!=null) && (myShepherd.getMeasurementsForEncounter(this.getID()).size()>0)) jobj.put("hasMeasurements", true);
 */
 
             jobj.put("_imagesNote", ".images have been deprecated!  long live MediaAssets!  (see: .annotations)");
@@ -2811,7 +2811,7 @@ System.out.println(" (final)cluster [" + groupsMade + "] -> " + newEnc);
         }
 
         public String getUrl(HttpServletRequest request) {
-          return request.getScheme()+"://" + CommonConfiguration.getURLLocation(request) + "/encounters/encounter.jsp?number=" + this.getCatalogNumber();
+          return request.getScheme()+"://" + CommonConfiguration.getURLLocation(request) + "/encounters/encounter.jsp?number=" + this.getID();
         }
 
         /**
@@ -3094,7 +3094,7 @@ throw new Exception();
     //note this sets some things (e.g. species) which might (should!) need to be adjusted after, e.g. with setSpeciesFromAnnotations()
     public Encounter cloneWithoutAnnotations() {
         Encounter enc = new Encounter(this.day, this.month, this.year, this.hour, this.minutes, this.size_guess, this.verbatimLocality, this.recordedBy, this.submitterEmail, null);
-        enc.setCatalogNumber(Util.generateUUID());
+        enc.setID(Util.generateUUID());
         enc.setGenus(this.getGenus());
         enc.setSpecificEpithet(this.getSpecificEpithet());
         enc.setDecimalLatitude(this.getDecimalLatitudeAsDouble());
@@ -3132,7 +3132,7 @@ System.out.println(">>>>> detectedAnnotation() on " + this);
 
     public String toString() {
         return new ToStringBuilder(this)
-                .append("catalogNumber", ID)
+                .append("ID", ID)
                 .append("individualID", (hasMarkedIndividual() ? individualID : null))
                 .append("species", getTaxonomyString())
                 .append("sex", getSex())

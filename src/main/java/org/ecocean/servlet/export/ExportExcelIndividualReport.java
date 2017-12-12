@@ -92,7 +92,7 @@ public class ExportExcelIndividualReport extends HttpServlet{
         MarkedIndividual indiv = myShepherd.getMarkedIndividual(enc.getIndividualID());
 
         Occurrence occ = null;
-        if (enc.getOccurrenceID() != null) occ = myShepherd.getOccurrence(enc.getOccurrenceID());
+        if (enc.getID() != null) occ = myShepherd.getOccurrence(enc.getID());
 
         //this is the date of the encounter, to compute age at time of encounter
         Calendar encCal = null;
@@ -174,7 +174,7 @@ public class ExportExcelIndividualReport extends HttpServlet{
         }
 
         cols.add(new Label(14, sheetRow, enc.getImageOriginalName()));
-        cols.add(new Label(15, sheetRow, enc.getCatalogNumber()));
+        cols.add(new Label(15, sheetRow, enc.getID()));
 
         for (Label l : cols) {
             try {

@@ -145,7 +145,7 @@ public class Shepherd {
   }
 
   public String storeNewAnnotation(Annotation enc) {
-    //enc.setOccurrenceID(uniqueID);
+    //enc.setID(uniqueID);
     beginDBTransaction();
     try {
       pm.makePersistent(enc);
@@ -178,7 +178,7 @@ public class Shepherd {
 
 
   public void storeNewOccurrence(Occurrence enc) {
-      //enc.setOccurrenceID(uniqueID);
+      //enc.setID(uniqueID);
       beginDBTransaction();
       try {
         pm.makePersistent(enc);
@@ -1896,7 +1896,7 @@ public class Shepherd {
   
   public Occurrence getOccurrenceForSurvey(Survey svy) {
     String svyID = svy.getID();
-    String filter="SELECT FROM org.ecocean.Occurrence WHERE correspondingSurveyID == \""+svyID+"\"";
+    String filter="SELECT FROM org.ecocean.Occurrence WHERE correspondingID == \""+svyID+"\"";
     Query q = getPM().newQuery(filter);
     Collection c = (Collection) (q.execute());
     Iterator obArr = c.iterator();
@@ -2024,8 +2024,8 @@ public class Shepherd {
       int numEncounters = indy.getEncounters().size();
       for (int i = 0; i < numEncounters; i++) {
         Encounter enc = (Encounter) indy.getEncounters().get(i);
-        if(getAllTissueSamplesForEncounter(enc.getCatalogNumber())!=null){
-          List<TissueSample> list = getAllTissueSamplesForEncounter(enc.getCatalogNumber());
+        if(getAllTissueSamplesForEncounter(enc.getID())!=null){
+          List<TissueSample> list = getAllTissueSamplesForEncounter(enc.getID());
           if(list.size()>0){
             al.addAll(list);
           }
@@ -3136,13 +3136,13 @@ public class Shepherd {
     //while (it.hasNext()) {
     while((count<=endNum)&&(encIter<numEncs)){
 
-      String nextCatalogNumber=encList.get(encIter);
-      int numImages=getNumAnnotationsForEncounter(nextCatalogNumber);
+      String nextID=encList.get(encIter);
+      int numImages=getNumAnnotationsForEncounter(nextID);
 
 
       if ((count + numImages) >= startNum) {
-    	  Encounter enc = myShepherd.getEncounter(nextCatalogNumber);
-    	  List<SinglePhotoVideo> images=getAllSinglePhotoVideosForEncounter(enc.getCatalogNumber());
+    	  Encounter enc = myShepherd.getEncounter(nextID);
+    	  List<SinglePhotoVideo> images=getAllSinglePhotoVideosForEncounter(enc.getID());
         for (int i = 0; i < images.size(); i++) {
           count++;
           if ((count <= endNum) && (count >= startNum)) {
@@ -3164,7 +3164,7 @@ public class Shepherd {
                   if ((images.get(i).getKeywords()!=null)&&images.get(i).getKeywords().contains(word)) {
 
 
-                  //if (word.isMemberOf(enc.getCatalogNumber() + "/" + imageName)) {
+                  //if (word.isMemberOf(enc.getID() + "/" + imageName)) {
 
                     hasKeyword = true;
                     //System.out.println("member of: "+word.getReadableName());
@@ -3218,7 +3218,7 @@ public class Shepherd {
       Iterator allEncs = markie.getEncounters().iterator();
       while (allEncs.hasNext()&&!stopMe) {
         Encounter enc = (Encounter) allEncs.next();
-        List<SinglePhotoVideo> images=getAllSinglePhotoVideosForEncounter(enc.getCatalogNumber());
+        List<SinglePhotoVideo> images=getAllSinglePhotoVideosForEncounter(enc.getID());
 
         if ((count + images.size()) >= startNum) {
           for (int i = 0; i < images.size(); i++) {
@@ -3243,7 +3243,7 @@ public class Shepherd {
                     if ((images.get(i).getKeywords()!=null)&&images.get(i).getKeywords().contains(word)) {
 
 
-                    //if (word.isMemberOf(enc.getCatalogNumber() + "/" + imageName)) {
+                    //if (word.isMemberOf(enc.getID() + "/" + imageName)) {
 
                       hasKeyword = true;
                       //System.out.println("member of: "+word.getReadableName());
@@ -3314,7 +3314,7 @@ public class Shepherd {
             if (!keywords[n].equals("None")) {
               Keyword word = getKeyword(keywords[n]);
 
-              //if (word.isMemberOf(enc.getCatalogNumber() + "/" + imageName)) {
+              //if (word.isMemberOf(enc.getID() + "/" + imageName)) {
               if(enc.hasKeyword(word)){
                 hasKeyword = true;
                 //System.out.println("member of: "+word.getReadableName());
@@ -3368,7 +3368,7 @@ public class Shepherd {
             for (int n = 0; n < numKeywords; n++) {
               if (!keywords[n].equals("None")) {
                 Keyword word = getKeyword(keywords[n]);
-                //if (word.isMemberOf(enc.getCatalogNumber() + "/" + imageName)) {
+                //if (word.isMemberOf(enc.getID() + "/" + imageName)) {
                 if(enc.hasKeyword(word)){
                   hasKeyword = true;
                   //System.out.println("member of: "+word.getReadableName());
@@ -3488,7 +3488,7 @@ public class Shepherd {
   }
 
   public List<Encounter> getEncountersByAlternateID(String altID) {
-    String filter = "this.otherCatalogNumbers.toLowerCase() == \"" + altID.toLowerCase() + "\"";
+    String filter = "this.otherIDs.toLowerCase() == \"" + altID.toLowerCase() + "\"";
     Extent encClass = pm.getExtent(Encounter.class, true);
     Query acceptedEncounters = pm.newQuery(encClass, filter);
     Collection c = (Collection) (acceptedEncounters.execute());
@@ -3842,9 +3842,9 @@ public class Shepherd {
   public int getNumCooccurrencesBetweenTwoMarkedIndividual(String individualID1,String individualID2){
     int numCooccur=0;
 
-    ArrayList<String> occurenceIDs1=getOccurrenceIDsForMarkedIndividual(individualID1);
+    ArrayList<String> occurenceIDs1=getIDsForMarkedIndividual(individualID1);
     //System.out.println("zzzOccurrences for indie "+individualID1+": "+occurenceIDs1.toString());
-    List<String> occurenceIDs2=getOccurrenceIDsForMarkedIndividual(individualID2);
+    List<String> occurenceIDs2=getIDsForMarkedIndividual(individualID2);
     //System.out.println("zzzOccurrences for indie "+individualID2+": "+occurenceIDs2.toString());
 
     int numOccurenceIDs1=occurenceIDs1.size();
@@ -3861,8 +3861,8 @@ public class Shepherd {
     return numCooccur;
   }
 
-  public ArrayList<String> getOccurrenceIDsForMarkedIndividual(String individualID){
-    ArrayList<String> occurrenceIDs=new ArrayList<String>();
+  public ArrayList<String> getIDsForMarkedIndividual(String individualID){
+    ArrayList<String> IDs=new ArrayList<String>();
 
    String filter="SELECT distinct ID FROM org.ecocean.Occurrence WHERE encounters.contains(enc) && enc.individualID == \""+individualID+"\"  VARIABLES org.ecocean.Encounter enc";
 
@@ -3873,10 +3873,10 @@ public class Shepherd {
     q.closeAll();
     int numResults=al.size();
     for(int i=0;i<numResults;i++) {
-      occurrenceIDs.add((String)al.get(i));
+      IDs.add((String)al.get(i));
     }
-    //System.out.println("zzzOccurrences for "+individualID+": "+occurrenceIDs.toString());
-    return occurrenceIDs;
+    //System.out.println("zzzOccurrences for "+individualID+": "+IDs.toString());
+    return IDs;
 
   }
 

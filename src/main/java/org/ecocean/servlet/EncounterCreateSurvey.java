@@ -69,15 +69,15 @@ public class EncounterCreateSurvey extends HttpServlet {
     
     response.setContentType("text/html");
     PrintWriter out = response.getWriter();
-    String surveyID = null;
+    String ID = null;
 
     
     Encounter enc = null;
     Survey svy = null;
     SurveyTrack st = null;
     
-    if (request.getParameter("surveyID") != null) {
-      surveyID = ServletUtilities.cleanFileName(request.getParameter("surveyID"));              
+    if (request.getParameter("ID") != null) {
+      ID = ServletUtilities.cleanFileName(request.getParameter("ID"));              
     }
     
     if(request.getParameter("number") != null){
@@ -94,12 +94,12 @@ public class EncounterCreateSurvey extends HttpServlet {
       }
     }
     
-    if (!myShepherd.isSurvey(surveyID) && surveyID != null && enc.getSurveyID() == null) {
+    if (!myShepherd.isSurvey(ID) && ID != null && enc.getID() == null) {
       setDateLastModified(enc);
       try {
         svy = new Survey(enc.getDate());
-        if (surveyID != null) {
-          svy.setID(surveyID);       
+        if (ID != null) {
+          svy.setID(ID);       
         }
         myShepherd.beginDBTransaction();
         myShepherd.storeNewSurvey(svy);
@@ -108,7 +108,7 @@ public class EncounterCreateSurvey extends HttpServlet {
         myShepherd.rollbackDBTransaction();
         myShepherd.closeDBTransaction();
         e.printStackTrace();
-        out.println("Failed to create new Survey from ID : "+surveyID+". The survey could not be saved.");
+        out.println("Failed to create new Survey from ID : "+ID+". The survey could not be saved.");
       }
       
       try {
@@ -121,7 +121,7 @@ public class EncounterCreateSurvey extends HttpServlet {
         myShepherd.rollbackDBTransaction();
         myShepherd.closeDBTransaction();
         e.printStackTrace();
-        out.println("Failed to create new SurveyTrack from Survey ID : "+surveyID+". The SurveyTrack could not be saved." );
+        out.println("Failed to create new SurveyTrack from Survey ID : "+ID+". The SurveyTrack could not be saved." );
       }
       
     } else {

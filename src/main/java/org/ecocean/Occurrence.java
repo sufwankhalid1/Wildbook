@@ -31,7 +31,7 @@ import org.datanucleus.api.rest.orgjson.JSONException;
  * @author Jason Holmberg
  *
  */
-public class Occurrence extends FoundationalPropertiesBase {
+public class Occurrence extends EventBase {
 
 
 
@@ -43,7 +43,7 @@ public class Occurrence extends FoundationalPropertiesBase {
   private List<MediaAsset> assets;
   
   // Old ID. Getters and setters now use ID from base class.
-  //private String occurrenceID;
+  //private String ID;
   private Integer individualCount;
   private String groupBehavior;
   //additional comments added by researchers
@@ -55,7 +55,7 @@ public class Occurrence extends FoundationalPropertiesBase {
   // Variables used in the Survey, SurveyTrack, Path, Location model
   
   private String correspondingSurveyTrackID;
-  private String correspondingSurveyID;
+  private String correspondingID;
   //social media registration fields for AI-created occurrences
   private String socialMediaSourceID;
   private String socialMediaQueryCommentID;
@@ -120,8 +120,8 @@ public class Occurrence extends FoundationalPropertiesBase {
    * @param ID A unique identifier for this occurrence that will become its primary key in the database.
    * @param enc The first encounter to add to this occurrence.
    */
-  public Occurrence(String occurrenceID, Encounter enc){
-    super.ID=occurrenceID;
+  public Occurrence(String ID, Encounter enc){
+    super.ID=ID;
     encounters=new ArrayList<Encounter>();
     encounters.add(enc);
     assets = new ArrayList<MediaAsset>();
@@ -268,11 +268,11 @@ public class Occurrence extends FoundationalPropertiesBase {
     return names;
   }
 
-    public void setOccurrenceID(String id) {
+    public void setID(String id) {
         super.ID = id;
     }
 
-  public String getOccurrenceID(){
+  public String getID(){
     return super.ID;
   }
 
@@ -684,24 +684,24 @@ public class Occurrence extends FoundationalPropertiesBase {
     return null;
   }
   
-  public void setCorrespondingSurveyID(String id) {
+  public void setCorrespondingID(String id) {
     if (id != null && !id.equals("")) {
-      correspondingSurveyID = id;
+      correspondingID = id;
     }
   }
   
-  public String getCorrespondingSurveyID() {
-    if (correspondingSurveyID != null) {
-      return correspondingSurveyID;
+  public String getCorrespondingID() {
+    if (correspondingID != null) {
+      return correspondingID;
     }
     return null;
   }
   
   public Survey getSurvey(Shepherd myShepherd) {
     Survey sv = null;
-    if (correspondingSurveyID!=null) {
+    if (correspondingID!=null) {
       try {
-        sv = myShepherd.getSurvey(correspondingSurveyID);
+        sv = myShepherd.getSurvey(correspondingID);
         return sv;
       } catch (Exception e) {
         e.printStackTrace();
@@ -709,10 +709,10 @@ public class Occurrence extends FoundationalPropertiesBase {
     } else {
       try {
         for (Encounter enc : encounters) {
-          if (enc.getSurveyID()!=null) {
-            if (enc.getSurveyID().length()>1) {
-              correspondingSurveyID = enc.getSurveyID();
-              sv = myShepherd.getSurvey(enc.getSurveyID());
+          if (enc.getID()!=null) {
+            if (enc.getID().length()>1) {
+              correspondingID = enc.getID();
+              sv = myShepherd.getSurvey(enc.getID());
               return sv;
             }
           }
@@ -794,7 +794,7 @@ public class Occurrence extends FoundationalPropertiesBase {
 
     JSONObject encounterInfo = new JSONObject();
     for (Encounter enc : this.encounters) {
-      encounterInfo.put(enc.getCatalogNumber(), new JSONObject("{url: "+enc.getUrl(request)+"}"));
+      encounterInfo.put(enc.getID(), new JSONObject("{url: "+enc.getUrl(request)+"}"));
     }
     jobj.put("encounters", encounterInfo);
     jobj.put("assets", this.assets);
@@ -811,7 +811,7 @@ public class Occurrence extends FoundationalPropertiesBase {
         }
 
   public org.datanucleus.api.rest.orgjson.JSONObject sanitizeJson(HttpServletRequest request, org.datanucleus.api.rest.orgjson.JSONObject jobj, boolean fullAccess) throws org.datanucleus.api.rest.orgjson.JSONException {
-    jobj.put("occurrenceID", this.occurrenceID);
+    jobj.put("ID", this.ID);
     jobj.put("encounters", this.encounters);
     if ((this.getEncounters() != null) && (this.getEncounters().size() > 0)) {
         JSONArray jarr = new JSONArray();
@@ -819,7 +819,7 @@ public class Occurrence extends FoundationalPropertiesBase {
         //but for *now* (see note way above) this is all we need for gallery/image display js:
         for (Encounter enc : this.getEncounters()) {
             JSONObject je = new JSONObject();
-            je.put("id", enc.getCatalogNumber());
+            je.put("id", enc.getID());
             if (enc.hasMarkedIndividual()) je.put("individualID", enc.getIndividualID());
             if ((enc.getAnnotations() != null) && (enc.getAnnotations().size() > 0)) {
                 JSONArray ja = new JSONArray();

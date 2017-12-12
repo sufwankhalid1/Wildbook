@@ -418,7 +418,7 @@ public class ImportLegacyBento extends HttpServlet {
       String[] rowString = rows.next();
       occ = processSightingsRow(columnNameArr,rowString, myShepherd);
       myShepherd.beginDBTransaction();        
-      out.println("Occurrence returned to processSightings method :"+occ.getOccurrenceID());
+      out.println("Occurrence returned to processSightings method :"+occ.getID());
       try {
         out.println("Next occ to save: "+occ.toString()+" Total number: "+totalRows);
         myShepherd.getPM().makePersistent(occ);
@@ -470,7 +470,7 @@ public class ImportLegacyBento extends HttpServlet {
       } 
     }
     processRemainingColumnsAsObservations(occ, obsColumns);        
-    out.println(occ.getOccurrenceID());
+    out.println(occ.getID());
     
     return occ;
   }
@@ -479,7 +479,7 @@ public class ImportLegacyBento extends HttpServlet {
     Occurrence occ = null;
     Encounter enc = null;
     occ = new Occurrence();
-    occ.setOccurrenceID(Util.generateUUID());
+    occ.setID(Util.generateUUID());
     occ.setDWCDateLastModified();
     myShepherd.beginDBTransaction();
     myShepherd.getPM().makePersistent(occ);

@@ -66,13 +66,13 @@ public class OccurrenceRemoveEncounter extends HttpServlet {
       myShepherd.beginDBTransaction();
       Encounter enc2remove = myShepherd.getEncounter(request.getParameter("number"));
       setDateLastModified(enc2remove);
-      if (myShepherd.getOccurrenceForEncounter(enc2remove.getCatalogNumber())!=null) {
-        String old_name = myShepherd.getOccurrenceForEncounter(enc2remove.getCatalogNumber()).getOccurrenceID();
+      if (myShepherd.getOccurrenceForEncounter(enc2remove.getID())!=null) {
+        String old_name = myShepherd.getOccurrenceForEncounter(enc2remove.getID()).getID();
         boolean wasRemoved = false;
         String name_s = "";
         try {
-          Occurrence removeFromMe = myShepherd.getOccurrenceForEncounter(enc2remove.getCatalogNumber());
-          name_s = removeFromMe.getOccurrenceID();
+          Occurrence removeFromMe = myShepherd.getOccurrenceForEncounter(enc2remove.getID());
+          name_s = removeFromMe.getID();
           while (removeFromMe.getEncounters().contains(enc2remove)) {
             removeFromMe.removeEncounter(enc2remove);
           }
@@ -80,7 +80,7 @@ public class OccurrenceRemoveEncounter extends HttpServlet {
 
           enc2remove.addComments("<p><em>" + request.getRemoteUser() + " on " + (new java.util.Date()).toString() + "</em><br>" + "Removed from occurrence " + old_name + ".</p>");
           removeFromMe.addComments("<p><em>" + request.getRemoteUser() + " on " + (new java.util.Date()).toString() + "</em><br>" + "Removed encounter " + request.getParameter("number") + ".</p>");
-          enc2remove.setOccurrenceID(null);
+          enc2remove.setID(null);
           
           if (removeFromMe.getEncounters().size() == 0) {
             myShepherd.throwAwayOccurrence(removeFromMe);

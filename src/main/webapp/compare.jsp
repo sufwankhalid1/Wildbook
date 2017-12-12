@@ -53,7 +53,7 @@ myShepherd.setAction("compare.jsp");
 		MediaAsset ma = enc.getAnnotations().get(0).getMediaAsset();
 		if (ma == null) continue;
 		JSONObject j = new JSONObject();
-		j.put("encId", enc.getCatalogNumber());
+		j.put("encId", enc.getID());
 		j.put("individualId", enc.getIndividualID());
 		j.put("asset", Util.toggleJSONObject(ma.sanitizeJson(request, new org.datanucleus.api.rest.orgjson.JSONObject())));
 		jall.put(j);

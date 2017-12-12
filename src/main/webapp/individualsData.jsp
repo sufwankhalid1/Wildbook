@@ -151,13 +151,13 @@ if(sharky.getAlternateID()!=null){
 	if ((enc.getMedia()!=null) && (enc.getMedia().size()>0)) henc.put("hasImages", true);
    	if ((enc.getTissueSamples()!=null) && (enc.getTissueSamples().size()>0)) henc.put("hasTissueSamples", true);
    	if (enc.hasMeasurements()) henc.put("hasMeasurements", true);
-	henc.put("catalogNumber", enc.getEncounterNumber());
+	henc.put("ID", enc.getEncounterNumber());
  	henc.put("alternateID", enc.getAlternateID());
 	henc.put("sex", enc.getSex());
 
 	ArrayList<String> occ = new ArrayList<String>();
-    if(myShepherd.getOccurrenceForEncounter(enc.getCatalogNumber())!=null){
-    	Occurrence thisOccur=myShepherd.getOccurrenceForEncounter(enc.getCatalogNumber());
+    if(myShepherd.getOccurrenceForEncounter(enc.getID())!=null){
+    	Occurrence thisOccur=myShepherd.getOccurrenceForEncounter(enc.getID());
     	ArrayList<String> otherOccurs=thisOccur.getMarkedIndividualNamesForThisOccurrence();
     	if(otherOccurs!=null){
     		int numOtherOccurs=otherOccurs.size();

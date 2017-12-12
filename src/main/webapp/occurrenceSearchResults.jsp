@@ -272,9 +272,9 @@ var colDefn = [
     value: _notUndefined('dateTimeCreated'),
   },
   {
-	    key: 'correspondingSurveyID',
+	    key: 'correspondingID',
 	    label: 'Corresponding Survey',
-	    value: _notUndefined('correspondingSurveyID'),
+	    value: _notUndefined('correspondingID'),
   }, 	
   {
 	key: 'numberEncounters',

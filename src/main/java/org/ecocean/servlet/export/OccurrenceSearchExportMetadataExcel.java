@@ -105,7 +105,7 @@ public class OccurrenceSearchExportMetadataExcel extends HttpServlet{
         WritableSheet sheet = workbookOBIS.createSheet("Search Results", 0);
 
         String[] colHeaders = new String[]{
-          "occurrenceID",
+          "ID",
           "dateTime",
           "groupSize",
           "individualCount",
@@ -143,7 +143,7 @@ public class OccurrenceSearchExportMetadataExcel extends HttpServlet{
 
             List<Label> rowLabels = new ArrayList<Label>();
 
-            rowLabels.add(new Label(0, count, enc.getOccurrenceID()));
+            rowLabels.add(new Label(0, count, enc.getID()));
             rowLabels.add(new Label(1, count, cleanToString(enc.getDateTime())));
             rowLabels.add(new Label(2, count, cleanToString(enc.getGroupSize())));
             rowLabels.add(new Label(3, count, cleanToString(enc.getIndividualCount())));

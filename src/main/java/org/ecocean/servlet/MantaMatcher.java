@@ -213,7 +213,7 @@ public final class MantaMatcher extends DispatchServlet {
           }
           catch (Exception ex) {
             failed++;
-            log.warn("Failed to set MMA-compatible flag for encounter: " + enc.getCatalogNumber(), ex);
+            log.warn("Failed to set MMA-compatible flag for encounter: " + enc.getID(), ex);
           }
         }
       }
@@ -276,17 +276,17 @@ public final class MantaMatcher extends DispatchServlet {
         File[] fileList = dir.listFiles(ff1);
         if (fileList != null) {
           for (File f : Arrays.asList(fileList))
-            files.put(f, enc.getCatalogNumber());
+            files.put(f, enc.getID());
         }
         fileList = dir.listFiles(ff2);
         if (fileList != null) {
           for (File f : Arrays.asList(fileList))
-            files.put(f, enc.getCatalogNumber());
+            files.put(f, enc.getID());
         }
         fileList = dir.listFiles(ff3);
         if (fileList != null) {
           for (File f : Arrays.asList(fileList))
-            files.put(f, enc.getCatalogNumber());
+            files.put(f, enc.getID());
         }
 
         // Remove matcher files relating to existing SPVs.

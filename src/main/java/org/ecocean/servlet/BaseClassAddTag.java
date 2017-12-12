@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.ecocean.CommonConfiguration;
 import org.ecocean.Encounter;
-import org.ecocean.FoundationalPropertiesBase;
+import org.ecocean.EventBase;
 import org.ecocean.Measurement;
 import org.ecocean.Occurrence;
 import org.ecocean.Shepherd;
@@ -45,7 +45,7 @@ public class BaseClassAddTag extends HttpServlet {
     String parentType = request.getParameter("parentType");
     objectID=request.getParameter("number");
     
-    FoundationalPropertiesBase target = null;
+    EventBase target = null;
     myShepherd.beginDBTransaction();
     if (parentType==null||parentType.equals("Encounter")) {
       target = (Encounter) target;

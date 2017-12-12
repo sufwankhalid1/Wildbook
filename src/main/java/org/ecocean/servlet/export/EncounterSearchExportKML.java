@@ -139,7 +139,7 @@ public class EncounterSearchExportKML extends HttpServlet{
                   descHTML += "<p> <strong>Size:</strong> " + enc.getSize() + " meters</p>";
                 }
               }
-              catch(Exception npe){npe.printStackTrace();System.out.println("NPE on size for encounter: "+enc.getCatalogNumber());}
+              catch(Exception npe){npe.printStackTrace();System.out.println("NPE on size for encounter: "+enc.getID());}
             
               if(enc.getSex()!=null){
                 descHTML += "<p> <strong>Sex:</strong> " + enc.getSex() + "</p>";

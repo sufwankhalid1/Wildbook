@@ -240,7 +240,7 @@ public class AccessImport extends HttpServlet {
         out.println("!!!!!!!!!!!!!! Could not get next Row in DUML table...");
       }
       //Might as well give it an ID here.
-      newEnc.setCatalogNumber(Util.generateUUID());
+      newEnc.setID(Util.generateUUID());
       newEnc.setDWCDateAdded();
       newEnc.setDWCDateLastModified();
       newEnc.setState("approved");
@@ -545,7 +545,7 @@ public class AccessImport extends HttpServlet {
        if (thisRow.getDouble("BEAUSCALE") != null) {
          bs = thisRow.getDouble("BEAUSCALE");
          if (bs < 9.0 && bs != null) {
-           bsm = new Measurement(newEnc.getCatalogNumber(),"BEAUSCALE",bs,"","");
+           bsm = new Measurement(newEnc.getID(),"BEAUSCALE",bs,"","");
            bsm.setDatasetName("BEAUSCALE");
            bsm.setEventStartDate(newEnc.getDate());
            myShepherd.getPM().makePersistent(bsm);
@@ -567,7 +567,7 @@ public class AccessImport extends HttpServlet {
        if (thisRow.getDouble("SALINITY") != null) {
          sl = thisRow.getDouble("SALINITY");
          if (sl < 9.99 && sl != null) {
-           slm = new Measurement(newEnc.getCatalogNumber(),"SALINITY",sl,"","");
+           slm = new Measurement(newEnc.getID(),"SALINITY",sl,"","");
            slm.setDatasetName("SALINITY");
            slm.setEventStartDate(newEnc.getDate());
            myShepherd.getPM().makePersistent(slm);
@@ -589,7 +589,7 @@ public class AccessImport extends HttpServlet {
         if (thisRow.get("WATERTEMP") != null) {
           wt = Double.valueOf(thisRow.get("WATERTEMP").toString());   
           if (wt < 99.9 && wt != null) {
-            wtm = new Measurement(newEnc.getCatalogNumber(),"WATERTEMP",wt,"C","");
+            wtm = new Measurement(newEnc.getID(),"WATERTEMP",wt,"C","");
             wtm.setDatasetName("WATERTEMP");
             wtm.setEventStartDate(newEnc.getDate());
             //out.println("---------------- WATERTEMP TEST STRING: "+wt.toString());
@@ -626,7 +626,7 @@ public class AccessImport extends HttpServlet {
         while (duplicateEncs.size() < duplicates ) {
           Encounter dup = (Encounter) deepCopy(newEnc);
           //out.println("Copy Location : "+dup.getLocation());
-          dup.setCatalogNumber(Util.generateUUID());
+          dup.setID(Util.generateUUID());
           duplicateEncs.add(dup);
         }
         
@@ -647,7 +647,7 @@ public class AccessImport extends HttpServlet {
               myShepherd.beginDBTransaction();
               newEncs += 1;
             } catch (Exception e) {
-              out.println("Failed to store new Encounter with catalog number : "+dups.getCatalogNumber());
+              out.println("Failed to store new Encounter with catalog number : "+dups.getID());
               e.printStackTrace();
             }        
           }          
@@ -659,7 +659,7 @@ public class AccessImport extends HttpServlet {
             
             setGpsData(occ);
             
-            duplicateEncs.get(0).setOccurrenceID(occ.getOccurrenceID());
+            duplicateEncs.get(0).setID(occ.getID());
             myShepherd.commitDBTransaction();
             myShepherd.beginDBTransaction();
             newOccs +=1;
@@ -672,7 +672,7 @@ public class AccessImport extends HttpServlet {
         if (duplicateEncs.size() > 1) {
           for (int dups=1;dups<duplicateEncs.size();dups++) {
             occ.addEncounter(duplicateEncs.get(dups));
-            duplicateEncs.get(dups).setOccurrenceID(occ.getOccurrenceID());
+            duplicateEncs.get(dups).setID(occ.getID());
             myShepherd.commitDBTransaction();
             myShepherd.beginDBTransaction();
           }
@@ -954,7 +954,7 @@ public class AccessImport extends HttpServlet {
               simpleLoc = locOb.getValue();
             }
             String occProj = enc.getSubmitterProject();
-            Occurrence parentOcc = myShepherd.getOccurrence(enc.getOccurrenceID());
+            Occurrence parentOcc = myShepherd.getOccurrence(enc.getID());
             ArrayList<Occurrence> currentOccs = st.getAllOccurrences();
             if (currentOccs!=null&&currentOccs.contains(parentOcc)) {
               continue;
@@ -1005,7 +1005,7 @@ public class AccessImport extends HttpServlet {
             failArray.add("\nUnmatched row #"+i+" Date : "+date+", Survey Area : "+surveyArea+", Project : "+project);
             ArrayList<String> occIds = new ArrayList<String>(); 
             for (Encounter enc :encsOnThisDate) {
-              String id = myShepherd.getOccurrence(enc.getOccurrenceID()).getOccurrenceID();
+              String id = myShepherd.getOccurrence(enc.getID()).getID();
               if (!occIds.contains(id)) {
                 occIds.add(id);
               }
@@ -1073,11 +1073,11 @@ public class AccessImport extends HttpServlet {
   }
   
   private void addSurveyAndTrackIDToOccurrence(Encounter enc, Survey sv, SurveyTrack st, Shepherd myShepherd) {
-    //System.out.println("Enc No : "+enc.getCatalogNumber());
-    if (enc.getOccurrenceID()!=null) {
-      Occurrence occ = myShepherd.getOccurrence(enc.getOccurrenceID());
-      //System.out.println("OCC ID : "+occ.getOccurrenceID());
-      occ.setCorrespondingSurveyID(sv.getID());
+    //System.out.println("Enc No : "+enc.getID());
+    if (enc.getID()!=null) {
+      Occurrence occ = myShepherd.getOccurrence(enc.getID());
+      //System.out.println("OCC ID : "+occ.getID());
+      occ.setCorrespondingID(sv.getID());
       occ.setCorrespondingSurveyTrackID(st.getID());
       //System.out.println("SV ID, ST ID : "+sv.getID()+", "+st.getID());
       double lat = -999;
@@ -1306,7 +1306,7 @@ public class AccessImport extends HttpServlet {
           out.println("Iterating through array of "+encArr.size()+" encounters to find a  match...");
           for (Encounter enc : encArr) {
             if (enc.getSightNo().equals(sightNo)) {
-              occ = myShepherd.getOccurrence(enc.getOccurrenceID());
+              occ = myShepherd.getOccurrence(enc.getID());
               //thisEnc = enc;
               out.println("------ MATCH! "+sightNo+" = "+enc.getSightNo()+" Breaking the loop. ------");
               break;
@@ -1348,7 +1348,7 @@ public class AccessImport extends HttpServlet {
     try {
       if (occ != null) { 
         try {
-          ts = new TissueSample(occ.getOccurrenceID(), Util.generateUUID() );
+          ts = new TissueSample(occ.getID(), Util.generateUUID() );
           // And load it up.
           try {
             if (!myShepherd.getPM().currentTransaction().isActive()) {
@@ -1634,7 +1634,7 @@ public class AccessImport extends HttpServlet {
           if (simpleLocationsDUML.containsKey(location)) {
             hits += 1;
             String value = simpleLocationsDUML.get(location);
-            Observation simpleLoc = new Observation("simpleLocation",value,"Encounter", enc.getCatalogNumber());
+            Observation simpleLoc = new Observation("simpleLocation",value,"Encounter", enc.getID());
             myShepherd.beginDBTransaction();
             myShepherd.getPM().makePersistent(simpleLoc);
             myShepherd.commitDBTransaction();

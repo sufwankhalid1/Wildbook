@@ -60,15 +60,15 @@ public class OccurrenceSetSurveyAndTrack extends HttpServlet {
     PrintWriter out = response.getWriter();
     boolean locked = false;
     String occID = null;
-    String surveyID = null;
+    String ID = null;
     String surveyTrackID = null;
     
     try {
       if (request.getParameter("occID")!=null) {
         occID = request.getParameter("occID");        
       }
-      if (request.getParameter("surveyID")!=null) {
-        surveyID = request.getParameter("surveyID"); 
+      if (request.getParameter("ID")!=null) {
+        ID = request.getParameter("ID"); 
       }
       if (request.getParameter("surveyTrackID")!=null) {
         surveyTrackID = request.getParameter("surveyTrackID"); 
@@ -78,14 +78,14 @@ public class OccurrenceSetSurveyAndTrack extends HttpServlet {
       System.out.println("Error grabbing parameters for change in Survey or ID for this Occurrence.");
     }
     
-    System.out.println("Hit survey association servlet! OccID: "+occID+" surveyID: "+surveyID+" surveyTrackID: "+surveyTrackID);
+    System.out.println("Hit survey association servlet! OccID: "+occID+" ID: "+ID+" surveyTrackID: "+surveyTrackID);
     
     myShepherd.beginDBTransaction();
-    if ((occID!=null&&myShepherd.isOccurrence(occID))&&((surveyID!=null&&myShepherd.isSurvey(surveyID))||surveyTrackID!=null&&myShepherd.isSurveyTrack(surveyTrackID))) {
+    if ((occID!=null&&myShepherd.isOccurrence(occID))&&((ID!=null&&myShepherd.isSurvey(ID))||surveyTrackID!=null&&myShepherd.isSurveyTrack(surveyTrackID))) {
       Occurrence thisOcc = myShepherd.getOccurrence(occID);
       Survey sv = null;
-      if (surveyID!=null&&myShepherd.isSurvey(surveyID)) {
-        sv = myShepherd.getSurvey(surveyID);        
+      if (ID!=null&&myShepherd.isSurvey(ID)) {
+        sv = myShepherd.getSurvey(ID);        
       }
        
       if (surveyTrackID!=null&&myShepherd.isSurveyTrack(surveyTrackID)) {
@@ -102,7 +102,7 @@ public class OccurrenceSetSurveyAndTrack extends HttpServlet {
       }
       if (sv!=null) {
         try {
-          thisOcc.setCorrespondingSurveyID(surveyID);
+          thisOcc.setCorrespondingID(ID);
         } catch (Exception le) {
           locked = true;
           myShepherd.rollbackDBTransaction();
@@ -116,7 +116,7 @@ public class OccurrenceSetSurveyAndTrack extends HttpServlet {
               if (enc.getMedia()!=null) {
                 ArrayList<MediaAsset> assets = enc.getMedia();
                 for (MediaAsset asset : assets) {
-                  asset.setCorrespondingSurveyID(surveyID);
+                  asset.setCorrespondingID(ID);
                   asset.setCorrespondingSurveyTrackID(surveyTrackID);
                 }
               }
@@ -129,13 +129,13 @@ public class OccurrenceSetSurveyAndTrack extends HttpServlet {
       if (!locked) {
         myShepherd.commitDBTransaction();
         myShepherd.closeDBTransaction();
-        out.println("The Survey/Track ID's for occurrence are now Survey: " + surveyID + " and Track: "+ surveyTrackID);
+        out.println("The Survey/Track ID's for occurrence are now Survey: " + ID + " and Track: "+ surveyTrackID);
         response.setStatus(HttpServletResponse.SC_OK);
       } 
     } else {
       myShepherd.rollbackDBTransaction();
       out.println("<strong>Error:</strong> The survey specified does not exist.");
-      System.out.println("Occ ID : "+occID+" SurveyID : "+surveyID+" SurveyTrackID : "+surveyTrackID);
+      System.out.println("Occ ID : "+occID+" ID : "+ID+" SurveyTrackID : "+surveyTrackID);
       response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
     }
     out.close();

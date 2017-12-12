@@ -218,7 +218,7 @@
 <%      if (indUrl != null && !encIsAssigned) { %>
           <tr><td colspan="2">
             <form action="../IndividualAddEncounter" method="post">
-              <input type="hidden" name="number" value="<% out.print(enc.getCatalogNumber()); %>"/>
+              <input type="hidden" name="number" value="<% out.print(enc.getID()); %>"/>
               <input type="hidden" name="individual" value="<% out.print(encMatch.getIndividualID()); %>"/>
               <input type="hidden" name="matchType" value="Pattern match"/>
               <input type="submit" name="submit" value="<% out.print(MessageFormat.format(bundle.getProperty("assign"), encMatch.getIndividualID())); %>" title="<% out.print(bundle.getProperty("assign.title")); %>"/>

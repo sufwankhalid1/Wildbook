@@ -188,7 +188,7 @@
 %>
 
 <style>
-.ptcol-surveyID {
+.ptcol-ID {
 	width: 400px;
 }
 
@@ -269,9 +269,9 @@ var colDefn = [
 */
  
   {
-    key: 'surveyID',
+    key: 'ID',
     label: 'Survey ID',
-    value: _notUndefined('surveyID'),	
+    value: _notUndefined('ID'),	
   },
   {
 	    key: 'date',
@@ -408,8 +408,8 @@ function doTable() {
 }
 
 function rowClick(el) {
-	console.log(el.surveyID);
-	var w = window.open('survey.jsp?surveyID=' + el.getAttribute('data-id'), '_blank');
+	console.log(el.ID);
+	var w = window.open('survey.jsp?ID=' + el.getAttribute('data-id'), '_blank');
 	w.focus();
 	return false;
 }
@@ -442,7 +442,7 @@ function xxxshow() {
 	$('#results-table td').html('');
 	for (var i = 0 ; i < results.length ; i++) {
 		//$('#results-table tbody tr')[i].title = searchResults[results[i]].individualID;
-		$('#results-table tbody tr')[i].setAttribute('data-id', searchResults[results[i]].surveyID);
+		$('#results-table tbody tr')[i].setAttribute('data-id', searchResults[results[i]].ID);
 		for (var c = 0 ; c < colDefn.length ; c++) {
 			$('#results-table tbody tr')[i].children[c].innerHTML = sTable.values[results[i]][c];
 		}
@@ -467,7 +467,7 @@ function show() {
 	$('#results-table tbody tr').show();
 	for (var i = 0 ; i < results.length ; i++) {
 		//$('#results-table tbody tr')[i].title = 'Encounter ' + searchResults[results[i]].id;
-		$('#results-table tbody tr')[i].setAttribute('data-id', searchResults[results[i]].surveyID);
+		$('#results-table tbody tr')[i].setAttribute('data-id', searchResults[results[i]].ID);
 		for (var c = 0 ; c < colDefn.length ; c++) {
 			$('#results-table tbody tr')[i].children[c].innerHTML = '<div>' + sTable.values[results[i]][c] + '</div>';
 		}
@@ -651,11 +651,11 @@ function _colLongitude(o) {
 	return o.longitude;
 }
 function _colID(o) {
-  if (o.surveyID == undefined) {
+  if (o.ID == undefined) {
     if (o.ID == undefined) return '';
     return o.DataCollectionEventID;
   }
-  return o.surveyID;
+  return o.ID;
 }
 
 

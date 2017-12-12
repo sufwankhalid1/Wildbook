@@ -193,7 +193,7 @@ margin-bottom: 8px !important;
 
       			Encounter enc = myShepherd.getEncounter(num);
       			pageContext.setAttribute("enc", enc);
-				int numImages=myShepherd.getAllSinglePhotoVideosForEncounter(enc.getCatalogNumber()).size();
+				int numImages=myShepherd.getAllSinglePhotoVideosForEncounter(enc.getID()).size();
       
 				//let's see if this user has ownership and can make edits
       			boolean isOwner = ServletUtilities.isUserAuthorizedForEncounter(enc, request);
@@ -207,7 +207,7 @@ margin-bottom: 8px !important;
       			String headerBGColor="FFFFFC";
       			//if(CommonConfiguration.getProperty(()){}
 
-						List<SinglePhotoVideo> spvs = myShepherd.getAllSinglePhotoVideosForEncounter(enc.getCatalogNumber());
+						List<SinglePhotoVideo> spvs = myShepherd.getAllSinglePhotoVideosForEncounter(enc.getID());
 						//String dataDir = CommonConfiguration.getDataDirectoryName() + "/encounters/" + num;
 						String dataDir = CommonConfiguration.getDataDirectoryName(context) + enc.dir("");
 

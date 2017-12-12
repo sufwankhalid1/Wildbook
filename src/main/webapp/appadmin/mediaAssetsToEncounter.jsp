@@ -78,7 +78,7 @@ Digital Time Created: "142014"
 				if (found != null) break;
 			}
 			if (found != null) {
-				out.println("seems to be already attached to <a href=\"obrowse.jsp?type=Encounter&id=" + found.getCatalogNumber() + "\" title=\"" + found.toString() + "\" target=\"_new\">" + found.getCatalogNumber() + "</a></p>");
+				out.println("seems to be already attached to <a href=\"obrowse.jsp?type=Encounter&id=" + found.getID() + "\" title=\"" + found.toString() + "\" target=\"_new\">" + found.getID() + "</a></p>");
 			} else {
 				anns.addAll(hasAnns);
 				out.println(hasAnns + "</p>");
@@ -96,8 +96,8 @@ Digital Time Created: "142014"
 	} else {
 		Encounter enc = new Encounter(anns);
 		myShepherd.getPM().makePersistent(enc);
-		out.println("<p>successfully created <a href=\"obrowse.jsp?type=Encounter&id=" + enc.getCatalogNumber() + "\" title=\"" + enc.toString() + "\" target=\"_new\">" + enc.getCatalogNumber() + "</a></p>");
-		System.out.println("mediaAssetsToEncounter: " + idList + "--> " + enc.getCatalogNumber());
+		out.println("<p>successfully created <a href=\"obrowse.jsp?type=Encounter&id=" + enc.getID() + "\" title=\"" + enc.toString() + "\" target=\"_new\">" + enc.getID() + "</a></p>");
+		System.out.println("mediaAssetsToEncounter: " + idList + "--> " + enc.getID());
 	}
 
 	myShepherd.commitDBTransaction();

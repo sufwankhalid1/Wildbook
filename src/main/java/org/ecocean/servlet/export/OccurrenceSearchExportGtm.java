@@ -40,7 +40,7 @@ public class OccurrenceSearchExportGtm extends HttpServlet {
     Map<String, Occurrence> occurrenceMap = new HashMap<String, Occurrence>();
     for (int i=0; i<initialOccs.size(); i++) {
       Occurrence occ=(Occurrence)initialOccs.get(i);
-      occurrenceMap.put(occ.getOccurrenceID(), occ);
+      occurrenceMap.put(occ.getID(), occ);
     }
     return occurrenceMap;
   }
@@ -52,7 +52,7 @@ public class OccurrenceSearchExportGtm extends HttpServlet {
       Long millis = occ.getMillisRobust();
       if (millis!=null) {
         if (!millisToOccIdMap.containsKey(millis)) millisToOccIdMap.put(millis, new ArrayList<String>());
-        millisToOccIdMap.get(millis).add(occ.getOccurrenceID());
+        millisToOccIdMap.get(millis).add(occ.getID());
       }
     }
     return millisToOccIdMap;
@@ -229,7 +229,7 @@ public class OccurrenceSearchExportGtm extends HttpServlet {
         // count = 0;
         //  for(int i=0;i<numMatchingOccurrences;i++){
         //     Occurrence enc=(Occurrence)rOccurrences.get(i);
-        //     if ((i%50)==0) System.out.println("printing occurrence "+i+" = "+enc.getOccurrenceID());
+        //     if ((i%50)==0) System.out.println("printing occurrence "+i+" = "+enc.getID());
         //
         //     count++;
         //     numResults++;

@@ -115,7 +115,7 @@ public class EncounterSearchExportGeneGISFormat extends HttpServlet{
         
           Encounter enc=(Encounter)rEncounters.get(i);
           String assembledString="";
-          assembledString+=enc.getCatalogNumber();
+          assembledString+=enc.getID();
           if(enc.getIndividualID()!=null){assembledString+=(","+enc.getIndividualID());}
           //if(enc.getAlternateID()!=null){assembledString+=","+enc.getAlternateID();}
           else{assembledString+=",";}
@@ -231,16 +231,16 @@ public class EncounterSearchExportGeneGISFormat extends HttpServlet{
           }
         
           //out.println("<p>"+assembledString+haplotypeString+msMarkerString+"</p>");
-          //String occurrenceID=",";
-          String occurrenceID="";
-          //if(!msMarkerString.endsWith(",")){occurrenceID=",";}
-          if(myShepherd.getOccurrenceForEncounter(enc.getCatalogNumber())!=null){
-            Occurrence occur=myShepherd.getOccurrenceForEncounter(enc.getCatalogNumber());
-            occurrenceID+=occur.getOccurrenceID();
-            //if(msMarkerString.endsWith(",")){occurrenceID=occurrenceID.replace(",",",,");}
+          //String ID=",";
+          String ID="";
+          //if(!msMarkerString.endsWith(",")){ID=",";}
+          if(myShepherd.getOccurrenceForEncounter(enc.getID())!=null){
+            Occurrence occur=myShepherd.getOccurrenceForEncounter(enc.getID());
+            ID+=occur.getID();
+            //if(msMarkerString.endsWith(",")){ID=ID.replace(",",",,");}
           }
           
-          outp.write(assembledString+haplotypeString+msMarkerString+","+occurrenceID+"\r\n");
+          outp.write(assembledString+haplotypeString+msMarkerString+","+ID+"\r\n");
 
         }
         outp.close();

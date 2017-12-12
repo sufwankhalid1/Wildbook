@@ -487,7 +487,7 @@ console.warn(dt);
 		toggleDivStatus(aid, 'status-matches-found');
 		for (var i = 0 ; i < d.matchAnnotations.length ; i++) {
 			var h = '<div class="match-thumb"><a href="encounters/encounter.jsp?number=';
-			h += d.matchAnnotations[i].encounter.catalogNumber + '"><img src="';
+			h += d.matchAnnotations[i].encounter.ID + '"><img src="';
 			h += cleanUrl(d.matchAnnotations[i].mediaAsset.url) + '" /><span class="score">';
 			h += (Math.floor(d.matchAnnotations[i].score * 10000) / 10000) + '</span></a></div>';
 			$('#' + tid + ' .task-results').append(h);

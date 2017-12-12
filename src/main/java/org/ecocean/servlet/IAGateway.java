@@ -624,7 +624,7 @@ System.out.println(id);
 
         //i think that "in the future" co-occurring annotations should be sent together as one set of query list; but since we dont have support for that
         // now, we just send these all in one at a time.  hope that is good enough!   TODO
-        JSONArray olist = j.optJSONArray("occurrenceIds");
+        JSONArray olist = j.optJSONArray("IDs");
         if ((olist != null) && (olist.length() > 0)) {
             for (int i = 0 ; i < olist.length() ; i++) {
                 String oid = olist.optString(i, null);
@@ -993,13 +993,13 @@ System.out.println(" _sendIdentificationTask ----> " + rtn);
             Encounter enc = Encounter.findByAnnotation(ann, myShepherd);
             if (enc != null) {
                 JSONObject jenc = new JSONObject();
-                jenc.put("catalogNumber", enc.getCatalogNumber());
+                jenc.put("ID", enc.getID());
                 jenc.put("date", enc.getDate());
                 jenc.put("sex", enc.getSex());
                 jenc.put("verbatimLocality", enc.getVerbatimLocality());
                 jenc.put("locationID", enc.getLocationID());
                 jenc.put("individualID", enc.getIndividualID());
-                jenc.put("otherCatalogNumbers", enc.getOtherCatalogNumbers());
+                jenc.put("otherIDs", enc.getOtherIDs());
                 rtn.put("encounter", jenc);
             }
             MediaAsset ma = ann.getMediaAsset();

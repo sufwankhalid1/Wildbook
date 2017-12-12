@@ -37,7 +37,7 @@ while (encs.hasNext()) {
 }
 // Begin Testing for Survey Object!
 try {
-	String surveyID = Util.generateUUID().toString();
+	String ID = Util.generateUUID().toString();
 	
     String project = "project";
     String organization = "organization";
@@ -47,7 +47,7 @@ try {
     
     
     try {
-      sv.setID(surveyID);
+      sv.setID(ID);
       sv.setProjectName(project);
       sv.setOrganization(organization);
       sv.setProjectType(surveyType);
@@ -110,7 +110,7 @@ try {
       myShepherd.storeNewSurveyTrack(st);
       myShepherd.commitDBTransaction();     
       out.println("\n Success saving new SurveyTrack!");
-      out.println("\n Parent Survey ID = "+st.getParentSurveyID());
+      out.println("\n Parent Survey ID = "+st.getParentID());
       out.println("\n VesselID = "+st.getVesselID());
       out.println("\n LocationID = "+st.getLocationID());
       out.println("\n Type = "+st.getType());

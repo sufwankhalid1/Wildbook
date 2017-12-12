@@ -78,7 +78,7 @@ public class EncounterVMData extends HttpServlet {
 				wantJson = false;
       	if (ServletUtilities.isUserAuthorizedForEncounter(enc, request)) {
 					String matchID = ServletUtilities.cleanFileName(request.getParameter("matchID"));
-					//System.out.println("setting indiv id = " + matchID + " on enc id = " + enc.getCatalogNumber());
+					//System.out.println("setting indiv id = " + matchID + " on enc id = " + enc.getID());
           MarkedIndividual indiv = myShepherd.getMarkedIndividual(matchID);
 					if (indiv == null) {  //must have sent a new one
 						indiv = new MarkedIndividual(matchID, enc);
@@ -90,10 +90,10 @@ public class EncounterVMData extends HttpServlet {
 					enc.assignToMarkedIndividual(matchID);
 					enc.addComments("<p><em>" + request.getRemoteUser() + " on " + (new java.util.Date()).toString() + "</em><br>" + "Added to " + matchID + ".</p>");
 					enc.setMatchedBy("Visual Matcher");
-					myShepherd.storeNewEncounter(enc, enc.getCatalogNumber());
+					myShepherd.storeNewEncounter(enc, enc.getID());
 					myShepherd.commitDBTransaction();
 					//myShepherd.closeDBTransaction();
-					redirUrl = "encounters/encounter.jsp?number=" + enc.getCatalogNumber();
+					redirUrl = "encounters/encounter.jsp?number=" + enc.getID();
 				} else {
 					rtn.put("error", "unauthorized");
 				}
@@ -101,7 +101,7 @@ public class EncounterVMData extends HttpServlet {
 			} else if (request.getParameter("candidates") != null) {
 				rtn.put("_wantCandidates", true);
 				ArrayList candidates = new ArrayList();
-				String filter = "this.ID != \"" + enc.getCatalogNumber() + "\"";
+				String filter = "this.ID != \"" + enc.getID() + "\"";
 				String[] fields = {"locationID", "sex", "patterningCode"};
 				for (String f : fields) {
 					String val = request.getParameter(f);
@@ -117,11 +117,11 @@ public class EncounterVMData extends HttpServlet {
 				}
 //System.out.println("candidate filter => " + filter);
 
-				Iterator<Encounter> all = myShepherd.getAllEncounters("catalogNumber", filter);
+				Iterator<Encounter> all = myShepherd.getAllEncounters("ID", filter);
 				while (all.hasNext()) {
 					Encounter cand = all.next();
 					HashMap e = new HashMap();
-					e.put("id", cand.getCatalogNumber());
+					e.put("id", cand.getID());
 					e.put("dateInMilliseconds", cand.getDateInMilliseconds());
 					e.put("locationID", cand.getLocationID());
 					e.put("individualID", ServletUtilities.handleNullString(ServletUtilities.handleNullString(cand.getIndividualID())));
@@ -129,7 +129,7 @@ public class EncounterVMData extends HttpServlet {
 					e.put("sex", cand.getSex());
 					e.put("mmaCompatible", cand.getMmaCompatible());
 
-					List<SinglePhotoVideo> spvs = myShepherd.getAllSinglePhotoVideosForEncounter(cand.getCatalogNumber());
+					List<SinglePhotoVideo> spvs = myShepherd.getAllSinglePhotoVideosForEncounter(cand.getID());
 					ArrayList images = new ArrayList();
 					String dataDir = CommonConfiguration.getDataDirectoryName(context);
 					for (SinglePhotoVideo s : spvs) {
@@ -149,7 +149,7 @@ public class EncounterVMData extends HttpServlet {
 				if (!candidates.isEmpty()) rtn.put("candidates", candidates);
 
 			} else {
-				List<SinglePhotoVideo> spvs = myShepherd.getAllSinglePhotoVideosForEncounter(enc.getCatalogNumber());
+				List<SinglePhotoVideo> spvs = myShepherd.getAllSinglePhotoVideosForEncounter(enc.getID());
 				String dataDir = CommonConfiguration.getDataDirectoryName(context) + enc.dir("");
 
 				ArrayList images = new ArrayList();
@@ -165,7 +165,7 @@ public class EncounterVMData extends HttpServlet {
 					}
 				}
 		
-				rtn.put("id", enc.getCatalogNumber());
+				rtn.put("id", enc.getID());
 				rtn.put("patterningCode", enc.getPatterningCode());
 				rtn.put("sex", enc.getSex());
 				rtn.put("locationID", enc.getLocationID());

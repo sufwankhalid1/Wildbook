@@ -165,7 +165,7 @@ System.out.println("dateAttribute -> " + dateAttribute);
 
 */
                     Occurrence occ = new Occurrence();
-                    occ.setOccurrenceID(Util.generateUUID());
+                    occ.setID(Util.generateUUID());
                     occ.setDecimalLatitude(decimalLatitude);
                     occ.setDecimalLongitude(decimalLongitude);
                     occ.setDateTime(dateTime);
@@ -475,7 +475,7 @@ System.out.println(ael.getAttribute("attributeKey") + " -> " + aval);
       out.write(newline);
       out.write("Group " + String.valueOf(i+1));
       out.write(newline);
-      out.write("OccurrenceID: "+occ.getOccurrenceID());
+      out.write("ID: "+occ.getID());
       for (MediaAsset ma : occurrenceGroups.get(i)) {
         out.write(newline);
         out.write(String.valueOf(ma.getId()));

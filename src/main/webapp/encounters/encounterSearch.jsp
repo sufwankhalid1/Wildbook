@@ -231,7 +231,7 @@ String mapKey = CommonConfiguration.getGoogleMapsKey(context);
 <input name="referenceImageName" type="hidden"
        value="<%=request.getParameter("referenceImageName") %>"/>
 
-<p><img width="810px" src="/<%=CommonConfiguration.getDataDirectoryName(context) %>/encounters/<%=thisEnc.subdir(thisEnc.getCatalogNumber()) %>/<%=mySPV.getFilename() %>"/></p>
+<p><img width="810px" src="/<%=CommonConfiguration.getDataDirectoryName(context) %>/encounters/<%=thisEnc.subdir(thisEnc.getID()) %>/<%=mySPV.getFilename() %>"/></p>
 <table>
 											<tr>
 												<td align="left" valign="top">
@@ -275,7 +275,7 @@ String mapKey = CommonConfiguration.getGoogleMapsKey(context);
 										<%
 										}
 										%>
-										<tr><td><span class="caption"><%=encprops.getProperty("encounter") %> <a href="encounter.jsp?number=<%=thisEnc.getCatalogNumber() %>" target="_blank"><%=thisEnc.getCatalogNumber() %></a></span></td></tr>
+										<tr><td><span class="caption"><%=encprops.getProperty("encounter") %> <a href="encounter.jsp?number=<%=thisEnc.getID() %>" target="_blank"><%=thisEnc.getID() %></a></span></td></tr>
 										
 
 										

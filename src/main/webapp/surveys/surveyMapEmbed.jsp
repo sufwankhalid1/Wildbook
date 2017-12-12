@@ -24,8 +24,8 @@ String mapKey = CommonConfiguration.getGoogleMapsKey(context);
 String number = null;
 Survey sv = null;
 try {	
-	if (request.getParameter("surveyID")!=null) {
-		number = request.getParameter("surveyID");		
+	if (request.getParameter("ID")!=null) {
+		number = request.getParameter("ID");		
 	} 
 	sv = myShepherd.getSurvey(number);
 	System.out.println("Retreived this survey: "+sv.getID());
@@ -64,8 +64,8 @@ for (SurveyTrack trk : trks ) {
 			String lon = String.valueOf(trackOcc.getDecimalLongitude());
 			lineSet += "{lat: "+lat+", lng: "+lon+"},";
 			markerSet += "["+lat+","+lon+"],";
-			String link =  occLocation + trackOcc.getOccurrenceID();
-			infoWindowSet += "<p><small><a href='"+link+"'>"+trackOcc.getOccurrenceID()+"</a></small</p>";
+			String link =  occLocation + trackOcc.getID();
+			infoWindowSet += "<p><small><a href='"+link+"'>"+trackOcc.getID()+"</a></small</p>";
 			infoWindowSet += "<p><small>Location ID: "+trackOcc.getLocationID()+"</small></p>";
 			infoWindowSet += "<p><small>Lat/Lon: ["+lat+","+lon+"]</small></p>";
 			if (startTime!=null) {

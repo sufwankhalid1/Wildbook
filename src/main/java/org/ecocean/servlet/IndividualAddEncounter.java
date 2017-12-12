@@ -176,7 +176,7 @@ public class IndividualAddEncounter extends HttpServlet {
                 cSubmitters.addAll(NotificationMailer.splitEmails(enc2add.getInformOthers()));
               for (String emailTo : cSubmitters) {
                 if (!"".equals(emailTo)) {
-                  tagMap.put(NotificationMailer.EMAIL_NOTRACK, "number=" + enc2add.getCatalogNumber());
+                  tagMap.put(NotificationMailer.EMAIL_NOTRACK, "number=" + enc2add.getID());
                   tagMap.put(NotificationMailer.EMAIL_HASH_TAG, Encounter.getHashOfEmailString(emailTo));
                   es.execute(new NotificationMailer(context, langCode, emailTo, emailTemplate, tagMap));
                 }
@@ -187,7 +187,7 @@ public class IndividualAddEncounter extends HttpServlet {
               cOthers.removeAll(cSubmitters);
               //System.out.println("cOthers size is: "+cOthers.size());
               for (String emailTo : cOthers) {
-                tagMap.put(NotificationMailer.EMAIL_NOTRACK, "number=" + enc2add.getCatalogNumber());
+                tagMap.put(NotificationMailer.EMAIL_NOTRACK, "number=" + enc2add.getID());
                 tagMap.put(NotificationMailer.EMAIL_HASH_TAG, Encounter.getHashOfEmailString(emailTo));
                 //System.out.println("Emailing cOthers member:" +emailTo);
                 es.execute(new NotificationMailer(context, langCode, emailTo, emailTemplate2, tagMap));
@@ -200,7 +200,7 @@ public class IndividualAddEncounter extends HttpServlet {
               query.closeAll();
               cAdopters.removeAll(allAssociatedEmails);
               for (String emailTo : cAdopters) {
-                tagMap.put(NotificationMailer.EMAIL_NOTRACK, "number=" + enc2add.getCatalogNumber());
+                tagMap.put(NotificationMailer.EMAIL_NOTRACK, "number=" + enc2add.getID());
                 tagMap.put(NotificationMailer.EMAIL_HASH_TAG, Encounter.getHashOfEmailString(emailTo));
                 tagMap.put(NotificationMailer.STANDARD_CONTENT_TAG, tagMap.get("@ENCOUNTER_LINK@"));
                 es.execute(new NotificationMailer(context, langCode, emailTo, emailTemplate + "-adopter", tagMap));

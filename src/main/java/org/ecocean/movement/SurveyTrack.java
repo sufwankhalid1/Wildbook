@@ -22,7 +22,7 @@ public class SurveyTrack implements java.io.Serializable{
   private ArrayList<Occurrence> occurrences = new ArrayList<Occurrence>();
 
   private String surveyTrackID;
-  private String parentSurveyID;
+  private String parentID;
   
   private String vesselID;
   private String locationID;
@@ -37,9 +37,9 @@ public class SurveyTrack implements java.io.Serializable{
   
   public SurveyTrack(){};
   
-  public SurveyTrack(String surveyID){
-    if (surveyID != null) {
-      this.parentSurveyID = surveyID; 
+  public SurveyTrack(String ID){
+    if (ID != null) {
+      this.parentID = ID; 
       generateUUID();
       setDateTimeCreated();
     }
@@ -47,7 +47,7 @@ public class SurveyTrack implements java.io.Serializable{
   
   public SurveyTrack(Survey survey){
     if (survey != null) {
-      this.parentSurveyID = survey.getID();
+      this.parentID = survey.getID();
       generateUUID();
       setDateTimeCreated();
       setDateTimeCreated();
@@ -95,9 +95,9 @@ public class SurveyTrack implements java.io.Serializable{
     }
   }
   
-  public String getParentSurveyID() {
-    if (parentSurveyID != null) {
-      return parentSurveyID;
+  public String getParentID() {
+    if (parentID != null) {
+      return parentID;
     } else {
       return null;
     }
@@ -118,9 +118,9 @@ public class SurveyTrack implements java.io.Serializable{
     }
   }
   
-  public void setParentSurveyID(String id) {
+  public void setParentID(String id) {
     if (id != null && !id.equals("") ) {
-      parentSurveyID = id;
+      parentID = id;
       setDWCDateLastModified();
     }
   }
@@ -136,7 +136,7 @@ public class SurveyTrack implements java.io.Serializable{
   public Occurrence getOccurenceByID(String id) {
     for (int i=0; i<occurrences.size(); i++) {
       Occurrence thisOcc = occurrences.get(i);
-      if (thisOcc.getOccurrenceID().equals(id)) {
+      if (thisOcc.getID().equals(id)) {
         return thisOcc;
       }
     }

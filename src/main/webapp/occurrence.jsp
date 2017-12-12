@@ -107,7 +107,7 @@ context=ServletUtilities.getContext(request);
 	<table>
 		<tr>
 			<td valign="middle">
- 				<h2><strong><img style="align: center;" src="images/occurrence.png" />&nbsp;<%=props.getProperty("occurrence") %></strong>: <%=occ.getOccurrenceID()%></h2>
+ 				<h2><strong><img style="align: center;" src="images/occurrence.png" />&nbsp;<%=props.getProperty("occurrence") %></strong>: <%=occ.getID()%></h2>
 				<p class="caption"><em><%=props.getProperty("description") %></em></p>
   			</td>		
   		</tr>
@@ -115,10 +115,10 @@ context=ServletUtilities.getContext(request);
   	<p>
 	<%
 	if (occ.getSurvey(myShepherd)!=null) {
-		String surveyID = occ.getSurvey(myShepherd).getID();
+		String ID = occ.getSurvey(myShepherd).getID();
 	%>	
 		<strong><%=props.getProperty("correspondingSurvey") %>:</strong> 
-			<a href="//<%=CommonConfiguration.getURLLocation(request)%>/surveys/survey.jsp?occID=<%=occ.getPrimaryKeyID()%>&surveyID=<%=surveyID%>"><%=surveyID%></a>			
+			<a href="//<%=CommonConfiguration.getURLLocation(request)%>/surveys/survey.jsp?occID=<%=occ.getPrimaryKeyID()%>&ID=<%=ID%>"><%=ID%></a>			
 	<%	
 	} else {
 	%>	
@@ -174,10 +174,10 @@ context=ServletUtilities.getContext(request);
                       event.preventDefault();
 
                       var occID = $("#addOccNumber").val();
-                      var surveyID = $("#surveyID").val();
+                      var ID = $("#ID").val();
                       var surveyTrackID = $("#surveyTrackID").val();
 
-                      $.post("../OccurrenceSetSurveyAndTrack", {"occID": occID, "surveyTrackID": surveyTrackID, "surveyID": surveyID},
+                      $.post("../OccurrenceSetSurveyAndTrack", {"occID": occID, "surveyTrackID": surveyTrackID, "ID": ID},
                       function() {
                         $("#addOccErrorDiv").hide();
                         $("#addDiv").addClass("has-success");
@@ -211,7 +211,7 @@ context=ServletUtilities.getContext(request);
 						<div class="form-group row">
 							<div class="col-sm-8" id="addDiv">
 								<label><%=props.getProperty("addSurvey")%>: </label>
-								<input name="surveyID" id="surveyID" type="text" class="form-control" placeholder="<%=props.getProperty("surveyID")%>" /> 	
+								<input name="ID" id="ID" type="text" class="form-control" placeholder="<%=props.getProperty("ID")%>" /> 	
 								<br/>
 								<label><%=props.getProperty("addSurveyTrack")%>: </label><br/>
 								<label><small>Must be defined to link back from Survey.</small></label>
@@ -483,7 +483,7 @@ context=ServletUtilities.getContext(request);
 	        %>
 	        <div class="crop-outer">
 	          <div class="crop">
-	              <img src="cust/mantamatcher/img/individual_placeholder_image.jpg" class="sliderimg lazyload" data-src="<%=newimgUrl%>" alt="<%=occ.getOccurrenceID()%>" />
+	              <img src="cust/mantamatcher/img/individual_placeholder_image.jpg" class="sliderimg lazyload" data-src="<%=newimgUrl%>" alt="<%=occ.getID()%>" />
 	          </div>
 	        </div>
 	        <%
@@ -713,7 +713,7 @@ context=ServletUtilities.getContext(request);
 							<small><p><label><strong>ID :</strong></label> <%=mt.getId()%> <label><strong> Location :</strong></label><label> <%=mt.getLocation()%><strong> Name :</strong></label> <%=mt.getTagNumber()%></p></small>
 							<button id="showObservations-<%=mt.getId()%>" onclick="showObservations('<%=mt.getId()%>')" type="button" class="obsTag obsTagShow btn btn-primary btn-xs"><small>Show Observations</small></button>
 							<button id="hideObservations-<%=mt.getId()%>" onclick="hideObservations('<%=mt.getId()%>')" style="display:none;" type="button" class="obsTag btn btn-primary btn-xs"><small>Hide Observations</small></button>
-							<button onclick="removeTag('<%=mt.getId()%>','metal','<%=occ.getOccurrenceID()%>')" type="button" class="removeTag btn btn-primary btn-xs"><small>Remove</small></button>
+							<button onclick="removeTag('<%=mt.getId()%>','metal','<%=occ.getID()%>')" type="button" class="removeTag btn btn-primary btn-xs"><small>Remove</small></button>
 						</li>
 						<li id="observations-<%=mt.getId()%>" style="list-style:none;display:none;"><%=allObs%></li>
 						<li id="removed-<%=mt.getId()%>" style="list-style:none;display:none;"><label><small></small></label></li>
@@ -741,7 +741,7 @@ context=ServletUtilities.getContext(request);
 							<small><p style="margin:none;"><label><strong>ID :</strong></label> <%=at.getId()%><label><strong> Serial Number :</strong></label> <%=at.getSerialNumber()%></p></small>
 							<button id="showObservations-<%=at.getId()%>" onclick="showObservations('<%=at.getId()%>')" type="button" class="obsTag obsTagShow btn btn-primary btn-xs"><small>Show Observations</small></button>
 							<button id="hideObservations-<%=at.getId()%>" onclick="hideObservations('<%=at.getId()%>')" style="display:none;" type="button" class="obsTag btn btn-primary btn-xs"><small>Hide Observations</small></button>
-							<button onclick="removeTag('<%=at.getId()%>','acoustic','<%=occ.getOccurrenceID()%>')" type="button" class="removeTag btn btn-primary btn-xs">Remove</button>
+							<button onclick="removeTag('<%=at.getId()%>','acoustic','<%=occ.getID()%>')" type="button" class="removeTag btn btn-primary btn-xs">Remove</button>
 							
 						</li>
 						<li id="observations-<%=at.getId()%>" style="list-style:none;display:none;"><%=allObs%></li>
@@ -770,7 +770,7 @@ context=ServletUtilities.getContext(request);
 							<small><p style="margin:none;"><label><strong>ID :</strong></label> <%=dat.getId()%><label><strong> SerialNumber :</strong></label> <%=dat.getSerialNumber()%></p></small>
 							<button id="showObservations-<%=dat.getId()%>" onclick="showObservations('<%=dat.getId()%>')" type="button" class="obsTag obsTagShow btn btn-primary btn-xs"><small>Show Observations</small></button>
 							<button id="hideObservations-<%=dat.getId()%>" onclick="hideObservations('<%=dat.getId()%>')" style="display:none;" type="button" class="obsTag btn btn-primary btn-xs"><small>Hide Observations</small></button>
-							<button onclick="removeTag('<%=dat.getId()%>','dat','<%=occ.getOccurrenceID()%>')" type="button" class="removeTag btn btn-primary btn-xs">Remove</button>
+							<button onclick="removeTag('<%=dat.getId()%>','dat','<%=occ.getID()%>')" type="button" class="removeTag btn btn-primary btn-xs">Remove</button>
 						</li>
 						<li id="observations-<%=dat.getId()%>" style="list-style:none;display:none;"><%=allObs%></li>
 						<li id="removed-<%=dat.getId()%>" style="list-style:none;display:none;"><label><small></small></label></li>
@@ -797,7 +797,7 @@ context=ServletUtilities.getContext(request);
 							<small><p style="margin:none;"><label><strong>ID :</strong></label> <%=st.getId()%><label><strong>&nbsp;Name :</strong></label> <%=st.getName()%><label><strong>&nbsp;Serial Number :</strong></label> <%=st.getSerialNumber()%><label><strong>&nbsp;Argos Ptt Number :</strong></label> <%=st.getArgosPttNumber()%></p></small>
 							<button id="showObservations-<%=st.getId()%>" onclick="showObservations('<%=st.getId()%>')" type="button" class="obsTag obsTagShow btn btn-primary btn-xs"><small>Show Observations</small></button>
 							<button id="hideObservations-<%=st.getId()%>" onclick="hideObservations('<%=st.getId()%>')" style="display:none;" type="button" class="obsTag btn btn-primary btn-xs"><small>Hide Observations</small></button>
-							<button onclick="removeTag('<%=st.getId()%>','satellite','<%=occ.getOccurrenceID()%>')" type="button" class="removeTag btn btn-primary btn-xs">Remove</button>
+							<button onclick="removeTag('<%=st.getId()%>','satellite','<%=occ.getID()%>')" type="button" class="removeTag btn btn-primary btn-xs">Remove</button>
 						</li>
 						<li id="observations-<%=st.getId()%>" style="list-style:none;display:none;"><%=allObs%></li>
 						<li id="removed-<%=st.getId()%>" style="list-style:none;display:none;"><label><small></small></label></li>
@@ -1164,7 +1164,7 @@ context=ServletUtilities.getContext(request);
 						if (myShepherd.isEncounter(thisSample.getCorrespondingEncounterNumber())) {
 							bioEnc = myShepherd.getEncounter(thisSample.getCorrespondingEncounterNumber());							
 							%>
-								<span class="caption"><%=props.getProperty("encounter")%>:<a href="<%=request.getScheme()%>://<%=CommonConfiguration.getURLLocation(request)%>/encounters/encounter.jsp?number=<%=bioEnc.getCatalogNumber()%>"> <%=bioEnc.getCatalogNumber()%></a></span>
+								<span class="caption"><%=props.getProperty("encounter")%>:<a href="<%=request.getScheme()%>://<%=CommonConfiguration.getURLLocation(request)%>/encounters/encounter.jsp?number=<%=bioEnc.getID()%>"> <%=bioEnc.getID()%></a></span>
 							<%
 						}
 						MarkedIndividual indy = null; 
@@ -1344,7 +1344,7 @@ $("a#haplo<%=mito.getAnalysisID() %>").click(function() {
 </script> --%> <!-- end haplotype popup --> <%}%>
 						</td>
 						<td style="border-style: none;">
-							<a onclick="return confirm('<%=encProps.getProperty("deleteHaplotype")%>');" href="../TissueSampleRemoveHaplotype?encounter=<%=occ.getOccurrenceID()%>&sampleID=<%=thisSample.getSampleID()%>&analysisID=<%=mito.getAnalysisID()%>">
+							<a onclick="return confirm('<%=encProps.getProperty("deleteHaplotype")%>');" href="../TissueSampleRemoveHaplotype?encounter=<%=occ.getID()%>&sampleID=<%=thisSample.getSampleID()%>&analysisID=<%=mito.getAnalysisID()%>">
 								<img width="20px" height="20px" style="border-style: none;" src="../images/cancel.gif" />
 							</a>
 						</td>
@@ -1481,7 +1481,7 @@ $("a#haplo<%=mito.getAnalysisID() %>").click(function() {
 							<%}%>
 							</td>
 						<td style="border-style: none;">
-							<a onclick="return confirm('<%=props.getProperty("deleteGenetic")%>');" href="../TissueSampleRemoveSexAnalysis?encounter=<%=occ.getOccurrenceID()%>&sampleID=<%=thisSample.getSampleID()%>&analysisID=<%=mito.getAnalysisID()%>">
+							<a onclick="return confirm('<%=props.getProperty("deleteGenetic")%>');" href="../TissueSampleRemoveSexAnalysis?encounter=<%=occ.getID()%>&sampleID=<%=thisSample.getSampleID()%>&analysisID=<%=mito.getAnalysisID()%>">
 								<img style="border-style: none; width: 40px; height: 40px;" src="../images/cancel.gif" />
 							</a>
 						</td>
@@ -1510,7 +1510,7 @@ $("a#haplo<%=mito.getAnalysisID() %>").click(function() {
 								<img width="20px" height="20px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" />
 							</a>
 						</td>
-						<td style="border-style: none;"><a onclick="return confirm('<%=props.getProperty("deleteMSMarkers")%>');" href="../TissueSampleRemoveMicrosatelliteMarkers?encounter=<%=occ.getOccurrenceID()%>&sampleID=<%=thisSample.getSampleID()%>&analysisID=<%=mito.getAnalysisID()%>">
+						<td style="border-style: none;"><a onclick="return confirm('<%=props.getProperty("deleteMSMarkers")%>');" href="../TissueSampleRemoveMicrosatelliteMarkers?encounter=<%=occ.getID()%>&sampleID=<%=thisSample.getSampleID()%>&analysisID=<%=mito.getAnalysisID()%>">
 								<img style="border-style: none; width: 40px; height: 40px;" src="../images/cancel.gif" />
 						</a> 
 						<% if (isOwner && CommonConfiguration.isCatalogEditable(context)) {%>
@@ -1889,7 +1889,7 @@ var dlgMSMarkersSet<%=thisSample.getSampleID().replaceAll("[-+.^:,]","")%> = $("
 <%}%>
 						</td>
 						<td style="border-style: none;">
-							<a onclick="return confirm('<%=encProps.getProperty("deleteBio")%>');" href="../TissueSampleRemoveBiologicalMeasurement?encounter=<%=occ.getOccurrenceID()%>&sampleID=<%=thisSample.getSampleID()%>&analysisID=<%=mito.getAnalysisID()%>"><img width="20px" height="20px" style="border-style: none;" src="../images/cancel.gif" />
+							<a onclick="return confirm('<%=encProps.getProperty("deleteBio")%>');" href="../TissueSampleRemoveBiologicalMeasurement?encounter=<%=occ.getID()%>&sampleID=<%=thisSample.getSampleID()%>&analysisID=<%=mito.getAnalysisID()%>"><img width="20px" height="20px" style="border-style: none;" src="../images/cancel.gif" />
 							</a>
 						</td>
 					</tr>
@@ -1938,7 +1938,7 @@ var dlgMSMarkersSet<%=thisSample.getSampleID().replaceAll("[-+.^:,]","")%> = $("
 										String analysisIDString = "";
 										//if((request.getParameter("function")!=null)&&(request.getParameter("function").equals("2"))&&(request.getParameter("edit")!=null) && (request.getParameter("edit").equals("haplotype")) && (request.getParameter("analysisID")!=null)&&(myShepherd.isGeneticAnalysis(request.getParameter("sampleID"),request.getParameter("number"),request.getParameter("analysisID"),"MitochondrialDNA"))){
 										//    analysisIDString=request.getParameter("analysisID");
-										//	mtDNA=myShepherd.getMitochondrialDNAAnalysis(request.getParameter("sampleID"), occ.getOccurrenceID(),analysisIDString);
+										//	mtDNA=myShepherd.getMitochondrialDNAAnalysis(request.getParameter("sampleID"), occ.getID(),analysisIDString);
 										//}
 									%> <input name="analysisID" type="text" size="20"
 									maxlength="100" value="<%=analysisIDString%>" />
@@ -2506,12 +2506,12 @@ var dlgMSMarkersSet<%=thisSample.getSampleID().replaceAll("[-+.^:,]","")%> = $("
 <!-- end biomeasure popup --> 
 
 			<td>
-				<a id="sample" href="occurrence.jsp?number=<%=occ.getOccurrenceID()%>&sampleID=<%=thisSample.getSampleID()%>&edit=tissueSample&function=1">
+				<a id="sample" href="occurrence.jsp?number=<%=occ.getID()%>&sampleID=<%=thisSample.getSampleID()%>&edit=tissueSample&function=1">
 					<img width="24px" style="border-style: none;" src="../images/Crystal_Clear_action_edit.png" />
 				</a>
 			</td>
 			<td>
-				<a onclick="return confirm('<%=encProps.getProperty("deleteTissue")%>');" href="../OccurrenceRemoveTissueSample?occId=<%=occ.getOccurrenceID()%>&sampleID=<%=thisSample.getSampleID()%>">
+				<a onclick="return confirm('<%=encProps.getProperty("deleteTissue")%>');" href="../OccurrenceRemoveTissueSample?occId=<%=occ.getID()%>&sampleID=<%=thisSample.getSampleID()%>">
 					<img style="border-style: none; width: 40px; height: 40px;" src="../images/cancel.gif" />
 				</a>
 			</td>

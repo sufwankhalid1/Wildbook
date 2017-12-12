@@ -9,14 +9,14 @@ import org.ecocean.tag.DigitalArchiveTag;
 import org.ecocean.tag.MetalTag;
 import org.ecocean.tag.SatelliteTag;
 
-public abstract class FoundationalPropertiesBase implements java.io.Serializable {
+public abstract class EventBase implements java.io.Serializable {
 
   /**
    * 
    */
   private static final long serialVersionUID = 1L;
   /**
-   * FoundationalPropertiesBase is a class intended to be extended by many of 
+   * EventBase is a class intended to be extended by many of 
    * our primary data classes like Occurrence, Encounter and Individual. 
    * Researchers record their data in different ways than us, and don't always
    * adhere to DarwinCore, ect. This should make objects more flexible and able to 
@@ -41,7 +41,7 @@ public abstract class FoundationalPropertiesBase implements java.io.Serializable
   protected ArrayList<AcousticTag> baseAcousticTags = new ArrayList<AcousticTag>();  
   
   
-  public FoundationalPropertiesBase(){};
+  public EventBase(){};
 
   public String getPrimaryKeyID() {
     return ID;

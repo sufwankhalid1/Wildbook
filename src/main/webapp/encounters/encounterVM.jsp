@@ -357,7 +357,7 @@ margin-bottom: 8px !important;
 
       			Encounter enc = myShepherd.getEncounter(num);
       			pageContext.setAttribute("enc", enc);
-				int numImages=myShepherd.getAllSinglePhotoVideosForEncounter(enc.getCatalogNumber()).size();
+				int numImages=myShepherd.getAllSinglePhotoVideosForEncounter(enc.getID()).size();
       
 				//let's see if this user has ownership and can make edits
       			boolean isOwner = ServletUtilities.isUserAuthorizedForEncounter(enc, request);
@@ -373,7 +373,7 @@ margin-bottom: 8px !important;
     			%>
  
 
-<script>encounterNumber = '<%=enc.getCatalogNumber()%>';</script>
+<script>encounterNumber = '<%=enc.getID()%>';</script>
 <div id="vm-content"></div>
 
 <div>

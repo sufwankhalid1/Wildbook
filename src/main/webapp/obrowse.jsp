@@ -22,7 +22,7 @@ java.util.Properties" %>
 
 	private String showEncounter(Encounter enc) {
 		if (enc == null) return "<b>[none]</b>";
-		String h = "<div class=\"encounter shown\"><a target=\"_new\" href=\"encounters/encounter.jsp?number=" + enc.getCatalogNumber() + "\">Encounter <b>" + enc.getCatalogNumber() + "</b></a>";
+		String h = "<div class=\"encounter shown\"><a target=\"_new\" href=\"encounters/encounter.jsp?number=" + enc.getID() + "\">Encounter <b>" + enc.getID() + "</b></a>";
 		if ((enc.getAnnotations() != null) && (enc.getAnnotations().size() > 0)) {
 			h += "<div>Annotations:<ul>";
 			for (int i = 0 ; i < enc.getAnnotations().size() ; i++) {

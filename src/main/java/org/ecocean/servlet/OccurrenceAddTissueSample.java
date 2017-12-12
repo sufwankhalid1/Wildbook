@@ -74,7 +74,7 @@ public class OccurrenceAddTissueSample extends HttpServlet {
       String sampleID = null;
       if (request.getParameter("sampleID")!=null) {
         sampleID = request.getParameter("sampleID");
-        ts = new TissueSample(occ.getOccurrenceID(), sampleID);
+        ts = new TissueSample(occ.getID(), sampleID);
         myShepherd.getPM().makePersistent(ts);
         myShepherd.commitDBTransaction(); 
         occ.addBaseTissueSample(ts); 

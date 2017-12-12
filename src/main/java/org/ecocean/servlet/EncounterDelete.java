@@ -87,7 +87,7 @@ public class EncounterDelete extends HttpServlet {
       Encounter enc2trash = myShepherd.getEncounter(request.getParameter("number"));
       setDateLastModified(enc2trash);
 
-      if((enc2trash.getOccurrenceID()!=null)&&(myShepherd.isOccurrence(enc2trash.getOccurrenceID()))) {
+      if((enc2trash.getID()!=null)&&(myShepherd.isOccurrence(enc2trash.getID()))) {
         myShepherd.commitDBTransaction();
         out.println(ServletUtilities.getHeader(request));
         out.println("Encounter " + request.getParameter("number") + " is assigned to an Occurrence and cannot be deleted until it has been removed from that occurrence.");
@@ -115,10 +115,10 @@ public class EncounterDelete extends HttpServlet {
           oos.writeObject(backUpEnc);
           oos.close();
           
-          if((enc2trash.getOccurrenceID()!=null)&&(myShepherd.isOccurrence(enc2trash.getOccurrenceID()))) {
-            Occurrence occur=myShepherd.getOccurrence(enc2trash.getOccurrenceID());
+          if((enc2trash.getID()!=null)&&(myShepherd.isOccurrence(enc2trash.getID()))) {
+            Occurrence occur=myShepherd.getOccurrence(enc2trash.getID());
             occur.removeEncounter(enc2trash);
-            enc2trash.setOccurrenceID(null);
+            enc2trash.setID(null);
             
             //delete Occurrence if it's last encounter has been removed.
             if(occur.getNumberEncounters()==0){
