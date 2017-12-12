@@ -101,7 +101,7 @@ public class ImportBento extends HttpServlet {
           String contentType = fileItem.getContentType();
           boolean inMemory = fileItem.isInMemory();
           
-          System.out.println("====== Fieldname : "+fieldName+" Filename : "+fileName+" =======");
+          //System.out.println("====== Fieldname : "+fieldName+" Filename : "+fileName+" =======");
           
           String folderDate = null;
           String folderVessel = null;
@@ -132,6 +132,7 @@ public class ImportBento extends HttpServlet {
               uploadedFile = new File(System.getProperty("catalina.base")+"/webapps/wildbook_data_dir/bento_sheets/"+folderVessel+"/"+folderDate+"/"+fileName);
               if (!uploadedFile.isDirectory()) {
                 fileItem.write(uploadedFile);
+                newFileImportSwitchboard(uploadedFile);
                 message += "<li"+noDots+"><strong>Saved</strong> "+fileName+"</li>";                
               } else {
                 message = "<li"+noDots+">I cannot upload merely a directory.</li>";
@@ -149,10 +150,45 @@ public class ImportBento extends HttpServlet {
     request.setAttribute("returnUrl","//"+urlLoc+"/importBento.jsp");
     getServletContext().getRequestDispatcher("/bentoUploadResult.jsp").forward(request, response);
   }
+
+  private void newFileImportSwitchboard(File uploadedFile) {
+
+  }
   
-  public void createMediaAsset() {
+  private void createMediaAsset() {
     
   }
+
+  private void processBentoSurveyLog() {
+
+  }
+
+  private void processBentoEffort() {
+    
+  }
+
+  private void processBentoSightings() {
+    
+  }
+
+  private void processBentoBiopsy() {
+    
+  }
+
+  private void processBentoTag() {
+    
+  }
+
+  private void processBentoFocalFollow() {
+    
+  }
+
+  private void processBentoPlayback() {
+    
+  }
+
+
+  
 }
 
 

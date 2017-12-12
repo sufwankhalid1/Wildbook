@@ -56,7 +56,6 @@ public class GenerateNOAAReport extends HttpServlet {
     String urlLoc = "//"+CommonConfiguration.getURLLocation(request);
 
     int groupTotal = 0;
-
     String report = "<table>";    
     report += "<tr><td>Date</td><td>Species</td><td>Permit Name</td><td>Group Size</td></tr>";
     response.setContentType("text/html");
@@ -93,7 +92,8 @@ public class GenerateNOAAReport extends HttpServlet {
       }
       
       // Verify ts has the same permit...
-      if (sample.getPermit()!=null&&!sample.getPermit().toLowerCase().equals(permitName.toLowerCase())) {
+      if ((sample.getPermit()!=null||!sample.getAlternateSampleID().equals("all"))&&!sample.getPermit().toLowerCase().equals(permitName.toLowerCase())) {
+        System.out.println("Rejected based on non matching Permit selection!");
         continue;
       }
       
@@ -104,12 +104,14 @@ public class GenerateNOAAReport extends HttpServlet {
         if (formInput.containsKey("startDate")) {
           startDate = milliComparator(formInput.get("startDate"));
           if (startDate>sampleDate) {
+            System.out.println("Rejected based on being outside start date bounds!");
             continue;
           }
         }
         if (formInput.containsKey("endDate")) {
           endDate = milliComparator(formInput.get("endDate"));
           if (endDate<sampleDate) {
+            System.out.println("Rejected based on being outside end date bounds!");
             continue;
           }
         }
@@ -118,36 +120,32 @@ public class GenerateNOAAReport extends HttpServlet {
       }
       
       String encSpecies = "";
-      if (formInput.containsKey("speciesName")) {     
-        Encounter enc = myShepherd.getEncounter(sample.getCorrespondingEncounterNumber());
-        String species = formInput.get("speciesName").toLowerCase().trim();
-        encSpecies = enc.getGenus()+enc.getSpecificEpithet();
-        System.out.println("Species: "+species+" Enc Species: "+encSpecies);
-        if (!species.equals(encSpecies)||!sample.getObservationByName("Species_ID").getValue().equals("species")) {
-          continue;
+      if (formInput.containsKey("speciesName")&&formInput.containsKey("numSpecies")&&!formInput.containsKey("allSpecies")&&!formInput.get("allSpecies").equals("true")) {   
+        int numSpecies = 0;
+        Encounter enc = null;
+        try {
+          numSpecies = Integer.valueOf(formInput.get("numSpecies"));
+          enc = myShepherd.getEncounter(sample.getCorrespondingEncounterNumber());
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+        ArrayList<String> speciesArr = new ArrayList<>();
+        for (int i=0;i<numSpecies;i++) {
+          String name = "speciesName"+i;
+          speciesArr.add(formInput.get(name));
+        }
+        if (enc!=null) {
+          encSpecies = enc.getGenus()+enc.getSpecificEpithet();
+          System.out.println("Enc Species: "+encSpecies);
+          if (!speciesArr.contains(encSpecies)||!sample.getObservationByName("Species_ID").getValue().equals("species")) {
+            System.out.println("Rejected based on being wrong species!");
+            continue;
+          } 
         } 
       }
       
       Integer sampleGroupSize = null;
-      if (formInput.containsKey("groupSize")) {
-        // Change to max min?
-        String sizeMax = formInput.get("groupSizeMax").replaceAll("[^.0-9]+","");
-        String sizeMin = formInput.get("groupSizeMin").replaceAll("[^.0-9]+","");
-        try {
-          Integer intSizeMax = Integer.parseInt(sizeMax);
-          Integer intSizeMin = Integer.parseInt(sizeMin);
-          sampleGroupSize = Integer.parseInt(sample.getObservationByName("Group_Size").getValue());
-          if (intSizeMax<sampleGroupSize||intSizeMin>sampleGroupSize) {
-            continue;
-          } else {
-            groupTotal += sampleGroupSize;
-          }
-        } catch (Exception e) {
-          e.printStackTrace();
-        } 
-      }
-      // Make a final check for "Event", when we find out what that is...
-      // It's photo ID or photo ID + tag/biopsy, however the fuck you handle that...
+
       
       // If it passes all the gates, add to the final result Array.
       String lat = "";
@@ -172,7 +170,7 @@ public class GenerateNOAAReport extends HttpServlet {
     out.println(report);
     out.println("+++++++++ There are "+matchingSamples.size()+" samples that meet the criteria. +++++++++");
     //out.println(ServletUtilities.getHeader(request));
-    constructReport(matchingSamples, out, myShepherd);
+    //constructReport(matchingSamples, out, myShepherd);
     //out.println(ServletUtilities.getFooter(request));
   }
   
@@ -196,8 +194,6 @@ public class GenerateNOAAReport extends HttpServlet {
       String lon = "";
       int groupSize = 0;
     }
-
-
   }
   
   private long milliComparator(String date) {

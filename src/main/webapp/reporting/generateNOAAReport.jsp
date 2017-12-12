@@ -92,7 +92,7 @@ Set date range
 					    <p>
 						    <small>Known</small>				 
 							<select name="permitName">
-								<option value="None Specified"></option>
+								<option value="all" selected>None Specified/All</option>
 								<%
 									for (String permit : permitNames) {
 								%>		
@@ -122,44 +122,31 @@ Set date range
 									numSpecies++;
 								}
 							%>
+							<input type="hidden"  value="<%=numSpecies%>" name="numSpecies"/>
 							<div class="col-xs-6">
 								<%=evenCol%>
 							</div>
 							<div class="col-xs-6">
 								<%=oddCol%>
+								<input type="checkbox" value="true" name="allSpecies">All Species</input>
 							</div>
 						</div>
 					</div>
 			    
 			    </div>
-			    <br/>
-			    <div class="row">
-			    	<div class="col-xs-12">
-					    <p>
-						    <label>Group Size</label>			    
-					    </p>
-					    <p>
-					    	<small>Max</small><br/>
-							<input class="groupSize" type="number" name="groupSizeMax"/>
-					    </p>	
-					    	<small>Min</small><br/>
-							<input class="groupSize" type="number" name="groupSizeMin"/>
-					    </p>	    			    	
-			    	</div>
-			    </div>	
+
+			    <br/>	
 			    
 			    <div class="row">
 			    	<div class="col-xs-12">
-					    <p>
-						    <label>Event ID</label>			    
+					    <p>		    
+					    	<small>Sample Types</small>
 					    </p>
-					    <small>Sample Types</small>
 					    <p>
 					    	<select name="fileType">
 						    	<option value="photoSample">Photo Only</option>
 						    	<option value="multiSample">Photo/Tag/Biopsy</option>
 						    </select>
-								<input class="eventID" type="text"  value="" placeholder="Enter ID" name="eventID"/>
 					    </p>		    			    	
 			    	</div>
 			    </div>			    
