@@ -94,7 +94,7 @@ public class DetectTranslateTest {
 
     @Test
     public void detectLanguage() throws Exception {
-        String sourceText = "test";
+        String sourceText = "Con un gran poder viene una gran responsabilidad";
         String context = "context";
         String apiKey= CommonConfiguration.getProperty("translate_key", context);
         Translate translate = TranslateOptions.newBuilder().setApiKey(apiKey).build().getService();

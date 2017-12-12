@@ -107,8 +107,9 @@ try{
       List<String> encSetDate = new ArrayList<String>();
       List<String> loopingDates = new ArrayList<String>();
 
+      String apiKey= CommonConfiguration.getProperty("translate_key", context);
 
-      String detectedLanguage="en";
+      String detectedLanguage="";
 
       try{
         detectedLanguage= DetectTranslate.detect(ytRemarks, context);
@@ -127,8 +128,12 @@ try{
     //info to check if detector and translate works
 
     %>
-    <li>ytRemarks here: <%=ytRemarks %></li>
-    <li>detectedLanguage here: <%=DetectTranslate.detect(ytRemarks, context) %></li>
+    <li>translate key used: <%=apiKey %></li>
+
+    <li>myRemarks were: <%=myRemarks %></li>
+    <li>language of original remarks: <%=DetectTranslate.detect(myRemarks, context) %></li>
+    <li>translated ytRemarks here: <%=ytRemarks %></li>
+    <li>language of translated remarks: <%=DetectTranslate.detect(ytRemarks, context) %></li>
     <%
 
 
@@ -451,6 +456,7 @@ try{
         //TBD-simplify to one set of files
         quest= ShepherdProperties.getProperties("quest.properties", detectedLanguage);
         //questEs= ShepherdProperties.getProperties("questEs.properties");
+        // check to see if this change was around same time as failing language check on questions
 
         String questionToPost=null;
 
@@ -465,18 +471,31 @@ try{
         else if(locCode==null){
           questionToPost= quest.getProperty("where");
         }
+     	      %>
+     	      <li>questions we post to videos</li>
+              <li>whenWhere: <%=quest.getProperty("whenWhere") %></li>
+              <li>when: <%=quest.getProperty("when") %></li>
+              <li>where: <%=quest.getProperty("where") %></li>
+
+              <%
 
         if(questionToPost!=null){
         String videoId = enc.getEventID().replaceAll("youtube:","");
+
           //String videoId = "JhIcP4K-M6c"; //using Jason's yt account for testing, instead of calling enc.getEventID() to get real videoId
+          %>
+          <li>testinfo: <%=videoId %></li>
+          <li>questionToPost: <%=questionToPost %></li>
+
+          <%
           try{
+
             YouTube.postQuestion(questionToPost,videoId, occ);
           }
           catch(Exception e){e.printStackTrace();}
      	}
       }
      catch(Exception e){}
-
 
 
 	/**
