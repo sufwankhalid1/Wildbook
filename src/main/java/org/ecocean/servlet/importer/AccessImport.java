@@ -1163,31 +1163,31 @@ public class AccessImport extends HttpServlet {
           String verbatimDate = date.substring(0, 11) + date.substring(date.length() - 5);
           DateTime dateTime = dateStringToDateTime(verbatimDate, "EEE MMM dd yyyy");
           date = dateTime.toString().substring(0,10);
-          //out.println("---------------- DATE : "+date);
+          out.println("---------------- DATE : "+date);
         }
       } catch (Exception e) {
         out.println("!!!!!!!!!!!!!! Could not process a DATE for row "+i+" in SIGHTINGS");
-        //e.printStackTrace();
+        e.printStackTrace();
       }
       
       try {
         if (thisRow.get("SIGHTNO") != null) {
           sightNo = thisRow.get("SIGHTNO").toString();          
-          //out.println("---------------- SIGHTNO : "+sightNo);          
+          out.println("---------------- SIGHTNO : "+sightNo);          
         }
       } catch (Exception e) {
         out.println("!!!!!!!!!!!!!! Could not process a SIGHTNO for row "+i+" in SIGHTINGS");
-        //e.printStackTrace();
+        e.printStackTrace();
       }
       
       try {
         if (thisRow.get("id_code") != null) {
           idCode = thisRow.get("id_code").toString().trim();          
-          //out.println("---------------- ID CODE : "+idCode);          
+          out.println("---------------- ID CODE : "+idCode);          
         }
       } catch (Exception e) {
         out.println("!!!!!!!!!!!!!! Could not process a ID CODE for row "+i+" in SIGHTINGS");
-        //e.printStackTrace();  
+        e.printStackTrace();  
       }
       
       // Each sightNo/date pair should have only one encounter with information relevant to all encounters on this occurrence.

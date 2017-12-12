@@ -127,10 +127,10 @@ Set date range
 						    <label>Group Size</label>			    
 					    </p>
 					    <p>
-					    	<small>Max</small>
+					    	<small>Max</small><br/>
 							<input class="groupSize" type="number" name="groupSizeMax"/>
 					    </p>	
-					    	<small>Min</small>
+					    	<small>Min</small><br/>
 							<input class="groupSize" type="number" name="groupSizeMin"/>
 					    </p>	    			    	
 			    	</div>
@@ -141,12 +141,11 @@ Set date range
 					    <p>
 						    <label>Event ID</label>			    
 					    </p>
-					    <small>ID for a specific survey or occurrence.</small>
+					    <small>Sample Types</small>
 					    <p>
 					    	<select name="fileType">
-						    	<option value="Not Specified">Not Specified</option>
-						    	<option value="occurrence">Occurrence</option>
-						    	<option value="survey">Survey</option>
+						    	<option value="photoSample">Photo Only</option>
+						    	<option value="multiSample">Photo/Tag/Biopsy</option>
 						    </select>
 								<input class="eventID" type="text"  value="" placeholder="Enter ID" name="eventID"/>
 					    </p>		    			    	

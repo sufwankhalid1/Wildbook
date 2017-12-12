@@ -54,8 +54,11 @@ public class GenerateNOAAReport extends HttpServlet {
     myShepherd.setAction("GenerateNOAAReport.class");
     
     String urlLoc = "//"+CommonConfiguration.getURLLocation(request);
-    String reportInfo = "";    
-    
+
+    int groupTotal = 0;
+
+    String report = "<table>";    
+    report += "<tr><td>Date</td><td>Species</td><td>Permit Name</td><td>Group Size</td></tr>";
     response.setContentType("text/html");
     request.setAttribute("returnLoc", "//"+urlLoc+"/generateNOAAReport.jsp");
     
@@ -89,14 +92,14 @@ public class GenerateNOAAReport extends HttpServlet {
         System.out.println("Permit: "+permitName);
       }
       
-      
       // Verify ts has the same permit...
       if (sample.getPermit()!=null&&!sample.getPermit().toLowerCase().equals(permitName.toLowerCase())) {
         continue;
       }
       
+      Long sampleDate = null;
       try {
-        long sampleDate = getAnyDate(sample, myShepherd);                
+        sampleDate = getAnyDate(sample, myShepherd);                
         System.out.println("Sample Date: "+sampleDate);
         if (formInput.containsKey("startDate")) {
           startDate = milliComparator(formInput.get("startDate"));
@@ -114,17 +117,18 @@ public class GenerateNOAAReport extends HttpServlet {
         npe.printStackTrace();
       }
       
-      
+      String encSpecies = "";
       if (formInput.containsKey("speciesName")) {     
         Encounter enc = myShepherd.getEncounter(sample.getCorrespondingEncounterNumber());
         String species = formInput.get("speciesName").toLowerCase().trim();
-        String encSpecies = enc.getGenus()+enc.getSpecificEpithet();
+        encSpecies = enc.getGenus()+enc.getSpecificEpithet();
         System.out.println("Species: "+species+" Enc Species: "+encSpecies);
         if (!species.equals(encSpecies)||!sample.getObservationByName("Species_ID").getValue().equals("species")) {
           continue;
         } 
       }
       
+      Integer sampleGroupSize = null;
       if (formInput.containsKey("groupSize")) {
         // Change to max min?
         String sizeMax = formInput.get("groupSizeMax").replaceAll("[^.0-9]+","");
@@ -132,21 +136,44 @@ public class GenerateNOAAReport extends HttpServlet {
         try {
           Integer intSizeMax = Integer.parseInt(sizeMax);
           Integer intSizeMin = Integer.parseInt(sizeMin);
-          Integer sampleGroupSize = Integer.parseInt(sample.getObservationByName("Group_Size").getValue());
+          sampleGroupSize = Integer.parseInt(sample.getObservationByName("Group_Size").getValue());
           if (intSizeMax<sampleGroupSize||intSizeMin>sampleGroupSize) {
             continue;
-          } 
+          } else {
+            groupTotal += sampleGroupSize;
+          }
         } catch (Exception e) {
           e.printStackTrace();
         } 
       }
       // Make a final check for "Event", when we find out what that is...
-      
+      // It's photo ID or photo ID + tag/biopsy, however the fuck you handle that...
       
       // If it passes all the gates, add to the final result Array.
+      String lat = "";
+      String lon = "";
+      try {
+        lat = sample.getObservationByName("Location_(Latitude)").getValue();
+        lon = sample.getObservationByName("Location_(Longitude)").getValue();
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+      
+      report += "<tr>";
+      report += "<td>"+sampleDate+"</td>";
+      report += "<td>"+encSpecies+"</td>";
+      report += "<td>"+permitName+"</td>";
+      report += "<td>"+sampleGroupSize+"</td>";
+      report += "</tr>";
+
       matchingSamples.add(sample);
-    }
-    System.out.println("+++++++++ There are "+matchingSamples.size()+" samples that meet the criteria. +++++++++");
+    } 
+    report += "</table>";
+    out.println(report);
+    out.println("+++++++++ There are "+matchingSamples.size()+" samples that meet the criteria. +++++++++");
+    //out.println(ServletUtilities.getHeader(request));
+    constructReport(matchingSamples, out, myShepherd);
+    //out.println(ServletUtilities.getFooter(request));
   }
   
   private HashMap<String,String> retrieveFields(HttpServletRequest request, String[] SEARCH_FIELDS) {
@@ -158,6 +185,19 @@ public class GenerateNOAAReport extends HttpServlet {
       }
     }
     return data;
+  }
+
+  private void constructReport(ArrayList<TissueSample> samples, PrintWriter out, Shepherd myShepherd) {
+    int takesGroup = 0;
+    
+    for (TissueSample sample : samples) {
+      String date = "";
+      String time = "";
+      String lon = "";
+      int groupSize = 0;
+    }
+
+
   }
   
   private long milliComparator(String date) {
@@ -217,7 +257,10 @@ public class GenerateNOAAReport extends HttpServlet {
       try {
         if (myShepherd.isOccurrence(parentID)) {
           Occurrence occ = myShepherd.getOccurrence(parentID);
-          anyDate = occ.getMillis();
+          // Throwing here.. Null check or alternative?
+          if (occ.getMillis()!=null) {
+            anyDate = occ.getMillis();
+          }
           return anyDate;
         }
       } catch (Exception e) {
