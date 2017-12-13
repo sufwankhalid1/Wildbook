@@ -106,6 +106,7 @@ try{
       String negDayBruteForce = "";
       List<String> encSetDate = new ArrayList<String>();
       List<String> loopingDates = new ArrayList<String>();
+      String remarksOut = "";
 
 
 
@@ -167,6 +168,7 @@ try{
       if(enc.getOccurrenceRemarks()!=null){
 
         String remarks=ytRemarks+" "+enc.getRComments().trim().toLowerCase()+" "+ ocrRemarks.toLowerCase();
+        remarksOut = remarks;
 
         System.out.println("Let's parse these remarks for date and location: "+remarks);
 
@@ -411,6 +413,9 @@ try{
       <li>If encounters retrieved: <%=myEncounters %></li>
       <li>Individual encounter dates caught here: <%=encSetDate %></li>
       <li>Detected language: <%=detectedLanguage %></li>
+      <li>ytRemarks: <%=ytRemarks %></li>
+      <li>ocrRemarks: <%=ocrRemarks %></li>
+      <li>remarks: <%=remarksOut %></li>
       <%
 
 
@@ -437,6 +442,12 @@ try{
         }
       }
 
+      String commentLanguage = "";
+      String commentToPost = "";
+      String ytCommentToPost = "";
+      boolean ytCommentException = false;
+
+
       //if date and/or location not found, ask youtube poster through comment section.
       //          cred= ShepherdProperties.getProperties("youtubeCredentials.properties", "");
       try{
@@ -445,33 +456,49 @@ try{
         //Properties questEs = new Properties();
 
         //TBD-simplify to one set of files
+
         quest= ShepherdProperties.getProperties("quest.properties", detectedLanguage);
+        commentLanguage = detectedLanguage;
         //questEs= ShepherdProperties.getProperties("questEs.properties");
 
         String questionToPost=null;
 
         if((enc.getDateInMilliseconds()==null)&&(locCode==null)){
           questionToPost= quest.getProperty("whenWhere");
+          commentToPost = questionToPost;
 
         }
         else if(enc.getDateInMilliseconds()==null){
           questionToPost= quest.getProperty("when");
+          commentToPost = questionToPost;
 
         }
         else if(locCode==null){
           questionToPost= quest.getProperty("where");
+          commentToPost = questionToPost;
         }
 
         if(questionToPost!=null){
+           ytCommentToPost = questionToPost;
         String videoId = enc.getEventID().replaceAll("youtube:","");
-          //String videoId = "JhIcP4K-M6c"; //using Jason's yt account for testing, instead of calling enc.getEventID() to get real videoId
+          //String videoId = "JhIcP4K-M6c"; //using Jasons yt account for testing, instead of calling enc.getEventID() to get real videoId
           try{
+            ytCommentToPost = "hi";
             YouTube.postQuestion(questionToPost,videoId, occ);
           }
-          catch(Exception e){e.printStackTrace();}
+          catch(Exception e){e.printStackTrace(); }
      	}
       }
      catch(Exception e){}
+
+     %>
+     <li>commentLanguage: <%=commentLanguage %></li>
+     <li>locCode: <%=locCode %></li>
+     <li>commentToPost: <%=commentToPost %></li>
+    <li>ytCommentToPost: <%=ytCommentToPost %></li>
+    <li>ytCommentException: <%=ytCommentException %></li>
+
+     <%
 
 
 	
@@ -497,6 +524,10 @@ finally{
 }
 
 %>
+
+
+
+
 
 </ul>
 
