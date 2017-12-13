@@ -132,15 +132,20 @@ public class ImportBento extends HttpServlet {
                 message = "<li"+noDots+">I cannot upload merely a directory.</li>";
               }
               //Here is where we put the file into the hashmap based on the leading info - date and vessel.
-              String[] splitFilename = fileName.split("_");
-              String surveyKey = splitFilename[0] + splitFilename[1];
-              System.out.println("New key in survey Array: "+surveyKey);
-              if (surveyFiles.containsKey(surveyKey)) {
-                surveyFiles.get(surveyKey).add(uploadedFile);
-              } else {
-                ArrayList<File> arr = new ArrayList<>();
-                arr.add(uploadedFile);
-                surveyFiles.put(surveyKey, arr);
+              try {
+                String[] splitFilename = fileName.split("_");
+                String surveyKey = splitFilename[0] + splitFilename[1];
+                System.out.println("New key in survey Array: "+surveyKey);
+                if (surveyFiles.containsKey(surveyKey)) {
+                  surveyFiles.get(surveyKey).add(uploadedFile);
+                } else {
+                  ArrayList<File> arr = new ArrayList<>();
+                  arr.add(uploadedFile);
+                  surveyFiles.put(surveyKey, arr);
+                }
+              } catch (Exception e) {
+                System.out.println("Could not process filename prior to import: "+fileName);
+                e.printStackTrace();
               }
             } catch (Exception e) {
               message += "<li "+noDots+"><strong>Error</strong> "+fileName+".<br><small>The filename was in the wrong format, or the file was invalid.</small></li>";
