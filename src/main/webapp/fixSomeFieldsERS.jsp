@@ -57,7 +57,7 @@ try{
 	Encounter enc3 = new Encounter();
 	enc3.setCatalogNumber("3");
 	
-	//let's set the encounter remarks to test whatever we want to test, language, date, etc.
+	//lets set the encounter remarks to test whatever we want to test, language, date, etc.
 	String myRemarks="test remarks";
 	if(request.getParameter("remarks")!=null){
 		myRemarks=request.getParameter("remarks");
@@ -491,12 +491,16 @@ try{
       }
      catch(Exception e){}
 
+
+     String vidDescrip = YouTube.getVideoDescription(occ, myShepherd);
+
      %>
      <li>commentLanguage: <%=commentLanguage %></li>
      <li>locCode: <%=locCode %></li>
      <li>commentToPost: <%=commentToPost %></li>
     <li>ytCommentToPost: <%=ytCommentToPost %></li>
     <li>ytCommentException: <%=ytCommentException %></li>
+    <li>getVidDescrip: <%=vidDescrip %></li>
 
      <%
 
