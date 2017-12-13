@@ -1,11 +1,11 @@
 package org.ecocean.servlet.importer;
 
-import org.json.JSONObject;
-
 import java.io.*;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
+
+import com.opencsv.*;
 
 import org.ecocean.*;
 import org.ecocean.servlet.*;
@@ -17,12 +17,6 @@ import org.joda.time.format.DateTimeFormatter;
 import org.ecocean.media.*;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.ss.usermodel.DataFormatter;
-import org.apache.poi.xssf.usermodel.XSSFCell;
-//import org.apache.poi.hssf.usermodel.*;
-//import org.apache.poi.poifs.filesystem.NPOIFSFileSystem;
-import org.apache.poi.xssf.usermodel.XSSFRow;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import org.apache.commons.fileupload.*;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
@@ -44,6 +38,7 @@ public class ImportBento extends HttpServlet {
   private static PrintWriter out;
   private static String context; 
 
+  private static HashMap<String,ArrayList<File>> surveyFiles = new HashMap<String, ArrayList<File>>();  
   
   public void init(ServletConfig config) throws ServletException {
     super.init(config);
@@ -132,10 +127,20 @@ public class ImportBento extends HttpServlet {
               uploadedFile = new File(System.getProperty("catalina.base")+"/webapps/wildbook_data_dir/bento_sheets/"+folderVessel+"/"+folderDate+"/"+fileName);
               if (!uploadedFile.isDirectory()) {
                 fileItem.write(uploadedFile);
-                newFileImportSwitchboard(uploadedFile);
                 message += "<li"+noDots+"><strong>Saved</strong> "+fileName+"</li>";                
               } else {
                 message = "<li"+noDots+">I cannot upload merely a directory.</li>";
+              }
+              //Here is where we put the file into the hashmap based on the leading info - date and vessel.
+              String[] splitFilename = fileName.split("_");
+              String surveyKey = splitFilename[0] + splitFilename[1];
+              System.out.println("New key in survey Array: "+surveyKey);
+              if (surveyFiles.containsKey(surveyKey)) {
+                surveyFiles.get(surveyKey).add(uploadedFile);
+              } else {
+                ArrayList<File> arr = new ArrayList<>();
+                arr.add(uploadedFile);
+                surveyFiles.put(surveyKey, arr);
               }
             } catch (Exception e) {
               message += "<li "+noDots+"><strong>Error</strong> "+fileName+".<br><small>The filename was in the wrong format, or the file was invalid.</small></li>";
@@ -145,54 +150,147 @@ public class ImportBento extends HttpServlet {
         }
       }
     }
+    Set<String> keys = surveyFiles.keySet();
+    for (String key : keys) {
+      newFileImportSwitchboard(surveyFiles.get(key));
+    }
     myShepherd.closeDBTransaction();
     request.setAttribute("result", message);
     request.setAttribute("returnUrl","//"+urlLoc+"/importBento.jsp");
     getServletContext().getRequestDispatcher("/bentoUploadResult.jsp").forward(request, response);
   }
 
-  private void newFileImportSwitchboard(File uploadedFile) {
+  private void newFileImportSwitchboard(ArrayList<File> files) {
 
+    for (File file : files) {
+      String fileName = standardizeFilename(file.getName());
+      if (fileName.endsWith("biopsy.csv")) {
+        try  {
+          processBentoBiopsy(file);
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+      }
+      if (fileName.endsWith("daily_effort.csv")) {
+        try  {
+          processBentoEffort(file);
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+      }
+      if (fileName.endsWith("sightings.csv")) {
+        try  {
+          processBentoSightings(file);
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+      }
+      if (fileName.endsWith("survey_log.csv")) {
+        try  {
+          processBentoSurveyLog(file);
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+      }
+      if (fileName.endsWith("dtag_tag.csv")) {
+        try  {
+          processBentoDTag(file);
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+      }
+      if (fileName.endsWith("sattagging_tag.csv")) {
+        try  {
+          processBentoSatTag(file);
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+      }
+      if (fileName.endsWith("focalfollow.csv")) {
+        try  {
+          processBentoFocalFollow(file);
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+      }
+      if (fileName.endsWith("dtag_tag.csv")) {
+        try  {
+          processBentoDTag(file);
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+      }
+      if (fileName.endsWith("playback.csv")) {
+        try  {
+          processBentoPlayback(file);
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+      }
+      if (fileName.endsWith(".jpg")||fileName.endsWith(".png")) {
+        try  {
+          createMediaAsset(file);
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+      }
+    }
   }
   
-  private void createMediaAsset() {
+  private void createMediaAsset(File file) {
     
   }
 
-  private void processBentoSurveyLog() {
+  private void processBentoSurveyLog(File file) {
 
   }
 
-  private void processBentoEffort() {
+  private void processBentoEffort(File file) {
     
   }
 
-  private void processBentoSightings() {
+  private void processBentoSightings(File file) {
     
   }
 
-  private void processBentoBiopsy() {
+  private void processBentoBiopsy(File file) {
     
   }
 
-  private void processBentoTag() {
+  private void processBentoDTag(File file) {
     
   }
 
-  private void processBentoFocalFollow() {
+  private void processBentoSatTag(File file) {
     
   }
 
-  private void processBentoPlayback() {
+  private void processBentoFocalFollow(File file) {
     
   }
 
+  private void processBentoPlayback(File file) {
+    
+  }
 
-  
+  private String standardizeFilename(String filename) {
+    String result =  filename.toLowerCase().trim();
+    result = filename.replace(" ", "_");
+    return result;
+  }
 }
 
+/* So we need to deal with potentially a large amount 
+of mixed up files from different days and surveys. 
 
+Perhaps we can organize these files into a HashMap where
+identifying traits like date are the key, and an array 
+of files is the value.  
 
+Iterate through all key pairs.
 
+Drop the array of files into the switchboard.
 
+Start with survey log and effort files, work up the chain. Tags last.
+*/
 
