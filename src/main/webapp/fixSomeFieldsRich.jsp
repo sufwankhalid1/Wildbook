@@ -109,6 +109,11 @@ try{
 
       String apiKey= CommonConfiguration.getProperty("translate_key", context);
 
+      %>
+	  <li>Occurrence info: <%=occ %></li>
+	  <li>Shepherd info: <%=myShepherd %></li>
+      <%
+
       String detectedLanguage="";
 
       try{
@@ -418,6 +423,7 @@ try{
       %>
       <li>If date found with NLP or brute force: <%=dayBruteForce %></li>
       <li>Neg day brute force: <%=negDayBruteForce %></li>
+
       <li>If encounters retrieved: <%=myEncounters %></li>
       <li>Individual encounter dates caught here: <%=encSetDate %>
       <%
