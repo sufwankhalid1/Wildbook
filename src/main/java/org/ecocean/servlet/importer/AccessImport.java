@@ -1285,8 +1285,8 @@ public class AccessImport extends HttpServlet {
           date = thisRow.get("date").toString(); 
           time = thisRow.get("Time").toString();
           sightNo = thisRow.get("sight_no").toString().trim(); 
-          columnMasterList.remove("date");
-          columnMasterList.remove("Time");
+          //columnMasterList.remove("date");
+          //columnMasterList.remove("Time");
           columnMasterList.remove("sight_no");
           
           String verbatimDate = date.substring(0, 11) + time.substring(11, time.length() - 5) + date.substring(date.length() - 5);
@@ -1398,22 +1398,27 @@ public class AccessImport extends HttpServlet {
             String time = null;
             columnMasterList.remove("date");
             columnMasterList.remove("Time");
-            if (thisRow.containsKey("date")) {
+            if (thisRow.containsKey("date")&&thisRow.containsKey("Time")) {
               date = String.valueOf(thisRow.getDate("date"));
-              Observation dateOb = new Observation("date", date, "TissueSample", ts.getSampleID());
+              time = String.valueOf(thisRow.getDate("Time"));
+              String verbatimDate = date.substring(0, 11) + time.substring(11, time.length() - 5) + date.substring(date.length() - 5);
+              DateTime dateTime = dateStringToDateTime(verbatimDate, "EEE MMM dd hh:mm:ss z yyyy");
+              Observation dateTimeOb = new Observation("dateTime", dateTime.toString(), "TissueSample", ts.getSampleID());
+
+              DateTimeFormatter dtf = DateTimeFormat.forPattern("MM/dd/yyyy");
+              String shortDate = dtf.print(dateTime); 
+              Observation dateOb = new Observation("date", shortDate, "TissueSample", ts.getSampleID());
+              
+              myShepherd.getPM().makePersistent(dateTimeOb);
+              myShepherd.commitDBTransaction();
+              myShepherd.beginDBTransaction();
               myShepherd.getPM().makePersistent(dateOb);
               myShepherd.commitDBTransaction();
               myShepherd.beginDBTransaction();
               ts.addObservation(dateOb);  
+              ts.addObservation(dateTimeOb);
             }
-            if (thisRow.containsKey("Time")) {
-              time = String.valueOf(thisRow.getDate("Time"));
-              Observation timeOb = new Observation("Time", time, "TissueSample", ts.getSampleID());
-              myShepherd.getPM().makePersistent(timeOb);
-              myShepherd.commitDBTransaction();
-              myShepherd.beginDBTransaction();
-              ts.addObservation(timeOb); 
-            }
+
             // This does exactly what it sounds like it does.
             processRemainingColumnsAsObservations(ts, columnMasterList, thisRow);
             
