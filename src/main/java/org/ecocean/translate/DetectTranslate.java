@@ -36,9 +36,6 @@ public class DetectTranslate {
     Translate translate = TranslateOptions.newBuilder().setApiKey(apiKey).build().getService();
 
 
-//    TranslateOptions.newBuilder().setApiKey(apiKey);
-
-//    Translate translate = TranslateOptions.getDefaultInstance().getService();
     Translation translation = translate.translate(ytRemarks,
     TranslateOption.targetLanguage("en"));
     System.out.println(translation.getTranslatedText());
