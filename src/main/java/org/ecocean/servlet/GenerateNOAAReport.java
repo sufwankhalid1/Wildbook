@@ -85,16 +85,16 @@ public class GenerateNOAAReport extends HttpServlet {
       TissueSample sample = allSamples.next();
 
       System.out.println("Sample? "+sample.toString());
+    
+      // Verify ts has the same permit, or use all.
       String permitName = null;
       if (formInput.containsKey("permitName")&&formInput.get("permitName")!=null) {
         permitName = formInput.get("permitName");
         System.out.println("Permit: "+permitName);
-      }
-      
-      // Verify ts has the same permit...
-      if ((sample.getPermit()!=null||!sample.getAlternateSampleID().equals("all"))&&!sample.getPermit().toLowerCase().equals(permitName.toLowerCase())) {
-        System.out.println("Rejected based on non matching Permit selection!");
-        continue;
+        if ((!permitName.equals("all"))&&!sample.getPermit().toLowerCase().equals(permitName.toLowerCase())) {
+          System.out.println("Rejected based on non matching Permit selection!");
+          continue;
+        }
       }
       
       Long sampleDate = null;
@@ -104,14 +104,14 @@ public class GenerateNOAAReport extends HttpServlet {
         if (formInput.containsKey("startDate")) {
           startDate = milliComparator(formInput.get("startDate"));
           if (startDate>sampleDate) {
-            System.out.println("Rejected based on being outside start date bounds!");
+            System.out.println("Rejected based on being outside start date bounds! Start Date: "+startDate);
             continue;
           }
         }
         if (formInput.containsKey("endDate")) {
           endDate = milliComparator(formInput.get("endDate"));
           if (endDate<sampleDate) {
-            System.out.println("Rejected based on being outside end date bounds!");
+            System.out.println("Rejected based on being outside end date bounds! End Date: "+endDate);
             continue;
           }
         }
@@ -120,7 +120,11 @@ public class GenerateNOAAReport extends HttpServlet {
       }
       
       String encSpecies = "";
-      if (formInput.containsKey("speciesName")&&formInput.containsKey("numSpecies")&&!formInput.containsKey("allSpecies")&&!formInput.get("allSpecies").equals("true")) {   
+      boolean allSpecies = false;
+      if (formInput.containsKey("allSpecies")) {
+        allSpecies = Boolean.valueOf(formInput.get("allSpecies"));
+      }
+      if (!allSpecies&&formInput.containsKey("numSpecies")) {   
         int numSpecies = 0;
         Encounter enc = null;
         try {
@@ -132,7 +136,9 @@ public class GenerateNOAAReport extends HttpServlet {
         ArrayList<String> speciesArr = new ArrayList<>();
         for (int i=0;i<numSpecies;i++) {
           String name = "speciesName"+i;
-          speciesArr.add(formInput.get(name));
+          if (formInput.containsKey(name)) {
+            speciesArr.add(formInput.get(name));
+          }
         }
         if (enc!=null) {
           encSpecies = enc.getGenus()+enc.getSpecificEpithet();
@@ -145,7 +151,6 @@ public class GenerateNOAAReport extends HttpServlet {
       }
       
       Integer sampleGroupSize = null;
-
       
       // If it passes all the gates, add to the final result Array.
       String lat = "";
@@ -184,17 +189,6 @@ public class GenerateNOAAReport extends HttpServlet {
     }
     return data;
   }
-
-  private void constructReport(ArrayList<TissueSample> samples, PrintWriter out, Shepherd myShepherd) {
-    int takesGroup = 0;
-    
-    for (TissueSample sample : samples) {
-      String date = "";
-      String time = "";
-      String lon = "";
-      int groupSize = 0;
-    }
-  }
   
   private long milliComparator(String date) {
     date = formatDate(date);
@@ -230,7 +224,11 @@ public class GenerateNOAAReport extends HttpServlet {
     long anyDate =  -999; 
     if (ts.getObservationByName("date")!=null) {
       try {
-        anyDate = milliComparator(formatDate(ts.getObservationByName("date").getValue()));
+        String strDate = ts.getObservationByName("date").getValue();
+        System.out.println("Date from Observation? "+strDate);
+        strDate = formatDate(strDate);
+        System.out.println("Formatted date? "+strDate);
+        anyDate = milliComparator(formatDate(strDate));
         return anyDate;
       } catch (Exception e) {
         e.printStackTrace();
@@ -265,8 +263,6 @@ public class GenerateNOAAReport extends HttpServlet {
     }
     return anyDate;
   }
-  
-  
 }
 
 

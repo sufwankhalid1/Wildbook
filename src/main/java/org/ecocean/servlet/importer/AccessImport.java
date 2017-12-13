@@ -1383,12 +1383,37 @@ public class AccessImport extends HttpServlet {
             columnMasterList.remove("Photo-ID_Code");
             if (thisRow.get("Photo-ID_Code") != null) {
               indy = thisRow.getString("Photo-ID_Code").toString();
-              Observation indyID = new Observation("IndyID", indy, "TissueSample", ts.getSampleID());        
+              Observation indyID = new Observation("IndyID", indy, "TissueSample", ts.getSampleID());   
+              myShepherd.getPM().makePersistent(indyID);
+              myShepherd.commitDBTransaction();
+              myShepherd.beginDBTransaction();
+              ts.addObservation(indyID);     
             } 
+
             processTags(thisRow, myShepherd, occ);
             columnMasterList.remove("DTAG_ID");
             columnMasterList.remove("SatTag_ID");
             
+            String date = null;
+            String time = null;
+            columnMasterList.remove("date");
+            columnMasterList.remove("Time");
+            if (thisRow.containsKey("date")) {
+              date = String.valueOf(thisRow.getDate("date"));
+              Observation dateOb = new Observation("date", date, "TissueSample", ts.getSampleID());
+              myShepherd.getPM().makePersistent(dateOb);
+              myShepherd.commitDBTransaction();
+              myShepherd.beginDBTransaction();
+              ts.addObservation(dateOb);  
+            }
+            if (thisRow.containsKey("Time")) {
+              time = String.valueOf(thisRow.getDate("Time"));
+              Observation timeOb = new Observation("Time", time, "TissueSample", ts.getSampleID());
+              myShepherd.getPM().makePersistent(timeOb);
+              myShepherd.commitDBTransaction();
+              myShepherd.beginDBTransaction();
+              ts.addObservation(timeOb); 
+            }
             // This does exactly what it sounds like it does.
             processRemainingColumnsAsObservations(ts, columnMasterList, thisRow);
             
@@ -1410,8 +1435,7 @@ public class AccessImport extends HttpServlet {
             e.printStackTrace();
             out.println("\n Failed to save created tissue sample to occurrence.");
           }
-          
-          
+               
           myShepherd.commitDBTransaction();
           System.out.println("Created a Tissue Sample for Occ"+occ.getPrimaryKeyID());
           return true;
@@ -1421,10 +1445,8 @@ public class AccessImport extends HttpServlet {
         }        
       }        
     } catch (Exception e) {  
-      out.println("\nFailed to validate Occ ID : "+occ.getPrimaryKeyID()+" and sampleID : "+sampleId+" for TissueSample creation.");
-      
+      out.println("\nFailed to validate Occ ID : "+occ.getPrimaryKeyID()+" and sampleID : "+sampleId+" for TissueSample creation."); 
     }
-     
     occ.getBaseTissueSampleArrayList().toString();
     return false;
   }

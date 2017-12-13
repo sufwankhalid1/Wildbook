@@ -135,10 +135,11 @@ public class ImportBento extends HttpServlet {
               try {
                 String[] splitFilename = fileName.split("_");
                 String surveyKey = splitFilename[0] + splitFilename[1];
-                System.out.println("New key in survey Array: "+surveyKey);
                 if (surveyFiles.containsKey(surveyKey)) {
+                  System.out.println("Added to key in survey Array: "+surveyKey);
                   surveyFiles.get(surveyKey).add(uploadedFile);
                 } else {
+                  System.out.println("New key in survey Array: "+surveyKey);
                   ArrayList<File> arr = new ArrayList<>();
                   arr.add(uploadedFile);
                   surveyFiles.put(surveyKey, arr);
