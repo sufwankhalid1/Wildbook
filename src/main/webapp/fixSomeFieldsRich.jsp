@@ -58,37 +58,36 @@ int numFixes=0;
 try{
 
 	//create new Occurrence object
-	Occurrence occ=new Occurrence();
-	occ.setOccurrenceID("12345");
+	//Occurrence occ=new Occurrence();
+	//occ.setOccurrenceID("12345");
   //occ.setOccurrenceID("8xWBlYsiC6U");
 	
 	//create an Encounter, 1 or more
-	Encounter enc1 = new Encounter();
-	enc1.setCatalogNumber("1");
-	Encounter enc2 = new Encounter();
-	enc2.setCatalogNumber("2");
-	Encounter enc3 = new Encounter();
-	enc3.setCatalogNumber("3");
+	//Encounter enc1 = new Encounter();
+	//enc1.setCatalogNumber("1");
+	//Encounter enc2 = new Encounter();
+	//enc2.setCatalogNumber("2");
+	//Encounter enc3 = new Encounter();
+	//enc3.setCatalogNumber("3"); 
 	
 	//let's set the encounter remarks to test whatever we want to test, language, date, etc.
 	String myRemarks="test remarks";
 	if(request.getParameter("remarks")!=null){
 		myRemarks=request.getParameter("remarks");
 	}
-	enc1.setOccurrenceRemarks(myRemarks);
-	enc2.setOccurrenceRemarks(myRemarks);
-	enc3.setOccurrenceRemarks(myRemarks);
+	//enc1.setOccurrenceRemarks(myRemarks);
+	//enc2.setOccurrenceRemarks(myRemarks);
+	//enc3.setOccurrenceRemarks(myRemarks); 
 
-	%>
-	<li>I used remarks: <%=myRemarks %></li>
-	
-	<%
+
 	
 	//add Encounters to Occurrence
-	occ.addEncounter(enc1);
-	occ.addEncounter(enc2);
-	occ.addEncounter(enc3);
-	
+	//occ.addEncounter(enc1);
+	//occ.addEncounter(enc2);
+	//occ.addEncounter(enc3);
+
+	//Occurrence occ = myShepherd.getOccurrence("e3e2bc91-1117-4c82-9759-8d7f55401e4e");
+  Occurrence occ = myShepherd.getOccurrence(myRemarks);
 	
 	/**
 	Start from detection code
@@ -99,7 +98,7 @@ try{
 	<%
     //set the locationID/location/date on all encounters by inspecting detected comments on the first encounter
     if((occ.getEncounters()!=null)&&(occ.getEncounters().get(0)!=null)){
-      YouTube.getV
+    
     
       String locCode=null;
       String location="";
@@ -141,13 +140,18 @@ try{
     //info to check if detector and translate works
 
     %>
-    <li>translate key used: <%=apiKey %></li>
+    <%-- <li>translate key used: <%=apiKey %></li> --%>
     <li>myRemarks were: <%=myRemarks %></li>
     <%-- <li>language of original remarks: <%=DetectTranslate.detect(myRemarks, context) %></li> --%>
-    <li>translated ytRemarks here: <%=ytRemarks %></li>
+    <%-- <li>translated ytRemarks here: <%=ytRemarks %></li> --%>
     <%-- <li>language of translated remarks: <%=DetectTranslate.detect(ytRemarks, context) %></li> --%>
-    <li>Occurrence info: <%=occ %></li>
-    <li>testGetVideoTitle info: <%=testGetVideoTitle %></li>
+    <li>Media Asset index 0: <%=enc.getMedia().get(0) %></li>
+    <li>parent root: <%=enc.getMedia().get(0).getParentRoot(myShepherd) %></li>
+    <li>meta data: <%=enc.getMedia().get(0).getParentRoot(myShepherd).getMetadata() %></li>
+    <%-- <li>data: <%=enc.getMedia().get(0).getParentRoot(myShepherd).getMetadata().getData() %></li> --%>
+    <li>get JSON Title: <%=enc.getMedia().get(0).getParentRoot(myShepherd).getMetadata().getData().getJSONObject("basic").optString("title", "[unknown]") %></li>
+    <li>get JSON Description: <%=enc.getMedia().get(0).getParentRoot(myShepherd).getMetadata().getData().getJSONObject("detailed").optString("description", "[no description]") %></li>
+    <li>get JSON tags: <%=enc.getMedia().get(0).getParentRoot(myShepherd).getMetadata().getData().getJSONObject("detailed").getJSONArray("tags").toString() %></li>
     <%
 
 
@@ -348,12 +352,12 @@ try{
                 e.printStackTrace();
             }
 
-            %>
-            <li>If day set normally: <%=dayFound %></li>
-            <li>Setting date based on tokens, day exception: <%=dayException %></li>
-            <li>Else statement above to set day=-1: <%=dayNeg %></li>
+            //%>
+            //<li>If day set normally: <%=dayFound %></li>
+            //<li>Setting date based on tokens, day exception: <%=dayException %></li>
+            //<li>Else statement above to set day=-1: <%=dayNeg %></li>
 
-            <%
+            //<%
 
               //NLP failure? let's try brute force detection across all languages supported by this Wildbook
             /*
@@ -498,11 +502,11 @@ try{
         String videoId = enc.getEventID().replaceAll("youtube:","");
 
           //String videoId = "JhIcP4K-M6c"; //using Jason's yt account for testing, instead of calling enc.getEventID() to get real videoId
-          %>
-          <li>testinfo: <%=videoId %></li>
-          <li>questionToPost: <%=questionToPost %></li>
+          //%>
+          //<li>testinfo: <%=videoId %></li>
+          //<li>questionToPost: <%=questionToPost %></li>
 
-          <%
+          //<%
           try{
 
             YouTube.postQuestion(questionToPost,videoId, occ);
