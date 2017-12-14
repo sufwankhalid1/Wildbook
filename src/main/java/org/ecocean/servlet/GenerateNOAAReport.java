@@ -36,8 +36,9 @@ public class GenerateNOAAReport extends HttpServlet {
   private static final long serialVersionUID = 1L;
   private static PrintWriter out;
   private static String context; 
-  private static String[] SEARCH_FIELDS = new String[]{"startDate","endDate", "permitName", "speciesName", "groupSize"}; 
-  
+  private static String[] SEARCH_FIELDS = new String[]{"startDate","endDate", "permitName", "speciesName", "groupSize", "reportType"}; 
+  ArrayList<TissueSample> matchingSamples = new ArrayList<>();
+
   public void init(ServletConfig config) throws ServletException {
     super.init(config);
   }
@@ -52,14 +53,13 @@ public class GenerateNOAAReport extends HttpServlet {
     System.out.println("=========== Generating data for NOAA report. ===========");
     Shepherd myShepherd = new Shepherd(context);
     myShepherd.setAction("GenerateNOAAReport.class");
-    
     String urlLoc = "//"+CommonConfiguration.getURLLocation(request);
-
-    int groupTotal = 0;
-    String report = "<table>";    
-    report += "<tr><td>Date</td><td>Species</td><td>Permit Name</td><td>Group Size</td></tr>";
     response.setContentType("text/html");
     request.setAttribute("returnLoc", "//"+urlLoc+"/generateNOAAReport.jsp");
+
+    int groupTotal = 0;
+    String report = "<table class=\"table\">";    
+    report += "<tr><th scope=\"col\">Date</th><th scope=\"col\">Species</th><th scope=\"col\">Permit Name</th><th scope=\"col\">Group Size</th></tr>";
     
     HashMap<String,String> formInput = null;
     try {
@@ -68,9 +68,38 @@ public class GenerateNOAAReport extends HttpServlet {
       System.out.println("Could not retrieve fields to query for NOAA report...");
       e.printStackTrace();
     }
+
+    String reportType = formInput.get("reportType");
+
+    if (reportType.equals("photoID")) {
+      report = photoIDReporting(report,formInput,myShepherd);
+    } else {
+      report = physicalSampleReporting(report,formInput,myShepherd);
+      report = photoIDReporting(report,formInput,myShepherd);
     
+    }
+
+    request.setAttribute("reportType",reportType);
+    request.setAttribute("resultsAmount", String.valueOf(matchingSamples.size()));
+    request.setAttribute("result",report);
+    request.setAttribute("returnUrl","//"+urlLoc+"/reporting/generateNOAAReport.jsp");
+    try {
+      getServletContext().getRequestDispatcher("/reporting/NOAAReport.jsp").forward(request, response);                
+    } catch (Exception e) {
+      e.printStackTrace();
+    } finally {
+      myShepherd.closeDBTransaction();
+      out.close();    
+    }
+  }
+
+  private String photoIDReporting(String report,HashMap<String,String> formInput, Shepherd myShepherd) {
+    
+    return report;
+  }
+
+  private String physicalSampleReporting(String report,HashMap<String,String> formInput, Shepherd myShepherd) {
     Iterator<TissueSample> allSamples = null;
-    ArrayList<TissueSample> matchingSamples = new ArrayList<>();
     try {
       allSamples = myShepherd.getAllTissueSamplesNoQuery().iterator();
     } catch (Exception e) {
@@ -80,26 +109,29 @@ public class GenerateNOAAReport extends HttpServlet {
     
     long startDate = -999;
     long endDate = -999;
-    int count = 0;
     while (allSamples.hasNext()) {
       TissueSample sample = allSamples.next();
 
       System.out.println("Sample? "+sample.toString());
     
       // Verify ts has the same permit, or use all.
-      String permitName = null;
+      String permitName = "All";
+      String permitFromSample = "";
       if (formInput.containsKey("permitName")&&formInput.get("permitName")!=null) {
         permitName = formInput.get("permitName");
+        permitFromSample = sample.getPermit();
         System.out.println("Permit: "+permitName);
-        if ((!permitName.equals("all"))&&!sample.getPermit().toLowerCase().equals(permitName.toLowerCase())) {
+        if ((!permitName.equals("all"))&&!permitFromSample.toLowerCase().equals(permitName.toLowerCase())) {
           System.out.println("Rejected based on non matching Permit selection!");
           continue;
         }
       }
       
       Long sampleDate = null;
+      String shortDate  = null;
       try {
         sampleDate = getAnyDate(sample, myShepherd);                
+        shortDate = getShortDate(sample, myShepherd);
         System.out.println("Sample Date: "+sampleDate);
         if (formInput.containsKey("startDate")) {
           startDate = milliComparator(formInput.get("startDate"));
@@ -124,7 +156,7 @@ public class GenerateNOAAReport extends HttpServlet {
       if (formInput.containsKey("allSpecies")) {
         allSpecies = Boolean.valueOf(formInput.get("allSpecies"));
       }
-      if (!allSpecies&&formInput.containsKey("numSpecies")) {   
+      if (formInput.containsKey("numSpecies")) {   
         int numSpecies = 0;
         Encounter enc = null;
         try {
@@ -143,7 +175,7 @@ public class GenerateNOAAReport extends HttpServlet {
         if (enc!=null) {
           encSpecies = enc.getGenus()+enc.getSpecificEpithet();
           System.out.println("Enc Species: "+encSpecies);
-          if (!speciesArr.contains(encSpecies)||!sample.getObservationByName("Species_ID").getValue().equals("species")) {
+          if (!allSpecies&&!speciesArr.contains(encSpecies)||!sample.getObservationByName("Species_ID").getValue().equals("species")) {
             System.out.println("Rejected based on being wrong species!");
             continue;
           } 
@@ -163,29 +195,17 @@ public class GenerateNOAAReport extends HttpServlet {
       }
       
       report += "<tr>";
-      report += "<td>"+sampleDate+"</td>";
+      report += "<td>"+shortDate+"</td>";
       report += "<td>"+encSpecies+"</td>";
-      report += "<td>"+permitName+"</td>";
+      report += "<td>"+permitFromSample+"</td>";
       report += "<td>"+sampleGroupSize+"</td>";
       report += "</tr>";
 
       matchingSamples.add(sample);
     } 
     report += "</table>";
-    out.println(report);
-    out.println("+++++++++ There are "+matchingSamples.size()+" samples that meet the criteria. +++++++++");
-    //out.println(ServletUtilities.getHeader(request));
-    //constructReport(matchingSamples, out, myShepherd);
-    //out.println(ServletUtilities.getFooter(request));
-    request.setAttribute("returnUrl","//"+urlLoc+"/reporting/generateNOAAReport.jsp");
-    try {
-      getServletContext().getRequestDispatcher("/NOAAReport.jsp").forward(request, response);                
-    } catch (Exception e) {
-      e.printStackTrace();
-    } finally {
-      myShepherd.closeDBTransaction();
-      out.close();    
-    }
+
+    return report;
   }
   
   private HashMap<String,String> retrieveFields(HttpServletRequest request, String[] SEARCH_FIELDS) {
@@ -228,7 +248,22 @@ public class GenerateNOAAReport extends HttpServlet {
     System.out.println("NOAA Report format date: "+date);
     return date;
   }
-  
+
+  private String getShortDate(TissueSample ts, Shepherd myShepherd) {
+    if (ts.getObservationByName("date")!=null) {
+      try {
+        String strDate = ts.getObservationByName("date").getValue();
+        System.out.println("Date from Observation? "+strDate);
+        strDate = formatDate(strDate);
+
+        return strDate;
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }  
+    return null;
+  }
+
   private long getAnyDate(TissueSample ts, Shepherd myShepherd) {
     long anyDate =  -999; 
     if (ts.getObservationByName("date")!=null) {

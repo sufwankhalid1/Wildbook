@@ -143,9 +143,9 @@ Set date range
 					    	<small>Sample Types</small>
 					    </p>
 					    <p>
-					    	<select name="fileType">
-						    	<option value="photoSample">Photo Only</option>
-						    	<option value="multiSample">Photo/Tag/Biopsy</option>
+					    	<select name="reportType">
+						    	<option value="photoID">Photo Only</option>
+						    	<option value="multiID">Photo/Tag/Biopsy</option>
 						    </select>
 					    </p>		    			    	
 			    	</div>
