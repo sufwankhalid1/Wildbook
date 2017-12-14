@@ -138,11 +138,11 @@ try{
 
 
     //info to check if detector and translate works
-
+    String descToDetect = enc.getMedia().get(0).getParentRoot(myShepherd).getMetadata().getData().getJSONObject("detailed").optString("description", "[no description]");
     %>
-    <%-- <li>translate key used: <%=apiKey %></li> --%>
+    <li>translate key used: <%=apiKey %></li>
     <li>myRemarks were: <%=myRemarks %></li>
-    <%-- <li>language of original remarks: <%=DetectTranslate.detect(myRemarks, context) %></li> --%>
+    <li>language of video description: <%=DetectTranslate.detect(descToDetect, context) %></li>
     <%-- <li>translated ytRemarks here: <%=ytRemarks %></li> --%>
     <%-- <li>language of translated remarks: <%=DetectTranslate.detect(ytRemarks, context) %></li> --%>
     <li>Media Asset index 0: <%=enc.getMedia().get(0) %></li>
