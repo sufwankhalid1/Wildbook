@@ -5,9 +5,23 @@ org.joda.time.format.DateTimeFormatter,
 org.joda.time.format.ISODateTimeFormat,java.net.*,
 org.ecocean.grid.*,
 org.ecocean.translate.*,
+org.ecocean.YouTube,
 org.ecocean.ParseDateLocation.*,
 org.ecocean.ocr.*,
-java.io.*,java.util.*, java.io.FileInputStream, java.io.File, java.io.FileNotFoundException, org.ecocean.*,org.ecocean.servlet.*,org.ecocean.media.*,javax.jdo.*, java.lang.StringBuffer, java.util.Vector, java.util.Iterator, java.lang.NumberFormatException"%>
+org.json.JSONObject,
+java.io.*,
+java.util.*, 
+java.io.FileInputStream, 
+java.io.File, 
+java.io.FileNotFoundException, 
+org.ecocean.*,
+org.ecocean.servlet.*,
+org.ecocean.media.*,
+javax.jdo.*, 
+java.lang.StringBuffer, 
+java.util.Vector, 
+java.util.Iterator, 
+java.lang.NumberFormatException"%>
 
 
 
@@ -17,12 +31,11 @@ java.io.*,java.util.*, java.io.FileInputStream, java.io.File, java.io.FileNotFou
 
 
 <%
-
+YouTube.get
 String context="context0";
 context=ServletUtilities.getContext(request);
 
 Shepherd myShepherd=new Shepherd(context);
-
 
 
 %>
@@ -48,6 +61,7 @@ try{
 	//create new Occurrence object
 	Occurrence occ=new Occurrence();
 	occ.setOccurrenceID("12345");
+  //occ.setOccurrenceID("8xWBlYsiC6U");
 	
 	//create an Encounter, 1 or more
 	Encounter enc1 = new Encounter();
@@ -108,12 +122,7 @@ try{
       List<String> loopingDates = new ArrayList<String>();
 
       String apiKey= CommonConfiguration.getProperty("translate_key", context);
-
-      %>
-	  <li>Occurrence info: <%=occ %></li>
-	  <li>Shepherd info: <%=myShepherd %></li>
-      <%
-
+      String testGetVideoTitle = "";
       String detectedLanguage="";
 
       try{
@@ -134,11 +143,12 @@ try{
 
     %>
     <li>translate key used: <%=apiKey %></li>
-
     <li>myRemarks were: <%=myRemarks %></li>
-    <li>language of original remarks: <%=DetectTranslate.detect(myRemarks, context) %></li>
+    <%-- <li>language of original remarks: <%=DetectTranslate.detect(myRemarks, context) %></li> --%>
     <li>translated ytRemarks here: <%=ytRemarks %></li>
-    <li>language of translated remarks: <%=DetectTranslate.detect(ytRemarks, context) %></li>
+    <%-- <li>language of translated remarks: <%=DetectTranslate.detect(ytRemarks, context) %></li> --%>
+    <li>Occurrence info: <%=occ %></li>
+    <%-- <li>testGetVideoTitle info: <%=testGetVideoTitle %></li> --%>
     <%
 
 
@@ -510,7 +520,6 @@ try{
 
       }
 
-
 }
 catch(Exception e){
 	myShepherd.rollbackDBTransaction();
@@ -524,6 +533,11 @@ finally{
 	myShepherd.closeDBTransaction();
 
 }
+
+
+
+
+
 
 %>
 
