@@ -139,19 +139,25 @@ try{
 
     //info to check if detector and translate works
     String descToDetect = enc.getMedia().get(0).getParentRoot(myShepherd).getMetadata().getData().getJSONObject("detailed").optString("description", "[no description]");
+    String titleToDetect = enc.getMedia().get(0).getParentRoot(myShepherd).getMetadata().getData().getJSONObject("basic").optString("title", "[unknown]");
+    String tagsToDetect = enc.getMedia().get(0).getParentRoot(myShepherd).getMetadata().getData().getJSONObject("detailed").getJSONArray("tags").toString(); 
+    
     %>
     <li>translate key used: <%=apiKey %></li>
     <li>myRemarks were: <%=myRemarks %></li>
-    <li>language of video description: <%=DetectTranslate.detect(descToDetect, context) %></li>
-    <%-- <li>translated ytRemarks here: <%=ytRemarks %></li> --%>
-    <%-- <li>language of translated remarks: <%=DetectTranslate.detect(ytRemarks, context) %></li> --%>
     <li>Media Asset index 0: <%=enc.getMedia().get(0) %></li>
     <li>parent root: <%=enc.getMedia().get(0).getParentRoot(myShepherd) %></li>
     <li>meta data: <%=enc.getMedia().get(0).getParentRoot(myShepherd).getMetadata() %></li>
     <%-- <li>data: <%=enc.getMedia().get(0).getParentRoot(myShepherd).getMetadata().getData() %></li> --%>
     <li>get JSON Title: <%=enc.getMedia().get(0).getParentRoot(myShepherd).getMetadata().getData().getJSONObject("basic").optString("title", "[unknown]") %></li>
+    <li>translated video title here: <%=DetectTranslate.translate(titleToDetect, context) %></li>
+    <li>language of video title: <%=DetectTranslate.detect(titleToDetect, context) %></li>
     <li>get JSON Description: <%=enc.getMedia().get(0).getParentRoot(myShepherd).getMetadata().getData().getJSONObject("detailed").optString("description", "[no description]") %></li>
+    <li>translated video description here: <%=DetectTranslate.translate(descToDetect, context) %></li>
+    <li>language of video description: <%=DetectTranslate.detect(descToDetect, context) %></li>
     <li>get JSON tags: <%=enc.getMedia().get(0).getParentRoot(myShepherd).getMetadata().getData().getJSONObject("detailed").getJSONArray("tags").toString() %></li>
+    <li>translated video tags here: <%=DetectTranslate.translate(tagsToDetect, context) %></li>
+    <li>language of video tags: <%=DetectTranslate.detect(tagsToDetect, context) %></li>
     <%
 
 
