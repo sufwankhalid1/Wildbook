@@ -89,7 +89,8 @@ public class GenerateNOAAReport extends HttpServlet {
       e.printStackTrace();
     } finally {
       myShepherd.closeDBTransaction();
-      out.close();    
+      out.close();  
+      matchingSamples.clear();  
     }
   }
 
@@ -99,6 +100,7 @@ public class GenerateNOAAReport extends HttpServlet {
   }
 
   private String physicalSampleReporting(String report,HashMap<String,String> formInput, Shepherd myShepherd) {
+    // Yuck.
     Iterator<TissueSample> allSamples = null;
     try {
       allSamples = myShepherd.getAllTissueSamplesNoQuery().iterator();
