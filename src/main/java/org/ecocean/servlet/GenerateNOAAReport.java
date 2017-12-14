@@ -177,6 +177,15 @@ public class GenerateNOAAReport extends HttpServlet {
     //out.println(ServletUtilities.getHeader(request));
     //constructReport(matchingSamples, out, myShepherd);
     //out.println(ServletUtilities.getFooter(request));
+    request.setAttribute("returnUrl","//"+urlLoc+"/reporting/generateNOAAReport.jsp");
+    try {
+      getServletContext().getRequestDispatcher("/NOAAReport.jsp").forward(request, response);                
+    } catch (Exception e) {
+      e.printStackTrace();
+    } finally {
+      myShepherd.closeDBTransaction();
+      out.close();    
+    }
   }
   
   private HashMap<String,String> retrieveFields(HttpServletRequest request, String[] SEARCH_FIELDS) {
