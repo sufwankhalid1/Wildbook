@@ -5,7 +5,6 @@ org.joda.time.format.DateTimeFormatter,
 org.joda.time.format.ISODateTimeFormat,java.net.*,
 org.ecocean.grid.*,
 org.ecocean.translate.*,
-org.ecocean.YouTube,
 org.ecocean.ParseDateLocation.*,
 org.ecocean.ocr.*,
 org.json.JSONObject,
@@ -31,7 +30,7 @@ java.lang.NumberFormatException"%>
 
 
 <%
-YouTube.get
+
 String context="context0";
 context=ServletUtilities.getContext(request);
 
@@ -100,8 +99,8 @@ try{
 	<%
     //set the locationID/location/date on all encounters by inspecting detected comments on the first encounter
     if((occ.getEncounters()!=null)&&(occ.getEncounters().get(0)!=null)){
-
-
+      YouTube.getV
+    
       String locCode=null;
       String location="";
       int year=-1;
@@ -148,7 +147,7 @@ try{
     <li>translated ytRemarks here: <%=ytRemarks %></li>
     <%-- <li>language of translated remarks: <%=DetectTranslate.detect(ytRemarks, context) %></li> --%>
     <li>Occurrence info: <%=occ %></li>
-    <%-- <li>testGetVideoTitle info: <%=testGetVideoTitle %></li> --%>
+    <li>testGetVideoTitle info: <%=testGetVideoTitle %></li>
     <%
 
 
