@@ -2,6 +2,8 @@ package org.ecocean.servlet;
 
 import org.json.JSONObject;
 
+import com.amazonaws.Request;
+
 import java.io.*;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -36,7 +38,7 @@ public class GenerateNOAAReport extends HttpServlet {
   private static final long serialVersionUID = 1L;
   private static PrintWriter out;
   private static String context; 
-  private static String[] SEARCH_FIELDS = new String[]{"startDate","endDate", "permitName", "speciesName", "groupSize", "reportType"}; 
+  private static String[] SEARCH_FIELDS = new String[]{"startDate","endDate", "permitName", "speciesName", "reportType", "numSpecies"}; 
   ArrayList<TissueSample> matchingSamples = new ArrayList<>();
 
   public void init(ServletConfig config) throws ServletException {
@@ -72,12 +74,13 @@ public class GenerateNOAAReport extends HttpServlet {
     String reportType = formInput.get("reportType");
 
     if (reportType.equals("photoID")) {
-      report = photoIDReporting(report,formInput,myShepherd);
+      report = photoIDReporting(report,formInput,myShepherd,request);
     } else {
-      report = physicalSampleReporting(report,formInput,myShepherd);
-      report = photoIDReporting(report,formInput,myShepherd);
-    
+      report = physicalSampleReporting(report,formInput,myShepherd,request);
+      report = photoIDReporting(report,formInput,myShepherd,request);
     }
+
+    // TODO - Structure in this order: Summary of PhotoID, physical then detail photoID then physical. 
 
     request.setAttribute("reportType",reportType);
     request.setAttribute("resultsAmount", String.valueOf(matchingSamples.size()));
@@ -94,12 +97,12 @@ public class GenerateNOAAReport extends HttpServlet {
     }
   }
 
-  private String photoIDReporting(String report,HashMap<String,String> formInput, Shepherd myShepherd) {
+  private String photoIDReporting(String report,HashMap<String,String> formInput, Shepherd myShepherd, HttpServletRequest request) {
     
     return report;
   }
 
-  private String physicalSampleReporting(String report,HashMap<String,String> formInput, Shepherd myShepherd) {
+  private String physicalSampleReporting(String report,HashMap<String,String> formInput, Shepherd myShepherd, HttpServletRequest request) {
     // Yuck.
     Iterator<TissueSample> allSamples = null;
     try {
@@ -153,61 +156,73 @@ public class GenerateNOAAReport extends HttpServlet {
         npe.printStackTrace();
       }
       
-      String encSpecies = "";
+      ArrayList<String> speciesArr = new ArrayList<>();
       boolean allSpecies = false;
+      int numSpecies = 0;
       if (formInput.containsKey("allSpecies")) {
         allSpecies = Boolean.valueOf(formInput.get("allSpecies"));
+        System.out.println("All Species? "+formInput.get("allSpecies"));
       }
-      if (formInput.containsKey("numSpecies")) {   
-        int numSpecies = 0;
-        Encounter enc = null;
-        try {
-          numSpecies = Integer.valueOf(formInput.get("numSpecies"));
-          enc = myShepherd.getEncounter(sample.getCorrespondingEncounterNumber());
-        } catch (Exception e) {
-          e.printStackTrace();
-        }
-        ArrayList<String> speciesArr = new ArrayList<>();
+      try {
+        numSpecies = Integer.valueOf(formInput.get("numSpecies"));
+        System.out.println("Number of species? "+numSpecies);
         for (int i=0;i<numSpecies;i++) {
           String name = "speciesName"+i;
-          if (formInput.containsKey(name)) {
-            speciesArr.add(formInput.get(name));
+          if (request.getParameter(name)!=null) {
+            speciesArr.add(request.getParameter(name).toLowerCase());
+            System.out.println("Species added to list: "+request.getParameter(name).toLowerCase());
           }
         }
-        if (enc!=null) {
-          encSpecies = enc.getGenus()+enc.getSpecificEpithet();
-          System.out.println("Enc Species: "+encSpecies);
-          if (!allSpecies&&!speciesArr.contains(encSpecies)||!sample.getObservationByName("Species_ID").getValue().equals("species")) {
-            System.out.println("Rejected based on being wrong species!");
-            continue;
-          } 
-        } 
-      }
-      
-      Integer sampleGroupSize = null;
-      
-      // If it passes all the gates, add to the final result Array.
-      String lat = "";
-      String lon = "";
-      try {
-        lat = sample.getObservationByName("Location_(Latitude)").getValue();
-        lon = sample.getObservationByName("Location_(Longitude)").getValue();
       } catch (Exception e) {
         e.printStackTrace();
       }
+
+      Encounter enc = myShepherd.getEncounter(sample.getCorrespondingEncounterNumber());
+      String species = null;
+      if (enc!=null) {
+        species = (enc.getGenus()+" "+enc.getSpecificEpithet()).toLowerCase();
+      }
+      String obSpecies = sample.getObservationByName("Species_ID").getValue().toLowerCase();
+      System.out.println("Enc Species: "+species);
+      System.out.println("Ob Species: "+obSpecies);
+      System.out.println("Species Names from Arr: "+speciesArr.toString());
+      if (!allSpecies&&!speciesArr.contains(species)&&!speciesArr.contains(obSpecies)) {
+        continue;
+      } else if (species==null&&obSpecies.length()>0) {
+        species = obSpecies;
+      }
       
+      Integer groupSize = getPhysicalSamplingGroupSize(myShepherd,sample);
+      
+      //String lat = "";
+      //String lon = "";
+      //try {
+      //  lat = sample.getObservationByName("Location_(Latitude)").getValue();
+      //  lon = sample.getObservationByName("Location_(Longitude)").getValue();
+      //} catch (Exception e) {
+      //  e.printStackTrace();
+      //}
       report += "<tr>";
       report += "<td>"+shortDate+"</td>";
-      report += "<td>"+encSpecies+"</td>";
+      report += "<td>"+species+"</td>";
       report += "<td>"+permitFromSample+"</td>";
-      report += "<td>"+sampleGroupSize+"</td>";
+      report += "<td>"+groupSize+"</td>";
       report += "</tr>";
-
       matchingSamples.add(sample);
     } 
     report += "</table>";
-
     return report;
+  }
+
+  private Integer getPhysicalSamplingGroupSize(Shepherd myShepherd, TissueSample sample) {
+    Integer groupSize = null;
+    try {
+      Observation groupOb = sample.getObservationByName("Group_Size");
+      groupSize = Integer.valueOf(groupOb.getValue());
+    } catch (NullPointerException npe) {
+      npe.printStackTrace();
+    }
+    return groupSize;  
   }
   
   private HashMap<String,String> retrieveFields(HttpServletRequest request, String[] SEARCH_FIELDS) {
