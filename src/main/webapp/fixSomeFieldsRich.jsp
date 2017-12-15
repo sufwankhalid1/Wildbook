@@ -75,7 +75,7 @@ try{
 	if(request.getParameter("remarks")!=null){
 		myRemarks=request.getParameter("remarks");
 	}
-	//enc1.setOccurrenceRemarks(myRemarks);
+	
 	//enc2.setOccurrenceRemarks(myRemarks);
 	//enc3.setOccurrenceRemarks(myRemarks); 
 
@@ -88,7 +88,6 @@ try{
 
 	//Occurrence occ = myShepherd.getOccurrence("e3e2bc91-1117-4c82-9759-8d7f55401e4e");
   Occurrence occ = myShepherd.getOccurrence(myRemarks);
-	
 	/**
 	Start from detection code
 	*/
@@ -98,7 +97,6 @@ try{
 	<%
     //set the locationID/location/date on all encounters by inspecting detected comments on the first encounter
     if((occ.getEncounters()!=null)&&(occ.getEncounters().get(0)!=null)){
-    
     
       String locCode=null;
       String location="";
@@ -120,7 +118,7 @@ try{
       List<String> loopingDates = new ArrayList<String>();
 
       String apiKey= CommonConfiguration.getProperty("translate_key", context);
-      String testGetVideoTitle = "";
+      String testVideoId = enc.getEventID().replaceAll("youtube:","");
       String detectedLanguage="";
 
       try{
@@ -144,22 +142,31 @@ try{
     
     %>
     <li>translate key used: <%=apiKey %></li>
-    <li>myRemarks were: <%=myRemarks %></li>
+    <li>Occurrence id used: <%=myRemarks %></li>
+    <li>******</li>
     <li>Media Asset index 0: <%=enc.getMedia().get(0) %></li>
     <li>parent root: <%=enc.getMedia().get(0).getParentRoot(myShepherd) %></li>
     <li>meta data: <%=enc.getMedia().get(0).getParentRoot(myShepherd).getMetadata() %></li>
     <%-- <li>data: <%=enc.getMedia().get(0).getParentRoot(myShepherd).getMetadata().getData() %></li> --%>
+    <li>******</li>
     <li>get JSON Title: <%=enc.getMedia().get(0).getParentRoot(myShepherd).getMetadata().getData().getJSONObject("basic").optString("title", "[unknown]") %></li>
     <li>translated video title here: <%=DetectTranslate.translate(titleToDetect, context) %></li>
     <li>language of video title: <%=DetectTranslate.detect(titleToDetect, context) %></li>
+    <li>******</li>
     <li>get JSON Description: <%=enc.getMedia().get(0).getParentRoot(myShepherd).getMetadata().getData().getJSONObject("detailed").optString("description", "[no description]") %></li>
     <li>translated video description here: <%=DetectTranslate.translate(descToDetect, context) %></li>
     <li>language of video description: <%=DetectTranslate.detect(descToDetect, context) %></li>
+    <li>******</li>
     <li>get JSON tags: <%=enc.getMedia().get(0).getParentRoot(myShepherd).getMetadata().getData().getJSONObject("detailed").getJSONArray("tags").toString() %></li>
     <li>translated video tags here: <%=DetectTranslate.translate(tagsToDetect, context) %></li>
     <li>language of video tags: <%=DetectTranslate.detect(tagsToDetect, context) %></li>
-    <%
+    <li>******</li>
+    <li>YouTube video link: https://www.youtube.com/watch?v=<%=testVideoId %></li>
 
+
+
+    <%
+  
 
       //grab texts from yt videos through OCR (before we parse for location/ID and Date) and add it to remarks variable.
       String ocrRemarks="";
@@ -228,6 +235,12 @@ try{
           catch(Exception e){
             e.printStackTrace();
           }
+
+          %>
+          <li>Location of video: <%=locCode %></li>
+          <li>******</li>
+
+          <%
 
 
           //reset date to exclude OCR, which can currently confuse NLP
@@ -358,12 +371,6 @@ try{
                 e.printStackTrace();
             }
 
-            //%>
-            //<li>If day set normally: <%=dayFound %></li>
-            //<li>Setting date based on tokens, day exception: <%=dayException %></li>
-            //<li>Else statement above to set day=-1: <%=dayNeg %></li>
-
-            //<%
 
               //NLP failure? let's try brute force detection across all languages supported by this Wildbook
             /*
@@ -433,6 +440,7 @@ try{
         catch (Exception props_e) {
           props_e.printStackTrace();
         }
+
       }
 
 //Find dates for our encounters
@@ -442,9 +450,9 @@ try{
       %>
       <li>If date found with NLP or brute force: <%=dayBruteForce %></li>
       <li>Neg day brute force: <%=negDayBruteForce %></li>
-
       <li>If encounters retrieved: <%=myEncounters %></li>
-      <li>Individual encounter dates caught here: <%=encSetDate %>
+      <li>******</li>
+
       <%
 
 
@@ -501,6 +509,7 @@ try{
               <li>whenWhere: <%=quest.getProperty("whenWhere") %></li>
               <li>when: <%=quest.getProperty("when") %></li>
               <li>where: <%=quest.getProperty("where") %></li>
+              <li>******</li>
 
               <%
 
@@ -508,11 +517,11 @@ try{
         String videoId = enc.getEventID().replaceAll("youtube:","");
 
           //String videoId = "JhIcP4K-M6c"; //using Jason's yt account for testing, instead of calling enc.getEventID() to get real videoId
-          //%>
-          //<li>testinfo: <%=videoId %></li>
-          //<li>questionToPost: <%=questionToPost %></li>
+          %>
+          
+          <li>questionToPost: <%=questionToPost %></li>
 
-          //<%
+          <%
           try{
 
             YouTube.postQuestion(questionToPost,videoId, occ);
@@ -554,7 +563,7 @@ finally{
 
 
 <form action="fixSomeFieldsRich.jsp" >
-	<p>Remarks: <input name="remarks" type="text"></input></p>
+	<p>Occurrence ID input: <input name="remarks" type="text"></input></p>
 
 </form>
 
