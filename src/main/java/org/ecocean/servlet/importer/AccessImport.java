@@ -1390,6 +1390,27 @@ public class AccessImport extends HttpServlet {
               ts.addObservation(indyID);     
             } 
 
+            columnMasterList.remove("Group_Size");
+            if (thisRow.get("Group_Size") != null) {
+              String sizeString = thisRow.getString("Group_Size").toString();
+              String cleanSizeString = null;
+
+              // Get the garbage out. Only taking lower bound estimate. 
+              for (int i=0;i<sizeString.length();i++) {
+                if (Character.isDigit(sizeString.charAt(i))) {
+                  cleanSizeString += sizeString.charAt(i);
+                } else {
+                  break;
+                }
+              }
+
+              Observation groupSize = new Observation("Group_Size", sizeString, "TissueSample", ts.getSampleID());   
+              myShepherd.getPM().makePersistent(groupSize);
+              myShepherd.commitDBTransaction();
+              myShepherd.beginDBTransaction();
+              ts.addObservation(groupSize);     
+            } 
+
             processTags(thisRow, myShepherd, occ);
             columnMasterList.remove("DTAG_ID");
             columnMasterList.remove("SatTag_ID");
