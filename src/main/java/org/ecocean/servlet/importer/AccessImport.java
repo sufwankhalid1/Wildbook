@@ -1394,7 +1394,6 @@ public class AccessImport extends HttpServlet {
             if (thisRow.get("Group_Size") != null) {
               String sizeString = thisRow.getString("Group_Size").toString();
               String cleanSizeString = null;
-
               // Get the garbage out. Only taking lower bound estimate. 
               for (int i=0;i<sizeString.length();i++) {
                 if (Character.isDigit(sizeString.charAt(i))) {
@@ -1403,12 +1402,21 @@ public class AccessImport extends HttpServlet {
                   break;
                 }
               }
-
-              Observation groupSize = new Observation("Group_Size", sizeString, "TissueSample", ts.getSampleID());   
+              Observation groupSize = new Observation("Group_Size", cleanSizeString, "TissueSample", ts.getSampleID());   
               myShepherd.getPM().makePersistent(groupSize);
               myShepherd.commitDBTransaction();
               myShepherd.beginDBTransaction();
               ts.addObservation(groupSize);     
+            } 
+
+            columnMasterList.remove("Species_ID");
+            if (thisRow.get("Species_ID") != null) {
+              String id = thisRow.getString("Species_ID").toString();
+              Observation idOb = new Observation("Species_ID", id, "TissueSample", ts.getSampleID());   
+              myShepherd.getPM().makePersistent(idOb);
+              myShepherd.commitDBTransaction();
+              myShepherd.beginDBTransaction();
+              ts.addObservation(idOb);     
             } 
 
             processTags(thisRow, myShepherd, occ);

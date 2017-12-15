@@ -22,7 +22,6 @@ for (TissueSample ts : tissueSamples) {
 	}
 }
 
-
 ArrayList<String> speciesNames = new ArrayList<String>();
 try {
 	speciesNames = Util.findSpeciesNames(langCode, context);
@@ -38,20 +37,6 @@ String lastYear = dtfOut.print(previousDate);
 
 myShepherd.closeDBTransaction();
 %>
-
-<!-- 
-Need to search by...
-
-Permit
-Species
-group size
-
-event - thinking the event will just be the occurrence ID, or survey ID? 
-
-Set date range
-
- -->
-
 
 <jsp:include page="../header.jsp" flush="true" />
 

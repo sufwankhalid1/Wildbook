@@ -61,7 +61,7 @@ public class GenerateNOAAReport extends HttpServlet {
 
     int groupTotal = 0;
     String report = "<table class=\"table\">";    
-    report += "<tr><th scope=\"col\">Date</th><th scope=\"col\">Species</th><th scope=\"col\">Permit Name</th><th scope=\"col\">Group Size</th></tr>";
+    report += "<tr><th scope=\"col\">Date</th><th scope=\"col\">Species</th><th scope=\"col\">Permit Name</th><th scope=\"col\">Sample State</th><th scope=\"col\">Group Size</th></tr>";
     
     HashMap<String,String> formInput = null;
     try {
@@ -141,14 +141,14 @@ public class GenerateNOAAReport extends HttpServlet {
         if (formInput.containsKey("startDate")) {
           startDate = milliComparator(formInput.get("startDate"));
           if (startDate>sampleDate) {
-            System.out.println("Rejected based on being outside start date bounds! Start Date: "+startDate);
+            //System.out.println("Rejected based on being outside start date bounds! Start Date: "+startDate);
             continue;
           }
         }
         if (formInput.containsKey("endDate")) {
           endDate = milliComparator(formInput.get("endDate"));
           if (endDate<sampleDate) {
-            System.out.println("Rejected based on being outside end date bounds! End Date: "+endDate);
+            //System.out.println("Rejected based on being outside end date bounds! End Date: "+endDate);
             continue;
           }
         }
@@ -159,18 +159,18 @@ public class GenerateNOAAReport extends HttpServlet {
       ArrayList<String> speciesArr = new ArrayList<>();
       boolean allSpecies = false;
       int numSpecies = 0;
-      if (formInput.containsKey("allSpecies")) {
-        allSpecies = Boolean.valueOf(formInput.get("allSpecies"));
-        System.out.println("All Species? "+formInput.get("allSpecies"));
+      if (request.getParameter("allSpecies")!=null) {
+        allSpecies = Boolean.valueOf((request.getParameter("allSpecies")));
+        System.out.println("All Species? "+(request.getParameter("allSpecies")));
       }
       try {
         numSpecies = Integer.valueOf(formInput.get("numSpecies"));
-        System.out.println("Number of species? "+numSpecies);
+        //System.out.println("Number of species? "+numSpecies);
         for (int i=0;i<numSpecies;i++) {
           String name = "speciesName"+i;
           if (request.getParameter(name)!=null) {
             speciesArr.add(request.getParameter(name).toLowerCase());
-            System.out.println("Species added to list: "+request.getParameter(name).toLowerCase());
+            //System.out.println("Species added to list: "+request.getParameter(name).toLowerCase());
           }
         }
       } catch (Exception e) {
@@ -183,17 +183,18 @@ public class GenerateNOAAReport extends HttpServlet {
         species = (enc.getGenus()+" "+enc.getSpecificEpithet()).toLowerCase();
       }
       String obSpecies = sample.getObservationByName("Species_ID").getValue().toLowerCase();
-      System.out.println("Enc Species: "+species);
-      System.out.println("Ob Species: "+obSpecies);
-      System.out.println("Species Names from Arr: "+speciesArr.toString());
       if (!allSpecies&&!speciesArr.contains(species)&&!speciesArr.contains(obSpecies)) {
         continue;
       } else if (species==null&&obSpecies.length()>0) {
-        species = obSpecies;
+        species = obSpecies.substring(0,1).toUpperCase() + obSpecies.substring(1);
       }
       
       Integer groupSize = getPhysicalSamplingGroupSize(myShepherd,sample);
       
+      String state = "Unspecified";
+      if (sample.getState()!=null) {
+        state = sample.getState();
+      }
       //String lat = "";
       //String lon = "";
       //try {
@@ -206,6 +207,7 @@ public class GenerateNOAAReport extends HttpServlet {
       report += "<td>"+shortDate+"</td>";
       report += "<td>"+species+"</td>";
       report += "<td>"+permitFromSample+"</td>";
+      report += "<td>"+state+"</td>";
       report += "<td>"+groupSize+"</td>";
       report += "</tr>";
       matchingSamples.add(sample);
