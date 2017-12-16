@@ -1393,7 +1393,7 @@ public class AccessImport extends HttpServlet {
             columnMasterList.remove("Group_Size");
             if (thisRow.get("Group_Size") != null) {
               String sizeString = thisRow.getString("Group_Size").toString();
-              String cleanSizeString = null;
+              String cleanSizeString = "";
               // Get the garbage out. Only taking lower bound estimate. 
               for (int i=0;i<sizeString.length();i++) {
                 if (Character.isDigit(sizeString.charAt(i))) {
