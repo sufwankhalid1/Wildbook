@@ -59,10 +59,14 @@ public class GenerateNOAAReport extends HttpServlet {
     response.setContentType("text/html");
     request.setAttribute("returnLoc", "//"+urlLoc+"/generateNOAAReport.jsp");
 
-    int groupTotal = 0;
-    String report = "<table class=\"table\">";    
-    report += "<tr><th scope=\"col\">Date</th><th scope=\"col\">Species</th><th scope=\"col\">Permit Name</th><th scope=\"col\">Sample State</th><th scope=\"col\">Group Size</th></tr>";
+    //int groupTotal = 0;
+
+    String physicalReport = "<table class=\"table\">";    
+    physicalReport += "<tr><th scope=\"col\">Date</th><th scope=\"col\">Species</th><th scope=\"col\">Permit Name</th><th scope=\"col\">Sample State</th><th scope=\"col\">Group Size</th></tr>";
     
+    String photoIDReport = "<table class=\"table\">"; 
+    photoIDReport += "<tr><th scope=\"col\">Date</th><th scope=\"col\">Species</th><th scope=\"col\">Permit Name</th><th scope=\"col\">Photo Number</th></tr>";
+
     HashMap<String,String> formInput = null;
     try {
       formInput = retrieveFields(request, SEARCH_FIELDS);  
@@ -74,13 +78,19 @@ public class GenerateNOAAReport extends HttpServlet {
     String reportType = formInput.get("reportType");
 
     if (reportType.equals("photoID")) {
-      report = photoIDReporting(report,formInput,myShepherd,request);
+      photoIDReport = photoIDReporting(photoIDReport,formInput,myShepherd,request);
     } else {
-      report = physicalSampleReporting(report,formInput,myShepherd,request);
-      report = photoIDReporting(report,formInput,myShepherd,request);
+      physicalReport = physicalSampleReporting(physicalReport,formInput,myShepherd,request);
+      photoIDReport = photoIDReporting(photoIDReport,formInput,myShepherd,request);
     }
 
     // TODO - Structure in this order: Summary of PhotoID, physical then detail photoID then physical. 
+    String report = "";
+    if (reportType=="photoID") {
+      report = photoIDReport;
+    } else {
+      report = photoIDReport + physicalReport;
+    }
 
     request.setAttribute("reportType",reportType);
     request.setAttribute("resultsAmount", String.valueOf(matchingSamples.size()));
@@ -99,6 +109,69 @@ public class GenerateNOAAReport extends HttpServlet {
 
   private String photoIDReporting(String report,HashMap<String,String> formInput, Shepherd myShepherd, HttpServletRequest request) {
     
+    Iterator<Occurrence> occs = myShepherd.getAllOccurrences();
+    while (occs.hasNext()) {
+      Occurrence occ = occs.next();
+      long startDate = -999;
+      long endDate = -999;
+      long milliDate = -999;
+      String shortDate  = null;
+      try {
+        milliDate = getMilliOccDate(occ, myShepherd);               
+        System.out.println("Sample Date in PhotoID: "+milliDate);
+        if (formInput.containsKey("startDate")&&formInput.containsKey("endDate")) {
+          startDate = milliComparator(formInput.get("startDate"));
+          endDate = milliComparator(formInput.get("endDate"));
+          if (startDate>milliDate||endDate<milliDate) {
+            continue;
+          }
+        }
+      } catch (NullPointerException npe) {
+        npe.printStackTrace();
+      }
+
+      ArrayList<String> speciesArr = new ArrayList<>();
+      boolean allSpecies = false;
+      int numSpecies = 0;
+      if (request.getParameter("allSpecies")!=null) {
+        allSpecies = Boolean.valueOf((request.getParameter("allSpecies")));
+        System.out.println("All Species? "+(request.getParameter("allSpecies")));
+      }
+      try {
+        numSpecies = Integer.valueOf(formInput.get("numSpecies"));
+        System.out.println("Number of species? "+numSpecies);
+        for (int i=0;i<numSpecies;i++) {
+          String name = "speciesName"+i;
+          if (request.getParameter(name)!=null) {
+            speciesArr.add(request.getParameter(name).toLowerCase());
+            System.out.println("Species added to list: "+request.getParameter(name).toLowerCase());
+          }
+        }
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+      Encounter enc = occ.getEncounters().get(0);
+      System.out.println("Grabbing enc? "+enc.getCatalogNumber());
+      String species = null;
+      if (enc!=null) {
+        species = (enc.getGenus()+" "+enc.getSpecificEpithet()).toLowerCase();
+        // This is getting null...
+        System.out.println("Species? "+species);
+        System.out.println("Enc got anything?? "+enc.toString());
+        System.out.println("Enc Genus? "+enc.getGenus()+" Enc SpecEp? "+enc.getSpecificEpithet());
+      }
+      if (!allSpecies&&!speciesArr.contains(species)) {
+        continue;
+      } else {
+        species = species.substring(0,1).toUpperCase() + species.substring(1);
+      }
+      System.out.println("Species? "+species+" Date? "+milliDate);
+   
+    }
+
+
+
+
     return report;
   }
 
@@ -116,9 +189,6 @@ public class GenerateNOAAReport extends HttpServlet {
     long endDate = -999;
     while (allSamples.hasNext()) {
       TissueSample sample = allSamples.next();
-
-      System.out.println("Sample? "+sample.toString());
-    
       // Verify ts has the same permit, or use all.
       String permitName = "All";
       String permitFromSample = "";
@@ -326,7 +396,24 @@ public class GenerateNOAAReport extends HttpServlet {
     }
     return anyDate;
   }
+
+  private long getMilliOccDate(Occurrence occ, Shepherd myShepherd) {
+    long milliDate = -999;
+    Encounter enc = occ.getEncounters().get(0);
+    try {
+      milliDate = enc.getDateInMilliseconds();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return milliDate;
+  }
+
 }
+
+
+
+
+
 
 
 
