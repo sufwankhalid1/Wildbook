@@ -1,37 +1,31 @@
 package org.ecocean.servlet.importer;
 
-import org.apache.poi.xssf.usermodel.XSSFCell;
-import org.apache.poi.xssf.usermodel.XSSFRow;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.ecocean.*;
-import org.ecocean.genetics.BiologicalMeasurement;
-import org.ecocean.genetics.SexAnalysis;
-import org.ecocean.genetics.TissueSample;
-import org.ecocean.servlet.*;
-import org.ecocean.tag.DigitalArchiveTag;
-import org.ecocean.tag.SatelliteTag;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-import org.ecocean.identity.*;
-import org.ecocean.media.*;
-import org.ecocean.movement.Path;
-import org.ecocean.movement.SurveyTrack;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
+import java.math.BigDecimal;
+import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.text.DateFormat;
-import java.text.DecimalFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
-
-
-import org.json.JSONObject;
 
 import com.healthmarketscience.jackcess.Column;
 import com.healthmarketscience.jackcess.Database;
@@ -39,10 +33,31 @@ import com.healthmarketscience.jackcess.DatabaseBuilder;
 import com.healthmarketscience.jackcess.Row;
 import com.healthmarketscience.jackcess.Table;
 
-import org.json.JSONArray;
-
-import java.io.*;
-import java.math.BigDecimal;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.ecocean.CommonConfiguration;
+import org.ecocean.Encounter;
+import org.ecocean.MarkedIndividual;
+import org.ecocean.Measurement;
+import org.ecocean.Observation;
+import org.ecocean.Occurrence;
+import org.ecocean.PointLocation;
+import org.ecocean.Shepherd;
+import org.ecocean.StartupWildbook;
+import org.ecocean.Survey;
+import org.ecocean.Util;
+import org.ecocean.genetics.SexAnalysis;
+import org.ecocean.genetics.TissueSample;
+import org.ecocean.movement.Path;
+import org.ecocean.movement.SurveyTrack;
+import org.ecocean.servlet.ServletUtilities;
+import org.ecocean.tag.DigitalArchiveTag;
+import org.ecocean.tag.SatelliteTag;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 
 public class AccessImport extends HttpServlet {
@@ -230,6 +245,11 @@ public class AccessImport extends HttpServlet {
     int allRows = table.getRowCount();
     for (int i=0;i<allRows;i++) {
       newEnc = new Encounter();
+      myShepherd.beginDBTransaction();
+      newEnc.setCatalogNumber(Util.generateUUID());
+      myShepherd.getPM().makePersistent(newEnc);
+      myShepherd.commitDBTransaction();
+      myShepherd.beginDBTransaction();
       try {
         thisRow = table.getNextRow();
         if (thisRow==null) {
@@ -240,7 +260,6 @@ public class AccessImport extends HttpServlet {
         out.println("!!!!!!!!!!!!!! Could not get next Row in DUML table...");
       }
       //Might as well give it an ID here.
-      newEnc.setCatalogNumber(Util.generateUUID());
       newEnc.setDWCDateAdded();
       newEnc.setDWCDateLastModified();
       newEnc.setState("approved");
@@ -377,7 +396,7 @@ public class AccessImport extends HttpServlet {
         String speciesID = null;
         if (thisRow.get("SPECIES_ID") != null) {
           speciesID = thisRow.get("SPECIES_ID").toString();          
-          //out.println("---------------- Species_ID : "+speciesId);
+          out.println("---------------- Species_ID : "+speciesID);
           String[] binomialName = speciesID.trim().split(" ");
           if (binomialName.length>1) {
             newEnc.setGenus(binomialName[0]);
@@ -627,7 +646,11 @@ public class AccessImport extends HttpServlet {
           Encounter dup = (Encounter) deepCopy(newEnc);
           //out.println("Copy Location : "+dup.getLocation());
           dup.setCatalogNumber(Util.generateUUID());
-          duplicateEncs.add(dup);
+          if (!duplicateEncs.contains(newEnc)) {
+            duplicateEncs.add(newEnc);
+          } else {
+            duplicateEncs.add(dup);
+          }
         }
         
         Occurrence occ = null;

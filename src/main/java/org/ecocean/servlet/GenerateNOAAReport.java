@@ -155,7 +155,7 @@ public class GenerateNOAAReport extends HttpServlet {
       String species = null;
       if (enc!=null) {
         species = (enc.getGenus()+" "+enc.getSpecificEpithet()).toLowerCase();
-        // This is getting null...
+        // This is getting null..
         System.out.println("Species? "+species);
         System.out.println("Enc got anything?? "+enc.toString());
         System.out.println("Enc Genus? "+enc.getGenus()+" Enc SpecEp? "+enc.getSpecificEpithet());
