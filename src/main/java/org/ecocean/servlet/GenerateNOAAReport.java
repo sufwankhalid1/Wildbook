@@ -166,12 +166,31 @@ public class GenerateNOAAReport extends HttpServlet {
         species = species.substring(0,1).toUpperCase() + species.substring(1);
       }
       System.out.println("Species? "+species+" Date? "+milliDate);
-   
+
+      // Other criteria before return...
+      if (request.getParameter("TOTBESTEST")!=null) {
+
+      }
+
+      String takes = null;
+      Observation est = null;
+      try {
+        est = occ.getObservationByName("TOTBESTEST");
+        takes = est.getValue();
+      } catch (NullPointerException npe) {
+        npe.getStackTrace();
+      }
+
+      // Then return criteria:
+      report += "<tr>";
+      report += "<td>"+shortDate+"</td>";
+      report += "<td>"+species+"</td>";
+      report += "<td>"+"Permit for photoID?"+"</td>";
+      report += "<td>"+takes+"</td>";
+      report += "</tr>";
+
     }
-
-
-
-
+    report += "</table>";
     return report;
   }
 
