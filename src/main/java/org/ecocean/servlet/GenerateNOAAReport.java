@@ -63,9 +63,9 @@ public class GenerateNOAAReport extends HttpServlet {
 
     String physicalReport = "<table class=\"table\">";    
     physicalReport += "<tr><th scope=\"col\">Date</th><th scope=\"col\">Species</th><th scope=\"col\">Permit Name</th><th scope=\"col\">Sample State</th><th scope=\"col\">Group Size</th></tr>";
-    
+
     String photoIDReport = "<table class=\"table\">"; 
-    photoIDReport += "<tr><th scope=\"col\">Date</th><th scope=\"col\">Species</th><th scope=\"col\">Permit Name</th><th scope=\"col\">Photo Number</th></tr>";
+    photoIDReport += "<tr><th scope=\"col\">Date</th><th scope=\"col\">Species</th><th scope=\"col\">Permit Name</th><th scope=\"col\">Photo Number</th><th scope=\"col\">Takes</th></tr>";
 
     HashMap<String,String> formInput = null;
     try {
@@ -109,6 +109,7 @@ public class GenerateNOAAReport extends HttpServlet {
 
   private String photoIDReporting(String report,HashMap<String,String> formInput, Shepherd myShepherd, HttpServletRequest request) {
     
+    @SuppressWarnings("unchecked")
     Iterator<Occurrence> occs = myShepherd.getAllOccurrences();
     while (occs.hasNext()) {
       Occurrence occ = occs.next();
@@ -118,18 +119,23 @@ public class GenerateNOAAReport extends HttpServlet {
       String shortDate  = null;
       try {
         milliDate = getMilliOccDate(occ, myShepherd);               
-        System.out.println("Sample Date in PhotoID: "+milliDate);
+        //System.out.println("Sample Date in PhotoID: "+milliDate);
         if (formInput.containsKey("startDate")&&formInput.containsKey("endDate")) {
           startDate = milliComparator(formInput.get("startDate"));
           endDate = milliComparator(formInput.get("endDate"));
           if (startDate>milliDate||endDate<milliDate) {
             continue;
           }
+          DateTime dt = new DateTime(milliDate);
+          shortDate = dt.toString().substring(0,10);
+          String[] dateSplit = shortDate.split("-");
+          shortDate = dateSplit[1]+"/"+dateSplit[2]+"/"+dateSplit[0];
+
         }
       } catch (NullPointerException npe) {
         npe.printStackTrace();
       }
-
+      
       ArrayList<String> speciesArr = new ArrayList<>();
       boolean allSpecies = false;
       int numSpecies = 0;
@@ -139,56 +145,59 @@ public class GenerateNOAAReport extends HttpServlet {
       }
       try {
         numSpecies = Integer.valueOf(formInput.get("numSpecies"));
-        System.out.println("Number of species? "+numSpecies);
+        //System.out.println("Number of species? "+numSpecies);
         for (int i=0;i<numSpecies;i++) {
           String name = "speciesName"+i;
           if (request.getParameter(name)!=null) {
             speciesArr.add(request.getParameter(name).toLowerCase());
-            System.out.println("Species added to list: "+request.getParameter(name).toLowerCase());
+            //System.out.println("Species added to list: "+request.getParameter(name).toLowerCase());
           }
         }
       } catch (Exception e) {
         e.printStackTrace();
       }
       Encounter enc = occ.getEncounters().get(0);
-      System.out.println("Grabbing enc? "+enc.getCatalogNumber());
+      //System.out.println("Grabbing enc? "+enc.getCatalogNumber());
       String species = null;
       if (enc!=null) {
         species = (enc.getGenus()+" "+enc.getSpecificEpithet()).toLowerCase();
         // This is getting null..
-        System.out.println("Species? "+species);
-        System.out.println("Enc got anything?? "+enc.toString());
-        System.out.println("Enc Genus? "+enc.getGenus()+" Enc SpecEp? "+enc.getSpecificEpithet());
+        //System.out.println("Species? "+species);
+        //System.out.println("Enc got anything?? "+enc.toString());
+        //System.out.println("Enc Genus? "+enc.getGenus()+" Enc SpecEp? "+enc.getSpecificEpithet());
       }
       if (!allSpecies&&!speciesArr.contains(species)) {
         continue;
       } else {
         species = species.substring(0,1).toUpperCase() + species.substring(1);
       }
-      System.out.println("Species? "+species+" Date? "+milliDate);
+      //System.out.println("Species? "+species+" Date? "+milliDate);
 
-      // Other criteria before return...
-      if (request.getParameter("TOTBESTEST")!=null) {
-
-      }
-
-      String takes = null;
-      Observation est = null;
+      String photos = null;
+      String estimate = null;
       try {
-        est = occ.getObservationByName("TOTBESTEST");
-        takes = est.getValue();
+        Observation photoNum = occ.getObservationByName("PHOTOS (#)");
+        Observation est = occ.getObservationByName("TOTBESTEST");
+        if (photoNum!=null&&est!=null) {
+          photos = photoNum.getValue();
+          estimate = est.getValue();
+        }
+        System.out.println("PhotoNumber? "+photoNum);
+        System.out.println("Is observation real??? "+photoNum)  ;
+        if (photoNum==null||photoNum.getValue().equals("0")||est==null||est.getValue().equals("0")) {
+          continue;
+        } 
       } catch (NullPointerException npe) {
         npe.getStackTrace();
       }
 
-      // Then return criteria:
       report += "<tr>";
       report += "<td>"+shortDate+"</td>";
       report += "<td>"+species+"</td>";
       report += "<td>"+"Permit for photoID?"+"</td>";
-      report += "<td>"+takes+"</td>";
+      report += "<td>"+photos+"</td>";
+      report += "<td>"+estimate+"</td>";
       report += "</tr>";
-
     }
     report += "</table>";
     return report;
@@ -353,7 +362,7 @@ public class GenerateNOAAReport extends HttpServlet {
       date = dateSplit[1]+"/"+dateSplit[2]+"/"+dateSplit[0];
       //Awkward split glue from yyyy/mm/dd to mm/dd/yyyy
     }
-    System.out.println("NOAA Report format date: "+date);
+    //System.out.println("NOAA Report format date: "+date);
     return date;
   }
 
@@ -361,7 +370,7 @@ public class GenerateNOAAReport extends HttpServlet {
     if (ts.getObservationByName("date")!=null) {
       try {
         String strDate = ts.getObservationByName("date").getValue();
-        System.out.println("Date from Observation? "+strDate);
+        //System.out.println("Date from Observation? "+strDate);
         strDate = formatDate(strDate);
 
         return strDate;
