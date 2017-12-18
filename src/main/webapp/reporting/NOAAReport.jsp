@@ -21,7 +21,6 @@ String reportType = String.valueOf(request.getAttribute("reportType"));
 	<div class="row">
 
 		<div class="col-xs-12">	
-			<p><a class="btn" href="<%= request.getAttribute("returnUrl") %>">Search Again</a></p>
 			<% 
 			if (reportType.equals("photoID")) {
 			%>
@@ -35,9 +34,11 @@ String reportType = String.valueOf(request.getAttribute("reportType"));
 			}
 			%>
 			<p>Report Type: <%= request.getAttribute("reportType") %></p>
-		    <hr/>
-			<p>Summary:</p>
+			<p><a class="btn" href="<%= request.getAttribute("returnUrl") %>">Search Again</a></p>
+
+			<!-- All formatted table output from servlet. -->	
 			<%= request.getAttribute("result") %>
+		
 		</div>
 	</div>
 

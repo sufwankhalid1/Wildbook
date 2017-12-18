@@ -61,11 +61,12 @@ public class GenerateNOAAReport extends HttpServlet {
     request.setAttribute("returnLoc", "//"+urlLoc+"/generateNOAAReport.jsp");
 
     //int groupTotal = 0;
-
-    String physicalReport = "<table class=\"table\">";    
+    String physicalReport = "<hr><h4>Detail Physical Sample Results:</h4><br/>";
+    physicalReport += "<table class=\"table\">";    
     physicalReport += "<tr><th scope=\"col\">Date</th><th scope=\"col\">Species</th><th scope=\"col\">Permit Name</th><th scope=\"col\">Sample State</th><th scope=\"col\">Group Size</th></tr>";
 
-    String photoIDReport = "<table class=\"table\">"; 
+    String photoIDReport = "<hr><h4>Detail Physical Sample Results:</h4><br/>";
+    photoIDReport += "<table class=\"table\">"; 
     photoIDReport += "<tr><th scope=\"col\">Date</th><th scope=\"col\">Species</th><th scope=\"col\">Permit Name</th><th scope=\"col\">Photo Number</th><th scope=\"col\">Takes</th></tr>";
 
     HashMap<String,String> formInput = null;
@@ -105,6 +106,8 @@ public class GenerateNOAAReport extends HttpServlet {
     } finally {
       myShepherd.closeDBTransaction();
       out.close();  
+      photoIDNum = 0;
+      physicalIDNum = 0;
       //matchingSamples.clear();  
     }
   }
