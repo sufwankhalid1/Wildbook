@@ -39,8 +39,9 @@ public class GenerateNOAAReport extends HttpServlet {
   private static PrintWriter out;
   private static String context; 
   private static String[] SEARCH_FIELDS = new String[]{"startDate","endDate", "permitName", "speciesName", "reportType", "numSpecies"}; 
-  ArrayList<TissueSample> matchingSamples = new ArrayList<>();
-
+  //ArrayList<TissueSample> matchingSamples = new ArrayList<>();
+  int photoIDNum = 0;
+  int physicalIDNum = 0;
   public void init(ServletConfig config) throws ServletException {
     super.init(config);
   }
@@ -91,9 +92,10 @@ public class GenerateNOAAReport extends HttpServlet {
     } else {
       report = photoIDReport + physicalReport;
     }
-
+    
     request.setAttribute("reportType",reportType);
-    request.setAttribute("resultsAmount", String.valueOf(matchingSamples.size()));
+    request.setAttribute("physicalIDNum", String.valueOf(physicalIDNum));
+    request.setAttribute("photoIDNum", String.valueOf(photoIDNum));
     request.setAttribute("result",report);
     request.setAttribute("returnUrl","//"+urlLoc+"/reporting/generateNOAAReport.jsp");
     try {
@@ -103,7 +105,7 @@ public class GenerateNOAAReport extends HttpServlet {
     } finally {
       myShepherd.closeDBTransaction();
       out.close();  
-      matchingSamples.clear();  
+      //matchingSamples.clear();  
     }
   }
 
@@ -182,14 +184,13 @@ public class GenerateNOAAReport extends HttpServlet {
           photos = photoNum.getValue();
           estimate = est.getValue();
         }
-        System.out.println("PhotoNumber? "+photoNum);
-        System.out.println("Is observation real??? "+photoNum)  ;
         if (photoNum==null||photoNum.getValue().equals("0")||est==null||est.getValue().equals("0")) {
           continue;
         } 
       } catch (NullPointerException npe) {
         npe.getStackTrace();
       }
+      photoIDNum++;
 
       report += "<tr>";
       report += "<td>"+shortDate+"</td>";
@@ -293,6 +294,7 @@ public class GenerateNOAAReport extends HttpServlet {
       if (sample.getState()!=null) {
         state = sample.getState();
       }
+      physicalIDNum++;
       //String lat = "";
       //String lon = "";
       //try {
@@ -308,7 +310,7 @@ public class GenerateNOAAReport extends HttpServlet {
       report += "<td>"+state+"</td>";
       report += "<td>"+groupSize+"</td>";
       report += "</tr>";
-      matchingSamples.add(sample);
+      //matchingSamples.add(sample);
     } 
     report += "</table>";
     return report;

@@ -10,6 +10,7 @@ java.io.*,java.util.*, java.io.FileInputStream, java.io.File, java.io.FileNotFou
 String context="context0";
 context=ServletUtilities.getContext(request);
 Shepherd myShepherd=new Shepherd(context);
+String reportType = String.valueOf(request.getAttribute("reportType"));
 %>
 
 <jsp:include page="../header.jsp" flush="true"/>
@@ -21,7 +22,18 @@ Shepherd myShepherd=new Shepherd(context);
 
 		<div class="col-xs-12">	
 			<p><a class="btn" href="<%= request.getAttribute("returnUrl") %>">Search Again</a></p>
-			<p>Number of results: <%= request.getAttribute("resultsAmount") %></p>
+			<% 
+			if (reportType.equals("photoID")) {
+			%>
+				<p>Number of Photo Collections: <%= request.getAttribute("photoIDNum") %></p>
+			<%
+			} else if (reportType.equals("multiID")) {
+			%>
+				<p>Number of Photo Collections: <%= request.getAttribute("photoIDNum") %></p>
+				<p>Number of Biopsy/Tag Events: <%= request.getAttribute("physicalIDNum") %></p>
+			<%
+			}
+			%>
 			<p>Report Type: <%= request.getAttribute("reportType") %></p>
 		    <hr/>
 			<p>Summary:</p>
