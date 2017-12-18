@@ -121,6 +121,7 @@ try{
       String testVideoId = enc.getEventID().replaceAll("youtube:","");
       String detectedLanguage="";
 
+
       try{
         detectedLanguage= DetectTranslate.detect(ytRemarks, context);
 
@@ -139,7 +140,7 @@ try{
     String descToDetect = enc.getMedia().get(0).getParentRoot(myShepherd).getMetadata().getData().getJSONObject("detailed").optString("description", "[no description]");
     String titleToDetect = enc.getMedia().get(0).getParentRoot(myShepherd).getMetadata().getData().getJSONObject("basic").optString("title", "[unknown]");
     String tagsToDetect = enc.getMedia().get(0).getParentRoot(myShepherd).getMetadata().getData().getJSONObject("detailed").getJSONArray("tags").toString(); 
-    
+
     %>
     <li>translate key used: <%=apiKey %></li>
     <li>Occurrence id used: <%=myRemarks %></li>
@@ -162,7 +163,9 @@ try{
     <li>language of video tags: <%=DetectTranslate.detect(tagsToDetect, context) %></li>
     <li>******</li>
     <li>YouTube video link: https://www.youtube.com/watch?v=<%=testVideoId %></li>
+    <li>test info: <%=enc.getDateInMilliseconds() %></li>
 
+    <li>******</li>
 
 
     <%
@@ -180,6 +183,9 @@ try{
             if(parent!=null){
               ArrayList<MediaAsset> frames= YouTubeAssetStore.findFrames(parent, myShepherd);
               if((frames!=null)&&(frames.size()>0)){
+              %>
+              <li>In ocrRemarks code return parent: <%=parent %></li>
+              <%
 
                   //Google OCR
                   ArrayList<byte[]> bytesFrames= new ArrayList<byte[]>(GoogleOcr.makeBytesFrames(frames));
@@ -190,6 +196,11 @@ try{
 
                   //ocrRemarks = ocr.getTextFrames(filesFrames, context);
 
+                      %>
+                      <li>bytesFrames: <%=bytesFrames %></li>
+                      <li>ocrRemarks: <%=ocrRemarks %></li>
+                      <li>******</li>
+                      <%
                   if(ocrRemarks==null)ocrRemarks="";
                     System.out.println("I found OCR remarks: "+ocrRemarks);
                 }
@@ -204,7 +215,6 @@ try{
           e.printStackTrace();
           System.out.println("I hit an exception trying to find ocrRemarks.");
         }
-
       if(enc.getOccurrenceRemarks()!=null){
 
         String remarks=ytRemarks+" "+enc.getRComments().trim().toLowerCase()+" "+ ocrRemarks.toLowerCase();
@@ -253,6 +263,12 @@ try{
           //if no one has set the date already, use NLP to try to figure it out
           boolean setDate=true;
           if(enc.getDateInMilliseconds()!=null){setDate=false;}
+          %>
+          <li>in setDate NLP method: <%=setDate %></li>
+          <li>Video date in milliseconds: <%=enc.getDateInMilliseconds() %></li>
+          <li>Video date: <%=enc.getDate() %></li>
+          <li>******</li>
+          <%
           //next use natural language processing for date
           if(setDate){
             //boolean NLPsuccess=false;
@@ -262,6 +278,11 @@ try{
                 //String myDate= ServletUtilities.nlpDateParse(remarks);
                 String myDate=ParseDateLocation.parseDate(remarks, context);
                 finishedParseDateLoc = "Finished ParseDateLocation.parseDate";
+              %>
+              <li>in setDate and myDate =  <%=myDate %></li>
+              <li>setDate = <%=setDate %></li>
+              <li>******</li>
+              <%
                 //parse through the selected date to grab year, month and day separately.Remove cero from month and day with intValue.
                 if (myDate!=null) {
                     System.out.println(">>>>>> NLP found date: "+myDate);
