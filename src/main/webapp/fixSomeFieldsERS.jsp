@@ -7,7 +7,9 @@ org.ecocean.grid.*,
 org.ecocean.translate.*,
 org.ecocean.ParseDateLocation.*,
 org.ecocean.ocr.*,
-java.io.*,java.util.*, java.io.FileInputStream, java.io.File, java.io.FileNotFoundException, org.ecocean.*,org.ecocean.servlet.*,org.ecocean.media.*,javax.jdo.*, java.lang.StringBuffer, java.util.Vector, java.util.Iterator, java.lang.NumberFormatException"%>
+java.io.*,java.util.*, java.io.FileInputStream, java.io.File, java.io.FileNotFoundException, org.ecocean.*,org.ecocean.servlet.*,org.ecocean.media.*,javax.jdo.*, java.lang.StringBuffer, java.util.Vector, java.util.Iterator, java.lang.NumberFormatException,
+java.util.regex.Pattern,
+java.util.regex.Matcher"%>
 
 
 
@@ -48,6 +50,9 @@ try{
 	//create new Occurrence object
 	Occurrence occ=new Occurrence();
 	occ.setOccurrenceID("12345");
+
+	//Occurrence occ = myShepherd.getOccurrence("e2862886-f02f-4c4e-9e53-a5816be06244");
+
 	
 	//create an Encounter, 1 or more
 	Encounter enc1 = new Encounter();
@@ -62,15 +67,21 @@ try{
 	if(request.getParameter("remarks")!=null){
 		myRemarks=request.getParameter("remarks");
 	}
+	//String myOccurrence="test occurrence";
+    	//if(request.getParameter("realOccurrence")!=null){
+    	//	myOccurrence=request.getParameter("realOccurrence");
+    	//}
 	enc1.setOccurrenceRemarks(myRemarks);
 	enc2.setOccurrenceRemarks(myRemarks);
 	enc3.setOccurrenceRemarks(myRemarks);
 
+	//Occurrence occ = myShepherd.getOccurrence(myOccurrence);
+
 	%>
 	<li>I used remarks: <%=myRemarks %></li>
-	
+
 	<%
-	
+
 	//add Encounters to Occurrence
 	occ.addEncounter(enc1);
 	occ.addEncounter(enc2);
@@ -107,19 +118,19 @@ try{
       List<String> encSetDate = new ArrayList<String>();
       List<String> loopingDates = new ArrayList<String>();
       String remarksOut = "";
+      //String videoDescription=enc.getMedia().get(0).getParentRoot(myShepherd).getMetadata().getData().getJSONObject("detailed").optString("description", "[no description]");
 
+          String detectedLanguage="en";
+          try{
+            detectedLanguage= DetectTranslate.detect(ytRemarks, context);
 
-
-
-
-      String detectedLanguage="en";
-      try{
-        detectedLanguage= DetectTranslate.detect(ytRemarks, context);
-
-        if(!detectedLanguage.toLowerCase().startsWith("en")){
-          ytRemarks= DetectTranslate.translate(ytRemarks, context);
-        }
-      }
+            if(!detectedLanguage.toLowerCase().startsWith("en")){
+              ytRemarks= DetectTranslate.translate(ytRemarks, context);
+            }
+          }
+//            try {
+//                detectedLanguage = DetectTranslate.detect(videoDescription, context);
+ //           }
       catch(Exception e){
         System.out.println("I hit an exception trying to detect language.");
         e.printStackTrace();
@@ -170,11 +181,12 @@ try{
         String remarks=ytRemarks+" "+enc.getRComments().trim().toLowerCase()+" "+ ocrRemarks.toLowerCase();
         remarksOut = remarks;
 
+
         System.out.println("Let's parse these remarks for date and location: "+remarks);
 
         Properties props = new Properties();
 
-        //OK, let's check the comments and tags for retrievable metadata
+        //OK, lets check the comments and tags for retrievable metadata
         try {
 
 
@@ -197,6 +209,23 @@ try{
             e.printStackTrace();
           }
 
+          String regexDate = "no date yet";
+          String remarksOutRegex = remarksOut;
+
+          //Create a pattern object
+          Pattern p = Pattern.compile("(0?[1-9]|1[012])[- /.](0?[1-9]|[12][0-9]|3[01])[- /.](19|20)\\d\\d");
+          //Create a matcher object
+          Matcher m = p.matcher(remarksOutRegex);
+
+          if(m.find()) {
+             regexDate = m.group();
+          } else {
+             regexDate = "find not true";
+          }
+
+
+
+
 
           //reset date to exclude OCR, which can currently confuse NLP
           //remarks=ytRemarks+" "+enc.getRComments().trim().toLowerCase();
@@ -217,7 +246,7 @@ try{
                 //String myDate= ServletUtilities.nlpDateParse(remarks);
                 String myDate=ParseDateLocation.parseDate(remarks, context);
                 finishedParseDateLoc = "Finished ParseDateLocation.parseDate";
-                //parse through the selected date to grab year, month and day separately.Remove cero from month and day with intValue.
+                //parse through the selected date to grab year, month and day separately.Remove zero from month and day with intValue.
                 if (myDate!=null) {
                     System.out.println(">>>>>> NLP found date: "+myDate);
                     //int numCharact= myDate.length();
@@ -330,6 +359,9 @@ try{
             <li>If day set normally: <%=dayFound %></li>
             <li>Setting date based on tokens, day exception: <%=dayException %></li>
             <li>Else statement above to set day=-1: <%=dayNeg %></li>
+            <li>remarksOutRegex: <%=remarksOutRegex %>
+            <li>regexDate: <%=regexDate %></li>
+            <li>p: <%=p %>
 
             <%
 
@@ -490,9 +522,9 @@ try{
      	}
       }
      catch(Exception e){}
+     String vidDescrip = enc.getMedia().get(0).getParentRoot(myShepherd).getMetadata().getData().getJSONObject("detailed").optString("description", "[no description]");
+     String descripLang = DetectTranslate.detect(vidDescrip, context);
 
-
-     String vidDescrip = YouTube.getVideoDescription(occ, myShepherd);
 
      %>
      <li>commentLanguage: <%=commentLanguage %></li>
@@ -500,7 +532,13 @@ try{
      <li>commentToPost: <%=commentToPost %></li>
     <li>ytCommentToPost: <%=ytCommentToPost %></li>
     <li>ytCommentException: <%=ytCommentException %></li>
-    <li>getVidDescrip: <%=vidDescrip %></li>
+    <li>Video title: <%=enc.getMedia().get(0).getParentRoot(myShepherd).getMetadata().getData().getJSONObject("basic").optString("title", "[unknown]") %></li>
+    <li>Video description: <%=vidDescrip %></li>
+    <li>Descrip language: <%=descripLang %></li>
+    <li>detectedLanguage: <%=detectedLanguage %></li>
+
+
+
 
      <%
 
@@ -538,6 +576,7 @@ finally{
 
 <form action="fixSomeFieldsERS.jsp" >
 	<p>Remarks: <input name="remarks" type="text"></input></p>
+	<!--<p>Occurrence: <input name="realOccurrence" type="text"></input></p>-->
 
 </form>
 
