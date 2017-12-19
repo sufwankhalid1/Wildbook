@@ -1389,7 +1389,7 @@ public class AccessImport extends HttpServlet {
               ts.setPermit(permit);
             }
             columnMasterList.remove("biopsy_sample_id");
-            if (thisRow.get("Sample_ID") != null) {
+            if (thisRow.get("biopsy_sample_id") != null) {
               sampleID = thisRow.get("biopsy_sample_id").toString();
               
               if (sampleID.toLowerCase().contains("miss")) {
