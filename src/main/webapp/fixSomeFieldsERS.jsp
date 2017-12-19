@@ -211,17 +211,51 @@ try{
 
           String regexDate = "no date yet";
           String remarksOutRegex = remarksOut;
+          String dateFormat = "";
 
           //Create a pattern object
           Pattern p = Pattern.compile("(0?[1-9]|1[012])[- /.](0?[1-9]|[12][0-9]|3[01])[- /.](19|20)\\d\\d");
           //Create a matcher object
           Matcher m = p.matcher(remarksOutRegex);
 
-          if(m.find()) {
-             regexDate = m.group();
+          //if(m.find()) {
+            // regexDate = m.group();
+          //} else {
+            // regexDate = "find not true";
+          //}
+
+          //Create a pattern object with date first
+          Pattern pDateFirst = Pattern.compile("(1[3456789]|[2][0-9]|3[01])[- /.](0?[1-9]|1[012])[- /.](19|20)\\d\\d");
+          //Create a matcher object for date first
+          Matcher mDateFirst = pDateFirst.matcher(remarksOutRegex);
+          //Create a pattern object with month first
+          Pattern pMonthFirst = Pattern.compile("(0?[1-9]|1[012])[- /.]([1][3456789]|[2][0-9]|3[01])[- /.](19|20)\\d\\d");
+          //Create a matcher object for month first
+          Matcher mMonthFirst = pMonthFirst.matcher(remarksOutRegex);
+          //Create a pattern object for ambiguous dates
+          Pattern pAny = Pattern.compile("(0?[1-9]|[12][0-9]|3[01])[- /.](0?[1-9]|[12][0-9]|3[01])[- /.](19|20)\\d\\d");
+          //Create a matcher object for ambiguous dates
+          Matcher mAny = pAny.matcher(remarksOutRegex);
+
+          if(mDateFirst.find()){
+            regexDate = mDateFirst.group();
+            dateFormat = "dd-MM-yyyy";
+          } else if(mMonthFirst.find()) {
+            regexDate = mMonthFirst.group();
+            dateFormat = "MM-dd-yyyy";
+          } else if(mAny.find()  && detectedLanguage == "en") {
+            regexDate = mAny.group();
+            dateFormat = "MM-dd-yyyy";
+          //} else if (mAny.find() && detectedLanguage != "en") {
+            //regexDate = mAny.group();
+            //dateFormat = "dd-MM-yyyy";
           } else {
-             regexDate = "find not true";
+            regexDate = "date find not true";
           }
+
+
+
+
 
 
 
@@ -361,7 +395,7 @@ try{
             <li>Else statement above to set day=-1: <%=dayNeg %></li>
             <li>remarksOutRegex: <%=remarksOutRegex %>
             <li>regexDate: <%=regexDate %></li>
-            <li>p: <%=p %>
+            <li>dateFormat: <%=dateFormat %>
 
             <%
 
