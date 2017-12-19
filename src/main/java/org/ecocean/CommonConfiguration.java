@@ -38,6 +38,7 @@ import javax.servlet.http.HttpServletRequest;
 public class CommonConfiguration {
   
   private static final String COMMON_CONFIGURATION_PROPERTIES = "commonConfiguration.properties";
+    private static HashMap<String,String> SERVER_URL_CACHE = new HashMap<String,String>();
   
   //class setup
   //private static Properties props = new Properties();
@@ -148,6 +149,24 @@ public class CommonConfiguration {
     return getServerURI(req, contextPath).toASCIIString();
   }
 
+    //this will cache the URL based on context.... very useful for getServerURL(context) below
+  public static String getServerURL(HttpServletRequest req, String contextPath, String context) throws URISyntaxException {
+    if (context == null) throw new RuntimeException("getServerURL() context is null");
+    if (SERVER_URL_CACHE.get(context) != null) return SERVER_URL_CACHE.get(context);
+    SERVER_URL_CACHE.put(context, getServerURI(req, contextPath).toASCIIString());
+    return SERVER_URL_CACHE.get(context);
+  }
+
+  public static String getServerURL(HttpServletRequest req) throws URISyntaxException {
+    return getServerURL(req, req.getContextPath());
+  }
+
+    //see getServerURL(req, contextPath, context) to set this (e.g. in header.jsp)
+  public static String getServerURL(String context) {
+System.out.println("CACHE: " + SERVER_URL_CACHE);
+System.out.println("getServerURL(" + context + ") => " + SERVER_URL_CACHE.get(context));
+    return SERVER_URL_CACHE.get(context);  //note: null if was never set!!
+  }
 
   public static String getMailHost(String context) {
     String s = getProperty("mailHost", context);
