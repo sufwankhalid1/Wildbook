@@ -114,6 +114,8 @@ public class GenerateNOAAReport extends HttpServlet {
 
   private String photoIDReporting(String report,HashMap<String,String> formInput, Shepherd myShepherd, HttpServletRequest request) {
     
+    HashMap<String,Integer> takesCounts = new HashMap<>();
+    
     @SuppressWarnings("unchecked")
     Iterator<Occurrence> occs = myShepherd.getAllOccurrences();
     while (occs.hasNext()) {
@@ -202,10 +204,31 @@ public class GenerateNOAAReport extends HttpServlet {
       report += "<td>"+photos+"</td>";
       report += "<td>"+estimate+"</td>";
       report += "</tr>";
+
+      takesCounts = aggregatePhotoTakes(takesCounts, species);
     }
     report += "</table>";
+
+
+
     return report;
   }
+
+  private HashMap<String,Integer> aggregatePhotoTakes(HashMap<String,Integer> takesCounts, String species) {
+    if (takesCounts.containsKey(species)) {
+      Integer old = takesCounts.get(species);
+      takesCounts.replace(species, old++);
+    } else {
+      takesCounts.put(species, 1);
+    }
+    return takesCounts;
+  }
+
+  private String getPhotoTakesSummary(HashMap<String,Integer> takesCounts, ArrayList<String> SpeciesArr) {
+    String summary = "";
+    
+    return summary;
+  } 
 
   private String physicalSampleReporting(String report,HashMap<String,String> formInput, Shepherd myShepherd, HttpServletRequest request) {
     // Yuck.

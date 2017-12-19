@@ -396,7 +396,7 @@ public class AccessImport extends HttpServlet {
         String speciesID = null;
         if (thisRow.get("SPECIES_ID") != null) {
           speciesID = thisRow.get("SPECIES_ID").toString();          
-          out.println("---------------- Species_ID : "+speciesID);
+          //out.println("---------------- Species_ID : "+speciesID);
           String[] binomialName = speciesID.trim().split(" ");
           if (binomialName.length>1) {
             newEnc.setGenus(binomialName[0]);
@@ -821,7 +821,6 @@ public class AccessImport extends HttpServlet {
   
   private void processEffortTable(Table table, Shepherd myShepherd) throws IOException {
     
-    System.out.println("Made it to the method...");
     ArrayList<String> columnMasterList = null;
     try {
       columnMasterList = getColumnMasterList(table);      
@@ -844,8 +843,8 @@ public class AccessImport extends HttpServlet {
     int success = 0;
     int rowNum = 0;
     int numNoEncs = 0;
-    int numOneOccs = 0;
     int noProjectOrLocation = 0;
+    int matchingFrom = table.getRowCount();
     Row thisRow = null;
     
     for (int i=0;i<table.getRowCount();i++) {
@@ -854,11 +853,6 @@ public class AccessImport extends HttpServlet {
       rowNum++;
       try {
         thisRow = table.getNextRow();
-        if (thisRow!=null) {
-          System.out.println("Row isn't null at least...");
-        } else { 
-          System.out.println("Row is null!");
-        }
       } catch (Exception e) {
         e.printStackTrace();
         out.println("!!!!!!!!!!!!!! Could not get next Row in SIGHTINGS table...");
@@ -888,7 +882,8 @@ public class AccessImport extends HttpServlet {
           myShepherd.getPM().makePersistent(st);
           myShepherd.commitDBTransaction();
           myShepherd.beginDBTransaction();
-            
+          
+          sv.addSurveyTrack(st);
           columnMasterList.remove("DATE");
         }
       } catch (Exception e) {
@@ -919,6 +914,22 @@ public class AccessImport extends HttpServlet {
         e.printStackTrace();
       }
       
+      boolean hadSighting = true;
+      try {
+        String total = "0";
+        if (thisRow.get("Total Sightings") != null) {
+          total = thisRow.getString("Total Sightings");
+        }
+        if (total.equals("0")) {
+          out.println("Survey had 0 sightings.");
+          hadSighting = false;
+          matchingFrom-=1;
+        }
+      } catch (Exception e) {
+        out.println("!!!!!!!!!!!!!! Could not process Total Sightings for row "+i+" in EFFORT");
+        e.printStackTrace();
+      }
+
       try {
         if (thisRow.get("VESSEL") != null) {
           String vesselID = thisRow.getString("VESSEL");
@@ -960,93 +971,94 @@ public class AccessImport extends HttpServlet {
           // Set this on associated encounters too.  
           st.setLocationID(surveyArea.trim());
           columnMasterList.remove("SURVEY AREA");
-          encsOnThisDate = myShepherd.getEncounterArrayWithShortDate(date);
-          out.println("Can we find an enc for this Survey and Track? We have "+encsOnThisDate.size()+" encs to check.");
           boolean matched = false;
-          if (encsOnThisDate.isEmpty()) {
-            numNoEncs++;
-          }
-          for (Encounter enc : encsOnThisDate) {
-            String encLoc = null;
-            if (enc.getLocation()!=null) {
-              encLoc = enc.getLocation().trim();
+          if (hadSighting) {
+
+            encsOnThisDate = myShepherd.getEncounterArrayWithShortDate(date);
+            //out.println("Can we find an enc for this Survey and Track? We have "+encsOnThisDate.size()+" encs to check.");
+            if (encsOnThisDate.isEmpty()) {
+              numNoEncs++;
             }
-            String simpleLoc = null;
-            if (enc.getObservationByName("simpleLocation")!=null) {
-              Observation locOb = enc.getObservationByName("simpleLocation");
-              simpleLoc = locOb.getValue();
-            }
-            String occProj = enc.getSubmitterProject();
-            Occurrence parentOcc = myShepherd.getOccurrence(enc.getOccurrenceID());
-            ArrayList<Occurrence> currentOccs = st.getAllOccurrences();
-            if (currentOccs!=null&&currentOccs.contains(parentOcc)) {
-              continue;
-            }
-            if (encLoc != null || occProj != null || simpleLoc != null) {
-              if (occProj != null && project != null)  {
-                if (occProj.contains(project) || project.contains(occProj)) {
-                  out.println("MATCH!!! At least on project name... (enc:surveyTrack) Project : "+occProj+" = "+project);
-                  st.addOccurrence(parentOcc,myShepherd);
-                  // add check for if the survey is the same here?
-                  success++;
-                  matched = true;
-                  addSurveyAndTrackIDToOccurrence(enc,sv,st,myShepherd);
-                }
-              } else {
-                if (encLoc != null && surveyArea != null && !matched) {
-                  if (enc.getLocationID().contains(surveyArea) || surveyArea.contains(enc.getLocationID())) {
-                    out.println("MATCH!!! At least on location ID... (enc:surveyTrack) Location : "+enc.getLocationID()+" = "+st.getLocationID()+" Project : "+enc.getSubmitterProject()+" = "+sv.getProjectName());
+            for (Encounter enc : encsOnThisDate) {
+              String encLoc = null;
+              if (enc.getLocation()!=null) {
+                encLoc = enc.getLocation().trim();
+              }
+              String simpleLoc = null;
+              if (enc.getObservationByName("simpleLocation")!=null) {
+                Observation locOb = enc.getObservationByName("simpleLocation");
+                simpleLoc = locOb.getValue();
+              }
+              String occProj = enc.getSubmitterProject();
+              Occurrence parentOcc = myShepherd.getOccurrence(enc.getOccurrenceID());
+              ArrayList<Occurrence> currentOccs = st.getAllOccurrences();
+              if (currentOccs!=null&&currentOccs.contains(parentOcc)) {
+                continue;
+              }
+              if (encLoc != null || occProj != null || simpleLoc != null) {
+                if (occProj != null && project != null)  {
+                  if (occProj.contains(project) || project.contains(occProj)) {
+                    out.println("MATCHED survey to occurrence with Project : "+occProj+" = "+project);
                     st.addOccurrence(parentOcc,myShepherd);
+                    // add check for if the survey is the same here?  
                     success++;
                     matched = true;
                     addSurveyAndTrackIDToOccurrence(enc,sv,st,myShepherd);
-                  } else {
-                    //out.println("No match on Location/SurveyArea.");
                   }
                 } else {
-                  if (simpleLoc !=null && surveyArea !=null && !matched) {
-                    if (simpleLoc.contains(surveyArea) || surveyArea.contains(simpleLoc)) {
-                      out.println("MATCH!!! on SimpleLocation/SurveyArea : "+simpleLoc+" = "+st.getLocationID());
-                      st.addOccurrence(parentOcc, myShepherd);
+                  if (encLoc != null && surveyArea != null && !matched) {
+                    if (enc.getLocationID().contains(surveyArea) || surveyArea.contains(enc.getLocationID())) {
+                      out.println("MATCHED survey to occurrence with Location : "+enc.getLocationID()+" = "+st.getLocationID()+" Project : "+enc.getSubmitterProject()+" = "+sv.getProjectName());
+                      st.addOccurrence(parentOcc,myShepherd);
                       success++;
                       matched = true;
                       addSurveyAndTrackIDToOccurrence(enc,sv,st,myShepherd);
-                    } else {
-                      //out.println("No match on SimpleLocation/SurveyArea.");
-                    }
+                    } 
+                  } else {
+                    if (simpleLoc !=null && surveyArea !=null && !matched) {  
+                      if (simpleLoc.contains(surveyArea) || surveyArea.contains(simpleLoc)) {
+                        out.println("MATCHED survey to occurrence with SimpleLocation/SurveyArea : "+simpleLoc+" = "+st.getLocationID());
+                        st.addOccurrence(parentOcc, myShepherd);
+                        success++;
+                        matched = true;
+                        addSurveyAndTrackIDToOccurrence(enc,sv,st,myShepherd);
+                      } 
+                    }                  
                   }                  
-                }                  
-              }
-            } else {
-              //out.println("Location ID, Project and simpleLoc for this enc is null!");
-              noProjectOrLocation +=1;
-            }                  
+                }
+              } else {
+                out.println("Location ID, Project and simpleLoc for this enc is null!");
+                noProjectOrLocation +=1;
+              }                  
+            }
           }
           if (matched) {
             matchedNum ++;
           } else {
             failArray.add("\nUnmatched row #"+i+" Date : "+date+", Survey Area : "+surveyArea+", Project : "+project);
             ArrayList<String> occIds = new ArrayList<String>(); 
-            for (Encounter enc :encsOnThisDate) {
-              String id = myShepherd.getOccurrence(enc.getOccurrenceID()).getOccurrenceID();
-              if (!occIds.contains(id)) {
-                occIds.add(id);
+            if (encsOnThisDate!=null&&encsOnThisDate.size()>0) {
+              for (Encounter enc :encsOnThisDate) {
+                String id = myShepherd.getOccurrence(enc.getOccurrenceID()).getOccurrenceID();
+                if (!occIds.contains(id)) {
+                  occIds.add(id);
+                }
+              }
+              if (!occIds.isEmpty()) {
+                for (String id : occIds) {
+                  Occurrence occ = myShepherd.getOccurrence(id);
+                  if (!st.hasOccurrence(occ)) {
+                    st.addOccurrence(occ, myShepherd);
+                    success++;
+                  }
+                }
+                out.println("Adding this survey track to survey ID "+sv.getID());
+                out.println("Num survey tracks: "+sv.getAllSurveyTracks().size());
               }
             }
-            if (occIds.size()==1) {
-              String id = occIds.get(0);
-              Occurrence onlyOcc = myShepherd.getOccurrence(id);
-              st.addOccurrence(onlyOcc, myShepherd);
-              //sv.addSurveyTrack(st);
-              success++;
-              numOneOccs++;              
-            }
-            if (!occIds.isEmpty()) {
-              sv.addSurveyTrack(st);
-              processRemainingColumnsAsObservations(sv, columnMasterList, thisRow);
-              determineStartAndEndTime(sv);
-            }
           }
+          processRemainingColumnsAsObservations(sv, columnMasterList, thisRow);
+          determineStartAndEndTime(sv);
         }
       } catch (Exception e) {
         out.println("!!!!!!!!!!!!!! Could not process SURVEY AREA for row "+i+" in EFFORT");
@@ -1055,9 +1067,9 @@ public class AccessImport extends HttpServlet {
       }
     }
     out.println("+++++++++++++ I created surveys and tracks for "+success+" encounters from "+table.getRowCount()+" lines in the EFFORT table. +++++++++++++");
-    out.println("+++++++++++++ There were "+matchedNum+" out of "+table.getRowCount()+" effort table entries connected to at least one encounter. ++++++++++++");
+    out.println("+++++++++++++ There were "+matchedNum+" out of "+matchingFrom+" effort table entries associated with at least one sighting. ++++++++++++");
     out.println("+++++++++++++ There were "+numNoEncs+" lines in EFFORT containing a date not shared by any saved encounter/occurrence. +++++++++++++");
-    out.println("+++++++++++++ There were "+numOneOccs+" lines in EFFORT containing a date with only one occurrence, but lacking project and location data. +++++++++++++");
+    //out.println("+++++++++++++ There were "+numOneOccs+" lines in EFFORT containing a date with only one occurrence, but lacking project and location data. +++++++++++++");
     out.println("+++++++++++++ There were "+noProjectOrLocation+" Encounters pulled up by date that contained no Project or Location data. (Could be multiple pulls of same encounter) +++++++++++++");
     for (String fail : failArray) {
       out.println(fail);
@@ -1186,7 +1198,7 @@ public class AccessImport extends HttpServlet {
           String verbatimDate = date.substring(0, 11) + date.substring(date.length() - 5);
           DateTime dateTime = dateStringToDateTime(verbatimDate, "EEE MMM dd yyyy");
           date = dateTime.toString().substring(0,10);
-          out.println("---------------- DATE : "+date);
+          //out.println("---------------- DATE : "+date);
         }
       } catch (Exception e) {
         out.println("!!!!!!!!!!!!!! Could not process a DATE for row "+i+" in SIGHTINGS");
@@ -1196,7 +1208,7 @@ public class AccessImport extends HttpServlet {
       try {
         if (thisRow.get("SIGHTNO") != null) {
           sightNo = thisRow.get("SIGHTNO").toString();          
-          out.println("---------------- SIGHTNO : "+sightNo);          
+          //out.println("---------------- SIGHTNO : "+sightNo);          
         }
       } catch (Exception e) {
         out.println("!!!!!!!!!!!!!! Could not process a SIGHTNO for row "+i+" in SIGHTINGS");
@@ -1206,7 +1218,7 @@ public class AccessImport extends HttpServlet {
       try {
         if (thisRow.get("id_code") != null) {
           idCode = thisRow.get("id_code").toString().trim();          
-          out.println("---------------- ID CODE : "+idCode);          
+          //out.println("---------------- ID CODE : "+idCode);          
         }
       } catch (Exception e) {
         out.println("!!!!!!!!!!!!!! Could not process a ID CODE for row "+i+" in SIGHTINGS");
@@ -1231,7 +1243,7 @@ public class AccessImport extends HttpServlet {
                 encs.remove(encs.get(e));
               }
             }    
-            System.out.println("There be "+encs.size()+" Encs for this pair.");            
+            //System.out.println("There be "+encs.size()+" Encs for this pair.");            
           }
         }
       } catch (Exception e) {
@@ -1259,7 +1271,7 @@ public class AccessImport extends HttpServlet {
                   enc.assignToMarkedIndividual(indy.getIndividualID());
                   myShepherd.commitDBTransaction();
                   myShepherd.beginDBTransaction();
-                  //System.out.println("Adding this encounter to existing Indy : "+indy.getIndividualID()+" Incoming ID : "+idCode);
+                  //System.out.println("Adding enc to existing Indy : "+indy.getIndividualID()+" New ID : "+idCode);
                   addedToExisting += 1; 
                   break;
                 }
@@ -1733,13 +1745,8 @@ public class AccessImport extends HttpServlet {
     finally {
       fs.close();
     }
+
+
   }
 }
-
-
-  
-  
-  
-  
-  
   
