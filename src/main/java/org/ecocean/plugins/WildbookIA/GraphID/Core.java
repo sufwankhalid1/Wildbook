@@ -44,14 +44,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /*
-    note: both Annotmatch and Staging (which extends Annotmatch) have a uuid as primary key, but *constraints* as follow:
-        Annotmatch: The 2-tuple (match_annot_uuid1, match_annot_uuid2) should uniquely identify a row in this table.
-        Staging: The 3-tuple (review_annot_uuid1, review_annot_uuid2, review_count) should uniquely identify a row in this table. 
     these constraints should be reflected (enforced) in the db -- hopefully we can do that via datanucleus setup???  TODO
 */
-public class Annotmatch implements java.io.Serializable {
-    private enum EvidenceDecisionValue { MATCH, NOMATCH, NOTCOMP, UNKNOWN };
-    private enum MetaDecisionValue { SAME, DIFFERENT };
+public class Core {
 
     private static String urlNameAdderAnnotmatch = "IBEISIARestUrlV2MatchAdder";
     private static String urlNameAdderStaging = "IBEISIARestUrlV2ReviewAdder";
@@ -62,154 +57,7 @@ public class Annotmatch implements java.io.Serializable {
     private static String CALLBACK_GRAPH_START_FINISHED = "graph_start_finished";
     private static String CALLBACK_GRAPH_REVIEW_FORM = "graph_review_form";
 
-    //to know if we think IA already has these
-    private static HashMap<UUID,Boolean> alreadySent = new HashMap<UUID,Boolean>();
-
-    //TODO i think(?) this is "the" graph infr id for our species. (TODO add multiple species support?)
-    private static String INFR_UUID = null;
-
-
-    private UUID id;  //TODO java.util.UUID ?
-
-    private Annotation annot1;
-    private Annotation annot2;
-
-    private String evidenceDecision;  //match|nomatch|notcomp|unknown|NULL
-    private String metaDecision;  //same|different|NULL
-    private String tags;  //semicolon-delimited
-    private Double confidence;
-    private String userId;
-    protected int count;
-    private long timestampModified;
-
-
-    public Annotmatch() {}  //empty for jdo
-
-    public Annotmatch(Annotation annotA, Annotation annotB) {
-        this.id = UUID.randomUUID();
-        if ((annotA == null) || (annotB == null)) throw new RuntimeException("Both Annotations must be non-null.");
-        this.annot1 = annotSort(annotA, annotB, false);
-        this.annot2 = annotSort(annotA, annotB, true);
-        this.setTimestampModified();
-        this.count = 0;
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public Annotation getAnnot1() {
-        return annot1;
-    }
-    public Annotation getAnnot2() {
-        return annot2;
-    }
-
-
-    public void setEvidenceDecision(String s) {
-        evidenceDecision = verifyEvidenceDecisionValue(s);
-    }
-    public String getEvidenceDecision() {
-        return evidenceDecision;
-    }
-
-    public void setMetaDecision(String s) {
-        metaDecision = verifyMetaDecisionValue(s);
-    }
-    public String getMetaDecision() {
-        return metaDecision;
-    }
-
-    public void setTags(String s) {
-        tags = s;
-    }
-    public String getTags() {
-        return tags;
-    }
-    public void addTag(String s) {
-        if (s == null) return;
-        tags = (tags == null) ? s : tags + ";" + s;
-    }
-    public String[] getTagsAsArray() {
-        if (tags == null) return null;
-        return tags.split(";");
-    }
-
-
-    public void setUserId(String s) {
-        userId = s;
-    }
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setConfidence(Double s) {
-        confidence = s;
-    }
-    public Double getConfidence() {
-        return confidence;
-    }
-
-    public void setTimestampModified() {
-        timestampModified = System.currentTimeMillis();
-    }
-    public long getTimestampModified() {
-        return timestampModified;
-    }
-
-    public void setCount(int c) {
-        count = c;
-    }
-    public int incrementCount() {
-        return count++;
-    }
-    public int getCount() {
-        return count;
-    }
-
-
-    //returns the "smallest" annot (id) or "largest" if reverse==true
-    private Annotation annotSort(Annotation annotA, Annotation annotB, boolean reverse) {
-        if ((annotA == null) || (annotB == null) || (annotA.getId() == null) || (annotB.getId() == null)) return null;
-        int c = annotA.getId().compareTo(annotB.getId());
-        if (c == 0) throw new RuntimeException("annotSort() received identical Annotation IDs! " + annotA.getId());
-        return (((c < 0) && !reverse) || ((c > 0) && reverse)) ? annotA : annotB;
-    }
-
-    private String verifyEvidenceDecisionValue(String in) {
-        if (in == null) return null;
-        for (EvidenceDecisionValue val : EvidenceDecisionValue.values()) {
-            if (in.equals(val.toString().toLowerCase())) return in;
-        }
-        System.out.println("WARNING: verifyEvidenceDecisionValue() was given value '" + in + "' which was invalid; returning null");
-        return null;
-    }
-
-    private String verifyMetaDecisionValue(String in) {
-        if (in == null) return null;
-        for (MetaDecisionValue val : MetaDecisionValue.values()) {
-            if (in.equals(val.toString().toLowerCase())) return in;
-        }
-        System.out.println("WARNING: verifyMetaDecisionValue() was given value '" + in + "' which was invalid; returning null");
-        return null;
-    }
-
-    public boolean alreadySentToIA() {
-        if (alreadySent.get(this.getId()) == null) return false;
-        return alreadySent.get(this.getId());
-    }
-
-/*  not so sure we ever need to send a single one?  lets use multiple via static?
-    public boolean sendToIA() {
-        return sendToIA(false);
-    }
-    public boolean sendToIA(boolean force) {
-        if (!force && this.alreadySentToIA()) return true;
-        //TODO actual send and set alreadySent
-        return true;
-    }
-*/
-
+/*
     //this gets a little hacky to handle also Staging.  :( 
     public static JSONObject sendToIA(List<Annotmatch> list, String context) {
         if ((list == null) || (list.size() < 1)) return null;
@@ -243,6 +91,8 @@ public class Annotmatch implements java.io.Serializable {
         map.put(prefix + "_evidence_decision_list", ed);
         return map;
     }
+
+*/
 
     public static JSONObject startGraph(List<Annotation> annots, String context) throws RuntimeException, MalformedURLException, IOException, NoSuchAlgorithmException, InvalidKeyException {
         HashMap<String,Object> map = new HashMap<String,Object>();
@@ -328,15 +178,6 @@ System.out.println("attempting passthru to " + u);
         PrintWriter out = response.getWriter();
         out.println(rtn.toString());
         out.close();
-    }
-
-    public String toString() {
-        return new ToStringBuilder(this)
-                .append("id", id)
-                .append("annots", new String[]{annot1.getId(), annot2.getId()})
-                .append("count", getCount())
-                .append("modified", new org.joda.time.DateTime(getTimestampModified()))
-                .toString();
     }
 
 

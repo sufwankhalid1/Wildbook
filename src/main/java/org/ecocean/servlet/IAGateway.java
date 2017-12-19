@@ -35,6 +35,7 @@ import org.ecocean.Resolver;
 import org.ecocean.media.*;
 import org.ecocean.identity.*;
 import org.ecocean.ScheduledQueue;
+import org.ecocean.plugins.WildbookIA.Annotmatch;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -384,6 +385,21 @@ System.out.println("Next: res(" + taskId + ") -> " + res);
     ////  this is new V2 id graph review
     } else if (request.getParameter("getIdentificationReviewHtmlNext") != null) {
         Shepherd myShepherd = new Shepherd(context);
+
+        UUID id = UUID.fromString("037e720b-9753-7bdc-8c64-2e234d196f82");  //TODO make this real (id per species)
+        try {
+            getOut = Annotmatch.nextGraphReview(id, context);  //returns html
+        } catch (Exception ex) {
+            //response.sendError(ERROR_CODE_NO_REVIEWS, "No identification reviews pending");
+            //getOut = "<div class=\"no-identification-reviews\">no identifications needing review</div>";
+            response.sendError(556, "Generic exception?");
+            getOut = "<div error-code=\"556\" class=\"response-error\">Error: " + ex.toString() + "</div>";
+        }
+        if (request.getParameter("test") != null) {
+            getOut = "<html><head><script src=\"https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js\"></script></head><body>" + getOut + "</body></html>";
+        }
+
+/* this below is for prosperity only.....
         myShepherd.setAction("IAGateway.class5");
 //http://35.161.123.237:5012/api/review/query/graph/v2/?graph_uuid={"__UUID__":"8fd0959e-8c40-dc23-6d0c-b1e29a05a1a9"}&callback_url=http://example.com/
         String graphId = "8fd0959e-8c40-dc23-6d0c-b1e29a05a1a9";  //TODO hey make this happen!!
@@ -402,12 +418,12 @@ System.out.println("url --> " + url);
 //getOut = "(( " + url + " ))";
                 URL u = new URL(url);
                 JSONObject rtn = RestClient.get(u);
-/*
+/-
             if (IBEISIA.iaCheckMissing(res.optJSONObject("response"), context)) {  //we had to send missing images/annots, so lets try again (note: only once)
 System.out.println("trying again:\n" + u.toString());
                 rtn = RestClient.post(u, postData);
             }
-*/
+-/
 //// this is NOISY System.out.println("RETURNED --> " + rtn);
                 if ((rtn.optString("response", null) == null) || (rtn.optJSONObject("status") == null) ||
                     !rtn.getJSONObject("status").optBoolean("success", false)) {
@@ -425,6 +441,10 @@ System.out.println("trying again:\n" + u.toString());
             /////////IBEISIA.setActiveTaskId(request, taskId);
             setErrorCode(response, getOut);
         }
+*/
+
+
+
 /*
     } else if (request.getParameter("getIdentificationReviewHtmlNextOLD") != null) {
         String context = ServletUtilities.getContext(request);
@@ -472,6 +492,11 @@ System.out.println("trying again:\n" + u.toString());
     response.setHeader("Access-Control-Allow-Origin", "*");  //allow us stuff from localhost
 
     String qstr = request.getQueryString();
+    if ((qstr != null) && (qstr.indexOf("v2Callback") > -1)) {
+        Annotmatch.processCallback(request, response);
+        return;
+    }
+
     if ((qstr != null) && (qstr.indexOf("detectionReviewPost") > -1)) {
         String url = CommonConfiguration.getProperty("IBEISIARestUrlDetectReview", "context0");
         if (url == null) throw new IOException("IBEISIARestUrlDetectReview url not set");

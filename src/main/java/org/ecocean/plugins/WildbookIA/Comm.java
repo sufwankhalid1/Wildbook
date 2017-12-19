@@ -7,10 +7,10 @@ import java.util.UUID;
 import java.net.URL;
 import org.ecocean.CommonConfiguration;
 import org.ecocean.RestClient;
-import java.net.MalformedURLException;
 import java.util.List;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.net.MalformedURLException;
 import java.security.InvalidKeyException;
 
 /*
@@ -92,9 +92,10 @@ public class Comm {
         return urlCache.get(name);
     }
 
+    //this version takes NAME and resolves what url is
     public static JSONObject post(String urlName, String context, HashMap<String,Object> data) throws RuntimeException, MalformedURLException, IOException, NoSuchAlgorithmException, InvalidKeyException {
-System.out.println("FAKE Comm.post to " + getUrl(urlName, context) + " ------------------------------\n" + hashMapToJSONObject(data) + "\n---------------"); return null;
-        //return RestClient.post(getUrl(urlName, context), hashMapToJSONObject(data));
+System.out.println("Comm.post to " + getUrl(urlName, context) + " ------------------------------\n" + hashMapToJSONObject(data) + "\n---------------");
+        return RestClient.post(getUrl(urlName, context), hashMapToJSONObject(data));
     }
 
 /*
@@ -109,6 +110,19 @@ System.out.println("FAKE Comm.post to " + getUrl(urlName, context) + " ---------
 */
 
 
+    //expects URL
+    public static JSONObject post(URL url, HashMap<String,Object> data) throws RuntimeException, IOException, NoSuchAlgorithmException, InvalidKeyException {
+        return RestClient.post(url, hashMapToJSONObject(data));
+    }
+
+    public static JSONObject get(String urlName, String context) throws RuntimeException, IOException, NoSuchAlgorithmException, InvalidKeyException {
+        return RestClient.get(getUrl(urlName, context));
+    }
+
+    public static JSONObject get(URL url) throws RuntimeException, IOException, NoSuchAlgorithmException, InvalidKeyException {
+        return RestClient.get(url);
+    }
+
     //// TOTAL HACK... buy jon a drink and he will tell you about these.....
     public static JSONObject hashMapToJSONObject(HashMap<String,Object> map) {
         if (map == null) return null;
@@ -118,6 +132,19 @@ System.out.println("FAKE Comm.post to " + getUrl(urlName, context) + " ---------
             rtn.put(k, map.get(k));
         }
         return rtn;
+    }
+
+    //lets just standardize on one url for now...
+    //  this gets escaped to be able to be sent as part of a url
+    /// http://uidev.scribble.com:80/v2/ia%3Fv2Callback%26identify_review_submit'
+    public static String callbackUrlString(String context, String append) {
+        String baseUrl = CommonConfiguration.getServerURL(context);
+        if (baseUrl == null) throw new RuntimeException("CommonConfiguration.getServerURL() returned null!");
+        String unesc = baseUrl + "/ia?v2Callback" + ((append == null) ? "" : append);
+        return unesc.replaceAll("\\?", "%3F").replaceAll("&", "%26");
+    }
+    public static String callbackUrlString(String context) {
+        return callbackUrlString(context, (String)null);
     }
 
     public static String fromFancyUUID(JSONObject u) {
