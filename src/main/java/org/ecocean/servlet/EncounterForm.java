@@ -302,7 +302,6 @@ System.out.println("*** trying redirect?");
 
 
     //set up for response
-    response.setContentType("text/html");
     PrintWriter out = response.getWriter();
     boolean locked = false;
 
@@ -358,6 +357,13 @@ System.out.println("*** trying redirect?");
 
         } else {
             doneMessage = "Sorry this Servlet only handles file upload request";
+        }
+
+        boolean jsonResponse = (fv.get("jsonResponse") != null);
+        if (jsonResponse) {
+            response.setContentType("application/json");
+        } else {
+            response.setContentType("text/html");
         }
 
         if (fv.get("social_files_id") != null) {
@@ -960,10 +966,15 @@ System.out.println("ENCOUNTER SAVED???? newnum=" + newnum);
 
 
 
-
       //return a forward to display.jsp
       System.out.println("Ending data submission.");
-      if (!spamBot) {
+        if (jsonResponse) {
+            JSONObject res = new JSONObject();
+            res.put("success", true);
+            res.put("encounterId", encID);
+            out.println(res.toString());
+
+      } else if (!spamBot) {
         response.sendRedirect(request.getScheme()+"://" + CommonConfiguration.getURLLocation(request) + "/confirmSubmit.jsp?number=" + encID);
       } else {
         response.sendRedirect(request.getScheme()+"://" + CommonConfiguration.getURLLocation(request) + "/spambot.jsp");
