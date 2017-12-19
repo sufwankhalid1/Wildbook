@@ -1117,10 +1117,12 @@ System.out.println("* createAnnotationFromIAResult() CREATED " + ann + " on Enco
         if (iaResult == null) return null;
 
         //this is hard-coded for whaleshark.org branch .... need to generalize this!!  TODO
+/*
         if (!iaResult.optString("class", "_FAIL_").equals("whale_shark")) {
             System.out.println("WARNING: bailing on IA results due to invalid species detected -- " + iaResult.toString());
             return null;
         }
+*/
 
         JSONObject fparams = new JSONObject();
         fparams.put("detectionConfidence", iaResult.optDouble("confidence", -2.0));
@@ -1248,10 +1250,12 @@ System.out.println("+++++++++++ >>>> skipEncounters ???? " + skipEncounters);
                     for (int a = 0 ; a < janns.length() ; a++) {
                         JSONObject jann = janns.optJSONObject(a);
                         if (jann == null) continue;
-                        if (jann.optDouble("confidence", -1.0) < getDetectionCutoffValue() || !jann.optString("species", "unkown").equals("whale_fluke")) { // wasn't detected with high confidence or wasn't a identified as a whale fluke
+                        //TODO we dont care about species for UIDEV, so....
+                        if (jann.optDouble("confidence", -1.0) < getDetectionCutoffValue()) {
+                        ////if (jann.optDouble("confidence", -1.0) < getDetectionCutoffValue() || !jann.optString("species", "unkown").equals("whale_fluke")) { // wasn't detected with high confidence or wasn't a identified as a whale fluke
 
                             needsReview = true;
-                            System.out.println("Detection didn't find a whale fluke");
+                            System.out.println("Detection needs review (low confidence) for annot " + a);
                             // TwitterUtil.sendDetectionAndIdentificationTweet(screenName, imageId, twitterInst, whaleId, false, false, ""); //TODO find a way to get screenName, imageId, etc. over here
                             continue;
                         }
@@ -1267,15 +1271,18 @@ System.out.println("+++++++++++ >>>> skipEncounters ???? " + skipEncounters);
                         newAnns.put(ann.getId());
                         try {
                             //TODO how to know *if* we should start identification
-                            if(jann.optDouble("confidence", -1.0) >= getDetectionCutoffValue() && jann.optString("species", "unkown").equals("whale_fluke")){
-                              System.out.println("Detection found a whale fluke; sending to identification");
-                              ident.put(ann.getId(), IAIntake(ann, myShepherd, request));
+                            if(jann.optDouble("confidence", -1.0) >= getDetectionCutoffValue()) {
+                                //TODO also should we whitelist species and fail otherwise? blacklist species? what???
+                              System.out.println("Detection found species: " + jann.optString("species", "unkown"));
+                                /// FOR UIDEV WE DONT SEND TO IDENTIFICATION (YET)
+                              //ident.put(ann.getId(), IAIntake(ann, myShepherd, request));
                             }
                         } catch (Exception ex) {
                             System.out.println("WARNING: IAIntake threw exception " + ex);
                         }
                         numCreated++;
                     }
+System.out.println(">>>>>> needsReview => " + needsReview);
                     if (needsReview) {
                         needReview.put(asset.getId());
                         asset.setDetectionStatus(STATUS_PENDING);
@@ -1451,7 +1458,7 @@ System.out.println("*****************\nhey i think we are happy with these annot
 
     //scores < these will require human review (otherwise they carry on automatically)
     public static double getDetectionCutoffValue() {
-        return 0.25;
+        return 0.95;  //setting high to "force review" (for now)
     }
     public static double getIdentificationCutoffValue() {
         return 0.8;
