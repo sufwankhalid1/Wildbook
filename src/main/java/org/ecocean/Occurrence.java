@@ -727,7 +727,8 @@ public class Occurrence implements java.io.Serializable{
       encounterInfo.put(enc.getCatalogNumber(), uj);
     }
     jobj.put("encounters", encounterInfo);
-    jobj.put("assets", this.assets);
+    //assets needs to be iterated into a JSONArray... TODO
+    //jobj.put("assets", this.assets);
 
     jobj.put("groupBehavior", this.getGroupBehavior());
     return jobj;
