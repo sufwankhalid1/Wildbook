@@ -41,6 +41,11 @@ String langCode=ServletUtilities.getLanguageCode(request);
 Properties props = new Properties();
 props = ShepherdProperties.getProperties("header.properties", langCode, context);
 
+//we have to call this once (ever!) just to set static CommonConfiguration.SERVER_URL ... so i am chosing here
+try {
+    CommonConfiguration.getServerURL(request, request.getContextPath(), context);
+} catch (Exception ex) {}
+
 String urlLoc = "//" + CommonConfiguration.getURLLocation(request);
 %>
 
