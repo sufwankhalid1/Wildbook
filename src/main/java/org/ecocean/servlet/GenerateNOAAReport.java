@@ -61,7 +61,7 @@ public class GenerateNOAAReport extends HttpServlet {
     request.setAttribute("returnLoc", "//"+urlLoc+"/generateNOAAReport.jsp");
 
     //int groupTotal = 0;
-    String physicalReport = "<hr><h4>Detail Physical Sample Results:</h4><br/>";
+    String physicalReport = "<hr><h4>Detail Photo Sample Results:</h4><br/>";
     physicalReport += "<table class=\"table\">";    
     physicalReport += "<tr><th scope=\"col\">Date</th><th scope=\"col\">Species</th><th scope=\"col\">Permit Name</th><th scope=\"col\">Sample State</th><th scope=\"col\">Group Size</th></tr>";
 
@@ -205,19 +205,41 @@ public class GenerateNOAAReport extends HttpServlet {
       report += "<td>"+estimate+"</td>";
       report += "</tr>";
 
-      takesCounts = aggregatePhotoTakes(takesCounts, species);
+      takesCounts = aggregatePhotoTakes(takesCounts, species, photos);
     }
     report += "</table>";
 
+    String summary = createPhotoIDSummary(takesCounts);
 
-
-    return report;
+    return summary + report;
   }
 
-  private HashMap<String,Integer> aggregatePhotoTakes(HashMap<String,Integer> takesCounts, String species) {
+  private String createPhotoIDSummary(HashMap<String,Integer> takesCounts) {
+    //Construct this in a 6 wide bootstrap column and if present attach the biopsy summary next to it?
+    String summary = "";
+    if (takesCounts.keySet()!=null) {
+      summary += "<table class=\"table\">";
+      summary += "<tr><th scope=\"col\">Species</th><th scope=\"col\">Photo Takes</th></tr>";
+      Set<String> keys = takesCounts.keySet();
+      for (String key : keys) {
+        summary += "<tr>";
+        summary += "<td>"+key+"</td>";
+        summary += "<td>"+takesCounts.get(key)+"</td>";
+        summary += "</tr>";
+      }
+      summary += "</table>";
+    }
+    return summary; 
+  }
+
+  private HashMap<String,Integer> aggregatePhotoTakes(HashMap<String,Integer> takesCounts, String species, String photos) {
     if (takesCounts.containsKey(species)) {
       Integer old = takesCounts.get(species);
-      takesCounts.replace(species, old++);
+      try {
+        takesCounts.replace(species, old+Integer.valueOf(photos));
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
     } else {
       takesCounts.put(species, 1);
     }
@@ -226,6 +248,16 @@ public class GenerateNOAAReport extends HttpServlet {
 
   private String getPhotoTakesSummary(HashMap<String,Integer> takesCounts, ArrayList<String> SpeciesArr) {
     String summary = "";
+    if (SpeciesArr.size()>0) {
+      Set<String> keys = takesCounts.keySet();
+      summary += "<table>";
+      for (String key : keys) {
+        //Generate HTML for all species keys..
+      }
+
+
+      summary += "</table>";
+    }
     
     return summary;
   } 
