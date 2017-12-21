@@ -1222,6 +1222,7 @@ public static ArrayList<String> nlpDateParseToArrayList(String text){
 
   // create pipeline with annotators like above
   Properties props = new Properties();
+  props.setProperty("sutime.rules", "edu/stanford/nlp/models/sutime/defs.sutime.txt,edu/stanford/nlp/models/sutime/english.sutime.txt,edu/stanford/nlp/models/sutime/english.holidays.sutime.txt");
   AnnotationPipeline pipeline = new AnnotationPipeline();
   pipeline.addAnnotator(new TokenizerAnnotator(false));
   pipeline.addAnnotator(new WordsToSentencesAnnotator(false));

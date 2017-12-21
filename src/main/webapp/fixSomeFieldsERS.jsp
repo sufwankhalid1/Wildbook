@@ -225,11 +225,11 @@ try{
             // regexDate = "find not true";
           //}
 
-          //Create a pattern object with date first
+          //Create a pattern object with date first, days 13-31
           Pattern pDateFirst = Pattern.compile("(1[3456789]|[2][0-9]|3[01])[- /.](0?[1-9]|1[012])[- /.](19|20)\\d\\d");
           //Create a matcher object for date first
           Matcher mDateFirst = pDateFirst.matcher(remarksOutRegex);
-          //Create a pattern object with month first
+          //Create a pattern object with month first, days 13-31
           Pattern pMonthFirst = Pattern.compile("(0?[1-9]|1[012])[- /.]([1][3456789]|[2][0-9]|3[01])[- /.](19|20)\\d\\d");
           //Create a matcher object for month first
           Matcher mMonthFirst = pMonthFirst.matcher(remarksOutRegex);
@@ -237,6 +237,8 @@ try{
           Pattern pAny = Pattern.compile("(0?[1-9]|[12][0-9]|3[01])[- /.](0?[1-9]|[12][0-9]|3[01])[- /.](19|20)\\d\\d");
           //Create a matcher object for ambiguous dates
           Matcher mAny = pAny.matcher(remarksOutRegex);
+          //Variable to hold ambiguousDate because find() should only be run once
+          Boolean ambiguousDate = mAny.find();
 
           if(mDateFirst.find()){
             regexDate = mDateFirst.group();
@@ -244,22 +246,15 @@ try{
           } else if(mMonthFirst.find()) {
             regexDate = mMonthFirst.group();
             dateFormat = "MM-dd-yyyy";
-          } else if(mAny.find() && !dateLang.equals("en")) {
+          } else if(ambiguousDate && !dateLang.equals("en")) {
             regexDate = mAny.group();
             dateFormat = "dd-MM-yyyy";
-          } else if(mAny.find()) {
+          } else if(ambiguousDate && dateLang.equals("en")) {
             regexDate = mAny.group();
             dateFormat = "MM-dd-yyyy";
           } else {
             regexDate = "date find not true";
           }
-
-
-
-
-
-
-
 
 
           //reset date to exclude OCR, which can currently confuse NLP
