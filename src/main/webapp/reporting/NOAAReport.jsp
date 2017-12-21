@@ -11,6 +11,7 @@ String context="context0";
 context=ServletUtilities.getContext(request);
 Shepherd myShepherd=new Shepherd(context);
 String reportType = String.valueOf(request.getAttribute("reportType"));
+String completeSummary = String.valueOf(request.getAttribute("completeSummary"));
 %>
 
 <jsp:include page="../header.jsp" flush="true"/>
@@ -21,7 +22,8 @@ String reportType = String.valueOf(request.getAttribute("reportType"));
 	<div class="row">
 
 		<div class="col-xs-12">	
-			<% 
+
+			<%
 			if (reportType.equals("photoID")) {
 			%>
 				<p>Number of Photo Collections: <%= request.getAttribute("photoIDNum") %></p>
@@ -37,7 +39,18 @@ String reportType = String.valueOf(request.getAttribute("reportType"));
 			<p><a class="btn" href="<%= request.getAttribute("returnUrl") %>">Search Again</a></p>
 
 			<!-- All formatted table output from servlet. -->	
+			<% 
+			if (!"".equals(completeSummary)) {
+			%>
+			<%= request.getAttribute("completeSummary") %>
 			<%= request.getAttribute("result") %>
+			<%
+			} else {
+			%>
+				<h3>These parameters yielded no results.</h3>
+			<%
+			}
+			%>
 		
 		</div>
 	</div>

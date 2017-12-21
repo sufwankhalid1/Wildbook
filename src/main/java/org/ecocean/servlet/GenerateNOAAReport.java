@@ -39,9 +39,10 @@ public class GenerateNOAAReport extends HttpServlet {
   private static PrintWriter out;
   private static String context; 
   private static String[] SEARCH_FIELDS = new String[]{"startDate","endDate", "permitName", "speciesName", "reportType", "numSpecies"}; 
-  //ArrayList<TissueSample> matchingSamples = new ArrayList<>();
-  int photoIDNum = 0;
-  int physicalIDNum = 0;
+  private int photoIDNum = 0;
+  private int physicalIDNum = 0;
+  private String completeSummary = "";
+
   public void init(ServletConfig config) throws ServletException {
     super.init(config);
   }
@@ -95,6 +96,7 @@ public class GenerateNOAAReport extends HttpServlet {
     }
     
     request.setAttribute("reportType",reportType);
+    request.setAttribute("completeSummary",completeSummary);
     request.setAttribute("physicalIDNum", String.valueOf(physicalIDNum));
     request.setAttribute("photoIDNum", String.valueOf(photoIDNum));
     request.setAttribute("result",report);
@@ -107,14 +109,14 @@ public class GenerateNOAAReport extends HttpServlet {
       myShepherd.closeDBTransaction();
       out.close();  
       photoIDNum = 0;
-      physicalIDNum = 0;
-      //matchingSamples.clear();  
+      physicalIDNum = 0; 
+      completeSummary = "";
     }
   }
 
   private String photoIDReporting(String report,HashMap<String,String> formInput, Shepherd myShepherd, HttpServletRequest request) {
     
-    HashMap<String,Integer> takesCounts = new HashMap<>();
+    HashMap<String,ArrayList<String>> takesCounts = new HashMap<>();
     
     @SuppressWarnings("unchecked")
     Iterator<Occurrence> occs = myShepherd.getAllOccurrences();
@@ -137,7 +139,6 @@ public class GenerateNOAAReport extends HttpServlet {
           shortDate = dt.toString().substring(0,10);
           String[] dateSplit = shortDate.split("-");
           shortDate = dateSplit[1]+"/"+dateSplit[2]+"/"+dateSplit[0];
-
         }
       } catch (NullPointerException npe) {
         npe.printStackTrace();
@@ -164,21 +165,15 @@ public class GenerateNOAAReport extends HttpServlet {
         e.printStackTrace();
       }
       Encounter enc = occ.getEncounters().get(0);
-      //System.out.println("Grabbing enc? "+enc.getCatalogNumber());
       String species = null;
       if (enc!=null) {
         species = (enc.getGenus()+" "+enc.getSpecificEpithet()).toLowerCase();
-        // This is getting null..
-        //System.out.println("Species? "+species);
-        //System.out.println("Enc got anything?? "+enc.toString());
-        //System.out.println("Enc Genus? "+enc.getGenus()+" Enc SpecEp? "+enc.getSpecificEpithet());
       }
       if (!allSpecies&&!speciesArr.contains(species)) {
         continue;
       } else {
         species = species.substring(0,1).toUpperCase() + species.substring(1);
       }
-      //System.out.println("Species? "+species+" Date? "+milliDate);
 
       String photos = null;
       String estimate = null;
@@ -205,65 +200,60 @@ public class GenerateNOAAReport extends HttpServlet {
       report += "<td>"+estimate+"</td>";
       report += "</tr>";
 
-      takesCounts = aggregatePhotoTakes(takesCounts, species, photos);
+      takesCounts = aggregatePhotoTakes(takesCounts, species, photos, estimate);
     }
     report += "</table>";
 
-    String summary = createPhotoIDSummary(takesCounts);
+    createPhotoIDSummary(takesCounts);
 
-    return summary + report;
+    return report;
   }
 
-  private String createPhotoIDSummary(HashMap<String,Integer> takesCounts) {
-    //Construct this in a 6 wide bootstrap column and if present attach the biopsy summary next to it?
+  private void createPhotoIDSummary(HashMap<String,ArrayList<String>> takesCounts) {
     String summary = "";
-    if (takesCounts.keySet()!=null) {
+    if (takesCounts.keySet()!=null&&!takesCounts.keySet().isEmpty()) {
+      summary += "<h3>Summary of Photo ID takes:</h3>";
       summary += "<table class=\"table\">";
-      summary += "<tr><th scope=\"col\">Species</th><th scope=\"col\">Photo Takes</th></tr>";
+      summary += "<tr><th scope=\"col\">Species</th><th scope=\"col\">Photo #&nbsp&nbsp&nbsp</th><th scope=\"col\">Takes (TOTBESTEST)</th></tr>";
       Set<String> keys = takesCounts.keySet();
       for (String key : keys) {
         summary += "<tr>";
         summary += "<td>"+key+"</td>";
-        summary += "<td>"+takesCounts.get(key)+"</td>";
+        summary += "<td>"+takesCounts.get(key).get(0)+"</td>";
+        summary += "<td>"+takesCounts.get(key).get(1)+"</td>";
         summary += "</tr>";
       }
       summary += "</table>";
+    } else {
+      summary += "<tr><td>No Results.</td></tr></table>";
     }
-    return summary; 
+    completeSummary += summary; 
   }
 
-  private HashMap<String,Integer> aggregatePhotoTakes(HashMap<String,Integer> takesCounts, String species, String photos) {
+  private HashMap<String,ArrayList<String>> aggregatePhotoTakes(HashMap<String,ArrayList<String>> takesCounts, String species, String photos, String estimate) {
     if (takesCounts.containsKey(species)) {
-      Integer old = takesCounts.get(species);
+      ArrayList<String> values = takesCounts.get(species);
       try {
-        takesCounts.replace(species, old+Integer.valueOf(photos));
+        String oldPhotos =  values.get(0);
+        String oldEstimate = values.get(1);
+        values.set(0, String.valueOf(Integer.valueOf(oldPhotos)+Integer.valueOf(photos)));
+        values.set(1, String.valueOf(Integer.valueOf(oldEstimate)+Integer.valueOf(estimate)));
+        takesCounts.replace(species, values);
       } catch (Exception e) {
         e.printStackTrace();
       }
     } else {
-      takesCounts.put(species, 1);
+      ArrayList<String> newSpecies = new ArrayList<>();
+      newSpecies.add(0, photos);
+      newSpecies.add(1, estimate);
+      takesCounts.put(species, newSpecies);
     }
     return takesCounts;
   }
 
-  private String getPhotoTakesSummary(HashMap<String,Integer> takesCounts, ArrayList<String> SpeciesArr) {
-    String summary = "";
-    if (SpeciesArr.size()>0) {
-      Set<String> keys = takesCounts.keySet();
-      summary += "<table>";
-      for (String key : keys) {
-        //Generate HTML for all species keys..
-      }
-
-
-      summary += "</table>";
-    }
-    
-    return summary;
-  } 
-
   private String physicalSampleReporting(String report,HashMap<String,String> formInput, Shepherd myShepherd, HttpServletRequest request) {
     // Yuck.
+    HashMap<String,ArrayList<String>> takesCounts = new HashMap<String,ArrayList<String>>();
     Iterator<TissueSample> allSamples = null;
     try {
       allSamples = myShepherd.getAllTissueSamplesNoQuery().iterator();
@@ -282,7 +272,6 @@ public class GenerateNOAAReport extends HttpServlet {
       if (formInput.containsKey("permitName")&&formInput.get("permitName")!=null) {
         permitName = formInput.get("permitName");
         permitFromSample = sample.getPermit();
-        System.out.println("Permit: "+permitName);
         if ((!permitName.equals("all"))&&!permitFromSample.toLowerCase().equals(permitName.toLowerCase())) {
           System.out.println("Rejected based on non matching Permit selection!");
           continue;
@@ -294,7 +283,7 @@ public class GenerateNOAAReport extends HttpServlet {
       try {
         sampleDate = getAnyDate(sample, myShepherd);                
         shortDate = getShortDate(sample, myShepherd);
-        System.out.println("Sample Date: "+sampleDate);
+        //System.out.println("Sample Date: "+sampleDate);
         if (formInput.containsKey("startDate")) {
           startDate = milliComparator(formInput.get("startDate"));
           if (startDate>sampleDate) {
@@ -353,14 +342,7 @@ public class GenerateNOAAReport extends HttpServlet {
         state = sample.getState();
       }
       physicalIDNum++;
-      //String lat = "";
-      //String lon = "";
-      //try {
-      //  lat = sample.getObservationByName("Location_(Latitude)").getValue();
-      //  lon = sample.getObservationByName("Location_(Longitude)").getValue();
-      //} catch (Exception e) {
-      //  e.printStackTrace();
-      //}
+
       report += "<tr>";
       report += "<td>"+shortDate+"</td>";
       report += "<td>"+species+"</td>";
@@ -368,10 +350,63 @@ public class GenerateNOAAReport extends HttpServlet {
       report += "<td>"+state+"</td>";
       report += "<td>"+groupSize+"</td>";
       report += "</tr>";
-      //matchingSamples.add(sample);
+
+      takesCounts = aggregatePhysicalTakes(takesCounts, species, groupSize);
     } 
     report += "</table>";
+
+    createPhysicalIDSummary(takesCounts);
+
     return report;
+  }
+
+  private void createPhysicalIDSummary(HashMap<String,ArrayList<String>> takesCounts) {
+    //Construct this in a 6 wide bootstrap column and if present attach the biopsy summary next to it?
+    String summary = "";
+    if (takesCounts.keySet()!=null&&!takesCounts.keySet().isEmpty()) {
+      summary += "<h3>Summary of Physical ID takes:</h3>";
+      summary += "<table class=\"table\">";
+      summary += "<tr><th scope=\"col\">Species</th><th scope=\"col\">Group Totals</th><th scope=\"col\">Actual Biopsies</th></tr>";
+      Set<String> keys = takesCounts.keySet();
+      System.out.println("Takescounts? "+takesCounts.toString());
+      for (String key : keys) {
+        summary += "<tr>";
+        summary += "<td>"+key+"</td>";
+        // Zero index of arraylist is the groupSize, one is the actual samples.
+        summary += "<td>"+takesCounts.get(key).get(0)+"</td>";
+        summary += "<td>"+takesCounts.get(key).get(1)+"</td>";
+        summary += "</tr>";
+      }
+      summary += "</table>"; 
+    } else {
+      summary += "<tr><td>No Reselts.</td></tr></table>";
+    }
+    completeSummary += summary; 
+  }
+
+  //Aggregate actual samples + groupSize.
+  private HashMap<String,ArrayList<String>> aggregatePhysicalTakes(HashMap<String,ArrayList<String>> takesCounts, String species, Integer groupSize) {
+    ArrayList<String> takes = new ArrayList<String>(2);
+    //Something fishy here.. checking for presence but also adding the arraylist either way? May need to construct new one.
+    if (takesCounts.containsKey(species)) {
+      takes = takesCounts.get(species);
+      try {
+        String group = takes.get(0);
+        String numBiopsies = takes.get(1);
+        group = String.valueOf(Integer.valueOf(group) + groupSize);
+        numBiopsies = String.valueOf(Integer.valueOf(numBiopsies) + 1);
+        takes.set(0, group);
+        takes.set(1, numBiopsies);
+        takesCounts.replace(species, takes);
+      } catch (Exception e) {
+        e.printStackTrace();
+      } 
+    } else {
+      takes.add(0, String.valueOf(groupSize));
+      takes.add(1,"1");
+      takesCounts.put(species, takes);
+    }
+    return takesCounts;
   }
 
   private Integer getPhysicalSamplingGroupSize(Shepherd myShepherd, TissueSample sample) {
