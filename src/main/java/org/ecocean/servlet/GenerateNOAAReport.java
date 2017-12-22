@@ -42,8 +42,9 @@ public class GenerateNOAAReport extends HttpServlet {
   private static String[] SEARCH_FIELDS = new String[]{"startDate","endDate", "permitName", "speciesName", "reportType", "numSpecies"}; 
   private int photoIDNum = 0;
   private int physicalIDNum = 0;
-  private int taggedNumber = 0;
   private String completeSummary = "";
+  private ArrayList<Occurrence> satTagOccs = new ArrayList<Occurrence>();
+  private ArrayList<Occurrence> dTagOccs = new ArrayList<Occurrence>();
 
   public void init(ServletConfig config) throws ServletException {
     super.init(config);
@@ -86,15 +87,15 @@ public class GenerateNOAAReport extends HttpServlet {
 
     String reportType = formInput.get("reportType");
 
+    // Tag report MUST follow photoID. The proper occs are extracted at the same time to save the DB a hit. 
     if (reportType.equals("photoID")) {
       photoIDReport = photoIDReporting(photoIDReport,formInput,myShepherd,request);
     } else {
-      physicalReport = physicalSampleReporting(physicalReport,formInput,myShepherd,request);
-      taggingReport = taggingReport(taggingReport,formInput,myShepherd,request); 
+      physicalReport = physicalSampleReporting(physicalReport,formInput,myShepherd,request); 
       photoIDReport = photoIDReporting(photoIDReport,formInput,myShepherd,request);
+      taggingReport += taggingReport(taggingReport, formInput, myShepherd, request);
     }
 
-    // TODO - Structure in this order: Summary of PhotoID, physical then detail photoID then physical. 
     String report = "";
     if (reportType=="photoID") {
       report = photoIDReport;
@@ -117,24 +118,63 @@ public class GenerateNOAAReport extends HttpServlet {
       out.close();  
       photoIDNum = 0;
       physicalIDNum = 0;
-      taggedNumber = 0; 
       completeSummary = "";
     }
   }
 
   private String taggingReport(String report, HashMap<String,String> formInput, Shepherd myShepherd, HttpServletRequest request) {
+    
+    String row = "";
+    for (Occurrence occ : satTagOccs) {  
+      if (occ.getBaseSatelliteTagArrayList()!=null&&!occ.getBaseSatelliteTagArrayList().isEmpty()) {
+          ArrayList<SatelliteTag> sTags = occ.getBaseSatelliteTagArrayList();
+          String date = millisToShortDate(occ.getMillis());
+          for (SatelliteTag sTag : sTags) {
+            row =  buildTagRow(sTag, date);
+            report += row;
+          }
+      }
+    }
+    for (Occurrence occ : dTagOccs) {  
+      if (occ.getBaseDigitalArchiveTagArrayList()!=null&&!occ.getBaseDigitalArchiveTagArrayList().isEmpty()) {
+        ArrayList<DigitalArchiveTag> dTags = occ.getBaseDigitalArchiveTagArrayList();
+        for (DigitalArchiveTag dTag : dTags) {
+          String date = millisToShortDate(occ.getMillis());
+          row = buildTagRow(dTag, date);
+          report += row;
+        }
+      }
+    }
+    report += "</table>";
     return report;
   }
+
+  private String buildTagRow(SatelliteTag sTag, String date) {
+    String row =  "";
+    Observation species = sTag.getObservationByName("Species");
+    String speciesStr = species.getValue();
+    String tagID = sTag.getId();
+
+    return row;
+  }
+
+  private String buildTagRow(DigitalArchiveTag dTag, String date) {
+    String row =  "";
+    Observation species = dTag.getObservationByName("Species");
+    String speciesStr = species.getValue();
+    String tagID = dTag.getId();
+    return row;
+  }
+
 
   private void checkForTag(Occurrence occ) {
     ArrayList<SatelliteTag> satTags = new ArrayList<>();
     ArrayList<DigitalArchiveTag> dTags = new ArrayList<>();
     if (occ.getBaseDigitalArchiveTagArrayList()!=null&&!occ.getBaseDigitalArchiveTagArrayList().isEmpty()) {
-      dTags = occ.getBaseDigitalArchiveTagArrayList();
+      dTagOccs.add(occ);
       System.out.println("Got a dTag!");
-    }
-    if (occ.getBaseSatelliteTagArrayList()!=null&&!occ.getBaseSatelliteTagArrayList().isEmpty()) {
-      satTags = occ.getBaseSatelliteTagArrayList();
+    } else if (occ.getBaseSatelliteTagArrayList()!=null&&!occ.getBaseSatelliteTagArrayList().isEmpty()) {
+      satTagOccs.add(occ);
       System.out.println("Got a Sat tag!");
     }
   }
@@ -160,10 +200,7 @@ public class GenerateNOAAReport extends HttpServlet {
           if (startDate>milliDate||endDate<milliDate) {
             continue;
           }
-          DateTime dt = new DateTime(milliDate);
-          shortDate = dt.toString().substring(0,10);
-          String[] dateSplit = shortDate.split("-");
-          shortDate = dateSplit[1]+"/"+dateSplit[2]+"/"+dateSplit[0];
+          shortDate = millisToShortDate(milliDate);
         }
       } catch (NullPointerException npe) {
         npe.printStackTrace();
@@ -265,8 +302,10 @@ public class GenerateNOAAReport extends HttpServlet {
     if (takesCounts.containsKey(species)) {
       ArrayList<String> values = takesCounts.get(species);
       try {
-        String oldPhotos =  values.get(0);
-        String oldEstimate = values.get(1);
+        photos = sanitizeIntString(photos);
+        estimate = sanitizeIntString(estimate);
+        String oldPhotos =  sanitizeIntString(values.get(0));
+        String oldEstimate = sanitizeIntString(values.get(1));
         values.set(0, String.valueOf(Integer.valueOf(oldPhotos)+Integer.valueOf(photos)));
         values.set(1, String.valueOf(Integer.valueOf(oldEstimate)+Integer.valueOf(estimate)));
         takesCounts.replace(species, values);
@@ -280,6 +319,17 @@ public class GenerateNOAAReport extends HttpServlet {
       takesCounts.put(species, newSpecies);
     }
     return takesCounts;
+  }
+
+  private String sanitizeIntString(String intStr) {
+    String sanitized = "";
+    for (int i=0;i<intStr.length();i++) {
+      Character ch = intStr.charAt(i);
+      if (Character.isDigit(ch)) {
+        sanitized = sanitized + ch.toString();
+      }
+    }
+    return sanitized;
   }
 
   private String physicalSampleReporting(String report,HashMap<String,String> formInput, Shepherd myShepherd, HttpServletRequest request) {
@@ -444,7 +494,11 @@ public class GenerateNOAAReport extends HttpServlet {
     Integer groupSize = null;
     try {
       Observation groupOb = sample.getObservationByName("Group_Size");
-      groupSize = Integer.valueOf(groupOb.getValue());
+      if (groupOb!=null&&groupOb.getValue()!=null&&!"".equals(groupOb.getValue())) {
+        groupSize = Integer.valueOf(groupOb.getValue());
+      } else {
+        groupSize = 1;
+      }
     } catch (NullPointerException npe) {
       npe.printStackTrace();
     }
@@ -560,6 +614,14 @@ public class GenerateNOAAReport extends HttpServlet {
       e.printStackTrace();
     }
     return milliDate;
+  }
+
+  private String millisToShortDate(long millis) {
+    DateTime dt = new DateTime(millis);
+    String shortDate = dt.toString().substring(0,10);
+    String[] dateSplit = shortDate.split("-");
+    shortDate = dateSplit[1]+"/"+dateSplit[2]+"/"+dateSplit[0];
+    return shortDate;
   }
 
 }
