@@ -23,6 +23,7 @@ import org.joda.time.format.DateTimeFormatter;
 import org.ecocean.media.*;
 import org.apache.poi.ss.usermodel.DataFormatter;
 
+import javax.jdo.*;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -41,6 +42,7 @@ public class GenerateNOAAReport extends HttpServlet {
   private static String[] SEARCH_FIELDS = new String[]{"startDate","endDate", "permitName", "speciesName", "reportType", "numSpecies"}; 
   private int photoIDNum = 0;
   private int physicalIDNum = 0;
+  private int taggedNumber = 0;
   private String completeSummary = "";
 
   public void init(ServletConfig config) throws ServletException {
@@ -70,6 +72,10 @@ public class GenerateNOAAReport extends HttpServlet {
     photoIDReport += "<table class=\"table\">"; 
     photoIDReport += "<tr><th scope=\"col\">Date</th><th scope=\"col\">Species</th><th scope=\"col\">Permit Name</th><th scope=\"col\">Photo Number</th><th scope=\"col\">Takes</th></tr>";
 
+    String taggingReport = "<hr><h4>Detail Tag Results:</h4><br/>";
+    taggingReport += "<table class=\"table\">";
+    taggingReport += "<tr><th scope=\"col\">Date</th><th scope=\"col\">Species</th><th scope=\"col\">Tag Type</th><th scope=\"col\">Tag ID</th></tr>";
+
     HashMap<String,String> formInput = null;
     try {
       formInput = retrieveFields(request, SEARCH_FIELDS);  
@@ -84,6 +90,7 @@ public class GenerateNOAAReport extends HttpServlet {
       photoIDReport = photoIDReporting(photoIDReport,formInput,myShepherd,request);
     } else {
       physicalReport = physicalSampleReporting(physicalReport,formInput,myShepherd,request);
+      taggingReport = taggingReport(taggingReport,formInput,myShepherd,request); 
       photoIDReport = photoIDReporting(photoIDReport,formInput,myShepherd,request);
     }
 
@@ -109,8 +116,26 @@ public class GenerateNOAAReport extends HttpServlet {
       myShepherd.closeDBTransaction();
       out.close();  
       photoIDNum = 0;
-      physicalIDNum = 0; 
+      physicalIDNum = 0;
+      taggedNumber = 0; 
       completeSummary = "";
+    }
+  }
+
+  private String taggingReport(String report, HashMap<String,String> formInput, Shepherd myShepherd, HttpServletRequest request) {
+    return report;
+  }
+
+  private void checkForTag(Occurrence occ) {
+    ArrayList<SatelliteTag> satTags = new ArrayList<>();
+    ArrayList<DigitalArchiveTag> dTags = new ArrayList<>();
+    if (occ.getBaseDigitalArchiveTagArrayList()!=null&&!occ.getBaseDigitalArchiveTagArrayList().isEmpty()) {
+      dTags = occ.getBaseDigitalArchiveTagArrayList();
+      System.out.println("Got a dTag!");
+    }
+    if (occ.getBaseSatelliteTagArrayList()!=null&&!occ.getBaseSatelliteTagArrayList().isEmpty()) {
+      satTags = occ.getBaseSatelliteTagArrayList();
+      System.out.println("Got a Sat tag!");
     }
   }
 
@@ -149,7 +174,7 @@ public class GenerateNOAAReport extends HttpServlet {
       int numSpecies = 0;
       if (request.getParameter("allSpecies")!=null) {
         allSpecies = Boolean.valueOf((request.getParameter("allSpecies")));
-        System.out.println("All Species? "+(request.getParameter("allSpecies")));
+        //System.out.println("All Species? "+(request.getParameter("allSpecies")));
       }
       try {
         numSpecies = Integer.valueOf(formInput.get("numSpecies"));
@@ -164,6 +189,12 @@ public class GenerateNOAAReport extends HttpServlet {
       } catch (Exception e) {
         e.printStackTrace();
       }
+
+      // This is where it gets weird. Checkng for tags here because species and date are in common. This is shoehorned in,
+      // I know. 
+      checkForTag(occ);
+
+
       Encounter enc = occ.getEncounters().get(0);
       String species = null;
       if (enc!=null) {
