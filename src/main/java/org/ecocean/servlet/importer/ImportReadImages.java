@@ -528,6 +528,7 @@ public class ImportReadImages extends HttpServlet {
   
   private void processAllTags(Shepherd myShepherd) {
     
+    int addedTags = 0;
     ArrayList<String> failed = new ArrayList<String>();
     if (!myShepherd.getPM().currentTransaction().isActive()) {
       myShepherd.beginDBTransaction();
@@ -589,7 +590,7 @@ public class ImportReadImages extends HttpServlet {
         e.printStackTrace();
       }
       String id = null;
-      if (row.getCell(4)!=null&&!row.getCell(4).equals("")) {
+      if (row.getCell(4)!=null&&!row.getCell(4).toString().equals("")) {
         try {
           id = getFormattedStringFromCell(row.getCell(4));
           for (Encounter enc : encs) {
@@ -624,16 +625,14 @@ public class ImportReadImages extends HttpServlet {
       
       ArrayList<Observation> obs = new ArrayList<Observation>();
       
-      if (tagValue.equals("DTag")) {
+      if (tagValue.contains("DTag")) {
         DigitalArchiveTag dTag = new DigitalArchiveTag();
         
-        XSSFCell cell = null;
+        //XSSFCell cell = null;
         String value = null;
         
         value = getFormattedStringFromCell(row.getCell(3));
         dTag.setId(value);
-        
-        value = getFormattedStringFromCell(row.getCell(3));
         dTag.setDTagID(value);
         
         for (int col=0;col<row.getPhysicalNumberOfCells();col++) {
@@ -641,7 +640,7 @@ public class ImportReadImages extends HttpServlet {
             if (!row.getCell(col).toString().trim().equals("")) {
               String val = getFormattedStringFromCell(row.getCell(col));
               String name = getFormattedStringFromCell(row.getCell(col).getSheet().getRow(0).getCell(col));
-              Observation ob = new Observation(name,val,dTag,dTag.getId());
+              Observation ob = new Observation(name,val,"DigitalArchiveTag",dTag.getId());
               myShepherd.getPM().makePersistent(ob);
               myShepherd.commitDBTransaction();
               obs.add(ob);
@@ -655,11 +654,11 @@ public class ImportReadImages extends HttpServlet {
         out.println("Created a DTag!");
         dTag.setAllObservations(obs);        
         occ.addBaseDigitalArchiveTag(dTag);
+        addedTags++;
           
       } else if (tagValue.toLowerCase().contains("satellite")) {
         SatelliteTag sTag = new SatelliteTag();
-        
-        XSSFCell cell = null;
+      
         String value = null;
         
         value = getFormattedStringFromCell(row.getCell(3));
@@ -670,7 +669,7 @@ public class ImportReadImages extends HttpServlet {
             if (!row.getCell(col).toString().trim().equals("")) {
               String val = getFormattedStringFromCell(row.getCell(col));
               String name = getFormattedStringFromCell(row.getCell(col).getSheet().getRow(0).getCell(col));
-              Observation ob = new Observation(name,val,sTag,sTag.getId());
+              Observation ob = new Observation(name,val,"SatelliteTag",sTag.getId());
               myShepherd.getPM().makePersistent(ob);
               myShepherd.commitDBTransaction();
               obs.add(ob);
@@ -684,6 +683,7 @@ public class ImportReadImages extends HttpServlet {
         out.println("Created a Sat Tag!");
         sTag.setAllObservations(obs);
         occ.addBaseSatelliteTag(sTag);
+        addedTags++;
       }
     }
     out.println("\nList of missed dates in AllTagSummary.xlsx : \n");
@@ -691,6 +691,7 @@ public class ImportReadImages extends HttpServlet {
       out.println(failed.get(m)+"\n");
     }
     out.println("Total of "+failed.size()+" misses.");
+    out.println("Successfully added tags from Excel: "+addedTags);
   }
   
   private String getFormattedStringFromCell(XSSFCell cell) {

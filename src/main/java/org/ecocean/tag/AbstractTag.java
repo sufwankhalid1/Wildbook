@@ -35,6 +35,29 @@ public class AbstractTag implements Serializable {
     this.observations.remove(ob);
   }
 
+  public Observation getObservationByName(String obName) {
+    System.out.println("Here with "+obName);
+    if (observations != null && observations.size() > 0) {
+      System.out.println("Not null and has > 0...");
+      for (Observation ob : observations) {
+        System.out.println("Matching observation and string? Name : "+ob.getName()+" Value: "+ob.getValue());
+        if (ob.getName() != null && ob.getName().equals(obName)) {
+          return ob;
+        }
+      }
+    }
+    return null;
+  }
+  public Observation getObservationByID(String obId) {
+    if (observations != null && !observations.isEmpty()) {
+      for (Observation ob : observations) {
+        if (ob.getID() != null && ob.getID().equals(obId)) {
+          return ob;
+        }
+      }
+    }
+    return null;
+  }
   
   protected AbstractTag() {
     

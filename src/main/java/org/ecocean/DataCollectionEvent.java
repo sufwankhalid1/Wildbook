@@ -1,4 +1,4 @@
-/*
+  /*
  * The Shepherd Project - A Mark-Recapture Framework
  * Copyright (C) 2011 Jason Holmberg
  *
@@ -137,12 +137,19 @@ public Observation getObservationByName(String obName) {
   return null;
 }
 public Observation getObservationByID(String obId) {
-  if (observations != null && observations.size() > 0) {
+  if (observations != null && !observations.isEmpty()) {
     for (Observation ob : observations) {
       if (ob.getID() != null && ob.getID().equals(obId)) {
         return ob;
       }
     }
+  }
+  return null;
+}
+
+public ArrayList<Observation> getObservationArrayList() {
+  if (observations!=null&&!observations.isEmpty()) {
+    return observations;
   }
   return null;
 }
