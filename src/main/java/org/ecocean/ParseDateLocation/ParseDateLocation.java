@@ -227,7 +227,7 @@ public class ParseDateLocation {
       String detectedLanguage = DetectTranslate.detectLanguage(textInput, context);
       if(!detectedLanguage.toLowerCase().startsWith("en")){
         textInput= DetectTranslate.translateToEnglish(textInput, context);
-        System.out.println("Translated text for parseLocation is " + textInput);
+        System.out.println("Translated text for parseDate is " + textInput);
       }
     } catch(Exception e){
       System.out.println("Exception trying to detect language.");
@@ -275,7 +275,7 @@ public class ParseDateLocation {
               e.printStackTrace();
             }
         }
-          
+
           
 
       }
@@ -288,7 +288,7 @@ public class ParseDateLocation {
     }
 
     /*
-    //NLP failure? let's try brute force detection across all languages supported by this Wildbook
+    //NLP failure? let's try brute force detection across all languages su  pported by this Wildbook
     if(!NLPsuccess){
       System.out.println(">>>>>> looking for date with brute force");
       //next parse for year
@@ -309,11 +309,12 @@ public class ParseDateLocation {
 
       //String result = (year > 0 ? Integer.toString(year) : "") + (month > 0 ? Integer.toString(month) : "") + (day > 0 ? Integer.toString(day) : "");
 
+
       return myDate;
   }
 
   // Same as above method, but this will return an arraylist instead of a string
-  public static ArrayList<String> parseDateToArrayList(String inputText, String context){
+  public static ArrayList<String> parseDateToArrayList(String inputText, String context, HttpServletRequest request){
     ArrayList<String> parsedDates = new ArrayList<String>();
 
     // Attempt to detect language of input text
@@ -331,7 +332,7 @@ public class ParseDateLocation {
       System.out.println(">>>>> looking for date with NLP");
       // Call NLP function to find and select a date from input
       // This will return an arraylist of date strings
-      parsedDates = ServletUtilities.nlpDateParseToArrayList(inputText);
+      parsedDates = ServletUtilities.nlpDateParseToArrayList(inputText, request);
     } catch (Exception e){
       System.out.println("Exception in NLP");
       e.printStackTrace();

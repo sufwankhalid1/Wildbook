@@ -1213,16 +1213,29 @@ public static java.util.Date getYesterday() {
     return cal.getTime();
 }
 
-
+  private static String getRuleFilepaths(HttpServletRequest request, String... files) {
+    String rulesDir = request.getServletContext().getRealPath("/WEB-INF/data/rules");
+    StringBuilder sb = new StringBuilder();
+    for (String file:files) {
+      if (sb.length() > 0) {
+        sb.append(",");
+      }
+      sb.append(rulesDir + "/" + file);
+    }
+    return sb.toString();
+  }
 /* Same as nlpDateParse, but will return the entire arraylist instead of
 ** just the best date
 */
-public static ArrayList<String> nlpDateParseToArrayList(String text){
+public static ArrayList<String> nlpDateParseToArrayList(String text, HttpServletRequest request){
   System.out.println("Entering nlpParseDateArray");
 
   // create pipeline with annotators like above
   Properties props = new Properties();
-  props.setProperty("sutime.rules", "edu/stanford/nlp/models/sutime/defs.sutime.txt,edu/stanford/nlp/models/sutime/english.sutime.txt,edu/stanford/nlp/models/sutime/english.holidays.sutime.txt");
+
+
+  props.setProperty("sutime.rules", getRuleFilepaths(request, "defs.sutime.txt", "english.sutime.txt", "english.holidays.sutime.txt"));
+
   AnnotationPipeline pipeline = new AnnotationPipeline();
   pipeline.addAnnotator(new TokenizerAnnotator(false));
   pipeline.addAnnotator(new WordsToSentencesAnnotator(false));
