@@ -839,11 +839,10 @@ public class AccessImport extends HttpServlet {
     
     System.out.println("Effort Table has "+table.getRowCount()+" Rows!\n");
     ArrayList<String> failArray = new ArrayList<String>();
-    int matchedNum = 0;
     int success = 0;
     int rowNum = 0;
     int numNoEncs = 0;
-    int noProjectOrLocation = 0;
+    int numOneOccs = 0;
     int matchingFrom = table.getRowCount();
     Row thisRow = null;
     
@@ -921,7 +920,7 @@ public class AccessImport extends HttpServlet {
           total = thisRow.getString("Total Sightings");
         }
         if (total.equals("0")) {
-          out.println("Survey had 0 sightings.");
+          out.println("Survey had 0 sightings. Skipping...");
           hadSighting = false;
           matchingFrom-=1;
         }
@@ -995,67 +994,65 @@ public class AccessImport extends HttpServlet {
               if (currentOccs!=null&&currentOccs.contains(parentOcc)) {
                 continue;
               }
-              if (encLoc != null || occProj != null || simpleLoc != null) {
-                if (occProj != null && project != null)  {
-                  if (occProj.contains(project) || project.contains(occProj)) {
-                    out.println("MATCHED survey to occurrence with Project : "+occProj+" = "+project);
-                    st.addOccurrence(parentOcc,myShepherd);
-                    // add check for if the survey is the same here?  
-                    success++;
-                    matched = true;
-                    addSurveyAndTrackIDToOccurrence(enc,sv,st,myShepherd);
-                  }
-                } else {
-                  if (encLoc != null && surveyArea != null && !matched) {
-                    if (enc.getLocationID().contains(surveyArea) || surveyArea.contains(enc.getLocationID())) {
-                      out.println("MATCHED survey to occurrence with Location : "+enc.getLocationID()+" = "+st.getLocationID()+" Project : "+enc.getSubmitterProject()+" = "+sv.getProjectName());
-                      st.addOccurrence(parentOcc,myShepherd);
-                      success++;
-                      matched = true;
-                      addSurveyAndTrackIDToOccurrence(enc,sv,st,myShepherd);
-                    } 
-                  } else {
-                    if (simpleLoc !=null && surveyArea !=null && !matched) {  
-                      if (simpleLoc.contains(surveyArea) || surveyArea.contains(simpleLoc)) {
-                        out.println("MATCHED survey to occurrence with SimpleLocation/SurveyArea : "+simpleLoc+" = "+st.getLocationID());
-                        st.addOccurrence(parentOcc, myShepherd);
-                        success++;
-                        matched = true;
-                        addSurveyAndTrackIDToOccurrence(enc,sv,st,myShepherd);
-                      } 
-                    }                  
-                  }                  
+              if (occProj != null && project != null)  {
+                if (occProj.toLowerCase().trim().contains(project.toLowerCase().trim()) || project.toLowerCase().trim().contains(occProj.toLowerCase().trim())) {
+                  out.println("MATCHED survey to occurrence with Project : "+occProj+" = "+project);
+                  st.addOccurrence(parentOcc,myShepherd);
+                  // add check for if the survey is the same here?  
+                  //success++;
+                  matched = true;
+                  addSurveyAndTrackIDToOccurrence(enc,sv,st,myShepherd);
                 }
-              } else {
-                out.println("Location ID, Project and simpleLoc for this enc is null!");
-                noProjectOrLocation +=1;
-              }                  
+              } 
+              if (!matched && encLoc != null && surveyArea != null) {
+                if (enc.getLocationID().toLowerCase().trim().contains(surveyArea.toLowerCase().trim()) || surveyArea.toLowerCase().trim().contains(enc.getLocationID().toLowerCase().trim())) {
+                  out.println("MATCHED survey to occurrence with Location : "+enc.getLocationID()+" = "+st.getLocationID()+" Project : "+enc.getSubmitterProject()+" = "+sv.getProjectName());
+                  st.addOccurrence(parentOcc,myShepherd);
+                  //success++;
+                  matched = true;
+                  addSurveyAndTrackIDToOccurrence(enc,sv,st,myShepherd);
+                } 
+              } 
+              if (!matched && simpleLoc !=null && surveyArea !=null) {  
+                if (simpleLoc.toLowerCase().trim().contains(surveyArea.toLowerCase().trim()) || surveyArea.toLowerCase().trim().contains(simpleLoc.toLowerCase().trim())) {
+                  out.println("MATCHED survey to occurrence with SimpleLocation/SurveyArea : "+simpleLoc+" = "+st.getLocationID());
+                  st.addOccurrence(parentOcc, myShepherd);
+                  //success++;
+                  matched = true;
+                  addSurveyAndTrackIDToOccurrence(enc,sv,st,myShepherd);
+                } 
+              }                                         
             }
           }
-          if (matched) {
-            matchedNum ++;
-          } else {
-            failArray.add("\nUnmatched row #"+i+" Date : "+date+", Survey Area : "+surveyArea+", Project : "+project);
+          if (!matched) {
+            // We are recording success badly. The below code should add the occurrence to the survey if there is only one.
+            // We should count this as a success as well. 
             ArrayList<String> occIds = new ArrayList<String>(); 
-            if (encsOnThisDate!=null&&encsOnThisDate.size()>0) {
+            if (hadSighting&&encsOnThisDate!=null&&encsOnThisDate.size()>0) {
               for (Encounter enc :encsOnThisDate) {
                 String id = myShepherd.getOccurrence(enc.getOccurrenceID()).getOccurrenceID();
                 if (!occIds.contains(id)) {
                   occIds.add(id);
                 }
               }
-              if (!occIds.isEmpty()) {
+              if (!occIds.isEmpty()&&occIds.size()==1) {
                 for (String id : occIds) {
                   Occurrence occ = myShepherd.getOccurrence(id);
                   if (!st.hasOccurrence(occ)) {
                     st.addOccurrence(occ, myShepherd);
-                    success++;
+                    //success++;
+                    matched = true;
+                    numOneOccs++;
+                    out.println("This day had one occurrence. Adding. SurveyID: "+sv.getID());
                   }
                 }
-                out.println("Adding this survey track to survey ID "+sv.getID());
-                out.println("Num survey tracks: "+sv.getAllSurveyTracks().size());
               }
             }
+          }
+          if (matched) {
+            success++;
+          } else {
+            failArray.add("\nUnmatched row #"+i+" Date : "+date+", Survey Area : "+surveyArea+", Project : "+project);
           }
           processRemainingColumnsAsObservations(sv, columnMasterList, thisRow);
           determineStartAndEndTime(sv);
@@ -1066,11 +1063,11 @@ public class AccessImport extends HttpServlet {
         e.printStackTrace(out);
       }
     }
-    out.println("+++++++++++++ I created surveys and tracks for "+success+" encounters from "+table.getRowCount()+" lines in the EFFORT table. +++++++++++++");
-    out.println("+++++++++++++ There were "+matchedNum+" out of "+matchingFrom+" effort table entries associated with at least one sighting. ++++++++++++");
+    out.println("+++++++++++++ There were "+success+" surveys out of "+matchingFrom+" needed that recieved at least one occurrence. +++++++++++++");
+    //out.println("+++++++++++++ There were "+matchedNum+" out of "+matchingFrom+" effort table entries associated with at least one sighting. ++++++++++++");
     out.println("+++++++++++++ There were "+numNoEncs+" lines in EFFORT containing a date not shared by any saved encounter/occurrence. +++++++++++++");
-    //out.println("+++++++++++++ There were "+numOneOccs+" lines in EFFORT containing a date with only one occurrence, but lacking project and location data. +++++++++++++");
-    out.println("+++++++++++++ There were "+noProjectOrLocation+" Encounters pulled up by date that contained no Project or Location data. (Could be multiple pulls of same encounter) +++++++++++++");
+    out.println("+++++++++++++ There were "+numOneOccs+" Survey/Occs associated because there was only one occ on that day, the survey had at least one, and there was no other matching data.+++++++++++++");
+    //out.println("+++++++++++++ There were "+noProjectOrLocation+" Encounters pulled up by date that contained no Project or Location data. (Could be multiple pulls of same encounter) +++++++++++++");
     for (String fail : failArray) {
       out.println(fail);
     }
