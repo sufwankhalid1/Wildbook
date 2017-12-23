@@ -20,8 +20,7 @@ public abstract class FoundationalPropertiesBase implements java.io.Serializable
    * our primary data classes like Occurrence, Encounter and Individual. 
    * Researchers record their data in different ways than us, and don't always
    * adhere to DarwinCore, ect. This should make objects more flexible and able to 
-   * keep things like measurements and tissueSamples where they see fit. No more shoe-horning
-   * data into places where maybe it shouldn't be. 
+   * keep things like measurements and tissueSamples where they see fit.
    * 
    * These will mostly be collections.
    * 

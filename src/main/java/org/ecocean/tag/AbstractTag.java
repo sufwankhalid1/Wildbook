@@ -20,7 +20,7 @@ public class AbstractTag implements Serializable {
   }
   
   public ArrayList<Observation> getAllObservations() {
-    return observations;
+    return this.observations;
   }
 
   public void setAllObservations(ArrayList<Observation> obs) {
@@ -37,9 +37,9 @@ public class AbstractTag implements Serializable {
 
   public Observation getObservationByName(String obName) {
     System.out.println("Here with "+obName);
-    if (observations != null && observations.size() > 0) {
+    if (this.observations != null && this.observations.size() > 0) {
       System.out.println("Not null and has > 0...");
-      for (Observation ob : observations) {
+      for (Observation ob : this.observations) {
         System.out.println("Matching observation and string? Name : "+ob.getName()+" Value: "+ob.getValue());
         if (ob.getName() != null && ob.getName().equals(obName)) {
           return ob;
@@ -49,7 +49,7 @@ public class AbstractTag implements Serializable {
     return null;
   }
   public Observation getObservationByID(String obId) {
-    if (observations != null && !observations.isEmpty()) {
+    if (this.observations != null && !this.observations.isEmpty()) {
       for (Observation ob : observations) {
         if (ob.getID() != null && ob.getID().equals(obId)) {
           return ob;

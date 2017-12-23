@@ -95,12 +95,11 @@ public class GenerateNOAAReport extends HttpServlet {
       photoIDReport = photoIDReporting(photoIDReport,formInput,myShepherd,request);
       taggingReport += taggingReport(taggingReport, formInput, myShepherd, request);
     }
-
     String report = "";
     if (reportType=="photoID") {
       report = photoIDReport;
     } else {
-      report = photoIDReport + physicalReport;
+      report = photoIDReport + physicalReport + taggingReport;
     }
     
     request.setAttribute("reportType",reportType);
@@ -123,16 +122,15 @@ public class GenerateNOAAReport extends HttpServlet {
   }
 
   private String taggingReport(String report, HashMap<String,String> formInput, Shepherd myShepherd, HttpServletRequest request) {
-    
     String row = "";
     for (Occurrence occ : satTagOccs) {  
       if (occ.getBaseSatelliteTagArrayList()!=null&&!occ.getBaseSatelliteTagArrayList().isEmpty()) {
-          ArrayList<SatelliteTag> sTags = occ.getBaseSatelliteTagArrayList();
-          String date = millisToShortDate(occ.getMillis());
-          for (SatelliteTag sTag : sTags) {
-            row =  buildTagRow(sTag, date);
-            report += row;
-          }
+        ArrayList<SatelliteTag> sTags = occ.getBaseSatelliteTagArrayList();
+        String date = millisToShortDate(occ.getMillis());
+        for (SatelliteTag sTag : sTags) {
+          row =  buildTagRow(sTag, date);
+          report += row;
+        }
       }
     }
     for (Occurrence occ : dTagOccs) {  
@@ -150,26 +148,42 @@ public class GenerateNOAAReport extends HttpServlet {
   }
 
   private String buildTagRow(SatelliteTag sTag, String date) {
-    String row =  "";
     Observation species = sTag.getObservationByName("Species");
-    String speciesStr = species.getValue();
+    System.out.println("Obs in Tag??? "+sTag.getAllObservations().toString());
+    String speciesStr = null;
+    if (species!=null&&species.getValue()!=null) {
+      speciesStr = species.getValue();        
+    }
     String tagID = sTag.getId();
 
+    String row =  "<tr>";
+    row += "<td>"+date+"</td>";
+    row += "<td>"+speciesStr+"</td>";
+    row += "<td>D Tag</td>";
+    row += "<td>"+tagID+"</td>";
+    row += "</tr>";
     return row;
   }
 
   private String buildTagRow(DigitalArchiveTag dTag, String date) {
-    String row =  "";
     Observation species = dTag.getObservationByName("Species");
-    String speciesStr = species.getValue();
+    System.out.println("Obs in Tag??? "+dTag.getAllObservations().toString());
+    String speciesStr = null;
+    if (species!=null&&species.getValue()!=null) {
+      speciesStr = species.getValue();   
+    }
     String tagID = dTag.getId();
+    
+    String row =  "<tr>";
+    row += "<td>"+date+"</td>";
+    row += "<td>"+speciesStr+"</td>";
+    row += "<td>D Tag</td>";
+    row += "<td>"+tagID+"</td>";
+    row += "</tr>";
     return row;
   }
 
-
   private void checkForTag(Occurrence occ) {
-    ArrayList<SatelliteTag> satTags = new ArrayList<>();
-    ArrayList<DigitalArchiveTag> dTags = new ArrayList<>();
     if (occ.getBaseDigitalArchiveTagArrayList()!=null&&!occ.getBaseDigitalArchiveTagArrayList().isEmpty()) {
       dTagOccs.add(occ);
       System.out.println("Got a dTag!");
@@ -437,12 +451,10 @@ public class GenerateNOAAReport extends HttpServlet {
     report += "</table>";
 
     createPhysicalIDSummary(takesCounts);
-
     return report;
   }
 
   private void createPhysicalIDSummary(HashMap<String,ArrayList<String>> takesCounts) {
-    //Construct this in a 6 wide bootstrap column and if present attach the biopsy summary next to it?
     String summary = "";
     if (takesCounts.keySet()!=null&&!takesCounts.keySet().isEmpty()) {
       summary += "<h3>Summary of Physical ID takes:</h3>";
@@ -468,7 +480,6 @@ public class GenerateNOAAReport extends HttpServlet {
   //Aggregate actual samples + groupSize.
   private HashMap<String,ArrayList<String>> aggregatePhysicalTakes(HashMap<String,ArrayList<String>> takesCounts, String species, Integer groupSize) {
     ArrayList<String> takes = new ArrayList<String>(2);
-    //Something fishy here.. checking for presence but also adding the arraylist either way? May need to construct new one.
     if (takesCounts.containsKey(species)) {
       takes = takesCounts.get(species);
       try {
