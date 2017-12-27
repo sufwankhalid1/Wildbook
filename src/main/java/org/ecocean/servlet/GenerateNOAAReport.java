@@ -93,7 +93,7 @@ public class GenerateNOAAReport extends HttpServlet {
     } else {
       physicalReport = physicalSampleReporting(physicalReport,formInput,myShepherd,request); 
       photoIDReport = photoIDReporting(photoIDReport,formInput,myShepherd,request);
-      taggingReport += taggingReport(taggingReport, formInput, myShepherd, request);
+      taggingReport = taggingReport(taggingReport, formInput, myShepherd, request);
     }
     String report = "";
     if (reportType=="photoID") {
@@ -149,17 +149,26 @@ public class GenerateNOAAReport extends HttpServlet {
 
   private String buildTagRow(SatelliteTag sTag, String date) {
     Observation species = sTag.getObservationByName("Species");
+    Observation tagIDOb = sTag.getObservationByName("Tag_ID");
+    Observation tagTypeOb = sTag.getObservationByName("TagType");
     System.out.println("Obs in Tag??? "+sTag.getAllObservations().toString());
     String speciesStr = null;
     if (species!=null&&species.getValue()!=null) {
       speciesStr = species.getValue();        
     }
     String tagID = sTag.getId();
+    if (tagIDOb!=null&&tagIDOb.getValue()!=null) {
+      tagID = tagIDOb.getValue();        
+    }
+    String tagType = sTag.getId();
+    if (tagTypeOb!=null&&tagTypeOb.getValue()!=null) {
+      tagType = tagTypeOb.getValue();        
+    }
 
-    String row =  "<tr>";
+    String row = "<tr>";
     row += "<td>"+date+"</td>";
     row += "<td>"+speciesStr+"</td>";
-    row += "<td>D Tag</td>";
+    row += "<td>Satellite "+tagType+"</td>";
     row += "<td>"+tagID+"</td>";
     row += "</tr>";
     return row;
@@ -167,14 +176,18 @@ public class GenerateNOAAReport extends HttpServlet {
 
   private String buildTagRow(DigitalArchiveTag dTag, String date) {
     Observation species = dTag.getObservationByName("Species");
+    Observation tagIDOb = dTag.getObservationByName("Tag_ID");
     System.out.println("Obs in Tag??? "+dTag.getAllObservations().toString());
     String speciesStr = null;
     if (species!=null&&species.getValue()!=null) {
       speciesStr = species.getValue();   
     }
     String tagID = dTag.getId();
+    if (tagIDOb!=null&&tagIDOb.getValue()!=null) {
+      tagID = tagIDOb.getValue();        
+    }
     
-    String row =  "<tr>";
+    String row = "<tr>";
     row += "<td>"+date+"</td>";
     row += "<td>"+speciesStr+"</td>";
     row += "<td>D Tag</td>";
