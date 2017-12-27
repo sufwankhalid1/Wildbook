@@ -85,16 +85,16 @@ public class ImportReadImages extends HttpServlet {
     // Side function that processes the AllTags excel file. Those just get associated with the Occurrences. 
     processAllTags(myShepherd);
     
-    generateKeywords(myShepherd);
+    //generateKeywords(myShepherd);
     
     //Grabs images and created media assets.
     // Also runs through all excel files and stores data for each image in an array
     //with the image name as the key.
-    getExcelFiles(rootFile, myShepherd); 
+    //getExcelFiles(rootFile, myShepherd); 
     
-    getImageFiles(rootFile, myShepherd);       
+    //getImageFiles(rootFile, myShepherd);       
     
-    associateAssetsAndData(myShepherd);
+    //associateAssetsAndData(myShepherd);
     
     out.println("Created "+assetsCreated+" new MediaAssets.");
     out.println(failedAssets+" assets failed to be created.");
@@ -659,9 +659,7 @@ public class ImportReadImages extends HttpServlet {
       } else if (tagValue.toLowerCase().contains("satellite")) {
         SatelliteTag sTag = new SatelliteTag();
       
-        String value = null;
-        
-        value = getFormattedStringFromCell(row.getCell(3));
+        String value = getFormattedStringFromCell(row.getCell(3));
         sTag.setId(value);
 
         for (int col=0;col<row.getPhysicalNumberOfCells();col++) {
