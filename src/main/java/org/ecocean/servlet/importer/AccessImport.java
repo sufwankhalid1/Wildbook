@@ -263,6 +263,7 @@ public class AccessImport extends HttpServlet {
       newEnc.setDWCDateAdded();
       newEnc.setDWCDateLastModified();
       newEnc.setState("approved");
+      
       // Get the date. 
       //out.println("---------------- ROW : "+i); 
       try {
@@ -1520,24 +1521,43 @@ public class AccessImport extends HttpServlet {
   private void processTags(Row thisRow, Shepherd myShepherd, Occurrence occ) {
     String satTagID = null;
     String dTagID = null;
-    
+    String species = null;
     if (thisRow.get("SatTag_ID") != null || thisRow.get("DTAG_ID") != null) { 
       if (occ != null) {
         try {
           System.out.println("Gonna try to make a tag for this Enc.");
           if (thisRow.get("SatTag_ID") != null) {
             satTagID = thisRow.get("SatTag_ID").toString();
+            species = thisRow.get("Species_ID").toString(); 
             SatelliteTag st = new SatelliteTag();
+            Observation tagID = new Observation("Tag_ID",satTagID,"SatelliteTag",st.getId());
+            Observation speciesOb = new Observation("Species",species,"SatelliteTag",st.getId());
+            myShepherd.beginDBTransaction();
+            myShepherd.getPM().makePersistent(tagID);
+            myShepherd.beginDBTransaction();
+            myShepherd.getPM().makePersistent(speciesOb);
+            myShepherd.commitDBTransaction();
             st.setName(satTagID);
             st.setId(Util.generateUUID());
+            st.addObservation(tagID);
+            st.addObservation(speciesOb);
             occ.addBaseSatelliteTag(st);
             System.out.println("Created a SatTag for occurrence "+occ.getPrimaryKeyID());
           }
           if (thisRow.get("DTAG_ID") != null) {
             dTagID = thisRow.get("DTAG_ID").toString();
             DigitalArchiveTag dt = new DigitalArchiveTag();
+            Observation tagID = new Observation("Tag_ID",satTagID,"SatelliteTag",dt.getId());
+            Observation speciesOb = new Observation("Species",species,"SatelliteTag",dt.getId());
+            myShepherd.beginDBTransaction();
+            myShepherd.getPM().makePersistent(tagID);
+            myShepherd.beginDBTransaction();
+            myShepherd.getPM().makePersistent(speciesOb);
+            myShepherd.commitDBTransaction();
             dt.setDTagID(dTagID);
             dt.setId(Util.generateUUID());
+            dt.addObservation(tagID);
+            dt.addObservation(speciesOb);
             occ.addBaseDigitalArchiveTag(dt);
             System.out.println("Created a DTag for occurrence "+occ.getPrimaryKeyID());
           }       

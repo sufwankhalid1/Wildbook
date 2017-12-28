@@ -661,7 +661,7 @@ public class ImportReadImages extends HttpServlet {
       
         String value = row.getCell(3).toString();
         sTag.setId(value);
-
+        sTag.setName(value);
         for (int col=0;col<row.getPhysicalNumberOfCells();col++) {
           if (row.getCell(col)!=null) {
             if (!row.getCell(col).toString().trim().equals("")) {
