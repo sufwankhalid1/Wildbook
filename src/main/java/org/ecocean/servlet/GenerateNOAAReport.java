@@ -94,6 +94,7 @@ public class GenerateNOAAReport extends HttpServlet {
       physicalReport = physicalSampleReporting(physicalReport,formInput,myShepherd,request); 
       photoIDReport = photoIDReporting(photoIDReport,formInput,myShepherd,request);
       taggingReport = taggingReport(taggingReport, formInput, myShepherd, request);
+      createTagSummary(dTagOccs, satTagOccs);
     }
     String report = "";
     if (reportType=="photoID") {
@@ -156,11 +157,11 @@ public class GenerateNOAAReport extends HttpServlet {
     if (species!=null&&species.getValue()!=null) {
       speciesStr = species.getValue();        
     }
-    String tagID = sTag.getId();
+    String tagID = "";
     if (tagIDOb!=null&&tagIDOb.getValue()!=null) {
       tagID = tagIDOb.getValue();        
     }
-    String tagType = sTag.getId();
+    String tagType = "";
     if (tagTypeOb!=null&&tagTypeOb.getValue()!=null) {
       tagType = tagTypeOb.getValue();        
     }
@@ -168,7 +169,7 @@ public class GenerateNOAAReport extends HttpServlet {
     String row = "<tr>";
     row += "<td>"+date+"</td>";
     row += "<td>"+speciesStr+"</td>";
-    row += "<td>Satellite "+tagType+"</td>";
+    row += "<td>Sat "+tagType+"</td>";
     row += "<td>"+tagID+"</td>";
     row += "</tr>";
     return row;
@@ -185,6 +186,11 @@ public class GenerateNOAAReport extends HttpServlet {
     String tagID = dTag.getId();
     if (tagIDOb!=null&&tagIDOb.getValue()!=null) {
       tagID = tagIDOb.getValue();        
+    }
+    if (speciesStr==null||speciesStr.equals("null")) {
+      for (Observation ob : dTag.getAllObservations()) {
+        System.out.println("******************** BAD TAG OBS: "+ob.getName()+" VALUE: "+ob.getValue()+" *********************");
+      }
     }
     
     String row = "<tr>";
@@ -254,10 +260,7 @@ public class GenerateNOAAReport extends HttpServlet {
         e.printStackTrace();
       }
 
-      // This is where it gets weird. Checkng for tags here because species and date are in common. This is shoehorned in,
-      // I know. 
       checkForTag(occ);
-
 
       Encounter enc = occ.getEncounters().get(0);
       String species = null;
@@ -318,6 +321,33 @@ public class GenerateNOAAReport extends HttpServlet {
         summary += "<td>"+takesCounts.get(key).get(1)+"</td>";
         summary += "</tr>";
       }
+      summary += "</table>";
+    } else {
+      summary += "<tr><td>No Results.</td></tr></table>";
+    }
+    completeSummary += summary; 
+  }
+
+  private void createTagSummary(ArrayList<Occurrence> dTagOccs, ArrayList<Occurrence> satTagOccs) {
+    String summary = "";
+    if (!dTagOccs.isEmpty()||!satTagOccs.isEmpty()) {
+      summary += "<h3>Summary of Tags:</h3>";
+      summary += "<table class=\"table\">";
+      summary += "<tr><th scope=\"col\">Species</th><th scope=\"col\">Photo #&nbsp&nbsp&nbsp</th><th scope=\"col\">Takes (TOTBESTEST)</th></tr>";
+      
+      int satTags = 0;
+      int dTags = 0;
+      for (Occurrence occ : dTagOccs) {
+        dTags += occ.getBaseDigitalArchiveTagArrayList().size();
+      }
+      for (Occurrence occ : satTagOccs) {
+        dTags += occ.getBaseSatelliteTagArrayList().size();
+      }
+      summary += "<tr>";
+      summary += "<td>"+satTags+"</td>";
+      summary += "<td>"+dTags+"</td>";
+      summary += "<td>"+satTags+dTags+"</td>";
+      summary += "</tr>";
       summary += "</table>";
     } else {
       summary += "<tr><td>No Results.</td></tr></table>";
