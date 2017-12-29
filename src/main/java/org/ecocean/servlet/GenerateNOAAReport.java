@@ -152,7 +152,8 @@ public class GenerateNOAAReport extends HttpServlet {
     Observation species = sTag.getObservationByName("Species");
     Observation tagIDOb = sTag.getObservationByName("Tag_ID");
     Observation tagTypeOb = sTag.getObservationByName("TagType");
-    System.out.println("Obs in Tag??? "+sTag.getAllObservations().toString());
+    String numObs = String.valueOf(sTag.getAllObservations());
+    System.out.println("Obs in Tag??? "+numObs);
     String speciesStr = null;
     if (species!=null&&species.getValue()!=null) {
       speciesStr = species.getValue();        
@@ -204,11 +205,16 @@ public class GenerateNOAAReport extends HttpServlet {
 
   private void checkForTag(Occurrence occ) {
     if (occ.getBaseDigitalArchiveTagArrayList()!=null&&!occ.getBaseDigitalArchiveTagArrayList().isEmpty()) {
-      dTagOccs.add(occ);
-      System.out.println("Got a dTag!");
-    } else if (occ.getBaseSatelliteTagArrayList()!=null&&!occ.getBaseSatelliteTagArrayList().isEmpty()) {
-      satTagOccs.add(occ);
-      System.out.println("Got a Sat tag!");
+      if (!dTagOccs.contains(occ)) {
+        dTagOccs.add(occ);
+        System.out.println("Got a dTag! Now have "+dTagOccs.size()+".");
+      }
+    } 
+    if (occ.getBaseSatelliteTagArrayList()!=null&&!occ.getBaseSatelliteTagArrayList().isEmpty()) {
+      if (!satTagOccs.contains(occ)) {
+        satTagOccs.add(occ);
+        System.out.println("Got a Sat tag! Now have "+satTagOccs.size()+".");
+      }
     }
   }
 
@@ -333,20 +339,22 @@ public class GenerateNOAAReport extends HttpServlet {
     if (!dTagOccs.isEmpty()||!satTagOccs.isEmpty()) {
       summary += "<h3>Summary of Tags:</h3>";
       summary += "<table class=\"table\">";
-      summary += "<tr><th scope=\"col\">Species</th><th scope=\"col\">Photo #&nbsp&nbsp&nbsp</th><th scope=\"col\">Takes (TOTBESTEST)</th></tr>";
+      summary += "<tr><th scope=\"col\">Sat Tags</th><th scope=\"col\">D Tags</th><th scope=\"col\">Total</th></tr>";
       
-      int satTags = 0;
-      int dTags = 0;
+      int satTagsInt = 0;
+      int dTagsInt = 0;
       for (Occurrence occ : dTagOccs) {
-        dTags += occ.getBaseDigitalArchiveTagArrayList().size();
+        dTagsInt += occ.getBaseDigitalArchiveTagArrayList().size();
       }
       for (Occurrence occ : satTagOccs) {
-        dTags += occ.getBaseSatelliteTagArrayList().size();
+        satTagsInt += occ.getBaseSatelliteTagArrayList().size();
       }
+      int totalTagsInt = dTagsInt + satTagsInt;
+
       summary += "<tr>";
-      summary += "<td>"+satTags+"</td>";
-      summary += "<td>"+dTags+"</td>";
-      summary += "<td>"+satTags+dTags+"</td>";
+      summary += "<td>"+satTagsInt+"</td>";
+      summary += "<td>"+dTagsInt+"</td>";
+      summary += "<td>"+totalTagsInt+"</td>";
       summary += "</tr>";
       summary += "</table>";
     } else {
