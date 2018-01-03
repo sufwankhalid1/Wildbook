@@ -124,13 +124,39 @@ public class GenerateNOAAReport extends HttpServlet {
 
   private String taggingReport(String report, HashMap<String,String> formInput, Shepherd myShepherd, HttpServletRequest request) {
     String row = "";
+
+    ArrayList<String> speciesArr = new ArrayList<>();
+    boolean allSpecies = false;
+    int numSpecies = 0;
+    if (request.getParameter("allSpecies")!=null) {
+      allSpecies = Boolean.valueOf((request.getParameter("allSpecies")));
+      //System.out.println("All Species? "+(request.getParameter("allSpecies")));
+    }
+    try {
+      numSpecies = Integer.valueOf(formInput.get("numSpecies"));
+      //System.out.println("Number of species? "+numSpecies);
+      for (int i=0;i<numSpecies;i++) {
+        String name = "speciesName"+i;
+        if (request.getParameter(name)!=null) {
+          speciesArr.add(request.getParameter(name).toLowerCase());
+          //System.out.println("Species added to list: "+request.getParameter(name).toLowerCase());
+        }
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
+    Observation tagSpecies = null;
     for (Occurrence occ : satTagOccs) {  
       if (occ.getBaseSatelliteTagArrayList()!=null&&!occ.getBaseSatelliteTagArrayList().isEmpty()) {
         ArrayList<SatelliteTag> sTags = occ.getBaseSatelliteTagArrayList();
         String date = millisToShortDate(occ.getMillis());
         for (SatelliteTag sTag : sTags) {
-          row =  buildTagRow(sTag, date);
-          report += row;
+          tagSpecies = sTag.getObservationByName("Species");
+          if (allSpecies||speciesArr.contains(tagSpecies.getValue())) {
+            row =  buildTagRow(sTag, date);
+            report += row;
+          }
         }
       }
     }
@@ -139,8 +165,10 @@ public class GenerateNOAAReport extends HttpServlet {
         ArrayList<DigitalArchiveTag> dTags = occ.getBaseDigitalArchiveTagArrayList();
         for (DigitalArchiveTag dTag : dTags) {
           String date = millisToShortDate(occ.getMillis());
-          row = buildTagRow(dTag, date);
-          report += row;
+          if (allSpecies||speciesArr.contains(tagSpecies.getValue())) {
+            row =  buildTagRow(dTag, date);
+            report += row;
+          }
         }
       }
     }
@@ -299,7 +327,7 @@ public class GenerateNOAAReport extends HttpServlet {
       report += "<tr>";
       report += "<td>"+shortDate+"</td>";
       report += "<td>"+species+"</td>";
-      report += "<td>"+"Permit for photoID?"+"</td>";
+      report += "<td>"+"GA 19903"+"</td>";
       report += "<td>"+photos+"</td>";
       report += "<td>"+estimate+"</td>";
       report += "</tr>";
@@ -339,28 +367,86 @@ public class GenerateNOAAReport extends HttpServlet {
     if (!dTagOccs.isEmpty()||!satTagOccs.isEmpty()) {
       summary += "<h3>Summary of Tags:</h3>";
       summary += "<table class=\"table\">";
-      summary += "<tr><th scope=\"col\">Sat Tags</th><th scope=\"col\">D Tags</th><th scope=\"col\">Total</th></tr>";
+      summary += "<tr><th scope=\"col\">Species</th><th scope=\"col\">Sat Tags</th><th scope=\"col\">D Tags</th><th scope=\"col\">Total</th></tr>";
       
-      int satTagsInt = 0;
-      int dTagsInt = 0;
-      for (Occurrence occ : dTagOccs) {
-        dTagsInt += occ.getBaseDigitalArchiveTagArrayList().size();
-      }
-      for (Occurrence occ : satTagOccs) {
-        satTagsInt += occ.getBaseSatelliteTagArrayList().size();
-      }
-      int totalTagsInt = dTagsInt + satTagsInt;
+      ArrayList<String> speciesArr = new ArrayList<>();
 
-      summary += "<tr>";
-      summary += "<td>"+satTagsInt+"</td>";
-      summary += "<td>"+dTagsInt+"</td>";
-      summary += "<td>"+totalTagsInt+"</td>";
-      summary += "</tr>";
-      summary += "</table>";
+      HashMap<String,Integer> dTagBySpecies = new HashMap<>();
+      for (Occurrence occ : dTagOccs) {
+        for (DigitalArchiveTag dTag : occ.getBaseDigitalArchiveTagArrayList()) {
+          if (dTag.getObservationByName("Species")!=null) {
+            String speciesKey = dTag.getObservationByName("Species").getValue();
+            if (!speciesArr.contains(speciesKey)) {
+              speciesArr.add(speciesKey);
+            }
+            if (dTagBySpecies.containsKey(speciesKey)) {
+              Integer old = dTagBySpecies.get(speciesKey);
+              dTagBySpecies.replace(speciesKey, old++);
+            } else {
+              dTagBySpecies.put(speciesKey, 1);
+            }
+          }
+        }
+      }
+
+      HashMap<String,Integer> sTagBySpecies = new HashMap<>();
+      for (Occurrence occ : satTagOccs) {
+        for (SatelliteTag sTag : occ.getBaseSatelliteTagArrayList()) {
+          if (sTag.getObservationByName("Species")!=null) {
+            String speciesKey = sTag.getObservationByName("Species").getValue();
+            if (!speciesArr.contains(speciesKey)) {
+              speciesArr.add(speciesKey);
+            }
+            if (sTagBySpecies.containsKey(speciesKey)) {
+              Integer old = sTagBySpecies.get(speciesKey);
+              sTagBySpecies.replace(speciesKey, old++);
+            } else {
+              sTagBySpecies.put(speciesKey, 1);
+            }
+          }
+        }
+      }
+
+      buildSummaryString(summary, sTagBySpecies, dTagBySpecies, speciesArr);
+
     } else {
       summary += "<tr><td>No Results.</td></tr></table>";
     }
     completeSummary += summary; 
+  }
+
+  private String compareSpeciesStrings(String species) {
+ 
+    return species;
+  }
+
+  private String buildSummaryString(String summary, HashMap<String,Integer> sTagsBySpecies, HashMap<String,Integer> dTagsBySpecies, ArrayList<String> speciesArr) {
+    for (String species : speciesArr) {
+
+      System.out.println("====== Species? "+species);
+
+      Integer dTagsInt = 0;
+      Integer sTagsInt = 0;
+      Integer total  = 0;
+      if (sTagsBySpecies.containsKey(species)) {
+        sTagsInt = sTagsBySpecies.get(species);
+        total += sTagsInt;
+      }
+      if (dTagsBySpecies.containsKey(species)) {
+        dTagsInt = dTagsBySpecies.get(species);
+        total += dTagsInt;
+      }
+
+      summary += "<tr>";
+      summary += "<td>"+species+"</td>";
+      summary += "<td>"+sTagsInt+"</td>";
+      summary += "<td>"+dTagsInt+"</td>";
+      summary += "<td>"+total+"</td>";
+      summary += "</tr>";
+      summary += "</table>";
+
+    }
+    return summary;
   }
 
   private HashMap<String,ArrayList<String>> aggregatePhotoTakes(HashMap<String,ArrayList<String>> takesCounts, String species, String photos, String estimate) {

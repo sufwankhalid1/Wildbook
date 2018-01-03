@@ -624,7 +624,18 @@ public class ImportReadImages extends HttpServlet {
       out.println("Trying to create a tag for occ "+occ.getOccurrenceID()+" and "+tagValue);
       
       ArrayList<Observation> obs = new ArrayList<Observation>();
-      
+
+      HashMap<String,String> fullNames = new HashMap<>();
+      fullNames.put("Z. cavirostris", "Ziphius cavirostris");
+      fullNames.put("T. truncatus", "Tursiops truncatus"); 
+      fullNames.put("S. frontalis", "Stenella frontalis");
+      fullNames.put("S. clymene", "Stenella clymene");
+      fullNames.put("P. macrocephalus", "Physeter macrocephalus");
+      fullNames.put("G. macrorhynchus", "Globicephala macrorhynchus");
+      fullNames.put("G. griseus", "Grampus griseus");
+      fullNames.put("D. delphis", "Delphinus delphis");
+
+
       if (tagValue.contains("DTag")) {
         DigitalArchiveTag dTag = new DigitalArchiveTag();
         
@@ -639,6 +650,9 @@ public class ImportReadImages extends HttpServlet {
           if (row.getCell(col)!=null) {
             if (!row.getCell(col).toString().trim().equals("")) {
               String val = getFormattedStringFromCell(row.getCell(col));
+              if (fullNames.containsKey(val)) {
+                val = fullNames.get(val);
+              }
               String name = getFormattedStringFromCell(row.getCell(col).getSheet().getRow(0).getCell(col));
               Observation ob = new Observation(name,val,"DigitalArchiveTag",dTag.getId());
               myShepherd.getPM().makePersistent(ob);
@@ -666,6 +680,9 @@ public class ImportReadImages extends HttpServlet {
           if (row.getCell(col)!=null) {
             if (!row.getCell(col).toString().trim().equals("")) {
               String val = getFormattedStringFromCell(row.getCell(col));
+              if (fullNames.containsKey(val)) {
+                val = fullNames.get(val);
+              }
               String name = getFormattedStringFromCell(row.getCell(col).getSheet().getRow(0).getCell(col));
               if (name.contains("TagType")) {
                 val = val.toLowerCase().replace("satellite -", "").trim();
