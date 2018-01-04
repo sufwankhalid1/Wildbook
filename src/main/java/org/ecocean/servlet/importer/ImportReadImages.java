@@ -634,7 +634,7 @@ public class ImportReadImages extends HttpServlet {
       fullNames.put("G. macrorhynchus", "Globicephala macrorhynchus");
       fullNames.put("G. griseus", "Grampus griseus");
       fullNames.put("D. delphis", "Delphinus delphis");
-
+      System.out.println("FullNames: "+fullNames.keySet().toString());
 
       if (tagValue.contains("DTag")) {
         DigitalArchiveTag dTag = new DigitalArchiveTag();
@@ -649,11 +649,14 @@ public class ImportReadImages extends HttpServlet {
         for (int col=0;col<row.getPhysicalNumberOfCells();col++) {
           if (row.getCell(col)!=null) {
             if (!row.getCell(col).toString().trim().equals("")) {
-              String val = getFormattedStringFromCell(row.getCell(col));
-              if (fullNames.containsKey(val)) {
-                val = fullNames.get(val);
-              }
+              String tempVal = getFormattedStringFromCell(row.getCell(col));
               String name = getFormattedStringFromCell(row.getCell(col).getSheet().getRow(0).getCell(col));
+              String val = "";
+              if (name.equals("Species")&&fullNames.containsKey(tempVal)) {
+                val = fullNames.get(tempVal);
+              }
+              System.out.println("VAL: "+val);
+              System.out.println("TEMP VAL: "+tempVal);
               Observation ob = new Observation(name,val,"DigitalArchiveTag",dTag.getId());
               myShepherd.getPM().makePersistent(ob);
               myShepherd.commitDBTransaction();
@@ -679,14 +682,17 @@ public class ImportReadImages extends HttpServlet {
         for (int col=0;col<row.getPhysicalNumberOfCells();col++) {
           if (row.getCell(col)!=null) {
             if (!row.getCell(col).toString().trim().equals("")) {
-              String val = getFormattedStringFromCell(row.getCell(col));
-              if (fullNames.containsKey(val)) {
-                val = fullNames.get(val);
-              }
+              String tempVal = getFormattedStringFromCell(row.getCell(col));
               String name = getFormattedStringFromCell(row.getCell(col).getSheet().getRow(0).getCell(col));
+              String val = "";
+                if (name.equals("Species")&&fullNames.containsKey(tempVal)) {
+                  val = fullNames.get(tempVal);
+                }
               if (name.contains("TagType")) {
                 val = val.toLowerCase().replace("satellite -", "").trim();
               }
+              System.out.println("VAL: "+val);
+              System.out.println("TEMP VAL: "+tempVal);
               Observation ob = new Observation(name,val,"SatelliteTag",sTag.getId());
               myShepherd.getPM().makePersistent(ob);
               myShepherd.commitDBTransaction();

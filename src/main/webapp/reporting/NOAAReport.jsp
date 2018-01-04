@@ -43,6 +43,7 @@ String completeSummary = String.valueOf(request.getAttribute("completeSummary"))
 			if (!"".equals(completeSummary)) {
 			%>
 			<%= request.getAttribute("completeSummary") %>
+			<h3>SUMMARY BREAK</h3>
 			<%= request.getAttribute("result") %>
 			<%
 			} else {

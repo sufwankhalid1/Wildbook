@@ -65,11 +65,11 @@ public class GenerateNOAAReport extends HttpServlet {
     request.setAttribute("returnLoc", "//"+urlLoc+"/generateNOAAReport.jsp");
 
     //int groupTotal = 0;
-    String physicalReport = "<hr><h4>Detail Photo Sample Results:</h4><br/>";
+    String physicalReport = "<hr><h4>Detail Physical Sample Results:</h4><br/>";
     physicalReport += "<table class=\"table\">";    
     physicalReport += "<tr><th scope=\"col\">Date</th><th scope=\"col\">Species</th><th scope=\"col\">Permit Name</th><th scope=\"col\">Sample State</th><th scope=\"col\">Group Size</th></tr>";
-
-    String photoIDReport = "<hr><h4>Detail Physical Sample Results:</h4><br/>";
+    
+    String photoIDReport = "<hr><h4>Detail Photo Sample Results:</h4><br/>";
     photoIDReport += "<table class=\"table\">"; 
     photoIDReport += "<tr><th scope=\"col\">Date</th><th scope=\"col\">Species</th><th scope=\"col\">Permit Name</th><th scope=\"col\">Photo Number</th><th scope=\"col\">Takes</th></tr>";
 
@@ -93,14 +93,21 @@ public class GenerateNOAAReport extends HttpServlet {
     } else {
       physicalReport = physicalSampleReporting(physicalReport,formInput,myShepherd,request); 
       photoIDReport = photoIDReporting(photoIDReport,formInput,myShepherd,request);
-      taggingReport = taggingReport(taggingReport, formInput, myShepherd, request);
-      createTagSummary(dTagOccs, satTagOccs);
+      
+      System.out.println("SatTagOccs: "+satTagOccs.size());
+      System.out.println("DTagOccs: "+dTagOccs.size());
+      if (satTagOccs.isEmpty()&&dTagOccs.isEmpty()) {
+        taggingReport =  "";
+      } else {
+        taggingReport = taggingReport(taggingReport, formInput, myShepherd, request);
+      }
+
     }
     String report = "";
     if (reportType=="photoID") {
       report = photoIDReport;
     } else {
-      report = photoIDReport + physicalReport + taggingReport;
+      report = photoIDReport +"<h3>Between Photo and Phys!</h3>"+ physicalReport +"<h3>Between Phys and Tags!</h3>"+ taggingReport;
     }
     
     request.setAttribute("reportType",reportType);
@@ -119,12 +126,13 @@ public class GenerateNOAAReport extends HttpServlet {
       photoIDNum = 0;
       physicalIDNum = 0;
       completeSummary = "";
+      satTagOccs.clear();
+      dTagOccs.clear();
     }
   }
 
   private String taggingReport(String report, HashMap<String,String> formInput, Shepherd myShepherd, HttpServletRequest request) {
     String row = "";
-
     ArrayList<String> speciesArr = new ArrayList<>();
     boolean allSpecies = false;
     int numSpecies = 0;
@@ -173,6 +181,9 @@ public class GenerateNOAAReport extends HttpServlet {
       }
     }
     report += "</table>";
+
+    createTagSummary();
+
     return report;
   }
 
@@ -335,7 +346,6 @@ public class GenerateNOAAReport extends HttpServlet {
       takesCounts = aggregatePhotoTakes(takesCounts, species, photos, estimate);
     }
     report += "</table>";
-
     createPhotoIDSummary(takesCounts);
 
     return report;
@@ -362,13 +372,13 @@ public class GenerateNOAAReport extends HttpServlet {
     completeSummary += summary; 
   }
 
-  private void createTagSummary(ArrayList<Occurrence> dTagOccs, ArrayList<Occurrence> satTagOccs) {
+  private void createTagSummary() {  
     String summary = "";
     if (!dTagOccs.isEmpty()||!satTagOccs.isEmpty()) {
       summary += "<h3>Summary of Tags:</h3>";
       summary += "<table class=\"table\">";
       summary += "<tr><th scope=\"col\">Species</th><th scope=\"col\">Sat Tags</th><th scope=\"col\">D Tags</th><th scope=\"col\">Total</th></tr>";
-      
+
       ArrayList<String> speciesArr = new ArrayList<>();
 
       HashMap<String,Integer> dTagBySpecies = new HashMap<>();
@@ -406,25 +416,17 @@ public class GenerateNOAAReport extends HttpServlet {
           }
         }
       }
-
-      buildSummaryString(summary, sTagBySpecies, dTagBySpecies, speciesArr);
-
+      summary = buildSummaryString(summary, sTagBySpecies, dTagBySpecies, speciesArr);
     } else {
       summary += "<tr><td>No Results.</td></tr></table>";
     }
     completeSummary += summary; 
   }
 
-  private String compareSpeciesStrings(String species) {
- 
-    return species;
-  }
-
   private String buildSummaryString(String summary, HashMap<String,Integer> sTagsBySpecies, HashMap<String,Integer> dTagsBySpecies, ArrayList<String> speciesArr) {
     for (String species : speciesArr) {
 
-      System.out.println("====== Species? "+species);
-
+      //System.out.println("====== Species? "+species);
       Integer dTagsInt = 0;
       Integer sTagsInt = 0;
       Integer total  = 0;
@@ -443,9 +445,9 @@ public class GenerateNOAAReport extends HttpServlet {
       summary += "<td>"+dTagsInt+"</td>";
       summary += "<td>"+total+"</td>";
       summary += "</tr>";
-      summary += "</table>";
-
+      
     }
+    summary += "</table>";
     return summary;
   }
 
@@ -609,7 +611,7 @@ public class GenerateNOAAReport extends HttpServlet {
       }
       summary += "</table>"; 
     } else {
-      summary += "<tr><td>No Reselts.</td></tr></table>";
+      summary += "<tr><td>No Results.</td></tr></table>";
     }
     completeSummary += summary; 
   }
