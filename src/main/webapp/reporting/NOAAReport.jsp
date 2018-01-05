@@ -31,7 +31,8 @@ String completeSummary = String.valueOf(request.getAttribute("completeSummary"))
 			} else if (reportType.equals("multiID")) {
 			%>
 				<p>Number of Photo Collections: <%= request.getAttribute("photoIDNum") %></p>
-				<p>Number of Biopsy/Tag Events: <%= request.getAttribute("physicalIDNum") %></p>
+				<p>Number of Biopsy Events: <%= request.getAttribute("physicalIDNum") %></p>
+				<p>Number of Tagging Events: <%= request.getAttribute("tagNum") %></p>
 			<%
 			}
 			%>
@@ -43,7 +44,6 @@ String completeSummary = String.valueOf(request.getAttribute("completeSummary"))
 			if (!"".equals(completeSummary)) {
 			%>
 			<%= request.getAttribute("completeSummary") %>
-			<h3>SUMMARY BREAK</h3>
 			<%= request.getAttribute("result") %>
 			<%
 			} else {

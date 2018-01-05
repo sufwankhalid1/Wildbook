@@ -42,6 +42,7 @@ public class GenerateNOAAReport extends HttpServlet {
   private static String[] SEARCH_FIELDS = new String[]{"startDate","endDate", "permitName", "speciesName", "reportType", "numSpecies"}; 
   private int photoIDNum = 0;
   private int physicalIDNum = 0;
+  private int tagNum = 0;
   private String completeSummary = "";
   private ArrayList<Occurrence> satTagOccs = new ArrayList<Occurrence>();
   private ArrayList<Occurrence> dTagOccs = new ArrayList<Occurrence>();
@@ -67,7 +68,7 @@ public class GenerateNOAAReport extends HttpServlet {
     //int groupTotal = 0;
     String physicalReport = "<hr><h4>Detail Physical Sample Results:</h4><br/>";
     physicalReport += "<table class=\"table\">";    
-    physicalReport += "<tr><th scope=\"col\">Date</th><th scope=\"col\">Species</th><th scope=\"col\">Permit Name</th><th scope=\"col\">Sample State</th><th scope=\"col\">Group Size</th></tr>";
+    physicalReport += "<tr><th scope=\"col\">Date</th><th scope=\"col\">Species</th><th scope=\"col\">Permit Name</th><th scope=\"col\">Sample State</th><th scope=\"col\">Group Size (Level B Takes)</th></tr>";
     
     String photoIDReport = "<hr><h4>Detail Photo Sample Results:</h4><br/>";
     photoIDReport += "<table class=\"table\">"; 
@@ -107,13 +108,14 @@ public class GenerateNOAAReport extends HttpServlet {
     if (reportType=="photoID") {
       report = photoIDReport;
     } else {
-      report = photoIDReport +"<h3>Between Photo and Phys!</h3>"+ physicalReport +"<h3>Between Phys and Tags!</h3>"+ taggingReport;
+      report = photoIDReport + physicalReport + taggingReport;
     }
     
     request.setAttribute("reportType",reportType);
     request.setAttribute("completeSummary",completeSummary);
     request.setAttribute("physicalIDNum", String.valueOf(physicalIDNum));
     request.setAttribute("photoIDNum", String.valueOf(photoIDNum));
+    request.setAttribute("tagNum", String.valueOf(tagNum));
     request.setAttribute("result",report);
     request.setAttribute("returnUrl","//"+urlLoc+"/reporting/generateNOAAReport.jsp");
     try {
@@ -125,6 +127,7 @@ public class GenerateNOAAReport extends HttpServlet {
       out.close();  
       photoIDNum = 0;
       physicalIDNum = 0;
+      tagNum = 0;
       completeSummary = "";
       satTagOccs.clear();
       dTagOccs.clear();
@@ -158,10 +161,11 @@ public class GenerateNOAAReport extends HttpServlet {
     for (Occurrence occ : satTagOccs) {  
       if (occ.getBaseSatelliteTagArrayList()!=null&&!occ.getBaseSatelliteTagArrayList().isEmpty()) {
         ArrayList<SatelliteTag> sTags = occ.getBaseSatelliteTagArrayList();
-        String date = millisToShortDate(occ.getMillis());
         for (SatelliteTag sTag : sTags) {
           tagSpecies = sTag.getObservationByName("Species");
-          if (allSpecies||speciesArr.contains(tagSpecies.getValue())) {
+          System.out.println("sTag: "+String.valueOf(sTag));
+          String date = millisToShortDate(occ.getMillis());
+          if (allSpecies||speciesArr.contains(tagSpecies.getValue().toLowerCase())) {
             row =  buildTagRow(sTag, date);
             report += row;
           }
@@ -172,8 +176,10 @@ public class GenerateNOAAReport extends HttpServlet {
       if (occ.getBaseDigitalArchiveTagArrayList()!=null&&!occ.getBaseDigitalArchiveTagArrayList().isEmpty()) {
         ArrayList<DigitalArchiveTag> dTags = occ.getBaseDigitalArchiveTagArrayList();
         for (DigitalArchiveTag dTag : dTags) {
+          tagSpecies = dTag.getObservationByName("Species");
+          System.out.println("Dtag: "+String.valueOf(dTag));
           String date = millisToShortDate(occ.getMillis());
-          if (allSpecies||speciesArr.contains(tagSpecies.getValue())) {
+          if (allSpecies||speciesArr.contains(tagSpecies.getValue().toLowerCase())) {
             row =  buildTagRow(dTag, date);
             report += row;
           }
@@ -182,7 +188,7 @@ public class GenerateNOAAReport extends HttpServlet {
     }
     report += "</table>";
 
-    createTagSummary();
+    createTagSummary(speciesArr);
 
     return report;
   }
@@ -191,16 +197,17 @@ public class GenerateNOAAReport extends HttpServlet {
     Observation species = sTag.getObservationByName("Species");
     Observation tagIDOb = sTag.getObservationByName("Tag_ID");
     Observation tagTypeOb = sTag.getObservationByName("TagType");
-    String numObs = String.valueOf(sTag.getAllObservations());
-    System.out.println("Obs in Tag??? "+numObs);
     String speciesStr = null;
     if (species!=null&&species.getValue()!=null) {
       speciesStr = species.getValue();        
     }
-    String tagID = "";
-    if (tagIDOb!=null&&tagIDOb.getValue()!=null) {
-      tagID = tagIDOb.getValue();        
-    }
+    String tagID = sTag.getName();
+    if (tagID==null&&tagIDOb!=null&&tagIDOb.getValue()!=null) {
+      tagID = tagIDOb.getValue();
+      if  (tagID==null) {
+        tagID = sTag.getId();
+      }     
+    } 
     String tagType = "";
     if (tagTypeOb!=null&&tagTypeOb.getValue()!=null) {
       tagType = tagTypeOb.getValue();        
@@ -218,14 +225,13 @@ public class GenerateNOAAReport extends HttpServlet {
   private String buildTagRow(DigitalArchiveTag dTag, String date) {
     Observation species = dTag.getObservationByName("Species");
     Observation tagIDOb = dTag.getObservationByName("Tag_ID");
-    System.out.println("Obs in Tag??? "+dTag.getAllObservations().toString());
     String speciesStr = null;
     if (species!=null&&species.getValue()!=null) {
       speciesStr = species.getValue();   
     }
-    String tagID = dTag.getId();
-    if (tagIDOb!=null&&tagIDOb.getValue()!=null) {
-      tagID = tagIDOb.getValue();        
+    String tagID = dTag.getDTagID();
+    if (("".equals(tagID)||tagID==null)&&tagIDOb.getValue()!=null) {
+      tagID = tagIDOb.getValue();      
     }
     if (speciesStr==null||speciesStr.equals("null")) {
       for (Observation ob : dTag.getAllObservations()) {
@@ -258,9 +264,7 @@ public class GenerateNOAAReport extends HttpServlet {
   }
 
   private String photoIDReporting(String report,HashMap<String,String> formInput, Shepherd myShepherd, HttpServletRequest request) {
-    
     HashMap<String,ArrayList<String>> takesCounts = new HashMap<>();
-    
     @SuppressWarnings("unchecked")
     Iterator<Occurrence> occs = myShepherd.getAllOccurrences();
     while (occs.hasNext()) {
@@ -312,7 +316,7 @@ public class GenerateNOAAReport extends HttpServlet {
       if (enc!=null) {
         species = (enc.getGenus()+" "+enc.getSpecificEpithet()).toLowerCase();
       }
-      if (!allSpecies&&!speciesArr.contains(species)) {
+      if (!allSpecies&&!speciesArr.contains(species.toLowerCase())) {
         continue;
       } else {
         species = species.substring(0,1).toUpperCase() + species.substring(1);
@@ -372,28 +376,27 @@ public class GenerateNOAAReport extends HttpServlet {
     completeSummary += summary; 
   }
 
-  private void createTagSummary() {  
+  private void createTagSummary(ArrayList<String> speciesArr) {  
     String summary = "";
     if (!dTagOccs.isEmpty()||!satTagOccs.isEmpty()) {
       summary += "<h3>Summary of Tags:</h3>";
       summary += "<table class=\"table\">";
       summary += "<tr><th scope=\"col\">Species</th><th scope=\"col\">Sat Tags</th><th scope=\"col\">D Tags</th><th scope=\"col\">Total</th></tr>";
 
-      ArrayList<String> speciesArr = new ArrayList<>();
-
       HashMap<String,Integer> dTagBySpecies = new HashMap<>();
       for (Occurrence occ : dTagOccs) {
         for (DigitalArchiveTag dTag : occ.getBaseDigitalArchiveTagArrayList()) {
           if (dTag.getObservationByName("Species")!=null) {
-            String speciesKey = dTag.getObservationByName("Species").getValue();
-            if (!speciesArr.contains(speciesKey)) {
-              speciesArr.add(speciesKey);
-            }
+            String speciesKey = dTag.getObservationByName("Species").getValue().toLowerCase();
+            System.out.println("DtagBySpecies: "+String.valueOf(dTagBySpecies));
+            System.out.println("SpeciesKey: "+speciesKey);
             if (dTagBySpecies.containsKey(speciesKey)) {
               Integer old = dTagBySpecies.get(speciesKey);
-              dTagBySpecies.replace(speciesKey, old++);
+              dTagBySpecies.replace(speciesKey, old+1);
             } else {
-              dTagBySpecies.put(speciesKey, 1);
+              if (speciesArr.contains(speciesKey)) {
+                dTagBySpecies.put(speciesKey, 1);
+              }
             }
           }
         }
@@ -403,15 +406,16 @@ public class GenerateNOAAReport extends HttpServlet {
       for (Occurrence occ : satTagOccs) {
         for (SatelliteTag sTag : occ.getBaseSatelliteTagArrayList()) {
           if (sTag.getObservationByName("Species")!=null) {
-            String speciesKey = sTag.getObservationByName("Species").getValue();
-            if (!speciesArr.contains(speciesKey)) {
-              speciesArr.add(speciesKey);
-            }
+            String speciesKey = sTag.getObservationByName("Species").getValue().toLowerCase();
+            System.out.println("StagBySpecies: "+String.valueOf(sTagBySpecies));
+            System.out.println("SpeciesKey: "+speciesKey);
             if (sTagBySpecies.containsKey(speciesKey)) {
               Integer old = sTagBySpecies.get(speciesKey);
-              sTagBySpecies.replace(speciesKey, old++);
+              sTagBySpecies.replace(speciesKey, old+1);
             } else {
-              sTagBySpecies.put(speciesKey, 1);
+              if (speciesArr.contains(speciesKey)) {
+                sTagBySpecies.put(speciesKey, 1);
+              }
             }
           }
         }
@@ -438,9 +442,11 @@ public class GenerateNOAAReport extends HttpServlet {
         dTagsInt = dTagsBySpecies.get(species);
         total += dTagsInt;
       }
+      // Just for result page at top.
+      tagNum += total;
 
       summary += "<tr>";
-      summary += "<td>"+species+"</td>";
+      summary += "<td>"+species.substring(0,1).toUpperCase()+species.substring(1)+"</td>";
       summary += "<td>"+sTagsInt+"</td>";
       summary += "<td>"+dTagsInt+"</td>";
       summary += "<td>"+total+"</td>";
@@ -563,10 +569,11 @@ public class GenerateNOAAReport extends HttpServlet {
         species = (enc.getGenus()+" "+enc.getSpecificEpithet()).toLowerCase();
       }
       String obSpecies = sample.getObservationByName("Species_ID").getValue().toLowerCase();
-      if (!allSpecies&&!speciesArr.contains(species)&&!speciesArr.contains(obSpecies)) {
-        continue;
-      } else if (species==null&&obSpecies.length()>0) {
+      if (species==null&&obSpecies!=null&&obSpecies.length()>0) {
         species = obSpecies.substring(0,1).toUpperCase() + obSpecies.substring(1);
+      }
+      if (!allSpecies&&!speciesArr.contains(species.toLowerCase())&&!speciesArr.contains(obSpecies)) {
+        continue;
       }
       
       Integer groupSize = getPhysicalSamplingGroupSize(myShepherd,sample);
@@ -598,7 +605,7 @@ public class GenerateNOAAReport extends HttpServlet {
     if (takesCounts.keySet()!=null&&!takesCounts.keySet().isEmpty()) {
       summary += "<h3>Summary of Physical ID takes:</h3>";
       summary += "<table class=\"table\">";
-      summary += "<tr><th scope=\"col\">Species</th><th scope=\"col\">Group Totals</th><th scope=\"col\">Actual Biopsies</th></tr>";
+      summary += "<tr><th scope=\"col\">Species</th><th scope=\"col\">Group Totals (Level B Takes)</th><th scope=\"col\">Biopsies (Level A Takes)</th></tr>";
       Set<String> keys = takesCounts.keySet();
       System.out.println("Takescounts? "+takesCounts.toString());
       for (String key : keys) {
