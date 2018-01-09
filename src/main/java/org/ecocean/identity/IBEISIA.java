@@ -1126,10 +1126,14 @@ System.out.println("* createAnnotationFromIAResult() CREATED " + ann + " on Enco
 
         JSONObject fparams = new JSONObject();
         fparams.put("detectionConfidence", iaResult.optDouble("confidence", -2.0));
+        //TODO do we use .left/.top or .xtl/.ytl ???
         Feature ft = ma.generateFeatureFromBbox(iaResult.optDouble("width", 0), iaResult.optDouble("height", 0),
                                                 iaResult.optDouble("xtl", 0), iaResult.optDouble("ytl", 0), fparams);
 System.out.println("convertAnnotation() generated ft = " + ft + "; params = " + ft.getParameters());
-        return new Annotation(convertSpeciesToString(iaResult.optString("class", null)), ft);
+        Annotation ann = new Annotation(convertSpeciesToString(iaResult.optString("class", null)), ft);
+        if (ann == null) return null;
+        ann.setIsOfInterest(iaResult.optBoolean("interest", false));
+        return ann;
     }
 
     public static String convertSpeciesToString(String iaClassLabel) {

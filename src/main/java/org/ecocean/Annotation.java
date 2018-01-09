@@ -29,6 +29,7 @@ public class Annotation implements java.io.Serializable {
     private String species;
     private String name;
     private boolean isExemplar = false;
+    private boolean isOfInterest = false;
     protected String identificationStatus;
     private ArrayList<Feature> features;
 
@@ -255,6 +256,13 @@ public class Annotation implements java.io.Serializable {
     }
     public void setIsExemplar(boolean b) {
         isExemplar = b;
+    }
+
+    public boolean getIsOfInterest() {
+        return isOfInterest;
+    }
+    public void setIsOfInterest(boolean b) {
+        isOfInterest = b;
     }
 
     public String getIdentificationStatus() {
