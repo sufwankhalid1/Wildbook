@@ -158,7 +158,7 @@ public class ImportBento extends HttpServlet {
     }
     Set<String> keys = surveyFiles.keySet();
     for (String key : keys) {
-      newFileImportSwitchboard(surveyFiles.get(key));
+      newFileImportSwitchboard(surveyFiles.get(key), myShepherd);
     }
     myShepherd.closeDBTransaction();
     request.setAttribute("result", message);
@@ -166,76 +166,76 @@ public class ImportBento extends HttpServlet {
     getServletContext().getRequestDispatcher("/bentoUploadResult.jsp").forward(request, response);
   }
 
-  private void newFileImportSwitchboard(ArrayList<File> files) {
+  private void newFileImportSwitchboard(ArrayList<File> files, Shepherd myShepherd) {
 
     for (File file : files) {
       String fileName = standardizeFilename(file.getName());
       if (fileName.endsWith("biopsy.csv")) {
         try  {
-          processBentoBiopsy(file);
+          processBentoBiopsy(file, myShepherd);
         } catch (Exception e) {
           e.printStackTrace();
         }
       }
       if (fileName.endsWith("daily_effort.csv")) {
         try  {
-          processBentoEffort(file);
+          processBentoEffort(file, myShepherd);
         } catch (Exception e) {
           e.printStackTrace();
         }
       }
       if (fileName.endsWith("sightings.csv")) {
         try  {
-          processBentoSightings(file);
+          processBentoSightings(file, myShepherd);
         } catch (Exception e) {
           e.printStackTrace();
         }
       }
       if (fileName.endsWith("survey_log.csv")) {
         try  {
-          processBentoSurveyLog(file);
+          processBentoSurveyLog(file, myShepherd);
         } catch (Exception e) {
           e.printStackTrace();
         }
       }
       if (fileName.endsWith("dtag_tag.csv")) {
         try  {
-          processBentoDTag(file);
+          processBentoDTag(file, myShepherd);
         } catch (Exception e) {
           e.printStackTrace();
         }
       }
       if (fileName.endsWith("sattagging_tag.csv")) {
         try  {
-          processBentoSatTag(file);
+          processBentoSatTag(file, myShepherd);
         } catch (Exception e) {
           e.printStackTrace();
         }
       }
       if (fileName.endsWith("focalfollow.csv")) {
         try  {
-          processBentoFocalFollow(file);
+          processBentoFocalFollow(file, myShepherd);
         } catch (Exception e) {
           e.printStackTrace();
         }
       }
       if (fileName.endsWith("dtag_tag.csv")) {
         try  {
-          processBentoDTag(file);
+          processBentoDTag(file, myShepherd);
         } catch (Exception e) {
           e.printStackTrace();
         }
       }
       if (fileName.endsWith("playback.csv")) {
         try  {
-          processBentoPlayback(file);
+          processBentoPlayback(file, myShepherd);
         } catch (Exception e) {
           e.printStackTrace();
         }
       }
       if (fileName.endsWith(".jpg")||fileName.endsWith(".png")) {
         try  {
-          createMediaAsset(file);
+          createMediaAsset(file, myShepherd);
         } catch (Exception e) {
           e.printStackTrace();
         }
@@ -243,39 +243,39 @@ public class ImportBento extends HttpServlet {
     }
   }
   
-  private void createMediaAsset(File file) {
+  private void createMediaAsset(File file, Shepherd myShepherd) {
     
   }
 
-  private void processBentoSurveyLog(File file) {
+  private void processBentoSurveyLog(File file, Shepherd myShepherd) {
 
   }
 
-  private void processBentoEffort(File file) {
+  private void processBentoEffort(File file, Shepherd myShepherd) {
     
   }
 
-  private void processBentoSightings(File file) {
+  private void processBentoSightings(File file, Shepherd myShepherd) {
     
   }
 
-  private void processBentoBiopsy(File file) {
+  private void processBentoBiopsy(File file, Shepherd myShepherd) {
     
   }
 
-  private void processBentoDTag(File file) {
+  private void processBentoDTag(File file, Shepherd myShepherd) {
     
   }
 
-  private void processBentoSatTag(File file) {
+  private void processBentoSatTag(File file, Shepherd myShepherd) {
     
   }
 
-  private void processBentoFocalFollow(File file) {
+  private void processBentoFocalFollow(File file, Shepherd myShepherd) {
     
   }
 
-  private void processBentoPlayback(File file) {
+  private void processBentoPlayback(File file, Shepherd myShepherd) {
     
   }
 
