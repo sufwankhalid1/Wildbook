@@ -16,6 +16,7 @@ import java.util.UUID;
 import java.util.Date;
 import java.text.SimpleDateFormat;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.util.TimeZone;
 
 import org.joda.time.DateTime;
@@ -32,6 +33,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
 import org.apache.commons.io.IOUtils;
+import org.ecocean.Measurement;
 import org.ecocean.Shepherd;
 import org.ecocean.Util;
 
@@ -47,37 +49,88 @@ public class EffortProcessor extends BentoProcessor {
     private static final String[] REQUIRED_COLUMNS_LIST = {"Date Created","Date Modified","Vessel", "Project", "OnEffort", "OffEffort"};
     public static final HashSet<String> REQUIRED_COLUMNS = new HashSet<>(Arrays.asList(REQUIRED_COLUMNS_LIST));
 
-    public Survey[] getSurveysFromFile(File file, Shepherd myShepherd) {
+    public ArrayList<Survey> getSurveysFromFile(File file, Shepherd myShepherd) {
 
         CSVReader reader = getCSVReader(file);
 
         //These are seperate log entries for a single Survey. 
         Iterator<String[]> rows = reader.iterator();
-
         String[] columnNameArr = rows.next();
+        //System.out.println("Column Names? "+Arrays.toString(columnNameArr));
         boolean isValid = checkRequiredColumns(columnNameArr, REQUIRED_COLUMNS);
 
         if (isValid) {
+            ArrayList<Survey> svs = new ArrayList<>();
             // Row zero for column names.
             while (rows.hasNext()) {
+                System.out.println("=========== Making a new survey from bento!");
                 Survey sv = null;
                 String[] dataRow = rows.next();
-                sv = processRow(columnNameArr, dataRow);
+                sv = processColumns(columnNameArr, dataRow);
+                //System.out.println("Row Data? "+Arrays.toString(dataRow));
+                if (sv!=null) {
+                    svs.add(sv);
+                }
+            }
+            if (!svs.isEmpty()) {
+                return svs;
             }
         }
-
         return null;
     }
     
-    private Survey processRow(String[] columnNameArr, String[] row ) {
-        Survey sv = new Survey();
-        
-        for (int i=0;i<columnNameArr.length;i++) {
-            String name = columnNameArr[i];
-            String value = row[i];
+    private Survey processColumns(String[] columnNameArr, String[] row ) {
 
+        ArrayList<String> columns = new ArrayList<>(Arrays.asList(columnNameArr));
+
+        Survey sv = null;
+        int count = 0;
+        for (String column : columns) {
+            boolean used = false;
+            String name = column.trim().toLowerCase();
+            String value = row[count];
+            System.out.println("?????? ColumnValue: "+value+" ??????");
+
+            if ("date created".equals(name)) {
+                String shortDate = processDate(value, "MMM d, yyyy, k:m","MM-dd-yyyy");
+                sv = new Survey(shortDate);
+                System.out.println("=============== Made a survey!!!!");
+                used = true;
+            } else {
+                return null;
+            }
             
+            try {
+                if ("project".equals(name)) {
+                    sv.setProjectName(value);
+                    System.out.println("======= Set project.");
+                    used = true;
+                }
+            } catch (NullPointerException npe) {
+                npe.printStackTrace();
+            }
 
+            try {
+                if ("oneffort".equals(name)) {
+                    Measurement effort = new Measurement(sv.getID(), "Effort", Double.valueOf(value), "HH:mm", "Measured");
+                    sv.setEffort(effort);
+                    System.out.println("======= Set effort measurement.");
+                    used = true;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            try {
+                if (name.contains("comments")) {
+                    sv.addComments(value);
+                    System.out.println("======= Set comments.");
+                    used = true;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            count ++;
         }
         return sv;
     }

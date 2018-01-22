@@ -29,6 +29,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.ecocean.bento.BentoProcessor;
+import org.ecocean.bento.EffortProcessor;
+import org.ecocean.bento.SurveyLogProcessor;;
+
 public class ImportBento extends HttpServlet {
   /**
    * 
@@ -96,7 +100,7 @@ public class ImportBento extends HttpServlet {
           String contentType = fileItem.getContentType();
           boolean inMemory = fileItem.isInMemory();
           
-          //System.out.println("====== Fieldname : "+fieldName+" Filename : "+fileName+" =======");
+          System.out.println("====== Fieldname : "+fieldName+" Filename : "+fileName+" =======");
           
           String folderDate = null;
           String folderVessel = null;
@@ -164,78 +168,83 @@ public class ImportBento extends HttpServlet {
     request.setAttribute("result", message);
     request.setAttribute("returnUrl","//"+urlLoc+"/importBento.jsp");
     getServletContext().getRequestDispatcher("/bentoUploadResult.jsp").forward(request, response);
-  }
+  } 
 
   private void newFileImportSwitchboard(ArrayList<File> files, Shepherd myShepherd) {
 
     for (File file : files) {
       String fileName = standardizeFilename(file.getName());
+
+      System.out.println("=========================== FILENAME: "+fileName);
+
       if (fileName.endsWith("biopsy.csv")) {
         try  {
-          processBentoBiopsy(file, myShepherd);
+          //processBentoBiopsy(file, myShepherd);
         } catch (Exception e) {
           e.printStackTrace();
         }
       }
-      if (fileName.endsWith("daily_effort.csv")) {
+      if (fileName.endsWith("effort.csv")) {
         try  {
-          processBentoEffort(file, myShepherd);
+          EffortProcessor ep = new EffortProcessor();
+          ArrayList<Survey> svs = ep.getSurveysFromFile(file, myShepherd);
+          //processBentoEffort(file, myShepherd);
         } catch (Exception e) {
           e.printStackTrace();
         }
       }
       if (fileName.endsWith("sightings.csv")) {
         try  {
-          processBentoSightings(file, myShepherd);
+          //processBentoSightings(file, myShepherd);
         } catch (Exception e) {
           e.printStackTrace();
         }
       }
-      if (fileName.endsWith("survey_log.csv")) {
+      if (fileName.endsWith(("survey_log.csv"))||fileName.endsWith(("surveylog.csv"))) {
         try  {
-          processBentoSurveyLog(file, myShepherd);
+          //processBentoSurveyLog(file, myShepherd);
         } catch (Exception e) {
           e.printStackTrace();
         }
       }
       if (fileName.endsWith("dtag_tag.csv")) {
         try  {
-          processBentoDTag(file, myShepherd);
+          //processBentoDTag(file, myShepherd);
         } catch (Exception e) {
           e.printStackTrace();
         }
       }
       if (fileName.endsWith("sattagging_tag.csv")) {
         try  {
-          processBentoSatTag(file, myShepherd);
+          //processBentoSatTag(file, myShepherd);
         } catch (Exception e) {
           e.printStackTrace();
         }
       }
       if (fileName.endsWith("focalfollow.csv")) {
         try  {
-          processBentoFocalFollow(file, myShepherd);
+          //processBentoFocalFollow(file, myShepherd);
         } catch (Exception e) {
           e.printStackTrace();
         }
       }
       if (fileName.endsWith("dtag_tag.csv")) {
         try  {
-          processBentoDTag(file, myShepherd);
+          //processBentoDTag(file, myShepherd);
         } catch (Exception e) {
           e.printStackTrace();
         }
       }
       if (fileName.endsWith("playback.csv")) {
         try  {
-          processBentoPlayback(file, myShepherd);
+          //processBentoPlayback(file, myShepherd);
         } catch (Exception e) {
           e.printStackTrace();
         }
       }
       if (fileName.endsWith(".jpg")||fileName.endsWith(".png")) {
         try  {
-          createMediaAsset(file, myShepherd);
+          //createMediaAsset(file, myShepherd);
         } catch (Exception e) {
           e.printStackTrace();
         }
@@ -243,45 +252,45 @@ public class ImportBento extends HttpServlet {
     }
   }
   
-  private void createMediaAsset(File file, Shepherd myShepherd) {
+  //private void createMediaAsset(File file, Shepherd myShepherd) {
     
-  }
+  //}
 
-  private void processBentoSurveyLog(File file, Shepherd myShepherd) {
+  //private void processBentoSurveyLog(File file, Shepherd myShepherd) {
 
-  }
+  //}
 
-  private void processBentoEffort(File file, Shepherd myShepherd) {
+  //private void processBentoEffort(File file, Shepherd myShepherd) {
     
-  }
+  //}
 
-  private void processBentoSightings(File file, Shepherd myShepherd) {
+  //private void processBentoSightings(File file, Shepherd myShepherd) {
     
-  }
+  //}
 
-  private void processBentoBiopsy(File file, Shepherd myShepherd) {
+  //private void processBentoBiopsy(File file, Shepherd myShepherd) {
     
-  }
+  //}
 
-  private void processBentoDTag(File file, Shepherd myShepherd) {
+  //private void processBentoDTag(File file, Shepherd myShepherd) {
     
-  }
+  //}
 
-  private void processBentoSatTag(File file, Shepherd myShepherd) {
+  //private void processBentoSatTag(File file, Shepherd myShepherd) {
     
-  }
+  //}
 
-  private void processBentoFocalFollow(File file, Shepherd myShepherd) {
+  //private void processBentoFocalFollow(File file, Shepherd myShepherd) {
     
-  }
+  //}
 
-  private void processBentoPlayback(File file, Shepherd myShepherd) {
+  //private void processBentoPlayback(File file, Shepherd myShepherd) {
     
-  }
+  //}
 
   private String standardizeFilename(String filename) {
     String result =  filename.toLowerCase().trim();
-    result = filename.replace(" ", "_");
+    result = result.replace(" ", "_");
     return result;
   }
 }
